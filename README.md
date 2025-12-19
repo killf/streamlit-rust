@@ -1,2 +1,2 @@
-Streamlit-Rust
+Streamlit
 ====

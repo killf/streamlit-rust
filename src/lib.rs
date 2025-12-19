@@ -1,14 +1,23 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
-}
+use actix_web::{get, App, HttpServer, Responder};
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+pub struct Streamlit;
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
+impl Streamlit {
+    pub fn write(&self, value: &str) {
+        println!("{}", value);
+    }
+
+    pub fn run(&self) -> std::io::Result<()> {
+        #[get("/")]
+        async fn index() -> impl Responder {
+            "Hello world!"
+        }
+
+        actix_web::rt::System::new().block_on(async move {
+            HttpServer::new(|| App::new().service(index))
+                .bind(("127.0.0.1", 8080))?
+                .run()
+                .await
+        })
     }
 }
