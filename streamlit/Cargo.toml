@@ -1,0 +1,48 @@
+[package]
+name = "streamlit"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+description.workspace = true
+repository.workspace = true
+readme.workspace = true
+license.workspace = true
+
+[dependencies]
+streamlit-macros = { path = "../streamlit-macros" }
+
+# Use workspace dependencies
+actix-web = { workspace = true }
+actix-ws = { workspace = true }
+actix-files = { workspace = true }
+futures-util = { workspace = true }
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+bytes = { workspace = true }
+log = { workspace = true }
+env_logger = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+parking_lot = { workspace = true }
+dashmap = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+prost = { workspace = true }
+
+[features]
+default = []
+proto-compiled = []
+
+[build-dependencies]
+prost-build = { workspace = true }
+
+[[example]]
+name = "hello"
+path = "examples/hello.rs"
+
+[[example]]
+name = "demo"
+path = "examples/demo.rs"

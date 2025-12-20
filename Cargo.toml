@@ -1,42 +1,66 @@
-[package]
-name = "streamlit"
+[workspace]
+resolver = "2"
+members = [
+    "streamlit",
+    "streamlit-macros",
+]
+
+[workspace.package]
 version = "0.1.0"
 edition = "2024"
 authors = ["killf <killf@foxmail.com>"]
-description = "Streamlit — A faster way to build and share data apps."
+description = "Streamlit - A faster way to build and share data apps."
 repository = "https://github.com/killf/streamlit-rust"
 readme = "README.md"
 license = "Apache-2.0"
 
-[dependencies]
-streamlit-macros = { path = "streamlit-macros" }
+[workspace.dependencies]
+# Async runtime
+tokio = { version = "1.42", features = ["full"] }
+futures-util = "0.3"
+
+# Web framework
 actix-web = "4.9"
 actix-ws = "0.3"
 actix-files = "0.6"
-futures-util = "0.3"
-tokio = { version = "1.42", features = ["full"] }
+
+# Serialization
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+
+# Utilities
 uuid = { version = "1.11", features = ["v4", "serde"] }
 chrono = { version = "0.4", features = ["serde"] }
 bytes = "1.9"
+
+# Logging
 log = "0.4"
 env_logger = "0.11"
-anyhow = "1.0"
-thiserror = "2.0"
-parking_lot = "0.12"
-dashmap = "6.1"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
-prost = "0.13"
 
-[build-dependencies]
-prost-build = "0.13"
+# Error handling
+anyhow = "1.0"
+thiserror = "2.0"
 
-[[example]]
-name = "hello"
-path = "examples/hello.rs"
+# Concurrency
+parking_lot = "0.12"
+dashmap = "6.1"
 
-[[example]]
-name = "demo"
-path = "examples/demo.rs"
+# Protocol buffers
+prost = "0.14"
+prost-build = "0.14"
+
+# Proc macro dependencies
+syn = { version = "2.0", features = ["full"] }
+quote = "1.0"
+proc-macro2 = "1.0"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+
+[profile.dev]
+opt-level = 0
+debug = true

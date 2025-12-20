@@ -29,7 +29,6 @@ impl StreamlitServer {
                 .service(web::resource("/_stcore/health").route(web::get().to(health_check)))
                 .service(web::resource("/").route(web::get().to(index_handler)))
                 .service(web::resource("/api/run").route(web::post().to(run_script_handler)))
-                .service(actix_files::Files::new("/static", "./static").show_files_listing())
         })
         .bind((host, port))?
         .run()
