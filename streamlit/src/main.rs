@@ -8,7 +8,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Create and start the server
     let server = StreamlitServer::new();
-    server.start("127.0.0.1", 8502).await?;
+    server.start("0.0.0.0", 8502).await?;
 
     Ok(())
 }

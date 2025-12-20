@@ -43,7 +43,7 @@ pub fn main(_attr: TokenStream, item: TokenStream) -> TokenStream {
 
             // Create and start the server
             let server = ::streamlit::StreamlitServer::new();
-            server.start("127.0.0.1", 8502).await?;
+            server.start("0.0.0.0", 8502).await?;
 
             Ok(())
         }
