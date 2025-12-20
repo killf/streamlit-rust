@@ -163,7 +163,9 @@ impl StreamlitApp {
 
     /// Create a button
     pub fn button(&self, label: &str, key: Option<&str>) -> bool {
-        let element_key = key.unwrap_or(&format!("button_{}", Uuid::new_v4())).to_string();
+        let element_key = key
+            .unwrap_or(&format!("button_{}", Uuid::new_v4()))
+            .to_string();
 
         let element = StreamlitElement::Button {
             id: element_key.clone(),
@@ -180,8 +182,17 @@ impl StreamlitApp {
     }
 
     /// Create a slider
-    pub fn slider(&self, label: &str, min: f64, max: f64, value: Option<f64>, key: Option<&str>) -> f64 {
-        let element_key = key.unwrap_or(&format!("slider_{}", Uuid::new_v4())).to_string();
+    pub fn slider(
+        &self,
+        label: &str,
+        min: f64,
+        max: f64,
+        value: Option<f64>,
+        key: Option<&str>,
+    ) -> f64 {
+        let element_key = key
+            .unwrap_or(&format!("slider_{}", Uuid::new_v4()))
+            .to_string();
         let default_value = value.unwrap_or((min + max) / 2.0);
 
         let element = StreamlitElement::Slider {
@@ -208,7 +219,9 @@ impl StreamlitApp {
 
     /// Create a text input
     pub fn text_input(&self, label: &str, value: Option<&str>, key: Option<&str>) -> String {
-        let element_key = key.unwrap_or(&format!("text_input_{}", Uuid::new_v4())).to_string();
+        let element_key = key
+            .unwrap_or(&format!("text_input_{}", Uuid::new_v4()))
+            .to_string();
         let default_value = value.unwrap_or("").to_string();
 
         let element = StreamlitElement::TextInput {
@@ -233,7 +246,9 @@ impl StreamlitApp {
 
     /// Create a checkbox
     pub fn checkbox(&self, label: &str, value: Option<bool>, key: Option<&str>) -> bool {
-        let element_key = key.unwrap_or(&format!("checkbox_{}", Uuid::new_v4())).to_string();
+        let element_key = key
+            .unwrap_or(&format!("checkbox_{}", Uuid::new_v4()))
+            .to_string();
         let default_value = value.unwrap_or(false);
 
         let element = StreamlitElement::Checkbox {
@@ -252,8 +267,16 @@ impl StreamlitApp {
     }
 
     /// Create a selectbox
-    pub fn selectbox(&self, label: &str, options: Vec<String>, index: Option<usize>, key: Option<&str>) -> String {
-        let element_key = key.unwrap_or(&format!("selectbox_{}", Uuid::new_v4())).to_string();
+    pub fn selectbox(
+        &self,
+        label: &str,
+        options: Vec<String>,
+        index: Option<usize>,
+        key: Option<&str>,
+    ) -> String {
+        let element_key = key
+            .unwrap_or(&format!("selectbox_{}", Uuid::new_v4()))
+            .to_string();
         let default_index = index.unwrap_or(0);
         let default_value = options.get(default_index).cloned().unwrap_or_default();
 
@@ -278,8 +301,17 @@ impl StreamlitApp {
     }
 
     /// Create a number input
-    pub fn number_input(&self, label: &str, min: f64, max: f64, value: Option<f64>, key: Option<&str>) -> f64 {
-        let element_key = key.unwrap_or(&format!("number_input_{}", Uuid::new_v4())).to_string();
+    pub fn number_input(
+        &self,
+        label: &str,
+        min: f64,
+        max: f64,
+        value: Option<f64>,
+        key: Option<&str>,
+    ) -> f64 {
+        let element_key = key
+            .unwrap_or(&format!("number_input_{}", Uuid::new_v4()))
+            .to_string();
         let default_value = value.unwrap_or((min + max) / 2.0);
 
         let element = StreamlitElement::NumberInput {
@@ -344,9 +376,9 @@ impl From<bool> for WidgetValue {
     }
 }
 
-
 /// Global Streamlit app instance
-static STREAMLIT_APP: std::sync::LazyLock<StreamlitApp> = std::sync::LazyLock::new(StreamlitApp::new);
+static STREAMLIT_APP: std::sync::LazyLock<StreamlitApp> =
+    std::sync::LazyLock::new(StreamlitApp::new);
 
 /// Get the global Streamlit app instance
 pub fn get_app() -> &'static StreamlitApp {
@@ -382,7 +414,13 @@ pub fn slider(label: &str, min: f64, max: f64) -> f64 {
     slider_with_value(label, min, max, None, None)
 }
 
-pub fn slider_with_value(label: &str, min: f64, max: f64, value: Option<f64>, key: Option<&str>) -> f64 {
+pub fn slider_with_value(
+    label: &str,
+    min: f64,
+    max: f64,
+    value: Option<f64>,
+    key: Option<&str>,
+) -> f64 {
     get_app().slider(label, min, max, value, key)
 }
 
@@ -406,7 +444,12 @@ pub fn selectbox(label: &str, options: Vec<String>) -> String {
     selectbox_with_index(label, options, None, None)
 }
 
-pub fn selectbox_with_index(label: &str, options: Vec<String>, index: Option<usize>, key: Option<&str>) -> String {
+pub fn selectbox_with_index(
+    label: &str,
+    options: Vec<String>,
+    index: Option<usize>,
+    key: Option<&str>,
+) -> String {
     get_app().selectbox(label, options, index, key)
 }
 
@@ -414,6 +457,12 @@ pub fn number_input(label: &str, min: f64, max: f64) -> f64 {
     number_input_with_value(label, min, max, None, None)
 }
 
-pub fn number_input_with_value(label: &str, min: f64, max: f64, value: Option<f64>, key: Option<&str>) -> f64 {
+pub fn number_input_with_value(
+    label: &str,
+    min: f64,
+    max: f64,
+    value: Option<f64>,
+    key: Option<&str>,
+) -> f64 {
     get_app().number_input(label, min, max, value, key)
 }

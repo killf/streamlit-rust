@@ -1,4 +1,4 @@
-use streamlit::websocket::message_types::{StreamlitMessage, StreamlitCommand};
+use streamlit::websocket::message_types::{StreamlitCommand, StreamlitMessage};
 
 #[test]
 fn test_streamlit_message_serialization() {

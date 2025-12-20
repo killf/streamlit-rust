@@ -5,9 +5,8 @@ use crate::api::{get_app, StreamlitElement};
 use actix_ws::{Message, ProtocolError, Session};
 use futures_util::StreamExt;
 
-#[cfg(feature = "proto-compiled")]
-use prost::Message as ProstMessage;
 use crate::proto::proto::{BackMsg, ForwardMsg, NewSession};
+use prost::Message as ProstMessage;
 
 /// Handle WebSocket connection with Streamlit frontend compatibility
 pub async fn handle_frontend_websocket_connection(
@@ -66,7 +65,6 @@ async fn send_new_session_message(
     session: &mut Session,
     session_id: &str,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    #[cfg(feature = "proto-compiled")]
     {
         let new_session = NewSession {
             session_id: session_id.to_string(),
@@ -104,7 +102,6 @@ async fn handle_binary_message(
     Ok(())
 }
 
-#[cfg(feature = "proto-compiled")]
 async fn handle_backmsg(
     session: &mut Session,
     back_msg: BackMsg,
@@ -172,7 +169,6 @@ async fn handle_text_message_fallback(
     Ok(())
 }
 
-#[cfg(feature = "proto-compiled")]
 async fn handle_rerun_script(
     session: &mut Session,
     _client_state: Option<crate::proto::ClientState>,
@@ -216,11 +212,13 @@ async fn handle_rerun_script_fallback(
     // Send elements as JSON
     send_elements_as_json(session, app.get_elements()).await?;
 
-    log::info!("Script rerun completed (fallback) for session: {}", session_id);
+    log::info!(
+        "Script rerun completed (fallback) for session: {}",
+        session_id
+    );
     Ok(())
 }
 
-#[cfg(feature = "proto-compiled")]
 async fn send_script_finished_message(
     session: &mut Session,
 ) -> Result<(), Box<dyn std::error::Error>> {
@@ -248,7 +246,6 @@ async fn send_script_finished_message_fallback(
     Ok(())
 }
 
-#[cfg(feature = "proto-compiled")]
 async fn send_elements_as_deltas(
     session: &mut Session,
     elements: Vec<StreamlitElement>,
@@ -275,7 +272,8 @@ async fn send_elements_as_json(
     elements: Vec<StreamlitElement>,
 ) -> Result<(), Box<dyn std::error::Error>> {
     // Convert StreamlitElement to JSON
-    let json_elements: Vec<serde_json::Value> = elements.into_iter()
+    let json_elements: Vec<serde_json::Value> = elements
+        .into_iter()
         .map(|el| serde_json::to_value(el).unwrap_or_default())
         .collect();
 
@@ -287,15 +285,23 @@ async fn send_elements_as_json(
     Ok(())
 }
 
-#[cfg(feature = "proto-compiled")]
-fn json_to_delta(json_element: &serde_json::Value, index: u32) -> Result<Option<crate::proto::Delta>, Box<dyn std::error::Error>> {
-    use crate::proto::{Delta, element, Element};
+fn json_to_delta(
+    json_element: &serde_json::Value,
+    index: u32,
+) -> Result<Option<crate::proto::Delta>, Box<dyn std::error::Error>> {
+    use crate::proto::{element, Delta, Element};
 
-    let element_type = json_element.get("type").and_then(|v| v.as_str()).unwrap_or("text");
+    let element_type = json_element
+        .get("type")
+        .and_then(|v| v.as_str())
+        .unwrap_or("text");
 
     let element = match element_type {
         "text" => {
-            let body = json_element.get("body").and_then(|v| v.as_str()).unwrap_or("");
+            let body = json_element
+                .get("body")
+                .and_then(|v| v.as_str())
+                .unwrap_or("");
             Some(Element {
                 id: format!("element_{}", index),
                 allow_hover: false,
@@ -305,7 +311,10 @@ fn json_to_delta(json_element: &serde_json::Value, index: u32) -> Result<Option<
             })
         }
         "markdown" => {
-            let body = json_element.get("body").and_then(|v| v.as_str()).unwrap_or("");
+            let body = json_element
+                .get("body")
+                .and_then(|v| v.as_str())
+                .unwrap_or("");
             Some(Element {
                 id: format!("element_{}", index),
                 allow_hover: false,
@@ -325,7 +334,6 @@ fn json_to_delta(json_element: &serde_json::Value, index: u32) -> Result<Option<
     }))
 }
 
-#[cfg(feature = "proto-compiled")]
 fn generate_hash() -> String {
     use std::collections::hash_map::DefaultHasher;
     use std::hash::{Hash, Hasher};
@@ -335,7 +343,6 @@ fn generate_hash() -> String {
     format!("{:x}", hasher.finish())
 }
 
-#[cfg(feature = "proto-compiled")]
 fn create_default_metadata() -> crate::proto::ForwardMsgMetadata {
     crate::proto::ForwardMsgMetadata {
         cacheable: false,
@@ -344,7 +351,6 @@ fn create_default_metadata() -> crate::proto::ForwardMsgMetadata {
     }
 }
 
-#[cfg(feature = "proto-compiled")]
 fn create_metadata_with_path(path: &[u32]) -> crate::proto::ForwardMsgMetadata {
     crate::proto::ForwardMsgMetadata {
         cacheable: false,

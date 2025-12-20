@@ -1,5 +1,5 @@
-use crate::api::{get_app, StreamlitApp};
 use crate::api::StreamlitApp as Streamlit;
+use crate::api::{get_app, StreamlitApp};
 use actix_web::{web, App, HttpRequest, HttpResponse, HttpServer, Responder};
 use std::sync::Arc;
 
@@ -31,7 +31,10 @@ pub fn execute_user_main() {
         // TODO: Make this work with any user function
         global_app.write("Hello world!");
 
-        log::info!("Executed user main function, got {} elements", global_app.get_elements().len());
+        log::info!(
+            "Executed user main function, got {} elements",
+            global_app.get_elements().len()
+        );
     }
 }
 
@@ -119,17 +122,17 @@ async fn websocket_handler(
             actix_web::http::header::HeaderName::from_static("sec-websocket-protocol"),
             actix_web::http::header::HeaderValue::from_static(protocol),
         );
-        log::info!("Added Sec-WebSocket-Protocol: {} to handshake response", protocol);
+        log::info!(
+            "Added Sec-WebSocket-Protocol: {} to handshake response",
+            protocol
+        );
     }
 
     // Handle WebSocket connection in the same async context
     // to avoid Send issues with MessageStream
     actix_web::rt::spawn(async move {
-        if let Err(e) = crate::websocket::handle_streamlit_websocket_connection(
-            session,
-            msg_stream,
-        )
-        .await
+        if let Err(e) =
+            crate::websocket::handle_streamlit_websocket_connection(session, msg_stream).await
         {
             log::error!("WebSocket connection error: {}", e);
         }

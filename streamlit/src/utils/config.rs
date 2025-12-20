@@ -55,7 +55,11 @@ impl Default for StreamlitConfig {
                 default_script_path: "./example/hello/main.py".to_string(),
                 auto_reload: true,
                 max_script_runtime: 60,
-                allow_python_imports: vec!["streamlit".to_string(), "pandas".to_string(), "numpy".to_string()],
+                allow_python_imports: vec![
+                    "streamlit".to_string(),
+                    "pandas".to_string(),
+                    "numpy".to_string(),
+                ],
             },
             logger: LoggerConfig {
                 level: "info".to_string(),
@@ -65,7 +69,7 @@ impl Default for StreamlitConfig {
             security: SecurityConfig {
                 enable_auth: false,
                 secret_key: None,
-                session_timeout: 1800, // 30 minutes
+                session_timeout: 1800,  // 30 minutes
                 max_session_age: 86400, // 24 hours
             },
         }

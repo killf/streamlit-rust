@@ -8,11 +8,11 @@ use uuid::Uuid;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AuthToken {
-    pub sub: String,          // Subject (user ID)
-    pub exp: usize,           // Expiration time
-    pub iat: usize,           // Issued at
-    pub jti: String,          // JWT ID
-    pub session_id: String,   // Session ID
+    pub sub: String,              // Subject (user ID)
+    pub exp: usize,               // Expiration time
+    pub iat: usize,               // Issued at
+    pub jti: String,              // JWT ID
+    pub session_id: String,       // Session ID
     pub permissions: Vec<String>, // User permissions
 }
 
@@ -33,7 +33,12 @@ impl AuthManager {
         }
     }
 
-    pub fn generate_token(&self, user_id: &str, session_id: &str, permissions: Vec<String>) -> Result<String> {
+    pub fn generate_token(
+        &self,
+        user_id: &str,
+        session_id: &str,
+        permissions: Vec<String>,
+    ) -> Result<String> {
         let now = Utc::now();
         let exp = now + chrono::Duration::from_std(self.token_duration).unwrap();
 
@@ -46,8 +51,9 @@ impl AuthManager {
             permissions,
         };
 
-        let token = encode(&Header::default(), &claims, &self.encoding_key)
-            .map_err(|e| StreamlitError::Authentication(format!("Failed to generate token: {}", e)))?;
+        let token = encode(&Header::default(), &claims, &self.encoding_key).map_err(|e| {
+            StreamlitError::Authentication(format!("Failed to generate token: {}", e))
+        })?;
 
         Ok(token)
     }
@@ -95,7 +101,9 @@ impl BasicAuth {
     }
 }
 
-pub fn extract_auth_token_from_headers(headers: &actix_web::http::header::HeaderMap) -> Option<String> {
+pub fn extract_auth_token_from_headers(
+    headers: &actix_web::http::header::HeaderMap,
+) -> Option<String> {
     // Check Authorization header
     if let Some(auth_header) = headers.get("Authorization") {
         if let Ok(auth_str) = auth_header.to_str() {
@@ -111,7 +119,12 @@ pub fn extract_auth_token_from_headers(headers: &actix_web::http::header::Header
             for cookie in cookie_str.split(';') {
                 let cookie = cookie.trim();
                 if cookie.starts_with("streamlit_auth_token=") {
-                    return Some(cookie.strip_prefix("streamlit_auth_token=").unwrap().to_string());
+                    return Some(
+                        cookie
+                            .strip_prefix("streamlit_auth_token=")
+                            .unwrap()
+                            .to_string(),
+                    );
                 }
             }
         }
@@ -148,7 +161,9 @@ mod tests {
         let session_id = "test_session";
         let permissions = vec!["read".to_string(), "write".to_string()];
 
-        let token = auth_manager.generate_token(user_id, session_id, permissions.clone()).unwrap();
+        let token = auth_manager
+            .generate_token(user_id, session_id, permissions.clone())
+            .unwrap();
 
         let claims = auth_manager.validate_token(&token).unwrap();
         assert_eq!(claims.sub, user_id);

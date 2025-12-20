@@ -1,8 +1,8 @@
 mod common;
 
 use actix_web::{test, web, App};
+use common::{health_check, index_handler, run_script_handler, AppState};
 use streamlit::server::StreamlitServer;
-use common::{AppState, health_check, index_handler, run_script_handler};
 
 #[actix_web::test]
 async fn test_health_check() {
@@ -14,8 +14,9 @@ async fn test_health_check() {
     let app = test::init_service(
         App::new()
             .app_data(web::Data::new(app_state))
-            .route("/_stcore/health", web::get().to(health_check))
-    ).await;
+            .route("/_stcore/health", web::get().to(health_check)),
+    )
+    .await;
 
     let req = test::TestRequest::get().uri("/_stcore/health").to_request();
     let resp = test::call_service(&app, req).await;
@@ -25,9 +26,7 @@ async fn test_health_check() {
 
 #[actix_web::test]
 async fn test_index_handler() {
-    let app = test::init_service(
-        App::new().route("/", web::get().to(index_handler))
-    ).await;
+    let app = test::init_service(App::new().route("/", web::get().to(index_handler))).await;
 
     let req = test::TestRequest::get().uri("/").to_request();
     let resp = test::call_service(&app, req).await;
@@ -45,8 +44,9 @@ async fn test_run_script_handler() {
     let app = test::init_service(
         App::new()
             .app_data(web::Data::new(app_state))
-            .route("/api/run", web::post().to(run_script_handler))
-    ).await;
+            .route("/api/run", web::post().to(run_script_handler)),
+    )
+    .await;
 
     let req = test::TestRequest::post()
         .uri("/api/run")

@@ -31,7 +31,7 @@ pub async fn handle_simple_frontend_websocket_connection(
     // Add delay before sending script_finished
     tokio::time::sleep(tokio::time::Duration::from_millis(50)).await;
 
-      // Handle incoming messages with better error handling
+    // Handle incoming messages with better error handling
     let mut message_count = 0;
     log::info!("Starting message processing loop...");
 
@@ -45,7 +45,9 @@ pub async fn handle_simple_frontend_websocket_connection(
                 match String::from_utf8(data.to_vec()) {
                     Ok(json_str) => {
                         log::info!("Binary data decoded as JSON: {}", json_str);
-                        if let Err(e) = handle_json_message(&mut session, &json_str, &session_id).await {
+                        if let Err(e) =
+                            handle_json_message(&mut session, &json_str, &session_id).await
+                        {
                             log::error!("Error handling JSON message: {}", e);
                             // Don't break, continue processing other messages
                         }
@@ -133,7 +135,10 @@ async fn handle_json_message(
 ) -> Result<(), Box<dyn std::error::Error>> {
     // Try to parse as JSON
     if let Ok(data) = serde_json::from_str::<serde_json::Value>(json_str) {
-        log::info!("Parsed JSON message: {}", serde_json::to_string_pretty(&data)?);
+        log::info!(
+            "Parsed JSON message: {}",
+            serde_json::to_string_pretty(&data)?
+        );
 
         // Handle different message types
         if let Some(msg_type) = data.get("command").and_then(|v| v.as_str()) {
@@ -177,7 +182,10 @@ async fn handle_rerun_script(
     // Execute the user's main function
     crate::server::execute_user_main();
 
-    log::info!("Executed user main function, got {} elements", app.get_elements().len());
+    log::info!(
+        "Executed user main function, got {} elements",
+        app.get_elements().len()
+    );
 
     // Send script_finished message
     send_script_finished_message(session).await?;

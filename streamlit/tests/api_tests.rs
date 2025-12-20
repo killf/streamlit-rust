@@ -48,10 +48,22 @@ fn test_streamlit_app_multiple_elements() {
     assert_eq!(elements.len(), 4);
 
     // Verify each element type
-    if let StreamlitElement::Title { .. } = &elements[0] { /* OK */ } else { panic!("Expected Title") }
-    if let StreamlitElement::Text { .. } = &elements[1] { /* OK */ } else { panic!("Expected Text") }
-    if let StreamlitElement::Header { .. } = &elements[2] { /* OK */ } else { panic!("Expected Header") }
-    if let StreamlitElement::Markdown { .. } = &elements[3] { /* OK */ } else { panic!("Expected Markdown") }
+    if let StreamlitElement::Title { .. } = &elements[0] { /* OK */
+    } else {
+        panic!("Expected Title")
+    }
+    if let StreamlitElement::Text { .. } = &elements[1] { /* OK */
+    } else {
+        panic!("Expected Text")
+    }
+    if let StreamlitElement::Header { .. } = &elements[2] { /* OK */
+    } else {
+        panic!("Expected Header")
+    }
+    if let StreamlitElement::Markdown { .. } = &elements[3] { /* OK */
+    } else {
+        panic!("Expected Markdown")
+    }
 }
 
 #[test]
@@ -88,7 +100,10 @@ fn test_streamlit_app_text_input_widget() {
     let elements = app.get_elements();
     assert_eq!(elements.len(), 1);
 
-    if let StreamlitElement::TextInput { label, value, id, .. } = &elements[0] {
+    if let StreamlitElement::TextInput {
+        label, value, id, ..
+    } = &elements[0]
+    {
         assert_eq!(label, "Enter text");
         assert_eq!(value, "default");
         assert_eq!(id, "text_input");
@@ -109,7 +124,15 @@ fn test_streamlit_app_slider_widget() {
     let elements = app.get_elements();
     assert_eq!(elements.len(), 1);
 
-    if let StreamlitElement::Slider { label, min_value, max_value, value, id, .. } = &elements[0] {
+    if let StreamlitElement::Slider {
+        label,
+        min_value,
+        max_value,
+        value,
+        id,
+        ..
+    } = &elements[0]
+    {
         assert_eq!(label, "Select value");
         assert_eq!(*min_value, 0.0);
         assert_eq!(*max_value, 100.0);
@@ -132,7 +155,10 @@ fn test_streamlit_app_checkbox_widget() {
     let elements = app.get_elements();
     assert_eq!(elements.len(), 1);
 
-    if let StreamlitElement::Checkbox { label, value, id, .. } = &elements[0] {
+    if let StreamlitElement::Checkbox {
+        label, value, id, ..
+    } = &elements[0]
+    {
         assert_eq!(label, "Check me");
         assert!(*value);
         assert_eq!(id, "checkbox");
@@ -146,14 +172,25 @@ fn test_streamlit_app_selectbox_widget() {
     let app = get_app();
     app.clear_elements();
 
-    let options = vec!["Option 1".to_string(), "Option 2".to_string(), "Option 3".to_string()];
+    let options = vec![
+        "Option 1".to_string(),
+        "Option 2".to_string(),
+        "Option 3".to_string(),
+    ];
     let selected_value = app.selectbox("Choose one", options.clone(), Some(1), Some("selectbox"));
     assert_eq!(selected_value, "Option 2");
 
     let elements = app.get_elements();
     assert_eq!(elements.len(), 1);
 
-    if let StreamlitElement::Selectbox { label, options: element_options, index, id, .. } = &elements[0] {
+    if let StreamlitElement::Selectbox {
+        label,
+        options: element_options,
+        index,
+        id,
+        ..
+    } = &elements[0]
+    {
         assert_eq!(label, "Choose one");
         assert_eq!(element_options, &options);
         assert_eq!(*index, 1);
@@ -174,7 +211,15 @@ fn test_streamlit_app_number_input_widget() {
     let elements = app.get_elements();
     assert_eq!(elements.len(), 1);
 
-    if let StreamlitElement::NumberInput { label, value, min_value, max_value, id, .. } = &elements[0] {
+    if let StreamlitElement::NumberInput {
+        label,
+        value,
+        min_value,
+        max_value,
+        id,
+        ..
+    } = &elements[0]
+    {
         assert_eq!(label, "Enter number");
         assert_eq!(*value, 5.0);
         assert_eq!(*min_value, 0.0);

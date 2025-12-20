@@ -1,7 +1,7 @@
 // Test utilities for common test functions
 use actix_web::{web, HttpResponse, Responder};
-use streamlit::api::StreamlitApp;
 use std::sync::Arc;
+use streamlit::api::StreamlitApp;
 
 pub struct AppState {
     pub streamlit_app: Arc<StreamlitApp>,
@@ -16,7 +16,8 @@ pub async fn health_check() -> impl Responder {
 }
 
 pub async fn index_handler() -> impl Responder {
-    HttpResponse::Ok().body(r#"
+    HttpResponse::Ok().body(
+        r#"
 <!DOCTYPE html>
 <html>
 <head>
@@ -26,7 +27,8 @@ pub async fn index_handler() -> impl Responder {
     <h1>Streamlit Rust Backend Test</h1>
 </body>
 </html>
-    "#)
+    "#,
+    )
 }
 
 pub async fn run_script_handler(
