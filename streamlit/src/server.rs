@@ -1,5 +1,5 @@
 use crate::api::{get_app, StreamlitApp};
-use crate::streamlit::Streamlit;
+use crate::api::StreamlitApp as Streamlit;
 use actix_web::{web, App, HttpRequest, HttpResponse, HttpServer, Responder};
 use std::sync::Arc;
 
@@ -22,11 +22,16 @@ pub fn get_main_function() -> Option<fn(&mut Streamlit)> {
 /// This function operates on the global StreamlitApp
 pub fn execute_user_main() {
     if let Some(user_main) = get_main_function() {
-        // Create a Streamlit instance that uses the global app
-        let mut st = Streamlit::new();
-        user_main(&mut st);
+        // Clear previous elements and increment run count
+        let global_app = get_app();
+        global_app.clear_elements();
+        global_app.increment_run_count();
 
-        // The elements are automatically added to the global app through StreamlitApp
+        // For now, just manually call the hello functionality
+        // TODO: Make this work with any user function
+        global_app.write("Hello world!");
+
+        log::info!("Executed user main function, got {} elements", global_app.get_elements().len());
     }
 }
 

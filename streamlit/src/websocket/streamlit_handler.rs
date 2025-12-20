@@ -426,6 +426,12 @@ pub async fn handle_streamlit_websocket_connection(
     send_session_state_changed(&mut session, false).await?;
     log::info!("Initial session_state_changed protobuf message sent successfully");
 
+    // Wait a moment then automatically execute the script once (to simulate frontend request)
+    tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
+    log::info!("Auto-triggering initial script execution...");
+    handle_rerun_script(&mut session, &session_id).await?;
+    log::info!("Initial script execution completed");
+
     // Handle incoming messages with proper processing
     let mut message_count = 0;
     log::info!("Complete message sequence sent, starting message processing loop...");

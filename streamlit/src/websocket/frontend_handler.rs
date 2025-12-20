@@ -5,12 +5,9 @@ use crate::api::{get_app, StreamlitElement};
 use actix_ws::{Message, ProtocolError, Session};
 use futures_util::StreamExt;
 
-// Include protobuf definitions if available
 #[cfg(feature = "proto-compiled")]
-use crate::proto::{BackMsg, ForwardMsg, NewSession};
-
-#[cfg(feature = "proto-compiled")]
-use prost::Message as ProstMessage;  // For encode_to_vec() and decode()
+use prost::Message as ProstMessage;
+use crate::proto::proto::{BackMsg, ForwardMsg, NewSession};
 
 /// Handle WebSocket connection with Streamlit frontend compatibility
 pub async fn handle_frontend_websocket_connection(
@@ -86,17 +83,6 @@ async fn send_new_session_message(
         session.binary(data).await?;
     }
 
-    #[cfg(not(feature = "proto-compiled"))]
-    {
-        // Fallback JSON message for when protobuf is not available
-        let json_message = serde_json::json!({
-            "type": "new_session",
-            "session_id": session_id,
-            "max_message_size": "268435456"
-        });
-        session.text(json_message.to_string()).await?;
-    }
-
     log::info!("Sent new session message for session: {}", session_id);
     Ok(())
 }
@@ -106,24 +92,12 @@ async fn handle_binary_message(
     data: &[u8],
     session_id: &str,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    #[cfg(feature = "proto-compiled")]
     {
         // Try to parse as BackMsg
         if let Ok(back_msg) = BackMsg::decode(data) {
             handle_backmsg(session, back_msg, session_id).await?;
         } else {
             log::warn!("Failed to decode binary message as BackMsg");
-        }
-    }
-
-    #[cfg(not(feature = "proto-compiled"))]
-    {
-        // Fallback: try to parse as JSON
-        if let Ok(json_str) = String::from_utf8(data.to_vec()) {
-            log::debug!("Binary data as JSON: {}", json_str);
-            handle_text_message_fallback(session, &json_str, session_id).await?;
-        } else {
-            log::warn!("Binary data is not valid UTF-8 JSON");
         }
     }
 
