@@ -7,7 +7,10 @@ use futures_util::StreamExt;
 
 // Include protobuf definitions if available
 #[cfg(feature = "proto-compiled")]
-use crate::proto::{BackMsg, ForwardMsg, NewSession, Delta, Text, Element, ScriptFinishedStatus};
+use crate::proto::{BackMsg, ForwardMsg, NewSession};
+
+#[cfg(feature = "proto-compiled")]
+use prost::Message as ProstMessage;  // For encode_to_vec() and decode()
 
 /// Handle WebSocket connection with Streamlit frontend compatibility
 pub async fn handle_frontend_websocket_connection(
