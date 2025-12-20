@@ -22,6 +22,6 @@ pub mod server;
 pub mod websocket;
 
 pub use api::*;
-pub use server::{set_main_function, StreamlitServer};
+pub use server::StreamlitServer;
 
 pub use streamlit_macros::main;

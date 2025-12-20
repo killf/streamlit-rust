@@ -2,48 +2,17 @@ use crate::api::{get_app, Streamlit};
 use actix_web::{web, App, HttpRequest, HttpResponse, HttpServer, Responder};
 use std::sync::Arc;
 
-/// Global function registry for Streamlit apps
-pub static mut STREAMLIT_MAIN_FUNCTION: Option<fn(&Streamlit)> = None;
-
-/// Set the main function for the Streamlit app
-pub fn set_main_function(f: fn(&Streamlit)) {
-    unsafe {
-        STREAMLIT_MAIN_FUNCTION = Some(f);
-    }
-}
-
-/// Get the main function for the Streamlit app
-pub fn get_main_function() -> Option<fn(&Streamlit)> {
-    unsafe { STREAMLIT_MAIN_FUNCTION }
-}
-
-/// Execute the user's main function if it exists
-/// This function operates on the global StreamlitApp
-pub fn execute_user_main() {
-    if let Some(user_main) = get_main_function() {
-        // Clear previous elements and increment run count
-        let global_app = get_app();
-        global_app.clear_elements();
-        global_app.increment_run_count();
-
-        user_main(global_app);
-
-        log::info!(
-            "Executed user main function, got {} elements",
-            global_app.get_elements().len()
-        );
-    }
-}
-
 /// StreamlitServer - main server implementation
 pub struct StreamlitServer {
     app: Arc<Streamlit>,
+    entry: fn(&Streamlit),
 }
 
 impl StreamlitServer {
-    pub fn new() -> Self {
+    pub fn new(entry: fn(&Streamlit)) -> Self {
         Self {
             app: Arc::new(get_app().clone()),
+            entry,
         }
     }
 
@@ -54,7 +23,7 @@ impl StreamlitServer {
             port
         );
 
-        let app_state = AppState;
+        let app_state = AppState { entry: self.entry };
 
         HttpServer::new(move || {
             App::new()
@@ -75,21 +44,31 @@ impl StreamlitServer {
     pub fn get_app(&self) -> Arc<Streamlit> {
         self.app.clone()
     }
-}
 
-impl Default for StreamlitServer {
-    fn default() -> Self {
-        Self::new()
+    pub fn execute_user_main(&self) {
+        // Clear previous elements and increment run count
+        let app = self.app.clone();
+        app.clear_elements();
+        app.increment_run_count();
+
+        (self.entry)(&app);
+
+        log::info!(
+            "Executed user main function, got {} elements",
+            app.get_elements().len()
+        );
     }
 }
 
 #[derive(Clone)]
-struct AppState;
+struct AppState {
+    entry: fn(&Streamlit),
+}
 
 async fn websocket_handler(
     req: HttpRequest,
     stream: web::Payload,
-    _state: web::Data<AppState>,
+    state: web::Data<AppState>,
 ) -> Result<HttpResponse, actix_web::Error> {
     log::info!(
         "New WebSocket connection from: {}",
@@ -129,7 +108,7 @@ async fn websocket_handler(
     // to avoid Send issues with MessageStream
     actix_web::rt::spawn(async move {
         if let Err(e) =
-            crate::websocket::handle_streamlit_websocket_connection(session, msg_stream).await
+            crate::websocket::handle_streamlit_websocket_connection(session, msg_stream, state.entry).await
         {
             log::error!("WebSocket connection error: {}", e);
         }

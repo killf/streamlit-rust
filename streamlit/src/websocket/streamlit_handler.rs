@@ -2,9 +2,9 @@
 //! This handler implements the actual Streamlit protocol
 
 use crate::api::{get_app, StreamlitElement};
+use crate::Streamlit;
 use actix_ws::{Message, ProtocolError, Session};
 use futures_util::StreamExt;
-
 // Protobuf-compatible message structures
 // Based on Streamlit's ForwardMsg.proto definition
 
@@ -403,6 +403,7 @@ fn encode_int32_field(field_number: u32, value: i32, buf: &mut Vec<u8>) {
 pub async fn handle_streamlit_websocket_connection(
     mut session: Session,
     mut msg_stream: impl futures_util::Stream<Item = Result<Message, ProtocolError>> + Unpin,
+    entry: fn(&Streamlit),
 ) -> Result<(), Box<dyn std::error::Error>> {
     log::info!("=== Streamlit WebSocket handler started ===");
 
@@ -429,7 +430,7 @@ pub async fn handle_streamlit_websocket_connection(
     // Wait a moment then automatically execute the script once (to simulate frontend request)
     tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
     log::info!("Auto-triggering initial script execution...");
-    handle_rerun_script(&mut session, &session_id).await?;
+    handle_rerun_script(&mut session, &session_id, entry).await?;
     log::info!("Initial script execution completed");
 
     // Handle incoming messages with proper processing
@@ -457,7 +458,7 @@ pub async fn handle_streamlit_websocket_connection(
                 match decode_back_msg(&data) {
                     Ok(back_msg) => {
                         log::info!("Successfully decoded BackMsg: {:?}", back_msg);
-                        handle_back_message(&mut session, &session_id, back_msg).await?;
+                        handle_back_message(&mut session, &session_id, back_msg, entry).await?;
                     }
                     Err(e) => {
                         log::warn!("Failed to decode BackMsg: {}", e);
@@ -566,11 +567,12 @@ async fn handle_back_message(
     session: &mut Session,
     session_id: &str,
     back_msg: BackMsg,
+    entry: fn(&Streamlit),
 ) -> Result<(), Box<dyn std::error::Error>> {
     match back_msg {
         BackMsg::RerunScript => {
             log::info!("Handling rerun script request");
-            handle_rerun_script(session, session_id).await?;
+            handle_rerun_script(session, session_id, entry).await?;
         }
         BackMsg::ClearCache => {
             log::info!("Handling clear cache request");
@@ -648,6 +650,7 @@ async fn send_session_state_changed(
 async fn handle_rerun_script(
     session: &mut Session,
     session_id: &str,
+    entry: fn(&Streamlit),
 ) -> Result<(), Box<dyn std::error::Error>> {
     let app = get_app();
 
@@ -660,7 +663,7 @@ async fn handle_rerun_script(
     app.increment_run_count();
 
     // Execute the user's main function
-    crate::server::execute_user_main();
+    entry(app);
 
     log::info!(
         "Executed user main function, got {} elements",

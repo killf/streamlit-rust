@@ -37,12 +37,9 @@ pub fn main(_attr: TokenStream, item: TokenStream) -> TokenStream {
             // Initialize logging
             env_logger::Builder::from_default_env().init();
             log::info!("Starting Streamlit Rust Backend v0.1.0");
-
-            // Set the user main function globally
-            ::streamlit::set_main_function(__streamlit_user_main);
-
+            
             // Create and start the server
-            let server = ::streamlit::StreamlitServer::new();
+            let server = ::streamlit::StreamlitServer::new(__streamlit_user_main);
             server.start("0.0.0.0", 8502).await?;
 
             Ok(())
