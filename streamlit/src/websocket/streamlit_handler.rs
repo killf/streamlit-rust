@@ -123,7 +123,11 @@ impl ForwardMsg {
 
     fn new_session_state_changed(script_is_running: bool) -> Self {
         // Generate hash for session_state_changed message
-        let hash = format!("session_state_{}_{}", script_is_running, uuid::Uuid::new_v4());
+        let hash = format!(
+            "session_state_{}_{}",
+            script_is_running,
+            uuid::Uuid::new_v4()
+        );
 
         Self {
             hash: Some(hash),
@@ -166,12 +170,10 @@ impl ForwardMsg {
             hash: Some(hash),
             metadata: Some(ForwardMsgMetadata {
                 cacheable: true,
-                delta_path: vec![0, delta_path_index],  // [0, index] for main container
+                delta_path: vec![0, delta_path_index], // [0, index] for main container
                 active_script_hash: None,
             }),
-            msg_type: ForwardMsgType::Delta(Delta {
-                element,
-            }),
+            msg_type: ForwardMsgType::Delta(Delta { element }),
         }
     }
 
@@ -192,10 +194,10 @@ impl ForwardMsg {
         // Encode message type (oneof fields - use official field numbers!)
         match &self.msg_type {
             ForwardMsgType::NewSession(new_session) => {
-                encode_bytes_field(4, new_session.encode(), &mut buf);  // field 4
+                encode_bytes_field(4, new_session.encode(), &mut buf); // field 4
             }
             ForwardMsgType::Delta(delta) => {
-                encode_bytes_field(5, delta.encode(), &mut buf);  // field 5 ✓
+                encode_bytes_field(5, delta.encode(), &mut buf); // field 5 ✓
             }
             ForwardMsgType::ScriptFinished(status) => {
                 // ScriptFinished is an enum, so use varint encoding
@@ -205,10 +207,10 @@ impl ForwardMsg {
                     ScriptFinishedStatus::FinishedEarlyForRerun => 2,
                     ScriptFinishedStatus::FinishedFragmentRunSuccessfully => 3,
                 };
-                encode_varint_field(6, status_value, &mut buf);  // field 6 ✓
+                encode_varint_field(6, status_value, &mut buf); // field 6 ✓
             }
             ForwardMsgType::SessionStateChanged(session_state) => {
-                encode_bytes_field(9, session_state.encode(), &mut buf);  // field 9 ✓
+                encode_bytes_field(9, session_state.encode(), &mut buf); // field 9 ✓
             }
         }
 
@@ -247,9 +249,9 @@ impl NewSession {
         // Initialize.field 3: EnvironmentInfo
         let mut env_info_buf = Vec::new();
         encode_string_field(1, "1.28.0", &mut env_info_buf); // streamlit_version
-        encode_string_field(2, "3.9.0", &mut env_info_buf);   // python_version
-        encode_string_field(3, "windows", &mut env_info_buf);  // server_os
-        encode_bool_field(4, false, &mut env_info_buf);       // has_display
+        encode_string_field(2, "3.9.0", &mut env_info_buf); // python_version
+        encode_string_field(3, "windows", &mut env_info_buf); // server_os
+        encode_bool_field(4, false, &mut env_info_buf); // has_display
         encode_bytes_field(3, env_info_buf, &mut initialize_buf);
 
         // Initialize.field 4: SessionStatus
@@ -307,48 +309,6 @@ impl NewSession {
     }
 }
 
-impl Initialize {
-    fn encode(&self) -> Vec<u8> {
-        let mut buf = Vec::new();
-        encode_bytes_field(1, self.user_info.encode(), &mut buf);
-        encode_bytes_field(3, self.environment_info.encode(), &mut buf);
-        encode_bytes_field(4, self.session_status.encode(), &mut buf);
-        encode_string_field(6, &self.session_id, &mut buf);
-        encode_varint_field(7, self.is_hello as u64, &mut buf);
-        buf
-    }
-}
-
-impl UserInfo {
-    fn encode(&self) -> Vec<u8> {
-        let mut buf = Vec::new();
-        encode_string_field(1, &self.installation_id, &mut buf);
-        encode_string_field(5, &self.installation_id_v3, &mut buf);
-        encode_string_field(6, &self.installation_id_v4, &mut buf);
-        buf
-    }
-}
-
-impl EnvironmentInfo {
-    fn encode(&self) -> Vec<u8> {
-        let mut buf = Vec::new();
-        encode_string_field(1, &self.streamlit_version, &mut buf);
-        encode_string_field(2, &self.python_version, &mut buf);
-        encode_string_field(3, &self.server_os, &mut buf);
-        encode_varint_field(4, self.has_display as u64, &mut buf);
-        buf
-    }
-}
-
-impl SessionStatus {
-    fn encode(&self) -> Vec<u8> {
-        let mut buf = Vec::new();
-        encode_bool_field(1, self.run_on_save, &mut buf);
-        encode_bool_field(2, self.script_is_running, &mut buf);
-        buf
-    }
-}
-
 impl SessionState {
     fn encode(&self) -> Vec<u8> {
         let mut buf = Vec::new();
@@ -364,7 +324,7 @@ impl Delta {
 
         // Create proper Element message for Delta
         match &self.element {
-            DeltaElement::Text { id, body } => {
+            DeltaElement::Text { id: _, body } => {
                 // Create a Text element first
                 let mut text_buf = Vec::new();
                 encode_string_field(1, body, &mut text_buf); // Text.body
@@ -376,7 +336,7 @@ impl Delta {
                 // Delta with new_element (Official field number: 3)
                 encode_bytes_field(3, element_buf, &mut buf); // Delta.new_element = 3 ✓
             }
-            DeltaElement::Markdown { id, body } => {
+            DeltaElement::Markdown { id: _, body } => {
                 // Create a Markdown element first
                 let mut markdown_buf = Vec::new();
                 encode_string_field(1, body, &mut markdown_buf); // Markdown.body
@@ -391,17 +351,6 @@ impl Delta {
         }
 
         buf
-    }
-}
-
-impl ScriptFinishedStatus {
-    fn encode_string(&self) -> String {
-        match self {
-            ScriptFinishedStatus::FinishedSuccessfully => "script_finished".to_string(),
-            ScriptFinishedStatus::FinishedWithCompileError => "script_finished_with_compile_error".to_string(),
-            ScriptFinishedStatus::FinishedEarlyForRerun => "script_finished_early_for_rerun".to_string(),
-            ScriptFinishedStatus::FinishedFragmentRunSuccessfully => "script_finished_fragment_run_successfully".to_string(),
-        }
     }
 }
 
@@ -489,8 +438,14 @@ pub async fn handle_streamlit_websocket_connection(
         match msg_result {
             Ok(Message::Binary(data)) => {
                 log::info!("Received binary protobuf message: {} bytes", data.len());
-                log::info!("Message hex (first 100 bytes): {}",
-                    data.iter().take(100).map(|b| format!("{:02x}", b)).collect::<Vec<_>>().join(" "));
+                log::info!(
+                    "Message hex (first 100 bytes): {}",
+                    data.iter()
+                        .take(100)
+                        .map(|b| format!("{:02x}", b))
+                        .collect::<Vec<_>>()
+                        .join(" ")
+                );
 
                 // Try to decode as Streamlit BackMsg
                 match decode_back_msg(&data) {
@@ -540,9 +495,14 @@ pub async fn handle_streamlit_websocket_connection(
     }
 
     log::info!("Streamlit WebSocket connection closed");
-    log::info!("📈 Connection stats: processed {} messages from frontend", message_count);
+    log::info!(
+        "📈 Connection stats: processed {} messages from frontend",
+        message_count
+    );
     if message_count == 0 {
-        log::warn!("⚠️  No messages received from frontend - this suggests protobuf message format issues");
+        log::warn!(
+            "⚠️  No messages received from frontend - this suggests protobuf message format issues"
+        );
     }
     Ok(())
 }
@@ -639,7 +599,10 @@ async fn send_new_session_protobuf(
     let forward_msg = ForwardMsg::new_new_session(session_id, &script_run_id);
     let encoded = forward_msg.encode();
 
-    log::info!("Sending new_session protobuf message: {} bytes", encoded.len());
+    log::info!(
+        "Sending new_session protobuf message: {} bytes",
+        encoded.len()
+    );
     session.binary(encoded).await?;
     Ok(())
 }
@@ -651,7 +614,10 @@ async fn send_script_finished_protobuf(
     let forward_msg = ForwardMsg::new_script_finished();
     let encoded = forward_msg.encode();
 
-    log::info!("Sending script_finished protobuf message: {} bytes", encoded.len());
+    log::info!(
+        "Sending script_finished protobuf message: {} bytes",
+        encoded.len()
+    );
     session.binary(encoded).await?;
     Ok(())
 }
@@ -664,24 +630,11 @@ async fn send_session_state_changed(
     let forward_msg = ForwardMsg::new_session_state_changed(script_is_running);
     let encoded = forward_msg.encode();
 
-    log::info!("Sending session_state_changed (script_is_running: {}) protobuf message: {} bytes",
-        script_is_running, encoded.len());
-    session.binary(encoded).await?;
-    Ok(())
-}
-
-async fn send_hello_world_delta(
-    session: &mut Session,
-) -> Result<(), Box<dyn std::error::Error>> {
-    // Create a simple text element first
-    let element = DeltaElement::Text {
-        id: "hello_text".to_string(),
-        body: "Hello world!".to_string(),
-    };
-    let forward_msg = ForwardMsg::new_delta(1, element);
-    let encoded = forward_msg.encode();
-
-    log::info!("Sending hello world delta protobuf message: {} bytes", encoded.len());
+    log::info!(
+        "Sending session_state_changed (script_is_running: {}) protobuf message: {} bytes",
+        script_is_running,
+        encoded.len()
+    );
     session.binary(encoded).await?;
     Ok(())
 }
@@ -703,7 +656,10 @@ async fn handle_rerun_script(
     // Execute the user's main function
     crate::server::execute_user_main();
 
-    log::info!("Executed user main function, got {} elements", app.get_elements().len());
+    log::info!(
+        "Executed user main function, got {} elements",
+        app.get_elements().len()
+    );
 
     // Send script_finished message
     send_script_finished_protobuf(session).await?;
@@ -727,30 +683,22 @@ async fn send_elements_as_protobuf(
 
     for (index, element) in elements.iter().enumerate() {
         let delta_element = match element {
-            StreamlitElement::Text { id, body, .. } => {
-                DeltaElement::Text {
-                    id: id.clone(),
-                    body: body.clone(),
-                }
-            }
-            StreamlitElement::Title { id, body } => {
-                DeltaElement::Text {
-                    id: id.clone(),
-                    body: format!("# {}", body),
-                }
-            }
-            StreamlitElement::Header { id, body } => {
-                DeltaElement::Text {
-                    id: id.clone(),
-                    body: format!("## {}", body),
-                }
-            }
-            StreamlitElement::Markdown { id, body, .. } => {
-                DeltaElement::Markdown {
-                    id: id.clone(),
-                    body: body.clone(),
-                }
-            }
+            StreamlitElement::Text { id, body, .. } => DeltaElement::Text {
+                id: id.clone(),
+                body: body.clone(),
+            },
+            StreamlitElement::Title { id, body } => DeltaElement::Text {
+                id: id.clone(),
+                body: format!("# {}", body),
+            },
+            StreamlitElement::Header { id, body } => DeltaElement::Text {
+                id: id.clone(),
+                body: format!("## {}", body),
+            },
+            StreamlitElement::Markdown { id, body, .. } => DeltaElement::Markdown {
+                id: id.clone(),
+                body: body.clone(),
+            },
             _ => {
                 // For other elements, convert to text for now
                 DeltaElement::Text {
@@ -763,7 +711,11 @@ async fn send_elements_as_protobuf(
         let forward_msg = ForwardMsg::new_delta(index as u32, delta_element);
         let encoded = forward_msg.encode();
 
-        log::info!("Sending element {} protobuf message: {} bytes", index, encoded.len());
+        log::info!(
+            "Sending element {} protobuf message: {} bytes",
+            index,
+            encoded.len()
+        );
         session.binary(encoded).await?;
     }
 
