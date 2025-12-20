@@ -26,7 +26,8 @@ impl StreamlitServer {
             App::new()
                 .app_data(web::Data::new(app_state.clone()))
                 .service(web::resource("/_stcore/stream").route(web::get().to(websocket_handler)))
-                .service(web::resource("/_stcore/health").route(web::get().to(health_check)))
+                .service(web::resource("/_stcore/health").route(web::get().to(health_check)).route(web::head().to(health_check)))
+                .service(web::resource("/_stcore/host-config").route(web::get().to(host_config)))
                 .service(web::resource("/").route(web::get().to(index_handler)))
                 .service(web::resource("/api/run").route(web::post().to(run_script_handler)))
         })
@@ -73,11 +74,30 @@ async fn websocket_handler(
 
 
 async fn health_check() -> impl Responder {
-    HttpResponse::Ok().json(serde_json::json!({
-        "status": "healthy",
-        "version": "0.1.0-rust",
-        "timestamp": chrono::Utc::now().to_rfc3339()
-    }))
+    HttpResponse::Ok()
+        .insert_header(("Cache-Control", "no-cache"))
+        .insert_header(("Access-Control-Allow-Origin", "*"))
+        .body("ok")
+}
+
+async fn host_config() -> impl Responder {
+    let host_config = serde_json::json!({
+        "allowedOrigins": [
+            "*",
+        ],
+        "useExternalAuthToken": false,
+        "enableCustomParentMessages": false,
+        "enforceDownloadInNewTab": false,
+        "metricsUrl": "",
+        "blockErrorDialogs": false,
+        "resourceCrossOriginMode": serde_json::Value::Null
+    });
+
+    HttpResponse::Ok()
+        .insert_header(("Cache-Control", "no-cache"))
+        .insert_header(("Access-Control-Allow-Origin", "*"))
+        .insert_header(("Content-Type", "application/json"))
+        .json(host_config)
 }
 
 async fn index_handler() -> impl Responder {
@@ -104,6 +124,9 @@ async fn index_handler() -> impl Responder {
         </div>
         <div class="endpoint">
             <strong>Health Check:</strong> <code>GET /_stcore/health</code>
+        </div>
+        <div class="endpoint">
+            <strong>Host Config:</strong> <code>GET /_stcore/host-config</code>
         </div>
         <div class="endpoint">
             <strong>Run Script:</strong> <code>POST /api/run</code>
