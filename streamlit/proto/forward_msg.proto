@@ -1,0 +1,229 @@
+syntax = "proto3";
+
+package streamlit;
+
+// Simplified version of ForwardMsg for Rust implementation
+message ForwardMsg {
+  string hash = 1;
+  ForwardMsgMetadata metadata = 2;
+
+  oneof type {
+    NewSession new_session = 3;
+    Delta delta = 4;
+    string script_finished = 5;
+    SessionStatus session_status_changed = 6;
+    string ref_hash = 7;
+  }
+}
+
+message ForwardMsgMetadata {
+  bool cacheable = 1;
+  repeated uint32 delta_path = 2;
+  string active_script_hash = 3;
+}
+
+message NewSession {
+  string session_id = 1;
+  string max_message_size = 2;
+}
+
+message Delta {
+  oneof type {
+    Element new_element = 1;
+    string element_removed = 2;
+    Block block = 3;
+    RootContainer root_container = 4;
+  }
+}
+
+message Element {
+  oneof type {
+    Text text = 1;
+    Markdown markdown = 2;
+    Heading heading = 3;
+    Button button = 4;
+    Slider slider = 5;
+    TextInput text_input = 6;
+    Checkbox checkbox = 7;
+    Selectbox selectbox = 8;
+    MultiSelect multi_select = 9;
+    NumberInput number_input = 10;
+    DateInput date_input = 11;
+    TimeInput time_input = 12;
+    DataFrame data_frame = 13;
+    PlotlyChart plotly_chart = 14;
+    VegaLiteChart vega_lite_chart = 15;
+    Image image = 16;
+    Audio audio = 17;
+    Video video = 18;
+    FileUploader file_uploader = 19;
+    Progress progress = 20;
+    Spinner spinner = 21;
+    Balloons balloons = 22;
+    Error error = 23;
+    Warning warning = 24;
+    Info info = 25;
+    Exception exception = 26;
+    DocString doc_string = 27;
+    Code code = 28;
+    Metric metric = 29;
+    Html html = 30;
+    IFrame iframe = 31;
+    Json json = 32;
+    DownloadButton download_button = 33;
+    LinkButton link_button = 34;
+    PageLink page_link = 35;
+    CameraInput camera_input = 36;
+    ColorPicker color_picker = 37;
+    DateRangeInput date_range_input = 38;
+    TimeRangeInput time_range_input = 39;
+    TextArea text_area = 40;
+    ChatInput chat_input = 41;
+    ButtonGroup button_group = 42;
+  }
+
+  string id = 50;
+  bool allow_hover = 51;
+}
+
+message Text {
+  string body = 1;
+}
+
+message Markdown {
+  string body = 1;
+}
+
+message Heading {
+  string body = 1;
+  uint32 level = 2;
+  string anchor = 3;
+}
+
+message Button {
+  string id = 1;
+  string label = 2;
+  string help = 3;
+  bool disabled = 4;
+}
+
+message Checkbox {
+  string id = 1;
+  string label = 2;
+  bool value = 3;
+  bool default = 4;
+  bool disabled = 5;
+  string help = 6;
+}
+
+message Slider {
+  string id = 1;
+  string label = 2;
+  double value = 3;
+  double min = 4;
+  double max = 5;
+  double step = 6;
+  bool disabled = 7;
+  string help = 8;
+}
+
+message TextInput {
+  string id = 1;
+  string label = 2;
+  string value = 3;
+  string default = 4;
+  string type = 5;
+  string placeholder = 6;
+  bool disabled = 7;
+  string help = 8;
+  uint32 max_chars = 9;
+}
+
+message SessionStatus {
+  oneof type {
+    SessionInfo script_running = 1;
+    SessionInfo script_stopped = 2;
+  }
+}
+
+message SessionInfo {
+  string session_id = 1;
+  string session_state = 2;
+}
+
+message Block {
+  oneof type {
+    Vertical vertical = 1;
+    Horizontal horizontal = 2;
+    Column column = 3;
+    Tabs tabs = 4;
+    Expander expander = 5;
+    Container container = 6;
+    Empty empty = 7;
+  }
+
+  uint32 allow_hover = 2;
+  repeated uint32 delta_path = 3;
+}
+
+message Vertical {
+  repeated Delta children = 1;
+  string align = 2;
+  string gap = 3;
+}
+
+message Horizontal {
+  repeated Delta children = 1;
+  string align = 2;
+  string gap = 3;
+}
+
+message RootContainer {
+  repeated Delta children = 1;
+  string initial_sidebar_state = 2;
+}
+
+// Placeholder messages for other types
+message Markdown { string body = 1; }
+message Selectbox { string id = 1; string label = 2; int32 index = 3; repeated string options = 4; }
+message MultiSelect { string id = 1; string label = 2; repeated int32 indices = 3; repeated string options = 4; }
+message NumberInput { string id = 1; string label = 2; double value = 3; double min = 4; double max = 5; double step = 6; }
+message DateInput { string id = 1; string label = 2; string value = 3; }
+message TimeInput { string id = 1; string label = 2; string value = 3; }
+message DataFrame { repeated string data = 1; }
+message PlotlyChart { string plotly = 1; }
+message VegaLiteChart { string spec = 1; }
+message Image { string url = 1; string caption = 2; uint32 width = 3; uint32 height = 4; }
+message Audio { string url = 1; uint32 start_time = 2; }
+message Video { string url = 1; uint32 start_time = 2; bool autoplay = 3; }
+message FileUploader { string id = 1; repeated string files = 2; }
+message Progress { float value = 1; }
+message Spinner { string text = 1; }
+message Balloons {}
+message Error { string message = 1; }
+message Warning { string message = 1; }
+message Info { string message = 1; }
+message Exception { string message = 1; string stack_trace = 2; }
+message DocString { string name = 1; string code = 2; string line_start = 3; string line_end = 4; }
+message Code { string body = 1; string language = 2; }
+message Metric { string label = 1; double value = 2; string delta = 3; }
+message Html { string body = 1; }
+message IFrame { string src = 1; uint32 width = 2; uint32 height = 3; }
+message Json { string body = 1; }
+message DownloadButton { string id = 1; string label = 2; string data = 3; string mime = 4; string file_name = 5; }
+message LinkButton { string url = 1; string label = 2; string type = 3; }
+message PageLink { string page_name = 1; string page_script_hash = 2; }
+message CameraInput { string id = 1; repeated string files = 2; }
+message ColorPicker { string id = 1; string label = 2; string value = 3; }
+message DateRangeInput { string id = 1; string label = 2; string start = 3; string end = 4; }
+message TimeRangeInput { string id = 1; string label = 2; string start = 3; string end = 4; }
+message TextArea { string id = 1; string label = 2; string value = 3; string placeholder = 4; uint32 height = 5; uint32 max_chars = 6; }
+message ChatInput { string id = 1; string label = 2; string value = 3; uint32 max_chars = 4; string placeholder = 5; }
+message ButtonGroup { string id = 1; repeated string options = 2; repeated int32 indices = 3; }
+message Column { uint32 columns = 1; repeated Delta children = 2; string gap = 3; }
+message Tabs { repeated Delta children = 1; repeated string titles = 2; }
+message Expander { string label = 1; bool expanded = 2; Delta child = 3; }
+message Container { Delta child = 1; string border = 2; }
+message Empty {}
+message StringArray { repeated string value = 1; }
+message DoubleArray { repeated double value = 1; }

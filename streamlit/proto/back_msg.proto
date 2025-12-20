@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package streamlit;
+
+// Simplified version of BackMsg for Rust implementation
+message BackMsg {
+  oneof type {
+    bool clear_cache = 1;
+    bool set_run_on_save = 2;
+    bool stop_script = 3;
+    ClientState rerun_script = 4;
+    bool load_git_info = 5;
+    bool debug_disconnect_websocket = 6;
+    bool debug_shutdown_runtime = 7;
+    bool app_heartbeat = 8;
+  }
+
+  // Test ID for associating BackMsg with ForwardMsg
+  string debug_last_backmsg_id = 9;
+}
+
+message ClientState {
+  repeated WidgetState widget_states = 1;
+  string session_id = 2;
+  bool queue_rerun = 3;
+  bool rerun = 4;
+  bool script_finished = 5;
+}
+
+message WidgetState {
+  string id = 1;
+  string form_id = 2;
+  oneof value {
+    string string_value = 3;
+    double double_value = 4;
+    bool bool_value = 5;
+    int64 int_value = 6;
+    StringArray string_array_value = 7;
+    DoubleArray double_array_value = 8;
+  }
+}
+
+message StringArray {
+  repeated string value = 1;
+}
+
+message DoubleArray {
+  repeated double value = 1;
+}
