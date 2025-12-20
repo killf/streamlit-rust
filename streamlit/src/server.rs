@@ -1,7 +1,34 @@
 use crate::api::{get_app, StreamlitApp};
-use crate::main_macro::execute_user_main;
+use crate::streamlit::Streamlit;
 use actix_web::{web, App, HttpRequest, HttpResponse, HttpServer, Responder};
 use std::sync::Arc;
+
+/// Global function registry for Streamlit apps
+pub static mut STREAMLIT_MAIN_FUNCTION: Option<fn(&mut Streamlit)> = None;
+
+/// Set the main function for the Streamlit app
+pub fn set_main_function(f: fn(&mut Streamlit)) {
+    unsafe {
+        STREAMLIT_MAIN_FUNCTION = Some(f);
+    }
+}
+
+/// Get the main function for the Streamlit app
+pub fn get_main_function() -> Option<fn(&mut Streamlit)> {
+    unsafe { STREAMLIT_MAIN_FUNCTION }
+}
+
+/// Execute the user's main function if it exists
+/// This function operates on the global StreamlitApp
+pub fn execute_user_main() {
+    if let Some(user_main) = get_main_function() {
+        // Create a Streamlit instance that uses the global app
+        let mut st = Streamlit::new();
+        user_main(&mut st);
+
+        // The elements are automatically added to the global app through StreamlitApp
+    }
+}
 
 /// StreamlitServer - main server implementation
 pub struct StreamlitServer {
@@ -22,15 +49,17 @@ impl StreamlitServer {
             port
         );
 
-        let app_state = AppState {
-            streamlit_app: self.app.clone(),
-        };
+        let app_state = AppState;
 
         HttpServer::new(move || {
             App::new()
                 .app_data(web::Data::new(app_state.clone()))
                 .service(web::resource("/_stcore/stream").route(web::get().to(websocket_handler)))
-                .service(web::resource("/_stcore/health").route(web::get().to(health_check)).route(web::head().to(health_check)))
+                .service(
+                    web::resource("/_stcore/health")
+                        .route(web::get().to(health_check))
+                        .route(web::head().to(health_check)),
+                )
                 .service(web::resource("/_stcore/host-config").route(web::get().to(host_config)))
         })
         .bind((host, port))?
@@ -50,9 +79,7 @@ impl Default for StreamlitServer {
 }
 
 #[derive(Clone)]
-struct AppState {
-    streamlit_app: Arc<StreamlitApp>,
-}
+struct AppState;
 
 async fn websocket_handler(
     req: HttpRequest,
