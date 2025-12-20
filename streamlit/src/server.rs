@@ -112,6 +112,7 @@ async fn health_check() -> impl Responder {
     HttpResponse::Ok()
         .insert_header(("Cache-Control", "no-cache"))
         .insert_header(("Access-Control-Allow-Origin", "*"))
+        .insert_header(("Content-Type", "text/html; charset=UTF-8"))
         .body("ok")
 }
 

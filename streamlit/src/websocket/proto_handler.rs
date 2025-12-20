@@ -1,7 +1,7 @@
+use super::message_types::{StreamlitCommand, StreamlitMessage};
 use crate::api::get_app;
 use actix_ws::{Message, ProtocolError, Session};
 use futures_util::StreamExt;
-use super::message_types::{StreamlitMessage, StreamlitCommand};
 
 /// Simplified WebSocket handler for proto compatibility
 /// This version works with JSON format but is designed to be easily
@@ -56,6 +56,7 @@ pub async fn handle_websocket_connection(
         }
     }
 
+    log::info!("WebSocket connection closed");
     Ok(())
 }
 
@@ -73,7 +74,10 @@ async fn send_init_message(session: &mut Session) -> Result<(), Box<dyn std::err
     Ok(())
 }
 
-async fn handle_text_message(session: &mut Session, text: &str) -> Result<(), Box<dyn std::error::Error>> {
+async fn handle_text_message(
+    session: &mut Session,
+    text: &str,
+) -> Result<(), Box<dyn std::error::Error>> {
     log::debug!("Handling text message: {}", text);
 
     // Try to parse as a Streamlit command
@@ -147,14 +151,21 @@ async fn handle_get_elements(session: &mut Session) -> Result<(), Box<dyn std::e
     Ok(())
 }
 
-async fn handle_widget_event(session: &mut Session, command: &StreamlitCommand) -> Result<(), Box<dyn std::error::Error>> {
+async fn handle_widget_event(
+    session: &mut Session,
+    command: &StreamlitCommand,
+) -> Result<(), Box<dyn std::error::Error>> {
     // Extract widget information from the command
     if let Some(widget_data) = command.data.get("widget") {
         if let (Some(widget_id), Some(widget_value)) = (
             widget_data.get("id").and_then(|v| v.as_str()),
-            widget_data.get("value")
+            widget_data.get("value"),
         ) {
-            log::info!("Widget {} updated with value: {:?}", widget_id, widget_value);
+            log::info!(
+                "Widget {} updated with value: {:?}",
+                widget_id,
+                widget_value
+            );
 
             // Update widget state in the app
             // This is a simplified version - real implementation would handle
@@ -177,4 +188,3 @@ async fn handle_widget_event(session: &mut Session, command: &StreamlitCommand) 
 
     Ok(())
 }
-
