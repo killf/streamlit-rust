@@ -17,15 +17,11 @@ extern crate streamlit_macros;
 
 pub mod api;
 pub mod error;
+pub mod proto;
 pub mod server;
 pub mod websocket;
 
-pub mod proto;
-
-// Re-export main components
-pub use api::StreamlitApp as Streamlit;
 pub use api::*;
 pub use server::{set_main_function, StreamlitServer};
 
-// Re-export the proc-macro for convenience
 pub use streamlit_macros::main;

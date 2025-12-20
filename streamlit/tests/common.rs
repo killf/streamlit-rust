@@ -1,10 +1,10 @@
 // Test utilities for common test functions
 use actix_web::{web, HttpResponse, Responder};
 use std::sync::Arc;
-use streamlit::api::StreamlitApp;
+use streamlit::api::Streamlit;
 
 pub struct AppState {
-    pub streamlit_app: Arc<StreamlitApp>,
+    pub streamlit_app: Arc<Streamlit>,
 }
 
 pub async fn health_check() -> impl Responder {

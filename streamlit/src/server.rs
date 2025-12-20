@@ -1,20 +1,19 @@
-use crate::api::StreamlitApp as Streamlit;
-use crate::api::{get_app, StreamlitApp};
+use crate::api::{get_app, Streamlit};
 use actix_web::{web, App, HttpRequest, HttpResponse, HttpServer, Responder};
 use std::sync::Arc;
 
 /// Global function registry for Streamlit apps
-pub static mut STREAMLIT_MAIN_FUNCTION: Option<fn(&mut Streamlit)> = None;
+pub static mut STREAMLIT_MAIN_FUNCTION: Option<fn(&Streamlit)> = None;
 
 /// Set the main function for the Streamlit app
-pub fn set_main_function(f: fn(&mut Streamlit)) {
+pub fn set_main_function(f: fn(&Streamlit)) {
     unsafe {
         STREAMLIT_MAIN_FUNCTION = Some(f);
     }
 }
 
 /// Get the main function for the Streamlit app
-pub fn get_main_function() -> Option<fn(&mut Streamlit)> {
+pub fn get_main_function() -> Option<fn(&Streamlit)> {
     unsafe { STREAMLIT_MAIN_FUNCTION }
 }
 
@@ -27,9 +26,7 @@ pub fn execute_user_main() {
         global_app.clear_elements();
         global_app.increment_run_count();
 
-        // For now, just manually call the hello functionality
-        // TODO: Make this work with any user function
-        global_app.write("Hello world!");
+        user_main(global_app);
 
         log::info!(
             "Executed user main function, got {} elements",
@@ -40,7 +37,7 @@ pub fn execute_user_main() {
 
 /// StreamlitServer - main server implementation
 pub struct StreamlitServer {
-    app: Arc<StreamlitApp>,
+    app: Arc<Streamlit>,
 }
 
 impl StreamlitServer {
@@ -75,7 +72,7 @@ impl StreamlitServer {
         .await
     }
 
-    pub fn get_app(&self) -> Arc<StreamlitApp> {
+    pub fn get_app(&self) -> Arc<Streamlit> {
         self.app.clone()
     }
 }

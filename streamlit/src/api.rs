@@ -81,13 +81,13 @@ pub enum StreamlitElement {
 
 /// Streamlit Rust API - provides a Python-like Streamlit interface
 #[derive(Clone)]
-pub struct StreamlitApp {
+pub struct Streamlit {
     elements: Arc<Mutex<Vec<StreamlitElement>>>,
     widget_states: Arc<Mutex<HashMap<String, WidgetValue>>>,
     run_count: Arc<Mutex<i64>>,
 }
 
-impl StreamlitApp {
+impl Streamlit {
     pub fn new() -> Self {
         Self {
             elements: Arc::new(Mutex::new(Vec::new())),
@@ -337,7 +337,7 @@ impl StreamlitApp {
     }
 }
 
-impl Default for StreamlitApp {
+impl Default for Streamlit {
     fn default() -> Self {
         Self::new()
     }
@@ -377,92 +377,9 @@ impl From<bool> for WidgetValue {
 }
 
 /// Global Streamlit app instance
-static STREAMLIT_APP: std::sync::LazyLock<StreamlitApp> =
-    std::sync::LazyLock::new(StreamlitApp::new);
+static STREAMLIT_APP: std::sync::LazyLock<Streamlit> = std::sync::LazyLock::new(Streamlit::new);
 
 /// Get the global Streamlit app instance
-pub fn get_app() -> &'static StreamlitApp {
+pub fn get_app() -> &'static Streamlit {
     &STREAMLIT_APP
-}
-
-/// Convenience functions that match the Python Streamlit API
-pub fn write(content: &str) {
-    get_app().write(content);
-}
-
-pub fn title(content: &str) {
-    get_app().title(content);
-}
-
-pub fn header(content: &str) {
-    get_app().header(content);
-}
-
-pub fn markdown(content: &str) {
-    get_app().markdown(content);
-}
-
-pub fn button(label: &str) -> bool {
-    button_with_key(label, None)
-}
-
-pub fn button_with_key(label: &str, key: Option<&str>) -> bool {
-    get_app().button(label, key)
-}
-
-pub fn slider(label: &str, min: f64, max: f64) -> f64 {
-    slider_with_value(label, min, max, None, None)
-}
-
-pub fn slider_with_value(
-    label: &str,
-    min: f64,
-    max: f64,
-    value: Option<f64>,
-    key: Option<&str>,
-) -> f64 {
-    get_app().slider(label, min, max, value, key)
-}
-
-pub fn text_input(label: &str) -> String {
-    text_input_with_value(label, None, None)
-}
-
-pub fn text_input_with_value(label: &str, value: Option<&str>, key: Option<&str>) -> String {
-    get_app().text_input(label, value, key)
-}
-
-pub fn checkbox(label: &str) -> bool {
-    checkbox_with_value(label, None, None)
-}
-
-pub fn checkbox_with_value(label: &str, value: Option<bool>, key: Option<&str>) -> bool {
-    get_app().checkbox(label, value, key)
-}
-
-pub fn selectbox(label: &str, options: Vec<String>) -> String {
-    selectbox_with_index(label, options, None, None)
-}
-
-pub fn selectbox_with_index(
-    label: &str,
-    options: Vec<String>,
-    index: Option<usize>,
-    key: Option<&str>,
-) -> String {
-    get_app().selectbox(label, options, index, key)
-}
-
-pub fn number_input(label: &str, min: f64, max: f64) -> f64 {
-    number_input_with_value(label, min, max, None, None)
-}
-
-pub fn number_input_with_value(
-    label: &str,
-    min: f64,
-    max: f64,
-    value: Option<f64>,
-    key: Option<&str>,
-) -> f64 {
-    get_app().number_input(label, min, max, value, key)
 }

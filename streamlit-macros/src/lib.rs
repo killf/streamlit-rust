@@ -13,12 +13,12 @@ pub fn main(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let _fn_name = &input.sig.ident;
     let fn_vis = &input.vis;
 
-    // Validate that the function takes exactly one parameter of type &mut Streamlit
+    // Validate that the function takes exactly one parameter of type &Streamlit
     let params = &input.sig.inputs;
     if params.len() != 1 {
         let error = syn::Error::new_spanned(
             &input.sig,
-            "Streamlit main function must take exactly one parameter: `st: &mut Streamlit`"
+            "Streamlit main function must take exactly one parameter: `st: &Streamlit`"
         );
         return error.to_compile_error().into();
     }
@@ -29,7 +29,7 @@ pub fn main(_attr: TokenStream, item: TokenStream) -> TokenStream {
     // Generate the transformed code
     let expanded = quote! {
         // Rename the original function to avoid conflict
-        #fn_vis fn __streamlit_user_main(st: &mut ::streamlit::Streamlit) #fn_body
+        #fn_vis fn __streamlit_user_main(st: &::streamlit::Streamlit) #fn_body
 
         // Generate the actual main function
         #[tokio::main]
