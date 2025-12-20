@@ -1,12 +1,7 @@
-//! Streamlit-compatible WebSocket handler using protobuf messages
-//! This handler implements the actual Streamlit protocol
-
 use crate::api::{get_app, StreamlitElement};
 use crate::Streamlit;
 use actix_ws::{Message, ProtocolError, Session};
 use futures_util::StreamExt;
-// Protobuf-compatible message structures
-// Based on Streamlit's ForwardMsg.proto definition
 
 #[derive(Debug, Clone)]
 pub struct ForwardMsg {
@@ -606,6 +601,10 @@ async fn send_new_session_protobuf(
     // Create protobuf-compatible NewSession message
     let forward_msg = ForwardMsg::new_new_session(session_id, &script_run_id);
     let encoded = forward_msg.encode();
+
+    // TODO
+    // let a = crate::proto::ForwardMsg::default();
+    // let encoded = a.encode_to_vec();
 
     log::info!(
         "Sending new_session protobuf message: {} bytes",

@@ -1,10 +1,8 @@
-pub mod proto {
-    pub mod streamlit {
-        include!(concat!(env!("OUT_DIR"), "/streamlit.rs"));
-    }
-
-    include!(concat!(env!("OUT_DIR"), "/proto.rs"));
+pub mod streamlit {
+    include!(concat!(env!("OUT_DIR"), "/streamlit.rs"));
 }
+
+include!(concat!(env!("OUT_DIR"), "/proto.rs"));
 
 #[cfg(test)]
 mod tests {
@@ -12,6 +10,7 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let _msg = proto::BackMsg::default();
+        let _msg = BackMsg::default();
+        let _msg = ForwardMsg::default();
     }
 }
