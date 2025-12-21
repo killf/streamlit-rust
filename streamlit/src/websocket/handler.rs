@@ -1,37 +1,37 @@
 use crate::api::{get_app, StreamlitElement};
-use crate::proto::back_msg::Type;
+use crate::proto::{back_msg::Type, *};
 use crate::Streamlit;
 use actix_ws::{ProtocolError, Session};
 use futures_util::StreamExt;
 use prost::Message;
 
-fn new_session(session_id: &str, script_run_id: &str) -> crate::proto::ForwardMsg {
+fn new_session(session_id: &str, script_run_id: &str) -> ForwardMsg {
     let hash = format!("new_session_{}", session_id);
 
-    crate::proto::ForwardMsg {
+    ForwardMsg {
         hash: hash.clone(),
-        metadata: Some(crate::proto::ForwardMsgMetadata {
+        metadata: Some(ForwardMsgMetadata {
             cacheable: false,
             delta_path: vec![],
             element_dimension_spec: None,
             active_script_hash: "".to_string(),
         }),
         debug_last_backmsg_id: "".to_string(),
-        r#type: Some(crate::proto::forward_msg::Type::NewSession(
-            crate::proto::NewSession {
-                initialize: Some(crate::proto::Initialize {
-                    user_info: Some(crate::proto::UserInfo {
+        r#type: Some(forward_msg::Type::NewSession(
+            NewSession {
+                initialize: Some(Initialize {
+                    user_info: Some(UserInfo {
                         installation_id: "1".to_string(),
                         installation_id_v3: "1".to_string(),
                         installation_id_v4: "1".to_string(),
                     }),
-                    environment_info: Some(crate::proto::EnvironmentInfo {
+                    environment_info: Some(EnvironmentInfo {
                         streamlit_version: "".to_string(),
                         python_version: "".to_string(),
                         server_os: "".to_string(),
                         has_display: false,
                     }),
-                    session_status: Some(crate::proto::SessionStatus {
+                    session_status: Some(SessionStatus {
                         run_on_save: false,
                         script_is_running: false,
                     }),
@@ -42,7 +42,7 @@ fn new_session(session_id: &str, script_run_id: &str) -> crate::proto::ForwardMs
                 script_run_id: script_run_id.to_string(),
                 name: "hello.py".to_string(),
                 main_script_path: "hello.py".to_string(),
-                config: Some(crate::proto::Config {
+                config: Some(Config {
                     gather_usage_stats: false,
                     max_cached_message_age: 0,
                     mapbox_token: "".to_string(),
@@ -61,34 +61,34 @@ fn new_session(session_id: &str, script_run_id: &str) -> crate::proto::ForwardMs
     }
 }
 
-fn new_script_finished_message() -> crate::proto::ForwardMsg {
-    crate::proto::ForwardMsg {
+fn new_script_finished_message() -> ForwardMsg {
+    ForwardMsg {
         hash: "script_finished".to_string(),
         metadata: None,
         debug_last_backmsg_id: "".to_string(),
-        r#type: Some(crate::proto::forward_msg::Type::ScriptFinished(
-            crate::proto::forward_msg::ScriptFinishedStatus::FinishedSuccessfully as i32,
+        r#type: Some(forward_msg::Type::ScriptFinished(
+            forward_msg::ScriptFinishedStatus::FinishedSuccessfully as i32,
         )),
     }
 }
 
-fn new_main_block_delta() -> crate::proto::ForwardMsg {
-    crate::proto::ForwardMsg {
+fn new_main_block_delta() -> ForwardMsg {
+    ForwardMsg {
         hash: "main_block".to_string(),
-        metadata: Some(crate::proto::ForwardMsgMetadata {
+        metadata: Some(ForwardMsgMetadata {
             cacheable: false,
             delta_path: vec![0], // RootContainer.MAIN = 0
             element_dimension_spec: None,
             active_script_hash: "".to_string(),
         }),
         debug_last_backmsg_id: "".to_string(),
-        r#type: Some(crate::proto::forward_msg::Type::Delta(
-            crate::proto::Delta {
+        r#type: Some(forward_msg::Type::Delta(
+            Delta {
                 fragment_id: "".to_string(),
-                r#type: Option::from(crate::proto::delta::Type::AddBlock(
-                    crate::proto::Block {
-                        r#type: Some(crate::proto::block::Type::Vertical(
-                            crate::proto::block::Vertical {
+                r#type: Option::from(delta::Type::AddBlock(
+                    Block {
+                        r#type: Some(block::Type::Vertical(
+                            block::Vertical {
                                 border: false,
                                 #[allow(deprecated)]
                                 height: 0, // deprecated field, required
@@ -105,31 +105,31 @@ fn new_main_block_delta() -> crate::proto::ForwardMsg {
     }
 }
 
-fn new_delta_with_parent(element_index: u32, element: &StreamlitElement) -> crate::proto::ForwardMsg {
+fn new_delta_with_parent(element_index: u32, element: &StreamlitElement) -> ForwardMsg {
     // Elements are children of main block, so delta_path = [0, element_index]
     match element {
         StreamlitElement::Text { id, body, help } => {
             let element_hash = format!("text_{}_{}", id, body);
             let hash = format!("delta_0_{}_{}", element_index, element_hash);
-            crate::proto::ForwardMsg {
+            ForwardMsg {
                 hash,
-                metadata: Some(crate::proto::ForwardMsgMetadata {
+                metadata: Some(ForwardMsgMetadata {
                     cacheable: false,
                     delta_path: vec![0, element_index], // [main_container_index, element_index]
                     element_dimension_spec: None,
                     active_script_hash: "".to_string(),
                 }),
                 debug_last_backmsg_id: "".to_string(),
-                r#type: Some(crate::proto::forward_msg::Type::Delta(
-                    crate::proto::Delta {
+                r#type: Some(forward_msg::Type::Delta(
+                    Delta {
                         fragment_id: id.to_string(),
-                        r#type: Option::from(crate::proto::delta::Type::NewElement(
-                            crate::proto::Element {
+                        r#type: Option::from(delta::Type::NewElement(
+                            Element {
                                 height_config: None,
                                 width_config: None,
                                 text_alignment_config: None,
-                                r#type: Some(crate::proto::element::Type::Text(
-                                    crate::proto::Text {
+                                r#type: Some(element::Type::Text(
+                                    Text {
                                         body: body.to_string(),
                                         help: help.to_string(),
                                     },
@@ -143,25 +143,25 @@ fn new_delta_with_parent(element_index: u32, element: &StreamlitElement) -> crat
         StreamlitElement::Title { id, title } => {
             let element_hash = format!("title_{}_{}", id, title);
             let hash = format!("delta_0_{}_{}", element_index, element_hash);
-            crate::proto::ForwardMsg {
+            ForwardMsg {
                 hash,
-                metadata: Some(crate::proto::ForwardMsgMetadata {
+                metadata: Some(ForwardMsgMetadata {
                     cacheable: false,
                     delta_path: vec![0, element_index],
                     element_dimension_spec: None,
                     active_script_hash: "".to_string(),
                 }),
                 debug_last_backmsg_id: "".to_string(),
-                r#type: Some(crate::proto::forward_msg::Type::Delta(
-                    crate::proto::Delta {
+                r#type: Some(forward_msg::Type::Delta(
+                    Delta {
                         fragment_id: id.to_string(),
-                        r#type: Option::from(crate::proto::delta::Type::NewElement(
-                            crate::proto::Element {
+                        r#type: Option::from(delta::Type::NewElement(
+                            Element {
                                 height_config: None,
                                 width_config: None,
                                 text_alignment_config: None,
-                                r#type: Some(crate::proto::element::Type::Heading(
-                                    crate::proto::Heading {
+                                r#type: Some(element::Type::Heading(
+                                    Heading {
                                         tag: "h1".to_string(), // Use h1 for title
                                         anchor: "".to_string(),
                                         body: title.to_string(),
@@ -181,25 +181,25 @@ fn new_delta_with_parent(element_index: u32, element: &StreamlitElement) -> crat
             let hash = format!("delta_0_{}_{}", element_index, element_hash);
             let level_clamped = if *level < 1 { 1 } else if *level > 6 { 6 } else { *level };
             let tag = format!("h{}", level_clamped);
-            crate::proto::ForwardMsg {
+            ForwardMsg {
                 hash,
-                metadata: Some(crate::proto::ForwardMsgMetadata {
+                metadata: Some(ForwardMsgMetadata {
                     cacheable: false,
                     delta_path: vec![0, element_index],
                     element_dimension_spec: None,
                     active_script_hash: "".to_string(),
                 }),
                 debug_last_backmsg_id: "".to_string(),
-                r#type: Some(crate::proto::forward_msg::Type::Delta(
-                    crate::proto::Delta {
+                r#type: Some(forward_msg::Type::Delta(
+                    Delta {
                         fragment_id: id.to_string(),
-                        r#type: Option::from(crate::proto::delta::Type::NewElement(
-                            crate::proto::Element {
+                        r#type: Option::from(delta::Type::NewElement(
+                            Element {
                                 height_config: None,
                                 width_config: None,
                                 text_alignment_config: None,
-                                r#type: Some(crate::proto::element::Type::Heading(
-                                    crate::proto::Heading {
+                                r#type: Some(element::Type::Heading(
+                                    Heading {
                                         tag,
                                         anchor: "".to_string(),
                                         body: body.to_string(),
@@ -217,25 +217,25 @@ fn new_delta_with_parent(element_index: u32, element: &StreamlitElement) -> crat
         StreamlitElement::Markdown { id, body } => {
             let element_hash = format!("markdown_{}_{}", id, body.chars().take(20).collect::<String>());
             let hash = format!("delta_0_{}_{}", element_index, element_hash);
-            crate::proto::ForwardMsg {
+            ForwardMsg {
                 hash,
-                metadata: Some(crate::proto::ForwardMsgMetadata {
+                metadata: Some(ForwardMsgMetadata {
                     cacheable: false,
                     delta_path: vec![0, element_index],
                     element_dimension_spec: None,
                     active_script_hash: "".to_string(),
                 }),
                 debug_last_backmsg_id: "".to_string(),
-                r#type: Some(crate::proto::forward_msg::Type::Delta(
-                    crate::proto::Delta {
+                r#type: Some(forward_msg::Type::Delta(
+                    Delta {
                         fragment_id: id.to_string(),
-                        r#type: Option::from(crate::proto::delta::Type::NewElement(
-                            crate::proto::Element {
+                        r#type: Option::from(delta::Type::NewElement(
+                            Element {
                                 height_config: None,
                                 width_config: None,
                                 text_alignment_config: None,
-                                r#type: Some(crate::proto::element::Type::Markdown(
-                                    crate::proto::Markdown {
+                                r#type: Some(element::Type::Markdown(
+                                    Markdown {
                                         body: body.to_string(),
                                         allow_html: false,
                                         is_caption: false,
@@ -252,29 +252,30 @@ fn new_delta_with_parent(element_index: u32, element: &StreamlitElement) -> crat
         StreamlitElement::Code { id, body, language } => {
             let element_hash = format!("code_{}_{}", id, body.chars().take(20).collect::<String>());
             let hash = format!("delta_0_{}_{}", element_index, element_hash);
-            crate::proto::ForwardMsg {
+            ForwardMsg {
                 hash,
-                metadata: Some(crate::proto::ForwardMsgMetadata {
+                metadata: Some(ForwardMsgMetadata {
                     cacheable: false,
                     delta_path: vec![0, element_index],
                     element_dimension_spec: None,
                     active_script_hash: "".to_string(),
                 }),
                 debug_last_backmsg_id: "".to_string(),
-                r#type: Some(crate::proto::forward_msg::Type::Delta(
-                    crate::proto::Delta {
+                r#type: Some(forward_msg::Type::Delta(
+                    Delta {
                         fragment_id: id.to_string(),
-                        r#type: Option::from(crate::proto::delta::Type::NewElement(
-                            crate::proto::Element {
+                        r#type: Option::from(delta::Type::NewElement(
+                            Element {
                                 height_config: None,
                                 width_config: None,
                                 text_alignment_config: None,
-                                r#type: Some(crate::proto::element::Type::Code(
-                                    crate::proto::Code {
+                                r#type: Some(element::Type::Code(
+                                    Code {
                                         code_text: body.to_string(),
                                         language: language.clone().unwrap_or_else(|| "".to_string()),
                                         show_line_numbers: false,
                                         wrap_lines: true,
+                                        #[allow(deprecated)]
                                         height: 0, // deprecated field
                                     },
                                 )),
@@ -287,25 +288,25 @@ fn new_delta_with_parent(element_index: u32, element: &StreamlitElement) -> crat
         StreamlitElement::Divider { id } => {
             let element_hash = format!("divider_{}", id);
             let hash = format!("delta_0_{}_{}", element_index, element_hash);
-            crate::proto::ForwardMsg {
+            ForwardMsg {
                 hash,
-                metadata: Some(crate::proto::ForwardMsgMetadata {
+                metadata: Some(ForwardMsgMetadata {
                     cacheable: false,
                     delta_path: vec![0, element_index],
                     element_dimension_spec: None,
                     active_script_hash: "".to_string(),
                 }),
                 debug_last_backmsg_id: "".to_string(),
-                r#type: Some(crate::proto::forward_msg::Type::Delta(
-                    crate::proto::Delta {
+                r#type: Some(forward_msg::Type::Delta(
+                    Delta {
                         fragment_id: id.to_string(),
-                        r#type: Option::from(crate::proto::delta::Type::NewElement(
-                            crate::proto::Element {
+                        r#type: Option::from(delta::Type::NewElement(
+                            Element {
                                 height_config: None,
                                 width_config: None,
                                 text_alignment_config: None,
-                                r#type: Some(crate::proto::element::Type::Empty(
-                                    crate::proto::Empty {},
+                                r#type: Some(element::Type::Empty(
+                                    Empty {},
                                 )),
                             },
                         )),
@@ -316,25 +317,25 @@ fn new_delta_with_parent(element_index: u32, element: &StreamlitElement) -> crat
         StreamlitElement::Empty { id } => {
             let element_hash = format!("empty_{}", id);
             let hash = format!("delta_0_{}_{}", element_index, element_hash);
-            crate::proto::ForwardMsg {
+            ForwardMsg {
                 hash,
-                metadata: Some(crate::proto::ForwardMsgMetadata {
+                metadata: Some(ForwardMsgMetadata {
                     cacheable: false,
                     delta_path: vec![0, element_index],
                     element_dimension_spec: None,
                     active_script_hash: "".to_string(),
                 }),
                 debug_last_backmsg_id: "".to_string(),
-                r#type: Some(crate::proto::forward_msg::Type::Delta(
-                    crate::proto::Delta {
+                r#type: Some(forward_msg::Type::Delta(
+                    Delta {
                         fragment_id: id.to_string(),
-                        r#type: Option::from(crate::proto::delta::Type::NewElement(
-                            crate::proto::Element {
+                        r#type: Option::from(delta::Type::NewElement(
+                            Element {
                                 height_config: None,
                                 width_config: None,
                                 text_alignment_config: None,
-                                r#type: Some(crate::proto::element::Type::Empty(
-                                    crate::proto::Empty {},
+                                r#type: Some(element::Type::Empty(
+                                    Empty {},
                                 )),
                             },
                         )),
@@ -424,7 +425,7 @@ async fn handle_rerun_script(
 async fn handle_back_message(
     session: &mut Session,
     session_id: &str,
-    back_msg: crate::proto::BackMsg,
+    back_msg: BackMsg,
     entry: fn(&Streamlit),
 ) -> Result<(), Box<dyn std::error::Error>> {
     if let Some(tp) = back_msg.r#type {
@@ -473,7 +474,7 @@ pub async fn handle_connection(
             Ok(actix_ws::Message::Binary(data)) => {
                 log::info!("Received binary protobuf message: {} bytes", data.len());
 
-                match crate::proto::BackMsg::decode(data) {
+                match BackMsg::decode(data) {
                     Ok(back_msg) => {
                         log::info!("Successfully decoded BackMsg: {:?}", back_msg);
                         handle_back_message(&mut session, &session_id, back_msg, entry).await?;
