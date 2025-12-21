@@ -5,6 +5,173 @@ use actix_ws::{ProtocolError, Session};
 use futures_util::StreamExt;
 use prost::Message;
 
+// Factory for creating ForwardMsg instances with cleaner separation of concerns
+struct ForwardMsgFactory;
+
+impl ForwardMsgFactory {
+    /// Creates the base metadata for delta messages
+    fn delta_metadata(element_index: u32) -> ForwardMsgMetadata {
+        ForwardMsgMetadata {
+            cacheable: false,
+            delta_path: vec![0, element_index], // [main_container_index, element_index]
+            element_dimension_spec: None,
+            active_script_hash: "".to_string(),
+        }
+    }
+
+    /// Creates the base ForwardMsg structure for delta messages
+    fn delta_base(element_index: u32, _id: &str, element_hash: &str) -> ForwardMsg {
+        let hash = format!("delta_0_{}_{}", element_index, element_hash);
+
+        ForwardMsg {
+            hash,
+            metadata: Some(Self::delta_metadata(element_index)),
+            debug_last_backmsg_id: "".to_string(),
+            r#type: None, // Will be set by specific element methods
+        }
+    }
+
+    /// Creates a text element ForwardMsg
+    fn text_element(element_index: u32, id: &str, body: &str, help: &str) -> ForwardMsg {
+        let element_hash = format!("text_{}_{}", id, body);
+        let mut msg = Self::delta_base(element_index, id, &element_hash);
+
+        msg.r#type = Some(forward_msg::Type::Delta(Delta {
+            fragment_id: id.to_string(),
+            r#type: Some(delta::Type::NewElement(Element {
+                height_config: None,
+                width_config: None,
+                text_alignment_config: None,
+                r#type: Some(element::Type::Text(Text {
+                    body: body.to_string(),
+                    help: help.to_string(),
+                })),
+            })),
+        }));
+
+        msg
+    }
+
+    /// Creates a title (h1) element ForwardMsg
+    fn title_element(element_index: u32, id: &str, title: &str) -> ForwardMsg {
+        let element_hash = format!("title_{}_{}", id, title);
+        let mut msg = Self::delta_base(element_index, id, &element_hash);
+
+        msg.r#type = Some(forward_msg::Type::Delta(Delta {
+            fragment_id: id.to_string(),
+            r#type: Some(delta::Type::NewElement(Element {
+                height_config: None,
+                width_config: None,
+                text_alignment_config: None,
+                r#type: Some(element::Type::Heading(Heading {
+                    tag: "h1".to_string(),
+                    anchor: "".to_string(),
+                    body: title.to_string(),
+                    help: "".to_string(),
+                    hide_anchor: false,
+                    divider: "".to_string(),
+                })),
+            })),
+        }));
+
+        msg
+    }
+
+    /// Creates a header element ForwardMsg
+    fn header_element(element_index: u32, id: &str, body: &str, level: i32) -> ForwardMsg {
+        let level_clamped = if level < 1 { 1 } else if level > 6 { 6 } else { level };
+        let tag = format!("h{}", level_clamped);
+        let element_hash = format!("header_{}_{}_{}", id, tag, body);
+        let mut msg = Self::delta_base(element_index, id, &element_hash);
+
+        msg.r#type = Some(forward_msg::Type::Delta(Delta {
+            fragment_id: id.to_string(),
+            r#type: Some(delta::Type::NewElement(Element {
+                height_config: None,
+                width_config: None,
+                text_alignment_config: None,
+                r#type: Some(element::Type::Heading(Heading {
+                    tag,
+                    anchor: "".to_string(),
+                    body: body.to_string(),
+                    help: "".to_string(),
+                    hide_anchor: false,
+                    divider: "".to_string(),
+                })),
+            })),
+        }));
+
+        msg
+    }
+
+    /// Creates a markdown element ForwardMsg
+    fn markdown_element(element_index: u32, id: &str, body: &str) -> ForwardMsg {
+        let element_hash = format!("markdown_{}_{}", id, body.chars().take(20).collect::<String>());
+        let mut msg = Self::delta_base(element_index, id, &element_hash);
+
+        msg.r#type = Some(forward_msg::Type::Delta(Delta {
+            fragment_id: id.to_string(),
+            r#type: Some(delta::Type::NewElement(Element {
+                height_config: None,
+                width_config: None,
+                text_alignment_config: None,
+                r#type: Some(element::Type::Markdown(Markdown {
+                    body: body.to_string(),
+                    allow_html: false,
+                    is_caption: false,
+                    element_type: 0,
+                    help: "".to_string(),
+                })),
+            })),
+        }));
+
+        msg
+    }
+
+    /// Creates a code element ForwardMsg
+    fn code_element(element_index: u32, id: &str, body: &str, language: &Option<String>) -> ForwardMsg {
+        let element_hash = format!("code_{}_{}", id, body.chars().take(20).collect::<String>());
+        let mut msg = Self::delta_base(element_index, id, &element_hash);
+
+        msg.r#type = Some(forward_msg::Type::Delta(Delta {
+            fragment_id: id.to_string(),
+            r#type: Some(delta::Type::NewElement(Element {
+                height_config: None,
+                width_config: None,
+                text_alignment_config: None,
+                r#type: Some(element::Type::Code(Code {
+                    code_text: body.to_string(),
+                    language: language.clone().unwrap_or_else(|| "".to_string()),
+                    show_line_numbers: false,
+                    wrap_lines: true,
+                    #[allow(deprecated)]
+                    height: 0,
+                })),
+            })),
+        }));
+
+        msg
+    }
+
+    /// Creates an empty element ForwardMsg (used for dividers and empty elements)
+    fn empty_element(element_index: u32, id: &str, element_type: &str) -> ForwardMsg {
+        let element_hash = format!("{}_{}", element_type, id);
+        let mut msg = Self::delta_base(element_index, id, &element_hash);
+
+        msg.r#type = Some(forward_msg::Type::Delta(Delta {
+            fragment_id: id.to_string(),
+            r#type: Some(delta::Type::NewElement(Element {
+                height_config: None,
+                width_config: None,
+                text_alignment_config: None,
+                r#type: Some(element::Type::Empty(Empty {})),
+            })),
+        }));
+
+        msg
+    }
+}
+
 fn new_session(session_id: &str, script_run_id: &str) -> ForwardMsg {
     let hash = format!("new_session_{}", session_id);
 
@@ -106,242 +273,28 @@ fn new_main_block_delta() -> ForwardMsg {
 }
 
 fn new_delta_with_parent(element_index: u32, element: &StreamlitElement) -> ForwardMsg {
-    // Elements are children of main block, so delta_path = [0, element_index]
+    // Use factory methods to create the appropriate ForwardMsg based on element type
     match element {
         StreamlitElement::Text { id, body, help } => {
-            let element_hash = format!("text_{}_{}", id, body);
-            let hash = format!("delta_0_{}_{}", element_index, element_hash);
-            ForwardMsg {
-                hash,
-                metadata: Some(ForwardMsgMetadata {
-                    cacheable: false,
-                    delta_path: vec![0, element_index], // [main_container_index, element_index]
-                    element_dimension_spec: None,
-                    active_script_hash: "".to_string(),
-                }),
-                debug_last_backmsg_id: "".to_string(),
-                r#type: Some(forward_msg::Type::Delta(
-                    Delta {
-                        fragment_id: id.to_string(),
-                        r#type: Option::from(delta::Type::NewElement(
-                            Element {
-                                height_config: None,
-                                width_config: None,
-                                text_alignment_config: None,
-                                r#type: Some(element::Type::Text(
-                                    Text {
-                                        body: body.to_string(),
-                                        help: help.to_string(),
-                                    },
-                                )),
-                            },
-                        )),
-                    },
-                )),
-            }
+            ForwardMsgFactory::text_element(element_index, id, body, help)
         }
         StreamlitElement::Title { id, title } => {
-            let element_hash = format!("title_{}_{}", id, title);
-            let hash = format!("delta_0_{}_{}", element_index, element_hash);
-            ForwardMsg {
-                hash,
-                metadata: Some(ForwardMsgMetadata {
-                    cacheable: false,
-                    delta_path: vec![0, element_index],
-                    element_dimension_spec: None,
-                    active_script_hash: "".to_string(),
-                }),
-                debug_last_backmsg_id: "".to_string(),
-                r#type: Some(forward_msg::Type::Delta(
-                    Delta {
-                        fragment_id: id.to_string(),
-                        r#type: Option::from(delta::Type::NewElement(
-                            Element {
-                                height_config: None,
-                                width_config: None,
-                                text_alignment_config: None,
-                                r#type: Some(element::Type::Heading(
-                                    Heading {
-                                        tag: "h1".to_string(), // Use h1 for title
-                                        anchor: "".to_string(),
-                                        body: title.to_string(),
-                                        help: "".to_string(),
-                                        hide_anchor: false,
-                                        divider: "".to_string(),
-                                    },
-                                )),
-                            },
-                        )),
-                    },
-                )),
-            }
+            ForwardMsgFactory::title_element(element_index, id, title)
         }
         StreamlitElement::Header { id, body, level } => {
-            let element_hash = format!("header_{}_{}_{}", id, level, body);
-            let hash = format!("delta_0_{}_{}", element_index, element_hash);
-            let level_clamped = if *level < 1 { 1 } else if *level > 6 { 6 } else { *level };
-            let tag = format!("h{}", level_clamped);
-            ForwardMsg {
-                hash,
-                metadata: Some(ForwardMsgMetadata {
-                    cacheable: false,
-                    delta_path: vec![0, element_index],
-                    element_dimension_spec: None,
-                    active_script_hash: "".to_string(),
-                }),
-                debug_last_backmsg_id: "".to_string(),
-                r#type: Some(forward_msg::Type::Delta(
-                    Delta {
-                        fragment_id: id.to_string(),
-                        r#type: Option::from(delta::Type::NewElement(
-                            Element {
-                                height_config: None,
-                                width_config: None,
-                                text_alignment_config: None,
-                                r#type: Some(element::Type::Heading(
-                                    Heading {
-                                        tag,
-                                        anchor: "".to_string(),
-                                        body: body.to_string(),
-                                        help: "".to_string(),
-                                        hide_anchor: false,
-                                        divider: "".to_string(),
-                                    },
-                                )),
-                            },
-                        )),
-                    },
-                )),
-            }
+            ForwardMsgFactory::header_element(element_index, id, body, *level)
         }
         StreamlitElement::Markdown { id, body } => {
-            let element_hash = format!("markdown_{}_{}", id, body.chars().take(20).collect::<String>());
-            let hash = format!("delta_0_{}_{}", element_index, element_hash);
-            ForwardMsg {
-                hash,
-                metadata: Some(ForwardMsgMetadata {
-                    cacheable: false,
-                    delta_path: vec![0, element_index],
-                    element_dimension_spec: None,
-                    active_script_hash: "".to_string(),
-                }),
-                debug_last_backmsg_id: "".to_string(),
-                r#type: Some(forward_msg::Type::Delta(
-                    Delta {
-                        fragment_id: id.to_string(),
-                        r#type: Option::from(delta::Type::NewElement(
-                            Element {
-                                height_config: None,
-                                width_config: None,
-                                text_alignment_config: None,
-                                r#type: Some(element::Type::Markdown(
-                                    Markdown {
-                                        body: body.to_string(),
-                                        allow_html: false,
-                                        is_caption: false,
-                                        element_type: 0, // Default markdown type
-                                        help: "".to_string(),
-                                    },
-                                )),
-                            },
-                        )),
-                    },
-                )),
-            }
+            ForwardMsgFactory::markdown_element(element_index, id, body)
         }
         StreamlitElement::Code { id, body, language } => {
-            let element_hash = format!("code_{}_{}", id, body.chars().take(20).collect::<String>());
-            let hash = format!("delta_0_{}_{}", element_index, element_hash);
-            ForwardMsg {
-                hash,
-                metadata: Some(ForwardMsgMetadata {
-                    cacheable: false,
-                    delta_path: vec![0, element_index],
-                    element_dimension_spec: None,
-                    active_script_hash: "".to_string(),
-                }),
-                debug_last_backmsg_id: "".to_string(),
-                r#type: Some(forward_msg::Type::Delta(
-                    Delta {
-                        fragment_id: id.to_string(),
-                        r#type: Option::from(delta::Type::NewElement(
-                            Element {
-                                height_config: None,
-                                width_config: None,
-                                text_alignment_config: None,
-                                r#type: Some(element::Type::Code(
-                                    Code {
-                                        code_text: body.to_string(),
-                                        language: language.clone().unwrap_or_else(|| "".to_string()),
-                                        show_line_numbers: false,
-                                        wrap_lines: true,
-                                        #[allow(deprecated)]
-                                        height: 0, // deprecated field
-                                    },
-                                )),
-                            },
-                        )),
-                    },
-                )),
-            }
+            ForwardMsgFactory::code_element(element_index, id, body, language)
         }
         StreamlitElement::Divider { id } => {
-            let element_hash = format!("divider_{}", id);
-            let hash = format!("delta_0_{}_{}", element_index, element_hash);
-            ForwardMsg {
-                hash,
-                metadata: Some(ForwardMsgMetadata {
-                    cacheable: false,
-                    delta_path: vec![0, element_index],
-                    element_dimension_spec: None,
-                    active_script_hash: "".to_string(),
-                }),
-                debug_last_backmsg_id: "".to_string(),
-                r#type: Some(forward_msg::Type::Delta(
-                    Delta {
-                        fragment_id: id.to_string(),
-                        r#type: Option::from(delta::Type::NewElement(
-                            Element {
-                                height_config: None,
-                                width_config: None,
-                                text_alignment_config: None,
-                                r#type: Some(element::Type::Empty(
-                                    Empty {},
-                                )),
-                            },
-                        )),
-                    },
-                )),
-            }
+            ForwardMsgFactory::empty_element(element_index, id, "divider")
         }
         StreamlitElement::Empty { id } => {
-            let element_hash = format!("empty_{}", id);
-            let hash = format!("delta_0_{}_{}", element_index, element_hash);
-            ForwardMsg {
-                hash,
-                metadata: Some(ForwardMsgMetadata {
-                    cacheable: false,
-                    delta_path: vec![0, element_index],
-                    element_dimension_spec: None,
-                    active_script_hash: "".to_string(),
-                }),
-                debug_last_backmsg_id: "".to_string(),
-                r#type: Some(forward_msg::Type::Delta(
-                    Delta {
-                        fragment_id: id.to_string(),
-                        r#type: Option::from(delta::Type::NewElement(
-                            Element {
-                                height_config: None,
-                                width_config: None,
-                                text_alignment_config: None,
-                                r#type: Some(element::Type::Empty(
-                                    Empty {},
-                                )),
-                            },
-                        )),
-                    },
-                )),
-            }
+            ForwardMsgFactory::empty_element(element_index, id, "empty")
         }
     }
 }
