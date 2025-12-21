@@ -61,16 +61,60 @@ fn new_session(session_id: &str, script_run_id: &str) -> crate::proto::ForwardMs
     }
 }
 
-fn new_delta(delta_path_index: u32, element: &StreamlitElement) -> crate::proto::ForwardMsg {
+fn new_script_finished_message() -> crate::proto::ForwardMsg {
+    crate::proto::ForwardMsg {
+        hash: "script_finished".to_string(),
+        metadata: None,
+        debug_last_backmsg_id: "".to_string(),
+        r#type: Some(crate::proto::forward_msg::Type::ScriptFinished(
+            crate::proto::forward_msg::ScriptFinishedStatus::FinishedSuccessfully as i32,
+        )),
+    }
+}
+
+fn new_main_block_delta() -> crate::proto::ForwardMsg {
+    crate::proto::ForwardMsg {
+        hash: "main_block".to_string(),
+        metadata: Some(crate::proto::ForwardMsgMetadata {
+            cacheable: false,
+            delta_path: vec![0], // RootContainer.MAIN = 0
+            element_dimension_spec: None,
+            active_script_hash: "".to_string(),
+        }),
+        debug_last_backmsg_id: "".to_string(),
+        r#type: Some(crate::proto::forward_msg::Type::Delta(
+            crate::proto::Delta {
+                fragment_id: "".to_string(),
+                r#type: Option::from(crate::proto::delta::Type::AddBlock(
+                    crate::proto::Block {
+                        r#type: Some(crate::proto::block::Type::Vertical(
+                            crate::proto::block::Vertical {
+                                border: false,
+                                height: 0, // deprecated field, required
+                            }
+                        )),
+                        allow_empty: false,
+                        id: Some("main_container".to_string()), // This is the crucial ID!
+                        height_config: None,
+                        width_config: None,
+                    }
+                )),
+            },
+        )),
+    }
+}
+
+fn new_delta_with_parent(element_index: u32, element: &StreamlitElement) -> crate::proto::ForwardMsg {
+    // Elements are children of main block, so delta_path = [0, element_index]
     match element {
         StreamlitElement::Text { id, body, help } => {
             let element_hash = format!("text_{}_{}", id, body);
-            let hash = format!("delta_{}_{}", delta_path_index, element_hash);
+            let hash = format!("delta_0_{}_{}", element_index, element_hash);
             crate::proto::ForwardMsg {
                 hash,
                 metadata: Some(crate::proto::ForwardMsgMetadata {
                     cacheable: false,
-                    delta_path: vec![delta_path_index],
+                    delta_path: vec![0, element_index], // [main_container_index, element_index]
                     element_dimension_spec: None,
                     active_script_hash: "".to_string(),
                 }),
@@ -98,6 +142,7 @@ fn new_delta(delta_path_index: u32, element: &StreamlitElement) -> crate::proto:
     }
 }
 
+
 async fn send_new_session(
     session: &mut Session,
     session_id: &str,
@@ -119,8 +164,15 @@ async fn send_elements(
 ) -> Result<(), Box<dyn std::error::Error>> {
     log::info!("Sending {} elements as protobuf", elements.len());
 
+    // First, create a main block container (RootContainer.MAIN = 0)
+    let main_block_msg = new_main_block_delta();
+    let block_encoded = main_block_msg.encode_to_vec();
+    log::info!("Sending main block protobuf message: {} bytes", block_encoded.len());
+    session.binary(block_encoded).await?;
+
+    // Then send all elements as children of the main block (delta_path: [0, element_index])
     for (index, element) in elements.iter().enumerate() {
-        let forward_msg = new_delta(index as u32, element);
+        let forward_msg = new_delta_with_parent(index as u32, element);
         let encoded = forward_msg.encode_to_vec();
 
         log::info!(
@@ -155,6 +207,12 @@ async fn handle_rerun_script(
 
     // Send all elements as deltas
     send_elements(session, app.get_elements()).await?;
+
+    // Send script_finished message (this is crucial!)
+    let script_finished_msg = new_script_finished_message();
+    let encoded = script_finished_msg.encode_to_vec();
+    log::info!("Sending script_finished message: {} bytes", encoded.len());
+    session.binary(encoded).await?;
 
     log::info!("Rerun script completed for session: {}", session_id);
     Ok(())
