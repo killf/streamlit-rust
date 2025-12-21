@@ -194,17 +194,20 @@ impl Streamlit {
     }
 
     /// Create a simple container (for now, just groups elements)
-    pub fn container(&self) -> SimpleContainer {
-        SimpleContainer::new(self.elements.clone())
-    }
+    pub fn container(&self) -> StreamlitContainer {
+        // Create the container element immediately with a unique ID
+        let container_id = Uuid::new_v4().to_string();
+        let container_element = StreamlitElement::Container {
+            id: container_id.clone(),
+            key: None,
+            children: Vec::new(),
+        };
 
-    /// Create simple columns (for now, just returns separate containers)
-    pub fn columns<const N: usize>(&self) -> [SimpleContainer; N] {
-        let mut cols = Vec::with_capacity(N);
-        for _ in 0..N {
-            cols.push(SimpleContainer::new(self.elements.clone()));
-        }
-        cols.try_into().unwrap()
+        // Add the container element to the parent elements
+        self.elements.lock().push(container_element);
+
+        // Return a container that can add children to this specific container
+        StreamlitContainer::new(container_element, container_id)
     }
 
     /// Display text with a specific heading level (shortcut for common headers)
@@ -262,16 +265,23 @@ impl From<bool> for WidgetValue {
 
 /// Simple Container for basic grouping functionality
 #[derive(Debug, Clone)]
-pub struct SimpleContainer {
-    elements: Arc<Mutex<Vec<StreamlitElement>>>,
-    parent_elements: Arc<Mutex<Vec<StreamlitElement>>>,
+pub struct StreamlitContainer {
+    parent: Arc<Mutex<StreamlitElement>>,
+    children: Arc<Mutex<Vec<StreamlitElement>>>,
+    container_id: Option<String>, // For standalone containers
+    columns_id: Option<String>,   // For columns
+    column_id: Option<String>,    // For individual columns within columns
 }
 
-impl SimpleContainer {
-    fn new(parent_elements: Arc<Mutex<Vec<StreamlitElement>>>) -> Self {
+impl StreamlitContainer {
+    /// Create a new standalone container
+    fn new(parent: Arc<Mutex<StreamlitElement>>, container_id: String) -> Self {
         Self {
-            elements: Arc::new(Mutex::new(Vec::new())),
-            parent_elements,
+            parent,
+            children: Arc::new(Mutex::new(Vec::new())),
+            container_id: Some(container_id),
+            columns_id: None,
+            column_id: None,
         }
     }
 
@@ -281,53 +291,14 @@ impl SimpleContainer {
             body: content.to_string(),
             help: String::default(),
         };
-        self.elements.lock().push(element);
-        self.sync_to_parent();
+        self.add_child(element);
     }
 
-    pub fn button(&self, label: &str, key: Option<&str>) -> bool {
-        let button_key = key.unwrap_or(label);
-        let element_id = format!("button-{}", button_key);
-
-        // Check if this button was previously clicked
-        let app = get_app();
-        let was_clicked = app.get_widget_state(button_key)
-            .and_then(|value| match value {
-                WidgetValue::Boolean(b) => Some(b),
-                _ => None,
-            })
-            .unwrap_or(false);
-
-        // Reset button state after checking
-        if was_clicked {
-            app.set_widget_state(button_key, WidgetValue::Boolean(false));
-        }
-
-        let element = StreamlitElement::Button {
-            id: element_id,
-            label: label.to_string(),
-            key: button_key.to_string(),
-            clicked: was_clicked,
-        };
-        self.elements.lock().push(element);
-        self.sync_to_parent();
-
-        was_clicked
-    }
-
-    fn sync_to_parent(&self) {
-        let children = self.elements.lock().clone();
-        let container_element = StreamlitElement::Container {
-            id: Uuid::new_v4().to_string(),
-            key: None,
-            children,
-        };
-        self.parent_elements.lock().push(container_element);
+    fn add_child(&self, child: StreamlitElement) {
+        let mut children = self.children.lock();
+        children.push(child);
     }
 }
-
-pub type StreamlitContainer = SimpleContainer;
-pub type StreamlitColumn = SimpleContainer;
 
 /// Global Streamlit app instance
 static STREAMLIT_APP: std::sync::LazyLock<Streamlit> = std::sync::LazyLock::new(Streamlit::new);
