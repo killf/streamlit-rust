@@ -1,4 +1,4 @@
-pub mod streamlit_handler;
+pub mod handler;
 
 // Use Streamlit-compatible handler for real frontend
-pub use streamlit_handler::handle_connection;
+pub use handler::handle_connection;
