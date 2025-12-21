@@ -1,7 +1,10 @@
 use crate::api::{get_app, StreamlitElement};
+use crate::proto::back_msg;
+use crate::proto::back_msg::Type;
 use crate::Streamlit;
-use actix_ws::{Message, ProtocolError, Session};
+use actix_ws::{ProtocolError, Session};
 use futures_util::StreamExt;
+use prost::Message;
 
 #[derive(Debug, Clone)]
 pub struct ForwardMsg {
@@ -95,27 +98,6 @@ pub enum ScriptFinishedStatus {
 }
 
 impl ForwardMsg {
-    fn new_new_session(session_id: &str, script_run_id: &str) -> Self {
-        // Generate hash for new_session message
-        let hash = format!("new_session_{}", session_id);
-
-        Self {
-            hash: Some(hash),
-            metadata: Some(ForwardMsgMetadata {
-                cacheable: false,
-                delta_path: vec![],
-                active_script_hash: None,
-            }),
-            msg_type: ForwardMsgType::NewSession(NewSession {
-                script_run_id: script_run_id.to_string(),
-                name: "hello.py".to_string(),
-                main_script_path: "/tmp/hello.py".to_string(),
-                session_id: session_id.to_string(),
-                is_hello: true,
-            }),
-        }
-    }
-
     fn new_session_state_changed(script_is_running: bool) -> Self {
         // Generate hash for session_state_changed message
         let hash = format!(
@@ -394,10 +376,9 @@ fn encode_int32_field(field_number: u32, value: i32, buf: &mut Vec<u8>) {
     encode_varint(value as u64, buf);
 }
 
-/// Handle WebSocket connection with Streamlit frontend using protobuf
-pub async fn handle_streamlit_websocket_connection(
+pub async fn handle_connection(
     mut session: Session,
-    mut msg_stream: impl futures_util::Stream<Item = Result<Message, ProtocolError>> + Unpin,
+    mut msg_stream: impl futures_util::Stream<Item = Result<actix_ws::Message, ProtocolError>> + Unpin,
     entry: fn(&Streamlit),
 ) -> Result<(), Box<dyn std::error::Error>> {
     log::info!("=== Streamlit WebSocket handler started ===");
@@ -438,60 +419,64 @@ pub async fn handle_streamlit_websocket_connection(
         log::debug!("Message result: {:?}", msg_result);
 
         match msg_result {
-            Ok(Message::Binary(data)) => {
+            Ok(actix_ws::Message::Binary(data)) => {
                 log::info!("Received binary protobuf message: {} bytes", data.len());
-                log::info!(
-                    "Message hex (first 100 bytes): {}",
-                    data.iter()
-                        .take(100)
-                        .map(|b| format!("{:02x}", b))
-                        .collect::<Vec<_>>()
-                        .join(" ")
-                );
 
-                // Try to decode as Streamlit BackMsg
-                match decode_back_msg(&data) {
+                match crate::proto::BackMsg::decode(data) {
                     Ok(back_msg) => {
                         log::info!("Successfully decoded BackMsg: {:?}", back_msg);
                         handle_back_message(&mut session, &session_id, back_msg, entry).await?;
                     }
                     Err(e) => {
                         log::warn!("Failed to decode BackMsg: {}", e);
-                        log::info!("Raw message bytes: {:?}", &data[..data.len().min(50)]);
-                        // Try to see if it's just text data
-                        if let Ok(text) = String::from_utf8(data.to_vec()) {
-                            log::info!("Binary data as text: {}", text);
-                        }
                     }
                 }
+
+                // Try to decode as Streamlit BackMsg
+                // match decode_back_msg(&data) {
+                //     Ok(back_msg) => {
+                //         log::info!("Successfully decoded BackMsg: {:?}", back_msg);
+                //         handle_back_message(&mut session, &session_id, back_msg, entry).await?;
+                //     }
+                //     Err(e) => {
+                //         log::warn!("Failed to decode BackMsg: {}", e);
+                //         log::info!("Raw message bytes: {:?}", &data[..data.len().min(50)]);
+                //         // Try to see if it's just text data
+                //         if let Ok(text) = String::from_utf8(data.to_vec()) {
+                //             log::info!("Binary data as text: {}", text);
+                //         }
+                //     }
+                // }
             }
-            Ok(Message::Text(text)) => {
+            Ok(actix_ws::Message::Text(text)) => {
                 log::info!("Received text message: {}", text);
-                // Frontend shouldn't send text, but log it for debugging
             }
-            Ok(Message::Close(reason)) => {
+            Ok(actix_ws::Message::Close(reason)) => {
                 log::info!("🚪 WebSocket connection closed: {:?}", reason);
                 log::info!("📊 Total messages processed: {}", message_count);
                 break;
             }
-            Ok(Message::Ping(ping)) => {
+            Ok(actix_ws::Message::Ping(ping)) => {
                 log::debug!("Received ping, sending pong");
                 if let Err(e) = session.pong(&ping).await {
                     log::error!("Failed to send pong: {}", e);
                 }
             }
-            Ok(Message::Pong(_pong)) => {
+            Ok(actix_ws::Message::Pong(_pong)) => {
                 log::debug!("Received pong");
             }
-            Ok(Message::Continuation(_)) => {
+            Ok(actix_ws::Message::Continuation(_)) => {
                 log::debug!("Received continuation frame");
             }
-            Ok(Message::Nop) => {
+            Ok(actix_ws::Message::Nop) => {
                 log::debug!("Received nop");
             }
             Err(e) => {
                 log::error!("WebSocket stream error: {}", e);
                 break;
+            }
+            _ => {
+                log::error!("Unknown message type");
             }
         }
     }
@@ -532,60 +517,19 @@ pub struct SessionInfo {
     pub run_count: u32,
 }
 
-fn decode_back_msg(data: &[u8]) -> Result<BackMsg, Box<dyn std::error::Error>> {
-    // For now, implement a simple decoder that can identify message types
-    // In a full implementation, we would use proper protobuf decoding
-
-    if data.len() < 2 {
-        return Ok(BackMsg::Unknown);
-    }
-
-    // Try to identify common patterns in BackMsg
-    // This is a simplified approach - real implementation would use protobuf decoding
-    let data_str = String::from_utf8_lossy(data);
-
-    if data_str.contains("rerunScript") {
-        Ok(BackMsg::RerunScript)
-    } else if data_str.contains("clearCache") {
-        Ok(BackMsg::ClearCache)
-    } else if data_str.contains("stopScript") {
-        Ok(BackMsg::StopScript)
-    } else if data_str.contains("debugDisconnectWebsocket") {
-        Ok(BackMsg::DebugDisconnectWebsocket)
-    } else {
-        // Assume it's rerunScript if we can't identify it
-        Ok(BackMsg::RerunScript)
-    }
-}
-
 async fn handle_back_message(
     session: &mut Session,
     session_id: &str,
-    back_msg: BackMsg,
+    back_msg: crate::proto::BackMsg,
     entry: fn(&Streamlit),
 ) -> Result<(), Box<dyn std::error::Error>> {
-    match back_msg {
-        BackMsg::RerunScript => {
-            log::info!("Handling rerun script request");
-            handle_rerun_script(session, session_id, entry).await?;
-        }
-        BackMsg::ClearCache => {
-            log::info!("Handling clear cache request");
-            // Clear cache logic
-        }
-        BackMsg::StopScript => {
-            log::info!("Handling stop script request");
-            // Stop script logic
-        }
-        BackMsg::DebugDisconnectWebsocket => {
-            log::info!("Received debug disconnect request - closing connection");
-            // Close the connection as requested for testing
-            // Note: We can't close the session here because it consumes it
-            // Instead, we'll let the connection close naturally
-            return Err("Debug disconnect requested".into());
-        }
-        BackMsg::Unknown => {
-            log::warn!("Received unknown BackMsg type");
+    if let Some(tp) = back_msg.r#type {
+        match tp {
+            Type::RerunScript(state) => {
+                log::info!("Handling rerun script request");
+                handle_rerun_script(session, session_id, entry).await?;
+            }
+            _ => {}
         }
     }
     Ok(())
@@ -598,18 +542,10 @@ async fn send_new_session_protobuf(
     // Generate script run ID
     let script_run_id = uuid::Uuid::new_v4().to_string();
 
-    // Create protobuf-compatible NewSession message
-    let forward_msg = ForwardMsg::new_new_session(session_id, &script_run_id);
-    let encoded = forward_msg.encode();
+    let forward_msg = new_session(session_id, &script_run_id);
+    let encoded = forward_msg.encode_to_vec();
 
-    // TODO
-    // let a = crate::proto::ForwardMsg::default();
-    // let encoded = a.encode_to_vec();
-
-    log::info!(
-        "Sending new_session protobuf message: {} bytes",
-        encoded.len()
-    );
+    log::info!("Sending new_session: {:?} ", forward_msg);
     session.binary(encoded).await?;
     Ok(())
 }
@@ -633,7 +569,6 @@ async fn send_session_state_changed(
     session: &mut Session,
     script_is_running: bool,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    // Create protobuf-compatible SessionStateChanged message
     let forward_msg = ForwardMsg::new_session_state_changed(script_is_running);
     let encoded = forward_msg.encode();
 
@@ -728,4 +663,33 @@ async fn send_elements_as_protobuf(
     }
 
     Ok(())
+}
+
+fn new_session(session_id: &str, script_run_id: &str) -> crate::proto::ForwardMsg {
+    let hash = format!("new_session_{}", session_id);
+
+    crate::proto::ForwardMsg {
+        hash: hash.clone(),
+        metadata: Some(crate::proto::ForwardMsgMetadata {
+            cacheable: false,
+            delta_path: vec![],
+            element_dimension_spec: None,
+            active_script_hash: "".to_string(),
+        }),
+        debug_last_backmsg_id: "".to_string(),
+        r#type: Some(crate::proto::forward_msg::Type::NewSession(
+            crate::proto::NewSession {
+                initialize: None,
+                script_run_id: script_run_id.to_string(),
+                name: "hello.py".to_string(),
+                main_script_path: "hello.py".to_string(),
+                config: None,
+                custom_theme: None,
+                app_pages: vec![],
+                page_script_hash: hash.clone(),
+                fragment_ids_this_run: vec![],
+                main_script_hash: hash,
+            },
+        )),
+    }
 }
