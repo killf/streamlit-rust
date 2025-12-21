@@ -1,5 +1,5 @@
 use crate::api::{get_app, StreamlitElement};
-use crate::proto::{back_msg::Type, *};
+use crate::proto::{back_msg::Type, Button as StreamlitButton, WidgetState, widget_state::Value, *};
 use crate::Streamlit;
 use actix_ws::{ProtocolError, Session};
 use futures_util::StreamExt;
@@ -170,6 +170,40 @@ impl ForwardMsgFactory {
 
         msg
     }
+
+    /// Creates a button element ForwardMsg
+    fn button_element(element_index: u32, id: &str, label: &str, key: &str) -> ForwardMsg {
+        let element_hash = format!("button_{}_{}", key, label);
+        let mut msg = Self::delta_base(element_index, id, &element_hash);
+
+        let button = StreamlitButton {
+            id: key.to_string(),
+            label: label.to_string(),
+            default: false,
+            help: String::default(),
+            form_id: String::default(),
+            is_form_submitter: false,
+            r#type: "secondary".to_string(),
+            disabled: false,
+            #[allow(deprecated)]
+            use_container_width: false,
+            icon: String::default(),
+            shortcut: String::default(),
+            icon_position: 0, // LEFT
+        };
+
+        msg.r#type = Some(forward_msg::Type::Delta(Delta {
+            fragment_id: id.to_string(),
+            r#type: Some(delta::Type::NewElement(Element {
+                height_config: None,
+                width_config: None,
+                text_alignment_config: None,
+                r#type: Some(element::Type::Button(button)),
+            })),
+        }));
+
+        msg
+    }
 }
 
 fn new_session(session_id: &str, script_run_id: &str) -> ForwardMsg {
@@ -296,6 +330,9 @@ fn new_delta_with_parent(element_index: u32, element: &StreamlitElement) -> Forw
         StreamlitElement::Empty { id } => {
             ForwardMsgFactory::empty_element(element_index, id, "empty")
         }
+        StreamlitElement::Button { id, label, key, clicked: _ } => {
+            ForwardMsgFactory::button_element(element_index, id, label, key)
+        }
     }
 }
 
@@ -347,12 +384,36 @@ async fn handle_rerun_script(
     session: &mut Session,
     session_id: &str,
     entry: fn(&Streamlit),
+    widget_states: Option<Vec<WidgetState>>,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let app = get_app();
 
     // Clear previous elements and increment run count
     app.clear_elements();
     app.increment_run_count();
+
+    // Process widget states (button clicks, etc.)
+    if let Some(states) = widget_states {
+        log::info!("Processing {} widget states", states.len());
+        for widget_state in states {
+            if let Some(value) = widget_state.value {
+                match value {
+                    Value::TriggerValue(clicked) => {
+                        // This is a button click
+                        log::info!(
+                            "Button '{}' clicked: {}",
+                            widget_state.id,
+                            clicked
+                        );
+                        app.set_widget_state(&widget_state.id, crate::api::WidgetValue::Boolean(clicked));
+                    }
+                    _ => {
+                        log::info!("Received other widget type: {}", widget_state.id);
+                    }
+                }
+            }
+        }
+    }
 
     // Execute the user's main function
     entry(app);
@@ -383,9 +444,12 @@ async fn handle_back_message(
 ) -> Result<(), Box<dyn std::error::Error>> {
     if let Some(tp) = back_msg.r#type {
         match tp {
-            Type::RerunScript(_state) => {
+            Type::RerunScript(client_state) => {
                 log::info!("Handling rerun script request");
-                handle_rerun_script(session, session_id, entry).await?;
+                let widget_states = client_state
+                    .widget_states
+                    .map(|ws| ws.widgets);
+                handle_rerun_script(session, session_id, entry, widget_states).await?;
             }
             _ => {}
         }
@@ -411,7 +475,7 @@ pub async fn handle_connection(
 
     // Wait a moment then automatically execute the script once (to simulate frontend request)
     log::info!("Auto-triggering initial script execution...");
-    handle_rerun_script(&mut session, &session_id, entry).await?;
+    handle_rerun_script(&mut session, &session_id, entry, None).await?;
     log::info!("Initial script execution completed");
 
     // Handle incoming messages with proper processing

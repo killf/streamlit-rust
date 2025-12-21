@@ -37,6 +37,12 @@ pub enum StreamlitElement {
     Empty {
         id: String,
     },
+    Button {
+        id: String,
+        label: String,
+        key: String,
+        clicked: bool,
+    },
 }
 
 /// Streamlit Rust API - provides a Python-like Streamlit interface
@@ -142,6 +148,36 @@ impl Streamlit {
             id: Uuid::new_v4().to_string(),
         };
         self.elements.lock().push(element);
+    }
+
+    /// Display a button and return whether it was clicked
+    pub fn button(&self, label: &str, key: Option<&str>) -> bool {
+        let button_key = key.unwrap_or(label);
+        let element_id = Uuid::new_v4().to_string();
+
+        // Check if this button was previously clicked
+        let was_clicked = self.get_widget_state(button_key)
+            .and_then(|value| match value {
+                WidgetValue::Boolean(b) => Some(b),
+                _ => None,
+            })
+            .unwrap_or(false);
+
+        // Reset button state after checking
+        if was_clicked {
+            self.set_widget_state(button_key, WidgetValue::Boolean(false));
+        }
+
+        // Create the button element
+        let element = StreamlitElement::Button {
+            id: element_id,
+            label: label.to_string(),
+            key: button_key.to_string(),
+            clicked: was_clicked,
+        };
+        self.elements.lock().push(element);
+
+        was_clicked
     }
 
     /// Display text with a specific heading level (shortcut for common headers)
