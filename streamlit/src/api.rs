@@ -13,6 +13,30 @@ pub enum StreamlitElement {
         body: String,
         help: String,
     },
+    Title {
+        id: String,
+        title: String,
+    },
+    Header {
+        id: String,
+        body: String,
+        level: i32, // 1-6 for h1-h6
+    },
+    Markdown {
+        id: String,
+        body: String,
+    },
+    Code {
+        id: String,
+        body: String,
+        language: Option<String>,
+    },
+    Divider {
+        id: String,
+    },
+    Empty {
+        id: String,
+    },
 }
 
 /// Streamlit Rust API - provides a Python-like Streamlit interface
@@ -64,6 +88,73 @@ impl Streamlit {
             help: String::default(),
         };
         self.elements.lock().push(element);
+    }
+
+    /// Set the page title
+    pub fn title(&self, title: &str) {
+        let element = StreamlitElement::Title {
+            id: Uuid::new_v4().to_string(),
+            title: title.to_string(),
+        };
+        self.elements.lock().push(element);
+    }
+
+    /// Display header text (frontend only supports H1-H3)
+    pub fn header(&self, body: &str, level: i32) {
+        let element = StreamlitElement::Header {
+            id: Uuid::new_v4().to_string(),
+            body: body.to_string(),
+            level: level.clamp(1, 3),
+        };
+        self.elements.lock().push(element);
+    }
+
+    /// Display markdown text
+    pub fn markdown(&self, body: &str) {
+        let element = StreamlitElement::Markdown {
+            id: Uuid::new_v4().to_string(),
+            body: body.to_string(),
+        };
+        self.elements.lock().push(element);
+    }
+
+    /// Display code with optional syntax highlighting
+    pub fn code(&self, body: &str, language: Option<&str>) {
+        let element = StreamlitElement::Code {
+            id: Uuid::new_v4().to_string(),
+            body: body.to_string(),
+            language: language.map(|s| s.to_string()),
+        };
+        self.elements.lock().push(element);
+    }
+
+    /// Display a horizontal divider
+    pub fn divider(&self) {
+        let element = StreamlitElement::Divider {
+            id: Uuid::new_v4().to_string(),
+        };
+        self.elements.lock().push(element);
+    }
+
+    /// Display an empty placeholder
+    pub fn empty(&self) {
+        let element = StreamlitElement::Empty {
+            id: Uuid::new_v4().to_string(),
+        };
+        self.elements.lock().push(element);
+    }
+
+    /// Display text with a specific heading level (shortcut for common headers)
+    pub fn h1(&self, body: &str) {
+        self.header(body, 1);
+    }
+
+    pub fn h2(&self, body: &str) {
+        self.header(body, 2);
+    }
+
+    pub fn h3(&self, body: &str) {
+        self.header(body, 3);
     }
 }
 

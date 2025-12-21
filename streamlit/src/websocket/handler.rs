@@ -90,6 +90,7 @@ fn new_main_block_delta() -> crate::proto::ForwardMsg {
                         r#type: Some(crate::proto::block::Type::Vertical(
                             crate::proto::block::Vertical {
                                 border: false,
+                                #[allow(deprecated)]
                                 height: 0, // deprecated field, required
                             }
                         )),
@@ -132,6 +133,208 @@ fn new_delta_with_parent(element_index: u32, element: &StreamlitElement) -> crat
                                         body: body.to_string(),
                                         help: help.to_string(),
                                     },
+                                )),
+                            },
+                        )),
+                    },
+                )),
+            }
+        }
+        StreamlitElement::Title { id, title } => {
+            let element_hash = format!("title_{}_{}", id, title);
+            let hash = format!("delta_0_{}_{}", element_index, element_hash);
+            crate::proto::ForwardMsg {
+                hash,
+                metadata: Some(crate::proto::ForwardMsgMetadata {
+                    cacheable: false,
+                    delta_path: vec![0, element_index],
+                    element_dimension_spec: None,
+                    active_script_hash: "".to_string(),
+                }),
+                debug_last_backmsg_id: "".to_string(),
+                r#type: Some(crate::proto::forward_msg::Type::Delta(
+                    crate::proto::Delta {
+                        fragment_id: id.to_string(),
+                        r#type: Option::from(crate::proto::delta::Type::NewElement(
+                            crate::proto::Element {
+                                height_config: None,
+                                width_config: None,
+                                text_alignment_config: None,
+                                r#type: Some(crate::proto::element::Type::Heading(
+                                    crate::proto::Heading {
+                                        tag: "h1".to_string(), // Use h1 for title
+                                        anchor: "".to_string(),
+                                        body: title.to_string(),
+                                        help: "".to_string(),
+                                        hide_anchor: false,
+                                        divider: "".to_string(),
+                                    },
+                                )),
+                            },
+                        )),
+                    },
+                )),
+            }
+        }
+        StreamlitElement::Header { id, body, level } => {
+            let element_hash = format!("header_{}_{}_{}", id, level, body);
+            let hash = format!("delta_0_{}_{}", element_index, element_hash);
+            let level_clamped = if *level < 1 { 1 } else if *level > 6 { 6 } else { *level };
+            let tag = format!("h{}", level_clamped);
+            crate::proto::ForwardMsg {
+                hash,
+                metadata: Some(crate::proto::ForwardMsgMetadata {
+                    cacheable: false,
+                    delta_path: vec![0, element_index],
+                    element_dimension_spec: None,
+                    active_script_hash: "".to_string(),
+                }),
+                debug_last_backmsg_id: "".to_string(),
+                r#type: Some(crate::proto::forward_msg::Type::Delta(
+                    crate::proto::Delta {
+                        fragment_id: id.to_string(),
+                        r#type: Option::from(crate::proto::delta::Type::NewElement(
+                            crate::proto::Element {
+                                height_config: None,
+                                width_config: None,
+                                text_alignment_config: None,
+                                r#type: Some(crate::proto::element::Type::Heading(
+                                    crate::proto::Heading {
+                                        tag,
+                                        anchor: "".to_string(),
+                                        body: body.to_string(),
+                                        help: "".to_string(),
+                                        hide_anchor: false,
+                                        divider: "".to_string(),
+                                    },
+                                )),
+                            },
+                        )),
+                    },
+                )),
+            }
+        }
+        StreamlitElement::Markdown { id, body } => {
+            let element_hash = format!("markdown_{}_{}", id, body.chars().take(20).collect::<String>());
+            let hash = format!("delta_0_{}_{}", element_index, element_hash);
+            crate::proto::ForwardMsg {
+                hash,
+                metadata: Some(crate::proto::ForwardMsgMetadata {
+                    cacheable: false,
+                    delta_path: vec![0, element_index],
+                    element_dimension_spec: None,
+                    active_script_hash: "".to_string(),
+                }),
+                debug_last_backmsg_id: "".to_string(),
+                r#type: Some(crate::proto::forward_msg::Type::Delta(
+                    crate::proto::Delta {
+                        fragment_id: id.to_string(),
+                        r#type: Option::from(crate::proto::delta::Type::NewElement(
+                            crate::proto::Element {
+                                height_config: None,
+                                width_config: None,
+                                text_alignment_config: None,
+                                r#type: Some(crate::proto::element::Type::Markdown(
+                                    crate::proto::Markdown {
+                                        body: body.to_string(),
+                                        allow_html: false,
+                                        is_caption: false,
+                                        element_type: 0, // Default markdown type
+                                        help: "".to_string(),
+                                    },
+                                )),
+                            },
+                        )),
+                    },
+                )),
+            }
+        }
+        StreamlitElement::Code { id, body, language } => {
+            let element_hash = format!("code_{}_{}", id, body.chars().take(20).collect::<String>());
+            let hash = format!("delta_0_{}_{}", element_index, element_hash);
+            crate::proto::ForwardMsg {
+                hash,
+                metadata: Some(crate::proto::ForwardMsgMetadata {
+                    cacheable: false,
+                    delta_path: vec![0, element_index],
+                    element_dimension_spec: None,
+                    active_script_hash: "".to_string(),
+                }),
+                debug_last_backmsg_id: "".to_string(),
+                r#type: Some(crate::proto::forward_msg::Type::Delta(
+                    crate::proto::Delta {
+                        fragment_id: id.to_string(),
+                        r#type: Option::from(crate::proto::delta::Type::NewElement(
+                            crate::proto::Element {
+                                height_config: None,
+                                width_config: None,
+                                text_alignment_config: None,
+                                r#type: Some(crate::proto::element::Type::Code(
+                                    crate::proto::Code {
+                                        code_text: body.to_string(),
+                                        language: language.clone().unwrap_or_else(|| "".to_string()),
+                                        show_line_numbers: false,
+                                        wrap_lines: true,
+                                        height: 0, // deprecated field
+                                    },
+                                )),
+                            },
+                        )),
+                    },
+                )),
+            }
+        }
+        StreamlitElement::Divider { id } => {
+            let element_hash = format!("divider_{}", id);
+            let hash = format!("delta_0_{}_{}", element_index, element_hash);
+            crate::proto::ForwardMsg {
+                hash,
+                metadata: Some(crate::proto::ForwardMsgMetadata {
+                    cacheable: false,
+                    delta_path: vec![0, element_index],
+                    element_dimension_spec: None,
+                    active_script_hash: "".to_string(),
+                }),
+                debug_last_backmsg_id: "".to_string(),
+                r#type: Some(crate::proto::forward_msg::Type::Delta(
+                    crate::proto::Delta {
+                        fragment_id: id.to_string(),
+                        r#type: Option::from(crate::proto::delta::Type::NewElement(
+                            crate::proto::Element {
+                                height_config: None,
+                                width_config: None,
+                                text_alignment_config: None,
+                                r#type: Some(crate::proto::element::Type::Empty(
+                                    crate::proto::Empty {},
+                                )),
+                            },
+                        )),
+                    },
+                )),
+            }
+        }
+        StreamlitElement::Empty { id } => {
+            let element_hash = format!("empty_{}", id);
+            let hash = format!("delta_0_{}_{}", element_index, element_hash);
+            crate::proto::ForwardMsg {
+                hash,
+                metadata: Some(crate::proto::ForwardMsgMetadata {
+                    cacheable: false,
+                    delta_path: vec![0, element_index],
+                    element_dimension_spec: None,
+                    active_script_hash: "".to_string(),
+                }),
+                debug_last_backmsg_id: "".to_string(),
+                r#type: Some(crate::proto::forward_msg::Type::Delta(
+                    crate::proto::Delta {
+                        fragment_id: id.to_string(),
+                        r#type: Option::from(crate::proto::delta::Type::NewElement(
+                            crate::proto::Element {
+                                height_config: None,
+                                width_config: None,
+                                text_alignment_config: None,
+                                r#type: Some(crate::proto::element::Type::Empty(
+                                    crate::proto::Empty {},
                                 )),
                             },
                         )),
