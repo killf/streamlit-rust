@@ -204,6 +204,59 @@ impl ForwardMsgFactory {
 
         msg
     }
+
+    /// Creates a container element ForwardMsg
+    fn container_element(element_index: u32, id: &str, children: &[crate::api::StreamlitElement]) -> ForwardMsg {
+        let element_hash = format!("container_{}_{}", id, children.len());
+        let mut msg = Self::delta_base(element_index, id, &element_hash);
+
+        msg.r#type = Some(forward_msg::Type::Delta(Delta {
+            fragment_id: id.to_string(),
+            r#type: Some(delta::Type::AddBlock(
+                Block {
+                    r#type: Some(block::Type::Vertical(
+                        block::Vertical {
+                            border: false,
+                            #[allow(deprecated)]
+                            height: 0,
+                        }
+                    )),
+                    allow_empty: true,
+                    id: Some(id.to_string()),
+                    height_config: None,
+                    width_config: None,
+                }
+            )),
+        }));
+
+        msg
+    }
+
+    /// Creates a columns element ForwardMsg
+    fn columns_element(element_index: u32, id: &str, columns: &[crate::api::StreamlitElement], column_count: usize) -> ForwardMsg {
+        let element_hash = format!("columns_{}_{}_cols", id, column_count);
+        let mut msg = Self::delta_base(element_index, id, &element_hash);
+
+        // Create horizontal columns layout
+        msg.r#type = Some(forward_msg::Type::Delta(Delta {
+            fragment_id: id.to_string(),
+            r#type: Some(delta::Type::AddBlock(
+                Block {
+                    r#type: Some(block::Type::Horizontal(
+                        block::Horizontal {
+                            gap: "small".to_string(),
+                        }
+                    )),
+                    allow_empty: true,
+                    id: Some(id.to_string()),
+                    height_config: None,
+                    width_config: None,
+                }
+            )),
+        }));
+
+        msg
+    }
 }
 
 fn new_session(session_id: &str, script_run_id: &str) -> ForwardMsg {
@@ -333,6 +386,12 @@ fn new_delta_with_parent(element_index: u32, element: &StreamlitElement) -> Forw
         StreamlitElement::Button { id, label, key, clicked: _ } => {
             ForwardMsgFactory::button_element(element_index, id, label, key)
         }
+        StreamlitElement::Container { id, children, key: _ } => {
+            ForwardMsgFactory::container_element(element_index, id, children)
+        }
+        StreamlitElement::Columns { id, columns, column_count, key: _ } => {
+            ForwardMsgFactory::columns_element(element_index, id, columns, *column_count)
+        }
     }
 }
 
@@ -352,6 +411,78 @@ async fn send_new_session(
     Ok(())
 }
 
+/// Recursively send elements and their children
+async fn send_elements_recursive(
+    session: &mut Session,
+    elements: Vec<StreamlitElement>,
+    base_path: &[u32],
+) -> Result<(), Box<dyn std::error::Error>> {
+    for (index, element) in elements.iter().enumerate() {
+        let mut element_path = base_path.to_vec();
+        element_path.push(index as u32);
+
+        match element {
+            StreamlitElement::Container { id, children, key: _ } => {
+                // Send the container block first
+                let container_msg = new_delta_with_parent(index as u32, element);
+                let encoded = container_msg.encode_to_vec();
+                log::info!("Sending container {} protobuf message: {} bytes", id, encoded.len());
+                session.binary(encoded).await?;
+
+                // Recursively send container children with nested path
+                if !children.is_empty() {
+                    let child_path = element_path;
+                    Box::pin(send_elements_recursive(session, children.clone(), &child_path)).await?;
+                }
+            }
+            StreamlitElement::Columns { id, columns, column_count: _, key: _ } => {
+                // Send the columns block first
+                let columns_msg = new_delta_with_parent(index as u32, element);
+                let encoded = columns_msg.encode_to_vec();
+                log::info!("Sending columns {} protobuf message: {} bytes", id, encoded.len());
+                session.binary(encoded).await?;
+
+                // Recursively send column contents with nested path
+                for (col_idx, column) in columns.iter().enumerate() {
+                    let mut col_path = element_path.clone();
+                    col_path.push(col_idx as u32);
+
+                    match column {
+                        StreamlitElement::Container { id: container_id, children, key: _ } => {
+                            // Send column container
+                            let container_msg = ForwardMsgFactory::container_element(col_idx as u32, container_id, children);
+                            let encoded = container_msg.encode_to_vec();
+                            log::info!("Sending column {} container {} protobuf message: {} bytes", col_idx, container_id, encoded.len());
+                            session.binary(encoded).await?;
+
+                            // Send container children
+                            if !children.is_empty() {
+                                let child_path = col_path;
+                                Box::pin(send_elements_recursive(session, children.clone(), &child_path)).await?;
+                            }
+                        }
+                        _ => {
+                            // Send regular column element
+                            let element_msg = new_delta_with_parent(col_idx as u32, column);
+                            let encoded = element_msg.encode_to_vec();
+                            log::info!("Sending column {} element protobuf message: {} bytes", col_idx, encoded.len());
+                            session.binary(encoded).await?;
+                        }
+                    }
+                }
+            }
+            _ => {
+                // Send regular element
+                let element_msg = new_delta_with_parent(index as u32, element);
+                let encoded = element_msg.encode_to_vec();
+                log::info!("Sending element protobuf message: {} bytes", encoded.len());
+                session.binary(encoded).await?;
+            }
+        }
+    }
+    Ok(())
+}
+
 async fn send_elements(
     session: &mut Session,
     elements: Vec<StreamlitElement>,
@@ -365,17 +496,7 @@ async fn send_elements(
     session.binary(block_encoded).await?;
 
     // Then send all elements as children of the main block (delta_path: [0, element_index])
-    for (index, element) in elements.iter().enumerate() {
-        let forward_msg = new_delta_with_parent(index as u32, element);
-        let encoded = forward_msg.encode_to_vec();
-
-        log::info!(
-            "Sending element {} protobuf message: {} bytes",
-            index,
-            encoded.len()
-        );
-        session.binary(encoded).await?;
-    }
+    send_elements_recursive(session, elements, &[0]).await?;
 
     Ok(())
 }

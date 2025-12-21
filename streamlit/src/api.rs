@@ -43,6 +43,17 @@ pub enum StreamlitElement {
         key: String,
         clicked: bool,
     },
+    Container {
+        id: String,
+        key: Option<String>,
+        children: Vec<StreamlitElement>,
+    },
+    Columns {
+        id: String,
+        key: Option<String>,
+        columns: Vec<StreamlitElement>,
+        column_count: usize,
+    },
 }
 
 /// Streamlit Rust API - provides a Python-like Streamlit interface
@@ -153,7 +164,9 @@ impl Streamlit {
     /// Display a button and return whether it was clicked
     pub fn button(&self, label: &str, key: Option<&str>) -> bool {
         let button_key = key.unwrap_or(label);
-        let element_id = Uuid::new_v4().to_string();
+
+        // Generate consistent ID using the button key - this is the key fix!
+        let element_id = format!("button-{}", button_key);
 
         // Check if this button was previously clicked
         let was_clicked = self.get_widget_state(button_key)
@@ -168,7 +181,7 @@ impl Streamlit {
             self.set_widget_state(button_key, WidgetValue::Boolean(false));
         }
 
-        // Create the button element
+        // Create the button element with consistent ID
         let element = StreamlitElement::Button {
             id: element_id,
             label: label.to_string(),
@@ -178,6 +191,20 @@ impl Streamlit {
         self.elements.lock().push(element);
 
         was_clicked
+    }
+
+    /// Create a simple container (for now, just groups elements)
+    pub fn container(&self) -> SimpleContainer {
+        SimpleContainer::new(self.elements.clone())
+    }
+
+    /// Create simple columns (for now, just returns separate containers)
+    pub fn columns<const N: usize>(&self) -> [SimpleContainer; N] {
+        let mut cols = Vec::with_capacity(N);
+        for _ in 0..N {
+            cols.push(SimpleContainer::new(self.elements.clone()));
+        }
+        cols.try_into().unwrap()
     }
 
     /// Display text with a specific heading level (shortcut for common headers)
@@ -232,6 +259,75 @@ impl From<bool> for WidgetValue {
         WidgetValue::Boolean(b)
     }
 }
+
+/// Simple Container for basic grouping functionality
+#[derive(Debug, Clone)]
+pub struct SimpleContainer {
+    elements: Arc<Mutex<Vec<StreamlitElement>>>,
+    parent_elements: Arc<Mutex<Vec<StreamlitElement>>>,
+}
+
+impl SimpleContainer {
+    fn new(parent_elements: Arc<Mutex<Vec<StreamlitElement>>>) -> Self {
+        Self {
+            elements: Arc::new(Mutex::new(Vec::new())),
+            parent_elements,
+        }
+    }
+
+    pub fn write(&self, content: &str) {
+        let element = StreamlitElement::Text {
+            id: Uuid::new_v4().to_string(),
+            body: content.to_string(),
+            help: String::default(),
+        };
+        self.elements.lock().push(element);
+        self.sync_to_parent();
+    }
+
+    pub fn button(&self, label: &str, key: Option<&str>) -> bool {
+        let button_key = key.unwrap_or(label);
+        let element_id = format!("button-{}", button_key);
+
+        // Check if this button was previously clicked
+        let app = get_app();
+        let was_clicked = app.get_widget_state(button_key)
+            .and_then(|value| match value {
+                WidgetValue::Boolean(b) => Some(b),
+                _ => None,
+            })
+            .unwrap_or(false);
+
+        // Reset button state after checking
+        if was_clicked {
+            app.set_widget_state(button_key, WidgetValue::Boolean(false));
+        }
+
+        let element = StreamlitElement::Button {
+            id: element_id,
+            label: label.to_string(),
+            key: button_key.to_string(),
+            clicked: was_clicked,
+        };
+        self.elements.lock().push(element);
+        self.sync_to_parent();
+
+        was_clicked
+    }
+
+    fn sync_to_parent(&self) {
+        let children = self.elements.lock().clone();
+        let container_element = StreamlitElement::Container {
+            id: Uuid::new_v4().to_string(),
+            key: None,
+            children,
+        };
+        self.parent_elements.lock().push(container_element);
+    }
+}
+
+pub type StreamlitContainer = SimpleContainer;
+pub type StreamlitColumn = SimpleContainer;
 
 /// Global Streamlit app instance
 static STREAMLIT_APP: std::sync::LazyLock<Streamlit> = std::sync::LazyLock::new(Streamlit::new);
