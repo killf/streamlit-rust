@@ -1,4 +1,2 @@
-pub mod handler;
-
-// Use Streamlit-compatible handler for real frontend
-pub use handler::handle_connection;
+pub(crate) mod factory;
+pub(crate) mod handler;

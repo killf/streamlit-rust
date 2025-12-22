@@ -19,7 +19,8 @@ pub mod api;
 pub mod error;
 pub mod proto;
 pub mod server;
-pub mod websocket;
+pub(crate) mod websocket;
+mod elements;
 
 pub use api::*;
 pub use server::StreamlitServer;

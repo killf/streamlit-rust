@@ -39,8 +39,8 @@ pub fn main(_attr: TokenStream, item: TokenStream) -> TokenStream {
             log::info!("Starting Streamlit Rust Backend v0.1.0");
             
             // Create and start the server
-            let server = ::streamlit::StreamlitServer::new(__streamlit_user_main);
-            server.start("0.0.0.0", 8502).await?;
+            let server = ::streamlit::StreamlitServer::new(__streamlit_user_main, "0.0.0.0".into(), 8508);
+            server.start().await?;
 
             Ok(())
         }
