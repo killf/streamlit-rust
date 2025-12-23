@@ -72,32 +72,32 @@ impl Badge {
         Self { element }
     }
 
-    pub fn label<T: ToString>(self, value: T) -> Self {
+    pub fn label<T: ToString>(&self, value: T) -> &Self {
         self.element.borrow_mut().label = value.to_string();
         self
     }
 
-    pub fn color<T: ToString>(self, value: T) -> Self {
+    pub fn color<T: ToString>(&self, value: T) -> &Self {
         self.element.borrow_mut().color = value.to_string();
         self
     }
 
-    pub fn icon<T: ToString>(self, value: T) -> Self {
+    pub fn icon<T: ToString>(&self, value: T) -> &Self {
         self.element.borrow_mut().icon = value.to_string();
         self
     }
 
-    pub fn help<T: ToString>(self, value: T) -> Self {
+    pub fn help<T: ToString>(&self, value: T) -> &Self {
         self.element.borrow_mut().help = Some(value.to_string());
         self
     }
 
-    pub fn width(self, width: ElementWidth) -> Self {
+    pub fn width(&self, width: ElementWidth) -> &Self {
         self.element.borrow_mut().width = Some(width);
         self
     }
 
-    pub fn text_alignment(self, alignment: TextAlignment) -> Self {
+    pub fn text_alignment(&self, alignment: TextAlignment) -> &Self {
         self.element.borrow_mut().text_alignment = Some(alignment);
         self
     }

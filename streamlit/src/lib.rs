@@ -22,6 +22,7 @@ pub mod proto;
 pub mod server;
 pub(crate) mod utils;
 pub(crate) mod websocket;
+mod memory;
 
 pub use api::*;
 pub use server::StreamlitServer;

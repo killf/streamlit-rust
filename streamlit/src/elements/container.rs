@@ -1,6 +1,7 @@
 use crate::api::AppendChild;
 use crate::elements::common::{Element, ElementHeight, ElementWidth, Gap, HorizontalAlignment, RenderContext, VerticalAlignment};
 use crate::error::StreamlitError;
+use crate::memory::Allocator;
 use crate::proto::block::FlexContainer;
 use crate::proto::streamlit::{HeightConfig, WidthConfig};
 use crate::proto::{delta, delta_base_with_path, forward_msg, Block, Delta};
@@ -48,7 +49,7 @@ impl Element for ContainerElement {
                 "container_{}_{:?}_{:?}_{:?}_{:?}_{:?}_{:?}_{:?}",
                 self.border, self.key, self.width, self.height, self.horizontal, self.horizontal_alignment, self.vertical_alignment, self.gap
             )
-            .as_str(),
+                .as_str(),
         );
         let mut msg = delta_base_with_path(context.delta_path.clone(), context.active_script_hash.clone(), element_hash);
 
@@ -125,58 +126,63 @@ impl Element for ContainerElement {
     }
 }
 
-pub struct Container {
+pub struct Container<'a> {
     element: Arc<RefCell<ContainerElement>>,
+    allocator: &'a Allocator,
 }
 
-impl Container {
-    pub(crate) fn new(element: Arc<RefCell<ContainerElement>>) -> Container {
-        Container { element }
+impl Container<'_> {
+    pub(crate) fn new(element: Arc<RefCell<ContainerElement>>, allocator: &'_ Allocator) -> Container<'_> {
+        Container { element, allocator }
     }
 
-    pub fn border(self, value: bool) -> Self {
+    pub fn border(&self, value: bool) -> &Self {
         self.element.borrow_mut().border = value;
         self
     }
 
-    pub fn key<T: ToString>(self, key: T) -> Self {
+    pub fn key<T: ToString>(&self, key: T) -> &Self {
         self.element.borrow_mut().key = key.to_string();
         self
     }
 
-    pub fn width(self, width: ElementWidth) -> Self {
+    pub fn width(&self, width: ElementWidth) -> &Self {
         self.element.borrow_mut().width = Some(width);
         self
     }
 
-    pub fn height(self, height: ElementHeight) -> Self {
+    pub fn height(&self, height: ElementHeight) -> &Self {
         self.element.borrow_mut().height = Some(height);
         self
     }
 
-    pub fn horizontal(self, horizontal: bool) -> Self {
+    pub fn horizontal(&self, horizontal: bool) -> &Self {
         self.element.borrow_mut().horizontal = horizontal;
         self
     }
 
-    pub fn horizontal_alignment(self, horizontal_alignment: HorizontalAlignment) -> Self {
+    pub fn horizontal_alignment(&self, horizontal_alignment: HorizontalAlignment) -> &Self {
         self.element.borrow_mut().horizontal_alignment = horizontal_alignment;
         self
     }
 
-    pub fn vertical_alignment(self, vertical_alignment: VerticalAlignment) -> Self {
+    pub fn vertical_alignment(&self, vertical_alignment: VerticalAlignment) -> &Self {
         self.element.borrow_mut().vertical_alignment = vertical_alignment;
         self
     }
 
-    pub fn gap(self, gap: Gap) -> Self {
+    pub fn gap(&self, gap: Gap) -> &Self {
         self.element.borrow_mut().gap = gap;
         self
     }
 }
 
-impl AppendChild for Container {
+impl AppendChild for Container<'_> {
     fn push(&self, element: Arc<RefCell<dyn Element>>) {
         self.element.borrow_mut().children.push(element);
+    }
+
+    fn allocator(&self) -> &Allocator {
+        &self.allocator
     }
 }

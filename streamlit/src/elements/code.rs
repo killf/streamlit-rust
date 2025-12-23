@@ -72,32 +72,32 @@ impl Code {
         Self { element }
     }
 
-    pub fn body<T: ToString>(self, value: T) -> Self {
+    pub fn body<T: ToString>(&self, value: T) -> &Self {
         self.element.borrow_mut().code_text = value.to_string();
         self
     }
 
-    pub fn language<T: ToString>(self, language: T) -> Self {
+    pub fn language<T: ToString>(&self, language: T) -> &Self {
         self.element.borrow_mut().language = language.to_string();
         self
     }
 
-    pub fn show_line_numbers(self, value: bool) -> Self {
+    pub fn show_line_numbers(&self, value: bool) -> &Self {
         self.element.borrow_mut().show_line_numbers = value;
         self
     }
 
-    pub fn wrap_lines(self, value: bool) -> Self {
+    pub fn wrap_lines(&self, value: bool) -> &Self {
         self.element.borrow_mut().wrap_lines = value;
         self
     }
 
-    pub fn width(self, width: ElementWidth) -> Self {
+    pub fn width(&self, width: ElementWidth) -> &Self {
         self.element.borrow_mut().width = Some(width);
         self
     }
 
-    pub fn text_alignment(self, alignment: TextAlignment) -> Self {
+    pub fn text_alignment(&self, alignment: TextAlignment) -> &Self {
         self.element.borrow_mut().text_alignment = Some(alignment);
         self
     }

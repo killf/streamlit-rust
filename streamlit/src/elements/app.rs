@@ -2,11 +2,11 @@ use crate::elements::common::{Element, RenderContext};
 use crate::error::StreamlitError;
 use crate::proto::widget_state::Value;
 use crate::proto::{block, delta, forward_msg, Block, Config, Delta, EnvironmentInfo, ForwardMsg, ForwardMsgMetadata, Initialize, NewSession, SessionStatus, UserInfo, WidgetState};
+use crate::utils::hash::hash;
 use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::sync::Arc;
-use crate::utils::hash::hash;
 
 pub(crate) struct App {
     elements: Vec<Arc<RefCell<dyn Element>>>,
