@@ -32,6 +32,9 @@ fn main(st: &Streamlit) {
 
     st.divider();
 
+    st.badge("Home").color("red").icon("🚨");
+    st.caption("This is caption");
+
     st.header("💻 Code Examples");
 
     st.sub_header("Rust Code Example");
@@ -43,13 +46,13 @@ fn main(st: &Streamlit) {
     st.sub_header("Python Code Example");
     st.code(
         "import streamlit as st\n\ndef main():\n    st.write(\"Hello from Python!\")\n    numbers = [1, 2, 3, 4, 5]\n    \n    for num in numbers:\n        print(f\"Number: {num}\")\n\nif __name__ == \"__main__\":\n    main()",
-        "python"
+        "python",
     );
 
     st.sub_header("JavaScript Code Example");
     st.code(
         "function greet(name) {\n    return `Hello, ${name}!`;\n}\n\nconst numbers = [1, 2, 3, 4, 5];\nnumbers.forEach(num => {\n    console.log(`Number: ${num}`);\n});",
-        "javascript"
+        "javascript",
     );
 
     st.divider();

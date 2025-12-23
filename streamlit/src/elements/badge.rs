@@ -1,4 +1,5 @@
-use crate::elements::common::*;
+use crate::elements::common::{Element, ElementWidth, RenderContext, TextAlignment};
+use crate::elements::markdown::MarkdownElementType;
 use crate::error::StreamlitError;
 use crate::proto::streamlit::{TextAlignmentConfig, WidthConfig};
 use crate::proto::{delta, delta_base_with_path, element, forward_msg, Delta};
@@ -6,31 +7,31 @@ use crate::utils::hash::hash;
 use std::cell::RefCell;
 use std::sync::Arc;
 
-pub(crate) struct CodeElement {
-    code_text: String,
-    language: String,
-    show_line_numbers: bool,
-    wrap_lines: bool,
+pub(crate) struct BadgeElement {
+    label: String,
+    color: String,
+    icon: String,
+    help: Option<String>,
     width: Option<ElementWidth>,
     text_alignment: Option<TextAlignment>,
 }
 
-impl CodeElement {
-    pub fn new(code_text: String, language: String) -> Self {
-        Self {
-            code_text,
-            language,
-            show_line_numbers: false,
-            wrap_lines: false,
+impl BadgeElement {
+    pub fn new(label: String) -> BadgeElement {
+        BadgeElement {
+            label,
+            color: "blue".to_string(),
+            icon: String::new(),
+            help: None,
             width: None,
             text_alignment: None,
         }
     }
 }
 
-impl Element for CodeElement {
+impl Element for BadgeElement {
     fn render(&self, context: &mut RenderContext) -> Result<(), StreamlitError> {
-        let element_hash = hash(format!("code_{}_{}_{}_{}_{:?}_{:?}", self.code_text, self.language, self.show_line_numbers, self.wrap_lines, self.width, self.text_alignment).as_str());
+        let element_hash = hash(format!("badge_{}_{}_{}_{:?}_{:?}", self.color, self.icon, self.label, self.width, self.text_alignment).as_str());
         let mut msg = delta_base_with_path(context.delta_path.clone(), context.active_script_hash.clone(), element_hash);
 
         let width_config: Option<WidthConfig> = if let Some(width) = self.width.clone() { Some(width.into()) } else { None };
@@ -42,13 +43,12 @@ impl Element for CodeElement {
                 height_config: None,
                 width_config,
                 text_alignment_config,
-                r#type: Some(element::Type::Code(crate::proto::Code {
-                    code_text: self.code_text.clone(),
-                    language: self.language.clone(),
-                    show_line_numbers: self.show_line_numbers,
-                    wrap_lines: self.wrap_lines,
-                    #[allow(deprecated)]
-                    height: 0,
+                r#type: Some(element::Type::Markdown(crate::proto::Markdown {
+                    body: format!(":{}-badge[{} {}]", self.color, self.icon, self.label),
+                    allow_html: false,
+                    is_caption: false,
+                    element_type: MarkdownElementType::Native as i32,
+                    help: self.help.clone().unwrap_or_default(),
                 })),
             })),
         }));
@@ -63,32 +63,32 @@ impl Element for CodeElement {
     }
 }
 
-pub struct Code {
-    element: Arc<RefCell<CodeElement>>,
+pub struct Badge {
+    element: Arc<RefCell<BadgeElement>>,
 }
 
-impl Code {
-    pub(crate) fn new(element: Arc<RefCell<CodeElement>>) -> Self {
+impl Badge {
+    pub(crate) fn new(element: Arc<RefCell<BadgeElement>>) -> Self {
         Self { element }
     }
 
-    pub fn body<T: ToString>(self, value: T) -> Self {
-        self.element.borrow_mut().code_text = value.to_string();
+    pub fn label<T: ToString>(self, value: T) -> Self {
+        self.element.borrow_mut().label = value.to_string();
         self
     }
 
-    pub fn language<T: ToString>(self, language: T) -> Self {
-        self.element.borrow_mut().language = language.to_string();
+    pub fn color<T: ToString>(self, value: T) -> Self {
+        self.element.borrow_mut().color = value.to_string();
         self
     }
 
-    pub fn show_line_numbers(self, value: bool) -> Self {
-        self.element.borrow_mut().show_line_numbers = value;
+    pub fn icon<T: ToString>(self, value: T) -> Self {
+        self.element.borrow_mut().icon = value.to_string();
         self
     }
 
-    pub fn wrap_lines(self, value: bool) -> Self {
-        self.element.borrow_mut().wrap_lines = value;
+    pub fn help<T: ToString>(self, value: T) -> Self {
+        self.element.borrow_mut().help = Some(value.to_string());
         self
     }
 

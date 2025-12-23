@@ -76,23 +76,23 @@ impl Heading {
         Heading { element }
     }
 
-    pub fn tag(self, value: String) -> Self {
-        self.element.borrow_mut().tag = value;
+    pub fn tag<T: ToString>(self, value: T) -> Self {
+        self.element.borrow_mut().tag = value.to_string();
         self
     }
 
-    pub fn body(self, value: String) -> Self {
-        self.element.borrow_mut().body = value;
+    pub fn body<T: ToString>(self, value: T) -> Self {
+        self.element.borrow_mut().body = value.to_string();
         self
     }
 
-    pub fn help(self, value: String) -> Self {
-        self.element.borrow_mut().help = value;
+    pub fn help<T: ToString>(self, value: T) -> Self {
+        self.element.borrow_mut().help = value.to_string();
         self
     }
 
-    pub fn anchor(self, value: String) -> Self {
-        self.element.borrow_mut().anchor = value;
+    pub fn anchor<T: ToString>(self, value: T) -> Self {
+        self.element.borrow_mut().anchor = value.to_string();
         self
     }
 

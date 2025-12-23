@@ -1,3 +1,4 @@
+use crate::elements::badge::{Badge, BadgeElement};
 use crate::elements::code::{Code, CodeElement};
 use crate::elements::markdown::{Markdown, MarkdownElement, MarkdownElementType};
 use crate::elements::title::{Heading, HeadingElement};
@@ -23,21 +24,21 @@ impl Streamlit {
         self
     }
 
-    pub fn write(&self, content: &str) -> Markdown {
+    pub fn write<T: ToString>(&self, content: T) -> Markdown {
         let element = Arc::new(RefCell::new(MarkdownElement::new(content.to_string())));
         self.app.lock().push(element.clone());
         Markdown::new(element)
     }
 
-    pub fn title(&self, body: &str) -> Heading {
+    pub fn title<T: ToString>(&self, body: T) -> Heading {
         self.h1(body)
     }
 
-    pub fn header(&self, body: &str) -> Heading {
+    pub fn header<T: ToString>(&self, body: T) -> Heading {
         self.h2(body)
     }
 
-    pub fn sub_header(&self, body: &str) -> Heading {
+    pub fn sub_header<T: ToString>(&self, body: T) -> Heading {
         self.h3(body)
     }
 
@@ -47,31 +48,43 @@ impl Streamlit {
         Markdown::new(element)
     }
 
-    pub fn h1(&self, body: &str) -> Heading {
+    pub fn h1<T: ToString>(&self, body: T) -> Heading {
         let element = Arc::new(RefCell::new(HeadingElement::new("h1".to_string(), body.to_string())));
         self.app.lock().push(element.clone());
         Heading::new(element)
     }
 
-    pub fn h2(&self, body: &str) -> Heading {
+    pub fn h2<T: ToString>(&self, body: T) -> Heading {
         let element = Arc::new(RefCell::new(HeadingElement::new("h2".to_string(), body.to_string())));
         self.app.lock().push(element.clone());
         Heading::new(element)
     }
 
-    pub fn h3(&self, body: &str) -> Heading {
+    pub fn h3<T: ToString>(&self, body: T) -> Heading {
         let element = Arc::new(RefCell::new(HeadingElement::new("h3".to_string(), body.to_string())));
         self.app.lock().push(element.clone());
         Heading::new(element)
     }
 
-    pub fn markdown(&self, body: &str) -> Markdown {
+    pub fn markdown<T: ToString>(&self, body: T) -> Markdown {
         let element = Arc::new(RefCell::new(MarkdownElement::new(body.to_string())));
         self.app.lock().push(element.clone());
         Markdown::new(element)
     }
 
-    pub fn code(&self, code_text: &str, language: &str) -> Code {
+    pub fn badge<T: ToString>(&self, label: T) -> Badge {
+        let element = Arc::new(RefCell::new(BadgeElement::new(label.to_string())));
+        self.app.lock().push(element.clone());
+        Badge::new(element)
+    }
+
+    pub fn caption<T: ToString>(&self, body: T) -> Markdown {
+        let element = Arc::new(RefCell::new(MarkdownElement::new(body.to_string()).element_type(MarkdownElementType::Caption)));
+        self.app.lock().push(element.clone());
+        Markdown::new(element)
+    }
+
+    pub fn code<T1: ToString, T2: ToString>(&self, code_text: T1, language: T2) -> Code {
         let element = Arc::new(RefCell::new(CodeElement::new(code_text.to_string(), language.to_string())));
         self.app.lock().push(element.clone());
         Code::new(element)

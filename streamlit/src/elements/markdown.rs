@@ -42,6 +42,9 @@ impl MarkdownElement {
     }
 
     pub fn element_type(mut self, value: MarkdownElementType) -> Self {
+        if value == MarkdownElementType::Caption {
+            self.is_caption = true;
+        }
         self.element_type = value;
         self
     }
@@ -90,8 +93,8 @@ impl Markdown {
         Self { element }
     }
 
-    pub fn body(self, value: String) -> Self {
-        self.element.borrow_mut().body = value;
+    pub fn body<T: ToString>(self, value: T) -> Self {
+        self.element.borrow_mut().body = value.to_string();
         self
     }
 
@@ -100,8 +103,8 @@ impl Markdown {
         self
     }
 
-    pub fn help(self, value: String) -> Self {
-        self.element.borrow_mut().help = Some(value);
+    pub fn help<T: ToString>(self, value: T) -> Self {
+        self.element.borrow_mut().help = Some(value.to_string());
         self
     }
 
