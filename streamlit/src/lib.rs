@@ -7,7 +7,7 @@
 //! ```rust
 //! use streamlit::*;
 //!
-//! #[streamlit_macros::main]
+//! #[main]
 //! fn main(st: &mut Streamlit) {
 //!     st.title("Hello world!");
 //! }
@@ -20,7 +20,7 @@ mod elements;
 pub mod error;
 pub mod proto;
 pub mod server;
-mod utils;
+pub(crate) mod utils;
 pub(crate) mod websocket;
 
 pub use api::*;

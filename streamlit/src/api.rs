@@ -1,106 +1,30 @@
-use crate::elements::common::{Element, RenderContext};
 use crate::elements::markdown::{Markdown, MarkdownElement};
-use crate::error::StreamlitError;
-use crate::proto::widget_state::Value;
-use crate::proto::{block, delta, forward_msg, Block, Delta, ForwardMsg, ForwardMsgMetadata, WidgetState};
+use crate::proto::WidgetState;
 use parking_lot::Mutex;
-use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
-use std::collections::HashMap;
 use std::sync::Arc;
-
-/// Streamlit Element types
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(tag = "type")]
-pub enum StreamlitElement {
-    Text {
-        id: String,
-        body: String,
-        help: String,
-    },
-    Title {
-        id: String,
-        title: String,
-    },
-    Header {
-        id: String,
-        body: String,
-        level: i32, // 1-3 for h1-h3
-    },
-    Markdown {
-        id: String,
-        body: String,
-    },
-    Code {
-        id: String,
-        body: String,
-        language: Option<String>,
-    },
-    Divider {
-        id: String,
-    },
-    Empty {
-        id: String,
-    },
-    Button {
-        id: String,
-        label: String,
-        key: String,
-        clicked: bool,
-    },
-}
 
 /// Streamlit Rust API - provides a Python-like Streamlit interface
 #[derive(Clone)]
 pub struct Streamlit {
-    elements: Arc<Mutex<Vec<Arc<RefCell<dyn Element>>>>>,
-    widget_states: Arc<Mutex<HashMap<String, WidgetValue>>>,
+    pub(crate) app: Arc<Mutex<crate::elements::App>>,
 }
 
 impl Streamlit {
     pub(crate) fn new() -> Self {
         Self {
-            elements: Arc::new(Mutex::new(Vec::new())),
-            widget_states: Arc::new(Mutex::new(HashMap::new())),
+            app: Arc::new(Mutex::new(crate::elements::App::new())),
         }
-    }
-
-    pub(crate) fn get_elements(&self) -> Vec<Arc<RefCell<dyn Element>>> {
-        self.elements.lock().clone()
-    }
-
-    pub(crate) fn set_widget_state(&self, key: &str, value: WidgetValue) {
-        self.widget_states.lock().insert(key.to_string(), value);
-    }
-
-    pub(crate) fn get_widget_state(&self, key: &str) -> Option<WidgetValue> {
-        self.widget_states.lock().get(key).cloned()
     }
 
     pub(crate) fn process_widget_states(self, widget_states: Option<Vec<WidgetState>>) -> Self {
-        if let Some(states) = widget_states {
-            log::info!("Processing {} widget states", states.len());
-            for widget_state in states {
-                if let Some(value) = widget_state.value {
-                    match value {
-                        Value::TriggerValue(clicked) => {
-                            // This is a button click
-                            log::info!("Button '{}' clicked: {}", widget_state.id, clicked);
-                            self.set_widget_state(&widget_state.id, WidgetValue::Boolean(clicked));
-                        }
-                        _ => {
-                            log::info!("Received other widget type: {} - {:?}", widget_state.id, value);
-                        }
-                    }
-                }
-            }
-        }
+        self.app.lock().process_widget_states(widget_states);
         self
     }
 
     pub fn write(&self, content: &str) -> Markdown {
         let element = Arc::new(RefCell::new(MarkdownElement::new(content.to_string())));
-        self.elements.lock().push(element.clone());
+        self.app.lock().push(element.clone());
         Markdown::new(element)
     }
 
@@ -209,74 +133,4 @@ impl Streamlit {
     // pub fn h3(&self, body: &str) {
     //     self.header(body, 3);
     // }
-}
-
-impl Element for Streamlit {
-    fn render(&self, context: &mut RenderContext) -> Result<(), StreamlitError> {
-        // 1. 先遍历main
-        context.delta_path.push(0);
-        context.push(ForwardMsg {
-            hash: "main_block".to_string(),
-            metadata: Some(ForwardMsgMetadata {
-                cacheable: false,
-                delta_path: vec![0], // RootContainer.MAIN = 0
-                element_dimension_spec: None,
-                active_script_hash: String::new(),
-            }),
-            debug_last_backmsg_id: String::new(),
-            r#type: Some(forward_msg::Type::Delta(Delta {
-                fragment_id: String::new(),
-                r#type: Option::from(delta::Type::AddBlock(Block {
-                    r#type: Some(block::Type::Vertical(block::Vertical {
-                        border: false,
-                        #[allow(deprecated)]
-                        height: 0, // deprecated field, required
-                    })),
-                    allow_empty: false,
-                    id: Some("main_container".to_string()), // This is the crucial ID!
-                    height_config: None,
-                    width_config: None,
-                })),
-            })),
-        });
-
-        context.delta_path.push(0);
-        for element in self.elements.lock().iter() {
-            element.borrow().render(context)?;
-        }
-        Ok(())
-    }
-}
-
-/// Widget value types
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum WidgetValue {
-    String(String),
-    Float(f64),
-    Integer(i64),
-    Boolean(bool),
-}
-
-impl From<String> for WidgetValue {
-    fn from(s: String) -> Self {
-        WidgetValue::String(s)
-    }
-}
-
-impl From<f64> for WidgetValue {
-    fn from(f: f64) -> Self {
-        WidgetValue::Float(f)
-    }
-}
-
-impl From<i64> for WidgetValue {
-    fn from(i: i64) -> Self {
-        WidgetValue::Integer(i)
-    }
-}
-
-impl From<bool> for WidgetValue {
-    fn from(b: bool) -> Self {
-        WidgetValue::Boolean(b)
-    }
 }

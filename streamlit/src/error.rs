@@ -28,6 +28,7 @@ pub enum StreamlitError {
 
     #[error("HTTP error: {0}")]
     Http(String),
-}
 
-pub type Result<T> = std::result::Result<T, StreamlitError>;
+    #[error("actix_ws error: {0}")]
+    Closed(#[from] actix_ws::Closed),
+}

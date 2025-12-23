@@ -1,7 +1,7 @@
 use crate::elements::common::*;
 use crate::error::StreamlitError;
 use crate::proto::streamlit::{TextAlignmentConfig, WidthConfig};
-use crate::proto::{delta, element, forward_msg, Delta};
+use crate::proto::{delta, delta_base_with_path, element, forward_msg, Delta};
 use crate::utils::hash::hash;
 use std::cell::RefCell;
 use std::sync::Arc;

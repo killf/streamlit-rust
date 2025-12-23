@@ -1,16 +1,14 @@
-use crate::api::StreamlitElement;
 use crate::elements::common::{Element, RenderContext};
-use crate::proto::{back_msg::Type, widget_state::Value, WidgetState, *};
+use crate::error::StreamlitError;
+use crate::proto::{back_msg::Type, WidgetState, *};
 use crate::{Streamlit, StreamlitServer};
 use actix_ws::{MessageStream, Session};
 use futures_util::StreamExt;
 use prost::Message;
 
-async fn send_new_session(session: &mut Session, session_id: &str) -> Result<(), Box<dyn std::error::Error>> {
+async fn send_new_session(session: &mut Session, session_id: &str) -> Result<(), StreamlitError> {
     // Generate script run ID
     let script_run_id = uuid::Uuid::new_v4().to_string();
-    // let forward_msg = new_session(session_id, &script_run_id);
-
     let hash = format!("new_session_{}", session_id);
 
     let forward_msg = ForwardMsg {
@@ -65,7 +63,7 @@ async fn send_new_session(session: &mut Session, session_id: &str) -> Result<(),
     Ok(())
 }
 
-async fn send_session_status_changed(session: &mut Session, script_is_running: bool, run_on_save: bool) -> Result<(), Box<dyn std::error::Error>> {
+async fn send_session_status_changed(session: &mut Session, script_is_running: bool, run_on_save: bool) -> Result<(), StreamlitError> {
     let forward_msg = ForwardMsg {
         hash: "session_status_changed".to_string(),
         metadata: None,
@@ -78,7 +76,7 @@ async fn send_session_status_changed(session: &mut Session, script_is_running: b
     Ok(())
 }
 
-async fn send_script_finished(session: &mut Session) -> Result<(), Box<dyn std::error::Error>> {
+async fn send_script_finished(session: &mut Session) -> Result<(), StreamlitError> {
     let forward_msg = ForwardMsg {
         hash: "script_finished".to_string(),
         metadata: None,
@@ -91,7 +89,7 @@ async fn send_script_finished(session: &mut Session) -> Result<(), Box<dyn std::
     Ok(())
 }
 
-async fn do_rerun_script(session: &mut Session, session_id: &str, server: &StreamlitServer, widget_states: Option<Vec<WidgetState>>) -> Result<(), Box<dyn std::error::Error>> {
+async fn do_rerun_script(session: &mut Session, session_id: &str, server: &StreamlitServer, widget_states: Option<Vec<WidgetState>>) -> Result<(), StreamlitError> {
     // Send the complete official message sequence: new_session → session_state_changed → delta → ... → page_profile → script_finished → session_status_changed
     log::info!("Sending complete message sequence starting with new_session...");
     send_new_session(session, &session_id).await?;
@@ -101,10 +99,9 @@ async fn do_rerun_script(session: &mut Session, session_id: &str, server: &Strea
 
     log::info!("Executing user main function...");
     (server.entry)(&st);
-    log::info!("Executed user main function, got {} elements", st.get_elements().len());
 
     let mut context = RenderContext::new();
-    st.render(&mut context)?;
+    st.app.lock().render(&mut context)?;
 
     // Send all elements as deltas
     for msg in context.stream.iter() {
@@ -119,7 +116,7 @@ async fn do_rerun_script(session: &mut Session, session_id: &str, server: &Strea
     Ok(())
 }
 
-async fn handle_back_message(session: &mut Session, session_id: &str, back_msg: BackMsg, server: &StreamlitServer) -> Result<(), Box<dyn std::error::Error>> {
+async fn handle_back_message(session: &mut Session, session_id: &str, back_msg: BackMsg, server: &StreamlitServer) -> Result<(), StreamlitError> {
     if let Some(tp) = back_msg.r#type {
         match tp {
             Type::RerunScript(client_state) => {
@@ -135,7 +132,7 @@ async fn handle_back_message(session: &mut Session, session_id: &str, back_msg: 
     Ok(())
 }
 
-pub async fn handle_connection(mut session: Session, mut msg_stream: MessageStream, server: &StreamlitServer) -> Result<(), Box<dyn std::error::Error>> {
+pub async fn handle_connection(mut session: Session, mut msg_stream: MessageStream, server: &StreamlitServer) -> Result<(), StreamlitError> {
     log::info!("=== Streamlit WebSocket handler started ===");
 
     // Generate session ID
