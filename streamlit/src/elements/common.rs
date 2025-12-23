@@ -1,5 +1,5 @@
 use crate::error::StreamlitError;
-use crate::proto::streamlit::{TextAlignmentConfig, WidthConfig, text_alignment_config};
+use crate::proto::streamlit::{text_alignment_config, TextAlignmentConfig, WidthConfig};
 use crate::proto::{ForwardMsg, ForwardMsgMetadata};
 
 #[derive(Debug, Clone)]
@@ -74,11 +74,6 @@ impl Into<TextAlignmentConfig> for TextAlignment {
             },
         }
     }
-}
-
-pub fn hash(txt: &str) -> String {
-    let md5 = md5::compute(txt.as_bytes());
-    format!("{:x}", md5)
 }
 
 pub(crate) fn delta_base_with_path(delta_path: Vec<u32>, active_script_hash: String, hash: String) -> ForwardMsg {

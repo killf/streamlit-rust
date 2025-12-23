@@ -1,7 +1,6 @@
 use crate::api::StreamlitElement;
 use crate::elements::common::{Element, RenderContext};
-use crate::proto::{WidgetState, back_msg::Type, widget_state::Value, *};
-use crate::websocket::factory::*;
+use crate::proto::{back_msg::Type, widget_state::Value, WidgetState, *};
 use crate::{Streamlit, StreamlitServer};
 use actix_ws::{MessageStream, Session};
 use futures_util::StreamExt;

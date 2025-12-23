@@ -1,7 +1,7 @@
 use crate::api::Streamlit;
 use crate::websocket::handler::handle_connection;
 use actix_web::http::header::{HeaderName, HeaderValue};
-use actix_web::{App, HttpRequest, HttpResponse, HttpServer, Responder, get, web};
+use actix_web::{get, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
 
 #[get("/_stcore/health")]
 async fn health_check() -> impl Responder {

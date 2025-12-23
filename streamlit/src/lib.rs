@@ -16,11 +16,12 @@
 extern crate streamlit_macros;
 
 pub mod api;
+mod elements;
 pub mod error;
 pub mod proto;
 pub mod server;
+mod utils;
 pub(crate) mod websocket;
-mod elements;
 
 pub use api::*;
 pub use server::StreamlitServer;

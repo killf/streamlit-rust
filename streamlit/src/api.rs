@@ -2,7 +2,7 @@ use crate::elements::common::{Element, RenderContext};
 use crate::elements::markdown::{Markdown, MarkdownElement};
 use crate::error::StreamlitError;
 use crate::proto::widget_state::Value;
-use crate::proto::{Block, Delta, ForwardMsg, ForwardMsgMetadata, WidgetState, block, delta, forward_msg};
+use crate::proto::{block, delta, forward_msg, Block, Delta, ForwardMsg, ForwardMsgMetadata, WidgetState};
 use parking_lot::Mutex;
 use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
