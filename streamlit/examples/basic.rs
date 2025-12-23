@@ -59,8 +59,12 @@ fn main(st: &Streamlit) {
 
     st.h2("📦 Layout Elements");
 
-    st.sub_header("Empty Elements");
-    st.write("Below is an empty element:");
+    let container = st.container().border(true);
+    container.write("This is inside the container");
+    st.write("This is outside the container");
+
+    container.write("This is inside too");
+
     // st.empty();
     // st.write("And now another divider:");
     // st.divider();

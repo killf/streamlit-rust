@@ -1,9 +1,17 @@
 use crate::error::StreamlitError;
-use crate::proto::streamlit::{text_alignment_config, TextAlignmentConfig, WidthConfig};
+use crate::proto::streamlit::gap_config::GapSpec;
+use crate::proto::streamlit::{text_alignment_config, GapConfig, HeightConfig, TextAlignmentConfig, WidthConfig};
 use crate::proto::ForwardMsg;
 
 #[derive(Debug, Clone)]
 pub enum ElementWidth {
+    Stretch,
+    Content,
+    Value(i32),
+}
+
+#[derive(Debug, Clone)]
+pub enum ElementHeight {
     Stretch,
     Content,
     Value(i32),
@@ -15,6 +23,29 @@ pub enum TextAlignment {
     Center,
     Right,
     Justify,
+}
+
+#[derive(Debug, Clone)]
+pub enum HorizontalAlignment {
+    Left,
+    Center,
+    Right,
+    Distribute,
+}
+
+#[derive(Debug, Clone)]
+pub enum VerticalAlignment {
+    Top,
+    Center,
+    Bottom,
+    Distribute,
+}
+
+#[derive(Debug, Clone)]
+pub enum Gap {
+    Small,
+    Medium,
+    Large,
 }
 
 pub(crate) struct RenderContext {
@@ -59,6 +90,22 @@ impl Into<WidthConfig> for ElementWidth {
     }
 }
 
+impl Into<HeightConfig> for ElementHeight {
+    fn into(self) -> HeightConfig {
+        match self {
+            ElementHeight::Stretch => HeightConfig {
+                height_spec: Some(crate::proto::streamlit::height_config::HeightSpec::UseStretch(true)),
+            },
+            ElementHeight::Content => HeightConfig {
+                height_spec: Some(crate::proto::streamlit::height_config::HeightSpec::UseContent(true)),
+            },
+            ElementHeight::Value(value) => HeightConfig {
+                height_spec: Some(crate::proto::streamlit::height_config::HeightSpec::PixelHeight(value as u32)),
+            },
+        }
+    }
+}
+
 impl Into<TextAlignmentConfig> for TextAlignment {
     fn into(self) -> TextAlignmentConfig {
         match self {
@@ -77,3 +124,14 @@ impl Into<TextAlignmentConfig> for TextAlignment {
         }
     }
 }
+
+impl Into<GapConfig> for Gap {
+    fn into(self) -> GapConfig {
+        match self {
+            Gap::Small => GapConfig { gap_spec: Some(GapSpec::GapSize(1)) },
+            Gap::Medium => GapConfig { gap_spec: Some(GapSpec::GapSize(2)) },
+            Gap::Large => GapConfig { gap_spec: Some(GapSpec::GapSize(3)) },
+        }
+    }
+}
+

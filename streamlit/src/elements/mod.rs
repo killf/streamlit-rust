@@ -4,5 +4,6 @@ pub mod app;
 pub mod title;
 pub mod code;
 pub mod badge;
+pub mod container;
 
 pub use app::*;
