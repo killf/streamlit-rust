@@ -21,11 +21,13 @@ pub(crate) struct RenderContext {
     pub stream: Vec<ForwardMsg>,
     pub delta_path: Vec<u32>,
     pub active_script_hash: String,
+    pub session_id: String,
 }
 
 impl RenderContext {
-    pub fn new() -> Self {
+    pub fn new(session_id: String) -> Self {
         Self {
+            session_id,
             stream: vec![],
             delta_path: vec![],
             active_script_hash: "".to_string(),

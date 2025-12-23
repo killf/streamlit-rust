@@ -17,7 +17,7 @@ impl Streamlit {
         }
     }
 
-    pub(crate) fn process_widget_states(self, widget_states: Option<Vec<WidgetState>>) -> Self {
+    pub(crate) fn process_widget_states(self, widget_states: Vec<WidgetState>) -> Self {
         self.app.lock().process_widget_states(widget_states);
         self
     }
