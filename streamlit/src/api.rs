@@ -1,7 +1,9 @@
+use crate::elements::markdown::{Markdown, MarkdownElement};
 use crate::proto::WidgetState;
 use crate::proto::widget_state::Value;
 use parking_lot::Mutex;
 use serde::{Deserialize, Serialize};
+use std::cell::RefCell;
 use std::collections::HashMap;
 use std::sync::Arc;
 use uuid::Uuid;
@@ -46,8 +48,6 @@ pub enum StreamlitElement {
         clicked: bool,
     },
 }
-
-
 
 /// Streamlit Rust API - provides a Python-like Streamlit interface
 #[derive(Clone)]
@@ -97,13 +97,10 @@ impl Streamlit {
         self
     }
 
-    pub fn write(&self, content: &str) {
-        let element = StreamlitElement::Text {
-            id: Uuid::new_v4().to_string(),
-            body: content.to_string(),
-            help: String::default(),
-        };
-        self.elements.lock().push(element);
+    pub fn write(&self, content: &str) -> Markdown {
+        let element = Arc::new(RefCell::new(MarkdownElement::new(content.to_string())));
+
+        Markdown::new(element)
     }
 
     // /// Write text to the app

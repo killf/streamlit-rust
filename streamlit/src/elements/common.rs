@@ -11,6 +11,6 @@ pub enum TextAlignment {
     Justify,
 }
 
-pub trait Renderable {
-    fn render(&self) -> String;
+pub trait Element {
+    fn render(&self);
 }
