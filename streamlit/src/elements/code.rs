@@ -6,50 +6,31 @@ use crate::utils::hash::hash;
 use std::cell::RefCell;
 use std::sync::Arc;
 
-#[repr(i32)]
-#[allow(unused)]
-#[derive(Copy, Clone, PartialEq, Eq, Hash)]
-pub(crate) enum MarkdownElementType {
-    Unspecified = 0,
-    Native = 1,
-    Caption = 2,
-    Code = 3,
-    Latex = 4,
-    Divider = 5,
-}
-
-pub(crate) struct MarkdownElement {
-    body: String,
-    unsafe_allow_html: bool,
-    element_type: MarkdownElementType,
-    is_caption: bool,
-    help: Option<String>,
+pub(crate) struct CodeElement {
+    code_text: String,
+    language: String,
+    show_line_numbers: bool,
+    wrap_lines: bool,
     width: Option<ElementWidth>,
     text_alignment: Option<TextAlignment>,
 }
 
-impl MarkdownElement {
-    pub fn new(body: String) -> Self {
+impl CodeElement {
+    pub fn new(code_text: String, language: String) -> Self {
         Self {
-            body,
-            unsafe_allow_html: false,
-            element_type: MarkdownElementType::Unspecified,
-            is_caption: false,
-            help: None,
+            code_text,
+            language,
+            show_line_numbers: false,
+            wrap_lines: false,
             width: None,
             text_alignment: None,
         }
     }
-
-    pub fn element_type(mut self, value: MarkdownElementType) -> Self {
-        self.element_type = value;
-        self
-    }
 }
 
-impl Element for MarkdownElement {
+impl Element for CodeElement {
     fn render(&self, context: &mut RenderContext) -> Result<(), StreamlitError> {
-        let element_hash = hash(format!("markdown_{}_{:?}_{:?}_{:?}", self.body, self.unsafe_allow_html, self.width, self.text_alignment).as_str());
+        let element_hash = hash(format!("code_{}_{}_{}_{}_{:?}_{:?}", self.code_text, self.language, self.show_line_numbers, self.wrap_lines, self.width, self.text_alignment).as_str());
         let mut msg = delta_base_with_path(context.delta_path.clone(), context.active_script_hash.clone(), element_hash);
 
         let width_config: Option<WidthConfig> = if let Some(width) = self.width.clone() { Some(width.into()) } else { None };
@@ -61,12 +42,13 @@ impl Element for MarkdownElement {
                 height_config: None,
                 width_config,
                 text_alignment_config,
-                r#type: Some(element::Type::Markdown(crate::proto::Markdown {
-                    body: self.body.clone(),
-                    allow_html: self.unsafe_allow_html,
-                    is_caption: self.is_caption,
-                    element_type: self.element_type as i32,
-                    help: self.help.clone().unwrap_or_default(),
+                r#type: Some(element::Type::Code(crate::proto::Code {
+                    code_text: self.code_text.clone(),
+                    language: self.language.clone(),
+                    show_line_numbers: self.show_line_numbers,
+                    wrap_lines: self.wrap_lines,
+                    #[allow(deprecated)]
+                    height: 0,
                 })),
             })),
         }));
@@ -81,27 +63,32 @@ impl Element for MarkdownElement {
     }
 }
 
-pub struct Markdown {
-    element: Arc<RefCell<MarkdownElement>>,
+pub struct Code {
+    element: Arc<RefCell<CodeElement>>,
 }
 
-impl Markdown {
-    pub(crate) fn new(element: Arc<RefCell<MarkdownElement>>) -> Self {
+impl Code {
+    pub(crate) fn new(element: Arc<RefCell<CodeElement>>) -> Self {
         Self { element }
     }
 
     pub fn body(self, value: String) -> Self {
-        self.element.borrow_mut().body = value;
+        self.element.borrow_mut().code_text = value;
         self
     }
 
-    pub fn unsafe_allow_html(self, value: bool) -> Self {
-        self.element.borrow_mut().unsafe_allow_html = value;
+    pub fn language(self, language: String) -> Self {
+        self.element.borrow_mut().language = language;
         self
     }
 
-    pub fn help(self, value: String) -> Self {
-        self.element.borrow_mut().help = Some(value);
+    pub fn show_line_numbers(self, value: bool) -> Self {
+        self.element.borrow_mut().show_line_numbers = value;
+        self
+    }
+
+    pub fn wrap_lines(self, value: bool) -> Self {
+        self.element.borrow_mut().wrap_lines = value;
         self
     }
 

@@ -1,4 +1,4 @@
-use crate::elements::common::*;
+use crate::elements::common::{Element, ElementWidth, RenderContext, TextAlignment};
 use crate::error::StreamlitError;
 use crate::proto::streamlit::{TextAlignmentConfig, WidthConfig};
 use crate::proto::{delta, delta_base_with_path, element, forward_msg, Delta};
@@ -6,50 +6,35 @@ use crate::utils::hash::hash;
 use std::cell::RefCell;
 use std::sync::Arc;
 
-#[repr(i32)]
-#[allow(unused)]
-#[derive(Copy, Clone, PartialEq, Eq, Hash)]
-pub(crate) enum MarkdownElementType {
-    Unspecified = 0,
-    Native = 1,
-    Caption = 2,
-    Code = 3,
-    Latex = 4,
-    Divider = 5,
-}
-
-pub(crate) struct MarkdownElement {
+pub(crate) struct HeadingElement {
+    tag: String,
     body: String,
-    unsafe_allow_html: bool,
-    element_type: MarkdownElementType,
-    is_caption: bool,
-    help: Option<String>,
+    anchor: String,
+    help: String,
+    divider: String,
+    hide_anchor: bool,
     width: Option<ElementWidth>,
     text_alignment: Option<TextAlignment>,
 }
 
-impl MarkdownElement {
-    pub fn new(body: String) -> Self {
+impl HeadingElement {
+    pub fn new(tag: String, body: String) -> HeadingElement {
         Self {
+            tag,
             body,
-            unsafe_allow_html: false,
-            element_type: MarkdownElementType::Unspecified,
-            is_caption: false,
-            help: None,
+            anchor: String::new(),
+            help: String::new(),
+            divider: String::new(),
+            hide_anchor: false,
             width: None,
             text_alignment: None,
         }
     }
-
-    pub fn element_type(mut self, value: MarkdownElementType) -> Self {
-        self.element_type = value;
-        self
-    }
 }
 
-impl Element for MarkdownElement {
+impl Element for HeadingElement {
     fn render(&self, context: &mut RenderContext) -> Result<(), StreamlitError> {
-        let element_hash = hash(format!("markdown_{}_{:?}_{:?}_{:?}", self.body, self.unsafe_allow_html, self.width, self.text_alignment).as_str());
+        let element_hash = hash(format!("heading_{}_{:?}_{:?}_{:?}", self.tag, self.body, self.width, self.text_alignment).as_str());
         let mut msg = delta_base_with_path(context.delta_path.clone(), context.active_script_hash.clone(), element_hash);
 
         let width_config: Option<WidthConfig> = if let Some(width) = self.width.clone() { Some(width.into()) } else { None };
@@ -61,12 +46,13 @@ impl Element for MarkdownElement {
                 height_config: None,
                 width_config,
                 text_alignment_config,
-                r#type: Some(element::Type::Markdown(crate::proto::Markdown {
+                r#type: Some(element::Type::Heading(crate::proto::Heading {
+                    tag: self.tag.clone(),
+                    anchor: self.anchor.clone(),
                     body: self.body.clone(),
-                    allow_html: self.unsafe_allow_html,
-                    is_caption: self.is_caption,
-                    element_type: self.element_type as i32,
-                    help: self.help.clone().unwrap_or_default(),
+                    help: self.help.to_string(),
+                    hide_anchor: self.hide_anchor,
+                    divider: self.divider.clone(),
                 })),
             })),
         }));
@@ -81,13 +67,18 @@ impl Element for MarkdownElement {
     }
 }
 
-pub struct Markdown {
-    element: Arc<RefCell<MarkdownElement>>,
+pub struct Heading {
+    element: Arc<RefCell<HeadingElement>>,
 }
 
-impl Markdown {
-    pub(crate) fn new(element: Arc<RefCell<MarkdownElement>>) -> Self {
-        Self { element }
+impl Heading {
+    pub(crate) fn new(element: Arc<RefCell<HeadingElement>>) -> Heading {
+        Heading { element }
+    }
+
+    pub fn tag(self, value: String) -> Self {
+        self.element.borrow_mut().tag = value;
+        self
     }
 
     pub fn body(self, value: String) -> Self {
@@ -95,13 +86,23 @@ impl Markdown {
         self
     }
 
-    pub fn unsafe_allow_html(self, value: bool) -> Self {
-        self.element.borrow_mut().unsafe_allow_html = value;
+    pub fn help(self, value: String) -> Self {
+        self.element.borrow_mut().help = value;
         self
     }
 
-    pub fn help(self, value: String) -> Self {
-        self.element.borrow_mut().help = Some(value);
+    pub fn anchor(self, value: String) -> Self {
+        self.element.borrow_mut().anchor = value;
+        self
+    }
+
+    pub fn hide_anchor(self, value: bool) -> Self {
+        self.element.borrow_mut().hide_anchor = value;
+        self
+    }
+
+    pub fn divider(self, value: String) -> Self {
+        self.element.borrow_mut().divider = value;
         self
     }
 

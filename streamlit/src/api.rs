@@ -1,4 +1,6 @@
-use crate::elements::markdown::{Markdown, MarkdownElement};
+use crate::elements::code::{Code, CodeElement};
+use crate::elements::markdown::{Markdown, MarkdownElement, MarkdownElementType};
+use crate::elements::title::{Heading, HeadingElement};
 use crate::elements::App;
 use crate::proto::WidgetState;
 use parking_lot::Mutex;
@@ -27,54 +29,54 @@ impl Streamlit {
         Markdown::new(element)
     }
 
-    // /// Write text to the app
-    // pub fn write(&self, content: &str) {
-    //     let element = StreamlitElement::Text {
-    //         id: Uuid::new_v4().to_string(),
-    //         body: content.to_string(),
-    //         help: String::default(),
-    //     };
-    //     self.elements.lock().push(element);
-    // }
-    //
-    // /// Set the page title
-    // pub fn title(&self, title: &str) {
-    //     let element = StreamlitElement::Title {
-    //         id: Uuid::new_v4().to_string(),
-    //         title: title.to_string(),
-    //     };
-    //     self.elements.lock().push(element);
-    // }
-    //
-    // /// Display header text (frontend only supports H1-H3)
-    // pub fn header(&self, body: &str, level: i32) {
-    //     let element = StreamlitElement::Header {
-    //         id: Uuid::new_v4().to_string(),
-    //         body: body.to_string(),
-    //         level: level.clamp(1, 3),
-    //     };
-    //     self.elements.lock().push(element);
-    // }
-    //
-    // /// Display markdown text
-    // pub fn markdown(&self, body: &str) {
-    //     let element = StreamlitElement::Markdown {
-    //         id: Uuid::new_v4().to_string(),
-    //         body: body.to_string(),
-    //     };
-    //     self.elements.lock().push(element);
-    // }
-    //
-    // /// Display code with optional syntax highlighting
-    // pub fn code(&self, body: &str, language: Option<&str>) {
-    //     let element = StreamlitElement::Code {
-    //         id: Uuid::new_v4().to_string(),
-    //         body: body.to_string(),
-    //         language: language.map(|s| s.to_string()),
-    //     };
-    //     self.elements.lock().push(element);
-    // }
-    //
+    pub fn title(&self, body: &str) -> Heading {
+        self.h1(body)
+    }
+
+    pub fn header(&self, body: &str) -> Heading {
+        self.h2(body)
+    }
+
+    pub fn sub_header(&self, body: &str) -> Heading {
+        self.h3(body)
+    }
+
+    pub fn divider(&self) -> Markdown {
+        let element = Arc::new(RefCell::new(MarkdownElement::new("---".to_string()).element_type(MarkdownElementType::Divider)));
+        self.app.lock().push(element.clone());
+        Markdown::new(element)
+    }
+
+    pub fn h1(&self, body: &str) -> Heading {
+        let element = Arc::new(RefCell::new(HeadingElement::new("h1".to_string(), body.to_string())));
+        self.app.lock().push(element.clone());
+        Heading::new(element)
+    }
+
+    pub fn h2(&self, body: &str) -> Heading {
+        let element = Arc::new(RefCell::new(HeadingElement::new("h2".to_string(), body.to_string())));
+        self.app.lock().push(element.clone());
+        Heading::new(element)
+    }
+
+    pub fn h3(&self, body: &str) -> Heading {
+        let element = Arc::new(RefCell::new(HeadingElement::new("h3".to_string(), body.to_string())));
+        self.app.lock().push(element.clone());
+        Heading::new(element)
+    }
+
+    pub fn markdown(&self, body: &str) -> Markdown {
+        let element = Arc::new(RefCell::new(MarkdownElement::new(body.to_string())));
+        self.app.lock().push(element.clone());
+        Markdown::new(element)
+    }
+
+    pub fn code(&self, code_text: &str, language: &str) -> Code {
+        let element = Arc::new(RefCell::new(CodeElement::new(code_text.to_string(), language.to_string())));
+        self.app.lock().push(element.clone());
+        Code::new(element)
+    }
+
     // /// Display a horizontal divider
     // pub fn divider(&self) {
     //     let element = StreamlitElement::Divider { id: Uuid::new_v4().to_string() };
