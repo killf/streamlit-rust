@@ -2,16 +2,16 @@ use crate::elements::common::{Element, RenderContext};
 use crate::error::StreamlitError;
 use crate::proto::widget_state::Value;
 use crate::proto::{block, delta, forward_msg, Block, Config, Delta, EnvironmentInfo, ForwardMsg, ForwardMsgMetadata, Initialize, NewSession, SessionStatus, UserInfo, WidgetState};
-use actix_ws::Session;
-use prost::Message;
 use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::sync::Arc;
+use crate::utils::hash::hash;
 
 pub(crate) struct App {
     elements: Vec<Arc<RefCell<dyn Element>>>,
     widget_states: HashMap<String, WidgetValue>,
+    main_script: String,
 }
 
 impl App {
@@ -19,6 +19,7 @@ impl App {
         Self {
             elements: Default::default(),
             widget_states: Default::default(),
+            main_script: Default::default(),
         }
     }
 
@@ -50,68 +51,44 @@ impl App {
 
 impl Element for App {
     fn render(&self, context: &mut RenderContext) -> Result<(), StreamlitError> {
+        let main_script_hash = hash(self.main_script.as_str());
+        context.active_script_hash = main_script_hash.clone();
+
         // 1. New Session
-        context.push(new_session(context.session_id.clone()));
+        context.push(new_session(context.session_id.clone(), main_script_hash));
         context.push(session_status_changed(true, false));
 
-        // 2. 先遍历main_block
+        // 2. Main Block
         context.delta_path.push(0);
-        context.push(ForwardMsg {
-            hash: "main_block".to_string(),
-            metadata: Some(ForwardMsgMetadata {
-                cacheable: false,
-                delta_path: context.delta_path.clone(),
-                element_dimension_spec: None,
-                active_script_hash: String::new(),
-            }),
-            debug_last_backmsg_id: String::new(),
-            r#type: Some(forward_msg::Type::Delta(Delta {
-                fragment_id: String::new(),
-                r#type: Option::from(delta::Type::AddBlock(Block {
-                    r#type: Some(block::Type::Vertical(block::Vertical {
-                        border: false,
-                        #[allow(deprecated)]
-                        height: 0,
-                    })),
-                    allow_empty: false,
-                    id: Some("main_container".to_string()), // This is the crucial ID!
-                    height_config: None,
-                    width_config: None,
-                })),
-            })),
-        });
+        context.push(main_block());
 
         context.delta_path.push(0);
         for element in self.elements.iter() {
             element.borrow().render(context)?;
         }
 
-        // 3. 脚本执行完成
+        // 3. Finished
         context.push(script_finished());
         Ok(())
     }
 }
 
-fn new_session(session_id: String) -> ForwardMsg {
-    // Generate script run ID
-    let script_run_id = uuid::Uuid::new_v4().to_string();
-    let hash = format!("new_session_{}", session_id);
-
+fn new_session(session_id: String, main_script_hash: String) -> ForwardMsg {
     ForwardMsg {
-        hash: hash.clone(),
+        hash: "".to_string(),
         metadata: Some(ForwardMsgMetadata {
             cacheable: false,
             delta_path: vec![],
             element_dimension_spec: None,
-            active_script_hash: "".to_string(),
+            active_script_hash: main_script_hash.clone(),
         }),
         debug_last_backmsg_id: "".to_string(),
         r#type: Some(forward_msg::Type::NewSession(NewSession {
             initialize: Some(Initialize {
                 user_info: Some(UserInfo {
-                    installation_id: "1".to_string(),
-                    installation_id_v3: "1".to_string(),
-                    installation_id_v4: "1".to_string(),
+                    installation_id: "".to_string(),
+                    installation_id_v3: "".to_string(),
+                    installation_id_v4: "".to_string(),
                 }),
                 environment_info: Some(EnvironmentInfo {
                     streamlit_version: "".to_string(),
@@ -124,9 +101,9 @@ fn new_session(session_id: String) -> ForwardMsg {
                 session_id,
                 is_hello: false,
             }),
-            script_run_id: script_run_id.to_string(),
-            name: "hello.py".to_string(),
-            main_script_path: "hello.py".to_string(),
+            script_run_id: uuid::Uuid::new_v4().to_string(),
+            name: "".to_string(),
+            main_script_path: "".to_string(),
             config: Some(Config {
                 gather_usage_stats: false,
                 max_cached_message_age: 0,
@@ -138,9 +115,9 @@ fn new_session(session_id: String) -> ForwardMsg {
             }),
             custom_theme: None,
             app_pages: vec![],
-            page_script_hash: hash.clone(),
+            page_script_hash: main_script_hash.clone(),
             fragment_ids_this_run: vec![],
-            main_script_hash: hash,
+            main_script_hash,
         })),
     }
 }
@@ -151,6 +128,33 @@ fn session_status_changed(script_is_running: bool, run_on_save: bool) -> Forward
         metadata: None,
         debug_last_backmsg_id: "".to_string(),
         r#type: Some(forward_msg::Type::SessionStatusChanged(SessionStatus { run_on_save, script_is_running })),
+    }
+}
+
+fn main_block() -> ForwardMsg {
+    ForwardMsg {
+        hash: "main_block".to_string(),
+        metadata: Some(ForwardMsgMetadata {
+            cacheable: false,
+            delta_path: vec![0],
+            element_dimension_spec: None,
+            active_script_hash: String::new(),
+        }),
+        debug_last_backmsg_id: String::new(),
+        r#type: Some(forward_msg::Type::Delta(Delta {
+            fragment_id: String::new(),
+            r#type: Option::from(delta::Type::AddBlock(Block {
+                r#type: Some(block::Type::Vertical(block::Vertical {
+                    border: false,
+                    #[allow(deprecated)]
+                    height: 0,
+                })),
+                allow_empty: false,
+                id: Some("main_container".to_string()), // This is the crucial ID!
+                height_config: None,
+                width_config: None,
+            })),
+        })),
     }
 }
 

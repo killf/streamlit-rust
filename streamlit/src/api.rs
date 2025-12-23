@@ -1,4 +1,5 @@
 use crate::elements::markdown::{Markdown, MarkdownElement};
+use crate::elements::App;
 use crate::proto::WidgetState;
 use parking_lot::Mutex;
 use std::cell::RefCell;
@@ -7,14 +8,12 @@ use std::sync::Arc;
 /// Streamlit Rust API - provides a Python-like Streamlit interface
 #[derive(Clone)]
 pub struct Streamlit {
-    pub(crate) app: Arc<Mutex<crate::elements::App>>,
+    pub(crate) app: Arc<Mutex<App>>,
 }
 
 impl Streamlit {
     pub(crate) fn new() -> Self {
-        Self {
-            app: Arc::new(Mutex::new(crate::elements::App::new())),
-        }
+        Self { app: Arc::new(Mutex::new(App::new())) }
     }
 
     pub(crate) fn process_widget_states(self, widget_states: Vec<WidgetState>) -> Self {
