@@ -65,49 +65,10 @@ fn main(st: &Streamlit) {
 
     container.write("This is inside too");
 
-    // st.empty();
-    // st.write("And now another divider:");
-    // st.divider();
-    // st.write("Content continues after the divider.");
-    //
-    // st.divider();
-    //
-    // st.h2("🌟 Mixed Content");
-    //
-    // st.header("Combining Elements", 3);
-    // st.markdown("You can combine **markdown** with **regular text**:");
-    // st.write("This is regular text following markdown.");
-    //
-    // st.header("Code with Explanation", 3);
-    // st.markdown("**Example:** A simple function to calculate factorial:");
-    // st.code(
-    //     "fn factorial(n: u64) -> u64 {\n    match n {\n        0 | 1 => 1,\n        _ => n * factorial(n - 1),\n    }\n}",
-    //     Some("rust")
-    // );
-    // st.write("This function uses recursion to calculate the factorial of a number.");
-    //
-    // st.divider();
-    //
-    // st.h2("✨ Features");
-    //
-    // st.markdown(
-    //     "### Current Features:\n\n\
-    //     ✅ **Title and Headers**: Custom page titles and various header levels\n\
-    //     ✅ **Text Content**: Basic text rendering with st.write()\n\
-    //     ✅ **Markdown**: Full markdown support with formatting\n\
-    //     ✅ **Code Display**: Syntax highlighting for multiple languages\n\
-    //     ✅ **Layout Elements**: Dividers and empty elements\n\
-    //     ✅ **Header Levels**: H1-H6 headers with custom methods\n\n\
-    //     ### Coming Soon:\n\n\
-    //     🔄 **Interactive Widgets**: Buttons, sliders, input fields\n\
-    //     🔄 **Data Display**: Tables, charts, and dataframes\n\
-    //     🔄 **Layout Management**: Columns, tabs, and sidebars\n\
-    //     🔄 **Media Elements**: Images, audio, and video"
-    // );
-    //
-    // st.divider();
-    //
-    // st.h1("🎉 Thank You!");
-    // st.write("This demonstrates the power of Streamlit implemented in pure Rust!");
-    // st.write("🚀 Built with ❤️ using Rust and Streamlit protocol");
+    if let [col1, col2] = st.columns(2) {
+        col1.border(true).write("left");
+        col2.border(true).write("right");
+    }
+
+    st.write("This is a outside");
 }

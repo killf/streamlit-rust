@@ -21,7 +21,7 @@ pub(crate) struct ContainerElement {
     vertical_alignment: VerticalAlignment,
     gap: Gap,
 
-    children: Vec<Arc<RefCell<dyn Element>>>,
+    pub(crate) children: Vec<Arc<RefCell<dyn Element>>>,
 }
 
 impl ContainerElement {
@@ -38,6 +38,11 @@ impl ContainerElement {
 
             children: Vec::new(),
         }
+    }
+    
+    pub fn horizontal(mut self, value: bool) -> Self {
+        self.horizontal = value;
+        self
     }
 }
 

@@ -1,5 +1,6 @@
 use crate::elements::badge::{Badge, BadgeElement};
 use crate::elements::code::{Code, CodeElement};
+use crate::elements::columns::{Column, ColumnElement, ColumnsOption};
 use crate::elements::common::Element;
 use crate::elements::container::{Container, ContainerElement};
 use crate::elements::markdown::{Markdown, MarkdownElement, MarkdownElementType};
@@ -79,6 +80,8 @@ pub trait StreamlitApi {
     fn code<T1: ToString, T2: ToString>(&self, code_text: T1, language: T2) -> &Code;
 
     fn container(&'_ self) -> &'_ Container<'_>;
+
+    fn columns<T: Into<ColumnsOption>>(&self, spec: T) -> &[Column<'_>];
 }
 
 impl<C: AppendChild> StreamlitApi for C {
@@ -140,6 +143,35 @@ impl<C: AppendChild> StreamlitApi for C {
         let element = Arc::new(RefCell::new(ContainerElement::new()));
         self.push(element.clone());
         self.allocator().malloc(Container::new(element, self.allocator()))
+    }
+
+    fn columns<T: Into<ColumnsOption>>(&'_ self, spec: T) -> &[Column<'_>] {
+        let weights = match spec.into() {
+            ColumnsOption::Count(count) => {
+                let weight = 1.0 / count as f32;
+                vec![weight; count]
+            }
+            ColumnsOption::Weights(weights) => {
+                let total: f32 = weights.iter().sum();
+                weights.iter().map(|w| w / total).collect()
+            }
+        };
+
+        if weights.is_empty() {
+            return &[];
+        }
+
+        let container_element = Arc::new(RefCell::new(ContainerElement::new().horizontal(true)));
+        self.push(container_element.clone());
+
+        let columns = self.allocator().malloc(vec![]);
+        for w in weights {
+            let column_element = Arc::new(RefCell::new(ColumnElement::new(w)));
+            container_element.borrow_mut().children.push(column_element.clone());
+
+            columns.push(Column::new(column_element, self.allocator()));
+        }
+        columns.as_slice()
     }
 
     // /// Display a button and return whether it was clicked
