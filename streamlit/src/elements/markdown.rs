@@ -1,9 +1,7 @@
 use crate::elements::common::*;
 use crate::error::StreamlitError;
 use crate::proto::streamlit::{TextAlignmentConfig, WidthConfig};
-use crate::proto::{Delta, ForwardMsg, delta, element, forward_msg};
-use crate::websocket::factory::ForwardMsgFactory;
-use actix_ws::Session;
+use crate::proto::{Delta, delta, element, forward_msg};
 use std::cell::RefCell;
 use std::sync::Arc;
 
@@ -16,7 +14,7 @@ pub(crate) struct MarkdownElement {
 }
 
 impl MarkdownElement {
-    pub(crate) fn new(body: String) -> Self {
+    pub fn new(body: String) -> Self {
         Self {
             body,
             unsafe_allow_html: None,
@@ -29,8 +27,8 @@ impl MarkdownElement {
 
 impl Element for MarkdownElement {
     fn render(&self, context: &mut RenderContext) -> Result<(), StreamlitError> {
-        let element_hash = ForwardMsgFactory::hash(format!("markdown_{}_{:?}_{:?}_{:?}", self.body, self.unsafe_allow_html, self.width, self.text_alignment).as_str());
-        let mut msg = ForwardMsgFactory::delta_base_with_path(context.delta_path.clone(), context.active_script_hash.clone(), element_hash);
+        let element_hash = hash(format!("markdown_{}_{:?}_{:?}_{:?}", self.body, self.unsafe_allow_html, self.width, self.text_alignment).as_str());
+        let mut msg = delta_base_with_path(context.delta_path.clone(), context.active_script_hash.clone(), element_hash);
 
         let width_config: Option<WidthConfig> = if let Some(width) = self.width.clone() { Some(width.into()) } else { None };
         let text_alignment_config: Option<TextAlignmentConfig> = if let Some(align) = self.text_alignment.clone() { Some(align.into()) } else { None };

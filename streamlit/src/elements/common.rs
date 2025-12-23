@@ -1,6 +1,6 @@
 use crate::error::StreamlitError;
-use crate::proto::ForwardMsg;
 use crate::proto::streamlit::{TextAlignmentConfig, WidthConfig, text_alignment_config};
+use crate::proto::{ForwardMsg, ForwardMsgMetadata};
 
 #[derive(Debug, Clone)]
 pub enum ElementWidth {
@@ -9,8 +9,7 @@ pub enum ElementWidth {
     Value(i32),
 }
 
-#[derive(Debug)]
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub enum TextAlignment {
     Left,
     Center,
@@ -74,5 +73,24 @@ impl Into<TextAlignmentConfig> for TextAlignment {
                 alignment: text_alignment_config::Alignment::Justify.into(),
             },
         }
+    }
+}
+
+pub fn hash(txt: &str) -> String {
+    let md5 = md5::compute(txt.as_bytes());
+    format!("{:x}", md5)
+}
+
+pub(crate) fn delta_base_with_path(delta_path: Vec<u32>, active_script_hash: String, hash: String) -> ForwardMsg {
+    ForwardMsg {
+        hash,
+        metadata: Some(ForwardMsgMetadata {
+            cacheable: false,
+            delta_path,
+            element_dimension_spec: None,
+            active_script_hash,
+        }),
+        debug_last_backmsg_id: "".to_string(),
+        r#type: None, // Will be set by specific element methods
     }
 }

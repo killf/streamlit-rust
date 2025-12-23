@@ -2,15 +2,12 @@ use crate::elements::common::{Element, RenderContext};
 use crate::elements::markdown::{Markdown, MarkdownElement};
 use crate::error::StreamlitError;
 use crate::proto::widget_state::Value;
-use crate::proto::{ForwardMsg, WidgetState};
-use crate::websocket::factory::new_main_block_delta;
-use actix_ws::Session;
+use crate::proto::{Block, Delta, ForwardMsg, ForwardMsgMetadata, WidgetState, block, delta, forward_msg};
 use parking_lot::Mutex;
 use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::sync::Arc;
-use uuid::Uuid;
 
 /// Streamlit Element types
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -218,7 +215,30 @@ impl Element for Streamlit {
     fn render(&self, context: &mut RenderContext) -> Result<(), StreamlitError> {
         // 1. 先遍历main
         context.delta_path.push(0);
-        context.push(new_main_block_delta());
+        context.push(ForwardMsg {
+            hash: "main_block".to_string(),
+            metadata: Some(ForwardMsgMetadata {
+                cacheable: false,
+                delta_path: vec![0], // RootContainer.MAIN = 0
+                element_dimension_spec: None,
+                active_script_hash: String::new(),
+            }),
+            debug_last_backmsg_id: String::new(),
+            r#type: Some(forward_msg::Type::Delta(Delta {
+                fragment_id: String::new(),
+                r#type: Option::from(delta::Type::AddBlock(Block {
+                    r#type: Some(block::Type::Vertical(block::Vertical {
+                        border: false,
+                        #[allow(deprecated)]
+                        height: 0, // deprecated field, required
+                    })),
+                    allow_empty: false,
+                    id: Some("main_container".to_string()), // This is the crucial ID!
+                    height_config: None,
+                    width_config: None,
+                })),
+            })),
+        });
 
         context.delta_path.push(0);
         for element in self.elements.lock().iter() {

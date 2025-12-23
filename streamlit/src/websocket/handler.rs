@@ -10,7 +10,56 @@ use prost::Message;
 async fn send_new_session(session: &mut Session, session_id: &str) -> Result<(), Box<dyn std::error::Error>> {
     // Generate script run ID
     let script_run_id = uuid::Uuid::new_v4().to_string();
-    let forward_msg = new_session(session_id, &script_run_id);
+    // let forward_msg = new_session(session_id, &script_run_id);
+
+    let hash = format!("new_session_{}", session_id);
+
+    let forward_msg = ForwardMsg {
+        hash: hash.clone(),
+        metadata: Some(ForwardMsgMetadata {
+            cacheable: false,
+            delta_path: vec![],
+            element_dimension_spec: None,
+            active_script_hash: "".to_string(),
+        }),
+        debug_last_backmsg_id: "".to_string(),
+        r#type: Some(forward_msg::Type::NewSession(NewSession {
+            initialize: Some(Initialize {
+                user_info: Some(UserInfo {
+                    installation_id: "1".to_string(),
+                    installation_id_v3: "1".to_string(),
+                    installation_id_v4: "1".to_string(),
+                }),
+                environment_info: Some(EnvironmentInfo {
+                    streamlit_version: "".to_string(),
+                    python_version: "".to_string(),
+                    server_os: "".to_string(),
+                    has_display: false,
+                }),
+                session_status: Some(SessionStatus { run_on_save: false, script_is_running: false }),
+                command_line: "".to_string(),
+                session_id: session_id.to_string(),
+                is_hello: false,
+            }),
+            script_run_id: script_run_id.to_string(),
+            name: "hello.py".to_string(),
+            main_script_path: "hello.py".to_string(),
+            config: Some(Config {
+                gather_usage_stats: false,
+                max_cached_message_age: 0,
+                mapbox_token: "".to_string(),
+                allow_run_on_save: false,
+                hide_top_bar: false,
+                hide_sidebar_nav: false,
+                toolbar_mode: 0,
+            }),
+            custom_theme: None,
+            app_pages: vec![],
+            page_script_hash: hash.clone(),
+            fragment_ids_this_run: vec![],
+            main_script_hash: hash,
+        })),
+    };
 
     log::info!("Sending: {:?} ", forward_msg);
     session.binary(forward_msg.encode_to_vec()).await?;
@@ -18,43 +67,28 @@ async fn send_new_session(session: &mut Session, session_id: &str) -> Result<(),
 }
 
 async fn send_session_status_changed(session: &mut Session, script_is_running: bool, run_on_save: bool) -> Result<(), Box<dyn std::error::Error>> {
-    let forward_msg = new_session_status_changed(script_is_running, run_on_save);
+    let forward_msg = ForwardMsg {
+        hash: "session_status_changed".to_string(),
+        metadata: None,
+        debug_last_backmsg_id: "".to_string(),
+        r#type: Some(forward_msg::Type::SessionStatusChanged(SessionStatus { run_on_save, script_is_running })),
+    };
 
     log::info!("Sending: {:?} ", forward_msg);
     session.binary(forward_msg.encode_to_vec()).await?;
     Ok(())
 }
 
-async fn send_elements_recursive(session: &mut Session, elements: Vec<StreamlitElement>, base_path: &[u32]) -> Result<(), Box<dyn std::error::Error>> {
-    for (index, element) in elements.iter().enumerate() {
-        let mut element_path = base_path.to_vec();
-        element_path.push(index as u32);
+async fn send_script_finished(session: &mut Session) -> Result<(), Box<dyn std::error::Error>> {
+    let forward_msg = ForwardMsg {
+        hash: "script_finished".to_string(),
+        metadata: None,
+        debug_last_backmsg_id: "".to_string(),
+        r#type: Some(forward_msg::Type::ScriptFinished(forward_msg::ScriptFinishedStatus::FinishedSuccessfully as i32)),
+    };
 
-        match element {
-            _ => {
-                // Send regular element
-                let element_msg = new_delta_with_parent(index as u32, element);
-                let encoded = element_msg.encode_to_vec();
-                log::info!("Sending element protobuf message: {} bytes", encoded.len());
-                session.binary(encoded).await?;
-            }
-        }
-    }
-    Ok(())
-}
-
-async fn send_elements(session: &mut Session, elements: Vec<StreamlitElement>) -> Result<(), Box<dyn std::error::Error>> {
-    log::info!("Sending {} elements as protobuf", elements.len());
-
-    // First, create a main block container (RootContainer.MAIN = 0)
-    let main_block_msg = new_main_block_delta();
-    let block_encoded = main_block_msg.encode_to_vec();
-    log::info!("Sending main block protobuf message: {} bytes", block_encoded.len());
-    session.binary(block_encoded).await?;
-
-    // Then send all elements as children of the main block (delta_path: [0, element_index])
-    send_elements_recursive(session, elements, &[0]).await?;
-
+    log::info!("Sending: {:?} ", forward_msg);
+    session.binary(forward_msg.encode_to_vec()).await?;
     Ok(())
 }
 
@@ -80,10 +114,7 @@ async fn do_rerun_script(session: &mut Session, session_id: &str, server: &Strea
     }
 
     // Send script_finished message (this is crucial!)
-    let script_finished_msg = new_script_finished_message();
-    let encoded = script_finished_msg.encode_to_vec();
-    log::info!("Sending script_finished message: {} bytes", encoded.len());
-    session.binary(encoded).await?;
+    send_script_finished(session).await?;
 
     log::info!("Rerun script completed for session: {}", session_id);
     Ok(())
