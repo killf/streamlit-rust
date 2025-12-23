@@ -1,6 +1,10 @@
+use crate::elements::common::{Element, RenderContext};
 use crate::elements::markdown::{Markdown, MarkdownElement};
-use crate::proto::WidgetState;
+use crate::error::StreamlitError;
 use crate::proto::widget_state::Value;
+use crate::proto::{ForwardMsg, WidgetState};
+use crate::websocket::factory::new_main_block_delta;
+use actix_ws::Session;
 use parking_lot::Mutex;
 use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
@@ -52,7 +56,7 @@ pub enum StreamlitElement {
 /// Streamlit Rust API - provides a Python-like Streamlit interface
 #[derive(Clone)]
 pub struct Streamlit {
-    elements: Arc<Mutex<Vec<StreamlitElement>>>,
+    elements: Arc<Mutex<Vec<Arc<RefCell<dyn Element>>>>>,
     widget_states: Arc<Mutex<HashMap<String, WidgetValue>>>,
 }
 
@@ -64,7 +68,7 @@ impl Streamlit {
         }
     }
 
-    pub(crate) fn get_elements(&self) -> Vec<StreamlitElement> {
+    pub(crate) fn get_elements(&self) -> Vec<Arc<RefCell<dyn Element>>> {
         self.elements.lock().clone()
     }
 
@@ -99,7 +103,7 @@ impl Streamlit {
 
     pub fn write(&self, content: &str) -> Markdown {
         let element = Arc::new(RefCell::new(MarkdownElement::new(content.to_string())));
-
+        self.elements.lock().push(element.clone());
         Markdown::new(element)
     }
 
@@ -208,6 +212,20 @@ impl Streamlit {
     // pub fn h3(&self, body: &str) {
     //     self.header(body, 3);
     // }
+}
+
+impl Element for Streamlit {
+    fn render(&self, context: &mut RenderContext) -> Result<(), StreamlitError> {
+        // 1. 先遍历main
+        context.delta_path.push(0);
+        context.push(new_main_block_delta());
+
+        context.delta_path.push(0);
+        for element in self.elements.lock().iter() {
+            element.borrow().render(context)?;
+        }
+        Ok(())
+    }
 }
 
 /// Widget value types

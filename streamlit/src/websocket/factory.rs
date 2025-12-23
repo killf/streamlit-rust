@@ -1,10 +1,14 @@
 use crate::api::StreamlitElement;
 use crate::proto::{Button as StreamlitButton, *};
 
-// Factory for creating ForwardMsg instances with cleaner separation of concerns
-struct ForwardMsgFactory;
+pub(crate) struct ForwardMsgFactory;
 
 impl ForwardMsgFactory {
+    pub fn hash(txt: &str) -> String {
+        let md5 = md5::compute(txt.as_bytes());
+        format!("{:x}", md5)
+    }
+
     /// Creates the base metadata for delta messages
     fn delta_metadata(element_index: u32) -> ForwardMsgMetadata {
         ForwardMsgMetadata {
@@ -22,6 +26,20 @@ impl ForwardMsgFactory {
         ForwardMsg {
             hash,
             metadata: Some(Self::delta_metadata(element_index)),
+            debug_last_backmsg_id: "".to_string(),
+            r#type: None, // Will be set by specific element methods
+        }
+    }
+
+    pub(crate) fn delta_base_with_path(delta_path: Vec<u32>, active_script_hash: String, hash: String) -> ForwardMsg {
+        ForwardMsg {
+            hash,
+            metadata: Some(ForwardMsgMetadata {
+                cacheable: false,
+                delta_path,
+                element_dimension_spec: None,
+                active_script_hash,
+            }),
             debug_last_backmsg_id: "".to_string(),
             r#type: None, // Will be set by specific element methods
         }
@@ -104,9 +122,9 @@ impl ForwardMsgFactory {
     }
 
     /// Creates a markdown element ForwardMsg
-    fn markdown_element(element_index: u32, id: &str, body: &str) -> ForwardMsg {
-        let element_hash = format!("markdown_{}_{}", id, body.chars().take(20).collect::<String>());
-        let mut msg = Self::delta_base(element_index, id, &element_hash);
+    pub(crate) fn markdown_element(delta_path: Vec<u32>, active_script_hash: String, id: &str, body: String) -> ForwardMsg {
+        let element_hash = Self::hash(format!("markdown_{}", body).as_str());
+        let mut msg = Self::delta_base_with_path(delta_path, active_script_hash, element_hash);
 
         msg.r#type = Some(forward_msg::Type::Delta(Delta {
             fragment_id: id.to_string(),
@@ -115,7 +133,7 @@ impl ForwardMsgFactory {
                 width_config: None,
                 text_alignment_config: None,
                 r#type: Some(element::Type::Markdown(Markdown {
-                    body: body.to_string(),
+                    body,
                     allow_html: false,
                     is_caption: false,
                     element_type: 0,
@@ -324,11 +342,11 @@ pub fn new_main_block_delta() -> ForwardMsg {
             cacheable: false,
             delta_path: vec![0], // RootContainer.MAIN = 0
             element_dimension_spec: None,
-            active_script_hash: "".to_string(),
+            active_script_hash: String::new(),
         }),
-        debug_last_backmsg_id: "".to_string(),
+        debug_last_backmsg_id: String::new(),
         r#type: Some(forward_msg::Type::Delta(Delta {
-            fragment_id: "".to_string(),
+            fragment_id: String::new(),
             r#type: Option::from(delta::Type::AddBlock(Block {
                 r#type: Some(block::Type::Vertical(block::Vertical {
                     border: false,
@@ -349,7 +367,7 @@ pub fn new_delta_with_parent(element_index: u32, element: &StreamlitElement) -> 
         StreamlitElement::Text { id, body, help } => ForwardMsgFactory::text_element(element_index, id, body, help),
         StreamlitElement::Title { id, title } => ForwardMsgFactory::title_element(element_index, id, title),
         StreamlitElement::Header { id, body, level } => ForwardMsgFactory::header_element(element_index, id, body, *level),
-        StreamlitElement::Markdown { id, body } => ForwardMsgFactory::markdown_element(element_index, id, body),
+        StreamlitElement::Markdown { id, body } => todo!(),
         StreamlitElement::Code { id, body, language } => ForwardMsgFactory::code_element(element_index, id, body, language),
         StreamlitElement::Divider { id } => ForwardMsgFactory::empty_element(element_index, id, "divider"),
         StreamlitElement::Empty { id } => ForwardMsgFactory::empty_element(element_index, id, "empty"),

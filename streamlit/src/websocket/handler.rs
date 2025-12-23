@@ -1,4 +1,5 @@
 use crate::api::StreamlitElement;
+use crate::elements::common::{Element, RenderContext};
 use crate::proto::{WidgetState, back_msg::Type, widget_state::Value, *};
 use crate::websocket::factory::*;
 use crate::{Streamlit, StreamlitServer};
@@ -69,8 +70,14 @@ async fn do_rerun_script(session: &mut Session, session_id: &str, server: &Strea
     (server.entry)(&st);
     log::info!("Executed user main function, got {} elements", st.get_elements().len());
 
+    let mut context = RenderContext::new();
+    st.render(&mut context)?;
+
     // Send all elements as deltas
-    send_elements(session, st.get_elements()).await?;
+    for msg in context.stream.iter() {
+        log::info!("ForwardMsg {:?}", msg);
+        session.binary(msg.encode_to_vec()).await?;
+    }
 
     // Send script_finished message (this is crucial!)
     let script_finished_msg = new_script_finished_message();
