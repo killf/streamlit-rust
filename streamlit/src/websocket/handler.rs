@@ -10,7 +10,7 @@ async fn do_rerun_script(session: &mut Session, session_id: &str, server: &Strea
     let st = Streamlit::new().process_widget_states(widget_states);
 
     log::info!("Executing user main function...");
-    (server.entry)(&st);
+    server.entry.call(&st).await;
 
     let mut context = RenderContext::new(session_id.to_string());
     st.app.lock().render(&mut context)?;

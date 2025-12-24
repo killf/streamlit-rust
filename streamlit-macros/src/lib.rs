@@ -16,34 +16,40 @@ pub fn main(_attr: TokenStream, item: TokenStream) -> TokenStream {
     // Validate that the function takes exactly one parameter of type &Streamlit
     let params = &input.sig.inputs;
     if params.len() != 1 {
-        let error = syn::Error::new_spanned(
-            &input.sig,
-            "Streamlit main function must take exactly one parameter: `st: &Streamlit`"
-        );
+        let error = syn::Error::new_spanned(&input.sig, "Streamlit main function must take exactly one parameter: `st: &Streamlit`");
         return error.to_compile_error().into();
     }
 
-    // Extract the function body
+    // Extract the function body and check if it's async
     let fn_body = &input.block;
+    let is_async = input.sig.asyncness.is_some();
 
-    // Generate the transformed code
-    let expanded = quote! {
-        // Rename the original function to avoid conflict
-        #fn_vis fn __streamlit_user_main(st: &::streamlit::Streamlit) #fn_body
+    // Generate the transformed code based on whether the function is async
+    let expanded = if is_async {
+        quote! {
+            // Rename the original function to avoid conflict (async version)
+            #fn_vis async fn __streamlit_user_main(st: &::streamlit::Streamlit) #fn_body
 
-        // Generate the actual main function
-        #[tokio::main]
-        async fn main() -> Result<(), Box<dyn std::error::Error>> {
-            // Initialize logging
-            env_logger::Builder::from_default_env().init();
-            log::info!("Starting Streamlit Rust Backend v0.1.0");
-            
-            // Create and start the server
-            let server = ::streamlit::StreamlitServer::new(__streamlit_user_main, "0.0.0.0".into(), 8508);
-            server.start().await?;
+            // Generate the actual main function
+            #[tokio::main]
+            async fn main() -> Result<(), Box<dyn std::error::Error>> {
+                // Initialize logging
+                env_logger::Builder::from_default_env().init();
+                log::info!("Starting Streamlit Rust Backend v0.1.0");
 
-            Ok(())
+                // Create and start the server with async handler
+                let server = ::streamlit::StreamlitServer::new(
+                    |st: &::streamlit::Streamlit| Box::pin(__streamlit_user_main(st)),
+                    "0.0.0.0".into(),
+                    8508
+                );
+                server.start().await?;
+
+                Ok(())
+            }
         }
+    } else {
+        panic!("Streamlit main function must be async");
     };
 
     expanded.into()

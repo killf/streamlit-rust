@@ -2,6 +2,8 @@ use crate::api::Streamlit;
 use crate::websocket::handler::handle_connection;
 use actix_web::http::header::{HeaderName, HeaderValue};
 use actix_web::{get, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
+use std::future::Future;
+use std::pin::Pin;
 
 #[get("/_stcore/health")]
 async fn health_check() -> impl Responder {
@@ -40,16 +42,38 @@ async fn websocket_handler(req: HttpRequest, stream: web::Payload, state: web::D
     Ok(response)
 }
 
+/// Handler type that can be either synchronous or asynchronous
+pub enum Entry {
+    Async(fn(&Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>>),
+}
+
+impl Clone for Entry {
+    fn clone(&self) -> Self {
+        match self {
+            Entry::Async(f) => Entry::Async(*f),
+        }
+    }
+}
+
+impl Entry {
+    /// Execute the handler (sync or async)
+    pub async fn call(&self, st: &Streamlit) {
+        match self {
+            Entry::Async(f) => f(st).await,
+        }
+    }
+}
+
 #[derive(Clone)]
 pub struct StreamlitServer {
-    pub(crate) entry: fn(&Streamlit),
+    pub(crate) entry: Entry,
     pub(crate) host: String,
     pub(crate) port: u16,
 }
 
 impl StreamlitServer {
-    pub fn new(entry: fn(&Streamlit), host: String, port: u16) -> Self {
-        Self { entry, host, port }
+    pub fn new(entry: fn(&Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>>, host: String, port: u16) -> Self {
+        Self { entry: Entry::Async(entry), host, port }
     }
 
     pub async fn start(&self) -> std::io::Result<()> {
