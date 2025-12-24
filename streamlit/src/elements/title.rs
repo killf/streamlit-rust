@@ -3,8 +3,6 @@ use crate::error::StreamlitError;
 use crate::proto::streamlit::{TextAlignmentConfig, WidthConfig};
 use crate::proto::{delta, delta_base_with_path, element, forward_msg, Delta};
 use crate::utils::hash::hash;
-use std::cell::RefCell;
-use std::sync::Arc;
 
 pub(crate) struct HeadingElement {
     tag: String,
@@ -94,55 +92,5 @@ impl Element for HeadingElement {
         }
 
         Ok(())
-    }
-}
-
-pub struct Heading {
-    element: Arc<RefCell<HeadingElement>>,
-}
-
-impl Heading {
-    pub(crate) fn new(element: Arc<RefCell<HeadingElement>>) -> Heading {
-        Heading { element }
-    }
-
-    pub fn tag<T: ToString>(&self, value: T) -> &Self {
-        self.element.borrow_mut().tag = value.to_string();
-        self
-    }
-
-    pub fn body<T: ToString>(&self, value: T) -> &Self {
-        self.element.borrow_mut().body = value.to_string();
-        self
-    }
-
-    pub fn help<T: ToString>(&self, value: T) -> &Self {
-        self.element.borrow_mut().help = value.to_string();
-        self
-    }
-
-    pub fn anchor<T: ToString>(&self, value: T) -> &Self {
-        self.element.borrow_mut().anchor = value.to_string();
-        self
-    }
-
-    pub fn hide_anchor(&self, value: bool) -> &Self {
-        self.element.borrow_mut().hide_anchor = value;
-        self
-    }
-
-    pub fn divider(&self, value: String) -> &Self {
-        self.element.borrow_mut().divider = value;
-        self
-    }
-
-    pub fn width(&self, width: ElementWidth) -> &Self {
-        self.element.borrow_mut().width = Some(width);
-        self
-    }
-
-    pub fn text_alignment(&self, alignment: TextAlignment) -> &Self {
-        self.element.borrow_mut().text_alignment = Some(alignment);
-        self
     }
 }

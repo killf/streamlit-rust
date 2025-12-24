@@ -3,8 +3,6 @@ use crate::error::StreamlitError;
 use crate::proto::streamlit::{TextAlignmentConfig, WidthConfig};
 use crate::proto::{delta, delta_base_with_path, element, forward_msg, Delta};
 use crate::utils::hash::hash;
-use std::cell::RefCell;
-use std::sync::Arc;
 
 #[repr(i32)]
 #[allow(unused)]
@@ -101,40 +99,5 @@ impl Element for MarkdownElement {
         }
 
         Ok(())
-    }
-}
-
-pub struct Markdown {
-    element: Arc<RefCell<MarkdownElement>>,
-}
-
-impl Markdown {
-    pub(crate) fn new(element: Arc<RefCell<MarkdownElement>>) -> Self {
-        Self { element }
-    }
-
-    pub fn body<T: ToString>(&self, value: T) -> &Self {
-        self.element.borrow_mut().body = value.to_string();
-        self
-    }
-
-    pub fn unsafe_allow_html(&self, value: bool) -> &Self {
-        self.element.borrow_mut().unsafe_allow_html = value;
-        self
-    }
-
-    pub fn help<T: ToString>(&self, value: T) -> &Self {
-        self.element.borrow_mut().help = Some(value.to_string());
-        self
-    }
-
-    pub fn width(&self, width: ElementWidth) -> &Self {
-        self.element.borrow_mut().width = Some(width);
-        self
-    }
-
-    pub fn text_alignment(&self, alignment: TextAlignment) -> &Self {
-        self.element.borrow_mut().text_alignment = Some(alignment);
-        self
     }
 }

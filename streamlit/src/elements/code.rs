@@ -3,8 +3,6 @@ use crate::error::StreamlitError;
 use crate::proto::streamlit::{HeightConfig, TextAlignmentConfig, WidthConfig};
 use crate::proto::{delta, delta_base_with_path, element, forward_msg, Delta};
 use crate::utils::hash::hash;
-use std::cell::RefCell;
-use std::sync::Arc;
 
 pub(crate) struct CodeElement {
     code_text: String,
@@ -48,11 +46,6 @@ impl CodeElement {
         self.height = Some(height);
         self
     }
-
-    pub fn text_alignment(mut self, alignment: TextAlignment) -> Self {
-        self.text_alignment = Some(alignment);
-        self
-    }
 }
 
 impl Element for CodeElement {
@@ -88,45 +81,5 @@ impl Element for CodeElement {
         }
 
         Ok(())
-    }
-}
-
-pub struct Code {
-    element: Arc<RefCell<CodeElement>>,
-}
-
-impl Code {
-    pub(crate) fn new(element: Arc<RefCell<CodeElement>>) -> Self {
-        Self { element }
-    }
-
-    pub fn body<T: ToString>(&self, value: T) -> &Self {
-        self.element.borrow_mut().code_text = value.to_string();
-        self
-    }
-
-    pub fn language<T: ToString>(&self, language: T) -> &Self {
-        self.element.borrow_mut().language = language.to_string();
-        self
-    }
-
-    pub fn show_line_numbers(&self, value: bool) -> &Self {
-        self.element.borrow_mut().show_line_numbers = value;
-        self
-    }
-
-    pub fn wrap_lines(&self, value: bool) -> &Self {
-        self.element.borrow_mut().wrap_lines = value;
-        self
-    }
-
-    pub fn width(&self, width: ElementWidth) -> &Self {
-        self.element.borrow_mut().width = Some(width);
-        self
-    }
-
-    pub fn text_alignment(&self, alignment: TextAlignment) -> &Self {
-        self.element.borrow_mut().text_alignment = Some(alignment);
-        self
     }
 }

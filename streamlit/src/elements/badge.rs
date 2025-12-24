@@ -4,8 +4,6 @@ use crate::error::StreamlitError;
 use crate::proto::streamlit::{TextAlignmentConfig, WidthConfig};
 use crate::proto::{delta, delta_base_with_path, element, forward_msg, Delta};
 use crate::utils::hash::hash;
-use std::cell::RefCell;
-use std::sync::Arc;
 
 pub(crate) struct BadgeElement {
     label: String,
@@ -46,10 +44,6 @@ impl BadgeElement {
         self.width = Some(width);
         self
     }
-    pub fn text_alignment(mut self, alignment: TextAlignment) -> Self {
-        self.text_alignment = Some(alignment);
-        self
-    }
 }
 
 impl Element for BadgeElement {
@@ -83,45 +77,5 @@ impl Element for BadgeElement {
         }
 
         Ok(())
-    }
-}
-
-pub struct Badge {
-    element: Arc<RefCell<BadgeElement>>,
-}
-
-impl Badge {
-    pub(crate) fn new(element: Arc<RefCell<BadgeElement>>) -> Self {
-        Self { element }
-    }
-
-    pub fn label<T: ToString>(&self, value: T) -> &Self {
-        self.element.borrow_mut().label = value.to_string();
-        self
-    }
-
-    pub fn color<T: ToString>(&self, value: T) -> &Self {
-        self.element.borrow_mut().color = value.to_string();
-        self
-    }
-
-    pub fn icon<T: ToString>(&self, value: T) -> &Self {
-        self.element.borrow_mut().icon = value.to_string();
-        self
-    }
-
-    pub fn help<T: ToString>(&self, value: T) -> &Self {
-        self.element.borrow_mut().help = Some(value.to_string());
-        self
-    }
-
-    pub fn width(&self, width: ElementWidth) -> &Self {
-        self.element.borrow_mut().width = Some(width);
-        self
-    }
-
-    pub fn text_alignment(&self, alignment: TextAlignment) -> &Self {
-        self.element.borrow_mut().text_alignment = Some(alignment);
-        self
     }
 }

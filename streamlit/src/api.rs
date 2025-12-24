@@ -575,7 +575,7 @@ impl<C: AppendChild> StreamlitApi for C {
 
     fn badge<T: Into<BadgeOptions>>(&self, body: T) {
         let body = body.into();
-        let element = BadgeElement::new(body.label).icon(body.icon.unwrap_or_default()).width(body.width).help(body.help.unwrap_or_default());
+        let element = BadgeElement::new(body.label).color(body.color).icon(body.icon.unwrap_or_default()).width(body.width).help(body.help.unwrap_or_default());
         self.push(Arc::new(RefCell::new(element)));
     }
 

@@ -8,35 +8,6 @@ use crate::utils::hash::hash;
 use std::cell::RefCell;
 use std::sync::Arc;
 
-pub enum ColumnsOption {
-    Count(usize),
-    Weights(Vec<f32>),
-}
-
-impl From<usize> for ColumnsOption {
-    fn from(count: usize) -> Self {
-        ColumnsOption::Count(count)
-    }
-}
-
-impl From<i32> for ColumnsOption {
-    fn from(count: i32) -> Self {
-        ColumnsOption::Count(count as usize)
-    }
-}
-
-impl From<Vec<i32>> for ColumnsOption {
-    fn from(weights: Vec<i32>) -> Self {
-        ColumnsOption::Weights(weights.iter().map(|x| *x as f32).collect())
-    }
-}
-
-impl From<Vec<f32>> for ColumnsOption {
-    fn from(weights: Vec<f32>) -> Self {
-        ColumnsOption::Weights(weights)
-    }
-}
-
 pub(crate) struct ColumnElement {
     border: bool,
     weight: f32,
@@ -73,18 +44,8 @@ impl ColumnElement {
         self
     }
 
-    pub fn height(mut self, height: ElementHeight) -> Self {
-        self.height = Some(height);
-        self
-    }
-
     pub fn vertical_alignment(mut self, vertical_alignment: VerticalAlignment) -> Self {
         self.vertical_alignment = vertical_alignment;
-        self
-    }
-
-    pub fn gap(mut self, gap: Gap) -> Self {
-        self.gap = gap;
         self
     }
 }
