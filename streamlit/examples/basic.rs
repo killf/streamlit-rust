@@ -32,7 +32,7 @@ fn main(st: &Streamlit) {
 
     st.divider();
 
-    st.badge("Home").color("red").icon("🚨");
+    st.badge(BadgeOptions::new("Home").color("red").icon("🚨"));
     st.caption("This is caption");
 
     st.header("💻 Code Examples");

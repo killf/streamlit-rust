@@ -1,6 +1,6 @@
 use crate::elements::common::*;
 use crate::error::StreamlitError;
-use crate::proto::streamlit::{TextAlignmentConfig, WidthConfig};
+use crate::proto::streamlit::{HeightConfig, TextAlignmentConfig, WidthConfig};
 use crate::proto::{delta, delta_base_with_path, element, forward_msg, Delta};
 use crate::utils::hash::hash;
 use std::cell::RefCell;
@@ -12,6 +12,7 @@ pub(crate) struct CodeElement {
     show_line_numbers: bool,
     wrap_lines: bool,
     width: Option<ElementWidth>,
+    height: Option<ElementHeight>,
     text_alignment: Option<TextAlignment>,
 }
 
@@ -23,8 +24,34 @@ impl CodeElement {
             show_line_numbers: false,
             wrap_lines: false,
             width: None,
+            height: None,
             text_alignment: None,
         }
+    }
+
+    pub fn show_line_numbers(mut self, value: bool) -> Self {
+        self.show_line_numbers = value;
+        self
+    }
+
+    pub fn wrap_lines(mut self, value: bool) -> Self {
+        self.wrap_lines = value;
+        self
+    }
+
+    pub fn width(mut self, width: ElementWidth) -> Self {
+        self.width = Some(width);
+        self
+    }
+
+    pub fn height(mut self, height: ElementHeight) -> Self {
+        self.height = Some(height);
+        self
+    }
+
+    pub fn text_alignment(mut self, alignment: TextAlignment) -> Self {
+        self.text_alignment = Some(alignment);
+        self
     }
 }
 
@@ -34,12 +61,13 @@ impl Element for CodeElement {
         let mut msg = delta_base_with_path(context.delta_path.clone(), context.active_script_hash.clone(), element_hash);
 
         let width_config: Option<WidthConfig> = if let Some(width) = self.width.clone() { Some(width.into()) } else { None };
+        let height_config: Option<HeightConfig> = if let Some(height) = self.height.clone() { Some(height.into()) } else { None };
         let text_alignment_config: Option<TextAlignmentConfig> = if let Some(align) = self.text_alignment.clone() { Some(align.into()) } else { None };
 
         msg.r#type = Some(forward_msg::Type::Delta(Delta {
             fragment_id: String::new(),
             r#type: Some(delta::Type::NewElement(crate::proto::Element {
-                height_config: None,
+                height_config,
                 width_config,
                 text_alignment_config,
                 r#type: Some(element::Type::Code(crate::proto::Code {

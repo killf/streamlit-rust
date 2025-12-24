@@ -39,9 +39,44 @@ impl ContainerElement {
             children: Vec::new(),
         }
     }
-    
+
+    pub fn border(mut self, value: bool) -> Self {
+        self.border = value;
+        self
+    }
+
+    pub fn key(mut self, key: String) -> Self {
+        self.key = key;
+        self
+    }
+
+    pub fn width(mut self, width: ElementWidth) -> Self {
+        self.width = Some(width);
+        self
+    }
+
+    pub fn height(mut self, height: ElementHeight) -> Self {
+        self.height = Some(height);
+        self
+    }
+
     pub fn horizontal(mut self, value: bool) -> Self {
         self.horizontal = value;
+        self
+    }
+
+    pub fn horizontal_alignment(mut self, alignment: HorizontalAlignment) -> Self {
+        self.horizontal_alignment = alignment;
+        self
+    }
+
+    pub fn vertical_alignment(mut self, alignment: VerticalAlignment) -> Self {
+        self.vertical_alignment = alignment;
+        self
+    }
+
+    pub fn gap(mut self, gap: Gap) -> Self {
+        self.gap = gap;
         self
     }
 }

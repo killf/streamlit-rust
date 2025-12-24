@@ -1,5 +1,5 @@
 use crate::api::AppendChild;
-use crate::elements::common::{Element, ElementHeight, ElementWidth, Gap, RenderContext};
+use crate::elements::common::{Element, ElementHeight, ElementWidth, Gap, RenderContext, VerticalAlignment};
 use crate::error::StreamlitError;
 use crate::memory::Allocator;
 use crate::proto::streamlit::{HeightConfig, WidthConfig};
@@ -45,6 +45,8 @@ pub(crate) struct ColumnElement {
     width: Option<ElementWidth>,
     height: Option<ElementHeight>,
 
+    vertical_alignment: VerticalAlignment,
+
     pub(crate) children: Vec<Arc<RefCell<dyn Element>>>,
 }
 
@@ -57,7 +59,33 @@ impl ColumnElement {
             children: Vec::new(),
             width: None,
             height: None,
+            vertical_alignment: VerticalAlignment::Top,
         }
+    }
+
+    pub fn border(mut self, border: bool) -> Self {
+        self.border = border;
+        self
+    }
+
+    pub fn width(mut self, width: ElementWidth) -> Self {
+        self.width = Some(width);
+        self
+    }
+
+    pub fn height(mut self, height: ElementHeight) -> Self {
+        self.height = Some(height);
+        self
+    }
+
+    pub fn vertical_alignment(mut self, vertical_alignment: VerticalAlignment) -> Self {
+        self.vertical_alignment = vertical_alignment;
+        self
+    }
+
+    pub fn gap(mut self, gap: Gap) -> Self {
+        self.gap = gap;
+        self
     }
 }
 
@@ -81,7 +109,7 @@ impl Element for ColumnElement {
                     weight: self.weight as f64,
                     #[allow(deprecated)]
                     gap: "".to_string(),
-                    vertical_alignment: 0,
+                    vertical_alignment: self.vertical_alignment.clone() as i32,
                     show_border: self.border,
                     gap_config: Some(self.gap.clone().into()),
                 })),

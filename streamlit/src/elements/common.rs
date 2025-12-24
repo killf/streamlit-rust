@@ -10,11 +10,23 @@ pub enum ElementWidth {
     Value(i32),
 }
 
+impl From<i32> for ElementWidth {
+    fn from(value: i32) -> Self {
+        Self::Value(value)
+    }
+}
+
 #[derive(Debug, Clone)]
 pub enum ElementHeight {
     Stretch,
     Content,
     Value(i32),
+}
+
+impl From<i32> for ElementHeight {
+    fn from(value: i32) -> Self {
+        Self::Value(value)
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -35,10 +47,10 @@ pub enum HorizontalAlignment {
 
 #[derive(Debug, Clone)]
 pub enum VerticalAlignment {
-    Top,
-    Center,
-    Bottom,
-    Distribute,
+    Top = 0,
+    Center = 1,
+    Bottom = 2,
+    Distribute = 3,
 }
 
 #[derive(Debug, Clone)]
@@ -46,6 +58,42 @@ pub enum Gap {
     Small,
     Medium,
     Large,
+}
+
+#[derive(Debug, Clone)]
+pub enum Anchor {
+    String(String),
+    Bool(bool),
+}
+
+impl From<String> for Anchor {
+    fn from(s: String) -> Self {
+        Anchor::String(s)
+    }
+}
+
+impl From<bool> for Anchor {
+    fn from(b: bool) -> Self {
+        Anchor::Bool(b)
+    }
+}
+
+#[derive(Debug, Clone)]
+pub enum Divider {
+    String(String),
+    Bool(bool),
+}
+
+impl From<String> for Divider {
+    fn from(s: String) -> Self {
+        Divider::String(s)
+    }
+}
+
+impl From<bool> for Divider {
+    fn from(b: bool) -> Self {
+        Divider::Bool(b)
+    }
 }
 
 pub(crate) struct RenderContext {
@@ -134,4 +182,3 @@ impl Into<GapConfig> for Gap {
         }
     }
 }
-

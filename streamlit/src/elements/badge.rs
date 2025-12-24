@@ -27,6 +27,29 @@ impl BadgeElement {
             text_alignment: None,
         }
     }
+
+    pub fn color(mut self, color: String) -> Self {
+        self.color = color;
+        self
+    }
+
+    pub fn icon(mut self, icon: String) -> Self {
+        self.icon = icon;
+        self
+    }
+
+    pub fn help(mut self, help: String) -> Self {
+        self.help = Some(help);
+        self
+    }
+    pub fn width(mut self, width: ElementWidth) -> Self {
+        self.width = Some(width);
+        self
+    }
+    pub fn text_alignment(mut self, alignment: TextAlignment) -> Self {
+        self.text_alignment = Some(alignment);
+        self
+    }
 }
 
 impl Element for BadgeElement {

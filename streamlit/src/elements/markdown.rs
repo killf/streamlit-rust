@@ -41,6 +41,26 @@ impl MarkdownElement {
         }
     }
 
+    pub fn unsafe_allow_html(mut self, unsafe_allow_html: bool) -> Self {
+        self.unsafe_allow_html = unsafe_allow_html;
+        self
+    }
+
+    pub fn text_alignment(mut self, text_alignment: TextAlignment) -> Self {
+        self.text_alignment = Some(text_alignment);
+        self
+    }
+
+    pub fn help(mut self, value: String) -> Self {
+        self.help = Some(value);
+        self
+    }
+
+    pub fn width(mut self, value: ElementWidth) -> Self {
+        self.width = Some(value);
+        self
+    }
+
     pub fn element_type(mut self, value: MarkdownElementType) -> Self {
         if value == MarkdownElementType::Caption {
             self.is_caption = true;

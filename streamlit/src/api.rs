@@ -1,10 +1,10 @@
-use crate::elements::badge::{Badge, BadgeElement};
-use crate::elements::code::{Code, CodeElement};
-use crate::elements::columns::{Column, ColumnElement, ColumnsOption};
-use crate::elements::common::Element;
+use crate::elements::badge::BadgeElement;
+use crate::elements::code::CodeElement;
+use crate::elements::columns::{Column, ColumnElement};
+use crate::elements::common::{Anchor, Divider, Element, ElementHeight, ElementWidth, Gap, HorizontalAlignment, TextAlignment, VerticalAlignment};
 use crate::elements::container::{Container, ContainerElement};
-use crate::elements::markdown::{Markdown, MarkdownElement, MarkdownElementType};
-use crate::elements::title::{Heading, HeadingElement};
+use crate::elements::markdown::{MarkdownElement, MarkdownElementType};
+use crate::elements::title::HeadingElement;
 use crate::elements::App;
 use crate::memory::Allocator;
 use crate::proto::WidgetState;
@@ -48,125 +48,598 @@ impl AppendChild for Streamlit {
     }
 }
 
-pub trait StreamlitApi {
-    fn write<T: ToString>(&self, content: T) -> &Markdown;
+pub struct WriteOptions {
+    body: String,
+    unsafe_allow_html: bool,
+}
 
-    fn title<T: ToString>(&self, body: T) -> &Heading {
+impl WriteOptions {
+    pub fn new(body: String) -> Self {
+        Self { body, unsafe_allow_html: false }
+    }
+
+    pub fn unsafe_allow_html(mut self, unsafe_allow_html: bool) -> Self {
+        self.unsafe_allow_html = unsafe_allow_html;
+        self
+    }
+}
+
+impl From<String> for WriteOptions {
+    fn from(body: String) -> Self {
+        Self { body, unsafe_allow_html: false }
+    }
+}
+
+impl From<&str> for WriteOptions {
+    fn from(body: &str) -> Self {
+        body.to_string().into()
+    }
+}
+
+pub struct HeaderOptions {
+    body: String,
+    anchor: Option<Anchor>,
+    help: Option<String>,
+    divider: Divider,
+    width: ElementWidth,
+    text_alignment: TextAlignment,
+}
+
+impl HeaderOptions {
+    pub fn new<T: ToString>(body: T) -> Self {
+        Self {
+            body: body.to_string(),
+            anchor: None,
+            help: None,
+            divider: Divider::Bool(false),
+            width: ElementWidth::Stretch,
+            text_alignment: TextAlignment::Left,
+        }
+    }
+
+    pub fn anchor<T: Into<Anchor>>(mut self, anchor: T) -> Self {
+        self.anchor = Some(anchor.into());
+        self
+    }
+
+    pub fn help<T: ToString>(mut self, help: T) -> Self {
+        self.help = Some(help.to_string());
+        self
+    }
+
+    pub fn divider<T: Into<Divider>>(mut self, divider: T) -> Self {
+        self.divider = divider.into();
+        self
+    }
+
+    pub fn width<T: Into<ElementWidth>>(mut self, width: T) -> Self {
+        self.width = width.into();
+        self
+    }
+
+    pub fn text_alignment<T: Into<TextAlignment>>(mut self, alignment: T) -> Self {
+        self.text_alignment = alignment.into();
+        self
+    }
+}
+
+impl From<String> for HeaderOptions {
+    fn from(body: String) -> Self {
+        HeaderOptions::new(body)
+    }
+}
+
+impl From<&str> for HeaderOptions {
+    fn from(body: &str) -> Self {
+        HeaderOptions::new(body)
+    }
+}
+
+pub struct MarkdownOptions {
+    body: String,
+    unsafe_allow_html: bool,
+    help: Option<String>,
+    width: ElementWidth,
+    text_alignment: TextAlignment,
+}
+
+impl MarkdownOptions {
+    pub fn new(body: String) -> Self {
+        Self {
+            body,
+            unsafe_allow_html: false,
+            help: None,
+            width: ElementWidth::Stretch,
+            text_alignment: TextAlignment::Left,
+        }
+    }
+
+    pub fn unsafe_allow_html(mut self, unsafe_allow_html: bool) -> Self {
+        self.unsafe_allow_html = unsafe_allow_html;
+        self
+    }
+
+    pub fn help<T: ToString>(mut self, help: T) -> Self {
+        self.help = Some(help.to_string());
+        self
+    }
+    pub fn width<T: Into<ElementWidth>>(mut self, width: T) -> Self {
+        self.width = width.into();
+        self
+    }
+    pub fn text_alignment<T: Into<TextAlignment>>(mut self, alignment: T) -> Self {
+        self.text_alignment = alignment.into();
+        self
+    }
+}
+
+impl From<String> for MarkdownOptions {
+    fn from(body: String) -> Self {
+        MarkdownOptions::new(body)
+    }
+}
+
+impl From<&str> for MarkdownOptions {
+    fn from(body: &str) -> Self {
+        body.to_string().into()
+    }
+}
+
+pub struct BadgeOptions {
+    label: String,
+    icon: Option<String>,
+    color: String,
+    width: ElementWidth,
+    help: Option<String>,
+}
+
+impl BadgeOptions {
+    pub fn new<T: ToString>(label: T) -> Self {
+        Self {
+            label: label.to_string(),
+            icon: None,
+            color: "blue".to_string(),
+            width: ElementWidth::Content,
+            help: None,
+        }
+    }
+
+    pub fn icon<T: ToString>(mut self, icon: T) -> Self {
+        self.icon = Some(icon.to_string());
+        self
+    }
+
+    pub fn color<T: ToString>(mut self, color: T) -> Self {
+        self.color = color.to_string();
+        self
+    }
+
+    pub fn width<T: Into<ElementWidth>>(mut self, width: T) -> Self {
+        self.width = width.into();
+        self
+    }
+
+    pub fn help<T: ToString>(mut self, help: T) -> Self {
+        self.help = Some(help.to_string());
+        self
+    }
+}
+
+impl From<String> for BadgeOptions {
+    fn from(body: String) -> Self {
+        BadgeOptions::new(body)
+    }
+}
+
+impl From<&str> for BadgeOptions {
+    fn from(body: &str) -> Self {
+        BadgeOptions::new(body)
+    }
+}
+
+pub struct CaptionOptions {
+    body: String,
+    unsafe_allow_html: bool,
+    help: Option<String>,
+    width: ElementWidth,
+    text_alignment: TextAlignment,
+}
+
+impl CaptionOptions {
+    pub fn new<T: ToString>(body: T) -> Self {
+        Self {
+            body: body.to_string(),
+            unsafe_allow_html: false,
+            help: None,
+            width: ElementWidth::Stretch,
+            text_alignment: TextAlignment::Left,
+        }
+    }
+
+    pub fn unsafe_allow_html(mut self, unsafe_allow_html: bool) -> Self {
+        self.unsafe_allow_html = unsafe_allow_html;
+        self
+    }
+
+    pub fn help<T: ToString>(mut self, help: T) -> Self {
+        self.help = Some(help.to_string());
+        self
+    }
+
+    pub fn width<T: Into<ElementWidth>>(mut self, width: T) -> Self {
+        self.width = width.into();
+        self
+    }
+
+    pub fn text_alignment(mut self, alignment: TextAlignment) -> Self {
+        self.text_alignment = alignment;
+        self
+    }
+}
+
+impl From<String> for CaptionOptions {
+    fn from(body: String) -> Self {
+        CaptionOptions::new(body)
+    }
+}
+
+impl From<&str> for CaptionOptions {
+    fn from(body: &str) -> Self {
+        body.to_string().into()
+    }
+}
+
+pub struct CodeOptions {
+    body: String,
+    language: String,
+    line_numbers: bool,
+    wrap_lines: bool,
+    height: ElementHeight,
+    width: ElementWidth,
+}
+
+impl CodeOptions {
+    pub fn new<T1: ToString, T2: ToString>(body: T1, language: T2) -> Self {
+        Self {
+            body: body.to_string(),
+            language: language.to_string(),
+            line_numbers: false,
+            wrap_lines: false,
+            height: ElementHeight::Content,
+            width: ElementWidth::Stretch,
+        }
+    }
+
+    pub fn line_numbers(mut self, line_numbers: bool) -> Self {
+        self.line_numbers = line_numbers;
+        self
+    }
+
+    pub fn wrap_lines(mut self, wrap_lines: bool) -> Self {
+        self.wrap_lines = wrap_lines;
+        self
+    }
+
+    pub fn height<T: Into<ElementHeight>>(mut self, height: T) -> Self {
+        self.height = height.into();
+        self
+    }
+
+    pub fn width<T: Into<ElementWidth>>(mut self, width: T) -> Self {
+        self.width = width.into();
+        self
+    }
+}
+
+pub enum DividerOptions {
+    Stretch,
+    Width(i32),
+}
+
+impl From<i32> for DividerOptions {
+    fn from(width: i32) -> Self {
+        Self::Width(width)
+    }
+}
+
+pub struct ContainerOptions {
+    border: bool,
+    key: Option<String>,
+    width: ElementWidth,
+    height: ElementHeight,
+    horizontal: bool,
+    horizontal_alignment: HorizontalAlignment,
+    vertical_alignment: VerticalAlignment,
+    gap: Gap,
+}
+
+impl ContainerOptions {
+    pub fn new() -> Self {
+        Self {
+            border: false,
+            key: None,
+            width: ElementWidth::Stretch,
+            height: ElementHeight::Content,
+            horizontal: false,
+            horizontal_alignment: HorizontalAlignment::Left,
+            vertical_alignment: VerticalAlignment::Top,
+            gap: Gap::Small,
+        }
+    }
+
+    pub fn border(mut self, border: bool) -> Self {
+        self.border = border;
+        self
+    }
+
+    pub fn key<T: ToString>(mut self, key: T) -> Self {
+        self.key = Some(key.to_string());
+        self
+    }
+
+    pub fn width<T: Into<ElementWidth>>(mut self, width: T) -> Self {
+        self.width = width.into();
+        self
+    }
+
+    pub fn height<T: Into<ElementHeight>>(mut self, height: T) -> Self {
+        self.height = height.into();
+        self
+    }
+
+    pub fn horizontal(mut self, horizontal: bool) -> Self {
+        self.horizontal = horizontal;
+        self
+    }
+
+    pub fn horizontal_alignment(mut self, alignment: HorizontalAlignment) -> Self {
+        self.horizontal_alignment = alignment;
+        self
+    }
+
+    pub fn vertical_alignment(mut self, alignment: VerticalAlignment) -> Self {
+        self.vertical_alignment = alignment;
+        self
+    }
+
+    pub fn gap(mut self, gap: Gap) -> Self {
+        self.gap = gap;
+        self
+    }
+}
+
+pub struct ColumnsOptions {
+    spec: Vec<f32>,
+    gap: Gap,
+    vertical_alignment: VerticalAlignment,
+    border: bool,
+    width: ElementWidth,
+}
+
+impl ColumnsOptions {
+    pub fn new(spec: Vec<f32>) -> Self {
+        Self {
+            spec,
+            gap: Gap::Small,
+            vertical_alignment: VerticalAlignment::Top,
+            border: false,
+            width: ElementWidth::Stretch,
+        }
+    }
+
+    pub fn gap(mut self, gap: Gap) -> Self {
+        self.gap = gap;
+        self
+    }
+
+    pub fn vertical_alignment(mut self, alignment: VerticalAlignment) -> Self {
+        self.vertical_alignment = alignment;
+        self
+    }
+
+    pub fn border(mut self, border: bool) -> Self {
+        self.border = border;
+        self
+    }
+
+    pub fn width<T: Into<ElementWidth>>(mut self, width: T) -> Self {
+        self.width = width.into();
+        self
+    }
+}
+
+impl From<i32> for ColumnsOptions {
+    fn from(spec: i32) -> Self {
+        Self::new(vec![1.0; spec as usize])
+    }
+}
+
+impl<T: Into<f32> + Copy> From<Vec<T>> for ColumnsOptions {
+    fn from(spec: Vec<T>) -> Self {
+        Self::new(spec.iter().map(|&i| i.into()).collect())
+    }
+}
+
+impl<T: Into<f32> + Copy, const N: usize> From<[T; N]> for ColumnsOptions {
+    fn from(spec: [T; N]) -> Self {
+        Self::new(spec.iter().map(|&i| i.into()).collect())
+    }
+}
+
+pub trait StreamlitApi {
+    fn write<T: Into<WriteOptions>>(&self, body: T);
+
+    fn title<T: Into<HeaderOptions>>(&self, body: T) {
         self.h1(body)
     }
 
-    fn header<T: ToString>(&self, body: T) -> &Heading {
+    fn header<T: Into<HeaderOptions>>(&self, body: T) {
         self.h2(body)
     }
 
-    fn sub_header<T: ToString>(&self, body: T) -> &Heading {
+    fn sub_header<T: Into<HeaderOptions>>(&self, body: T) {
         self.h3(body)
     }
 
-    fn divider(&self) -> &Markdown;
+    fn h1<T: Into<HeaderOptions>>(&self, body: T);
 
-    fn h1<T: ToString>(&self, body: T) -> &Heading;
+    fn h2<T: Into<HeaderOptions>>(&self, body: T);
 
-    fn h2<T: ToString>(&self, body: T) -> &Heading;
+    fn h3<T: Into<HeaderOptions>>(&self, body: T);
 
-    fn h3<T: ToString>(&self, body: T) -> &Heading;
+    fn markdown<T: Into<MarkdownOptions>>(&self, body: T);
 
-    fn markdown<T: ToString>(&self, body: T) -> &Markdown;
+    fn badge<T: Into<BadgeOptions>>(&self, body: T);
 
-    fn badge<T: ToString>(&self, label: T) -> &Badge;
+    fn caption<T: Into<CaptionOptions>>(&self, body: T);
 
-    fn caption<T: ToString>(&self, body: T) -> &Markdown;
+    fn code<T1: ToString, T2: ToString>(&self, code_text: T1, language: T2) {
+        self.code_options(CodeOptions::new(code_text, language));
+    }
 
-    fn code<T1: ToString, T2: ToString>(&self, code_text: T1, language: T2) -> &Code;
+    fn code_options<T: Into<CodeOptions>>(&self, code_options: T);
 
-    fn container(&'_ self) -> &'_ Container<'_>;
+    fn divider(&self) {
+        self.divider_options(DividerOptions::Stretch);
+    }
 
-    fn columns<T: Into<ColumnsOption>>(&self, spec: T) -> &[Column<'_>];
+    fn divider_options<T: Into<DividerOptions>>(&self, options: T);
+
+    fn container(&self) -> &Container<'_> {
+        self.container_options(ContainerOptions::new())
+    }
+
+    fn container_options<T: Into<ContainerOptions>>(&self, options: T) -> &Container<'_>;
+
+    fn columns<T: Into<ColumnsOptions>>(&self, spec: T) -> &[Column<'_>];
+}
+
+fn create_header<C: AppendChild, T: Into<HeaderOptions>>(this: &C, data: T, tag: &str) {
+    let option = data.into();
+
+    let element = HeadingElement::new(tag.to_string(), option.body).help(option.help.unwrap_or_default()).width(option.width).text_alignment(option.text_alignment);
+
+    let element = match option.divider {
+        Divider::String(v) => element.divider(v),
+        Divider::Bool(v) => {
+            if v {
+                element.divider("blue".into())
+            } else {
+                element
+            }
+        }
+    };
+
+    let element = if let Some(anchor) = option.anchor {
+        match anchor {
+            Anchor::String(s) => element.hide_anchor(false).anchor(s),
+            Anchor::Bool(b) => element.hide_anchor(!b),
+        }
+    } else {
+        element
+    };
+
+    this.push(Arc::new(RefCell::new(element)));
 }
 
 impl<C: AppendChild> StreamlitApi for C {
-    fn write<T: ToString>(&self, content: T) -> &Markdown {
-        let element = Arc::new(RefCell::new(MarkdownElement::new(content.to_string())));
-        self.push(element.clone());
-        self.allocator().malloc(Markdown::new(element))
+    fn write<T: Into<WriteOptions>>(&self, body: T) {
+        let body = body.into();
+        let element = MarkdownElement::new(body.body).unsafe_allow_html(body.unsafe_allow_html);
+        self.push(Arc::new(RefCell::new(element)));
     }
 
-    fn divider(&self) -> &Markdown {
-        let element = Arc::new(RefCell::new(MarkdownElement::new("---".to_string()).element_type(MarkdownElementType::Divider)));
-        self.push(element.clone());
-        self.allocator().malloc(Markdown::new(element))
+    fn h1<T: Into<HeaderOptions>>(&self, body: T) {
+        create_header(self, body, "h1");
     }
 
-    fn h1<T: ToString>(&self, body: T) -> &Heading {
-        let element = Arc::new(RefCell::new(HeadingElement::new("h1".to_string(), body.to_string())));
-        self.push(element.clone());
-        self.allocator().malloc(Heading::new(element))
+    fn h2<T: Into<HeaderOptions>>(&self, body: T) {
+        create_header(self, body, "h2");
     }
 
-    fn h2<T: ToString>(&self, body: T) -> &Heading {
-        let element = Arc::new(RefCell::new(HeadingElement::new("h2".to_string(), body.to_string())));
-        self.push(element.clone());
-        self.allocator().malloc(Heading::new(element))
+    fn h3<T: Into<HeaderOptions>>(&self, body: T) {
+        create_header(self, body, "h3");
     }
 
-    fn h3<T: ToString>(&self, body: T) -> &Heading {
-        let element = Arc::new(RefCell::new(HeadingElement::new("h3".to_string(), body.to_string())));
-        self.push(element.clone());
-        self.allocator().malloc(Heading::new(element))
+    fn markdown<T: Into<MarkdownOptions>>(&self, body: T) {
+        let body = body.into();
+
+        let element = MarkdownElement::new(body.body)
+            .unsafe_allow_html(body.unsafe_allow_html)
+            .help(body.help.unwrap_or_default())
+            .width(body.width)
+            .text_alignment(body.text_alignment);
+
+        self.push(Arc::new(RefCell::new(element)));
     }
 
-    fn markdown<T: ToString>(&self, body: T) -> &Markdown {
-        let element = Arc::new(RefCell::new(MarkdownElement::new(body.to_string())));
-        self.push(element.clone());
-        self.allocator().malloc(Markdown::new(element))
+    fn badge<T: Into<BadgeOptions>>(&self, body: T) {
+        let body = body.into();
+        let element = BadgeElement::new(body.label).icon(body.icon.unwrap_or_default()).width(body.width).help(body.help.unwrap_or_default());
+        self.push(Arc::new(RefCell::new(element)));
     }
 
-    fn badge<T: ToString>(&self, label: T) -> &Badge {
-        let element = Arc::new(RefCell::new(BadgeElement::new(label.to_string())));
-        self.push(element.clone());
-        self.allocator().malloc(Badge::new(element))
+    fn caption<T: Into<CaptionOptions>>(&self, body: T) {
+        let body = body.into();
+        let element = MarkdownElement::new(body.body)
+            .element_type(MarkdownElementType::Caption)
+            .unsafe_allow_html(body.unsafe_allow_html)
+            .width(body.width)
+            .help(body.help.unwrap_or_default())
+            .text_alignment(body.text_alignment);
+        self.push(Arc::new(RefCell::new(element)));
     }
 
-    fn caption<T: ToString>(&self, body: T) -> &Markdown {
-        let element = Arc::new(RefCell::new(MarkdownElement::new(body.to_string()).element_type(MarkdownElementType::Caption)));
-        self.push(element.clone());
-        self.allocator().malloc(Markdown::new(element))
+    fn code_options<T: Into<CodeOptions>>(&self, code_options: T) {
+        let body = code_options.into();
+        let element = CodeElement::new(body.body, body.language).show_line_numbers(body.line_numbers).wrap_lines(body.wrap_lines).width(body.width).height(body.height);
+        self.push(Arc::new(RefCell::new(element)));
     }
 
-    fn code<T1: ToString, T2: ToString>(&self, code_text: T1, language: T2) -> &Code {
-        let element = Arc::new(RefCell::new(CodeElement::new(code_text.to_string(), language.to_string())));
-        self.push(element.clone());
-        self.allocator().malloc(Code::new(element))
+    fn divider_options<T: Into<DividerOptions>>(&self, options: T) {
+        let body = options.into();
+        let element = MarkdownElement::new("---".to_string()).element_type(MarkdownElementType::Divider).width(match body {
+            DividerOptions::Stretch => ElementWidth::Stretch,
+            DividerOptions::Width(v) => ElementWidth::Value(v),
+        });
+        self.push(Arc::new(RefCell::new(element)));
     }
 
-    fn container(&self) -> &Container<'_> {
-        let element = Arc::new(RefCell::new(ContainerElement::new()));
+    fn container_options<T: Into<ContainerOptions>>(&self, options: T) -> &Container<'_> {
+        let options = options.into();
+
+        let element = ContainerElement::new()
+            .border(options.border)
+            .key(options.key.unwrap_or_default())
+            .width(options.width)
+            .height(options.height)
+            .horizontal(options.horizontal)
+            .horizontal_alignment(options.horizontal_alignment)
+            .vertical_alignment(options.vertical_alignment)
+            .gap(options.gap);
+
+        let element = Arc::new(RefCell::new(element));
         self.push(element.clone());
+
         self.allocator().malloc(Container::new(element, self.allocator()))
     }
 
-    fn columns<T: Into<ColumnsOption>>(&'_ self, spec: T) -> &[Column<'_>] {
-        let weights = match spec.into() {
-            ColumnsOption::Count(count) => {
-                let weight = 1.0 / count as f32;
-                vec![weight; count]
-            }
-            ColumnsOption::Weights(weights) => {
-                let total: f32 = weights.iter().sum();
-                weights.iter().map(|w| w / total).collect()
-            }
-        };
+    fn columns<T: Into<ColumnsOptions>>(&self, spec: T) -> &[Column<'_>] {
+        let options = spec.into();
+
+        let total: f32 = options.spec.iter().sum();
+        let weights: Vec<f32> = options.spec.iter().map(|w| w / total).collect();
 
         if weights.is_empty() {
             return &[];
         }
 
-        let container_element = Arc::new(RefCell::new(ContainerElement::new().horizontal(true)));
+        let container_element = Arc::new(RefCell::new(ContainerElement::new().horizontal(true).gap(options.gap)));
         self.push(container_element.clone());
 
         let columns = self.allocator().malloc(vec![]);
         for w in weights {
-            let column_element = Arc::new(RefCell::new(ColumnElement::new(w)));
+            let column_element = Arc::new(RefCell::new(ColumnElement::new(w).border(options.border).vertical_alignment(options.vertical_alignment.clone()).width(options.width.clone())));
             container_element.borrow_mut().children.push(column_element.clone());
 
             columns.push(Column::new(column_element, self.allocator()));
