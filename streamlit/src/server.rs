@@ -1,5 +1,5 @@
-use crate::api::Streamlit;
 use crate::websocket::handler::handle_connection;
+use crate::Streamlit;
 use actix_web::http::header::{HeaderName, HeaderValue};
 use actix_web::{get, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
 

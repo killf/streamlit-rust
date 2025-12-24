@@ -30,6 +30,33 @@ impl HeadingElement {
             text_alignment: None,
         }
     }
+
+    pub fn anchor(mut self, anchor: String) -> Self {
+        self.anchor = anchor;
+        self
+    }
+
+    pub fn help(mut self, help: String) -> Self {
+        self.help = help;
+        self
+    }
+
+    pub fn divider(mut self, divider: String) -> Self {
+        self.divider = divider;
+        self
+    }
+    pub fn hide_anchor(mut self, hide_anchor: bool) -> Self {
+        self.hide_anchor = hide_anchor;
+        self
+    }
+    pub fn width(mut self, width: ElementWidth) -> Self {
+        self.width = Some(width);
+        self
+    }
+    pub fn text_alignment(mut self, alignment: TextAlignment) -> Self {
+        self.text_alignment = Some(alignment);
+        self
+    }
 }
 
 impl Element for HeadingElement {

@@ -1,7 +1,6 @@
-use crate::api::AppendChild;
+use crate::core::AppendChild;
 use crate::elements::common::{Element, ElementHeight, ElementWidth, Gap, RenderContext};
 use crate::error::StreamlitError;
-use crate::memory::Allocator;
 use crate::proto::streamlit::{HeightConfig, WidthConfig};
 use crate::proto::{delta, delta_base_with_path, forward_msg, Block, Delta};
 use crate::utils::hash::hash;
@@ -105,14 +104,13 @@ impl Element for ColumnElement {
     }
 }
 
-pub struct Column<'a> {
+pub struct Column {
     element: Arc<RefCell<ColumnElement>>,
-    allocator: &'a Allocator,
 }
 
-impl Column<'_> {
-    pub(crate) fn new(element: Arc<RefCell<ColumnElement>>, allocator: &'_ Allocator) -> Column<'_> {
-        Column { element, allocator }
+impl Column {
+    pub(crate) fn new(element: Arc<RefCell<ColumnElement>>) -> Column {
+        Column { element }
     }
 
     pub fn border(&self, value: bool) -> &Self {
@@ -126,12 +124,8 @@ impl Column<'_> {
     }
 }
 
-impl AppendChild for Column<'_> {
+impl AppendChild for Column {
     fn push(&self, element: Arc<RefCell<dyn Element>>) {
         self.element.borrow_mut().children.push(element);
-    }
-
-    fn allocator(&self) -> &Allocator {
-        self.allocator
     }
 }

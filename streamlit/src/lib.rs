@@ -15,16 +15,18 @@
 
 extern crate streamlit_macros;
 
-pub mod api;
+mod api;
+mod core;
 mod elements;
 pub mod error;
-pub mod proto;
-pub mod server;
-pub(crate) mod utils;
-pub(crate) mod websocket;
 mod memory;
+mod proto;
+pub mod server;
+mod utils;
+mod websocket;
 
 pub use api::*;
+pub use core::*;
 pub use server::StreamlitServer;
 
 pub use streamlit_macros::main;
