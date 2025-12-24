@@ -1,9 +1,7 @@
-extern crate core;
-
 use ::streamlit::*;
 
 #[main]
-fn main(st: &Streamlit) {
+async fn main(st: &Streamlit) {
     st.title("Container and Columns Test");
 
     st.write("This is a test outside any container");

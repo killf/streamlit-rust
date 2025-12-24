@@ -1,7 +1,7 @@
 use ::streamlit::*;
 
 #[main]
-fn main(st: &Streamlit) {
+async fn main(st: &Streamlit) {
     // Set page title
     st.title("🚀 Streamlit Rust Examples");
 
@@ -73,8 +73,22 @@ fn main(st: &Streamlit) {
     st.write("This is a outside");
 
     st.h2("📦 Button Elements");
-    
-    if st.button("Click Me") {
-        st.write("Hello, Click Me!")
+
+    if let [col1, col2, col3, col4] = st.columns(4) {
+        if col1.button("Click 1") {
+            col1.write("Click 1");
+        }
+
+        if col2.button("Click 2") {
+            col2.write("Click 2");
+        }
+
+        if col3.button("Click 3") {
+            col3.write("Click 3");
+        }
+
+        if col4.button("Click 4") {
+            col4.write("Click 4");
+        }
     }
 }

@@ -1,6 +1,6 @@
 use ::streamlit::*;
 
 #[main]
-fn main(st: &Streamlit) {
+async fn main(st: &Streamlit) {
     st.write("Hello world!");
 }
