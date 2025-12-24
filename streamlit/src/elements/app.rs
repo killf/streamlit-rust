@@ -27,6 +27,55 @@ impl App {
         self.widget_states.insert(key.to_string(), value);
     }
 
+    pub fn get_widget_state(&self, key: &str) -> Option<WidgetValue> {
+        self.widget_states.get(key).cloned()
+    }
+
+    pub fn get_boolean_state(&self, key: &str) -> bool {
+        self.get_widget_state(key)
+            .and_then(|v| match v {
+                WidgetValue::Boolean(b) => Some(b),
+                _ => None,
+            })
+            .unwrap_or(false)
+    }
+
+    pub fn get_string_state(&self, key: &str) -> String {
+        self.get_widget_state(key)
+            .and_then(|v| match v {
+                WidgetValue::String(s) => Some(s),
+                _ => None,
+            })
+            .unwrap_or_default()
+    }
+
+    pub fn get_float_state(&self, key: &str) -> f64 {
+        self.get_widget_state(key)
+            .and_then(|v| match v {
+                WidgetValue::Float(f) => Some(f),
+                _ => None,
+            })
+            .unwrap_or(0.0)
+    }
+
+    pub fn get_integer_state(&self, key: &str) -> i64 {
+        self.get_widget_state(key)
+            .and_then(|v| match v {
+                WidgetValue::Integer(i) => Some(i),
+                _ => None,
+            })
+            .unwrap_or(0)
+    }
+
+    pub fn clear_widget_state(&mut self, key: &str) {
+        self.widget_states.remove(key);
+    }
+
+    #[allow(dead_code)]
+    pub fn reset_widget_state_to_default(&mut self, key: &str, default: WidgetValue) {
+        self.set_widget_state(key, default);
+    }
+
     pub fn process_widget_states(&mut self, widget_states: Vec<WidgetState>) {
         log::info!("Processing {} widget states", widget_states.len());
         for widget_state in widget_states {
@@ -35,6 +84,18 @@ impl App {
                     Value::TriggerValue(clicked) => {
                         log::info!("Button '{}' clicked: {}", widget_state.id, clicked);
                         self.set_widget_state(&widget_state.id, WidgetValue::Boolean(clicked));
+                    }
+                    Value::StringValue(s) => {
+                        log::info!("String widget '{}' value: {}", widget_state.id, s);
+                        self.set_widget_state(&widget_state.id, WidgetValue::String(s));
+                    }
+                    Value::DoubleValue(f) => {
+                        log::info!("Float widget '{}' value: {}", widget_state.id, f);
+                        self.set_widget_state(&widget_state.id, WidgetValue::Float(f));
+                    }
+                    Value::IntValue(i) => {
+                        log::info!("Int widget '{}' value: {}", widget_state.id, i);
+                        self.set_widget_state(&widget_state.id, WidgetValue::Integer(i));
                     }
                     _ => {
                         log::info!("Received other widget type: {} - {:?}", widget_state.id, value);

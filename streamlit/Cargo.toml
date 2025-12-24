@@ -32,6 +32,7 @@ tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
 prost = { workspace = true }
 md5 = { workspace = true }
+base64 = { workspace = true }
 
 [build-dependencies]
 prost-build = { workspace = true }
@@ -39,3 +40,7 @@ prost-build = { workspace = true }
 [[example]]
 name = "hello"
 path = "examples/hello.rs"
+
+[[example]]
+name = "new_features"
+path = "examples/new_features.rs"

@@ -6,6 +6,7 @@ use crate::proto::block::FlexContainer;
 use crate::proto::streamlit::{HeightConfig, WidthConfig};
 use crate::proto::{delta, delta_base_with_path, forward_msg, Block, Delta};
 use crate::utils::hash::hash;
+use parking_lot::Mutex;
 use std::cell::RefCell;
 use std::sync::Arc;
 
@@ -189,5 +190,9 @@ impl AppendChild for Container<'_> {
 
     fn allocator(&self) -> &Allocator {
         &self.allocator
+    }
+
+    fn app_ref(&self) -> Option<&Arc<Mutex<crate::elements::App>>> {
+        None
     }
 }

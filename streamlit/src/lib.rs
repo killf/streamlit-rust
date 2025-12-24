@@ -16,7 +16,7 @@
 extern crate streamlit_macros;
 
 pub mod api;
-mod elements;
+pub mod elements;
 pub mod error;
 pub mod proto;
 pub mod server;
@@ -25,6 +25,7 @@ pub(crate) mod websocket;
 mod memory;
 
 pub use api::*;
+pub use elements::dataframe::TableData;
 pub use server::StreamlitServer;
 
 pub use streamlit_macros::main;
