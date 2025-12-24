@@ -8,6 +8,8 @@ use crate::proto::{delta, delta_base_with_path, forward_msg, Block, Delta};
 use crate::utils::hash::hash;
 use std::cell::RefCell;
 use std::sync::Arc;
+use parking_lot::Mutex;
+use crate::elements::App;
 
 pub(crate) struct ContainerElement {
     border: bool,
@@ -169,51 +171,12 @@ impl Element for ContainerElement {
 pub struct Container<'a> {
     element: Arc<RefCell<ContainerElement>>,
     allocator: &'a Allocator,
+    app: Arc<Mutex<App>>
 }
 
 impl Container<'_> {
-    pub(crate) fn new(element: Arc<RefCell<ContainerElement>>, allocator: &'_ Allocator) -> Container<'_> {
-        Container { element, allocator }
-    }
-
-    pub fn border(&self, value: bool) -> &Self {
-        self.element.borrow_mut().border = value;
-        self
-    }
-
-    pub fn key<T: ToString>(&self, key: T) -> &Self {
-        self.element.borrow_mut().key = key.to_string();
-        self
-    }
-
-    pub fn width(&self, width: ElementWidth) -> &Self {
-        self.element.borrow_mut().width = Some(width);
-        self
-    }
-
-    pub fn height(&self, height: ElementHeight) -> &Self {
-        self.element.borrow_mut().height = Some(height);
-        self
-    }
-
-    pub fn horizontal(&self, horizontal: bool) -> &Self {
-        self.element.borrow_mut().horizontal = horizontal;
-        self
-    }
-
-    pub fn horizontal_alignment(&self, horizontal_alignment: HorizontalAlignment) -> &Self {
-        self.element.borrow_mut().horizontal_alignment = horizontal_alignment;
-        self
-    }
-
-    pub fn vertical_alignment(&self, vertical_alignment: VerticalAlignment) -> &Self {
-        self.element.borrow_mut().vertical_alignment = vertical_alignment;
-        self
-    }
-
-    pub fn gap(&self, gap: Gap) -> &Self {
-        self.element.borrow_mut().gap = gap;
-        self
+    pub(crate) fn new(element: Arc<RefCell<ContainerElement>>, allocator: &'_ Allocator, app: Arc<Mutex<App>>) -> Container<'_> {
+        Container { element, allocator, app}
     }
 }
 
@@ -224,5 +187,9 @@ impl AppendChild for Container<'_> {
 
     fn allocator(&self) -> &Allocator {
         &self.allocator
+    }
+
+    fn get_app(&self) -> Arc<Mutex<App>> {
+        self.app.clone()
     }
 }

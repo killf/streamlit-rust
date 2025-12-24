@@ -1,13 +1,15 @@
 use crate::elements::badge::BadgeElement;
+use crate::elements::button::ButtonElement;
 use crate::elements::code::CodeElement;
 use crate::elements::columns::{Column, ColumnElement};
 use crate::elements::common::{Anchor, Divider, Element, ElementHeight, ElementWidth, Gap, HorizontalAlignment, TextAlignment, VerticalAlignment};
 use crate::elements::container::{Container, ContainerElement};
 use crate::elements::markdown::{MarkdownElement, MarkdownElementType};
 use crate::elements::title::HeadingElement;
-use crate::elements::App;
+use crate::elements::{App, WidgetValue};
 use crate::memory::Allocator;
 use crate::proto::WidgetState;
+use crate::utils::hash::hash;
 use parking_lot::Mutex;
 use std::cell::RefCell;
 use std::sync::Arc;
@@ -36,6 +38,8 @@ pub(crate) trait AppendChild {
     fn push(&self, element: Arc<RefCell<dyn Element>>);
 
     fn allocator(&self) -> &Allocator;
+
+    fn get_app(&self) -> Arc<Mutex<App>>;
 }
 
 impl AppendChild for Streamlit {
@@ -45,6 +49,10 @@ impl AppendChild for Streamlit {
 
     fn allocator(&self) -> &Allocator {
         &self.allocator
+    }
+
+    fn get_app(&self) -> Arc<Mutex<App>> {
+        self.app.clone()
     }
 }
 
@@ -466,6 +474,79 @@ impl<T: Into<f32> + Copy, const N: usize> From<[T; N]> for ColumnsOptions {
     }
 }
 
+pub struct ButtonOptions {
+    label: String,
+    key: Option<String>,
+    help: Option<String>,
+    r#type: String,
+    icon: Option<String>,
+    disabled: bool,
+    width: ElementWidth,
+    shortcut: Option<String>,
+}
+
+impl ButtonOptions {
+    pub fn new<T: ToString>(label: T) -> Self {
+        Self {
+            label: label.to_string(),
+            key: None,
+            help: None,
+            r#type: "secondary".to_string(),
+            icon: None,
+            disabled: false,
+            width: ElementWidth::Content,
+            shortcut: None,
+        }
+    }
+
+    pub fn key<T: ToString>(mut self, key: T) -> Self {
+        self.key = Some(key.to_string());
+        self
+    }
+
+    pub fn help<T: ToString>(mut self, help: T) -> Self {
+        self.help = Some(help.to_string());
+        self
+    }
+
+    pub fn r#type<T: ToString>(mut self, r#type: T) -> Self {
+        self.r#type = r#type.to_string();
+        self
+    }
+
+    pub fn icon<T: ToString>(mut self, icon: T) -> Self {
+        self.icon = Some(icon.to_string());
+        self
+    }
+
+    pub fn disabled(mut self, disabled: bool) -> Self {
+        self.disabled = disabled;
+        self
+    }
+
+    pub fn width<T: Into<ElementWidth>>(mut self, width: T) -> Self {
+        self.width = width.into();
+        self
+    }
+
+    pub fn shortcut<T: ToString>(mut self, shortcut: T) -> Self {
+        self.shortcut = Some(shortcut.to_string());
+        self
+    }
+}
+
+impl From<String> for ButtonOptions {
+    fn from(label: String) -> Self {
+        Self::new(label)
+    }
+}
+
+impl From<&str> for ButtonOptions {
+    fn from(value: &str) -> Self {
+        value.to_string().into()
+    }
+}
+
 pub trait StreamlitApi {
     fn write<T: Into<WriteOptions>>(&self, body: T);
 
@@ -512,6 +593,8 @@ pub trait StreamlitApi {
     fn container_options<T: Into<ContainerOptions>>(&self, options: T) -> &Container<'_>;
 
     fn columns<T: Into<ColumnsOptions>>(&self, spec: T) -> &[Column<'_>];
+
+    fn button<T: Into<ButtonOptions>>(&self, options: T) -> bool;
 }
 
 fn create_header<C: AppendChild, T: Into<HeaderOptions>>(this: &C, data: T, tag: &str) {
@@ -621,7 +704,7 @@ impl<C: AppendChild> StreamlitApi for C {
         let element = Arc::new(RefCell::new(element));
         self.push(element.clone());
 
-        self.allocator().malloc(Container::new(element, self.allocator()))
+        self.allocator().malloc(Container::new(element, self.allocator(), self.get_app()))
     }
 
     fn columns<T: Into<ColumnsOptions>>(&self, spec: T) -> &[Column<'_>] {
@@ -642,41 +725,44 @@ impl<C: AppendChild> StreamlitApi for C {
             let column_element = Arc::new(RefCell::new(ColumnElement::new(w).border(options.border).vertical_alignment(options.vertical_alignment.clone()).width(options.width.clone())));
             container_element.borrow_mut().children.push(column_element.clone());
 
-            columns.push(Column::new(column_element, self.allocator()));
+            columns.push(Column::new(column_element, self.allocator(), self.get_app()));
         }
         columns.as_slice()
     }
 
-    // /// Display a button and return whether it was clicked
-    // pub fn button(&self, label: &str, key: Option<&str>) -> bool {
-    //     let button_key = key.unwrap_or(label);
-    //
-    //     // Generate consistent ID using the button key - this is the key fix!
-    //     let element_id = format!("button-{}", button_key);
-    //
-    //     // Check if this button was previously clicked
-    //     let was_clicked = self
-    //         .get_widget_state(button_key)
-    //         .and_then(|value| match value {
-    //             WidgetValue::Boolean(b) => Some(b),
-    //             _ => None,
-    //         })
-    //         .unwrap_or(false);
-    //
-    //     // Reset button state after checking
-    //     if was_clicked {
-    //         self.set_widget_state(button_key, WidgetValue::Boolean(false));
-    //     }
-    //
-    //     // Create the button element with consistent ID
-    //     let element = StreamlitElement::Button {
-    //         id: element_id,
-    //         label: label.to_string(),
-    //         key: button_key.to_string(),
-    //         clicked: was_clicked,
-    //     };
-    //     self.elements.lock().push(element);
-    //
-    //     was_clicked
-    // }
+    /// Display a button and return whether it was clicked
+    fn button<T: Into<ButtonOptions>>(&self, options: T) -> bool {
+        let options = options.into();
+
+        let key = if let Some(key) = options.key { hash(key.as_str()) } else { hash(options.label.as_str()) };
+        let button_id = format!("$$ID-{}", key);
+
+        // Check if this button was previously clicked
+        let app = self.get_app();
+        let was_clicked = app
+            .lock()
+            .get_widget_state(button_id.as_str())
+            .and_then(|value| match value {
+                WidgetValue::Boolean(b) => Some(b),
+                _ => None,
+            })
+            .unwrap_or(false);
+
+        // Reset button state after checking
+        if was_clicked {
+            app.lock().set_widget_state(button_id.clone(), WidgetValue::Boolean(false));
+        }
+
+        // Create the button element with consistent ID
+        let element = ButtonElement::new(button_id, options.label)
+            .help(options.help.unwrap_or_default())
+            .r#type(options.r#type)
+            .icon(options.icon.unwrap_or_default())
+            .shortcut(options.shortcut.unwrap_or_default())
+            .width(options.width);
+
+        self.push(Arc::new(RefCell::new(element)));
+
+        was_clicked
+    }
 }

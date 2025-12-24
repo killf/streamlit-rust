@@ -23,7 +23,11 @@ impl App {
         }
     }
 
-    pub fn set_widget_state(&mut self, key: &str, value: WidgetValue) {
+    pub fn get_widget_state(&self, widget_id: &str) -> Option<WidgetValue> {
+        self.widget_states.get(widget_id).cloned()
+    }
+
+    pub fn set_widget_state(&mut self, key: String, value: WidgetValue) {
         self.widget_states.insert(key.to_string(), value);
     }
 
@@ -34,7 +38,7 @@ impl App {
                 match value {
                     Value::TriggerValue(clicked) => {
                         log::info!("Button '{}' clicked: {}", widget_state.id, clicked);
-                        self.set_widget_state(&widget_state.id, WidgetValue::Boolean(clicked));
+                        self.set_widget_state(widget_state.id, WidgetValue::Boolean(clicked));
                     }
                     _ => {
                         log::info!("Received other widget type: {} - {:?}", widget_state.id, value);

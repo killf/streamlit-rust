@@ -59,16 +59,22 @@ fn main(st: &Streamlit) {
 
     st.h2("📦 Layout Elements");
 
-    let container = st.container().border(true);
+    let container = st.container_options(ContainerOptions::new().border(true));
     container.write("This is inside the container");
     st.write("This is outside the container");
 
     container.write("This is inside too");
 
     if let [col1, col2] = st.columns(2) {
-        col1.border(true).write("left");
-        col2.border(true).write("right");
+        col1.write("left");
+        col2.write("right");
     }
 
     st.write("This is a outside");
+
+    st.h2("📦 Button Elements");
+    
+    if st.button("Click Me") {
+        st.write("Hello, Click Me!")
+    }
 }

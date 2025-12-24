@@ -1,10 +1,12 @@
 use crate::api::AppendChild;
 use crate::elements::common::{Element, ElementHeight, ElementWidth, Gap, RenderContext, VerticalAlignment};
+use crate::elements::App;
 use crate::error::StreamlitError;
 use crate::memory::Allocator;
 use crate::proto::streamlit::{HeightConfig, WidthConfig};
 use crate::proto::{delta, delta_base_with_path, forward_msg, Block, Delta};
 use crate::utils::hash::hash;
+use parking_lot::Mutex;
 use std::cell::RefCell;
 use std::sync::Arc;
 
@@ -97,21 +99,12 @@ impl Element for ColumnElement {
 pub struct Column<'a> {
     element: Arc<RefCell<ColumnElement>>,
     allocator: &'a Allocator,
+    app: Arc<Mutex<App>>,
 }
 
 impl Column<'_> {
-    pub(crate) fn new(element: Arc<RefCell<ColumnElement>>, allocator: &'_ Allocator) -> Column<'_> {
-        Column { element, allocator }
-    }
-
-    pub fn border(&self, value: bool) -> &Self {
-        self.element.borrow_mut().border = value;
-        self
-    }
-
-    pub fn gap(&self, value: Gap) -> &Self {
-        self.element.borrow_mut().gap = value;
-        self
+    pub(crate) fn new(element: Arc<RefCell<ColumnElement>>, allocator: &'_ Allocator, app: Arc<Mutex<App>>) -> Column<'_> {
+        Column { element, allocator, app }
     }
 }
 
@@ -122,5 +115,9 @@ impl AppendChild for Column<'_> {
 
     fn allocator(&self) -> &Allocator {
         self.allocator
+    }
+
+    fn get_app(&self) -> Arc<Mutex<App>> {
+        self.app.clone()
     }
 }
