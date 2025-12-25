@@ -9,17 +9,54 @@ use prost::Message;
 async fn do_rerun_script(session: &mut Session, session_id: &str, server: &StreamlitServer, widget_states: Vec<WidgetState>) -> Result<(), StreamlitError> {
     let st = Streamlit::new().process_widget_states(widget_states);
 
-    log::info!("Executing user main function...");
-    server.entry.call(&st).await;
+    // 创建 channel 用于流式发送消息
+    let (tx, mut rx) = tokio::sync::mpsc::unbounded_channel::<crate::proto::ForwardMsg>();
 
-    let mut context = RenderContext::new(session_id.to_string());
-    st.app.lock().render(&mut context)?;
+    // 创建 RenderContext 并设置到 App 中，让 App::push 时能立即发送消息
+    let context = RenderContext::with_sender(session_id.to_string(), tx.clone());
+    st.app.lock().set_render_context(context);
 
-    // Send all elements as deltas
-    for msg in context.stream.iter() {
-        log::info!("ForwardMsg {:?}", msg);
-        session.binary(msg.encode_to_vec()).await?;
+    // 发送初始化消息（new_session, main_block）
+    {
+        let mut app = st.app.lock();
+        if let Some(context) = app.render_context_mut() {
+            let main_script_hash = crate::utils::hash::hash("");
+            context.active_script_hash = main_script_hash.clone();
+            context.push(crate::elements::app::create_new_session(context.session_id.clone(), main_script_hash));
+            context.push(crate::elements::app::create_session_status_changed(true, false));
+            context.delta_path.push(0);
+            context.push(crate::elements::app::create_main_block());
+            context.delta_path.push(0);
+        }
     }
+
+    log::info!("Executing user main function...");
+
+    // 使用 tokio::select! 并发执行用户代码和消息发送
+    let entry_future = async {
+        server.entry.call(&st).await;
+        // 执行完毕后发送 script_finished
+        let mut app = st.app.lock();
+        if let Some(context) = app.render_context_mut() {
+            context.push(crate::elements::app::create_script_finished());
+        }
+        drop(tx); // 关闭 sender
+    };
+
+    let send_future = async {
+        let mut count = 0;
+        while let Some(msg) = rx.recv().await {
+            log::info!("Sending ForwardMsg #{}: {:?}", count, msg);
+            session.binary(msg.encode_to_vec()).await?;
+            count += 1;
+        }
+        log::info!("Sent {} messages total", count);
+        Ok::<_, StreamlitError>(())
+    };
+
+    // 并发执行
+    let (_, send_result) = tokio::join!(entry_future, send_future);
+    send_result?;
 
     log::info!("Rerun script completed for session: {}", session_id);
     Ok(())

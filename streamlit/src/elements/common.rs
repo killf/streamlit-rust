@@ -101,6 +101,7 @@ pub(crate) struct RenderContext {
     pub delta_path: Vec<u32>,
     pub active_script_hash: String,
     pub session_id: String,
+    pub sender: Option<tokio::sync::mpsc::UnboundedSender<ForwardMsg>>,
 }
 
 impl RenderContext {
@@ -110,10 +111,26 @@ impl RenderContext {
             stream: vec![],
             delta_path: vec![],
             active_script_hash: "".to_string(),
+            sender: None,
+        }
+    }
+
+    pub fn with_sender(session_id: String, sender: tokio::sync::mpsc::UnboundedSender<ForwardMsg>) -> Self {
+        Self {
+            session_id,
+            stream: vec![],
+            delta_path: vec![],
+            active_script_hash: "".to_string(),
+            sender: Some(sender),
         }
     }
 
     pub fn push(&mut self, msg: ForwardMsg) {
+        // 如果有 sender，立即发送到 channel
+        if let Some(ref sender) = self.sender {
+            let _ = sender.send(msg.clone());
+        }
+        // 同时保存到 Vec，保持兼容性
         self.stream.push(msg);
     }
 }

@@ -12,6 +12,7 @@ pub(crate) struct App {
     elements: Vec<Arc<RefCell<dyn Element>>>,
     widget_states: HashMap<String, WidgetValue>,
     main_script: String,
+    render_context: Option<RenderContext>,
 }
 
 impl App {
@@ -20,7 +21,20 @@ impl App {
             elements: Default::default(),
             widget_states: Default::default(),
             main_script: Default::default(),
+            render_context: None,
         }
+    }
+
+    pub fn set_render_context(&mut self, context: RenderContext) {
+        self.render_context = Some(context);
+    }
+
+    pub fn render_context_mut(&mut self) -> Option<&mut RenderContext> {
+        self.render_context.as_mut()
+    }
+
+    pub fn render_context(&self) -> Option<&RenderContext> {
+        self.render_context.as_ref()
     }
 
     pub fn get_widget_state(&self, widget_id: &str) -> Option<WidgetValue> {
@@ -49,6 +63,14 @@ impl App {
     }
 
     pub fn push(&mut self, element: Arc<RefCell<dyn Element>>) {
+        // 如果设置了 render_context，立即 render 这个元素
+        if let Some(ref mut context) = self.render_context {
+            if let Err(e) = element.borrow().render(context) {
+                log::error!("Failed to render element immediately: {}", e);
+            }
+        }
+
+        // 仍然保存元素，用于后续的批量 render（兼容模式）
         self.elements.push(element);
     }
 }
@@ -59,12 +81,12 @@ impl Element for App {
         context.active_script_hash = main_script_hash.clone();
 
         // 1. New Session
-        context.push(new_session(context.session_id.clone(), main_script_hash));
-        context.push(session_status_changed(true, false));
+        context.push(create_new_session(context.session_id.clone(), main_script_hash));
+        context.push(create_session_status_changed(true, false));
 
         // 2. Main Block
         context.delta_path.push(0);
-        context.push(main_block());
+        context.push(create_main_block());
 
         context.delta_path.push(0);
         for element in self.elements.iter() {
@@ -72,12 +94,12 @@ impl Element for App {
         }
 
         // 3. Finished
-        context.push(script_finished());
+        context.push(create_script_finished());
         Ok(())
     }
 }
 
-fn new_session(session_id: String, main_script_hash: String) -> ForwardMsg {
+pub(crate) fn create_new_session(session_id: String, main_script_hash: String) -> ForwardMsg {
     ForwardMsg {
         hash: "".to_string(),
         metadata: Some(ForwardMsgMetadata {
@@ -126,7 +148,7 @@ fn new_session(session_id: String, main_script_hash: String) -> ForwardMsg {
     }
 }
 
-fn session_status_changed(script_is_running: bool, run_on_save: bool) -> ForwardMsg {
+pub(crate) fn create_session_status_changed(script_is_running: bool, run_on_save: bool) -> ForwardMsg {
     ForwardMsg {
         hash: "session_status_changed".to_string(),
         metadata: None,
@@ -135,7 +157,7 @@ fn session_status_changed(script_is_running: bool, run_on_save: bool) -> Forward
     }
 }
 
-fn main_block() -> ForwardMsg {
+pub(crate) fn create_main_block() -> ForwardMsg {
     ForwardMsg {
         hash: "main_block".to_string(),
         metadata: Some(ForwardMsgMetadata {
@@ -162,7 +184,7 @@ fn main_block() -> ForwardMsg {
     }
 }
 
-fn script_finished() -> ForwardMsg {
+pub(crate) fn create_script_finished() -> ForwardMsg {
     ForwardMsg {
         hash: "script_finished".to_string(),
         metadata: None,
