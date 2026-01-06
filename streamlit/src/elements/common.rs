@@ -105,6 +105,7 @@ pub(crate) struct RenderContext {
 }
 
 impl RenderContext {
+    #[allow(dead_code)]
     pub fn new(session_id: String) -> Self {
         Self {
             session_id,

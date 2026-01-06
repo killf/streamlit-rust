@@ -33,6 +33,7 @@ impl App {
         self.render_context.as_mut()
     }
 
+    #[allow(dead_code)]
     pub fn render_context(&self) -> Option<&RenderContext> {
         self.render_context.as_ref()
     }

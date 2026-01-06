@@ -41,7 +41,7 @@ pub fn main(_attr: TokenStream, item: TokenStream) -> TokenStream {
                 let server = ::streamlit::StreamlitServer::new(
                     |st: &::streamlit::Streamlit| Box::pin(__streamlit_user_main(st)),
                     "0.0.0.0".into(),
-                    8508
+                    8501
                 );
                 server.start().await?;
 
