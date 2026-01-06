@@ -1,5 +1,6 @@
 use crate::api::Streamlit;
 use crate::websocket::handler::handle_connection;
+use actix_files::Files;
 use actix_web::http::header::{HeaderName, HeaderValue};
 use actix_web::{get, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
 use std::future::Future;
@@ -80,9 +81,16 @@ impl StreamlitServer {
         log::info!("Starting Streamlit Rust Backend server on {}:{}", self.host.as_str(), self.port);
 
         let server = self.clone();
-        HttpServer::new(move || App::new().app_data(web::Data::new(server.clone())).service(websocket_handler).service(health_check).service(host_config))
-            .bind((self.host.as_str(), self.port))?
-            .run()
-            .await
+        HttpServer::new(move || {
+            App::new()
+                .app_data(web::Data::new(server.clone()))
+                .service(websocket_handler)
+                .service(health_check)
+                .service(host_config)
+                .service(Files::new("/", "./www").index_file("index.html"))
+        })
+        .bind((self.host.as_str(), self.port))?
+        .run()
+        .await
     }
 }
