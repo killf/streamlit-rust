@@ -1,6 +1,6 @@
 use crate::elements::common::RenderContext;
 use crate::error::StreamlitError;
-use crate::proto::{back_msg::Type, WidgetState, *};
+use crate::proto::{WidgetState, back_msg::Type, *};
 use crate::{Streamlit, StreamlitServer};
 use actix_ws::{MessageStream, Session};
 use futures_util::StreamExt;

@@ -12,18 +12,18 @@ use crate::proto::WidgetState;
 use crate::utils::hash::hash;
 use parking_lot::Mutex;
 use std::cell::RefCell;
-use std::sync::Arc;
+use std::rc::Rc;
 
 /// Streamlit Rust API - provides a Python-like Streamlit interface
 pub struct Streamlit {
-    pub(crate) app: Arc<Mutex<App>>,
+    pub(crate) app: Rc<Mutex<App>>,
     allocator: Allocator,
 }
 
 impl Streamlit {
     pub(crate) fn new() -> Self {
         Self {
-            app: Arc::new(Mutex::new(App::new())),
+            app: Rc::new(Mutex::new(App::new())),
             allocator: Allocator::new(),
         }
     }
@@ -35,15 +35,15 @@ impl Streamlit {
 }
 
 pub(crate) trait AppendChild {
-    fn push(&self, element: Arc<RefCell<dyn Element>>);
+    fn push(&self, element: Rc<RefCell<dyn Element>>);
 
     fn allocator(&self) -> &Allocator;
 
-    fn get_app(&self) -> Arc<Mutex<App>>;
+    fn get_app(&self) -> Rc<Mutex<App>>;
 }
 
 impl AppendChild for Streamlit {
-    fn push(&self, element: Arc<RefCell<dyn Element>>) {
+    fn push(&self, element: Rc<RefCell<dyn Element>>) {
         self.app.lock().push(element);
     }
 
@@ -51,7 +51,7 @@ impl AppendChild for Streamlit {
         &self.allocator
     }
 
-    fn get_app(&self) -> Arc<Mutex<App>> {
+    fn get_app(&self) -> Rc<Mutex<App>> {
         self.app.clone()
     }
 }
@@ -361,6 +361,12 @@ pub struct ContainerOptions {
     gap: Gap,
 }
 
+impl Default for ContainerOptions {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ContainerOptions {
     pub fn new() -> Self {
         Self {
@@ -622,14 +628,14 @@ fn create_header<C: AppendChild, T: Into<HeaderOptions>>(this: &C, data: T, tag:
         element
     };
 
-    this.push(Arc::new(RefCell::new(element)));
+    this.push(Rc::new(RefCell::new(element)));
 }
 
 impl<C: AppendChild> StreamlitApi for C {
     fn write<T: Into<WriteOptions>>(&self, body: T) {
         let body = body.into();
         let element = MarkdownElement::new(body.body).unsafe_allow_html(body.unsafe_allow_html);
-        self.push(Arc::new(RefCell::new(element)));
+        self.push(Rc::new(RefCell::new(element)));
     }
 
     fn h1<T: Into<HeaderOptions>>(&self, body: T) {
@@ -653,13 +659,13 @@ impl<C: AppendChild> StreamlitApi for C {
             .width(body.width)
             .text_alignment(body.text_alignment);
 
-        self.push(Arc::new(RefCell::new(element)));
+        self.push(Rc::new(RefCell::new(element)));
     }
 
     fn badge<T: Into<BadgeOptions>>(&self, body: T) {
         let body = body.into();
         let element = BadgeElement::new(body.label).color(body.color).icon(body.icon.unwrap_or_default()).width(body.width).help(body.help.unwrap_or_default());
-        self.push(Arc::new(RefCell::new(element)));
+        self.push(Rc::new(RefCell::new(element)));
     }
 
     fn caption<T: Into<CaptionOptions>>(&self, body: T) {
@@ -670,13 +676,13 @@ impl<C: AppendChild> StreamlitApi for C {
             .width(body.width)
             .help(body.help.unwrap_or_default())
             .text_alignment(body.text_alignment);
-        self.push(Arc::new(RefCell::new(element)));
+        self.push(Rc::new(RefCell::new(element)));
     }
 
     fn code_options<T: Into<CodeOptions>>(&self, code_options: T) {
         let body = code_options.into();
         let element = CodeElement::new(body.body, body.language).show_line_numbers(body.line_numbers).wrap_lines(body.wrap_lines).width(body.width).height(body.height);
-        self.push(Arc::new(RefCell::new(element)));
+        self.push(Rc::new(RefCell::new(element)));
     }
 
     fn divider_options<T: Into<DividerOptions>>(&self, options: T) {
@@ -685,7 +691,7 @@ impl<C: AppendChild> StreamlitApi for C {
             DividerOptions::Stretch => ElementWidth::Stretch,
             DividerOptions::Width(v) => ElementWidth::Value(v),
         });
-        self.push(Arc::new(RefCell::new(element)));
+        self.push(Rc::new(RefCell::new(element)));
     }
 
     fn container_options<T: Into<ContainerOptions>>(&self, options: T) -> &Container<'_> {
@@ -701,7 +707,7 @@ impl<C: AppendChild> StreamlitApi for C {
             .vertical_alignment(options.vertical_alignment)
             .gap(options.gap);
 
-        let element = Arc::new(RefCell::new(element));
+        let element = Rc::new(RefCell::new(element));
         self.push(element.clone());
 
         self.allocator().malloc(Container::new(element, self.allocator(), self.get_app()))
@@ -717,17 +723,17 @@ impl<C: AppendChild> StreamlitApi for C {
             return &[];
         }
 
-        let container_element = Arc::new(RefCell::new(ContainerElement::new().horizontal(true).gap(options.gap)));
+        let container_element = Rc::new(RefCell::new(ContainerElement::new().horizontal(true).gap(options.gap)));
         self.push(container_element.clone());
 
-        let columns = self.allocator().malloc(vec![]);
+        let mut columns = Vec::with_capacity(weights.len());
         for w in weights {
-            let column_element = Arc::new(RefCell::new(ColumnElement::new(w).border(options.border).vertical_alignment(options.vertical_alignment.clone()).width(options.width.clone())));
+            let column_element = Rc::new(RefCell::new(ColumnElement::new(w).border(options.border).vertical_alignment(options.vertical_alignment.clone()).width(options.width.clone())));
             container_element.borrow_mut().children.push(column_element.clone());
 
             columns.push(Column::new(column_element, self.allocator(), self.get_app()));
         }
-        columns.as_slice()
+        self.allocator().malloc(columns).as_slice()
     }
 
     /// Display a button and return whether it was clicked
@@ -761,8 +767,33 @@ impl<C: AppendChild> StreamlitApi for C {
             .shortcut(options.shortcut.unwrap_or_default())
             .width(options.width);
 
-        self.push(Arc::new(RefCell::new(element)));
+        self.push(Rc::new(RefCell::new(element)));
 
         was_clicked
+    }
+}
+
+#[cfg(test)]
+mod quality_tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn joined_futures_share_one_task_local_streamlit_state() {
+        let st = Streamlit::new();
+        let initial_count = Rc::strong_count(&st.app);
+
+        let writer = async {
+            st.app.lock().set_widget_state("quality".to_string(), WidgetValue::Boolean(true));
+            tokio::task::yield_now().await;
+        };
+        let reader = async {
+            tokio::task::yield_now().await;
+            st.app.lock().get_widget_state("quality")
+        };
+
+        let (_, clicked) = tokio::join!(writer, reader);
+
+        assert_eq!(initial_count, 1);
+        assert!(matches!(clicked, Some(WidgetValue::Boolean(true))));
     }
 }

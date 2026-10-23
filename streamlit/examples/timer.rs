@@ -1,5 +1,5 @@
-use std::time::Duration;
 use ::streamlit::*;
+use std::time::Duration;
 use tokio::time::sleep;
 
 #[main]

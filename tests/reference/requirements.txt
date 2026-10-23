@@ -1,0 +1,18 @@
+# Reference environment for the C-P0-04 acceptance oracle.
+#
+# DEVELOPMENT ONLY. These pins describe the environment the expectations in
+# tests/journeys/journeys.json were derived in. The Rust server does NOT use
+# this environment and must not depend on any of it.
+#
+#   python -m venv .venv-ref
+#   .venv-ref\Scripts\pip install -r tests/reference/requirements.txt
+#
+# The aggregation expectations themselves do not depend on these versions:
+# tests/reference/refcore.py uses only the Python standard library, and the
+# golden file is regenerated from the committed fixtures.
+streamlit==1.66.1
+pandas==3.1.0
+altair==5.5.0
+pyarrow==26.0.0
+pytest==8.4.2
+pytest-timeout==2.4.0

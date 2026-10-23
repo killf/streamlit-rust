@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "contract_id": "C-P0-04",
+  "target": "streamlit-rust P0 acceptance fixtures",
+  "reference_version": "1.66.1",
+  "generator": "tests/fixtures/generate.py",
+  "notes": "Byte-stable fixtures: LF newlines, UTF-8 unless the encoding field says utf-8-sig, no trailing whitespace. The sha256 field pins the content so a Rust implementation can assert it loaded exactly the bytes the Python reference oracle saw.",
+  "fixtures": [
+    {
+      "file": "csv/sales_basic.csv",
+      "bytes": 737,
+      "sha256": "9692a718edc5bec8f3fee1cfec4f454338c8f8d675cd34c17cdb5bf4403d8d00",
+      "encoding": "utf-8",
+      "newline": "lf",
+      "description": "Baseline dataset: 12 rows, 4 categories, 6 regions (one blank, two UNKNOWN), 2 channels."
+    },
+    {
+      "file": "csv/sales_with_missing.csv",
+      "bytes": 739,
+      "sha256": "ce8b7f62c729c856ad85c496e044c25ef0f3594e2b3b558fb31e9213122e512d",
+      "encoding": "utf-8",
+      "newline": "lf",
+      "description": "Baseline with 2 unusable amount cells (S-003 blank, S-009 not-a-number); 10 rows remain aggregatable."
+    },
+    {
+      "file": "csv/sales_empty.csv",
+      "bytes": 62,
+      "sha256": "0051f910f9780491c0ba47fe149f3bed4d8ce13b3106d73639227da51bd76bd4",
+      "encoding": "utf-8",
+      "newline": "lf",
+      "description": "Header only, zero data rows."
+    },
+    {
+      "file": "csv/sales_malformed.csv",
+      "bytes": 303,
+      "sha256": "fbf671b3f566ff3bd62a39ceea76d40cc39b9bddb9565bde683953dcca0a89d5",
+      "encoding": "utf-8",
+      "newline": "lf",
+      "description": "Ragged rows (short, long, extra column): hard structural parse failure."
+    },
+    {
+      "file": "csv/sales_unicode.csv",
+      "bytes": 241,
+      "sha256": "376dbccff31cd90039eec950d61d6650ee920ca8cf6f1e06e2c0b425ca747b7f",
+      "encoding": "utf-8",
+      "newline": "lf",
+      "description": "3 rows with non-ASCII UTF-8 values in category/region/product."
+    },
+    {
+      "file": "csv/sales_utf8_bom.csv",
+      "bytes": 244,
+      "sha256": "2ecb023d2ce037a3d55ac9d322b4d7a18c9df5c710bcf5929cb95b21358fe551",
+      "encoding": "utf-8-sig",
+      "newline": "lf",
+      "description": "Byte-identical content to sales_unicode.csv but prefixed with a UTF-8 BOM."
+    }
+  ]
+}

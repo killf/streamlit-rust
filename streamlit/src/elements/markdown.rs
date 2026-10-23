@@ -1,7 +1,7 @@
 use crate::elements::common::*;
 use crate::error::StreamlitError;
 use crate::proto::streamlit::{TextAlignmentConfig, WidthConfig};
-use crate::proto::{delta, delta_base_with_path, element, forward_msg, Delta};
+use crate::proto::{Delta, delta, delta_base_with_path, element, forward_msg};
 use crate::utils::hash::hash;
 
 #[repr(i32)]
@@ -73,8 +73,8 @@ impl Element for MarkdownElement {
         let element_hash = hash(format!("markdown_{}_{:?}_{:?}_{:?}", self.body, self.unsafe_allow_html, self.width, self.text_alignment).as_str());
         let mut msg = delta_base_with_path(context.delta_path.clone(), context.active_script_hash.clone(), element_hash);
 
-        let width_config: Option<WidthConfig> = if let Some(width) = self.width.clone() { Some(width.into()) } else { None };
-        let text_alignment_config: Option<TextAlignmentConfig> = if let Some(align) = self.text_alignment.clone() { Some(align.into()) } else { None };
+        let width_config: Option<WidthConfig> = self.width.clone().map(Into::into);
+        let text_alignment_config: Option<TextAlignmentConfig> = self.text_alignment.clone().map(Into::into);
 
         msg.r#type = Some(forward_msg::Type::Delta(Delta {
             fragment_id: String::new(),

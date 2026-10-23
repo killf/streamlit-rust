@@ -4,11 +4,11 @@
 //!
 //! ## Usage
 //!
-//! ```rust
-//! use streamlit::*;
+//! ```rust,no_run
+//! use ::streamlit::*;
 //!
 //! #[main]
-//! fn main(st: &mut Streamlit) {
+//! async fn main(st: &Streamlit) {
 //!     st.title("Hello world!");
 //! }
 //! ```
@@ -18,11 +18,11 @@ extern crate streamlit_macros;
 pub mod api;
 mod elements;
 pub mod error;
+mod memory;
 pub mod proto;
 pub mod server;
 pub(crate) mod utils;
 pub(crate) mod websocket;
-mod memory;
 
 pub use api::*;
 pub use server::StreamlitServer;

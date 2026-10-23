@@ -1,4 +1,3 @@
-#[allow(dead_code)]
 pub(crate) mod streamlit {
     include!(concat!(env!("OUT_DIR"), "/streamlit.rs"));
 }

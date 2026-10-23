@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "baseline_contract": "C-P0-01",
+  "rust_baseline_head": "229d2a90b66e9ffb17d08f62c23b93b215f4251a",
+  "streamlit": {
+    "version": "1.66.1",
+    "github_tag": "1.66.1",
+    "github_tag_object_sha": "63843ce6415277c40168ad407fece028de38a6fc",
+    "github_commit_sha": "ca6718b7d3d788c31c97d1bc9144fd8388168f57",
+    "github_tree_sha": "0aa86ea8510b05b70704f4b510866572f8c4f617",
+    "github_tree_sha_status": "declarative value from the GitHub commit API; not recoverable from the source tarball and not verified by fetch_upstream.py"
+  },
+  "artifacts": {
+    "wheel": {
+      "url": "https://files.pythonhosted.org/packages/4a/eb/f12286b0b5c30e3fd8e45ca47f05a6cd14cb6e583d04ef4409974a17d371/streamlit-1.66.1-py3-none-any.whl",
+      "sha256": "29607190a589fe1fa9bd7e154635d335d47dc09b4010c6cc273daa6e4430ee31",
+      "bytes": 10364948,
+      "cache_path": "target/upstream/archives/streamlit-1.66.1-py3-none-any.whl",
+      "extract_path": null,
+      "extraction_policy": "verified-only cache; direct archive readers do not extract a duplicate tree"
+    },
+    "sdist": {
+      "url": "https://files.pythonhosted.org/packages/7f/20/d6490a27b4985907364112f40511c8e575efe042fb05983d060c753daf1c/streamlit-1.66.1.tar.gz",
+      "sha256": "7710a8b67469da7af7bf3503c9b68afca5676f832f62f9bda1221e0ce11941d1",
+      "bytes": 9826774,
+      "cache_path": "target/upstream/archives/streamlit-1.66.1.tar.gz",
+      "extract_path": null,
+      "extraction_policy": "verified-only cache; direct archive readers do not extract a duplicate tree"
+    },
+    "github_archive": {
+      "url": "https://codeload.github.com/streamlit/streamlit/tar.gz/ca6718b7d3d788c31c97d1bc9144fd8388168f57",
+      "sha256": "cd074fc20d1ca748398a70f2eda9ba43f09f37977fd234d76585d517cf251416",
+      "bytes": 122152169,
+      "cache_path": "target/upstream/archives/streamlit-1.66.1-commit-ca6718b7d3d788c31c97d1bc9144fd8388168f57.tar.gz",
+      "extract_path": null,
+      "extraction_policy": "verified-only cache; direct archive readers do not extract a duplicate tree"
+    }
+  },
+  "canonical_sources": {
+    "python_public_api": "wheel:streamlit/**/*.py",
+    "protocol_text": "github_archive:proto/streamlit/proto/*.proto",
+    "frontend_distribution": "wheel:streamlit/static/**"
+  },
+  "cache_policy": {
+    "ignored": [
+      "target/**"
+    ],
+    "tracked_rebuild_products": [
+      "upstream.lock.json",
+      "compatibility/api-compatibility-matrix.json",
+      "compatibility/p0-baseline.json"
+    ],
+    "archive_cache": "target/upstream/archives",
+    "documentation_cache": "target/upstream/docs",
+    "policy": "Archives and captured HTML are ignored inputs. The committed matrix records canonical URLs and hashes; no duplicate source tree is retained."
+  },
+  "documentation": {
+    "status": "catalog-delivered",
+    "scope": [
+      "API reference",
+      "concepts",
+      "configuration",
+      "deployment",
+      "testing"
+    ],
+    "official_root_url": "https://docs.streamlit.io/",
+    "canonical_example_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.button",
+    "observed_version_label": "1.66.0",
+    "runtime_baseline_version": "1.66.1",
+    "capture_date": "2026-10-23",
+    "cache_path": "target/upstream/docs",
+    "catalog_path": "target/upstream/docs/catalog.json",
+    "catalog_sha256": "c646376eac1f0380a0ca1a58a87c873c6c3030faf59e45d7990ee62b8b38e073",
+    "catalog_status": "ready for single docs-driven compatibility matrix",
+    "url_policy": "Use official canonical URLs only; do not synthesize inaccessible /1.66.1/ documentation URLs. The docs version label and runtime package version may differ and must both be recorded.",
+    "catalog_observed_version_label": "1.66.0",
+    "catalog_target_runtime_version": "1.66.1"
+  }
+}

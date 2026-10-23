@@ -2,7 +2,7 @@ use crate::api::Streamlit;
 use crate::websocket::handler::handle_connection;
 use actix_files::Files;
 use actix_web::http::header::{HeaderName, HeaderValue};
-use actix_web::{get, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
+use actix_web::{App, HttpRequest, HttpResponse, HttpServer, Responder, get, web};
 use std::future::Future;
 use std::pin::Pin;
 

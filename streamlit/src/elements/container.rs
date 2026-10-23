@@ -1,15 +1,15 @@
 use crate::api::AppendChild;
+use crate::elements::App;
 use crate::elements::common::{Element, ElementHeight, ElementWidth, Gap, HorizontalAlignment, RenderContext, VerticalAlignment};
 use crate::error::StreamlitError;
 use crate::memory::Allocator;
 use crate::proto::block::FlexContainer;
 use crate::proto::streamlit::{HeightConfig, WidthConfig};
-use crate::proto::{delta, delta_base_with_path, forward_msg, Block, Delta};
+use crate::proto::{Block, Delta, delta, delta_base_with_path, forward_msg};
 use crate::utils::hash::hash;
-use std::cell::RefCell;
-use std::sync::Arc;
 use parking_lot::Mutex;
-use crate::elements::App;
+use std::cell::RefCell;
+use std::rc::Rc;
 
 pub(crate) struct ContainerElement {
     border: bool,
@@ -23,7 +23,7 @@ pub(crate) struct ContainerElement {
     vertical_alignment: VerticalAlignment,
     gap: Gap,
 
-    pub(crate) children: Vec<Arc<RefCell<dyn Element>>>,
+    pub(crate) children: Vec<Rc<RefCell<dyn Element>>>,
 }
 
 impl ContainerElement {
@@ -91,12 +91,12 @@ impl Element for ContainerElement {
                 "container_{}_{:?}_{:?}_{:?}_{:?}_{:?}_{:?}_{:?}",
                 self.border, self.key, self.width, self.height, self.horizontal, self.horizontal_alignment, self.vertical_alignment, self.gap
             )
-                .as_str(),
+            .as_str(),
         );
         let mut msg = delta_base_with_path(context.delta_path.clone(), context.active_script_hash.clone(), element_hash);
 
-        let width_config: Option<WidthConfig> = if let Some(width) = self.width.clone() { Some(width.into()) } else { None };
-        let height_config: Option<HeightConfig> = if let Some(height) = self.height.clone() { Some(height.into()) } else { None };
+        let width_config: Option<WidthConfig> = self.width.clone().map(Into::into);
+        let height_config: Option<HeightConfig> = self.height.clone().map(Into::into);
 
         let (direction, justify, align) = if self.horizontal {
             (
@@ -169,27 +169,27 @@ impl Element for ContainerElement {
 }
 
 pub struct Container<'a> {
-    element: Arc<RefCell<ContainerElement>>,
+    element: Rc<RefCell<ContainerElement>>,
     allocator: &'a Allocator,
-    app: Arc<Mutex<App>>
+    app: Rc<Mutex<App>>,
 }
 
 impl Container<'_> {
-    pub(crate) fn new(element: Arc<RefCell<ContainerElement>>, allocator: &'_ Allocator, app: Arc<Mutex<App>>) -> Container<'_> {
-        Container { element, allocator, app}
+    pub(crate) fn new(element: Rc<RefCell<ContainerElement>>, allocator: &'_ Allocator, app: Rc<Mutex<App>>) -> Container<'_> {
+        Container { element, allocator, app }
     }
 }
 
 impl AppendChild for Container<'_> {
-    fn push(&self, element: Arc<RefCell<dyn Element>>) {
+    fn push(&self, element: Rc<RefCell<dyn Element>>) {
         self.element.borrow_mut().children.push(element);
     }
 
     fn allocator(&self) -> &Allocator {
-        &self.allocator
+        self.allocator
     }
 
-    fn get_app(&self) -> Arc<Mutex<App>> {
+    fn get_app(&self) -> Rc<Mutex<App>> {
         self.app.clone()
     }
 }

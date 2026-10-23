@@ -1,7 +1,7 @@
 use crate::error::StreamlitError;
-use crate::proto::streamlit::gap_config::GapSpec;
-use crate::proto::streamlit::{text_alignment_config, GapConfig, HeightConfig, TextAlignmentConfig, WidthConfig};
 use crate::proto::ForwardMsg;
+use crate::proto::streamlit::gap_config::GapSpec;
+use crate::proto::streamlit::{GapConfig, HeightConfig, TextAlignmentConfig, WidthConfig, text_alignment_config};
 
 #[derive(Debug, Clone)]
 pub enum ElementWidth {
@@ -105,17 +105,6 @@ pub(crate) struct RenderContext {
 }
 
 impl RenderContext {
-    #[allow(dead_code)]
-    pub fn new(session_id: String) -> Self {
-        Self {
-            session_id,
-            stream: vec![],
-            delta_path: vec![],
-            active_script_hash: "".to_string(),
-            sender: None,
-        }
-    }
-
     pub fn with_sender(session_id: String, sender: tokio::sync::mpsc::UnboundedSender<ForwardMsg>) -> Self {
         Self {
             session_id,
@@ -140,9 +129,9 @@ pub(crate) trait Element {
     fn render(&self, context: &mut RenderContext) -> Result<(), StreamlitError>;
 }
 
-impl Into<WidthConfig> for ElementWidth {
-    fn into(self) -> WidthConfig {
-        match self {
+impl From<ElementWidth> for WidthConfig {
+    fn from(value: ElementWidth) -> Self {
+        match value {
             ElementWidth::Stretch => WidthConfig {
                 width_spec: Some(crate::proto::streamlit::width_config::WidthSpec::UseStretch(true)),
             },
@@ -156,9 +145,9 @@ impl Into<WidthConfig> for ElementWidth {
     }
 }
 
-impl Into<HeightConfig> for ElementHeight {
-    fn into(self) -> HeightConfig {
-        match self {
+impl From<ElementHeight> for HeightConfig {
+    fn from(value: ElementHeight) -> Self {
+        match value {
             ElementHeight::Stretch => HeightConfig {
                 height_spec: Some(crate::proto::streamlit::height_config::HeightSpec::UseStretch(true)),
             },
@@ -172,9 +161,9 @@ impl Into<HeightConfig> for ElementHeight {
     }
 }
 
-impl Into<TextAlignmentConfig> for TextAlignment {
-    fn into(self) -> TextAlignmentConfig {
-        match self {
+impl From<TextAlignment> for TextAlignmentConfig {
+    fn from(value: TextAlignment) -> Self {
+        match value {
             TextAlignment::Left => TextAlignmentConfig {
                 alignment: text_alignment_config::Alignment::Left.into(),
             },
@@ -191,9 +180,9 @@ impl Into<TextAlignmentConfig> for TextAlignment {
     }
 }
 
-impl Into<GapConfig> for Gap {
-    fn into(self) -> GapConfig {
-        match self {
+impl From<Gap> for GapConfig {
+    fn from(value: Gap) -> Self {
+        match value {
             Gap::Small => GapConfig { gap_spec: Some(GapSpec::GapSize(1)) },
             Gap::Medium => GapConfig { gap_spec: Some(GapSpec::GapSize(2)) },
             Gap::Large => GapConfig { gap_spec: Some(GapSpec::GapSize(3)) },

@@ -1,0 +1,8 @@
+# Project-local Codex routing. Provider, credentials, and catalog are inherited.
+model = "gpt-6.1-sol"
+
+[agents]
+# Official schema caps concurrently open spawned-agent threads, excluding primary.
+max_concurrent_threads_per_session = 10
+default_subagent_model = "ccs-minimax/MiniMax-M3.1-Flash"
+default_subagent_reasoning_effort = "high"

@@ -1,4 +1,4 @@
-use std::alloc::{alloc, dealloc, Layout};
+use std::alloc::{Layout, alloc, dealloc};
 use std::cell::RefCell;
 
 pub(crate) struct Allocator {
@@ -10,13 +10,13 @@ impl Allocator {
         Self { object_list: RefCell::new(vec![]) }
     }
 
-    pub fn malloc<T>(&self, data: T) -> &mut T {
+    pub fn malloc<T>(&self, data: T) -> &T {
         let layout = Layout::new::<T>();
         unsafe {
             let ptr = alloc(layout) as *mut T;
             std::ptr::write(ptr, data);
             self.object_list.borrow_mut().push((ptr as *mut u8, layout));
-            &mut *ptr
+            &*ptr
         }
     }
 }

@@ -1,0 +1,681 @@
+{
+  "schema_version": 1,
+  "contract_id": "C-P0-04",
+  "aggregation_contract_version": "1.0.0",
+  "generated_by": "tests/reference/generate_golden.py",
+  "reference": {
+    "streamlit": "1.66.1",
+    "purpose": "development-only oracle; not shipped, not production"
+  },
+  "notes": [
+    "Numeric expectations are exact decimals rounded half-up to 2 places.",
+    "The *_f64 fields are the IEEE-754 doubles carried on the wire; assert bit-equality.",
+    "Group keys are sorted ascending by Unicode code point.",
+    "totals.total_amount is the sum of the *rounded* group totals, for convenience only."
+  ],
+  "fixture_sha256": {
+    "csv/sales_basic.csv": "9692a718edc5bec8f3fee1cfec4f454338c8f8d675cd34c17cdb5bf4403d8d00",
+    "csv/sales_with_missing.csv": "ce8b7f62c729c856ad85c496e044c25ef0f3594e2b3b558fb31e9213122e512d",
+    "csv/sales_empty.csv": "0051f910f9780491c0ba47fe149f3bed4d8ce13b3106d73639227da51bd76bd4",
+    "csv/sales_malformed.csv": "fbf671b3f566ff3bd62a39ceea76d40cc39b9bddb9565bde683953dcca0a89d5",
+    "csv/sales_unicode.csv": "376dbccff31cd90039eec950d61d6650ee920ca8cf6f1e06e2c0b425ca747b7f",
+    "csv/sales_utf8_bom.csv": "2ecb023d2ce037a3d55ac9d322b4d7a18c9df5c710bcf5929cb95b21358fe551"
+  },
+  "cases": [
+    {
+      "id": "G01",
+      "fixture": "csv/sales_basic.csv",
+      "group_by": "category",
+      "min_amount": 0,
+      "include_unknown": true,
+      "parse": {
+        "total_data_rows": 12,
+        "invalid_amount_rows": 0
+      },
+      "rows": [
+        {
+          "group_key": "Books",
+          "row_count": 3,
+          "total_amount": "245.75",
+          "total_amount_f64": "0x1.eb80000000000p+7",
+          "avg_amount": "81.92",
+          "avg_amount_f64": "0x1.47ae147ae147bp+6"
+        },
+        {
+          "group_key": "Games",
+          "row_count": 3,
+          "total_amount": "409.48",
+          "total_amount_f64": "0x1.997ae147ae148p+8",
+          "avg_amount": "136.49",
+          "avg_amount_f64": "0x1.10fae147ae148p+7"
+        },
+        {
+          "group_key": "Music",
+          "row_count": 3,
+          "total_amount": "139.00",
+          "total_amount_f64": "0x1.1600000000000p+7",
+          "avg_amount": "46.33",
+          "avg_amount_f64": "0x1.72a3d70a3d70ap+5"
+        },
+        {
+          "group_key": "Toys",
+          "row_count": 3,
+          "total_amount": "104.49",
+          "total_amount_f64": "0x1.a1f5c28f5c28fp+6",
+          "avg_amount": "34.83",
+          "avg_amount_f64": "0x1.16a3d70a3d70ap+5"
+        }
+      ],
+      "totals": {
+        "row_count": 12,
+        "total_amount": "898.72"
+      }
+    },
+    {
+      "id": "G02",
+      "fixture": "csv/sales_basic.csv",
+      "group_by": "category",
+      "min_amount": 0,
+      "include_unknown": false,
+      "parse": {
+        "total_data_rows": 12,
+        "invalid_amount_rows": 0
+      },
+      "rows": [
+        {
+          "group_key": "Books",
+          "row_count": 3,
+          "total_amount": "245.75",
+          "total_amount_f64": "0x1.eb80000000000p+7",
+          "avg_amount": "81.92",
+          "avg_amount_f64": "0x1.47ae147ae147bp+6"
+        },
+        {
+          "group_key": "Games",
+          "row_count": 3,
+          "total_amount": "409.48",
+          "total_amount_f64": "0x1.997ae147ae148p+8",
+          "avg_amount": "136.49",
+          "avg_amount_f64": "0x1.10fae147ae148p+7"
+        },
+        {
+          "group_key": "Music",
+          "row_count": 2,
+          "total_amount": "51.00",
+          "total_amount_f64": "0x1.9800000000000p+5",
+          "avg_amount": "25.50",
+          "avg_amount_f64": "0x1.9800000000000p+4"
+        },
+        {
+          "group_key": "Toys",
+          "row_count": 1,
+          "total_amount": "64.00",
+          "total_amount_f64": "0x1.0000000000000p+6",
+          "avg_amount": "64.00",
+          "avg_amount_f64": "0x1.0000000000000p+6"
+        }
+      ],
+      "totals": {
+        "row_count": 9,
+        "total_amount": "770.23"
+      }
+    },
+    {
+      "id": "G03",
+      "fixture": "csv/sales_basic.csv",
+      "group_by": "region",
+      "min_amount": 0,
+      "include_unknown": true,
+      "parse": {
+        "total_data_rows": 12,
+        "invalid_amount_rows": 0
+      },
+      "rows": [
+        {
+          "group_key": "(missing)",
+          "row_count": 1,
+          "total_amount": "88.00",
+          "total_amount_f64": "0x1.6000000000000p+6",
+          "avg_amount": "88.00",
+          "avg_amount_f64": "0x1.6000000000000p+6"
+        },
+        {
+          "group_key": "East",
+          "row_count": 2,
+          "total_amount": "209.49",
+          "total_amount_f64": "0x1.a2fae147ae148p+7",
+          "avg_amount": "104.75",
+          "avg_amount_f64": "0x1.a300000000000p+6"
+        },
+        {
+          "group_key": "North",
+          "row_count": 3,
+          "total_amount": "264.50",
+          "total_amount_f64": "0x1.0880000000000p+8",
+          "avg_amount": "88.17",
+          "avg_amount_f64": "0x1.60ae147ae147bp+6"
+        },
+        {
+          "group_key": "South",
+          "row_count": 2,
+          "total_amount": "245.24",
+          "total_amount_f64": "0x1.ea7ae147ae148p+7",
+          "avg_amount": "122.62",
+          "avg_amount_f64": "0x1.ea7ae147ae148p+6"
+        },
+        {
+          "group_key": "UNKNOWN",
+          "row_count": 2,
+          "total_amount": "40.49",
+          "total_amount_f64": "0x1.43eb851eb851fp+5",
+          "avg_amount": "20.25",
+          "avg_amount_f64": "0x1.4400000000000p+4"
+        },
+        {
+          "group_key": "West",
+          "row_count": 2,
+          "total_amount": "51.00",
+          "total_amount_f64": "0x1.9800000000000p+5",
+          "avg_amount": "25.50",
+          "avg_amount_f64": "0x1.9800000000000p+4"
+        }
+      ],
+      "totals": {
+        "row_count": 12,
+        "total_amount": "898.72"
+      }
+    },
+    {
+      "id": "G04",
+      "fixture": "csv/sales_basic.csv",
+      "group_by": "region",
+      "min_amount": 0,
+      "include_unknown": false,
+      "parse": {
+        "total_data_rows": 12,
+        "invalid_amount_rows": 0
+      },
+      "rows": [
+        {
+          "group_key": "East",
+          "row_count": 2,
+          "total_amount": "209.49",
+          "total_amount_f64": "0x1.a2fae147ae148p+7",
+          "avg_amount": "104.75",
+          "avg_amount_f64": "0x1.a300000000000p+6"
+        },
+        {
+          "group_key": "North",
+          "row_count": 3,
+          "total_amount": "264.50",
+          "total_amount_f64": "0x1.0880000000000p+8",
+          "avg_amount": "88.17",
+          "avg_amount_f64": "0x1.60ae147ae147bp+6"
+        },
+        {
+          "group_key": "South",
+          "row_count": 2,
+          "total_amount": "245.24",
+          "total_amount_f64": "0x1.ea7ae147ae148p+7",
+          "avg_amount": "122.62",
+          "avg_amount_f64": "0x1.ea7ae147ae148p+6"
+        },
+        {
+          "group_key": "West",
+          "row_count": 2,
+          "total_amount": "51.00",
+          "total_amount_f64": "0x1.9800000000000p+5",
+          "avg_amount": "25.50",
+          "avg_amount_f64": "0x1.9800000000000p+4"
+        }
+      ],
+      "totals": {
+        "row_count": 9,
+        "total_amount": "770.23"
+      }
+    },
+    {
+      "id": "G05",
+      "fixture": "csv/sales_basic.csv",
+      "group_by": "channel",
+      "min_amount": 0,
+      "include_unknown": true,
+      "parse": {
+        "total_data_rows": 12,
+        "invalid_amount_rows": 0
+      },
+      "rows": [
+        {
+          "group_key": "Online",
+          "row_count": 6,
+          "total_amount": "361.99",
+          "total_amount_f64": "0x1.69fd70a3d70a4p+8",
+          "avg_amount": "60.33",
+          "avg_amount_f64": "0x1.e2a3d70a3d70ap+5"
+        },
+        {
+          "group_key": "Retail",
+          "row_count": 6,
+          "total_amount": "536.73",
+          "total_amount_f64": "0x1.0c5d70a3d70a4p+9",
+          "avg_amount": "89.46",
+          "avg_amount_f64": "0x1.65d70a3d70a3dp+6"
+        }
+      ],
+      "totals": {
+        "row_count": 12,
+        "total_amount": "898.72"
+      }
+    },
+    {
+      "id": "G06",
+      "fixture": "csv/sales_basic.csv",
+      "group_by": "channel",
+      "min_amount": 0,
+      "include_unknown": false,
+      "parse": {
+        "total_data_rows": 12,
+        "invalid_amount_rows": 0
+      },
+      "rows": [
+        {
+          "group_key": "Online",
+          "row_count": 4,
+          "total_amount": "258.49",
+          "total_amount_f64": "0x1.027d70a3d70a4p+8",
+          "avg_amount": "64.62",
+          "avg_amount_f64": "0x1.027ae147ae148p+6"
+        },
+        {
+          "group_key": "Retail",
+          "row_count": 5,
+          "total_amount": "511.74",
+          "total_amount_f64": "0x1.ffbd70a3d70a4p+8",
+          "avg_amount": "102.35",
+          "avg_amount_f64": "0x1.9966666666666p+6"
+        }
+      ],
+      "totals": {
+        "row_count": 9,
+        "total_amount": "770.23"
+      }
+    },
+    {
+      "id": "G07",
+      "fixture": "csv/sales_basic.csv",
+      "group_by": "category",
+      "min_amount": 50,
+      "include_unknown": true,
+      "parse": {
+        "total_data_rows": 12,
+        "invalid_amount_rows": 0
+      },
+      "rows": [
+        {
+          "group_key": "Books",
+          "row_count": 2,
+          "total_amount": "200.50",
+          "total_amount_f64": "0x1.9100000000000p+7",
+          "avg_amount": "100.25",
+          "avg_amount_f64": "0x1.9100000000000p+6"
+        },
+        {
+          "group_key": "Games",
+          "row_count": 3,
+          "total_amount": "409.48",
+          "total_amount_f64": "0x1.997ae147ae148p+8",
+          "avg_amount": "136.49",
+          "avg_amount_f64": "0x1.10fae147ae148p+7"
+        },
+        {
+          "group_key": "Music",
+          "row_count": 1,
+          "total_amount": "88.00",
+          "total_amount_f64": "0x1.6000000000000p+6",
+          "avg_amount": "88.00",
+          "avg_amount_f64": "0x1.6000000000000p+6"
+        },
+        {
+          "group_key": "Toys",
+          "row_count": 1,
+          "total_amount": "64.00",
+          "total_amount_f64": "0x1.0000000000000p+6",
+          "avg_amount": "64.00",
+          "avg_amount_f64": "0x1.0000000000000p+6"
+        }
+      ],
+      "totals": {
+        "row_count": 7,
+        "total_amount": "761.98"
+      }
+    },
+    {
+      "id": "G08",
+      "fixture": "csv/sales_basic.csv",
+      "group_by": "category",
+      "min_amount": 100,
+      "include_unknown": true,
+      "parse": {
+        "total_data_rows": 12,
+        "invalid_amount_rows": 0
+      },
+      "rows": [
+        {
+          "group_key": "Books",
+          "row_count": 1,
+          "total_amount": "120.50",
+          "total_amount_f64": "0x1.e200000000000p+6",
+          "avg_amount": "120.50",
+          "avg_amount_f64": "0x1.e200000000000p+6"
+        },
+        {
+          "group_key": "Games",
+          "row_count": 2,
+          "total_amount": "349.49",
+          "total_amount_f64": "0x1.5d7d70a3d70a4p+8",
+          "avg_amount": "174.75",
+          "avg_amount_f64": "0x1.5d80000000000p+7"
+        }
+      ],
+      "totals": {
+        "row_count": 3,
+        "total_amount": "469.99"
+      }
+    },
+    {
+      "id": "G09",
+      "fixture": "csv/sales_with_missing.csv",
+      "group_by": "category",
+      "min_amount": 0,
+      "include_unknown": true,
+      "parse": {
+        "total_data_rows": 12,
+        "invalid_amount_rows": 2
+      },
+      "rows": [
+        {
+          "group_key": "Books",
+          "row_count": 2,
+          "total_amount": "200.50",
+          "total_amount_f64": "0x1.9100000000000p+7",
+          "avg_amount": "100.25",
+          "avg_amount_f64": "0x1.9100000000000p+6"
+        },
+        {
+          "group_key": "Games",
+          "row_count": 3,
+          "total_amount": "409.48",
+          "total_amount_f64": "0x1.997ae147ae148p+8",
+          "avg_amount": "136.49",
+          "avg_amount_f64": "0x1.10fae147ae148p+7"
+        },
+        {
+          "group_key": "Music",
+          "row_count": 2,
+          "total_amount": "51.00",
+          "total_amount_f64": "0x1.9800000000000p+5",
+          "avg_amount": "25.50",
+          "avg_amount_f64": "0x1.9800000000000p+4"
+        },
+        {
+          "group_key": "Toys",
+          "row_count": 3,
+          "total_amount": "104.49",
+          "total_amount_f64": "0x1.a1f5c28f5c28fp+6",
+          "avg_amount": "34.83",
+          "avg_amount_f64": "0x1.16a3d70a3d70ap+5"
+        }
+      ],
+      "totals": {
+        "row_count": 10,
+        "total_amount": "765.47"
+      }
+    },
+    {
+      "id": "G10",
+      "fixture": "csv/sales_with_missing.csv",
+      "group_by": "region",
+      "min_amount": 0,
+      "include_unknown": true,
+      "parse": {
+        "total_data_rows": 12,
+        "invalid_amount_rows": 2
+      },
+      "rows": [
+        {
+          "group_key": "East",
+          "row_count": 2,
+          "total_amount": "209.49",
+          "total_amount_f64": "0x1.a2fae147ae148p+7",
+          "avg_amount": "104.75",
+          "avg_amount_f64": "0x1.a300000000000p+6"
+        },
+        {
+          "group_key": "North",
+          "row_count": 3,
+          "total_amount": "264.50",
+          "total_amount_f64": "0x1.0880000000000p+8",
+          "avg_amount": "88.17",
+          "avg_amount_f64": "0x1.60ae147ae147bp+6"
+        },
+        {
+          "group_key": "South",
+          "row_count": 1,
+          "total_amount": "199.99",
+          "total_amount_f64": "0x1.8ffae147ae148p+7",
+          "avg_amount": "199.99",
+          "avg_amount_f64": "0x1.8ffae147ae148p+7"
+        },
+        {
+          "group_key": "UNKNOWN",
+          "row_count": 2,
+          "total_amount": "40.49",
+          "total_amount_f64": "0x1.43eb851eb851fp+5",
+          "avg_amount": "20.25",
+          "avg_amount_f64": "0x1.4400000000000p+4"
+        },
+        {
+          "group_key": "West",
+          "row_count": 2,
+          "total_amount": "51.00",
+          "total_amount_f64": "0x1.9800000000000p+5",
+          "avg_amount": "25.50",
+          "avg_amount_f64": "0x1.9800000000000p+4"
+        }
+      ],
+      "totals": {
+        "row_count": 10,
+        "total_amount": "765.47"
+      }
+    },
+    {
+      "id": "G11",
+      "fixture": "csv/sales_empty.csv",
+      "group_by": "category",
+      "min_amount": 0,
+      "include_unknown": true,
+      "parse": {
+        "total_data_rows": 0,
+        "invalid_amount_rows": 0
+      },
+      "rows": [],
+      "totals": {
+        "row_count": 0,
+        "total_amount": "0"
+      }
+    },
+    {
+      "id": "G12",
+      "fixture": "csv/sales_unicode.csv",
+      "group_by": "category",
+      "min_amount": 0,
+      "include_unknown": true,
+      "parse": {
+        "total_data_rows": 3,
+        "invalid_amount_rows": 0
+      },
+      "rows": [
+        {
+          "group_key": "Bücher",
+          "row_count": 1,
+          "total_amount": "120.50",
+          "total_amount_f64": "0x1.e200000000000p+6",
+          "avg_amount": "120.50",
+          "avg_amount_f64": "0x1.e200000000000p+6"
+        },
+        {
+          "group_key": "Jogos",
+          "row_count": 1,
+          "total_amount": "149.50",
+          "total_amount_f64": "0x1.2b00000000000p+7",
+          "avg_amount": "149.50",
+          "avg_amount_f64": "0x1.2b00000000000p+7"
+        },
+        {
+          "group_key": "游戏",
+          "row_count": 1,
+          "total_amount": "199.99",
+          "total_amount_f64": "0x1.8ffae147ae148p+7",
+          "avg_amount": "199.99",
+          "avg_amount_f64": "0x1.8ffae147ae148p+7"
+        }
+      ],
+      "totals": {
+        "row_count": 3,
+        "total_amount": "469.99"
+      }
+    },
+    {
+      "id": "G13",
+      "fixture": "csv/sales_utf8_bom.csv",
+      "group_by": "category",
+      "min_amount": 0,
+      "include_unknown": true,
+      "parse": {
+        "total_data_rows": 3,
+        "invalid_amount_rows": 0
+      },
+      "rows": [
+        {
+          "group_key": "Bücher",
+          "row_count": 1,
+          "total_amount": "120.50",
+          "total_amount_f64": "0x1.e200000000000p+6",
+          "avg_amount": "120.50",
+          "avg_amount_f64": "0x1.e200000000000p+6"
+        },
+        {
+          "group_key": "Jogos",
+          "row_count": 1,
+          "total_amount": "149.50",
+          "total_amount_f64": "0x1.2b00000000000p+7",
+          "avg_amount": "149.50",
+          "avg_amount_f64": "0x1.2b00000000000p+7"
+        },
+        {
+          "group_key": "游戏",
+          "row_count": 1,
+          "total_amount": "199.99",
+          "total_amount_f64": "0x1.8ffae147ae148p+7",
+          "avg_amount": "199.99",
+          "avg_amount_f64": "0x1.8ffae147ae148p+7"
+        }
+      ],
+      "totals": {
+        "row_count": 3,
+        "total_amount": "469.99"
+      }
+    },
+    {
+      "id": "G14",
+      "fixture": "csv/sales_basic.csv",
+      "group_by": "region",
+      "min_amount": 100,
+      "include_unknown": false,
+      "parse": {
+        "total_data_rows": 12,
+        "invalid_amount_rows": 0
+      },
+      "rows": [
+        {
+          "group_key": "East",
+          "row_count": 1,
+          "total_amount": "149.50",
+          "total_amount_f64": "0x1.2b00000000000p+7",
+          "avg_amount": "149.50",
+          "avg_amount_f64": "0x1.2b00000000000p+7"
+        },
+        {
+          "group_key": "North",
+          "row_count": 1,
+          "total_amount": "120.50",
+          "total_amount_f64": "0x1.e200000000000p+6",
+          "avg_amount": "120.50",
+          "avg_amount_f64": "0x1.e200000000000p+6"
+        },
+        {
+          "group_key": "South",
+          "row_count": 1,
+          "total_amount": "199.99",
+          "total_amount_f64": "0x1.8ffae147ae148p+7",
+          "avg_amount": "199.99",
+          "avg_amount_f64": "0x1.8ffae147ae148p+7"
+        }
+      ],
+      "totals": {
+        "row_count": 3,
+        "total_amount": "469.99"
+      }
+    },
+    {
+      "id": "G15",
+      "fixture": "csv/sales_basic.csv",
+      "group_by": "category",
+      "min_amount": 50,
+      "include_unknown": false,
+      "parse": {
+        "total_data_rows": 12,
+        "invalid_amount_rows": 0
+      },
+      "rows": [
+        {
+          "group_key": "Books",
+          "row_count": 2,
+          "total_amount": "200.50",
+          "total_amount_f64": "0x1.9100000000000p+7",
+          "avg_amount": "100.25",
+          "avg_amount_f64": "0x1.9100000000000p+6"
+        },
+        {
+          "group_key": "Games",
+          "row_count": 3,
+          "total_amount": "409.48",
+          "total_amount_f64": "0x1.997ae147ae148p+8",
+          "avg_amount": "136.49",
+          "avg_amount_f64": "0x1.10fae147ae148p+7"
+        },
+        {
+          "group_key": "Toys",
+          "row_count": 1,
+          "total_amount": "64.00",
+          "total_amount_f64": "0x1.0000000000000p+6",
+          "avg_amount": "64.00",
+          "avg_amount_f64": "0x1.0000000000000p+6"
+        }
+      ],
+      "totals": {
+        "row_count": 6,
+        "total_amount": "673.98"
+      }
+    }
+  ],
+  "hard_failure_cases": [
+    {
+      "id": "G-H01",
+      "fixture": "csv/sales_malformed.csv",
+      "error_type": "CsvFormatError",
+      "row_number": 3,
+      "message": "row 3: expected 8 fields, found 7"
+    }
+  ]
+}

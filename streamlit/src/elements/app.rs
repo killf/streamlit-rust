@@ -1,15 +1,15 @@
 use crate::elements::common::{Element, RenderContext};
 use crate::error::StreamlitError;
 use crate::proto::widget_state::Value;
-use crate::proto::{block, delta, forward_msg, Block, Config, Delta, EnvironmentInfo, ForwardMsg, ForwardMsgMetadata, Initialize, NewSession, SessionStatus, UserInfo, WidgetState};
+use crate::proto::{Block, Config, Delta, EnvironmentInfo, ForwardMsg, ForwardMsgMetadata, Initialize, NewSession, SessionStatus, UserInfo, WidgetState, block, delta, forward_msg};
 use crate::utils::hash::hash;
 use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
 use std::collections::HashMap;
-use std::sync::Arc;
+use std::rc::Rc;
 
 pub(crate) struct App {
-    elements: Vec<Arc<RefCell<dyn Element>>>,
+    elements: Vec<Rc<RefCell<dyn Element>>>,
     widget_states: HashMap<String, WidgetValue>,
     main_script: String,
     render_context: Option<RenderContext>,
@@ -31,11 +31,6 @@ impl App {
 
     pub fn render_context_mut(&mut self) -> Option<&mut RenderContext> {
         self.render_context.as_mut()
-    }
-
-    #[allow(dead_code)]
-    pub fn render_context(&self) -> Option<&RenderContext> {
-        self.render_context.as_ref()
     }
 
     pub fn get_widget_state(&self, widget_id: &str) -> Option<WidgetValue> {
@@ -63,12 +58,12 @@ impl App {
         }
     }
 
-    pub fn push(&mut self, element: Arc<RefCell<dyn Element>>) {
+    pub fn push(&mut self, element: Rc<RefCell<dyn Element>>) {
         // 如果设置了 render_context，立即 render 这个元素
-        if let Some(ref mut context) = self.render_context {
-            if let Err(e) = element.borrow().render(context) {
-                log::error!("Failed to render element immediately: {}", e);
-            }
+        if let Some(ref mut context) = self.render_context
+            && let Err(e) = element.borrow().render(context)
+        {
+            log::error!("Failed to render element immediately: {}", e);
         }
 
         // 仍然保存元素，用于后续的批量 render（兼容模式）

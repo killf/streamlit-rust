@@ -1,0 +1,311 @@
+{
+  "schema_version": 2,
+  "target_version": "1.66.1",
+  "artifact_root": "tests/e2e",
+  "status_model": {
+    "not_run": "No Rust browser attempt was made; no attempt artifact may exist.",
+    "failed": "A real attempt failed. Retain linked partial artifacts, record a reason, and list any expected artifact not captured with a reasoned waiver.",
+    "passed": "All expected artifacts exist and every step assertion is verified in the official frontend."
+  },
+  "journeys": [
+    {
+      "id": "J00",
+      "title": "First-release minimal closed loop",
+      "priority": "P0",
+      "status": "not_run",
+      "steps": [
+        {
+          "id": "J00-S1",
+          "action": "Open the application and let the first script run complete.",
+          "expectation": "The page renders the title, the file uploader, the three filter widgets, the Pulse button, the note form, the counters, and the info message \"Upload a CSV to see the aggregated result.\"."
+        },
+        {
+          "id": "J00-S2",
+          "action": "Upload tests/fixtures/csv/sales_basic.csv through the uploader.",
+          "expectation": "The aggregated table renders 4 rows (Books, Games, Music, Toys) with the totals from the golden file, and one Vega-Lite bar chart is rendered below it."
+        },
+        {
+          "id": "J00-S3",
+          "action": "Change the 'Group by' selector to 'region'.",
+          "expectation": "In the same run, the table changes to 6 region groups ((missing), East, North, South, UNKNOWN, West) and the chart's x-axis labels change to the same 6 keys."
+        },
+        {
+          "id": "J00-S4",
+          "action": "Move the 'Minimum amount' slider to 100.",
+          "expectation": "The table reduces to 2 groups (Books 1 row 120.50, Games 2 rows 349.49) and the chart shows exactly 2 bars."
+        },
+        {
+          "id": "J00-S5",
+          "action": "Uncheck 'Include unknown region'.",
+          "expectation": "The table reduces to 4 known regions totalling 9 rows, and the chart shows 4 bars."
+        },
+        {
+          "id": "J00-S6",
+          "action": "Read the session counter.",
+          "expectation": "'Script runs' equals the number of script runs so far (one per rerun) and 'Pulses' is still 0 because no button was clicked."
+        }
+      ],
+      "python_reference_trace": "tests/reference/reference-browser/closed-loop/trace.json"
+    },
+    {
+      "id": "J01",
+      "title": "Data input and aggregation",
+      "priority": "P0",
+      "status": "not_run",
+      "steps": [
+        {
+          "id": "J01-S1",
+          "action": "Upload tests/fixtures/csv/sales_basic.csv.",
+          "expectation": "The table shows 4 groups in ascending key order: Books (3 rows, 245.75, 81.92), Games (3, 409.48, 136.49), Music (3, 139.00, 46.33), Toys (3, 104.49, 34.83)."
+        },
+        {
+          "id": "J01-S2",
+          "action": "Set 'Group by' to 'region'.",
+          "expectation": "The table shows 6 groups: (missing) 1/88.00/88.00, East 2/209.49/104.75, North 3/264.50/88.17, South 2/245.24/122.62, UNKNOWN 2/40.49/20.25, West 2/51.00/25.50."
+        },
+        {
+          "id": "J01-S3",
+          "action": "Set 'Group by' to 'channel'.",
+          "expectation": "The table shows Online (6, 361.99, 60.33) and Retail (6, 536.73, 89.46)."
+        },
+        {
+          "id": "J01-S4",
+          "action": "Upload tests/fixtures/csv/sales_unicode.csv.",
+          "expectation": "Group keys are the non-ASCII strings 'Bücher', 'Jogos' and '游戏', sorted by code point; totals are 120.50, 149.50 and 199.99."
+        },
+        {
+          "id": "J01-S5",
+          "action": "Upload tests/fixtures/csv/sales_utf8_bom.csv (same content, UTF-8 BOM prefixed).",
+          "expectation": "The result is identical to J01-S4; the BOM does not leak into the first column name or any group key."
+        }
+      ],
+      "python_reference_trace": "tests/reference/reference-browser/closed-loop/trace.json"
+    },
+    {
+      "id": "J02",
+      "title": "Widget filtering",
+      "priority": "P0",
+      "status": "not_run",
+      "steps": [
+        {
+          "id": "J02-S1",
+          "action": "Set 'Group by' to 'region' with the default slider and checkbox.",
+          "expectation": "6 region groups covering 12 rows."
+        },
+        {
+          "id": "J02-S2",
+          "action": "Uncheck 'Include unknown region'.",
+          "expectation": "The '(missing)' and 'UNKNOWN' groups disappear; 4 groups remain covering 9 rows."
+        },
+        {
+          "id": "J02-S3",
+          "action": "Set 'Minimum amount' to 100.",
+          "expectation": "Only East (149.50, 1 row), North (120.50, 1 row) and South (199.99, 1 row) remain; 3 rows in total."
+        },
+        {
+          "id": "J02-S4",
+          "action": "Set 'Group by' back to 'category' while the slider stays at 100 and the checkbox stays off.",
+          "expectation": "Only Books (1 row, 120.50) and Games (2 rows, 349.49) remain; Music and Toys disappear entirely rather than appearing with zero counts."
+        },
+        {
+          "id": "J02-S5",
+          "action": "Confirm that one control change produces exactly one rerun.",
+          "expectation": "'Script runs' increases by exactly 1 per control change; no extra rerun is triggered by the server."
+        }
+      ],
+      "python_reference_trace": "tests/reference/reference-browser/closed-loop/trace.json"
+    },
+    {
+      "id": "J03",
+      "title": "Table and chart stay in sync",
+      "priority": "P0",
+      "status": "not_run",
+      "steps": [
+        {
+          "id": "J03-S1",
+          "action": "Load the baseline with 'Group by' = 'category'.",
+          "expectation": "The table has 4 rows and the chart has exactly 4 bars whose heights correspond to total_amount 245.75, 409.48, 139.00 and 104.49, in the same key order."
+        },
+        {
+          "id": "J03-S2",
+          "action": "Move the slider to 100.",
+          "expectation": "In the same rerun the table drops to 2 rows and the chart drops to 2 bars. No stale bars from the previous state remain."
+        },
+        {
+          "id": "J03-S3",
+          "action": "Change 'Group by' to 'region'.",
+          "expectation": "The chart's x-axis labels become the 6 region keys, including '(missing)' and 'UNKNOWN', and the bar count equals the table row count."
+        },
+        {
+          "id": "J03-S4",
+          "action": "Move the slider to 200 so that no row matches.",
+          "expectation": "The table is present but empty and the chart is not rendered at all. The chart is removed, not rendered as an empty axis."
+        }
+      ],
+      "python_reference_trace": "tests/reference/reference-browser/closed-loop/trace.json"
+    },
+    {
+      "id": "J04",
+      "title": "Session state and rerun semantics",
+      "priority": "P0",
+      "status": "not_run",
+      "steps": [
+        {
+          "id": "J04-S1",
+          "action": "Record the 'Script runs' value on the first load.",
+          "expectation": "It reads 'Script runs: 1'."
+        },
+        {
+          "id": "J04-S2",
+          "action": "Change the selector once and read the counter again.",
+          "expectation": "The counter increased by exactly 1."
+        },
+        {
+          "id": "J04-S3",
+          "action": "Click the Pulse button once.",
+          "expectation": "'Pulses' increases by exactly 1 and 'Script runs' also increases by exactly 1; the table content is unchanged by the click."
+        }
+      ],
+      "python_reference_trace": "tests/reference/reference-browser/closed-loop/trace.json"
+    },
+    {
+      "id": "J05",
+      "title": "Form submission and button pulse",
+      "priority": "P0",
+      "status": "not_run",
+      "steps": [
+        {
+          "id": "J05-S1",
+          "action": "Type 'hello' into the 'Note' field inside the form and do not submit.",
+          "expectation": "The server is NOT contacted: 'Script runs' does not change and 'Applied note' stays empty. This is the form-gating rule and it can only be observed in the browser."
+        },
+        {
+          "id": "J05-S2",
+          "action": "Click 'Apply note'.",
+          "expectation": "Exactly one rerun occurs and the applied note becomes 'hello'. The note field itself keeps its value because the form uses clear_on_submit=False."
+        },
+        {
+          "id": "J05-S3",
+          "action": "Click the Pulse button three times.",
+          "expectation": "'Pulses' reads 3 and 'Script runs' increased by exactly 3 over the three clicks."
+        }
+      ],
+      "python_reference_trace": "tests/reference/reference-browser/form/trace-form.json"
+    },
+    {
+      "id": "J06",
+      "title": "Two-session isolation",
+      "priority": "P0",
+      "status": "not_run",
+      "steps": [
+        {
+          "id": "J06-S1",
+          "action": "Open the application in browser context A and in browser context B.",
+          "expectation": "The two connections carry different session ids."
+        },
+        {
+          "id": "J06-S2",
+          "action": "In context A upload the fixture and click Pulse three times.",
+          "expectation": "Context A shows 'Pulses: 3' and the aggregated table."
+        },
+        {
+          "id": "J06-S3",
+          "action": "Look at context B without touching it.",
+          "expectation": "Context B still shows 'Pulses: 0', its own 'Script runs' value, an empty uploader and the 'Upload a CSV to see the aggregated result.' info. Nothing from context A leaked."
+        },
+        {
+          "id": "J06-S4",
+          "action": "Change the filter in context B and re-read context A.",
+          "expectation": "Context A's table and chart are unchanged; context B's table changes on its own."
+        },
+        {
+          "id": "J06-S5",
+          "action": "Reload context A only.",
+          "expectation": "Context A receives a new session id and a fresh session state; context B is unaffected and keeps its own state and session id."
+        }
+      ],
+      "python_reference_trace": "tests/reference/reference-browser/tabs/trace-tabs.json"
+    },
+    {
+      "id": "J07",
+      "title": "Upload parse errors and recovery",
+      "priority": "P0",
+      "status": "not_run",
+      "steps": [
+        {
+          "id": "J07-S1",
+          "action": "Upload tests/fixtures/csv/sales_malformed.csv (a row with too few fields).",
+          "expectation": "A hard failure: the error message reads exactly 'Could not parse the uploaded CSV: row 3: expected 8 fields, found 7', the info message 'Upload a valid CSV to continue.' is shown, and there is no table and no chart. The uploader stays usable."
+        },
+        {
+          "id": "J07-S2",
+          "action": "Upload tests/fixtures/csv/sales_with_missing.csv (two unusable amount cells).",
+          "expectation": "A soft failure: no error, the warning '2 row(s) with an unusable amount were excluded from the aggregation.' is shown, and the remaining 10 rows aggregate into 4 groups (Books 2/200.50/100.25, Games 3/409.48/136.49, Music 2/51.00/25.50, Toys 3/104.49/34.83)."
+        },
+        {
+          "id": "J07-S3",
+          "action": "Upload tests/fixtures/csv/sales_basic.csv.",
+          "expectation": "Full recovery: the error and the warning are both gone, the table shows the 4 baseline groups again and the chart is rendered."
+        },
+        {
+          "id": "J07-S4",
+          "action": "Upload a file that is not UTF-8 and then upload a valid file.",
+          "expectation": "The first upload fails with the hard-failure message and no table; the second upload recovers exactly as in J07-S3."
+        }
+      ],
+      "python_reference_trace": "tests/reference/reference-browser/errors/trace-errors.json"
+    },
+    {
+      "id": "J08",
+      "title": "Empty data",
+      "priority": "P0",
+      "status": "not_run",
+      "steps": [
+        {
+          "id": "J08-S1",
+          "action": "Upload tests/fixtures/csv/sales_empty.csv (header only, zero rows).",
+          "expectation": "No error and no exception. The info message 'The uploaded CSV contains no data rows.' is shown, the table is rendered with its four column headers and zero body rows, and the chart is not rendered."
+        },
+        {
+          "id": "J08-S2",
+          "action": "Upload tests/fixtures/csv/sales_basic.csv and move the slider to 200 so that no row matches.",
+          "expectation": "The distinct message 'No rows match the current filters.' is shown, the table is rendered with zero body rows, and the chart is absent. This message differs from J08-S1."
+        },
+        {
+          "id": "J08-S3",
+          "action": "Move the slider back to 0.",
+          "expectation": "The application recovers without a reload: the table shows the 4 baseline groups and the chart is rendered again."
+        }
+      ],
+      "python_reference_trace": "tests/reference/reference-browser/errors/trace-errors.json"
+    },
+    {
+      "id": "J09",
+      "title": "Reconnect and refresh semantics",
+      "priority": "P0",
+      "status": "not_run",
+      "steps": [
+        {
+          "id": "J09-S1",
+          "action": "Open the application and inspect the WebSocket handshake.",
+          "expectation": "The Sec-WebSocket-Protocol header has three entries: 'streamlit', the XSRF token and the current session id. The session id is empty on a first visit."
+        },
+        {
+          "id": "J09-S2",
+          "action": "Load the fixture, click Pulse twice, then drop the WebSocket and let the frontend reconnect within 120 seconds.",
+          "expectation": "The reconnected session keeps the SAME session id, 'Pulses' still reads 2 and the uploaded data is still aggregated. The session is not recreated."
+        },
+        {
+          "id": "J09-S3",
+          "action": "Reload the page (F5).",
+          "expectation": "A NEW session id is issued, 'Script runs' resets to 1, 'Pulses' resets to 0, the uploader is empty and the 'Upload a CSV to see the aggregated result.' info is shown again. The old session lingers server-side but is orphaned."
+        },
+        {
+          "id": "J09-S4",
+          "action": "Optional and slow: drop the WebSocket, wait more than 120 seconds, then reconnect.",
+          "expectation": "The stored session has expired, so the reconnect is treated as a new session: a new session id is issued and the state is gone. Deferred to a later phase because it costs a two-minute wait."
+        }
+      ]
+    }
+  ]
+}

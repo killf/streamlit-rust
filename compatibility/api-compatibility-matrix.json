@@ -1,0 +1,2482 @@
+{
+  "schema_version": 2,
+  "baseline_head": "229d2a90b66e9ffb17d08f62c23b93b215f4251a",
+  "scope": {
+    "authority": "official Streamlit docs catalog",
+    "docs_version_label": "1.66.0",
+    "runtime_version": "1.66.1",
+    "catalog_sha256": "c646376eac1f0380a0ca1a58a87c873c6c3030faf59e45d7990ee62b8b38e073",
+    "counting_policy": "Document-page inventory, not a symbol/method count or compatibility score. API: each canonical documented feature/namespace/sub-API page counts once; st.column_config entry and its 21 dedicated column type pages are separate pages. Methods, parameters and state/return interfaces rendered within a page are subcapability links, not additional page entries. API group landings do not count as features. Concepts: only 21 selected behavior pages, not all concepts/tutorials. Redirect aliases and repeated cross-category links count once. Explicit does-not-exist warning pages are separately excluded, deprecated documented definitions retained. This is a minimum reproducible catalogue, not a claim of exhaustive API/method coverage.",
+    "not_available_in_current_docs": [
+      {
+        "id": "st.experimental_data_editor",
+        "canonicalurl": "https://docs.streamlit.io/develop/api-reference/data/st.experimental_data_editor",
+        "reason": "正文明确警告该方法不在1.66.0中存在；不计当前文档功能页",
+        "source_url": "https://docs.streamlit.io/develop/api-reference/data/st.experimental_data_editor"
+      },
+      {
+        "id": "st.bokeh_chart",
+        "canonicalurl": "https://docs.streamlit.io/develop/api-reference/charts/st.bokeh_chart",
+        "reason": "正文明确警告该方法不在1.66.0中存在；不计当前文档功能页",
+        "source_url": "https://docs.streamlit.io/develop/api-reference/charts/st.bokeh_chart"
+      },
+      {
+        "id": "st.experimental_rerun",
+        "canonicalurl": "https://docs.streamlit.io/develop/api-reference/execution-flow/st.experimental_rerun",
+        "reason": "正文明确警告该方法不在1.66.0中存在；不计当前文档功能页",
+        "source_url": "https://docs.streamlit.io/develop/api-reference/execution-flow/st.experimental_rerun"
+      },
+      {
+        "id": "st.experimental_get_query_params",
+        "canonicalurl": "https://docs.streamlit.io/develop/api-reference/caching-and-state/st.experimental_get_query_params",
+        "reason": "正文明确警告该方法不在1.66.0中存在；不计当前文档功能页",
+        "source_url": "https://docs.streamlit.io/develop/api-reference/caching-and-state/st.experimental_get_query_params"
+      },
+      {
+        "id": "st.experimental_set_query_params",
+        "canonicalurl": "https://docs.streamlit.io/develop/api-reference/caching-and-state/st.experimental_set_query_params",
+        "reason": "正文明确警告该方法不在1.66.0中存在；不计当前文档功能页",
+        "source_url": "https://docs.streamlit.io/develop/api-reference/caching-and-state/st.experimental_set_query_params"
+      },
+      {
+        "id": "st.experimental_connection",
+        "canonicalurl": "https://docs.streamlit.io/develop/api-reference/connections/st.experimental_connection",
+        "reason": "正文明确警告该方法不在1.66.0中存在；不计当前文档功能页",
+        "source_url": "https://docs.streamlit.io/develop/api-reference/connections/st.experimental_connection"
+      },
+      {
+        "id": "SnowparkConnection",
+        "canonicalurl": "https://docs.streamlit.io/develop/api-reference/connections/st.connections.snowparkconnection",
+        "reason": "正文明确警告该方法不在1.66.0中存在；不计当前文档功能页",
+        "source_url": "https://docs.streamlit.io/develop/api-reference/connections/st.connections.snowparkconnection"
+      }
+    ],
+    "redirect_aliases_not_counted": [
+      {
+        "requested_url": "https://docs.streamlit.io/develop/api-reference/caching-and-state/st.experimental_memo",
+        "canonicalurl": "https://docs.streamlit.io/develop/api-reference/caching-and-state/st.cache_data",
+        "reason": "HTTP redirect/canonical去重，不额外计数"
+      },
+      {
+        "requested_url": "https://docs.streamlit.io/develop/api-reference/caching-and-state/st.experimental_singleton",
+        "canonicalurl": "https://docs.streamlit.io/develop/api-reference/caching-and-state/st.cache_resource",
+        "reason": "HTTP redirect/canonical去重，不额外计数"
+      }
+    ]
+  },
+  "defaults": {
+    "rust_plan": "Implement documented behavior in the Rust backend; never modify the official frontend bundle.",
+    "backend_only": true,
+    "official_frontend_bundle_unmodified": true,
+    "status_vocabulary": {
+      "implementation_status": [
+        "absent",
+        "candidate",
+        "implemented"
+      ],
+      "compatibility_status": [
+        "unverified",
+        "partial",
+        "supported"
+      ]
+    },
+    "evidence_rule": "partial requires one Rust differential; supported requires API, wire, and official-frontend evidence."
+  },
+  "summary": {
+    "captured_catalog_entries": 182,
+    "is_complete_official_denominator": false,
+    "unavailable_requested_pages": 7,
+    "redirect_aliases_not_counted": 2,
+    "implementation_status_counts": {
+      "absent": 171,
+      "candidate": 11
+    },
+    "compatibility_status_counts": {
+      "unverified": 182
+    },
+    "unique_feature_ids": 182,
+    "unique_official_urls": 182,
+    "captured_sources_valid": 218,
+    "captured_sources_total": 218,
+    "python_browser_trace_links": 9
+  },
+  "entries": [
+    {
+      "feature_id": "st.App",
+      "category": "APPLICATION LOGIC/App server",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/server/st.app",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "86021f6eb60d84522e83b328fc211190f142ee8b4f3418f5400e9c187a256982",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.login",
+      "category": "APPLICATION LOGIC/Authentication",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/user/st.login",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "f33b6754984ba820f06498a2d27bf159da72f68b56d487aeef8d0186dfdfead7",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.logout",
+      "category": "APPLICATION LOGIC/Authentication",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/user/st.logout",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "faf51afc1ccc8c5a08a00b59b19dfb167858847a8df4234d2fbb4927e2b1750c",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.user",
+      "category": "APPLICATION LOGIC/Authentication",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/user/st.user",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "ea9d0dfa18613ba1a94872c7375055d90447ead46e0189421d146a6ffb6f0717",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.cache_data",
+      "category": "APPLICATION LOGIC/Caching and state",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/caching-and-state/st.cache_data",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "6db6ce996186ebf6bb3191a952605c03a6ef3e76ff07146de79e1ea18f09f151",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.cache_resource",
+      "category": "APPLICATION LOGIC/Caching and state",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/caching-and-state/st.cache_resource",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "9355813aa63cabe7a2de6f78b9f6cb7a3ea5a9430cf33286723019d0688b058f",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.context",
+      "category": "APPLICATION LOGIC/Caching and state",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/caching-and-state/st.context",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "a9c52926368822a0eb8ae0e7307dd497809d766432a70431458756ba25d6ec6b",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.query_params",
+      "category": "APPLICATION LOGIC/Caching and state",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/caching-and-state/st.query_params",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "24cb5d90cdb0f19e546f6a9da0705f5e6aedc357a3df1616650c3165cd2ed1c9",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.session_state",
+      "category": "APPLICATION LOGIC/Caching and state",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/caching-and-state/st.session_state",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "34f14e8271406f57778f781986fe352c76508d8bd42f4b915f9ca91f1f703b75",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "config.toml",
+      "category": "APPLICATION LOGIC/Configuration",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/configuration/config.toml",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "cc8b943042fc656ec83110a7593b26343df89c4cbc0d2611b437853721b6841f",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.get_option",
+      "category": "APPLICATION LOGIC/Configuration",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/configuration/st.get_option",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "a33c4457b3118c1d0071fbc63c14180c5985b887e23f600cb87bba2217182ecc",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.set_option",
+      "category": "APPLICATION LOGIC/Configuration",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/configuration/st.set_option",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "2b2f3e2d1b561e7ff3de3e10e1acdfc0686778502831f6b2dbde47eec83aea4b",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.set_page_config",
+      "category": "APPLICATION LOGIC/Configuration",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/configuration/st.set_page_config",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "330031919431bd786c7e611f8619b74c0202d99153fcdc25eebddcb0bd6efbde",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "secrets.toml",
+      "category": "APPLICATION LOGIC/Connections and secrets",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/connections/secrets.toml",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "bd2010d48ec5843a0ddda94f74b924e38c5fbcb5ef6beab09b0e0eac3330b503",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.connection",
+      "category": "APPLICATION LOGIC/Connections and secrets",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/connections/st.connection",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "8b8c7235bd1aa3af0c68d27fdeb0de4a09e1425e119406e1465db3c0d011604c",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.connections.BaseConnection",
+      "category": "APPLICATION LOGIC/Connections and secrets",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/connections/st.connections.baseconnection",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "e3d24d45dc8c59a6b954739cf84cb09ecc7afdcc11be85fbb339e19b1edb5445",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.connections.ExperimentalBaseConnection",
+      "category": "APPLICATION LOGIC/Connections and secrets",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/connections/st.connections.experimentalbaseconnection",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "975d8b326ff09b926b4306d4462e4fc8e802ded7dd4f3a3e552e6f8fc783b0af",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.connections.SnowflakeConnection",
+      "category": "APPLICATION LOGIC/Connections and secrets",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/connections/st.connections.snowflakeconnection",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "26c4dd3cf520d933986bb1a66085ff071f0d020b7c86e593b2efe54130864c12",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.connections.SQLConnection",
+      "category": "APPLICATION LOGIC/Connections and secrets",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/connections/st.connections.sqlconnection",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "c97dbc1983afe0b5dbafd16c789608c74ed21fc2cbdc1123425ed36d62a9ccbe",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.secrets",
+      "category": "APPLICATION LOGIC/Connections and secrets",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/connections/st.secrets",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "61ab1599bba7b084a80e902e5aef0b59c115b4fb912446ab51988f56884e7101",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "component-v2-lib",
+      "category": "APPLICATION LOGIC/Custom components",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/custom-components/component-v2-lib",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "1671e17207cae5de7ba0e83da838adbccf391f62162a5aac7e3f670b2ac93ded",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "component-v2-lib-cleanupfunction",
+      "category": "APPLICATION LOGIC/Custom components",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/custom-components/component-v2-lib-cleanupfunction",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "2be0b22337ce2f1c90efdd6147426040c774d54d69c2704e6b15ff7be995c382",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "component-v2-lib-frontendrenderer",
+      "category": "APPLICATION LOGIC/Custom components",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/custom-components/component-v2-lib-frontendrenderer",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "f4ad4846819139bb75bc7b6f08c3078ab20c33c6ca46a7cd598285b473dba1b1",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "component-v2-lib-frontendrendererargs",
+      "category": "APPLICATION LOGIC/Custom components",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/custom-components/component-v2-lib-frontendrendererargs",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "29943fd4a5351fde3499728a0d156123e73daa3ecc971867f6ad57222049f16a",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "component-v2-lib-frontendstate",
+      "category": "APPLICATION LOGIC/Custom components",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/custom-components/component-v2-lib-frontendstate",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "1257cab0d5b151a234c6ee37a4e120a28412858ede13326f995302a0c102a788",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.components.v1.declare_component",
+      "category": "APPLICATION LOGIC/Custom components",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/custom-components/st.components.v1.declare_component",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "874604e0f4bda7d0150c22b9a1cfc3740a4cb989c280d4dd92c6d7332e650a37",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.components.v1.html",
+      "category": "APPLICATION LOGIC/Custom components",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/custom-components/st.components.v1.html",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "47ed7cebd72d87455563498bb17266e9efba0580c26225414d5cab4deb9371d9",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.components.v1.iframe",
+      "category": "APPLICATION LOGIC/Custom components",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/custom-components/st.components.v1.iframe",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "84b95e01e03589dd8b1f6e02e1ca5f90b8315bcff0d5613114ca923cf7ed69d6",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.components.v2.component",
+      "category": "APPLICATION LOGIC/Custom components",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/custom-components/st.components.v2.component",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "d5de3743e11882374e91eec1d22b2abb328fea0af13562d781b802cfcb67b703",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "ComponentRenderer",
+      "category": "APPLICATION LOGIC/Custom components",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/custom-components/st.components.v2.types.componentrenderer",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "1048085f028d79c28f6a8543bec75960681327fc9e158ad9a6af879635761a2d",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.dialog",
+      "category": "APPLICATION LOGIC/Execution flow",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/execution-flow/st.dialog",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "23137b7ef70007f2640f488cb355f81c161ecd5d65e784d05259c1a13614717d",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.form",
+      "category": "APPLICATION LOGIC/Execution flow",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/execution-flow/st.form",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "f64cc2337fc0704fe06fd1bc99dba4aa690ed9d40ce9c2994e182604c6153a2c",
+        "python_browser_trace": "tests/reference/reference-browser/form/trace-form.json"
+      }
+    },
+    {
+      "feature_id": "st.form_submit_button",
+      "category": "APPLICATION LOGIC/Execution flow",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/execution-flow/st.form_submit_button",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "0ad295076315e14c467937bf324de4b67229d82108293e7ff9383244e867c0db",
+        "python_browser_trace": "tests/reference/reference-browser/form/trace-form.json"
+      }
+    },
+    {
+      "feature_id": "st.fragment",
+      "category": "APPLICATION LOGIC/Execution flow",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/execution-flow/st.fragment",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "40ce3e7e3b0000e5763dbf4e2f8c33750df4cbe2d00ed9e6603bc022f92bf5dc",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.rerun",
+      "category": "APPLICATION LOGIC/Execution flow",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/execution-flow/st.rerun",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "c739f41660f3d9840f5a881563b29a55170aeba0bc6155d3c69dd749443f9a2a",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.stop",
+      "category": "APPLICATION LOGIC/Execution flow",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/execution-flow/st.stop",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "9aaf449afa527781e263bd4c3dfcc31f3e4c767dff8413ed80943a0fea32eb5e",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.navigation",
+      "category": "APPLICATION LOGIC/Navigation and pages",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/navigation/st.navigation",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "ad39b1280562d825b81a9ecde514a7573661be1d4e818059f8aa36e9afd55d92",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.Page",
+      "category": "APPLICATION LOGIC/Navigation and pages",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/navigation/st.page",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "bae0eaad9e659e3f135b63dd464c825c91c24a6eec808a403fba36176bba87ac",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.switch_page",
+      "category": "APPLICATION LOGIC/Navigation and pages",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/navigation/st.switch_page",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "795d31b31607b87abddd31532d43041dc73223055983e801372bbee2b63ff1ef",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "concept.configuration.options",
+      "category": "CONCEPTS/ADDITIONAL/Configuration and theming",
+      "scope_type": "concept",
+      "official_url": "https://docs.streamlit.io/develop/concepts/configuration/options",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "4b6f5cf1a3034b9f5e0519c97a9eefb31ed76f738846e3864a3b89eaf14116c8",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "concept.configuration.serving-static-files",
+      "category": "CONCEPTS/ADDITIONAL/Configuration and theming",
+      "scope_type": "concept",
+      "official_url": "https://docs.streamlit.io/develop/concepts/configuration/serving-static-files",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "93768c9d6d2c5e09da4c217c5b12a83fb528567c96ea30d79fa62d9dd69cef70",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "concept.connections.authentication",
+      "category": "CONCEPTS/ADDITIONAL/Connections, secrets, and authentication",
+      "scope_type": "concept",
+      "official_url": "https://docs.streamlit.io/develop/concepts/connections/authentication",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "b68e46309354ae75aa0f3209edd4e513f06ec50b2e9e7b58690348619b479370",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "concept.connections.secrets-management",
+      "category": "CONCEPTS/ADDITIONAL/Connections, secrets, and authentication",
+      "scope_type": "concept",
+      "official_url": "https://docs.streamlit.io/develop/concepts/connections/secrets-management",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "8fc3cc752059fadbcf5bd57e0e3981165c5e6bd0d50ecc9f4fd321a7797b783e",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "concept.custom-components.components-v2.communicate",
+      "category": "CONCEPTS/ADDITIONAL/Custom components",
+      "scope_type": "concept",
+      "official_url": "https://docs.streamlit.io/develop/concepts/custom-components/components-v2/communicate",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "70f157f7c84f0886e2181c7ae41bdb6f06871112677f1572027feec4b5b46613",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "concept.custom-components.components-v2.state-and-triggers",
+      "category": "CONCEPTS/ADDITIONAL/Custom components",
+      "scope_type": "concept",
+      "official_url": "https://docs.streamlit.io/develop/concepts/custom-components/components-v2/state-and-triggers",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "a65d169dc49abba7a9e261a5e8a6187cfcb57fa5b91149359dd65fb0ad0eded2",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "concept.design.animate",
+      "category": "CONCEPTS/CORE/App design",
+      "scope_type": "concept",
+      "official_url": "https://docs.streamlit.io/develop/concepts/design/animate",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "f7b7091ca9f01d0e8cd9711e1b00d4b7f50661888b161870aefddcab45653edd",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "concept.design.buttons",
+      "category": "CONCEPTS/CORE/App design",
+      "scope_type": "concept",
+      "official_url": "https://docs.streamlit.io/develop/concepts/design/buttons",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "ee1e201fdb2a320181deca2b846c1df95fbcd9443fca29cc8b3c510a7ab8f5cb",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "concept.design.dataframes",
+      "category": "CONCEPTS/CORE/App design",
+      "scope_type": "concept",
+      "official_url": "https://docs.streamlit.io/develop/concepts/design/dataframes",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "f356a6555eebbe7440ec20b4498b9ca5677bb40cfa8951c73098394270e62fa2",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "concept.design.layouts-and-containers",
+      "category": "CONCEPTS/CORE/App design",
+      "scope_type": "concept",
+      "official_url": "https://docs.streamlit.io/develop/concepts/design/layouts-and-containers",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "8feb34b5a02514917bb3a3f99470aea9ad09ce60825edc507239d6e02ca4ebf4",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "concept.architecture.architecture",
+      "category": "CONCEPTS/CORE/Architecture and execution",
+      "scope_type": "concept",
+      "official_url": "https://docs.streamlit.io/develop/concepts/architecture/architecture",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "051f3b3f0b31bd8ab86809f40009ab14553f605b317b3c97196e12b4bd0e5471",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "concept.architecture.caching",
+      "category": "CONCEPTS/CORE/Architecture and execution",
+      "scope_type": "concept",
+      "official_url": "https://docs.streamlit.io/develop/concepts/architecture/caching",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "9659c9091dc8338062e3c0502e614908c9cf6ad7524931492675830b4b1e5f0a",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "concept.architecture.forms",
+      "category": "CONCEPTS/CORE/Architecture and execution",
+      "scope_type": "concept",
+      "official_url": "https://docs.streamlit.io/develop/concepts/architecture/forms",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "609dc70773ba7123d6fe0265dfd91a3e1a2eeca5939485f4d991b363736b82ea",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "concept.architecture.fragments",
+      "category": "CONCEPTS/CORE/Architecture and execution",
+      "scope_type": "concept",
+      "official_url": "https://docs.streamlit.io/develop/concepts/architecture/fragments",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "af3549c8db1f6604cb64e61f3cd5821220e905fc99bbc8d3fdf57e40da6e69b9",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "concept.architecture.run-your-app",
+      "category": "CONCEPTS/CORE/Architecture and execution",
+      "scope_type": "concept",
+      "official_url": "https://docs.streamlit.io/develop/concepts/architecture/run-your-app",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "32b994a6835799378ee3bb2f9c1931a98de2e9ff4d39586c7223df654941025a",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "concept.architecture.session-state",
+      "category": "CONCEPTS/CORE/Architecture and execution",
+      "scope_type": "concept",
+      "official_url": "https://docs.streamlit.io/develop/concepts/architecture/session-state",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "c455027e017359deb7708f09796169c7ac84cd16453f85338f8dbe3788deef0c",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "concept.architecture.widget-behavior",
+      "category": "CONCEPTS/CORE/Architecture and execution",
+      "scope_type": "concept",
+      "official_url": "https://docs.streamlit.io/develop/concepts/architecture/widget-behavior",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "a91c3141b0fe4a3b4d58802ae4dada2bb70df835b01661828193d5593b9b0f36",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "concept.multipage-apps.overview",
+      "category": "CONCEPTS/CORE/Multipage apps",
+      "scope_type": "concept",
+      "official_url": "https://docs.streamlit.io/develop/concepts/multipage-apps/overview",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "7ba8b73fc7fa0c86862e2c10e783745fea89d159fb77fce48746d719c710a5de",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "concept.multipage-apps.page-and-navigation",
+      "category": "CONCEPTS/CORE/Multipage apps",
+      "scope_type": "concept",
+      "official_url": "https://docs.streamlit.io/develop/concepts/multipage-apps/page-and-navigation",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "3c3b2b61edbcb4c72fa996d99ebbdfbc0bdb9822c5913f716a69f1a48ae8fab9",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "concept.multipage-apps.pages-directory",
+      "category": "CONCEPTS/CORE/Multipage apps",
+      "scope_type": "concept",
+      "official_url": "https://docs.streamlit.io/develop/concepts/multipage-apps/pages-directory",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "92960bf5c09761cdfc5355808e7480ff48846eaee08726d5edf243b8430ebc00",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "concept.multipage-apps.widgets",
+      "category": "CONCEPTS/CORE/Multipage apps",
+      "scope_type": "concept",
+      "official_url": "https://docs.streamlit.io/develop/concepts/multipage-apps/widgets",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "f2632f6b2b9d83fe7bf78cfabbc26a74b58369c4000e56c752e397b056d8148a",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.altair_chart",
+      "category": "PAGE ELEMENTS/Chart elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/charts/st.altair_chart",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "247186c21d52b11d733fbe9cdd9d249cc240a00d71ca5ace93d2cb1405bf0340",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.area_chart",
+      "category": "PAGE ELEMENTS/Chart elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/charts/st.area_chart",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "138a29ae29bcd21498ececbbdc6bb495f8eaac971e03297c24292824d5cd8348",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.bar_chart",
+      "category": "PAGE ELEMENTS/Chart elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/charts/st.bar_chart",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "1b0e9572048d3af931c04305555d780d3b008524fd2605f90698b9ea396e0a52",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.echarts_chart",
+      "category": "PAGE ELEMENTS/Chart elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/charts/st.echarts_chart",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "8c3376ebf35e60151c4baf65fba14626c9f17c215703426a9fb076d02037b9e0",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.graphviz_chart",
+      "category": "PAGE ELEMENTS/Chart elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/charts/st.graphviz_chart",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "3e8bbc5b119fd09bd70902c4d567b58f41b4d86361f635f2f3ebace8293b609f",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.line_chart",
+      "category": "PAGE ELEMENTS/Chart elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/charts/st.line_chart",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "8370e480e77e4a4e57b4643b038fc0c72fcfa0cba330417a29832c2ba9404aab",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.map",
+      "category": "PAGE ELEMENTS/Chart elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/charts/st.map",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "d195d032353a5b3009a3aa03b2c380c73541a9fffd3d86c8eb54244dbc7038f8",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.mermaid_chart",
+      "category": "PAGE ELEMENTS/Chart elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/charts/st.mermaid_chart",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "ccde1516bb5090319d7199763337bd925d96671b0ba68a051c5988a9722fdcd5",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.plotly_chart",
+      "category": "PAGE ELEMENTS/Chart elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/charts/st.plotly_chart",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "d9430fc217f0fed6d929f3a230a328eef2b130e8be461a83594b2e7ed6d5a1d9",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.pydeck_chart",
+      "category": "PAGE ELEMENTS/Chart elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/charts/st.pydeck_chart",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "6f0c32bb79f0f2524a41ed9729d04d8c58bc20bd406e3ee2561b1495c0f4a430",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.pyplot",
+      "category": "PAGE ELEMENTS/Chart elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/charts/st.pyplot",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "df35ee129d2f3f8a50972dd729d22394d84534b57cc5cd3af0da9f4f301dc03d",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.scatter_chart",
+      "category": "PAGE ELEMENTS/Chart elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/charts/st.scatter_chart",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "720e40a053e1ef081bc56140d908e8fdef5737519858a2d41443f53ac9e3e267",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.vega_lite_chart",
+      "category": "PAGE ELEMENTS/Chart elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/charts/st.vega_lite_chart",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "9cd8f0903929cc315863fc103d8d3eef41fe310cc95fca18acd10dd7119ce7dd",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.chat_input",
+      "category": "PAGE ELEMENTS/Chat elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/chat/st.chat_input",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "f24a0b5abbc5b87a9ce3541371feaf304c4eee792edd74c913d0939159db63cb",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.chat_message",
+      "category": "PAGE ELEMENTS/Chat elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/chat/st.chat_message",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "6278c7c6900deaff58456eb21a1bc474973a2bdf8a7c948c64450a8b6d27d8d2",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.column_config",
+      "category": "PAGE ELEMENTS/Data elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/data/st.column_config",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "9b87e1ce15a1adc70ea6f1fcc67210508fd868904c12729c4b351d5b31aad73d",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.column_config.AreaChartColumn",
+      "category": "PAGE ELEMENTS/Data elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/data/st.column_config/st.column_config.areachartcolumn",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "06e0742f7badb56c18610862e78c5819731dc03a8d90539c23f4ce49d171cb43",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.column_config.AudioColumn",
+      "category": "PAGE ELEMENTS/Data elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/data/st.column_config/st.column_config.audiocolumn",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "776120a3151a9ba010a3bfb6bffcdceb5dbd3fd7a5563e44c4d6dd070737a36c",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.column_config.BarChartColumn",
+      "category": "PAGE ELEMENTS/Data elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/data/st.column_config/st.column_config.barchartcolumn",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "01172c469e23b9fdb32c85798760f1fafbab6cd793e95b3f6765f4280624c5f6",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.column_config.ButtonColumn",
+      "category": "PAGE ELEMENTS/Data elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/data/st.column_config/st.column_config.buttoncolumn",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "a9cdfd4ec753a267229992a4768f8bd70ea658ff09f86eaeb19c7a5a9187a7bf",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.column_config.CheckboxColumn",
+      "category": "PAGE ELEMENTS/Data elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/data/st.column_config/st.column_config.checkboxcolumn",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "81f57a14779138690680321ddddee2f57bb47ab077a83f36a0c02a86676f6884",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.column_config.Column",
+      "category": "PAGE ELEMENTS/Data elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/data/st.column_config/st.column_config.column",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "9f95ec578e5fcfc97a05743329258b848b8efdf79687a3e0c50421e3a07ee643",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.column_config.DateColumn",
+      "category": "PAGE ELEMENTS/Data elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/data/st.column_config/st.column_config.datecolumn",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "3643281cb90d664a79c054e1cc4d960dba9a21eb225ce35e05672aa752d47280",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.column_config.DatetimeColumn",
+      "category": "PAGE ELEMENTS/Data elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/data/st.column_config/st.column_config.datetimecolumn",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "7b8d9cfa31ec5a616599cd7728cae6811c7b8e9550c15932eacd7628386583d8",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.column_config.ImageColumn",
+      "category": "PAGE ELEMENTS/Data elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/data/st.column_config/st.column_config.imagecolumn",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "b063d8cf6a893b2d49d703937e81e2d92f13cee250c44ff082cfddda5fc9eac9",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.column_config.JsonColumn",
+      "category": "PAGE ELEMENTS/Data elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/data/st.column_config/st.column_config.jsoncolumn",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "8d1230f0e97edaf9d34eb47ebc664d9a3300fbf2d58d91f13345484f77dad1d3",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.column_config.LineChartColumn",
+      "category": "PAGE ELEMENTS/Data elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/data/st.column_config/st.column_config.linechartcolumn",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "64fc8adea8eef7bcd75416f22a1a6b5e1b0cac5e7c61edc996482dca5b2d2962",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.column_config.LinkColumn",
+      "category": "PAGE ELEMENTS/Data elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/data/st.column_config/st.column_config.linkcolumn",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "c58d2342813a96528d167d95a8aafbca1f2c76c988338c92d3ed913b4d8e5ce5",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.column_config.ListColumn",
+      "category": "PAGE ELEMENTS/Data elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/data/st.column_config/st.column_config.listcolumn",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "b1fae4af12e13ada1f12dbed32d762f227d0dda995fc1ba21ea11b07172d86e4",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.column_config.MarkdownColumn",
+      "category": "PAGE ELEMENTS/Data elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/data/st.column_config/st.column_config.markdowncolumn",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "b6c91aacae3452517e8319a57861bf7d692315473284cc0356263a3ce0010c1e",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.column_config.MultiselectColumn",
+      "category": "PAGE ELEMENTS/Data elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/data/st.column_config/st.column_config.multiselectcolumn",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "faf10bf38d88f99536741a29c7b240b1b84da2c008b960c4eef9012e36afe26a",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.column_config.NumberColumn",
+      "category": "PAGE ELEMENTS/Data elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/data/st.column_config/st.column_config.numbercolumn",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "15863e24f8b1c6a34024fd243a79f47a08413c40c8258da53ff5a61d23dc62f9",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.column_config.ProgressColumn",
+      "category": "PAGE ELEMENTS/Data elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/data/st.column_config/st.column_config.progresscolumn",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "d4c8d877cc0f4d134517c6c4a99eaa381ce59d6f705f957d0e5af88618302950",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.column_config.SelectboxColumn",
+      "category": "PAGE ELEMENTS/Data elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/data/st.column_config/st.column_config.selectboxcolumn",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "f9e12bb1ff558e01233b833f045808cbc37726088603c1da22ac8eb9ff1fec69",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.column_config.TextColumn",
+      "category": "PAGE ELEMENTS/Data elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/data/st.column_config/st.column_config.textcolumn",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "b9be74f342971cd5df237ed810fa26da5dd7f1cd1f25672e95234bf1b45a766b",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.column_config.TimeColumn",
+      "category": "PAGE ELEMENTS/Data elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/data/st.column_config/st.column_config.timecolumn",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "56123d8aef291cec999ee41c60dd0c92df6ede48a9e61583b6f6d1e8d990eca6",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.column_config.VideoColumn",
+      "category": "PAGE ELEMENTS/Data elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/data/st.column_config/st.column_config.videocolumn",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "a536d47ce4808d0b492b3ae6b7387caeb233c69fe810dd3c3bfd264234b8eec4",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.data_editor",
+      "category": "PAGE ELEMENTS/Data elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/data/st.data_editor",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "3133afde58101895e4c9ad3340344d535779effe130a200b9a4df49ac85e1703",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.dataframe",
+      "category": "PAGE ELEMENTS/Data elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/data/st.dataframe",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "d5b18e3c66024a333855ea43e7127fd07e380ef5a563279704ceadbc39b80852",
+        "python_browser_trace": "tests/reference/reference-browser/closed-loop/trace.json"
+      }
+    },
+    {
+      "feature_id": "st.json",
+      "category": "PAGE ELEMENTS/Data elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/data/st.json",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "d22fc8f0e080bf120fbb6c8df3c0f4698ac5a009e724a2181725e3199f9666c1",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.metric",
+      "category": "PAGE ELEMENTS/Data elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/data/st.metric",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "474d0f039d160cd0e2f45d964d4615fc139c24c7bd1872fda0c335d260da38e7",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.table",
+      "category": "PAGE ELEMENTS/Data elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/data/st.table",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "0c21acc6a793d1066a14d74dc11c5e4f52c7ebb98c831fe708885f6a78fe13af",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.audio_input",
+      "category": "PAGE ELEMENTS/Input widgets",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.audio_input",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "f10cce27b89dedce9269267a98ac79d168871a16a26195541e95196b1f4551e1",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.button",
+      "category": "PAGE ELEMENTS/Input widgets",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.button",
+      "rust_source_path": "streamlit/src/api.rs:603",
+      "implementation_status": "candidate",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "8c0767d6db5d2491ea13f1e24f494400b9e905839edbbe80e7dbe1dd16b1cc4a",
+        "python_browser_trace": "tests/reference/reference-browser/closed-loop/trace.json",
+        "rust_source": "streamlit/src/api.rs:603"
+      }
+    },
+    {
+      "feature_id": "st.camera_input",
+      "category": "PAGE ELEMENTS/Input widgets",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.camera_input",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "a863317b61598fce49d636df79ec41c3c195ecf471956bc08f13f4688c9fa2be",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.checkbox",
+      "category": "PAGE ELEMENTS/Input widgets",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.checkbox",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "36ec44e7bcce8a2707dcd6958f01b6b96676ebe41e3b352ce860fdaba8045da9",
+        "python_browser_trace": "tests/reference/reference-browser/closed-loop/trace.json"
+      }
+    },
+    {
+      "feature_id": "st.color_picker",
+      "category": "PAGE ELEMENTS/Input widgets",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.color_picker",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "bb66c1af44404905301f16b52478a1f36223227041d24fac6c26e8c8e8581c0e",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.date_input",
+      "category": "PAGE ELEMENTS/Input widgets",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.date_input",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "673b18d96dff0f8c516dac93e1e6cc73b8276550ac3f66ada444fd4b3705186e",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.datetime_input",
+      "category": "PAGE ELEMENTS/Input widgets",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.datetime_input",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "499c3bbedec18a51f774bc91ec5187e765eba248e3d748566ce27e43be89bcd5",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.download_button",
+      "category": "PAGE ELEMENTS/Input widgets",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.download_button",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "9ba598bfe14dfcdf36a4bf50177c661e6265e47f462225b437506029c2f6b696",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.feedback",
+      "category": "PAGE ELEMENTS/Input widgets",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.feedback",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "6426cf8b57f2e79bba7464e33dc2be1576f38383acda445a2872bfe1cda20c4a",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.file_uploader",
+      "category": "PAGE ELEMENTS/Input widgets",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.file_uploader",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "33b17dfb7ec2b889f4117690280055f4f1d343e1c763c2807c572e9044798b05",
+        "python_browser_trace": "tests/reference/reference-browser/closed-loop/trace.json"
+      }
+    },
+    {
+      "feature_id": "st.link_button",
+      "category": "PAGE ELEMENTS/Input widgets",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.link_button",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "1354a6ef3fee4f3e4e903341a0b93664ed4fd94afcba9e57daee1e05f79bfbb3",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.menu_button",
+      "category": "PAGE ELEMENTS/Input widgets",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.menu_button",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "6902d77a5aafa4d3eca885ff34d735bf31cc2bea7182e05f02495e27c1939fee",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.multiselect",
+      "category": "PAGE ELEMENTS/Input widgets",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.multiselect",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "9b30108e05eb356a6abd7edf31cce108ae173ed79b18c5e9e8a64086c73feb41",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.number_input",
+      "category": "PAGE ELEMENTS/Input widgets",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.number_input",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "3cf471e1fb83b74938c029b061454983421837a9d17065b663e40750f143ab70",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.page_link",
+      "category": "PAGE ELEMENTS/Input widgets",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.page_link",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "e30d98bc10639eaeb36fb2c9c4892213398c1f40af6e7e60480812cc4567951d",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.pagination",
+      "category": "PAGE ELEMENTS/Input widgets",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.pagination",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "ab473288c0de431b57259025fbb170796cae75de24b0fd01fd620d3baef10dd3",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.pills",
+      "category": "PAGE ELEMENTS/Input widgets",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.pills",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "781fc0ba531eaf7cffa99d19a504644698c8d35f62baa8d8e13b058db933796a",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.radio",
+      "category": "PAGE ELEMENTS/Input widgets",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.radio",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "7d251ffec958d0705e630781080a261e99f25823eb7678048fb893fb6269cd2e",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.segmented_control",
+      "category": "PAGE ELEMENTS/Input widgets",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.segmented_control",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "1733fd8a155c5028ae9198bc95010db24fe501c94cd0f714c95c30a6034bd007",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.select_slider",
+      "category": "PAGE ELEMENTS/Input widgets",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.select_slider",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "f297dc059a2806fc3ec5f1bc56493605c287e09023b027117825925569e66f5a",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.selectbox",
+      "category": "PAGE ELEMENTS/Input widgets",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.selectbox",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "2c08b5d712f95b9c0bf2b33e36b9694675476c9ab388ff5e6a9738448914411e",
+        "python_browser_trace": "tests/reference/reference-browser/closed-loop/trace.json"
+      }
+    },
+    {
+      "feature_id": "st.slider",
+      "category": "PAGE ELEMENTS/Input widgets",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.slider",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "7f79d29ca5098e54b154b69a1b5a980b14807649717019122a8f54e980ff16da",
+        "python_browser_trace": "tests/reference/reference-browser/closed-loop/trace.json"
+      }
+    },
+    {
+      "feature_id": "st.text_area",
+      "category": "PAGE ELEMENTS/Input widgets",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.text_area",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "467d6b42cbf998933c3b84eba2c9eee2b60c3e4ea04e4b64744bc0f361539714",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.text_input",
+      "category": "PAGE ELEMENTS/Input widgets",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.text_input",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "11309264eb669a12ce6ab6fd09000380b43b6c6f6fe53781c3a740ccbbf596df",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.time_input",
+      "category": "PAGE ELEMENTS/Input widgets",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.time_input",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "0f6120e19257060b7fa1bcf174ba135db1efe6ed2b6294e8351e21e70be601cd",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.toggle",
+      "category": "PAGE ELEMENTS/Input widgets",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.toggle",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "b20b2a0cf104e09a48c2a62daa3642338f8130a68dff6215b4ef55cc0ef4b1f3",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.bottom",
+      "category": "PAGE ELEMENTS/Layouts and containers",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/layout/st.bottom",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "749e9559d1bac73d2cf2f2124a3c0a6b8660d52fca82ba4cd19ae4cf1ee0ca4f",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.columns",
+      "category": "PAGE ELEMENTS/Layouts and containers",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/layout/st.columns",
+      "rust_source_path": "streamlit/src/api.rs:601",
+      "implementation_status": "candidate",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "ac07395db152b76324e18a9cdea904663d8ad569f5a3d9113c25c6d47d15eff0",
+        "python_browser_trace": null,
+        "rust_source": "streamlit/src/api.rs:601"
+      }
+    },
+    {
+      "feature_id": "st.container",
+      "category": "PAGE ELEMENTS/Layouts and containers",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/layout/st.container",
+      "rust_source_path": "streamlit/src/api.rs:595",
+      "implementation_status": "candidate",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "a2e88d6b3266ba21751da26d6fb2912caa06130c16568e8717c995eda32e86b0",
+        "python_browser_trace": null,
+        "rust_source": "streamlit/src/api.rs:595"
+      }
+    },
+    {
+      "feature_id": "st.empty",
+      "category": "PAGE ELEMENTS/Layouts and containers",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/layout/st.empty",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "06ddd9a089422b0f8a5dec5aa3b6389e722bae600ddd47bf808f10b3a1652ad1",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.expander",
+      "category": "PAGE ELEMENTS/Layouts and containers",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/layout/st.expander",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "31e9230f3ec7c78c6c321534c9ae75da3815ab0d9ffa1d8ffb359cfcaa627250",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.popover",
+      "category": "PAGE ELEMENTS/Layouts and containers",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/layout/st.popover",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "835a67310d9c5de30bcdf40d95c30b3846ea0cb8200931a596cd5cf4f19a6243",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.sidebar",
+      "category": "PAGE ELEMENTS/Layouts and containers",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/layout/st.sidebar",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "6762a8d3b4d4551b83ff852fc364844a1af3e8921ad48f4afc91a397ab521e22",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.space",
+      "category": "PAGE ELEMENTS/Layouts and containers",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/layout/st.space",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "63e75dbb29e043fc60da0708cb0f0a502d1c2fbabbe397e2a259d7b3bc3ca8d6",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.tabs",
+      "category": "PAGE ELEMENTS/Layouts and containers",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/layout/st.tabs",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "f31dc02eed723d7dba4ef188ed5c3d3fd52dc158ca3974286c3e921f6f05f4b7",
+        "python_browser_trace": "tests/reference/reference-browser/tabs/trace-tabs.json"
+      }
+    },
+    {
+      "feature_id": "st.audio",
+      "category": "PAGE ELEMENTS/Media elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/media/st.audio",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "4e6efadb9c3e3ed4a0d78ba46996fbdea5b686a2a535c83ea0ad824adc8c7c02",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.image",
+      "category": "PAGE ELEMENTS/Media elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/media/st.image",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "88a3518ffb078af6ba003b0b21ee05e833ac64bed197bb625751713f26d54ebe",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.logo",
+      "category": "PAGE ELEMENTS/Media elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/media/st.logo",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "5dfebc4d25783cff3c227af6e2a908f4a237a20930bc08a4cd2360240ac566d1",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.pdf",
+      "category": "PAGE ELEMENTS/Media elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/media/st.pdf",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "d3995e78f3f5df4e72e24895f1c7222524374c09cc7fc32115dcfab809ca2e93",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.video",
+      "category": "PAGE ELEMENTS/Media elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/media/st.video",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "2bb6e1c0d90229b9e2d40bafe73d49ecbc563962f02f90f66561ea1692b4b161",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.balloons",
+      "category": "PAGE ELEMENTS/Status elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/status/st.balloons",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "6b9bac11e3e6bfb431efd1669a74aecf0954091aaff7b3f4c0b81fc5ef9c298d",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.error",
+      "category": "PAGE ELEMENTS/Status elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/status/st.error",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "a508981a6911f265ba0313eccad867df6a428ed9c34503aead79611253a89e41",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.exception",
+      "category": "PAGE ELEMENTS/Status elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/status/st.exception",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "e88a36d048aabd5c94440b6dfd61fec2c504bc7d07ecba001d882dbbda3eb524",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.info",
+      "category": "PAGE ELEMENTS/Status elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/status/st.info",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "5d749148b9774ba3b54a9aad0aa8f45738efc701fcf080acf96e14fcc8fcfb4c",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.progress",
+      "category": "PAGE ELEMENTS/Status elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/status/st.progress",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "5643d8342643b524dabade68218d7b845ca1a03cec6ba05b7809e8b68dd5cfab",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.skeleton",
+      "category": "PAGE ELEMENTS/Status elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/status/st.skeleton",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "ed487714a96d94c8e6c54d2041599689801518ceaa4880eb6687ec20aa882019",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.snow",
+      "category": "PAGE ELEMENTS/Status elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/status/st.snow",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "da79ce406e81180fdb6a774a2ad3c457c10873e2c8974e41f9018411cadba2a1",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.spinner",
+      "category": "PAGE ELEMENTS/Status elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/status/st.spinner",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "317a50ad0ad24c0c764c4eb4487801d3a503cb4550645bbda004eee95a4357c0",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.status",
+      "category": "PAGE ELEMENTS/Status elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/status/st.status",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "5e5b2230d3695ee98562c54a8918ab8ab56f0a04aca6223c353b47f21036f152",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.success",
+      "category": "PAGE ELEMENTS/Status elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/status/st.success",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "59fe3e2bcc8f6bf9d3c5c810ca84b3938a4317d407b15772e99c2af7b039df8e",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.toast",
+      "category": "PAGE ELEMENTS/Status elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/status/st.toast",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "d99f9363465a61b21dcbe60cfa0ba4ebd39a94adef0316010f765b7abca55c4c",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.warning",
+      "category": "PAGE ELEMENTS/Status elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/status/st.warning",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "573c06ec7f2bf677b32829348c33995bd55ded8d80866a7479b3376d9cbeccfe",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.badge",
+      "category": "PAGE ELEMENTS/Text elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/text/st.badge",
+      "rust_source_path": "streamlit/src/api.rs:579",
+      "implementation_status": "candidate",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "eb28c030ebb1d69f6cdd338a85ac657caca9011dec95fff998892c1b2c879db9",
+        "python_browser_trace": null,
+        "rust_source": "streamlit/src/api.rs:579"
+      }
+    },
+    {
+      "feature_id": "st.caption",
+      "category": "PAGE ELEMENTS/Text elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/text/st.caption",
+      "rust_source_path": "streamlit/src/api.rs:581",
+      "implementation_status": "candidate",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "c76b7f2358329186918b34cd3d76b4fd2d5d3776282d29b8899fc6f72587931b",
+        "python_browser_trace": null,
+        "rust_source": "streamlit/src/api.rs:581"
+      }
+    },
+    {
+      "feature_id": "st.code",
+      "category": "PAGE ELEMENTS/Text elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/text/st.code",
+      "rust_source_path": "streamlit/src/api.rs:583",
+      "implementation_status": "candidate",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "6c82e17ee059360c0685e749fa0e523787b440452b86ddcb7dd2f615103f7cb1",
+        "python_browser_trace": null,
+        "rust_source": "streamlit/src/api.rs:583"
+      }
+    },
+    {
+      "feature_id": "st.divider",
+      "category": "PAGE ELEMENTS/Text elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/text/st.divider",
+      "rust_source_path": "streamlit/src/api.rs:589",
+      "implementation_status": "candidate",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "2272dccf721429b455180f484c92d8379d8f2e0d720b8ab1ecd15c387f3ac259",
+        "python_browser_trace": null,
+        "rust_source": "streamlit/src/api.rs:589"
+      }
+    },
+    {
+      "feature_id": "st.echo",
+      "category": "PAGE ELEMENTS/Text elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/text/st.echo",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "277f8d061277c08dd9175bedae5db94901c335753a32580e289234ca87fe439f",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.header",
+      "category": "PAGE ELEMENTS/Text elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/text/st.header",
+      "rust_source_path": "streamlit/src/api.rs:563",
+      "implementation_status": "candidate",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "2d5e78ed7950a65eae62d54b033009d764b9da2b5993cae74f3ba56b194b2dd0",
+        "python_browser_trace": null,
+        "rust_source": "streamlit/src/api.rs:563"
+      }
+    },
+    {
+      "feature_id": "st.help",
+      "category": "PAGE ELEMENTS/Text elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/text/st.help",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "42585040cad48bd06b00c6cf66c62f61caae674ef00e69cd7acb767ac012c7a6",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.html",
+      "category": "PAGE ELEMENTS/Text elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/text/st.html",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "3327f76962345cb7acf8e69160eb38743a1f1d646400389c3903f2637dcf16c9",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.iframe",
+      "category": "PAGE ELEMENTS/Text elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/text/st.iframe",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "83e1ecb77af9d249fee236d7302795ff414d5b3cbb7e5747e5a6e2e5375a8639",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.latex",
+      "category": "PAGE ELEMENTS/Text elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/text/st.latex",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "e476a36ce822f1241b0c3116c75044adf435ec158a15dd557269039a50756a54",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.markdown",
+      "category": "PAGE ELEMENTS/Text elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/text/st.markdown",
+      "rust_source_path": "streamlit/src/api.rs:577",
+      "implementation_status": "candidate",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "3cc3ae37bf6780ad5ab6be16405d23439a3edd12efbb66e9c91ff53c74cbde48",
+        "python_browser_trace": null,
+        "rust_source": "streamlit/src/api.rs:577"
+      }
+    },
+    {
+      "feature_id": "st.subheader",
+      "category": "PAGE ELEMENTS/Text elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/text/st.subheader",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "a1ec453108684db24d9882a5d0a9abcda281c7a0641747562f3d49fa6652f1b6",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.text",
+      "category": "PAGE ELEMENTS/Text elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/text/st.text",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "6220f05fc2e520afd04e49f9e44408b4066dca78ac76f216628472a08337d10e",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.title",
+      "category": "PAGE ELEMENTS/Text elements",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/text/st.title",
+      "rust_source_path": "streamlit/src/api.rs:559",
+      "implementation_status": "candidate",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "b0e1678f0d43800a4274e3401d90e87e552ca9238e156da782f571031d8e6b59",
+        "python_browser_trace": null,
+        "rust_source": "streamlit/src/api.rs:559"
+      }
+    },
+    {
+      "feature_id": "magic",
+      "category": "PAGE ELEMENTS/Write and magic",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/write-magic/magic",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "d2e2bea4d2cd2d6dd6d11002adf1d2f0d6bde7486cdae8a1fee233461908c37f",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.write",
+      "category": "PAGE ELEMENTS/Write and magic",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/write-magic/st.write",
+      "rust_source_path": "streamlit/src/api.rs:557",
+      "implementation_status": "candidate",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "ce38026b364a4c320bab751607da7330d9e04b9f031418d093405112650c2aa9",
+        "python_browser_trace": null,
+        "rust_source": "streamlit/src/api.rs:557"
+      }
+    },
+    {
+      "feature_id": "st.write_stream",
+      "category": "PAGE ELEMENTS/Write and magic",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/write-magic/st.write_stream",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "59073ea2a64c3d297ebbd732de19bc28cdfd51439cca81f21b72eda2d5c4ffa1",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "st.testing.v1.AppTest",
+      "category": "TOOLS/App testing",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/app-testing/st.testing.v1.apptest",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "145d82a371d19576f59dfa7caa46b5304714ec280287c7e71b109fa074fa8376",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "testing-element-classes",
+      "category": "TOOLS/App testing",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/app-testing/testing-element-classes",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "b0f2fb57d140021bc1158f5ab42f734b144f2a5a521c88c33e69a8df5de20b87",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "cli.cache",
+      "category": "TOOLS/Command line",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/cli/cache",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "26de85490f405392be8fdf09725a4a1a5b85eb065f7cd01eb3bbaa66e190a6fd",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "cli.config",
+      "category": "TOOLS/Command line",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/cli/config",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "2f9f9e72094d593d9b6624383713814c6cffe57e6ea0061a689bd085526ca48e",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "cli.docs",
+      "category": "TOOLS/Command line",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/cli/docs",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "72ae838fb3d8f62da07653caa6c093bcb830ddb1eaeeb797238de42d6a6e300a",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "cli.hello",
+      "category": "TOOLS/Command line",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/cli/hello",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "414f9d5bf6deffd3471d2a0e1e2d538858eede3d46ba5fce3d0acc54db546dcf",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "cli.help",
+      "category": "TOOLS/Command line",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/cli/help",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "2f67b6be6e15d2fc6bf3b68582c2b18a88f81f4b3ec434dab190ef4d11db92ae",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "cli.init",
+      "category": "TOOLS/Command line",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/cli/init",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "fd365b7d40343d9bf5cfc57233ea4e005112d92690863ddd76e484135da40bbb",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "cli.run",
+      "category": "TOOLS/Command line",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/cli/run",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "4b2402a648b9ca2000195c5336d01deb95949ce1c72f04e25444608cb17ceb92",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "cli.skills",
+      "category": "TOOLS/Command line",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/cli/skills",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "9237d9755604c6debab4dce6c55de0e501e39c141383b0e844b8f71371d4c348",
+        "python_browser_trace": null
+      }
+    },
+    {
+      "feature_id": "cli.version",
+      "category": "TOOLS/Command line",
+      "scope_type": "api-reference",
+      "official_url": "https://docs.streamlit.io/develop/api-reference/cli/version",
+      "rust_source_path": null,
+      "implementation_status": "absent",
+      "compatibility_status": "unverified",
+      "evidence": {
+        "official_document_sha256": "005a02434e7cf46542fa4fcfe317a21b4645334197dd71e05a615d1cc76a95a6",
+        "python_browser_trace": null
+      }
+    }
+  ]
+}

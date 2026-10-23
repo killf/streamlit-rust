@@ -1,6 +1,6 @@
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{parse_macro_input, ItemFn};
+use syn::{ItemFn, parse_macro_input};
 
 /// Main attribute macro for Streamlit applications
 /// This attribute transforms a user's main function that takes a Streamlit parameter
