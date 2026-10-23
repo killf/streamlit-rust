@@ -64,14 +64,13 @@ impl Element for ColumnElement {
         msg.r#type = Some(forward_msg::Type::Delta(Delta {
             fragment_id: String::new(),
             r#type: Some(delta::Type::AddBlock(Block {
+                autoscroll: None,
                 allow_empty: true,
                 id: None,
                 height_config,
                 width_config,
                 r#type: Some(crate::proto::block::Type::Column(crate::proto::block::Column {
                     weight: self.weight as f64,
-                    #[allow(deprecated)]
-                    gap: "".to_string(),
                     vertical_alignment: self.vertical_alignment.clone() as i32,
                     show_border: self.border,
                     gap_config: Some(self.gap.clone().into()),

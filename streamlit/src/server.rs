@@ -8,14 +8,29 @@ use std::pin::Pin;
 
 #[get("/_stcore/health")]
 async fn health_check() -> impl Responder {
-    HttpResponse::Ok().insert_header(("Content-Type", "text/html; charset=UTF-8")).body("ok")
+    HttpResponse::Ok().insert_header(("Content-Type", "text/plain; charset=utf-8")).body("ok")
 }
 
 #[get("/_stcore/host-config")]
 async fn host_config() -> impl Responder {
     let host_config = serde_json::json!({
         "allowedOrigins": [
-            "*",
+            "https://devel.streamlit.test",
+            "https://*.streamlit.apptest",
+            "https://*.streamlitapp.test",
+            "https://*.streamlitapp.com",
+            "https://share.streamlit.io",
+            "https://share-demo.streamlit.io",
+            "https://share-head.streamlit.io",
+            "https://share-staging.streamlit.io",
+            "https://*.demo.streamlit.run",
+            "https://*.head.streamlit.run",
+            "https://*.staging.streamlit.run",
+            "https://*.streamlit.run",
+            "https://*.demo.streamlit.app",
+            "https://*.head.streamlit.app",
+            "https://*.staging.streamlit.app",
+            "https://*.streamlit.app",
         ],
         "useExternalAuthToken": false,
         "enableCustomParentMessages": false,
@@ -38,9 +53,20 @@ async fn websocket_handler(req: HttpRequest, stream: web::Payload, state: web::D
         }
     });
 
-    response.headers_mut().insert(HeaderName::from_static("sec-websocket-protocol"), HeaderValue::from_static("streamlit"));
+    if req
+        .headers()
+        .get("sec-websocket-protocol")
+        .and_then(|value| value.to_str().ok())
+        .is_some_and(|value| value.split(',').any(|protocol| protocol.trim() == "streamlit"))
+    {
+        response.headers_mut().insert(HeaderName::from_static("sec-websocket-protocol"), HeaderValue::from_static("streamlit"));
+    }
 
     Ok(response)
+}
+
+fn configure_routes(config: &mut web::ServiceConfig) {
+    config.service(websocket_handler).service(health_check).service(host_config);
 }
 
 /// Handler type that can be either synchronous or asynchronous
@@ -81,16 +107,13 @@ impl StreamlitServer {
         log::info!("Starting Streamlit Rust Backend server on {}:{}", self.host.as_str(), self.port);
 
         let server = self.clone();
-        HttpServer::new(move || {
-            App::new()
-                .app_data(web::Data::new(server.clone()))
-                .service(websocket_handler)
-                .service(health_check)
-                .service(host_config)
-                .service(Files::new("/", "./www").index_file("index.html"))
-        })
-        .bind((self.host.as_str(), self.port))?
-        .run()
-        .await
+        HttpServer::new(move || App::new().app_data(web::Data::new(server.clone())).configure(configure_routes).service(Files::new("/", "./www").index_file("index.html")))
+            .bind((self.host.as_str(), self.port))?
+            .run()
+            .await
     }
 }
+
+#[cfg(test)]
+#[path = "../tests/runtime/mod.rs"]
+mod tests;

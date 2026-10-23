@@ -288,24 +288,29 @@
         {
           "id": "J09-S1",
           "action": "Open the application and inspect the WebSocket handshake.",
-          "expectation": "The Sec-WebSocket-Protocol header has three entries: 'streamlit', the XSRF token and the current session id. The session id is empty on a first visit."
+          "expectation": "The Sec-WebSocket-Protocol header has TWO entries on a fresh page load: 'streamlit' and the XSRF token. The third entry, the session id, is absent because the browser has never seen one; the server issues the session id in NewSession.initialize.session_id.",
+          "python_reference_trace": "tests/reference/reference-browser/reconnect/trace-reconnect.json"
         },
         {
           "id": "J09-S2",
-          "action": "Load the fixture, click Pulse twice, then drop the WebSocket and let the frontend reconnect within 120 seconds.",
-          "expectation": "The reconnected session keeps the SAME session id, 'Pulses' still reads 2 and the uploaded data is still aggregated. The session is not recreated."
+          "action": "Load the fixture, click Pulse twice, then close the live WebSocket from the page so the server sees a genuine disconnect, and let the frontend reconnect on its own.",
+          "expectation": "The reconnect handshake carries THREE subprotocol entries: 'streamlit', the XSRF token and the session id. The reconnected session keeps the SAME session id, 'Pulses' still reads 2 and the uploaded data is still aggregated. The session is not recreated.",
+          "python_reference_trace": "tests/reference/reference-browser/reconnect/trace-reconnect.json"
         },
         {
           "id": "J09-S3",
           "action": "Reload the page (F5).",
-          "expectation": "A NEW session id is issued, 'Script runs' resets to 1, 'Pulses' resets to 0, the uploader is empty and the 'Upload a CSV to see the aggregated result.' info is shown again. The old session lingers server-side but is orphaned."
+          "expectation": "A NEW session id is issued, 'Script runs' resets to 1, 'Pulses' resets to 0, the uploader is empty and the 'Upload a CSV to see the aggregated result.' info is shown again. The reload handshake carries only two entries, because the browser no longer holds the session id.",
+          "python_reference_trace": "tests/reference/reference-browser/refresh/trace-refresh.json"
         },
         {
           "id": "J09-S4",
           "action": "Optional and slow: drop the WebSocket, wait more than 120 seconds, then reconnect.",
-          "expectation": "The stored session has expired, so the reconnect is treated as a new session: a new session id is issued and the state is gone. Deferred to a later phase because it costs a two-minute wait."
+          "expectation": "The stored session has expired, so the reconnect is treated as a new session: a new session id is issued and the state is gone. Deferred to a later phase because it costs a two-minute wait.",
+          "not_measured": "Not measured. The disconnected-session TTL expiry needs a wait longer than the storage TTL, so no reference trace exists for this step."
         }
-      ]
+      ],
+      "python_reference_trace": "tests/reference/reference-browser/reconnect/trace-reconnect.json"
     }
   ]
 }

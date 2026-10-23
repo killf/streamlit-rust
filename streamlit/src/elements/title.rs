@@ -71,10 +71,13 @@ impl Element for HeadingElement {
         msg.r#type = Some(forward_msg::Type::Delta(Delta {
             fragment_id: String::new(),
             r#type: Some(delta::Type::NewElement(crate::proto::Element {
+                has_one_shot_effect: None,
                 height_config: None,
                 width_config,
                 text_alignment_config,
                 r#type: Some(element::Type::Heading(crate::proto::Heading {
+                    icon: String::new(),
+                    wrap: None,
                     tag: self.tag.clone(),
                     anchor: self.anchor.clone(),
                     body: self.body.clone(),

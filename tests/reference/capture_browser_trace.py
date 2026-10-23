@@ -62,7 +62,7 @@ AB_EXE_CANDIDATES = [
     r"C:\nvm4w\nodejs\node_modules\agent-browser\bin\agent-browser-win32-x64.exe",
 ]
 
-SCENARIOS = ("closed-loop", "errors", "form", "tabs", "reconnect")
+SCENARIOS = ("closed-loop", "errors", "form", "tabs", "reconnect", "refresh", "smoke")
 
 
 def find_agent_browser() -> str:
@@ -166,7 +166,12 @@ const sb=q("[data-testid='stSelectbox'] input");
 const alerts=[...document.querySelectorAll("[data-testid^='stAlertContent']")].map(e=>e.textContent);
 const texts=[...document.querySelectorAll("[data-testid='stText']")].map(e=>e.textContent);
 const pick=(p)=>{const t=texts.find(x=>x.startsWith(p));return t?t.slice(p.length).trim():null;};
+const buttons=[...document.querySelectorAll("[data-testid='stButton']")].map(e=>e.innerText.trim());
 return JSON.stringify({
+ document_title: document.title,
+ headings: [...document.querySelectorAll("h1,h2,h3")].map(e=>e.innerText.trim()).slice(0,4),
+ button_labels: buttons,
+ has_button: buttons.length>0,
  script_runs: pick("Script runs:"),
  pulses: pick("Pulses:"),
  applied_note: pick("Applied note:"),
@@ -201,6 +206,7 @@ class CDP:
         self._thread: threading.Thread | None = None
         self._stop = threading.Event()
         self._next_id = 0
+        self._responses: dict[int, dict] = {}
         self._lock = threading.Lock()
 
     def start(self) -> None:
@@ -227,12 +233,12 @@ class CDP:
         self._ws.send(json.dumps(message))
         deadline = time.time() + timeout
         while time.time() < deadline:
-            for event in list(self.events):
-                if event.get("id") == ident:
-                    self.events.remove(event)
-                    return event
-            time.sleep(0.05)
-        return {"error": f"no response for {method}"}
+            with self._lock:
+                response = self._responses.pop(ident, None)
+            if response is not None:
+                return response
+            time.sleep(0.02)
+        return {"error": f"timeout waiting for the response to {method}"}
 
     def _pump(self) -> None:
         from websockets.exceptions import ConnectionClosed
@@ -253,6 +259,11 @@ class CDP:
             if "method" in message:
                 message["_target"] = self.label
                 self.events.append(message)
+            elif "id" in message:
+                # Command responses must be kept, otherwise every call() would
+                # time out and a failed command would look like a silent pass.
+                with self._lock:
+                    self._responses[message["id"]] = message
 
     def stop(self) -> None:
         self._stop.set()
@@ -266,6 +277,20 @@ class CDP:
     def take(self) -> list[dict]:
         with self._lock:
             return list(self.events)
+
+    def frame_count(self) -> int:
+        """How many WebSocket frame events have been observed so far.
+
+        The index of a frame in the finished trace is the same number, because
+        the trace lists the frame events in arrival order.
+        """
+        with self._lock:
+            return sum(
+                1
+                for event in self.events
+                if event.get("method")
+                in ("Network.webSocketFrameSent", "Network.webSocketFrameReceived")
+            )
 
 
 def _scalar(value):
@@ -395,7 +420,13 @@ def browser_version(cdp_browser_url: str) -> str:
         return "unknown"
 
 
-def page_targets(cdp_browser_url: str) -> list[dict]:
+def page_targets(cdp_browser_url: str, host: str | None = None) -> list[dict]:
+    """The page targets of the browser.
+
+    ``host`` is the host of the application under test.  It must be honoured
+    rather than assuming "localhost": the Rust server is reached through
+    127.0.0.1 while the reference server uses localhost.
+    """
     import urllib.request
 
     m = re.match(r"ws://([^:/]+):(\d+)/", cdp_browser_url)
@@ -404,7 +435,8 @@ def page_targets(cdp_browser_url: str) -> list[dict]:
     base = f"http://{m.group(1)}:{m.group(2)}"
     with urllib.request.urlopen(base + "/json/list", timeout=10) as response:
         targets = json.load(response)
-    return [t for t in targets if t.get("type") == "page" and "localhost" in t.get("url", "")]
+    wanted = host or "localhost"
+    return [t for t in targets if t.get("type") == "page" and wanted in t.get("url", "")]
 
 
 def _matches(want, got) -> bool:
@@ -453,6 +485,7 @@ class Capture:
         self.failures: list[dict] = []
         self.recorders: list[CDP] = []
         self.notes: list[str] = []
+        self.click_windows: list[dict] = []
         self.page_title = ""
         self.chrome = "unknown"
         self.cdp_browser_url = ""
@@ -690,10 +723,12 @@ class Capture:
             {"pulses": "3", "table_present": True},
         )
 
-        before_ids = {t["id"] for t in page_targets(self.cdp_browser_url)}
+        before_ids = {t["id"] for t in page_targets(self.cdp_browser_url, self.host)}
         self.ab.run("tab", "new", self.args.url)
         self.ab.run("wait", "6000")
-        new_targets = [t for t in page_targets(self.cdp_browser_url) if t["id"] not in before_ids]
+        new_targets = [
+            t for t in page_targets(self.cdp_browser_url, self.host) if t["id"] not in before_ids
+        ]
         if new_targets:
             self.recorders.append(CDP(new_targets[0]["webSocketDebuggerUrl"], label="tab-b"))
             self.recorders[-1].start()
@@ -749,49 +784,89 @@ class Capture:
         )
 
     def scenario_reconnect(self) -> None:
-        """A real connection fault: the live socket is closed, then reconnected."""
+        """A real connection fault: the live socket is closed, then reconnected.
+
+        The socket is closed for real from the page side, so the server sees a
+        genuine disconnect and the frontend runs its own reconnect path.  The
+        page is NEVER reloaded here: a reload would start a new session and
+        would destroy the very thing this scenario measures.
+        """
         self.upload("sales_basic.csv")
         for _ in range(2):
             self.ab.click("[data-testid='stButton']")
             self.ab.run("wait", "1500")
         before = self.mark(
-            "reconnect-before", "state before the socket is closed", {"pulses": "2"}
+            "reconnect-before",
+            "state before the socket is closed",
+            {"pulses": "2", "table_present": True},
         )
         session_before = _session_ids(self.recorders, "tab-a")
         recorder = self.recorders[0]
+        connection_before_fault = self.connection_index_before()
 
         closed = recorder.call(
             "Runtime.evaluate",
             {"expression": "window.__stWs ? (window.__stWs.close(), 'closed') : 'no socket'"},
+            timeout=5.0,
         )
         self.notes.append(f"live socket closed through Runtime.evaluate: {closed}")
-        time.sleep(5)
-        after_close = self.mark("reconnect-closed", "state right after the socket was closed", {})
+        close_value = _evaluate_value(closed)
+        if not close_value or "closed" not in str(close_value):
+            self.failures.append(
+                {
+                    "step": "reconnect",
+                    "check": "socket_closed",
+                    "expected": "the live socket to be closed",
+                    "actual": str(closed)[:200],
+                }
+            )
+        time.sleep(3)
+        self.mark("reconnect-closed", "state right after the socket was closed", {})
         self.shot("16-reconnect-closed.png")
 
-        # What does the frontend offer now?  Record it verbatim.
-        tree = self.ab.run("snapshot", "-i")
-        retry = _find_retry_ref(self.ab)
-        self.notes.append("accessibility tree after the close:\n" + tree[:1500])
+        # Wait for the frontend's own reconnect.  Bounded: no reload, ever.
+        deadline = time.time() + 40
+        reconnect_handshake = None
+        while time.time() < deadline:
+            for handshake in _handshakes(recorder):
+                if len(handshake.get("entries", [])) >= 3:
+                    reconnect_handshake = handshake
+                    break
+            if reconnect_handshake:
+                break
+            time.sleep(1.0)
 
-        if retry:
-            self.ab.run("click", "@" + retry)
-            self.ab.run("wait", "8000")
-            self.mark("reconnect-retried", "clicked the reconnect affordance", {})
-            self.shot("17-reconnect-retried.png")
-        else:
-            self.notes.append("no reconnect affordance was found in the accessibility tree")
-            self.ab.run("reload")
-            self.ab.run("wait", "8000")
-            self.mark(
-                "reconnect-reload",
-                "no reconnect affordance: the page was reloaded instead, which starts a NEW session",
-                {},
-            )
-            self.shot("17-reconnect-reload.png")
+        time.sleep(4)
+        after = self.mark(
+            "reconnect-after",
+            "state after the frontend reconnected: the same session must still be there",
+            {"pulses": "2", "table_present": True},
+        )
+        self.shot("17-reconnect-after.png")
 
-        after = self.mark("reconnect-after", "state after the connection came back", {})
-        self.shot("18-reconnect-after.png")
+        # A reconnect is only proved by using the reconnected connection: click
+        # the button and require a true trigger and a server answer on the NEW
+        # connection.  The DOM alone proves nothing, because a stale DOM looks
+        # exactly like a live session.
+        start = self.recorders[0].frame_count()
+        self.ab.click("[data-testid='stButton']")
+        self.ab.run("wait", "3000")
+        end = self.recorders[0].frame_count()
+        self.click_windows.append(
+            {
+                "click": "post-reconnect",
+                "start": start,
+                "end": end,
+                "require_new_connection": True,
+                "connection_before": connection_before_fault,
+            }
+        )
+        self.mark(
+            "reconnect-click",
+            "clicked the button on the reconnected session: the counter must advance",
+            {"pulses": "3"},
+        )
+        self.shot("18-reconnect-click.png")
 
         handshakes = _handshakes(recorder)
         third_entry = [h for h in handshakes if len(h.get("entries", [])) >= 3]
@@ -800,6 +875,11 @@ class Capture:
             f"handshakes observed: {len(handshakes)}; with a third subprotocol entry: {len(third_entry)}; "
             f"session id before: {session_before or 'not captured'}; after: {session_after or 'not captured'}"
         )
+        if reconnect_handshake:
+            self.notes.append(
+                "reconnect handshake Sec-WebSocket-Protocol: "
+                + str(reconnect_handshake["headers"].get("Sec-WebSocket-Protocol"))
+            )
         if not third_entry:
             self.failures.append(
                 {
@@ -807,6 +887,17 @@ class Capture:
                     "check": "third_subprotocol_entry",
                     "expected": "a handshake with three subprotocol entries",
                     "actual": f"handshakes: {[h.get('entries') for h in handshakes]}",
+                }
+            )
+        # The recorder keeps every session id it ever saw, so compare the
+        # newest one: after a reconnect it must be the same session.
+        if session_before and session_after and session_before[-1] != session_after[-1]:
+            self.failures.append(
+                {
+                    "step": "reconnect",
+                    "check": "same_session",
+                    "expected": f"the session {session_before[-1]} to be reused",
+                    "actual": f"a different session {session_after[-1]}",
                 }
             )
         if _pulses(before) and _pulses(after) and _pulses(before) != _pulses(after):
@@ -819,14 +910,140 @@ class Capture:
                 }
             )
 
+    def scenario_refresh(self) -> None:
+        """A page reload: the browser drops its in-memory session id, so the
+        server issues a NEW session and the state is gone."""
+        self.upload("sales_basic.csv")
+        for _ in range(2):
+            self.ab.click("[data-testid='stButton']")
+            self.ab.run("wait", "1500")
+        before = self.mark(
+            "refresh-before",
+            "state before the reload",
+            {"pulses": "2", "table_present": True},
+        )
+        session_before = _session_ids(self.recorders, "tab-a")
+
+        self.ab.run("reload")
+        self.ab.run("wait", "8000")
+        after = self.mark(
+            "refresh-after",
+            "state after the reload: a new session, so the state is gone",
+            {"pulses": "0", "script_runs": "1", "table_present": False},
+        )
+        self.shot("18-refresh-after.png")
+
+        handshakes = _handshakes(self.recorders[0])
+        session_after = _session_ids(self.recorders, "tab-a")
+        self.notes.append(
+            f"handshakes observed: {len(handshakes)}; "
+            f"subprotocol entry counts: {[len(h.get('entries', [])) for h in handshakes]}; "
+            f"session id before: {session_before or 'not captured'}; after: {session_after or 'not captured'}"
+        )
+        if session_before and session_after and session_before[-1] == session_after[-1]:
+            self.failures.append(
+                {
+                    "step": "refresh",
+                    "check": "new_session",
+                    "expected": f"a session id other than {session_before[-1]}",
+                    "actual": f"the same session {session_after[-1]}",
+                }
+            )
+        if _pulses(before) and _pulses(after) and _pulses(before) == _pulses(after):
+            self.failures.append(
+                {
+                    "step": "refresh",
+                    "check": "counter_reset",
+                    "expected": "a reset counter",
+                    "actual": _pulses(after),
+                }
+            )
+
+    def scenario_smoke(self) -> None:
+        """A minimal liveness check for any Streamlit-compatible server.
+
+        It checks that the page renders, that the button can be clicked, that
+        the click reaches the server as a widget trigger, and that the
+        connection keeps working afterwards.  It deliberately claims nothing
+        beyond that: it is not a data-loop journey.
+        """
+        self.mark(
+            "smoke-open",
+            "the page rendered",
+            {"has_button": True},
+        )
+        self.shot("19-smoke-open.png")
+
+        for index in range(self.args.clicks):
+            start = self.recorders[0].frame_count()
+            self.ab.click("[data-testid='stButton']")
+            self.ab.run("wait", "2500")
+            end = self.recorders[0].frame_count()
+            self.click_windows.append({"click": index + 1, "start": start, "end": end})
+            self.mark(
+                f"smoke-click-{index + 1}",
+                f"clicked the button ({index + 1}/{self.args.clicks})",
+                {},
+            )
+        self.mark(
+            "smoke-still-operable",
+            "after every click the page must still be operable",
+            {"has_button": True},
+        )
+        self.shot("20-smoke-after-clicks.png")
+
+        triggers = [
+            frame
+            for frame in self.recorders[0].take()
+            if frame.get("method") == "Network.webSocketFrameSent"
+        ]
+        self.notes.append(
+            f"client->server frames observed during the smoke clicks: {len(triggers)}"
+        )
+        self.notes.append(f"button traces: {len(self.button_traces())}")
+
+    def connection_index_before(self) -> int:
+        """The index of the connection that was alive before the fault."""
+        ids: list[str] = []
+        for event in self.recorders[0].take():
+            if event.get("method") in (
+                "Network.webSocketCreated",
+                "Network.webSocketWillSendHandshakeRequest",
+            ):
+                request_id = event.get("params", {}).get("requestId")
+                if request_id and request_id not in ids:
+                    ids.append(request_id)
+        return max(len(ids) - 1, 0)
+
+    def button_traces(self) -> list[dict]:
+        found = []
+        for recorder in self.recorders:
+            for event in recorder.take():
+                if event.get("method") != "Network.webSocketFrameSent":
+                    continue
+                payload = _decode_payload(
+                    event["params"].get("response", {}).get("opcode"),
+                    event["params"].get("response", {}).get("payloadData", ""),
+                )
+                decoded = _safe(summarise_back, payload)
+                if decoded.get("type") != "rerun_script":
+                    continue
+                for widget in decoded["rerun_script"]["widget_states"]:
+                    if widget.get("value_field") == "trigger_value":
+                        found.append({"widget_id": widget["id"], "value": widget["value"]})
+        return found
+
     # -- driver ----------------------------------------------------------
     def run(self) -> int:
         self.ab.run("open", self.args.url)
         self.ab.run("wait", "3000")
         self.cdp_browser_url = self.ab.run("get", "cdp-url")
-        targets = page_targets(self.cdp_browser_url)
+        import urllib.parse
+
+        self.host = urllib.parse.urlparse(self.args.url).hostname or "localhost"
+        targets = page_targets(self.cdp_browser_url, self.host)
         if not targets:
-            raise SystemExit("no localhost page target found")
+            raise SystemExit(f"no page target for host {self.host!r}")
         self.page_title = targets[0].get("title", "")
         self.chrome = browser_version(self.cdp_browser_url)
         self.recorders.append(CDP(targets[0]["webSocketDebuggerUrl"], label="tab-a"))
@@ -874,7 +1091,33 @@ class Capture:
         return 1 if self.failures else 0
 
     def build_trace(self, events: list[dict]) -> dict:
-        handshake_by_target: dict[str, dict] = {}
+        # Every WebSocket connection is kept separately, keyed by its CDP
+        # requestId.  Merging them per tab would lose the first handshake and
+        # would make it impossible to tell which connection a frame belongs
+        # to -- which is exactly what a reconnect claim depends on.
+        connections: dict[str, dict] = {}
+        connection_order: list[str] = []
+
+        def connection(request_id: str) -> dict:
+            record = connections.get(request_id)
+            if record is None:
+                record = {
+                    "index": len(connection_order),
+                    "request_id": request_id,
+                    "target": "tab-a",
+                    "url": None,
+                    "request_headers": {},
+                    "response_status": None,
+                    "response_headers": {},
+                    "subprotocol_entries": [],
+                    "closed": False,
+                    "frames_sent": 0,
+                    "frames_received": 0,
+                }
+                connections[request_id] = record
+                connection_order.append(request_id)
+            return record
+
         frames: list[dict] = []
         http_requests: list[dict] = []
         static_bundle_requests = 0
@@ -884,23 +1127,37 @@ class Capture:
             params = event.get("params", {})
             target = event.get("_target", "tab-a")
             if method == "Network.webSocketWillSendHandshakeRequest":
-                handshake_by_target.setdefault(target, {})["request_headers"] = (
-                    params.get("request", {}).get("headers", {})
-                )
+                record = connection(params.get("requestId", ""))
+                record["target"] = target
+                record["request_headers"] = params.get("request", {}).get("headers", {})
+                protocol = record["request_headers"].get("Sec-WebSocket-Protocol", "")
+                record["subprotocol_entries"] = [
+                    entry.strip() for entry in protocol.split(",") if entry.strip()
+                ]
             elif method == "Network.webSocketCreated":
-                handshake_by_target.setdefault(target, {})["url"] = params.get("url")
+                record = connection(params.get("requestId", ""))
+                record["target"] = target
+                record["url"] = params.get("url")
             elif method == "Network.webSocketHandshakeResponseReceived":
-                entry = handshake_by_target.setdefault(target, {})
-                entry["response_status"] = params.get("response", {}).get("status")
-                entry["response_headers"] = params.get("response", {}).get("headers", {})
+                record = connection(params.get("requestId", ""))
+                record["response_status"] = params.get("response", {}).get("status")
+                record["response_headers"] = params.get("response", {}).get("headers", {})
+            elif method == "Network.webSocketClosed":
+                connection(params.get("requestId", ""))["closed"] = True
             elif method in ("Network.webSocketFrameSent", "Network.webSocketFrameReceived"):
                 frame = params.get("response", {})
                 payload = _decode_payload(frame.get("opcode"), frame.get("payloadData", ""))
                 direction = "client->server" if method.endswith("Sent") else "server->client"
                 decoder = summarise_back if direction == "client->server" else summarise_forward
+                record = connection(params.get("requestId", ""))
+                if direction == "client->server":
+                    record["frames_sent"] += 1
+                else:
+                    record["frames_received"] += 1
                 frames.append(
                     {
                         "target": target,
+                        "connection": record["index"],
                         "direction": direction,
                         "bytes": len(payload),
                         "sha256": hashlib.sha256(payload).hexdigest(),
@@ -937,19 +1194,12 @@ class Capture:
                         entry["status"] = params.get("response", {}).get("status")
                         entry["mime_type"] = params.get("response", {}).get("mimeType")
 
-        handshakes = []
-        for target, entry in handshake_by_target.items():
-            request_headers = entry.get("request_headers", {})
-            protocol = request_headers.get("Sec-WebSocket-Protocol", "")
-            handshakes.append(
-                {
-                    "target": target,
-                    "url": entry.get("url"),
-                    "response_status": entry.get("response_status"),
-                    "request_headers": request_headers,
-                    "response_headers": entry.get("response_headers", {}),
-                    "subprotocol_entries": [p.strip() for p in protocol.split(",") if p.strip()],
-                }
+        handshakes = [connections[request_id] for request_id in connection_order]
+
+        self.failures.extend(verify_click_windows(frames, self.click_windows))
+        for window in self.click_windows:
+            self.notes.append(
+                f"click window {window.get('click')}: frames {window['start']}..{window['end']}"
             )
 
         button_trace = []
@@ -1006,6 +1256,7 @@ class Capture:
                 "agent_browser": _ab_version(self.ab.exe),
             },
             "websocket_handshakes": handshakes,
+            "websocket_handshake": handshakes[0] if handshakes else None,
             "http_requests": http_requests,
             "static_bundle_requests_counted_not_stored": static_bundle_requests,
             "button_trace": button_trace,
@@ -1014,6 +1265,176 @@ class Capture:
             "notes": self.notes,
             "frames": frames,
         }
+
+
+def _evaluate_value(response: dict):
+    """Pull the value out of a CDP Runtime.evaluate response.
+
+    The payload is nested: {"result": {"result": {"type": ..., "value": ...}}}.
+    """
+    if not isinstance(response, dict):
+        return None
+    outer = response.get("result")
+    if not isinstance(outer, dict):
+        return None
+    inner = outer.get("result")
+    if isinstance(inner, dict):
+        return inner.get("value")
+    return outer.get("value")
+
+
+#: ForwardMsg.ScriptFinishedStatus.FINISHED_SUCCESSFULLY.  The other values
+#: are NOT a successful completion of the script run a click triggered:
+#: 1 = FINISHED_WITH_COMPILE_ERROR, 2 = FINISHED_EARLY_FOR_RERUN and
+#: 3 = FINISHED_FRAGMENT_RUN_SUCCESSFULLY (a partial run, not this run).
+SCRIPT_FINISHED_SUCCESS = 0
+
+
+def _is_successful_completion(frame: dict) -> bool:
+    """True only for a script_finished that reports a real, successful run."""
+    decoded = frame.get("decoded") or {}
+    if decoded.get("type") != "script_finished":
+        return False
+    finished = decoded.get("script_finished") or {}
+    return finished.get("status") == SCRIPT_FINISHED_SUCCESS
+
+
+def verify_click_windows(frames, clicks):
+    """Check that every click really reached the server and was answered.
+
+    ``frames`` is the finished trace's frame list; ``clicks`` is a list of
+    ``{"click": label, "start": i, "end": j}`` windows into it.  For each click
+    the window must contain
+
+    * a client->server frame whose widget state carries ``trigger_value`` with
+      the value ``True`` -- a ``False`` trigger proves nothing;
+    * AFTER that trigger, on the SAME connection, a ``script_finished`` whose
+      status is ``FINISHED_SUCCESSFULLY``.  A ``session_status_changed`` with
+      ``running=true`` is not a completion, a ``script_finished`` that arrives
+      before the trigger is not a completion, and a ``script_finished`` that
+      reports a compile error, an early rerun or a fragment run is not a
+      success;
+    * and, when the window asks for it, on a connection other than the one
+      that was alive before -- that is what a reconnect claim rests on.
+
+    Returns the list of failures; an empty list means every click passed.
+    """
+    failures: list[dict] = []
+    for window in clicks:
+        label = window.get("click")
+        segment = frames[window["start"] : window["end"]]
+
+        trigger_position = None
+        trigger_connection = None
+        false_triggers = []
+        for offset, frame in enumerate(segment):
+            if frame.get("direction") != "client->server":
+                continue
+            decoded = frame.get("decoded") or {}
+            if decoded.get("type") != "rerun_script":
+                continue
+            for widget in decoded.get("rerun_script", {}).get("widget_states", []):
+                if widget.get("value_field") != "trigger_value":
+                    continue
+                item = {"widget_id": widget.get("id"), "connection": frame.get("connection")}
+                if widget.get("value") is True:
+                    trigger_position = offset
+                    trigger_connection = frame.get("connection")
+                else:
+                    false_triggers.append(item)
+
+        if trigger_position is None:
+            failures.append(
+                {
+                    "step": f"click-{label}",
+                    "check": "true_trigger",
+                    "expected": "a trigger_value=true for the button inside the click window",
+                    "actual": (
+                        f"no true trigger; false triggers: {false_triggers or 'none'}; "
+                        f"frames in window: {len(segment)}"
+                    ),
+                }
+            )
+
+        if trigger_position is None:
+            # Without a trigger there is nothing the server could have
+            # completed, so both requirements are unmet.
+            failures.append(
+                {
+                    "step": f"click-{label}",
+                    "check": "server_response",
+                    "expected": (
+                        "a script_finished with status "
+                        f"{SCRIPT_FINISHED_SUCCESS} (FINISHED_SUCCESSFULLY) after the "
+                        "trigger, on the same connection"
+                    ),
+                    "actual": (
+                        "the click produced no true trigger, so no successful completion "
+                        f"could follow; frames in window: {len(segment)}"
+                    ),
+                }
+            )
+
+        # Only frames AFTER the trigger can complete it.
+        successful_after = []
+        unsuccessful = []
+        for offset in range((trigger_position or -1) + 1, len(segment)):
+            frame = segment[offset]
+            if frame.get("direction") != "server->client":
+                continue
+            if _is_successful_completion(frame):
+                successful_after.append(frame)
+            elif (frame.get("decoded") or {}).get("type") == "script_finished":
+                unsuccessful.append((frame.get("decoded") or {}).get("script_finished") or {})
+
+        same_connection = [
+            frame for frame in successful_after if frame.get("connection") == trigger_connection
+        ]
+        if trigger_position is not None and not same_connection:
+            if successful_after:
+                failures.append(
+                    {
+                        "step": f"click-{label}",
+                        "check": "same_connection",
+                        "expected": (
+                            f"the successful completion on connection {trigger_connection}"
+                        ),
+                        "actual": (
+                            "the successful completion came on connection "
+                            f"{sorted({str(f.get('connection')) for f in successful_after})}"
+                        ),
+                    }
+                )
+            else:
+                failures.append(
+                    {
+                        "step": f"click-{label}",
+                        "check": "server_response",
+                        "expected": (
+                            "a script_finished with status "
+                            f"{SCRIPT_FINISHED_SUCCESS} (FINISHED_SUCCESSFULLY) after the "
+                            "trigger, on the same connection"
+                        ),
+                        "actual": (
+                            "no successful completion after the trigger; "
+                            f"non-successful script_finished frames: {unsuccessful or 'none'}; "
+                            f"frames in window: {len(segment)}"
+                        ),
+                    }
+                )
+
+        if window.get("require_new_connection"):
+            before = window.get("connection_before")
+            if before is not None and trigger_connection == before:
+                failures.append(
+                    {
+                        "step": f"click-{label}",
+                        "check": "new_connection",
+                        "expected": f"a connection other than {before}",
+                        "actual": f"the click travelled on connection {trigger_connection}",
+                    }
+                )
+    return failures
 
 
 def _find_retry_ref(ab: AB) -> str | None:
@@ -1065,6 +1486,9 @@ def main() -> int:
     parser.add_argument("--url", required=True, help="URL of the running reference app")
     parser.add_argument("--out", required=True, help="output directory for the trace")
     parser.add_argument("--scenario", default="closed-loop", choices=SCENARIOS)
+    parser.add_argument(
+        "--clicks", type=int, default=3, help="how many times the smoke scenario clicks the button"
+    )
     parser.add_argument(
         "--fixtures",
         default=str(REPO_ROOT / "tests" / "fixtures" / "csv"),

@@ -79,6 +79,7 @@ impl Element for ButtonElement {
         msg.r#type = Some(forward_msg::Type::Delta(Delta {
             fragment_id: String::new(),
             r#type: Some(delta::Type::NewElement(crate::proto::Element {
+                has_one_shot_effect: None,
                 height_config,
                 width_config,
                 text_alignment_config,
@@ -91,11 +92,10 @@ impl Element for ButtonElement {
                     is_form_submitter: self.is_form_submitter,
                     r#type: self.r#type.clone(),
                     disabled: self.disabled,
-                    #[allow(deprecated)]
-                    use_container_width: false,
                     icon: self.icon.clone().unwrap_or_default(),
                     shortcut: self.shortcut.clone().unwrap_or_default(),
                     icon_position: self.icon_position,
+                    wrap: None,
                 })),
             })),
         }));

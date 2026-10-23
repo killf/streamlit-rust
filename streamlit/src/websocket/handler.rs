@@ -39,6 +39,8 @@ async fn do_rerun_script(session: &mut Session, session_id: &str, server: &Strea
         let mut app = st.app.lock();
         if let Some(context) = app.render_context_mut() {
             context.push(crate::elements::app::create_script_finished());
+            context.push(crate::elements::app::create_session_status_changed(false, false));
+            context.sender.take();
         }
         drop(tx); // 关闭 sender
     };
@@ -69,6 +71,13 @@ async fn handle_back_message(session: &mut Session, session_id: &str, back_msg: 
                 log::info!("Handling rerun script request");
                 let widget_states = client_state.widget_states.map(|ws| ws.widgets).unwrap_or_default();
                 do_rerun_script(session, session_id, server, widget_states).await?;
+            }
+            Type::AppHeartbeat(_) => {
+                let reply = ForwardMsg {
+                    r#type: Some(forward_msg::Type::HeartbeatAck(true)),
+                    ..Default::default()
+                };
+                session.binary(reply.encode_to_vec()).await?;
             }
             _ => {
                 log::error!("Unknown back_msg type: {:?}", tp);

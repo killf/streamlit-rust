@@ -20,7 +20,6 @@ pub(crate) struct MarkdownElement {
     body: String,
     unsafe_allow_html: bool,
     element_type: MarkdownElementType,
-    is_caption: bool,
     help: Option<String>,
     width: Option<ElementWidth>,
     text_alignment: Option<TextAlignment>,
@@ -32,7 +31,6 @@ impl MarkdownElement {
             body,
             unsafe_allow_html: false,
             element_type: MarkdownElementType::Unspecified,
-            is_caption: false,
             help: None,
             width: None,
             text_alignment: None,
@@ -60,9 +58,6 @@ impl MarkdownElement {
     }
 
     pub fn element_type(mut self, value: MarkdownElementType) -> Self {
-        if value == MarkdownElementType::Caption {
-            self.is_caption = true;
-        }
         self.element_type = value;
         self
     }
@@ -79,13 +74,16 @@ impl Element for MarkdownElement {
         msg.r#type = Some(forward_msg::Type::Delta(Delta {
             fragment_id: String::new(),
             r#type: Some(delta::Type::NewElement(crate::proto::Element {
+                has_one_shot_effect: None,
                 height_config: None,
                 width_config,
                 text_alignment_config,
                 r#type: Some(element::Type::Markdown(crate::proto::Markdown {
                     body: self.body.clone(),
+                    unterminated_parsing: false,
+                    hide_anchors: false,
+                    wrap: None,
                     allow_html: self.unsafe_allow_html,
-                    is_caption: self.is_caption,
                     element_type: self.element_type as i32,
                     help: self.help.clone().unwrap_or_default(),
                 })),

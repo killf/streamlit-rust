@@ -1,0 +1,994 @@
+{
+  "schema_version": 2,
+  "contract_id": "C-P0-04",
+  "kind": "python-reference-browser-trace",
+  "scenario": "smoke",
+  "scope": "PYTHON SIDE ONLY. The Rust implementation is not exercised and is not verified by this trace. This is black-box evidence over the real HTTP, WebSocket and protobuf surface of the reference application.",
+  "generated_by": "tests/reference/capture_browser_trace.py",
+  "generated_at_utc": "2026-10-23T15:53:50+00:00",
+  "app_url": "http://127.0.0.1:8501/",
+  "page_title": "Streamlit",
+  "capture": {
+    "browser": "Chrome/147.0.7727.56",
+    "agent_browser": "agent-browser 0.25.4",
+    "method": "agent-browser drives the UI; HTTP requests and WebSocket frames are read from the Chrome DevTools Protocol endpoint of the same browser instance",
+    "frame_decode": "official streamlit 1.66.1 protobuf (streamlit.proto.*)",
+    "end_condition": "the last script_finished frame plus the final DOM observation; the long-lived Streamlit WebSocket is never waited on for EOF",
+    "commands": [
+      {
+        "command": "open http://127.0.0.1:8501/",
+        "exit_code": 0
+      },
+      {
+        "command": "wait 3000",
+        "exit_code": 0
+      },
+      {
+        "command": "get cdp-url",
+        "exit_code": 0
+      },
+      {
+        "command": "reload",
+        "exit_code": 0
+      },
+      {
+        "command": "wait 5000",
+        "exit_code": 0
+      },
+      {
+        "command": "eval (()=>{const q=s=>document.querySelector(s);\nconst df=q(\"[data-testid='stDataFrame']\");\nconst cells=[...document.querySelectorAll(\"[data-testid='stDataFrame'] [role='gridcell']\")].map(e=>e.textContent);\nconst chart=q(\"[data-testid='stVegaLiteChart']\");\nconst bars=chart?chart.querySelectorAll(\"g[class*='mark-rect'] path\").length:0;\nconst labels=chart?[...chart.querySelectorAll(\"g[class*='mark-text'] text\")].map(e=>e.textContent):[];\nconst thumb=q(\"[data-testid='stSliderThumbValue']\");\nconst cb=q(\"[data-testid='stCheckbox'] input\");\nconst sb=q(\"[data-testid='stSelectbox'] input\");\nconst alerts=[...document.querySelectorAll(\"[data-testid^='stAlertContent']\")].map(e=>e.textContent);\nconst texts=[...document.querySelectorAll(\"[data-testid='stText']\")].map(e=>e.textContent);\nconst pick=(p)=>{const t=texts.find(x=>x.startsWith(p));return t?t.slice(p.length).trim():null;};\nconst buttons=[...document.querySelectorAll(\"[data-testid='stButton']\")].map(e=>e.innerText.trim());\nreturn JSON.stringify({\n document_title: document.title,\n headings: [...document.querySelectorAll(\"h1,h2,h3\")].map(e=>e.innerText.trim()).slice(0,4),\n button_labels: buttons,\n has_button: buttons.length>0,\n script_runs: pick(\"Script runs:\"),\n pulses: pick(\"Pulses:\"),\n applied_note: pick(\"Applied note:\"),\n table_cells:cells, table_present:!!df,\n chart_present:!!chart, chart_bars:bars, chart_labels:labels,\n slider_value: thumb?thumb.textContent:null,\n checkbox_checked: cb?cb.checked:null,\n selectbox_value: sb?sb.value:null,\n texts:texts,\n alerts:alerts});})()",
+        "exit_code": 0
+      },
+      {
+        "command": "screenshot target\\rust-smoke3\\19-smoke-open.png",
+        "exit_code": 0
+      },
+      {
+        "command": "scrollintoview [data-testid='stButton']",
+        "exit_code": 0
+      },
+      {
+        "command": "click [data-testid='stButton']",
+        "exit_code": 0
+      },
+      {
+        "command": "wait 2500",
+        "exit_code": 0
+      },
+      {
+        "command": "eval (()=>{const q=s=>document.querySelector(s);\nconst df=q(\"[data-testid='stDataFrame']\");\nconst cells=[...document.querySelectorAll(\"[data-testid='stDataFrame'] [role='gridcell']\")].map(e=>e.textContent);\nconst chart=q(\"[data-testid='stVegaLiteChart']\");\nconst bars=chart?chart.querySelectorAll(\"g[class*='mark-rect'] path\").length:0;\nconst labels=chart?[...chart.querySelectorAll(\"g[class*='mark-text'] text\")].map(e=>e.textContent):[];\nconst thumb=q(\"[data-testid='stSliderThumbValue']\");\nconst cb=q(\"[data-testid='stCheckbox'] input\");\nconst sb=q(\"[data-testid='stSelectbox'] input\");\nconst alerts=[...document.querySelectorAll(\"[data-testid^='stAlertContent']\")].map(e=>e.textContent);\nconst texts=[...document.querySelectorAll(\"[data-testid='stText']\")].map(e=>e.textContent);\nconst pick=(p)=>{const t=texts.find(x=>x.startsWith(p));return t?t.slice(p.length).trim():null;};\nconst buttons=[...document.querySelectorAll(\"[data-testid='stButton']\")].map(e=>e.innerText.trim());\nreturn JSON.stringify({\n document_title: document.title,\n headings: [...document.querySelectorAll(\"h1,h2,h3\")].map(e=>e.innerText.trim()).slice(0,4),\n button_labels: buttons,\n has_button: buttons.length>0,\n script_runs: pick(\"Script runs:\"),\n pulses: pick(\"Pulses:\"),\n applied_note: pick(\"Applied note:\"),\n table_cells:cells, table_present:!!df,\n chart_present:!!chart, chart_bars:bars, chart_labels:labels,\n slider_value: thumb?thumb.textContent:null,\n checkbox_checked: cb?cb.checked:null,\n selectbox_value: sb?sb.value:null,\n texts:texts,\n alerts:alerts});})()",
+        "exit_code": 0
+      },
+      {
+        "command": "scrollintoview [data-testid='stButton']",
+        "exit_code": 0
+      },
+      {
+        "command": "click [data-testid='stButton']",
+        "exit_code": 0
+      },
+      {
+        "command": "wait 2500",
+        "exit_code": 0
+      },
+      {
+        "command": "eval (()=>{const q=s=>document.querySelector(s);\nconst df=q(\"[data-testid='stDataFrame']\");\nconst cells=[...document.querySelectorAll(\"[data-testid='stDataFrame'] [role='gridcell']\")].map(e=>e.textContent);\nconst chart=q(\"[data-testid='stVegaLiteChart']\");\nconst bars=chart?chart.querySelectorAll(\"g[class*='mark-rect'] path\").length:0;\nconst labels=chart?[...chart.querySelectorAll(\"g[class*='mark-text'] text\")].map(e=>e.textContent):[];\nconst thumb=q(\"[data-testid='stSliderThumbValue']\");\nconst cb=q(\"[data-testid='stCheckbox'] input\");\nconst sb=q(\"[data-testid='stSelectbox'] input\");\nconst alerts=[...document.querySelectorAll(\"[data-testid^='stAlertContent']\")].map(e=>e.textContent);\nconst texts=[...document.querySelectorAll(\"[data-testid='stText']\")].map(e=>e.textContent);\nconst pick=(p)=>{const t=texts.find(x=>x.startsWith(p));return t?t.slice(p.length).trim():null;};\nconst buttons=[...document.querySelectorAll(\"[data-testid='stButton']\")].map(e=>e.innerText.trim());\nreturn JSON.stringify({\n document_title: document.title,\n headings: [...document.querySelectorAll(\"h1,h2,h3\")].map(e=>e.innerText.trim()).slice(0,4),\n button_labels: buttons,\n has_button: buttons.length>0,\n script_runs: pick(\"Script runs:\"),\n pulses: pick(\"Pulses:\"),\n applied_note: pick(\"Applied note:\"),\n table_cells:cells, table_present:!!df,\n chart_present:!!chart, chart_bars:bars, chart_labels:labels,\n slider_value: thumb?thumb.textContent:null,\n checkbox_checked: cb?cb.checked:null,\n selectbox_value: sb?sb.value:null,\n texts:texts,\n alerts:alerts});})()",
+        "exit_code": 0
+      },
+      {
+        "command": "scrollintoview [data-testid='stButton']",
+        "exit_code": 0
+      },
+      {
+        "command": "click [data-testid='stButton']",
+        "exit_code": 0
+      },
+      {
+        "command": "wait 2500",
+        "exit_code": 0
+      },
+      {
+        "command": "eval (()=>{const q=s=>document.querySelector(s);\nconst df=q(\"[data-testid='stDataFrame']\");\nconst cells=[...document.querySelectorAll(\"[data-testid='stDataFrame'] [role='gridcell']\")].map(e=>e.textContent);\nconst chart=q(\"[data-testid='stVegaLiteChart']\");\nconst bars=chart?chart.querySelectorAll(\"g[class*='mark-rect'] path\").length:0;\nconst labels=chart?[...chart.querySelectorAll(\"g[class*='mark-text'] text\")].map(e=>e.textContent):[];\nconst thumb=q(\"[data-testid='stSliderThumbValue']\");\nconst cb=q(\"[data-testid='stCheckbox'] input\");\nconst sb=q(\"[data-testid='stSelectbox'] input\");\nconst alerts=[...document.querySelectorAll(\"[data-testid^='stAlertContent']\")].map(e=>e.textContent);\nconst texts=[...document.querySelectorAll(\"[data-testid='stText']\")].map(e=>e.textContent);\nconst pick=(p)=>{const t=texts.find(x=>x.startsWith(p));return t?t.slice(p.length).trim():null;};\nconst buttons=[...document.querySelectorAll(\"[data-testid='stButton']\")].map(e=>e.innerText.trim());\nreturn JSON.stringify({\n document_title: document.title,\n headings: [...document.querySelectorAll(\"h1,h2,h3\")].map(e=>e.innerText.trim()).slice(0,4),\n button_labels: buttons,\n has_button: buttons.length>0,\n script_runs: pick(\"Script runs:\"),\n pulses: pick(\"Pulses:\"),\n applied_note: pick(\"Applied note:\"),\n table_cells:cells, table_present:!!df,\n chart_present:!!chart, chart_bars:bars, chart_labels:labels,\n slider_value: thumb?thumb.textContent:null,\n checkbox_checked: cb?cb.checked:null,\n selectbox_value: sb?sb.value:null,\n texts:texts,\n alerts:alerts});})()",
+        "exit_code": 0
+      },
+      {
+        "command": "eval (()=>{const q=s=>document.querySelector(s);\nconst df=q(\"[data-testid='stDataFrame']\");\nconst cells=[...document.querySelectorAll(\"[data-testid='stDataFrame'] [role='gridcell']\")].map(e=>e.textContent);\nconst chart=q(\"[data-testid='stVegaLiteChart']\");\nconst bars=chart?chart.querySelectorAll(\"g[class*='mark-rect'] path\").length:0;\nconst labels=chart?[...chart.querySelectorAll(\"g[class*='mark-text'] text\")].map(e=>e.textContent):[];\nconst thumb=q(\"[data-testid='stSliderThumbValue']\");\nconst cb=q(\"[data-testid='stCheckbox'] input\");\nconst sb=q(\"[data-testid='stSelectbox'] input\");\nconst alerts=[...document.querySelectorAll(\"[data-testid^='stAlertContent']\")].map(e=>e.textContent);\nconst texts=[...document.querySelectorAll(\"[data-testid='stText']\")].map(e=>e.textContent);\nconst pick=(p)=>{const t=texts.find(x=>x.startsWith(p));return t?t.slice(p.length).trim():null;};\nconst buttons=[...document.querySelectorAll(\"[data-testid='stButton']\")].map(e=>e.innerText.trim());\nreturn JSON.stringify({\n document_title: document.title,\n headings: [...document.querySelectorAll(\"h1,h2,h3\")].map(e=>e.innerText.trim()).slice(0,4),\n button_labels: buttons,\n has_button: buttons.length>0,\n script_runs: pick(\"Script runs:\"),\n pulses: pick(\"Pulses:\"),\n applied_note: pick(\"Applied note:\"),\n table_cells:cells, table_present:!!df,\n chart_present:!!chart, chart_bars:bars, chart_labels:labels,\n slider_value: thumb?thumb.textContent:null,\n checkbox_checked: cb?cb.checked:null,\n selectbox_value: sb?sb.value:null,\n texts:texts,\n alerts:alerts});})()",
+        "exit_code": 0
+      },
+      {
+        "command": "screenshot target\\rust-smoke3\\20-smoke-after-clicks.png",
+        "exit_code": 0
+      }
+    ],
+    "capture_exit_code": 0
+  },
+  "versions": {
+    "streamlit": "1.66.1",
+    "python": "3.12.6",
+    "chrome": "Chrome/147.0.7727.56",
+    "agent_browser": "agent-browser 0.25.4"
+  },
+  "websocket_handshakes": [
+    {
+      "index": 0,
+      "request_id": "90632.303",
+      "target": "tab-a",
+      "url": "ws://127.0.0.1:8501/_stcore/stream",
+      "request_headers": {
+        "Upgrade": "websocket",
+        "Origin": "http://127.0.0.1:8501",
+        "Cache-Control": "no-cache",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Pragma": "no-cache",
+        "Connection": "Upgrade",
+        "Sec-WebSocket-Key": "ORBVftjiWQUJ+o9igDVQSQ==",
+        "Accept-Encoding": "gzip, deflate, br, zstd",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/147.0.0.0 Safari/537.36",
+        "Sec-WebSocket-Version": "13",
+        "Sec-WebSocket-Protocol": "streamlit, PLACEHOLDER_AUTH_TOKEN",
+        "Host": "127.0.0.1:8501",
+        "Sec-WebSocket-Extensions": "permessage-deflate; client_max_window_bits"
+      },
+      "response_status": 101,
+      "response_headers": {
+        "upgrade": "websocket",
+        "date": "Fri, 23 Oct 2026 15:53:30 GMT",
+        "sec-websocket-protocol": "streamlit",
+        "sec-websocket-accept": "5Ek7lwPB87hpoy+4A4b7KCwb4uI=",
+        "connection": "upgrade"
+      },
+      "subprotocol_entries": [
+        "streamlit",
+        "PLACEHOLDER_AUTH_TOKEN"
+      ],
+      "closed": false,
+      "frames_sent": 4,
+      "frames_received": 32
+    }
+  ],
+  "http_requests": [
+    {
+      "target": "tab-a",
+      "method": "GET",
+      "url": "http://127.0.0.1:8501/",
+      "resource_type": "Document",
+      "request_headers": {},
+      "status": 200,
+      "mime_type": "text/html"
+    },
+    {
+      "target": "tab-a",
+      "method": "GET",
+      "url": "http://127.0.0.1:8501/_stcore/health",
+      "resource_type": "Fetch",
+      "request_headers": {},
+      "status": 200,
+      "mime_type": "text/plain"
+    },
+    {
+      "target": "tab-a",
+      "method": "GET",
+      "url": "http://127.0.0.1:8501/_stcore/host-config",
+      "resource_type": "Fetch",
+      "request_headers": {},
+      "status": 200,
+      "mime_type": "application/json"
+    },
+    {
+      "target": "tab-a",
+      "method": "GET",
+      "url": "http://127.0.0.1:8501/favicon.png",
+      "resource_type": "Other",
+      "request_headers": {},
+      "status": 200,
+      "mime_type": "image/png"
+    }
+  ],
+  "static_bundle_requests_counted_not_stored": 61,
+  "button_trace": [
+    {
+      "frame_index": 9,
+      "target": "tab-a",
+      "direction": "client->server",
+      "widget_id": "$$ID-ec8374db32bacb4cd9760199ec42819e",
+      "value_field": "trigger_value",
+      "value": true
+    },
+    {
+      "frame_index": 18,
+      "target": "tab-a",
+      "direction": "client->server",
+      "widget_id": "$$ID-ec8374db32bacb4cd9760199ec42819e",
+      "value_field": "trigger_value",
+      "value": true
+    },
+    {
+      "frame_index": 27,
+      "target": "tab-a",
+      "direction": "client->server",
+      "widget_id": "$$ID-ec8374db32bacb4cd9760199ec42819e",
+      "value_field": "trigger_value",
+      "value": true
+    }
+  ],
+  "steps": [
+    {
+      "step": "smoke-open",
+      "note": "the page rendered",
+      "at": "2026-10-23T15:53:36+00:00",
+      "observed": {
+        "document_title": "Streamlit",
+        "headings": [
+          "Streamlit Rust button"
+        ],
+        "button_labels": [
+          "Pulse"
+        ],
+        "has_button": true,
+        "script_runs": null,
+        "pulses": null,
+        "applied_note": null,
+        "table_cells": [],
+        "table_present": false,
+        "chart_present": false,
+        "chart_bars": 0,
+        "chart_labels": [],
+        "slider_value": null,
+        "checkbox_checked": null,
+        "selectbox_value": null,
+        "texts": [],
+        "alerts": []
+      },
+      "checked": {
+        "has_button": {
+          "expected": true,
+          "actual": true,
+          "ok": true
+        }
+      },
+      "status": "ok"
+    },
+    {
+      "step": "smoke-click-1",
+      "note": "clicked the button (1/3)",
+      "at": "2026-10-23T15:53:40+00:00",
+      "observed": {
+        "document_title": "Streamlit",
+        "headings": [
+          "Streamlit Rust button"
+        ],
+        "button_labels": [
+          "Pulse"
+        ],
+        "has_button": true,
+        "script_runs": null,
+        "pulses": null,
+        "applied_note": null,
+        "table_cells": [],
+        "table_present": false,
+        "chart_present": false,
+        "chart_bars": 0,
+        "chart_labels": [],
+        "slider_value": null,
+        "checkbox_checked": null,
+        "selectbox_value": null,
+        "texts": [],
+        "alerts": []
+      },
+      "checked": {},
+      "status": "ok"
+    },
+    {
+      "step": "smoke-click-2",
+      "note": "clicked the button (2/3)",
+      "at": "2026-10-23T15:53:44+00:00",
+      "observed": {
+        "document_title": "Streamlit",
+        "headings": [
+          "Streamlit Rust button"
+        ],
+        "button_labels": [
+          "Pulse"
+        ],
+        "has_button": true,
+        "script_runs": null,
+        "pulses": null,
+        "applied_note": null,
+        "table_cells": [],
+        "table_present": false,
+        "chart_present": false,
+        "chart_bars": 0,
+        "chart_labels": [],
+        "slider_value": null,
+        "checkbox_checked": null,
+        "selectbox_value": null,
+        "texts": [],
+        "alerts": []
+      },
+      "checked": {},
+      "status": "ok"
+    },
+    {
+      "step": "smoke-click-3",
+      "note": "clicked the button (3/3)",
+      "at": "2026-10-23T15:53:47+00:00",
+      "observed": {
+        "document_title": "Streamlit",
+        "headings": [
+          "Streamlit Rust button"
+        ],
+        "button_labels": [
+          "Pulse"
+        ],
+        "has_button": true,
+        "script_runs": null,
+        "pulses": null,
+        "applied_note": null,
+        "table_cells": [],
+        "table_present": false,
+        "chart_present": false,
+        "chart_bars": 0,
+        "chart_labels": [],
+        "slider_value": null,
+        "checkbox_checked": null,
+        "selectbox_value": null,
+        "texts": [],
+        "alerts": []
+      },
+      "checked": {},
+      "status": "ok"
+    },
+    {
+      "step": "smoke-still-operable",
+      "note": "after every click the page must still be operable",
+      "at": "2026-10-23T15:53:47+00:00",
+      "observed": {
+        "document_title": "Streamlit",
+        "headings": [
+          "Streamlit Rust button"
+        ],
+        "button_labels": [
+          "Pulse"
+        ],
+        "has_button": true,
+        "script_runs": null,
+        "pulses": null,
+        "applied_note": null,
+        "table_cells": [],
+        "table_present": false,
+        "chart_present": false,
+        "chart_bars": 0,
+        "chart_labels": [],
+        "slider_value": null,
+        "checkbox_checked": null,
+        "selectbox_value": null,
+        "texts": [],
+        "alerts": []
+      },
+      "checked": {
+        "has_button": {
+          "expected": true,
+          "actual": true,
+          "ok": true
+        }
+      },
+      "status": "ok"
+    }
+  ],
+  "failures": [],
+  "notes": [
+    "client->server frames observed during the smoke clicks: 4",
+    "button traces: 3",
+    "click window 1: frames 9..18",
+    "click window 2: frames 18..27",
+    "click window 3: frames 27..36"
+  ],
+  "frames": [
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "client->server",
+      "bytes": 71,
+      "sha256": "966ef6e62092c0d98d1dd775cb90fe29bd906d09a86b4331fae64bf9be031050",
+      "decoded": {
+        "message": "BackMsg",
+        "type": "rerun_script",
+        "rerun_script": {
+          "widget_states": []
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 219,
+      "sha256": "9266fe6e89a2cbb7ff4d7febaa755a49b36597e8c1ae8f222a84bff4e830b822",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "new_session",
+        "new_session": {
+          "script_run_id": "15f3abe8-dd05-4b07-8ab4-1fc4044b2ad4",
+          "name": "Streamlit Rust",
+          "main_script_path": "",
+          "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "session_id": "d9386a81-45ee-43fe-8dc0-7c73c2a8e6b2"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 28,
+      "sha256": "e2f2168365a75ba2f11aaf2c68898f866f998aa74b6e21735ad9a4d05f115786",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true,
+          "run_on_save": false
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 39,
+      "sha256": "3e2131cb4f7849335c8f6316a301f911ec5fe1eb3c169a0a561455bfc3f8d2b4",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "add_block",
+          "block_id": "main_container",
+          "block_type": "vertical"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 118,
+      "sha256": "f89e810e898eff15ffeb0def8e291dcfd347f1d6c14032f26fa88331baf18c6d",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "heading",
+          "body": "Streamlit Rust button"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 143,
+      "sha256": "0063865346221ebfeca0cb3af623e3ebd778884905ae97d680317528fd8bed0e",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "button",
+          "id": "$$ID-ec8374db32bacb4cd9760199ec42819e",
+          "label": "Pulse",
+          "accepted_types": [
+            "secondary"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 88,
+      "sha256": "ebc532f50f155c71c9ec971f7d67cba280a5239bf486c2ac0cd7a44b64f473af",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "markdown",
+          "body": "Ready"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 19,
+      "sha256": "9a09f6b7e80d191046501f3af869470d9f516688b5e4d974ac890b19483dfb07",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "script_finished",
+        "script_finished": {
+          "status": 0,
+          "status_name": "FINISHED_SUCCESSFULLY"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 26,
+      "sha256": "0d60bb56488ee1a02ec6903e5f7ea99a21528ddc785d44d2f7b3701a08fde65c",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": false,
+          "run_on_save": false
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "client->server",
+      "bytes": 149,
+      "sha256": "943c6b1532f9c126fd7abe09491370e8cee9571c8c754a7c0f483741773aa9ea",
+      "decoded": {
+        "message": "BackMsg",
+        "type": "rerun_script",
+        "rerun_script": {
+          "widget_states": [
+            {
+              "id": "$$ID-ec8374db32bacb4cd9760199ec42819e",
+              "value_field": "trigger_value",
+              "value": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 219,
+      "sha256": "f0ab2053c5dac86bb28c3cef57e3cb9fa2bf06162fa955f2200ba0276ba25004",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "new_session",
+        "new_session": {
+          "script_run_id": "47e1b93a-b2f5-42bb-88c8-568e054f1dbd",
+          "name": "Streamlit Rust",
+          "main_script_path": "",
+          "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "session_id": "d9386a81-45ee-43fe-8dc0-7c73c2a8e6b2"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 28,
+      "sha256": "e2f2168365a75ba2f11aaf2c68898f866f998aa74b6e21735ad9a4d05f115786",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true,
+          "run_on_save": false
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 39,
+      "sha256": "3e2131cb4f7849335c8f6316a301f911ec5fe1eb3c169a0a561455bfc3f8d2b4",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "add_block",
+          "block_id": "main_container",
+          "block_type": "vertical"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 118,
+      "sha256": "f89e810e898eff15ffeb0def8e291dcfd347f1d6c14032f26fa88331baf18c6d",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "heading",
+          "body": "Streamlit Rust button"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 143,
+      "sha256": "0063865346221ebfeca0cb3af623e3ebd778884905ae97d680317528fd8bed0e",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "button",
+          "id": "$$ID-ec8374db32bacb4cd9760199ec42819e",
+          "label": "Pulse",
+          "accepted_types": [
+            "secondary"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 97,
+      "sha256": "fa38b9c478639c65523c8a77a0bcd07e49c15d393a2770d56c9205dea1314b59",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "markdown",
+          "body": "Pulse received"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 19,
+      "sha256": "9a09f6b7e80d191046501f3af869470d9f516688b5e4d974ac890b19483dfb07",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "script_finished",
+        "script_finished": {
+          "status": 0,
+          "status_name": "FINISHED_SUCCESSFULLY"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 26,
+      "sha256": "0d60bb56488ee1a02ec6903e5f7ea99a21528ddc785d44d2f7b3701a08fde65c",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": false,
+          "run_on_save": false
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "client->server",
+      "bytes": 149,
+      "sha256": "943c6b1532f9c126fd7abe09491370e8cee9571c8c754a7c0f483741773aa9ea",
+      "decoded": {
+        "message": "BackMsg",
+        "type": "rerun_script",
+        "rerun_script": {
+          "widget_states": [
+            {
+              "id": "$$ID-ec8374db32bacb4cd9760199ec42819e",
+              "value_field": "trigger_value",
+              "value": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 219,
+      "sha256": "532f5d0a1c43f6d5c807a93bbfcc58df532e2a126ebf7859bf63d23073cf470f",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "new_session",
+        "new_session": {
+          "script_run_id": "23e8cc7c-f45f-4886-aa7b-8cfbca07ce26",
+          "name": "Streamlit Rust",
+          "main_script_path": "",
+          "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "session_id": "d9386a81-45ee-43fe-8dc0-7c73c2a8e6b2"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 28,
+      "sha256": "e2f2168365a75ba2f11aaf2c68898f866f998aa74b6e21735ad9a4d05f115786",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true,
+          "run_on_save": false
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 39,
+      "sha256": "3e2131cb4f7849335c8f6316a301f911ec5fe1eb3c169a0a561455bfc3f8d2b4",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "add_block",
+          "block_id": "main_container",
+          "block_type": "vertical"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 118,
+      "sha256": "f89e810e898eff15ffeb0def8e291dcfd347f1d6c14032f26fa88331baf18c6d",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "heading",
+          "body": "Streamlit Rust button"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 143,
+      "sha256": "0063865346221ebfeca0cb3af623e3ebd778884905ae97d680317528fd8bed0e",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "button",
+          "id": "$$ID-ec8374db32bacb4cd9760199ec42819e",
+          "label": "Pulse",
+          "accepted_types": [
+            "secondary"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 97,
+      "sha256": "fa38b9c478639c65523c8a77a0bcd07e49c15d393a2770d56c9205dea1314b59",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "markdown",
+          "body": "Pulse received"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 19,
+      "sha256": "9a09f6b7e80d191046501f3af869470d9f516688b5e4d974ac890b19483dfb07",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "script_finished",
+        "script_finished": {
+          "status": 0,
+          "status_name": "FINISHED_SUCCESSFULLY"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 26,
+      "sha256": "0d60bb56488ee1a02ec6903e5f7ea99a21528ddc785d44d2f7b3701a08fde65c",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": false,
+          "run_on_save": false
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "client->server",
+      "bytes": 149,
+      "sha256": "943c6b1532f9c126fd7abe09491370e8cee9571c8c754a7c0f483741773aa9ea",
+      "decoded": {
+        "message": "BackMsg",
+        "type": "rerun_script",
+        "rerun_script": {
+          "widget_states": [
+            {
+              "id": "$$ID-ec8374db32bacb4cd9760199ec42819e",
+              "value_field": "trigger_value",
+              "value": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 219,
+      "sha256": "bb93f1f3d93c71f57ba35fc478da38c0b3ed7254e8ce1330e32ecf507027aa2b",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "new_session",
+        "new_session": {
+          "script_run_id": "4480dd70-f341-45f9-a957-f8be6265e323",
+          "name": "Streamlit Rust",
+          "main_script_path": "",
+          "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "session_id": "d9386a81-45ee-43fe-8dc0-7c73c2a8e6b2"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 28,
+      "sha256": "e2f2168365a75ba2f11aaf2c68898f866f998aa74b6e21735ad9a4d05f115786",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true,
+          "run_on_save": false
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 39,
+      "sha256": "3e2131cb4f7849335c8f6316a301f911ec5fe1eb3c169a0a561455bfc3f8d2b4",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "add_block",
+          "block_id": "main_container",
+          "block_type": "vertical"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 118,
+      "sha256": "f89e810e898eff15ffeb0def8e291dcfd347f1d6c14032f26fa88331baf18c6d",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "heading",
+          "body": "Streamlit Rust button"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 143,
+      "sha256": "0063865346221ebfeca0cb3af623e3ebd778884905ae97d680317528fd8bed0e",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "button",
+          "id": "$$ID-ec8374db32bacb4cd9760199ec42819e",
+          "label": "Pulse",
+          "accepted_types": [
+            "secondary"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 97,
+      "sha256": "fa38b9c478639c65523c8a77a0bcd07e49c15d393a2770d56c9205dea1314b59",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "markdown",
+          "body": "Pulse received"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 19,
+      "sha256": "9a09f6b7e80d191046501f3af869470d9f516688b5e4d974ac890b19483dfb07",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "script_finished",
+        "script_finished": {
+          "status": 0,
+          "status_name": "FINISHED_SUCCESSFULLY"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 26,
+      "sha256": "0d60bb56488ee1a02ec6903e5f7ea99a21528ddc785d44d2f7b3701a08fde65c",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": false,
+          "run_on_save": false
+        }
+      }
+    }
+  ]
+}

@@ -60,6 +60,7 @@ impl Element for CodeElement {
         msg.r#type = Some(forward_msg::Type::Delta(Delta {
             fragment_id: String::new(),
             r#type: Some(delta::Type::NewElement(crate::proto::Element {
+                has_one_shot_effect: None,
                 height_config,
                 width_config,
                 text_alignment_config,
@@ -68,8 +69,6 @@ impl Element for CodeElement {
                     language: self.language.clone(),
                     show_line_numbers: self.show_line_numbers,
                     wrap_lines: self.wrap_lines,
-                    #[allow(deprecated)]
-                    height: 0,
                 })),
             })),
         }));

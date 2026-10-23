@@ -57,13 +57,16 @@ impl Element for BadgeElement {
         msg.r#type = Some(forward_msg::Type::Delta(Delta {
             fragment_id: String::new(),
             r#type: Some(delta::Type::NewElement(crate::proto::Element {
+                has_one_shot_effect: None,
                 height_config: None,
                 width_config,
                 text_alignment_config,
                 r#type: Some(element::Type::Markdown(crate::proto::Markdown {
                     body: format!(":{}-badge[{} {}]", self.color, self.icon, self.label),
+                    unterminated_parsing: false,
+                    hide_anchors: false,
+                    wrap: None,
                     allow_html: false,
-                    is_caption: false,
                     element_type: MarkdownElementType::Native as i32,
                     help: self.help.clone().unwrap_or_default(),
                 })),

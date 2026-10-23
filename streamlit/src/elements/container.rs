@@ -135,6 +135,7 @@ impl Element for ContainerElement {
         msg.r#type = Some(forward_msg::Type::Delta(Delta {
             fragment_id: String::new(),
             r#type: Some(delta::Type::AddBlock(Block {
+                autoscroll: None,
                 allow_empty: true,
                 id: None,
                 height_config,

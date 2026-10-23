@@ -52,6 +52,14 @@ def validate() -> list[str]:
         reference = journey.get("python_reference_trace")
         if reference and not (ROOT / reference).is_file():
             fail(errors, "R3", f"{jid}: missing Python reference trace {reference}")
+        for step in steps:
+            step_reference = step.get("python_reference_trace")
+            if step_reference and not (ROOT / step_reference).is_file():
+                fail(
+                    errors,
+                    "R3",
+                    f"{step.get('id')}: missing Python reference trace {step_reference}",
+                )
         attempt_dir = root / jid
         present = sorted(path.relative_to(ROOT).as_posix() for path in attempt_dir.rglob("*") if path.is_file()) if attempt_dir.is_dir() else []
         if status == "not_run":

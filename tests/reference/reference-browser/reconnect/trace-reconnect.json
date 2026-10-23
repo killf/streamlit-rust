@@ -1,0 +1,2705 @@
+{
+  "schema_version": 2,
+  "contract_id": "C-P0-04",
+  "kind": "python-reference-browser-trace",
+  "scenario": "reconnect",
+  "scope": "PYTHON SIDE ONLY. The Rust implementation is not exercised and is not verified by this trace. This is black-box evidence over the real HTTP, WebSocket and protobuf surface of the reference application.",
+  "generated_by": "tests/reference/capture_browser_trace.py",
+  "generated_at_utc": "2026-10-23T15:53:22+00:00",
+  "app_url": "http://localhost:8601",
+  "page_title": "streamlit-rust P0 reference",
+  "capture": {
+    "browser": "Chrome/147.0.7727.56",
+    "agent_browser": "agent-browser 0.25.4",
+    "method": "agent-browser drives the UI; HTTP requests and WebSocket frames are read from the Chrome DevTools Protocol endpoint of the same browser instance",
+    "frame_decode": "official streamlit 1.66.1 protobuf (streamlit.proto.*)",
+    "end_condition": "the last script_finished frame plus the final DOM observation; the long-lived Streamlit WebSocket is never waited on for EOF",
+    "commands": [
+      {
+        "command": "open http://localhost:8601",
+        "exit_code": 0
+      },
+      {
+        "command": "wait 3000",
+        "exit_code": 0
+      },
+      {
+        "command": "get cdp-url",
+        "exit_code": 0
+      },
+      {
+        "command": "reload",
+        "exit_code": 0
+      },
+      {
+        "command": "wait 5000",
+        "exit_code": 0
+      },
+      {
+        "command": "upload [data-testid='stFileUploaderDropzoneInput'] D:\\dlab\\streamlit-rust\\tests\\fixtures\\csv\\sales_basic.csv",
+        "exit_code": 0
+      },
+      {
+        "command": "wait 4000",
+        "exit_code": 0
+      },
+      {
+        "command": "scrollintoview [data-testid='stButton']",
+        "exit_code": 0
+      },
+      {
+        "command": "click [data-testid='stButton']",
+        "exit_code": 0
+      },
+      {
+        "command": "wait 1500",
+        "exit_code": 0
+      },
+      {
+        "command": "scrollintoview [data-testid='stButton']",
+        "exit_code": 0
+      },
+      {
+        "command": "click [data-testid='stButton']",
+        "exit_code": 0
+      },
+      {
+        "command": "wait 1500",
+        "exit_code": 0
+      },
+      {
+        "command": "eval (()=>{const q=s=>document.querySelector(s);\nconst df=q(\"[data-testid='stDataFrame']\");\nconst cells=[...document.querySelectorAll(\"[data-testid='stDataFrame'] [role='gridcell']\")].map(e=>e.textContent);\nconst chart=q(\"[data-testid='stVegaLiteChart']\");\nconst bars=chart?chart.querySelectorAll(\"g[class*='mark-rect'] path\").length:0;\nconst labels=chart?[...chart.querySelectorAll(\"g[class*='mark-text'] text\")].map(e=>e.textContent):[];\nconst thumb=q(\"[data-testid='stSliderThumbValue']\");\nconst cb=q(\"[data-testid='stCheckbox'] input\");\nconst sb=q(\"[data-testid='stSelectbox'] input\");\nconst alerts=[...document.querySelectorAll(\"[data-testid^='stAlertContent']\")].map(e=>e.textContent);\nconst texts=[...document.querySelectorAll(\"[data-testid='stText']\")].map(e=>e.textContent);\nconst pick=(p)=>{const t=texts.find(x=>x.startsWith(p));return t?t.slice(p.length).trim():null;};\nconst buttons=[...document.querySelectorAll(\"[data-testid='stButton']\")].map(e=>e.innerText.trim());\nreturn JSON.stringify({\n document_title: document.title,\n headings: [...document.querySelectorAll(\"h1,h2,h3\")].map(e=>e.innerText.trim()).slice(0,4),\n button_labels: buttons,\n has_button: buttons.length>0,\n script_runs: pick(\"Script runs:\"),\n pulses: pick(\"Pulses:\"),\n applied_note: pick(\"Applied note:\"),\n table_cells:cells, table_present:!!df,\n chart_present:!!chart, chart_bars:bars, chart_labels:labels,\n slider_value: thumb?thumb.textContent:null,\n checkbox_checked: cb?cb.checked:null,\n selectbox_value: sb?sb.value:null,\n texts:texts,\n alerts:alerts});})()",
+        "exit_code": 0
+      },
+      {
+        "command": "eval (()=>{const q=s=>document.querySelector(s);\nconst df=q(\"[data-testid='stDataFrame']\");\nconst cells=[...document.querySelectorAll(\"[data-testid='stDataFrame'] [role='gridcell']\")].map(e=>e.textContent);\nconst chart=q(\"[data-testid='stVegaLiteChart']\");\nconst bars=chart?chart.querySelectorAll(\"g[class*='mark-rect'] path\").length:0;\nconst labels=chart?[...chart.querySelectorAll(\"g[class*='mark-text'] text\")].map(e=>e.textContent):[];\nconst thumb=q(\"[data-testid='stSliderThumbValue']\");\nconst cb=q(\"[data-testid='stCheckbox'] input\");\nconst sb=q(\"[data-testid='stSelectbox'] input\");\nconst alerts=[...document.querySelectorAll(\"[data-testid^='stAlertContent']\")].map(e=>e.textContent);\nconst texts=[...document.querySelectorAll(\"[data-testid='stText']\")].map(e=>e.textContent);\nconst pick=(p)=>{const t=texts.find(x=>x.startsWith(p));return t?t.slice(p.length).trim():null;};\nconst buttons=[...document.querySelectorAll(\"[data-testid='stButton']\")].map(e=>e.innerText.trim());\nreturn JSON.stringify({\n document_title: document.title,\n headings: [...document.querySelectorAll(\"h1,h2,h3\")].map(e=>e.innerText.trim()).slice(0,4),\n button_labels: buttons,\n has_button: buttons.length>0,\n script_runs: pick(\"Script runs:\"),\n pulses: pick(\"Pulses:\"),\n applied_note: pick(\"Applied note:\"),\n table_cells:cells, table_present:!!df,\n chart_present:!!chart, chart_bars:bars, chart_labels:labels,\n slider_value: thumb?thumb.textContent:null,\n checkbox_checked: cb?cb.checked:null,\n selectbox_value: sb?sb.value:null,\n texts:texts,\n alerts:alerts});})()",
+        "exit_code": 0
+      },
+      {
+        "command": "screenshot target\\ref-reconnect6\\16-reconnect-closed.png",
+        "exit_code": 0
+      },
+      {
+        "command": "eval (()=>{const q=s=>document.querySelector(s);\nconst df=q(\"[data-testid='stDataFrame']\");\nconst cells=[...document.querySelectorAll(\"[data-testid='stDataFrame'] [role='gridcell']\")].map(e=>e.textContent);\nconst chart=q(\"[data-testid='stVegaLiteChart']\");\nconst bars=chart?chart.querySelectorAll(\"g[class*='mark-rect'] path\").length:0;\nconst labels=chart?[...chart.querySelectorAll(\"g[class*='mark-text'] text\")].map(e=>e.textContent):[];\nconst thumb=q(\"[data-testid='stSliderThumbValue']\");\nconst cb=q(\"[data-testid='stCheckbox'] input\");\nconst sb=q(\"[data-testid='stSelectbox'] input\");\nconst alerts=[...document.querySelectorAll(\"[data-testid^='stAlertContent']\")].map(e=>e.textContent);\nconst texts=[...document.querySelectorAll(\"[data-testid='stText']\")].map(e=>e.textContent);\nconst pick=(p)=>{const t=texts.find(x=>x.startsWith(p));return t?t.slice(p.length).trim():null;};\nconst buttons=[...document.querySelectorAll(\"[data-testid='stButton']\")].map(e=>e.innerText.trim());\nreturn JSON.stringify({\n document_title: document.title,\n headings: [...document.querySelectorAll(\"h1,h2,h3\")].map(e=>e.innerText.trim()).slice(0,4),\n button_labels: buttons,\n has_button: buttons.length>0,\n script_runs: pick(\"Script runs:\"),\n pulses: pick(\"Pulses:\"),\n applied_note: pick(\"Applied note:\"),\n table_cells:cells, table_present:!!df,\n chart_present:!!chart, chart_bars:bars, chart_labels:labels,\n slider_value: thumb?thumb.textContent:null,\n checkbox_checked: cb?cb.checked:null,\n selectbox_value: sb?sb.value:null,\n texts:texts,\n alerts:alerts});})()",
+        "exit_code": 0
+      },
+      {
+        "command": "screenshot target\\ref-reconnect6\\17-reconnect-after.png",
+        "exit_code": 0
+      },
+      {
+        "command": "scrollintoview [data-testid='stButton']",
+        "exit_code": 0
+      },
+      {
+        "command": "click [data-testid='stButton']",
+        "exit_code": 0
+      },
+      {
+        "command": "wait 3000",
+        "exit_code": 0
+      },
+      {
+        "command": "eval (()=>{const q=s=>document.querySelector(s);\nconst df=q(\"[data-testid='stDataFrame']\");\nconst cells=[...document.querySelectorAll(\"[data-testid='stDataFrame'] [role='gridcell']\")].map(e=>e.textContent);\nconst chart=q(\"[data-testid='stVegaLiteChart']\");\nconst bars=chart?chart.querySelectorAll(\"g[class*='mark-rect'] path\").length:0;\nconst labels=chart?[...chart.querySelectorAll(\"g[class*='mark-text'] text\")].map(e=>e.textContent):[];\nconst thumb=q(\"[data-testid='stSliderThumbValue']\");\nconst cb=q(\"[data-testid='stCheckbox'] input\");\nconst sb=q(\"[data-testid='stSelectbox'] input\");\nconst alerts=[...document.querySelectorAll(\"[data-testid^='stAlertContent']\")].map(e=>e.textContent);\nconst texts=[...document.querySelectorAll(\"[data-testid='stText']\")].map(e=>e.textContent);\nconst pick=(p)=>{const t=texts.find(x=>x.startsWith(p));return t?t.slice(p.length).trim():null;};\nconst buttons=[...document.querySelectorAll(\"[data-testid='stButton']\")].map(e=>e.innerText.trim());\nreturn JSON.stringify({\n document_title: document.title,\n headings: [...document.querySelectorAll(\"h1,h2,h3\")].map(e=>e.innerText.trim()).slice(0,4),\n button_labels: buttons,\n has_button: buttons.length>0,\n script_runs: pick(\"Script runs:\"),\n pulses: pick(\"Pulses:\"),\n applied_note: pick(\"Applied note:\"),\n table_cells:cells, table_present:!!df,\n chart_present:!!chart, chart_bars:bars, chart_labels:labels,\n slider_value: thumb?thumb.textContent:null,\n checkbox_checked: cb?cb.checked:null,\n selectbox_value: sb?sb.value:null,\n texts:texts,\n alerts:alerts});})()",
+        "exit_code": 0
+      },
+      {
+        "command": "screenshot target\\ref-reconnect6\\18-reconnect-click.png",
+        "exit_code": 0
+      }
+    ],
+    "capture_exit_code": 0
+  },
+  "versions": {
+    "streamlit": "1.66.1",
+    "python": "3.12.6",
+    "chrome": "Chrome/147.0.7727.56",
+    "agent_browser": "agent-browser 0.25.4"
+  },
+  "websocket_handshakes": [
+    {
+      "index": 0,
+      "request_id": "13176.346",
+      "target": "tab-a",
+      "url": "ws://localhost:8601/_stcore/stream",
+      "request_headers": {
+        "Upgrade": "websocket",
+        "Origin": "http://localhost:8601",
+        "Cache-Control": "no-cache",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Pragma": "no-cache",
+        "Cookie": "_streamlit_xsrf=2|79aaece0|fb05b55821cde07c992a5cd3b3a30fa8|1792764871",
+        "Connection": "Upgrade",
+        "Sec-WebSocket-Key": "8Brh4Qn0qY6S/d7YgxWqwg==",
+        "Accept-Encoding": "gzip, deflate, br, zstd",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/147.0.0.0 Safari/537.36",
+        "Sec-WebSocket-Version": "13",
+        "Sec-WebSocket-Protocol": "streamlit, 2|79aaece0|fb05b55821cde07c992a5cd3b3a30fa8|1792764871",
+        "Host": "localhost:8601",
+        "Sec-WebSocket-Extensions": "permessage-deflate; client_max_window_bits"
+      },
+      "response_status": 101,
+      "response_headers": {
+        "Upgrade": "websocket",
+        "date": "Fri, 23 Oct 2026 15:52:53 GMT",
+        "Sec-WebSocket-Protocol": "streamlit",
+        "Sec-WebSocket-Accept": "AQC59oJsIvkFLtSe4zl6bMkTiAw=",
+        "Connection": "Upgrade",
+        "server": "uvicorn"
+      },
+      "subprotocol_entries": [
+        "streamlit",
+        "2|79aaece0|fb05b55821cde07c992a5cd3b3a30fa8|1792764871"
+      ],
+      "closed": true,
+      "frames_sent": 5,
+      "frames_received": 88
+    },
+    {
+      "index": 1,
+      "request_id": "13176.429",
+      "target": "tab-a",
+      "url": "ws://localhost:8601/_stcore/stream",
+      "request_headers": {
+        "Upgrade": "websocket",
+        "Origin": "http://localhost:8601",
+        "Cache-Control": "no-cache",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Pragma": "no-cache",
+        "Cookie": "_streamlit_xsrf=2|f951e7ac|7bfebe14a136eb3019d1579f335804e4|1792764871",
+        "Connection": "Upgrade",
+        "Sec-WebSocket-Key": "/mCA/xeIRY+LdIrXAtWrIg==",
+        "Accept-Encoding": "gzip, deflate, br, zstd",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/147.0.0.0 Safari/537.36",
+        "Sec-WebSocket-Version": "13",
+        "Sec-WebSocket-Protocol": "streamlit, 2|f951e7ac|7bfebe14a136eb3019d1579f335804e4|1792764871, 8da7ceaa-12d7-42d1-a9dc-1fa1d58afa5d",
+        "Host": "localhost:8601",
+        "Sec-WebSocket-Extensions": "permessage-deflate; client_max_window_bits"
+      },
+      "response_status": 101,
+      "response_headers": {
+        "Upgrade": "websocket",
+        "date": "Fri, 23 Oct 2026 15:53:08 GMT",
+        "Sec-WebSocket-Protocol": "streamlit",
+        "Sec-WebSocket-Accept": "a8KW/2OrROHdpNxBITJ/jC1OCgg=",
+        "Connection": "Upgrade",
+        "server": "uvicorn"
+      },
+      "subprotocol_entries": [
+        "streamlit",
+        "2|f951e7ac|7bfebe14a136eb3019d1579f335804e4|1792764871",
+        "8da7ceaa-12d7-42d1-a9dc-1fa1d58afa5d"
+      ],
+      "closed": false,
+      "frames_sent": 1,
+      "frames_received": 22
+    }
+  ],
+  "http_requests": [
+    {
+      "target": "tab-a",
+      "method": "GET",
+      "url": "http://localhost:8601/",
+      "resource_type": "Document",
+      "request_headers": {},
+      "status": 200,
+      "mime_type": "text/html"
+    },
+    {
+      "target": "tab-a",
+      "method": "GET",
+      "url": "http://localhost:8601/_stcore/health",
+      "resource_type": "Fetch",
+      "request_headers": {},
+      "status": 200,
+      "mime_type": "text/plain"
+    },
+    {
+      "target": "tab-a",
+      "method": "GET",
+      "url": "http://localhost:8601/_stcore/host-config",
+      "resource_type": "Fetch",
+      "request_headers": {},
+      "status": 200,
+      "mime_type": "application/json"
+    },
+    {
+      "target": "tab-a",
+      "method": "GET",
+      "url": "http://localhost:8601/favicon.png",
+      "resource_type": "Other",
+      "request_headers": {},
+      "status": 200,
+      "mime_type": "image/png"
+    },
+    {
+      "target": "tab-a",
+      "method": "PUT",
+      "url": "http://localhost:8601/_stcore/upload_file/8da7ceaa-12d7-42d1-a9dc-1fa1d58afa5d/d891cc33-4c98-4a94-a2ae-49bd99cf36dc",
+      "resource_type": "XHR",
+      "request_headers": {
+        "Content-Type": "multipart/form-data; boundary=----WebKitFormBoundaryiyio4uwcBOm9hbkj"
+      },
+      "status": 204,
+      "mime_type": "text/plain"
+    },
+    {
+      "target": "tab-a",
+      "method": "GET",
+      "url": "http://localhost:8601/_stcore/health",
+      "resource_type": "Fetch",
+      "request_headers": {},
+      "status": 200,
+      "mime_type": "text/plain"
+    },
+    {
+      "target": "tab-a",
+      "method": "GET",
+      "url": "http://localhost:8601/_stcore/host-config",
+      "resource_type": "Fetch",
+      "request_headers": {},
+      "status": 200,
+      "mime_type": "application/json"
+    }
+  ],
+  "static_bundle_requests_counted_not_stored": 140,
+  "button_trace": [
+    {
+      "frame_index": 47,
+      "target": "tab-a",
+      "direction": "client->server",
+      "widget_id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+      "value_field": "trigger_value",
+      "value": true
+    },
+    {
+      "frame_index": 70,
+      "target": "tab-a",
+      "direction": "client->server",
+      "widget_id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+      "value_field": "trigger_value",
+      "value": true
+    },
+    {
+      "frame_index": 93,
+      "target": "tab-a",
+      "direction": "client->server",
+      "widget_id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+      "value_field": "trigger_value",
+      "value": true
+    }
+  ],
+  "steps": [
+    {
+      "step": "reconnect-before",
+      "note": "state before the socket is closed",
+      "at": "2026-10-23T15:53:08+00:00",
+      "observed": {
+        "document_title": "streamlit-rust P0 reference",
+        "headings": [
+          "streamlit-rust P0 reference",
+          "Aggregated result",
+          "Interaction"
+        ],
+        "button_labels": [
+          "Pulse"
+        ],
+        "has_button": true,
+        "script_runs": "4",
+        "pulses": "2",
+        "applied_note": "",
+        "table_cells": [
+          "Books",
+          "3",
+          "245.75",
+          "81.92",
+          "Games",
+          "3",
+          "409.48",
+          "136.49",
+          "Music",
+          "3",
+          "139",
+          "46.33",
+          "Toys",
+          "3",
+          "104.49",
+          "34.83"
+        ],
+        "table_present": true,
+        "chart_present": true,
+        "chart_bars": 4,
+        "chart_labels": [
+          "Books",
+          "Games",
+          "Music",
+          "Toys",
+          "group_key",
+          "0",
+          "100",
+          "200",
+          "300",
+          "400",
+          "total_amount"
+        ],
+        "slider_value": "0",
+        "checkbox_checked": true,
+        "selectbox_value": "category",
+        "texts": [
+          "Script runs: 4",
+          "Pulses: 2",
+          "Applied note:"
+        ],
+        "alerts": []
+      },
+      "checked": {
+        "pulses": {
+          "expected": "2",
+          "actual": "2",
+          "ok": true
+        },
+        "table_present": {
+          "expected": true,
+          "actual": true,
+          "ok": true
+        }
+      },
+      "status": "ok"
+    },
+    {
+      "step": "reconnect-closed",
+      "note": "state right after the socket was closed",
+      "at": "2026-10-23T15:53:11+00:00",
+      "observed": {
+        "document_title": "streamlit-rust P0 reference",
+        "headings": [
+          "streamlit-rust P0 reference",
+          "Aggregated result",
+          "Interaction"
+        ],
+        "button_labels": [
+          "Pulse"
+        ],
+        "has_button": true,
+        "script_runs": "4",
+        "pulses": "2",
+        "applied_note": "",
+        "table_cells": [
+          "Books",
+          "3",
+          "245.75",
+          "81.92",
+          "Games",
+          "3",
+          "409.48",
+          "136.49",
+          "Music",
+          "3",
+          "139",
+          "46.33",
+          "Toys",
+          "3",
+          "104.49",
+          "34.83"
+        ],
+        "table_present": true,
+        "chart_present": true,
+        "chart_bars": 4,
+        "chart_labels": [
+          "Books",
+          "Games",
+          "Music",
+          "Toys",
+          "group_key",
+          "0",
+          "100",
+          "200",
+          "300",
+          "400",
+          "total_amount"
+        ],
+        "slider_value": "0",
+        "checkbox_checked": true,
+        "selectbox_value": "category",
+        "texts": [
+          "Script runs: 4",
+          "Pulses: 2",
+          "Applied note:"
+        ],
+        "alerts": []
+      },
+      "checked": {},
+      "status": "ok"
+    },
+    {
+      "step": "reconnect-after",
+      "note": "state after the frontend reconnected: the same session must still be there",
+      "at": "2026-10-23T15:53:16+00:00",
+      "observed": {
+        "document_title": "streamlit-rust P0 reference",
+        "headings": [
+          "streamlit-rust P0 reference",
+          "Aggregated result",
+          "Interaction"
+        ],
+        "button_labels": [
+          "Pulse"
+        ],
+        "has_button": true,
+        "script_runs": "4",
+        "pulses": "2",
+        "applied_note": "",
+        "table_cells": [
+          "Books",
+          "3",
+          "245.75",
+          "81.92",
+          "Games",
+          "3",
+          "409.48",
+          "136.49",
+          "Music",
+          "3",
+          "139",
+          "46.33",
+          "Toys",
+          "3",
+          "104.49",
+          "34.83"
+        ],
+        "table_present": true,
+        "chart_present": true,
+        "chart_bars": 4,
+        "chart_labels": [
+          "Books",
+          "Games",
+          "Music",
+          "Toys",
+          "group_key",
+          "0",
+          "100",
+          "200",
+          "300",
+          "400",
+          "total_amount"
+        ],
+        "slider_value": "0",
+        "checkbox_checked": true,
+        "selectbox_value": "category",
+        "texts": [
+          "Script runs: 4",
+          "Pulses: 2",
+          "Applied note:"
+        ],
+        "alerts": []
+      },
+      "checked": {
+        "pulses": {
+          "expected": "2",
+          "actual": "2",
+          "ok": true
+        },
+        "table_present": {
+          "expected": true,
+          "actual": true,
+          "ok": true
+        }
+      },
+      "status": "ok"
+    },
+    {
+      "step": "reconnect-click",
+      "note": "clicked the button on the reconnected session: the counter must advance",
+      "at": "2026-10-23T15:53:20+00:00",
+      "observed": {
+        "document_title": "streamlit-rust P0 reference",
+        "headings": [
+          "streamlit-rust P0 reference",
+          "Aggregated result",
+          "Interaction"
+        ],
+        "button_labels": [
+          "Pulse"
+        ],
+        "has_button": true,
+        "script_runs": "5",
+        "pulses": "3",
+        "applied_note": "",
+        "table_cells": [
+          "Books",
+          "3",
+          "245.75",
+          "81.92",
+          "Games",
+          "3",
+          "409.48",
+          "136.49",
+          "Music",
+          "3",
+          "139",
+          "46.33",
+          "Toys",
+          "3",
+          "104.49",
+          "34.83"
+        ],
+        "table_present": true,
+        "chart_present": true,
+        "chart_bars": 4,
+        "chart_labels": [
+          "Books",
+          "Games",
+          "Music",
+          "Toys",
+          "group_key",
+          "0",
+          "100",
+          "200",
+          "300",
+          "400",
+          "total_amount"
+        ],
+        "slider_value": "0",
+        "checkbox_checked": true,
+        "selectbox_value": "category",
+        "texts": [
+          "Script runs: 5",
+          "Pulses: 3",
+          "Applied note:"
+        ],
+        "alerts": []
+      },
+      "checked": {
+        "pulses": {
+          "expected": "3",
+          "actual": "3",
+          "ok": true
+        }
+      },
+      "status": "ok"
+    }
+  ],
+  "failures": [],
+  "notes": [
+    "live socket closed through Runtime.evaluate: {'id': 4, 'result': {'result': {'type': 'string', 'value': 'closed'}}}",
+    "handshakes observed: 2; with a third subprotocol entry: 1; session id before: ['8da7ceaa-12d7-42d1-a9dc-1fa1d58afa5d']; after: ['8da7ceaa-12d7-42d1-a9dc-1fa1d58afa5d']",
+    "reconnect handshake Sec-WebSocket-Protocol: streamlit, 2|f951e7ac|7bfebe14a136eb3019d1579f335804e4|1792764871, 8da7ceaa-12d7-42d1-a9dc-1fa1d58afa5d",
+    "click window post-reconnect: frames 93..116"
+  ],
+  "frames": [
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "client->server",
+      "bytes": 71,
+      "sha256": "8a7ee727447d43c550202509f02a18dc2bf2309fdc3c49474e25ca449c180bdf",
+      "decoded": {
+        "message": "BackMsg",
+        "type": "rerun_script",
+        "rerun_script": {
+          "widget_states": []
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 381,
+      "sha256": "a63c17217ebf51a2829a8a3f23045ec9ca108c5da1d74370555238537b6fec40",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "new_session",
+        "new_session": {
+          "script_run_id": "86d9d94b-bd91-478a-8f50-e8a2ab221c3a",
+          "name": "app",
+          "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\app.py",
+          "page_script_hash": "269f73cf39198cb8a4f8caacec17751b",
+          "main_script_hash": "269f73cf39198cb8a4f8caacec17751b",
+          "session_id": "8da7ceaa-12d7-42d1-a9dc-1fa1d58afa5d"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 4,
+      "sha256": "b0eda1cfa5236712b472cc5883c9da5307389dbac2b9ea1c8c3077199bcb7907",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true,
+          "run_on_save": false
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 105,
+      "sha256": "0d45e816f3e8c18fea0dea4d693b349674b2284a8081b1f8f401cd1d0ee87280",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "page_config_changed"
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 126,
+      "sha256": "b61bc820690c0fb814a1679fc10a9dff388cd3eeb42959e10aa05e652a758355",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "heading",
+          "body": "streamlit-rust P0 reference"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 243,
+      "sha256": "402dd63d9f95f60a51b6db925fca8c58d74c7bdb8fb487a3d43717d466b90e57",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "markdown",
+          "body": "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part o"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 161,
+      "sha256": "bc751871a98e1219a3874d30c94b574afe21259e034fa55bea6a78c0ae4e0841",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "file_uploader",
+          "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+          "label": "Upload sales CSV",
+          "accepted_types": [
+            "['.csv']"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 177,
+      "sha256": "e58241c30e1c2438a0bfd7f8eaddec449630d2e0f2ec0823a4ce41cd74c7178f",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "selectbox",
+          "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+          "label": "Group by",
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 190,
+      "sha256": "732c43bb52d1cf01b810d1d98950365222efaad89e5e7b84364f9a30486d91c1",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "slider",
+          "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+          "label": "Minimum amount",
+          "accepted_types": [
+            "1"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 169,
+      "sha256": "a63eed79d807e9daf25dd6a3e4cf94abfa6103d3387d1fb00f6261de3e733a9f",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "checkbox",
+          "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+          "label": "Include unknown region",
+          "accepted_types": [
+            "0"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 116,
+      "sha256": "e8dedf83bc0df4938bfefffe2c26fef1594f163969395f5baf05941216669d67",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "heading",
+          "body": "Aggregated result"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 131,
+      "sha256": "41e6cecc68b62b3a3d7a67b44f2bc450672ed45e156166f8722a66e483b3c1ba",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "alert",
+          "body": "Upload a CSV to see the aggregated result."
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 110,
+      "sha256": "a0784a775897e3b823adf8b5367c808aca6956b160b0b35e9603f17777f7b878",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "heading",
+          "body": "Interaction"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 149,
+      "sha256": "97969ce13aa3a5bb3f91d441993888dd8ee6532e0bac588cda1354c5d7b3d5d9",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "button",
+          "id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+          "label": "Pulse",
+          "accepted_types": [
+            "secondary"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 104,
+      "sha256": "81fc475d069e8e3d16b7e484a471a040b3cfb2062f5a5ffb5ecd04f184009251",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "add_block",
+          "block_id": "",
+          "block_type": "form"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 153,
+      "sha256": "ef35d43dc8b134c033d3fcfaa40aeaedd6c85f797e1a9c5efa1f59d146786843",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "text_input",
+          "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+          "label": "Note",
+          "accepted_types": [
+            "0"
+          ],
+          "form_id": "apply_form"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 174,
+      "sha256": "f3205bca746eea8d0d122bcb10bf0ca5ad3ec3f4b352a1688c5868db326fa3fd",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "button",
+          "id": "$$ID-9a6c63ce6e3bef7bfd3af258b88f303b-apply_note",
+          "label": "Apply note",
+          "accepted_types": [
+            "secondary"
+          ],
+          "form_id": "apply_form"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 108,
+      "sha256": "6b1f9ae9e5082b63f0cb375178ddb8a68835e16a0ec6039dd137a8061cefb0dd",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "text",
+          "body": "Script runs: 1"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 103,
+      "sha256": "6b5e35ba1f5ad7940ad184530356b0b026da7bac6a521d4bd095eb8a226de659",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "text",
+          "body": "Pulses: 0"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 107,
+      "sha256": "84b6afb95d77d8ff069bfdee524a2034107ca0b10bb4e4b858cd104e7edfeaf0",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "text",
+          "body": "Applied note:"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 2,
+      "sha256": "e4f60d0aa6d7f3d3b6a6494b1c861b99f649c6f9ec51abaf201b20f297327c95",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "script_finished",
+        "script_finished": {
+          "status": 0,
+          "status_name": "FINISHED_SUCCESSFULLY"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 2,
+      "sha256": "10123d615b336deeb1527503f9a3cff788cfc5f333d195f06a00f32c5a9054cd",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": false,
+          "run_on_save": false
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "client->server",
+      "bytes": 96,
+      "sha256": "501ac769e6c3cc96aa6ac05bdbb76120c872294b623f96fdd76c8346a5f285ca",
+      "decoded": {
+        "message": "BackMsg",
+        "type": "file_urls_request"
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 275,
+      "sha256": "614ac8a58ee475bdcf79a8e15051492b4b1d6353b884f35d007d9c6eac0a32dc",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "file_urls_response"
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "client->server",
+      "bytes": 684,
+      "sha256": "0350f5a4c798059ada0412890a918b950508f3697500fb9a24efe6e1018cd9f4",
+      "decoded": {
+        "message": "BackMsg",
+        "type": "rerun_script",
+        "rerun_script": {
+          "widget_states": [
+            {
+              "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+              "value_field": "file_uploader_state_value",
+              "value": {
+                "uploaded_file_info": "[name: \"sales_basic.csv\"\nsize: 737\nfile_id: \"d891cc33-4c98-4a94-a2ae-49bd99cf36dc\"\nfile_urls {\n  file_id: \"d891cc33-4c98-4a94-a2ae-49bd99cf36dc\"\n  upload_url: \"/_stcore/upload_file/8da7ceaa-12d7-42d1-a9dc-1fa1d58afa5d/d891cc33-4c98-4a94-a2ae-49bd99cf36dc\"\n  delete_url: \"/_stcore/upload_file/8da7ceaa-12d7-42d1-a9dc-1fa1d58afa5d/d891cc33-4c98-4a94-a2ae-49bd99cf36dc\"\n}\n]"
+              }
+            },
+            {
+              "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+              "value_field": "double_array_value",
+              "value": {
+                "data": "[0.0]"
+              }
+            },
+            {
+              "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+              "value_field": "string_value",
+              "value": "category"
+            },
+            {
+              "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+              "value_field": "bool_value",
+              "value": true
+            },
+            {
+              "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+              "value_field": "string_value",
+              "value": ""
+            }
+          ]
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 381,
+      "sha256": "c72e87469e0f19eb8f5f545f800d7ea8c9ee0e6890cc837c8f3b039f58a74d96",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "new_session",
+        "new_session": {
+          "script_run_id": "fb1c8be0-915a-486a-aed2-9e3906263b46",
+          "name": "app",
+          "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\app.py",
+          "page_script_hash": "269f73cf39198cb8a4f8caacec17751b",
+          "main_script_hash": "269f73cf39198cb8a4f8caacec17751b",
+          "session_id": "8da7ceaa-12d7-42d1-a9dc-1fa1d58afa5d"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 4,
+      "sha256": "b0eda1cfa5236712b472cc5883c9da5307389dbac2b9ea1c8c3077199bcb7907",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true,
+          "run_on_save": false
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 105,
+      "sha256": "0d45e816f3e8c18fea0dea4d693b349674b2284a8081b1f8f401cd1d0ee87280",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "page_config_changed"
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 126,
+      "sha256": "b61bc820690c0fb814a1679fc10a9dff388cd3eeb42959e10aa05e652a758355",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "heading",
+          "body": "streamlit-rust P0 reference"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 243,
+      "sha256": "402dd63d9f95f60a51b6db925fca8c58d74c7bdb8fb487a3d43717d466b90e57",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "markdown",
+          "body": "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part o"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 161,
+      "sha256": "bc751871a98e1219a3874d30c94b574afe21259e034fa55bea6a78c0ae4e0841",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "file_uploader",
+          "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+          "label": "Upload sales CSV",
+          "accepted_types": [
+            "['.csv']"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 177,
+      "sha256": "e58241c30e1c2438a0bfd7f8eaddec449630d2e0f2ec0823a4ce41cd74c7178f",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "selectbox",
+          "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+          "label": "Group by",
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 190,
+      "sha256": "732c43bb52d1cf01b810d1d98950365222efaad89e5e7b84364f9a30486d91c1",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "slider",
+          "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+          "label": "Minimum amount",
+          "accepted_types": [
+            "1"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 169,
+      "sha256": "a63eed79d807e9daf25dd6a3e4cf94abfa6103d3387d1fb00f6261de3e733a9f",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "checkbox",
+          "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+          "label": "Include unknown region",
+          "accepted_types": [
+            "0"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 116,
+      "sha256": "e8dedf83bc0df4938bfefffe2c26fef1594f163969395f5baf05941216669d67",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "heading",
+          "body": "Aggregated result"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 1813,
+      "sha256": "52b4b4a41da0ab2c181f41a485f9436c699d7e8f7659179e78a83a6e10f6bc7a",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "dataframe",
+          "id": "",
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 2442,
+      "sha256": "7473dcb2fb06c2eb3546a11e429ed466f6207b22c3a30dca73570807058f9da6",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "vega_lite_chart",
+          "id": "",
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 110,
+      "sha256": "89cd770f515dd32f1b0631774ddfc35f1ca23f78931282b9c2f913f447af7658",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "heading",
+          "body": "Interaction"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 149,
+      "sha256": "8f2106f6673cd477a8abc7f971390b361b8980e846ac1801f8316feb3fbeca90",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "button",
+          "id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+          "label": "Pulse",
+          "accepted_types": [
+            "secondary"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 104,
+      "sha256": "7ff394d51eb4deb6eea91d11cedf4c8c7dd253d0ab07104c24375d01e69146fc",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "add_block",
+          "block_id": "",
+          "block_type": "form"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 153,
+      "sha256": "fa3f59c51c12538e193874a1f5f1be8a1f57bb6b09ead5e7bad59a152a425f58",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "text_input",
+          "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+          "label": "Note",
+          "accepted_types": [
+            "0"
+          ],
+          "form_id": "apply_form"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 174,
+      "sha256": "f8a8efb83c93e5030f0aafeb55aa22ae48d297921dcf24d793dc1ca4951038d6",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "button",
+          "id": "$$ID-9a6c63ce6e3bef7bfd3af258b88f303b-apply_note",
+          "label": "Apply note",
+          "accepted_types": [
+            "secondary"
+          ],
+          "form_id": "apply_form"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 108,
+      "sha256": "0df08d5577abcb77603430ce8f3fc06b321da42a44da69da415c695b82666360",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "text",
+          "body": "Script runs: 2"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 103,
+      "sha256": "42afc0422307d3b728dd9feb5c86ae2d6d75fc4ea89b4e3f9b3196435d65b538",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "text",
+          "body": "Pulses: 0"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 107,
+      "sha256": "2847b26505e9ab637c4bdb48a76803dc023bd74d30b3102731006c3750bcefd0",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "text",
+          "body": "Applied note:"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 2,
+      "sha256": "e4f60d0aa6d7f3d3b6a6494b1c861b99f649c6f9ec51abaf201b20f297327c95",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "script_finished",
+        "script_finished": {
+          "status": 0,
+          "status_name": "FINISHED_SUCCESSFULLY"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 2,
+      "sha256": "10123d615b336deeb1527503f9a3cff788cfc5f333d195f06a00f32c5a9054cd",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": false,
+          "run_on_save": false
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "client->server",
+      "bytes": 733,
+      "sha256": "e6d5db6e2d5387c5a1de9c64fb46d1f3b58049e4815244ceb89e24eecdfde69d",
+      "decoded": {
+        "message": "BackMsg",
+        "type": "rerun_script",
+        "rerun_script": {
+          "widget_states": [
+            {
+              "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+              "value_field": "file_uploader_state_value",
+              "value": {
+                "uploaded_file_info": "[name: \"sales_basic.csv\"\nsize: 737\nfile_id: \"d891cc33-4c98-4a94-a2ae-49bd99cf36dc\"\nfile_urls {\n  file_id: \"d891cc33-4c98-4a94-a2ae-49bd99cf36dc\"\n  upload_url: \"/_stcore/upload_file/8da7ceaa-12d7-42d1-a9dc-1fa1d58afa5d/d891cc33-4c98-4a94-a2ae-49bd99cf36dc\"\n  delete_url: \"/_stcore/upload_file/8da7ceaa-12d7-42d1-a9dc-1fa1d58afa5d/d891cc33-4c98-4a94-a2ae-49bd99cf36dc\"\n}\n]"
+              }
+            },
+            {
+              "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+              "value_field": "double_array_value",
+              "value": {
+                "data": "[0.0]"
+              }
+            },
+            {
+              "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+              "value_field": "string_value",
+              "value": "category"
+            },
+            {
+              "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+              "value_field": "bool_value",
+              "value": true
+            },
+            {
+              "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+              "value_field": "string_value",
+              "value": ""
+            },
+            {
+              "id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+              "value_field": "trigger_value",
+              "value": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 381,
+      "sha256": "92b63d574e21ca2d8a06d293718c20991183ffb4f6f7ef31d6abb3a191023e7f",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "new_session",
+        "new_session": {
+          "script_run_id": "c9162234-a814-4120-9f31-093a050c1757",
+          "name": "app",
+          "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\app.py",
+          "page_script_hash": "269f73cf39198cb8a4f8caacec17751b",
+          "main_script_hash": "269f73cf39198cb8a4f8caacec17751b",
+          "session_id": "8da7ceaa-12d7-42d1-a9dc-1fa1d58afa5d"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 4,
+      "sha256": "b0eda1cfa5236712b472cc5883c9da5307389dbac2b9ea1c8c3077199bcb7907",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true,
+          "run_on_save": false
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 105,
+      "sha256": "0d45e816f3e8c18fea0dea4d693b349674b2284a8081b1f8f401cd1d0ee87280",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "page_config_changed"
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 126,
+      "sha256": "b61bc820690c0fb814a1679fc10a9dff388cd3eeb42959e10aa05e652a758355",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "heading",
+          "body": "streamlit-rust P0 reference"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 243,
+      "sha256": "402dd63d9f95f60a51b6db925fca8c58d74c7bdb8fb487a3d43717d466b90e57",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "markdown",
+          "body": "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part o"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 161,
+      "sha256": "bc751871a98e1219a3874d30c94b574afe21259e034fa55bea6a78c0ae4e0841",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "file_uploader",
+          "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+          "label": "Upload sales CSV",
+          "accepted_types": [
+            "['.csv']"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 177,
+      "sha256": "e58241c30e1c2438a0bfd7f8eaddec449630d2e0f2ec0823a4ce41cd74c7178f",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "selectbox",
+          "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+          "label": "Group by",
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 190,
+      "sha256": "732c43bb52d1cf01b810d1d98950365222efaad89e5e7b84364f9a30486d91c1",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "slider",
+          "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+          "label": "Minimum amount",
+          "accepted_types": [
+            "1"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 169,
+      "sha256": "a63eed79d807e9daf25dd6a3e4cf94abfa6103d3387d1fb00f6261de3e733a9f",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "checkbox",
+          "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+          "label": "Include unknown region",
+          "accepted_types": [
+            "0"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 116,
+      "sha256": "e8dedf83bc0df4938bfefffe2c26fef1594f163969395f5baf05941216669d67",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "heading",
+          "body": "Aggregated result"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 1813,
+      "sha256": "52b4b4a41da0ab2c181f41a485f9436c699d7e8f7659179e78a83a6e10f6bc7a",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "dataframe",
+          "id": "",
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 2442,
+      "sha256": "7473dcb2fb06c2eb3546a11e429ed466f6207b22c3a30dca73570807058f9da6",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "vega_lite_chart",
+          "id": "",
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 110,
+      "sha256": "89cd770f515dd32f1b0631774ddfc35f1ca23f78931282b9c2f913f447af7658",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "heading",
+          "body": "Interaction"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 149,
+      "sha256": "8f2106f6673cd477a8abc7f971390b361b8980e846ac1801f8316feb3fbeca90",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "button",
+          "id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+          "label": "Pulse",
+          "accepted_types": [
+            "secondary"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 104,
+      "sha256": "7ff394d51eb4deb6eea91d11cedf4c8c7dd253d0ab07104c24375d01e69146fc",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "add_block",
+          "block_id": "",
+          "block_type": "form"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 153,
+      "sha256": "fa3f59c51c12538e193874a1f5f1be8a1f57bb6b09ead5e7bad59a152a425f58",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "text_input",
+          "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+          "label": "Note",
+          "accepted_types": [
+            "0"
+          ],
+          "form_id": "apply_form"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 174,
+      "sha256": "f8a8efb83c93e5030f0aafeb55aa22ae48d297921dcf24d793dc1ca4951038d6",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "button",
+          "id": "$$ID-9a6c63ce6e3bef7bfd3af258b88f303b-apply_note",
+          "label": "Apply note",
+          "accepted_types": [
+            "secondary"
+          ],
+          "form_id": "apply_form"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 108,
+      "sha256": "71c1b742b310cb2880f96b7c329726d7145370a820ed80bcf662e59c63480cc7",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "text",
+          "body": "Script runs: 3"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 103,
+      "sha256": "faa45096260f3070218c5407fe30705c3277868706a5bcbeaa552ee28550f382",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "text",
+          "body": "Pulses: 1"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 107,
+      "sha256": "2847b26505e9ab637c4bdb48a76803dc023bd74d30b3102731006c3750bcefd0",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "text",
+          "body": "Applied note:"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 2,
+      "sha256": "e4f60d0aa6d7f3d3b6a6494b1c861b99f649c6f9ec51abaf201b20f297327c95",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "script_finished",
+        "script_finished": {
+          "status": 0,
+          "status_name": "FINISHED_SUCCESSFULLY"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 2,
+      "sha256": "10123d615b336deeb1527503f9a3cff788cfc5f333d195f06a00f32c5a9054cd",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": false,
+          "run_on_save": false
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "client->server",
+      "bytes": 733,
+      "sha256": "e6d5db6e2d5387c5a1de9c64fb46d1f3b58049e4815244ceb89e24eecdfde69d",
+      "decoded": {
+        "message": "BackMsg",
+        "type": "rerun_script",
+        "rerun_script": {
+          "widget_states": [
+            {
+              "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+              "value_field": "file_uploader_state_value",
+              "value": {
+                "uploaded_file_info": "[name: \"sales_basic.csv\"\nsize: 737\nfile_id: \"d891cc33-4c98-4a94-a2ae-49bd99cf36dc\"\nfile_urls {\n  file_id: \"d891cc33-4c98-4a94-a2ae-49bd99cf36dc\"\n  upload_url: \"/_stcore/upload_file/8da7ceaa-12d7-42d1-a9dc-1fa1d58afa5d/d891cc33-4c98-4a94-a2ae-49bd99cf36dc\"\n  delete_url: \"/_stcore/upload_file/8da7ceaa-12d7-42d1-a9dc-1fa1d58afa5d/d891cc33-4c98-4a94-a2ae-49bd99cf36dc\"\n}\n]"
+              }
+            },
+            {
+              "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+              "value_field": "double_array_value",
+              "value": {
+                "data": "[0.0]"
+              }
+            },
+            {
+              "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+              "value_field": "string_value",
+              "value": "category"
+            },
+            {
+              "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+              "value_field": "bool_value",
+              "value": true
+            },
+            {
+              "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+              "value_field": "string_value",
+              "value": ""
+            },
+            {
+              "id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+              "value_field": "trigger_value",
+              "value": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 381,
+      "sha256": "6661ee5e0dc5e6493c94c26eb5e83737cfd6a8a501a9abb8fdddd90682a849f2",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "new_session",
+        "new_session": {
+          "script_run_id": "31e5d4ee-0dfd-44d6-8ab3-4515ff1a9601",
+          "name": "app",
+          "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\app.py",
+          "page_script_hash": "269f73cf39198cb8a4f8caacec17751b",
+          "main_script_hash": "269f73cf39198cb8a4f8caacec17751b",
+          "session_id": "8da7ceaa-12d7-42d1-a9dc-1fa1d58afa5d"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 4,
+      "sha256": "b0eda1cfa5236712b472cc5883c9da5307389dbac2b9ea1c8c3077199bcb7907",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true,
+          "run_on_save": false
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 105,
+      "sha256": "0d45e816f3e8c18fea0dea4d693b349674b2284a8081b1f8f401cd1d0ee87280",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "page_config_changed"
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 126,
+      "sha256": "b61bc820690c0fb814a1679fc10a9dff388cd3eeb42959e10aa05e652a758355",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "heading",
+          "body": "streamlit-rust P0 reference"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 243,
+      "sha256": "402dd63d9f95f60a51b6db925fca8c58d74c7bdb8fb487a3d43717d466b90e57",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "markdown",
+          "body": "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part o"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 161,
+      "sha256": "bc751871a98e1219a3874d30c94b574afe21259e034fa55bea6a78c0ae4e0841",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "file_uploader",
+          "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+          "label": "Upload sales CSV",
+          "accepted_types": [
+            "['.csv']"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 177,
+      "sha256": "e58241c30e1c2438a0bfd7f8eaddec449630d2e0f2ec0823a4ce41cd74c7178f",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "selectbox",
+          "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+          "label": "Group by",
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 190,
+      "sha256": "732c43bb52d1cf01b810d1d98950365222efaad89e5e7b84364f9a30486d91c1",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "slider",
+          "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+          "label": "Minimum amount",
+          "accepted_types": [
+            "1"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 169,
+      "sha256": "a63eed79d807e9daf25dd6a3e4cf94abfa6103d3387d1fb00f6261de3e733a9f",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "checkbox",
+          "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+          "label": "Include unknown region",
+          "accepted_types": [
+            "0"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 116,
+      "sha256": "e8dedf83bc0df4938bfefffe2c26fef1594f163969395f5baf05941216669d67",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "heading",
+          "body": "Aggregated result"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 1813,
+      "sha256": "52b4b4a41da0ab2c181f41a485f9436c699d7e8f7659179e78a83a6e10f6bc7a",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "dataframe",
+          "id": "",
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 2442,
+      "sha256": "7473dcb2fb06c2eb3546a11e429ed466f6207b22c3a30dca73570807058f9da6",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "vega_lite_chart",
+          "id": "",
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 110,
+      "sha256": "89cd770f515dd32f1b0631774ddfc35f1ca23f78931282b9c2f913f447af7658",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "heading",
+          "body": "Interaction"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 149,
+      "sha256": "8f2106f6673cd477a8abc7f971390b361b8980e846ac1801f8316feb3fbeca90",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "button",
+          "id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+          "label": "Pulse",
+          "accepted_types": [
+            "secondary"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 104,
+      "sha256": "7ff394d51eb4deb6eea91d11cedf4c8c7dd253d0ab07104c24375d01e69146fc",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "add_block",
+          "block_id": "",
+          "block_type": "form"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 153,
+      "sha256": "fa3f59c51c12538e193874a1f5f1be8a1f57bb6b09ead5e7bad59a152a425f58",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "text_input",
+          "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+          "label": "Note",
+          "accepted_types": [
+            "0"
+          ],
+          "form_id": "apply_form"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 174,
+      "sha256": "f8a8efb83c93e5030f0aafeb55aa22ae48d297921dcf24d793dc1ca4951038d6",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "button",
+          "id": "$$ID-9a6c63ce6e3bef7bfd3af258b88f303b-apply_note",
+          "label": "Apply note",
+          "accepted_types": [
+            "secondary"
+          ],
+          "form_id": "apply_form"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 108,
+      "sha256": "f172f1cf2317979ac7757273da9c1245c0c3d9efab6a4afca3780c0a464f9ee5",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "text",
+          "body": "Script runs: 4"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 103,
+      "sha256": "45e5cbcd5438935b59cd3db4213ff2265a9c3dc90b150c3e32013a16c154b9d7",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "text",
+          "body": "Pulses: 2"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 107,
+      "sha256": "2847b26505e9ab637c4bdb48a76803dc023bd74d30b3102731006c3750bcefd0",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "text",
+          "body": "Applied note:"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 2,
+      "sha256": "e4f60d0aa6d7f3d3b6a6494b1c861b99f649c6f9ec51abaf201b20f297327c95",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "script_finished",
+        "script_finished": {
+          "status": 0,
+          "status_name": "FINISHED_SUCCESSFULLY"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 2,
+      "sha256": "10123d615b336deeb1527503f9a3cff788cfc5f333d195f06a00f32c5a9054cd",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": false,
+          "run_on_save": false
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 1,
+      "direction": "client->server",
+      "bytes": 733,
+      "sha256": "e6d5db6e2d5387c5a1de9c64fb46d1f3b58049e4815244ceb89e24eecdfde69d",
+      "decoded": {
+        "message": "BackMsg",
+        "type": "rerun_script",
+        "rerun_script": {
+          "widget_states": [
+            {
+              "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+              "value_field": "file_uploader_state_value",
+              "value": {
+                "uploaded_file_info": "[name: \"sales_basic.csv\"\nsize: 737\nfile_id: \"d891cc33-4c98-4a94-a2ae-49bd99cf36dc\"\nfile_urls {\n  file_id: \"d891cc33-4c98-4a94-a2ae-49bd99cf36dc\"\n  upload_url: \"/_stcore/upload_file/8da7ceaa-12d7-42d1-a9dc-1fa1d58afa5d/d891cc33-4c98-4a94-a2ae-49bd99cf36dc\"\n  delete_url: \"/_stcore/upload_file/8da7ceaa-12d7-42d1-a9dc-1fa1d58afa5d/d891cc33-4c98-4a94-a2ae-49bd99cf36dc\"\n}\n]"
+              }
+            },
+            {
+              "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+              "value_field": "double_array_value",
+              "value": {
+                "data": "[0.0]"
+              }
+            },
+            {
+              "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+              "value_field": "string_value",
+              "value": "category"
+            },
+            {
+              "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+              "value_field": "bool_value",
+              "value": true
+            },
+            {
+              "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+              "value_field": "string_value",
+              "value": ""
+            },
+            {
+              "id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+              "value_field": "trigger_value",
+              "value": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 1,
+      "direction": "server->client",
+      "bytes": 381,
+      "sha256": "c8880ab62ec43d61fe995d13e970197f907cfa4b74645c0b8ff24a9600e2d601",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "new_session",
+        "new_session": {
+          "script_run_id": "efb80fff-1877-485b-af46-4f0be0dc24d2",
+          "name": "app",
+          "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\app.py",
+          "page_script_hash": "269f73cf39198cb8a4f8caacec17751b",
+          "main_script_hash": "269f73cf39198cb8a4f8caacec17751b",
+          "session_id": "8da7ceaa-12d7-42d1-a9dc-1fa1d58afa5d"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 1,
+      "direction": "server->client",
+      "bytes": 4,
+      "sha256": "b0eda1cfa5236712b472cc5883c9da5307389dbac2b9ea1c8c3077199bcb7907",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true,
+          "run_on_save": false
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 1,
+      "direction": "server->client",
+      "bytes": 105,
+      "sha256": "0d45e816f3e8c18fea0dea4d693b349674b2284a8081b1f8f401cd1d0ee87280",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "page_config_changed"
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 1,
+      "direction": "server->client",
+      "bytes": 126,
+      "sha256": "b61bc820690c0fb814a1679fc10a9dff388cd3eeb42959e10aa05e652a758355",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "heading",
+          "body": "streamlit-rust P0 reference"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 1,
+      "direction": "server->client",
+      "bytes": 243,
+      "sha256": "402dd63d9f95f60a51b6db925fca8c58d74c7bdb8fb487a3d43717d466b90e57",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "markdown",
+          "body": "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part o"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 1,
+      "direction": "server->client",
+      "bytes": 161,
+      "sha256": "bc751871a98e1219a3874d30c94b574afe21259e034fa55bea6a78c0ae4e0841",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "file_uploader",
+          "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+          "label": "Upload sales CSV",
+          "accepted_types": [
+            "['.csv']"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 1,
+      "direction": "server->client",
+      "bytes": 177,
+      "sha256": "e58241c30e1c2438a0bfd7f8eaddec449630d2e0f2ec0823a4ce41cd74c7178f",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "selectbox",
+          "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+          "label": "Group by",
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 1,
+      "direction": "server->client",
+      "bytes": 190,
+      "sha256": "732c43bb52d1cf01b810d1d98950365222efaad89e5e7b84364f9a30486d91c1",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "slider",
+          "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+          "label": "Minimum amount",
+          "accepted_types": [
+            "1"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 1,
+      "direction": "server->client",
+      "bytes": 169,
+      "sha256": "a63eed79d807e9daf25dd6a3e4cf94abfa6103d3387d1fb00f6261de3e733a9f",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "checkbox",
+          "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+          "label": "Include unknown region",
+          "accepted_types": [
+            "0"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 1,
+      "direction": "server->client",
+      "bytes": 116,
+      "sha256": "e8dedf83bc0df4938bfefffe2c26fef1594f163969395f5baf05941216669d67",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "heading",
+          "body": "Aggregated result"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 1,
+      "direction": "server->client",
+      "bytes": 1813,
+      "sha256": "52b4b4a41da0ab2c181f41a485f9436c699d7e8f7659179e78a83a6e10f6bc7a",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "dataframe",
+          "id": "",
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 1,
+      "direction": "server->client",
+      "bytes": 2442,
+      "sha256": "7473dcb2fb06c2eb3546a11e429ed466f6207b22c3a30dca73570807058f9da6",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "vega_lite_chart",
+          "id": "",
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 1,
+      "direction": "server->client",
+      "bytes": 110,
+      "sha256": "89cd770f515dd32f1b0631774ddfc35f1ca23f78931282b9c2f913f447af7658",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "heading",
+          "body": "Interaction"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 1,
+      "direction": "server->client",
+      "bytes": 149,
+      "sha256": "8f2106f6673cd477a8abc7f971390b361b8980e846ac1801f8316feb3fbeca90",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "button",
+          "id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+          "label": "Pulse",
+          "accepted_types": [
+            "secondary"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 1,
+      "direction": "server->client",
+      "bytes": 104,
+      "sha256": "7ff394d51eb4deb6eea91d11cedf4c8c7dd253d0ab07104c24375d01e69146fc",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "add_block",
+          "block_id": "",
+          "block_type": "form"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 1,
+      "direction": "server->client",
+      "bytes": 153,
+      "sha256": "fa3f59c51c12538e193874a1f5f1be8a1f57bb6b09ead5e7bad59a152a425f58",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "text_input",
+          "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+          "label": "Note",
+          "accepted_types": [
+            "0"
+          ],
+          "form_id": "apply_form"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 1,
+      "direction": "server->client",
+      "bytes": 174,
+      "sha256": "f8a8efb83c93e5030f0aafeb55aa22ae48d297921dcf24d793dc1ca4951038d6",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "button",
+          "id": "$$ID-9a6c63ce6e3bef7bfd3af258b88f303b-apply_note",
+          "label": "Apply note",
+          "accepted_types": [
+            "secondary"
+          ],
+          "form_id": "apply_form"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 1,
+      "direction": "server->client",
+      "bytes": 108,
+      "sha256": "0e7829d4b334ffb1a048a1e6e1abac969a2344c2a214485ab20e61a3cd9a40cd",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "text",
+          "body": "Script runs: 5"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 1,
+      "direction": "server->client",
+      "bytes": 103,
+      "sha256": "5235b31eefebca05f21dc366321b67b6842c0125a96e40ebe94fd67f7c4c7a40",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "text",
+          "body": "Pulses: 3"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 1,
+      "direction": "server->client",
+      "bytes": 107,
+      "sha256": "2847b26505e9ab637c4bdb48a76803dc023bd74d30b3102731006c3750bcefd0",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "text",
+          "body": "Applied note:"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 1,
+      "direction": "server->client",
+      "bytes": 2,
+      "sha256": "e4f60d0aa6d7f3d3b6a6494b1c861b99f649c6f9ec51abaf201b20f297327c95",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "script_finished",
+        "script_finished": {
+          "status": 0,
+          "status_name": "FINISHED_SUCCESSFULLY"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 1,
+      "direction": "server->client",
+      "bytes": 2,
+      "sha256": "10123d615b336deeb1527503f9a3cff788cfc5f333d195f06a00f32c5a9054cd",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": false,
+          "run_on_save": false
+        }
+      }
+    }
+  ]
+}

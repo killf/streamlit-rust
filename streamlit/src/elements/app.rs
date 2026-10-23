@@ -101,10 +101,8 @@ pub(crate) fn create_new_session(session_id: String, main_script_hash: String) -
         metadata: Some(ForwardMsgMetadata {
             cacheable: false,
             delta_path: vec![],
-            element_dimension_spec: None,
             active_script_hash: main_script_hash.clone(),
         }),
-        debug_last_backmsg_id: "".to_string(),
         r#type: Some(forward_msg::Type::NewSession(NewSession {
             initialize: Some(Initialize {
                 user_info: Some(UserInfo {
@@ -113,23 +111,25 @@ pub(crate) fn create_new_session(session_id: String, main_script_hash: String) -
                     installation_id_v4: "".to_string(),
                 }),
                 environment_info: Some(EnvironmentInfo {
-                    streamlit_version: "".to_string(),
+                    streamlit_version: "1.66.1".to_string(),
                     python_version: "".to_string(),
                     server_os: "".to_string(),
                     has_display: false,
                 }),
                 session_status: Some(SessionStatus { run_on_save: false, script_is_running: false }),
-                command_line: "".to_string(),
+                recommend_skills_install: false,
+                skills_nudge_suppressed_reason: String::new(),
                 session_id,
                 is_hello: false,
             }),
             script_run_id: uuid::Uuid::new_v4().to_string(),
-            name: "".to_string(),
+            name: "Streamlit Rust".to_string(),
             main_script_path: "".to_string(),
             config: Some(Config {
                 gather_usage_stats: false,
                 max_cached_message_age: 0,
-                mapbox_token: "".to_string(),
+                show_error_links: crate::proto::config::ShowErrorLinks::False as i32,
+                disable_data_export: false,
                 allow_run_on_save: false,
                 hide_top_bar: false,
                 hide_sidebar_nav: false,
@@ -148,7 +148,6 @@ pub(crate) fn create_session_status_changed(script_is_running: bool, run_on_save
     ForwardMsg {
         hash: "session_status_changed".to_string(),
         metadata: None,
-        debug_last_backmsg_id: "".to_string(),
         r#type: Some(forward_msg::Type::SessionStatusChanged(SessionStatus { run_on_save, script_is_running })),
     }
 }
@@ -159,18 +158,13 @@ pub(crate) fn create_main_block() -> ForwardMsg {
         metadata: Some(ForwardMsgMetadata {
             cacheable: false,
             delta_path: vec![0],
-            element_dimension_spec: None,
             active_script_hash: String::new(),
         }),
-        debug_last_backmsg_id: String::new(),
         r#type: Some(forward_msg::Type::Delta(Delta {
             fragment_id: String::new(),
             r#type: Option::from(delta::Type::AddBlock(Block {
-                r#type: Some(block::Type::Vertical(block::Vertical {
-                    border: false,
-                    #[allow(deprecated)]
-                    height: 0,
-                })),
+                autoscroll: None,
+                r#type: Some(block::Type::Vertical(block::Vertical { border: false })),
                 allow_empty: false,
                 id: Some("main_container".to_string()), // This is the crucial ID!
                 height_config: None,
@@ -184,7 +178,6 @@ pub(crate) fn create_script_finished() -> ForwardMsg {
     ForwardMsg {
         hash: "script_finished".to_string(),
         metadata: None,
-        debug_last_backmsg_id: "".to_string(),
         r#type: Some(forward_msg::Type::ScriptFinished(forward_msg::ScriptFinishedStatus::FinishedSuccessfully as i32)),
     }
 }
