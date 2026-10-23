@@ -1,6 +1,6 @@
 # Streamlit Rust guide
 
-This crate is an early Rust implementation of the Streamlit server. It is not yet Streamlit-compatible. The authoritative feature status is the [compatibility matrix](../compatibility.md), not the presence of an example or same-name function.
+This crate is an early Rust implementation of the Streamlit server. It is not yet Streamlit-compatible. The authoritative feature status is the [compatibility matrix](../../.codex/compatibility.md), not the presence of an example or same-name function.
 
 ## Run
 
