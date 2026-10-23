@@ -18,3 +18,7 @@ Regenerate:
 python tests/reference/capture_browser_trace.py --scenario smoke --clicks 3 \
     --url http://127.0.0.1:8501/ --out <temporary-path>
 ```
+
+The current S1 session-counter capture lives next door in `../rust-counter-s1/`: it covers the
+two-tab isolation, the same-session recovery and the reload reset against the
+Rust session implementation.

@@ -14,11 +14,12 @@ from __future__ import annotations
 
 import pathlib
 import sys
+import types
 
 HERE = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
-from capture_browser_trace import verify_click_windows  # noqa: E402
+from capture_browser_trace import Capture, parse_counter_texts, verify_click_windows  # noqa: E402
 
 
 def trigger_frame(connection: int, value: bool = True, widget_id: str = "$$ID-x-pulse") -> dict:
@@ -158,4 +159,112 @@ def test_a_fragment_run_is_not_a_full_success() -> None:
     frames = [trigger_frame(0), completion_frame(0, status=3)]
     clicks = [{"click": 1, "start": 0, "end": 2}]
     failures = verify_click_windows(frames, clicks)
+    assert [failure["check"] for failure in failures] == ["server_response"]
+
+
+def test_counter_values_are_read_from_text_or_markdown() -> None:
+    """The Rust counter renders its numbers as markdown, not as st.text."""
+    assert parse_counter_texts(["Pulses: 3", "Script runs: 7"]) == {
+        "pulses": "3",
+        "script_runs": "7",
+    }
+    assert parse_counter_texts(["Pulses: 0", "Script runs: 1"]) == {
+        "pulses": "0",
+        "script_runs": "1",
+    }
+
+
+def test_a_missing_counter_is_absent_rather_than_empty() -> None:
+    """An absent counter must not read as a valid value."""
+    assert parse_counter_texts(["something else"]) == {}
+    assert "pulses" not in parse_counter_texts(["Script runs: 4"])
+
+
+def test_a_valueless_counter_is_ignored() -> None:
+    assert parse_counter_texts(["Pulses:", "Script runs:"]) == {}
+
+
+def test_a_different_label_is_not_read_as_the_counter() -> None:
+    assert parse_counter_texts(["Pulse count: 3"]) == {}
+
+
+class _StubRecorder:
+    """A recorder that only counts the frames the stub browser produces."""
+
+    def __init__(self, answer: bool) -> None:
+        self.frames: list[dict] = []
+        self.answer = answer
+        self.label = "tab-a"
+
+    def frame_count(self) -> int:
+        return len(self.frames)
+
+    def take(self) -> list[dict]:
+        return list(self.frames)
+
+
+class _StubBrowser:
+    """A browser that clicks the button and, optionally, answers the click."""
+
+    def __init__(self, recorder: _StubRecorder) -> None:
+        self.recorder = recorder
+
+    def observe(self) -> dict:
+        return {"has_button": True}
+
+    def click(self, selector: str) -> None:
+        self.recorder.frames.append(trigger_frame(0))
+
+    def run(self, *args) -> str:
+        if args and args[0] == "wait" and self.recorder.answer:
+            self.recorder.frames.append(completion_frame(0))
+        return ""
+
+
+def _drive_smoke(tmp_path, answer: bool):
+    """Drive scenario_smoke itself against a stub browser.
+
+    The capture object is built without its constructor, so the test needs
+    neither agent-browser nor a running Chrome.  The windows are translated the
+    way trace() translates them: with a single target the offset into the
+    merged frame list is zero.
+    """
+    capture = Capture.__new__(Capture)
+    capture.args = types.SimpleNamespace(clicks=1)
+    capture.out_dir = tmp_path
+    capture.steps = []
+    capture.failures = []
+    capture.notes = []
+    capture.click_windows = []
+    recorder = _StubRecorder(answer=answer)
+    capture.ab = _StubBrowser(recorder)
+    capture.recorders = [recorder]
+    capture.scenario_smoke()
+    windows = [
+        {"click": w["click"], "start": w["start"], "end": w["end"]}
+        for w in capture.click_windows
+    ]
+    return capture, recorder.frames, windows
+
+
+def test_a_legal_smoke_click_passes_the_scenario_driver(tmp_path) -> None:
+    """The smoke scenario must build a window that holds the click and its answer.
+
+    The driver used to leave the window empty -- start and end were both the
+    frame count from before the click -- so a click the server did answer was
+    rejected by the helper.
+    """
+    capture, frames, windows = _drive_smoke(tmp_path, answer=True)
+    assert capture.failures == []
+    assert windows, "the smoke scenario must record a click window"
+    assert windows[0]["end"] > windows[0]["start"], "the click window must not be empty"
+    assert verify_click_windows(frames, windows) == []
+
+
+def test_a_smoke_click_without_an_answer_fails_the_scenario_driver(tmp_path) -> None:
+    """A click the server never answered must still fail."""
+    capture, frames, windows = _drive_smoke(tmp_path, answer=False)
+    assert windows, "the smoke scenario must record a click window"
+    failures = verify_click_windows(frames, windows)
+    assert failures, "a click without a server answer must fail"
     assert [failure["check"] for failure in failures] == ["server_response"]

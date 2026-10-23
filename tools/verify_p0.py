@@ -107,6 +107,34 @@ def merge_progress(entry: dict, old: dict | None, root: Path) -> dict:
         for key in ("python_browser_trace", "rust_wire_observation", "official_frontend_browser_e2e"):
             path = evidence_file(entry["evidence"].get(key), root)
             capture = json.loads(path.read_text(encoding="utf-8"))
+            # The frozen status oracle records per-case decoded alerts and DOM,
+            # rather than the generic browser collector's frames/steps layout.
+            if key == "python_browser_trace" and capture.get("kind") == "python-reference-status-trace":
+                expected_format = {"st.info": "INFO", "st.warning": "WARNING", "st.error": "ERROR", "st.success": "SUCCESS"}.get(entry["feature_id"])
+                if expected_format is None:
+                    raise ValueError("status oracle is only valid for the four status APIs")
+                cases = capture.get("cases")
+                if (capture.get("reference_version") != "1.66.1" or not isinstance(cases, dict) or not cases
+                        or not all(isinstance(case.get("alerts"), list) for case in cases.values())
+                        or not any(case["alerts"] for case in cases.values())):
+                    raise ValueError("incomplete Python status case oracle")
+                matched_format = False
+                for case in cases.values():
+                    for index, alert in enumerate(case["alerts"]):
+                        wire = alert.get("wire", alert)
+                        rendered_items = case.get("rendered_alerts", [])
+                        rendered = alert.get("rendered") or (rendered_items[index] if index < len(rendered_items) else None)
+                        if (wire.get("format") not in ("INFO", "WARNING", "ERROR", "SUCCESS")
+                                or not isinstance(wire.get("body"), str)
+                                or not isinstance(rendered, dict) or not isinstance(rendered.get("text"), str)
+                                or not rendered["text"].strip()
+                                or not isinstance(rendered.get("width_px", rendered.get("width")), (int, float))
+                                or rendered.get("width_px", rendered.get("width")) <= 0):
+                            raise ValueError("status oracle requires decoded alert and rendered observation")
+                        matched_format |= wire["format"] == expected_format
+                if not matched_format:
+                    raise ValueError(f"status oracle has no rendered {expected_format} alert for {entry['feature_id']}")
+                continue
             directions = {frame.get("direction") for frame in capture.get("frames", [])}
             if (capture.get("versions", {}).get("streamlit") != "1.66.1"
                     or not capture.get("steps") or capture.get("failures") != []

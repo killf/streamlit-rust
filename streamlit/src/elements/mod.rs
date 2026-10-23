@@ -6,6 +6,7 @@ pub mod columns;
 pub mod common;
 pub mod container;
 pub mod markdown;
+pub mod status;
 pub mod title;
 
 pub use app::*;

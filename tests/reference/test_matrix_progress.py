@@ -133,3 +133,49 @@ def test_lost_previous_feature_rejected_without_changing_either_output(workspace
     with pytest.raises(ValueError, match=message):
         verify.main()
     assert (matrix.read_bytes(), baseline.read_bytes()) == before
+
+
+def test_five_frozen_partials_retain_scope_and_evidence():
+    matrix = json.loads((ROOT / "compatibility/api-compatibility-matrix.json").read_text(encoding="utf-8"))
+    ids = {"st.session_state", "st.info", "st.warning", "st.error", "st.success"}
+    recorded = [row for row in matrix["entries"] if row["feature_id"] in ids]
+    assert len(recorded) == 5
+    for row in recorded:
+        assert row["compatibility_status"] == "partial"
+        generated = copy.deepcopy(row)
+        generated.update(implementation_status="absent", compatibility_status="unverified")
+        for _ in range(2):
+            generated = verify.merge_progress(generated, row, ROOT)
+            assert generated == row
+
+
+@pytest.mark.parametrize("feature_id", ["st.session_state", "st.error"])
+def test_status_oracle_cannot_substitute_for_another_api(workspace, feature_id):
+    root, matrix = workspace
+    data = recorded_partial(root, matrix)
+    row = data["entries"][0]
+    row["feature_id"] = feature_id
+    oracle = json.loads((ROOT / "tests/reference/reference-browser/status/trace-status.json").read_text(encoding="utf-8"))
+    if feature_id == "st.error":
+        info = next(alert for case in oracle["cases"].values() for alert in case["alerts"]
+                    if alert["wire"]["format"] == "INFO")
+        oracle["cases"] = {"info_only": {"alerts": [info]}}
+    (root / "oracle.json").write_text(json.dumps(oracle), encoding="utf-8")
+    # Keep catalog and authored row IDs consistent, so the oracle guard itself
+    # must reject these claims rather than an unmatched-ID check doing so.
+    catalog_path = root / "cache/catalog.json"
+    catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+    catalog["items"][0]["id"] = feature_id
+    catalog_path.write_text(json.dumps(catalog), encoding="utf-8")
+    lock_path = root / "lock.json"
+    lock = json.loads(lock_path.read_text(encoding="utf-8"))
+    lock["documentation"]["catalog_sha256"] = verify.digest(catalog_path)
+    lock_path.write_text(json.dumps(lock), encoding="utf-8")
+    data["scope"]["catalog_sha256"] = verify.digest(catalog_path)
+    matrix.write_text(json.dumps(data), encoding="utf-8")
+    baseline = root / "baseline.json"
+    before = (matrix.read_bytes(), baseline.read_bytes())
+    message = "only valid for the four status APIs" if feature_id == "st.session_state" else "no rendered ERROR alert"
+    with pytest.raises(ValueError, match=message):
+        verify.main()
+    assert (matrix.read_bytes(), baseline.read_bytes()) == before

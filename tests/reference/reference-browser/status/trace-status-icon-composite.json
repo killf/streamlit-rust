@@ -1,0 +1,150 @@
+{
+  "schema_version": 1,
+  "contract_id": "C-P0-04",
+  "kind": "python-reference-status-trace",
+  "scope": "PYTHON SIDE ONLY. The Rust implementation is not exercised by this file.",
+  "appended_to": "tests/reference/reference-browser/status/trace-status.json",
+  "appended_because": "the icon grammar was measured after the two earlier status traces were published; those files are left untouched",
+  "app_sha256": "043df7075cd49c99ed785c84b048fa78a58e3075bf2f23f9b956fb30edb55c12",
+  "reference_version": "1.66.1",
+  "icon_rule": {
+    "summary": "the icon argument must be exactly ONE emoji grapheme cluster; a cluster may span several code points (ZWJ sequence, skin-tone modifier, regional-indicator flag) and is carried verbatim on the wire, but two independent emoji are rejected",
+    "accepted_multi_code_point_clusters": [
+      {
+        "case": "icon_zwj",
+        "value": "👩‍💻",
+        "code_points": 3,
+        "kind": "ZWJ sequence"
+      },
+      {
+        "case": "icon_skin_tone",
+        "value": "👍🏽",
+        "code_points": 2,
+        "kind": "emoji + skin-tone modifier"
+      },
+      {
+        "case": "icon_flag",
+        "value": "🇨🇳",
+        "code_points": 2,
+        "kind": "regional-indicator flag"
+      }
+    ],
+    "rejected": {
+      "case": "icon_two_emoji",
+      "value": "🔥💡",
+      "code_points": 2,
+      "kind": "two independent emoji",
+      "exception_type": "streamlit.errors.StreamlitAPIException",
+      "exception_message": "The value \"🔥💡\" is not a valid emoji. Please use a single emoji.",
+      "note": "the alert is not rendered; the script raises and an exception element is shown instead"
+    },
+    "leading_extraction": "a leading emoji cluster in the body is moved to the icon field verbatim and removed from the body; a composite cluster is taken whole, not split at the first code point"
+  },
+  "cases": {
+    "icon_zwj": {
+      "alerts": [
+        {
+          "body": "INFO-ICON-ZWJ body",
+          "format": "INFO",
+          "icon": "👩‍💻",
+          "widthConfig": {
+            "useStretch": true
+          }
+        }
+      ],
+      "exceptions": [],
+      "rendered_alerts": [
+        {
+          "text": "👩‍💻 INFO-ICON-ZWJ body",
+          "width": 1104,
+          "icon_html": null
+        }
+      ],
+      "rendered_exception": []
+    },
+    "icon_skin_tone": {
+      "alerts": [
+        {
+          "body": "INFO-ICON-SKIN body",
+          "format": "INFO",
+          "icon": "👍🏽",
+          "widthConfig": {
+            "useStretch": true
+          }
+        }
+      ],
+      "exceptions": [],
+      "rendered_alerts": [
+        {
+          "text": "👍🏽 INFO-ICON-SKIN body",
+          "width": 1104,
+          "icon_html": null
+        }
+      ],
+      "rendered_exception": []
+    },
+    "icon_flag": {
+      "alerts": [
+        {
+          "body": "INFO-ICON-FLAG body",
+          "format": "INFO",
+          "icon": "🇨🇳",
+          "widthConfig": {
+            "useStretch": true
+          }
+        }
+      ],
+      "exceptions": [],
+      "rendered_alerts": [
+        {
+          "text": "🇨🇳 INFO-ICON-FLAG body",
+          "width": 1104,
+          "icon_html": null
+        }
+      ],
+      "rendered_exception": []
+    },
+    "icon_two_emoji": {
+      "alerts": [],
+      "exceptions": [
+        {
+          "type": "streamlit.errors.StreamlitAPIException",
+          "message": "The value \"🔥💡\" is not a valid emoji. Please use a single emoji.",
+          "stackTrace": [
+            "File \"D:\\dlab\\streamlit-rust\\tests\\reference\\status_app.py\", line 88, in <module>\n    st.info(\"INFO-ICON-TWO body\", icon=\"\\U0001f525\\U0001f4a1\")"
+          ],
+          "messageIsMarkdown": true,
+          "widthConfig": {
+            "useStretch": true
+          },
+          "isStreamlitException": true
+        }
+      ],
+      "rendered_alerts": [],
+      "rendered_exception": [
+        "streamlit.errors.StreamlitAPIException: The value \"🔥💡\" is not a valid emoji. Please use a single emoji."
+      ]
+    },
+    "leading_composite": {
+      "alerts": [
+        {
+          "body": "INFO-LEADING-COMPOSITE body starts with a composite emoji",
+          "format": "INFO",
+          "icon": "👩‍💻",
+          "widthConfig": {
+            "useStretch": true
+          }
+        }
+      ],
+      "exceptions": [],
+      "rendered_alerts": [
+        {
+          "text": "👩‍💻 INFO-LEADING-COMPOSITE body starts with a composite emoji",
+          "width": 1104,
+          "icon_html": null
+        }
+      ],
+      "rendered_exception": []
+    }
+  }
+}

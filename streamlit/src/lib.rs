@@ -21,10 +21,12 @@ pub mod error;
 mod memory;
 pub mod proto;
 pub mod server;
+mod session;
 pub(crate) mod utils;
 pub(crate) mod websocket;
 
 pub use api::*;
 pub use server::StreamlitServer;
+pub use session::SessionState;
 
 pub use streamlit_macros::main;

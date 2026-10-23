@@ -62,7 +62,17 @@ AB_EXE_CANDIDATES = [
     r"C:\nvm4w\nodejs\node_modules\agent-browser\bin\agent-browser-win32-x64.exe",
 ]
 
-SCENARIOS = ("closed-loop", "errors", "form", "tabs", "reconnect", "refresh", "smoke")
+SCENARIOS = (
+    "closed-loop",
+    "errors",
+    "form",
+    "tabs",
+    "reconnect",
+    "refresh",
+    "smoke",
+    "counter",
+    "status",
+)
 
 
 def find_agent_browser() -> str:
@@ -164,11 +174,16 @@ const thumb=q("[data-testid='stSliderThumbValue']");
 const cb=q("[data-testid='stCheckbox'] input");
 const sb=q("[data-testid='stSelectbox'] input");
 const alerts=[...document.querySelectorAll("[data-testid^='stAlertContent']")].map(e=>e.textContent);
+const markdown=[...document.querySelectorAll("[data-testid='stMarkdown']")].map(e=>e.innerText.trim());
+const markdownLines=markdown.flatMap(m=>m.split("\n").map(s=>s.trim())).filter(s=>s);
 const texts=[...document.querySelectorAll("[data-testid='stText']")].map(e=>e.textContent);
-const pick=(p)=>{const t=texts.find(x=>x.startsWith(p));return t?t.slice(p.length).trim():null;};
+const all=texts.concat(markdownLines);
+const pick=(p)=>{const t=all.find(x=>x.startsWith(p));return t?t.slice(p.length).trim():null;};
 const buttons=[...document.querySelectorAll("[data-testid='stButton']")].map(e=>e.innerText.trim());
 return JSON.stringify({
  document_title: document.title,
+ markdown: markdown,
+ has_uploader: !!document.querySelector("[data-testid='stFileUploader']"),
  headings: [...document.querySelectorAll("h1,h2,h3")].map(e=>e.innerText.trim()).slice(0,4),
  button_labels: buttons,
  has_button: buttons.length>0,
@@ -344,6 +359,25 @@ def summarise_forward(payload: bytes) -> dict:
             name = element.WhichOneof("type")
             entry["element"] = name
             widget = getattr(element, name, None)
+            if name == "exception":
+                # The full Exception element is the field oracle for an
+                # invalid-argument failure.
+                from google.protobuf.json_format import MessageToDict
+
+                entry["exception"] = MessageToDict(element.exception)
+            if name == "alert":
+                # The full Alert message is the field oracle for a status
+                # element: body, format (the style), icon, title and its own
+                # width config, plus the element level layout values.
+                from google.protobuf.json_format import MessageToDict
+
+                entry["alert"] = MessageToDict(element.alert)
+                entry["element_width_config"] = (
+                    MessageToDict(element.width_config) if element.HasField("width_config") else None
+                )
+                entry["element_height_config"] = (
+                    MessageToDict(element.height_config) if element.HasField("height_config") else None
+                )
             if widget is not None:
                 if hasattr(widget, "id"):
                     entry["id"] = widget.id
@@ -474,6 +508,29 @@ def _pulses(observation: dict) -> str:
             return text.split(":", 1)[1].strip()
     return ""
 
+# The Python 1.66.1 oracle for the status page, read off the real browser
+# capture in tests/reference/reference-browser/status/.  The Rust status
+# example renders the same page, so the wire fields can be compared directly:
+# same body, format, icon, title and width.
+STATUS_ORACLE = [
+    {"body": "INFO-BODY plain information", "format": "INFO"},
+    {"body": "SUCCESS-BODY the operation succeeded", "format": "SUCCESS"},
+    {"body": "WARNING-BODY something needs attention", "format": "WARNING"},
+    {"body": "ERROR-BODY something failed", "format": "ERROR"},
+    {"body": "INFO-EMOJI-BODY \U0001f4a1 this body starts with an emoji", "format": "INFO"},
+    {"body": "INFO-NOICON-BODY \U0001f4a1 body keeps its emoji", "format": "INFO"},
+    {"body": "SUCCESS-MATERIAL-BODY material icon", "format": "SUCCESS", "icon": ":material/thumb_up:"},
+    {"body": "WARNING-WIDTH-BODY fixed width", "format": "WARNING", "width": 240},
+    {"body": "ERROR-TITLE-BODY with a title", "format": "ERROR", "title": "ERROR-TITLE"},
+    {"body": "INFO-LEADING-EMOJI this body starts with an emoji", "format": "INFO", "icon": "\U0001f4a1"},
+    {"body": "\U0001f4a1 INFO-LEADING-NOICON body keeps its emoji", "format": "INFO"},
+    {"body": "INFO-LEADING-MATERIAL body starts with a shortcode", "format": "INFO", "icon": ":material/thumb_up:"},
+    {"body": "INFO-ICON-ZWJ body", "format": "INFO", "icon": "\U0001f469\u200d\U0001f4bb"},
+    {"body": "INFO-ICON-SKIN body", "format": "INFO", "icon": "\U0001f44d\U0001f3fd"},
+    {"body": "INFO-ICON-FLAG body", "format": "INFO", "icon": "\U0001f1e8\U0001f1f3"},
+    {"body": "INFO-LEADING-COMPOSITE body starts with a composite emoji", "format": "INFO", "icon": "\U0001f469\u200d\U0001f4bb"},
+]
+
 
 class Capture:
     def __init__(self, args) -> None:
@@ -486,6 +543,7 @@ class Capture:
         self.recorders: list[CDP] = []
         self.notes: list[str] = []
         self.click_windows: list[dict] = []
+        self.status_observation: dict | None = None
         self.page_title = ""
         self.chrome = "unknown"
         self.cdp_browser_url = ""
@@ -497,13 +555,24 @@ class Capture:
             "const _W=window.WebSocket;"
             "window.WebSocket=function(...a){const s=new _W(...a);window.__stWs=s;return s;};"
             "window.WebSocket.prototype=_W.prototype;"
-        ) if args.scenario == "reconnect" else None
+        ) if args.scenario in ("reconnect", "counter") else None
 
     def mark(self, name: str, note: str, expected: dict | None = None) -> dict:
         try:
             observation = self.ab.observe()
         except SystemExit as exc:
             observation = {"error": str(exc)[:200]}
+        self.mark_observed(name, note, observation, expected)
+        return observation
+
+    def mark_observed(
+        self,
+        name: str,
+        note: str,
+        observation: dict,
+        expected: dict | None = None,
+    ) -> dict:
+        """Record a step against an observation that was read some other way."""
         checked = {}
         for key, want in (expected or {}).items():
             got = observation.get(key)
@@ -522,6 +591,21 @@ class Capture:
             }
         )
         return observation
+
+    def window(self, recorder, label: str, start: int | None = None, end: int | None = None):
+        """Record a click window in the recorder's own frame numbering.
+
+        The finished trace lists the frames of every recorder in one list, so
+        the windows are translated to that global space once the offsets are
+        known.  Indexing them per recorder from the start would silently point
+        at the wrong frames as soon as a second tab is open.
+        """
+        first = recorder.frame_count() if start is None else start
+        last = recorder.frame_count() if end is None else end
+        self.click_windows.append(
+            {"click": label, "target": recorder.label, "start": first, "end": last}
+        )
+        return first, last
 
     def upload(self, filename: str) -> None:
         path = pathlib.Path(self.args.fixtures) / filename
@@ -848,19 +932,13 @@ class Capture:
         # the button and require a true trigger and a server answer on the NEW
         # connection.  The DOM alone proves nothing, because a stale DOM looks
         # exactly like a live session.
-        start = self.recorders[0].frame_count()
+        start, end = self.window(self.recorders[0], "post-reconnect")
         self.ab.click("[data-testid='stButton']")
         self.ab.run("wait", "3000")
         end = self.recorders[0].frame_count()
-        self.click_windows.append(
-            {
-                "click": "post-reconnect",
-                "start": start,
-                "end": end,
-                "require_new_connection": True,
-                "connection_before": connection_before_fault,
-            }
-        )
+        self.click_windows[-1]["end"] = end
+        self.click_windows[-1]["require_new_connection"] = True
+        self.click_windows[-1]["connection_before"] = connection_before_fault
         self.mark(
             "reconnect-click",
             "clicked the button on the reconnected session: the counter must advance",
@@ -975,11 +1053,12 @@ class Capture:
         self.shot("19-smoke-open.png")
 
         for index in range(self.args.clicks):
-            start = self.recorders[0].frame_count()
+            self.window(self.recorders[0], index + 1)
             self.ab.click("[data-testid='stButton']")
             self.ab.run("wait", "2500")
-            end = self.recorders[0].frame_count()
-            self.click_windows.append({"click": index + 1, "start": start, "end": end})
+            # The window must be closed after the click, or it stays empty and
+            # the helper rejects a click that the server did answer.
+            self.click_windows[-1]["end"] = self.recorders[0].frame_count()
             self.mark(
                 f"smoke-click-{index + 1}",
                 f"clicked the button ({index + 1}/{self.args.clicks})",
@@ -1001,6 +1080,128 @@ class Capture:
             f"client->server frames observed during the smoke clicks: {len(triggers)}"
         )
         self.notes.append(f"button traces: {len(self.button_traces())}")
+
+    def server_under_test(self) -> dict:
+        """What was on the other end of the wire: the binary and its revision."""
+        info: dict = {"target": self.args.target}
+        if self.args.binary:
+            path = pathlib.Path(self.args.binary)
+            info["binary"] = str(path)
+            if path.exists():
+                info["binary_sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
+                info["binary_bytes"] = path.stat().st_size
+            else:
+                info["binary_sha256"] = None
+        if self.args.source_version:
+            info["source_version"] = self.args.source_version
+        return info
+
+    def status_dom(self) -> dict:
+        """Read the rendered alerts back from the DOM, one entry per alert."""
+        js = r"""(()=>{const alerts=[...document.querySelectorAll("[data-testid='stAlert']")].map(e=>{
+const icon=e.querySelector("[data-testid='stAlertContentIcon']")||e.querySelector("img")||e.querySelector(".material-symbols-rounded");
+const title=e.querySelector("[data-testid='stAlertTitle']")||e.querySelector("h3");
+return {text:e.innerText.replace(/\s+/g," ").trim(),
+width:Math.round(e.getBoundingClientRect().width),
+icon_text:icon?(((icon.getAttribute("alt")||icon.textContent||"").trim())||null):null,
+icon_html:icon?icon.outerHTML.slice(0,240):null,
+title:title?title.innerText.trim():null};});
+const exceptions=[...document.querySelectorAll("[data-testid='stException']")].map(e=>e.innerText.replace(/\s+/g," ").trim().slice(0,400));
+return JSON.stringify({alerts,exceptions});})()"""
+        raw = self.ab.run("eval", js)
+        try:
+            value = json.loads(raw)
+        except json.JSONDecodeError:
+            return {"raw": raw[:400]}
+        if isinstance(value, str):
+            try:
+                value = json.loads(value)
+            except json.JSONDecodeError:
+                return {"raw": value[:400]}
+        return value if isinstance(value, dict) else {"value": value}
+
+    def scenario_status(self) -> None:
+        """The status page: the four kinds plus the icon, width and title variants.
+
+        The wire fields are compared against the Python 1.66.1 oracle, and the
+        rendered page is measured in the DOM, so a server that drops the icon,
+        the title or the fixed width is caught even though the page still looks
+        plausible.
+        """
+        self.ab.run("wait", "6000")
+        self.shot("30-status-page.png")
+        wire: list[dict] = []
+        finished: list[dict] = []
+        for event in self.recorders[0].take():
+            if event.get("method") != "Network.webSocketFrameReceived":
+                continue
+            frame = event["params"].get("response", {})
+            if frame.get("opcode") != 2:
+                continue
+            decoded = _safe(summarise_forward, base64.b64decode(frame["payloadData"]))
+            if decoded.get("type") == "delta":
+                delta = decoded.get("delta", {})
+                if delta.get("type") == "new_element" and delta.get("element") == "alert":
+                    wire.append(delta.get("alert") or {})
+            elif decoded.get("type") == "script_finished":
+                finished.append(decoded.get("script_finished") or {})
+        dom = self.status_dom()
+        alerts = dom.get("alerts") or []
+        mismatches = []
+        for expected in STATUS_ORACLE:
+            actual = next((a for a in wire if a.get("body") == expected["body"]), None)
+            problems = []
+            if actual is None:
+                problems.append("no alert with this body on the wire")
+            else:
+                if actual.get("format") != expected["format"]:
+                    problems.append(f"format {actual.get('format')!r} != {expected['format']!r}")
+                if actual.get("icon") != expected.get("icon"):
+                    problems.append(f"icon {actual.get('icon')!r} != {expected.get('icon')!r}")
+                if actual.get("title") != expected.get("title"):
+                    problems.append(f"title {actual.get('title')!r} != {expected.get('title')!r}")
+                want_width = expected.get("width")
+                got_width = (actual.get("widthConfig") or {}).get("pixelWidth")
+                if want_width is None:
+                    if not (actual.get("widthConfig") or {}).get("useStretch"):
+                        problems.append(f"widthConfig {actual.get('widthConfig')!r} is not stretch")
+                elif got_width != want_width:
+                    problems.append(f"pixelWidth {got_width!r} != {want_width!r}")
+            mismatches.append(
+                {"body": expected["body"], "ok": not problems, "problems": problems, "actual": actual}
+            )
+        fixed = next(
+            (a for a in alerts if "WARNING-WIDTH-BODY fixed width" in (a.get("text") or "")),
+            None,
+        )
+        stretched = [a for a in alerts if a is not fixed]
+        observation = {
+            "alerts_rendered": len(alerts),
+            "alert_texts": [a.get("text") for a in alerts],
+            "alert_widths": [a.get("width") for a in alerts],
+            "fixed_width_px": fixed.get("width") if fixed else None,
+            "stretched_min_px": min((a.get("width") or 0) for a in stretched) if stretched else None,
+            "exceptions": dom.get("exceptions") or [],
+            "script_finished": finished,
+            "script_finished_ok": any(f.get("status") == SCRIPT_FINISHED_SUCCESS for f in finished),
+            "wire_alerts": wire,
+            "oracle_mismatches": [m for m in mismatches if not m["ok"]],
+            "oracle": mismatches,
+        }
+        self.status_observation = observation
+        self.mark_observed(
+            "status-page",
+            "the status page rendered every alert and the server finished the script",
+            observation,
+            {
+                "alerts_rendered": 17,
+                "script_finished_ok": True,
+                "fixed_width_px": 240,
+                "exceptions": [],
+                "oracle_mismatches": [],
+            },
+        )
+        self.shot("31-status-details.png")
 
     def connection_index_before(self) -> int:
         """The index of the connection that was alive before the fault."""
@@ -1032,6 +1233,191 @@ class Capture:
                     if widget.get("value_field") == "trigger_value":
                         found.append({"widget_id": widget["id"], "value": widget["value"]})
         return found
+
+    def scenario_counter(self) -> None:
+        """A generic session-counter server: isolation, recovery and refresh.
+
+        It assumes the app exposes a session-scoped counter ("Pulses:" and
+        "Script runs:") and a button, with no uploader and no chart.  The three
+        behaviours it checks are the ones a Rust session implementation has to
+        reproduce:
+
+        * two tabs get two different sessions and cannot see each other;
+        * after a real disconnect the frontend reconnects to the SAME session,
+          the counter survives, and a click on the reconnected connection works;
+        * after a reload the browser has forgotten the session, so a NEW
+          session is issued and the counter is back to its initial value.
+        """
+        tab_a_index = self.current_tab_index()
+        self.mark(
+            "counter-open",
+            "the counter app rendered",
+            {"has_button": True, "pulses": "0", "script_runs": "1"},
+        )
+        self.shot("21-counter-open.png")
+
+        # ---- two tabs, two sessions -------------------------------------
+        before_ids = {t["id"] for t in page_targets(self.cdp_browser_url, self.host)}
+        self.ab.run("tab", "new", self.args.url)
+        self.ab.run("wait", "6000")
+        new_targets = [
+            t for t in page_targets(self.cdp_browser_url, self.host) if t["id"] not in before_ids
+        ]
+        if not new_targets:
+            self.failures.append(
+                {
+                    "step": "counter",
+                    "check": "second_tab",
+                    "expected": "a second browser tab",
+                    "actual": "no new page target appeared",
+                }
+            )
+        else:
+            self.recorders.append(CDP(new_targets[0]["webSocketDebuggerUrl"], label="tab-b"))
+            self.recorders[-1].start()
+            time.sleep(1.0)
+        self.mark(
+            "counter-tab-b",
+            "a second tab starts its own fresh session",
+            {"pulses": "0", "script_runs": "1"},
+        )
+        self.shot("22-counter-tab-b.png")
+
+        self.window(self.recorders[-1], "tab-b")
+        self.ab.click("[data-testid='stButton']")
+        self.ab.run("wait", "2500")
+        self.click_windows[-1]["end"] = self.recorders[-1].frame_count()
+        self.mark("counter-tab-b-click", "clicking in tab B advances only tab B", {"pulses": "1"})
+        self.shot("23-counter-tab-b-click.png")
+
+        self.ab.run("tab", str(tab_a_index))
+        self.ab.run("wait", "2000")
+        self.mark(
+            "counter-tab-a-isolated",
+            "tab A is unaffected by what tab B did",
+            {"pulses": "0", "script_runs": "1"},
+        )
+
+        session_a = _session_ids(self.recorders, "tab-a")
+        session_b = _session_ids(self.recorders, "tab-b")
+        if session_a and session_b and set(session_a) & set(session_b):
+            self.failures.append(
+                {
+                    "step": "counter",
+                    "check": "session_isolation",
+                    "expected": "a different session id per tab",
+                    "actual": f"both tabs used {sorted(set(session_a) & set(session_b))}",
+                }
+            )
+        self.notes.append(f"tab A session id(s): {session_a or 'not captured'}")
+        self.notes.append(f"tab B session id(s): {session_b or 'not captured'}")
+
+        # ---- same-session recovery --------------------------------------
+        for index in range(2):
+            self.window(self.recorders[0], f"pre-recovery-{index + 1}")
+            self.ab.click("[data-testid='stButton']")
+            self.ab.run("wait", "2000")
+            self.click_windows[-1]["end"] = self.recorders[0].frame_count()
+        self.mark("counter-two-clicks", "two clicks in tab A", {"pulses": "2"})
+        session_before = _session_ids(self.recorders, "tab-a")
+        connection_before_fault = self.connection_index_before()
+
+        closed = self.recorders[0].call(
+            "Runtime.evaluate",
+            {"expression": "window.__stWs ? (window.__stWs.close(), 'closed') : 'no socket'"},
+            timeout=5.0,
+        )
+        self.notes.append(f"live socket closed through Runtime.evaluate: {closed}")
+        if _evaluate_value(closed) != "closed":
+            self.failures.append(
+                {
+                    "step": "counter",
+                    "check": "socket_closed",
+                    "expected": "the live socket to be closed",
+                    "actual": str(closed)[:200],
+                }
+            )
+        time.sleep(3.0)
+
+        deadline = time.time() + 40
+        reconnect_handshake = None
+        while time.time() < deadline:
+            for handshake in _handshakes(self.recorders[0]):
+                if len(handshake.get("entries", [])) >= 3:
+                    reconnect_handshake = handshake
+                    break
+            if reconnect_handshake:
+                break
+            time.sleep(1.0)
+        time.sleep(4.0)
+        self.mark(
+            "counter-reconnected",
+            "the frontend reconnected; the session and its counter survived",
+            {"pulses": "2"},
+        )
+        self.shot("24-counter-reconnected.png")
+        if reconnect_handshake:
+            self.notes.append(
+                "reconnect handshake Sec-WebSocket-Protocol: "
+                + str(reconnect_handshake["headers"].get("Sec-WebSocket-Protocol"))
+            )
+        else:
+            self.failures.append(
+                {
+                    "step": "counter",
+                    "check": "reconnect_handshake",
+                    "expected": "a handshake with three subprotocol entries",
+                    "actual": "no such handshake was observed",
+                }
+            )
+
+        start, end = self.window(self.recorders[0], "post-recovery")
+        self.ab.click("[data-testid='stButton']")
+        self.ab.run("wait", "3000")
+        end = self.recorders[0].frame_count()
+        self.click_windows[-1]["end"] = end
+        self.click_windows[-1]["require_new_connection"] = True
+        self.click_windows[-1]["connection_before"] = connection_before_fault
+        self.mark(
+            "counter-click-after-recovery",
+            "the click on the reconnected session advanced the counter",
+            {"pulses": "3"},
+        )
+        self.shot("25-counter-after-recovery.png")
+
+        session_after = _session_ids(self.recorders, "tab-a")
+        if session_before and session_after and session_before[-1] != session_after[-1]:
+            self.failures.append(
+                {
+                    "step": "counter",
+                    "check": "same_session",
+                    "expected": f"the session {session_before[-1]} to be reused",
+                    "actual": f"a different session {session_after[-1]}",
+                }
+            )
+        self.notes.append(f"session id before the fault: {session_before or 'not captured'}")
+        self.notes.append(f"session id after the recovery: {session_after or 'not captured'}")
+
+        # ---- a reload starts a new session -------------------------------
+        self.ab.run("reload")
+        self.ab.run("wait", "7000")
+        self.mark(
+            "counter-after-reload",
+            "a reload starts a new session and resets the counter",
+            {"pulses": "0", "script_runs": "1"},
+        )
+        self.shot("26-counter-after-reload.png")
+        session_reloaded = _session_ids(self.recorders, "tab-a")
+        if session_before and session_reloaded and session_before[-1] == session_reloaded[-1]:
+            self.failures.append(
+                {
+                    "step": "counter",
+                    "check": "new_session_after_reload",
+                    "expected": f"a session id other than {session_before[-1]}",
+                    "actual": f"the same session {session_reloaded[-1]}",
+                }
+            )
+        self.notes.append(f"session id after the reload: {session_reloaded or 'not captured'}")
 
     # -- driver ----------------------------------------------------------
     def run(self) -> int:
@@ -1119,6 +1505,7 @@ class Capture:
             return record
 
         frames: list[dict] = []
+        offsets: dict[str, int] = {}
         http_requests: list[dict] = []
         static_bundle_requests = 0
 
@@ -1154,6 +1541,7 @@ class Capture:
                     record["frames_sent"] += 1
                 else:
                     record["frames_received"] += 1
+                offsets.setdefault(target, len(frames))
                 frames.append(
                     {
                         "target": target,
@@ -1196,7 +1584,17 @@ class Capture:
 
         handshakes = [connections[request_id] for request_id in connection_order]
 
-        self.failures.extend(verify_click_windows(frames, self.click_windows))
+        translated = []
+        for window in self.click_windows:
+            offset = offsets.get(window.get("target"), 0)
+            translated.append(
+                {
+                    **window,
+                    "start": window["start"] + offset,
+                    "end": window["end"] + offset,
+                }
+            )
+        self.failures.extend(verify_click_windows(frames, translated))
         for window in self.click_windows:
             self.notes.append(
                 f"click window {window.get('click')}: frames {window['start']}..{window['end']}"
@@ -1223,13 +1621,21 @@ class Capture:
         return {
             "schema_version": 2,
             "contract_id": "C-P0-04",
-            "kind": "python-reference-browser-trace",
+            "kind": (
+                "rust-browser-trace" if self.args.target == "rust" else "python-reference-browser-trace"
+            ),
+            "target": self.args.target,
             "scenario": self.args.scenario,
             "scope": (
-                "PYTHON SIDE ONLY. The Rust implementation is not exercised and is not "
+                "RUST SIDE ONLY. The Rust implementation is exercised by this trace; the "
+                "Python reference application is not. Black-box evidence over the real "
+                "HTTP, WebSocket and protobuf surface of the server under test."
+                if self.args.target == "rust"
+                else "PYTHON SIDE ONLY. The Rust implementation is not exercised and is not "
                 "verified by this trace. This is black-box evidence over the real HTTP, "
                 "WebSocket and protobuf surface of the reference application."
             ),
+            "server_under_test": self.server_under_test(),
             "generated_by": "tests/reference/capture_browser_trace.py",
             "generated_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
             "app_url": self.args.url,
@@ -1260,11 +1666,30 @@ class Capture:
             "http_requests": http_requests,
             "static_bundle_requests_counted_not_stored": static_bundle_requests,
             "button_trace": button_trace,
+            "status_observation": self.status_observation,
             "steps": self.steps,
             "failures": self.failures,
             "notes": self.notes,
             "frames": frames,
         }
+
+
+def parse_counter_texts(lines):
+    """Extract the session counter values from rendered lines.
+
+    A counter may be rendered as ``st.text`` or as ``st.write`` markdown, so
+    both are accepted.  The prefix must match exactly, which keeps a stray
+    "Pulses" in some other text from being read as the counter.
+    """
+    found: dict[str, str] = {}
+    for line in lines or []:
+        line = line.strip()
+        for key, prefix in (("pulses", "Pulses:"), ("script_runs", "Script runs:")):
+            if line.startswith(prefix):
+                value = line[len(prefix) :].strip()
+                if value:
+                    found[key] = value
+    return found
 
 
 def _evaluate_value(response: dict):
@@ -1486,6 +1911,22 @@ def main() -> int:
     parser.add_argument("--url", required=True, help="URL of the running reference app")
     parser.add_argument("--out", required=True, help="output directory for the trace")
     parser.add_argument("--scenario", default="closed-loop", choices=SCENARIOS)
+    parser.add_argument(
+        "--target",
+        choices=("python", "rust"),
+        default="python",
+        help="which implementation the capture is about; it labels the trace, it does not change what is captured",
+    )
+    parser.add_argument(
+        "--binary",
+        default="",
+        help="path to the server binary under test; its sha256 is recorded in the trace",
+    )
+    parser.add_argument(
+        "--source-version",
+        default="",
+        help="source revision of the server under test",
+    )
     parser.add_argument(
         "--clicks", type=int, default=3, help="how many times the smoke scenario clicks the button"
     )

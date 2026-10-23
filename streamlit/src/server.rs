@@ -1,10 +1,13 @@
 use crate::api::Streamlit;
+use crate::session::SessionStore;
 use crate::websocket::handler::handle_connection;
 use actix_files::Files;
 use actix_web::http::header::{HeaderName, HeaderValue};
 use actix_web::{App, HttpRequest, HttpResponse, HttpServer, Responder, get, web};
 use std::future::Future;
 use std::pin::Pin;
+use std::sync::Arc;
+use std::time::Duration;
 
 #[get("/_stcore/health")]
 async fn health_check() -> impl Responder {
@@ -45,10 +48,18 @@ async fn host_config() -> impl Responder {
 
 #[get("/_stcore/stream")]
 async fn websocket_handler(req: HttpRequest, stream: web::Payload, state: web::Data<StreamlitServer>) -> Result<HttpResponse, actix_web::Error> {
+    let protocol = req
+        .headers()
+        .get("sec-websocket-protocol")
+        .map(|value| value.to_str())
+        .transpose()
+        .map_err(|_| actix_web::error::ErrorBadRequest("invalid WebSocket subprotocol header"))?;
+    let requested_id = reconnect_id(protocol).map(str::to_owned);
     let (mut response, session, msg_stream) = actix_ws::handle(&req, stream)?;
 
     actix_web::rt::spawn(async move {
-        if let Err(e) = handle_connection(session, msg_stream, state.get_ref()).await {
+        let lease = state.sessions.connect(requested_id.as_deref()).await;
+        if let Err(e) = handle_connection(session, msg_stream, state.get_ref(), lease).await {
             log::error!("WebSocket connection error: {}", e);
         }
     });
@@ -63,6 +74,14 @@ async fn websocket_handler(req: HttpRequest, stream: web::Payload, state: web::D
     }
 
     Ok(response)
+}
+
+// The official browser sends protocol + token on a fresh connection, adding a
+// session ID only when reconnecting. The token is not XSRF-validated yet.
+fn reconnect_id(protocol: Option<&str>) -> Option<&str> {
+    // Observed reference behavior treats the third entry as an opaque lookup,
+    // including non-UUID strings. Unknown IDs create a new server-selected ID.
+    protocol.and_then(|value| value.split(',').nth(2)).map(str::trim).filter(|id| !id.is_empty())
 }
 
 fn configure_routes(config: &mut web::ServiceConfig) {
@@ -96,11 +115,26 @@ pub struct StreamlitServer {
     pub(crate) entry: Entry,
     pub(crate) host: String,
     pub(crate) port: u16,
+    sessions: Arc<SessionStore>,
 }
 
 impl StreamlitServer {
     pub fn new(entry: fn(&Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>>, host: String, port: u16) -> Self {
-        Self { entry: Entry::Async(entry), host, port }
+        Self {
+            entry: Entry::Async(entry),
+            host,
+            port,
+            sessions: Arc::new(SessionStore::new(Duration::from_secs(120))),
+        }
+    }
+
+    /// Set disconnected-session retention before starting the server.
+    /// Connected sessions never expire. Expired/unknown reconnect IDs start a
+    /// fresh empty session. Reconnecting a known ID assigns a new owner lease.
+    /// This builder creates a new store and must not be used as a hot reload.
+    pub fn with_disconnected_session_ttl(mut self, ttl: Duration) -> Self {
+        self.sessions = Arc::new(SessionStore::new(ttl));
+        self
     }
 
     pub async fn start(&self) -> std::io::Result<()> {

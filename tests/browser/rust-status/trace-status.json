@@ -1,0 +1,1533 @@
+{
+  "schema_version": 2,
+  "contract_id": "C-P0-04",
+  "kind": "rust-browser-trace",
+  "target": "rust",
+  "scenario": "status",
+  "scope": "RUST SIDE ONLY. The Rust implementation is exercised by this trace; the Python reference application is not. Black-box evidence over the real HTTP, WebSocket and protobuf surface of the server under test.",
+  "server_under_test": {
+    "target": "rust",
+    "binary": "target\\status-demo\\status-emoji.exe",
+    "binary_sha256": "20c03e25ec2a9a901043e3c72b855446803e81d8c2b233046e8a1333da794d9d",
+    "binary_bytes": 13834240,
+    "source_version": "git 7215312 + owner status-emoji build (frozen binary 20c03e25)"
+  },
+  "generated_by": "tests/reference/capture_browser_trace.py",
+  "generated_at_utc": "2026-10-23T16:46:53+00:00",
+  "app_url": "http://127.0.0.1:8502/",
+  "page_title": "Streamlit",
+  "capture": {
+    "browser": "Chrome/147.0.7727.56",
+    "agent_browser": "agent-browser 0.25.4",
+    "method": "agent-browser drives the UI; HTTP requests and WebSocket frames are read from the Chrome DevTools Protocol endpoint of the same browser instance",
+    "frame_decode": "official streamlit 1.66.1 protobuf (streamlit.proto.*)",
+    "end_condition": "the last script_finished frame plus the final DOM observation; the long-lived Streamlit WebSocket is never waited on for EOF",
+    "commands": [
+      {
+        "command": "open http://127.0.0.1:8502/",
+        "exit_code": 0
+      },
+      {
+        "command": "wait 3000",
+        "exit_code": 0
+      },
+      {
+        "command": "get cdp-url",
+        "exit_code": 0
+      },
+      {
+        "command": "reload",
+        "exit_code": 0
+      },
+      {
+        "command": "wait 5000",
+        "exit_code": 0
+      },
+      {
+        "command": "wait 6000",
+        "exit_code": 0
+      },
+      {
+        "command": "screenshot target\\rust-status-final\\30-status-page.png",
+        "exit_code": 0
+      },
+      {
+        "command": "eval (()=>{const alerts=[...document.querySelectorAll(\"[data-testid='stAlert']\")].map(e=>{\nconst icon=e.querySelector(\"[data-testid='stAlertContentIcon']\")||e.querySelector(\"img\")||e.querySelector(\".material-symbols-rounded\");\nconst title=e.querySelector(\"[data-testid='stAlertTitle']\")||e.querySelector(\"h3\");\nreturn {text:e.innerText.replace(/\\s+/g,\" \").trim(),\nwidth:Math.round(e.getBoundingClientRect().width),\nicon_text:icon?(((icon.getAttribute(\"alt\")||icon.textContent||\"\").trim())||null):null,\nicon_html:icon?icon.outerHTML.slice(0,240):null,\ntitle:title?title.innerText.trim():null};});\nconst exceptions=[...document.querySelectorAll(\"[data-testid='stException']\")].map(e=>e.innerText.replace(/\\s+/g,\" \").trim().slice(0,400));\nreturn JSON.stringify({alerts,exceptions});})()",
+        "exit_code": 0
+      },
+      {
+        "command": "screenshot target\\rust-status-final\\31-status-details.png",
+        "exit_code": 0
+      }
+    ],
+    "capture_exit_code": 0
+  },
+  "versions": {
+    "streamlit": "1.66.1",
+    "python": "3.12.6",
+    "chrome": "Chrome/147.0.7727.56",
+    "agent_browser": "agent-browser 0.25.4"
+  },
+  "websocket_handshakes": [
+    {
+      "index": 0,
+      "request_id": "89516.1063",
+      "target": "tab-a",
+      "url": "ws://127.0.0.1:8502/_stcore/stream",
+      "request_headers": {
+        "Upgrade": "websocket",
+        "Origin": "http://127.0.0.1:8502",
+        "Cache-Control": "no-cache",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Pragma": "no-cache",
+        "Connection": "Upgrade",
+        "Sec-WebSocket-Key": "JIrmcp5Cg/tnsaosSgjcWg==",
+        "Accept-Encoding": "gzip, deflate, br, zstd",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/147.0.0.0 Safari/537.36",
+        "Sec-WebSocket-Version": "13",
+        "Sec-WebSocket-Protocol": "streamlit, PLACEHOLDER_AUTH_TOKEN",
+        "Host": "127.0.0.1:8502",
+        "Sec-WebSocket-Extensions": "permessage-deflate; client_max_window_bits"
+      },
+      "response_status": 101,
+      "response_headers": {
+        "upgrade": "websocket",
+        "date": "Fri, 23 Oct 2026 16:46:38 GMT",
+        "sec-websocket-protocol": "streamlit",
+        "sec-websocket-accept": "nn52zia+sjU8F65tqMo4hIvJk2I=",
+        "connection": "upgrade"
+      },
+      "subprotocol_entries": [
+        "streamlit",
+        "PLACEHOLDER_AUTH_TOKEN"
+      ],
+      "closed": false,
+      "frames_sent": 1,
+      "frames_received": 23
+    }
+  ],
+  "websocket_handshake": {
+    "index": 0,
+    "request_id": "89516.1063",
+    "target": "tab-a",
+    "url": "ws://127.0.0.1:8502/_stcore/stream",
+    "request_headers": {
+      "Upgrade": "websocket",
+      "Origin": "http://127.0.0.1:8502",
+      "Cache-Control": "no-cache",
+      "Accept-Language": "en-US,en;q=0.9",
+      "Pragma": "no-cache",
+      "Connection": "Upgrade",
+      "Sec-WebSocket-Key": "JIrmcp5Cg/tnsaosSgjcWg==",
+      "Accept-Encoding": "gzip, deflate, br, zstd",
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/147.0.0.0 Safari/537.36",
+      "Sec-WebSocket-Version": "13",
+      "Sec-WebSocket-Protocol": "streamlit, PLACEHOLDER_AUTH_TOKEN",
+      "Host": "127.0.0.1:8502",
+      "Sec-WebSocket-Extensions": "permessage-deflate; client_max_window_bits"
+    },
+    "response_status": 101,
+    "response_headers": {
+      "upgrade": "websocket",
+      "date": "Fri, 23 Oct 2026 16:46:38 GMT",
+      "sec-websocket-protocol": "streamlit",
+      "sec-websocket-accept": "nn52zia+sjU8F65tqMo4hIvJk2I=",
+      "connection": "upgrade"
+    },
+    "subprotocol_entries": [
+      "streamlit",
+      "PLACEHOLDER_AUTH_TOKEN"
+    ],
+    "closed": false,
+    "frames_sent": 1,
+    "frames_received": 23
+  },
+  "http_requests": [
+    {
+      "target": "tab-a",
+      "method": "GET",
+      "url": "http://127.0.0.1:8502/",
+      "resource_type": "Document",
+      "request_headers": {},
+      "status": 200,
+      "mime_type": "text/html"
+    },
+    {
+      "target": "tab-a",
+      "method": "GET",
+      "url": "http://127.0.0.1:8502/_stcore/health",
+      "resource_type": "Fetch",
+      "request_headers": {},
+      "status": 200,
+      "mime_type": "text/plain"
+    },
+    {
+      "target": "tab-a",
+      "method": "GET",
+      "url": "http://127.0.0.1:8502/_stcore/host-config",
+      "resource_type": "Fetch",
+      "request_headers": {},
+      "status": 200,
+      "mime_type": "application/json"
+    },
+    {
+      "target": "tab-a",
+      "method": "GET",
+      "url": "http://127.0.0.1:8502/favicon.png",
+      "resource_type": "Other",
+      "request_headers": {},
+      "status": 200,
+      "mime_type": "image/png"
+    }
+  ],
+  "static_bundle_requests_counted_not_stored": 62,
+  "button_trace": [],
+  "status_observation": {
+    "alerts_rendered": 17,
+    "alert_texts": [
+      "INFO-BODY plain information",
+      "SUCCESS-BODY the operation succeeded",
+      "WARNING-BODY something needs attention",
+      "ERROR-BODY something failed",
+      "INFO-EMOJI-BODY 💡 this body starts with an emoji",
+      "INFO-NOICON-BODY 💡 body keeps its emoji",
+      "thumb_up SUCCESS-MATERIAL-BODY material icon",
+      "WARNING-WIDTH-BODY fixed width",
+      "ERROR-TITLE ERROR-TITLE-BODY with a title",
+      "💡 INFO-LEADING-EMOJI this body starts with an emoji",
+      "💡 INFO-LEADING-NOICON body keeps its emoji",
+      "thumb_up INFO-LEADING-MATERIAL body starts with a shortcode",
+      "👩‍💻 INFO-ICON-ZWJ body",
+      "👍🏽 INFO-ICON-SKIN body",
+      "🇨🇳 INFO-ICON-FLAG body",
+      "👩‍💻 INFO-LEADING-COMPOSITE body starts with a composite emoji",
+      "MARKDOWN-BODY with inline code and a link"
+    ],
+    "alert_widths": [
+      704,
+      704,
+      704,
+      704,
+      704,
+      704,
+      704,
+      240,
+      704,
+      704,
+      704,
+      704,
+      704,
+      704,
+      704,
+      704,
+      704
+    ],
+    "fixed_width_px": 240,
+    "stretched_min_px": 704,
+    "exceptions": [],
+    "script_finished": [
+      {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+      }
+    ],
+    "script_finished_ok": true,
+    "wire_alerts": [
+      {
+        "body": "INFO-BODY plain information",
+        "format": "INFO",
+        "widthConfig": {
+          "useStretch": true
+        }
+      },
+      {
+        "body": "SUCCESS-BODY the operation succeeded",
+        "format": "SUCCESS",
+        "widthConfig": {
+          "useStretch": true
+        }
+      },
+      {
+        "body": "WARNING-BODY something needs attention",
+        "format": "WARNING",
+        "widthConfig": {
+          "useStretch": true
+        }
+      },
+      {
+        "body": "ERROR-BODY something failed",
+        "format": "ERROR",
+        "widthConfig": {
+          "useStretch": true
+        }
+      },
+      {
+        "body": "INFO-EMOJI-BODY 💡 this body starts with an emoji",
+        "format": "INFO",
+        "widthConfig": {
+          "useStretch": true
+        }
+      },
+      {
+        "body": "INFO-NOICON-BODY 💡 body keeps its emoji",
+        "format": "INFO",
+        "widthConfig": {
+          "useStretch": true
+        }
+      },
+      {
+        "body": "SUCCESS-MATERIAL-BODY material icon",
+        "format": "SUCCESS",
+        "icon": ":material/thumb_up:",
+        "widthConfig": {
+          "useStretch": true
+        }
+      },
+      {
+        "body": "WARNING-WIDTH-BODY fixed width",
+        "format": "WARNING",
+        "widthConfig": {
+          "pixelWidth": 240
+        }
+      },
+      {
+        "body": "ERROR-TITLE-BODY with a title",
+        "format": "ERROR",
+        "widthConfig": {
+          "useStretch": true
+        },
+        "title": "ERROR-TITLE"
+      },
+      {
+        "body": "INFO-LEADING-EMOJI this body starts with an emoji",
+        "format": "INFO",
+        "icon": "💡",
+        "widthConfig": {
+          "useStretch": true
+        }
+      },
+      {
+        "body": "💡 INFO-LEADING-NOICON body keeps its emoji",
+        "format": "INFO",
+        "widthConfig": {
+          "useStretch": true
+        }
+      },
+      {
+        "body": "INFO-LEADING-MATERIAL body starts with a shortcode",
+        "format": "INFO",
+        "icon": ":material/thumb_up:",
+        "widthConfig": {
+          "useStretch": true
+        }
+      },
+      {
+        "body": "INFO-ICON-ZWJ body",
+        "format": "INFO",
+        "icon": "👩‍💻",
+        "widthConfig": {
+          "useStretch": true
+        }
+      },
+      {
+        "body": "INFO-ICON-SKIN body",
+        "format": "INFO",
+        "icon": "👍🏽",
+        "widthConfig": {
+          "useStretch": true
+        }
+      },
+      {
+        "body": "INFO-ICON-FLAG body",
+        "format": "INFO",
+        "icon": "🇨🇳",
+        "widthConfig": {
+          "useStretch": true
+        }
+      },
+      {
+        "body": "INFO-LEADING-COMPOSITE body starts with a composite emoji",
+        "format": "INFO",
+        "icon": "👩‍💻",
+        "widthConfig": {
+          "useStretch": true
+        }
+      },
+      {
+        "body": "**MARKDOWN-BODY** with `inline code` and [a link](https://streamlit.io)",
+        "format": "INFO",
+        "widthConfig": {
+          "useStretch": true
+        }
+      }
+    ],
+    "oracle_mismatches": [],
+    "oracle": [
+      {
+        "body": "INFO-BODY plain information",
+        "ok": true,
+        "problems": [],
+        "actual": {
+          "body": "INFO-BODY plain information",
+          "format": "INFO",
+          "widthConfig": {
+            "useStretch": true
+          }
+        }
+      },
+      {
+        "body": "SUCCESS-BODY the operation succeeded",
+        "ok": true,
+        "problems": [],
+        "actual": {
+          "body": "SUCCESS-BODY the operation succeeded",
+          "format": "SUCCESS",
+          "widthConfig": {
+            "useStretch": true
+          }
+        }
+      },
+      {
+        "body": "WARNING-BODY something needs attention",
+        "ok": true,
+        "problems": [],
+        "actual": {
+          "body": "WARNING-BODY something needs attention",
+          "format": "WARNING",
+          "widthConfig": {
+            "useStretch": true
+          }
+        }
+      },
+      {
+        "body": "ERROR-BODY something failed",
+        "ok": true,
+        "problems": [],
+        "actual": {
+          "body": "ERROR-BODY something failed",
+          "format": "ERROR",
+          "widthConfig": {
+            "useStretch": true
+          }
+        }
+      },
+      {
+        "body": "INFO-EMOJI-BODY 💡 this body starts with an emoji",
+        "ok": true,
+        "problems": [],
+        "actual": {
+          "body": "INFO-EMOJI-BODY 💡 this body starts with an emoji",
+          "format": "INFO",
+          "widthConfig": {
+            "useStretch": true
+          }
+        }
+      },
+      {
+        "body": "INFO-NOICON-BODY 💡 body keeps its emoji",
+        "ok": true,
+        "problems": [],
+        "actual": {
+          "body": "INFO-NOICON-BODY 💡 body keeps its emoji",
+          "format": "INFO",
+          "widthConfig": {
+            "useStretch": true
+          }
+        }
+      },
+      {
+        "body": "SUCCESS-MATERIAL-BODY material icon",
+        "ok": true,
+        "problems": [],
+        "actual": {
+          "body": "SUCCESS-MATERIAL-BODY material icon",
+          "format": "SUCCESS",
+          "icon": ":material/thumb_up:",
+          "widthConfig": {
+            "useStretch": true
+          }
+        }
+      },
+      {
+        "body": "WARNING-WIDTH-BODY fixed width",
+        "ok": true,
+        "problems": [],
+        "actual": {
+          "body": "WARNING-WIDTH-BODY fixed width",
+          "format": "WARNING",
+          "widthConfig": {
+            "pixelWidth": 240
+          }
+        }
+      },
+      {
+        "body": "ERROR-TITLE-BODY with a title",
+        "ok": true,
+        "problems": [],
+        "actual": {
+          "body": "ERROR-TITLE-BODY with a title",
+          "format": "ERROR",
+          "widthConfig": {
+            "useStretch": true
+          },
+          "title": "ERROR-TITLE"
+        }
+      },
+      {
+        "body": "INFO-LEADING-EMOJI this body starts with an emoji",
+        "ok": true,
+        "problems": [],
+        "actual": {
+          "body": "INFO-LEADING-EMOJI this body starts with an emoji",
+          "format": "INFO",
+          "icon": "💡",
+          "widthConfig": {
+            "useStretch": true
+          }
+        }
+      },
+      {
+        "body": "💡 INFO-LEADING-NOICON body keeps its emoji",
+        "ok": true,
+        "problems": [],
+        "actual": {
+          "body": "💡 INFO-LEADING-NOICON body keeps its emoji",
+          "format": "INFO",
+          "widthConfig": {
+            "useStretch": true
+          }
+        }
+      },
+      {
+        "body": "INFO-LEADING-MATERIAL body starts with a shortcode",
+        "ok": true,
+        "problems": [],
+        "actual": {
+          "body": "INFO-LEADING-MATERIAL body starts with a shortcode",
+          "format": "INFO",
+          "icon": ":material/thumb_up:",
+          "widthConfig": {
+            "useStretch": true
+          }
+        }
+      },
+      {
+        "body": "INFO-ICON-ZWJ body",
+        "ok": true,
+        "problems": [],
+        "actual": {
+          "body": "INFO-ICON-ZWJ body",
+          "format": "INFO",
+          "icon": "👩‍💻",
+          "widthConfig": {
+            "useStretch": true
+          }
+        }
+      },
+      {
+        "body": "INFO-ICON-SKIN body",
+        "ok": true,
+        "problems": [],
+        "actual": {
+          "body": "INFO-ICON-SKIN body",
+          "format": "INFO",
+          "icon": "👍🏽",
+          "widthConfig": {
+            "useStretch": true
+          }
+        }
+      },
+      {
+        "body": "INFO-ICON-FLAG body",
+        "ok": true,
+        "problems": [],
+        "actual": {
+          "body": "INFO-ICON-FLAG body",
+          "format": "INFO",
+          "icon": "🇨🇳",
+          "widthConfig": {
+            "useStretch": true
+          }
+        }
+      },
+      {
+        "body": "INFO-LEADING-COMPOSITE body starts with a composite emoji",
+        "ok": true,
+        "problems": [],
+        "actual": {
+          "body": "INFO-LEADING-COMPOSITE body starts with a composite emoji",
+          "format": "INFO",
+          "icon": "👩‍💻",
+          "widthConfig": {
+            "useStretch": true
+          }
+        }
+      }
+    ]
+  },
+  "steps": [
+    {
+      "step": "status-page",
+      "note": "the status page rendered every alert and the server finished the script",
+      "at": "2026-10-23T16:46:51+00:00",
+      "observed": {
+        "alerts_rendered": 17,
+        "alert_texts": [
+          "INFO-BODY plain information",
+          "SUCCESS-BODY the operation succeeded",
+          "WARNING-BODY something needs attention",
+          "ERROR-BODY something failed",
+          "INFO-EMOJI-BODY 💡 this body starts with an emoji",
+          "INFO-NOICON-BODY 💡 body keeps its emoji",
+          "thumb_up SUCCESS-MATERIAL-BODY material icon",
+          "WARNING-WIDTH-BODY fixed width",
+          "ERROR-TITLE ERROR-TITLE-BODY with a title",
+          "💡 INFO-LEADING-EMOJI this body starts with an emoji",
+          "💡 INFO-LEADING-NOICON body keeps its emoji",
+          "thumb_up INFO-LEADING-MATERIAL body starts with a shortcode",
+          "👩‍💻 INFO-ICON-ZWJ body",
+          "👍🏽 INFO-ICON-SKIN body",
+          "🇨🇳 INFO-ICON-FLAG body",
+          "👩‍💻 INFO-LEADING-COMPOSITE body starts with a composite emoji",
+          "MARKDOWN-BODY with inline code and a link"
+        ],
+        "alert_widths": [
+          704,
+          704,
+          704,
+          704,
+          704,
+          704,
+          704,
+          240,
+          704,
+          704,
+          704,
+          704,
+          704,
+          704,
+          704,
+          704,
+          704
+        ],
+        "fixed_width_px": 240,
+        "stretched_min_px": 704,
+        "exceptions": [],
+        "script_finished": [
+          {
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          }
+        ],
+        "script_finished_ok": true,
+        "wire_alerts": [
+          {
+            "body": "INFO-BODY plain information",
+            "format": "INFO",
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          {
+            "body": "SUCCESS-BODY the operation succeeded",
+            "format": "SUCCESS",
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          {
+            "body": "WARNING-BODY something needs attention",
+            "format": "WARNING",
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          {
+            "body": "ERROR-BODY something failed",
+            "format": "ERROR",
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          {
+            "body": "INFO-EMOJI-BODY 💡 this body starts with an emoji",
+            "format": "INFO",
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          {
+            "body": "INFO-NOICON-BODY 💡 body keeps its emoji",
+            "format": "INFO",
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          {
+            "body": "SUCCESS-MATERIAL-BODY material icon",
+            "format": "SUCCESS",
+            "icon": ":material/thumb_up:",
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          {
+            "body": "WARNING-WIDTH-BODY fixed width",
+            "format": "WARNING",
+            "widthConfig": {
+              "pixelWidth": 240
+            }
+          },
+          {
+            "body": "ERROR-TITLE-BODY with a title",
+            "format": "ERROR",
+            "widthConfig": {
+              "useStretch": true
+            },
+            "title": "ERROR-TITLE"
+          },
+          {
+            "body": "INFO-LEADING-EMOJI this body starts with an emoji",
+            "format": "INFO",
+            "icon": "💡",
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          {
+            "body": "💡 INFO-LEADING-NOICON body keeps its emoji",
+            "format": "INFO",
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          {
+            "body": "INFO-LEADING-MATERIAL body starts with a shortcode",
+            "format": "INFO",
+            "icon": ":material/thumb_up:",
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          {
+            "body": "INFO-ICON-ZWJ body",
+            "format": "INFO",
+            "icon": "👩‍💻",
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          {
+            "body": "INFO-ICON-SKIN body",
+            "format": "INFO",
+            "icon": "👍🏽",
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          {
+            "body": "INFO-ICON-FLAG body",
+            "format": "INFO",
+            "icon": "🇨🇳",
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          {
+            "body": "INFO-LEADING-COMPOSITE body starts with a composite emoji",
+            "format": "INFO",
+            "icon": "👩‍💻",
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          {
+            "body": "**MARKDOWN-BODY** with `inline code` and [a link](https://streamlit.io)",
+            "format": "INFO",
+            "widthConfig": {
+              "useStretch": true
+            }
+          }
+        ],
+        "oracle_mismatches": [],
+        "oracle": [
+          {
+            "body": "INFO-BODY plain information",
+            "ok": true,
+            "problems": [],
+            "actual": {
+              "body": "INFO-BODY plain information",
+              "format": "INFO",
+              "widthConfig": {
+                "useStretch": true
+              }
+            }
+          },
+          {
+            "body": "SUCCESS-BODY the operation succeeded",
+            "ok": true,
+            "problems": [],
+            "actual": {
+              "body": "SUCCESS-BODY the operation succeeded",
+              "format": "SUCCESS",
+              "widthConfig": {
+                "useStretch": true
+              }
+            }
+          },
+          {
+            "body": "WARNING-BODY something needs attention",
+            "ok": true,
+            "problems": [],
+            "actual": {
+              "body": "WARNING-BODY something needs attention",
+              "format": "WARNING",
+              "widthConfig": {
+                "useStretch": true
+              }
+            }
+          },
+          {
+            "body": "ERROR-BODY something failed",
+            "ok": true,
+            "problems": [],
+            "actual": {
+              "body": "ERROR-BODY something failed",
+              "format": "ERROR",
+              "widthConfig": {
+                "useStretch": true
+              }
+            }
+          },
+          {
+            "body": "INFO-EMOJI-BODY 💡 this body starts with an emoji",
+            "ok": true,
+            "problems": [],
+            "actual": {
+              "body": "INFO-EMOJI-BODY 💡 this body starts with an emoji",
+              "format": "INFO",
+              "widthConfig": {
+                "useStretch": true
+              }
+            }
+          },
+          {
+            "body": "INFO-NOICON-BODY 💡 body keeps its emoji",
+            "ok": true,
+            "problems": [],
+            "actual": {
+              "body": "INFO-NOICON-BODY 💡 body keeps its emoji",
+              "format": "INFO",
+              "widthConfig": {
+                "useStretch": true
+              }
+            }
+          },
+          {
+            "body": "SUCCESS-MATERIAL-BODY material icon",
+            "ok": true,
+            "problems": [],
+            "actual": {
+              "body": "SUCCESS-MATERIAL-BODY material icon",
+              "format": "SUCCESS",
+              "icon": ":material/thumb_up:",
+              "widthConfig": {
+                "useStretch": true
+              }
+            }
+          },
+          {
+            "body": "WARNING-WIDTH-BODY fixed width",
+            "ok": true,
+            "problems": [],
+            "actual": {
+              "body": "WARNING-WIDTH-BODY fixed width",
+              "format": "WARNING",
+              "widthConfig": {
+                "pixelWidth": 240
+              }
+            }
+          },
+          {
+            "body": "ERROR-TITLE-BODY with a title",
+            "ok": true,
+            "problems": [],
+            "actual": {
+              "body": "ERROR-TITLE-BODY with a title",
+              "format": "ERROR",
+              "widthConfig": {
+                "useStretch": true
+              },
+              "title": "ERROR-TITLE"
+            }
+          },
+          {
+            "body": "INFO-LEADING-EMOJI this body starts with an emoji",
+            "ok": true,
+            "problems": [],
+            "actual": {
+              "body": "INFO-LEADING-EMOJI this body starts with an emoji",
+              "format": "INFO",
+              "icon": "💡",
+              "widthConfig": {
+                "useStretch": true
+              }
+            }
+          },
+          {
+            "body": "💡 INFO-LEADING-NOICON body keeps its emoji",
+            "ok": true,
+            "problems": [],
+            "actual": {
+              "body": "💡 INFO-LEADING-NOICON body keeps its emoji",
+              "format": "INFO",
+              "widthConfig": {
+                "useStretch": true
+              }
+            }
+          },
+          {
+            "body": "INFO-LEADING-MATERIAL body starts with a shortcode",
+            "ok": true,
+            "problems": [],
+            "actual": {
+              "body": "INFO-LEADING-MATERIAL body starts with a shortcode",
+              "format": "INFO",
+              "icon": ":material/thumb_up:",
+              "widthConfig": {
+                "useStretch": true
+              }
+            }
+          },
+          {
+            "body": "INFO-ICON-ZWJ body",
+            "ok": true,
+            "problems": [],
+            "actual": {
+              "body": "INFO-ICON-ZWJ body",
+              "format": "INFO",
+              "icon": "👩‍💻",
+              "widthConfig": {
+                "useStretch": true
+              }
+            }
+          },
+          {
+            "body": "INFO-ICON-SKIN body",
+            "ok": true,
+            "problems": [],
+            "actual": {
+              "body": "INFO-ICON-SKIN body",
+              "format": "INFO",
+              "icon": "👍🏽",
+              "widthConfig": {
+                "useStretch": true
+              }
+            }
+          },
+          {
+            "body": "INFO-ICON-FLAG body",
+            "ok": true,
+            "problems": [],
+            "actual": {
+              "body": "INFO-ICON-FLAG body",
+              "format": "INFO",
+              "icon": "🇨🇳",
+              "widthConfig": {
+                "useStretch": true
+              }
+            }
+          },
+          {
+            "body": "INFO-LEADING-COMPOSITE body starts with a composite emoji",
+            "ok": true,
+            "problems": [],
+            "actual": {
+              "body": "INFO-LEADING-COMPOSITE body starts with a composite emoji",
+              "format": "INFO",
+              "icon": "👩‍💻",
+              "widthConfig": {
+                "useStretch": true
+              }
+            }
+          }
+        ]
+      },
+      "checked": {
+        "alerts_rendered": {
+          "expected": 17,
+          "actual": 17,
+          "ok": true
+        },
+        "script_finished_ok": {
+          "expected": true,
+          "actual": true,
+          "ok": true
+        },
+        "fixed_width_px": {
+          "expected": 240,
+          "actual": 240,
+          "ok": true
+        },
+        "exceptions": {
+          "expected": [],
+          "actual": [],
+          "ok": true
+        },
+        "oracle_mismatches": {
+          "expected": [],
+          "actual": [],
+          "ok": true
+        }
+      },
+      "status": "ok"
+    }
+  ],
+  "failures": [],
+  "notes": [],
+  "frames": [
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "client->server",
+      "bytes": 71,
+      "sha256": "17f233588f2b8f89817356c36e2426d7c98480df2936e3f49906b08ac20fc344",
+      "decoded": {
+        "message": "BackMsg",
+        "type": "rerun_script",
+        "rerun_script": {
+          "widget_states": []
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 219,
+      "sha256": "515b9280f9fc14ece5118e6047c57208b1fa2fdfdd364a2677bdd70205b3b3f7",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "new_session",
+        "new_session": {
+          "script_run_id": "0549bec2-410e-4a12-8219-cf464cf00c99",
+          "name": "Streamlit Rust",
+          "main_script_path": "",
+          "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "session_id": "d7e1adfd-5629-4e1d-badf-c17619064127"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 28,
+      "sha256": "e2f2168365a75ba2f11aaf2c68898f866f998aa74b6e21735ad9a4d05f115786",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true,
+          "run_on_save": false
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 39,
+      "sha256": "3e2131cb4f7849335c8f6316a301f911ec5fe1eb3c169a0a561455bfc3f8d2b4",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "add_block",
+          "block_id": "main_container",
+          "block_type": "vertical"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 121,
+      "sha256": "a299061b7e049329111c13a4c1e3fec4c38bc8f3e5309f22dfa632f5a29da16d",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "heading",
+          "body": "Status element reference"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 116,
+      "sha256": "c79c9cab3b5bb7b5c0ee8d652a422b39bf9e7738a9956225223016fbe565a555",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "alert",
+          "alert": {
+            "body": "INFO-BODY plain information",
+            "format": "INFO",
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          "element_width_config": null,
+          "element_height_config": null,
+          "body": "INFO-BODY plain information"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 125,
+      "sha256": "52efb81cdf96582b065a3186b38869e143fc7762302c9a35ec40b066e8d98471",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "alert",
+          "alert": {
+            "body": "SUCCESS-BODY the operation succeeded",
+            "format": "SUCCESS",
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          "element_width_config": null,
+          "element_height_config": null,
+          "body": "SUCCESS-BODY the operation succeeded"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 127,
+      "sha256": "6181b7c9a1139747036b613d5b7fe2f614434e8a709693a83c35a7a7a9e6c57d",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "alert",
+          "alert": {
+            "body": "WARNING-BODY something needs attention",
+            "format": "WARNING",
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          "element_width_config": null,
+          "element_height_config": null,
+          "body": "WARNING-BODY something needs attention"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 116,
+      "sha256": "da0830c5aef243ded5bd2a5c624e394982cc504abcc8ce06ae4336b6648ff1b0",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "alert",
+          "alert": {
+            "body": "ERROR-BODY something failed",
+            "format": "ERROR",
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          "element_width_config": null,
+          "element_height_config": null,
+          "body": "ERROR-BODY something failed"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 140,
+      "sha256": "8802a012517fd832245a47ca2b14eb6c7faced1e71843bbda57392e94fabe57e",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "alert",
+          "alert": {
+            "body": "INFO-EMOJI-BODY 💡 this body starts with an emoji",
+            "format": "INFO",
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          "element_width_config": null,
+          "element_height_config": null,
+          "body": "INFO-EMOJI-BODY 💡 this body starts with an emoji"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 131,
+      "sha256": "19b969530c6aaf5132b8596e5a4875aca84179d4c20e15e96c05bb2d7afb3167",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "alert",
+          "alert": {
+            "body": "INFO-NOICON-BODY 💡 body keeps its emoji",
+            "format": "INFO",
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          "element_width_config": null,
+          "element_height_config": null,
+          "body": "INFO-NOICON-BODY 💡 body keeps its emoji"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 145,
+      "sha256": "8eed784ef0b42c3fa5f6ec31208ec76edb2bf967743eb2096dd58d0d7613565f",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "alert",
+          "alert": {
+            "body": "SUCCESS-MATERIAL-BODY material icon",
+            "format": "SUCCESS",
+            "icon": ":material/thumb_up:",
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          "element_width_config": null,
+          "element_height_config": null,
+          "body": "SUCCESS-MATERIAL-BODY material icon"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 120,
+      "sha256": "a4305701e68b73860a0b5b84682c193b118bba14e47a83f735fd87b941240cc9",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "alert",
+          "alert": {
+            "body": "WARNING-WIDTH-BODY fixed width",
+            "format": "WARNING",
+            "widthConfig": {
+              "pixelWidth": 240
+            }
+          },
+          "element_width_config": null,
+          "element_height_config": null,
+          "body": "WARNING-WIDTH-BODY fixed width"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 131,
+      "sha256": "e818402f45f4ed1f286c69794b74b367d2d4e1e5196e74f6a09bd24285a6abf6",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "alert",
+          "alert": {
+            "body": "ERROR-TITLE-BODY with a title",
+            "format": "ERROR",
+            "widthConfig": {
+              "useStretch": true
+            },
+            "title": "ERROR-TITLE"
+          },
+          "element_width_config": null,
+          "element_height_config": null,
+          "body": "ERROR-TITLE-BODY with a title"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 144,
+      "sha256": "7c26c50d38e3551cd23edc7a86d9b307957f6bba218cd31c2af1875aa9714777",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "alert",
+          "alert": {
+            "body": "INFO-LEADING-EMOJI this body starts with an emoji",
+            "format": "INFO",
+            "icon": "💡",
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          "element_width_config": null,
+          "element_height_config": null,
+          "body": "INFO-LEADING-EMOJI this body starts with an emoji"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 134,
+      "sha256": "805b093d2b1b45439e25e6d7678481f8e4a746e4c696f61838b54aeb095bcf68",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "alert",
+          "alert": {
+            "body": "💡 INFO-LEADING-NOICON body keeps its emoji",
+            "format": "INFO",
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          "element_width_config": null,
+          "element_height_config": null,
+          "body": "💡 INFO-LEADING-NOICON body keeps its emoji"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 160,
+      "sha256": "a7f7a99236d1b17e0a70fa432faa94c70800cbf195fa64e86cef56b51082c25b",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "alert",
+          "alert": {
+            "body": "INFO-LEADING-MATERIAL body starts with a shortcode",
+            "format": "INFO",
+            "icon": ":material/thumb_up:",
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          "element_width_config": null,
+          "element_height_config": null,
+          "body": "INFO-LEADING-MATERIAL body starts with a shortcode"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 120,
+      "sha256": "d8b9183c0fa0d755ad3ee4fa009d67519152e934fee00eb8e42bdb675ae1dbe6",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "alert",
+          "alert": {
+            "body": "INFO-ICON-ZWJ body",
+            "format": "INFO",
+            "icon": "👩‍💻",
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          "element_width_config": null,
+          "element_height_config": null,
+          "body": "INFO-ICON-ZWJ body"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 118,
+      "sha256": "28fc3ef86ccb09b284674f17a90e5e527f6930f9834555666973443eac5e4123",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "alert",
+          "alert": {
+            "body": "INFO-ICON-SKIN body",
+            "format": "INFO",
+            "icon": "👍🏽",
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          "element_width_config": null,
+          "element_height_config": null,
+          "body": "INFO-ICON-SKIN body"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 118,
+      "sha256": "49e30c8cb52d187c8eec6809fcbc15b97026f803cc074afd44a258d273170214",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "alert",
+          "alert": {
+            "body": "INFO-ICON-FLAG body",
+            "format": "INFO",
+            "icon": "🇨🇳",
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          "element_width_config": null,
+          "element_height_config": null,
+          "body": "INFO-ICON-FLAG body"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 159,
+      "sha256": "6082718e610ab0525320754f26a6b927cbde887d51b31dab00bc3d8366d4dbc8",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "alert",
+          "alert": {
+            "body": "INFO-LEADING-COMPOSITE body starts with a composite emoji",
+            "format": "INFO",
+            "icon": "👩‍💻",
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          "element_width_config": null,
+          "element_height_config": null,
+          "body": "INFO-LEADING-COMPOSITE body starts with a composite emoji"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 160,
+      "sha256": "476730f5d289c88c2cc097673ef34be899e96ba639b9ffa3e60bab64320589d7",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "alert",
+          "alert": {
+            "body": "**MARKDOWN-BODY** with `inline code` and [a link](https://streamlit.io)",
+            "format": "INFO",
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          "element_width_config": null,
+          "element_height_config": null,
+          "body": "**MARKDOWN-BODY** with `inline code` and [a link](https://streamlit.io)"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 19,
+      "sha256": "9a09f6b7e80d191046501f3af869470d9f516688b5e4d974ac890b19483dfb07",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "script_finished",
+        "script_finished": {
+          "status": 0,
+          "status_name": "FINISHED_SUCCESSFULLY"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 26,
+      "sha256": "0d60bb56488ee1a02ec6903e5f7ea99a21528ddc785d44d2f7b3701a08fde65c",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": false,
+          "run_on_save": false
+        }
+      }
+    }
+  ]
+}

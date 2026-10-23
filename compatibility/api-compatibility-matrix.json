@@ -88,19 +88,19 @@
     "unavailable_requested_pages": 7,
     "redirect_aliases_not_counted": 2,
     "implementation_status_counts": {
-      "absent": 171,
-      "implemented": 1,
+      "absent": 166,
+      "implemented": 6,
       "candidate": 10
     },
     "compatibility_status_counts": {
-      "unverified": 181,
-      "partial": 1
+      "unverified": 176,
+      "partial": 6
     },
     "unique_feature_ids": 182,
     "unique_official_urls": 182,
     "captured_sources_valid": 218,
     "captured_sources_total": 218,
-    "python_browser_trace_links": 9
+    "python_browser_trace_links": 14
   },
   "vendor_migration": {
     "status": "verified",
@@ -221,13 +221,27 @@
       "category": "APPLICATION LOGIC/Caching and state",
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/caching-and-state/st.session_state",
-      "rust_source_path": null,
-      "implementation_status": "absent",
-      "compatibility_status": "unverified",
+      "rust_source_path": "streamlit/src/session.rs",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "34f14e8271406f57778f781986fe352c76508d8bd42f4b915f9ca91f1f703b75",
-        "python_browser_trace": null
-      }
+        "python_browser_trace": "tests/reference/reference-browser/reconnect/trace-reconnect.json",
+        "rust_source": "streamlit/src/session.rs",
+        "rust_api_test": "streamlit/tests/runtime/sessions.rs",
+        "python_refresh": "tests/reference/reference-browser/refresh/trace-refresh.json",
+        "python_tabs": "tests/reference/reference-browser/tabs/trace-tabs.json",
+        "python_id_probe": "tests/reference/reference-browser/reconnect-ids/probe-result.json",
+        "rust_wire_observation": "tests/browser/rust-counter-s1/trace-counter.json",
+        "official_frontend_browser_e2e": "tests/browser/rust-counter-s1/trace-counter.json"
+      },
+      "rust_plan": "Expose per-session JSON-serializable typed get/set/remove through Streamlit::session_state; retain manual application values across reruns and supported session handover.",
+      "compatibility_scope": "S1 manual counter only: four true triggers each followed by successful script_finished on the same observed connection; same-ID recovery retains state, refresh creates a new ID and resets state, and two tabs have independent IDs/counters. Frozen Rust raw has three complete handshakes and four observed connections; tab B lacks its initial handshake but its NewSession frame establishes a distinct ID.",
+      "limitations": [
+        "Typed JSON manual application state only; no widget-key binding or cancellation compatibility.",
+        "Python disconnected-session TTL and complete old-socket fate have not been differentially verified; local lifecycle tests do not establish upstream parity.",
+        "The Python opaque/known-ID probe is reference evidence only, not a claim of full Rust session-ID or security-handshake compatibility."
+      ]
     },
     {
       "feature_id": "config.toml",
@@ -1990,13 +2004,26 @@
       "category": "PAGE ELEMENTS/Status elements",
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/status/st.error",
-      "rust_source_path": null,
-      "implementation_status": "absent",
-      "compatibility_status": "unverified",
+      "rust_source_path": "streamlit/src/api.rs",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "a508981a6911f265ba0313eccad867df6a428ed9c34503aead79611253a89e41",
-        "python_browser_trace": null
-      }
+        "python_browser_trace": "tests/reference/reference-browser/status/trace-status.json",
+        "rust_source": "streamlit/src/elements/status.rs",
+        "rust_api_test": "streamlit/src/elements/status.rs",
+        "python_leading_invalid": "tests/reference/reference-browser/status/trace-status-leading.json",
+        "python_compound_icons": "tests/reference/reference-browser/status/trace-status-icon-composite.json",
+        "rust_wire_observation": "tests/browser/rust-status/trace-status.json",
+        "official_frontend_browser_e2e": "tests/browser/rust-status/trace-status.json"
+      },
+      "rust_plan": "Emit official ERROR Alert through the native status element with measured body, icon, title and width semantics; return StatusError for measured invalid parameters.",
+      "compatibility_scope": "ERROR cases within the frozen status capture: four-style defaults and measured icon/width/title/leading-icon/compound-emoji behavior. Sixteen Python-comparable alerts across the four APIs each have a unique match among seventeen Rust alerts; this aggregate is not sixteen independent cases per API. Invalid-parameter semantics are additionally checked against the captured Python cases in Rust element tests.",
+      "limitations": [
+        "Only captured cases and tested boundaries are covered; no whole-Unicode, arbitrary emoji or complete parameter-space compatibility claim.",
+        "Default stretched width follows page layout: Rust centered and Python wide pages differ; only the fixed 240px case asserts equal absolute width.",
+        "Finite oracle comparisons and official-frontend observations do not establish full API supported status."
+      ]
     },
     {
       "feature_id": "st.exception",
@@ -2016,13 +2043,26 @@
       "category": "PAGE ELEMENTS/Status elements",
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/status/st.info",
-      "rust_source_path": null,
-      "implementation_status": "absent",
-      "compatibility_status": "unverified",
+      "rust_source_path": "streamlit/src/api.rs",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "5d749148b9774ba3b54a9aad0aa8f45738efc701fcf080acf96e14fcc8fcfb4c",
-        "python_browser_trace": null
-      }
+        "python_browser_trace": "tests/reference/reference-browser/status/trace-status.json",
+        "rust_source": "streamlit/src/elements/status.rs",
+        "rust_api_test": "streamlit/src/elements/status.rs",
+        "python_leading_invalid": "tests/reference/reference-browser/status/trace-status-leading.json",
+        "python_compound_icons": "tests/reference/reference-browser/status/trace-status-icon-composite.json",
+        "rust_wire_observation": "tests/browser/rust-status/trace-status.json",
+        "official_frontend_browser_e2e": "tests/browser/rust-status/trace-status.json"
+      },
+      "rust_plan": "Emit official INFO Alert through the native status element with measured body, icon, title and width semantics; return StatusError for measured invalid parameters.",
+      "compatibility_scope": "INFO cases within the frozen status capture: four-style defaults and measured icon/width/title/leading-icon/compound-emoji behavior. Sixteen Python-comparable alerts across the four APIs each have a unique match among seventeen Rust alerts; this aggregate is not sixteen independent cases per API. Invalid-parameter semantics are additionally checked against the captured Python cases in Rust element tests.",
+      "limitations": [
+        "Only captured cases and tested boundaries are covered; no whole-Unicode, arbitrary emoji or complete parameter-space compatibility claim.",
+        "Default stretched width follows page layout: Rust centered and Python wide pages differ; only the fixed 240px case asserts equal absolute width.",
+        "Finite oracle comparisons and official-frontend observations do not establish full API supported status."
+      ]
     },
     {
       "feature_id": "st.progress",
@@ -2094,13 +2134,26 @@
       "category": "PAGE ELEMENTS/Status elements",
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/status/st.success",
-      "rust_source_path": null,
-      "implementation_status": "absent",
-      "compatibility_status": "unverified",
+      "rust_source_path": "streamlit/src/api.rs",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "59fe3e2bcc8f6bf9d3c5c810ca84b3938a4317d407b15772e99c2af7b039df8e",
-        "python_browser_trace": null
-      }
+        "python_browser_trace": "tests/reference/reference-browser/status/trace-status.json",
+        "rust_source": "streamlit/src/elements/status.rs",
+        "rust_api_test": "streamlit/src/elements/status.rs",
+        "python_leading_invalid": "tests/reference/reference-browser/status/trace-status-leading.json",
+        "python_compound_icons": "tests/reference/reference-browser/status/trace-status-icon-composite.json",
+        "rust_wire_observation": "tests/browser/rust-status/trace-status.json",
+        "official_frontend_browser_e2e": "tests/browser/rust-status/trace-status.json"
+      },
+      "rust_plan": "Emit official SUCCESS Alert through the native status element with measured body, icon, title and width semantics; return StatusError for measured invalid parameters.",
+      "compatibility_scope": "SUCCESS cases within the frozen status capture: four-style defaults and measured icon/width/title/leading-icon/compound-emoji behavior. Sixteen Python-comparable alerts across the four APIs each have a unique match among seventeen Rust alerts; this aggregate is not sixteen independent cases per API. Invalid-parameter semantics are additionally checked against the captured Python cases in Rust element tests.",
+      "limitations": [
+        "Only captured cases and tested boundaries are covered; no whole-Unicode, arbitrary emoji or complete parameter-space compatibility claim.",
+        "Default stretched width follows page layout: Rust centered and Python wide pages differ; only the fixed 240px case asserts equal absolute width.",
+        "Finite oracle comparisons and official-frontend observations do not establish full API supported status."
+      ]
     },
     {
       "feature_id": "st.toast",
@@ -2120,13 +2173,26 @@
       "category": "PAGE ELEMENTS/Status elements",
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/status/st.warning",
-      "rust_source_path": null,
-      "implementation_status": "absent",
-      "compatibility_status": "unverified",
+      "rust_source_path": "streamlit/src/api.rs",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "573c06ec7f2bf677b32829348c33995bd55ded8d80866a7479b3376d9cbeccfe",
-        "python_browser_trace": null
-      }
+        "python_browser_trace": "tests/reference/reference-browser/status/trace-status.json",
+        "rust_source": "streamlit/src/elements/status.rs",
+        "rust_api_test": "streamlit/src/elements/status.rs",
+        "python_leading_invalid": "tests/reference/reference-browser/status/trace-status-leading.json",
+        "python_compound_icons": "tests/reference/reference-browser/status/trace-status-icon-composite.json",
+        "rust_wire_observation": "tests/browser/rust-status/trace-status.json",
+        "official_frontend_browser_e2e": "tests/browser/rust-status/trace-status.json"
+      },
+      "rust_plan": "Emit official WARNING Alert through the native status element with measured body, icon, title and width semantics; return StatusError for measured invalid parameters.",
+      "compatibility_scope": "WARNING cases within the frozen status capture: four-style defaults and measured icon/width/title/leading-icon/compound-emoji behavior. Sixteen Python-comparable alerts across the four APIs each have a unique match among seventeen Rust alerts; this aggregate is not sixteen independent cases per API. Invalid-parameter semantics are additionally checked against the captured Python cases in Rust element tests.",
+      "limitations": [
+        "Only captured cases and tested boundaries are covered; no whole-Unicode, arbitrary emoji or complete parameter-space compatibility claim.",
+        "Default stretched width follows page layout: Rust centered and Python wide pages differ; only the fixed 240px case asserts equal absolute width.",
+        "Finite oracle comparisons and official-frontend observations do not establish full API supported status."
+      ]
     },
     {
       "feature_id": "st.badge",

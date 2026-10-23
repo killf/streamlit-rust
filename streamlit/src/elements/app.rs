@@ -9,6 +9,7 @@ use std::collections::HashMap;
 use std::rc::Rc;
 
 pub(crate) struct App {
+    pub(crate) session_state: crate::SessionState,
     elements: Vec<Rc<RefCell<dyn Element>>>,
     widget_states: HashMap<String, WidgetValue>,
     main_script: String,
@@ -18,6 +19,7 @@ pub(crate) struct App {
 impl App {
     pub fn new() -> Self {
         Self {
+            session_state: Default::default(),
             elements: Default::default(),
             widget_states: Default::default(),
             main_script: Default::default(),

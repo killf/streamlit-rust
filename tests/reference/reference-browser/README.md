@@ -8,8 +8,13 @@ Current captures:
 - `errors/`: malformed CSV, soft-failure amounts, empty data, no-match filter.
 - `form/`: typing without submit and one form submit.
 - `tabs/`: two concurrent browser tabs with isolated sessions.
-- `reconnect/`: a real client-side close of the live socket; the frontend reconnects on its own and the handshake carries a third subprotocol entry, the session id. The same session id is seen before and after, and the counter survives.
 - `refresh/`: a page reload; the handshake carries only two entries and a new session id is issued.
+- `status/`: the four status elements.  `trace-status.json` holds the four styles and the
+  width/icon/title variants; `trace-status-leading.json` was appended later with the
+  leading-icon extraction cases and the invalid-parameter semantics; `trace-status-icon-composite.json`
+  was appended last with the icon grammar (ZWJ, skin tone, flag, two independent emoji).
+  The earlier files were left untouched.
+- `reconnect-ids/`: three WebSocket handshakes that carry a session id in the third subprotocol entry, against the Python 1.66.1 reference app.  A valid but unknown UUID and a non-UUID string each start a new session; the id of a live session resumes it.  No 400, no 409.  The fate of the previously open socket was not observed.
 - `reconnect/`: the live socket is closed from the page, the frontend reconnects on its own, and the
   reconnect handshake carries a third subprotocol entry.  Every connection is recorded separately with
   its handshake, its close event and the frames that travelled on it, and a click on the reconnected

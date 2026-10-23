@@ -5,6 +5,7 @@ use crate::elements::columns::{Column, ColumnElement};
 use crate::elements::common::{Anchor, Divider, Element, ElementHeight, ElementWidth, Gap, HorizontalAlignment, TextAlignment, VerticalAlignment};
 use crate::elements::container::{Container, ContainerElement};
 use crate::elements::markdown::{MarkdownElement, MarkdownElementType};
+use crate::elements::status::{StatusElement, status_content};
 use crate::elements::title::HeadingElement;
 use crate::elements::{App, WidgetValue};
 use crate::memory::Allocator;
@@ -59,6 +60,90 @@ impl AppendChild for Streamlit {
 pub struct WriteOptions {
     body: String,
     unsafe_allow_html: bool,
+}
+
+/// Options shared by informational, warning, error, and success messages.
+pub struct StatusOptions {
+    body: String,
+    icon: Option<String>,
+    width: StatusWidth,
+    title: Option<String>,
+}
+
+impl StatusOptions {
+    pub fn new(body: impl ToString) -> Self {
+        Self {
+            body: body.to_string(),
+            icon: None,
+            width: StatusWidth::Keyword("stretch".to_string()),
+            title: None,
+        }
+    }
+
+    /// Set an empty icon, a Material shortcode, or one Unicode emoji sequence.
+    /// The sequence is preserved verbatim; the library's Unicode repertoire
+    /// is not a claim of complete acceptance parity with Python 1.66.1.
+    pub fn icon(mut self, icon: impl Into<String>) -> Self {
+        self.icon = Some(icon.into());
+        self
+    }
+
+    pub fn width(mut self, width: impl Into<StatusWidth>) -> Self {
+        self.width = width.into();
+        self
+    }
+
+    pub fn title(mut self, title: impl Into<String>) -> Self {
+        self.title = Some(title.into());
+        self
+    }
+}
+
+/// Status messages accept `"stretch"` or a positive pixel count.
+#[derive(Debug, Clone)]
+pub enum StatusWidth {
+    Pixels(i32),
+    Keyword(String),
+}
+
+impl From<i32> for StatusWidth {
+    fn from(width: i32) -> Self {
+        Self::Pixels(width)
+    }
+}
+
+impl From<&str> for StatusWidth {
+    fn from(width: &str) -> Self {
+        Self::Keyword(width.to_string())
+    }
+}
+
+impl From<String> for StatusWidth {
+    fn from(width: String) -> Self {
+        Self::Keyword(width)
+    }
+}
+
+/// Validation fails before an element is appended. Unlike Python, non-string
+/// icons are rejected by the Rust type system rather than at runtime.
+#[derive(Debug, PartialEq, Eq, thiserror::Error)]
+pub enum StatusError {
+    #[error("Invalid width value: {0}. Width must be either a positive integer (pixels) or 'stretch'.")]
+    InvalidWidth(String),
+    #[error("The value \"{0}\" is not a valid emoji. Please use a single emoji.")]
+    InvalidIcon(String),
+}
+
+impl From<&str> for StatusOptions {
+    fn from(body: &str) -> Self {
+        Self::new(body)
+    }
+}
+
+impl From<String> for StatusOptions {
+    fn from(body: String) -> Self {
+        Self::new(body)
+    }
 }
 
 impl WriteOptions {
@@ -556,6 +641,14 @@ impl From<&str> for ButtonOptions {
 pub trait StreamlitApi {
     fn write<T: Into<WriteOptions>>(&self, body: T);
 
+    fn info<T: Into<StatusOptions>>(&self, options: T) -> Result<(), StatusError>;
+
+    fn warning<T: Into<StatusOptions>>(&self, options: T) -> Result<(), StatusError>;
+
+    fn error<T: Into<StatusOptions>>(&self, options: T) -> Result<(), StatusError>;
+
+    fn success<T: Into<StatusOptions>>(&self, options: T) -> Result<(), StatusError>;
+
     fn title<T: Into<HeaderOptions>>(&self, body: T) {
         self.h1(body)
     }
@@ -603,6 +696,26 @@ pub trait StreamlitApi {
     fn button<T: Into<ButtonOptions>>(&self, options: T) -> bool;
 }
 
+fn create_status<C: AppendChild>(this: &C, options: StatusOptions, format: crate::proto::alert::Format) -> Result<(), StatusError> {
+    use crate::proto::streamlit::width_config::WidthSpec;
+    let width_spec = match options.width {
+        StatusWidth::Keyword(value) if value == "stretch" => WidthSpec::UseStretch(true),
+        StatusWidth::Pixels(value) if value > 0 => WidthSpec::PixelWidth(value as u32),
+        StatusWidth::Keyword(value) => return Err(StatusError::InvalidWidth(format!("'{value}'"))),
+        StatusWidth::Pixels(value) => return Err(StatusError::InvalidWidth(value.to_string())),
+    };
+    let (body, icon) = status_content(&options.body, options.icon.as_deref())?;
+    let element = StatusElement::new(crate::proto::Alert {
+        body,
+        format: format as i32,
+        icon,
+        width_config: Some(crate::proto::streamlit::WidthConfig { width_spec: Some(width_spec) }),
+        title: options.title.unwrap_or_default(),
+    });
+    this.push(Rc::new(RefCell::new(element)));
+    Ok(())
+}
+
 fn create_header<C: AppendChild, T: Into<HeaderOptions>>(this: &C, data: T, tag: &str) {
     let option = data.into();
 
@@ -632,6 +745,22 @@ fn create_header<C: AppendChild, T: Into<HeaderOptions>>(this: &C, data: T, tag:
 }
 
 impl<C: AppendChild> StreamlitApi for C {
+    fn info<T: Into<StatusOptions>>(&self, options: T) -> Result<(), StatusError> {
+        create_status(self, options.into(), crate::proto::alert::Format::Info)
+    }
+
+    fn warning<T: Into<StatusOptions>>(&self, options: T) -> Result<(), StatusError> {
+        create_status(self, options.into(), crate::proto::alert::Format::Warning)
+    }
+
+    fn error<T: Into<StatusOptions>>(&self, options: T) -> Result<(), StatusError> {
+        create_status(self, options.into(), crate::proto::alert::Format::Error)
+    }
+
+    fn success<T: Into<StatusOptions>>(&self, options: T) -> Result<(), StatusError> {
+        create_status(self, options.into(), crate::proto::alert::Format::Success)
+    }
+
     fn write<T: Into<WriteOptions>>(&self, body: T) {
         let body = body.into();
         let element = MarkdownElement::new(body.body).unsafe_allow_html(body.unsafe_allow_html);

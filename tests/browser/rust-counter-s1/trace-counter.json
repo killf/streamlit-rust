@@ -1,0 +1,1848 @@
+{
+  "schema_version": 2,
+  "contract_id": "C-P0-04",
+  "kind": "rust-browser-trace",
+  "target": "rust",
+  "scenario": "counter",
+  "scope": "RUST SIDE ONLY. The Rust implementation is exercised by this trace; the Python reference application is not. Black-box evidence over the real HTTP, WebSocket and protobuf surface of the server under test.",
+  "server_under_test": {
+    "target": "rust",
+    "binary": "target\\checks\\session-live\\counter-session-boundary.exe",
+    "binary_sha256": "2c66841195bafdfd2f71c95d4372e981f3cde3eac8c3229f012b40567d55693b",
+    "binary_bytes": 13132288,
+    "source_version": "git 7215312 + owner S1 handover fix (frozen binary 2c668411)"
+  },
+  "generated_by": "tests/reference/capture_browser_trace.py",
+  "generated_at_utc": "2026-10-23T16:44:07+00:00",
+  "app_url": "http://127.0.0.1:8501/",
+  "page_title": "Streamlit",
+  "capture": {
+    "browser": "Chrome/147.0.7727.56",
+    "agent_browser": "agent-browser 0.25.4",
+    "method": "agent-browser drives the UI; HTTP requests and WebSocket frames are read from the Chrome DevTools Protocol endpoint of the same browser instance",
+    "frame_decode": "official streamlit 1.66.1 protobuf (streamlit.proto.*)",
+    "end_condition": "the last script_finished frame plus the final DOM observation; the long-lived Streamlit WebSocket is never waited on for EOF",
+    "commands": [
+      {
+        "command": "open http://127.0.0.1:8501/",
+        "exit_code": 0
+      },
+      {
+        "command": "wait 3000",
+        "exit_code": 0
+      },
+      {
+        "command": "get cdp-url",
+        "exit_code": 0
+      },
+      {
+        "command": "reload",
+        "exit_code": 0
+      },
+      {
+        "command": "wait 5000",
+        "exit_code": 0
+      },
+      {
+        "command": "tab",
+        "exit_code": 0
+      },
+      {
+        "command": "eval (()=>{const q=s=>document.querySelector(s);\nconst df=q(\"[data-testid='stDataFrame']\");\nconst cells=[...document.querySelectorAll(\"[data-testid='stDataFrame'] [role='gridcell']\")].map(e=>e.textContent);\nconst chart=q(\"[data-testid='stVegaLiteChart']\");\nconst bars=chart?chart.querySelectorAll(\"g[class*='mark-rect'] path\").length:0;\nconst labels=chart?[...chart.querySelectorAll(\"g[class*='mark-text'] text\")].map(e=>e.textContent):[];\nconst thumb=q(\"[data-testid='stSliderThumbValue']\");\nconst cb=q(\"[data-testid='stCheckbox'] input\");\nconst sb=q(\"[data-testid='stSelectbox'] input\");\nconst alerts=[...document.querySelectorAll(\"[data-testid^='stAlertContent']\")].map(e=>e.textContent);\nconst markdown=[...document.querySelectorAll(\"[data-testid='stMarkdown']\")].map(e=>e.innerText.trim());\nconst markdownLines=markdown.flatMap(m=>m.split(\"\\n\").map(s=>s.trim())).filter(s=>s);\nconst texts=[...document.querySelectorAll(\"[data-testid='stText']\")].map(e=>e.textContent);\nconst all=texts.concat(markdownLines);\nconst pick=(p)=>{const t=all.find(x=>x.startsWith(p));return t?t.slice(p.length).trim():null;};\nconst buttons=[...document.querySelectorAll(\"[data-testid='stButton']\")].map(e=>e.innerText.trim());\nreturn JSON.stringify({\n document_title: document.title,\n markdown: markdown,\n has_uploader: !!document.querySelector(\"[data-testid='stFileUploader']\"),\n headings: [...document.querySelectorAll(\"h1,h2,h3\")].map(e=>e.innerText.trim()).slice(0,4),\n button_labels: buttons,\n has_button: buttons.length>0,\n script_runs: pick(\"Script runs:\"),\n pulses: pick(\"Pulses:\"),\n applied_note: pick(\"Applied note:\"),\n table_cells:cells, table_present:!!df,\n chart_present:!!chart, chart_bars:bars, chart_labels:labels,\n slider_value: thumb?thumb.textContent:null,\n checkbox_checked: cb?cb.checked:null,\n selectbox_value: sb?sb.value:null,\n texts:texts,\n alerts:alerts});})()",
+        "exit_code": 0
+      },
+      {
+        "command": "screenshot target\\rust-counter-s1\\21-counter-open.png",
+        "exit_code": 0
+      },
+      {
+        "command": "tab new http://127.0.0.1:8501/",
+        "exit_code": 0
+      },
+      {
+        "command": "wait 6000",
+        "exit_code": 0
+      },
+      {
+        "command": "eval (()=>{const q=s=>document.querySelector(s);\nconst df=q(\"[data-testid='stDataFrame']\");\nconst cells=[...document.querySelectorAll(\"[data-testid='stDataFrame'] [role='gridcell']\")].map(e=>e.textContent);\nconst chart=q(\"[data-testid='stVegaLiteChart']\");\nconst bars=chart?chart.querySelectorAll(\"g[class*='mark-rect'] path\").length:0;\nconst labels=chart?[...chart.querySelectorAll(\"g[class*='mark-text'] text\")].map(e=>e.textContent):[];\nconst thumb=q(\"[data-testid='stSliderThumbValue']\");\nconst cb=q(\"[data-testid='stCheckbox'] input\");\nconst sb=q(\"[data-testid='stSelectbox'] input\");\nconst alerts=[...document.querySelectorAll(\"[data-testid^='stAlertContent']\")].map(e=>e.textContent);\nconst markdown=[...document.querySelectorAll(\"[data-testid='stMarkdown']\")].map(e=>e.innerText.trim());\nconst markdownLines=markdown.flatMap(m=>m.split(\"\\n\").map(s=>s.trim())).filter(s=>s);\nconst texts=[...document.querySelectorAll(\"[data-testid='stText']\")].map(e=>e.textContent);\nconst all=texts.concat(markdownLines);\nconst pick=(p)=>{const t=all.find(x=>x.startsWith(p));return t?t.slice(p.length).trim():null;};\nconst buttons=[...document.querySelectorAll(\"[data-testid='stButton']\")].map(e=>e.innerText.trim());\nreturn JSON.stringify({\n document_title: document.title,\n markdown: markdown,\n has_uploader: !!document.querySelector(\"[data-testid='stFileUploader']\"),\n headings: [...document.querySelectorAll(\"h1,h2,h3\")].map(e=>e.innerText.trim()).slice(0,4),\n button_labels: buttons,\n has_button: buttons.length>0,\n script_runs: pick(\"Script runs:\"),\n pulses: pick(\"Pulses:\"),\n applied_note: pick(\"Applied note:\"),\n table_cells:cells, table_present:!!df,\n chart_present:!!chart, chart_bars:bars, chart_labels:labels,\n slider_value: thumb?thumb.textContent:null,\n checkbox_checked: cb?cb.checked:null,\n selectbox_value: sb?sb.value:null,\n texts:texts,\n alerts:alerts});})()",
+        "exit_code": 0
+      },
+      {
+        "command": "screenshot target\\rust-counter-s1\\22-counter-tab-b.png",
+        "exit_code": 0
+      },
+      {
+        "command": "scrollintoview [data-testid='stButton']",
+        "exit_code": 0
+      },
+      {
+        "command": "click [data-testid='stButton']",
+        "exit_code": 0
+      },
+      {
+        "command": "wait 2500",
+        "exit_code": 0
+      },
+      {
+        "command": "eval (()=>{const q=s=>document.querySelector(s);\nconst df=q(\"[data-testid='stDataFrame']\");\nconst cells=[...document.querySelectorAll(\"[data-testid='stDataFrame'] [role='gridcell']\")].map(e=>e.textContent);\nconst chart=q(\"[data-testid='stVegaLiteChart']\");\nconst bars=chart?chart.querySelectorAll(\"g[class*='mark-rect'] path\").length:0;\nconst labels=chart?[...chart.querySelectorAll(\"g[class*='mark-text'] text\")].map(e=>e.textContent):[];\nconst thumb=q(\"[data-testid='stSliderThumbValue']\");\nconst cb=q(\"[data-testid='stCheckbox'] input\");\nconst sb=q(\"[data-testid='stSelectbox'] input\");\nconst alerts=[...document.querySelectorAll(\"[data-testid^='stAlertContent']\")].map(e=>e.textContent);\nconst markdown=[...document.querySelectorAll(\"[data-testid='stMarkdown']\")].map(e=>e.innerText.trim());\nconst markdownLines=markdown.flatMap(m=>m.split(\"\\n\").map(s=>s.trim())).filter(s=>s);\nconst texts=[...document.querySelectorAll(\"[data-testid='stText']\")].map(e=>e.textContent);\nconst all=texts.concat(markdownLines);\nconst pick=(p)=>{const t=all.find(x=>x.startsWith(p));return t?t.slice(p.length).trim():null;};\nconst buttons=[...document.querySelectorAll(\"[data-testid='stButton']\")].map(e=>e.innerText.trim());\nreturn JSON.stringify({\n document_title: document.title,\n markdown: markdown,\n has_uploader: !!document.querySelector(\"[data-testid='stFileUploader']\"),\n headings: [...document.querySelectorAll(\"h1,h2,h3\")].map(e=>e.innerText.trim()).slice(0,4),\n button_labels: buttons,\n has_button: buttons.length>0,\n script_runs: pick(\"Script runs:\"),\n pulses: pick(\"Pulses:\"),\n applied_note: pick(\"Applied note:\"),\n table_cells:cells, table_present:!!df,\n chart_present:!!chart, chart_bars:bars, chart_labels:labels,\n slider_value: thumb?thumb.textContent:null,\n checkbox_checked: cb?cb.checked:null,\n selectbox_value: sb?sb.value:null,\n texts:texts,\n alerts:alerts});})()",
+        "exit_code": 0
+      },
+      {
+        "command": "screenshot target\\rust-counter-s1\\23-counter-tab-b-click.png",
+        "exit_code": 0
+      },
+      {
+        "command": "tab 24",
+        "exit_code": 0
+      },
+      {
+        "command": "wait 2000",
+        "exit_code": 0
+      },
+      {
+        "command": "eval (()=>{const q=s=>document.querySelector(s);\nconst df=q(\"[data-testid='stDataFrame']\");\nconst cells=[...document.querySelectorAll(\"[data-testid='stDataFrame'] [role='gridcell']\")].map(e=>e.textContent);\nconst chart=q(\"[data-testid='stVegaLiteChart']\");\nconst bars=chart?chart.querySelectorAll(\"g[class*='mark-rect'] path\").length:0;\nconst labels=chart?[...chart.querySelectorAll(\"g[class*='mark-text'] text\")].map(e=>e.textContent):[];\nconst thumb=q(\"[data-testid='stSliderThumbValue']\");\nconst cb=q(\"[data-testid='stCheckbox'] input\");\nconst sb=q(\"[data-testid='stSelectbox'] input\");\nconst alerts=[...document.querySelectorAll(\"[data-testid^='stAlertContent']\")].map(e=>e.textContent);\nconst markdown=[...document.querySelectorAll(\"[data-testid='stMarkdown']\")].map(e=>e.innerText.trim());\nconst markdownLines=markdown.flatMap(m=>m.split(\"\\n\").map(s=>s.trim())).filter(s=>s);\nconst texts=[...document.querySelectorAll(\"[data-testid='stText']\")].map(e=>e.textContent);\nconst all=texts.concat(markdownLines);\nconst pick=(p)=>{const t=all.find(x=>x.startsWith(p));return t?t.slice(p.length).trim():null;};\nconst buttons=[...document.querySelectorAll(\"[data-testid='stButton']\")].map(e=>e.innerText.trim());\nreturn JSON.stringify({\n document_title: document.title,\n markdown: markdown,\n has_uploader: !!document.querySelector(\"[data-testid='stFileUploader']\"),\n headings: [...document.querySelectorAll(\"h1,h2,h3\")].map(e=>e.innerText.trim()).slice(0,4),\n button_labels: buttons,\n has_button: buttons.length>0,\n script_runs: pick(\"Script runs:\"),\n pulses: pick(\"Pulses:\"),\n applied_note: pick(\"Applied note:\"),\n table_cells:cells, table_present:!!df,\n chart_present:!!chart, chart_bars:bars, chart_labels:labels,\n slider_value: thumb?thumb.textContent:null,\n checkbox_checked: cb?cb.checked:null,\n selectbox_value: sb?sb.value:null,\n texts:texts,\n alerts:alerts});})()",
+        "exit_code": 0
+      },
+      {
+        "command": "scrollintoview [data-testid='stButton']",
+        "exit_code": 0
+      },
+      {
+        "command": "click [data-testid='stButton']",
+        "exit_code": 0
+      },
+      {
+        "command": "wait 2000",
+        "exit_code": 0
+      },
+      {
+        "command": "scrollintoview [data-testid='stButton']",
+        "exit_code": 0
+      },
+      {
+        "command": "click [data-testid='stButton']",
+        "exit_code": 0
+      },
+      {
+        "command": "wait 2000",
+        "exit_code": 0
+      },
+      {
+        "command": "eval (()=>{const q=s=>document.querySelector(s);\nconst df=q(\"[data-testid='stDataFrame']\");\nconst cells=[...document.querySelectorAll(\"[data-testid='stDataFrame'] [role='gridcell']\")].map(e=>e.textContent);\nconst chart=q(\"[data-testid='stVegaLiteChart']\");\nconst bars=chart?chart.querySelectorAll(\"g[class*='mark-rect'] path\").length:0;\nconst labels=chart?[...chart.querySelectorAll(\"g[class*='mark-text'] text\")].map(e=>e.textContent):[];\nconst thumb=q(\"[data-testid='stSliderThumbValue']\");\nconst cb=q(\"[data-testid='stCheckbox'] input\");\nconst sb=q(\"[data-testid='stSelectbox'] input\");\nconst alerts=[...document.querySelectorAll(\"[data-testid^='stAlertContent']\")].map(e=>e.textContent);\nconst markdown=[...document.querySelectorAll(\"[data-testid='stMarkdown']\")].map(e=>e.innerText.trim());\nconst markdownLines=markdown.flatMap(m=>m.split(\"\\n\").map(s=>s.trim())).filter(s=>s);\nconst texts=[...document.querySelectorAll(\"[data-testid='stText']\")].map(e=>e.textContent);\nconst all=texts.concat(markdownLines);\nconst pick=(p)=>{const t=all.find(x=>x.startsWith(p));return t?t.slice(p.length).trim():null;};\nconst buttons=[...document.querySelectorAll(\"[data-testid='stButton']\")].map(e=>e.innerText.trim());\nreturn JSON.stringify({\n document_title: document.title,\n markdown: markdown,\n has_uploader: !!document.querySelector(\"[data-testid='stFileUploader']\"),\n headings: [...document.querySelectorAll(\"h1,h2,h3\")].map(e=>e.innerText.trim()).slice(0,4),\n button_labels: buttons,\n has_button: buttons.length>0,\n script_runs: pick(\"Script runs:\"),\n pulses: pick(\"Pulses:\"),\n applied_note: pick(\"Applied note:\"),\n table_cells:cells, table_present:!!df,\n chart_present:!!chart, chart_bars:bars, chart_labels:labels,\n slider_value: thumb?thumb.textContent:null,\n checkbox_checked: cb?cb.checked:null,\n selectbox_value: sb?sb.value:null,\n texts:texts,\n alerts:alerts});})()",
+        "exit_code": 0
+      },
+      {
+        "command": "eval (()=>{const q=s=>document.querySelector(s);\nconst df=q(\"[data-testid='stDataFrame']\");\nconst cells=[...document.querySelectorAll(\"[data-testid='stDataFrame'] [role='gridcell']\")].map(e=>e.textContent);\nconst chart=q(\"[data-testid='stVegaLiteChart']\");\nconst bars=chart?chart.querySelectorAll(\"g[class*='mark-rect'] path\").length:0;\nconst labels=chart?[...chart.querySelectorAll(\"g[class*='mark-text'] text\")].map(e=>e.textContent):[];\nconst thumb=q(\"[data-testid='stSliderThumbValue']\");\nconst cb=q(\"[data-testid='stCheckbox'] input\");\nconst sb=q(\"[data-testid='stSelectbox'] input\");\nconst alerts=[...document.querySelectorAll(\"[data-testid^='stAlertContent']\")].map(e=>e.textContent);\nconst markdown=[...document.querySelectorAll(\"[data-testid='stMarkdown']\")].map(e=>e.innerText.trim());\nconst markdownLines=markdown.flatMap(m=>m.split(\"\\n\").map(s=>s.trim())).filter(s=>s);\nconst texts=[...document.querySelectorAll(\"[data-testid='stText']\")].map(e=>e.textContent);\nconst all=texts.concat(markdownLines);\nconst pick=(p)=>{const t=all.find(x=>x.startsWith(p));return t?t.slice(p.length).trim():null;};\nconst buttons=[...document.querySelectorAll(\"[data-testid='stButton']\")].map(e=>e.innerText.trim());\nreturn JSON.stringify({\n document_title: document.title,\n markdown: markdown,\n has_uploader: !!document.querySelector(\"[data-testid='stFileUploader']\"),\n headings: [...document.querySelectorAll(\"h1,h2,h3\")].map(e=>e.innerText.trim()).slice(0,4),\n button_labels: buttons,\n has_button: buttons.length>0,\n script_runs: pick(\"Script runs:\"),\n pulses: pick(\"Pulses:\"),\n applied_note: pick(\"Applied note:\"),\n table_cells:cells, table_present:!!df,\n chart_present:!!chart, chart_bars:bars, chart_labels:labels,\n slider_value: thumb?thumb.textContent:null,\n checkbox_checked: cb?cb.checked:null,\n selectbox_value: sb?sb.value:null,\n texts:texts,\n alerts:alerts});})()",
+        "exit_code": 0
+      },
+      {
+        "command": "screenshot target\\rust-counter-s1\\24-counter-reconnected.png",
+        "exit_code": 0
+      },
+      {
+        "command": "scrollintoview [data-testid='stButton']",
+        "exit_code": 0
+      },
+      {
+        "command": "click [data-testid='stButton']",
+        "exit_code": 0
+      },
+      {
+        "command": "wait 3000",
+        "exit_code": 0
+      },
+      {
+        "command": "eval (()=>{const q=s=>document.querySelector(s);\nconst df=q(\"[data-testid='stDataFrame']\");\nconst cells=[...document.querySelectorAll(\"[data-testid='stDataFrame'] [role='gridcell']\")].map(e=>e.textContent);\nconst chart=q(\"[data-testid='stVegaLiteChart']\");\nconst bars=chart?chart.querySelectorAll(\"g[class*='mark-rect'] path\").length:0;\nconst labels=chart?[...chart.querySelectorAll(\"g[class*='mark-text'] text\")].map(e=>e.textContent):[];\nconst thumb=q(\"[data-testid='stSliderThumbValue']\");\nconst cb=q(\"[data-testid='stCheckbox'] input\");\nconst sb=q(\"[data-testid='stSelectbox'] input\");\nconst alerts=[...document.querySelectorAll(\"[data-testid^='stAlertContent']\")].map(e=>e.textContent);\nconst markdown=[...document.querySelectorAll(\"[data-testid='stMarkdown']\")].map(e=>e.innerText.trim());\nconst markdownLines=markdown.flatMap(m=>m.split(\"\\n\").map(s=>s.trim())).filter(s=>s);\nconst texts=[...document.querySelectorAll(\"[data-testid='stText']\")].map(e=>e.textContent);\nconst all=texts.concat(markdownLines);\nconst pick=(p)=>{const t=all.find(x=>x.startsWith(p));return t?t.slice(p.length).trim():null;};\nconst buttons=[...document.querySelectorAll(\"[data-testid='stButton']\")].map(e=>e.innerText.trim());\nreturn JSON.stringify({\n document_title: document.title,\n markdown: markdown,\n has_uploader: !!document.querySelector(\"[data-testid='stFileUploader']\"),\n headings: [...document.querySelectorAll(\"h1,h2,h3\")].map(e=>e.innerText.trim()).slice(0,4),\n button_labels: buttons,\n has_button: buttons.length>0,\n script_runs: pick(\"Script runs:\"),\n pulses: pick(\"Pulses:\"),\n applied_note: pick(\"Applied note:\"),\n table_cells:cells, table_present:!!df,\n chart_present:!!chart, chart_bars:bars, chart_labels:labels,\n slider_value: thumb?thumb.textContent:null,\n checkbox_checked: cb?cb.checked:null,\n selectbox_value: sb?sb.value:null,\n texts:texts,\n alerts:alerts});})()",
+        "exit_code": 0
+      },
+      {
+        "command": "screenshot target\\rust-counter-s1\\25-counter-after-recovery.png",
+        "exit_code": 0
+      },
+      {
+        "command": "reload",
+        "exit_code": 0
+      },
+      {
+        "command": "wait 7000",
+        "exit_code": 0
+      },
+      {
+        "command": "eval (()=>{const q=s=>document.querySelector(s);\nconst df=q(\"[data-testid='stDataFrame']\");\nconst cells=[...document.querySelectorAll(\"[data-testid='stDataFrame'] [role='gridcell']\")].map(e=>e.textContent);\nconst chart=q(\"[data-testid='stVegaLiteChart']\");\nconst bars=chart?chart.querySelectorAll(\"g[class*='mark-rect'] path\").length:0;\nconst labels=chart?[...chart.querySelectorAll(\"g[class*='mark-text'] text\")].map(e=>e.textContent):[];\nconst thumb=q(\"[data-testid='stSliderThumbValue']\");\nconst cb=q(\"[data-testid='stCheckbox'] input\");\nconst sb=q(\"[data-testid='stSelectbox'] input\");\nconst alerts=[...document.querySelectorAll(\"[data-testid^='stAlertContent']\")].map(e=>e.textContent);\nconst markdown=[...document.querySelectorAll(\"[data-testid='stMarkdown']\")].map(e=>e.innerText.trim());\nconst markdownLines=markdown.flatMap(m=>m.split(\"\\n\").map(s=>s.trim())).filter(s=>s);\nconst texts=[...document.querySelectorAll(\"[data-testid='stText']\")].map(e=>e.textContent);\nconst all=texts.concat(markdownLines);\nconst pick=(p)=>{const t=all.find(x=>x.startsWith(p));return t?t.slice(p.length).trim():null;};\nconst buttons=[...document.querySelectorAll(\"[data-testid='stButton']\")].map(e=>e.innerText.trim());\nreturn JSON.stringify({\n document_title: document.title,\n markdown: markdown,\n has_uploader: !!document.querySelector(\"[data-testid='stFileUploader']\"),\n headings: [...document.querySelectorAll(\"h1,h2,h3\")].map(e=>e.innerText.trim()).slice(0,4),\n button_labels: buttons,\n has_button: buttons.length>0,\n script_runs: pick(\"Script runs:\"),\n pulses: pick(\"Pulses:\"),\n applied_note: pick(\"Applied note:\"),\n table_cells:cells, table_present:!!df,\n chart_present:!!chart, chart_bars:bars, chart_labels:labels,\n slider_value: thumb?thumb.textContent:null,\n checkbox_checked: cb?cb.checked:null,\n selectbox_value: sb?sb.value:null,\n texts:texts,\n alerts:alerts});})()",
+        "exit_code": 0
+      },
+      {
+        "command": "screenshot target\\rust-counter-s1\\26-counter-after-reload.png",
+        "exit_code": 0
+      }
+    ],
+    "capture_exit_code": 0
+  },
+  "versions": {
+    "streamlit": "1.66.1",
+    "python": "3.12.6",
+    "chrome": "Chrome/147.0.7727.56",
+    "agent_browser": "agent-browser 0.25.4"
+  },
+  "websocket_handshakes": [
+    {
+      "index": 0,
+      "request_id": "89516.303",
+      "target": "tab-a",
+      "url": "ws://127.0.0.1:8501/_stcore/stream",
+      "request_headers": {
+        "Upgrade": "websocket",
+        "Origin": "http://127.0.0.1:8501",
+        "Cache-Control": "no-cache",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Pragma": "no-cache",
+        "Connection": "Upgrade",
+        "Sec-WebSocket-Key": "Ijs0TUPJTy2FgR68NifgCw==",
+        "Accept-Encoding": "gzip, deflate, br, zstd",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/147.0.0.0 Safari/537.36",
+        "Sec-WebSocket-Version": "13",
+        "Sec-WebSocket-Protocol": "streamlit, PLACEHOLDER_AUTH_TOKEN",
+        "Host": "127.0.0.1:8501",
+        "Sec-WebSocket-Extensions": "permessage-deflate; client_max_window_bits"
+      },
+      "response_status": 101,
+      "response_headers": {
+        "upgrade": "websocket",
+        "date": "Fri, 23 Oct 2026 16:43:19 GMT",
+        "sec-websocket-protocol": "streamlit",
+        "sec-websocket-accept": "FEdzNbTyey6Cd+JE6BSFVAiOzR0=",
+        "connection": "upgrade"
+      },
+      "subprotocol_entries": [
+        "streamlit",
+        "PLACEHOLDER_AUTH_TOKEN"
+      ],
+      "closed": true,
+      "frames_sent": 3,
+      "frames_received": 27
+    },
+    {
+      "index": 1,
+      "request_id": "89516.307",
+      "target": "tab-a",
+      "url": "ws://127.0.0.1:8501/_stcore/stream",
+      "request_headers": {
+        "Upgrade": "websocket",
+        "Origin": "http://127.0.0.1:8501",
+        "Cache-Control": "no-cache",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Pragma": "no-cache",
+        "Connection": "Upgrade",
+        "Sec-WebSocket-Key": "ify/Cj9Wa8hz6EAvesjwNg==",
+        "Accept-Encoding": "gzip, deflate, br, zstd",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/147.0.0.0 Safari/537.36",
+        "Sec-WebSocket-Version": "13",
+        "Sec-WebSocket-Protocol": "streamlit, PLACEHOLDER_AUTH_TOKEN, dd2d79df-1a91-4986-bae1-885cad4238dd",
+        "Host": "127.0.0.1:8501",
+        "Sec-WebSocket-Extensions": "permessage-deflate; client_max_window_bits"
+      },
+      "response_status": 101,
+      "response_headers": {
+        "upgrade": "websocket",
+        "date": "Fri, 23 Oct 2026 16:43:46 GMT",
+        "sec-websocket-protocol": "streamlit",
+        "sec-websocket-accept": "yCIkkmwYVcpOYJJ9z/vevgEhukQ=",
+        "connection": "upgrade"
+      },
+      "subprotocol_entries": [
+        "streamlit",
+        "PLACEHOLDER_AUTH_TOKEN",
+        "dd2d79df-1a91-4986-bae1-885cad4238dd"
+      ],
+      "closed": false,
+      "frames_sent": 1,
+      "frames_received": 9
+    },
+    {
+      "index": 2,
+      "request_id": "89516.458",
+      "target": "tab-a",
+      "url": "ws://127.0.0.1:8501/_stcore/stream",
+      "request_headers": {
+        "Upgrade": "websocket",
+        "Origin": "http://127.0.0.1:8501",
+        "Cache-Control": "no-cache",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Pragma": "no-cache",
+        "Connection": "Upgrade",
+        "Sec-WebSocket-Key": "WaqP1rWg2X0ZiYQhR6kxdg==",
+        "Accept-Encoding": "gzip, deflate, br, zstd",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/147.0.0.0 Safari/537.36",
+        "Sec-WebSocket-Version": "13",
+        "Sec-WebSocket-Protocol": "streamlit, PLACEHOLDER_AUTH_TOKEN",
+        "Host": "127.0.0.1:8501",
+        "Sec-WebSocket-Extensions": "permessage-deflate; client_max_window_bits"
+      },
+      "response_status": 101,
+      "response_headers": {
+        "upgrade": "websocket",
+        "date": "Fri, 23 Oct 2026 16:43:57 GMT",
+        "sec-websocket-protocol": "streamlit",
+        "sec-websocket-accept": "ZHMuN6KwKnFY2wQu9/BDuMWSo9U=",
+        "connection": "upgrade"
+      },
+      "subprotocol_entries": [
+        "streamlit",
+        "PLACEHOLDER_AUTH_TOKEN"
+      ],
+      "closed": false,
+      "frames_sent": 1,
+      "frames_received": 9
+    },
+    {
+      "index": 3,
+      "request_id": "47424.151",
+      "target": "tab-a",
+      "url": null,
+      "request_headers": {},
+      "response_status": null,
+      "response_headers": {},
+      "subprotocol_entries": [],
+      "closed": false,
+      "frames_sent": 1,
+      "frames_received": 9
+    }
+  ],
+  "websocket_handshake": {
+    "index": 0,
+    "request_id": "89516.303",
+    "target": "tab-a",
+    "url": "ws://127.0.0.1:8501/_stcore/stream",
+    "request_headers": {
+      "Upgrade": "websocket",
+      "Origin": "http://127.0.0.1:8501",
+      "Cache-Control": "no-cache",
+      "Accept-Language": "en-US,en;q=0.9",
+      "Pragma": "no-cache",
+      "Connection": "Upgrade",
+      "Sec-WebSocket-Key": "Ijs0TUPJTy2FgR68NifgCw==",
+      "Accept-Encoding": "gzip, deflate, br, zstd",
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/147.0.0.0 Safari/537.36",
+      "Sec-WebSocket-Version": "13",
+      "Sec-WebSocket-Protocol": "streamlit, PLACEHOLDER_AUTH_TOKEN",
+      "Host": "127.0.0.1:8501",
+      "Sec-WebSocket-Extensions": "permessage-deflate; client_max_window_bits"
+    },
+    "response_status": 101,
+    "response_headers": {
+      "upgrade": "websocket",
+      "date": "Fri, 23 Oct 2026 16:43:19 GMT",
+      "sec-websocket-protocol": "streamlit",
+      "sec-websocket-accept": "FEdzNbTyey6Cd+JE6BSFVAiOzR0=",
+      "connection": "upgrade"
+    },
+    "subprotocol_entries": [
+      "streamlit",
+      "PLACEHOLDER_AUTH_TOKEN"
+    ],
+    "closed": true,
+    "frames_sent": 3,
+    "frames_received": 27
+  },
+  "http_requests": [
+    {
+      "target": "tab-a",
+      "method": "GET",
+      "url": "http://127.0.0.1:8501/",
+      "resource_type": "Document",
+      "request_headers": {},
+      "status": 200,
+      "mime_type": "text/html"
+    },
+    {
+      "target": "tab-a",
+      "method": "GET",
+      "url": "http://127.0.0.1:8501/_stcore/health",
+      "resource_type": "Fetch",
+      "request_headers": {},
+      "status": 200,
+      "mime_type": "text/plain"
+    },
+    {
+      "target": "tab-a",
+      "method": "GET",
+      "url": "http://127.0.0.1:8501/_stcore/host-config",
+      "resource_type": "Fetch",
+      "request_headers": {},
+      "status": 200,
+      "mime_type": "application/json"
+    },
+    {
+      "target": "tab-a",
+      "method": "GET",
+      "url": "http://127.0.0.1:8501/favicon.png",
+      "resource_type": "Other",
+      "request_headers": {},
+      "status": 200,
+      "mime_type": "image/png"
+    },
+    {
+      "target": "tab-a",
+      "method": "GET",
+      "url": "http://127.0.0.1:8501/_stcore/health",
+      "resource_type": "Fetch",
+      "request_headers": {},
+      "status": 200,
+      "mime_type": "text/plain"
+    },
+    {
+      "target": "tab-a",
+      "method": "GET",
+      "url": "http://127.0.0.1:8501/_stcore/host-config",
+      "resource_type": "Fetch",
+      "request_headers": {},
+      "status": 200,
+      "mime_type": "application/json"
+    },
+    {
+      "target": "tab-a",
+      "method": "GET",
+      "url": "http://127.0.0.1:8501/",
+      "resource_type": "Document",
+      "request_headers": {},
+      "status": 200,
+      "mime_type": "text/html"
+    },
+    {
+      "target": "tab-a",
+      "method": "GET",
+      "url": "http://127.0.0.1:8501/_stcore/health",
+      "resource_type": "Fetch",
+      "request_headers": {},
+      "status": 200,
+      "mime_type": "text/plain"
+    },
+    {
+      "target": "tab-a",
+      "method": "GET",
+      "url": "http://127.0.0.1:8501/_stcore/host-config",
+      "resource_type": "Fetch",
+      "request_headers": {},
+      "status": 200,
+      "mime_type": "application/json"
+    },
+    {
+      "target": "tab-a",
+      "method": "GET",
+      "url": "http://127.0.0.1:8501/favicon.png",
+      "resource_type": "Other",
+      "request_headers": {},
+      "status": 200,
+      "mime_type": "image/png"
+    }
+  ],
+  "static_bundle_requests_counted_not_stored": 122,
+  "button_trace": [
+    {
+      "frame_index": 10,
+      "target": "tab-a",
+      "direction": "client->server",
+      "widget_id": "$$ID-ec8374db32bacb4cd9760199ec42819e",
+      "value_field": "trigger_value",
+      "value": true
+    },
+    {
+      "frame_index": 20,
+      "target": "tab-a",
+      "direction": "client->server",
+      "widget_id": "$$ID-ec8374db32bacb4cd9760199ec42819e",
+      "value_field": "trigger_value",
+      "value": true
+    },
+    {
+      "frame_index": 30,
+      "target": "tab-a",
+      "direction": "client->server",
+      "widget_id": "$$ID-ec8374db32bacb4cd9760199ec42819e",
+      "value_field": "trigger_value",
+      "value": true
+    },
+    {
+      "frame_index": 50,
+      "target": "tab-b",
+      "direction": "client->server",
+      "widget_id": "$$ID-ec8374db32bacb4cd9760199ec42819e",
+      "value_field": "trigger_value",
+      "value": true
+    }
+  ],
+  "status_observation": null,
+  "steps": [
+    {
+      "step": "counter-open",
+      "note": "the counter app rendered",
+      "at": "2026-10-23T16:43:25+00:00",
+      "observed": {
+        "document_title": "Streamlit",
+        "markdown": [
+          "Pulses: 0",
+          "Script runs: 1"
+        ],
+        "has_uploader": false,
+        "headings": [
+          "Streamlit Rust session counter"
+        ],
+        "button_labels": [
+          "Pulse"
+        ],
+        "has_button": true,
+        "script_runs": "1",
+        "pulses": "0",
+        "applied_note": null,
+        "table_cells": [],
+        "table_present": false,
+        "chart_present": false,
+        "chart_bars": 0,
+        "chart_labels": [],
+        "slider_value": null,
+        "checkbox_checked": null,
+        "selectbox_value": null,
+        "texts": [],
+        "alerts": []
+      },
+      "checked": {
+        "has_button": {
+          "expected": true,
+          "actual": true,
+          "ok": true
+        },
+        "pulses": {
+          "expected": "0",
+          "actual": "0",
+          "ok": true
+        },
+        "script_runs": {
+          "expected": "1",
+          "actual": "1",
+          "ok": true
+        }
+      },
+      "status": "ok"
+    },
+    {
+      "step": "counter-tab-b",
+      "note": "a second tab starts its own fresh session",
+      "at": "2026-10-23T16:43:33+00:00",
+      "observed": {
+        "document_title": "Streamlit",
+        "markdown": [
+          "Pulses: 0",
+          "Script runs: 1"
+        ],
+        "has_uploader": false,
+        "headings": [
+          "Streamlit Rust session counter"
+        ],
+        "button_labels": [
+          "Pulse"
+        ],
+        "has_button": true,
+        "script_runs": "1",
+        "pulses": "0",
+        "applied_note": null,
+        "table_cells": [],
+        "table_present": false,
+        "chart_present": false,
+        "chart_bars": 0,
+        "chart_labels": [],
+        "slider_value": null,
+        "checkbox_checked": null,
+        "selectbox_value": null,
+        "texts": [],
+        "alerts": []
+      },
+      "checked": {
+        "pulses": {
+          "expected": "0",
+          "actual": "0",
+          "ok": true
+        },
+        "script_runs": {
+          "expected": "1",
+          "actual": "1",
+          "ok": true
+        }
+      },
+      "status": "ok"
+    },
+    {
+      "step": "counter-tab-b-click",
+      "note": "clicking in tab B advances only tab B",
+      "at": "2026-10-23T16:43:37+00:00",
+      "observed": {
+        "document_title": "Streamlit",
+        "markdown": [
+          "Pulses: 1",
+          "Script runs: 2"
+        ],
+        "has_uploader": false,
+        "headings": [
+          "Streamlit Rust session counter"
+        ],
+        "button_labels": [
+          "Pulse"
+        ],
+        "has_button": true,
+        "script_runs": "2",
+        "pulses": "1",
+        "applied_note": null,
+        "table_cells": [],
+        "table_present": false,
+        "chart_present": false,
+        "chart_bars": 0,
+        "chart_labels": [],
+        "slider_value": null,
+        "checkbox_checked": null,
+        "selectbox_value": null,
+        "texts": [],
+        "alerts": []
+      },
+      "checked": {
+        "pulses": {
+          "expected": "1",
+          "actual": "1",
+          "ok": true
+        }
+      },
+      "status": "ok"
+    },
+    {
+      "step": "counter-tab-a-isolated",
+      "note": "tab A is unaffected by what tab B did",
+      "at": "2026-10-23T16:43:39+00:00",
+      "observed": {
+        "document_title": "Streamlit",
+        "markdown": [
+          "Pulses: 0",
+          "Script runs: 1"
+        ],
+        "has_uploader": false,
+        "headings": [
+          "Streamlit Rust session counter"
+        ],
+        "button_labels": [
+          "Pulse"
+        ],
+        "has_button": true,
+        "script_runs": "1",
+        "pulses": "0",
+        "applied_note": null,
+        "table_cells": [],
+        "table_present": false,
+        "chart_present": false,
+        "chart_bars": 0,
+        "chart_labels": [],
+        "slider_value": null,
+        "checkbox_checked": null,
+        "selectbox_value": null,
+        "texts": [],
+        "alerts": []
+      },
+      "checked": {
+        "pulses": {
+          "expected": "0",
+          "actual": "0",
+          "ok": true
+        },
+        "script_runs": {
+          "expected": "1",
+          "actual": "1",
+          "ok": true
+        }
+      },
+      "status": "ok"
+    },
+    {
+      "step": "counter-two-clicks",
+      "note": "two clicks in tab A",
+      "at": "2026-10-23T16:43:46+00:00",
+      "observed": {
+        "document_title": "Streamlit",
+        "markdown": [
+          "Pulses: 2",
+          "Script runs: 3"
+        ],
+        "has_uploader": false,
+        "headings": [
+          "Streamlit Rust session counter"
+        ],
+        "button_labels": [
+          "Pulse"
+        ],
+        "has_button": true,
+        "script_runs": "3",
+        "pulses": "2",
+        "applied_note": null,
+        "table_cells": [],
+        "table_present": false,
+        "chart_present": false,
+        "chart_bars": 0,
+        "chart_labels": [],
+        "slider_value": null,
+        "checkbox_checked": null,
+        "selectbox_value": null,
+        "texts": [],
+        "alerts": []
+      },
+      "checked": {
+        "pulses": {
+          "expected": "2",
+          "actual": "2",
+          "ok": true
+        }
+      },
+      "status": "ok"
+    },
+    {
+      "step": "counter-reconnected",
+      "note": "the frontend reconnected; the session and its counter survived",
+      "at": "2026-10-23T16:43:53+00:00",
+      "observed": {
+        "document_title": "Streamlit",
+        "markdown": [
+          "Pulses: 2",
+          "Script runs: 3"
+        ],
+        "has_uploader": false,
+        "headings": [
+          "Streamlit Rust session counter"
+        ],
+        "button_labels": [
+          "Pulse"
+        ],
+        "has_button": true,
+        "script_runs": "3",
+        "pulses": "2",
+        "applied_note": null,
+        "table_cells": [],
+        "table_present": false,
+        "chart_present": false,
+        "chart_bars": 0,
+        "chart_labels": [],
+        "slider_value": null,
+        "checkbox_checked": null,
+        "selectbox_value": null,
+        "texts": [],
+        "alerts": []
+      },
+      "checked": {
+        "pulses": {
+          "expected": "2",
+          "actual": "2",
+          "ok": true
+        }
+      },
+      "status": "ok"
+    },
+    {
+      "step": "counter-click-after-recovery",
+      "note": "the click on the reconnected session advanced the counter",
+      "at": "2026-10-23T16:43:57+00:00",
+      "observed": {
+        "document_title": "Streamlit",
+        "markdown": [
+          "Pulses: 3",
+          "Script runs: 4"
+        ],
+        "has_uploader": false,
+        "headings": [
+          "Streamlit Rust session counter"
+        ],
+        "button_labels": [
+          "Pulse"
+        ],
+        "has_button": true,
+        "script_runs": "4",
+        "pulses": "3",
+        "applied_note": null,
+        "table_cells": [],
+        "table_present": false,
+        "chart_present": false,
+        "chart_bars": 0,
+        "chart_labels": [],
+        "slider_value": null,
+        "checkbox_checked": null,
+        "selectbox_value": null,
+        "texts": [],
+        "alerts": []
+      },
+      "checked": {
+        "pulses": {
+          "expected": "3",
+          "actual": "3",
+          "ok": true
+        }
+      },
+      "status": "ok"
+    },
+    {
+      "step": "counter-after-reload",
+      "note": "a reload starts a new session and resets the counter",
+      "at": "2026-10-23T16:44:05+00:00",
+      "observed": {
+        "document_title": "Streamlit",
+        "markdown": [
+          "Pulses: 0",
+          "Script runs: 1"
+        ],
+        "has_uploader": false,
+        "headings": [
+          "Streamlit Rust session counter"
+        ],
+        "button_labels": [
+          "Pulse"
+        ],
+        "has_button": true,
+        "script_runs": "1",
+        "pulses": "0",
+        "applied_note": null,
+        "table_cells": [],
+        "table_present": false,
+        "chart_present": false,
+        "chart_bars": 0,
+        "chart_labels": [],
+        "slider_value": null,
+        "checkbox_checked": null,
+        "selectbox_value": null,
+        "texts": [],
+        "alerts": []
+      },
+      "checked": {
+        "pulses": {
+          "expected": "0",
+          "actual": "0",
+          "ok": true
+        },
+        "script_runs": {
+          "expected": "1",
+          "actual": "1",
+          "ok": true
+        }
+      },
+      "status": "ok"
+    }
+  ],
+  "failures": [],
+  "notes": [
+    "tab A session id(s): ['dd2d79df-1a91-4986-bae1-885cad4238dd']",
+    "tab B session id(s): ['c366fafb-28e6-4ed7-9acd-8be3303483a4']",
+    "live socket closed through Runtime.evaluate: {'id': 4, 'result': {'result': {'type': 'string', 'value': 'closed'}}}",
+    "reconnect handshake Sec-WebSocket-Protocol: streamlit, PLACEHOLDER_AUTH_TOKEN, dd2d79df-1a91-4986-bae1-885cad4238dd",
+    "session id before the fault: ['dd2d79df-1a91-4986-bae1-885cad4238dd']",
+    "session id after the recovery: ['dd2d79df-1a91-4986-bae1-885cad4238dd']",
+    "session id after the reload: ['dd2d79df-1a91-4986-bae1-885cad4238dd', 'd63f719e-f5de-4ca0-8d09-4b7f4c3d7cfe']",
+    "click window tab-b: frames 0..10",
+    "click window pre-recovery-1: frames 10..20",
+    "click window pre-recovery-2: frames 20..30",
+    "click window post-recovery: frames 30..40"
+  ],
+  "frames": [
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "client->server",
+      "bytes": 71,
+      "sha256": "966ef6e62092c0d98d1dd775cb90fe29bd906d09a86b4331fae64bf9be031050",
+      "decoded": {
+        "message": "BackMsg",
+        "type": "rerun_script",
+        "rerun_script": {
+          "widget_states": []
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 219,
+      "sha256": "39e0eb4fa3227a0534ff24cfbe8ae4a081a5a3aa7d79c54bb2c5c6be2e9459e0",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "new_session",
+        "new_session": {
+          "script_run_id": "ace4a3ec-c386-4917-8bbc-cf96f1061ff5",
+          "name": "Streamlit Rust",
+          "main_script_path": "",
+          "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "session_id": "dd2d79df-1a91-4986-bae1-885cad4238dd"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 28,
+      "sha256": "e2f2168365a75ba2f11aaf2c68898f866f998aa74b6e21735ad9a4d05f115786",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true,
+          "run_on_save": false
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 39,
+      "sha256": "3e2131cb4f7849335c8f6316a301f911ec5fe1eb3c169a0a561455bfc3f8d2b4",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "add_block",
+          "block_id": "main_container",
+          "block_type": "vertical"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 127,
+      "sha256": "11061af111c3d386601a1193f1a8b1258ac470e19beca4bed76670cf741ee3bd",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "heading",
+          "body": "Streamlit Rust session counter"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 143,
+      "sha256": "0063865346221ebfeca0cb3af623e3ebd778884905ae97d680317528fd8bed0e",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "button",
+          "id": "$$ID-ec8374db32bacb4cd9760199ec42819e",
+          "label": "Pulse",
+          "accepted_types": [
+            "secondary"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 92,
+      "sha256": "b13d7937bc7d18332ea227c73333164f8ec7efcd95a25a86651fe410163b28bd",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "markdown",
+          "body": "Pulses: 0"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 97,
+      "sha256": "d8235a18a1474be87364367c6c69daf4e35d7414ff1f8336f105b11e44f9d2e7",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "markdown",
+          "body": "Script runs: 1"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 19,
+      "sha256": "9a09f6b7e80d191046501f3af869470d9f516688b5e4d974ac890b19483dfb07",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "script_finished",
+        "script_finished": {
+          "status": 0,
+          "status_name": "FINISHED_SUCCESSFULLY"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 26,
+      "sha256": "0d60bb56488ee1a02ec6903e5f7ea99a21528ddc785d44d2f7b3701a08fde65c",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": false,
+          "run_on_save": false
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "client->server",
+      "bytes": 149,
+      "sha256": "943c6b1532f9c126fd7abe09491370e8cee9571c8c754a7c0f483741773aa9ea",
+      "decoded": {
+        "message": "BackMsg",
+        "type": "rerun_script",
+        "rerun_script": {
+          "widget_states": [
+            {
+              "id": "$$ID-ec8374db32bacb4cd9760199ec42819e",
+              "value_field": "trigger_value",
+              "value": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 219,
+      "sha256": "4dc4fade4da17512877809f739746f341743082d96a86141713f4f7a43f0f17b",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "new_session",
+        "new_session": {
+          "script_run_id": "ee405e53-b8ea-4fbe-b242-038a4121a24c",
+          "name": "Streamlit Rust",
+          "main_script_path": "",
+          "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "session_id": "dd2d79df-1a91-4986-bae1-885cad4238dd"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 28,
+      "sha256": "e2f2168365a75ba2f11aaf2c68898f866f998aa74b6e21735ad9a4d05f115786",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true,
+          "run_on_save": false
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 39,
+      "sha256": "3e2131cb4f7849335c8f6316a301f911ec5fe1eb3c169a0a561455bfc3f8d2b4",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "add_block",
+          "block_id": "main_container",
+          "block_type": "vertical"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 127,
+      "sha256": "11061af111c3d386601a1193f1a8b1258ac470e19beca4bed76670cf741ee3bd",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "heading",
+          "body": "Streamlit Rust session counter"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 143,
+      "sha256": "0063865346221ebfeca0cb3af623e3ebd778884905ae97d680317528fd8bed0e",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "button",
+          "id": "$$ID-ec8374db32bacb4cd9760199ec42819e",
+          "label": "Pulse",
+          "accepted_types": [
+            "secondary"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 92,
+      "sha256": "76eaee87888247f567fe4d6824b8946672469fdef783bf2b3d5f237ee8f40531",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "markdown",
+          "body": "Pulses: 1"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 97,
+      "sha256": "9b7234d1260bf55d7ad377b48c609269e7d7114a41e40c2bab81cba6f993a8ca",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "markdown",
+          "body": "Script runs: 2"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 19,
+      "sha256": "9a09f6b7e80d191046501f3af869470d9f516688b5e4d974ac890b19483dfb07",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "script_finished",
+        "script_finished": {
+          "status": 0,
+          "status_name": "FINISHED_SUCCESSFULLY"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 26,
+      "sha256": "0d60bb56488ee1a02ec6903e5f7ea99a21528ddc785d44d2f7b3701a08fde65c",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": false,
+          "run_on_save": false
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "client->server",
+      "bytes": 149,
+      "sha256": "943c6b1532f9c126fd7abe09491370e8cee9571c8c754a7c0f483741773aa9ea",
+      "decoded": {
+        "message": "BackMsg",
+        "type": "rerun_script",
+        "rerun_script": {
+          "widget_states": [
+            {
+              "id": "$$ID-ec8374db32bacb4cd9760199ec42819e",
+              "value_field": "trigger_value",
+              "value": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 219,
+      "sha256": "ed9e90fca3486f69aab60f306d7a50da4dab09d6d26ebb118b91a7b46b3c4d88",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "new_session",
+        "new_session": {
+          "script_run_id": "396fc93d-3aa7-447a-8c88-a1806f88ee2c",
+          "name": "Streamlit Rust",
+          "main_script_path": "",
+          "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "session_id": "dd2d79df-1a91-4986-bae1-885cad4238dd"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 28,
+      "sha256": "e2f2168365a75ba2f11aaf2c68898f866f998aa74b6e21735ad9a4d05f115786",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true,
+          "run_on_save": false
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 39,
+      "sha256": "3e2131cb4f7849335c8f6316a301f911ec5fe1eb3c169a0a561455bfc3f8d2b4",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "add_block",
+          "block_id": "main_container",
+          "block_type": "vertical"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 127,
+      "sha256": "11061af111c3d386601a1193f1a8b1258ac470e19beca4bed76670cf741ee3bd",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "heading",
+          "body": "Streamlit Rust session counter"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 143,
+      "sha256": "0063865346221ebfeca0cb3af623e3ebd778884905ae97d680317528fd8bed0e",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "button",
+          "id": "$$ID-ec8374db32bacb4cd9760199ec42819e",
+          "label": "Pulse",
+          "accepted_types": [
+            "secondary"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 92,
+      "sha256": "a0d85ba2a66c0b051656b717f1309f147a753f5815c13fabe982b3512aab6583",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "markdown",
+          "body": "Pulses: 2"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 97,
+      "sha256": "d0aad5e4ff9eb14ebd50fba5c76e52c73cf57fe4b511d174fc67c1b79686a8a4",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "markdown",
+          "body": "Script runs: 3"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 19,
+      "sha256": "9a09f6b7e80d191046501f3af869470d9f516688b5e4d974ac890b19483dfb07",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "script_finished",
+        "script_finished": {
+          "status": 0,
+          "status_name": "FINISHED_SUCCESSFULLY"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 0,
+      "direction": "server->client",
+      "bytes": 26,
+      "sha256": "0d60bb56488ee1a02ec6903e5f7ea99a21528ddc785d44d2f7b3701a08fde65c",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": false,
+          "run_on_save": false
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 1,
+      "direction": "client->server",
+      "bytes": 149,
+      "sha256": "943c6b1532f9c126fd7abe09491370e8cee9571c8c754a7c0f483741773aa9ea",
+      "decoded": {
+        "message": "BackMsg",
+        "type": "rerun_script",
+        "rerun_script": {
+          "widget_states": [
+            {
+              "id": "$$ID-ec8374db32bacb4cd9760199ec42819e",
+              "value_field": "trigger_value",
+              "value": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 1,
+      "direction": "server->client",
+      "bytes": 219,
+      "sha256": "80bfec84492fb392a93b3d0f98c4e4a6b0eadd31142283271cb96e7ece4dcd34",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "new_session",
+        "new_session": {
+          "script_run_id": "7830346d-40dd-42d1-aca4-2ba923ca9975",
+          "name": "Streamlit Rust",
+          "main_script_path": "",
+          "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "session_id": "dd2d79df-1a91-4986-bae1-885cad4238dd"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 1,
+      "direction": "server->client",
+      "bytes": 28,
+      "sha256": "e2f2168365a75ba2f11aaf2c68898f866f998aa74b6e21735ad9a4d05f115786",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true,
+          "run_on_save": false
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 1,
+      "direction": "server->client",
+      "bytes": 39,
+      "sha256": "3e2131cb4f7849335c8f6316a301f911ec5fe1eb3c169a0a561455bfc3f8d2b4",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "add_block",
+          "block_id": "main_container",
+          "block_type": "vertical"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 1,
+      "direction": "server->client",
+      "bytes": 127,
+      "sha256": "11061af111c3d386601a1193f1a8b1258ac470e19beca4bed76670cf741ee3bd",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "heading",
+          "body": "Streamlit Rust session counter"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 1,
+      "direction": "server->client",
+      "bytes": 143,
+      "sha256": "0063865346221ebfeca0cb3af623e3ebd778884905ae97d680317528fd8bed0e",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "button",
+          "id": "$$ID-ec8374db32bacb4cd9760199ec42819e",
+          "label": "Pulse",
+          "accepted_types": [
+            "secondary"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 1,
+      "direction": "server->client",
+      "bytes": 92,
+      "sha256": "edf14da0675440cd3f44549e317ab28b7e9125abc701f6ce01f249321611d5d5",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "markdown",
+          "body": "Pulses: 3"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 1,
+      "direction": "server->client",
+      "bytes": 97,
+      "sha256": "a966cd35a705cfb40a94e78898f3c7e6b384087e460cd0fc52392fd5d299c9ac",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "markdown",
+          "body": "Script runs: 4"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 1,
+      "direction": "server->client",
+      "bytes": 19,
+      "sha256": "9a09f6b7e80d191046501f3af869470d9f516688b5e4d974ac890b19483dfb07",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "script_finished",
+        "script_finished": {
+          "status": 0,
+          "status_name": "FINISHED_SUCCESSFULLY"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 1,
+      "direction": "server->client",
+      "bytes": 26,
+      "sha256": "0d60bb56488ee1a02ec6903e5f7ea99a21528ddc785d44d2f7b3701a08fde65c",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": false,
+          "run_on_save": false
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 2,
+      "direction": "client->server",
+      "bytes": 71,
+      "sha256": "966ef6e62092c0d98d1dd775cb90fe29bd906d09a86b4331fae64bf9be031050",
+      "decoded": {
+        "message": "BackMsg",
+        "type": "rerun_script",
+        "rerun_script": {
+          "widget_states": []
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 2,
+      "direction": "server->client",
+      "bytes": 219,
+      "sha256": "6a178926916c4b7e9511454026c8622216cc999aceb4646ee146a129c993f139",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "new_session",
+        "new_session": {
+          "script_run_id": "057a9a73-86ea-407f-8ab6-6ba0f5978330",
+          "name": "Streamlit Rust",
+          "main_script_path": "",
+          "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "session_id": "d63f719e-f5de-4ca0-8d09-4b7f4c3d7cfe"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 2,
+      "direction": "server->client",
+      "bytes": 28,
+      "sha256": "e2f2168365a75ba2f11aaf2c68898f866f998aa74b6e21735ad9a4d05f115786",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true,
+          "run_on_save": false
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 2,
+      "direction": "server->client",
+      "bytes": 39,
+      "sha256": "3e2131cb4f7849335c8f6316a301f911ec5fe1eb3c169a0a561455bfc3f8d2b4",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "add_block",
+          "block_id": "main_container",
+          "block_type": "vertical"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 2,
+      "direction": "server->client",
+      "bytes": 127,
+      "sha256": "11061af111c3d386601a1193f1a8b1258ac470e19beca4bed76670cf741ee3bd",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "heading",
+          "body": "Streamlit Rust session counter"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 2,
+      "direction": "server->client",
+      "bytes": 143,
+      "sha256": "0063865346221ebfeca0cb3af623e3ebd778884905ae97d680317528fd8bed0e",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "button",
+          "id": "$$ID-ec8374db32bacb4cd9760199ec42819e",
+          "label": "Pulse",
+          "accepted_types": [
+            "secondary"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 2,
+      "direction": "server->client",
+      "bytes": 92,
+      "sha256": "b13d7937bc7d18332ea227c73333164f8ec7efcd95a25a86651fe410163b28bd",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "markdown",
+          "body": "Pulses: 0"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 2,
+      "direction": "server->client",
+      "bytes": 97,
+      "sha256": "d8235a18a1474be87364367c6c69daf4e35d7414ff1f8336f105b11e44f9d2e7",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "markdown",
+          "body": "Script runs: 1"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 2,
+      "direction": "server->client",
+      "bytes": 19,
+      "sha256": "9a09f6b7e80d191046501f3af869470d9f516688b5e4d974ac890b19483dfb07",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "script_finished",
+        "script_finished": {
+          "status": 0,
+          "status_name": "FINISHED_SUCCESSFULLY"
+        }
+      }
+    },
+    {
+      "target": "tab-a",
+      "connection": 2,
+      "direction": "server->client",
+      "bytes": 26,
+      "sha256": "0d60bb56488ee1a02ec6903e5f7ea99a21528ddc785d44d2f7b3701a08fde65c",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": false,
+          "run_on_save": false
+        }
+      }
+    },
+    {
+      "target": "tab-b",
+      "connection": 3,
+      "direction": "client->server",
+      "bytes": 149,
+      "sha256": "943c6b1532f9c126fd7abe09491370e8cee9571c8c754a7c0f483741773aa9ea",
+      "decoded": {
+        "message": "BackMsg",
+        "type": "rerun_script",
+        "rerun_script": {
+          "widget_states": [
+            {
+              "id": "$$ID-ec8374db32bacb4cd9760199ec42819e",
+              "value_field": "trigger_value",
+              "value": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "target": "tab-b",
+      "connection": 3,
+      "direction": "server->client",
+      "bytes": 219,
+      "sha256": "5ea5b1e8748358a7b52d102aeca70b1f7e4748fd38c65df52e3be25e4127d25a",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "new_session",
+        "new_session": {
+          "script_run_id": "c1421b53-0c6b-49b0-99a5-c5e26019d5f3",
+          "name": "Streamlit Rust",
+          "main_script_path": "",
+          "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "session_id": "c366fafb-28e6-4ed7-9acd-8be3303483a4"
+        }
+      }
+    },
+    {
+      "target": "tab-b",
+      "connection": 3,
+      "direction": "server->client",
+      "bytes": 28,
+      "sha256": "e2f2168365a75ba2f11aaf2c68898f866f998aa74b6e21735ad9a4d05f115786",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true,
+          "run_on_save": false
+        }
+      }
+    },
+    {
+      "target": "tab-b",
+      "connection": 3,
+      "direction": "server->client",
+      "bytes": 39,
+      "sha256": "3e2131cb4f7849335c8f6316a301f911ec5fe1eb3c169a0a561455bfc3f8d2b4",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "add_block",
+          "block_id": "main_container",
+          "block_type": "vertical"
+        }
+      }
+    },
+    {
+      "target": "tab-b",
+      "connection": 3,
+      "direction": "server->client",
+      "bytes": 127,
+      "sha256": "11061af111c3d386601a1193f1a8b1258ac470e19beca4bed76670cf741ee3bd",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "heading",
+          "body": "Streamlit Rust session counter"
+        }
+      }
+    },
+    {
+      "target": "tab-b",
+      "connection": 3,
+      "direction": "server->client",
+      "bytes": 143,
+      "sha256": "0063865346221ebfeca0cb3af623e3ebd778884905ae97d680317528fd8bed0e",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "button",
+          "id": "$$ID-ec8374db32bacb4cd9760199ec42819e",
+          "label": "Pulse",
+          "accepted_types": [
+            "secondary"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "target": "tab-b",
+      "connection": 3,
+      "direction": "server->client",
+      "bytes": 92,
+      "sha256": "76eaee87888247f567fe4d6824b8946672469fdef783bf2b3d5f237ee8f40531",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "markdown",
+          "body": "Pulses: 1"
+        }
+      }
+    },
+    {
+      "target": "tab-b",
+      "connection": 3,
+      "direction": "server->client",
+      "bytes": 97,
+      "sha256": "9b7234d1260bf55d7ad377b48c609269e7d7114a41e40c2bab81cba6f993a8ca",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "markdown",
+          "body": "Script runs: 2"
+        }
+      }
+    },
+    {
+      "target": "tab-b",
+      "connection": 3,
+      "direction": "server->client",
+      "bytes": 19,
+      "sha256": "9a09f6b7e80d191046501f3af869470d9f516688b5e4d974ac890b19483dfb07",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "script_finished",
+        "script_finished": {
+          "status": 0,
+          "status_name": "FINISHED_SUCCESSFULLY"
+        }
+      }
+    },
+    {
+      "target": "tab-b",
+      "connection": 3,
+      "direction": "server->client",
+      "bytes": 26,
+      "sha256": "0d60bb56488ee1a02ec6903e5f7ea99a21528ddc785d44d2f7b3701a08fde65c",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": false,
+          "run_on_save": false
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,170 @@
+{
+  "schema_version": 1,
+  "contract_id": "C-P0-04",
+  "kind": "python-reference-status-trace",
+  "scope": "PYTHON SIDE ONLY. The Rust implementation is not exercised by this file.",
+  "generated_by": "tests/reference/capture_browser_trace.py (CDP recorder) against tests/reference/status_app.py on port 8602",
+  "app": "tests/reference/status_app.py",
+  "url": "http://localhost:8602/?case=<case>",
+  "reference_version": "1.66.1",
+  "doc_version": "1.66.0",
+  "alert_proto_fields": {
+    "1": "body (string)",
+    "2": "format (enum: INFO | SUCCESS | WARNING | ERROR)",
+    "3": "icon (string)",
+    "4": "width_config (streamlit.WidthConfig: use_stretch | use_content | pixel_width | rem_width)",
+    "5": "title (string)"
+  },
+  "element_layout": {
+    "note": "Element.width_config (58) and Element.height_config (57) were null for every alert captured; the width travels on the Alert message's own width_config (4).",
+    "element_width_config": "null for all captured alerts",
+    "element_height_config": "null for all captured alerts"
+  },
+  "cases": {
+    "defaults": {
+      "alerts": [
+        {
+          "wire": {
+            "body": "INFO-BODY plain information",
+            "format": "INFO",
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          "element_width_config": null,
+          "element_height_config": null,
+          "rendered": {
+            "text": "INFO-BODY plain information",
+            "width_px": 1094
+          }
+        },
+        {
+          "wire": {
+            "body": "SUCCESS-BODY the operation succeeded",
+            "format": "SUCCESS",
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          "element_width_config": null,
+          "element_height_config": null,
+          "rendered": {
+            "text": "SUCCESS-BODY the operation succeeded",
+            "width_px": 1094
+          }
+        },
+        {
+          "wire": {
+            "body": "WARNING-BODY something needs attention",
+            "format": "WARNING",
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          "element_width_config": null,
+          "element_height_config": null,
+          "rendered": {
+            "text": "WARNING-BODY something needs attention",
+            "width_px": 1094
+          }
+        },
+        {
+          "wire": {
+            "body": "ERROR-BODY something failed",
+            "format": "ERROR",
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          "element_width_config": null,
+          "element_height_config": null,
+          "rendered": {
+            "text": "ERROR-BODY something failed",
+            "width_px": 1094
+          }
+        }
+      ]
+    },
+    "variants": {
+      "alerts": [
+        {
+          "wire": {
+            "body": "INFO-EMOJI-BODY 💡 this body starts with an emoji",
+            "format": "INFO",
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          "element_width_config": null,
+          "element_height_config": null,
+          "rendered": {
+            "text": "INFO-EMOJI-BODY 💡 this body starts with an emoji",
+            "width_px": 1094
+          }
+        },
+        {
+          "wire": {
+            "body": "INFO-NOICON-BODY 💡 body keeps its emoji",
+            "format": "INFO",
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          "element_width_config": null,
+          "element_height_config": null,
+          "rendered": {
+            "text": "INFO-NOICON-BODY 💡 body keeps its emoji",
+            "width_px": 1094
+          }
+        },
+        {
+          "wire": {
+            "body": "SUCCESS-MATERIAL-BODY material icon",
+            "format": "SUCCESS",
+            "icon": ":material/thumb_up:",
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          "element_width_config": null,
+          "element_height_config": null,
+          "rendered": {
+            "text": "thumb_up SUCCESS-MATERIAL-BODY material icon",
+            "width_px": 1094
+          }
+        },
+        {
+          "wire": {
+            "body": "WARNING-WIDTH-BODY fixed width",
+            "format": "WARNING",
+            "widthConfig": {
+              "pixelWidth": 240
+            }
+          },
+          "element_width_config": null,
+          "element_height_config": null,
+          "rendered": {
+            "text": "WARNING-WIDTH-BODY fixed width",
+            "width_px": 240
+          }
+        },
+        {
+          "wire": {
+            "body": "ERROR-TITLE-BODY with a title",
+            "format": "ERROR",
+            "widthConfig": {
+              "useStretch": true
+            },
+            "title": "ERROR-TITLE"
+          },
+          "element_width_config": null,
+          "element_height_config": null,
+          "rendered": {
+            "text": "ERROR-TITLE ERROR-TITLE-BODY with a title",
+            "width_px": 1094
+          }
+        }
+      ]
+    }
+  }
+}

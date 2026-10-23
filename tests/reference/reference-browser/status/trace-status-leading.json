@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "contract_id": "C-P0-04",
+  "kind": "python-reference-status-trace",
+  "scope": "PYTHON SIDE ONLY. The Rust implementation is not exercised by this file.",
+  "appended_to": "tests/reference/reference-browser/status/trace-status.json",
+  "appended_because": "the leading-icon extraction and the invalid-parameter semantics were measured after the first status trace was published; that trace is left untouched",
+  "app_sha256": "b4a6fd633c51994e86bac0c9d6739b6025d494c2490f3a23d4818c83d3b97e08",
+  "reference_version": "1.66.1",
+  "exception_element_fields": {
+    "type": "the python exception class name, e.g. streamlit.errors.StreamlitInvalidWidthError",
+    "message": "the human readable message",
+    "stack_trace": "the script frames",
+    "message_is_markdown": "true",
+    "width_config": "the exception element carries its own width config",
+    "is_streamlit_exception": "true"
+  },
+  "cases": {
+    "leading_emoji": {
+      "alerts": [
+        {
+          "body": "INFO-LEADING-EMOJI this body starts with an emoji",
+          "format": "INFO",
+          "icon": "💡",
+          "widthConfig": {
+            "useStretch": true
+          }
+        }
+      ],
+      "exceptions": [],
+      "rendered_alerts": [
+        {
+          "text": "💡 INFO-LEADING-EMOJI this body starts with an emoji",
+          "width": 1104,
+          "icon_html": null
+        }
+      ],
+      "rendered_exception": []
+    },
+    "leading_emoji_noicon": {
+      "alerts": [
+        {
+          "body": "💡 INFO-LEADING-NOICON body keeps its emoji",
+          "format": "INFO",
+          "widthConfig": {
+            "useStretch": true
+          }
+        }
+      ],
+      "exceptions": [],
+      "rendered_alerts": [
+        {
+          "text": "💡 INFO-LEADING-NOICON body keeps its emoji",
+          "width": 1104,
+          "icon_html": null
+        }
+      ],
+      "rendered_exception": []
+    },
+    "leading_material": {
+      "alerts": [
+        {
+          "body": "INFO-LEADING-MATERIAL body starts with a shortcode",
+          "format": "INFO",
+          "icon": ":material/thumb_up:",
+          "widthConfig": {
+            "useStretch": true
+          }
+        }
+      ],
+      "exceptions": [],
+      "rendered_alerts": [
+        {
+          "text": "thumb_up INFO-LEADING-MATERIAL body starts with a shortcode",
+          "width": 1104,
+          "icon_html": null
+        }
+      ],
+      "rendered_exception": []
+    },
+    "invalid_width": {
+      "alerts": [
+        {
+          "body": "INFO-BODY before the invalid call",
+          "format": "INFO",
+          "widthConfig": {
+            "useStretch": true
+          }
+        }
+      ],
+      "exceptions": [
+        {
+          "type": "streamlit.errors.StreamlitInvalidWidthError",
+          "message": "Invalid width value: 'bogus'. Width must be either a positive integer (pixels) or 'stretch'.",
+          "stackTrace": [
+            "File \"D:\\dlab\\streamlit-rust\\tests\\reference\\status_app.py\", line 79, in <module>\n    st.info(\"INFO-BODY invalid width follows\", width=\"bogus\")"
+          ],
+          "messageIsMarkdown": true,
+          "widthConfig": {
+            "useStretch": true
+          },
+          "isStreamlitException": true
+        }
+      ],
+      "rendered_alerts": [
+        {
+          "text": "INFO-BODY before the invalid call",
+          "width": 1094,
+          "icon_html": null
+        }
+      ],
+      "rendered_exception": [
+        "streamlit.errors.StreamlitInvalidWidthError: Invalid width value: 'bogus'. Width must be either a positive integer (pixels) or 'stretch'."
+      ]
+    },
+    "invalid_icon": {
+      "alerts": [
+        {
+          "body": "INFO-BODY before the invalid call",
+          "format": "INFO",
+          "widthConfig": {
+            "useStretch": true
+          }
+        }
+      ],
+      "exceptions": [
+        {
+          "type": "streamlit.errors.StreamlitInvalidParameterTypeError",
+          "message": "Invalid `icon` type. Expected one of: str, None. Provided type: int.",
+          "stackTrace": [
+            "File \"D:\\dlab\\streamlit-rust\\tests\\reference\\status_app.py\", line 83, in <module>\n    st.info(\"INFO-BODY invalid icon follows\", icon=123)"
+          ],
+          "messageIsMarkdown": true,
+          "widthConfig": {
+            "useStretch": true
+          },
+          "isStreamlitException": true
+        }
+      ],
+      "rendered_alerts": [
+        {
+          "text": "INFO-BODY before the invalid call",
+          "width": 1094,
+          "icon_html": null
+        }
+      ],
+      "rendered_exception": [
+        "streamlit.errors.StreamlitInvalidParameterTypeError: Invalid icon type. Expected one of: str, None. Provided type: int."
+      ]
+    }
+  }
+}

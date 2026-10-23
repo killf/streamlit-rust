@@ -1,19 +1,28 @@
 use crate::elements::common::RenderContext;
 use crate::error::StreamlitError;
 use crate::proto::{WidgetState, back_msg::Type, *};
+use crate::session::SessionLease;
 use crate::{Streamlit, StreamlitServer};
 use actix_ws::{MessageStream, Session};
 use futures_util::StreamExt;
 use prost::Message;
 
-async fn do_rerun_script(session: &mut Session, session_id: &str, server: &StreamlitServer, widget_states: Vec<WidgetState>) -> Result<(), StreamlitError> {
-    let st = Streamlit::new().process_widget_states(widget_states);
+async fn do_rerun_script(session: &mut Session, lease: &SessionLease, server: &StreamlitServer, widget_states: Vec<WidgetState>) -> Result<(), StreamlitError> {
+    // Serialise runs even if a replacement connection arrives while its
+    // predecessor is finishing. Stop/cancel remains outside this implementation.
+    let _run = lease.run.lock().await;
+    if !lease.is_current() {
+        return Err(StreamlitError::Session("connection was superseded".into()));
+    }
+    // Only application values persist. The render tree and widget triggers are
+    // rebuilt for each run, so a previous button click cannot become sticky.
+    let st = Streamlit::with_session_state(lease.state.clone()).process_widget_states(widget_states);
 
     // 创建 channel 用于流式发送消息
     let (tx, mut rx) = tokio::sync::mpsc::unbounded_channel::<crate::proto::ForwardMsg>();
 
     // 创建 RenderContext 并设置到 App 中，让 App::push 时能立即发送消息
-    let context = RenderContext::with_sender(session_id.to_string(), tx.clone());
+    let context = RenderContext::with_sender(lease.id.clone(), tx.clone());
     st.app.lock().set_render_context(context);
 
     // 发送初始化消息（new_session, main_block）
@@ -60,17 +69,17 @@ async fn do_rerun_script(session: &mut Session, session_id: &str, server: &Strea
     let (_, send_result) = tokio::join!(entry_future, send_future);
     send_result?;
 
-    log::info!("Rerun script completed for session: {}", session_id);
+    log::info!("Rerun script completed for session: {}", lease.id);
     Ok(())
 }
 
-async fn handle_back_message(session: &mut Session, session_id: &str, back_msg: BackMsg, server: &StreamlitServer) -> Result<(), StreamlitError> {
+async fn handle_back_message(session: &mut Session, lease: &SessionLease, back_msg: BackMsg, server: &StreamlitServer) -> Result<(), StreamlitError> {
     if let Some(tp) = back_msg.r#type {
         match tp {
             Type::RerunScript(client_state) => {
                 log::info!("Handling rerun script request");
                 let widget_states = client_state.widget_states.map(|ws| ws.widgets).unwrap_or_default();
-                do_rerun_script(session, session_id, server, widget_states).await?;
+                do_rerun_script(session, lease, server, widget_states).await?;
             }
             Type::AppHeartbeat(_) => {
                 let reply = ForwardMsg {
@@ -87,18 +96,20 @@ async fn handle_back_message(session: &mut Session, session_id: &str, back_msg: 
     Ok(())
 }
 
-pub async fn handle_connection(mut session: Session, mut msg_stream: MessageStream, server: &StreamlitServer) -> Result<(), StreamlitError> {
+pub(crate) async fn handle_connection(mut session: Session, mut msg_stream: MessageStream, server: &StreamlitServer, lease: SessionLease) -> Result<(), StreamlitError> {
     log::info!("=== Streamlit WebSocket handler started ===");
 
-    // Generate session ID
-    let session_id = uuid::Uuid::new_v4().to_string();
-    log::info!("Generated session ID: {}", session_id);
+    log::info!("Attached session ID: {}", lease.id);
 
     // Handle incoming messages with proper processing
     let mut message_count = 0;
     log::info!("Complete message sequence sent, starting message processing loop...");
 
     while let Some(msg_result) = msg_stream.next().await {
+        if !lease.is_current() {
+            session.close(None).await?;
+            break;
+        }
         message_count += 1;
         log::info!("🔍 Processing message #{}", message_count);
         log::debug!("Message result: {:?}", msg_result);
@@ -110,7 +121,7 @@ pub async fn handle_connection(mut session: Session, mut msg_stream: MessageStre
                 match BackMsg::decode(data) {
                     Ok(back_msg) => {
                         log::info!("Successfully decoded BackMsg: {:?}", back_msg);
-                        handle_back_message(&mut session, &session_id, back_msg, server).await?;
+                        handle_back_message(&mut session, &lease, back_msg, server).await?;
                     }
                     Err(e) => {
                         log::warn!("Failed to decode BackMsg: {}", e);
@@ -123,6 +134,7 @@ pub async fn handle_connection(mut session: Session, mut msg_stream: MessageStre
             Ok(actix_ws::Message::Close(reason)) => {
                 log::info!("🚪 WebSocket connection closed: {:?}", reason);
                 log::info!("📊 Total messages processed: {}", message_count);
+                session.close(reason).await?;
                 break;
             }
             Ok(actix_ws::Message::Ping(ping)) => {
