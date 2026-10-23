@@ -6,7 +6,8 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-import sys
+import tarfile
+import zipfile
 from collections import Counter
 from pathlib import Path
 
@@ -60,6 +61,112 @@ def trace_for(feature_id: str, scenarios: set[str]) -> str | None:
     return relative.as_posix() if (ROOT / relative).is_file() else None
 
 
+def evidence_file(reference: str, root: Path) -> Path:
+    """Resolve repository-relative file[:line] evidence, never external paths."""
+    if not isinstance(reference, str) or not reference.strip():
+        raise ValueError("empty evidence reference")
+    match = re.fullmatch(r"(.+?)(?::([1-9][0-9]*))?", reference)
+    if match is None:
+        raise ValueError("invalid evidence reference")
+    relative = Path(match[1])
+    path = (root / relative).resolve()
+    if relative.is_absolute() or root.resolve() not in path.parents or not path.is_file() or not path.stat().st_size:
+        raise ValueError(f"missing or unsafe evidence: {reference}")
+    if match[2] and int(match[2]) > len(path.read_text(encoding="utf-8").splitlines()):
+        raise ValueError(f"evidence line does not exist: {reference}")
+    return path
+
+
+def merge_progress(entry: dict, old: dict | None, root: Path) -> dict:
+    """Keep authored progress; generated docs authority is never overwritten."""
+    if old is not None:
+        if old.get("official_url") != entry["official_url"]:
+            raise ValueError(f"official URL changed; review retained progress for {entry['feature_id']}")
+        for key in ("implementation_status", "compatibility_status", "rust_plan", "compatibility_scope", "limitations", "rust_source_path"):
+            if key in old:
+                entry[key] = old[key]
+        if not isinstance(old.get("evidence", {}), dict):
+            raise ValueError("evidence must be an object")
+        for key, value in old.get("evidence", {}).items():
+            if key != "official_document_sha256":
+                entry["evidence"][key] = value
+    implementation = entry["implementation_status"]
+    compatibility = entry["compatibility_status"]
+    if implementation not in ("absent", "candidate", "implemented") or compatibility not in ("unverified", "partial", "supported"):
+        raise ValueError(f"invalid status for {entry['feature_id']}")
+    for key in ("rust_plan", "compatibility_scope"):
+        if key in entry and (not isinstance(entry[key], str) or not entry[key].strip()):
+            raise ValueError(f"empty {key}")
+    if entry.get("rust_source_path") is not None:
+        evidence_file(entry["rust_source_path"], root)
+    for key, value in entry["evidence"].items():
+        if key == "official_document_sha256" or (key == "python_browser_trace" and value is None and compatibility == "unverified"):
+            continue
+        evidence_file(value, root)
+    if compatibility != "unverified":
+        for key in ("python_browser_trace", "rust_wire_observation", "official_frontend_browser_e2e"):
+            path = evidence_file(entry["evidence"].get(key), root)
+            capture = json.loads(path.read_text(encoding="utf-8"))
+            directions = {frame.get("direction") for frame in capture.get("frames", [])}
+            if (capture.get("versions", {}).get("streamlit") != "1.66.1"
+                    or not capture.get("steps") or capture.get("failures") != []
+                    or not {"client->server", "server->client"} <= directions):
+                raise ValueError(f"incomplete browser/wire capture: {key}")
+    if implementation != "absent" and not entry.get("rust_source_path"):
+        raise ValueError("candidate/implemented requires Rust source")
+    if compatibility != "unverified":
+        if implementation != "implemented" or not entry.get("compatibility_scope") or not entry.get("rust_plan"):
+            raise ValueError("verified progress requires implementation, concrete plan and bounded scope")
+        required = ["python_browser_trace", "rust_api_test", "rust_wire_observation", "official_frontend_browser_e2e"]
+        if compatibility == "supported":
+            required += ["rust_api_differential", "rust_wire_differential"]
+        for key in required:
+            evidence_file(entry["evidence"].get(key), root)
+        if compatibility == "supported":
+            for key in ("rust_api_differential", "rust_wire_differential"):
+                result = json.loads(evidence_file(entry["evidence"][key], root).read_text(encoding="utf-8"))
+                if (result.get("feature_id") != entry["feature_id"] or result.get("status") != "pass"
+                        or type(result.get("compared_cases")) is not int or result["compared_cases"] < 1
+                        or result.get("failures") != []):
+                    raise ValueError(f"missing passing feature-specific differential result: {key}")
+    return entry
+
+
+def vendor_status(lock: dict) -> dict:
+    """Optional cache audit: vendor equality is independent of API progress."""
+    result = {"status": "unverified", "authority": "upstream.lock.json", "scope": "Official frontend/protobuf bytes only; no API compatibility credit."}
+    artifacts = lock["artifacts"]
+    paths = {key: ROOT / artifacts[key]["cache_path"] for key in ("wheel", "github_archive")}
+    if not all(path.is_file() for path in paths.values()):
+        result["reason"] = "Locked archives unavailable; optional cache audit not run."
+        return result
+    for key, path in paths.items():
+        if digest(path) != artifacts[key]["sha256"]:
+            raise ValueError(f"vendor archive hash mismatch: {key}")
+    with zipfile.ZipFile(paths["wheel"]) as archive:
+        prefix = "streamlit/static/"
+        frontend = {name[len(prefix):]: hashlib.sha256(archive.read(name)).hexdigest()
+                    for name in archive.namelist() if name.startswith(prefix) and not name.endswith("/")}
+    with tarfile.open(paths["github_archive"], "r:gz") as archive:
+        proto = {}
+        for member in archive:
+            relative = member.name.partition("/")[2]
+            if member.isfile() and relative.startswith("proto/streamlit/proto/") and relative.endswith(".proto"):
+                proto[relative.removeprefix("proto/streamlit/proto/")] = hashlib.sha256(archive.extractfile(member).read()).hexdigest()
+    def equal_tree(folder: Path, expected: dict) -> bool:
+        actual = {path.relative_to(folder).as_posix(): digest(path) for path in folder.rglob("*") if path.is_file()}
+        return bool(expected) and actual == expected
+    # Repository instruction files are not vendor protocol schema.
+    actual_proto = {path.relative_to(ROOT / "streamlit/proto").as_posix(): digest(path)
+                    for path in (ROOT / "streamlit/proto").rglob("*.proto")}
+    result.update(frontend_files=len(frontend), protocol_files=len(proto),
+                  frontend_bytes_equal=equal_tree(ROOT / "www", frontend), protocol_bytes_equal=bool(proto) and actual_proto == proto)
+    result["status"] = "verified" if result["frontend_bytes_equal"] and result["protocol_bytes_equal"] else "mismatch"
+    if result["status"] == "mismatch":
+        raise ValueError(f"vendor bytes differ: {result}")
+    return result
+
+
 def main() -> int:
     lock = json.loads(LOCK_PATH.read_text(encoding="utf-8"))
     docs_meta = lock["documentation"]
@@ -98,11 +205,14 @@ def main() -> int:
         scenarios.add(trace.get("scenario") or "closed-loop")
 
     previous = {}
+    old_catalog_hash = None
     if MATRIX_PATH.is_file():
         old = json.loads(MATRIX_PATH.read_text(encoding="utf-8"))
+        old_catalog_hash = old.get("scope", {}).get("catalog_sha256")
         for old_entry in old.get("entries", []):
-            url = old_entry.get("official_url") or old_entry.get("official_doc", {}).get("url")
-            previous[(old_entry["feature_id"], url)] = old_entry
+            if old_entry["feature_id"] in previous:
+                raise ValueError("duplicate previous feature_id")
+            previous[old_entry["feature_id"]] = old_entry
     entries = []
     for item in items:
         url = item["canonicalurl"]
@@ -127,23 +237,15 @@ def main() -> int:
             "evidence": evidence,
         })
 
-    for entry in entries:
-        old = previous.get((entry["feature_id"], entry["official_url"]))
-        if not old:
-            continue
-        if old.get("implementation_status") == "implemented" and entry["implementation_status"] == "candidate":
-            entry["implementation_status"] = "implemented"
-        old_evidence = old.get("evidence", {})
-        for key in ("rust_api_differential", "rust_wire_differential", "official_frontend_browser_e2e"):
-            value = old_evidence.get(key)
-            if value:
-                entry["evidence"][key] = value
-        old_status = old.get("compatibility_status")
-        differential_keys = ("rust_api_differential", "rust_wire_differential", "official_frontend_browser_e2e")
-        if old_status == "supported" and all(entry["evidence"].get(key) for key in differential_keys):
-            entry["compatibility_status"] = "supported"
-        elif old_status == "partial" and any(entry["evidence"].get(key) for key in differential_keys):
-            entry["compatibility_status"] = "partial"
+    current_ids = {entry["feature_id"] for entry in entries}
+    unmatched_ids = previous.keys() - current_ids
+    if unmatched_ids:
+        raise ValueError(f"unmatched previous feature IDs: {sorted(unmatched_ids)}")
+    missing_ids = current_ids - previous.keys()
+    if old_catalog_hash == catalog_hash and missing_ids:
+        raise ValueError(f"previous matrix missing feature IDs under unchanged catalog: {sorted(missing_ids)}")
+    entries = [merge_progress(entry, previous.get(entry["feature_id"]), ROOT) for entry in entries]
+    vendor = vendor_status(lock)
     implementation_counts = dict(Counter(entry["implementation_status"] for entry in entries))
     compatibility_counts = dict(Counter(entry["compatibility_status"] for entry in entries))
     expected_count = catalog["counts"]["total_catalog_entries"]
@@ -155,14 +257,7 @@ def main() -> int:
         "feature_ids_unique": len({entry["feature_id"] for entry in entries}) == len(entries),
         "official_urls_unique": len({entry["official_url"] for entry in entries}) == len(entries),
         "captured_sources_valid": valid_sources == expected_sources,
-        "compatibility_status_rules_valid": all(
-            entry["compatibility_status"] == "unverified"
-            or (
-                entry["compatibility_status"] in ("partial", "supported")
-                and any(entry["evidence"].get(key) for key in ("rust_api_differential", "rust_wire_differential", "official_frontend_browser_e2e"))
-            )
-            for entry in entries
-        ),
+        "compatibility_status_rules_valid": True,  # merge_progress rejects invalid evidence/status before writing.
     }
     if not all(checks.values()):
         raise SystemExit(f"matrix checks failed: {checks}")
@@ -187,7 +282,7 @@ def main() -> int:
                 "implementation_status": ["absent", "candidate", "implemented"],
                 "compatibility_status": ["unverified", "partial", "supported"],
             },
-            "evidence_rule": "partial requires one Rust differential; supported requires API, wire, and official-frontend evidence.",
+            "evidence_rule": "partial requires bounded scope, Python oracle, Rust API test and wire/UI observations; supported additionally requires API and wire JSON differentials with feature_id, status=pass, compared_cases>0 and failures=[]. Evidence files must exist and be nonempty; independent review establishes semantic sufficiency.",
         },
         "summary": {
             "captured_catalog_entries": len(entries),
@@ -202,6 +297,7 @@ def main() -> int:
             "captured_sources_total": expected_sources,
             "python_browser_trace_links": sum(entry["evidence"].get("python_browser_trace") is not None for entry in entries),
         },
+        "vendor_migration": vendor,
         "entries": entries,
     }
     MATRIX_PATH.write_text(json.dumps(matrix, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
@@ -223,8 +319,9 @@ def main() -> int:
             "redirect_aliases_not_counted": catalog.get("redirect_aliases", []),
         },
         "matrix_summary": matrix["summary"],
+        "vendor_migration": vendor,
         "checks": checks,
-        "conclusion": "Docs scope and captured official pages are verified. No entry is compatibility-supported; Python traces are reference evidence only.",
+        "conclusion": "Captured docs hashes and retained progress evidence paths validated; page inventory is not exhaustive. Compatibility claims are limited to each row scope and require independent review. Vendor equality gives no API credit.",
     }
     BASELINE_PATH.write_text(json.dumps(baseline, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
     print(json.dumps({"matrix": MATRIX_PATH.as_posix(), "baseline": BASELINE_PATH.as_posix(), "summary": matrix["summary"], "checks": checks}, ensure_ascii=False, indent=2))

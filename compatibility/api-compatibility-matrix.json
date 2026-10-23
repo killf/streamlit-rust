@@ -80,7 +80,7 @@
         "supported"
       ]
     },
-    "evidence_rule": "partial requires one Rust differential; supported requires API, wire, and official-frontend evidence."
+    "evidence_rule": "partial requires bounded scope, Python oracle, Rust API test and wire/UI observations; supported additionally requires API and wire JSON differentials with feature_id, status=pass, compared_cases>0 and failures=[]. Evidence files must exist and be nonempty; independent review establishes semantic sufficiency."
   },
   "summary": {
     "captured_catalog_entries": 182,
@@ -89,16 +89,27 @@
     "redirect_aliases_not_counted": 2,
     "implementation_status_counts": {
       "absent": 171,
-      "candidate": 11
+      "implemented": 1,
+      "candidate": 10
     },
     "compatibility_status_counts": {
-      "unverified": 182
+      "unverified": 181,
+      "partial": 1
     },
     "unique_feature_ids": 182,
     "unique_official_urls": 182,
     "captured_sources_valid": 218,
     "captured_sources_total": 218,
     "python_browser_trace_links": 9
+  },
+  "vendor_migration": {
+    "status": "verified",
+    "authority": "upstream.lock.json",
+    "scope": "Official frontend/protobuf bytes only; no API compatibility credit.",
+    "frontend_files": 347,
+    "protocol_files": 91,
+    "frontend_bytes_equal": true,
+    "protocol_bytes_equal": true
   },
   "entries": [
     {
@@ -1445,14 +1456,25 @@
       "category": "PAGE ELEMENTS/Input widgets",
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.button",
-      "rust_source_path": "streamlit/src/api.rs:603",
-      "implementation_status": "candidate",
-      "compatibility_status": "unverified",
+      "rust_source_path": "streamlit/src/api.rs",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "8c0767d6db5d2491ea13f1e24f494400b9e905839edbbe80e7dbe1dd16b1cc4a",
         "python_browser_trace": "tests/reference/reference-browser/closed-loop/trace.json",
-        "rust_source": "streamlit/src/api.rs:603"
-      }
+        "rust_source": "streamlit/src/api.rs",
+        "rust_api_test": "streamlit/tests/runtime/mod.rs",
+        "rust_wire_observation": "tests/browser/rust-smoke/trace-smoke.json",
+        "official_frontend_browser_e2e": "tests/browser/rust-smoke/trace-smoke.json",
+        "evidence_interpretation": ".codex/compatibility.md"
+      },
+      "rust_plan": "Render the default button and return its one-shot trigger on an ordinary rerun; retain this bounded implementation while adding missing option and identity semantics.",
+      "compatibility_scope": "Limited comparison of Python closed-loop button trigger/completion with the Rust default Pulse button: rendering and three successive true triggers, each answered by successful script_finished on the same connection. Not full st.button compatibility or a complete journey pass.",
+      "limitations": [
+        "No automated Python-versus-Rust API/wire differential result is claimed; runtime test source and the two recorded browser observations support only this finite scope.",
+        "Disabled options, callbacks, duplicate keys, form submission, persistent session state, reconnect and security handshake are outside this verified scope.",
+        "Frozen Rust trace has inherited Python-only kind/scope metadata; its Rust NewSession, heading and URL identify the actual Rust run, as explained in .codex/compatibility.md."
+      ]
     },
     {
       "feature_id": "st.camera_input",

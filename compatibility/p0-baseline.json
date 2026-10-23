@@ -74,16 +74,27 @@
     "redirect_aliases_not_counted": 2,
     "implementation_status_counts": {
       "absent": 171,
-      "candidate": 11
+      "implemented": 1,
+      "candidate": 10
     },
     "compatibility_status_counts": {
-      "unverified": 182
+      "unverified": 181,
+      "partial": 1
     },
     "unique_feature_ids": 182,
     "unique_official_urls": 182,
     "captured_sources_valid": 218,
     "captured_sources_total": 218,
     "python_browser_trace_links": 9
+  },
+  "vendor_migration": {
+    "status": "verified",
+    "authority": "upstream.lock.json",
+    "scope": "Official frontend/protobuf bytes only; no API compatibility credit.",
+    "frontend_files": 347,
+    "protocol_files": 91,
+    "frontend_bytes_equal": true,
+    "protocol_bytes_equal": true
   },
   "checks": {
     "catalog_hash_matches_lock": true,
@@ -95,5 +106,5 @@
     "captured_sources_valid": true,
     "compatibility_status_rules_valid": true
   },
-  "conclusion": "Docs scope and captured official pages are verified. No entry is compatibility-supported; Python traces are reference evidence only."
+  "conclusion": "Captured docs hashes and retained progress evidence paths validated; page inventory is not exhaustive. Compatibility claims are limited to each row scope and require independent review. Vendor equality gives no API credit."
 }
