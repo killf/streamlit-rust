@@ -291,16 +291,38 @@ def test_data_loop_reviewed_capture_binding_fails_closed(corruption, tmp_path):
     assert [p.read_bytes() for p in outputs] == before
 
 
-def test_missing_source_provenance_aborts_generator_before_either_write(tmp_path, monkeypatch):
-    matrix_path = tmp_path / "matrix.json"
-    baseline_path = tmp_path / "baseline.json"
-    matrix = json.loads((ROOT / "compatibility/api-compatibility-matrix.json").read_text(encoding="utf-8"))
-    row = next(row for row in matrix["entries"] if row["feature_id"] == "st.dataframe")
-    del row["evidence"]["reviewed_captures"]["tests/browser/rust-data-loop/trace-data-loop.json"]["source_version"]
+def test_missing_source_provenance_aborts_generator_before_either_write(workspace):
+    root, matrix_path = workspace
+    baseline_path = root / "baseline.json"
+    matrix = json.loads(matrix_path.read_text(encoding="utf-8"))
+    recorded = json.loads((ROOT / "compatibility/api-compatibility-matrix.json").read_text(encoding="utf-8"))
+    row = copy.deepcopy(next(row for row in recorded["entries"] if row["feature_id"] == "st.dataframe"))
+    # This test targets provenance rejection, not the optional 218-page cache
+    # audit. Keep a single explicitly hashed catalog page and real tracked
+    # evidence bytes; neither the repository target directory nor network is used.
+    for key, reference in row["evidence"].items():
+        if key == "official_document_sha256" or not isinstance(reference, str):
+            continue
+        source = verify.evidence_file(reference, ROOT)
+        target = root / source.relative_to(ROOT)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(source.read_bytes())
+    catalog_path = root / "cache/catalog.json"
+    catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+    catalog["items"][0].update(id=row["feature_id"], canonicalurl=row["official_url"])
+    catalog["sources"][0]["canonicalurl"] = row["official_url"]
+    catalog_path.write_text(json.dumps(catalog), encoding="utf-8")
+    lock = json.loads((root / "lock.json").read_text(encoding="utf-8"))
+    lock["streamlit"] = {"version": "1.66.1"}
+    lock["documentation"]["catalog_sha256"] = verify.digest(catalog_path)
+    (root / "lock.json").write_text(json.dumps(lock), encoding="utf-8")
+    (root / "upstream.lock.json").write_text(json.dumps(lock), encoding="utf-8")
+    matrix["scope"]["catalog_sha256"] = verify.digest(catalog_path)
+    matrix["entries"] = [row]
+    # Reject the first (Python) oracle's absent source attestation before any
+    # IPC reading, still through the real merge/provenance checks in main().
+    del row["evidence"]["reviewed_captures"][row["evidence"]["python_browser_trace"]]["source_version"]
     matrix_path.write_text(json.dumps(matrix), encoding="utf-8")
-    baseline_path.write_bytes((ROOT / "compatibility/p0-baseline.json").read_bytes())
-    monkeypatch.setattr(verify, "MATRIX_PATH", matrix_path)
-    monkeypatch.setattr(verify, "BASELINE_PATH", baseline_path)
     before = (matrix_path.read_bytes(), baseline_path.read_bytes())
     with pytest.raises(ValueError, match="source/target version"):
         verify.main()

@@ -9,3 +9,12 @@
 /tests/browser/rust-table-native/README.md -text
 /tests/reference/reference-browser/journeys/README.md -text
 /tests/reference/reference-browser/table-native/README.md -text
+
+# Frozen fixture byte hashes must not depend on checkout newline settings.
+/tests/fixtures/csv/sales_basic.csv -text
+/tests/fixtures/csv/sales_with_missing.csv -text
+/tests/fixtures/csv/sales_empty.csv -text
+/tests/fixtures/csv/sales_malformed.csv -text
+/tests/fixtures/csv/sales_unicode.csv -text
+/tests/fixtures/csv/sales_utf8_bom.csv -text
+/tests/fixtures/csv/sales_latin1.csv -text
