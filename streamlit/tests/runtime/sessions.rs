@@ -1,5 +1,16 @@
 use super::*;
 
+#[path = "reconnect_inputs.rs"]
+mod reconnect_inputs;
+
+async fn assert_handshake_idle(stream: &mut TcpStream) {
+    // The acknowledged heartbeat makes this a live handler observation, not a
+    // sleep before the server has attached the socket. Neither message runs main.
+    send_binary(stream, &[0x88, 0x01, 0x01]).await;
+    assert!(matches!(receive(stream).await.r#type, Some(forward_msg::Type::HeartbeatAck(true))));
+    assert!(tokio::time::timeout(Duration::from_millis(75), stream.read_u8()).await.is_err(), "handshake/heartbeat unexpectedly emitted application output");
+}
+
 fn counter(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
     Box::pin(async move {
         let state = st.session_state();
@@ -130,6 +141,7 @@ pub(super) async fn disconnect(mut stream: TcpStream) {
 async fn counter_survives_reruns_reconnects_and_stays_isolated_across_workers() {
     let (address, handle, task) = start(Duration::from_secs(120)).await;
     let mut a = connect(address, None).await;
+    assert_handshake_idle(&mut a).await;
     let first = rerun(&mut a, None).await;
     assert_eq!((first.pulses, first.runs), (0, 1));
     let id = first.session_id;
@@ -151,6 +163,7 @@ async fn counter_survives_reruns_reconnects_and_stays_isolated_across_workers() 
 
     disconnect(a).await;
     let mut restored = connect(address, Some(&id)).await;
+    assert_handshake_idle(&mut restored).await;
     let after = rerun(&mut restored, None).await;
     assert_eq!(after.session_id, id);
     assert_eq!((after.pulses, after.runs), (3, 6));
@@ -162,6 +175,7 @@ async fn counter_survives_reruns_reconnects_and_stays_isolated_across_workers() 
 
     // Refresh/fresh load omits the third subprotocol and starts from zero.
     let mut fresh = connect(address, None).await;
+    assert_handshake_idle(&mut fresh).await;
     let reset = rerun(&mut fresh, None).await;
     assert_ne!(reset.session_id, id);
     assert_ne!(reset.session_id, second.session_id);
