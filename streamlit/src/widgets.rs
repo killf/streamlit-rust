@@ -25,6 +25,7 @@ pub enum WidgetError {
 pub(crate) enum Codec {
     Trigger,
     Bool,
+    Text { max_chars: Option<usize> },
     Select(Vec<(String, Value)>),
     Slider { min: f64, max: f64, count: usize, integer: bool },
     Files { store: Arc<parking_lot::Mutex<crate::upload::UploadStore>>, multiple: bool },
@@ -35,6 +36,7 @@ impl Codec {
         match (self, wire) {
             (Self::Trigger, widget_state::Value::TriggerValue(value)) => Some((*value).into()),
             (Self::Bool, widget_state::Value::BoolValue(value)) => Some((*value).into()),
+            (Self::Text { .. }, widget_state::Value::StringValue(value)) => Some(Value::String(value.clone())),
             (Self::Select(options), widget_state::Value::StringValue(label)) => options.iter().position(|(text, _)| text == label).map(Value::from),
             (Self::Files { store, multiple }, widget_state::Value::FileUploaderStateValue(state)) => {
                 let store = store.lock();
@@ -60,6 +62,7 @@ impl Codec {
     pub(crate) fn valid(&self, value: &Value) -> bool {
         match self {
             Self::Trigger | Self::Bool => value.is_boolean(),
+            Self::Text { max_chars } => value.is_null() || value.as_str().is_some_and(|text| max_chars.is_none_or(|limit| text.chars().count() <= limit)),
             Self::Select(options) => value.is_null() || value.as_u64().is_some_and(|index| index < options.len() as u64),
             Self::Files { multiple, .. } => value.as_array().is_some_and(|ids| (*multiple || ids.len() <= 1) && ids.iter().all(Value::is_string)),
             Self::Slider { min, max, count, integer } => {
@@ -109,6 +112,7 @@ impl Codec {
     }
 }
 
+#[derive(Clone)]
 struct Record {
     key: Option<String>,
     value: Value,
@@ -116,7 +120,7 @@ struct Record {
     callback: Option<WidgetCallback>,
 }
 
-#[derive(Default)]
+#[derive(Clone, Default)]
 pub(crate) struct WidgetRegistry {
     records: HashMap<String, Record>,
     seen: HashSet<String>,
@@ -151,6 +155,26 @@ impl WidgetRegistry {
 }
 
 impl SessionState {
+    pub(crate) fn form_checkpoint(&self) -> (WidgetRegistry, HashMap<String, Value>) {
+        let registry = self.widgets.lock();
+        (registry.clone(), self.values.lock().clone())
+    }
+
+    pub(crate) fn rollback_form(&self, checkpoint: (WidgetRegistry, HashMap<String, Value>)) {
+        let mut registry = self.widgets.lock();
+        let mut values = self.values.lock();
+        // Only restore widget-associated values; unrelated application writes
+        // in the user's fallible closure retain their ordinary semantics.
+        for key in registry.records.values().filter_map(|record| record.key.as_ref()) {
+            if let Some(value) = checkpoint.1.get(key) {
+                values.insert(key.clone(), value.clone());
+            } else {
+                values.remove(key);
+            }
+        }
+        *registry = checkpoint.0;
+    }
+
     pub(crate) fn begin_widgets(&self, incoming: Vec<WidgetState>) -> Vec<WidgetCallback> {
         let mut registry = self.widgets.lock();
         registry.active = true;
@@ -167,6 +191,16 @@ impl SessionState {
         }
         let mut callbacks = Vec::new();
         let mut received = HashSet::new();
+        // Validate the whole recognized batch before applying any field or
+        // scheduling a callback. Invalid text must never reach submit code.
+        if incoming.iter().any(|widget| {
+            registry
+                .records
+                .get(&widget.id)
+                .is_some_and(|record| widget.value.as_ref().and_then(|wire| record.codec.decode(wire)).is_none_or(|value| !record.codec.valid(&value)))
+        }) {
+            return callbacks;
+        }
         for widget in incoming {
             if !received.insert(widget.id.clone()) {
                 continue;

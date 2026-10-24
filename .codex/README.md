@@ -43,3 +43,7 @@ clippy passed with unchanged Rust/Cargo inputs. This validates that nightly
 toolchain, not stable Rust or MSRV. Arrow 60 / actix-multipart 0.8.5 declare Rust
 1.88; this dependency declaration is not a workspace test on Rust 1.88. Existing
 gate logs are under ignored `target/checks/final-security-{fmt,tests,clippy}.log`.
+
+## forms-text-input writer boundary
+
+For this isolated branch, the GLM engineer owns the Rust API/render/widget/session changes, Rust tests, example, user guide, and strict forms contract. MiniMax QA owns only the forms fixture/case files, thin collector, and reference raw/PNG evidence under the forms evidence directories; it does not edit Rust or the shared decoder framework.

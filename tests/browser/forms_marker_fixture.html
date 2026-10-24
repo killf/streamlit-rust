@@ -1,0 +1,24 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Forms marker selector counterexamples</title>
+<body>
+<!-- Whole-body and button text must never become server markers. -->
+<div>Script runs: 900</div>
+<div>Pulses: 900</div>
+<button><div data-testid="stMarkdownContainer">Script runs: 900</div></button>
+<button><div data-testid="stMarkdownContainer">Applied note: decoy</div></button>
+<label><div data-testid="stMarkdownContainer">Pulses: 900</div></label>
+<!-- Both actual element kinds are legitimate; nested markdown is read once. -->
+<div id="runs" data-testid="stText">Script runs: 1</div>
+<div id="pulses" data-testid="stMarkdown"><div data-testid="stMarkdownContainer"><p>Pulses: 0</p></div></div>
+<div id="applied" data-testid="stMarkdown"><div data-testid="stMarkdownContainer"><p>Applied note:</p></div></div>
+<script>
+const variant = new URLSearchParams(location.search).get("variant");
+if (variant === "missing-runs") document.getElementById("runs").remove();
+if (variant === "missing-pulses") document.getElementById("pulses").remove();
+if (variant === "missing-applied") document.getElementById("applied").remove();
+if (variant === "invalid-number") document.getElementById("runs").textContent = "Script runs: not-a-number";
+if (variant === "wrong-prefix") document.getElementById("runs").textContent = "Script runs extra: 1";
+if (variant === "duplicate-root") document.body.append(document.getElementById("runs").cloneNode(true));
+</script>
+</body>

@@ -1,0 +1,1473 @@
+{
+  "scope": "Selected Python reference, 25 measured cases; not full public-API or Rust compatibility",
+  "fixture": {
+    "app": "tests/reference/forms_app.py",
+    "bytes": 21696,
+    "sha256": "d177df7d7ef72414faffce8984d1b88547f401beff560eb103ae0bd945eda352"
+  },
+  "runtime": {
+    "python": "3.12.6",
+    "streamlit": "1.66.1",
+    "protobuf": "7.36.2",
+    "pyarrow": "26.0.0"
+  },
+  "producer": {
+    "file": "tests/reference/reference-browser/forms-final/source/forms_capture.py.snapshot",
+    "bytes": 65036,
+    "sha256": "2f46f23ce9658d98429fae2a5f7dbe00a152cc5b1e86baf97dbfac34b3edebb5"
+  },
+  "case_source": {
+    "file": "tests/reference/reference-browser/forms-final/source/forms_cases.py.snapshot",
+    "bytes": 451,
+    "sha256": "bc6d54ba42b7ce2cc5ef97c43390413e1df08fd9487985d8b374bff9efaaa4f4"
+  },
+  "contract": {
+    "file": "tests/browser/forms_contract.py",
+    "bytes": 38668,
+    "sha256": "ee292dff99798659994be21860aa255e7d7097d62709066c821c409dc0130d4e"
+  },
+  "raw": {
+    "file": "tests/reference/reference-browser/forms-final/trace-forms.json",
+    "bytes": 1801839,
+    "sha256": "a8ac7bb0c996eea0a9eedd22aabaf0cd34b5bd613abce390eb17f370745cebe0"
+  },
+  "frame_count": 789,
+  "frame_hashes": "Each original frame contains base64/bytes/sha256 in trace-forms.json; no derived replacement",
+  "case_hash_encoding": "SHA256 of UTF-8 JSON(case), sorted keys, ensure_ascii=False, separators comma/colon, no added whitespace",
+  "cases": [
+    {
+      "case_id": "form-default-submit",
+      "sha256": "c20742185ef764a47a2ac6d6a340b033b06d758d7990bbf019b9c253eda5ef30",
+      "phases": [
+        "form-default-submit:load",
+        "form-default-submit:type",
+        "form-default-submit:toggle",
+        "form-default-submit:blur",
+        "form-default-submit:submit"
+      ],
+      "frame_range": {
+        "first_frame_index": 0,
+        "last_frame_index": 33,
+        "frame_count": 34
+      }
+    },
+    {
+      "case_id": "form-text-enter-blur",
+      "sha256": "974c7ba32a147c141beacc69ec47fc52183d8cd738554f4cb08ed3167a9a5da7",
+      "phases": [
+        "form-text-enter-blur:load",
+        "form-text-enter-blur:type",
+        "form-text-enter-blur:enter",
+        "form-text-enter-blur:blur"
+      ],
+      "frame_range": {
+        "first_frame_index": 34,
+        "last_frame_index": 66,
+        "frame_count": 33
+      }
+    },
+    {
+      "case_id": "form-none-vs-empty",
+      "sha256": "3c11fbd727a0365e9bd8c8a8b52ba31a3b7b775e610eb23d599822c01615cfed",
+      "phases": [
+        "form-none-vs-empty:load",
+        "form-none-vs-empty:untouched",
+        "form-none-vs-empty:typed-none"
+      ],
+      "frame_range": {
+        "first_frame_index": 67,
+        "last_frame_index": 94,
+        "frame_count": 28
+      }
+    },
+    {
+      "case_id": "form-error-duplicate-key",
+      "sha256": "6b57a7cf124324c5fdba0255a966673a4e4d544a27d830653c82dc39add3566d",
+      "phases": [
+        "form-error-duplicate-key:load",
+        "form-error-duplicate-key:error"
+      ],
+      "frame_range": {
+        "first_frame_index": 95,
+        "last_frame_index": 105,
+        "frame_count": 11
+      }
+    },
+    {
+      "case_id": "form-error-nested-form",
+      "sha256": "b780af25f9e99ec2949622f3f58bb6a2ca28c1df24e1161a0b483ea76d680479",
+      "phases": [
+        "form-error-nested-form:load",
+        "form-error-nested-form:error"
+      ],
+      "frame_range": {
+        "first_frame_index": 106,
+        "last_frame_index": 114,
+        "frame_count": 9
+      }
+    },
+    {
+      "case_id": "form-clear-on-submit-false",
+      "sha256": "efa996cf337a93132bb144e8a4b3f402a1e07c82073ef7d503b7719069a4d405",
+      "phases": [
+        "form-clear-on-submit-false:load",
+        "form-clear-on-submit-false:type",
+        "form-clear-on-submit-false:submit-1",
+        "form-clear-on-submit-false:submit-2"
+      ],
+      "frame_range": {
+        "first_frame_index": 115,
+        "last_frame_index": 156,
+        "frame_count": 42
+      }
+    },
+    {
+      "case_id": "form-clear-on-submit-true",
+      "sha256": "43d19cfb6e210f6366ea330bd85a1408706bb7b85853e792bb12b7779219686e",
+      "phases": [
+        "form-clear-on-submit-true:load",
+        "form-clear-on-submit-true:type",
+        "form-clear-on-submit-true:submit-1",
+        "form-clear-on-submit-true:submit-2"
+      ],
+      "frame_range": {
+        "first_frame_index": 157,
+        "last_frame_index": 198,
+        "frame_count": 42
+      }
+    },
+    {
+      "case_id": "form-enter-to-submit-off",
+      "sha256": "0c7601193b1f4eb79986734ae454e80fe79d861252e09305b5f0c7920a7af926",
+      "phases": [
+        "form-enter-to-submit-off:load",
+        "form-enter-to-submit-off:type",
+        "form-enter-to-submit-off:enter",
+        "form-enter-to-submit-off:submit"
+      ],
+      "frame_range": {
+        "first_frame_index": 199,
+        "last_frame_index": 226,
+        "frame_count": 28
+      }
+    },
+    {
+      "case_id": "form-first-submit-disabled",
+      "sha256": "7f5b8301842948be6e6d4d9801e0cb0e287587bdfaa0fdef6d021c2f19e9d60c",
+      "phases": [
+        "form-first-submit-disabled:load",
+        "form-first-submit-disabled:type",
+        "form-first-submit-disabled:enter",
+        "form-first-submit-disabled:submit"
+      ],
+      "frame_range": {
+        "first_frame_index": 227,
+        "last_frame_index": 256,
+        "frame_count": 30
+      }
+    },
+    {
+      "case_id": "form-two-submit-buttons",
+      "sha256": "161b92d77ca25b4ea446279f6a01cc94a7d76387e6f085b2b17ecceb075b8b49",
+      "phases": [
+        "form-two-submit-buttons:load",
+        "form-two-submit-buttons:type",
+        "form-two-submit-buttons:save",
+        "form-two-submit-buttons:save-and-continue"
+      ],
+      "frame_range": {
+        "first_frame_index": 257,
+        "last_frame_index": 301,
+        "frame_count": 45
+      }
+    },
+    {
+      "case_id": "form-two-forms-external-button",
+      "sha256": "09a827add4af6f475434df5dedd7779d7af96b6892e24f861225b10ad0b3200c",
+      "phases": [
+        "form-two-forms-external-button:load",
+        "form-two-forms-external-button:type-left",
+        "form-two-forms-external-button:type-right",
+        "form-two-forms-external-button:outside"
+      ],
+      "frame_range": {
+        "first_frame_index": 302,
+        "last_frame_index": 337,
+        "frame_count": 36
+      }
+    },
+    {
+      "case_id": "form-text-types",
+      "sha256": "2c0007e02a2ac388140594822578da54f8e6a0928af3eac22798924bc4866c45",
+      "phases": [
+        "form-text-types:load",
+        "form-text-types:observe",
+        "form-text-types:email"
+      ],
+      "frame_range": {
+        "first_frame_index": 338,
+        "last_frame_index": 369,
+        "frame_count": 32
+      }
+    },
+    {
+      "case_id": "form-text-live-validate",
+      "sha256": "df9237f23964b93c911f9fda97f651610cf90441a557c2a20bea70b0cd7d889f",
+      "phases": [
+        "form-text-live-validate:load",
+        "form-text-live-validate:type-digits",
+        "form-text-live-validate:type-invalid"
+      ],
+      "frame_range": {
+        "first_frame_index": 370,
+        "last_frame_index": 391,
+        "frame_count": 22
+      }
+    },
+    {
+      "case_id": "form-text-required-disabled",
+      "sha256": "e0b02590b8a19bb89ca2cfea279443d00fe337be126cf7634c65ee9ebf12355b",
+      "phases": [
+        "form-text-required-disabled:load",
+        "form-text-required-disabled:observe",
+        "form-text-required-disabled:required"
+      ],
+      "frame_range": {
+        "first_frame_index": 392,
+        "last_frame_index": 415,
+        "frame_count": 24
+      }
+    },
+    {
+      "case_id": "form-max-chars-cjk",
+      "sha256": "c647ffbca021bd786a0cf604f5282c081d372fc98d7ab51a926aa31cf1201511",
+      "phases": [
+        "form-max-chars-cjk:load",
+        "form-max-chars-cjk:type",
+        "form-max-chars-cjk:enter"
+      ],
+      "frame_range": {
+        "first_frame_index": 416,
+        "last_frame_index": 439,
+        "frame_count": 24
+      }
+    },
+    {
+      "case_id": "form-j05-continuous",
+      "sha256": "8d994c87bf1cb1e7271ff1f68dde18011cd92aa88a0340e2ad527c11156b63ff",
+      "phases": [
+        "form-j05-continuous:load",
+        "form-j05-continuous:type",
+        "form-j05-continuous:submit",
+        "form-j05-continuous:pulse-1",
+        "form-j05-continuous:pulse-2",
+        "form-j05-continuous:pulse-3"
+      ],
+      "frame_range": {
+        "first_frame_index": 440,
+        "last_frame_index": 514,
+        "frame_count": 75
+      }
+    },
+    {
+      "case_id": "form-inside-container",
+      "sha256": "faa4f772e19633ea44f2fbe0b656ed94465fd7a93a914d32359d1dff3b78b700",
+      "phases": [
+        "form-inside-container:load",
+        "form-inside-container:type",
+        "form-inside-container:submit"
+      ],
+      "frame_range": {
+        "first_frame_index": 515,
+        "last_frame_index": 544,
+        "frame_count": 30
+      }
+    },
+    {
+      "case_id": "form-inside-column",
+      "sha256": "a5ac4c7e30eebf59afd2c5143bcedaae450e7c5617a75cceb88456707ed0bc26",
+      "phases": [
+        "form-inside-column:load",
+        "form-inside-column:type",
+        "form-inside-column:submit"
+      ],
+      "frame_range": {
+        "first_frame_index": 545,
+        "last_frame_index": 578,
+        "frame_count": 34
+      }
+    },
+    {
+      "case_id": "container-inside-form",
+      "sha256": "93b401bed1b74daf26420c69b0fa0b24cef5f13c668c2e24896174007106a6b2",
+      "phases": [
+        "container-inside-form:load",
+        "container-inside-form:type",
+        "container-inside-form:submit"
+      ],
+      "frame_range": {
+        "first_frame_index": 579,
+        "last_frame_index": 608,
+        "frame_count": 30
+      }
+    },
+    {
+      "case_id": "columns-inside-form",
+      "sha256": "e434e3f214b67304986671563f4912ab43b2bce27a98251caf1a5b766fa506be",
+      "phases": [
+        "columns-inside-form:load",
+        "columns-inside-form:type",
+        "columns-inside-form:submit"
+      ],
+      "frame_range": {
+        "first_frame_index": 609,
+        "last_frame_index": 644,
+        "frame_count": 36
+      }
+    },
+    {
+      "case_id": "form-inside-expander",
+      "sha256": "b213ba4954cc15372fefa67cf7ddbe13cd40fce027052ad40421294895548974",
+      "phases": [
+        "form-inside-expander:load",
+        "form-inside-expander:type",
+        "form-inside-expander:submit"
+      ],
+      "frame_range": {
+        "first_frame_index": 645,
+        "last_frame_index": 674,
+        "frame_count": 30
+      }
+    },
+    {
+      "case_id": "form-submit-callback-args",
+      "sha256": "aec72f9979ec90d77a4c9ffa34adec5dedcbb8c56b7bfbf2a6888dc3e0b5167e",
+      "phases": [
+        "form-submit-callback-args:load",
+        "form-submit-callback-args:type",
+        "form-submit-callback-args:submit"
+      ],
+      "frame_range": {
+        "first_frame_index": 675,
+        "last_frame_index": 704,
+        "frame_count": 30
+      }
+    },
+    {
+      "case_id": "form-disabled-text-input",
+      "sha256": "6c81635daaf5512d0fc90838b7e8bedfd313342563178126d0f726616baa33a4",
+      "phases": [
+        "form-disabled-text-input:load",
+        "form-disabled-text-input:type",
+        "form-disabled-text-input:submit"
+      ],
+      "frame_range": {
+        "first_frame_index": 705,
+        "last_frame_index": 734,
+        "frame_count": 30
+      }
+    },
+    {
+      "case_id": "form-text-password",
+      "sha256": "78ffc59cd9cd00754bad62817bc112df61c573c73685bc88dd102814e5c90b4a",
+      "phases": [
+        "form-text-password:load",
+        "form-text-password:enter"
+      ],
+      "frame_range": {
+        "first_frame_index": 735,
+        "last_frame_index": 756,
+        "frame_count": 22
+      }
+    },
+    {
+      "case_id": "form-text-remaining-fields",
+      "sha256": "f548fd6dcbe3790f96bffe6948e7bfae8994903e828aa4a6c58674dba34b2658",
+      "phases": [
+        "form-text-remaining-fields:load",
+        "form-text-remaining-fields:observe",
+        "form-text-remaining-fields:narrow"
+      ],
+      "frame_range": {
+        "first_frame_index": 757,
+        "last_frame_index": 788,
+        "frame_count": 32
+      }
+    }
+  ],
+  "pngs": [
+    {
+      "case_id": "form-default-submit",
+      "phase_id": "form-default-submit:load",
+      "file": "tests/reference/reference-browser/forms-final/png/form-default-submit-01-load.png",
+      "bytes": 35484,
+      "sha256": "45da20368349221317bcc86f74b627ea83a27742501bbbafca4203dbf1715f33"
+    },
+    {
+      "case_id": "form-default-submit",
+      "phase_id": "form-default-submit:type",
+      "file": "tests/reference/reference-browser/forms-final/png/form-default-submit-02-typed.png",
+      "bytes": 37753,
+      "sha256": "2bea1ec69db8e37418c8dff50f0a8328bf6acd7ffcd622340a0389fd92b11d00"
+    },
+    {
+      "case_id": "form-default-submit",
+      "phase_id": "form-default-submit:toggle",
+      "file": "tests/reference/reference-browser/forms-final/png/form-default-submit-03-checkbox.png",
+      "bytes": 36034,
+      "sha256": "8e0ab57063d812203278361888cd9584f0650c2bfdfe935ce3d5769bf945d5d5"
+    },
+    {
+      "case_id": "form-default-submit",
+      "phase_id": "form-default-submit:blur",
+      "file": "tests/reference/reference-browser/forms-final/png/form-default-submit-04-blur.png",
+      "bytes": 36034,
+      "sha256": "8e0ab57063d812203278361888cd9584f0650c2bfdfe935ce3d5769bf945d5d5"
+    },
+    {
+      "case_id": "form-default-submit",
+      "phase_id": "form-default-submit:submit",
+      "file": "tests/reference/reference-browser/forms-final/png/form-default-submit-04-submitted.png",
+      "bytes": 37519,
+      "sha256": "1bf8dcbcf81164bc3fdd2c4f62e8eebaee4a7e2aa9ae88ad185e0e4b9efd8cf2"
+    },
+    {
+      "case_id": "form-text-enter-blur",
+      "phase_id": "form-text-enter-blur:load",
+      "file": "tests/reference/reference-browser/forms-final/png/form-text-enter-blur-01-load.png",
+      "bytes": 24631,
+      "sha256": "dfb174f4f4dbee4bccae7d9ca047fceccbb210c70d9d53129b0b0751b52dd77d"
+    },
+    {
+      "case_id": "form-text-enter-blur",
+      "phase_id": "form-text-enter-blur:type",
+      "file": "tests/reference/reference-browser/forms-final/png/form-text-enter-blur-02-typed.png",
+      "bytes": 27072,
+      "sha256": "1ed9e8addda5a75d006d9856c22757c6b04976b61a6649b26384ad82d9f4c4a2"
+    },
+    {
+      "case_id": "form-text-enter-blur",
+      "phase_id": "form-text-enter-blur:enter",
+      "file": "tests/reference/reference-browser/forms-final/png/form-text-enter-blur-03-enter.png",
+      "bytes": 25789,
+      "sha256": "4299b6b4c58a50a4c219d59e8e4385112f5cc6ec26f5336c3f91d0105a4b6856"
+    },
+    {
+      "case_id": "form-text-enter-blur",
+      "phase_id": "form-text-enter-blur:blur",
+      "file": "tests/reference/reference-browser/forms-final/png/form-text-enter-blur-04-blur.png",
+      "bytes": 26039,
+      "sha256": "213f67c35625bb28176fd9d619974e57338264a7be43819bf1d1e9a7411ddc80"
+    },
+    {
+      "case_id": "form-none-vs-empty",
+      "phase_id": "form-none-vs-empty:load",
+      "file": "tests/reference/reference-browser/forms-final/png/form-none-vs-empty-01-load.png",
+      "bytes": 32115,
+      "sha256": "23a9558f1f3431087981ad4b61ec256bec53c4e4792efea01dc8df81826c9a89"
+    },
+    {
+      "case_id": "form-none-vs-empty",
+      "phase_id": "form-none-vs-empty:untouched",
+      "file": "tests/reference/reference-browser/forms-final/png/form-none-vs-empty-02-untouched.png",
+      "bytes": 32115,
+      "sha256": "23a9558f1f3431087981ad4b61ec256bec53c4e4792efea01dc8df81826c9a89"
+    },
+    {
+      "case_id": "form-none-vs-empty",
+      "phase_id": "form-none-vs-empty:typed-none",
+      "file": "tests/reference/reference-browser/forms-final/png/form-none-vs-empty-03-typed.png",
+      "bytes": 32533,
+      "sha256": "9e816db1a60b0aca1fdbfc6e2156d3b79a4824c09fa5066592a5bddf843235b1"
+    },
+    {
+      "case_id": "form-error-duplicate-key",
+      "phase_id": "form-error-duplicate-key:load",
+      "file": "tests/reference/reference-browser/forms-final/png/form-error-duplicate-key-01-load.png",
+      "bytes": 58555,
+      "sha256": "0e0909a618c759d2dc75b97ba137d1be83913312190707e75dfb7cc917ad8cc4"
+    },
+    {
+      "case_id": "form-error-duplicate-key",
+      "phase_id": "form-error-duplicate-key:error",
+      "file": "tests/reference/reference-browser/forms-final/png/form-error-duplicate-key-02-error.png",
+      "bytes": 58555,
+      "sha256": "0e0909a618c759d2dc75b97ba137d1be83913312190707e75dfb7cc917ad8cc4"
+    },
+    {
+      "case_id": "form-error-nested-form",
+      "phase_id": "form-error-nested-form:load",
+      "file": "tests/reference/reference-browser/forms-final/png/form-error-nested-form-01-load.png",
+      "bytes": 44902,
+      "sha256": "bec17529c5beaf36d8c46e870bd540d0db4a8feb736b68eb39b2f5e8fa397218"
+    },
+    {
+      "case_id": "form-error-nested-form",
+      "phase_id": "form-error-nested-form:error",
+      "file": "tests/reference/reference-browser/forms-final/png/form-error-nested-form-02-error.png",
+      "bytes": 44902,
+      "sha256": "bec17529c5beaf36d8c46e870bd540d0db4a8feb736b68eb39b2f5e8fa397218"
+    },
+    {
+      "case_id": "form-clear-on-submit-false",
+      "phase_id": "form-clear-on-submit-false:load",
+      "file": "tests/reference/reference-browser/forms-final/png/form-clear-on-submit-false-01-load.png",
+      "bytes": 29137,
+      "sha256": "1f90f07022601900d97bf2f49f1a5ac45c7b5bd5c2662b2fb6bc0abe10f4f061"
+    },
+    {
+      "case_id": "form-clear-on-submit-false",
+      "phase_id": "form-clear-on-submit-false:type",
+      "file": "tests/reference/reference-browser/forms-final/png/form-clear-on-submit-false-02-typed.png",
+      "bytes": 31554,
+      "sha256": "77b8cc9d6c01512e48291eba05d026b6383e1612ca2de21711e8eda4a6ec763d"
+    },
+    {
+      "case_id": "form-clear-on-submit-false",
+      "phase_id": "form-clear-on-submit-false:submit-1",
+      "file": "tests/reference/reference-browser/forms-final/png/form-clear-on-submit-false-03-submitted.png",
+      "bytes": 30511,
+      "sha256": "9eee57168408f795a69d7476894227179beb10ecadb6c0d24ed42e112487b584"
+    },
+    {
+      "case_id": "form-clear-on-submit-false",
+      "phase_id": "form-clear-on-submit-false:submit-2",
+      "file": "tests/reference/reference-browser/forms-final/png/form-clear-on-submit-false-04-submitted-again.png",
+      "bytes": 30899,
+      "sha256": "e887f47af02aaf2b4b49999d69b9f1af8324f666d23d5e4acfae64c19f3e5826"
+    },
+    {
+      "case_id": "form-clear-on-submit-true",
+      "phase_id": "form-clear-on-submit-true:load",
+      "file": "tests/reference/reference-browser/forms-final/png/form-clear-on-submit-true-01-load.png",
+      "bytes": 29106,
+      "sha256": "1448a8005152af9704b797fd4b428c262a8db85194761fbff17f0df75ea06167"
+    },
+    {
+      "case_id": "form-clear-on-submit-true",
+      "phase_id": "form-clear-on-submit-true:type",
+      "file": "tests/reference/reference-browser/forms-final/png/form-clear-on-submit-true-02-typed.png",
+      "bytes": 31527,
+      "sha256": "20a4faa124d728c039639e98a1b230a17e884e8fe1bc56ae859d162ba0bd99b7"
+    },
+    {
+      "case_id": "form-clear-on-submit-true",
+      "phase_id": "form-clear-on-submit-true:submit-1",
+      "file": "tests/reference/reference-browser/forms-final/png/form-clear-on-submit-true-03-submitted.png",
+      "bytes": 29992,
+      "sha256": "2fd5623b7e634328c1e5a30c5f0fc74cb82e96fc9140922eab6564009998fd5d"
+    },
+    {
+      "case_id": "form-clear-on-submit-true",
+      "phase_id": "form-clear-on-submit-true:submit-2",
+      "file": "tests/reference/reference-browser/forms-final/png/form-clear-on-submit-true-04-submitted-again.png",
+      "bytes": 29784,
+      "sha256": "e9592d8994eb4a560f52ebc69846863150b2f53ade2f89b99776ac212c187706"
+    },
+    {
+      "case_id": "form-enter-to-submit-off",
+      "phase_id": "form-enter-to-submit-off:load",
+      "file": "tests/reference/reference-browser/forms-final/png/form-enter-to-submit-off-01-load.png",
+      "bytes": 28686,
+      "sha256": "cc7cdeb03500bcdf18ff8d5c231089e914f0596e60cd8f4d447386b00997ffd6"
+    },
+    {
+      "case_id": "form-enter-to-submit-off",
+      "phase_id": "form-enter-to-submit-off:type",
+      "file": "tests/reference/reference-browser/forms-final/png/form-enter-to-submit-off-02-typed.png",
+      "bytes": 29495,
+      "sha256": "3c61a2706c03977e1d699d85db4ef8a08f9f2ec5c24702f548caff1b34265474"
+    },
+    {
+      "case_id": "form-enter-to-submit-off",
+      "phase_id": "form-enter-to-submit-off:enter",
+      "file": "tests/reference/reference-browser/forms-final/png/form-enter-to-submit-off-03-enter.png",
+      "bytes": 29495,
+      "sha256": "3c61a2706c03977e1d699d85db4ef8a08f9f2ec5c24702f548caff1b34265474"
+    },
+    {
+      "case_id": "form-enter-to-submit-off",
+      "phase_id": "form-enter-to-submit-off:submit",
+      "file": "tests/reference/reference-browser/forms-final/png/form-enter-to-submit-off-04-submitted.png",
+      "bytes": 29304,
+      "sha256": "c39871078831b17486951f69cd6908e4c38bdd4cb7a3d8423d2602c57e5b7c6d"
+    },
+    {
+      "case_id": "form-first-submit-disabled",
+      "phase_id": "form-first-submit-disabled:load",
+      "file": "tests/reference/reference-browser/forms-final/png/form-first-submit-disabled-01-load.png",
+      "bytes": 33070,
+      "sha256": "de330f6d8c76c36d09b7faf535a2ea1bee3c032eb9c37d0e0d0a5e08035c5000"
+    },
+    {
+      "case_id": "form-first-submit-disabled",
+      "phase_id": "form-first-submit-disabled:type",
+      "file": "tests/reference/reference-browser/forms-final/png/form-first-submit-disabled-02-typed.png",
+      "bytes": 33846,
+      "sha256": "b48001a7ae3fb375890dd8865e0c599fb9b739114bd2e3d94b05f1b2d1ec06cb"
+    },
+    {
+      "case_id": "form-first-submit-disabled",
+      "phase_id": "form-first-submit-disabled:enter",
+      "file": "tests/reference/reference-browser/forms-final/png/form-first-submit-disabled-03-enter.png",
+      "bytes": 33846,
+      "sha256": "b48001a7ae3fb375890dd8865e0c599fb9b739114bd2e3d94b05f1b2d1ec06cb"
+    },
+    {
+      "case_id": "form-first-submit-disabled",
+      "phase_id": "form-first-submit-disabled:submit",
+      "file": "tests/reference/reference-browser/forms-final/png/form-first-submit-disabled-04-submitted.png",
+      "bytes": 33662,
+      "sha256": "73984cfbb25f27b060666ffb08e9520c64a1af47bcae04866750e40023d8ce53"
+    },
+    {
+      "case_id": "form-two-submit-buttons",
+      "phase_id": "form-two-submit-buttons:load",
+      "file": "tests/reference/reference-browser/forms-final/png/form-two-submit-buttons-01-load.png",
+      "bytes": 31275,
+      "sha256": "791602967d8fa47ec2628d141cc298ba2944fa260a681aeace180a4d9bbe84fb"
+    },
+    {
+      "case_id": "form-two-submit-buttons",
+      "phase_id": "form-two-submit-buttons:type",
+      "file": "tests/reference/reference-browser/forms-final/png/form-two-submit-buttons-02-typed.png",
+      "bytes": 33784,
+      "sha256": "833f7cdb8f47449038e50d1c12e38c743913d6cddd053d2b4c02587bcc661c7a"
+    },
+    {
+      "case_id": "form-two-submit-buttons",
+      "phase_id": "form-two-submit-buttons:save",
+      "file": "tests/reference/reference-browser/forms-final/png/form-two-submit-buttons-03-saved.png",
+      "bytes": 31786,
+      "sha256": "9586533cdf76a94d7b24619529d7c2b3e9a27e7a7d0e3d699d51ac3c15cec4aa"
+    },
+    {
+      "case_id": "form-two-submit-buttons",
+      "phase_id": "form-two-submit-buttons:save-and-continue",
+      "file": "tests/reference/reference-browser/forms-final/png/form-two-submit-buttons-04-saved-again.png",
+      "bytes": 32802,
+      "sha256": "343e12b7c615365194fc9ff7876304c5d1ef123fe3563fc00fafdaf3b367e756"
+    },
+    {
+      "case_id": "form-two-forms-external-button",
+      "phase_id": "form-two-forms-external-button:load",
+      "file": "tests/reference/reference-browser/forms-final/png/form-two-forms-external-button-01-load.png",
+      "bytes": 35498,
+      "sha256": "60a09afcbfbec4fe58c49e5c0b0f9cfa881b3cfab62eeaa66a02b82f3c379aaf"
+    },
+    {
+      "case_id": "form-two-forms-external-button",
+      "phase_id": "form-two-forms-external-button:type-left",
+      "file": "tests/reference/reference-browser/forms-final/png/form-two-forms-external-button-02-left.png",
+      "bytes": 37588,
+      "sha256": "d509e9c39ec705fb9af30e97c6fec59bf7a4ea106377fd7eb8bf9fa0cf2fdce3"
+    },
+    {
+      "case_id": "form-two-forms-external-button",
+      "phase_id": "form-two-forms-external-button:type-right",
+      "file": "tests/reference/reference-browser/forms-final/png/form-two-forms-external-button-03-right.png",
+      "bytes": 38020,
+      "sha256": "6050cf32c66509c207b942c34733a663166af9524f23a6000d0fd23c7b44d2ec"
+    },
+    {
+      "case_id": "form-two-forms-external-button",
+      "phase_id": "form-two-forms-external-button:outside",
+      "file": "tests/reference/reference-browser/forms-final/png/form-two-forms-external-button-04-outside.png",
+      "bytes": 36242,
+      "sha256": "1cf5cd9f83e06268607765c988a91a06d4b69a02ef186ccee30b1e868ec86076"
+    },
+    {
+      "case_id": "form-text-types",
+      "phase_id": "form-text-types:load",
+      "file": "tests/reference/reference-browser/forms-final/png/form-text-types-01-load.png",
+      "bytes": 37618,
+      "sha256": "d50e292be78075ca636a99102f0cbd7388a485b0e467dab1e1b0f443ec369217"
+    },
+    {
+      "case_id": "form-text-types",
+      "phase_id": "form-text-types:observe",
+      "file": "tests/reference/reference-browser/forms-final/png/form-text-types-02-observed.png",
+      "bytes": 37618,
+      "sha256": "d50e292be78075ca636a99102f0cbd7388a485b0e467dab1e1b0f443ec369217"
+    },
+    {
+      "case_id": "form-text-types",
+      "phase_id": "form-text-types:email",
+      "file": "tests/reference/reference-browser/forms-final/png/form-text-types-03-email.png",
+      "bytes": 38308,
+      "sha256": "42c4e6297b3135194e47417dfecdcc47e058bb1c889fa4c5d36a4fc16c5f4b5f"
+    },
+    {
+      "case_id": "form-text-live-validate",
+      "phase_id": "form-text-live-validate:load",
+      "file": "tests/reference/reference-browser/forms-final/png/form-text-live-validate-01-load.png",
+      "bytes": 26462,
+      "sha256": "79daf48d89ab1afa7b083c9a8f0e02b757ce679f9159b80fadcdcbb43c04f722"
+    },
+    {
+      "case_id": "form-text-live-validate",
+      "phase_id": "form-text-live-validate:type-digits",
+      "file": "tests/reference/reference-browser/forms-final/png/form-text-live-validate-02-digits.png",
+      "bytes": 27331,
+      "sha256": "59ab6f8acce39f3ffa4af27f98c00a1f439340bc69daa609fa99dd2dc7f4324f"
+    },
+    {
+      "case_id": "form-text-live-validate",
+      "phase_id": "form-text-live-validate:type-invalid",
+      "file": "tests/reference/reference-browser/forms-final/png/form-text-live-validate-03-invalid.png",
+      "bytes": 28007,
+      "sha256": "538e08957299ca5fbbadee19e10bb299537c0451704d6b649e7da9b768e99426"
+    },
+    {
+      "case_id": "form-text-required-disabled",
+      "phase_id": "form-text-required-disabled:load",
+      "file": "tests/reference/reference-browser/forms-final/png/form-text-required-disabled-01-load.png",
+      "bytes": 31452,
+      "sha256": "e54fe1cf70fd7ff3ff1d0cd291377a16067d8a9fdc2c16450e338faa473a03a4"
+    },
+    {
+      "case_id": "form-text-required-disabled",
+      "phase_id": "form-text-required-disabled:observe",
+      "file": "tests/reference/reference-browser/forms-final/png/form-text-required-disabled-02-observed.png",
+      "bytes": 31452,
+      "sha256": "e54fe1cf70fd7ff3ff1d0cd291377a16067d8a9fdc2c16450e338faa473a03a4"
+    },
+    {
+      "case_id": "form-text-required-disabled",
+      "phase_id": "form-text-required-disabled:required",
+      "file": "tests/reference/reference-browser/forms-final/png/form-text-required-disabled-03-required.png",
+      "bytes": 31622,
+      "sha256": "c5534e96bfa4cf4c37ed68e292d63d73e17b14df62ca90ba2b4ff42794a6e40b"
+    },
+    {
+      "case_id": "form-max-chars-cjk",
+      "phase_id": "form-max-chars-cjk:load",
+      "file": "tests/reference/reference-browser/forms-final/png/form-max-chars-cjk-01-load.png",
+      "bytes": 25076,
+      "sha256": "2fdde4bb1b34f2d4ab17b32426b4910868c56a12064764106432f40b1f1804c2"
+    },
+    {
+      "case_id": "form-max-chars-cjk",
+      "phase_id": "form-max-chars-cjk:type",
+      "file": "tests/reference/reference-browser/forms-final/png/form-max-chars-cjk-02-typed.png",
+      "bytes": 29331,
+      "sha256": "f55e4f21af645316a1a0f22eb068e90528de4ee834770c1cf764738d0e4fe87b"
+    },
+    {
+      "case_id": "form-max-chars-cjk",
+      "phase_id": "form-max-chars-cjk:enter",
+      "file": "tests/reference/reference-browser/forms-final/png/form-max-chars-cjk-03-enter.png",
+      "bytes": 29708,
+      "sha256": "5dd23018058a616bc75cab3340abc25f389689667e0a0b5a12899ff5c392204d"
+    },
+    {
+      "case_id": "form-j05-continuous",
+      "phase_id": "form-j05-continuous:load",
+      "file": "tests/reference/reference-browser/forms-final/png/form-j05-continuous-01-load.png",
+      "bytes": 29712,
+      "sha256": "5aa7ba3df3aaec7fadcf637bab5dabd84d8e9e2a42629f0c4a65b2315ce96664"
+    },
+    {
+      "case_id": "form-j05-continuous",
+      "phase_id": "form-j05-continuous:type",
+      "file": "tests/reference/reference-browser/forms-final/png/form-j05-continuous-02-typed.png",
+      "bytes": 32146,
+      "sha256": "69e336e5db7bb6f12bb704518a91533d399b46b6fb8c287b26421a72581d0da8"
+    },
+    {
+      "case_id": "form-j05-continuous",
+      "phase_id": "form-j05-continuous:submit",
+      "file": "tests/reference/reference-browser/forms-final/png/form-j05-continuous-03-submitted.png",
+      "bytes": 30738,
+      "sha256": "3e1ccfbfbdb7747643304c948373ba645c97dcc8f907888cc9335763be08d3b4"
+    },
+    {
+      "case_id": "form-j05-continuous",
+      "phase_id": "form-j05-continuous:pulse-1",
+      "file": "tests/reference/reference-browser/forms-final/png/form-j05-continuous-04-pulse.png",
+      "bytes": 30622,
+      "sha256": "ada60f731b3e0afffd1383baea0177456802aa75a2a260bf40ac528c6f8efd1c"
+    },
+    {
+      "case_id": "form-j05-continuous",
+      "phase_id": "form-j05-continuous:pulse-2",
+      "file": "tests/reference/reference-browser/forms-final/png/form-j05-continuous-05-pulse.png",
+      "bytes": 30698,
+      "sha256": "5df774966bba6993ebba5122670694a7596291d844b83a561c03b2bbecbc799d"
+    },
+    {
+      "case_id": "form-j05-continuous",
+      "phase_id": "form-j05-continuous:pulse-3",
+      "file": "tests/reference/reference-browser/forms-final/png/form-j05-continuous-06-pulse.png",
+      "bytes": 30774,
+      "sha256": "b610e59019e221a1d3d22d07307a28156aa5e01ff6c2aa3f8786883898082cb9"
+    },
+    {
+      "case_id": "form-inside-container",
+      "phase_id": "form-inside-container:load",
+      "file": "tests/reference/reference-browser/forms-final/png/form-inside-container-01-load.png",
+      "bytes": 26807,
+      "sha256": "95e0964f2945a509bfcbcf5b37e30bd8fad262b04ecacd66d28e1103a7857704"
+    },
+    {
+      "case_id": "form-inside-container",
+      "phase_id": "form-inside-container:type",
+      "file": "tests/reference/reference-browser/forms-final/png/form-inside-container-02-typed.png",
+      "bytes": 29271,
+      "sha256": "eb3de1253e305a6f3dec997e7b933af7b5c569b0673797f14c41e9993e8d0298"
+    },
+    {
+      "case_id": "form-inside-container",
+      "phase_id": "form-inside-container:submit",
+      "file": "tests/reference/reference-browser/forms-final/png/form-inside-container-03-submitted.png",
+      "bytes": 28448,
+      "sha256": "146c7fc653e1181ced100a18be1d322af2bc9cabe93a16667f6af5e42873b6e1"
+    },
+    {
+      "case_id": "form-inside-column",
+      "phase_id": "form-inside-column:load",
+      "file": "tests/reference/reference-browser/forms-final/png/form-inside-column-01-load.png",
+      "bytes": 25740,
+      "sha256": "d244202acd08646556ba62b3a2df721ea01dadfbd8142afbd2d0f0e46e8efc97"
+    },
+    {
+      "case_id": "form-inside-column",
+      "phase_id": "form-inside-column:type",
+      "file": "tests/reference/reference-browser/forms-final/png/form-inside-column-02-typed.png",
+      "bytes": 28207,
+      "sha256": "fdebe0e9b6ddac3c090423c46eba038d016042c6609a11fae339e32e671507ba"
+    },
+    {
+      "case_id": "form-inside-column",
+      "phase_id": "form-inside-column:submit",
+      "file": "tests/reference/reference-browser/forms-final/png/form-inside-column-03-submitted.png",
+      "bytes": 27384,
+      "sha256": "6adc452166897d207c4eb2aa94747dbd4e812740b8d97d2a1fd47fc963d4b5f9"
+    },
+    {
+      "case_id": "container-inside-form",
+      "phase_id": "container-inside-form:load",
+      "file": "tests/reference/reference-browser/forms-final/png/container-inside-form-01-load.png",
+      "bytes": 27080,
+      "sha256": "12528194e8de9fa4865edc7db8d0ea0859573f4b30e7a61a8c4ee76252a03287"
+    },
+    {
+      "case_id": "container-inside-form",
+      "phase_id": "container-inside-form:type",
+      "file": "tests/reference/reference-browser/forms-final/png/container-inside-form-02-typed.png",
+      "bytes": 29559,
+      "sha256": "bdfd5e4d8b0f5106bd892b0e7331b31c86f55dc71103408ac71f6f767e319a8a"
+    },
+    {
+      "case_id": "container-inside-form",
+      "phase_id": "container-inside-form:submit",
+      "file": "tests/reference/reference-browser/forms-final/png/container-inside-form-03-submitted.png",
+      "bytes": 28729,
+      "sha256": "be5612f0c3d8fc38699267351a64415f0456e51996dffd89ae4b7e1b0922bfbc"
+    },
+    {
+      "case_id": "columns-inside-form",
+      "phase_id": "columns-inside-form:load",
+      "file": "tests/reference/reference-browser/forms-final/png/columns-inside-form-01-load.png",
+      "bytes": 28372,
+      "sha256": "026e6170d213d40c3421720a5a49530163b828d5240b23f9514f3d2471fc7e10"
+    },
+    {
+      "case_id": "columns-inside-form",
+      "phase_id": "columns-inside-form:type",
+      "file": "tests/reference/reference-browser/forms-final/png/columns-inside-form-02-typed.png",
+      "bytes": 30859,
+      "sha256": "a9872f35a8145c302b1871307ee21059f6702af242b6ee775e4d29f1ae6c9201"
+    },
+    {
+      "case_id": "columns-inside-form",
+      "phase_id": "columns-inside-form:submit",
+      "file": "tests/reference/reference-browser/forms-final/png/columns-inside-form-03-submitted.png",
+      "bytes": 30659,
+      "sha256": "b5da87bceda0a3a23f70ac87bf7b2af2239ba67965d59f5e0ff36eabb34c5e79"
+    },
+    {
+      "case_id": "form-inside-expander",
+      "phase_id": "form-inside-expander:load",
+      "file": "tests/reference/reference-browser/forms-final/png/form-inside-expander-01-load.png",
+      "bytes": 28505,
+      "sha256": "ae730e8f30a42df2e53a6f581c8231366249f499a1f196d2d407ca9cbd09a45f"
+    },
+    {
+      "case_id": "form-inside-expander",
+      "phase_id": "form-inside-expander:type",
+      "file": "tests/reference/reference-browser/forms-final/png/form-inside-expander-02-typed.png",
+      "bytes": 31027,
+      "sha256": "47eb63e54cba4ea5faf1a9dac0d8d0bc42ec05d01be34a25d5b9930518238c4a"
+    },
+    {
+      "case_id": "form-inside-expander",
+      "phase_id": "form-inside-expander:submit",
+      "file": "tests/reference/reference-browser/forms-final/png/form-inside-expander-03-submitted.png",
+      "bytes": 30187,
+      "sha256": "6cdac57cdf36f02d6a6c99f39db2ae2b1400ece5d3f72dd5170f03ad3ab413e5"
+    },
+    {
+      "case_id": "form-submit-callback-args",
+      "phase_id": "form-submit-callback-args:load",
+      "file": "tests/reference/reference-browser/forms-final/png/form-submit-callback-args-01-load.png",
+      "bytes": 34024,
+      "sha256": "2b39d0f774f8f198f4074492d4b9f0550b86681fa6c78ced3f509ff2829c5263"
+    },
+    {
+      "case_id": "form-submit-callback-args",
+      "phase_id": "form-submit-callback-args:type",
+      "file": "tests/reference/reference-browser/forms-final/png/form-submit-callback-args-02-typed.png",
+      "bytes": 36447,
+      "sha256": "31eb281a3408e7163a6fa34073cfaf4a628deb26c76941d5c9ff22a1825fae67"
+    },
+    {
+      "case_id": "form-submit-callback-args",
+      "phase_id": "form-submit-callback-args:submit",
+      "file": "tests/reference/reference-browser/forms-final/png/form-submit-callback-args-03-submitted.png",
+      "bytes": 39176,
+      "sha256": "21617131ca2f3848df977a2f5fb304393269c0a4ca3619a216030189fb430240"
+    },
+    {
+      "case_id": "form-disabled-text-input",
+      "phase_id": "form-disabled-text-input:load",
+      "file": "tests/reference/reference-browser/forms-final/png/form-disabled-text-input-01-load.png",
+      "bytes": 31926,
+      "sha256": "d8c00b926ea387f07c062f1b82f8ab9528aea3ca1a2bc4f0cef934dfe5596bc6"
+    },
+    {
+      "case_id": "form-disabled-text-input",
+      "phase_id": "form-disabled-text-input:type",
+      "file": "tests/reference/reference-browser/forms-final/png/form-disabled-text-input-02-typed.png",
+      "bytes": 34372,
+      "sha256": "f09822e2612e7c41ea8e309999ae4a2dceb25bac48b1f19b275fad5e27c522f1"
+    },
+    {
+      "case_id": "form-disabled-text-input",
+      "phase_id": "form-disabled-text-input:submit",
+      "file": "tests/reference/reference-browser/forms-final/png/form-disabled-text-input-03-submitted.png",
+      "bytes": 34403,
+      "sha256": "05e3c820c9e66336c9cccc2bc92362d9453fbb601b26e4256ec3b2607649ee23"
+    },
+    {
+      "case_id": "form-text-password",
+      "phase_id": "form-text-password:load",
+      "file": "tests/reference/reference-browser/forms-final/png/form-text-password-01-load.png",
+      "bytes": 24340,
+      "sha256": "287d99908f5a0550ae98b017df9a340558c1d8d1545b65fda79d8fc539ac52d2"
+    },
+    {
+      "case_id": "form-text-password",
+      "phase_id": "form-text-password:enter",
+      "file": "tests/reference/reference-browser/forms-final/png/form-text-password-02-entered.png",
+      "bytes": 25371,
+      "sha256": "9cd303b82c92ba4f060b1d74d6e97e4b6d5ef0848fdd5177c32a275123cc5799"
+    },
+    {
+      "case_id": "form-text-remaining-fields",
+      "phase_id": "form-text-remaining-fields:load",
+      "file": "tests/reference/reference-browser/forms-final/png/form-text-remaining-fields-01-load.png",
+      "bytes": 32570,
+      "sha256": "c7a849cf6afb064d40d9627ce359730d8fced771283956686976a10cf28eec0e"
+    },
+    {
+      "case_id": "form-text-remaining-fields",
+      "phase_id": "form-text-remaining-fields:observe",
+      "file": "tests/reference/reference-browser/forms-final/png/form-text-remaining-fields-02-observed.png",
+      "bytes": 32570,
+      "sha256": "c7a849cf6afb064d40d9627ce359730d8fced771283956686976a10cf28eec0e"
+    },
+    {
+      "case_id": "form-text-remaining-fields",
+      "phase_id": "form-text-remaining-fields:narrow",
+      "file": "tests/reference/reference-browser/forms-final/png/form-text-remaining-fields-03-narrow.png",
+      "bytes": 34963,
+      "sha256": "2918e55b2bf22b19108362192f64d2b79933b9baafbd81fb18ee55fc19501994"
+    }
+  ],
+  "files": [
+    {
+      "file": "tests/reference/reference-browser/forms-final/capture-state.json",
+      "bytes": 18490,
+      "sha256": "bf8e742f3c3bb4c7f19188af58389f15952e8ac5ba6f58df8e5d7a67dc5c015e"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/columns-inside-form-01-load.png",
+      "bytes": 28372,
+      "sha256": "026e6170d213d40c3421720a5a49530163b828d5240b23f9514f3d2471fc7e10"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/columns-inside-form-02-typed.png",
+      "bytes": 30859,
+      "sha256": "a9872f35a8145c302b1871307ee21059f6702af242b6ee775e4d29f1ae6c9201"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/columns-inside-form-03-submitted.png",
+      "bytes": 30659,
+      "sha256": "b5da87bceda0a3a23f70ac87bf7b2af2239ba67965d59f5e0ff36eabb34c5e79"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/container-inside-form-01-load.png",
+      "bytes": 27080,
+      "sha256": "12528194e8de9fa4865edc7db8d0ea0859573f4b30e7a61a8c4ee76252a03287"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/container-inside-form-02-typed.png",
+      "bytes": 29559,
+      "sha256": "bdfd5e4d8b0f5106bd892b0e7331b31c86f55dc71103408ac71f6f767e319a8a"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/container-inside-form-03-submitted.png",
+      "bytes": 28729,
+      "sha256": "be5612f0c3d8fc38699267351a64415f0456e51996dffd89ae4b7e1b0922bfbc"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-clear-on-submit-false-01-load.png",
+      "bytes": 29137,
+      "sha256": "1f90f07022601900d97bf2f49f1a5ac45c7b5bd5c2662b2fb6bc0abe10f4f061"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-clear-on-submit-false-02-typed.png",
+      "bytes": 31554,
+      "sha256": "77b8cc9d6c01512e48291eba05d026b6383e1612ca2de21711e8eda4a6ec763d"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-clear-on-submit-false-03-submitted.png",
+      "bytes": 30511,
+      "sha256": "9eee57168408f795a69d7476894227179beb10ecadb6c0d24ed42e112487b584"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-clear-on-submit-false-04-submitted-again.png",
+      "bytes": 30899,
+      "sha256": "e887f47af02aaf2b4b49999d69b9f1af8324f666d23d5e4acfae64c19f3e5826"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-clear-on-submit-true-01-load.png",
+      "bytes": 29106,
+      "sha256": "1448a8005152af9704b797fd4b428c262a8db85194761fbff17f0df75ea06167"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-clear-on-submit-true-02-typed.png",
+      "bytes": 31527,
+      "sha256": "20a4faa124d728c039639e98a1b230a17e884e8fe1bc56ae859d162ba0bd99b7"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-clear-on-submit-true-03-submitted.png",
+      "bytes": 29992,
+      "sha256": "2fd5623b7e634328c1e5a30c5f0fc74cb82e96fc9140922eab6564009998fd5d"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-clear-on-submit-true-04-submitted-again.png",
+      "bytes": 29784,
+      "sha256": "e9592d8994eb4a560f52ebc69846863150b2f53ade2f89b99776ac212c187706"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-default-submit-01-load.png",
+      "bytes": 35484,
+      "sha256": "45da20368349221317bcc86f74b627ea83a27742501bbbafca4203dbf1715f33"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-default-submit-02-typed.png",
+      "bytes": 37753,
+      "sha256": "2bea1ec69db8e37418c8dff50f0a8328bf6acd7ffcd622340a0389fd92b11d00"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-default-submit-03-checkbox.png",
+      "bytes": 36034,
+      "sha256": "8e0ab57063d812203278361888cd9584f0650c2bfdfe935ce3d5769bf945d5d5"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-default-submit-04-blur.png",
+      "bytes": 36034,
+      "sha256": "8e0ab57063d812203278361888cd9584f0650c2bfdfe935ce3d5769bf945d5d5"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-default-submit-04-submitted.png",
+      "bytes": 37519,
+      "sha256": "1bf8dcbcf81164bc3fdd2c4f62e8eebaee4a7e2aa9ae88ad185e0e4b9efd8cf2"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-disabled-text-input-01-load.png",
+      "bytes": 31926,
+      "sha256": "d8c00b926ea387f07c062f1b82f8ab9528aea3ca1a2bc4f0cef934dfe5596bc6"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-disabled-text-input-02-typed.png",
+      "bytes": 34372,
+      "sha256": "f09822e2612e7c41ea8e309999ae4a2dceb25bac48b1f19b275fad5e27c522f1"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-disabled-text-input-03-submitted.png",
+      "bytes": 34403,
+      "sha256": "05e3c820c9e66336c9cccc2bc92362d9453fbb601b26e4256ec3b2607649ee23"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-enter-to-submit-off-01-load.png",
+      "bytes": 28686,
+      "sha256": "cc7cdeb03500bcdf18ff8d5c231089e914f0596e60cd8f4d447386b00997ffd6"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-enter-to-submit-off-02-typed.png",
+      "bytes": 29495,
+      "sha256": "3c61a2706c03977e1d699d85db4ef8a08f9f2ec5c24702f548caff1b34265474"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-enter-to-submit-off-03-enter.png",
+      "bytes": 29495,
+      "sha256": "3c61a2706c03977e1d699d85db4ef8a08f9f2ec5c24702f548caff1b34265474"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-enter-to-submit-off-04-submitted.png",
+      "bytes": 29304,
+      "sha256": "c39871078831b17486951f69cd6908e4c38bdd4cb7a3d8423d2602c57e5b7c6d"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-error-duplicate-key-01-load.png",
+      "bytes": 58555,
+      "sha256": "0e0909a618c759d2dc75b97ba137d1be83913312190707e75dfb7cc917ad8cc4"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-error-duplicate-key-02-error.png",
+      "bytes": 58555,
+      "sha256": "0e0909a618c759d2dc75b97ba137d1be83913312190707e75dfb7cc917ad8cc4"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-error-nested-form-01-load.png",
+      "bytes": 44902,
+      "sha256": "bec17529c5beaf36d8c46e870bd540d0db4a8feb736b68eb39b2f5e8fa397218"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-error-nested-form-02-error.png",
+      "bytes": 44902,
+      "sha256": "bec17529c5beaf36d8c46e870bd540d0db4a8feb736b68eb39b2f5e8fa397218"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-first-submit-disabled-01-load.png",
+      "bytes": 33070,
+      "sha256": "de330f6d8c76c36d09b7faf535a2ea1bee3c032eb9c37d0e0d0a5e08035c5000"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-first-submit-disabled-02-typed.png",
+      "bytes": 33846,
+      "sha256": "b48001a7ae3fb375890dd8865e0c599fb9b739114bd2e3d94b05f1b2d1ec06cb"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-first-submit-disabled-03-enter.png",
+      "bytes": 33846,
+      "sha256": "b48001a7ae3fb375890dd8865e0c599fb9b739114bd2e3d94b05f1b2d1ec06cb"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-first-submit-disabled-04-submitted.png",
+      "bytes": 33662,
+      "sha256": "73984cfbb25f27b060666ffb08e9520c64a1af47bcae04866750e40023d8ce53"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-inside-column-01-load.png",
+      "bytes": 25740,
+      "sha256": "d244202acd08646556ba62b3a2df721ea01dadfbd8142afbd2d0f0e46e8efc97"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-inside-column-02-typed.png",
+      "bytes": 28207,
+      "sha256": "fdebe0e9b6ddac3c090423c46eba038d016042c6609a11fae339e32e671507ba"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-inside-column-03-submitted.png",
+      "bytes": 27384,
+      "sha256": "6adc452166897d207c4eb2aa94747dbd4e812740b8d97d2a1fd47fc963d4b5f9"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-inside-container-01-load.png",
+      "bytes": 26807,
+      "sha256": "95e0964f2945a509bfcbcf5b37e30bd8fad262b04ecacd66d28e1103a7857704"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-inside-container-02-typed.png",
+      "bytes": 29271,
+      "sha256": "eb3de1253e305a6f3dec997e7b933af7b5c569b0673797f14c41e9993e8d0298"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-inside-container-03-submitted.png",
+      "bytes": 28448,
+      "sha256": "146c7fc653e1181ced100a18be1d322af2bc9cabe93a16667f6af5e42873b6e1"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-inside-expander-01-load.png",
+      "bytes": 28505,
+      "sha256": "ae730e8f30a42df2e53a6f581c8231366249f499a1f196d2d407ca9cbd09a45f"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-inside-expander-02-typed.png",
+      "bytes": 31027,
+      "sha256": "47eb63e54cba4ea5faf1a9dac0d8d0bc42ec05d01be34a25d5b9930518238c4a"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-inside-expander-03-submitted.png",
+      "bytes": 30187,
+      "sha256": "6cdac57cdf36f02d6a6c99f39db2ae2b1400ece5d3f72dd5170f03ad3ab413e5"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-j05-continuous-01-load.png",
+      "bytes": 29712,
+      "sha256": "5aa7ba3df3aaec7fadcf637bab5dabd84d8e9e2a42629f0c4a65b2315ce96664"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-j05-continuous-02-typed.png",
+      "bytes": 32146,
+      "sha256": "69e336e5db7bb6f12bb704518a91533d399b46b6fb8c287b26421a72581d0da8"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-j05-continuous-03-submitted.png",
+      "bytes": 30738,
+      "sha256": "3e1ccfbfbdb7747643304c948373ba645c97dcc8f907888cc9335763be08d3b4"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-j05-continuous-04-pulse.png",
+      "bytes": 30622,
+      "sha256": "ada60f731b3e0afffd1383baea0177456802aa75a2a260bf40ac528c6f8efd1c"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-j05-continuous-05-pulse.png",
+      "bytes": 30698,
+      "sha256": "5df774966bba6993ebba5122670694a7596291d844b83a561c03b2bbecbc799d"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-j05-continuous-06-pulse.png",
+      "bytes": 30774,
+      "sha256": "b610e59019e221a1d3d22d07307a28156aa5e01ff6c2aa3f8786883898082cb9"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-max-chars-cjk-01-load.png",
+      "bytes": 25076,
+      "sha256": "2fdde4bb1b34f2d4ab17b32426b4910868c56a12064764106432f40b1f1804c2"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-max-chars-cjk-02-typed.png",
+      "bytes": 29331,
+      "sha256": "f55e4f21af645316a1a0f22eb068e90528de4ee834770c1cf764738d0e4fe87b"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-max-chars-cjk-03-enter.png",
+      "bytes": 29708,
+      "sha256": "5dd23018058a616bc75cab3340abc25f389689667e0a0b5a12899ff5c392204d"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-none-vs-empty-01-load.png",
+      "bytes": 32115,
+      "sha256": "23a9558f1f3431087981ad4b61ec256bec53c4e4792efea01dc8df81826c9a89"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-none-vs-empty-02-untouched.png",
+      "bytes": 32115,
+      "sha256": "23a9558f1f3431087981ad4b61ec256bec53c4e4792efea01dc8df81826c9a89"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-none-vs-empty-03-typed.png",
+      "bytes": 32533,
+      "sha256": "9e816db1a60b0aca1fdbfc6e2156d3b79a4824c09fa5066592a5bddf843235b1"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-submit-callback-args-01-load.png",
+      "bytes": 34024,
+      "sha256": "2b39d0f774f8f198f4074492d4b9f0550b86681fa6c78ced3f509ff2829c5263"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-submit-callback-args-02-typed.png",
+      "bytes": 36447,
+      "sha256": "31eb281a3408e7163a6fa34073cfaf4a628deb26c76941d5c9ff22a1825fae67"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-submit-callback-args-03-submitted.png",
+      "bytes": 39176,
+      "sha256": "21617131ca2f3848df977a2f5fb304393269c0a4ca3619a216030189fb430240"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-text-enter-blur-01-load.png",
+      "bytes": 24631,
+      "sha256": "dfb174f4f4dbee4bccae7d9ca047fceccbb210c70d9d53129b0b0751b52dd77d"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-text-enter-blur-02-typed.png",
+      "bytes": 27072,
+      "sha256": "1ed9e8addda5a75d006d9856c22757c6b04976b61a6649b26384ad82d9f4c4a2"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-text-enter-blur-03-enter.png",
+      "bytes": 25789,
+      "sha256": "4299b6b4c58a50a4c219d59e8e4385112f5cc6ec26f5336c3f91d0105a4b6856"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-text-enter-blur-04-blur.png",
+      "bytes": 26039,
+      "sha256": "213f67c35625bb28176fd9d619974e57338264a7be43819bf1d1e9a7411ddc80"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-text-live-validate-01-load.png",
+      "bytes": 26462,
+      "sha256": "79daf48d89ab1afa7b083c9a8f0e02b757ce679f9159b80fadcdcbb43c04f722"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-text-live-validate-02-digits.png",
+      "bytes": 27331,
+      "sha256": "59ab6f8acce39f3ffa4af27f98c00a1f439340bc69daa609fa99dd2dc7f4324f"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-text-live-validate-03-invalid.png",
+      "bytes": 28007,
+      "sha256": "538e08957299ca5fbbadee19e10bb299537c0451704d6b649e7da9b768e99426"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-text-password-01-load.png",
+      "bytes": 24340,
+      "sha256": "287d99908f5a0550ae98b017df9a340558c1d8d1545b65fda79d8fc539ac52d2"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-text-password-02-entered.png",
+      "bytes": 25371,
+      "sha256": "9cd303b82c92ba4f060b1d74d6e97e4b6d5ef0848fdd5177c32a275123cc5799"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-text-remaining-fields-01-load.png",
+      "bytes": 32570,
+      "sha256": "c7a849cf6afb064d40d9627ce359730d8fced771283956686976a10cf28eec0e"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-text-remaining-fields-02-observed.png",
+      "bytes": 32570,
+      "sha256": "c7a849cf6afb064d40d9627ce359730d8fced771283956686976a10cf28eec0e"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-text-remaining-fields-03-narrow.png",
+      "bytes": 34963,
+      "sha256": "2918e55b2bf22b19108362192f64d2b79933b9baafbd81fb18ee55fc19501994"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-text-required-disabled-01-load.png",
+      "bytes": 31452,
+      "sha256": "e54fe1cf70fd7ff3ff1d0cd291377a16067d8a9fdc2c16450e338faa473a03a4"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-text-required-disabled-02-observed.png",
+      "bytes": 31452,
+      "sha256": "e54fe1cf70fd7ff3ff1d0cd291377a16067d8a9fdc2c16450e338faa473a03a4"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-text-required-disabled-03-required.png",
+      "bytes": 31622,
+      "sha256": "c5534e96bfa4cf4c37ed68e292d63d73e17b14df62ca90ba2b4ff42794a6e40b"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-text-types-01-load.png",
+      "bytes": 37618,
+      "sha256": "d50e292be78075ca636a99102f0cbd7388a485b0e467dab1e1b0f443ec369217"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-text-types-02-observed.png",
+      "bytes": 37618,
+      "sha256": "d50e292be78075ca636a99102f0cbd7388a485b0e467dab1e1b0f443ec369217"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-text-types-03-email.png",
+      "bytes": 38308,
+      "sha256": "42c4e6297b3135194e47417dfecdcc47e058bb1c889fa4c5d36a4fc16c5f4b5f"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-two-forms-external-button-01-load.png",
+      "bytes": 35498,
+      "sha256": "60a09afcbfbec4fe58c49e5c0b0f9cfa881b3cfab62eeaa66a02b82f3c379aaf"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-two-forms-external-button-02-left.png",
+      "bytes": 37588,
+      "sha256": "d509e9c39ec705fb9af30e97c6fec59bf7a4ea106377fd7eb8bf9fa0cf2fdce3"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-two-forms-external-button-03-right.png",
+      "bytes": 38020,
+      "sha256": "6050cf32c66509c207b942c34733a663166af9524f23a6000d0fd23c7b44d2ec"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-two-forms-external-button-04-outside.png",
+      "bytes": 36242,
+      "sha256": "1cf5cd9f83e06268607765c988a91a06d4b69a02ef186ccee30b1e868ec86076"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-two-submit-buttons-01-load.png",
+      "bytes": 31275,
+      "sha256": "791602967d8fa47ec2628d141cc298ba2944fa260a681aeace180a4d9bbe84fb"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-two-submit-buttons-02-typed.png",
+      "bytes": 33784,
+      "sha256": "833f7cdb8f47449038e50d1c12e38c743913d6cddd053d2b4c02587bcc661c7a"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-two-submit-buttons-03-saved.png",
+      "bytes": 31786,
+      "sha256": "9586533cdf76a94d7b24619529d7c2b3e9a27e7a7d0e3d699d51ac3c15cec4aa"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/png/form-two-submit-buttons-04-saved-again.png",
+      "bytes": 32802,
+      "sha256": "343e12b7c615365194fc9ff7876304c5d1ef123fe3563fc00fafdaf3b367e756"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/README.md",
+      "bytes": 2275,
+      "sha256": "1be1f910f763c1901f38a7d801aa4e5f2b858afa41fcbe9befafdbf84af61e57"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/source/forms_app.py.snapshot",
+      "bytes": 21696,
+      "sha256": "d177df7d7ef72414faffce8984d1b88547f401beff560eb103ae0bd945eda352"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/source/forms_capture.py.snapshot",
+      "bytes": 65036,
+      "sha256": "2f46f23ce9658d98429fae2a5f7dbe00a152cc5b1e86baf97dbfac34b3edebb5"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/source/forms_cases.py.snapshot",
+      "bytes": 451,
+      "sha256": "bc6d54ba42b7ce2cc5ef97c43390413e1df08fd9487985d8b374bff9efaaa4f4"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/STRICT-RESULT.json",
+      "bytes": 1059,
+      "sha256": "1bcc4f55f97f2b2bb7694d7e9136373d61ff4f2308dfe8ed13a9a1eafed27d03"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/trace-forms.json",
+      "bytes": 1801839,
+      "sha256": "a8ac7bb0c996eea0a9eedd22aabaf0cd34b5bd613abce390eb17f370745cebe0"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/transport-actions.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "file": "tests/reference/reference-browser/forms-final/websocket-lifecycle-events.json",
+      "bytes": 95882,
+      "sha256": "a3fdbd9e5be290b8874ecf7b3ee6ddc69636fff499e6765618261c99cb91209f"
+    }
+  ],
+  "producer_regression_helper": {
+    "file": "tests/browser/check_forms_readiness_checkpoint.py",
+    "bytes": 6401,
+    "sha256": "86cd88d6243cc6b01b2c72b5321eeb92bbafc78bec535cc133fc41cace3eae5c"
+  },
+  "marker_regression_helper": {
+    "file": "tests/browser/check_forms_marker_probe.py",
+    "bytes": 3361,
+    "sha256": "64bf06a1b1450587361d13b778f052da2f215a56ddae2a59951d9b104ee37dcf"
+  },
+  "marker_regression_html": {
+    "file": "tests/browser/forms_marker_fixture.html",
+    "bytes": 1460,
+    "sha256": "8063b92e505530fc2afd4de8ef3e1a4f6160f1b84edebb7a62ba3054f4137062"
+  },
+  "case_count": 25,
+  "phase_count": 84,
+  "png_count": 84
+}

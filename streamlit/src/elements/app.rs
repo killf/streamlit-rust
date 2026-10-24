@@ -3,11 +3,13 @@ use crate::error::StreamlitError;
 use crate::proto::{Block, Config, Delta, EnvironmentInfo, ForwardMsg, ForwardMsgMetadata, Initialize, NewSession, SessionStatus, UserInfo, block, delta, forward_msg};
 use crate::utils::hash::hash;
 use std::cell::RefCell;
+use std::collections::HashSet;
 use std::rc::Rc;
 
 pub(crate) struct App {
     pub(crate) session_state: crate::SessionState,
     elements: Vec<Rc<RefCell<dyn Element>>>,
+    form_keys: HashSet<String>,
     main_script: String,
     render_context: Option<RenderContext>,
 }
@@ -17,9 +19,19 @@ impl App {
         Self {
             session_state: Default::default(),
             elements: Default::default(),
+            form_keys: HashSet::new(),
             main_script: Default::default(),
             render_context: None,
         }
+    }
+
+    /// Form keys have their own run-local namespace.
+    pub(crate) fn claim_form_key(&mut self, key: &str) -> bool {
+        self.form_keys.insert(key.to_owned())
+    }
+
+    pub(crate) fn release_form_key(&mut self, key: &str) {
+        self.form_keys.remove(key);
     }
 
     pub fn set_render_context(&mut self, context: RenderContext) {

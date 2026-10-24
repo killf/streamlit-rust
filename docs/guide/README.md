@@ -69,6 +69,47 @@ For a manually constructed `StreamlitServer`, call `.with_static_dir(path)` befo
 
 An empty or invalid explicit override is an error, even if another directory is valid. An existing but invalid executable sidecar also fails rather than falling back. Before listening, the server checks the official Streamlit 1.66.1 index and the presence/readability of its nonempty boot JS/CSS files; an incompatible or incomplete directory returns an actionable `std::io::Error`. Install the whole pinned bundle: this startup check does not authenticate every lazy-loaded chunk or replace distributing all official files.
 
+## Use a form and text input
+
+```powershell
+cargo run --example forms --locked
+```
+
+Open `http://127.0.0.1:8504/`. The example shows the measured business journey of `st.form`, `st.form_submit_button`, `st.text_input`, and an external button:
+
+```rust
+let (note, submitted) = st.form(FormOptions::new("apply_form"), |form| {
+    let note = form.text_input(TextInputOptions::new("Note").key("note"))?;
+    let submitted = form.form_submit_button(FormSubmitButtonOptions::new("Apply note").key("apply_note"))?;
+    Ok((note, submitted))
+})?;
+if submitted {
+    st.session_state().set("applied_note", note.clone())?;
+}
+let pulse_clicked = st.try_button(ButtonOptions::new("Pulse").key("pulse"))?;
+```
+
+Forms can be appended from the app, a container, or a column, and a form can contain the existing container and column helpers. The nested-layout wire order is covered by Rust render tests; it is not a browser-compatibility claim beyond the captured form cases.
+
+Form keys are unique among forms; explicit widget keys remain unique across the page. A form and a widget may use the same key spelling. Anonymous widgets include their form in their identity. If the form closure returns an error or omits a submit button, its widgets are not emitted and their registrations are rolled back. Unrelated application state writes made by the closure are retained.
+
+Values inside the form are staged by the official frontend and sent together when the submit button is clicked. Typing without submitting does not rerun the app; `Apply` applies the note, and the external `Pulse` button can then rerun the page three times without losing it. The submit trigger is one-shot. `TextInputOptions::new("Note")` defaults to an empty string; `value_none()` makes the initial return value `None` while leaving the visible field empty.
+
+The pinned-reference capture also covers the specialized `Default`, `Password`, `Email`, `Url`, `Phone`, and `Search` input types, including their Material icons, placeholders, autocomplete values, and built-in Email/URL validation. It covers a custom validation message, 250&nbsp;ms live debounce, required and disabled inputs, `max_chars`, `clear_on_submit`, `enter_to_submit`, a disabled first submit button, multiple submit buttons, and independent forms with an external button. Browser validation is performed by the official frontend; security-sensitive application code must still validate submitted values on the server.
+
+Query binding and persistent hidden-widget state are not yet claimed complete. Form and submit-button layout fields beyond the measured defaults, Python exception UI parity, and full widget lifecycle/error parity also remain outside a complete compatibility claim.
+
+The reference captures above cover 25 cases on the Python 1.66.1 server. The Rust example has one recorded official-frontend browser journey: J05, with a default empty text field, editing without a rerun, one Apply, and three outside Pulse clicks while retaining the note. This is not Rust browser coverage of all 25 reference cases.
+
+| Public Rust capability | Current validation and limits |
+| --- | --- |
+| Basic form, text input and submit | Rust J05 browser capture plus native protocol tests. |
+| None/empty, clear, Enter policies, disabled or multiple submits | Python reference and Rust unit/protocol subsets; Rust browser comparison remains partial. |
+| Text types, validation, live, required, max_chars and presentation fields | Measured Python reference and Rust field/unit tests; Rust browser comparison remains partial. |
+| Container/column layouts and submit callbacks | Rust render/HTTP/WS tests and Python reference; Rust browser comparison remains partial. |
+
+Duration strings currently support `0`, milliseconds such as `250ms`, and seconds such as `0.25s`, up to one minute. The example uses a fallible render helper and handles its error once. Integrating forms into the CSV `data_app` for the complete J00 launch flow is a separate next step; this standalone example does not complete that flow.
+
 ## Session state and counter
 
 ```powershell
@@ -204,6 +245,6 @@ Each call returns `Result<(), StatusError>`. Invalid widths or icons return an e
 
 ## Current API
 
-Available APIs include text and layout, static status messages, `button`, `selectbox`, numeric `slider`, `checkbox`, and native session state. See the [text/layout/status API](../../streamlit/src/api.rs), [widget options](../../streamlit/src/widget_api.rs), and [session API](../../streamlit/src/session.rs).
+Available APIs include text and layout, static status messages, `button`, `selectbox`, numeric `slider`, `checkbox`, the measured `form`/`form_submit_button`/`text_input` core, and native session state. See the [text/layout/status API](../../streamlit/src/api.rs), [widget options](../../streamlit/src/widget_api.rs), and [session API](../../streamlit/src/session.rs).
 
-Upload and columnar data views currently cover the limited paths described above. General table/chart APIs, selection/add_rows, forms, cache, stop/cancel, query binding, persistent hidden widgets, date/time sliders, and most other input widgets remain incomplete or absent. Widget failures are Rust `Result` errors; Python-style exception elements and matching exception UI are not implemented. Native session values, reruns, retained-session reconnects, synchronous callbacks, explicit widget keys and one-shot button triggers are available, without a claim of complete Streamlit compatibility.
+Upload and columnar data views currently cover the limited paths described above. General table/chart APIs, selection, complete forms/text-input behavior, cache, stop/cancel, query binding, persistent hidden widgets, date/time sliders, and most other input widgets remain incomplete or absent. Widget failures are Rust `Result` errors; Python-style exception elements and matching exception UI are not implemented. Native session values, reruns, retained-session reconnects, synchronous callbacks, explicit widget keys and one-shot button triggers are available, without a claim of complete Streamlit compatibility.

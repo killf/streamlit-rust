@@ -19,6 +19,7 @@ pub(crate) struct ButtonElement {
     shortcut: Option<String>,
     icon: Option<String>,
     icon_position: i32,
+    wrap: Option<bool>,
 }
 
 impl ButtonElement {
@@ -38,6 +39,7 @@ impl ButtonElement {
             shortcut: None,
             icon: None,
             icon_position: 0,
+            wrap: None,
         }
     }
 
@@ -70,6 +72,26 @@ impl ButtonElement {
         self.shortcut = Some(shortcut);
         self
     }
+
+    pub fn form_id(mut self, form_id: String) -> Self {
+        self.form_id = Some(form_id);
+        self
+    }
+
+    pub fn form_submitter(mut self, form_submitter: bool) -> Self {
+        self.is_form_submitter = form_submitter;
+        self
+    }
+
+    pub fn icon_position(mut self, icon_position: i32) -> Self {
+        self.icon_position = icon_position;
+        self
+    }
+
+    pub fn wrap(mut self, wrap: Option<bool>) -> Self {
+        self.wrap = wrap;
+        self
+    }
 }
 
 impl Element for ButtonElement {
@@ -100,7 +122,7 @@ impl Element for ButtonElement {
                     icon: self.icon.clone().unwrap_or_default(),
                     shortcut: self.shortcut.clone().unwrap_or_default(),
                     icon_position: self.icon_position,
-                    wrap: None,
+                    wrap: self.wrap,
                 })),
             })),
         }));

@@ -173,17 +173,45 @@ pub struct Container<'a> {
     element: Rc<RefCell<ContainerElement>>,
     allocator: &'a Allocator,
     app: Rc<Mutex<App>>,
+    form_id: Option<String>,
+    base_path: Vec<u32>,
+    exit_path: Vec<u32>,
 }
 
-impl Container<'_> {
-    pub(crate) fn new(element: Rc<RefCell<ContainerElement>>, allocator: &'_ Allocator, app: Rc<Mutex<App>>) -> Container<'_> {
-        Container { element, allocator, app }
+impl<'a> Container<'a> {
+    pub(crate) fn new(element: Rc<RefCell<ContainerElement>>, allocator: &'a Allocator, app: Rc<Mutex<App>>, form_id: Option<String>, base_path: Vec<u32>, exit_path: Vec<u32>) -> Container<'a> {
+        Container {
+            element,
+            allocator,
+            app,
+            form_id,
+            base_path,
+            exit_path,
+        }
     }
 }
 
 impl AppendChild for Container<'_> {
     fn push(&self, element: Rc<RefCell<dyn Element>>) {
-        self.element.borrow_mut().children.push(element);
+        let child_index = u32::try_from(self.element.borrow().children.len()).expect("container child index fits u32");
+        self.element.borrow_mut().children.push(element.clone());
+        // A top-level container is emitted immediately, so its later children
+        // must be emitted at their block-local indices too. A container inside
+        // a form is part of that form's not-yet-rendered subtree and is
+        // rendered wholesale by FormElement::render.
+        if self.form_id.is_none() {
+            let mut app = self.app.lock();
+            if let Some(context) = app.render_context_mut()
+                && context.sender.is_some()
+            {
+                context.delta_path = self.base_path.clone();
+                context.delta_path.push(child_index);
+                if let Err(error) = element.borrow().render(context) {
+                    log::error!("Failed to render container child immediately: {error}");
+                }
+                context.delta_path = self.exit_path.clone();
+            }
+        }
     }
 
     fn allocator(&self) -> &Allocator {
@@ -192,5 +220,15 @@ impl AppendChild for Container<'_> {
 
     fn get_app(&self) -> Rc<Mutex<App>> {
         self.app.clone()
+    }
+
+    fn parent_form_id(&self) -> Option<String> {
+        self.form_id.clone()
+    }
+
+    fn next_child_path(&self) -> Vec<u32> {
+        let mut path = self.base_path.clone();
+        path.push(self.element.borrow().children.len() as u32);
+        path
     }
 }

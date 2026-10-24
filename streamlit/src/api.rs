@@ -1,9 +1,12 @@
+use crate::WidgetError;
 use crate::elements::App;
 use crate::elements::badge::BadgeElement;
 use crate::elements::code::CodeElement;
 use crate::elements::columns::{Column, ColumnElement};
 use crate::elements::common::{Anchor, Divider, Element, ElementHeight, ElementWidth, Gap, HorizontalAlignment, TextAlignment, VerticalAlignment};
 use crate::elements::container::{Container, ContainerElement};
+pub use crate::elements::form::Form;
+use crate::elements::form::{FormElement, validate_form_dimensions};
 use crate::elements::markdown::{MarkdownElement, MarkdownElementType};
 use crate::elements::status::{StatusElement, status_content};
 use crate::elements::title::HeadingElement;
@@ -33,6 +36,14 @@ pub(crate) trait AppendChild {
     fn allocator(&self) -> &Allocator;
 
     fn get_app(&self) -> Rc<Mutex<App>>;
+
+    fn parent_form_id(&self) -> Option<String> {
+        None
+    }
+
+    fn next_child_path(&self) -> Vec<u32> {
+        self.get_app().lock().render_context_mut().map(|context| context.delta_path.clone()).unwrap_or_default()
+    }
 }
 
 impl AppendChild for Streamlit {
@@ -499,6 +510,65 @@ impl ContainerOptions {
     }
 }
 
+pub struct FormOptions {
+    key: String,
+    clear_on_submit: bool,
+    border: bool,
+    enter_to_submit: bool,
+    width: ElementWidth,
+    height: ElementHeight,
+}
+
+impl FormOptions {
+    pub fn new(key: impl Into<String>) -> Self {
+        Self {
+            key: key.into(),
+            clear_on_submit: false,
+            border: true,
+            enter_to_submit: true,
+            width: ElementWidth::Stretch,
+            height: ElementHeight::Content,
+        }
+    }
+
+    pub fn clear_on_submit(mut self, clear: bool) -> Self {
+        self.clear_on_submit = clear;
+        self
+    }
+
+    pub fn border(mut self, border: bool) -> Self {
+        self.border = border;
+        self
+    }
+
+    pub fn enter_to_submit(mut self, enter_to_submit: bool) -> Self {
+        self.enter_to_submit = enter_to_submit;
+        self
+    }
+
+    pub fn width<T: Into<ElementWidth>>(mut self, width: T) -> Self {
+        self.width = width.into();
+        self
+    }
+
+    pub fn height<T: Into<ElementHeight>>(mut self, height: T) -> Self {
+        self.height = height.into();
+        self
+    }
+}
+
+impl From<&str> for FormOptions {
+    fn from(key: &str) -> Self {
+        Self::new(key)
+    }
+}
+
+impl From<String> for FormOptions {
+    fn from(key: String) -> Self {
+        Self::new(key)
+    }
+}
+
 pub struct ColumnsOptions {
     spec: Vec<f32>,
     gap: Gap,
@@ -690,6 +760,8 @@ pub trait StreamlitApi {
 
     fn container_options<T: Into<ContainerOptions>>(&self, options: T) -> &Container<'_>;
 
+    fn form<T>(&self, options: impl Into<FormOptions>, body: impl FnOnce(&Form<'_>) -> Result<T, WidgetError>) -> Result<T, WidgetError>;
+
     fn columns<T: Into<ColumnsOptions>>(&self, spec: T) -> &[Column<'_>];
 
     fn button<T: Into<ButtonOptions>>(&self, options: T) -> bool;
@@ -822,6 +894,33 @@ impl<C: AppendChild> StreamlitApi for C {
         self.push(Rc::new(RefCell::new(element)));
     }
 
+    fn form<T>(&self, options: impl Into<FormOptions>, body: impl FnOnce(&Form<'_>) -> Result<T, WidgetError>) -> Result<T, WidgetError> {
+        let options = options.into();
+        if self.parent_form_id().is_some() {
+            return Err(WidgetError::InvalidValue("forms cannot be nested in other forms".into()));
+        }
+        validate_form_dimensions(options.width.clone(), options.height.clone())?;
+        let app = self.get_app();
+        if !app.lock().claim_form_key(&options.key) {
+            return Err(WidgetError::DuplicateKey(options.key));
+        }
+        let state = app.lock().session_state.clone();
+        let checkpoint = state.form_checkpoint();
+
+        let element = Rc::new(RefCell::new(FormElement::new(options.key.clone(), options.clear_on_submit, options.border, options.enter_to_submit, options.width, options.height)));
+        let form = self.allocator().malloc(Form::new(element.clone(), options.key.clone(), self.allocator(), app.clone()));
+        let result = match body(form).and_then(|value| if form.submit_count() == 0 { Err(WidgetError::InvalidValue("every form needs a form_submit_button".into())) } else { Ok(value) }) {
+            Ok(value) => value,
+            Err(error) => {
+                state.rollback_form(checkpoint);
+                app.lock().release_form_key(&options.key);
+                return Err(error);
+            }
+        };
+        self.push(element);
+        Ok(result)
+    }
+
     fn container_options<T: Into<ContainerOptions>>(&self, options: T) -> &Container<'_> {
         let options = options.into();
 
@@ -836,9 +935,12 @@ impl<C: AppendChild> StreamlitApi for C {
             .gap(options.gap);
 
         let element = Rc::new(RefCell::new(element));
+        let app = self.get_app();
+        let base_path = self.next_child_path();
         self.push(element.clone());
+        let exit_path = app.lock().render_context_mut().map(|context| context.delta_path.clone()).unwrap_or_default();
 
-        self.allocator().malloc(Container::new(element, self.allocator(), self.get_app()))
+        self.allocator().malloc(Container::new(element, self.allocator(), app, self.parent_form_id(), base_path, exit_path))
     }
 
     fn columns<T: Into<ColumnsOptions>>(&self, spec: T) -> &[Column<'_>] {
@@ -852,14 +954,19 @@ impl<C: AppendChild> StreamlitApi for C {
         }
 
         let container_element = Rc::new(RefCell::new(ContainerElement::new().horizontal(true).gap(options.gap)));
+        let app = self.get_app();
+        let container_base = self.next_child_path();
         self.push(container_element.clone());
+        let container_exit = app.lock().render_context_mut().map(|context| context.delta_path.clone()).unwrap_or_default();
 
         let mut columns = Vec::with_capacity(weights.len());
-        for w in weights {
-            let column_element = Rc::new(RefCell::new(ColumnElement::new(w).border(options.border).vertical_alignment(options.vertical_alignment.clone()).width(options.width.clone())));
+        for (index, w) in weights.iter().enumerate() {
+            let column_element = Rc::new(RefCell::new(ColumnElement::new(*w).border(options.border).vertical_alignment(options.vertical_alignment.clone()).width(options.width.clone())));
             container_element.borrow_mut().children.push(column_element.clone());
 
-            columns.push(Column::new(column_element, self.allocator(), self.get_app()));
+            let mut column_base = container_base.clone();
+            column_base.push(index as u32);
+            columns.push(Column::new(column_element, self.allocator(), app.clone(), self.parent_form_id(), column_base, container_exit.clone()));
         }
         self.allocator().malloc(columns).as_slice()
     }

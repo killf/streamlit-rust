@@ -17,6 +17,41 @@
 /tests/reference/capture_browser_trace.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 /tests/browser/numeric_capture.py -text
 
+# The forms and text-input reference: its trace records the digests of the
+# app and of this README, so they must survive checkout byte-for-byte.
+/tests/reference/forms_app.py -text
+/tests/browser/forms_capture.py -text
+/tests/reference/reference-browser/forms/README.md -text
+/tests/reference/reference-browser/forms-batch2/README.md -text
+
+# Selected forms evidence and exact source/provenance snapshots.
+/streamlit/examples/forms.rs -text
+/tests/reference/forms_cases.py -text
+/tests/browser/forms_contract.py -text
+/tests/browser/check_forms_marker_probe.py -text
+/tests/browser/forms_marker_fixture.html -text
+/tests/browser/check_forms_readiness_checkpoint.py -text
+/tests/reference/reference-browser/forms-final/trace-forms.json -text
+/tests/reference/reference-browser/forms-final/capture-state.json -text
+/tests/reference/reference-browser/forms-final/websocket-lifecycle-events.json -text
+/tests/reference/reference-browser/forms-final/transport-actions.json -text
+/tests/reference/reference-browser/forms-final/STRICT-RESULT.json -text
+/tests/reference/reference-browser/forms-final/MANIFEST.json -text
+/tests/reference/reference-browser/forms-final/README.md -text
+/tests/reference/reference-browser/forms-final/source/forms_app.py.snapshot -text
+/tests/reference/reference-browser/forms-final/source/forms_capture.py.snapshot -text
+/tests/reference/reference-browser/forms-final/source/forms_cases.py.snapshot -text
+/tests/reference/reference-browser/forms-final/png/*.png -text
+/tests/browser/rust-forms-j05/trace-forms.json -text
+/tests/browser/rust-forms-j05/MANIFEST.json -text
+/tests/browser/rust-forms-j05/README.md -text
+/tests/browser/rust-forms-j05/source/QA-HANDOFF.json -text
+/tests/browser/rust-forms-j05/source/runtime-source-set.json -text
+/tests/browser/rust-forms-j05/source/runtime-config.json -text
+/tests/browser/rust-forms-j05/source/forms.rs.snapshot -text
+/tests/browser/rust-forms-j05/source/forms_capture.py.snapshot -text
+/tests/browser/rust-forms-j05/png/*.png -text
+
 # Frozen fixture byte hashes must not depend on checkout newline settings.
 /tests/fixtures/csv/sales_basic.csv -text
 /tests/fixtures/csv/sales_with_missing.csv -text

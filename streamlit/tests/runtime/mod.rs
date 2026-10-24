@@ -11,6 +11,7 @@ use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpStream;
 
 mod data_views;
+mod forms;
 mod overlap;
 mod sessions;
 mod static_assets;

@@ -1,0 +1,1433 @@
+"""Collect the forms and text-input reference of Streamlit 1.66.1.
+
+    python tests/browser/forms_capture.py --url http://127.0.0.1:8606 \
+        --label python-forms --out tests/reference/reference-browser/forms
+
+WHAT THIS RECORDS
+    * every bidirectional WebSocket frame of the official 1.66.1 frontend,
+      with the raw protobuf payload, its sha256, the DevTools request id of
+      the socket it travelled on and the decoded summary of the official
+      protobuf definitions.
+    * the DOM before and after every action: the rendered counters, the value
+      of every text input, the state of every checkbox, the buttons, the
+      exception the page shows and the alerts.
+    * a screenshot of every phase, with the bytes and the sha256 of the PNG
+      the browser produced.
+
+WHAT THIS IS NOT
+    It states no verdict.  It records what the reference runtime did; the
+    strict criterion is the author's, and it reads this file.  Nothing here
+    decides whether a case passed, and no field is filled in to make a case
+    look good: a missing observation is written as missing.
+
+BROWSER
+    The collector starts its own Chrome on its own DevTools port with its own
+    profile directory, so it shares no window, no focus, no scroll position
+    and no session with another capture.  The recorder is attached to the
+    page before the first navigation, so the WebSocket handshake is part of
+    the trace.  The page is opened with an ``agent-browser`` named session
+    bound to that same Chrome over CDP, so both tools drive one browser
+    instance, and the frames are read from the DevTools endpoint of that very
+    instance.  When the agent-browser CLI cannot drive the page, the reason
+    is written into the trace and the navigation falls back to the DevTools
+    Protocol; nothing is invented.
+"""
+
+from __future__ import annotations
+
+import argparse
+import base64
+import hashlib
+import json
+import os
+import pathlib
+import re
+import shutil
+import subprocess
+import sys
+import time
+import urllib.request
+from datetime import datetime, timezone
+
+HERE = pathlib.Path(__file__).resolve().parent
+ROOT = HERE.parents[1]
+sys.path.insert(0, str(ROOT / "tests" / "reference"))
+sys.path.insert(0, str(HERE))
+
+from capture_browser_trace import (  # noqa: E402  (path setup must precede the import)
+    CDP,
+    _safe,
+    http_requests_from_events,
+    require_decoder,
+    summarise_back,
+    summarise_forward,
+)
+from numeric_capture import Page  # noqa: E402  the proven CDP input helper
+from forms_cases import CASES  # noqa: E402  the one canonical case list
+from forms_contract import (  # noqa: E402  the strict contract owns these
+    NAMESPACE,
+    _form_blocks_from_forward,
+    _official_forward,
+)
+
+# The DOM probe: the rendered counters, the widgets and what the page says
+# about itself.  The markers are the test ids the official 1.66.1 frontend
+# uses (stForm, stFormSubmitButton, stTextInput, stCheckbox, stButton,
+# stText); they are read out of the bundle in www/static/js.
+DOM_JS = r"""(()=>{const qa=s=>[...document.querySelectorAll(s)];
+const txt=e=>e?(e.innerText||e.textContent||'').replace(/\s+/g,' ').trim():null;
+const label=e=>{const l=e.querySelector('label');return l?txt(l):null;};
+const labelShown=e=>{const l=e.querySelector('label');if(!l)return null;
+ return !!(l.offsetParent!==null||l.getClientRects().length>0);};
+const textInputs=qa("[data-testid='stTextInput']").map(e=>{const i=e.querySelector('input,textarea');
+ const icon=e.querySelector("[data-testid='stTextInputErrorIcon']");
+ const described=i?i.getAttribute('aria-describedby'):null;
+ let errorText=null;
+ if(described){const d=document.getElementById(described);if(d)errorText=(d.innerText||d.textContent||'').replace(/\s+/g,' ').trim();}
+ if(!errorText&&icon){errorText=(icon.getAttribute('aria-label')||icon.getAttribute('title')||icon.innerText||'').replace(/\s+/g,' ').trim()||null;}
+ return {label:label(e),label_shown:labelShown(e),aria_label:i?i.getAttribute('aria-label'):null,
+ value:i?i.value:null,type:i?i.type:null,maxlength:i?i.getAttribute('maxlength'):null,
+ placeholder:i?i.getAttribute('placeholder'):null,required:!!(i&&i.required),disabled:!!(i&&i.disabled),
+ aria_invalid:i?i.getAttribute('aria-invalid'):null,aria_required:i?i.getAttribute('aria-required'):null,
+ aria_describedby:described||null,has_error_icon:!!icon,error_text:errorText,
+ in_form:!!e.closest("[data-testid='stForm']")};});
+const checkboxes=qa("[data-testid='stCheckbox']").map(e=>{const i=e.querySelector('input');
+ return {label:label(e),checked:i?i.checked:null,disabled:!!(i&&i.disabled),
+ in_form:!!e.closest("[data-testid='stForm']")};});
+const buttons=qa("[data-testid='stButton'],[data-testid='stFormSubmitButton']").map(e=>{const b=e.querySelector('button');
+ return {testid:e.getAttribute('data-testid'),label:txt(e),disabled:!!(b&&b.disabled),
+ in_form:!!e.closest("[data-testid='stForm']")};});
+const forms=qa("[data-testid='stForm']").map(e=>({text:txt(e).slice(0,300),
+ submit_buttons:[...e.querySelectorAll("[data-testid='stFormSubmitButton']")].map(txt)}));
+// Read standalone text/markdown elements only. MarkdownContainer also
+// occurs inside button/widget labels and must not be treated as a marker.
+const texts=qa("[data-testid='stText'],[data-testid='stMarkdown']").map(e=>txt(e));
+const exceptions=qa("[data-testid='stException']").map(e=>txt(e).slice(0,800));
+const alerts=qa("[data-testid^='stAlertContent']").map(e=>txt(e).slice(0,400));
+return JSON.stringify({document_title:document.title,texts:texts,text_inputs:textInputs,
+ checkboxes:checkboxes,buttons:buttons,forms:forms,exceptions:exceptions,alerts:alerts,
+ active_element:(document.activeElement&&document.activeElement.tagName)||null});})()"""
+
+CHROME_CANDIDATES = (
+    r"C:\Program Files\Google\Chrome\Application\chrome.exe",
+    r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
+)
+
+
+# --------------------------------------------------------------------------
+# the browser: one Chrome, one profile, one DevTools port
+# --------------------------------------------------------------------------
+
+def chrome_binary() -> str:
+    for path in CHROME_CANDIDATES:
+        if pathlib.Path(path).is_file():
+            return path
+    raise SystemExit("no Chrome executable found")
+
+
+def start_chrome(binary: str, port: int, profile: pathlib.Path) -> subprocess.Popen:
+    """Start a headless Chrome of our own, on our own port and profile."""
+    profile.mkdir(parents=True, exist_ok=True)
+    args = [
+        binary,
+        f"--remote-debugging-port={port}",
+        f"--user-data-dir={profile}",
+        "--headless=new",
+        "--no-first-run",
+        "--no-default-browser-check",
+        "--disable-background-networking",
+        "--disable-sync",
+        "--disable-extensions",
+        "--window-size=1264,1800",
+        "about:blank",
+    ]
+    proc = subprocess.Popen(
+        args,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+    )
+    deadline = time.time() + 30
+    while time.time() < deadline:
+        try:
+            with urllib.request.urlopen(f"http://127.0.0.1:{port}/json/version", timeout=2) as r:
+                json.loads(r.read().decode("utf-8"))
+                return proc
+        except Exception:
+            time.sleep(0.5)
+    proc.terminate()
+    raise SystemExit(f"Chrome did not open its DevTools port {port}")
+
+
+def page_targets(port: int) -> list[dict]:
+    with urllib.request.urlopen(f"http://127.0.0.1:{port}/json/list", timeout=10) as r:
+        return json.loads(r.read().decode("utf-8"))
+
+
+def agent_browser(*args: str, session: str, profile: pathlib.Path, cdp_port: int) -> dict:
+    """Run one agent-browser command in our own named session.
+
+    The output goes to files, not to pipes: the CLI leaves a background
+    process behind that keeps the pipes open, and a pipe that never closes
+    would hang the capture instead of ending it.  A command that outlives its
+    budget is killed with its whole tree and the reason is recorded.
+    """
+    exe = shutil.which("agent-browser") or "agent-browser"
+    cmd = [exe, "--session", session, "--profile", str(profile), "--cdp", str(cdp_port)]
+    cmd.extend(args)
+    log = ROOT / "target" / "forms-capture" / "agent-browser"
+    log.mkdir(parents=True, exist_ok=True)
+    out_path = log / "cli.out.log"
+    err_path = log / "cli.err.log"
+    record: dict = {"command": cmd}
+    with open(out_path, "w", encoding="utf-8") as out, open(err_path, "w", encoding="utf-8") as err:
+        proc = subprocess.Popen(
+            cmd, stdout=out, stderr=err, stdin=subprocess.DEVNULL,
+            creationflags=getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0),
+        )
+        try:
+            proc.wait(timeout=60)
+        except subprocess.TimeoutExpired:
+            _kill_tree(proc.pid)
+            record.update({"ok": False, "timed_out": True, "returncode": None,
+                           "reason": "the agent-browser CLI did not return within 60s"})
+        except Exception as exc:  # pragma: no cover - defensive
+            record.update({"ok": False, "returncode": None,
+                           "reason": f"{type(exc).__name__}: {exc}"})
+        else:
+            record.update({"ok": proc.returncode == 0, "returncode": proc.returncode})
+    record["stdout"] = out_path.read_text(encoding="utf-8", errors="replace")[-1500:]
+    record["stderr"] = err_path.read_text(encoding="utf-8", errors="replace")[-1500:]
+    return record
+
+
+def _kill_tree(pid: int) -> None:
+    """Kill a process and the children it left behind."""
+    if os.name == "nt":
+        subprocess.run(["taskkill", "/PID", str(pid), "/T", "/F"],
+                       capture_output=True, text=True)
+    else:  # pragma: no cover - not the platform of this capture
+        try:
+            os.killpg(os.getpgid(pid), 9)
+        except Exception:
+            pass
+
+
+# --------------------------------------------------------------------------
+# the frames
+# --------------------------------------------------------------------------
+
+def form_blocks(payload: bytes) -> list[dict]:
+    """The form blocks of a delta frame, in the contract's own shape.
+
+    The strict contract owns the normalizer, so the collector does not keep
+    a second one: the same function that judges the capture is the function
+    that writes this derived field, and the raw bytes stay the authority.
+    """
+    try:
+        return _form_blocks_from_forward(_official_forward(payload))
+    except Exception as exc:  # pragma: no cover - defensive
+        return [{"error": f"{type(exc).__name__}: {exc}"}]
+
+
+def clock_offset(events: list[dict]) -> dict:
+    """The offset between Chrome's monotonic clock and the wall clock.
+
+    Chrome itself reports both for every network request: the wall time of
+    the request and the monotonic timestamp of the same request.  The
+    difference between the two is the offset of the monotonic clock, so every
+    frame timestamp can be placed on the wall clock without guessing.  The
+    samples are kept so that the offset can be checked.
+    """
+    samples: list[dict] = []
+    for event in events:
+        if event.get("method") != "Network.requestWillBeSent":
+            continue
+        params = event.get("params", {})
+        wall = params.get("wallTime")
+        mono = params.get("timestamp")
+        if wall is None or mono is None:
+            continue
+        samples.append(
+            {
+                "request_id": params.get("requestId"),
+                "wall_time": wall,
+                "timestamp": mono,
+                "offset_s": wall - mono,
+            }
+        )
+    if not samples:
+        return {"offset_s": None, "sample_count": 0, "samples": []}
+    offsets = sorted(sample["offset_s"] for sample in samples)
+    return {
+        "offset_s": offsets[len(offsets) // 2],
+        "sample_count": len(samples),
+        "samples": samples[:10],
+    }
+
+
+def delta_sequence(window: list[dict]) -> list[dict]:
+    """The order in which the server sent blocks and elements.
+
+    It is a projection of the frames that are already decoded: the blocks
+    that were opened and the elements that were placed, in the order they
+    arrived.  It says where a widget sits in the block tree and which form
+    it belongs to, without decoding anything a second time.
+    """
+    out: list[dict] = []
+    for frame in window:
+        decoded = frame.get("decoded") or {}
+        if decoded.get("type") != "delta":
+            continue
+        entry = decoded.get("delta") or {}
+        kind = entry.get("type")
+        if kind == "add_block":
+            out.append(
+                {
+                    "kind": "add_block",
+                    "block_type": entry.get("block_type"),
+                    "block_id": entry.get("block_id"),
+                }
+            )
+        elif kind == "new_element":
+            out.append(
+                {
+                    "kind": "new_element",
+                    "element": entry.get("element"),
+                    "id": entry.get("id"),
+                    "form_id": entry.get("form_id"),
+                }
+            )
+    return out
+
+
+def frames_of(recorder: CDP, namespace: str = NAMESPACE) -> list[dict]:
+    """Every WebSocket frame, with the raw payload and its digest.
+
+    The base decoder stays the only decoder: this function adds the raw
+    bytes, the sha256 and the connection identity, and it does not add a
+    second opinion about what a frame means.
+    """
+    out: list[dict] = []
+    connections: dict[str, int] = {}
+    events = recorder.take()
+    offset = clock_offset(events).get("offset_s")
+    for event in events:
+        method = event.get("method")
+        if method not in ("Network.webSocketFrameSent", "Network.webSocketFrameReceived"):
+            continue
+        payload = event["params"].get("response", {})
+        if payload.get("opcode") != 2:
+            continue
+        request_id = event["params"].get("requestId")
+        if request_id is not None and request_id not in connections:
+            connections[request_id] = len(connections)
+        data = base64.b64decode(payload.get("payloadData", ""))
+        direction = "client->server" if method.endswith("Sent") else "server->client"
+        decoder = summarise_back if direction == "client->server" else summarise_forward
+        frame = {
+            "index": len(out),
+            "direction": direction,
+            "connection": connections.get(request_id),
+            "request_id": request_id,
+            "namespace": namespace,
+            "timestamp": event["params"].get("timestamp"),
+            "bytes": len(data),
+            "sha256": hashlib.sha256(data).hexdigest(),
+            "base64": base64.b64encode(data).decode("ascii"),
+            "decoded": _safe(decoder, data),
+        }
+        if direction == "server->client":
+            blocks = form_blocks(data)
+            if blocks:
+                frame["form_blocks"] = blocks
+        if offset is not None and event["params"].get("timestamp") is not None:
+            frame["wall_time_utc"] = datetime.fromtimestamp(
+                float(event["params"]["timestamp"]) + float(offset), tz=timezone.utc
+            ).isoformat(timespec="milliseconds")
+        out.append(frame)
+    return out
+
+
+def handshakes_of(events: list[dict]) -> list[dict]:
+    """One record per WebSocket connection, with its subprotocol entries."""
+    order: list[str] = []
+    records: dict[str, dict] = {}
+
+    def record(request_id: str) -> dict:
+        entry = records.get(request_id)
+        if entry is None:
+            entry = {
+                "index": len(order),
+                "request_id": request_id,
+                "url": None,
+                "request_headers": {},
+                "response_status": None,
+                "response_headers": {},
+                "subprotocol_entries": [],
+                "closed": False,
+            }
+            records[request_id] = entry
+            order.append(request_id)
+        return entry
+
+    for event in events:
+        method = event.get("method")
+        params = event.get("params", {})
+        if method == "Network.webSocketWillSendHandshakeRequest":
+            entry = record(params.get("requestId", ""))
+            headers = params.get("request", {}).get("headers", {}) or {}
+            entry["request_headers"] = headers
+            protocol = ""
+            for key, value in headers.items():
+                if key.lower() == "sec-websocket-protocol":
+                    protocol = value
+                    break
+            entry["subprotocol_entries"] = [p.strip() for p in str(protocol).split(",") if p.strip()]
+        elif method == "Network.webSocketCreated":
+            entry = record(params.get("requestId", ""))
+            entry["url"] = params.get("url")
+        elif method == "Network.webSocketHandshakeResponseReceived":
+            entry = record(params.get("requestId", ""))
+            entry["response_status"] = params.get("response", {}).get("status")
+            entry["response_headers"] = params.get("response", {}).get("headers", {})
+        elif method == "Network.webSocketClosed":
+            entry = record(params.get("requestId", ""))
+            entry["closed"] = True
+            # Original CDP event time, followed by the same calibrated
+            # monotonic-to-UTC conversion used for frame timestamps.
+            entry["closed_timestamp"] = params.get("timestamp")
+            offset = clock_offset(events).get("offset_s")
+            if entry["closed_timestamp"] is not None and offset is not None:
+                entry["closed_wall_time_utc"] = datetime.fromtimestamp(
+                    entry["closed_timestamp"] + offset, timezone.utc
+                ).isoformat(timespec="milliseconds")
+    return [records[key] for key in order]
+
+
+# --------------------------------------------------------------------------
+# the page: the real input events and the reads
+# --------------------------------------------------------------------------
+
+KEY_CODES = {"Enter": ("Enter", 13), "Tab": ("Tab", 9), " ": ("Space", 32)}
+
+# What the agent-browser CLI managed to do.  When it cannot complete a
+# navigation, the capture says so once and uses the DevTools Protocol for the
+# rest instead of pretending the CLI worked.
+AB_STATE: dict = {}
+
+
+class FormsPage(Page):
+    """The forms and text-input actions, on top of the base input helper."""
+
+    def dom(self) -> dict | None:
+        value = self.evaluate(DOM_JS)
+        return value if isinstance(value, dict) else None
+
+    def screenshot(self, path: pathlib.Path, width: int = 1264, height: int = 1800):
+        """Save a picture of the real page and say how big it was.
+
+        The viewport is made tall enough to hold the whole app -- the app
+        scrolls inside its own container -- and the bytes are the ones the
+        browser produced.  Nothing in the page is changed for the picture.
+        """
+        self.cdp.call(
+            "Emulation.setDeviceMetricsOverride",
+            {"width": width, "height": height, "deviceScaleFactor": 1, "mobile": False},
+        )
+        try:
+            time.sleep(1.0)
+            data = self.cdp.call(
+                "Page.captureScreenshot",
+                {
+                    "format": "png",
+                    "captureBeyondViewport": True,
+                    "clip": {"x": 0, "y": 0, "width": width, "height": height, "scale": 1},
+                },
+            )
+            png = (data.get("result", {}) or {}).get("data")
+            if not png:
+                return None
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(base64.b64decode(png))
+            return {"file": str(path), "bytes": path.stat().st_size, "viewport": [width, height]}
+        finally:
+            self.cdp.call("Emulation.clearDeviceMetricsOverride", {})
+
+    def _rect_js(self, js: str) -> dict | None:
+        value = self.evaluate(js)
+        return value if isinstance(value, dict) else None
+
+    def _by_label(self, selector: str, label: str, inner: str) -> dict | None:
+        """The centre of a widget that carries the given label."""
+        js = (
+            "(()=>{const want=" + json.dumps(label) + ";"
+            "const e=[...document.querySelectorAll(" + json.dumps(selector) + ")]"
+            ".find(x=>{const l=x.querySelector('label');"
+            "return l && (l.innerText||'').replace(/\\s+/g,' ').trim().indexOf(want)>=0;});"
+            "if(!e)return null;const t=e.querySelector(" + json.dumps(inner) + ");"
+            "if(!t)return null;t.scrollIntoView({block:'center'});"
+            "const r=t.getBoundingClientRect();"
+            "return {x:r.x+r.width/2,y:r.y+r.height/2};})()"
+        )
+        return self._rect_js(js)
+
+    def _by_text(self, selector: str, text: str, occurrence: int = 0) -> dict | None:
+        """The centre of a widget whose own text matches.
+
+        An exact match wins over a partial one, so "Save" does not find
+        "Save and continue" by accident; the occurrence picks between two
+        buttons that carry the same text.
+        """
+        js = (
+            "(()=>{const want=" + json.dumps(text) + ";"
+            "const occ=" + str(int(occurrence)) + ";"
+            "const all=[...document.querySelectorAll(" + json.dumps(selector) + ")]"
+            ".map(x=>((x.innerText||'').replace(/\\s+/g,' ').trim()));"
+            "let e=[...document.querySelectorAll(" + json.dumps(selector) + ")]"
+            ".filter(x=>((x.innerText||'').replace(/\\s+/g,' ').trim())===want)[occ];"
+            "if(!e){e=[...document.querySelectorAll(" + json.dumps(selector) + ")]"
+            ".filter(x=>((x.innerText||'').replace(/\\s+/g,' ').trim()).indexOf(want)>=0)[occ];}"
+            "if(!e)return null;const t=e.querySelector('button')||e;"
+            "t.scrollIntoView({block:'center'});"
+            "const r=t.getBoundingClientRect();"
+            "return {x:r.x+r.width/2,y:r.y+r.height/2};})()"
+        )
+        return self._rect_js(js)
+
+    def clock(self) -> dict:
+        """The browser's own clock, in the page that is being observed."""
+        value = self.evaluate(
+            "JSON.stringify({wall_ms:Date.now(),perf_ms:performance.now(),"
+            "origin_ms:performance.timeOrigin})"
+        )
+        return value if isinstance(value, dict) else {}
+
+    def click_button(self, label: str, occurrence: int = 0) -> bool:
+        """Click a button that is not a form submit button."""
+        rect = self._by_text("[data-testid='stButton']", label, occurrence)
+        if not rect:
+            return False
+        self.click(rect["x"], rect["y"])
+        return True
+
+    def focus_text(self, label: str) -> bool:
+        rect = self._by_label("[data-testid='stTextInput']", label, "input,textarea")
+        if not rect:
+            return False
+        self.click(rect["x"], rect["y"])
+        return True
+
+    def type_text(self, text: str) -> None:
+        """Type with real key events, one key press per character."""
+        for char in text:
+            code = "Key" + char.upper() if char.isalpha() else ""
+            vk = ord(char.upper()) if char.isalpha() else 0
+            self.cdp.call(
+                "Input.dispatchKeyEvent",
+                {
+                    "type": "keyDown",
+                    "text": char,
+                    "unmodifiedText": char,
+                    "key": char,
+                    "code": code,
+                    "windowsVirtualKeyCode": vk,
+                    "nativeVirtualKeyCode": vk,
+                },
+            )
+            self.cdp.call(
+                "Input.dispatchKeyEvent",
+                {
+                    "type": "keyUp",
+                    "key": char,
+                    "code": code,
+                    "windowsVirtualKeyCode": vk,
+                    "nativeVirtualKeyCode": vk,
+                },
+            )
+            time.sleep(0.05)
+
+    def press(self, key: str) -> None:
+        code, vk = KEY_CODES.get(key, (key, 0))
+        for kind in ("rawKeyDown", "keyUp"):
+            self.cdp.call(
+                "Input.dispatchKeyEvent",
+                {
+                    "type": kind,
+                    "key": key,
+                    "code": code,
+                    "windowsVirtualKeyCode": vk,
+                    "nativeVirtualKeyCode": vk,
+                },
+            )
+
+    def blur(self) -> bool:
+        """Move the focus away with a real mouse click on a non-widget."""
+        js = (
+            "(()=>{const e=document.querySelector(\"[data-testid='stText']\");"
+            "if(!e)return false;e.scrollIntoView({block:'center'});return true;})()"
+        )
+        self.evaluate(js)
+        time.sleep(0.3)
+        rect = self._rect_js(
+            "(()=>{const e=document.querySelector(\"[data-testid='stText']\");"
+            "if(!e)return null;const r=e.getBoundingClientRect();"
+            "return {x:r.x+5,y:r.y+r.height/2};})()"
+        )
+        if not rect:
+            return False
+        self.click(rect["x"], rect["y"])
+        return True
+
+    def click_checkbox(self, label: str) -> bool:
+        rect = self._by_label("[data-testid='stCheckbox']", label, "label")
+        if not rect:
+            return False
+        self.click(rect["x"], rect["y"])
+        return True
+
+    def click_submit(self, label: str, occurrence: int = 0) -> bool:
+        rect = self._by_text("[data-testid='stFormSubmitButton']", label, occurrence)
+        if not rect:
+            return False
+        self.click(rect["x"], rect["y"])
+        return True
+
+
+# --------------------------------------------------------------------------
+# the capture
+# --------------------------------------------------------------------------
+
+def wait_for(predicate, timeout: float = 30.0, step: float = 0.5):
+    deadline = time.time() + timeout
+    value = None
+    while time.time() < deadline:
+        value = predicate()
+        if value:
+            return value
+        time.sleep(step)
+    return value
+
+
+def case_url(base: str, case: str) -> str:
+    return f"{base.rstrip('/')}/?case={case}"
+
+
+def collect_case(page: FormsPage, recorder: CDP, case: str, args, out: pathlib.Path) -> dict:
+    """One case: the URL, the phases and the frames they produced."""
+    url = case_url(args.url, case)
+    # The frames of the whole capture are one list; a case owns the frames
+    # from the moment its navigation starts, and the frames of the previous
+    # case belong to the previous case.
+    case_start = len(frames_of(recorder))
+    navigation: dict = {}
+    if AB_STATE.get("usable", True):
+        navigation = agent_browser(
+            "open", url,
+            session=args.session, profile=args.chrome_profile, cdp_port=args.cdp_port,
+        )
+        if not navigation.get("ok"):
+            # The CLI could not complete this navigation; the rest of the
+            # capture uses the DevTools Protocol and says so.
+            AB_STATE["usable"] = False
+            AB_STATE["reason"] = navigation.get("reason") or (navigation.get("stderr") or "")[-300:]
+    else:
+        navigation = {
+            "ok": False,
+            "skipped": "agent-browser CLI",
+            "reason": AB_STATE.get("reason"),
+        }
+    time.sleep(1.5)
+    landed = page.evaluate("location.href") or ""
+    if f"case={case}" not in str(landed):
+        # The page the recorder watches is not the one that shows the case:
+        # the navigation happens here, in the tab the recorder watches.
+        page.cdp.call("Page.navigate", {"url": url})
+        time.sleep(1.5)
+        landed = page.evaluate("location.href") or ""
+        navigation = {
+            "ok": False,
+            "fallback": "cdp Page.navigate",
+            "reason": "the page the recorder watches was not the one that loaded the case",
+            "previous": navigation,
+            "landed": str(landed),
+        }
+
+    phases: list[dict] = []
+    frame_mark = case_start
+
+    def phase(phase_id: str, action: dict, dom_before, dom_after, png: dict | None) -> None:
+        nonlocal frame_mark
+        frames = frames_of(recorder)
+        window = frames[frame_mark:]
+        frame_mark = len(frames)
+        chrome = page.clock()
+        phases.append(
+            {
+                "phase_id": phase_id,
+                "case_id": case,
+                "action": action,
+                "at_utc": datetime.now(timezone.utc).isoformat(timespec="milliseconds"),
+                "clock": {
+                    "driver_utc": datetime.now(timezone.utc).isoformat(timespec="milliseconds"),
+                    "driver_monotonic_s": time.monotonic(),
+                    "chrome_wall_ms": chrome.get("wall_ms"),
+                    "chrome_performance_now_ms": chrome.get("perf_ms"),
+                    "chrome_time_origin_ms": chrome.get("origin_ms"),
+                },
+                "action_window": {
+                    "first_frame_index": window[0]["index"] if window else None,
+                    "last_frame_index": window[-1]["index"] if window else None,
+                    "frame_count": len(window),
+                    "window_empty": not window,
+                    "chrome_monotonic_first": window[0].get("timestamp") if window else None,
+                    "chrome_monotonic_last": window[-1].get("timestamp") if window else None,
+                    "wall_time_utc_first": window[0].get("wall_time_utc") if window else None,
+                    "wall_time_utc_last": window[-1].get("wall_time_utc") if window else None,
+                },
+                "dom_before": dom_before,
+                "dom_after": dom_after,
+                "delta_sequence": delta_sequence(window),
+                "screenshot": png,
+                "frames": window,
+            }
+        )
+
+    def shot(name: str, phase_id: str) -> dict | None:
+        """A picture of the real page, bound to the window it belongs to.
+
+        The path is relative to the repository root, so that the record can
+        be read without knowing where the capture was written.  The window is
+        the one the phase is about: the frames that were recorded between the
+        start of the phase and the picture.
+        """
+        frames_now = frames_of(recorder)
+        window_now = frames_now[frame_mark:]
+        first = window_now[0]["index"] if window_now else None
+        last = window_now[-1]["index"] if window_now else None
+        path = out / "png" / name
+        info = page.screenshot(path)
+        if not info:
+            return None
+        # Sample the real page again after screenshot completion.  This clock
+        # belongs to the PNG; phase() subsequently samples its own clock.
+        chrome = page.clock()
+        screenshot_clock = {
+            "driver_utc": datetime.now(timezone.utc).isoformat(timespec="milliseconds"),
+            "driver_monotonic_s": time.monotonic(),
+            "chrome_wall_ms": chrome.get("wall_ms"),
+            "chrome_performance_now_ms": chrome.get("perf_ms"),
+            "chrome_time_origin_ms": chrome.get("origin_ms"),
+        }
+        data = path.read_bytes()
+        return {
+            "namespace": NAMESPACE,
+            "case_id": case,
+            "phase_id": phase_id,
+            "at_utc": screenshot_clock["driver_utc"],
+            "clock": screenshot_clock,
+            "window_empty": not window_now,
+            "frame_first": first,
+            "frame_last": last,
+            "file": str(path.resolve().relative_to(ROOT)).replace("\\", "/"),
+            "bytes": len(data),
+            "sha256": hashlib.sha256(data).hexdigest(),
+            "viewport": info.get("viewport"),
+        }
+
+    def dom() -> dict:
+        observed = page.dom()
+        if not isinstance(observed, dict):
+            raise RuntimeError(f"{case}: real DOM observation is missing")
+        return observed
+
+    dom_before = wait_for(lambda: (lambda d: d if d and d.get("texts") else None)(dom()))
+    if not isinstance(dom_before, dict):
+        raise RuntimeError(f"{case}: no rendered text/markdown DOM observed before timeout")
+    phase(f"{case}:load", {"action": "open", "url": url}, None, dom_before,
+          shot(f"{case}-01-load.png", f"{case}:load"))
+
+    if case == "form-default-submit":
+        before = dom_before
+        page.focus_text("Note")
+        page.type_text("hello")
+        time.sleep(1.5)
+        after = dom()
+        phase(f"{case}:type", {"action": "type", "field": "Note", "text": "hello"}, before, after,
+              shot(f"{case}-02-typed.png", f"{case}:type"))
+
+        before = after
+        page.click_checkbox("Agree")
+        time.sleep(1.5)
+        after = dom()
+        phase(f"{case}:toggle", {"action": "click", "field": "Agree"}, before, after,
+              shot(f"{case}-03-checkbox.png", f"{case}:toggle"))
+
+        before = after
+        page.blur()
+        time.sleep(1.5)
+        after = dom()
+        phase(f"{case}:blur", {"action": "blur", "field": "Note"}, before, after,
+              shot(f"{case}-04-blur.png", f"{case}:blur"))
+
+        before = after
+        page.click_submit("Apply")
+        time.sleep(4.0)
+        after = dom()
+        phase(f"{case}:submit", {"action": "click", "field": "Apply (submit)"}, before, after,
+              shot(f"{case}-04-submitted.png", f"{case}:submit"))
+
+    elif case == "form-text-enter-blur":
+        before = dom_before
+        page.focus_text("Outside note")
+        page.type_text("abc")
+        time.sleep(1.5)
+        after = dom()
+        phase(f"{case}:type", {"action": "type", "field": "Outside note", "text": "abc"}, before, after,
+              shot(f"{case}-02-typed.png", f"{case}:type"))
+
+        before = after
+        page.press("Enter")
+        time.sleep(3.0)
+        after = dom()
+        phase(f"{case}:enter", {"action": "press", "key": "Enter"}, before, after,
+              shot(f"{case}-03-enter.png", f"{case}:enter"))
+
+        before = after
+        page.focus_text("Outside note")
+        page.type_text("de")
+        time.sleep(1.5)
+        page.blur()
+        time.sleep(3.0)
+        after = dom()
+        phase(f"{case}:blur", {"action": "blur", "field": "Outside note", "text": "de"}, before, after,
+              shot(f"{case}-04-blur.png", f"{case}:blur"))
+
+    elif case == "form-none-vs-empty":
+        before = dom_before
+        after = dom()
+        phase(f"{case}:untouched", {"action": "observe"}, before, after,
+              shot(f"{case}-02-untouched.png", f"{case}:untouched"))
+
+        before = after
+        page.focus_text("None value")
+        page.type_text("x")
+        time.sleep(1.5)
+        page.blur()
+        time.sleep(3.0)
+        after = dom()
+        phase(f"{case}:typed-none", {"action": "type+blur", "field": "None value", "text": "x"},
+              before, after, shot(f"{case}-03-typed.png", f"{case}:typed-none"))
+
+    elif case in ("form-clear-on-submit-false", "form-clear-on-submit-true"):
+        before = dom_before
+        page.focus_text("Note")
+        page.type_text("first")
+        time.sleep(1.5)
+        after = dom()
+        phase(f"{case}:type", {"action": "type", "field": "Note", "text": "first"}, before, after,
+              shot(f"{case}-02-typed.png", f"{case}:type"))
+
+        before = after
+        page.click_submit("Apply")
+        time.sleep(4.0)
+        after = dom()
+        phase(f"{case}:submit-1", {"action": "click", "field": "Apply (submit)"}, before, after,
+              shot(f"{case}-03-submitted.png", f"{case}:submit-1"))
+
+        before = after
+        page.click_submit("Apply")
+        time.sleep(4.0)
+        after = dom()
+        phase(f"{case}:submit-2", {"action": "click", "field": "Apply (submit)"}, before, after,
+              shot(f"{case}-04-submitted-again.png", f"{case}:submit-2"))
+
+    elif case in ("form-enter-to-submit-off", "form-first-submit-disabled"):
+        before = dom_before
+        page.focus_text("Note")
+        page.type_text("abc")
+        time.sleep(1.5)
+        after = dom()
+        phase(f"{case}:type", {"action": "type", "field": "Note", "text": "abc"}, before, after,
+              shot(f"{case}-02-typed.png", f"{case}:type"))
+
+        before = after
+        page.press("Enter")
+        time.sleep(3.0)
+        after = dom()
+        phase(f"{case}:enter", {"action": "press", "key": "Enter"}, before, after,
+              shot(f"{case}-03-enter.png", f"{case}:enter"))
+
+        before = after
+        page.click_submit("Apply")
+        time.sleep(4.0)
+        after = dom()
+        phase(f"{case}:submit", {"action": "click", "field": "Apply (submit)"}, before, after,
+              shot(f"{case}-04-submitted.png", f"{case}:submit"))
+
+    elif case == "form-two-submit-buttons":
+        before = dom_before
+        page.focus_text("Note")
+        page.type_text("abc")
+        time.sleep(1.5)
+        after = dom()
+        phase(f"{case}:type", {"action": "type", "field": "Note", "text": "abc"}, before, after,
+              shot(f"{case}-02-typed.png", f"{case}:type"))
+
+        before = after
+        page.click_submit("Save")
+        time.sleep(4.0)
+        after = dom()
+        phase(f"{case}:save", {"action": "click", "field": "Save (submit)"}, before, after,
+              shot(f"{case}-03-saved.png", f"{case}:save"))
+
+        before = after
+        page.focus_text("Note")
+        page.type_text("def")
+        time.sleep(1.5)
+        page.click_submit("Save and continue")
+        time.sleep(4.0)
+        after = dom()
+        phase(f"{case}:save-and-continue",
+              {"action": "type+click", "field": "Note", "text": "def",
+               "button": "Save and continue (submit)"}, before, after,
+              shot(f"{case}-04-saved-again.png", f"{case}:save-and-continue"))
+
+    elif case == "form-two-forms-external-button":
+        before = dom_before
+        page.focus_text("Left note")
+        page.type_text("aaa")
+        time.sleep(1.5)
+        after = dom()
+        phase(f"{case}:type-left", {"action": "type", "field": "Left note", "text": "aaa"},
+              before, after, shot(f"{case}-02-left.png", f"{case}:type-left"))
+
+        before = after
+        page.focus_text("Right note")
+        page.type_text("bbb")
+        time.sleep(1.5)
+        after = dom()
+        phase(f"{case}:type-right", {"action": "type", "field": "Right note", "text": "bbb"},
+              before, after, shot(f"{case}-03-right.png", f"{case}:type-right"))
+
+        before = after
+        page.click_button("Outside")
+        time.sleep(4.0)
+        after = dom()
+        phase(f"{case}:outside", {"action": "click", "field": "Outside (button outside the forms)"},
+              before, after, shot(f"{case}-04-outside.png", f"{case}:outside"))
+
+    elif case == "form-text-types":
+        before = dom_before
+        after = dom()
+        phase(f"{case}:observe", {"action": "observe"}, before, after,
+              shot(f"{case}-02-observed.png", f"{case}:observe"))
+
+        before = after
+        page.focus_text("Email")
+        page.type_text("a@b.test")
+        time.sleep(1.5)
+        page.press("Enter")
+        time.sleep(3.0)
+        after = dom()
+        phase(f"{case}:email", {"action": "type+enter", "field": "Email", "text": "a@b.test"},
+              before, after, shot(f"{case}-03-email.png", f"{case}:email"))
+
+    elif case == "form-text-live-validate":
+        before = dom_before
+        page.focus_text("Digits")
+        page.type_text("12")
+        time.sleep(2.5)
+        after = dom()
+        phase(f"{case}:type-digits", {"action": "type", "field": "Digits", "text": "12"},
+              before, after, shot(f"{case}-02-digits.png", f"{case}:type-digits"))
+
+        before = after
+        page.focus_text("Digits")
+        page.type_text("x")
+        time.sleep(2.5)
+        after = dom()
+        phase(f"{case}:type-invalid", {"action": "type", "field": "Digits", "text": "x"},
+              before, after, shot(f"{case}-03-invalid.png", f"{case}:type-invalid"))
+
+    elif case == "form-text-required-disabled":
+        before = dom_before
+        after = dom()
+        phase(f"{case}:observe", {"action": "observe"}, before, after,
+              shot(f"{case}-02-observed.png", f"{case}:observe"))
+
+        before = after
+        page.focus_text("Required")
+        page.type_text("value")
+        time.sleep(1.5)
+        page.press("Enter")
+        time.sleep(3.0)
+        after = dom()
+        phase(f"{case}:required", {"action": "type+enter", "field": "Required", "text": "value"},
+              before, after, shot(f"{case}-03-required.png", f"{case}:required"))
+
+    elif case == "form-max-chars-cjk":
+        before = dom_before
+        page.focus_text("中文")
+        page.type_text("中文测试第六个字")
+        time.sleep(2.0)
+        after = dom()
+        phase(f"{case}:type", {"action": "type", "field": "中文", "text": "中文测试第六个字"},
+              before, after, shot(f"{case}-02-typed.png", f"{case}:type"))
+
+        before = after
+        page.press("Enter")
+        time.sleep(3.0)
+        after = dom()
+        phase(f"{case}:enter", {"action": "press", "key": "Enter"}, before, after,
+              shot(f"{case}-03-enter.png", f"{case}:enter"))
+
+    elif case == "form-j05-continuous":
+        # The phases of this branch are named the way the contract names them.
+        before = dom_before
+        page.focus_text("Note")
+        page.type_text("hello")
+        time.sleep(2.0)
+        after = dom()
+        phase("form-j05-continuous:type",
+              {"action": "type", "field": "Note", "text": "hello"}, before, after,
+              shot(f"{case}-02-typed.png", "form-j05-continuous:type"))
+
+        before = after
+        page.click_submit("Apply note")
+        time.sleep(4.0)
+        after = dom()
+        phase("form-j05-continuous:submit",
+              {"action": "click", "field": "Apply note (submit)"}, before, after,
+              shot(f"{case}-03-submitted.png", "form-j05-continuous:submit"))
+
+        for number in (1, 2, 3):
+            before = after
+            page.click_button("Pulse")
+            time.sleep(4.0)
+            after = dom()
+            phase(f"form-j05-continuous:pulse-{number}",
+                  {"action": "click", "field": "Pulse (outside the form)"}, before, after,
+                  shot(f"{case}-0{number + 3}-pulse.png", f"form-j05-continuous:pulse-{number}"))
+
+    elif case in ("form-inside-container", "form-inside-column", "container-inside-form",
+                  "columns-inside-form", "form-inside-expander"):
+        before = dom_before
+        page.focus_text("Note")
+        page.type_text("hello")
+        time.sleep(2.0)
+        after = dom()
+        phase(f"{case}:type", {"action": "type", "field": "Note", "text": "hello"}, before, after,
+              shot(f"{case}-02-typed.png", f"{case}:type"))
+
+        before = after
+        page.click_submit("Apply")
+        time.sleep(4.0)
+        after = dom()
+        phase(f"{case}:submit", {"action": "click", "field": "Apply (submit)"}, before, after,
+              shot(f"{case}-03-submitted.png", f"{case}:submit"))
+
+    elif case == "form-submit-callback-args":
+        before = dom_before
+        page.focus_text("Note")
+        page.type_text("hello")
+        time.sleep(2.0)
+        after = dom()
+        phase(f"{case}:type", {"action": "type", "field": "Note", "text": "hello"}, before, after,
+              shot(f"{case}-02-typed.png", f"{case}:type"))
+
+        before = after
+        page.click_submit("Apply")
+        time.sleep(4.0)
+        after = dom()
+        phase(f"{case}:submit", {"action": "click", "field": "Apply (submit)"}, before, after,
+              shot(f"{case}-03-submitted.png", f"{case}:submit"))
+
+    elif case == "form-disabled-text-input":
+        before = dom_before
+        page.focus_text("Note")
+        page.type_text("hello")
+        time.sleep(2.0)
+        after = dom()
+        phase(f"{case}:type", {"action": "type", "field": "Note", "text": "hello"}, before, after,
+              shot(f"{case}-02-typed.png", f"{case}:type"))
+
+        before = after
+        page.click_submit("Apply")
+        time.sleep(4.0)
+        after = dom()
+        phase(f"{case}:submit", {"action": "click", "field": "Apply (submit)"}, before, after,
+              shot(f"{case}-03-submitted.png", f"{case}:submit"))
+
+    elif case == "form-text-password":
+        before = dom_before
+        page.focus_text("Password")
+        page.type_text("s3cret")
+        time.sleep(1.5)
+        page.press("Enter")
+        time.sleep(3.0)
+        after = dom()
+        phase(f"{case}:enter", {"action": "type+enter", "field": "Password", "text": "s3cret"},
+              before, after, shot(f"{case}-02-entered.png", f"{case}:enter"))
+
+    elif case == "form-text-remaining-fields":
+        before = dom_before
+        after = dom()
+        phase(f"{case}:observe", {"action": "observe"}, before, after,
+              shot(f"{case}-02-observed.png", f"{case}:observe"))
+
+        before = after
+        page.focus_text("Narrow")
+        page.type_text("narrow value")
+        time.sleep(1.5)
+        page.press("Enter")
+        time.sleep(3.0)
+        after = dom()
+        phase(f"{case}:narrow", {"action": "type+enter", "field": "Narrow", "text": "narrow value"},
+              before, after, shot(f"{case}-03-narrow.png", f"{case}:narrow"))
+
+    elif case in ("form-error-duplicate-key", "form-error-nested-form"):
+        before = dom_before
+        after = wait_for(
+            lambda: (lambda d: d if d and (d.get("exceptions") or d.get("texts")) else None)(dom()),
+            timeout=20.0,
+        )
+        phase(f"{case}:error", {"action": "observe"}, before, after,
+              shot(f"{case}-02-error.png", f"{case}:error"))
+
+    case_frames = frames_of(recorder)
+    return {
+        "case_id": case,
+        "url": url,
+        "navigation": navigation,
+        "frame_range": {
+            "first_frame_index": case_start,
+            "last_frame_index": case_frames[-1]["index"] if case_frames else None,
+            "frame_count": len(case_frames) - case_start,
+        },
+        "phases": phases,
+    }
+
+
+def runtime_versions() -> dict:
+    """The versions of the interpreter that ran the reference app."""
+    import streamlit
+    import google.protobuf
+    import pyarrow
+
+    return {
+        "python": sys.version.split()[0],
+        "streamlit": streamlit.__version__,
+        "protobuf": google.protobuf.__version__,
+        "pyarrow": pyarrow.__version__,
+    }
+
+
+def host_config(url: str) -> dict | None:
+    """What the reference server says about itself."""
+    try:
+        with urllib.request.urlopen(url.rstrip("/") + "/_stcore/host-config", timeout=15) as r:
+            return json.loads(r.read().decode("utf-8"))
+    except Exception as exc:
+        return {"error": f"{type(exc).__name__}: {exc}"}
+
+
+def _fetch(url: str) -> bytes | None:
+    try:
+        with urllib.request.urlopen(url, timeout=20) as r:
+            return r.read()
+    except Exception:
+        return None
+
+
+def frontend_record(url: str) -> dict:
+    """The frontend bytes the reference server serves.
+
+    The Rust server has to serve the same bundle, so the digests of the index
+    page and of its main script are part of the reference.
+    """
+    record: dict = {}
+    index = _fetch(url.rstrip("/") + "/")
+    if index is None:
+        return {"error": "the index page could not be read"}
+    record["index_bytes"] = len(index)
+    record["index_sha256"] = hashlib.sha256(index).hexdigest()
+    match = re.search(rb"static/js/index\.[A-Za-z0-9_-]+\.js", index)
+    if match:
+        bundle = match.group(0).decode("ascii")
+        record["main_bundle"] = bundle
+        data = _fetch(url.rstrip("/") + "/" + bundle)
+        if data is not None:
+            record["main_bundle_bytes"] = len(data)
+            record["main_bundle_sha256"] = hashlib.sha256(data).hexdigest()
+    return record
+
+
+def fixture_record(app: str = "tests/reference/forms_app.py") -> dict:
+    """The app this capture drove, with its digest."""
+    app_path = pathlib.Path(app)
+    if not app_path.is_absolute():
+        app_path = ROOT / app_path
+    app = app_path
+    data = app.read_bytes()
+    return {
+        "app": str(app.relative_to(ROOT)).replace("\\", "/"),
+        "bytes": len(data),
+        "sha256": hashlib.sha256(data).hexdigest(),
+    }
+
+
+def verify_trace(path: pathlib.Path) -> int:
+    """Re-derive a frozen trace from its own raw bytes and compare.
+
+    The raw payload is the authority: every frame is decoded again with the
+    official 1.66.1 protobuf definitions, and the decoded summary, the
+    digest, the length and the derived form blocks are compared with what
+    the trace claims.  A derived field that cannot be reproduced from the
+    raw bytes is a failure, not a second opinion.
+    """
+    trace = json.loads(path.read_text(encoding="utf-8"))
+    from streamlit.proto.BackMsg_pb2 import BackMsg
+    from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
+
+    frames = trace.get("frames") or []
+    failures: list[dict] = []
+    counts = {"frames": 0, "digest": 0, "length": 0, "kind": 0, "summary": 0, "form_blocks": 0}
+
+    for frame in frames:
+        counts["frames"] += 1
+        raw = base64.b64decode(frame["base64"], validate=True)
+        if len(raw) != frame["bytes"]:
+            failures.append({"frame": frame["index"], "check": "length",
+                             "expected": frame["bytes"], "actual": len(raw)})
+        else:
+            counts["length"] += 1
+        digest = hashlib.sha256(raw).hexdigest()
+        if digest != frame["sha256"]:
+            failures.append({"frame": frame["index"], "check": "sha256",
+                             "expected": frame["sha256"], "actual": digest})
+        else:
+            counts["digest"] += 1
+
+        if frame["direction"] == "server->client":
+            msg = ForwardMsg()
+            decoder = summarise_forward
+        else:
+            msg = BackMsg()
+            decoder = summarise_back
+        msg.ParseFromString(raw)
+        kind = msg.WhichOneof("type")
+        if kind != frame["decoded"].get("type"):
+            failures.append({"frame": frame["index"], "check": "message_kind",
+                             "expected": frame["decoded"].get("type"), "actual": kind})
+        else:
+            counts["kind"] += 1
+
+        summary = decoder(raw)
+        if summary != frame["decoded"]:
+            failures.append({"frame": frame["index"], "check": "decoded_summary",
+                             "expected": "the base decoder summary", "actual": "a different summary"})
+        else:
+            counts["summary"] += 1
+
+        derived = form_blocks(raw) if frame["direction"] == "server->client" else []
+        stored = frame.get("form_blocks")
+        if stored is None:
+            ok = not derived
+        else:
+            ok = derived == stored
+        if ok:
+            counts["form_blocks"] += 1
+        else:
+            failures.append({"frame": frame["index"], "check": "form_blocks",
+                             "expected": stored, "actual": derived})
+
+    report = {
+        "trace": str(path),
+        "frames": counts["frames"],
+        "checks_passed": counts,
+        "failures": failures,
+        "ok": not failures,
+    }
+    print(json.dumps(report, ensure_ascii=False, indent=1))
+    return 0 if not failures else 1
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="forms and text-input reference capture")
+    parser.add_argument("--verify", help="re-derive a frozen trace from its raw bytes and compare")
+    parser.add_argument("--url", help="the reference server, e.g. http://127.0.0.1:8606")
+    parser.add_argument("--label", default="python-forms")
+    parser.add_argument("--kind", default="python-reference-browser-trace")
+    parser.add_argument("--binary")
+    parser.add_argument("--candidate-manifest")
+    parser.add_argument("--runtime-source-set")
+    parser.add_argument("--runtime-config")
+    parser.add_argument("--scope", default=(
+        "PYTHON SIDE ONLY. The Rust implementation is not exercised and is "
+        "not verified by this trace. Black-box official-frontend reference evidence."
+    ))
+    parser.add_argument("--out", default="tests/reference/reference-browser/forms")
+    parser.add_argument("--cdp-port", type=int, default=60917)
+    parser.add_argument("--session", default="forms-capture")
+    parser.add_argument("--app", default="tests/reference/forms_app.py",
+                        help="the reference app this capture drives")
+    parser.add_argument("--cases", nargs="*", default=list(CASES))  # the canonical list
+    parser.add_argument("--transport-disconnect", action="store_true",
+                        help="after all phases, experimentally toggle this Chrome offline/online")
+    args = parser.parse_args()
+
+    if args.verify:
+        trace_path = pathlib.Path(args.verify)
+        if not trace_path.is_absolute():
+            trace_path = ROOT / trace_path
+        return verify_trace(trace_path)
+    if not args.url:
+        parser.error("--url is required for a capture")
+
+    # The decoder is checked before anything is recorded: a capture without a
+    # decoder would be a page of empty frames that looks like a quiet app.
+    require_decoder()
+
+    out = pathlib.Path(args.out)
+    if not out.is_absolute():
+        out = ROOT / out
+    out.mkdir(parents=True, exist_ok=True)
+    args.chrome_profile = ROOT / "target" / "forms-capture" / "chrome-profile"
+
+    chrome = start_chrome(chrome_binary(), args.cdp_port, args.chrome_profile)
+    recorder = None
+    page = None
+    cases: list[dict] = []
+    notes: list[str] = []
+    transport_actions: list[dict] = []
+    try:
+        target = next(
+            (t for t in page_targets(args.cdp_port) if t.get("type") == "page"), None
+        )
+        if target is None:
+            raise SystemExit("Chrome opened no page target")
+        recorder = CDP(target["webSocketDebuggerUrl"], label="forms")
+        recorder.start()
+        page = FormsPage(recorder)
+        for case in args.cases:
+            cases.append(collect_case(page, recorder, case, args, out))
+        # End the observed page through real navigation while the recorder is
+        # still attached, preserving the final socket's actual close event.
+        last_frames = frames_of(recorder)
+        last_request_id = last_frames[-1].get("request_id") if last_frames else None
+        if args.transport_disconnect:
+            offline_params = {"offline": True, "latency": 0,
+                              "downloadThroughput": -1, "uploadThroughput": -1}
+            action_at = datetime.now(timezone.utc).isoformat(timespec="milliseconds")
+            result = recorder.call("Network.emulateNetworkConditions", offline_params)
+            transport_actions.append({"experiment": "transport-disconnect",
+                                      "method": "Network.emulateNetworkConditions",
+                                      "params": offline_params, "at_utc": action_at,
+                                      "result": result})
+        else:
+            recorder.call("Page.navigate", {"url": "about:blank"})
+        close_deadline = time.monotonic() + 5.0
+        while time.monotonic() < close_deadline:
+            if any(event.get("method") == "Network.webSocketClosed"
+                   and event.get("params", {}).get("requestId") == last_request_id
+                   for event in recorder.take()):
+                break
+            time.sleep(0.1)
+        if args.transport_disconnect:
+            online_params = {"offline": False, "latency": 0,
+                             "downloadThroughput": -1, "uploadThroughput": -1}
+            action_at = datetime.now(timezone.utc).isoformat(timespec="milliseconds")
+            result = recorder.call("Network.emulateNetworkConditions", online_params)
+            transport_actions.append({"experiment": "transport-disconnect",
+                                      "method": "Network.emulateNetworkConditions",
+                                      "params": online_params, "at_utc": action_at,
+                                      "result": result})
+            recorder.call("Page.navigate", {"url": "about:blank"})
+            notes.append("After the final product phase, an explicitly requested transport-disconnect experiment toggled only this Chrome offline then online. This is not a normal navigation close or a product interaction; original lifecycle events show whether/when its socket closed.")
+        else:
+            notes.append("After the last phase, Page.navigate to about:blank ended the observed page; original lifecycle events record whether/when its socket closed.")
+    finally:
+        if recorder is not None:
+            recorder.stop()
+        chrome.terminate()
+
+    events = recorder.take() if recorder is not None else []
+    frames = frames_of(recorder) if recorder is not None else []
+    http_requests, static_count = http_requests_from_events(events)
+    trace = {
+        "schema_version": 1,
+        "reference_runtime": runtime_versions(),
+        "host_config": host_config(args.url),
+        "frontend": frontend_record(args.url),
+        "fixture": fixture_record(args.app),
+        "contract_id": "C-P0-FORMS-TEXT",
+        "kind": args.kind,
+        "scenario": "forms-text-input",
+        "scope": args.scope,
+        "generated_by": "tests/browser/forms_capture.py",
+        "generated_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "app_url": args.url,
+        "label": args.label,
+        "browser": {
+            "cdp_port": args.cdp_port,
+            "agent_browser_session": args.session,
+            "profile": str(args.chrome_profile),
+        },
+        "chrome_clock": clock_offset(events),
+        "websocket_handshakes": handshakes_of(events),
+        "http_requests": http_requests,
+        "static_bundle_requests_counted_not_stored": static_count,
+        "cases": cases,
+        "frames": frames,
+        "notes": notes
+        + [
+            "This trace states no verdict.  It records what the reference "
+            "runtime did; the strict criterion is the author's and reads "
+            "this file.",
+            "The agent-browser CLI reported '--profile ignored: daemon "
+            "already running'.  The browser-level isolation came from the "
+            "Chrome instance itself: its own DevTools port, its own profile "
+            "directory under target/forms-capture/, its own headless window.",
+            "The form block fields (form_id, clear_on_submit, border, "
+            "enter_to_submit) are not part of the base decoder's summary; "
+            "they are read from the same raw bytes with the same official "
+            "protobuf definitions and written beside the frame as "
+            "form_blocks.",
+        ],
+    }
+    provenance = {}
+    for field in ("binary", "candidate_manifest", "runtime_source_set", "runtime_config"):
+        value = getattr(args, field)
+        if value:
+            artifact = pathlib.Path(value)
+            if not artifact.is_absolute():
+                artifact = ROOT / artifact
+            artifact = artifact.resolve(strict=True)
+            data = artifact.read_bytes()
+            provenance[field] = {"path": str(artifact), "bytes": len(data),
+                                 "sha256": hashlib.sha256(data).hexdigest()}
+    if provenance:
+        trace["capture_provenance"] = provenance
+
+    # Retain original lifecycle events so the handshake close-time derivation
+    # can be independently checked without adding guessed connection state.
+    lifecycle_methods = {
+        "Network.webSocketCreated", "Network.webSocketWillSendHandshakeRequest",
+        "Network.webSocketHandshakeResponseReceived", "Network.webSocketClosed",
+    }
+    (out / "transport-actions.json").write_text(
+        json.dumps(transport_actions, ensure_ascii=False, indent=1), encoding="utf-8"
+    )
+    (out / "websocket-lifecycle-events.json").write_text(
+        json.dumps([event for event in events if event.get("method") in lifecycle_methods],
+                   ensure_ascii=False, indent=1), encoding="utf-8"
+    )
+    path = out / "trace-forms.json"
+    path.write_text(json.dumps(trace, ensure_ascii=False, indent=1), encoding="utf-8")
+    print(f"wrote {path}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

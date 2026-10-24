@@ -1,6 +1,7 @@
 //! Typed native inputs. These methods work on Streamlit and its containers.
 use crate::UploadedFiles;
 use crate::api::{AppendChild, ButtonOptions};
+use crate::elements::form::Form;
 use crate::elements::{button::ButtonElement, input::InputElement};
 use crate::proto::{self, element};
 use crate::widgets::{Codec, WidgetSpec};
@@ -60,6 +61,10 @@ impl InputOptions {
         } else {
             serde_json::to_string(&(&self.label, &self.help, extra)).expect("string identity serializes")
         }
+    }
+    fn identity_in_form(&self, form_id: &str, extra: &str) -> String {
+        let identity = self.identity(extra);
+        if form_id.is_empty() { identity } else { serde_json::to_string(&(form_id, identity)).expect("string identity serializes") }
     }
     fn width(&self, content_default: bool) -> Result<Option<proto::streamlit::WidthConfig>, WidgetError> {
         use proto::streamlit::width_config::WidthSpec;
@@ -199,6 +204,275 @@ impl From<String> for CheckboxOptions {
 impl<L: Into<String>> From<(L, bool)> for CheckboxOptions {
     fn from((label, value): (L, bool)) -> Self {
         Self::new(label).value(value)
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Serialize)]
+pub enum TextInputType {
+    Default,
+    Password,
+    Email,
+    Url,
+    Phone,
+    Search,
+}
+
+impl TextInputType {
+    fn wire(self) -> proto::text_input::Type {
+        match self {
+            Self::Default => proto::text_input::Type::Default,
+            Self::Password => proto::text_input::Type::Password,
+            Self::Email => proto::text_input::Type::Email,
+            Self::Url => proto::text_input::Type::Url,
+            Self::Phone => proto::text_input::Type::Phone,
+            Self::Search => proto::text_input::Type::Search,
+        }
+    }
+
+    fn default_autocomplete(self) -> &'static str {
+        match self {
+            Self::Default => "",
+            Self::Password => "new-password",
+            Self::Email => "email",
+            Self::Url => "url",
+            Self::Phone => "tel",
+            Self::Search => "off",
+        }
+    }
+
+    fn default_icon(self) -> &'static str {
+        match self {
+            Self::Email => ":material/mail:",
+            Self::Url => ":material/link:",
+            Self::Phone => ":material/call:",
+            Self::Search => ":material/search:",
+            Self::Default | Self::Password => "",
+        }
+    }
+
+    fn default_placeholder(self) -> &'static str {
+        match self {
+            Self::Email => "you@example.com",
+            Self::Url => "https://example.com",
+            Self::Phone => "+1 234 567 8900",
+            Self::Search => "Search",
+            Self::Default | Self::Password => "",
+        }
+    }
+
+    fn default_validation(self) -> (Option<&'static str>, Option<&'static str>) {
+        match self {
+            Self::Email => (Some(r"^[^\s@]+@[^\s@]+\.[^\s@]+$"), Some("Enter a valid email address.")),
+            Self::Url => (Some(r"^([Hh][Tt][Tt][Pp][Ss]?://)?[^\s/.]+\.[^\s]+$"), Some("Enter a valid URL.")),
+            Self::Default | Self::Password | Self::Phone | Self::Search => (None, None),
+        }
+    }
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub enum TextValidation {
+    /// Use the input type's built-in rule; default/password have no rule.
+    #[default]
+    Inherit,
+    /// Turn a specialized type's built-in rule off.
+    Off,
+    Pattern {
+        regex: String,
+        message: Option<String>,
+    },
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, serde::Serialize)]
+pub enum TextLive {
+    #[default]
+    CommitOnEnterBlur,
+    Debounce(u32),
+    Invalid(String),
+}
+
+impl TextLive {
+    fn parse_duration(value: &str) -> Result<Self, WidgetError> {
+        let error = WidgetError::InvalidValue(format!("live duration must be 0, milliseconds, or seconds no greater than one minute: {value}"));
+        let (number, unit, explicit_unit): (&str, f64, bool) = value
+            .strip_suffix("ms")
+            .map(|number| (number, 1.0, true))
+            .or_else(|| value.strip_suffix('s').map(|number| (number, 1000.0, true)))
+            .unwrap_or((value, 1.0, false));
+        let Ok(number) = number.parse::<f64>() else { return Err(error) };
+        let milliseconds = number * unit;
+        if !milliseconds.is_finite() || !(0.0..=60_000.0).contains(&milliseconds) {
+            return Err(error);
+        }
+        if !explicit_unit && milliseconds != 0.0 {
+            return Err(error);
+        }
+        let milliseconds = milliseconds.round();
+        u32::try_from(milliseconds as i64).map(TextLive::Debounce).map_err(|_| error)
+    }
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, serde::Serialize)]
+pub enum TextBind {
+    #[default]
+    None,
+    QueryParams,
+}
+
+pub struct TextInputOptions {
+    common: InputOptions,
+    value: Option<String>,
+    max_chars: Option<usize>,
+    input_type: TextInputType,
+    autocomplete: Option<String>,
+    placeholder: Option<String>,
+    required: bool,
+    icon: Option<String>,
+    validation: TextValidation,
+    live: TextLive,
+    bind: TextBind,
+}
+
+impl TextInputOptions {
+    pub fn new(label: impl Into<String>) -> Self {
+        Self {
+            common: InputOptions::new(label),
+            value: Some(String::new()),
+            max_chars: None,
+            input_type: TextInputType::Default,
+            autocomplete: None,
+            placeholder: None,
+            required: false,
+            icon: None,
+            validation: TextValidation::Inherit,
+            live: TextLive::CommitOnEnterBlur,
+            bind: TextBind::None,
+        }
+    }
+
+    /// Defaults to an empty string, distinct from `value_none`.
+    pub fn value(mut self, value: impl ToString) -> Self {
+        self.value = Some(value.to_string());
+        self
+    }
+
+    pub fn value_none(mut self) -> Self {
+        self.value = None;
+        self
+    }
+
+    pub fn max_chars(mut self, max_chars: usize) -> Self {
+        self.max_chars = Some(max_chars);
+        self
+    }
+
+    pub fn no_max_chars(mut self) -> Self {
+        self.max_chars = None;
+        self
+    }
+
+    pub fn input_type(mut self, input_type: TextInputType) -> Self {
+        self.input_type = input_type;
+        self
+    }
+
+    pub fn autocomplete(mut self, autocomplete: impl Into<String>) -> Self {
+        self.autocomplete = Some(autocomplete.into());
+        self
+    }
+
+    pub fn derived_autocomplete(mut self) -> Self {
+        self.autocomplete = None;
+        self
+    }
+
+    pub fn placeholder(mut self, placeholder: impl Into<String>) -> Self {
+        self.placeholder = Some(placeholder.into());
+        self
+    }
+
+    pub fn no_placeholder(mut self) -> Self {
+        self.placeholder = Some(String::new());
+        self
+    }
+
+    pub fn required(mut self, required: bool) -> Self {
+        self.required = required;
+        self
+    }
+
+    pub fn icon(mut self, icon: impl Into<String>) -> Self {
+        self.icon = Some(icon.into());
+        self
+    }
+
+    pub fn validate(mut self, regex: impl Into<String>) -> Self {
+        self.validation = TextValidation::Pattern { regex: regex.into(), message: None };
+        self
+    }
+
+    pub fn validate_with_message(mut self, regex: impl Into<String>, message: impl Into<String>) -> Self {
+        self.validation = TextValidation::Pattern {
+            regex: regex.into(),
+            message: Some(message.into()),
+        };
+        self
+    }
+
+    pub fn validation(mut self, validation: TextValidation) -> Self {
+        self.validation = validation;
+        self
+    }
+
+    pub fn live(mut self, live: bool) -> Self {
+        self.live = if live { TextLive::Debounce(250) } else { TextLive::CommitOnEnterBlur };
+        self
+    }
+
+    pub fn live_debounce_ms(mut self, milliseconds: u32) -> Self {
+        self.live = TextLive::Debounce(milliseconds);
+        self
+    }
+
+    pub fn commit_on_every_change(mut self) -> Self {
+        self.live = TextLive::Debounce(0);
+        self
+    }
+
+    /// Accept the documented duration-string subset: zero without a unit,
+    /// milliseconds, or seconds. Invalid input is rejected when the widget is
+    /// instantiated, never silently coerced to another debounce.
+    pub fn live_duration(mut self, duration: impl Into<String>) -> Self {
+        self.live = TextLive::Invalid(duration.into());
+        self
+    }
+
+    pub fn bind(mut self, bind: TextBind) -> Self {
+        self.bind = bind;
+        self
+    }
+
+    common_builders!();
+}
+
+impl From<&str> for TextInputOptions {
+    fn from(label: &str) -> Self {
+        Self::new(label)
+    }
+}
+
+impl From<String> for TextInputOptions {
+    fn from(label: String) -> Self {
+        Self::new(label)
+    }
+}
+
+impl<L: Into<String>> From<(L, Option<String>)> for TextInputOptions {
+    fn from((label, value): (L, Option<String>)) -> Self {
+        let options = Self::new(label);
+        match value {
+            Some(value) => options.value(value),
+            None => options.value_none(),
+        }
     }
 }
 
@@ -367,9 +641,200 @@ impl<L: Into<String>, T: SliderValue, B: Into<f64>> From<(L, T, std::ops::RangeI
     }
 }
 
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, serde::Serialize)]
+pub enum FormSubmitButtonType {
+    Primary,
+    #[default]
+    Secondary,
+    Tertiary,
+}
+
+impl FormSubmitButtonType {
+    fn wire(self) -> &'static str {
+        match self {
+            Self::Primary => "primary",
+            Self::Secondary => "secondary",
+            Self::Tertiary => "tertiary",
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum ButtonIconPosition {
+    #[default]
+    Left,
+    Right,
+}
+
+pub struct FormSubmitButtonOptions {
+    label: String,
+    key: Option<String>,
+    help: Option<String>,
+    button_type: FormSubmitButtonType,
+    icon: Option<String>,
+    icon_position: ButtonIconPosition,
+    disabled: bool,
+    width: crate::elements::common::ElementWidth,
+    shortcut: Option<String>,
+    wrap: Option<bool>,
+    callback: Option<WidgetCallback>,
+}
+
+impl Default for FormSubmitButtonOptions {
+    fn default() -> Self {
+        Self::new("Submit")
+    }
+}
+
+impl FormSubmitButtonOptions {
+    pub fn new(label: impl Into<String>) -> Self {
+        Self {
+            label: label.into(),
+            key: None,
+            help: None,
+            button_type: FormSubmitButtonType::default(),
+            icon: None,
+            icon_position: ButtonIconPosition::default(),
+            disabled: false,
+            width: crate::elements::common::ElementWidth::Content,
+            shortcut: None,
+            wrap: None,
+            callback: None,
+        }
+    }
+
+    pub fn key(mut self, key: impl Into<String>) -> Self {
+        self.key = Some(key.into());
+        self
+    }
+
+    pub fn help(mut self, help: impl Into<String>) -> Self {
+        self.help = Some(help.into());
+        self
+    }
+
+    pub fn button_type(mut self, button_type: FormSubmitButtonType) -> Self {
+        self.button_type = button_type;
+        self
+    }
+
+    pub fn icon(mut self, icon: impl Into<String>) -> Self {
+        self.icon = Some(icon.into());
+        self
+    }
+
+    pub fn icon_position(mut self, icon_position: ButtonIconPosition) -> Self {
+        self.icon_position = icon_position;
+        self
+    }
+
+    pub fn disabled(mut self, disabled: bool) -> Self {
+        self.disabled = disabled;
+        self
+    }
+
+    pub fn width(mut self, width: impl Into<crate::elements::common::ElementWidth>) -> Self {
+        self.width = width.into();
+        self
+    }
+
+    pub fn shortcut(mut self, shortcut: impl Into<String>) -> Self {
+        self.shortcut = Some(shortcut.into());
+        self
+    }
+
+    pub fn wrap(mut self, wrap: Option<bool>) -> Self {
+        self.wrap = wrap;
+        self
+    }
+
+    pub fn on_click(mut self, callback: impl Fn(&Streamlit) + Send + Sync + 'static) -> Self {
+        self.callback = Some(Arc::new(callback));
+        self
+    }
+}
+
+impl From<&str> for FormSubmitButtonOptions {
+    fn from(label: &str) -> Self {
+        Self::new(label)
+    }
+}
+
+impl From<String> for FormSubmitButtonOptions {
+    fn from(label: String) -> Self {
+        Self::new(label)
+    }
+}
+
+impl Form<'_> {
+    /// Register and append the form's submit trigger.
+    pub fn form_submit_button(&self, options: impl Into<FormSubmitButtonOptions>) -> Result<bool, WidgetError> {
+        let options = options.into();
+        if matches!(options.width, crate::elements::common::ElementWidth::Value(width) if width <= 0) {
+            return Err(WidgetError::InvalidValue("form submit button width must be positive".into()));
+        }
+        let identity = if options.key.is_some() {
+            String::new()
+        } else {
+            serde_json::to_string(&(
+                &options.label,
+                &options.help,
+                &options.button_type,
+                &options.icon,
+                format!("{:?}", options.icon_position),
+                options.disabled,
+                format!("{:?}", options.width),
+                &options.shortcut,
+                options.wrap,
+                options.callback.is_some(),
+            ))?
+        };
+        let identity = serde_json::to_string(&(self.parent_form_id(), identity))?;
+        let state = self.get_app().lock().session_state.clone();
+        let (id, value, _) = state.register_widget(
+            WidgetSpec {
+                kind: "form_submit_button",
+                key: options.key.as_deref(),
+                identity: &identity,
+                default: false.into(),
+                codec: Codec::Trigger,
+                callback: options.callback,
+            },
+            |value| value.as_bool().ok_or_else(|| WidgetError::InvalidValue("form submit button expects bool".into())),
+        )?;
+        let icon_position = match options.icon_position {
+            ButtonIconPosition::Left => 0,
+            ButtonIconPosition::Right => 1,
+        };
+        let element = ButtonElement::new(id, options.label)
+            .help(options.help.unwrap_or_default())
+            .r#type(options.button_type.wire().to_owned())
+            .icon(options.icon.unwrap_or_default())
+            .shortcut(options.shortcut.unwrap_or_default())
+            .width(options.width)
+            .disabled(options.disabled)
+            .icon_position(icon_position)
+            .wrap(options.wrap)
+            .form_id(self.parent_form_id().unwrap_or_default())
+            .form_submitter(true);
+        self.push(Rc::new(RefCell::new(element)));
+        self.record_submit();
+        Ok(value)
+    }
+}
+
+fn form_scope<C: AppendChild>(this: &C, has_callback: bool) -> Result<String, WidgetError> {
+    let form_id = this.parent_form_id();
+    if form_id.is_some() && has_callback {
+        return Err(WidgetError::InvalidValue("only form_submit_button can have a callback inside a form".into()));
+    }
+    Ok(form_id.unwrap_or_default())
+}
+
 pub trait InputWidgets {
     fn file_uploader(&self, options: impl Into<FileUploaderOptions>) -> Result<UploadedFiles, WidgetError>;
     fn checkbox(&self, options: impl Into<CheckboxOptions>) -> Result<bool, WidgetError>;
+    fn text_input(&self, options: impl Into<TextInputOptions>) -> Result<Option<String>, WidgetError>;
     /// Accept a builder or `(label, options)`; both retain the same defaults.
     fn selectbox<T: Clone + Serialize>(&self, options: impl Into<SelectboxOptions<T>>) -> Result<Option<T>, WidgetError>;
     /// Accept a builder, `(label, value)`, or `(label, value, min..=max)`.
@@ -383,13 +848,14 @@ impl<C: AppendChild> InputWidgets for C {
     fn file_uploader(&self, options: impl Into<FileUploaderOptions>) -> Result<UploadedFiles, WidgetError> {
         let options = options.into();
         let c = options.common;
+        let form_id = form_scope(self, c.callback.is_some())?;
         let width_config = c.width(false)?;
         if options.max_upload_size_mb <= 0 {
             return Err(WidgetError::InvalidValue("max_upload_size_mb must be positive".into()));
         }
         let multiple = options.mode != FileUploadMode::Single;
         let constraints = serde_json::to_string(&(&options.accepted_types, options.max_upload_size_mb, format!("{:?}", options.mode)))?;
-        let identity = c.identity(&constraints);
+        let identity = c.identity_in_form(&form_id, &constraints);
         let state = self.get_app().lock().session_state.clone();
         let uploads = state.uploads.clone();
         let (id, files, _) = state.register_widget(
@@ -413,6 +879,7 @@ impl<C: AppendChild> InputWidgets for C {
             r#type: Some(element::Type::FileUploader(proto::FileUploader {
                 id,
                 label: c.label,
+                form_id,
                 r#type: options.accepted_types,
                 max_upload_size_mb: options.max_upload_size_mb,
                 multiple_files: multiple,
@@ -421,7 +888,6 @@ impl<C: AppendChild> InputWidgets for C {
                 disabled: c.disabled,
                 label_visibility: c.visibility.wire(),
                 ignore_rerun: c.ignore_rerun,
-                ..Default::default()
             })),
             ..Default::default()
         }))));
@@ -430,8 +896,9 @@ impl<C: AppendChild> InputWidgets for C {
     fn checkbox(&self, options: impl Into<CheckboxOptions>) -> Result<bool, WidgetError> {
         let options = options.into();
         let c = options.common;
+        let form_id = form_scope(self, c.callback.is_some())?;
         let width_config = c.width(true)?;
-        let identity = c.identity(&if c.key.is_some() { String::new() } else { options.value.to_string() });
+        let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { options.value.to_string() });
         let state = self.get_app().lock().session_state.clone();
         let (id, value, set_value) = state.register_widget(
             WidgetSpec {
@@ -450,6 +917,7 @@ impl<C: AppendChild> InputWidgets for C {
             r#type: Some(element::Type::Checkbox(proto::Checkbox {
                 id,
                 label: c.label,
+                form_id,
                 default: options.value,
                 value: set_value && value,
                 set_value,
@@ -464,16 +932,122 @@ impl<C: AppendChild> InputWidgets for C {
         Ok(value)
     }
 
+    fn text_input(&self, options: impl Into<TextInputOptions>) -> Result<Option<String>, WidgetError> {
+        let options = options.into();
+        let options = if let TextLive::Invalid(duration) = &options.live {
+            let duration = duration.clone();
+            let mut normalized = options;
+            normalized.live = TextLive::parse_duration(&duration)?;
+            normalized
+        } else {
+            options
+        };
+        let c = options.common;
+        let form_id = form_scope(self, c.callback.is_some())?;
+        if matches!(options.live, TextLive::Debounce(milliseconds) if milliseconds > 60_000) {
+            return Err(WidgetError::InvalidValue("text_input live debounce cannot exceed one minute".into()));
+        }
+        if options.bind == TextBind::QueryParams && c.key.is_none() {
+            return Err(WidgetError::InvalidValue("text_input query binding requires a key".into()));
+        }
+        if options.bind == TextBind::QueryParams && options.input_type == TextInputType::Password {
+            return Err(WidgetError::InvalidValue("text_input query binding cannot use a password input".into()));
+        }
+        let width_config = c.width(false)?;
+        let default = options.value.clone().map_or_else(|| Value::Null, Value::String);
+        let validation_regex = match &options.validation {
+            TextValidation::Inherit => options.input_type.default_validation().0.map(String::from),
+            TextValidation::Off => Some(String::new()),
+            TextValidation::Pattern { regex, .. } => Some(regex.clone()),
+        };
+        let identity = c.identity_in_form(
+            &form_id,
+            &if c.key.is_some() {
+                serde_json::to_string(&(&options.max_chars, &validation_regex))?
+            } else {
+                serde_json::to_string(&(
+                    &options.value,
+                    &options.max_chars,
+                    &options.input_type,
+                    &options.autocomplete,
+                    &options.placeholder,
+                    options.required,
+                    &options.icon,
+                    &validation_regex,
+                    &options.live,
+                    &options.bind,
+                    c.disabled,
+                    c.width,
+                    c.ignore_rerun,
+                    format!("{:?}", c.visibility),
+                    c.callback.is_some(),
+                ))?
+            },
+        );
+        let state = self.get_app().lock().session_state.clone();
+        let (id, value, set_value) = state.register_widget(
+            WidgetSpec {
+                kind: "text_input",
+                key: c.key.as_deref(),
+                identity: &identity,
+                default,
+                codec: Codec::Text { max_chars: options.max_chars },
+                callback: c.callback,
+            },
+            |value| Ok(value.as_str().map(str::to_owned)),
+        )?;
+        let (validate_regex, validate_message) = match options.validation {
+            TextValidation::Inherit => {
+                let (regex, message) = options.input_type.default_validation();
+                (regex.map(String::from), message.map(String::from))
+            }
+            TextValidation::Off => (Some(String::new()), None),
+            TextValidation::Pattern { regex, message } => (Some(regex), message),
+        };
+        self.push(Rc::new(RefCell::new(InputElement(proto::Element {
+            width_config,
+            has_one_shot_effect: set_value.then_some(true),
+            r#type: Some(element::Type::TextInput(proto::TextInput {
+                id,
+                label: c.label,
+                default: options.value,
+                r#type: options.input_type.wire() as i32,
+                max_chars: options.max_chars.unwrap_or_default() as u32,
+                help: c.help,
+                form_id,
+                value: if set_value { value.clone() } else { None },
+                set_value,
+                autocomplete: options.autocomplete.unwrap_or_else(|| options.input_type.default_autocomplete().to_owned()),
+                placeholder: options.placeholder.unwrap_or_else(|| options.input_type.default_placeholder().to_owned()),
+                disabled: c.disabled,
+                label_visibility: c.visibility.wire(),
+                icon: options.icon.unwrap_or_else(|| options.input_type.default_icon().to_owned()),
+                query_param_key: (options.bind == TextBind::QueryParams).then(|| c.key.clone()).flatten(),
+                validate_regex,
+                validate_message,
+                ignore_rerun: c.ignore_rerun,
+                live_debounce_ms: match options.live {
+                    TextLive::CommitOnEnterBlur | TextLive::Invalid(_) => None,
+                    TextLive::Debounce(milliseconds) => Some(milliseconds),
+                },
+                required: options.required,
+            })),
+            ..Default::default()
+        }))));
+        Ok(value)
+    }
+
     fn selectbox<T: Clone + Serialize>(&self, options: impl Into<SelectboxOptions<T>>) -> Result<Option<T>, WidgetError> {
         let options = options.into();
         let c = options.common;
+        let form_id = form_scope(self, c.callback.is_some())?;
         let width_config = c.width(false)?;
         if !options.options.is_empty() && options.index.is_some_and(|i| i >= options.options.len()) {
             return Err(WidgetError::InvalidValue("selectbox index is outside options".into()));
         }
         let native: Vec<Value> = options.options.iter().map(serde_json::to_value).collect::<Result<_, _>>()?;
         let default = options.index.filter(|index| *index < native.len()).map(Value::from).unwrap_or(Value::Null);
-        let identity = c.identity(&if c.key.is_some() { String::new() } else { format!("{:?}:{:?}", options.labels, options.index) });
+        let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { format!("{:?}:{:?}", options.labels, options.index) });
         let codec = Codec::Select(options.labels.iter().cloned().zip(native.iter().cloned()).collect());
         let state = self.get_app().lock().session_state.clone();
         let (id, selected, set_value) = state.register_widget(
@@ -506,6 +1080,7 @@ impl<C: AppendChild> InputWidgets for C {
             r#type: Some(element::Type::Selectbox(proto::Selectbox {
                 id,
                 label: c.label,
+                form_id,
                 default: if empty { None } else { options.index.map(|i| i as i32) },
                 options: options.labels.clone(),
                 help: c.help,
@@ -526,6 +1101,7 @@ impl<C: AppendChild> InputWidgets for C {
     fn slider<T: SliderValue>(&self, options: impl Into<SliderOptions<T>>) -> Result<T, WidgetError> {
         let options = options.into();
         let c = options.common;
+        let form_id = form_scope(self, c.callback.is_some())?;
         let width_config = c.width(false)?;
         if !options.min.is_finite()
             || !options.max.is_finite()
@@ -549,7 +1125,7 @@ impl<C: AppendChild> InputWidgets for C {
             return Err(WidgetError::InvalidValue("slider default is outside bounds or range is reversed".into()));
         }
         let constraints = format!("{}:{}:{}:{}:{}", options.min, options.max, options.step, T::INTEGER, T::COUNT);
-        let identity = c.identity(&if c.key.is_some() { constraints } else { format!("{constraints}:{default}:{:?}", options.format) });
+        let identity = c.identity_in_form(&form_id, &if c.key.is_some() { constraints } else { format!("{constraints}:{default}:{:?}", options.format) });
         let state = self.get_app().lock().session_state.clone();
         let (id, result, set_value) = state.register_widget(
             WidgetSpec {
@@ -568,6 +1144,7 @@ impl<C: AppendChild> InputWidgets for C {
             r#type: Some(element::Type::Slider(proto::Slider {
                 id,
                 label: c.label,
+                form_id,
                 default: options.value.numbers(),
                 value: if set_value { result.numbers() } else { vec![] },
                 set_value,
@@ -590,6 +1167,9 @@ impl<C: AppendChild> InputWidgets for C {
 
     fn try_button(&self, options: impl Into<ButtonOptions>) -> Result<bool, WidgetError> {
         let options = options.into();
+        if self.parent_form_id().is_some() {
+            return Err(WidgetError::InvalidValue("st.button cannot be added to a form".into()));
+        }
         let identity = if options.key.is_some() {
             String::new()
         } else {
@@ -628,7 +1208,7 @@ mod tests {
     use super::*;
     use crate::elements::common::RenderContext;
     use crate::proto::{ForwardMsg, WidgetState, delta, forward_msg, widget_state};
-    use crate::{SessionState, StreamlitApi};
+    use crate::{FormOptions, SessionState, StreamlitApi};
 
     fn app(state: &SessionState) -> (Streamlit, tokio::sync::mpsc::UnboundedReceiver<ForwardMsg>) {
         let st = Streamlit::with_session_state(state.clone());
@@ -643,6 +1223,443 @@ mod tests {
             })) => element.r#type.unwrap(),
             other => panic!("expected input, got {other:?}"),
         }
+    }
+
+    fn form_block(receiver: &mut tokio::sync::mpsc::UnboundedReceiver<ForwardMsg>) -> proto::Block {
+        match receiver.try_recv().unwrap().r#type {
+            Some(forward_msg::Type::Delta(proto::Delta { r#type: Some(delta::Type::AddBlock(block)), .. })) => block,
+            other => panic!("expected form block, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn form_text_core_matches_reference_and_callbacks_see_batch_first() {
+        let state = SessionState::default();
+        state.begin_widgets(vec![]);
+        let (st, mut wire) = app(&state);
+        let callback = |st: &Streamlit| {
+            let state = st.session_state();
+            assert_eq!(state.get::<String>("default_note").unwrap().as_deref(), Some("hello"));
+            assert_eq!(state.get::<bool>("default_agree").unwrap(), Some(true));
+            state.set("callback_ran", true).unwrap();
+        };
+        let (note, agree, submitted) = st
+            .form(FormOptions::new("default_form"), |form| {
+                let note = form.text_input(TextInputOptions::new("Note").key("default_note"))?;
+                let agree = form.checkbox(CheckboxOptions::new("Agree").key("default_agree"))?;
+                let submitted = form.form_submit_button(FormSubmitButtonOptions::new("Apply").key("default_apply").on_click(callback))?;
+                Ok((note, agree, submitted))
+            })
+            .unwrap();
+        assert_eq!((note.as_deref(), agree, submitted), (Some(""), false, false));
+        let block = form_block(&mut wire);
+        let Some(proto::block::Type::Form(form)) = block.r#type else { panic!() };
+        assert_eq!((form.form_id.as_str(), form.clear_on_submit, form.border, form.enter_to_submit), ("default_form", false, true, true));
+        assert_eq!(block.width_config.map(|width| width.width_spec), Some(Some(proto::streamlit::width_config::WidthSpec::UseStretch(true))));
+        assert_eq!(block.height_config.map(|height| height.height_spec), Some(Some(proto::streamlit::height_config::HeightSpec::UseContent(true))));
+        let element::Type::TextInput(text) = input(&mut wire) else { panic!() };
+        assert!(text.id.ends_with("-default_note"));
+        assert_eq!((text.label.as_str(), text.default.as_deref(), text.form_id.as_str(), text.r#type), ("Note", Some(""), "default_form", 0));
+        let element::Type::Checkbox(check) = input(&mut wire) else { panic!() };
+        assert_eq!((check.form_id.as_str(), check.default, check.disabled), ("default_form", false, false));
+        let element::Type::Button(button) = input(&mut wire) else { panic!() };
+        assert_eq!((button.form_id.as_str(), button.is_form_submitter, button.r#type.as_str(), button.disabled), ("default_form", true, "secondary", false));
+        state.finish_widgets();
+
+        let callbacks = state.begin_widgets(vec![
+            WidgetState {
+                id: text.id,
+                value: Some(widget_state::Value::StringValue("hello".into())),
+            },
+            WidgetState {
+                id: check.id,
+                value: Some(widget_state::Value::BoolValue(true)),
+            },
+            WidgetState {
+                id: button.id,
+                value: Some(widget_state::Value::TriggerValue(true)),
+            },
+        ]);
+        assert_eq!(callbacks.len(), 1);
+        let (st, mut wire) = app(&state);
+        for callback in callbacks {
+            callback(&st);
+        }
+        assert_eq!(state.get::<bool>("callback_ran").unwrap(), Some(true));
+        let (note, agree, submitted) = st
+            .form(FormOptions::new("default_form"), |form| {
+                let note = form.text_input(TextInputOptions::new("Note").key("default_note"))?;
+                let agree = form.checkbox(CheckboxOptions::new("Agree").key("default_agree"))?;
+                let submitted = form.form_submit_button(FormSubmitButtonOptions::new("Apply").key("default_apply"))?;
+                Ok((note, agree, submitted))
+            })
+            .unwrap();
+        let block = form_block(&mut wire);
+        let Some(proto::block::Type::Form(form)) = block.r#type else { panic!() };
+        assert_eq!(form.form_id, "default_form");
+        let element::Type::TextInput(_) = input(&mut wire) else { panic!() };
+        let element::Type::Checkbox(_) = input(&mut wire) else { panic!() };
+        let element::Type::Button(_) = input(&mut wire) else { panic!() };
+        assert_eq!((note.as_deref(), agree, submitted), (Some("hello"), true, true));
+        state.finish_widgets();
+        state.begin_widgets(vec![]);
+        let (st, _) = app(&state);
+        let submitted = st.form(FormOptions::new("default_form"), |form| form.form_submit_button(FormSubmitButtonOptions::new("Apply").key("default_apply"))).unwrap();
+        assert!(!submitted, "submit triggers reset after a completed run");
+    }
+
+    #[test]
+    fn forms_render_in_containers_and_containers_render_in_forms() {
+        let state = SessionState::default();
+        state.begin_widgets(vec![]);
+        let (st, mut wire) = app(&state);
+        let container = st.container();
+        container
+            .form(FormOptions::new("outside_form"), |form| {
+                form.text_input(TextInputOptions::new("Note").key("outside_note"))?;
+                form.form_submit_button(FormSubmitButtonOptions::new("Apply").key("outside_apply"))
+            })
+            .unwrap();
+        assert!(matches!(form_block(&mut wire).r#type, Some(proto::block::Type::FlexContainer(_))));
+        assert!(matches!(form_block(&mut wire).r#type, Some(proto::block::Type::Form(_))));
+        let element::Type::TextInput(text) = input(&mut wire) else { panic!() };
+        assert_eq!(text.form_id, "outside_form");
+        let element::Type::Button(button) = input(&mut wire) else { panic!() };
+        assert!(button.is_form_submitter);
+
+        let columns = st.columns(2);
+        columns[0]
+            .form(FormOptions::new("column_form"), |form| {
+                form.text_input(TextInputOptions::new("Note").key("column_note"))?;
+                form.form_submit_button(FormSubmitButtonOptions::new("Apply").key("column_apply"))
+            })
+            .unwrap();
+        assert!(matches!(form_block(&mut wire).r#type, Some(proto::block::Type::FlexContainer(_))));
+        assert!(matches!(form_block(&mut wire).r#type, Some(proto::block::Type::Column(_))));
+        assert!(matches!(form_block(&mut wire).r#type, Some(proto::block::Type::Column(_))));
+        assert!(matches!(form_block(&mut wire).r#type, Some(proto::block::Type::Form(_))));
+        let element::Type::TextInput(column_text) = input(&mut wire) else { panic!() };
+        assert_eq!(column_text.form_id, "column_form");
+        let element::Type::Button(column_button) = input(&mut wire) else { panic!() };
+        assert!(column_button.is_form_submitter);
+
+        st.form(FormOptions::new("inside_form"), |form| {
+            let container = form.container();
+            container.text_input(TextInputOptions::new("Note").key("inside_note"))?;
+            form.form_submit_button(FormSubmitButtonOptions::new("Apply").key("inside_apply"))
+        })
+        .unwrap();
+        assert!(matches!(form_block(&mut wire).r#type, Some(proto::block::Type::Form(_))));
+        assert!(matches!(form_block(&mut wire).r#type, Some(proto::block::Type::FlexContainer(_))));
+        let element::Type::TextInput(text) = input(&mut wire) else { panic!() };
+        assert_eq!(text.form_id, "inside_form");
+        let element::Type::Button(button) = input(&mut wire) else { panic!() };
+        assert!(button.is_form_submitter);
+    }
+
+    #[test]
+    fn forms_need_submits_and_form_keys_share_widget_spelling() {
+        let state = SessionState::default();
+        state.begin_widgets(vec![]);
+        let (st, mut wire) = app(&state);
+        assert!(matches!(
+            st.form(FormOptions::new("no_submit"), |form| {
+                form.text_input(TextInputOptions::new("Note").key("missing_note"))
+            }),
+            Err(WidgetError::InvalidValue(message)) if message.contains("form_submit_button")
+        ));
+        assert!(wire.try_recv().is_err(), "an incomplete form must not append its children");
+
+        let state = SessionState::default();
+        state.begin_widgets(vec![]);
+        let (st, mut wire) = app(&state);
+        assert_eq!(st.text_input(TextInputOptions::new("Shared").key("shared")).unwrap(), Some(String::new()));
+        st.form(FormOptions::new("shared"), |form| form.form_submit_button("Submit")).unwrap();
+        assert!(wire.try_recv().is_ok());
+    }
+
+    #[test]
+    fn forms_anonymous_identity_is_scoped_but_explicit_widget_keys_are_global() {
+        let state = SessionState::default();
+        state.begin_widgets(vec![]);
+        let (st, mut wire) = app(&state);
+        for key in ["a", "b"] {
+            st.form(key, |form| {
+                form.text_input("Note")?;
+                form.form_submit_button("Apply")
+            })
+            .unwrap();
+        }
+        let mut ids = std::collections::HashSet::new();
+        for _ in 0..2 {
+            form_block(&mut wire);
+            let element::Type::TextInput(text) = input(&mut wire) else { panic!() };
+            assert!(ids.insert(text.id));
+            let element::Type::Button(button) = input(&mut wire) else { panic!() };
+            assert!(ids.insert(button.id));
+        }
+        assert!(wire.try_recv().is_err());
+        st.form("same", |form| {
+            form.text_input(TextInputOptions::new("Note").key("same"))?;
+            form.form_submit_button("Submit")
+        })
+        .unwrap();
+        assert!(matches!(st.text_input(TextInputOptions::new("Root").key("same")), Err(WidgetError::DuplicateKey(_))));
+    }
+
+    #[test]
+    fn forms_abort_rolls_back_registration_and_widget_values() {
+        let state = SessionState::default();
+        state.begin_widgets(vec![]);
+        state.set("shared", "seed").unwrap();
+        let (st, mut wire) = app(&state);
+        let result = st.form("retry", |form| {
+            form.text_input(TextInputOptions::new("Hidden").key("shared"))?;
+            form.form_submit_button(FormSubmitButtonOptions::new("Discard").key("discard"))?;
+            Err::<(), _>(WidgetError::InvalidValue("abort".into()))
+        });
+        assert!(result.is_err());
+        assert!(wire.try_recv().is_err());
+        assert_eq!(state.get::<String>("shared").unwrap().as_deref(), Some("seed"));
+        assert_eq!(state.get::<bool>("discard").unwrap(), None);
+        st.form("retry", |form| {
+            form.text_input(TextInputOptions::new("Visible").key("shared"))?;
+            form.form_submit_button(FormSubmitButtonOptions::new("Keep").key("discard"))
+        })
+        .unwrap();
+        assert_eq!(state.get::<bool>("discard").unwrap(), Some(false));
+    }
+
+    #[test]
+    fn forms_live_duration_milliseconds_and_seconds_share_limits() {
+        for (duration, milliseconds) in [("250ms", 250), ("0.25s", 250), ("1ms", 1), ("0", 0), ("60s", 60_000)] {
+            assert_eq!(TextLive::parse_duration(duration).unwrap(), TextLive::Debounce(milliseconds));
+        }
+        for duration in ["60001ms", "60.001s", "-1ms", "NaNms", "infms", "250"] {
+            assert!(TextLive::parse_duration(duration).is_err(), "{duration}");
+        }
+    }
+
+    #[test]
+    fn forms_invalid_batch_is_rejected_before_values_and_submit_callback() {
+        let state = SessionState::default();
+        state.begin_widgets(vec![]);
+        let (st, mut wire) = app(&state);
+        st.form("bounded", |form| {
+            form.text_input(TextInputOptions::new("Bounded").key("bounded").max_chars(5))?;
+            form.checkbox(CheckboxOptions::new("Agree").key("agree"))?;
+            form.form_submit_button(FormSubmitButtonOptions::new("Apply").key("apply").on_click(|_| panic!("invalid batch reached callback")))
+        })
+        .unwrap();
+        form_block(&mut wire);
+        let element::Type::TextInput(text) = input(&mut wire) else { panic!() };
+        let element::Type::Checkbox(check) = input(&mut wire) else { panic!() };
+        let element::Type::Button(button) = input(&mut wire) else { panic!() };
+        state.finish_widgets();
+        let callbacks = state.begin_widgets(vec![
+            WidgetState {
+                id: button.id,
+                value: Some(widget_state::Value::TriggerValue(true)),
+            },
+            WidgetState {
+                id: check.id,
+                value: Some(widget_state::Value::BoolValue(true)),
+            },
+            WidgetState {
+                id: text.id,
+                value: Some(widget_state::Value::StringValue("TOOLONG".into())),
+            },
+        ]);
+        assert!(callbacks.is_empty());
+        assert_eq!(state.get::<String>("bounded").unwrap().as_deref(), Some(""));
+        assert_eq!(state.get::<bool>("agree").unwrap(), Some(false));
+        assert_eq!(state.get::<bool>("apply").unwrap(), Some(false));
+        let (st, _) = app(&state);
+        assert_eq!(st.text_input(TextInputOptions::new("Bounded").key("bounded").max_chars(5)).unwrap(), Some(String::new()));
+    }
+
+    #[test]
+    fn text_input_none_and_empty_are_distinct_wire_and_native_values() {
+        let state = SessionState::default();
+        state.begin_widgets(vec![]);
+        let (st, mut wire) = app(&state);
+        assert_eq!(st.text_input(TextInputOptions::new("None value").value_none().key("none_value")).unwrap(), None);
+        let element::Type::TextInput(none) = input(&mut wire) else { panic!() };
+        assert_eq!(none.default, None);
+        assert_eq!(st.text_input(TextInputOptions::new("Empty value").key("empty_value")).unwrap(), Some(String::new()));
+        let element::Type::TextInput(empty) = input(&mut wire) else { panic!() };
+        assert_eq!(empty.default.as_deref(), Some(""));
+        state.finish_widgets();
+        let callbacks = state.begin_widgets(vec![
+            WidgetState {
+                id: none.id,
+                value: Some(widget_state::Value::StringValue("x".into())),
+            },
+            WidgetState {
+                id: empty.id,
+                value: Some(widget_state::Value::StringValue(String::new())),
+            },
+        ]);
+        assert!(callbacks.is_empty());
+        let (st, _) = app(&state);
+        assert_eq!(st.text_input(TextInputOptions::new("None value").value_none().key("none_value")).unwrap(), Some("x".into()));
+        assert_eq!(st.text_input(TextInputOptions::new("Empty value").key("empty_value")).unwrap(), Some(String::new()));
+    }
+
+    #[test]
+    fn text_input_advanced_fields_match_the_pinned_reference() {
+        let state = SessionState::default();
+        state.begin_widgets(vec![]);
+        let (st, mut wire) = app(&state);
+
+        let cases = [
+            (TextInputOptions::new("Email").input_type(TextInputType::Email).key("type_email"), proto::text_input::Type::Email),
+            (TextInputOptions::new("URL").input_type(TextInputType::Url).key("type_url"), proto::text_input::Type::Url),
+            (TextInputOptions::new("Phone").input_type(TextInputType::Phone).key("type_phone"), proto::text_input::Type::Phone),
+            (TextInputOptions::new("Search").input_type(TextInputType::Search).key("type_search"), proto::text_input::Type::Search),
+            (TextInputOptions::new("Secret").input_type(TextInputType::Password).key("type_password"), proto::text_input::Type::Password),
+        ];
+        for (options, wire_type) in cases {
+            assert_eq!(st.text_input(options).unwrap(), Some(String::new()));
+            let element::Type::TextInput(text) = input(&mut wire) else { panic!() };
+            assert_eq!(text.r#type, wire_type as i32);
+        }
+        // Rewind one frame at a time is awkward; use independent receivers below
+        // only when a field assertion needs the whole Element. The five IDs and
+        // scalar fields above establish that every specialized type registered.
+        state.finish_widgets();
+    }
+
+    #[test]
+    fn text_input_advanced_defaults_and_overrides_match_wire_fields() {
+        let field = |st: &Streamlit, options: TextInputOptions| -> proto::TextInput {
+            let (sender, mut receiver) = tokio::sync::mpsc::unbounded_channel();
+            st.app.lock().set_render_context(RenderContext::with_sender("field".into(), sender));
+            st.text_input(options).unwrap();
+            let element::Type::TextInput(text) = input(&mut receiver) else { panic!() };
+            text
+        };
+        let st = Streamlit::new();
+        let email = field(&st, TextInputOptions::new("Email").input_type(TextInputType::Email).key("email"));
+        assert_eq!(email.autocomplete, "email");
+        assert_eq!(email.icon, ":material/mail:");
+        assert_eq!(email.placeholder, "you@example.com");
+        assert_eq!(email.validate_regex.as_deref(), Some(r"^[^\s@]+@[^\s@]+\.[^\s@]+$"));
+        assert_eq!(email.validate_message.as_deref(), Some("Enter a valid email address."));
+        let url = field(&st, TextInputOptions::new("URL").input_type(TextInputType::Url).key("url"));
+        assert_eq!((url.autocomplete.as_str(), url.icon.as_str(), url.placeholder.as_str()), ("url", ":material/link:", "https://example.com"));
+        assert_eq!(url.validate_regex.as_deref(), Some(r"^([Hh][Tt][Tt][Pp][Ss]?://)?[^\s/.]+\.[^\s]+$"));
+        assert_eq!(url.validate_message.as_deref(), Some("Enter a valid URL."));
+        let phone = field(&st, TextInputOptions::new("Phone").input_type(TextInputType::Phone).key("phone"));
+        assert_eq!((phone.autocomplete.as_str(), phone.icon.as_str(), phone.placeholder.as_str()), ("tel", ":material/call:", "+1 234 567 8900"));
+        assert!(phone.validate_regex.is_none() && phone.validate_message.is_none());
+        let search = field(&st, TextInputOptions::new("Search").input_type(TextInputType::Search).key("search"));
+        assert_eq!((search.autocomplete.as_str(), search.icon.as_str(), search.placeholder.as_str()), ("off", ":material/search:", "Search"));
+        let password = field(&st, TextInputOptions::new("Secret").input_type(TextInputType::Password).key("password"));
+        assert_eq!(password.autocomplete, "new-password");
+        assert!(password.icon.is_empty() && password.placeholder.is_empty());
+
+        let live = field(&st, TextInputOptions::new("Digits").key("digits").validate_with_message(r"^\d+$", "digits only").live(true));
+        assert_eq!(live.live_debounce_ms, Some(250));
+        assert_eq!(live.validate_regex.as_deref(), Some(r"^\d+$"));
+        assert_eq!(live.validate_message.as_deref(), Some("digits only"));
+        let required = field(&st, TextInputOptions::new("Required").key("required").required(true).placeholder("type here"));
+        assert!(required.required && required.placeholder == "type here");
+        let disabled = field(&st, TextInputOptions::new("Disabled").key("disabled").disabled(true).value("fixed"));
+        assert!(disabled.disabled && disabled.default.as_deref() == Some("fixed"));
+        let cjk = field(&st, TextInputOptions::new("中文").key("cjk").max_chars(5));
+        assert_eq!(cjk.max_chars, 5);
+        let half_second = field(&st, TextInputOptions::new("Search").key("half_second").live_duration("0.5s"));
+        assert_eq!(half_second.live_debounce_ms, Some(500));
+        let zero = field(&st, TextInputOptions::new("Zero").key("zero").live_duration("0"));
+        assert_eq!(zero.live_debounce_ms, Some(0));
+        assert!(st.text_input(TextInputOptions::new("Bad live").key("bad_live").live_duration("300")).is_err(), "a nonzero bare number is not a documented duration");
+        assert!(st.text_input(TextInputOptions::new("Too slow").key("too_slow").live_debounce_ms(60_001)).is_err());
+        assert!(st.text_input(TextInputOptions::new("Bound").key("bound").bind(TextBind::QueryParams).input_type(TextInputType::Password)).is_err());
+    }
+
+    #[test]
+    fn form_flags_and_multiple_or_disabled_submits_match_reference() {
+        let state = SessionState::default();
+        state.begin_widgets(vec![]);
+        let (st, mut wire) = app(&state);
+        st.form(FormOptions::new("clear_true_form").clear_on_submit(true), |form| {
+            form.text_input(TextInputOptions::new("Note").key("note"))?;
+            form.form_submit_button(FormSubmitButtonOptions::new("Apply").key("clear_apply"))
+        })
+        .unwrap();
+        let block = form_block(&mut wire);
+        let Some(proto::block::Type::Form(form)) = block.r#type else { panic!() };
+        assert!(form.clear_on_submit && form.border && form.enter_to_submit);
+        let _ = input(&mut wire);
+        let _ = input(&mut wire);
+
+        st.form(FormOptions::new("enter_off_form").enter_to_submit(false), |form| {
+            form.text_input(TextInputOptions::new("Note").key("enter_note"))?;
+            form.form_submit_button(FormSubmitButtonOptions::new("Apply").key("enter_apply"))
+        })
+        .unwrap();
+        let block = form_block(&mut wire);
+        let Some(proto::block::Type::Form(form)) = block.r#type else { panic!() };
+        assert!(!form.clear_on_submit && form.border && !form.enter_to_submit);
+        let _ = input(&mut wire);
+        let _ = input(&mut wire);
+
+        st.form(FormOptions::new("first_disabled_form"), |form| {
+            form.text_input(TextInputOptions::new("Note").key("disabled_note"))?;
+            form.form_submit_button(FormSubmitButtonOptions::new("Disabled").key("disabled").disabled(true))?;
+            form.form_submit_button(FormSubmitButtonOptions::new("Apply").key("apply"))
+        })
+        .unwrap();
+        let _ = form_block(&mut wire);
+        let _ = input(&mut wire);
+        let element::Type::Button(disabled) = input(&mut wire) else { panic!() };
+        assert!(disabled.disabled && disabled.is_form_submitter);
+        let element::Type::Button(enabled) = input(&mut wire) else { panic!() };
+        assert!(!enabled.disabled && enabled.is_form_submitter);
+    }
+
+    #[test]
+    fn form_constraints_reject_before_appending_nested_or_callback_elements() {
+        let state = SessionState::default();
+        state.begin_widgets(vec![]);
+        let (st, mut wire) = app(&state);
+        assert!(
+            st.form(FormOptions::new("duplicate_form"), |form| {
+                form.text_input(TextInputOptions::new("First").key("first"))?;
+                form.form_submit_button(FormSubmitButtonOptions::new("First apply").key("first_apply"))
+            })
+            .is_ok()
+        );
+        assert!(matches!(
+            st.form(FormOptions::new("duplicate_form"), |form| {
+                form.text_input(TextInputOptions::new("Second").key("second"))?;
+                form.form_submit_button(FormSubmitButtonOptions::new("Second apply").key("second_apply"))
+            }),
+            Err(WidgetError::DuplicateKey(_))
+        ));
+        assert!(matches!(
+            st.form(FormOptions::new("outer_form"), |form| {
+                InputWidgets::try_button(form, ButtonOptions::new("Ordinary"))
+            }),
+            Err(WidgetError::InvalidValue(message)) if message.contains("st.button")
+        ));
+        assert!(matches!(
+            st.form(FormOptions::new("callback_form"), |form| {
+                form.text_input(TextInputOptions::new("Bad callback").key("bad_callback").on_change(|_| {}))
+            }),
+            Err(WidgetError::InvalidValue(message)) if message.contains("only form_submit_button")
+        ));
+        assert!(matches!(
+            st.form(FormOptions::new("nested_form"), |form| {
+                form.form(FormOptions::new("inner_form"), |inner| inner.form_submit_button("Inner apply"))
+            }),
+            Err(WidgetError::InvalidValue(message)) if message.contains("nested")
+        ));
+        for _ in 0..3 {
+            assert!(wire.try_recv().is_ok(), "the first valid form is still rendered");
+        }
+        assert!(wire.try_recv().is_err(), "failed form calls must not append their partial children");
     }
 
     #[test]
