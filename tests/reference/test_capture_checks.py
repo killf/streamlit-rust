@@ -30,6 +30,10 @@ from capture_browser_trace import (  # noqa: E402
     Capture,
     case_verdict,
     data_loop_verdict,
+    empty_checks,
+    journey_result,
+    recover_checks,
+    sessions_checks,
     WIDGET_DOM_JS,
     dom_value_for,
     parse_counter_texts,
@@ -1031,6 +1035,15 @@ def test_the_entry_fails_when_the_upload_and_every_step_fail() -> None:
             self.trace = text
 
     class Args:
+        scope = "PYTHON SIDE ONLY"
+        label = "test-data-loop"
+        kind = "python-reference-widget-trace"
+        suite = "python-numeric"
+        only = "all"
+        case = "data-loop"
+        journey = "basic"
+        port = 60667
+        out = ""
         files = ""
         fixture = "missing.csv"
         file_action = "none"
@@ -1182,3 +1195,542 @@ def test_a_chart_that_draws_another_column_is_rejected() -> None:
         "bar heights" in problem or "no height" in problem or "positive scale" in problem
         for problem in verdict["problems"]
     ), verdict["problems"]
+
+# --- bounded journeys; complete offline contract fixtures use real IPC ---
+
+def _journey_contract_fixture(tmp_path, kind):
+    """Complete offline driver observations, not a claim of browser recapture."""
+    tmp_path.mkdir(parents=True, exist_ok=True)
+    import runpy
+    import pyarrow as pa
+    from capture_browser_trace import arrow_summary
+    from refcore import aggregate, parse_csv
+    driver = runpy.run_path(str(HERE.parent / "browser/numeric_capture.py"))
+    files = driver["_ArrowFiles"](tmp_path)
+    fixture_root = HERE.parent / "fixtures/csv"
+    columns = ["group_key", "row_count", "total_amount", "avg_amount"]
+
+    def run(frames, timeline, source, filename, group, *, upload=True, bad=False, old=None):
+        start = len(frames)
+        session, socket = "session-" + source, "socket-" + source
+        file_id = "file-" + filename
+        path = fixture_root / filename
+        upload_url = f"/_stcore/upload_file/{session}/{file_id}"
+
+        def frame(direction, decoded):
+            frames.append({"direction": direction, "connection": 0, "request_id": socket,
+                           "namespace": source, "timestamp": 100.0 + len(frames) / 10, "decoded": decoded})
+
+        if not frames:
+            frame("server->client", {"message":"ForwardMsg", "type":"new_session", "new_session":{"session_id":session,"script_run_id":"initial-run"}})
+            start = len(frames)
+        if upload:
+            frame("client->server", {"message":"BackMsg", "type":"file_urls_request", "file_urls_request":{"request_id":file_id,"file_names":[filename],"session_id":session}})
+            frame("server->client", {"message":"ForwardMsg", "type":"file_urls_response", "file_urls_response":{"response_id":file_id,"file_urls":[{"file_id":file_id,"upload_url":upload_url,"delete_url":upload_url}],"error_msg":""}})
+            stamp = frames[-1]["timestamp"] + .01
+            timeline.append({"request_id":"put-"+file_id,"method":"PUT","request_headers":{"Content-Type":"multipart/form-data; boundary=unit"},"url":"http://127.0.0.1:8501"+upload_url,"timestamp":stamp,"response_timestamp":stamp+.01,"status":204})
+        info = {"name":filename,"size":str(path.stat().st_size),"fileId":file_id,"fileUrls":{"fileId":file_id,"uploadUrl":upload_url,"deleteUrl":upload_url}}
+        states = [{"id":"uploader","value_field":"file_uploader_state_value","value":{"uploaded_file_info":filename},"value_full":{"uploadedFileInfo":[info]}},
+                  {"id":"group","value_field":"string_value","value":group},
+                  {"id":"minimum","value_field":"double_array_value","value":{},"value_full":{"data":[0.0]}},
+                  {"id":"unknown","value_field":"bool_value","value":True}]
+        frame("client->server", {"message":"BackMsg","type":"rerun_script","rerun_script":{"widget_states":states}})
+        frame("server->client", {"message":"ForwardMsg","type":"new_session","new_session":{"session_id":session,"script_run_id":"run-"+str(len(frames))}})
+        for element, label, widget in [("file_uploader","Upload sales CSV","uploader"),("selectbox","Group by","group"),("slider","Minimum amount","minimum"),("checkbox","Include unknown region","unknown")]:
+            frame("server->client", {"message":"ForwardMsg","type":"delta","delta":{"type":"new_element","element":element,"label":label,"id":widget}})
+        dom={"table_present":False,"table_cells":[],"chart_present":False,"chart_bars":0,"chart_marks":"","chart_labels":[],"selectbox_value":group,"slider_value":"0","checkbox_checked":True,"alerts":[]}
+        if not bad:
+            parsed=parse_csv(path.read_bytes())
+            rows=[{"group_key":r.group_key,"row_count":r.row_count,"total_amount":float(r.total_amount),"avg_amount":float(r.avg_amount)} for r in aggregate(parsed.rows,group,0,True)]
+            table=pa.Table.from_pylist(rows,schema=pa.schema([("group_key",pa.large_string()),("row_count",pa.int64()),("total_amount",pa.float64()),("avg_amount",pa.float64())]))
+            sink=pa.BufferOutputStream()
+            with pa.ipc.new_stream(sink,table.schema) as writer:
+                writer.write_table(table)
+            arrow=arrow_summary(sink.getvalue().to_pybytes())
+            frame("server->client", {"message":"ForwardMsg","type":"delta","delta":{"type":"new_element","element":"dataframe","arrow":arrow}})
+            dom["table_present"]=True
+            dom["table_cells"]=[str(row[c]) for row in rows for c in columns] if rows else ["", "", "", ""]
+            if rows:
+                name="dataset-"+arrow["sha256"][:12]
+                spec={"data":{"name":name},"mark":{"type":"bar"},"encoding":{"x":{"field":"group_key","sort":[r["group_key"] for r in rows]},"y":{"field":"total_amount"}}}
+                frame("server->client", {"message":"ForwardMsg","type":"delta","delta":{"type":"new_element","element":"vega_lite_chart","vega_lite_spec":spec,"vega_lite_datasets":[{"name":name,"arrow":arrow}]}})
+                dom.update(chart_present=True,chart_bars=len(rows),chart_marks="|".join(f"M{i*10},{1000-r['total_amount']}h8v{r['total_amount']}Z" for i,r in enumerate(rows)))
+        frame("server->client", {"message":"ForwardMsg","type":"script_finished","script_finished":{"status":0,"status_name":"FINISHED_SUCCESSFULLY"}})
+        before=old or {"table_present":False,"table_cells":[],"chart_present":False,"chart_bars":0,"chart_marks":""}
+        action={"action":"upload","file":str(path)} if upload else {"action":"select-option","option":group,"changed":True}
+        phase=driver["_phase"]("upload" if upload else "change-group",action,frames,start,len(frames),before,dom,files)
+        return phase,dom
+
+    return _journey_fixture_parts(tmp_path, kind, run, driver, fixture_root, columns)
+
+
+def _journey_fixture_parts(tmp_path, kind, run, driver, fixture_root, columns):
+    obs={"journey":kind,"url":"http://127.0.0.1:8501/","ipc_dir":str(tmp_path)}
+    if kind=="empty":
+        frames=[];timeline=[];phase,dom=run(frames,timeline,"empty","sales_empty.csv","category")
+        obs.update(uploads={"file":True},phases=[phase],frames=frames,http_timeline=timeline,alerts={"after_upload":{"alerts":["The uploaded CSV contains no data rows."],"exceptions":[]}},dom={"after_upload":dom},table={**phase["ipc"]["table"]["arrow"],"arrow":phase["ipc"]["table"]["arrow"]})
+        return {"alerts":obs["alerts"]["after_upload"],"rows":[],"columns":columns,"dom":dom,"upload_ok":True,"observation":obs}
+    if kind=="recover":
+        frames=[];timeline=[];bad,dom_bad=run(frames,timeline,"recovery","sales_malformed.csv","category",bad=True)
+        good,dom_good=run(frames,timeline,"recovery","sales_basic.csv","category",old=dom_bad)
+        old_url="http://127.0.0.1:8501/_stcore/upload_file/session-recovery/file-sales_malformed.csv"
+        deletion={"request_id":"delete-old","method":"DELETE","url":old_url,"timestamp":good["start_timestamp"]+.02,"response_timestamp":good["start_timestamp"]+.03,"status":204,"matches_issued_file":True,"in_phase":True}
+        timeline.append(deletion)
+        alerts_bad={"alerts":["Could not parse the uploaded CSV: record 2"],"exceptions":[]};alerts_good={"alerts":[],"exceptions":[]}
+        obs.update(uploads={"bad":True,"good":True},phases=[bad,good],frames=frames,http_timeline=timeline,file_urls={"issued":driver["_issued_file_urls"](frames)},delete_requests=[deletion],alerts={"after_bad":alerts_bad,"after_good":alerts_good},dom={"after_bad":dom_bad,"after_good":dom_good},chips={"chips":["sales_basic.csv"]})
+        return {"alerts_bad":alerts_bad,"dom_bad":dom_bad,"verdict":{"ok":True},"delete_requests":[deletion],"chips":obs["chips"],"uploads":(True,True),"frames":frames[good["start"]:],"good_name":"sales_basic.csv","observation":obs}
+    tabs={}
+    for key,filename in [("a","sales_basic.csv"),("b","sales_unicode.csv")]:
+        frames=[];timeline=[];source="tab-"+key;phase,dom=run(frames,timeline,source,filename,"category");phases=[phase]
+        if key=="a":
+            phase,dom=run(frames,timeline,source,filename,"region",upload=False,old=dom);phases.append(phase)
+        tabs[key]={"namespace":source,"file":str(fixture_root/filename),"session_ids":["session-"+source],"uploaded":[filename],"group_values_sent":["category","region"] if key=="a" else ["category"],"phases":phases,"dom":{"after_group_change" if key=="a" else "after_upload":dom},"frames":frames,"http_timeline":timeline}
+    obs.update(uploads={"a":True,"b":True},tabs=tabs)
+    return {"sessions_a":tabs["a"]["session_ids"],"sessions_b":tabs["b"]["session_ids"],"names_a":tabs["a"]["uploaded"],"names_b":tabs["b"]["uploaded"],"groups_a":tabs["a"]["group_values_sent"],"groups_b":tabs["b"]["group_values_sent"],"dom_a":tabs["a"]["phases"][-1]["dom_after"],"dom_b":tabs["b"]["phases"][-1]["dom_after"],"uploads_a":True,"uploads_b":True,"observation":obs}
+
+
+def _run_journey_contract(kind, args):
+    return journey_result({"empty":empty_checks,"recover":recover_checks,"sessions":sessions_checks}[kind](**args))
+
+
+@pytest.mark.parametrize("kind", ["empty","recover","sessions"])
+def test_complete_journey_contract_with_real_ipc_and_fixture_values(tmp_path, kind):
+    result=_run_journey_contract(kind,_journey_contract_fixture(tmp_path,kind))
+    assert result["ok"],result["failures"]
+    assert result["counts"]["expected"]==result["counts"]["executed"]==result["counts"]["asserted"]
+
+
+# Independent review J1/J2/J3 reproductions: these must fail closed.
+def _recovery_with_overlapping_clear_run(tmp_path):
+    """Model the observed Python ordering: new state before the old run finishes."""
+    import copy
+    args=_journey_contract_fixture(tmp_path,"recover");obs=args["observation"]
+    phase=obs["phases"][-1];frames=obs["frames"]
+    state_index=next(i for i in range(phase["start"],phase["end"]) if frames[i]["decoded"].get("type")=="rerun_script")
+    clear=copy.deepcopy(frames[state_index])
+    uploader=next(s for s in clear["decoded"]["rerun_script"]["widget_states"] if s["value_field"]=="file_uploader_state_value")
+    uploader["value"]={};uploader["value_full"]={}
+    start=copy.deepcopy(frames[state_index+1]);start["decoded"]["new_session"]["script_run_id"]="clear-run"
+    widget=copy.deepcopy(frames[state_index+2])
+    finished=copy.deepcopy(frames[-1])
+    obs["frames"]=frames[:state_index]+[clear,start,widget,frames[state_index],finished]+frames[state_index+1:]
+    for i,f in enumerate(obs["frames"]):f["timestamp"]=100.+i/10
+    phase["end"]=len(obs["frames"])
+    args["frames"]=obs["frames"][phase["start"]:]
+    _resummarize_unit_phases(args)
+    return args
+
+
+def test_recovery_binds_good_file_to_its_new_run_not_previous_clear_completion(tmp_path):
+    args=_recovery_with_overlapping_clear_run(tmp_path)
+    result=_run_journey_contract("recover",args)
+    assert result["ok"],result["failures"]
+
+
+@pytest.mark.parametrize("mutation",["no_marker","reused_run_id","failed_target_finish","no_target_finish","result_after_finish","another_run_owns_result"])
+def test_previous_success_cannot_complete_or_supply_data_for_the_target_run(tmp_path,mutation):
+    import copy
+    args=_recovery_with_overlapping_clear_run(tmp_path);obs=args["observation"]
+    phase=obs["phases"][-1];frames=obs["frames"]
+    run_starts=[i for i in range(phase["start"],phase["end"]) if frames[i]["decoded"].get("type")=="new_session"]
+    target_start=run_starts[-1];target_finish=phase["end"]-1
+    if mutation=="no_marker":frames[target_start]["decoded"]["new_session"].pop("script_run_id")
+    elif mutation=="reused_run_id":frames[target_start]["decoded"]["new_session"]["script_run_id"]="clear-run"
+    elif mutation=="failed_target_finish":frames[target_finish]["decoded"]["script_finished"]["status"]=1
+    elif mutation=="no_target_finish":frames[target_finish]["decoded"]={"message":"ForwardMsg","type":"session_status_changed"}
+    elif mutation=="result_after_finish":
+        marker=frames.pop(target_finish);frames.insert(target_start+1,marker)
+    else:
+        marker=copy.deepcopy(frames[target_finish]);next_run=copy.deepcopy(frames[target_start])
+        next_run["decoded"]["new_session"]["script_run_id"]="unrelated-later-run"
+        frames[target_start+1:target_start+1]=[marker,next_run]
+        phase["end"]=len(frames)
+    for i,f in enumerate(frames):f["timestamp"]=100.+i/10
+    args["frames"]=frames[phase["start"]:]
+    _resummarize_unit_phases(args)
+    result=_run_journey_contract("recover",args)
+    assert not result["ok"],result
+
+
+def _resummarize_unit_phases(args):
+    """Keep changed unit raw/phase metadata coherent so negatives test content."""
+    import runpy
+    from copy import deepcopy
+    driver=runpy.run_path(str(HERE.parent / "browser/numeric_capture.py"))
+    obs=args["observation"]
+    stores=driver["_ArrowFiles"](pathlib.Path(obs["ipc_dir"]))
+    scopes=list(obs["tabs"].values()) if "tabs" in obs else [obs]
+    for scope in scopes:
+        for phase in scope["phases"]:
+            for payload in phase["ipc"].values():
+                arrow=(payload or {}).get("arrow")
+                if arrow and arrow.get("file"):
+                    stores.by_digest[arrow["sha256"]]=arrow["file"]
+    for scope in scopes:
+        for index,phase in enumerate(scope["phases"]):
+            new=driver["_phase"](phase["name"],phase["action"],scope["frames"][:phase["end"]],phase["start"],phase["end"],phase["dom_before"],phase["dom_after"],stores)
+            scope["phases"][index]=new
+
+
+def _mutate_journey(args, kind, mutation):
+    import pyarrow as pa
+    from capture_browser_trace import arrow_summary
+    obs=args["observation"];scope=obs["tabs"]["a"] if kind=="sessions" else obs
+    phase=scope["phases"][-1];frames=scope["frames"]
+    current=frames[phase["start"]:phase["end"]]
+    if mutation=="missing_observation":args["observation"]=None;return
+    if mutation=="wrong_shape":args["observation"]=[];return
+    if mutation=="no_frames":scope["frames"]=[];return
+    if mutation=="no_phase":scope["phases"]=[];return
+    if mutation=="no_clientstate":
+        for f in current:
+            if f["decoded"]["type"]=="rerun_script":f["decoded"]["type"]="session_status_changed"
+    elif mutation=="no_finish":
+        for f in current:
+            if f["decoded"]["type"]=="script_finished":f["decoded"]["type"]="session_status_changed"
+    elif mutation=="wrong_finish_connection":
+        next(f for f in current if f["decoded"]["type"]=="script_finished")["connection"]=99
+    elif mutation=="wrong_finish_request":
+        next(f for f in current if f["decoded"]["type"]=="script_finished")["request_id"]="another-socket"
+    elif mutation=="wrong_namespace":current[-1]["namespace"]="opposite-tab"
+    elif mutation=="missing_request_id":current[-1].pop("request_id")
+    elif mutation=="missing_timestamp":current[-1].pop("timestamp")
+    elif mutation=="failed_action":
+        if kind=="sessions":phase["action"]["changed"]=False
+        else:obs["uploads"]["file" if kind=="empty" else "good"]=False
+    elif mutation in ("wrong_dom","opposite_control","stale_bar"):
+        dom=phase["dom_after"]
+        if mutation=="wrong_dom":dom["table_cells"]=["WRONG_DATA"]
+        elif mutation=="opposite_control":dom["selectbox_value"]="category" if kind=="sessions" else "region"
+        else:dom["chart_bars"]=1
+    elif mutation in ("no_ipc","wrong_schema","wrong_data","old_delta"):
+        table=next(f["decoded"]["delta"] for f in current if f["decoded"].get("delta",{}).get("element")=="dataframe")
+        arrow=table["arrow"]
+        if mutation=="no_ipc":arrow.pop("base64")
+        elif mutation=="old_delta":
+            frames[0]["decoded"]={"message":"ForwardMsg","type":"delta","delta":table.copy()}
+            next(f for f in current if f["decoded"].get("delta") is table)["decoded"]["type"]="session_status_changed"
+        else:
+            rows=arrow["rows"]
+            if mutation=="wrong_data":
+                rows=[dict(row,total_amount=999.0) for row in rows] or [{"group_key":"OLD","row_count":1,"total_amount":999.,"avg_amount":999.}]
+            schema=pa.schema([("group_key",pa.large_string()),("row_count",pa.int32() if mutation=="wrong_schema" else pa.int64()),("total_amount",pa.float64()),("avg_amount",pa.float64())])
+            t=pa.Table.from_pylist(rows,schema=schema);sink=pa.BufferOutputStream()
+            with pa.ipc.new_stream(sink,t.schema) as writer:writer.write_table(t)
+            arrow.clear();arrow.update(arrow_summary(sink.getvalue().to_pybytes()))
+    elif mutation in ("no_put","put_outside_window","put_wrong_url"):
+        request=next(r for r in scope["http_timeline"] if r["method"]=="PUT")
+        if mutation=="no_put":scope["http_timeline"].remove(request)
+        elif mutation=="put_outside_window":request["timestamp"]=1.;request["response_timestamp"]=2.
+        else:request["url"]="http://unrelated.invalid/not-the-file"
+    elif mutation=="missing_ipc_file":
+        arrow=phase["ipc"]["table"]["arrow"];(pathlib.Path(obs["ipc_dir"])/arrow["file"]).unlink()
+    elif mutation=="wrong_fixture_path":
+        upload=scope["phases"][0];upload["action"]["file"]=str(HERE.parent/"fixtures/csv/sales_unicode.csv")
+    else:raise AssertionError(mutation)
+    _resummarize_unit_phases(args)
+
+
+@pytest.mark.parametrize("kind", ["empty","recover","sessions"])
+@pytest.mark.parametrize("mutation", ["missing_observation","wrong_shape","no_frames","no_phase","no_clientstate","no_finish","wrong_finish_connection","wrong_finish_request","wrong_namespace","missing_request_id","missing_timestamp","failed_action","wrong_dom","opposite_control","no_ipc","wrong_schema","wrong_data","old_delta","no_put","put_outside_window","put_wrong_url","wrong_fixture_path","missing_ipc_file"])
+def test_journey_contract_rejects_missing_crossed_stale_or_wrong_evidence(tmp_path,kind,mutation):
+    args=_journey_contract_fixture(tmp_path,kind)
+    _mutate_journey(args,kind,mutation)
+    result=_run_journey_contract(kind,args)
+    assert not result["ok"],(kind,mutation,result)
+
+
+@pytest.mark.parametrize("mutation", ["unrelated_delete","wrong_file_delete","wrong_session_delete","old_delete","late_response","missing_issued","stale_error","stale_warning","dom_stale_error"])
+def test_recovery_contract_binds_delete_window_and_requires_error_to_clear(tmp_path,mutation):
+    args=_journey_contract_fixture(tmp_path,"recover");obs=args["observation"]
+    deletion=obs["delete_requests"][0]
+    if mutation=="unrelated_delete":deletion["url"]="http://unrelated.invalid/not-the-upload"
+    elif mutation=="wrong_file_delete":deletion["url"]=deletion["url"].replace("sales_malformed","sales_basic")
+    elif mutation=="wrong_session_delete":deletion["url"]=deletion["url"].replace("session-recovery","another-session")
+    elif mutation=="old_delete":deletion["timestamp"]=10.;deletion["response_timestamp"]=11.
+    elif mutation=="late_response":deletion["response_timestamp"]=999999.
+    elif mutation=="missing_issued":obs["file_urls"]["issued"]=[]
+    elif mutation=="dom_stale_error":obs["dom"]["after_good"]["alerts"]=["Could not parse the uploaded CSV"]
+    else:obs["alerts"]["after_good"]["alerts"]=["Could not parse the uploaded CSV" if mutation=="stale_error" else "rows excluded from aggregation"]
+    result=_run_journey_contract("recover",args)
+    assert not result["ok"],result
+
+
+def test_sessions_contract_rejects_swapped_actual_data_and_opposite_controls(tmp_path):
+    args=_journey_contract_fixture(tmp_path,"sessions")
+    args["dom_a"]["table_cells"],args["dom_b"]["table_cells"]=args["dom_b"]["table_cells"],args["dom_a"]["table_cells"]
+    args["dom_a"]["selectbox_value"]="category";args["dom_b"]["selectbox_value"]="region"
+    assert not _run_journey_contract("sessions",args)["ok"]
+
+
+@pytest.mark.parametrize("mutation", ["missing","duplicate","mixed","unknown"])
+def test_journey_required_checks_are_not_defined_by_observed_count(tmp_path,mutation):
+    checks=empty_checks(**_journey_contract_fixture(tmp_path,"empty"))
+    if mutation=="missing":checks.pop()
+    elif mutation=="duplicate":checks.append(checks[0])
+    elif mutation=="mixed":checks[0]["journey"]="recover"
+    else:checks[0]=dict(checks[0],check="unknown-check")
+    assert not journey_result(checks)["ok"]
+
+
+@pytest.mark.parametrize("kind",["empty","recover","sessions"])
+@pytest.mark.parametrize("observation",[None,[],{}, {"journey":"recover","dom":[],"alerts":[]}, {"journey":"sessions","tabs":[]}])
+def test_malformed_observation_fails_without_crashing_or_default_success(tmp_path,kind,observation):
+    args=_journey_contract_fixture(tmp_path,kind);args["observation"]=observation
+    assert not _run_journey_contract(kind,args)["ok"]
+
+
+def test_empty_accepts_actual_python_null_group_type_only_with_zero_rows(tmp_path):
+    import pyarrow as pa
+    from capture_browser_trace import arrow_summary
+    args=_journey_contract_fixture(tmp_path,"empty");obs=args["observation"]
+    arrow=next(f["decoded"]["delta"]["arrow"] for f in obs["frames"] if f["decoded"].get("delta",{}).get("element")=="dataframe")
+    table=pa.Table.from_pylist([],schema=pa.schema([("group_key",pa.null()),("row_count",pa.int64()),("total_amount",pa.float64()),("avg_amount",pa.float64())]))
+    sink=pa.BufferOutputStream()
+    with pa.ipc.new_stream(sink,table.schema) as writer:writer.write_table(table)
+    arrow.clear();arrow.update(arrow_summary(sink.getvalue().to_pybytes()))
+    _resummarize_unit_phases(args)
+    obs["table"]={**obs["phases"][0]["ipc"]["table"]["arrow"],"arrow":obs["phases"][0]["ipc"]["table"]["arrow"]}
+    result=_run_journey_contract("empty",args)
+    assert result["ok"],result["failures"]
+
+
+def test_missing_real_arrow_decoder_is_a_failure(tmp_path,monkeypatch):
+    import builtins
+    args=_journey_contract_fixture(tmp_path,"empty")
+    original=builtins.__import__
+    def missing(name,*a,**kw):
+        if name.startswith("pyarrow"):raise ModuleNotFoundError("injected missing PyArrow")
+        return original(name,*a,**kw)
+    monkeypatch.setattr(builtins,"__import__",missing)
+    result=_run_journey_contract("empty",args)
+    assert not result["ok"]
+    assert any("IPC reader failed" in str(f) for f in result["failures"])
+
+
+def test_review_empty_driver_entry_rejects_only_an_old_delta(tmp_path,monkeypatch):
+    """J1's actual entry, not just a direct call to the helper."""
+    import runpy
+    driver=runpy.run_path(str(HERE.parent/"browser/numeric_capture.py"))
+    stale={"direction":"server->client","connection":0,"request_id":"old","namespace":"review-empty","timestamp":1.,
+           "decoded":{"message":"ForwardMsg","type":"delta","delta":{"type":"new_element","element":"dataframe","arrow":{"rows":[],"columns":["wrong_column"],"schema":"wrong_column: int64"}}}}
+    class Recorder:
+        label="review-empty"
+        def take(self):return []
+    class Page:
+        def upload(self,path):return True
+        def state_digest(self):return {"table_present":True,"table_cells":["","","",""],"chart_present":False,"chart_bars":0,"chart_marks":"","selectbox_value":"category","slider_value":"0","checkbox_checked":True}
+        def page_alerts(self):return {"alerts":["The uploaded CSV contains no data rows."],"exceptions":[]}
+    entry=driver["run_empty_journey"]
+    monkeypatch.setitem(entry.__globals__,"frames_of",lambda *a,**kw:[stale])
+    monkeypatch.setattr(entry.__globals__["time"],"sleep",lambda _:None)
+    args=types.SimpleNamespace(fixture=str(HERE.parent/"fixtures/csv/sales_empty.csv"),files="",scope="REVIEW",binary="not-a-live-capture",url="http://127.0.0.1:8501/")
+    assert entry(Page(),Recorder(),args,tmp_path)==1
+
+
+@pytest.mark.parametrize("mutation",[None,"unrelated_delete","stale_error"])
+def test_recovery_driver_entry_requires_bound_delete_and_cleared_error(tmp_path,monkeypatch,mutation):
+    import runpy
+    args=_journey_contract_fixture(tmp_path,"recover");obs=args["observation"]
+    if mutation=="unrelated_delete":obs["delete_requests"][0]["url"]="http://unrelated.invalid/not-the-upload"
+    if mutation=="stale_error":obs["alerts"]["after_good"]["alerts"]=["Could not parse the uploaded CSV"]
+    driver=runpy.run_path(str(HERE.parent/"browser/numeric_capture.py"));entry=driver["run_recover_journey"]
+    bad,good=obs["phases"];all_frames=obs["frames"]
+    frames=iter([all_frames[:bad["start"]],all_frames[:good["start"]],all_frames])
+    digests=iter([bad["dom_before"],bad["dom_after"],bad["dom_after"],good["dom_after"]])
+    alerts=iter([obs["alerts"]["after_bad"],obs["alerts"]["after_good"]])
+    class Recorder:
+        label="recovery"
+        def take(self):return []
+    class Page:
+        def upload(self,path):return True
+        def state_digest(self):return next(digests)
+        def page_alerts(self):return next(alerts)
+        def files_dom(self):return args["chips"]
+    monkeypatch.setitem(entry.__globals__,"frames_of",lambda *a,**kw:next(frames))
+    monkeypatch.setitem(entry.__globals__,"_http_timeline",lambda _:obs["http_timeline"])
+    monkeypatch.setattr(entry.__globals__["time"],"sleep",lambda _:None)
+    command=types.SimpleNamespace(files=bad["action"]["file"]+","+good["action"]["file"],fixture="",scope="REVIEW",binary="offline-unit-not-browser-proof",url=obs["url"])
+    assert entry(Page(),Recorder(),command,tmp_path)==(0 if mutation is None else 1)
+
+
+@pytest.mark.parametrize("kind",["recover","sessions"])
+@pytest.mark.parametrize("mutation",[None,"missing_named","missing_dataset_bytes","fake_inline","wrong_referenced_payload"])
+def test_named_chart_payload_is_resolved_by_actual_spec_reference(tmp_path,kind,mutation):
+    import copy
+    args=_journey_contract_fixture(tmp_path,kind);obs=args["observation"]
+    scope=obs["tabs"]["a"] if kind=="sessions" else obs
+    phase=scope["phases"][-1]
+    chart=next(f["decoded"]["delta"] for f in scope["frames"][phase["start"]:phase["end"]] if f["decoded"].get("delta",{}).get("element")=="vega_lite_chart")
+    assert not chart.get("arrow"),"The fixture must exercise the real empty-inline shape"
+    if mutation=="missing_named":chart["vega_lite_spec"]["data"]["name"]="not-issued"
+    elif mutation=="missing_dataset_bytes":chart["vega_lite_datasets"][0]["arrow"].pop("base64")
+    elif mutation=="fake_inline":
+        phase["ipc"]["chart"]["arrow"]=copy.deepcopy(phase["ipc"]["table"]["arrow"])
+    elif mutation=="wrong_referenced_payload":
+        wrong=_journey_contract_fixture(tmp_path/"other","empty")
+        other=next(f["decoded"]["delta"]["arrow"] for f in wrong["observation"]["frames"] if f["decoded"].get("delta",{}).get("element")=="dataframe")
+        chart["vega_lite_datasets"].append(copy.deepcopy(chart["vega_lite_datasets"][0]))
+        chart["vega_lite_datasets"][-1]["name"]="unused-correct-data"
+        chart["vega_lite_datasets"][0]["arrow"]=other
+    if mutation not in (None,"fake_inline"):_resummarize_unit_phases(args)
+    result=_run_journey_contract(kind,args)
+    assert result["ok"]==(mutation is None),result
+
+
+@pytest.mark.parametrize("kind",["empty","recover","sessions"])
+def test_replay_uses_actual_raw_parent_after_original_capture_directory_is_gone(tmp_path,kind):
+    import copy
+    old=tmp_path/"original";old.mkdir()
+    args=_journey_contract_fixture(old,kind)
+    raw=json.dumps(args["observation"],ensure_ascii=False)
+    relocated=tmp_path/"archive";relocated.mkdir()
+    (relocated/"trace.json").write_text(raw,encoding="utf8")
+    for file in old.glob("arrow-*.bin"):
+        shutil.copyfile(file,relocated/file.name)
+        file.unlink()
+    # Loader context only. The archived trace bytes, events and file references stay intact.
+    loaded=json.loads((relocated/"trace.json").read_text(encoding="utf8"))
+    loaded["ipc_dir"]=str(relocated)
+    args["observation"]=loaded
+    result=_run_journey_contract(kind,args)
+    assert result["ok"],result["failures"]
+    assert (relocated/"trace.json").read_text(encoding="utf8")==raw
+
+
+def test_journey_review_empty_old_delta_wrong_schema_without_state_or_finish():
+    checks = empty_checks({"alerts":["The uploaded CSV contains no data rows."]}, [], ["wrong_column"], {"table_cells":[],"chart_bars":0}, True)
+    assert not journey_result(checks)["ok"]
+
+
+def test_journey_review_sessions_opposite_controls_and_wrong_data_without_frames():
+    checks = sessions_checks(["a"],["b"],["a.csv"],["b.csv"],["region"],["category"],
+        {"table_cells":["WRONG_B_DATA"],"selectbox_value":"category"},
+        {"table_cells":["WRONG_A_DATA"],"selectbox_value":"region"},True,True)
+    assert not journey_result(checks)["ok"]
+
+
+def test_journey_review_unrelated_delete_and_no_recovery_frames():
+    checks = recover_checks({"alerts":["Could not parse the uploaded CSV"]},
+        {"table_cells":[],"chart_bars":0},{"ok":True,"problems":[]},
+        [{"method":"DELETE","status":204,"url":"http://unrelated.invalid/not-the-upload"}],
+        {"chips":["good.csv"]},(True,True),[],"good.csv")
+    assert not journey_result(checks)["ok"]
+
+
+def test_journey_review_missing_required_checks_is_not_zero_of_zero_success():
+    assert not journey_result([])["ok"]
+
+
+# Actual state/run/finish fields transcribed from Python recover raw SHA
+# 8fc2e3d6e039033da7b4df448cad03e6f2948beda6c92cd6e149485f984fee07.
+# Only the uploader state and run-boundary fields are retained for this unit
+# regression; real IPC/DOM replay is checked separately, not fabricated here.
+_PYTHON_RECOVERY_RUN_BOUNDARY = [{'original_frame': 27,
+  'frame': {'direction': 'client->server',
+            'connection': 0,
+            'request_id': '78980.151',
+            'namespace': 'python-final-recover',
+            'timestamp': 19135.01091,
+            'decoded': {'message': 'BackMsg',
+                        'type': 'rerun_script',
+                        'rerun_script': {'widget_states': [{'id': '$$ID-19480263d3eb5977e56726a4936e1a89-upload',
+                                                            'value_field': 'file_uploader_state_value',
+                                                            'value': {},
+                                                            'value_full': {}}]}}}},
+ {'original_frame': 28,
+  'frame': {'direction': 'server->client',
+            'connection': 0,
+            'request_id': '78980.151',
+            'namespace': 'python-final-recover',
+            'timestamp': 19135.01431,
+            'decoded': {'message': 'ForwardMsg',
+                        'type': 'new_session',
+                        'new_session': {'script_run_id': '6d615358-e64e-4a79-8487-db9ae095e383',
+                                        'session_id': 'bdec8992-f74d-4dc6-bd34-82c1d298a72d'}}}},
+ {'original_frame': 44,
+  'frame': {'direction': 'client->server',
+            'connection': 0,
+            'request_id': '78980.151',
+            'namespace': 'python-final-recover',
+            'timestamp': 19135.104398,
+            'decoded': {'message': 'BackMsg',
+                        'type': 'rerun_script',
+                        'rerun_script': {'widget_states': [{'id': '$$ID-19480263d3eb5977e56726a4936e1a89-upload',
+                                                            'value_field': 'file_uploader_state_value',
+                                                            'value': {'uploaded_file_info': '[name: '
+                                                                                            '"sales_basic.csv"\n'
+                                                                                            'size: '
+                                                                                            '737\n'
+                                                                                            'file_id: '
+                                                                                            '"2259d81b-24d1-4252-9d8f-d4b246152168"\n'
+                                                                                            'file_urls '
+                                                                                            '{\n'
+                                                                                            '  '
+                                                                                            'file_id: '
+                                                                                            '"2259d81b-24d1-4252-9d8f-d4b246152168"\n'
+                                                                                            '  '
+                                                                                            'upload_url: '
+                                                                                            '"/_stcore/upload_file/bdec8992-f74d-4dc6-bd34-82c1d298a72d/2259d81b-24d1-4252-9d8f-d4b246152168"\n'
+                                                                                            '  '
+                                                                                            'delete_url: '
+                                                                                            '"/_stcore/upload_file/bdec8992-f74d-4dc6-bd34-82c1d298a72d/2259d81b-24d1-4252-9d8f-d4b246152168"\n'
+                                                                                            '}\n'
+                                                                                            ']'},
+                                                            'value_full': {'uploadedFileInfo': [{'name': 'sales_basic.csv',
+                                                                                                 'size': '737',
+                                                                                                 'fileId': '2259d81b-24d1-4252-9d8f-d4b246152168',
+                                                                                                 'fileUrls': {'fileId': '2259d81b-24d1-4252-9d8f-d4b246152168',
+                                                                                                              'uploadUrl': '/_stcore/upload_file/bdec8992-f74d-4dc6-bd34-82c1d298a72d/2259d81b-24d1-4252-9d8f-d4b246152168',
+                                                                                                              'deleteUrl': '/_stcore/upload_file/bdec8992-f74d-4dc6-bd34-82c1d298a72d/2259d81b-24d1-4252-9d8f-d4b246152168'}}]}}]}}}},
+ {'original_frame': 48,
+  'frame': {'direction': 'server->client',
+            'connection': 0,
+            'request_id': '78980.151',
+            'namespace': 'python-final-recover',
+            'timestamp': 19135.114871,
+            'decoded': {'message': 'ForwardMsg',
+                        'type': 'script_finished',
+                        'script_finished': {'status': 0, 'status_name': 'FINISHED_SUCCESSFULLY'}}}},
+ {'original_frame': 50,
+  'frame': {'direction': 'server->client',
+            'connection': 0,
+            'request_id': '78980.151',
+            'namespace': 'python-final-recover',
+            'timestamp': 19135.122935,
+            'decoded': {'message': 'ForwardMsg',
+                        'type': 'new_session',
+                        'new_session': {'script_run_id': 'c1f44342-7a2f-4a9f-ad21-8aeb2dc1ab6a',
+                                        'session_id': 'bdec8992-f74d-4dc6-bd34-82c1d298a72d'}}}},
+ {'original_frame': 60,
+  'frame': {'direction': 'server->client',
+            'connection': 0,
+            'request_id': '78980.151',
+            'namespace': 'python-final-recover',
+            'timestamp': 19135.130288,
+            'decoded': {'message': 'ForwardMsg',
+                        'type': 'delta',
+                        'delta': {'type': 'new_element',
+                                  'element': 'dataframe',
+                                  'arrow': {'sha256': '2ef28720376df68c13fe7cd9a63bac0e8c56e74716fc19ed6bd17df21b89a5c2'}}}}},
+ {'original_frame': 70,
+  'frame': {'direction': 'server->client',
+            'connection': 0,
+            'request_id': '78980.151',
+            'namespace': 'python-final-recover',
+            'timestamp': 19135.247648,
+            'decoded': {'message': 'ForwardMsg',
+                        'type': 'script_finished',
+                        'script_finished': {'status': 0, 'status_name': 'FINISHED_SUCCESSFULLY'}}}}]
+
+
+def test_reviewed_python_boundary_binds_44_to_run50_finish70_not_clear_finish48():
+    from capture_browser_trace import _journey_run_verdict
+    frames=[dict(item["frame"],target=item["frame"]["namespace"]) for item in _PYTHON_RECOVERY_RUN_BOUNDARY]
+    widget=frames[2]["decoded"]["rerun_script"]["widget_states"][0]["id"]
+    verdict=_journey_run_verdict(frames,{"start":0,"end":len(frames),"widget":widget,"target":frames[0]["target"]},
+                                 {"action":"upload","ok":True},"sales_basic.csv","category")
+    assert verdict["ok"],verdict["problems"]
+    assert _PYTHON_RECOVERY_RUN_BOUNDARY[verdict["state_frame"]]["original_frame"]==44
+    assert _PYTHON_RECOVERY_RUN_BOUNDARY[verdict["run_start_frame"]]["original_frame"]==50
+    assert _PYTHON_RECOVERY_RUN_BOUNDARY[verdict["completion_frame"]]["original_frame"]==70

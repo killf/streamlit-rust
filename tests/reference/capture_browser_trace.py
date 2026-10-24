@@ -314,6 +314,26 @@ def _safe(fn, payload: bytes) -> dict:
         return {"message": "undecoded", "error": f"{type(exc).__name__}: {exc}"}
 
 
+def require_decoder() -> None:
+    """Refuse to capture when the protobuf decoder is not importable.
+
+    The decoder needs the pinned reference interpreter (streamlit 1.66.1 with
+    its protobuf definitions).  Without it every frame is recorded as
+    "undecoded", which still looks like a trace: the capture then reports an
+    empty window instead of the missing dependency.  Failing here keeps a
+    tool failure from turning into a product claim.
+    """
+    try:
+        from streamlit.proto import ForwardMsg_pb2  # noqa: F401
+        import google.protobuf  # noqa: F401
+    except Exception as exc:
+        raise SystemExit(
+            f"the protobuf decoder is missing ({type(exc).__name__}: {exc}).  Run the "
+            "capture with target\\pyref-venv\\Scripts\\python.exe, the interpreter "
+            "that carries streamlit 1.66.1 and its protobuf definitions."
+        )
+
+
 def summarise_forward(payload: bytes) -> dict:
     from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
 
@@ -1105,6 +1125,683 @@ def data_loop_verdict(case, frames, window, action, dom_before, dom_after) -> di
     verdict["problems"] = problems
     verdict["ok"] = not problems
     return verdict
+
+
+def _check(step: str, check: str, expected: str, actual, ok: bool) -> dict:
+    """One check of a journey: what was expected, what was seen and the verdict."""
+    return {
+        "step": step,
+        "check": check,
+        "expected": expected,
+        "actual": actual if isinstance(actual, str) else json.dumps(actual, default=str),
+        "ok": bool(ok),
+    }
+
+
+JOURNEY_REQUIRED = {
+    "recover": {(s, c) for s, c in (
+        ("bad-csv", "file_uploaded"), ("bad-csv", "error_visible"), ("bad-csv", "no_result"),
+        ("recover", "file_uploaded"), ("recover", "case_verdict"), ("recover", "frames_decoded"),
+        ("replace", "delete_status"), ("replace", "old_file_gone"),
+        ("bad-csv", "upload_proof"), ("recover", "upload_proof"),
+        ("recover", "no_stale_error"), ("replace", "delete_bound"))},
+    "empty": {("empty-csv", c) for c in (
+        "file_uploaded", "info_visible", "result_present", "no_rows", "schema_kept", "no_stale_view", "operation_proof")},
+    "sessions": {("sessions", c) for c in (
+        "file_uploaded_a", "file_uploaded_b", "session_ids", "session_isolation", "upload_isolation",
+        "control_isolation", "group_isolation", "results_present", "result_isolation", "proof_a", "proof_b")},
+}
+
+
+def journey_result(checks: list[dict]) -> dict:
+    """Require the fixed, finite contract of one journey, not an arbitrary count."""
+    if not isinstance(checks, list) or any(not isinstance(c, dict) or not isinstance(c.get("journey"), str) for c in checks):
+        return {"failures": [_check("journey", "required_checks", "well-formed journey checks", "missing or malformed checks", False)],
+                "counts": {"expected": 1, "executed": 0, "asserted": 0}, "ok": False}
+    kinds = {c.get("journey") for c in checks if isinstance(c, dict)}
+    kind = next(iter(kinds)) if len(kinds) == 1 else None
+    required = JOURNEY_REQUIRED.get(kind)
+    if not required:
+        failure = _check("journey", "required_checks", "one complete known journey contract", "missing or mixed journey checks", False)
+        return {"failures": [failure], "counts": {"expected": 1, "executed": 0, "asserted": 0}, "ok": False}
+    keyed = {(c.get("step"), c.get("check")): c for c in checks}
+    failures = [{k: c.get(k) for k in ("step", "check", "expected", "actual")} for c in checks if c.get("ok") is not True]
+    for key in sorted(required - keyed.keys()):
+        failures.append(_check(*key, "required journey check", "not executed", False))
+    if len(keyed) != len(checks) or keyed.keys() - required:
+        failures.append(_check("journey", "required_checks", "exactly one of every required check", "duplicate or unknown checks", False))
+    return {"failures": failures, "counts": {"expected": len(required), "executed": len(required & keyed.keys()),
+            "asserted": sum(key in keyed and keyed[key].get("ok") is True for key in required)}, "ok": not failures}
+
+
+# A parse error reads differently in the reference app and in the Rust one
+# ("row 3: expected 8 fields, found 7" against "CSV error: record 2 ..."), so
+# the check looks for the shape of a parse failure and not for one wording.
+PARSE_ERROR = re.compile(r"(?i)could not parse|csv error|record \d+|row \d+")
+
+
+def _filled_cells(cells) -> list[str]:
+    """The cells that carry text.
+
+    A table of an empty result still renders one cell per column, with
+    empty text.  Those cells are not stale data, so the stale check looks
+    at the text and not at the number of cells.
+    """
+    return [str(cell) for cell in (cells or []) if str(cell).strip()]
+
+
+def _journey_need(ok, message):
+    if not ok:
+        raise ValueError(message)
+
+
+def _journey_http(bundle, phase):
+    """Use actual request/response timestamps, never driver in_phase booleans."""
+    timeline = bundle.get("http_timeline")
+    start, end = phase.get("start_timestamp"), phase.get("end_timestamp")
+    _journey_need(isinstance(timeline, list) and timeline and all(type(t) in (int, float) and math.isfinite(t) for t in (start, end)) and start < end, "missing HTTP timeline/action timestamps")
+    requests = []
+    for request in timeline:
+        sent, received = request.get("timestamp"), request.get("response_timestamp")
+        if not all(type(t) in (int, float) and math.isfinite(t) for t in (sent, received)):
+            continue
+        if start <= sent <= received <= end:
+            _journey_need(request.get("request_id"), "HTTP request lacks real requestId")
+            requests.append(request)
+    return requests
+
+
+def _journey_url(base, value, session, file_id):
+    from urllib.parse import urljoin, urlsplit, unquote
+    _journey_need(isinstance(value, str) and bool(value), "missing issued file URL")
+    absolute = urljoin(base, value)
+    parsed, origin = urlsplit(absolute), urlsplit(base)
+    _journey_need(parsed.scheme in ("http", "https") and (parsed.scheme, parsed.netloc) == (origin.scheme, origin.netloc), "file URL origin mismatch")
+    _journey_need([unquote(v) for v in parsed.path.rstrip("/").split("/")[-2:]] == [session, file_id], "file URL session/file id mismatch")
+    return absolute
+
+
+def _journey_ipc(arrow, bundle):
+    """Re-read wire and retained IPC bytes, not just a claimed digest."""
+    _journey_need(isinstance(arrow, dict) and isinstance(arrow.get("base64"), str), "missing IPC bytes in wire")
+    data = base64.b64decode(arrow["base64"], validate=True)
+    actual = arrow_summary(data)
+    _journey_need("arrow_error" not in actual, "IPC reader failed: " + str(actual.get("arrow_error")))
+    for key in ("bytes", "sha256", "schema", "columns", "rows", "row_count"):
+        _journey_need(key in arrow and actual.get(key) == arrow[key], "wire IPC summary mismatch: " + key)
+    _journey_need(actual["row_count"] == len(actual["rows"]), "IPC row preview is incomplete")
+    files = bundle.get("ipc_files")
+    _journey_need(isinstance(files, dict) and isinstance(bundle.get("ipc_dir"), (str, pathlib.Path)), "missing retained IPC mapping")
+    name = files.get(actual["sha256"])
+    _journey_need(isinstance(name, str) and pathlib.Path(name).name == name, "missing or unsafe retained IPC filename")
+    folder = pathlib.Path(bundle["ipc_dir"]).resolve()
+    path = (folder / name).resolve()
+    _journey_need(path.parent == folder and path.is_file() and path.read_bytes() == data, "retained IPC differs from operation wire bytes")
+    return actual
+
+
+def _journey_bundle(observation, *, tab=None, phase_index=-1):
+    """Read the published shape. A replay loader binds ipc_dir in memory to
+    the actual raw parent (or resolved archive location); historical events
+    and stored IPC filenames are never rewritten to repair missing evidence.
+    """
+    _journey_need(isinstance(observation, dict), "missing observation")
+    raw = observation.get("tabs", {}).get(tab) if tab else observation
+    _journey_need(isinstance(raw, dict), "missing tab observation")
+    frames, phases = raw.get("frames"), raw.get("phases")
+    _journey_need(isinstance(frames, list) and frames and isinstance(phases, list) and phases, "missing raw frames/phases")
+    namespaces = {f.get("namespace") for f in frames}
+    source = raw.get("namespace") if tab else next(iter(namespaces)) if len(namespaces) == 1 else None
+    _journey_need(isinstance(source, str) and source and namespaces == {source}, "missing or mixed frame namespaces")
+    _journey_need(isinstance(observation.get("ipc_dir"), str) and isinstance(observation.get("url"), str), "missing IPC directory/application URL")
+    files = {}
+    normalized = [dict(f, target=f["namespace"]) for f in frames]
+    for phase in phases:
+        start, end = phase.get("start"), phase.get("end")
+        _journey_need(type(start) is int and type(end) is int and 0 <= start < end <= len(frames), "invalid phase frame window")
+        selected = frames[start:end]
+        stamps = [f.get("timestamp") for f in selected]
+        _journey_need(all(type(t) in (int, float) and math.isfinite(t) for t in stamps)
+                      and stamps == sorted(stamps) and phase.get("start_timestamp") == stamps[0]
+                      and phase.get("end_timestamp") == stamps[-1], "phase timestamps are not bound to raw frames")
+        client_states = [{k: state.get(k) for k in ("id", "value_field", "value")}
+                         for f in selected if (f.get("decoded") or {}).get("type") == "rerun_script"
+                         for state in f["decoded"].get("rerun_script", {}).get("widget_states", [])]
+        completions = [{"frame": i, "connection": f.get("connection"), "request_id": f.get("request_id"),
+                        "status": f["decoded"]["script_finished"].get("status"), "status_name": f["decoded"]["script_finished"].get("status_name")}
+                       for i, f in enumerate(selected) if (f.get("decoded") or {}).get("type") == "script_finished"]
+        _journey_need(client_states and client_states == phase.get("client_states") and completions and completions == phase.get("completions"), "phase ClientState/completion summaries differ from raw frames")
+        _journey_need(isinstance(phase.get("ipc"), dict), "missing phase IPC evidence")
+        for payload in phase["ipc"].values():
+            if not payload:
+                continue
+            payloads = [payload.get("arrow"), *[d.get("arrow") for d in payload.get("datasets", [])]]
+            for arrow in (value for value in payloads if value):
+                _journey_need(isinstance(arrow.get("file"), str) and arrow.get("sha256"), "missing retained phase IPC file")
+                previous = files.get(arrow["sha256"])
+                _journey_need(previous is None or previous == arrow["file"], "conflicting retained IPC mapping")
+                files[arrow["sha256"]] = arrow["file"]
+        deltas = [f.get("decoded", {}).get("delta", {}) for f in selected if f.get("direction") == "server->client" and f.get("decoded", {}).get("type") == "delta"]
+        for name, kinds in (("table", ("dataframe", "table")), ("chart", ("vega_lite_chart",))):
+            wire = [d for d in deltas if d.get("type") == "new_element" and d.get("element") in kinds]
+            retained = phase["ipc"].get(name)
+            _journey_need(bool(wire) == bool(retained), "phase IPC does not correspond to its frame window")
+            if wire:
+                pairs = [(wire[-1].get("arrow"), retained.get("arrow"))]
+                if name == "chart":
+                    _journey_need(retained.get("vega_lite_spec") == wire[-1].get("vega_lite_spec"), "phase chart spec differs from wire")
+                    datasets = wire[-1].get("vega_lite_datasets") or []
+                    kept_datasets = retained.get("datasets")
+                    _journey_need(isinstance(kept_datasets, list) and len(kept_datasets) == len(datasets), "missing retained chart datasets")
+                    for dataset, kept in zip(datasets, kept_datasets):
+                        _journey_need(dataset.get("name") == kept.get("name") and dataset.get("has_name") == kept.get("has_name"), "retained chart dataset identity differs from wire")
+                        pairs.append((dataset.get("arrow"), kept.get("arrow")))
+                for wire_arrow, arrow in pairs:
+                    _journey_need(bool(wire_arrow) == bool(arrow), "retained IPC invents or omits a wire payload")
+                    if wire_arrow:
+                        _journey_need(isinstance(arrow, dict) and all(key in arrow and arrow[key] == wire_arrow.get(key)
+                                      for key in ("sha256", "bytes", "columns", "rows", "row_count", "schema")), "phase IPC summary differs from window wire")
+    phase = phases[phase_index]
+    upload_phase = next((p for p in phases[:phases.index(phase)+1] if p.get("action", {}).get("action") == "upload" and p.get("action", {}).get("file")), None)
+    # Recovery selects its own upload phase; a tab's later group phase uses its first upload.
+    if phase.get("action", {}).get("action") == "upload":
+        upload_phase = phase
+    _journey_need(upload_phase is not None, "missing upload phase")
+    if tab:
+        _journey_need(isinstance(raw.get("file"), str) and pathlib.Path(raw["file"]).resolve() == pathlib.Path(upload_phase["action"]["file"]).resolve(), "tab file path differs from its upload action")
+    def window(p):
+        select = p.get("action", {}).get("action") == "select-option"
+        label = "Group by" if select else "Upload sales CSV"
+        ids = {f["decoded"].get("delta", {}).get("id") for f in frames[p["start"]:p["end"]]
+               if f.get("decoded", {}).get("delta", {}).get("label") == label}
+        _journey_need(len(ids) == 1 and None not in ids, "missing unique server widget id for phase")
+        return {"start": p["start"], "end": p["end"], "widget": next(iter(ids)), "target": source,
+                "start_timestamp": p["start_timestamp"], "end_timestamp": p["end_timestamp"]}
+    uploads = observation.get("uploads", {})
+    if tab:
+        upload_ok = uploads.get(tab)
+    elif observation.get("journey") == "empty":
+        upload_ok = uploads.get("file")
+    else:
+        upload_ok = uploads.get("bad" if phase_index == 0 else "good")
+    action = phase.get("action")
+    _journey_need(isinstance(action, dict) and action.get("action") in ("upload", "select-option"), "missing observed action")
+    ok = action.get("changed") if action["action"] == "select-option" else upload_ok
+    _journey_need(not action.get("failed") and action.get("ok") is not False
+                  and upload_phase.get("action", {}).get("ok") is not False, "action failed")
+    return {"frames": normalized, "source": source, "url": observation["url"],
+            "fixture": upload_phase["action"]["file"], "window": window(phase), "upload_window": window(upload_phase),
+            "action": {"action": "select" if action["action"] == "select-option" else "upload", "ok": ok},
+            "upload_action": {"action": "upload", "ok": upload_ok}, "http_timeline": raw.get("http_timeline"),
+            "ipc_dir": observation["ipc_dir"], "ipc_files": files, "dom_before": phase.get("dom_before")}
+
+
+def _journey_run_verdict(frames, window, operation, fixture_name, group):
+    """Bind a target state to its *new* server run, not an older run's finish.
+
+    Python can send the replacement state while the clear-state run is still
+    finishing. NewSession/script_run_id separates those responses. The proof
+    view contains unchanged recorded frame objects, projected by run boundary;
+    numeric/data_loop's existing state/completion/value checks remain intact.
+    """
+    kind = "selectbox" if operation["action"] == "select" else "file_uploader"
+    candidates = []
+    for index in range(window["start"], window["end"]):
+        frame = frames[index]
+        if frame.get("direction") != "client->server" or frame.get("decoded", {}).get("type") != "rerun_script":
+            continue
+        for state in frame["decoded"]["rerun_script"].get("widget_states", []):
+            if state.get("id") != window["widget"]:
+                continue
+            if kind == "selectbox":
+                matches = state.get("value_field") == "string_value" and state.get("value") == group
+            else:
+                infos = state.get("value_full", {}).get("uploadedFileInfo")
+                matches = (state.get("value_field") == "file_uploader_state_value" and isinstance(infos, list)
+                           and len(infos) == 1 and infos[0].get("name") == fixture_name and bool(infos[0].get("fileId")))
+            if matches:
+                candidates.append(index)
+    _journey_need(len(candidates) == 1, "missing or ambiguous target file/control ClientState in this operation")
+    state_index = candidates[0]
+    state = frames[state_index]
+    identity = (state.get("target"), state.get("request_id"), state.get("connection"))
+
+    def same(frame):
+        return (frame.get("target"), frame.get("request_id"), frame.get("connection")) == identity
+
+    run_start = next((i for i in range(state_index + 1, window["end"])
+                      if same(frames[i]) and frames[i].get("direction") == "server->client"
+                      and frames[i].get("decoded", {}).get("type") == "new_session"), None)
+    _journey_need(run_start is not None, "no new server run marker after the target ClientState")
+    run_id = frames[run_start]["decoded"]["new_session"].get("script_run_id")
+    _journey_need(isinstance(run_id, str) and run_id, "target server run has no script_run_id")
+    earlier_ids = {f["decoded"]["new_session"].get("script_run_id") for f in frames[:run_start]
+                   if same(f) and f.get("decoded", {}).get("type") == "new_session"}
+    _journey_need(run_id not in earlier_ids, "target run reuses an earlier script_run_id")
+    _journey_need(not any(f.get("direction") == "client->server" and f.get("decoded", {}).get("type") == "rerun_script"
+                          for f in frames[state_index + 1:run_start]), "another ClientState superseded the target before its run")
+    finish = None
+    for index in range(run_start + 1, window["end"]):
+        frame = frames[index]
+        if not same(frame) or frame.get("direction") != "server->client":
+            continue
+        decoded = frame.get("decoded", {})
+        _journey_need(decoded.get("type") != "new_session", "target run has no completion before another run starts")
+        if decoded.get("type") == "script_finished":
+            _journey_need(decoded.get("script_finished", {}).get("status") == 0, "target run did not finish successfully")
+            finish = index
+            break
+    _journey_need(finish is not None, "target run has no successful completion")
+    _journey_need(not any(f.get("direction") == "client->server" and f.get("decoded", {}).get("type") == "rerun_script"
+                          for f in frames[run_start + 1:finish]), "another ClientState arrived during the target run")
+    prefix = frames[:window["start"]]
+    proof_frames = prefix + [state] + frames[run_start:finish + 1]
+    proof_window = dict(window, start=len(prefix), end=len(proof_frames))
+    verdict = case_verdict({"kind": kind, "label": "Group by" if kind == "selectbox" else "Upload sales CSV"},
+                           proof_frames, proof_window, operation, None, None, check_page=False)
+    verdict.update(state_frame=state_index, completion_frame=finish, run_start_frame=run_start,
+                   script_run_id=run_id, proof_frames=proof_frames, proof_window=proof_window)
+    return verdict
+
+
+def _journey_context(bundle, fixture_name, group, dom, *, no_result=False, empty=False):
+    """Bounded upload/result proof for these three journeys, not a new runner."""
+    try:
+        _journey_need(isinstance(bundle, dict), "missing operation evidence")
+        frames, source = bundle.get("frames"), bundle.get("source")
+        _journey_need(isinstance(frames, list) and frames and isinstance(source, str) and source, "missing frames/source namespace")
+        base = bundle.get("url")
+        _journey_need(isinstance(base, str) and base.startswith(("http://", "https://")), "missing application URL")
+        fixture = (REPO_ROOT / "tests/fixtures/csv" / fixture_name).resolve()
+        _journey_need(isinstance(bundle.get("fixture"), str) and pathlib.Path(bundle["fixture"]).resolve() == fixture and fixture.is_file(), "fixture path ownership mismatch")
+        window, upload_window = bundle.get("window"), bundle.get("upload_window")
+        for candidate in (window, upload_window):
+            _journey_need(isinstance(candidate, dict) and type(candidate.get("start")) is int and type(candidate.get("end")) is int
+                          and 0 <= candidate["start"] < candidate["end"] <= len(frames)
+                          and candidate.get("target") == source and candidate.get("widget"), "missing or invalid action frame window")
+        action, upload_action = bundle.get("action"), bundle.get("upload_action")
+        _journey_need(isinstance(action, dict) and action.get("ok") is True and action.get("action") in ("upload", "select")
+                      and isinstance(upload_action, dict) and upload_action.get("action") == "upload" and upload_action.get("ok") is True, "action failed or was not observed")
+        identity = None
+        verdicts = []
+        for current, operation in ((upload_window, upload_action), (window, action)):
+            selected = frames[current["start"]:current["end"]]
+            _journey_need(all(f.get("target") == source for f in selected), "frame source namespace mismatch")
+            verdict = _journey_run_verdict(frames, current, operation, fixture.name, group)
+            _journey_need(verdict["ok"], "; ".join(verdict["problems"]))
+            state = frames[verdict["state_frame"]]
+            done = frames[verdict["completion_frame"]]
+            pair = (source, state.get("request_id"), state.get("connection"))
+            _journey_need(pair[1] and pair[2] is not None and done.get("direction") == "server->client"
+                          and (done.get("target"), done.get("request_id"), done.get("connection")) == pair, "completion is on another source/connection/requestId")
+            _journey_need(all((f.get("target"), f.get("request_id"), f.get("connection")) == pair for f in selected), "operation contains frames from another connection/requestId")
+            _journey_need(identity is None or identity == pair, "upload/control changed connection")
+            identity = pair
+            _journey_need(not any((f.get("decoded") or {}).get("message") == "undecoded" for f in selected), "undecoded operation frame")
+            verdicts.append(verdict)
+        upload_proof, result_proof = verdicts
+        _journey_need(upload_proof["state_frame"] <= result_proof["state_frame"], "result comes from before this upload")
+
+        def same(frame):
+            return (frame.get("target"), frame.get("request_id"), frame.get("connection")) == identity
+
+        def states_at(index):
+            return (frames[index].get("decoded") or {}).get("rerun_script", {}).get("widget_states", [])
+
+        def uploaded(index):
+            states = [v for v in states_at(index) if v.get("id") == upload_window["widget"] and v.get("value_field") == "file_uploader_state_value"]
+            _journey_need(len(states) == 1, "missing uploader ClientState")
+            infos = (states[0].get("value_full") or {}).get("uploadedFileInfo")
+            _journey_need(isinstance(infos, list) and len(infos) == 1, "uploader state does not name exactly one file")
+            return infos[0]
+
+        info = uploaded(upload_proof["state_frame"])
+        final_info = uploaded(result_proof["state_frame"])
+        _journey_need(info == final_info and info.get("name") == fixture.name and int(info.get("size", -1)) == fixture.stat().st_size, "ClientState file is not this fixture")
+        file_id = info.get("fileId")
+        _journey_need(isinstance(file_id, str) and file_id, "missing uploaded file id")
+        before_state = range(upload_window["start"], upload_proof["state_frame"])
+        requests = [(i, frames[i]["decoded"]["file_urls_request"]) for i in before_state if same(frames[i]) and frames[i].get("direction") == "client->server" and (frames[i].get("decoded") or {}).get("type") == "file_urls_request"]
+        _journey_need(requests, "no issued URL request in this upload window")
+        request_index, request = requests[-1]
+        session = request.get("session_id")
+        _journey_need(isinstance(session, str) and session and request.get("file_names") == [fixture.name] and request.get("request_id"), "URL request file/session mismatch")
+        responses = [frames[i]["decoded"]["file_urls_response"] for i in range(request_index + 1, upload_proof["state_frame"]) if same(frames[i]) and frames[i].get("direction") == "server->client" and (frames[i].get("decoded") or {}).get("type") == "file_urls_response"]
+        issued = [u for r in responses if r.get("response_id") == request["request_id"] and not r.get("error_msg") for u in r.get("file_urls", []) if u.get("file_id") == file_id]
+        _journey_need(len(issued) == 1, "no matching issued URL response")
+        urls = info.get("fileUrls") or {}
+        _journey_need(urls.get("fileId") == file_id and urls.get("uploadUrl") == issued[0].get("upload_url") and urls.get("deleteUrl") == issued[0].get("delete_url"), "uploaded state URLs differ from issued URLs")
+        upload_url = _journey_url(base, issued[0].get("upload_url"), session, file_id)
+        delete_url = _journey_url(base, issued[0].get("delete_url"), session, file_id)
+        http = _journey_http(bundle, upload_window)
+        _journey_need(any(r.get("method") == "PUT" and r.get("url") == upload_url and r.get("status") == 204
+                          and "multipart/form-data" in str(r.get("request_headers", {})).lower()
+                          for r in http), "no matching multipart PUT204 in upload action window")
+        sessions = {((f.get("decoded") or {}).get("new_session") or {}).get("session_id") for f in frames[:result_proof["completion_frame"]+1] if same(f) and (f.get("decoded") or {}).get("type") == "new_session"}
+        _journey_need(sessions == {session}, "NewSession does not bind this upload connection/session")
+        result_frames = [frames[i] for i in range(result_proof["run_start_frame"]+1, result_proof["completion_frame"]) if same(frames[i]) and frames[i].get("direction") == "server->client"]
+        deltas = [(f.get("decoded") or {}).get("delta", {}) for f in result_frames if f.get("decoded", {}).get("type") == "delta"]
+        widgets = {d.get("label"): d.get("id") for d in deltas if d.get("element") in ("selectbox", "slider", "checkbox", "file_uploader")}
+        _journey_need(widgets.get("Upload sales CSV") == upload_window["widget"], "uploader widget not bound to server")
+        states = {v.get("id"): v for v in states_at(result_proof["state_frame"])}
+        for label, want in (("Group by", group), ("Minimum amount", [0.0]), ("Include unknown region", True)):
+            _journey_need(widgets.get(label) in states and wire_value_of(states[widgets[label]]) == want, "wrong or missing ClientState control: " + label)
+        _journey_need(isinstance(dom, dict) and dom.get("selectbox_value") == group and _same_cell_value(0, dom.get("slider_value")) and dom.get("checkbox_checked") is True, "DOM controls differ from this tab ClientState")
+        tables = [d for d in deltas if d.get("type") == "new_element" and d.get("element") in ("dataframe", "table")]
+        charts = [d for d in deltas if d.get("element") == "vega_lite_chart"]
+        context = {"ok": True, "problems": [], "identity": identity, "session": session, "file_id": file_id, "delete_url": delete_url, "info": info}
+        if no_result:
+            _journey_need(not tables and not charts and dom.get("table_present") is False and dom.get("chart_present") is False
+                          and isinstance(dom.get("table_cells"), list) and not _filled_cells(dom["table_cells"]) and dom.get("chart_bars") == 0, "bad file still has a result or missing DOM")
+            return context
+        return _journey_result_data(context, bundle, frames, window, action, dom, deltas, tables, charts, fixture, group, empty, result_proof)
+    except (ValueError, TypeError, KeyError, IndexError, OSError) as exc:
+        return {"ok": False, "problems": [str(exc)]}
+
+
+def _journey_result_data(context, bundle, frames, window, action, dom, deltas, tables, charts, fixture, group, empty, proof):
+    _journey_need(len(tables) == 1, "no unique result table after this ClientState on this connection")
+    table = _journey_ipc(tables[0].get("arrow"), bundle)
+    columns = ["group_key", "row_count", "total_amount", "avg_amount"]
+    _journey_need(table["columns"] == columns, "result schema columns/order mismatch")
+    types = [line.split(": ", 1)[1].removesuffix(" not null") for line in table["schema"].splitlines()[:4]]
+    allowed_group = ("large_string", "null") if empty else ("large_string",)
+    _journey_need(types[0] in allowed_group and types[1:] == ["int64", "double", "double"], "result schema field types mismatch")
+    from refcore import parse_csv, aggregate
+    parsed = parse_csv(fixture.read_bytes())
+    expected = [{"group_key": r.group_key, "row_count": r.row_count, "total_amount": float(r.total_amount), "avg_amount": float(r.avg_amount)} for r in aggregate(parsed.rows, group, 0, True)]
+    _journey_need(table["rows"] == expected and table["row_count"] == len(expected), "IPC values do not belong to this fixture/controls")
+    _journey_need(dom.get("table_present") is True and isinstance(dom.get("table_cells"), list), "missing rendered table DOM")
+    if empty:
+        _journey_need(not expected and not charts and dom.get("chart_present") is False and dom.get("chart_bars") == 0
+                      and len(dom["table_cells"]) in (0, 4) and not _filled_cells(dom["table_cells"]), "empty result contains stale DOM/chart")
+    else:
+        _journey_need(isinstance(bundle.get("dom_before"), dict), "missing before-action DOM")
+        verdict = data_loop_verdict({"kind": "selectbox" if action["action"] == "select" else "file_uploader", "label": "Group by"}, proof["proof_frames"], proof["proof_window"], action, bundle["dom_before"], dom)
+        _journey_need(verdict["ok"], "; ".join(verdict["problems"]))
+        for chart in charts:
+            spec = chart.get("vega_lite_spec") or {}
+            _journey_need(spec.get("mark", {}).get("type") == "bar" and spec.get("encoding", {}).get("x", {}).get("field") == "group_key"
+                          and spec.get("encoding", {}).get("y", {}).get("field") == "total_amount"
+                          and spec["encoding"]["x"].get("sort") == [row["group_key"] for row in expected], "chart does not encode this fixture's grouped totals")
+            named = [d for d in chart.get("vega_lite_datasets", []) if d.get("name") == spec.get("data", {}).get("name")]
+            _journey_need(len(named) == 1, "chart dataset missing")
+            _journey_need(_journey_ipc(named[0].get("arrow"), bundle)["sha256"] == table["sha256"], "chart/table actual IPC differ")
+    context["table"] = table
+    return context
+
+
+def _journey_observed(observation, journey, fixture, group, dom, *, tab=None, phase_index=-1, **options):
+    try:
+        _journey_need(isinstance(observation, dict) and observation.get("journey") == journey, "missing or wrong journey observation")
+        raw = observation["tabs"][tab] if tab else observation
+        count = 2 if journey == "recover" or tab == "a" else 1
+        _journey_need(isinstance(raw.get("phases"), list) and len(raw["phases"]) == count, "missing required journey phases")
+        bundle = _journey_bundle(observation, tab=tab, phase_index=phase_index)
+        phase = raw["phases"][phase_index]
+        _journey_need(isinstance(phase.get("dom_after"), dict) and dom == phase["dom_after"], "DOM is not this phase's observation")
+        context = _journey_context(bundle, fixture, group, dom, **options)
+        if context["ok"] and journey == "empty":
+            table = observation.get("table")
+            _journey_need(isinstance(table, dict) and all(table.get(key) == context["table"][key] for key in ("schema", "columns", "rows")), "empty table summary differs from decoded operation IPC")
+        dom_key = "after_group_change" if tab == "a" else "after_upload" if tab or journey == "empty" else "after_bad" if phase_index == 0 else "after_good"
+        _journey_need(raw.get("dom", {}).get(dom_key) == dom, "published DOM is not the phase observation")
+        if context["ok"] and tab:
+            _journey_need(set(raw.get("session_ids", [])) == {context["session"]}
+                          and raw.get("uploaded", [None])[-1] == context["info"]["name"]
+                          and raw.get("group_values_sent", [None])[-1] == group, "tab summary does not belong to its raw state")
+        context["bundle"] = bundle
+        return context
+    except (ValueError, TypeError, KeyError, IndexError, OSError, AttributeError) as exc:
+        return {"ok": False, "problems": [str(exc)]}
+
+
+def _journey_finish(kind, checks):
+    return [dict(check, journey=kind) for check in checks]
+
+
+def recover_checks(alerts_bad, dom_bad, verdict, delete_requests, chips, uploads,
+                   frames, good_name, *, observation=None):
+    """The checks of the recovery journey: a file that cannot be read, then one that can."""
+    checks = []
+    observed = observation if isinstance(observation, dict) else {}
+    alerts_good = observed["alerts"].get("after_good") if isinstance(observed.get("alerts"), dict) else None
+    dom_good = observed["dom"].get("after_good") if isinstance(observed.get("dom"), dict) else None
+    bad_context = _journey_observed(observation, "recover", "sales_malformed.csv", "category", dom_bad, phase_index=0, no_result=True)
+    good_context = _journey_observed(observation, "recover", "sales_basic.csv", "category", dom_good, phase_index=1)
+    verdict = good_context  # Never trust the driver-supplied verdict.ok.
+    texts = (alerts_bad or {}).get("alerts") or []
+    errors = [text for text in texts if PARSE_ERROR.search(text)]
+    checks.append(_check(
+        "bad-csv", "file_uploaded",
+        "the file the app cannot read to be handed to the uploader",
+        "the uploader took the file" if uploads[0] else "the file input was not found",
+        uploads[0],
+    ))
+    checks.append(_check(
+        "bad-csv", "error_visible",
+        "the page to say that the CSV cannot be parsed",
+        errors[0] if errors else json.dumps(texts),
+        bool(errors),
+    ))
+    if dom_bad is None:
+        checks.append(_check(
+            "bad-csv", "no_result",
+            "no table for a file the app cannot read",
+            "no DOM observation",
+            False,
+        ))
+    else:
+        filled = _filled_cells(dom_bad.get("table_cells"))
+        seen = {"cells": dom_bad.get("table_cells"), "bars": dom_bad.get("chart_bars")}
+        checks.append(_check(
+            "bad-csv", "no_result",
+            "no table for a file the app cannot read",
+            json.dumps(seen),
+            not (filled or dom_bad.get("chart_bars")),
+        ))
+    checks.append(_check(
+        "recover", "file_uploaded",
+        "the good file to be handed to the uploader",
+        "the uploader took the file" if uploads[1] else "the file input was not found",
+        uploads[1],
+    ))
+    checks.append(_check(
+        "recover", "case_verdict",
+        "the good file to restore the table and the chart",
+        "; ".join((verdict or {}).get("problems") or ["no verdict"]),
+        bool((verdict or {}).get("ok")),
+    ))
+    undecoded = [
+        frame for frame in frames
+        if (frame.get("decoded") or {}).get("message") == "undecoded"
+    ]
+    checks.append(_check(
+        "recover", "frames_decoded",
+        "the frames of the window to be decoded",
+        json.dumps([frame.get("error") for frame in undecoded]) if undecoded
+        else "every frame decoded",
+        bool(frames) and not undecoded,
+    ))
+    if not delete_requests:
+        checks.append(_check(
+            "replace", "delete_status",
+            "the removed file to be deleted with 204",
+            "no delete request was sent",
+            False,
+        ))
+    else:
+        wrong = [
+            str(request.get("status")) + " for " + str(request.get("url"))
+            for request in delete_requests if request.get("status") != 204
+        ]
+        checks.append(_check(
+            "replace", "delete_status",
+            "the removed file to be deleted with 204",
+            "; ".join(wrong) if wrong
+            else json.dumps([request.get("status") for request in delete_requests]),
+            not wrong,
+        ))
+    if chips is None:
+        checks.append(_check(
+            "replace", "old_file_gone",
+            "the page to show only the file that was uploaded last",
+            "no DOM observation",
+            False,
+        ))
+    else:
+        names = chips.get("chips") or []
+        checks.append(_check(
+            "replace", "old_file_gone",
+            "the page to show only the file that was uploaded last",
+            json.dumps(names),
+            len(names) == 1 and good_name in names[0],
+        ))
+    checks.append(_check("bad-csv", "upload_proof", "this bad upload state and completion", bad_context["problems"], bad_context["ok"]))
+    checks.append(_check("recover", "upload_proof", "this good upload with actual IPC and DOM values", good_context["problems"], good_context["ok"]))
+    clean = (isinstance(alerts_good, dict) and alerts_good.get("alerts") == [] and alerts_good.get("exceptions") == []
+             and isinstance(dom_good, dict) and dom_good.get("alerts") == [])
+    checks.append(_check("recover", "no_stale_error", "no stale alerts or exceptions after recovery", alerts_good, clean))
+    bound = False
+    reason = "missing bad/good operation proof"
+    if bad_context["ok"] and good_context["ok"]:
+        try:
+            _journey_need(bad_context["identity"] == good_context["identity"] and bad_context["session"] == good_context["session"], "recovery changed session/connection")
+            _journey_need(bad_context["file_id"] != good_context["file_id"], "replacement reused the old file id")
+            bad_bundle, good_bundle = bad_context["bundle"], good_context["bundle"]
+            replace = good_bundle["window"]
+            _journey_need(bad_bundle["window"]["end_timestamp"] <= replace["start_timestamp"], "replacement precedes bad upload completion")
+            requests = _journey_http(good_bundle, replace)
+            matching = [r for r in requests if r.get("method") == "DELETE" and r.get("url") == bad_context["delete_url"] and r.get("status") == 204]
+            _journey_need(matching, "no DELETE204 for the old issued session/file URL in replacement window")
+            declared = observed.get("file_urls", {}).get("issued")
+            _journey_need(isinstance(declared, list) and any(u.get("file_id") == bad_context["file_id"] and _journey_url(good_bundle["url"], u.get("delete_url"), bad_context["session"], bad_context["file_id"]) == bad_context["delete_url"] for u in declared), "issued URL summary is not the old wire file")
+            bound, reason = True, bad_context["delete_url"]
+        except (ValueError, TypeError, KeyError, AttributeError) as exc:
+            reason = str(exc)
+    checks.append(_check("replace", "delete_bound", "DELETE204 for this old issued URL/session/file during replacement", reason, bound))
+    return _journey_finish("recover", checks)
+
+
+def empty_checks(alerts, rows, columns, dom, upload_ok, *, observation=None):
+    """The checks of the empty result: the schema stays, the data does not."""
+    checks = []
+    texts = (alerts or {}).get("alerts") or []
+    notes = [text for text in texts if re.search(r"(?i)no data rows|contains no data", text)]
+    checks.append(_check(
+        "empty-csv", "file_uploaded",
+        "the file to be handed to the uploader",
+        "the uploader took the file" if upload_ok else "the file input was not found",
+        upload_ok,
+    ))
+    checks.append(_check(
+        "empty-csv", "info_visible",
+        "the page to say that the file has no data rows",
+        notes[0] if notes else json.dumps(texts),
+        bool(notes),
+    ))
+    context = _journey_observed(observation, "empty", "sales_empty.csv", "category", dom, empty=True)
+    actual = context.get("table") or {}
+    checks.append(_check("empty-csv", "result_present", "the operation's actual IPC table", actual, bool(actual)))
+    checks.append(_check("empty-csv", "no_rows", "zero actual IPC rows", actual.get("rows"), "rows" in actual and actual["rows"] == [] and rows == []))
+    checks.append(_check("empty-csv", "schema_kept", "all four expected field names/types in decoded IPC", actual.get("schema"),
+                         bool(actual) and columns == actual.get("columns")))
+    if dom is None:
+        checks.append(_check(
+            "empty-csv", "no_stale_view",
+            "no stale table or chart for an empty result",
+            "no DOM observation",
+            False,
+        ))
+    else:
+        filled = _filled_cells(dom.get("table_cells"))
+        seen = {"cells": dom.get("table_cells"), "bars": dom.get("chart_bars")}
+        checks.append(_check(
+            "empty-csv", "no_stale_view",
+            "no stale table or chart for an empty result",
+            json.dumps(seen),
+            not (filled or dom.get("chart_bars")),
+        ))
+    checks.append(_check("empty-csv", "operation_proof", "current upload/clientstate/same connection completion/HTTP/IPC/DOM", context["problems"], context["ok"]))
+    return _journey_finish("empty", checks)
+
+
+def sessions_checks(sessions_a, sessions_b, names_a, names_b, groups_a, groups_b,
+                    dom_a, dom_b, uploads_a, uploads_b, *, observation=None):
+    """The checks of the two sessions: each tab keeps its own file and controls."""
+    checks = []
+    checks.append(_check(
+        "sessions", "file_uploaded_a",
+        "the file of the first tab to be handed to the uploader",
+        "the uploader took the file" if uploads_a else "the file input was not found",
+        uploads_a,
+    ))
+    checks.append(_check(
+        "sessions", "file_uploaded_b",
+        "the file of the second tab to be handed to the uploader",
+        "the uploader took the file" if uploads_b else "the file input was not found",
+        uploads_b,
+    ))
+    ids_a = sessions_a or []
+    ids_b = sessions_b or []
+    checks.append(_check(
+        "sessions", "session_ids", "a session id per tab",
+        json.dumps([ids_a, ids_b]), bool(ids_a and ids_b)
+    ))
+    shared = sorted(set(ids_a) & set(ids_b))
+    checks.append(_check(
+        "sessions", "session_isolation", "a session id of its own per tab",
+        json.dumps(shared), not shared
+    ))
+    name_a = (names_a or [None])[-1]
+    name_b = (names_b or [None])[-1]
+    checks.append(_check(
+        "sessions", "upload_isolation", "each tab to keep its own file",
+        json.dumps([name_a, name_b]),
+        bool(name_a and name_b and name_a != name_b),
+    ))
+    checks.append(_check(
+        "sessions", "control_isolation", "each tab to send its own group",
+        json.dumps([groups_a, groups_b]), bool(groups_a and groups_b)
+    ))
+    group_a = (groups_a or [None])[-1]
+    group_b = (groups_b or [None])[-1]
+    checks.append(_check(
+        "sessions", "group_isolation", "the group of each tab to be its own",
+        json.dumps([group_a, group_b]),
+        bool(group_a and group_b and group_a != group_b),
+    ))
+    if dom_a is None or dom_b is None:
+        checks.append(_check(
+            "sessions", "results_present", "each tab to render its own result",
+            "no DOM observation", False
+        ))
+    else:
+        rows_a = dom_a.get("table_cells") or []
+        rows_b = dom_b.get("table_cells") or []
+        checks.append(_check(
+            "sessions", "results_present", "each tab to render its own result",
+            json.dumps({"a": len(rows_a), "b": len(rows_b)}),
+            bool(rows_a) and bool(rows_b),
+        ))
+    result_a = (dom_a or {}).get("table_cells") or (dom_a or {}).get("chart_labels")
+    result_b = (dom_b or {}).get("table_cells") or (dom_b or {}).get("chart_labels")
+    checks.append(_check(
+        "sessions", "result_isolation", "a result of its own per tab",
+        json.dumps([result_a, result_b]),
+        bool(result_a and result_b and result_a != result_b),
+    ))
+    a = _journey_observed(observation, "sessions", "sales_basic.csv", "region", dom_a, tab="a")
+    b = _journey_observed(observation, "sessions", "sales_unicode.csv", "category", dom_b, tab="b")
+    for label, context, sessions, names, groups in (("a", a, ids_a, names_a, groups_a), ("b", b, ids_b, names_b, groups_b)):
+        matches = context["ok"] and set(sessions or []) == {context.get("session")} and (names or [None])[-1] == context.get("info", {}).get("name") and (groups or [None])[-1] == ("region" if label == "a" else "category")
+        checks.append(_check("sessions", "proof_" + label, "tab's own fixture, ClientState controls, successful completion, IPC and all DOM values", context["problems"] if not context["ok"] else "derived state/summary ownership", matches))
+    if a["ok"] and b["ok"]:
+        isolated = a["session"] != b["session"] and a["identity"][0] != b["identity"][0] and a["identity"][1] != b["identity"][1]
+        for check in checks:
+            if check["check"] == "session_isolation":
+                check["ok"] = check["ok"] and isolated
+    return _journey_finish("sessions", checks)
 
 
 def suite_failures(required, results) -> list[dict]:
@@ -2952,6 +3649,7 @@ def main() -> int:
         help="directory holding the CSV fixtures",
     )
     args = parser.parse_args()
+    require_decoder()
     return Capture(args).run()
 
 

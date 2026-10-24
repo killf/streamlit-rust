@@ -1,6 +1,6 @@
 use std::sync::Arc;
 use streamlit::data::{ArrayRef, Float64Array, Int64Array, LargeStringArray, RecordBatch, to_ipc_stream};
-use streamlit::{BarChartOptions, DataApi, DataframeOptions, Streamlit, StreamlitApi, StreamlitServer};
+use streamlit::{BarChartOptions, DataApi, DataframeOptions, Streamlit, StreamlitApi, StreamlitServer, TableBorder, TableOptions};
 
 fn sales(revision: i64) -> Result<RecordBatch, streamlit::data::DataError> {
     let change = revision as f64;
@@ -12,7 +12,36 @@ fn sales(revision: i64) -> Result<RecordBatch, streamlit::data::DataError> {
     ])?)
 }
 
+fn native_page(st: &Streamlit) -> Result<(), Box<dyn std::error::Error>> {
+    st.title("Native table and bar chart");
+    let state = st.session_state();
+    let revision = state.get::<i64>("revision")?.unwrap_or(0) + i64::from(st.button("Update data"));
+    state.set("revision", revision)?;
+    let table = RecordBatch::try_from_iter(vec![
+        ("group.name", Arc::new(LargeStringArray::from(vec![Some("图书"), Some("Café"), Some("**Music**"), None])) as ArrayRef),
+        ("amount[0]", Arc::new(Int64Array::from(vec![Some(12 + revision), None, Some(-3), Some(0)])) as ArrayRef),
+        ("path\\label", Arc::new(LargeStringArray::from(vec![Some("普通"), Some("naïve"), None, Some("fin")])) as ArrayRef),
+    ])?;
+    st.table(&table)?;
+    st.table(TableOptions::new(&table).border(TableBorder::Horizontal).hide_index(false).width(480).height(220).alt("UTF8 table"))?;
+    let numeric = RecordBatch::try_from_iter(vec![
+        ("sales", Arc::new(Int64Array::from(vec![12 + revision, 24, -3, 0])) as ArrayRef),
+        ("cost", Arc::new(Float64Array::from(vec![Some(4.0), Some(8.0 + revision as f64), None, Some(2.0)])) as ArrayRef),
+    ])?;
+    st.bar_chart(&numeric)?;
+    let named = RecordBatch::try_from_iter(vec![
+        ("group.name", Arc::new(LargeStringArray::from(vec!["图书", "Café", "Music", "Toys"])) as ArrayRef),
+        ("amount[0]", Arc::new(Float64Array::from(vec![Some(12.0 + revision as f64), Some(24.0), Some(-3.0), None])) as ArrayRef),
+    ])?;
+    st.bar_chart(BarChartOptions::native(&named).x("group.name").y("amount[0]").horizontal(true).sort(false).height(260))?;
+    st.write(format!("Data revision: {revision}"));
+    Ok(())
+}
+
 fn page(st: &Streamlit) -> Result<(), Box<dyn std::error::Error>> {
+    if std::env::args().any(|arg| arg == "--native") {
+        return native_page(st);
+    }
     st.title("Native Rust columnar data");
     let state = st.session_state();
     let revision = state.get::<i64>("revision")?.unwrap_or(0) + i64::from(st.button("Update data"));
@@ -42,6 +71,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         return Ok(());
     }
     env_logger::Builder::from_default_env().init();
-    StreamlitServer::new(|st| Box::pin(async move { page(st).expect("the example uses valid typed data") }), "127.0.0.1".into(), 8503).start().await?;
+    let args = std::env::args().collect::<Vec<_>>();
+    let port = match args.iter().position(|arg| arg == "--port") {
+        Some(index) => args.get(index + 1).ok_or("--port requires a number")?.parse()?,
+        None => 8503,
+    };
+    StreamlitServer::new(|st| Box::pin(async move { page(st).expect("the example uses valid typed data") }), "127.0.0.1".into(), port).start().await?;
     Ok(())
 }

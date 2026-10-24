@@ -1,0 +1,2181 @@
+{
+  "schema_version": 1,
+  "contract_id": "C-P0-04",
+  "kind": "rust-browser-data-loop-trace",
+  "scope": "RUST SIDE ONLY",
+  "capture": {
+    "tool": "DevTools Protocol against the same real Chrome",
+    "tool_limitation": "the agent-browser CLI could not start its daemon in this environment (connection timeout), so the input is sent over CDP",
+    "driver": "tests/browser/numeric_capture.py",
+    "binary": "target/checks/data-app-live/data-app-security-final-20261024T152745018.exe sha256 427F3AF719559C14B8A207660B9BA562D42C6F2C9A6B16E7C3864DED9B1D3A19",
+    "python": "D:\\dlab\\streamlit-rust\\target\\pyref-venv\\Scripts\\python.exe"
+  },
+  "url": "http://127.0.0.1:8501/",
+  "case": "recover",
+  "journey": "recover",
+  "bad_file": "D:\\dlab\\streamlit-rust\\tests\\fixtures\\csv\\sales_malformed.csv",
+  "good_file": "D:\\dlab\\streamlit-rust\\tests\\fixtures\\csv\\sales_basic.csv",
+  "observation": {
+    "journey": "recover",
+    "namespace": "rust-final-recover",
+    "url": "http://127.0.0.1:8501/",
+    "ipc_dir": "target\\final-427F-20261024T162828\\rust\\recover",
+    "uploads": {
+      "bad": true,
+      "good": true
+    },
+    "frames": [
+      {
+        "direction": "client->server",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19044.438097,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "BackMsg",
+          "type": "file_urls_request",
+          "file_urls_request": {
+            "request_id": "93522135-9638-46f5-9ed9-d3394fcc23cd",
+            "file_names": [
+              "sales_malformed.csv"
+            ],
+            "session_id": "49b54abe-ceed-424d-887b-abb601f4983d"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19044.439122,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "file_urls_response",
+          "file_urls_response": {
+            "response_id": "93522135-9638-46f5-9ed9-d3394fcc23cd",
+            "file_urls": [
+              {
+                "file_id": "85197d9d-2e31-47c6-b284-2bb08fd956c8",
+                "upload_url": "/_stcore/upload_file/49b54abe-ceed-424d-887b-abb601f4983d/85197d9d-2e31-47c6-b284-2bb08fd956c8",
+                "delete_url": "/_stcore/upload_file/49b54abe-ceed-424d-887b-abb601f4983d/85197d9d-2e31-47c6-b284-2bb08fd956c8"
+              }
+            ],
+            "error_msg": ""
+          }
+        }
+      },
+      {
+        "direction": "client->server",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19044.45925,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "BackMsg",
+          "type": "rerun_script",
+          "rerun_script": {
+            "widget_states": [
+              {
+                "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+                "value_field": "file_uploader_state_value",
+                "value": {
+                  "uploaded_file_info": "[name: \"sales_malformed.csv\"\nsize: 303\nfile_id: \"85197d9d-2e31-47c6-b284-2bb08fd956c8\"\nfile_urls {\n  file_id: \"85197d9d-2e31-47c6-b284-2bb08fd956c8\"\n  upload_url: \"/_stcore/upload_file/49b54abe-ceed-424d-887b-abb601f4983d/85197d9d-2e31-47c6-b284-2bb08fd956c8\"\n  delete_url: \"/_stcore/upload_file/49b54abe-ceed-424d-887b-abb601f4983d/85197d9d-2e31-47c6-b284-2bb08fd956c8\"\n}\n]"
+                },
+                "value_full": {
+                  "uploadedFileInfo": [
+                    {
+                      "name": "sales_malformed.csv",
+                      "size": "303",
+                      "fileId": "85197d9d-2e31-47c6-b284-2bb08fd956c8",
+                      "fileUrls": {
+                        "fileId": "85197d9d-2e31-47c6-b284-2bb08fd956c8",
+                        "uploadUrl": "/_stcore/upload_file/49b54abe-ceed-424d-887b-abb601f4983d/85197d9d-2e31-47c6-b284-2bb08fd956c8",
+                        "deleteUrl": "/_stcore/upload_file/49b54abe-ceed-424d-887b-abb601f4983d/85197d9d-2e31-47c6-b284-2bb08fd956c8"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+                "value_field": "string_value",
+                "value": "category"
+              },
+              {
+                "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+                "value_field": "double_array_value",
+                "value": {
+                  "data": "[0.0]"
+                },
+                "value_full": {
+                  "data": [
+                    0.0
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+                "value_field": "bool_value",
+                "value": true
+              }
+            ]
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19044.46055,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "new_session",
+          "new_session": {
+            "script_run_id": "6ec9e424-531b-43ed-9d2a-72099c9c6b61",
+            "name": "Streamlit Rust",
+            "main_script_path": "",
+            "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+            "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+            "session_id": "49b54abe-ceed-424d-887b-abb601f4983d"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19044.460802,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": true,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19044.463789,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "add_block",
+            "block_id": "main_container",
+            "block_type": "vertical"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19044.463901,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Streamlit Rust CSV data app"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19044.463977,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "file_uploader",
+            "element_full": {
+              "fileUploader": {
+                "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+                "label": "Upload sales CSV",
+                "type": [
+                  ".csv"
+                ],
+                "maxUploadSizeMb": 200,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+              "label": "Upload sales CSV",
+              "type": [
+                ".csv"
+              ],
+              "maxUploadSizeMb": 200,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+            "label": "Upload sales CSV",
+            "accepted_types": [
+              "['.csv']"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19044.464036,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "selectbox",
+            "element_full": {
+              "selectbox": {
+                "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+                "label": "Group by",
+                "default": 0,
+                "options": [
+                  "category",
+                  "region",
+                  "channel"
+                ],
+                "labelVisibility": {},
+                "acceptNewOptions": false
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+              "label": "Group by",
+              "default": 0,
+              "options": [
+                "category",
+                "region",
+                "channel"
+              ],
+              "labelVisibility": {},
+              "acceptNewOptions": false
+            },
+            "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+            "label": "Group by",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19044.464115,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "slider",
+            "element_full": {
+              "slider": {
+                "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+                "label": "Minimum amount",
+                "format": "%d",
+                "default": [
+                  0.0
+                ],
+                "max": 200.0,
+                "step": 10.0,
+                "labelVisibility": {},
+                "type": "SLIDER"
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+              "label": "Minimum amount",
+              "format": "%d",
+              "default": [
+                0.0
+              ],
+              "max": 200.0,
+              "step": 10.0,
+              "labelVisibility": {},
+              "type": "SLIDER"
+            },
+            "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+            "label": "Minimum amount",
+            "accepted_types": [
+              "1"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19044.464218,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "checkbox",
+            "element_full": {
+              "checkbox": {
+                "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+                "label": "Include unknown region",
+                "default": true,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useContent": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+              "label": "Include unknown region",
+              "default": true,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+            "label": "Include unknown region",
+            "accepted_types": [
+              "0"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19044.464266,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Aggregated result"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19044.464302,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "alert",
+            "alert": {
+              "body": "Could not parse the uploaded CSV: CSV error: record 2 (line: 3, byte: 119): found record with 7 fields, but the previous record has 8 fields",
+              "format": "ERROR",
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "element_width_config": null,
+            "element_height_config": null,
+            "body": "Could not parse the uploaded CSV: CSV error: record 2 (line: 3, byte: 119): found record with 7 fields, but the previous"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19044.464379,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "alert",
+            "alert": {
+              "body": "Upload a valid CSV to continue.",
+              "format": "INFO",
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "element_width_config": null,
+            "element_height_config": null,
+            "body": "Upload a valid CSV to continue."
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19044.464433,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "script_finished",
+          "script_finished": {
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19044.4645,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": false,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "client->server",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19052.601758,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "BackMsg",
+          "type": "file_urls_request",
+          "file_urls_request": {
+            "request_id": "d0479169-39b1-4bb2-bfb7-f1429df7be45",
+            "file_names": [
+              "sales_basic.csv"
+            ],
+            "session_id": "49b54abe-ceed-424d-887b-abb601f4983d"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19052.602588,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "file_urls_response",
+          "file_urls_response": {
+            "response_id": "d0479169-39b1-4bb2-bfb7-f1429df7be45",
+            "file_urls": [
+              {
+                "file_id": "e41a5a56-18a0-43cb-a863-f1fdfd7d5d0a",
+                "upload_url": "/_stcore/upload_file/49b54abe-ceed-424d-887b-abb601f4983d/e41a5a56-18a0-43cb-a863-f1fdfd7d5d0a",
+                "delete_url": "/_stcore/upload_file/49b54abe-ceed-424d-887b-abb601f4983d/e41a5a56-18a0-43cb-a863-f1fdfd7d5d0a"
+              }
+            ],
+            "error_msg": ""
+          }
+        }
+      },
+      {
+        "direction": "client->server",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19052.607111,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "BackMsg",
+          "type": "rerun_script",
+          "rerun_script": {
+            "widget_states": [
+              {
+                "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+                "value_field": "file_uploader_state_value",
+                "value": {},
+                "value_full": {}
+              },
+              {
+                "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+                "value_field": "string_value",
+                "value": "category"
+              },
+              {
+                "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+                "value_field": "double_array_value",
+                "value": {
+                  "data": "[0.0]"
+                },
+                "value_full": {
+                  "data": [
+                    0.0
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+                "value_field": "bool_value",
+                "value": true
+              }
+            ]
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19052.610114,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "new_session",
+          "new_session": {
+            "script_run_id": "44c4f38b-76c7-4b00-8063-abda1f514425",
+            "name": "Streamlit Rust",
+            "main_script_path": "",
+            "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+            "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+            "session_id": "49b54abe-ceed-424d-887b-abb601f4983d"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19052.612695,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": true,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19052.612959,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "add_block",
+            "block_id": "main_container",
+            "block_type": "vertical"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19052.613021,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Streamlit Rust CSV data app"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19052.613076,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "file_uploader",
+            "element_full": {
+              "fileUploader": {
+                "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+                "label": "Upload sales CSV",
+                "type": [
+                  ".csv"
+                ],
+                "maxUploadSizeMb": 200,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+              "label": "Upload sales CSV",
+              "type": [
+                ".csv"
+              ],
+              "maxUploadSizeMb": 200,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+            "label": "Upload sales CSV",
+            "accepted_types": [
+              "['.csv']"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19052.613197,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "selectbox",
+            "element_full": {
+              "selectbox": {
+                "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+                "label": "Group by",
+                "default": 0,
+                "options": [
+                  "category",
+                  "region",
+                  "channel"
+                ],
+                "labelVisibility": {},
+                "acceptNewOptions": false
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+              "label": "Group by",
+              "default": 0,
+              "options": [
+                "category",
+                "region",
+                "channel"
+              ],
+              "labelVisibility": {},
+              "acceptNewOptions": false
+            },
+            "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+            "label": "Group by",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19052.613286,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "slider",
+            "element_full": {
+              "slider": {
+                "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+                "label": "Minimum amount",
+                "format": "%d",
+                "default": [
+                  0.0
+                ],
+                "max": 200.0,
+                "step": 10.0,
+                "labelVisibility": {},
+                "type": "SLIDER"
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+              "label": "Minimum amount",
+              "format": "%d",
+              "default": [
+                0.0
+              ],
+              "max": 200.0,
+              "step": 10.0,
+              "labelVisibility": {},
+              "type": "SLIDER"
+            },
+            "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+            "label": "Minimum amount",
+            "accepted_types": [
+              "1"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19052.613372,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "checkbox",
+            "element_full": {
+              "checkbox": {
+                "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+                "label": "Include unknown region",
+                "default": true,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useContent": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+              "label": "Include unknown region",
+              "default": true,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+            "label": "Include unknown region",
+            "accepted_types": [
+              "0"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19052.61341,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Aggregated result"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19052.613465,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "alert",
+            "alert": {
+              "body": "Upload a CSV to see the aggregated result.",
+              "format": "INFO",
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "element_width_config": null,
+            "element_height_config": null,
+            "body": "Upload a CSV to see the aggregated result."
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19052.613497,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "script_finished",
+          "script_finished": {
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19052.613563,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": false,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "client->server",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19052.620088,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "BackMsg",
+          "type": "rerun_script",
+          "rerun_script": {
+            "widget_states": [
+              {
+                "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+                "value_field": "file_uploader_state_value",
+                "value": {
+                  "uploaded_file_info": "[name: \"sales_basic.csv\"\nsize: 737\nfile_id: \"e41a5a56-18a0-43cb-a863-f1fdfd7d5d0a\"\nfile_urls {\n  file_id: \"e41a5a56-18a0-43cb-a863-f1fdfd7d5d0a\"\n  upload_url: \"/_stcore/upload_file/49b54abe-ceed-424d-887b-abb601f4983d/e41a5a56-18a0-43cb-a863-f1fdfd7d5d0a\"\n  delete_url: \"/_stcore/upload_file/49b54abe-ceed-424d-887b-abb601f4983d/e41a5a56-18a0-43cb-a863-f1fdfd7d5d0a\"\n}\n]"
+                },
+                "value_full": {
+                  "uploadedFileInfo": [
+                    {
+                      "name": "sales_basic.csv",
+                      "size": "737",
+                      "fileId": "e41a5a56-18a0-43cb-a863-f1fdfd7d5d0a",
+                      "fileUrls": {
+                        "fileId": "e41a5a56-18a0-43cb-a863-f1fdfd7d5d0a",
+                        "uploadUrl": "/_stcore/upload_file/49b54abe-ceed-424d-887b-abb601f4983d/e41a5a56-18a0-43cb-a863-f1fdfd7d5d0a",
+                        "deleteUrl": "/_stcore/upload_file/49b54abe-ceed-424d-887b-abb601f4983d/e41a5a56-18a0-43cb-a863-f1fdfd7d5d0a"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+                "value_field": "string_value",
+                "value": "category"
+              },
+              {
+                "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+                "value_field": "double_array_value",
+                "value": {
+                  "data": "[0.0]"
+                },
+                "value_full": {
+                  "data": [
+                    0.0
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+                "value_field": "bool_value",
+                "value": true
+              }
+            ]
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19052.621928,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "new_session",
+          "new_session": {
+            "script_run_id": "8270ef39-b755-4ebf-947c-4c29ca6c0736",
+            "name": "Streamlit Rust",
+            "main_script_path": "",
+            "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+            "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+            "session_id": "49b54abe-ceed-424d-887b-abb601f4983d"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19052.622154,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": true,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19052.623571,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "add_block",
+            "block_id": "main_container",
+            "block_type": "vertical"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19052.623645,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Streamlit Rust CSV data app"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19052.623702,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "file_uploader",
+            "element_full": {
+              "fileUploader": {
+                "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+                "label": "Upload sales CSV",
+                "type": [
+                  ".csv"
+                ],
+                "maxUploadSizeMb": 200,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+              "label": "Upload sales CSV",
+              "type": [
+                ".csv"
+              ],
+              "maxUploadSizeMb": 200,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+            "label": "Upload sales CSV",
+            "accepted_types": [
+              "['.csv']"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19052.62374,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "selectbox",
+            "element_full": {
+              "selectbox": {
+                "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+                "label": "Group by",
+                "default": 0,
+                "options": [
+                  "category",
+                  "region",
+                  "channel"
+                ],
+                "labelVisibility": {},
+                "acceptNewOptions": false
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+              "label": "Group by",
+              "default": 0,
+              "options": [
+                "category",
+                "region",
+                "channel"
+              ],
+              "labelVisibility": {},
+              "acceptNewOptions": false
+            },
+            "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+            "label": "Group by",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19052.623793,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "slider",
+            "element_full": {
+              "slider": {
+                "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+                "label": "Minimum amount",
+                "format": "%d",
+                "default": [
+                  0.0
+                ],
+                "max": 200.0,
+                "step": 10.0,
+                "labelVisibility": {},
+                "type": "SLIDER"
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+              "label": "Minimum amount",
+              "format": "%d",
+              "default": [
+                0.0
+              ],
+              "max": 200.0,
+              "step": 10.0,
+              "labelVisibility": {},
+              "type": "SLIDER"
+            },
+            "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+            "label": "Minimum amount",
+            "accepted_types": [
+              "1"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19052.623857,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "checkbox",
+            "element_full": {
+              "checkbox": {
+                "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+                "label": "Include unknown region",
+                "default": true,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useContent": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+              "label": "Include unknown region",
+              "default": true,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+            "label": "Include unknown region",
+            "accepted_types": [
+              "0"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19052.623896,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Aggregated result"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19052.623936,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "dataframe",
+            "element_full": {
+              "dataframe": {
+                "arrowData": {
+                  "data": "/////zgBAAAQAAAAAAAKAAwACgAJAAQACgAAABAAAAAAAQQACAAIAAAABAAIAAAABAAAAAQAAADYAAAAiAAAAEgAAAAEAAAASP///xAAAAAUAAAAAAABAxAAAAC+////AAACAAAAAAAKAAAAYXZnX2Ftb3VudAAAEAAWABAADgAPAAQAAAAIABAAAAAYAAAAHAAAAAAAAQMYAAAAAAAGAAgABgAGAAAAAAACAAAAAAAMAAAAdG90YWxfYW1vdW50AAAAAMT///8YAAAAIAAAAAAAAQIcAAAACAAMAAQACwAIAAAAQAAAAAAAAAEAAAAACQAAAHJvd19jb3VudAAAABAAFAAQAA4ADwAEAAAACAAQAAAAGAAAAAwAAAAAAAEUEAAAAAAAAAAEAAQABAAAAAkAAABncm91cF9rZXkAAAD/////OAEAABAAAAAMABoAGAAXAAQACAAMAAAAIAAAAEACAAAAAAAAAAAAAAAAAAMEAAoAGAAMAAgABAAKAAAAXAAAABAAAAAEAAAAAAAAAAAAAAAEAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAJAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAKAAAAAAAAACAAAAAAAAAABMAAAAAAAAAwAAAAAAAAAABAAAAAAAAAAABAAAAAAAAIAAAAAAAAABAAQAAAAAAAAEAAAAAAAAAgAEAAAAAAAAgAAAAAAAAAMABAAAAAAAAAQAAAAAAAAAAAgAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAACgAAAAAAAAAPAAAAAAAAABMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQm9va3NHYW1lc011c2ljVG95cwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAuG5ASOF6FK6XeUAAAAAAAGBhQI/C9ShcH1pAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAexSuR+F6VEBI4XoUrg9hQArXo3A9KkdACtejcD1qQUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA"
+                },
+                "columns": "{\"_index\":{\"hidden\":true}}",
+                "columnOrder": [
+                  "group_key",
+                  "row_count",
+                  "total_amount",
+                  "avg_amount"
+                ]
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "arrow": {
+              "bytes": 1224,
+              "sha256": "fc57562d7955d8e72e6d7fd03efec45e853868bd71e6e2b6b7d7260f444dff78",
+              "base64": "/////zgBAAAQAAAAAAAKAAwACgAJAAQACgAAABAAAAAAAQQACAAIAAAABAAIAAAABAAAAAQAAADYAAAAiAAAAEgAAAAEAAAASP///xAAAAAUAAAAAAABAxAAAAC+////AAACAAAAAAAKAAAAYXZnX2Ftb3VudAAAEAAWABAADgAPAAQAAAAIABAAAAAYAAAAHAAAAAAAAQMYAAAAAAAGAAgABgAGAAAAAAACAAAAAAAMAAAAdG90YWxfYW1vdW50AAAAAMT///8YAAAAIAAAAAAAAQIcAAAACAAMAAQACwAIAAAAQAAAAAAAAAEAAAAACQAAAHJvd19jb3VudAAAABAAFAAQAA4ADwAEAAAACAAQAAAAGAAAAAwAAAAAAAEUEAAAAAAAAAAEAAQABAAAAAkAAABncm91cF9rZXkAAAD/////OAEAABAAAAAMABoAGAAXAAQACAAMAAAAIAAAAEACAAAAAAAAAAAAAAAAAAMEAAoAGAAMAAgABAAKAAAAXAAAABAAAAAEAAAAAAAAAAAAAAAEAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAJAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAKAAAAAAAAACAAAAAAAAAABMAAAAAAAAAwAAAAAAAAAABAAAAAAAAAAABAAAAAAAAIAAAAAAAAABAAQAAAAAAAAEAAAAAAAAAgAEAAAAAAAAgAAAAAAAAAMABAAAAAAAAAQAAAAAAAAAAAgAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAACgAAAAAAAAAPAAAAAAAAABMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQm9va3NHYW1lc011c2ljVG95cwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAuG5ASOF6FK6XeUAAAAAAAGBhQI/C9ShcH1pAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAexSuR+F6VEBI4XoUrg9hQArXo3A9KkdACtejcD1qQUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA",
+              "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double",
+              "columns": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_count": 4,
+              "rows": [
+                {
+                  "group_key": "Books",
+                  "row_count": 3,
+                  "total_amount": 245.75,
+                  "avg_amount": 81.92
+                },
+                {
+                  "group_key": "Games",
+                  "row_count": 3,
+                  "total_amount": 409.48,
+                  "avg_amount": 136.49
+                },
+                {
+                  "group_key": "Music",
+                  "row_count": 3,
+                  "total_amount": 139.0,
+                  "avg_amount": 46.33
+                },
+                {
+                  "group_key": "Toys",
+                  "row_count": 3,
+                  "total_amount": 104.49,
+                  "avg_amount": 34.83
+                }
+              ]
+            },
+            "arrow_fields": {
+              "columns": "{\"_index\":{\"hidden\":true}}",
+              "editing_mode": 0,
+              "disabled": false,
+              "column_order": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_height": 0
+            },
+            "id": "",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19052.624365,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "vega_lite_chart",
+            "element_full": {
+              "vegaLiteChart": {
+                "spec": "{\"$schema\":\"https://vega.github.io/schema/vega-lite/v5.20.1.json\",\"autosize\":{\"contains\":\"padding\",\"type\":\"fit\"},\"data\":{\"name\":\"ab44968e6b05c9e21984aacc05115246\"},\"encoding\":{\"tooltip\":[{\"field\":\"group_key\",\"title\":\"group\",\"type\":\"nominal\"},{\"field\":\"row_count\",\"title\":\"rows\",\"type\":\"quantitative\"},{\"field\":\"total_amount\",\"title\":\"total\",\"type\":\"quantitative\"},{\"field\":\"avg_amount\",\"title\":\"avg\",\"type\":\"quantitative\"}],\"x\":{\"field\":\"group_key\",\"sort\":[\"Books\",\"Games\",\"Music\",\"Toys\"],\"type\":\"nominal\"},\"y\":{\"field\":\"total_amount\",\"type\":\"quantitative\"}},\"height\":260,\"mark\":{\"type\":\"bar\"}}",
+                "datasets": [
+                  {
+                    "name": "ab44968e6b05c9e21984aacc05115246",
+                    "data": {
+                      "data": "/////zgBAAAQAAAAAAAKAAwACgAJAAQACgAAABAAAAAAAQQACAAIAAAABAAIAAAABAAAAAQAAADYAAAAiAAAAEgAAAAEAAAASP///xAAAAAUAAAAAAABAxAAAAC+////AAACAAAAAAAKAAAAYXZnX2Ftb3VudAAAEAAWABAADgAPAAQAAAAIABAAAAAYAAAAHAAAAAAAAQMYAAAAAAAGAAgABgAGAAAAAAACAAAAAAAMAAAAdG90YWxfYW1vdW50AAAAAMT///8YAAAAIAAAAAAAAQIcAAAACAAMAAQACwAIAAAAQAAAAAAAAAEAAAAACQAAAHJvd19jb3VudAAAABAAFAAQAA4ADwAEAAAACAAQAAAAGAAAAAwAAAAAAAEUEAAAAAAAAAAEAAQABAAAAAkAAABncm91cF9rZXkAAAD/////OAEAABAAAAAMABoAGAAXAAQACAAMAAAAIAAAAEACAAAAAAAAAAAAAAAAAAMEAAoAGAAMAAgABAAKAAAAXAAAABAAAAAEAAAAAAAAAAAAAAAEAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAJAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAKAAAAAAAAACAAAAAAAAAABMAAAAAAAAAwAAAAAAAAAABAAAAAAAAAAABAAAAAAAAIAAAAAAAAABAAQAAAAAAAAEAAAAAAAAAgAEAAAAAAAAgAAAAAAAAAMABAAAAAAAAAQAAAAAAAAAAAgAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAACgAAAAAAAAAPAAAAAAAAABMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQm9va3NHYW1lc011c2ljVG95cwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAuG5ASOF6FK6XeUAAAAAAAGBhQI/C9ShcH1pAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAexSuR+F6VEBI4XoUrg9hQArXo3A9KkdACtejcD1qQUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA"
+                    },
+                    "hasName": true
+                  }
+                ],
+                "theme": "streamlit"
+              },
+              "heightConfig": {
+                "useContent": true
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "vega_lite_spec_raw": "{\"$schema\":\"https://vega.github.io/schema/vega-lite/v5.20.1.json\",\"autosize\":{\"contains\":\"padding\",\"type\":\"fit\"},\"data\":{\"name\":\"ab44968e6b05c9e21984aacc05115246\"},\"encoding\":{\"tooltip\":[{\"field\":\"group_key\",\"title\":\"group\",\"type\":\"nominal\"},{\"field\":\"row_count\",\"title\":\"rows\",\"type\":\"quantitative\"},{\"field\":\"total_amount\",\"title\":\"total\",\"type\":\"quantitative\"},{\"field\":\"avg_amount\",\"title\":\"avg\",\"type\":\"quantitative\"}],\"x\":{\"field\":\"group_key\",\"sort\":[\"Books\",\"Games\",\"Music\",\"Toys\"],\"type\":\"nominal\"},\"y\":{\"field\":\"total_amount\",\"type\":\"quantitative\"}},\"height\":260,\"mark\":{\"type\":\"bar\"}}",
+            "vega_lite_spec": {
+              "$schema": "https://vega.github.io/schema/vega-lite/v5.20.1.json",
+              "autosize": {
+                "contains": "padding",
+                "type": "fit"
+              },
+              "data": {
+                "name": "ab44968e6b05c9e21984aacc05115246"
+              },
+              "encoding": {
+                "tooltip": [
+                  {
+                    "field": "group_key",
+                    "title": "group",
+                    "type": "nominal"
+                  },
+                  {
+                    "field": "row_count",
+                    "title": "rows",
+                    "type": "quantitative"
+                  },
+                  {
+                    "field": "total_amount",
+                    "title": "total",
+                    "type": "quantitative"
+                  },
+                  {
+                    "field": "avg_amount",
+                    "title": "avg",
+                    "type": "quantitative"
+                  }
+                ],
+                "x": {
+                  "field": "group_key",
+                  "sort": [
+                    "Books",
+                    "Games",
+                    "Music",
+                    "Toys"
+                  ],
+                  "type": "nominal"
+                },
+                "y": {
+                  "field": "total_amount",
+                  "type": "quantitative"
+                }
+              },
+              "height": 260,
+              "mark": {
+                "type": "bar"
+              }
+            },
+            "vega_lite_datasets": [
+              {
+                "name": "ab44968e6b05c9e21984aacc05115246",
+                "has_name": true,
+                "arrow": {
+                  "bytes": 1224,
+                  "sha256": "fc57562d7955d8e72e6d7fd03efec45e853868bd71e6e2b6b7d7260f444dff78",
+                  "base64": "/////zgBAAAQAAAAAAAKAAwACgAJAAQACgAAABAAAAAAAQQACAAIAAAABAAIAAAABAAAAAQAAADYAAAAiAAAAEgAAAAEAAAASP///xAAAAAUAAAAAAABAxAAAAC+////AAACAAAAAAAKAAAAYXZnX2Ftb3VudAAAEAAWABAADgAPAAQAAAAIABAAAAAYAAAAHAAAAAAAAQMYAAAAAAAGAAgABgAGAAAAAAACAAAAAAAMAAAAdG90YWxfYW1vdW50AAAAAMT///8YAAAAIAAAAAAAAQIcAAAACAAMAAQACwAIAAAAQAAAAAAAAAEAAAAACQAAAHJvd19jb3VudAAAABAAFAAQAA4ADwAEAAAACAAQAAAAGAAAAAwAAAAAAAEUEAAAAAAAAAAEAAQABAAAAAkAAABncm91cF9rZXkAAAD/////OAEAABAAAAAMABoAGAAXAAQACAAMAAAAIAAAAEACAAAAAAAAAAAAAAAAAAMEAAoAGAAMAAgABAAKAAAAXAAAABAAAAAEAAAAAAAAAAAAAAAEAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAJAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAKAAAAAAAAACAAAAAAAAAABMAAAAAAAAAwAAAAAAAAAABAAAAAAAAAAABAAAAAAAAIAAAAAAAAABAAQAAAAAAAAEAAAAAAAAAgAEAAAAAAAAgAAAAAAAAAMABAAAAAAAAAQAAAAAAAAAAAgAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAACgAAAAAAAAAPAAAAAAAAABMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQm9va3NHYW1lc011c2ljVG95cwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAuG5ASOF6FK6XeUAAAAAAAGBhQI/C9ShcH1pAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAexSuR+F6VEBI4XoUrg9hQArXo3A9KkdACtejcD1qQUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA",
+                  "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double",
+                  "columns": [
+                    "group_key",
+                    "row_count",
+                    "total_amount",
+                    "avg_amount"
+                  ],
+                  "row_count": 4,
+                  "rows": [
+                    {
+                      "group_key": "Books",
+                      "row_count": 3,
+                      "total_amount": 245.75,
+                      "avg_amount": 81.92
+                    },
+                    {
+                      "group_key": "Games",
+                      "row_count": 3,
+                      "total_amount": 409.48,
+                      "avg_amount": 136.49
+                    },
+                    {
+                      "group_key": "Music",
+                      "row_count": 3,
+                      "total_amount": 139.0,
+                      "avg_amount": 46.33
+                    },
+                    {
+                      "group_key": "Toys",
+                      "row_count": 3,
+                      "total_amount": 104.49,
+                      "avg_amount": 34.83
+                    }
+                  ]
+                }
+              }
+            ],
+            "vega_lite_fields": {
+              "use_container_width": false,
+              "theme": "streamlit",
+              "id": "",
+              "form_id": ""
+            },
+            "id": "",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19052.624655,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "script_finished",
+          "script_finished": {
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "71120.151",
+        "timestamp": 19052.624718,
+        "namespace": "rust-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": false,
+            "run_on_save": false
+          }
+        }
+      }
+    ],
+    "phases": [
+      {
+        "name": "upload-the-file-the-app-cannot-read",
+        "action": {
+          "action": "upload",
+          "ok": true,
+          "file": "D:\\dlab\\streamlit-rust\\tests\\fixtures\\csv\\sales_malformed.csv"
+        },
+        "start": 0,
+        "end": 16,
+        "start_timestamp": 19044.438097,
+        "end_timestamp": 19044.4645,
+        "dom_before": {
+          "document_title": "Streamlit",
+          "markdown": [],
+          "has_uploader": true,
+          "headings": [
+            "Streamlit Rust CSV data app",
+            "Aggregated result"
+          ],
+          "button_labels": [],
+          "has_button": false,
+          "script_runs": null,
+          "pulses": null,
+          "applied_note": null,
+          "table_cells": [],
+          "table_present": false,
+          "chart_present": false,
+          "chart_bars": 0,
+          "chart_labels": [],
+          "chart_marks": "",
+          "slider_value": "0",
+          "checkbox_checked": true,
+          "selectbox_value": "category",
+          "texts": [],
+          "alerts": [
+            "Upload a CSV to see the aggregated result."
+          ],
+          "selectbox_disabled": false,
+          "slider_thumb": "0",
+          "slider_disabled": false,
+          "checkbox_disabled": false,
+          "exceptions": []
+        },
+        "dom_after": {
+          "document_title": "Streamlit",
+          "markdown": [],
+          "has_uploader": true,
+          "headings": [
+            "Streamlit Rust CSV data app",
+            "Aggregated result"
+          ],
+          "button_labels": [],
+          "has_button": false,
+          "script_runs": null,
+          "pulses": null,
+          "applied_note": null,
+          "table_cells": [],
+          "table_present": false,
+          "chart_present": false,
+          "chart_bars": 0,
+          "chart_labels": [],
+          "chart_marks": "",
+          "slider_value": "0",
+          "checkbox_checked": true,
+          "selectbox_value": "category",
+          "texts": [],
+          "alerts": [
+            "Could not parse the uploaded CSV: CSV error: record 2 (line: 3, byte: 119): found record with 7 fields, but the previous record has 8 fields",
+            "Upload a valid CSV to continue."
+          ],
+          "selectbox_disabled": false,
+          "slider_thumb": "0",
+          "slider_disabled": false,
+          "checkbox_disabled": false,
+          "exceptions": []
+        },
+        "client_states": [
+          {
+            "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+            "value_field": "file_uploader_state_value",
+            "value": {
+              "uploaded_file_info": "[name: \"sales_malformed.csv\"\nsize: 303\nfile_id: \"85197d9d-2e31-47c6-b284-2bb08fd956c8\"\nfile_urls {\n  file_id: \"85197d9d-2e31-47c6-b284-2bb08fd956c8\"\n  upload_url: \"/_stcore/upload_file/49b54abe-ceed-424d-887b-abb601f4983d/85197d9d-2e31-47c6-b284-2bb08fd956c8\"\n  delete_url: \"/_stcore/upload_file/49b54abe-ceed-424d-887b-abb601f4983d/85197d9d-2e31-47c6-b284-2bb08fd956c8\"\n}\n]"
+            }
+          },
+          {
+            "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+            "value_field": "string_value",
+            "value": "category"
+          },
+          {
+            "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+            "value_field": "double_array_value",
+            "value": {
+              "data": "[0.0]"
+            }
+          },
+          {
+            "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+            "value_field": "bool_value",
+            "value": true
+          }
+        ],
+        "completions": [
+          {
+            "frame": 14,
+            "connection": 0,
+            "request_id": "71120.151",
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          }
+        ],
+        "ipc": {
+          "table": null,
+          "chart": null
+        }
+      },
+      {
+        "name": "replace-it-with-a-good-file",
+        "action": {
+          "action": "upload",
+          "ok": true,
+          "file": "D:\\dlab\\streamlit-rust\\tests\\fixtures\\csv\\sales_basic.csv"
+        },
+        "start": 16,
+        "end": 45,
+        "start_timestamp": 19052.601758,
+        "end_timestamp": 19052.624718,
+        "dom_before": {
+          "document_title": "Streamlit",
+          "markdown": [],
+          "has_uploader": true,
+          "headings": [
+            "Streamlit Rust CSV data app",
+            "Aggregated result"
+          ],
+          "button_labels": [],
+          "has_button": false,
+          "script_runs": null,
+          "pulses": null,
+          "applied_note": null,
+          "table_cells": [],
+          "table_present": false,
+          "chart_present": false,
+          "chart_bars": 0,
+          "chart_labels": [],
+          "chart_marks": "",
+          "slider_value": "0",
+          "checkbox_checked": true,
+          "selectbox_value": "category",
+          "texts": [],
+          "alerts": [
+            "Could not parse the uploaded CSV: CSV error: record 2 (line: 3, byte: 119): found record with 7 fields, but the previous record has 8 fields",
+            "Upload a valid CSV to continue."
+          ],
+          "selectbox_disabled": false,
+          "slider_thumb": "0",
+          "slider_disabled": false,
+          "checkbox_disabled": false,
+          "exceptions": []
+        },
+        "dom_after": {
+          "document_title": "Streamlit",
+          "markdown": [],
+          "has_uploader": true,
+          "headings": [
+            "Streamlit Rust CSV data app",
+            "Aggregated result"
+          ],
+          "button_labels": [],
+          "has_button": false,
+          "script_runs": null,
+          "pulses": null,
+          "applied_note": null,
+          "table_cells": [
+            "Books",
+            "3",
+            "245.75",
+            "81.92",
+            "Games",
+            "3",
+            "409.48",
+            "136.49",
+            "Music",
+            "3",
+            "139",
+            "46.33",
+            "Toys",
+            "3",
+            "104.49",
+            "34.83"
+          ],
+          "table_present": true,
+          "chart_present": true,
+          "chart_bars": 4,
+          "chart_labels": [
+            "Books",
+            "Games",
+            "Music",
+            "Toys",
+            "group_key",
+            "0",
+            "100",
+            "200",
+            "300",
+            "400",
+            "total_amount"
+          ],
+          "chart_marks": "M18.8,72.16833333333334h122.39999999999999v86.83166666666666h-122.39999999999999Z|M178.8,14.317066666666655h122.39999999999999v144.68293333333335h-122.39999999999999Z|M338.8,109.88666666666667h122.39999999999999v49.11333333333333h-122.39999999999999Z|M498.8,122.0802h122.39999999999999v36.919799999999995h-122.39999999999999Z",
+          "slider_value": "0",
+          "checkbox_checked": true,
+          "selectbox_value": "category",
+          "texts": [],
+          "alerts": [],
+          "selectbox_disabled": false,
+          "slider_thumb": "0",
+          "slider_disabled": false,
+          "checkbox_disabled": false,
+          "exceptions": []
+        },
+        "client_states": [
+          {
+            "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+            "value_field": "file_uploader_state_value",
+            "value": {}
+          },
+          {
+            "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+            "value_field": "string_value",
+            "value": "category"
+          },
+          {
+            "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+            "value_field": "double_array_value",
+            "value": {
+              "data": "[0.0]"
+            }
+          },
+          {
+            "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+            "value_field": "bool_value",
+            "value": true
+          },
+          {
+            "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+            "value_field": "file_uploader_state_value",
+            "value": {
+              "uploaded_file_info": "[name: \"sales_basic.csv\"\nsize: 737\nfile_id: \"e41a5a56-18a0-43cb-a863-f1fdfd7d5d0a\"\nfile_urls {\n  file_id: \"e41a5a56-18a0-43cb-a863-f1fdfd7d5d0a\"\n  upload_url: \"/_stcore/upload_file/49b54abe-ceed-424d-887b-abb601f4983d/e41a5a56-18a0-43cb-a863-f1fdfd7d5d0a\"\n  delete_url: \"/_stcore/upload_file/49b54abe-ceed-424d-887b-abb601f4983d/e41a5a56-18a0-43cb-a863-f1fdfd7d5d0a\"\n}\n]"
+            }
+          },
+          {
+            "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+            "value_field": "string_value",
+            "value": "category"
+          },
+          {
+            "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+            "value_field": "double_array_value",
+            "value": {
+              "data": "[0.0]"
+            }
+          },
+          {
+            "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+            "value_field": "bool_value",
+            "value": true
+          }
+        ],
+        "completions": [
+          {
+            "frame": 13,
+            "connection": 0,
+            "request_id": "71120.151",
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          },
+          {
+            "frame": 27,
+            "connection": 0,
+            "request_id": "71120.151",
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          }
+        ],
+        "ipc": {
+          "table": {
+            "arrow": {
+              "sha256": "fc57562d7955d8e72e6d7fd03efec45e853868bd71e6e2b6b7d7260f444dff78",
+              "bytes": 1224,
+              "file": "arrow-1.bin",
+              "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double",
+              "columns": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_count": 4,
+              "rows": [
+                {
+                  "group_key": "Books",
+                  "row_count": 3,
+                  "total_amount": 245.75,
+                  "avg_amount": 81.92
+                },
+                {
+                  "group_key": "Games",
+                  "row_count": 3,
+                  "total_amount": 409.48,
+                  "avg_amount": 136.49
+                },
+                {
+                  "group_key": "Music",
+                  "row_count": 3,
+                  "total_amount": 139.0,
+                  "avg_amount": 46.33
+                },
+                {
+                  "group_key": "Toys",
+                  "row_count": 3,
+                  "total_amount": 104.49,
+                  "avg_amount": 34.83
+                }
+              ]
+            },
+            "arrow_fields": {
+              "columns": "{\"_index\":{\"hidden\":true}}",
+              "editing_mode": 0,
+              "disabled": false,
+              "column_order": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_height": 0
+            }
+          },
+          "chart": {
+            "vega_lite_spec": {
+              "$schema": "https://vega.github.io/schema/vega-lite/v5.20.1.json",
+              "autosize": {
+                "contains": "padding",
+                "type": "fit"
+              },
+              "data": {
+                "name": "ab44968e6b05c9e21984aacc05115246"
+              },
+              "encoding": {
+                "tooltip": [
+                  {
+                    "field": "group_key",
+                    "title": "group",
+                    "type": "nominal"
+                  },
+                  {
+                    "field": "row_count",
+                    "title": "rows",
+                    "type": "quantitative"
+                  },
+                  {
+                    "field": "total_amount",
+                    "title": "total",
+                    "type": "quantitative"
+                  },
+                  {
+                    "field": "avg_amount",
+                    "title": "avg",
+                    "type": "quantitative"
+                  }
+                ],
+                "x": {
+                  "field": "group_key",
+                  "sort": [
+                    "Books",
+                    "Games",
+                    "Music",
+                    "Toys"
+                  ],
+                  "type": "nominal"
+                },
+                "y": {
+                  "field": "total_amount",
+                  "type": "quantitative"
+                }
+              },
+              "height": 260,
+              "mark": {
+                "type": "bar"
+              }
+            },
+            "arrow": null,
+            "datasets": [
+              {
+                "name": "ab44968e6b05c9e21984aacc05115246",
+                "has_name": true,
+                "arrow": {
+                  "sha256": "fc57562d7955d8e72e6d7fd03efec45e853868bd71e6e2b6b7d7260f444dff78",
+                  "bytes": 1224,
+                  "file": "arrow-1.bin",
+                  "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double",
+                  "columns": [
+                    "group_key",
+                    "row_count",
+                    "total_amount",
+                    "avg_amount"
+                  ],
+                  "row_count": 4,
+                  "rows": [
+                    {
+                      "group_key": "Books",
+                      "row_count": 3,
+                      "total_amount": 245.75,
+                      "avg_amount": 81.92
+                    },
+                    {
+                      "group_key": "Games",
+                      "row_count": 3,
+                      "total_amount": 409.48,
+                      "avg_amount": 136.49
+                    },
+                    {
+                      "group_key": "Music",
+                      "row_count": 3,
+                      "total_amount": 139.0,
+                      "avg_amount": 46.33
+                    },
+                    {
+                      "group_key": "Toys",
+                      "row_count": 3,
+                      "total_amount": 104.49,
+                      "avg_amount": 34.83
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "http_timeline": [
+      {
+        "method": "PUT",
+        "url": "http://127.0.0.1:8501/_stcore/upload_file/49b54abe-ceed-424d-887b-abb601f4983d/85197d9d-2e31-47c6-b284-2bb08fd956c8",
+        "request_id": "71120.190",
+        "timestamp": 19044.451635,
+        "status": 204,
+        "response_timestamp": 19044.456098,
+        "request_headers": {
+          "Content-Type": "multipart/form-data; boundary=----WebKitFormBoundaryf8BOB8qzt1qTSsOX"
+        }
+      },
+      {
+        "method": "DELETE",
+        "url": "http://127.0.0.1:8501/_stcore/upload_file/49b54abe-ceed-424d-887b-abb601f4983d/85197d9d-2e31-47c6-b284-2bb08fd956c8",
+        "request_id": "71120.191",
+        "timestamp": 19052.609221,
+        "status": 204,
+        "response_timestamp": 19052.616923,
+        "request_headers": {
+          "Content-Type": "application/json"
+        }
+      },
+      {
+        "method": "PUT",
+        "url": "http://127.0.0.1:8501/_stcore/upload_file/49b54abe-ceed-424d-887b-abb601f4983d/e41a5a56-18a0-43cb-a863-f1fdfd7d5d0a",
+        "request_id": "71120.192",
+        "timestamp": 19052.60983,
+        "status": 204,
+        "response_timestamp": 19052.617257,
+        "request_headers": {
+          "Content-Type": "multipart/form-data; boundary=----WebKitFormBoundaryCYcL8RhnsAE33fdp"
+        }
+      }
+    ],
+    "alerts": {
+      "after_bad": {
+        "alerts": [
+          "Could not parse the uploaded CSV: CSV error: record 2 (line: 3, byte: 119): found record with 7 fields, but the previous record has 8 fields",
+          "Upload a valid CSV to continue."
+        ],
+        "exceptions": []
+      },
+      "after_good": {
+        "alerts": [],
+        "exceptions": []
+      }
+    },
+    "dom": {
+      "after_bad": {
+        "document_title": "Streamlit",
+        "markdown": [],
+        "has_uploader": true,
+        "headings": [
+          "Streamlit Rust CSV data app",
+          "Aggregated result"
+        ],
+        "button_labels": [],
+        "has_button": false,
+        "script_runs": null,
+        "pulses": null,
+        "applied_note": null,
+        "table_cells": [],
+        "table_present": false,
+        "chart_present": false,
+        "chart_bars": 0,
+        "chart_labels": [],
+        "chart_marks": "",
+        "slider_value": "0",
+        "checkbox_checked": true,
+        "selectbox_value": "category",
+        "texts": [],
+        "alerts": [
+          "Could not parse the uploaded CSV: CSV error: record 2 (line: 3, byte: 119): found record with 7 fields, but the previous record has 8 fields",
+          "Upload a valid CSV to continue."
+        ],
+        "selectbox_disabled": false,
+        "slider_thumb": "0",
+        "slider_disabled": false,
+        "checkbox_disabled": false,
+        "exceptions": []
+      },
+      "after_good": {
+        "document_title": "Streamlit",
+        "markdown": [],
+        "has_uploader": true,
+        "headings": [
+          "Streamlit Rust CSV data app",
+          "Aggregated result"
+        ],
+        "button_labels": [],
+        "has_button": false,
+        "script_runs": null,
+        "pulses": null,
+        "applied_note": null,
+        "table_cells": [
+          "Books",
+          "3",
+          "245.75",
+          "81.92",
+          "Games",
+          "3",
+          "409.48",
+          "136.49",
+          "Music",
+          "3",
+          "139",
+          "46.33",
+          "Toys",
+          "3",
+          "104.49",
+          "34.83"
+        ],
+        "table_present": true,
+        "chart_present": true,
+        "chart_bars": 4,
+        "chart_labels": [
+          "Books",
+          "Games",
+          "Music",
+          "Toys",
+          "group_key",
+          "0",
+          "100",
+          "200",
+          "300",
+          "400",
+          "total_amount"
+        ],
+        "chart_marks": "M18.8,72.16833333333334h122.39999999999999v86.83166666666666h-122.39999999999999Z|M178.8,14.317066666666655h122.39999999999999v144.68293333333335h-122.39999999999999Z|M338.8,109.88666666666667h122.39999999999999v49.11333333333333h-122.39999999999999Z|M498.8,122.0802h122.39999999999999v36.919799999999995h-122.39999999999999Z",
+        "slider_value": "0",
+        "checkbox_checked": true,
+        "selectbox_value": "category",
+        "texts": [],
+        "alerts": [],
+        "selectbox_disabled": false,
+        "slider_thumb": "0",
+        "slider_disabled": false,
+        "checkbox_disabled": false,
+        "exceptions": []
+      }
+    },
+    "chips": {
+      "chips": [
+        "sales_basic.csv"
+      ],
+      "chip_count": 1
+    },
+    "verdict": {
+      "ok": false,
+      "problems": [
+        "the window carries no state for this widget"
+      ],
+      "wire_value": null,
+      "before_value": null,
+      "connection": null,
+      "state_frame": null,
+      "completion_frame": null,
+      "result_digest": "fc57562d7955d8e72e6d7fd03efec45e853868bd71e6e2b6b7d7260f444dff78"
+    },
+    "file_urls": {
+      "issued": [
+        {
+          "response_id": "93522135-9638-46f5-9ed9-d3394fcc23cd",
+          "file_id": "85197d9d-2e31-47c6-b284-2bb08fd956c8",
+          "upload_url": "/_stcore/upload_file/49b54abe-ceed-424d-887b-abb601f4983d/85197d9d-2e31-47c6-b284-2bb08fd956c8",
+          "delete_url": "/_stcore/upload_file/49b54abe-ceed-424d-887b-abb601f4983d/85197d9d-2e31-47c6-b284-2bb08fd956c8",
+          "error_msg": ""
+        },
+        {
+          "response_id": "d0479169-39b1-4bb2-bfb7-f1429df7be45",
+          "file_id": "e41a5a56-18a0-43cb-a863-f1fdfd7d5d0a",
+          "upload_url": "/_stcore/upload_file/49b54abe-ceed-424d-887b-abb601f4983d/e41a5a56-18a0-43cb-a863-f1fdfd7d5d0a",
+          "delete_url": "/_stcore/upload_file/49b54abe-ceed-424d-887b-abb601f4983d/e41a5a56-18a0-43cb-a863-f1fdfd7d5d0a",
+          "error_msg": ""
+        }
+      ]
+    },
+    "delete_requests": [
+      {
+        "method": "DELETE",
+        "url": "http://127.0.0.1:8501/_stcore/upload_file/49b54abe-ceed-424d-887b-abb601f4983d/85197d9d-2e31-47c6-b284-2bb08fd956c8",
+        "request_id": "71120.191",
+        "timestamp": 19052.609221,
+        "status": 204,
+        "response_timestamp": 19052.616923,
+        "request_headers": {
+          "Content-Type": "application/json"
+        },
+        "matches_issued_file": true
+      }
+    ]
+  },
+  "checks": [
+    {
+      "step": "bad-csv",
+      "check": "file_uploaded",
+      "expected": "the file the app cannot read to be handed to the uploader",
+      "actual": "the uploader took the file",
+      "ok": true,
+      "journey": "recover"
+    },
+    {
+      "step": "bad-csv",
+      "check": "error_visible",
+      "expected": "the page to say that the CSV cannot be parsed",
+      "actual": "Could not parse the uploaded CSV: CSV error: record 2 (line: 3, byte: 119): found record with 7 fields, but the previous record has 8 fields",
+      "ok": true,
+      "journey": "recover"
+    },
+    {
+      "step": "bad-csv",
+      "check": "no_result",
+      "expected": "no table for a file the app cannot read",
+      "actual": "{\"cells\": [], \"bars\": 0}",
+      "ok": true,
+      "journey": "recover"
+    },
+    {
+      "step": "recover",
+      "check": "file_uploaded",
+      "expected": "the good file to be handed to the uploader",
+      "actual": "the uploader took the file",
+      "ok": true,
+      "journey": "recover"
+    },
+    {
+      "step": "recover",
+      "check": "case_verdict",
+      "expected": "the good file to restore the table and the chart",
+      "actual": "no verdict",
+      "ok": true,
+      "journey": "recover"
+    },
+    {
+      "step": "recover",
+      "check": "frames_decoded",
+      "expected": "the frames of the window to be decoded",
+      "actual": "every frame decoded",
+      "ok": true,
+      "journey": "recover"
+    },
+    {
+      "step": "replace",
+      "check": "delete_status",
+      "expected": "the removed file to be deleted with 204",
+      "actual": "[204]",
+      "ok": true,
+      "journey": "recover"
+    },
+    {
+      "step": "replace",
+      "check": "old_file_gone",
+      "expected": "the page to show only the file that was uploaded last",
+      "actual": "[\"sales_basic.csv\"]",
+      "ok": true,
+      "journey": "recover"
+    },
+    {
+      "step": "bad-csv",
+      "check": "upload_proof",
+      "expected": "this bad upload state and completion",
+      "actual": "[]",
+      "ok": true,
+      "journey": "recover"
+    },
+    {
+      "step": "recover",
+      "check": "upload_proof",
+      "expected": "this good upload with actual IPC and DOM values",
+      "actual": "[]",
+      "ok": true,
+      "journey": "recover"
+    },
+    {
+      "step": "recover",
+      "check": "no_stale_error",
+      "expected": "no stale alerts or exceptions after recovery",
+      "actual": "{\"alerts\": [], \"exceptions\": []}",
+      "ok": true,
+      "journey": "recover"
+    },
+    {
+      "step": "replace",
+      "check": "delete_bound",
+      "expected": "DELETE204 for this old issued URL/session/file during replacement",
+      "actual": "http://127.0.0.1:8501/_stcore/upload_file/49b54abe-ceed-424d-887b-abb601f4983d/85197d9d-2e31-47c6-b284-2bb08fd956c8",
+      "ok": true,
+      "journey": "recover"
+    }
+  ],
+  "counts": {
+    "expected": 12,
+    "executed": 12,
+    "asserted": 12
+  },
+  "failures": []
+}

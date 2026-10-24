@@ -3,15 +3,18 @@ use crate::session::SessionStore;
 use crate::websocket::handler::handle_connection;
 use actix_files::Files;
 use actix_web::http::header::{HeaderName, HeaderValue};
-use actix_web::{App, HttpRequest, HttpResponse, HttpServer, Responder, get, put, web};
+use actix_web::{App, HttpRequest, HttpResponse, HttpServer, Responder, delete, get, put, web};
 use std::future::Future;
 use std::pin::Pin;
 use std::sync::Arc;
 use std::time::Duration;
 
 #[get("/_stcore/health")]
-async fn health_check() -> impl Responder {
-    HttpResponse::Ok().insert_header(("Content-Type", "text/plain; charset=utf-8")).body("ok")
+async fn health_check(req: HttpRequest) -> impl Responder {
+    let mut response = HttpResponse::Ok();
+    response.insert_header(("Cache-Control", "no-cache"));
+    response.cookie(crate::upload::health_cookie(&req));
+    response.content_type("text/plain; charset=utf-8").body("ok")
 }
 
 #[get("/_stcore/host-config")]
@@ -85,7 +88,8 @@ fn reconnect_id(protocol: Option<&str>) -> Option<&str> {
 }
 
 #[put("/_stcore/upload_file/{session_id}/{file_id}")]
-async fn upload_file(path: web::Path<(String, String)>, payload: actix_multipart::Multipart, server: web::Data<StreamlitServer>) -> Result<HttpResponse, crate::upload::UploadHttpError> {
+async fn upload_file(req: HttpRequest, path: web::Path<(String, String)>, payload: actix_multipart::Multipart, server: web::Data<StreamlitServer>) -> Result<HttpResponse, crate::upload::UploadHttpError> {
+    crate::upload::check_xsrf(&req)?;
     let (session_id, file_id) = path.into_inner();
     server.sessions.state_for_upload(&session_id).ok_or(crate::upload::UploadHttpError::SessionUnavailable)?;
     // This bounded native transport limit is the local 200 MiB default. Exact
@@ -97,8 +101,19 @@ async fn upload_file(path: web::Path<(String, String)>, payload: actix_multipart
     Ok(HttpResponse::NoContent().content_type("text/plain").finish())
 }
 
+#[delete("/_stcore/upload_file/{session_id}/{file_id}")]
+async fn delete_upload(req: HttpRequest, path: web::Path<(String, String)>, server: web::Data<StreamlitServer>) -> Result<HttpResponse, crate::upload::UploadHttpError> {
+    crate::upload::check_xsrf(&req)?;
+    let (session_id, file_id) = path.into_inner();
+    if let Some(state) = server.sessions.state_for_upload(&session_id) {
+        state.uploads.lock().remove(&file_id);
+    }
+    // Official: idempotent, including missing file and unknown session; unlike PUT.
+    Ok(HttpResponse::NoContent().finish())
+}
+
 fn configure_routes(config: &mut web::ServiceConfig) {
-    config.service(websocket_handler).service(health_check).service(host_config).service(upload_file);
+    config.service(websocket_handler).service(health_check).service(host_config).service(upload_file).service(delete_upload);
 }
 
 /// Handler type that can be either synchronous or asynchronous

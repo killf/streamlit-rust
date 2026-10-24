@@ -288,3 +288,5 @@ fn all_four_browser_update_stages_preserve_rows_metadata_and_change_ipc_and_data
         assert!(dataset_names.insert(chart.datasets[0].name.clone()));
     }
 }
+
+mod native;

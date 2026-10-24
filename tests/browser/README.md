@@ -35,3 +35,19 @@ worked with agent-browser 0.25.4; that does not change the frozen capture method
 The permanent entry opens a fresh tab, checks the six required cases without
 silently skipping them, and compares each returned DOM value with its actual
 client wire value and successful same-connection completion.
+
+The data journeys of the Rust data app live in
+[rust-journeys/](rust-journeys/README.md): the closed loop and the recovery,
+empty and two-session journeys, each with its counts, its observed values and
+the command that regenerates it.
+
+Run every capture with `target\pyref-venv\Scripts\python.exe`, the
+interpreter that carries streamlit 1.66.1 and its protobuf definitions; the
+entry stops before it records anything when the decoder is missing, so a
+capture can never be a page of empty frames.  The fixture paths have to be
+absolute: Chrome resolves a relative path against its own working directory
+and the uploader would receive no file.
+
+[test_observe_js.py](test_observe_js.py) runs the DOM probe in the same real
+Chrome and checks what it answers, so a probe that stops answering is caught
+before a capture relies on it.

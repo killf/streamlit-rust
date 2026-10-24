@@ -10,6 +10,8 @@ cargo run --example quickstart --locked
 
 Run from the repository root, then open `http://127.0.0.1:8503/`. The [runnable quickstart](../../streamlit/examples/quickstart.rs) displays a selectbox, slider, checkbox, and their returned values. No Python process is required. The server currently resolves `./www` from its working directory; running the binary elsewhere does not locate the repository frontend automatically.
 
+Verified compiler: `rustc 1.98.0-nightly (54333ff07 2026-05-22)` on Windows MSVC. Other compiler versions, including a minimum supported version, have not been validated for this build.
+
 Use the same widget methods with concise inputs inside a function returning `Result<(), WidgetError>`:
 
 ```rust
@@ -90,7 +92,34 @@ if let Some(file) = files.as_slice().first() {
 
 `UploadedFile` also implements `Read`, `Seek`, and `AsRef<[u8]>`; new handles start reading at zero. `content_type()` returns the supplied MIME type when present. The uploader returns `UploadedFiles::Single(Option<UploadedFile>)` by default; multiple/directory modes use `UploadedFiles::Multiple(Vec<UploadedFile>)`. Uploader keys are read-only; callbacks can resolve their files with `st.session_state().uploaded_files("upload")?`.
 
-Start with the single-file CSV path. The server accepts one file part per upload request, with a local 200 MiB file-content ceiling; it rejects oversized files without storing them. Clearing the widget only unbinds the selection: retained file IDs can still be reused in that session. DELETE is not implemented, there is no total per-session upload quota, and expiry is checked lazily rather than by a background cleanup timer. Multiple/directory workflows, delete/replacement transport, upstream error responses and session-expiry behavior remain incomplete or unverified. Session IDs are reconnect handles, not user authorization; upload requests are not bound to an authenticated requester or an issued file token, and the server has no XSRF validation. Do not expose this endpoint to untrusted clients as a production-ready security boundary. See [upload/widget options](../../streamlit/src/widget_api.rs) and [data view options](../../streamlit/src/data_api.rs) for the advanced API. `dataframe` and the configured bar-chart subset do not implement the full table/chart/selection/streaming surface.
+Start with the single-file CSV path. The server accepts one file part per upload request, with a local 200 MiB file-content ceiling; it rejects oversized files without storing them. HTTP PUT and DELETE now require a cookie and header with matching decoded XSRF tokens. Health responses issue or remask the cookie. DELETE removes the stored file; resending its old widget ID cannot restore the bytes, though previously returned Rust handles remain readable. Clearing a widget state alone does not delete a file: deletion depends on the frontend's DELETE request. The updated frontend upload/clear path and security boundaries still need final validation; this is not complete XSRF or production-security compatibility.
+
+There is no total per-session upload quota, and expiry is checked lazily rather than by a background cleanup timer. Multiple/directory workflows, replacement/error boundaries and upstream session-expiry behavior remain incomplete or unverified. Session IDs are reconnect handles, not user authorization: valid XSRF credentials do not bind an upload URL to a particular user or issued file token. Do not expose this endpoint to untrusted clients as a production-ready security boundary. See [upload/widget options](../../streamlit/src/widget_api.rs) and [data view options](../../streamlit/src/data_api.rs) for the advanced API. Data views cover limited table/chart paths, not the complete selection/streaming surface.
+
+## Tables and native bar charts
+
+```powershell
+cargo run --example tables --locked -- --native
+```
+
+Run from the repository root and open `http://127.0.0.1:8503/`; stop another example on that port first. **Update data** changes the values rendered by the [tables example](../../streamlit/examples/tables.rs). The server still needs the repository's `./www` working-directory path and no Python runtime.
+
+Pass a native Arrow `RecordBatch` directly from a fallible render helper:
+
+```rust
+use ::streamlit::{DataApi, Streamlit, data::{DataError, RecordBatch}};
+
+fn render_data(st: &Streamlit, batch: &RecordBatch) -> Result<(), DataError> {
+    st.table(batch)?;
+    // For a batch containing numeric series:
+    st.bar_chart(batch)?;
+    Ok(())
+}
+```
+
+Use `TableOptions::new(&batch)` for borders, index/header visibility, size and alternative text. Use `BarChartOptions::native(&batch).x("group").y("amount")` to choose columns; the measured subset also exposes horizontal layout, sorting and side-by-side series. Bare `st.bar_chart(&batch)` uses the row index as categories and the supplied numeric series. `BarChartOptions::new(&batch, "group", "amount")` keeps the explicit mapping API used by `data_app`.
+
+Support is partial: the native bar path covers the measured Int64/Float64 series and string/numeric categories, including the captured null/negative-value configurations. Other Arrow types, color rules and stack variants are not fully covered. Mixed large integer/float input can return a Rust error where Python rounds; do not rely on matching that conversion. Selection, `add_rows` and the complete table/chart surface remain incomplete. See [data options](../../streamlit/src/data_api.rs) for the current typed API.
 
 ## Input widgets
 

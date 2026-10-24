@@ -124,6 +124,116 @@ def verify_widget_capture(capture: dict, feature_id: str) -> None:
             raise ValueError(f"widget wire/action/DOM verdict failed for {label}")
 
 
+def verify_data_loop(capture: dict, feature_id: str, path: Path, root: Path, python: bool, reviewed: dict | None = None) -> None:
+    """Audit only the published positive uploader/dataframe loop, using QA readers."""
+    if feature_id not in ("st.file_uploader", "st.dataframe"):
+        raise ValueError("data-loop evidence is only valid for uploader/dataframe")
+    relative = ("tests/reference/reference-browser/data-loop/updates-strict/trace-data-loop.json" if python
+                else "tests/browser/rust-data-loop/trace-data-loop.json")
+    provenance = root / ("tests/reference/reference-browser/data-loop/README.md" if python else "tests/browser/rust-data-loop/README.md")
+    lock = json.loads((root / "upstream.lock.json").read_text(encoding="utf-8"))
+    record = (reviewed or {}).get(relative)
+    if not isinstance(record, dict):
+        raise ValueError("data-loop requires explicit reviewed provenance")
+    version = lock["streamlit"]["version"]
+    if (record.get("source_version") != "1.66.1" or record.get("target_version") != version
+            or version != "1.66.1" or record.get("provenance") != provenance.relative_to(root).as_posix()
+            or not re.fullmatch(r"[0-9a-f]{40}", str(record.get("reviewed_commit", "")))
+            or record.get("provenance_sha256") != digest(provenance)):
+        raise ValueError("data-loop reviewed provenance source/target version or source hash mismatch")
+    if (path.resolve() != (root / relative).resolve() or capture.get("case") != "data-loop"
+            or record.get("sha256") != digest(path)
+            or capture != json.loads(path.read_text(encoding="utf-8"))):
+        raise ValueError("data-loop is not the reviewed frozen raw bytes/summary")
+    frames = capture.get("frames", [])
+    sessions = [f["decoded"]["new_session"] for f in frames if f.get("decoded", {}).get("type") == "new_session"]
+    if not sessions or any(not n.get("session_id") or (n.get("name") == "Streamlit Rust") == python for n in sessions):
+        raise ValueError("data-loop NewSession identity mismatch")
+    # These legacy raws omit runtime versions. Their explicit external source
+    # attestation applies only to the exact reviewed bytes, never arbitrary input.
+    observed_versions = [capture.get("versions", {}).get("streamlit")]
+    for session in sessions:
+        observed_versions.extend((session.get("streamlit_version"), session.get("environment_info", {}).get("streamlit_version"),
+                                  session.get("initialize", {}).get("environment_info", {}).get("streamlit_version")))
+    if any(value != record["source_version"] for value in observed_versions if value is not None):
+        raise ValueError("data-loop explicit raw version contradicts reviewed source version")
+    if not python:
+        fingerprint = re.search(r"sha256 ([0-9a-fA-F]{64})", capture.get("capture", {}).get("binary", ""))
+        if not fingerprint or fingerprint[1].lower() not in provenance.read_text(encoding="utf-8").lower():
+            raise ValueError("data-loop binary provenance mismatch")
+    helpers = runpy.run_path(str(Path(__file__).resolve().parents[1] / "tests/reference/capture_browser_trace.py"))
+    driver = runpy.run_path(str(Path(__file__).resolve().parents[1] / "tests/browser/numeric_capture.py"))
+    stages = capture.get("stages", [])
+    cases = driver["DATA_LOOP_CASES"]
+    if [stage.get("stage") for stage in stages] != ["after-upload", *[case["label"] for case in cases]]:
+        raise ValueError("data-loop requires all distinct positive stages")
+    if capture.get("upload", {}).get("uploaded") is not True or capture.get("file_action", {}).get("action") != "none":
+        raise ValueError("data-loop requires a successful positive upload")
+    urls_req = [f["decoded"]["file_urls_request"] for f in frames if f.get("decoded", {}).get("type") == "file_urls_request"]
+    urls_res = [f["decoded"]["file_urls_response"] for f in frames if f.get("decoded", {}).get("type") == "file_urls_response"]
+    infos = capture.get("file_uploader_state", {}).get("value_full", {}).get("uploadedFileInfo", [])
+    if not urls_req or not urls_res or not infos:
+        raise ValueError("data-loop lacks upload URL exchange or uploaded file state")
+    state = capture["file_uploader_state"]
+    if (not any(f.get("decoded", {}).get("delta", {}).get("element") == "file_uploader"
+                and f["decoded"]["delta"].get("id") == state.get("id") for f in frames)
+            or not any(state == item for f in frames for item in f.get("decoded", {}).get("rerun_script", {}).get("widget_states", []))):
+        raise ValueError("data-loop uploaded file state is not bound to the wire uploader")
+    for info in infos:
+        url = info.get("fileUrls", {}).get("uploadUrl")
+        if (not url or not info.get("name") or int(info.get("size", 0)) <= 0
+                or not any(response.get("response_id") == request.get("request_id")
+                           and info["name"] in request.get("file_names", [])
+                           and any(item.get("file_id") == info.get("fileId") and item.get("upload_url") == url
+                                   for item in response.get("file_urls", [])) for request in urls_req for response in urls_res)
+                or not any(item.get("method") == "PUT" and item.get("status") == 204 and item.get("url", "").endswith(url)
+                           and "multipart/form-data" in str(item.get("request_headers", {})).lower()
+                           for item in capture.get("upload_requests", []))):
+            raise ValueError("data-loop upload fields/PUT 204 mismatch")
+    # Re-read each retained IPC and compare both summaries and decoded wire bytes.
+    for stage in stages:
+        table = stage.get("table", {})
+        arrow = table.get("arrow") or {}
+        ipc_path = (path.parent / arrow.get("file", "")).resolve()
+        if ipc_path.parent != path.parent.resolve() or not ipc_path.is_file():
+            raise ValueError("missing or unsafe data-loop IPC")
+        actual = helpers["arrow_summary"](ipc_path.read_bytes())
+        if ("arrow_error" in actual or any(actual.get(k) != arrow.get(k) for k in ("sha256", "bytes"))
+                or any(actual.get(k) != table.get(k) for k in ("rows", "columns", "row_count"))):
+            raise ValueError("data-loop retained Arrow mismatch (PyArrow is required)")
+        cells = stage.get("dom", {}).get("table_cells", [])
+        expected = [row.get(column) for row in actual["rows"] for column in actual["columns"]]
+        if not expected or len(cells) != len(expected) or not all(helpers["_same_cell_value"](a, b) for a, b in zip(expected, cells)):
+            raise ValueError("data-loop Arrow cells do not match actual DOM")
+        wire = [f.get("decoded", {}).get("delta", {}).get("arrow", {}) for f in frames
+                if f.get("decoded", {}).get("delta", {}).get("element") == "dataframe"]
+        if not any(a.get("sha256") == actual["sha256"] and a.get("base64") == actual.get("base64")
+                   and a.get("rows") == actual["rows"] and a.get("columns") == actual["columns"] for a in wire):
+            raise ValueError("data-loop dataframe IPC not present in wire")
+    verified = [stages[0]]
+    for case, before, stage in zip(cases, stages, stages[1:]):
+        window = stage.get("window", {})
+        if (not isinstance(stage.get("action"), dict) or not stage["action"].get("action")
+                or type(window.get("start")) is not int or type(window.get("end")) is not int
+                or not 0 <= window["start"] < window["end"] <= len(frames)):
+            raise ValueError("data-loop action/window missing")
+        verdict = helpers["data_loop_verdict"](case, frames, window, stage["action"], before.get("dom"), stage.get("dom"))
+        if not verdict["ok"] or verdict.get("result_digest") != stage["table"]["arrow"]["sha256"]:
+            raise ValueError(f"data-loop action/Arrow/DOM mismatch: {verdict['problems']}")
+        sent, done = frames[verdict["state_frame"]], frames[verdict["completion_frame"]]
+        if not sent.get("request_id") or sent["request_id"] != done.get("request_id") or done.get("direction") != "server->client":
+            raise ValueError("data-loop completion request ID mismatch")
+        if not any(f.get("request_id") == sent["request_id"] and f.get("connection") == sent.get("connection")
+                   and f.get("decoded", {}).get("delta", {}).get("element") == "dataframe"
+                   and f["decoded"]["delta"].get("arrow", {}).get("sha256") == verdict["result_digest"]
+                   for f in frames[window["start"]:window["end"]]):
+            raise ValueError("data-loop Arrow is not on the operation connection")
+        verified.append({**stage, "verdict": verdict})
+    result = driver["data_loop_result"](verified, capture["upload"], capture["file_action"], [c["label"] for c in cases])
+    if not result["ok"] or capture.get("failures") != [] or result["counts"] != capture.get("counts"):
+        raise ValueError("data-loop actual counts/verdict mismatch")
+
+
 def merge_progress(entry: dict, old: dict | None, root: Path) -> dict:
     """Keep authored progress; generated docs authority is never overwritten."""
     if old is not None:
@@ -147,6 +257,10 @@ def merge_progress(entry: dict, old: dict | None, root: Path) -> dict:
     if entry.get("rust_source_path") is not None:
         evidence_file(entry["rust_source_path"], root)
     for key, value in entry["evidence"].items():
+        if key == "reviewed_captures":
+            if not isinstance(value, dict):
+                raise ValueError("reviewed captures must be explicit provenance records")
+            continue
         if key == "official_document_sha256" or (key == "python_browser_trace" and value is None and compatibility == "unverified"):
             continue
         evidence_file(value, root)
@@ -154,6 +268,9 @@ def merge_progress(entry: dict, old: dict | None, root: Path) -> dict:
         for key in ("python_browser_trace", "rust_wire_observation", "official_frontend_browser_e2e"):
             path = evidence_file(entry["evidence"].get(key), root)
             capture = json.loads(path.read_text(encoding="utf-8"))
+            if capture.get("kind") in ("python-reference-data-loop-trace", "rust-browser-data-loop-trace"):
+                verify_data_loop(capture, entry["feature_id"], path, root, key == "python_browser_trace", entry["evidence"].get("reviewed_captures"))
+                continue
             if capture.get("kind") in ("python-reference-widget-trace", "rust-browser-widget-trace") and "required_cases" in capture:
                 verify_widget_capture(capture, entry["feature_id"])
                 continue

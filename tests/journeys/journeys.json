@@ -12,7 +12,50 @@
       "id": "J00",
       "title": "First-release minimal closed loop",
       "priority": "P0",
-      "status": "not_run",
+      "status": "failed",
+      "failure": {
+        "reason": "3 of the 6 steps were verified against the Rust data app and published under tests/browser/rust-journeys/; the remaining steps were not run and no screenshot was taken, so the journey is not passed."
+      },
+      "attempt": {
+        "command": "target\\pyref-venv\\Scripts\\python.exe tests\\browser\\numeric_capture.py --url http://127.0.0.1:8501/ --case data-loop --journey <journey> --files <absolute fixture paths> --label rust-final-<journey> --out target\\final-427F-<timestamp>\\rust\\<journey> --binary \"target/checks/data-app-live/data-app-security-final-20261024T152745018.exe sha256 427F3AF719559C14B8A207660B9BA562D42C6F2C9A6B16E7C3864DED9B1D3A19\" --scope \"RUST SIDE ONLY\"",
+        "binary_sha256": "427F3AF719559C14B8A207660B9BA562D42C6F2C9A6B16E7C3864DED9B1D3A19",
+        "source_sha256": "13373cf614f0f16db351d51a72fdc4902504d7952dd53258625c9bae58b09531",
+        "criteria_sha256": "DA2E746A8267E1DFAC65CF0CB5513B3C6B729B33C5035C3CF5C253F016925D9A",
+        "driver_sha256": "9EDC3FA1D456E5592771C448AC5E600C99D71398C5E55CCB7E8A541F61E5F966",
+        "capture_directory": "target/final-427F-20261024T162828",
+        "exit_code": 0,
+        "criteria_sha256_captured": "B29B4F85AC9BEBE885C4B3EEE8E2142D8A44DC4724C6A9F1075BB09062DA08F6",
+        "revalidated": "the same raws pass under the newer criterion, which binds the result to the run that carries the target state"
+      },
+      "linked_artifacts": [
+        "tests/browser/rust-journeys/data-loop/trace-data-loop.json"
+      ],
+      "waived_evidence": [
+        {
+          "artifact": "tests/e2e/J00/J00-S1.png",
+          "reason": "the step was not run in this attempt."
+        },
+        {
+          "artifact": "tests/e2e/J00/J00-S2.png",
+          "reason": "the capture records the wire frames and the DOM values; it takes no screenshot."
+        },
+        {
+          "artifact": "tests/e2e/J00/J00-S3.png",
+          "reason": "the capture records the wire frames and the DOM values; it takes no screenshot."
+        },
+        {
+          "artifact": "tests/e2e/J00/J00-S4.png",
+          "reason": "the step was not run in this attempt."
+        },
+        {
+          "artifact": "tests/e2e/J00/J00-S5.png",
+          "reason": "the capture records the wire frames and the DOM values; it takes no screenshot."
+        },
+        {
+          "artifact": "tests/e2e/J00/J00-S6.png",
+          "reason": "the step was not run in this attempt."
+        }
+      ],
       "steps": [
         {
           "id": "J00-S1",
@@ -22,12 +65,16 @@
         {
           "id": "J00-S2",
           "action": "Upload tests/fixtures/csv/sales_basic.csv through the uploader.",
-          "expectation": "The aggregated table renders 4 rows (Books, Games, Music, Toys) with the totals from the golden file, and one Vega-Lite bar chart is rendered below it."
+          "expectation": "The aggregated table renders 4 rows (Books, Games, Music, Toys) with the totals from the golden file, and one Vega-Lite bar chart is rendered below it.",
+          "rust_result": "Books 3/245.75, Games 3/409.48, Music 3/139, Toys 3/104.49, and one bar chart with four bars.",
+          "rust_evidence": "tests/browser/rust-journeys/data-loop/trace-data-loop.json"
         },
         {
           "id": "J00-S3",
           "action": "Change the 'Group by' selector to 'region'.",
-          "expectation": "In the same run, the table changes to 6 region groups ((missing), East, North, South, UNKNOWN, West) and the chart's x-axis labels change to the same 6 keys."
+          "expectation": "In the same run, the table changes to 6 region groups ((missing), East, North, South, UNKNOWN, West) and the chart's x-axis labels change to the same 6 keys.",
+          "rust_result": "six region groups ((missing) 1/88, East 2/209.49, North 3/264.5, South 2/245.24, UNKNOWN 2/40.49, West 2/51) and six bars.",
+          "rust_evidence": "tests/browser/rust-journeys/data-loop/trace-data-loop.json"
         },
         {
           "id": "J00-S4",
@@ -37,7 +84,9 @@
         {
           "id": "J00-S5",
           "action": "Uncheck 'Include unknown region'.",
-          "expectation": "The table reduces to 4 known regions totalling 9 rows, and the chart shows 4 bars."
+          "expectation": "The table reduces to 4 known regions totalling 9 rows, and the chart shows 4 bars.",
+          "rust_result": "four known regions (East 2/209.49, North 3/264.5, South 2/245.24, West 2/51) covering 9 rows, with four bars.",
+          "rust_evidence": "tests/browser/rust-journeys/data-loop/trace-data-loop.json"
         },
         {
           "id": "J00-S6",
@@ -51,17 +100,63 @@
       "id": "J01",
       "title": "Data input and aggregation",
       "priority": "P0",
-      "status": "not_run",
+      "status": "failed",
+      "failure": {
+        "reason": "3 of the 5 steps were verified against the Rust data app and published under tests/browser/rust-journeys/; the remaining steps were not run and no screenshot was taken, so the journey is not passed."
+      },
+      "attempt": {
+        "command": "target\\pyref-venv\\Scripts\\python.exe tests\\browser\\numeric_capture.py --url http://127.0.0.1:8501/ --case data-loop --journey <journey> --files <absolute fixture paths> --label rust-final-<journey> --out target\\final-427F-<timestamp>\\rust\\<journey> --binary \"target/checks/data-app-live/data-app-security-final-20261024T152745018.exe sha256 427F3AF719559C14B8A207660B9BA562D42C6F2C9A6B16E7C3864DED9B1D3A19\" --scope \"RUST SIDE ONLY\"",
+        "binary_sha256": "427F3AF719559C14B8A207660B9BA562D42C6F2C9A6B16E7C3864DED9B1D3A19",
+        "source_sha256": "13373cf614f0f16db351d51a72fdc4902504d7952dd53258625c9bae58b09531",
+        "criteria_sha256": "DA2E746A8267E1DFAC65CF0CB5513B3C6B729B33C5035C3CF5C253F016925D9A",
+        "driver_sha256": "9EDC3FA1D456E5592771C448AC5E600C99D71398C5E55CCB7E8A541F61E5F966",
+        "capture_directory": "target/final-427F-20261024T162828",
+        "exit_code": 0,
+        "criteria_sha256_captured": "B29B4F85AC9BEBE885C4B3EEE8E2142D8A44DC4724C6A9F1075BB09062DA08F6",
+        "revalidated": "the same raws pass under the newer criterion, which binds the result to the run that carries the target state"
+      },
+      "linked_artifacts": [
+        "tests/browser/rust-journeys/data-loop/trace-data-loop.json",
+        "tests/browser/rust-journeys/sessions/trace-data-loop.json"
+      ],
+      "waived_evidence": [
+        {
+          "artifact": "tests/e2e/J01/J01-S1.png",
+          "reason": "the capture records the wire frames and the DOM values; it takes no screenshot."
+        },
+        {
+          "artifact": "tests/e2e/J01/J01-S2.png",
+          "reason": "the capture records the wire frames and the DOM values; it takes no screenshot."
+        },
+        {
+          "artifact": "tests/e2e/J01/J01-S3.png",
+          "reason": "the step was not run in this attempt."
+        },
+        {
+          "artifact": "tests/e2e/J01/J01-S4.png",
+          "reason": "the capture records the wire frames and the DOM values; it takes no screenshot."
+        },
+        {
+          "artifact": "tests/e2e/J01/J01-S5.png",
+          "reason": "the step was not run in this attempt."
+        }
+      ],
       "steps": [
         {
           "id": "J01-S1",
           "action": "Upload tests/fixtures/csv/sales_basic.csv.",
-          "expectation": "The table shows 4 groups in ascending key order: Books (3 rows, 245.75, 81.92), Games (3, 409.48, 136.49), Music (3, 139.00, 46.33), Toys (3, 104.49, 34.83)."
+          "expectation": "The table shows 4 groups in ascending key order: Books (3 rows, 245.75, 81.92), Games (3, 409.48, 136.49), Music (3, 139.00, 46.33), Toys (3, 104.49, 34.83).",
+          "python_reference_trace": "tests/reference/reference-browser/data-loop/updates-strict/trace-data-loop.json",
+          "rust_result": "Books 3/245.75, Games 3/409.48, Music 3/139, Toys 3/104.49 in ascending key order.",
+          "rust_evidence": "tests/browser/rust-journeys/data-loop/trace-data-loop.json"
         },
         {
           "id": "J01-S2",
           "action": "Set 'Group by' to 'region'.",
-          "expectation": "The table shows 6 groups: (missing) 1/88.00/88.00, East 2/209.49/104.75, North 3/264.50/88.17, South 2/245.24/122.62, UNKNOWN 2/40.49/20.25, West 2/51.00/25.50."
+          "expectation": "The table shows 6 groups: (missing) 1/88.00/88.00, East 2/209.49/104.75, North 3/264.50/88.17, South 2/245.24/122.62, UNKNOWN 2/40.49/20.25, West 2/51.00/25.50.",
+          "python_reference_trace": "tests/reference/reference-browser/data-loop/updates-strict/trace-data-loop.json",
+          "rust_result": "the six region groups with their totals, and six bars.",
+          "rust_evidence": "tests/browser/rust-journeys/data-loop/trace-data-loop.json"
         },
         {
           "id": "J01-S3",
@@ -71,7 +166,10 @@
         {
           "id": "J01-S4",
           "action": "Upload tests/fixtures/csv/sales_unicode.csv.",
-          "expectation": "Group keys are the non-ASCII strings 'Bücher', 'Jogos' and '游戏', sorted by code point; totals are 120.50, 149.50 and 199.99."
+          "expectation": "Group keys are the non-ASCII strings 'Bücher', 'Jogos' and '游戏', sorted by code point; totals are 120.50, 149.50 and 199.99.",
+          "python_reference_trace": "tests/reference/reference-browser/journeys/sessions/trace-data-loop.json",
+          "rust_result": "the second tab uploaded sales_unicode.csv and shows Bücher 1/120.5, Jogos 1/149.5 and 游戏 1/199.99 in code point order.",
+          "rust_evidence": "tests/browser/rust-journeys/sessions/trace-data-loop.json"
         },
         {
           "id": "J01-S5",
@@ -85,22 +183,70 @@
       "id": "J02",
       "title": "Widget filtering",
       "priority": "P0",
-      "status": "not_run",
+      "status": "failed",
+      "failure": {
+        "reason": "3 of the 5 steps were verified against the Rust data app and published under tests/browser/rust-journeys/; the remaining steps were not run and no screenshot was taken, so the journey is not passed."
+      },
+      "attempt": {
+        "command": "target\\pyref-venv\\Scripts\\python.exe tests\\browser\\numeric_capture.py --url http://127.0.0.1:8501/ --case data-loop --journey <journey> --files <absolute fixture paths> --label rust-final-<journey> --out target\\final-427F-<timestamp>\\rust\\<journey> --binary \"target/checks/data-app-live/data-app-security-final-20261024T152745018.exe sha256 427F3AF719559C14B8A207660B9BA562D42C6F2C9A6B16E7C3864DED9B1D3A19\" --scope \"RUST SIDE ONLY\"",
+        "binary_sha256": "427F3AF719559C14B8A207660B9BA562D42C6F2C9A6B16E7C3864DED9B1D3A19",
+        "source_sha256": "13373cf614f0f16db351d51a72fdc4902504d7952dd53258625c9bae58b09531",
+        "criteria_sha256": "DA2E746A8267E1DFAC65CF0CB5513B3C6B729B33C5035C3CF5C253F016925D9A",
+        "driver_sha256": "9EDC3FA1D456E5592771C448AC5E600C99D71398C5E55CCB7E8A541F61E5F966",
+        "capture_directory": "target/final-427F-20261024T162828",
+        "exit_code": 0,
+        "criteria_sha256_captured": "B29B4F85AC9BEBE885C4B3EEE8E2142D8A44DC4724C6A9F1075BB09062DA08F6",
+        "revalidated": "the same raws pass under the newer criterion, which binds the result to the run that carries the target state"
+      },
+      "linked_artifacts": [
+        "tests/browser/rust-journeys/data-loop/trace-data-loop.json"
+      ],
+      "waived_evidence": [
+        {
+          "artifact": "tests/e2e/J02/J02-S1.png",
+          "reason": "the capture records the wire frames and the DOM values; it takes no screenshot."
+        },
+        {
+          "artifact": "tests/e2e/J02/J02-S2.png",
+          "reason": "the capture records the wire frames and the DOM values; it takes no screenshot."
+        },
+        {
+          "artifact": "tests/e2e/J02/J02-S3.png",
+          "reason": "the capture records the wire frames and the DOM values; it takes no screenshot."
+        },
+        {
+          "artifact": "tests/e2e/J02/J02-S4.png",
+          "reason": "the step was not run in this attempt."
+        },
+        {
+          "artifact": "tests/e2e/J02/J02-S5.png",
+          "reason": "the step was not run in this attempt."
+        }
+      ],
       "steps": [
         {
           "id": "J02-S1",
           "action": "Set 'Group by' to 'region' with the default slider and checkbox.",
-          "expectation": "6 region groups covering 12 rows."
+          "expectation": "6 region groups covering 12 rows.",
+          "python_reference_trace": "tests/reference/reference-browser/data-loop/updates-strict/trace-data-loop.json",
+          "rust_result": "six region groups covering 12 rows.",
+          "rust_evidence": "tests/browser/rust-journeys/data-loop/trace-data-loop.json"
         },
         {
           "id": "J02-S2",
           "action": "Uncheck 'Include unknown region'.",
-          "expectation": "The '(missing)' and 'UNKNOWN' groups disappear; 4 groups remain covering 9 rows."
+          "expectation": "The '(missing)' and 'UNKNOWN' groups disappear; 4 groups remain covering 9 rows.",
+          "python_reference_trace": "tests/reference/reference-browser/data-loop/updates-strict/trace-data-loop.json",
+          "rust_result": "the four known regions covering 9 rows.",
+          "rust_evidence": "tests/browser/rust-journeys/data-loop/trace-data-loop.json"
         },
         {
           "id": "J02-S3",
           "action": "Set 'Minimum amount' to 100.",
-          "expectation": "Only East (149.50, 1 row), North (120.50, 1 row) and South (199.99, 1 row) remain; 3 rows in total."
+          "expectation": "Only East (149.50, 1 row), North (120.50, 1 row) and South (199.99, 1 row) remain; 3 rows in total.",
+          "python_reference_trace": "tests/reference/reference-browser/data-loop/updates-strict/trace-data-loop.json",
+          "rust_result": "East 149.50, North 120.50 and South 199.99, three rows in total.",
+          "rust_evidence": "tests/browser/rust-journeys/data-loop/trace-data-loop.json"
         },
         {
           "id": "J02-S4",
@@ -119,12 +265,50 @@
       "id": "J03",
       "title": "Table and chart stay in sync",
       "priority": "P0",
-      "status": "not_run",
+      "status": "failed",
+      "failure": {
+        "reason": "2 of the 4 steps were verified against the Rust data app and published under tests/browser/rust-journeys/; the remaining steps were not run and no screenshot was taken, so the journey is not passed."
+      },
+      "attempt": {
+        "command": "target\\pyref-venv\\Scripts\\python.exe tests\\browser\\numeric_capture.py --url http://127.0.0.1:8501/ --case data-loop --journey <journey> --files <absolute fixture paths> --label rust-final-<journey> --out target\\final-427F-<timestamp>\\rust\\<journey> --binary \"target/checks/data-app-live/data-app-security-final-20261024T152745018.exe sha256 427F3AF719559C14B8A207660B9BA562D42C6F2C9A6B16E7C3864DED9B1D3A19\" --scope \"RUST SIDE ONLY\"",
+        "binary_sha256": "427F3AF719559C14B8A207660B9BA562D42C6F2C9A6B16E7C3864DED9B1D3A19",
+        "source_sha256": "13373cf614f0f16db351d51a72fdc4902504d7952dd53258625c9bae58b09531",
+        "criteria_sha256": "DA2E746A8267E1DFAC65CF0CB5513B3C6B729B33C5035C3CF5C253F016925D9A",
+        "driver_sha256": "9EDC3FA1D456E5592771C448AC5E600C99D71398C5E55CCB7E8A541F61E5F966",
+        "capture_directory": "target/final-427F-20261024T162828",
+        "exit_code": 0,
+        "criteria_sha256_captured": "B29B4F85AC9BEBE885C4B3EEE8E2142D8A44DC4724C6A9F1075BB09062DA08F6",
+        "revalidated": "the same raws pass under the newer criterion, which binds the result to the run that carries the target state"
+      },
+      "linked_artifacts": [
+        "tests/browser/rust-journeys/data-loop/trace-data-loop.json"
+      ],
+      "waived_evidence": [
+        {
+          "artifact": "tests/e2e/J03/J03-S1.png",
+          "reason": "the capture records the wire frames and the DOM values; it takes no screenshot."
+        },
+        {
+          "artifact": "tests/e2e/J03/J03-S2.png",
+          "reason": "the step was not run in this attempt."
+        },
+        {
+          "artifact": "tests/e2e/J03/J03-S3.png",
+          "reason": "the capture records the wire frames and the DOM values; it takes no screenshot."
+        },
+        {
+          "artifact": "tests/e2e/J03/J03-S4.png",
+          "reason": "the step was not run in this attempt."
+        }
+      ],
       "steps": [
         {
           "id": "J03-S1",
           "action": "Load the baseline with 'Group by' = 'category'.",
-          "expectation": "The table has 4 rows and the chart has exactly 4 bars whose heights correspond to total_amount 245.75, 409.48, 139.00 and 104.49, in the same key order."
+          "expectation": "The table has 4 rows and the chart has exactly 4 bars whose heights correspond to total_amount 245.75, 409.48, 139.00 and 104.49, in the same key order.",
+          "python_reference_trace": "tests/reference/reference-browser/data-loop/updates-strict/trace-data-loop.json",
+          "rust_result": "four rows and four bars for Books 245.75, Games 409.48, Music 139 and Toys 104.49.",
+          "rust_evidence": "tests/browser/rust-journeys/data-loop/trace-data-loop.json"
         },
         {
           "id": "J03-S2",
@@ -134,7 +318,10 @@
         {
           "id": "J03-S3",
           "action": "Change 'Group by' to 'region'.",
-          "expectation": "The chart's x-axis labels become the 6 region keys, including '(missing)' and 'UNKNOWN', and the bar count equals the table row count."
+          "expectation": "The chart's x-axis labels become the 6 region keys, including '(missing)' and 'UNKNOWN', and the bar count equals the table row count.",
+          "python_reference_trace": "tests/reference/reference-browser/data-loop/updates-strict/trace-data-loop.json",
+          "rust_result": "the six region labels, with the bar count equal to the table row count.",
+          "rust_evidence": "tests/browser/rust-journeys/data-loop/trace-data-loop.json"
         },
         {
           "id": "J03-S4",
@@ -196,12 +383,54 @@
       "id": "J06",
       "title": "Two-session isolation",
       "priority": "P0",
-      "status": "not_run",
+      "status": "failed",
+      "failure": {
+        "reason": "1 of the 5 steps were verified against the Rust data app and published under tests/browser/rust-journeys/; the remaining steps were not run and no screenshot was taken, so the journey is not passed."
+      },
+      "attempt": {
+        "command": "target\\pyref-venv\\Scripts\\python.exe tests\\browser\\numeric_capture.py --url http://127.0.0.1:8501/ --case data-loop --journey <journey> --files <absolute fixture paths> --label rust-final-<journey> --out target\\final-427F-<timestamp>\\rust\\<journey> --binary \"target/checks/data-app-live/data-app-security-final-20261024T152745018.exe sha256 427F3AF719559C14B8A207660B9BA562D42C6F2C9A6B16E7C3864DED9B1D3A19\" --scope \"RUST SIDE ONLY\"",
+        "binary_sha256": "427F3AF719559C14B8A207660B9BA562D42C6F2C9A6B16E7C3864DED9B1D3A19",
+        "source_sha256": "13373cf614f0f16db351d51a72fdc4902504d7952dd53258625c9bae58b09531",
+        "criteria_sha256": "DA2E746A8267E1DFAC65CF0CB5513B3C6B729B33C5035C3CF5C253F016925D9A",
+        "driver_sha256": "9EDC3FA1D456E5592771C448AC5E600C99D71398C5E55CCB7E8A541F61E5F966",
+        "capture_directory": "target/final-427F-20261024T162828",
+        "exit_code": 0,
+        "criteria_sha256_captured": "B29B4F85AC9BEBE885C4B3EEE8E2142D8A44DC4724C6A9F1075BB09062DA08F6",
+        "revalidated": "the same raws pass under the newer criterion, which binds the result to the run that carries the target state"
+      },
+      "linked_artifacts": [
+        "tests/browser/rust-journeys/sessions/trace-data-loop.json"
+      ],
+      "waived_evidence": [
+        {
+          "artifact": "tests/e2e/J06/J06-S1.png",
+          "reason": "the capture records the wire frames and the DOM values; it takes no screenshot."
+        },
+        {
+          "artifact": "tests/e2e/J06/J06-S2.png",
+          "reason": "the step was not run in this attempt."
+        },
+        {
+          "artifact": "tests/e2e/J06/J06-S3.png",
+          "reason": "the step was not run in this attempt."
+        },
+        {
+          "artifact": "tests/e2e/J06/J06-S4.png",
+          "reason": "the step was not run in this attempt."
+        },
+        {
+          "artifact": "tests/e2e/J06/J06-S5.png",
+          "reason": "the step was not run in this attempt."
+        }
+      ],
       "steps": [
         {
           "id": "J06-S1",
           "action": "Open the application in browser context A and in browser context B.",
-          "expectation": "The two connections carry different session ids."
+          "expectation": "The two connections carry different session ids.",
+          "python_reference_trace": "tests/reference/reference-browser/journeys/sessions/trace-data-loop.json",
+          "rust_result": "the two tabs carry different session ids, their own file, their own group and their own result.",
+          "rust_evidence": "tests/browser/rust-journeys/sessions/trace-data-loop.json"
         },
         {
           "id": "J06-S2",
@@ -230,12 +459,50 @@
       "id": "J07",
       "title": "Upload parse errors and recovery",
       "priority": "P0",
-      "status": "not_run",
+      "status": "failed",
+      "failure": {
+        "reason": "2 of the 4 steps were verified against the Rust data app and published under tests/browser/rust-journeys/; the remaining steps were not run and no screenshot was taken, so the journey is not passed."
+      },
+      "attempt": {
+        "command": "target\\pyref-venv\\Scripts\\python.exe tests\\browser\\numeric_capture.py --url http://127.0.0.1:8501/ --case data-loop --journey <journey> --files <absolute fixture paths> --label rust-final-<journey> --out target\\final-427F-<timestamp>\\rust\\<journey> --binary \"target/checks/data-app-live/data-app-security-final-20261024T152745018.exe sha256 427F3AF719559C14B8A207660B9BA562D42C6F2C9A6B16E7C3864DED9B1D3A19\" --scope \"RUST SIDE ONLY\"",
+        "binary_sha256": "427F3AF719559C14B8A207660B9BA562D42C6F2C9A6B16E7C3864DED9B1D3A19",
+        "source_sha256": "13373cf614f0f16db351d51a72fdc4902504d7952dd53258625c9bae58b09531",
+        "criteria_sha256": "DA2E746A8267E1DFAC65CF0CB5513B3C6B729B33C5035C3CF5C253F016925D9A",
+        "driver_sha256": "9EDC3FA1D456E5592771C448AC5E600C99D71398C5E55CCB7E8A541F61E5F966",
+        "capture_directory": "target/final-427F-20261024T162828",
+        "exit_code": 0,
+        "criteria_sha256_captured": "B29B4F85AC9BEBE885C4B3EEE8E2142D8A44DC4724C6A9F1075BB09062DA08F6",
+        "revalidated": "the same raws pass under the newer criterion, which binds the result to the run that carries the target state"
+      },
+      "linked_artifacts": [
+        "tests/browser/rust-journeys/recover/trace-data-loop.json"
+      ],
+      "waived_evidence": [
+        {
+          "artifact": "tests/e2e/J07/J07-S1.png",
+          "reason": "the capture records the wire frames and the DOM values; it takes no screenshot."
+        },
+        {
+          "artifact": "tests/e2e/J07/J07-S2.png",
+          "reason": "the step was not run in this attempt."
+        },
+        {
+          "artifact": "tests/e2e/J07/J07-S3.png",
+          "reason": "the capture records the wire frames and the DOM values; it takes no screenshot."
+        },
+        {
+          "artifact": "tests/e2e/J07/J07-S4.png",
+          "reason": "the step was not run in this attempt."
+        }
+      ],
       "steps": [
         {
           "id": "J07-S1",
           "action": "Upload tests/fixtures/csv/sales_malformed.csv (a row with too few fields).",
-          "expectation": "A hard failure: the error message reads exactly 'Could not parse the uploaded CSV: row 3: expected 8 fields, found 7', the info message 'Upload a valid CSV to continue.' is shown, and there is no table and no chart. The uploader stays usable."
+          "expectation": "A hard failure: the error message reads exactly 'Could not parse the uploaded CSV: row 3: expected 8 fields, found 7', the info message 'Upload a valid CSV to continue.' is shown, and there is no table and no chart. The uploader stays usable.",
+          "python_reference_trace": "tests/reference/reference-browser/journeys/recover/trace-data-loop.json",
+          "rust_result": "the error 'Could not parse the uploaded CSV: CSV error: record 2 (line: 3, byte: 119): found record with 7 fields, but the previous record has 8 fields' with 'Upload a valid CSV to continue.', no table and no chart, and the uploader stayed usable. The wording differs from the expectation, which asks for the reference text.",
+          "rust_evidence": "tests/browser/rust-journeys/recover/trace-data-loop.json"
         },
         {
           "id": "J07-S2",
@@ -245,7 +512,10 @@
         {
           "id": "J07-S3",
           "action": "Upload tests/fixtures/csv/sales_basic.csv.",
-          "expectation": "Full recovery: the error and the warning are both gone, the table shows the 4 baseline groups again and the chart is rendered."
+          "expectation": "Full recovery: the error and the warning are both gone, the table shows the 4 baseline groups again and the chart is rendered.",
+          "python_reference_trace": "tests/reference/reference-browser/journeys/recover/trace-data-loop.json",
+          "rust_result": "the error is gone and the table and the chart are back with the baseline groups; the replacement answered a DELETE 204 for the file the server had signed out.",
+          "rust_evidence": "tests/browser/rust-journeys/recover/trace-data-loop.json"
         },
         {
           "id": "J07-S4",
@@ -259,12 +529,46 @@
       "id": "J08",
       "title": "Empty data",
       "priority": "P0",
-      "status": "not_run",
+      "status": "failed",
+      "failure": {
+        "reason": "1 of the 3 steps were verified against the Rust data app and published under tests/browser/rust-journeys/; the remaining steps were not run and no screenshot was taken, so the journey is not passed."
+      },
+      "attempt": {
+        "command": "target\\pyref-venv\\Scripts\\python.exe tests\\browser\\numeric_capture.py --url http://127.0.0.1:8501/ --case data-loop --journey <journey> --files <absolute fixture paths> --label rust-final-<journey> --out target\\final-427F-<timestamp>\\rust\\<journey> --binary \"target/checks/data-app-live/data-app-security-final-20261024T152745018.exe sha256 427F3AF719559C14B8A207660B9BA562D42C6F2C9A6B16E7C3864DED9B1D3A19\" --scope \"RUST SIDE ONLY\"",
+        "binary_sha256": "427F3AF719559C14B8A207660B9BA562D42C6F2C9A6B16E7C3864DED9B1D3A19",
+        "source_sha256": "13373cf614f0f16db351d51a72fdc4902504d7952dd53258625c9bae58b09531",
+        "criteria_sha256": "DA2E746A8267E1DFAC65CF0CB5513B3C6B729B33C5035C3CF5C253F016925D9A",
+        "driver_sha256": "9EDC3FA1D456E5592771C448AC5E600C99D71398C5E55CCB7E8A541F61E5F966",
+        "capture_directory": "target/final-427F-20261024T162828",
+        "exit_code": 0,
+        "criteria_sha256_captured": "B29B4F85AC9BEBE885C4B3EEE8E2142D8A44DC4724C6A9F1075BB09062DA08F6",
+        "revalidated": "the same raws pass under the newer criterion, which binds the result to the run that carries the target state"
+      },
+      "linked_artifacts": [
+        "tests/browser/rust-journeys/empty/trace-data-loop.json"
+      ],
+      "waived_evidence": [
+        {
+          "artifact": "tests/e2e/J08/J08-S1.png",
+          "reason": "the capture records the wire frames and the DOM values; it takes no screenshot."
+        },
+        {
+          "artifact": "tests/e2e/J08/J08-S2.png",
+          "reason": "the step was not run in this attempt."
+        },
+        {
+          "artifact": "tests/e2e/J08/J08-S3.png",
+          "reason": "the step was not run in this attempt."
+        }
+      ],
       "steps": [
         {
           "id": "J08-S1",
           "action": "Upload tests/fixtures/csv/sales_empty.csv (header only, zero rows).",
-          "expectation": "No error and no exception. The info message 'The uploaded CSV contains no data rows.' is shown, the table is rendered with its four column headers and zero body rows, and the chart is not rendered."
+          "expectation": "No error and no exception. The info message 'The uploaded CSV contains no data rows.' is shown, the table is rendered with its four column headers and zero body rows, and the chart is not rendered.",
+          "python_reference_trace": "tests/reference/reference-browser/journeys/empty/trace-data-loop.json",
+          "rust_result": "'The uploaded CSV contains no data rows.', the four columns of the file with no body row and no chart.",
+          "rust_evidence": "tests/browser/rust-journeys/empty/trace-data-loop.json"
         },
         {
           "id": "J08-S2",

@@ -198,3 +198,110 @@ def test_widget_presence_or_recorded_ok_cannot_replace_operated_dom(corruption):
         message = "widget wire/action/DOM verdict failed"
     with pytest.raises(ValueError, match=message):
         verify.verify_widget_capture(capture, "st.checkbox")
+
+
+@pytest.mark.parametrize("feature", ["st.file_uploader", "st.dataframe"])
+def test_published_positive_data_loop(feature):
+    for python, relative in ((False, "tests/browser/rust-data-loop/trace-data-loop.json"),
+                             (True, "tests/reference/reference-browser/data-loop/updates-strict/trace-data-loop.json")):
+        path = ROOT / relative
+        matrix = json.loads((ROOT / "compatibility/api-compatibility-matrix.json").read_text(encoding="utf-8"))
+        reviewed = next(row for row in matrix["entries"] if row["feature_id"] == feature)["evidence"]["reviewed_captures"]
+        verify.verify_data_loop(json.loads(path.read_text(encoding="utf-8")), feature, path, ROOT, python, reviewed)
+
+
+@pytest.mark.parametrize("corruption", ["api", "action", "empty_dom", "forged_dom", "version", "group", "put", "arrow"])
+def test_data_loop_wrong_or_missing_evidence_is_rejected_without_outputs(corruption):
+    path = ROOT / "tests/browser/rust-data-loop/trace-data-loop.json"
+    capture = json.loads(path.read_text(encoding="utf-8"))
+    feature = "st.dataframe"
+    if corruption == "api":
+        feature = "st.altair_chart"
+    elif corruption == "action":
+        capture["stages"][1].pop("action")
+    elif corruption == "empty_dom":
+        capture["stages"][0]["dom"]["table_cells"] = []
+    elif corruption == "forged_dom":
+        capture["stages"][1]["dom"]["table_cells"][0] = "forged"
+    elif corruption == "version":
+        next(f["decoded"]["new_session"] for f in capture["frames"] if f["decoded"].get("type") == "new_session")["environment_info"] = {"streamlit_version": "1.65.0"}
+    elif corruption == "group":
+        capture["stages"][2]["table"] = copy.deepcopy(capture["stages"][1]["table"])
+        capture["stages"][2]["dom"] = copy.deepcopy(capture["stages"][1]["dom"])
+    elif corruption == "put":
+        capture["upload_requests"][0]["status"] = 403
+    else:
+        capture["stages"][1]["table"]["rows"][0]["row_count"] = 999
+    outputs = [ROOT / "compatibility/api-compatibility-matrix.json", ROOT / "compatibility/p0-baseline.json"]
+    before = [output.read_bytes() for output in outputs]
+    with pytest.raises(ValueError):
+        matrix = json.loads(outputs[0].read_text(encoding="utf-8"))
+        reviewed = next(row for row in matrix["entries"] if row["feature_id"] == "st.dataframe")["evidence"]["reviewed_captures"]
+        verify.verify_data_loop(capture, feature, path, ROOT, False, reviewed)
+    assert [output.read_bytes() for output in outputs] == before
+
+
+def test_unversioned_data_capture_without_reviewed_provenance_is_rejected():
+    path = ROOT / "tests/browser/rust-data-loop/trace-data-loop.json"
+    capture = json.loads(path.read_text(encoding="utf-8"))
+    capture.pop("versions", None)
+    for frame in capture["frames"]:
+        session = frame.get("decoded", {}).get("new_session")
+        if session is not None:
+            session.pop("streamlit_version", None)
+            session.pop("environment_info", None)
+            session.get("initialize", {}).pop("environment_info", None)
+    with pytest.raises(ValueError, match="reviewed provenance"):
+        verify.verify_data_loop(capture, "st.dataframe", path, ROOT, False)
+
+
+@pytest.mark.parametrize("corruption", ["unreviewed", "hash", "source_version", "missing_source", "missing_target", "provenance", "raw_tamper"])
+def test_data_loop_reviewed_capture_binding_fails_closed(corruption, tmp_path):
+    path = ROOT / "tests/browser/rust-data-loop/trace-data-loop.json"
+    outputs = [ROOT / "compatibility/api-compatibility-matrix.json", ROOT / "compatibility/p0-baseline.json"]
+    before = [p.read_bytes() for p in outputs]
+    matrix = json.loads(before[0])
+    reviewed = copy.deepcopy(next(row for row in matrix["entries"] if row["feature_id"] == "st.dataframe")["evidence"]["reviewed_captures"])
+    record = reviewed[path.relative_to(ROOT).as_posix()]
+    capture = json.loads(path.read_text(encoding="utf-8"))
+    if corruption == "unreviewed":
+        reviewed.clear()
+    elif corruption == "hash":
+        record["sha256"] = "0" * 64
+    elif corruption == "source_version":
+        record["source_version"] = "1.65.0"
+    elif corruption == "missing_source":
+        del record["source_version"]
+    elif corruption == "missing_target":
+        del record["target_version"]
+    elif corruption == "provenance":
+        del record["provenance"]
+    else:
+        capture["capture"]["unreviewed_change"] = True
+        # Tamper a real copy's bytes, while retaining the reviewed old digest.
+        relative = path.relative_to(ROOT)
+        path = tmp_path / relative
+        path.parent.mkdir(parents=True)
+        path.write_text(json.dumps(capture), encoding="utf-8")
+        provenance = tmp_path / record["provenance"]
+        provenance.write_bytes((ROOT / record["provenance"]).read_bytes())
+        (tmp_path / "upstream.lock.json").write_bytes((ROOT / "upstream.lock.json").read_bytes())
+    with pytest.raises(ValueError):
+        verify.verify_data_loop(capture, "st.dataframe", path, tmp_path if corruption == "raw_tamper" else ROOT, False, reviewed)
+    assert [p.read_bytes() for p in outputs] == before
+
+
+def test_missing_source_provenance_aborts_generator_before_either_write(tmp_path, monkeypatch):
+    matrix_path = tmp_path / "matrix.json"
+    baseline_path = tmp_path / "baseline.json"
+    matrix = json.loads((ROOT / "compatibility/api-compatibility-matrix.json").read_text(encoding="utf-8"))
+    row = next(row for row in matrix["entries"] if row["feature_id"] == "st.dataframe")
+    del row["evidence"]["reviewed_captures"]["tests/browser/rust-data-loop/trace-data-loop.json"]["source_version"]
+    matrix_path.write_text(json.dumps(matrix), encoding="utf-8")
+    baseline_path.write_bytes((ROOT / "compatibility/p0-baseline.json").read_bytes())
+    monkeypatch.setattr(verify, "MATRIX_PATH", matrix_path)
+    monkeypatch.setattr(verify, "BASELINE_PATH", baseline_path)
+    before = (matrix_path.read_bytes(), baseline_path.read_bytes())
+    with pytest.raises(ValueError, match="source/target version"):
+        verify.main()
+    assert (matrix_path.read_bytes(), baseline_path.read_bytes()) == before

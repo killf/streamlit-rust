@@ -1,0 +1,2784 @@
+{
+  "schema_version": 1,
+  "contract_id": "C-P0-04",
+  "kind": "python-reference-browser-trace",
+  "scope": "PYTHON SIDE ONLY",
+  "capture": {
+    "tool": "DevTools Protocol against the same real Chrome",
+    "tool_limitation": "the agent-browser CLI could not start its daemon in this environment (connection timeout), so the input is sent over CDP",
+    "driver": "tests/browser/numeric_capture.py",
+    "binary": "",
+    "python": "D:\\dlab\\streamlit-rust\\target\\pyref-venv\\Scripts\\python.exe"
+  },
+  "url": "http://127.0.0.1:8601/",
+  "case": "recover",
+  "journey": "recover",
+  "bad_file": "D:\\dlab\\streamlit-rust\\tests\\fixtures\\csv\\sales_malformed.csv",
+  "good_file": "D:\\dlab\\streamlit-rust\\tests\\fixtures\\csv\\sales_basic.csv",
+  "observation": {
+    "journey": "recover",
+    "namespace": "python-final-recover",
+    "url": "http://127.0.0.1:8601/",
+    "ipc_dir": "target\\final-python-recover-20261024T164534",
+    "uploads": {
+      "bad": true,
+      "good": true
+    },
+    "frames": [
+      {
+        "direction": "client->server",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20036.099163,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "BackMsg",
+          "type": "file_urls_request",
+          "file_urls_request": {
+            "request_id": "f620cbfa-9af5-494f-ae09-970f410be884",
+            "file_names": [
+              "sales_malformed.csv"
+            ],
+            "session_id": "7ccd2c7f-aeaa-462f-98b7-6d34cce28a38"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20036.100182,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "file_urls_response",
+          "file_urls_response": {
+            "response_id": "f620cbfa-9af5-494f-ae09-970f410be884",
+            "file_urls": [
+              {
+                "file_id": "559bdce6-e32c-4a5e-886d-20bf0828ab57",
+                "upload_url": "/_stcore/upload_file/7ccd2c7f-aeaa-462f-98b7-6d34cce28a38/559bdce6-e32c-4a5e-886d-20bf0828ab57",
+                "delete_url": "/_stcore/upload_file/7ccd2c7f-aeaa-462f-98b7-6d34cce28a38/559bdce6-e32c-4a5e-886d-20bf0828ab57"
+              }
+            ],
+            "error_msg": ""
+          }
+        }
+      },
+      {
+        "direction": "client->server",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20036.114508,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "BackMsg",
+          "type": "rerun_script",
+          "rerun_script": {
+            "widget_states": [
+              {
+                "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+                "value_field": "file_uploader_state_value",
+                "value": {
+                  "uploaded_file_info": "[name: \"sales_malformed.csv\"\nsize: 303\nfile_id: \"559bdce6-e32c-4a5e-886d-20bf0828ab57\"\nfile_urls {\n  file_id: \"559bdce6-e32c-4a5e-886d-20bf0828ab57\"\n  upload_url: \"/_stcore/upload_file/7ccd2c7f-aeaa-462f-98b7-6d34cce28a38/559bdce6-e32c-4a5e-886d-20bf0828ab57\"\n  delete_url: \"/_stcore/upload_file/7ccd2c7f-aeaa-462f-98b7-6d34cce28a38/559bdce6-e32c-4a5e-886d-20bf0828ab57\"\n}\n]"
+                },
+                "value_full": {
+                  "uploadedFileInfo": [
+                    {
+                      "name": "sales_malformed.csv",
+                      "size": "303",
+                      "fileId": "559bdce6-e32c-4a5e-886d-20bf0828ab57",
+                      "fileUrls": {
+                        "fileId": "559bdce6-e32c-4a5e-886d-20bf0828ab57",
+                        "uploadUrl": "/_stcore/upload_file/7ccd2c7f-aeaa-462f-98b7-6d34cce28a38/559bdce6-e32c-4a5e-886d-20bf0828ab57",
+                        "deleteUrl": "/_stcore/upload_file/7ccd2c7f-aeaa-462f-98b7-6d34cce28a38/559bdce6-e32c-4a5e-886d-20bf0828ab57"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+                "value_field": "string_value",
+                "value": "category"
+              },
+              {
+                "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+                "value_field": "double_array_value",
+                "value": {
+                  "data": "[0.0]"
+                },
+                "value_full": {
+                  "data": [
+                    0.0
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+                "value_field": "bool_value",
+                "value": true
+              },
+              {
+                "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+                "value_field": "string_value",
+                "value": ""
+              }
+            ]
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20036.118372,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "new_session",
+          "new_session": {
+            "script_run_id": "04505bad-5d34-49f2-9636-7f9ddc36a794",
+            "name": "app",
+            "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\app.py",
+            "page_script_hash": "269f73cf39198cb8a4f8caacec17751b",
+            "main_script_hash": "269f73cf39198cb8a4f8caacec17751b",
+            "session_id": "7ccd2c7f-aeaa-462f-98b7-6d34cce28a38"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20036.12165,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": true,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20036.124453,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "page_config_changed"
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20036.1246,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "streamlit-rust P0 reference"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20036.124701,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "markdown",
+            "body": "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part o"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20036.124758,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "file_uploader",
+            "element_full": {
+              "fileUploader": {
+                "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+                "label": "Upload sales CSV",
+                "type": [
+                  ".csv"
+                ],
+                "maxUploadSizeMb": 200,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+              "label": "Upload sales CSV",
+              "type": [
+                ".csv"
+              ],
+              "maxUploadSizeMb": 200,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+            "label": "Upload sales CSV",
+            "accepted_types": [
+              "['.csv']"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20036.159116,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "selectbox",
+            "element_full": {
+              "selectbox": {
+                "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+                "label": "Group by",
+                "default": 0,
+                "options": [
+                  "category",
+                  "region",
+                  "channel"
+                ],
+                "labelVisibility": {},
+                "acceptNewOptions": false
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+              "label": "Group by",
+              "default": 0,
+              "options": [
+                "category",
+                "region",
+                "channel"
+              ],
+              "labelVisibility": {},
+              "acceptNewOptions": false
+            },
+            "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+            "label": "Group by",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20036.159408,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "slider",
+            "element_full": {
+              "slider": {
+                "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+                "label": "Minimum amount",
+                "format": "%d",
+                "default": [
+                  0.0
+                ],
+                "max": 200.0,
+                "step": 10.0,
+                "labelVisibility": {},
+                "type": "SLIDER"
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+              "label": "Minimum amount",
+              "format": "%d",
+              "default": [
+                0.0
+              ],
+              "max": 200.0,
+              "step": 10.0,
+              "labelVisibility": {},
+              "type": "SLIDER"
+            },
+            "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+            "label": "Minimum amount",
+            "accepted_types": [
+              "1"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20036.161368,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "checkbox",
+            "element_full": {
+              "checkbox": {
+                "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+                "label": "Include unknown region",
+                "default": true,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useContent": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+              "label": "Include unknown region",
+              "default": true,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+            "label": "Include unknown region",
+            "accepted_types": [
+              "0"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20036.161463,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Aggregated result"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20036.161531,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "alert",
+            "alert": {
+              "body": "Could not parse the uploaded CSV: row 3: expected 8 fields, found 7",
+              "format": "ERROR",
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "element_width_config": null,
+            "element_height_config": null,
+            "body": "Could not parse the uploaded CSV: row 3: expected 8 fields, found 7"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20036.161591,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "alert",
+            "alert": {
+              "body": "Upload a valid CSV to continue.",
+              "format": "INFO",
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "element_width_config": null,
+            "element_height_config": null,
+            "body": "Upload a valid CSV to continue."
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20036.161661,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Interaction"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20036.161717,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "button",
+            "widget": {
+              "id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+              "label": "Pulse",
+              "type": "secondary"
+            },
+            "id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+            "label": "Pulse",
+            "accepted_types": [
+              "secondary"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20036.161757,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "add_block",
+            "block_id": "",
+            "block_type": "form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20036.166971,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text_input",
+            "widget": {
+              "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+              "label": "Note",
+              "default": "",
+              "formId": "apply_form",
+              "labelVisibility": {}
+            },
+            "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+            "label": "Note",
+            "accepted_types": [
+              "0"
+            ],
+            "form_id": "apply_form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20036.16706,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "button",
+            "widget": {
+              "id": "$$ID-9a6c63ce6e3bef7bfd3af258b88f303b-apply_note",
+              "label": "Apply note",
+              "formId": "apply_form",
+              "isFormSubmitter": true,
+              "type": "secondary"
+            },
+            "id": "$$ID-9a6c63ce6e3bef7bfd3af258b88f303b-apply_note",
+            "label": "Apply note",
+            "accepted_types": [
+              "secondary"
+            ],
+            "form_id": "apply_form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20036.167118,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text",
+            "body": "Script runs: 2"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20036.167185,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text",
+            "body": "Pulses: 0"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20036.167233,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text",
+            "body": "Applied note:"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20036.167262,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "script_finished",
+          "script_finished": {
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20036.167328,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": false,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "client->server",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.263765,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "BackMsg",
+          "type": "file_urls_request",
+          "file_urls_request": {
+            "request_id": "32594556-0c1d-4997-a741-0042b19eef2c",
+            "file_names": [
+              "sales_basic.csv"
+            ],
+            "session_id": "7ccd2c7f-aeaa-462f-98b7-6d34cce28a38"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.264814,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "file_urls_response",
+          "file_urls_response": {
+            "response_id": "32594556-0c1d-4997-a741-0042b19eef2c",
+            "file_urls": [
+              {
+                "file_id": "ca00375e-0f30-4fbd-946d-5b1d2e49ab74",
+                "upload_url": "/_stcore/upload_file/7ccd2c7f-aeaa-462f-98b7-6d34cce28a38/ca00375e-0f30-4fbd-946d-5b1d2e49ab74",
+                "delete_url": "/_stcore/upload_file/7ccd2c7f-aeaa-462f-98b7-6d34cce28a38/ca00375e-0f30-4fbd-946d-5b1d2e49ab74"
+              }
+            ],
+            "error_msg": ""
+          }
+        }
+      },
+      {
+        "direction": "client->server",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.268677,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "BackMsg",
+          "type": "rerun_script",
+          "rerun_script": {
+            "widget_states": [
+              {
+                "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+                "value_field": "file_uploader_state_value",
+                "value": {},
+                "value_full": {}
+              },
+              {
+                "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+                "value_field": "string_value",
+                "value": "category"
+              },
+              {
+                "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+                "value_field": "double_array_value",
+                "value": {
+                  "data": "[0.0]"
+                },
+                "value_full": {
+                  "data": [
+                    0.0
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+                "value_field": "bool_value",
+                "value": true
+              },
+              {
+                "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+                "value_field": "string_value",
+                "value": ""
+              }
+            ]
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.271519,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "new_session",
+          "new_session": {
+            "script_run_id": "aaa464be-f904-48ca-b6d7-c29ac1d9f2d7",
+            "name": "app",
+            "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\app.py",
+            "page_script_hash": "269f73cf39198cb8a4f8caacec17751b",
+            "main_script_hash": "269f73cf39198cb8a4f8caacec17751b",
+            "session_id": "7ccd2c7f-aeaa-462f-98b7-6d34cce28a38"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.275052,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": true,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.277318,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "page_config_changed"
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.277448,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "streamlit-rust P0 reference"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.32713,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "markdown",
+            "body": "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part o"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.331426,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "file_uploader",
+            "element_full": {
+              "fileUploader": {
+                "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+                "label": "Upload sales CSV",
+                "type": [
+                  ".csv"
+                ],
+                "maxUploadSizeMb": 200,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+              "label": "Upload sales CSV",
+              "type": [
+                ".csv"
+              ],
+              "maxUploadSizeMb": 200,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+            "label": "Upload sales CSV",
+            "accepted_types": [
+              "['.csv']"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.335443,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "selectbox",
+            "element_full": {
+              "selectbox": {
+                "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+                "label": "Group by",
+                "default": 0,
+                "options": [
+                  "category",
+                  "region",
+                  "channel"
+                ],
+                "labelVisibility": {},
+                "acceptNewOptions": false
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+              "label": "Group by",
+              "default": 0,
+              "options": [
+                "category",
+                "region",
+                "channel"
+              ],
+              "labelVisibility": {},
+              "acceptNewOptions": false
+            },
+            "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+            "label": "Group by",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.335563,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "slider",
+            "element_full": {
+              "slider": {
+                "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+                "label": "Minimum amount",
+                "format": "%d",
+                "default": [
+                  0.0
+                ],
+                "max": 200.0,
+                "step": 10.0,
+                "labelVisibility": {},
+                "type": "SLIDER"
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+              "label": "Minimum amount",
+              "format": "%d",
+              "default": [
+                0.0
+              ],
+              "max": 200.0,
+              "step": 10.0,
+              "labelVisibility": {},
+              "type": "SLIDER"
+            },
+            "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+            "label": "Minimum amount",
+            "accepted_types": [
+              "1"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.335663,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "checkbox",
+            "element_full": {
+              "checkbox": {
+                "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+                "label": "Include unknown region",
+                "default": true,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useContent": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+              "label": "Include unknown region",
+              "default": true,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+            "label": "Include unknown region",
+            "accepted_types": [
+              "0"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.335724,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Aggregated result"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.335798,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "alert",
+            "alert": {
+              "body": "Upload a CSV to see the aggregated result.",
+              "format": "INFO",
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "element_width_config": null,
+            "element_height_config": null,
+            "body": "Upload a CSV to see the aggregated result."
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.335841,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Interaction"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.335878,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "button",
+            "widget": {
+              "id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+              "label": "Pulse",
+              "type": "secondary"
+            },
+            "id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+            "label": "Pulse",
+            "accepted_types": [
+              "secondary"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.335905,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "add_block",
+            "block_id": "",
+            "block_type": "form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.335954,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text_input",
+            "widget": {
+              "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+              "label": "Note",
+              "default": "",
+              "formId": "apply_form",
+              "labelVisibility": {}
+            },
+            "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+            "label": "Note",
+            "accepted_types": [
+              "0"
+            ],
+            "form_id": "apply_form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.335997,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "button",
+            "widget": {
+              "id": "$$ID-9a6c63ce6e3bef7bfd3af258b88f303b-apply_note",
+              "label": "Apply note",
+              "formId": "apply_form",
+              "isFormSubmitter": true,
+              "type": "secondary"
+            },
+            "id": "$$ID-9a6c63ce6e3bef7bfd3af258b88f303b-apply_note",
+            "label": "Apply note",
+            "accepted_types": [
+              "secondary"
+            ],
+            "form_id": "apply_form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.336046,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text",
+            "body": "Script runs: 3"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.336107,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text",
+            "body": "Pulses: 0"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.336134,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text",
+            "body": "Applied note:"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.33616,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "script_finished",
+          "script_finished": {
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.336198,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": false,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "client->server",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.336527,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "BackMsg",
+          "type": "rerun_script",
+          "rerun_script": {
+            "widget_states": [
+              {
+                "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+                "value_field": "file_uploader_state_value",
+                "value": {
+                  "uploaded_file_info": "[name: \"sales_basic.csv\"\nsize: 737\nfile_id: \"ca00375e-0f30-4fbd-946d-5b1d2e49ab74\"\nfile_urls {\n  file_id: \"ca00375e-0f30-4fbd-946d-5b1d2e49ab74\"\n  upload_url: \"/_stcore/upload_file/7ccd2c7f-aeaa-462f-98b7-6d34cce28a38/ca00375e-0f30-4fbd-946d-5b1d2e49ab74\"\n  delete_url: \"/_stcore/upload_file/7ccd2c7f-aeaa-462f-98b7-6d34cce28a38/ca00375e-0f30-4fbd-946d-5b1d2e49ab74\"\n}\n]"
+                },
+                "value_full": {
+                  "uploadedFileInfo": [
+                    {
+                      "name": "sales_basic.csv",
+                      "size": "737",
+                      "fileId": "ca00375e-0f30-4fbd-946d-5b1d2e49ab74",
+                      "fileUrls": {
+                        "fileId": "ca00375e-0f30-4fbd-946d-5b1d2e49ab74",
+                        "uploadUrl": "/_stcore/upload_file/7ccd2c7f-aeaa-462f-98b7-6d34cce28a38/ca00375e-0f30-4fbd-946d-5b1d2e49ab74",
+                        "deleteUrl": "/_stcore/upload_file/7ccd2c7f-aeaa-462f-98b7-6d34cce28a38/ca00375e-0f30-4fbd-946d-5b1d2e49ab74"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+                "value_field": "string_value",
+                "value": "category"
+              },
+              {
+                "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+                "value_field": "double_array_value",
+                "value": {
+                  "data": "[0.0]"
+                },
+                "value_full": {
+                  "data": [
+                    0.0
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+                "value_field": "bool_value",
+                "value": true
+              },
+              {
+                "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+                "value_field": "string_value",
+                "value": ""
+              }
+            ]
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.345381,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "new_session",
+          "new_session": {
+            "script_run_id": "c4411f80-523f-43e6-9ba4-353ebf006cd4",
+            "name": "app",
+            "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\app.py",
+            "page_script_hash": "269f73cf39198cb8a4f8caacec17751b",
+            "main_script_hash": "269f73cf39198cb8a4f8caacec17751b",
+            "session_id": "7ccd2c7f-aeaa-462f-98b7-6d34cce28a38"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.349353,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": true,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.349487,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "page_config_changed"
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.34962,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "streamlit-rust P0 reference"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.34968,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "markdown",
+            "body": "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part o"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.349729,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "file_uploader",
+            "element_full": {
+              "fileUploader": {
+                "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+                "label": "Upload sales CSV",
+                "type": [
+                  ".csv"
+                ],
+                "maxUploadSizeMb": 200,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+              "label": "Upload sales CSV",
+              "type": [
+                ".csv"
+              ],
+              "maxUploadSizeMb": 200,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+            "label": "Upload sales CSV",
+            "accepted_types": [
+              "['.csv']"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.349765,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "selectbox",
+            "element_full": {
+              "selectbox": {
+                "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+                "label": "Group by",
+                "default": 0,
+                "options": [
+                  "category",
+                  "region",
+                  "channel"
+                ],
+                "labelVisibility": {},
+                "acceptNewOptions": false
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+              "label": "Group by",
+              "default": 0,
+              "options": [
+                "category",
+                "region",
+                "channel"
+              ],
+              "labelVisibility": {},
+              "acceptNewOptions": false
+            },
+            "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+            "label": "Group by",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.349795,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "slider",
+            "element_full": {
+              "slider": {
+                "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+                "label": "Minimum amount",
+                "format": "%d",
+                "default": [
+                  0.0
+                ],
+                "max": 200.0,
+                "step": 10.0,
+                "labelVisibility": {},
+                "type": "SLIDER"
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+              "label": "Minimum amount",
+              "format": "%d",
+              "default": [
+                0.0
+              ],
+              "max": 200.0,
+              "step": 10.0,
+              "labelVisibility": {},
+              "type": "SLIDER"
+            },
+            "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+            "label": "Minimum amount",
+            "accepted_types": [
+              "1"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.34985,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "checkbox",
+            "element_full": {
+              "checkbox": {
+                "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+                "label": "Include unknown region",
+                "default": true,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useContent": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+              "label": "Include unknown region",
+              "default": true,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+            "label": "Include unknown region",
+            "accepted_types": [
+              "0"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.352664,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Aggregated result"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.404649,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "dataframe",
+            "element_full": {
+              "dataframe": {
+                "arrowData": {
+                  "data": "/////4gEAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAGQDAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAA8AwAABAAAAC0DAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDQsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAiZ3JvdXBfa2V5IiwgImZpZWxkX25hbWUiOiAiZ3JvdXBfa2V5IiwgInBhbmRhc190eXBlIjogIm9iamVjdCIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAicm93X2NvdW50IiwgImZpZWxkX25hbWUiOiAicm93X2NvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogInRvdGFsX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogInRvdGFsX2Ftb3VudCIsICJwYW5kYXNfdHlwZSI6ICJmbG9hdDY0IiwgIm51bXB5X3R5cGUiOiAiZmxvYXQ2NCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAiYXZnX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogImF2Z19hbW91bnQiLCAicGFuZGFzX3R5cGUiOiAiZmxvYXQ2NCIsICJudW1weV90eXBlIjogImZsb2F0NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAAEAAAAxAAAAHQAAAA4AAAABAAAAFz///8AAAEDEAAAABwAAAAEAAAAAAAAAAoAAABhdmdfYW1vdW50AADO////AAACAIz///8AAAEDEAAAACQAAAAEAAAAAAAAAAwAAAB0b3RhbF9hbW91bnQAAAYACAAGAAYAAAAAAAIAxP///wAAAQIQAAAAJAAAAAQAAAAAAAAACQAAAHJvd19jb3VudAAAAAgADAAIAAcACAAAAAAAAAFAAAAAEAAUAAgABgAHAAwAAAAQABAAAAAAAAEUEAAAACAAAAAEAAAAAAAAAAkAAABncm91cF9rZXkAAAAEAAQABAAAAP////8oAQAAFAAAAAAAAAAMABYABgAFAAgADAAMAAAAAAMEABgAAACgAAAAAAAAAAAACgAYAAwABAAIAAoAAACsAAAAEAAAAAQAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoAAAAAAAAACgAAAAAAAAAEwAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAgAAAAAAAAAGAAAAAAAAAAAAAAAAAAAABgAAAAAAAAACAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAIAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAACgAAAAAAAAAPAAAAAAAAABMAAAAAAAAAQm9va3NHYW1lc011c2ljVG95cwAAAAAAAwAAAAAAAAADAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAALhuQEjhehSul3lAAAAAAABgYUCPwvUoXB9aQHsUrkfhelRASOF6FK4PYUAK16NwPSpHQArXo3A9akFA/////wAAAAA="
+                },
+                "columns": "{\"_index\": {\"hidden\": true}}",
+                "columnOrder": [
+                  "group_key",
+                  "row_count",
+                  "total_amount",
+                  "avg_amount"
+                ]
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "arrow": {
+              "bytes": 1640,
+              "sha256": "2ef28720376df68c13fe7cd9a63bac0e8c56e74716fc19ed6bd17df21b89a5c2",
+              "base64": "/////4gEAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAGQDAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAA8AwAABAAAAC0DAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDQsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAiZ3JvdXBfa2V5IiwgImZpZWxkX25hbWUiOiAiZ3JvdXBfa2V5IiwgInBhbmRhc190eXBlIjogIm9iamVjdCIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAicm93X2NvdW50IiwgImZpZWxkX25hbWUiOiAicm93X2NvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogInRvdGFsX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogInRvdGFsX2Ftb3VudCIsICJwYW5kYXNfdHlwZSI6ICJmbG9hdDY0IiwgIm51bXB5X3R5cGUiOiAiZmxvYXQ2NCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAiYXZnX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogImF2Z19hbW91bnQiLCAicGFuZGFzX3R5cGUiOiAiZmxvYXQ2NCIsICJudW1weV90eXBlIjogImZsb2F0NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAAEAAAAxAAAAHQAAAA4AAAABAAAAFz///8AAAEDEAAAABwAAAAEAAAAAAAAAAoAAABhdmdfYW1vdW50AADO////AAACAIz///8AAAEDEAAAACQAAAAEAAAAAAAAAAwAAAB0b3RhbF9hbW91bnQAAAYACAAGAAYAAAAAAAIAxP///wAAAQIQAAAAJAAAAAQAAAAAAAAACQAAAHJvd19jb3VudAAAAAgADAAIAAcACAAAAAAAAAFAAAAAEAAUAAgABgAHAAwAAAAQABAAAAAAAAEUEAAAACAAAAAEAAAAAAAAAAkAAABncm91cF9rZXkAAAAEAAQABAAAAP////8oAQAAFAAAAAAAAAAMABYABgAFAAgADAAMAAAAAAMEABgAAACgAAAAAAAAAAAACgAYAAwABAAIAAoAAACsAAAAEAAAAAQAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoAAAAAAAAACgAAAAAAAAAEwAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAgAAAAAAAAAGAAAAAAAAAAAAAAAAAAAABgAAAAAAAAACAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAIAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAACgAAAAAAAAAPAAAAAAAAABMAAAAAAAAAQm9va3NHYW1lc011c2ljVG95cwAAAAAAAwAAAAAAAAADAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAALhuQEjhehSul3lAAAAAAABgYUCPwvUoXB9aQHsUrkfhelRASOF6FK4PYUAK16NwPSpHQArXo3A9akFA/////wAAAAA=",
+              "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 749",
+              "columns": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_count": 4,
+              "rows": [
+                {
+                  "group_key": "Books",
+                  "row_count": 3,
+                  "total_amount": 245.75,
+                  "avg_amount": 81.92
+                },
+                {
+                  "group_key": "Games",
+                  "row_count": 3,
+                  "total_amount": 409.48,
+                  "avg_amount": 136.49
+                },
+                {
+                  "group_key": "Music",
+                  "row_count": 3,
+                  "total_amount": 139.0,
+                  "avg_amount": 46.33
+                },
+                {
+                  "group_key": "Toys",
+                  "row_count": 3,
+                  "total_amount": 104.49,
+                  "avg_amount": 34.83
+                }
+              ]
+            },
+            "arrow_fields": {
+              "columns": "{\"_index\": {\"hidden\": true}}",
+              "editing_mode": 0,
+              "disabled": false,
+              "column_order": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_height": 0
+            },
+            "id": "",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.411011,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "vega_lite_chart",
+            "element_full": {
+              "vegaLiteChart": {
+                "spec": "{\"data\": {\"name\": \"b4d4aa9b7813d6dd9f53c4d3b6f730df\"}, \"mark\": {\"type\": \"bar\"}, \"encoding\": {\"tooltip\": [{\"field\": \"group_key\", \"title\": \"group\", \"type\": \"nominal\"}, {\"field\": \"row_count\", \"title\": \"rows\", \"type\": \"quantitative\"}, {\"field\": \"total_amount\", \"title\": \"total\", \"type\": \"quantitative\"}, {\"field\": \"avg_amount\", \"title\": \"avg\", \"type\": \"quantitative\"}], \"x\": {\"field\": \"group_key\", \"sort\": [\"Books\", \"Games\", \"Music\", \"Toys\"], \"type\": \"nominal\"}, \"y\": {\"field\": \"total_amount\", \"type\": \"quantitative\"}}, \"height\": 260, \"$schema\": \"https://vega.github.io/schema/vega-lite/v5.20.1.json\", \"autosize\": {\"type\": \"fit\", \"contains\": \"padding\"}}",
+                "datasets": [
+                  {
+                    "name": "b4d4aa9b7813d6dd9f53c4d3b6f730df",
+                    "data": {
+                      "data": "/////4gEAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAGQDAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAA8AwAABAAAAC0DAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDQsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAiZ3JvdXBfa2V5IiwgImZpZWxkX25hbWUiOiAiZ3JvdXBfa2V5IiwgInBhbmRhc190eXBlIjogIm9iamVjdCIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAicm93X2NvdW50IiwgImZpZWxkX25hbWUiOiAicm93X2NvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogInRvdGFsX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogInRvdGFsX2Ftb3VudCIsICJwYW5kYXNfdHlwZSI6ICJmbG9hdDY0IiwgIm51bXB5X3R5cGUiOiAiZmxvYXQ2NCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAiYXZnX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogImF2Z19hbW91bnQiLCAicGFuZGFzX3R5cGUiOiAiZmxvYXQ2NCIsICJudW1weV90eXBlIjogImZsb2F0NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAAEAAAAxAAAAHQAAAA4AAAABAAAAFz///8AAAEDEAAAABwAAAAEAAAAAAAAAAoAAABhdmdfYW1vdW50AADO////AAACAIz///8AAAEDEAAAACQAAAAEAAAAAAAAAAwAAAB0b3RhbF9hbW91bnQAAAYACAAGAAYAAAAAAAIAxP///wAAAQIQAAAAJAAAAAQAAAAAAAAACQAAAHJvd19jb3VudAAAAAgADAAIAAcACAAAAAAAAAFAAAAAEAAUAAgABgAHAAwAAAAQABAAAAAAAAEUEAAAACAAAAAEAAAAAAAAAAkAAABncm91cF9rZXkAAAAEAAQABAAAAP////8oAQAAFAAAAAAAAAAMABYABgAFAAgADAAMAAAAAAMEABgAAACgAAAAAAAAAAAACgAYAAwABAAIAAoAAACsAAAAEAAAAAQAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoAAAAAAAAACgAAAAAAAAAEwAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAgAAAAAAAAAGAAAAAAAAAAAAAAAAAAAABgAAAAAAAAACAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAIAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAACgAAAAAAAAAPAAAAAAAAABMAAAAAAAAAQm9va3NHYW1lc011c2ljVG95cwAAAAAAAwAAAAAAAAADAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAALhuQEjhehSul3lAAAAAAABgYUCPwvUoXB9aQHsUrkfhelRASOF6FK4PYUAK16NwPSpHQArXo3A9akFA/////wAAAAA="
+                    },
+                    "hasName": true
+                  }
+                ],
+                "theme": "streamlit"
+              },
+              "heightConfig": {
+                "useContent": true
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "vega_lite_spec_raw": "{\"data\": {\"name\": \"b4d4aa9b7813d6dd9f53c4d3b6f730df\"}, \"mark\": {\"type\": \"bar\"}, \"encoding\": {\"tooltip\": [{\"field\": \"group_key\", \"title\": \"group\", \"type\": \"nominal\"}, {\"field\": \"row_count\", \"title\": \"rows\", \"type\": \"quantitative\"}, {\"field\": \"total_amount\", \"title\": \"total\", \"type\": \"quantitative\"}, {\"field\": \"avg_amount\", \"title\": \"avg\", \"type\": \"quantitative\"}], \"x\": {\"field\": \"group_key\", \"sort\": [\"Books\", \"Games\", \"Music\", \"Toys\"], \"type\": \"nominal\"}, \"y\": {\"field\": \"total_amount\", \"type\": \"quantitative\"}}, \"height\": 260, \"$schema\": \"https://vega.github.io/schema/vega-lite/v5.20.1.json\", \"autosize\": {\"type\": \"fit\", \"contains\": \"padding\"}}",
+            "vega_lite_spec": {
+              "data": {
+                "name": "b4d4aa9b7813d6dd9f53c4d3b6f730df"
+              },
+              "mark": {
+                "type": "bar"
+              },
+              "encoding": {
+                "tooltip": [
+                  {
+                    "field": "group_key",
+                    "title": "group",
+                    "type": "nominal"
+                  },
+                  {
+                    "field": "row_count",
+                    "title": "rows",
+                    "type": "quantitative"
+                  },
+                  {
+                    "field": "total_amount",
+                    "title": "total",
+                    "type": "quantitative"
+                  },
+                  {
+                    "field": "avg_amount",
+                    "title": "avg",
+                    "type": "quantitative"
+                  }
+                ],
+                "x": {
+                  "field": "group_key",
+                  "sort": [
+                    "Books",
+                    "Games",
+                    "Music",
+                    "Toys"
+                  ],
+                  "type": "nominal"
+                },
+                "y": {
+                  "field": "total_amount",
+                  "type": "quantitative"
+                }
+              },
+              "height": 260,
+              "$schema": "https://vega.github.io/schema/vega-lite/v5.20.1.json",
+              "autosize": {
+                "type": "fit",
+                "contains": "padding"
+              }
+            },
+            "vega_lite_datasets": [
+              {
+                "name": "b4d4aa9b7813d6dd9f53c4d3b6f730df",
+                "has_name": true,
+                "arrow": {
+                  "bytes": 1640,
+                  "sha256": "2ef28720376df68c13fe7cd9a63bac0e8c56e74716fc19ed6bd17df21b89a5c2",
+                  "base64": "/////4gEAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAGQDAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAA8AwAABAAAAC0DAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDQsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAiZ3JvdXBfa2V5IiwgImZpZWxkX25hbWUiOiAiZ3JvdXBfa2V5IiwgInBhbmRhc190eXBlIjogIm9iamVjdCIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAicm93X2NvdW50IiwgImZpZWxkX25hbWUiOiAicm93X2NvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogInRvdGFsX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogInRvdGFsX2Ftb3VudCIsICJwYW5kYXNfdHlwZSI6ICJmbG9hdDY0IiwgIm51bXB5X3R5cGUiOiAiZmxvYXQ2NCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAiYXZnX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogImF2Z19hbW91bnQiLCAicGFuZGFzX3R5cGUiOiAiZmxvYXQ2NCIsICJudW1weV90eXBlIjogImZsb2F0NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAAEAAAAxAAAAHQAAAA4AAAABAAAAFz///8AAAEDEAAAABwAAAAEAAAAAAAAAAoAAABhdmdfYW1vdW50AADO////AAACAIz///8AAAEDEAAAACQAAAAEAAAAAAAAAAwAAAB0b3RhbF9hbW91bnQAAAYACAAGAAYAAAAAAAIAxP///wAAAQIQAAAAJAAAAAQAAAAAAAAACQAAAHJvd19jb3VudAAAAAgADAAIAAcACAAAAAAAAAFAAAAAEAAUAAgABgAHAAwAAAAQABAAAAAAAAEUEAAAACAAAAAEAAAAAAAAAAkAAABncm91cF9rZXkAAAAEAAQABAAAAP////8oAQAAFAAAAAAAAAAMABYABgAFAAgADAAMAAAAAAMEABgAAACgAAAAAAAAAAAACgAYAAwABAAIAAoAAACsAAAAEAAAAAQAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoAAAAAAAAACgAAAAAAAAAEwAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAgAAAAAAAAAGAAAAAAAAAAAAAAAAAAAABgAAAAAAAAACAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAIAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAACgAAAAAAAAAPAAAAAAAAABMAAAAAAAAAQm9va3NHYW1lc011c2ljVG95cwAAAAAAAwAAAAAAAAADAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAALhuQEjhehSul3lAAAAAAABgYUCPwvUoXB9aQHsUrkfhelRASOF6FK4PYUAK16NwPSpHQArXo3A9akFA/////wAAAAA=",
+                  "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 749",
+                  "columns": [
+                    "group_key",
+                    "row_count",
+                    "total_amount",
+                    "avg_amount"
+                  ],
+                  "row_count": 4,
+                  "rows": [
+                    {
+                      "group_key": "Books",
+                      "row_count": 3,
+                      "total_amount": 245.75,
+                      "avg_amount": 81.92
+                    },
+                    {
+                      "group_key": "Games",
+                      "row_count": 3,
+                      "total_amount": 409.48,
+                      "avg_amount": 136.49
+                    },
+                    {
+                      "group_key": "Music",
+                      "row_count": 3,
+                      "total_amount": 139.0,
+                      "avg_amount": 46.33
+                    },
+                    {
+                      "group_key": "Toys",
+                      "row_count": 3,
+                      "total_amount": 104.49,
+                      "avg_amount": 34.83
+                    }
+                  ]
+                }
+              }
+            ],
+            "vega_lite_fields": {
+              "use_container_width": false,
+              "theme": "streamlit",
+              "id": "",
+              "form_id": ""
+            },
+            "id": "",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.411427,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Interaction"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.411481,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "button",
+            "widget": {
+              "id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+              "label": "Pulse",
+              "type": "secondary"
+            },
+            "id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+            "label": "Pulse",
+            "accepted_types": [
+              "secondary"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.411515,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "add_block",
+            "block_id": "",
+            "block_type": "form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.411558,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text_input",
+            "widget": {
+              "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+              "label": "Note",
+              "default": "",
+              "formId": "apply_form",
+              "labelVisibility": {}
+            },
+            "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+            "label": "Note",
+            "accepted_types": [
+              "0"
+            ],
+            "form_id": "apply_form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.411586,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "button",
+            "widget": {
+              "id": "$$ID-9a6c63ce6e3bef7bfd3af258b88f303b-apply_note",
+              "label": "Apply note",
+              "formId": "apply_form",
+              "isFormSubmitter": true,
+              "type": "secondary"
+            },
+            "id": "$$ID-9a6c63ce6e3bef7bfd3af258b88f303b-apply_note",
+            "label": "Apply note",
+            "accepted_types": [
+              "secondary"
+            ],
+            "form_id": "apply_form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.411626,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text",
+            "body": "Script runs: 4"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.411665,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text",
+            "body": "Pulses: 0"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.41169,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text",
+            "body": "Applied note:"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.41171,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "script_finished",
+          "script_finished": {
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79580.151",
+        "timestamp": 20044.411759,
+        "namespace": "python-final-recover",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": false,
+            "run_on_save": false
+          }
+        }
+      }
+    ],
+    "phases": [
+      {
+        "name": "upload-the-file-the-app-cannot-read",
+        "action": {
+          "action": "upload",
+          "ok": true,
+          "file": "D:\\dlab\\streamlit-rust\\tests\\fixtures\\csv\\sales_malformed.csv"
+        },
+        "start": 0,
+        "end": 25,
+        "start_timestamp": 20036.099163,
+        "end_timestamp": 20036.167328,
+        "dom_before": {
+          "document_title": "streamlit-rust P0 reference",
+          "markdown": [
+            "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part of the production path."
+          ],
+          "has_uploader": true,
+          "headings": [
+            "streamlit-rust P0 reference",
+            "Aggregated result",
+            "Interaction"
+          ],
+          "button_labels": [
+            "Pulse"
+          ],
+          "has_button": true,
+          "script_runs": "1",
+          "pulses": "0",
+          "applied_note": "",
+          "table_cells": [],
+          "table_present": false,
+          "chart_present": false,
+          "chart_bars": 0,
+          "chart_labels": [],
+          "chart_marks": "",
+          "slider_value": "0",
+          "checkbox_checked": true,
+          "selectbox_value": "category",
+          "texts": [
+            "Script runs: 1",
+            "Pulses: 0",
+            "Applied note:"
+          ],
+          "alerts": [
+            "Upload a CSV to see the aggregated result."
+          ],
+          "selectbox_disabled": false,
+          "slider_thumb": "0",
+          "slider_disabled": false,
+          "checkbox_disabled": false,
+          "exceptions": []
+        },
+        "dom_after": {
+          "document_title": "streamlit-rust P0 reference",
+          "markdown": [
+            "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part of the production path."
+          ],
+          "has_uploader": true,
+          "headings": [
+            "streamlit-rust P0 reference",
+            "Aggregated result",
+            "Interaction"
+          ],
+          "button_labels": [
+            "Pulse"
+          ],
+          "has_button": true,
+          "script_runs": "2",
+          "pulses": "0",
+          "applied_note": "",
+          "table_cells": [],
+          "table_present": false,
+          "chart_present": false,
+          "chart_bars": 0,
+          "chart_labels": [],
+          "chart_marks": "",
+          "slider_value": "0",
+          "checkbox_checked": true,
+          "selectbox_value": "category",
+          "texts": [
+            "Script runs: 2",
+            "Pulses: 0",
+            "Applied note:"
+          ],
+          "alerts": [
+            "Could not parse the uploaded CSV: row 3: expected 8 fields, found 7",
+            "Upload a valid CSV to continue."
+          ],
+          "selectbox_disabled": false,
+          "slider_thumb": "0",
+          "slider_disabled": false,
+          "checkbox_disabled": false,
+          "exceptions": []
+        },
+        "client_states": [
+          {
+            "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+            "value_field": "file_uploader_state_value",
+            "value": {
+              "uploaded_file_info": "[name: \"sales_malformed.csv\"\nsize: 303\nfile_id: \"559bdce6-e32c-4a5e-886d-20bf0828ab57\"\nfile_urls {\n  file_id: \"559bdce6-e32c-4a5e-886d-20bf0828ab57\"\n  upload_url: \"/_stcore/upload_file/7ccd2c7f-aeaa-462f-98b7-6d34cce28a38/559bdce6-e32c-4a5e-886d-20bf0828ab57\"\n  delete_url: \"/_stcore/upload_file/7ccd2c7f-aeaa-462f-98b7-6d34cce28a38/559bdce6-e32c-4a5e-886d-20bf0828ab57\"\n}\n]"
+            }
+          },
+          {
+            "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+            "value_field": "string_value",
+            "value": "category"
+          },
+          {
+            "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+            "value_field": "double_array_value",
+            "value": {
+              "data": "[0.0]"
+            }
+          },
+          {
+            "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+            "value_field": "bool_value",
+            "value": true
+          },
+          {
+            "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+            "value_field": "string_value",
+            "value": ""
+          }
+        ],
+        "completions": [
+          {
+            "frame": 23,
+            "connection": 0,
+            "request_id": "79580.151",
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          }
+        ],
+        "ipc": {
+          "table": null,
+          "chart": null
+        }
+      },
+      {
+        "name": "replace-it-with-a-good-file",
+        "action": {
+          "action": "upload",
+          "ok": true,
+          "file": "D:\\dlab\\streamlit-rust\\tests\\fixtures\\csv\\sales_basic.csv"
+        },
+        "start": 25,
+        "end": 72,
+        "start_timestamp": 20044.263765,
+        "end_timestamp": 20044.411759,
+        "dom_before": {
+          "document_title": "streamlit-rust P0 reference",
+          "markdown": [
+            "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part of the production path."
+          ],
+          "has_uploader": true,
+          "headings": [
+            "streamlit-rust P0 reference",
+            "Aggregated result",
+            "Interaction"
+          ],
+          "button_labels": [
+            "Pulse"
+          ],
+          "has_button": true,
+          "script_runs": "2",
+          "pulses": "0",
+          "applied_note": "",
+          "table_cells": [],
+          "table_present": false,
+          "chart_present": false,
+          "chart_bars": 0,
+          "chart_labels": [],
+          "chart_marks": "",
+          "slider_value": "0",
+          "checkbox_checked": true,
+          "selectbox_value": "category",
+          "texts": [
+            "Script runs: 2",
+            "Pulses: 0",
+            "Applied note:"
+          ],
+          "alerts": [
+            "Could not parse the uploaded CSV: row 3: expected 8 fields, found 7",
+            "Upload a valid CSV to continue."
+          ],
+          "selectbox_disabled": false,
+          "slider_thumb": "0",
+          "slider_disabled": false,
+          "checkbox_disabled": false,
+          "exceptions": []
+        },
+        "dom_after": {
+          "document_title": "streamlit-rust P0 reference",
+          "markdown": [
+            "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part of the production path."
+          ],
+          "has_uploader": true,
+          "headings": [
+            "streamlit-rust P0 reference",
+            "Aggregated result",
+            "Interaction"
+          ],
+          "button_labels": [
+            "Pulse"
+          ],
+          "has_button": true,
+          "script_runs": "4",
+          "pulses": "0",
+          "applied_note": "",
+          "table_cells": [
+            "Books",
+            "3",
+            "245.75",
+            "81.92",
+            "Games",
+            "3",
+            "409.48",
+            "136.49",
+            "Music",
+            "3",
+            "139",
+            "46.33",
+            "Toys",
+            "3",
+            "104.49",
+            "34.83"
+          ],
+          "table_present": true,
+          "chart_present": true,
+          "chart_bars": 4,
+          "chart_labels": [
+            "Books",
+            "Games",
+            "Music",
+            "Toys",
+            "group_key",
+            "0",
+            "100",
+            "200",
+            "300",
+            "400",
+            "total_amount"
+          ],
+          "chart_marks": "M30.25625,72.16833333333334h196.98749999999998v86.83166666666666h-196.98749999999998Z|M287.75625,14.317066666666655h196.98749999999998v144.68293333333335h-196.98749999999998Z|M545.25625,109.88666666666667h196.98749999999998v49.11333333333333h-196.98749999999998Z|M802.75625,122.0802h196.98749999999998v36.919799999999995h-196.98749999999998Z",
+          "slider_value": "0",
+          "checkbox_checked": true,
+          "selectbox_value": "category",
+          "texts": [
+            "Script runs: 4",
+            "Pulses: 0",
+            "Applied note:"
+          ],
+          "alerts": [],
+          "selectbox_disabled": false,
+          "slider_thumb": "0",
+          "slider_disabled": false,
+          "checkbox_disabled": false,
+          "exceptions": []
+        },
+        "client_states": [
+          {
+            "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+            "value_field": "file_uploader_state_value",
+            "value": {}
+          },
+          {
+            "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+            "value_field": "string_value",
+            "value": "category"
+          },
+          {
+            "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+            "value_field": "double_array_value",
+            "value": {
+              "data": "[0.0]"
+            }
+          },
+          {
+            "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+            "value_field": "bool_value",
+            "value": true
+          },
+          {
+            "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+            "value_field": "string_value",
+            "value": ""
+          },
+          {
+            "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+            "value_field": "file_uploader_state_value",
+            "value": {
+              "uploaded_file_info": "[name: \"sales_basic.csv\"\nsize: 737\nfile_id: \"ca00375e-0f30-4fbd-946d-5b1d2e49ab74\"\nfile_urls {\n  file_id: \"ca00375e-0f30-4fbd-946d-5b1d2e49ab74\"\n  upload_url: \"/_stcore/upload_file/7ccd2c7f-aeaa-462f-98b7-6d34cce28a38/ca00375e-0f30-4fbd-946d-5b1d2e49ab74\"\n  delete_url: \"/_stcore/upload_file/7ccd2c7f-aeaa-462f-98b7-6d34cce28a38/ca00375e-0f30-4fbd-946d-5b1d2e49ab74\"\n}\n]"
+            }
+          },
+          {
+            "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+            "value_field": "string_value",
+            "value": "category"
+          },
+          {
+            "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+            "value_field": "double_array_value",
+            "value": {
+              "data": "[0.0]"
+            }
+          },
+          {
+            "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+            "value_field": "bool_value",
+            "value": true
+          },
+          {
+            "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+            "value_field": "string_value",
+            "value": ""
+          }
+        ],
+        "completions": [
+          {
+            "frame": 22,
+            "connection": 0,
+            "request_id": "79580.151",
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          },
+          {
+            "frame": 45,
+            "connection": 0,
+            "request_id": "79580.151",
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          }
+        ],
+        "ipc": {
+          "table": {
+            "arrow": {
+              "sha256": "2ef28720376df68c13fe7cd9a63bac0e8c56e74716fc19ed6bd17df21b89a5c2",
+              "bytes": 1640,
+              "file": "arrow-1.bin",
+              "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 749",
+              "columns": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_count": 4,
+              "rows": [
+                {
+                  "group_key": "Books",
+                  "row_count": 3,
+                  "total_amount": 245.75,
+                  "avg_amount": 81.92
+                },
+                {
+                  "group_key": "Games",
+                  "row_count": 3,
+                  "total_amount": 409.48,
+                  "avg_amount": 136.49
+                },
+                {
+                  "group_key": "Music",
+                  "row_count": 3,
+                  "total_amount": 139.0,
+                  "avg_amount": 46.33
+                },
+                {
+                  "group_key": "Toys",
+                  "row_count": 3,
+                  "total_amount": 104.49,
+                  "avg_amount": 34.83
+                }
+              ]
+            },
+            "arrow_fields": {
+              "columns": "{\"_index\": {\"hidden\": true}}",
+              "editing_mode": 0,
+              "disabled": false,
+              "column_order": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_height": 0
+            }
+          },
+          "chart": {
+            "vega_lite_spec": {
+              "data": {
+                "name": "b4d4aa9b7813d6dd9f53c4d3b6f730df"
+              },
+              "mark": {
+                "type": "bar"
+              },
+              "encoding": {
+                "tooltip": [
+                  {
+                    "field": "group_key",
+                    "title": "group",
+                    "type": "nominal"
+                  },
+                  {
+                    "field": "row_count",
+                    "title": "rows",
+                    "type": "quantitative"
+                  },
+                  {
+                    "field": "total_amount",
+                    "title": "total",
+                    "type": "quantitative"
+                  },
+                  {
+                    "field": "avg_amount",
+                    "title": "avg",
+                    "type": "quantitative"
+                  }
+                ],
+                "x": {
+                  "field": "group_key",
+                  "sort": [
+                    "Books",
+                    "Games",
+                    "Music",
+                    "Toys"
+                  ],
+                  "type": "nominal"
+                },
+                "y": {
+                  "field": "total_amount",
+                  "type": "quantitative"
+                }
+              },
+              "height": 260,
+              "$schema": "https://vega.github.io/schema/vega-lite/v5.20.1.json",
+              "autosize": {
+                "type": "fit",
+                "contains": "padding"
+              }
+            },
+            "arrow": null,
+            "datasets": [
+              {
+                "name": "b4d4aa9b7813d6dd9f53c4d3b6f730df",
+                "has_name": true,
+                "arrow": {
+                  "sha256": "2ef28720376df68c13fe7cd9a63bac0e8c56e74716fc19ed6bd17df21b89a5c2",
+                  "bytes": 1640,
+                  "file": "arrow-1.bin",
+                  "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 749",
+                  "columns": [
+                    "group_key",
+                    "row_count",
+                    "total_amount",
+                    "avg_amount"
+                  ],
+                  "row_count": 4,
+                  "rows": [
+                    {
+                      "group_key": "Books",
+                      "row_count": 3,
+                      "total_amount": 245.75,
+                      "avg_amount": 81.92
+                    },
+                    {
+                      "group_key": "Games",
+                      "row_count": 3,
+                      "total_amount": 409.48,
+                      "avg_amount": 136.49
+                    },
+                    {
+                      "group_key": "Music",
+                      "row_count": 3,
+                      "total_amount": 139.0,
+                      "avg_amount": 46.33
+                    },
+                    {
+                      "group_key": "Toys",
+                      "row_count": 3,
+                      "total_amount": 104.49,
+                      "avg_amount": 34.83
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "http_timeline": [
+      {
+        "method": "PUT",
+        "url": "http://127.0.0.1:8601/_stcore/upload_file/7ccd2c7f-aeaa-462f-98b7-6d34cce28a38/559bdce6-e32c-4a5e-886d-20bf0828ab57",
+        "request_id": "79580.197",
+        "timestamp": 20036.108633,
+        "status": 204,
+        "response_timestamp": 20036.111667,
+        "request_headers": {
+          "Content-Type": "multipart/form-data; boundary=----WebKitFormBoundarym4mFTWYw4pl3UPLT"
+        }
+      },
+      {
+        "method": "DELETE",
+        "url": "http://127.0.0.1:8601/_stcore/upload_file/7ccd2c7f-aeaa-462f-98b7-6d34cce28a38/559bdce6-e32c-4a5e-886d-20bf0828ab57",
+        "request_id": "79580.198",
+        "timestamp": 20044.27075,
+        "status": 204,
+        "response_timestamp": 20044.331739,
+        "request_headers": {
+          "Content-Type": "application/json"
+        }
+      },
+      {
+        "method": "PUT",
+        "url": "http://127.0.0.1:8601/_stcore/upload_file/7ccd2c7f-aeaa-462f-98b7-6d34cce28a38/ca00375e-0f30-4fbd-946d-5b1d2e49ab74",
+        "request_id": "79580.199",
+        "timestamp": 20044.271319,
+        "status": 204,
+        "response_timestamp": 20044.33217,
+        "request_headers": {
+          "Content-Type": "multipart/form-data; boundary=----WebKitFormBoundaryIfMEioarY2BuYkBI"
+        }
+      }
+    ],
+    "alerts": {
+      "after_bad": {
+        "alerts": [
+          "Could not parse the uploaded CSV: row 3: expected 8 fields, found 7",
+          "Upload a valid CSV to continue."
+        ],
+        "exceptions": []
+      },
+      "after_good": {
+        "alerts": [],
+        "exceptions": []
+      }
+    },
+    "dom": {
+      "after_bad": {
+        "document_title": "streamlit-rust P0 reference",
+        "markdown": [
+          "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part of the production path."
+        ],
+        "has_uploader": true,
+        "headings": [
+          "streamlit-rust P0 reference",
+          "Aggregated result",
+          "Interaction"
+        ],
+        "button_labels": [
+          "Pulse"
+        ],
+        "has_button": true,
+        "script_runs": "2",
+        "pulses": "0",
+        "applied_note": "",
+        "table_cells": [],
+        "table_present": false,
+        "chart_present": false,
+        "chart_bars": 0,
+        "chart_labels": [],
+        "chart_marks": "",
+        "slider_value": "0",
+        "checkbox_checked": true,
+        "selectbox_value": "category",
+        "texts": [
+          "Script runs: 2",
+          "Pulses: 0",
+          "Applied note:"
+        ],
+        "alerts": [
+          "Could not parse the uploaded CSV: row 3: expected 8 fields, found 7",
+          "Upload a valid CSV to continue."
+        ],
+        "selectbox_disabled": false,
+        "slider_thumb": "0",
+        "slider_disabled": false,
+        "checkbox_disabled": false,
+        "exceptions": []
+      },
+      "after_good": {
+        "document_title": "streamlit-rust P0 reference",
+        "markdown": [
+          "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part of the production path."
+        ],
+        "has_uploader": true,
+        "headings": [
+          "streamlit-rust P0 reference",
+          "Aggregated result",
+          "Interaction"
+        ],
+        "button_labels": [
+          "Pulse"
+        ],
+        "has_button": true,
+        "script_runs": "4",
+        "pulses": "0",
+        "applied_note": "",
+        "table_cells": [
+          "Books",
+          "3",
+          "245.75",
+          "81.92",
+          "Games",
+          "3",
+          "409.48",
+          "136.49",
+          "Music",
+          "3",
+          "139",
+          "46.33",
+          "Toys",
+          "3",
+          "104.49",
+          "34.83"
+        ],
+        "table_present": true,
+        "chart_present": true,
+        "chart_bars": 4,
+        "chart_labels": [
+          "Books",
+          "Games",
+          "Music",
+          "Toys",
+          "group_key",
+          "0",
+          "100",
+          "200",
+          "300",
+          "400",
+          "total_amount"
+        ],
+        "chart_marks": "M30.25625,72.16833333333334h196.98749999999998v86.83166666666666h-196.98749999999998Z|M287.75625,14.317066666666655h196.98749999999998v144.68293333333335h-196.98749999999998Z|M545.25625,109.88666666666667h196.98749999999998v49.11333333333333h-196.98749999999998Z|M802.75625,122.0802h196.98749999999998v36.919799999999995h-196.98749999999998Z",
+        "slider_value": "0",
+        "checkbox_checked": true,
+        "selectbox_value": "category",
+        "texts": [
+          "Script runs: 4",
+          "Pulses: 0",
+          "Applied note:"
+        ],
+        "alerts": [],
+        "selectbox_disabled": false,
+        "slider_thumb": "0",
+        "slider_disabled": false,
+        "checkbox_disabled": false,
+        "exceptions": []
+      }
+    },
+    "chips": {
+      "chips": [
+        "sales_basic.csv"
+      ],
+      "chip_count": 1
+    },
+    "verdict": {
+      "ok": false,
+      "problems": [
+        "the window carries no state for this widget"
+      ],
+      "wire_value": null,
+      "before_value": null,
+      "connection": null,
+      "state_frame": null,
+      "completion_frame": null,
+      "result_digest": "2ef28720376df68c13fe7cd9a63bac0e8c56e74716fc19ed6bd17df21b89a5c2"
+    },
+    "file_urls": {
+      "issued": [
+        {
+          "response_id": "f620cbfa-9af5-494f-ae09-970f410be884",
+          "file_id": "559bdce6-e32c-4a5e-886d-20bf0828ab57",
+          "upload_url": "/_stcore/upload_file/7ccd2c7f-aeaa-462f-98b7-6d34cce28a38/559bdce6-e32c-4a5e-886d-20bf0828ab57",
+          "delete_url": "/_stcore/upload_file/7ccd2c7f-aeaa-462f-98b7-6d34cce28a38/559bdce6-e32c-4a5e-886d-20bf0828ab57",
+          "error_msg": ""
+        },
+        {
+          "response_id": "32594556-0c1d-4997-a741-0042b19eef2c",
+          "file_id": "ca00375e-0f30-4fbd-946d-5b1d2e49ab74",
+          "upload_url": "/_stcore/upload_file/7ccd2c7f-aeaa-462f-98b7-6d34cce28a38/ca00375e-0f30-4fbd-946d-5b1d2e49ab74",
+          "delete_url": "/_stcore/upload_file/7ccd2c7f-aeaa-462f-98b7-6d34cce28a38/ca00375e-0f30-4fbd-946d-5b1d2e49ab74",
+          "error_msg": ""
+        }
+      ]
+    },
+    "delete_requests": [
+      {
+        "method": "DELETE",
+        "url": "http://127.0.0.1:8601/_stcore/upload_file/7ccd2c7f-aeaa-462f-98b7-6d34cce28a38/559bdce6-e32c-4a5e-886d-20bf0828ab57",
+        "request_id": "79580.198",
+        "timestamp": 20044.27075,
+        "status": 204,
+        "response_timestamp": 20044.331739,
+        "request_headers": {
+          "Content-Type": "application/json"
+        },
+        "matches_issued_file": true
+      }
+    ]
+  },
+  "checks": [
+    {
+      "step": "bad-csv",
+      "check": "file_uploaded",
+      "expected": "the file the app cannot read to be handed to the uploader",
+      "actual": "the uploader took the file",
+      "ok": true,
+      "journey": "recover"
+    },
+    {
+      "step": "bad-csv",
+      "check": "error_visible",
+      "expected": "the page to say that the CSV cannot be parsed",
+      "actual": "Could not parse the uploaded CSV: row 3: expected 8 fields, found 7",
+      "ok": true,
+      "journey": "recover"
+    },
+    {
+      "step": "bad-csv",
+      "check": "no_result",
+      "expected": "no table for a file the app cannot read",
+      "actual": "{\"cells\": [], \"bars\": 0}",
+      "ok": true,
+      "journey": "recover"
+    },
+    {
+      "step": "recover",
+      "check": "file_uploaded",
+      "expected": "the good file to be handed to the uploader",
+      "actual": "the uploader took the file",
+      "ok": true,
+      "journey": "recover"
+    },
+    {
+      "step": "recover",
+      "check": "case_verdict",
+      "expected": "the good file to restore the table and the chart",
+      "actual": "no verdict",
+      "ok": true,
+      "journey": "recover"
+    },
+    {
+      "step": "recover",
+      "check": "frames_decoded",
+      "expected": "the frames of the window to be decoded",
+      "actual": "every frame decoded",
+      "ok": true,
+      "journey": "recover"
+    },
+    {
+      "step": "replace",
+      "check": "delete_status",
+      "expected": "the removed file to be deleted with 204",
+      "actual": "[204]",
+      "ok": true,
+      "journey": "recover"
+    },
+    {
+      "step": "replace",
+      "check": "old_file_gone",
+      "expected": "the page to show only the file that was uploaded last",
+      "actual": "[\"sales_basic.csv\"]",
+      "ok": true,
+      "journey": "recover"
+    },
+    {
+      "step": "bad-csv",
+      "check": "upload_proof",
+      "expected": "this bad upload state and completion",
+      "actual": "[]",
+      "ok": true,
+      "journey": "recover"
+    },
+    {
+      "step": "recover",
+      "check": "upload_proof",
+      "expected": "this good upload with actual IPC and DOM values",
+      "actual": "[]",
+      "ok": true,
+      "journey": "recover"
+    },
+    {
+      "step": "recover",
+      "check": "no_stale_error",
+      "expected": "no stale alerts or exceptions after recovery",
+      "actual": "{\"alerts\": [], \"exceptions\": []}",
+      "ok": true,
+      "journey": "recover"
+    },
+    {
+      "step": "replace",
+      "check": "delete_bound",
+      "expected": "DELETE204 for this old issued URL/session/file during replacement",
+      "actual": "http://127.0.0.1:8601/_stcore/upload_file/7ccd2c7f-aeaa-462f-98b7-6d34cce28a38/559bdce6-e32c-4a5e-886d-20bf0828ab57",
+      "ok": true,
+      "journey": "recover"
+    }
+  ],
+  "counts": {
+    "expected": 12,
+    "executed": 12,
+    "asserted": 12
+  },
+  "failures": []
+}

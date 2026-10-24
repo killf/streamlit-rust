@@ -274,6 +274,22 @@ mod tests {
     use super::*;
 
     #[test]
+    fn removed_upload_cannot_be_rebound_by_resending_old_file_state() {
+        let state = SessionState::default();
+        state.uploads.lock().insert("removed".into(), "old.csv".into(), Some("text/csv".into()), vec![1, 2, 3]);
+        let retained = state.uploads.lock().get("removed").unwrap();
+        let codec = Codec::Files { store: state.uploads.clone(), multiple: false };
+        let old_wire = widget_state::Value::FileUploaderStateValue(crate::proto::FileUploaderState {
+            uploaded_file_info: vec![crate::proto::UploadedFileInfo { file_id: "removed".into(), ..Default::default() }],
+        });
+        assert_eq!(codec.decode(&old_wire), Some(serde_json::json!(["removed"])));
+        assert!(state.uploads.lock().remove("removed"));
+        assert_eq!(codec.decode(&old_wire), Some(serde_json::json!([])));
+        assert!(!state.uploads.lock().remove("removed"));
+        assert_eq!(retained.as_bytes(), &[1, 2, 3]);
+    }
+
+    #[test]
     fn malformed_numeric_payloads_do_not_mutate_values_or_schedule_callbacks() {
         let state = SessionState::default();
         state.begin_widgets(vec![]);

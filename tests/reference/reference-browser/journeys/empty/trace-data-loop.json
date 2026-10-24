@@ -1,0 +1,1022 @@
+{
+  "schema_version": 1,
+  "contract_id": "C-P0-04",
+  "kind": "python-reference-browser-trace",
+  "scope": "PYTHON SIDE ONLY",
+  "capture": {
+    "tool": "DevTools Protocol against the same real Chrome",
+    "tool_limitation": "the agent-browser CLI could not start its daemon in this environment (connection timeout), so the input is sent over CDP",
+    "driver": "tests/browser/numeric_capture.py",
+    "binary": "",
+    "python": "D:\\dlab\\streamlit-rust\\target\\pyref-venv\\Scripts\\python.exe"
+  },
+  "url": "http://127.0.0.1:8601/",
+  "case": "empty",
+  "journey": "empty",
+  "file": "D:\\dlab\\streamlit-rust\\tests\\fixtures\\csv\\sales_empty.csv",
+  "observation": {
+    "journey": "empty",
+    "namespace": "python-final-empty",
+    "url": "http://127.0.0.1:8601/",
+    "ipc_dir": "target\\final-427F-20261024T162828\\python\\empty",
+    "uploads": {
+      "file": true
+    },
+    "frames": [
+      {
+        "direction": "client->server",
+        "connection": 0,
+        "request_id": "79108.151",
+        "timestamp": 19148.849285,
+        "namespace": "python-final-empty",
+        "decoded": {
+          "message": "BackMsg",
+          "type": "file_urls_request",
+          "file_urls_request": {
+            "request_id": "6f75fea0-61ec-4aab-ad39-fd0ac6ffb29d",
+            "file_names": [
+              "sales_empty.csv"
+            ],
+            "session_id": "f6a194fc-dfd7-4487-a2ea-cae5cba91b4a"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79108.151",
+        "timestamp": 19148.850397,
+        "namespace": "python-final-empty",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "file_urls_response",
+          "file_urls_response": {
+            "response_id": "6f75fea0-61ec-4aab-ad39-fd0ac6ffb29d",
+            "file_urls": [
+              {
+                "file_id": "b379b002-1bc5-46f5-918a-455e5f102a08",
+                "upload_url": "/_stcore/upload_file/f6a194fc-dfd7-4487-a2ea-cae5cba91b4a/b379b002-1bc5-46f5-918a-455e5f102a08",
+                "delete_url": "/_stcore/upload_file/f6a194fc-dfd7-4487-a2ea-cae5cba91b4a/b379b002-1bc5-46f5-918a-455e5f102a08"
+              }
+            ],
+            "error_msg": ""
+          }
+        }
+      },
+      {
+        "direction": "client->server",
+        "connection": 0,
+        "request_id": "79108.151",
+        "timestamp": 19148.870702,
+        "namespace": "python-final-empty",
+        "decoded": {
+          "message": "BackMsg",
+          "type": "rerun_script",
+          "rerun_script": {
+            "widget_states": [
+              {
+                "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+                "value_field": "file_uploader_state_value",
+                "value": {
+                  "uploaded_file_info": "[name: \"sales_empty.csv\"\nsize: 62\nfile_id: \"b379b002-1bc5-46f5-918a-455e5f102a08\"\nfile_urls {\n  file_id: \"b379b002-1bc5-46f5-918a-455e5f102a08\"\n  upload_url: \"/_stcore/upload_file/f6a194fc-dfd7-4487-a2ea-cae5cba91b4a/b379b002-1bc5-46f5-918a-455e5f102a08\"\n  delete_url: \"/_stcore/upload_file/f6a194fc-dfd7-4487-a2ea-cae5cba91b4a/b379b002-1bc5-46f5-918a-455e5f102a08\"\n}\n]"
+                },
+                "value_full": {
+                  "uploadedFileInfo": [
+                    {
+                      "name": "sales_empty.csv",
+                      "size": "62",
+                      "fileId": "b379b002-1bc5-46f5-918a-455e5f102a08",
+                      "fileUrls": {
+                        "fileId": "b379b002-1bc5-46f5-918a-455e5f102a08",
+                        "uploadUrl": "/_stcore/upload_file/f6a194fc-dfd7-4487-a2ea-cae5cba91b4a/b379b002-1bc5-46f5-918a-455e5f102a08",
+                        "deleteUrl": "/_stcore/upload_file/f6a194fc-dfd7-4487-a2ea-cae5cba91b4a/b379b002-1bc5-46f5-918a-455e5f102a08"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+                "value_field": "string_value",
+                "value": "category"
+              },
+              {
+                "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+                "value_field": "double_array_value",
+                "value": {
+                  "data": "[0.0]"
+                },
+                "value_full": {
+                  "data": [
+                    0.0
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+                "value_field": "string_value",
+                "value": ""
+              },
+              {
+                "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+                "value_field": "bool_value",
+                "value": true
+              }
+            ]
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79108.151",
+        "timestamp": 19148.872348,
+        "namespace": "python-final-empty",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "new_session",
+          "new_session": {
+            "script_run_id": "ce9373db-e714-4a8f-b265-144dcfef9bca",
+            "name": "app",
+            "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\app.py",
+            "page_script_hash": "269f73cf39198cb8a4f8caacec17751b",
+            "main_script_hash": "269f73cf39198cb8a4f8caacec17751b",
+            "session_id": "f6a194fc-dfd7-4487-a2ea-cae5cba91b4a"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79108.151",
+        "timestamp": 19148.876687,
+        "namespace": "python-final-empty",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": true,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79108.151",
+        "timestamp": 19148.880991,
+        "namespace": "python-final-empty",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "page_config_changed"
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79108.151",
+        "timestamp": 19148.882347,
+        "namespace": "python-final-empty",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "streamlit-rust P0 reference"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79108.151",
+        "timestamp": 19148.882469,
+        "namespace": "python-final-empty",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "markdown",
+            "body": "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part o"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79108.151",
+        "timestamp": 19148.882556,
+        "namespace": "python-final-empty",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "file_uploader",
+            "element_full": {
+              "fileUploader": {
+                "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+                "label": "Upload sales CSV",
+                "type": [
+                  ".csv"
+                ],
+                "maxUploadSizeMb": 200,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+              "label": "Upload sales CSV",
+              "type": [
+                ".csv"
+              ],
+              "maxUploadSizeMb": 200,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+            "label": "Upload sales CSV",
+            "accepted_types": [
+              "['.csv']"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79108.151",
+        "timestamp": 19148.882619,
+        "namespace": "python-final-empty",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "selectbox",
+            "element_full": {
+              "selectbox": {
+                "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+                "label": "Group by",
+                "default": 0,
+                "options": [
+                  "category",
+                  "region",
+                  "channel"
+                ],
+                "labelVisibility": {},
+                "acceptNewOptions": false
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+              "label": "Group by",
+              "default": 0,
+              "options": [
+                "category",
+                "region",
+                "channel"
+              ],
+              "labelVisibility": {},
+              "acceptNewOptions": false
+            },
+            "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+            "label": "Group by",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79108.151",
+        "timestamp": 19148.882679,
+        "namespace": "python-final-empty",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "slider",
+            "element_full": {
+              "slider": {
+                "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+                "label": "Minimum amount",
+                "format": "%d",
+                "default": [
+                  0.0
+                ],
+                "max": 200.0,
+                "step": 10.0,
+                "labelVisibility": {},
+                "type": "SLIDER"
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+              "label": "Minimum amount",
+              "format": "%d",
+              "default": [
+                0.0
+              ],
+              "max": 200.0,
+              "step": 10.0,
+              "labelVisibility": {},
+              "type": "SLIDER"
+            },
+            "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+            "label": "Minimum amount",
+            "accepted_types": [
+              "1"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79108.151",
+        "timestamp": 19148.927988,
+        "namespace": "python-final-empty",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "checkbox",
+            "element_full": {
+              "checkbox": {
+                "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+                "label": "Include unknown region",
+                "default": true,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useContent": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+              "label": "Include unknown region",
+              "default": true,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+            "label": "Include unknown region",
+            "accepted_types": [
+              "0"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79108.151",
+        "timestamp": 19148.928378,
+        "namespace": "python-final-empty",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Aggregated result"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79108.151",
+        "timestamp": 19148.931769,
+        "namespace": "python-final-empty",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "alert",
+            "alert": {
+              "body": "The uploaded CSV contains no data rows.",
+              "format": "INFO",
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "element_width_config": null,
+            "element_height_config": null,
+            "body": "The uploaded CSV contains no data rows."
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79108.151",
+        "timestamp": 19148.931924,
+        "namespace": "python-final-empty",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "dataframe",
+            "element_full": {
+              "dataframe": {
+                "arrowData": {
+                  "data": "/////4gEAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAGQDAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAA8AwAABAAAAC8DAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDAsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAiZ3JvdXBfa2V5IiwgImZpZWxkX25hbWUiOiAiZ3JvdXBfa2V5IiwgInBhbmRhc190eXBlIjogImVtcHR5IiwgIm51bXB5X3R5cGUiOiAib2JqZWN0IiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJyb3dfY291bnQiLCAiZmllbGRfbmFtZSI6ICJyb3dfY291bnQiLCAicGFuZGFzX3R5cGUiOiAiaW50NjQiLCAibnVtcHlfdHlwZSI6ICJpbnQ2NCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAidG90YWxfYW1vdW50IiwgImZpZWxkX25hbWUiOiAidG90YWxfYW1vdW50IiwgInBhbmRhc190eXBlIjogImZsb2F0NjQiLCAibnVtcHlfdHlwZSI6ICJmbG9hdDY0IiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJhdmdfYW1vdW50IiwgImZpZWxkX25hbWUiOiAiYXZnX2Ftb3VudCIsICJwYW5kYXNfdHlwZSI6ICJmbG9hdDY0IiwgIm51bXB5X3R5cGUiOiAiZmxvYXQ2NCIsICJtZXRhZGF0YSI6IG51bGx9XSwgImF0dHJpYnV0ZXMiOiB7fSwgImNyZWF0b3IiOiB7ImxpYnJhcnkiOiAicHlhcnJvdyIsICJ2ZXJzaW9uIjogIjI2LjAuMCJ9LCAicGFuZGFzX3ZlcnNpb24iOiAiMy4xLjAifQAGAAAAcGFuZGFzAAAEAAAAxAAAAHQAAAA4AAAABAAAAFz///8AAAEDEAAAABwAAAAEAAAAAAAAAAoAAABhdmdfYW1vdW50AADO////AAACAIz///8AAAEDEAAAACQAAAAEAAAAAAAAAAwAAAB0b3RhbF9hbW91bnQAAAYACAAGAAYAAAAAAAIAxP///wAAAQIQAAAAJAAAAAQAAAAAAAAACQAAAHJvd19jb3VudAAAAAgADAAIAAcACAAAAAAAAAFAAAAAEAAUAAgABgAHAAwAAAAQABAAAAAAAAEBEAAAACAAAAAEAAAAAAAAAAkAAABncm91cF9rZXkAAAAEAAQABAAAAP////8AAAAA"
+                },
+                "columns": "{\"_index\": {\"hidden\": true}}",
+                "columnOrder": [
+                  "group_key",
+                  "row_count",
+                  "total_amount",
+                  "avg_amount"
+                ]
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "arrow": {
+              "bytes": 1176,
+              "sha256": "a0d7de49e7c4975e42b2dccded97922535f9e79742c62ff0d5b8905b112a1dce",
+              "base64": "/////4gEAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAGQDAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAA8AwAABAAAAC8DAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDAsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAiZ3JvdXBfa2V5IiwgImZpZWxkX25hbWUiOiAiZ3JvdXBfa2V5IiwgInBhbmRhc190eXBlIjogImVtcHR5IiwgIm51bXB5X3R5cGUiOiAib2JqZWN0IiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJyb3dfY291bnQiLCAiZmllbGRfbmFtZSI6ICJyb3dfY291bnQiLCAicGFuZGFzX3R5cGUiOiAiaW50NjQiLCAibnVtcHlfdHlwZSI6ICJpbnQ2NCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAidG90YWxfYW1vdW50IiwgImZpZWxkX25hbWUiOiAidG90YWxfYW1vdW50IiwgInBhbmRhc190eXBlIjogImZsb2F0NjQiLCAibnVtcHlfdHlwZSI6ICJmbG9hdDY0IiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJhdmdfYW1vdW50IiwgImZpZWxkX25hbWUiOiAiYXZnX2Ftb3VudCIsICJwYW5kYXNfdHlwZSI6ICJmbG9hdDY0IiwgIm51bXB5X3R5cGUiOiAiZmxvYXQ2NCIsICJtZXRhZGF0YSI6IG51bGx9XSwgImF0dHJpYnV0ZXMiOiB7fSwgImNyZWF0b3IiOiB7ImxpYnJhcnkiOiAicHlhcnJvdyIsICJ2ZXJzaW9uIjogIjI2LjAuMCJ9LCAicGFuZGFzX3ZlcnNpb24iOiAiMy4xLjAifQAGAAAAcGFuZGFzAAAEAAAAxAAAAHQAAAA4AAAABAAAAFz///8AAAEDEAAAABwAAAAEAAAAAAAAAAoAAABhdmdfYW1vdW50AADO////AAACAIz///8AAAEDEAAAACQAAAAEAAAAAAAAAAwAAAB0b3RhbF9hbW91bnQAAAYACAAGAAYAAAAAAAIAxP///wAAAQIQAAAAJAAAAAQAAAAAAAAACQAAAHJvd19jb3VudAAAAAgADAAIAAcACAAAAAAAAAFAAAAAEAAUAAgABgAHAAwAAAAQABAAAAAAAAEBEAAAACAAAAAEAAAAAAAAAAkAAABncm91cF9rZXkAAAAEAAQABAAAAP////8AAAAA",
+              "schema": "group_key: null\nrow_count: int64\ntotal_amount: double\navg_amount: double\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 751",
+              "columns": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_count": 0,
+              "rows": []
+            },
+            "arrow_fields": {
+              "columns": "{\"_index\": {\"hidden\": true}}",
+              "editing_mode": 0,
+              "disabled": false,
+              "column_order": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_height": 0
+            },
+            "id": "",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79108.151",
+        "timestamp": 19148.939699,
+        "namespace": "python-final-empty",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Interaction"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79108.151",
+        "timestamp": 19148.939845,
+        "namespace": "python-final-empty",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "button",
+            "widget": {
+              "id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+              "label": "Pulse",
+              "type": "secondary"
+            },
+            "id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+            "label": "Pulse",
+            "accepted_types": [
+              "secondary"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79108.151",
+        "timestamp": 19148.939919,
+        "namespace": "python-final-empty",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "add_block",
+            "block_id": "",
+            "block_type": "form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79108.151",
+        "timestamp": 19148.939985,
+        "namespace": "python-final-empty",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text_input",
+            "widget": {
+              "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+              "label": "Note",
+              "default": "",
+              "formId": "apply_form",
+              "labelVisibility": {}
+            },
+            "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+            "label": "Note",
+            "accepted_types": [
+              "0"
+            ],
+            "form_id": "apply_form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79108.151",
+        "timestamp": 19148.940061,
+        "namespace": "python-final-empty",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "button",
+            "widget": {
+              "id": "$$ID-9a6c63ce6e3bef7bfd3af258b88f303b-apply_note",
+              "label": "Apply note",
+              "formId": "apply_form",
+              "isFormSubmitter": true,
+              "type": "secondary"
+            },
+            "id": "$$ID-9a6c63ce6e3bef7bfd3af258b88f303b-apply_note",
+            "label": "Apply note",
+            "accepted_types": [
+              "secondary"
+            ],
+            "form_id": "apply_form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79108.151",
+        "timestamp": 19148.940134,
+        "namespace": "python-final-empty",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text",
+            "body": "Script runs: 2"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79108.151",
+        "timestamp": 19148.940186,
+        "namespace": "python-final-empty",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text",
+            "body": "Pulses: 0"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79108.151",
+        "timestamp": 19148.940234,
+        "namespace": "python-final-empty",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text",
+            "body": "Applied note:"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79108.151",
+        "timestamp": 19148.940274,
+        "namespace": "python-final-empty",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "script_finished",
+          "script_finished": {
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "79108.151",
+        "timestamp": 19148.94033,
+        "namespace": "python-final-empty",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": false,
+            "run_on_save": false
+          }
+        }
+      }
+    ],
+    "phases": [
+      {
+        "name": "upload-a-file-without-data-rows",
+        "action": {
+          "action": "upload",
+          "ok": true,
+          "file": "D:\\dlab\\streamlit-rust\\tests\\fixtures\\csv\\sales_empty.csv"
+        },
+        "start": 0,
+        "end": 25,
+        "start_timestamp": 19148.849285,
+        "end_timestamp": 19148.94033,
+        "dom_before": {
+          "document_title": "streamlit-rust P0 reference",
+          "markdown": [
+            "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part of the production path."
+          ],
+          "has_uploader": true,
+          "headings": [
+            "streamlit-rust P0 reference",
+            "Aggregated result",
+            "Interaction"
+          ],
+          "button_labels": [
+            "Pulse"
+          ],
+          "has_button": true,
+          "script_runs": "1",
+          "pulses": "0",
+          "applied_note": "",
+          "table_cells": [],
+          "table_present": false,
+          "chart_present": false,
+          "chart_bars": 0,
+          "chart_labels": [],
+          "chart_marks": "",
+          "slider_value": "0",
+          "checkbox_checked": true,
+          "selectbox_value": "category",
+          "texts": [
+            "Script runs: 1",
+            "Pulses: 0",
+            "Applied note:"
+          ],
+          "alerts": [
+            "Upload a CSV to see the aggregated result."
+          ],
+          "selectbox_disabled": false,
+          "slider_thumb": "0",
+          "slider_disabled": false,
+          "checkbox_disabled": false,
+          "exceptions": []
+        },
+        "dom_after": {
+          "document_title": "streamlit-rust P0 reference",
+          "markdown": [
+            "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part of the production path."
+          ],
+          "has_uploader": true,
+          "headings": [
+            "streamlit-rust P0 reference",
+            "Aggregated result",
+            "Interaction"
+          ],
+          "button_labels": [
+            "Pulse"
+          ],
+          "has_button": true,
+          "script_runs": "2",
+          "pulses": "0",
+          "applied_note": "",
+          "table_cells": [
+            "",
+            "",
+            "",
+            ""
+          ],
+          "table_present": true,
+          "chart_present": false,
+          "chart_bars": 0,
+          "chart_labels": [],
+          "chart_marks": "",
+          "slider_value": "0",
+          "checkbox_checked": true,
+          "selectbox_value": "category",
+          "texts": [
+            "Script runs: 2",
+            "Pulses: 0",
+            "Applied note:"
+          ],
+          "alerts": [
+            "The uploaded CSV contains no data rows."
+          ],
+          "selectbox_disabled": false,
+          "slider_thumb": "0",
+          "slider_disabled": false,
+          "checkbox_disabled": false,
+          "exceptions": []
+        },
+        "client_states": [
+          {
+            "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+            "value_field": "file_uploader_state_value",
+            "value": {
+              "uploaded_file_info": "[name: \"sales_empty.csv\"\nsize: 62\nfile_id: \"b379b002-1bc5-46f5-918a-455e5f102a08\"\nfile_urls {\n  file_id: \"b379b002-1bc5-46f5-918a-455e5f102a08\"\n  upload_url: \"/_stcore/upload_file/f6a194fc-dfd7-4487-a2ea-cae5cba91b4a/b379b002-1bc5-46f5-918a-455e5f102a08\"\n  delete_url: \"/_stcore/upload_file/f6a194fc-dfd7-4487-a2ea-cae5cba91b4a/b379b002-1bc5-46f5-918a-455e5f102a08\"\n}\n]"
+            }
+          },
+          {
+            "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+            "value_field": "string_value",
+            "value": "category"
+          },
+          {
+            "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+            "value_field": "double_array_value",
+            "value": {
+              "data": "[0.0]"
+            }
+          },
+          {
+            "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+            "value_field": "string_value",
+            "value": ""
+          },
+          {
+            "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+            "value_field": "bool_value",
+            "value": true
+          }
+        ],
+        "completions": [
+          {
+            "frame": 23,
+            "connection": 0,
+            "request_id": "79108.151",
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          }
+        ],
+        "ipc": {
+          "table": {
+            "arrow": {
+              "sha256": "a0d7de49e7c4975e42b2dccded97922535f9e79742c62ff0d5b8905b112a1dce",
+              "bytes": 1176,
+              "file": "arrow-1.bin",
+              "schema": "group_key: null\nrow_count: int64\ntotal_amount: double\navg_amount: double\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 751",
+              "columns": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_count": 0,
+              "rows": []
+            },
+            "arrow_fields": {
+              "columns": "{\"_index\": {\"hidden\": true}}",
+              "editing_mode": 0,
+              "disabled": false,
+              "column_order": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_height": 0
+            }
+          },
+          "chart": null
+        }
+      }
+    ],
+    "http_timeline": [
+      {
+        "method": "PUT",
+        "url": "http://127.0.0.1:8601/_stcore/upload_file/f6a194fc-dfd7-4487-a2ea-cae5cba91b4a/b379b002-1bc5-46f5-918a-455e5f102a08",
+        "request_id": "79108.197",
+        "timestamp": 19148.864095,
+        "status": 204,
+        "response_timestamp": 19148.867315,
+        "request_headers": {
+          "Content-Type": "multipart/form-data; boundary=----WebKitFormBoundaryx7DmxJjHjD83nGrJ"
+        }
+      }
+    ],
+    "alerts": {
+      "after_upload": {
+        "alerts": [
+          "The uploaded CSV contains no data rows."
+        ],
+        "exceptions": []
+      }
+    },
+    "dom": {
+      "after_upload": {
+        "document_title": "streamlit-rust P0 reference",
+        "markdown": [
+          "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part of the production path."
+        ],
+        "has_uploader": true,
+        "headings": [
+          "streamlit-rust P0 reference",
+          "Aggregated result",
+          "Interaction"
+        ],
+        "button_labels": [
+          "Pulse"
+        ],
+        "has_button": true,
+        "script_runs": "2",
+        "pulses": "0",
+        "applied_note": "",
+        "table_cells": [
+          "",
+          "",
+          "",
+          ""
+        ],
+        "table_present": true,
+        "chart_present": false,
+        "chart_bars": 0,
+        "chart_labels": [],
+        "chart_marks": "",
+        "slider_value": "0",
+        "checkbox_checked": true,
+        "selectbox_value": "category",
+        "texts": [
+          "Script runs: 2",
+          "Pulses: 0",
+          "Applied note:"
+        ],
+        "alerts": [
+          "The uploaded CSV contains no data rows."
+        ],
+        "selectbox_disabled": false,
+        "slider_thumb": "0",
+        "slider_disabled": false,
+        "checkbox_disabled": false,
+        "exceptions": []
+      }
+    },
+    "table": {
+      "rows": [],
+      "columns": [
+        "group_key",
+        "row_count",
+        "total_amount",
+        "avg_amount"
+      ],
+      "schema": "group_key: null\nrow_count: int64\ntotal_amount: double\navg_amount: double\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 751",
+      "arrow": {
+        "sha256": "a0d7de49e7c4975e42b2dccded97922535f9e79742c62ff0d5b8905b112a1dce",
+        "bytes": 1176,
+        "file": "arrow-1.bin",
+        "schema": "group_key: null\nrow_count: int64\ntotal_amount: double\navg_amount: double\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 751",
+        "columns": [
+          "group_key",
+          "row_count",
+          "total_amount",
+          "avg_amount"
+        ],
+        "row_count": 0,
+        "rows": []
+      },
+      "arrow_fields": {
+        "columns": "{\"_index\": {\"hidden\": true}}",
+        "editing_mode": 0,
+        "disabled": false,
+        "column_order": [
+          "group_key",
+          "row_count",
+          "total_amount",
+          "avg_amount"
+        ],
+        "row_height": 0
+      }
+    },
+    "chart": null
+  },
+  "checks": [
+    {
+      "step": "empty-csv",
+      "check": "file_uploaded",
+      "expected": "the file to be handed to the uploader",
+      "actual": "the uploader took the file",
+      "ok": true,
+      "journey": "empty"
+    },
+    {
+      "step": "empty-csv",
+      "check": "info_visible",
+      "expected": "the page to say that the file has no data rows",
+      "actual": "The uploaded CSV contains no data rows.",
+      "ok": true,
+      "journey": "empty"
+    },
+    {
+      "step": "empty-csv",
+      "check": "result_present",
+      "expected": "the operation's actual IPC table",
+      "actual": "{\"bytes\": 1176, \"sha256\": \"a0d7de49e7c4975e42b2dccded97922535f9e79742c62ff0d5b8905b112a1dce\", \"base64\": \"/////4gEAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAGQDAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAA8AwAABAAAAC8DAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDAsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAiZ3JvdXBfa2V5IiwgImZpZWxkX25hbWUiOiAiZ3JvdXBfa2V5IiwgInBhbmRhc190eXBlIjogImVtcHR5IiwgIm51bXB5X3R5cGUiOiAib2JqZWN0IiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJyb3dfY291bnQiLCAiZmllbGRfbmFtZSI6ICJyb3dfY291bnQiLCAicGFuZGFzX3R5cGUiOiAiaW50NjQiLCAibnVtcHlfdHlwZSI6ICJpbnQ2NCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAidG90YWxfYW1vdW50IiwgImZpZWxkX25hbWUiOiAidG90YWxfYW1vdW50IiwgInBhbmRhc190eXBlIjogImZsb2F0NjQiLCAibnVtcHlfdHlwZSI6ICJmbG9hdDY0IiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJhdmdfYW1vdW50IiwgImZpZWxkX25hbWUiOiAiYXZnX2Ftb3VudCIsICJwYW5kYXNfdHlwZSI6ICJmbG9hdDY0IiwgIm51bXB5X3R5cGUiOiAiZmxvYXQ2NCIsICJtZXRhZGF0YSI6IG51bGx9XSwgImF0dHJpYnV0ZXMiOiB7fSwgImNyZWF0b3IiOiB7ImxpYnJhcnkiOiAicHlhcnJvdyIsICJ2ZXJzaW9uIjogIjI2LjAuMCJ9LCAicGFuZGFzX3ZlcnNpb24iOiAiMy4xLjAifQAGAAAAcGFuZGFzAAAEAAAAxAAAAHQAAAA4AAAABAAAAFz///8AAAEDEAAAABwAAAAEAAAAAAAAAAoAAABhdmdfYW1vdW50AADO////AAACAIz///8AAAEDEAAAACQAAAAEAAAAAAAAAAwAAAB0b3RhbF9hbW91bnQAAAYACAAGAAYAAAAAAAIAxP///wAAAQIQAAAAJAAAAAQAAAAAAAAACQAAAHJvd19jb3VudAAAAAgADAAIAAcACAAAAAAAAAFAAAAAEAAUAAgABgAHAAwAAAAQABAAAAAAAAEBEAAAACAAAAAEAAAAAAAAAAkAAABncm91cF9rZXkAAAAEAAQABAAAAP////8AAAAA\", \"schema\": \"group_key: null\\nrow_count: int64\\ntotal_amount: double\\navg_amount: double\\n-- schema metadata --\\npandas: '{\\\"index_columns\\\": [{\\\"kind\\\": \\\"range\\\", \\\"name\\\": null, \\\"start\\\": 0, \\\"' + 751\", \"columns\": [\"group_key\", \"row_count\", \"total_amount\", \"avg_amount\"], \"row_count\": 0, \"rows\": []}",
+      "ok": true,
+      "journey": "empty"
+    },
+    {
+      "step": "empty-csv",
+      "check": "no_rows",
+      "expected": "zero actual IPC rows",
+      "actual": "[]",
+      "ok": true,
+      "journey": "empty"
+    },
+    {
+      "step": "empty-csv",
+      "check": "schema_kept",
+      "expected": "all four expected field names/types in decoded IPC",
+      "actual": "group_key: null\nrow_count: int64\ntotal_amount: double\navg_amount: double\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 751",
+      "ok": true,
+      "journey": "empty"
+    },
+    {
+      "step": "empty-csv",
+      "check": "no_stale_view",
+      "expected": "no stale table or chart for an empty result",
+      "actual": "{\"cells\": [\"\", \"\", \"\", \"\"], \"bars\": 0}",
+      "ok": true,
+      "journey": "empty"
+    },
+    {
+      "step": "empty-csv",
+      "check": "operation_proof",
+      "expected": "current upload/clientstate/same connection completion/HTTP/IPC/DOM",
+      "actual": "[]",
+      "ok": true,
+      "journey": "empty"
+    }
+  ],
+  "counts": {
+    "expected": 7,
+    "executed": 7,
+    "asserted": 7
+  },
+  "failures": []
+}

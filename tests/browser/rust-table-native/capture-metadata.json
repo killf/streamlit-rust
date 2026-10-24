@@ -1,0 +1,441 @@
+{
+  "pid": 48396,
+  "port": 8503,
+  "binary_sha256": "4814e44f4ec0b7fbd3dd00efc61b1922f0716262bcc9b857c1d3229f06819383",
+  "cases": [
+    {
+      "revision": 0,
+      "connections": [
+        "6180.351"
+      ],
+      "reference_comparisons": [
+        {
+          "case": "table-default",
+          "names_types_rows_nulls_match_reference": true,
+          "every_dom_cell_matches_reference": true
+        },
+        {
+          "case": "table-explicit",
+          "names_types_rows_nulls_match_reference": true,
+          "every_dom_cell_matches_reference": true
+        },
+        {
+          "case": "bar-default",
+          "names_types_rows_nulls_match_reference": true,
+          "every_mark_value_label_matches_reference": true,
+          "complete_spec_matches_except_dataset_hash": true
+        },
+        {
+          "case": "bar-horizontal",
+          "names_types_rows_nulls_match_reference": true,
+          "every_mark_value_label_matches_reference": true,
+          "complete_spec_matches_except_dataset_hash": true
+        }
+      ],
+      "arrow": [
+        {
+          "file": "revision-0-view-0.bin",
+          "bytes": 1096,
+          "sha256": "f2541d0d36fe0a8475a49bc5963b2542489e99645c9e5d16cd5cc4c5c5ffb8f5",
+          "schema": "group.name: large_string\namount[0]: int64\npath\\label: large_string",
+          "rows": [
+            {
+              "group.name": "图书",
+              "amount[0]": 12,
+              "path\\label": "普通"
+            },
+            {
+              "group.name": "Café",
+              "amount[0]": null,
+              "path\\label": "naïve"
+            },
+            {
+              "group.name": "**Music**",
+              "amount[0]": -3,
+              "path\\label": null
+            },
+            {
+              "group.name": null,
+              "amount[0]": 0,
+              "path\\label": "fin"
+            }
+          ]
+        },
+        {
+          "file": "revision-0-view-1.bin",
+          "bytes": 1736,
+          "sha256": "b74ff9c5e4a87e4c06e46a2bd52c95c1165f2e41659dfc1333990b735365bcfe",
+          "schema": "group.name: large_string\namount[0]: int64\npath\\label: large_string\n-- schema metadata --\npandas: '{\"column_indexes\":[{\"field_name\":null,\"metadata\":{\"encoding\":\"UT' + 480",
+          "rows": [
+            {
+              "group.name": "图书",
+              "amount[0]": 12,
+              "path\\label": "普通"
+            },
+            {
+              "group.name": "Café",
+              "amount[0]": null,
+              "path\\label": "naïve"
+            },
+            {
+              "group.name": "**Music**",
+              "amount[0]": -3,
+              "path\\label": null
+            },
+            {
+              "group.name": null,
+              "amount[0]": 0,
+              "path\\label": "fin"
+            }
+          ]
+        },
+        {
+          "file": "revision-0-view-2.bin",
+          "bytes": 1160,
+          "sha256": "9133aa5abbb0da1c9cd3cf852531b8ceb59bd43e2b6b9d2cf07a35db13bf3b3b",
+          "schema": "index -- streamlit-generated: int64 not null\ncolor -- streamlit-generated: large_string not null\nvalue -- streamlit-generated: double",
+          "rows": [
+            {
+              "index -- streamlit-generated": 0,
+              "color -- streamlit-generated": "sales",
+              "value -- streamlit-generated": 12.0
+            },
+            {
+              "index -- streamlit-generated": 1,
+              "color -- streamlit-generated": "sales",
+              "value -- streamlit-generated": 24.0
+            },
+            {
+              "index -- streamlit-generated": 2,
+              "color -- streamlit-generated": "sales",
+              "value -- streamlit-generated": -3.0
+            },
+            {
+              "index -- streamlit-generated": 3,
+              "color -- streamlit-generated": "sales",
+              "value -- streamlit-generated": 0.0
+            },
+            {
+              "index -- streamlit-generated": 0,
+              "color -- streamlit-generated": "cost",
+              "value -- streamlit-generated": 4.0
+            },
+            {
+              "index -- streamlit-generated": 1,
+              "color -- streamlit-generated": "cost",
+              "value -- streamlit-generated": 8.0
+            },
+            {
+              "index -- streamlit-generated": 2,
+              "color -- streamlit-generated": "cost",
+              "value -- streamlit-generated": null
+            },
+            {
+              "index -- streamlit-generated": 3,
+              "color -- streamlit-generated": "cost",
+              "value -- streamlit-generated": 2.0
+            }
+          ]
+        },
+        {
+          "file": "revision-0-view-3.bin",
+          "bytes": 840,
+          "sha256": "9218af65f3f72229a62a776cf76cf4a5e9c66a5002791b721e2ba3b7087b3eee",
+          "schema": "col -- streamlit-generated-0: large_string not null\ncol -- streamlit-generated-1: double",
+          "rows": [
+            {
+              "col -- streamlit-generated-0": "图书",
+              "col -- streamlit-generated-1": 12.0
+            },
+            {
+              "col -- streamlit-generated-0": "Café",
+              "col -- streamlit-generated-1": 24.0
+            },
+            {
+              "col -- streamlit-generated-0": "Music",
+              "col -- streamlit-generated-1": -3.0
+            },
+            {
+              "col -- streamlit-generated-0": "Toys",
+              "col -- streamlit-generated-1": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "revision": 1,
+      "connections": [
+        "6180.351"
+      ],
+      "reference_comparisons": [
+        {
+          "case": "table-default",
+          "names_types_rows_nulls_match_reference": true,
+          "every_dom_cell_matches_reference": true
+        },
+        {
+          "case": "table-explicit",
+          "names_types_rows_nulls_match_reference": true,
+          "every_dom_cell_matches_reference": true
+        },
+        {
+          "case": "bar-default",
+          "names_types_rows_nulls_match_reference": true,
+          "every_mark_value_label_matches_reference": true,
+          "complete_spec_matches_except_dataset_hash": true
+        },
+        {
+          "case": "bar-horizontal",
+          "names_types_rows_nulls_match_reference": true,
+          "every_mark_value_label_matches_reference": true,
+          "complete_spec_matches_except_dataset_hash": true
+        }
+      ],
+      "arrow": [
+        {
+          "file": "revision-1-view-0.bin",
+          "bytes": 1096,
+          "sha256": "77bd1f874ce423bd5c60ce45694027a4fe0880dfe06f4a06673e17d58ef2d6ec",
+          "schema": "group.name: large_string\namount[0]: int64\npath\\label: large_string",
+          "rows": [
+            {
+              "group.name": "图书",
+              "amount[0]": 13,
+              "path\\label": "普通"
+            },
+            {
+              "group.name": "Café",
+              "amount[0]": null,
+              "path\\label": "naïve"
+            },
+            {
+              "group.name": "**Music**",
+              "amount[0]": -3,
+              "path\\label": null
+            },
+            {
+              "group.name": null,
+              "amount[0]": 0,
+              "path\\label": "fin"
+            }
+          ]
+        },
+        {
+          "file": "revision-1-view-1.bin",
+          "bytes": 1736,
+          "sha256": "640e10158a4a8a6122d8cbb3b4d1a6416b22f83175f8c8953a4964e1adaf3d6f",
+          "schema": "group.name: large_string\namount[0]: int64\npath\\label: large_string\n-- schema metadata --\npandas: '{\"column_indexes\":[{\"field_name\":null,\"metadata\":{\"encoding\":\"UT' + 480",
+          "rows": [
+            {
+              "group.name": "图书",
+              "amount[0]": 13,
+              "path\\label": "普通"
+            },
+            {
+              "group.name": "Café",
+              "amount[0]": null,
+              "path\\label": "naïve"
+            },
+            {
+              "group.name": "**Music**",
+              "amount[0]": -3,
+              "path\\label": null
+            },
+            {
+              "group.name": null,
+              "amount[0]": 0,
+              "path\\label": "fin"
+            }
+          ]
+        },
+        {
+          "file": "revision-1-view-2.bin",
+          "bytes": 1160,
+          "sha256": "d0e78e863b2929f74e95661cf702867d7d1c6ac5ed8d9b4cfe549c3b4f06bb83",
+          "schema": "index -- streamlit-generated: int64 not null\ncolor -- streamlit-generated: large_string not null\nvalue -- streamlit-generated: double",
+          "rows": [
+            {
+              "index -- streamlit-generated": 0,
+              "color -- streamlit-generated": "sales",
+              "value -- streamlit-generated": 13.0
+            },
+            {
+              "index -- streamlit-generated": 1,
+              "color -- streamlit-generated": "sales",
+              "value -- streamlit-generated": 24.0
+            },
+            {
+              "index -- streamlit-generated": 2,
+              "color -- streamlit-generated": "sales",
+              "value -- streamlit-generated": -3.0
+            },
+            {
+              "index -- streamlit-generated": 3,
+              "color -- streamlit-generated": "sales",
+              "value -- streamlit-generated": 0.0
+            },
+            {
+              "index -- streamlit-generated": 0,
+              "color -- streamlit-generated": "cost",
+              "value -- streamlit-generated": 4.0
+            },
+            {
+              "index -- streamlit-generated": 1,
+              "color -- streamlit-generated": "cost",
+              "value -- streamlit-generated": 9.0
+            },
+            {
+              "index -- streamlit-generated": 2,
+              "color -- streamlit-generated": "cost",
+              "value -- streamlit-generated": null
+            },
+            {
+              "index -- streamlit-generated": 3,
+              "color -- streamlit-generated": "cost",
+              "value -- streamlit-generated": 2.0
+            }
+          ]
+        },
+        {
+          "file": "revision-1-view-3.bin",
+          "bytes": 840,
+          "sha256": "436f17989bed4d4ea6e7de6ae1d1302767f92427d628fbcc56702ae6dd6bc192",
+          "schema": "col -- streamlit-generated-0: large_string not null\ncol -- streamlit-generated-1: double",
+          "rows": [
+            {
+              "col -- streamlit-generated-0": "图书",
+              "col -- streamlit-generated-1": 13.0
+            },
+            {
+              "col -- streamlit-generated-0": "Café",
+              "col -- streamlit-generated-1": 24.0
+            },
+            {
+              "col -- streamlit-generated-0": "Music",
+              "col -- streamlit-generated-1": -3.0
+            },
+            {
+              "col -- streamlit-generated-0": "Toys",
+              "col -- streamlit-generated-1": null
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "notes": [
+    "Arrow nullable declarations and optional pandas metadata may differ; field names/types/values/nulls match.",
+    "First rust-native capture preserves the discovered explicit-index failure; this final capture verifies its correction.",
+    "Mixed Int64/Float64 beyond 2^53 deliberately errors in Rust; Python rounding is separately measured."
+  ],
+  "source_sha256": {
+    "streamlit\\src\\data_api.rs": "8876c12bb8ce69733f677332066046585ebd08bbf2b0d813ba1ebeb5c10be601",
+    "streamlit\\tests\\data\\mod.rs": "bd78d8c8829840bb51371b0bb7d1b71bf3801433e445a0319eb43428997be263",
+    "streamlit\\tests\\data\\native.rs": "d1ef11db41881dae66fd6856c8805a716c31e44ce23674c95a0d4688461d0248",
+    "streamlit\\tests\\runtime\\data_views.rs": "75fff06081bdb9dfa931583650864499021d1a61cd5e64f42930820c59d0c099",
+    "streamlit\\examples\\tables.rs": "e1922a02bd1167070f8f3904993f6114b9381f8790cb70c56f35f6d7a05d6ec1"
+  },
+  "freeze": {
+    "head": "1c6161d",
+    "production_changed": [
+      "streamlit/src/data_api.rs"
+    ],
+    "test_and_example_changed": [
+      "streamlit/tests/data/mod.rs",
+      "streamlit/tests/data/native.rs",
+      "streamlit/tests/runtime/data_views.rs",
+      "streamlit/examples/tables.rs"
+    ],
+    "reference_fixture": "tests/reference/table_app.py (untracked, excluded from previous phase commit)",
+    "committed": false
+  },
+  "gates": {
+    "cargo test -p streamlit --lib --locked data_api::tests": {
+      "exit": 0,
+      "passed": 16
+    },
+    "cargo test -p streamlit --lib --locked server::tests::data_views": {
+      "exit": 0,
+      "passed": 2
+    },
+    "cargo fmt --all -- --check": {
+      "exit": 0,
+      "log": "../fmt.log"
+    },
+    "cargo clippy --workspace --locked --all-targets -- -D warnings": {
+      "exit": 0,
+      "log": "../clippy.log",
+      "note": "Existing Windows linker_messages warning is printed by rustc; no lint allow or flags were added."
+    },
+    "cargo test --workspace --locked": {
+      "exit": 0,
+      "unit_tests": 63,
+      "doctests": 2,
+      "log": "../test.log"
+    },
+    "official_frontend_reference_comparison": {
+      "exit": 0,
+      "revisions": 2,
+      "views_per_revision": 4,
+      "same_websocket": true,
+      "real_button_trigger": true,
+      "all_values_compared": true
+    }
+  },
+  "partial_boundaries": [
+    "Native bar y series currently Int64/Float64; category arrays Int64/Float64/Utf8/LargeUtf8/Boolean. Other native bar types return errors.",
+    "Native options cover x/y, multiple series, horizontal, default/data-order sorting, side-by-side grouping and dimensions. Color rules, named-field sorting, other stack modes, labels, selection and advanced chart options are not claimed.",
+    "Table RecordBatch input supports measured border/hide index/hide header/dimensions/alt. Existing Arrow metadata is preserved. Explicit virtual row numbers add truthful RangeIndex interoperability metadata for primitive types; complex-type implicit index metadata returns an error. Styler and arbitrary Python input coercion are not implemented.",
+    "Empty/whitespace alt normalization and unmeasured data/parameter combinations remain unverified.",
+    "Mixed Int64/Float64 integer magnitude beyond 2^53 returns an error; actual Python rounds in the separately captured large-int oracle. This is a known compatibility gap.",
+    "Rust calls return Result<(), DataError>; no DeltaGenerator handle is exposed. Updates use existing session reruns."
+  ],
+  "usage": [
+    "st.table(&batch)?;",
+    "st.table(TableOptions::new(&batch).border(TableBorder::Horizontal).hide_index(false).width(480).height(220))?;",
+    "st.bar_chart(&numeric_batch)?;",
+    "st.bar_chart(BarChartOptions::native(&batch).x(\"group.name\").y(\"amount[0]\").horizontal(true).sort(false).height(260))?;"
+  ],
+  "metadata_provenance": {
+    "purpose": "The official frontend needs an Arrow index descriptor to render virtual row numbers when hide_index(false). Without one, first browser capture lacked the requested index.",
+    "public_arrow_docs": "https://arrow.apache.org/docs/python/pandas.html#handling-pandas-indexes",
+    "public_proto": "streamlit/proto/Table.proto",
+    "frontend_read_only_evidence": "www/static/js/pandasStylerUtils.CEhxV8Bo.js: public installed frontend reads pandas.index_columns range descriptors and columns/column_indexes; no Python framework implementation was read.",
+    "encoding": "Only for explicit visible row numbers on metadata-free native tables: add RangeIndex(start=0, stop=num_rows, step=1), column descriptors reflecting actual Arrow types, and a single column-index level. Preserve arrays and existing metadata; do not claim a pandas producer/version.",
+    "checks": "Final browser has 0..3 row headers; PyArrow open_stream and to_pandas recovered the unchanged values/nulls and RangeIndex. Existing custom index metadata passes through.",
+    "boundary": "Complex types without existing index metadata currently reject implicit visible-index generation."
+  },
+  "exports": "No Cargo/lib changes required: TableOptions/TableBorder and the added table method are in data_api, already exported by lib pub use data_api::*; DataApi is the existing public trait.",
+  "chart_spec_fingerprints": [
+    {
+      "revision": 0,
+      "forward_frame": 7,
+      "spec_utf8_sha256": "95568b2016b5988c77818a3a7abc90903bef2b2bd719761faf827b82e9a3a7bd",
+      "canonical_spec_normalizing_only_dataset_name_sha256": "ed3ab716019dec5807e3cea30d9ebd7bfbdd8cac44e0fddb83499974f0ef0f78",
+      "dataset_name": "d3322a24e18afa1ac8b43f3fa5660d05"
+    },
+    {
+      "revision": 0,
+      "forward_frame": 8,
+      "spec_utf8_sha256": "570b12a51fa7e26615ba51c43f06e14a030a80ed92fcff850bb39c5633cf7724",
+      "canonical_spec_normalizing_only_dataset_name_sha256": "f5eec854ff22695acbd15232d4674c1830fba8efc39dfcde291710d487a032ef",
+      "dataset_name": "b5c6176121695b7f8aa9dd9e81f4a3a2"
+    },
+    {
+      "revision": 1,
+      "forward_frame": 7,
+      "spec_utf8_sha256": "9dffb8ea46a9bffdf1fcccf51b7204ccdc475203ed6863fcc21d24e3b05917e1",
+      "canonical_spec_normalizing_only_dataset_name_sha256": "ed3ab716019dec5807e3cea30d9ebd7bfbdd8cac44e0fddb83499974f0ef0f78",
+      "dataset_name": "ae5f7cb485fa47910dcb1649f48a0195"
+    },
+    {
+      "revision": 1,
+      "forward_frame": 8,
+      "spec_utf8_sha256": "90b953851f186fec49c904ba7ea5c0741cfd66f836aaf6fe518c95d6f6e92d48",
+      "canonical_spec_normalizing_only_dataset_name_sha256": "f5eec854ff22695acbd15232d4674c1830fba8efc39dfcde291710d487a032ef",
+      "dataset_name": "bc8a5781b0504147384a3494b764d999"
+    }
+  ],
+  "proof_boundary": "8503 module candidate compared against Python8605. Not evidence for the future unified8501 candidate, which needs its own merged source/config/binary fingerprints and QA capture."
+}
