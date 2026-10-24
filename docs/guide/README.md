@@ -95,18 +95,11 @@ Form keys are unique among forms; explicit widget keys remain unique across the 
 
 Values inside the form are staged by the official frontend and sent together when the submit button is clicked. Typing without submitting does not rerun the app; `Apply` applies the note, and the external `Pulse` button can then rerun the page three times without losing it. The submit trigger is one-shot. `TextInputOptions::new("Note")` defaults to an empty string; `value_none()` makes the initial return value `None` while leaving the visible field empty.
 
-The pinned-reference capture also covers the specialized `Default`, `Password`, `Email`, `Url`, `Phone`, and `Search` input types, including their Material icons, placeholders, autocomplete values, and built-in Email/URL validation. It covers a custom validation message, 250&nbsp;ms live debounce, required and disabled inputs, `max_chars`, `clear_on_submit`, `enter_to_submit`, a disabled first submit button, multiple submit buttons, and independent forms with an external button. Browser validation is performed by the official frontend; security-sensitive application code must still validate submitted values on the server.
+See [TextInputOptions](../../streamlit/src/widget_api.rs) for text types, validation, debounce and presentation options. Browser validation is performed by the official frontend; security-sensitive application code must still validate submitted values on the server.
 
 Query binding and persistent hidden-widget state are not yet claimed complete. Form and submit-button layout fields beyond the measured defaults, Python exception UI parity, and full widget lifecycle/error parity also remain outside a complete compatibility claim.
 
-The reference captures above cover 25 cases on the Python 1.66.1 server. The Rust example has one recorded official-frontend browser journey: J05, with a default empty text field, editing without a rerun, one Apply, and three outside Pulse clicks while retaining the note. This is not Rust browser coverage of all 25 reference cases.
-
-| Public Rust capability | Current validation and limits |
-| --- | --- |
-| Basic form, text input and submit | Rust J05 browser capture plus native protocol tests. |
-| None/empty, clear, Enter policies, disabled or multiple submits | Python reference and Rust unit/protocol subsets; Rust browser comparison remains partial. |
-| Text types, validation, live, required, max_chars and presentation fields | Measured Python reference and Rust field/unit tests; Rust browser comparison remains partial. |
-| Container/column layouts and submit callbacks | Rust render/HTTP/WS tests and Python reference; Rust browser comparison remains partial. |
+The basic form flow is available; support beyond it remains partial. See [form validation scope](../../.codex/compatibility.md#forms-validation-scope) for the reference/Rust coverage and remaining limits.
 
 Duration strings currently support `0`, milliseconds such as `250ms`, and seconds such as `0.25s`, up to one minute. The example uses a fallible render helper and handles its error once. The CSV `data_app` also includes the Note form described below.
 

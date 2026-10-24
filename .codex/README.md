@@ -8,41 +8,13 @@ Verify the frozen role/model mapping with:
 python .codex/verify_roles.py
 ```
 
-Current CSV-completion stage: the app owner writes only `streamlit/examples/data_app.rs` and `docs/guide/README.md`; framework/Cargo/official bytes stay frozen.
-Carver owns shared journey criteria/tests and Popper owns the driver/real captures; preserve their files and the user's IDE deletions. The unverified multifile prototype is archived under ignored `target/checks/unverified-reference/` for future work. J04 has independently passed its complete three-step browser sequence. Hooke has independently closed the J07 row999/text-tamper counterexample; the four whole raw captures, 22 PNGs and 12 mutations passed. Hooke independently passed the guard, both Python-command identities and all three Chrome obs tests with zero skips. Forms/text input remain on the unmerged isolated branch and are not mainline capabilities. Follow the bounded order, versioned UI preparation proposals and final submission boundary in [acceptance](acceptance.md#remaining-first-release-journeys). Carver independently passed these documents and the explicit UI preparations; integrate these three documents as a separate documentation commit.
+## Shared artifacts and completion reports
 
-Positive-only checkpoint at commit `1c6161d`: the limited upload subset and data D1 fix have
-independently passed review. The native CSV example has three passing tests,
-including four captured Arrow results, malformed-input recovery and empty-schema
-handling. These are not browser error-recovery, empty-data or two-session E2E
-passes. At that historical checkpoint browser validation awaited the B1 fix;
-DELETE, cleanup and authorization remain partial. Freeze the guide and QA changes
-before the final workspace fmt/clippy/test, reference pytest, journey validation,
-affected Python compilation, local-link and diff checks. Do not commit before
-final independent review; preserve official frontend/protocol bytes.
+Assign exactly one writer to each shared whole-file artifact, including JSON manifests, matrices and generated summaries. Other agents supply proposed fragments or write only their assigned evidence directories; they must not concurrently rewrite the shared file. Transfer ownership explicitly before another writer applies changes.
 
-Historical upload review boundary at that checkpoint: another session's file ID cannot resolve through the
-current session's widget state, but HTTP PUT checks only whether the URL's session
-exists. A valid session accepts an unissued file ID (204); unknown-session PUT
-currently returns 500 and DELETE returns 405. Knowing another session ID may allow
-insertion/overwrite; requester/token authorization is absent. Clearing a widget
-does not release stored bytes or prevent ID reuse; no session-wide quota exists
-and expiry is lazy. These local observations are gaps, not upstream-compatible
-error/status or security promises. Keep core frozen pending the independent
-official-server HTTP/XSRF/DELETE/session oracle, then address the remaining scope.
+Match each completion/review report to its task submission, freeze and artifact identity: the agreed scope/base revision, exact paths and reviewed hashes. Preserve results for earlier submissions when a thread proceeds to another task; its latest message does not replace all preceding results. A completion report for one submission cannot approve a different artifact revision. Use the existing submission and freeze records rather than introducing a separate tracking framework.
 
-Current candidate: the bounded XSRF/DELETE fixes and native table/bar subset have
-independently passed review. The four whole raw/PNG/mutation checks, both command identities and three obs tests have passed with zero Chrome skips; final pytest/phase commit is in progress; no complete security or
-compatibility claim follows from these subset reviews.
-
-Build/check provenance for the current candidate: `rustc 1.98.0-nightly
-(54333ff07 2026-05-22)`, active toolchain `nightly-x86_64-pc-windows-msvc` (host
-default). No `rust-toolchain` or `rust-toolchain.toml` exists in the repository.
-Workspace locked tests (66 tests + 2 doctests), fmt check and all-targets strict
-clippy passed with unchanged Rust/Cargo inputs. This validates that nightly
-toolchain, not stable Rust or MSRV. Arrow 60 / actix-multipart 0.8.5 declare Rust
-1.88; this dependency declaration is not a workspace test on Rust 1.88. Existing
-gate logs are under ignored `target/checks/final-security-{fmt,tests,clippy}.log`.
+Current journey status and remaining steps live in [the journey manifest](../tests/journeys/journeys.json). Feature status/evidence and the captured scope live in [the compatibility matrix](../compatibility/api-compatibility-matrix.json) and [baseline](../compatibility/p0-baseline.json); use [acceptance](acceptance.md) for the checks and [architecture](architecture.md) for build/deployment constraints. Do not duplicate changing stage counts here or infer complete P0 acceptance from a subset PASS. Preserve official frontend/protocol bytes and the user's local changes.
 
 ## forms-text-input writer boundary
 
