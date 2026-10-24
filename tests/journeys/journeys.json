@@ -1508,34 +1508,242 @@
       "id": "J09",
       "title": "Reconnect and refresh semantics",
       "priority": "P0",
-      "status": "not_run",
+      "status": "failed",
       "steps": [
         {
           "id": "J09-S1",
           "action": "Open the application and inspect the WebSocket handshake.",
           "expectation": "The Sec-WebSocket-Protocol header has TWO entries on a fresh page load: 'streamlit' and the XSRF token. The third entry, the session id, is absent because the browser has never seen one; the server issues the session id in NewSession.initialize.session_id.",
-          "python_reference_trace": "tests/reference/reference-browser/reconnect/trace-reconnect.json"
+          "python_reference_trace": "tests/reference/reference-browser/journeys/j09-sequence/trace-data-loop.json",
+          "status": "passed",
+          "evidence_phase": "initial",
+          "rust_evidence": "tests/browser/rust-journeys/j09-sequence/trace-data-loop.json",
+          "screenshot": "tests/e2e/J09/J09-S1.png",
+          "screenshot_sha256": "79f4faa9c8a0df571cf1043d07a6db7c8cef25287583b45012fff693a13f59c6"
         },
         {
           "id": "J09-S2",
           "action": "Load the fixture, click Pulse twice, then close the live WebSocket from the page so the server sees a genuine disconnect, and let the frontend reconnect on its own.",
           "expectation": "The reconnect handshake carries THREE subprotocol entries: 'streamlit', the XSRF token and the session id. The reconnected session keeps the SAME session id, 'Pulses' still reads 2 and the uploaded data is still aggregated. The session is not recreated.",
-          "python_reference_trace": "tests/reference/reference-browser/reconnect/trace-reconnect.json"
+          "python_reference_trace": "tests/reference/reference-browser/journeys/j09-sequence/trace-data-loop.json",
+          "status": "passed",
+          "evidence_phase": "probe-category",
+          "rust_evidence": "tests/browser/rust-journeys/j09-sequence/trace-data-loop.json",
+          "screenshot": "tests/e2e/J09/J09-S2.png",
+          "screenshot_sha256": "65a7d080e431b8d06803256ec362d0100a0a073f3787cd8c44f3ef94e3e245c8",
+          "supporting_evidence_phases": [
+            "reconnect-observe"
+          ],
+          "supporting_screenshots": [
+            {
+              "side": "python",
+              "phase": "reconnect-observe",
+              "file": "tests/reference/reference-browser/journeys/j09-sequence/05-reconnect-observe.png",
+              "sha256": "be7dc29a0f001657f49f9ed5923ff2f4ff5fc8cbe07332e29ff3b8815afc2648"
+            },
+            {
+              "side": "python",
+              "phase": "probe-category",
+              "file": "tests/reference/reference-browser/journeys/j09-sequence/07-probe-category.png",
+              "sha256": "f03190ee902d7b986cb592e511f6a9b793a030c9572a4b3695d9e2e42055f524"
+            },
+            {
+              "side": "rust",
+              "phase": "reconnect-observe",
+              "file": "tests/browser/rust-journeys/j09-sequence/05-reconnect-observe.png",
+              "sha256": "44d692ddcc66cdbeb37f5ebfd00a03ae8503a3cbcbe4f6cedb69f1214a9a4d9a"
+            },
+            {
+              "side": "rust",
+              "phase": "probe-category",
+              "file": "tests/browser/rust-journeys/j09-sequence/07-probe-category.png",
+              "sha256": "65a7d080e431b8d06803256ec362d0100a0a073f3787cd8c44f3ef94e3e245c8"
+            }
+          ],
+          "preparation_phases": [
+            "upload-baseline",
+            "pulse-1",
+            "pulse-2",
+            "probe-region"
+          ],
+          "rust_result": "Real close/three-entry s0 reconnect and >=5s no-input observation; region then category UI probes prove successful e1 result with retained file and Pulses:2. These are separate observations, not a composite."
         },
         {
           "id": "J09-S3",
           "action": "Reload the page (F5).",
           "expectation": "A NEW session id is issued, 'Script runs' resets to 1, 'Pulses' resets to 0, the uploader is empty and the 'Upload a CSV to see the aggregated result.' info is shown again. The reload handshake carries only two entries, because the browser no longer holds the session id.",
-          "python_reference_trace": "tests/reference/reference-browser/refresh/trace-refresh.json"
+          "python_reference_trace": "tests/reference/reference-browser/journeys/j09-sequence/trace-data-loop.json",
+          "status": "passed",
+          "evidence_phase": "refresh",
+          "rust_evidence": "tests/browser/rust-journeys/j09-sequence/trace-data-loop.json",
+          "screenshot": "tests/e2e/J09/J09-S3.png",
+          "screenshot_sha256": "79f4faa9c8a0df571cf1043d07a6db7c8cef25287583b45012fff693a13f59c6"
         },
         {
           "id": "J09-S4",
           "action": "Optional and slow: drop the WebSocket, wait more than 120 seconds, then reconnect.",
           "expectation": "The stored session has expired, so the reconnect is treated as a new session: a new session id is issued and the state is gone. Deferred to a later phase because it costs a two-minute wait.",
-          "not_measured": "Not measured. The disconnected-session TTL expiry needs a wait longer than the storage TTL, so no reference trace exists for this step."
+          "not_measured": "Optional slow >120-second disconnected-session expiry was not measured. No TTL result, screenshot or S4 passed claim; S1-S3 coverage is not whole-J09 completion.",
+          "status": "not_run",
+          "optional": true
         }
       ],
-      "python_reference_trace": "tests/reference/reference-browser/reconnect/trace-reconnect.json"
+      "python_reference_trace": "tests/reference/reference-browser/journeys/j09-sequence/trace-data-loop.json",
+      "failure": {
+        "reason": "Bounded S1-S3 are independently verified; optional S4 remains not_run, so the complete four-step journey is not marked passed."
+      },
+      "attempt": {
+        "kind": "bounded_final_verification",
+        "command": "target/pyref-venv/Scripts/python.exe tests/browser/numeric_capture.py --replay tests/browser/rust-journeys/j09-sequence/trace-data-loop.json",
+        "exit_code": 0,
+        "python_command": "target/pyref-venv/Scripts/python.exe tests/browser/numeric_capture.py --replay tests/reference/reference-browser/journeys/j09-sequence/trace-data-loop.json",
+        "python_exit_code": 0
+      },
+      "capture_history": {
+        "python": {
+          "raw": "tests/reference/reference-browser/journeys/j09-sequence/trace-data-loop.json",
+          "raw_sha256": "b4d244ce30b918dcc5ff2f9a775863858faf9d6dced6c5df8afc0bc1e6b34b3d",
+          "execution_manifest": "tests/reference/reference-browser/journeys/j09-sequence/execution-manifest.json",
+          "frames": 161,
+          "counts_in_original_raw": {
+            "expected": 20,
+            "executed": 20,
+            "asserted": 20
+          },
+          "observed_process_exit_code": 0,
+          "driver_sha256_captured": "b79814e51bfb7206273ce5e0a7d518e44494098f037e9d7a55302cfad3816e24",
+          "criteria_sha256_captured": "46537c0dc56f5327662012dc4766b86536b990e7d7da4f8a9a416061c64c5aed"
+        },
+        "rust": {
+          "raw": "tests/browser/rust-journeys/j09-sequence/trace-data-loop.json",
+          "raw_sha256": "8fee2ebbeae60c08c5bb909622d85e72f0845fbf67308059a13d41159595d4ad",
+          "execution_manifest": "tests/browser/rust-journeys/j09-sequence/execution-manifest.json",
+          "frames": 154,
+          "counts_in_original_raw": {
+            "expected": 20,
+            "executed": 20,
+            "asserted": 20
+          },
+          "observed_process_exit_code": 0,
+          "driver_sha256_captured": "15b606fe8a2076286d7082d55ccac885f1ae61249967093bc769edc8db312f9d",
+          "criteria_sha256_captured": "46537c0dc56f5327662012dc4766b86536b990e7d7da4f8a9a416061c64c5aed"
+        }
+      },
+      "verification": {
+        "method": "Actual official frontend HTTP/WS/protobuf/Arrow/DOM/PNG capture, independent Hooke bounded S1-S3 review and read-only formal replay. S4 excluded.",
+        "covered_steps": [
+          "J09-S1",
+          "J09-S2",
+          "J09-S3"
+        ],
+        "unmeasured_steps": [
+          "J09-S4"
+        ],
+        "criteria_sha256": "46537c0dc56f5327662012dc4766b86536b990e7d7da4f8a9a416061c64c5aed",
+        "driver_sha256": "15b606fe8a2076286d7082d55ccac885f1ae61249967093bc769edc8db312f9d",
+        "expected": 20,
+        "executed": 20,
+        "asserted": 20,
+        "scope": "Mandatory S1-S3 verified; optional slow S4 explicitly not_run/unmeasured; whole four-step J09 is not passed."
+      },
+      "waived_evidence": [
+        {
+          "artifact": "tests/e2e/J09/J09-S4.png",
+          "reason": "Optional slow >120-second disconnected-session expiry was not measured. No TTL result, screenshot or S4 passed claim; S1-S3 coverage is not whole-J09 completion. This records an unfinished requirement, not a permanent exemption."
+        }
+      ],
+      "preparation_contract": {
+        "version": "journey-j09-reconnect-v1",
+        "note": "Both actual plans are ui-probe, eight continuous phases. The 5-second observation alone is not a new-result proof; category restoration on e1 provides that proof. All original PNGs remain.",
+        "phases": [
+          {
+            "phase": "upload-baseline",
+            "role": "preparation",
+            "screenshots": {
+              "python": [
+                "tests/reference/reference-browser/journeys/j09-sequence/02-upload-baseline.png"
+              ],
+              "rust": [
+                "tests/browser/rust-journeys/j09-sequence/02-upload-baseline.png"
+              ]
+            }
+          },
+          {
+            "phase": "pulse-1",
+            "role": "preparation",
+            "screenshots": {
+              "python": [
+                "tests/reference/reference-browser/journeys/j09-sequence/03-pulse-1.png"
+              ],
+              "rust": [
+                "tests/browser/rust-journeys/j09-sequence/03-pulse-1.png"
+              ]
+            }
+          },
+          {
+            "phase": "pulse-2",
+            "role": "preparation",
+            "screenshots": {
+              "python": [
+                "tests/reference/reference-browser/journeys/j09-sequence/04-pulse-2.png"
+              ],
+              "rust": [
+                "tests/browser/rust-journeys/j09-sequence/04-pulse-2.png"
+              ]
+            }
+          },
+          {
+            "phase": "probe-region",
+            "role": "preparation",
+            "screenshots": {
+              "python": [
+                "tests/reference/reference-browser/journeys/j09-sequence/06-probe-region.png"
+              ],
+              "rust": [
+                "tests/browser/rust-journeys/j09-sequence/06-probe-region.png"
+              ]
+            }
+          }
+        ]
+      },
+      "candidate": "tests/browser/rust-journeys/j00-sequence/candidate/candidate.json",
+      "linked_artifacts": [
+        "tests/browser/rust-journeys/j00-sequence/candidate/candidate.json",
+        "tests/browser/rust-journeys/j00-sequence/candidate/launch-config.json",
+        "tests/browser/rust-journeys/j00-sequence/candidate/source-snapshot/repo/streamlit/examples/data_app.rs",
+        "tests/browser/rust-journeys/j09-sequence/01-initial.png",
+        "tests/browser/rust-journeys/j09-sequence/02-upload-baseline.png",
+        "tests/browser/rust-journeys/j09-sequence/03-pulse-1.png",
+        "tests/browser/rust-journeys/j09-sequence/04-pulse-2.png",
+        "tests/browser/rust-journeys/j09-sequence/05-reconnect-observe.png",
+        "tests/browser/rust-journeys/j09-sequence/06-probe-region.png",
+        "tests/browser/rust-journeys/j09-sequence/07-probe-category.png",
+        "tests/browser/rust-journeys/j09-sequence/08-refresh.png",
+        "tests/browser/rust-journeys/j09-sequence/arrow-1.bin",
+        "tests/browser/rust-journeys/j09-sequence/arrow-2.bin",
+        "tests/browser/rust-journeys/j09-sequence/capture-source/capture_browser_trace.py",
+        "tests/browser/rust-journeys/j09-sequence/capture-source/numeric_capture.py",
+        "tests/browser/rust-journeys/j09-sequence/execution-manifest.json",
+        "tests/browser/rust-journeys/j09-sequence/trace-data-loop.json",
+        "tests/browser/rust-journeys/j09-sequence/verification.json",
+        "tests/e2e/J09/J09-S1.png",
+        "tests/e2e/J09/J09-S2.png",
+        "tests/e2e/J09/J09-S3.png",
+        "tests/reference/reference-browser/journeys/j09-sequence/01-initial.png",
+        "tests/reference/reference-browser/journeys/j09-sequence/02-upload-baseline.png",
+        "tests/reference/reference-browser/journeys/j09-sequence/03-pulse-1.png",
+        "tests/reference/reference-browser/journeys/j09-sequence/04-pulse-2.png",
+        "tests/reference/reference-browser/journeys/j09-sequence/05-reconnect-observe.png",
+        "tests/reference/reference-browser/journeys/j09-sequence/06-probe-region.png",
+        "tests/reference/reference-browser/journeys/j09-sequence/07-probe-category.png",
+        "tests/reference/reference-browser/journeys/j09-sequence/08-refresh.png",
+        "tests/reference/reference-browser/journeys/j09-sequence/arrow-1.bin",
+        "tests/reference/reference-browser/journeys/j09-sequence/arrow-2.bin",
+        "tests/reference/reference-browser/journeys/j09-sequence/capture-source/capture_browser_trace.py",
+        "tests/reference/reference-browser/journeys/j09-sequence/capture-source/numeric_capture.py",
+        "tests/reference/reference-browser/journeys/j09-sequence/execution-manifest.json",
+        "tests/reference/reference-browser/journeys/j09-sequence/trace-data-loop.json"
+      ]
     }
   ]
 }

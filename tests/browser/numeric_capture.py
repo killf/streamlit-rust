@@ -38,6 +38,11 @@ from capture_browser_trace import (  # noqa: E402
     J00_CASE, J00_CONTRACT, J00_PHASES, J00_INPUTS, J00_ACTIONS, J00_PNG_ROLES, j00_checks,
     J06_CASE, J06_CONTRACT, J06_PHASES, J06_INPUTS, J06_ACTIONS, J06_MODES,
     J06_PNG_ROLES, J06_OBSERVATION_FIELDS, j06_checks, _j06_materialize_frames,
+    J09_CASE, J09_CONTRACT, J09_AUTO_OBSERVE_SECONDS, J09_PREFIX, J09_PHASES,
+    J09_INPUTS, J09_ACTIONS, J09_PNG_ROLES, J09_REQUIRED, J09_OBSERVATION_FIELDS, j09_checks,
+    _j09_materialize_frames, _j09_close_success,
+    J01_EXPECTED_ROWS, _stage2_static_view, _stage2_typed_controls,
+    _stage2_specific_alerts, _j06_empty, _same_cell_value,
 )
 
 from capture_browser_trace import (  # noqa: E402
@@ -134,6 +139,7 @@ JOURNEYS = (
     J02_CASE,
     J00_CASE,
     J06_CASE,
+    J09_CASE,
 )
 
 
@@ -2938,6 +2944,384 @@ def run_isolation_journey(args, out):
     return result
 
 
+def _reconnect_tab(state):
+    """A reconnect shares its actual Document, not a fabricated navigation."""
+    tab = _isolation_tab(state)
+    events = tab["events"]
+    documents = [i for i,e in enumerate(events) if e.get("method") == "Network.requestWillBeSent"
+                 and e.get("params",{}).get("type") == "Document"]
+    handshakes = [i for i,e in enumerate(events) if e.get("method") == "Network.webSocketWillSendHandshakeRequest"]
+    epochs = []
+    for number,hi in enumerate(handshakes):
+        request = events[hi]["params"]["requestId"]
+        docs = [i for i in documents if i < hi]
+        responses = [i for i,e in enumerate(events) if e.get("method") == "Network.webSocketHandshakeResponseReceived"
+                     and e.get("params",{}).get("requestId") == request]
+        if not docs or not responses:
+            continue
+        document = docs[-1]
+        new_document = not epochs or epochs[-1]["document_event"] != document
+        nav_number = documents.index(document)
+        epochs.append(dict(id="e"+str(number),connection=number,request_id=request,document_event=document,
+                           navigation_event=document if new_document else None,
+                           navigation_timestamp=state["navigations"][nav_number] if new_document else None,
+                           handshake_event=hi,response_event=responses[0]))
+    tab["epochs"] = epochs
+    return tab
+
+
+def _reconnect_frames(state,page):
+    # Explicit dependency until the separately owned reader signature lands.
+    # Never substitute J06's per-connection cache for a document cache.
+    reader = state.get("materialize")
+    if not callable(reader):
+        raise RuntimeError("canonical J09 document reader is not wired")
+    return reader(page)
+
+
+def _reconnect_ready(state,frames,window,dom,mode):
+    """Target-run wire + complete painted result, reusing reviewed checks."""
+    deltas=[f["decoded"]["delta"] for f in frames[window["run"]:window["end"]]
+            if f["decoded"].get("type")=="delta"]
+    for label,key in (("Script runs","script_runs"),("Pulses","pulses")):
+        values=[int(m[1]) for d in deltas if d.get("element") in ("text","markdown")
+                and isinstance(d.get("body"),str) and (m:=re.fullmatch(re.escape(label)+r":\s*(\d+)",d["body"].strip()))]
+        if len(values)!=1 or _isolation_counter(dom.get(key))!=values[0]:
+            raise ValueError("actual DOM counter is not its target-run counter: "+key)
+    if mode in ("initial","refresh"):
+        _j06_empty({"deltas":deltas},dom)
+        return
+    group=J09_ACTIONS[mode].get("option","category") if mode in J09_ACTIONS else "category" if mode=="natural" else None
+    if group not in ("category","region"):
+        raise ValueError("unknown J09 readiness group")
+    if (dom.get("uploaded_files")!=["sales_basic.csv"] or dom.get("selectbox_value")!=group or
+            not _same_cell_value(0,dom.get("slider_value")) or dom.get("checkbox_checked") is not True):
+        raise ValueError("actual DOM file/controls not at target values")
+    clients=[f["decoded"]["rerun_script"].get("widget_states") for f in frames[window["start"]:window["run"]]
+             if f["decoded"].get("type")=="rerun_script"]
+    if clients:
+        filtered=[v for v in clients[-1] if not (v.get("value_field")=="trigger_value" and v.get("value") is True)]
+        _stage2_typed_controls(deltas,filtered,dom,group=group)
+    _stage2_specific_alerts(deltas,dom,[])
+    expected=[dict(group_key=k,row_count=n,total_amount=float(t),avg_amount=float(a))
+              for k,n,t,a in J01_EXPECTED_ROWS["group-region" if group=="region" else "upload-baseline"]]
+    phase=_phase("readiness",{},frames,window["start"],window["end"],None,dom,state["arrows"])
+    _stage2_static_view({"ipc_dir":state["ipc_dir"]},phase,{"deltas":deltas},expected_rows=expected)
+
+
+def _reconnect_wait(state,start,mode,filename=None,timeout=45):
+    deadline = time.monotonic()+timeout
+    while time.monotonic() < deadline:
+        dom = _isolation_read(state)
+        tab = _reconnect_tab(state)
+        if tab["frames"]:
+            frames = _reconnect_frames(state,tab)
+            window = (_upload_window(frames,start,filename,state["namespace"]) if filename else
+                      _reconnect_window(frames,start,natural=mode=="natural"))
+            if window:
+                try:
+                    _reconnect_ready(state,frames,window,dom,mode)
+                except ValueError as exc:
+                    state["readiness_error"] = str(exc)
+                else:
+                    return window
+        time.sleep(.1)
+    raise RuntimeError("J09 target completion/actual DOM timeout: "+mode)
+
+
+def _reconnect_window(frames,start,*,natural=False):
+    if not natural:
+        return _run_window(frames,start)
+    # Natural reconnect output may start at NewSession with no client state.
+    # The actual successful server run still needs its own same-socket finish.
+    markers=[i for i in range(start,len(frames)) if (frames[i].get("decoded") or {}).get("type")=="new_session"]
+    if len(markers)!=1:
+        return None
+    run=markers[0];identity=(frames[run].get("connection"),frames[run].get("request_id"))
+    if identity[0] is None or identity[1] is None:
+        return None
+    for i in range(run+1,len(frames)):
+        frame=frames[i];decoded=frame.get("decoded") or {}
+        if decoded.get("type")=="script_finished":
+            if (frame.get("connection"),frame.get("request_id"))!=identity or decoded.get("script_finished",{}).get("status")!=0:
+                return None
+            return dict(start=start,run=run,finish=i,end=i+1)
+    return None
+
+
+def _reconnect_observe(state,start,timeout=45):
+    recorder = state["recorder"]
+    before = _reconnect_tab(state)
+    if len(before["epochs"]) != 1:
+        raise RuntimeError("socket-close action requires exactly one established epoch")
+    old_request = before["epochs"][0]["request_id"]
+    command = _isolation_clock(recorder)
+    result = recorder.call("Runtime.evaluate",{
+        "expression":"window.__stWs ? (window.__stWs.close(), 'closed') : 'no socket'", "returnByValue":True})
+    completed = _isolation_clock(recorder)
+    close = dict(request_id=old_request,command_timestamp=command,completed_timestamp=completed,
+                 evaluation_result=result,closed_event=None)
+    # Preserve the command result even if the actual close/handshake never arrives.
+    state["close"] = close
+    if not _j09_close_success(result):
+        raise RuntimeError("actual live WebSocket close hook failed")
+    deadline = time.monotonic()+timeout
+    observation = None
+    while time.monotonic() < deadline:
+        _isolation_read(state)
+        tab = _reconnect_tab(state)
+        closed = [i for i,e in enumerate(tab["events"]) if e.get("method")=="Network.webSocketClosed"
+                  and e.get("params",{}).get("requestId")==old_request]
+        if closed:
+            close["closed_event"] = closed[0]
+        if closed and len(tab["epochs"]) == 2:
+            epoch = tab["epochs"][1]
+            response = tab["events"][epoch["response_event"]]["params"]
+            if response["response"].get("status") != 101:
+                raise RuntimeError("reconnect handshake was not HTTP101")
+            if observation is None:
+                observation = dict(start_timestamp=response["timestamp"],end_timestamp=None)
+                state["auto_observation"] = observation
+            now = _isolation_clock(recorder)
+            if now >= observation["start_timestamp"]+J09_AUTO_OBSERVE_SECONDS:
+                observation["end_timestamp"] = now
+                frames = _reconnect_frames(state,tab)
+                fresh = [f for f in frames if f["request_id"]==epoch["request_id"]]
+                started = any(f["decoded"].get("type") not in ("app_heartbeat","heartbeat_ack","session_status_changed") or
+                              f["decoded"].get("session_status_changed",{}).get("script_is_running") for f in fresh)
+                if started:
+                    # A pending or failed natural run cannot be concealed by
+                    # selecting the no-run branch and sending a new UI action.
+                    _reconnect_wait(state,start,"natural")
+                    observation["end_timestamp"] = _isolation_clock(recorder)
+                    return "natural",close,observation
+                return "ui-probe",close,observation
+        time.sleep(.1)
+    raise RuntimeError("actual close/reconnect101 observation timeout")
+
+
+def _reconnect_e1_activity(state,tab=None):
+    """Inspect the entire recovered socket lifetime, never a phase suffix."""
+    tab = _reconnect_tab(state) if tab is None else tab
+    epochs = [e for e in tab["epochs"] if e["id"]=="e1"]
+    if not epochs:
+        return False,None
+    frames = _reconnect_frames(state,tab)
+    indices = [i for i,f in enumerate(frames) if f["request_id"]==epochs[0]["request_id"]]
+    active = any(frames[i]["decoded"].get("type") not in ("app_heartbeat","heartbeat_ack","session_status_changed") or
+                 frames[i]["decoded"].get("session_status_changed",{}).get("script_is_running") for i in indices)
+    return active,indices[0] if indices else None
+
+
+def _reconnect_await_natural(state,start):
+    state["plan"]="natural"
+    window = _reconnect_wait(state,start,"natural")
+    # Do not trust an incomplete readiness result, including in a transport
+    # double. A real successful target on e1 must be present before any input.
+    frames = _reconnect_frames(state,_reconnect_tab(state))
+    if window is None or _reconnect_window(frames,start,natural=True) is None:
+        raise RuntimeError("pending/failed natural run has no successful completion; no probe or refresh")
+    state["auto_observation"]["end_timestamp"]=_isolation_clock(state["recorder"])
+
+
+def _reconnect_phase(state,name,action,before,read_start,checkpoint,arrows):
+    after = _isolation_read(state)
+    read_end = _isolation_clock(state["recorder"])
+    tab = _reconnect_tab(state)
+    if name==J09_PREFIX[-1] and state["plan"]=="ui-probe":
+        active,natural_start = _reconnect_e1_activity(state,tab)
+        if active:
+            _reconnect_await_natural(state,natural_start)
+            # Re-read the actual rendered result and end clock after completion.
+            return _reconnect_phase(state,name,action,before,read_start,checkpoint,arrows)
+    frames = _reconnect_frames(state,tab)
+    start = sum(f["timestamp"] <= read_start for f in frames)
+    end = sum(f["timestamp"] <= read_end for f in frames)
+    epoch = tab["epochs"][-1]["id"]
+    phase = _phase(name,action,frames,start,end,before,after,arrows)
+    no_run = name==J09_PREFIX[-1] and state["plan"]=="ui-probe"
+    if not no_run:
+        window = _reconnect_window(frames,start,natural=name==J09_PREFIX[-1])
+        if window is None or window["end"] > end:
+            raise RuntimeError("J09 phase has no complete target run inside its DOM interval")
+        _reconnect_ready(state,frames,window,after,"natural" if name==J09_PREFIX[-1] else name)
+        checkpoint = dict(epoch=epoch,script_run_id=_run_id(frames,window),finish_frame=window["finish"])
+    phase.update(epoch=epoch,read_start_timestamp=read_start,read_end_timestamp=read_end,checkpoint=checkpoint)
+    return phase
+
+
+def _reconnect_store_phase(state,observation,out,arrows,index,name,action,before,read_start,checkpoint,at):
+    phase=_reconnect_phase(state,name,action,before,read_start,checkpoint,arrows)
+    phase["action_timestamp"]=at
+    if name==J09_PREFIX[-1]:phase.update(close=state["close"],auto_observation=state["auto_observation"])
+    if index<len(observation["phases"]):observation["phases"][index]=phase
+    else:observation["phases"].append(phase)
+    file=f"{index+1:02d}-{name}.png"
+    if not state["page"].screenshot(out/file,restore=False):raise RuntimeError("actual screenshot failed")
+    shot=dict(phase=name,namespace=state["namespace"],epoch=phase["epoch"],file=file,
+        sha256=hashlib.sha256((out/file).read_bytes()).hexdigest(),timestamp=_isolation_clock(state["recorder"]),
+        step_ids=list(J09_PNG_ROLES[name]),role="preparation")
+    if index<len(observation["screenshots"]):observation["screenshots"][index]=shot
+    else:observation["screenshots"].append(shot)
+    phase["observation_end_timestamp"]=_isolation_clock(state["recorder"])
+    return phase
+
+
+def _reconnect_select(page,action):
+    # Pulse can leave the page scrolled below Group by. Reuse the reviewed
+    # scroll/rectangle/real-mouse path, never a JS click or synthetic state.
+    root = "[...document.querySelectorAll('[data-testid=stSelectbox]')].find(e=>e.textContent.includes("+json.dumps(action["label"])+"))"
+    if not page.click_visible("("+root+")?.querySelector(\"button[aria-label='Open']\")"):
+        return False
+    deadline=time.monotonic()+6
+    while time.monotonic()<deadline:
+        if page.option_rect(action["option"]):
+            option="[...document.querySelectorAll('[role=option]')].find(e=>e.textContent.trim()==="+json.dumps(action["option"])+")"
+            return bool(page.click_visible(option))
+        time.sleep(.1)
+    return False
+
+
+def _reconnect_promote(state,observation,out,arrows,index,pending):
+    active,start=_reconnect_e1_activity(state)
+    if not active:
+        return None
+    _reconnect_await_natural(state,start)
+    old=observation["phases"][-1]
+    phase=_reconnect_store_phase(state,observation,out,arrows,index-1,old["name"],old["action"],
+        old["dom_before"],old["read_start_timestamp"],observation["phases"][-2]["checkpoint"],old["action_timestamp"])
+    observation["plan"]="natural"
+    pending[index:]=J09_PHASES["natural"][len(J09_PREFIX):]
+    return phase["checkpoint"]
+
+
+def run_reconnect_journey(args,out,*,materialize=_j09_materialize_frames):
+    """One owned page, real close, bounded no-input observation, then F5."""
+    observation = dict(journey=J09_CASE,contract=J09_CONTRACT,plan=None,url=args.url,ipc_dir=str(out.resolve()),page={},phases=[],screenshots=[])
+    manifest = dict(executable=sys.executable,argv=list(sys.argv[1:]),cwd=str(pathlib.Path.cwd()),started_unix=time.time(),exit_code=None)
+    state,original,error,current = None,None,None,None
+    arrows,checkpoint = _ArrowFiles(out),None
+    try:
+        source_dir=out/"capture-source";source_dir.mkdir(exist_ok=True)
+        observation["capture_sources"]={}
+        for name,data in CAPTURE_SOURCE_BYTES.items():
+            (source_dir/name).write_bytes(data)
+            observation["capture_sources"][name]=dict(file="capture-source/"+name,sha256=hashlib.sha256(data).hexdigest())
+        observation["capture_head"]=_git_head();manifest["capture_head"]=observation["capture_head"]
+        fixture=ROOT/"tests/reference/app.py"
+        observation["reference_fixture"]=dict(file=str(fixture),sha256=hashlib.sha256(fixture.read_bytes()).hexdigest())
+        if not callable(materialize):
+            raise RuntimeError("canonical J09 document reader is not wired; browser capture not started")
+        original=http_json(f"http://127.0.0.1:{args.port}/json/list")
+        if not isinstance(original,list) or any(not isinstance(t,dict) or not t.get("id") for t in original):
+            raise RuntimeError("cannot establish browser ownership inventory")
+        manifest["targets_before_count"]=len(original)
+        observation["target_inventory_before"]=[{k:t.get(k) for k in ("id","type","url")} for t in original]
+        _write_trace(out/"execution-manifest.json",manifest)
+        created=http_json(f"http://127.0.0.1:{args.port}/json/new?about:blank",method="PUT")
+        ident=created.get("id") if isinstance(created,dict) else None
+        if not isinstance(ident,str) or not ident or ident in {t["id"] for t in original}:
+            raise RuntimeError("new target ID missing or preexisting; refusing attachment/cleanup")
+        listing=http_json(f"http://127.0.0.1:{args.port}/json/list")
+        matches=[t for t in listing if t.get("id")==ident] if isinstance(listing,list) else []
+        if len(matches)!=1 or matches[0].get("type")!="page" or matches[0].get("url")!="about:blank" or not created.get("webSocketDebuggerUrl") or matches[0].get("webSocketDebuggerUrl")!=created["webSocketDebuggerUrl"]:
+            raise RuntimeError("fresh blank target ownership unverified; refusing attachment/cleanup")
+        state=dict(key="a",target_id=ident,namespace=args.label,navigations=[],materialize=materialize,
+                   arrows=arrows,ipc_dir=str(out.resolve()))
+        recorder=CDP(created["webSocketDebuggerUrl"],label=args.label);state.update(recorder=recorder,page=Page(recorder))
+        recorder.start();recorder.call("Performance.enable");state["started"]=_isolation_clock(recorder)
+        recorder.call("Emulation.setDeviceMetricsOverride",{"width":1264,"height":1800,"deviceScaleFactor":1,"mobile":False})
+        # Same scoped native-socket hook used in the observed old reconnect tool.
+        hook="window.__stWs=null;const _W=window.WebSocket;window.WebSocket=function(...a){const s=new _W(...a);window.__stWs=s;return s;};window.WebSocket.prototype=_W.prototype;"
+        observation["socket_hook"]=dict(source=hook,result=recorder.call("Page.addScriptToEvaluateOnNewDocument",{"source":hook}))
+        pending=list(J09_PREFIX)
+        number=0
+        while number<len(pending):
+            name=pending[number]
+            current=name
+            if name==J09_PHASES["ui-probe"][len(J09_PREFIX)]:
+                checkpoint_new=_reconnect_promote(state,observation,out,arrows,number,pending)
+                if checkpoint_new:
+                    checkpoint=checkpoint_new
+                    continue
+            before=None if number==0 else _isolation_read(state)
+            read_start=_isolation_clock(recorder)
+            start=len(frames_of(recorder,raw=True))
+            action=dict(J09_ACTIONS[name]);action["ok"]=True
+            at=_isolation_clock(recorder)
+            if action["action"] in ("initial","refresh"):
+                state["navigations"].append(_isolation_clock(recorder))
+                result=recorder.call("Page.navigate",{"url":args.url}) if name==J09_PREFIX[0] else recorder.call("Page.reload",{"ignoreCache":False})
+                action["ok"]="error" not in result and "errorText" not in result.get("result",{})
+            elif name in J09_INPUTS:
+                path=ROOT/"tests/fixtures/csv"/J09_INPUTS[name];action.update(_file_fingerprint(path))
+                action["ok"]=bool(state["page"].upload(str(path.resolve())))
+            elif action["action"]=="pulse":
+                action["ok"]=bool(state["page"].click_visible(PULSE_JS))
+            elif action["action"]=="select-option":
+                if name==J09_PHASES["ui-probe"][len(J09_PREFIX)]:
+                    # Recheck after the actual pre-action DOM read too.
+                    checkpoint_new=_reconnect_promote(state,observation,out,arrows,number,pending)
+                    if checkpoint_new:
+                        checkpoint=checkpoint_new
+                        continue
+                action["ok"]=_reconnect_select(state["page"],action)
+            elif action["action"]=="close-websocket":
+                plan,close,auto=_reconnect_observe(state,start)
+                at=close["command_timestamp"]
+                state["plan"]=plan;observation["plan"]=plan
+                pending.extend(J09_PHASES[plan][len(J09_PREFIX):])
+            else:
+                raise RuntimeError("unsupported shared J09 action")
+            if not action["ok"]:
+                raise RuntimeError("real UI action failed: "+name)
+            if action["action"]!="close-websocket":
+                _reconnect_wait(state,start,name,J09_INPUTS.get(name))
+            if number==0:
+                observation["initial_new_sessions"]=_isolation_runtime(_reconnect_tab(state),reference=args.scope=="PYTHON SIDE ONLY")
+            phase=_reconnect_store_phase(state,observation,out,arrows,number,name,action,before,read_start,checkpoint,at)
+            checkpoint=phase["checkpoint"]
+            if name==J09_PREFIX[-1]:
+                observation["plan"]=state["plan"]
+                pending[len(J09_PREFIX):]=J09_PHASES[state["plan"]][len(J09_PREFIX):]
+            observation["page"]=_reconnect_tab(state)
+            _write_case(out,args,observation,J09_CASE,dict(completed_phases=number+1))
+            number+=1
+    except Exception as exc:
+        error=f"{type(exc).__name__}: {exc}"
+    finally:
+        if state:
+            if "plan" in state:observation["plan"]=state["plan"]
+            try:_isolation_read(state)
+            except Exception as exc:error=(error or "")+f"; last DOM: {exc}"
+            observation["diagnostics"]={k:state[k] for k in ("last_dom_read","last_dom_read_error","readiness_error","close","auto_observation") if k in state}
+            try:observation["page"]=_reconnect_tab(state)
+            except Exception as exc:
+                observation["page"]=dict(namespace=state["namespace"],events=state["recorder"].take(),frames=frames_of(state["recorder"],state["namespace"],raw=True))
+                error=(error or "")+f"; snapshot: {exc}"
+            if any(f.get("decode_error") or (f.get("decoded") or {}).get("message")=="undecoded" for f in observation["page"].get("frames",[])):
+                error=(error or "")+"; raw decode failure (original retained)"
+            try:state["recorder"].stop()
+            except Exception as exc:error=(error or "")+f"; recorder stop: {exc}"
+            try:observation["target_cleanup"]=_close_owned_target(args.port,state["target_id"])
+            except Exception as exc:error=(error or "")+f"; owned target cleanup: {exc}"
+        try:
+            final=http_json(f"http://127.0.0.1:{args.port}/json/list")
+            if not isinstance(final,list) or any(not isinstance(t,dict) or not t.get("id") for t in final):raise RuntimeError("invalid final inventory")
+            manifest["targets_after_count"]=len(final)
+            if original is not None:
+                manifest["original_targets_unchanged"]=sorted((t["id"],t.get("type")) for t in original)==sorted((t["id"],t.get("type")) for t in final)
+                if not manifest["original_targets_unchanged"]:error=(error or "")+"; original browser targets changed"
+        except Exception as exc:error=(error or "")+f"; final inventory: {exc}"
+    summary=dict(completed_phases=len(observation["phases"]),failed_phase=current if error else None,producer_error=error)
+    if error:
+        failure=dict(check="producer_exception",actual=error,ok=False)
+        result=_write_case(out,args,observation,J09_CASE,summary,dict(checks=[failure],failures=[failure],counts=dict(expected=len(J09_REQUIRED),executed=0,asserted=0)))
+    else:result=_write_case(out,args,observation,J09_CASE,summary,lambda:_judge_sequence(J09_CASE,observation))
+    manifest.update(exit_code=result,finished_unix=time.time());_write_trace(out/"execution-manifest.json",manifest)
+    return result
+
+
 def _judge_sequence(name, observation):
     """The shared criterion of the whole journey, or the closed door.
 
@@ -2945,7 +3329,7 @@ def _judge_sequence(name, observation):
     written first, so the evidence is on the disk, and the verdict says that
     nothing was judged.
     """
-    criterion = {J06_CASE:j06_checks, J00_CASE: j00_checks, J01_CASE: j01_checks, J02_CASE: j02_checks, J03_CASE: j03_checks}.get(name, sequence_checks)
+    criterion = {J09_CASE:j09_checks, J06_CASE:j06_checks, J00_CASE: j00_checks, J01_CASE: j01_checks, J02_CASE: j02_checks, J03_CASE: j03_checks}.get(name, sequence_checks)
     if criterion is None:
         checks = [
             {
@@ -2978,6 +3362,7 @@ JOURNEY_RUNNERS = {
     J02_CASE: run_sequence_journey,
     J00_CASE: run_sequence_journey,
     J06_CASE: run_isolation_journey,
+    J09_CASE: run_reconnect_journey,
 }
 
 
@@ -2989,7 +3374,7 @@ def replay_sequence(path) -> int:
         trace = json.loads(original)
         name = trace.get("journey")
         observation = trace.get("observation")
-        if (JOURNEY_RUNNERS.get(name) not in (run_sequence_journey,run_isolation_journey) or
+        if (JOURNEY_RUNNERS.get(name) not in (run_sequence_journey,run_isolation_journey,run_reconnect_journey) or
                 trace.get("case") != name or not isinstance(observation, dict) or
                 observation.get("journey") != name):
             raise ValueError("missing, unsupported or contradictory sequence identity")
@@ -3054,10 +3439,10 @@ def main() -> int:
     out = pathlib.Path(args.out or f"target/numeric-{args.label}")
     out.mkdir(parents=True, exist_ok=True)
 
-    if args.journey == J06_CASE:
+    if args.journey in (J06_CASE,J09_CASE):
         if args.case != "data-loop":
-            parser.error("J06 requires --case data-loop")
-        return run_isolation_journey(args,out)
+            parser.error("sequence requires --case data-loop")
+        return JOURNEY_RUNNERS[args.journey](args,out)
 
     version = http_json(f"http://127.0.0.1:{args.port}/json/version")
     # The tab is opened for this capture and the recorder is bound to that

@@ -416,6 +416,396 @@ def test_j06_failed_manifest_records_nonzero_without_fake_inventory_success(monk
     assert manifest["targets_before_count"] == 17 and manifest["targets_after_count"] == 19
     assert manifest["original_targets_unchanged"] is False
 
+class _ReconnectCDP(_IsolationCDP):
+    branch = "ui-probe"
+
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,**kwargs)
+        self.auto_at = None
+        self.auto_sent = False
+
+    def call(self,method,params=None):
+        params = params or {}
+        if method == "Runtime.evaluate" and "__stWs.close" in params.get("expression",""):
+            self.log.append((self.label,"close-live-socket"))
+            if self.branch == "hook-failed":
+                return {"id":24,"result":{"result":{"type":"string","value":"no socket"}}}
+            self.events.append({"method":"Network.webSocketClosed","params":{
+                "requestId":f"{self.label}-socket-{self.epoch}","timestamp":self.tick()}})
+            self.epoch += 1
+            for name,extra in (
+                ("webSocketCreated",{"url":"ws://test/_stcore/stream"}),
+                ("webSocketWillSendHandshakeRequest",{"request":{"headers":{"Sec-WebSocket-Protocol":"streamlit,token,old-session"}}}),
+                ("webSocketHandshakeResponseReceived",{"response":{"status":101,"headers":{"Sec-WebSocket-Protocol":"streamlit"}}}),
+            ):
+                self.events.append({"method":"Network."+name,"params":dict(requestId=f"{self.label}-socket-{self.epoch}",timestamp=self.tick(),**extra)})
+            self.auto_at = self.clock+2
+            return {"id":24,"result":{"result":{"type":"string","value":"closed"}}}
+        if method == "Performance.getMetrics" and self.auto_at is not None and self.clock >= self.auto_at and not self.auto_sent and self.branch in ("natural","pending-natural","late-natural-finish"):
+            self.auto_sent = True
+            self.complete("natural")
+            if self.branch in ("pending-natural","late-natural-finish"):
+                self.events.pop()  # Real pending-run model: no success finish.
+        return super().call(method,params)
+
+
+def _reconnect_driver(monkeypatch,tmp_path,branch="ui-probe",fault=None):
+    _ReconnectCDP.instances = [];_ReconnectCDP.log = [];_ReconnectCDP.branch = branch
+    created,closed,selected = [],[],[]
+    def http(url,method="GET"):
+        if "/json/list" in url:
+            return _ORIGINAL_ISOLATION_TARGETS+[{"id":i,"type":"page","url":"about:blank","webSocketDebuggerUrl":"ws://"+i} for i in created if i not in closed]
+        if "/json/new?" in url:
+            if fault=="old-id":return {"id":"preexisting-user-target","webSocketDebuggerUrl":"ws://user"}
+            created.append("owned-j09")
+            return {"id":"owned-j09","webSocketDebuggerUrl":"ws://owned-j09"}
+        raise AssertionError(url)
+    class Response:
+        def __enter__(self):return self
+        def __exit__(self,*args):pass
+        def read(self):return b"Target is closing"
+    def urlopen(url,**kwargs):
+        assert url.endswith("/json/close/owned-j09")
+        closed.append("owned-j09");return Response()
+    def select(page,option):
+        selected.append(option);page.cdp.dom["selectbox_value"]=option
+        return fault!="action-failed"
+    def wait(state,start,mode,filename=None,timeout=45):
+        if fault=="no-response" or (mode=="natural" and branch=="pending-natural"):
+            raise RuntimeError("missing target server response")
+        if mode=="natural":
+            if branch=="late-natural-finish":
+                from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
+                msg=ForwardMsg();msg.script_finished=0
+                state['recorder'].events.append({'method':'Network.webSocketFrameReceived','params':{
+                    'requestId':f"{state['namespace']}-socket-1",'timestamp':state['recorder'].tick(),
+                    'response':{'opcode':2,'payloadData':base64.b64encode(msg.SerializeToString()).decode()}}})
+            return numeric_capture._reconnect_window(numeric_capture.frames_of(state["recorder"]),start,natural=True)
+        wiremode="upload" if filename else "pulse" if mode.startswith("pulse-") else "select" if mode.startswith("probe-") else mode
+        state["recorder"].complete(wiremode)
+        return numeric_capture._run_window(numeric_capture.frames_of(state["recorder"]),start)
+    monkeypatch.setattr(numeric_capture,"http_json",http)
+    monkeypatch.setattr(numeric_capture.urllib.request,"urlopen",urlopen)
+    monkeypatch.setattr(numeric_capture,"CDP",_ReconnectCDP)
+    monkeypatch.setattr(numeric_capture,"Page",_IsolationPage)
+    monkeypatch.setattr(numeric_capture,"_reconnect_select",lambda page,action:select(page,action['option']))
+    monkeypatch.setattr(numeric_capture,"_reconnect_wait",wait)
+    # Transport-only models have no Arrow/rendered grid. Their rejecting
+    # criterion is unchanged; recorded render snapshots test real readiness.
+    monkeypatch.setattr(numeric_capture,"_reconnect_ready",lambda *args:None)
+    monkeypatch.setattr(numeric_capture.time,"sleep",lambda _:None)
+    # Keep transport models explicitly unverified, independent of concurrent
+    # checker implementation. These are not synthetic browser-pass proofs.
+    monkeypatch.setattr(numeric_capture,"j09_checks",lambda **kwargs:[
+        dict(journey=numeric_capture.J09_CASE,step=numeric_capture.J09_CASE,check=key,
+             ok=False,expected='independent full proof',actual='transport model only')
+        for key in numeric_capture.J09_REQUIRED])
+    # Transport/ordering model only. This explicitly injected reader double
+    # sends no ref_hash and is never a production fallback/cache algorithm.
+    materialize=lambda page:[dict(f) for f in page['frames']]
+    args=SimpleNamespace(label="j09-model",port=60667,url="http://test/",scope="driver model only",binary="",build_base="",journey=numeric_capture.J09_CASE)
+    result=numeric_capture.run_reconnect_journey(args,tmp_path,materialize=materialize)
+    trace=json.loads((tmp_path/'trace-data-loop.json').read_bytes())
+    return result,trace,created,closed,selected
+
+
+@pytest.mark.parametrize("branch", ["natural","ui-probe","late-natural-finish"])
+def test_j09_driver_exact_shared_plan_preserves_unverified_stub(monkeypatch,tmp_path,branch):
+    result,trace,created,closed,selected = _reconnect_driver(monkeypatch,tmp_path,branch)
+    obs=trace['observation']
+    assert trace['summary']['producer_error'] is None
+    assert result==1 and trace['counts']=={'expected':20,'executed':20,'asserted':0}
+    assert created==closed==['owned-j09']
+    plan='natural' if branch=='late-natural-finish' else branch
+    assert tuple(p['name'] for p in obs['phases'])==numeric_capture.J09_PHASES[plan]
+    assert len(obs['screenshots'])==len(numeric_capture.J09_PHASES[plan])
+    assert selected==(['region','category'] if branch=='ui-probe' else [])
+    epochs=obs['page']['epochs']
+    assert [e['id'] for e in epochs]==['e0','e1','e2']
+    assert epochs[0]['document_event']==epochs[1]['document_event']!=epochs[2]['document_event']
+    assert epochs[1]['navigation_timestamp'] is epochs[1]['navigation_event'] is None
+    reconnect=next(p for p in obs['phases'] if p['name']==numeric_capture.J09_PREFIX[-1])
+    auto=reconnect['auto_observation'];assert auto['end_timestamp']-auto['start_timestamp']>=numeric_capture.J09_AUTO_OBSERVE_SECONDS
+    closed_event=obs['page']['events'][reconnect['close']['closed_event']]
+    assert closed_event['method']=='Network.webSocketClosed'
+    assert closed_event['params']['requestId']==reconnect['close']['request_id']
+    pulses=[p for p in obs['phases'] if p['action']['action']=='pulse']
+    assert [p['dom_after']['pulses'] for p in pulses]==['1','2']
+    assert reconnect['dom_after']['pulses']=='2' and obs['phases'][-1]['dom_after']['pulses']=='0'
+    if branch=='ui-probe':
+        assert reconnect['ipc']=={'table':None,'chart':None}
+        assert reconnect['checkpoint']==pulses[-1]['checkpoint']
+        probe=next(p for p in obs['phases'] if p['name']=='probe-region')
+        assert probe['action_timestamp'] > auto['end_timestamp']
+    if branch=='late-natural-finish':
+        finish=obs['page']['frames'][reconnect['checkpoint']['finish_frame']]
+        assert auto['start_timestamp']+numeric_capture.J09_AUTO_OBSERVE_SECONDS < finish['timestamp'] <= auto['end_timestamp']
+    assert reconnect['action_timestamp']==reconnect['close']['command_timestamp']
+    log=_ReconnectCDP.log
+    assert log.index(('j09-model','start'))<log.index(('j09-model','Page.addScriptToEvaluateOnNewDocument'))<log.index(('j09-model','Page.navigate'))
+    assert sum(m=='Page.navigate' for _,m in log)==sum(m=='Page.reload' for _,m in log)==1
+    assert not any('emulateNetwork' in m for _,m in log)
+
+
+@pytest.mark.parametrize("branch,fault", [("pending-natural",None),("hook-failed",None),("ui-probe","old-id"),("ui-probe","action-failed"),("ui-probe","no-response")])
+def test_j09_failure_never_conceals_pending_natural_run_or_loses_raw(monkeypatch,tmp_path,branch,fault):
+    result,trace,created,closed,selected=_reconnect_driver(monkeypatch,tmp_path,branch,fault)
+    assert result==1 and trace['summary']['producer_error']
+    assert created==closed
+    if branch=='pending-natural':
+        assert not selected and trace['observation']['plan'] is None
+        assert any(f['decoded'].get('type')=='new_session' and f['connection']==1 for f in trace['observation']['page']['frames'])
+    if fault=='old-id':
+        assert not _ReconnectCDP.instances
+    else:
+        assert trace['observation']['page']['events']==_ReconnectCDP.instances[0].take()
+        assert trace['observation']['diagnostics']['last_dom_read']['dom']['script_runs'] is not None
+
+
+def test_j09_missing_canonical_reader_fails_closed(monkeypatch,tmp_path):
+    # No production adapter may silently reuse the per-connection J06 cache.
+    with pytest.raises(RuntimeError,match='not wired'):
+        numeric_capture._reconnect_frames({}, {'frames':[]})
+
+
+@pytest.mark.parametrize('opening_ok',[True,False])
+def test_j09_probe_uses_visible_clicks_for_both_dropdown_and_option(opening_ok):
+    class Page:
+        def __init__(self):self.clicks=[];self.reads=[]
+        def click_visible(self,expression):
+            self.clicks.append(expression)
+            return opening_ok
+        def option_rect(self,option):
+            assert len(self.clicks)==1
+            self.reads.append(option);return {'x':10,'y':20}
+    page=Page();action=numeric_capture.J09_ACTIONS['probe-region']
+    assert numeric_capture._reconnect_select(page,action) is opening_ok
+    assert len(page.clicks)==(2 if opening_ok else 1)
+    assert page.reads==(['region'] if opening_ok else [])
+
+
+def _j09_cache_page(messages):
+    page=dict(namespace='cache-model',frames=[],events=[],epochs=[
+        dict(connection=0,request_id='r0',document_event=0),
+        dict(connection=1,request_id='r1',document_event=0),
+        dict(connection=2,request_id='r2',document_event=100)])
+    for i,(connection,message) in enumerate(messages):
+        data=message.SerializeToString();encoded=base64.b64encode(data).decode()
+        page['events'].append({'method':'Network.webSocketFrameReceived','params':{
+            'requestId':'r'+str(connection),'timestamp':float(i+1),
+            'response':{'opcode':2,'payloadData':encoded}}})
+        page['frames'].append(dict(namespace=page['namespace'],direction='server->client',connection=connection,
+            request_id='r'+str(connection),timestamp=float(i+1),base64=encoded,bytes=len(data),
+            sha256=hashlib.sha256(data).hexdigest(),decoded=numeric_capture.summarise_forward(data)))
+    return page
+
+
+def test_j09_wires_real_canonical_reader_same_document_cache_and_raw_immutable():
+    from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
+    original=ForwardMsg();original.hash='cached-body';original.metadata.cacheable=True
+    original.delta.new_element.text.body='retained body'
+    reference=ForwardMsg();reference.ref_hash='cached-body';reference.metadata.delta_path.append(2)
+    page=_j09_cache_page([(0,original),(1,reference)])
+    before=json.dumps(page,sort_keys=True)
+    result=numeric_capture._reconnect_frames({'materialize':numeric_capture._j09_materialize_frames},page)
+    assert result[1]['decoded']['delta']['body']=='retained body'
+    assert page['frames'][1]['decoded']['type']=='ref_hash'
+    assert json.dumps(page,sort_keys=True)==before
+    assert numeric_capture.run_reconnect_journey.__kwdefaults__['materialize'] is numeric_capture._j09_materialize_frames
+
+
+@pytest.mark.parametrize('case',['new-document','missing','expired'])
+def test_j09_reader_rejects_foreign_missing_or_stale_ref_without_fallback(case):
+    from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
+    initial=ForwardMsg();initial.new_session.config.max_cached_message_age=0
+    original=ForwardMsg();original.hash='h';original.metadata.cacheable=True;original.delta.new_element.text.body='body'
+    reference=ForwardMsg();reference.ref_hash='h';reference.metadata.delta_path.append(0)
+    finish=ForwardMsg();finish.script_finished=0
+    messages=([(0,original),(2,reference)] if case=='new-document' else
+              [(1,reference)] if case=='missing' else [(0,initial),(0,original),(0,finish),(1,reference)])
+    page=_j09_cache_page(messages);before=json.dumps(page,sort_keys=True)
+    with pytest.raises(ValueError,match='cache reference'):
+        numeric_capture._reconnect_frames({'materialize':numeric_capture._j09_materialize_frames},page)
+    assert json.dumps(page,sort_keys=True)==before
+
+
+def test_j09_natural_newsession_without_client_state_is_real_run_not_ui_probe():
+    frames=[_frame('server->client',{'type':'new_session','new_session':{'script_run_id':'natural'}},0),
+            _frame('server->client',{'type':'script_finished','script_finished':{'status':0}},1)]
+    assert numeric_capture._run_window(frames,0) is None
+    assert numeric_capture._reconnect_window(frames,0,natural=True)['finish']==1
+    for bad in ('failed','cross-connection','pending'):
+        variant=json.loads(json.dumps(frames))
+        if bad=='failed':variant[1]['decoded']['script_finished']['status']=1
+        elif bad=='cross-connection':variant[1]['connection']=2
+        else:variant.pop()
+        assert numeric_capture._reconnect_window(variant,0,natural=True) is None
+
+
+@pytest.mark.parametrize('stage',['phase-entry','after-observe','pre-probe-read'])
+@pytest.mark.parametrize('outcome',['pending','failed','success'])
+def test_j09_exact_late_server_only_race_never_sends_probes_over_natural(monkeypatch,tmp_path,stage,outcome):
+    from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
+    injected=[];flags={'stored':False}
+    def inject(state):
+        rec=state['recorder']
+        new=ForwardMsg();new.new_session.script_run_id='review-late-pending-server-only'
+        status=ForwardMsg();status.session_status_changed.script_is_running=True
+        messages=[new,status]
+        if outcome!='pending':
+            for label,value in (('Script runs',rec.dom['script_runs']+1),('Pulses',2)):
+                msg=ForwardMsg();msg.delta.new_element.text.body=f'{label}: {value}';messages.append(msg)
+            finish=ForwardMsg();finish.script_finished=0 if outcome=='success' else 1;messages.append(finish)
+        for msg in messages:
+            event={'method':'Network.webSocketFrameReceived','params':{
+                'requestId':f'{rec.label}-socket-{rec.epoch}','timestamp':rec.tick(),
+                'response':{'opcode':2,'payloadData':base64.b64encode(msg.SerializeToString()).decode()}}}
+            rec.events.append(event);injected.append(event)
+        if outcome=='success':rec.dom['script_runs']+=1
+    old_phase=numeric_capture._reconnect_phase
+    def phase(state,name,*args,**kwargs):
+        if stage=='phase-entry' and name==numeric_capture.J09_PREFIX[-1] and not injected:inject(state)
+        result=old_phase(state,name,*args,**kwargs)
+        if stage=='after-observe' and name==numeric_capture.J09_PREFIX[-1] and not injected:inject(state)
+        return result
+    monkeypatch.setattr(numeric_capture,'_reconnect_phase',phase)
+    old_store=numeric_capture._reconnect_store_phase
+    def store(state,observation,out,arrows,index,name,*args,**kwargs):
+        result=old_store(state,observation,out,arrows,index,name,*args,**kwargs)
+        if name==numeric_capture.J09_PREFIX[-1]:flags['stored']=True
+        return result
+    monkeypatch.setattr(numeric_capture,'_reconnect_store_phase',store)
+    old_read=numeric_capture._isolation_read
+    def read(state):
+        if stage=='pre-probe-read' and flags['stored'] and not injected:inject(state)
+        return old_read(state)
+    monkeypatch.setattr(numeric_capture,'_isolation_read',read)
+    code,trace,created,closed,selected=_reconnect_driver(monkeypatch,tmp_path,'ui-probe')
+    assert code==1 and selected==[] and created==closed==['owned-j09']
+    assert all(e['method']=='Network.webSocketFrameReceived' for e in injected)
+    events=trace['observation']['page']['events']
+    assert all(e in events for e in injected)
+    assert events==_ReconnectCDP.instances[0].take()
+    refresh=sum(m=='Page.reload' for _,m in _ReconnectCDP.log)
+    if outcome=='success':
+        assert trace['summary']['producer_error'] is None and refresh==1
+        assert trace['observation']['plan']=='natural'
+        assert tuple(p['name'] for p in trace['observation']['phases'])==numeric_capture.J09_PHASES['natural']
+        observed=trace['observation']['phases'][-2]
+        assert observed['dom_after']['script_runs']=='5' and observed['dom_after']['pulses']=='2'
+    else:
+        assert trace['summary']['producer_error'] and refresh==0
+        assert trace['observation']['diagnostics']['last_dom_read']
+
+
+@pytest.mark.parametrize('bad',[False,0,{}, {'error':{'message':'failed'}},
+    {'id':24,'result':{'result':{'type':'string','value':'closed'}},'error':{}},
+    {'id':24,'result':{'result':{'type':'string','value':'closed'},'exceptionDetails':{}}}])
+def test_j09_full_cdp_hook_failure_cannot_be_truthy_success(monkeypatch,tmp_path,bad):
+    old=_ReconnectCDP.call
+    def call(self,method,params=None):
+        result=old(self,method,params)
+        return bad if method=='Runtime.evaluate' and '__stWs.close' in (params or {}).get('expression','') else result
+    monkeypatch.setattr(_ReconnectCDP,'call',call)
+    code,trace,_,_,selected=_reconnect_driver(monkeypatch,tmp_path)
+    assert code==1 and trace['summary']['producer_error'] and selected==[]
+    assert not any(m=='Page.reload' for _,m in _ReconnectCDP.log)
+    assert trace['observation']['diagnostics']['close']['evaluation_result']==bad
+
+
+def test_j09_full_cdp_hook_success_retains_real_preflight_shape(monkeypatch,tmp_path):
+    _,trace,_,_,_=_reconnect_driver(monkeypatch,tmp_path)
+    phase=next(p for p in trace['observation']['phases'] if p['name']==numeric_capture.J09_PREFIX[-1])
+    assert phase['close']['evaluation_result']=={'id':24,'result':{'result':{'type':'string','value':'closed'}}}
+    assert trace['observation']['page']['events'][phase['close']['closed_event']]['method']=='Network.webSocketClosed'
+
+
+def _recorded_j09_ready_case(name,tmp_path):
+    fixture=json.loads((HERE/'j09-readiness-snapshots.json').read_bytes())
+    assert fixture['source_raw_sha256']=='e711edc1817af52ceb010528146f3ae6c769df2315b7e769d926a26131f55648'
+    case=next(c for c in fixture['cases'] if c['name']==name)
+    frames=case['selected_decoded_frames'];window=numeric_capture._run_window(frames,0)
+    assert window
+    if name=='refresh':
+        good=json.loads(json.dumps(case['dom_after']))
+    else:
+        published=json.loads((HERE/'rust-journeys/j06-sequence/trace-data-loop.json').read_bytes())['observation']['phases']
+        phase,tab=('b-group-region','b') if name=='probe-region' else ('a-pulse-3','a')
+        good=json.loads(json.dumps(next(p for p in published if p['name']==phase)['views'][tab]['dom_after']))
+        # Model a fully painted target using actual recorded J06 table/chart
+        # geometry and this J09 target's measured counters. This is a unit
+        # positive control, never a fabricated actual J09 browser result.
+        for key in ('script_runs','pulses'):good[key]=case['dom_after'][key]
+    state={'arrows':numeric_capture._ArrowFiles(tmp_path),'ipc_dir':str(tmp_path)}
+    return state,frames,window,case['dom_after'],good
+
+
+@pytest.mark.parametrize('name',['probe-region','probe-category'])
+def test_j09_recorded_wrong_phase_table_is_not_ready_even_with_new_counters(tmp_path,name):
+    state,frames,window,stale,good=_recorded_j09_ready_case(name,tmp_path)
+    with pytest.raises(ValueError,match='DOM cells differ'):
+        numeric_capture._reconnect_ready(state,frames,window,stale,name)
+    numeric_capture._reconnect_ready(state,frames,window,good,name)
+
+
+@pytest.mark.parametrize('fault',['wrong-same-count-value','wrong-controls','zero-height-bars','wrong-schema'])
+def test_j09_full_paint_readiness_rejects_partial_or_inconsistent_result(tmp_path,fault):
+    state,frames,window,_,good=_recorded_j09_ready_case('probe-region',tmp_path)
+    if fault=='wrong-same-count-value':good['table_cells'][2]='999999'
+    elif fault=='wrong-controls':good['checkbox_checked']=False
+    elif fault=='zero-height-bars':good['chart_marks']='|'.join('M0,0h10v0Z' for _ in range(6))
+    else:
+        delta=next(f['decoded']['delta'] for f in frames if f['decoded'].get('delta',{}).get('element')=='dataframe')
+        delta['arrow']['schema']=delta['arrow']['schema'].replace('int64','double')
+    with pytest.raises(ValueError):numeric_capture._reconnect_ready(state,frames,window,good,'probe-region')
+
+
+def test_j09_refresh_requires_defaults_info_and_actual_old_result_disappearance(tmp_path):
+    state,frames,window,_,good=_recorded_j09_ready_case('refresh',tmp_path)
+    numeric_capture._reconnect_ready(state,frames,window,good,'refresh')
+    for key,value in (('table_present',True),('table_cells',['Books']),('chart_marks','M0,0h10v10Z'),
+                      ('alerts',[]),('uploaded_files',['sales_basic.csv']),('selectbox_value','region')):
+        dom=dict(good,**{key:value})
+        with pytest.raises(ValueError):numeric_capture._reconnect_ready(state,frames,window,dom,'refresh')
+
+
+@pytest.mark.parametrize('never_paints',[False,True])
+def test_j09_real_wait_polls_full_recorded_result_and_keeps_last_dom(monkeypatch,tmp_path,never_paints):
+    state,frames,window,stale,good=_recorded_j09_ready_case('probe-region',tmp_path)
+    class Paint:
+        reads=0
+        current=None
+        def bring_to_front(self):pass
+        def state_digest(self):
+            self.current=stale if never_paints or self.reads==0 else good
+            self.reads+=1
+            return dict(self.current)
+        def files_dom(self):return {'chips':self.current['uploaded_files']}
+    page=Paint();recorder=_IsolationCDP('','paint-model')
+    _IsolationCDP.clock=frames[-1]['timestamp']+1
+    state.update(page=page,recorder=recorder,namespace=frames[0]['namespace'],materialize=lambda p:p['frames'])
+    monkeypatch.setattr(numeric_capture,'_reconnect_tab',lambda state:{'frames':frames})
+    monkeypatch.setattr(numeric_capture.time,'sleep',lambda _:None)
+    if never_paints:
+        with pytest.raises(RuntimeError,match='DOM timeout'):
+            numeric_capture._reconnect_wait(state,0,'probe-region',timeout=.01)
+        assert state['last_dom_read']['dom']['table_cells']==stale['table_cells']
+    else:
+        assert numeric_capture._reconnect_wait(state,0,'probe-region',timeout=2)==window
+        assert page.reads>=2 and state['last_dom_read']['dom']['table_cells']==good['table_cells']
+
+
+def test_j09_final_fresh_phase_read_cannot_commit_stale_table(monkeypatch,tmp_path):
+    state,frames,_,stale,_=_recorded_j09_ready_case('probe-region',tmp_path)
+    recorder=_IsolationCDP('','fresh-read');recorder.dom=stale
+    _IsolationCDP.clock=frames[-1]['timestamp']+1
+    state.update(page=_IsolationPage(recorder),recorder=recorder,materialize=lambda p:p['frames'])
+    monkeypatch.setattr(numeric_capture,'_reconnect_tab',lambda state:{'frames':frames,'epochs':[{'id':'e1'}]})
+    with pytest.raises(ValueError,match='DOM cells differ'):
+        numeric_capture._reconnect_phase(state,'probe-region',{},None,frames[0]['timestamp']-.001,None,state['arrows'])
+    assert state['last_dom_read']['dom']['table_cells']==stale['table_cells']
+
+
 NAMESPACE = "tab"
 WIDGET = "$$ID-upload"
 FILE_NAME = "sales.csv"

@@ -1,5 +1,33 @@
 # Reference journeys of the data app
 
+## J09: bounded reconnect and refresh, S4 unmeasured
+
+[Original Python raw](j09-sequence/trace-data-loop.json), SHA256
+`b4d244ce30b918dcc5ff2f9a775863858faf9d6dced6c5df8afc0bc1e6b34b3d`,
+retains 161 frames, all eight PNGs, two deduplicated IPCs and its loaded source
+files. Actual NewSession reports Streamlit 1.66.1/reference app. The original
+capture used producer b79814, not the later native producer15b606; both used
+criteria46537. The exact hashes and original bytes remain in raw/capture-source.
+
+Historical capture completed with 20/20/20, no failures, exit0. Its invocation
+is [execution-manifest](j09-sequence/execution-manifest.json)'s `executable`,
+then `tests/browser/numeric_capture.py`, then its exact `argv`. That actual
+browser command is distinct from the following formal-archive replay, which
+was executed with 20/20/20, no failures, exit0:
+
+```powershell
+target/pyref-venv/Scripts/python.exe tests/browser/numeric_capture.py --replay tests/reference/reference-browser/journeys/j09-sequence/trace-data-loop.json
+```
+
+The [native J09 section](../../../browser/rust-journeys/README.md#j09-bounded-reconnect-and-refresh-s4-unmeasured)
+records the measured S1-S3 roles, observe-plus-probe evidence, preparation
+actions, current replay identities and one shared recoverable candidate.
+This actual ui-probe plan observed no natural run for 5.133 seconds after
+HTTP101, then used real region/category selections to demonstrate recovery.
+It does not claim that an automatic run can never occur. Optional S4's
+greater-than-120-second disconnected expiry remains unmeasured, with no PNG
+or passed result. Original 17 targets were retained; only the own tab closed.
+
 ## J06: continuous two-tab isolation
 
 [Original raw](j06-sequence/trace-data-loop.json), SHA256

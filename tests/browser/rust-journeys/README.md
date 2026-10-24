@@ -1,5 +1,77 @@
 # Rust data journeys
 
+## J09: bounded reconnect and refresh, S4 unmeasured
+
+[Original native raw](j09-sequence/trace-data-loop.json), SHA256
+`8fee2ebbeae60c08c5bb909622d85e72f0845fbf67308059a13d41159595d4ad`,
+retains 154 frames, all eight PNGs, two deduplicated IPCs and both loaded source
+files. Its [Python counterpart](../../reference/reference-browser/journeys/j09-sequence/trace-data-loop.json)
+retains 161 frames with the same eight-phase ui-probe plan. Both historical
+captures completed with 20/20/20, no failures, CLI exit0; Hooke independently
+reviewed the bounded S1-S3 evidence. Optional S4 is outside these 20 checks.
+The complete four-step journey is not marked passed: S4 remains not_run.
+
+Historical browser invocations are retained in original execution manifests:
+[native](j09-sequence/execution-manifest.json) and
+[Python](../../reference/reference-browser/journeys/j09-sequence/execution-manifest.json).
+Each command was its recorded `executable`, followed by
+`tests/browser/numeric_capture.py` and the exact `argv`. These used unique
+ignored output directories and real Chrome CDP60667. They are not the replay
+commands below; do not rerun into historical directories. The failed e711
+native attempt remains ignored and was not rewritten or published as proof.
+
+The following formal-path commands were actually executed, each returning
+20/20/20 with no failures and exit0. They read adjacent IPC/PNG files, ignore
+cached verdicts and need no browser/server or old ignored capture/build data:
+
+```powershell
+target/pyref-venv/Scripts/python.exe tests/browser/numeric_capture.py --replay tests/browser/rust-journeys/j09-sequence/trace-data-loop.json
+target/pyref-venv/Scripts/python.exe tests/browser/numeric_capture.py --replay tests/reference/reference-browser/journeys/j09-sequence/trace-data-loop.json
+```
+
+Both capture HEADs are `315a443ec8e5c84d87e192fc9e3622a68a1a70e5`.
+Python captured with producer
+`b79814e51bfb7206273ce5e0a7d518e44494098f037e9d7a55302cfad3816e24`;
+native captured with the full-paint readiness fix in producer
+`15b606fe8a2076286d7082d55ccac885f1ae61249967093bc769edc8db312f9d`.
+Formal replay uses the latter. Both original captures and formal replays use
+criteria `46537c0dc56f5327662012dc4766b86536b990e7d7da4f8a9a416061c64c5aed`.
+No historical source identity, raw event, DOM value or verdict was backfilled.
+
+| Original step | Actual evidence | Canonical E2E primary |
+|---|---|---|
+| S1 | [01 initial](j09-sequence/01-initial.png), fresh two-entry handshake | [S1](../../e2e/J09/J09-S1.png) |
+| S2 | [05 observe](j09-sequence/05-reconnect-observe.png) plus [07 category probe](j09-sequence/07-probe-category.png), retained session/file/Pulses2 | [S2: 07](../../e2e/J09/J09-S2.png) |
+| S3 | [08 refresh](j09-sequence/08-refresh.png), new session/defaults/empty uploader | [S3](../../e2e/J09/J09-S3.png) |
+| S4 | Optional >120-second disconnected expiry: not_run | No screenshot or passed claim |
+
+S2's images are separate observations in one continuous session, not a
+composite or a claim of simultaneous capture. Native's real close and
+three-entry reconnect share the initial Document and old session ID. It
+observed 5.071 seconds after HTTP101 with no new business run; the subsequent
+region then category UI probes each produced a successful new run on e1.
+The observation alone is not proof of a new server result. F5 starts e2 with
+a new Document/session and a two-entry handshake. Python measured the same
+branch with a 5.133-second observation. No extra Pulse or reconnect PUT was
+sent; the full flow contains exactly one PUT204.
+
+PNG02 upload, PNG03/04 Pulse1/Pulse2, and PNG06 region probe are explicit
+preparation actions, each retained with its real run. The ledger is
+1/0, 2/0, 3/1, 4/2, retained4/2, 5/2, 6/2, then fresh1/0. All eight original
+images remain; the three canonical images are byte-identical copies of
+01/07/08. The [verification fragment](j09-sequence/verification.json) supplies
+S1-S3 metadata and explicit optional/not_run S4 for the integration owner,
+without changing original actions, expectations or the 10/42 denominator.
+Its missing-S4 artifact note records unfinished work, not a permanent waiver.
+
+The binary remains original729743, build Git76938fb plus actual dirty42e,
+with runtime04dd/config5ab, not a build of capture HEAD315 or the sidebar
+worktree. Reuse the single [J00 candidate](j00-sequence/candidate/candidate.json)
+and [130-input reconstruction recipe](#shared-7297-candidate-inputs).
+That recipe was executed again for this publication: 110 direct Git blobs,
+19 captured-CRLF blobs and the one archived42e override restore all130 hashes.
+No binary or second130-source package is added.
+
 ## J06: continuous two-tab isolation
 
 [Original native raw](j06-sequence/trace-data-loop.json), SHA256

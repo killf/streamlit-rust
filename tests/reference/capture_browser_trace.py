@@ -2985,6 +2985,329 @@ def _j06_pngs(observation):
             paths.add(path)
 
 
+J09_CASE = "j09-sequence"
+J09_CONTRACT = "journey-j09-reconnect-v1"
+J09_AUTO_OBSERVE_SECONDS = 5
+J09_PREFIX = ("initial", "upload-baseline", "pulse-1", "pulse-2", "reconnect-observe")
+J09_PHASES = {"natural":J09_PREFIX+("refresh",),
+              "ui-probe":J09_PREFIX+("probe-region","probe-category","refresh")}
+J09_INPUTS = {"upload-baseline":"sales_basic.csv"}
+J09_ACTIONS = {
+    "initial":{"action":"initial"}, "upload-baseline":{"action":"upload"},
+    "pulse-1":{"action":"pulse","label":"Pulse"}, "pulse-2":{"action":"pulse","label":"Pulse"},
+    "reconnect-observe":{"action":"close-websocket"},
+    "probe-region":{"action":"select-option","label":"Group by","option":"region"},
+    "probe-category":{"action":"select-option","label":"Group by","option":"category"},
+    "refresh":{"action":"refresh"},
+}
+J09_PNG_ROLES = {name:({"initial":("J09-S1",),"reconnect-observe":("J09-S2",),
+                       "probe-category":("J09-S2",),"refresh":("J09-S3",)}.get(name,()))
+                 for name in J09_PHASES["ui-probe"]}
+J09_REQUIRED = ("contract", "phase_plan", "pre_navigation_recording", "fresh_handshakes", "actual_close",
+                "reconnect_three_entries", "document_epochs", "raw_frame_binding", "document_cache", "auto_observation",
+                "branch_matches_wire", "target_run_boundaries", "typed_controls", "fixture_http_ownership", "no_new_upload",
+                "same_session_recovered", "run_pulse_ledger", "golden_table_chart_dom", "refresh_reset", "png_coverage")
+J09_OBSERVATION_FIELDS = {
+    "root":("journey","contract","plan","url","ipc_dir","page","phases","screenshots"),
+    "page":J06_OBSERVATION_FIELDS["tab"],
+    "epoch":("id","connection","request_id","document_event","navigation_timestamp","navigation_event","handshake_event","response_event"),
+    "phase":("name","action","epoch","action_timestamp","observation_end_timestamp","start","end","start_timestamp","end_timestamp",
+             "read_start_timestamp","read_end_timestamp","dom_before","dom_after","client_states","completions","ipc","checkpoint"),
+    "close":("request_id","command_timestamp","completed_timestamp","evaluation_result","closed_event"),
+    "auto_observation":("start_timestamp","end_timestamp"),
+    "checkpoint":J06_OBSERVATION_FIELDS["checkpoint"],
+    "dom":J06_OBSERVATION_FIELDS["dom"],
+    "png":("phase","namespace","epoch","file","sha256","timestamp","step_ids"),
+}
+JOURNEY_REQUIRED[J09_CASE] = {(J09_CASE,key) for key in J09_REQUIRED}
+# Single page, complete raw frames/events, same field meanings as J06. Epochs
+# are e0/d0, e1/d0, e2/d1. document_event references a real Document request;
+# e1 has navigation_event/navigation_timestamp=None, sharing e0.document_event.
+# reconnect-observe additionally carries close and auto_observation dictionaries.
+# Its epoch is e1 but its cursor may include e0's closing frames. The 5s window
+# starts at e1's actual HTTP101. No-run observation has no new checkpoint/IPC;
+# ui-probe proves s0 recovery in its first new run, not in the bare handshake.
+# Other phases are single epoch. PNG records cover every actual phase, 6/8;
+# empty step_ids require role=preparation. S4 is explicitly outside this bounded
+# contract and remains optional/slow/unmeasured in the original manifest.
+
+
+def j09_checks(*, observation=None):
+    """Bounded CSV reconnect/refresh proof; optional slow S4 is not asserted."""
+    try:
+        _j09_verify(observation)
+    except (ValueError,TypeError,KeyError,IndexError,OSError,AttributeError) as exc:
+        actual,ok = str(exc),False
+    else:
+        actual,ok = "J09 bounded evidence verified; S4 unmeasured and PNG visual review independent",True
+    return _journey_finish(J09_CASE, [_check(J09_CASE,key,"complete strict J09 evidence",actual,ok) for key in J09_REQUIRED])
+
+
+def _j09_verify(observation):
+    _journey_need(isinstance(observation,dict) and observation.get("journey") == J09_CASE
+                  and observation.get("contract") == J09_CONTRACT and observation.get("plan") in J09_PHASES, "J09 missing/wrong contract or closed plan")
+    phases,page = observation["phases"],observation["page"]
+    _journey_need(isinstance(phases,list) and tuple(p.get("name") for p in phases) == J09_PHASES[observation["plan"]], "J09 incomplete/reordered plan")
+    epochs = _j09_epochs(page,observation["url"])
+    page = dict(page,frames=_j09_materialize_frames(page));frames = page["frames"]
+    covered,targets,previous,last_end = set(),set(),None,None
+    for phase in phases:
+        name,action = phase["name"],phase["action"]
+        _journey_need(all(action.get(k) == v for k,v in J09_ACTIONS[name].items()) and action.get("ok") is True
+                      and not action.get("failed"), "J09 failed/unobserved/wrong action")
+        at,end,before,after = [phase[k] for k in ("action_timestamp","observation_end_timestamp","read_start_timestamp","read_end_timestamp")]
+        start,stop = phase["start"],phase["end"]
+        _journey_need(all(_j06_number(t) for t in (at,end,before,after)) and before <= at < after <= end
+                      and (last_end is None or last_end < before) and type(start) is int and type(stop) is int
+                      and start == sum(f["timestamp"] <= before for f in frames) and stop == sum(f["timestamp"] <= after for f in frames), "J09 stale read clock/frame cursor")
+        selected = frames[start:stop]
+        _journey_need(0 <= start <= stop <= len(frames) and phase["start_timestamp"] == (selected[0]["timestamp"] if selected else None)
+                      and phase["end_timestamp"] == (selected[-1]["timestamp"] if selected else None)
+                      and not covered.intersection(range(start,stop)), "J09 invalid/overlapping frame window")
+        covered.update(range(start,stop));_j06_dom(phase["dom_after"])
+        if previous is None:_journey_need(phase["dom_before"] is None, "J09 initial state was not fresh")
+        else:_journey_need(_j06_dom(phase["dom_before"]) == previous["signature"], "J09 state changed outside recorded actions")
+        expected_epoch = "e2" if name == "refresh" else "e1" if name.startswith("probe-") or name == "reconnect-observe" else "e0"
+        _journey_need(phase["epoch"] == expected_epoch, "J09 wrong phase connection epoch")
+        allowed = {epochs[expected_epoch]["request_id"]}
+        if name == "reconnect-observe":allowed.add(epochs["e0"]["request_id"])
+        _journey_need(all(f["request_id"] in allowed for f in selected), "J09 phase crossed an unrelated connection")
+        previous_checkpoint = previous["checkpoint"] if previous else None
+        if name == "reconnect-observe":
+            _journey_need(previous["pulses"] == 2, "J09 pre-close Pulse count is not two")
+            previous = _j09_reconnect(observation,page,phase,previous,epochs)
+        elif name.startswith("probe-"):
+            previous = _j09_result_run(observation,page,phase,previous)
+        else:
+            modes = {"initial":"initial","upload-baseline":"upload","pulse-1":"pulse","pulse-2":"pulse","refresh":"refresh"}
+            view = dict(phase,mode=modes[name]);context = _j06_active(observation,page,phase,view,previous)
+            if name in ("initial","refresh"):
+                _journey_need(before <= epochs[expected_epoch]["navigation_timestamp"] <= after, "J09 navigation is outside its explicit action")
+            if name == "refresh":
+                _journey_need(context["session"] != previous["session"], "J09 F5 reused s0")
+            previous = context
+        checkpoint = previous["checkpoint"]
+        _journey_need(phase["checkpoint"] == checkpoint, "J09 checkpoint is not an actually verified result")
+        if checkpoint != previous_checkpoint:
+            _journey_need(checkpoint["script_run_id"] not in targets, "J09 target run reused")
+            targets.add(checkpoint["script_run_id"])
+        _journey_need(phase["client_states"] == [{k:s.get(k) for k in ("id","value_field","value")}
+                      for f in selected if f["decoded"].get("type") == "rerun_script" for s in f["decoded"]["rerun_script"]["widget_states"]]
+                      and phase["completions"] == [{"frame":i,"connection":f["connection"],"request_id":f["request_id"],
+                          "status":f["decoded"]["script_finished"].get("status"),"status_name":f["decoded"]["script_finished"].get("status_name")}
+                          for i,f in enumerate(selected) if f["decoded"].get("type") == "script_finished"], "J09 summaries differ from effective wire")
+        last_end = end
+    _journey_need(all(i in covered or _j09_quiet(f["decoded"]) for i,f in enumerate(frames)), "J09 hidden run/output between phases or DOM/PNG")
+    _j06_http_events(page) # Exactly one actual PUT in the entire flow, no DELETE.
+    _j09_pngs(observation)
+
+
+def _j09_materialize_frames(page):
+    """Decode original protobuf; reconnect preserves d0 cache, F5 starts d1.
+
+    This is J09-local because J06's reviewed cache has only fresh page epochs.
+    Cache payload substitution/metadata/age follows the frozen frontend, while
+    raw frames and events remain immutable and separately available for audit.
+    """
+    from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
+
+    events = [e for e in page["events"] if e.get("method") in ("Network.webSocketFrameSent","Network.webSocketFrameReceived")
+              and e.get("params",{}).get("response",{}).get("opcode") == 2]
+    _journey_need(len(events) == len(page["frames"]) and events, "J09 missing raw frame/events")
+    documents = {(e["connection"],e["request_id"]):e["document_event"] for e in page["epochs"]}
+    result,cache,document,count,age,fragments = [],{},None,0,None,[]
+    for frame,event in zip(page["frames"],events):
+        params = event["params"];encoded = params["response"]["payloadData"]
+        data = base64.b64decode(encoded,validate=True)
+        direction = "client->server" if event["method"].endswith("Sent") else "server->client"
+        _journey_need(frame.get("namespace") == page["namespace"] and frame.get("direction") == direction
+                      and frame.get("request_id") == params.get("requestId") and frame.get("timestamp") == params.get("timestamp")
+                      and _j06_number(frame.get("timestamp")) and type(frame.get("connection")) is int
+                      and frame.get("base64") == encoded and frame.get("bytes") == len(data)
+                      and frame.get("sha256") == hashlib.sha256(data).hexdigest(), "J09 raw frame/CDP binding differs")
+        doc = documents[(frame["connection"],frame["request_id"])]
+        if doc != document:
+            _journey_need(doc not in {documents[(f["connection"],f["request_id"])] for f in result}, "J09 returned to an obsolete document")
+            cache,document,count,age,fragments = {},doc,0,None,[]
+        decoded = summarise_back(data) if direction == "client->server" else summarise_forward(data)
+        _journey_need(decoded == frame.get("decoded"), "J09 claimed decoded summary differs from raw")
+        if direction == "server->client":
+            message = ForwardMsg();message.ParseFromString(data)
+            kind = message.WhichOneof("type")
+            if kind != "ref_hash" and message.metadata.cacheable:
+                _journey_need(bool(message.hash), "J09 cacheable message without hash")
+                if message.hash in cache:cache[message.hash][1] = count
+                else:cache[message.hash] = [data,count,message.delta.fragment_id if kind == "delta" else ""]
+            if kind == "ref_hash":
+                _journey_need(message.ref_hash in cache and message.HasField("metadata"), "J09 missing/expired/foreign-document cache reference")
+                saved = cache[message.ref_hash];saved[1] = count
+                resolved = ForwardMsg();resolved.ParseFromString(saved[0]);resolved.metadata.CopyFrom(message.metadata)
+                message = resolved;kind = message.WhichOneof("type")
+            if kind == "new_session":
+                age = message.new_session.config.max_cached_message_age;fragments = list(message.new_session.fragment_ids_this_run)
+            if kind == "script_finished" and message.script_finished != 2 and age is not None:
+                count += 1
+                cache = {k:v for k,v in cache.items() if fragments and (not v[2] or v[2] not in fragments) or count-v[1] <= age}
+            decoded = summarise_forward(message.SerializeToString())
+        result.append(dict(frame,decoded=decoded))
+    _journey_need([f["timestamp"] for f in result] == sorted(f["timestamp"] for f in result), "J09 nonmonotonic frame clock")
+    return result
+
+
+def _j09_epochs(page,url):
+    from urllib.parse import urlsplit
+
+    epochs,events = page["epochs"],page["events"]
+    _journey_need(page["namespace"] and page["target_id"] and _j06_number(page["recorder_started_timestamp"])
+                  and [e.get("id") for e in epochs] == ["e0","e1","e2"], "J09 missing page/three epochs")
+    _journey_need(epochs[0]["document_event"] == epochs[1]["document_event"] != epochs[2]["document_event"], "J09 reconnect changed document or F5 reused it")
+    identities = set()
+    for index,epoch in enumerate(epochs):
+        _journey_need(epoch["connection"] == index and epoch["request_id"] not in {e["request_id"] for e in epochs[:index]}, "J09 reused epoch connection/requestId")
+        for field in ("document_event","handshake_event","response_event"):
+            _journey_need(type(epoch[field]) is int and 0 <= epoch[field] < len(events), "J09 missing actual epoch event index")
+        doc,hs,response = [events[epoch[k]] for k in ("document_event","handshake_event","response_event")]
+        dp,hp,rp = doc["params"],hs["params"],response["params"]
+        headers = {k.lower():v for k,v in hp["request"]["headers"].items()}
+        protocols = [v.strip() for v in headers.get("sec-websocket-protocol","").split(",")]
+        _journey_need(doc["method"] == "Network.requestWillBeSent" and dp.get("type") == "Document"
+                      and urlsplit(dp["request"]["url"])[:3] == urlsplit(url)[:3]
+                      and hs["method"] == "Network.webSocketWillSendHandshakeRequest"
+                      and response["method"] == "Network.webSocketHandshakeResponseReceived"
+                      and hp["requestId"] == rp["requestId"] == epoch["request_id"]
+                      and rp["response"]["status"] == 101
+                      and {k.lower():v for k,v in rp["response"]["headers"].items()}.get("sec-websocket-protocol") == "streamlit"
+                      and len(protocols) == (3 if index == 1 else 2) and protocols[0] == "streamlit" and all(protocols), "J09 actual handshake/document/protocol count differs")
+        times = (page["recorder_started_timestamp"],dp["timestamp"],hp["timestamp"],rp["timestamp"])
+        _journey_need(all(_j06_number(t) for t in times) and times[0] < times[1] <= times[2] <= times[3], "J09 epoch clock/late recorder")
+        if index == 1:
+            _journey_need(epoch["navigation_event"] is None and epoch["navigation_timestamp"] is None, "J09 reconnect is an undeclared reload")
+        else:
+            _journey_need(epoch["navigation_event"] == epoch["document_event"] and _j06_number(epoch["navigation_timestamp"])
+                          and times[0] < epoch["navigation_timestamp"] <= times[1], "J09 missing navigation command boundary")
+        identity = (epoch["connection"],epoch["request_id"]);identities.add(identity)
+        frames = [f for f in page["frames"] if (f["connection"],f["request_id"]) == identity]
+        _journey_need(frames and all(rp["timestamp"] <= f["timestamp"] for f in frames), "J09 WS frame precedes HTTP101")
+        closed = [e["params"] for e in events if e.get("method") == "Network.webSocketClosed" and e.get("params",{}).get("requestId") == epoch["request_id"]]
+        _journey_need(len(closed) <= 1 and (not closed or _j06_number(closed[0].get("timestamp")) and all(f["timestamp"] <= closed[0]["timestamp"] for f in frames)), "J09 frame beyond actual closed socket")
+    _journey_need(identities == {(f["connection"],f["request_id"]) for f in page["frames"]}
+                  and {i for i,e in enumerate(events) if e.get("method") == "Network.webSocketWillSendHandshakeRequest"} == {e["handshake_event"] for e in epochs}
+                  and {i for i,e in enumerate(events) if e.get("method") == "Network.requestWillBeSent" and e.get("params",{}).get("type") == "Document"} == {epochs[0]["document_event"],epochs[2]["document_event"]}, "J09 hidden connection/navigation")
+    return {e["id"]:e for e in epochs}
+
+
+def _j09_quiet(decoded):
+    return decoded.get("type") in ("app_heartbeat","heartbeat_ack") or decoded.get("type") == "session_status_changed" and not decoded["session_status_changed"].get("script_is_running")
+
+
+def _j09_result_run(observation,page,phase,previous,*,natural=False):
+    """New-connection result proves recovery; no run is invented at HTTP101."""
+    frames = page["frames"];indices = range(phase["start"],phase["end"])
+    markers = [i for i in indices if frames[i]["decoded"].get("type") == "new_session"]
+    finishes = [i for i in indices if frames[i]["decoded"].get("type") == "script_finished"]
+    clients = [i for i in indices if frames[i]["decoded"].get("type") == "rerun_script"]
+    _journey_need(len(markers) == len(finishes) == 1 and markers[0] < finishes[0]
+                  and (len(clients) <= 1 if natural else len(clients) == 1)
+                  and (not clients or clients[0] < markers[0]), "J09 incomplete/extra natural or probe run")
+    marker,finish = markers[0],finishes[0]
+    epoch = page["epochs"][1]
+    selected = [frames[i] for i in range(marker,finish+1)]
+    _journey_need(all((f["connection"],f["request_id"]) == (epoch["connection"],epoch["request_id"]) for f in selected)
+                  and frames[finish]["decoded"]["script_finished"].get("status") == 0
+                  and isinstance(frames[marker]["decoded"]["new_session"].get("script_run_id"),str)
+                  and frames[marker]["decoded"]["new_session"]["script_run_id"]
+                  and frames[marker]["decoded"]["new_session"].get("session_id") == previous["session"], "J09 result is not successful recovery of s0 on e1")
+    for i in indices:
+        if marker <= i <= finish or i in clients:continue
+        _journey_need(_j09_quiet(frames[i]["decoded"]), "J09 output lies outside the target recovery/probe run")
+    deltas = [f["decoded"]["delta"] for f in selected if f["decoded"].get("type") == "delta"]
+    group = "region" if phase["name"] == "probe-region" else "category"
+    dom = phase["dom_after"]
+    _journey_need(dom["uploaded_files"] == ["sales_basic.csv"] and dom["selectbox_value"] == group
+                  and _same_cell_value(0,dom["slider_value"]) and dom["checkbox_checked"] is True, "J09 recovery/probe controls or file changed")
+    if clients:
+        frame = frames[clients[0]]
+        _journey_need((frame["connection"],frame["request_id"]) == (epoch["connection"],epoch["request_id"]), "J09 old connection supplied recovery state")
+        states = frame["decoded"]["rerun_script"]["widget_states"]
+        _journey_need(len({s.get("id") for s in states}) == len(states), "J09 duplicate typed widget")
+        _stage2_typed_controls(deltas,states,dom,group=group)
+        uploaders = [d for d in deltas if d.get("element") == "file_uploader" and d.get("label") == "Upload sales CSV"]
+        _journey_need(len(uploaders) == 1, "J09 missing uploader source")
+        values = [s for s in states if s.get("id") == uploaders[0].get("id")]
+        _journey_need(len(values) == 1 and values[0].get("value_field") == "file_uploader_state_value"
+                      and values[0].get("value_full",{}).get("uploadedFileInfo") == [previous["info"]], "J09 recovery changed/lost retained file ID")
+    count = previous["runs"]+1
+    for label,key,want in (("Script runs","script_runs",count),("Pulses","pulses",2)):
+        values = [int(m[1]) for d in deltas if d.get("element") in ("text","markdown") and isinstance(d.get("body"),str)
+                  and (m := re.fullmatch(re.escape(label)+r":\s*(\d+)",d["body"].strip()))]
+        _journey_need(values == [want] and _stage2_counter(dom,key) == want, "J09 recovery counter/extra Pulse mismatch")
+    expected = [{"group_key":k,"row_count":n,"total_amount":float(t),"avg_amount":float(a)}
+                for k,n,t,a in J01_EXPECTED_ROWS["group-region" if group == "region" else "upload-baseline"]]
+    _stage2_static_view(observation,phase,{"deltas":deltas},expected_rows=expected)
+    _stage2_specific_alerts(deltas,dom,[])
+    return dict(previous,group=group,runs=count,signature=_j06_dom(dom),
+                checkpoint={"epoch":"e1","script_run_id":frames[marker]["decoded"]["new_session"]["script_run_id"],"finish_frame":finish})
+
+
+def _j09_close_success(value):
+    """Full Runtime.evaluate response observed from the real close hook.
+
+    Do not accept an extracted truthy value: errors/exceptions alongside the
+    alleged result contradict successful execution of this explicit action.
+    """
+    return (type(value) is dict and set(value) == {"id","result"}
+            and type(value["id"]) is int and value["id"] > 0
+            and type(value["result"]) is dict and set(value["result"]) == {"result"}
+            and value["result"]["result"] == {"type":"string","value":"closed"})
+
+
+def _j09_reconnect(observation,page,phase,previous,epochs):
+    events,frames = page["events"],page["frames"]
+    close,window = phase["close"],phase["auto_observation"]
+    _journey_need(type(close["closed_event"]) is int and 0 <= close["closed_event"] < len(events), "J09 missing actual closed event")
+    event = events[close["closed_event"]];params = event["params"]
+    hs = events[epochs["e1"]["handshake_event"]]["params"]
+    response = events[epochs["e1"]["response_event"]]["params"]
+    _journey_need(event["method"] == "Network.webSocketClosed" and params["requestId"] == close["request_id"] == epochs["e0"]["request_id"]
+                  and _j09_close_success(close["evaluation_result"]) and all(_j06_number(t) for t in (close["command_timestamp"],close["completed_timestamp"],params["timestamp"]))
+                  and close["command_timestamp"] == phase["action_timestamp"] and close["command_timestamp"] <= close["completed_timestamp"] <= phase["read_end_timestamp"]
+                  and close["command_timestamp"] <= params["timestamp"] <= hs["timestamp"], "J09 no genuine old-socket close before automatic reconnect")
+    header = {k.lower():v for k,v in hs["request"]["headers"].items()}
+    _journey_need(header["sec-websocket-protocol"].split(",")[2].strip() == previous["session"], "J09 reconnect third protocol entry is not s0")
+    _journey_need(window["start_timestamp"] == response["timestamp"] and _j06_number(window["end_timestamp"])
+                  and window["start_timestamp"]+J09_AUTO_OBSERVE_SECONDS <= window["end_timestamp"] <= phase["read_end_timestamp"], "J09 incomplete real 5-second no-input observation")
+    selected = frames[phase["start"]:phase["end"]]
+    _journey_need(all(_j09_quiet(f["decoded"]) or f["timestamp"] <= window["end_timestamp"] for f in selected), "J09 omitted late run activity from auto observation")
+    new = [f for f in selected if f["request_id"] == epochs["e1"]["request_id"]]
+    started = any(not _j09_quiet(f["decoded"]) for f in new)
+    if observation["plan"] == "ui-probe":
+        _journey_need(not started and all(_j09_quiet(f["decoded"]) for f in selected)
+                      and phase["dom_after"] == phase["dom_before"] and phase["client_states"] == [] and phase["completions"] == []
+                      and phase["ipc"] == {"table":None,"chart":None}, "J09 natural activity was hidden by ui-probe or stale DOM claimed new proof")
+        return previous
+    _journey_need(started, "J09 natural branch has no actual new-connection run")
+    return _j09_result_run(observation,page,phase,previous,natural=True)
+
+
+def _j09_pngs(observation):
+    records,phases,page = observation["screenshots"],observation["phases"],observation["page"]
+    _journey_need(isinstance(records,list) and len(records) == len(phases), "J09 missing/extra 6-or-8 phase pictures")
+    paths = set();root = pathlib.Path(observation["ipc_dir"]).resolve()
+    for phase in phases:
+        matches = [r for r in records if r.get("phase") == phase["name"]]
+        _journey_need(len(matches) == 1, "J09 missing/duplicate phase PNG")
+        record = matches[0];file = pathlib.Path(record["file"]);path = (root/file).resolve();stamp = record["timestamp"]
+        _journey_need(record["namespace"] == page["namespace"] and record["epoch"] == phase["epoch"]
+                      and record["step_ids"] == list(J09_PNG_ROLES[phase["name"]])
+                      and (record["step_ids"] or record.get("role") == "preparation"), "J09 wrong PNG source/epoch/step role")
+        _journey_need(not file.is_absolute() and ".." not in file.parts and path.is_relative_to(root) and path.is_file() and path not in paths, "J09 missing/unsafe/reused PNG")
+        data = path.read_bytes()
+        _journey_need(data.startswith(b"\x89PNG\r\n\x1a\n") and hashlib.sha256(data).hexdigest() == record["sha256"]
+                      and _j06_number(stamp) and phase["read_end_timestamp"] <= stamp <= phase["observation_end_timestamp"]
+                      and stamp-phase["read_end_timestamp"] <= STAGE2_SCREENSHOT_MAX_LAG_SECONDS, "J09 PNG SHA/clock mismatch")
+        paths.add(path)
+
+
 SEQUENCE_CONTRACT = "journey-sequence-v1"
 SEQUENCE_PHASES = {
     J00_CASE: J00_PHASES,
