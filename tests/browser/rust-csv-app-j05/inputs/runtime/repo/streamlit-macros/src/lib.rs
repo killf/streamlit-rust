@@ -1,0 +1,56 @@
+use proc_macro::TokenStream;
+use quote::quote;
+use syn::{ItemFn, parse_macro_input};
+
+/// Main attribute macro for Streamlit applications
+/// This attribute transforms a user's main function that takes a Streamlit parameter
+/// into a proper main function that starts the server and registers the user function.
+#[proc_macro_attribute]
+pub fn main(_attr: TokenStream, item: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(item as ItemFn);
+
+    // Extract function name and signature
+    let _fn_name = &input.sig.ident;
+    let fn_vis = &input.vis;
+
+    // Validate that the function takes exactly one parameter of type &Streamlit
+    let params = &input.sig.inputs;
+    if params.len() != 1 {
+        let error = syn::Error::new_spanned(&input.sig, "Streamlit main function must take exactly one parameter: `st: &Streamlit`");
+        return error.to_compile_error().into();
+    }
+
+    // Extract the function body and check if it's async
+    let fn_body = &input.block;
+    let is_async = input.sig.asyncness.is_some();
+
+    // Generate the transformed code based on whether the function is async
+    let expanded = if is_async {
+        quote! {
+            // Rename the original function to avoid conflict (async version)
+            #fn_vis async fn __streamlit_user_main(st: &::streamlit::Streamlit) #fn_body
+
+            // Generate the actual main function
+            #[tokio::main]
+            async fn main() -> Result<(), Box<dyn std::error::Error>> {
+                // Initialize logging
+                env_logger::Builder::from_default_env().init();
+                log::info!("Starting Streamlit Rust Backend v0.1.0");
+
+                // Create and start the server with async handler
+                let server = ::streamlit::StreamlitServer::new(
+                    |st: &::streamlit::Streamlit| Box::pin(__streamlit_user_main(st)),
+                    "0.0.0.0".into(),
+                    8501
+                );
+                server.start().await?;
+
+                Ok(())
+            }
+        }
+    } else {
+        panic!("Streamlit main function must be async");
+    };
+
+    expanded.into()
+}

@@ -1903,13 +1903,14 @@ def filter_empty_checks(*, observation=None):
     return _stage2_specific_checks("filter-empty", observation)
 
 
-def _stage2_typed_controls(deltas, state, dom, minimum=0, *, group="category"):
+def _stage2_typed_controls(deltas, state, dom, minimum=0, *, group="category", include_unknown=True):
     """Match each actual server Element's ID, one typed ClientState, and DOM."""
     _journey_need(isinstance(state, list) and isinstance(dom, dict), "missing controls/DOM")
+    _journey_need(type(include_unknown) is bool, "invalid expected checkbox contract")
     ids = {}
     for kind, label, field, expected in (("selectbox", "Group by", "string_value", group),
                                          ("slider", "Minimum amount", "double_array_value", [minimum]),
-                                         ("checkbox", "Include unknown region", "bool_value", True)):
+                                         ("checkbox", "Include unknown region", "bool_value", include_unknown)):
         elements = [d for d in deltas if d.get("type") == "new_element" and d.get("element") == kind and d.get("label") == label]
         _journey_need(len(elements) == 1 and isinstance(elements[0].get("id"), str) and elements[0]["id"], "missing/ambiguous source Element: " + label)
         identity = elements[0]["id"]
@@ -1923,12 +1924,12 @@ def _stage2_typed_controls(deltas, state, dom, minimum=0, *, group="category"):
             _journey_need(isinstance(actual, list) and len(actual) == 1 and type(actual[0]) in (int, float)
                           and actual == expected, "wrong explicit slider ClientState")
         elif kind == "checkbox":
-            _journey_need(value.get("value") is True, "wrong explicit checkbox ClientState")
+            _journey_need(value.get("value") is include_unknown, "wrong explicit checkbox ClientState")
         else:
             _journey_need(value.get("value") == expected, "wrong explicit selector ClientState")
     _journey_need(not any(v.get("value_field") == "trigger_value" and v.get("value") is True for v in state), "unexpected callback/button trigger")
     _journey_need(dom.get("selectbox_value") == group and _same_cell_value(minimum, dom.get("slider_value"))
-                  and dom.get("checkbox_checked") is True, "DOM controls contradict ClientState")
+                  and dom.get("checkbox_checked") is include_unknown, "DOM controls contradict ClientState")
     return ids
 
 
@@ -2493,8 +2494,113 @@ def j03_checks(*, observation=None):
     return sequence_checks(observation=observation)
 
 
+# J02 follows the measured continuous 1.66.1 reference chain. S5 observes the
+# ledger, never an additional input or run.
+J02_CASE = "j02-sequence"
+J02_CONTRACT = "journey-j02-filter-v1"
+J02_PHASES = (
+    "initial", "upload-baseline", "group-region", "exclude-unknown",
+    "slider-100", "group-category",
+)
+J02_INPUTS = {"upload-baseline": "sales_basic.csv"}
+J02_FILE_FINGERPRINTS = {"sales_basic.csv": J01_FILE_FINGERPRINTS["sales_basic.csv"]}
+J02_ACTIONS = {
+    "initial": {"action": "initial"},
+    "upload-baseline": {"action": "upload"},
+    "group-region": {"action": "select-option", "label": "Group by", "option": "region"},
+    "exclude-unknown": {"action": "checkbox", "label": "Include unknown region", "value": False},
+    "slider-100": {"action": "slider", "label": "Minimum amount", "value": 100},
+    "group-category": {"action": "select-option", "label": "Group by", "option": "category"},
+}
+J02_PNG_ROLES = {
+    "initial": (), "upload-baseline": (), "group-region": ("J02-S1",),
+    "exclude-unknown": ("J02-S2",), "slider-100": ("J02-S3",),
+    "group-category": ("J02-S4", "J02-S5"),
+}
+# One unchanged final PNG can attest S4's result and S5's visible counters.
+# Publication must identify that byte-for-byte sharing, not claim a new capture.
+J02_COLUMNS = ("group_key", "row_count", "total_amount", "avg_amount")
+J02_TYPES = ("large_string", "int64", "double", "double")
+J02_EXPECTED_ROWS = {
+    "upload-baseline": J01_EXPECTED_ROWS["upload-baseline"],
+    "group-region": J01_EXPECTED_ROWS["group-region"],
+    "exclude-unknown": (("East", 2, "209.49", "104.75"), ("North", 3, "264.50", "88.17"),
+                        ("South", 2, "245.24", "122.62"), ("West", 2, "51.00", "25.50")),
+    "slider-100": (("East", 1, "149.50", "149.50"), ("North", 1, "120.50", "120.50"),
+                   ("South", 1, "199.99", "199.99")),
+    "group-category": (("Books", 1, "120.50", "120.50"), ("Games", 2, "349.49", "174.75")),
+}
+J02_REQUIRED = ("contract", "phase_order", "fixture_bytes", "same_source_session", "run_ledger", "typed_controls",
+                "baseline_values", "region_values", "exclude_unknown_values", "threshold_values", "category_values",
+                "false_oneof", "pointer_100", "fresh_run_ipc", "png_ledger_roles")
+JOURNEY_REQUIRED[J02_CASE] = {(J02_CASE, key) for key in J02_REQUIRED}
+
+
+def j02_checks(*, observation=None):
+    """Strict same-session filtering, with explicit false and read-only S5."""
+    if not isinstance(observation, dict) or observation.get("journey") != J02_CASE:
+        return _journey_finish(J02_CASE, [_check(J02_CASE, key, "complete strict J02 evidence", "missing/wrong J02 observation", False) for key in J02_REQUIRED])
+    return sequence_checks(observation=observation)
+
+
+# J00 measured contract. Note/Apply are first-screen presence/membership
+# assertions, not submit or Pulse actions (those belong to J05).
+J00_CASE = "j00-sequence"
+J00_CONTRACT = "journey-j00-integrated-v1"
+J00_PHASES = (
+    "initial", "upload-baseline", "group-region", "prepare-category",
+    "slider-100", "prepare-slider-zero", "prepare-region", "exclude-unknown",
+)
+J00_INPUTS = {"upload-baseline": "sales_basic.csv"}
+J00_FILE_FINGERPRINTS = {"sales_basic.csv": J01_FILE_FINGERPRINTS["sales_basic.csv"]}
+J00_ACTIONS = {
+    "initial": {"action": "initial"},
+    "upload-baseline": {"action": "upload"},
+    "group-region": {"action": "select-option", "label": "Group by", "option": "region"},
+    "prepare-category": {"action": "select-option", "label": "Group by", "option": "category"},
+    "slider-100": {"action": "slider", "label": "Minimum amount", "value": 100},
+    "prepare-slider-zero": {"action": "slider", "label": "Minimum amount", "value": 0},
+    "prepare-region": {"action": "select-option", "label": "Group by", "option": "region"},
+    "exclude-unknown": {"action": "checkbox", "label": "Include unknown region", "value": False},
+}
+J00_PNG_ROLES = {
+    "initial": ("J00-S1",), "upload-baseline": ("J00-S2",), "group-region": ("J00-S3",),
+    "prepare-category": (), "slider-100": ("J00-S4",), "prepare-slider-zero": (), "prepare-region": (),
+    "exclude-unknown": ("J00-S5", "J00-S6"),
+}
+# S6 is read-only ledger/counter observation sharing the final original PNG.
+# Actual form IDs and Note/Apply membership must come from retained protobuf
+# and the existing forms canonical helper, never a new decoder or label guess.
+J00_FORM_LABELS = ("Note", "Apply note")
+J00_COLUMNS = J02_COLUMNS
+J00_TYPES = J02_TYPES
+J00_EXPECTED_ROWS = {
+    "upload-baseline": J01_EXPECTED_ROWS["upload-baseline"],
+    "group-region": J01_EXPECTED_ROWS["group-region"],
+    "prepare-category": J01_EXPECTED_ROWS["upload-baseline"],
+    "slider-100": J02_EXPECTED_ROWS["group-category"],
+    "prepare-slider-zero": J01_EXPECTED_ROWS["upload-baseline"],
+    "prepare-region": J01_EXPECTED_ROWS["group-region"],
+    "exclude-unknown": J02_EXPECTED_ROWS["exclude-unknown"],
+}
+J00_REQUIRED = ("contract", "phase_order", "fixture_bytes", "same_source_session", "run_ledger", "typed_controls",
+                "baseline_values", "region_values", "category_restore_values", "threshold_values", "slider_restore_values",
+                "known_region_values", "false_oneof", "pointer_100_and_zero", "fresh_run_ipc", "png_ledger_roles",
+                "initial_form_binding", "untouched_note", "untriggered_apply")
+JOURNEY_REQUIRED[J00_CASE] = {(J00_CASE, key) for key in J00_REQUIRED}
+
+
+def j00_checks(*, observation=None):
+    """Strict integrated chain; Note/Apply are observed, never operated."""
+    if not isinstance(observation, dict) or observation.get("journey") != J00_CASE:
+        return _journey_finish(J00_CASE, [_check(J00_CASE, key, "complete strict J00 evidence", "missing/wrong J00 observation", False) for key in J00_REQUIRED])
+    return sequence_checks(observation=observation)
+
+
 SEQUENCE_CONTRACT = "journey-sequence-v1"
 SEQUENCE_PHASES = {
+    J00_CASE: J00_PHASES,
+    J02_CASE: J02_PHASES,
     J03_CASE: J03_PHASES,
     J01_CASE: J01_PHASES,
     "j07-sequence": ("initial", "upload-malformed", "upload-soft", "good-after-soft", "upload-utf8", "good-after-utf8"),
@@ -2507,6 +2613,8 @@ SEQUENCE_INPUTS = {
 }
 _SEQUENCE_COMMON = ("contract", "phase_sequence", "fixture_inputs", "same_source_session", "no_reload_or_reconnect", "distinct_target_runs", "counter_continuity")
 SEQUENCE_REQUIRED = {
+    J00_CASE: J00_REQUIRED,
+    J02_CASE: J02_REQUIRED,
     J03_CASE: J03_REQUIRED,
     J01_CASE: J01_REQUIRED,
     "j07-sequence": (*_SEQUENCE_COMMON, "malformed_error_no_result", "soft_warning_values", "recovery_after_soft", "utf8_error_no_result", "recovery_after_utf8", "png_phase_coverage"),
@@ -2552,22 +2660,58 @@ def _j03_pointer(phase, minimum):
 
 
 def _j03_phase(observation, phase, previous, before_runs):
+    return _filter_control_phase(observation, phase, previous, before_runs, case=J03_CASE)
+
+
+def _j02_phase(observation, phase, previous, before_runs):
+    return _filter_control_phase(observation, phase, previous, before_runs, case=J02_CASE)
+
+
+def _j02_schema(table):
+    types = tuple(line.split(": ", 1)[1].removesuffix(" not null") for line in table["schema"].splitlines()[:4])
+    _journey_need(table["columns"] == list(J02_COLUMNS) and types == J02_TYPES, "J02 nonempty schema/order/types mismatch")
+
+
+def _filter_control_phase(observation, phase, previous, before_runs, *, case):
+    """Closed J00/J02/J03 profiles reuse one real-file/control/data/run proof."""
+    actions = {J00_CASE:J00_ACTIONS, J02_CASE:J02_ACTIONS, J03_CASE:J03_ACTIONS}[case]
     name = phase["name"]
-    _journey_need(all(phase["action"].get(k) == v for k,v in J03_ACTIONS[name].items()), "wrong J03 action/target")
+    expected_rows = ([{"group_key":key,"row_count":count,"total_amount":float(total),"avg_amount":float(mean)}
+                      for key,count,total,mean in (J00_EXPECTED_ROWS if case == J00_CASE else J02_EXPECTED_ROWS)[name]] if case in (J00_CASE, J02_CASE) else
+                     None if name == "slider-200" else _j03_expected_rows(name))
+    _journey_need(all(phase["action"].get(k) == v for k,v in actions[name].items()), "wrong filtering action/target")
     if name == "upload-baseline":
         context, proof, count = _sequence_upload(observation, phase, previous, before_runs)
-        _journey_need(context["table"]["rows"] == _j03_expected_rows(name), "J03 baseline values mismatch")
+        _journey_need(context["table"]["rows"] == expected_rows, "filtering baseline values mismatch")
+        if case in (J00_CASE, J02_CASE):
+            _j02_schema(context["table"])
         return context, proof, count
-    _journey_need(previous is not None, "J03 controls have no preceding upload")
+    _journey_need(previous is not None, "controls have no preceding upload")
     run = _stage2_phase_run(observation, phase)
-    _journey_need(run["identity"] == previous["identity"] and run["session"] == previous["session"], "J03 controls switched file source/session")
-    minimum = J03_ACTIONS[name]["value"] if J03_ACTIONS[name]["action"] == "slider" else 0
-    group = "region" if name in ("group-region", "slider-200") else "category"
+    _journey_need(run["identity"] == previous["identity"] and run["session"] == previous["session"], "controls switched file source/session")
+    if case == J00_CASE:
+        minimum = 100 if name == "slider-100" else 0
+        group = "region" if name in ("group-region", "prepare-region", "exclude-unknown") else "category"
+        include_unknown = name != "exclude-unknown"
+    elif case == J02_CASE:
+        minimum = 100 if name in ("slider-100", "group-category") else 0
+        group = "category" if name == "group-category" else "region"
+        include_unknown = name == "group-region"
+    else:
+        minimum = actions[name]["value"] if actions[name]["action"] == "slider" else 0
+        group = "region" if name in ("group-region", "slider-200") else "category"
+        include_unknown = True
     state = observation["frames"][run["state_index"]]["decoded"]["rerun_script"]["widget_states"]
-    ids = _stage2_typed_controls(run["deltas"], state, phase["dom_after"], minimum, group=group)
-    if J03_ACTIONS[name]["action"] == "slider":
+    ids = _stage2_typed_controls(run["deltas"], state, phase["dom_after"], minimum, group=group, include_unknown=include_unknown)
+    if actions[name]["action"] == "slider":
         _journey_need(type(phase["action"].get("value")) in (int, float), "wrong slider target type")
         _j03_pointer(phase, minimum)
+    elif actions[name]["action"] == "checkbox":
+        record = phase["action"].get("checkbox")
+        _journey_need(phase["action"].get("value") is False and isinstance(record, dict) and record.get("ok") is True
+                      and record.get("requested_value") is False and record.get("before") is True and record.get("after") is False
+                      and record.get("input_method") == "Space" and phase["dom_before"].get("checkbox_checked") is True,
+                      "missing/contradictory actual checkbox uncheck observation")
     view = dict(observation, phases=observation["phases"][1:], uploads={"bad": observation["uploads"]["upload-baseline"]})
     bundle = _journey_bundle(view, phase_index=0)
     uploader = bundle["window"]["widget"]
@@ -2575,23 +2719,24 @@ def _j03_phase(observation, phase, previous, before_runs):
     values = [v for v in state if v.get("id") == uploader]
     _journey_need(len(elements) == 1 and elements[0].get("id") == uploader and len(values) == 1
                   and values[0].get("value_field") == "file_uploader_state_value"
-                  and values[0].get("value_full", {}).get("uploadedFileInfo") == [previous["info"]], "J03 control changed/lost the actual uploaded file")
-    _journey_need(not any(h.get("method") in ("PUT", "DELETE") for h in _journey_http(bundle, phase)), "J03 ordinary control uploaded/deleted a file")
+                  and values[0].get("value_full", {}).get("uploadedFileInfo") == [previous["info"]], "control changed/lost the actual uploaded file")
+    _journey_need(not any(h.get("method") in ("PUT", "DELETE") for h in _journey_http(bundle, phase)), "ordinary control uploaded/deleted a file")
     count = before_runs+1
     _stage2_specific_counters(run["deltas"], phase["dom_after"], count)
     tables = [d for d in run["deltas"] if d.get("element") == "dataframe"]
     charts = [d for d in run["deltas"] if d.get("element") == "vega_lite_chart"]
-    _journey_need(len(tables) == 1, "J03 target run has no unique fresh dataframe")
+    _journey_need(len(tables) == 1, "target run has no unique fresh dataframe")
     table = _journey_ipc(tables[0].get("arrow"), bundle)
-    if name == "slider-200":
+    if case in (J00_CASE, J02_CASE):
+        _j02_schema(table)
+    if case == J03_CASE and name == "slider-200":
         _filtered_empty_view(table, charts, phase["dom_after"], run["deltas"])
     else:
-        expected = _j03_expected_rows(name)
-        _stage2_static_view(observation, phase, run, expected_rows=expected)
-        kind = "slider" if J03_ACTIONS[name]["action"] == "slider" else "selectbox"
+        _stage2_static_view(observation, phase, run, expected_rows=expected_rows)
+        kind = {"slider":"slider", "select-option":"selectbox", "checkbox":"checkbox"}[actions[name]["action"]]
         window = {"start":phase["start"],"end":phase["end"],"target":observation["namespace"],"widget":ids[kind]}
-        verdict = data_loop_verdict({"kind":kind,"label":J03_ACTIONS[name]["label"]}, bundle["frames"], window,
-                                   {"action":"slider" if kind == "slider" else "select","ok":True}, phase["dom_before"], phase["dom_after"])
+        verdict = data_loop_verdict({"kind":kind,"label":actions[name]["label"]}, bundle["frames"], window,
+                                   {"action":"select" if kind == "selectbox" else kind,"ok":True}, phase["dom_before"], phase["dom_after"])
         _journey_need(verdict["ok"], "; ".join(verdict["problems"]))
         _stage2_specific_alerts(run["deltas"], phase["dom_after"], [])
     context = dict(previous, table=table)
@@ -2786,6 +2931,110 @@ def _sequence_output(filename, deltas, dom, context):
         _stage2_specific_alerts(deltas, dom, [])
 
 
+def _j00_forms(observation):
+    """Re-decode the retained form frames with the existing canonical helper.
+
+    The collector retains raw protobuf for form registrations and ClientState;
+    other deltas continue through the reviewed journey decoder/Arrow checks.
+    """
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("j00_forms_contract", REPO_ROOT / "tests/browser/forms_contract.py")
+    canonical = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(canonical)
+    expected_dom = {
+        "text_inputs": [{"label":"Note", "value":"", "form_index":0}],
+        "buttons": [{"label":"Pulse", "testid":"stButton", "form_index":-1},
+                    {"label":"Apply note", "testid":"stFormSubmitButton", "form_index":0}],
+        "forms": [{"index":0, "text_inputs":[{"label":"Note", "value":"", "form_index":0}],
+                   "submit_buttons":[{"label":"Apply note", "testid":"stFormSubmitButton", "form_index":0}]}],
+    }
+    baseline = None
+    for number, phase in enumerate(observation["phases"]):
+        for dom in ([phase["dom_before"], phase["dom_after"]] if number else [phase["dom_after"]]):
+            _journey_need(dom.get("form_membership") == expected_dom and dom.get("applied_note") == "",
+                          "J00 Note/form DOM missing, edited, submitted or incorrectly associated")
+            _journey_need(dom.get("has_uploader") is True and dom.get("has_button") is True
+                          and dom.get("button_labels") == ["Pulse"], "J00 missing/extra initial external controls")
+        deltas = [f["decoded"]["delta"] for f in observation["frames"][phase["start"]:phase["end"]]
+                  if f.get("decoded", {}).get("type") == "delta"]
+        for kind, label in (("file_uploader","Upload sales CSV"), ("selectbox","Group by"),
+                            ("slider","Minimum amount"), ("checkbox","Include unknown region")):
+            controls = [d for d in deltas if d.get("element") == kind and d.get("label") == label]
+            _journey_need(len(controls) == 1 and controls[0].get("id")
+                          and not controls[0].get("form_id") and not controls[0].get("widget", {}).get("disabled"),
+                          "J00 missing/disabled/form-bound external control: " + label)
+        registrations, blocks, clients = {}, [], []
+        for frame in observation["frames"][phase["start"]:phase["end"]]:
+            decoded = frame.get("decoded", {})
+            delta = decoded.get("delta", {})
+            is_client = decoded.get("type") == "rerun_script"
+            is_form = (delta.get("block_type") == "form" or delta.get("element") == "text_input"
+                       or delta.get("element") == "button" or "form_blocks" in frame)
+            if not (is_client or is_form or "base64" in frame and frame.get("direction") == "server->client"):
+                continue
+            # The shared collector records [] for a non-form Element; the
+            # forms-only recorder omits that empty cache. Normalize in memory.
+            raw_frame = {k:v for k,v in frame.items() if k != "form_blocks" or v != []}
+            problems, full = canonical._validate_frame(raw_frame, J00_CASE, phase["name"])
+            _journey_need(not problems and full is not None, "J00 canonical form/state protobuf invalid: " + str(problems))
+            payload = base64.b64decode(frame["base64"], validate=True)
+            if is_client:
+                _journey_need(summarise_back(payload).get("rerun_script") == decoded.get("rerun_script"),
+                              "J00 typed ClientState differs from retained protobuf")
+                clients.append((full.get("rerun_script", {}).get("widget_states", {}).get("widgets", []),
+                                decoded["rerun_script"].get("widget_states")))
+                continue
+            _journey_need(summarise_forward(payload).get("delta") == delta, "J00 form Element/Block differs from retained protobuf")
+            _journey_need(frame.get("official_forward") == full, "J00 official form sidecache differs from retained protobuf")
+            raw_delta = full.get("delta", {})
+            path = full.get("metadata", {}).get("delta_path")
+            forms = canonical._form_blocks_from_forward(full)
+            if forms:
+                _journey_need(delta.get("block_type") == "form", "J00 form Block missing from decoded stream")
+                blocks.append((forms[0], path))
+            for kind, widget in raw_delta.get("new_element", {}).items():
+                if kind not in ("text_input", "button"):
+                    continue
+                role = (kind, widget.get("label"))
+                _journey_need(role in (("text_input","Note"), ("button","Apply note"), ("button","Pulse"))
+                              and role not in registrations and widget.get("id") and delta.get("element") == kind
+                              and delta.get("id") == widget["id"] and delta.get("label") == widget["label"]
+                              and delta.get("form_id") == widget.get("form_id", ""), "J00 missing/ambiguous/misattributed form Element")
+                registrations[role] = (widget, path)
+        _journey_need(len(blocks) == 1 and blocks[0][0] == {"form_id":"apply_form", "border":True,
+                      "enter_to_submit":True, "clear_on_submit":False}, "J00 missing/wrong actual apply_form Block")
+        block_path = blocks[0][1]
+        _journey_need(isinstance(block_path, list) and block_path and all(type(v) is int and v >= 0 for v in block_path)
+                      and len(registrations) == 3, "J00 missing actual form path or Note/Apply/Pulse")
+        note, note_path = registrations[("text_input","Note")]
+        apply, apply_path = registrations[("button","Apply note")]
+        pulse, pulse_path = registrations[("button","Pulse")]
+        _journey_need(note.get("default") == "" and note.get("form_id") == "apply_form"
+                      and apply.get("form_id") == "apply_form" and apply.get("is_form_submitter") is True
+                      and not pulse.get("form_id") and not pulse.get("is_form_submitter")
+                      and note_path == block_path+[0] and apply_path == block_path+[1]
+                      and isinstance(pulse_path, list) and pulse_path[:len(block_path)] != block_path
+                      and len({note["id"], apply["id"], pulse["id"]}) == 3
+                      and all(not v.get("disabled") for v in (note,apply,pulse)), "J00 Note/Apply membership/default/path or external Pulse is incorrect")
+        stable = (note, apply, pulse)
+        if baseline is None:
+            baseline = stable
+        _journey_need(stable == baseline and len(clients) == 1, "J00 form widgets changed identity/defaults or extra ClientState")
+        raw_states, states = clients[0]
+        _journey_need(isinstance(states, list) and len({s["id"] for s in states}) == len(states)
+                      and len({s["id"] for s in raw_states}) == len(raw_states), "J00 missing/duplicate typed ClientState")
+        if not number:
+            _journey_need(raw_states == [] and states == [], "J00 initial Note already has input")
+        else:
+            _journey_need([s for s in raw_states if s.get("id") == note["id"]] == [{"id":note["id"], "string_value":""}]
+                          and [s for s in states if s.get("id") == note["id"]] == [{"id":note["id"], "value_field":"string_value", "value":""}],
+                          "J00 Note was entered, missing or has a wrong typed state")
+        _journey_need(not any(s.get("id") in (apply["id"],pulse["id"]) or s.get("trigger_value") is True for s in raw_states)
+                      and not any(s.get("id") in (apply["id"],pulse["id"]) or s.get("value_field") == "trigger_value" and s.get("value") is True for s in states),
+                      "J00 Apply/Pulse was triggered; applied_note alone is insufficient")
+
+
 def _sequence_pngs(observation):
     records, phases = observation.get("screenshots"), observation["phases"]
     _journey_need(isinstance(records, list) and len(records) == len(phases), "missing/extra sequence phase pictures")
@@ -2794,7 +3043,7 @@ def _sequence_pngs(observation):
         candidates = [r for r in records if r.get("phase") == phase["name"] and r.get("namespace") == observation["namespace"]]
         _journey_need(len(candidates) == 1, "missing/ambiguous phase PNG")
         record = candidates[0]
-        roles = J03_PNG_ROLES if observation["journey"] == J03_CASE else J01_PNG_ROLES if observation["journey"] == J01_CASE else SEQUENCE_PNG_ROLES
+        roles = J00_PNG_ROLES if observation["journey"] == J00_CASE else J02_PNG_ROLES if observation["journey"] == J02_CASE else J03_PNG_ROLES if observation["journey"] == J03_CASE else J01_PNG_ROLES if observation["journey"] == J01_CASE else SEQUENCE_PNG_ROLES
         _journey_need(record.get("step_ids") == list(roles[phase["name"]]), "phase PNG has wrong original-step role")
         if not record["step_ids"]:
             _journey_need(record.get("role") == "preparation", "preparation picture is not honestly identified")
@@ -2808,7 +3057,7 @@ def sequence_checks(*, observation=None):
     if not isinstance(kind, str) or kind not in SEQUENCE_REQUIRED:
         return [dict(_check("sequence", "contract", "known complete sequence", "missing/unknown sequence", False), journey="sequence-invalid")]
     try:
-        contract = J03_CONTRACT if kind == J03_CASE else J01_CONTRACT if kind == J01_CASE else SEQUENCE_CONTRACT
+        contract = J00_CONTRACT if kind == J00_CASE else J02_CONTRACT if kind == J02_CASE else J03_CONTRACT if kind == J03_CASE else J01_CONTRACT if kind == J01_CASE else SEQUENCE_CONTRACT
         _journey_need(observation.get("contract") == contract, "wrong sequence contract")
         phases, frames = observation["phases"], observation["frames"]
         _journey_need(isinstance(phases, list) and tuple(p.get("name") for p in phases) == SEQUENCE_PHASES[kind], "missing/reordered/duplicated sequence phases")
@@ -2873,8 +3122,12 @@ def sequence_checks(*, observation=None):
         count, previous, targets, files = 1, None, {initial_run["run"]}, set()
         baseline_runs = None
         for phase in phases[1:]:
-            if kind == J03_CASE:
-                context, proof, count = _j03_phase(observation, phase, previous, count)
+            if kind in (J00_CASE, J02_CASE, J03_CASE):
+                if kind == J00_CASE:
+                    context, proof, count = _filter_control_phase(observation, phase, previous, count, case=J00_CASE)
+                else:
+                    validator = _j02_phase if kind == J02_CASE else _j03_phase
+                    context, proof, count = validator(observation, phase, previous, count)
                 _journey_need(context["session"] == session, "J03 session changed")
                 if phase["name"] in J03_INPUTS:
                     _journey_need(context["file_id"] not in files, "J03 recycled an earlier file ID")
@@ -2907,6 +3160,8 @@ def sequence_checks(*, observation=None):
         if kind == "j08-sequence":
             view = dict(observation, phases=phases[2:], uploads={"file": observation["uploads"]["upload-baseline"]})
             _stage2_filtered_evidence(view, _journey_bundle(view, phase_index=0), baseline_runs=baseline_runs)
+        if kind == J00_CASE:
+            _j00_forms(observation)
         _sequence_pngs(observation)
     except (ValueError, TypeError, KeyError, IndexError, OSError, AttributeError) as exc:
         actual, ok = str(exc), False

@@ -240,7 +240,14 @@ fn apply_pulse(state: &SessionState, clicked: bool) -> Result<u64> {
     Ok(pulses)
 }
 
-fn render(st: &Streamlit) -> Result<()> {
+fn apply_note(state: &SessionState, submitted: bool, note: Option<String>) -> Result<String> {
+    let previous = state.get::<String>("applied_note")?.unwrap_or_default();
+    let applied = if submitted { note.context("submitted Note is missing")? } else { previous };
+    state.set("applied_note", &applied)?;
+    Ok(applied)
+}
+
+pub(crate) fn render(st: &Streamlit) -> Result<()> {
     let state = st.session_state();
     let runs = begin_run(&state)?;
     st.title("Streamlit Rust CSV data app");
@@ -252,22 +259,82 @@ fn render(st: &Streamlit) -> Result<()> {
     st.sub_header("Interaction");
     let clicked = st.try_button(ButtonOptions::new("Pulse").key("pulse"))?;
     let pulses = apply_pulse(&state, clicked)?;
+    let (note, submitted) = st.form(FormOptions::new("apply_form").clear_on_submit(false), |form| {
+        let note = form.text_input(TextInputOptions::new("Note").key("note"))?;
+        let submitted = form.form_submit_button(FormSubmitButtonOptions::new("Apply note").key("apply_note"))?;
+        Ok((note, submitted))
+    })?;
+    let applied_note = apply_note(&state, submitted, note)?;
     st.write(format!("Script runs: {runs}"));
     st.write(format!("Pulses: {pulses}"));
+    st.write(format!("Applied note: {applied_note}"));
     Ok(())
 }
 
-#[main]
-async fn main(st: &Streamlit) {
-    if let Err(error) = render(st) {
-        st.write(format!("Data app error: {error}"));
-    }
+#[tokio::main]
+async fn main() -> std::io::Result<()> {
+    env_logger::Builder::from_default_env().init();
+    log::info!("Starting Streamlit Rust Backend v0.1.0");
+    StreamlitServer::new(
+        |st| {
+            Box::pin(async move {
+                if let Err(error) = render(st) {
+                    st.write(format!("Data app error: {error}"));
+                }
+            })
+        },
+        "127.0.0.1".into(),
+        8501,
+    )
+    .start()
+    .await
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use ::streamlit::data::from_ipc_stream;
+
+    #[test]
+    fn note_changes_only_on_submit_and_empty_string_is_a_value() {
+        let state = SessionState::default();
+        assert_eq!(apply_note(&state, false, Some(String::new())).unwrap(), "");
+        assert_eq!(state.get::<String>("applied_note").unwrap().as_deref(), Some(""));
+        assert_eq!(apply_note(&state, false, Some("staged".into())).unwrap(), "");
+        assert_eq!(apply_note(&state, true, Some("hello".into())).unwrap(), "hello");
+        assert_eq!(apply_note(&state, false, Some("later edit".into())).unwrap(), "hello");
+        assert_eq!(apply_note(&state, true, Some(String::new())).unwrap(), "");
+    }
+
+    #[test]
+    fn absent_note_and_invalid_state_do_not_silently_become_empty() {
+        let state = SessionState::default();
+        apply_note(&state, true, Some("retained".into())).unwrap();
+        assert!(apply_note(&state, true, None).is_err());
+        assert_eq!(state.get::<String>("applied_note").unwrap().as_deref(), Some("retained"));
+        state.set("applied_note", 7).unwrap();
+        assert!(apply_note(&state, false, Some(String::new())).is_err());
+        assert_eq!(state.get::<u64>("applied_note").unwrap(), Some(7));
+    }
+
+    #[test]
+    fn notes_preserve_independent_session_counters() {
+        let a = SessionState::default();
+        let b = SessionState::default();
+        assert_eq!(begin_run(&a).unwrap(), 1);
+        apply_note(&a, true, Some("hello".into())).unwrap();
+        for expected in 1..=3 {
+            assert_eq!(begin_run(&a).unwrap(), expected + 1);
+            assert_eq!(apply_pulse(&a, true).unwrap(), expected);
+            assert_eq!(apply_note(&a, false, Some("hello".into())).unwrap(), "hello");
+        }
+        assert_eq!(begin_run(&b).unwrap(), 1);
+        assert_eq!(apply_pulse(&b, false).unwrap(), 0);
+        assert_eq!(apply_note(&b, false, Some(String::new())).unwrap(), "");
+        assert_eq!(a.get::<String>("applied_note").unwrap().as_deref(), Some("hello"));
+        assert_eq!(a.get::<u64>("run_count").unwrap(), Some(4));
+        assert_eq!(a.get::<u64>("pulse_count").unwrap(), Some(3));
+    }
 
     #[test]
     fn ragged_rows_report_reference_record_numbers_and_field_counts() {

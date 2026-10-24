@@ -12,89 +12,244 @@
       "id": "J00",
       "title": "First-release minimal closed loop",
       "priority": "P0",
-      "status": "failed",
-      "failure": {
-        "reason": "3 of the 6 steps were verified against the Rust data app and published under tests/browser/rust-journeys/; the remaining steps were not run and no screenshot was taken, so the journey is not passed."
-      },
+      "status": "passed",
       "attempt": {
-        "command": "target\\pyref-venv\\Scripts\\python.exe tests\\browser\\numeric_capture.py --url http://127.0.0.1:8501/ --case data-loop --journey <journey> --files <absolute fixture paths> --label rust-final-<journey> --out target\\final-427F-<timestamp>\\rust\\<journey> --binary \"target/checks/data-app-live/data-app-security-final-20261024T152745018.exe sha256 427F3AF719559C14B8A207660B9BA562D42C6F2C9A6B16E7C3864DED9B1D3A19\" --scope \"RUST SIDE ONLY\"",
-        "binary_sha256": "427F3AF719559C14B8A207660B9BA562D42C6F2C9A6B16E7C3864DED9B1D3A19",
-        "source_sha256": "13373cf614f0f16db351d51a72fdc4902504d7952dd53258625c9bae58b09531",
-        "criteria_sha256": "DA2E746A8267E1DFAC65CF0CB5513B3C6B729B33C5035C3CF5C253F016925D9A",
-        "driver_sha256": "9EDC3FA1D456E5592771C448AC5E600C99D71398C5E55CCB7E8A541F61E5F966",
-        "capture_directory": "target/final-427F-20261024T162828",
+        "kind": "final_verification",
+        "command": "target\\pyref-venv\\Scripts\\python.exe tests/browser/numeric_capture.py --replay tests/browser/rust-journeys/j00-sequence/trace-data-loop.json",
         "exit_code": 0,
-        "criteria_sha256_captured": "B29B4F85AC9BEBE885C4B3EEE8E2142D8A44DC4724C6A9F1075BB09062DA08F6",
-        "revalidated": "the same raws pass under the newer criterion, which binds the result to the run that carries the target state"
+        "python_command": "target\\pyref-venv\\Scripts\\python.exe tests/browser/numeric_capture.py --replay tests/reference/reference-browser/journeys/j00-sequence/trace-data-loop.json",
+        "python_exit_code": 0
       },
       "linked_artifacts": [
-        "tests/browser/rust-journeys/data-loop/trace-data-loop.json"
-      ],
-      "waived_evidence": [
-        {
-          "artifact": "tests/e2e/J00/J00-S1.png",
-          "reason": "the step was not run in this attempt."
-        },
-        {
-          "artifact": "tests/e2e/J00/J00-S2.png",
-          "reason": "the capture records the wire frames and the DOM values; it takes no screenshot."
-        },
-        {
-          "artifact": "tests/e2e/J00/J00-S3.png",
-          "reason": "the capture records the wire frames and the DOM values; it takes no screenshot."
-        },
-        {
-          "artifact": "tests/e2e/J00/J00-S4.png",
-          "reason": "the step was not run in this attempt."
-        },
-        {
-          "artifact": "tests/e2e/J00/J00-S5.png",
-          "reason": "the capture records the wire frames and the DOM values; it takes no screenshot."
-        },
-        {
-          "artifact": "tests/e2e/J00/J00-S6.png",
-          "reason": "the step was not run in this attempt."
-        }
+        "tests/browser/rust-journeys/j00-sequence/trace-data-loop.json",
+        "tests/reference/reference-browser/journeys/j00-sequence/trace-data-loop.json",
+        "tests/browser/rust-journeys/j00-sequence/verification.json",
+        "tests/browser/rust-journeys/j00-sequence/candidate/candidate.json",
+        "tests/e2e/J00/J00-S1.png",
+        "tests/e2e/J00/J00-S2.png",
+        "tests/e2e/J00/J00-S3.png",
+        "tests/e2e/J00/J00-S4.png",
+        "tests/e2e/J00/J00-S5.png",
+        "tests/e2e/J00/J00-S6.png",
+        "tests/browser/rust-journeys/j00-sequence/04-prepare-category.png",
+        "tests/browser/rust-journeys/j00-sequence/06-prepare-slider-zero.png",
+        "tests/browser/rust-journeys/j00-sequence/07-prepare-region.png"
       ],
       "steps": [
         {
           "id": "J00-S1",
           "action": "Open the application and let the first script run complete.",
-          "expectation": "The page renders the title, the file uploader, the three filter widgets, the Pulse button, the note form, the counters, and the info message \"Upload a CSV to see the aggregated result.\"."
+          "expectation": "The page renders the title, the file uploader, the three filter widgets, the Pulse button, the note form, the counters, and the info message \"Upload a CSV to see the aggregated result.\".",
+          "evidence_phase": "initial",
+          "rust_evidence": "tests/browser/rust-journeys/j00-sequence/trace-data-loop.json",
+          "python_reference_trace": "tests/reference/reference-browser/journeys/j00-sequence/trace-data-loop.json",
+          "screenshot": "tests/e2e/J00/J00-S1.png",
+          "screenshot_sha256": "79f4faa9c8a0df571cf1043d07a6db7c8cef25287583b45012fff693a13f59c6",
+          "rust_result": "Verified target-run Arrow/table/chart and visible controls; Script runs: 1, Pulses: 0.",
+          "same_recorded_png_step_ids": [
+            "J00-S1"
+          ]
         },
         {
           "id": "J00-S2",
           "action": "Upload tests/fixtures/csv/sales_basic.csv through the uploader.",
           "expectation": "The aggregated table renders 4 rows (Books, Games, Music, Toys) with the totals from the golden file, and one Vega-Lite bar chart is rendered below it.",
-          "rust_result": "Books 3/245.75, Games 3/409.48, Music 3/139, Toys 3/104.49, and one bar chart with four bars.",
-          "rust_evidence": "tests/browser/rust-journeys/data-loop/trace-data-loop.json"
+          "rust_result": "Verified target-run Arrow/table/chart and visible controls; Script runs: 2, Pulses: 0.",
+          "rust_evidence": "tests/browser/rust-journeys/j00-sequence/trace-data-loop.json",
+          "evidence_phase": "upload-baseline",
+          "python_reference_trace": "tests/reference/reference-browser/journeys/j00-sequence/trace-data-loop.json",
+          "screenshot": "tests/e2e/J00/J00-S2.png",
+          "screenshot_sha256": "31201ff306e7686c86a194ce8b5d641043d8125519d5b2de22657b1f1e102fcf",
+          "same_recorded_png_step_ids": [
+            "J00-S2"
+          ]
         },
         {
           "id": "J00-S3",
           "action": "Change the 'Group by' selector to 'region'.",
           "expectation": "In the same run, the table changes to 6 region groups ((missing), East, North, South, UNKNOWN, West) and the chart's x-axis labels change to the same 6 keys.",
-          "rust_result": "six region groups ((missing) 1/88, East 2/209.49, North 3/264.5, South 2/245.24, UNKNOWN 2/40.49, West 2/51) and six bars.",
-          "rust_evidence": "tests/browser/rust-journeys/data-loop/trace-data-loop.json"
+          "rust_result": "Verified target-run Arrow/table/chart and visible controls; Script runs: 3, Pulses: 0.",
+          "rust_evidence": "tests/browser/rust-journeys/j00-sequence/trace-data-loop.json",
+          "evidence_phase": "group-region",
+          "python_reference_trace": "tests/reference/reference-browser/journeys/j00-sequence/trace-data-loop.json",
+          "screenshot": "tests/e2e/J00/J00-S3.png",
+          "screenshot_sha256": "5b31986b74aec658b89671d97d2f45df26e2b287e4e31c5e6f870d7a30f4e13e",
+          "same_recorded_png_step_ids": [
+            "J00-S3"
+          ]
         },
         {
           "id": "J00-S4",
           "action": "Move the 'Minimum amount' slider to 100.",
-          "expectation": "The table reduces to 2 groups (Books 1 row 120.50, Games 2 rows 349.49) and the chart shows exactly 2 bars."
+          "expectation": "The table reduces to 2 groups (Books 1 row 120.50, Games 2 rows 349.49) and the chart shows exactly 2 bars.",
+          "evidence_phase": "slider-100",
+          "rust_evidence": "tests/browser/rust-journeys/j00-sequence/trace-data-loop.json",
+          "python_reference_trace": "tests/reference/reference-browser/journeys/j00-sequence/trace-data-loop.json",
+          "screenshot": "tests/e2e/J00/J00-S4.png",
+          "screenshot_sha256": "852a9a6c1294f311b0854051e26a706b2ee3b8aaad5b312d343ee04ec9e84ebe",
+          "rust_result": "Verified target-run Arrow/table/chart and visible controls; Script runs: 5, Pulses: 0.",
+          "same_recorded_png_step_ids": [
+            "J00-S4"
+          ]
         },
         {
           "id": "J00-S5",
           "action": "Uncheck 'Include unknown region'.",
           "expectation": "The table reduces to 4 known regions totalling 9 rows, and the chart shows 4 bars.",
-          "rust_result": "four known regions (East 2/209.49, North 3/264.5, South 2/245.24, West 2/51) covering 9 rows, with four bars.",
-          "rust_evidence": "tests/browser/rust-journeys/data-loop/trace-data-loop.json"
+          "rust_result": "Verified target-run Arrow/table/chart and visible controls; Script runs: 8, Pulses: 0.",
+          "rust_evidence": "tests/browser/rust-journeys/j00-sequence/trace-data-loop.json",
+          "evidence_phase": "exclude-unknown",
+          "python_reference_trace": "tests/reference/reference-browser/journeys/j00-sequence/trace-data-loop.json",
+          "screenshot": "tests/e2e/J00/J00-S5.png",
+          "screenshot_sha256": "b16d3ed255c7f30f789ede9b86c0e9e16e381f5ae89f0fbf1bb95a979c3914eb",
+          "same_recorded_png_step_ids": [
+            "J00-S5",
+            "J00-S6"
+          ]
         },
         {
           "id": "J00-S6",
           "action": "Read the session counter.",
-          "expectation": "'Script runs' equals the number of script runs so far (one per rerun) and 'Pulses' is still 0 because no button was clicked."
+          "expectation": "'Script runs' equals the number of script runs so far (one per rerun) and 'Pulses' is still 0 because no button was clicked.",
+          "evidence_phase": "exclude-unknown",
+          "rust_evidence": "tests/browser/rust-journeys/j00-sequence/trace-data-loop.json",
+          "python_reference_trace": "tests/reference/reference-browser/journeys/j00-sequence/trace-data-loop.json",
+          "screenshot": "tests/e2e/J00/J00-S6.png",
+          "screenshot_sha256": "b16d3ed255c7f30f789ede9b86c0e9e16e381f5ae89f0fbf1bb95a979c3914eb",
+          "rust_result": "Verified target-run Arrow/table/chart and visible controls; Script runs: 8, Pulses: 0.",
+          "same_recorded_png_step_ids": [
+            "J00-S5",
+            "J00-S6"
+          ]
         }
       ],
-      "python_reference_trace": "tests/reference/reference-browser/closed-loop/trace.json"
+      "python_reference_trace": "tests/reference/reference-browser/journeys/j00-sequence/trace-data-loop.json",
+      "capture_history": {
+        "python": {
+          "raw": "tests/reference/reference-browser/journeys/j00-sequence/trace-data-loop.json",
+          "raw_sha256": "f1b1470686fa91dd0ea5d715287a8e47e5d88e01bb22f521bb6ee91e619dcc27",
+          "frames": 185,
+          "counts_in_original_raw": {
+            "expected": 1,
+            "executed": 1,
+            "asserted": 0
+          },
+          "observed_process_exit_code": 1,
+          "invocation": [
+            "target\\pyref-venv\\Scripts\\python.exe",
+            "-"
+          ],
+          "invocation_kind": "stdin bootstrap executing retained exact source bytes via compile/exec; bootstrap body was not archived",
+          "entry": "tests/browser/numeric_capture.py",
+          "recorded_entry_parameters": {
+            "url": "http://127.0.0.1:8601/",
+            "journey": "j00-sequence",
+            "namespace": "python-j00-preflight",
+            "output_directory": "D:\\dlab\\streamlit-rust\\target\\j00-python-preflight-20261025T030138",
+            "scope": "PYTHON SIDE ONLY",
+            "binary": "",
+            "build_base": ""
+          },
+          "source_snapshot": "tests/reference/reference-browser/journeys/j00-sequence/capture-source/SHA256SUMS",
+          "sources": {
+            "capture_browser_trace.py": "84c80065d378305a879838ed78c99133f6571cdd722fd7eb080d14a300302d5b",
+            "numeric_capture.py": "08e8cc07d18824fc08eee5f6298d3d228b335b92ae15599404ccbd4be6e2255d",
+            "forms_contract.py": "0b943ee2e9f9a2e0b42bc6293d7e185277dd50097c39a5ddde8b11500afe6370"
+          }
+        },
+        "rust": {
+          "raw": "tests/browser/rust-journeys/j00-sequence/trace-data-loop.json",
+          "raw_sha256": "69a22226500506d2d022c6991f6b40b59aacbdf9520ca23aca213dfe65019aeb",
+          "frames": 177,
+          "counts_in_original_raw": {
+            "expected": 1,
+            "executed": 1,
+            "asserted": 0
+          },
+          "observed_process_exit_code": 1,
+          "invocation": [
+            "target\\pyref-venv\\Scripts\\python.exe",
+            "-"
+          ],
+          "invocation_kind": "stdin bootstrap executing retained exact source bytes via compile/exec; bootstrap body was not archived",
+          "entry": "tests/browser/numeric_capture.py",
+          "recorded_entry_parameters": {
+            "url": "http://127.0.0.1:8501/",
+            "journey": "j00-sequence",
+            "namespace": "rust-j00-main",
+            "output_directory": "D:\\dlab\\streamlit-rust\\target\\j00-rust-main-20261025T030355",
+            "scope": "RUST SIDE ONLY",
+            "binary": "D:\\dlab\\streamlit-rust\\target\\checks\\j00-main-app-76938fb-42e54a-8501\\data-app-42e54a-8501.exe sha256 7297430d65622b52f716a1dc5c5308bf2767a6d4d39625a9a1e9eb2387010b23 runtime_set_sha256 04dd33aa3b458bab8b6249ab92624864c46b385bcd092afd2684bcd0f73217fa config_sha256 5ab7564d2de266fcb8c23bdca1b45cb5512fa74b0721fa9168ba7f443494da5e actual_data_app_sha256 42e54a740db398b0cad26681f9e28099e77d70c84abf3b85c62cf3d36121f418 candidate_sha256 eef1173d9cbb2c26e4471a5059254db07af7fb31cdadb06b049d36f1c3966b7d",
+            "build_base": "76938fb643149424e69af0ddbccc3127be751178"
+          },
+          "source_snapshot": "tests/browser/rust-journeys/j00-sequence/capture-source/SHA256SUMS",
+          "sources": {
+            "capture_browser_trace.py": "84c80065d378305a879838ed78c99133f6571cdd722fd7eb080d14a300302d5b",
+            "numeric_capture.py": "08e8cc07d18824fc08eee5f6298d3d228b335b92ae15599404ccbd4be6e2255d",
+            "forms_contract.py": "0b943ee2e9f9a2e0b42bc6293d7e185277dd50097c39a5ddde8b11500afe6370"
+          }
+        }
+      },
+      "verification": {
+        "method": "Independent Hooke candidate PASS, then actual repository CLI replay of the unchanged archived raw bytes with adjacent IPC/PNG; original business expectations retained. Final published mapping awaits review.",
+        "final_replay_criteria_sha256": "1990f920dbc0eebe28ce40de46bf8a8b3b71c0610a735706bc388ad77861fa9d",
+        "replay_driver_sha256": "df2734eef3db2d6ab1973f04586ad82ca887ca702ef01c4ed7bcd7a11443f2c8",
+        "results": {
+          "python": {
+            "command": "target\\pyref-venv\\Scripts\\python.exe tests/browser/numeric_capture.py --replay tests/reference/reference-browser/journeys/j00-sequence/trace-data-loop.json",
+            "exit_code": 0,
+            "counts": {
+              "expected": 19,
+              "executed": 19,
+              "asserted": 19
+            },
+            "failures": [],
+            "raw_sha256": "f1b1470686fa91dd0ea5d715287a8e47e5d88e01bb22f521bb6ee91e619dcc27"
+          },
+          "rust": {
+            "command": "target\\pyref-venv\\Scripts\\python.exe tests/browser/numeric_capture.py --replay tests/browser/rust-journeys/j00-sequence/trace-data-loop.json",
+            "exit_code": 0,
+            "counts": {
+              "expected": 19,
+              "executed": 19,
+              "asserted": 19
+            },
+            "failures": [],
+            "raw_sha256": "69a22226500506d2d022c6991f6b40b59aacbdf9520ca23aca213dfe65019aeb"
+          }
+        }
+      },
+      "runtime_binding": {
+        "candidate_metadata": "tests/browser/rust-journeys/j00-sequence/candidate/candidate.json",
+        "candidate_sha256": "eef1173d9cbb2c26e4471a5059254db07af7fb31cdadb06b049d36f1c3966b7d",
+        "git_base": "76938fb643149424e69af0ddbccc3127be751178",
+        "actual_data_app_sha256": "42e54a740db398b0cad26681f9e28099e77d70c84abf3b85c62cf3d36121f418",
+        "binary_sha256": "7297430d65622b52f716a1dc5c5308bf2767a6d4d39625a9a1e9eb2387010b23",
+        "runtime_set_sha256": "04dd33aa3b458bab8b6249ab92624864c46b385bcd092afd2684bcd0f73217fa",
+        "config_sha256": "5ab7564d2de266fcb8c23bdca1b45cb5512fa74b0721fa9168ba7f443494da5e"
+      },
+      "preparation_contract": {
+        "version": "journey-j00-integrated-v1",
+        "note": "Preparation is part of this same-page observed run ledger, not extra business steps. Final two business steps share one recorded PNG; no additional event/run.",
+        "evidence": "tests/browser/rust-journeys/j00-sequence/trace-data-loop.json",
+        "preparations": [
+          {
+            "phase": "prepare-category",
+            "file": "tests/browser/rust-journeys/j00-sequence/04-prepare-category.png",
+            "sha256": "0956d8cdeca6a23752cbd02678090af81f5c36b8f366b880274eec0fba795906"
+          },
+          {
+            "phase": "prepare-slider-zero",
+            "file": "tests/browser/rust-journeys/j00-sequence/06-prepare-slider-zero.png",
+            "sha256": "567fa79e0fc70fc2e611d29f4169e19f7537c36493711e4eb9bac19a75ed44d1"
+          },
+          {
+            "phase": "prepare-region",
+            "file": "tests/browser/rust-journeys/j00-sequence/07-prepare-region.png",
+            "sha256": "4918128fc60ef524377b3df45c6df6b6d640dc6086f6f5a76ebd8c55d075e9d4"
+          }
+        ]
+      }
     },
     {
       "id": "J01",
@@ -213,83 +368,221 @@
       "id": "J02",
       "title": "Widget filtering",
       "priority": "P0",
-      "status": "failed",
-      "failure": {
-        "reason": "3 of the 5 steps were verified against the Rust data app and published under tests/browser/rust-journeys/; the remaining steps were not run and no screenshot was taken, so the journey is not passed."
-      },
+      "status": "passed",
       "attempt": {
-        "command": "target\\pyref-venv\\Scripts\\python.exe tests\\browser\\numeric_capture.py --url http://127.0.0.1:8501/ --case data-loop --journey <journey> --files <absolute fixture paths> --label rust-final-<journey> --out target\\final-427F-<timestamp>\\rust\\<journey> --binary \"target/checks/data-app-live/data-app-security-final-20261024T152745018.exe sha256 427F3AF719559C14B8A207660B9BA562D42C6F2C9A6B16E7C3864DED9B1D3A19\" --scope \"RUST SIDE ONLY\"",
-        "binary_sha256": "427F3AF719559C14B8A207660B9BA562D42C6F2C9A6B16E7C3864DED9B1D3A19",
-        "source_sha256": "13373cf614f0f16db351d51a72fdc4902504d7952dd53258625c9bae58b09531",
-        "criteria_sha256": "DA2E746A8267E1DFAC65CF0CB5513B3C6B729B33C5035C3CF5C253F016925D9A",
-        "driver_sha256": "9EDC3FA1D456E5592771C448AC5E600C99D71398C5E55CCB7E8A541F61E5F966",
-        "capture_directory": "target/final-427F-20261024T162828",
+        "kind": "final_verification",
+        "command": "target\\pyref-venv\\Scripts\\python.exe tests/browser/numeric_capture.py --replay tests/browser/rust-journeys/j02-sequence/trace-data-loop.json",
         "exit_code": 0,
-        "criteria_sha256_captured": "B29B4F85AC9BEBE885C4B3EEE8E2142D8A44DC4724C6A9F1075BB09062DA08F6",
-        "revalidated": "the same raws pass under the newer criterion, which binds the result to the run that carries the target state"
+        "python_command": "target\\pyref-venv\\Scripts\\python.exe tests/browser/numeric_capture.py --replay tests/reference/reference-browser/journeys/j02-sequence/trace-data-loop.json",
+        "python_exit_code": 0
       },
       "linked_artifacts": [
-        "tests/browser/rust-journeys/data-loop/trace-data-loop.json"
-      ],
-      "waived_evidence": [
-        {
-          "artifact": "tests/e2e/J02/J02-S1.png",
-          "reason": "the capture records the wire frames and the DOM values; it takes no screenshot."
-        },
-        {
-          "artifact": "tests/e2e/J02/J02-S2.png",
-          "reason": "the capture records the wire frames and the DOM values; it takes no screenshot."
-        },
-        {
-          "artifact": "tests/e2e/J02/J02-S3.png",
-          "reason": "the capture records the wire frames and the DOM values; it takes no screenshot."
-        },
-        {
-          "artifact": "tests/e2e/J02/J02-S4.png",
-          "reason": "the step was not run in this attempt."
-        },
-        {
-          "artifact": "tests/e2e/J02/J02-S5.png",
-          "reason": "the step was not run in this attempt."
-        }
+        "tests/browser/rust-journeys/j02-sequence/trace-data-loop.json",
+        "tests/reference/reference-browser/journeys/j02-sequence/trace-data-loop.json",
+        "tests/browser/rust-journeys/j02-sequence/verification.json",
+        "tests/browser/rust-journeys/j00-sequence/candidate/candidate.json",
+        "tests/e2e/J02/J02-S1.png",
+        "tests/e2e/J02/J02-S2.png",
+        "tests/e2e/J02/J02-S3.png",
+        "tests/e2e/J02/J02-S4.png",
+        "tests/e2e/J02/J02-S5.png",
+        "tests/browser/rust-journeys/j02-sequence/01-initial.png",
+        "tests/browser/rust-journeys/j02-sequence/02-upload-baseline.png"
       ],
       "steps": [
         {
           "id": "J02-S1",
           "action": "Set 'Group by' to 'region' with the default slider and checkbox.",
           "expectation": "6 region groups covering 12 rows.",
-          "python_reference_trace": "tests/reference/reference-browser/data-loop/updates-strict/trace-data-loop.json",
-          "rust_result": "six region groups covering 12 rows.",
-          "rust_evidence": "tests/browser/rust-journeys/data-loop/trace-data-loop.json"
+          "python_reference_trace": "tests/reference/reference-browser/journeys/j02-sequence/trace-data-loop.json",
+          "rust_result": "Verified target-run Arrow/table/chart and visible controls; Script runs: 3, Pulses: 0.",
+          "rust_evidence": "tests/browser/rust-journeys/j02-sequence/trace-data-loop.json",
+          "evidence_phase": "group-region",
+          "screenshot": "tests/e2e/J02/J02-S1.png",
+          "screenshot_sha256": "5b31986b74aec658b89671d97d2f45df26e2b287e4e31c5e6f870d7a30f4e13e",
+          "same_recorded_png_step_ids": [
+            "J02-S1"
+          ]
         },
         {
           "id": "J02-S2",
           "action": "Uncheck 'Include unknown region'.",
           "expectation": "The '(missing)' and 'UNKNOWN' groups disappear; 4 groups remain covering 9 rows.",
-          "python_reference_trace": "tests/reference/reference-browser/data-loop/updates-strict/trace-data-loop.json",
-          "rust_result": "the four known regions covering 9 rows.",
-          "rust_evidence": "tests/browser/rust-journeys/data-loop/trace-data-loop.json"
+          "python_reference_trace": "tests/reference/reference-browser/journeys/j02-sequence/trace-data-loop.json",
+          "rust_result": "Verified target-run Arrow/table/chart and visible controls; Script runs: 4, Pulses: 0.",
+          "rust_evidence": "tests/browser/rust-journeys/j02-sequence/trace-data-loop.json",
+          "evidence_phase": "exclude-unknown",
+          "screenshot": "tests/e2e/J02/J02-S2.png",
+          "screenshot_sha256": "7d2112380c791a35043cd1590ef432214633f0b26c30341e04196e7301c2a969",
+          "same_recorded_png_step_ids": [
+            "J02-S2"
+          ]
         },
         {
           "id": "J02-S3",
           "action": "Set 'Minimum amount' to 100.",
           "expectation": "Only East (149.50, 1 row), North (120.50, 1 row) and South (199.99, 1 row) remain; 3 rows in total.",
-          "python_reference_trace": "tests/reference/reference-browser/data-loop/updates-strict/trace-data-loop.json",
-          "rust_result": "East 149.50, North 120.50 and South 199.99, three rows in total.",
-          "rust_evidence": "tests/browser/rust-journeys/data-loop/trace-data-loop.json"
+          "python_reference_trace": "tests/reference/reference-browser/journeys/j02-sequence/trace-data-loop.json",
+          "rust_result": "Verified target-run Arrow/table/chart and visible controls; Script runs: 5, Pulses: 0.",
+          "rust_evidence": "tests/browser/rust-journeys/j02-sequence/trace-data-loop.json",
+          "evidence_phase": "slider-100",
+          "screenshot": "tests/e2e/J02/J02-S3.png",
+          "screenshot_sha256": "61986f5b918f6baf61eb2c8648a364b03a472bb57fd1ce46b93362968310436b",
+          "same_recorded_png_step_ids": [
+            "J02-S3"
+          ]
         },
         {
           "id": "J02-S4",
           "action": "Set 'Group by' back to 'category' while the slider stays at 100 and the checkbox stays off.",
-          "expectation": "Only Books (1 row, 120.50) and Games (2 rows, 349.49) remain; Music and Toys disappear entirely rather than appearing with zero counts."
+          "expectation": "Only Books (1 row, 120.50) and Games (2 rows, 349.49) remain; Music and Toys disappear entirely rather than appearing with zero counts.",
+          "evidence_phase": "group-category",
+          "rust_evidence": "tests/browser/rust-journeys/j02-sequence/trace-data-loop.json",
+          "python_reference_trace": "tests/reference/reference-browser/journeys/j02-sequence/trace-data-loop.json",
+          "screenshot": "tests/e2e/J02/J02-S4.png",
+          "screenshot_sha256": "7c098c5f672777fe977ea99098dbef9e244dcb7058a2779c7601b363a160c498",
+          "rust_result": "Verified target-run Arrow/table/chart and visible controls; Script runs: 6, Pulses: 0.",
+          "same_recorded_png_step_ids": [
+            "J02-S4",
+            "J02-S5"
+          ]
         },
         {
           "id": "J02-S5",
           "action": "Confirm that one control change produces exactly one rerun.",
-          "expectation": "'Script runs' increases by exactly 1 per control change; no extra rerun is triggered by the server."
+          "expectation": "'Script runs' increases by exactly 1 per control change; no extra rerun is triggered by the server.",
+          "evidence_phase": "group-category",
+          "rust_evidence": "tests/browser/rust-journeys/j02-sequence/trace-data-loop.json",
+          "python_reference_trace": "tests/reference/reference-browser/journeys/j02-sequence/trace-data-loop.json",
+          "screenshot": "tests/e2e/J02/J02-S5.png",
+          "screenshot_sha256": "7c098c5f672777fe977ea99098dbef9e244dcb7058a2779c7601b363a160c498",
+          "rust_result": "Verified target-run Arrow/table/chart and visible controls; Script runs: 6, Pulses: 0.",
+          "same_recorded_png_step_ids": [
+            "J02-S4",
+            "J02-S5"
+          ]
         }
       ],
-      "python_reference_trace": "tests/reference/reference-browser/closed-loop/trace.json"
+      "python_reference_trace": "tests/reference/reference-browser/journeys/j02-sequence/trace-data-loop.json",
+      "capture_history": {
+        "python": {
+          "raw": "tests/reference/reference-browser/journeys/j02-sequence/trace-data-loop.json",
+          "raw_sha256": "dd6eb79fc7194c4a32e8d8b85727abc78997756b38654283b1dfecd7dbeba65f",
+          "frames": 139,
+          "counts_in_original_raw": {
+            "expected": 1,
+            "executed": 1,
+            "asserted": 0
+          },
+          "observed_process_exit_code": 1,
+          "invocation": [
+            "target\\pyref-venv\\Scripts\\python.exe",
+            "-"
+          ],
+          "invocation_kind": "stdin bootstrap executing retained exact source bytes via compile/exec; bootstrap body was not archived",
+          "entry": "tests/browser/numeric_capture.py",
+          "recorded_entry_parameters": {
+            "url": "http://127.0.0.1:8601/",
+            "journey": "j02-sequence",
+            "namespace": "python-j02-preflight",
+            "output_directory": "D:\\dlab\\streamlit-rust\\target\\j02-python-preflight-20261025T015201",
+            "scope": "PYTHON SIDE ONLY",
+            "binary": "",
+            "build_base": ""
+          },
+          "source_snapshot": "tests/reference/reference-browser/journeys/j02-sequence/capture-source/SHA256SUMS",
+          "sources": {
+            "capture_browser_trace.py": "e0db23b687e8a68380489f5afb9b3f7af654c0c6d5cd7ae6979784d0f6ec1d06",
+            "numeric_capture.py": "3b0edc2e91148614bcd3b76196ea8ec7a6034b9220890523aa5dad8a9e43b3a8"
+          }
+        },
+        "rust": {
+          "raw": "tests/browser/rust-journeys/j02-sequence/trace-data-loop.json",
+          "raw_sha256": "3ea8e4749859c115a0f0b9bf178df01144cc832fdbeb374ad48c8ea38231f9f4",
+          "frames": 133,
+          "counts_in_original_raw": {
+            "expected": 15,
+            "executed": 15,
+            "asserted": 15
+          },
+          "observed_process_exit_code": 0,
+          "invocation": [
+            "target\\pyref-venv\\Scripts\\python.exe",
+            "-"
+          ],
+          "invocation_kind": "stdin bootstrap executing retained exact source bytes via compile/exec; bootstrap body was not archived",
+          "entry": "tests/browser/numeric_capture.py",
+          "recorded_entry_parameters": {
+            "url": "http://127.0.0.1:8501/",
+            "journey": "j02-sequence",
+            "namespace": "rust-j02-main",
+            "output_directory": "D:\\dlab\\streamlit-rust\\target\\j02-rust-main-20261025T022822",
+            "scope": "RUST SIDE ONLY",
+            "binary": "D:\\dlab\\streamlit-rust\\target\\checks\\j00-main-app-76938fb-42e54a-8501\\data-app-42e54a-8501.exe sha256 7297430d65622b52f716a1dc5c5308bf2767a6d4d39625a9a1e9eb2387010b23 runtime_set_sha256 04dd33aa3b458bab8b6249ab92624864c46b385bcd092afd2684bcd0f73217fa config_sha256 5ab7564d2de266fcb8c23bdca1b45cb5512fa74b0721fa9168ba7f443494da5e actual_data_app_sha256 42e54a740db398b0cad26681f9e28099e77d70c84abf3b85c62cf3d36121f418 candidate_sha256 eef1173d9cbb2c26e4471a5059254db07af7fb31cdadb06b049d36f1c3966b7d",
+            "build_base": "76938fb643149424e69af0ddbccc3127be751178"
+          },
+          "source_snapshot": "tests/browser/rust-journeys/j02-sequence/capture-source/SHA256SUMS",
+          "sources": {
+            "capture_browser_trace.py": "c14dcc7cb445b07cdd759e15e32377a1a0a7dc3f8829b5c1566e846f2bf67ae4",
+            "numeric_capture.py": "3b0edc2e91148614bcd3b76196ea8ec7a6034b9220890523aa5dad8a9e43b3a8"
+          }
+        }
+      },
+      "verification": {
+        "method": "Independent Hooke candidate PASS, then actual repository CLI replay of the unchanged archived raw bytes with adjacent IPC/PNG; original business expectations retained. Final published mapping awaits review.",
+        "final_replay_criteria_sha256": "1990f920dbc0eebe28ce40de46bf8a8b3b71c0610a735706bc388ad77861fa9d",
+        "replay_driver_sha256": "df2734eef3db2d6ab1973f04586ad82ca887ca702ef01c4ed7bcd7a11443f2c8",
+        "results": {
+          "python": {
+            "command": "target\\pyref-venv\\Scripts\\python.exe tests/browser/numeric_capture.py --replay tests/reference/reference-browser/journeys/j02-sequence/trace-data-loop.json",
+            "exit_code": 0,
+            "counts": {
+              "expected": 15,
+              "executed": 15,
+              "asserted": 15
+            },
+            "failures": [],
+            "raw_sha256": "dd6eb79fc7194c4a32e8d8b85727abc78997756b38654283b1dfecd7dbeba65f"
+          },
+          "rust": {
+            "command": "target\\pyref-venv\\Scripts\\python.exe tests/browser/numeric_capture.py --replay tests/browser/rust-journeys/j02-sequence/trace-data-loop.json",
+            "exit_code": 0,
+            "counts": {
+              "expected": 15,
+              "executed": 15,
+              "asserted": 15
+            },
+            "failures": [],
+            "raw_sha256": "3ea8e4749859c115a0f0b9bf178df01144cc832fdbeb374ad48c8ea38231f9f4"
+          }
+        }
+      },
+      "runtime_binding": {
+        "candidate_metadata": "tests/browser/rust-journeys/j00-sequence/candidate/candidate.json",
+        "candidate_sha256": "eef1173d9cbb2c26e4471a5059254db07af7fb31cdadb06b049d36f1c3966b7d",
+        "git_base": "76938fb643149424e69af0ddbccc3127be751178",
+        "actual_data_app_sha256": "42e54a740db398b0cad26681f9e28099e77d70c84abf3b85c62cf3d36121f418",
+        "binary_sha256": "7297430d65622b52f716a1dc5c5308bf2767a6d4d39625a9a1e9eb2387010b23",
+        "runtime_set_sha256": "04dd33aa3b458bab8b6249ab92624864c46b385bcd092afd2684bcd0f73217fa",
+        "config_sha256": "5ab7564d2de266fcb8c23bdca1b45cb5512fa74b0721fa9168ba7f443494da5e"
+      },
+      "preparation_contract": {
+        "version": "journey-j02-filter-v1",
+        "note": "Preparation is part of this same-page observed run ledger, not extra business steps. Final two business steps share one recorded PNG; no additional event/run.",
+        "evidence": "tests/browser/rust-journeys/j02-sequence/trace-data-loop.json",
+        "preparations": [
+          {
+            "phase": "initial",
+            "file": "tests/browser/rust-journeys/j02-sequence/01-initial.png",
+            "sha256": "79f4faa9c8a0df571cf1043d07a6db7c8cef25287583b45012fff693a13f59c6"
+          },
+          {
+            "phase": "upload-baseline",
+            "file": "tests/browser/rust-journeys/j02-sequence/02-upload-baseline.png",
+            "sha256": "31201ff306e7686c86a194ce8b5d641043d8125519d5b2de22657b1f1e102fcf"
+          }
+        ]
+      }
     },
     {
       "id": "J03",
@@ -458,25 +751,304 @@
       "id": "J05",
       "title": "Form submission and button pulse",
       "priority": "P0",
-      "status": "not_run",
+      "status": "passed",
       "steps": [
         {
           "id": "J05-S1",
           "action": "Type 'hello' into the 'Note' field inside the form and do not submit.",
-          "expectation": "The server is NOT contacted: 'Script runs' does not change and 'Applied note' stays empty. This is the form-gating rule and it can only be observed in the browser."
+          "expectation": "The server is NOT contacted: 'Script runs' does not change and 'Applied note' stays empty. This is the form-gating rule and it can only be observed in the browser.",
+          "rust_evidence": "tests/browser/rust-csv-app-j05/trace-forms.json",
+          "python_reference_trace": "tests/reference/reference-browser/csv-app-j05/trace-forms.json",
+          "evidence_phases": [
+            "form-j05-continuous:type"
+          ],
+          "screenshot": "tests/e2e/J05/J05-S1.png",
+          "screenshot_sha256": "a83c2b239dcbeedc4f7e8d899fc8af3a9b8d3120b3a26546a9eaa4976133b25e",
+          "rust_result": "Real quiet window: no server rerun; Script runs unchanged and Applied note empty."
         },
         {
           "id": "J05-S2",
           "action": "Click 'Apply note'.",
-          "expectation": "Exactly one rerun occurs and the applied note becomes 'hello'. The note field itself keeps its value because the form uses clear_on_submit=False."
+          "expectation": "Exactly one rerun occurs and the applied note becomes 'hello'. The note field itself keeps its value because the form uses clear_on_submit=False.",
+          "rust_evidence": "tests/browser/rust-csv-app-j05/trace-forms.json",
+          "python_reference_trace": "tests/reference/reference-browser/csv-app-j05/trace-forms.json",
+          "evidence_phases": [
+            "form-j05-continuous:submit"
+          ],
+          "screenshot": "tests/e2e/J05/J05-S2.png",
+          "screenshot_sha256": "825baa4148acb4a815dafe8160adae958a239a7cdf49866d360bac53dc6b8487",
+          "rust_result": "One submit rerun applies hello; Note retains hello with clear_on_submit=False."
         },
         {
           "id": "J05-S3",
           "action": "Click the Pulse button three times.",
-          "expectation": "'Pulses' reads 3 and 'Script runs' increased by exactly 3 over the three clicks."
+          "expectation": "'Pulses' reads 3 and 'Script runs' increased by exactly 3 over the three clicks.",
+          "rust_evidence": "tests/browser/rust-csv-app-j05/trace-forms.json",
+          "python_reference_trace": "tests/reference/reference-browser/csv-app-j05/trace-forms.json",
+          "evidence_phases": [
+            "form-j05-continuous:pulse-1",
+            "form-j05-continuous:pulse-2",
+            "form-j05-continuous:pulse-3"
+          ],
+          "screenshot": "tests/e2e/J05/J05-S3.png",
+          "screenshot_sha256": "d0f9078f48a99baa55ee7584fe55b51a605d01c5fbfbb962fcb46994b4963b46",
+          "rust_result": "Three real Pulse actions produce three reruns and Pulses 3."
         }
       ],
-      "python_reference_trace": "tests/reference/reference-browser/form/trace-form.json"
+      "python_reference_trace": "tests/reference/reference-browser/csv-app-j05/trace-forms.json",
+      "capture_history": {
+        "native": {
+          "manifest": "tests/browser/rust-csv-app-j05/MANIFEST.json",
+          "raw": {
+            "stored_file": "tests/browser/rust-csv-app-j05/trace-forms.json",
+            "bytes": 255186,
+            "sha256": "121baedfdf783b6b6621133ae5af3d815fffc17f591ff25ef38ff87dad6bd1d4"
+          },
+          "capture_state": {
+            "original_file": "target/forms-capture/csv-data-app-j05-42e54a-7297-20261025/capture-state.json",
+            "stored_file": "tests/browser/rust-csv-app-j05/capture/capture-state.json",
+            "bytes": 1566,
+            "sha256": "a60ef23caaf79e56e87ecc2ceacd4d9123a41dbf198eb55bfa4c8ef05e829fbd"
+          },
+          "captured_source_records": [
+            {
+              "original_file": "target/forms-capture/csv-data-app-j05-42e54a-7297-20261025/source/candidate.json",
+              "stored_file": "tests/browser/rust-csv-app-j05/capture/source/candidate.json",
+              "bytes": 16386,
+              "sha256": "eef1173d9cbb2c26e4471a5059254db07af7fb31cdadb06b049d36f1c3966b7d"
+            },
+            {
+              "original_file": "target/forms-capture/csv-data-app-j05-42e54a-7297-20261025/source/data_app.rs.snapshot",
+              "stored_file": "tests/browser/rust-csv-app-j05/capture/source/data_app.rs.snapshot",
+              "bytes": 22837,
+              "sha256": "42e54a740db398b0cad26681f9e28099e77d70c84abf3b85c62cf3d36121f418"
+            },
+            {
+              "original_file": "target/forms-capture/csv-data-app-j05-42e54a-7297-20261025/source/forms_capture.py.snapshot",
+              "stored_file": "tests/browser/rust-csv-app-j05/capture/source/forms_capture.py.snapshot",
+              "bytes": 68711,
+              "sha256": "34325ebb3a50c1c1253970c562279959e66b23d44f8ad958c43a9dceb9523a2c"
+            },
+            {
+              "original_file": "target/forms-capture/csv-data-app-j05-42e54a-7297-20261025/source/forms_contract.py.snapshot",
+              "stored_file": "tests/browser/rust-csv-app-j05/capture/source/forms_contract.py.snapshot",
+              "bytes": 38668,
+              "sha256": "ee292dff99798659994be21860aa255e7d7097d62709066c821c409dc0130d4e"
+            },
+            {
+              "original_file": "target/forms-capture/csv-data-app-j05-42e54a-7297-20261025/source/launch-config.json",
+              "stored_file": "tests/browser/rust-csv-app-j05/capture/source/launch-config.json",
+              "bytes": 39212,
+              "sha256": "5ab7564d2de266fcb8c23bdca1b45cb5512fa74b0721fa9168ba7f443494da5e"
+            }
+          ],
+          "note": "Original capture bytes and historical standalone-v3 failure retained in manifest; replay identities below are later verification, not capture-time identities."
+        },
+        "python": {
+          "manifest": "tests/reference/reference-browser/csv-app-j05/MANIFEST.json",
+          "raw": {
+            "stored_file": "tests/reference/reference-browser/csv-app-j05/trace-forms.json",
+            "bytes": 267588,
+            "sha256": "c02e478997d413fb7ef81dd81fe9bb79e84a739f0c9abedc343aeb7cacbb6025"
+          },
+          "capture_state": {
+            "original_file": "target/forms-capture/python-csv-app-j05-8601-20261025/capture-state.json",
+            "stored_file": "tests/reference/reference-browser/csv-app-j05/capture/capture-state.json",
+            "bytes": 1536,
+            "sha256": "12b1de69546f6a832c4e76f44842cd86e923174dd95db46f78c0ddf2b6381ca9"
+          },
+          "captured_source_records": [
+            {
+              "original_file": "target/forms-capture/python-csv-app-j05-8601-20261025/source/app.py.snapshot",
+              "stored_file": "tests/reference/reference-browser/csv-app-j05/capture/source/app.py.snapshot",
+              "bytes": 7430,
+              "sha256": "475e27d4d957a2d20ca31f882bcc7add8c7005a6bfdee81a92e3c3784fdc0b9c"
+            },
+            {
+              "original_file": "target/forms-capture/python-csv-app-j05-8601-20261025/source/forms_capture.py.snapshot",
+              "stored_file": "tests/reference/reference-browser/csv-app-j05/capture/source/forms_capture.py.snapshot",
+              "bytes": 68711,
+              "sha256": "34325ebb3a50c1c1253970c562279959e66b23d44f8ad958c43a9dceb9523a2c"
+            },
+            {
+              "original_file": "target/forms-capture/python-csv-app-j05-8601-20261025/source/forms_contract.loaded.py.snapshot",
+              "stored_file": "tests/reference/reference-browser/csv-app-j05/capture/source/forms_contract.loaded.py.snapshot",
+              "bytes": 43756,
+              "sha256": "032f6471b5defcc88c8a8e368e82cfef301c0fd03ac77c553b6a72c9b6177b76"
+            },
+            {
+              "original_file": "target/forms-capture/python-csv-app-j05-8601-20261025/source/forms_contract.standalone-v3.py.snapshot",
+              "stored_file": "tests/reference/reference-browser/csv-app-j05/capture/source/forms_contract.standalone-v3.py.snapshot",
+              "bytes": 38668,
+              "sha256": "ee292dff99798659994be21860aa255e7d7097d62709066c821c409dc0130d4e"
+            },
+            {
+              "original_file": "target/forms-capture/python-csv-app-j05-8601-20261025/source/refcore.py.snapshot",
+              "stored_file": "tests/reference/reference-browser/csv-app-j05/capture/source/refcore.py.snapshot",
+              "bytes": 11222,
+              "sha256": "ed50388ce9cb82f63bff34d74f14de9586aa8c32dfda8cc8a3a85f2b4ff89671"
+            }
+          ],
+          "note": "Original capture bytes and historical standalone-v3 failure retained in manifest; replay identities below are later verification, not capture-time identities."
+        }
+      },
+      "verification": {
+        "method": "Ptolemy independently passed actual full CSV-app J05 wire/DOM/quiet observations under explicit csv-data-app profile. Formal publication and global mapping are review candidates; standalone defaults remain strict and reject CSV extras.",
+        "profile": "csv-data-app",
+        "case_ids": [
+          "form-j05-continuous"
+        ],
+        "results": {
+          "native": {
+            "result": {
+              "stored_file": "tests/browser/rust-csv-app-j05/replay/result.json",
+              "bytes": 610,
+              "sha256": "0f8dbb5298da8e1ec2ada399cf91dc86d627e7669e9e516b3b27d35eee343249"
+            },
+            "criteria": {
+              "stored_file": "tests/browser/rust-csv-app-j05/replay/source/forms_contract.py.snapshot",
+              "bytes": 44061,
+              "sha256": "0b943ee2e9f9a2e0b42bc6293d7e185277dd50097c39a5ddde8b11500afe6370"
+            },
+            "driver": {
+              "stored_file": "tests/browser/rust-csv-app-j05/replay/source/forms_capture.py.snapshot",
+              "bytes": 73497,
+              "sha256": "a70dc091223ca07b08cfb63339cb0df21e1215c987058e318dfd648bb8a33739"
+            }
+          },
+          "python": {
+            "result": {
+              "stored_file": "tests/reference/reference-browser/csv-app-j05/replay/result.json",
+              "bytes": 605,
+              "sha256": "561fc2fb357bae3e2d91c0858c588d4daa8797f4f423d8f076108503e6b5175d"
+            },
+            "criteria": {
+              "stored_file": "tests/reference/reference-browser/csv-app-j05/replay/source/forms_contract.py.snapshot",
+              "bytes": 44061,
+              "sha256": "0b943ee2e9f9a2e0b42bc6293d7e185277dd50097c39a5ddde8b11500afe6370"
+            },
+            "driver": {
+              "stored_file": "tests/reference/reference-browser/csv-app-j05/replay/source/forms_capture.py.snapshot",
+              "bytes": 73497,
+              "sha256": "a70dc091223ca07b08cfb63339cb0df21e1215c987058e318dfd648bb8a33739"
+            }
+          }
+        },
+        "portable_replay": {
+          "native": {
+            "source": {
+              "stored_file": "tests/browser/rust-csv-app-j05/portable-replay/source/forms_capture.py.snapshot",
+              "bytes": 77433,
+              "sha256": "eddec6c68349199ef0ee0e1c0f8d3c5c72ef14edb7560c6c485434920c35af4a"
+            },
+            "contract_source": {
+              "stored_file": "tests/browser/rust-csv-app-j05/replay/source/forms_contract.py.snapshot",
+              "bytes": 44061,
+              "sha256": "0b943ee2e9f9a2e0b42bc6293d7e185277dd50097c39a5ddde8b11500afe6370"
+            },
+            "command": [
+              "python",
+              "tests/browser/forms_capture.py",
+              "--verify",
+              "tests/browser/rust-csv-app-j05/trace-forms.json",
+              "--artifact-manifest",
+              "tests/browser/rust-csv-app-j05/MANIFEST.json",
+              "--j05-profile",
+              "csv-data-app",
+              "--cases",
+              "form-j05-continuous"
+            ],
+            "scope": "Explicit hash-bound file location mapping only; raw PB/DOM/clocks/typed states unchanged; original a70/0b replay kept separately.",
+            "environment": "Installed Python with official Streamlit1.66.1 protobuf/PyArrow dependencies; interpreter location is external, not proof data."
+          },
+          "python": {
+            "source": {
+              "stored_file": "tests/reference/reference-browser/csv-app-j05/portable-replay/source/forms_capture.py.snapshot",
+              "bytes": 77433,
+              "sha256": "eddec6c68349199ef0ee0e1c0f8d3c5c72ef14edb7560c6c485434920c35af4a"
+            },
+            "contract_source": {
+              "stored_file": "tests/reference/reference-browser/csv-app-j05/replay/source/forms_contract.py.snapshot",
+              "bytes": 44061,
+              "sha256": "0b943ee2e9f9a2e0b42bc6293d7e185277dd50097c39a5ddde8b11500afe6370"
+            },
+            "command": [
+              "python",
+              "tests/browser/forms_capture.py",
+              "--verify",
+              "tests/reference/reference-browser/csv-app-j05/trace-forms.json",
+              "--artifact-manifest",
+              "tests/reference/reference-browser/csv-app-j05/MANIFEST.json",
+              "--j05-profile",
+              "csv-data-app",
+              "--cases",
+              "form-j05-continuous"
+            ],
+            "scope": "Explicit hash-bound file location mapping only; raw PB/DOM/clocks/typed states unchanged; original a70/0b replay kept separately.",
+            "environment": "Installed Python with official Streamlit1.66.1 protobuf/PyArrow dependencies; interpreter location is external, not proof data."
+          }
+        }
+      },
+      "attempt": {
+        "kind": "final_verification",
+        "command": [
+          "python",
+          "tests/browser/forms_capture.py",
+          "--verify",
+          "tests/browser/rust-csv-app-j05/trace-forms.json",
+          "--artifact-manifest",
+          "tests/browser/rust-csv-app-j05/MANIFEST.json",
+          "--j05-profile",
+          "csv-data-app",
+          "--cases",
+          "form-j05-continuous"
+        ],
+        "python_command": [
+          "python",
+          "tests/browser/forms_capture.py",
+          "--verify",
+          "tests/reference/reference-browser/csv-app-j05/trace-forms.json",
+          "--artifact-manifest",
+          "tests/reference/reference-browser/csv-app-j05/MANIFEST.json",
+          "--j05-profile",
+          "csv-data-app",
+          "--cases",
+          "form-j05-continuous"
+        ],
+        "note": "Commands identify formal portable replay; archived a70 CLI results and original capture process exits are separately referenced, not overwritten."
+      },
+      "linked_artifacts": [
+        "tests/e2e/J05/J05-S1.png",
+        "tests/e2e/J05/J05-S2.png",
+        "tests/e2e/J05/J05-S3.png",
+        "tests/browser/rust-csv-app-j05/MANIFEST.json",
+        "tests/browser/rust-csv-app-j05/trace-forms.json",
+        "tests/browser/rust-csv-app-j05/replay/result.json",
+        "tests/browser/rust-csv-app-j05/png/form-j05-continuous-01-load.png",
+        "tests/browser/rust-csv-app-j05/png/form-j05-continuous-02-typed.png",
+        "tests/browser/rust-csv-app-j05/png/form-j05-continuous-03-submitted.png",
+        "tests/browser/rust-csv-app-j05/png/form-j05-continuous-04-pulse.png",
+        "tests/browser/rust-csv-app-j05/png/form-j05-continuous-05-pulse.png",
+        "tests/browser/rust-csv-app-j05/png/form-j05-continuous-06-pulse.png",
+        "tests/reference/reference-browser/csv-app-j05/MANIFEST.json",
+        "tests/reference/reference-browser/csv-app-j05/trace-forms.json",
+        "tests/reference/reference-browser/csv-app-j05/replay/result.json",
+        "tests/reference/reference-browser/csv-app-j05/png/form-j05-continuous-01-load.png",
+        "tests/reference/reference-browser/csv-app-j05/png/form-j05-continuous-02-typed.png",
+        "tests/reference/reference-browser/csv-app-j05/png/form-j05-continuous-03-submitted.png",
+        "tests/reference/reference-browser/csv-app-j05/png/form-j05-continuous-04-pulse.png",
+        "tests/reference/reference-browser/csv-app-j05/png/form-j05-continuous-05-pulse.png",
+        "tests/reference/reference-browser/csv-app-j05/png/form-j05-continuous-06-pulse.png"
+      ],
+      "runtime_binding": {
+        "source_sha256": "42e54a740db398b0cad26681f9e28099e77d70c84abf3b85c62cf3d36121f418",
+        "binary_sha256": "7297430d65622b52f716a1dc5c5308bf2767a6d4d39625a9a1e9eb2387010b23",
+        "runtime_set_identity": "04dd33aa3b458bab8b6249ab92624864c46b385bcd092afd2684bcd0f73217fa",
+        "config_sha256": "5ab7564d2de266fcb8c23bdca1b45cb5512fa74b0721fa9168ba7f443494da5e",
+        "runtime_source_set_file": "candidate.json (contains original runtime_members map and runtime_set_sha256; file SHA is recorded independently)",
+        "runtime_member_count": 130,
+        "scope": "Actual dirty data_app source on main769, not historical forms.rs; no rebuild/no generated launcher"
+      }
     },
     {
       "id": "J06",

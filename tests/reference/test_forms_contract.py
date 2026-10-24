@@ -16,6 +16,105 @@ sys.path.insert(0, str(HERE.parent / "browser"))
 from forms_contract import CANONICAL_CASE_IDS, verify_forms_text_input_contract  # noqa: E402
 
 
+def _synthetic_csv_j05_case():
+    """Predicate unit input only, never recorded browser evidence."""
+    roles = (
+        ("file_uploader", {"id": "upload", "label": "Upload sales CSV", "type": [".csv"], "max_upload_size_mb": 200}),
+        ("selectbox", {"id": "group", "label": "Group by", "options": ["category", "region", "channel"], "default": 0}),
+        ("slider", {"id": "minimum", "label": "Minimum amount", "default": [0.0], "max": 200.0, "step": 10.0}),
+        ("checkbox", {"id": "unknown", "label": "Include unknown region", "default": True}),
+        ("text_input", {"id": "note", "label": "Note", "default": "", "form_id": "apply_form"}),
+        ("button", {"id": "apply", "label": "Apply note", "form_id": "apply_form", "is_form_submitter": True}),
+        ("button", {"id": "pulse", "label": "Pulse"}),
+    )
+    phases = []
+    for index, name in enumerate(("load", "type", "submit", "pulse-1", "pulse-2", "pulse-3")):
+        frames = []
+        if name != "type":
+            states = [] if name == "load" else [
+                {"id": "upload", "file_uploader_state_value": {}},
+                {"id": "group", "string_value": "category"},
+                {"id": "minimum", "double_array_value": {"data": [0.0]}},
+                {"id": "unknown", "bool_value": True},
+                {"id": "note", "string_value": "hello"},
+                {"id": "apply" if name == "submit" else "pulse", "trigger_value": True},
+            ]
+            frames.append({"_official_full": {"type": "rerun_script", "rerun_script": {"widget_states": {"widgets": states}}}})
+            frames.extend({"_official_full": {"delta": {"new_element": {kind: copy.deepcopy(value)}}}} for kind, value in roles)
+        runs = 1 if index < 2 else index
+        phases.append({"phase_id": f"form-j05-continuous:{name}", "frames": frames,
+                       "dom_after": {"texts": [f"Script runs: {runs}", f"Pulses: {max(0, index - 2)}", f"Applied note: {'hello' if index >= 2 else ''}"],
+                                     "text_inputs": [{"label": "Note", "value": "" if index == 0 else "hello"}]}})
+    return {"case_id": "form-j05-continuous", "phases": phases}
+
+
+def test_csv_j05_profile_is_explicit_and_standalone_stays_strict():
+    from forms_contract import _j05_failures
+    case = _synthetic_csv_j05_case()
+    assert _j05_failures(case, "csv-data-app") == []
+    assert len(_j05_failures(case)) == 4
+
+
+@pytest.mark.parametrize("mutation", (
+    "group_changed", "minimum_changed", "unknown_changed", "upload_nonempty",
+    "wrong_oneof", "missing_state", "duplicate_state", "fake_id", "extra_trigger",
+    "initial_state", "missing_registration", "duplicate_registration", "changed_id",
+    "changed_default", "external_in_form", "disabled_widget",
+))
+def test_csv_j05_typed_defaults_and_real_registration_are_required(mutation):
+    from forms_contract import _j05_failures
+    case = _synthetic_csv_j05_case()
+    assert _j05_failures(case, "csv-data-app") == []
+    frames = case["phases"][2]["frames"]
+    states = frames[0]["_official_full"]["rerun_script"]["widget_states"]["widgets"]
+    group = frames[2]["_official_full"]["delta"]["new_element"]["selectbox"]
+    if mutation == "group_changed":
+        states[1]["string_value"] = "region"
+    elif mutation == "minimum_changed":
+        states[2]["double_array_value"]["data"] = [10.0]
+    elif mutation == "unknown_changed":
+        states[3]["bool_value"] = False
+    elif mutation == "upload_nonempty":
+        states[0]["file_uploader_state_value"] = {"uploaded_file_info": [{"file_id": "nonempty"}]}
+    elif mutation == "wrong_oneof":
+        states[1] = {"id": "group", "int_value": 0}
+    elif mutation == "missing_state":
+        states.pop(0)
+    elif mutation == "duplicate_state":
+        states.append(copy.deepcopy(states[1]))
+    elif mutation == "fake_id":
+        states[1]["id"] = "unregistered"
+    elif mutation == "extra_trigger":
+        states.append({"id": "pulse", "trigger_value": True})
+    elif mutation == "initial_state":
+        case["phases"][0]["frames"][0]["_official_full"]["rerun_script"]["widget_states"]["widgets"] = [copy.deepcopy(states[0])]
+    elif mutation == "missing_registration":
+        frames.pop(2)
+    elif mutation == "duplicate_registration":
+        frames.append(copy.deepcopy(frames[2]))
+    elif mutation == "changed_id":
+        group["id"] = "another-id"
+    elif mutation == "changed_default":
+        group["default"] = 1
+    elif mutation == "external_in_form":
+        group["form_id"] = "apply_form"
+    elif mutation == "disabled_widget":
+        group["disabled"] = True
+    assert _j05_failures(case, "csv-data-app")
+
+
+@pytest.mark.parametrize("profile,selection", [("unknown", ("form-j05-continuous",)), ("csv-data-app", CANONICAL_CASE_IDS)])
+def test_unknown_or_broad_csv_profile_is_rejected(profile, selection):
+    observed = _mutation_observation()
+    assert "j05_profile" in {failure["code"] for failure in verify_forms_text_input_contract(observed, case_ids=selection, j05_profile=profile)}
+
+
+def test_csv_profile_cannot_relabel_the_standalone_fixture_as_the_csv_app():
+    observed = _mutation_observation()
+    failures = verify_forms_text_input_contract(observed, case_ids=("form-j05-continuous",), j05_profile="csv-data-app")
+    assert "j05_profile_source" in {failure["code"] for failure in failures}
+
+
 def _mutation_observation():
     # Positive and negative controls share the one formal selected capture.
     # Missing/incomplete selection is a gate failure, never a legacy fallback.

@@ -1,0 +1,229 @@
+/**!
+ * Copyright (c) Streamlit Inc. (2018-2022) Snowflake Inc. (2022-2026)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto3";
+
+import "streamlit/proto/GapSize.proto";
+import "streamlit/proto/HeightConfig.proto";
+import "streamlit/proto/WidthConfig.proto";
+
+message Block {
+  oneof type {
+    Vertical vertical = 1;
+    Horizontal horizontal = 2;
+    Column column = 3;
+    Expandable expandable = 4;
+    Form form = 5;
+    TabContainer tab_container = 6;
+    Tab tab = 7;
+    ChatMessage chat_message = 9;
+    Popover popover = 10;
+    Dialog dialog = 11;
+    FlexContainer flex_container = 13;
+    Transparent transparent = 17;
+  }
+
+  bool allow_empty = 8;
+  optional string id = 12;
+  optional streamlit.HeightConfig height_config = 14;
+  optional streamlit.WidthConfig width_config = 15;
+  optional bool autoscroll = 16;
+
+  message Vertical {
+    bool border = 1;
+
+    reserved 2;
+  }
+
+  message Horizontal {
+    string gap = 1;
+  }
+
+  message FlexContainer {
+    bool border = 1;
+    streamlit.GapConfig gap_config = 2;
+    float scale = 3;
+
+    enum Direction {
+      DIRECTION_UNDEFINED = 0;
+      VERTICAL = 1;
+      HORIZONTAL = 2;
+    }
+    Direction direction = 4;
+    bool wrap = 5;
+
+    enum Justify {
+      JUSTIFY_UNDEFINED = 0;
+      JUSTIFY_START = 1;
+      JUSTIFY_END = 2;
+      JUSTIFY_CENTER = 3;
+      SPACE_BETWEEN = 4;
+    }
+    Justify justify = 7;
+
+    enum Align {
+      ALIGN_UNDEFINED = 0;
+      ALIGN_START = 1;
+      ALIGN_END = 2;
+      ALIGN_CENTER = 3;
+      STRETCH = 4;
+    }
+    Align align = 8;
+  }
+
+  message Column {
+    double weight = 1;
+
+    enum VerticalAlignment {
+      TOP = 0;
+      CENTER = 1;
+      BOTTOM = 2;
+    }
+    VerticalAlignment vertical_alignment = 3;
+    bool show_border = 4;
+
+    optional streamlit.GapConfig gap_config = 5;
+
+    reserved 2;
+  }
+
+  message Expandable {
+    enum Type {
+      DEFAULT = 0; // Default: with border and background
+      COMPACT = 1; // Minimal inline toggle without border
+      STEP = 2; // Timeline step with icon column and connector line
+    }
+
+    // Progress state of a status container. Left at STATE_UNDEFINED for
+    // st.expander, which has no notion of progress.
+    enum State {
+      STATE_UNDEFINED = 0;
+      RUNNING = 1;
+      COMPLETE = 2;
+      ERROR = 3;
+    }
+
+    string label = 1;
+    optional bool expanded = 2;
+    string icon = 3;
+    // ID for dynamic expanders. Only set when on_change="rerun" or bind="query-params",
+    // signaling the frontend to treat this as a stateful widget.
+    optional string id = 4;
+    // Visual style of the expandable container.
+    Type type = 5;
+    // Progress state, only set by st.status. The frontend uses it to pick the
+    // step icon and to announce the state to screen readers.
+    State state = 6;
+    // Query parameter name the expander's open state syncs with. Only set when
+    // bind="query-params".
+    optional string query_param_key = 7;
+    // Original `expanded=` default. The frontend omits the query param when the
+    // expander matches this value. Distinct from `expanded`, which is current state.
+    optional bool default_expanded = 8;
+  }
+
+  message Dialog {
+    enum DialogWidth {
+      SMALL = 0;
+      LARGE = 1;
+      MEDIUM = 2;
+    }
+
+    enum DialogPosition {
+      CENTER = 0;
+      LEFT = 1;
+      RIGHT = 2;
+    }
+
+    string title = 1;
+    bool dismissible = 2;
+    DialogWidth width = 3;
+    optional bool is_open = 4;
+
+    // If id is set, dismissal of the dialog will trigger a rerun.
+    string id = 5;
+
+    // Optional icon shown next to the dialog title.
+    string icon = 6;
+
+    // Placement of the dialog. LEFT/RIGHT render it as a full-height side drawer.
+    DialogPosition position = 7;
+  }
+
+  message Form {
+    string form_id = 1;
+    bool clear_on_submit = 2;
+    bool border = 3;
+    bool enter_to_submit = 4;
+  }
+
+  message TabContainer {
+    int32 default_tab_index = 1;
+    // Widget ID for dynamic tabs. Only set when on_change="rerun" or
+    // bind="query-params", signaling the frontend to treat this as a
+    // stateful widget. When absent, tabs may still have a block-level id
+    // for CSS key styling but should not trigger reruns on tab change.
+    optional string id = 2;
+    // Query parameter name the active tab syncs with. Only set when
+    // bind="query-params".
+    optional string query_param_key = 3;
+    // Original default tab label (from `default=` or the first tab). Omitted
+    // from the URL when the active tab matches.
+    optional string default_tab_label = 4;
+  }
+
+  message Tab {
+    string label = 1;
+  }
+
+  message Popover {
+    string label = 1;
+    string help = 3;
+    bool disabled = 4;
+    string icon = 5;
+    string type = 6;
+    // Initial open state (used with on_change).
+    optional bool open = 7;
+    // Widget ID for dynamic popovers. Only set when on_change="rerun",
+    // signaling the frontend to treat this as a stateful widget.
+    // When absent, the popover may still have a block-level id for CSS
+    // key styling but should not trigger reruns on toggle.
+    optional string id = 8;
+    // If false, the trigger label ellipsizes on one line instead of wrapping.
+    // Absent means the frontend decides the optimal wrapping behavior based on the layout.
+    optional bool wrap = 9;
+
+    reserved 2;
+  }
+
+  message ChatMessage {
+    enum AvatarType {
+      IMAGE = 0;
+      EMOJI = 1;
+      ICON = 2;
+    }
+
+    string name = 1;
+    string avatar = 2;
+    AvatarType avatar_type = 3;
+  }
+
+  // A layout-transparent wrapper block. Produces no DOM node — children
+  // render directly in the parent container's flex context.
+  message Transparent {}
+
+  // Next ID: 18
+}

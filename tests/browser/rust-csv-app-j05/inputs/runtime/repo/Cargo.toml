@@ -1,0 +1,70 @@
+[workspace]
+resolver = "2"
+members = [
+    "streamlit",
+    "streamlit-macros",
+]
+
+[workspace.package]
+version = "0.1.1"
+edition = "2024"
+authors = ["killf <killf@foxmail.com>"]
+description = "Streamlit - A faster way to build and share data apps."
+repository = "https://github.com/killf/streamlit-rust"
+readme = "README.md"
+license = "Apache-2.0"
+
+[workspace.dependencies]
+# Async runtime
+tokio = { version = "1.51.6", features = ["full"] }
+futures-util = "0.3"
+
+# Web framework
+actix-web = { version = "4.9", default-features = false, features = ["macros", "compress-brotli", "compress-gzip", "compress-zstd", "cookies", "unicode", "compat", "ws"] }
+actix-ws = "0.3"
+actix-files = "0.6.10"
+actix-multipart = { version = "=0.8.5", default-features = false }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Utilities
+uuid = { version = "1.11", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+bytes = "1.11.1"
+md5 = "0.8"
+subtle = { version = "=2.6.1", default-features = false }
+emojis = "=0.9.1"
+unicode-segmentation = "=1.12.0"
+
+# Logging
+log = "0.4"
+env_logger = "0.11"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tracing-appender = "0.2.4"
+
+# Error handling
+anyhow = "1.0.103"
+thiserror = "2.0"
+
+# Concurrency
+parking_lot = "0.12"
+dashmap = "6.1"
+
+# Protocol buffers
+prost = "0.14"
+prost-build = "0.14"
+
+# Official Arrow IPC stream encoding; keep the three public crates aligned.
+arrow-array = { version = "=60.0.0", default-features = false }
+arrow-schema = { version = "=60.0.0", default-features = false }
+arrow-ipc = { version = "=60.0.0", default-features = false }
+csv = { version = "=1.4.0", default-features = false }
+rust_decimal = { version = "=1.43.0", default-features = false, features = ["std"] }
+
+# Proc macro dependencies
+syn = { version = "2.0", features = ["full"] }
+quote = "1.0"
+proc-macro2 = "1.0"

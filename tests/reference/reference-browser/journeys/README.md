@@ -1,5 +1,37 @@
 # Reference journeys of the data app
 
+## J00 and J02: original captures, separate final replay
+
+[J00](j00-sequence/trace-data-loop.json) retains 185 frames, eight PNGs and
+four IPCs; SHA256
+`f1b1470686fa91dd0ea5d715287a8e47e5d88e01bb22f521bb6ee91e619dcc27`.
+[J02](j02-sequence/trace-data-loop.json) retains 139 frames, six PNGs and
+five IPCs; SHA256
+`dd6eb79fc7194c4a32e8d8b85727abc78997756b38654283b1dfecd7dbeba65f`.
+Both measured the actual `tests/reference/app.py` on Python Streamlit 1.66.1
+at loopback8601 with the official frontend; both keep their actual
+**NOT VERIFIED, 1/1/0, capture exit 1**. Their source snapshots are original
+bytes: J00 84/08/0b, J02 e0db/3b, with exact hashes in adjacent
+`capture-source/SHA256SUMS`. No cached status was changed to imply capture-time
+acceptance.
+
+After independent Hooke candidate review, these exact repository commands
+were run on the archived evidence, returning exit 0 with final results
+**J00 19/19/19 and J02 15/15/15**, no failures:
+
+```powershell
+target\pyref-venv\Scripts\python.exe tests/browser/numeric_capture.py --replay tests/reference/reference-browser/journeys/j00-sequence/trace-data-loop.json
+target\pyref-venv\Scripts\python.exe tests/browser/numeric_capture.py --replay tests/reference/reference-browser/journeys/j02-sequence/trace-data-loop.json
+```
+
+The [Rust publication](../../../browser/rust-journeys/README.md#j00-and-j02-integrated-formal-example)
+records the exact final 1990 criteria/replay producer SHA, step/prep/shared-PNG
+mapping, capture-versus-verification history and one self-contained 130-input
+7297/42e54 candidate. Its per-journey `verification.json` files provide the
+integration owner's step updates; they do not change the 10 journeys or 42
+original steps. The docs cache remains labelled 1.66.0, distinct from the
+measured 1.66.1 runtime.
+
 ## J03: continuous table/chart oracle
 
 [j03-sequence/trace-data-loop.json](j03-sequence/trace-data-loop.json) is the

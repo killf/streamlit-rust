@@ -108,7 +108,7 @@ The reference captures above cover 25 cases on the Python 1.66.1 server. The Rus
 | Text types, validation, live, required, max_chars and presentation fields | Measured Python reference and Rust field/unit tests; Rust browser comparison remains partial. |
 | Container/column layouts and submit callbacks | Rust render/HTTP/WS tests and Python reference; Rust browser comparison remains partial. |
 
-Duration strings currently support `0`, milliseconds such as `250ms`, and seconds such as `0.25s`, up to one minute. The example uses a fallible render helper and handles its error once. Integrating forms into the CSV `data_app` for the complete J00 launch flow is a separate next step; this standalone example does not complete that flow.
+Duration strings currently support `0`, milliseconds such as `250ms`, and seconds such as `0.25s`, up to one minute. The example uses a fallible render helper and handles its error once. The CSV `data_app` also includes the Note form described below.
 
 ## Session state and counter
 
@@ -136,6 +136,8 @@ cargo run --example data_app --locked
 ```
 
 Run the development command from the repository root and open `http://127.0.0.1:8501/`; installed binaries follow the same sidecar/configuration rules above. Stop another example using that port first. Upload the [sample CSV](../../tests/fixtures/csv/sales_basic.csv) to the [data app](../../streamlit/examples/data_app.rs), which computes a dataframe and an explicitly configured bar chart in Rust. Change **Group by**, **Include unknown region**, or **Minimum amount** to recompute the displayed data. The running app needs no Python process or Python runtime.
+
+Under **Interaction**, type in **Note** and click **Apply note** to update **Applied note**. Editing alone does not submit the form or rerun the page. The submitted note stays in the input; to clear the applied note, empty the field and submit again. Changing filters or clicking **Pulse** preserves the last applied note and the uploaded data. **Script runs** counts completed app executions, while **Pulses** increases only when Pulse is clicked. These values belong to the current browser session. The interaction controls remain available after a CSV parse error so you can continue interacting and replace the upload with a valid file.
 
 The CSV needs lowercase `amount` and `region` headers. Optional `category` and `channel` columns provide additional grouping choices. Unusable amount cells are excluded with a warning; other rows still aggregate. Malformed rows report the CSV record number and expected/actual field counts. Non-UTF-8 files are rejected. Both hard failures show an error instead of data views; select a valid CSV in the same uploader to recover.
 

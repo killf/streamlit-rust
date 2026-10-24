@@ -1,5 +1,109 @@
 # Rust data journeys
 
+## J00 and J02: integrated formal example
+
+The unchanged native captures are
+[J00](j00-sequence/trace-data-loop.json) (177 frames, eight PNGs, four IPCs;
+SHA256 `69a22226500506d2d022c6991f6b40b59aacbdf9520ca23aca213dfe65019aeb`)
+and [J02](j02-sequence/trace-data-loop.json) (133 frames, six PNGs, five IPCs;
+SHA256 `3ea8e4749859c115a0f0b9bf178df01144cc832fdbeb374ad48c8ea38231f9f4`).
+The [J00 verification/step fragment](j00-sequence/verification.json) and
+[J02 verification/step fragment](j02-sequence/verification.json) are inputs
+for the integration owner's manifest merge, not replacements for the original
+six/five business expectations.
+
+Capture and verification are distinct. Both J00 raws retain the actual 84
+stub result **1/1/0, capture exit 1**. J02 Python retains the e0db stub result
+**1/1/0, capture exit 1**; J02 Rust retains its c14 strict **15/15/15, capture
+exit 0**. Exact loaded source bytes and `SHA256SUMS` are preserved in each
+raw's adjacent `capture-source/` directory: J00 used 84/08/0b, J02 Python
+e0db/3b and J02 Rust c14/3b. No raw verdict or historical metadata was rewritten.
+
+After Hooke's independent candidate review, the repository CLI below was
+actually run on all four archived raws: final replay is **19/19/19 for J00**
+and **15/15/15 for J02**, no failures, exit 0, under criteria SHA256
+`1990f920dbc0eebe28ce40de46bf8a8b3b71c0610a735706bc388ad77861fa9d`.
+The read-only replay producer SHA256 is
+`df2734eef3db2d6ab1973f04586ad82ca887ca702ef01c4ed7bcd7a11443f2c8`;
+this is not asserted as the historical capture producer identity.
+
+```powershell
+target\pyref-venv\Scripts\python.exe tests/browser/numeric_capture.py --replay tests/browser/rust-journeys/j00-sequence/trace-data-loop.json
+target\pyref-venv\Scripts\python.exe tests/browser/numeric_capture.py --replay tests/browser/rust-journeys/j02-sequence/trace-data-loop.json
+```
+
+These commands need the pinned development dependencies but no browser or
+server. They resolve IPC/PNG beside the raw in memory, ignore cached verdicts,
+re-run the shared predicate and return nonzero on missing/invalid evidence or
+predicate exceptions. They do not write the raw or depend on an ignored audit
+script. The original capture used `python.exe -` with a source-byte bootstrap;
+its body was not archived. Retained source files and recorded entry parameters
+are evidence of that capture, not a claim that today's replay command was
+the original browser invocation.
+
+J00 S1-S6 map to PNG01/02/03/05/08/08; prep PNG04/06/07 stays in the raw
+directory. J02 S1-S5 map to PNG03/04/05/06/06; prep PNG01/02 stays there.
+The shared final image is copied unchanged to both required step paths under
+`tests/e2e/J00/` or `tests/e2e/J02/`: it is one observation with two roles,
+not an extra action or run. All three J00 prep runs are in its 1-through-8
+ledger; J02's ledger is 1-through-6. J00 verifies initial Note/Apply form
+membership with real DOM plus retained protobuf and the canonical forms
+helper; Note, Submit and Pulse are never operated in this journey.
+
+### Shared 7297 candidate inputs
+
+Both captures used the actual formal example at loopback8501. One unchanged
+[candidate manifest](j00-sequence/candidate/candidate.json),
+[launch configuration](j00-sequence/candidate/launch-config.json) and
+[actual dirty example source](j00-sequence/candidate/source-snapshot/repo/streamlit/examples/data_app.rs)
+are retained for both journeys. This is Git base
+`76938fb643149424e69af0ddbccc3127be751178` plus the recorded 42e54 example,
+not clean HEAD and not a generated launcher. The original metadata binds
+binary `7297430d...`, runtime set `04dd33aa...` and configuration `5ab7564d...`;
+the full hashes and exact source membership remain in that single manifest.
+
+Its 130 source inputs can be reconstructed without the old ignored target:
+110 Git blobs match directly, 19 differ only by captured CRLF convention,
+and the one actual example override is archived above. This exact recipe was
+run and all 130 member hashes matched:
+
+```python
+import hashlib, json, subprocess
+from pathlib import Path
+archive = Path("tests/browser/rust-journeys/j00-sequence/candidate")
+meta = json.loads((archive / "candidate.json").read_bytes())
+members = meta["runtime_members"]
+digest = lambda b: hashlib.sha256(b).hexdigest()
+assert digest(json.dumps(members, sort_keys=True, separators=(",", ":"),
+                         ensure_ascii=False).encode()) == meta["runtime_set_sha256"]
+root = Path("target/j00-j02-source-replay").resolve()
+assert root.is_relative_to(Path.cwd().resolve()) and not root.exists()
+root.mkdir()
+for name, expected in members.items():
+    captured = archive / "source-snapshot" / name
+    if captured.is_file():
+        data = captured.read_bytes()
+    else:
+        assert name.startswith("repo/")
+        data = subprocess.check_output(["git", "show", meta["git_base"] + ":" + name[5:]])
+        if digest(data) != expected:
+            data = data.replace(b"\r\n", b"\n").replace(b"\n", b"\r\n")
+    assert digest(data) == expected, name
+    dest = (root / name).resolve()
+    assert dest.is_relative_to(root)
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_bytes(data)
+config = (archive / "launch-config.json").read_bytes()
+assert digest(config) == meta["config_sha256"]
+(root / "launch-config.json").write_bytes(config)
+print(len(members), "source inputs verified")
+```
+
+The archived build/config paths describe the real run. Relocate only working
+copies when rebuilding; retain the same compiler, locked dependencies and
+official `www` from the base commit. Source reconstruction does not claim a
+byte-identical executable across changed toolchains or paths.
+
 ## J03: table and chart synchronization
 
 [j03-sequence/trace-data-loop.json](j03-sequence/trace-data-loop.json) is the

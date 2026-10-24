@@ -33,6 +33,8 @@ sys.path.insert(0, str(ROOT / "tests" / "reference"))
 from capture_browser_trace import (  # noqa: E402
     J01_CASE, J01_CONTRACT, J01_PHASES, J01_INPUTS, J01_ACTIONS, J01_PNG_ROLES, j01_checks,
     J03_CASE, J03_CONTRACT, J03_PHASES, J03_INPUTS, J03_ACTIONS, J03_PNG_ROLES, j03_checks,
+    J02_CASE, J02_CONTRACT, J02_PHASES, J02_INPUTS, J02_ACTIONS, J02_PNG_ROLES, j02_checks,
+    J00_CASE, J00_CONTRACT, J00_PHASES, J00_INPUTS, J00_ACTIONS, J00_PNG_ROLES, j00_checks,
 )
 
 from capture_browser_trace import (  # noqa: E402
@@ -85,6 +87,22 @@ except ImportError:  # the closed door: the case fails, it never passes by itsel
 
 CHROME_PORT = 60667
 
+# J00 presence/membership only; form interaction belongs to the forms collector.
+J00_FORM_DOM_JS = r"""(()=>{
+const qa=(selector,root=document)=>[...root.querySelectorAll(selector)];
+const forms=qa("[data-testid='stForm']");
+const text=e=>(e?.innerText||e?.textContent||'').replace(/\s+/g,' ').trim();
+const membership=(e,selector)=>forms.findIndex(f=>qa(selector,f).includes(e));
+const inputs=qa("[data-testid='stTextInput']").map(e=>({
+ label:text(e.querySelector('label')),value:e.querySelector('input')?.value??null,
+ form_index:membership(e,"[data-testid='stTextInput']")}));
+const buttons=[...qa("[data-testid='stButton']"),...qa("[data-testid='stFormSubmitButton']")].map(e=>({
+ label:text(e),testid:e.getAttribute('data-testid'),
+ form_index:membership(e,"[data-testid='"+e.getAttribute('data-testid')+"']")}));
+return JSON.stringify({text_inputs:inputs,buttons:buttons,forms:forms.map((f,index)=>({
+ index,text_inputs:inputs.filter(e=>e.form_index===index),
+ submit_buttons:buttons.filter(e=>e.form_index===index&&e.testid==='stFormSubmitButton')}))});})()"""
+
 
 # The names of the journeys.  The command line, the observation and the
 # criterion of a journey use exactly these strings: the shared harness has
@@ -103,6 +121,8 @@ JOURNEYS = (
     "j08-sequence",
     J01_CASE,
     J03_CASE,
+    J02_CASE,
+    J00_CASE,
 )
 
 
@@ -122,9 +142,13 @@ SEQUENCE_WITH_TABLE = {
 
 def _sequence_plan(kind):
     """The steps of a whole journey, read from the shared contract."""
-    if kind in (J01_CASE, J03_CASE):
-        phases, inputs, actions = ((J01_PHASES, J01_INPUTS, J01_ACTIONS) if kind == J01_CASE
-                                   else (J03_PHASES, J03_INPUTS, J03_ACTIONS))
+    if kind in (J00_CASE, J01_CASE, J02_CASE, J03_CASE):
+        phases, inputs, actions = {
+            J00_CASE: (J00_PHASES, J00_INPUTS, J00_ACTIONS),
+            J01_CASE: (J01_PHASES, J01_INPUTS, J01_ACTIONS),
+            J02_CASE: (J02_PHASES, J02_INPUTS, J02_ACTIONS),
+            J03_CASE: (J03_PHASES, J03_INPUTS, J03_ACTIONS),
+        }[kind]
         return [
             (name, dict(actions[name], **({"file": inputs[name]} if name in inputs else {})),
              name != "initial" and not (actions[name].get("action") == "slider" and actions[name].get("value") == 200),
@@ -475,6 +499,31 @@ class Page:
         )
         return bool(self.evaluate(js))
 
+    def checkbox_toggle(self, label: str, value: bool, timeout: float = 5.0):
+        """Read native checked state, press Space once and read it back."""
+        read = ("(()=>{const r=[...document.querySelectorAll('[data-testid=stCheckbox]')]"
+                ".find(e=>e.textContent.includes(" + json.dumps(label) + "));"
+                "return r?.querySelector('input[type=checkbox]')?.checked;})()")
+        before = self.evaluate(read)
+        result = {"ok": False, "before": before, "after": None,
+                  "requested_value": value, "input_method": "Space"}
+        if type(before) is not bool or type(value) is not bool:
+            return dict(result, error="missing native checkbox state")
+        if before == value:
+            return dict(result, error="checkbox already at requested value; no input sent")
+        if not self.focus_checkbox(label):
+            return dict(result, error="checkbox could not be focused")
+        self.press(" ", "Space", 32)
+        deadline = time.monotonic() + timeout
+        while True:
+            after = self.evaluate(read)
+            result["after"] = after
+            if type(after) is bool and after == value:
+                return dict(result, ok=True)
+            if time.monotonic() >= deadline:
+                return dict(result, error="native checkbox state did not change to target")
+            time.sleep(0.05)
+
     def open_selectbox(self, label: str) -> bool:
         js = (
             "(()=>{const roots=[...document.querySelectorAll('[data-testid=stSelectbox]')];"
@@ -516,14 +565,27 @@ def frames_of(recorder, namespace: str = ""):
         decoded = _safe(
             summarise_back if method.endswith("Sent") else summarise_forward, data
         )
-        out.append({
+        frame = {
             "direction": "client->server" if method.endswith("Sent") else "server->client",
             "connection": connections.get(request_id),
             "request_id": request_id,
             "timestamp": event["params"].get("timestamp"),
             "namespace": namespace,
             "decoded": decoded,
-        })
+        }
+        if getattr(recorder, "capture_form_membership", False):
+            delta = decoded.get("delta") or {}
+            form_message = (delta.get("block_type") == "form" or
+                            delta.get("element") in ("text_input", "button"))
+            if method.endswith("Sent") or form_message:
+                frame.update(base64=base64.b64encode(data).decode("ascii"),
+                             bytes=len(data), sha256=hashlib.sha256(data).hexdigest())
+            if form_message and method.endswith("Received"):
+                from forms_contract import _official_forward, _form_blocks_from_forward
+                full = _official_forward(data)
+                frame["official_forward"] = full
+                frame["form_blocks"] = _form_blocks_from_forward(full)
+        out.append(frame)
     return out
 
 
@@ -2424,7 +2486,9 @@ def run_sequence_journey(page, recorder, args, out):
     result of a step is bound to the run that answered it.
     """
     steps = _sequence_plan(args.journey)
-    contract = {J01_CASE: J01_CONTRACT, J03_CASE: J03_CONTRACT}.get(args.journey, SEQUENCE_CONTRACT)
+    contract = {J00_CASE: J00_CONTRACT, J01_CASE: J01_CONTRACT, J02_CASE: J02_CONTRACT, J03_CASE: J03_CONTRACT}.get(args.journey, SEQUENCE_CONTRACT)
+    if args.journey == J00_CASE:
+        recorder.capture_form_membership = True
     arrow_files = _ArrowFiles(out)
     source = recorder.label
     phases, screenshots, uploads = [], [], {}
@@ -2448,10 +2512,15 @@ def run_sequence_journey(page, recorder, args, out):
         elif action["action"] == "select-option":
             ok = _select_option(page, action["option"])
             window = _phase_window(recorder, source, start, None, previous_run)
-        elif args.journey == J03_CASE and action["action"] == "slider":
+        elif args.journey in (J00_CASE, J02_CASE, J03_CASE) and action["action"] == "slider":
             pointer = page.slider_pointer(action["label"], action["value"])
             action = dict(action, pointer=pointer)
             ok = pointer["ok"]
+            window = _phase_window(recorder, source, start, None, previous_run)
+        elif action["action"] == "checkbox":
+            checkbox = page.checkbox_toggle(action["label"], action["value"])
+            action = dict(action, checkbox=checkbox)
+            ok = checkbox["ok"]
             window = _phase_window(recorder, source, start, None, previous_run)
         else:
             page.focus_slider(action["label"], 0)
@@ -2480,11 +2549,13 @@ def run_sequence_journey(page, recorder, args, out):
         dom = page.state_digest() or dom
         alerts = page.page_alerts() or alerts
         record = _sequence_record(name, source, shot, out,
-                                  roles={J01_CASE: J01_PNG_ROLES, J03_CASE: J03_PNG_ROLES}.get(args.journey))
+                                  roles={J00_CASE: J00_PNG_ROLES, J01_CASE: J01_PNG_ROLES, J02_CASE: J02_PNG_ROLES, J03_CASE: J03_PNG_ROLES}.get(args.journey))
         if record:
             screenshots.append(record)
         phase["alerts"] = alerts.get("alerts")
-        if args.journey in (J01_CASE, J03_CASE):
+        if args.journey == J00_CASE:
+            dom["form_membership"] = page.evaluate(J00_FORM_DOM_JS)
+        if args.journey in (J00_CASE, J01_CASE, J02_CASE, J03_CASE):
             phase["dom_after"] = dom
         phase["exceptions"] = alerts.get("exceptions")
         phase["counters"] = {"script_runs": dom.get("script_runs"), "pulses": dom.get("pulses")}
@@ -2529,7 +2600,7 @@ def _judge_sequence(name, observation):
     written first, so the evidence is on the disk, and the verdict says that
     nothing was judged.
     """
-    criterion = {J01_CASE: j01_checks, J03_CASE: j03_checks}.get(name, sequence_checks)
+    criterion = {J00_CASE: j00_checks, J01_CASE: j01_checks, J02_CASE: j02_checks, J03_CASE: j03_checks}.get(name, sequence_checks)
     if criterion is None:
         checks = [
             {
@@ -2559,12 +2630,45 @@ JOURNEY_RUNNERS = {
     "j08-sequence": run_sequence_journey,
     J01_CASE: run_sequence_journey,
     J03_CASE: run_sequence_journey,
+    J02_CASE: run_sequence_journey,
+    J00_CASE: run_sequence_journey,
 }
+
+
+def replay_sequence(path) -> int:
+    """Rejudge archived evidence without a browser, writes or cached verdicts."""
+    try:
+        raw_path = pathlib.Path(path).resolve()
+        original = raw_path.read_bytes()
+        trace = json.loads(original)
+        name = trace.get("journey")
+        observation = trace.get("observation")
+        if (JOURNEY_RUNNERS.get(name) is not run_sequence_journey or
+                trace.get("case") != name or not isinstance(observation, dict) or
+                observation.get("journey") != name):
+            raise ValueError("missing, unsupported or contradictory sequence identity")
+        require_decoder()
+        observation["ipc_dir"] = str(raw_path.parent)
+        verdict = _judge_sequence(name, observation)
+        if raw_path.read_bytes() != original:
+            raise ValueError("raw bytes changed during replay")
+        criteria_path = pathlib.Path(sys.modules["capture_browser_trace"].__file__)
+        report = {"journey": name, "raw_sha256": hashlib.sha256(original).hexdigest(),
+                  "criteria_file_sha256": hashlib.sha256(criteria_path.read_bytes()).hexdigest(),
+                  **verdict}
+        print(json.dumps(report, ensure_ascii=False))
+        counts = verdict["counts"]
+        return 0 if (not verdict["failures"] and counts.get("expected", 0) > 0 and
+                     counts["expected"] == counts["executed"] == counts["asserted"]) else 1
+    except Exception as exc:
+        print(json.dumps({"failures": [{"check": "replay_error", "actual": f"{type(exc).__name__}: {exc}"}]}))
+        return 1
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--url", required=True)
+    parser.add_argument("--url")
+    parser.add_argument("--replay", metavar="RAW", help="read-only replay of one archived sequence; no Chrome")
     parser.add_argument("--label", default="numeric")
     parser.add_argument("--out", default="")
     parser.add_argument("--port", type=int, default=CHROME_PORT)
@@ -2593,6 +2697,12 @@ def main() -> int:
     parser.add_argument("--keep-changes", action="store_true",
                         help="keep the control changes in the data loop case")
     args = parser.parse_args()
+    if args.replay:
+        if args.url or args.out:
+            parser.error("--replay cannot be combined with --url or --out")
+        return replay_sequence(args.replay)
+    if not args.url:
+        parser.error("--url is required for a capture")
     require_decoder()
 
     out = pathlib.Path(args.out or f"target/numeric-{args.label}")

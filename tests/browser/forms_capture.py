@@ -37,6 +37,7 @@ from __future__ import annotations
 
 import argparse
 import base64
+import copy
 import hashlib
 import json
 import os
@@ -49,6 +50,7 @@ import tempfile
 import traceback
 import time
 import urllib.request
+from urllib.parse import quote
 from datetime import datetime, timezone
 
 HERE = pathlib.Path(__file__).resolve().parent
@@ -164,6 +166,30 @@ def start_chrome(binary: str, port: int, profile: pathlib.Path) -> subprocess.Po
 def page_targets(port: int) -> list[dict]:
     with urllib.request.urlopen(f"http://127.0.0.1:{port}/json/list", timeout=10) as r:
         return json.loads(r.read().decode("utf-8"))
+
+
+def create_owned_target(port: int) -> dict:
+    """Create a new tab on a leased browser; never select an existing tab."""
+    existing = {target["id"] for target in page_targets(port)}
+    request = urllib.request.Request(
+        f"http://127.0.0.1:{port}/json/new?about:blank", method="PUT"
+    )
+    with urllib.request.urlopen(request, timeout=10) as response:
+        target = json.loads(response.read().decode("utf-8"))
+    ident = target.get("id")
+    if not isinstance(ident, str) or not ident or ident in existing:
+        raise RuntimeError("Chrome did not return a newly created target ID")
+    return target
+
+
+def close_owned_target(port: int, ident: str) -> None:
+    """Close only the target ID returned by this run's create request."""
+    with urllib.request.urlopen(
+        f"http://127.0.0.1:{port}/json/close/{quote(ident, safe='')}", timeout=10
+    ) as response:
+        result = response.read().decode("utf-8")
+    if result.strip() != "Target is closing":
+        raise RuntimeError(f"Chrome did not confirm closing owned target {ident}: {result}")
 
 
 def agent_browser(*args: str, session: str, profile: pathlib.Path, cdp_port: int) -> dict:
@@ -648,7 +674,15 @@ def collect_case(page: FormsPage, recorder: CDP, case: str, args, out: pathlib.P
                          "frame_range": {"first_frame_index": case_start,
                                          "last_frame_index": None, "frame_count": 0},
                          "phases": phases})
-    if AB_STATE.get("usable", True):
+    if getattr(args, "browser_mode", "managed") == "attach":
+        # Page is already bound to the new target returned by create_owned_target.
+        # CLI open/daemon cleanup could select other tabs on a shared browser.
+        response = page.cdp.call("Page.navigate", {"url": url})
+        if "error" in response or response.get("result", {}).get("errorText"):
+            raise RuntimeError(f"Owned-target navigation failed: {response}")
+        navigation = {"tool": "CDP Page.navigate", "target_id": args.owned_target_id,
+                      "response": response}
+    elif AB_STATE.get("usable", True):
         navigation = agent_browser(
             "open", url,
             session=args.session, profile=args.chrome_profile, cdp_port=args.cdp_port,
@@ -1213,7 +1247,7 @@ def fixture_record(app: str = "tests/reference/forms_app.py") -> dict:
     }
 
 
-def verify_trace(path: pathlib.Path) -> int:
+def pb_trace_report(trace: dict) -> dict:
     """Re-derive a frozen trace from its own raw bytes and compare.
 
     The raw payload is the authority: every frame is decoded again with the
@@ -1222,7 +1256,6 @@ def verify_trace(path: pathlib.Path) -> int:
     the trace claims.  A derived field that cannot be reproduced from the
     raw bytes is a failure, not a second opinion.
     """
-    trace = json.loads(path.read_text(encoding="utf-8"))
     from streamlit.proto.BackMsg_pb2 import BackMsg
     from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
 
@@ -1230,63 +1263,196 @@ def verify_trace(path: pathlib.Path) -> int:
     failures: list[dict] = []
     counts = {"frames": 0, "digest": 0, "length": 0, "kind": 0, "summary": 0, "form_blocks": 0}
 
-    for frame in frames:
+    if not isinstance(frames, list) or not frames:
+        return {"frames": 0, "checks_passed": counts,
+                "failures": [{"check": "frames", "detail": "nonempty frame list required"}], "ok": False}
+    for position, frame in enumerate(frames):
         counts["frames"] += 1
-        raw = base64.b64decode(frame["base64"], validate=True)
-        if len(raw) != frame["bytes"]:
-            failures.append({"frame": frame["index"], "check": "length",
-                             "expected": frame["bytes"], "actual": len(raw)})
-        else:
-            counts["length"] += 1
-        digest = hashlib.sha256(raw).hexdigest()
-        if digest != frame["sha256"]:
-            failures.append({"frame": frame["index"], "check": "sha256",
-                             "expected": frame["sha256"], "actual": digest})
-        else:
-            counts["digest"] += 1
+        try:
+            raw = base64.b64decode(frame["base64"], validate=True)
+            if len(raw) != frame["bytes"]:
+                failures.append({"frame": frame["index"], "check": "length",
+                                 "expected": frame["bytes"], "actual": len(raw)})
+            else:
+                counts["length"] += 1
+            digest = hashlib.sha256(raw).hexdigest()
+            if digest != frame["sha256"]:
+                failures.append({"frame": frame["index"], "check": "sha256",
+                                 "expected": frame["sha256"], "actual": digest})
+            else:
+                counts["digest"] += 1
 
-        if frame["direction"] == "server->client":
-            msg = ForwardMsg()
-            decoder = summarise_forward
-        else:
-            msg = BackMsg()
-            decoder = summarise_back
-        msg.ParseFromString(raw)
-        kind = msg.WhichOneof("type")
-        if kind != frame["decoded"].get("type"):
-            failures.append({"frame": frame["index"], "check": "message_kind",
-                             "expected": frame["decoded"].get("type"), "actual": kind})
-        else:
-            counts["kind"] += 1
+            if frame["direction"] == "server->client":
+                msg = ForwardMsg()
+                decoder = summarise_forward
+            elif frame["direction"] == "client->server":
+                msg = BackMsg()
+                decoder = summarise_back
+            else:
+                raise ValueError("unknown frame direction")
+            msg.ParseFromString(raw)
+            kind = msg.WhichOneof("type")
+            if kind != frame["decoded"].get("type"):
+                failures.append({"frame": frame["index"], "check": "message_kind",
+                                 "expected": frame["decoded"].get("type"), "actual": kind})
+            else:
+                counts["kind"] += 1
 
-        summary = decoder(raw)
-        if summary != frame["decoded"]:
-            failures.append({"frame": frame["index"], "check": "decoded_summary",
-                             "expected": "the base decoder summary", "actual": "a different summary"})
-        else:
-            counts["summary"] += 1
+            summary = decoder(raw)
+            if summary != frame["decoded"]:
+                failures.append({"frame": frame["index"], "check": "decoded_summary",
+                                 "expected": "the base decoder summary", "actual": "a different summary"})
+            else:
+                counts["summary"] += 1
 
-        derived = form_blocks(raw) if frame["direction"] == "server->client" else []
-        stored = frame.get("form_blocks")
-        if stored is None:
-            ok = not derived
-        else:
-            ok = derived == stored
-        if ok:
-            counts["form_blocks"] += 1
-        else:
-            failures.append({"frame": frame["index"], "check": "form_blocks",
-                             "expected": stored, "actual": derived})
+            derived = form_blocks(raw) if frame["direction"] == "server->client" else []
+            stored = frame.get("form_blocks")
+            if stored is None:
+                ok = not derived
+            else:
+                ok = derived == stored
+            if ok:
+                counts["form_blocks"] += 1
+            else:
+                failures.append({"frame": frame["index"], "check": "form_blocks",
+                                 "expected": stored, "actual": derived})
+        except Exception as error:
+            failures.append({"frame_position": position, "check": "decode_error",
+                             "detail": f"{type(error).__name__}: {error}"})
 
-    report = {
-        "trace": str(path),
-        "frames": counts["frames"],
-        "checks_passed": counts,
-        "failures": failures,
-        "ok": not failures,
-    }
+    return {"frames": counts["frames"], "checks_passed": counts,
+            "failures": failures, "ok": not failures}
+
+
+def resolve_artifact_manifest(trace: dict, raw_path: pathlib.Path, manifest_path: pathlib.Path):
+    """Hash-validate an explicit bundle; change only PNG locations in memory."""
+    bundle = manifest_path.resolve(strict=True).parent
+    manifest_bytes = manifest_path.read_bytes()
+    manifest = json.loads(manifest_bytes)
+    def stored(record):
+        path = (ROOT / record["stored_file"]).resolve(strict=True)
+        if not path.is_relative_to(bundle):
+            raise ValueError("stored file escapes its bundle")
+        data = path.read_bytes()
+        if len(data) != record["bytes"] or hashlib.sha256(data).hexdigest() != record["sha256"]:
+            raise ValueError(f"stored bytes/hash differ: {record['stored_file']}")
+        return path
+    if stored(manifest["raw"]) != raw_path.resolve(strict=True):
+        raise ValueError("manifest is not bound to the requested raw path")
+    records = manifest["files"]
+    names = [record["stored_file"] for record in records]
+    if len(names) != len(set(names)):
+        raise ValueError("duplicate stored file record")
+    for record in records:
+        stored(record)
+    mappings = manifest["path_map"]
+    originals = [entry["original_file"] for entry in mappings]
+    targets = [entry["stored_file"] for entry in mappings]
+    if len(set(originals)) != len(originals) or len(set(targets)) != len(targets):
+        raise ValueError("PNG mappings must be one-to-one")
+    path_map = {entry["original_file"]: entry for entry in mappings}
+    resolved = copy.deepcopy(trace)
+    used = []
+    for case in resolved["cases"]:
+        for phase in case["phases"]:
+            png = phase["screenshot"]
+            entry = path_map[png["file"]]
+            if (entry["case_id"], entry["phase_id"]) != (case["case_id"], phase["phase_id"]):
+                raise ValueError("PNG mapping uses another case/phase")
+            if (entry["bytes"], entry["sha256"]) != (png["bytes"], png["sha256"]):
+                raise ValueError("PNG mapping differs from original raw hash/length")
+            path = stored(entry)
+            if not path.read_bytes().startswith(b"\x89PNG\r\n\x1a\n"):
+                raise ValueError("mapped screenshot is not a PNG")
+            used.append(png["file"])
+            png["file"] = entry["stored_file"]
+    if len(used) != len(set(used)) or set(used) != set(path_map):
+        raise ValueError("PNG mapping does not exactly cover observed screenshots")
+    return resolved, {"file": str(manifest_path), "sha256": hashlib.sha256(manifest_bytes).hexdigest(),
+                      "verified_files": len(records), "mapped_pngs": len(used)}
+
+
+def verify_trace(path: pathlib.Path, *, case_ids=None, j05_profile="standalone", artifact_manifest=None) -> int:
+    """Replay PB integrity and the owner's explicit, PNG-required contract."""
+    from forms_contract import (
+        verify_forms_text_input_contract, DOCS_LABEL, RUNTIME_VERSION,
+    )
+    requested = []
+    checked = []
+    scope_failures = []
+    contract_failures = []
+    artifacts = None
+    scope = "capture-declaration" if case_ids is None else "explicit"
+    try:
+        trace = json.loads(path.read_text(encoding="utf-8"))
+        if not isinstance(trace, dict):
+            raise ValueError("trace root must be an object")
+        require_decoder()
+        replay_trace = trace
+        if artifact_manifest is not None:
+            try:
+                replay_trace, artifacts = resolve_artifact_manifest(trace, path, artifact_manifest)
+            except Exception as error:
+                contract_failures.append({"source": "replay_cli", "code": "artifact_manifest",
+                                          "detail": f"{type(error).__name__}: {error}"})
+        if contract_failures:
+            pb = {"frames": 0, "checks_passed": {}, "failures": [
+                {"check": "artifact_manifest", "detail": "artifact binding failed; PB replay not run"}], "ok": False}
+        else:
+            pb = pb_trace_report(trace)
+        cases = trace.get("cases")
+        if not isinstance(cases, list) or not cases or any(not isinstance(case, dict) for case in cases):
+            raise ValueError("nonempty declared case-object list required")
+        declared = [case.get("case_id") for case in cases]
+        if any(not isinstance(case, str) or case not in CASES for case in declared):
+            scope_failures.append("missing or unknown captured case ID")
+        elif len(set(declared)) != len(declared):
+            scope_failures.append("duplicate captured case ID")
+        requested = list(declared if case_ids is None else case_ids)
+        if requested == ["all"]:
+            requested = list(CASES)
+            scope = "all-canonical"
+        if not requested or any(not isinstance(case, str) or case not in CASES for case in requested):
+            scope_failures.append("explicit selection is empty or contains unknown case IDs")
+        elif len(set(requested)) != len(requested):
+            scope_failures.append("duplicate selected case ID")
+        if any(case not in declared for case in requested):
+            scope_failures.append("selected case is missing from capture")
+        if j05_profile not in ("standalone", "csv-data-app"):
+            scope_failures.append("unknown J05 profile")
+        if j05_profile == "csv-data-app" and (case_ids is None or requested != ["form-j05-continuous"]):
+            scope_failures.append("CSV replay requires explicit --cases form-j05-continuous only")
+        if not scope_failures and not contract_failures:
+            checked = list(requested)
+            try:
+                contract_failures = verify_forms_text_input_contract(
+                    replay_trace, namespace=NAMESPACE, case_ids=tuple(checked),
+                    docs_label=DOCS_LABEL, runtime_version=RUNTIME_VERSION,
+                    require_png=True, j05_profile=j05_profile,
+                )
+            except Exception as error:
+                contract_failures = [{"source": "replay_cli", "code": "contract_exception",
+                                      "detail": f"{type(error).__name__}: {error}"}]
+    except (Exception, SystemExit) as error:
+        if "pb" not in locals():
+            pb = {"frames": 0, "checks_passed": {}, "failures": [
+                {"check": "input_or_decoder", "detail": f"{type(error).__name__}: {error}"}], "ok": False}
+        scope_failures.append(f"{type(error).__name__}: {error}")
+    contract_failures = [
+        {"source": "replay_cli", "code": "case_selection", "detail": detail}
+        for detail in scope_failures
+    ] + contract_failures
+    contract = {"j05_profile": j05_profile, "case_scope": scope,
+                "requested_case_ids": requested,
+                "checked_case_ids": checked, "checked_case_count": len(checked),
+                "failures": contract_failures,
+                "ok": bool(checked) and not contract_failures}
+    ok = pb["ok"] and contract["ok"]
+    report = {"trace": str(path), "pb": pb, "contract": contract, "ok": ok}
+    if artifacts is not None:
+        report["artifact_manifest"] = artifacts
     print(json.dumps(report, ensure_ascii=False, indent=1))
-    return 0 if not failures else 1
+    return 0 if ok else 1
 
 
 def atomic_json(path: pathlib.Path, value: dict | list) -> str:
@@ -1341,10 +1507,12 @@ def write_checkpoint(args, out, recorder, cases, notes, transport_actions,
             "This trace states no verdict.  It records what the reference "
             "runtime did; the strict criterion is the author's and reads "
             "this file.",
-            "The agent-browser CLI reported '--profile ignored: daemon "
-            "already running'.  The browser-level isolation came from the "
-            "Chrome instance itself: its own DevTools port, its own profile "
-            "directory under target/forms-capture/, its own headless window.",
+            ("Attach mode records only its explicitly created target; borrowed "
+             "Chrome is not launched or terminated, and existing tabs are not selected."
+             if getattr(args, "browser_mode", "managed") == "attach" else
+             "The agent-browser CLI reported '--profile ignored: daemon "
+             "already running'. The managed Chrome uses its own DevTools port "
+             "and profile directory under target/forms-capture/."),
             "The form block fields (form_id, clear_on_submit, border, "
             "enter_to_submit) are not part of the base decoder's summary; "
             "they are read from the same raw bytes with the same official "
@@ -1352,6 +1520,10 @@ def write_checkpoint(args, out, recorder, cases, notes, transport_actions,
             "form_blocks.",
         ],
     }
+    if getattr(args, "browser_mode", "managed") == "attach":
+        trace["browser"] = {"mode": "attach", "cdp_port": args.cdp_port,
+                            "session_label": args.session,
+                            "owned_target_id": args.owned_target_id}
     provenance = {}
     for field in ("binary", "candidate_manifest", "runtime_source_set", "runtime_config"):
         value = getattr(args, field)
@@ -1400,7 +1572,10 @@ def write_checkpoint(args, out, recorder, cases, notes, transport_actions,
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="forms and text-input reference capture")
-    parser.add_argument("--verify", help="re-derive a frozen trace from its raw bytes and compare")
+    parser.add_argument("--verify", help="replay raw PB integrity and the strict PNG-required contract")
+    parser.add_argument("--artifact-manifest", help="verification-only explicit hash-bound bundle path map")
+    parser.add_argument("--j05-profile", choices=("standalone", "csv-data-app"), default="standalone",
+                        help="verification-only J05 contract profile; CSV requires explicit J05-only --cases")
     parser.add_argument("--url", help="the reference server, e.g. http://127.0.0.1:8606")
     parser.add_argument("--label", default="python-forms")
     parser.add_argument("--kind", default="python-reference-browser-trace")
@@ -1413,11 +1588,14 @@ def main() -> int:
         "not verified by this trace. Black-box official-frontend reference evidence."
     ))
     parser.add_argument("--out", default="tests/reference/reference-browser/forms")
-    parser.add_argument("--cdp-port", type=int, default=60917)
+    parser.add_argument("--browser-mode", choices=("managed", "attach"), default="managed")
+    parser.add_argument("--cdp-port", type=int,
+                        help="CDP port; managed default 60917, explicit in attach mode")
     parser.add_argument("--session", default="forms-capture")
     parser.add_argument("--app", default="tests/reference/forms_app.py",
                         help="the reference app this capture drives")
-    parser.add_argument("--cases", nargs="*", default=list(CASES))  # the canonical list
+    parser.add_argument("--cases", nargs="*", default=None,
+                        help="capture defaults to all; replay defaults to declared cases, or explicit IDs/all")
     parser.add_argument("--transport-disconnect", action="store_true",
                         help="after all phases, experimentally toggle this Chrome offline/online")
     args = parser.parse_args()
@@ -1426,9 +1604,26 @@ def main() -> int:
         trace_path = pathlib.Path(args.verify)
         if not trace_path.is_absolute():
             trace_path = ROOT / trace_path
-        return verify_trace(trace_path)
+        manifest_path = pathlib.Path(args.artifact_manifest) if args.artifact_manifest else None
+        if manifest_path is not None and not manifest_path.is_absolute():
+            manifest_path = ROOT / manifest_path
+        return verify_trace(trace_path, case_ids=args.cases, j05_profile=args.j05_profile,
+                            artifact_manifest=manifest_path)
+    if args.artifact_manifest:
+        parser.error("--artifact-manifest is only available with --verify")
+    if args.j05_profile != "standalone":
+        parser.error("--j05-profile is only available with --verify")
+    if args.cases is None:
+        args.cases = list(CASES)
     if not args.url:
         parser.error("--url is required for a capture")
+    if args.browser_mode == "attach":
+        if args.cdp_port is None:
+            parser.error("--browser-mode attach requires an explicit --cdp-port")
+        if args.transport_disconnect:
+            parser.error("--transport-disconnect is unavailable on a leased browser")
+    elif args.cdp_port is None:
+        args.cdp_port = 60917
 
     # The decoder is checked before anything is recorded: a capture without a
     # decoder would be a page of empty frames that looks like a quiet app.
@@ -1438,7 +1633,9 @@ def main() -> int:
     if not out.is_absolute():
         out = ROOT / out
     out.mkdir(parents=True, exist_ok=True)
-    args.chrome_profile = ROOT / "target" / "forms-capture" / "chrome-profile"
+    args.chrome_profile = (ROOT / "target" / "forms-capture" / "chrome-profile"
+                           if args.browser_mode == "managed" else None)
+    args.owned_target_id = None
 
     chrome = None
     recorder = None
@@ -1449,12 +1646,18 @@ def main() -> int:
     active_case = None
     failure = None
     try:
-        chrome = start_chrome(chrome_binary(), args.cdp_port, args.chrome_profile)
-        target = next(
-            (t for t in page_targets(args.cdp_port) if t.get("type") == "page"), None
-        )
-        if target is None:
-            raise RuntimeError("Chrome opened no page target")
+        if args.browser_mode == "attach":
+            target = create_owned_target(args.cdp_port)
+            args.owned_target_id = target["id"]
+            if target.get("type") != "page" or not target.get("webSocketDebuggerUrl"):
+                raise RuntimeError("New owned target has no page debugger endpoint")
+        else:
+            chrome = start_chrome(chrome_binary(), args.cdp_port, args.chrome_profile)
+            target = next(
+                (t for t in page_targets(args.cdp_port) if t.get("type") == "page"), None
+            )
+            if target is None:
+                raise RuntimeError("Chrome opened no page target")
         recorder = CDP(target["webSocketDebuggerUrl"], label="forms")
         recorder.start()
         page = FormsPage(recorder)
@@ -1469,46 +1672,54 @@ def main() -> int:
             active_case = None
             write_checkpoint(args, out, recorder, cases, notes, transport_actions,
                              active_case, complete=False, failure=None)
-        # End the observed page through real navigation while the recorder is
-        # still attached, preserving the final socket's actual close event.
-        last_frames = frames_of(recorder)
-        last_request_id = last_frames[-1].get("request_id") if last_frames else None
-        if args.transport_disconnect:
-            offline_params = {"offline": True, "latency": 0,
-                              "downloadThroughput": -1, "uploadThroughput": -1}
-            action_at = datetime.now(timezone.utc).isoformat(timespec="milliseconds")
-            result = recorder.call("Network.emulateNetworkConditions", offline_params)
-            transport_actions.append({"experiment": "transport-disconnect",
-                                      "method": "Network.emulateNetworkConditions",
-                                      "params": offline_params, "at_utc": action_at,
-                                      "result": result})
-        else:
-            recorder.call("Page.navigate", {"url": "about:blank"})
-        close_deadline = time.monotonic() + 5.0
-        while time.monotonic() < close_deadline:
-            if any(event.get("method") == "Network.webSocketClosed"
-                   and event.get("params", {}).get("requestId") == last_request_id
-                   for event in recorder.take()):
-                break
-            time.sleep(0.1)
-        if args.transport_disconnect:
-            online_params = {"offline": False, "latency": 0,
-                             "downloadThroughput": -1, "uploadThroughput": -1}
-            action_at = datetime.now(timezone.utc).isoformat(timespec="milliseconds")
-            result = recorder.call("Network.emulateNetworkConditions", online_params)
-            transport_actions.append({"experiment": "transport-disconnect",
-                                      "method": "Network.emulateNetworkConditions",
-                                      "params": online_params, "at_utc": action_at,
-                                      "result": result})
-            recorder.call("Page.navigate", {"url": "about:blank"})
-            notes.append("After the final product phase, an explicitly requested transport-disconnect experiment toggled only this Chrome offline then online. This is not a normal navigation close or a product interaction; original lifecycle events show whether/when its socket closed.")
-        else:
-            notes.append("After the last phase, Page.navigate to about:blank ended the observed page; original lifecycle events record whether/when its socket closed.")
+        if args.browser_mode == "managed":
+            # End the observed page through real navigation while the recorder is
+            # still attached, preserving the final socket's actual close event.
+            last_frames = frames_of(recorder)
+            last_request_id = last_frames[-1].get("request_id") if last_frames else None
+            if args.transport_disconnect:
+                offline_params = {"offline": True, "latency": 0,
+                                  "downloadThroughput": -1, "uploadThroughput": -1}
+                action_at = datetime.now(timezone.utc).isoformat(timespec="milliseconds")
+                result = recorder.call("Network.emulateNetworkConditions", offline_params)
+                transport_actions.append({"experiment": "transport-disconnect",
+                                          "method": "Network.emulateNetworkConditions",
+                                          "params": offline_params, "at_utc": action_at,
+                                          "result": result})
+            else:
+                recorder.call("Page.navigate", {"url": "about:blank"})
+            close_deadline = time.monotonic() + 5.0
+            while time.monotonic() < close_deadline:
+                if any(event.get("method") == "Network.webSocketClosed"
+                       and event.get("params", {}).get("requestId") == last_request_id
+                       for event in recorder.take()):
+                    break
+                time.sleep(0.1)
+            if args.transport_disconnect:
+                online_params = {"offline": False, "latency": 0,
+                                 "downloadThroughput": -1, "uploadThroughput": -1}
+                action_at = datetime.now(timezone.utc).isoformat(timespec="milliseconds")
+                result = recorder.call("Network.emulateNetworkConditions", online_params)
+                transport_actions.append({"experiment": "transport-disconnect",
+                                          "method": "Network.emulateNetworkConditions",
+                                          "params": online_params, "at_utc": action_at,
+                                          "result": result})
+                recorder.call("Page.navigate", {"url": "about:blank"})
+                notes.append("After the final product phase, an explicitly requested transport-disconnect experiment toggled only this Chrome offline then online. This is not a normal navigation close or a product interaction; original lifecycle events show whether/when its socket closed.")
+            else:
+                notes.append("After the last phase, Page.navigate to about:blank ended the observed page; original lifecycle events record whether/when its socket closed.")
     except BaseException as error:
         failure = {"type": type(error).__name__, "message": str(error)}
         notes.append(f"Capture aborted: {type(error).__name__}: {error}")
         traceback.print_exc()
     finally:
+        if args.browser_mode == "attach" and args.owned_target_id is not None:
+            try:
+                close_owned_target(args.cdp_port, args.owned_target_id)
+            except Exception as error:
+                if failure is None:
+                    failure = {"type": type(error).__name__, "message": str(error)}
+                notes.append(f"Owned-target cleanup failed: {type(error).__name__}: {error}")
         for resource in (recorder, chrome):
             if resource is None:
                 continue

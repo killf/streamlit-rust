@@ -14,6 +14,10 @@ from __future__ import annotations
 import pathlib
 import sys
 import json
+import base64
+import hashlib
+import shutil
+import subprocess
 from types import SimpleNamespace
 
 import pytest
@@ -186,6 +190,122 @@ def test_j03_plan_uses_only_shared_phases_actions_and_inputs():
     assert verdict["failures"] and verdict["counts"]["asserted"] == 0
 
 
+def test_j02_plan_uses_shared_actions_and_one_final_picture_for_two_steps():
+    n = numeric_capture
+    plan = n._sequence_plan(n.J02_CASE)
+    assert tuple(p[0] for p in plan) == n.J02_PHASES
+    for name, action, want_cells, _ in plan:
+        assert all(action[k] == v for k, v in n.J02_ACTIONS[name].items())
+        assert want_cells == (name != "initial")
+    assert n.J02_PNG_ROLES[n.J02_PHASES[-1]] == ("J02-S4", "J02-S5")
+    verdict = n._judge_sequence(n.J02_CASE, {})
+    assert verdict["failures"] and verdict["counts"]["asserted"] == 0
+
+
+def test_j00_plan_preserves_shared_preparations_without_form_actions():
+    n = numeric_capture
+    plan = n._sequence_plan(n.J00_CASE)
+    assert tuple(p[0] for p in plan) == n.J00_PHASES
+    for name, action, want_cells, _ in plan:
+        assert all(action[k] == v for k, v in n.J00_ACTIONS[name].items())
+        assert want_cells == (name != "initial")
+        assert action["action"] in ("initial", "upload", "slider", "select-option", "checkbox")
+    assert n.J00_PNG_ROLES[n.J00_PHASES[-1]] == ("J00-S5", "J00-S6")
+    verdict = n._judge_sequence(n.J00_CASE, {})
+    assert verdict["failures"] and verdict["counts"]["asserted"] == 0
+
+
+@pytest.mark.parametrize("split,empty", [(False, False), (True, False), (False, True)])
+def test_j00_form_dom_executes_for_same_split_and_missing_forms(split, empty, tmp_path):
+    # Reuse the existing H1 DOM test double and its already declared Node dev dependency.
+    from test_capture_checks import FAKE_DOM_JS
+    node = shutil.which("node")
+    if not node:
+        pytest.skip("Node.js is required for the existing DOM execution regression")
+    setup = FAKE_DOM_JS.split("const document = build(")[0]
+    setup += """
+const note=makeEl('div',{'data-testid':'stTextInput'},{},[
+ makeEl('label',{}, {text:'Note'}),makeEl('input',{}, {value:''})]);
+const apply=makeEl('div',{'data-testid':'stFormSubmitButton'},{text:'Apply note'});
+const pulse=makeEl('div',{'data-testid':'stButton'},{text:'Pulse'});
+const first=makeEl('div',{'data-testid':'stForm'},{},[note]);
+const second=makeEl('div',{'data-testid':'stForm'},{},[apply]);
+"""
+    if empty:
+        setup += "const document=makeEl('body',{}, {}, []);\n"
+    elif split:
+        setup += "const document=makeEl('body',{}, {}, [first,second,pulse]);\n"
+    else:
+        setup += "const document=makeEl('body',{}, {}, [makeEl('div',{'data-testid':'stForm'},{},[note,apply]),pulse]);\n"
+    script = tmp_path / "j00-probe.js"
+    script.write_text(setup + "console.log(" + numeric_capture.J00_FORM_DOM_JS + ");", encoding="utf-8")
+    done = subprocess.run([node, str(script)], capture_output=True, text=True, timeout=10)
+    assert done.returncode == 0, done.stderr
+    observed = json.loads(done.stdout)
+    if empty:
+        assert observed == {"text_inputs": [], "buttons": [], "forms": []}
+    else:
+        assert observed["text_inputs"] == [{"label": "Note", "value": "", "form_index": 0}]
+        by_label = {b["label"]: b for b in observed["buttons"]}
+        assert by_label["Pulse"]["form_index"] == -1
+        assert by_label["Apply note"]["form_index"] == (1 if split else 0)
+        assert bool(observed["forms"][0]["submit_buttons"]) is not split
+
+
+def test_j00_preserves_actual_form_proto_using_canonical_helper():
+    from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
+    from streamlit.proto.BackMsg_pb2 import BackMsg
+    from forms_contract import _official_forward, _form_blocks_from_forward
+    block = ForwardMsg(); block.delta.add_block.form.form_id = "actual-form-id"
+    note = ForwardMsg(); note.delta.new_element.text_input.id = "actual-note-id"
+    note.delta.new_element.text_input.label = "Note"; note.delta.new_element.text_input.form_id = "actual-form-id"
+    submit = ForwardMsg(); submit.delta.new_element.button.id = "actual-submit-id"
+    submit.delta.new_element.button.label = "Apply note"; submit.delta.new_element.button.form_id = "actual-form-id"
+    submit.delta.new_element.button.is_form_submitter = True
+    client = BackMsg(); client.rerun_script.widget_states.widgets.add(id="actual-note-id", string_value="")
+    payloads = [m.SerializeToString() for m in (block, note, submit, client)]
+    events = [{"method": "Network.webSocketFrameSent" if i == 3 else "Network.webSocketFrameReceived",
+               "params": {"requestId": "real-connection", "timestamp": i,
+                          "response": {"opcode": 2, "payloadData": base64.b64encode(b).decode()}}}
+              for i, b in enumerate(payloads)]
+    recorder = SimpleNamespace(take=lambda: events, capture_form_membership=True)
+    frames = numeric_capture.frames_of(recorder, namespace="one-tab")
+    for i, (frame, payload) in enumerate(zip(frames, payloads)):
+        assert base64.b64decode(frame["base64"]) == payload
+        assert frame["bytes"] == len(payload) and frame["sha256"] == hashlib.sha256(payload).hexdigest()
+        assert frame["connection"] == 0 and frame["request_id"] == "real-connection"
+        if i < 3:
+            assert frame["official_forward"] == _official_forward(payload)
+            assert frame["form_blocks"] == _form_blocks_from_forward(_official_forward(payload))
+    assert frames[0]["form_blocks"][0]["form_id"] == "actual-form-id"
+    assert frames[1]["official_forward"]["delta"]["new_element"]["text_input"]["form_id"] == "actual-form-id"
+    assert frames[2]["official_forward"]["delta"]["new_element"]["button"]["is_form_submitter"] is True
+    recorder.capture_form_membership = False
+    ordinary = numeric_capture.frames_of(recorder, namespace="one-tab")
+    assert [{k: v for k, v in f.items() if k not in ("base64", "bytes", "sha256", "official_forward", "form_blocks")}
+            for f in frames] == ordinary
+
+
+@pytest.mark.parametrize("before,after,ok,events", [
+    (True, False, True, 2), (True, True, False, 2),
+    (True, None, False, 2), (None, None, False, 0), (False, False, False, 0),
+])
+def test_checkbox_false_requires_a_real_native_state_change(before, after, ok, events):
+    calls = []
+    page = numeric_capture.Page(SimpleNamespace(call=lambda method, params: calls.append((method, params)) or {}))
+    readings = iter([before, after])
+    page.evaluate = lambda _: next(readings)
+    page.focus_checkbox = lambda _: True
+    result = page.checkbox_toggle("Include unknown region", False, timeout=0)
+    assert result["ok"] is ok
+    assert len(calls) == events
+    if events:
+        assert [p["type"] for _, p in calls] == ["rawKeyDown", "keyUp"]
+        assert all(m == "Input.dispatchKeyEvent" and p["code"] == "Space" for m, p in calls)
+    if ok:
+        assert result["before"] is True and result["after"] is False
+
+
 def _pointer_page(before_value, after_value):
     calls = []
     cdp = SimpleNamespace(call=lambda method, params: calls.append((method, params)) or {})
@@ -264,3 +384,59 @@ def test_sequence_preserves_observation_when_criterion_raises(monkeypatch, tmp_p
     assert saved["observation"]["screenshots"][0]["file"] == png.name
     assert saved["counts"]["asserted"] == 0
     assert not (tmp_path / "trace-data-loop.json.pending").exists()
+
+
+def _published_sequence_copy(tmp_path):
+    source = HERE / "rust-journeys" / "j01-sequence"
+    dest = tmp_path / "archive"
+    shutil.copytree(source, dest)
+    return dest / "trace-data-loop.json"
+
+
+def _replay_main(monkeypatch, raw):
+    def no_browser(*a, **k):
+        raise AssertionError("replay must never access the browser")
+    monkeypatch.setattr(numeric_capture, "http_json", no_browser)
+    monkeypatch.setattr(sys, "argv", ["numeric_capture.py", "--replay", str(raw)])
+    return numeric_capture.main()
+
+
+def test_replay_entry_uses_adjacent_artifacts_without_browser_or_writes(monkeypatch, tmp_path, capsys):
+    raw = _published_sequence_copy(tmp_path)
+    before = {p.relative_to(raw.parent): p.read_bytes() for p in raw.parent.rglob("*") if p.is_file()}
+    assert _replay_main(monkeypatch, raw) == 0
+    report = json.loads(capsys.readouterr().out)
+    assert report["counts"] == {"expected": 15, "executed": 15, "asserted": 15}
+    assert report["raw_sha256"] == hashlib.sha256(before[pathlib.Path(raw.name)]).hexdigest()
+    assert before == {p.relative_to(raw.parent): p.read_bytes() for p in raw.parent.rglob("*") if p.is_file()}
+
+
+@pytest.mark.parametrize("mutation", ["no_frames", "wrong_case", "wrong_observation", "unsupported"])
+def test_replay_entry_does_not_trust_cached_pass(monkeypatch, tmp_path, capsys, mutation):
+    raw = _published_sequence_copy(tmp_path)
+    trace = json.loads(raw.read_bytes())
+    assert trace["failures"] == [] and trace["counts"]["asserted"] == 15
+    if mutation == "no_frames":
+        trace["observation"]["frames"] = []
+    elif mutation == "wrong_case":
+        trace["case"] = numeric_capture.J00_CASE
+    elif mutation == "wrong_observation":
+        trace["observation"]["journey"] = numeric_capture.J00_CASE
+    else:
+        trace["case"] = trace["journey"] = trace["observation"]["journey"] = "unknown-sequence"
+    raw.write_text(json.dumps(trace), encoding="utf-8")
+    before = raw.read_bytes()
+    assert _replay_main(monkeypatch, raw) == 1
+    assert json.loads(capsys.readouterr().out)["failures"]
+    assert raw.read_bytes() == before
+
+
+def test_replay_entry_reports_predicate_exception_nonzero(monkeypatch, tmp_path, capsys):
+    raw = _published_sequence_copy(tmp_path)
+    def broken(*a):
+        raise NameError("predicate failed")
+    monkeypatch.setattr(numeric_capture, "_judge_sequence", broken)
+    before = raw.read_bytes()
+    assert _replay_main(monkeypatch, raw) == 1
+    assert json.loads(capsys.readouterr().out)["failures"][0]["actual"] == "NameError: predicate failed"
+    assert raw.read_bytes() == before

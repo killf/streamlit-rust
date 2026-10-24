@@ -262,10 +262,84 @@ def _client_states(phase: dict[str, Any]) -> list[dict[str, Any]]:
     return states
 
 
-def _j05_failures(case: dict[str, Any]) -> list[dict[str, str]]:
+def _csv_j05_states(case: dict[str, Any]) -> tuple[list[dict[str, str]], dict[str, dict[str, Any]]]:
+    """Measured CSV app defaults, resolved only from official Element registrations."""
+    failures: list[dict[str, str]] = []
+    roles = {
+        ("file_uploader", "Upload sales CSV"): ("file_uploader_state_value", {}),
+        ("selectbox", "Group by"): ("string_value", "category"),
+        ("slider", "Minimum amount"): ("double_array_value", {"data": [0.0]}),
+        ("checkbox", "Include unknown region"): ("bool_value", True),
+        ("text_input", "Note"): ("string_value", "hello"),
+        ("button", "Apply note"): ("trigger_value", True),
+        ("button", "Pulse"): ("trigger_value", True),
+    }
+    baseline: dict[tuple[str, str], dict[str, Any]] | None = None
+    expected_states: dict[str, dict[str, Any]] = {}
+    for phase in case.get("phases") or []:
+        name = str(phase.get("phase_id")).split(":", 1)[-1]
+        if name == "type":
+            continue
+        registrations: dict[tuple[str, str], dict[str, Any]] = {}
+        invalid = False
+        for frame in phase.get("frames") or []:
+            full = frame.get("_official_full") or {}
+            element = (full.get("delta") or {}).get("new_element") or {}
+            for kind, value in element.items():
+                if not isinstance(value, dict) or not value.get("id"):
+                    continue
+                role = (kind, value.get("label"))
+                if role not in roles or role in registrations:
+                    invalid = True
+                registrations[role] = value
+        ids = [value["id"] for value in registrations.values()]
+        if set(registrations) != set(roles) or len(set(ids)) != len(roles):
+            invalid = True
+        if not invalid:
+            upload = registrations[("file_uploader", "Upload sales CSV")]
+            group = registrations[("selectbox", "Group by")]
+            minimum = registrations[("slider", "Minimum amount")]
+            unknown = registrations[("checkbox", "Include unknown region")]
+            note = registrations[("text_input", "Note")]
+            apply = registrations[("button", "Apply note")]
+            pulse = registrations[("button", "Pulse")]
+            invalid = not (
+                upload.get("type") == [".csv"] and upload.get("max_upload_size_mb") == 200
+                and not upload.get("multiple_files")
+                and group.get("options") == ["category", "region", "channel"]
+                and group.get("default") == 0 and not group.get("accept_new_options")
+                and minimum.get("default") == [0.0] and minimum.get("min", 0) == 0
+                and minimum.get("max") == 200 and minimum.get("step") == 10
+                and unknown.get("default") is True
+                and note.get("default") == "" and note.get("form_id") == "apply_form"
+                and apply.get("form_id") == "apply_form" and apply.get("is_form_submitter") is True
+                and not pulse.get("form_id") and not pulse.get("is_form_submitter")
+                and all(not value.get("form_id") for value in (upload, group, minimum, unknown))
+                and all(not value.get("disabled") for value in registrations.values())
+            )
+        if baseline is None and name == "load" and not invalid:
+            baseline = registrations
+            expected_states = {
+                value["id"]: {"id": value["id"], roles[role][0]: roles[role][1]}
+                for role, value in registrations.items()
+            }
+        elif baseline != registrations:
+            invalid = True
+        if invalid:
+            failures.append(_problem("form-j05-continuous", name, "csv_j05_registration", "CSV widget roles/defaults/IDs must be unique and stable in every run"))
+        if name == "load" and _client_states(phase):
+            failures.append(_problem("form-j05-continuous", name, "csv_j05_states", "initial client widget states must be empty"))
+    return failures, expected_states
+
+
+def _j05_failures(case: dict[str, Any], profile: str = "standalone") -> list[dict[str, str]]:
     case_id = "form-j05-continuous"
     phases = {str(phase.get("phase_id")).split(":", 1)[-1]: phase for phase in case.get("phases") or []}
     failures: list[dict[str, str]] = []
+    csv_states: dict[str, dict[str, Any]] = {}
+    if profile == "csv-data-app":
+        problems, csv_states = _csv_j05_states(case)
+        failures.extend(problems)
     expected = {
         "load": (1, 0, ""),
         "type": (1, 0, ""),
@@ -317,7 +391,14 @@ def _j05_failures(case: dict[str, Any]) -> list[dict[str, str]]:
         trigger_id = apply_id if name == "submit" else pulse_id
         if by_id.get(trigger_id, {}).get("trigger_value") is not True:
             failures.append(_problem(case_id, name, "j05_wire", f"the expected {name} trigger is absent"))
-        wrong = [state.get("id") for state in states if state.get("id") not in {note_id, trigger_id}]
+        allowed = {note_id, trigger_id}
+        if profile == "csv-data-app":
+            inactive = pulse_id if name == "submit" else apply_id
+            required = {key: value for key, value in csv_states.items() if key != inactive}
+            allowed = set(required)
+            if len(states) != len(required) or len(by_id) != len(states) or by_id != required:
+                failures.append(_problem(case_id, name, "csv_j05_states", "batch must contain exactly the four unchanged typed CSV defaults, Note and current trigger; uploader must be empty"))
+        wrong = [state.get("id") for state in states if state.get("id") not in allowed]
         if wrong:
             failures.append(_problem(case_id, name, "j05_wire", f"unexpected widget states: {wrong}"))
     return failures
@@ -331,9 +412,14 @@ def verify_forms_text_input_contract(
     docs_label: str = DOCS_LABEL,
     runtime_version: str = RUNTIME_VERSION,
     require_png: bool = True,
+    j05_profile: str = "standalone",
 ) -> list[dict[str, str]]:
     """Return failures only; an empty list is the sole PASS representation."""
     failures: list[dict[str, str]] = []
+    if j05_profile not in ("standalone", "csv-data-app") or (
+        j05_profile == "csv-data-app" and case_ids != ("form-j05-continuous",)
+    ):
+        failures.append(_problem("*", "*", "j05_profile", "CSV profile requires an explicit J05-only selection; unknown profiles are rejected"))
     if namespace != NAMESPACE:
         failures.append({"case_id": "*", "phase_id": "*", "code": "namespace", "detail": namespace})
     if docs_label != DOCS_LABEL or runtime_version != RUNTIME_VERSION:
@@ -358,6 +444,10 @@ def verify_forms_text_input_contract(
             failures.append({"case_id": "*", "phase_id": "*", "code": "missing_field", "detail": key})
 
     fixture = obs.get("fixture") or {}
+    if j05_profile == "csv-data-app" and fixture.get("app") not in (
+        "streamlit/examples/data_app.rs", "tests/reference/app.py",
+    ):
+        failures.append(_problem("*", "*", "j05_profile_source", "CSV profile requires the actual Rust or reference CSV app, not the standalone forms fixture"))
     app_path = ROOT / str(fixture.get("app", ""))
     if not app_path.is_file() or not app_path.resolve().is_relative_to(ROOT.resolve()):
         failures.append({"case_id": "*", "phase_id": "*", "code": "fixture", "detail": "fixture path is missing or outside the worktree"})
@@ -611,7 +701,7 @@ def verify_forms_text_input_contract(
                         failures.append(_problem(case_id, phase_id, "run_order", "expected trigger, new_session, successful completion in order"))
 
     if canonical_cases.get("form-j05-continuous"):
-        failures.extend(_j05_failures(canonical_cases["form-j05-continuous"]))
+        failures.extend(_j05_failures(canonical_cases["form-j05-continuous"], j05_profile))
     if canonical_cases.get("form-default-submit"):
         texts = [phase.get("dom_after", {}).get("texts", []) for phase in cases["form-default-submit"].get("phases", [])]
         flat = [text for batch in texts for text in batch]

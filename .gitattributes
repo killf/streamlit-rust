@@ -60,3 +60,22 @@
 /tests/fixtures/csv/sales_unicode.csv -text
 /tests/fixtures/csv/sales_utf8_bom.csv -text
 /tests/fixtures/csv/sales_latin1.csv -text
+# Full CSV application J05 evidence and source snapshots.
+/tests/browser/rust-csv-app-j05/** -text
+/tests/reference/reference-browser/csv-app-j05/** -text
+# J00/J02 published evidence and SHA-bound J05 artifact test.
+/tests/browser/rust-journeys/j00-sequence/** -text
+/tests/reference/reference-browser/journeys/j00-sequence/** -text
+/tests/browser/rust-journeys/j02-sequence/** -text
+/tests/reference/reference-browser/journeys/j02-sequence/** -text
+/tests/browser/test_forms_capture_artifacts.py -text
+/streamlit/examples/data_app.rs -text
+/tests/reference/app.py -text
+/tests/reference/refcore.py -text
+/tests/reference/test_capture_checks.py -text
+# Exact reviewed guide and forms test source bytes.
+/docs/guide/README.md -text
+/tests/browser/test_forms_capture_attach.py -text
+/tests/browser/test_forms_capture_replay.py -text
+/tests/reference/test_forms_bundle.py -text
+/tests/reference/test_forms_contract.py -text

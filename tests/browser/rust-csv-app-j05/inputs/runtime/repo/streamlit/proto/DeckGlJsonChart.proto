@@ -1,0 +1,51 @@
+/**!
+ * Copyright (c) Streamlit Inc. (2018-2022) Snowflake Inc. (2022-2026)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto3";
+
+message DeckGlJsonChart {
+  // The json of the pydeck object (https://deckgl.readthedocs.io/en/latest/deck.html)
+  string json = 1;
+
+  string tooltip = 2;
+
+  // ID, required for selection events.
+  string id = 5;
+
+  // The Mapbox token, if any.
+  string mapbox_token = 6;
+
+  // If non-empty, treat this instance as a Widget
+  repeated SelectionMode selection_mode = 9;
+
+  // The form ID of the widget, this is required if the chart has selection events
+  string form_id = 10;
+
+  // Author-provided description of the map/chart, exposed to assistive
+  // technologies as the accessible name. Unset when omitted or when an empty /
+  // whitespace-only value was normalized away in Python.
+  optional string alt = 11;
+
+  // Next ID: 12
+
+  // Available selection modes:
+  enum SelectionMode {
+    SINGLE_OBJECT = 0; // Only one object can be selected at a time.
+    MULTI_OBJECT = 1; // Multiple objects can be selected at a time.
+  }
+
+  reserved 4, 7, 8;
+}
