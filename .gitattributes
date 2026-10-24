@@ -1,3 +1,11 @@
 # Official distributions and protocol sources must survive checkout byte-for-byte.
 /www/** -text
 /streamlit/proto/*.proto -text
+
+# SHA-bound evidence provenance must survive checkout byte-for-byte.
+/tests/browser/rust-data-loop/README.md -text
+/tests/reference/reference-browser/data-loop/README.md -text
+/tests/browser/rust-journeys/README.md -text
+/tests/browser/rust-table-native/README.md -text
+/tests/reference/reference-browser/journeys/README.md -text
+/tests/reference/reference-browser/table-native/README.md -text
