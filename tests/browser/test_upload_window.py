@@ -13,6 +13,10 @@ from __future__ import annotations
 
 import pathlib
 import sys
+import json
+from types import SimpleNamespace
+
+import pytest
 
 HERE = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
@@ -150,3 +154,61 @@ def test_a_whole_journey_never_passes_without_the_shared_criterion():
     verdict = numeric_capture._judge_sequence("j07-sequence", {"phases": []})
     assert verdict["failures"]
     assert verdict["counts"]["asserted"] == 0
+
+
+def test_j01_plan_uses_shared_actions_inputs_and_png_roles():
+    plan = numeric_capture._sequence_plan(numeric_capture.J01_CASE)
+    assert tuple(step[0] for step in plan) == numeric_capture.J01_PHASES
+    for name, action, want_cells, _ in plan:
+        for key, value in numeric_capture.J01_ACTIONS[name].items():
+            assert action[key] == value
+        if name in numeric_capture.J01_INPUTS:
+            assert action["file"] == numeric_capture.J01_INPUTS[name]
+        assert want_cells == (name != "initial")
+
+
+def test_j01_unverified_criterion_cannot_pass():
+    verdict = numeric_capture._judge_sequence(numeric_capture.J01_CASE, {})
+    assert verdict["failures"]
+    assert verdict["counts"]["asserted"] == 0
+
+
+@pytest.mark.parametrize("error_type", [NameError, RuntimeError])
+@pytest.mark.parametrize("case", [numeric_capture.J01_CASE, "j07-sequence"])
+def test_sequence_preserves_observation_when_criterion_raises(monkeypatch, tmp_path, error_type, case):
+    n = numeric_capture
+    monkeypatch.setattr(n, "_sequence_plan", lambda _: [("initial", {"action": "initial"}, False, "initial.png")])
+    frames = [{"connection": 0}]
+    monkeypatch.setattr(n, "frames_of", lambda *a, **k: frames)
+    monkeypatch.setattr(n, "_run_window", lambda *a: {"start": 0, "end": 1})
+    monkeypatch.setattr(n, "_phase", lambda *a: {"name": "initial", "dom_after": a[-2]})
+    png = tmp_path / "initial.png"
+    png.write_bytes(b"test-reference-only")
+    monkeypatch.setattr(n, "_shot", lambda *a: {"file": png.name, "timestamp": 2.0})
+    monkeypatch.setattr(n, "_session_of", lambda *a: "test-session")
+    monkeypatch.setattr(n, "_run_id", lambda *a: "test-run")
+    monkeypatch.setattr(n, "_uploader_of", lambda *a: [])
+    http = [{"method": "PUT", "status": 204, "url": "http://127.0.0.1:8601/test-upload"}]
+    monkeypatch.setattr(n, "_http_timeline", lambda *a: http)
+    def broken(*a):
+        checkpoint = json.loads((tmp_path / "trace-data-loop.json").read_bytes())
+        assert checkpoint["observation"]["frames"] == frames
+        assert checkpoint["observation"]["http_timeline"] == http
+        assert checkpoint["observation"]["screenshots"][0]["file"] == png.name
+        raise error_type("unfinished predicate")
+    monkeypatch.setattr(n, "_judge_sequence", broken)
+    dom = {"script_runs": "1", "pulses": "0", "table_cells": []}
+    page = SimpleNamespace(state_digest=lambda: dict(dom), wait_for_render=lambda **k: dict(dom),
+                           page_alerts=lambda: {"alerts": [], "exceptions": []})
+    args = SimpleNamespace(journey=case, url="http://127.0.0.1:8601/",
+                           scope="PYTHON SIDE ONLY", binary="", build_base="")
+    assert n.run_sequence_journey(page, SimpleNamespace(label="test-tab"), args, tmp_path) == 1
+    saved = json.loads((tmp_path / "trace-data-loop.json").read_bytes())
+    assert saved["observation"]["frames"] == frames
+    assert saved["observation"]["phases"][0]["counters"] == {"script_runs": "1", "pulses": "0"}
+    assert saved["failures"]
+    assert saved["failures"][0]["actual"] == f"{error_type.__name__}: unfinished predicate"
+    assert saved["observation"]["http_timeline"] == http
+    assert saved["observation"]["screenshots"][0]["file"] == png.name
+    assert saved["counts"]["asserted"] == 0
+    assert not (tmp_path / "trace-data-loop.json.pending").exists()

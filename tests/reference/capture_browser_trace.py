@@ -1903,11 +1903,11 @@ def filter_empty_checks(*, observation=None):
     return _stage2_specific_checks("filter-empty", observation)
 
 
-def _stage2_typed_controls(deltas, state, dom, minimum=0):
+def _stage2_typed_controls(deltas, state, dom, minimum=0, *, group="category"):
     """Match each actual server Element's ID, one typed ClientState, and DOM."""
     _journey_need(isinstance(state, list) and isinstance(dom, dict), "missing controls/DOM")
     ids = {}
-    for kind, label, field, expected in (("selectbox", "Group by", "string_value", "category"),
+    for kind, label, field, expected in (("selectbox", "Group by", "string_value", group),
                                          ("slider", "Minimum amount", "double_array_value", [minimum]),
                                          ("checkbox", "Include unknown region", "bool_value", True)):
         elements = [d for d in deltas if d.get("type") == "new_element" and d.get("element") == kind and d.get("label") == label]
@@ -1927,7 +1927,7 @@ def _stage2_typed_controls(deltas, state, dom, minimum=0):
         else:
             _journey_need(value.get("value") == expected, "wrong explicit selector ClientState")
     _journey_need(not any(v.get("value_field") == "trigger_value" and v.get("value") is True for v in state), "unexpected callback/button trigger")
-    _journey_need(dom.get("selectbox_value") == "category" and _same_cell_value(minimum, dom.get("slider_value"))
+    _journey_need(dom.get("selectbox_value") == group and _same_cell_value(minimum, dom.get("slider_value"))
                   and dom.get("checkbox_checked") is True, "DOM controls contradict ClientState")
     return ids
 
@@ -2190,7 +2190,7 @@ def _stage2_counter(dom, key):
     return int(text)
 
 
-def _stage2_static_view(observation, phase, run):
+def _stage2_static_view(observation, phase, run, *, expected_rows=None):
     """Fresh J04 view validation without data_loop's mandatory-change rule."""
     deltas = [d for d in run["deltas"] if d.get("type") == "new_element"]
     tables = [d for d in deltas if d.get("element") == "dataframe"]
@@ -2205,9 +2205,12 @@ def _stage2_static_view(observation, phase, run):
     _journey_need(all(kept["table"]["arrow"].get(k) == table[k] for k in ("sha256", "bytes", "schema", "columns", "rows", "row_count")), "phase table artifact summary differs from wire")
     columns = ["group_key", "row_count", "total_amount", "avg_amount"]
     _journey_need(table["columns"] == columns and [s.split(": ", 1)[1].removesuffix(" not null") for s in table["schema"].splitlines()[:4]] == ["large_string", "int64", "double", "double"], "state result schema mismatch")
-    from refcore import parse_csv, aggregate
-    data = (REPO_ROOT / "tests/fixtures/csv/sales_basic.csv").read_bytes()
-    expected = [{"group_key": v.group_key, "row_count": v.row_count, "total_amount": float(v.total_amount), "avg_amount": float(v.avg_amount)} for v in aggregate(parse_csv(data).rows, "region", 0, True)]
+    if expected_rows is None:
+        from refcore import parse_csv, aggregate
+        data = (REPO_ROOT / "tests/fixtures/csv/sales_basic.csv").read_bytes()
+        expected = [{"group_key": v.group_key, "row_count": v.row_count, "total_amount": float(v.total_amount), "avg_amount": float(v.avg_amount)} for v in aggregate(parse_csv(data).rows, "region", 0, True)]
+    else:
+        expected = expected_rows
     _journey_need(table["rows"] == expected and table["row_count"] == len(expected), "state IPC does not contain the expected region totals")
     dom = phase["dom_after"]
     cells = [row[c] for row in expected for c in columns]
@@ -2391,8 +2394,69 @@ def screenshot_checks(*, observation=None):
     return _journey_finish("screenshots/" + kind, checks)
 
 
+# J01 contract follows the measured continuous 1.66.1 channel/BOM wire oracle.
+J01_CASE = "j01-sequence"
+J01_CONTRACT = "journey-j01-input-v1"
+J01_PHASES = (
+    "initial", "upload-baseline", "group-region", "group-channel",
+    "prepare-category", "upload-unicode", "upload-bom",
+)
+J01_INPUTS = {
+    "upload-baseline": "sales_basic.csv",
+    "upload-unicode": "sales_unicode.csv",
+    "upload-bom": "sales_utf8_bom.csv",
+}
+J01_FILE_FINGERPRINTS = {
+    "sales_basic.csv": (737, "9692a718edc5bec8f3fee1cfec4f454338c8f8d675cd34c17cdb5bf4403d8d00"),
+    "sales_unicode.csv": (241, "376dbccff31cd90039eec950d61d6650ee920ca8cf6f1e06e2c0b425ca747b7f"),
+    "sales_utf8_bom.csv": (244, "2ecb023d2ce037a3d55ac9d322b4d7a18c9df5c710bcf5929cb95b21358fe551"),
+}
+J01_ACTIONS = {
+    "initial": {"action": "initial"},
+    "upload-baseline": {"action": "upload"},
+    "group-region": {"action": "select-option", "label": "Group by", "option": "region"},
+    "group-channel": {"action": "select-option", "label": "Group by", "option": "channel"},
+    "prepare-category": {"action": "select-option", "label": "Group by", "option": "category"},
+    "upload-unicode": {"action": "upload"},
+    "upload-bom": {"action": "upload"},
+}
+J01_PNG_ROLES = {
+    "initial": (), "upload-baseline": ("J01-S1",), "group-region": ("J01-S2",),
+    "group-channel": ("J01-S3",), "prepare-category": (),
+    "upload-unicode": ("J01-S4",), "upload-bom": ("J01-S5",),
+}
+# Original application expectations: key, row count, decimal total, decimal mean.
+# These are not synthetic producer observations or new protocol goldens.
+J01_EXPECTED_ROWS = {
+    "upload-baseline": (("Books", 3, "245.75", "81.92"), ("Games", 3, "409.48", "136.49"),
+                        ("Music", 3, "139.00", "46.33"), ("Toys", 3, "104.49", "34.83")),
+    "group-region": (("(missing)", 1, "88.00", "88.00"), ("East", 2, "209.49", "104.75"),
+                     ("North", 3, "264.50", "88.17"), ("South", 2, "245.24", "122.62"),
+                     ("UNKNOWN", 2, "40.49", "20.25"), ("West", 2, "51.00", "25.50")),
+    "group-channel": (("Online", 6, "361.99", "60.33"), ("Retail", 6, "536.73", "89.46")),
+    "upload-unicode": (("Bücher", 1, "120.50", "120.50"), ("Jogos", 1, "149.50", "149.50"),
+                       ("游戏", 1, "199.99", "199.99")),
+}
+J01_EXPECTED_ROWS["prepare-category"] = J01_EXPECTED_ROWS["upload-baseline"]
+J01_EXPECTED_ROWS["upload-bom"] = J01_EXPECTED_ROWS["upload-unicode"]
+# BOM must have fresh upload/state/run/Arrow/chart frames. Only its logical
+# result is equivalent; neither a different IPC SHA nor dataset name is required.
+J01_REQUIRED = ("contract", "phase_order", "fixture_bytes", "same_source_session", "run_ledger", "typed_controls",
+                "baseline_values", "region_values", "channel_values", "prepare_category", "unicode_values",
+                "bom_equivalence", "replacement_http", "fresh_run_ipc", "png_coverage")
+JOURNEY_REQUIRED[J01_CASE] = {(J01_CASE, key) for key in J01_REQUIRED}
+
+
+def j01_checks(*, observation=None):
+    """J01 uses the existing continuous-frame checker, with bounded BOM equivalence."""
+    if not isinstance(observation, dict) or observation.get("journey") != J01_CASE:
+        return _journey_finish(J01_CASE, [_check(J01_CASE, key, "complete strict J01 evidence", "missing/wrong J01 observation", False) for key in J01_REQUIRED])
+    return sequence_checks(observation=observation)
+
+
 SEQUENCE_CONTRACT = "journey-sequence-v1"
 SEQUENCE_PHASES = {
+    J01_CASE: J01_PHASES,
     "j07-sequence": ("initial", "upload-malformed", "upload-soft", "good-after-soft", "upload-utf8", "good-after-utf8"),
     "j08-sequence": ("initial", "upload-header-only", "upload-baseline", "slider-200", "slider-0"),
 }
@@ -2403,6 +2467,7 @@ SEQUENCE_INPUTS = {
 }
 _SEQUENCE_COMMON = ("contract", "phase_sequence", "fixture_inputs", "same_source_session", "no_reload_or_reconnect", "distinct_target_runs", "counter_continuity")
 SEQUENCE_REQUIRED = {
+    J01_CASE: J01_REQUIRED,
     "j07-sequence": (*_SEQUENCE_COMMON, "malformed_error_no_result", "soft_warning_values", "recovery_after_soft", "utf8_error_no_result", "recovery_after_utf8", "png_phase_coverage"),
     "j08-sequence": (*_SEQUENCE_COMMON, "header_empty", "baseline_upload", "filter_empty", "slider200_once", "restore_values", "slider0_once", "png_phase_coverage"),
 }
@@ -2412,6 +2477,123 @@ SEQUENCE_PNG_ROLES = {
     "upload-baseline": (), "slider-200": ("J08-S2",), "slider-0": ("J08-S3",),
 }
 JOURNEY_REQUIRED.update({kind: {(kind, key) for key in keys} for kind, keys in SEQUENCE_REQUIRED.items()})
+
+
+def _j01_bom_binding(bundle, proof):
+    """Bind BOM transport without invoking the legacy must-change result check.
+
+    Result equivalence is validated separately against fresh target-run IPC.
+    This uses the existing run binder, issued-URL validator and HTTP reader.
+    """
+    frames, window = bundle["frames"], bundle["window"]
+    state_frame = frames[proof["state_frame"]]
+    states = state_frame["decoded"]["rerun_script"]["widget_states"]
+    uploaders = [v for v in states if v.get("id") == window["widget"]]
+    _journey_need(len(uploaders) == 1 and uploaders[0].get("value_field") == "file_uploader_state_value", "BOM has no unique typed uploader state")
+    infos = uploaders[0].get("value_full", {}).get("uploadedFileInfo")
+    _journey_need(isinstance(infos, list) and len(infos) == 1, "BOM must name exactly one new file")
+    info = infos[0]
+    _journey_need(info.get("name") == "sales_utf8_bom.csv" and int(info.get("size", -1)) == J01_FILE_FINGERPRINTS["sales_utf8_bom.csv"][0]
+                  and isinstance(info.get("fileId"), str) and info["fileId"], "wrong BOM file identity/size")
+    session = frames[proof["run_start_frame"]]["decoded"]["new_session"]["session_id"]
+    file_id = info["fileId"]
+    before = frames[window["start"]:proof["state_frame"]]
+    requests = [(i, f["decoded"]["file_urls_request"]) for i,f in enumerate(before) if f.get("direction") == "client->server" and f.get("decoded", {}).get("type") == "file_urls_request"]
+    _journey_need(len(requests) == 1, "missing/ambiguous BOM issued URL request")
+    request_index, request = requests[0]
+    _journey_need(request.get("session_id") == session and request.get("file_names") == ["sales_utf8_bom.csv"]
+                  and request.get("request_id"), "BOM issued URL request does not belong to this input/session")
+    responses = [f["decoded"]["file_urls_response"] for f in before[request_index+1:] if f.get("direction") == "server->client" and f.get("decoded", {}).get("type") == "file_urls_response"]
+    issued = [u for r in responses if r.get("response_id") == request["request_id"] and not r.get("error_msg")
+              for u in r.get("file_urls", []) if u.get("file_id") == file_id]
+    _journey_need(len(issued) == 1, "no unique issued BOM file URL")
+    urls = info.get("fileUrls") or {}
+    _journey_need(urls.get("fileId") == file_id and urls.get("uploadUrl") == issued[0].get("upload_url")
+                  and urls.get("deleteUrl") == issued[0].get("delete_url"), "BOM ClientState URLs differ from issued URLs")
+    upload_url = _journey_url(bundle["url"], issued[0].get("upload_url"), session, file_id)
+    delete_url = _journey_url(bundle["url"], issued[0].get("delete_url"), session, file_id)
+    _journey_need(any(h.get("method") == "PUT" and h.get("url") == upload_url and h.get("status") == 204
+                      and "multipart/form-data" in str(h.get("request_headers", {})).lower() for h in _journey_http(bundle, window)), "no matching actual BOM multipart PUT204")
+    return {"ok": True, "problems": [], "identity": (bundle["source"], state_frame.get("request_id"), state_frame.get("connection")),
+            "session": session, "file_id": file_id, "delete_url": delete_url, "info": info}
+
+
+def _j01_phase(observation, phase, previous, before_runs):
+    name = phase["name"]
+    upload = name in J01_INPUTS
+    expected_action = J01_ACTIONS[name]
+    _journey_need(all(phase["action"].get(k) == v for k,v in expected_action.items()), "wrong J01 phase action/target")
+    prefix = observation["phases"][1:observation["phases"].index(phase)+1]
+    latest_upload = next(p for p in reversed(prefix) if p["name"] in J01_INPUTS)
+    filename = J01_INPUTS[latest_upload["name"]]
+    path = REPO_ROOT / "tests/fixtures/csv" / filename
+    data = path.read_bytes()
+    expected_size, expected_sha = J01_FILE_FINGERPRINTS[filename]
+    _journey_need((len(data), hashlib.sha256(data).hexdigest()) == (expected_size, expected_sha), "J01 fixture bytes differ from frozen original")
+    if upload:
+        _journey_need(pathlib.Path(phase["action"]["file"]).resolve() == path.resolve()
+                      and (phase["action"].get("file_bytes"), phase["action"].get("file_sha256")) == (expected_size, expected_sha), "J01 actual upload fingerprint/path mismatch")
+    upload_ok = observation["uploads"][latest_upload["name"]]
+    view = dict(observation, phases=prefix, uploads={"bad": upload_ok, "good": upload_ok})
+    bundle = _journey_bundle(view, phase_index=len(prefix)-1)
+    group = expected_action["option"] if not upload else "category"
+    if not upload:
+        # The new producer records action.ok, not the old derived 'changed'
+        # boolean. Derive the operation from actual before/target values.
+        changed = phase["dom_before"].get("selectbox_value") != group and phase["dom_after"].get("selectbox_value") == group
+        bundle["action"] = {"action": "select", "ok": phase["action"].get("ok") is True and changed}
+    proof = _journey_run_verdict(bundle["frames"], bundle["window"], bundle["action"], filename, group)
+    _journey_need(proof["ok"], "; ".join(proof["problems"]))
+    if name == "upload-bom":
+        context = _j01_bom_binding(bundle, proof)
+    else:
+        context = _journey_context(bundle, filename, group, phase["dom_after"])
+        _journey_need(context["ok"], "; ".join(context["problems"]))
+    state, deltas = _stage2_run_parts(observation, phase, proof)
+    _stage2_typed_controls(deltas, state, phase["dom_after"], group=group)
+    uploader_elements = [d for d in deltas if d.get("element") == "file_uploader" and d.get("label") == "Upload sales CSV"]
+    _journey_need(len(uploader_elements) == 1 and uploader_elements[0].get("id"), "J01 missing unique actual uploader Element")
+    uploader_states = [v for v in state if v.get("id") == uploader_elements[0]["id"]]
+    _journey_need(len(uploader_states) == 1 and uploader_states[0].get("value_field") == "file_uploader_state_value"
+                  and uploader_states[0].get("value_full", {}).get("uploadedFileInfo") == [context["info"]], "J01 file state does not match this server widget/input")
+    selected = observation["frames"][phase["start"]:phase["end"]]
+    markers = [f for f in selected if f.get("decoded", {}).get("type") == "new_session"]
+    if upload:
+        target = _stage2_target_upload_run(observation["frames"], namespace=observation["namespace"], start=phase["start"], end=phase["end"],
+            widget_id=bundle["window"]["widget"], file_id=context["file_id"], file_name=filename)
+        _journey_need(target["ok"] and target["state_frame"] == proof["state_frame"], "J01 upload is not the newly issued target")
+        if len(markers) == 2:
+            _journey_need(previous is not None, "J01 clear run before any upload")
+            _stage2_specific_clear_chain(observation, phase, proof, context, bundle, before_runs=before_runs)
+        else:
+            _journey_need(len(markers) == 1 and _stage2_phase_run(observation, phase)["run"] == proof["script_run_id"], "J01 unbound upload runs")
+        if previous is not None:
+            _journey_need(context["file_id"] != previous["file_id"], "J01 replacement reused old file ID")
+            _journey_need(len([h for h in _journey_http(bundle, phase) if h.get("method") == "DELETE" and h.get("url") == previous["delete_url"] and h.get("status") == 204]) == 1, "J01 replacement lacks preceding-issued-file DELETE204")
+        _journey_need(not any(h.get("method") == "DELETE" and h.get("url") == context["delete_url"] for h in _journey_http(bundle, phase)), "J01 new target was deleted")
+    else:
+        _journey_need(previous is not None and context["info"] == previous["info"] and len(markers) == 1
+                      and _stage2_phase_run(observation, phase)["run"] == proof["script_run_id"], "J01 selector changed file or emitted multiple runs")
+        _journey_need(not any(h.get("method") in ("PUT", "DELETE") for h in _journey_http(bundle, phase)), "J01 selector unexpectedly uploaded/deleted a file")
+    _journey_need(previous is None or context["identity"] == previous["identity"] and context["session"] == previous["session"], "J01 source/session switched")
+    count = before_runs + len(markers)
+    _stage2_specific_counters(deltas, phase["dom_after"], count)
+    _stage2_specific_alerts(deltas, phase["dom_after"], [])
+    expected = [{"group_key":key,"row_count":rows,"total_amount":float(total),"avg_amount":float(mean)}
+                for key,rows,total,mean in J01_EXPECTED_ROWS[name]]
+    chart = [d for d in deltas if d.get("element") == "vega_lite_chart"]
+    _journey_need(len(chart) == 1, "J01 has no unique fresh chart")
+    spec = chart[0].get("vega_lite_spec") or {}
+    if name == "upload-bom":
+        _journey_need(previous is not None and previous["info"]["name"] == "sales_unicode.csv", "BOM lacks preceding Unicode upload")
+        logical = _stage2_static_view(observation, phase, {"deltas":deltas}, expected_rows=expected)
+        tables = [d for d in deltas if d.get("element") == "dataframe"]
+        context["table"] = _journey_ipc(tables[0]["arrow"], bundle)
+        _journey_need(logical["rows"] == previous["table"]["rows"] and logical["encoding"] == previous["chart_semantics"]["encoding"]
+                      and logical["mark"] == previous["chart_semantics"]["mark"], "BOM changed logical Unicode data/chart")
+    _journey_need(context["table"]["rows"] == expected and context["table"]["row_count"] == len(expected), "J01 full original values/order mismatch")
+    context["chart_semantics"] = {"encoding":spec.get("encoding"),"mark":spec.get("mark")}
+    return context, proof, count
 
 
 def _sequence_upload(observation, phase, previous, before_runs):
@@ -2483,7 +2665,8 @@ def _sequence_pngs(observation):
         candidates = [r for r in records if r.get("phase") == phase["name"] and r.get("namespace") == observation["namespace"]]
         _journey_need(len(candidates) == 1, "missing/ambiguous phase PNG")
         record = candidates[0]
-        _journey_need(record.get("step_ids") == list(SEQUENCE_PNG_ROLES[phase["name"]]), "phase PNG has wrong original-step role")
+        roles = J01_PNG_ROLES if observation["journey"] == J01_CASE else SEQUENCE_PNG_ROLES
+        _journey_need(record.get("step_ids") == list(roles[phase["name"]]), "phase PNG has wrong original-step role")
         if not record["step_ids"]:
             _journey_need(record.get("role") == "preparation", "preparation picture is not honestly identified")
         _journey_need(record.get("file") not in files, "one PNG file reused across sequence phases")
@@ -2496,7 +2679,8 @@ def sequence_checks(*, observation=None):
     if not isinstance(kind, str) or kind not in SEQUENCE_REQUIRED:
         return [dict(_check("sequence", "contract", "known complete sequence", "missing/unknown sequence", False), journey="sequence-invalid")]
     try:
-        _journey_need(observation.get("contract") == SEQUENCE_CONTRACT, "wrong sequence contract")
+        contract = J01_CONTRACT if kind == J01_CASE else SEQUENCE_CONTRACT
+        _journey_need(observation.get("contract") == contract, "wrong sequence contract")
         phases, frames = observation["phases"], observation["frames"]
         _journey_need(isinstance(phases, list) and tuple(p.get("name") for p in phases) == SEQUENCE_PHASES[kind], "missing/reordered/duplicated sequence phases")
         if "phase_ids" in observation:
@@ -2560,7 +2744,15 @@ def sequence_checks(*, observation=None):
         count, previous, targets, files = 1, None, {initial_run["run"]}, set()
         baseline_runs = None
         for phase in phases[1:]:
-            if phase["name"] in SEQUENCE_INPUTS:
+            if kind == J01_CASE:
+                context, proof, count = _j01_phase(observation, phase, previous, count)
+                _journey_need(context["session"] == session, "J01 session changed")
+                if phase["name"] in J01_INPUTS:
+                    _journey_need(context["file_id"] not in files, "J01 recycled an earlier file ID")
+                    files.add(context["file_id"])
+                previous = context
+                target, finish = proof["script_run_id"], proof["completion_frame"]
+            elif phase["name"] in SEQUENCE_INPUTS:
                 context, proof, count = _sequence_upload(observation, phase, previous, count)
                 _journey_need(context["session"] == session and context["file_id"] not in files, "sequence switched session or recycled an old issued file ID")
                 files.add(context["file_id"]);previous = context

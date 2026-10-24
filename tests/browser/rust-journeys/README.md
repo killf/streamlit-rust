@@ -1,5 +1,52 @@
 # Rust data journeys
 
+## J01: continuous input and aggregation
+
+[j01-sequence/trace-data-loop.json](j01-sequence/trace-data-loop.json) is the
+unchanged 165-frame capture from `target/j01-rust-preserved-20261025T002726`,
+with its four adjacent IPC files and seven PNGs. SHA256:
+`ec3f21129a47da4c09fbff278605907eb1d26527d034d5c001d5833d6de5e71d`.
+Its binary/source identity is the historical 943/810f build recorded in the
+raw, build base `ef359b1`, capture HEAD `1f2a852`; this is not a claim about
+later source changes.
+
+The raw retains its capture-time 15/15/15 result and exit 0. Its capture-time
+criteria SHA was not recorded. Hooke independently reviewed the complete
+Python/Rust chains and their PNGs; final replay of both unchanged raws gives
+15 expected / 15 executed / 15 asserted, no failures, under criteria SHA256
+`5e8cc8ee305dde3615dffea3b09f05ed1d3ea88e1f6a41c06fd9b2e68d7714c3`.
+This is a **final replay identity**, not metadata backfilled into the raw.
+The subsequently reviewed producer is `tests/browser/numeric_capture.py`, SHA256
+`85071c856c0d0af709b71c26cd4885f9b7277c373ad6a590d017e0d3d092b1f6`;
+that hash is not asserted as the capture-time driver identity.
+
+The shared `journey-j01-input-v1` contract keeps five original business steps:
+S1/S2/S3/S4/S5 map to PNGs 02/03/04/06/07, copied byte-for-byte to
+`tests/e2e/J01/J01-S1.png` through `J01-S5.png`. PNGs 01 and 05 retain initial
+and explicit category/0/on preparation evidence. Phase roles and all PNG hashes
+remain in the raw. No reload or reconnect joins the phases; runs are
+1/2/3/4/5/7/9 and pulses stay 0. Unicode and BOM have equal logical results
+and IPC, with distinct issued file IDs, target runs and new result frames.
+
+Replay the archived bytes with the pinned interpreter, resolving adjacent
+IPC/PNG files in memory; never rewrite the historical `ipc_dir` in the raw:
+
+```python
+import json
+from pathlib import Path
+from capture_browser_trace import j01_checks, journey_result
+raw = Path("tests/browser/rust-journeys/j01-sequence/trace-data-loop.json")
+observation = json.loads(raw.read_bytes())["observation"]
+observation["ipc_dir"] = str(raw.parent.resolve())
+result = journey_result(j01_checks(observation=observation))
+print(result)
+assert result["ok"] and result["counts"]["asserted"] == 15
+```
+
+Run with `target/pyref-venv/Scripts/python.exe` and
+`PYTHONPATH=tests/reference`; use the corresponding reference raw path to replay
+Python. The docs cache label is 1.66.0; the measured Python runtime is 1.66.1.
+
 The data app of the Rust implementation, driven with the official Streamlit
 1.66.1 frontend: the closed loop and the three journeys of the data app.
 

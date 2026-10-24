@@ -1,5 +1,25 @@
 # Reference journeys of the data app
 
+## J01: unchanged Python oracle, final independent replay
+
+[j01-sequence/trace-data-loop.json](j01-sequence/trace-data-loop.json) preserves
+the 209-frame same-page Python 1.66.1 capture from
+`target/j01-preflight-20261025T001649` at `http://127.0.0.1:8601/`, using
+`tests/reference/app.py` and the pinned `target/pyref-venv/Scripts/python.exe`.
+Its SHA256 is
+`1cb74c36db6e25cdee19054c59a6fd9473571107c54148bbbb4e2497aab31478`.
+All four adjacent IPC files and seven PNGs are the original bytes.
+
+The raw deliberately retains **NOT VERIFIED, 1/1/0, capture exit 1** from the
+unfinished predicate. Capture-time criteria SHA was not recorded. It is not
+rewritten to claim capture-time success. Hooke's final independent review and
+replay give 15/15/15 with no failures; the exact final criteria SHA, portable
+replay instructions and five-step/preparation mapping are in the
+[Rust J01 evidence description](../../../browser/rust-journeys/README.md#j01-continuous-input-and-aggregation).
+That final replay also validates the Rust chain, rather than treating a
+reference result as Rust proof. The docs cache label 1.66.0 is distinct from
+the measured runtime 1.66.1. Both raws retain their capture metadata unchanged.
+
 The same three journeys as `tests/browser/rust-journeys/`, recorded against
 the Python reference application (streamlit 1.66.1, `tests/reference/app.py`)
 with the official frontend.

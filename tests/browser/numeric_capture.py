@@ -31,6 +31,10 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tests" / "reference"))
 
 from capture_browser_trace import (  # noqa: E402
+    J01_CASE, J01_CONTRACT, J01_PHASES, J01_INPUTS, J01_ACTIONS, J01_PNG_ROLES, j01_checks,
+)
+
+from capture_browser_trace import (  # noqa: E402
     OBSERVE_JS,
     SUITES,
     case_verdict,
@@ -96,6 +100,7 @@ JOURNEYS = (
     "state",
     "j07-sequence",
     "j08-sequence",
+    J01_CASE,
 )
 
 
@@ -115,6 +120,12 @@ SEQUENCE_WITH_TABLE = {
 
 def _sequence_plan(kind):
     """The steps of a whole journey, read from the shared contract."""
+    if kind == J01_CASE:
+        return [
+            (name, dict(J01_ACTIONS[name], **({"file": J01_INPUTS[name]} if name in J01_INPUTS else {})),
+             name != "initial", "%02d-%s.png" % (index + 1, name))
+            for index, name in enumerate(J01_PHASES)
+        ]
     plan = []
     for index, name in enumerate(SEQUENCE_PHASES[kind]):
         if name == "initial":
@@ -1345,7 +1356,7 @@ def _record(step_ids, phase_name, namespace, shot, out):
     }
 
 
-def _sequence_record(name, namespace, shot, out):
+def _sequence_record(name, namespace, shot, out, *, roles=None):
     """The record of one picture of a whole journey.
 
     Every phase of a journey has a picture.  The record says which step of
@@ -1355,7 +1366,7 @@ def _sequence_record(name, namespace, shot, out):
     if not shot:
         return None
     path = out / shot["file"]
-    roles = list(SEQUENCE_PNG_ROLES.get(name, ()))
+    roles = list((SEQUENCE_PNG_ROLES if roles is None else roles).get(name, ()))
     return {
         "step_ids": roles,
         "phase": name,
@@ -1403,7 +1414,9 @@ def _write_trace(path, trace) -> None:
     The evidence is written before the criteria run, so a criterion that
     raises still leaves the capture it judged on the disk.
     """
-    path.write_text(json.dumps(trace, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    pending = path.with_name(path.name + ".pending")
+    pending.write_text(json.dumps(trace, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    pending.replace(path)
 
 
 def _event_window(events, window_frames):
@@ -1534,6 +1547,17 @@ def _write_case(out, args, observation, name, summary, verdict=None):
     The evidence goes to the disk before anything is judged, so a criterion
     that raises still leaves the capture it judged.
     """
+    if callable(verdict):
+        _write_case(out, args, observation, name, summary)
+        try:
+            judged = verdict()
+        except Exception as exc:
+            failure = {"step": name, "check": "predicate_exception", "ok": False,
+                       "expected": "criterion completes without exception",
+                       "actual": f"{type(exc).__name__}: {exc}"}
+            judged = {"checks": [failure], "failures": [failure],
+                      "counts": {"expected": 1, "executed": 1, "asserted": 0}}
+        return _write_case(out, args, observation, name, summary, judged)
     failure = {
         "step": "criteria",
         "check": "contract",
@@ -1634,7 +1658,7 @@ def run_soft_invalid_journey(page, recorder, args, out):
                           {"soft": bool(uploaded), "good": bool(uploaded_good)},
                           phases, [], arrow_files, screenshots)
     observation["journey"] = "soft-invalid"
-    verdict = _judge("soft-invalid", soft_invalid_checks, observation)
+    verdict = lambda: _judge("soft-invalid", soft_invalid_checks, observation)
     return _write_case(out, args, observation, "soft-invalid", {
         "alerts": (page.page_alerts() or {}).get("alerts"),
         "dom": dom,
@@ -1700,7 +1724,7 @@ def run_non_utf8_journey(page, recorder, args, out):
                           {"bad": bool(uploaded), "good": bool(uploaded_good)},
                           phases, [], arrow_files, screenshots)
     observation["journey"] = "non-utf8"
-    verdict = _judge("non-utf8", non_utf8_checks, observation)
+    verdict = lambda: _judge("non-utf8", non_utf8_checks, observation)
     return _write_case(out, args, observation, "non-utf8", {
         "alerts": (page.page_alerts() or {}).get("alerts"),
         "dom": dom,
@@ -1782,7 +1806,7 @@ def run_filter_empty_journey(page, recorder, args, out):
     observation = _observe(source, recorder, args, out, {"file": bool(uploaded)},
                           phases, [], arrow_files, screenshots)
     observation["journey"] = "filter-empty"
-    verdict = _judge("filter-empty", filter_empty_checks, observation)
+    verdict = lambda: _judge("filter-empty", filter_empty_checks, observation)
     return _write_case(out, args, observation, "filter-empty", {
         "alerts": (page.page_alerts() or {}).get("alerts"),
         "dom": dom,
@@ -1872,7 +1896,7 @@ def run_state_journey(page, recorder, args, out):
     observation = _observe(source, recorder, args, out, {"file": bool(uploaded)},
                           phases, [], arrow_files, screenshots)
     observation["journey"] = "state"
-    verdict = _judge("state", state_checks, observation)
+    verdict = lambda: _judge("state", state_checks, observation)
     return _write_case(out, args, observation, "state", {
         "alerts": (page.page_alerts() or {}).get("alerts"),
         "dom": dom,
@@ -2372,6 +2396,9 @@ def run_sequence_journey(page, recorder, args, out):
             window = _phase_window(recorder, source, start, action["file"], previous_run)
             fingerprint = _file_fingerprint(path)
             uploads[name] = bool(ok)
+        elif action["action"] == "select-option":
+            ok = _select_option(page, action["option"])
+            window = _phase_window(recorder, source, start, None, previous_run)
         else:
             page.focus_slider(action["label"], 0)
             page.press(action["key"], action["key"], action["code"])
@@ -2393,10 +2420,13 @@ def run_sequence_journey(page, recorder, args, out):
         # cells lazily, so the values are read again after it.
         dom = page.state_digest() or dom
         alerts = page.page_alerts() or alerts
-        record = _sequence_record(name, source, shot, out)
+        record = _sequence_record(name, source, shot, out,
+                                  roles=J01_PNG_ROLES if args.journey == J01_CASE else None)
         if record:
             screenshots.append(record)
         phase["alerts"] = alerts.get("alerts")
+        if args.journey == J01_CASE:
+            phase["dom_after"] = dom
         phase["exceptions"] = alerts.get("exceptions")
         phase["counters"] = {"script_runs": dom.get("script_runs"), "pulses": dom.get("pulses")}
         phase["session_id"] = _session_of(frames, window)
@@ -2407,11 +2437,10 @@ def run_sequence_journey(page, recorder, args, out):
         previous_run = _run_id(frames, window)
 
     observation = _observe(source, recorder, args, out, uploads, phases, [], arrow_files, screenshots,
-                           contract=SEQUENCE_CONTRACT,
+                           contract=J01_CONTRACT if args.journey == J01_CASE else SEQUENCE_CONTRACT,
                            phase_ids=[name for name, _, _, _ in steps])
     observation["journey"] = args.journey
-    verdict = _judge_sequence(args.journey, observation)
-    return _write_case(out, args, observation, args.journey, {
+    summary = {
         "phases": [
             {
                 "name": phase["name"],
@@ -2427,7 +2456,11 @@ def run_sequence_journey(page, recorder, args, out):
             }
             for phase in phases
         ],
-    }, verdict)
+    }
+    # Preserve the real observation before executing a separately owned
+    # criterion: a predicate exception must not discard an entire capture.
+    return _write_case(out, args, observation, args.journey, summary,
+                       lambda: _judge_sequence(args.journey, observation))
 
 
 def _judge_sequence(name, observation):
@@ -2437,7 +2470,8 @@ def _judge_sequence(name, observation):
     written first, so the evidence is on the disk, and the verdict says that
     nothing was judged.
     """
-    if sequence_checks is None:
+    criterion = j01_checks if name == J01_CASE else sequence_checks
+    if criterion is None:
         checks = [
             {
                 "journey": name,
@@ -2449,7 +2483,7 @@ def _judge_sequence(name, observation):
             }
         ]
     else:
-        checks = list(sequence_checks(observation=observation))
+        checks = list(criterion(observation=observation))
     result = journey_result(checks)
     return {"checks": checks, "counts": result["counts"], "failures": result["failures"]}
 
@@ -2464,6 +2498,7 @@ JOURNEY_RUNNERS = {
     "state": run_state_journey,
     "j07-sequence": run_sequence_journey,
     "j08-sequence": run_sequence_journey,
+    J01_CASE: run_sequence_journey,
 }
 
 
