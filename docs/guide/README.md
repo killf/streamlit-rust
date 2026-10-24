@@ -8,9 +8,9 @@ This crate is an early Rust implementation of the Streamlit server. It is not ye
 cargo run --example quickstart --locked
 ```
 
-Run from the repository root, then open `http://127.0.0.1:8503/`. The [runnable quickstart](../../streamlit/examples/quickstart.rs) displays a selectbox, slider, checkbox, and their returned values. No Python process is required. The server currently resolves `./www` from its working directory; running the binary elsewhere does not locate the repository frontend automatically.
+Run this development command from the repository root, then open `http://127.0.0.1:8503/`. The [runnable quickstart](../../streamlit/examples/quickstart.rs) displays a selectbox, slider, checkbox, and their returned values. No Python process is required. Debug builds can locate the repository's `www` from that root; installed executables use the sidecar/configuration described below.
 
-Verified compiler: `rustc 1.98.0-nightly (54333ff07 2026-05-22)` on Windows MSVC. Other compiler versions, including a minimum supported version, have not been validated for this build.
+The executable/native tests use `rustc 1.98.0-nightly (54333ff07 2026-05-22)` on Windows MSVC; stable Rust 1.95.0 also passes the workspace all-targets compilation check. A minimum supported Rust version has not been validated.
 
 Use the same widget methods with concise inputs inside a function returning `Result<(), WidgetError>`:
 
@@ -48,6 +48,27 @@ cargo run --example button --locked
 
 The page shows a `Pulse` button and `Ready`. A click reruns the Rust function and shows `Pulse received`; further clicks request further reruns. This example has no file upload or persistent session counter.
 
+## Run an installed executable from any directory
+
+Build an executable, for example:
+
+```powershell
+cargo build --release --example quickstart --locked
+```
+
+Copy `target/release/examples/quickstart.exe` and the complete, unmodified `www/` directory into a fresh installation directory. The layout is `quickstart.exe` beside `www/index.html`, `www/static/`, and all other official frontend files. You can then launch that executable from any working directory; no Python process, repository checkout or build-machine path is required at runtime. Release builds do not look for `www` in the working directory.
+
+To keep the frontend somewhere else, set its absolute directory before launching:
+
+```powershell
+$env:STREAMLIT_STATIC_DIR = 'C:\Apps\streamlit-demo\www'
+& 'C:\Apps\streamlit-demo\quickstart.exe'
+```
+
+For a manually constructed `StreamlitServer`, call `.with_static_dir(path)` before `.start().await`. Selection order is the explicit builder, `STREAMLIT_STATIC_DIR`, executable-adjacent `www`, then a debug-only repository-root `www` fallback. Relative overrides are resolved against the startup working directory. Remove the environment override with `Remove-Item Env:STREAMLIT_STATIC_DIR` to use the executable sidecar again.
+
+An empty or invalid explicit override is an error, even if another directory is valid. An existing but invalid executable sidecar also fails rather than falling back. Before listening, the server checks the official Streamlit 1.66.1 index and the presence/readability of its nonempty boot JS/CSS files; an incompatible or incomplete directory returns an actionable `std::io::Error`. Install the whole pinned bundle: this startup check does not authenticate every lazy-loaded chunk or replace distributing all official files.
+
 ## Session state and counter
 
 ```powershell
@@ -73,7 +94,7 @@ state.remove("obsolete");
 cargo run --example data_app --locked
 ```
 
-Run from the repository root and open `http://127.0.0.1:8501/`. The server loads `./www` from that working directory. Stop another example using that port first. Upload the [sample CSV](../../tests/fixtures/csv/sales_basic.csv) to the [data app](../../streamlit/examples/data_app.rs), which computes a dataframe and an explicitly configured bar chart in Rust. Change **Group by**, **Include unknown region**, or **Minimum amount** to recompute the displayed data. The running app needs no Python process or Python runtime.
+Run the development command from the repository root and open `http://127.0.0.1:8501/`; installed binaries follow the same sidecar/configuration rules above. Stop another example using that port first. Upload the [sample CSV](../../tests/fixtures/csv/sales_basic.csv) to the [data app](../../streamlit/examples/data_app.rs), which computes a dataframe and an explicitly configured bar chart in Rust. Change **Group by**, **Include unknown region**, or **Minimum amount** to recompute the displayed data. The running app needs no Python process or Python runtime.
 
 The CSV needs lowercase `amount` and `region` headers. Optional `category` and `channel` columns provide additional grouping choices. Unusable amount cells are excluded with a warning; other rows still aggregate. Malformed rows report the CSV record number and expected/actual field counts. Non-UTF-8 files are rejected. Both hard failures show an error instead of data views; select a valid CSV in the same uploader to recover.
 
@@ -106,7 +127,7 @@ There is no total per-session upload quota, and expiry is checked lazily rather 
 cargo run --example tables --locked -- --native
 ```
 
-Run from the repository root and open `http://127.0.0.1:8503/`; stop another example on that port first. **Update data** changes the values rendered by the [tables example](../../streamlit/examples/tables.rs). The server still needs the repository's `./www` working-directory path and no Python runtime.
+Run the development command from the repository root and open `http://127.0.0.1:8503/`; stop another example on that port first. **Update data** changes the values rendered by the [tables example](../../streamlit/examples/tables.rs). Installed copies use the sidecar/configuration rules above and need no Python runtime.
 
 Pass a native Arrow `RecordBatch` directly from a fallible render helper:
 

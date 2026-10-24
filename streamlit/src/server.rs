@@ -5,6 +5,8 @@ use actix_files::Files;
 use actix_web::http::header::{HeaderName, HeaderValue};
 use actix_web::{App, HttpRequest, HttpResponse, HttpServer, Responder, delete, get, put, web};
 use std::future::Future;
+use std::io::{self, Read};
+use std::path::{Path, PathBuf};
 use std::pin::Pin;
 use std::sync::Arc;
 use std::time::Duration;
@@ -144,6 +146,7 @@ pub struct StreamlitServer {
     pub(crate) host: String,
     pub(crate) port: u16,
     sessions: Arc<SessionStore>,
+    static_dir: Option<PathBuf>,
 }
 
 impl StreamlitServer {
@@ -153,7 +156,19 @@ impl StreamlitServer {
             host,
             port,
             sessions: Arc::new(SessionStore::new(Duration::from_secs(120))),
+            static_dir: None,
         }
+    }
+
+    /// Select the unmodified official frontend directory.
+    ///
+    /// This overrides `STREAMLIT_STATIC_DIR` and the executable's adjacent `www`.
+    /// Relative paths are resolved from the working directory when `start` is
+    /// called. An empty, invalid or incompatible directory fails before binding;
+    /// it never falls back to another directory.
+    pub fn with_static_dir(mut self, path: impl Into<PathBuf>) -> Self {
+        self.static_dir = Some(path.into());
+        self
     }
 
     /// Set disconnected-session retention before starting the server.
@@ -166,14 +181,106 @@ impl StreamlitServer {
     }
 
     pub async fn start(&self) -> std::io::Result<()> {
+        let cwd = std::env::current_dir()?;
+        let environment = std::env::var_os("STREAMLIT_STATIC_DIR");
+        let assets = resolve_static_dir(self.static_dir.as_deref(), environment.as_deref().map(Path::new), std::env::current_exe, &cwd, cfg!(debug_assertions))?;
+        log::info!("Serving static assets from {} ({})", assets.path.display(), assets.source);
         log::info!("Starting Streamlit Rust Backend server on {}:{}", self.host.as_str(), self.port);
 
         let server = self.clone();
-        HttpServer::new(move || App::new().app_data(web::Data::new(server.clone())).configure(configure_routes).service(Files::new("/", "./www").index_file("index.html")))
+        HttpServer::new(move || App::new().app_data(web::Data::new(server.clone())).configure(configure_routes).service(Files::new("/", &assets.path).index_file("index.html")))
             .bind((self.host.as_str(), self.port))?
             .run()
             .await
     }
+}
+
+// A small version identity only: the frontend itself remains an external sidecar.
+const OFFICIAL_INDEX: &str = include_str!("../../www/index.html");
+
+struct StaticDirectory {
+    path: PathBuf,
+    source: &'static str,
+}
+
+fn static_error(source: &str, path: &Path, error: io::Error) -> io::Error {
+    io::Error::new(
+        error.kind(),
+        format!(
+            "static assets ({source}) at {}: {error}; supply the complete official Streamlit 1.66.1 www directory via with_static_dir or STREAMLIT_STATIC_DIR",
+            path.display()
+        ),
+    )
+}
+
+fn boot_assets() -> impl Iterator<Item = &'static str> {
+    // The exact pinned index uses double-quoted, relative boot/preload URLs.
+    // We do not parse or accept arbitrary HTML supplied by an installation.
+    OFFICIAL_INDEX.split('"').filter_map(|value| value.strip_prefix("./")).filter(|value| value.ends_with(".js") || value.ends_with(".css"))
+}
+
+fn validate_static_dir(path: &Path, cwd: &Path, source: &'static str) -> io::Result<StaticDirectory> {
+    let validate = || {
+        if path.as_os_str().is_empty() {
+            return Err(io::Error::new(io::ErrorKind::InvalidInput, "empty directory path"));
+        }
+        let root = std::fs::canonicalize(if path.is_absolute() { path.to_path_buf() } else { cwd.join(path) })?;
+        if !root.is_dir() {
+            return Err(io::Error::new(io::ErrorKind::InvalidInput, "not a directory"));
+        }
+        std::fs::read_dir(&root)?;
+        let index = checked_asset(&root, "index.html")?;
+        if std::fs::read(&index).map_err(|error| io::Error::new(error.kind(), format!("{}: {error}", index.display())))? != OFFICIAL_INDEX.as_bytes() {
+            return Err(io::Error::new(io::ErrorKind::InvalidData, "index.html does not match the pinned official 1.66.1 index"));
+        }
+        for name in boot_assets() {
+            let asset = checked_asset(&root, name)?;
+            if std::fs::File::open(&asset)
+                .and_then(|mut file| file.read(&mut [0]))
+                .map_err(|error| io::Error::new(error.kind(), format!("{}: {error}", asset.display())))?
+                == 0
+            {
+                return Err(io::Error::new(io::ErrorKind::InvalidData, format!("empty boot asset {name}")));
+            }
+        }
+        Ok(StaticDirectory { path: root, source })
+    };
+    validate().map_err(|error| static_error(source, path, error))
+}
+
+fn checked_asset(root: &Path, name: &str) -> io::Result<PathBuf> {
+    let path = root.join(name);
+    let canonical = std::fs::canonicalize(&path).map_err(|error| io::Error::new(error.kind(), format!("{}: {error}", path.display())))?;
+    if !canonical.starts_with(root) || !canonical.is_file() {
+        return Err(io::Error::new(io::ErrorKind::InvalidData, format!("{} is not a regular file inside the selected static directory", path.display())));
+    }
+    Ok(canonical)
+}
+
+// Inputs are captured once by start(), or supplied privately by tests. No global
+// environment or CWD changes are needed, including when tests run concurrently.
+fn resolve_static_dir(builder: Option<&Path>, environment: Option<&Path>, executable: impl FnOnce() -> io::Result<PathBuf>, cwd: &Path, development: bool) -> io::Result<StaticDirectory> {
+    if let Some(path) = builder {
+        return validate_static_dir(path, cwd, "builder");
+    }
+    if let Some(path) = environment {
+        return validate_static_dir(path, cwd, "STREAMLIT_STATIC_DIR");
+    }
+    let executable = executable().map_err(|error| io::Error::new(error.kind(), format!("static assets: could not locate executable: {error}")))?;
+    let adjacent = executable.parent().ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "static assets: executable has no parent directory"))?.join("www");
+    match std::fs::symlink_metadata(&adjacent) {
+        Ok(_) => return validate_static_dir(&adjacent, cwd, "executable sidecar"),
+        Err(error) if error.kind() == io::ErrorKind::NotFound => {}
+        Err(error) => return Err(static_error("executable sidecar", &adjacent, error)),
+    }
+    if development && ["Cargo.toml", "streamlit/Cargo.toml", "streamlit-macros/Cargo.toml"].iter().all(|name| cwd.join(name).is_file()) {
+        return validate_static_dir(&cwd.join("www"), cwd, "debug repository fallback");
+    }
+    Err(static_error(
+        "executable sidecar",
+        &adjacent,
+        io::Error::new(io::ErrorKind::NotFound, "no static directory; CWD fallback is restricted to debug repository-root runs"),
+    ))
 }
 
 #[cfg(test)]
