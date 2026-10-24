@@ -4,7 +4,7 @@
   "target": "streamlit-rust P0 acceptance fixtures",
   "reference_version": "1.66.1",
   "generator": "tests/fixtures/generate.py",
-  "notes": "Byte-stable fixtures: LF newlines, UTF-8 unless the encoding field says utf-8-sig, no trailing whitespace. The sha256 field pins the content so a Rust implementation can assert it loaded exactly the bytes the Python reference oracle saw.",
+  "notes": "Byte-stable fixtures: LF newlines, UTF-8 unless the encoding field says utf-8-sig or latin-1, no trailing whitespace. The sha256 field pins the content so a Rust implementation can assert it loaded exactly the bytes the Python reference oracle saw.",
   "fixtures": [
     {
       "file": "csv/sales_basic.csv",
@@ -13,6 +13,14 @@
       "encoding": "utf-8",
       "newline": "lf",
       "description": "Baseline dataset: 12 rows, 4 categories, 6 regions (one blank, two UNKNOWN), 2 channels."
+    },
+    {
+      "file": "csv/sales_latin1.csv",
+      "bytes": 735,
+      "sha256": "f73e63eb66c2dccd9285b573094b59c59e5dacd3ece0ef26d48ca3728371d541",
+      "encoding": "latin-1",
+      "newline": "lf",
+      "description": "The baseline rows with one latin-1 byte (0xe9 in 'Cafe Guide'), so the file is not valid UTF-8: hard parse failure."
     },
     {
       "file": "csv/sales_with_missing.csv",

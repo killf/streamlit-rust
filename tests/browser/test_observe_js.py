@@ -17,6 +17,7 @@ from __future__ import annotations
 import json
 import pathlib
 import sys
+import time
 import urllib.parse
 import urllib.request
 
@@ -51,22 +52,50 @@ def _chrome_version(port: int):
         return None
 
 
-def _evaluate(page_html: str, port: int):
+def _wait_for_fixture(recorder, url, required_cells, timeout):
+    """Wait for this navigation and its observable cells, never another tab's DOM."""
+    deadline = time.monotonic() + timeout
+    last = None
+    while True:
+        answer = recorder.call("Runtime.evaluate", {
+            "expression": "JSON.stringify({url:location.href,ready:document.readyState,"
+            "cells:Array.from(document.querySelectorAll('[role=gridcell]'))"
+            ".map(e=>e.textContent)})",
+            "returnByValue": True,
+        }, timeout=max(0.01, deadline - time.monotonic()))
+        current = _probe_value(answer)
+        if current is not None:
+            last = current
+        if (current and current.get("url") == url and current.get("ready") == "complete"
+                and (required_cells is None or current.get("cells") == required_cells)):
+            return
+        if time.monotonic() >= deadline:
+            raise AssertionError(f"fixture not ready within {timeout}s: {last!r}; CDP={answer!r}")
+
+
+def _evaluate(page_html: str, port: int, *, required_cells=None, timeout=5):
     """Run OBSERVE_JS in a fresh tab and return the raw CDP answer."""
     url = "data:text/html," + urllib.parse.quote(page_html)
     request = urllib.request.Request(
-        f"http://127.0.0.1:{port}/json/new?{url}", method="PUT"
+        f"http://127.0.0.1:{port}/json/new?about:blank", method="PUT"
     )
     with urllib.request.urlopen(request, timeout=15) as response:
         created = json.loads(response.read().decode("utf-8"))
     recorder = CDP(created["webSocketDebuggerUrl"], label="observe-js")
     recorder.start()
     try:
+        navigated = recorder.call("Page.navigate", {"url": url})
+        assert "error" not in navigated and not navigated.get("result", {}).get("errorText"), navigated
+        _wait_for_fixture(recorder, url, required_cells, timeout)
         return recorder.call(
             "Runtime.evaluate", {"expression": OBSERVE_JS, "returnByValue": True}
         )
     finally:
         recorder.stop()
+        with urllib.request.urlopen(
+            f"http://127.0.0.1:{port}/json/close/{created['id']}", timeout=5
+        ):
+            pass
 
 
 def _probe_value(answer):
@@ -93,7 +122,7 @@ def test_the_dom_probe_answers_with_the_rendered_page() -> None:
             f"no Chrome on port {CHROME_PORT}; the DOM probe needs the browser "
             "the capture drives"
         )
-    answer = _evaluate(PAGE, CHROME_PORT)
+    answer = _evaluate(PAGE, CHROME_PORT, required_cells=["Books", "3"])
     assert "error" not in (answer or {}), answer
     observed = _probe_value(answer)
     assert observed is not None, f"the probe returned no value: {json.dumps(answer)[:400]}"
@@ -123,3 +152,11 @@ def test_the_dom_probe_answers_about_an_empty_page_too() -> None:
     assert observed["chart_present"] is False
     assert observed["chart_bars"] == 0
     assert observed["alerts"] == []
+
+
+def test_missing_required_cells_times_out_in_a_fresh_page() -> None:
+    if _chrome_version(CHROME_PORT) is None:
+        pytest.skip(f"no Chrome on port {CHROME_PORT}")
+    with pytest.raises(AssertionError, match="fixture not ready.*cells.*\\[\\]"):
+        _evaluate("<!doctype html><html><body></body></html>", CHROME_PORT,
+                  required_cells=["Books", "3"], timeout=0.25)

@@ -44,21 +44,27 @@ fn parse(bytes: &[u8]) -> Result<Parsed> {
     if bytes.is_empty() {
         bail!("the uploaded file is empty");
     }
-    let text = std::str::from_utf8(bytes).context("the uploaded file is not valid UTF-8")?.trim_start_matches('\u{feff}');
+    let text = std::str::from_utf8(bytes).context("the uploaded file is not valid UTF-8")?;
+    let text = text.strip_prefix('\u{feff}').unwrap_or(text);
+    if text.is_empty() {
+        bail!("the uploaded file is empty");
+    }
+    if text.starts_with(['\r', '\n']) {
+        bail!("the CSV header row is empty");
+    }
     let mut reader = csv::ReaderBuilder::new().flexible(false).from_reader(text.as_bytes());
-    let headers: Vec<String> = reader.headers()?.iter().map(|s| s.trim().to_owned()).collect();
+    let headers: Vec<String> = reader.headers().map_err(|error| csv_error(error, text))?.iter().map(|s| s.trim().to_owned()).collect();
     if headers.is_empty() || headers.iter().all(String::is_empty) {
         bail!("the CSV header row is empty");
     }
     let index: BTreeMap<_, _> = headers.iter().enumerate().map(|(i, name)| (name.as_str(), i)).collect();
-    for required in ["amount", "region"] {
-        if !index.contains_key(required) {
-            bail!("the CSV header is missing required column: {required}");
-        }
+    let missing: Vec<_> = ["amount", "region"].into_iter().filter(|required| !headers.iter().any(|name| name.to_lowercase() == *required)).collect();
+    if !missing.is_empty() {
+        bail!("the CSV header is missing required column(s): {}", missing.join(", "));
     }
     let mut parsed = Parsed { rows: Vec::new(), invalid_amounts: 0 };
     for record in reader.records() {
-        let record = record?;
+        let record = record.map_err(|error| csv_error(error, text))?;
         let cell = |name: &str| index.get(name).and_then(|i| record.get(*i)).unwrap_or("").trim().to_owned();
         let amount = amount(&cell("amount"))?;
         if amount.is_none() {
@@ -72,6 +78,69 @@ fn parse(bytes: &[u8]) -> Result<Parsed> {
         });
     }
     Ok(parsed)
+}
+
+fn csv_error(error: csv::Error, text: &str) -> anyhow::Error {
+    if let csv::ErrorKind::UnequalLengths { pos: Some(position), expected_len, len } = error.kind() {
+        // The reference numbers CSV records, including blank records, rather
+        // than physical lines inside a quoted field. csv skips blank records.
+        let mut end = usize::try_from(position.byte()).unwrap_or(text.len()).min(text.len());
+        let bytes = text.as_bytes();
+        // csv's stored start position precedes any skipped blank records.
+        while end < bytes.len() && matches!(bytes[end], b'\r' | b'\n') {
+            end += 1;
+        }
+        let (mut row, mut quoted, mut field_start, mut i) = (1, false, true, 0);
+        while i < end {
+            match bytes[i] {
+                b'"' if quoted && bytes.get(i + 1) == Some(&b'"') => i += 1,
+                b'"' if quoted => quoted = false,
+                b'"' if field_start => {
+                    quoted = true;
+                    field_start = false;
+                }
+                b',' if !quoted => field_start = true,
+                b'\r' | b'\n' if !quoted => {
+                    row += 1;
+                    field_start = true;
+                    if bytes[i] == b'\r' && bytes.get(i + 1) == Some(&b'\n') {
+                        i += 1;
+                    }
+                }
+                _ if !quoted => field_start = false,
+                _ => (),
+            }
+            i += 1;
+        }
+        return anyhow::anyhow!("row {row}: expected {expected_len} fields, found {len}");
+    }
+    anyhow::anyhow!("the file is not valid CSV: {error}")
+}
+
+fn rounded_average(sum: Decimal, count: i64) -> Result<Decimal> {
+    if count <= 0 {
+        bail!("average requires a positive row count");
+    }
+    // Work in integer cents so division cannot round onto a half-cent before
+    // HALF_UP is applied. The 96-bit coefficient times 100 fits in i128.
+    let numerator = sum.mantissa() * 100;
+    let Some(denominator) = 10_i128.pow(sum.scale()).checked_mul(i128::from(count)) else {
+        // An overflowing denominator is far larger than twice any possible
+        // 96-bit coefficient times 100, so the rounded cents are exactly zero.
+        return Ok(Decimal::ZERO);
+    };
+    let mut cents = numerator / denominator;
+    if (numerator % denominator).abs() * 2 >= denominator {
+        cents += numerator.signum();
+    }
+    let mut scale = 2;
+    while scale > 0 && cents % 10 == 0 {
+        cents /= 10;
+        scale -= 1;
+    }
+    let mut average = Decimal::try_from_i128_with_scale(cents, scale).context("average exceeds native decimal precision")?;
+    average.set_sign_negative(sum.is_sign_negative());
+    Ok(average)
 }
 
 fn aggregate(parsed: &Parsed, group: &str, minimum: i64, include_unknown: bool) -> Result<RecordBatch> {
@@ -107,7 +176,7 @@ fn aggregate(parsed: &Parsed, group: &str, minimum: i64, include_unknown: bool) 
         keys.push(key);
         counts.push(count);
         totals.push(rounded(sum)?);
-        averages.push(rounded(sum.checked_div(Decimal::from(count)).context("average exceeds native precision")?)?);
+        averages.push(rounded_average(sum, count)?.to_f64().context("average cannot be represented in the displayed float column")?);
     }
     let schema = Schema::new(vec![
         Field::new(COLUMNS[0], DataType::LargeUtf8, true),
@@ -119,12 +188,7 @@ fn aggregate(parsed: &Parsed, group: &str, minimum: i64, include_unknown: bool) 
     Ok(RecordBatch::try_new(Arc::new(schema), arrays)?)
 }
 
-fn render(st: &Streamlit) -> Result<()> {
-    st.title("Streamlit Rust CSV data app");
-    let selection = st.file_uploader(FileUploaderOptions::new("Upload sales CSV").accepted_types(["csv"]).key("upload"))?;
-    let group = st.selectbox(SelectboxOptions::new("Group by", ["category", "region", "channel"]).key("group_by"))?.unwrap_or("category");
-    let minimum = st.slider(SliderOptions::new("Minimum amount", 0_i64).max(200).step(10).key("min_amount"))?;
-    let include_unknown = st.checkbox(CheckboxOptions::new("Include unknown region").value(true).key("include_unknown"))?;
+fn render_result(st: &Streamlit, selection: &UploadedFiles, group: &str, minimum: i64, include_unknown: bool) -> Result<()> {
     st.sub_header("Aggregated result");
     let Some(file) = selection.as_slice().first() else {
         st.info("Upload a CSV to see the aggregated result.")?;
@@ -163,6 +227,36 @@ fn render(st: &Streamlit) -> Result<()> {
     Ok(())
 }
 
+fn begin_run(state: &SessionState) -> Result<u64> {
+    let runs = state.get::<u64>("run_count")?.unwrap_or(0).checked_add(1).context("script run counter overflow")?;
+    state.set("run_count", runs)?;
+    Ok(runs)
+}
+
+fn apply_pulse(state: &SessionState, clicked: bool) -> Result<u64> {
+    let pulses = state.get::<u64>("pulse_count")?.unwrap_or(0);
+    let pulses = pulses.checked_add(u64::from(clicked)).context("pulse counter overflow")?;
+    state.set("pulse_count", pulses)?;
+    Ok(pulses)
+}
+
+fn render(st: &Streamlit) -> Result<()> {
+    let state = st.session_state();
+    let runs = begin_run(&state)?;
+    st.title("Streamlit Rust CSV data app");
+    let selection = st.file_uploader(FileUploaderOptions::new("Upload sales CSV").accepted_types(["csv"]).key("upload"))?;
+    let group = st.selectbox(SelectboxOptions::new("Group by", ["category", "region", "channel"]).key("group_by"))?.unwrap_or("category");
+    let minimum = st.slider(SliderOptions::new("Minimum amount", 0_i64).max(200).step(10).key("min_amount"))?;
+    let include_unknown = st.checkbox(CheckboxOptions::new("Include unknown region").value(true).key("include_unknown"))?;
+    render_result(st, &selection, group, minimum, include_unknown)?;
+    st.sub_header("Interaction");
+    let clicked = st.try_button(ButtonOptions::new("Pulse").key("pulse"))?;
+    let pulses = apply_pulse(&state, clicked)?;
+    st.write(format!("Script runs: {runs}"));
+    st.write(format!("Pulses: {pulses}"));
+    Ok(())
+}
+
 #[main]
 async fn main(st: &Streamlit) {
     if let Err(error) = render(st) {
@@ -174,6 +268,85 @@ async fn main(st: &Streamlit) {
 mod tests {
     use super::*;
     use ::streamlit::data::from_ipc_stream;
+
+    #[test]
+    fn ragged_rows_report_reference_record_numbers_and_field_counts() {
+        let cases: &[(&[u8], &str)] = &[
+            (include_bytes!("../../tests/fixtures/csv/sales_malformed.csv"), "row 3: expected 8 fields, found 7"),
+            (b"amount,region\n1,North,extra\n", "row 2: expected 2 fields, found 3"),
+            (b"amount,region\n\n1,North,extra\n", "row 3: expected 2 fields, found 3"),
+            (b"amount,region,category\n1,North,\"A\nB\"\n2,North\n", "row 3: expected 3 fields, found 2"),
+        ];
+        for (bytes, expected) in cases {
+            let error = match parse(bytes) {
+                Ok(_) => panic!("ragged input was accepted"),
+                Err(error) => error,
+            };
+            assert_eq!(error.to_string(), *expected);
+        }
+    }
+
+    #[test]
+    fn average_rounds_the_exact_ratio_once_at_the_half_cent_boundary() {
+        let parsed = parse(b"amount,region,category\n0.0099999999999999999999999999,North,A\n0,North,A\n").unwrap();
+        let batch = aggregate(&parsed, "category", 0, true).unwrap();
+        assert_eq!(batch.column(2).as_any().downcast_ref::<Float64Array>().unwrap().value(0), 0.01);
+        assert_eq!(batch.column(3).as_any().downcast_ref::<Float64Array>().unwrap().value(0), 0.00);
+        for (sum, count, expected) in [("0.01", 2, "0.01"), ("-0.01", 2, "-0.01"), ("3.01", 2, "1.51"), ("-3.01", 2, "-1.51"), ("0.0149999999999999999999999999", 3, "0")] {
+            assert_eq!(rounded_average(sum.parse().unwrap(), count).unwrap(), expected.parse::<Decimal>().unwrap());
+        }
+        assert_eq!(rounded_average(Decimal::MAX, 1).unwrap(), Decimal::MAX);
+        assert!(rounded_average(Decimal::ONE, 0).is_err());
+    }
+
+    #[test]
+    fn soft_amount_errors_keep_ten_rows_and_all_four_reference_aggregates() {
+        let parsed = parse(include_bytes!("../../tests/fixtures/csv/sales_with_missing.csv")).unwrap();
+        assert_eq!((parsed.rows.len(), parsed.invalid_amounts), (12, 2));
+        let batch = aggregate(&parsed, "category", 0, true).unwrap();
+        let expected = [("Books", 2, 200.50, 100.25), ("Games", 3, 409.48, 136.49), ("Music", 2, 51.00, 25.50), ("Toys", 3, 104.49, 34.83)];
+        assert_eq!(batch.num_rows(), expected.len());
+        for (i, (key, count, total, average)) in expected.into_iter().enumerate() {
+            assert_eq!(batch.column(0).as_any().downcast_ref::<LargeStringArray>().unwrap().value(i), key);
+            assert_eq!(batch.column(1).as_any().downcast_ref::<Int64Array>().unwrap().value(i), count);
+            assert_eq!(batch.column(2).as_any().downcast_ref::<Float64Array>().unwrap().value(i), total);
+            assert_eq!(batch.column(3).as_any().downcast_ref::<Float64Array>().unwrap().value(i), average);
+        }
+    }
+
+    #[test]
+    fn non_utf8_is_hard_failure_and_valid_unicode_bom_upload_recovers() {
+        for bytes in [b"amount,region\n1,\xff\n".as_slice(), b"amount,region\n1,\xe2\x82".as_slice()] {
+            let error = match parse(bytes) {
+                Ok(_) => panic!("invalid UTF-8 was accepted"),
+                Err(error) => error,
+            };
+            assert_eq!(error.to_string(), "the uploaded file is not valid UTF-8");
+        }
+        let plain = parse(include_bytes!("../../tests/fixtures/csv/sales_unicode.csv")).unwrap();
+        let bom = parse(include_bytes!("../../tests/fixtures/csv/sales_utf8_bom.csv")).unwrap();
+        let plain = aggregate(&plain, "category", 0, true).unwrap();
+        let recovered = aggregate(&bom, "category", 0, true).unwrap();
+        assert_eq!(plain.schema(), recovered.schema());
+        for (a, b) in plain.columns().iter().zip(recovered.columns()) {
+            assert_eq!(a.to_data(), b.to_data());
+        }
+        assert_eq!(plain.column(0).as_any().downcast_ref::<LargeStringArray>().unwrap().iter().collect::<Vec<_>>(), [Some("Bücher"), Some("Jogos"), Some("游戏")]);
+    }
+
+    #[test]
+    fn run_and_pulse_counters_follow_reruns_without_cross_session_state() {
+        let a = SessionState::default();
+        let b = SessionState::default();
+        for (expected_run, clicked, expected_pulses) in [(1, false, 0), (2, false, 0), (3, true, 1), (4, false, 1), (5, true, 2)] {
+            assert_eq!(begin_run(&a).unwrap(), expected_run);
+            assert_eq!(apply_pulse(&a, clicked).unwrap(), expected_pulses);
+        }
+        assert_eq!(begin_run(&b).unwrap(), 1);
+        assert_eq!(apply_pulse(&b, false).unwrap(), 0);
+        assert_eq!(a.get::<u64>("run_count").unwrap(), Some(5));
+        assert_eq!(a.get::<u64>("pulse_count").unwrap(), Some(2));
+    }
 
     #[test]
     fn native_csv_rebuilds_the_four_observed_arrow_results() {
@@ -224,5 +397,15 @@ mod tests {
         let filtered = aggregate(&valid, "region", 200, false).unwrap();
         assert_eq!(filtered.num_rows(), 0);
         assert_eq!(filtered.schema(), empty.schema());
+        for (field, data_type) in empty.schema().fields().iter().zip([DataType::LargeUtf8, DataType::Int64, DataType::Float64, DataType::Float64]) {
+            assert_eq!(field.data_type(), &data_type);
+            assert!(field.is_nullable());
+        }
+        let restored = aggregate(&valid, "category", 0, true).unwrap();
+        assert_eq!(restored.schema(), empty.schema());
+        let reference = from_ipc_stream(include_bytes!("../../tests/reference/reference-browser/data-loop/updates/arrow-1.bin")).unwrap().remove(0);
+        for (a, b) in restored.columns().iter().zip(reference.columns()) {
+            assert_eq!(a.to_data(), b.to_data());
+        }
     }
 }

@@ -5,10 +5,12 @@ The data app of the Rust implementation, driven with the official Streamlit
 
 **Server under test**
 
-- binary `target/checks/data-app-live/data-app-security-final-20261024T152745018.exe`
-- sha256 `427F3AF719559C14B8A207660B9BA562D42C6F2C9A6B16E7C3864DED9B1D3A19`
-- source sha256 `13373cf614f0f16db351d51a72fdc4902504d7952dd53258625c9bae58b09531`
+- binary `target/checks/data-app-live/data-app-csv-stage2-20261024T172854620.exe`
+- sha256 `9430149DE61EA521AE873D2AE77A97A62D9BE5F63F547F00E9D5F7A1D23F4A57`
+- source sha256 `810f4c1ecffa419a5f9217c311d4e863faef71e6e3779eb69fba2c6516d0f2f7`
 - config sha256 `a552d879a67c536617e42933128e85329f30aafadd83cb34fd763f55ba2f26fc`
+- the four raws of this round were captured against this binary; the four rows
+  above carry the earlier one (`427F3AF7...`)
 - `HEAD 1c6161d` plus the owner's uncommitted increment
 
 **The captures**
@@ -19,6 +21,12 @@ The data app of the Rust implementation, driven with the official Streamlit
 | [recover/](recover/trace-data-loop.json) | a file that cannot be read, then a good one | 12 | 12 | 12 | none | 0 |
 | [empty/](empty/trace-data-loop.json) | a file without data rows | 7 | 7 | 7 | none | 0 |
 | [sessions/](sessions/trace-data-loop.json) | two tabs, two sessions | 11 | 11 | 11 | none | 0 |
+| [state/](state/trace-data-loop.json) | first load, one control, one upload, the Pulse click | 14 | 14 | 14 | none | 0 |
+| [soft-invalid/](soft-invalid/trace-data-loop.json) | the file with two unusable amounts, then the good file | 13 | 13 | 2 | the criterion of the case is not written | 1 |
+| [non-utf8/](non-utf8/trace-data-loop.json) | the file that is not UTF-8, then the good file | 13 | 13 | 3 | the criterion of the case is not written | 1 |
+| [filter-empty/](filter-empty/trace-data-loop.json) | the slider that empties the table, and back | 13 | 13 | 3 | the criterion of the case is not written | 1 |
+| [j07-sequence/](j07-sequence/trace-data-loop.json) | the whole parse journey in one session | 13 | 13 | 13 | none | 0 |
+| [j08-sequence/](j08-sequence/trace-data-loop.json) | the whole empty journey in one session | 14 | 14 | 14 | none | 0 |
 
 The counts are the checks of the journey, not the steps of the manifest: every
 check says what it expected, what it saw and whether it held, and the shared
@@ -62,6 +70,7 @@ against its own working directory and the uploader would get no file):
 ~~~powershell
 $fx = (Resolve-Path tests\fixtures\csv).Path
 $bin = "target/checks/data-app-live/data-app-security-final-20261024T152745018.exe sha256 427F3AF719559C14B8A207660B9BA562D42C6F2C9A6B16E7C3864DED9B1D3A19"
+$binNew = "target/checks/data-app-live/data-app-csv-stage2-20261024T172854620.exe sha256 9430149DE61EA521AE873D2AE77A97A62D9BE5F63F547F00E9D5F7A1D23F4A57"
 target\pyref-venv\Scripts\python.exe tests\browser\numeric_capture.py --url http://127.0.0.1:8501/ \
     --case data-loop --files "$fx\sales_basic.csv" --label rust-final-positive \
     --out target\rust-positive --binary $bin --scope "RUST SIDE ONLY"
@@ -74,12 +83,36 @@ target\pyref-venv\Scripts\python.exe tests\browser\numeric_capture.py --url http
 target\pyref-venv\Scripts\python.exe tests\browser\numeric_capture.py --url http://127.0.0.1:8501/ \
     --case data-loop --journey sessions --files "$fx\sales_basic.csv,$fx\sales_unicode.csv" \
     --label rust-final-sessions --out target\rust-sessions --binary $bin --scope "RUST SIDE ONLY"
+target\pyref-venv\Scripts\python.exe tests\browser\numeric_capture.py --url http://127.0.0.1:8501/ \
+    --case data-loop --journey state --files "$fx\sales_basic.csv" \
+    --label rust-state --out target\rust-state --binary $binNew --scope "RUST SIDE ONLY"
+target\pyref-venv\Scripts\python.exe tests\browser\numeric_capture.py --url http://127.0.0.1:8501/ \
+    --case data-loop --journey soft-invalid --files "$fx\sales_with_missing.csv,$fx\sales_basic.csv" \
+    --label rust-soft-invalid --out target\rust-soft-invalid --binary $binNew --scope "RUST SIDE ONLY"
+target\pyref-venv\Scripts\python.exe tests\browser\numeric_capture.py --url http://127.0.0.1:8501/ \
+    --case data-loop --journey non-utf8 --files "$fx\sales_latin1.csv,$fx\sales_basic.csv" \
+    --label rust-non-utf8 --out target\rust-non-utf8 --binary $binNew --scope "RUST SIDE ONLY"
+target\pyref-venv\Scripts\python.exe tests\browser\numeric_capture.py --url http://127.0.0.1:8501/ \
+    --case data-loop --journey filter-empty --files "$fx\sales_basic.csv" \
+    --label rust-filter-empty --out target\rust-filter-empty --binary $binNew --scope "RUST SIDE ONLY"
+~~~
+target\pyref-venv\Scripts\python.exe tests\browser\numeric_capture.py --url http://127.0.0.1:8501/ \
+    --case data-loop --journey j07-sequence --out target\rust-j07-sequence \
+    --label rust-j07-sequence --binary $binNew --scope "RUST SIDE ONLY" --build-base ef359b1
+target\pyref-venv\Scripts\python.exe tests\browser\numeric_capture.py --url http://127.0.0.1:8501/ \
+    --case data-loop --journey j08-sequence --out target\rust-j08-sequence \
+    --label rust-j08-sequence --binary $binNew --scope "RUST SIDE ONLY" --build-base ef359b1
 ~~~
 
 The driver is `tests/browser/numeric_capture.py` (sha256
-`9EDC3FA1D456E5592771C448AC5E600C99D71398C5E55CCB7E8A541F61E5F966`); the
+`AF2519D40235883E3A09F8EAE5D6AA52A0E3969695EE482B41C66580080662A4` for the two whole journeys,
+`4194835B77379A2E63D783D292183B70061DBD8D221575EFE8C50D0A5BF462AD` for the four raws of this round,
+`9EDC3FA1D456E5592771C448AC5E600C99D71398C5E55CCB7E8A541F61E5F966` when the four rows above were captured; the driver now names the journeys in one
+constant (`A8F93500D544780F9358AE9D6F015424C882BA1249FE4CDE141A32426E31D5D0`), which changed no byte of a capture); the
 criteria live in `tests/reference/capture_browser_trace.py` (sha256
-`B29B4F85AC9BEBE885C4B3EEE8E2142D8A44DC4724C6A9F1075BB09062DA08F6`, re-validated against `DA2E746A8267E1DFAC65CF0CB5513B3C6B729B33C5035C3CF5C253F016925D9A`).
+`FF39DD51F8439ABED32205C50395D0E4CAFA7194BCF37A0338F62DD6E0139C00` for the two whole journeys,
+`1D1A5C8415C8D212948045EF75B971E9AC278E4C925D3110CD75AA70C3AB422F` for the four raws of this round,
+`B29B4F85AC9BEBE885C4B3EEE8E2142D8A44DC4724C6A9F1075BB09062DA08F6`, re-validated against `DA2E746A8267E1DFAC65CF0CB5513B3C6B729B33C5035C3CF5C253F016925D9A`, for the four rows above).
 The `agent-browser` CLI could not start its daemon in this environment, so
 the entry drives the same real Chrome over the DevTools Protocol; the reason
 is recorded in the `capture` block of every raw.  The decoder needs the
@@ -96,11 +129,49 @@ carries the kind and the scope of a Python reference capture, because the
 positive path labelled itself that way before the label was taken from the
 command line; the raw is left as it is and the capture above supersedes it.
 
+**The four raws of this round**
+
+They were recorded on 2026-10-24 against the binary above, with the upload
+window bound the way the shared reader binds it: the window of an upload is
+the request of the URLs of the newly issued file, the state that names that
+file, the server run that answered it and that run's successful completion.
+The Rust app answers a replacement in two runs -- first the run that clears
+the uploader, then the run of the new file -- and the window holds both, with
+the completion of the run of the new file at its end.  The earlier rule, which
+stopped at the first successful completion, ended the window at the clearing
+run and left the result outside it.
+
+`state/` is a pass: the shared criterion judges the counters of the window,
+the distinct script run ids and the three pictures, and it holds.  The other
+three are measured but not judged -- the criterion of those cases is not
+written yet, so the entry exits 1 and the journeys of
+`tests/journeys/journeys.json` stay `failed` for exactly those parts.
+
+**The two whole journeys**
+
+`j07-sequence/` and `j08-sequence/` are one capture each: the whole journey is
+driven in one tab and one session, never a page per case.  The parse journey
+reads the malformed file, the file with two unusable amounts, a good file, the
+file that is not UTF-8 and a good file again -- the counters read 2, 4, 6, 8,
+10 and the session id is the same in every step.  The empty journey reads the
+file without rows, a good file, the filter that leaves no row and the filter
+back -- the counters read 2, 4, 5, 6, so the filter is one run and the way
+back is one run, without a reload and without a new session.
+
+Every step is bound to the run that answered it: the window of an upload is
+the request of the URLs of the newly issued file, the state that names that
+file, the server run that answered it and that run's successful completion.
+The Rust app answers a replacement in two runs -- first the run that clears
+the uploader, then the run of the new file -- and the window holds both, with
+the completion of the run of the new file at its end.
+
+The shared criterion of the whole journey is `sequence_checks` in
+`tests/reference/capture_browser_trace.py`; the phase names, the inputs and
+the picture roles are its own, and the driver reads them from there.
+
 **What these captures do not cover**
 
 The parse-error wording of the Rust app differs from the reference text
 (`Could not parse the uploaded CSV: CSV error: record 2 ...` against
-`Could not parse the uploaded CSV: row 3: expected 8 fields, found 7`), the
-soft failure of the unusable amounts and the non-UTF-8 file were not captured,
-and no screenshot was taken.  The journeys of `tests/journeys/journeys.json`
-stay `failed` for exactly those parts.
+`Could not parse the uploaded CSV: row 3: expected 8 fields, found 7`); that
+case and the recovery of it (J07-S1 and J07-S3) were not run in this round.

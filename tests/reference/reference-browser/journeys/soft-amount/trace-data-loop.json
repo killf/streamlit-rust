@@ -1,0 +1,3610 @@
+{
+  "schema_version": 1,
+  "contract_id": "C-P0-04",
+  "kind": "python-reference-browser-trace",
+  "scope": "PYTHON SIDE ONLY",
+  "capture": {
+    "tool": "DevTools Protocol against the same real Chrome",
+    "tool_limitation": "the agent-browser CLI could not start its daemon in this environment (connection timeout), so the input is sent over CDP",
+    "driver": "tests/browser/numeric_capture.py",
+    "binary": "",
+    "python": "D:\\dlab\\streamlit-rust\\target\\pyref-venv\\Scripts\\python.exe"
+  },
+  "url": "http://127.0.0.1:8601/",
+  "case": "soft-invalid",
+  "journey": "soft-invalid",
+  "observation": {
+    "namespace": "py-ref-soft-20261024T182810",
+    "url": "http://127.0.0.1:8601/",
+    "ipc_dir": "target\\stage2-ref-20261024T182810\\soft-invalid",
+    "uploads": {
+      "soft": true,
+      "good": true
+    },
+    "frames": [
+      {
+        "direction": "client->server",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26185.406867,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "BackMsg",
+          "type": "rerun_script",
+          "rerun_script": {
+            "widget_states": []
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26185.408712,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "new_session",
+          "new_session": {
+            "script_run_id": "91723d51-6f52-4ea6-a043-a2c3e323a2a5",
+            "name": "app",
+            "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\app.py",
+            "page_script_hash": "269f73cf39198cb8a4f8caacec17751b",
+            "main_script_hash": "269f73cf39198cb8a4f8caacec17751b",
+            "session_id": "775c86a3-ce48-4bb9-97ed-aeeef6df6ade"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26185.416639,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": true,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26185.416757,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "page_config_changed"
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26185.417091,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "streamlit-rust P0 reference"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26185.428604,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "markdown",
+            "body": "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part o"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26185.661633,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "file_uploader",
+            "element_full": {
+              "fileUploader": {
+                "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+                "label": "Upload sales CSV",
+                "type": [
+                  ".csv"
+                ],
+                "maxUploadSizeMb": 200,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+              "label": "Upload sales CSV",
+              "type": [
+                ".csv"
+              ],
+              "maxUploadSizeMb": 200,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+            "label": "Upload sales CSV",
+            "accepted_types": [
+              "['.csv']"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26185.662225,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "selectbox",
+            "element_full": {
+              "selectbox": {
+                "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+                "label": "Group by",
+                "default": 0,
+                "options": [
+                  "category",
+                  "region",
+                  "channel"
+                ],
+                "labelVisibility": {},
+                "acceptNewOptions": false
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+              "label": "Group by",
+              "default": 0,
+              "options": [
+                "category",
+                "region",
+                "channel"
+              ],
+              "labelVisibility": {},
+              "acceptNewOptions": false
+            },
+            "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+            "label": "Group by",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26185.669893,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "slider",
+            "element_full": {
+              "slider": {
+                "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+                "label": "Minimum amount",
+                "format": "%d",
+                "default": [
+                  0.0
+                ],
+                "max": 200.0,
+                "step": 10.0,
+                "labelVisibility": {},
+                "type": "SLIDER"
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+              "label": "Minimum amount",
+              "format": "%d",
+              "default": [
+                0.0
+              ],
+              "max": 200.0,
+              "step": 10.0,
+              "labelVisibility": {},
+              "type": "SLIDER"
+            },
+            "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+            "label": "Minimum amount",
+            "accepted_types": [
+              "1"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26185.670245,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "checkbox",
+            "element_full": {
+              "checkbox": {
+                "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+                "label": "Include unknown region",
+                "default": true,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useContent": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+              "label": "Include unknown region",
+              "default": true,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+            "label": "Include unknown region",
+            "accepted_types": [
+              "0"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26185.670468,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Aggregated result"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26185.670589,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "alert",
+            "alert": {
+              "body": "Upload a CSV to see the aggregated result.",
+              "format": "INFO",
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "element_width_config": null,
+            "element_height_config": null,
+            "body": "Upload a CSV to see the aggregated result."
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26185.670738,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Interaction"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26185.67082,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "button",
+            "widget": {
+              "id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+              "label": "Pulse",
+              "type": "secondary"
+            },
+            "id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+            "label": "Pulse",
+            "accepted_types": [
+              "secondary"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26185.670998,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "add_block",
+            "block_id": "",
+            "block_type": "form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26185.671297,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text_input",
+            "widget": {
+              "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+              "label": "Note",
+              "default": "",
+              "formId": "apply_form",
+              "labelVisibility": {}
+            },
+            "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+            "label": "Note",
+            "accepted_types": [
+              "0"
+            ],
+            "form_id": "apply_form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26185.671486,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "button",
+            "widget": {
+              "id": "$$ID-9a6c63ce6e3bef7bfd3af258b88f303b-apply_note",
+              "label": "Apply note",
+              "formId": "apply_form",
+              "isFormSubmitter": true,
+              "type": "secondary"
+            },
+            "id": "$$ID-9a6c63ce6e3bef7bfd3af258b88f303b-apply_note",
+            "label": "Apply note",
+            "accepted_types": [
+              "secondary"
+            ],
+            "form_id": "apply_form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26185.671536,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text",
+            "body": "Script runs: 1"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26185.671661,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text",
+            "body": "Pulses: 0"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26185.671696,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text",
+            "body": "Applied note:"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26185.671734,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "script_finished",
+          "script_finished": {
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26185.67194,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": false,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "client->server",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26188.408117,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "BackMsg",
+          "type": "file_urls_request",
+          "file_urls_request": {
+            "request_id": "9dd1c87f-7b98-494f-80b5-83f78a7b993b",
+            "file_names": [
+              "sales_with_missing.csv"
+            ],
+            "session_id": "775c86a3-ce48-4bb9-97ed-aeeef6df6ade"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26188.409219,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "file_urls_response",
+          "file_urls_response": {
+            "response_id": "9dd1c87f-7b98-494f-80b5-83f78a7b993b",
+            "file_urls": [
+              {
+                "file_id": "3d761097-9459-4100-89e6-8d47528cb815",
+                "upload_url": "/_stcore/upload_file/775c86a3-ce48-4bb9-97ed-aeeef6df6ade/3d761097-9459-4100-89e6-8d47528cb815",
+                "delete_url": "/_stcore/upload_file/775c86a3-ce48-4bb9-97ed-aeeef6df6ade/3d761097-9459-4100-89e6-8d47528cb815"
+              }
+            ],
+            "error_msg": ""
+          }
+        }
+      },
+      {
+        "direction": "client->server",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26188.424535,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "BackMsg",
+          "type": "rerun_script",
+          "rerun_script": {
+            "widget_states": [
+              {
+                "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+                "value_field": "file_uploader_state_value",
+                "value": {
+                  "uploaded_file_info": "[name: \"sales_with_missing.csv\"\nsize: 739\nfile_id: \"3d761097-9459-4100-89e6-8d47528cb815\"\nfile_urls {\n  file_id: \"3d761097-9459-4100-89e6-8d47528cb815\"\n  upload_url: \"/_stcore/upload_file/775c86a3-ce48-4bb9-97ed-aeeef6df6ade/3d761097-9459-4100-89e6-8d47528cb815\"\n  delete_url: \"/_stcore/upload_file/775c86a3-ce48-4bb9-97ed-aeeef6df6ade/3d761097-9459-4100-89e6-8d47528cb815\"\n}\n]"
+                },
+                "value_full": {
+                  "uploadedFileInfo": [
+                    {
+                      "name": "sales_with_missing.csv",
+                      "size": "739",
+                      "fileId": "3d761097-9459-4100-89e6-8d47528cb815",
+                      "fileUrls": {
+                        "fileId": "3d761097-9459-4100-89e6-8d47528cb815",
+                        "uploadUrl": "/_stcore/upload_file/775c86a3-ce48-4bb9-97ed-aeeef6df6ade/3d761097-9459-4100-89e6-8d47528cb815",
+                        "deleteUrl": "/_stcore/upload_file/775c86a3-ce48-4bb9-97ed-aeeef6df6ade/3d761097-9459-4100-89e6-8d47528cb815"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+                "value_field": "string_value",
+                "value": "category"
+              },
+              {
+                "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+                "value_field": "double_array_value",
+                "value": {
+                  "data": "[0.0]"
+                },
+                "value_full": {
+                  "data": [
+                    0.0
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+                "value_field": "string_value",
+                "value": ""
+              },
+              {
+                "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+                "value_field": "bool_value",
+                "value": true
+              }
+            ]
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26188.426097,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "new_session",
+          "new_session": {
+            "script_run_id": "d387eded-8df3-4fcc-847a-474c042112c1",
+            "name": "app",
+            "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\app.py",
+            "page_script_hash": "269f73cf39198cb8a4f8caacec17751b",
+            "main_script_hash": "269f73cf39198cb8a4f8caacec17751b",
+            "session_id": "775c86a3-ce48-4bb9-97ed-aeeef6df6ade"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26188.429838,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": true,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26188.432336,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "page_config_changed"
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26188.432487,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "streamlit-rust P0 reference"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26188.436513,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "markdown",
+            "body": "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part o"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26188.436637,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "file_uploader",
+            "element_full": {
+              "fileUploader": {
+                "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+                "label": "Upload sales CSV",
+                "type": [
+                  ".csv"
+                ],
+                "maxUploadSizeMb": 200,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+              "label": "Upload sales CSV",
+              "type": [
+                ".csv"
+              ],
+              "maxUploadSizeMb": 200,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+            "label": "Upload sales CSV",
+            "accepted_types": [
+              "['.csv']"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26188.44101,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "selectbox",
+            "element_full": {
+              "selectbox": {
+                "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+                "label": "Group by",
+                "default": 0,
+                "options": [
+                  "category",
+                  "region",
+                  "channel"
+                ],
+                "labelVisibility": {},
+                "acceptNewOptions": false
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+              "label": "Group by",
+              "default": 0,
+              "options": [
+                "category",
+                "region",
+                "channel"
+              ],
+              "labelVisibility": {},
+              "acceptNewOptions": false
+            },
+            "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+            "label": "Group by",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26188.441353,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "slider",
+            "element_full": {
+              "slider": {
+                "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+                "label": "Minimum amount",
+                "format": "%d",
+                "default": [
+                  0.0
+                ],
+                "max": 200.0,
+                "step": 10.0,
+                "labelVisibility": {},
+                "type": "SLIDER"
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+              "label": "Minimum amount",
+              "format": "%d",
+              "default": [
+                0.0
+              ],
+              "max": 200.0,
+              "step": 10.0,
+              "labelVisibility": {},
+              "type": "SLIDER"
+            },
+            "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+            "label": "Minimum amount",
+            "accepted_types": [
+              "1"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26188.441479,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "checkbox",
+            "element_full": {
+              "checkbox": {
+                "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+                "label": "Include unknown region",
+                "default": true,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useContent": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+              "label": "Include unknown region",
+              "default": true,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+            "label": "Include unknown region",
+            "accepted_types": [
+              "0"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26188.441549,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Aggregated result"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26188.441619,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "alert",
+            "alert": {
+              "body": "2 row(s) with an unusable 'amount' were excluded from the aggregation.",
+              "format": "WARNING",
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "element_width_config": null,
+            "element_height_config": null,
+            "body": "2 row(s) with an unusable 'amount' were excluded from the aggregation."
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26188.441746,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "dataframe",
+            "element_full": {
+              "dataframe": {
+                "arrowData": {
+                  "data": "/////4gEAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAGQDAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAA8AwAABAAAAC0DAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDQsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAiZ3JvdXBfa2V5IiwgImZpZWxkX25hbWUiOiAiZ3JvdXBfa2V5IiwgInBhbmRhc190eXBlIjogIm9iamVjdCIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAicm93X2NvdW50IiwgImZpZWxkX25hbWUiOiAicm93X2NvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogInRvdGFsX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogInRvdGFsX2Ftb3VudCIsICJwYW5kYXNfdHlwZSI6ICJmbG9hdDY0IiwgIm51bXB5X3R5cGUiOiAiZmxvYXQ2NCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAiYXZnX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogImF2Z19hbW91bnQiLCAicGFuZGFzX3R5cGUiOiAiZmxvYXQ2NCIsICJudW1weV90eXBlIjogImZsb2F0NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAAEAAAAxAAAAHQAAAA4AAAABAAAAFz///8AAAEDEAAAABwAAAAEAAAAAAAAAAoAAABhdmdfYW1vdW50AADO////AAACAIz///8AAAEDEAAAACQAAAAEAAAAAAAAAAwAAAB0b3RhbF9hbW91bnQAAAYACAAGAAYAAAAAAAIAxP///wAAAQIQAAAAJAAAAAQAAAAAAAAACQAAAHJvd19jb3VudAAAAAgADAAIAAcACAAAAAAAAAFAAAAAEAAUAAgABgAHAAwAAAAQABAAAAAAAAEUEAAAACAAAAAEAAAAAAAAAAkAAABncm91cF9rZXkAAAAEAAQABAAAAP////8oAQAAFAAAAAAAAAAMABYABgAFAAgADAAMAAAAAAMEABgAAACgAAAAAAAAAAAACgAYAAwABAAIAAoAAACsAAAAEAAAAAQAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoAAAAAAAAACgAAAAAAAAAEwAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAgAAAAAAAAAGAAAAAAAAAAAAAAAAAAAABgAAAAAAAAACAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAIAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAACgAAAAAAAAAPAAAAAAAAABMAAAAAAAAAQm9va3NHYW1lc011c2ljVG95cwAAAAAAAgAAAAAAAAADAAAAAAAAAAIAAAAAAAAAAwAAAAAAAAAAAAAAABBpQEjhehSul3lAAAAAAACASUCPwvUoXB9aQAAAAAAAEFlASOF6FK4PYUAAAAAAAIA5QArXo3A9akFA/////wAAAAA="
+                },
+                "columns": "{\"_index\": {\"hidden\": true}}",
+                "columnOrder": [
+                  "group_key",
+                  "row_count",
+                  "total_amount",
+                  "avg_amount"
+                ]
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "arrow": {
+              "bytes": 1640,
+              "sha256": "99fa09dd6475a6fe0f3a0c8289c555ab27b221da1c6ef66dba8043c7fc1a1a1b",
+              "base64": "/////4gEAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAGQDAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAA8AwAABAAAAC0DAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDQsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAiZ3JvdXBfa2V5IiwgImZpZWxkX25hbWUiOiAiZ3JvdXBfa2V5IiwgInBhbmRhc190eXBlIjogIm9iamVjdCIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAicm93X2NvdW50IiwgImZpZWxkX25hbWUiOiAicm93X2NvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogInRvdGFsX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogInRvdGFsX2Ftb3VudCIsICJwYW5kYXNfdHlwZSI6ICJmbG9hdDY0IiwgIm51bXB5X3R5cGUiOiAiZmxvYXQ2NCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAiYXZnX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogImF2Z19hbW91bnQiLCAicGFuZGFzX3R5cGUiOiAiZmxvYXQ2NCIsICJudW1weV90eXBlIjogImZsb2F0NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAAEAAAAxAAAAHQAAAA4AAAABAAAAFz///8AAAEDEAAAABwAAAAEAAAAAAAAAAoAAABhdmdfYW1vdW50AADO////AAACAIz///8AAAEDEAAAACQAAAAEAAAAAAAAAAwAAAB0b3RhbF9hbW91bnQAAAYACAAGAAYAAAAAAAIAxP///wAAAQIQAAAAJAAAAAQAAAAAAAAACQAAAHJvd19jb3VudAAAAAgADAAIAAcACAAAAAAAAAFAAAAAEAAUAAgABgAHAAwAAAAQABAAAAAAAAEUEAAAACAAAAAEAAAAAAAAAAkAAABncm91cF9rZXkAAAAEAAQABAAAAP////8oAQAAFAAAAAAAAAAMABYABgAFAAgADAAMAAAAAAMEABgAAACgAAAAAAAAAAAACgAYAAwABAAIAAoAAACsAAAAEAAAAAQAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoAAAAAAAAACgAAAAAAAAAEwAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAgAAAAAAAAAGAAAAAAAAAAAAAAAAAAAABgAAAAAAAAACAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAIAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAACgAAAAAAAAAPAAAAAAAAABMAAAAAAAAAQm9va3NHYW1lc011c2ljVG95cwAAAAAAAgAAAAAAAAADAAAAAAAAAAIAAAAAAAAAAwAAAAAAAAAAAAAAABBpQEjhehSul3lAAAAAAACASUCPwvUoXB9aQAAAAAAAEFlASOF6FK4PYUAAAAAAAIA5QArXo3A9akFA/////wAAAAA=",
+              "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 749",
+              "columns": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_count": 4,
+              "rows": [
+                {
+                  "group_key": "Books",
+                  "row_count": 2,
+                  "total_amount": 200.5,
+                  "avg_amount": 100.25
+                },
+                {
+                  "group_key": "Games",
+                  "row_count": 3,
+                  "total_amount": 409.48,
+                  "avg_amount": 136.49
+                },
+                {
+                  "group_key": "Music",
+                  "row_count": 2,
+                  "total_amount": 51.0,
+                  "avg_amount": 25.5
+                },
+                {
+                  "group_key": "Toys",
+                  "row_count": 3,
+                  "total_amount": 104.49,
+                  "avg_amount": 34.83
+                }
+              ]
+            },
+            "arrow_fields": {
+              "columns": "{\"_index\": {\"hidden\": true}}",
+              "editing_mode": 0,
+              "disabled": false,
+              "column_order": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_height": 0
+            },
+            "id": "",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26188.534748,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "vega_lite_chart",
+            "element_full": {
+              "vegaLiteChart": {
+                "spec": "{\"data\": {\"name\": \"2a96c02c34693a349b9a42a19b39ceae\"}, \"mark\": {\"type\": \"bar\"}, \"encoding\": {\"tooltip\": [{\"field\": \"group_key\", \"title\": \"group\", \"type\": \"nominal\"}, {\"field\": \"row_count\", \"title\": \"rows\", \"type\": \"quantitative\"}, {\"field\": \"total_amount\", \"title\": \"total\", \"type\": \"quantitative\"}, {\"field\": \"avg_amount\", \"title\": \"avg\", \"type\": \"quantitative\"}], \"x\": {\"field\": \"group_key\", \"sort\": [\"Books\", \"Games\", \"Music\", \"Toys\"], \"type\": \"nominal\"}, \"y\": {\"field\": \"total_amount\", \"type\": \"quantitative\"}}, \"height\": 260, \"$schema\": \"https://vega.github.io/schema/vega-lite/v5.20.1.json\", \"autosize\": {\"type\": \"fit\", \"contains\": \"padding\"}}",
+                "datasets": [
+                  {
+                    "name": "2a96c02c34693a349b9a42a19b39ceae",
+                    "data": {
+                      "data": "/////4gEAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAGQDAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAA8AwAABAAAAC0DAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDQsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAiZ3JvdXBfa2V5IiwgImZpZWxkX25hbWUiOiAiZ3JvdXBfa2V5IiwgInBhbmRhc190eXBlIjogIm9iamVjdCIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAicm93X2NvdW50IiwgImZpZWxkX25hbWUiOiAicm93X2NvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogInRvdGFsX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogInRvdGFsX2Ftb3VudCIsICJwYW5kYXNfdHlwZSI6ICJmbG9hdDY0IiwgIm51bXB5X3R5cGUiOiAiZmxvYXQ2NCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAiYXZnX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogImF2Z19hbW91bnQiLCAicGFuZGFzX3R5cGUiOiAiZmxvYXQ2NCIsICJudW1weV90eXBlIjogImZsb2F0NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAAEAAAAxAAAAHQAAAA4AAAABAAAAFz///8AAAEDEAAAABwAAAAEAAAAAAAAAAoAAABhdmdfYW1vdW50AADO////AAACAIz///8AAAEDEAAAACQAAAAEAAAAAAAAAAwAAAB0b3RhbF9hbW91bnQAAAYACAAGAAYAAAAAAAIAxP///wAAAQIQAAAAJAAAAAQAAAAAAAAACQAAAHJvd19jb3VudAAAAAgADAAIAAcACAAAAAAAAAFAAAAAEAAUAAgABgAHAAwAAAAQABAAAAAAAAEUEAAAACAAAAAEAAAAAAAAAAkAAABncm91cF9rZXkAAAAEAAQABAAAAP////8oAQAAFAAAAAAAAAAMABYABgAFAAgADAAMAAAAAAMEABgAAACgAAAAAAAAAAAACgAYAAwABAAIAAoAAACsAAAAEAAAAAQAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoAAAAAAAAACgAAAAAAAAAEwAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAgAAAAAAAAAGAAAAAAAAAAAAAAAAAAAABgAAAAAAAAACAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAIAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAACgAAAAAAAAAPAAAAAAAAABMAAAAAAAAAQm9va3NHYW1lc011c2ljVG95cwAAAAAAAgAAAAAAAAADAAAAAAAAAAIAAAAAAAAAAwAAAAAAAAAAAAAAABBpQEjhehSul3lAAAAAAACASUCPwvUoXB9aQAAAAAAAEFlASOF6FK4PYUAAAAAAAIA5QArXo3A9akFA/////wAAAAA="
+                    },
+                    "hasName": true
+                  }
+                ],
+                "theme": "streamlit"
+              },
+              "heightConfig": {
+                "useContent": true
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "vega_lite_spec_raw": "{\"data\": {\"name\": \"2a96c02c34693a349b9a42a19b39ceae\"}, \"mark\": {\"type\": \"bar\"}, \"encoding\": {\"tooltip\": [{\"field\": \"group_key\", \"title\": \"group\", \"type\": \"nominal\"}, {\"field\": \"row_count\", \"title\": \"rows\", \"type\": \"quantitative\"}, {\"field\": \"total_amount\", \"title\": \"total\", \"type\": \"quantitative\"}, {\"field\": \"avg_amount\", \"title\": \"avg\", \"type\": \"quantitative\"}], \"x\": {\"field\": \"group_key\", \"sort\": [\"Books\", \"Games\", \"Music\", \"Toys\"], \"type\": \"nominal\"}, \"y\": {\"field\": \"total_amount\", \"type\": \"quantitative\"}}, \"height\": 260, \"$schema\": \"https://vega.github.io/schema/vega-lite/v5.20.1.json\", \"autosize\": {\"type\": \"fit\", \"contains\": \"padding\"}}",
+            "vega_lite_spec": {
+              "data": {
+                "name": "2a96c02c34693a349b9a42a19b39ceae"
+              },
+              "mark": {
+                "type": "bar"
+              },
+              "encoding": {
+                "tooltip": [
+                  {
+                    "field": "group_key",
+                    "title": "group",
+                    "type": "nominal"
+                  },
+                  {
+                    "field": "row_count",
+                    "title": "rows",
+                    "type": "quantitative"
+                  },
+                  {
+                    "field": "total_amount",
+                    "title": "total",
+                    "type": "quantitative"
+                  },
+                  {
+                    "field": "avg_amount",
+                    "title": "avg",
+                    "type": "quantitative"
+                  }
+                ],
+                "x": {
+                  "field": "group_key",
+                  "sort": [
+                    "Books",
+                    "Games",
+                    "Music",
+                    "Toys"
+                  ],
+                  "type": "nominal"
+                },
+                "y": {
+                  "field": "total_amount",
+                  "type": "quantitative"
+                }
+              },
+              "height": 260,
+              "$schema": "https://vega.github.io/schema/vega-lite/v5.20.1.json",
+              "autosize": {
+                "type": "fit",
+                "contains": "padding"
+              }
+            },
+            "vega_lite_datasets": [
+              {
+                "name": "2a96c02c34693a349b9a42a19b39ceae",
+                "has_name": true,
+                "arrow": {
+                  "bytes": 1640,
+                  "sha256": "99fa09dd6475a6fe0f3a0c8289c555ab27b221da1c6ef66dba8043c7fc1a1a1b",
+                  "base64": "/////4gEAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAGQDAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAA8AwAABAAAAC0DAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDQsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAiZ3JvdXBfa2V5IiwgImZpZWxkX25hbWUiOiAiZ3JvdXBfa2V5IiwgInBhbmRhc190eXBlIjogIm9iamVjdCIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAicm93X2NvdW50IiwgImZpZWxkX25hbWUiOiAicm93X2NvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogInRvdGFsX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogInRvdGFsX2Ftb3VudCIsICJwYW5kYXNfdHlwZSI6ICJmbG9hdDY0IiwgIm51bXB5X3R5cGUiOiAiZmxvYXQ2NCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAiYXZnX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogImF2Z19hbW91bnQiLCAicGFuZGFzX3R5cGUiOiAiZmxvYXQ2NCIsICJudW1weV90eXBlIjogImZsb2F0NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAAEAAAAxAAAAHQAAAA4AAAABAAAAFz///8AAAEDEAAAABwAAAAEAAAAAAAAAAoAAABhdmdfYW1vdW50AADO////AAACAIz///8AAAEDEAAAACQAAAAEAAAAAAAAAAwAAAB0b3RhbF9hbW91bnQAAAYACAAGAAYAAAAAAAIAxP///wAAAQIQAAAAJAAAAAQAAAAAAAAACQAAAHJvd19jb3VudAAAAAgADAAIAAcACAAAAAAAAAFAAAAAEAAUAAgABgAHAAwAAAAQABAAAAAAAAEUEAAAACAAAAAEAAAAAAAAAAkAAABncm91cF9rZXkAAAAEAAQABAAAAP////8oAQAAFAAAAAAAAAAMABYABgAFAAgADAAMAAAAAAMEABgAAACgAAAAAAAAAAAACgAYAAwABAAIAAoAAACsAAAAEAAAAAQAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoAAAAAAAAACgAAAAAAAAAEwAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAgAAAAAAAAAGAAAAAAAAAAAAAAAAAAAABgAAAAAAAAACAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAIAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAACgAAAAAAAAAPAAAAAAAAABMAAAAAAAAAQm9va3NHYW1lc011c2ljVG95cwAAAAAAAgAAAAAAAAADAAAAAAAAAAIAAAAAAAAAAwAAAAAAAAAAAAAAABBpQEjhehSul3lAAAAAAACASUCPwvUoXB9aQAAAAAAAEFlASOF6FK4PYUAAAAAAAIA5QArXo3A9akFA/////wAAAAA=",
+                  "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 749",
+                  "columns": [
+                    "group_key",
+                    "row_count",
+                    "total_amount",
+                    "avg_amount"
+                  ],
+                  "row_count": 4,
+                  "rows": [
+                    {
+                      "group_key": "Books",
+                      "row_count": 2,
+                      "total_amount": 200.5,
+                      "avg_amount": 100.25
+                    },
+                    {
+                      "group_key": "Games",
+                      "row_count": 3,
+                      "total_amount": 409.48,
+                      "avg_amount": 136.49
+                    },
+                    {
+                      "group_key": "Music",
+                      "row_count": 2,
+                      "total_amount": 51.0,
+                      "avg_amount": 25.5
+                    },
+                    {
+                      "group_key": "Toys",
+                      "row_count": 3,
+                      "total_amount": 104.49,
+                      "avg_amount": 34.83
+                    }
+                  ]
+                }
+              }
+            ],
+            "vega_lite_fields": {
+              "use_container_width": false,
+              "theme": "streamlit",
+              "id": "",
+              "form_id": ""
+            },
+            "id": "",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26188.535088,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Interaction"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26188.535156,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "button",
+            "widget": {
+              "id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+              "label": "Pulse",
+              "type": "secondary"
+            },
+            "id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+            "label": "Pulse",
+            "accepted_types": [
+              "secondary"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26188.535206,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "add_block",
+            "block_id": "",
+            "block_type": "form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26188.535312,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text_input",
+            "widget": {
+              "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+              "label": "Note",
+              "default": "",
+              "formId": "apply_form",
+              "labelVisibility": {}
+            },
+            "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+            "label": "Note",
+            "accepted_types": [
+              "0"
+            ],
+            "form_id": "apply_form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26188.535362,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "button",
+            "widget": {
+              "id": "$$ID-9a6c63ce6e3bef7bfd3af258b88f303b-apply_note",
+              "label": "Apply note",
+              "formId": "apply_form",
+              "isFormSubmitter": true,
+              "type": "secondary"
+            },
+            "id": "$$ID-9a6c63ce6e3bef7bfd3af258b88f303b-apply_note",
+            "label": "Apply note",
+            "accepted_types": [
+              "secondary"
+            ],
+            "form_id": "apply_form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26188.535407,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text",
+            "body": "Script runs: 2"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26188.535448,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text",
+            "body": "Pulses: 0"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26188.535488,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text",
+            "body": "Applied note:"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26188.535513,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "script_finished",
+          "script_finished": {
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26188.535558,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": false,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "client->server",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26197.721541,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "BackMsg",
+          "type": "file_urls_request",
+          "file_urls_request": {
+            "request_id": "b6e4f010-4cf3-4fa1-9b54-9f4aa20b371f",
+            "file_names": [
+              "sales_basic.csv"
+            ],
+            "session_id": "775c86a3-ce48-4bb9-97ed-aeeef6df6ade"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26197.722443,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "file_urls_response",
+          "file_urls_response": {
+            "response_id": "b6e4f010-4cf3-4fa1-9b54-9f4aa20b371f",
+            "file_urls": [
+              {
+                "file_id": "393628de-b7f9-442b-90ad-43e5a3f67e69",
+                "upload_url": "/_stcore/upload_file/775c86a3-ce48-4bb9-97ed-aeeef6df6ade/393628de-b7f9-442b-90ad-43e5a3f67e69",
+                "delete_url": "/_stcore/upload_file/775c86a3-ce48-4bb9-97ed-aeeef6df6ade/393628de-b7f9-442b-90ad-43e5a3f67e69"
+              }
+            ],
+            "error_msg": ""
+          }
+        }
+      },
+      {
+        "direction": "client->server",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26197.726081,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "BackMsg",
+          "type": "rerun_script",
+          "rerun_script": {
+            "widget_states": [
+              {
+                "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+                "value_field": "file_uploader_state_value",
+                "value": {},
+                "value_full": {}
+              },
+              {
+                "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+                "value_field": "string_value",
+                "value": "category"
+              },
+              {
+                "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+                "value_field": "double_array_value",
+                "value": {
+                  "data": "[0.0]"
+                },
+                "value_full": {
+                  "data": [
+                    0.0
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+                "value_field": "string_value",
+                "value": ""
+              },
+              {
+                "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+                "value_field": "bool_value",
+                "value": true
+              }
+            ]
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26197.729185,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "new_session",
+          "new_session": {
+            "script_run_id": "05a8b603-f748-4285-b924-738fc2a6e1f4",
+            "name": "app",
+            "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\app.py",
+            "page_script_hash": "269f73cf39198cb8a4f8caacec17751b",
+            "main_script_hash": "269f73cf39198cb8a4f8caacec17751b",
+            "session_id": "775c86a3-ce48-4bb9-97ed-aeeef6df6ade"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26197.73246,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": true,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26197.737109,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "page_config_changed"
+        }
+      },
+      {
+        "direction": "client->server",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26197.737835,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "BackMsg",
+          "type": "rerun_script",
+          "rerun_script": {
+            "widget_states": [
+              {
+                "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+                "value_field": "file_uploader_state_value",
+                "value": {
+                  "uploaded_file_info": "[name: \"sales_basic.csv\"\nsize: 737\nfile_id: \"393628de-b7f9-442b-90ad-43e5a3f67e69\"\nfile_urls {\n  file_id: \"393628de-b7f9-442b-90ad-43e5a3f67e69\"\n  upload_url: \"/_stcore/upload_file/775c86a3-ce48-4bb9-97ed-aeeef6df6ade/393628de-b7f9-442b-90ad-43e5a3f67e69\"\n  delete_url: \"/_stcore/upload_file/775c86a3-ce48-4bb9-97ed-aeeef6df6ade/393628de-b7f9-442b-90ad-43e5a3f67e69\"\n}\n]"
+                },
+                "value_full": {
+                  "uploadedFileInfo": [
+                    {
+                      "name": "sales_basic.csv",
+                      "size": "737",
+                      "fileId": "393628de-b7f9-442b-90ad-43e5a3f67e69",
+                      "fileUrls": {
+                        "fileId": "393628de-b7f9-442b-90ad-43e5a3f67e69",
+                        "uploadUrl": "/_stcore/upload_file/775c86a3-ce48-4bb9-97ed-aeeef6df6ade/393628de-b7f9-442b-90ad-43e5a3f67e69",
+                        "deleteUrl": "/_stcore/upload_file/775c86a3-ce48-4bb9-97ed-aeeef6df6ade/393628de-b7f9-442b-90ad-43e5a3f67e69"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+                "value_field": "string_value",
+                "value": "category"
+              },
+              {
+                "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+                "value_field": "double_array_value",
+                "value": {
+                  "data": "[0.0]"
+                },
+                "value_full": {
+                  "data": [
+                    0.0
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+                "value_field": "string_value",
+                "value": ""
+              },
+              {
+                "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+                "value_field": "bool_value",
+                "value": true
+              }
+            ]
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26197.738704,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "streamlit-rust P0 reference"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26197.781679,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "markdown",
+            "body": "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part o"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26197.781888,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "file_uploader",
+            "element_full": {
+              "fileUploader": {
+                "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+                "label": "Upload sales CSV",
+                "type": [
+                  ".csv"
+                ],
+                "maxUploadSizeMb": 200,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+              "label": "Upload sales CSV",
+              "type": [
+                ".csv"
+              ],
+              "maxUploadSizeMb": 200,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+            "label": "Upload sales CSV",
+            "accepted_types": [
+              "['.csv']"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26197.784058,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "selectbox",
+            "element_full": {
+              "selectbox": {
+                "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+                "label": "Group by",
+                "default": 0,
+                "options": [
+                  "category",
+                  "region",
+                  "channel"
+                ],
+                "labelVisibility": {},
+                "acceptNewOptions": false
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+              "label": "Group by",
+              "default": 0,
+              "options": [
+                "category",
+                "region",
+                "channel"
+              ],
+              "labelVisibility": {},
+              "acceptNewOptions": false
+            },
+            "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+            "label": "Group by",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26197.785836,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "slider",
+            "element_full": {
+              "slider": {
+                "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+                "label": "Minimum amount",
+                "format": "%d",
+                "default": [
+                  0.0
+                ],
+                "max": 200.0,
+                "step": 10.0,
+                "labelVisibility": {},
+                "type": "SLIDER"
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+              "label": "Minimum amount",
+              "format": "%d",
+              "default": [
+                0.0
+              ],
+              "max": 200.0,
+              "step": 10.0,
+              "labelVisibility": {},
+              "type": "SLIDER"
+            },
+            "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+            "label": "Minimum amount",
+            "accepted_types": [
+              "1"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26197.785949,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "checkbox",
+            "element_full": {
+              "checkbox": {
+                "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+                "label": "Include unknown region",
+                "default": true,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useContent": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+              "label": "Include unknown region",
+              "default": true,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+            "label": "Include unknown region",
+            "accepted_types": [
+              "0"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26197.785995,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Aggregated result"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26197.78603,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "alert",
+            "alert": {
+              "body": "Upload a CSV to see the aggregated result.",
+              "format": "INFO",
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "element_width_config": null,
+            "element_height_config": null,
+            "body": "Upload a CSV to see the aggregated result."
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26197.786072,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Interaction"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26197.786103,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "button",
+            "widget": {
+              "id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+              "label": "Pulse",
+              "type": "secondary"
+            },
+            "id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+            "label": "Pulse",
+            "accepted_types": [
+              "secondary"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26197.791367,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "script_finished",
+          "script_finished": {
+            "status": 2,
+            "status_name": "FINISHED_EARLY_FOR_RERUN"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26197.793118,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": false,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26197.793198,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "new_session",
+          "new_session": {
+            "script_run_id": "481ed696-b4ce-436c-bb19-3510e9232e5f",
+            "name": "app",
+            "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\app.py",
+            "page_script_hash": "269f73cf39198cb8a4f8caacec17751b",
+            "main_script_hash": "269f73cf39198cb8a4f8caacec17751b",
+            "session_id": "775c86a3-ce48-4bb9-97ed-aeeef6df6ade"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26197.79337,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": true,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26197.793403,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "page_config_changed"
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26197.793515,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "streamlit-rust P0 reference"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26197.793564,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "markdown",
+            "body": "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part o"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26197.793619,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "file_uploader",
+            "element_full": {
+              "fileUploader": {
+                "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+                "label": "Upload sales CSV",
+                "type": [
+                  ".csv"
+                ],
+                "maxUploadSizeMb": 200,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+              "label": "Upload sales CSV",
+              "type": [
+                ".csv"
+              ],
+              "maxUploadSizeMb": 200,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+            "label": "Upload sales CSV",
+            "accepted_types": [
+              "['.csv']"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26197.79366,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "selectbox",
+            "element_full": {
+              "selectbox": {
+                "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+                "label": "Group by",
+                "default": 0,
+                "options": [
+                  "category",
+                  "region",
+                  "channel"
+                ],
+                "labelVisibility": {},
+                "acceptNewOptions": false
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+              "label": "Group by",
+              "default": 0,
+              "options": [
+                "category",
+                "region",
+                "channel"
+              ],
+              "labelVisibility": {},
+              "acceptNewOptions": false
+            },
+            "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+            "label": "Group by",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26197.833488,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "slider",
+            "element_full": {
+              "slider": {
+                "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+                "label": "Minimum amount",
+                "format": "%d",
+                "default": [
+                  0.0
+                ],
+                "max": 200.0,
+                "step": 10.0,
+                "labelVisibility": {},
+                "type": "SLIDER"
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+              "label": "Minimum amount",
+              "format": "%d",
+              "default": [
+                0.0
+              ],
+              "max": 200.0,
+              "step": 10.0,
+              "labelVisibility": {},
+              "type": "SLIDER"
+            },
+            "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+            "label": "Minimum amount",
+            "accepted_types": [
+              "1"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26197.833773,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "checkbox",
+            "element_full": {
+              "checkbox": {
+                "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+                "label": "Include unknown region",
+                "default": true,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useContent": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+              "label": "Include unknown region",
+              "default": true,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+            "label": "Include unknown region",
+            "accepted_types": [
+              "0"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26197.836123,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Aggregated result"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26197.836221,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "dataframe",
+            "element_full": {
+              "dataframe": {
+                "arrowData": {
+                  "data": "/////4gEAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAGQDAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAA8AwAABAAAAC0DAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDQsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAiZ3JvdXBfa2V5IiwgImZpZWxkX25hbWUiOiAiZ3JvdXBfa2V5IiwgInBhbmRhc190eXBlIjogIm9iamVjdCIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAicm93X2NvdW50IiwgImZpZWxkX25hbWUiOiAicm93X2NvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogInRvdGFsX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogInRvdGFsX2Ftb3VudCIsICJwYW5kYXNfdHlwZSI6ICJmbG9hdDY0IiwgIm51bXB5X3R5cGUiOiAiZmxvYXQ2NCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAiYXZnX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogImF2Z19hbW91bnQiLCAicGFuZGFzX3R5cGUiOiAiZmxvYXQ2NCIsICJudW1weV90eXBlIjogImZsb2F0NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAAEAAAAxAAAAHQAAAA4AAAABAAAAFz///8AAAEDEAAAABwAAAAEAAAAAAAAAAoAAABhdmdfYW1vdW50AADO////AAACAIz///8AAAEDEAAAACQAAAAEAAAAAAAAAAwAAAB0b3RhbF9hbW91bnQAAAYACAAGAAYAAAAAAAIAxP///wAAAQIQAAAAJAAAAAQAAAAAAAAACQAAAHJvd19jb3VudAAAAAgADAAIAAcACAAAAAAAAAFAAAAAEAAUAAgABgAHAAwAAAAQABAAAAAAAAEUEAAAACAAAAAEAAAAAAAAAAkAAABncm91cF9rZXkAAAAEAAQABAAAAP////8oAQAAFAAAAAAAAAAMABYABgAFAAgADAAMAAAAAAMEABgAAACgAAAAAAAAAAAACgAYAAwABAAIAAoAAACsAAAAEAAAAAQAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoAAAAAAAAACgAAAAAAAAAEwAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAgAAAAAAAAAGAAAAAAAAAAAAAAAAAAAABgAAAAAAAAACAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAIAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAACgAAAAAAAAAPAAAAAAAAABMAAAAAAAAAQm9va3NHYW1lc011c2ljVG95cwAAAAAAAwAAAAAAAAADAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAALhuQEjhehSul3lAAAAAAABgYUCPwvUoXB9aQHsUrkfhelRASOF6FK4PYUAK16NwPSpHQArXo3A9akFA/////wAAAAA="
+                },
+                "columns": "{\"_index\": {\"hidden\": true}}",
+                "columnOrder": [
+                  "group_key",
+                  "row_count",
+                  "total_amount",
+                  "avg_amount"
+                ]
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "arrow": {
+              "bytes": 1640,
+              "sha256": "2ef28720376df68c13fe7cd9a63bac0e8c56e74716fc19ed6bd17df21b89a5c2",
+              "base64": "/////4gEAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAGQDAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAA8AwAABAAAAC0DAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDQsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAiZ3JvdXBfa2V5IiwgImZpZWxkX25hbWUiOiAiZ3JvdXBfa2V5IiwgInBhbmRhc190eXBlIjogIm9iamVjdCIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAicm93X2NvdW50IiwgImZpZWxkX25hbWUiOiAicm93X2NvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogInRvdGFsX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogInRvdGFsX2Ftb3VudCIsICJwYW5kYXNfdHlwZSI6ICJmbG9hdDY0IiwgIm51bXB5X3R5cGUiOiAiZmxvYXQ2NCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAiYXZnX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogImF2Z19hbW91bnQiLCAicGFuZGFzX3R5cGUiOiAiZmxvYXQ2NCIsICJudW1weV90eXBlIjogImZsb2F0NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAAEAAAAxAAAAHQAAAA4AAAABAAAAFz///8AAAEDEAAAABwAAAAEAAAAAAAAAAoAAABhdmdfYW1vdW50AADO////AAACAIz///8AAAEDEAAAACQAAAAEAAAAAAAAAAwAAAB0b3RhbF9hbW91bnQAAAYACAAGAAYAAAAAAAIAxP///wAAAQIQAAAAJAAAAAQAAAAAAAAACQAAAHJvd19jb3VudAAAAAgADAAIAAcACAAAAAAAAAFAAAAAEAAUAAgABgAHAAwAAAAQABAAAAAAAAEUEAAAACAAAAAEAAAAAAAAAAkAAABncm91cF9rZXkAAAAEAAQABAAAAP////8oAQAAFAAAAAAAAAAMABYABgAFAAgADAAMAAAAAAMEABgAAACgAAAAAAAAAAAACgAYAAwABAAIAAoAAACsAAAAEAAAAAQAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoAAAAAAAAACgAAAAAAAAAEwAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAgAAAAAAAAAGAAAAAAAAAAAAAAAAAAAABgAAAAAAAAACAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAIAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAACgAAAAAAAAAPAAAAAAAAABMAAAAAAAAAQm9va3NHYW1lc011c2ljVG95cwAAAAAAAwAAAAAAAAADAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAALhuQEjhehSul3lAAAAAAABgYUCPwvUoXB9aQHsUrkfhelRASOF6FK4PYUAK16NwPSpHQArXo3A9akFA/////wAAAAA=",
+              "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 749",
+              "columns": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_count": 4,
+              "rows": [
+                {
+                  "group_key": "Books",
+                  "row_count": 3,
+                  "total_amount": 245.75,
+                  "avg_amount": 81.92
+                },
+                {
+                  "group_key": "Games",
+                  "row_count": 3,
+                  "total_amount": 409.48,
+                  "avg_amount": 136.49
+                },
+                {
+                  "group_key": "Music",
+                  "row_count": 3,
+                  "total_amount": 139.0,
+                  "avg_amount": 46.33
+                },
+                {
+                  "group_key": "Toys",
+                  "row_count": 3,
+                  "total_amount": 104.49,
+                  "avg_amount": 34.83
+                }
+              ]
+            },
+            "arrow_fields": {
+              "columns": "{\"_index\": {\"hidden\": true}}",
+              "editing_mode": 0,
+              "disabled": false,
+              "column_order": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_height": 0
+            },
+            "id": "",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26197.843124,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "vega_lite_chart",
+            "element_full": {
+              "vegaLiteChart": {
+                "spec": "{\"data\": {\"name\": \"b4d4aa9b7813d6dd9f53c4d3b6f730df\"}, \"mark\": {\"type\": \"bar\"}, \"encoding\": {\"tooltip\": [{\"field\": \"group_key\", \"title\": \"group\", \"type\": \"nominal\"}, {\"field\": \"row_count\", \"title\": \"rows\", \"type\": \"quantitative\"}, {\"field\": \"total_amount\", \"title\": \"total\", \"type\": \"quantitative\"}, {\"field\": \"avg_amount\", \"title\": \"avg\", \"type\": \"quantitative\"}], \"x\": {\"field\": \"group_key\", \"sort\": [\"Books\", \"Games\", \"Music\", \"Toys\"], \"type\": \"nominal\"}, \"y\": {\"field\": \"total_amount\", \"type\": \"quantitative\"}}, \"height\": 260, \"$schema\": \"https://vega.github.io/schema/vega-lite/v5.20.1.json\", \"autosize\": {\"type\": \"fit\", \"contains\": \"padding\"}}",
+                "datasets": [
+                  {
+                    "name": "b4d4aa9b7813d6dd9f53c4d3b6f730df",
+                    "data": {
+                      "data": "/////4gEAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAGQDAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAA8AwAABAAAAC0DAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDQsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAiZ3JvdXBfa2V5IiwgImZpZWxkX25hbWUiOiAiZ3JvdXBfa2V5IiwgInBhbmRhc190eXBlIjogIm9iamVjdCIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAicm93X2NvdW50IiwgImZpZWxkX25hbWUiOiAicm93X2NvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogInRvdGFsX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogInRvdGFsX2Ftb3VudCIsICJwYW5kYXNfdHlwZSI6ICJmbG9hdDY0IiwgIm51bXB5X3R5cGUiOiAiZmxvYXQ2NCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAiYXZnX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogImF2Z19hbW91bnQiLCAicGFuZGFzX3R5cGUiOiAiZmxvYXQ2NCIsICJudW1weV90eXBlIjogImZsb2F0NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAAEAAAAxAAAAHQAAAA4AAAABAAAAFz///8AAAEDEAAAABwAAAAEAAAAAAAAAAoAAABhdmdfYW1vdW50AADO////AAACAIz///8AAAEDEAAAACQAAAAEAAAAAAAAAAwAAAB0b3RhbF9hbW91bnQAAAYACAAGAAYAAAAAAAIAxP///wAAAQIQAAAAJAAAAAQAAAAAAAAACQAAAHJvd19jb3VudAAAAAgADAAIAAcACAAAAAAAAAFAAAAAEAAUAAgABgAHAAwAAAAQABAAAAAAAAEUEAAAACAAAAAEAAAAAAAAAAkAAABncm91cF9rZXkAAAAEAAQABAAAAP////8oAQAAFAAAAAAAAAAMABYABgAFAAgADAAMAAAAAAMEABgAAACgAAAAAAAAAAAACgAYAAwABAAIAAoAAACsAAAAEAAAAAQAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoAAAAAAAAACgAAAAAAAAAEwAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAgAAAAAAAAAGAAAAAAAAAAAAAAAAAAAABgAAAAAAAAACAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAIAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAACgAAAAAAAAAPAAAAAAAAABMAAAAAAAAAQm9va3NHYW1lc011c2ljVG95cwAAAAAAAwAAAAAAAAADAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAALhuQEjhehSul3lAAAAAAABgYUCPwvUoXB9aQHsUrkfhelRASOF6FK4PYUAK16NwPSpHQArXo3A9akFA/////wAAAAA="
+                    },
+                    "hasName": true
+                  }
+                ],
+                "theme": "streamlit"
+              },
+              "heightConfig": {
+                "useContent": true
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "vega_lite_spec_raw": "{\"data\": {\"name\": \"b4d4aa9b7813d6dd9f53c4d3b6f730df\"}, \"mark\": {\"type\": \"bar\"}, \"encoding\": {\"tooltip\": [{\"field\": \"group_key\", \"title\": \"group\", \"type\": \"nominal\"}, {\"field\": \"row_count\", \"title\": \"rows\", \"type\": \"quantitative\"}, {\"field\": \"total_amount\", \"title\": \"total\", \"type\": \"quantitative\"}, {\"field\": \"avg_amount\", \"title\": \"avg\", \"type\": \"quantitative\"}], \"x\": {\"field\": \"group_key\", \"sort\": [\"Books\", \"Games\", \"Music\", \"Toys\"], \"type\": \"nominal\"}, \"y\": {\"field\": \"total_amount\", \"type\": \"quantitative\"}}, \"height\": 260, \"$schema\": \"https://vega.github.io/schema/vega-lite/v5.20.1.json\", \"autosize\": {\"type\": \"fit\", \"contains\": \"padding\"}}",
+            "vega_lite_spec": {
+              "data": {
+                "name": "b4d4aa9b7813d6dd9f53c4d3b6f730df"
+              },
+              "mark": {
+                "type": "bar"
+              },
+              "encoding": {
+                "tooltip": [
+                  {
+                    "field": "group_key",
+                    "title": "group",
+                    "type": "nominal"
+                  },
+                  {
+                    "field": "row_count",
+                    "title": "rows",
+                    "type": "quantitative"
+                  },
+                  {
+                    "field": "total_amount",
+                    "title": "total",
+                    "type": "quantitative"
+                  },
+                  {
+                    "field": "avg_amount",
+                    "title": "avg",
+                    "type": "quantitative"
+                  }
+                ],
+                "x": {
+                  "field": "group_key",
+                  "sort": [
+                    "Books",
+                    "Games",
+                    "Music",
+                    "Toys"
+                  ],
+                  "type": "nominal"
+                },
+                "y": {
+                  "field": "total_amount",
+                  "type": "quantitative"
+                }
+              },
+              "height": 260,
+              "$schema": "https://vega.github.io/schema/vega-lite/v5.20.1.json",
+              "autosize": {
+                "type": "fit",
+                "contains": "padding"
+              }
+            },
+            "vega_lite_datasets": [
+              {
+                "name": "b4d4aa9b7813d6dd9f53c4d3b6f730df",
+                "has_name": true,
+                "arrow": {
+                  "bytes": 1640,
+                  "sha256": "2ef28720376df68c13fe7cd9a63bac0e8c56e74716fc19ed6bd17df21b89a5c2",
+                  "base64": "/////4gEAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAGQDAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAA8AwAABAAAAC0DAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDQsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAiZ3JvdXBfa2V5IiwgImZpZWxkX25hbWUiOiAiZ3JvdXBfa2V5IiwgInBhbmRhc190eXBlIjogIm9iamVjdCIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAicm93X2NvdW50IiwgImZpZWxkX25hbWUiOiAicm93X2NvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogInRvdGFsX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogInRvdGFsX2Ftb3VudCIsICJwYW5kYXNfdHlwZSI6ICJmbG9hdDY0IiwgIm51bXB5X3R5cGUiOiAiZmxvYXQ2NCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAiYXZnX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogImF2Z19hbW91bnQiLCAicGFuZGFzX3R5cGUiOiAiZmxvYXQ2NCIsICJudW1weV90eXBlIjogImZsb2F0NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAAEAAAAxAAAAHQAAAA4AAAABAAAAFz///8AAAEDEAAAABwAAAAEAAAAAAAAAAoAAABhdmdfYW1vdW50AADO////AAACAIz///8AAAEDEAAAACQAAAAEAAAAAAAAAAwAAAB0b3RhbF9hbW91bnQAAAYACAAGAAYAAAAAAAIAxP///wAAAQIQAAAAJAAAAAQAAAAAAAAACQAAAHJvd19jb3VudAAAAAgADAAIAAcACAAAAAAAAAFAAAAAEAAUAAgABgAHAAwAAAAQABAAAAAAAAEUEAAAACAAAAAEAAAAAAAAAAkAAABncm91cF9rZXkAAAAEAAQABAAAAP////8oAQAAFAAAAAAAAAAMABYABgAFAAgADAAMAAAAAAMEABgAAACgAAAAAAAAAAAACgAYAAwABAAIAAoAAACsAAAAEAAAAAQAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoAAAAAAAAACgAAAAAAAAAEwAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAgAAAAAAAAAGAAAAAAAAAAAAAAAAAAAABgAAAAAAAAACAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAIAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAACgAAAAAAAAAPAAAAAAAAABMAAAAAAAAAQm9va3NHYW1lc011c2ljVG95cwAAAAAAAwAAAAAAAAADAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAALhuQEjhehSul3lAAAAAAABgYUCPwvUoXB9aQHsUrkfhelRASOF6FK4PYUAK16NwPSpHQArXo3A9akFA/////wAAAAA=",
+                  "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 749",
+                  "columns": [
+                    "group_key",
+                    "row_count",
+                    "total_amount",
+                    "avg_amount"
+                  ],
+                  "row_count": 4,
+                  "rows": [
+                    {
+                      "group_key": "Books",
+                      "row_count": 3,
+                      "total_amount": 245.75,
+                      "avg_amount": 81.92
+                    },
+                    {
+                      "group_key": "Games",
+                      "row_count": 3,
+                      "total_amount": 409.48,
+                      "avg_amount": 136.49
+                    },
+                    {
+                      "group_key": "Music",
+                      "row_count": 3,
+                      "total_amount": 139.0,
+                      "avg_amount": 46.33
+                    },
+                    {
+                      "group_key": "Toys",
+                      "row_count": 3,
+                      "total_amount": 104.49,
+                      "avg_amount": 34.83
+                    }
+                  ]
+                }
+              }
+            ],
+            "vega_lite_fields": {
+              "use_container_width": false,
+              "theme": "streamlit",
+              "id": "",
+              "form_id": ""
+            },
+            "id": "",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26197.843234,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Interaction"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26197.84327,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "button",
+            "widget": {
+              "id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+              "label": "Pulse",
+              "type": "secondary"
+            },
+            "id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+            "label": "Pulse",
+            "accepted_types": [
+              "secondary"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26197.843302,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "add_block",
+            "block_id": "",
+            "block_type": "form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26197.843337,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text_input",
+            "widget": {
+              "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+              "label": "Note",
+              "default": "",
+              "formId": "apply_form",
+              "labelVisibility": {}
+            },
+            "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+            "label": "Note",
+            "accepted_types": [
+              "0"
+            ],
+            "form_id": "apply_form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26197.843373,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "button",
+            "widget": {
+              "id": "$$ID-9a6c63ce6e3bef7bfd3af258b88f303b-apply_note",
+              "label": "Apply note",
+              "formId": "apply_form",
+              "isFormSubmitter": true,
+              "type": "secondary"
+            },
+            "id": "$$ID-9a6c63ce6e3bef7bfd3af258b88f303b-apply_note",
+            "label": "Apply note",
+            "accepted_types": [
+              "secondary"
+            ],
+            "form_id": "apply_form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26197.843404,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text",
+            "body": "Script runs: 4"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26197.843432,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text",
+            "body": "Pulses: 0"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26197.843451,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text",
+            "body": "Applied note:"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26197.843474,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "script_finished",
+          "script_finished": {
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "94760.151",
+        "timestamp": 26197.843505,
+        "namespace": "py-ref-soft-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": false,
+            "run_on_save": false
+          }
+        }
+      }
+    ],
+    "phases": [
+      {
+        "name": "upload-soft",
+        "action": {
+          "action": "upload",
+          "ok": true,
+          "file": "D:\\dlab\\streamlit-rust\\tests\\fixtures\\csv\\sales_with_missing.csv",
+          "file_sha256": "ce8b7f62c729c856ad85c496e044c25ef0f3594e2b3b558fb31e9213122e512d",
+          "file_bytes": 739
+        },
+        "start": 22,
+        "end": 47,
+        "start_timestamp": 26188.408117,
+        "end_timestamp": 26188.535513,
+        "dom_before": {
+          "document_title": "streamlit-rust P0 reference",
+          "markdown": [
+            "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part of the production path."
+          ],
+          "has_uploader": true,
+          "headings": [
+            "streamlit-rust P0 reference",
+            "Aggregated result",
+            "Interaction"
+          ],
+          "button_labels": [
+            "Pulse"
+          ],
+          "has_button": true,
+          "script_runs": "1",
+          "pulses": "0",
+          "applied_note": "",
+          "table_cells": [],
+          "table_present": false,
+          "chart_present": false,
+          "chart_bars": 0,
+          "chart_labels": [],
+          "chart_marks": "",
+          "slider_value": "0",
+          "checkbox_checked": true,
+          "selectbox_value": "category",
+          "texts": [
+            "Script runs: 1",
+            "Pulses: 0",
+            "Applied note:"
+          ],
+          "alerts": [
+            "Upload a CSV to see the aggregated result."
+          ],
+          "selectbox_disabled": false,
+          "slider_thumb": "0",
+          "slider_disabled": false,
+          "checkbox_disabled": false,
+          "exceptions": []
+        },
+        "dom_after": {
+          "document_title": "streamlit-rust P0 reference",
+          "markdown": [
+            "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part of the production path."
+          ],
+          "has_uploader": true,
+          "headings": [
+            "streamlit-rust P0 reference",
+            "Aggregated result",
+            "Interaction"
+          ],
+          "button_labels": [
+            "Pulse"
+          ],
+          "has_button": true,
+          "script_runs": "2",
+          "pulses": "0",
+          "applied_note": "",
+          "table_cells": [
+            "Books",
+            "2",
+            "200.5",
+            "100.25",
+            "Games",
+            "3",
+            "409.48",
+            "136.49",
+            "Music",
+            "2",
+            "51",
+            "25.5",
+            "Toys",
+            "3",
+            "104.49",
+            "34.83"
+          ],
+          "table_present": true,
+          "chart_present": true,
+          "chart_bars": 4,
+          "chart_labels": [
+            "Books",
+            "Games",
+            "Music",
+            "Toys",
+            "group_key",
+            "0",
+            "100",
+            "200",
+            "300",
+            "400",
+            "total_amount"
+          ],
+          "chart_marks": "M30.25625,88.15666666666668h196.98749999999998v70.84333333333332h-196.98749999999998Z|M287.75625,14.317066666666655h196.98749999999998v144.68293333333335h-196.98749999999998Z|M545.25625,140.98000000000002h196.98749999999998v18.019999999999982h-196.98749999999998Z|M802.75625,122.0802h196.98749999999998v36.919799999999995h-196.98749999999998Z",
+          "slider_value": "0",
+          "checkbox_checked": true,
+          "selectbox_value": "category",
+          "texts": [
+            "Script runs: 2",
+            "Pulses: 0",
+            "Applied note:"
+          ],
+          "alerts": [
+            "2 row(s) with an unusable 'amount' were excluded from the aggregation."
+          ],
+          "selectbox_disabled": false,
+          "slider_thumb": "0",
+          "slider_disabled": false,
+          "checkbox_disabled": false,
+          "exceptions": []
+        },
+        "client_states": [
+          {
+            "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+            "value_field": "file_uploader_state_value",
+            "value": {
+              "uploaded_file_info": "[name: \"sales_with_missing.csv\"\nsize: 739\nfile_id: \"3d761097-9459-4100-89e6-8d47528cb815\"\nfile_urls {\n  file_id: \"3d761097-9459-4100-89e6-8d47528cb815\"\n  upload_url: \"/_stcore/upload_file/775c86a3-ce48-4bb9-97ed-aeeef6df6ade/3d761097-9459-4100-89e6-8d47528cb815\"\n  delete_url: \"/_stcore/upload_file/775c86a3-ce48-4bb9-97ed-aeeef6df6ade/3d761097-9459-4100-89e6-8d47528cb815\"\n}\n]"
+            }
+          },
+          {
+            "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+            "value_field": "string_value",
+            "value": "category"
+          },
+          {
+            "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+            "value_field": "double_array_value",
+            "value": {
+              "data": "[0.0]"
+            }
+          },
+          {
+            "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+            "value_field": "string_value",
+            "value": ""
+          },
+          {
+            "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+            "value_field": "bool_value",
+            "value": true
+          }
+        ],
+        "completions": [
+          {
+            "frame": 24,
+            "connection": 0,
+            "request_id": "94760.151",
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          }
+        ],
+        "ipc": {
+          "table": {
+            "arrow": {
+              "sha256": "99fa09dd6475a6fe0f3a0c8289c555ab27b221da1c6ef66dba8043c7fc1a1a1b",
+              "bytes": 1640,
+              "file": "arrow-1.bin",
+              "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 749",
+              "columns": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_count": 4,
+              "rows": [
+                {
+                  "group_key": "Books",
+                  "row_count": 2,
+                  "total_amount": 200.5,
+                  "avg_amount": 100.25
+                },
+                {
+                  "group_key": "Games",
+                  "row_count": 3,
+                  "total_amount": 409.48,
+                  "avg_amount": 136.49
+                },
+                {
+                  "group_key": "Music",
+                  "row_count": 2,
+                  "total_amount": 51.0,
+                  "avg_amount": 25.5
+                },
+                {
+                  "group_key": "Toys",
+                  "row_count": 3,
+                  "total_amount": 104.49,
+                  "avg_amount": 34.83
+                }
+              ]
+            },
+            "arrow_fields": {
+              "columns": "{\"_index\": {\"hidden\": true}}",
+              "editing_mode": 0,
+              "disabled": false,
+              "column_order": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_height": 0
+            }
+          },
+          "chart": {
+            "vega_lite_spec": {
+              "data": {
+                "name": "2a96c02c34693a349b9a42a19b39ceae"
+              },
+              "mark": {
+                "type": "bar"
+              },
+              "encoding": {
+                "tooltip": [
+                  {
+                    "field": "group_key",
+                    "title": "group",
+                    "type": "nominal"
+                  },
+                  {
+                    "field": "row_count",
+                    "title": "rows",
+                    "type": "quantitative"
+                  },
+                  {
+                    "field": "total_amount",
+                    "title": "total",
+                    "type": "quantitative"
+                  },
+                  {
+                    "field": "avg_amount",
+                    "title": "avg",
+                    "type": "quantitative"
+                  }
+                ],
+                "x": {
+                  "field": "group_key",
+                  "sort": [
+                    "Books",
+                    "Games",
+                    "Music",
+                    "Toys"
+                  ],
+                  "type": "nominal"
+                },
+                "y": {
+                  "field": "total_amount",
+                  "type": "quantitative"
+                }
+              },
+              "height": 260,
+              "$schema": "https://vega.github.io/schema/vega-lite/v5.20.1.json",
+              "autosize": {
+                "type": "fit",
+                "contains": "padding"
+              }
+            },
+            "arrow": null,
+            "datasets": [
+              {
+                "name": "2a96c02c34693a349b9a42a19b39ceae",
+                "has_name": true,
+                "arrow": {
+                  "sha256": "99fa09dd6475a6fe0f3a0c8289c555ab27b221da1c6ef66dba8043c7fc1a1a1b",
+                  "bytes": 1640,
+                  "file": "arrow-1.bin",
+                  "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 749",
+                  "columns": [
+                    "group_key",
+                    "row_count",
+                    "total_amount",
+                    "avg_amount"
+                  ],
+                  "row_count": 4,
+                  "rows": [
+                    {
+                      "group_key": "Books",
+                      "row_count": 2,
+                      "total_amount": 200.5,
+                      "avg_amount": 100.25
+                    },
+                    {
+                      "group_key": "Games",
+                      "row_count": 3,
+                      "total_amount": 409.48,
+                      "avg_amount": 136.49
+                    },
+                    {
+                      "group_key": "Music",
+                      "row_count": 2,
+                      "total_amount": 51.0,
+                      "avg_amount": 25.5
+                    },
+                    {
+                      "group_key": "Toys",
+                      "row_count": 3,
+                      "total_amount": 104.49,
+                      "avg_amount": 34.83
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        "screenshot": {
+          "file": "01-soft-warning.png",
+          "bytes": 78199,
+          "viewport": [
+            1264,
+            1800
+          ],
+          "timestamp": 26188.5772011427
+        },
+        "observation_end_timestamp": 26188.5772011427
+      },
+      {
+        "name": "replace-baseline",
+        "action": {
+          "action": "upload",
+          "ok": true,
+          "file": "D:\\dlab\\streamlit-rust\\tests\\fixtures\\csv\\sales_basic.csv",
+          "file_sha256": "9692a718edc5bec8f3fee1cfec4f454338c8f8d675cd34c17cdb5bf4403d8d00",
+          "file_bytes": 737
+        },
+        "start": 48,
+        "end": 88,
+        "start_timestamp": 26197.721541,
+        "end_timestamp": 26197.843474,
+        "dom_before": {
+          "document_title": "streamlit-rust P0 reference",
+          "markdown": [
+            "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part of the production path."
+          ],
+          "has_uploader": true,
+          "headings": [
+            "streamlit-rust P0 reference",
+            "Aggregated result",
+            "Interaction"
+          ],
+          "button_labels": [
+            "Pulse"
+          ],
+          "has_button": true,
+          "script_runs": "2",
+          "pulses": "0",
+          "applied_note": "",
+          "table_cells": [
+            "Books",
+            "2",
+            "200.5",
+            "100.25",
+            "Games",
+            "3",
+            "409.48",
+            "136.49",
+            "Music",
+            "2",
+            "51",
+            "25.5",
+            "Toys",
+            "3",
+            "104.49",
+            "34.83"
+          ],
+          "table_present": true,
+          "chart_present": true,
+          "chart_bars": 4,
+          "chart_labels": [
+            "Books",
+            "Games",
+            "Music",
+            "Toys",
+            "group_key",
+            "0",
+            "100",
+            "200",
+            "300",
+            "400",
+            "total_amount"
+          ],
+          "chart_marks": "M30.25625,88.15666666666668h196.98749999999998v70.84333333333332h-196.98749999999998Z|M287.75625,14.317066666666655h196.98749999999998v144.68293333333335h-196.98749999999998Z|M545.25625,140.98000000000002h196.98749999999998v18.019999999999982h-196.98749999999998Z|M802.75625,122.0802h196.98749999999998v36.919799999999995h-196.98749999999998Z",
+          "slider_value": "0",
+          "checkbox_checked": true,
+          "selectbox_value": "category",
+          "texts": [
+            "Script runs: 2",
+            "Pulses: 0",
+            "Applied note:"
+          ],
+          "alerts": [
+            "2 row(s) with an unusable 'amount' were excluded from the aggregation."
+          ],
+          "selectbox_disabled": false,
+          "slider_thumb": "0",
+          "slider_disabled": false,
+          "checkbox_disabled": false,
+          "exceptions": []
+        },
+        "dom_after": {
+          "document_title": "streamlit-rust P0 reference",
+          "markdown": [
+            "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part of the production path."
+          ],
+          "has_uploader": true,
+          "headings": [
+            "streamlit-rust P0 reference",
+            "Aggregated result",
+            "Interaction"
+          ],
+          "button_labels": [
+            "Pulse"
+          ],
+          "has_button": true,
+          "script_runs": "4",
+          "pulses": "0",
+          "applied_note": "",
+          "table_cells": [
+            "Books",
+            "3",
+            "245.75",
+            "81.92",
+            "Games",
+            "3",
+            "409.48",
+            "136.49",
+            "Music",
+            "3",
+            "139",
+            "46.33",
+            "Toys",
+            "3",
+            "104.49",
+            "34.83"
+          ],
+          "table_present": true,
+          "chart_present": true,
+          "chart_bars": 4,
+          "chart_labels": [
+            "Books",
+            "Games",
+            "Music",
+            "Toys",
+            "group_key",
+            "0",
+            "100",
+            "200",
+            "300",
+            "400",
+            "total_amount"
+          ],
+          "chart_marks": "M30.25625,72.16833333333334h196.98749999999998v86.83166666666666h-196.98749999999998Z|M287.75625,14.317066666666655h196.98749999999998v144.68293333333335h-196.98749999999998Z|M545.25625,109.88666666666667h196.98749999999998v49.11333333333333h-196.98749999999998Z|M802.75625,122.0802h196.98749999999998v36.919799999999995h-196.98749999999998Z",
+          "slider_value": "0",
+          "checkbox_checked": true,
+          "selectbox_value": "category",
+          "texts": [
+            "Script runs: 4",
+            "Pulses: 0",
+            "Applied note:"
+          ],
+          "alerts": [],
+          "selectbox_disabled": false,
+          "slider_thumb": "0",
+          "slider_disabled": false,
+          "checkbox_disabled": false,
+          "exceptions": []
+        },
+        "client_states": [
+          {
+            "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+            "value_field": "file_uploader_state_value",
+            "value": {}
+          },
+          {
+            "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+            "value_field": "string_value",
+            "value": "category"
+          },
+          {
+            "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+            "value_field": "double_array_value",
+            "value": {
+              "data": "[0.0]"
+            }
+          },
+          {
+            "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+            "value_field": "string_value",
+            "value": ""
+          },
+          {
+            "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+            "value_field": "bool_value",
+            "value": true
+          },
+          {
+            "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+            "value_field": "file_uploader_state_value",
+            "value": {
+              "uploaded_file_info": "[name: \"sales_basic.csv\"\nsize: 737\nfile_id: \"393628de-b7f9-442b-90ad-43e5a3f67e69\"\nfile_urls {\n  file_id: \"393628de-b7f9-442b-90ad-43e5a3f67e69\"\n  upload_url: \"/_stcore/upload_file/775c86a3-ce48-4bb9-97ed-aeeef6df6ade/393628de-b7f9-442b-90ad-43e5a3f67e69\"\n  delete_url: \"/_stcore/upload_file/775c86a3-ce48-4bb9-97ed-aeeef6df6ade/393628de-b7f9-442b-90ad-43e5a3f67e69\"\n}\n]"
+            }
+          },
+          {
+            "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+            "value_field": "string_value",
+            "value": "category"
+          },
+          {
+            "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+            "value_field": "double_array_value",
+            "value": {
+              "data": "[0.0]"
+            }
+          },
+          {
+            "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+            "value_field": "string_value",
+            "value": ""
+          },
+          {
+            "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+            "value_field": "bool_value",
+            "value": true
+          }
+        ],
+        "completions": [
+          {
+            "frame": 17,
+            "connection": 0,
+            "request_id": "94760.151",
+            "status": 2,
+            "status_name": "FINISHED_EARLY_FOR_RERUN"
+          },
+          {
+            "frame": 39,
+            "connection": 0,
+            "request_id": "94760.151",
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          }
+        ],
+        "ipc": {
+          "table": {
+            "arrow": {
+              "sha256": "2ef28720376df68c13fe7cd9a63bac0e8c56e74716fc19ed6bd17df21b89a5c2",
+              "bytes": 1640,
+              "file": "arrow-2.bin",
+              "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 749",
+              "columns": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_count": 4,
+              "rows": [
+                {
+                  "group_key": "Books",
+                  "row_count": 3,
+                  "total_amount": 245.75,
+                  "avg_amount": 81.92
+                },
+                {
+                  "group_key": "Games",
+                  "row_count": 3,
+                  "total_amount": 409.48,
+                  "avg_amount": 136.49
+                },
+                {
+                  "group_key": "Music",
+                  "row_count": 3,
+                  "total_amount": 139.0,
+                  "avg_amount": 46.33
+                },
+                {
+                  "group_key": "Toys",
+                  "row_count": 3,
+                  "total_amount": 104.49,
+                  "avg_amount": 34.83
+                }
+              ]
+            },
+            "arrow_fields": {
+              "columns": "{\"_index\": {\"hidden\": true}}",
+              "editing_mode": 0,
+              "disabled": false,
+              "column_order": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_height": 0
+            }
+          },
+          "chart": {
+            "vega_lite_spec": {
+              "data": {
+                "name": "b4d4aa9b7813d6dd9f53c4d3b6f730df"
+              },
+              "mark": {
+                "type": "bar"
+              },
+              "encoding": {
+                "tooltip": [
+                  {
+                    "field": "group_key",
+                    "title": "group",
+                    "type": "nominal"
+                  },
+                  {
+                    "field": "row_count",
+                    "title": "rows",
+                    "type": "quantitative"
+                  },
+                  {
+                    "field": "total_amount",
+                    "title": "total",
+                    "type": "quantitative"
+                  },
+                  {
+                    "field": "avg_amount",
+                    "title": "avg",
+                    "type": "quantitative"
+                  }
+                ],
+                "x": {
+                  "field": "group_key",
+                  "sort": [
+                    "Books",
+                    "Games",
+                    "Music",
+                    "Toys"
+                  ],
+                  "type": "nominal"
+                },
+                "y": {
+                  "field": "total_amount",
+                  "type": "quantitative"
+                }
+              },
+              "height": 260,
+              "$schema": "https://vega.github.io/schema/vega-lite/v5.20.1.json",
+              "autosize": {
+                "type": "fit",
+                "contains": "padding"
+              }
+            },
+            "arrow": null,
+            "datasets": [
+              {
+                "name": "b4d4aa9b7813d6dd9f53c4d3b6f730df",
+                "has_name": true,
+                "arrow": {
+                  "sha256": "2ef28720376df68c13fe7cd9a63bac0e8c56e74716fc19ed6bd17df21b89a5c2",
+                  "bytes": 1640,
+                  "file": "arrow-2.bin",
+                  "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 749",
+                  "columns": [
+                    "group_key",
+                    "row_count",
+                    "total_amount",
+                    "avg_amount"
+                  ],
+                  "row_count": 4,
+                  "rows": [
+                    {
+                      "group_key": "Books",
+                      "row_count": 3,
+                      "total_amount": 245.75,
+                      "avg_amount": 81.92
+                    },
+                    {
+                      "group_key": "Games",
+                      "row_count": 3,
+                      "total_amount": 409.48,
+                      "avg_amount": 136.49
+                    },
+                    {
+                      "group_key": "Music",
+                      "row_count": 3,
+                      "total_amount": 139.0,
+                      "avg_amount": 46.33
+                    },
+                    {
+                      "group_key": "Toys",
+                      "row_count": 3,
+                      "total_amount": 104.49,
+                      "avg_amount": 34.83
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        "screenshot": {
+          "file": "02-replaced.png",
+          "bytes": 71878,
+          "viewport": [
+            1264,
+            1800
+          ],
+          "timestamp": 26197.886237715607
+        },
+        "observation_end_timestamp": 26197.886237715607
+      }
+    ],
+    "states": [],
+    "http_timeline": [
+      {
+        "method": "GET",
+        "url": "http://127.0.0.1:8601/",
+        "request_id": "E2F7BCB243CDF5F10FE2960737941782",
+        "timestamp": 26185.281784,
+        "status": 200,
+        "response_timestamp": 26185.290446,
+        "request_headers": {}
+      },
+      {
+        "method": "GET",
+        "url": "http://127.0.0.1:8601/_stcore/health",
+        "request_id": "94760.149",
+        "timestamp": 26185.391114,
+        "status": 200,
+        "response_timestamp": 26185.398026,
+        "request_headers": {}
+      },
+      {
+        "method": "GET",
+        "url": "http://127.0.0.1:8601/_stcore/host-config",
+        "request_id": "94760.150",
+        "timestamp": 26185.391243,
+        "status": 200,
+        "response_timestamp": 26185.398268,
+        "request_headers": {}
+      },
+      {
+        "method": "PUT",
+        "url": "http://127.0.0.1:8601/_stcore/upload_file/775c86a3-ce48-4bb9-97ed-aeeef6df6ade/3d761097-9459-4100-89e6-8d47528cb815",
+        "request_id": "94760.197",
+        "timestamp": 26188.41928,
+        "status": 204,
+        "response_timestamp": 26188.422127,
+        "request_headers": {
+          "Content-Type": "multipart/form-data; boundary=----WebKitFormBoundaryi7Wmqrt4qBttAnVr"
+        }
+      },
+      {
+        "method": "DELETE",
+        "url": "http://127.0.0.1:8601/_stcore/upload_file/775c86a3-ce48-4bb9-97ed-aeeef6df6ade/3d761097-9459-4100-89e6-8d47528cb815",
+        "request_id": "94760.232",
+        "timestamp": 26197.726697,
+        "status": 204,
+        "response_timestamp": 26197.729563,
+        "request_headers": {
+          "Content-Type": "application/json"
+        }
+      },
+      {
+        "method": "PUT",
+        "url": "http://127.0.0.1:8601/_stcore/upload_file/775c86a3-ce48-4bb9-97ed-aeeef6df6ade/393628de-b7f9-442b-90ad-43e5a3f67e69",
+        "request_id": "94760.233",
+        "timestamp": 26197.727208,
+        "status": 204,
+        "response_timestamp": 26197.732652,
+        "request_headers": {
+          "Content-Type": "multipart/form-data; boundary=----WebKitFormBoundaryl0kR4kzgLRHdg78z"
+        }
+      }
+    ],
+    "contract": "journey-stage2-v1",
+    "screenshots": [
+      {
+        "step_ids": [
+          "J07-S2"
+        ],
+        "phase": "upload-soft",
+        "namespace": "py-ref-soft-20261024T182810",
+        "file": "01-soft-warning.png",
+        "sha256": "b8320c0440b9155e6be96ef041ce06b6a5c707cb5e11ec8583ce283ee15b0983",
+        "timestamp": 26188.5772011427
+      }
+    ],
+    "journey": "soft-invalid"
+  },
+  "summary": {
+    "alerts": [],
+    "dom": {
+      "document_title": "streamlit-rust P0 reference",
+      "markdown": [
+        "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part of the production path."
+      ],
+      "has_uploader": true,
+      "headings": [
+        "streamlit-rust P0 reference",
+        "Aggregated result",
+        "Interaction"
+      ],
+      "button_labels": [
+        "Pulse"
+      ],
+      "has_button": true,
+      "script_runs": "4",
+      "pulses": "0",
+      "applied_note": "",
+      "table_cells": [
+        "Books",
+        "3",
+        "245.75",
+        "81.92",
+        "Games",
+        "3",
+        "409.48",
+        "136.49",
+        "Music",
+        "3",
+        "139",
+        "46.33",
+        "Toys",
+        "3",
+        "104.49",
+        "34.83"
+      ],
+      "table_present": true,
+      "chart_present": true,
+      "chart_bars": 4,
+      "chart_labels": [
+        "Books",
+        "Games",
+        "Music",
+        "Toys",
+        "group_key",
+        "0",
+        "100",
+        "200",
+        "300",
+        "400",
+        "total_amount"
+      ],
+      "chart_marks": "M30.25625,72.16833333333334h196.98749999999998v86.83166666666666h-196.98749999999998Z|M287.75625,14.317066666666655h196.98749999999998v144.68293333333335h-196.98749999999998Z|M545.25625,109.88666666666667h196.98749999999998v49.11333333333333h-196.98749999999998Z|M802.75625,122.0802h196.98749999999998v36.919799999999995h-196.98749999999998Z",
+      "slider_value": "0",
+      "checkbox_checked": true,
+      "selectbox_value": "category",
+      "texts": [
+        "Script runs: 4",
+        "Pulses: 0",
+        "Applied note:"
+      ],
+      "alerts": [],
+      "selectbox_disabled": false,
+      "slider_thumb": "0",
+      "slider_disabled": false,
+      "checkbox_disabled": false,
+      "exceptions": []
+    }
+  },
+  "checks": [
+    {
+      "step": "soft-invalid",
+      "check": "contract",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet",
+      "ok": false,
+      "journey": "soft-invalid"
+    },
+    {
+      "step": "soft-invalid",
+      "check": "inputs",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet",
+      "ok": false,
+      "journey": "soft-invalid"
+    },
+    {
+      "step": "soft-invalid",
+      "check": "phase_sequence",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet",
+      "ok": false,
+      "journey": "soft-invalid"
+    },
+    {
+      "step": "soft-invalid",
+      "check": "upload_binding",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet",
+      "ok": false,
+      "journey": "soft-invalid"
+    },
+    {
+      "step": "soft-invalid",
+      "check": "soft_warning",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet",
+      "ok": false,
+      "journey": "soft-invalid"
+    },
+    {
+      "step": "soft-invalid",
+      "check": "soft_no_error",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet",
+      "ok": false,
+      "journey": "soft-invalid"
+    },
+    {
+      "step": "soft-invalid",
+      "check": "soft_values",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet",
+      "ok": false,
+      "journey": "soft-invalid"
+    },
+    {
+      "step": "soft-invalid",
+      "check": "replacement_delete",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet",
+      "ok": false,
+      "journey": "soft-invalid"
+    },
+    {
+      "step": "soft-invalid",
+      "check": "recovery_run",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet",
+      "ok": false,
+      "journey": "soft-invalid"
+    },
+    {
+      "step": "soft-invalid",
+      "check": "recovery_values",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet",
+      "ok": false,
+      "journey": "soft-invalid"
+    },
+    {
+      "step": "soft-invalid",
+      "check": "no_stale_alert",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet",
+      "ok": false,
+      "journey": "soft-invalid"
+    },
+    {
+      "step": "screenshots",
+      "check": "records",
+      "expected": "stage2 screenshot records for the fixed steps",
+      "actual": "[{\"step_ids\": [\"J07-S2\"], \"phase\": \"upload-soft\", \"namespace\": \"py-ref-soft-20261024T182810\", \"file\": \"01-soft-warning.png\", \"sha256\": \"b8320c0440b9155e6be96ef041ce06b6a5c707cb5e11ec8583ce283ee15b0983\", \"timestamp\": 26188.5772011427}]",
+      "ok": true,
+      "journey": "screenshots/soft-invalid"
+    },
+    {
+      "step": "J07-S2",
+      "check": "png_proof/main/0",
+      "expected": "original PNG/hash/source/completed phase time",
+      "actual": "01-soft-warning.png",
+      "ok": true,
+      "journey": "screenshots/soft-invalid"
+    }
+  ],
+  "counts": {
+    "expected": 13,
+    "executed": 13,
+    "asserted": 2
+  },
+  "failures": [
+    {
+      "step": "soft-invalid",
+      "check": "contract",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet"
+    },
+    {
+      "step": "soft-invalid",
+      "check": "inputs",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet"
+    },
+    {
+      "step": "soft-invalid",
+      "check": "phase_sequence",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet"
+    },
+    {
+      "step": "soft-invalid",
+      "check": "upload_binding",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet"
+    },
+    {
+      "step": "soft-invalid",
+      "check": "soft_warning",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet"
+    },
+    {
+      "step": "soft-invalid",
+      "check": "soft_no_error",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet"
+    },
+    {
+      "step": "soft-invalid",
+      "check": "soft_values",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet"
+    },
+    {
+      "step": "soft-invalid",
+      "check": "replacement_delete",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet"
+    },
+    {
+      "step": "soft-invalid",
+      "check": "recovery_run",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet"
+    },
+    {
+      "step": "soft-invalid",
+      "check": "recovery_values",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet"
+    },
+    {
+      "step": "soft-invalid",
+      "check": "no_stale_alert",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet"
+    }
+  ]
+}

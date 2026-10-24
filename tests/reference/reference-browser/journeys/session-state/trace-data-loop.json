@@ -1,0 +1,3984 @@
+{
+  "schema_version": 1,
+  "contract_id": "C-P0-04",
+  "kind": "python-reference-browser-trace",
+  "scope": "PYTHON SIDE ONLY",
+  "capture": {
+    "tool": "DevTools Protocol against the same real Chrome",
+    "tool_limitation": "the agent-browser CLI could not start its daemon in this environment (connection timeout), so the input is sent over CDP",
+    "driver": "tests/browser/numeric_capture.py",
+    "binary": "",
+    "python": "D:\\dlab\\streamlit-rust\\target\\pyref-venv\\Scripts\\python.exe"
+  },
+  "url": "http://127.0.0.1:8601/",
+  "case": "state",
+  "journey": "state",
+  "observation": {
+    "namespace": "py-ref-state-20261024T183117",
+    "url": "http://127.0.0.1:8601/",
+    "ipc_dir": "target\\stage2-ref-20261024T182810\\state",
+    "uploads": {
+      "file": true
+    },
+    "frames": [
+      {
+        "direction": "client->server",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26604.888662,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "BackMsg",
+          "type": "rerun_script",
+          "rerun_script": {
+            "widget_states": []
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26604.89105,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "new_session",
+          "new_session": {
+            "script_run_id": "870f3375-66f1-4883-b8e1-944d61c5b39a",
+            "name": "app",
+            "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\app.py",
+            "page_script_hash": "269f73cf39198cb8a4f8caacec17751b",
+            "main_script_hash": "269f73cf39198cb8a4f8caacec17751b",
+            "session_id": "419ba0c9-0687-4dfa-986a-306433be8a8d"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26604.901124,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": true,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26604.902581,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "page_config_changed"
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26604.903032,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "streamlit-rust P0 reference"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26604.903588,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "markdown",
+            "body": "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part o"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26604.962663,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "file_uploader",
+            "element_full": {
+              "fileUploader": {
+                "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+                "label": "Upload sales CSV",
+                "type": [
+                  ".csv"
+                ],
+                "maxUploadSizeMb": 200,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+              "label": "Upload sales CSV",
+              "type": [
+                ".csv"
+              ],
+              "maxUploadSizeMb": 200,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+            "label": "Upload sales CSV",
+            "accepted_types": [
+              "['.csv']"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26605.204595,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "selectbox",
+            "element_full": {
+              "selectbox": {
+                "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+                "label": "Group by",
+                "default": 0,
+                "options": [
+                  "category",
+                  "region",
+                  "channel"
+                ],
+                "labelVisibility": {},
+                "acceptNewOptions": false
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+              "label": "Group by",
+              "default": 0,
+              "options": [
+                "category",
+                "region",
+                "channel"
+              ],
+              "labelVisibility": {},
+              "acceptNewOptions": false
+            },
+            "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+            "label": "Group by",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26605.210694,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "slider",
+            "element_full": {
+              "slider": {
+                "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+                "label": "Minimum amount",
+                "format": "%d",
+                "default": [
+                  0.0
+                ],
+                "max": 200.0,
+                "step": 10.0,
+                "labelVisibility": {},
+                "type": "SLIDER"
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+              "label": "Minimum amount",
+              "format": "%d",
+              "default": [
+                0.0
+              ],
+              "max": 200.0,
+              "step": 10.0,
+              "labelVisibility": {},
+              "type": "SLIDER"
+            },
+            "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+            "label": "Minimum amount",
+            "accepted_types": [
+              "1"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26605.211411,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "checkbox",
+            "element_full": {
+              "checkbox": {
+                "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+                "label": "Include unknown region",
+                "default": true,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useContent": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+              "label": "Include unknown region",
+              "default": true,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+            "label": "Include unknown region",
+            "accepted_types": [
+              "0"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26605.211717,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Aggregated result"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26605.211826,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "alert",
+            "alert": {
+              "body": "Upload a CSV to see the aggregated result.",
+              "format": "INFO",
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "element_width_config": null,
+            "element_height_config": null,
+            "body": "Upload a CSV to see the aggregated result."
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26605.211998,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Interaction"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26605.212077,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "button",
+            "widget": {
+              "id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+              "label": "Pulse",
+              "type": "secondary"
+            },
+            "id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+            "label": "Pulse",
+            "accepted_types": [
+              "secondary"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26605.21224,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "add_block",
+            "block_id": "",
+            "block_type": "form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26605.212559,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text_input",
+            "widget": {
+              "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+              "label": "Note",
+              "default": "",
+              "formId": "apply_form",
+              "labelVisibility": {}
+            },
+            "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+            "label": "Note",
+            "accepted_types": [
+              "0"
+            ],
+            "form_id": "apply_form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26605.21275,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "button",
+            "widget": {
+              "id": "$$ID-9a6c63ce6e3bef7bfd3af258b88f303b-apply_note",
+              "label": "Apply note",
+              "formId": "apply_form",
+              "isFormSubmitter": true,
+              "type": "secondary"
+            },
+            "id": "$$ID-9a6c63ce6e3bef7bfd3af258b88f303b-apply_note",
+            "label": "Apply note",
+            "accepted_types": [
+              "secondary"
+            ],
+            "form_id": "apply_form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26605.2128,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text",
+            "body": "Script runs: 1"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26605.212912,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text",
+            "body": "Pulses: 0"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26605.212943,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text",
+            "body": "Applied note:"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26605.229056,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "script_finished",
+          "script_finished": {
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26605.229302,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": false,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "client->server",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26611.112064,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "BackMsg",
+          "type": "rerun_script",
+          "rerun_script": {
+            "widget_states": [
+              {
+                "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+                "value_field": "file_uploader_state_value",
+                "value": {},
+                "value_full": {}
+              },
+              {
+                "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+                "value_field": "string_value",
+                "value": "region"
+              },
+              {
+                "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+                "value_field": "double_array_value",
+                "value": {
+                  "data": "[0.0]"
+                },
+                "value_full": {
+                  "data": [
+                    0.0
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+                "value_field": "bool_value",
+                "value": true
+              },
+              {
+                "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+                "value_field": "string_value",
+                "value": ""
+              }
+            ]
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26611.113698,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "new_session",
+          "new_session": {
+            "script_run_id": "57e8e91e-ee70-4aa0-8d12-82f6b0ff5858",
+            "name": "app",
+            "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\app.py",
+            "page_script_hash": "269f73cf39198cb8a4f8caacec17751b",
+            "main_script_hash": "269f73cf39198cb8a4f8caacec17751b",
+            "session_id": "419ba0c9-0687-4dfa-986a-306433be8a8d"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26611.117504,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": true,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26611.122963,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "page_config_changed"
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26611.123127,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "streamlit-rust P0 reference"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26611.127059,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "markdown",
+            "body": "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part o"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26611.171676,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "file_uploader",
+            "element_full": {
+              "fileUploader": {
+                "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+                "label": "Upload sales CSV",
+                "type": [
+                  ".csv"
+                ],
+                "maxUploadSizeMb": 200,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+              "label": "Upload sales CSV",
+              "type": [
+                ".csv"
+              ],
+              "maxUploadSizeMb": 200,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+            "label": "Upload sales CSV",
+            "accepted_types": [
+              "['.csv']"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26611.174085,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "selectbox",
+            "element_full": {
+              "selectbox": {
+                "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+                "label": "Group by",
+                "default": 0,
+                "options": [
+                  "category",
+                  "region",
+                  "channel"
+                ],
+                "labelVisibility": {},
+                "acceptNewOptions": false
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+              "label": "Group by",
+              "default": 0,
+              "options": [
+                "category",
+                "region",
+                "channel"
+              ],
+              "labelVisibility": {},
+              "acceptNewOptions": false
+            },
+            "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+            "label": "Group by",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26611.176729,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "slider",
+            "element_full": {
+              "slider": {
+                "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+                "label": "Minimum amount",
+                "format": "%d",
+                "default": [
+                  0.0
+                ],
+                "max": 200.0,
+                "step": 10.0,
+                "labelVisibility": {},
+                "type": "SLIDER"
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+              "label": "Minimum amount",
+              "format": "%d",
+              "default": [
+                0.0
+              ],
+              "max": 200.0,
+              "step": 10.0,
+              "labelVisibility": {},
+              "type": "SLIDER"
+            },
+            "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+            "label": "Minimum amount",
+            "accepted_types": [
+              "1"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26611.176869,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "checkbox",
+            "element_full": {
+              "checkbox": {
+                "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+                "label": "Include unknown region",
+                "default": true,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useContent": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+              "label": "Include unknown region",
+              "default": true,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+            "label": "Include unknown region",
+            "accepted_types": [
+              "0"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26611.176906,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Aggregated result"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26611.176931,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "alert",
+            "alert": {
+              "body": "Upload a CSV to see the aggregated result.",
+              "format": "INFO",
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "element_width_config": null,
+            "element_height_config": null,
+            "body": "Upload a CSV to see the aggregated result."
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26611.176956,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Interaction"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26611.176977,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "button",
+            "widget": {
+              "id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+              "label": "Pulse",
+              "type": "secondary"
+            },
+            "id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+            "label": "Pulse",
+            "accepted_types": [
+              "secondary"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26611.177014,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "add_block",
+            "block_id": "",
+            "block_type": "form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26611.177036,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text_input",
+            "widget": {
+              "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+              "label": "Note",
+              "default": "",
+              "formId": "apply_form",
+              "labelVisibility": {}
+            },
+            "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+            "label": "Note",
+            "accepted_types": [
+              "0"
+            ],
+            "form_id": "apply_form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26611.17706,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "button",
+            "widget": {
+              "id": "$$ID-9a6c63ce6e3bef7bfd3af258b88f303b-apply_note",
+              "label": "Apply note",
+              "formId": "apply_form",
+              "isFormSubmitter": true,
+              "type": "secondary"
+            },
+            "id": "$$ID-9a6c63ce6e3bef7bfd3af258b88f303b-apply_note",
+            "label": "Apply note",
+            "accepted_types": [
+              "secondary"
+            ],
+            "form_id": "apply_form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26611.177086,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text",
+            "body": "Script runs: 2"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26611.177112,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text",
+            "body": "Pulses: 0"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26611.177132,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text",
+            "body": "Applied note:"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26611.177164,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "script_finished",
+          "script_finished": {
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26611.177202,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": false,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "client->server",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26624.33519,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "BackMsg",
+          "type": "file_urls_request",
+          "file_urls_request": {
+            "request_id": "57a0a3f3-9e31-4fd5-9aa0-6c5bbfab372f",
+            "file_names": [
+              "sales_basic.csv"
+            ],
+            "session_id": "419ba0c9-0687-4dfa-986a-306433be8a8d"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26624.336392,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "file_urls_response",
+          "file_urls_response": {
+            "response_id": "57a0a3f3-9e31-4fd5-9aa0-6c5bbfab372f",
+            "file_urls": [
+              {
+                "file_id": "7d0f3d03-6cef-4f98-9561-879d2fc50908",
+                "upload_url": "/_stcore/upload_file/419ba0c9-0687-4dfa-986a-306433be8a8d/7d0f3d03-6cef-4f98-9561-879d2fc50908",
+                "delete_url": "/_stcore/upload_file/419ba0c9-0687-4dfa-986a-306433be8a8d/7d0f3d03-6cef-4f98-9561-879d2fc50908"
+              }
+            ],
+            "error_msg": ""
+          }
+        }
+      },
+      {
+        "direction": "client->server",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26624.354914,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "BackMsg",
+          "type": "rerun_script",
+          "rerun_script": {
+            "widget_states": [
+              {
+                "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+                "value_field": "file_uploader_state_value",
+                "value": {
+                  "uploaded_file_info": "[name: \"sales_basic.csv\"\nsize: 737\nfile_id: \"7d0f3d03-6cef-4f98-9561-879d2fc50908\"\nfile_urls {\n  file_id: \"7d0f3d03-6cef-4f98-9561-879d2fc50908\"\n  upload_url: \"/_stcore/upload_file/419ba0c9-0687-4dfa-986a-306433be8a8d/7d0f3d03-6cef-4f98-9561-879d2fc50908\"\n  delete_url: \"/_stcore/upload_file/419ba0c9-0687-4dfa-986a-306433be8a8d/7d0f3d03-6cef-4f98-9561-879d2fc50908\"\n}\n]"
+                },
+                "value_full": {
+                  "uploadedFileInfo": [
+                    {
+                      "name": "sales_basic.csv",
+                      "size": "737",
+                      "fileId": "7d0f3d03-6cef-4f98-9561-879d2fc50908",
+                      "fileUrls": {
+                        "fileId": "7d0f3d03-6cef-4f98-9561-879d2fc50908",
+                        "uploadUrl": "/_stcore/upload_file/419ba0c9-0687-4dfa-986a-306433be8a8d/7d0f3d03-6cef-4f98-9561-879d2fc50908",
+                        "deleteUrl": "/_stcore/upload_file/419ba0c9-0687-4dfa-986a-306433be8a8d/7d0f3d03-6cef-4f98-9561-879d2fc50908"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+                "value_field": "string_value",
+                "value": "region"
+              },
+              {
+                "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+                "value_field": "double_array_value",
+                "value": {
+                  "data": "[0.0]"
+                },
+                "value_full": {
+                  "data": [
+                    0.0
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+                "value_field": "bool_value",
+                "value": true
+              },
+              {
+                "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+                "value_field": "string_value",
+                "value": ""
+              }
+            ]
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26624.357241,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "new_session",
+          "new_session": {
+            "script_run_id": "2a05a9be-a983-4fa6-a753-f511e067b895",
+            "name": "app",
+            "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\app.py",
+            "page_script_hash": "269f73cf39198cb8a4f8caacec17751b",
+            "main_script_hash": "269f73cf39198cb8a4f8caacec17751b",
+            "session_id": "419ba0c9-0687-4dfa-986a-306433be8a8d"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26624.361598,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": true,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26624.365278,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "page_config_changed"
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26624.366397,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "streamlit-rust P0 reference"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26624.366511,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "markdown",
+            "body": "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part o"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26624.366583,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "file_uploader",
+            "element_full": {
+              "fileUploader": {
+                "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+                "label": "Upload sales CSV",
+                "type": [
+                  ".csv"
+                ],
+                "maxUploadSizeMb": 200,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+              "label": "Upload sales CSV",
+              "type": [
+                ".csv"
+              ],
+              "maxUploadSizeMb": 200,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+            "label": "Upload sales CSV",
+            "accepted_types": [
+              "['.csv']"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26624.369587,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "selectbox",
+            "element_full": {
+              "selectbox": {
+                "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+                "label": "Group by",
+                "default": 0,
+                "options": [
+                  "category",
+                  "region",
+                  "channel"
+                ],
+                "labelVisibility": {},
+                "acceptNewOptions": false
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+              "label": "Group by",
+              "default": 0,
+              "options": [
+                "category",
+                "region",
+                "channel"
+              ],
+              "labelVisibility": {},
+              "acceptNewOptions": false
+            },
+            "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+            "label": "Group by",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26624.369694,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "slider",
+            "element_full": {
+              "slider": {
+                "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+                "label": "Minimum amount",
+                "format": "%d",
+                "default": [
+                  0.0
+                ],
+                "max": 200.0,
+                "step": 10.0,
+                "labelVisibility": {},
+                "type": "SLIDER"
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+              "label": "Minimum amount",
+              "format": "%d",
+              "default": [
+                0.0
+              ],
+              "max": 200.0,
+              "step": 10.0,
+              "labelVisibility": {},
+              "type": "SLIDER"
+            },
+            "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+            "label": "Minimum amount",
+            "accepted_types": [
+              "1"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26624.425089,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "checkbox",
+            "element_full": {
+              "checkbox": {
+                "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+                "label": "Include unknown region",
+                "default": true,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useContent": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+              "label": "Include unknown region",
+              "default": true,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+            "label": "Include unknown region",
+            "accepted_types": [
+              "0"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26624.425363,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Aggregated result"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26624.427747,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "dataframe",
+            "element_full": {
+              "dataframe": {
+                "arrowData": {
+                  "data": "/////4gEAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAGQDAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAA8AwAABAAAAC0DAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDYsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAiZ3JvdXBfa2V5IiwgImZpZWxkX25hbWUiOiAiZ3JvdXBfa2V5IiwgInBhbmRhc190eXBlIjogIm9iamVjdCIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAicm93X2NvdW50IiwgImZpZWxkX25hbWUiOiAicm93X2NvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogInRvdGFsX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogInRvdGFsX2Ftb3VudCIsICJwYW5kYXNfdHlwZSI6ICJmbG9hdDY0IiwgIm51bXB5X3R5cGUiOiAiZmxvYXQ2NCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAiYXZnX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogImF2Z19hbW91bnQiLCAicGFuZGFzX3R5cGUiOiAiZmxvYXQ2NCIsICJudW1weV90eXBlIjogImZsb2F0NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAAEAAAAxAAAAHQAAAA4AAAABAAAAFz///8AAAEDEAAAABwAAAAEAAAAAAAAAAoAAABhdmdfYW1vdW50AADO////AAACAIz///8AAAEDEAAAACQAAAAEAAAAAAAAAAwAAAB0b3RhbF9hbW91bnQAAAYACAAGAAYAAAAAAAIAxP///wAAAQIQAAAAJAAAAAQAAAAAAAAACQAAAHJvd19jb3VudAAAAAgADAAIAAcACAAAAAAAAAFAAAAAEAAUAAgABgAHAAwAAAAQABAAAAAAAAEUEAAAACAAAAAEAAAAAAAAAAkAAABncm91cF9rZXkAAAAEAAQABAAAAP////8oAQAAFAAAAAAAAAAMABYABgAFAAgADAAMAAAAAAMEABgAAADwAAAAAAAAAAAACgAYAAwABAAIAAoAAACsAAAAEAAAAAYAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4AAAAAAAAADgAAAAAAAAAIgAAAAAAAABgAAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAwAAAAAAAAAJAAAAAAAAAAAAAAAAAAAACQAAAAAAAAADAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAMAAAAAAAAAAAAAAABAAAAAYAAAAAAAAAAAAAAAAAAAAGAAAAAAAAAAAAAAAAAAAABgAAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAkAAAAAAAAADQAAAAAAAAASAAAAAAAAABcAAAAAAAAAHgAAAAAAAAAiAAAAAAAAAChtaXNzaW5nKUVhc3ROb3J0aFNvdXRoVU5LTk9XTldlc3QAAAAAAAABAAAAAAAAAAIAAAAAAAAAAwAAAAAAAAACAAAAAAAAAAIAAAAAAAAAAgAAAAAAAAAAAAAAAABWQEjhehSuL2pAAAAAAACIcEBI4XoUrqduQB+F61G4PkRAAAAAAACASUAAAAAAAABWQAAAAAAAMFpAexSuR+EKVkBI4XoUrqdeQAAAAAAAQDRAAAAAAACAOUD/////AAAAAA=="
+                },
+                "columns": "{\"_index\": {\"hidden\": true}}",
+                "columnOrder": [
+                  "group_key",
+                  "row_count",
+                  "total_amount",
+                  "avg_amount"
+                ]
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "arrow": {
+              "bytes": 1720,
+              "sha256": "ebee1250703fa16bacb003af81b268a442bf8994f12c057931b2073bca2d5179",
+              "base64": "/////4gEAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAGQDAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAA8AwAABAAAAC0DAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDYsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAiZ3JvdXBfa2V5IiwgImZpZWxkX25hbWUiOiAiZ3JvdXBfa2V5IiwgInBhbmRhc190eXBlIjogIm9iamVjdCIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAicm93X2NvdW50IiwgImZpZWxkX25hbWUiOiAicm93X2NvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogInRvdGFsX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogInRvdGFsX2Ftb3VudCIsICJwYW5kYXNfdHlwZSI6ICJmbG9hdDY0IiwgIm51bXB5X3R5cGUiOiAiZmxvYXQ2NCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAiYXZnX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogImF2Z19hbW91bnQiLCAicGFuZGFzX3R5cGUiOiAiZmxvYXQ2NCIsICJudW1weV90eXBlIjogImZsb2F0NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAAEAAAAxAAAAHQAAAA4AAAABAAAAFz///8AAAEDEAAAABwAAAAEAAAAAAAAAAoAAABhdmdfYW1vdW50AADO////AAACAIz///8AAAEDEAAAACQAAAAEAAAAAAAAAAwAAAB0b3RhbF9hbW91bnQAAAYACAAGAAYAAAAAAAIAxP///wAAAQIQAAAAJAAAAAQAAAAAAAAACQAAAHJvd19jb3VudAAAAAgADAAIAAcACAAAAAAAAAFAAAAAEAAUAAgABgAHAAwAAAAQABAAAAAAAAEUEAAAACAAAAAEAAAAAAAAAAkAAABncm91cF9rZXkAAAAEAAQABAAAAP////8oAQAAFAAAAAAAAAAMABYABgAFAAgADAAMAAAAAAMEABgAAADwAAAAAAAAAAAACgAYAAwABAAIAAoAAACsAAAAEAAAAAYAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4AAAAAAAAADgAAAAAAAAAIgAAAAAAAABgAAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAwAAAAAAAAAJAAAAAAAAAAAAAAAAAAAACQAAAAAAAAADAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAMAAAAAAAAAAAAAAABAAAAAYAAAAAAAAAAAAAAAAAAAAGAAAAAAAAAAAAAAAAAAAABgAAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAkAAAAAAAAADQAAAAAAAAASAAAAAAAAABcAAAAAAAAAHgAAAAAAAAAiAAAAAAAAAChtaXNzaW5nKUVhc3ROb3J0aFNvdXRoVU5LTk9XTldlc3QAAAAAAAABAAAAAAAAAAIAAAAAAAAAAwAAAAAAAAACAAAAAAAAAAIAAAAAAAAAAgAAAAAAAAAAAAAAAABWQEjhehSuL2pAAAAAAACIcEBI4XoUrqduQB+F61G4PkRAAAAAAACASUAAAAAAAABWQAAAAAAAMFpAexSuR+EKVkBI4XoUrqdeQAAAAAAAQDRAAAAAAACAOUD/////AAAAAA==",
+              "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 749",
+              "columns": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_count": 6,
+              "rows": [
+                {
+                  "group_key": "(missing)",
+                  "row_count": 1,
+                  "total_amount": 88.0,
+                  "avg_amount": 88.0
+                },
+                {
+                  "group_key": "East",
+                  "row_count": 2,
+                  "total_amount": 209.49,
+                  "avg_amount": 104.75
+                },
+                {
+                  "group_key": "North",
+                  "row_count": 3,
+                  "total_amount": 264.5,
+                  "avg_amount": 88.17
+                },
+                {
+                  "group_key": "South",
+                  "row_count": 2,
+                  "total_amount": 245.24,
+                  "avg_amount": 122.62
+                },
+                {
+                  "group_key": "UNKNOWN",
+                  "row_count": 2,
+                  "total_amount": 40.49,
+                  "avg_amount": 20.25
+                },
+                {
+                  "group_key": "West",
+                  "row_count": 2,
+                  "total_amount": 51.0,
+                  "avg_amount": 25.5
+                }
+              ]
+            },
+            "arrow_fields": {
+              "columns": "{\"_index\": {\"hidden\": true}}",
+              "editing_mode": 0,
+              "disabled": false,
+              "column_order": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_height": 0
+            },
+            "id": "",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26624.428279,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "vega_lite_chart",
+            "element_full": {
+              "vegaLiteChart": {
+                "spec": "{\"data\": {\"name\": \"32bd595f9f3b20c10a1709b995caa238\"}, \"mark\": {\"type\": \"bar\"}, \"encoding\": {\"tooltip\": [{\"field\": \"group_key\", \"title\": \"group\", \"type\": \"nominal\"}, {\"field\": \"row_count\", \"title\": \"rows\", \"type\": \"quantitative\"}, {\"field\": \"total_amount\", \"title\": \"total\", \"type\": \"quantitative\"}, {\"field\": \"avg_amount\", \"title\": \"avg\", \"type\": \"quantitative\"}], \"x\": {\"field\": \"group_key\", \"sort\": [\"(missing)\", \"East\", \"North\", \"South\", \"UNKNOWN\", \"West\"], \"type\": \"nominal\"}, \"y\": {\"field\": \"total_amount\", \"type\": \"quantitative\"}}, \"height\": 260, \"$schema\": \"https://vega.github.io/schema/vega-lite/v5.20.1.json\", \"autosize\": {\"type\": \"fit\", \"contains\": \"padding\"}}",
+                "datasets": [
+                  {
+                    "name": "32bd595f9f3b20c10a1709b995caa238",
+                    "data": {
+                      "data": "/////4gEAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAGQDAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAA8AwAABAAAAC0DAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDYsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAiZ3JvdXBfa2V5IiwgImZpZWxkX25hbWUiOiAiZ3JvdXBfa2V5IiwgInBhbmRhc190eXBlIjogIm9iamVjdCIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAicm93X2NvdW50IiwgImZpZWxkX25hbWUiOiAicm93X2NvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogInRvdGFsX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogInRvdGFsX2Ftb3VudCIsICJwYW5kYXNfdHlwZSI6ICJmbG9hdDY0IiwgIm51bXB5X3R5cGUiOiAiZmxvYXQ2NCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAiYXZnX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogImF2Z19hbW91bnQiLCAicGFuZGFzX3R5cGUiOiAiZmxvYXQ2NCIsICJudW1weV90eXBlIjogImZsb2F0NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAAEAAAAxAAAAHQAAAA4AAAABAAAAFz///8AAAEDEAAAABwAAAAEAAAAAAAAAAoAAABhdmdfYW1vdW50AADO////AAACAIz///8AAAEDEAAAACQAAAAEAAAAAAAAAAwAAAB0b3RhbF9hbW91bnQAAAYACAAGAAYAAAAAAAIAxP///wAAAQIQAAAAJAAAAAQAAAAAAAAACQAAAHJvd19jb3VudAAAAAgADAAIAAcACAAAAAAAAAFAAAAAEAAUAAgABgAHAAwAAAAQABAAAAAAAAEUEAAAACAAAAAEAAAAAAAAAAkAAABncm91cF9rZXkAAAAEAAQABAAAAP////8oAQAAFAAAAAAAAAAMABYABgAFAAgADAAMAAAAAAMEABgAAADwAAAAAAAAAAAACgAYAAwABAAIAAoAAACsAAAAEAAAAAYAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4AAAAAAAAADgAAAAAAAAAIgAAAAAAAABgAAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAwAAAAAAAAAJAAAAAAAAAAAAAAAAAAAACQAAAAAAAAADAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAMAAAAAAAAAAAAAAABAAAAAYAAAAAAAAAAAAAAAAAAAAGAAAAAAAAAAAAAAAAAAAABgAAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAkAAAAAAAAADQAAAAAAAAASAAAAAAAAABcAAAAAAAAAHgAAAAAAAAAiAAAAAAAAAChtaXNzaW5nKUVhc3ROb3J0aFNvdXRoVU5LTk9XTldlc3QAAAAAAAABAAAAAAAAAAIAAAAAAAAAAwAAAAAAAAACAAAAAAAAAAIAAAAAAAAAAgAAAAAAAAAAAAAAAABWQEjhehSuL2pAAAAAAACIcEBI4XoUrqduQB+F61G4PkRAAAAAAACASUAAAAAAAABWQAAAAAAAMFpAexSuR+EKVkBI4XoUrqdeQAAAAAAAQDRAAAAAAACAOUD/////AAAAAA=="
+                    },
+                    "hasName": true
+                  }
+                ],
+                "theme": "streamlit"
+              },
+              "heightConfig": {
+                "useContent": true
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "vega_lite_spec_raw": "{\"data\": {\"name\": \"32bd595f9f3b20c10a1709b995caa238\"}, \"mark\": {\"type\": \"bar\"}, \"encoding\": {\"tooltip\": [{\"field\": \"group_key\", \"title\": \"group\", \"type\": \"nominal\"}, {\"field\": \"row_count\", \"title\": \"rows\", \"type\": \"quantitative\"}, {\"field\": \"total_amount\", \"title\": \"total\", \"type\": \"quantitative\"}, {\"field\": \"avg_amount\", \"title\": \"avg\", \"type\": \"quantitative\"}], \"x\": {\"field\": \"group_key\", \"sort\": [\"(missing)\", \"East\", \"North\", \"South\", \"UNKNOWN\", \"West\"], \"type\": \"nominal\"}, \"y\": {\"field\": \"total_amount\", \"type\": \"quantitative\"}}, \"height\": 260, \"$schema\": \"https://vega.github.io/schema/vega-lite/v5.20.1.json\", \"autosize\": {\"type\": \"fit\", \"contains\": \"padding\"}}",
+            "vega_lite_spec": {
+              "data": {
+                "name": "32bd595f9f3b20c10a1709b995caa238"
+              },
+              "mark": {
+                "type": "bar"
+              },
+              "encoding": {
+                "tooltip": [
+                  {
+                    "field": "group_key",
+                    "title": "group",
+                    "type": "nominal"
+                  },
+                  {
+                    "field": "row_count",
+                    "title": "rows",
+                    "type": "quantitative"
+                  },
+                  {
+                    "field": "total_amount",
+                    "title": "total",
+                    "type": "quantitative"
+                  },
+                  {
+                    "field": "avg_amount",
+                    "title": "avg",
+                    "type": "quantitative"
+                  }
+                ],
+                "x": {
+                  "field": "group_key",
+                  "sort": [
+                    "(missing)",
+                    "East",
+                    "North",
+                    "South",
+                    "UNKNOWN",
+                    "West"
+                  ],
+                  "type": "nominal"
+                },
+                "y": {
+                  "field": "total_amount",
+                  "type": "quantitative"
+                }
+              },
+              "height": 260,
+              "$schema": "https://vega.github.io/schema/vega-lite/v5.20.1.json",
+              "autosize": {
+                "type": "fit",
+                "contains": "padding"
+              }
+            },
+            "vega_lite_datasets": [
+              {
+                "name": "32bd595f9f3b20c10a1709b995caa238",
+                "has_name": true,
+                "arrow": {
+                  "bytes": 1720,
+                  "sha256": "ebee1250703fa16bacb003af81b268a442bf8994f12c057931b2073bca2d5179",
+                  "base64": "/////4gEAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAGQDAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAA8AwAABAAAAC0DAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDYsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAiZ3JvdXBfa2V5IiwgImZpZWxkX25hbWUiOiAiZ3JvdXBfa2V5IiwgInBhbmRhc190eXBlIjogIm9iamVjdCIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAicm93X2NvdW50IiwgImZpZWxkX25hbWUiOiAicm93X2NvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogInRvdGFsX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogInRvdGFsX2Ftb3VudCIsICJwYW5kYXNfdHlwZSI6ICJmbG9hdDY0IiwgIm51bXB5X3R5cGUiOiAiZmxvYXQ2NCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAiYXZnX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogImF2Z19hbW91bnQiLCAicGFuZGFzX3R5cGUiOiAiZmxvYXQ2NCIsICJudW1weV90eXBlIjogImZsb2F0NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAAEAAAAxAAAAHQAAAA4AAAABAAAAFz///8AAAEDEAAAABwAAAAEAAAAAAAAAAoAAABhdmdfYW1vdW50AADO////AAACAIz///8AAAEDEAAAACQAAAAEAAAAAAAAAAwAAAB0b3RhbF9hbW91bnQAAAYACAAGAAYAAAAAAAIAxP///wAAAQIQAAAAJAAAAAQAAAAAAAAACQAAAHJvd19jb3VudAAAAAgADAAIAAcACAAAAAAAAAFAAAAAEAAUAAgABgAHAAwAAAAQABAAAAAAAAEUEAAAACAAAAAEAAAAAAAAAAkAAABncm91cF9rZXkAAAAEAAQABAAAAP////8oAQAAFAAAAAAAAAAMABYABgAFAAgADAAMAAAAAAMEABgAAADwAAAAAAAAAAAACgAYAAwABAAIAAoAAACsAAAAEAAAAAYAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4AAAAAAAAADgAAAAAAAAAIgAAAAAAAABgAAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAwAAAAAAAAAJAAAAAAAAAAAAAAAAAAAACQAAAAAAAAADAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAMAAAAAAAAAAAAAAABAAAAAYAAAAAAAAAAAAAAAAAAAAGAAAAAAAAAAAAAAAAAAAABgAAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAkAAAAAAAAADQAAAAAAAAASAAAAAAAAABcAAAAAAAAAHgAAAAAAAAAiAAAAAAAAAChtaXNzaW5nKUVhc3ROb3J0aFNvdXRoVU5LTk9XTldlc3QAAAAAAAABAAAAAAAAAAIAAAAAAAAAAwAAAAAAAAACAAAAAAAAAAIAAAAAAAAAAgAAAAAAAAAAAAAAAABWQEjhehSuL2pAAAAAAACIcEBI4XoUrqduQB+F61G4PkRAAAAAAACASUAAAAAAAABWQAAAAAAAMFpAexSuR+EKVkBI4XoUrqdeQAAAAAAAQDRAAAAAAACAOUD/////AAAAAA==",
+                  "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 749",
+                  "columns": [
+                    "group_key",
+                    "row_count",
+                    "total_amount",
+                    "avg_amount"
+                  ],
+                  "row_count": 6,
+                  "rows": [
+                    {
+                      "group_key": "(missing)",
+                      "row_count": 1,
+                      "total_amount": 88.0,
+                      "avg_amount": 88.0
+                    },
+                    {
+                      "group_key": "East",
+                      "row_count": 2,
+                      "total_amount": 209.49,
+                      "avg_amount": 104.75
+                    },
+                    {
+                      "group_key": "North",
+                      "row_count": 3,
+                      "total_amount": 264.5,
+                      "avg_amount": 88.17
+                    },
+                    {
+                      "group_key": "South",
+                      "row_count": 2,
+                      "total_amount": 245.24,
+                      "avg_amount": 122.62
+                    },
+                    {
+                      "group_key": "UNKNOWN",
+                      "row_count": 2,
+                      "total_amount": 40.49,
+                      "avg_amount": 20.25
+                    },
+                    {
+                      "group_key": "West",
+                      "row_count": 2,
+                      "total_amount": 51.0,
+                      "avg_amount": 25.5
+                    }
+                  ]
+                }
+              }
+            ],
+            "vega_lite_fields": {
+              "use_container_width": false,
+              "theme": "streamlit",
+              "id": "",
+              "form_id": ""
+            },
+            "id": "",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26624.428575,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Interaction"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26624.428647,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "button",
+            "widget": {
+              "id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+              "label": "Pulse",
+              "type": "secondary"
+            },
+            "id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+            "label": "Pulse",
+            "accepted_types": [
+              "secondary"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26624.428691,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "add_block",
+            "block_id": "",
+            "block_type": "form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26624.428745,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text_input",
+            "widget": {
+              "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+              "label": "Note",
+              "default": "",
+              "formId": "apply_form",
+              "labelVisibility": {}
+            },
+            "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+            "label": "Note",
+            "accepted_types": [
+              "0"
+            ],
+            "form_id": "apply_form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26624.428809,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "button",
+            "widget": {
+              "id": "$$ID-9a6c63ce6e3bef7bfd3af258b88f303b-apply_note",
+              "label": "Apply note",
+              "formId": "apply_form",
+              "isFormSubmitter": true,
+              "type": "secondary"
+            },
+            "id": "$$ID-9a6c63ce6e3bef7bfd3af258b88f303b-apply_note",
+            "label": "Apply note",
+            "accepted_types": [
+              "secondary"
+            ],
+            "form_id": "apply_form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26624.428878,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text",
+            "body": "Script runs: 3"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26624.428964,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text",
+            "body": "Pulses: 0"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26624.429022,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text",
+            "body": "Applied note:"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26624.429062,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "script_finished",
+          "script_finished": {
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26624.429126,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": false,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "client->server",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26634.161359,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "BackMsg",
+          "type": "rerun_script",
+          "rerun_script": {
+            "widget_states": [
+              {
+                "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+                "value_field": "file_uploader_state_value",
+                "value": {
+                  "uploaded_file_info": "[name: \"sales_basic.csv\"\nsize: 737\nfile_id: \"7d0f3d03-6cef-4f98-9561-879d2fc50908\"\nfile_urls {\n  file_id: \"7d0f3d03-6cef-4f98-9561-879d2fc50908\"\n  upload_url: \"/_stcore/upload_file/419ba0c9-0687-4dfa-986a-306433be8a8d/7d0f3d03-6cef-4f98-9561-879d2fc50908\"\n  delete_url: \"/_stcore/upload_file/419ba0c9-0687-4dfa-986a-306433be8a8d/7d0f3d03-6cef-4f98-9561-879d2fc50908\"\n}\n]"
+                },
+                "value_full": {
+                  "uploadedFileInfo": [
+                    {
+                      "name": "sales_basic.csv",
+                      "size": "737",
+                      "fileId": "7d0f3d03-6cef-4f98-9561-879d2fc50908",
+                      "fileUrls": {
+                        "fileId": "7d0f3d03-6cef-4f98-9561-879d2fc50908",
+                        "uploadUrl": "/_stcore/upload_file/419ba0c9-0687-4dfa-986a-306433be8a8d/7d0f3d03-6cef-4f98-9561-879d2fc50908",
+                        "deleteUrl": "/_stcore/upload_file/419ba0c9-0687-4dfa-986a-306433be8a8d/7d0f3d03-6cef-4f98-9561-879d2fc50908"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+                "value_field": "string_value",
+                "value": "region"
+              },
+              {
+                "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+                "value_field": "double_array_value",
+                "value": {
+                  "data": "[0.0]"
+                },
+                "value_full": {
+                  "data": [
+                    0.0
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+                "value_field": "bool_value",
+                "value": true
+              },
+              {
+                "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+                "value_field": "string_value",
+                "value": ""
+              },
+              {
+                "id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+                "value_field": "trigger_value",
+                "value": true
+              }
+            ]
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26634.163375,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "new_session",
+          "new_session": {
+            "script_run_id": "1a46a931-dda7-4fd7-bd8e-d41f5a3707df",
+            "name": "app",
+            "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\app.py",
+            "page_script_hash": "269f73cf39198cb8a4f8caacec17751b",
+            "main_script_hash": "269f73cf39198cb8a4f8caacec17751b",
+            "session_id": "419ba0c9-0687-4dfa-986a-306433be8a8d"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26634.166578,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": true,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26634.168511,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "page_config_changed"
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26634.168636,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "streamlit-rust P0 reference"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26634.168711,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "markdown",
+            "body": "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part o"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26634.169547,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "file_uploader",
+            "element_full": {
+              "fileUploader": {
+                "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+                "label": "Upload sales CSV",
+                "type": [
+                  ".csv"
+                ],
+                "maxUploadSizeMb": 200,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+              "label": "Upload sales CSV",
+              "type": [
+                ".csv"
+              ],
+              "maxUploadSizeMb": 200,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+            "label": "Upload sales CSV",
+            "accepted_types": [
+              "['.csv']"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26634.169625,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "selectbox",
+            "element_full": {
+              "selectbox": {
+                "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+                "label": "Group by",
+                "default": 0,
+                "options": [
+                  "category",
+                  "region",
+                  "channel"
+                ],
+                "labelVisibility": {},
+                "acceptNewOptions": false
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+              "label": "Group by",
+              "default": 0,
+              "options": [
+                "category",
+                "region",
+                "channel"
+              ],
+              "labelVisibility": {},
+              "acceptNewOptions": false
+            },
+            "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+            "label": "Group by",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26634.169671,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "slider",
+            "element_full": {
+              "slider": {
+                "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+                "label": "Minimum amount",
+                "format": "%d",
+                "default": [
+                  0.0
+                ],
+                "max": 200.0,
+                "step": 10.0,
+                "labelVisibility": {},
+                "type": "SLIDER"
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+              "label": "Minimum amount",
+              "format": "%d",
+              "default": [
+                0.0
+              ],
+              "max": 200.0,
+              "step": 10.0,
+              "labelVisibility": {},
+              "type": "SLIDER"
+            },
+            "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+            "label": "Minimum amount",
+            "accepted_types": [
+              "1"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26634.169736,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "checkbox",
+            "element_full": {
+              "checkbox": {
+                "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+                "label": "Include unknown region",
+                "default": true,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useContent": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+              "label": "Include unknown region",
+              "default": true,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+            "label": "Include unknown region",
+            "accepted_types": [
+              "0"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26634.173133,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Aggregated result"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26634.173233,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "dataframe",
+            "element_full": {
+              "dataframe": {
+                "arrowData": {
+                  "data": "/////4gEAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAGQDAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAA8AwAABAAAAC0DAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDYsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAiZ3JvdXBfa2V5IiwgImZpZWxkX25hbWUiOiAiZ3JvdXBfa2V5IiwgInBhbmRhc190eXBlIjogIm9iamVjdCIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAicm93X2NvdW50IiwgImZpZWxkX25hbWUiOiAicm93X2NvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogInRvdGFsX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogInRvdGFsX2Ftb3VudCIsICJwYW5kYXNfdHlwZSI6ICJmbG9hdDY0IiwgIm51bXB5X3R5cGUiOiAiZmxvYXQ2NCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAiYXZnX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogImF2Z19hbW91bnQiLCAicGFuZGFzX3R5cGUiOiAiZmxvYXQ2NCIsICJudW1weV90eXBlIjogImZsb2F0NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAAEAAAAxAAAAHQAAAA4AAAABAAAAFz///8AAAEDEAAAABwAAAAEAAAAAAAAAAoAAABhdmdfYW1vdW50AADO////AAACAIz///8AAAEDEAAAACQAAAAEAAAAAAAAAAwAAAB0b3RhbF9hbW91bnQAAAYACAAGAAYAAAAAAAIAxP///wAAAQIQAAAAJAAAAAQAAAAAAAAACQAAAHJvd19jb3VudAAAAAgADAAIAAcACAAAAAAAAAFAAAAAEAAUAAgABgAHAAwAAAAQABAAAAAAAAEUEAAAACAAAAAEAAAAAAAAAAkAAABncm91cF9rZXkAAAAEAAQABAAAAP////8oAQAAFAAAAAAAAAAMABYABgAFAAgADAAMAAAAAAMEABgAAADwAAAAAAAAAAAACgAYAAwABAAIAAoAAACsAAAAEAAAAAYAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4AAAAAAAAADgAAAAAAAAAIgAAAAAAAABgAAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAwAAAAAAAAAJAAAAAAAAAAAAAAAAAAAACQAAAAAAAAADAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAMAAAAAAAAAAAAAAABAAAAAYAAAAAAAAAAAAAAAAAAAAGAAAAAAAAAAAAAAAAAAAABgAAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAkAAAAAAAAADQAAAAAAAAASAAAAAAAAABcAAAAAAAAAHgAAAAAAAAAiAAAAAAAAAChtaXNzaW5nKUVhc3ROb3J0aFNvdXRoVU5LTk9XTldlc3QAAAAAAAABAAAAAAAAAAIAAAAAAAAAAwAAAAAAAAACAAAAAAAAAAIAAAAAAAAAAgAAAAAAAAAAAAAAAABWQEjhehSuL2pAAAAAAACIcEBI4XoUrqduQB+F61G4PkRAAAAAAACASUAAAAAAAABWQAAAAAAAMFpAexSuR+EKVkBI4XoUrqdeQAAAAAAAQDRAAAAAAACAOUD/////AAAAAA=="
+                },
+                "columns": "{\"_index\": {\"hidden\": true}}",
+                "columnOrder": [
+                  "group_key",
+                  "row_count",
+                  "total_amount",
+                  "avg_amount"
+                ]
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "arrow": {
+              "bytes": 1720,
+              "sha256": "ebee1250703fa16bacb003af81b268a442bf8994f12c057931b2073bca2d5179",
+              "base64": "/////4gEAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAGQDAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAA8AwAABAAAAC0DAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDYsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAiZ3JvdXBfa2V5IiwgImZpZWxkX25hbWUiOiAiZ3JvdXBfa2V5IiwgInBhbmRhc190eXBlIjogIm9iamVjdCIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAicm93X2NvdW50IiwgImZpZWxkX25hbWUiOiAicm93X2NvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogInRvdGFsX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogInRvdGFsX2Ftb3VudCIsICJwYW5kYXNfdHlwZSI6ICJmbG9hdDY0IiwgIm51bXB5X3R5cGUiOiAiZmxvYXQ2NCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAiYXZnX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogImF2Z19hbW91bnQiLCAicGFuZGFzX3R5cGUiOiAiZmxvYXQ2NCIsICJudW1weV90eXBlIjogImZsb2F0NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAAEAAAAxAAAAHQAAAA4AAAABAAAAFz///8AAAEDEAAAABwAAAAEAAAAAAAAAAoAAABhdmdfYW1vdW50AADO////AAACAIz///8AAAEDEAAAACQAAAAEAAAAAAAAAAwAAAB0b3RhbF9hbW91bnQAAAYACAAGAAYAAAAAAAIAxP///wAAAQIQAAAAJAAAAAQAAAAAAAAACQAAAHJvd19jb3VudAAAAAgADAAIAAcACAAAAAAAAAFAAAAAEAAUAAgABgAHAAwAAAAQABAAAAAAAAEUEAAAACAAAAAEAAAAAAAAAAkAAABncm91cF9rZXkAAAAEAAQABAAAAP////8oAQAAFAAAAAAAAAAMABYABgAFAAgADAAMAAAAAAMEABgAAADwAAAAAAAAAAAACgAYAAwABAAIAAoAAACsAAAAEAAAAAYAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4AAAAAAAAADgAAAAAAAAAIgAAAAAAAABgAAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAwAAAAAAAAAJAAAAAAAAAAAAAAAAAAAACQAAAAAAAAADAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAMAAAAAAAAAAAAAAABAAAAAYAAAAAAAAAAAAAAAAAAAAGAAAAAAAAAAAAAAAAAAAABgAAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAkAAAAAAAAADQAAAAAAAAASAAAAAAAAABcAAAAAAAAAHgAAAAAAAAAiAAAAAAAAAChtaXNzaW5nKUVhc3ROb3J0aFNvdXRoVU5LTk9XTldlc3QAAAAAAAABAAAAAAAAAAIAAAAAAAAAAwAAAAAAAAACAAAAAAAAAAIAAAAAAAAAAgAAAAAAAAAAAAAAAABWQEjhehSuL2pAAAAAAACIcEBI4XoUrqduQB+F61G4PkRAAAAAAACASUAAAAAAAABWQAAAAAAAMFpAexSuR+EKVkBI4XoUrqdeQAAAAAAAQDRAAAAAAACAOUD/////AAAAAA==",
+              "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 749",
+              "columns": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_count": 6,
+              "rows": [
+                {
+                  "group_key": "(missing)",
+                  "row_count": 1,
+                  "total_amount": 88.0,
+                  "avg_amount": 88.0
+                },
+                {
+                  "group_key": "East",
+                  "row_count": 2,
+                  "total_amount": 209.49,
+                  "avg_amount": 104.75
+                },
+                {
+                  "group_key": "North",
+                  "row_count": 3,
+                  "total_amount": 264.5,
+                  "avg_amount": 88.17
+                },
+                {
+                  "group_key": "South",
+                  "row_count": 2,
+                  "total_amount": 245.24,
+                  "avg_amount": 122.62
+                },
+                {
+                  "group_key": "UNKNOWN",
+                  "row_count": 2,
+                  "total_amount": 40.49,
+                  "avg_amount": 20.25
+                },
+                {
+                  "group_key": "West",
+                  "row_count": 2,
+                  "total_amount": 51.0,
+                  "avg_amount": 25.5
+                }
+              ]
+            },
+            "arrow_fields": {
+              "columns": "{\"_index\": {\"hidden\": true}}",
+              "editing_mode": 0,
+              "disabled": false,
+              "column_order": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_height": 0
+            },
+            "id": "",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26634.175004,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "vega_lite_chart",
+            "element_full": {
+              "vegaLiteChart": {
+                "spec": "{\"data\": {\"name\": \"32bd595f9f3b20c10a1709b995caa238\"}, \"mark\": {\"type\": \"bar\"}, \"encoding\": {\"tooltip\": [{\"field\": \"group_key\", \"title\": \"group\", \"type\": \"nominal\"}, {\"field\": \"row_count\", \"title\": \"rows\", \"type\": \"quantitative\"}, {\"field\": \"total_amount\", \"title\": \"total\", \"type\": \"quantitative\"}, {\"field\": \"avg_amount\", \"title\": \"avg\", \"type\": \"quantitative\"}], \"x\": {\"field\": \"group_key\", \"sort\": [\"(missing)\", \"East\", \"North\", \"South\", \"UNKNOWN\", \"West\"], \"type\": \"nominal\"}, \"y\": {\"field\": \"total_amount\", \"type\": \"quantitative\"}}, \"height\": 260, \"$schema\": \"https://vega.github.io/schema/vega-lite/v5.20.1.json\", \"autosize\": {\"type\": \"fit\", \"contains\": \"padding\"}}",
+                "datasets": [
+                  {
+                    "name": "32bd595f9f3b20c10a1709b995caa238",
+                    "data": {
+                      "data": "/////4gEAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAGQDAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAA8AwAABAAAAC0DAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDYsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAiZ3JvdXBfa2V5IiwgImZpZWxkX25hbWUiOiAiZ3JvdXBfa2V5IiwgInBhbmRhc190eXBlIjogIm9iamVjdCIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAicm93X2NvdW50IiwgImZpZWxkX25hbWUiOiAicm93X2NvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogInRvdGFsX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogInRvdGFsX2Ftb3VudCIsICJwYW5kYXNfdHlwZSI6ICJmbG9hdDY0IiwgIm51bXB5X3R5cGUiOiAiZmxvYXQ2NCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAiYXZnX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogImF2Z19hbW91bnQiLCAicGFuZGFzX3R5cGUiOiAiZmxvYXQ2NCIsICJudW1weV90eXBlIjogImZsb2F0NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAAEAAAAxAAAAHQAAAA4AAAABAAAAFz///8AAAEDEAAAABwAAAAEAAAAAAAAAAoAAABhdmdfYW1vdW50AADO////AAACAIz///8AAAEDEAAAACQAAAAEAAAAAAAAAAwAAAB0b3RhbF9hbW91bnQAAAYACAAGAAYAAAAAAAIAxP///wAAAQIQAAAAJAAAAAQAAAAAAAAACQAAAHJvd19jb3VudAAAAAgADAAIAAcACAAAAAAAAAFAAAAAEAAUAAgABgAHAAwAAAAQABAAAAAAAAEUEAAAACAAAAAEAAAAAAAAAAkAAABncm91cF9rZXkAAAAEAAQABAAAAP////8oAQAAFAAAAAAAAAAMABYABgAFAAgADAAMAAAAAAMEABgAAADwAAAAAAAAAAAACgAYAAwABAAIAAoAAACsAAAAEAAAAAYAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4AAAAAAAAADgAAAAAAAAAIgAAAAAAAABgAAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAwAAAAAAAAAJAAAAAAAAAAAAAAAAAAAACQAAAAAAAAADAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAMAAAAAAAAAAAAAAABAAAAAYAAAAAAAAAAAAAAAAAAAAGAAAAAAAAAAAAAAAAAAAABgAAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAkAAAAAAAAADQAAAAAAAAASAAAAAAAAABcAAAAAAAAAHgAAAAAAAAAiAAAAAAAAAChtaXNzaW5nKUVhc3ROb3J0aFNvdXRoVU5LTk9XTldlc3QAAAAAAAABAAAAAAAAAAIAAAAAAAAAAwAAAAAAAAACAAAAAAAAAAIAAAAAAAAAAgAAAAAAAAAAAAAAAABWQEjhehSuL2pAAAAAAACIcEBI4XoUrqduQB+F61G4PkRAAAAAAACASUAAAAAAAABWQAAAAAAAMFpAexSuR+EKVkBI4XoUrqdeQAAAAAAAQDRAAAAAAACAOUD/////AAAAAA=="
+                    },
+                    "hasName": true
+                  }
+                ],
+                "theme": "streamlit"
+              },
+              "heightConfig": {
+                "useContent": true
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "vega_lite_spec_raw": "{\"data\": {\"name\": \"32bd595f9f3b20c10a1709b995caa238\"}, \"mark\": {\"type\": \"bar\"}, \"encoding\": {\"tooltip\": [{\"field\": \"group_key\", \"title\": \"group\", \"type\": \"nominal\"}, {\"field\": \"row_count\", \"title\": \"rows\", \"type\": \"quantitative\"}, {\"field\": \"total_amount\", \"title\": \"total\", \"type\": \"quantitative\"}, {\"field\": \"avg_amount\", \"title\": \"avg\", \"type\": \"quantitative\"}], \"x\": {\"field\": \"group_key\", \"sort\": [\"(missing)\", \"East\", \"North\", \"South\", \"UNKNOWN\", \"West\"], \"type\": \"nominal\"}, \"y\": {\"field\": \"total_amount\", \"type\": \"quantitative\"}}, \"height\": 260, \"$schema\": \"https://vega.github.io/schema/vega-lite/v5.20.1.json\", \"autosize\": {\"type\": \"fit\", \"contains\": \"padding\"}}",
+            "vega_lite_spec": {
+              "data": {
+                "name": "32bd595f9f3b20c10a1709b995caa238"
+              },
+              "mark": {
+                "type": "bar"
+              },
+              "encoding": {
+                "tooltip": [
+                  {
+                    "field": "group_key",
+                    "title": "group",
+                    "type": "nominal"
+                  },
+                  {
+                    "field": "row_count",
+                    "title": "rows",
+                    "type": "quantitative"
+                  },
+                  {
+                    "field": "total_amount",
+                    "title": "total",
+                    "type": "quantitative"
+                  },
+                  {
+                    "field": "avg_amount",
+                    "title": "avg",
+                    "type": "quantitative"
+                  }
+                ],
+                "x": {
+                  "field": "group_key",
+                  "sort": [
+                    "(missing)",
+                    "East",
+                    "North",
+                    "South",
+                    "UNKNOWN",
+                    "West"
+                  ],
+                  "type": "nominal"
+                },
+                "y": {
+                  "field": "total_amount",
+                  "type": "quantitative"
+                }
+              },
+              "height": 260,
+              "$schema": "https://vega.github.io/schema/vega-lite/v5.20.1.json",
+              "autosize": {
+                "type": "fit",
+                "contains": "padding"
+              }
+            },
+            "vega_lite_datasets": [
+              {
+                "name": "32bd595f9f3b20c10a1709b995caa238",
+                "has_name": true,
+                "arrow": {
+                  "bytes": 1720,
+                  "sha256": "ebee1250703fa16bacb003af81b268a442bf8994f12c057931b2073bca2d5179",
+                  "base64": "/////4gEAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAGQDAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAA8AwAABAAAAC0DAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDYsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAiZ3JvdXBfa2V5IiwgImZpZWxkX25hbWUiOiAiZ3JvdXBfa2V5IiwgInBhbmRhc190eXBlIjogIm9iamVjdCIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAicm93X2NvdW50IiwgImZpZWxkX25hbWUiOiAicm93X2NvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogInRvdGFsX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogInRvdGFsX2Ftb3VudCIsICJwYW5kYXNfdHlwZSI6ICJmbG9hdDY0IiwgIm51bXB5X3R5cGUiOiAiZmxvYXQ2NCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAiYXZnX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogImF2Z19hbW91bnQiLCAicGFuZGFzX3R5cGUiOiAiZmxvYXQ2NCIsICJudW1weV90eXBlIjogImZsb2F0NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAAEAAAAxAAAAHQAAAA4AAAABAAAAFz///8AAAEDEAAAABwAAAAEAAAAAAAAAAoAAABhdmdfYW1vdW50AADO////AAACAIz///8AAAEDEAAAACQAAAAEAAAAAAAAAAwAAAB0b3RhbF9hbW91bnQAAAYACAAGAAYAAAAAAAIAxP///wAAAQIQAAAAJAAAAAQAAAAAAAAACQAAAHJvd19jb3VudAAAAAgADAAIAAcACAAAAAAAAAFAAAAAEAAUAAgABgAHAAwAAAAQABAAAAAAAAEUEAAAACAAAAAEAAAAAAAAAAkAAABncm91cF9rZXkAAAAEAAQABAAAAP////8oAQAAFAAAAAAAAAAMABYABgAFAAgADAAMAAAAAAMEABgAAADwAAAAAAAAAAAACgAYAAwABAAIAAoAAACsAAAAEAAAAAYAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4AAAAAAAAADgAAAAAAAAAIgAAAAAAAABgAAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAwAAAAAAAAAJAAAAAAAAAAAAAAAAAAAACQAAAAAAAAADAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAMAAAAAAAAAAAAAAABAAAAAYAAAAAAAAAAAAAAAAAAAAGAAAAAAAAAAAAAAAAAAAABgAAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAkAAAAAAAAADQAAAAAAAAASAAAAAAAAABcAAAAAAAAAHgAAAAAAAAAiAAAAAAAAAChtaXNzaW5nKUVhc3ROb3J0aFNvdXRoVU5LTk9XTldlc3QAAAAAAAABAAAAAAAAAAIAAAAAAAAAAwAAAAAAAAACAAAAAAAAAAIAAAAAAAAAAgAAAAAAAAAAAAAAAABWQEjhehSuL2pAAAAAAACIcEBI4XoUrqduQB+F61G4PkRAAAAAAACASUAAAAAAAABWQAAAAAAAMFpAexSuR+EKVkBI4XoUrqdeQAAAAAAAQDRAAAAAAACAOUD/////AAAAAA==",
+                  "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 749",
+                  "columns": [
+                    "group_key",
+                    "row_count",
+                    "total_amount",
+                    "avg_amount"
+                  ],
+                  "row_count": 6,
+                  "rows": [
+                    {
+                      "group_key": "(missing)",
+                      "row_count": 1,
+                      "total_amount": 88.0,
+                      "avg_amount": 88.0
+                    },
+                    {
+                      "group_key": "East",
+                      "row_count": 2,
+                      "total_amount": 209.49,
+                      "avg_amount": 104.75
+                    },
+                    {
+                      "group_key": "North",
+                      "row_count": 3,
+                      "total_amount": 264.5,
+                      "avg_amount": 88.17
+                    },
+                    {
+                      "group_key": "South",
+                      "row_count": 2,
+                      "total_amount": 245.24,
+                      "avg_amount": 122.62
+                    },
+                    {
+                      "group_key": "UNKNOWN",
+                      "row_count": 2,
+                      "total_amount": 40.49,
+                      "avg_amount": 20.25
+                    },
+                    {
+                      "group_key": "West",
+                      "row_count": 2,
+                      "total_amount": 51.0,
+                      "avg_amount": 25.5
+                    }
+                  ]
+                }
+              }
+            ],
+            "vega_lite_fields": {
+              "use_container_width": false,
+              "theme": "streamlit",
+              "id": "",
+              "form_id": ""
+            },
+            "id": "",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26634.175121,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Interaction"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26634.246305,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "button",
+            "widget": {
+              "id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+              "label": "Pulse",
+              "type": "secondary"
+            },
+            "id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+            "label": "Pulse",
+            "accepted_types": [
+              "secondary"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26634.249028,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "add_block",
+            "block_id": "",
+            "block_type": "form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26634.251079,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text_input",
+            "widget": {
+              "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+              "label": "Note",
+              "default": "",
+              "formId": "apply_form",
+              "labelVisibility": {}
+            },
+            "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+            "label": "Note",
+            "accepted_types": [
+              "0"
+            ],
+            "form_id": "apply_form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26634.251283,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "button",
+            "widget": {
+              "id": "$$ID-9a6c63ce6e3bef7bfd3af258b88f303b-apply_note",
+              "label": "Apply note",
+              "formId": "apply_form",
+              "isFormSubmitter": true,
+              "type": "secondary"
+            },
+            "id": "$$ID-9a6c63ce6e3bef7bfd3af258b88f303b-apply_note",
+            "label": "Apply note",
+            "accepted_types": [
+              "secondary"
+            ],
+            "form_id": "apply_form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26634.251376,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text",
+            "body": "Script runs: 4"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26634.251478,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text",
+            "body": "Pulses: 1"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26634.251542,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text",
+            "body": "Applied note:"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26634.251569,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "script_finished",
+          "script_finished": {
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96412.151",
+        "timestamp": 26634.251627,
+        "namespace": "py-ref-state-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": false,
+            "run_on_save": false
+          }
+        }
+      }
+    ],
+    "phases": [
+      {
+        "name": "initial",
+        "action": {
+          "action": "initial",
+          "ok": true
+        },
+        "start": 0,
+        "end": 21,
+        "start_timestamp": 26604.888662,
+        "end_timestamp": 26605.229056,
+        "dom_before": {
+          "document_title": "streamlit-rust P0 reference",
+          "markdown": [
+            "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part of the production path."
+          ],
+          "has_uploader": true,
+          "headings": [
+            "streamlit-rust P0 reference",
+            "Aggregated result",
+            "Interaction"
+          ],
+          "button_labels": [
+            "Pulse"
+          ],
+          "has_button": true,
+          "script_runs": "1",
+          "pulses": "0",
+          "applied_note": "",
+          "table_cells": [],
+          "table_present": false,
+          "chart_present": false,
+          "chart_bars": 0,
+          "chart_labels": [],
+          "chart_marks": "",
+          "slider_value": "0",
+          "checkbox_checked": true,
+          "selectbox_value": "category",
+          "texts": [
+            "Script runs: 1",
+            "Pulses: 0",
+            "Applied note:"
+          ],
+          "alerts": [
+            "Upload a CSV to see the aggregated result."
+          ],
+          "selectbox_disabled": false,
+          "slider_thumb": "0",
+          "slider_disabled": false,
+          "checkbox_disabled": false,
+          "exceptions": []
+        },
+        "dom_after": {
+          "document_title": "streamlit-rust P0 reference",
+          "markdown": [
+            "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part of the production path."
+          ],
+          "has_uploader": true,
+          "headings": [
+            "streamlit-rust P0 reference",
+            "Aggregated result",
+            "Interaction"
+          ],
+          "button_labels": [
+            "Pulse"
+          ],
+          "has_button": true,
+          "script_runs": "1",
+          "pulses": "0",
+          "applied_note": "",
+          "table_cells": [],
+          "table_present": false,
+          "chart_present": false,
+          "chart_bars": 0,
+          "chart_labels": [],
+          "chart_marks": "",
+          "slider_value": "0",
+          "checkbox_checked": true,
+          "selectbox_value": "category",
+          "texts": [
+            "Script runs: 1",
+            "Pulses: 0",
+            "Applied note:"
+          ],
+          "alerts": [
+            "Upload a CSV to see the aggregated result."
+          ],
+          "selectbox_disabled": false,
+          "slider_thumb": "0",
+          "slider_disabled": false,
+          "checkbox_disabled": false,
+          "exceptions": []
+        },
+        "client_states": [],
+        "completions": [
+          {
+            "frame": 20,
+            "connection": 0,
+            "request_id": "96412.151",
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          }
+        ],
+        "ipc": {
+          "table": null,
+          "chart": null
+        },
+        "screenshot": {
+          "file": "01-initial.png",
+          "bytes": 58189,
+          "viewport": [
+            1264,
+            1800
+          ],
+          "timestamp": 26605.270897697403
+        },
+        "observation_end_timestamp": 26605.270897697403
+      },
+      {
+        "name": "selector",
+        "action": {
+          "action": "select-option",
+          "option": "region",
+          "ok": true
+        },
+        "start": 22,
+        "end": 43,
+        "start_timestamp": 26611.112064,
+        "end_timestamp": 26611.177164,
+        "dom_before": {
+          "document_title": "streamlit-rust P0 reference",
+          "markdown": [
+            "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part of the production path."
+          ],
+          "has_uploader": true,
+          "headings": [
+            "streamlit-rust P0 reference",
+            "Aggregated result",
+            "Interaction"
+          ],
+          "button_labels": [
+            "Pulse"
+          ],
+          "has_button": true,
+          "script_runs": "1",
+          "pulses": "0",
+          "applied_note": "",
+          "table_cells": [],
+          "table_present": false,
+          "chart_present": false,
+          "chart_bars": 0,
+          "chart_labels": [],
+          "chart_marks": "",
+          "slider_value": "0",
+          "checkbox_checked": true,
+          "selectbox_value": "category",
+          "texts": [
+            "Script runs: 1",
+            "Pulses: 0",
+            "Applied note:"
+          ],
+          "alerts": [
+            "Upload a CSV to see the aggregated result."
+          ],
+          "selectbox_disabled": false,
+          "slider_thumb": "0",
+          "slider_disabled": false,
+          "checkbox_disabled": false,
+          "exceptions": []
+        },
+        "dom_after": {
+          "document_title": "streamlit-rust P0 reference",
+          "markdown": [
+            "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part of the production path."
+          ],
+          "has_uploader": true,
+          "headings": [
+            "streamlit-rust P0 reference",
+            "Aggregated result",
+            "Interaction"
+          ],
+          "button_labels": [
+            "Pulse"
+          ],
+          "has_button": true,
+          "script_runs": "2",
+          "pulses": "0",
+          "applied_note": "",
+          "table_cells": [],
+          "table_present": false,
+          "chart_present": false,
+          "chart_bars": 0,
+          "chart_labels": [],
+          "chart_marks": "",
+          "slider_value": "0",
+          "checkbox_checked": true,
+          "selectbox_value": "region",
+          "texts": [
+            "Script runs: 2",
+            "Pulses: 0",
+            "Applied note:"
+          ],
+          "alerts": [
+            "Upload a CSV to see the aggregated result."
+          ],
+          "selectbox_disabled": false,
+          "slider_thumb": "0",
+          "slider_disabled": false,
+          "checkbox_disabled": false,
+          "exceptions": []
+        },
+        "client_states": [
+          {
+            "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+            "value_field": "file_uploader_state_value",
+            "value": {}
+          },
+          {
+            "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+            "value_field": "string_value",
+            "value": "region"
+          },
+          {
+            "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+            "value_field": "double_array_value",
+            "value": {
+              "data": "[0.0]"
+            }
+          },
+          {
+            "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+            "value_field": "bool_value",
+            "value": true
+          },
+          {
+            "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+            "value_field": "string_value",
+            "value": ""
+          }
+        ],
+        "completions": [
+          {
+            "frame": 20,
+            "connection": 0,
+            "request_id": "96412.151",
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          }
+        ],
+        "ipc": {
+          "table": null,
+          "chart": null
+        },
+        "screenshot": {
+          "file": "02-after-selector.png",
+          "bytes": 58303,
+          "viewport": [
+            1264,
+            1800
+          ],
+          "timestamp": 26611.218942894317
+        },
+        "observation_end_timestamp": 26611.218942894317
+      },
+      {
+        "name": "upload-baseline",
+        "action": {
+          "action": "upload",
+          "ok": true,
+          "file": "D:\\dlab\\streamlit-rust\\tests\\fixtures\\csv\\sales_basic.csv",
+          "file_sha256": "9692a718edc5bec8f3fee1cfec4f454338c8f8d675cd34c17cdb5bf4403d8d00",
+          "file_bytes": 737
+        },
+        "start": 44,
+        "end": 68,
+        "start_timestamp": 26624.33519,
+        "end_timestamp": 26624.429062,
+        "dom_before": {
+          "document_title": "streamlit-rust P0 reference",
+          "markdown": [
+            "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part of the production path."
+          ],
+          "has_uploader": true,
+          "headings": [
+            "streamlit-rust P0 reference",
+            "Aggregated result",
+            "Interaction"
+          ],
+          "button_labels": [
+            "Pulse"
+          ],
+          "has_button": true,
+          "script_runs": "2",
+          "pulses": "0",
+          "applied_note": "",
+          "table_cells": [],
+          "table_present": false,
+          "chart_present": false,
+          "chart_bars": 0,
+          "chart_labels": [],
+          "chart_marks": "",
+          "slider_value": "0",
+          "checkbox_checked": true,
+          "selectbox_value": "region",
+          "texts": [
+            "Script runs: 2",
+            "Pulses: 0",
+            "Applied note:"
+          ],
+          "alerts": [
+            "Upload a CSV to see the aggregated result."
+          ],
+          "selectbox_disabled": false,
+          "slider_thumb": "0",
+          "slider_disabled": false,
+          "checkbox_disabled": false,
+          "exceptions": []
+        },
+        "dom_after": {
+          "document_title": "streamlit-rust P0 reference",
+          "markdown": [
+            "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part of the production path."
+          ],
+          "has_uploader": true,
+          "headings": [
+            "streamlit-rust P0 reference",
+            "Aggregated result",
+            "Interaction"
+          ],
+          "button_labels": [
+            "Pulse"
+          ],
+          "has_button": true,
+          "script_runs": "3",
+          "pulses": "0",
+          "applied_note": "",
+          "table_cells": [
+            "(missing)",
+            "1",
+            "88",
+            "88",
+            "East",
+            "2",
+            "209.49",
+            "104.75",
+            "North",
+            "3",
+            "264.5",
+            "88.17",
+            "South",
+            "2",
+            "245.24",
+            "122.62",
+            "UNKNOWN",
+            "2",
+            "40.49",
+            "20.25",
+            "West",
+            "2",
+            "51",
+            "25.5"
+          ],
+          "table_present": true,
+          "chart_present": true,
+          "chart_bars": 6,
+          "chart_labels": [
+            "(missing)",
+            "East",
+            "North",
+            "South",
+            "UNKNOWN",
+            "West",
+            "group_key",
+            "0",
+            "50",
+            "100",
+            "150",
+            "200",
+            "250",
+            "total_amount"
+          ],
+          "chart_marks": "M20.170833333333317,94.62857142857143h131.325v43.37142857142857h-131.325Z|M191.83749999999998,34.75135714285714h131.325v103.24864285714287h-131.325Z|M363.5041666666666,7.639285714285718h131.325v130.3607142857143h-131.325Z|M535.1708333333332,17.13171428571428h131.325v120.86828571428572h-131.325Z|M706.8375,118.04421428571429h131.325v19.95578571428571h-131.325Z|M878.5041666666665,112.86428571428571h131.325v25.135714285714286h-131.325Z",
+          "slider_value": "0",
+          "checkbox_checked": true,
+          "selectbox_value": "region",
+          "texts": [
+            "Script runs: 3",
+            "Pulses: 0",
+            "Applied note:"
+          ],
+          "alerts": [],
+          "selectbox_disabled": false,
+          "slider_thumb": "0",
+          "slider_disabled": false,
+          "checkbox_disabled": false,
+          "exceptions": []
+        },
+        "client_states": [
+          {
+            "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+            "value_field": "file_uploader_state_value",
+            "value": {
+              "uploaded_file_info": "[name: \"sales_basic.csv\"\nsize: 737\nfile_id: \"7d0f3d03-6cef-4f98-9561-879d2fc50908\"\nfile_urls {\n  file_id: \"7d0f3d03-6cef-4f98-9561-879d2fc50908\"\n  upload_url: \"/_stcore/upload_file/419ba0c9-0687-4dfa-986a-306433be8a8d/7d0f3d03-6cef-4f98-9561-879d2fc50908\"\n  delete_url: \"/_stcore/upload_file/419ba0c9-0687-4dfa-986a-306433be8a8d/7d0f3d03-6cef-4f98-9561-879d2fc50908\"\n}\n]"
+            }
+          },
+          {
+            "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+            "value_field": "string_value",
+            "value": "region"
+          },
+          {
+            "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+            "value_field": "double_array_value",
+            "value": {
+              "data": "[0.0]"
+            }
+          },
+          {
+            "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+            "value_field": "bool_value",
+            "value": true
+          },
+          {
+            "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+            "value_field": "string_value",
+            "value": ""
+          }
+        ],
+        "completions": [
+          {
+            "frame": 23,
+            "connection": 0,
+            "request_id": "96412.151",
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          }
+        ],
+        "ipc": {
+          "table": {
+            "arrow": {
+              "sha256": "ebee1250703fa16bacb003af81b268a442bf8994f12c057931b2073bca2d5179",
+              "bytes": 1720,
+              "file": "arrow-1.bin",
+              "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 749",
+              "columns": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_count": 6,
+              "rows": [
+                {
+                  "group_key": "(missing)",
+                  "row_count": 1,
+                  "total_amount": 88.0,
+                  "avg_amount": 88.0
+                },
+                {
+                  "group_key": "East",
+                  "row_count": 2,
+                  "total_amount": 209.49,
+                  "avg_amount": 104.75
+                },
+                {
+                  "group_key": "North",
+                  "row_count": 3,
+                  "total_amount": 264.5,
+                  "avg_amount": 88.17
+                },
+                {
+                  "group_key": "South",
+                  "row_count": 2,
+                  "total_amount": 245.24,
+                  "avg_amount": 122.62
+                },
+                {
+                  "group_key": "UNKNOWN",
+                  "row_count": 2,
+                  "total_amount": 40.49,
+                  "avg_amount": 20.25
+                },
+                {
+                  "group_key": "West",
+                  "row_count": 2,
+                  "total_amount": 51.0,
+                  "avg_amount": 25.5
+                }
+              ]
+            },
+            "arrow_fields": {
+              "columns": "{\"_index\": {\"hidden\": true}}",
+              "editing_mode": 0,
+              "disabled": false,
+              "column_order": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_height": 0
+            }
+          },
+          "chart": {
+            "vega_lite_spec": {
+              "data": {
+                "name": "32bd595f9f3b20c10a1709b995caa238"
+              },
+              "mark": {
+                "type": "bar"
+              },
+              "encoding": {
+                "tooltip": [
+                  {
+                    "field": "group_key",
+                    "title": "group",
+                    "type": "nominal"
+                  },
+                  {
+                    "field": "row_count",
+                    "title": "rows",
+                    "type": "quantitative"
+                  },
+                  {
+                    "field": "total_amount",
+                    "title": "total",
+                    "type": "quantitative"
+                  },
+                  {
+                    "field": "avg_amount",
+                    "title": "avg",
+                    "type": "quantitative"
+                  }
+                ],
+                "x": {
+                  "field": "group_key",
+                  "sort": [
+                    "(missing)",
+                    "East",
+                    "North",
+                    "South",
+                    "UNKNOWN",
+                    "West"
+                  ],
+                  "type": "nominal"
+                },
+                "y": {
+                  "field": "total_amount",
+                  "type": "quantitative"
+                }
+              },
+              "height": 260,
+              "$schema": "https://vega.github.io/schema/vega-lite/v5.20.1.json",
+              "autosize": {
+                "type": "fit",
+                "contains": "padding"
+              }
+            },
+            "arrow": null,
+            "datasets": [
+              {
+                "name": "32bd595f9f3b20c10a1709b995caa238",
+                "has_name": true,
+                "arrow": {
+                  "sha256": "ebee1250703fa16bacb003af81b268a442bf8994f12c057931b2073bca2d5179",
+                  "bytes": 1720,
+                  "file": "arrow-1.bin",
+                  "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 749",
+                  "columns": [
+                    "group_key",
+                    "row_count",
+                    "total_amount",
+                    "avg_amount"
+                  ],
+                  "row_count": 6,
+                  "rows": [
+                    {
+                      "group_key": "(missing)",
+                      "row_count": 1,
+                      "total_amount": 88.0,
+                      "avg_amount": 88.0
+                    },
+                    {
+                      "group_key": "East",
+                      "row_count": 2,
+                      "total_amount": 209.49,
+                      "avg_amount": 104.75
+                    },
+                    {
+                      "group_key": "North",
+                      "row_count": 3,
+                      "total_amount": 264.5,
+                      "avg_amount": 88.17
+                    },
+                    {
+                      "group_key": "South",
+                      "row_count": 2,
+                      "total_amount": 245.24,
+                      "avg_amount": 122.62
+                    },
+                    {
+                      "group_key": "UNKNOWN",
+                      "row_count": 2,
+                      "total_amount": 40.49,
+                      "avg_amount": 20.25
+                    },
+                    {
+                      "group_key": "West",
+                      "row_count": 2,
+                      "total_amount": 51.0,
+                      "avg_amount": 25.5
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        "screenshot": {
+          "file": "03-after-upload.png",
+          "bytes": 76526,
+          "viewport": [
+            1264,
+            1800
+          ],
+          "timestamp": 26624.47120354135
+        },
+        "observation_end_timestamp": 26624.47120354135
+      },
+      {
+        "name": "pulse",
+        "action": {
+          "action": "button",
+          "label": "Pulse",
+          "ok": true
+        },
+        "start": 69,
+        "end": 91,
+        "start_timestamp": 26634.161359,
+        "end_timestamp": 26634.251569,
+        "dom_before": {
+          "document_title": "streamlit-rust P0 reference",
+          "markdown": [
+            "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part of the production path."
+          ],
+          "has_uploader": true,
+          "headings": [
+            "streamlit-rust P0 reference",
+            "Aggregated result",
+            "Interaction"
+          ],
+          "button_labels": [
+            "Pulse"
+          ],
+          "has_button": true,
+          "script_runs": "3",
+          "pulses": "0",
+          "applied_note": "",
+          "table_cells": [
+            "(missing)",
+            "1",
+            "88",
+            "88",
+            "East",
+            "2",
+            "209.49",
+            "104.75",
+            "North",
+            "3",
+            "264.5",
+            "88.17",
+            "South",
+            "2",
+            "245.24",
+            "122.62",
+            "UNKNOWN",
+            "2",
+            "40.49",
+            "20.25",
+            "West",
+            "2",
+            "51",
+            "25.5"
+          ],
+          "table_present": true,
+          "chart_present": true,
+          "chart_bars": 6,
+          "chart_labels": [
+            "(missing)",
+            "East",
+            "North",
+            "South",
+            "UNKNOWN",
+            "West",
+            "group_key",
+            "0",
+            "50",
+            "100",
+            "150",
+            "200",
+            "250",
+            "total_amount"
+          ],
+          "chart_marks": "M20.170833333333317,94.62857142857143h131.325v43.37142857142857h-131.325Z|M191.83749999999998,34.75135714285714h131.325v103.24864285714287h-131.325Z|M363.5041666666666,7.639285714285718h131.325v130.3607142857143h-131.325Z|M535.1708333333332,17.13171428571428h131.325v120.86828571428572h-131.325Z|M706.8375,118.04421428571429h131.325v19.95578571428571h-131.325Z|M878.5041666666665,112.86428571428571h131.325v25.135714285714286h-131.325Z",
+          "slider_value": "0",
+          "checkbox_checked": true,
+          "selectbox_value": "region",
+          "texts": [
+            "Script runs: 3",
+            "Pulses: 0",
+            "Applied note:"
+          ],
+          "alerts": [],
+          "selectbox_disabled": false,
+          "slider_thumb": "0",
+          "slider_disabled": false,
+          "checkbox_disabled": false,
+          "exceptions": []
+        },
+        "dom_after": {
+          "document_title": "streamlit-rust P0 reference",
+          "markdown": [
+            "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part of the production path."
+          ],
+          "has_uploader": true,
+          "headings": [
+            "streamlit-rust P0 reference",
+            "Aggregated result",
+            "Interaction"
+          ],
+          "button_labels": [
+            "Pulse"
+          ],
+          "has_button": true,
+          "script_runs": "4",
+          "pulses": "1",
+          "applied_note": "",
+          "table_cells": [
+            "(missing)",
+            "1",
+            "88",
+            "88",
+            "East",
+            "2",
+            "209.49",
+            "104.75",
+            "North",
+            "3",
+            "264.5",
+            "88.17",
+            "South",
+            "2",
+            "245.24",
+            "122.62",
+            "UNKNOWN",
+            "2",
+            "40.49",
+            "20.25",
+            "West",
+            "2",
+            "51",
+            "25.5"
+          ],
+          "table_present": true,
+          "chart_present": true,
+          "chart_bars": 6,
+          "chart_labels": [
+            "(missing)",
+            "East",
+            "North",
+            "South",
+            "UNKNOWN",
+            "West",
+            "group_key",
+            "0",
+            "50",
+            "100",
+            "150",
+            "200",
+            "250",
+            "total_amount"
+          ],
+          "chart_marks": "M20.170833333333317,94.62857142857143h131.325v43.37142857142857h-131.325Z|M191.83749999999998,34.75135714285714h131.325v103.24864285714287h-131.325Z|M363.5041666666666,7.639285714285718h131.325v130.3607142857143h-131.325Z|M535.1708333333332,17.13171428571428h131.325v120.86828571428572h-131.325Z|M706.8375,118.04421428571429h131.325v19.95578571428571h-131.325Z|M878.5041666666665,112.86428571428571h131.325v25.135714285714286h-131.325Z",
+          "slider_value": "0",
+          "checkbox_checked": true,
+          "selectbox_value": "region",
+          "texts": [
+            "Script runs: 4",
+            "Pulses: 1",
+            "Applied note:"
+          ],
+          "alerts": [],
+          "selectbox_disabled": false,
+          "slider_thumb": "0",
+          "slider_disabled": false,
+          "checkbox_disabled": false,
+          "exceptions": []
+        },
+        "client_states": [
+          {
+            "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+            "value_field": "file_uploader_state_value",
+            "value": {
+              "uploaded_file_info": "[name: \"sales_basic.csv\"\nsize: 737\nfile_id: \"7d0f3d03-6cef-4f98-9561-879d2fc50908\"\nfile_urls {\n  file_id: \"7d0f3d03-6cef-4f98-9561-879d2fc50908\"\n  upload_url: \"/_stcore/upload_file/419ba0c9-0687-4dfa-986a-306433be8a8d/7d0f3d03-6cef-4f98-9561-879d2fc50908\"\n  delete_url: \"/_stcore/upload_file/419ba0c9-0687-4dfa-986a-306433be8a8d/7d0f3d03-6cef-4f98-9561-879d2fc50908\"\n}\n]"
+            }
+          },
+          {
+            "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+            "value_field": "string_value",
+            "value": "region"
+          },
+          {
+            "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+            "value_field": "double_array_value",
+            "value": {
+              "data": "[0.0]"
+            }
+          },
+          {
+            "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+            "value_field": "bool_value",
+            "value": true
+          },
+          {
+            "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+            "value_field": "string_value",
+            "value": ""
+          },
+          {
+            "id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+            "value_field": "trigger_value",
+            "value": true
+          }
+        ],
+        "completions": [
+          {
+            "frame": 21,
+            "connection": 0,
+            "request_id": "96412.151",
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          }
+        ],
+        "ipc": {
+          "table": {
+            "arrow": {
+              "sha256": "ebee1250703fa16bacb003af81b268a442bf8994f12c057931b2073bca2d5179",
+              "bytes": 1720,
+              "file": "arrow-1.bin",
+              "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 749",
+              "columns": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_count": 6,
+              "rows": [
+                {
+                  "group_key": "(missing)",
+                  "row_count": 1,
+                  "total_amount": 88.0,
+                  "avg_amount": 88.0
+                },
+                {
+                  "group_key": "East",
+                  "row_count": 2,
+                  "total_amount": 209.49,
+                  "avg_amount": 104.75
+                },
+                {
+                  "group_key": "North",
+                  "row_count": 3,
+                  "total_amount": 264.5,
+                  "avg_amount": 88.17
+                },
+                {
+                  "group_key": "South",
+                  "row_count": 2,
+                  "total_amount": 245.24,
+                  "avg_amount": 122.62
+                },
+                {
+                  "group_key": "UNKNOWN",
+                  "row_count": 2,
+                  "total_amount": 40.49,
+                  "avg_amount": 20.25
+                },
+                {
+                  "group_key": "West",
+                  "row_count": 2,
+                  "total_amount": 51.0,
+                  "avg_amount": 25.5
+                }
+              ]
+            },
+            "arrow_fields": {
+              "columns": "{\"_index\": {\"hidden\": true}}",
+              "editing_mode": 0,
+              "disabled": false,
+              "column_order": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_height": 0
+            }
+          },
+          "chart": {
+            "vega_lite_spec": {
+              "data": {
+                "name": "32bd595f9f3b20c10a1709b995caa238"
+              },
+              "mark": {
+                "type": "bar"
+              },
+              "encoding": {
+                "tooltip": [
+                  {
+                    "field": "group_key",
+                    "title": "group",
+                    "type": "nominal"
+                  },
+                  {
+                    "field": "row_count",
+                    "title": "rows",
+                    "type": "quantitative"
+                  },
+                  {
+                    "field": "total_amount",
+                    "title": "total",
+                    "type": "quantitative"
+                  },
+                  {
+                    "field": "avg_amount",
+                    "title": "avg",
+                    "type": "quantitative"
+                  }
+                ],
+                "x": {
+                  "field": "group_key",
+                  "sort": [
+                    "(missing)",
+                    "East",
+                    "North",
+                    "South",
+                    "UNKNOWN",
+                    "West"
+                  ],
+                  "type": "nominal"
+                },
+                "y": {
+                  "field": "total_amount",
+                  "type": "quantitative"
+                }
+              },
+              "height": 260,
+              "$schema": "https://vega.github.io/schema/vega-lite/v5.20.1.json",
+              "autosize": {
+                "type": "fit",
+                "contains": "padding"
+              }
+            },
+            "arrow": null,
+            "datasets": [
+              {
+                "name": "32bd595f9f3b20c10a1709b995caa238",
+                "has_name": true,
+                "arrow": {
+                  "sha256": "ebee1250703fa16bacb003af81b268a442bf8994f12c057931b2073bca2d5179",
+                  "bytes": 1720,
+                  "file": "arrow-1.bin",
+                  "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 749",
+                  "columns": [
+                    "group_key",
+                    "row_count",
+                    "total_amount",
+                    "avg_amount"
+                  ],
+                  "row_count": 6,
+                  "rows": [
+                    {
+                      "group_key": "(missing)",
+                      "row_count": 1,
+                      "total_amount": 88.0,
+                      "avg_amount": 88.0
+                    },
+                    {
+                      "group_key": "East",
+                      "row_count": 2,
+                      "total_amount": 209.49,
+                      "avg_amount": 104.75
+                    },
+                    {
+                      "group_key": "North",
+                      "row_count": 3,
+                      "total_amount": 264.5,
+                      "avg_amount": 88.17
+                    },
+                    {
+                      "group_key": "South",
+                      "row_count": 2,
+                      "total_amount": 245.24,
+                      "avg_amount": 122.62
+                    },
+                    {
+                      "group_key": "UNKNOWN",
+                      "row_count": 2,
+                      "total_amount": 40.49,
+                      "avg_amount": 20.25
+                    },
+                    {
+                      "group_key": "West",
+                      "row_count": 2,
+                      "total_amount": 51.0,
+                      "avg_amount": 25.5
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        "screenshot": {
+          "file": "04-after-pulse.png",
+          "bytes": 75878,
+          "viewport": [
+            1264,
+            1800
+          ],
+          "timestamp": 26634.293071063188
+        },
+        "observation_end_timestamp": 26634.293071063188
+      }
+    ],
+    "states": [],
+    "http_timeline": [
+      {
+        "method": "GET",
+        "url": "http://127.0.0.1:8601/",
+        "request_id": "B383A41FD45FE697C9FAE66CCB8BCB8D",
+        "timestamp": 26604.782409,
+        "status": 200,
+        "response_timestamp": 26604.789435,
+        "request_headers": {}
+      },
+      {
+        "method": "GET",
+        "url": "http://127.0.0.1:8601/_stcore/health",
+        "request_id": "96412.149",
+        "timestamp": 26604.868976,
+        "status": 200,
+        "response_timestamp": 26604.876768,
+        "request_headers": {}
+      },
+      {
+        "method": "GET",
+        "url": "http://127.0.0.1:8601/_stcore/host-config",
+        "request_id": "96412.150",
+        "timestamp": 26604.869132,
+        "status": 200,
+        "response_timestamp": 26604.877041,
+        "request_headers": {}
+      },
+      {
+        "method": "PUT",
+        "url": "http://127.0.0.1:8601/_stcore/upload_file/419ba0c9-0687-4dfa-986a-306433be8a8d/7d0f3d03-6cef-4f98-9561-879d2fc50908",
+        "request_id": "96412.197",
+        "timestamp": 26624.348113,
+        "status": 204,
+        "response_timestamp": 26624.351484,
+        "request_headers": {
+          "Content-Type": "multipart/form-data; boundary=----WebKitFormBoundaryPt1dHipARKLP9WYS"
+        }
+      }
+    ],
+    "contract": "journey-stage2-v1",
+    "screenshots": [
+      {
+        "step_ids": [
+          "J04-S1"
+        ],
+        "phase": "initial",
+        "namespace": "py-ref-state-20261024T183117",
+        "file": "01-initial.png",
+        "sha256": "9eaf962e5345ed95e836bee96a5a5596a8dfaf52160999d05f811f77ff2f6ae9",
+        "timestamp": 26605.270897697403
+      },
+      {
+        "step_ids": [
+          "J04-S2"
+        ],
+        "phase": "selector",
+        "namespace": "py-ref-state-20261024T183117",
+        "file": "02-after-selector.png",
+        "sha256": "d29e418a15605950852ccbbca2912499f55ad3b4f1854d049939aab1b1b39c20",
+        "timestamp": 26611.218942894317
+      },
+      {
+        "step_ids": [
+          "J04-S3"
+        ],
+        "phase": "pulse",
+        "namespace": "py-ref-state-20261024T183117",
+        "file": "04-after-pulse.png",
+        "sha256": "0965103562681c6a7f5e9bcc7152a62ef36f539b47cecfdffc99cdcfa1be5a07",
+        "timestamp": 26634.293071063188
+      }
+    ],
+    "journey": "state"
+  },
+  "summary": {
+    "alerts": [],
+    "dom": {
+      "document_title": "streamlit-rust P0 reference",
+      "markdown": [
+        "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part of the production path."
+      ],
+      "has_uploader": true,
+      "headings": [
+        "streamlit-rust P0 reference",
+        "Aggregated result",
+        "Interaction"
+      ],
+      "button_labels": [
+        "Pulse"
+      ],
+      "has_button": true,
+      "script_runs": "4",
+      "pulses": "1",
+      "applied_note": "",
+      "table_cells": [
+        "(missing)",
+        "1",
+        "88",
+        "88",
+        "East",
+        "2",
+        "209.49",
+        "104.75",
+        "North",
+        "3",
+        "264.5",
+        "88.17",
+        "South",
+        "2",
+        "245.24",
+        "122.62",
+        "UNKNOWN",
+        "2",
+        "40.49",
+        "20.25",
+        "West",
+        "2",
+        "51",
+        "25.5"
+      ],
+      "table_present": true,
+      "chart_present": true,
+      "chart_bars": 6,
+      "chart_labels": [
+        "(missing)",
+        "East",
+        "North",
+        "South",
+        "UNKNOWN",
+        "West",
+        "group_key",
+        "0",
+        "50",
+        "100",
+        "150",
+        "200",
+        "250",
+        "total_amount"
+      ],
+      "chart_marks": "M20.170833333333317,94.62857142857143h131.325v43.37142857142857h-131.325Z|M191.83749999999998,34.75135714285714h131.325v103.24864285714287h-131.325Z|M363.5041666666666,7.639285714285718h131.325v130.3607142857143h-131.325Z|M535.1708333333332,17.13171428571428h131.325v120.86828571428572h-131.325Z|M706.8375,118.04421428571429h131.325v19.95578571428571h-131.325Z|M878.5041666666665,112.86428571428571h131.325v25.135714285714286h-131.325Z",
+      "slider_value": "0",
+      "checkbox_checked": true,
+      "selectbox_value": "region",
+      "texts": [
+        "Script runs: 4",
+        "Pulses: 1",
+        "Applied note:"
+      ],
+      "alerts": [],
+      "selectbox_disabled": false,
+      "slider_thumb": "0",
+      "slider_disabled": false,
+      "checkbox_disabled": false,
+      "exceptions": []
+    }
+  },
+  "checks": [
+    {
+      "step": "state",
+      "check": "contract",
+      "expected": "strict stage2 state evidence",
+      "actual": "journey-stage2-v1/state",
+      "ok": true,
+      "journey": "state"
+    },
+    {
+      "step": "state",
+      "check": "phase_sequence",
+      "expected": "strict stage2 state evidence",
+      "actual": "[\"initial\", \"selector\", \"upload-baseline\", \"pulse\"]",
+      "ok": true,
+      "journey": "state"
+    },
+    {
+      "step": "state",
+      "check": "inputs",
+      "expected": "strict stage2 state evidence",
+      "actual": "9692a718edc5bec8f3fee1cfec4f454338c8f8d675cd34c17cdb5bf4403d8d00",
+      "ok": true,
+      "journey": "state"
+    },
+    {
+      "step": "state",
+      "check": "distinct_run_markers",
+      "expected": "strict stage2 state evidence",
+      "actual": "[\"870f3375-66f1-4883-b8e1-944d61c5b39a\", \"57e8e91e-ee70-4aa0-8d12-82f6b0ff5858\", \"2a05a9be-a983-4fa6-a753-f511e067b895\", \"1a46a931-dda7-4fd7-bd8e-d41f5a3707df\"]",
+      "ok": true,
+      "journey": "state"
+    },
+    {
+      "step": "state",
+      "check": "initial_run1_pulse0",
+      "expected": "strict stage2 state evidence",
+      "actual": "[1, 0]",
+      "ok": true,
+      "journey": "state"
+    },
+    {
+      "step": "state",
+      "check": "selector_once_counts",
+      "expected": "strict stage2 state evidence",
+      "actual": "[2, 0]",
+      "ok": true,
+      "journey": "state"
+    },
+    {
+      "step": "state",
+      "check": "pulse_once_counts",
+      "expected": "strict stage2 state evidence",
+      "actual": "[4, 1]",
+      "ok": true,
+      "journey": "state"
+    },
+    {
+      "step": "state",
+      "check": "upload_preparation",
+      "expected": "strict stage2 state evidence",
+      "actual": "7d0f3d03-6cef-4f98-9561-879d2fc50908",
+      "ok": true,
+      "journey": "state"
+    },
+    {
+      "step": "state",
+      "check": "same_file_session",
+      "expected": "strict stage2 state evidence",
+      "actual": "7d0f3d03-6cef-4f98-9561-879d2fc50908",
+      "ok": true,
+      "journey": "state"
+    },
+    {
+      "step": "state",
+      "check": "fresh_unchanged_values",
+      "expected": "strict stage2 state evidence",
+      "actual": "fresh IPC in each run; same schema/rows/encoding",
+      "ok": true,
+      "journey": "state"
+    },
+    {
+      "step": "screenshots",
+      "check": "records",
+      "expected": "stage2 screenshot records for the fixed steps",
+      "actual": "[{\"step_ids\": [\"J04-S1\"], \"phase\": \"initial\", \"namespace\": \"py-ref-state-20261024T183117\", \"file\": \"01-initial.png\", \"sha256\": \"9eaf962e5345ed95e836bee96a5a5596a8dfaf52160999d05f811f77ff2f6ae9\", \"timestamp\": 26605.270897697403}, {\"step_ids\": [\"J04-S2\"], \"phase\": \"selector\", \"namespace\": \"py-ref-state-20261024T183117\", \"file\": \"02-after-selector.png\", \"sha256\": \"d29e418a15605950852ccbbca2912499f55ad3b4f1854d049939aab1b1b39c20\", \"timestamp\": 26611.218942894317}, {\"step_ids\": [\"J04-S3\"], \"phase\": \"pulse\", \"namespace\": \"py-ref-state-20261024T183117\", \"file\": \"04-after-pulse.png\", \"sha256\": \"0965103562681c6a7f5e9bcc7152a62ef36f539b47cecfdffc99cdcfa1be5a07\", \"timestamp\": 26634.293071063188}]",
+      "ok": true,
+      "journey": "screenshots/state"
+    },
+    {
+      "step": "J04-S1",
+      "check": "png_proof/main/0",
+      "expected": "original PNG/hash/source/completed phase time",
+      "actual": "01-initial.png",
+      "ok": true,
+      "journey": "screenshots/state"
+    },
+    {
+      "step": "J04-S2",
+      "check": "png_proof/main/1",
+      "expected": "original PNG/hash/source/completed phase time",
+      "actual": "02-after-selector.png",
+      "ok": true,
+      "journey": "screenshots/state"
+    },
+    {
+      "step": "J04-S3",
+      "check": "png_proof/main/3",
+      "expected": "original PNG/hash/source/completed phase time",
+      "actual": "04-after-pulse.png",
+      "ok": true,
+      "journey": "screenshots/state"
+    }
+  ],
+  "counts": {
+    "expected": 14,
+    "executed": 14,
+    "asserted": 14
+  },
+  "failures": []
+}

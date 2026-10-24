@@ -1,0 +1,3411 @@
+{
+  "schema_version": 1,
+  "contract_id": "C-P0-04",
+  "kind": "rust-browser-data-loop-trace",
+  "scope": "RUST SIDE ONLY",
+  "capture": {
+    "tool": "DevTools Protocol against the same real Chrome",
+    "tool_limitation": "the agent-browser CLI could not start its daemon in this environment (connection timeout), so the input is sent over CDP",
+    "driver": "tests/browser/numeric_capture.py",
+    "binary": "target/checks/data-app-live/data-app-csv-stage2-20261024T172854620.exe sha256 9430149DE61EA521AE873D2AE77A97A62D9BE5F63F547F00E9D5F7A1D23F4A57",
+    "python": "D:\\dlab\\streamlit-rust\\target\\pyref-venv\\Scripts\\python.exe"
+  },
+  "url": "http://127.0.0.1:8501/",
+  "case": "filter-empty",
+  "journey": "filter-empty",
+  "observation": {
+    "namespace": "rust-empty-20261024T183117",
+    "url": "http://127.0.0.1:8501/",
+    "ipc_dir": "target\\rust87420-20261024T183117\\filter-empty",
+    "uploads": {
+      "file": true
+    },
+    "frames": [
+      {
+        "direction": "client->server",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26466.328006,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "BackMsg",
+          "type": "rerun_script",
+          "rerun_script": {
+            "widget_states": []
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26466.329831,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "new_session",
+          "new_session": {
+            "script_run_id": "edbf1834-045e-407c-9b44-f1066d0f5e96",
+            "name": "Streamlit Rust",
+            "main_script_path": "",
+            "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+            "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+            "session_id": "03ab6007-bb0d-46d7-b990-c76fea69c4b2"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26466.337222,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": true,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26466.337365,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "add_block",
+            "block_id": "main_container",
+            "block_type": "vertical"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26466.337667,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Streamlit Rust CSV data app"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26466.338052,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "file_uploader",
+            "element_full": {
+              "fileUploader": {
+                "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+                "label": "Upload sales CSV",
+                "type": [
+                  ".csv"
+                ],
+                "maxUploadSizeMb": 200,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+              "label": "Upload sales CSV",
+              "type": [
+                ".csv"
+              ],
+              "maxUploadSizeMb": 200,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+            "label": "Upload sales CSV",
+            "accepted_types": [
+              "['.csv']"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26466.338284,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "selectbox",
+            "element_full": {
+              "selectbox": {
+                "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+                "label": "Group by",
+                "default": 0,
+                "options": [
+                  "category",
+                  "region",
+                  "channel"
+                ],
+                "labelVisibility": {},
+                "acceptNewOptions": false
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+              "label": "Group by",
+              "default": 0,
+              "options": [
+                "category",
+                "region",
+                "channel"
+              ],
+              "labelVisibility": {},
+              "acceptNewOptions": false
+            },
+            "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+            "label": "Group by",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26466.33845,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "slider",
+            "element_full": {
+              "slider": {
+                "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+                "label": "Minimum amount",
+                "format": "%d",
+                "default": [
+                  0.0
+                ],
+                "max": 200.0,
+                "step": 10.0,
+                "labelVisibility": {},
+                "type": "SLIDER"
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+              "label": "Minimum amount",
+              "format": "%d",
+              "default": [
+                0.0
+              ],
+              "max": 200.0,
+              "step": 10.0,
+              "labelVisibility": {},
+              "type": "SLIDER"
+            },
+            "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+            "label": "Minimum amount",
+            "accepted_types": [
+              "1"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26466.33876,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "checkbox",
+            "element_full": {
+              "checkbox": {
+                "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+                "label": "Include unknown region",
+                "default": true,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useContent": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+              "label": "Include unknown region",
+              "default": true,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+            "label": "Include unknown region",
+            "accepted_types": [
+              "0"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26466.338945,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Aggregated result"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26466.339012,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "alert",
+            "alert": {
+              "body": "Upload a CSV to see the aggregated result.",
+              "format": "INFO",
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "element_width_config": null,
+            "element_height_config": null,
+            "body": "Upload a CSV to see the aggregated result."
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26466.339163,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Interaction"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26466.339231,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "button",
+            "widget": {
+              "id": "$$ID-8df8cbc923e8b253d5764d847ca3632d-pulse",
+              "label": "Pulse",
+              "type": "secondary"
+            },
+            "id": "$$ID-8df8cbc923e8b253d5764d847ca3632d-pulse",
+            "label": "Pulse",
+            "accepted_types": [
+              "secondary"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26466.339384,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "markdown",
+            "body": "Script runs: 1"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26466.339498,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "markdown",
+            "body": "Pulses: 0"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26466.339552,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "script_finished",
+          "script_finished": {
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26466.33969,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": false,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "client->server",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26469.352724,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "BackMsg",
+          "type": "file_urls_request",
+          "file_urls_request": {
+            "request_id": "06998da8-2c39-42d7-9e38-8eff62457c76",
+            "file_names": [
+              "sales_basic.csv"
+            ],
+            "session_id": "03ab6007-bb0d-46d7-b990-c76fea69c4b2"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26469.353982,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "file_urls_response",
+          "file_urls_response": {
+            "response_id": "06998da8-2c39-42d7-9e38-8eff62457c76",
+            "file_urls": [
+              {
+                "file_id": "c5bf8405-5f0c-4f75-9620-5ebe3bb386f5",
+                "upload_url": "/_stcore/upload_file/03ab6007-bb0d-46d7-b990-c76fea69c4b2/c5bf8405-5f0c-4f75-9620-5ebe3bb386f5",
+                "delete_url": "/_stcore/upload_file/03ab6007-bb0d-46d7-b990-c76fea69c4b2/c5bf8405-5f0c-4f75-9620-5ebe3bb386f5"
+              }
+            ],
+            "error_msg": ""
+          }
+        }
+      },
+      {
+        "direction": "client->server",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26469.371084,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "BackMsg",
+          "type": "rerun_script",
+          "rerun_script": {
+            "widget_states": [
+              {
+                "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+                "value_field": "file_uploader_state_value",
+                "value": {
+                  "uploaded_file_info": "[name: \"sales_basic.csv\"\nsize: 737\nfile_id: \"c5bf8405-5f0c-4f75-9620-5ebe3bb386f5\"\nfile_urls {\n  file_id: \"c5bf8405-5f0c-4f75-9620-5ebe3bb386f5\"\n  upload_url: \"/_stcore/upload_file/03ab6007-bb0d-46d7-b990-c76fea69c4b2/c5bf8405-5f0c-4f75-9620-5ebe3bb386f5\"\n  delete_url: \"/_stcore/upload_file/03ab6007-bb0d-46d7-b990-c76fea69c4b2/c5bf8405-5f0c-4f75-9620-5ebe3bb386f5\"\n}\n]"
+                },
+                "value_full": {
+                  "uploadedFileInfo": [
+                    {
+                      "name": "sales_basic.csv",
+                      "size": "737",
+                      "fileId": "c5bf8405-5f0c-4f75-9620-5ebe3bb386f5",
+                      "fileUrls": {
+                        "fileId": "c5bf8405-5f0c-4f75-9620-5ebe3bb386f5",
+                        "uploadUrl": "/_stcore/upload_file/03ab6007-bb0d-46d7-b990-c76fea69c4b2/c5bf8405-5f0c-4f75-9620-5ebe3bb386f5",
+                        "deleteUrl": "/_stcore/upload_file/03ab6007-bb0d-46d7-b990-c76fea69c4b2/c5bf8405-5f0c-4f75-9620-5ebe3bb386f5"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+                "value_field": "string_value",
+                "value": "category"
+              },
+              {
+                "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+                "value_field": "double_array_value",
+                "value": {
+                  "data": "[0.0]"
+                },
+                "value_full": {
+                  "data": [
+                    0.0
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+                "value_field": "bool_value",
+                "value": true
+              }
+            ]
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26469.372699,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "new_session",
+          "new_session": {
+            "script_run_id": "3fe95315-c8b7-4926-825c-3912e3370fae",
+            "name": "Streamlit Rust",
+            "main_script_path": "",
+            "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+            "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+            "session_id": "03ab6007-bb0d-46d7-b990-c76fea69c4b2"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26469.372925,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": true,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26469.376381,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "add_block",
+            "block_id": "main_container",
+            "block_type": "vertical"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26469.376468,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Streamlit Rust CSV data app"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26469.376531,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "file_uploader",
+            "element_full": {
+              "fileUploader": {
+                "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+                "label": "Upload sales CSV",
+                "type": [
+                  ".csv"
+                ],
+                "maxUploadSizeMb": 200,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+              "label": "Upload sales CSV",
+              "type": [
+                ".csv"
+              ],
+              "maxUploadSizeMb": 200,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+            "label": "Upload sales CSV",
+            "accepted_types": [
+              "['.csv']"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26469.376587,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "selectbox",
+            "element_full": {
+              "selectbox": {
+                "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+                "label": "Group by",
+                "default": 0,
+                "options": [
+                  "category",
+                  "region",
+                  "channel"
+                ],
+                "labelVisibility": {},
+                "acceptNewOptions": false
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+              "label": "Group by",
+              "default": 0,
+              "options": [
+                "category",
+                "region",
+                "channel"
+              ],
+              "labelVisibility": {},
+              "acceptNewOptions": false
+            },
+            "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+            "label": "Group by",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26469.376676,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "slider",
+            "element_full": {
+              "slider": {
+                "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+                "label": "Minimum amount",
+                "format": "%d",
+                "default": [
+                  0.0
+                ],
+                "max": 200.0,
+                "step": 10.0,
+                "labelVisibility": {},
+                "type": "SLIDER"
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+              "label": "Minimum amount",
+              "format": "%d",
+              "default": [
+                0.0
+              ],
+              "max": 200.0,
+              "step": 10.0,
+              "labelVisibility": {},
+              "type": "SLIDER"
+            },
+            "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+            "label": "Minimum amount",
+            "accepted_types": [
+              "1"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26469.376758,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "checkbox",
+            "element_full": {
+              "checkbox": {
+                "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+                "label": "Include unknown region",
+                "default": true,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useContent": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+              "label": "Include unknown region",
+              "default": true,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+            "label": "Include unknown region",
+            "accepted_types": [
+              "0"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26469.376842,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Aggregated result"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26469.376932,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "dataframe",
+            "element_full": {
+              "dataframe": {
+                "arrowData": {
+                  "data": "/////zgBAAAQAAAAAAAKAAwACgAJAAQACgAAABAAAAAAAQQACAAIAAAABAAIAAAABAAAAAQAAADYAAAAiAAAAEgAAAAEAAAASP///xAAAAAUAAAAAAABAxAAAAC+////AAACAAAAAAAKAAAAYXZnX2Ftb3VudAAAEAAWABAADgAPAAQAAAAIABAAAAAYAAAAHAAAAAAAAQMYAAAAAAAGAAgABgAGAAAAAAACAAAAAAAMAAAAdG90YWxfYW1vdW50AAAAAMT///8YAAAAIAAAAAAAAQIcAAAACAAMAAQACwAIAAAAQAAAAAAAAAEAAAAACQAAAHJvd19jb3VudAAAABAAFAAQAA4ADwAEAAAACAAQAAAAGAAAAAwAAAAAAAEUEAAAAAAAAAAEAAQABAAAAAkAAABncm91cF9rZXkAAAD/////OAEAABAAAAAMABoAGAAXAAQACAAMAAAAIAAAAEACAAAAAAAAAAAAAAAAAAMEAAoAGAAMAAgABAAKAAAAXAAAABAAAAAEAAAAAAAAAAAAAAAEAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAJAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAKAAAAAAAAACAAAAAAAAAABMAAAAAAAAAwAAAAAAAAAABAAAAAAAAAAABAAAAAAAAIAAAAAAAAABAAQAAAAAAAAEAAAAAAAAAgAEAAAAAAAAgAAAAAAAAAMABAAAAAAAAAQAAAAAAAAAAAgAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAACgAAAAAAAAAPAAAAAAAAABMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQm9va3NHYW1lc011c2ljVG95cwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAuG5ASOF6FK6XeUAAAAAAAGBhQI/C9ShcH1pAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAexSuR+F6VEBI4XoUrg9hQArXo3A9KkdACtejcD1qQUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA"
+                },
+                "columns": "{\"_index\":{\"hidden\":true}}",
+                "columnOrder": [
+                  "group_key",
+                  "row_count",
+                  "total_amount",
+                  "avg_amount"
+                ]
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "arrow": {
+              "bytes": 1224,
+              "sha256": "fc57562d7955d8e72e6d7fd03efec45e853868bd71e6e2b6b7d7260f444dff78",
+              "base64": "/////zgBAAAQAAAAAAAKAAwACgAJAAQACgAAABAAAAAAAQQACAAIAAAABAAIAAAABAAAAAQAAADYAAAAiAAAAEgAAAAEAAAASP///xAAAAAUAAAAAAABAxAAAAC+////AAACAAAAAAAKAAAAYXZnX2Ftb3VudAAAEAAWABAADgAPAAQAAAAIABAAAAAYAAAAHAAAAAAAAQMYAAAAAAAGAAgABgAGAAAAAAACAAAAAAAMAAAAdG90YWxfYW1vdW50AAAAAMT///8YAAAAIAAAAAAAAQIcAAAACAAMAAQACwAIAAAAQAAAAAAAAAEAAAAACQAAAHJvd19jb3VudAAAABAAFAAQAA4ADwAEAAAACAAQAAAAGAAAAAwAAAAAAAEUEAAAAAAAAAAEAAQABAAAAAkAAABncm91cF9rZXkAAAD/////OAEAABAAAAAMABoAGAAXAAQACAAMAAAAIAAAAEACAAAAAAAAAAAAAAAAAAMEAAoAGAAMAAgABAAKAAAAXAAAABAAAAAEAAAAAAAAAAAAAAAEAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAJAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAKAAAAAAAAACAAAAAAAAAABMAAAAAAAAAwAAAAAAAAAABAAAAAAAAAAABAAAAAAAAIAAAAAAAAABAAQAAAAAAAAEAAAAAAAAAgAEAAAAAAAAgAAAAAAAAAMABAAAAAAAAAQAAAAAAAAAAAgAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAACgAAAAAAAAAPAAAAAAAAABMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQm9va3NHYW1lc011c2ljVG95cwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAuG5ASOF6FK6XeUAAAAAAAGBhQI/C9ShcH1pAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAexSuR+F6VEBI4XoUrg9hQArXo3A9KkdACtejcD1qQUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA",
+              "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double",
+              "columns": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_count": 4,
+              "rows": [
+                {
+                  "group_key": "Books",
+                  "row_count": 3,
+                  "total_amount": 245.75,
+                  "avg_amount": 81.92
+                },
+                {
+                  "group_key": "Games",
+                  "row_count": 3,
+                  "total_amount": 409.48,
+                  "avg_amount": 136.49
+                },
+                {
+                  "group_key": "Music",
+                  "row_count": 3,
+                  "total_amount": 139.0,
+                  "avg_amount": 46.33
+                },
+                {
+                  "group_key": "Toys",
+                  "row_count": 3,
+                  "total_amount": 104.49,
+                  "avg_amount": 34.83
+                }
+              ]
+            },
+            "arrow_fields": {
+              "columns": "{\"_index\":{\"hidden\":true}}",
+              "editing_mode": 0,
+              "disabled": false,
+              "column_order": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_height": 0
+            },
+            "id": "",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26469.377229,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "vega_lite_chart",
+            "element_full": {
+              "vegaLiteChart": {
+                "spec": "{\"$schema\":\"https://vega.github.io/schema/vega-lite/v5.20.1.json\",\"autosize\":{\"contains\":\"padding\",\"type\":\"fit\"},\"data\":{\"name\":\"ab44968e6b05c9e21984aacc05115246\"},\"encoding\":{\"tooltip\":[{\"field\":\"group_key\",\"title\":\"group\",\"type\":\"nominal\"},{\"field\":\"row_count\",\"title\":\"rows\",\"type\":\"quantitative\"},{\"field\":\"total_amount\",\"title\":\"total\",\"type\":\"quantitative\"},{\"field\":\"avg_amount\",\"title\":\"avg\",\"type\":\"quantitative\"}],\"x\":{\"field\":\"group_key\",\"sort\":[\"Books\",\"Games\",\"Music\",\"Toys\"],\"type\":\"nominal\"},\"y\":{\"field\":\"total_amount\",\"type\":\"quantitative\"}},\"height\":260,\"mark\":{\"type\":\"bar\"}}",
+                "datasets": [
+                  {
+                    "name": "ab44968e6b05c9e21984aacc05115246",
+                    "data": {
+                      "data": "/////zgBAAAQAAAAAAAKAAwACgAJAAQACgAAABAAAAAAAQQACAAIAAAABAAIAAAABAAAAAQAAADYAAAAiAAAAEgAAAAEAAAASP///xAAAAAUAAAAAAABAxAAAAC+////AAACAAAAAAAKAAAAYXZnX2Ftb3VudAAAEAAWABAADgAPAAQAAAAIABAAAAAYAAAAHAAAAAAAAQMYAAAAAAAGAAgABgAGAAAAAAACAAAAAAAMAAAAdG90YWxfYW1vdW50AAAAAMT///8YAAAAIAAAAAAAAQIcAAAACAAMAAQACwAIAAAAQAAAAAAAAAEAAAAACQAAAHJvd19jb3VudAAAABAAFAAQAA4ADwAEAAAACAAQAAAAGAAAAAwAAAAAAAEUEAAAAAAAAAAEAAQABAAAAAkAAABncm91cF9rZXkAAAD/////OAEAABAAAAAMABoAGAAXAAQACAAMAAAAIAAAAEACAAAAAAAAAAAAAAAAAAMEAAoAGAAMAAgABAAKAAAAXAAAABAAAAAEAAAAAAAAAAAAAAAEAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAJAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAKAAAAAAAAACAAAAAAAAAABMAAAAAAAAAwAAAAAAAAAABAAAAAAAAAAABAAAAAAAAIAAAAAAAAABAAQAAAAAAAAEAAAAAAAAAgAEAAAAAAAAgAAAAAAAAAMABAAAAAAAAAQAAAAAAAAAAAgAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAACgAAAAAAAAAPAAAAAAAAABMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQm9va3NHYW1lc011c2ljVG95cwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAuG5ASOF6FK6XeUAAAAAAAGBhQI/C9ShcH1pAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAexSuR+F6VEBI4XoUrg9hQArXo3A9KkdACtejcD1qQUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA"
+                    },
+                    "hasName": true
+                  }
+                ],
+                "theme": "streamlit"
+              },
+              "heightConfig": {
+                "useContent": true
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "vega_lite_spec_raw": "{\"$schema\":\"https://vega.github.io/schema/vega-lite/v5.20.1.json\",\"autosize\":{\"contains\":\"padding\",\"type\":\"fit\"},\"data\":{\"name\":\"ab44968e6b05c9e21984aacc05115246\"},\"encoding\":{\"tooltip\":[{\"field\":\"group_key\",\"title\":\"group\",\"type\":\"nominal\"},{\"field\":\"row_count\",\"title\":\"rows\",\"type\":\"quantitative\"},{\"field\":\"total_amount\",\"title\":\"total\",\"type\":\"quantitative\"},{\"field\":\"avg_amount\",\"title\":\"avg\",\"type\":\"quantitative\"}],\"x\":{\"field\":\"group_key\",\"sort\":[\"Books\",\"Games\",\"Music\",\"Toys\"],\"type\":\"nominal\"},\"y\":{\"field\":\"total_amount\",\"type\":\"quantitative\"}},\"height\":260,\"mark\":{\"type\":\"bar\"}}",
+            "vega_lite_spec": {
+              "$schema": "https://vega.github.io/schema/vega-lite/v5.20.1.json",
+              "autosize": {
+                "contains": "padding",
+                "type": "fit"
+              },
+              "data": {
+                "name": "ab44968e6b05c9e21984aacc05115246"
+              },
+              "encoding": {
+                "tooltip": [
+                  {
+                    "field": "group_key",
+                    "title": "group",
+                    "type": "nominal"
+                  },
+                  {
+                    "field": "row_count",
+                    "title": "rows",
+                    "type": "quantitative"
+                  },
+                  {
+                    "field": "total_amount",
+                    "title": "total",
+                    "type": "quantitative"
+                  },
+                  {
+                    "field": "avg_amount",
+                    "title": "avg",
+                    "type": "quantitative"
+                  }
+                ],
+                "x": {
+                  "field": "group_key",
+                  "sort": [
+                    "Books",
+                    "Games",
+                    "Music",
+                    "Toys"
+                  ],
+                  "type": "nominal"
+                },
+                "y": {
+                  "field": "total_amount",
+                  "type": "quantitative"
+                }
+              },
+              "height": 260,
+              "mark": {
+                "type": "bar"
+              }
+            },
+            "vega_lite_datasets": [
+              {
+                "name": "ab44968e6b05c9e21984aacc05115246",
+                "has_name": true,
+                "arrow": {
+                  "bytes": 1224,
+                  "sha256": "fc57562d7955d8e72e6d7fd03efec45e853868bd71e6e2b6b7d7260f444dff78",
+                  "base64": "/////zgBAAAQAAAAAAAKAAwACgAJAAQACgAAABAAAAAAAQQACAAIAAAABAAIAAAABAAAAAQAAADYAAAAiAAAAEgAAAAEAAAASP///xAAAAAUAAAAAAABAxAAAAC+////AAACAAAAAAAKAAAAYXZnX2Ftb3VudAAAEAAWABAADgAPAAQAAAAIABAAAAAYAAAAHAAAAAAAAQMYAAAAAAAGAAgABgAGAAAAAAACAAAAAAAMAAAAdG90YWxfYW1vdW50AAAAAMT///8YAAAAIAAAAAAAAQIcAAAACAAMAAQACwAIAAAAQAAAAAAAAAEAAAAACQAAAHJvd19jb3VudAAAABAAFAAQAA4ADwAEAAAACAAQAAAAGAAAAAwAAAAAAAEUEAAAAAAAAAAEAAQABAAAAAkAAABncm91cF9rZXkAAAD/////OAEAABAAAAAMABoAGAAXAAQACAAMAAAAIAAAAEACAAAAAAAAAAAAAAAAAAMEAAoAGAAMAAgABAAKAAAAXAAAABAAAAAEAAAAAAAAAAAAAAAEAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAJAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAKAAAAAAAAACAAAAAAAAAABMAAAAAAAAAwAAAAAAAAAABAAAAAAAAAAABAAAAAAAAIAAAAAAAAABAAQAAAAAAAAEAAAAAAAAAgAEAAAAAAAAgAAAAAAAAAMABAAAAAAAAAQAAAAAAAAAAAgAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAACgAAAAAAAAAPAAAAAAAAABMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQm9va3NHYW1lc011c2ljVG95cwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAuG5ASOF6FK6XeUAAAAAAAGBhQI/C9ShcH1pAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAexSuR+F6VEBI4XoUrg9hQArXo3A9KkdACtejcD1qQUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA",
+                  "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double",
+                  "columns": [
+                    "group_key",
+                    "row_count",
+                    "total_amount",
+                    "avg_amount"
+                  ],
+                  "row_count": 4,
+                  "rows": [
+                    {
+                      "group_key": "Books",
+                      "row_count": 3,
+                      "total_amount": 245.75,
+                      "avg_amount": 81.92
+                    },
+                    {
+                      "group_key": "Games",
+                      "row_count": 3,
+                      "total_amount": 409.48,
+                      "avg_amount": 136.49
+                    },
+                    {
+                      "group_key": "Music",
+                      "row_count": 3,
+                      "total_amount": 139.0,
+                      "avg_amount": 46.33
+                    },
+                    {
+                      "group_key": "Toys",
+                      "row_count": 3,
+                      "total_amount": 104.49,
+                      "avg_amount": 34.83
+                    }
+                  ]
+                }
+              }
+            ],
+            "vega_lite_fields": {
+              "use_container_width": false,
+              "theme": "streamlit",
+              "id": "",
+              "form_id": ""
+            },
+            "id": "",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26469.377536,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Interaction"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26469.377584,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "button",
+            "widget": {
+              "id": "$$ID-8df8cbc923e8b253d5764d847ca3632d-pulse",
+              "label": "Pulse",
+              "type": "secondary"
+            },
+            "id": "$$ID-8df8cbc923e8b253d5764d847ca3632d-pulse",
+            "label": "Pulse",
+            "accepted_types": [
+              "secondary"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26469.377627,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "markdown",
+            "body": "Script runs: 2"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26469.37766,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "markdown",
+            "body": "Pulses: 0"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26469.377689,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "script_finished",
+          "script_finished": {
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26469.377731,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": false,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "client->server",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26477.520419,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "BackMsg",
+          "type": "rerun_script",
+          "rerun_script": {
+            "widget_states": [
+              {
+                "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+                "value_field": "file_uploader_state_value",
+                "value": {
+                  "uploaded_file_info": "[name: \"sales_basic.csv\"\nsize: 737\nfile_id: \"c5bf8405-5f0c-4f75-9620-5ebe3bb386f5\"\nfile_urls {\n  file_id: \"c5bf8405-5f0c-4f75-9620-5ebe3bb386f5\"\n  upload_url: \"/_stcore/upload_file/03ab6007-bb0d-46d7-b990-c76fea69c4b2/c5bf8405-5f0c-4f75-9620-5ebe3bb386f5\"\n  delete_url: \"/_stcore/upload_file/03ab6007-bb0d-46d7-b990-c76fea69c4b2/c5bf8405-5f0c-4f75-9620-5ebe3bb386f5\"\n}\n]"
+                },
+                "value_full": {
+                  "uploadedFileInfo": [
+                    {
+                      "name": "sales_basic.csv",
+                      "size": "737",
+                      "fileId": "c5bf8405-5f0c-4f75-9620-5ebe3bb386f5",
+                      "fileUrls": {
+                        "fileId": "c5bf8405-5f0c-4f75-9620-5ebe3bb386f5",
+                        "uploadUrl": "/_stcore/upload_file/03ab6007-bb0d-46d7-b990-c76fea69c4b2/c5bf8405-5f0c-4f75-9620-5ebe3bb386f5",
+                        "deleteUrl": "/_stcore/upload_file/03ab6007-bb0d-46d7-b990-c76fea69c4b2/c5bf8405-5f0c-4f75-9620-5ebe3bb386f5"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+                "value_field": "string_value",
+                "value": "category"
+              },
+              {
+                "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+                "value_field": "double_array_value",
+                "value": {
+                  "data": "[200.0]"
+                },
+                "value_full": {
+                  "data": [
+                    200.0
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+                "value_field": "bool_value",
+                "value": true
+              }
+            ]
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26477.522237,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "new_session",
+          "new_session": {
+            "script_run_id": "9db8a4bf-981c-4a1b-b2ee-443e07c48e7f",
+            "name": "Streamlit Rust",
+            "main_script_path": "",
+            "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+            "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+            "session_id": "03ab6007-bb0d-46d7-b990-c76fea69c4b2"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26477.522725,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": true,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26477.525536,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "add_block",
+            "block_id": "main_container",
+            "block_type": "vertical"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26477.525684,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Streamlit Rust CSV data app"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26477.525767,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "file_uploader",
+            "element_full": {
+              "fileUploader": {
+                "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+                "label": "Upload sales CSV",
+                "type": [
+                  ".csv"
+                ],
+                "maxUploadSizeMb": 200,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+              "label": "Upload sales CSV",
+              "type": [
+                ".csv"
+              ],
+              "maxUploadSizeMb": 200,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+            "label": "Upload sales CSV",
+            "accepted_types": [
+              "['.csv']"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26477.525836,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "selectbox",
+            "element_full": {
+              "selectbox": {
+                "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+                "label": "Group by",
+                "default": 0,
+                "options": [
+                  "category",
+                  "region",
+                  "channel"
+                ],
+                "labelVisibility": {},
+                "acceptNewOptions": false
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+              "label": "Group by",
+              "default": 0,
+              "options": [
+                "category",
+                "region",
+                "channel"
+              ],
+              "labelVisibility": {},
+              "acceptNewOptions": false
+            },
+            "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+            "label": "Group by",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26477.525892,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "slider",
+            "element_full": {
+              "slider": {
+                "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+                "label": "Minimum amount",
+                "format": "%d",
+                "default": [
+                  0.0
+                ],
+                "max": 200.0,
+                "step": 10.0,
+                "labelVisibility": {},
+                "type": "SLIDER"
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+              "label": "Minimum amount",
+              "format": "%d",
+              "default": [
+                0.0
+              ],
+              "max": 200.0,
+              "step": 10.0,
+              "labelVisibility": {},
+              "type": "SLIDER"
+            },
+            "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+            "label": "Minimum amount",
+            "accepted_types": [
+              "1"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26477.525983,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "checkbox",
+            "element_full": {
+              "checkbox": {
+                "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+                "label": "Include unknown region",
+                "default": true,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useContent": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+              "label": "Include unknown region",
+              "default": true,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+            "label": "Include unknown region",
+            "accepted_types": [
+              "0"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26477.526022,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Aggregated result"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26477.526065,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "alert",
+            "alert": {
+              "body": "No rows match the current filters.",
+              "format": "INFO",
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "element_width_config": null,
+            "element_height_config": null,
+            "body": "No rows match the current filters."
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26477.526116,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "dataframe",
+            "element_full": {
+              "dataframe": {
+                "arrowData": {
+                  "data": "/////zgBAAAQAAAAAAAKAAwACgAJAAQACgAAABAAAAAAAQQACAAIAAAABAAIAAAABAAAAAQAAADYAAAAiAAAAEgAAAAEAAAASP///xAAAAAUAAAAAAABAxAAAAC+////AAACAAAAAAAKAAAAYXZnX2Ftb3VudAAAEAAWABAADgAPAAQAAAAIABAAAAAYAAAAHAAAAAAAAQMYAAAAAAAGAAgABgAGAAAAAAACAAAAAAAMAAAAdG90YWxfYW1vdW50AAAAAMT///8YAAAAIAAAAAAAAQIcAAAACAAMAAQACwAIAAAAQAAAAAAAAAEAAAAACQAAAHJvd19jb3VudAAAABAAFAAQAA4ADwAEAAAACAAQAAAAGAAAAAwAAAAAAAEUEAAAAAAAAAAEAAQABAAAAAkAAABncm91cF9rZXkAAAD/////OAEAABAAAAAMABYAFAATAAQACAAMAAAAHAAAAEAAAAAAAAAAAAAAAwQACgAMAAAACAAEAAoAAABQAAAABAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/////AAAAAA=="
+                },
+                "columns": "{\"_index\":{\"hidden\":true}}",
+                "columnOrder": [
+                  "group_key",
+                  "row_count",
+                  "total_amount",
+                  "avg_amount"
+                ]
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "arrow": {
+              "bytes": 712,
+              "sha256": "f14f7d2c08b3fe90dc073cab5ad9737f384b4aad8998db3f08cf8d5b9421ba65",
+              "base64": "/////zgBAAAQAAAAAAAKAAwACgAJAAQACgAAABAAAAAAAQQACAAIAAAABAAIAAAABAAAAAQAAADYAAAAiAAAAEgAAAAEAAAASP///xAAAAAUAAAAAAABAxAAAAC+////AAACAAAAAAAKAAAAYXZnX2Ftb3VudAAAEAAWABAADgAPAAQAAAAIABAAAAAYAAAAHAAAAAAAAQMYAAAAAAAGAAgABgAGAAAAAAACAAAAAAAMAAAAdG90YWxfYW1vdW50AAAAAMT///8YAAAAIAAAAAAAAQIcAAAACAAMAAQACwAIAAAAQAAAAAAAAAEAAAAACQAAAHJvd19jb3VudAAAABAAFAAQAA4ADwAEAAAACAAQAAAAGAAAAAwAAAAAAAEUEAAAAAAAAAAEAAQABAAAAAkAAABncm91cF9rZXkAAAD/////OAEAABAAAAAMABYAFAATAAQACAAMAAAAHAAAAEAAAAAAAAAAAAAAAwQACgAMAAAACAAEAAoAAABQAAAABAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/////AAAAAA==",
+              "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double",
+              "columns": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_count": 0,
+              "rows": []
+            },
+            "arrow_fields": {
+              "columns": "{\"_index\":{\"hidden\":true}}",
+              "editing_mode": 0,
+              "disabled": false,
+              "column_order": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_height": 0
+            },
+            "id": "",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26477.52618,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Interaction"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26477.526212,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "button",
+            "widget": {
+              "id": "$$ID-8df8cbc923e8b253d5764d847ca3632d-pulse",
+              "label": "Pulse",
+              "type": "secondary"
+            },
+            "id": "$$ID-8df8cbc923e8b253d5764d847ca3632d-pulse",
+            "label": "Pulse",
+            "accepted_types": [
+              "secondary"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26477.526248,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "markdown",
+            "body": "Script runs: 3"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26477.526275,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "markdown",
+            "body": "Pulses: 0"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26477.526303,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "script_finished",
+          "script_finished": {
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26477.526354,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": false,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "client->server",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26484.751981,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "BackMsg",
+          "type": "rerun_script",
+          "rerun_script": {
+            "widget_states": [
+              {
+                "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+                "value_field": "file_uploader_state_value",
+                "value": {
+                  "uploaded_file_info": "[name: \"sales_basic.csv\"\nsize: 737\nfile_id: \"c5bf8405-5f0c-4f75-9620-5ebe3bb386f5\"\nfile_urls {\n  file_id: \"c5bf8405-5f0c-4f75-9620-5ebe3bb386f5\"\n  upload_url: \"/_stcore/upload_file/03ab6007-bb0d-46d7-b990-c76fea69c4b2/c5bf8405-5f0c-4f75-9620-5ebe3bb386f5\"\n  delete_url: \"/_stcore/upload_file/03ab6007-bb0d-46d7-b990-c76fea69c4b2/c5bf8405-5f0c-4f75-9620-5ebe3bb386f5\"\n}\n]"
+                },
+                "value_full": {
+                  "uploadedFileInfo": [
+                    {
+                      "name": "sales_basic.csv",
+                      "size": "737",
+                      "fileId": "c5bf8405-5f0c-4f75-9620-5ebe3bb386f5",
+                      "fileUrls": {
+                        "fileId": "c5bf8405-5f0c-4f75-9620-5ebe3bb386f5",
+                        "uploadUrl": "/_stcore/upload_file/03ab6007-bb0d-46d7-b990-c76fea69c4b2/c5bf8405-5f0c-4f75-9620-5ebe3bb386f5",
+                        "deleteUrl": "/_stcore/upload_file/03ab6007-bb0d-46d7-b990-c76fea69c4b2/c5bf8405-5f0c-4f75-9620-5ebe3bb386f5"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+                "value_field": "string_value",
+                "value": "category"
+              },
+              {
+                "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+                "value_field": "double_array_value",
+                "value": {
+                  "data": "[0.0]"
+                },
+                "value_full": {
+                  "data": [
+                    0.0
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+                "value_field": "bool_value",
+                "value": true
+              }
+            ]
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26484.754461,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "new_session",
+          "new_session": {
+            "script_run_id": "c37cf52f-180e-4f4a-aa21-0e649773ac41",
+            "name": "Streamlit Rust",
+            "main_script_path": "",
+            "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+            "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+            "session_id": "03ab6007-bb0d-46d7-b990-c76fea69c4b2"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26484.754714,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": true,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26484.757055,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "add_block",
+            "block_id": "main_container",
+            "block_type": "vertical"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26484.757151,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Streamlit Rust CSV data app"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26484.757199,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "file_uploader",
+            "element_full": {
+              "fileUploader": {
+                "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+                "label": "Upload sales CSV",
+                "type": [
+                  ".csv"
+                ],
+                "maxUploadSizeMb": 200,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+              "label": "Upload sales CSV",
+              "type": [
+                ".csv"
+              ],
+              "maxUploadSizeMb": 200,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+            "label": "Upload sales CSV",
+            "accepted_types": [
+              "['.csv']"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26484.757236,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "selectbox",
+            "element_full": {
+              "selectbox": {
+                "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+                "label": "Group by",
+                "default": 0,
+                "options": [
+                  "category",
+                  "region",
+                  "channel"
+                ],
+                "labelVisibility": {},
+                "acceptNewOptions": false
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+              "label": "Group by",
+              "default": 0,
+              "options": [
+                "category",
+                "region",
+                "channel"
+              ],
+              "labelVisibility": {},
+              "acceptNewOptions": false
+            },
+            "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+            "label": "Group by",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26484.757267,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "slider",
+            "element_full": {
+              "slider": {
+                "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+                "label": "Minimum amount",
+                "format": "%d",
+                "default": [
+                  0.0
+                ],
+                "max": 200.0,
+                "step": 10.0,
+                "labelVisibility": {},
+                "type": "SLIDER"
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+              "label": "Minimum amount",
+              "format": "%d",
+              "default": [
+                0.0
+              ],
+              "max": 200.0,
+              "step": 10.0,
+              "labelVisibility": {},
+              "type": "SLIDER"
+            },
+            "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+            "label": "Minimum amount",
+            "accepted_types": [
+              "1"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26484.75732,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "checkbox",
+            "element_full": {
+              "checkbox": {
+                "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+                "label": "Include unknown region",
+                "default": true,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useContent": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+              "label": "Include unknown region",
+              "default": true,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+            "label": "Include unknown region",
+            "accepted_types": [
+              "0"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26484.757354,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Aggregated result"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26484.757392,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "dataframe",
+            "element_full": {
+              "dataframe": {
+                "arrowData": {
+                  "data": "/////zgBAAAQAAAAAAAKAAwACgAJAAQACgAAABAAAAAAAQQACAAIAAAABAAIAAAABAAAAAQAAADYAAAAiAAAAEgAAAAEAAAASP///xAAAAAUAAAAAAABAxAAAAC+////AAACAAAAAAAKAAAAYXZnX2Ftb3VudAAAEAAWABAADgAPAAQAAAAIABAAAAAYAAAAHAAAAAAAAQMYAAAAAAAGAAgABgAGAAAAAAACAAAAAAAMAAAAdG90YWxfYW1vdW50AAAAAMT///8YAAAAIAAAAAAAAQIcAAAACAAMAAQACwAIAAAAQAAAAAAAAAEAAAAACQAAAHJvd19jb3VudAAAABAAFAAQAA4ADwAEAAAACAAQAAAAGAAAAAwAAAAAAAEUEAAAAAAAAAAEAAQABAAAAAkAAABncm91cF9rZXkAAAD/////OAEAABAAAAAMABoAGAAXAAQACAAMAAAAIAAAAEACAAAAAAAAAAAAAAAAAAMEAAoAGAAMAAgABAAKAAAAXAAAABAAAAAEAAAAAAAAAAAAAAAEAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAJAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAKAAAAAAAAACAAAAAAAAAABMAAAAAAAAAwAAAAAAAAAABAAAAAAAAAAABAAAAAAAAIAAAAAAAAABAAQAAAAAAAAEAAAAAAAAAgAEAAAAAAAAgAAAAAAAAAMABAAAAAAAAAQAAAAAAAAAAAgAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAACgAAAAAAAAAPAAAAAAAAABMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQm9va3NHYW1lc011c2ljVG95cwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAuG5ASOF6FK6XeUAAAAAAAGBhQI/C9ShcH1pAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAexSuR+F6VEBI4XoUrg9hQArXo3A9KkdACtejcD1qQUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA"
+                },
+                "columns": "{\"_index\":{\"hidden\":true}}",
+                "columnOrder": [
+                  "group_key",
+                  "row_count",
+                  "total_amount",
+                  "avg_amount"
+                ]
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "arrow": {
+              "bytes": 1224,
+              "sha256": "fc57562d7955d8e72e6d7fd03efec45e853868bd71e6e2b6b7d7260f444dff78",
+              "base64": "/////zgBAAAQAAAAAAAKAAwACgAJAAQACgAAABAAAAAAAQQACAAIAAAABAAIAAAABAAAAAQAAADYAAAAiAAAAEgAAAAEAAAASP///xAAAAAUAAAAAAABAxAAAAC+////AAACAAAAAAAKAAAAYXZnX2Ftb3VudAAAEAAWABAADgAPAAQAAAAIABAAAAAYAAAAHAAAAAAAAQMYAAAAAAAGAAgABgAGAAAAAAACAAAAAAAMAAAAdG90YWxfYW1vdW50AAAAAMT///8YAAAAIAAAAAAAAQIcAAAACAAMAAQACwAIAAAAQAAAAAAAAAEAAAAACQAAAHJvd19jb3VudAAAABAAFAAQAA4ADwAEAAAACAAQAAAAGAAAAAwAAAAAAAEUEAAAAAAAAAAEAAQABAAAAAkAAABncm91cF9rZXkAAAD/////OAEAABAAAAAMABoAGAAXAAQACAAMAAAAIAAAAEACAAAAAAAAAAAAAAAAAAMEAAoAGAAMAAgABAAKAAAAXAAAABAAAAAEAAAAAAAAAAAAAAAEAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAJAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAKAAAAAAAAACAAAAAAAAAABMAAAAAAAAAwAAAAAAAAAABAAAAAAAAAAABAAAAAAAAIAAAAAAAAABAAQAAAAAAAAEAAAAAAAAAgAEAAAAAAAAgAAAAAAAAAMABAAAAAAAAAQAAAAAAAAAAAgAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAACgAAAAAAAAAPAAAAAAAAABMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQm9va3NHYW1lc011c2ljVG95cwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAuG5ASOF6FK6XeUAAAAAAAGBhQI/C9ShcH1pAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAexSuR+F6VEBI4XoUrg9hQArXo3A9KkdACtejcD1qQUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA",
+              "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double",
+              "columns": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_count": 4,
+              "rows": [
+                {
+                  "group_key": "Books",
+                  "row_count": 3,
+                  "total_amount": 245.75,
+                  "avg_amount": 81.92
+                },
+                {
+                  "group_key": "Games",
+                  "row_count": 3,
+                  "total_amount": 409.48,
+                  "avg_amount": 136.49
+                },
+                {
+                  "group_key": "Music",
+                  "row_count": 3,
+                  "total_amount": 139.0,
+                  "avg_amount": 46.33
+                },
+                {
+                  "group_key": "Toys",
+                  "row_count": 3,
+                  "total_amount": 104.49,
+                  "avg_amount": 34.83
+                }
+              ]
+            },
+            "arrow_fields": {
+              "columns": "{\"_index\":{\"hidden\":true}}",
+              "editing_mode": 0,
+              "disabled": false,
+              "column_order": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_height": 0
+            },
+            "id": "",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26484.757448,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "vega_lite_chart",
+            "element_full": {
+              "vegaLiteChart": {
+                "spec": "{\"$schema\":\"https://vega.github.io/schema/vega-lite/v5.20.1.json\",\"autosize\":{\"contains\":\"padding\",\"type\":\"fit\"},\"data\":{\"name\":\"ab44968e6b05c9e21984aacc05115246\"},\"encoding\":{\"tooltip\":[{\"field\":\"group_key\",\"title\":\"group\",\"type\":\"nominal\"},{\"field\":\"row_count\",\"title\":\"rows\",\"type\":\"quantitative\"},{\"field\":\"total_amount\",\"title\":\"total\",\"type\":\"quantitative\"},{\"field\":\"avg_amount\",\"title\":\"avg\",\"type\":\"quantitative\"}],\"x\":{\"field\":\"group_key\",\"sort\":[\"Books\",\"Games\",\"Music\",\"Toys\"],\"type\":\"nominal\"},\"y\":{\"field\":\"total_amount\",\"type\":\"quantitative\"}},\"height\":260,\"mark\":{\"type\":\"bar\"}}",
+                "datasets": [
+                  {
+                    "name": "ab44968e6b05c9e21984aacc05115246",
+                    "data": {
+                      "data": "/////zgBAAAQAAAAAAAKAAwACgAJAAQACgAAABAAAAAAAQQACAAIAAAABAAIAAAABAAAAAQAAADYAAAAiAAAAEgAAAAEAAAASP///xAAAAAUAAAAAAABAxAAAAC+////AAACAAAAAAAKAAAAYXZnX2Ftb3VudAAAEAAWABAADgAPAAQAAAAIABAAAAAYAAAAHAAAAAAAAQMYAAAAAAAGAAgABgAGAAAAAAACAAAAAAAMAAAAdG90YWxfYW1vdW50AAAAAMT///8YAAAAIAAAAAAAAQIcAAAACAAMAAQACwAIAAAAQAAAAAAAAAEAAAAACQAAAHJvd19jb3VudAAAABAAFAAQAA4ADwAEAAAACAAQAAAAGAAAAAwAAAAAAAEUEAAAAAAAAAAEAAQABAAAAAkAAABncm91cF9rZXkAAAD/////OAEAABAAAAAMABoAGAAXAAQACAAMAAAAIAAAAEACAAAAAAAAAAAAAAAAAAMEAAoAGAAMAAgABAAKAAAAXAAAABAAAAAEAAAAAAAAAAAAAAAEAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAJAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAKAAAAAAAAACAAAAAAAAAABMAAAAAAAAAwAAAAAAAAAABAAAAAAAAAAABAAAAAAAAIAAAAAAAAABAAQAAAAAAAAEAAAAAAAAAgAEAAAAAAAAgAAAAAAAAAMABAAAAAAAAAQAAAAAAAAAAAgAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAACgAAAAAAAAAPAAAAAAAAABMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQm9va3NHYW1lc011c2ljVG95cwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAuG5ASOF6FK6XeUAAAAAAAGBhQI/C9ShcH1pAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAexSuR+F6VEBI4XoUrg9hQArXo3A9KkdACtejcD1qQUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA"
+                    },
+                    "hasName": true
+                  }
+                ],
+                "theme": "streamlit"
+              },
+              "heightConfig": {
+                "useContent": true
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "vega_lite_spec_raw": "{\"$schema\":\"https://vega.github.io/schema/vega-lite/v5.20.1.json\",\"autosize\":{\"contains\":\"padding\",\"type\":\"fit\"},\"data\":{\"name\":\"ab44968e6b05c9e21984aacc05115246\"},\"encoding\":{\"tooltip\":[{\"field\":\"group_key\",\"title\":\"group\",\"type\":\"nominal\"},{\"field\":\"row_count\",\"title\":\"rows\",\"type\":\"quantitative\"},{\"field\":\"total_amount\",\"title\":\"total\",\"type\":\"quantitative\"},{\"field\":\"avg_amount\",\"title\":\"avg\",\"type\":\"quantitative\"}],\"x\":{\"field\":\"group_key\",\"sort\":[\"Books\",\"Games\",\"Music\",\"Toys\"],\"type\":\"nominal\"},\"y\":{\"field\":\"total_amount\",\"type\":\"quantitative\"}},\"height\":260,\"mark\":{\"type\":\"bar\"}}",
+            "vega_lite_spec": {
+              "$schema": "https://vega.github.io/schema/vega-lite/v5.20.1.json",
+              "autosize": {
+                "contains": "padding",
+                "type": "fit"
+              },
+              "data": {
+                "name": "ab44968e6b05c9e21984aacc05115246"
+              },
+              "encoding": {
+                "tooltip": [
+                  {
+                    "field": "group_key",
+                    "title": "group",
+                    "type": "nominal"
+                  },
+                  {
+                    "field": "row_count",
+                    "title": "rows",
+                    "type": "quantitative"
+                  },
+                  {
+                    "field": "total_amount",
+                    "title": "total",
+                    "type": "quantitative"
+                  },
+                  {
+                    "field": "avg_amount",
+                    "title": "avg",
+                    "type": "quantitative"
+                  }
+                ],
+                "x": {
+                  "field": "group_key",
+                  "sort": [
+                    "Books",
+                    "Games",
+                    "Music",
+                    "Toys"
+                  ],
+                  "type": "nominal"
+                },
+                "y": {
+                  "field": "total_amount",
+                  "type": "quantitative"
+                }
+              },
+              "height": 260,
+              "mark": {
+                "type": "bar"
+              }
+            },
+            "vega_lite_datasets": [
+              {
+                "name": "ab44968e6b05c9e21984aacc05115246",
+                "has_name": true,
+                "arrow": {
+                  "bytes": 1224,
+                  "sha256": "fc57562d7955d8e72e6d7fd03efec45e853868bd71e6e2b6b7d7260f444dff78",
+                  "base64": "/////zgBAAAQAAAAAAAKAAwACgAJAAQACgAAABAAAAAAAQQACAAIAAAABAAIAAAABAAAAAQAAADYAAAAiAAAAEgAAAAEAAAASP///xAAAAAUAAAAAAABAxAAAAC+////AAACAAAAAAAKAAAAYXZnX2Ftb3VudAAAEAAWABAADgAPAAQAAAAIABAAAAAYAAAAHAAAAAAAAQMYAAAAAAAGAAgABgAGAAAAAAACAAAAAAAMAAAAdG90YWxfYW1vdW50AAAAAMT///8YAAAAIAAAAAAAAQIcAAAACAAMAAQACwAIAAAAQAAAAAAAAAEAAAAACQAAAHJvd19jb3VudAAAABAAFAAQAA4ADwAEAAAACAAQAAAAGAAAAAwAAAAAAAEUEAAAAAAAAAAEAAQABAAAAAkAAABncm91cF9rZXkAAAD/////OAEAABAAAAAMABoAGAAXAAQACAAMAAAAIAAAAEACAAAAAAAAAAAAAAAAAAMEAAoAGAAMAAgABAAKAAAAXAAAABAAAAAEAAAAAAAAAAAAAAAEAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAJAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAKAAAAAAAAACAAAAAAAAAABMAAAAAAAAAwAAAAAAAAAABAAAAAAAAAAABAAAAAAAAIAAAAAAAAABAAQAAAAAAAAEAAAAAAAAAgAEAAAAAAAAgAAAAAAAAAMABAAAAAAAAAQAAAAAAAAAAAgAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAACgAAAAAAAAAPAAAAAAAAABMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQm9va3NHYW1lc011c2ljVG95cwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAuG5ASOF6FK6XeUAAAAAAAGBhQI/C9ShcH1pAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAexSuR+F6VEBI4XoUrg9hQArXo3A9KkdACtejcD1qQUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA",
+                  "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double",
+                  "columns": [
+                    "group_key",
+                    "row_count",
+                    "total_amount",
+                    "avg_amount"
+                  ],
+                  "row_count": 4,
+                  "rows": [
+                    {
+                      "group_key": "Books",
+                      "row_count": 3,
+                      "total_amount": 245.75,
+                      "avg_amount": 81.92
+                    },
+                    {
+                      "group_key": "Games",
+                      "row_count": 3,
+                      "total_amount": 409.48,
+                      "avg_amount": 136.49
+                    },
+                    {
+                      "group_key": "Music",
+                      "row_count": 3,
+                      "total_amount": 139.0,
+                      "avg_amount": 46.33
+                    },
+                    {
+                      "group_key": "Toys",
+                      "row_count": 3,
+                      "total_amount": 104.49,
+                      "avg_amount": 34.83
+                    }
+                  ]
+                }
+              }
+            ],
+            "vega_lite_fields": {
+              "use_container_width": false,
+              "theme": "streamlit",
+              "id": "",
+              "form_id": ""
+            },
+            "id": "",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26484.757515,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Interaction"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26484.757542,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "button",
+            "widget": {
+              "id": "$$ID-8df8cbc923e8b253d5764d847ca3632d-pulse",
+              "label": "Pulse",
+              "type": "secondary"
+            },
+            "id": "$$ID-8df8cbc923e8b253d5764d847ca3632d-pulse",
+            "label": "Pulse",
+            "accepted_types": [
+              "secondary"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26484.757576,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "markdown",
+            "body": "Script runs: 4"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26484.757609,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "markdown",
+            "body": "Pulses: 0"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26484.757633,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "script_finished",
+          "script_finished": {
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "96196.151",
+        "timestamp": 26484.757672,
+        "namespace": "rust-empty-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": false,
+            "run_on_save": false
+          }
+        }
+      }
+    ],
+    "phases": [
+      {
+        "name": "upload-baseline",
+        "action": {
+          "action": "upload",
+          "ok": true,
+          "file": "D:\\dlab\\streamlit-rust\\tests\\fixtures\\csv\\sales_basic.csv",
+          "file_sha256": "9692a718edc5bec8f3fee1cfec4f454338c8f8d675cd34c17cdb5bf4403d8d00",
+          "file_bytes": 737
+        },
+        "start": 17,
+        "end": 36,
+        "start_timestamp": 26469.352724,
+        "end_timestamp": 26469.377689,
+        "dom_before": {
+          "document_title": "Streamlit",
+          "markdown": [
+            "Script runs: 1",
+            "Pulses: 0"
+          ],
+          "has_uploader": true,
+          "headings": [
+            "Streamlit Rust CSV data app",
+            "Aggregated result",
+            "Interaction"
+          ],
+          "button_labels": [
+            "Pulse"
+          ],
+          "has_button": true,
+          "script_runs": "1",
+          "pulses": "0",
+          "applied_note": null,
+          "table_cells": [],
+          "table_present": false,
+          "chart_present": false,
+          "chart_bars": 0,
+          "chart_labels": [],
+          "chart_marks": "",
+          "slider_value": "0",
+          "checkbox_checked": true,
+          "selectbox_value": "category",
+          "texts": [],
+          "alerts": [
+            "Upload a CSV to see the aggregated result."
+          ],
+          "selectbox_disabled": false,
+          "slider_thumb": "0",
+          "slider_disabled": false,
+          "checkbox_disabled": false,
+          "exceptions": []
+        },
+        "dom_after": {
+          "document_title": "Streamlit",
+          "markdown": [
+            "Script runs: 2",
+            "Pulses: 0"
+          ],
+          "has_uploader": true,
+          "headings": [
+            "Streamlit Rust CSV data app",
+            "Aggregated result",
+            "Interaction"
+          ],
+          "button_labels": [
+            "Pulse"
+          ],
+          "has_button": true,
+          "script_runs": "2",
+          "pulses": "0",
+          "applied_note": null,
+          "table_cells": [
+            "Books",
+            "3",
+            "245.75",
+            "81.92",
+            "Games",
+            "3",
+            "409.48",
+            "136.49",
+            "Music",
+            "3",
+            "139",
+            "46.33",
+            "Toys",
+            "3",
+            "104.49",
+            "34.83"
+          ],
+          "table_present": true,
+          "chart_present": true,
+          "chart_bars": 4,
+          "chart_labels": [
+            "Books",
+            "Games",
+            "Music",
+            "Toys",
+            "group_key",
+            "0",
+            "100",
+            "200",
+            "300",
+            "400",
+            "total_amount"
+          ],
+          "chart_marks": "M18.8,72.16833333333334h122.39999999999999v86.83166666666666h-122.39999999999999Z|M178.8,14.317066666666655h122.39999999999999v144.68293333333335h-122.39999999999999Z|M338.8,109.88666666666667h122.39999999999999v49.11333333333333h-122.39999999999999Z|M498.8,122.0802h122.39999999999999v36.919799999999995h-122.39999999999999Z",
+          "slider_value": "0",
+          "checkbox_checked": true,
+          "selectbox_value": "category",
+          "texts": [],
+          "alerts": [],
+          "selectbox_disabled": false,
+          "slider_thumb": "0",
+          "slider_disabled": false,
+          "checkbox_disabled": false,
+          "exceptions": []
+        },
+        "client_states": [
+          {
+            "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+            "value_field": "file_uploader_state_value",
+            "value": {
+              "uploaded_file_info": "[name: \"sales_basic.csv\"\nsize: 737\nfile_id: \"c5bf8405-5f0c-4f75-9620-5ebe3bb386f5\"\nfile_urls {\n  file_id: \"c5bf8405-5f0c-4f75-9620-5ebe3bb386f5\"\n  upload_url: \"/_stcore/upload_file/03ab6007-bb0d-46d7-b990-c76fea69c4b2/c5bf8405-5f0c-4f75-9620-5ebe3bb386f5\"\n  delete_url: \"/_stcore/upload_file/03ab6007-bb0d-46d7-b990-c76fea69c4b2/c5bf8405-5f0c-4f75-9620-5ebe3bb386f5\"\n}\n]"
+            }
+          },
+          {
+            "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+            "value_field": "string_value",
+            "value": "category"
+          },
+          {
+            "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+            "value_field": "double_array_value",
+            "value": {
+              "data": "[0.0]"
+            }
+          },
+          {
+            "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+            "value_field": "bool_value",
+            "value": true
+          }
+        ],
+        "completions": [
+          {
+            "frame": 18,
+            "connection": 0,
+            "request_id": "96196.151",
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          }
+        ],
+        "ipc": {
+          "table": {
+            "arrow": {
+              "sha256": "fc57562d7955d8e72e6d7fd03efec45e853868bd71e6e2b6b7d7260f444dff78",
+              "bytes": 1224,
+              "file": "arrow-1.bin",
+              "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double",
+              "columns": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_count": 4,
+              "rows": [
+                {
+                  "group_key": "Books",
+                  "row_count": 3,
+                  "total_amount": 245.75,
+                  "avg_amount": 81.92
+                },
+                {
+                  "group_key": "Games",
+                  "row_count": 3,
+                  "total_amount": 409.48,
+                  "avg_amount": 136.49
+                },
+                {
+                  "group_key": "Music",
+                  "row_count": 3,
+                  "total_amount": 139.0,
+                  "avg_amount": 46.33
+                },
+                {
+                  "group_key": "Toys",
+                  "row_count": 3,
+                  "total_amount": 104.49,
+                  "avg_amount": 34.83
+                }
+              ]
+            },
+            "arrow_fields": {
+              "columns": "{\"_index\":{\"hidden\":true}}",
+              "editing_mode": 0,
+              "disabled": false,
+              "column_order": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_height": 0
+            }
+          },
+          "chart": {
+            "vega_lite_spec": {
+              "$schema": "https://vega.github.io/schema/vega-lite/v5.20.1.json",
+              "autosize": {
+                "contains": "padding",
+                "type": "fit"
+              },
+              "data": {
+                "name": "ab44968e6b05c9e21984aacc05115246"
+              },
+              "encoding": {
+                "tooltip": [
+                  {
+                    "field": "group_key",
+                    "title": "group",
+                    "type": "nominal"
+                  },
+                  {
+                    "field": "row_count",
+                    "title": "rows",
+                    "type": "quantitative"
+                  },
+                  {
+                    "field": "total_amount",
+                    "title": "total",
+                    "type": "quantitative"
+                  },
+                  {
+                    "field": "avg_amount",
+                    "title": "avg",
+                    "type": "quantitative"
+                  }
+                ],
+                "x": {
+                  "field": "group_key",
+                  "sort": [
+                    "Books",
+                    "Games",
+                    "Music",
+                    "Toys"
+                  ],
+                  "type": "nominal"
+                },
+                "y": {
+                  "field": "total_amount",
+                  "type": "quantitative"
+                }
+              },
+              "height": 260,
+              "mark": {
+                "type": "bar"
+              }
+            },
+            "arrow": null,
+            "datasets": [
+              {
+                "name": "ab44968e6b05c9e21984aacc05115246",
+                "has_name": true,
+                "arrow": {
+                  "sha256": "fc57562d7955d8e72e6d7fd03efec45e853868bd71e6e2b6b7d7260f444dff78",
+                  "bytes": 1224,
+                  "file": "arrow-1.bin",
+                  "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double",
+                  "columns": [
+                    "group_key",
+                    "row_count",
+                    "total_amount",
+                    "avg_amount"
+                  ],
+                  "row_count": 4,
+                  "rows": [
+                    {
+                      "group_key": "Books",
+                      "row_count": 3,
+                      "total_amount": 245.75,
+                      "avg_amount": 81.92
+                    },
+                    {
+                      "group_key": "Games",
+                      "row_count": 3,
+                      "total_amount": 409.48,
+                      "avg_amount": 136.49
+                    },
+                    {
+                      "group_key": "Music",
+                      "row_count": 3,
+                      "total_amount": 139.0,
+                      "avg_amount": 46.33
+                    },
+                    {
+                      "group_key": "Toys",
+                      "row_count": 3,
+                      "total_amount": 104.49,
+                      "avg_amount": 34.83
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "slider-200",
+        "action": {
+          "action": "slider",
+          "label": "Minimum amount",
+          "value": 200,
+          "ok": true
+        },
+        "start": 37,
+        "end": 54,
+        "start_timestamp": 26477.520419,
+        "end_timestamp": 26477.526303,
+        "dom_before": {
+          "document_title": "Streamlit",
+          "markdown": [
+            "Script runs: 2",
+            "Pulses: 0"
+          ],
+          "has_uploader": true,
+          "headings": [
+            "Streamlit Rust CSV data app",
+            "Aggregated result",
+            "Interaction"
+          ],
+          "button_labels": [
+            "Pulse"
+          ],
+          "has_button": true,
+          "script_runs": "2",
+          "pulses": "0",
+          "applied_note": null,
+          "table_cells": [
+            "Books",
+            "3",
+            "245.75",
+            "81.92",
+            "Games",
+            "3",
+            "409.48",
+            "136.49",
+            "Music",
+            "3",
+            "139",
+            "46.33",
+            "Toys",
+            "3",
+            "104.49",
+            "34.83"
+          ],
+          "table_present": true,
+          "chart_present": true,
+          "chart_bars": 4,
+          "chart_labels": [
+            "Books",
+            "Games",
+            "Music",
+            "Toys",
+            "group_key",
+            "0",
+            "100",
+            "200",
+            "300",
+            "400",
+            "total_amount"
+          ],
+          "chart_marks": "M18.8,72.16833333333334h122.39999999999999v86.83166666666666h-122.39999999999999Z|M178.8,14.317066666666655h122.39999999999999v144.68293333333335h-122.39999999999999Z|M338.8,109.88666666666667h122.39999999999999v49.11333333333333h-122.39999999999999Z|M498.8,122.0802h122.39999999999999v36.919799999999995h-122.39999999999999Z",
+          "slider_value": "0",
+          "checkbox_checked": true,
+          "selectbox_value": "category",
+          "texts": [],
+          "alerts": [],
+          "selectbox_disabled": false,
+          "slider_thumb": "0",
+          "slider_disabled": false,
+          "checkbox_disabled": false,
+          "exceptions": []
+        },
+        "dom_after": {
+          "document_title": "Streamlit",
+          "markdown": [
+            "Script runs: 3",
+            "Pulses: 0"
+          ],
+          "has_uploader": true,
+          "headings": [
+            "Streamlit Rust CSV data app",
+            "Aggregated result",
+            "Interaction"
+          ],
+          "button_labels": [
+            "Pulse"
+          ],
+          "has_button": true,
+          "script_runs": "3",
+          "pulses": "0",
+          "applied_note": null,
+          "table_cells": [
+            "",
+            "",
+            "",
+            ""
+          ],
+          "table_present": true,
+          "chart_present": false,
+          "chart_bars": 0,
+          "chart_labels": [],
+          "chart_marks": "",
+          "slider_value": "200",
+          "checkbox_checked": true,
+          "selectbox_value": "category",
+          "texts": [],
+          "alerts": [
+            "No rows match the current filters."
+          ],
+          "selectbox_disabled": false,
+          "slider_thumb": "200",
+          "slider_disabled": false,
+          "checkbox_disabled": false,
+          "exceptions": []
+        },
+        "client_states": [
+          {
+            "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+            "value_field": "file_uploader_state_value",
+            "value": {
+              "uploaded_file_info": "[name: \"sales_basic.csv\"\nsize: 737\nfile_id: \"c5bf8405-5f0c-4f75-9620-5ebe3bb386f5\"\nfile_urls {\n  file_id: \"c5bf8405-5f0c-4f75-9620-5ebe3bb386f5\"\n  upload_url: \"/_stcore/upload_file/03ab6007-bb0d-46d7-b990-c76fea69c4b2/c5bf8405-5f0c-4f75-9620-5ebe3bb386f5\"\n  delete_url: \"/_stcore/upload_file/03ab6007-bb0d-46d7-b990-c76fea69c4b2/c5bf8405-5f0c-4f75-9620-5ebe3bb386f5\"\n}\n]"
+            }
+          },
+          {
+            "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+            "value_field": "string_value",
+            "value": "category"
+          },
+          {
+            "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+            "value_field": "double_array_value",
+            "value": {
+              "data": "[200.0]"
+            }
+          },
+          {
+            "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+            "value_field": "bool_value",
+            "value": true
+          }
+        ],
+        "completions": [
+          {
+            "frame": 16,
+            "connection": 0,
+            "request_id": "96196.151",
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          }
+        ],
+        "ipc": {
+          "table": {
+            "arrow": {
+              "sha256": "f14f7d2c08b3fe90dc073cab5ad9737f384b4aad8998db3f08cf8d5b9421ba65",
+              "bytes": 712,
+              "file": "arrow-2.bin",
+              "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double",
+              "columns": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_count": 0,
+              "rows": []
+            },
+            "arrow_fields": {
+              "columns": "{\"_index\":{\"hidden\":true}}",
+              "editing_mode": 0,
+              "disabled": false,
+              "column_order": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_height": 0
+            }
+          },
+          "chart": null
+        },
+        "screenshot": {
+          "file": "01-no-rows-match.png",
+          "bytes": 51906,
+          "viewport": [
+            1264,
+            1800
+          ],
+          "timestamp": 26477.568343564897
+        },
+        "observation_end_timestamp": 26477.568343564897
+      },
+      {
+        "name": "slider-0",
+        "action": {
+          "action": "slider",
+          "label": "Minimum amount",
+          "value": 0,
+          "ok": true
+        },
+        "start": 55,
+        "end": 72,
+        "start_timestamp": 26484.751981,
+        "end_timestamp": 26484.757633,
+        "dom_before": {
+          "document_title": "Streamlit",
+          "markdown": [
+            "Script runs: 3",
+            "Pulses: 0"
+          ],
+          "has_uploader": true,
+          "headings": [
+            "Streamlit Rust CSV data app",
+            "Aggregated result",
+            "Interaction"
+          ],
+          "button_labels": [
+            "Pulse"
+          ],
+          "has_button": true,
+          "script_runs": "3",
+          "pulses": "0",
+          "applied_note": null,
+          "table_cells": [
+            "",
+            "",
+            "",
+            ""
+          ],
+          "table_present": true,
+          "chart_present": false,
+          "chart_bars": 0,
+          "chart_labels": [],
+          "chart_marks": "",
+          "slider_value": "200",
+          "checkbox_checked": true,
+          "selectbox_value": "category",
+          "texts": [],
+          "alerts": [
+            "No rows match the current filters."
+          ],
+          "selectbox_disabled": false,
+          "slider_thumb": "200",
+          "slider_disabled": false,
+          "checkbox_disabled": false,
+          "exceptions": []
+        },
+        "dom_after": {
+          "document_title": "Streamlit",
+          "markdown": [
+            "Script runs: 4",
+            "Pulses: 0"
+          ],
+          "has_uploader": true,
+          "headings": [
+            "Streamlit Rust CSV data app",
+            "Aggregated result",
+            "Interaction"
+          ],
+          "button_labels": [
+            "Pulse"
+          ],
+          "has_button": true,
+          "script_runs": "4",
+          "pulses": "0",
+          "applied_note": null,
+          "table_cells": [
+            "Books",
+            "3",
+            "245.75",
+            "81.92",
+            "Games",
+            "3",
+            "409.48",
+            "136.49",
+            "Music",
+            "3",
+            "139",
+            "46.33",
+            "Toys",
+            "3",
+            "104.49",
+            "34.83"
+          ],
+          "table_present": true,
+          "chart_present": true,
+          "chart_bars": 4,
+          "chart_labels": [
+            "Books",
+            "Games",
+            "Music",
+            "Toys",
+            "group_key",
+            "0",
+            "100",
+            "200",
+            "300",
+            "400",
+            "total_amount"
+          ],
+          "chart_marks": "M18.8,72.16833333333334h122.39999999999999v86.83166666666666h-122.39999999999999Z|M178.8,14.317066666666655h122.39999999999999v144.68293333333335h-122.39999999999999Z|M338.8,109.88666666666667h122.39999999999999v49.11333333333333h-122.39999999999999Z|M498.8,122.0802h122.39999999999999v36.919799999999995h-122.39999999999999Z",
+          "slider_value": "0",
+          "checkbox_checked": true,
+          "selectbox_value": "category",
+          "texts": [],
+          "alerts": [],
+          "selectbox_disabled": false,
+          "slider_thumb": "0",
+          "slider_disabled": false,
+          "checkbox_disabled": false,
+          "exceptions": []
+        },
+        "client_states": [
+          {
+            "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+            "value_field": "file_uploader_state_value",
+            "value": {
+              "uploaded_file_info": "[name: \"sales_basic.csv\"\nsize: 737\nfile_id: \"c5bf8405-5f0c-4f75-9620-5ebe3bb386f5\"\nfile_urls {\n  file_id: \"c5bf8405-5f0c-4f75-9620-5ebe3bb386f5\"\n  upload_url: \"/_stcore/upload_file/03ab6007-bb0d-46d7-b990-c76fea69c4b2/c5bf8405-5f0c-4f75-9620-5ebe3bb386f5\"\n  delete_url: \"/_stcore/upload_file/03ab6007-bb0d-46d7-b990-c76fea69c4b2/c5bf8405-5f0c-4f75-9620-5ebe3bb386f5\"\n}\n]"
+            }
+          },
+          {
+            "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+            "value_field": "string_value",
+            "value": "category"
+          },
+          {
+            "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+            "value_field": "double_array_value",
+            "value": {
+              "data": "[0.0]"
+            }
+          },
+          {
+            "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+            "value_field": "bool_value",
+            "value": true
+          }
+        ],
+        "completions": [
+          {
+            "frame": 16,
+            "connection": 0,
+            "request_id": "96196.151",
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          }
+        ],
+        "ipc": {
+          "table": {
+            "arrow": {
+              "sha256": "fc57562d7955d8e72e6d7fd03efec45e853868bd71e6e2b6b7d7260f444dff78",
+              "bytes": 1224,
+              "file": "arrow-1.bin",
+              "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double",
+              "columns": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_count": 4,
+              "rows": [
+                {
+                  "group_key": "Books",
+                  "row_count": 3,
+                  "total_amount": 245.75,
+                  "avg_amount": 81.92
+                },
+                {
+                  "group_key": "Games",
+                  "row_count": 3,
+                  "total_amount": 409.48,
+                  "avg_amount": 136.49
+                },
+                {
+                  "group_key": "Music",
+                  "row_count": 3,
+                  "total_amount": 139.0,
+                  "avg_amount": 46.33
+                },
+                {
+                  "group_key": "Toys",
+                  "row_count": 3,
+                  "total_amount": 104.49,
+                  "avg_amount": 34.83
+                }
+              ]
+            },
+            "arrow_fields": {
+              "columns": "{\"_index\":{\"hidden\":true}}",
+              "editing_mode": 0,
+              "disabled": false,
+              "column_order": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_height": 0
+            }
+          },
+          "chart": {
+            "vega_lite_spec": {
+              "$schema": "https://vega.github.io/schema/vega-lite/v5.20.1.json",
+              "autosize": {
+                "contains": "padding",
+                "type": "fit"
+              },
+              "data": {
+                "name": "ab44968e6b05c9e21984aacc05115246"
+              },
+              "encoding": {
+                "tooltip": [
+                  {
+                    "field": "group_key",
+                    "title": "group",
+                    "type": "nominal"
+                  },
+                  {
+                    "field": "row_count",
+                    "title": "rows",
+                    "type": "quantitative"
+                  },
+                  {
+                    "field": "total_amount",
+                    "title": "total",
+                    "type": "quantitative"
+                  },
+                  {
+                    "field": "avg_amount",
+                    "title": "avg",
+                    "type": "quantitative"
+                  }
+                ],
+                "x": {
+                  "field": "group_key",
+                  "sort": [
+                    "Books",
+                    "Games",
+                    "Music",
+                    "Toys"
+                  ],
+                  "type": "nominal"
+                },
+                "y": {
+                  "field": "total_amount",
+                  "type": "quantitative"
+                }
+              },
+              "height": 260,
+              "mark": {
+                "type": "bar"
+              }
+            },
+            "arrow": null,
+            "datasets": [
+              {
+                "name": "ab44968e6b05c9e21984aacc05115246",
+                "has_name": true,
+                "arrow": {
+                  "sha256": "fc57562d7955d8e72e6d7fd03efec45e853868bd71e6e2b6b7d7260f444dff78",
+                  "bytes": 1224,
+                  "file": "arrow-1.bin",
+                  "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double",
+                  "columns": [
+                    "group_key",
+                    "row_count",
+                    "total_amount",
+                    "avg_amount"
+                  ],
+                  "row_count": 4,
+                  "rows": [
+                    {
+                      "group_key": "Books",
+                      "row_count": 3,
+                      "total_amount": 245.75,
+                      "avg_amount": 81.92
+                    },
+                    {
+                      "group_key": "Games",
+                      "row_count": 3,
+                      "total_amount": 409.48,
+                      "avg_amount": 136.49
+                    },
+                    {
+                      "group_key": "Music",
+                      "row_count": 3,
+                      "total_amount": 139.0,
+                      "avg_amount": 46.33
+                    },
+                    {
+                      "group_key": "Toys",
+                      "row_count": 3,
+                      "total_amount": 104.49,
+                      "avg_amount": 34.83
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        "screenshot": {
+          "file": "02-recovered.png",
+          "bytes": 62383,
+          "viewport": [
+            1264,
+            1800
+          ],
+          "timestamp": 26484.798691916534
+        },
+        "observation_end_timestamp": 26484.798691916534
+      }
+    ],
+    "states": [],
+    "http_timeline": [
+      {
+        "method": "GET",
+        "url": "http://127.0.0.1:8501/",
+        "request_id": "1DC416ED27737264B0F140B46EDC1821",
+        "timestamp": 26466.240518,
+        "status": 200,
+        "response_timestamp": 26466.245769,
+        "request_headers": {}
+      },
+      {
+        "method": "GET",
+        "url": "http://127.0.0.1:8501/_stcore/health",
+        "request_id": "96196.149",
+        "timestamp": 26466.31609,
+        "status": 200,
+        "response_timestamp": 26466.322166,
+        "request_headers": {}
+      },
+      {
+        "method": "GET",
+        "url": "http://127.0.0.1:8501/_stcore/host-config",
+        "request_id": "96196.150",
+        "timestamp": 26466.316209,
+        "status": 200,
+        "response_timestamp": 26466.322378,
+        "request_headers": {}
+      },
+      {
+        "method": "PUT",
+        "url": "http://127.0.0.1:8501/_stcore/upload_file/03ab6007-bb0d-46d7-b990-c76fea69c4b2/c5bf8405-5f0c-4f75-9620-5ebe3bb386f5",
+        "request_id": "96196.191",
+        "timestamp": 26469.364683,
+        "status": 204,
+        "response_timestamp": 26469.368237,
+        "request_headers": {
+          "Content-Type": "multipart/form-data; boundary=----WebKitFormBoundaryk93gZQ6IZxDAVWPE"
+        }
+      }
+    ],
+    "contract": "journey-stage2-v1",
+    "screenshots": [
+      {
+        "step_ids": [
+          "J08-S2"
+        ],
+        "phase": "slider-200",
+        "namespace": "rust-empty-20261024T183117",
+        "file": "01-no-rows-match.png",
+        "sha256": "ab582540641239a4f1e19deab7e21f3d70a68ad5a06f133ff20a058ce3886743",
+        "timestamp": 26477.568343564897
+      },
+      {
+        "step_ids": [
+          "J08-S3"
+        ],
+        "phase": "slider-0",
+        "namespace": "rust-empty-20261024T183117",
+        "file": "02-recovered.png",
+        "sha256": "41b77e78e8664c118f511913d19e6a4589ae4e22b07f72d1b8d5517def7b65a0",
+        "timestamp": 26484.798691916534
+      }
+    ],
+    "journey": "filter-empty"
+  },
+  "summary": {
+    "alerts": [],
+    "dom": {
+      "document_title": "Streamlit",
+      "markdown": [
+        "Script runs: 4",
+        "Pulses: 0"
+      ],
+      "has_uploader": true,
+      "headings": [
+        "Streamlit Rust CSV data app",
+        "Aggregated result",
+        "Interaction"
+      ],
+      "button_labels": [
+        "Pulse"
+      ],
+      "has_button": true,
+      "script_runs": "4",
+      "pulses": "0",
+      "applied_note": null,
+      "table_cells": [
+        "Books",
+        "3",
+        "245.75",
+        "81.92",
+        "Games",
+        "3",
+        "409.48",
+        "136.49",
+        "Music",
+        "3",
+        "139",
+        "46.33",
+        "Toys",
+        "3",
+        "104.49",
+        "34.83"
+      ],
+      "table_present": true,
+      "chart_present": true,
+      "chart_bars": 4,
+      "chart_labels": [
+        "Books",
+        "Games",
+        "Music",
+        "Toys",
+        "group_key",
+        "0",
+        "100",
+        "200",
+        "300",
+        "400",
+        "total_amount"
+      ],
+      "chart_marks": "M18.8,72.16833333333334h122.39999999999999v86.83166666666666h-122.39999999999999Z|M178.8,14.317066666666655h122.39999999999999v144.68293333333335h-122.39999999999999Z|M338.8,109.88666666666667h122.39999999999999v49.11333333333333h-122.39999999999999Z|M498.8,122.0802h122.39999999999999v36.919799999999995h-122.39999999999999Z",
+      "slider_value": "0",
+      "checkbox_checked": true,
+      "selectbox_value": "category",
+      "texts": [],
+      "alerts": [],
+      "selectbox_disabled": false,
+      "slider_thumb": "0",
+      "slider_disabled": false,
+      "checkbox_disabled": false,
+      "exceptions": []
+    }
+  },
+  "checks": [
+    {
+      "step": "filter-empty",
+      "check": "contract",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet",
+      "ok": false,
+      "journey": "filter-empty"
+    },
+    {
+      "step": "filter-empty",
+      "check": "inputs",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet",
+      "ok": false,
+      "journey": "filter-empty"
+    },
+    {
+      "step": "filter-empty",
+      "check": "phase_sequence",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet",
+      "ok": false,
+      "journey": "filter-empty"
+    },
+    {
+      "step": "filter-empty",
+      "check": "baseline_upload",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet",
+      "ok": false,
+      "journey": "filter-empty"
+    },
+    {
+      "step": "filter-empty",
+      "check": "slider200_state_run",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet",
+      "ok": false,
+      "journey": "filter-empty"
+    },
+    {
+      "step": "filter-empty",
+      "check": "empty_schema_dom",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet",
+      "ok": false,
+      "journey": "filter-empty"
+    },
+    {
+      "step": "filter-empty",
+      "check": "distinct_empty_note",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet",
+      "ok": false,
+      "journey": "filter-empty"
+    },
+    {
+      "step": "filter-empty",
+      "check": "slider0_state_run",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet",
+      "ok": false,
+      "journey": "filter-empty"
+    },
+    {
+      "step": "filter-empty",
+      "check": "restored_values",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet",
+      "ok": false,
+      "journey": "filter-empty"
+    },
+    {
+      "step": "filter-empty",
+      "check": "same_file_session",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet",
+      "ok": false,
+      "journey": "filter-empty"
+    },
+    {
+      "step": "screenshots",
+      "check": "records",
+      "expected": "stage2 screenshot records for the fixed steps",
+      "actual": "[{\"step_ids\": [\"J08-S2\"], \"phase\": \"slider-200\", \"namespace\": \"rust-empty-20261024T183117\", \"file\": \"01-no-rows-match.png\", \"sha256\": \"ab582540641239a4f1e19deab7e21f3d70a68ad5a06f133ff20a058ce3886743\", \"timestamp\": 26477.568343564897}, {\"step_ids\": [\"J08-S3\"], \"phase\": \"slider-0\", \"namespace\": \"rust-empty-20261024T183117\", \"file\": \"02-recovered.png\", \"sha256\": \"41b77e78e8664c118f511913d19e6a4589ae4e22b07f72d1b8d5517def7b65a0\", \"timestamp\": 26484.798691916534}]",
+      "ok": true,
+      "journey": "screenshots/filter-empty"
+    },
+    {
+      "step": "J08-S2",
+      "check": "png_proof/main/1",
+      "expected": "original PNG/hash/source/completed phase time",
+      "actual": "01-no-rows-match.png",
+      "ok": true,
+      "journey": "screenshots/filter-empty"
+    },
+    {
+      "step": "J08-S3",
+      "check": "png_proof/main/2",
+      "expected": "original PNG/hash/source/completed phase time",
+      "actual": "02-recovered.png",
+      "ok": true,
+      "journey": "screenshots/filter-empty"
+    }
+  ],
+  "counts": {
+    "expected": 13,
+    "executed": 13,
+    "asserted": 3
+  },
+  "failures": [
+    {
+      "step": "filter-empty",
+      "check": "contract",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet"
+    },
+    {
+      "step": "filter-empty",
+      "check": "inputs",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet"
+    },
+    {
+      "step": "filter-empty",
+      "check": "phase_sequence",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet"
+    },
+    {
+      "step": "filter-empty",
+      "check": "baseline_upload",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet"
+    },
+    {
+      "step": "filter-empty",
+      "check": "slider200_state_run",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet"
+    },
+    {
+      "step": "filter-empty",
+      "check": "empty_schema_dom",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet"
+    },
+    {
+      "step": "filter-empty",
+      "check": "distinct_empty_note",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet"
+    },
+    {
+      "step": "filter-empty",
+      "check": "slider0_state_run",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet"
+    },
+    {
+      "step": "filter-empty",
+      "check": "restored_values",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet"
+    },
+    {
+      "step": "filter-empty",
+      "check": "same_file_session",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet"
+    }
+  ]
+}

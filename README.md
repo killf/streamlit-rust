@@ -14,14 +14,4 @@ This repository is an early baseline. It is **not yet compatible with Streamlit 
 - `tools/`: fixed upstream and matrix verification tools.
 - `.codex/`: local agent configuration, development planning, [architecture](.codex/architecture.md), [compatibility policy](.codex/compatibility.md), and [acceptance requirements](.codex/acceptance.md).
 
-## Fresh-checkout checks
-
-```powershell
-python -m pytest tests/reference -q
-python tests/journeys/validate_journeys.py
-cargo fmt --all -- --check
-cargo clippy --workspace --locked --all-targets -- -D warnings
-cargo test --workspace --locked
-```
-
-Official artifacts and hashes are locked in [upstream.lock.json](/upstream.lock.json). `tools/fetch_upstream.py` and `tools/verify_p0.py` are optional local-cache auditors, not fresh-checkout gates. `fetch_upstream.py --download` restores only the three locked archives; it cannot reconstruct the captured docs catalog and HTML under `target/upstream/docs`.
+Development checks and optional upstream-cache audits are documented in the [acceptance requirements](.codex/acceptance.md). Official artifacts and hashes are locked in [upstream.lock.json](/upstream.lock.json).

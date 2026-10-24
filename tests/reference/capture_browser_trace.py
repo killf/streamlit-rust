@@ -1804,6 +1804,788 @@ def sessions_checks(sessions_a, sessions_b, names_a, names_b, groups_a, groups_b
     return _journey_finish("sessions", checks)
 
 
+STAGE2_CASE_ALIASES = {
+    "soft-invalid": "soft-invalid", "soft-amount": "soft-invalid",
+    "non-utf8": "non-utf8", "not-utf8": "non-utf8",
+    "filter-empty": "filter-empty", "filtered-empty": "filter-empty",
+    "state": "state", "session-state": "state",
+}
+
+
+def canonical_stage2_case(name):
+    """One mapping for CLI/loader IDs. Unknown cases never become basic."""
+    if not isinstance(name, str) or name not in STAGE2_CASE_ALIASES:
+        raise ValueError(f"unknown stage2 journey: {name!r}")
+    return STAGE2_CASE_ALIASES[name]
+
+
+STAGE2_REQUIRED = {
+    "soft-invalid": ("contract", "inputs", "phase_sequence", "upload_binding", "soft_warning", "soft_no_error", "soft_values", "replacement_delete", "recovery_run", "recovery_values", "no_stale_alert"),
+    "non-utf8": ("contract", "inputs", "phase_sequence", "upload_binding", "hard_utf8_error", "no_bad_result", "replacement_delete", "recovery_run", "recovery_values", "no_stale_alert"),
+    "filter-empty": ("contract", "inputs", "phase_sequence", "baseline_upload", "slider200_state_run", "empty_schema_dom", "distinct_empty_note", "slider0_state_run", "restored_values", "same_file_session"),
+    "state": ("contract", "inputs", "phase_sequence", "initial_run1_pulse0", "selector_once_counts", "upload_preparation", "pulse_once_counts", "distinct_run_markers", "fresh_unchanged_values", "same_file_session"),
+}
+JOURNEY_REQUIRED.update({kind: {(kind, key) for key in keys} for kind, keys in STAGE2_REQUIRED.items()})
+
+# Fixed manifest coverage, never a caller-supplied list that can omit missing pictures.
+# Each tuple is (step id, tab or None, phase index). A picture may attest multiple
+# semantically identical steps, but J06-S1 requires a picture from each tab.
+STAGE2_SCREENSHOTS = {
+    "data-loop": [(sid, None, index) for sid, index in (
+        ("J00-S2", 0), ("J01-S1", 0), ("J03-S1", 0), ("J00-S3", 1), ("J01-S2", 1),
+        ("J02-S1", 1), ("J03-S3", 1), ("J00-S5", 2), ("J02-S2", 2), ("J02-S3", 3))],
+    "recover": [("J07-S1", None, 0), ("J07-S3", None, 1)],
+    "empty": [("J08-S1", None, 0)],
+    "sessions": [("J06-S1", "a", 1), ("J06-S1", "b", 0), ("J01-S4", "b", 0)],
+    "state": [("J04-S1", None, 0), ("J04-S2", None, 1), ("J04-S3", None, 3)],
+    "soft-invalid": [("J07-S2", None, 0)],
+    "non-utf8": [("J07-S4", None, 0), ("J07-S4", None, 1)],
+    "filter-empty": [("J08-S2", None, 1), ("J08-S3", None, 2)],
+}
+# A capture observation budget, not a Streamlit execution/latency requirement.
+# It also rejects a Date.now epoch substituted for CDP monotonic seconds when
+# the last phase has no following action to supply an upper time boundary.
+STAGE2_SCREENSHOT_MAX_LAG_SECONDS = 60.0
+for _kind, _roles in STAGE2_SCREENSHOTS.items():
+    JOURNEY_REQUIRED["screenshots/" + _kind] = {("screenshots", "records"), *{(sid, f"png_proof/{tab or 'main'}/{index}") for sid, tab, index in _roles}}
+
+
+def _stage2_target_upload_run(frames, *, namespace, start, end, widget_id, file_id, file_name):
+    """Pure-frame readiness for a newly issued upload, never the clear run.
+
+    The driver polls with end=len(frames), then observes DOM/IPC/PNG only after
+    ok. Indices refer to the original list; neither frames nor events change.
+    Missing or invalid evidence is not ready, with an explicit reason.
+    """
+    try:
+        _journey_need(isinstance(frames, list) and type(start) is int and type(end) is int
+                      and 0 <= start < end <= len(frames), "missing upload frame window")
+        _journey_need(all(isinstance(v, str) and v for v in (namespace, widget_id, file_id, file_name)),
+                      "missing expected namespace/widget/file identity")
+        selected = frames[start:end]
+        _journey_need(all(f.get("namespace") == namespace for f in selected), "upload window crosses namespaces")
+        identities = {(f.get("connection"), f.get("request_id")) for f in selected}
+        _journey_need(len(identities) == 1 and all(v is not None and v != "" for v in next(iter(identities))),
+                      "upload window crosses or lacks connection/requestId")
+        # The established binder selects by filename; additionally require the
+        # exact newly issued file ID before using its unchanged run logic.
+        candidates = []
+        for index in range(start, end):
+            frame = frames[index]
+            if frame.get("direction") != "client->server" or frame.get("decoded", {}).get("type") != "rerun_script":
+                continue
+            states = [v for v in frame["decoded"]["rerun_script"].get("widget_states", []) if v.get("id") == widget_id]
+            if len(states) != 1 or states[0].get("value_field") != "file_uploader_state_value":
+                continue
+            infos = states[0].get("value_full", {}).get("uploadedFileInfo")
+            if isinstance(infos, list) and len(infos) == 1 and infos[0].get("fileId") == file_id and infos[0].get("name") == file_name:
+                candidates.append(index)
+        _journey_need(len(candidates) == 1, "missing or ambiguous newly issued file ClientState")
+        normalized = [dict(f, target=f.get("namespace")) for f in frames]
+        proof = _journey_run_verdict(normalized, {"start": start, "end": end, "widget": widget_id, "target": namespace},
+                                     {"action": "upload", "ok": True}, file_name, "category")
+        _journey_need(proof["ok"] and proof["state_frame"] == candidates[0], "target file run proof failed")
+        return {"ok": True, "problems": [], **{key: proof[key] for key in
+                ("state_frame", "run_start_frame", "completion_frame", "script_run_id")}}
+    except (ValueError, TypeError, KeyError, IndexError, AttributeError) as exc:
+        return {"ok": False, "problems": [str(exc)]}
+
+
+def soft_invalid_checks(*, observation=None):
+    return _stage2_specific_checks("soft-invalid", observation)
+
+
+def non_utf8_checks(*, observation=None):
+    return _stage2_specific_checks("non-utf8", observation)
+
+
+def filter_empty_checks(*, observation=None):
+    return _stage2_specific_checks("filter-empty", observation)
+
+
+def _stage2_typed_controls(deltas, state, dom, minimum=0):
+    """Match each actual server Element's ID, one typed ClientState, and DOM."""
+    _journey_need(isinstance(state, list) and isinstance(dom, dict), "missing controls/DOM")
+    ids = {}
+    for kind, label, field, expected in (("selectbox", "Group by", "string_value", "category"),
+                                         ("slider", "Minimum amount", "double_array_value", [minimum]),
+                                         ("checkbox", "Include unknown region", "bool_value", True)):
+        elements = [d for d in deltas if d.get("type") == "new_element" and d.get("element") == kind and d.get("label") == label]
+        _journey_need(len(elements) == 1 and isinstance(elements[0].get("id"), str) and elements[0]["id"], "missing/ambiguous source Element: " + label)
+        identity = elements[0]["id"]
+        _journey_need(identity not in ids.values(), "controls share a source widget ID")
+        ids[kind] = identity
+        values = [v for v in state if v.get("id") == identity]
+        _journey_need(len(values) == 1 and values[0].get("value_field") == field, "missing/duplicated/wrong-type ClientState: " + label)
+        value = values[0]
+        if kind == "slider":
+            actual = value.get("value_full", {}).get("data")
+            _journey_need(isinstance(actual, list) and len(actual) == 1 and type(actual[0]) in (int, float)
+                          and actual == expected, "wrong explicit slider ClientState")
+        elif kind == "checkbox":
+            _journey_need(value.get("value") is True, "wrong explicit checkbox ClientState")
+        else:
+            _journey_need(value.get("value") == expected, "wrong explicit selector ClientState")
+    _journey_need(not any(v.get("value_field") == "trigger_value" and v.get("value") is True for v in state), "unexpected callback/button trigger")
+    _journey_need(dom.get("selectbox_value") == "category" and _same_cell_value(minimum, dom.get("slider_value"))
+                  and dom.get("checkbox_checked") is True, "DOM controls contradict ClientState")
+    return ids
+
+
+def _stage2_specific_input(phase, filename):
+    expected = {
+        "sales_basic.csv": (737, "9692a718edc5bec8f3fee1cfec4f454338c8f8d675cd34c17cdb5bf4403d8d00"),
+        "sales_with_missing.csv": (739, "ce8b7f62c729c856ad85c496e044c25ef0f3594e2b3b558fb31e9213122e512d"),
+        "sales_latin1.csv": (735, "f73e63eb66c2dccd9285b573094b59c59e5dacd3ece0ef26d48ca3728371d541"),
+    }
+    path = REPO_ROOT / "tests/fixtures/csv" / filename
+    data = path.read_bytes()
+    action = phase["action"]
+    _journey_need(action.get("action") == "upload" and action.get("ok") is True and not action.get("failed")
+                  and pathlib.Path(action["file"]).resolve() == path.resolve()
+                  and (len(data), hashlib.sha256(data).hexdigest()) == expected[filename]
+                  and (action.get("file_bytes"), action.get("file_sha256")) == expected[filename], "wrong actual fixture/action fingerprint: " + filename)
+    if filename == "sales_latin1.csv":
+        try:
+            data.decode("utf-8")
+        except UnicodeDecodeError as exc:
+            _journey_need(exc.start == 101 and data[exc.start] == 0xe9 and exc.reason == "invalid continuation byte", "wrong measured non-UTF8 input")
+        else:
+            raise ValueError("non-UTF8 fixture is valid UTF-8")
+
+
+def _stage2_run_parts(observation, phase, proof):
+    frames = observation["frames"]
+    state = frames[proof["state_frame"]]["decoded"]["rerun_script"]["widget_states"]
+    deltas = [f["decoded"]["delta"] for f in frames[proof["run_start_frame"]+1:proof["completion_frame"]]
+              if f.get("direction") == "server->client" and f.get("decoded", {}).get("type") == "delta"]
+    return state, deltas
+
+
+def _stage2_specific_counters(deltas, dom, runs):
+    if dom is not None:
+        _journey_need((_stage2_counter(dom, "script_runs"), _stage2_counter(dom, "pulses")) == (runs, 0), "wrong DOM run/callback counters")
+    for label, want in (("Script runs", runs), ("Pulses", 0)):
+        values = [int(m[1]) for d in deltas if d.get("element") in ("text", "markdown") and isinstance(d.get("body"), str)
+                  and (m := re.fullmatch(re.escape(label) + r":\s*(\d+)", d["body"].strip()))]
+        _journey_need(values == [want], "wrong/missing/duplicated wire counter: " + label)
+
+
+def _stage2_specific_alerts(deltas, dom, expected):
+    alerts = [d.get("alert") for d in deltas if d.get("element") == "alert"]
+    _journey_need(all(isinstance(v, dict) for v in alerts)
+                  and [(v.get("format"), v.get("body")) for v in alerts] == expected,
+                  "wrong/missing/stale wire error/warning/info")
+    _journey_need(dom.get("exceptions") == [] and dom.get("alerts") == [body for _, body in expected], "wrong/missing/stale DOM alerts/exceptions")
+
+
+def _stage2_replacement_evidence(kind, observation, bundle):
+    phases, frames = observation["phases"], observation["frames"]
+    filename = "sales_with_missing.csv" if kind == "soft-invalid" else "sales_latin1.csv"
+    contexts, proofs, runs = [], [], []
+    # Reuse existing issued URL, PUT, session, IPC/schema/value and DOM proof.
+    # Only the driver success key is adapted; frames and phase events stay intact.
+    adapted = dict(observation, uploads={"bad": observation["uploads"].get("soft" if kind == "soft-invalid" else "bad"),
+                                        "good": observation["uploads"].get("good")})
+    for index, name in enumerate((filename, "sales_basic.csv")):
+        phase = phases[index]
+        _stage2_specific_input(phase, name)
+        current = _journey_bundle(adapted, phase_index=index)
+        context = _journey_context(current, name, "category", phase["dom_after"], no_result=kind == "non-utf8" and index == 0)
+        _journey_need(context["ok"], "; ".join(context["problems"]))
+        uploader = current["window"]["widget"]
+        proof = _stage2_target_upload_run(frames, namespace=observation["namespace"], start=phase["start"], end=phase["end"],
+                                         widget_id=uploader, file_id=context["file_id"], file_name=name)
+        _journey_need(proof["ok"], "; ".join(proof["problems"]))
+        state, deltas = _stage2_run_parts(observation, phase, proof)
+        _stage2_typed_controls(deltas, state, phase["dom_after"])
+        _stage2_specific_counters(deltas, phase["dom_after"], 2 if index == 0 else 4)
+        runs.append((state, deltas));contexts.append(context);proofs.append(proof)
+    bad, good = contexts
+    _journey_need(bad["identity"] == good["identity"] and bad["session"] == good["session"] and bad["file_id"] != good["file_id"], "replacement changed connection/session or reused file ID")
+    phase = phases[1]
+    http = _journey_http(bundle, phase)
+    deletions = [h for h in http if h.get("method") == "DELETE" and h.get("url") == bad["delete_url"] and h.get("status") == 204]
+    _journey_need(len(deletions) == 1, "no unique old-issued-file DELETE204 in replacement action window")
+    _journey_need(not any(h.get("method") == "DELETE" and h.get("url") == good["delete_url"] for h in http), "new target file was deleted")
+    _stage2_specific_alerts(runs[1][1], phase["dom_after"], [])
+    _stage2_specific_clear_chain(observation, phase, proofs[1], good, bundle)
+    if kind == "soft-invalid":
+        message = "2 row(s) with an unusable 'amount' were excluded from the aggregation."
+        _stage2_specific_alerts(runs[0][1], phases[0]["dom_after"], [("WARNING", message)])
+        _journey_need(sum(row["row_count"] for row in bad["table"]["rows"]) == 10 and bad["table"]["row_count"] == 4, "soft result is not the measured 10 valid rows/four groups")
+    else:
+        prefix = "Could not parse the uploaded CSV: the uploaded file is not valid UTF-8"
+        measured = (prefix, prefix + ": 'utf-8' codec can't decode byte 0xe9 in position 101: invalid continuation byte")
+        errors = [d.get("alert", {}).get("body") for d in runs[0][1] if d.get("element") == "alert" and d.get("alert", {}).get("format") == "ERROR"]
+        _journey_need(len(errors) == 1 and errors[0] in measured, "wrong measured non-UTF8 error")
+        _stage2_specific_alerts(runs[0][1], phases[0]["dom_after"], [("ERROR", errors[0]), ("INFO", "Upload a valid CSV to continue.")])
+
+
+def _stage2_specific_clear_chain(observation, phase, proof, good, bundle, *, before_runs=2):
+    """Only the observed empty-uploader run may finish early before target run."""
+    frames = observation["frames"]
+    indices = range(phase["start"], phase["end"])
+    clients = [i for i in indices if frames[i].get("direction") == "client->server" and frames[i].get("decoded", {}).get("type") == "rerun_script"]
+    markers = [i for i in indices if frames[i].get("decoded", {}).get("type") == "new_session"]
+    finishes = [i for i in indices if frames[i].get("decoded", {}).get("type") == "script_finished"]
+    _journey_need(len(clients) == len(markers) == len(finishes) == 2 and clients[0] < markers[0] < clients[1]
+                  and clients[1] == proof["state_frame"] and finishes[0] < markers[1] == proof["run_start_frame"]
+                  and finishes[1] == proof["completion_frame"], "replacement is not the measured clear-state then new-target chain")
+    clear = frames[clients[0]]["decoded"]["rerun_script"]["widget_states"]
+    uploader = bundle["window"]["widget"]
+    values = [v for v in clear if v.get("id") == uploader]
+    _journey_need(len(values) == 1 and values[0].get("value_field") == "file_uploader_state_value"
+                  and isinstance(values[0].get("value_full"), dict)
+                  and values[0]["value_full"].get("uploadedFileInfo") in (None, []), "first replacement state did not clear the old uploader")
+    old = frames[markers[0]]["decoded"]["new_session"]
+    previous_ids = {f.get("decoded", {}).get("new_session", {}).get("script_run_id") for f in frames[:markers[0]]
+                    if f.get("namespace") == observation["namespace"] and f.get("decoded", {}).get("type") == "new_session"}
+    _journey_need(old.get("session_id") == good["session"] and old.get("script_run_id")
+                  and old["script_run_id"] not in previous_ids and old["script_run_id"] != proof["script_run_id"], "clear/target run marker/session mismatch")
+    status = frames[finishes[0]]["decoded"]["script_finished"].get("status")
+    _journey_need(type(status) is int and status in (0, 2), "clear run compiled/failed instead of finishing or yielding to rerun")
+    _journey_need(status != 2 or clients[1] < finishes[0], "early clear finish has no superseding target ClientState")
+    deltas = [f["decoded"]["delta"] for f in frames[markers[0]+1:finishes[0]] if f.get("decoded", {}).get("type") == "delta"]
+    _stage2_typed_controls(deltas, clear, phase["dom_before"])
+    _journey_need(not any(d.get("element") in ("dataframe", "table", "vega_lite_chart") for d in deltas), "clear run rendered stale result")
+    alerts = [d.get("alert", {}) for d in deltas if d.get("element") == "alert"]
+    _journey_need([(v.get("format"), v.get("body")) for v in alerts] == [("INFO", "Upload a CSV to see the aggregated result.")], "clear run did not show the measured empty-uploader info")
+    if status == 0:
+        _stage2_specific_counters(deltas, None, before_runs+1)
+    else:
+        # An early rerun may stop before captions, but emitted captions must be truthful.
+        for label, want in (("Script runs", before_runs+1), ("Pulses", 0)):
+            values = [int(m[1]) for d in deltas if isinstance(d.get("body"), str)
+                      and (m := re.fullmatch(re.escape(label) + r":\s*(\d+)", d["body"].strip()))]
+            _journey_need(values in ([], [want]), "interrupted clear run has wrong counters")
+    _journey_need((_stage2_counter(phase["dom_before"], "script_runs"), _stage2_counter(phase["dom_before"], "pulses")) == (before_runs, 0), "wrong before-replacement counters")
+
+
+def _stage2_filtered_evidence(observation, bundle, *, baseline_runs=2):
+    phases, frames = observation["phases"], observation["frames"]
+    _stage2_specific_input(phases[0], "sales_basic.csv")
+    adapted = dict(observation, uploads={"bad": observation.get("uploads", {}).get("file")})
+    upload_bundle = _journey_bundle(adapted, phase_index=0)
+    baseline = _journey_context(upload_bundle, "sales_basic.csv", "category", phases[0]["dom_after"])
+    _journey_need(baseline["ok"], "; ".join(baseline["problems"]))
+    upload_proof = _stage2_target_upload_run(frames, namespace=observation["namespace"], start=phases[0]["start"], end=phases[0]["end"],
+        widget_id=upload_bundle["window"]["widget"], file_id=baseline["file_id"], file_name="sales_basic.csv")
+    _journey_need(upload_proof["ok"], "; ".join(upload_proof["problems"]))
+    state, deltas = _stage2_run_parts(observation, phases[0], upload_proof)
+    _stage2_typed_controls(deltas, state, phases[0]["dom_after"])
+    _stage2_specific_counters(deltas, phases[0]["dom_after"], baseline_runs)
+    _stage2_specific_alerts(deltas, phases[0]["dom_after"], [])
+    run_ids = {upload_proof["script_run_id"]}
+    for index, minimum in ((1, 200), (2, 0)):
+        phase = phases[index]
+        action = phase["action"]
+        _journey_need(action.get("action") == "slider" and action.get("label") == "Minimum amount"
+                      and type(action.get("value")) in (int, float) and action["value"] == minimum, "wrong filter action")
+        run = _stage2_phase_run(observation, phase)
+        _journey_need(run["identity"] == baseline["identity"] and run["session"] == baseline["session"]
+                      and run["run"] not in run_ids, "filter changed connection/session or reused run")
+        run_ids.add(run["run"])
+        state = frames[run["state_index"]]["decoded"]["rerun_script"]["widget_states"]
+        ids = _stage2_typed_controls(run["deltas"], state, phase["dom_after"], minimum)
+        _stage2_specific_counters(run["deltas"], phase["dom_after"], index+baseline_runs)
+        _journey_need((_stage2_counter(phase["dom_before"], "script_runs"), _stage2_counter(phase["dom_before"], "pulses")) == (index+baseline_runs-1, 0), "wrong before-filter counters")
+        uploaders = [d for d in run["deltas"] if d.get("element") == "file_uploader" and d.get("label") == "Upload sales CSV"]
+        _journey_need(len(uploaders) == 1 and uploaders[0].get("id") == upload_bundle["window"]["widget"], "filter changed uploader widget")
+        values = [v for v in state if v.get("id") == uploaders[0]["id"]]
+        _journey_need(len(values) == 1 and values[0].get("value_field") == "file_uploader_state_value"
+                      and values[0].get("value_full", {}).get("uploadedFileInfo") == [baseline["info"]], "filter changed/lost uploaded file")
+        _journey_need(not any(h.get("method") in ("PUT", "DELETE") for h in _journey_http(bundle, phase)), "filter unexpectedly uploaded/deleted a file")
+        tables = [d for d in run["deltas"] if d.get("element") in ("dataframe", "table")]
+        charts = [d for d in run["deltas"] if d.get("element") == "vega_lite_chart"]
+        _journey_need(len(tables) == 1, "filter has no unique fresh table in target run")
+        table = _journey_ipc(tables[0].get("arrow"), bundle)
+        columns = ["group_key", "row_count", "total_amount", "avg_amount"]
+        types = [line.split(": ", 1)[1].removesuffix(" not null") for line in table["schema"].splitlines()[:4]]
+        _journey_need(table["columns"] == columns and len(types) == 4 and types[1:] == ["int64", "double", "double"], "filtered schema/order/types mismatch")
+        dom = phase["dom_after"]
+        if minimum == 200:
+            # Only this measured zero-row filtering mode accepts Python double
+            # and Rust stable large_string. Header-only and populated stay strict.
+            _journey_need(types[0] in ("double", "large_string") and table["row_count"] == 0 and table["rows"] == [], "filter-empty schema/rows mismatch")
+            _journey_need(dom.get("table_present") is True and isinstance(dom.get("table_cells"), list)
+                          and len(dom["table_cells"]) in (0, 4) and not _filled_cells(dom["table_cells"])
+                          and not charts and dom.get("chart_present") is False and dom.get("chart_bars") == 0
+                          and dom.get("chart_marks") == "", "filtered-empty DOM/chart contains stale data")
+            _stage2_specific_alerts(run["deltas"], dom, [("INFO", "No rows match the current filters.")])
+        else:
+            _journey_need(types[0] == "large_string" and table["rows"] == baseline["table"]["rows"]
+                          and table["row_count"] == baseline["table"]["row_count"], "restored IPC differs from the real baseline values")
+            window = {"start": phase["start"], "end": phase["end"], "target": observation["namespace"], "widget": ids["slider"]}
+            verdict = data_loop_verdict({"kind": "slider", "label": "Minimum amount"}, bundle["frames"], window,
+                                       {"action": "slider", "ok": True}, phase["dom_before"], dom)
+            _journey_need(verdict["ok"], "; ".join(verdict["problems"]))
+            _journey_need(len(charts) == 1, "restored chart is absent/duplicated")
+            spec = charts[0].get("vega_lite_spec") or {}
+            _journey_need(spec.get("mark", {}).get("type") == "bar" and spec.get("encoding", {}).get("x", {}).get("field") == "group_key"
+                          and spec["encoding"]["x"].get("sort") == [v["group_key"] for v in table["rows"]]
+                          and spec.get("encoding", {}).get("y", {}).get("field") == "total_amount", "restored chart fields/order mismatch")
+            datasets = [v for v in charts[0].get("vega_lite_datasets", []) if v.get("name") == spec.get("data", {}).get("name")]
+            _journey_need(len(datasets) == 1 and _journey_ipc(datasets[0].get("arrow"), bundle)["sha256"] == table["sha256"], "restored named dataset differs from table")
+            _stage2_specific_alerts(run["deltas"], dom, [])
+
+
+def _stage2_specific_checks(kind, observation):
+    """Three bounded cases share the reviewed reader, run binder and PNG proof."""
+    try:
+        _journey_need(isinstance(observation, dict) and observation.get("contract") == "journey-stage2-v1"
+                      and observation.get("journey") == kind, "missing/wrong specific case contract")
+        names = {"soft-invalid": ["upload-soft", "replace-baseline"], "non-utf8": ["upload-utf8", "replace-baseline"],
+                 "filter-empty": ["upload-baseline", "slider-200", "slider-0"]}[kind]
+        phases = observation.get("phases")
+        _journey_need(isinstance(phases, list) and [p.get("name") for p in phases] == names, "missing/reordered specific phases")
+        _journey_need(all(phases[i]["end"] <= phases[i+1]["start"] for i in range(len(phases)-1)), "specific phase windows overlap")
+        bundle = _journey_bundle(observation, phase_index=0)
+        _journey_need(observation.get("namespace") == bundle["source"], "observation namespace differs from frames")
+        _journey_need(all(p.get("action", {}).get("ok") is True and not p["action"].get("failed") for p in phases), "unobserved/failed case action")
+        _journey_need(all(type(f["decoded"]["script_finished"].get("status")) is int for p in phases
+                          for f in observation["frames"][p["start"]:p["end"]] if f.get("decoded", {}).get("type") == "script_finished"), "invalid completion status type")
+        if kind == "filter-empty":
+            _stage2_filtered_evidence(observation, bundle)
+        else:
+            _stage2_replacement_evidence(kind, observation, bundle)
+        pictures = journey_result(screenshot_checks(observation=observation))
+        _journey_need(pictures["ok"], "PNG proof failed: " + "; ".join(str(v.get("actual")) for v in pictures["failures"]))
+    except (ValueError, TypeError, KeyError, IndexError, OSError, AttributeError) as exc:
+        actual, ok = str(exc), False
+    else:
+        actual, ok = "actual file/state/run/HTTP/IPC/DOM/PNG evidence checked", True
+    return _journey_finish(kind, [_check(kind, key, "complete measured specific-case evidence", actual, ok) for key in STAGE2_REQUIRED[kind]])
+
+
+def _stage2_phase_run(observation, phase):
+    """J04's bounded one-input/one-run contract, using recorded frames only."""
+    frames = observation["frames"]
+    start, end = phase.get("start"), phase.get("end")
+    _journey_need(type(start) is int and type(end) is int and 0 <= start < end <= len(frames), "missing phase frame window")
+    selected = frames[start:end]
+    identity = (observation.get("namespace"), selected[0].get("request_id"), selected[0].get("connection"))
+    _journey_need(isinstance(identity[0], str) and identity[0] and identity[1] and identity[2] is not None, "missing source/connection/requestId")
+    _journey_need(all((f.get("namespace"), f.get("request_id"), f.get("connection")) == identity for f in selected), "crossed phase source/connection/requestId")
+    stamps = [f.get("timestamp") for f in selected]
+    _journey_need(all(type(t) in (int, float) and math.isfinite(t) for t in stamps) and stamps == sorted(stamps)
+                  and phase.get("start_timestamp") == stamps[0] and phase.get("end_timestamp") == stamps[-1], "phase clock differs from raw")
+    clients = [i for i in range(start, end) if frames[i].get("direction") == "client->server" and frames[i].get("decoded", {}).get("type") == "rerun_script"]
+    runs = [i for i in range(start, end) if frames[i].get("direction") == "server->client" and frames[i].get("decoded", {}).get("type") == "new_session"]
+    finishes = [i for i in range(start, end) if frames[i].get("direction") == "server->client" and frames[i].get("decoded", {}).get("type") == "script_finished"]
+    _journey_need(len(clients) == len(runs) == len(finishes) == 1 and clients[0] < runs[0] < finishes[0], "phase must contain one actual ClientState/new run/completion")
+    _journey_need(frames[finishes[0]]["decoded"]["script_finished"].get("status") == 0, "phase run failed")
+    session = frames[runs[0]]["decoded"]["new_session"]
+    _journey_need(session.get("script_run_id") and session.get("session_id"), "missing real run/session marker")
+    _journey_need(not any(f.get("decoded", {}).get("message") == "undecoded" for f in selected), "undecoded phase")
+    return {"identity": identity, "session": session["session_id"], "run": session["script_run_id"], "state_index": clients[0],
+            "finish_index": finishes[0], "deltas": [f["decoded"]["delta"] for f in frames[runs[0]+1:finishes[0]]
+                if f.get("direction") == "server->client" and f.get("decoded", {}).get("type") == "delta"]}
+
+
+def _stage2_counter(dom, key):
+    _journey_need(isinstance(dom, dict) and key in dom and type(dom[key]) in (str, int), "missing actual DOM counter: " + key)
+    text = str(dom[key])
+    _journey_need(re.fullmatch(r"\d+", text.strip()) is not None, "invalid DOM counter: " + key)
+    return int(text)
+
+
+def _stage2_static_view(observation, phase, run):
+    """Fresh J04 view validation without data_loop's mandatory-change rule."""
+    deltas = [d for d in run["deltas"] if d.get("type") == "new_element"]
+    tables = [d for d in deltas if d.get("element") == "dataframe"]
+    charts = [d for d in deltas if d.get("element") == "vega_lite_chart"]
+    _journey_need(len(tables) == len(charts) == 1, "phase has no unique fresh table/chart in its run")
+    kept = phase.get("ipc")
+    _journey_need(isinstance(kept, dict) and kept.get("table") and kept.get("chart"), "missing phase IPC artifacts")
+    arrows = [kept["table"].get("arrow"), kept["chart"].get("arrow"), *[v.get("arrow") for v in kept["chart"].get("datasets", [])]]
+    files = {a["sha256"]: a["file"] for a in arrows if a and a.get("sha256") and a.get("file")}
+    bundle = {"ipc_dir": observation["ipc_dir"], "ipc_files": files}
+    table = _journey_ipc(tables[0].get("arrow"), bundle)
+    _journey_need(all(kept["table"]["arrow"].get(k) == table[k] for k in ("sha256", "bytes", "schema", "columns", "rows", "row_count")), "phase table artifact summary differs from wire")
+    columns = ["group_key", "row_count", "total_amount", "avg_amount"]
+    _journey_need(table["columns"] == columns and [s.split(": ", 1)[1].removesuffix(" not null") for s in table["schema"].splitlines()[:4]] == ["large_string", "int64", "double", "double"], "state result schema mismatch")
+    from refcore import parse_csv, aggregate
+    data = (REPO_ROOT / "tests/fixtures/csv/sales_basic.csv").read_bytes()
+    expected = [{"group_key": v.group_key, "row_count": v.row_count, "total_amount": float(v.total_amount), "avg_amount": float(v.avg_amount)} for v in aggregate(parse_csv(data).rows, "region", 0, True)]
+    _journey_need(table["rows"] == expected and table["row_count"] == len(expected), "state IPC does not contain the expected region totals")
+    dom = phase["dom_after"]
+    cells = [row[c] for row in expected for c in columns]
+    _journey_need(dom.get("table_present") is True and dom.get("chart_present") is True and isinstance(dom.get("table_cells"), list)
+                  and len(dom["table_cells"]) == len(cells) and all(_same_cell_value(a, b) for a, b in zip(cells, dom["table_cells"])), "state DOM cells differ from actual data")
+    chart = charts[0]
+    spec = chart.get("vega_lite_spec") or {}
+    name = spec.get("data", {}).get("name")
+    datasets = [v for v in chart.get("vega_lite_datasets", []) if v.get("name") == name]
+    _journey_need(len(datasets) == 1 and _journey_ipc(datasets[0].get("arrow"), bundle)["sha256"] == table["sha256"], "state chart references different or missing IPC")
+    _journey_need(kept["chart"].get("vega_lite_spec") == spec, "phase chart spec is not the actual wire spec")
+    _journey_need(spec.get("mark", {}).get("type") == "bar" and spec.get("encoding", {}).get("x", {}).get("field") == "group_key"
+                  and spec["encoding"]["x"].get("sort") == [r["group_key"] for r in expected]
+                  and spec.get("encoding", {}).get("y", {}).get("field") == "total_amount", "state chart does not encode the region totals")
+    bars = _bar_geometry(dom.get("chart_marks"))
+    _journey_need(type(dom.get("chart_bars")) is int and dom["chart_bars"] == len(expected) == len(bars), "state DOM bar count differs from data")
+    ratios = [bar["height"] / row["total_amount"] for bar, row in zip(bars, expected)]
+    baselines = [bar["top"] + bar["height"] for bar in bars]
+    _journey_need(all(math.isfinite(v) and v > 0 for v in ratios) and max(ratios)-min(ratios) <= max(1e-6, max(ratios)*1e-6)
+                  and max(baselines)-min(baselines) <= 1e-6, "state bar geometry differs from the actual totals")
+    return {"rows": table["rows"], "columns": columns, "encoding": spec["encoding"], "mark": spec["mark"]}
+
+
+def state_checks(*, observation=None):
+    """J04 is browser rerun behavior; it does not claim stop/rerun framework APIs."""
+    checks = []
+    def record(key, ok, actual):
+        checks.append(_check("state", key, "strict stage2 state evidence", actual, ok))
+    try:
+        _journey_need(isinstance(observation, dict) and observation.get("contract") == "journey-stage2-v1" and observation.get("journey") == "state", "missing stage2 state observation")
+        record("contract", True, "journey-stage2-v1/state")
+        phases = observation.get("phases")
+        _journey_need(isinstance(phases, list) and [p.get("name") for p in phases] == ["initial", "selector", "upload-baseline", "pulse"], "missing or reordered required phases")
+        _journey_need(all(phases[i]["end"] <= phases[i+1]["start"] for i in range(3)), "phase frame windows overlap")
+        record("phase_sequence", True, [p["name"] for p in phases])
+        action = phases[2]["action"]
+        file = REPO_ROOT / "tests/fixtures/csv/sales_basic.csv"
+        data = file.read_bytes()
+        _journey_need(action.get("file_sha256") == hashlib.sha256(data).hexdigest() and action.get("file_bytes") == len(data)
+                      and pathlib.Path(action["file"]).resolve() == file.resolve(), "wrong or missing baseline input fingerprint")
+        record("inputs", True, action["file_sha256"])
+        runs = [_stage2_phase_run(observation, phase) for phase in phases]
+        _journey_need(len({r["run"] for r in runs}) == 4, "run markers are missing or reused")
+        record("distinct_run_markers", True, [r["run"] for r in runs])
+        _journey_need(len({r["identity"] for r in runs}) == len({r["session"] for r in runs}) == 1, "state actions switched source/connection/session")
+        frames = observation["frames"]
+        states = []
+        for index, (phase, run, expected) in enumerate(zip(phases, runs, [(1,0),(2,0),(3,0),(4,1)])):
+            _journey_need(phase.get("action", {}).get("ok") is True and not phase["action"].get("failed"), "phase action failed or was not observed")
+            dom = phase.get("dom_after")
+            actual = (_stage2_counter(dom, "script_runs"), _stage2_counter(dom, "pulses"))
+            _journey_need(actual == expected, "wrong DOM run/pulse count in " + phase["name"])
+            if index:
+                before = phase.get("dom_before")
+                _journey_need((_stage2_counter(before, "script_runs"), _stage2_counter(before, "pulses")) == [(1,0),(2,0),(3,0)][index-1], "wrong or missing before-action counters")
+            bodies = [d.get("body") for d in run["deltas"] if d.get("element") in ("text", "markdown") and isinstance(d.get("body"), str)]
+            for label, want in zip(("Script runs", "Pulses"), expected):
+                values = [int(m[1]) for body in bodies if (m := re.fullmatch(re.escape(label) + r":\s*(\d+)", body.strip()))]
+                _journey_need(values == [want], "wire counter missing/wrong/duplicated: " + label)
+            group = "category" if index == 0 else "region"
+            _journey_need(dom.get("selectbox_value") == group and _same_cell_value(0, dom.get("slider_value")) and dom.get("checkbox_checked") is True, "state DOM controls are wrong")
+            state = frames[run["state_index"]]["decoded"]["rerun_script"].get("widget_states")
+            _journey_need(isinstance(state, list), "missing ClientState widgets")
+            states.append(state)
+            ids = {d.get("label"): d.get("id") for d in run["deltas"] if d.get("element") in ("selectbox", "button", "file_uploader", "slider", "checkbox")}
+            if index:
+                expected_source_widget_ids = {}
+                for kind, label, field in (("selectbox", "Group by", "string_value"),
+                                           ("slider", "Minimum amount", "double_array_value"),
+                                           ("checkbox", "Include unknown region", "bool_value")):
+                    elements = [d for d in run["deltas"] if d.get("type") == "new_element"
+                                and d.get("element") == kind and d.get("label") == label]
+                    _journey_need(len(elements) == 1 and isinstance(elements[0].get("id"), str)
+                                  and elements[0]["id"], "missing/ambiguous source Element: " + label)
+                    widget_id = elements[0]["id"]
+                    _journey_need(widget_id not in expected_source_widget_ids.values(), "source controls share a widget ID")
+                    expected_source_widget_ids[kind] = widget_id
+                    selected = [v for v in state if v.get("id") == widget_id]
+                    _journey_need(len(selected) == 1 and selected[0].get("value_field") == field,
+                                  "missing/duplicated/wrong-type ClientState: " + label)
+                    value = selected[0]
+                    if kind == "slider":
+                        values = value.get("value_full", {}).get("data")
+                        _journey_need(isinstance(values, list) and len(values) == 1
+                                      and type(values[0]) in (int, float) and values[0] == 0,
+                                      "slider ClientState is not the explicit numeric [0]")
+                    elif kind == "checkbox":
+                        _journey_need(value.get("value") is True, "checkbox ClientState is not explicit true")
+                    else:
+                        _journey_need(value.get("value") == "region", "selector ClientState is not region")
+            triggers = [v for v in state if v.get("value_field") == "trigger_value" and v.get("value") is True]
+            if index == 3:
+                _journey_need(phase["action"].get("action") == "button" and phase["action"].get("label") == "Pulse"
+                              and len(triggers) == 1 and ids.get("Pulse") and triggers[0].get("id") == ids["Pulse"], "Pulse missing, doubled, or bound to another button")
+            else:
+                _journey_need(not triggers, "unexpected trigger before Pulse")
+        _journey_need(phases[0]["action"].get("action") == "initial" and phases[1]["action"].get("action") == "select-option" and phases[1]["action"].get("option") == "region", "wrong initial/selector action")
+        record("initial_run1_pulse0", True, [1,0])
+        record("selector_once_counts", True, [2,0])
+        record("pulse_once_counts", True, [4,1])
+        # Reuse the reviewed uploader proof exactly. This adapter only names its
+        # existing success flag and selected phase; it does not synthesize frames.
+        prepared_observation = dict(observation, phases=[phases[2]], uploads={"good": observation.get("uploads", {}).get("file")})
+        bundle = _journey_bundle(prepared_observation)
+        prepared = _journey_context(bundle, "sales_basic.csv", "region", phases[2]["dom_after"])
+        _journey_need(prepared["ok"], "; ".join(prepared["problems"]))
+        record("upload_preparation", True, prepared["file_id"])
+        file_id = prepared["info"]
+        for values in states[2:]:
+            infos = [v.get("value_full", {}).get("uploadedFileInfo") for v in values if v.get("value_field") == "file_uploader_state_value"]
+            _journey_need(infos == [[file_id]], "Pulse changed/dropped the uploaded file")
+        record("same_file_session", True, prepared["file_id"])
+        before_view = _stage2_static_view(observation, phases[2], runs[2])
+        after_view = _stage2_static_view(observation, phases[3], runs[3])
+        _journey_need(before_view == after_view, "Pulse changed the table/chart data")
+        record("fresh_unchanged_values", True, "fresh IPC in each run; same schema/rows/encoding")
+    except (ValueError, TypeError, KeyError, IndexError, OSError, AttributeError) as exc:
+        error = str(exc)
+    else:
+        error = "missing required proof"
+    seen = {c["check"] for c in checks}
+    checks.extend(_check("state", key, "strict stage2 state evidence", error, False) for key in STAGE2_REQUIRED["state"] if key not in seen)
+    return _journey_finish("state", checks)
+
+
+def _png_phase_record(observation, raw, index, record):
+    """The same file/hash/clock proof for leaf and sequence phase records."""
+    phase = raw["phases"][index]
+    source = raw.get("namespace")
+    start, end = phase["start"], phase["end"]
+    _journey_need(type(start) is int and type(end) is int and 0 <= start < end <= len(raw["frames"]), "missing screenshot phase window")
+    selected = raw["frames"][start:end]
+    _journey_need(source and all(f.get("namespace") == source and f.get("request_id") and f.get("connection") is not None for f in selected), "screenshot phase source missing/mixed")
+    _journey_need(len({(f["request_id"], f["connection"]) for f in selected}) == 1, "screenshot phase mixed connections")
+    file = pathlib.Path(record["file"])
+    root = pathlib.Path(observation["ipc_dir"]).resolve()
+    path = (root / file).resolve()
+    _journey_need(not file.is_absolute() and ".." not in file.parts and path.is_relative_to(root) and path.is_file(), "missing/unsafe relative PNG artifact")
+    png = path.read_bytes()
+    _journey_need(png.startswith(b"\x89PNG\r\n\x1a\n") and isinstance(record.get("sha256"), str)
+                  and hashlib.sha256(png).hexdigest() == record["sha256"], "PNG bytes/SHA mismatch")
+    finish = [f for f in selected if f.get("direction") == "server->client" and f.get("decoded", {}).get("type") == "script_finished"
+              and f["decoded"]["script_finished"].get("status") == 0]
+    stamp, observed_end = record.get("timestamp"), phase.get("observation_end_timestamp")
+    _journey_need(finish and all(type(t) in (int, float) and math.isfinite(t) for t in (stamp, observed_end)), "missing same-clock screenshot/completion time")
+    _journey_need(phase["start_timestamp"] <= phase["end_timestamp"] <= stamp <= observed_end
+                  and all(f["timestamp"] <= stamp for f in finish), "PNG is outside completed phase observation window")
+    _journey_need(0 <= observed_end - phase["end_timestamp"] <= STAGE2_SCREENSHOT_MAX_LAG_SECONDS, "PNG observation clock/lag is outside the capture budget")
+    later = raw["phases"][index+1:]
+    _journey_need(all(stamp < p["start_timestamp"] for p in later), "PNG crossed into another action phase")
+    _journey_need(not any(f.get("namespace") == source and phase["end_timestamp"] < f.get("timestamp", -1) <= stamp
+                          and f.get("decoded", {}).get("type") in ("rerun_script", "new_session") for f in raw["frames"][end:]), "PNG is stale after another run/action")
+    return record["file"]
+
+
+def screenshot_checks(*, observation=None):
+    """File/hash/time proof only. Independent review still judges the picture."""
+    kind = observation.get("journey") if isinstance(observation, dict) else None
+    roles = STAGE2_SCREENSHOTS.get(kind)
+    if roles is None:
+        return [_check("screenshots", "records", "known complete screenshot contract", "missing/unknown observation", False)]
+    checks = []
+    records = observation.get("screenshots")
+    allowed = {sid for sid, _, _ in roles}
+    valid_records = (observation.get("contract") == "journey-stage2-v1" and isinstance(records, list) and records
+                     and all(isinstance(r, dict) and isinstance(r.get("step_ids"), list) and r["step_ids"]
+                             and set(r["step_ids"]) <= allowed and len(r["step_ids"]) == len(set(r["step_ids"])) for r in records))
+    checks.append(_check("screenshots", "records", "stage2 screenshot records for the fixed steps", records, valid_records))
+    for sid, tab, index in roles:
+        try:
+            _journey_need(valid_records, "missing or malformed screenshot records")
+            raw = observation["tabs"][tab] if tab else observation
+            phase = raw["phases"][index]
+            source = raw.get("namespace")
+            candidates = [r for r in records if sid in r["step_ids"] and r.get("phase") == phase.get("name") and r.get("namespace") == source]
+            _journey_need(len(candidates) == 1, "missing/duplicate screenshot for this phase and namespace")
+            actual, ok = _png_phase_record(observation, raw, index, candidates[0]), True
+        except (ValueError, TypeError, KeyError, IndexError, OSError, AttributeError) as exc:
+            actual, ok = str(exc), False
+        checks.append(_check(sid, f"png_proof/{tab or 'main'}/{index}", "original PNG/hash/source/completed phase time", actual, ok))
+    return _journey_finish("screenshots/" + kind, checks)
+
+
+SEQUENCE_CONTRACT = "journey-sequence-v1"
+SEQUENCE_PHASES = {
+    "j07-sequence": ("initial", "upload-malformed", "upload-soft", "good-after-soft", "upload-utf8", "good-after-utf8"),
+    "j08-sequence": ("initial", "upload-header-only", "upload-baseline", "slider-200", "slider-0"),
+}
+SEQUENCE_INPUTS = {
+    "upload-malformed": "sales_malformed.csv", "upload-soft": "sales_with_missing.csv",
+    "good-after-soft": "sales_basic.csv", "upload-utf8": "sales_latin1.csv", "good-after-utf8": "sales_basic.csv",
+    "upload-header-only": "sales_empty.csv", "upload-baseline": "sales_basic.csv",
+}
+_SEQUENCE_COMMON = ("contract", "phase_sequence", "fixture_inputs", "same_source_session", "no_reload_or_reconnect", "distinct_target_runs", "counter_continuity")
+SEQUENCE_REQUIRED = {
+    "j07-sequence": (*_SEQUENCE_COMMON, "malformed_error_no_result", "soft_warning_values", "recovery_after_soft", "utf8_error_no_result", "recovery_after_utf8", "png_phase_coverage"),
+    "j08-sequence": (*_SEQUENCE_COMMON, "header_empty", "baseline_upload", "filter_empty", "slider200_once", "restore_values", "slider0_once", "png_phase_coverage"),
+}
+SEQUENCE_PNG_ROLES = {
+    "initial": (), "upload-malformed": ("J07-S1",), "upload-soft": ("J07-S2",), "good-after-soft": ("J07-S3",),
+    "upload-utf8": ("J07-S4",), "good-after-utf8": ("J07-S4",), "upload-header-only": ("J08-S1",),
+    "upload-baseline": (), "slider-200": ("J08-S2",), "slider-0": ("J08-S3",),
+}
+JOURNEY_REQUIRED.update({kind: {(kind, key) for key in keys} for kind, keys in SEQUENCE_REQUIRED.items()})
+
+
+def _sequence_upload(observation, phase, previous, before_runs):
+    filename = SEQUENCE_INPUTS[phase["name"]]
+    if filename in ("sales_empty.csv", "sales_malformed.csv"):
+        expected = {"sales_empty.csv": (62, "0051f910f9780491c0ba47fe149f3bed4d8ce13b3106d73639227da51bd76bd4"),
+                    "sales_malformed.csv": (303, "fbf671b3f566ff3bd62a39ceea76d40cc39b9bddb9565bde683953dcca0a89d5")}[filename]
+        path = REPO_ROOT / "tests/fixtures/csv" / filename
+        action, data = phase["action"], path.read_bytes()
+        _journey_need(action.get("action") == "upload" and pathlib.Path(action["file"]).resolve() == path.resolve()
+                      and (len(data), hashlib.sha256(data).hexdigest()) == expected
+                      and (action.get("file_bytes"), action.get("file_sha256")) == expected, "wrong sequence fixture fingerprint")
+    else:
+        _stage2_specific_input(phase, filename)
+    view = dict(observation, phases=[phase], uploads={"good": observation["uploads"][phase["name"]]})
+    bundle = _journey_bundle(view)
+    context = _journey_context(bundle, filename, "category", phase["dom_after"],
+                               no_result=filename in ("sales_malformed.csv", "sales_latin1.csv"), empty=filename == "sales_empty.csv")
+    _journey_need(context["ok"], "; ".join(context["problems"]))
+    proof = _stage2_target_upload_run(observation["frames"], namespace=observation["namespace"], start=phase["start"], end=phase["end"],
+        widget_id=bundle["window"]["widget"], file_id=context["file_id"], file_name=filename)
+    _journey_need(proof["ok"], "; ".join(proof["problems"]))
+    state, deltas = _stage2_run_parts(observation, phase, proof)
+    _stage2_typed_controls(deltas, state, phase["dom_after"])
+    selected = observation["frames"][phase["start"]:phase["end"]]
+    markers = [f for f in selected if f.get("decoded", {}).get("type") == "new_session"]
+    if len(markers) == 2:
+        _journey_need(previous is not None, "clear run precedes any selected file")
+        _stage2_specific_clear_chain(observation, phase, proof, context, bundle, before_runs=before_runs)
+    else:
+        _journey_need(len(markers) == 1, "unbound additional upload runs")
+        one = _stage2_phase_run(observation, phase)
+        _journey_need(one["run"] == proof["script_run_id"], "upload completion belongs to another run")
+    count = before_runs + len(markers)
+    _stage2_specific_counters(deltas, phase["dom_after"], count)
+    if previous is not None:
+        _journey_need(context["file_id"] != previous["file_id"], "replacement reused the preceding file ID")
+        deletion = [h for h in _journey_http(bundle, phase) if h.get("method") == "DELETE" and h.get("status") == 204 and h.get("url") == previous["delete_url"]]
+        _journey_need(len(deletion) == 1, "no unique preceding-issued-file DELETE204 in this sequence transition")
+    _journey_need(not any(h.get("method") == "DELETE" and h.get("url") == context["delete_url"] for h in _journey_http(bundle, phase)), "sequence deleted its new target file")
+    _sequence_output(filename, deltas, phase["dom_after"], context)
+    return context, proof, count
+
+
+def _sequence_output(filename, deltas, dom, context):
+    if filename == "sales_malformed.csv":
+        errors = [d.get("alert", {}).get("body") for d in deltas if d.get("element") == "alert" and d.get("alert", {}).get("format") == "ERROR"]
+        _journey_need(errors == ["Could not parse the uploaded CSV: row 3: expected 8 fields, found 7"], "malformed fixture error must identify row 3, expected 8 fields, found 7 exactly")
+        _stage2_specific_alerts(deltas, dom, [("ERROR", errors[0]), ("INFO", "Upload a valid CSV to continue.")])
+    elif filename == "sales_latin1.csv":
+        prefix = "Could not parse the uploaded CSV: the uploaded file is not valid UTF-8"
+        errors = [d.get("alert", {}).get("body") for d in deltas if d.get("element") == "alert" and d.get("alert", {}).get("format") == "ERROR"]
+        _journey_need(len(errors) == 1 and errors[0] in (prefix, prefix + ": 'utf-8' codec can't decode byte 0xe9 in position 101: invalid continuation byte"), "wrong sequence non-UTF8 error")
+        _stage2_specific_alerts(deltas, dom, [("ERROR", errors[0]), ("INFO", "Upload a valid CSV to continue.")])
+    elif filename == "sales_with_missing.csv":
+        _stage2_specific_alerts(deltas, dom, [("WARNING", "2 row(s) with an unusable 'amount' were excluded from the aggregation.")])
+        _journey_need(context["table"]["row_count"] == 4 and sum(v["row_count"] for v in context["table"]["rows"]) == 10, "wrong sequence soft values")
+    elif filename == "sales_empty.csv":
+        _stage2_specific_alerts(deltas, dom, [("INFO", "The uploaded CSV contains no data rows.")])
+    else:
+        _stage2_specific_alerts(deltas, dom, [])
+
+
+def _sequence_pngs(observation):
+    records, phases = observation.get("screenshots"), observation["phases"]
+    _journey_need(isinstance(records, list) and len(records) == len(phases), "missing/extra sequence phase pictures")
+    files = set()
+    for index, phase in enumerate(phases):
+        candidates = [r for r in records if r.get("phase") == phase["name"] and r.get("namespace") == observation["namespace"]]
+        _journey_need(len(candidates) == 1, "missing/ambiguous phase PNG")
+        record = candidates[0]
+        _journey_need(record.get("step_ids") == list(SEQUENCE_PNG_ROLES[phase["name"]]), "phase PNG has wrong original-step role")
+        if not record["step_ids"]:
+            _journey_need(record.get("role") == "preparation", "preparation picture is not honestly identified")
+        _journey_need(record.get("file") not in files, "one PNG file reused across sequence phases")
+        files.add(_png_phase_record(observation, observation, index, record))
+
+
+def sequence_checks(*, observation=None):
+    """One continuous capture, never concatenated leaf observations."""
+    kind = observation.get("journey") if isinstance(observation, dict) else None
+    if not isinstance(kind, str) or kind not in SEQUENCE_REQUIRED:
+        return [dict(_check("sequence", "contract", "known complete sequence", "missing/unknown sequence", False), journey="sequence-invalid")]
+    try:
+        _journey_need(observation.get("contract") == SEQUENCE_CONTRACT, "wrong sequence contract")
+        phases, frames = observation["phases"], observation["frames"]
+        _journey_need(isinstance(phases, list) and tuple(p.get("name") for p in phases) == SEQUENCE_PHASES[kind], "missing/reordered/duplicated sequence phases")
+        if "phase_ids" in observation:
+            _journey_need(tuple(observation["phase_ids"]) == SEQUENCE_PHASES[kind], "published phase IDs contradict actual phase roles")
+        _journey_need(isinstance(frames, list) and frames, "missing global frame stream")
+        stamps = [f.get("timestamp") for f in frames]
+        _journey_need(all(type(t) in (int, float) and math.isfinite(t) for t in stamps) and stamps == sorted(stamps), "global frame clock is missing/out of order")
+        _journey_need(all(type(f["decoded"]["script_finished"].get("status")) is int for f in frames
+                          if f.get("decoded", {}).get("type") == "script_finished"), "invalid sequence completion status type")
+        source = observation["namespace"]
+        identities = {(f.get("namespace"), f.get("connection"), f.get("request_id")) for f in frames}
+        _journey_need(len(identities) == 1 and isinstance(source, str) and source and next(iter(identities))[0] == source
+                      and next(iter(identities))[1] is not None and next(iter(identities))[2], "sequence switched namespace/connection/requestId")
+        markers = [f["decoded"]["new_session"] for f in frames if f.get("decoded", {}).get("type") == "new_session"]
+        _journey_need(markers and all(isinstance(m.get("session_id"), str) and m["session_id"] and isinstance(m.get("script_run_id"), str)
+                                     and m["script_run_id"] for m in markers)
+                      and len({m["session_id"] for m in markers}) == 1 and len({m["script_run_id"] for m in markers}) == len(markers), "sequence reset session or reused/missed run IDs")
+        session = markers[0]["session_id"]
+        covered = set()
+        for index, phase in enumerate(phases):
+            start, end = phase["start"], phase["end"]
+            _journey_need(type(start) is int and type(end) is int and 0 <= start < end <= len(frames)
+                          and (index == 0 or phases[index-1]["end"] <= start), "sequence windows overlap/reorder or are not global indices")
+            _journey_need(phase["action"].get("ok") is True and not phase["action"].get("failed"), "sequence action failed/unobserved")
+            covered.update(range(start, end))
+            if index:
+                _journey_need(phases[index-1]["end_timestamp"] < phase["start_timestamp"], "sequence clock goes backwards")
+                for key in ("script_runs", "pulses", "table_present", "table_cells", "chart_present", "chart_bars", "alerts", "selectbox_value", "slider_value", "checkbox_checked"):
+                    _journey_need(key in phase["dom_before"] and key in phases[index-1]["dom_after"]
+                                  and phase["dom_before"][key] == phases[index-1]["dom_after"][key], "sequence DOM continuity mismatch: " + key)
+        business = ("rerun_script", "new_session", "script_finished", "delta", "file_urls_request", "file_urls_response")
+        _journey_need(all(i in covered for i,f in enumerate(frames) if f.get("decoded", {}).get("type") in business), "unobserved run/state/result between sequence phases")
+        initial = phases[0]
+        _journey_need(initial["action"].get("action") == "initial", "missing initial action")
+        initial_run = _stage2_phase_run(observation, initial)
+        initial_state = frames[initial_run["state_index"]]["decoded"]["rerun_script"].get("widget_states")
+        _journey_need(initial_state == [] and initial_run["session"] == session, "sequence did not start from a fresh empty ClientState")
+        initial_completions = [{"frame":i,"connection":f.get("connection"),"request_id":f.get("request_id"),
+                                "status":f["decoded"]["script_finished"].get("status"),"status_name":f["decoded"]["script_finished"].get("status_name")}
+                               for i,f in enumerate(frames[initial["start"]:initial["end"]]) if f.get("decoded", {}).get("type") == "script_finished"]
+        _journey_need(initial.get("client_states") == [] and initial.get("completions") == initial_completions
+                      and initial.get("ipc") == {"table":None,"chart":None}, "initial summaries contradict actual frames")
+        _stage2_specific_counters(initial_run["deltas"], initial["dom_after"], 1)
+        _stage2_specific_alerts(initial_run["deltas"], initial["dom_after"], [("INFO", "Upload a CSV to see the aggregated result.")])
+        for element, label, expected in (("selectbox", "Group by", 0), ("slider", "Minimum amount", [0.0]), ("checkbox", "Include unknown region", True)):
+            controls = [d for d in initial_run["deltas"] if d.get("element") == element and d.get("label") == label]
+            _journey_need(len(controls) == 1 and controls[0].get("id") and isinstance(controls[0].get("widget"), dict)
+                          and controls[0]["widget"].get("id") == controls[0]["id"] and controls[0]["widget"].get("label") == label,
+                          "missing/ambiguous initial source Element: " + label)
+            value = controls[0]["widget"].get("default")
+            _journey_need((type(value) is int and value == expected) if element == "selectbox" else
+                          (isinstance(value, list) and len(value) == 1 and type(value[0]) in (int, float) and value == expected) if element == "slider" else value is True,
+                          "initial wire default contradicts required controls: " + label)
+            if element == "selectbox":
+                _journey_need(controls[0]["widget"].get("options") == ["category", "region", "channel"], "initial selector options/order mismatch")
+        _journey_need(initial["dom_after"].get("table_present") is False and initial["dom_after"].get("table_cells") == []
+                      and initial["dom_after"].get("chart_present") is False and initial["dom_after"].get("chart_bars") == 0
+                      and initial["dom_after"].get("selectbox_value") == "category" and _same_cell_value(0, initial["dom_after"].get("slider_value"))
+                      and initial["dom_after"].get("checkbox_checked") is True
+                      and not any(d.get("element") in ("dataframe", "table", "vega_lite_chart") for d in initial_run["deltas"]), "initial phase already has a result")
+        count, previous, targets, files = 1, None, {initial_run["run"]}, set()
+        baseline_runs = None
+        for phase in phases[1:]:
+            if phase["name"] in SEQUENCE_INPUTS:
+                context, proof, count = _sequence_upload(observation, phase, previous, count)
+                _journey_need(context["session"] == session and context["file_id"] not in files, "sequence switched session or recycled an old issued file ID")
+                files.add(context["file_id"]);previous = context
+                target, finish = proof["script_run_id"], proof["completion_frame"]
+                if phase["name"] == "upload-baseline":baseline_runs = count
+            else:
+                run = _stage2_phase_run(observation, phase)
+                _journey_need(run["session"] == session, "filter session reset")
+                count += 1
+                _stage2_specific_counters(run["deltas"], phase["dom_after"], count)
+                target, finish = run["run"], run["finish_index"]
+            _journey_need(target not in targets and frames[finish]["decoded"]["script_finished"].get("status") == 0, "target reused a run or did not terminate successfully")
+            targets.add(target)
+            _journey_need(not any(f.get("decoded", {}).get("type") in ("delta", "rerun_script", "new_session") for f in frames[finish+1:phase["end"]]), "phase result/state belongs to a run after target completion")
+        if kind == "j08-sequence":
+            view = dict(observation, phases=phases[2:], uploads={"file": observation["uploads"]["upload-baseline"]})
+            _stage2_filtered_evidence(view, _journey_bundle(view, phase_index=0), baseline_runs=baseline_runs)
+        _sequence_pngs(observation)
+    except (ValueError, TypeError, KeyError, IndexError, OSError, AttributeError) as exc:
+        actual, ok = str(exc), False
+    else:
+        actual, ok = "continuous original frames, actual counters and per-phase evidence verified", True
+    return _journey_finish(kind, [_check(kind, key, "complete same-page sequence proof", actual, ok) for key in SEQUENCE_REQUIRED[kind]])
+
+
 def suite_failures(required, results) -> list[dict]:
     """The cases the suite needs but the page did not deliver.
 

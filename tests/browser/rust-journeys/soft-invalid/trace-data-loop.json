@@ -1,0 +1,3289 @@
+{
+  "schema_version": 1,
+  "contract_id": "C-P0-04",
+  "kind": "rust-browser-data-loop-trace",
+  "scope": "RUST SIDE ONLY",
+  "capture": {
+    "tool": "DevTools Protocol against the same real Chrome",
+    "tool_limitation": "the agent-browser CLI could not start its daemon in this environment (connection timeout), so the input is sent over CDP",
+    "driver": "tests/browser/numeric_capture.py",
+    "binary": "target/checks/data-app-live/data-app-csv-stage2-20261024T172854620.exe sha256 9430149DE61EA521AE873D2AE77A97A62D9BE5F63F547F00E9D5F7A1D23F4A57",
+    "python": "D:\\dlab\\streamlit-rust\\target\\pyref-venv\\Scripts\\python.exe"
+  },
+  "url": "http://127.0.0.1:8501/",
+  "case": "soft-invalid",
+  "journey": "soft-invalid",
+  "observation": {
+    "namespace": "rust-soft-20261024T183117",
+    "url": "http://127.0.0.1:8501/",
+    "ipc_dir": "target\\rust87420-20261024T183117\\soft-invalid",
+    "uploads": {
+      "soft": true,
+      "good": true
+    },
+    "frames": [
+      {
+        "direction": "client->server",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26412.463347,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "BackMsg",
+          "type": "rerun_script",
+          "rerun_script": {
+            "widget_states": []
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26412.465479,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "new_session",
+          "new_session": {
+            "script_run_id": "33b21016-9aa3-4d17-89b2-bfb97eb4ecc0",
+            "name": "Streamlit Rust",
+            "main_script_path": "",
+            "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+            "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+            "session_id": "3ba17dae-5079-4e0a-8783-54d35da840b5"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26412.474534,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": true,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26412.4747,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "add_block",
+            "block_id": "main_container",
+            "block_type": "vertical"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26412.475056,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Streamlit Rust CSV data app"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26412.475543,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "file_uploader",
+            "element_full": {
+              "fileUploader": {
+                "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+                "label": "Upload sales CSV",
+                "type": [
+                  ".csv"
+                ],
+                "maxUploadSizeMb": 200,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+              "label": "Upload sales CSV",
+              "type": [
+                ".csv"
+              ],
+              "maxUploadSizeMb": 200,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+            "label": "Upload sales CSV",
+            "accepted_types": [
+              "['.csv']"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26412.475748,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "selectbox",
+            "element_full": {
+              "selectbox": {
+                "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+                "label": "Group by",
+                "default": 0,
+                "options": [
+                  "category",
+                  "region",
+                  "channel"
+                ],
+                "labelVisibility": {},
+                "acceptNewOptions": false
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+              "label": "Group by",
+              "default": 0,
+              "options": [
+                "category",
+                "region",
+                "channel"
+              ],
+              "labelVisibility": {},
+              "acceptNewOptions": false
+            },
+            "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+            "label": "Group by",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26412.475925,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "slider",
+            "element_full": {
+              "slider": {
+                "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+                "label": "Minimum amount",
+                "format": "%d",
+                "default": [
+                  0.0
+                ],
+                "max": 200.0,
+                "step": 10.0,
+                "labelVisibility": {},
+                "type": "SLIDER"
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+              "label": "Minimum amount",
+              "format": "%d",
+              "default": [
+                0.0
+              ],
+              "max": 200.0,
+              "step": 10.0,
+              "labelVisibility": {},
+              "type": "SLIDER"
+            },
+            "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+            "label": "Minimum amount",
+            "accepted_types": [
+              "1"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26412.476203,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "checkbox",
+            "element_full": {
+              "checkbox": {
+                "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+                "label": "Include unknown region",
+                "default": true,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useContent": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+              "label": "Include unknown region",
+              "default": true,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+            "label": "Include unknown region",
+            "accepted_types": [
+              "0"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26412.476375,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Aggregated result"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26412.476443,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "alert",
+            "alert": {
+              "body": "Upload a CSV to see the aggregated result.",
+              "format": "INFO",
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "element_width_config": null,
+            "element_height_config": null,
+            "body": "Upload a CSV to see the aggregated result."
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26412.476606,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Interaction"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26412.47666,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "button",
+            "widget": {
+              "id": "$$ID-8df8cbc923e8b253d5764d847ca3632d-pulse",
+              "label": "Pulse",
+              "type": "secondary"
+            },
+            "id": "$$ID-8df8cbc923e8b253d5764d847ca3632d-pulse",
+            "label": "Pulse",
+            "accepted_types": [
+              "secondary"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26412.47681,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "markdown",
+            "body": "Script runs: 1"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26412.47692,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "markdown",
+            "body": "Pulses: 0"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26412.476962,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "script_finished",
+          "script_finished": {
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26412.477128,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": false,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "client->server",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26415.477552,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "BackMsg",
+          "type": "file_urls_request",
+          "file_urls_request": {
+            "request_id": "f1e2703d-8a3e-4696-b872-8993c6382913",
+            "file_names": [
+              "sales_with_missing.csv"
+            ],
+            "session_id": "3ba17dae-5079-4e0a-8783-54d35da840b5"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26415.478562,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "file_urls_response",
+          "file_urls_response": {
+            "response_id": "f1e2703d-8a3e-4696-b872-8993c6382913",
+            "file_urls": [
+              {
+                "file_id": "71bef63c-fd71-47c3-82bc-80b9649c3f2b",
+                "upload_url": "/_stcore/upload_file/3ba17dae-5079-4e0a-8783-54d35da840b5/71bef63c-fd71-47c3-82bc-80b9649c3f2b",
+                "delete_url": "/_stcore/upload_file/3ba17dae-5079-4e0a-8783-54d35da840b5/71bef63c-fd71-47c3-82bc-80b9649c3f2b"
+              }
+            ],
+            "error_msg": ""
+          }
+        }
+      },
+      {
+        "direction": "client->server",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26415.492816,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "BackMsg",
+          "type": "rerun_script",
+          "rerun_script": {
+            "widget_states": [
+              {
+                "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+                "value_field": "file_uploader_state_value",
+                "value": {
+                  "uploaded_file_info": "[name: \"sales_with_missing.csv\"\nsize: 739\nfile_id: \"71bef63c-fd71-47c3-82bc-80b9649c3f2b\"\nfile_urls {\n  file_id: \"71bef63c-fd71-47c3-82bc-80b9649c3f2b\"\n  upload_url: \"/_stcore/upload_file/3ba17dae-5079-4e0a-8783-54d35da840b5/71bef63c-fd71-47c3-82bc-80b9649c3f2b\"\n  delete_url: \"/_stcore/upload_file/3ba17dae-5079-4e0a-8783-54d35da840b5/71bef63c-fd71-47c3-82bc-80b9649c3f2b\"\n}\n]"
+                },
+                "value_full": {
+                  "uploadedFileInfo": [
+                    {
+                      "name": "sales_with_missing.csv",
+                      "size": "739",
+                      "fileId": "71bef63c-fd71-47c3-82bc-80b9649c3f2b",
+                      "fileUrls": {
+                        "fileId": "71bef63c-fd71-47c3-82bc-80b9649c3f2b",
+                        "uploadUrl": "/_stcore/upload_file/3ba17dae-5079-4e0a-8783-54d35da840b5/71bef63c-fd71-47c3-82bc-80b9649c3f2b",
+                        "deleteUrl": "/_stcore/upload_file/3ba17dae-5079-4e0a-8783-54d35da840b5/71bef63c-fd71-47c3-82bc-80b9649c3f2b"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+                "value_field": "string_value",
+                "value": "category"
+              },
+              {
+                "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+                "value_field": "double_array_value",
+                "value": {
+                  "data": "[0.0]"
+                },
+                "value_full": {
+                  "data": [
+                    0.0
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+                "value_field": "bool_value",
+                "value": true
+              }
+            ]
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26415.495604,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "new_session",
+          "new_session": {
+            "script_run_id": "55ee12dd-271b-44c4-a2d5-7ca3d93ce752",
+            "name": "Streamlit Rust",
+            "main_script_path": "",
+            "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+            "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+            "session_id": "3ba17dae-5079-4e0a-8783-54d35da840b5"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26415.49587,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": true,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26415.499967,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "add_block",
+            "block_id": "main_container",
+            "block_type": "vertical"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26415.5001,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Streamlit Rust CSV data app"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26415.500167,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "file_uploader",
+            "element_full": {
+              "fileUploader": {
+                "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+                "label": "Upload sales CSV",
+                "type": [
+                  ".csv"
+                ],
+                "maxUploadSizeMb": 200,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+              "label": "Upload sales CSV",
+              "type": [
+                ".csv"
+              ],
+              "maxUploadSizeMb": 200,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+            "label": "Upload sales CSV",
+            "accepted_types": [
+              "['.csv']"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26415.500228,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "selectbox",
+            "element_full": {
+              "selectbox": {
+                "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+                "label": "Group by",
+                "default": 0,
+                "options": [
+                  "category",
+                  "region",
+                  "channel"
+                ],
+                "labelVisibility": {},
+                "acceptNewOptions": false
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+              "label": "Group by",
+              "default": 0,
+              "options": [
+                "category",
+                "region",
+                "channel"
+              ],
+              "labelVisibility": {},
+              "acceptNewOptions": false
+            },
+            "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+            "label": "Group by",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26415.500287,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "slider",
+            "element_full": {
+              "slider": {
+                "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+                "label": "Minimum amount",
+                "format": "%d",
+                "default": [
+                  0.0
+                ],
+                "max": 200.0,
+                "step": 10.0,
+                "labelVisibility": {},
+                "type": "SLIDER"
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+              "label": "Minimum amount",
+              "format": "%d",
+              "default": [
+                0.0
+              ],
+              "max": 200.0,
+              "step": 10.0,
+              "labelVisibility": {},
+              "type": "SLIDER"
+            },
+            "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+            "label": "Minimum amount",
+            "accepted_types": [
+              "1"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26415.500361,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "checkbox",
+            "element_full": {
+              "checkbox": {
+                "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+                "label": "Include unknown region",
+                "default": true,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useContent": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+              "label": "Include unknown region",
+              "default": true,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+            "label": "Include unknown region",
+            "accepted_types": [
+              "0"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26415.500408,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Aggregated result"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26415.500448,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "alert",
+            "alert": {
+              "body": "2 row(s) with an unusable 'amount' were excluded from the aggregation.",
+              "format": "WARNING",
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "element_width_config": null,
+            "element_height_config": null,
+            "body": "2 row(s) with an unusable 'amount' were excluded from the aggregation."
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26415.500536,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "dataframe",
+            "element_full": {
+              "dataframe": {
+                "arrowData": {
+                  "data": "/////zgBAAAQAAAAAAAKAAwACgAJAAQACgAAABAAAAAAAQQACAAIAAAABAAIAAAABAAAAAQAAADYAAAAiAAAAEgAAAAEAAAASP///xAAAAAUAAAAAAABAxAAAAC+////AAACAAAAAAAKAAAAYXZnX2Ftb3VudAAAEAAWABAADgAPAAQAAAAIABAAAAAYAAAAHAAAAAAAAQMYAAAAAAAGAAgABgAGAAAAAAACAAAAAAAMAAAAdG90YWxfYW1vdW50AAAAAMT///8YAAAAIAAAAAAAAQIcAAAACAAMAAQACwAIAAAAQAAAAAAAAAEAAAAACQAAAHJvd19jb3VudAAAABAAFAAQAA4ADwAEAAAACAAQAAAAGAAAAAwAAAAAAAEUEAAAAAAAAAAEAAQABAAAAAkAAABncm91cF9rZXkAAAD/////OAEAABAAAAAMABoAGAAXAAQACAAMAAAAIAAAAEACAAAAAAAAAAAAAAAAAAMEAAoAGAAMAAgABAAKAAAAXAAAABAAAAAEAAAAAAAAAAAAAAAEAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAJAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAKAAAAAAAAACAAAAAAAAAABMAAAAAAAAAwAAAAAAAAAABAAAAAAAAAAABAAAAAAAAIAAAAAAAAABAAQAAAAAAAAEAAAAAAAAAgAEAAAAAAAAgAAAAAAAAAMABAAAAAAAAAQAAAAAAAAAAAgAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAACgAAAAAAAAAPAAAAAAAAABMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQm9va3NHYW1lc011c2ljVG95cwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAAAAAAgAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEGlASOF6FK6XeUAAAAAAAIBJQI/C9ShcH1pAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQWUBI4XoUrg9hQAAAAAAAgDlACtejcD1qQUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA"
+                },
+                "columns": "{\"_index\":{\"hidden\":true}}",
+                "columnOrder": [
+                  "group_key",
+                  "row_count",
+                  "total_amount",
+                  "avg_amount"
+                ]
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "arrow": {
+              "bytes": 1224,
+              "sha256": "34f8a25a09765457250f834fa64ea88b2e9527ca09711995df04db853121347a",
+              "base64": "/////zgBAAAQAAAAAAAKAAwACgAJAAQACgAAABAAAAAAAQQACAAIAAAABAAIAAAABAAAAAQAAADYAAAAiAAAAEgAAAAEAAAASP///xAAAAAUAAAAAAABAxAAAAC+////AAACAAAAAAAKAAAAYXZnX2Ftb3VudAAAEAAWABAADgAPAAQAAAAIABAAAAAYAAAAHAAAAAAAAQMYAAAAAAAGAAgABgAGAAAAAAACAAAAAAAMAAAAdG90YWxfYW1vdW50AAAAAMT///8YAAAAIAAAAAAAAQIcAAAACAAMAAQACwAIAAAAQAAAAAAAAAEAAAAACQAAAHJvd19jb3VudAAAABAAFAAQAA4ADwAEAAAACAAQAAAAGAAAAAwAAAAAAAEUEAAAAAAAAAAEAAQABAAAAAkAAABncm91cF9rZXkAAAD/////OAEAABAAAAAMABoAGAAXAAQACAAMAAAAIAAAAEACAAAAAAAAAAAAAAAAAAMEAAoAGAAMAAgABAAKAAAAXAAAABAAAAAEAAAAAAAAAAAAAAAEAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAJAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAKAAAAAAAAACAAAAAAAAAABMAAAAAAAAAwAAAAAAAAAABAAAAAAAAAAABAAAAAAAAIAAAAAAAAABAAQAAAAAAAAEAAAAAAAAAgAEAAAAAAAAgAAAAAAAAAMABAAAAAAAAAQAAAAAAAAAAAgAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAACgAAAAAAAAAPAAAAAAAAABMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQm9va3NHYW1lc011c2ljVG95cwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAAAAAAgAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEGlASOF6FK6XeUAAAAAAAIBJQI/C9ShcH1pAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQWUBI4XoUrg9hQAAAAAAAgDlACtejcD1qQUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA",
+              "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double",
+              "columns": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_count": 4,
+              "rows": [
+                {
+                  "group_key": "Books",
+                  "row_count": 2,
+                  "total_amount": 200.5,
+                  "avg_amount": 100.25
+                },
+                {
+                  "group_key": "Games",
+                  "row_count": 3,
+                  "total_amount": 409.48,
+                  "avg_amount": 136.49
+                },
+                {
+                  "group_key": "Music",
+                  "row_count": 2,
+                  "total_amount": 51.0,
+                  "avg_amount": 25.5
+                },
+                {
+                  "group_key": "Toys",
+                  "row_count": 3,
+                  "total_amount": 104.49,
+                  "avg_amount": 34.83
+                }
+              ]
+            },
+            "arrow_fields": {
+              "columns": "{\"_index\":{\"hidden\":true}}",
+              "editing_mode": 0,
+              "disabled": false,
+              "column_order": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_height": 0
+            },
+            "id": "",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26415.500869,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "vega_lite_chart",
+            "element_full": {
+              "vegaLiteChart": {
+                "spec": "{\"$schema\":\"https://vega.github.io/schema/vega-lite/v5.20.1.json\",\"autosize\":{\"contains\":\"padding\",\"type\":\"fit\"},\"data\":{\"name\":\"04e42cffed8509b921cb22d76964572b\"},\"encoding\":{\"tooltip\":[{\"field\":\"group_key\",\"title\":\"group\",\"type\":\"nominal\"},{\"field\":\"row_count\",\"title\":\"rows\",\"type\":\"quantitative\"},{\"field\":\"total_amount\",\"title\":\"total\",\"type\":\"quantitative\"},{\"field\":\"avg_amount\",\"title\":\"avg\",\"type\":\"quantitative\"}],\"x\":{\"field\":\"group_key\",\"sort\":[\"Books\",\"Games\",\"Music\",\"Toys\"],\"type\":\"nominal\"},\"y\":{\"field\":\"total_amount\",\"type\":\"quantitative\"}},\"height\":260,\"mark\":{\"type\":\"bar\"}}",
+                "datasets": [
+                  {
+                    "name": "04e42cffed8509b921cb22d76964572b",
+                    "data": {
+                      "data": "/////zgBAAAQAAAAAAAKAAwACgAJAAQACgAAABAAAAAAAQQACAAIAAAABAAIAAAABAAAAAQAAADYAAAAiAAAAEgAAAAEAAAASP///xAAAAAUAAAAAAABAxAAAAC+////AAACAAAAAAAKAAAAYXZnX2Ftb3VudAAAEAAWABAADgAPAAQAAAAIABAAAAAYAAAAHAAAAAAAAQMYAAAAAAAGAAgABgAGAAAAAAACAAAAAAAMAAAAdG90YWxfYW1vdW50AAAAAMT///8YAAAAIAAAAAAAAQIcAAAACAAMAAQACwAIAAAAQAAAAAAAAAEAAAAACQAAAHJvd19jb3VudAAAABAAFAAQAA4ADwAEAAAACAAQAAAAGAAAAAwAAAAAAAEUEAAAAAAAAAAEAAQABAAAAAkAAABncm91cF9rZXkAAAD/////OAEAABAAAAAMABoAGAAXAAQACAAMAAAAIAAAAEACAAAAAAAAAAAAAAAAAAMEAAoAGAAMAAgABAAKAAAAXAAAABAAAAAEAAAAAAAAAAAAAAAEAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAJAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAKAAAAAAAAACAAAAAAAAAABMAAAAAAAAAwAAAAAAAAAABAAAAAAAAAAABAAAAAAAAIAAAAAAAAABAAQAAAAAAAAEAAAAAAAAAgAEAAAAAAAAgAAAAAAAAAMABAAAAAAAAAQAAAAAAAAAAAgAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAACgAAAAAAAAAPAAAAAAAAABMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQm9va3NHYW1lc011c2ljVG95cwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAAAAAAgAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEGlASOF6FK6XeUAAAAAAAIBJQI/C9ShcH1pAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQWUBI4XoUrg9hQAAAAAAAgDlACtejcD1qQUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA"
+                    },
+                    "hasName": true
+                  }
+                ],
+                "theme": "streamlit"
+              },
+              "heightConfig": {
+                "useContent": true
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "vega_lite_spec_raw": "{\"$schema\":\"https://vega.github.io/schema/vega-lite/v5.20.1.json\",\"autosize\":{\"contains\":\"padding\",\"type\":\"fit\"},\"data\":{\"name\":\"04e42cffed8509b921cb22d76964572b\"},\"encoding\":{\"tooltip\":[{\"field\":\"group_key\",\"title\":\"group\",\"type\":\"nominal\"},{\"field\":\"row_count\",\"title\":\"rows\",\"type\":\"quantitative\"},{\"field\":\"total_amount\",\"title\":\"total\",\"type\":\"quantitative\"},{\"field\":\"avg_amount\",\"title\":\"avg\",\"type\":\"quantitative\"}],\"x\":{\"field\":\"group_key\",\"sort\":[\"Books\",\"Games\",\"Music\",\"Toys\"],\"type\":\"nominal\"},\"y\":{\"field\":\"total_amount\",\"type\":\"quantitative\"}},\"height\":260,\"mark\":{\"type\":\"bar\"}}",
+            "vega_lite_spec": {
+              "$schema": "https://vega.github.io/schema/vega-lite/v5.20.1.json",
+              "autosize": {
+                "contains": "padding",
+                "type": "fit"
+              },
+              "data": {
+                "name": "04e42cffed8509b921cb22d76964572b"
+              },
+              "encoding": {
+                "tooltip": [
+                  {
+                    "field": "group_key",
+                    "title": "group",
+                    "type": "nominal"
+                  },
+                  {
+                    "field": "row_count",
+                    "title": "rows",
+                    "type": "quantitative"
+                  },
+                  {
+                    "field": "total_amount",
+                    "title": "total",
+                    "type": "quantitative"
+                  },
+                  {
+                    "field": "avg_amount",
+                    "title": "avg",
+                    "type": "quantitative"
+                  }
+                ],
+                "x": {
+                  "field": "group_key",
+                  "sort": [
+                    "Books",
+                    "Games",
+                    "Music",
+                    "Toys"
+                  ],
+                  "type": "nominal"
+                },
+                "y": {
+                  "field": "total_amount",
+                  "type": "quantitative"
+                }
+              },
+              "height": 260,
+              "mark": {
+                "type": "bar"
+              }
+            },
+            "vega_lite_datasets": [
+              {
+                "name": "04e42cffed8509b921cb22d76964572b",
+                "has_name": true,
+                "arrow": {
+                  "bytes": 1224,
+                  "sha256": "34f8a25a09765457250f834fa64ea88b2e9527ca09711995df04db853121347a",
+                  "base64": "/////zgBAAAQAAAAAAAKAAwACgAJAAQACgAAABAAAAAAAQQACAAIAAAABAAIAAAABAAAAAQAAADYAAAAiAAAAEgAAAAEAAAASP///xAAAAAUAAAAAAABAxAAAAC+////AAACAAAAAAAKAAAAYXZnX2Ftb3VudAAAEAAWABAADgAPAAQAAAAIABAAAAAYAAAAHAAAAAAAAQMYAAAAAAAGAAgABgAGAAAAAAACAAAAAAAMAAAAdG90YWxfYW1vdW50AAAAAMT///8YAAAAIAAAAAAAAQIcAAAACAAMAAQACwAIAAAAQAAAAAAAAAEAAAAACQAAAHJvd19jb3VudAAAABAAFAAQAA4ADwAEAAAACAAQAAAAGAAAAAwAAAAAAAEUEAAAAAAAAAAEAAQABAAAAAkAAABncm91cF9rZXkAAAD/////OAEAABAAAAAMABoAGAAXAAQACAAMAAAAIAAAAEACAAAAAAAAAAAAAAAAAAMEAAoAGAAMAAgABAAKAAAAXAAAABAAAAAEAAAAAAAAAAAAAAAEAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAJAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAKAAAAAAAAACAAAAAAAAAABMAAAAAAAAAwAAAAAAAAAABAAAAAAAAAAABAAAAAAAAIAAAAAAAAABAAQAAAAAAAAEAAAAAAAAAgAEAAAAAAAAgAAAAAAAAAMABAAAAAAAAAQAAAAAAAAAAAgAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAACgAAAAAAAAAPAAAAAAAAABMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQm9va3NHYW1lc011c2ljVG95cwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAAAAAAgAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEGlASOF6FK6XeUAAAAAAAIBJQI/C9ShcH1pAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQWUBI4XoUrg9hQAAAAAAAgDlACtejcD1qQUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA",
+                  "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double",
+                  "columns": [
+                    "group_key",
+                    "row_count",
+                    "total_amount",
+                    "avg_amount"
+                  ],
+                  "row_count": 4,
+                  "rows": [
+                    {
+                      "group_key": "Books",
+                      "row_count": 2,
+                      "total_amount": 200.5,
+                      "avg_amount": 100.25
+                    },
+                    {
+                      "group_key": "Games",
+                      "row_count": 3,
+                      "total_amount": 409.48,
+                      "avg_amount": 136.49
+                    },
+                    {
+                      "group_key": "Music",
+                      "row_count": 2,
+                      "total_amount": 51.0,
+                      "avg_amount": 25.5
+                    },
+                    {
+                      "group_key": "Toys",
+                      "row_count": 3,
+                      "total_amount": 104.49,
+                      "avg_amount": 34.83
+                    }
+                  ]
+                }
+              }
+            ],
+            "vega_lite_fields": {
+              "use_container_width": false,
+              "theme": "streamlit",
+              "id": "",
+              "form_id": ""
+            },
+            "id": "",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26415.50116,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Interaction"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26415.501215,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "button",
+            "widget": {
+              "id": "$$ID-8df8cbc923e8b253d5764d847ca3632d-pulse",
+              "label": "Pulse",
+              "type": "secondary"
+            },
+            "id": "$$ID-8df8cbc923e8b253d5764d847ca3632d-pulse",
+            "label": "Pulse",
+            "accepted_types": [
+              "secondary"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26415.501266,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "markdown",
+            "body": "Script runs: 2"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26415.501306,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "markdown",
+            "body": "Pulses: 0"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26415.501339,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "script_finished",
+          "script_finished": {
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26415.501392,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": false,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "client->server",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26424.778416,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "BackMsg",
+          "type": "file_urls_request",
+          "file_urls_request": {
+            "request_id": "20214c82-b2f7-4760-85b1-40c65dd4b33a",
+            "file_names": [
+              "sales_basic.csv"
+            ],
+            "session_id": "3ba17dae-5079-4e0a-8783-54d35da840b5"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26424.779764,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "file_urls_response",
+          "file_urls_response": {
+            "response_id": "20214c82-b2f7-4760-85b1-40c65dd4b33a",
+            "file_urls": [
+              {
+                "file_id": "49295ac9-4270-4a76-ba24-ec88867f5ed3",
+                "upload_url": "/_stcore/upload_file/3ba17dae-5079-4e0a-8783-54d35da840b5/49295ac9-4270-4a76-ba24-ec88867f5ed3",
+                "delete_url": "/_stcore/upload_file/3ba17dae-5079-4e0a-8783-54d35da840b5/49295ac9-4270-4a76-ba24-ec88867f5ed3"
+              }
+            ],
+            "error_msg": ""
+          }
+        }
+      },
+      {
+        "direction": "client->server",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26424.784936,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "BackMsg",
+          "type": "rerun_script",
+          "rerun_script": {
+            "widget_states": [
+              {
+                "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+                "value_field": "file_uploader_state_value",
+                "value": {},
+                "value_full": {}
+              },
+              {
+                "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+                "value_field": "string_value",
+                "value": "category"
+              },
+              {
+                "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+                "value_field": "double_array_value",
+                "value": {
+                  "data": "[0.0]"
+                },
+                "value_full": {
+                  "data": [
+                    0.0
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+                "value_field": "bool_value",
+                "value": true
+              }
+            ]
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26424.789823,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "new_session",
+          "new_session": {
+            "script_run_id": "aa84ddde-acff-4192-b4a8-12c9e55e5d05",
+            "name": "Streamlit Rust",
+            "main_script_path": "",
+            "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+            "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+            "session_id": "3ba17dae-5079-4e0a-8783-54d35da840b5"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26424.79025,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": true,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26424.794789,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "add_block",
+            "block_id": "main_container",
+            "block_type": "vertical"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26424.794914,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Streamlit Rust CSV data app"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26424.794994,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "file_uploader",
+            "element_full": {
+              "fileUploader": {
+                "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+                "label": "Upload sales CSV",
+                "type": [
+                  ".csv"
+                ],
+                "maxUploadSizeMb": 200,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+              "label": "Upload sales CSV",
+              "type": [
+                ".csv"
+              ],
+              "maxUploadSizeMb": 200,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+            "label": "Upload sales CSV",
+            "accepted_types": [
+              "['.csv']"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26424.795088,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "selectbox",
+            "element_full": {
+              "selectbox": {
+                "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+                "label": "Group by",
+                "default": 0,
+                "options": [
+                  "category",
+                  "region",
+                  "channel"
+                ],
+                "labelVisibility": {},
+                "acceptNewOptions": false
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+              "label": "Group by",
+              "default": 0,
+              "options": [
+                "category",
+                "region",
+                "channel"
+              ],
+              "labelVisibility": {},
+              "acceptNewOptions": false
+            },
+            "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+            "label": "Group by",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26424.795172,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "slider",
+            "element_full": {
+              "slider": {
+                "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+                "label": "Minimum amount",
+                "format": "%d",
+                "default": [
+                  0.0
+                ],
+                "max": 200.0,
+                "step": 10.0,
+                "labelVisibility": {},
+                "type": "SLIDER"
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+              "label": "Minimum amount",
+              "format": "%d",
+              "default": [
+                0.0
+              ],
+              "max": 200.0,
+              "step": 10.0,
+              "labelVisibility": {},
+              "type": "SLIDER"
+            },
+            "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+            "label": "Minimum amount",
+            "accepted_types": [
+              "1"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26424.795275,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "checkbox",
+            "element_full": {
+              "checkbox": {
+                "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+                "label": "Include unknown region",
+                "default": true,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useContent": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+              "label": "Include unknown region",
+              "default": true,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+            "label": "Include unknown region",
+            "accepted_types": [
+              "0"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26424.795361,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Aggregated result"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26424.795398,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "alert",
+            "alert": {
+              "body": "Upload a CSV to see the aggregated result.",
+              "format": "INFO",
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "element_width_config": null,
+            "element_height_config": null,
+            "body": "Upload a CSV to see the aggregated result."
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26424.795444,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Interaction"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26424.795479,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "button",
+            "widget": {
+              "id": "$$ID-8df8cbc923e8b253d5764d847ca3632d-pulse",
+              "label": "Pulse",
+              "type": "secondary"
+            },
+            "id": "$$ID-8df8cbc923e8b253d5764d847ca3632d-pulse",
+            "label": "Pulse",
+            "accepted_types": [
+              "secondary"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26424.795523,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "markdown",
+            "body": "Script runs: 3"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26424.795557,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "markdown",
+            "body": "Pulses: 0"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26424.795586,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "script_finished",
+          "script_finished": {
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26424.795638,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": false,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "client->server",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26424.806302,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "BackMsg",
+          "type": "rerun_script",
+          "rerun_script": {
+            "widget_states": [
+              {
+                "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+                "value_field": "file_uploader_state_value",
+                "value": {
+                  "uploaded_file_info": "[name: \"sales_basic.csv\"\nsize: 737\nfile_id: \"49295ac9-4270-4a76-ba24-ec88867f5ed3\"\nfile_urls {\n  file_id: \"49295ac9-4270-4a76-ba24-ec88867f5ed3\"\n  upload_url: \"/_stcore/upload_file/3ba17dae-5079-4e0a-8783-54d35da840b5/49295ac9-4270-4a76-ba24-ec88867f5ed3\"\n  delete_url: \"/_stcore/upload_file/3ba17dae-5079-4e0a-8783-54d35da840b5/49295ac9-4270-4a76-ba24-ec88867f5ed3\"\n}\n]"
+                },
+                "value_full": {
+                  "uploadedFileInfo": [
+                    {
+                      "name": "sales_basic.csv",
+                      "size": "737",
+                      "fileId": "49295ac9-4270-4a76-ba24-ec88867f5ed3",
+                      "fileUrls": {
+                        "fileId": "49295ac9-4270-4a76-ba24-ec88867f5ed3",
+                        "uploadUrl": "/_stcore/upload_file/3ba17dae-5079-4e0a-8783-54d35da840b5/49295ac9-4270-4a76-ba24-ec88867f5ed3",
+                        "deleteUrl": "/_stcore/upload_file/3ba17dae-5079-4e0a-8783-54d35da840b5/49295ac9-4270-4a76-ba24-ec88867f5ed3"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+                "value_field": "string_value",
+                "value": "category"
+              },
+              {
+                "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+                "value_field": "double_array_value",
+                "value": {
+                  "data": "[0.0]"
+                },
+                "value_full": {
+                  "data": [
+                    0.0
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+                "value_field": "bool_value",
+                "value": true
+              }
+            ]
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26424.808348,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "new_session",
+          "new_session": {
+            "script_run_id": "8f415e21-fdad-4ae4-90ec-9690311c5fdf",
+            "name": "Streamlit Rust",
+            "main_script_path": "",
+            "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+            "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+            "session_id": "3ba17dae-5079-4e0a-8783-54d35da840b5"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26424.811132,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": true,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26424.811226,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "add_block",
+            "block_id": "main_container",
+            "block_type": "vertical"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26424.811293,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Streamlit Rust CSV data app"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26424.811337,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "file_uploader",
+            "element_full": {
+              "fileUploader": {
+                "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+                "label": "Upload sales CSV",
+                "type": [
+                  ".csv"
+                ],
+                "maxUploadSizeMb": 200,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+              "label": "Upload sales CSV",
+              "type": [
+                ".csv"
+              ],
+              "maxUploadSizeMb": 200,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+            "label": "Upload sales CSV",
+            "accepted_types": [
+              "['.csv']"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26424.811382,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "selectbox",
+            "element_full": {
+              "selectbox": {
+                "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+                "label": "Group by",
+                "default": 0,
+                "options": [
+                  "category",
+                  "region",
+                  "channel"
+                ],
+                "labelVisibility": {},
+                "acceptNewOptions": false
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+              "label": "Group by",
+              "default": 0,
+              "options": [
+                "category",
+                "region",
+                "channel"
+              ],
+              "labelVisibility": {},
+              "acceptNewOptions": false
+            },
+            "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+            "label": "Group by",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26424.811425,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "slider",
+            "element_full": {
+              "slider": {
+                "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+                "label": "Minimum amount",
+                "format": "%d",
+                "default": [
+                  0.0
+                ],
+                "max": 200.0,
+                "step": 10.0,
+                "labelVisibility": {},
+                "type": "SLIDER"
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+              "label": "Minimum amount",
+              "format": "%d",
+              "default": [
+                0.0
+              ],
+              "max": 200.0,
+              "step": 10.0,
+              "labelVisibility": {},
+              "type": "SLIDER"
+            },
+            "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+            "label": "Minimum amount",
+            "accepted_types": [
+              "1"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26424.811489,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "checkbox",
+            "element_full": {
+              "checkbox": {
+                "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+                "label": "Include unknown region",
+                "default": true,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useContent": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+              "label": "Include unknown region",
+              "default": true,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+            "label": "Include unknown region",
+            "accepted_types": [
+              "0"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26424.811529,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Aggregated result"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26424.811565,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "dataframe",
+            "element_full": {
+              "dataframe": {
+                "arrowData": {
+                  "data": "/////zgBAAAQAAAAAAAKAAwACgAJAAQACgAAABAAAAAAAQQACAAIAAAABAAIAAAABAAAAAQAAADYAAAAiAAAAEgAAAAEAAAASP///xAAAAAUAAAAAAABAxAAAAC+////AAACAAAAAAAKAAAAYXZnX2Ftb3VudAAAEAAWABAADgAPAAQAAAAIABAAAAAYAAAAHAAAAAAAAQMYAAAAAAAGAAgABgAGAAAAAAACAAAAAAAMAAAAdG90YWxfYW1vdW50AAAAAMT///8YAAAAIAAAAAAAAQIcAAAACAAMAAQACwAIAAAAQAAAAAAAAAEAAAAACQAAAHJvd19jb3VudAAAABAAFAAQAA4ADwAEAAAACAAQAAAAGAAAAAwAAAAAAAEUEAAAAAAAAAAEAAQABAAAAAkAAABncm91cF9rZXkAAAD/////OAEAABAAAAAMABoAGAAXAAQACAAMAAAAIAAAAEACAAAAAAAAAAAAAAAAAAMEAAoAGAAMAAgABAAKAAAAXAAAABAAAAAEAAAAAAAAAAAAAAAEAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAJAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAKAAAAAAAAACAAAAAAAAAABMAAAAAAAAAwAAAAAAAAAABAAAAAAAAAAABAAAAAAAAIAAAAAAAAABAAQAAAAAAAAEAAAAAAAAAgAEAAAAAAAAgAAAAAAAAAMABAAAAAAAAAQAAAAAAAAAAAgAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAACgAAAAAAAAAPAAAAAAAAABMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQm9va3NHYW1lc011c2ljVG95cwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAuG5ASOF6FK6XeUAAAAAAAGBhQI/C9ShcH1pAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAexSuR+F6VEBI4XoUrg9hQArXo3A9KkdACtejcD1qQUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA"
+                },
+                "columns": "{\"_index\":{\"hidden\":true}}",
+                "columnOrder": [
+                  "group_key",
+                  "row_count",
+                  "total_amount",
+                  "avg_amount"
+                ]
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "arrow": {
+              "bytes": 1224,
+              "sha256": "fc57562d7955d8e72e6d7fd03efec45e853868bd71e6e2b6b7d7260f444dff78",
+              "base64": "/////zgBAAAQAAAAAAAKAAwACgAJAAQACgAAABAAAAAAAQQACAAIAAAABAAIAAAABAAAAAQAAADYAAAAiAAAAEgAAAAEAAAASP///xAAAAAUAAAAAAABAxAAAAC+////AAACAAAAAAAKAAAAYXZnX2Ftb3VudAAAEAAWABAADgAPAAQAAAAIABAAAAAYAAAAHAAAAAAAAQMYAAAAAAAGAAgABgAGAAAAAAACAAAAAAAMAAAAdG90YWxfYW1vdW50AAAAAMT///8YAAAAIAAAAAAAAQIcAAAACAAMAAQACwAIAAAAQAAAAAAAAAEAAAAACQAAAHJvd19jb3VudAAAABAAFAAQAA4ADwAEAAAACAAQAAAAGAAAAAwAAAAAAAEUEAAAAAAAAAAEAAQABAAAAAkAAABncm91cF9rZXkAAAD/////OAEAABAAAAAMABoAGAAXAAQACAAMAAAAIAAAAEACAAAAAAAAAAAAAAAAAAMEAAoAGAAMAAgABAAKAAAAXAAAABAAAAAEAAAAAAAAAAAAAAAEAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAJAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAKAAAAAAAAACAAAAAAAAAABMAAAAAAAAAwAAAAAAAAAABAAAAAAAAAAABAAAAAAAAIAAAAAAAAABAAQAAAAAAAAEAAAAAAAAAgAEAAAAAAAAgAAAAAAAAAMABAAAAAAAAAQAAAAAAAAAAAgAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAACgAAAAAAAAAPAAAAAAAAABMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQm9va3NHYW1lc011c2ljVG95cwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAuG5ASOF6FK6XeUAAAAAAAGBhQI/C9ShcH1pAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAexSuR+F6VEBI4XoUrg9hQArXo3A9KkdACtejcD1qQUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA",
+              "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double",
+              "columns": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_count": 4,
+              "rows": [
+                {
+                  "group_key": "Books",
+                  "row_count": 3,
+                  "total_amount": 245.75,
+                  "avg_amount": 81.92
+                },
+                {
+                  "group_key": "Games",
+                  "row_count": 3,
+                  "total_amount": 409.48,
+                  "avg_amount": 136.49
+                },
+                {
+                  "group_key": "Music",
+                  "row_count": 3,
+                  "total_amount": 139.0,
+                  "avg_amount": 46.33
+                },
+                {
+                  "group_key": "Toys",
+                  "row_count": 3,
+                  "total_amount": 104.49,
+                  "avg_amount": 34.83
+                }
+              ]
+            },
+            "arrow_fields": {
+              "columns": "{\"_index\":{\"hidden\":true}}",
+              "editing_mode": 0,
+              "disabled": false,
+              "column_order": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_height": 0
+            },
+            "id": "",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26424.81166,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "vega_lite_chart",
+            "element_full": {
+              "vegaLiteChart": {
+                "spec": "{\"$schema\":\"https://vega.github.io/schema/vega-lite/v5.20.1.json\",\"autosize\":{\"contains\":\"padding\",\"type\":\"fit\"},\"data\":{\"name\":\"ab44968e6b05c9e21984aacc05115246\"},\"encoding\":{\"tooltip\":[{\"field\":\"group_key\",\"title\":\"group\",\"type\":\"nominal\"},{\"field\":\"row_count\",\"title\":\"rows\",\"type\":\"quantitative\"},{\"field\":\"total_amount\",\"title\":\"total\",\"type\":\"quantitative\"},{\"field\":\"avg_amount\",\"title\":\"avg\",\"type\":\"quantitative\"}],\"x\":{\"field\":\"group_key\",\"sort\":[\"Books\",\"Games\",\"Music\",\"Toys\"],\"type\":\"nominal\"},\"y\":{\"field\":\"total_amount\",\"type\":\"quantitative\"}},\"height\":260,\"mark\":{\"type\":\"bar\"}}",
+                "datasets": [
+                  {
+                    "name": "ab44968e6b05c9e21984aacc05115246",
+                    "data": {
+                      "data": "/////zgBAAAQAAAAAAAKAAwACgAJAAQACgAAABAAAAAAAQQACAAIAAAABAAIAAAABAAAAAQAAADYAAAAiAAAAEgAAAAEAAAASP///xAAAAAUAAAAAAABAxAAAAC+////AAACAAAAAAAKAAAAYXZnX2Ftb3VudAAAEAAWABAADgAPAAQAAAAIABAAAAAYAAAAHAAAAAAAAQMYAAAAAAAGAAgABgAGAAAAAAACAAAAAAAMAAAAdG90YWxfYW1vdW50AAAAAMT///8YAAAAIAAAAAAAAQIcAAAACAAMAAQACwAIAAAAQAAAAAAAAAEAAAAACQAAAHJvd19jb3VudAAAABAAFAAQAA4ADwAEAAAACAAQAAAAGAAAAAwAAAAAAAEUEAAAAAAAAAAEAAQABAAAAAkAAABncm91cF9rZXkAAAD/////OAEAABAAAAAMABoAGAAXAAQACAAMAAAAIAAAAEACAAAAAAAAAAAAAAAAAAMEAAoAGAAMAAgABAAKAAAAXAAAABAAAAAEAAAAAAAAAAAAAAAEAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAJAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAKAAAAAAAAACAAAAAAAAAABMAAAAAAAAAwAAAAAAAAAABAAAAAAAAAAABAAAAAAAAIAAAAAAAAABAAQAAAAAAAAEAAAAAAAAAgAEAAAAAAAAgAAAAAAAAAMABAAAAAAAAAQAAAAAAAAAAAgAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAACgAAAAAAAAAPAAAAAAAAABMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQm9va3NHYW1lc011c2ljVG95cwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAuG5ASOF6FK6XeUAAAAAAAGBhQI/C9ShcH1pAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAexSuR+F6VEBI4XoUrg9hQArXo3A9KkdACtejcD1qQUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA"
+                    },
+                    "hasName": true
+                  }
+                ],
+                "theme": "streamlit"
+              },
+              "heightConfig": {
+                "useContent": true
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "vega_lite_spec_raw": "{\"$schema\":\"https://vega.github.io/schema/vega-lite/v5.20.1.json\",\"autosize\":{\"contains\":\"padding\",\"type\":\"fit\"},\"data\":{\"name\":\"ab44968e6b05c9e21984aacc05115246\"},\"encoding\":{\"tooltip\":[{\"field\":\"group_key\",\"title\":\"group\",\"type\":\"nominal\"},{\"field\":\"row_count\",\"title\":\"rows\",\"type\":\"quantitative\"},{\"field\":\"total_amount\",\"title\":\"total\",\"type\":\"quantitative\"},{\"field\":\"avg_amount\",\"title\":\"avg\",\"type\":\"quantitative\"}],\"x\":{\"field\":\"group_key\",\"sort\":[\"Books\",\"Games\",\"Music\",\"Toys\"],\"type\":\"nominal\"},\"y\":{\"field\":\"total_amount\",\"type\":\"quantitative\"}},\"height\":260,\"mark\":{\"type\":\"bar\"}}",
+            "vega_lite_spec": {
+              "$schema": "https://vega.github.io/schema/vega-lite/v5.20.1.json",
+              "autosize": {
+                "contains": "padding",
+                "type": "fit"
+              },
+              "data": {
+                "name": "ab44968e6b05c9e21984aacc05115246"
+              },
+              "encoding": {
+                "tooltip": [
+                  {
+                    "field": "group_key",
+                    "title": "group",
+                    "type": "nominal"
+                  },
+                  {
+                    "field": "row_count",
+                    "title": "rows",
+                    "type": "quantitative"
+                  },
+                  {
+                    "field": "total_amount",
+                    "title": "total",
+                    "type": "quantitative"
+                  },
+                  {
+                    "field": "avg_amount",
+                    "title": "avg",
+                    "type": "quantitative"
+                  }
+                ],
+                "x": {
+                  "field": "group_key",
+                  "sort": [
+                    "Books",
+                    "Games",
+                    "Music",
+                    "Toys"
+                  ],
+                  "type": "nominal"
+                },
+                "y": {
+                  "field": "total_amount",
+                  "type": "quantitative"
+                }
+              },
+              "height": 260,
+              "mark": {
+                "type": "bar"
+              }
+            },
+            "vega_lite_datasets": [
+              {
+                "name": "ab44968e6b05c9e21984aacc05115246",
+                "has_name": true,
+                "arrow": {
+                  "bytes": 1224,
+                  "sha256": "fc57562d7955d8e72e6d7fd03efec45e853868bd71e6e2b6b7d7260f444dff78",
+                  "base64": "/////zgBAAAQAAAAAAAKAAwACgAJAAQACgAAABAAAAAAAQQACAAIAAAABAAIAAAABAAAAAQAAADYAAAAiAAAAEgAAAAEAAAASP///xAAAAAUAAAAAAABAxAAAAC+////AAACAAAAAAAKAAAAYXZnX2Ftb3VudAAAEAAWABAADgAPAAQAAAAIABAAAAAYAAAAHAAAAAAAAQMYAAAAAAAGAAgABgAGAAAAAAACAAAAAAAMAAAAdG90YWxfYW1vdW50AAAAAMT///8YAAAAIAAAAAAAAQIcAAAACAAMAAQACwAIAAAAQAAAAAAAAAEAAAAACQAAAHJvd19jb3VudAAAABAAFAAQAA4ADwAEAAAACAAQAAAAGAAAAAwAAAAAAAEUEAAAAAAAAAAEAAQABAAAAAkAAABncm91cF9rZXkAAAD/////OAEAABAAAAAMABoAGAAXAAQACAAMAAAAIAAAAEACAAAAAAAAAAAAAAAAAAMEAAoAGAAMAAgABAAKAAAAXAAAABAAAAAEAAAAAAAAAAAAAAAEAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAJAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAKAAAAAAAAACAAAAAAAAAABMAAAAAAAAAwAAAAAAAAAABAAAAAAAAAAABAAAAAAAAIAAAAAAAAABAAQAAAAAAAAEAAAAAAAAAgAEAAAAAAAAgAAAAAAAAAMABAAAAAAAAAQAAAAAAAAAAAgAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAACgAAAAAAAAAPAAAAAAAAABMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQm9va3NHYW1lc011c2ljVG95cwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAuG5ASOF6FK6XeUAAAAAAAGBhQI/C9ShcH1pAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAexSuR+F6VEBI4XoUrg9hQArXo3A9KkdACtejcD1qQUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA",
+                  "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double",
+                  "columns": [
+                    "group_key",
+                    "row_count",
+                    "total_amount",
+                    "avg_amount"
+                  ],
+                  "row_count": 4,
+                  "rows": [
+                    {
+                      "group_key": "Books",
+                      "row_count": 3,
+                      "total_amount": 245.75,
+                      "avg_amount": 81.92
+                    },
+                    {
+                      "group_key": "Games",
+                      "row_count": 3,
+                      "total_amount": 409.48,
+                      "avg_amount": 136.49
+                    },
+                    {
+                      "group_key": "Music",
+                      "row_count": 3,
+                      "total_amount": 139.0,
+                      "avg_amount": 46.33
+                    },
+                    {
+                      "group_key": "Toys",
+                      "row_count": 3,
+                      "total_amount": 104.49,
+                      "avg_amount": 34.83
+                    }
+                  ]
+                }
+              }
+            ],
+            "vega_lite_fields": {
+              "use_container_width": false,
+              "theme": "streamlit",
+              "id": "",
+              "form_id": ""
+            },
+            "id": "",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26424.811736,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Interaction"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26424.811767,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "button",
+            "widget": {
+              "id": "$$ID-8df8cbc923e8b253d5764d847ca3632d-pulse",
+              "label": "Pulse",
+              "type": "secondary"
+            },
+            "id": "$$ID-8df8cbc923e8b253d5764d847ca3632d-pulse",
+            "label": "Pulse",
+            "accepted_types": [
+              "secondary"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26424.811806,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "markdown",
+            "body": "Script runs: 4"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26424.811851,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "markdown",
+            "body": "Pulses: 0"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26424.811895,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "script_finished",
+          "script_finished": {
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "92220.151",
+        "timestamp": 26424.811943,
+        "namespace": "rust-soft-20261024T183117",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": false,
+            "run_on_save": false
+          }
+        }
+      }
+    ],
+    "phases": [
+      {
+        "name": "upload-soft",
+        "action": {
+          "action": "upload",
+          "ok": true,
+          "file": "D:\\dlab\\streamlit-rust\\tests\\fixtures\\csv\\sales_with_missing.csv",
+          "file_sha256": "ce8b7f62c729c856ad85c496e044c25ef0f3594e2b3b558fb31e9213122e512d",
+          "file_bytes": 739
+        },
+        "start": 17,
+        "end": 37,
+        "start_timestamp": 26415.477552,
+        "end_timestamp": 26415.501339,
+        "dom_before": {
+          "document_title": "Streamlit",
+          "markdown": [
+            "Script runs: 1",
+            "Pulses: 0"
+          ],
+          "has_uploader": true,
+          "headings": [
+            "Streamlit Rust CSV data app",
+            "Aggregated result",
+            "Interaction"
+          ],
+          "button_labels": [
+            "Pulse"
+          ],
+          "has_button": true,
+          "script_runs": "1",
+          "pulses": "0",
+          "applied_note": null,
+          "table_cells": [],
+          "table_present": false,
+          "chart_present": false,
+          "chart_bars": 0,
+          "chart_labels": [],
+          "chart_marks": "",
+          "slider_value": "0",
+          "checkbox_checked": true,
+          "selectbox_value": "category",
+          "texts": [],
+          "alerts": [
+            "Upload a CSV to see the aggregated result."
+          ],
+          "selectbox_disabled": false,
+          "slider_thumb": "0",
+          "slider_disabled": false,
+          "checkbox_disabled": false,
+          "exceptions": []
+        },
+        "dom_after": {
+          "document_title": "Streamlit",
+          "markdown": [
+            "Script runs: 2",
+            "Pulses: 0"
+          ],
+          "has_uploader": true,
+          "headings": [
+            "Streamlit Rust CSV data app",
+            "Aggregated result",
+            "Interaction"
+          ],
+          "button_labels": [
+            "Pulse"
+          ],
+          "has_button": true,
+          "script_runs": "2",
+          "pulses": "0",
+          "applied_note": null,
+          "table_cells": [
+            "Books",
+            "2",
+            "200.5",
+            "100.25",
+            "Games",
+            "3",
+            "409.48",
+            "136.49",
+            "Music",
+            "2",
+            "51",
+            "25.5",
+            "Toys",
+            "3",
+            "104.49",
+            "34.83"
+          ],
+          "table_present": true,
+          "chart_present": true,
+          "chart_bars": 4,
+          "chart_labels": [
+            "Books",
+            "Games",
+            "Music",
+            "Toys",
+            "group_key",
+            "0",
+            "100",
+            "200",
+            "300",
+            "400",
+            "total_amount"
+          ],
+          "chart_marks": "M18.8,88.15666666666668h122.39999999999999v70.84333333333332h-122.39999999999999Z|M178.8,14.317066666666655h122.39999999999999v144.68293333333335h-122.39999999999999Z|M338.8,140.98000000000002h122.39999999999999v18.019999999999982h-122.39999999999999Z|M498.8,122.0802h122.39999999999999v36.919799999999995h-122.39999999999999Z",
+          "slider_value": "0",
+          "checkbox_checked": true,
+          "selectbox_value": "category",
+          "texts": [],
+          "alerts": [
+            "2 row(s) with an unusable 'amount' were excluded from the aggregation."
+          ],
+          "selectbox_disabled": false,
+          "slider_thumb": "0",
+          "slider_disabled": false,
+          "checkbox_disabled": false,
+          "exceptions": []
+        },
+        "client_states": [
+          {
+            "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+            "value_field": "file_uploader_state_value",
+            "value": {
+              "uploaded_file_info": "[name: \"sales_with_missing.csv\"\nsize: 739\nfile_id: \"71bef63c-fd71-47c3-82bc-80b9649c3f2b\"\nfile_urls {\n  file_id: \"71bef63c-fd71-47c3-82bc-80b9649c3f2b\"\n  upload_url: \"/_stcore/upload_file/3ba17dae-5079-4e0a-8783-54d35da840b5/71bef63c-fd71-47c3-82bc-80b9649c3f2b\"\n  delete_url: \"/_stcore/upload_file/3ba17dae-5079-4e0a-8783-54d35da840b5/71bef63c-fd71-47c3-82bc-80b9649c3f2b\"\n}\n]"
+            }
+          },
+          {
+            "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+            "value_field": "string_value",
+            "value": "category"
+          },
+          {
+            "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+            "value_field": "double_array_value",
+            "value": {
+              "data": "[0.0]"
+            }
+          },
+          {
+            "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+            "value_field": "bool_value",
+            "value": true
+          }
+        ],
+        "completions": [
+          {
+            "frame": 19,
+            "connection": 0,
+            "request_id": "92220.151",
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          }
+        ],
+        "ipc": {
+          "table": {
+            "arrow": {
+              "sha256": "34f8a25a09765457250f834fa64ea88b2e9527ca09711995df04db853121347a",
+              "bytes": 1224,
+              "file": "arrow-1.bin",
+              "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double",
+              "columns": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_count": 4,
+              "rows": [
+                {
+                  "group_key": "Books",
+                  "row_count": 2,
+                  "total_amount": 200.5,
+                  "avg_amount": 100.25
+                },
+                {
+                  "group_key": "Games",
+                  "row_count": 3,
+                  "total_amount": 409.48,
+                  "avg_amount": 136.49
+                },
+                {
+                  "group_key": "Music",
+                  "row_count": 2,
+                  "total_amount": 51.0,
+                  "avg_amount": 25.5
+                },
+                {
+                  "group_key": "Toys",
+                  "row_count": 3,
+                  "total_amount": 104.49,
+                  "avg_amount": 34.83
+                }
+              ]
+            },
+            "arrow_fields": {
+              "columns": "{\"_index\":{\"hidden\":true}}",
+              "editing_mode": 0,
+              "disabled": false,
+              "column_order": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_height": 0
+            }
+          },
+          "chart": {
+            "vega_lite_spec": {
+              "$schema": "https://vega.github.io/schema/vega-lite/v5.20.1.json",
+              "autosize": {
+                "contains": "padding",
+                "type": "fit"
+              },
+              "data": {
+                "name": "04e42cffed8509b921cb22d76964572b"
+              },
+              "encoding": {
+                "tooltip": [
+                  {
+                    "field": "group_key",
+                    "title": "group",
+                    "type": "nominal"
+                  },
+                  {
+                    "field": "row_count",
+                    "title": "rows",
+                    "type": "quantitative"
+                  },
+                  {
+                    "field": "total_amount",
+                    "title": "total",
+                    "type": "quantitative"
+                  },
+                  {
+                    "field": "avg_amount",
+                    "title": "avg",
+                    "type": "quantitative"
+                  }
+                ],
+                "x": {
+                  "field": "group_key",
+                  "sort": [
+                    "Books",
+                    "Games",
+                    "Music",
+                    "Toys"
+                  ],
+                  "type": "nominal"
+                },
+                "y": {
+                  "field": "total_amount",
+                  "type": "quantitative"
+                }
+              },
+              "height": 260,
+              "mark": {
+                "type": "bar"
+              }
+            },
+            "arrow": null,
+            "datasets": [
+              {
+                "name": "04e42cffed8509b921cb22d76964572b",
+                "has_name": true,
+                "arrow": {
+                  "sha256": "34f8a25a09765457250f834fa64ea88b2e9527ca09711995df04db853121347a",
+                  "bytes": 1224,
+                  "file": "arrow-1.bin",
+                  "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double",
+                  "columns": [
+                    "group_key",
+                    "row_count",
+                    "total_amount",
+                    "avg_amount"
+                  ],
+                  "row_count": 4,
+                  "rows": [
+                    {
+                      "group_key": "Books",
+                      "row_count": 2,
+                      "total_amount": 200.5,
+                      "avg_amount": 100.25
+                    },
+                    {
+                      "group_key": "Games",
+                      "row_count": 3,
+                      "total_amount": 409.48,
+                      "avg_amount": 136.49
+                    },
+                    {
+                      "group_key": "Music",
+                      "row_count": 2,
+                      "total_amount": 51.0,
+                      "avg_amount": 25.5
+                    },
+                    {
+                      "group_key": "Toys",
+                      "row_count": 3,
+                      "total_amount": 104.49,
+                      "avg_amount": 34.83
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        "screenshot": {
+          "file": "01-soft-warning.png",
+          "bytes": 67972,
+          "viewport": [
+            1264,
+            1800
+          ],
+          "timestamp": 26415.54263579158
+        },
+        "observation_end_timestamp": 26415.54263579158
+      },
+      {
+        "name": "replace-baseline",
+        "action": {
+          "action": "upload",
+          "ok": true,
+          "file": "D:\\dlab\\streamlit-rust\\tests\\fixtures\\csv\\sales_basic.csv",
+          "file_sha256": "9692a718edc5bec8f3fee1cfec4f454338c8f8d675cd34c17cdb5bf4403d8d00",
+          "file_bytes": 737
+        },
+        "start": 38,
+        "end": 74,
+        "start_timestamp": 26424.778416,
+        "end_timestamp": 26424.811895,
+        "dom_before": {
+          "document_title": "Streamlit",
+          "markdown": [
+            "Script runs: 2",
+            "Pulses: 0"
+          ],
+          "has_uploader": true,
+          "headings": [
+            "Streamlit Rust CSV data app",
+            "Aggregated result",
+            "Interaction"
+          ],
+          "button_labels": [
+            "Pulse"
+          ],
+          "has_button": true,
+          "script_runs": "2",
+          "pulses": "0",
+          "applied_note": null,
+          "table_cells": [
+            "Books",
+            "2",
+            "200.5",
+            "100.25",
+            "Games",
+            "3",
+            "409.48",
+            "136.49",
+            "Music",
+            "2",
+            "51",
+            "25.5",
+            "Toys",
+            "3",
+            "104.49",
+            "34.83"
+          ],
+          "table_present": true,
+          "chart_present": true,
+          "chart_bars": 4,
+          "chart_labels": [
+            "Books",
+            "Games",
+            "Music",
+            "Toys",
+            "group_key",
+            "0",
+            "100",
+            "200",
+            "300",
+            "400",
+            "total_amount"
+          ],
+          "chart_marks": "M18.8,88.15666666666668h122.39999999999999v70.84333333333332h-122.39999999999999Z|M178.8,14.317066666666655h122.39999999999999v144.68293333333335h-122.39999999999999Z|M338.8,140.98000000000002h122.39999999999999v18.019999999999982h-122.39999999999999Z|M498.8,122.0802h122.39999999999999v36.919799999999995h-122.39999999999999Z",
+          "slider_value": "0",
+          "checkbox_checked": true,
+          "selectbox_value": "category",
+          "texts": [],
+          "alerts": [
+            "2 row(s) with an unusable 'amount' were excluded from the aggregation."
+          ],
+          "selectbox_disabled": false,
+          "slider_thumb": "0",
+          "slider_disabled": false,
+          "checkbox_disabled": false,
+          "exceptions": []
+        },
+        "dom_after": {
+          "document_title": "Streamlit",
+          "markdown": [
+            "Script runs: 4",
+            "Pulses: 0"
+          ],
+          "has_uploader": true,
+          "headings": [
+            "Streamlit Rust CSV data app",
+            "Aggregated result",
+            "Interaction"
+          ],
+          "button_labels": [
+            "Pulse"
+          ],
+          "has_button": true,
+          "script_runs": "4",
+          "pulses": "0",
+          "applied_note": null,
+          "table_cells": [
+            "Books",
+            "3",
+            "245.75",
+            "81.92",
+            "Games",
+            "3",
+            "409.48",
+            "136.49",
+            "Music",
+            "3",
+            "139",
+            "46.33",
+            "Toys",
+            "3",
+            "104.49",
+            "34.83"
+          ],
+          "table_present": true,
+          "chart_present": true,
+          "chart_bars": 4,
+          "chart_labels": [
+            "Books",
+            "Games",
+            "Music",
+            "Toys",
+            "group_key",
+            "0",
+            "100",
+            "200",
+            "300",
+            "400",
+            "total_amount"
+          ],
+          "chart_marks": "M18.8,72.16833333333334h122.39999999999999v86.83166666666666h-122.39999999999999Z|M178.8,14.317066666666655h122.39999999999999v144.68293333333335h-122.39999999999999Z|M338.8,109.88666666666667h122.39999999999999v49.11333333333333h-122.39999999999999Z|M498.8,122.0802h122.39999999999999v36.919799999999995h-122.39999999999999Z",
+          "slider_value": "0",
+          "checkbox_checked": true,
+          "selectbox_value": "category",
+          "texts": [],
+          "alerts": [],
+          "selectbox_disabled": false,
+          "slider_thumb": "0",
+          "slider_disabled": false,
+          "checkbox_disabled": false,
+          "exceptions": []
+        },
+        "client_states": [
+          {
+            "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+            "value_field": "file_uploader_state_value",
+            "value": {}
+          },
+          {
+            "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+            "value_field": "string_value",
+            "value": "category"
+          },
+          {
+            "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+            "value_field": "double_array_value",
+            "value": {
+              "data": "[0.0]"
+            }
+          },
+          {
+            "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+            "value_field": "bool_value",
+            "value": true
+          },
+          {
+            "id": "$$ID-d96459369cbddbf883f120fcda64d016-upload",
+            "value_field": "file_uploader_state_value",
+            "value": {
+              "uploaded_file_info": "[name: \"sales_basic.csv\"\nsize: 737\nfile_id: \"49295ac9-4270-4a76-ba24-ec88867f5ed3\"\nfile_urls {\n  file_id: \"49295ac9-4270-4a76-ba24-ec88867f5ed3\"\n  upload_url: \"/_stcore/upload_file/3ba17dae-5079-4e0a-8783-54d35da840b5/49295ac9-4270-4a76-ba24-ec88867f5ed3\"\n  delete_url: \"/_stcore/upload_file/3ba17dae-5079-4e0a-8783-54d35da840b5/49295ac9-4270-4a76-ba24-ec88867f5ed3\"\n}\n]"
+            }
+          },
+          {
+            "id": "$$ID-d84f6831df854a170cc6033b2546b02c-group_by",
+            "value_field": "string_value",
+            "value": "category"
+          },
+          {
+            "id": "$$ID-841af5c2c3410e3eef78736d92475a56-min_amount",
+            "value_field": "double_array_value",
+            "value": {
+              "data": "[0.0]"
+            }
+          },
+          {
+            "id": "$$ID-933462e5e4df27103683a185eea563f5-include_unknown",
+            "value_field": "bool_value",
+            "value": true
+          }
+        ],
+        "completions": [
+          {
+            "frame": 17,
+            "connection": 0,
+            "request_id": "92220.151",
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          },
+          {
+            "frame": 35,
+            "connection": 0,
+            "request_id": "92220.151",
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          }
+        ],
+        "ipc": {
+          "table": {
+            "arrow": {
+              "sha256": "fc57562d7955d8e72e6d7fd03efec45e853868bd71e6e2b6b7d7260f444dff78",
+              "bytes": 1224,
+              "file": "arrow-2.bin",
+              "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double",
+              "columns": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_count": 4,
+              "rows": [
+                {
+                  "group_key": "Books",
+                  "row_count": 3,
+                  "total_amount": 245.75,
+                  "avg_amount": 81.92
+                },
+                {
+                  "group_key": "Games",
+                  "row_count": 3,
+                  "total_amount": 409.48,
+                  "avg_amount": 136.49
+                },
+                {
+                  "group_key": "Music",
+                  "row_count": 3,
+                  "total_amount": 139.0,
+                  "avg_amount": 46.33
+                },
+                {
+                  "group_key": "Toys",
+                  "row_count": 3,
+                  "total_amount": 104.49,
+                  "avg_amount": 34.83
+                }
+              ]
+            },
+            "arrow_fields": {
+              "columns": "{\"_index\":{\"hidden\":true}}",
+              "editing_mode": 0,
+              "disabled": false,
+              "column_order": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_height": 0
+            }
+          },
+          "chart": {
+            "vega_lite_spec": {
+              "$schema": "https://vega.github.io/schema/vega-lite/v5.20.1.json",
+              "autosize": {
+                "contains": "padding",
+                "type": "fit"
+              },
+              "data": {
+                "name": "ab44968e6b05c9e21984aacc05115246"
+              },
+              "encoding": {
+                "tooltip": [
+                  {
+                    "field": "group_key",
+                    "title": "group",
+                    "type": "nominal"
+                  },
+                  {
+                    "field": "row_count",
+                    "title": "rows",
+                    "type": "quantitative"
+                  },
+                  {
+                    "field": "total_amount",
+                    "title": "total",
+                    "type": "quantitative"
+                  },
+                  {
+                    "field": "avg_amount",
+                    "title": "avg",
+                    "type": "quantitative"
+                  }
+                ],
+                "x": {
+                  "field": "group_key",
+                  "sort": [
+                    "Books",
+                    "Games",
+                    "Music",
+                    "Toys"
+                  ],
+                  "type": "nominal"
+                },
+                "y": {
+                  "field": "total_amount",
+                  "type": "quantitative"
+                }
+              },
+              "height": 260,
+              "mark": {
+                "type": "bar"
+              }
+            },
+            "arrow": null,
+            "datasets": [
+              {
+                "name": "ab44968e6b05c9e21984aacc05115246",
+                "has_name": true,
+                "arrow": {
+                  "sha256": "fc57562d7955d8e72e6d7fd03efec45e853868bd71e6e2b6b7d7260f444dff78",
+                  "bytes": 1224,
+                  "file": "arrow-2.bin",
+                  "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double",
+                  "columns": [
+                    "group_key",
+                    "row_count",
+                    "total_amount",
+                    "avg_amount"
+                  ],
+                  "row_count": 4,
+                  "rows": [
+                    {
+                      "group_key": "Books",
+                      "row_count": 3,
+                      "total_amount": 245.75,
+                      "avg_amount": 81.92
+                    },
+                    {
+                      "group_key": "Games",
+                      "row_count": 3,
+                      "total_amount": 409.48,
+                      "avg_amount": 136.49
+                    },
+                    {
+                      "group_key": "Music",
+                      "row_count": 3,
+                      "total_amount": 139.0,
+                      "avg_amount": 46.33
+                    },
+                    {
+                      "group_key": "Toys",
+                      "row_count": 3,
+                      "total_amount": 104.49,
+                      "avg_amount": 34.83
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        "screenshot": {
+          "file": "02-replaced.png",
+          "bytes": 61596,
+          "viewport": [
+            1264,
+            1800
+          ],
+          "timestamp": 26424.854190772217
+        },
+        "observation_end_timestamp": 26424.854190772217
+      }
+    ],
+    "states": [],
+    "http_timeline": [
+      {
+        "method": "GET",
+        "url": "http://127.0.0.1:8501/",
+        "request_id": "2300A0FEC868F37D1FAD8071396A2777",
+        "timestamp": 26412.362152,
+        "status": 200,
+        "response_timestamp": 26412.3685,
+        "request_headers": {}
+      },
+      {
+        "method": "GET",
+        "url": "http://127.0.0.1:8501/_stcore/health",
+        "request_id": "92220.149",
+        "timestamp": 26412.448175,
+        "status": 200,
+        "response_timestamp": 26412.454785,
+        "request_headers": {}
+      },
+      {
+        "method": "GET",
+        "url": "http://127.0.0.1:8501/_stcore/host-config",
+        "request_id": "92220.150",
+        "timestamp": 26412.448332,
+        "status": 200,
+        "response_timestamp": 26412.455004,
+        "request_headers": {}
+      },
+      {
+        "method": "PUT",
+        "url": "http://127.0.0.1:8501/_stcore/upload_file/3ba17dae-5079-4e0a-8783-54d35da840b5/71bef63c-fd71-47c3-82bc-80b9649c3f2b",
+        "request_id": "92220.191",
+        "timestamp": 26415.48723,
+        "status": 204,
+        "response_timestamp": 26415.490262,
+        "request_headers": {
+          "Content-Type": "multipart/form-data; boundary=----WebKitFormBoundarypo0gMHk5Ysty3Og3"
+        }
+      },
+      {
+        "method": "DELETE",
+        "url": "http://127.0.0.1:8501/_stcore/upload_file/3ba17dae-5079-4e0a-8783-54d35da840b5/71bef63c-fd71-47c3-82bc-80b9649c3f2b",
+        "request_id": "92220.227",
+        "timestamp": 26424.785779,
+        "status": 204,
+        "response_timestamp": 26424.794515,
+        "request_headers": {
+          "Content-Type": "application/json"
+        }
+      },
+      {
+        "method": "PUT",
+        "url": "http://127.0.0.1:8501/_stcore/upload_file/3ba17dae-5079-4e0a-8783-54d35da840b5/49295ac9-4270-4a76-ba24-ec88867f5ed3",
+        "request_id": "92220.228",
+        "timestamp": 26424.786439,
+        "status": 204,
+        "response_timestamp": 26424.795742,
+        "request_headers": {
+          "Content-Type": "multipart/form-data; boundary=----WebKitFormBoundarynHaRbJzh7VJCkD1K"
+        }
+      }
+    ],
+    "contract": "journey-stage2-v1",
+    "screenshots": [
+      {
+        "step_ids": [
+          "J07-S2"
+        ],
+        "phase": "upload-soft",
+        "namespace": "rust-soft-20261024T183117",
+        "file": "01-soft-warning.png",
+        "sha256": "2e19ff0385b25f030af4341cc8e02d1157e3f38b9b28118e160bde37e252444c",
+        "timestamp": 26415.54263579158
+      }
+    ],
+    "journey": "soft-invalid"
+  },
+  "summary": {
+    "alerts": [],
+    "dom": {
+      "document_title": "Streamlit",
+      "markdown": [
+        "Script runs: 4",
+        "Pulses: 0"
+      ],
+      "has_uploader": true,
+      "headings": [
+        "Streamlit Rust CSV data app",
+        "Aggregated result",
+        "Interaction"
+      ],
+      "button_labels": [
+        "Pulse"
+      ],
+      "has_button": true,
+      "script_runs": "4",
+      "pulses": "0",
+      "applied_note": null,
+      "table_cells": [
+        "Books",
+        "3",
+        "245.75",
+        "81.92",
+        "Games",
+        "3",
+        "409.48",
+        "136.49",
+        "Music",
+        "3",
+        "139",
+        "46.33",
+        "Toys",
+        "3",
+        "104.49",
+        "34.83"
+      ],
+      "table_present": true,
+      "chart_present": true,
+      "chart_bars": 4,
+      "chart_labels": [
+        "Books",
+        "Games",
+        "Music",
+        "Toys",
+        "group_key",
+        "0",
+        "100",
+        "200",
+        "300",
+        "400",
+        "total_amount"
+      ],
+      "chart_marks": "M18.8,72.16833333333334h122.39999999999999v86.83166666666666h-122.39999999999999Z|M178.8,14.317066666666655h122.39999999999999v144.68293333333335h-122.39999999999999Z|M338.8,109.88666666666667h122.39999999999999v49.11333333333333h-122.39999999999999Z|M498.8,122.0802h122.39999999999999v36.919799999999995h-122.39999999999999Z",
+      "slider_value": "0",
+      "checkbox_checked": true,
+      "selectbox_value": "category",
+      "texts": [],
+      "alerts": [],
+      "selectbox_disabled": false,
+      "slider_thumb": "0",
+      "slider_disabled": false,
+      "checkbox_disabled": false,
+      "exceptions": []
+    }
+  },
+  "checks": [
+    {
+      "step": "soft-invalid",
+      "check": "contract",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet",
+      "ok": false,
+      "journey": "soft-invalid"
+    },
+    {
+      "step": "soft-invalid",
+      "check": "inputs",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet",
+      "ok": false,
+      "journey": "soft-invalid"
+    },
+    {
+      "step": "soft-invalid",
+      "check": "phase_sequence",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet",
+      "ok": false,
+      "journey": "soft-invalid"
+    },
+    {
+      "step": "soft-invalid",
+      "check": "upload_binding",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet",
+      "ok": false,
+      "journey": "soft-invalid"
+    },
+    {
+      "step": "soft-invalid",
+      "check": "soft_warning",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet",
+      "ok": false,
+      "journey": "soft-invalid"
+    },
+    {
+      "step": "soft-invalid",
+      "check": "soft_no_error",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet",
+      "ok": false,
+      "journey": "soft-invalid"
+    },
+    {
+      "step": "soft-invalid",
+      "check": "soft_values",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet",
+      "ok": false,
+      "journey": "soft-invalid"
+    },
+    {
+      "step": "soft-invalid",
+      "check": "replacement_delete",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet",
+      "ok": false,
+      "journey": "soft-invalid"
+    },
+    {
+      "step": "soft-invalid",
+      "check": "recovery_run",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet",
+      "ok": false,
+      "journey": "soft-invalid"
+    },
+    {
+      "step": "soft-invalid",
+      "check": "recovery_values",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet",
+      "ok": false,
+      "journey": "soft-invalid"
+    },
+    {
+      "step": "soft-invalid",
+      "check": "no_stale_alert",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet",
+      "ok": false,
+      "journey": "soft-invalid"
+    },
+    {
+      "step": "screenshots",
+      "check": "records",
+      "expected": "stage2 screenshot records for the fixed steps",
+      "actual": "[{\"step_ids\": [\"J07-S2\"], \"phase\": \"upload-soft\", \"namespace\": \"rust-soft-20261024T183117\", \"file\": \"01-soft-warning.png\", \"sha256\": \"2e19ff0385b25f030af4341cc8e02d1157e3f38b9b28118e160bde37e252444c\", \"timestamp\": 26415.54263579158}]",
+      "ok": true,
+      "journey": "screenshots/soft-invalid"
+    },
+    {
+      "step": "J07-S2",
+      "check": "png_proof/main/0",
+      "expected": "original PNG/hash/source/completed phase time",
+      "actual": "01-soft-warning.png",
+      "ok": true,
+      "journey": "screenshots/soft-invalid"
+    }
+  ],
+  "counts": {
+    "expected": 13,
+    "executed": 13,
+    "asserted": 2
+  },
+  "failures": [
+    {
+      "step": "soft-invalid",
+      "check": "contract",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet"
+    },
+    {
+      "step": "soft-invalid",
+      "check": "inputs",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet"
+    },
+    {
+      "step": "soft-invalid",
+      "check": "phase_sequence",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet"
+    },
+    {
+      "step": "soft-invalid",
+      "check": "upload_binding",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet"
+    },
+    {
+      "step": "soft-invalid",
+      "check": "soft_warning",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet"
+    },
+    {
+      "step": "soft-invalid",
+      "check": "soft_no_error",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet"
+    },
+    {
+      "step": "soft-invalid",
+      "check": "soft_values",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet"
+    },
+    {
+      "step": "soft-invalid",
+      "check": "replacement_delete",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet"
+    },
+    {
+      "step": "soft-invalid",
+      "check": "recovery_run",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet"
+    },
+    {
+      "step": "soft-invalid",
+      "check": "recovery_values",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet"
+    },
+    {
+      "step": "soft-invalid",
+      "check": "no_stale_alert",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet"
+    }
+  ]
+}

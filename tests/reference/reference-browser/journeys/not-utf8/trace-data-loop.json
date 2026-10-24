@@ -1,0 +1,3309 @@
+{
+  "schema_version": 1,
+  "contract_id": "C-P0-04",
+  "kind": "python-reference-browser-trace",
+  "scope": "PYTHON SIDE ONLY",
+  "capture": {
+    "tool": "DevTools Protocol against the same real Chrome",
+    "tool_limitation": "the agent-browser CLI could not start its daemon in this environment (connection timeout), so the input is sent over CDP",
+    "driver": "tests/browser/numeric_capture.py",
+    "binary": "",
+    "python": "D:\\dlab\\streamlit-rust\\target\\pyref-venv\\Scripts\\python.exe"
+  },
+  "url": "http://127.0.0.1:8601/",
+  "case": "non-utf8",
+  "journey": "non-utf8",
+  "observation": {
+    "namespace": "py-ref-utf8-20261024T182810",
+    "url": "http://127.0.0.1:8601/",
+    "ipc_dir": "target\\stage2-ref-20261024T182810\\non-utf8",
+    "uploads": {
+      "bad": true,
+      "good": true
+    },
+    "frames": [
+      {
+        "direction": "client->server",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26208.521467,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "BackMsg",
+          "type": "rerun_script",
+          "rerun_script": {
+            "widget_states": []
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26208.523376,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "new_session",
+          "new_session": {
+            "script_run_id": "094ddc08-59b0-4411-8848-99640b6212ce",
+            "name": "app",
+            "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\app.py",
+            "page_script_hash": "269f73cf39198cb8a4f8caacec17751b",
+            "main_script_hash": "269f73cf39198cb8a4f8caacec17751b",
+            "session_id": "4cb12e42-4c77-47c9-ae4c-a545aa1a408b"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26208.531583,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": true,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26208.53168,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "page_config_changed"
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26208.533067,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "streamlit-rust P0 reference"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26208.533551,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "markdown",
+            "body": "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part o"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26208.533732,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "file_uploader",
+            "element_full": {
+              "fileUploader": {
+                "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+                "label": "Upload sales CSV",
+                "type": [
+                  ".csv"
+                ],
+                "maxUploadSizeMb": 200,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+              "label": "Upload sales CSV",
+              "type": [
+                ".csv"
+              ],
+              "maxUploadSizeMb": 200,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+            "label": "Upload sales CSV",
+            "accepted_types": [
+              "['.csv']"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26208.799364,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "selectbox",
+            "element_full": {
+              "selectbox": {
+                "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+                "label": "Group by",
+                "default": 0,
+                "options": [
+                  "category",
+                  "region",
+                  "channel"
+                ],
+                "labelVisibility": {},
+                "acceptNewOptions": false
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+              "label": "Group by",
+              "default": 0,
+              "options": [
+                "category",
+                "region",
+                "channel"
+              ],
+              "labelVisibility": {},
+              "acceptNewOptions": false
+            },
+            "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+            "label": "Group by",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26208.804643,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "slider",
+            "element_full": {
+              "slider": {
+                "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+                "label": "Minimum amount",
+                "format": "%d",
+                "default": [
+                  0.0
+                ],
+                "max": 200.0,
+                "step": 10.0,
+                "labelVisibility": {},
+                "type": "SLIDER"
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+              "label": "Minimum amount",
+              "format": "%d",
+              "default": [
+                0.0
+              ],
+              "max": 200.0,
+              "step": 10.0,
+              "labelVisibility": {},
+              "type": "SLIDER"
+            },
+            "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+            "label": "Minimum amount",
+            "accepted_types": [
+              "1"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26208.805151,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "checkbox",
+            "element_full": {
+              "checkbox": {
+                "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+                "label": "Include unknown region",
+                "default": true,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useContent": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+              "label": "Include unknown region",
+              "default": true,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+            "label": "Include unknown region",
+            "accepted_types": [
+              "0"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26208.805457,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Aggregated result"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26208.805771,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "alert",
+            "alert": {
+              "body": "Upload a CSV to see the aggregated result.",
+              "format": "INFO",
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "element_width_config": null,
+            "element_height_config": null,
+            "body": "Upload a CSV to see the aggregated result."
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26208.806007,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Interaction"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26208.806087,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "button",
+            "widget": {
+              "id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+              "label": "Pulse",
+              "type": "secondary"
+            },
+            "id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+            "label": "Pulse",
+            "accepted_types": [
+              "secondary"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26208.806287,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "add_block",
+            "block_id": "",
+            "block_type": "form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26208.806531,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text_input",
+            "widget": {
+              "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+              "label": "Note",
+              "default": "",
+              "formId": "apply_form",
+              "labelVisibility": {}
+            },
+            "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+            "label": "Note",
+            "accepted_types": [
+              "0"
+            ],
+            "form_id": "apply_form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26208.806649,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "button",
+            "widget": {
+              "id": "$$ID-9a6c63ce6e3bef7bfd3af258b88f303b-apply_note",
+              "label": "Apply note",
+              "formId": "apply_form",
+              "isFormSubmitter": true,
+              "type": "secondary"
+            },
+            "id": "$$ID-9a6c63ce6e3bef7bfd3af258b88f303b-apply_note",
+            "label": "Apply note",
+            "accepted_types": [
+              "secondary"
+            ],
+            "form_id": "apply_form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26208.819191,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text",
+            "body": "Script runs: 1"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26208.819423,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text",
+            "body": "Pulses: 0"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26208.819488,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text",
+            "body": "Applied note:"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26208.819532,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "script_finished",
+          "script_finished": {
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26208.819672,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": false,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "client->server",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26211.534287,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "BackMsg",
+          "type": "file_urls_request",
+          "file_urls_request": {
+            "request_id": "39f84506-7aef-464f-b64f-3ecf14649d49",
+            "file_names": [
+              "sales_latin1.csv"
+            ],
+            "session_id": "4cb12e42-4c77-47c9-ae4c-a545aa1a408b"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26211.535883,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "file_urls_response",
+          "file_urls_response": {
+            "response_id": "39f84506-7aef-464f-b64f-3ecf14649d49",
+            "file_urls": [
+              {
+                "file_id": "ba649ebc-364c-4415-81de-c1e4bdedd074",
+                "upload_url": "/_stcore/upload_file/4cb12e42-4c77-47c9-ae4c-a545aa1a408b/ba649ebc-364c-4415-81de-c1e4bdedd074",
+                "delete_url": "/_stcore/upload_file/4cb12e42-4c77-47c9-ae4c-a545aa1a408b/ba649ebc-364c-4415-81de-c1e4bdedd074"
+              }
+            ],
+            "error_msg": ""
+          }
+        }
+      },
+      {
+        "direction": "client->server",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26211.559028,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "BackMsg",
+          "type": "rerun_script",
+          "rerun_script": {
+            "widget_states": [
+              {
+                "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+                "value_field": "file_uploader_state_value",
+                "value": {
+                  "uploaded_file_info": "[name: \"sales_latin1.csv\"\nsize: 735\nfile_id: \"ba649ebc-364c-4415-81de-c1e4bdedd074\"\nfile_urls {\n  file_id: \"ba649ebc-364c-4415-81de-c1e4bdedd074\"\n  upload_url: \"/_stcore/upload_file/4cb12e42-4c77-47c9-ae4c-a545aa1a408b/ba649ebc-364c-4415-81de-c1e4bdedd074\"\n  delete_url: \"/_stcore/upload_file/4cb12e42-4c77-47c9-ae4c-a545aa1a408b/ba649ebc-364c-4415-81de-c1e4bdedd074\"\n}\n]"
+                },
+                "value_full": {
+                  "uploadedFileInfo": [
+                    {
+                      "name": "sales_latin1.csv",
+                      "size": "735",
+                      "fileId": "ba649ebc-364c-4415-81de-c1e4bdedd074",
+                      "fileUrls": {
+                        "fileId": "ba649ebc-364c-4415-81de-c1e4bdedd074",
+                        "uploadUrl": "/_stcore/upload_file/4cb12e42-4c77-47c9-ae4c-a545aa1a408b/ba649ebc-364c-4415-81de-c1e4bdedd074",
+                        "deleteUrl": "/_stcore/upload_file/4cb12e42-4c77-47c9-ae4c-a545aa1a408b/ba649ebc-364c-4415-81de-c1e4bdedd074"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+                "value_field": "string_value",
+                "value": "category"
+              },
+              {
+                "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+                "value_field": "double_array_value",
+                "value": {
+                  "data": "[0.0]"
+                },
+                "value_full": {
+                  "data": [
+                    0.0
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+                "value_field": "bool_value",
+                "value": true
+              },
+              {
+                "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+                "value_field": "string_value",
+                "value": ""
+              }
+            ]
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26211.561031,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "new_session",
+          "new_session": {
+            "script_run_id": "7bd65bc7-1b18-404f-a556-d8aad81a968a",
+            "name": "app",
+            "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\app.py",
+            "page_script_hash": "269f73cf39198cb8a4f8caacec17751b",
+            "main_script_hash": "269f73cf39198cb8a4f8caacec17751b",
+            "session_id": "4cb12e42-4c77-47c9-ae4c-a545aa1a408b"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26211.56585,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": true,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26211.571666,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "page_config_changed"
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26211.571914,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "streamlit-rust P0 reference"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26211.578406,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "markdown",
+            "body": "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part o"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26211.578621,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "file_uploader",
+            "element_full": {
+              "fileUploader": {
+                "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+                "label": "Upload sales CSV",
+                "type": [
+                  ".csv"
+                ],
+                "maxUploadSizeMb": 200,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+              "label": "Upload sales CSV",
+              "type": [
+                ".csv"
+              ],
+              "maxUploadSizeMb": 200,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+            "label": "Upload sales CSV",
+            "accepted_types": [
+              "['.csv']"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26211.626599,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "selectbox",
+            "element_full": {
+              "selectbox": {
+                "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+                "label": "Group by",
+                "default": 0,
+                "options": [
+                  "category",
+                  "region",
+                  "channel"
+                ],
+                "labelVisibility": {},
+                "acceptNewOptions": false
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+              "label": "Group by",
+              "default": 0,
+              "options": [
+                "category",
+                "region",
+                "channel"
+              ],
+              "labelVisibility": {},
+              "acceptNewOptions": false
+            },
+            "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+            "label": "Group by",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26211.627017,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "slider",
+            "element_full": {
+              "slider": {
+                "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+                "label": "Minimum amount",
+                "format": "%d",
+                "default": [
+                  0.0
+                ],
+                "max": 200.0,
+                "step": 10.0,
+                "labelVisibility": {},
+                "type": "SLIDER"
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+              "label": "Minimum amount",
+              "format": "%d",
+              "default": [
+                0.0
+              ],
+              "max": 200.0,
+              "step": 10.0,
+              "labelVisibility": {},
+              "type": "SLIDER"
+            },
+            "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+            "label": "Minimum amount",
+            "accepted_types": [
+              "1"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26211.630678,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "checkbox",
+            "element_full": {
+              "checkbox": {
+                "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+                "label": "Include unknown region",
+                "default": true,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useContent": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+              "label": "Include unknown region",
+              "default": true,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+            "label": "Include unknown region",
+            "accepted_types": [
+              "0"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26211.630851,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Aggregated result"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26211.630978,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "alert",
+            "alert": {
+              "body": "Could not parse the uploaded CSV: the uploaded file is not valid UTF-8: 'utf-8' codec can't decode byte 0xe9 in position 101: invalid continuation byte",
+              "format": "ERROR",
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "element_width_config": null,
+            "element_height_config": null,
+            "body": "Could not parse the uploaded CSV: the uploaded file is not valid UTF-8: 'utf-8' codec can't decode byte 0xe9 in position"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26211.631071,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "alert",
+            "alert": {
+              "body": "Upload a valid CSV to continue.",
+              "format": "INFO",
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "element_width_config": null,
+            "element_height_config": null,
+            "body": "Upload a valid CSV to continue."
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26211.631177,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Interaction"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26211.63127,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "button",
+            "widget": {
+              "id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+              "label": "Pulse",
+              "type": "secondary"
+            },
+            "id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+            "label": "Pulse",
+            "accepted_types": [
+              "secondary"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26211.631357,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "add_block",
+            "block_id": "",
+            "block_type": "form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26211.631442,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text_input",
+            "widget": {
+              "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+              "label": "Note",
+              "default": "",
+              "formId": "apply_form",
+              "labelVisibility": {}
+            },
+            "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+            "label": "Note",
+            "accepted_types": [
+              "0"
+            ],
+            "form_id": "apply_form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26211.631579,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "button",
+            "widget": {
+              "id": "$$ID-9a6c63ce6e3bef7bfd3af258b88f303b-apply_note",
+              "label": "Apply note",
+              "formId": "apply_form",
+              "isFormSubmitter": true,
+              "type": "secondary"
+            },
+            "id": "$$ID-9a6c63ce6e3bef7bfd3af258b88f303b-apply_note",
+            "label": "Apply note",
+            "accepted_types": [
+              "secondary"
+            ],
+            "form_id": "apply_form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26211.631696,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text",
+            "body": "Script runs: 2"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26211.64163,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text",
+            "body": "Pulses: 0"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26211.641714,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text",
+            "body": "Applied note:"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26211.641751,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "script_finished",
+          "script_finished": {
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26211.641794,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": false,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "client->server",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.761506,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "BackMsg",
+          "type": "file_urls_request",
+          "file_urls_request": {
+            "request_id": "3e630144-83df-47e8-aca0-3d90db0c2dcb",
+            "file_names": [
+              "sales_basic.csv"
+            ],
+            "session_id": "4cb12e42-4c77-47c9-ae4c-a545aa1a408b"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.7624,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "file_urls_response",
+          "file_urls_response": {
+            "response_id": "3e630144-83df-47e8-aca0-3d90db0c2dcb",
+            "file_urls": [
+              {
+                "file_id": "9f146d5c-dc7f-45c3-a4ff-fc6a8fb4d138",
+                "upload_url": "/_stcore/upload_file/4cb12e42-4c77-47c9-ae4c-a545aa1a408b/9f146d5c-dc7f-45c3-a4ff-fc6a8fb4d138",
+                "delete_url": "/_stcore/upload_file/4cb12e42-4c77-47c9-ae4c-a545aa1a408b/9f146d5c-dc7f-45c3-a4ff-fc6a8fb4d138"
+              }
+            ],
+            "error_msg": ""
+          }
+        }
+      },
+      {
+        "direction": "client->server",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.766469,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "BackMsg",
+          "type": "rerun_script",
+          "rerun_script": {
+            "widget_states": [
+              {
+                "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+                "value_field": "file_uploader_state_value",
+                "value": {},
+                "value_full": {}
+              },
+              {
+                "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+                "value_field": "string_value",
+                "value": "category"
+              },
+              {
+                "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+                "value_field": "double_array_value",
+                "value": {
+                  "data": "[0.0]"
+                },
+                "value_full": {
+                  "data": [
+                    0.0
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+                "value_field": "bool_value",
+                "value": true
+              },
+              {
+                "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+                "value_field": "string_value",
+                "value": ""
+              }
+            ]
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.770717,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "new_session",
+          "new_session": {
+            "script_run_id": "655d993d-176a-454d-8001-5779a62a854d",
+            "name": "app",
+            "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\app.py",
+            "page_script_hash": "269f73cf39198cb8a4f8caacec17751b",
+            "main_script_hash": "269f73cf39198cb8a4f8caacec17751b",
+            "session_id": "4cb12e42-4c77-47c9-ae4c-a545aa1a408b"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.776078,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": true,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.77621,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "page_config_changed"
+        }
+      },
+      {
+        "direction": "client->server",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.78328,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "BackMsg",
+          "type": "rerun_script",
+          "rerun_script": {
+            "widget_states": [
+              {
+                "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+                "value_field": "file_uploader_state_value",
+                "value": {
+                  "uploaded_file_info": "[name: \"sales_basic.csv\"\nsize: 737\nfile_id: \"9f146d5c-dc7f-45c3-a4ff-fc6a8fb4d138\"\nfile_urls {\n  file_id: \"9f146d5c-dc7f-45c3-a4ff-fc6a8fb4d138\"\n  upload_url: \"/_stcore/upload_file/4cb12e42-4c77-47c9-ae4c-a545aa1a408b/9f146d5c-dc7f-45c3-a4ff-fc6a8fb4d138\"\n  delete_url: \"/_stcore/upload_file/4cb12e42-4c77-47c9-ae4c-a545aa1a408b/9f146d5c-dc7f-45c3-a4ff-fc6a8fb4d138\"\n}\n]"
+                },
+                "value_full": {
+                  "uploadedFileInfo": [
+                    {
+                      "name": "sales_basic.csv",
+                      "size": "737",
+                      "fileId": "9f146d5c-dc7f-45c3-a4ff-fc6a8fb4d138",
+                      "fileUrls": {
+                        "fileId": "9f146d5c-dc7f-45c3-a4ff-fc6a8fb4d138",
+                        "uploadUrl": "/_stcore/upload_file/4cb12e42-4c77-47c9-ae4c-a545aa1a408b/9f146d5c-dc7f-45c3-a4ff-fc6a8fb4d138",
+                        "deleteUrl": "/_stcore/upload_file/4cb12e42-4c77-47c9-ae4c-a545aa1a408b/9f146d5c-dc7f-45c3-a4ff-fc6a8fb4d138"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+                "value_field": "string_value",
+                "value": "category"
+              },
+              {
+                "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+                "value_field": "double_array_value",
+                "value": {
+                  "data": "[0.0]"
+                },
+                "value_full": {
+                  "data": [
+                    0.0
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+                "value_field": "bool_value",
+                "value": true
+              },
+              {
+                "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+                "value_field": "string_value",
+                "value": ""
+              }
+            ]
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.82271,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "streamlit-rust P0 reference"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.822928,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "markdown",
+            "body": "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part o"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.82544,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "file_uploader",
+            "element_full": {
+              "fileUploader": {
+                "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+                "label": "Upload sales CSV",
+                "type": [
+                  ".csv"
+                ],
+                "maxUploadSizeMb": 200,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+              "label": "Upload sales CSV",
+              "type": [
+                ".csv"
+              ],
+              "maxUploadSizeMb": 200,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+            "label": "Upload sales CSV",
+            "accepted_types": [
+              "['.csv']"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.827325,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "selectbox",
+            "element_full": {
+              "selectbox": {
+                "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+                "label": "Group by",
+                "default": 0,
+                "options": [
+                  "category",
+                  "region",
+                  "channel"
+                ],
+                "labelVisibility": {},
+                "acceptNewOptions": false
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+              "label": "Group by",
+              "default": 0,
+              "options": [
+                "category",
+                "region",
+                "channel"
+              ],
+              "labelVisibility": {},
+              "acceptNewOptions": false
+            },
+            "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+            "label": "Group by",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.827418,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "slider",
+            "element_full": {
+              "slider": {
+                "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+                "label": "Minimum amount",
+                "format": "%d",
+                "default": [
+                  0.0
+                ],
+                "max": 200.0,
+                "step": 10.0,
+                "labelVisibility": {},
+                "type": "SLIDER"
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+              "label": "Minimum amount",
+              "format": "%d",
+              "default": [
+                0.0
+              ],
+              "max": 200.0,
+              "step": 10.0,
+              "labelVisibility": {},
+              "type": "SLIDER"
+            },
+            "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+            "label": "Minimum amount",
+            "accepted_types": [
+              "1"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.827495,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "checkbox",
+            "element_full": {
+              "checkbox": {
+                "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+                "label": "Include unknown region",
+                "default": true,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useContent": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+              "label": "Include unknown region",
+              "default": true,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+            "label": "Include unknown region",
+            "accepted_types": [
+              "0"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.827533,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Aggregated result"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.827572,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "alert",
+            "alert": {
+              "body": "Upload a CSV to see the aggregated result.",
+              "format": "INFO",
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "element_width_config": null,
+            "element_height_config": null,
+            "body": "Upload a CSV to see the aggregated result."
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.827603,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Interaction"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.827668,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "button",
+            "widget": {
+              "id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+              "label": "Pulse",
+              "type": "secondary"
+            },
+            "id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+            "label": "Pulse",
+            "accepted_types": [
+              "secondary"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.831874,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "add_block",
+            "block_id": "",
+            "block_type": "form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.831973,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text_input",
+            "widget": {
+              "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+              "label": "Note",
+              "default": "",
+              "formId": "apply_form",
+              "labelVisibility": {}
+            },
+            "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+            "label": "Note",
+            "accepted_types": [
+              "0"
+            ],
+            "form_id": "apply_form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.836824,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "button",
+            "widget": {
+              "id": "$$ID-9a6c63ce6e3bef7bfd3af258b88f303b-apply_note",
+              "label": "Apply note",
+              "formId": "apply_form",
+              "isFormSubmitter": true,
+              "type": "secondary"
+            },
+            "id": "$$ID-9a6c63ce6e3bef7bfd3af258b88f303b-apply_note",
+            "label": "Apply note",
+            "accepted_types": [
+              "secondary"
+            ],
+            "form_id": "apply_form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.836894,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text",
+            "body": "Script runs: 3"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.836935,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text",
+            "body": "Pulses: 0"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.881858,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "script_finished",
+          "script_finished": {
+            "status": 2,
+            "status_name": "FINISHED_EARLY_FOR_RERUN"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.882131,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": false,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.884958,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "new_session",
+          "new_session": {
+            "script_run_id": "2e156140-b057-484e-a3e3-7587b69e98ba",
+            "name": "app",
+            "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\app.py",
+            "page_script_hash": "269f73cf39198cb8a4f8caacec17751b",
+            "main_script_hash": "269f73cf39198cb8a4f8caacec17751b",
+            "session_id": "4cb12e42-4c77-47c9-ae4c-a545aa1a408b"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.885195,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": true,
+            "run_on_save": false
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.885235,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "page_config_changed"
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.885372,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "streamlit-rust P0 reference"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.885432,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "markdown",
+            "body": "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part o"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.88549,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "file_uploader",
+            "element_full": {
+              "fileUploader": {
+                "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+                "label": "Upload sales CSV",
+                "type": [
+                  ".csv"
+                ],
+                "maxUploadSizeMb": 200,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+              "label": "Upload sales CSV",
+              "type": [
+                ".csv"
+              ],
+              "maxUploadSizeMb": 200,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+            "label": "Upload sales CSV",
+            "accepted_types": [
+              "['.csv']"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.885534,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "selectbox",
+            "element_full": {
+              "selectbox": {
+                "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+                "label": "Group by",
+                "default": 0,
+                "options": [
+                  "category",
+                  "region",
+                  "channel"
+                ],
+                "labelVisibility": {},
+                "acceptNewOptions": false
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+              "label": "Group by",
+              "default": 0,
+              "options": [
+                "category",
+                "region",
+                "channel"
+              ],
+              "labelVisibility": {},
+              "acceptNewOptions": false
+            },
+            "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+            "label": "Group by",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.885569,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "slider",
+            "element_full": {
+              "slider": {
+                "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+                "label": "Minimum amount",
+                "format": "%d",
+                "default": [
+                  0.0
+                ],
+                "max": 200.0,
+                "step": 10.0,
+                "labelVisibility": {},
+                "type": "SLIDER"
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+              "label": "Minimum amount",
+              "format": "%d",
+              "default": [
+                0.0
+              ],
+              "max": 200.0,
+              "step": 10.0,
+              "labelVisibility": {},
+              "type": "SLIDER"
+            },
+            "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+            "label": "Minimum amount",
+            "accepted_types": [
+              "1"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.885625,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "checkbox",
+            "element_full": {
+              "checkbox": {
+                "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+                "label": "Include unknown region",
+                "default": true,
+                "labelVisibility": {}
+              },
+              "widthConfig": {
+                "useContent": true
+              }
+            },
+            "widget": {
+              "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+              "label": "Include unknown region",
+              "default": true,
+              "labelVisibility": {}
+            },
+            "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+            "label": "Include unknown region",
+            "accepted_types": [
+              "0"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.885657,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Aggregated result"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.888709,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "dataframe",
+            "element_full": {
+              "dataframe": {
+                "arrowData": {
+                  "data": "/////4gEAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAGQDAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAA8AwAABAAAAC0DAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDQsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAiZ3JvdXBfa2V5IiwgImZpZWxkX25hbWUiOiAiZ3JvdXBfa2V5IiwgInBhbmRhc190eXBlIjogIm9iamVjdCIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAicm93X2NvdW50IiwgImZpZWxkX25hbWUiOiAicm93X2NvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogInRvdGFsX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogInRvdGFsX2Ftb3VudCIsICJwYW5kYXNfdHlwZSI6ICJmbG9hdDY0IiwgIm51bXB5X3R5cGUiOiAiZmxvYXQ2NCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAiYXZnX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogImF2Z19hbW91bnQiLCAicGFuZGFzX3R5cGUiOiAiZmxvYXQ2NCIsICJudW1weV90eXBlIjogImZsb2F0NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAAEAAAAxAAAAHQAAAA4AAAABAAAAFz///8AAAEDEAAAABwAAAAEAAAAAAAAAAoAAABhdmdfYW1vdW50AADO////AAACAIz///8AAAEDEAAAACQAAAAEAAAAAAAAAAwAAAB0b3RhbF9hbW91bnQAAAYACAAGAAYAAAAAAAIAxP///wAAAQIQAAAAJAAAAAQAAAAAAAAACQAAAHJvd19jb3VudAAAAAgADAAIAAcACAAAAAAAAAFAAAAAEAAUAAgABgAHAAwAAAAQABAAAAAAAAEUEAAAACAAAAAEAAAAAAAAAAkAAABncm91cF9rZXkAAAAEAAQABAAAAP////8oAQAAFAAAAAAAAAAMABYABgAFAAgADAAMAAAAAAMEABgAAACgAAAAAAAAAAAACgAYAAwABAAIAAoAAACsAAAAEAAAAAQAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoAAAAAAAAACgAAAAAAAAAEwAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAgAAAAAAAAAGAAAAAAAAAAAAAAAAAAAABgAAAAAAAAACAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAIAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAACgAAAAAAAAAPAAAAAAAAABMAAAAAAAAAQm9va3NHYW1lc011c2ljVG95cwAAAAAAAwAAAAAAAAADAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAALhuQEjhehSul3lAAAAAAABgYUCPwvUoXB9aQHsUrkfhelRASOF6FK4PYUAK16NwPSpHQArXo3A9akFA/////wAAAAA="
+                },
+                "columns": "{\"_index\": {\"hidden\": true}}",
+                "columnOrder": [
+                  "group_key",
+                  "row_count",
+                  "total_amount",
+                  "avg_amount"
+                ]
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "arrow": {
+              "bytes": 1640,
+              "sha256": "2ef28720376df68c13fe7cd9a63bac0e8c56e74716fc19ed6bd17df21b89a5c2",
+              "base64": "/////4gEAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAGQDAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAA8AwAABAAAAC0DAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDQsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAiZ3JvdXBfa2V5IiwgImZpZWxkX25hbWUiOiAiZ3JvdXBfa2V5IiwgInBhbmRhc190eXBlIjogIm9iamVjdCIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAicm93X2NvdW50IiwgImZpZWxkX25hbWUiOiAicm93X2NvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogInRvdGFsX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogInRvdGFsX2Ftb3VudCIsICJwYW5kYXNfdHlwZSI6ICJmbG9hdDY0IiwgIm51bXB5X3R5cGUiOiAiZmxvYXQ2NCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAiYXZnX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogImF2Z19hbW91bnQiLCAicGFuZGFzX3R5cGUiOiAiZmxvYXQ2NCIsICJudW1weV90eXBlIjogImZsb2F0NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAAEAAAAxAAAAHQAAAA4AAAABAAAAFz///8AAAEDEAAAABwAAAAEAAAAAAAAAAoAAABhdmdfYW1vdW50AADO////AAACAIz///8AAAEDEAAAACQAAAAEAAAAAAAAAAwAAAB0b3RhbF9hbW91bnQAAAYACAAGAAYAAAAAAAIAxP///wAAAQIQAAAAJAAAAAQAAAAAAAAACQAAAHJvd19jb3VudAAAAAgADAAIAAcACAAAAAAAAAFAAAAAEAAUAAgABgAHAAwAAAAQABAAAAAAAAEUEAAAACAAAAAEAAAAAAAAAAkAAABncm91cF9rZXkAAAAEAAQABAAAAP////8oAQAAFAAAAAAAAAAMABYABgAFAAgADAAMAAAAAAMEABgAAACgAAAAAAAAAAAACgAYAAwABAAIAAoAAACsAAAAEAAAAAQAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoAAAAAAAAACgAAAAAAAAAEwAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAgAAAAAAAAAGAAAAAAAAAAAAAAAAAAAABgAAAAAAAAACAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAIAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAACgAAAAAAAAAPAAAAAAAAABMAAAAAAAAAQm9va3NHYW1lc011c2ljVG95cwAAAAAAAwAAAAAAAAADAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAALhuQEjhehSul3lAAAAAAABgYUCPwvUoXB9aQHsUrkfhelRASOF6FK4PYUAK16NwPSpHQArXo3A9akFA/////wAAAAA=",
+              "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 749",
+              "columns": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_count": 4,
+              "rows": [
+                {
+                  "group_key": "Books",
+                  "row_count": 3,
+                  "total_amount": 245.75,
+                  "avg_amount": 81.92
+                },
+                {
+                  "group_key": "Games",
+                  "row_count": 3,
+                  "total_amount": 409.48,
+                  "avg_amount": 136.49
+                },
+                {
+                  "group_key": "Music",
+                  "row_count": 3,
+                  "total_amount": 139.0,
+                  "avg_amount": 46.33
+                },
+                {
+                  "group_key": "Toys",
+                  "row_count": 3,
+                  "total_amount": 104.49,
+                  "avg_amount": 34.83
+                }
+              ]
+            },
+            "arrow_fields": {
+              "columns": "{\"_index\": {\"hidden\": true}}",
+              "editing_mode": 0,
+              "disabled": false,
+              "column_order": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_height": 0
+            },
+            "id": "",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.889187,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "vega_lite_chart",
+            "element_full": {
+              "vegaLiteChart": {
+                "spec": "{\"data\": {\"name\": \"b4d4aa9b7813d6dd9f53c4d3b6f730df\"}, \"mark\": {\"type\": \"bar\"}, \"encoding\": {\"tooltip\": [{\"field\": \"group_key\", \"title\": \"group\", \"type\": \"nominal\"}, {\"field\": \"row_count\", \"title\": \"rows\", \"type\": \"quantitative\"}, {\"field\": \"total_amount\", \"title\": \"total\", \"type\": \"quantitative\"}, {\"field\": \"avg_amount\", \"title\": \"avg\", \"type\": \"quantitative\"}], \"x\": {\"field\": \"group_key\", \"sort\": [\"Books\", \"Games\", \"Music\", \"Toys\"], \"type\": \"nominal\"}, \"y\": {\"field\": \"total_amount\", \"type\": \"quantitative\"}}, \"height\": 260, \"$schema\": \"https://vega.github.io/schema/vega-lite/v5.20.1.json\", \"autosize\": {\"type\": \"fit\", \"contains\": \"padding\"}}",
+                "datasets": [
+                  {
+                    "name": "b4d4aa9b7813d6dd9f53c4d3b6f730df",
+                    "data": {
+                      "data": "/////4gEAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAGQDAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAA8AwAABAAAAC0DAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDQsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAiZ3JvdXBfa2V5IiwgImZpZWxkX25hbWUiOiAiZ3JvdXBfa2V5IiwgInBhbmRhc190eXBlIjogIm9iamVjdCIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAicm93X2NvdW50IiwgImZpZWxkX25hbWUiOiAicm93X2NvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogInRvdGFsX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogInRvdGFsX2Ftb3VudCIsICJwYW5kYXNfdHlwZSI6ICJmbG9hdDY0IiwgIm51bXB5X3R5cGUiOiAiZmxvYXQ2NCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAiYXZnX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogImF2Z19hbW91bnQiLCAicGFuZGFzX3R5cGUiOiAiZmxvYXQ2NCIsICJudW1weV90eXBlIjogImZsb2F0NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAAEAAAAxAAAAHQAAAA4AAAABAAAAFz///8AAAEDEAAAABwAAAAEAAAAAAAAAAoAAABhdmdfYW1vdW50AADO////AAACAIz///8AAAEDEAAAACQAAAAEAAAAAAAAAAwAAAB0b3RhbF9hbW91bnQAAAYACAAGAAYAAAAAAAIAxP///wAAAQIQAAAAJAAAAAQAAAAAAAAACQAAAHJvd19jb3VudAAAAAgADAAIAAcACAAAAAAAAAFAAAAAEAAUAAgABgAHAAwAAAAQABAAAAAAAAEUEAAAACAAAAAEAAAAAAAAAAkAAABncm91cF9rZXkAAAAEAAQABAAAAP////8oAQAAFAAAAAAAAAAMABYABgAFAAgADAAMAAAAAAMEABgAAACgAAAAAAAAAAAACgAYAAwABAAIAAoAAACsAAAAEAAAAAQAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoAAAAAAAAACgAAAAAAAAAEwAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAgAAAAAAAAAGAAAAAAAAAAAAAAAAAAAABgAAAAAAAAACAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAIAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAACgAAAAAAAAAPAAAAAAAAABMAAAAAAAAAQm9va3NHYW1lc011c2ljVG95cwAAAAAAAwAAAAAAAAADAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAALhuQEjhehSul3lAAAAAAABgYUCPwvUoXB9aQHsUrkfhelRASOF6FK4PYUAK16NwPSpHQArXo3A9akFA/////wAAAAA="
+                    },
+                    "hasName": true
+                  }
+                ],
+                "theme": "streamlit"
+              },
+              "heightConfig": {
+                "useContent": true
+              },
+              "widthConfig": {
+                "useStretch": true
+              }
+            },
+            "vega_lite_spec_raw": "{\"data\": {\"name\": \"b4d4aa9b7813d6dd9f53c4d3b6f730df\"}, \"mark\": {\"type\": \"bar\"}, \"encoding\": {\"tooltip\": [{\"field\": \"group_key\", \"title\": \"group\", \"type\": \"nominal\"}, {\"field\": \"row_count\", \"title\": \"rows\", \"type\": \"quantitative\"}, {\"field\": \"total_amount\", \"title\": \"total\", \"type\": \"quantitative\"}, {\"field\": \"avg_amount\", \"title\": \"avg\", \"type\": \"quantitative\"}], \"x\": {\"field\": \"group_key\", \"sort\": [\"Books\", \"Games\", \"Music\", \"Toys\"], \"type\": \"nominal\"}, \"y\": {\"field\": \"total_amount\", \"type\": \"quantitative\"}}, \"height\": 260, \"$schema\": \"https://vega.github.io/schema/vega-lite/v5.20.1.json\", \"autosize\": {\"type\": \"fit\", \"contains\": \"padding\"}}",
+            "vega_lite_spec": {
+              "data": {
+                "name": "b4d4aa9b7813d6dd9f53c4d3b6f730df"
+              },
+              "mark": {
+                "type": "bar"
+              },
+              "encoding": {
+                "tooltip": [
+                  {
+                    "field": "group_key",
+                    "title": "group",
+                    "type": "nominal"
+                  },
+                  {
+                    "field": "row_count",
+                    "title": "rows",
+                    "type": "quantitative"
+                  },
+                  {
+                    "field": "total_amount",
+                    "title": "total",
+                    "type": "quantitative"
+                  },
+                  {
+                    "field": "avg_amount",
+                    "title": "avg",
+                    "type": "quantitative"
+                  }
+                ],
+                "x": {
+                  "field": "group_key",
+                  "sort": [
+                    "Books",
+                    "Games",
+                    "Music",
+                    "Toys"
+                  ],
+                  "type": "nominal"
+                },
+                "y": {
+                  "field": "total_amount",
+                  "type": "quantitative"
+                }
+              },
+              "height": 260,
+              "$schema": "https://vega.github.io/schema/vega-lite/v5.20.1.json",
+              "autosize": {
+                "type": "fit",
+                "contains": "padding"
+              }
+            },
+            "vega_lite_datasets": [
+              {
+                "name": "b4d4aa9b7813d6dd9f53c4d3b6f730df",
+                "has_name": true,
+                "arrow": {
+                  "bytes": 1640,
+                  "sha256": "2ef28720376df68c13fe7cd9a63bac0e8c56e74716fc19ed6bd17df21b89a5c2",
+                  "base64": "/////4gEAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAGQDAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAA8AwAABAAAAC0DAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDQsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAiZ3JvdXBfa2V5IiwgImZpZWxkX25hbWUiOiAiZ3JvdXBfa2V5IiwgInBhbmRhc190eXBlIjogIm9iamVjdCIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAicm93X2NvdW50IiwgImZpZWxkX25hbWUiOiAicm93X2NvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogInRvdGFsX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogInRvdGFsX2Ftb3VudCIsICJwYW5kYXNfdHlwZSI6ICJmbG9hdDY0IiwgIm51bXB5X3R5cGUiOiAiZmxvYXQ2NCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAiYXZnX2Ftb3VudCIsICJmaWVsZF9uYW1lIjogImF2Z19hbW91bnQiLCAicGFuZGFzX3R5cGUiOiAiZmxvYXQ2NCIsICJudW1weV90eXBlIjogImZsb2F0NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAAEAAAAxAAAAHQAAAA4AAAABAAAAFz///8AAAEDEAAAABwAAAAEAAAAAAAAAAoAAABhdmdfYW1vdW50AADO////AAACAIz///8AAAEDEAAAACQAAAAEAAAAAAAAAAwAAAB0b3RhbF9hbW91bnQAAAYACAAGAAYAAAAAAAIAxP///wAAAQIQAAAAJAAAAAQAAAAAAAAACQAAAHJvd19jb3VudAAAAAgADAAIAAcACAAAAAAAAAFAAAAAEAAUAAgABgAHAAwAAAAQABAAAAAAAAEUEAAAACAAAAAEAAAAAAAAAAkAAABncm91cF9rZXkAAAAEAAQABAAAAP////8oAQAAFAAAAAAAAAAMABYABgAFAAgADAAMAAAAAAMEABgAAACgAAAAAAAAAAAACgAYAAwABAAIAAoAAACsAAAAEAAAAAQAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoAAAAAAAAACgAAAAAAAAAEwAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAgAAAAAAAAAGAAAAAAAAAAAAAAAAAAAABgAAAAAAAAACAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAIAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAACgAAAAAAAAAPAAAAAAAAABMAAAAAAAAAQm9va3NHYW1lc011c2ljVG95cwAAAAAAAwAAAAAAAAADAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAALhuQEjhehSul3lAAAAAAABgYUCPwvUoXB9aQHsUrkfhelRASOF6FK4PYUAK16NwPSpHQArXo3A9akFA/////wAAAAA=",
+                  "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 749",
+                  "columns": [
+                    "group_key",
+                    "row_count",
+                    "total_amount",
+                    "avg_amount"
+                  ],
+                  "row_count": 4,
+                  "rows": [
+                    {
+                      "group_key": "Books",
+                      "row_count": 3,
+                      "total_amount": 245.75,
+                      "avg_amount": 81.92
+                    },
+                    {
+                      "group_key": "Games",
+                      "row_count": 3,
+                      "total_amount": 409.48,
+                      "avg_amount": 136.49
+                    },
+                    {
+                      "group_key": "Music",
+                      "row_count": 3,
+                      "total_amount": 139.0,
+                      "avg_amount": 46.33
+                    },
+                    {
+                      "group_key": "Toys",
+                      "row_count": 3,
+                      "total_amount": 104.49,
+                      "avg_amount": 34.83
+                    }
+                  ]
+                }
+              }
+            ],
+            "vega_lite_fields": {
+              "use_container_width": false,
+              "theme": "streamlit",
+              "id": "",
+              "form_id": ""
+            },
+            "id": "",
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.889423,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "heading",
+            "body": "Interaction"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.889458,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "button",
+            "widget": {
+              "id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+              "label": "Pulse",
+              "type": "secondary"
+            },
+            "id": "$$ID-8193019e5fbcc10365282b9d6e6aa562-pulse",
+            "label": "Pulse",
+            "accepted_types": [
+              "secondary"
+            ],
+            "form_id": ""
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.889489,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "add_block",
+            "block_id": "",
+            "block_type": "form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.889529,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text_input",
+            "widget": {
+              "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+              "label": "Note",
+              "default": "",
+              "formId": "apply_form",
+              "labelVisibility": {}
+            },
+            "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+            "label": "Note",
+            "accepted_types": [
+              "0"
+            ],
+            "form_id": "apply_form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.889556,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "button",
+            "widget": {
+              "id": "$$ID-9a6c63ce6e3bef7bfd3af258b88f303b-apply_note",
+              "label": "Apply note",
+              "formId": "apply_form",
+              "isFormSubmitter": true,
+              "type": "secondary"
+            },
+            "id": "$$ID-9a6c63ce6e3bef7bfd3af258b88f303b-apply_note",
+            "label": "Apply note",
+            "accepted_types": [
+              "secondary"
+            ],
+            "form_id": "apply_form"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.889578,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text",
+            "body": "Script runs: 4"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.889605,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text",
+            "body": "Pulses: 0"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.889624,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "delta",
+          "delta": {
+            "type": "new_element",
+            "element": "text",
+            "body": "Applied note:"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.889642,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "script_finished",
+          "script_finished": {
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          }
+        }
+      },
+      {
+        "direction": "server->client",
+        "connection": 0,
+        "request_id": "95604.151",
+        "timestamp": 26220.889678,
+        "namespace": "py-ref-utf8-20261024T182810",
+        "decoded": {
+          "message": "ForwardMsg",
+          "type": "session_status_changed",
+          "session_status_changed": {
+            "script_is_running": false,
+            "run_on_save": false
+          }
+        }
+      }
+    ],
+    "phases": [
+      {
+        "name": "upload-utf8",
+        "action": {
+          "action": "upload",
+          "ok": true,
+          "file": "D:\\dlab\\streamlit-rust\\tests\\fixtures\\csv\\sales_latin1.csv",
+          "file_sha256": "f73e63eb66c2dccd9285b573094b59c59e5dacd3ece0ef26d48ca3728371d541",
+          "file_bytes": 735
+        },
+        "start": 22,
+        "end": 46,
+        "start_timestamp": 26211.534287,
+        "end_timestamp": 26211.641751,
+        "dom_before": {
+          "document_title": "streamlit-rust P0 reference",
+          "markdown": [
+            "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part of the production path."
+          ],
+          "has_uploader": true,
+          "headings": [
+            "streamlit-rust P0 reference",
+            "Aggregated result",
+            "Interaction"
+          ],
+          "button_labels": [
+            "Pulse"
+          ],
+          "has_button": true,
+          "script_runs": "1",
+          "pulses": "0",
+          "applied_note": "",
+          "table_cells": [],
+          "table_present": false,
+          "chart_present": false,
+          "chart_bars": 0,
+          "chart_labels": [],
+          "chart_marks": "",
+          "slider_value": "0",
+          "checkbox_checked": true,
+          "selectbox_value": "category",
+          "texts": [
+            "Script runs: 1",
+            "Pulses: 0",
+            "Applied note:"
+          ],
+          "alerts": [
+            "Upload a CSV to see the aggregated result."
+          ],
+          "selectbox_disabled": false,
+          "slider_thumb": "0",
+          "slider_disabled": false,
+          "checkbox_disabled": false,
+          "exceptions": []
+        },
+        "dom_after": {
+          "document_title": "streamlit-rust P0 reference",
+          "markdown": [
+            "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part of the production path."
+          ],
+          "has_uploader": true,
+          "headings": [
+            "streamlit-rust P0 reference",
+            "Aggregated result",
+            "Interaction"
+          ],
+          "button_labels": [
+            "Pulse"
+          ],
+          "has_button": true,
+          "script_runs": "2",
+          "pulses": "0",
+          "applied_note": "",
+          "table_cells": [],
+          "table_present": false,
+          "chart_present": false,
+          "chart_bars": 0,
+          "chart_labels": [],
+          "chart_marks": "",
+          "slider_value": "0",
+          "checkbox_checked": true,
+          "selectbox_value": "category",
+          "texts": [
+            "Script runs: 2",
+            "Pulses: 0",
+            "Applied note:"
+          ],
+          "alerts": [
+            "Could not parse the uploaded CSV: the uploaded file is not valid UTF-8: 'utf-8' codec can't decode byte 0xe9 in position 101: invalid continuation byte",
+            "Upload a valid CSV to continue."
+          ],
+          "selectbox_disabled": false,
+          "slider_thumb": "0",
+          "slider_disabled": false,
+          "checkbox_disabled": false,
+          "exceptions": []
+        },
+        "client_states": [
+          {
+            "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+            "value_field": "file_uploader_state_value",
+            "value": {
+              "uploaded_file_info": "[name: \"sales_latin1.csv\"\nsize: 735\nfile_id: \"ba649ebc-364c-4415-81de-c1e4bdedd074\"\nfile_urls {\n  file_id: \"ba649ebc-364c-4415-81de-c1e4bdedd074\"\n  upload_url: \"/_stcore/upload_file/4cb12e42-4c77-47c9-ae4c-a545aa1a408b/ba649ebc-364c-4415-81de-c1e4bdedd074\"\n  delete_url: \"/_stcore/upload_file/4cb12e42-4c77-47c9-ae4c-a545aa1a408b/ba649ebc-364c-4415-81de-c1e4bdedd074\"\n}\n]"
+            }
+          },
+          {
+            "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+            "value_field": "string_value",
+            "value": "category"
+          },
+          {
+            "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+            "value_field": "double_array_value",
+            "value": {
+              "data": "[0.0]"
+            }
+          },
+          {
+            "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+            "value_field": "bool_value",
+            "value": true
+          },
+          {
+            "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+            "value_field": "string_value",
+            "value": ""
+          }
+        ],
+        "completions": [
+          {
+            "frame": 23,
+            "connection": 0,
+            "request_id": "95604.151",
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          }
+        ],
+        "ipc": {
+          "table": null,
+          "chart": null
+        },
+        "screenshot": {
+          "file": "01-not-utf8-error.png",
+          "bytes": 66379,
+          "viewport": [
+            1264,
+            1800
+          ],
+          "timestamp": 26211.68357780966
+        },
+        "observation_end_timestamp": 26211.68357780966
+      },
+      {
+        "name": "replace-baseline",
+        "action": {
+          "action": "upload",
+          "ok": true,
+          "file": "D:\\dlab\\streamlit-rust\\tests\\fixtures\\csv\\sales_basic.csv",
+          "file_sha256": "9692a718edc5bec8f3fee1cfec4f454338c8f8d675cd34c17cdb5bf4403d8d00",
+          "file_bytes": 737
+        },
+        "start": 47,
+        "end": 92,
+        "start_timestamp": 26220.761506,
+        "end_timestamp": 26220.889642,
+        "dom_before": {
+          "document_title": "streamlit-rust P0 reference",
+          "markdown": [
+            "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part of the production path."
+          ],
+          "has_uploader": true,
+          "headings": [
+            "streamlit-rust P0 reference",
+            "Aggregated result",
+            "Interaction"
+          ],
+          "button_labels": [
+            "Pulse"
+          ],
+          "has_button": true,
+          "script_runs": "2",
+          "pulses": "0",
+          "applied_note": "",
+          "table_cells": [],
+          "table_present": false,
+          "chart_present": false,
+          "chart_bars": 0,
+          "chart_labels": [],
+          "chart_marks": "",
+          "slider_value": "0",
+          "checkbox_checked": true,
+          "selectbox_value": "category",
+          "texts": [
+            "Script runs: 2",
+            "Pulses: 0",
+            "Applied note:"
+          ],
+          "alerts": [
+            "Could not parse the uploaded CSV: the uploaded file is not valid UTF-8: 'utf-8' codec can't decode byte 0xe9 in position 101: invalid continuation byte",
+            "Upload a valid CSV to continue."
+          ],
+          "selectbox_disabled": false,
+          "slider_thumb": "0",
+          "slider_disabled": false,
+          "checkbox_disabled": false,
+          "exceptions": []
+        },
+        "dom_after": {
+          "document_title": "streamlit-rust P0 reference",
+          "markdown": [
+            "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part of the production path."
+          ],
+          "has_uploader": true,
+          "headings": [
+            "streamlit-rust P0 reference",
+            "Aggregated result",
+            "Interaction"
+          ],
+          "button_labels": [
+            "Pulse"
+          ],
+          "has_button": true,
+          "script_runs": "4",
+          "pulses": "0",
+          "applied_note": "",
+          "table_cells": [
+            "Books",
+            "3",
+            "245.75",
+            "81.92",
+            "Games",
+            "3",
+            "409.48",
+            "136.49",
+            "Music",
+            "3",
+            "139",
+            "46.33",
+            "Toys",
+            "3",
+            "104.49",
+            "34.83"
+          ],
+          "table_present": true,
+          "chart_present": true,
+          "chart_bars": 4,
+          "chart_labels": [
+            "Books",
+            "Games",
+            "Music",
+            "Toys",
+            "group_key",
+            "0",
+            "100",
+            "200",
+            "300",
+            "400",
+            "total_amount"
+          ],
+          "chart_marks": "M30.25625,72.16833333333334h196.98749999999998v86.83166666666666h-196.98749999999998Z|M287.75625,14.317066666666655h196.98749999999998v144.68293333333335h-196.98749999999998Z|M545.25625,109.88666666666667h196.98749999999998v49.11333333333333h-196.98749999999998Z|M802.75625,122.0802h196.98749999999998v36.919799999999995h-196.98749999999998Z",
+          "slider_value": "0",
+          "checkbox_checked": true,
+          "selectbox_value": "category",
+          "texts": [
+            "Script runs: 4",
+            "Pulses: 0",
+            "Applied note:"
+          ],
+          "alerts": [],
+          "selectbox_disabled": false,
+          "slider_thumb": "0",
+          "slider_disabled": false,
+          "checkbox_disabled": false,
+          "exceptions": []
+        },
+        "client_states": [
+          {
+            "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+            "value_field": "file_uploader_state_value",
+            "value": {}
+          },
+          {
+            "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+            "value_field": "string_value",
+            "value": "category"
+          },
+          {
+            "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+            "value_field": "double_array_value",
+            "value": {
+              "data": "[0.0]"
+            }
+          },
+          {
+            "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+            "value_field": "bool_value",
+            "value": true
+          },
+          {
+            "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+            "value_field": "string_value",
+            "value": ""
+          },
+          {
+            "id": "$$ID-19480263d3eb5977e56726a4936e1a89-upload",
+            "value_field": "file_uploader_state_value",
+            "value": {
+              "uploaded_file_info": "[name: \"sales_basic.csv\"\nsize: 737\nfile_id: \"9f146d5c-dc7f-45c3-a4ff-fc6a8fb4d138\"\nfile_urls {\n  file_id: \"9f146d5c-dc7f-45c3-a4ff-fc6a8fb4d138\"\n  upload_url: \"/_stcore/upload_file/4cb12e42-4c77-47c9-ae4c-a545aa1a408b/9f146d5c-dc7f-45c3-a4ff-fc6a8fb4d138\"\n  delete_url: \"/_stcore/upload_file/4cb12e42-4c77-47c9-ae4c-a545aa1a408b/9f146d5c-dc7f-45c3-a4ff-fc6a8fb4d138\"\n}\n]"
+            }
+          },
+          {
+            "id": "$$ID-658f4769c529ad28cd4644f337c283fb-group_by",
+            "value_field": "string_value",
+            "value": "category"
+          },
+          {
+            "id": "$$ID-7a0fe10d66a22d5c62ea254e9780596e-min_amount",
+            "value_field": "double_array_value",
+            "value": {
+              "data": "[0.0]"
+            }
+          },
+          {
+            "id": "$$ID-284424257000b3d3786246abc4eac4dd-include_unknown",
+            "value_field": "bool_value",
+            "value": true
+          },
+          {
+            "id": "$$ID-9d8e895758f498f0d1f70fb194e09d6d-note",
+            "value_field": "string_value",
+            "value": ""
+          }
+        ],
+        "completions": [
+          {
+            "frame": 22,
+            "connection": 0,
+            "request_id": "95604.151",
+            "status": 2,
+            "status_name": "FINISHED_EARLY_FOR_RERUN"
+          },
+          {
+            "frame": 44,
+            "connection": 0,
+            "request_id": "95604.151",
+            "status": 0,
+            "status_name": "FINISHED_SUCCESSFULLY"
+          }
+        ],
+        "ipc": {
+          "table": {
+            "arrow": {
+              "sha256": "2ef28720376df68c13fe7cd9a63bac0e8c56e74716fc19ed6bd17df21b89a5c2",
+              "bytes": 1640,
+              "file": "arrow-1.bin",
+              "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 749",
+              "columns": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_count": 4,
+              "rows": [
+                {
+                  "group_key": "Books",
+                  "row_count": 3,
+                  "total_amount": 245.75,
+                  "avg_amount": 81.92
+                },
+                {
+                  "group_key": "Games",
+                  "row_count": 3,
+                  "total_amount": 409.48,
+                  "avg_amount": 136.49
+                },
+                {
+                  "group_key": "Music",
+                  "row_count": 3,
+                  "total_amount": 139.0,
+                  "avg_amount": 46.33
+                },
+                {
+                  "group_key": "Toys",
+                  "row_count": 3,
+                  "total_amount": 104.49,
+                  "avg_amount": 34.83
+                }
+              ]
+            },
+            "arrow_fields": {
+              "columns": "{\"_index\": {\"hidden\": true}}",
+              "editing_mode": 0,
+              "disabled": false,
+              "column_order": [
+                "group_key",
+                "row_count",
+                "total_amount",
+                "avg_amount"
+              ],
+              "row_height": 0
+            }
+          },
+          "chart": {
+            "vega_lite_spec": {
+              "data": {
+                "name": "b4d4aa9b7813d6dd9f53c4d3b6f730df"
+              },
+              "mark": {
+                "type": "bar"
+              },
+              "encoding": {
+                "tooltip": [
+                  {
+                    "field": "group_key",
+                    "title": "group",
+                    "type": "nominal"
+                  },
+                  {
+                    "field": "row_count",
+                    "title": "rows",
+                    "type": "quantitative"
+                  },
+                  {
+                    "field": "total_amount",
+                    "title": "total",
+                    "type": "quantitative"
+                  },
+                  {
+                    "field": "avg_amount",
+                    "title": "avg",
+                    "type": "quantitative"
+                  }
+                ],
+                "x": {
+                  "field": "group_key",
+                  "sort": [
+                    "Books",
+                    "Games",
+                    "Music",
+                    "Toys"
+                  ],
+                  "type": "nominal"
+                },
+                "y": {
+                  "field": "total_amount",
+                  "type": "quantitative"
+                }
+              },
+              "height": 260,
+              "$schema": "https://vega.github.io/schema/vega-lite/v5.20.1.json",
+              "autosize": {
+                "type": "fit",
+                "contains": "padding"
+              }
+            },
+            "arrow": null,
+            "datasets": [
+              {
+                "name": "b4d4aa9b7813d6dd9f53c4d3b6f730df",
+                "has_name": true,
+                "arrow": {
+                  "sha256": "2ef28720376df68c13fe7cd9a63bac0e8c56e74716fc19ed6bd17df21b89a5c2",
+                  "bytes": 1640,
+                  "file": "arrow-1.bin",
+                  "schema": "group_key: large_string\nrow_count: int64\ntotal_amount: double\navg_amount: double\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 749",
+                  "columns": [
+                    "group_key",
+                    "row_count",
+                    "total_amount",
+                    "avg_amount"
+                  ],
+                  "row_count": 4,
+                  "rows": [
+                    {
+                      "group_key": "Books",
+                      "row_count": 3,
+                      "total_amount": 245.75,
+                      "avg_amount": 81.92
+                    },
+                    {
+                      "group_key": "Games",
+                      "row_count": 3,
+                      "total_amount": 409.48,
+                      "avg_amount": 136.49
+                    },
+                    {
+                      "group_key": "Music",
+                      "row_count": 3,
+                      "total_amount": 139.0,
+                      "avg_amount": 46.33
+                    },
+                    {
+                      "group_key": "Toys",
+                      "row_count": 3,
+                      "total_amount": 104.49,
+                      "avg_amount": 34.83
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        "screenshot": {
+          "file": "02-replaced.png",
+          "bytes": 71878,
+          "viewport": [
+            1264,
+            1800
+          ],
+          "timestamp": 26220.931348560836
+        },
+        "observation_end_timestamp": 26220.931348560836
+      }
+    ],
+    "states": [],
+    "http_timeline": [
+      {
+        "method": "GET",
+        "url": "http://127.0.0.1:8601/",
+        "request_id": "5B1DC2A42D2BC1AAA6688C0BCBC8E51A",
+        "timestamp": 26208.410222,
+        "status": 200,
+        "response_timestamp": 26208.419193,
+        "request_headers": {}
+      },
+      {
+        "method": "GET",
+        "url": "http://127.0.0.1:8601/_stcore/health",
+        "request_id": "95604.149",
+        "timestamp": 26208.507674,
+        "status": 200,
+        "response_timestamp": 26208.514473,
+        "request_headers": {}
+      },
+      {
+        "method": "GET",
+        "url": "http://127.0.0.1:8601/_stcore/host-config",
+        "request_id": "95604.150",
+        "timestamp": 26208.507842,
+        "status": 200,
+        "response_timestamp": 26208.514682,
+        "request_headers": {}
+      },
+      {
+        "method": "PUT",
+        "url": "http://127.0.0.1:8601/_stcore/upload_file/4cb12e42-4c77-47c9-ae4c-a545aa1a408b/ba649ebc-364c-4415-81de-c1e4bdedd074",
+        "request_id": "95604.197",
+        "timestamp": 26211.550341,
+        "status": 204,
+        "response_timestamp": 26211.553702,
+        "request_headers": {
+          "Content-Type": "multipart/form-data; boundary=----WebKitFormBoundarymKUuPc4v1yZI5lod"
+        }
+      },
+      {
+        "method": "DELETE",
+        "url": "http://127.0.0.1:8601/_stcore/upload_file/4cb12e42-4c77-47c9-ae4c-a545aa1a408b/ba649ebc-364c-4415-81de-c1e4bdedd074",
+        "request_id": "95604.198",
+        "timestamp": 26220.767254,
+        "status": 204,
+        "response_timestamp": 26220.771156,
+        "request_headers": {
+          "Content-Type": "application/json"
+        }
+      },
+      {
+        "method": "PUT",
+        "url": "http://127.0.0.1:8601/_stcore/upload_file/4cb12e42-4c77-47c9-ae4c-a545aa1a408b/9f146d5c-dc7f-45c3-a4ff-fc6a8fb4d138",
+        "request_id": "95604.199",
+        "timestamp": 26220.767956,
+        "status": 204,
+        "response_timestamp": 26220.776492,
+        "request_headers": {
+          "Content-Type": "multipart/form-data; boundary=----WebKitFormBoundaryzGBROQV6iRoimwCP"
+        }
+      }
+    ],
+    "contract": "journey-stage2-v1",
+    "screenshots": [
+      {
+        "step_ids": [
+          "J07-S4"
+        ],
+        "phase": "upload-utf8",
+        "namespace": "py-ref-utf8-20261024T182810",
+        "file": "01-not-utf8-error.png",
+        "sha256": "c589fabed3e872ccc546490aa422b2e9e012c8a290b72217446cc3b1fe6778a8",
+        "timestamp": 26211.68357780966
+      },
+      {
+        "step_ids": [
+          "J07-S4"
+        ],
+        "phase": "replace-baseline",
+        "namespace": "py-ref-utf8-20261024T182810",
+        "file": "02-replaced.png",
+        "sha256": "8da7f8a5705dbe76bd3a2917b5a31a6951c2d6410f1251bd5c519c73214301a7",
+        "timestamp": 26220.931348560836
+      }
+    ],
+    "journey": "non-utf8"
+  },
+  "summary": {
+    "alerts": [],
+    "dom": {
+      "document_title": "streamlit-rust P0 reference",
+      "markdown": [
+        "Development-only reference app running against Streamlit 1.66.1. Aggregation contract v1.0.0. Not shipped and not part of the production path."
+      ],
+      "has_uploader": true,
+      "headings": [
+        "streamlit-rust P0 reference",
+        "Aggregated result",
+        "Interaction"
+      ],
+      "button_labels": [
+        "Pulse"
+      ],
+      "has_button": true,
+      "script_runs": "4",
+      "pulses": "0",
+      "applied_note": "",
+      "table_cells": [
+        "Books",
+        "3",
+        "245.75",
+        "81.92",
+        "Games",
+        "3",
+        "409.48",
+        "136.49",
+        "Music",
+        "3",
+        "139",
+        "46.33",
+        "Toys",
+        "3",
+        "104.49",
+        "34.83"
+      ],
+      "table_present": true,
+      "chart_present": true,
+      "chart_bars": 4,
+      "chart_labels": [
+        "Books",
+        "Games",
+        "Music",
+        "Toys",
+        "group_key",
+        "0",
+        "100",
+        "200",
+        "300",
+        "400",
+        "total_amount"
+      ],
+      "chart_marks": "M30.25625,72.16833333333334h196.98749999999998v86.83166666666666h-196.98749999999998Z|M287.75625,14.317066666666655h196.98749999999998v144.68293333333335h-196.98749999999998Z|M545.25625,109.88666666666667h196.98749999999998v49.11333333333333h-196.98749999999998Z|M802.75625,122.0802h196.98749999999998v36.919799999999995h-196.98749999999998Z",
+      "slider_value": "0",
+      "checkbox_checked": true,
+      "selectbox_value": "category",
+      "texts": [
+        "Script runs: 4",
+        "Pulses: 0",
+        "Applied note:"
+      ],
+      "alerts": [],
+      "selectbox_disabled": false,
+      "slider_thumb": "0",
+      "slider_disabled": false,
+      "checkbox_disabled": false,
+      "exceptions": []
+    }
+  },
+  "checks": [
+    {
+      "step": "non-utf8",
+      "check": "contract",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet",
+      "ok": false,
+      "journey": "non-utf8"
+    },
+    {
+      "step": "non-utf8",
+      "check": "inputs",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet",
+      "ok": false,
+      "journey": "non-utf8"
+    },
+    {
+      "step": "non-utf8",
+      "check": "phase_sequence",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet",
+      "ok": false,
+      "journey": "non-utf8"
+    },
+    {
+      "step": "non-utf8",
+      "check": "upload_binding",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet",
+      "ok": false,
+      "journey": "non-utf8"
+    },
+    {
+      "step": "non-utf8",
+      "check": "hard_utf8_error",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet",
+      "ok": false,
+      "journey": "non-utf8"
+    },
+    {
+      "step": "non-utf8",
+      "check": "no_bad_result",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet",
+      "ok": false,
+      "journey": "non-utf8"
+    },
+    {
+      "step": "non-utf8",
+      "check": "replacement_delete",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet",
+      "ok": false,
+      "journey": "non-utf8"
+    },
+    {
+      "step": "non-utf8",
+      "check": "recovery_run",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet",
+      "ok": false,
+      "journey": "non-utf8"
+    },
+    {
+      "step": "non-utf8",
+      "check": "recovery_values",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet",
+      "ok": false,
+      "journey": "non-utf8"
+    },
+    {
+      "step": "non-utf8",
+      "check": "no_stale_alert",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet",
+      "ok": false,
+      "journey": "non-utf8"
+    },
+    {
+      "step": "screenshots",
+      "check": "records",
+      "expected": "stage2 screenshot records for the fixed steps",
+      "actual": "[{\"step_ids\": [\"J07-S4\"], \"phase\": \"upload-utf8\", \"namespace\": \"py-ref-utf8-20261024T182810\", \"file\": \"01-not-utf8-error.png\", \"sha256\": \"c589fabed3e872ccc546490aa422b2e9e012c8a290b72217446cc3b1fe6778a8\", \"timestamp\": 26211.68357780966}, {\"step_ids\": [\"J07-S4\"], \"phase\": \"replace-baseline\", \"namespace\": \"py-ref-utf8-20261024T182810\", \"file\": \"02-replaced.png\", \"sha256\": \"8da7f8a5705dbe76bd3a2917b5a31a6951c2d6410f1251bd5c519c73214301a7\", \"timestamp\": 26220.931348560836}]",
+      "ok": true,
+      "journey": "screenshots/non-utf8"
+    },
+    {
+      "step": "J07-S4",
+      "check": "png_proof/main/0",
+      "expected": "original PNG/hash/source/completed phase time",
+      "actual": "01-not-utf8-error.png",
+      "ok": true,
+      "journey": "screenshots/non-utf8"
+    },
+    {
+      "step": "J07-S4",
+      "check": "png_proof/main/1",
+      "expected": "original PNG/hash/source/completed phase time",
+      "actual": "02-replaced.png",
+      "ok": true,
+      "journey": "screenshots/non-utf8"
+    }
+  ],
+  "counts": {
+    "expected": 13,
+    "executed": 13,
+    "asserted": 3
+  },
+  "failures": [
+    {
+      "step": "non-utf8",
+      "check": "contract",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet"
+    },
+    {
+      "step": "non-utf8",
+      "check": "inputs",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet"
+    },
+    {
+      "step": "non-utf8",
+      "check": "phase_sequence",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet"
+    },
+    {
+      "step": "non-utf8",
+      "check": "upload_binding",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet"
+    },
+    {
+      "step": "non-utf8",
+      "check": "hard_utf8_error",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet"
+    },
+    {
+      "step": "non-utf8",
+      "check": "no_bad_result",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet"
+    },
+    {
+      "step": "non-utf8",
+      "check": "replacement_delete",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet"
+    },
+    {
+      "step": "non-utf8",
+      "check": "recovery_run",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet"
+    },
+    {
+      "step": "non-utf8",
+      "check": "recovery_values",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet"
+    },
+    {
+      "step": "non-utf8",
+      "check": "no_stale_alert",
+      "expected": "complete measured stage2 proof",
+      "actual": "case evidence/constant not implemented or measured yet"
+    }
+  ]
+}

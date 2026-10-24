@@ -98,6 +98,7 @@ DESCRIPTIONS = {
     "sales_malformed.csv": "Ragged rows (short, long, extra column): hard structural parse failure.",
     "sales_unicode.csv": "3 rows with non-ASCII UTF-8 values in category/region/product.",
     "sales_utf8_bom.csv": "Byte-identical content to sales_unicode.csv but prefixed with a UTF-8 BOM.",
+    "sales_latin1.csv": "The baseline rows with one latin-1 byte (0xe9 in 'Cafe Guide'), so the file is not valid UTF-8: hard parse failure.",
 }
 
 
@@ -107,8 +108,13 @@ def main() -> None:
     basic = _rows_to_csv(BASIC_ROWS)
     unicode_csv = _rows_to_csv(UNICODE_ROWS)
 
+    # The same rows as the baseline, but one byte is latin-1: the file is not
+    # valid UTF-8, so the app has to refuse it.
+    latin1_csv = basic.replace("Atlas Guide", "Caf\xe9 Guide")
+
     files: list[tuple[str, bytes, str]] = [
         ("sales_basic.csv", basic.encode("utf-8"), "utf-8"),
+        ("sales_latin1.csv", latin1_csv.encode("latin-1"), "latin-1"),
         ("sales_with_missing.csv", _with_invalid_amounts(BASIC_ROWS).encode("utf-8"), "utf-8"),
         ("sales_empty.csv", (HEADER + "\n").encode("utf-8"), "utf-8"),
         ("sales_malformed.csv", MALFORMED_CSV.encode("utf-8"), "utf-8"),
@@ -139,9 +145,9 @@ def main() -> None:
         "generator": "tests/fixtures/generate.py",
         "notes": (
             "Byte-stable fixtures: LF newlines, UTF-8 unless the encoding field says "
-            "utf-8-sig, no trailing whitespace. The sha256 field pins the content so a "
-            "Rust implementation can assert it loaded exactly the bytes the Python "
-            "reference oracle saw."
+            "utf-8-sig or latin-1, no trailing whitespace. The sha256 field pins the "
+            "content so a Rust implementation can assert it loaded exactly the bytes the "
+            "Python reference oracle saw."
         ),
         "fixtures": entries,
     }

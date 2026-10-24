@@ -18,9 +18,11 @@ from __future__ import annotations
 
 import argparse
 import base64
+import hashlib
 import json
 import pathlib
 import re
+import subprocess
 import sys
 import time
 import urllib.request
@@ -36,6 +38,13 @@ from capture_browser_trace import (  # noqa: E402
     empty_checks,
     http_requests_from_events,
     recover_checks,
+    canonical_stage2_case,
+    filter_empty_checks,
+    non_utf8_checks,
+    screenshot_checks,
+    soft_invalid_checks,
+    state_checks,
+    STAGE2_SCREENSHOTS,
     require_decoder,
     sessions_checks,
     journey_result,
@@ -45,6 +54,7 @@ from capture_browser_trace import (  # noqa: E402
     CDP,
     _decode_payload,
     _safe,
+    _stage2_target_upload_run,
     dom_value_for,
     summarise_back,
     summarise_forward,
@@ -53,7 +63,71 @@ from capture_browser_trace import (  # noqa: E402
     wire_value_of,
 )
 
+try:  # the contract of a whole journey, from the shared harness
+    from capture_browser_trace import (  # noqa: E402
+        SEQUENCE_CONTRACT,
+        SEQUENCE_INPUTS,
+        SEQUENCE_PNG_ROLES,
+        SEQUENCE_PHASES,
+        sequence_checks,
+    )
+except ImportError:  # the closed door: the case fails, it never passes by itself
+    SEQUENCE_CONTRACT = "journey-sequence-v1"
+    SEQUENCE_INPUTS = {}
+    SEQUENCE_PNG_ROLES = {}
+    SEQUENCE_PHASES = {}
+    sequence_checks = None
+
 CHROME_PORT = 60667
+
+
+# The names of the journeys.  The command line, the observation and the
+# criterion of a journey use exactly these strings: the shared harness has
+# one required set of checks per name, and the driver never spells a name
+# of its own.
+JOURNEYS = (
+    "basic",
+    "recover",
+    "empty",
+    "sessions",
+    "soft-invalid",
+    "non-utf8",
+    "filter-empty",
+    "state",
+    "j07-sequence",
+    "j08-sequence",
+)
+
+
+
+# The phases of a whole journey, their order and their inputs are the shared
+# harness's: the driver never spells a phase of its own.  The two files below
+# are only how the driver drives the page -- how long it waits for the table
+# and which key moves the slider.
+SEQUENCE_SLIDER = {
+    "slider-200": ("End", 35, 200),
+    "slider-0": ("Home", 36, 0),
+}
+SEQUENCE_WITH_TABLE = {
+    "upload-soft", "good-after-soft", "good-after-utf8", "upload-baseline", "slider-0",
+}
+
+
+def _sequence_plan(kind):
+    """The steps of a whole journey, read from the shared contract."""
+    plan = []
+    for index, name in enumerate(SEQUENCE_PHASES[kind]):
+        if name == "initial":
+            action = {"action": "initial"}
+        elif name in SEQUENCE_INPUTS:
+            action = {"action": "upload", "file": SEQUENCE_INPUTS[name]}
+        else:
+            key, code, value = SEQUENCE_SLIDER[name]
+            action = {"action": "slider", "label": "Minimum amount", "key": key,
+                      "code": code, "value": value}
+        plan.append((name, action, name in SEQUENCE_WITH_TABLE,
+                     "%02d-%s.png" % (index + 1, name)))
+    return plan
 
 
 def http_json(url: str, method: str = "GET"):
@@ -228,6 +302,75 @@ class Page:
         merged = dict(result)
         merged.update(controls)
         return merged
+
+    def click_visible(self, expression: str) -> bool:
+        """Scroll an element into view and click it with a real mouse event.
+
+        The rectangle is read after the scroll: a rectangle from before it
+        points outside the viewport, so the click would land on nothing
+        while looking like a click.  Nothing is clicked from the script --
+        the page only gets a real mouse event at a place the user can see.
+        """
+        self.evaluate(
+            "(()=>{const e=" + expression + ";if(!e)return false;"
+            "e.scrollIntoView({block:'center'});return true;})()"
+        )
+        time.sleep(0.5)
+        rect = self.rect(expression)
+        if not rect:
+            return False
+        self.click(rect["x"], rect["y"])
+        return True
+
+    def screenshot(self, path, width: int = 1264, height: int = 1800):
+        """Save a picture of the page and say how big it was.
+
+        The viewport is made tall enough to hold the whole result -- the
+        app scrolls inside its own container, so the document never grows --
+        and the picture is taken from the real page.  Nothing in the page is
+        changed for the picture.
+        """
+        self.cdp.call(
+            "Emulation.setDeviceMetricsOverride",
+            {"width": width, "height": height, "deviceScaleFactor": 1, "mobile": False},
+        )
+        try:
+            time.sleep(1.0)
+            data = self.cdp.call(
+                "Page.captureScreenshot",
+                {
+                    "format": "png",
+                    "captureBeyondViewport": True,
+                    "clip": {"x": 0, "y": 0, "width": width, "height": height, "scale": 1},
+                },
+            )
+            png = (data.get("result", {}) or {}).get("data")
+            if not png:
+                return None
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(base64.b64decode(png))
+            return {
+                "file": str(path),
+                "bytes": path.stat().st_size,
+                "viewport": [width, height],
+            }
+        finally:
+            self.cdp.call("Emulation.clearDeviceMetricsOverride", {})
+
+    def wait_for_render(self, timeout: float = 30.0, want_cells: bool = True):
+        """Wait until the page has drawn its result and its counters.
+
+        A field the page never showed stays missing; it is not filled in.
+        """
+        deadline = time.time() + timeout
+        digest = None
+        while time.time() < deadline:
+            digest = self.state_digest()
+            if digest and digest.get("script_runs") is not None:
+                if not want_cells or digest.get("table_cells"):
+                    return digest
+            time.sleep(0.5)
+        return digest
 
     def result_digest(self):
         """The rendered result: the table cells and the chart."""
@@ -918,6 +1061,342 @@ def _phase(name, action, frames, start, end, dom_before, dom_after, arrow_files)
     }
 
 
+
+# The observation of a journey, the shape the shared criterion reads.
+#
+# One probe, one shape, for every case:
+#
+#   observation = {
+#       "journey": str,                 # which journey this is
+#       "namespace": str,               # the tab the frames belong to
+#       "url": str,                     # the application under test
+#       "ipc_dir": str,                 # where the retained IPC files are
+#       "uploads": {name: bool},        # what the browser accepted
+#       "frames": [frame],              # every frame of the tab
+#       "phases": [phase],              # the actions, in order
+#       "states": [state],              # the pages observed before an action
+#       "http_timeline": [request],     # the HTTP requests with their moment
+#   }
+#
+#   frame  = {"direction", "connection", "request_id", "timestamp",
+#             "namespace", "decoded"}
+#   phase  = {"name", "action", "start", "end", "start_timestamp",
+#             "end_timestamp", "dom_before", "dom_after", "client_states",
+#             "completions", "ipc", "screenshot"}
+#   state  = {"name", "dom", "screenshot"}
+#   request = {"method", "url", "request_id", "timestamp", "status",
+#              "response_timestamp", "request_headers"}
+#
+# "action" says what was attempted, never what happened:
+#
+#   {"action": "upload", "file": str, "attempted": true}
+#   {"action": "select-option", "option": str, "attempted": true}
+#   {"action": "click", "target": str, "attempted": true}
+#   {"action": "slider", "label": str, "value": int, "attempted": true}
+#
+# That a click was attempted is not that it worked: the proof is in the
+# window -- the trigger the client sent, the run that answered it on its own
+# connection, the IPC of that run and the DOM after it.  The counters and
+# every other value the page shows come from the same probe (the merged
+# Page.state_digest), so a field the page never showed stays missing and
+# the criterion can reject it; nothing is filled in with a default.
+#
+# "screenshot" says where the picture of that state is and how big it was:
+#
+#   {"file": str, "bytes": int, "viewport": [width, height]}
+#
+# The picture is taken from the real page after the result has drawn, with a
+# viewport tall enough to hold it.  Nothing in the page is changed for it.
+
+
+# The contract of a stage2 observation.  The shared harness owns the names and
+# the required sets; the driver only fills this shape in.
+OBSERVATION_CONTRACT = "journey-stage2-v1"
+
+
+def _run_window(frames, start, previous_run=None):
+    """The window of the run that an action caused.
+
+    The window holds the state the client sent, the run the server started
+    for it -- a run id that is not the previous one -- and the completion
+    that ended it.  The first completion is not enough: an interrupted run
+    ends before the run that carries the result.
+    """
+    clients = [
+        i for i in range(start, len(frames))
+        if frames[i].get("direction") == "client->server"
+        and (frames[i].get("decoded") or {}).get("type") == "rerun_script"
+    ]
+    if not clients:
+        return None
+    client = clients[0]
+    runs = [
+        i for i in range(client + 1, len(frames))
+        if frames[i].get("direction") == "server->client"
+        and (frames[i].get("decoded") or {}).get("type") == "new_session"
+        and (frames[i].get("decoded", {}).get("new_session", {}) or {}).get("script_run_id") != previous_run
+    ]
+    if not runs:
+        return None
+    run = runs[0]
+    identity = (frames[client].get("connection"), frames[client].get("request_id"))
+    for index in range(run + 1, len(frames)):
+        frame = frames[index]
+        decoded = frame.get("decoded") or {}
+        if decoded.get("type") == "new_session":
+            # Another run started before this one finished, so the completion
+            # that follows belongs to that run and not to this one.
+            break
+        if decoded.get("type") != "script_finished":
+            continue
+        if (decoded.get("script_finished") or {}).get("status") != 0:
+            continue
+        if (frame.get("connection"), frame.get("request_id")) != identity:
+            continue
+        return {"start": client, "end": index + 1, "state": client, "run": run, "finish": index}
+    return None
+
+
+def _upload_request(frames, start, file_name):
+    """The frame where the browser asked the server for the URLs of a file."""
+    for index in range(start, len(frames)):
+        decoded = frames[index].get("decoded") or {}
+        if decoded.get("type") != "file_urls_request":
+            continue
+        if (decoded.get("file_urls_request") or {}).get("file_names") == [file_name]:
+            return index
+    return None
+
+
+def _issued_file_id(frames, request_index):
+    """The id the server signed out for the file of this request."""
+    request = (frames[request_index].get("decoded") or {}).get("file_urls_request") or {}
+    request_id = request.get("request_id")
+    for index in range(request_index + 1, len(frames)):
+        decoded = frames[index].get("decoded") or {}
+        if decoded.get("type") != "file_urls_response":
+            continue
+        response = decoded.get("file_urls_response") or {}
+        if request_id and response.get("response_id") != request_id:
+            continue
+        urls = [item for item in (response.get("file_urls") or []) if item.get("file_id")]
+        if len(urls) == 1:
+            return urls[0]["file_id"]
+    return None
+
+
+def _uploader_widget_id(frames):
+    """The id of the uploader the window is bound to.
+
+    The server publishes the uploader as an element and the client echoes that
+    id in its widget state.  When both are there they have to agree; when only
+    one is there it names the uploader.
+    """
+    published = None
+    sent = None
+    for frame in frames:
+        decoded = frame.get("decoded") or {}
+        delta = decoded.get("delta") or {}
+        if delta.get("element") == "file_uploader" and delta.get("id"):
+            published = delta["id"]
+        if decoded.get("type") == "rerun_script":
+            for state in (decoded.get("rerun_script") or {}).get("widget_states", []) or []:
+                if state.get("value_field") == "file_uploader_state_value" and state.get("id"):
+                    sent = state["id"]
+    if published and sent and published != sent:
+        return None
+    return published or sent
+
+
+def _upload_window(frames, start, file_name, namespace):
+    """The window of an upload, as the shared binder sees it.
+
+    The shared reader decides when the window is complete: the state that
+    names the newly issued file, the server run that answered that state and
+    that run's successful completion.  Replacing a file sends the state
+    twice -- first with the file cleared -- so the clear run is inside the
+    window and never its end.
+    """
+    request = _upload_request(frames, start, file_name)
+    if request is None:
+        return None
+    file_id = _issued_file_id(frames, request)
+    if not file_id:
+        return None
+    widget_id = _uploader_widget_id(frames)
+    if not widget_id:
+        return None
+    ready = _stage2_target_upload_run(
+        frames,
+        namespace=namespace,
+        start=request,
+        end=len(frames),
+        widget_id=widget_id,
+        file_id=file_id,
+        file_name=file_name,
+    )
+    if not ready.get("ok"):
+        return None
+    return {
+        "start": request,
+        "end": ready["completion_frame"] + 1,
+        "target": ready["state_frame"],
+        "run": ready["run_start_frame"],
+        "finish": ready["completion_frame"],
+        "script_run_id": ready.get("script_run_id"),
+        "widget": widget_id,
+        "file_id": file_id,
+    }
+
+
+def _roles_for(journey, phase_index, tab=None):
+    """The steps a picture of this phase may attest.
+
+    The shared harness holds the fixed coverage: which step a picture shows
+    and which phase it belongs to.  The driver only records the pictures the
+    coverage asks for, so the records never carry a step that the coverage
+    does not name.
+    """
+    out = []
+    for step_id, role_tab, index in STAGE2_SCREENSHOTS.get(journey, ()):
+        if index != phase_index or (role_tab or None) != (tab or None):
+            continue
+        out.append(step_id)
+    return out
+
+def _wait_for_window(pick, timeout: float = 30.0):
+    """Wait until the window of an action is complete.
+
+    The frames arrive while the server works, so the window of an action is
+    only there once the run that carries the result has finished.
+    """
+    deadline = time.time() + timeout
+    window = None
+    while time.time() < deadline:
+        window = pick()
+        if window:
+            return window
+        time.sleep(0.5)
+    return window
+
+
+def _phase_window(recorder, namespace, start, file_name=None, previous_run=None):
+    """The window of one action, once the server has answered it.
+
+    An upload waits for the request of its URLs, the state that names the
+    file and the run that carries the result -- replacing a file sends the
+    state twice, and the window is the whole of it.  Every other action
+    waits for its state, its run and its completion.
+    """
+
+    def pick():
+        frames = frames_of(recorder, namespace=namespace)
+        if file_name:
+            return _upload_window(frames, start, file_name, namespace)
+        return _run_window(frames, start, previous_run)
+
+    return _wait_for_window(pick)
+
+
+def _run_id(frames, window):
+    """The marker of the run inside a window."""
+    if not window:
+        return None
+    decoded = frames[window["run"]].get("decoded") or {}
+    return (decoded.get("new_session") or {}).get("script_run_id")
+
+def _shot(page, frames, out, name, read_at):
+    """Take the picture of a phase and say when it was taken.
+
+    The picture is taken between two browser events, so its moment is the
+    newest event plus the time that has passed since the frames were read.
+    """
+    stamps = [
+        f.get("timestamp") for f in frames
+        if isinstance(f.get("timestamp"), (int, float))
+    ]
+    stamp = (max(stamps) + (time.time() - read_at)) if stamps else None
+    info = page.screenshot(out / name)
+    if info is None:
+        return None
+    info["timestamp"] = stamp
+    info["file"] = name
+    return info
+
+
+def _record(step_ids, phase_name, namespace, shot, out):
+    """The record of one picture: the steps it shows, where it is, when.
+
+    The file is named relative to the directory of the capture, so a replay
+    finds it next to the raw.
+    """
+    if not shot or not step_ids:
+        # A picture that no step names is not a record: the coverage names the
+        # steps a picture may attest, and a record without a step is malformed.
+        return None
+    path = out / shot["file"]
+    return {
+        "step_ids": list(step_ids),
+        "phase": phase_name,
+        "namespace": namespace,
+        "file": shot["file"],
+        "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+        "timestamp": shot.get("timestamp"),
+    }
+
+
+def _sequence_record(name, namespace, shot, out):
+    """The record of one picture of a whole journey.
+
+    Every phase of a journey has a picture.  The record says which step of
+    the manifest the picture shows; a phase that shows only the preparation
+    says so, and a phase that shows a step names it.
+    """
+    if not shot:
+        return None
+    path = out / shot["file"]
+    roles = list(SEQUENCE_PNG_ROLES.get(name, ()))
+    return {
+        "step_ids": roles,
+        "phase": name,
+        "namespace": namespace,
+        "file": shot["file"],
+        "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+        "timestamp": shot.get("timestamp"),
+        "role": "step" if roles else "preparation",
+    }
+
+
+def _session_of(frames, window):
+    """The session the run of this window belongs to."""
+    decoded = (frames[window["run"]].get("decoded") or {}).get("new_session") or {}
+    return decoded.get("session_id")
+
+
+def _uploader_of(frames, window):
+    """The file the uploader carried in this window, in the order it sent it."""
+    found = []
+    for index in range(window["start"], window["end"]):
+        decoded = frames[index].get("decoded") or {}
+        if decoded.get("type") != "rerun_script":
+            continue
+        for state in (decoded.get("rerun_script") or {}).get("widget_states", []) or []:
+            if state.get("value_field") != "file_uploader_state_value":
+                continue
+            infos = (state.get("value_full") or {}).get("uploadedFileInfo") or []
+            found.append([(info.get("name"), info.get("fileId")) for info in infos])
+    return found
+
+
+def _file_fingerprint(path):
+    """The fingerprint of the file an action uploaded."""
+    raw = pathlib.Path(path).read_bytes()
+    return {
+        "file": str(pathlib.Path(path).resolve()),
+        "file_sha256": hashlib.sha256(raw).hexdigest(),
+        "file_bytes": len(raw),
+    }
+
 def _write_trace(path, trace) -> None:
     """Write the trace of a journey.
 
@@ -993,6 +1472,412 @@ def _bundle(source, frames, events, url, fixture, upload_window, upload_action,
     }
 
 
+PULSE_JS = (
+    "([...document.querySelectorAll('[data-testid=\"stButton\"] button')]"
+    ".find(x=>x.textContent.trim()==='Pulse'))"
+)
+
+def _observe(source, recorder, args, out, uploads, phases, states, arrow_files, screenshots=(),
+             contract=OBSERVATION_CONTRACT, phase_ids=None):
+    """The observation of a journey: one probe, one shape."""
+    observation = {
+        "namespace": source,
+        "url": args.url,
+        "ipc_dir": str(out),
+        "uploads": uploads,
+        "frames": frames_of(recorder, namespace=source),
+        "phases": phases,
+        "states": states,
+        "http_timeline": _http_timeline(recorder),
+        "contract": contract,
+        "screenshots": screenshots,
+    }
+    if phase_ids is not None:
+        observation["phase_ids"] = list(phase_ids)
+    return observation
+
+
+def _judge(name, criterion, observation):
+    """The shared criterion of a case and the coverage of its pictures.
+
+    The two sets are judged apart -- the case and the pictures are two
+    journeys of their own -- and their failures are reported together.
+    """
+    checks = list(criterion(observation=observation))
+    result = journey_result(checks)
+    pictures = list(screenshot_checks(observation=observation))
+    shot_result = journey_result(pictures)
+    counts = {
+        "expected": result["counts"]["expected"] + shot_result["counts"]["expected"],
+        "executed": result["counts"]["executed"] + shot_result["counts"]["executed"],
+        "asserted": result["counts"]["asserted"] + shot_result["counts"]["asserted"],
+    }
+    return {
+        "checks": checks + pictures,
+        "counts": counts,
+        "failures": result["failures"] + shot_result["failures"],
+    }
+
+def _git_head() -> str:
+    """The commit the capture ran against, when the tree is a git tree."""
+    try:
+        done = subprocess.run(["git", "rev-parse", "HEAD"], cwd=str(ROOT),
+                              capture_output=True, text=True, timeout=10)
+    except (OSError, subprocess.SubprocessError):
+        return ""
+    return done.stdout.strip() if done.returncode == 0 else ""
+
+
+def _write_case(out, args, observation, name, summary, verdict=None):
+    """Write the trace of a case and the verdict of the shared criterion.
+
+    The evidence goes to the disk before anything is judged, so a criterion
+    that raises still leaves the capture it judged.
+    """
+    failure = {
+        "step": "criteria",
+        "check": "contract",
+        "expected": "the shared criterion for the " + name + " journey",
+        "actual": "not written yet; the capture records the evidence only",
+        "ok": False,
+    }
+    trace = {
+        "schema_version": 1,
+        "contract_id": "C-P0-04",
+        "kind": trace_kind(args.scope),
+        "scope": args.scope,
+        "capture": {
+            "tool": "DevTools Protocol against the same real Chrome",
+            "tool_limitation": "the agent-browser CLI could not start its daemon in this "
+                               "environment (connection timeout), so the input is sent over CDP",
+            "driver": "tests/browser/numeric_capture.py",
+            "binary": args.binary,
+            "python": sys.executable,
+            "capture_head": _git_head(),
+            "build_base": getattr(args, "build_base", "") or "",
+        },
+        "url": args.url,
+        "case": name,
+        "journey": name,
+        "observation": observation,
+        "summary": summary,
+        "checks": (verdict or {}).get("checks", []),
+        "counts": (verdict or {}).get("counts", {"expected": 0, "executed": 0, "asserted": 0}),
+        "failures": (verdict or {}).get("failures", [failure]),
+    }
+    trace_path = out / "trace-data-loop.json"
+    _write_trace(trace_path, trace)
+    print("wrote", trace_path)
+    print("failures:", json.dumps(trace["failures"]))
+    counts = trace.get("counts") or {}
+    # The exit code follows the verdict: a case whose checks all passed is a
+    # pass, a case with a failed or missing check is not.
+    passed = not trace["failures"] and (counts.get("asserted") or 0) > 0
+    return 0 if passed else 1
+
+def run_soft_invalid_journey(page, recorder, args, out):
+    """The file with two unusable amounts, and the good file that replaces it."""
+    paths = [path for path in (args.files.split(",") if args.files else []) if path]
+    soft, good = (paths + [None, None])[:2]
+    if not (soft and good):
+        raise SystemExit("the soft invalid journey needs two files")
+    arrow_files = _ArrowFiles(out)
+    source = recorder.label
+    phases, screenshots = [], []
+    previous_run = None
+
+    dom_before = page.state_digest()
+    start = len(frames_of(recorder, namespace=source))
+    uploaded = page.upload(soft)
+    time.sleep(8)
+    window = _phase_window(recorder, source, start, pathlib.Path(soft).name, previous_run)
+    frames = frames_of(recorder, namespace=source)
+    read_at = time.time()
+    dom = page.wait_for_render()
+    if window is None:
+        raise SystemExit("the soft upload produced no run")
+    phase = _phase("upload-soft",
+                   {"action": "upload", "ok": bool(uploaded), **_file_fingerprint(soft)},
+                   frames, window["start"], window["end"], dom_before, dom, arrow_files)
+    shot = _shot(page, frames, out, "01-soft-warning.png", read_at)
+    phase["screenshot"] = shot
+    phase["observation_end_timestamp"] = shot and shot.get("timestamp")
+    record = _record(_roles_for("soft-invalid", 0), "upload-soft", source, shot, out)
+    if record:
+        screenshots.append(record)
+    previous_run = _run_id(frames, window)
+    phases.append(phase)
+
+    dom_before = dom
+    start = len(frames)
+    uploaded_good = page.upload(good)
+    time.sleep(8)
+    window = _phase_window(recorder, source, start, pathlib.Path(good).name, previous_run)
+    frames = frames_of(recorder, namespace=source)
+    read_at = time.time()
+    dom = page.wait_for_render()
+    if window is None:
+        raise SystemExit("the replacement produced no run")
+    phase = _phase("replace-baseline",
+                   {"action": "upload", "ok": bool(uploaded_good), **_file_fingerprint(good)},
+                   frames, window["start"], window["end"], dom_before, dom, arrow_files)
+    shot = _shot(page, frames, out, "02-replaced.png", read_at)
+    phase["screenshot"] = shot
+    phase["observation_end_timestamp"] = shot and shot.get("timestamp")
+    record = _record(_roles_for("soft-invalid", 1), "replace-baseline", source, shot, out)
+    if record:
+        screenshots.append(record)
+    previous_run = _run_id(frames, window)
+    phases.append(phase)
+
+    observation = _observe(source, recorder, args, out,
+                          {"soft": bool(uploaded), "good": bool(uploaded_good)},
+                          phases, [], arrow_files, screenshots)
+    observation["journey"] = "soft-invalid"
+    verdict = _judge("soft-invalid", soft_invalid_checks, observation)
+    return _write_case(out, args, observation, "soft-invalid", {
+        "alerts": (page.page_alerts() or {}).get("alerts"),
+        "dom": dom,
+    }, verdict)
+
+
+def run_non_utf8_journey(page, recorder, args, out):
+    """The file that is not UTF-8, and the good file that replaces it."""
+    paths = [path for path in (args.files.split(",") if args.files else []) if path]
+    bad, good = (paths + [None, None])[:2]
+    if not (bad and good):
+        raise SystemExit("the non utf8 journey needs two files")
+    arrow_files = _ArrowFiles(out)
+    source = recorder.label
+    phases, screenshots = [], []
+    previous_run = None
+
+    dom_before = page.state_digest()
+    start = len(frames_of(recorder, namespace=source))
+    uploaded = page.upload(bad)
+    time.sleep(8)
+    window = _phase_window(recorder, source, start, pathlib.Path(bad).name, previous_run)
+    frames = frames_of(recorder, namespace=source)
+    read_at = time.time()
+    dom = page.wait_for_render(want_cells=False)
+    if window is None:
+        raise SystemExit("the utf8 upload produced no run")
+    phase = _phase("upload-utf8",
+                   {"action": "upload", "ok": bool(uploaded), **_file_fingerprint(bad)},
+                   frames, window["start"], window["end"], dom_before, dom, arrow_files)
+    shot = _shot(page, frames, out, "01-not-utf8-error.png", read_at)
+    phase["screenshot"] = shot
+    phase["observation_end_timestamp"] = shot and shot.get("timestamp")
+    record = _record(_roles_for("non-utf8", 0), "upload-utf8", source, shot, out)
+    if record:
+        screenshots.append(record)
+    previous_run = _run_id(frames, window)
+    phases.append(phase)
+
+    dom_before = dom
+    start = len(frames)
+    uploaded_good = page.upload(good)
+    time.sleep(8)
+    window = _phase_window(recorder, source, start, pathlib.Path(good).name, previous_run)
+    frames = frames_of(recorder, namespace=source)
+    read_at = time.time()
+    dom = page.wait_for_render()
+    if window is None:
+        raise SystemExit("the replacement produced no run")
+    phase = _phase("replace-baseline",
+                   {"action": "upload", "ok": bool(uploaded_good), **_file_fingerprint(good)},
+                   frames, window["start"], window["end"], dom_before, dom, arrow_files)
+    shot = _shot(page, frames, out, "02-replaced.png", read_at)
+    phase["screenshot"] = shot
+    phase["observation_end_timestamp"] = shot and shot.get("timestamp")
+    record = _record(_roles_for("non-utf8", 1), "replace-baseline", source, shot, out)
+    if record:
+        screenshots.append(record)
+    previous_run = _run_id(frames, window)
+    phases.append(phase)
+
+    observation = _observe(source, recorder, args, out,
+                          {"bad": bool(uploaded), "good": bool(uploaded_good)},
+                          phases, [], arrow_files, screenshots)
+    observation["journey"] = "non-utf8"
+    verdict = _judge("non-utf8", non_utf8_checks, observation)
+    return _write_case(out, args, observation, "non-utf8", {
+        "alerts": (page.page_alerts() or {}).get("alerts"),
+        "dom": dom,
+    }, verdict)
+
+
+def run_filter_empty_journey(page, recorder, args, out):
+    """The filters that leave no row, and the way back."""
+    path = args.fixture or (args.files.split(",")[0] if args.files else "")
+    if not path:
+        raise SystemExit("the filter empty journey needs a file")
+    arrow_files = _ArrowFiles(out)
+    source = recorder.label
+    phases, screenshots = [], []
+    previous_run = None
+
+    dom_before = page.state_digest()
+    start = len(frames_of(recorder, namespace=source))
+    uploaded = page.upload(path)
+    time.sleep(8)
+    window = _phase_window(recorder, source, start, pathlib.Path(path).name, previous_run)
+    frames = frames_of(recorder, namespace=source)
+    read_at = time.time()
+    dom = page.wait_for_render()
+    if window is None:
+        raise SystemExit("the upload produced no run")
+    phase = _phase("upload-baseline",
+                   {"action": "upload", "ok": bool(uploaded), **_file_fingerprint(path)},
+                   frames, window["start"], window["end"], dom_before, dom, arrow_files)
+    previous_run = _run_id(frames, window)
+    phases.append(phase)
+
+    dom_before = dom
+    start = len(frames)
+    page.focus_slider("Minimum amount", 0)
+    page.press("End", "End", 35)
+    time.sleep(6)
+    window = _phase_window(recorder, source, start, None, previous_run)
+    frames = frames_of(recorder, namespace=source)
+    read_at = time.time()
+    dom = page.wait_for_render(want_cells=False)
+    if window is None:
+        raise SystemExit("the slider produced no run")
+    phase = _phase("slider-200",
+                   {"action": "slider", "label": "Minimum amount", "value": 200, "ok": True},
+                   frames, window["start"], window["end"], dom_before, dom, arrow_files)
+    shot = _shot(page, frames, out, "01-no-rows-match.png", read_at)
+    phase["screenshot"] = shot
+    phase["observation_end_timestamp"] = shot and shot.get("timestamp")
+    record = _record(_roles_for("filter-empty", 1), "slider-200", source, shot, out)
+    if record:
+        screenshots.append(record)
+    previous_run = _run_id(frames, window)
+    phases.append(phase)
+
+    dom_before = dom
+    start = len(frames)
+    page.focus_slider("Minimum amount", 0)
+    page.press("Home", "Home", 36)
+    time.sleep(6)
+    window = _phase_window(recorder, source, start, None, previous_run)
+    frames = frames_of(recorder, namespace=source)
+    read_at = time.time()
+    dom = page.wait_for_render()
+    if window is None:
+        raise SystemExit("the slider produced no run")
+    phase = _phase("slider-0",
+                   {"action": "slider", "label": "Minimum amount", "value": 0, "ok": True},
+                   frames, window["start"], window["end"], dom_before, dom, arrow_files)
+    shot = _shot(page, frames, out, "02-recovered.png", read_at)
+    phase["screenshot"] = shot
+    phase["observation_end_timestamp"] = shot and shot.get("timestamp")
+    record = _record(_roles_for("filter-empty", 2), "slider-0", source, shot, out)
+    if record:
+        screenshots.append(record)
+    previous_run = _run_id(frames, window)
+    phases.append(phase)
+
+    observation = _observe(source, recorder, args, out, {"file": bool(uploaded)},
+                          phases, [], arrow_files, screenshots)
+    observation["journey"] = "filter-empty"
+    verdict = _judge("filter-empty", filter_empty_checks, observation)
+    return _write_case(out, args, observation, "filter-empty", {
+        "alerts": (page.page_alerts() or {}).get("alerts"),
+        "dom": dom,
+    }, verdict)
+
+def run_state_journey(page, recorder, args, out):
+    """The session state: the first load, a control, an upload, the Pulse button."""
+    path = args.fixture or (args.files.split(",")[0] if args.files else "")
+    if not path:
+        raise SystemExit("the state journey needs a file")
+    arrow_files = _ArrowFiles(out)
+    source = recorder.label
+    phases, screenshots = [], []
+    previous_run = None
+
+    def phase_of(name, action, frames, window, dom_before, dom, read_at, shot_name, index):
+        phase = _phase(name, action, frames, window["start"], window["end"],
+                       dom_before, dom, arrow_files)
+        shot = _shot(page, frames, out, shot_name, read_at)
+        phase["screenshot"] = shot
+        phase["observation_end_timestamp"] = shot and shot.get("timestamp")
+        record = _record(_roles_for("state", index), name, source, shot, out)
+        if record:
+            screenshots.append(record)
+        phases.append(phase)
+        return phase
+
+    # the first load: the page before any action
+    frames = frames_of(recorder, namespace=source)
+    read_at = time.time()
+    dom = page.wait_for_render(want_cells=False)
+    window = _run_window(frames, 0)
+    if window is None:
+        raise SystemExit("the first load produced no run")
+    phase_of("initial", {"action": "initial", "ok": True}, frames, window, dom, dom,
+             read_at, "01-initial.png", 0)
+    previous_run = _run_id(frames, window)
+
+    # the control: one change, one run
+    start = len(frames)
+    dom_before = dom
+    if not _select_option(page, "region"):
+        raise SystemExit("the group of the selector could not be changed")
+    time.sleep(6)
+    window = _phase_window(recorder, source, start, None, previous_run)
+    frames = frames_of(recorder, namespace=source)
+    read_at = time.time()
+    dom = page.wait_for_render(want_cells=False)
+    if window is None:
+        raise SystemExit("the selector produced no run")
+    phase_of("selector", {"action": "select-option", "option": "region", "ok": True},
+             frames, window, dom_before, dom, read_at, "02-after-selector.png", 1)
+    previous_run = _run_id(frames, window)
+
+    # the upload: the baseline file, on its own run
+    start = len(frames)
+    dom_before = dom
+    uploaded = page.upload(path)
+    time.sleep(8)
+    window = _phase_window(recorder, source, start, pathlib.Path(path).name, previous_run)
+    frames = frames_of(recorder, namespace=source)
+    read_at = time.time()
+    dom = page.wait_for_render()
+    if window is None:
+        raise SystemExit("the upload produced no run")
+    phase_of("upload-baseline",
+             {"action": "upload", "ok": bool(uploaded), **_file_fingerprint(path)},
+             frames, window, dom_before, dom, read_at, "03-after-upload.png", 2)
+    previous_run = _run_id(frames, window)
+
+    # the button: a real mouse event on the visible button
+    start = len(frames)
+    dom_before = dom
+    clicked = page.click_visible(PULSE_JS)
+    if not clicked:
+        raise SystemExit("the Pulse button was not found")
+    time.sleep(8)
+    window = _phase_window(recorder, source, start, None, previous_run)
+    frames = frames_of(recorder, namespace=source)
+    read_at = time.time()
+    dom = page.wait_for_render()
+    if window is None:
+        raise SystemExit("the Pulse click produced no run")
+    phase_of("pulse", {"action": "button", "label": "Pulse", "ok": True},
+             frames, window, dom_before, dom, read_at, "04-after-pulse.png", 3)
+
+    observation = _observe(source, recorder, args, out, {"file": bool(uploaded)},
+                          phases, [], arrow_files, screenshots)
+    observation["journey"] = "state"
+    verdict = _judge("state", state_checks, observation)
+    return _write_case(out, args, observation, "state", {
+        "alerts": (page.page_alerts() or {}).get("alerts"),
+        "dom": dom,
+    }, verdict)
+
 def run_recover_journey(page, recorder, args, out):
     """Upload a file the app cannot read, then replace it with a good one."""
     paths = [path for path in (args.files.split(",") if args.files else [args.fixture]) if path]
@@ -1051,7 +1936,7 @@ def run_recover_journey(page, recorder, args, out):
         if request.get("method") == "DELETE"
     ]
     observation = {
-        "journey": "recover",
+        "journey": args.journey,
         "namespace": namespace,
         "url": args.url,
         "ipc_dir": str(out),
@@ -1079,10 +1964,12 @@ def run_recover_journey(page, recorder, args, out):
             "driver": "tests/browser/numeric_capture.py",
             "binary": args.binary,
             "python": sys.executable,
+            "capture_head": _git_head(),
+            "build_base": getattr(args, "build_base", "") or "",
         },
         "url": args.url,
-        "case": "recover",
-        "journey": "recover",
+        "case": args.journey,
+        "journey": args.journey,
         "bad_file": bad,
         "good_file": good,
         "observation": observation,
@@ -1150,7 +2037,7 @@ def run_empty_journey(page, recorder, args, out):
     schema = (table or {}).get("arrow", {}).get("schema") or ""
     columns = (table or {}).get("arrow", {}).get("columns") or []
     observation = {
-        "journey": "empty",
+        "journey": args.journey,
         "namespace": namespace,
         "url": args.url,
         "ipc_dir": str(out),
@@ -1184,10 +2071,12 @@ def run_empty_journey(page, recorder, args, out):
             "driver": "tests/browser/numeric_capture.py",
             "binary": args.binary,
             "python": sys.executable,
+            "capture_head": _git_head(),
+            "build_base": getattr(args, "build_base", "") or "",
         },
         "url": args.url,
-        "case": "empty",
-        "journey": "empty",
+        "case": args.journey,
+        "journey": args.journey,
         "file": path,
         "observation": observation,
         "checks": [],
@@ -1374,7 +2263,7 @@ def run_sessions_journey(page, recorder, args, out):
     groups_b = _control_values(recorder_b)
 
     observation = {
-        "journey": "sessions",
+        "journey": args.journey,
         "url": args.url,
         "ipc_dir": str(out),
         "uploads": {"a": bool(uploaded_a), "b": bool(uploaded_b)},
@@ -1421,10 +2310,12 @@ def run_sessions_journey(page, recorder, args, out):
             "driver": "tests/browser/numeric_capture.py",
             "binary": args.binary,
             "python": sys.executable,
+            "capture_head": _git_head(),
+            "build_base": getattr(args, "build_base", "") or "",
         },
         "url": args.url,
-        "case": "sessions",
-        "journey": "sessions",
+        "case": args.journey,
+        "journey": args.journey,
         "observation": observation,
         "checks": [],
         "counts": {"expected": 0, "executed": 0, "asserted": 0},
@@ -1450,6 +2341,132 @@ def run_sessions_journey(page, recorder, args, out):
     return 1 if result["failures"] else 0
 
 
+
+# The runner of each journey, by its name.
+def run_sequence_journey(page, recorder, args, out):
+    """One page, one session: the whole journey, step by step.
+
+    The tab is never reloaded and the page is never closed, so the journey
+    starts at the first load and ends at the last step of the same session.
+    Every step is recorded with the window the shared reader accepts, so the
+    result of a step is bound to the run that answered it.
+    """
+    steps = _sequence_plan(args.journey)
+    arrow_files = _ArrowFiles(out)
+    source = recorder.label
+    phases, screenshots, uploads = [], [], {}
+    previous_run = None
+    dom = page.state_digest()
+
+    for name, action, want_cells, shot_name in steps:
+        dom_before = dom
+        start = len(frames_of(recorder, namespace=source))
+        fingerprint = {}
+        if action["action"] == "initial":
+            window = _run_window(frames_of(recorder, namespace=source), 0)
+            ok = True
+        elif action["action"] == "upload":
+            path = str(ROOT / "tests" / "fixtures" / "csv" / action["file"])
+            ok = page.upload(path)
+            time.sleep(8)
+            window = _phase_window(recorder, source, start, action["file"], previous_run)
+            fingerprint = _file_fingerprint(path)
+            uploads[name] = bool(ok)
+        else:
+            page.focus_slider(action["label"], 0)
+            page.press(action["key"], action["key"], action["code"])
+            time.sleep(6)
+            window = _phase_window(recorder, source, start, None, previous_run)
+            ok = True
+        frames = frames_of(recorder, namespace=source)
+        read_at = time.time()
+        dom = page.wait_for_render(want_cells=want_cells) or {}
+        alerts = page.page_alerts() or {}
+        if window is None:
+            raise SystemExit("the step " + name + " produced no run")
+        phase = _phase(name, dict(action, ok=bool(ok), **fingerprint),
+                       frames, window["start"], window["end"], dom_before, dom, arrow_files)
+        shot = _shot(page, frames, out, shot_name, read_at)
+        phase["screenshot"] = shot
+        phase["observation_end_timestamp"] = shot and shot.get("timestamp")
+        # The picture paints the page; the grid of the data frame draws its
+        # cells lazily, so the values are read again after it.
+        dom = page.state_digest() or dom
+        alerts = page.page_alerts() or alerts
+        record = _sequence_record(name, source, shot, out)
+        if record:
+            screenshots.append(record)
+        phase["alerts"] = alerts.get("alerts")
+        phase["exceptions"] = alerts.get("exceptions")
+        phase["counters"] = {"script_runs": dom.get("script_runs"), "pulses": dom.get("pulses")}
+        phase["session_id"] = _session_of(frames, window)
+        phase["script_run_id"] = _run_id(frames, window)
+        phase["connection"] = frames[window["start"]].get("connection")
+        phase["uploader_state"] = _uploader_of(frames, window)
+        phases.append(phase)
+        previous_run = _run_id(frames, window)
+
+    observation = _observe(source, recorder, args, out, uploads, phases, [], arrow_files, screenshots,
+                           contract=SEQUENCE_CONTRACT,
+                           phase_ids=[name for name, _, _, _ in steps])
+    observation["journey"] = args.journey
+    verdict = _judge_sequence(args.journey, observation)
+    return _write_case(out, args, observation, args.journey, {
+        "phases": [
+            {
+                "name": phase["name"],
+                "counters": phase["counters"],
+                "alerts": phase["alerts"],
+                "session_id": phase["session_id"],
+                "script_run_id": phase["script_run_id"],
+                "connection": phase["connection"],
+                "uploader_state": phase["uploader_state"],
+                "table_cells": (phase["dom_after"] or {}).get("table_cells"),
+                "chart_present": (phase["dom_after"] or {}).get("chart_present"),
+                "screenshot": phase["screenshot"],
+            }
+            for phase in phases
+        ],
+    }, verdict)
+
+
+def _judge_sequence(name, observation):
+    """The shared criterion of the whole journey, or the closed door.
+
+    While the shared criterion is not written the case fails: the raw is
+    written first, so the evidence is on the disk, and the verdict says that
+    nothing was judged.
+    """
+    if sequence_checks is None:
+        checks = [
+            {
+                "journey": name,
+                "step": name,
+                "check": "contract",
+                "expected": "the shared criterion of the whole journey",
+                "actual": "the shared criterion is not written yet",
+                "ok": False,
+            }
+        ]
+    else:
+        checks = list(sequence_checks(observation=observation))
+    result = journey_result(checks)
+    return {"checks": checks, "counts": result["counts"], "failures": result["failures"]}
+
+
+JOURNEY_RUNNERS = {
+    "recover": run_recover_journey,
+    "empty": run_empty_journey,
+    "sessions": run_sessions_journey,
+    "soft-invalid": run_soft_invalid_journey,
+    "non-utf8": run_non_utf8_journey,
+    "filter-empty": run_filter_empty_journey,
+    "state": run_state_journey,
+    "j07-sequence": run_sequence_journey,
+    "j08-sequence": run_sequence_journey,
+}
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--url", required=True)
@@ -1465,7 +2482,7 @@ def main() -> int:
     parser.add_argument("--files", default="", help="comma separated files to upload")
     parser.add_argument(
         "--journey",
-        choices=("basic", "recover", "empty", "sessions"),
+        choices=JOURNEYS,
         default="basic",
         help="which journey of the data app to capture",
     )
@@ -1476,6 +2493,8 @@ def main() -> int:
         help="what to do with the uploaded file: nothing, remove it, or upload another one",
     )
     parser.add_argument("--fixture", default="", help="the CSV to upload in the data loop case")
+    parser.add_argument("--build-base", default="",
+                        help="the commit the binary under test was built from")
     parser.add_argument("--keep-changes", action="store_true",
                         help="keep the control changes in the data loop case")
     args = parser.parse_args()
@@ -1488,34 +2507,45 @@ def main() -> int:
     # The tab is opened for this capture and the recorder is bound to that
     # tab, so a session that still carries values from an earlier run is
     # never driven again.
-    created = http_json(f"http://127.0.0.1:{args.port}/json/new?{args.url}", method="PUT")
+    # The tab opens blank and the recorder is attached before the
+    # application is loaded, so the first run of the app is recorded too --
+    # the initial state of a session is part of the evidence.
+    created = http_json(f"http://127.0.0.1:{args.port}/json/new?about:blank", method="PUT")
     created_id = created.get("id")
     deadline = time.time() + 45
     tab = None
     while time.time() < deadline and tab is None:
         listing = http_json(f"http://127.0.0.1:{args.port}/json/list")
         for candidate in listing:
-            if candidate.get("id") != created_id:
-                continue
-            if (candidate.get("title") or "").strip() not in ("", "New Tab"):
+            if candidate.get("id") == created_id:
                 tab = candidate
                 break
-        time.sleep(2)
+        time.sleep(1)
     if tab is None:
-        raise SystemExit("the new tab for " + args.url + " never settled")
+        raise SystemExit("the new tab never appeared")
 
     recorder = CDP(tab["webSocketDebuggerUrl"], label=args.label)
     recorder.start()
+    recorder.call("Page.navigate", {"url": args.url})
+    deadline = time.time() + 45
+    while time.time() < deadline:
+        listing = http_json(f"http://127.0.0.1:{args.port}/json/list")
+        for candidate in listing:
+            if candidate.get("id") != created_id:
+                continue
+            if (candidate.get("title") or "").strip() not in ("", "New Tab", "about:blank"):
+                break
+        else:
+            time.sleep(2)
+            continue
+        break
     page = Page(recorder)
     time.sleep(3)
 
     if args.case == "data-loop":
-        if args.journey == "recover":
-            return run_recover_journey(page, recorder, args, out)
-        if args.journey == "empty":
-            return run_empty_journey(page, recorder, args, out)
-        if args.journey == "sessions":
-            return run_sessions_journey(page, recorder, args, out)
+        runner = JOURNEY_RUNNERS.get(args.journey)
+        if runner is not None:
+            return runner(page, recorder, args, out)
         return run_data_loop(page, recorder, args, out)
 
     suite = SUITES[args.suite]
