@@ -2597,6 +2597,394 @@ def j00_checks(*, observation=None):
     return sequence_checks(observation=observation)
 
 
+# J06 has independent per-tab frame cursors. Readonly views may have no frames;
+# their fresh DOM reads refer to a previously verified checkpoint, not new IPC.
+J06_CASE = "j06-sequence"
+J06_CONTRACT = "journey-j06-isolation-v1"
+J06_PHASES = ("initial", "a-upload", "a-pulse-1", "a-pulse-2", "a-pulse-3", "b-untouched",
+              "b-upload-preparation", "b-group-region", "a-refresh")
+J06_INPUTS = {"a-upload":"sales_basic.csv", "b-upload-preparation":"sales_basic.csv"}
+J06_ACTIONS = {
+    "initial":{"action":"initial", "actor":"both"},
+    "a-upload":{"action":"upload", "actor":"a"},
+    **{f"a-pulse-{i}":{"action":"pulse", "actor":"a", "label":"Pulse"} for i in (1,2,3)},
+    "b-untouched":{"action":"observe", "actor":None},
+    "b-upload-preparation":{"action":"upload", "actor":"b"},
+    "b-group-region":{"action":"select-option", "actor":"b", "label":"Group by", "option":"region"},
+    "a-refresh":{"action":"refresh", "actor":"a"},
+}
+J06_MODES = {name:dict(zip(("a","b"), modes)) for name,modes in zip(J06_PHASES, (
+    ("initial","initial"), ("upload","readonly"), ("pulse","readonly"), ("pulse","readonly"),
+    ("pulse","readonly"), ("readonly","readonly"), ("readonly","upload"),
+    ("readonly","select"), ("refresh","readonly")), strict=True)}
+J06_PNG_ROLES = {name:({"initial":("J06-S1",), "a-pulse-3":("J06-S2",),
+                      "b-untouched":("J06-S3",), "b-group-region":("J06-S4",),
+                      "a-refresh":("J06-S5",)}.get(name, ())) for name in J06_PHASES}
+J06_REQUIRED = ("contract", "phase_order", "pre_navigation_recording", "fresh_handshakes", "distinct_sessions",
+                "connection_epochs", "frame_coverage", "target_runs", "run_ledger", "typed_controls", "fixture_bytes",
+                "http_ownership", "golden_table_chart_dom", "readonly_peer", "b_untouched", "a_refresh_reset",
+                "b_retained", "png_coverage")
+JOURNEY_REQUIRED[J06_CASE] = {(J06_CASE,key) for key in J06_REQUIRED}
+J06_OBSERVATION_FIELDS = {
+    "root":("journey", "contract", "url", "ipc_dir", "tabs", "phases", "screenshots"),
+    "tab":("namespace", "target_id", "recorder_started_timestamp", "frames", "events", "http_timeline", "epochs"),
+    "epoch":("id", "connection", "request_id", "navigation_timestamp", "navigation_event", "handshake_event", "response_event"),
+    "phase":("name", "action", "action_timestamp", "observation_end_timestamp", "views"),
+    "view":("mode", "epoch", "start", "end", "start_timestamp", "end_timestamp", "read_start_timestamp",
+             "read_end_timestamp", "dom_before", "dom_after", "client_states", "completions", "ipc", "checkpoint"),
+    "checkpoint":("epoch", "script_run_id", "finish_frame"),
+    "png":("phase", "tab", "namespace", "epoch", "file", "sha256", "timestamp", "step_ids"),
+    "dom":("script_runs", "pulses", "selectbox_value", "slider_value", "checkbox_checked", "uploaded_files",
+           "table_present", "table_cells", "chart_present", "chart_bars", "chart_marks", "alerts", "exceptions"),
+}
+# events are original CDP {method, params}; epoch *_event values are indices
+# into that tab's events. navigation_event is Network.requestWillBeSent for
+# type=Document; handshake/response use the matching WebSocket requestId.
+# navigation_timestamp is the CDP-clock command time, preceding that event.
+# view.read_start_timestamp is the CDP clock immediately after dom_before;
+# read_end_timestamp immediately after dom_after. action_timestamp lies
+# between both tabs' reads. start/end delimit frames in that read interval.
+# initial dom_before is None; all other dom_before values are actual reads.
+# For empty readonly ranges: timestamps=None, states/completions=[], IPC=None
+# for both table/chart. checkpoint always references the last verified run;
+# initial/action/refresh checkpoints reference their just-completed target.
+# Frames retain raw base64/bytes/SHA. ref_hash is resolved per frontend cache,
+# with reference metadata replacing cached metadata, never another tab's cache.
+
+
+def j06_checks(*, observation=None):
+    """One continuous two-tab chain, including explicit readonly observations."""
+    try:
+        _j06_verify(observation)
+    except (ValueError, TypeError, KeyError, IndexError, OSError, AttributeError) as exc:
+        actual, ok = str(exc), False
+    else:
+        actual, ok = "strict J06 two-tab chain verified; PNG visual review remains independent", True
+    return _journey_finish(J06_CASE, [_check(J06_CASE,key,"complete strict J06 evidence",actual,ok) for key in J06_REQUIRED])
+
+
+def _j06_number(value):
+    return type(value) in (int,float) and math.isfinite(value)
+
+
+def _j06_materialize_frames(tab):
+    """Official frontend cache semantics, isolated per page/connection epoch.
+
+    The frozen frontend caches only metadata.cacheable messages, refreshes age
+    on a hit, substitutes reference metadata, and ages after a non-early finish.
+    Raw frames and events are never rewritten. The returned copy is for existing
+    run/Arrow helpers and the producer's derived phase summaries only.
+    """
+    from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
+
+    wire = [e for e in tab["events"] if e.get("method") in
+            ("Network.webSocketFrameSent", "Network.webSocketFrameReceived")
+            and e.get("params", {}).get("response", {}).get("opcode") == 2]
+    frames = tab["frames"]
+    _journey_need(isinstance(frames,list) and frames and len(wire) == len(frames), "J06 raw frame/event stream is incomplete")
+    result, cache, epoch, count, age, fragments = [], {}, None, 0, None, []
+    stamps = []
+    for frame,event in zip(frames,wire):
+        params = event["params"]
+        payload = base64.b64decode(params["response"]["payloadData"], validate=True)
+        direction = "client->server" if event["method"].endswith("Sent") else "server->client"
+        _journey_need(frame.get("namespace") == tab["namespace"] and frame.get("direction") == direction
+                      and frame.get("request_id") == params.get("requestId") and frame.get("timestamp") == params.get("timestamp")
+                      and _j06_number(frame.get("timestamp")) and type(frame.get("connection")) is int
+                      and frame.get("base64") == params["response"]["payloadData"] and frame.get("bytes") == len(payload)
+                      and frame.get("sha256") == hashlib.sha256(payload).hexdigest(), "J06 raw frame is not bound to its actual CDP event")
+        stamps.append(frame["timestamp"])
+        identity = (frame["connection"], frame["request_id"])
+        if identity != epoch:
+            _journey_need(identity not in {(f["connection"],f["request_id"]) for f in result}, "J06 returned to a superseded epoch")
+            cache, epoch, count, age, fragments = {}, identity, 0, None, []
+        decoded = summarise_back(payload) if direction == "client->server" else summarise_forward(payload)
+        _journey_need(frame.get("decoded") == decoded, "J06 raw decoded summary differs from protobuf")
+        effective = payload
+        if direction == "server->client":
+            msg = ForwardMsg(); msg.ParseFromString(payload)
+            kind = msg.WhichOneof("type")
+            if kind != "ref_hash" and msg.metadata.cacheable:
+                _journey_need(bool(msg.hash), "J06 cacheable message has no hash")
+                if msg.hash in cache:
+                    cache[msg.hash][1] = count
+                else:
+                    cache[msg.hash] = [payload,count,msg.delta.fragment_id if kind == "delta" else ""]
+            if kind == "ref_hash":
+                _journey_need(msg.ref_hash in cache and msg.HasField("metadata"), "J06 missing/foreign/expired cache reference or metadata")
+                saved = cache[msg.ref_hash]; saved[1] = count
+                resolved = ForwardMsg(); resolved.ParseFromString(saved[0]); resolved.metadata.CopyFrom(msg.metadata)
+                effective = resolved.SerializeToString(); msg = resolved; kind = msg.WhichOneof("type")
+            if kind == "new_session":
+                age = msg.new_session.config.max_cached_message_age
+                fragments = list(msg.new_session.fragment_ids_this_run)
+            if kind == "script_finished" and msg.script_finished != 2 and age is not None:
+                count += 1
+                cache = {key:value for key,value in cache.items()
+                         if (fragments and (not value[2] or value[2] not in fragments)) or count-value[1] <= age}
+            decoded = summarise_forward(effective)
+        result.append(dict(frame,decoded=decoded))
+    _journey_need(stamps == sorted(stamps), "J06 frame clock moved backwards")
+    return result
+
+
+def _j06_epochs(tab, url, expected_ids):
+    from urllib.parse import urlsplit
+
+    epochs, events = tab["epochs"], tab["events"]
+    _journey_need(isinstance(epochs,list) and tuple(e.get("id") for e in epochs) == expected_ids
+                  and _j06_number(tab["recorder_started_timestamp"]) and tab["target_id"], "J06 missing epochs/target/recorder start")
+    identities, navigation_times = set(), []
+    for item in epochs:
+        for key in ("navigation_event","handshake_event","response_event"):
+            _journey_need(type(item[key]) is int and 0 <= item[key] < len(events), "J06 missing actual navigation/handshake event index")
+        nav, handshake, response = [events[item[k]] for k in ("navigation_event","handshake_event","response_event")]
+        np, hp, rp = nav["params"],handshake["params"],response["params"]
+        request = hp["request"]
+        headers = {k.lower():v for k,v in request["headers"].items()}
+        protocols = headers.get("sec-websocket-protocol", "").split(",")
+        _journey_need(nav["method"] == "Network.requestWillBeSent" and np.get("type") == "Document"
+                      and urlsplit(np["request"]["url"])[:3] == urlsplit(url)[:3]
+                      and handshake["method"] == "Network.webSocketWillSendHandshakeRequest"
+                      and response["method"] == "Network.webSocketHandshakeResponseReceived"
+                      and len(protocols) == 2 and protocols[0].strip() == "streamlit" and protocols[1].strip()
+                      and rp["response"]["status"] == 101
+                      and {k.lower():v for k,v in rp["response"]["headers"].items()}.get("sec-websocket-protocol") == "streamlit",
+                      "J06 fresh navigation/handshake is missing or not a two-entry fresh connection")
+        times = (tab["recorder_started_timestamp"],item["navigation_timestamp"],np["timestamp"],hp["timestamp"],rp["timestamp"])
+        _journey_need(all(_j06_number(t) for t in times) and times[0] < times[1] <= times[2] <= times[3] <= times[4]
+                      and item["request_id"] == hp["requestId"] == rp["requestId"]
+                      and type(item["connection"]) is int, "J06 recorder attached late or handshake clock/ownership is wrong")
+        identity = (item["connection"],item["request_id"])
+        _journey_need(identity not in identities and identity in {(f["connection"],f["request_id"]) for f in tab["frames"]}, "J06 missing/reused connection epoch")
+        epoch_frames = [f for f in tab["frames"] if (f["connection"],f["request_id"]) == identity]
+        _journey_need(all(rp["timestamp"] <= f["timestamp"] for f in epoch_frames), "J06 epoch frame precedes its HTTP101 response")
+        closed = [e["params"] for e in events if e.get("method") == "Network.webSocketClosed"
+                  and e.get("params",{}).get("requestId") == item["request_id"]]
+        _journey_need(len(closed) <= 1 and (not closed or _j06_number(closed[0].get("timestamp"))
+                      and rp["timestamp"] <= closed[0]["timestamp"]
+                      and all(f["timestamp"] <= closed[0]["timestamp"] for f in epoch_frames)), "J06 epoch frame is outside its actual socket lifetime")
+        identities.add(identity); navigation_times.append(item["navigation_timestamp"])
+    _journey_need(navigation_times == sorted(set(navigation_times))
+                  and identities == {(f["connection"],f["request_id"]) for f in tab["frames"]}
+                  and len({e["request_id"] for e in epochs}) == len(epochs)
+                  and [e["connection"] for e in epochs] == list(range(len(epochs))), "J06 undeclared/reused navigation/connection")
+    document_indices = {i for i,e in enumerate(events) if e.get("method") == "Network.requestWillBeSent" and e.get("params",{}).get("type") == "Document"}
+    handshake_indices = {i for i,e in enumerate(events) if e.get("method") == "Network.webSocketWillSendHandshakeRequest"}
+    _journey_need(document_indices == {e["navigation_event"] for e in epochs}
+                  and handshake_indices == {e["handshake_event"] for e in epochs}, "J06 hidden navigation/handshake")
+    return {e["id"]:e for e in epochs}
+
+
+def _j06_dom(dom):
+    _journey_need(isinstance(dom,dict) and set(J06_OBSERVATION_FIELDS["dom"]) <= dom.keys(), "J06 missing actual DOM fields (including uploaded_files)")
+    _journey_need(isinstance(dom["uploaded_files"],list) and dom["exceptions"] == [], "J06 missing uploader DOM or visible exception")
+    return {key:dom[key] for key in J06_OBSERVATION_FIELDS["dom"]}
+
+
+def _j06_empty(run, dom):
+    _stage2_specific_counters(run["deltas"],dom,1)
+    _stage2_specific_alerts(run["deltas"],dom,[("INFO","Upload a CSV to see the aggregated result.")])
+    _journey_need(dom["uploaded_files"] == [] and dom["table_present"] is False and dom["table_cells"] == []
+                  and dom["chart_present"] is False and dom["chart_bars"] == 0 and not dom["chart_marks"]
+                  and dom["selectbox_value"] == "category" and _same_cell_value(0,dom["slider_value"])
+                  and dom["checkbox_checked"] is True
+                  and not any(d.get("element") in ("dataframe","vega_lite_chart","table") for d in run["deltas"]), "J06 fresh page has retained data/controls")
+    for kind,label,want in (("file_uploader","Upload sales CSV",None), ("selectbox","Group by",0),
+                             ("slider","Minimum amount",[0.]), ("checkbox","Include unknown region",True)):
+        elements = [d for d in run["deltas"] if d.get("element") == kind and d.get("label") == label]
+        _journey_need(len(elements) == 1 and elements[0].get("id"), "J06 missing fresh source control")
+        if want is not None:
+            value = elements[0].get("widget",{}).get("default")
+            _journey_need(value is True if kind == "checkbox" else type(value) is int and value == 0 if kind == "selectbox" else value == want,
+                          "J06 fresh wire control defaults are wrong")
+
+
+def _j06_active(observation, tab, phase, view, previous):
+    mode, dom = view["mode"], view["dom_after"]
+    local = dict(view,name=phase["name"],action=phase["action"])
+    adapted = dict(observation,namespace=tab["namespace"],frames=tab["frames"],http_timeline=tab["http_timeline"],
+                   phases=[local],uploads={"good":True})
+    run = _stage2_phase_run(adapted,local)
+    marker = next(i for i in range(view["start"],view["end"]) if tab["frames"][i]["decoded"].get("type") == "new_session")
+    for index in range(view["start"],view["end"]):
+        if marker < index < run["finish_index"] or index in (run["state_index"],marker,run["finish_index"]):
+            continue
+        decoded = tab["frames"][index]["decoded"]
+        kind = decoded.get("type")
+        quiet = kind in ("app_heartbeat","heartbeat_ack") or kind == "session_status_changed" and not decoded["session_status_changed"].get("script_is_running")
+        upload_exchange = mode == "upload" and index < run["state_index"] and kind in ("file_urls_request","file_urls_response")
+        _journey_need(quiet or upload_exchange, "J06 business output lies outside its target run")
+    states = tab["frames"][run["state_index"]]["decoded"]["rerun_script"].get("widget_states")
+    if mode in ("initial","refresh"):
+        _journey_need(states == [] and view["ipc"] == {"table":None,"chart":None}, "J06 fresh page sent retained widget state/IPC")
+        _j06_empty(run,dom)
+        context = {"info":None,"group":"category","runs":1,"pulses":0,"session":run["session"]}
+    else:
+        _journey_need(previous is not None and run["session"] == previous["session"], "J06 ordinary action switched session")
+        _journey_need(len({s.get("id") for s in states}) == len(states), "J06 duplicate typed widget ID")
+        group = "region" if mode == "select" else "category"
+        triggers = [s for s in states if s.get("value_field") == "trigger_value" and s.get("value") is True]
+        filtered = [s for s in states if s not in triggers]
+        _stage2_typed_controls(run["deltas"],filtered,dom,group=group)
+        pulses = previous["pulses"] + (mode == "pulse")
+        if mode == "pulse":
+            buttons = [d for d in run["deltas"] if d.get("element") == "button" and d.get("label") == "Pulse"]
+            _journey_need(len(buttons) == 1 and len(triggers) == 1 and triggers[0].get("id") == buttons[0].get("id"), "J06 missing/duplicate/wrong Pulse trigger")
+        else:
+            _journey_need(not triggers, "J06 unexpected button trigger")
+        for label,key,want in (("Script runs","script_runs",previous["runs"]+1), ("Pulses","pulses",pulses)):
+            values = [int(m[1]) for d in run["deltas"] if d.get("element") in ("text","markdown")
+                      and isinstance(d.get("body"),str) and (m := re.fullmatch(re.escape(label)+r":\s*(\d+)",d["body"].strip()))]
+            _journey_need(_stage2_counter(dom,key) == want and values == [want], "J06 wire/DOM counter missing, duplicated or wrong: " + label)
+        _stage2_specific_alerts(run["deltas"],dom,[])
+        _journey_need(dom["uploaded_files"] == ["sales_basic.csv"], "J06 uploader DOM does not contain its file")
+        if mode == "upload":
+            _stage2_specific_input(local,"sales_basic.csv")
+            bundle = _journey_bundle(adapted)
+            proof = _journey_context(bundle,"sales_basic.csv","category",dom)
+            _journey_need(proof["ok"], "J06 upload ownership: " + str(proof["problems"]))
+            info = proof["info"]
+        else:
+            uploaders = [d for d in run["deltas"] if d.get("element") == "file_uploader" and d.get("label") == "Upload sales CSV"]
+            _journey_need(len(uploaders) == 1, "J06 missing uploader source")
+            values = [s for s in states if s.get("id") == uploaders[0].get("id")]
+            _journey_need(len(values) == 1 and values[0].get("value_field") == "file_uploader_state_value"
+                          and values[0].get("value_full",{}).get("uploadedFileInfo") == [previous["info"]], "J06 ordinary action changed/lost file ownership")
+            info = previous["info"]
+        expected = [{"group_key":k,"row_count":n,"total_amount":float(t),"avg_amount":float(a)}
+                    for k,n,t,a in J01_EXPECTED_ROWS["group-region" if group == "region" else "upload-baseline"]]
+        _stage2_static_view(adapted,local,run,expected_rows=expected)
+        context = {"info":info,"group":group,"runs":previous["runs"]+1,"pulses":pulses,"session":run["session"]}
+    context.update(checkpoint={"epoch":view["epoch"],"script_run_id":run["run"],"finish_frame":run["finish_index"]},
+                   signature=_j06_dom(dom))
+    return context
+
+
+def _j06_verify(observation):
+    _journey_need(isinstance(observation,dict) and observation.get("journey") == J06_CASE
+                  and observation.get("contract") == J06_CONTRACT, "J06 missing/wrong contract")
+    phases, tabs = observation["phases"],observation["tabs"]
+    _journey_need(isinstance(phases,list) and tuple(p.get("name") for p in phases) == J06_PHASES
+                  and set(tabs) == {"a","b"}, "J06 missing/reordered phases or tab")
+    _journey_need(tabs["a"]["namespace"] != tabs["b"]["namespace"] and tabs["a"]["target_id"] != tabs["b"]["target_id"], "J06 tabs share namespace/target")
+    materialized, epochs, previous, covered, runs, sessions = {}, {}, {}, {}, set(), {}
+    for key in ("a","b"):
+        materialized[key] = dict(tabs[key],frames=_j06_materialize_frames(tabs[key]))
+        epochs[key] = _j06_epochs(materialized[key],observation["url"],("a0","a1") if key == "a" else ("b0",))
+        covered[key] = set()
+    last_end = None
+    for index,phase in enumerate(phases):
+        name, action = phase["name"], phase["action"]
+        _journey_need(all(action.get(k) == v for k,v in J06_ACTIONS[name].items()) and action.get("ok") is True
+                      and not action.get("failed") and set(phase["views"]) == {"a","b"}, "J06 wrong/failed actual action or missing peer view")
+        at, end = phase["action_timestamp"],phase["observation_end_timestamp"]
+        _journey_need(_j06_number(at) and _j06_number(end) and at < end and (last_end is None or last_end < at), "J06 phase clock/order is invalid")
+        for key in ("a","b"):
+            tab, view = materialized[key],phase["views"][key]
+            frames = tab["frames"]
+            mode = J06_MODES[name][key]
+            epoch_id = "a1" if key == "a" and name == "a-refresh" else key+"0"
+            epoch = epochs[key][epoch_id]
+            start, stop, before, after = view["start"],view["end"],view["read_start_timestamp"],view["read_end_timestamp"]
+            _journey_need(view["mode"] == mode and view["epoch"] == epoch_id and type(start) is int and type(stop) is int
+                          and 0 <= start <= stop <= len(frames) and all(_j06_number(t) for t in (before,after))
+                          and (last_end is None or last_end < before) and before <= at < after <= end,
+                          "J06 view mode/epoch or fresh DOM read clock is missing/wrong")
+            expected_indices = [i for i,f in enumerate(frames) if before < f["timestamp"] <= after]
+            _journey_need(expected_indices == list(range(start,stop))
+                          and start == sum(f["timestamp"] <= before for f in frames)
+                          and stop == sum(f["timestamp"] <= after for f in frames), "J06 readonly/action frame cursor differs from actual read interval")
+            _journey_need(not covered[key].intersection(expected_indices), "J06 overlapping frame windows")
+            covered[key].update(expected_indices)
+            selected = frames[start:stop]
+            _journey_need(all((f["connection"],f["request_id"]) == (epoch["connection"],epoch["request_id"]) for f in selected), "J06 crossed connection epoch")
+            _journey_need(view["start_timestamp"] == (selected[0]["timestamp"] if selected else None)
+                          and view["end_timestamp"] == (selected[-1]["timestamp"] if selected else None), "J06 view frame timestamps mismatch")
+            signature = _j06_dom(view["dom_after"])
+            if index:
+                _journey_need(_j06_dom(view["dom_before"]) == previous[key]["signature"], "J06 prior DOM changed without its recorded action")
+            else:
+                _journey_need(view["dom_before"] is None, "J06 initial DOM is not a fresh navigation")
+            if mode == "readonly":
+                _journey_need(signature == previous[key]["signature"] and view["client_states"] == [] and view["completions"] == []
+                              and view["ipc"] == {"table":None,"chart":None}, "J06 readonly peer changed or invented a new run/IPC")
+                _journey_need(all(f["decoded"].get("type") in ("app_heartbeat","heartbeat_ack","session_status_changed")
+                                  and not f["decoded"].get("session_status_changed",{}).get("script_is_running") for f in selected), "J06 hidden business run/result in readonly peer")
+            else:
+                context = _j06_active(observation,tab,phase,view,previous.get(key))
+                marker = context["checkpoint"]["script_run_id"]
+                _journey_need(marker not in runs, "J06 reused target run ID")
+                runs.add(marker)
+                if mode in ("initial","refresh"):
+                    _journey_need(context["session"] not in sessions.values()
+                                  and before <= epoch["navigation_timestamp"] <= after, "J06 refresh/initial session was reused or navigation is outside action")
+                    sessions[epoch_id] = context["session"]
+                previous[key] = context
+                expected_states = [{k:s.get(k) for k in ("id","value_field","value")}
+                                   for f in selected if f["decoded"].get("type") == "rerun_script"
+                                   for s in f["decoded"]["rerun_script"]["widget_states"]]
+                completions = [{"frame":i,"connection":f["connection"],"request_id":f["request_id"],
+                                "status":f["decoded"]["script_finished"].get("status"),"status_name":f["decoded"]["script_finished"].get("status_name")}
+                               for i,f in enumerate(selected) if f["decoded"].get("type") == "script_finished"]
+                _journey_need(view["client_states"] == expected_states and view["completions"] == completions,
+                              "J06 derived state/completion summary differs from effective wire")
+            _journey_need(view["checkpoint"] == previous[key]["checkpoint"], "J06 checkpoint is not its last verified successful target")
+            mutations = [h for h in tab["http_timeline"] if h.get("method") in ("PUT","DELETE")
+                         and before < h.get("timestamp",-1) <= after]
+            _journey_need(not mutations if mode != "upload" else len(mutations) == 1 and mutations[0].get("method") == "PUT"
+                          and mutations[0].get("status") == 204, "J06 unexpected/missing HTTP mutation in active/readonly view")
+        last_end = end
+    for key,tab in materialized.items():
+        _journey_need(all(i in covered[key] or f["decoded"].get("type") in ("app_heartbeat","heartbeat_ack","session_status_changed")
+                          and not f["decoded"].get("session_status_changed",{}).get("script_is_running")
+                          for i,f in enumerate(tab["frames"])), "J06 hidden business frames outside phase/read cursors")
+        _j06_http_events(tab)
+    _j06_pngs(observation)
+
+
+def _j06_http_events(tab):
+    """HTTP ownership checks use the timeline, whose mutations must match CDP."""
+    mutations = [h for h in tab["http_timeline"] if h.get("method") in ("PUT","DELETE")]
+    events = tab["events"]
+    sent = [e["params"] for e in events if e.get("method") == "Network.requestWillBeSent"
+            and e.get("params",{}).get("request",{}).get("method") in ("PUT","DELETE")]
+    _journey_need(len(mutations) == len(sent) == 1, "J06 missing/extra HTTP upload event")
+    for request in mutations:
+        matched = [p for p in sent if p.get("requestId") == request.get("request_id")]
+        replies = [e["params"] for e in events if e.get("method") == "Network.responseReceived"
+                   and e.get("params",{}).get("requestId") == request.get("request_id")]
+        _journey_need(len(matched) == len(replies) == 1 and matched[0]["request"]["method"] == request["method"]
+                      and matched[0]["request"]["url"] == request["url"] and matched[0]["timestamp"] == request["timestamp"]
+                      and replies[0]["response"]["status"] == request["status"] and replies[0]["timestamp"] == request["response_timestamp"],
+                      "J06 HTTP timeline differs from actual CDP request/response")
+
+
+def _j06_pngs(observation):
+    records, phases = observation["screenshots"],observation["phases"]
+    _journey_need(isinstance(records,list) and len(records) == 18, "J06 requires 18 actual phase/tab PNGs")
+    paths = set()
+    for phase in phases:
+        for key in ("a","b"):
+            view, tab = phase["views"][key],observation["tabs"][key]
+            matches = [r for r in records if r.get("phase") == phase["name"] and r.get("tab") == key]
+            _journey_need(len(matches) == 1, "J06 missing/duplicate phase/tab PNG")
+            record = matches[0]
+            _journey_need(record["namespace"] == tab["namespace"] and record["epoch"] == view["epoch"]
+                          and record["step_ids"] == list(J06_PNG_ROLES[phase["name"]]), "J06 PNG source/epoch/business role differs")
+            if not record["step_ids"]:
+                _journey_need(record.get("role") in ("preparation","intermediate"), "J06 intermediate PNG not identified")
+            file, root = pathlib.Path(record["file"]),pathlib.Path(observation["ipc_dir"]).resolve()
+            path = (root/file).resolve()
+            _journey_need(not file.is_absolute() and ".." not in file.parts and path.is_relative_to(root)
+                          and path.is_file() and path not in paths, "J06 missing/unsafe/reused PNG")
+            data = path.read_bytes(); stamp = record["timestamp"]
+            _journey_need(data.startswith(b"\x89PNG\r\n\x1a\n") and hashlib.sha256(data).hexdigest() == record["sha256"]
+                          and _j06_number(stamp) and view["read_end_timestamp"] <= stamp <= phase["observation_end_timestamp"]
+                          and 0 <= stamp-view["read_end_timestamp"] <= STAGE2_SCREENSHOT_MAX_LAG_SECONDS, "J06 PNG SHA/clock mismatch")
+            paths.add(path)
+
+
 SEQUENCE_CONTRACT = "journey-sequence-v1"
 SEQUENCE_PHASES = {
     J00_CASE: J00_PHASES,

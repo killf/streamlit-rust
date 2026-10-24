@@ -1,5 +1,32 @@
 # Reference journeys of the data app
 
+## J06: continuous two-tab isolation
+
+[Original raw](j06-sequence/trace-data-loop.json), SHA256
+`2da6690d97ab151356cad0cc0cc74dc1aa87452caa6dc7005a8eae44a2edbc2e`,
+retains 208 frames (A138/B70), all 18 PNGs, two deduplicated IPCs and both
+loaded source files. Both actual NewSession messages report Streamlit 1.66.1
+and the reference app. A has epochs a0/a1; B keeps b0. The original 17 targets
+were retained and only the two capture-owned tabs were closed.
+
+The historical browser capture completed with 18/18/18, no failures, exit 0.
+Its exact invocation is the executable from the
+[execution manifest](j06-sequence/execution-manifest.json), followed by
+`tests/browser/numeric_capture.py` and that manifest's `argv`. The historical
+output directory is retained as metadata; do not rerun into it. This is
+separate from the following read-only command, actually executed on the
+formal archive with 18/18/18, no failures, exit 0:
+
+```powershell
+target/pyref-venv/Scripts/python.exe tests/browser/numeric_capture.py --replay tests/reference/reference-browser/journeys/j06-sequence/trace-data-loop.json
+```
+
+The [Rust J06 section](../../../browser/rust-journeys/README.md#j06-continuous-two-tab-isolation)
+records the five original step roles, all preparation/intermediate phases,
+unchanged producer/criteria hashes and shared candidate source recovery.
+Each phase has two separate tab images; these are not stitched or represented
+as one simultaneous screenshot. All nine phases remain in the raw.
+
 ## J00 and J02: original captures, separate final replay
 
 [J00](j00-sequence/trace-data-loop.json) retains 185 frames, eight PNGs and

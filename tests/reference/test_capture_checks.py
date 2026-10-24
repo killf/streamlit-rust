@@ -3132,3 +3132,353 @@ def test_j00_preparations_full_values_typed_controls_and_png_ledger_are_mandator
         extra = copy.deepcopy(phase); extra["name"] = "s6-observe"; phases.append(extra)
     _stage2_specific_refresh(observation)
     assert not journey_result(checks.j00_checks(observation=observation))["ok"]
+
+
+def _j06_unit_observation(tmp_path):
+    """Generated protobuf/IPC unit contract, explicitly not a browser oracle."""
+    import base64
+    import copy
+    import hashlib
+    from google.protobuf.json_format import ParseDict
+    from streamlit.proto.BackMsg_pb2 import BackMsg
+    from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
+    import capture_browser_trace as c
+    from unittest.mock import patch
+    with patch.dict(_journey_contract_fixture.__globals__, {"_journey_fixture_parts":lambda *args:args}):
+        _,_,generate,driver,_,_ = _journey_contract_fixture(tmp_path,"j06-unit")
+    tabs = {key:{"namespace":"unit-"+key,"target_id":"target-"+key,"recorder_started_timestamp":1.,
+                 "frames":[],"events":[],"http_timeline":[],"epochs":[]} for key in ("a","b")}
+    phases, pictures, current, checkpoints, counters = [],[],{}, {}, {"a":[0,0],"b":[0,0]}
+    png=base64.b64decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a8m0AAAAASUVORK5CYII=")
+    def emit(tab, msg, direction, stamp, connection, request):
+        data=msg.SerializeToString();encoded=base64.b64encode(data).decode()
+        tab["frames"].append({"namespace":tab["namespace"],"connection":connection,"request_id":request,"direction":direction,
+                              "timestamp":stamp,"base64":encoded,"bytes":len(data),"sha256":hashlib.sha256(data).hexdigest(),
+                              "decoded":c.summarise_back(data) if direction=="client->server" else c.summarise_forward(data)})
+        tab["events"].append({"method":"Network.webSocketFrameSent" if direction=="client->server" else "Network.webSocketFrameReceived",
+                              "params":{"timestamp":stamp,"requestId":request,"response":{"opcode":2,"payloadData":encoded}}})
+    for index,name in enumerate(c.J06_PHASES):
+        clock=10.+index*20; action=dict(c.J06_ACTIONS[name],ok=True)
+        views={}
+        for key in ("a","b"):
+            tab=tabs[key];mode=c.J06_MODES[name][key];connection=1 if key=="a" and name=="a-refresh" else 0
+            epoch=key+str(connection);request=key+"-socket-"+str(connection)
+            start=len(tab["frames"]);before=copy.deepcopy(current.get(key));active=mode!="readonly"
+            if active:
+                if mode in ("initial","refresh"):
+                    ev=tab["events"];nav=len(ev);ev.append({"method":"Network.requestWillBeSent","params":{"timestamp":clock+1.2,"type":"Document","request":{"url":"http://127.0.0.1:8501/"}}})
+                    hs=len(ev);ev.append({"method":"Network.webSocketWillSendHandshakeRequest","params":{"timestamp":clock+1.3,"requestId":request,"request":{"headers":{"Sec-WebSocket-Protocol":"streamlit, actual-token"}}}})
+                    response=len(ev);ev.append({"method":"Network.webSocketHandshakeResponseReceived","params":{"timestamp":clock+1.4,"requestId":request,"response":{"status":101,"headers":{"Sec-WebSocket-Protocol":"streamlit"}}}})
+                    tab["epochs"].append({"id":epoch,"connection":connection,"request_id":request,"navigation_timestamp":clock+1.1,
+                                          "navigation_event":nav,"handshake_event":hs,"response_event":response})
+                    counters[key]=[1,0]
+                    generated=[{"direction":"client->server","decoded":{"type":"rerun_script","rerun_script":{"widget_states":[]}}},
+                               {"direction":"server->client","decoded":{"type":"new_session"}}]
+                    for kind,label,identity in (("file_uploader","Upload sales CSV","uploader"),("selectbox","Group by","group"),
+                                                ("slider","Minimum amount","minimum"),("checkbox","Include unknown region","unknown")):
+                        generated.append({"direction":"server->client","decoded":{"type":"delta","delta":{"element":kind,"label":label,"id":identity}}})
+                    after={"table_present":False,"table_cells":[],"chart_present":False,"chart_bars":0,"chart_marks":"","chart_labels":[],
+                           "selectbox_value":"category","slider_value":"0","checkbox_checked":True,"alerts":["Upload a CSV to see the aggregated result."]}
+                    generated.append({"direction":"server->client","decoded":{"type":"delta","delta":{"element":"alert","alert":{"format":"INFO","body":after["alerts"][0]}}}})
+                else:
+                    counters[key][0]+=1
+                    if mode=="pulse":counters[key][1]+=1
+                    group="region" if mode=="select" else "category"
+                    model, timeline = [],[]
+                    _,after=generate(model,timeline,tab["namespace"],"sales_basic.csv",group,upload=mode=="upload",old=before)
+                    generated=model[1:-1] # omit fixture's initial marker and final finish
+                    if mode=="upload":
+                        action.update(action="upload",file=str((HERE.parent/'fixtures/csv/sales_basic.csv').resolve()),
+                                      file_bytes=737,file_sha256=c.J01_FILE_FINGERPRINTS['sales_basic.csv'][1])
+                    for f in generated:
+                        if f['decoded'].get('type')=='rerun_script' and mode=='pulse':
+                            f['decoded']['rerun_script']['widget_states'].append({'id':'pulse','value_field':'trigger_value','value':True})
+                after.update(script_runs=str(counters[key][0]),pulses=str(counters[key][1]),exceptions=[],
+                             uploaded_files=[] if mode in ('initial','refresh') else ['sales_basic.csv'])
+                generated += [{"direction":"server->client","decoded":{"type":"delta","delta":{"element":"button","label":"Pulse","id":"pulse"}}}]
+                for label,value in (("Script runs",counters[key][0]),("Pulses",counters[key][1])):
+                    generated.append({"direction":"server->client","decoded":{"type":"delta","delta":{"element":"markdown","body":f"{label}: {value}"}}})
+                generated.append({"direction":"server->client","decoded":{"type":"script_finished"}})
+                for number,f in enumerate(generated):
+                    d=f['decoded'];msg=BackMsg() if f['direction']=='client->server' else ForwardMsg();kind=d['type']
+                    if kind=='rerun_script':
+                        ws=d['rerun_script']['widget_states'];ParseDict({'rerun_script':{'widget_states':{'widgets':[{'id':s['id'],s['value_field']:s.get('value_full',s.get('value'))} for s in ws]}}},msg)
+                    elif kind=='file_urls_request':ParseDict({kind:d[kind]},msg)
+                    elif kind=='file_urls_response':ParseDict({kind:d[kind]},msg)
+                    elif kind=='new_session':
+                        msg.new_session.initialize.session_id='session-'+tab['namespace']+('-refreshed' if connection else '')
+                        msg.new_session.script_run_id=key+'-run-'+str(index);msg.new_session.config.max_cached_message_age=2
+                    elif kind=='script_finished':msg.script_finished=0
+                    else:
+                        delta=d['delta'];el=delta['element'];element=msg.delta.new_element
+                        if el=='dataframe':element.dataframe.arrow_data.data=base64.b64decode(delta['arrow']['base64'])
+                        elif el=='vega_lite_chart':
+                            element.vega_lite_chart.spec=json.dumps(delta['vega_lite_spec'])
+                            for ds in delta['vega_lite_datasets']:
+                                entry=element.vega_lite_chart.datasets.add();entry.name=ds['name'];entry.has_name=True;entry.data.data=base64.b64decode(ds['arrow']['base64'])
+                        elif el in ('markdown','text'):element.markdown.body=delta['body']
+                        elif el=='alert':ParseDict(delta['alert'],element.alert)
+                        else:
+                            value={'id':delta['id'],'label':delta['label']}
+                            if el=='selectbox':value.update(default=0,options=['category','region','channel'])
+                            elif el=='slider':value.update(default=[0.],min=0,max=200,step=10)
+                            elif el=='checkbox':value['default']=True
+                            ParseDict(value,getattr(element,el))
+                    emit(tab,msg,f['direction'],clock+2+number*.01,connection,request)
+                if mode=='upload':
+                    reqframe=next(f for f in tab['frames'][start:] if f['decoded']['type']=='file_urls_response')
+                    info=reqframe['decoded']['file_urls_response']['file_urls'][0]
+                    stamp=reqframe['timestamp']+.001;url='http://127.0.0.1:8501'+info['upload_url'];rid='put-'+key
+                    http={'request_id':rid,'method':'PUT','url':url,'timestamp':stamp,'response_timestamp':stamp+.001,'status':204,
+                          'request_headers':{'Content-Type':'multipart/form-data; boundary=unit'}};tab['http_timeline'].append(http)
+                    tab['events'] += [{'method':'Network.requestWillBeSent','params':{'timestamp':stamp,'requestId':rid,'request':{'method':'PUT','url':url}}},
+                                      {'method':'Network.responseReceived','params':{'timestamp':stamp+.001,'requestId':rid,'response':{'status':204}}}]
+                current[key]=after
+                marker=next(f for f in tab['frames'][start:] if f['decoded']['type']=='new_session')['decoded']['new_session']['script_run_id']
+                checkpoints[key]={'epoch':epoch,'script_run_id':marker,'finish_frame':len(tab['frames'])-1}
+            view=driver['_phase'](name,action,tab['frames'],start,len(tab['frames']),before,copy.deepcopy(current[key]),generate.arrow_files)
+            view.update(mode=mode,epoch=epoch,read_start_timestamp=clock,read_end_timestamp=clock+4,checkpoint=copy.deepcopy(checkpoints[key]))
+            views[key]=view
+            file=f'{index}-{key}.png';(tmp_path/file).write_bytes(png)
+            pictures.append({'phase':name,'tab':key,'namespace':tab['namespace'],'epoch':epoch,'file':file,
+                             'sha256':hashlib.sha256(png).hexdigest(),'timestamp':clock+5,'step_ids':list(c.J06_PNG_ROLES[name]),'role':'preparation'})
+        phases.append({'name':name,'action':action,'action_timestamp':clock+1,'observation_end_timestamp':clock+6,'views':views})
+    return {'journey':c.J06_CASE,'contract':c.J06_CONTRACT,'url':'http://127.0.0.1:8501/','ipc_dir':str(tmp_path),'tabs':tabs,'phases':phases,'screenshots':pictures}
+
+
+def test_j06_generated_two_tab_contract(tmp_path):
+    import capture_browser_trace as c
+    result=journey_result(c.j06_checks(observation=_j06_unit_observation(tmp_path)))
+    assert result['ok'],result['failures']
+
+
+def _j06_replace_proto(tab, index, message):
+    import base64
+    import hashlib
+    import capture_browser_trace as c
+    frame=tab['frames'][index];data=message.SerializeToString();encoded=base64.b64encode(data).decode()
+    event=next(e for e in tab['events'] if e.get('method') in ('Network.webSocketFrameSent','Network.webSocketFrameReceived')
+               and e['params']['timestamp']==frame['timestamp'] and e['params']['requestId']==frame['request_id'])
+    event['params']['response']['payloadData']=encoded
+    frame.update(base64=encoded,bytes=len(data),sha256=hashlib.sha256(data).hexdigest(),
+                 decoded=c.summarise_back(data) if frame['direction']=='client->server' else c.summarise_forward(data))
+
+
+@pytest.mark.parametrize('mutation', ['missing_phase','reordered','missing_peer','late_recorder','missing_navigation','three_entry_initial',
+                                     'wrong_handshake_request','bad_raw_sha','wrong_cursor','stale_read_clock','stale_checkpoint',
+                                     'readonly_fake_ipc','peer_wrong_cells','b_early_file','b_counter_leak','missing_file_dom',
+                                     'refreshed_old_id','b_session_borrowed','double_pulse','wrong_pulse_sender','contradictory_slider',
+                                     'lost_file','foreign_upload_url','extra_http_delete','wrong_http_event','missing_png','wrong_png_sha','late_png'])
+def test_j06_rejects_incomplete_crossed_or_invented_proof(tmp_path,mutation):
+    import base64
+    from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
+    from streamlit.proto.BackMsg_pb2 import BackMsg
+    import capture_browser_trace as c
+    o=_j06_unit_observation(tmp_path);a=o['tabs']['a'];b=o['tabs']['b'];ps=o['phases'];peer=ps[5]['views']['b']
+    if mutation=='missing_phase':ps.pop(5)
+    elif mutation=='reordered':ps[3],ps[4]=ps[4],ps[3]
+    elif mutation=='missing_peer':ps[2]['views'].pop('b')
+    elif mutation=='late_recorder':a['recorder_started_timestamp']=12.
+    elif mutation=='missing_navigation':a['epochs'][0]['navigation_event']=a['epochs'][0]['handshake_event']
+    elif mutation=='three_entry_initial':a['events'][a['epochs'][0]['handshake_event']]['params']['request']['headers']['Sec-WebSocket-Protocol']+=', forged-session'
+    elif mutation=='wrong_handshake_request':a['epochs'][1]['request_id']='old-socket'
+    elif mutation=='bad_raw_sha':a['frames'][0]['sha256']='0'*64
+    elif mutation=='wrong_cursor':peer['start']=1;peer['end']=1
+    elif mutation=='stale_read_clock':peer['read_end_timestamp']=peer['read_start_timestamp']
+    elif mutation=='stale_checkpoint':ps[4]['views']['a']['checkpoint']=ps[1]['views']['a']['checkpoint']
+    elif mutation=='readonly_fake_ipc':peer['ipc']['table']={'arrow':{'sha256':'claimed'}}
+    elif mutation=='peer_wrong_cells':ps[6]['views']['a']['dom_after']['table_cells'][2]='999'
+    elif mutation=='b_early_file':peer['dom_after']['uploaded_files']=['sales_basic.csv']
+    elif mutation=='b_counter_leak':peer['dom_after']['pulses']='3'
+    elif mutation=='missing_file_dom':ps[0]['views']['b']['dom_after'].pop('uploaded_files')
+    elif mutation in ('refreshed_old_id','b_session_borrowed'):
+        tab=a if mutation=='refreshed_old_id' else b
+        i=next(i for i,f in enumerate(tab['frames']) if f['decoded']['type']=='new_session' and (mutation!='refreshed_old_id' or f['connection']==1))
+        msg=ForwardMsg();msg.ParseFromString(base64.b64decode(tab['frames'][i]['base64']));msg.new_session.initialize.session_id='session-unit-a';_j06_replace_proto(tab,i,msg)
+    elif mutation in ('double_pulse','wrong_pulse_sender','contradictory_slider','lost_file'):
+        phase=ps[2];i=next(i for i in range(phase['views']['a']['start'],phase['views']['a']['end']) if a['frames'][i]['decoded']['type']=='rerun_script')
+        msg=BackMsg();msg.ParseFromString(base64.b64decode(a['frames'][i]['base64']));ws=msg.rerun_script.widget_states.widgets
+        if mutation=='double_pulse':ws.add().CopyFrom(next(v for v in ws if v.id=='pulse'))
+        elif mutation=='wrong_pulse_sender':next(v for v in ws if v.id=='pulse').id='unrelated-button'
+        elif mutation=='contradictory_slider':next(v for v in ws if v.id=='minimum').double_array_value.data[:]=[100.]
+        else:next(v for v in ws if v.id=='uploader').file_uploader_state_value.Clear()
+        _j06_replace_proto(a,i,msg)
+    elif mutation=='foreign_upload_url':a['http_timeline'][0]['url']=b['http_timeline'][0]['url']
+    elif mutation=='extra_http_delete':
+        import copy
+        h=copy.deepcopy(a['http_timeline'][0]);h['method']='DELETE';a['http_timeline'].append(h)
+    elif mutation=='wrong_http_event':next(e for e in a['events'] if e.get('method')=='Network.responseReceived')['params']['response']['status']=500
+    elif mutation=='missing_png':o['screenshots'].pop()
+    elif mutation=='wrong_png_sha':o['screenshots'][0]['sha256']='0'*64
+    else:o['screenshots'][0]['timestamp']=o['phases'][1]['action_timestamp']
+    result=journey_result(c.j06_checks(observation=o));assert not result['ok'],mutation
+
+
+def _j06_unit_wire(messages, connections=None):
+    import base64
+    import hashlib
+    import capture_browser_trace as c
+    tab={'namespace':'cache-unit','frames':[],'events':[]}
+    for index,msg in enumerate(messages):
+        data=msg.SerializeToString();encoded=base64.b64encode(data).decode();conn=connections[index] if connections else 0;request='socket-'+str(conn)
+        tab['frames'].append({'namespace':tab['namespace'],'connection':conn,'request_id':request,'direction':'server->client',
+                              'timestamp':float(index),'base64':encoded,'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest(),'decoded':c.summarise_forward(data)})
+        tab['events'].append({'method':'Network.webSocketFrameReceived','params':{'timestamp':float(index),'requestId':request,'response':{'opcode':2,'payloadData':encoded}}})
+    return tab
+
+
+def test_j06_cache_reference_uses_current_metadata_without_repeated_entity():
+    from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
+    from unittest.mock import patch
+    import capture_browser_trace as c
+    full=ForwardMsg(hash='shared');full.metadata.cacheable=True;full.metadata.delta_path[:]=[0,1];full.delta.new_element.markdown.body='cached entity'
+    ref=ForwardMsg(ref_hash='shared');ref.metadata.delta_path[:]=[0,7]
+    tab=_j06_unit_wire([full,ref]);seen=[];decode=c.summarise_forward
+    def observe(data):
+        msg=ForwardMsg();msg.ParseFromString(data);seen.append(msg);return decode(data)
+    with patch.object(c,'summarise_forward',observe):resolved=c._j06_materialize_frames(tab)
+    assert resolved[1]['decoded']==resolved[0]['decoded']
+    assert seen[-1].metadata.delta_path==[0,7] and seen[-1].delta.new_element.markdown.body=='cached entity'
+    assert tab['frames'][1]['decoded']['type']=='ref_hash' # immutable raw
+
+
+@pytest.mark.parametrize('mutation',['uncacheable','missing_hash','cache_miss','missing_metadata','expired','new_epoch','foreign_tab'])
+def test_j06_cache_missing_foreign_or_expired_reference_is_rejected(mutation):
+    from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
+    import capture_browser_trace as c
+    full=ForwardMsg(hash='shared');full.metadata.cacheable=True;full.delta.new_element.markdown.body='cached'
+    ref=ForwardMsg(ref_hash='shared');ref.metadata.delta_path[:]=[0,1]
+    messages=[full,ref];connections=None
+    if mutation=='uncacheable':full.metadata.cacheable=False
+    elif mutation=='missing_hash':full.hash=''
+    elif mutation=='cache_miss':ref.ref_hash='missing'
+    elif mutation=='missing_metadata':ref.ClearField('metadata')
+    elif mutation=='expired':
+        initial=ForwardMsg();initial.new_session.config.max_cached_message_age=0;finish=ForwardMsg(script_finished=0);messages=[initial,full,finish,ref]
+    elif mutation=='new_epoch':connections=[0,1]
+    else:
+        c._j06_materialize_frames(_j06_unit_wire([full]));messages=[ref]
+    with pytest.raises(ValueError):c._j06_materialize_frames(_j06_unit_wire(messages,connections))
+
+
+@pytest.mark.parametrize('observation',[None,{},[],{'journey':'sessions'},{'journey':'j06-sequence'}])
+def test_j06_missing_contract_fails_closed(observation):
+    from capture_browser_trace import j06_checks
+    assert not journey_result(j06_checks(observation=observation))['ok']
+
+
+def _j06_unit_readonly_message(o, message, *, outside=False):
+    """Insert actual encoded test bytes and the corresponding CDP event/cursors."""
+    import copy
+    wire=_j06_unit_wire([message]);phase=o['phases'][5];tab=o['tabs']['a'];view=phase['views']['a'];cursor=view['start']
+    frame=wire['frames'][0];frame.update(namespace=tab['namespace'],connection=0,request_id=tab['epochs'][0]['request_id'],
+                                      timestamp=phase['action_timestamp']+.5 if not outside else view['read_start_timestamp']-1)
+    event=wire['events'][0];event['params'].update(timestamp=frame['timestamp'],requestId=frame['request_id'])
+    next_stamp=tab['frames'][cursor]['timestamp'];event_index=next(i for i,e in enumerate(tab['events'])
+        if e.get('method') in ('Network.webSocketFrameSent','Network.webSocketFrameReceived') and e['params']['timestamp']==next_stamp)
+    tab['events'].insert(event_index,event);tab['frames'].insert(cursor,frame)
+    for epoch in tab['epochs']:
+        for field in ('navigation_event','handshake_event','response_event'):
+            if epoch[field]>=event_index:epoch[field]+=1
+    for p in o['phases'][5:]:
+        v=p['views']['a']
+        if p is not phase or outside:v['start']+=1
+        v['end']+=1
+        if v['checkpoint']['finish_frame']>=cursor:v['checkpoint']['finish_frame']+=1
+        if p is phase and not outside:v['start_timestamp']=v['end_timestamp']=frame['timestamp']
+
+
+@pytest.mark.parametrize('kind',['heartbeat','new_session','delta','finish','running_status','outside_hidden_run'])
+def test_j06_readonly_allows_real_heartbeat_but_no_hidden_business_run(tmp_path,kind):
+    from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
+    import capture_browser_trace as c
+    o=_j06_unit_observation(tmp_path);msg=ForwardMsg()
+    if kind=='heartbeat':msg.heartbeat_ack=True
+    elif kind in ('new_session','outside_hidden_run'):msg.new_session.script_run_id='hidden-run';msg.new_session.initialize.session_id='session-unit-a'
+    elif kind=='delta':msg.delta.new_element.markdown.body='hidden business output'
+    elif kind=='finish':msg.script_finished=0
+    else:msg.session_status_changed.script_is_running=True
+    _j06_unit_readonly_message(o,msg,outside=kind=='outside_hidden_run')
+    result=journey_result(c.j06_checks(observation=o))
+    assert result['ok'] is (kind=='heartbeat'),result['failures']
+
+
+@pytest.mark.parametrize('tab_key,epoch_index',[('a',0),('b',0),('a',1)])
+@pytest.mark.parametrize('late',['handshake_and_response','response_only'])
+def test_j06_c1_handshake_response_cannot_follow_its_epoch_frames(tmp_path,tab_key,epoch_index,late):
+    import capture_browser_trace as c
+    o=_j06_unit_observation(tmp_path);tab=o['tabs'][tab_key];epoch=tab['epochs'][epoch_index]
+    first=next(f['timestamp'] for f in tab['frames'] if f['request_id']==epoch['request_id'])
+    if late=='handshake_and_response':tab['events'][epoch['handshake_event']]['params']['timestamp']=first+.9
+    tab['events'][epoch['response_event']]['params']['timestamp']=first+1.
+    result=journey_result(c.j06_checks(observation=o))
+    assert not result['ok'],result
+
+
+def _j06_insert_active_message(o,message,*,phase_index=2,position='after_finish',tab_key='a'):
+    wire=_j06_unit_wire([message]);tab=o['tabs'][tab_key];view=o['phases'][phase_index]['views'][tab_key];frames=tab['frames']
+    marker=next(i for i in range(view['start'],view['end']) if frames[i]['decoded']['type']=='new_session')
+    cursor=view['checkpoint']['finish_frame']+1 if position=='after_finish' else marker
+    stamp=frames[cursor-1]['timestamp']+.005
+    frame=wire['frames'][0];frame.update(namespace=tab['namespace'],connection=frames[marker]['connection'],request_id=frames[marker]['request_id'],timestamp=stamp)
+    event=wire['events'][0];event['params'].update(timestamp=stamp,requestId=frame['request_id'])
+    event_index=next((i for i,e in enumerate(tab['events']) if e.get('method') in ('Network.webSocketFrameSent','Network.webSocketFrameReceived')
+                      and e['params']['timestamp']>stamp),len(tab['events']))
+    tab['events'].insert(event_index,event);frames.insert(cursor,frame)
+    for epoch in tab['epochs']:
+        for field in ('navigation_event','handshake_event','response_event'):
+            if epoch[field]>=event_index:epoch[field]+=1
+    for p in o['phases'][phase_index:]:
+        v=p['views'][tab_key];target=p is o['phases'][phase_index]
+        if not target:v['start']+=1
+        v['end']+=1
+        if v['checkpoint']['finish_frame']>=cursor:v['checkpoint']['finish_frame']+=1
+        if target:
+            v['start_timestamp']=frames[v['start']]['timestamp'];v['end_timestamp']=frames[v['end']-1]['timestamp']
+            for completion in v['completions']:
+                if completion['frame']>=cursor-v['start']:completion['frame']+=1
+
+
+@pytest.mark.parametrize('position',['before_run','after_finish'])
+@pytest.mark.parametrize('phase_index,tab_key',[(0,'a'),(1,'a'),(2,'a'),(6,'b'),(7,'b'),(8,'a')])
+def test_j06_c2_business_delta_outside_target_run_is_not_covered_success(tmp_path,position,phase_index,tab_key):
+    from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
+    import capture_browser_trace as c
+    o=_j06_unit_observation(tmp_path);message=ForwardMsg()
+    message.delta.new_element.markdown.body='UNRECORDED POST-FINISH OUTPUT' if position=='after_finish' else 'UNRECORDED PRE-RUN OUTPUT'
+    _j06_insert_active_message(o,message,position=position,phase_index=phase_index,tab_key=tab_key)
+    result=journey_result(c.j06_checks(observation=o))
+    assert not result['ok'],result
+
+
+@pytest.mark.parametrize('position',['before_run','after_finish'])
+@pytest.mark.parametrize('phase_index,tab_key',[(0,'a'),(1,'a'),(2,'a'),(6,'b'),(7,'b'),(8,'a')])
+def test_j06_active_boundary_allows_heartbeat_without_inventing_a_run(tmp_path,position,phase_index,tab_key):
+    from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
+    import capture_browser_trace as c
+    o=_j06_unit_observation(tmp_path);message=ForwardMsg(heartbeat_ack=True)
+    _j06_insert_active_message(o,message,position=position,phase_index=phase_index,tab_key=tab_key)
+    result=journey_result(c.j06_checks(observation=o))
+    assert result['ok'],result['failures']
+
+
+@pytest.mark.parametrize('close_position',['after_last_frame','before_last_frame'])
+def test_j06_epoch_frames_obey_actual_close_event_without_extra_interface_fields(tmp_path,close_position):
+    import capture_browser_trace as c
+    o=_j06_unit_observation(tmp_path);tab=o['tabs']['a'];epoch=tab['epochs'][0]
+    last=max(f['timestamp'] for f in tab['frames'] if f['request_id']==epoch['request_id'])
+    tab['events'].append({'method':'Network.webSocketClosed','params':{'requestId':epoch['request_id'],
+                        'timestamp':last+.001 if close_position=='after_last_frame' else last-.001}})
+    result=journey_result(c.j06_checks(observation=o))
+    assert result['ok'] is (close_position=='after_last_frame'),result['failures']
+
+
+def test_j06_http101_at_first_frame_time_is_legal_and_upload_exchange_remains_valid(tmp_path):
+    import capture_browser_trace as c
+    o=_j06_unit_observation(tmp_path)
+    for tab in o['tabs'].values():
+        for epoch in tab['epochs']:
+            first=next(f['timestamp'] for f in tab['frames'] if f['request_id']==epoch['request_id'])
+            tab['events'][epoch['response_event']]['params']['timestamp']=first
+    result=journey_result(c.j06_checks(observation=o))
+    assert result['ok'],result['failures']

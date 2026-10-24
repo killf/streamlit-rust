@@ -1,5 +1,77 @@
 # Rust data journeys
 
+## J06: continuous two-tab isolation
+
+[Original native raw](j06-sequence/trace-data-loop.json), SHA256
+`ca291a274305455a41c34495d50ec59e3a47e5de2c21fc41f11fe9e940acc6f1`,
+retains 199 frames (A132/B67), all 18 PNGs, two deduplicated IPCs and both
+loaded source files. The
+[Python counterpart](../../reference/reference-browser/journeys/j06-sequence/trace-data-loop.json)
+retains 208 frames and the same nine-phase contract. Both captures completed
+with 18/18/18 checks, no failures, exit 0, before independent Hooke review.
+No raw events, counts or source identities were rewritten during publication.
+
+Historical capture invocation is recorded separately in each original
+execution manifest:
+[native](j06-sequence/execution-manifest.json) and
+[Python](../../reference/reference-browser/journeys/j06-sequence/execution-manifest.json).
+Use its `executable`, the entry `tests/browser/numeric_capture.py`, then its
+exact `argv` to identify the command that ran. Those commands drove real
+Chrome over CDP60667 and wrote unique ignored target directories. They are
+not the replay commands below; do not rerun into historical output paths.
+
+These formal-path commands were actually executed after copying the archive,
+each returning 18/18/18, no failures, exit 0:
+
+```powershell
+target/pyref-venv/Scripts/python.exe tests/browser/numeric_capture.py --replay tests/browser/rust-journeys/j06-sequence/trace-data-loop.json
+target/pyref-venv/Scripts/python.exe tests/browser/numeric_capture.py --replay tests/reference/reference-browser/journeys/j06-sequence/trace-data-loop.json
+```
+
+Replay reads adjacent IPC/PNG files, uses the repository criterion and needs
+no browser/server or old ignored capture/build directories. It ignores cached
+verdicts and never writes the raw. The exact producer SHA256 is
+`6b0caa4d1be607720e226361adc5a8ff4f6e3b1a171a23ded7eb991188f0f42f`;
+criteria SHA256 is
+`b6fea182d5bd5e6552c7f4a05f4917c46ba91b86600a5634a72c58c8964e57f1`.
+Both capture and formal replay used those identities; each raw keeps the
+original loaded bytes in `capture-source/`.
+
+The [verification/step fragment](j06-sequence/verification.json) is for the
+integration owner's global manifest merge, not a change to the original
+five steps or 10/42 denominator. Every row below references two separate
+tab observations within one recorded phase, never a composite or a claim
+that both tabs were photographed simultaneously.
+
+| Original step | Phase | A image | B image | Canonical E2E primary |
+|---|---|---|---|---|
+| S1 | initial | [A](j06-sequence/01-initial-a.png) | [B](j06-sequence/01-initial-b.png) | [A](../../e2e/J06/J06-S1.png) |
+| S2 | a-pulse-3 | [A](j06-sequence/05-a-pulse-3-a.png) | [B](j06-sequence/05-a-pulse-3-b.png) | [A](../../e2e/J06/J06-S2.png) |
+| S3 | b-untouched | [A](j06-sequence/06-b-untouched-a.png) | [B](j06-sequence/06-b-untouched-b.png) | [B](../../e2e/J06/J06-S3.png) |
+| S4 | b-group-region | [A](j06-sequence/08-b-group-region-a.png) | [B](j06-sequence/08-b-group-region-b.png) | [B](../../e2e/J06/J06-S4.png) |
+| S5 | a-refresh | [A](j06-sequence/09-a-refresh-a.png) | [B](j06-sequence/09-a-refresh-b.png) | [A](../../e2e/J06/J06-S5.png) |
+
+Canonical images are unchanged copies of the indicated primary; the peer
+image is explicitly linked in the fragment. PNG02 (A upload) and PNG07
+(B upload) are preparation. PNG03/04 (first/second Pulse) are intermediate.
+All eight extra images remain beside the ten business-role images.
+
+A's runs/pulses are 1/0, 2/0, 3/1, 4/2, 5/3, retained through B's actions;
+refresh gives a new A session and defaults/empty file at 1/0. B remains
+1/0 and empty through all three A pulses, then explicitly uploads at 2/0
+and selects region at 3/0; B retains that file/region/session after A refresh.
+Each side retains its own raw frame stream and HTTP ownership. Original
+17 targets are conserved; the capture-owned targets were closed.
+
+Capture HEAD is `82542723ec2231a5d06ac227639d380adb6f9195`. The native binary
+remains the original 729743 candidate built from Git76938fb plus dirty42e,
+not a build of HEAD825. Reuse the single
+[shared candidate](j00-sequence/candidate/candidate.json), configuration and
+archived example under [Shared 7297 candidate inputs](#shared-7297-candidate-inputs).
+The recipe there was rerun after publication: all 130 input hashes and the
+04dd runtime set match (110 direct Git blobs, 19 captured CRLF, one archived
+42e override). No binary or duplicate 130-file source package is added.
+
 ## J00 and J02: integrated formal example
 
 The unchanged native captures are

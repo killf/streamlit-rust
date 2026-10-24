@@ -1,0 +1,287 @@
+{
+  "id": "J06",
+  "proposed_status": "passed",
+  "contract": "journey-j06-isolation-v1",
+  "attempt": {
+    "kind": "final_verification",
+    "command": "target/pyref-venv/Scripts/python.exe tests/browser/numeric_capture.py --replay tests/browser/rust-journeys/j06-sequence/trace-data-loop.json",
+    "exit_code": 0,
+    "python_command": "target/pyref-venv/Scripts/python.exe tests/browser/numeric_capture.py --replay tests/reference/reference-browser/journeys/j06-sequence/trace-data-loop.json",
+    "python_exit_code": 0
+  },
+  "capture_history": {
+    "python": {
+      "raw": "tests/reference/reference-browser/journeys/j06-sequence/trace-data-loop.json",
+      "raw_sha256": "2da6690d97ab151356cad0cc0cc74dc1aa87452caa6dc7005a8eae44a2edbc2e",
+      "execution_manifest": "tests/reference/reference-browser/journeys/j06-sequence/execution-manifest.json",
+      "frames": 208,
+      "counts_in_original_raw": {
+        "expected": 18,
+        "executed": 18,
+        "asserted": 18
+      },
+      "observed_process_exit_code": 0
+    },
+    "rust": {
+      "raw": "tests/browser/rust-journeys/j06-sequence/trace-data-loop.json",
+      "raw_sha256": "ca291a274305455a41c34495d50ec59e3a47e5de2c21fc41f11fe9e940acc6f1",
+      "execution_manifest": "tests/browser/rust-journeys/j06-sequence/execution-manifest.json",
+      "frames": 199,
+      "counts_in_original_raw": {
+        "expected": 18,
+        "executed": 18,
+        "asserted": 18
+      },
+      "observed_process_exit_code": 0
+    }
+  },
+  "verification": {
+    "method": "Actual official-frontend two-tab HTTP/WS/protobuf/Arrow/DOM/PNG capture plus independent Hooke review and read-only formal replay.",
+    "criteria_sha256": "b6fea182d5bd5e6552c7f4a05f4917c46ba91b86600a5634a72c58c8964e57f1",
+    "driver_sha256": "6b0caa4d1be607720e226361adc5a8ff4f6e3b1a171a23ded7eb991188f0f42f",
+    "expected": 18,
+    "executed": 18,
+    "asserted": 18,
+    "capture_identity": "HEAD825 capture; native build remains Git76938fb plus archived dirty42e example. No rebuild."
+  },
+  "steps": [
+    {
+      "id": "J06-S1",
+      "evidence_phase": "initial",
+      "rust_evidence": "tests/browser/rust-journeys/j06-sequence/trace-data-loop.json",
+      "python_reference_trace": "tests/reference/reference-browser/journeys/j06-sequence/trace-data-loop.json",
+      "screenshot": "tests/e2e/J06/J06-S1.png",
+      "screenshot_sha256": "79f4faa9c8a0df571cf1043d07a6db7c8cef25287583b45012fff693a13f59c6",
+      "screenshots": [
+        {
+          "tab": "a",
+          "role": "primary",
+          "file": "tests/browser/rust-journeys/j06-sequence/01-initial-a.png",
+          "sha256": "79f4faa9c8a0df571cf1043d07a6db7c8cef25287583b45012fff693a13f59c6"
+        },
+        {
+          "tab": "b",
+          "role": "peer",
+          "file": "tests/browser/rust-journeys/j06-sequence/01-initial-b.png",
+          "sha256": "79f4faa9c8a0df571cf1043d07a6db7c8cef25287583b45012fff693a13f59c6"
+        }
+      ],
+      "screenshot_relation": "Separate tab views in one recorded phase, not a composite or simultaneous image."
+    },
+    {
+      "id": "J06-S2",
+      "evidence_phase": "a-pulse-3",
+      "rust_evidence": "tests/browser/rust-journeys/j06-sequence/trace-data-loop.json",
+      "python_reference_trace": "tests/reference/reference-browser/journeys/j06-sequence/trace-data-loop.json",
+      "screenshot": "tests/e2e/J06/J06-S2.png",
+      "screenshot_sha256": "657b777a286420f95863188ab49b15335ec2b06a76e6ba2260a5ed4c71385016",
+      "screenshots": [
+        {
+          "tab": "a",
+          "role": "primary",
+          "file": "tests/browser/rust-journeys/j06-sequence/05-a-pulse-3-a.png",
+          "sha256": "657b777a286420f95863188ab49b15335ec2b06a76e6ba2260a5ed4c71385016"
+        },
+        {
+          "tab": "b",
+          "role": "peer",
+          "file": "tests/browser/rust-journeys/j06-sequence/05-a-pulse-3-b.png",
+          "sha256": "79f4faa9c8a0df571cf1043d07a6db7c8cef25287583b45012fff693a13f59c6"
+        }
+      ],
+      "screenshot_relation": "Separate tab views in one recorded phase, not a composite or simultaneous image."
+    },
+    {
+      "id": "J06-S3",
+      "evidence_phase": "b-untouched",
+      "rust_evidence": "tests/browser/rust-journeys/j06-sequence/trace-data-loop.json",
+      "python_reference_trace": "tests/reference/reference-browser/journeys/j06-sequence/trace-data-loop.json",
+      "screenshot": "tests/e2e/J06/J06-S3.png",
+      "screenshot_sha256": "79f4faa9c8a0df571cf1043d07a6db7c8cef25287583b45012fff693a13f59c6",
+      "screenshots": [
+        {
+          "tab": "a",
+          "role": "peer",
+          "file": "tests/browser/rust-journeys/j06-sequence/06-b-untouched-a.png",
+          "sha256": "657b777a286420f95863188ab49b15335ec2b06a76e6ba2260a5ed4c71385016"
+        },
+        {
+          "tab": "b",
+          "role": "primary",
+          "file": "tests/browser/rust-journeys/j06-sequence/06-b-untouched-b.png",
+          "sha256": "79f4faa9c8a0df571cf1043d07a6db7c8cef25287583b45012fff693a13f59c6"
+        }
+      ],
+      "screenshot_relation": "Separate tab views in one recorded phase, not a composite or simultaneous image."
+    },
+    {
+      "id": "J06-S4",
+      "evidence_phase": "b-group-region",
+      "rust_evidence": "tests/browser/rust-journeys/j06-sequence/trace-data-loop.json",
+      "python_reference_trace": "tests/reference/reference-browser/journeys/j06-sequence/trace-data-loop.json",
+      "screenshot": "tests/e2e/J06/J06-S4.png",
+      "screenshot_sha256": "0b9942c0a59dbfdba285ae60b2370ea6ce9acbd8c58b440a5ad0f077836751be",
+      "screenshots": [
+        {
+          "tab": "a",
+          "role": "peer",
+          "file": "tests/browser/rust-journeys/j06-sequence/08-b-group-region-a.png",
+          "sha256": "657b777a286420f95863188ab49b15335ec2b06a76e6ba2260a5ed4c71385016"
+        },
+        {
+          "tab": "b",
+          "role": "primary",
+          "file": "tests/browser/rust-journeys/j06-sequence/08-b-group-region-b.png",
+          "sha256": "0b9942c0a59dbfdba285ae60b2370ea6ce9acbd8c58b440a5ad0f077836751be"
+        }
+      ],
+      "screenshot_relation": "Separate tab views in one recorded phase, not a composite or simultaneous image."
+    },
+    {
+      "id": "J06-S5",
+      "evidence_phase": "a-refresh",
+      "rust_evidence": "tests/browser/rust-journeys/j06-sequence/trace-data-loop.json",
+      "python_reference_trace": "tests/reference/reference-browser/journeys/j06-sequence/trace-data-loop.json",
+      "screenshot": "tests/e2e/J06/J06-S5.png",
+      "screenshot_sha256": "79f4faa9c8a0df571cf1043d07a6db7c8cef25287583b45012fff693a13f59c6",
+      "screenshots": [
+        {
+          "tab": "a",
+          "role": "primary",
+          "file": "tests/browser/rust-journeys/j06-sequence/09-a-refresh-a.png",
+          "sha256": "79f4faa9c8a0df571cf1043d07a6db7c8cef25287583b45012fff693a13f59c6"
+        },
+        {
+          "tab": "b",
+          "role": "peer",
+          "file": "tests/browser/rust-journeys/j06-sequence/09-a-refresh-b.png",
+          "sha256": "0b9942c0a59dbfdba285ae60b2370ea6ce9acbd8c58b440a5ad0f077836751be"
+        }
+      ],
+      "screenshot_relation": "Separate tab views in one recorded phase, not a composite or simultaneous image."
+    }
+  ],
+  "preparation_contract": {
+    "version": "journey-j06-isolation-v1",
+    "phases": [
+      {
+        "phase": "a-upload",
+        "role": "preparation",
+        "screenshots": {
+          "python": [
+            "tests/reference/reference-browser/journeys/j06-sequence/02-a-upload-a.png",
+            "tests/reference/reference-browser/journeys/j06-sequence/02-a-upload-b.png"
+          ],
+          "rust": [
+            "tests/browser/rust-journeys/j06-sequence/02-a-upload-a.png",
+            "tests/browser/rust-journeys/j06-sequence/02-a-upload-b.png"
+          ]
+        }
+      },
+      {
+        "phase": "a-pulse-1",
+        "role": "intermediate",
+        "screenshots": {
+          "python": [
+            "tests/reference/reference-browser/journeys/j06-sequence/03-a-pulse-1-a.png",
+            "tests/reference/reference-browser/journeys/j06-sequence/03-a-pulse-1-b.png"
+          ],
+          "rust": [
+            "tests/browser/rust-journeys/j06-sequence/03-a-pulse-1-a.png",
+            "tests/browser/rust-journeys/j06-sequence/03-a-pulse-1-b.png"
+          ]
+        }
+      },
+      {
+        "phase": "a-pulse-2",
+        "role": "intermediate",
+        "screenshots": {
+          "python": [
+            "tests/reference/reference-browser/journeys/j06-sequence/04-a-pulse-2-a.png",
+            "tests/reference/reference-browser/journeys/j06-sequence/04-a-pulse-2-b.png"
+          ],
+          "rust": [
+            "tests/browser/rust-journeys/j06-sequence/04-a-pulse-2-a.png",
+            "tests/browser/rust-journeys/j06-sequence/04-a-pulse-2-b.png"
+          ]
+        }
+      },
+      {
+        "phase": "b-upload-preparation",
+        "role": "preparation",
+        "screenshots": {
+          "python": [
+            "tests/reference/reference-browser/journeys/j06-sequence/07-b-upload-preparation-a.png",
+            "tests/reference/reference-browser/journeys/j06-sequence/07-b-upload-preparation-b.png"
+          ],
+          "rust": [
+            "tests/browser/rust-journeys/j06-sequence/07-b-upload-preparation-a.png",
+            "tests/browser/rust-journeys/j06-sequence/07-b-upload-preparation-b.png"
+          ]
+        }
+      }
+    ],
+    "note": "All nine phases and eighteen images per side retained; preparation does not add to the original five steps."
+  },
+  "python_reference_trace": "tests/reference/reference-browser/journeys/j06-sequence/trace-data-loop.json",
+  "candidate": "tests/browser/rust-journeys/j00-sequence/candidate/candidate.json",
+  "linked_artifacts": [
+    "tests/browser/rust-journeys/j00-sequence/candidate/candidate.json",
+    "tests/browser/rust-journeys/j00-sequence/candidate/launch-config.json",
+    "tests/browser/rust-journeys/j00-sequence/candidate/source-snapshot/repo/streamlit/examples/data_app.rs",
+    "tests/browser/rust-journeys/j06-sequence/01-initial-a.png",
+    "tests/browser/rust-journeys/j06-sequence/01-initial-b.png",
+    "tests/browser/rust-journeys/j06-sequence/02-a-upload-a.png",
+    "tests/browser/rust-journeys/j06-sequence/02-a-upload-b.png",
+    "tests/browser/rust-journeys/j06-sequence/03-a-pulse-1-a.png",
+    "tests/browser/rust-journeys/j06-sequence/03-a-pulse-1-b.png",
+    "tests/browser/rust-journeys/j06-sequence/04-a-pulse-2-a.png",
+    "tests/browser/rust-journeys/j06-sequence/04-a-pulse-2-b.png",
+    "tests/browser/rust-journeys/j06-sequence/05-a-pulse-3-a.png",
+    "tests/browser/rust-journeys/j06-sequence/05-a-pulse-3-b.png",
+    "tests/browser/rust-journeys/j06-sequence/06-b-untouched-a.png",
+    "tests/browser/rust-journeys/j06-sequence/06-b-untouched-b.png",
+    "tests/browser/rust-journeys/j06-sequence/07-b-upload-preparation-a.png",
+    "tests/browser/rust-journeys/j06-sequence/07-b-upload-preparation-b.png",
+    "tests/browser/rust-journeys/j06-sequence/08-b-group-region-a.png",
+    "tests/browser/rust-journeys/j06-sequence/08-b-group-region-b.png",
+    "tests/browser/rust-journeys/j06-sequence/09-a-refresh-a.png",
+    "tests/browser/rust-journeys/j06-sequence/09-a-refresh-b.png",
+    "tests/browser/rust-journeys/j06-sequence/arrow-1.bin",
+    "tests/browser/rust-journeys/j06-sequence/arrow-2.bin",
+    "tests/browser/rust-journeys/j06-sequence/capture-source/capture_browser_trace.py",
+    "tests/browser/rust-journeys/j06-sequence/capture-source/numeric_capture.py",
+    "tests/browser/rust-journeys/j06-sequence/execution-manifest.json",
+    "tests/browser/rust-journeys/j06-sequence/trace-data-loop.json",
+    "tests/browser/rust-journeys/j06-sequence/verification.json",
+    "tests/e2e/J06/J06-S1.png",
+    "tests/e2e/J06/J06-S2.png",
+    "tests/e2e/J06/J06-S3.png",
+    "tests/e2e/J06/J06-S4.png",
+    "tests/e2e/J06/J06-S5.png",
+    "tests/reference/reference-browser/journeys/j06-sequence/01-initial-a.png",
+    "tests/reference/reference-browser/journeys/j06-sequence/01-initial-b.png",
+    "tests/reference/reference-browser/journeys/j06-sequence/02-a-upload-a.png",
+    "tests/reference/reference-browser/journeys/j06-sequence/02-a-upload-b.png",
+    "tests/reference/reference-browser/journeys/j06-sequence/03-a-pulse-1-a.png",
+    "tests/reference/reference-browser/journeys/j06-sequence/03-a-pulse-1-b.png",
+    "tests/reference/reference-browser/journeys/j06-sequence/04-a-pulse-2-a.png",
+    "tests/reference/reference-browser/journeys/j06-sequence/04-a-pulse-2-b.png",
+    "tests/reference/reference-browser/journeys/j06-sequence/05-a-pulse-3-a.png",
+    "tests/reference/reference-browser/journeys/j06-sequence/05-a-pulse-3-b.png",
+    "tests/reference/reference-browser/journeys/j06-sequence/06-b-untouched-a.png",
+    "tests/reference/reference-browser/journeys/j06-sequence/06-b-untouched-b.png",
+    "tests/reference/reference-browser/journeys/j06-sequence/07-b-upload-preparation-a.png",
+    "tests/reference/reference-browser/journeys/j06-sequence/07-b-upload-preparation-b.png",
+    "tests/reference/reference-browser/journeys/j06-sequence/08-b-group-region-a.png",
+    "tests/reference/reference-browser/journeys/j06-sequence/08-b-group-region-b.png",
+    "tests/reference/reference-browser/journeys/j06-sequence/09-a-refresh-a.png",
+    "tests/reference/reference-browser/journeys/j06-sequence/09-a-refresh-b.png",
+    "tests/reference/reference-browser/journeys/j06-sequence/arrow-1.bin",
+    "tests/reference/reference-browser/journeys/j06-sequence/arrow-2.bin",
+    "tests/reference/reference-browser/journeys/j06-sequence/capture-source/capture_browser_trace.py",
+    "tests/reference/reference-browser/journeys/j06-sequence/capture-source/numeric_capture.py",
+    "tests/reference/reference-browser/journeys/j06-sequence/execution-manifest.json",
+    "tests/reference/reference-browser/journeys/j06-sequence/trace-data-loop.json"
+  ]
+}

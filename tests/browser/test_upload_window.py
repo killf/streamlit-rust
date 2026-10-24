@@ -28,6 +28,394 @@ sys.path.insert(0, str(HERE.parent / "reference"))
 
 import numeric_capture  # noqa: E402
 
+_ORIGINAL_ISOLATION_TARGETS = [
+    {"id":"preexisting-user-target","type":"page","url":"http://user.invalid/"},
+    *[{"id":f"retained-{i}","type":"page" if i < 14 else "browser_ui","url":"about:blank"} for i in range(16)],
+]
+
+
+class _IsolationCDP:
+    """Driver-only transport double: ordering/ownership, not a wire oracle."""
+
+    clock = 100.0
+    instances = []
+    log = []
+
+    def __init__(self, url, label):
+        self.label, self.events, self.epoch = label, [], -1
+        self.dom = {key: None for key in numeric_capture.J06_OBSERVATION_FIELDS["dom"]}
+        self.dom.update(uploaded_files=[], script_runs=1, pulses=0)
+        self.instances.append(self)
+
+    @classmethod
+    def tick(cls):
+        cls.clock += .01
+        return cls.clock
+
+    def start(self):
+        self.log.append((self.label, "start"))
+
+    def stop(self):
+        self.log.append((self.label, "stop"))
+
+    def take(self):
+        return list(self.events)
+
+    def call(self, method, params=None):
+        params = params or {}
+        self.log.append((self.label, method))
+        if method == "Performance.getMetrics":
+            return {"result": {"metrics": [{"name": "Timestamp", "value": self.tick()}]}}
+        if method in ("Page.navigate", "Page.reload"):
+            self.epoch += 1
+            request = f"{self.label}-socket-{self.epoch}"
+            for name, extra in (
+                ("requestWillBeSent", {"type": "Document", "request": {"url": "http://test/", "method": "GET"}}),
+                ("webSocketCreated", {"url": "ws://test/_stcore/stream"}),
+                ("webSocketWillSendHandshakeRequest", {"request": {"headers": {"Sec-WebSocket-Protocol": "streamlit,token"}}}),
+                ("webSocketHandshakeResponseReceived", {"response": {"status": 101, "headers": {"Sec-WebSocket-Protocol": "streamlit"}}}),
+            ):
+                self.events.append({"method": "Network."+name, "params": dict(requestId=request, timestamp=self.tick(), **extra)})
+        return {"result": {}}
+
+    def complete(self, mode):
+        from streamlit.proto.BackMsg_pb2 import BackMsg
+        from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
+        if mode in ("initial", "refresh"):
+            self.dom.update(script_runs=1, pulses=0, uploaded_files=[])
+        else:
+            self.dom["script_runs"] += 1
+            if mode == "pulse":
+                self.dom["pulses"] += 1
+            if mode == "upload":
+                self.dom["uploaded_files"] = ["sales_basic.csv"]
+        back = BackMsg(); back.rerun_script.SetInParent()
+        new = ForwardMsg(); new.new_session.script_run_id = f"{self.label}-{self.epoch}-{self.dom['script_runs']}"
+        new.new_session.initialize.environment_info.streamlit_version = "1.66.1"
+        new.new_session.main_script_path = str(numeric_capture.ROOT / "tests/reference/app.py")
+        finish = ForwardMsg(); finish.script_finished = 0
+        for direction, msg in (("Sent", back), ("Received", new), ("Received", finish)):
+            payload = msg.SerializeToString()
+            self.events.append({"method": "Network.webSocketFrame"+direction, "params": {
+                "requestId": f"{self.label}-socket-{self.epoch}", "timestamp": self.tick(),
+                "response": {"opcode": 2, "payloadData": base64.b64encode(payload).decode()}}})
+
+
+class _IsolationPage:
+    def __init__(self, cdp):
+        self.cdp = cdp
+
+    def bring_to_front(self):
+        pass
+
+    def state_digest(self):
+        result = dict(self.cdp.dom)
+        # Actual OBSERVE_JS pick() returns text, as the real own-tab probe
+        # observed: {script_runs:"1", pulses:"0"}, not numeric JSON values.
+        for key in ("script_runs","pulses"):
+            if type(result[key]) is int:
+                result[key] = str(result[key])
+        return result
+
+    def files_dom(self):
+        return {"chips": list(self.cdp.dom["uploaded_files"])}
+
+    def upload(self, path):
+        return True
+
+    def click_visible(self, expression):
+        return True
+
+    def screenshot(self, path, *, restore):
+        assert restore is False
+        path.write_bytes(b"\x89PNG\r\n\x1a\nmock only")
+        return {"file": str(path)}
+
+
+def _isolation_driver(monkeypatch, tmp_path, *, failed_action=False, predicate_error=False, no_response=False,
+                      target_fault=None, corrupt_tab=None, bad_base64=False, close_fault=None):
+    _IsolationCDP.instances, _IsolationCDP.log = [], []
+    created, closed = [], []
+
+    def http(url, method="GET"):
+        if "/json/list" in url:
+            return _ORIGINAL_ISOLATION_TARGETS + [
+                {"id":ident,"type":"page","url":"about:blank","webSocketDebuggerUrl":"ws://"+ident}
+                for ident in created if ident not in closed or close_fault == "retained"]
+        if "/json/new?" in url:
+            assert url.endswith("about:blank")
+            if target_fault == "preexisting":
+                return {"id":"preexisting-user-target","webSocketDebuggerUrl":"ws://preexisting-user-target"}
+            if target_fault == "duplicate" and created:
+                return {"id":created[0],"webSocketDebuggerUrl":"ws://"+created[0]}
+            if target_fault == "unverified":
+                return {"id":"not-in-inventory","webSocketDebuggerUrl":"ws://not-in-inventory"}
+            if target_fault == "missing":
+                return {}
+            ident = f"owned-{len(created)}"
+            created.append(ident)
+            return {"id": ident, "webSocketDebuggerUrl": "ws://"+ident}
+        raise AssertionError("unexpected mock JSON URL: " + url)
+
+    class CloseResponse:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            pass
+
+        def read(self):
+            return b"No such target id" if close_fault == "rejected" else b"Target is closing"
+
+    def urlopen(url, **kwargs):
+        assert "/json/close/owned-" in url
+        if close_fault == "transport":
+            raise OSError("close transport failed")
+        closed.append(url.rsplit("/",1)[1])
+        return CloseResponse()
+
+    monkeypatch.setattr(numeric_capture, "http_json", http)
+    monkeypatch.setattr(numeric_capture.urllib.request, "urlopen", urlopen)
+    real_close = numeric_capture._close_owned_target
+    monkeypatch.setattr(numeric_capture,"_close_owned_target",lambda port,ident:real_close(port,ident,timeout=.001))
+    monkeypatch.setattr(numeric_capture, "CDP", _IsolationCDP)
+    monkeypatch.setattr(numeric_capture, "Page", _IsolationPage)
+    monkeypatch.setattr(numeric_capture, "_select_option", lambda *args: True)
+
+    def wait(state, start, mode, filename):
+        if no_response:
+            raise RuntimeError("no server completion")
+        state["recorder"].complete(mode)
+        if state["key"] == corrupt_tab:
+            state["recorder"].events[-1]["params"]["response"]["payloadData"] = (
+                "not-valid-base64!" if bad_base64 else base64.b64encode(b"\xff").decode())
+
+    monkeypatch.setattr(numeric_capture, "_isolation_wait", wait)
+    if failed_action:
+        monkeypatch.setattr(_IsolationPage, "click_visible", lambda *args: False)
+
+    def judge(**kwargs):
+        if predicate_error:
+            raise NameError("predicate fault")
+        return [{"journey": numeric_capture.J06_CASE, "step": numeric_capture.J06_CASE,
+                 "check": key, "ok": True} for key in J06_REQUIRED]
+
+    # Use the shared required set, not a second producer case table.
+    from capture_browser_trace import J06_REQUIRED
+    monkeypatch.setattr(numeric_capture, "j06_checks", judge)
+    args = SimpleNamespace(label="mock", port=60667, url="http://test/", scope="driver unit double",
+                           binary="", build_base="", journey=numeric_capture.J06_CASE)
+    code = numeric_capture.run_isolation_journey(args, tmp_path)
+    return code, json.loads((tmp_path/"trace-data-loop.json").read_text()), created, closed
+
+
+def test_j06_driver_records_before_navigation_and_owns_cleanup(monkeypatch, tmp_path):
+    code, trace, created, closed = _isolation_driver(monkeypatch, tmp_path)
+    assert code == 0
+    obs = trace["observation"]
+    assert tuple(p["name"] for p in obs["phases"]) == numeric_capture.J06_PHASES
+    assert len(obs["screenshots"]) == 18
+    assert closed == created == ["owned-0", "owned-1"]
+    log = _IsolationCDP.log
+    assert max(log.index((key, "start")) for key in ("mock-a", "mock-b")) < log.index(("mock-a", "Page.navigate"))
+    assert ("mock-b", "Page.reload") not in log
+    assert sum(method == "Page.reload" for _, method in log) == 1
+    assert [e["id"] for e in obs["tabs"]["a"]["epochs"]] == ["a0", "a1"]
+    assert [e["id"] for e in obs["tabs"]["b"]["epochs"]] == ["b0"]
+    for tab in obs["tabs"].values():
+        assert any(e["method"] == "Network.webSocketCreated" for e in tab["events"])
+        for f in tab["frames"]:
+            assert hashlib.sha256(base64.b64decode(f["base64"])).hexdigest() == f["sha256"]
+    pulses = [p for p in obs["phases"] if p["action"]["action"] == "pulse"]
+    assert [p["views"]["a"]["dom_after"]["pulses"] for p in pulses] == ["1", "2", "3"]
+    for phase in obs["phases"]:
+        for key, view in phase["views"].items():
+            frames = obs["tabs"][key]["frames"]
+            assert view["start"] == sum(f["timestamp"] <= view["read_start_timestamp"] for f in frames)
+            assert view["end"] == sum(f["timestamp"] <= view["read_end_timestamp"] for f in frames)
+            if view["mode"] == "readonly":
+                assert view["client_states"] == view["completions"] == []
+                assert view["ipc"] == {"table": None, "chart": None}
+
+
+@pytest.mark.parametrize("failure", ["failed_action", "predicate_error", "no_response"])
+def test_j06_driver_nonzero_preserves_raw_and_closes_only_own_tabs(monkeypatch, tmp_path, failure):
+    code, trace, created, closed = _isolation_driver(monkeypatch, tmp_path, **{failure: True})
+    assert code == 1 and trace["failures"]
+    assert closed == created
+    assert set(trace["observation"]["tabs"]) == {"a", "b"}
+    if failure != "no_response":
+        assert trace["observation"]["tabs"]["a"]["frames"]
+    if failure == "predicate_error":
+        assert len(trace["observation"]["screenshots"]) == 18
+        assert "NameError" in trace["failures"][0]["actual"]
+
+
+def test_j06_dom_never_defaults_missing_files_to_empty():
+    page = _IsolationPage(_IsolationCDP("", "missing"))
+    page.files_dom = lambda: None
+    with pytest.raises(RuntimeError, match="uploader"):
+        numeric_capture._isolation_dom(page)
+
+
+def test_j06_view_keeps_late_business_frames_and_real_read_boundary(tmp_path):
+    from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
+    recorder = _IsolationCDP("", "late")
+    recorder.complete("initial")
+    # A business delta after success must remain in raw and in the view's
+    # actual read interval.  The driver cannot hide it at the first finish.
+    message = ForwardMsg(); message.delta.new_element.markdown.body = "late unwanted output"
+    payload = message.SerializeToString()
+    recorder.events.append({"method": "Network.webSocketFrameReceived", "params": {
+        "requestId": "late-socket--1", "timestamp": recorder.tick(),
+        "response": {"opcode": 2, "payloadData": base64.b64encode(payload).decode()}}})
+    tab = {"namespace": "late", "events": recorder.take(), "frames": numeric_capture.frames_of(recorder,"late",raw=True)}
+    original = json.dumps(tab, sort_keys=True)
+    stamps = [f["timestamp"] for f in tab["frames"]]
+    view = numeric_capture._isolation_view(tab,"initial","a0",None,{},stamps[0]-.001,stamps[-1]+.001,None,
+                                           numeric_capture._ArrowFiles(tmp_path))
+    assert view["end"] == 4 and view["checkpoint"]["finish_frame"] == 2
+    assert json.dumps(tab, sort_keys=True) == original
+
+
+def test_j06_wait_without_response_is_not_ready():
+    recorder = _IsolationCDP("", "silent")
+    state = {"recorder": recorder, "namespace": "silent", "page": _IsolationPage(recorder),
+             "started": 1, "target_id": "own", "key": "a", "navigations": []}
+    with pytest.raises(RuntimeError, match="completion/DOM paint timeout"):
+        numeric_capture._isolation_wait(state,0,"pulse",timeout=.001)
+
+
+def test_j06_runtime_rejects_nonreference_version():
+    from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
+    message = ForwardMsg(); message.new_session.initialize.environment_info.streamlit_version = "1.44.0"
+    tab = {"frames": [{"direction": "server->client", "base64": base64.b64encode(message.SerializeToString()).decode()}]}
+    with pytest.raises(RuntimeError, match="not Streamlit 1.66.1"):
+        numeric_capture._isolation_runtime(tab,reference=True)
+
+
+@pytest.mark.parametrize("side", ["a", "b"])
+@pytest.mark.parametrize("invalid_base64", [False, True])
+def test_j06_decode_fault_retains_both_raw_streams(monkeypatch, tmp_path, side, invalid_base64):
+    code, trace, created, closed = _isolation_driver(monkeypatch,tmp_path,corrupt_tab=side,bad_base64=invalid_base64)
+    assert code == 1 and trace["failures"] and created == closed
+    tabs = trace["observation"]["tabs"]
+    assert set(tabs) == {"a", "b"}
+    for key, recorder in zip(("a", "b"), _IsolationCDP.instances):
+        # Compare all original lifecycle/frame events, not just summary counts.
+        assert tabs[key]["events"] == recorder.take()
+        assert len(tabs[key]["frames"]) == 3
+        for frame,event in zip(tabs[key]["frames"], recorder.take()[-3:]):
+            assert frame["base64"] == event["params"]["response"]["payloadData"]
+    bad = tabs[side]["frames"][-1]
+    if invalid_base64:
+        assert bad["decode_error"] and bad["decoded"] is None
+    else:
+        assert bad["decoded"]["message"] == "undecoded" and bad["decoded"]["error"]
+    assert bad["base64"] == ("not-valid-base64!" if invalid_base64 else "/w==")
+    if not invalid_base64:
+        assert bad["bytes"] == 1 and bad["sha256"] == hashlib.sha256(b"\xff").hexdigest()
+    assert not any(f.get("decode_error") or (f.get("decoded") or {}).get("message") == "undecoded"
+                   for f in tabs["b" if side == "a" else "a"]["frames"])
+
+
+@pytest.mark.parametrize("fault", ["preexisting", "duplicate", "unverified", "missing"])
+def test_j06_rejects_unowned_target_without_navigation_or_close(monkeypatch, tmp_path, fault):
+    code, trace, created, closed = _isolation_driver(monkeypatch,tmp_path,target_fault=fault)
+    assert code == 1 and trace["failures"]
+    assert closed == created == (["owned-0"] if fault == "duplicate" else [])
+    assert not any(method in ("Page.navigate", "Page.reload") for _,method in _IsolationCDP.log)
+    assert "preexisting-user-target" not in closed
+    assert len(_IsolationCDP.instances) == (1 if fault == "duplicate" else 0)
+
+
+def test_j06_plain_text_close_confirms_actual_disappearance(monkeypatch, tmp_path):
+    code,trace,created,closed = _isolation_driver(monkeypatch,tmp_path)
+    assert code == 0 and created == closed
+    for result in trace["observation"]["target_cleanup"].values():
+        assert result["acknowledgement"] == "Target is closing"
+    assert trace["observation"]["target_cleanup"]["b"]["remaining_targets"] == _ORIGINAL_ISOLATION_TARGETS
+
+
+@pytest.mark.parametrize("fault", ["rejected", "retained", "transport"])
+def test_j06_close_failure_cannot_turn_into_pass(monkeypatch, tmp_path, fault):
+    code,trace,_,_ = _isolation_driver(monkeypatch,tmp_path,close_fault=fault)
+    assert code == 1 and "own target cleanup" in trace["summary"]["producer_error"]
+    assert len(trace["observation"]["screenshots"]) == 18
+    assert set(trace["observation"]["tabs"]) == {"a","b"}
+
+
+@pytest.mark.parametrize("value,want", [("0",0),("1",1),("120",120),(0,0),(12,12)])
+def test_j06_readiness_counter_parses_only_exact_nonnegative_counts(value, want):
+    assert numeric_capture._isolation_counter(value) == want
+
+
+@pytest.mark.parametrize("value", [None,False,True,0.0,1.0,-1,""," "," 1","1 ","01","-1","1.0","1x","runs: 1","１"])
+def test_j06_readiness_counter_missing_or_malformed_never_defaults(value):
+    with pytest.raises(ValueError):
+        numeric_capture._isolation_counter(value)
+
+
+def _isolation_counter_state():
+    from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
+    recorder = _IsolationCDP("", "counter-shape")
+    recorder.complete("initial")
+    finish = recorder.events.pop()
+    for label,value in (("Script runs",1),("Pulses",0)):
+        message = ForwardMsg(); message.delta.new_element.text.body = f"{label}: {value}"
+        recorder.events.append({"method":"Network.webSocketFrameReceived","params":{
+            "requestId":"counter-shape-socket--1","timestamp":recorder.tick(),
+            "response":{"opcode":2,"payloadData":base64.b64encode(message.SerializeToString()).decode()}}})
+    finish["params"]["timestamp"] = recorder.tick()
+    recorder.events.append(finish)
+    recorder.dom.update(table_present=False,table_cells=[],chart_present=False,chart_marks="",chart_bars=0)
+    return dict(recorder=recorder,namespace=recorder.label,page=_IsolationPage(recorder),
+                started=1,target_id="own",key="a",navigations=[])
+
+
+def test_j06_real_dom_string_shape_reaches_ready_without_rewriting_dom():
+    state = _isolation_counter_state()
+    numeric_capture._isolation_wait(state,0,"initial",timeout=1)
+    assert state["last_dom_read"]["dom"]["script_runs"] == "1"
+    assert state["last_dom_read"]["dom"]["pulses"] == "0"
+
+
+@pytest.mark.parametrize("bad", [None,"junk","2"])
+def test_j06_actual_wait_rejects_missing_invalid_or_stale_dom_counter(bad):
+    state = _isolation_counter_state()
+    state["recorder"].dom["script_runs"] = bad
+    with pytest.raises(RuntimeError,match="timeout"):
+        numeric_capture._isolation_wait(state,0,"initial",timeout=.001)
+    assert state["last_dom_read"]["dom"]["script_runs"] == bad
+
+
+@pytest.mark.parametrize("fault", ["failed_action","no_response"])
+def test_j06_failed_capture_keeps_actual_last_dom(monkeypatch,tmp_path,fault):
+    code,trace,_,_ = _isolation_driver(monkeypatch,tmp_path,**{fault:True})
+    assert code == 1 and trace["summary"]["failed_phase"]
+    for key,recorder in zip(("a","b"),_IsolationCDP.instances):
+        saved = trace["observation"]["diagnostics"][key]["last_dom_read"]
+        assert saved["timestamp"] > 0
+        assert saved["dom"] == dict(_IsolationPage(recorder).state_digest(),uploaded_files=recorder.dom["uploaded_files"])
+
+
+def test_j06_producer_manifest_counts_actual_inventory_and_exit(monkeypatch,tmp_path):
+    code,_,_,_ = _isolation_driver(monkeypatch,tmp_path)
+    manifest = json.loads((tmp_path/"execution-manifest.json").read_text())
+    assert manifest["targets_before_count"] == manifest["targets_after_count"] == 17
+    assert manifest["original_targets_unchanged"] is True
+    assert manifest["exit_code"] == code == 0
+    assert manifest["executable"] == sys.executable
+    assert manifest["argv"] == sys.argv[1:]
+
+
+def test_j06_failed_manifest_records_nonzero_without_fake_inventory_success(monkeypatch,tmp_path):
+    code,_,_,_ = _isolation_driver(monkeypatch,tmp_path,close_fault="retained")
+    manifest = json.loads((tmp_path/"execution-manifest.json").read_text())
+    assert code == manifest["exit_code"] == 1
+    assert manifest["targets_before_count"] == 17 and manifest["targets_after_count"] == 19
+    assert manifest["original_targets_unchanged"] is False
+
 NAMESPACE = "tab"
 WIDGET = "$$ID-upload"
 FILE_NAME = "sales.csv"

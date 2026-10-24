@@ -26,6 +26,7 @@ import subprocess
 import sys
 import time
 import urllib.request
+import urllib.parse
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tests" / "reference"))
@@ -35,6 +36,8 @@ from capture_browser_trace import (  # noqa: E402
     J03_CASE, J03_CONTRACT, J03_PHASES, J03_INPUTS, J03_ACTIONS, J03_PNG_ROLES, j03_checks,
     J02_CASE, J02_CONTRACT, J02_PHASES, J02_INPUTS, J02_ACTIONS, J02_PNG_ROLES, j02_checks,
     J00_CASE, J00_CONTRACT, J00_PHASES, J00_INPUTS, J00_ACTIONS, J00_PNG_ROLES, j00_checks,
+    J06_CASE, J06_CONTRACT, J06_PHASES, J06_INPUTS, J06_ACTIONS, J06_MODES,
+    J06_PNG_ROLES, J06_OBSERVATION_FIELDS, j06_checks, _j06_materialize_frames,
 )
 
 from capture_browser_trace import (  # noqa: E402
@@ -87,6 +90,13 @@ except ImportError:  # the closed door: the case fails, it never passes by itsel
 
 CHROME_PORT = 60667
 
+# Loaded-file identity is captured once, before any browser action.  Later
+# verification can use another criterion without rewriting this history.
+CAPTURE_SOURCE_BYTES = {
+    "numeric_capture.py": pathlib.Path(__file__).read_bytes(),
+    "capture_browser_trace.py": pathlib.Path(sys.modules["capture_browser_trace"].__file__).read_bytes(),
+}
+
 # J00 presence/membership only; form interaction belongs to the forms collector.
 J00_FORM_DOM_JS = r"""(()=>{
 const qa=(selector,root=document)=>[...root.querySelectorAll(selector)];
@@ -123,6 +133,7 @@ JOURNEYS = (
     J03_CASE,
     J02_CASE,
     J00_CASE,
+    J06_CASE,
 )
 
 
@@ -174,6 +185,25 @@ def http_json(url: str, method: str = "GET"):
     req = urllib.request.Request(url, method=method)
     with urllib.request.urlopen(req, timeout=15) as response:
         return json.loads(response.read().decode("utf-8"))
+
+
+def _close_owned_target(port, ident, timeout=5):
+    url = f"http://127.0.0.1:{port}/json/close/{urllib.parse.quote(ident, safe='')}"
+    with urllib.request.urlopen(url, timeout=15) as response:
+        acknowledgement = response.read().decode("utf-8").strip()
+    if acknowledgement != "Target is closing":
+        raise RuntimeError("Chrome did not acknowledge owned target close: " + acknowledgement)
+    deadline = time.monotonic() + timeout
+    while True:
+        inventory = http_json(f"http://127.0.0.1:{port}/json/list")
+        if not isinstance(inventory,list) or any(not isinstance(t,dict) or not t.get("id") for t in inventory):
+            raise RuntimeError("cannot verify owned target disappearance")
+        if ident not in {t["id"] for t in inventory}:
+            return dict(acknowledgement=acknowledgement, remaining_targets=[
+                {k:t.get(k) for k in ("id","type","url")} for t in inventory])
+        if time.monotonic() >= deadline:
+            raise RuntimeError("owned target still present after close acknowledgement")
+        time.sleep(.1)
 
 
 class Page:
@@ -362,7 +392,7 @@ class Page:
         self.click(rect["x"], rect["y"])
         return True
 
-    def screenshot(self, path, width: int = 1264, height: int = 1800):
+    def screenshot(self, path, width: int = 1264, height: int = 1800, *, restore: bool = True):
         """Save a picture of the page and say how big it was.
 
         The viewport is made tall enough to hold the whole result -- the
@@ -395,7 +425,8 @@ class Page:
                 "viewport": [width, height],
             }
         finally:
-            self.cdp.call("Emulation.clearDeviceMetricsOverride", {})
+            if restore:
+                self.cdp.call("Emulation.clearDeviceMetricsOverride", {})
 
     def wait_for_render(self, timeout: float = 30.0, want_cells: bool = True):
         """Wait until the page has drawn its result and its counters.
@@ -540,7 +571,7 @@ class Page:
         return True
 
 
-def frames_of(recorder, namespace: str = ""):
+def frames_of(recorder, namespace: str = "", *, events=None, raw: bool = False):
     """The recorded frames, each with the connection it travelled on.
 
     The connection is the DevTools request id of the socket, mapped to the
@@ -551,7 +582,7 @@ def frames_of(recorder, namespace: str = ""):
     """
     out = []
     connections = {}
-    for event in recorder.take():
+    for event in (recorder.take() if events is None else events):
         method = event.get("method")
         if method not in ("Network.webSocketFrameSent", "Network.webSocketFrameReceived"):
             continue
@@ -561,10 +592,19 @@ def frames_of(recorder, namespace: str = ""):
         request_id = event["params"].get("requestId")
         if request_id is not None and request_id not in connections:
             connections[request_id] = len(connections)
-        data = base64.b64decode(payload.get("payloadData", ""))
-        decoded = _safe(
-            summarise_back if method.endswith("Sent") else summarise_forward, data
-        )
+        decode_error = None
+        data = None
+        try:
+            data = base64.b64decode(payload.get("payloadData", ""), validate=raw)
+        except Exception as exc:
+            if not raw:
+                raise
+            # Evidence retention must not depend on a successful decoder.
+            # The original CDP event/payload remains available for diagnosis.
+            decoded = None
+            decode_error = f"{type(exc).__name__}: {exc}"
+        else:
+            decoded = _safe(summarise_back if method.endswith("Sent") else summarise_forward, data)
         frame = {
             "direction": "client->server" if method.endswith("Sent") else "server->client",
             "connection": connections.get(request_id),
@@ -573,6 +613,12 @@ def frames_of(recorder, namespace: str = ""):
             "namespace": namespace,
             "decoded": decoded,
         }
+        if raw:
+            frame.update(base64=payload.get("payloadData"))
+            if data is not None:
+                frame.update(bytes=len(data), sha256=hashlib.sha256(data).hexdigest())
+            if decode_error:
+                frame["decode_error"] = decode_error
         if getattr(recorder, "capture_form_membership", False):
             delta = decoded.get("delta") or {}
             form_message = (delta.get("block_type") == "form" or
@@ -1066,7 +1112,7 @@ def _issued_file_urls(frames) -> list[dict]:
     return issued
 
 
-def _http_timeline(recorder) -> list[dict]:
+def _http_timeline(recorder, *, events=None) -> list[dict]:
     """The HTTP requests of a recorder: method, URL, status and moment.
 
     The moment is what binds a request to the window of frames that the
@@ -1074,7 +1120,7 @@ def _http_timeline(recorder) -> list[dict]:
     """
     requests: list[dict] = []
     by_id: dict[str, dict] = {}
-    for event in recorder.take():
+    for event in (recorder.take() if events is None else events):
         params = event.get("params", {})
         if event.get("method") == "Network.requestWillBeSent":
             request = params.get("request", {})
@@ -2593,6 +2639,305 @@ def run_sequence_journey(page, recorder, args, out):
                        lambda: _judge_sequence(args.journey, observation))
 
 
+def _isolation_clock(recorder):
+    metrics = recorder.call("Performance.getMetrics").get("result", {}).get("metrics", [])
+    stamps = [m["value"] for m in metrics if m.get("name") == "Timestamp"]
+    if len(stamps) != 1:
+        raise RuntimeError("CDP monotonic Timestamp unavailable")
+    return stamps[0]
+
+
+def _isolation_dom(page):
+    page.bring_to_front()
+    dom, files = page.state_digest(), page.files_dom()
+    if not isinstance(dom, dict) or not isinstance(files, dict) or not isinstance(files.get("chips"), list):
+        raise RuntimeError("missing actual DOM/uploader read")
+    return dict(dom, uploaded_files=files["chips"])
+
+
+def _isolation_read(state):
+    """Keep actual last reads even when the action/readiness later fails."""
+    try:
+        dom = _isolation_dom(state["page"])
+    except Exception as exc:
+        state["last_dom_read_error"] = f"{type(exc).__name__}: {exc}"
+        raise
+    state["last_dom_read"] = dict(timestamp=_isolation_clock(state["recorder"]),dom=dom)
+    return dom
+
+
+def _isolation_counter(value):
+    # OBSERVE_JS pick() returns trimmed text.  Preserve that raw text in DOM;
+    # parse only for readiness, without bool/float/coercion/defaults.
+    if type(value) is int and value >= 0:
+        return value
+    if isinstance(value,str) and re.fullmatch(r"(?:0|[1-9][0-9]*)",value):
+        return int(value)
+    raise ValueError("missing or invalid actual DOM counter: " + repr(value))
+
+
+def _isolation_tab(state):
+    """Coherent raw snapshot; cache materialization never replaces these bytes."""
+    events = state["recorder"].take()
+    ids = {e.get("params", {}).get("requestId") for e in events
+           if e.get("method") == "Network.requestWillBeSent"
+           and (e.get("params", {}).get("type") == "Document" or
+                "/_stcore/" in e.get("params", {}).get("request", {}).get("url", ""))}
+    events = [e for e in events if e.get("method", "").startswith("Network.webSocket") or
+              (e.get("method", "").startswith("Network.") and e.get("params", {}).get("requestId") in ids)]
+    frames = frames_of(state["recorder"], state["namespace"], events=events, raw=True)
+    documents = [i for i,e in enumerate(events) if e.get("method") == "Network.requestWillBeSent" and e.get("params", {}).get("type") == "Document"]
+    handshakes = [i for i,e in enumerate(events) if e.get("method") == "Network.webSocketWillSendHandshakeRequest"]
+    epochs = []
+    for number, stamp in enumerate(state["navigations"]):
+        if number >= len(documents) or number >= len(handshakes):
+            continue
+        hi = handshakes[number]
+        request = events[hi]["params"]["requestId"]
+        created = [i for i,e in enumerate(events) if e.get("method") == "Network.webSocketCreated" and e.get("params", {}).get("requestId") == request]
+        responses = [i for i,e in enumerate(events) if e.get("method") == "Network.webSocketHandshakeResponseReceived" and e.get("params", {}).get("requestId") == request]
+        connections = [f["connection"] for f in frames if f["request_id"] == request]
+        if created and responses and connections:
+            epochs.append(dict(id=state["key"]+str(number), connection=connections[0],request_id=request,
+                               navigation_timestamp=stamp,navigation_event=documents[number],created_event=created[0],
+                               handshake_event=hi,response_event=responses[0]))
+    return dict(namespace=state["namespace"],target_id=state["target_id"],recorder_started_timestamp=state["started"],
+                frames=frames,events=events,http_timeline=_http_timeline(state["recorder"],events=events),epochs=epochs)
+
+
+def _isolation_view(tab, mode, epoch, before, after, read_start, read_end, checkpoint, arrows):
+    frames = _j06_materialize_frames(tab)
+    start = sum(f["timestamp"] <= read_start for f in frames)
+    end = sum(f["timestamp"] <= read_end for f in frames)
+    view = _phase("", {}, frames, start, end, before, after, arrows)
+    if mode != "readonly":
+        window = _run_window(frames, start)
+        if window is None or window["end"] > end:
+            raise RuntimeError("target run did not complete inside actual DOM read interval")
+        checkpoint = dict(epoch=epoch,script_run_id=_run_id(frames,window),finish_frame=window["finish"])
+    view.update(mode=mode,epoch=epoch,read_start_timestamp=read_start,read_end_timestamp=read_end,checkpoint=checkpoint)
+    return view
+
+
+def _isolation_wait(state, start, mode, filename=None, timeout=45):
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        dom = _isolation_read(state)
+        tab = _isolation_tab(state)
+        if tab["frames"]:
+            frames = _j06_materialize_frames(tab)
+            window = (_upload_window(frames,start,filename,state["namespace"]) if mode == "upload" else _run_window(frames,start))
+            if window is not None:
+                deltas = [f["decoded"].get("delta", {}) for f in frames[window["run"]:window["end"]]]
+                counters = {}
+                for delta in deltas:
+                    match = re.fullmatch(r"(Script runs|Pulses):\s*(\d+)", str(delta.get("body", "")).strip())
+                    if match:
+                        counters[{"Script runs":"script_runs","Pulses":"pulses"}[match[1]]] = int(match[2])
+                table = any(d.get("element") == "dataframe" for d in deltas)
+                try:
+                    matches = len(counters) == 2 and all(_isolation_counter(dom.get(k)) == v for k,v in counters.items())
+                except ValueError as exc:
+                    state["readiness_error"] = str(exc)
+                    matches = False
+                if (matches and
+                        dom.get("table_present") is table and (not table or (dom.get("table_cells") and dom.get("chart_marks")))):
+                    return
+        time.sleep(.2)
+    raise RuntimeError("J06 target wire completion/DOM paint timeout: " + mode)
+
+
+def _isolation_action(state, name, action, args):
+    page, recorder = state["page"], state["recorder"]
+    page.bring_to_front()
+    kind = action["action"]
+    if kind in ("initial", "refresh"):
+        stamp = _isolation_clock(recorder)
+        response = recorder.call("Page.reload", {"ignoreCache":False}) if kind == "refresh" else recorder.call("Page.navigate", {"url":args.url})
+        state["navigations"].append(stamp)
+        return "error" not in response and "errorText" not in response.get("result", {})
+    if kind == "upload":
+        path = ROOT / "tests" / "fixtures" / "csv" / J06_INPUTS[name]
+        action.update(_file_fingerprint(path))
+        return bool(page.upload(str(path.resolve())))
+    if kind == "pulse":
+        return bool(page.click_visible(PULSE_JS))
+    if kind == "select-option":
+        return bool(_select_option(page,action["option"]))
+    if kind == "observe":
+        return True
+    raise ValueError("unsupported shared J06 action: " + kind)
+
+
+def _isolation_runtime(tab, *, reference):
+    from google.protobuf.json_format import MessageToDict
+    from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
+    sessions = []
+    for frame in tab["frames"]:
+        if frame["direction"] != "server->client":
+            continue
+        message = ForwardMsg()
+        message.ParseFromString(base64.b64decode(frame["base64"]))
+        if message.WhichOneof("type") == "new_session":
+            sessions.append(MessageToDict(message.new_session))
+    if not sessions:
+        raise RuntimeError("missing actual NewSession runtime identity")
+    if reference:
+        fixture = ROOT / "tests/reference/app.py"
+        for session in sessions:
+            if session.get("initialize", {}).get("environmentInfo", {}).get("streamlitVersion") != "1.66.1":
+                raise RuntimeError("reference wire runtime is not Streamlit 1.66.1")
+            if pathlib.Path(session.get("mainScriptPath", "")).resolve() != fixture.resolve():
+                raise RuntimeError("reference wire script does not match app.py")
+    return sessions
+
+
+def run_isolation_journey(args, out):
+    """Attach to two owned blank targets first; finally close only those IDs."""
+    states, checkpoints = {}, {}
+    observation = dict(journey=J06_CASE,contract=J06_CONTRACT,url=args.url,ipc_dir=str(out.resolve()),tabs={},phases=[],screenshots=[])
+    arrows, error = _ArrowFiles(out), None
+    manifest = dict(executable=sys.executable,argv=list(sys.argv[1:]),cwd=str(pathlib.Path.cwd()),
+                    started_unix=time.time(),targets_before_count=None,targets_after_count=None,exit_code=None)
+    original_inventory = None
+    current_phase = None
+    try:
+        source_dir = out / "capture-source"
+        source_dir.mkdir(exist_ok=True)
+        sources = {}
+        for name, data in CAPTURE_SOURCE_BYTES.items():
+            (source_dir/name).write_bytes(data)
+            sources[name] = dict(file="capture-source/"+name, sha256=hashlib.sha256(data).hexdigest())
+        observation["capture_sources"] = sources
+        observation["capture_head"] = _git_head()
+        manifest["capture_head"] = observation["capture_head"]
+        _write_trace(out/"execution-manifest.json",manifest)
+        fixture = ROOT / "tests/reference/app.py"
+        observation["reference_fixture"] = dict(file=str(fixture),sha256=hashlib.sha256(fixture.read_bytes()).hexdigest())
+        for key in ("a","b"):
+            inventory = http_json(f"http://127.0.0.1:{args.port}/json/list")
+            if not isinstance(inventory,list) or any(not isinstance(t,dict) or not t.get("id") for t in inventory):
+                raise RuntimeError("cannot establish browser target ownership inventory")
+            existing = {t["id"] for t in inventory}
+            if original_inventory is None:
+                original_inventory = inventory
+                manifest["targets_before_count"] = len(inventory)
+            inventories = observation.setdefault("target_inventories",{})
+            inventories[key] = {"before":[{k:t.get(k) for k in ("id","type","url")} for t in inventory]}
+            created = http_json(f"http://127.0.0.1:{args.port}/json/new?about:blank",method="PUT")
+            ident = created.get("id") if isinstance(created,dict) else None
+            if (not isinstance(ident,str) or not ident or ident in existing or
+                    ident in {s["target_id"] for s in states.values()}):
+                raise RuntimeError("new target ID is missing, preexisting or already owned; refusing attachment/cleanup")
+            listing = http_json(f"http://127.0.0.1:{args.port}/json/list")
+            if isinstance(listing,list):
+                inventories[key]["after"] = [{k:t.get(k) for k in ("id","type","url")} for t in listing if isinstance(t,dict)]
+            matches = [t for t in listing if t.get("id") == ident] if isinstance(listing,list) else []
+            if (len(matches) != 1 or matches[0].get("type") != "page" or matches[0].get("url") != "about:blank" or
+                    not created.get("webSocketDebuggerUrl") or
+                    matches[0].get("webSocketDebuggerUrl") != created["webSocketDebuggerUrl"]):
+                raise RuntimeError("fresh blank target ownership could not be verified; refusing attachment/cleanup")
+            state = dict(key=key,target_id=created["id"],namespace=args.label+"-"+key,navigations=[])
+            states[key] = state
+            recorder = CDP(created["webSocketDebuggerUrl"],label=state["namespace"])
+            state.update(recorder=recorder,page=Page(recorder))
+            recorder.start()
+            recorder.call("Performance.enable")
+            state["started"] = _isolation_clock(recorder)
+            recorder.call("Emulation.setDeviceMetricsOverride",{"width":1264,"height":1800,"deviceScaleFactor":1,"mobile":False})
+        for number,name in enumerate(J06_PHASES):
+            current_phase = name
+            modes, before, starts = J06_MODES[name], {}, {}
+            for key,state in states.items():
+                before[key] = None if number == 0 else _isolation_read(state)
+                starts[key] = _isolation_clock(state["recorder"])
+            action = dict(J06_ACTIONS[name])
+            at = _isolation_clock(states["a"]["recorder"])
+            actors = ("a","b") if action["actor"] == "both" else (action["actor"],) if action["actor"] else ()
+            cursors = {key:len(frames_of(state["recorder"],raw=True)) for key,state in states.items()}
+            action["ok"] = True
+            for key in actors:
+                if not _isolation_action(states[key],name,action,args):
+                    action["ok"] = False
+                    raise RuntimeError("real UI action failed: " + name)
+            for key in actors:
+                _isolation_wait(states[key],cursors[key],modes[key],J06_INPUTS.get(name))
+            if number == 0:
+                observation["initial_new_sessions"] = {
+                    key:_isolation_runtime(_isolation_tab(state), reference=args.scope == "PYTHON SIDE ONLY")
+                    for key,state in states.items()}
+            phase = dict(name=name,action=action,action_timestamp=at,views={})
+            observation["phases"].append(phase)
+            for key,state in states.items():
+                after = _isolation_read(state)
+                end = _isolation_clock(state["recorder"])
+                tab = _isolation_tab(state)
+                epoch = key+str(len(state["navigations"])-1)
+                view = _isolation_view(tab,modes[key],epoch,before[key],after,starts[key],end,checkpoints.get(key),arrows)
+                phase["views"][key] = view
+                checkpoints[key] = view["checkpoint"]
+                file = f"{number+1:02d}-{name}-{key}.png"
+                shot = state["page"].screenshot(out/file,restore=False)
+                if not shot:
+                    raise RuntimeError("actual PNG capture failed: " + file)
+                observation["screenshots"].append(dict(phase=name,tab=key,namespace=state["namespace"],epoch=epoch,
+                    file=file,sha256=hashlib.sha256((out/file).read_bytes()).hexdigest(),timestamp=_isolation_clock(state["recorder"]),
+                    step_ids=list(J06_PNG_ROLES[name]),role="intermediate"))
+            phase["observation_end_timestamp"] = _isolation_clock(states["a"]["recorder"])
+            observation["tabs"] = {key:_isolation_tab(state) for key,state in states.items()}
+            _write_case(out,args,observation,J06_CASE,{"completed_phases":number+1})
+    except Exception as exc:
+        error = f"{type(exc).__name__}: {exc}"
+    finally:
+        for key,state in states.items():
+            recorder = state.get("recorder")
+            if recorder:
+                try:
+                    _isolation_read(state)
+                except Exception as exc:
+                    error = (error or "") + f"; last actual DOM {key}: {exc}"
+                observation.setdefault("diagnostics",{})[key] = {
+                    field:state[field] for field in ("last_dom_read","last_dom_read_error","readiness_error") if field in state}
+                try:
+                    observation["tabs"][key] = _isolation_tab(state)
+                    if any(f.get("decode_error") or (f.get("decoded") or {}).get("message") == "undecoded"
+                           for f in observation["tabs"][key]["frames"]):
+                        error = (error or "") + f"; raw decode failure in {key} (original payload retained)"
+                except Exception as exc:
+                    error = (error or "") + f"; snapshot {key}: {exc}"
+                    observation["tabs"][key] = dict(namespace=state["namespace"],target_id=state["target_id"],
+                        events=recorder.take(),frames=frames_of(recorder,state["namespace"],raw=True),snapshot_error=str(exc))
+                try:
+                    recorder.stop()
+                except Exception as exc:
+                    error = (error or "") + f"; recorder stop {key}: {exc}"
+            try:
+                observation.setdefault("target_cleanup",{})[key] = _close_owned_target(args.port,state["target_id"])
+            except Exception as exc:
+                error = (error or "") + f"; own target cleanup {key}: {exc}"
+        try:
+            final_inventory = http_json(f"http://127.0.0.1:{args.port}/json/list")
+            if not isinstance(final_inventory,list) or any(not isinstance(t,dict) or not t.get("id") for t in final_inventory):
+                raise RuntimeError("invalid final browser inventory")
+            manifest["targets_after_count"] = len(final_inventory)
+            if original_inventory is not None:
+                manifest["original_targets_unchanged"] = sorted((t["id"],t.get("type")) for t in original_inventory) == sorted((t["id"],t.get("type")) for t in final_inventory)
+                if not manifest["original_targets_unchanged"]:
+                    error = (error or "") + "; original browser target inventory changed"
+        except Exception as exc:
+            error = (error or "") + f"; final inventory: {exc}"
+    summary = dict(completed_phases=len(observation["phases"]),producer_error=error,failed_phase=current_phase if error else None)
+    if error:
+        failure = dict(check="producer_exception",actual=error,ok=False)
+        result = _write_case(out,args,observation,J06_CASE,summary,
+                           dict(checks=[failure],failures=[failure],counts=dict(expected=18,executed=0,asserted=0)))
+    else:
+        result = _write_case(out,args,observation,J06_CASE,summary,lambda:_judge_sequence(J06_CASE,observation))
+    manifest.update(exit_code=result,finished_unix=time.time())
+    _write_trace(out/"execution-manifest.json",manifest)
+    return result
+
+
 def _judge_sequence(name, observation):
     """The shared criterion of the whole journey, or the closed door.
 
@@ -2600,7 +2945,7 @@ def _judge_sequence(name, observation):
     written first, so the evidence is on the disk, and the verdict says that
     nothing was judged.
     """
-    criterion = {J00_CASE: j00_checks, J01_CASE: j01_checks, J02_CASE: j02_checks, J03_CASE: j03_checks}.get(name, sequence_checks)
+    criterion = {J06_CASE:j06_checks, J00_CASE: j00_checks, J01_CASE: j01_checks, J02_CASE: j02_checks, J03_CASE: j03_checks}.get(name, sequence_checks)
     if criterion is None:
         checks = [
             {
@@ -2632,6 +2977,7 @@ JOURNEY_RUNNERS = {
     J03_CASE: run_sequence_journey,
     J02_CASE: run_sequence_journey,
     J00_CASE: run_sequence_journey,
+    J06_CASE: run_isolation_journey,
 }
 
 
@@ -2643,7 +2989,7 @@ def replay_sequence(path) -> int:
         trace = json.loads(original)
         name = trace.get("journey")
         observation = trace.get("observation")
-        if (JOURNEY_RUNNERS.get(name) is not run_sequence_journey or
+        if (JOURNEY_RUNNERS.get(name) not in (run_sequence_journey,run_isolation_journey) or
                 trace.get("case") != name or not isinstance(observation, dict) or
                 observation.get("journey") != name):
             raise ValueError("missing, unsupported or contradictory sequence identity")
@@ -2707,6 +3053,11 @@ def main() -> int:
 
     out = pathlib.Path(args.out or f"target/numeric-{args.label}")
     out.mkdir(parents=True, exist_ok=True)
+
+    if args.journey == J06_CASE:
+        if args.case != "data-loop":
+            parser.error("J06 requires --case data-loop")
+        return run_isolation_journey(args,out)
 
     version = http_json(f"http://127.0.0.1:{args.port}/json/version")
     # The tab is opened for this capture and the recorder is bound to that
