@@ -29,6 +29,7 @@ from capture_browser_trace import (  # noqa: E402
     SUITES,
     Capture,
     case_verdict,
+    data_loop_verdict,
     WIDGET_DOM_JS,
     dom_value_for,
     parse_counter_texts,
@@ -730,3 +731,454 @@ def test_the_driver_keeps_the_connection_of_every_frame() -> None:
     frames = module.frames_of(Recorder())
     assert [frame["connection"] for frame in frames] == [0, 0, 1, None]
     assert [frame["request_id"] for frame in frames] == ["1001.7", "1001.7", "1002.9", None]
+
+
+def _data_loop_rows():
+    """One row, as the server sends it."""
+    return [{"group_key": "East", "row_count": 1, "total_amount": 100, "avg_amount": 100}]
+
+
+def _data_loop_frames(connection=0):
+    """The state, the result the server sent, the chart and the completion."""
+    rows = _data_loop_rows()
+    digest = "1" * 64
+    return [
+        _state_frame(connection, WIDGET_ID, "double_array_value", [100]),
+        {
+            "direction": "server->client",
+            "connection": connection,
+            "decoded": {
+                "message": "ForwardMsg",
+                "type": "delta",
+                "delta": {
+                    "type": "new_element",
+                    "element": "dataframe",
+                    "arrow": {
+                        "rows": rows,
+                        "columns": ["group_key", "row_count", "total_amount", "avg_amount"],
+                        "sha256": digest,
+                    },
+                },
+            },
+        },
+        {
+            "direction": "server->client",
+            "connection": connection,
+            "decoded": {
+                "message": "ForwardMsg",
+                "type": "delta",
+                "delta": {
+                    "type": "new_element",
+                    "element": "vega_lite_chart",
+                    "vega_lite_spec": {
+                        "data": {"name": "ds"},
+                        "encoding": {"x": {"field": "group_key", "sort": ["East"]}},
+                    },
+                    "vega_lite_datasets": [{"name": "ds", "arrow": {"sha256": digest}}],
+                },
+            },
+        },
+        completion_frame(connection, 0),
+    ]
+
+
+def _digest(cells, bars, marks="M0,0h10v50Z"):
+    return {
+        "table_cells": cells,
+        "chart_bars": bars,
+        "chart_labels": ["a", "b"],
+        "chart_marks": marks,
+    }
+
+
+def test_a_data_loop_step_that_changed_the_result_passes() -> None:
+    """The value changed, the answer came on the same connection and the
+    rendered result changed: the step passes."""
+    frames = _data_loop_frames()
+    window = {"start": 0, "end": 4, "widget": WIDGET_ID}
+    verdict = data_loop_verdict(
+        SLIDER_CASE, frames, window, {"action": "press"},
+        _digest(["West", "2", "10", "10"], 1, marks="M0,0h10v5Z"),
+        _digest(["East", "1", "100", "100"], 1),
+    )
+    assert verdict["ok"], verdict["problems"]
+
+
+def test_a_data_loop_step_without_rendered_cells_is_rejected() -> None:
+    """A container without cells proves nothing."""
+    frames = _data_loop_frames()
+    window = {"start": 0, "end": 4, "widget": WIDGET_ID}
+    verdict = data_loop_verdict(
+        SLIDER_CASE, frames, window, {"action": "press"},
+        _digest([], 0), _digest([], 0),
+    )
+    assert not verdict["ok"]
+    assert any("no cells" in problem for problem in verdict["problems"])
+
+
+def test_a_data_loop_step_without_bars_is_rejected() -> None:
+    """The chart has to show bars."""
+    frames = _data_loop_frames()
+    window = {"start": 0, "end": 4, "widget": WIDGET_ID}
+    verdict = data_loop_verdict(
+        SLIDER_CASE, frames, window, {"action": "press"},
+        _digest(["East", "1", "100", "100"], 1), _digest(["East", "1", "100", "100"], 0),
+    )
+    assert not verdict["ok"]
+    assert any("no bars" in problem for problem in verdict["problems"])
+
+
+def test_a_data_loop_step_that_changed_nothing_is_rejected() -> None:
+    """The same rows before and after: the data did not update."""
+    frames = _data_loop_frames()
+    window = {"start": 0, "end": 4, "widget": WIDGET_ID}
+    digest = _digest(["East", "1", "100", "100"], 1)
+    verdict = data_loop_verdict(
+        SLIDER_CASE, frames, window, {"action": "press"}, digest, digest,
+    )
+    assert not verdict["ok"]
+    assert any("did not change" in problem for problem in verdict["problems"])
+
+
+def test_a_data_loop_step_with_a_failed_action_is_rejected() -> None:
+    """An action that did not run cannot assert anything."""
+    frames = _data_loop_frames()
+    window = {"start": 0, "end": 4, "widget": WIDGET_ID}
+    verdict = data_loop_verdict(
+        SLIDER_CASE, frames, window, {"action": "press", "failed": "no range input"},
+        _digest(["East", "1", "100", "100"], 1), _digest(["East", "1", "100", "100"], 1),
+    )
+    assert not verdict["ok"]
+    assert any("action failed" in problem for problem in verdict["problems"])
+
+
+def test_a_data_loop_step_answered_on_another_connection_is_rejected() -> None:
+    """The state on one socket and the completion on another prove nothing."""
+    frames = [
+        _state_frame(0, WIDGET_ID, "double_array_value", [100]),
+        completion_frame(1, 0),
+    ]
+    window = {"start": 0, "end": 2, "widget": WIDGET_ID}
+    verdict = data_loop_verdict(
+        SLIDER_CASE, frames, window, {"action": "press"},
+        _digest(["East", "1", "100", "100"], 1), _digest(["East", "1", "100", "100"], 1),
+    )
+    assert not verdict["ok"]
+    assert any("same connection" in problem for problem in verdict["problems"])
+
+
+def test_a_data_loop_step_without_a_completion_is_rejected() -> None:
+    """A state without an answer is not a finished step."""
+    frames = [_state_frame(0, WIDGET_ID, "double_array_value", [100])]
+    window = {"start": 0, "end": 1, "widget": WIDGET_ID}
+    verdict = data_loop_verdict(
+        SLIDER_CASE, frames, window, {"action": "press"},
+        _digest(["East", "1", "100", "100"], 1), _digest(["East", "1", "100", "100"], 1),
+    )
+    assert not verdict["ok"]
+    assert any("same connection" in problem for problem in verdict["problems"])
+
+
+def test_a_data_loop_step_that_repeated_the_value_is_rejected() -> None:
+    """The same value sent again is not a change."""
+    frames = [
+        _state_frame(0, WIDGET_ID, "double_array_value", [100]),
+        _state_frame(0, WIDGET_ID, "double_array_value", [100]),
+        completion_frame(0, 0),
+    ]
+    window = {"start": 1, "end": 3, "widget": WIDGET_ID}
+    verdict = data_loop_verdict(
+        SLIDER_CASE, frames, window, {"action": "press"},
+        _digest(["East", "1", "100", "100"], 1), _digest(["East", "1", "100", "100"], 1),
+    )
+    assert not verdict["ok"]
+    assert any("unchanged" in problem for problem in verdict["problems"])
+
+
+DATA_LOOP_TRACE = (
+    HERE / "reference-browser" / "data-loop" / "updates-strict" / "trace-data-loop.json"
+)
+
+
+def _load_data_loop_trace() -> dict:
+    import json
+
+    return json.loads(DATA_LOOP_TRACE.read_text(encoding="utf-8"))
+
+
+def _first_filter_stage(trace: dict):
+    for stage in trace["stages"]:
+        if stage.get("verdict") is not None:
+            return stage
+    raise AssertionError("no filter stage in the trace")
+
+
+def test_the_data_loop_stage_of_the_trace_passes_the_strict_verdict() -> None:
+    """The published capture satisfies the strict verdict."""
+    trace = _load_data_loop_trace()
+    stage = _first_filter_stage(trace)
+    before = trace["stages"][0]["dom"]
+    verdict = data_loop_verdict(
+        {"kind": "selectbox", "label": "Group by"},
+        trace["frames"],
+        stage["window"],
+        stage["action"],
+        before,
+        stage["dom"],
+    )
+    assert verdict["ok"], verdict["problems"]
+    assert verdict.get("result_digest")
+
+
+def test_a_stale_table_with_only_the_bar_count_changed_is_rejected() -> None:
+    """The counter-example of the review: the old table, the old chart labels
+    and only the number of bars changed."""
+    trace = _load_data_loop_trace()
+    stage = _first_filter_stage(trace)
+    before = trace["stages"][0]["dom"]
+    stale = dict(before)
+    stale["chart_bars"] = 6
+    verdict = data_loop_verdict(
+        {"kind": "selectbox", "label": "Group by"},
+        trace["frames"],
+        stage["window"],
+        stage["action"],
+        before,
+        stale,
+    )
+    assert not verdict["ok"]
+    assert any(
+        "table values did not change" in problem or "does not show" in problem
+        for problem in verdict["problems"]
+    )
+
+
+def test_a_stage_without_a_result_delta_is_rejected() -> None:
+    """The counter-example of the review: every delta frame is emptied."""
+    trace = _load_data_loop_trace()
+    stage = _first_filter_stage(trace)
+    before = trace["stages"][0]["dom"]
+    frames = [
+        dict(frame, decoded={})
+        if (frame.get("decoded") or {}).get("delta")
+        else frame
+        for frame in trace["frames"]
+    ]
+    verdict = data_loop_verdict(
+        {"kind": "selectbox", "label": "Group by"},
+        frames,
+        stage["window"],
+        stage["action"],
+        before,
+        stage["dom"],
+    )
+    assert not verdict["ok"]
+    assert any("no result data in the window" in problem for problem in verdict["problems"])
+
+
+def test_the_entry_fails_when_the_upload_and_every_step_fail() -> None:
+    """The entry must not report success when nothing worked."""
+    import importlib.util
+
+    path = pathlib.Path(__file__).resolve().parents[2] / "tests" / "browser" / "numeric_capture.py"
+    spec = importlib.util.spec_from_file_location("numeric_capture", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+
+    class Page:
+        def upload(self, *args):
+            return False
+
+        def result_digest(self):
+            return {"table_cells": ["stale"], "chart_labels": ["stale"], "chart_bars": 1,
+                    "chart_marks": "stale"}
+
+        def files_dom(self):
+            return {"chips": [], "chip_count": 0}
+
+        def open_selectbox(self, label):
+            return False
+
+        def option_rect(self, text):
+            return None
+
+        def focus_slider(self, label, index):
+            return False
+
+        def focus_checkbox(self, label):
+            return False
+
+        def click(self, x, y):
+            return None
+
+        def chart_tooltip(self):
+            return None
+
+    class Recorder:
+        label = "test"
+
+        def take(self):
+            return []
+
+    class Out:
+        def __init__(self):
+            self.trace = ""
+
+        def __truediv__(self, other):
+            return self
+
+        def write_text(self, text, **kwargs):
+            self.trace = text
+
+    class Args:
+        files = ""
+        fixture = "missing.csv"
+        file_action = "none"
+        binary = ""
+        url = ""
+        keep_changes = False
+
+    out = Out()
+    original_sleep = module.time.sleep
+    module.time.sleep = lambda _seconds: None
+    try:
+        code = module.run_data_loop(Page(), Recorder(), Args(), out)
+    finally:
+        module.time.sleep = original_sleep
+    assert code != 0, "a capture where everything failed must not report success"
+    assert '"failures": []' not in out.trace
+    assert "expected" in out.trace
+
+
+def _verdict_for(trace, stage_index=1, frames=None, dom=None):
+    """The verdict of one stage of the published capture."""
+    stage = trace["stages"][stage_index]
+    before = trace["stages"][stage_index - 1]["dom"]
+    return data_loop_verdict(
+        {"kind": "selectbox", "label": "Group by"},
+        frames if frames is not None else trace["frames"],
+        stage["window"],
+        stage["action"],
+        before,
+        dom if dom is not None else stage["dom"],
+    )
+
+
+def test_the_table_numbers_must_be_the_numbers_of_the_data() -> None:
+    """The counter-example of the review: every number of the table is 999999."""
+    trace = _load_data_loop_trace()
+    stage = trace["stages"][1]
+    dom = dict(stage["dom"])
+    dom["table_cells"] = [
+        value if index % 4 == 0 else "999999"
+        for index, value in enumerate(dom["table_cells"])
+    ]
+    verdict = _verdict_for(trace, dom=dom)
+    assert not verdict["ok"]
+    assert any("cell " in problem for problem in verdict["problems"]), verdict["problems"]
+
+
+def test_an_arbitrary_chart_path_is_rejected() -> None:
+    """The counter-example of the review: the chart is redrawn with any path."""
+    trace = _load_data_loop_trace()
+    stage = trace["stages"][1]
+    dom = dict(stage["dom"])
+    dom["chart_marks"] = "M0,0h1v1h-1Z|" * (dom.get("chart_bars") or 0)
+    verdict = _verdict_for(trace, dom=dom)
+    assert not verdict["ok"]
+    assert any(
+        "bar heights" in problem or "baseline" in problem for problem in verdict["problems"]
+    ), verdict["problems"]
+
+
+def test_a_stage_without_a_chart_delta_is_rejected() -> None:
+    """The counter-example of the review: the chart delta is emptied."""
+    import copy
+
+    trace = _load_data_loop_trace()
+    frames = copy.deepcopy(trace["frames"])
+    for frame in frames:
+        delta = (frame.get("decoded") or {}).get("delta") or {}
+        if delta.get("element") == "vega_lite_chart":
+            frame["decoded"] = {}
+    verdict = _verdict_for(trace, frames=frames)
+    assert not verdict["ok"]
+    assert any("no chart in the window" in problem for problem in verdict["problems"])
+
+
+def test_the_same_groups_with_wrong_numbers_are_rejected() -> None:
+    """The same rows and the same count, but the amounts are wrong."""
+    trace = _load_data_loop_trace()
+    stage = trace["stages"][1]
+    dom = dict(stage["dom"])
+    cells = list(dom["table_cells"])
+    for index in range(2, len(cells), 4):
+        cells[index] = "1"
+    dom["table_cells"] = cells
+    verdict = _verdict_for(trace, dom=dom)
+    assert not verdict["ok"]
+    assert any("cell " in problem for problem in verdict["problems"]), verdict["problems"]
+
+
+def test_the_published_capture_passes_the_strict_verdict() -> None:
+    """Every stage of the published capture satisfies the strict verdict."""
+    trace = _load_data_loop_trace()
+    for index in range(1, len(trace["stages"])):
+        stage = trace["stages"][index]
+        if stage.get("verdict") is None:
+            continue
+        kinds = {
+            "Group by": "selectbox",
+            "Include unknown region": "checkbox",
+            "Minimum amount": "slider",
+        }
+        verdict = data_loop_verdict(
+            {"kind": kinds.get(stage["stage"], "selectbox"), "label": stage["stage"]},
+            trace["frames"],
+            stage["window"],
+            stage["action"],
+            trace["stages"][index - 1]["dom"],
+            stage["dom"],
+        )
+        assert verdict["ok"], (stage["stage"], verdict["problems"])
+
+
+def test_flat_bars_are_rejected() -> None:
+    """The counter-example of the review: every bar has a height of zero.
+
+    The values are positive, so a flat chart stands for nothing even though
+    the ratios of zero heights are all the same.
+    """
+    trace = _load_data_loop_trace()
+    stage = trace["stages"][1]
+    dom = dict(stage["dom"])
+    bars = dom.get("chart_bars") or 0
+    dom["chart_marks"] = "|".join("M0,0h10v0Z" for _ in range(bars))
+    verdict = _verdict_for(trace, dom=dom)
+    assert not verdict["ok"]
+    assert any(
+        "no height" in problem or "positive scale" in problem
+        for problem in verdict["problems"]
+    ), verdict["problems"]
+
+
+def test_a_chart_that_draws_another_column_is_rejected() -> None:
+    """The counter-example of the review: the spec names another column while
+    the bars keep the old heights."""
+    import copy
+
+    trace = _load_data_loop_trace()
+    stage = trace["stages"][1]
+    frames = copy.deepcopy(trace["frames"])
+    for frame in frames:
+        delta = (frame.get("decoded") or {}).get("delta") or {}
+        if delta.get("element") == "vega_lite_chart":
+            spec = delta.get("vega_lite_spec") or {}
+            encoding = spec.setdefault("encoding", {})
+            encoding.setdefault("y", {})["field"] = "row_count"
+    verdict = _verdict_for(trace, frames=frames)
+    assert not verdict["ok"]
+    assert any(
+        "bar heights" in problem or "no height" in problem or "positive scale" in problem
+        for problem in verdict["problems"]
+    ), verdict["problems"]

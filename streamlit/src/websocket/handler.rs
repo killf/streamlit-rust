@@ -81,6 +81,17 @@ async fn do_rerun_script(session: &mut Session, lease: &SessionLease, server: &S
 async fn handle_back_message(session: &mut Session, lease: &SessionLease, back_msg: BackMsg, server: &StreamlitServer) -> Result<(), StreamlitError> {
     if let Some(tp) = back_msg.r#type {
         match tp {
+            Type::FileUrlsRequest(request) => {
+                // URLs always belong to the socket's actual session, never a
+                // client-supplied foreign session ID. Invalid-request parity
+                // remains pending the dedicated reference probe.
+                let response = crate::upload::file_urls(&lease.id, request);
+                let message = ForwardMsg {
+                    r#type: Some(forward_msg::Type::FileUrlsResponse(response)),
+                    ..Default::default()
+                };
+                session.binary(message.encode_to_vec()).await?;
+            }
             Type::RerunScript(client_state) => {
                 log::info!("Handling rerun script request");
                 let widget_states = client_state.widget_states.map(|ws| ws.widgets).unwrap_or_default();

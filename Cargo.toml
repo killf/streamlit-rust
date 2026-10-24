@@ -23,6 +23,7 @@ futures-util = "0.3"
 actix-web = "4.9"
 actix-ws = "0.3"
 actix-files = "0.6.10"
+actix-multipart = { version = "=0.8.5", default-features = false }
 
 # Serialization
 serde = { version = "1.0", features = ["derive"] }
@@ -54,6 +55,13 @@ dashmap = "6.1"
 # Protocol buffers
 prost = "0.14"
 prost-build = "0.14"
+
+# Official Arrow IPC stream encoding; keep the three public crates aligned.
+arrow-array = { version = "=60.0.0", default-features = false }
+arrow-schema = { version = "=60.0.0", default-features = false }
+arrow-ipc = { version = "=60.0.0", default-features = false }
+csv = { version = "=1.4.0", default-features = false }
+rust_decimal = { version = "=1.43.0", default-features = false, features = ["std"] }
 
 # Proc macro dependencies
 syn = { version = "2.0", features = ["full"] }

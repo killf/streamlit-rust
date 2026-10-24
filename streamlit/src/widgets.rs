@@ -27,6 +27,7 @@ pub(crate) enum Codec {
     Bool,
     Select(Vec<(String, Value)>),
     Slider { min: f64, max: f64, count: usize, integer: bool },
+    Files { store: Arc<parking_lot::Mutex<crate::upload::UploadStore>>, multiple: bool },
 }
 
 impl Codec {
@@ -35,6 +36,14 @@ impl Codec {
             (Self::Trigger, widget_state::Value::TriggerValue(value)) => Some((*value).into()),
             (Self::Bool, widget_state::Value::BoolValue(value)) => Some((*value).into()),
             (Self::Select(options), widget_state::Value::StringValue(label)) => options.iter().position(|(text, _)| text == label).map(Value::from),
+            (Self::Files { store, multiple }, widget_state::Value::FileUploaderStateValue(state)) => {
+                let store = store.lock();
+                let ids: Vec<Value> = state.uploaded_file_info.iter().filter(|file| store.get(&file.file_id).is_some()).map(|file| Value::String(file.file_id.clone())).collect();
+                if !multiple && ids.len() > 1 {
+                    return None;
+                }
+                Some(Value::Array(ids))
+            }
             (Self::Slider { count, integer, .. }, widget_state::Value::DoubleArrayValue(array)) if array.data.len() == *count => {
                 let values: Vec<Value> = array.data.iter().map(|value| if *integer { Value::from(*value as i64) } else { Value::from(*value) }).collect();
                 let result = if *count == 1 { values[0].clone() } else { Value::Array(values) };
@@ -52,6 +61,7 @@ impl Codec {
         match self {
             Self::Trigger | Self::Bool => value.is_boolean(),
             Self::Select(options) => value.is_null() || value.as_u64().is_some_and(|index| index < options.len() as u64),
+            Self::Files { multiple, .. } => value.as_array().is_some_and(|ids| (*multiple || ids.len() <= 1) && ids.iter().all(Value::is_string)),
             Self::Slider { min, max, count, integer } => {
                 let values = match value {
                     Value::Array(values) if *count == 2 => values.clone(),
@@ -130,8 +140,8 @@ impl WidgetRegistry {
     }
     pub(crate) fn check_write(&self, key: &str) -> serde_json::Result<()> {
         use serde::ser::Error;
-        if self.records.values().any(|record| record.key.as_deref() == Some(key) && matches!(record.codec, Codec::Trigger)) {
-            return Err(serde_json::Error::custom("button keys are read-only"));
+        if self.records.values().any(|record| record.key.as_deref() == Some(key) && matches!(record.codec, Codec::Trigger | Codec::Files { .. })) {
+            return Err(serde_json::Error::custom("button and uploader keys are read-only"));
         }
         if self.active && self.keys.contains(key) {
             return Err(serde_json::Error::custom("cannot modify a widget key after instantiation in this run"));
@@ -189,8 +199,8 @@ impl SessionState {
             return Err(WidgetError::DuplicateId(id));
         }
         let mut values = self.values.lock();
-        if matches!(codec, Codec::Trigger) && key.is_some_and(|key| values.contains_key(key)) && !registry.records.contains_key(&id) {
-            return Err(WidgetError::InvalidValue("button state cannot be preseeded".into()));
+        if matches!(codec, Codec::Trigger | Codec::Files { .. }) && key.is_some_and(|key| values.contains_key(key)) && !registry.records.contains_key(&id) {
+            return Err(WidgetError::InvalidValue("button and uploader state cannot be preseeded".into()));
         }
         // A constraint-dependent identity change resets the old widget binding.
         let changed_identity = key.is_some_and(|key| registry.records.iter().any(|(old_id, record)| old_id != &id && record.key.as_deref() == Some(key)));

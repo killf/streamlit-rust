@@ -46,6 +46,7 @@ import argparse
 import base64
 import hashlib
 import json
+import math
 import pathlib
 import re
 import shutil
@@ -165,39 +166,17 @@ class AB:
         The table renders into a canvas, so its content is read from the ARIA
         grid cells rather than from innerText.
         """
-        js = r"""(()=>{const q=s=>document.querySelector(s);
-const df=q("[data-testid='stDataFrame']");
-const cells=[...document.querySelectorAll("[data-testid='stDataFrame'] [role='gridcell']")].map(e=>e.textContent);
-const chart=q("[data-testid='stVegaLiteChart']");
-const bars=chart?chart.querySelectorAll("g[class*='mark-rect'] path").length:0;
-const labels=chart?[...chart.querySelectorAll("g[class*='mark-text'] text")].map(e=>e.textContent):[];
-const thumb=q("[data-testid='stSliderThumbValue']");
-const cb=q("[data-testid='stCheckbox'] input");
-const sb=q("[data-testid='stSelectbox'] input");
-const alerts=[...document.querySelectorAll("[data-testid^='stAlertContent']")].map(e=>e.textContent);
-const markdown=[...document.querySelectorAll("[data-testid='stMarkdown']")].map(e=>e.innerText.trim());
-const markdownLines=markdown.flatMap(m=>m.split("\n").map(s=>s.trim())).filter(s=>s);
-const texts=[...document.querySelectorAll("[data-testid='stText']")].map(e=>e.textContent);
-const all=texts.concat(markdownLines);
-const pick=(p)=>{const t=all.find(x=>x.startsWith(p));return t?t.slice(p.length).trim():null;};
-const buttons=[...document.querySelectorAll("[data-testid='stButton']")].map(e=>e.innerText.trim());
-return JSON.stringify({
- document_title: document.title,
- markdown: markdown,
- has_uploader: !!document.querySelector("[data-testid='stFileUploader']"),
- headings: [...document.querySelectorAll("h1,h2,h3")].map(e=>e.innerText.trim()).slice(0,4),
- button_labels: buttons,
- has_button: buttons.length>0,
- script_runs: pick("Script runs:"),
- pulses: pick("Pulses:"),
- applied_note: pick("Applied note:"),
- table_cells:cells, table_present:!!df,
- chart_present:!!chart, chart_bars:bars, chart_labels:labels,
- slider_value: thumb?thumb.textContent:null,
- checkbox_checked: cb?cb.checked:null,
- selectbox_value: sb?sb.value:null,
- texts:texts,
- alerts:alerts});})()"""
+        raw = self.ab.run("eval", OBSERVE_JS)
+        try:
+            value = json.loads(raw)
+        except json.JSONDecodeError:
+            return {"raw": raw[:400]}
+        if isinstance(value, str):
+            try:
+                value = json.loads(value)
+            except json.JSONDecodeError:
+                return {"raw": raw[:400]}
+        return value if isinstance(value, dict) else {"value": value}
         raw = self.run("eval", js)
         try:
             value = json.loads(raw)
@@ -380,6 +359,86 @@ def summarise_forward(payload: bytes) -> dict:
                     MessageToDict(element.height_config) if element.HasField("height_config") else None
                 )
             if widget is not None:
+                if name in DATA_ELEMENT_TYPES:
+                    # The whole element: the table, the chart or the uploader.
+                    try:
+                        from google.protobuf.json_format import MessageToDict
+
+                        entry["element_full"] = MessageToDict(element)
+                    except Exception as exc:  # pragma: no cover - defensive
+                        entry["element_full"] = {"error": f"{type(exc).__name__}: {exc}"}
+                if name in ("dataframe", "table"):
+                    message = getattr(element, name, None)
+                    if message is not None:
+                        if message.arrow_data.data:
+                            entry["arrow"] = arrow_summary(message.arrow_data.data)
+                        entry["arrow_fields"] = {
+                            field: value
+                            for field, value in (
+                                ("id", message.id),
+                                ("columns", message.columns),
+                                ("editing_mode", message.editing_mode),
+                                ("disabled", message.disabled),
+                                ("form_id", message.form_id),
+                                ("column_order", list(message.column_order)),
+                                ("selection_mode", list(message.selection_mode)),
+                                ("row_height", message.row_height),
+                                ("placeholder", message.placeholder),
+                                ("border_mode", getattr(message, "border_mode", None)),
+                                ("hide_index", getattr(message, "hide_index", None)),
+                            )
+                            if value not in (None, "", [], ())
+                        }
+                if name == "vega_lite_chart":
+                    chart = element.vega_lite_chart
+                    entry["vega_lite_spec_raw"] = chart.spec
+                    entry["vega_lite_spec"] = json.loads(chart.spec) if chart.spec else None
+                    entry["vega_lite_datasets"] = [
+                        {
+                            "name": dataset.name,
+                            "has_name": dataset.has_name,
+                            "arrow": (
+                                arrow_summary(dataset.data.data)
+                                if dataset.data.data
+                                else None
+                            ),
+                        }
+                        for dataset in chart.datasets
+                    ]
+                    entry["vega_lite_fields"] = {
+                        "use_container_width": chart.use_container_width,
+                        "theme": chart.theme,
+                        "id": chart.id,
+                        "form_id": chart.form_id,
+                    }
+                    if chart.data and chart.data.data:
+                        entry["arrow"] = arrow_summary(chart.data.data)
+                if name in ("arrow_data_frame", "arrow_vega_lite_chart"):
+                    arrow = getattr(element, name, None)
+                    if arrow is not None:
+                        entry["arrow"] = arrow_summary(arrow.data)
+                        if name == "arrow_vega_lite_chart":
+                            entry["vega_lite_spec"] = json.loads(arrow.spec) if arrow.spec else None
+                            entry["vega_lite_datasets"] = [
+                                MessageToDict(dataset) for dataset in arrow.datasets
+                            ]
+                        else:
+                            entry["arrow_fields"] = {
+                                field: value
+                                for field, value in (
+                                    ("id", arrow.id),
+                                    ("columns", arrow.columns),
+                                    ("editing_mode", arrow.editing_mode),
+                                    ("disabled", arrow.disabled),
+                                    ("form_id", arrow.form_id),
+                                    ("column_order", list(arrow.column_order)),
+                                    ("selection_mode", list(arrow.selection_mode)),
+                                    ("row_height", arrow.row_height),
+                                    ("border_mode", arrow.border_mode),
+                                    ("placeholder", arrow.placeholder),
+                                )
+                                if value not in (None, "", [], ())
+                            }
                 if name in FULL_ELEMENT_WIDGETS:
                     # The whole Element message: every public parameter of the
                     # widget plus the element level width and height config.
@@ -416,6 +475,19 @@ def summarise_forward(payload: bytes) -> dict:
             entry["block_id"] = delta.add_block.id
             entry["block_type"] = delta.add_block.WhichOneof("type")
         out["delta"] = entry
+    elif kind == "file_urls_response":
+        out["file_urls_response"] = {
+            "response_id": msg.file_urls_response.response_id,
+            "file_urls": [
+                {
+                    "file_id": item.file_id,
+                    "upload_url": item.upload_url,
+                    "delete_url": item.delete_url,
+                }
+                for item in msg.file_urls_response.file_urls
+            ],
+            "error_msg": msg.file_urls_response.error_msg,
+        }
     elif kind == "script_finished":
         out["script_finished"] = {
             "status": int(msg.script_finished),
@@ -436,7 +508,13 @@ def summarise_back(payload: bytes) -> dict:
     msg.ParseFromString(payload)
     kind = msg.WhichOneof("type")
     out: dict = {"message": "BackMsg", "type": kind}
-    if kind == "rerun_script":
+    if kind == "file_urls_request":
+        out["file_urls_request"] = {
+            "request_id": msg.file_urls_request.request_id,
+            "file_names": list(msg.file_urls_request.file_names),
+            "session_id": msg.file_urls_request.session_id,
+        }
+    elif kind == "rerun_script":
         states = []
         for widget in msg.rerun_script.widget_states.widgets:
             value_field = widget.WhichOneof("value")
@@ -577,6 +655,137 @@ CORE_WIDGET_CASES = (
 )
 
 
+# The page probe: the table, the chart and the texts of the page.
+OBSERVE_JS = r"""(()=>{const q=s=>document.querySelector(s);
+const df=q("[data-testid='stDataFrame']");
+const cells=[...document.querySelectorAll("[data-testid='stDataFrame'] [role='gridcell']")].map(e=>e.textContent);
+const chart=q("[data-testid='stVegaLiteChart']");
+const bars=chart?chart.querySelectorAll("g[class*='mark-rect'] path").length:0;
+const chartMarks=chart?[...chart.querySelectorAll("g[class*='mark-rect'] path, g[class*='mark-bar'] path")].map(p=>p.getAttribute("d")||"").join("|"):"";
+const labels=chart?[...chart.querySelectorAll("g[class*='mark-text'] text")].map(e=>e.textContent):[];
+const thumb=q("[data-testid='stSliderThumbValue']");
+const cb=q("[data-testid='stCheckbox'] input");
+const sb=q("[data-testid='stSelectbox'] input");
+const alerts=[...document.querySelectorAll("[data-testid^='stAlertContent']")].map(e=>e.textContent);
+const markdown=[...document.querySelectorAll("[data-testid='stMarkdown']")].map(e=>e.innerText.trim());
+const markdownLines=markdown.flatMap(m=>m.split("\n").map(s=>s.trim())).filter(s=>s);
+const texts=[...document.querySelectorAll("[data-testid='stText']")].map(e=>e.textContent);
+const all=texts.concat(markdownLines);
+const pick=(p)=>{const t=all.find(x=>x.startsWith(p));return t?t.slice(p.length).trim():null;};
+const buttons=[...document.querySelectorAll("[data-testid='stButton']")].map(e=>e.innerText.trim());
+return JSON.stringify({
+ document_title: document.title,
+ markdown: markdown,
+ has_uploader: !!document.querySelector("[data-testid='stFileUploader']"),
+ headings: [...document.querySelectorAll("h1,h2,h3")].map(e=>e.innerText.trim()).slice(0,4),
+ button_labels: buttons,
+ has_button: buttons.length>0,
+ script_runs: pick("Script runs:"),
+ pulses: pick("Pulses:"),
+ applied_note: pick("Applied note:"),
+ table_cells:cells, table_present:!!df,
+ chart_present:!!chart, chart_bars:bars, chart_labels:labels, chart_marks:chartMarks,
+ slider_value: thumb?thumb.textContent:null,
+ checkbox_checked: cb?cb.checked:null,
+ selectbox_value: sb?sb.value:null,
+ texts:texts,
+ alerts:alerts});})()"""
+
+# The element types whose full message is the field oracle for the data
+# loop: the table, the chart and the file uploader.
+DATA_ELEMENT_TYPES = (
+    "dataframe",
+    "table",
+    "vega_lite_chart",
+    "file_uploader",
+)
+
+
+def arrow_summary(data: bytes) -> dict:
+    """The Arrow IPC payload: its schema, its rows and the bytes themselves."""
+    import base64 as _base64
+    import hashlib as _hashlib
+
+    info = {"bytes": len(data), "sha256": _hashlib.sha256(data).hexdigest()}
+    if len(data) <= 256 * 1024:
+        info["base64"] = _base64.b64encode(data).decode("ascii")
+    try:
+        import pyarrow as pa
+        import pyarrow.ipc as ipc
+
+        try:
+            table = ipc.open_stream(pa.BufferReader(data)).read_all()
+        except Exception:
+            table = ipc.open_file(pa.BufferReader(data)).read_all()
+        info["schema"] = str(table.schema)
+        info["columns"] = table.schema.names
+        info["row_count"] = table.num_rows
+        info["rows"] = table.to_pylist()[:25]
+    except Exception as exc:
+        info["arrow_error"] = f"{type(exc).__name__}: {exc}"
+    return info
+
+
+def http_requests_from_events(events, target: str = "") -> tuple[list[dict], int]:
+    """The HTTP requests of a capture, with the body of an upload.
+
+    A file upload posts a multipart body: the entries carry the bytes, so
+    the size, the digest and the first bytes of the body are kept next to
+    the method, the URL and the headers.
+    """
+    requests: list[dict] = []
+    static_bundle_requests = 0
+    for event in events:
+        if event.get("method") != "Network.requestWillBeSent":
+            continue
+        params = event.get("params", {})
+        request = params.get("request", {})
+        url = request.get("url", "")
+        if "/static/" in url:
+            static_bundle_requests += 1
+            continue
+        entry = {
+            "target": event.get("_target", target),
+            "method": request.get("method"),
+            "url": url,
+            "resource_type": params.get("type"),
+            "request_headers": {
+                key: value
+                for key, value in (request.get("headers") or {}).items()
+                if key.lower() in ("content-type", "content-length", "origin")
+            },
+        }
+        post = request.get("postData")
+        if post:
+            entry["multipart_preamble"] = post[:400]
+            entry["post_data_bytes"] = len(post)
+        for item in request.get("postDataEntries") or []:
+            raw = base64.b64decode(item.get("bytes", "") or "")
+            entry["post_data_entries"] = [
+                {
+                    "bytes": len(raw),
+                    "sha256": hashlib.sha256(raw).hexdigest(),
+                    "head": raw[:160].decode("utf-8", "replace"),
+                    "base64": base64.b64encode(raw).decode("ascii") if len(raw) <= 256 * 1024 else None,
+                }
+            ]
+            break
+        requests.append(entry)
+    for event in events:
+        if event.get("method") != "Network.responseReceived":
+            continue
+        params = event.get("params", {})
+        url = params.get("response", {}).get("url", "")
+        if "/static/" in url:
+            continue
+        for entry in requests:
+            if entry.get("url") == url and "status" not in entry:
+                entry["status"] = params.get("response", {}).get("status")
+                entry["mime_type"] = params.get("response", {}).get("mimeType")
+                break
+    return requests, static_bundle_requests
+
+
 # The DOM probe: one query per widget, each inside its own container, so a
 # page with several inputs cannot make one widget read another's value.
 WIDGET_DOM_JS = r"""(()=>{const q=s=>document.querySelector(s);
@@ -622,7 +831,7 @@ EXPECTED_VALUE_FIELDS = {
 }
 
 
-def case_verdict(case, frames, window, action, dom_before_value, dom_after_value) -> dict:
+def case_verdict(case, frames, window, action, dom_before_value, dom_after_value, check_page: bool = True) -> dict:
     """Decide one widget case from what actually happened.
 
     The case passes only when the action ran, the widget's own state inside
@@ -702,14 +911,15 @@ def case_verdict(case, frames, window, action, dom_before_value, dom_after_value
     if completion is None:
         problems.append("no successful script_finished on the same connection after the state")
 
-    if dom_after_value is None:
-        problems.append("the page shows no value for this widget")
-    elif not widget_value_matches(dom_after_value, after_value):
-        problems.append(
-            f"the page shows {dom_after_value!r}, the client sent {after_value!r}"
-        )
-    if dom_before_value is not None and dom_before_value == dom_after_value:
-        problems.append(f"the page still shows the old value {dom_before_value!r}")
+    if check_page:
+        if dom_after_value is None:
+            problems.append("the page shows no value for this widget")
+        elif not widget_value_matches(dom_after_value, after_value):
+            problems.append(
+                f"the page shows {dom_after_value!r}, the client sent {after_value!r}"
+            )
+        if dom_before_value is not None and dom_before_value == dom_after_value:
+            problems.append(f"the page still shows the old value {dom_before_value!r}")
 
     return {
         "ok": not problems,
@@ -721,6 +931,180 @@ def case_verdict(case, frames, window, action, dom_before_value, dom_after_value
         "completion_frame": completion,
         "value_matches_the_page": not problems,
     }
+
+
+
+def _same_cell_value(want, got) -> bool:
+    """Is the rendered cell the value of the data?
+
+    A number is compared with a tolerance, because the page may show fewer
+    digits than the data carries; a string is compared as it is.
+    """
+    if want is None:
+        return got in ("", "None", None)
+    if isinstance(want, bool):
+        return str(want) == str(got)
+    if isinstance(want, (int, float)):
+        try:
+            return abs(float(got) - float(want)) <= max(1e-9, abs(float(want)) * 1e-9)
+        except (TypeError, ValueError):
+            return False
+    return str(want).strip() == str(got).strip()
+
+
+def _bar_geometry(chart_marks: str) -> list[dict]:
+    """The bars of a Vega bar chart: their left edge, their top and their height.
+
+    Vega draws a bar as "M<x>,<top>h<width>v<height>...", so the height is
+    the vertical command and the baseline is the bottom of that path.
+    """
+    bars = []
+    for path in (chart_marks or "").split("|"):
+        numbers = re.findall(r"-?\d+(?:\.\d+)?", path)
+        if len(numbers) < 4:
+            continue
+        try:
+            x, top, width, height = (float(number) for number in numbers[:4])
+        except ValueError:
+            continue
+        bars.append({"x": x, "top": top, "width": width, "height": height})
+    bars.sort(key=lambda bar: bar["x"])
+    return bars
+
+
+def data_loop_verdict(case, frames, window, action, dom_before, dom_after) -> dict:
+    """The verdict for one step of the data loop.
+
+    The wire part is the one of a widget case -- the action ran, the
+    widget's own state in the window carries a changed value and a
+    successful script_finished follows it on the same connection.  On top of
+    that the rendered result has to change, because the page must show the
+    effect of the new filter and not only of the rerun.
+    """
+    verdict = case_verdict(case, frames, window, action, None, None, check_page=False)
+    problems = list(verdict["problems"])
+
+    # The result this action caused: the Arrow the server sent inside the
+    # window.  Without it nothing was rendered for this step.
+    rows = None
+    table_arrow = {}
+    chart_delta = None
+    for index in range(window["start"], window["end"]):
+        delta = (frames[index].get("decoded") or {}).get("delta") or {}
+        if delta.get("type") != "new_element":
+            continue
+        if delta.get("element") in ("dataframe", "table"):
+            table_arrow = delta.get("arrow") or {}
+            rows = table_arrow.get("rows")
+            verdict["result_digest"] = table_arrow.get("sha256")
+        if delta.get("element") == "vega_lite_chart":
+            chart_delta = delta
+    if rows is None:
+        problems.append("no result data in the window")
+        rows = []
+
+    before = dom_before or {}
+    after = dom_after or {}
+
+    # Every cell of the page has to be the value of the data, in the order of
+    # the columns of the Arrow.
+    columns = table_arrow.get("columns") or []
+    expected_cells = [
+        row.get(column) for row in rows for column in columns
+    ]
+    actual_cells = after.get("table_cells") or []
+    if len(actual_cells) != len(expected_cells):
+        problems.append(
+            f"the table shows {len(actual_cells)} cells, the data has {len(expected_cells)}"
+        )
+    else:
+        for index, (want, got) in enumerate(zip(expected_cells, actual_cells)):
+            if not _same_cell_value(want, got):
+                problems.append(
+                    f"cell {index} shows {got!r}, the data says {want!r}"
+                )
+                break
+    if not actual_cells:
+        problems.append("the table rendered no cells")
+    if not after.get("chart_bars"):
+        problems.append("the chart rendered no bars")
+
+    # The chart of this step has to be the same data, and it has to be here.
+    if chart_delta is None:
+        problems.append("no chart in the window")
+    else:
+        spec = chart_delta.get("vega_lite_spec") or {}
+        datasets = chart_delta.get("vega_lite_datasets") or []
+        name = (spec.get("data") or {}).get("name")
+        # The chart either carries the data itself or names a data set
+        # that carries it; either way it has to be the data of the table.
+        chart_arrow = chart_delta.get("arrow") or {}
+        dataset_arrow = None
+        for dataset in datasets:
+            if dataset.get("name") == name:
+                dataset_arrow = dataset.get("arrow") or {}
+        if dataset_arrow is None and not chart_arrow:
+            problems.append("the chart names a data set it does not send")
+        else:
+            sent = dataset_arrow or chart_arrow
+            if table_arrow.get("sha256") and sent.get("sha256") != table_arrow.get("sha256"):
+                problems.append("the chart carries other data than the table")
+
+        # The bars have to stand for the values of the rows.  Which
+        # column the chart draws is read from the spec itself.
+        encoding = spec.get("encoding") or {}
+        x_field = (encoding.get("x") or {}).get("field") or "group_key"
+        y_field = (encoding.get("y") or {}).get("field") or "total_amount"
+        order = (encoding.get("x") or {}).get("sort")
+        if not order:
+            order = [row.get(x_field) for row in rows]
+        values = []
+        for key in order:
+            row = next((row for row in rows if row.get(x_field) == key), None)
+            values.append(row.get(y_field) if row else None)
+        bars = _bar_geometry(after.get("chart_marks"))
+        if len(bars) != len(values):
+            problems.append(
+                f"the chart draws {len(bars)} bars, the table has {len(values)} rows"
+            )
+        else:
+            ratios = []
+            baselines = []
+            for bar, value in zip(bars, values):
+                if not isinstance(value, (int, float)):
+                    problems.append("a row of the chart has no value")
+                    break
+                if value > 0:
+                    # A positive value has to be drawn with a positive height:
+                    # a chart whose bars are all flat stands for nothing.
+                    if bar["height"] <= 0:
+                        problems.append(
+                            f"the bar of {value} has no height"
+                        )
+                        break
+                    ratio = bar["height"] / float(value)
+                    if not math.isfinite(ratio) or ratio <= 0:
+                        problems.append(
+                            "the bars do not stand for the values with a positive scale"
+                        )
+                        break
+                    ratios.append(ratio)
+                baselines.append(bar["top"] + bar["height"])
+            if ratios and len(ratios) > 1:
+                spread = max(ratios) - min(ratios)
+                if spread > max(1e-6, abs(max(ratios)) * 1e-6):
+                    problems.append("the bar heights do not stand for the values")
+            if baselines and len(baselines) > 1:
+                if max(baselines) - min(baselines) > 1e-6:
+                    problems.append("the bars do not share one baseline")
+
+    if before.get("table_cells") == after.get("table_cells"):
+        problems.append("the table values did not change")
+    if before.get("chart_marks") == after.get("chart_marks"):
+        problems.append("the chart did not re-render")
+    verdict["problems"] = problems
+    verdict["ok"] = not problems
+    return verdict
 
 
 def suite_failures(required, results) -> list[dict]:
@@ -2154,6 +2538,21 @@ return JSON.stringify({alerts,exceptions});})()"""
                 if post:
                     entry["multipart_preamble"] = post[:400]
                     entry["post_data_bytes"] = len(post)
+                for item in request.get("postDataEntries") or []:
+                    raw = base64.b64decode(item.get("bytes", "") or "")
+                    entry["post_data_entries"] = [
+                        {
+                            "bytes": len(raw),
+                            "sha256": hashlib.sha256(raw).hexdigest(),
+                            "head": raw[:160].decode("utf-8", "replace"),
+                            "base64": (
+                                base64.b64encode(raw).decode("ascii")
+                                if len(raw) <= 256 * 1024
+                                else None
+                            ),
+                        }
+                    ]
+                    break
                 http_requests.append(entry)
             elif method == "Network.responseReceived":
                 url = params.get("response", {}).get("url", "")

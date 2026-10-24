@@ -3,7 +3,7 @@ use crate::session::SessionStore;
 use crate::websocket::handler::handle_connection;
 use actix_files::Files;
 use actix_web::http::header::{HeaderName, HeaderValue};
-use actix_web::{App, HttpRequest, HttpResponse, HttpServer, Responder, get, web};
+use actix_web::{App, HttpRequest, HttpResponse, HttpServer, Responder, get, put, web};
 use std::future::Future;
 use std::pin::Pin;
 use std::sync::Arc;
@@ -84,8 +84,21 @@ fn reconnect_id(protocol: Option<&str>) -> Option<&str> {
     protocol.and_then(|value| value.split(',').nth(2)).map(str::trim).filter(|id| !id.is_empty())
 }
 
+#[put("/_stcore/upload_file/{session_id}/{file_id}")]
+async fn upload_file(path: web::Path<(String, String)>, payload: actix_multipart::Multipart, server: web::Data<StreamlitServer>) -> Result<HttpResponse, crate::upload::UploadHttpError> {
+    let (session_id, file_id) = path.into_inner();
+    server.sessions.state_for_upload(&session_id).ok_or(crate::upload::UploadHttpError::SessionUnavailable)?;
+    // This bounded native transport limit is the local 200 MiB default. Exact
+    // limit/error boundary parity and per-widget overrides await their probes.
+    let file = crate::upload::read_upload(payload, 200 * 1024 * 1024).await?;
+    // Recheck after reading: a request cannot revive an expired session.
+    let state = server.sessions.state_for_upload(&session_id).ok_or(crate::upload::UploadHttpError::SessionUnavailable)?;
+    state.uploads.lock().insert(file_id, file.name, file.content_type, file.bytes);
+    Ok(HttpResponse::NoContent().content_type("text/plain").finish())
+}
+
 fn configure_routes(config: &mut web::ServiceConfig) {
-    config.service(websocket_handler).service(health_check).service(host_config);
+    config.service(websocket_handler).service(health_check).service(host_config).service(upload_file);
 }
 
 /// Handler type that can be either synchronous or asynchronous

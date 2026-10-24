@@ -1,4 +1,5 @@
 //! Typed native inputs. These methods work on Streamlit and its containers.
+use crate::UploadedFiles;
 use crate::api::{AppendChild, ButtonOptions};
 use crate::elements::{button::ButtonElement, input::InputElement};
 use crate::proto::{self, element};
@@ -114,6 +115,66 @@ macro_rules! common_builders {
 pub struct CheckboxOptions {
     common: InputOptions,
     value: bool,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FileUploadMode {
+    Single,
+    Multiple,
+    Directory,
+}
+
+/// File selection uses the same key/callback/render lifecycle as other inputs.
+pub struct FileUploaderOptions {
+    common: InputOptions,
+    accepted_types: Vec<String>,
+    max_upload_size_mb: i32,
+    mode: FileUploadMode,
+}
+impl FileUploaderOptions {
+    pub fn new(label: impl Into<String>) -> Self {
+        Self {
+            common: InputOptions::new(label),
+            accepted_types: Vec::new(),
+            max_upload_size_mb: 200,
+            mode: FileUploadMode::Single,
+        }
+    }
+    pub fn accepted_types(mut self, types: impl IntoIterator<Item = impl Into<String>>) -> Self {
+        self.accepted_types = types
+            .into_iter()
+            .map(Into::into)
+            .map(|kind: String| {
+                if kind.starts_with('.') || kind.contains('/') {
+                    kind
+                } else if matches!(kind.as_str(), "image" | "audio" | "video" | "text") {
+                    format!("{kind}/*")
+                } else {
+                    format!(".{kind}")
+                }
+            })
+            .collect();
+        self
+    }
+    pub fn max_upload_size_mb(mut self, mb: i32) -> Self {
+        self.max_upload_size_mb = mb;
+        self
+    }
+    pub fn mode(mut self, mode: FileUploadMode) -> Self {
+        self.mode = mode;
+        self
+    }
+    common_builders!();
+}
+impl From<&str> for FileUploaderOptions {
+    fn from(label: &str) -> Self {
+        Self::new(label)
+    }
+}
+impl From<String> for FileUploaderOptions {
+    fn from(label: String) -> Self {
+        Self::new(label)
+    }
 }
 impl CheckboxOptions {
     pub fn new(label: impl Into<String>) -> Self {
@@ -307,6 +368,7 @@ impl<L: Into<String>, T: SliderValue, B: Into<f64>> From<(L, T, std::ops::RangeI
 }
 
 pub trait InputWidgets {
+    fn file_uploader(&self, options: impl Into<FileUploaderOptions>) -> Result<UploadedFiles, WidgetError>;
     fn checkbox(&self, options: impl Into<CheckboxOptions>) -> Result<bool, WidgetError>;
     /// Accept a builder or `(label, options)`; both retain the same defaults.
     fn selectbox<T: Clone + Serialize>(&self, options: impl Into<SelectboxOptions<T>>) -> Result<Option<T>, WidgetError>;
@@ -318,6 +380,53 @@ pub trait InputWidgets {
 }
 
 impl<C: AppendChild> InputWidgets for C {
+    fn file_uploader(&self, options: impl Into<FileUploaderOptions>) -> Result<UploadedFiles, WidgetError> {
+        let options = options.into();
+        let c = options.common;
+        let width_config = c.width(false)?;
+        if options.max_upload_size_mb <= 0 {
+            return Err(WidgetError::InvalidValue("max_upload_size_mb must be positive".into()));
+        }
+        let multiple = options.mode != FileUploadMode::Single;
+        let constraints = serde_json::to_string(&(&options.accepted_types, options.max_upload_size_mb, format!("{:?}", options.mode)))?;
+        let identity = c.identity(&constraints);
+        let state = self.get_app().lock().session_state.clone();
+        let uploads = state.uploads.clone();
+        let (id, files, _) = state.register_widget(
+            WidgetSpec {
+                kind: "file_uploader",
+                key: c.key.as_deref(),
+                identity: &identity,
+                default: Value::Array(Vec::new()),
+                codec: Codec::Files { store: uploads.clone(), multiple },
+                callback: c.callback,
+            },
+            |value| {
+                let ids: Vec<String> = serde_json::from_value(value.clone())?;
+                let store = uploads.lock();
+                let files: Vec<_> = ids.iter().filter_map(|id| store.get(id)).collect();
+                Ok(if multiple { UploadedFiles::Multiple(files) } else { UploadedFiles::Single(files.into_iter().next()) })
+            },
+        )?;
+        self.push(Rc::new(RefCell::new(InputElement(proto::Element {
+            width_config,
+            r#type: Some(element::Type::FileUploader(proto::FileUploader {
+                id,
+                label: c.label,
+                r#type: options.accepted_types,
+                max_upload_size_mb: options.max_upload_size_mb,
+                multiple_files: multiple,
+                accept_directory: options.mode == FileUploadMode::Directory,
+                help: c.help,
+                disabled: c.disabled,
+                label_visibility: c.visibility.wire(),
+                ignore_rerun: c.ignore_rerun,
+                ..Default::default()
+            })),
+            ..Default::default()
+        }))));
+        Ok(files)
+    }
     fn checkbox(&self, options: impl Into<CheckboxOptions>) -> Result<bool, WidgetError> {
         let options = options.into();
         let c = options.common;
@@ -745,5 +854,88 @@ mod tests {
             }
         }
         assert_eq!(compared, 9, "failed calls must not emit an element");
+    }
+
+    #[test]
+    fn uploader_matches_csv_reference_and_resolves_native_files_before_callback() {
+        use std::io::Read;
+        let state = SessionState::default();
+        state.begin_widgets(vec![]);
+        let (st, mut wire) = app(&state);
+        let options = || {
+            FileUploaderOptions::new("Upload sales CSV").accepted_types(["csv"]).key("upload").on_change(|st| {
+                let files = st.session_state().uploaded_files("upload").unwrap();
+                assert_eq!(files.len(), 1);
+                assert_eq!(files[0].name(), "sales_basic.csv");
+                st.session_state().set("upload_callback", files[0].size()).unwrap();
+            })
+        };
+        assert!(matches!(st.file_uploader(options()).unwrap(), UploadedFiles::Single(None)));
+        let element::Type::FileUploader(uploader) = input(&mut wire) else { panic!() };
+        let reference: Value = serde_json::from_str(include_str!("../../tests/reference/reference-browser/data-loop/upload/trace-data-loop.json")).unwrap();
+        let observed = reference["frames"].as_array().unwrap().iter().find_map(|frame| frame.pointer("/decoded/delta/element_full/fileUploader")).unwrap();
+        assert_eq!(uploader.label, observed["label"]);
+        assert_eq!(uploader.r#type, vec![observed["type"][0].as_str().unwrap().to_owned()]);
+        assert_eq!(uploader.max_upload_size_mb, observed["maxUploadSizeMb"].as_i64().unwrap() as i32);
+        assert!(!uploader.multiple_files && !uploader.disabled && !uploader.accept_directory);
+        assert_eq!(uploader.label_visibility, Some(proto::LabelVisibility { value: 0 }));
+        assert!(uploader.id.ends_with("-upload"));
+        assert!(state.set("upload", Vec::<String>::new()).is_err(), "uploader keys are read-only");
+        state.finish_widgets();
+        let bytes = include_bytes!("../../tests/fixtures/csv/sales_basic.csv");
+        state.uploads.lock().insert("file".into(), "sales_basic.csv".into(), Some("text/csv".into()), bytes.to_vec());
+        let callbacks = state.begin_widgets(vec![WidgetState {
+            id: uploader.id.clone(),
+            value: Some(widget_state::Value::FileUploaderStateValue(proto::FileUploaderState {
+                uploaded_file_info: vec![proto::UploadedFileInfo {
+                    file_id: "file".into(),
+                    name: "client metadata is not authoritative".into(),
+                    size: 1,
+                    file_urls: None,
+                }],
+            })),
+        }]);
+        let (st, _) = app(&state);
+        assert_eq!(callbacks.len(), 1);
+        for callback in callbacks {
+            callback(&st);
+        }
+        assert_eq!(state.get::<u64>("upload_callback").unwrap(), Some(bytes.len() as u64));
+        let UploadedFiles::Single(Some(mut file)) = st.file_uploader(options()).unwrap() else { panic!() };
+        assert_eq!(file.content_type(), Some("text/csv"));
+        let mut received = Vec::new();
+        file.read_to_end(&mut received).unwrap();
+        assert_eq!(received, bytes);
+        state.finish_widgets();
+        state.begin_widgets(vec![]);
+        let (st, _) = app(&state);
+        assert_eq!(st.file_uploader(options()).unwrap().as_slice()[0].position(), 0);
+        let other = SessionState::default();
+        let (st, _) = app(&other);
+        assert!(st.file_uploader(options()).unwrap().as_slice().is_empty());
+    }
+
+    #[test]
+    fn uploader_mode_constraints_and_foreign_file_ids_remain_isolated() {
+        let state = SessionState::default();
+        let (st, mut wire) = app(&state);
+        let options = || FileUploaderOptions::new("Folder").mode(FileUploadMode::Directory).key("folder");
+        assert!(matches!(st.file_uploader(options()).unwrap(), UploadedFiles::Multiple(files) if files.is_empty()));
+        let element::Type::FileUploader(uploader) = input(&mut wire) else { panic!() };
+        assert!(uploader.multiple_files && uploader.accept_directory);
+        state.finish_widgets();
+        state.begin_widgets(vec![WidgetState {
+            id: uploader.id,
+            value: Some(widget_state::Value::FileUploaderStateValue(proto::FileUploaderState {
+                uploaded_file_info: vec![proto::UploadedFileInfo {
+                    file_id: "other-session-only".into(),
+                    ..Default::default()
+                }],
+            })),
+        }]);
+        let (st, _) = app(&state);
+        assert!(st.file_uploader(options()).unwrap().as_slice().is_empty());
+        assert!(st.file_uploader(FileUploaderOptions::new("Bad").max_upload_size_mb(0)).is_err());
+        // Directory flags are docs/native coverage; no directory browser PASS.
     }
 }

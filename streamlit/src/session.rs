@@ -14,6 +14,7 @@ use std::time::{Duration, Instant};
 pub struct SessionState {
     pub(crate) values: Arc<Mutex<HashMap<String, Value>>>,
     pub(crate) widgets: Arc<Mutex<crate::widgets::WidgetRegistry>>,
+    pub(crate) uploads: Arc<Mutex<crate::upload::UploadStore>>,
 }
 
 impl SessionState {
@@ -72,6 +73,14 @@ pub(crate) struct SessionStore {
 }
 
 impl SessionStore {
+    /// Lookup an existing retained session without creating or transferring it.
+    /// Upload HTTP requests must not implicitly create a client-chosen session.
+    pub(crate) fn state_for_upload(&self, id: &str) -> Option<SessionState> {
+        let mut sessions = self.sessions.lock();
+        let now = Instant::now();
+        sessions.retain(|_, session| session.disconnected_at.is_none_or(|at| now.duration_since(at) < self.disconnected_ttl));
+        sessions.get(id).map(|session| session.state.clone())
+    }
     #[cfg(test)]
     pub(crate) fn owner_for_test(&self, id: &str) -> Option<uuid::Uuid> {
         self.sessions.lock().get(id).map(|session| session.owner)
@@ -191,6 +200,37 @@ mod tests {
         state.set("value", 7).unwrap();
         assert!(state.set("value", Invalid).is_err());
         assert_eq!(state.get::<i32>("value").unwrap(), Some(7));
+    }
+
+    #[tokio::test]
+    async fn retained_uploads_are_session_local_and_fresh_sessions_start_empty() {
+        let store = Arc::new(SessionStore::new(Duration::from_secs(5)));
+        let lease = store.connect(None).await;
+        let id = lease.id.clone();
+        lease.state.uploads.lock().insert("file".into(), "sales.csv".into(), Some("text/csv".into()), vec![1, 2, 3]);
+        let other = store.connect(None).await;
+        assert!(store.state_for_upload(&other.id).unwrap().uploads.lock().get("file").is_none());
+        assert!(store.state_for_upload("unknown").is_none());
+        drop(lease);
+        let restored = store.connect(Some(&id)).await;
+        assert_eq!(restored.id, id);
+        assert_eq!(store.state_for_upload(&id).unwrap().uploads.lock().get("file").unwrap().as_bytes(), &[1, 2, 3]);
+        let fresh = store.connect(None).await;
+        assert_ne!(fresh.id, id);
+        assert!(store.state_for_upload(&fresh.id).unwrap().uploads.lock().get("file").is_none());
+    }
+
+    #[tokio::test]
+    async fn upload_lookup_obeys_local_retention_and_does_not_renew_expiry() {
+        let store = Arc::new(SessionStore::new(Duration::ZERO));
+        let lease = store.connect(None).await;
+        let id = lease.id.clone();
+        assert!(store.state_for_upload(&id).is_some(), "connected sessions do not expire");
+        drop(lease);
+        assert!(store.state_for_upload(&id).is_none());
+        let fresh = store.connect(Some(&id)).await;
+        assert_ne!(fresh.id, id);
+        assert!(fresh.state.uploads.lock().get("file").is_none());
     }
 
     #[tokio::test]

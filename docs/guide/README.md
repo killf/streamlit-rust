@@ -65,6 +65,33 @@ state.remove("obsolete");
 
 `get` returns `Ok(None)` for a missing key and an error for a type mismatch. `set` accepts JSON-serializable Rust values; failed serialization leaves the old value intact. `remove` returns the previous JSON value if present; deleting a key does not reset a widget that is still rendered. Each browser session has its own state. Explicit input-widget keys bind to these values. Set a key before instantiating its widget; `set` rejects assignment after that widget is instantiated in the current run, and assigning button keys is forbidden. Values do not persist across server restarts. Disconnected state is retained for 120 seconds by default; manual server construction can set this local policy with `with_disconnected_session_ttl(Duration)`. Retention is not a compatibility claim about Streamlit's default TTL.
 
+## Upload a CSV and update data views
+
+```powershell
+cargo run --example data_app --locked
+```
+
+Run from the repository root and open `http://127.0.0.1:8501/`. The server loads `./www` from that working directory. Stop another example using that port first. Upload the [sample CSV](../../tests/fixtures/csv/sales_basic.csv) to the [data app](../../streamlit/examples/data_app.rs), which computes a dataframe and an explicitly configured bar chart in Rust. Change **Group by**, **Include unknown region**, or **Minimum amount** to recompute the displayed data. The running app needs no Python process or Python runtime.
+
+The CSV needs lowercase `amount` and `region` headers. Optional `category` and `channel` columns provide additional grouping choices. Unusable amount cells are excluded with a warning; malformed CSV produces an error instead of data views. An empty result renders an empty dataframe without a chart. Totals and averages use this application's decimal HALF_UP rule, not a universal Streamlit rounding rule. Decimals exceeding the example's native precision are rejected instead of silently rounded.
+
+Inside a fallible render function, read the original uploaded bytes:
+
+```rust
+let files = st.file_uploader(
+    FileUploaderOptions::new("Upload sales CSV").accepted_types(["csv"]).key("upload")
+)?;
+if let Some(file) = files.as_slice().first() {
+    st.write(format!("{}: {} bytes", file.name(), file.size()));
+    let original_bytes: &[u8] = file.as_bytes();
+    // Pass original_bytes to your Rust parser.
+}
+```
+
+`UploadedFile` also implements `Read`, `Seek`, and `AsRef<[u8]>`; new handles start reading at zero. `content_type()` returns the supplied MIME type when present. The uploader returns `UploadedFiles::Single(Option<UploadedFile>)` by default; multiple/directory modes use `UploadedFiles::Multiple(Vec<UploadedFile>)`. Uploader keys are read-only; callbacks can resolve their files with `st.session_state().uploaded_files("upload")?`.
+
+Start with the single-file CSV path. The server accepts one file part per upload request, with a local 200 MiB file-content ceiling; it rejects oversized files without storing them. Clearing the widget only unbinds the selection: retained file IDs can still be reused in that session. DELETE is not implemented, there is no total per-session upload quota, and expiry is checked lazily rather than by a background cleanup timer. Multiple/directory workflows, delete/replacement transport, upstream error responses and session-expiry behavior remain incomplete or unverified. Session IDs are reconnect handles, not user authorization; upload requests are not bound to an authenticated requester or an issued file token, and the server has no XSRF validation. Do not expose this endpoint to untrusted clients as a production-ready security boundary. See [upload/widget options](../../streamlit/src/widget_api.rs) and [data view options](../../streamlit/src/data_api.rs) for the advanced API. `dataframe` and the configured bar-chart subset do not implement the full table/chart/selection/streaming surface.
+
 ## Input widgets
 
 ```powershell
@@ -125,4 +152,4 @@ Each call returns `Result<(), StatusError>`. Invalid widths or icons return an e
 
 Available APIs include text and layout, static status messages, `button`, `selectbox`, numeric `slider`, `checkbox`, and native session state. See the [text/layout/status API](../../streamlit/src/api.rs), [widget options](../../streamlit/src/widget_api.rs), and [session API](../../streamlit/src/session.rs).
 
-Table/chart APIs, file uploader, forms, cache, stop/cancel, query binding, persistent hidden widgets, date/time sliders, and most other input widgets are not implemented. Widget failures are Rust `Result` errors; Python-style exception elements and matching exception UI are not implemented. Native session values, reruns, retained-session reconnects, synchronous callbacks, explicit widget keys and one-shot button triggers are available, without a claim of complete Streamlit compatibility.
+Upload and columnar data views currently cover the limited paths described above. General table/chart APIs, selection/add_rows, forms, cache, stop/cancel, query binding, persistent hidden widgets, date/time sliders, and most other input widgets remain incomplete or absent. Widget failures are Rust `Result` errors; Python-style exception elements and matching exception UI are not implemented. Native session values, reruns, retained-session reconnects, synchronous callbacks, explicit widget keys and one-shot button triggers are available, without a claim of complete Streamlit compatibility.

@@ -28,8 +28,11 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tests" / "reference"))
 
 from capture_browser_trace import (  # noqa: E402
+    OBSERVE_JS,
     SUITES,
     case_verdict,
+    data_loop_verdict,
+    http_requests_from_events,
     suite_counts,
     suite_failures,
     WIDGET_DOM_JS,
@@ -110,6 +113,86 @@ class Page:
         )
         value = self.evaluate(js)
         return value if isinstance(value, dict) else None
+
+    def upload(self, paths) -> bool:
+        """Hand files to the file input, the way the browser does it."""
+        if isinstance(paths, str):
+            paths = [paths]
+        document = self.cdp.call("DOM.getDocument", {"depth": 0})
+        root = (document.get("result", {}) or {}).get("root", {}) or {}
+        node = self.cdp.call(
+            "DOM.querySelector",
+            {"nodeId": root.get("nodeId"), "selector": "[data-testid='stFileUploaderDropzoneInput']"},
+        )
+        node_id = (node.get("result", {}) or {}).get("nodeId")
+        if not node_id:
+            return False
+        self.cdp.call("DOM.setFileInputFiles", {"files": list(paths), "nodeId": node_id})
+        return True
+
+    def remove_file(self, name: str) -> bool:
+        """Click the control that removes an uploaded file."""
+        js = (
+            "(()=>{const b=[...document.querySelectorAll('[data-testid=stFileChipDeleteBtn] button, "
+            "[aria-label^=\"Remove\"]')]"
+            ".find(x=>x.getAttribute('aria-label')===" + json.dumps("Remove " + name) + ");"
+            "if(!b)return false;const r=b.getBoundingClientRect();"
+            "return {x:r.x+r.width/2,y:r.y+r.height/2};})()"
+        )
+        rect = self.evaluate(js)
+        if not isinstance(rect, dict):
+            return False
+        self.click(rect["x"], rect["y"])
+        return True
+
+    def files_dom(self):
+        """The files the uploader shows."""
+        value = self.evaluate(
+            "JSON.stringify({chips:[...document.querySelectorAll('[data-testid=stFileChipName]')]"
+            ".map(e=>e.textContent.trim()),"
+            "chip_count:document.querySelectorAll('[data-testid=stFileChip]').length})"
+        )
+        return value if isinstance(value, dict) else None
+
+    def chart_tooltip(self):
+        """Hover the first bar and read the tooltip the chart shows.
+
+        The tooltip carries the values the chart drew, so it is the rendered
+        counterpart of the Arrow payload.
+        """
+        rect = self.evaluate(
+            "(()=>{const m=document.querySelector(\"[data-testid='stVegaLiteChart'] "
+            "g[class*='mark-rect'] path\");"
+            "if(!m)return null;const r=m.getBoundingClientRect();"
+            "return {x:r.x+r.width/2,y:r.y+r.height/2};})()"
+        )
+        if not isinstance(rect, dict):
+            return None
+        self.cdp.call(
+            "Input.dispatchMouseEvent",
+            {"type": "mouseMoved", "x": rect["x"], "y": rect["y"]},
+        )
+        time.sleep(1.5)
+        value = self.evaluate(
+            "(()=>{const t=document.querySelector('[data-testid=stTooltipHoverTarget]');"
+            "return t?t.innerText.replace(/\\s+/g,' ').trim():null;})()"
+        )
+        return value if isinstance(value, str) else None
+
+    def result_digest(self):
+        """The rendered result: the table cells and the chart."""
+        dom = self.evaluate(OBSERVE_JS)
+        if not isinstance(dom, dict):
+            return None
+        return {
+            "table_present": dom.get("table_present"),
+            "table_cells": dom.get("table_cells"),
+            "chart_present": dom.get("chart_present"),
+            "chart_bars": dom.get("chart_bars"),
+            "chart_labels": dom.get("chart_labels"),
+            "chart_marks": dom.get("chart_marks"),
+            "alerts": dom.get("alerts"),
+        }
 
     def slider_inputs(self, label: str):
         js = (
@@ -204,6 +287,357 @@ def states_for(frames, widget_id):
     return found
 
 
+
+# The controls of the data loop: the group, the minimum amount and the
+# unknown region, with the values the reference app expects.
+DATA_LOOP_CASES = (
+    {"kind": "selectbox", "label": "Group by", "option": "region", "other_option": "channel"},
+    {"kind": "checkbox", "label": "Include unknown region"},
+    {"kind": "slider", "label": "Minimum amount", "key": "ArrowRight", "times": 10, "thumb": 0},
+)
+
+
+def act(page, case) -> dict:
+    """Perform one widget change with a real input event."""
+    kind = case["kind"]
+    label = case["label"]
+    if kind == "slider":
+        if page.focus_slider(label, case.get("thumb", 0)):
+            for _ in range(case.get("times", 1)):
+                page.press(case.get("key", "ArrowRight"), case.get("key", "ArrowRight"), 39)
+                time.sleep(0.5)
+            return {"action": "press", "key": case.get("key", "ArrowRight"),
+                    "times": case.get("times", 1)}
+        return {"action": "press", "failed": "no range input"}
+    if kind == "checkbox":
+        if page.focus_checkbox(label):
+            page.press(" ", "Space", 32)
+            return {"action": "press-Space"}
+        return {"action": "press-Space", "failed": "no checkbox input"}
+    if kind == "selectbox":
+        opened = page.open_selectbox(label)
+        rect = None
+        for _ in range(6):
+            time.sleep(1.0)
+            rect = page.option_rect(case.get("option", "region"))
+            if rect:
+                break
+        if rect:
+            page.click(rect["x"], rect["y"])
+            return {"action": "select-option", "option": case.get("option", "region")}
+        return {"action": "select-option", "failed": "no option", "opened": opened}
+    return {"action": "unknown", "failed": f"unknown widget kind {kind!r}"}
+
+
+def stage_elements(frames):
+    """The table and the chart the server sent in these frames."""
+    table = None
+    chart = None
+    for frame in frames:
+        decoded = frame.get("decoded") or {}
+        delta = decoded.get("delta") or {}
+        if delta.get("type") != "new_element":
+            continue
+        if delta.get("element") in ("dataframe", "table") and delta.get("arrow"):
+            table = delta
+        if delta.get("element") == "vega_lite_chart":
+            chart = delta
+    return table, chart
+
+
+
+def data_loop_result(stages, upload, file_action, required):
+    """The result of a data loop capture: the failures and the counts.
+
+    A stage that did not run, a stage whose verdict is not ok, a failed
+    upload and a failed file action all fail the capture.
+    """
+    failures = []
+    if upload.get("failed"):
+        failures.append(
+            {
+                "step": "upload",
+                "check": "file_action",
+                "expected": "the file to be uploaded",
+                "actual": upload["failed"],
+            }
+        )
+    if file_action.get("failed"):
+        failures.append(
+            {
+                "step": "file-action",
+                "check": "file_action",
+                "expected": "the file action to run",
+                "actual": file_action["failed"],
+            }
+        )
+    executed = []
+    asserted = []
+    by_stage = {}
+    for stage in stages:
+        verdict = stage.get("verdict")
+        if verdict is None:
+            continue
+        by_stage[stage["stage"]] = stage
+        executed.append(stage["stage"])
+        if verdict.get("ok"):
+            asserted.append(stage["stage"])
+        else:
+            failures.append(
+                {
+                    "step": f'stage-{stage["stage"]}',
+                    "check": "case_verdict",
+                    "expected": "the step to change the result and to be answered on the "
+                                 "same connection",
+                    "actual": "; ".join(verdict.get("problems") or ["no verdict"]),
+                }
+            )
+    for label in required:
+        if label not in by_stage:
+            failures.append(
+                {
+                    "step": f"stage-{label}",
+                    "check": "case_executed",
+                    "expected": "the step to run against this page",
+                    "actual": "not executed",
+                }
+            )
+    counts = {"expected": len(required), "executed": len(executed), "asserted": len(asserted)}
+    return {"failures": failures, "counts": counts, "ok": not failures}
+
+
+def run_data_loop(page, recorder, args, out):
+    """Upload a CSV and record the first table and chart.
+
+    The Arrow payload is written as a binary file next to the trace and
+    referenced by its digest, so the trace stays readable.
+    """
+    paths = [path for path in (args.files.split(",") if args.files else [args.fixture]) if path]
+    # A replacement uploads the first file and then the second one; every
+    # other case uploads what it was given.
+    initial = paths if args.file_action == "none" else paths[:1]
+    upload = {"action": "upload", "files": initial}
+    if initial and page.upload(initial):
+        upload["uploaded"] = True
+    else:
+        upload["failed"] = "the file input was not found"
+    deadline = time.time() + 60
+    digest = None
+    while time.time() < deadline:
+        digest = page.result_digest()
+        # The table renders its grid after the container, so the cells are
+        # what says that the result is there.
+        if digest and digest.get("table_cells") and digest.get("chart_labels"):
+            break
+        time.sleep(1)
+    time.sleep(4)
+
+    file_action = {"action": args.file_action, "files_before": page.files_dom()}
+    if args.file_action in ("delete", "replace"):
+        name = pathlib.Path(paths[0]).name
+        if args.file_action == "delete":
+            if page.remove_file(name):
+                file_action["removed"] = name
+                time.sleep(5)
+            else:
+                file_action["failed"] = "no remove control for " + name
+        else:
+            second = args.files.split(",")[1] if len(args.files.split(",")) > 1 else ""
+            if second and page.upload(second):
+                file_action["uploaded"] = second
+                time.sleep(6)
+            else:
+                file_action["failed"] = "no second file"
+        digest = page.result_digest()
+        file_action["files_after"] = page.files_dom()
+        file_action["digest_after"] = digest
+
+    seen = frames_of(recorder)
+    events = recorder.take()
+    http_requests, static_count = http_requests_from_events(events)
+
+    # The Arrow payload is written once per digest: the table and the chart
+    # carry the same bytes.
+    arrow_files: dict = {}
+
+    def keep_arrow(arrow):
+        if not arrow:
+            return None
+        digest = arrow.get("sha256")
+        if arrow.get("base64") and digest not in arrow_files:
+            raw = base64.b64decode(arrow["base64"])
+            name = f"arrow-{len(arrow_files) + 1}.bin"
+            (out / name).write_bytes(raw)
+            arrow_files[digest] = name
+        if digest in arrow_files:
+            arrow["base64"] = None
+            arrow["file"] = arrow_files[digest]
+        return arrow
+
+    def describe(frames):
+        table, chart = stage_elements(frames)
+        described = {}
+        if table:
+            arrow = keep_arrow(table.get("arrow"))
+            described["table"] = {
+                "rows": arrow.get("rows") if arrow else None,
+                "schema": arrow.get("schema") if arrow else None,
+                "columns": arrow.get("columns") if arrow else None,
+                "row_count": arrow.get("row_count") if arrow else None,
+                "arrow": {"file": arrow.get("file"), "sha256": arrow.get("sha256"),
+                          "bytes": arrow.get("bytes")} if arrow else None,
+                "arrow_fields": table.get("arrow_fields"),
+            }
+        if chart:
+            described["chart"] = {
+                "spec": chart.get("vega_lite_spec"),
+                "datasets": [
+                    {
+                        "name": dataset.get("name"),
+                        "has_name": dataset.get("has_name"),
+                        "arrow": (
+                            {
+                                "file": (keep_arrow(dataset.get("arrow")) or {}).get("file"),
+                                "sha256": (dataset.get("arrow") or {}).get("sha256"),
+                                "bytes": (dataset.get("arrow") or {}).get("bytes"),
+                            }
+                            if dataset.get("arrow")
+                            else None
+                        ),
+                    }
+                    for dataset in chart.get("vega_lite_datasets") or []
+                ],
+                "fields": chart.get("vega_lite_fields"),
+            }
+        return described
+
+    stages = [{"stage": "after-upload", "dom": digest, **describe(seen)}]
+
+    for case in DATA_LOOP_CASES if args.file_action == "none" else ():
+        before_frames = len(seen)
+        dom_before = page.result_digest()
+        action = act(page, case)
+        time.sleep(4)
+        seen = frames_of(recorder)
+        window = {
+            "click": f'{case["kind"]}-{case["label"]}',
+            "target": recorder.label,
+            "start": before_frames,
+            "end": len(seen),
+            "widget": None,
+        }
+        # The widget id belongs to the control that was changed; the table
+        # carries no id of its own.
+        for frame in seen[before_frames:]:
+            delta = (frame.get("decoded") or {}).get("delta") or {}
+            if delta.get("type") != "new_element":
+                continue
+            payload = delta.get("element_full") or {}
+            inner = payload.get(delta.get("element")) or {}
+            if isinstance(inner, dict) and inner.get("label") == case["label"]:
+                window["widget"] = inner.get("id")
+                break
+        dom_after = page.result_digest()
+        tooltip = page.chart_tooltip()
+        if dom_after is not None and tooltip:
+            dom_after["chart_tooltip"] = tooltip
+        verdict = data_loop_verdict(case, seen, window, action, dom_before, dom_after)
+        stages.append({
+            "stage": case["label"],
+            "action": action,
+            "window": window,
+            "verdict": verdict,
+            "dom": dom_after,
+            **describe(seen[before_frames:]),
+        })
+
+    frames = seen
+    arrow_file_list = [
+        {"file": name, "sha256": digest} for digest, name in arrow_files.items()
+    ]
+
+    file_state = None
+    for frame in frames:
+        decoded = frame.get("decoded") or {}
+        if decoded.get("type") != "rerun_script":
+            continue
+        for state in decoded.get("rerun_script", {}).get("widget_states", []) or []:
+            if "file_uploader" in (state.get("value_field") or ""):
+                file_state = state
+    file_urls_request = [
+        (frame.get("decoded") or {}).get("file_urls_request")
+        for frame in frames
+        if (frame.get("decoded") or {}).get("file_urls_request")
+    ]
+    file_urls_response = [
+        (frame.get("decoded") or {}).get("file_urls_response")
+        for frame in frames
+        if (frame.get("decoded") or {}).get("file_urls_response")
+    ]
+    uploads = [
+        request
+        for request in http_requests
+        if "upload_file" in (request.get("url") or "")
+    ]
+
+    required = [case["label"] for case in DATA_LOOP_CASES] if args.file_action == "none" else []
+    result = data_loop_result(stages, upload, file_action, required)
+
+    trace = {
+        "schema_version": 1,
+        "contract_id": "C-P0-04",
+        "kind": "python-reference-data-loop-trace",
+        "scope": "PYTHON SIDE ONLY. The Rust implementation is not exercised by this file.",
+        "capture": {
+            "tool": "DevTools Protocol against the same real Chrome",
+            "tool_limitation": "the agent-browser CLI could not start its daemon in this "
+                               "environment (connection timeout), so the input is sent over CDP",
+            "input_events": "DOM.setFileInputFiles (the browser uploads the file itself)",
+            "driver": "tests/browser/numeric_capture.py",
+            "binary": args.binary,
+        },
+        "url": args.url,
+        "case": "data-loop",
+        "upload": upload,
+        "file_action": file_action,
+        "result": digest,
+        "stages": stages,
+        "arrow_files": arrow_file_list,
+        "file_uploader_state": file_state,
+        "file_urls_request": file_urls_request,
+        "file_urls_response": file_urls_response,
+        "http_requests": http_requests,
+        "upload_requests": uploads,
+        "static_bundle_requests_counted_not_stored": static_count,
+        "frames": frames,
+        "counts": result["counts"],
+        "failures": result["failures"],
+    }
+    (out / "trace-data-loop.json").write_text(
+        json.dumps(trace, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+    )
+    print("wrote", out / "trace-data-loop.json")
+    print("upload:", json.dumps(upload))
+    print("file action:", json.dumps(file_action))
+    print("file uploader state:", json.dumps(file_state))
+    print("delete requests:", json.dumps([
+        {"method": r.get("method"), "url": (r.get("url") or "").split("/")[-1], "status": r.get("status")}
+        for r in http_requests if r.get("method") == "DELETE"
+    ]))
+    print("table cells:", json.dumps((digest or {}).get("table_cells")))
+    print("chart labels:", json.dumps((digest or {}).get("chart_labels")))
+    print("file_urls_request:", json.dumps(file_urls_request))
+    print("file_urls_response:", json.dumps(file_urls_response))
+    print("upload requests:", json.dumps([{k: r.get(k) for k in ("method", "url", "status")} for r in uploads]))
+    print("arrow files:", json.dumps(arrow_file_list))
+    print("counts:", json.dumps(result["counts"]))
+    print("failures:", json.dumps(result["failures"]))
+    for stage in stages:
+        print("  stage", stage["stage"], "->", json.dumps(stage.get("verdict", {}).get("ok")),
+              json.dumps(stage.get("verdict", {}).get("problems", []))[:160])
+    return 0 if result["ok"] else 1
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--url", required=True)
@@ -215,6 +649,17 @@ def main() -> int:
     parser.add_argument("--kind", default="python-reference-widget-trace")
     parser.add_argument("--suite", choices=sorted(SUITES), default="python-numeric")
     parser.add_argument("--only", choices=("core", "numeric", "all"), default="all")
+    parser.add_argument("--case", choices=("numeric", "data-loop"), default="numeric")
+    parser.add_argument("--files", default="", help="comma separated files to upload")
+    parser.add_argument(
+        "--file-action",
+        choices=("none", "delete", "replace"),
+        default="none",
+        help="what to do with the uploaded file: nothing, remove it, or upload another one",
+    )
+    parser.add_argument("--fixture", default="", help="the CSV to upload in the data loop case")
+    parser.add_argument("--keep-changes", action="store_true",
+                        help="keep the control changes in the data loop case")
     args = parser.parse_args()
 
     out = pathlib.Path(args.out or f"target/numeric-{args.label}")
@@ -244,6 +689,9 @@ def main() -> int:
     recorder.start()
     page = Page(recorder)
     time.sleep(3)
+
+    if args.case == "data-loop":
+        return run_data_loop(page, recorder, args, out)
 
     suite = SUITES[args.suite]
     cases = list(suite["cases"])
