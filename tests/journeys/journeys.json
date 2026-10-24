@@ -295,71 +295,106 @@
       "id": "J03",
       "title": "Table and chart stay in sync",
       "priority": "P0",
-      "status": "failed",
-      "failure": {
-        "reason": "2 of the 4 steps were verified against the Rust data app and published under tests/browser/rust-journeys/; the remaining steps were not run and no screenshot was taken, so the journey is not passed."
-      },
+      "status": "passed",
       "attempt": {
-        "command": "target\\pyref-venv\\Scripts\\python.exe tests\\browser\\numeric_capture.py --url http://127.0.0.1:8501/ --case data-loop --journey <journey> --files <absolute fixture paths> --label rust-final-<journey> --out target\\final-427F-<timestamp>\\rust\\<journey> --binary \"target/checks/data-app-live/data-app-security-final-20261024T152745018.exe sha256 427F3AF719559C14B8A207660B9BA562D42C6F2C9A6B16E7C3864DED9B1D3A19\" --scope \"RUST SIDE ONLY\"",
-        "binary_sha256": "427F3AF719559C14B8A207660B9BA562D42C6F2C9A6B16E7C3864DED9B1D3A19",
-        "source_sha256": "13373cf614f0f16db351d51a72fdc4902504d7952dd53258625c9bae58b09531",
-        "criteria_sha256": "DA2E746A8267E1DFAC65CF0CB5513B3C6B729B33C5035C3CF5C253F016925D9A",
-        "driver_sha256": "9EDC3FA1D456E5592771C448AC5E600C99D71398C5E55CCB7E8A541F61E5F966",
-        "capture_directory": "target/final-427F-20261024T162828",
-        "exit_code": 0,
-        "criteria_sha256_captured": "B29B4F85AC9BEBE885C4B3EEE8E2142D8A44DC4724C6A9F1075BB09062DA08F6",
-        "revalidated": "the same raws pass under the newer criterion, which binds the result to the run that carries the target state"
+        "command": "target\\pyref-venv\\Scripts\\python.exe tests\\browser\\numeric_capture.py --url http://127.0.0.1:8505/ --port 60667 --case data-loop --journey j03-sequence --out target/j03-rust-preflight-20261025T010424 --label rust-j03-preflight --scope \"RUST SIDE ONLY\" --build-base f2a3a787f27fa52d1b5734c2e616bca9686782c9 --binary \"target/checks/j03-f2a3a78-8505/data-app-f2a3a78-8505.exe sha256 aae6dc7ec67ffbf59a36e466dcffdd030eb71a650b666d45086c5e14959cee8e runtime_set_sha256 0c0fdddc85c34506e5783883ddc036c74a42411b669641dbd9152cbab1c1f138 config_sha256 6d209eea08fcaef2dae45440036153cb15dc077ef11ffb47ca597ba7225c1efb compiled_launcher_sha256 6ef44038ca832421d5ef21690a37e4c3920a1dc8df101bd78ba9b21345b75755 original_business_sha256 d94da04673abc3477250771564ff025716ee70f1575a812593411613cdfccf1c\"",
+        "python_command": "target\\pyref-venv\\Scripts\\python.exe tests\\browser\\numeric_capture.py --url http://127.0.0.1:8601/ --port 60667 --case data-loop --journey j03-sequence --out target/j03-python-inset-20261025T010139 --label python-j03-inset --scope \"PYTHON SIDE ONLY\"",
+        "exit_code": 1,
+        "python_exit_code": 1,
+        "capture_head": "f2a3a787f27fa52d1b5734c2e616bca9686782c9",
+        "build_base": "f2a3a787f27fa52d1b5734c2e616bca9686782c9",
+        "note": "Both original captures retain NOT VERIFIED, 1 expected / 1 executed / 0 asserted, exit 1. Final independent replay validates the unchanged bytes. Capture-time source snapshot was not retained; no historical version metadata has been backfilled."
       },
       "linked_artifacts": [
-        "tests/browser/rust-journeys/data-loop/trace-data-loop.json"
-      ],
-      "waived_evidence": [
-        {
-          "artifact": "tests/e2e/J03/J03-S1.png",
-          "reason": "the capture records the wire frames and the DOM values; it takes no screenshot."
-        },
-        {
-          "artifact": "tests/e2e/J03/J03-S2.png",
-          "reason": "the step was not run in this attempt."
-        },
-        {
-          "artifact": "tests/e2e/J03/J03-S3.png",
-          "reason": "the capture records the wire frames and the DOM values; it takes no screenshot."
-        },
-        {
-          "artifact": "tests/e2e/J03/J03-S4.png",
-          "reason": "the step was not run in this attempt."
-        }
+        "tests/browser/rust-journeys/j03-sequence/trace-data-loop.json",
+        "tests/reference/reference-browser/journeys/j03-sequence/trace-data-loop.json",
+        "tests/browser/rust-journeys/j03-sequence/candidate/candidate.json",
+        "tests/e2e/J03/J03-S1.png",
+        "tests/e2e/J03/J03-S2.png",
+        "tests/e2e/J03/J03-S3.png",
+        "tests/e2e/J03/J03-S4.png",
+        "tests/browser/rust-journeys/j03-sequence/01-initial.png",
+        "tests/browser/rust-journeys/j03-sequence/04-prepare-slider-zero.png"
       ],
       "steps": [
         {
           "id": "J03-S1",
           "action": "Load the baseline with 'Group by' = 'category'.",
           "expectation": "The table has 4 rows and the chart has exactly 4 bars whose heights correspond to total_amount 245.75, 409.48, 139.00 and 104.49, in the same key order.",
-          "python_reference_trace": "tests/reference/reference-browser/data-loop/updates-strict/trace-data-loop.json",
-          "rust_result": "four rows and four bars for Books 245.75, Games 409.48, Music 139 and Toys 104.49.",
-          "rust_evidence": "tests/browser/rust-journeys/data-loop/trace-data-loop.json"
+          "python_reference_trace": "tests/reference/reference-browser/journeys/j03-sequence/trace-data-loop.json",
+          "rust_result": "Same-page target state, distinct run and successful completion; rendered table cells [\"Books\", \"3\", \"245.75\", \"81.92\", \"Games\", \"3\", \"409.48\", \"136.49\", \"Music\", \"3\", \"139\", \"46.33\", \"Toys\", \"3\", \"104.49\", \"34.83\"] and matching chart values.",
+          "rust_evidence": "tests/browser/rust-journeys/j03-sequence/trace-data-loop.json",
+          "evidence_phase": "upload-baseline",
+          "screenshot": "tests/e2e/J03/J03-S1.png",
+          "screenshot_sha256": "a90990fe959137612a22d0efd59c9c70e5a2f36b799b519a4e9d8115183c3244"
         },
         {
           "id": "J03-S2",
           "action": "Move the slider to 100.",
-          "expectation": "In the same rerun the table drops to 2 rows and the chart drops to 2 bars. No stale bars from the previous state remain."
+          "expectation": "In the same rerun the table drops to 2 rows and the chart drops to 2 bars. No stale bars from the previous state remain.",
+          "python_reference_trace": "tests/reference/reference-browser/journeys/j03-sequence/trace-data-loop.json",
+          "rust_evidence": "tests/browser/rust-journeys/j03-sequence/trace-data-loop.json",
+          "evidence_phase": "slider-100",
+          "screenshot": "tests/e2e/J03/J03-S2.png",
+          "screenshot_sha256": "bb5f3c37a07f45cf4df58a3ce620dae7065a92979c27b4014284413c096ff9a1",
+          "rust_result": "Same-page target state, distinct run and successful completion; rendered table cells [\"Books\", \"1\", \"120.5\", \"120.5\", \"Games\", \"2\", \"349.49\", \"174.75\"] and matching chart values."
         },
         {
           "id": "J03-S3",
           "action": "Change 'Group by' to 'region'.",
           "expectation": "The chart's x-axis labels become the 6 region keys, including '(missing)' and 'UNKNOWN', and the bar count equals the table row count.",
-          "python_reference_trace": "tests/reference/reference-browser/data-loop/updates-strict/trace-data-loop.json",
-          "rust_result": "the six region labels, with the bar count equal to the table row count.",
-          "rust_evidence": "tests/browser/rust-journeys/data-loop/trace-data-loop.json"
+          "python_reference_trace": "tests/reference/reference-browser/journeys/j03-sequence/trace-data-loop.json",
+          "rust_result": "Same-page target state, distinct run and successful completion; rendered table cells [\"(missing)\", \"1\", \"88\", \"88\", \"East\", \"2\", \"209.49\", \"104.75\", \"North\", \"3\", \"264.5\", \"88.17\", \"South\", \"2\", \"245.24\", \"122.62\", \"UNKNOWN\", \"2\", \"40.49\", \"20.25\", \"West\", \"2\", \"51\", \"25.5\"] and matching chart values.",
+          "rust_evidence": "tests/browser/rust-journeys/j03-sequence/trace-data-loop.json",
+          "evidence_phase": "group-region",
+          "screenshot": "tests/e2e/J03/J03-S3.png",
+          "screenshot_sha256": "61191d5802353c76fc1bb11541a18c4a070c8b103718ef4bd02b7b65e30a53fe"
         },
         {
           "id": "J03-S4",
           "action": "Move the slider to 200 so that no row matches.",
-          "expectation": "The table is present but empty and the chart is not rendered at all. The chart is removed, not rendered as an empty axis."
+          "expectation": "The table is present but empty and the chart is not rendered at all. The chart is removed, not rendered as an empty axis.",
+          "python_reference_trace": "tests/reference/reference-browser/journeys/j03-sequence/trace-data-loop.json",
+          "rust_evidence": "tests/browser/rust-journeys/j03-sequence/trace-data-loop.json",
+          "evidence_phase": "slider-200",
+          "screenshot": "tests/e2e/J03/J03-S4.png",
+          "screenshot_sha256": "41f628c8f7f512b5bb82415d4ce2fd3b1142e4be6b7d07073bea7fd735e481e7",
+          "rust_result": "Same-page target state, distinct run and successful completion; zero-row table with the four typed columns, no chart or stale bars."
         }
       ],
-      "python_reference_trace": "tests/reference/reference-browser/closed-loop/trace.json"
+      "python_reference_trace": "tests/reference/reference-browser/journeys/j03-sequence/trace-data-loop.json",
+      "preparation_contract": {
+        "version": "journey-j03-sync-v1",
+        "before_step": "J03-S3",
+        "phase": "prepare-slider-zero",
+        "action": "After category/100, visibly reset Minimum amount to 0, await the target successful run and restored four categories, then choose region. All three slider operations use one pointer gesture each; all preparation runs count. Include unknown region stays observed true without a click.",
+        "evidence": "tests/browser/rust-journeys/j03-sequence/trace-data-loop.json"
+      },
+      "verification": {
+        "method": "Hooke independent candidate review plus final replay of the unchanged complete Python139/Rust109 same-page J03 chains. All four original steps, reset preparation, typed states, three single pointer slider changes plus one selector change with exactly one run each, same session/connection, complete IPC/table/chart values and six phase PNGs per side were checked. The initial and preparation phases do not add business steps.",
+        "final_replay_criteria_sha256": "dd2b80b217ffd2cf97008333010b3c66f8ffd45654c17e75a2c47b66d81e3a58",
+        "producer_sha256": "8a96699820d6f6307d3ec2230f8fcfd25d7053ab760952e015145256acc4183c",
+        "binary_sha256": "aae6dc7ec67ffbf59a36e466dcffdd030eb71a650b666d45086c5e14959cee8e",
+        "runtime_set_sha256": "0c0fdddc85c34506e5783883ddc036c74a42411b669641dbd9152cbab1c1f138",
+        "config_sha256": "6d209eea08fcaef2dae45440036153cb15dc077ef11ffb47ca597ba7225c1efb",
+        "compiled_launcher_sha256": "6ef44038ca832421d5ef21690a37e4c3920a1dc8df101bd78ba9b21345b75755",
+        "original_business_sha256": "d94da04673abc3477250771564ff025716ee70f1575a812593411613cdfccf1c",
+        "candidate_metadata": "tests/browser/rust-journeys/j03-sequence/candidate/candidate.json",
+        "rust_raw_sha256": "1123e211376fa3c8f7eb307329036aed0facdb2b81172da822dd913c1dcd86e0",
+        "python_raw_sha256": "5798c11f1eba559988d98da1978cd79de8fee1e6cbd4bdc0cc15132bbfbf8ec5",
+        "counts": {
+          "expected": 15,
+          "executed": 15,
+          "asserted": 15
+        },
+        "python_counts": {
+          "expected": 15,
+          "executed": 15,
+          "asserted": 15
+        },
+        "exit_code": 0,
+        "note": "Final replay identity only, not capture-time acceptance. Python empty group_key is double, Rust large_string; the zero-row column has no key values. Remaining field types and all nonempty logical values agree. Original raw metadata and NOT VERIFIED verdicts remain unchanged."
+      }
     },
     {
       "id": "J04",

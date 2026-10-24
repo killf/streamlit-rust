@@ -173,6 +173,58 @@ def test_j01_unverified_criterion_cannot_pass():
     assert verdict["counts"]["asserted"] == 0
 
 
+def test_j03_plan_uses_only_shared_phases_actions_and_inputs():
+    n = numeric_capture
+    plan = n._sequence_plan(n.J03_CASE)
+    assert tuple(p[0] for p in plan) == n.J03_PHASES
+    for name, action, want_cells, _ in plan:
+        assert all(action[k] == v for k, v in n.J03_ACTIONS[name].items())
+        if name in n.J03_INPUTS:
+            assert action["file"] == n.J03_INPUTS[name]
+        assert want_cells == (name not in ("initial", "slider-200"))
+    verdict = n._judge_sequence(n.J03_CASE, {})
+    assert verdict["failures"] and verdict["counts"]["asserted"] == 0
+
+
+def _pointer_page(before_value, after_value):
+    calls = []
+    cdp = SimpleNamespace(call=lambda method, params: calls.append((method, params)) or {})
+    page = numeric_capture.Page(cdp)
+    def state(value):
+        return {"min": "0", "max": "200", "step": "10", "value": str(value),
+                "aria_value_now": None, "aria_value_text": str(value),
+                "track": {"x": 100, "y": 200, "width": 400, "height": 40}, "viewport": [600, 500]}
+    answers = iter([None, state(before_value), state(after_value)])
+    page.evaluate = lambda _: next(answers)
+    return page, calls
+
+
+@pytest.mark.parametrize("target,x", [(0, 100), (100, 300), (200, 499)])
+def test_slider_pointer_one_mouse_gesture_and_actual_value(target, x):
+    page, calls = _pointer_page(100 if target == 0 else 0, target)
+    result = page.slider_pointer("Minimum amount", target, timeout=0)
+    assert result["ok"] and result["after"]["value"] == str(target)
+    assert result["after"]["aria_value_text"] == str(target)
+    assert [params["type"] for _, params in calls] == ["mouseMoved", "mousePressed", "mouseReleased"]
+    assert all(method == "Input.dispatchMouseEvent" and params["x"] == x and params["y"] == 220
+               for method, params in calls)
+    assert all(params["x"] < 500 for _, params in calls)
+
+
+def test_slider_pointer_unchanged_native_value_is_failure_without_retry():
+    page, calls = _pointer_page(0, 0)
+    result = page.slider_pointer("Minimum amount", 100, timeout=0)
+    assert not result["ok"] and result["after"]["value"] == "0"
+    assert len(calls) == 3
+
+
+def test_slider_pointer_missing_track_never_sends_mouse_events():
+    page, calls = _pointer_page(0, 100)
+    page.evaluate = lambda _: None
+    assert not page.slider_pointer("Minimum amount", 100, timeout=0)["ok"]
+    assert not calls
+
+
 @pytest.mark.parametrize("error_type", [NameError, RuntimeError])
 @pytest.mark.parametrize("case", [numeric_capture.J01_CASE, "j07-sequence"])
 def test_sequence_preserves_observation_when_criterion_raises(monkeypatch, tmp_path, error_type, case):

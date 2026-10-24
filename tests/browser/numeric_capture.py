@@ -32,6 +32,7 @@ sys.path.insert(0, str(ROOT / "tests" / "reference"))
 
 from capture_browser_trace import (  # noqa: E402
     J01_CASE, J01_CONTRACT, J01_PHASES, J01_INPUTS, J01_ACTIONS, J01_PNG_ROLES, j01_checks,
+    J03_CASE, J03_CONTRACT, J03_PHASES, J03_INPUTS, J03_ACTIONS, J03_PNG_ROLES, j03_checks,
 )
 
 from capture_browser_trace import (  # noqa: E402
@@ -101,6 +102,7 @@ JOURNEYS = (
     "j07-sequence",
     "j08-sequence",
     J01_CASE,
+    J03_CASE,
 )
 
 
@@ -120,11 +122,14 @@ SEQUENCE_WITH_TABLE = {
 
 def _sequence_plan(kind):
     """The steps of a whole journey, read from the shared contract."""
-    if kind == J01_CASE:
+    if kind in (J01_CASE, J03_CASE):
+        phases, inputs, actions = ((J01_PHASES, J01_INPUTS, J01_ACTIONS) if kind == J01_CASE
+                                   else (J03_PHASES, J03_INPUTS, J03_ACTIONS))
         return [
-            (name, dict(J01_ACTIONS[name], **({"file": J01_INPUTS[name]} if name in J01_INPUTS else {})),
-             name != "initial", "%02d-%s.png" % (index + 1, name))
-            for index, name in enumerate(J01_PHASES)
+            (name, dict(actions[name], **({"file": inputs[name]} if name in inputs else {})),
+             name != "initial" and not (actions[name].get("action") == "slider" and actions[name].get("value") == 200),
+             "%02d-%s.png" % (index + 1, name))
+            for index, name in enumerate(phases)
         ]
     plan = []
     for index, name in enumerate(SEQUENCE_PHASES[kind]):
@@ -416,6 +421,49 @@ class Page:
             "if(!t)return false;t.focus();return true;})()"
         )
         return bool(self.evaluate(js))
+
+    def slider_pointer(self, label: str, value: float, timeout: float = 5.0):
+        """One visible track click; read the actual native value and ARIA back."""
+        group = ("[...document.querySelectorAll('[data-testid=stSlider] [role=group]')]"
+                 ".find(e=>e.getAttribute('aria-label')===" + json.dumps(label) + ")")
+        self.evaluate("(()=>{const g=" + group + ";g?.scrollIntoView({block:'center'});})()")
+        read = ("(()=>{const g=" + group + ";const i=g?.querySelector('input[type=range]');"
+                "const t=g?.firstElementChild;if(!i||!t)return null;"
+                "return {value:i.value,min:i.min,max:i.max,step:i.step,"
+                "aria_value_now:i.getAttribute('aria-valuenow'),"
+                "aria_value_text:i.getAttribute('aria-valuetext'),"
+                "track:t.getBoundingClientRect().toJSON(),viewport:[innerWidth,innerHeight]};})()")
+        before = self.evaluate(read)
+        result = {"ok": False, "requested_value": value, "before": before, "after": None}
+        if not isinstance(before, dict):
+            return dict(result, error="no visible slider track/input")
+        minimum, maximum = float(before["min"]), float(before["max"])
+        track = before["track"]
+        if not minimum <= value <= maximum or maximum <= minimum or track["width"] <= 0:
+            return dict(result, error="invalid slider range/track")
+        # The right boundary belongs to the adjacent box in browser hit testing.
+        # Click inside the track; the native step rounding still selects max.
+        x = min(track["x"] + track["width"] * (value - minimum) / (maximum - minimum),
+                track["x"] + track["width"] - min(1.0, track["width"] / 2))
+        y = track["y"] + track["height"] / 2
+        result["pointer"] = {"x": x, "y": y, "method": "single-track-click"}
+        if not 0 <= x < before["viewport"][0] or not 0 <= y < before["viewport"][1]:
+            return dict(result, error="target outside visible viewport")
+        for kind, buttons in (("mouseMoved", 0), ("mousePressed", 1), ("mouseReleased", 0)):
+            response = self.cdp.call("Input.dispatchMouseEvent", {
+                "type": kind, "x": x, "y": y, "button": "left", "buttons": buttons, "clickCount": 1,
+            })
+            if "error" in response:
+                return dict(result, error=response["error"])
+        deadline = time.monotonic() + timeout
+        while True:
+            after = self.evaluate(read)
+            result["after"] = after
+            if isinstance(after, dict) and float(after["value"]) == value:
+                return dict(result, ok=True)
+            if time.monotonic() >= deadline:
+                return dict(result, error="native slider value did not reach requested value")
+            time.sleep(0.05)
 
     def focus_checkbox(self, label: str) -> bool:
         js = (
@@ -2376,6 +2424,7 @@ def run_sequence_journey(page, recorder, args, out):
     result of a step is bound to the run that answered it.
     """
     steps = _sequence_plan(args.journey)
+    contract = {J01_CASE: J01_CONTRACT, J03_CASE: J03_CONTRACT}.get(args.journey, SEQUENCE_CONTRACT)
     arrow_files = _ArrowFiles(out)
     source = recorder.label
     phases, screenshots, uploads = [], [], {}
@@ -2399,6 +2448,11 @@ def run_sequence_journey(page, recorder, args, out):
         elif action["action"] == "select-option":
             ok = _select_option(page, action["option"])
             window = _phase_window(recorder, source, start, None, previous_run)
+        elif args.journey == J03_CASE and action["action"] == "slider":
+            pointer = page.slider_pointer(action["label"], action["value"])
+            action = dict(action, pointer=pointer)
+            ok = pointer["ok"]
+            window = _phase_window(recorder, source, start, None, previous_run)
         else:
             page.focus_slider(action["label"], 0)
             page.press(action["key"], action["key"], action["code"])
@@ -2410,7 +2464,12 @@ def run_sequence_journey(page, recorder, args, out):
         dom = page.wait_for_render(want_cells=want_cells) or {}
         alerts = page.page_alerts() or {}
         if window is None:
-            raise SystemExit("the step " + name + " produced no run")
+            observation = _observe(source, recorder, args, out, uploads, phases, [], arrow_files, screenshots,
+                                   contract=contract, phase_ids=[p["name"] for p in phases])
+            observation["journey"] = args.journey
+            return _write_case(out, args, observation, args.journey,
+                               {"incomplete_phase": name, "action": dict(action, ok=bool(ok)),
+                                "dom_before": dom_before, "dom_after": dom})
         phase = _phase(name, dict(action, ok=bool(ok), **fingerprint),
                        frames, window["start"], window["end"], dom_before, dom, arrow_files)
         shot = _shot(page, frames, out, shot_name, read_at)
@@ -2421,11 +2480,11 @@ def run_sequence_journey(page, recorder, args, out):
         dom = page.state_digest() or dom
         alerts = page.page_alerts() or alerts
         record = _sequence_record(name, source, shot, out,
-                                  roles=J01_PNG_ROLES if args.journey == J01_CASE else None)
+                                  roles={J01_CASE: J01_PNG_ROLES, J03_CASE: J03_PNG_ROLES}.get(args.journey))
         if record:
             screenshots.append(record)
         phase["alerts"] = alerts.get("alerts")
-        if args.journey == J01_CASE:
+        if args.journey in (J01_CASE, J03_CASE):
             phase["dom_after"] = dom
         phase["exceptions"] = alerts.get("exceptions")
         phase["counters"] = {"script_runs": dom.get("script_runs"), "pulses": dom.get("pulses")}
@@ -2437,7 +2496,7 @@ def run_sequence_journey(page, recorder, args, out):
         previous_run = _run_id(frames, window)
 
     observation = _observe(source, recorder, args, out, uploads, phases, [], arrow_files, screenshots,
-                           contract=J01_CONTRACT if args.journey == J01_CASE else SEQUENCE_CONTRACT,
+                           contract=contract,
                            phase_ids=[name for name, _, _, _ in steps])
     observation["journey"] = args.journey
     summary = {
@@ -2470,7 +2529,7 @@ def _judge_sequence(name, observation):
     written first, so the evidence is on the disk, and the verdict says that
     nothing was judged.
     """
-    criterion = j01_checks if name == J01_CASE else sequence_checks
+    criterion = {J01_CASE: j01_checks, J03_CASE: j03_checks}.get(name, sequence_checks)
     if criterion is None:
         checks = [
             {
@@ -2499,6 +2558,7 @@ JOURNEY_RUNNERS = {
     "j07-sequence": run_sequence_journey,
     "j08-sequence": run_sequence_journey,
     J01_CASE: run_sequence_journey,
+    J03_CASE: run_sequence_journey,
 }
 
 

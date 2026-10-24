@@ -1261,6 +1261,7 @@ def _journey_contract_fixture(tmp_path, kind):
         phase=driver["_phase"]("upload" if upload else "change-group",action,frames,start,len(frames),before,dom,files)
         return phase,dom
 
+    run.arrow_files = files
     return _journey_fixture_parts(tmp_path, kind, run, driver, fixture_root, columns)
 
 
@@ -2210,11 +2211,13 @@ def _sequence_unit_observation(tmp_path, kind):
     from unittest.mock import patch
     if kind == checks.J01_CASE:
         phase_names, inputs, png_roles, contract = checks.J01_PHASES, checks.J01_INPUTS, checks.J01_PNG_ROLES, checks.J01_CONTRACT
+    elif kind == checks.J03_CASE:
+        phase_names, inputs, png_roles, contract = checks.J03_PHASES, checks.J03_INPUTS, checks.J03_PNG_ROLES, checks.J03_CONTRACT
     else:
         phase_names, inputs, png_roles, contract = checks.SEQUENCE_PHASES[kind], checks.SEQUENCE_INPUTS, checks.SEQUENCE_PNG_ROLES, checks.SEQUENCE_CONTRACT
     with patch.dict(_journey_contract_fixture.__globals__, {"_journey_fixture_parts": lambda *args: args}):
         _, _, run, driver, fixture_root, _ = _journey_contract_fixture(tmp_path, "unit-sequence")
-    store = driver["_ArrowFiles"](tmp_path)
+    store = run.arrow_files
     source = "sequence-unit"
     frames, timeline, phases, records, uploads = [], [], [], [], {}
     dom = {"script_runs":"1","pulses":"0","table_present":False,"table_cells":[],"chart_present":False,
@@ -2242,6 +2245,8 @@ def _sequence_unit_observation(tmp_path, kind):
         if upload:filename = inputs[name]
         if kind == checks.J01_CASE and name in ("group-region", "group-channel", "prepare-category"):
             group = checks.J01_ACTIONS[name]["option"]
+        elif kind == checks.J03_CASE and name == "group-region":
+            group = checks.J03_ACTIONS[name]["option"]
         bad = filename in ("sales_malformed.csv","sales_latin1.csv")
         timeline_start = len(timeline)
         phase, after = run(frames,timeline,source,filename,group,upload=upload,bad=bad,old=copy.deepcopy(dom))
@@ -2263,6 +2268,24 @@ def _sequence_unit_observation(tmp_path, kind):
         elif filename == "sales_latin1.csv":expected_alerts=[("ERROR","Could not parse the uploaded CSV: the uploaded file is not valid UTF-8"),("INFO","Upload a valid CSV to continue.")]
         elif filename == "sales_with_missing.csv":expected_alerts=[("WARNING","2 row(s) with an unusable 'amount' were excluded from the aggregation.")]
         elif filename == "sales_empty.csv":expected_alerts=[("INFO","The uploaded CSV contains no data rows.")]
+        if kind == checks.J03_CASE and name == "slider-100":
+            from refcore import aggregate,parse_csv
+            rows=[{"group_key":v.group_key,"row_count":v.row_count,"total_amount":float(v.total_amount),"avg_amount":float(v.avg_amount)}
+                  for v in aggregate(parse_csv((fixture_root/filename).read_bytes()).rows,group,100,True)]
+            table=pa.Table.from_pylist(rows,schema=pa.schema([("group_key",pa.large_string()),("row_count",pa.int64()),("total_amount",pa.float64()),("avg_amount",pa.float64())]))
+            sink=pa.BufferOutputStream()
+            with pa.ipc.new_stream(sink,table.schema) as writer:writer.write_table(table)
+            arrow=checks.arrow_summary(sink.getvalue().to_pybytes());dataset="dataset-"+arrow["sha256"][:12]
+            for f in frames[start:]:
+                delta=f["decoded"].get("delta",{})
+                if delta.get("element")=="dataframe":delta["arrow"]=arrow
+                elif delta.get("element")=="vega_lite_chart":
+                    delta["vega_lite_spec"]["data"]["name"]=dataset
+                    delta["vega_lite_spec"]["encoding"]["x"]["sort"]=[r["group_key"] for r in rows]
+                    delta["vega_lite_datasets"]=[{"name":dataset,"arrow":arrow}]
+            next(v for v in states if v["id"]=="minimum")["value_full"]={"data":[100.]}
+            after.update(table_cells=[str(r[c]) for r in rows for c in ("group_key","row_count","total_amount","avg_amount")],
+                         chart_bars=len(rows),chart_marks="|".join(f"M{i*10},{1000-r['total_amount']}h8v{r['total_amount']}Z" for i,r in enumerate(rows)),slider_value="100")
         if name == "slider-200":
             next(v for v in states if v["id"]=="minimum")["value_full"]={"data":[200.]}
             table = pa.Table.from_pylist([],schema=pa.schema([("group_key",pa.float64()),("row_count",pa.int64()),("total_amount",pa.float64()),("avg_amount",pa.float64())]))
@@ -2279,6 +2302,17 @@ def _sequence_unit_observation(tmp_path, kind):
                   "file_sha256":hashlib.sha256((fixture_root/filename).read_bytes()).hexdigest(),"file_bytes":(fixture_root/filename).stat().st_size} if upload else {"action":"slider","label":"Minimum amount","value":200 if name=="slider-200" else 0,"ok":True}
         if kind == checks.J01_CASE and not upload:
             action = dict(checks.J01_ACTIONS[name],ok=True,changed=True)
+        elif kind == checks.J03_CASE and not upload:
+            action = dict(checks.J03_ACTIONS[name],ok=True)
+            if action["action"] == "slider":
+                # Generated unit observations matching the measured probe shape,
+                # not a claim that a browser pointer was actually dispatched.
+                def slider_snapshot(value):
+                    return {"value":str(value),"min":"0","max":"200","step":"10","aria_value_now":None,"aria_value_text":str(value),
+                            "track":{"x":50.,"y":100.,"width":1000.,"height":40.,"left":50.,"right":1050.,"top":100.,"bottom":140.},"viewport":[1200,900]}
+                value=action["value"]
+                action["pointer"]={"ok":True,"requested_value":value,"before":slider_snapshot(int(dom["slider_value"])),"after":slider_snapshot(value),
+                                   "pointer":{"method":"single-track-click","x":1049. if value==200 else 50.+value*5,"y":120.}}
         after.update(script_runs=str(number),pulses="0",alerts=[body for _,body in expected_alerts],exceptions=[])
         extra = [output("alert",body=body,alert={"format":style,"body":body}) for style,body in expected_alerts]
         extra += [output("text",body=f"Script runs: {number}"),output("text",body="Pulses: 0")]
@@ -2623,3 +2657,143 @@ def test_j01_coherent_bom_ipc_and_dom_corruption_is_rejected(tmp_path,mutation):
         if mutation=="bom_key" and delta.get("element")=="vega_lite_chart":delta["vega_lite_spec"]["encoding"]["x"]["sort"]=keys
     _stage2_specific_refresh(observation)
     assert not journey_result(checks.j01_checks(observation=observation))["ok"]
+
+
+def test_j03_generated_unit_model_has_full_original_values_but_no_reference_claim(tmp_path):
+    """Only a unit model; generated pointer fields are not reference evidence."""
+    import capture_browser_trace as checks
+    observation=_sequence_unit_observation(tmp_path,checks.J03_CASE)
+    assert tuple(p["name"] for p in observation["phases"])==checks.J03_PHASES
+    expected={
+        "upload-baseline":checks.J01_EXPECTED_ROWS["upload-baseline"],
+        "slider-100":(("Books",1,"120.50","120.50"),("Games",2,"349.49","174.75")),
+        "prepare-slider-zero":checks.J01_EXPECTED_ROWS["upload-baseline"],
+        "group-region":checks.J01_EXPECTED_ROWS["group-region"],
+        "slider-200":(),
+    }
+    files={p["ipc"]["table"]["arrow"]["sha256"]:p["ipc"]["table"]["arrow"]["file"] for p in observation["phases"][1:]}
+    for phase in observation["phases"][1:]:
+        current=observation["frames"][phase["start"]:phase["end"]]
+        wire=next(f["decoded"]["delta"]["arrow"] for f in current if f["decoded"].get("delta",{}).get("element")=="dataframe")
+        actual=checks._journey_ipc(wire,{"ipc_dir":observation["ipc_dir"],"ipc_files":files})
+        rows=[{"group_key":key,"row_count":count,"total_amount":float(total),"avg_amount":float(mean)} for key,count,total,mean in expected[phase["name"]]]
+        assert actual["rows"]==rows
+        assert phase["dom_after"]["checkbox_checked"] is True
+    empty=observation["phases"][-1]
+    assert empty["dom_after"]["chart_present"] is False and empty["ipc"]["chart"] is None
+    result=journey_result(checks.j03_checks(observation=observation))
+    assert result["ok"],result["failures"]
+    assert result["counts"]["asserted"]==len(checks.J03_REQUIRED)
+
+
+@pytest.mark.parametrize("mutation",[
+    "missing_prepare","prepare_did_not_reset","region_still_category","checkbox_false","wrong_slider_type",
+    "wrong_full_values","stale_four_bars_at_100","stale_chart_at_empty","empty_table_missing",
+    "counter_reset","foreign_namespace","reused_run_id","terminal2","missing_image","wrong_png_clock",
+])
+def test_j03_negative_specs_reject_incomplete_or_wrong_values(tmp_path,mutation):
+    """Generated mutations remain separate from reference/raw evidence."""
+    import capture_browser_trace as checks
+    observation=_sequence_unit_observation(tmp_path,checks.J03_CASE)
+    phases=observation["phases"];phase=phases[2]
+    current=observation["frames"][phase["start"]:phase["end"]]
+    states=next(f["decoded"]["rerun_script"]["widget_states"] for f in current if f["decoded"].get("type")=="rerun_script")
+    if mutation=="missing_prepare":phases.pop(3)
+    elif mutation=="prepare_did_not_reset":phases[3]["dom_after"]["slider_value"]="100"
+    elif mutation=="region_still_category":phases[4]["dom_after"]["selectbox_value"]="category"
+    elif mutation=="checkbox_false":next(v for v in states if v["id"]=="unknown")["value"]=False
+    elif mutation=="wrong_slider_type":next(v for v in states if v["id"]=="minimum")["value_field"]="string_value"
+    elif mutation=="wrong_full_values":phase["dom_after"]["table_cells"][2]="999.0"
+    elif mutation=="stale_four_bars_at_100":phase["dom_after"]["chart_bars"]=4
+    elif mutation=="stale_chart_at_empty":phases[-1]["dom_after"]["chart_present"]=True
+    elif mutation=="empty_table_missing":phases[-1]["dom_after"]["table_present"]=False
+    elif mutation=="counter_reset":phases[-1]["dom_after"]["script_runs"]="1"
+    elif mutation=="foreign_namespace":current[-1]["namespace"]="other-context"
+    elif mutation=="reused_run_id":next(f["decoded"]["new_session"] for f in current if f["decoded"].get("type")=="new_session")["script_run_id"]="initial-run"
+    elif mutation=="terminal2":current[-1]["decoded"]["script_finished"]["status"]=2
+    elif mutation=="missing_image":observation["screenshots"].pop(3)
+    else:observation["screenshots"][-1]["timestamp"]=1_800_000_000.
+    _stage2_specific_refresh(observation)
+    assert not journey_result(checks.j03_checks(observation=observation))["ok"]
+
+
+@pytest.mark.parametrize("mutation",["missing","only_ok","not_ok","wrong_method","wrong_requested","right_edge","outside_viewport",
+                                      "wrong_x_for_value","nan_x","wrong_aria","wrong_now","missing_aria","wrong_before","wrong_step"])
+def test_j03_pointer_requires_observed_geometry_aria_and_real_value_change(tmp_path,mutation):
+    import capture_browser_trace as checks
+    observation=_sequence_unit_observation(tmp_path,checks.J03_CASE)
+    phase=observation["phases"][2];record=phase["action"]["pointer"]
+    if mutation=="missing":phase["action"].pop("pointer")
+    elif mutation=="only_ok":phase["action"]["pointer"]={"ok":True}
+    elif mutation=="not_ok":record["ok"]=False
+    elif mutation=="wrong_method":record["pointer"]["method"]="injected-clientstate"
+    elif mutation=="wrong_requested":record["requested_value"]=200
+    elif mutation=="right_edge":record["pointer"]["x"]=record["before"]["track"]["right"]
+    elif mutation=="outside_viewport":record["pointer"]["y"]=record["before"]["viewport"][1]+1
+    elif mutation=="wrong_x_for_value":record["pointer"]["x"]=record["before"]["track"]["left"]
+    elif mutation=="nan_x":record["pointer"]["x"]=float("nan")
+    elif mutation=="wrong_aria":record["after"]["aria_value_text"]="0"
+    elif mutation=="wrong_now":record["after"]["aria_value_now"]="200"
+    elif mutation=="missing_aria":record["after"].pop("aria_value_text")
+    elif mutation=="wrong_before":record["before"]["value"]="100"
+    else:record["before"]["step"]="20"
+    assert not journey_result(checks.j03_checks(observation=observation))["ok"]
+
+
+@pytest.mark.parametrize("mutation",["empty_null_key","empty_wrong_count","empty_wrong_order","empty_large_string_valid","populated_double_key"])
+def test_j03_actual_ipc_keeps_bounded_empty_schema_and_strict_populated_schema(tmp_path,mutation):
+    import base64
+    import pyarrow as pa
+    import capture_browser_trace as checks
+    observation=_sequence_unit_observation(tmp_path,checks.J03_CASE)
+    phase=observation["phases"][2 if mutation=="populated_double_key" else -1]
+    current=observation["frames"][phase["start"]:phase["end"]]
+    arrow=next(f["decoded"]["delta"]["arrow"] for f in current if f["decoded"].get("delta",{}).get("element")=="dataframe")
+    old_sha=arrow["sha256"];table=pa.ipc.open_stream(base64.b64decode(arrow["base64"])).read_all()
+    if mutation=="empty_null_key":table=table.set_column(0,"group_key",pa.array([],type=pa.null()))
+    elif mutation=="empty_wrong_count":table=table.set_column(1,"row_count",pa.array([],type=pa.float64()))
+    elif mutation=="empty_wrong_order":table=table.select(["row_count","group_key","total_amount","avg_amount"])
+    elif mutation=="empty_large_string_valid":table=table.set_column(0,"group_key",pa.array([],type=pa.large_string()))
+    else:
+        keys=[float(i) for i in range(table.num_rows)];table=table.set_column(0,"group_key",pa.array(keys,type=pa.float64()))
+        for index,key in enumerate(keys):phase["dom_after"]["table_cells"][index*4]=str(key)
+    sink=pa.BufferOutputStream()
+    with pa.ipc.new_stream(sink,table.schema) as writer:writer.write_table(table)
+    payload=checks.arrow_summary(sink.getvalue().to_pybytes())
+    for f in current:
+        delta=f["decoded"].get("delta",{})
+        for value in [delta.get("arrow"),*[d.get("arrow") for d in delta.get("vega_lite_datasets",[])]]:
+            if value and value.get("sha256")==old_sha:value.clear();value.update(payload)
+        if mutation=="populated_double_key" and delta.get("element")=="vega_lite_chart":delta["vega_lite_spec"]["encoding"]["x"]["sort"]=keys
+    _stage2_specific_refresh(observation)
+    result=journey_result(checks.j03_checks(observation=observation))
+    assert result["ok"] is (mutation=="empty_large_string_valid"),result["failures"]
+
+
+def test_j03_empty_dom_cannot_hide_a_stale_wire_chart(tmp_path):
+    import copy
+    import capture_browser_trace as checks
+    observation=_sequence_unit_observation(tmp_path,checks.J03_CASE)
+    region,empty=observation["phases"][-2:];frames=observation["frames"]
+    chart=next(f["decoded"] for f in frames[region["start"]:region["end"]] if f["decoded"].get("delta",{}).get("element")=="vega_lite_chart")
+    target=next(f for f in frames[empty["start"]:empty["end"]] if f["decoded"].get("delta",{}).get("element")=="alert")
+    target["decoded"]=copy.deepcopy(chart)
+    _stage2_specific_refresh(observation)
+    assert not journey_result(checks.j03_checks(observation=observation))["ok"]
+
+
+def test_j03_single_pointer_cannot_mask_two_actual_slider_runs(tmp_path):
+    import copy
+    import capture_browser_trace as checks
+    observation=_sequence_unit_observation(tmp_path,checks.J03_CASE)
+    phase=observation["phases"][-1];frames=observation["frames"]
+    extra=copy.deepcopy(frames[phase["start"]:phase["end"]]);end=frames[-1]["timestamp"]
+    for index,f in enumerate(extra):
+        f["timestamp"]=end+.1*(index+1)
+        if f["decoded"].get("type")=="new_session":f["decoded"]["new_session"]["script_run_id"]="extra-pointer-run"
+        if f["decoded"].get("delta",{}).get("body")=="Script runs: 6":f["decoded"]["delta"]["body"]="Script runs: 7"
+    frames.extend(extra);phase["end"]=len(frames);phase["dom_after"]["script_runs"]="7"
+    phase["observation_end_timestamp"]=frames[-1]["timestamp"]+.04
+    observation["screenshots"][-1]["timestamp"]=frames[-1]["timestamp"]+.02
+    _stage2_specific_refresh(observation)
+    assert not journey_result(checks.j03_checks(observation=observation))["ok"]

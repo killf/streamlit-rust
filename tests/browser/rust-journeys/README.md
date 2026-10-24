@@ -1,5 +1,95 @@
 # Rust data journeys
 
+## J03: table and chart synchronization
+
+[j03-sequence/trace-data-loop.json](j03-sequence/trace-data-loop.json) is the
+unchanged 109-frame Rust capture at `http://127.0.0.1:8505/`, with four adjacent
+IPC files and six original PNGs. SHA256:
+`1123e211376fa3c8f7eb307329036aed0facdb2b81172da822dd913c1dcd86e0`.
+The corresponding [Python oracle](../../reference/reference-browser/journeys/j03-sequence/trace-data-loop.json)
+has 139 frames. Both raws retain **NOT VERIFIED, 1/1/0, capture exit 1**.
+The observed capture-time stub hash was `842b908d9f7f9c7d7aa99e31ae775a6cdd4a3f88d0c2cbe8ac643c5d8241d95b`;
+its source snapshot was not retained and has not been reconstructed or
+backfilled. Hooke independently reviewed the two chains and all twelve PNGs.
+Final replay of the original bytes gives **15/15/15, no failures** under
+criteria SHA256
+`dd2b80b217ffd2cf97008333010b3c66f8ffd45654c17e75a2c47b66d81e3a58`.
+The capture producer was frozen at SHA256
+`8a96699820d6f6307d3ec2230f8fcfd25d7053ab760952e015145256acc4183c`.
+
+The shared `journey-j03-sync-v1` contract preserves four business steps:
+S1/S2/S3/S4 map to PNGs **02/03/05/06**, copied byte-for-byte to
+`tests/e2e/J03/J03-S1.png` through `J03-S4.png`. PNG01 is initial state; PNG04
+is the explicit reset to minimum zero before selecting region. The three
+slider operations each use one visible pointer gesture, with native value
+and ARIA readings in `action.pointer`; runs read 1/2/3/4/5/6. Include-unknown
+stays observed true, pulses stay zero. The final table has zero rows and no
+chart or stale bars. Only the empty `group_key` type differs: Python double,
+Rust large_string; the other field types and all nonempty rows agree.
+
+### J03 candidate inputs
+
+The actual dev-only loopback candidate is documented by the original
+[candidate.json](j03-sequence/candidate/candidate.json), including the AAE6
+binary, runtime-set/config hashes, all 134 member hashes, compiler and build
+command. The original [launcher source](j03-sequence/candidate/launcher/main.rs),
+[Cargo manifest](j03-sequence/candidate/launcher/Cargo.toml),
+[lock](j03-sequence/candidate/launcher/Cargo.lock),
+[configuration](j03-sequence/candidate/launch-config.json) and
+[entry patch](j03-sequence/candidate/entry.patch) are archived unchanged.
+The compiled launcher hash `6ef44038...` is distinct from the original d94
+business source. The patch expands the entry point and binds loopback8505;
+this generated launcher is evidence input, not a production source change.
+
+The 128 `repo/*` inputs are recoverable from commit
+`f2a3a787f27fa52d1b5734c2e616bca9686782c9`. Of those, 117 match Git bytes
+directly and eleven differ only by the captured CRLF checkout convention.
+The following reconstructs **all 134 original input bytes** in a new ignored
+directory, using the existing manifest and rejecting every hash mismatch:
+
+```python
+import hashlib, json, subprocess
+from pathlib import Path
+archive = Path("tests/browser/rust-journeys/j03-sequence/candidate")
+meta = json.loads((archive / "candidate.json").read_bytes())
+members = meta["runtime_members"]
+digest = lambda b: hashlib.sha256(b).hexdigest()
+assert digest(json.dumps(members, sort_keys=True, separators=(",", ":"),
+                         ensure_ascii=False).encode()) == meta["runtime_set_sha256"]
+root = Path("target/j03-source-replay").resolve()
+assert root.is_relative_to(Path.cwd().resolve())
+assert not root.exists()
+root.mkdir()
+ordered = sorted(members, key=lambda name: not name.startswith("repo/"))
+for name in ordered:
+    if name.startswith("repo/"):
+        data = subprocess.check_output(["git", "show", meta["git_commit"] + ":" + name[5:]])
+        if digest(data) != members[name]:
+            data = data.replace(b"\r\n", b"\n").replace(b"\n", b"\r\n")
+    elif name == "business-source.rs":
+        data = (root / "repo/streamlit/examples/data_app.rs").read_bytes()
+    else:
+        data = (archive / name).read_bytes()
+    assert digest(data) == members[name], name
+    dest = (root / name).resolve()
+    assert dest.is_relative_to(root)
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_bytes(data)
+print(len(members), "source inputs verified")
+```
+
+The archived build/config files retain their original absolute paths as
+historical inputs. To build in another location, relocate **only working
+copies**: point the reconstructed launcher's `streamlit` dependency to
+`../repo/streamlit`, use the recorded compiler and lock, and set
+`STREAMLIT_STATIC_DIR` to the official `www` from the same f2a commit. Use the
+candidate's loopback address/port. This reproduces source inputs and behavior;
+it does not claim a byte-identical executable across toolchain/path changes.
+Do not modify the archived files or use a later HEAD as the captured core.
+
+For portable evidence replay, use the J01 in-memory `ipc_dir` example below
+with this raw and `j03_checks` instead of `j01_checks`; the raw stays unchanged.
+
 ## J01: continuous input and aggregation
 
 [j01-sequence/trace-data-loop.json](j01-sequence/trace-data-loop.json) is the

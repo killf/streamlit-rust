@@ -2062,6 +2062,19 @@ def _stage2_specific_clear_chain(observation, phase, proof, good, bundle, *, bef
     _journey_need((_stage2_counter(phase["dom_before"], "script_runs"), _stage2_counter(phase["dom_before"], "pulses")) == (before_runs, 0), "wrong before-replacement counters")
 
 
+def _filtered_empty_view(table, charts, dom, deltas):
+    """Only measured zero-row filtering mode accepts double/large_string keys."""
+    columns = ["group_key", "row_count", "total_amount", "avg_amount"]
+    types = [line.split(": ", 1)[1].removesuffix(" not null") for line in table["schema"].splitlines()[:4]]
+    _journey_need(table["columns"] == columns and len(types) == 4 and types[1:] == ["int64", "double", "double"]
+                  and types[0] in ("double", "large_string") and table["row_count"] == 0 and table["rows"] == [], "filter-empty schema/rows mismatch")
+    _journey_need(dom.get("table_present") is True and isinstance(dom.get("table_cells"), list)
+                  and len(dom["table_cells"]) in (0, 4) and not _filled_cells(dom["table_cells"])
+                  and not charts and dom.get("chart_present") is False and dom.get("chart_bars") == 0
+                  and dom.get("chart_marks") == "", "filtered-empty DOM/chart contains stale data")
+    _stage2_specific_alerts(deltas, dom, [("INFO", "No rows match the current filters.")])
+
+
 def _stage2_filtered_evidence(observation, bundle, *, baseline_runs=2):
     phases, frames = observation["phases"], observation["frames"]
     _stage2_specific_input(phases[0], "sales_basic.csv")
@@ -2105,14 +2118,7 @@ def _stage2_filtered_evidence(observation, bundle, *, baseline_runs=2):
         _journey_need(table["columns"] == columns and len(types) == 4 and types[1:] == ["int64", "double", "double"], "filtered schema/order/types mismatch")
         dom = phase["dom_after"]
         if minimum == 200:
-            # Only this measured zero-row filtering mode accepts Python double
-            # and Rust stable large_string. Header-only and populated stay strict.
-            _journey_need(types[0] in ("double", "large_string") and table["row_count"] == 0 and table["rows"] == [], "filter-empty schema/rows mismatch")
-            _journey_need(dom.get("table_present") is True and isinstance(dom.get("table_cells"), list)
-                          and len(dom["table_cells"]) in (0, 4) and not _filled_cells(dom["table_cells"])
-                          and not charts and dom.get("chart_present") is False and dom.get("chart_bars") == 0
-                          and dom.get("chart_marks") == "", "filtered-empty DOM/chart contains stale data")
-            _stage2_specific_alerts(run["deltas"], dom, [("INFO", "No rows match the current filters.")])
+            _filtered_empty_view(table, charts, dom, run["deltas"])
         else:
             _journey_need(types[0] == "large_string" and table["rows"] == baseline["table"]["rows"]
                           and table["row_count"] == baseline["table"]["row_count"], "restored IPC differs from the real baseline values")
@@ -2454,8 +2460,42 @@ def j01_checks(*, observation=None):
     return sequence_checks(observation=observation)
 
 
+# J03 pointer/ARIA shape and six-phase data transitions are measured on 1.66.1.
+J03_CASE = "j03-sequence"
+J03_CONTRACT = "journey-j03-sync-v1"
+J03_PHASES = (
+    "initial", "upload-baseline", "slider-100", "prepare-slider-zero",
+    "group-region", "slider-200",
+)
+J03_INPUTS = {"upload-baseline": "sales_basic.csv"}
+J03_ACTIONS = {
+    "initial": {"action": "initial"},
+    "upload-baseline": {"action": "upload"},
+    "slider-100": {"action": "slider", "label": "Minimum amount", "value": 100},
+    "prepare-slider-zero": {"action": "slider", "label": "Minimum amount", "value": 0},
+    "group-region": {"action": "select-option", "label": "Group by", "option": "region"},
+    "slider-200": {"action": "slider", "label": "Minimum amount", "value": 200},
+}
+J03_PNG_ROLES = {
+    "initial": (), "upload-baseline": ("J03-S1",), "slider-100": ("J03-S2",),
+    "prepare-slider-zero": (), "group-region": ("J03-S3",), "slider-200": ("J03-S4",),
+}
+J03_REQUIRED = ("contract", "phase_order", "fixture_bytes", "same_source_session", "run_ledger", "typed_controls",
+                "pointer_100", "pointer_prepare_zero", "pointer_200", "baseline_values", "filtered_100_values",
+                "restore_categories", "region_values", "empty_schema_no_chart", "png_coverage")
+JOURNEY_REQUIRED[J03_CASE] = {(J03_CASE, key) for key in J03_REQUIRED}
+
+
+def j03_checks(*, observation=None):
+    """J03 reuses the continuous-frame layer and measured pointer/empty rules."""
+    if not isinstance(observation, dict) or observation.get("journey") != J03_CASE:
+        return _journey_finish(J03_CASE, [_check(J03_CASE, key, "complete strict J03 evidence", "missing/wrong J03 observation", False) for key in J03_REQUIRED])
+    return sequence_checks(observation=observation)
+
+
 SEQUENCE_CONTRACT = "journey-sequence-v1"
 SEQUENCE_PHASES = {
+    J03_CASE: J03_PHASES,
     J01_CASE: J01_PHASES,
     "j07-sequence": ("initial", "upload-malformed", "upload-soft", "good-after-soft", "upload-utf8", "good-after-utf8"),
     "j08-sequence": ("initial", "upload-header-only", "upload-baseline", "slider-200", "slider-0"),
@@ -2467,6 +2507,7 @@ SEQUENCE_INPUTS = {
 }
 _SEQUENCE_COMMON = ("contract", "phase_sequence", "fixture_inputs", "same_source_session", "no_reload_or_reconnect", "distinct_target_runs", "counter_continuity")
 SEQUENCE_REQUIRED = {
+    J03_CASE: J03_REQUIRED,
     J01_CASE: J01_REQUIRED,
     "j07-sequence": (*_SEQUENCE_COMMON, "malformed_error_no_result", "soft_warning_values", "recovery_after_soft", "utf8_error_no_result", "recovery_after_utf8", "png_phase_coverage"),
     "j08-sequence": (*_SEQUENCE_COMMON, "header_empty", "baseline_upload", "filter_empty", "slider200_once", "restore_values", "slider0_once", "png_phase_coverage"),
@@ -2477,6 +2518,94 @@ SEQUENCE_PNG_ROLES = {
     "upload-baseline": (), "slider-200": ("J08-S2",), "slider-0": ("J08-S3",),
 }
 JOURNEY_REQUIRED.update({kind: {(kind, key) for key in keys} for kind, keys in SEQUENCE_REQUIRED.items()})
+
+
+def _j03_pointer(phase, minimum):
+    """Observed single track click + ARIA/value snapshots, not just pointer.ok."""
+    record = phase["action"].get("pointer")
+    _journey_need(isinstance(record, dict) and record.get("ok") is True
+                  and type(record.get("requested_value")) in (int, float) and record["requested_value"] == minimum, "missing/wrong actual slider pointer observation")
+    for key, dom in (("before", phase["dom_before"]), ("after", phase["dom_after"])):
+        snap = record.get(key)
+        _journey_need(isinstance(snap, dict) and {"value", "min", "max", "step", "aria_value_now", "aria_value_text", "track", "viewport"} <= snap.keys(), "incomplete pointer/ARIA snapshot")
+        _journey_need(all(_same_cell_value(want, snap[field]) for field,want in (("min", 0), ("max", 200), ("step", 10)))
+                      and _same_cell_value(dom["slider_value"], snap["value"])
+                      and _same_cell_value(snap["value"], snap["aria_value_text"])
+                      and (snap["aria_value_now"] is None or _same_cell_value(snap["value"], snap["aria_value_now"])), "pointer/ARIA values contradict actual slider DOM")
+    _journey_need(_same_cell_value(minimum, record["after"]["value"])
+                  and not _same_cell_value(record["before"]["value"], record["after"]["value"]), "pointer did not change to the required slider value")
+    point, track, viewport = record.get("pointer"), record["before"]["track"], record["before"]["viewport"]
+    _journey_need(isinstance(point, dict) and point.get("method") == "single-track-click" and isinstance(track, dict)
+                  and isinstance(viewport, list) and len(viewport) == 2
+                  and all(type(v) in (int, float) and math.isfinite(v) and v > 0 for v in viewport), "missing real single-pointer geometry/viewport")
+    _journey_need(all(type(track.get(k)) in (int, float) and math.isfinite(track[k]) for k in ("left", "right", "top", "bottom", "width", "height", "x", "y"))
+                  and track["width"] > 0 and track["height"] > 0
+                  and abs(track["right"]-track["left"]-track["width"]) <= 1e-6
+                  and abs(track["bottom"]-track["top"]-track["height"]) <= 1e-6
+                  and track["x"] == track["left"] and track["y"] == track["top"], "inconsistent pointer track geometry")
+    x, y = point.get("x"), point.get("y")
+    _journey_need(all(type(v) in (int, float) and math.isfinite(v) for v in (x,y))
+                  and 0 <= x < viewport[0] and 0 <= y < viewport[1]
+                  and track["left"] <= x < track["right"] and track["top"] <= y < track["bottom"], "pointer outside actual track/viewport")
+    projected = 200 * (x-track["left"])/track["width"]
+    _journey_need(abs(projected-minimum) <= 5 + 200/track["width"], "pointer coordinates do not target the observed slider value")
+
+
+def _j03_phase(observation, phase, previous, before_runs):
+    name = phase["name"]
+    _journey_need(all(phase["action"].get(k) == v for k,v in J03_ACTIONS[name].items()), "wrong J03 action/target")
+    if name == "upload-baseline":
+        context, proof, count = _sequence_upload(observation, phase, previous, before_runs)
+        _journey_need(context["table"]["rows"] == _j03_expected_rows(name), "J03 baseline values mismatch")
+        return context, proof, count
+    _journey_need(previous is not None, "J03 controls have no preceding upload")
+    run = _stage2_phase_run(observation, phase)
+    _journey_need(run["identity"] == previous["identity"] and run["session"] == previous["session"], "J03 controls switched file source/session")
+    minimum = J03_ACTIONS[name]["value"] if J03_ACTIONS[name]["action"] == "slider" else 0
+    group = "region" if name in ("group-region", "slider-200") else "category"
+    state = observation["frames"][run["state_index"]]["decoded"]["rerun_script"]["widget_states"]
+    ids = _stage2_typed_controls(run["deltas"], state, phase["dom_after"], minimum, group=group)
+    if J03_ACTIONS[name]["action"] == "slider":
+        _journey_need(type(phase["action"].get("value")) in (int, float), "wrong slider target type")
+        _j03_pointer(phase, minimum)
+    view = dict(observation, phases=observation["phases"][1:], uploads={"bad": observation["uploads"]["upload-baseline"]})
+    bundle = _journey_bundle(view, phase_index=0)
+    uploader = bundle["window"]["widget"]
+    elements = [d for d in run["deltas"] if d.get("element") == "file_uploader" and d.get("label") == "Upload sales CSV"]
+    values = [v for v in state if v.get("id") == uploader]
+    _journey_need(len(elements) == 1 and elements[0].get("id") == uploader and len(values) == 1
+                  and values[0].get("value_field") == "file_uploader_state_value"
+                  and values[0].get("value_full", {}).get("uploadedFileInfo") == [previous["info"]], "J03 control changed/lost the actual uploaded file")
+    _journey_need(not any(h.get("method") in ("PUT", "DELETE") for h in _journey_http(bundle, phase)), "J03 ordinary control uploaded/deleted a file")
+    count = before_runs+1
+    _stage2_specific_counters(run["deltas"], phase["dom_after"], count)
+    tables = [d for d in run["deltas"] if d.get("element") == "dataframe"]
+    charts = [d for d in run["deltas"] if d.get("element") == "vega_lite_chart"]
+    _journey_need(len(tables) == 1, "J03 target run has no unique fresh dataframe")
+    table = _journey_ipc(tables[0].get("arrow"), bundle)
+    if name == "slider-200":
+        _filtered_empty_view(table, charts, phase["dom_after"], run["deltas"])
+    else:
+        expected = _j03_expected_rows(name)
+        _stage2_static_view(observation, phase, run, expected_rows=expected)
+        kind = "slider" if J03_ACTIONS[name]["action"] == "slider" else "selectbox"
+        window = {"start":phase["start"],"end":phase["end"],"target":observation["namespace"],"widget":ids[kind]}
+        verdict = data_loop_verdict({"kind":kind,"label":J03_ACTIONS[name]["label"]}, bundle["frames"], window,
+                                   {"action":"slider" if kind == "slider" else "select","ok":True}, phase["dom_before"], phase["dom_after"])
+        _journey_need(verdict["ok"], "; ".join(verdict["problems"]))
+        _stage2_specific_alerts(run["deltas"], phase["dom_after"], [])
+    context = dict(previous, table=table)
+    return context, {"script_run_id":run["run"],"completion_frame":run["finish_index"]}, count
+
+
+def _j03_expected_rows(name):
+    rows = {
+        "upload-baseline":J01_EXPECTED_ROWS["upload-baseline"],
+        "slider-100":(("Books",1,"120.50","120.50"),("Games",2,"349.49","174.75")),
+        "prepare-slider-zero":J01_EXPECTED_ROWS["upload-baseline"],
+        "group-region":J01_EXPECTED_ROWS["group-region"],
+    }[name]
+    return [{"group_key":key,"row_count":count,"total_amount":float(total),"avg_amount":float(mean)} for key,count,total,mean in rows]
 
 
 def _j01_bom_binding(bundle, proof):
@@ -2665,7 +2794,7 @@ def _sequence_pngs(observation):
         candidates = [r for r in records if r.get("phase") == phase["name"] and r.get("namespace") == observation["namespace"]]
         _journey_need(len(candidates) == 1, "missing/ambiguous phase PNG")
         record = candidates[0]
-        roles = J01_PNG_ROLES if observation["journey"] == J01_CASE else SEQUENCE_PNG_ROLES
+        roles = J03_PNG_ROLES if observation["journey"] == J03_CASE else J01_PNG_ROLES if observation["journey"] == J01_CASE else SEQUENCE_PNG_ROLES
         _journey_need(record.get("step_ids") == list(roles[phase["name"]]), "phase PNG has wrong original-step role")
         if not record["step_ids"]:
             _journey_need(record.get("role") == "preparation", "preparation picture is not honestly identified")
@@ -2679,7 +2808,7 @@ def sequence_checks(*, observation=None):
     if not isinstance(kind, str) or kind not in SEQUENCE_REQUIRED:
         return [dict(_check("sequence", "contract", "known complete sequence", "missing/unknown sequence", False), journey="sequence-invalid")]
     try:
-        contract = J01_CONTRACT if kind == J01_CASE else SEQUENCE_CONTRACT
+        contract = J03_CONTRACT if kind == J03_CASE else J01_CONTRACT if kind == J01_CASE else SEQUENCE_CONTRACT
         _journey_need(observation.get("contract") == contract, "wrong sequence contract")
         phases, frames = observation["phases"], observation["frames"]
         _journey_need(isinstance(phases, list) and tuple(p.get("name") for p in phases) == SEQUENCE_PHASES[kind], "missing/reordered/duplicated sequence phases")
@@ -2744,7 +2873,15 @@ def sequence_checks(*, observation=None):
         count, previous, targets, files = 1, None, {initial_run["run"]}, set()
         baseline_runs = None
         for phase in phases[1:]:
-            if kind == J01_CASE:
+            if kind == J03_CASE:
+                context, proof, count = _j03_phase(observation, phase, previous, count)
+                _journey_need(context["session"] == session, "J03 session changed")
+                if phase["name"] in J03_INPUTS:
+                    _journey_need(context["file_id"] not in files, "J03 recycled an earlier file ID")
+                    files.add(context["file_id"])
+                previous = context
+                target, finish = proof["script_run_id"], proof["completion_frame"]
+            elif kind == J01_CASE:
                 context, proof, count = _j01_phase(observation, phase, previous, count)
                 _journey_need(context["session"] == session, "J01 session changed")
                 if phase["name"] in J01_INPUTS:

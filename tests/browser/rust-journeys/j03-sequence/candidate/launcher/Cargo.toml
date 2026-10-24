@@ -1,0 +1,19 @@
+[package]
+name = "j03_loopback_f2a3a78"
+version = "0.0.0"
+edition = "2024"
+
+[workspace]
+
+[[bin]]
+name = "j03_loopback_f2a3a78"
+path = "main.rs"
+
+[dependencies]
+streamlit = { path = "D:/dlab/streamlit-rust/streamlit" }
+anyhow = "=1.0.103"
+rust_decimal = { version = "=1.43.0", default-features = false, features = ["std"] }
+csv = { version = "=1.4.0", default-features = false }
+env_logger = "=0.11.8"
+tokio = { version = "=1.51.6", features = ["full"] }
+log = "=0.4.29"

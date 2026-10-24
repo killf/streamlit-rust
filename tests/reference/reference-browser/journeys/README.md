@@ -1,5 +1,20 @@
 # Reference journeys of the data app
 
+## J03: continuous table/chart oracle
+
+[j03-sequence/trace-data-loop.json](j03-sequence/trace-data-loop.json) is the
+original Python 1.66.1 same-page six-phase capture at
+`http://127.0.0.1:8601/`, SHA256
+`5798c11f1eba559988d98da1978cd79de8fee1e6cbd4bdc0cc15132bbfbf8ec5`.
+All 139 frames, four adjacent IPC payloads and six PNGs retain their bytes.
+The raw retains **NOT VERIFIED, 1/1/0, capture exit 1**. The observed 842B stub
+source snapshot was not retained; no capture-time version was backfilled.
+Hooke's final independent review and replay verify 15/15/15 with no failures.
+The exact final criteria SHA, four-step/preparation mapping, portable replay
+and the Rust 8505 candidate's self-contained build inputs are documented in
+[the Rust J03 section](../../../browser/rust-journeys/README.md#j03-table-and-chart-synchronization).
+The 1.66.0 docs-cache label remains distinct from the measured 1.66.1 runtime.
+
 ## J01: unchanged Python oracle, final independent replay
 
 [j01-sequence/trace-data-loop.json](j01-sequence/trace-data-loop.json) preserves

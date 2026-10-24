@@ -1,0 +1,27 @@
+--- business-source.rs
++++ launcher/main.rs
+@@ -257,11 +257,22 @@
+     Ok(())
+ }
+ 
+-#[main]
+-async fn main(st: &Streamlit) {
++async fn __streamlit_user_main(st: &Streamlit) {
+     if let Err(error) = render(st) {
+         st.write(format!("Data app error: {error}"));
+     }
++}
++#[tokio::main]
++async fn main() -> Result<(), Box<dyn std::error::Error>> {
++    env_logger::Builder::from_default_env().init();
++    log::info!("Starting Streamlit Rust Backend v0.1.0");
++    let server = StreamlitServer::new(
++        |st: &Streamlit| Box::pin(__streamlit_user_main(st)),
++        "127.0.0.1".into(),
++        8505,
++    );
++    server.start().await?;
++    Ok(())
+ }
+ 
+ #[cfg(test)]
