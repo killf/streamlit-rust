@@ -1,0 +1,216 @@
+{
+  "schema_version": 2,
+  "contract_id": "C-P0-04",
+  "kind": "python-reference-widget-trace",
+  "scope": "PYTHON SIDE ONLY. The Rust implementation is not exercised by this file.",
+  "capture": {
+    "tool": "CDP fallback: the agent-browser CLI could not start its daemon, so the real Chrome was driven over the DevTools Protocol",
+    "tool_limitation": "agent-browser commands failed with a connection timeout (os error 10060); no agent-browser state was changed and no Chrome was restarted",
+    "chrome": "Chrome/147.0.7727.56",
+    "chrome_cdp_port": 60667,
+    "browser_ws": "ws://127.0.0.1:60667/devtools/browser/85b78347-115e-4345-9400-452f90da7ae2",
+    "page_ws": "ws://127.0.0.1:60667/devtools/page/7714887FA22F4020208A6D60860D38EC",
+    "input_events": "Input.dispatchMouseEvent / Input.dispatchKeyEvent (real UI events)",
+    "driver": "target/_capture_widgets_cdp.py"
+  },
+  "case": "dup_key",
+  "url": "http://127.0.0.1:8603/?case=dup_key",
+  "steps": [
+    {
+      "step": "navigate",
+      "url": "http://127.0.0.1:8603/?case=dup_key"
+    }
+  ],
+  "interactions": [],
+  "wire_widgets": {
+    "selectbox": {
+      "selectbox": {
+        "id": "$$ID-1dac2b70ee47af1d525d27e207cd3117-the_same_key",
+        "label": "Group by",
+        "default": 0,
+        "options": [
+          "category",
+          "region"
+        ],
+        "labelVisibility": {},
+        "acceptNewOptions": false
+      },
+      "widthConfig": {
+        "useStretch": true
+      }
+    }
+  },
+  "client_widget_states": [
+    []
+  ],
+  "script_finished": [
+    {
+      "status": 0,
+      "status_name": "FINISHED_SUCCESSFULLY"
+    }
+  ],
+  "dom_before": {
+    "selectbox_value": "category",
+    "slider_value": null,
+    "slider_input": null,
+    "checkbox_checked": null,
+    "markdown": [],
+    "exceptions": [
+      "streamlit.errors.StreamlitDuplicateElementKey: There are multiple elements with the same key='the_same_key'. To fix this, please make sure that the key argument is unique for each element you create. Traceback: File \"D:\\dlab\\streamlit-rust\\tests\\reference\\widgets_app.py\", line 86, in <module> st.selectbox(\"Other group by\", [\"category\", \"region\"], key=\"the_same_key\") Copy Ask Google Ask ChatGPT"
+    ]
+  },
+  "disabled_attempt": null,
+  "dom_after": {
+    "selectbox_value": "category",
+    "slider_value": null,
+    "checkbox_checked": null,
+    "markdown": []
+  },
+  "frames": [
+    {
+      "direction": "client->server",
+      "decoded": {
+        "message": "BackMsg",
+        "type": "rerun_script",
+        "rerun_script": {
+          "widget_states": []
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "new_session",
+        "new_session": {
+          "script_run_id": "db33544b-6898-4cb5-96f2-009cb9947ec2",
+          "name": "widgets_app",
+          "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\widgets_app.py",
+          "page_script_hash": "e94230b3b540d7d97f018df68578c5aa",
+          "main_script_hash": "e94230b3b540d7d97f018df68578c5aa",
+          "session_id": "b9e77ae5-f240-4d15-b54d-52b3a840835a"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true,
+          "run_on_save": false
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "page_config_changed"
+      }
+    },
+    {
+      "direction": "server->client",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "heading",
+          "body": "Widget reference"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "selectbox",
+          "element_full": {
+            "selectbox": {
+              "id": "$$ID-1dac2b70ee47af1d525d27e207cd3117-the_same_key",
+              "label": "Group by",
+              "default": 0,
+              "options": [
+                "category",
+                "region"
+              ],
+              "labelVisibility": {},
+              "acceptNewOptions": false
+            },
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          "widget": {
+            "id": "$$ID-1dac2b70ee47af1d525d27e207cd3117-the_same_key",
+            "label": "Group by",
+            "default": 0,
+            "options": [
+              "category",
+              "region"
+            ],
+            "labelVisibility": {},
+            "acceptNewOptions": false
+          },
+          "id": "$$ID-1dac2b70ee47af1d525d27e207cd3117-the_same_key",
+          "label": "Group by",
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "exception",
+          "exception": {
+            "type": "streamlit.errors.StreamlitDuplicateElementKey",
+            "message": "There are multiple elements with the same `key='the_same_key'`. To fix this, please make sure that the `key` argument is unique for each element you create.",
+            "stackTrace": [
+              "File \"D:\\dlab\\streamlit-rust\\tests\\reference\\widgets_app.py\", line 86, in <module>\n    st.selectbox(\"Other group by\", [\"category\", \"region\"], key=\"the_same_key\")"
+            ],
+            "messageIsMarkdown": true,
+            "widthConfig": {
+              "useStretch": true
+            },
+            "isStreamlitException": true
+          },
+          "accepted_types": [
+            "streamlit.errors.StreamlitDuplicateElementKey"
+          ]
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "script_finished",
+        "script_finished": {
+          "status": 0,
+          "status_name": "FINISHED_SUCCESSFULLY"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": false,
+          "run_on_save": false
+        }
+      }
+    }
+  ],
+  "failures": []
+}

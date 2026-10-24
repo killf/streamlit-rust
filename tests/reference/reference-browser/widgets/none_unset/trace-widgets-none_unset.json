@@ -1,0 +1,201 @@
+{
+  "schema_version": 2,
+  "contract_id": "C-P0-04",
+  "kind": "python-reference-widget-trace",
+  "scope": "PYTHON SIDE ONLY. The Rust implementation is not exercised by this file.",
+  "capture": {
+    "tool": "CDP fallback: the agent-browser CLI could not start its daemon, so the real Chrome was driven over the DevTools Protocol",
+    "tool_limitation": "agent-browser commands failed with a connection timeout (os error 10060); no agent-browser state was changed and no Chrome was restarted",
+    "chrome": "Chrome/147.0.7727.56",
+    "chrome_cdp_port": 60667,
+    "browser_ws": "ws://127.0.0.1:60667/devtools/browser/85b78347-115e-4345-9400-452f90da7ae2",
+    "page_ws": "ws://127.0.0.1:60667/devtools/page/03A69642A5F48D853C2256948390D92E",
+    "input_events": "Input.dispatchMouseEvent / Input.dispatchKeyEvent (real UI events)",
+    "driver": "target/_capture_widgets_cdp.py"
+  },
+  "case": "none_unset",
+  "url": "http://127.0.0.1:8603/?case=none_unset",
+  "steps": [
+    {
+      "step": "navigate",
+      "url": "http://127.0.0.1:8603/?case=none_unset"
+    }
+  ],
+  "interactions": [],
+  "wire_widgets": {
+    "selectbox": {
+      "selectbox": {
+        "id": "$$ID-8bb0ba2490140082c1168b64655d3c7e-None",
+        "label": "Group by",
+        "options": [
+          "None",
+          "red"
+        ],
+        "labelVisibility": {},
+        "acceptNewOptions": false
+      },
+      "widthConfig": {
+        "useStretch": true
+      }
+    }
+  },
+  "client_widget_states": [
+    []
+  ],
+  "script_finished": [
+    {
+      "status": 0,
+      "status_name": "FINISHED_SUCCESSFULLY"
+    }
+  ],
+  "dom_before": {
+    "selectbox_value": "",
+    "slider_value": null,
+    "slider_input": null,
+    "checkbox_checked": null,
+    "markdown": [
+      "returned selectbox: None (NoneType)"
+    ],
+    "exceptions": []
+  },
+  "disabled_attempt": null,
+  "dom_after": {
+    "selectbox_value": "",
+    "slider_value": null,
+    "checkbox_checked": null,
+    "markdown": [
+      "returned selectbox: None (NoneType)"
+    ]
+  },
+  "frames": [
+    {
+      "direction": "client->server",
+      "decoded": {
+        "message": "BackMsg",
+        "type": "rerun_script",
+        "rerun_script": {
+          "widget_states": []
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "new_session",
+        "new_session": {
+          "script_run_id": "89a6e446-a508-46f5-8db8-04dce6d2e0d6",
+          "name": "widgets_app",
+          "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\widgets_app.py",
+          "page_script_hash": "e94230b3b540d7d97f018df68578c5aa",
+          "main_script_hash": "e94230b3b540d7d97f018df68578c5aa",
+          "session_id": "ae1dccd2-9067-4ba0-b6aa-22354537ca62"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true,
+          "run_on_save": false
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "page_config_changed"
+      }
+    },
+    {
+      "direction": "server->client",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "heading",
+          "body": "Widget reference"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "selectbox",
+          "element_full": {
+            "selectbox": {
+              "id": "$$ID-8bb0ba2490140082c1168b64655d3c7e-None",
+              "label": "Group by",
+              "options": [
+                "None",
+                "red"
+              ],
+              "labelVisibility": {},
+              "acceptNewOptions": false
+            },
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          "widget": {
+            "id": "$$ID-8bb0ba2490140082c1168b64655d3c7e-None",
+            "label": "Group by",
+            "options": [
+              "None",
+              "red"
+            ],
+            "labelVisibility": {},
+            "acceptNewOptions": false
+          },
+          "id": "$$ID-8bb0ba2490140082c1168b64655d3c7e-None",
+          "label": "Group by",
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "markdown",
+          "body": "returned selectbox: None (NoneType)"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "script_finished",
+        "script_finished": {
+          "status": 0,
+          "status_name": "FINISHED_SUCCESSFULLY"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": false,
+          "run_on_save": false
+        }
+      }
+    }
+  ],
+  "failures": []
+}

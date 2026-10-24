@@ -179,3 +179,22 @@ def test_status_oracle_cannot_substitute_for_another_api(workspace, feature_id):
     with pytest.raises(ValueError, match=message):
         verify.main()
     assert (matrix.read_bytes(), baseline.read_bytes()) == before
+
+
+@pytest.mark.parametrize("corruption", ["presence_only", "wrong_dom"])
+def test_widget_presence_or_recorded_ok_cannot_replace_operated_dom(corruption):
+    capture = json.loads((ROOT / "tests/browser/rust-widgets/trace-widgets.json").read_text(encoding="utf-8"))
+    for feature in ("st.selectbox", "st.slider", "st.checkbox"):
+        verify.verify_widget_capture(capture, feature)
+    if corruption == "presence_only":
+        capture["interactions"] = [item for item in capture["interactions"] if item["widget"] != "checkbox"]
+        capture["required_cases"] = [item["label"] for item in capture["interactions"]]
+        count = len(capture["interactions"])
+        capture["counts"] = {"expected": count, "executed": count, "asserted": count}
+        message = "no operated checkbox"
+    else:
+        capture["dom_after"]["markdown"] = [line.replace("Include unknown region: false", "Include unknown region: true")
+                                                 for line in capture["dom_after"]["markdown"]]
+        message = "widget wire/action/DOM verdict failed"
+    with pytest.raises(ValueError, match=message):
+        verify.verify_widget_capture(capture, "st.checkbox")

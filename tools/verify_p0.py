@@ -6,6 +6,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import runpy
 import tarfile
 import zipfile
 from collections import Counter
@@ -77,6 +78,52 @@ def evidence_file(reference: str, root: Path) -> Path:
     return path
 
 
+def verify_widget_capture(capture: dict, feature_id: str) -> None:
+    """Replay the existing collector verdict for this API's operated widgets."""
+    kind = {"st.selectbox": "selectbox", "st.slider": "slider", "st.checkbox": "checkbox"}.get(feature_id)
+    if kind is None:
+        raise ValueError("widget capture is only valid for the three input APIs")
+    helpers = runpy.run_path(str(Path(__file__).resolve().parents[1] / "tests/reference/capture_browser_trace.py"))
+    frames = capture.get("frames", [])
+    interactions = capture.get("interactions", [])
+    required = capture.get("required_cases", [])
+    if (capture.get("failures") != [] or not required
+            or helpers["suite_failures"](required, interactions)
+            or capture.get("counts") != helpers["suite_counts"](required, interactions)):
+        raise ValueError("incomplete widget capture suite")
+    operated = [item for item in interactions if item.get("widget") == kind]
+    if not operated:
+        raise ValueError(f"no operated {kind} in widget capture")
+    for item in operated:
+        label, widget_id = item["label"], item["widget_id"]
+        element = capture.get("wire_widgets", {}).get(f"{kind}|{label}", {})
+        widget = element.get(kind, {})
+        if (not widget_id or widget.get("id") != widget_id or widget.get("label") != label
+                or not any(frame.get("direction") == "server->client"
+                           and frame.get("decoded", {}).get("delta", {}).get("element") == kind
+                           and frame["decoded"]["delta"].get("element_full") == element for frame in frames)):
+            raise ValueError("operated widget lacks its full wire Element")
+        start, end = item.get("state_frame"), item.get("completion_frame")
+        if type(start) is not int or type(end) is not int or not 0 <= start < end < len(frames):
+            raise ValueError("invalid widget operation frame window")
+        if (not isinstance(item.get("action"), dict) or not item["action"].get("action")
+                or frames[start].get("decoded", {}).get("message") != "BackMsg"
+                or frames[end].get("direction") != "server->client"
+                or frames[end].get("decoded", {}).get("type") != "script_finished"):
+            raise ValueError("widget operation requires an action and real client/server frame types")
+        request_id = frames[start].get("request_id")
+        if not isinstance(request_id, str) or not request_id.strip() or frames[end].get("request_id") != request_id:
+            raise ValueError("widget state/completion request IDs do not match")
+        verdict = helpers["case_verdict"](
+            {"kind": kind, "label": label}, frames,
+            {"start": start, "end": end + 1, "widget": widget_id},
+            item.get("action", {}), item.get("page_shows_before"), item.get("page_shows"))
+        if (not verdict["ok"] or verdict["state_frame"] != start or verdict["completion_frame"] != end
+                or verdict["wire_value"] != item.get("wire_value")
+                or helpers["dom_value_for"](capture.get("dom_after", {}).get("markdown"), label) != item.get("page_shows")):
+            raise ValueError(f"widget wire/action/DOM verdict failed for {label}")
+
+
 def merge_progress(entry: dict, old: dict | None, root: Path) -> dict:
     """Keep authored progress; generated docs authority is never overwritten."""
     if old is not None:
@@ -107,6 +154,9 @@ def merge_progress(entry: dict, old: dict | None, root: Path) -> dict:
         for key in ("python_browser_trace", "rust_wire_observation", "official_frontend_browser_e2e"):
             path = evidence_file(entry["evidence"].get(key), root)
             capture = json.loads(path.read_text(encoding="utf-8"))
+            if capture.get("kind") in ("python-reference-widget-trace", "rust-browser-widget-trace") and "required_cases" in capture:
+                verify_widget_capture(capture, entry["feature_id"])
+                continue
             # The frozen status oracle records per-case decoded alerts and DOM,
             # rather than the generic browser collector's frames/steps layout.
             if key == "python_browser_trace" and capture.get("kind") == "python-reference-status-trace":

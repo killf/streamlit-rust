@@ -72,6 +72,7 @@ SCENARIOS = (
     "smoke",
     "counter",
     "status",
+    "widgets",
 )
 
 
@@ -379,6 +380,25 @@ def summarise_forward(payload: bytes) -> dict:
                     MessageToDict(element.height_config) if element.HasField("height_config") else None
                 )
             if widget is not None:
+                if name in FULL_ELEMENT_WIDGETS:
+                    # The whole Element message: every public parameter of the
+                    # widget plus the element level width and height config.
+                    try:
+                        from google.protobuf.json_format import MessageToDict
+
+                        entry["element_full"] = MessageToDict(element)
+                    except Exception as exc:  # pragma: no cover - defensive
+                        entry["element_full"] = {"error": f"{type(exc).__name__}: {exc}"}
+                if name in WIDGET_ELEMENTS:
+                    # The whole widget message is the field oracle for the
+                    # public parameters: options, index, default, min, max,
+                    # step, format, key, disabled and on_change.
+                    try:
+                        from google.protobuf.json_format import MessageToDict
+
+                        entry["widget"] = MessageToDict(widget)
+                    except Exception as exc:  # pragma: no cover - defensive
+                        entry["widget"] = {"error": f"{type(exc).__name__}: {exc}"}
                 if hasattr(widget, "id"):
                     entry["id"] = widget.id
                 if hasattr(widget, "label"):
@@ -421,7 +441,16 @@ def summarise_back(payload: bytes) -> dict:
         for widget in msg.rerun_script.widget_states.widgets:
             value_field = widget.WhichOneof("value")
             value = getattr(widget, value_field) if value_field else None
-            states.append({"id": widget.id, "value_field": value_field, "value": _scalar(value)})
+            item = {"id": widget.id, "value_field": value_field, "value": _scalar(value)}
+            if value_field and hasattr(value, "ListFields"):
+                # The exact proto content of the value, not a lossy summary.
+                try:
+                    from google.protobuf.json_format import MessageToDict
+
+                    item["value_full"] = MessageToDict(value)
+                except Exception as exc:  # pragma: no cover - defensive
+                    item["value_full"] = {"error": f"{type(exc).__name__}: {exc}"}
+            states.append(item)
         out["rerun_script"] = {"widget_states": states}
     return out
 
@@ -512,6 +541,296 @@ def _pulses(observation: dict) -> str:
 # capture in tests/reference/reference-browser/status/.  The Rust status
 # example renders the same page, so the wire fields can be compared directly:
 # same body, format, icon, title and width.
+FULL_ELEMENT_WIDGETS = ("selectbox", "slider", "checkbox")
+
+WIDGET_ELEMENTS = (
+    "selectbox",
+    "slider",
+    "checkbox",
+    "text_input",
+    "number_input",
+    "radio",
+    "multiselect",
+    "toggle_button",
+    "button",
+    "file_uploader",
+    "date_input",
+    "time_input",
+)
+
+
+# The numeric representatives: the four shapes the widgets example renders --
+# one int value, one float value, a range of two int values and a range of two
+# float values.  The case list is shared by every driver, so the CLI path and
+# the DevTools Protocol path assert exactly the same thing.
+NUMERIC_CASES = (
+    {"kind": "slider", "label": "Minimum amount", "key": "ArrowRight", "times": 1, "thumb": 0},
+    {"kind": "slider", "label": "Ratio", "key": "ArrowRight", "times": 1, "thumb": 0},
+    {"kind": "slider", "label": "Amount range", "key": "ArrowRight", "times": 1, "thumb": 0},
+    {"kind": "slider", "label": "Ratio range", "key": "ArrowRight", "times": 1, "thumb": 0},
+)
+
+# The core controls: a string valued selectbox and a boolean checkbox.
+CORE_WIDGET_CASES = (
+    {"kind": "selectbox", "label": "Group by", "option": "region", "other_option": "channel"},
+    {"kind": "checkbox", "label": "Include unknown region"},
+)
+
+
+# The DOM probe: one query per widget, each inside its own container, so a
+# page with several inputs cannot make one widget read another's value.
+WIDGET_DOM_JS = r"""(()=>{const q=s=>document.querySelector(s);
+const sb=q("[data-testid='stSelectbox']");const sbInput=sb?sb.querySelector("input"):null;
+const sl=q("[data-testid='stSlider']");const slInput=sl?sl.querySelector("input"):null;
+const thumb=sl?sl.querySelector("[data-testid='stSliderThumbValue']"):null;
+const cbBox=q("[data-testid='stCheckbox']");const cb=cbBox?cbBox.querySelector("input"):null;
+const dis=e=>!!(e&&(e.getAttribute("aria-disabled")==="true"||e.disabled));
+const markdown=[...document.querySelectorAll("[data-testid='stMarkdown']")].map(e=>e.innerText.replace(/\s+/g," ").trim());
+return JSON.stringify({
+ selectbox_value:sbInput?sbInput.value:null,
+ selectbox_disabled:dis(sb)||dis(sbInput),
+ slider_value:slInput?slInput.value:(thumb?thumb.textContent:null),
+ slider_thumb:thumb?thumb.textContent:null,
+ slider_disabled:dis(sl)||dis(slInput),
+ checkbox_checked:cb?cb.checked:null,
+ checkbox_disabled:dis(cbBox)||dis(cb),
+ markdown:markdown,
+ exceptions:[...document.querySelectorAll("[data-testid='stException']")].map(e=>e.innerText.replace(/\s+/g," ").trim().slice(0,400))
+});})()"""
+
+# The suites: the cases a page has to deliver.  A suite names its cases
+# explicitly, so a page that does not carry them fails instead of quietly
+# skipping them.
+SUITES = {
+    "python-numeric": {
+        "cases": NUMERIC_CASES,
+        "required": [case["label"] for case in NUMERIC_CASES],
+    },
+    "rust-widgets": {
+        "cases": CORE_WIDGET_CASES + NUMERIC_CASES,
+        "required": [case["label"] for case in CORE_WIDGET_CASES]
+        + [case["label"] for case in NUMERIC_CASES],
+    },
+}
+
+
+# The value field each kind of widget sends.
+EXPECTED_VALUE_FIELDS = {
+    "slider": "double_array_value",
+    "selectbox": "string_value",
+    "checkbox": "bool_value",
+}
+
+
+def case_verdict(case, frames, window, action, dom_before_value, dom_after_value) -> dict:
+    """Decide one widget case from what actually happened.
+
+    The case passes only when the action ran, the widget's own state inside
+    the window carries a changed value in the field that kind of widget
+    sends, a successful script_finished follows it on the same connection,
+    and the page shows that value.  A frame without a connection, a state
+    that was sent unchanged and a page that still shows the old value all
+    fail the case.
+    """
+    problems = []
+    label = case.get("label", "")
+    if action.get("failed"):
+        problems.append(f"the action failed: {action['failed']}")
+    widget_id = window.get("widget")
+
+    state = None
+    for index in range(window["start"], window["end"]):
+        frame = frames[index]
+        if frame.get("direction") != "client->server":
+            continue
+        decoded = frame.get("decoded") or {}
+        if decoded.get("type") != "rerun_script":
+            continue
+        for item in decoded.get("rerun_script", {}).get("widget_states", []) or []:
+            if item.get("id") == widget_id:
+                state = (index, item)
+    if state is None:
+        problems.append("the window carries no state for this widget")
+        return {
+            "ok": False,
+            "problems": problems,
+            "wire_value": None,
+            "before_value": None,
+            "connection": None,
+            "state_frame": None,
+            "completion_frame": None,
+        }
+
+    connection = frames[state[0]].get("connection")
+    if connection is None:
+        problems.append("the state frame carries no connection")
+
+    before_value = None
+    for index in range(0, window["start"]):
+        frame = frames[index]
+        if frame.get("direction") != "client->server":
+            continue
+        decoded = frame.get("decoded") or {}
+        if decoded.get("type") != "rerun_script":
+            continue
+        for item in decoded.get("rerun_script", {}).get("widget_states", []) or []:
+            if item.get("id") == widget_id:
+                before_value = wire_value_of(item)
+    after_value = wire_value_of(state[1])
+
+    expected_field = EXPECTED_VALUE_FIELDS.get(case.get("kind"))
+    if expected_field and state[1].get("value_field") != expected_field:
+        problems.append(
+            f"the state was sent in {state[1].get('value_field')!r}, "
+            f"not in {expected_field!r}"
+        )
+    if before_value is not None and before_value == after_value:
+        problems.append(f"the value was sent unchanged: {before_value!r}")
+
+    completion = None
+    for index in range(state[0] + 1, window["end"]):
+        frame = frames[index]
+        decoded = frame.get("decoded") or {}
+        if decoded.get("type") != "script_finished":
+            continue
+        if frame.get("connection") is None or frame.get("connection") != connection:
+            continue
+        if (decoded.get("script_finished") or {}).get("status") != 0:
+            continue
+        completion = index
+        break
+    if completion is None:
+        problems.append("no successful script_finished on the same connection after the state")
+
+    if dom_after_value is None:
+        problems.append("the page shows no value for this widget")
+    elif not widget_value_matches(dom_after_value, after_value):
+        problems.append(
+            f"the page shows {dom_after_value!r}, the client sent {after_value!r}"
+        )
+    if dom_before_value is not None and dom_before_value == dom_after_value:
+        problems.append(f"the page still shows the old value {dom_before_value!r}")
+
+    return {
+        "ok": not problems,
+        "problems": problems,
+        "wire_value": after_value,
+        "before_value": before_value,
+        "connection": connection,
+        "state_frame": state[0],
+        "completion_frame": completion,
+        "value_matches_the_page": not problems,
+    }
+
+
+def suite_failures(required, results) -> list[dict]:
+    """The cases the suite needs but the page did not deliver.
+
+    A case that was never made, or whose verdict is not ok, is a failure.
+    Only a case the suite does not ask for may be absent.
+    """
+    failures = []
+    by_label = {result.get("label"): result for result in results}
+    for label in required:
+        result = by_label.get(label)
+        if result is None:
+            failures.append(
+                {
+                    "step": f"suite-{label}",
+                    "check": "case_executed",
+                    "expected": "the case to run against this page",
+                    "actual": "not executed",
+                }
+            )
+        elif result.get("skipped"):
+            failures.append(
+                {
+                    "step": f"suite-{label}",
+                    "check": "case_executed",
+                    "expected": "the case to run against this page",
+                    "actual": result.get("reason", "skipped"),
+                }
+            )
+        elif not result.get("ok"):
+            failures.append(
+                {
+                    "step": f"suite-{label}",
+                    "check": "case_verdict",
+                    "expected": "the widget to send a changed value and the page to show it",
+                    "actual": "; ".join(result.get("problems") or ["no verdict"]),
+                }
+            )
+    return failures
+
+
+def suite_counts(required, results) -> dict:
+    """How many cases the suite expected, how many ran and how many asserted."""
+    by_label = {result.get("label"): result for result in results}
+    executed = [
+        label
+        for label in required
+        if by_label.get(label) and not by_label[label].get("skipped")
+    ]
+    asserted = [label for label in executed if by_label[label].get("ok")]
+    return {"expected": len(required), "executed": len(executed), "asserted": len(asserted)}
+
+
+def dom_value_for(markdown, label: str):
+    """The value the page shows for one widget, e.g. "40" or "(40, 80)"."""
+    for line in markdown or []:
+        if line.startswith(label + ":"):
+            return line.split(":", 1)[1].strip()
+    return None
+
+
+def wire_value_of(state):
+    """The value the client sent, in the shape the proto carries it.
+
+    A slider sends a DoubleArray, so its value is the list inside that
+    message; a selectbox sends a string and a checkbox a boolean.
+    """
+    if not state:
+        return None
+    full = state.get("value_full")
+    if isinstance(full, dict) and "data" in full:
+        return full["data"]
+    return state.get("value")
+
+
+def widget_value_matches(dom_text, wire_value) -> bool:
+    """Does the value on the page match the value the client sent?
+
+    A float is compared with a tolerance, a range is compared element by
+    element and must have the same length, and a string or a boolean is
+    compared as such.  A range is written "(40, 80)" by Python and "40..80"
+    by Rust, so both spellings are accepted.
+    """
+    if dom_text is None or wire_value is None:
+        return False
+    if isinstance(wire_value, bool):
+        return dom_text.lower() == ("true" if wire_value else "false")
+    if isinstance(wire_value, str):
+        return dom_text.strip("'\"") == wire_value
+    if isinstance(wire_value, (int, float)):
+        try:
+            return abs(float(dom_text) - float(wire_value)) <= 1e-9
+        except ValueError:
+            return False
+    if isinstance(wire_value, list):
+        text = dom_text.strip()
+        if text.startswith("(") and text.endswith(")"):
+            text = text[1:-1]
+        if ".." in text:
+            text = text.replace("..", ",")
+        parts = [part.strip() for part in text.split(",") if part.strip()]
+        if len(parts) != len(wire_value):
+            return False
+        try:
+            return all(abs(float(part) - float(value)) <= 1e-9 for part, value in zip(parts, wire_value))
+        except ValueError:
+            return False
+    return False
+
 STATUS_ORACLE = [
     {"body": "INFO-BODY plain information", "format": "INFO"},
     {"body": "SUCCESS-BODY the operation succeeded", "format": "SUCCESS"},
@@ -544,6 +863,7 @@ class Capture:
         self.notes: list[str] = []
         self.click_windows: list[dict] = []
         self.status_observation: dict | None = None
+        self.widget_observation: dict | None = None
         self.page_title = ""
         self.chrome = "unknown"
         self.cdp_browser_url = ""
@@ -1203,6 +1523,268 @@ return JSON.stringify({alerts,exceptions});})()"""
         )
         self.shot("31-status-details.png")
 
+    def widget_wire(self, events) -> tuple[dict, list]:
+        """The widget elements and the script results the server sent."""
+        widgets: dict = {}
+        finished: list = []
+        for event in events:
+            if event.get("method") != "Network.webSocketFrameReceived":
+                continue
+            frame = event["params"].get("response", {})
+            if frame.get("opcode") != 2:
+                continue
+            decoded = _safe(summarise_forward, base64.b64decode(frame["payloadData"]))
+            if decoded.get("type") == "delta":
+                delta = decoded.get("delta", {})
+                if delta.get("type") == "new_element" and delta.get("element") in WIDGET_ELEMENTS:
+                    widgets.setdefault(delta["element"], delta.get("widget") or {})
+            elif decoded.get("type") == "script_finished":
+                finished.append(decoded.get("script_finished") or {})
+        return widgets, finished
+
+    def widget_dom(self) -> dict:
+        """Read the rendered widgets back from the DOM."""
+        raw = self.ab.run("eval", WIDGET_DOM_JS)
+        try:
+            value = json.loads(raw)
+        except json.JSONDecodeError:
+            return {"raw": raw[:400]}
+        if isinstance(value, str):
+            try:
+                value = json.loads(value)
+            except json.JSONDecodeError:
+                return {"raw": raw[:400]}
+        return value if isinstance(value, dict) else {"value": value}
+        raw = self.ab.run("eval", js)
+        try:
+            value = json.loads(raw)
+        except json.JSONDecodeError:
+            return {"raw": raw[:400]}
+        if isinstance(value, str):
+            try:
+                value = json.loads(value)
+            except json.JSONDecodeError:
+                return {"raw": value[:400]}
+        return value if isinstance(value, dict) else {"value": value}
+
+    def scenario_widgets(self) -> None:
+        """The input widgets: their wire fields, their defaults and their reruns.
+
+        The case selects one page of the reference app
+        (tests/reference/widgets_app.py).  Every interaction is checked against
+        the wire: the client has to send the new state of the widget and the
+        server has to answer with a successful script_finished on the same
+        connection.
+        """
+        case = self.args.case
+        self.ab.run("wait", "5000")
+        self.shot(f"40-widgets-{case}-open.png")
+        widgets, finished = self.widget_wire(self.recorders[0].take())
+        dom = self.widget_dom()
+        observation: dict = {
+            "case": case,
+            "wire_widgets": widgets,
+            "dom": dom,
+            "script_finished": finished,
+            "widgets_captured": len(
+                [k for k in ("selectbox", "slider", "checkbox") if k in widgets]
+            ),
+            "has_exception": bool(dom.get("exceptions")),
+            "all_disabled": bool(
+                dom.get("selectbox_disabled")
+                and dom.get("slider_disabled")
+                and dom.get("checkbox_disabled")
+            ),
+        }
+        if case in ("defaults", "options", "keys", "on_change"):
+            current = dom.get("selectbox_value")
+            option = "region" if current != "region" else "channel"
+            for kind, action in (
+                ("selectbox", "select"),
+                ("slider", "move"),
+                ("checkbox", "toggle"),
+            ):
+                widget_id = (widgets.get(kind) or {}).get("id")
+                if not widget_id:
+                    self.failures.append(
+                        {
+                            "step": f"widgets-{kind}",
+                            "check": "widget_id",
+                            "expected": "the widget id on the wire",
+                            "actual": "not captured",
+                        }
+                    )
+                    continue
+                start = self.recorders[0].frame_count()
+                if action == "select":
+                    self.set_group(option)
+                elif action == "move":
+                    self.set_slider(10)
+                else:
+                    self.set_checkbox(False)
+                self.click_windows.append(
+                    {
+                        "click": f"{kind}-{action}",
+                        "target": self.recorders[0].label,
+                        "start": start,
+                        "end": self.recorders[0].frame_count(),
+                        "widget": widget_id,
+                    }
+                )
+                self.mark(f"widgets-{kind}", f"changed the {kind}", {})
+                self.shot(f"41-widgets-{case}-{kind}.png")
+            observation["after"] = self.widget_dom()
+        self.widget_observation = observation
+        expected: dict = {"has_exception": False}
+        if case == "dup_key":
+            expected = {"has_exception": True}
+        if case == "disabled":
+            expected = {"all_disabled": True, "has_exception": False}
+        self.mark_observed(
+            "widgets-page",
+            f"the {case} page of the widget reference rendered",
+            observation,
+            expected,
+        )
+
+    def change_widget(self, case: dict) -> dict:
+        """Make one widget change, with the agent-browser CLI.
+
+        The slider is a React Aria widget: every thumb is a hidden
+        input[type=range] inside the group that carries the label, and the
+        checkbox input is visually hidden as well, so both are driven with a
+        key press.
+        """
+        kind = case["kind"]
+        label = case["label"]
+        if kind == "slider":
+            selector = (
+                f"[data-testid='stSlider'] [role='group'][aria-label='{label}'] "
+                f"input[type=range]:nth-of-type({case.get('thumb', 0) + 1})"
+            )
+            self.ab.run("focus", selector)
+            for _ in range(case.get("times", 1)):
+                self.ab.run("press", case.get("key", "ArrowRight"))
+                time.sleep(0.5)
+            return {"action": "press", "key": case.get("key", "ArrowRight")}
+        if kind == "checkbox":
+            selector = f"[data-testid='stCheckbox'] input[type=checkbox]"
+            self.ab.run("focus", selector)
+            self.ab.run("press", " ")
+            return {"action": "press-Space"}
+        if kind == "selectbox":
+            self.ab.run("click", "[data-testid='stSelectbox'] button[aria-label='Open']")
+            time.sleep(1.5)
+            option = case.get("option", "region")
+            self.ab.run("find", "text", option, "click")
+            return {"action": "select-option", "option": option}
+        raise SystemExit(f"unknown widget kind {kind!r}")
+
+    def scenario_numeric(self) -> None:
+        """The numeric representatives and the core controls.
+
+        Every case is checked against the wire: the client has to send the
+        widget's new value, the server has to answer with a successful
+        script_finished on the same connection, and the value the page
+        renders has to be the value that was sent.
+        """
+        suite = SUITES[self.args.suite]
+        self.ab.run("wait", "5000")
+        widgets, _finished = self.widget_wire(self.recorders[0].take())
+        ids = {}
+        for kind, payload in widgets.items():
+            inner = payload.get(kind) or payload
+            label = inner.get("label") if isinstance(inner, dict) else None
+            if label:
+                ids[(kind, label)] = inner.get("id")
+        observations = []
+        for case in suite["cases"]:
+            label = case["label"]
+            widget_id = ids.get((case["kind"], label))
+            if not widget_id:
+                # The page does not carry this widget: that is not a failure.
+                observations.append(
+                    {
+                        "widget": case["kind"],
+                        "label": label,
+                        "widget_id": None,
+                        "skipped": True,
+                        "reason": "no such widget on this page",
+                    }
+                )
+                continue
+            start = self.recorders[0].frame_count()
+            action = self.change_widget(case)
+            self.click_windows.append(
+                {
+                    "click": f"{case['kind']}-{label}",
+                    "target": self.recorders[0].label,
+                    "start": start,
+                    "end": self.recorders[0].frame_count(),
+                    "widget": widget_id,
+                }
+            )
+            dom = self.widget_dom()
+            shown = dom_value_for(dom.get("markdown"), label)
+            states = []
+            for event in self.recorders[0].take():
+                if event.get("method") != "Network.webSocketFrameSent":
+                    continue
+                decoded = _safe(
+                    summarise_back,
+                    _decode_payload(
+                        event["params"].get("response", {}).get("opcode"),
+                        event["params"].get("response", {}).get("payloadData", ""),
+                    ),
+                )
+                for state in (decoded.get("rerun_script") or {}).get("widget_states", []):
+                    if state.get("id") == widget_id:
+                        states.append(state)
+            wire_value = wire_value_of(states[-1] if states else None)
+            matched = widget_value_matches(shown, wire_value)
+            if not matched:
+                self.failures.append(
+                    {
+                        "step": f"numeric-{label}",
+                        "check": "value_matches_the_page",
+                        "expected": wire_value,
+                        "actual": shown,
+                    }
+                )
+            observations.append(
+                {
+                    "widget": case["kind"],
+                    "label": label,
+                    "widget_id": widget_id,
+                    "action": action,
+                    "wire_value": wire_value,
+                    "page_shows": shown,
+                    "value_matches_the_page": matched,
+                }
+            )
+        self.failures.extend(suite_failures(suite["required"], observations))
+        counts = suite_counts(suite["required"], observations)
+        self.widget_observation = {
+            "case": self.args.suite,
+            "widgets": widgets,
+            "counts": counts,
+            "interactions": observations,
+        }
+        self.mark_observed(
+            "numeric-page",
+            "every widget the suite requires sent its value and the page shows it",
+            {
+                "counts": counts,
+                "interactions": observations,
+                "mismatches": [
+                    o for o in observations
+                    if not o.get("skipped") and not o["value_matches_the_page"]
+                ],
+            },
+            {"mismatches": []},
+        )
+        self.shot("40-numeric-page.png")
+
     def connection_index_before(self) -> int:
         """The index of the connection that was alive before the fault."""
         ids: list[str] = []
@@ -1667,6 +2249,7 @@ return JSON.stringify({alerts,exceptions});})()"""
             "static_bundle_requests_counted_not_stored": static_bundle_requests,
             "button_trace": button_trace,
             "status_observation": self.status_observation,
+            "widget_observation": self.widget_observation,
             "steps": self.steps,
             "failures": self.failures,
             "notes": self.notes,
@@ -1752,13 +2335,23 @@ def verify_click_windows(frames, clicks):
         trigger_position = None
         trigger_connection = None
         false_triggers = []
+        # A window either names the widget whose state has to travel -- a
+        # selectbox, a slider or a checkbox send their value, not a trigger --
+        # or it is a button, which sends trigger_value.
+        wanted_widget = window.get("widget")
         for offset, frame in enumerate(segment):
             if frame.get("direction") != "client->server":
                 continue
             decoded = frame.get("decoded") or {}
             if decoded.get("type") != "rerun_script":
                 continue
-            for widget in decoded.get("rerun_script", {}).get("widget_states", []):
+            states = decoded.get("rerun_script", {}).get("widget_states", [])
+            if wanted_widget:
+                if any(state.get("id") == wanted_widget for state in states):
+                    trigger_position = offset
+                    trigger_connection = frame.get("connection")
+                continue
+            for widget in states:
                 if widget.get("value_field") != "trigger_value":
                     continue
                 item = {"widget_id": widget.get("id"), "connection": frame.get("connection")}
@@ -1773,7 +2366,11 @@ def verify_click_windows(frames, clicks):
                 {
                     "step": f"click-{label}",
                     "check": "true_trigger",
-                    "expected": "a trigger_value=true for the button inside the click window",
+                    "expected": (
+                        f"the state of widget {wanted_widget} inside the click window"
+                        if wanted_widget
+                        else "a trigger_value=true for the button inside the click window"
+                    ),
                     "actual": (
                         f"no true trigger; false triggers: {false_triggers or 'none'}; "
                         f"frames in window: {len(segment)}"
@@ -1812,8 +2409,23 @@ def verify_click_windows(frames, clicks):
             elif (frame.get("decoded") or {}).get("type") == "script_finished":
                 unsuccessful.append((frame.get("decoded") or {}).get("script_finished") or {})
 
+        # A frame that carries no connection proves nothing: it may not be
+        # counted as the same connection as the state frame, and 0 is a real
+        # connection index.
+        if trigger_position is not None and trigger_connection is None:
+            failures.append(
+                {
+                    "step": f"click-{label}",
+                    "check": "connection",
+                    "expected": "the connection the state frame travelled on",
+                    "actual": "the frame carries no connection",
+                }
+            )
         same_connection = [
-            frame for frame in successful_after if frame.get("connection") == trigger_connection
+            frame
+            for frame in successful_after
+            if frame.get("connection") is not None
+            and frame.get("connection") == trigger_connection
         ]
         if trigger_position is not None and not same_connection:
             if successful_after:
@@ -1911,6 +2523,11 @@ def main() -> int:
     parser.add_argument("--url", required=True, help="URL of the running reference app")
     parser.add_argument("--out", required=True, help="output directory for the trace")
     parser.add_argument("--scenario", default="closed-loop", choices=SCENARIOS)
+    parser.add_argument(
+        "--case",
+        default="defaults",
+        help="which page of the reference app the widgets scenario captures",
+    )
     parser.add_argument(
         "--target",
         choices=("python", "rust"),

@@ -1,5 +1,5 @@
+use crate::elements::App;
 use crate::elements::badge::BadgeElement;
-use crate::elements::button::ButtonElement;
 use crate::elements::code::CodeElement;
 use crate::elements::columns::{Column, ColumnElement};
 use crate::elements::common::{Anchor, Divider, Element, ElementHeight, ElementWidth, Gap, HorizontalAlignment, TextAlignment, VerticalAlignment};
@@ -7,10 +7,7 @@ use crate::elements::container::{Container, ContainerElement};
 use crate::elements::markdown::{MarkdownElement, MarkdownElementType};
 use crate::elements::status::{StatusElement, status_content};
 use crate::elements::title::HeadingElement;
-use crate::elements::{App, WidgetValue};
 use crate::memory::Allocator;
-use crate::proto::WidgetState;
-use crate::utils::hash::hash;
 use parking_lot::Mutex;
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -27,11 +24,6 @@ impl Streamlit {
             app: Rc::new(Mutex::new(App::new())),
             allocator: Allocator::new(),
         }
-    }
-
-    pub(crate) fn process_widget_states(self, widget_states: Vec<WidgetState>) -> Self {
-        self.app.lock().process_widget_states(widget_states);
-        self
     }
 }
 
@@ -566,14 +558,15 @@ impl<T: Into<f32> + Copy, const N: usize> From<[T; N]> for ColumnsOptions {
 }
 
 pub struct ButtonOptions {
-    label: String,
-    key: Option<String>,
-    help: Option<String>,
-    r#type: String,
-    icon: Option<String>,
-    disabled: bool,
-    width: ElementWidth,
-    shortcut: Option<String>,
+    pub(crate) label: String,
+    pub(crate) key: Option<String>,
+    pub(crate) help: Option<String>,
+    pub(crate) r#type: String,
+    pub(crate) icon: Option<String>,
+    pub(crate) disabled: bool,
+    pub(crate) width: ElementWidth,
+    pub(crate) shortcut: Option<String>,
+    pub(crate) callback: Option<crate::WidgetCallback>,
 }
 
 impl ButtonOptions {
@@ -587,7 +580,13 @@ impl ButtonOptions {
             disabled: false,
             width: ElementWidth::Content,
             shortcut: None,
+            callback: None,
         }
+    }
+
+    pub fn on_click(mut self, callback: impl Fn(&Streamlit) + Send + Sync + 'static) -> Self {
+        self.callback = Some(std::sync::Arc::new(callback));
+        self
     }
 
     pub fn key<T: ToString>(mut self, key: T) -> Self {
@@ -865,40 +864,9 @@ impl<C: AppendChild> StreamlitApi for C {
         self.allocator().malloc(columns).as_slice()
     }
 
-    /// Display a button and return whether it was clicked
+    /// Display a button. Use `try_button` to handle duplicate key/ID errors.
     fn button<T: Into<ButtonOptions>>(&self, options: T) -> bool {
-        let options = options.into();
-
-        let key = if let Some(key) = options.key { hash(key.as_str()) } else { hash(options.label.as_str()) };
-        let button_id = format!("$$ID-{}", key);
-
-        // Check if this button was previously clicked
-        let app = self.get_app();
-        let was_clicked = app
-            .lock()
-            .get_widget_state(button_id.as_str())
-            .and_then(|value| match value {
-                WidgetValue::Boolean(b) => Some(b),
-                _ => None,
-            })
-            .unwrap_or(false);
-
-        // Reset button state after checking
-        if was_clicked {
-            app.lock().set_widget_state(button_id.clone(), WidgetValue::Boolean(false));
-        }
-
-        // Create the button element with consistent ID
-        let element = ButtonElement::new(button_id, options.label)
-            .help(options.help.unwrap_or_default())
-            .r#type(options.r#type)
-            .icon(options.icon.unwrap_or_default())
-            .shortcut(options.shortcut.unwrap_or_default())
-            .width(options.width);
-
-        self.push(Rc::new(RefCell::new(element)));
-
-        was_clicked
+        crate::InputWidgets::try_button(self, options).expect("button registration failed")
     }
 }
 
@@ -912,17 +880,17 @@ mod quality_tests {
         let initial_count = Rc::strong_count(&st.app);
 
         let writer = async {
-            st.app.lock().set_widget_state("quality".to_string(), WidgetValue::Boolean(true));
+            st.session_state().set("quality", true).unwrap();
             tokio::task::yield_now().await;
         };
         let reader = async {
             tokio::task::yield_now().await;
-            st.app.lock().get_widget_state("quality")
+            st.session_state().get::<bool>("quality").unwrap()
         };
 
         let (_, clicked) = tokio::join!(writer, reader);
 
         assert_eq!(initial_count, 1);
-        assert!(matches!(clicked, Some(WidgetValue::Boolean(true))));
+        assert_eq!(clicked, Some(true));
     }
 }

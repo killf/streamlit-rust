@@ -1,0 +1,1809 @@
+{
+  "schema_version": 1,
+  "contract_id": "C-P0-04",
+  "kind": "python-reference-widget-trace",
+  "scope": "PYTHON SIDE ONLY",
+  "capture": {
+    "tool": "DevTools Protocol against the same real Chrome",
+    "tool_limitation": "the agent-browser CLI could not start its daemon in this environment (connection timeout), so the input is sent over CDP",
+    "chrome": "Chrome/147.0.7727.56",
+    "chrome_cdp_port": 60667,
+    "input_events": "Input.dispatchMouseEvent / Input.dispatchKeyEvent (real UI events)",
+    "driver": "tests/browser/numeric_capture.py",
+    "binary": ""
+  },
+  "url": "http://127.0.0.1:8604/?case=numeric",
+  "wire_widgets": {
+    "slider|Minimum amount": {
+      "slider": {
+        "id": "$$ID-1425379c6b7c47c29d8070340478a6c8-min_amount",
+        "label": "Minimum amount",
+        "format": "%d",
+        "default": [
+          0.0
+        ],
+        "max": 200.0,
+        "step": 10.0,
+        "labelVisibility": {},
+        "type": "SLIDER"
+      },
+      "widthConfig": {
+        "useStretch": true
+      }
+    },
+    "slider|Ratio": {
+      "slider": {
+        "id": "$$ID-d0a69523d41150af7ddf6e11df27d870-ratio",
+        "label": "Ratio",
+        "format": "%0.2f",
+        "dataType": "FLOAT",
+        "default": [
+          0.25
+        ],
+        "max": 1.0,
+        "step": 0.05,
+        "labelVisibility": {},
+        "type": "SLIDER"
+      },
+      "widthConfig": {
+        "useStretch": true
+      }
+    },
+    "slider|Amount range": {
+      "slider": {
+        "id": "$$ID-3dd031aa34bee31593ac1daa5def1cc6-amount_range",
+        "label": "Amount range",
+        "format": "%d",
+        "default": [
+          20.0,
+          80.0
+        ],
+        "max": 200.0,
+        "step": 10.0,
+        "labelVisibility": {},
+        "type": "SLIDER"
+      },
+      "widthConfig": {
+        "useStretch": true
+      }
+    },
+    "slider|Ratio range": {
+      "slider": {
+        "id": "$$ID-10739a56e5713e00f0c137de4121ce45-ratio_range",
+        "label": "Ratio range",
+        "format": "%0.2f",
+        "dataType": "FLOAT",
+        "default": [
+          0.2,
+          0.8
+        ],
+        "max": 1.0,
+        "step": 0.1,
+        "labelVisibility": {},
+        "type": "SLIDER"
+      },
+      "widthConfig": {
+        "useStretch": true
+      }
+    }
+  },
+  "suite": "python-numeric",
+  "required_cases": [
+    "Minimum amount",
+    "Ratio",
+    "Amount range",
+    "Ratio range"
+  ],
+  "counts": {
+    "expected": 4,
+    "executed": 4,
+    "asserted": 4
+  },
+  "interactions": [
+    {
+      "widget": "slider",
+      "label": "Minimum amount",
+      "widget_id": "$$ID-1425379c6b7c47c29d8070340478a6c8-min_amount",
+      "action": {
+        "action": "press",
+        "key": "ArrowRight"
+      },
+      "wire_value": [
+        10.0
+      ],
+      "value_before": null,
+      "page_shows": "10",
+      "page_shows_before": "0",
+      "connection": 0,
+      "state_frame": 0,
+      "completion_frame": 13,
+      "ok": true,
+      "problems": [],
+      "value_matches_the_page": true
+    },
+    {
+      "widget": "slider",
+      "label": "Ratio",
+      "widget_id": "$$ID-d0a69523d41150af7ddf6e11df27d870-ratio",
+      "action": {
+        "action": "press",
+        "key": "ArrowRight"
+      },
+      "wire_value": [
+        0.3
+      ],
+      "value_before": [
+        0.25
+      ],
+      "page_shows": "0.3",
+      "page_shows_before": "0.25",
+      "connection": 0,
+      "state_frame": 15,
+      "completion_frame": 28,
+      "ok": true,
+      "problems": [],
+      "value_matches_the_page": true
+    },
+    {
+      "widget": "slider",
+      "label": "Amount range",
+      "widget_id": "$$ID-3dd031aa34bee31593ac1daa5def1cc6-amount_range",
+      "action": {
+        "action": "press",
+        "key": "ArrowRight"
+      },
+      "wire_value": [
+        30.0,
+        80.0
+      ],
+      "value_before": [
+        20.0,
+        80.0
+      ],
+      "page_shows": "(30, 80)",
+      "page_shows_before": "(20, 80)",
+      "connection": 0,
+      "state_frame": 30,
+      "completion_frame": 43,
+      "ok": true,
+      "problems": [],
+      "value_matches_the_page": true
+    },
+    {
+      "widget": "slider",
+      "label": "Ratio range",
+      "widget_id": "$$ID-10739a56e5713e00f0c137de4121ce45-ratio_range",
+      "action": {
+        "action": "press",
+        "key": "ArrowRight"
+      },
+      "wire_value": [
+        0.3,
+        0.8
+      ],
+      "value_before": [
+        0.2,
+        0.8
+      ],
+      "page_shows": "(0.3, 0.8)",
+      "page_shows_before": "(0.2, 0.8)",
+      "connection": 0,
+      "state_frame": 45,
+      "completion_frame": 58,
+      "ok": true,
+      "problems": [],
+      "value_matches_the_page": true
+    }
+  ],
+  "dom_after": {
+    "selectbox_value": null,
+    "selectbox_disabled": false,
+    "slider_value": "10",
+    "slider_thumb": "10",
+    "slider_disabled": false,
+    "checkbox_checked": null,
+    "checkbox_disabled": false,
+    "markdown": [
+      "Minimum amount: 10",
+      "Ratio: 0.3",
+      "Amount range: (30, 80)",
+      "Ratio range: (0.3, 0.8)"
+    ],
+    "exceptions": []
+  },
+  "frames": [
+    {
+      "direction": "client->server",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "BackMsg",
+        "type": "rerun_script",
+        "rerun_script": {
+          "widget_states": [
+            {
+              "id": "$$ID-1425379c6b7c47c29d8070340478a6c8-min_amount",
+              "value_field": "double_array_value",
+              "value": {
+                "data": "[10.0]"
+              },
+              "value_full": {
+                "data": [
+                  10.0
+                ]
+              }
+            },
+            {
+              "id": "$$ID-d0a69523d41150af7ddf6e11df27d870-ratio",
+              "value_field": "double_array_value",
+              "value": {
+                "data": "[0.25]"
+              },
+              "value_full": {
+                "data": [
+                  0.25
+                ]
+              }
+            },
+            {
+              "id": "$$ID-3dd031aa34bee31593ac1daa5def1cc6-amount_range",
+              "value_field": "double_array_value",
+              "value": {
+                "data": "[20.0, 80.0]"
+              },
+              "value_full": {
+                "data": [
+                  20.0,
+                  80.0
+                ]
+              }
+            },
+            {
+              "id": "$$ID-10739a56e5713e00f0c137de4121ce45-ratio_range",
+              "value_field": "double_array_value",
+              "value": {
+                "data": "[0.2, 0.8]"
+              },
+              "value_full": {
+                "data": [
+                  0.2,
+                  0.8
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "new_session",
+        "new_session": {
+          "script_run_id": "42fb9290-7dde-43bd-8702-58bfc466a770",
+          "name": "numeric_app",
+          "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\numeric_app.py",
+          "page_script_hash": "517ba5ca98011792bafb57e8eddad20a",
+          "main_script_hash": "517ba5ca98011792bafb57e8eddad20a",
+          "session_id": "70abecd0-b28e-46c1-a26a-1df6100b020f"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true,
+          "run_on_save": false
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "page_config_changed"
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "heading",
+          "body": "Numeric widget reference"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "slider",
+          "element_full": {
+            "slider": {
+              "id": "$$ID-1425379c6b7c47c29d8070340478a6c8-min_amount",
+              "label": "Minimum amount",
+              "format": "%d",
+              "default": [
+                0.0
+              ],
+              "max": 200.0,
+              "step": 10.0,
+              "labelVisibility": {},
+              "type": "SLIDER"
+            },
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          "widget": {
+            "id": "$$ID-1425379c6b7c47c29d8070340478a6c8-min_amount",
+            "label": "Minimum amount",
+            "format": "%d",
+            "default": [
+              0.0
+            ],
+            "max": 200.0,
+            "step": 10.0,
+            "labelVisibility": {},
+            "type": "SLIDER"
+          },
+          "id": "$$ID-1425379c6b7c47c29d8070340478a6c8-min_amount",
+          "label": "Minimum amount",
+          "accepted_types": [
+            "1"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "slider",
+          "element_full": {
+            "slider": {
+              "id": "$$ID-d0a69523d41150af7ddf6e11df27d870-ratio",
+              "label": "Ratio",
+              "format": "%0.2f",
+              "dataType": "FLOAT",
+              "default": [
+                0.25
+              ],
+              "max": 1.0,
+              "step": 0.05,
+              "labelVisibility": {},
+              "type": "SLIDER"
+            },
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          "widget": {
+            "id": "$$ID-d0a69523d41150af7ddf6e11df27d870-ratio",
+            "label": "Ratio",
+            "format": "%0.2f",
+            "dataType": "FLOAT",
+            "default": [
+              0.25
+            ],
+            "max": 1.0,
+            "step": 0.05,
+            "labelVisibility": {},
+            "type": "SLIDER"
+          },
+          "id": "$$ID-d0a69523d41150af7ddf6e11df27d870-ratio",
+          "label": "Ratio",
+          "accepted_types": [
+            "1"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "slider",
+          "element_full": {
+            "slider": {
+              "id": "$$ID-3dd031aa34bee31593ac1daa5def1cc6-amount_range",
+              "label": "Amount range",
+              "format": "%d",
+              "default": [
+                20.0,
+                80.0
+              ],
+              "max": 200.0,
+              "step": 10.0,
+              "labelVisibility": {},
+              "type": "SLIDER"
+            },
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          "widget": {
+            "id": "$$ID-3dd031aa34bee31593ac1daa5def1cc6-amount_range",
+            "label": "Amount range",
+            "format": "%d",
+            "default": [
+              20.0,
+              80.0
+            ],
+            "max": 200.0,
+            "step": 10.0,
+            "labelVisibility": {},
+            "type": "SLIDER"
+          },
+          "id": "$$ID-3dd031aa34bee31593ac1daa5def1cc6-amount_range",
+          "label": "Amount range",
+          "accepted_types": [
+            "1"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "slider",
+          "element_full": {
+            "slider": {
+              "id": "$$ID-10739a56e5713e00f0c137de4121ce45-ratio_range",
+              "label": "Ratio range",
+              "format": "%0.2f",
+              "dataType": "FLOAT",
+              "default": [
+                0.2,
+                0.8
+              ],
+              "max": 1.0,
+              "step": 0.1,
+              "labelVisibility": {},
+              "type": "SLIDER"
+            },
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          "widget": {
+            "id": "$$ID-10739a56e5713e00f0c137de4121ce45-ratio_range",
+            "label": "Ratio range",
+            "format": "%0.2f",
+            "dataType": "FLOAT",
+            "default": [
+              0.2,
+              0.8
+            ],
+            "max": 1.0,
+            "step": 0.1,
+            "labelVisibility": {},
+            "type": "SLIDER"
+          },
+          "id": "$$ID-10739a56e5713e00f0c137de4121ce45-ratio_range",
+          "label": "Ratio range",
+          "accepted_types": [
+            "1"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "markdown",
+          "body": "Minimum amount: 10"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "markdown",
+          "body": "Ratio: 0.25"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "markdown",
+          "body": "Amount range: (20, 80)"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "markdown",
+          "body": "Ratio range: (0.2, 0.8)"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "script_finished",
+        "script_finished": {
+          "status": 0,
+          "status_name": "FINISHED_SUCCESSFULLY"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": false,
+          "run_on_save": false
+        }
+      }
+    },
+    {
+      "direction": "client->server",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "BackMsg",
+        "type": "rerun_script",
+        "rerun_script": {
+          "widget_states": [
+            {
+              "id": "$$ID-1425379c6b7c47c29d8070340478a6c8-min_amount",
+              "value_field": "double_array_value",
+              "value": {
+                "data": "[10.0]"
+              },
+              "value_full": {
+                "data": [
+                  10.0
+                ]
+              }
+            },
+            {
+              "id": "$$ID-d0a69523d41150af7ddf6e11df27d870-ratio",
+              "value_field": "double_array_value",
+              "value": {
+                "data": "[0.3]"
+              },
+              "value_full": {
+                "data": [
+                  0.3
+                ]
+              }
+            },
+            {
+              "id": "$$ID-3dd031aa34bee31593ac1daa5def1cc6-amount_range",
+              "value_field": "double_array_value",
+              "value": {
+                "data": "[20.0, 80.0]"
+              },
+              "value_full": {
+                "data": [
+                  20.0,
+                  80.0
+                ]
+              }
+            },
+            {
+              "id": "$$ID-10739a56e5713e00f0c137de4121ce45-ratio_range",
+              "value_field": "double_array_value",
+              "value": {
+                "data": "[0.2, 0.8]"
+              },
+              "value_full": {
+                "data": [
+                  0.2,
+                  0.8
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "new_session",
+        "new_session": {
+          "script_run_id": "215b74e2-58d3-44fb-98cd-31177b000ced",
+          "name": "numeric_app",
+          "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\numeric_app.py",
+          "page_script_hash": "517ba5ca98011792bafb57e8eddad20a",
+          "main_script_hash": "517ba5ca98011792bafb57e8eddad20a",
+          "session_id": "70abecd0-b28e-46c1-a26a-1df6100b020f"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true,
+          "run_on_save": false
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "page_config_changed"
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "heading",
+          "body": "Numeric widget reference"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "slider",
+          "element_full": {
+            "slider": {
+              "id": "$$ID-1425379c6b7c47c29d8070340478a6c8-min_amount",
+              "label": "Minimum amount",
+              "format": "%d",
+              "default": [
+                0.0
+              ],
+              "max": 200.0,
+              "step": 10.0,
+              "labelVisibility": {},
+              "type": "SLIDER"
+            },
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          "widget": {
+            "id": "$$ID-1425379c6b7c47c29d8070340478a6c8-min_amount",
+            "label": "Minimum amount",
+            "format": "%d",
+            "default": [
+              0.0
+            ],
+            "max": 200.0,
+            "step": 10.0,
+            "labelVisibility": {},
+            "type": "SLIDER"
+          },
+          "id": "$$ID-1425379c6b7c47c29d8070340478a6c8-min_amount",
+          "label": "Minimum amount",
+          "accepted_types": [
+            "1"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "slider",
+          "element_full": {
+            "slider": {
+              "id": "$$ID-d0a69523d41150af7ddf6e11df27d870-ratio",
+              "label": "Ratio",
+              "format": "%0.2f",
+              "dataType": "FLOAT",
+              "default": [
+                0.25
+              ],
+              "max": 1.0,
+              "step": 0.05,
+              "labelVisibility": {},
+              "type": "SLIDER"
+            },
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          "widget": {
+            "id": "$$ID-d0a69523d41150af7ddf6e11df27d870-ratio",
+            "label": "Ratio",
+            "format": "%0.2f",
+            "dataType": "FLOAT",
+            "default": [
+              0.25
+            ],
+            "max": 1.0,
+            "step": 0.05,
+            "labelVisibility": {},
+            "type": "SLIDER"
+          },
+          "id": "$$ID-d0a69523d41150af7ddf6e11df27d870-ratio",
+          "label": "Ratio",
+          "accepted_types": [
+            "1"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "slider",
+          "element_full": {
+            "slider": {
+              "id": "$$ID-3dd031aa34bee31593ac1daa5def1cc6-amount_range",
+              "label": "Amount range",
+              "format": "%d",
+              "default": [
+                20.0,
+                80.0
+              ],
+              "max": 200.0,
+              "step": 10.0,
+              "labelVisibility": {},
+              "type": "SLIDER"
+            },
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          "widget": {
+            "id": "$$ID-3dd031aa34bee31593ac1daa5def1cc6-amount_range",
+            "label": "Amount range",
+            "format": "%d",
+            "default": [
+              20.0,
+              80.0
+            ],
+            "max": 200.0,
+            "step": 10.0,
+            "labelVisibility": {},
+            "type": "SLIDER"
+          },
+          "id": "$$ID-3dd031aa34bee31593ac1daa5def1cc6-amount_range",
+          "label": "Amount range",
+          "accepted_types": [
+            "1"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "slider",
+          "element_full": {
+            "slider": {
+              "id": "$$ID-10739a56e5713e00f0c137de4121ce45-ratio_range",
+              "label": "Ratio range",
+              "format": "%0.2f",
+              "dataType": "FLOAT",
+              "default": [
+                0.2,
+                0.8
+              ],
+              "max": 1.0,
+              "step": 0.1,
+              "labelVisibility": {},
+              "type": "SLIDER"
+            },
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          "widget": {
+            "id": "$$ID-10739a56e5713e00f0c137de4121ce45-ratio_range",
+            "label": "Ratio range",
+            "format": "%0.2f",
+            "dataType": "FLOAT",
+            "default": [
+              0.2,
+              0.8
+            ],
+            "max": 1.0,
+            "step": 0.1,
+            "labelVisibility": {},
+            "type": "SLIDER"
+          },
+          "id": "$$ID-10739a56e5713e00f0c137de4121ce45-ratio_range",
+          "label": "Ratio range",
+          "accepted_types": [
+            "1"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "markdown",
+          "body": "Minimum amount: 10"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "markdown",
+          "body": "Ratio: 0.3"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "markdown",
+          "body": "Amount range: (20, 80)"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "markdown",
+          "body": "Ratio range: (0.2, 0.8)"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "script_finished",
+        "script_finished": {
+          "status": 0,
+          "status_name": "FINISHED_SUCCESSFULLY"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": false,
+          "run_on_save": false
+        }
+      }
+    },
+    {
+      "direction": "client->server",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "BackMsg",
+        "type": "rerun_script",
+        "rerun_script": {
+          "widget_states": [
+            {
+              "id": "$$ID-1425379c6b7c47c29d8070340478a6c8-min_amount",
+              "value_field": "double_array_value",
+              "value": {
+                "data": "[10.0]"
+              },
+              "value_full": {
+                "data": [
+                  10.0
+                ]
+              }
+            },
+            {
+              "id": "$$ID-d0a69523d41150af7ddf6e11df27d870-ratio",
+              "value_field": "double_array_value",
+              "value": {
+                "data": "[0.3]"
+              },
+              "value_full": {
+                "data": [
+                  0.3
+                ]
+              }
+            },
+            {
+              "id": "$$ID-3dd031aa34bee31593ac1daa5def1cc6-amount_range",
+              "value_field": "double_array_value",
+              "value": {
+                "data": "[30.0, 80.0]"
+              },
+              "value_full": {
+                "data": [
+                  30.0,
+                  80.0
+                ]
+              }
+            },
+            {
+              "id": "$$ID-10739a56e5713e00f0c137de4121ce45-ratio_range",
+              "value_field": "double_array_value",
+              "value": {
+                "data": "[0.2, 0.8]"
+              },
+              "value_full": {
+                "data": [
+                  0.2,
+                  0.8
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "new_session",
+        "new_session": {
+          "script_run_id": "57030c09-f7ac-4bf5-a632-3887b133e516",
+          "name": "numeric_app",
+          "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\numeric_app.py",
+          "page_script_hash": "517ba5ca98011792bafb57e8eddad20a",
+          "main_script_hash": "517ba5ca98011792bafb57e8eddad20a",
+          "session_id": "70abecd0-b28e-46c1-a26a-1df6100b020f"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true,
+          "run_on_save": false
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "page_config_changed"
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "heading",
+          "body": "Numeric widget reference"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "slider",
+          "element_full": {
+            "slider": {
+              "id": "$$ID-1425379c6b7c47c29d8070340478a6c8-min_amount",
+              "label": "Minimum amount",
+              "format": "%d",
+              "default": [
+                0.0
+              ],
+              "max": 200.0,
+              "step": 10.0,
+              "labelVisibility": {},
+              "type": "SLIDER"
+            },
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          "widget": {
+            "id": "$$ID-1425379c6b7c47c29d8070340478a6c8-min_amount",
+            "label": "Minimum amount",
+            "format": "%d",
+            "default": [
+              0.0
+            ],
+            "max": 200.0,
+            "step": 10.0,
+            "labelVisibility": {},
+            "type": "SLIDER"
+          },
+          "id": "$$ID-1425379c6b7c47c29d8070340478a6c8-min_amount",
+          "label": "Minimum amount",
+          "accepted_types": [
+            "1"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "slider",
+          "element_full": {
+            "slider": {
+              "id": "$$ID-d0a69523d41150af7ddf6e11df27d870-ratio",
+              "label": "Ratio",
+              "format": "%0.2f",
+              "dataType": "FLOAT",
+              "default": [
+                0.25
+              ],
+              "max": 1.0,
+              "step": 0.05,
+              "labelVisibility": {},
+              "type": "SLIDER"
+            },
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          "widget": {
+            "id": "$$ID-d0a69523d41150af7ddf6e11df27d870-ratio",
+            "label": "Ratio",
+            "format": "%0.2f",
+            "dataType": "FLOAT",
+            "default": [
+              0.25
+            ],
+            "max": 1.0,
+            "step": 0.05,
+            "labelVisibility": {},
+            "type": "SLIDER"
+          },
+          "id": "$$ID-d0a69523d41150af7ddf6e11df27d870-ratio",
+          "label": "Ratio",
+          "accepted_types": [
+            "1"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "slider",
+          "element_full": {
+            "slider": {
+              "id": "$$ID-3dd031aa34bee31593ac1daa5def1cc6-amount_range",
+              "label": "Amount range",
+              "format": "%d",
+              "default": [
+                20.0,
+                80.0
+              ],
+              "max": 200.0,
+              "step": 10.0,
+              "labelVisibility": {},
+              "type": "SLIDER"
+            },
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          "widget": {
+            "id": "$$ID-3dd031aa34bee31593ac1daa5def1cc6-amount_range",
+            "label": "Amount range",
+            "format": "%d",
+            "default": [
+              20.0,
+              80.0
+            ],
+            "max": 200.0,
+            "step": 10.0,
+            "labelVisibility": {},
+            "type": "SLIDER"
+          },
+          "id": "$$ID-3dd031aa34bee31593ac1daa5def1cc6-amount_range",
+          "label": "Amount range",
+          "accepted_types": [
+            "1"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "slider",
+          "element_full": {
+            "slider": {
+              "id": "$$ID-10739a56e5713e00f0c137de4121ce45-ratio_range",
+              "label": "Ratio range",
+              "format": "%0.2f",
+              "dataType": "FLOAT",
+              "default": [
+                0.2,
+                0.8
+              ],
+              "max": 1.0,
+              "step": 0.1,
+              "labelVisibility": {},
+              "type": "SLIDER"
+            },
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          "widget": {
+            "id": "$$ID-10739a56e5713e00f0c137de4121ce45-ratio_range",
+            "label": "Ratio range",
+            "format": "%0.2f",
+            "dataType": "FLOAT",
+            "default": [
+              0.2,
+              0.8
+            ],
+            "max": 1.0,
+            "step": 0.1,
+            "labelVisibility": {},
+            "type": "SLIDER"
+          },
+          "id": "$$ID-10739a56e5713e00f0c137de4121ce45-ratio_range",
+          "label": "Ratio range",
+          "accepted_types": [
+            "1"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "markdown",
+          "body": "Minimum amount: 10"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "markdown",
+          "body": "Ratio: 0.3"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "markdown",
+          "body": "Amount range: (30, 80)"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "markdown",
+          "body": "Ratio range: (0.2, 0.8)"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "script_finished",
+        "script_finished": {
+          "status": 0,
+          "status_name": "FINISHED_SUCCESSFULLY"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": false,
+          "run_on_save": false
+        }
+      }
+    },
+    {
+      "direction": "client->server",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "BackMsg",
+        "type": "rerun_script",
+        "rerun_script": {
+          "widget_states": [
+            {
+              "id": "$$ID-1425379c6b7c47c29d8070340478a6c8-min_amount",
+              "value_field": "double_array_value",
+              "value": {
+                "data": "[10.0]"
+              },
+              "value_full": {
+                "data": [
+                  10.0
+                ]
+              }
+            },
+            {
+              "id": "$$ID-d0a69523d41150af7ddf6e11df27d870-ratio",
+              "value_field": "double_array_value",
+              "value": {
+                "data": "[0.3]"
+              },
+              "value_full": {
+                "data": [
+                  0.3
+                ]
+              }
+            },
+            {
+              "id": "$$ID-3dd031aa34bee31593ac1daa5def1cc6-amount_range",
+              "value_field": "double_array_value",
+              "value": {
+                "data": "[30.0, 80.0]"
+              },
+              "value_full": {
+                "data": [
+                  30.0,
+                  80.0
+                ]
+              }
+            },
+            {
+              "id": "$$ID-10739a56e5713e00f0c137de4121ce45-ratio_range",
+              "value_field": "double_array_value",
+              "value": {
+                "data": "[0.3, 0.8]"
+              },
+              "value_full": {
+                "data": [
+                  0.3,
+                  0.8
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "new_session",
+        "new_session": {
+          "script_run_id": "ccc763c7-45cf-429a-9056-a74cd911c18f",
+          "name": "numeric_app",
+          "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\numeric_app.py",
+          "page_script_hash": "517ba5ca98011792bafb57e8eddad20a",
+          "main_script_hash": "517ba5ca98011792bafb57e8eddad20a",
+          "session_id": "70abecd0-b28e-46c1-a26a-1df6100b020f"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true,
+          "run_on_save": false
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "page_config_changed"
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "heading",
+          "body": "Numeric widget reference"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "slider",
+          "element_full": {
+            "slider": {
+              "id": "$$ID-1425379c6b7c47c29d8070340478a6c8-min_amount",
+              "label": "Minimum amount",
+              "format": "%d",
+              "default": [
+                0.0
+              ],
+              "max": 200.0,
+              "step": 10.0,
+              "labelVisibility": {},
+              "type": "SLIDER"
+            },
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          "widget": {
+            "id": "$$ID-1425379c6b7c47c29d8070340478a6c8-min_amount",
+            "label": "Minimum amount",
+            "format": "%d",
+            "default": [
+              0.0
+            ],
+            "max": 200.0,
+            "step": 10.0,
+            "labelVisibility": {},
+            "type": "SLIDER"
+          },
+          "id": "$$ID-1425379c6b7c47c29d8070340478a6c8-min_amount",
+          "label": "Minimum amount",
+          "accepted_types": [
+            "1"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "slider",
+          "element_full": {
+            "slider": {
+              "id": "$$ID-d0a69523d41150af7ddf6e11df27d870-ratio",
+              "label": "Ratio",
+              "format": "%0.2f",
+              "dataType": "FLOAT",
+              "default": [
+                0.25
+              ],
+              "max": 1.0,
+              "step": 0.05,
+              "labelVisibility": {},
+              "type": "SLIDER"
+            },
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          "widget": {
+            "id": "$$ID-d0a69523d41150af7ddf6e11df27d870-ratio",
+            "label": "Ratio",
+            "format": "%0.2f",
+            "dataType": "FLOAT",
+            "default": [
+              0.25
+            ],
+            "max": 1.0,
+            "step": 0.05,
+            "labelVisibility": {},
+            "type": "SLIDER"
+          },
+          "id": "$$ID-d0a69523d41150af7ddf6e11df27d870-ratio",
+          "label": "Ratio",
+          "accepted_types": [
+            "1"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "slider",
+          "element_full": {
+            "slider": {
+              "id": "$$ID-3dd031aa34bee31593ac1daa5def1cc6-amount_range",
+              "label": "Amount range",
+              "format": "%d",
+              "default": [
+                20.0,
+                80.0
+              ],
+              "max": 200.0,
+              "step": 10.0,
+              "labelVisibility": {},
+              "type": "SLIDER"
+            },
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          "widget": {
+            "id": "$$ID-3dd031aa34bee31593ac1daa5def1cc6-amount_range",
+            "label": "Amount range",
+            "format": "%d",
+            "default": [
+              20.0,
+              80.0
+            ],
+            "max": 200.0,
+            "step": 10.0,
+            "labelVisibility": {},
+            "type": "SLIDER"
+          },
+          "id": "$$ID-3dd031aa34bee31593ac1daa5def1cc6-amount_range",
+          "label": "Amount range",
+          "accepted_types": [
+            "1"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "slider",
+          "element_full": {
+            "slider": {
+              "id": "$$ID-10739a56e5713e00f0c137de4121ce45-ratio_range",
+              "label": "Ratio range",
+              "format": "%0.2f",
+              "dataType": "FLOAT",
+              "default": [
+                0.2,
+                0.8
+              ],
+              "max": 1.0,
+              "step": 0.1,
+              "labelVisibility": {},
+              "type": "SLIDER"
+            },
+            "widthConfig": {
+              "useStretch": true
+            }
+          },
+          "widget": {
+            "id": "$$ID-10739a56e5713e00f0c137de4121ce45-ratio_range",
+            "label": "Ratio range",
+            "format": "%0.2f",
+            "dataType": "FLOAT",
+            "default": [
+              0.2,
+              0.8
+            ],
+            "max": 1.0,
+            "step": 0.1,
+            "labelVisibility": {},
+            "type": "SLIDER"
+          },
+          "id": "$$ID-10739a56e5713e00f0c137de4121ce45-ratio_range",
+          "label": "Ratio range",
+          "accepted_types": [
+            "1"
+          ],
+          "form_id": ""
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "markdown",
+          "body": "Minimum amount: 10"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "markdown",
+          "body": "Ratio: 0.3"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "markdown",
+          "body": "Amount range: (30, 80)"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "delta",
+        "delta": {
+          "type": "new_element",
+          "element": "markdown",
+          "body": "Ratio range: (0.3, 0.8)"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "script_finished",
+        "script_finished": {
+          "status": 0,
+          "status_name": "FINISHED_SUCCESSFULLY"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "connection": 0,
+      "request_id": "15172.151",
+      "decoded": {
+        "message": "ForwardMsg",
+        "type": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": false,
+          "run_on_save": false
+        }
+      }
+    }
+  ],
+  "failures": []
+}

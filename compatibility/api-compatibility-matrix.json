@@ -88,13 +88,13 @@
     "unavailable_requested_pages": 7,
     "redirect_aliases_not_counted": 2,
     "implementation_status_counts": {
-      "absent": 166,
-      "implemented": 6,
+      "absent": 163,
+      "implemented": 9,
       "candidate": 10
     },
     "compatibility_status_counts": {
-      "unverified": 176,
-      "partial": 6
+      "unverified": 173,
+      "partial": 9
     },
     "unique_feature_ids": 182,
     "unique_official_urls": 182,
@@ -1508,13 +1508,36 @@
       "category": "PAGE ELEMENTS/Input widgets",
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.checkbox",
-      "rust_source_path": null,
-      "implementation_status": "absent",
-      "compatibility_status": "unverified",
+      "rust_source_path": "streamlit/src/widget_api.rs",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "36ec44e7bcce8a2707dcd6958f01b6b96676ebe41e3b352ce860fdaba8045da9",
-        "python_browser_trace": "tests/reference/reference-browser/closed-loop/trace.json"
-      }
+        "python_browser_trace": "tests/reference/reference-browser/closed-loop/trace.json",
+        "rust_source": "streamlit/src/widget_api.rs",
+        "rust_api_test": "streamlit/tests/runtime/widgets_reference.rs",
+        "rust_core_regression": "streamlit/tests/runtime/widgets.rs",
+        "rust_wire_observation": "tests/browser/rust-widgets/trace-widgets.json",
+        "official_frontend_browser_e2e": "tests/browser/rust-widgets/trace-widgets.json",
+        "capture_entry": "tests/browser/numeric_capture.py",
+        "python_fields_defaults": "tests/reference/reference-browser/widgets/defaults/trace-widgets-defaults.json",
+        "python_fields_options": "tests/reference/reference-browser/widgets/options/trace-widgets-options.json",
+        "python_fields_keys": "tests/reference/reference-browser/widgets/keys/trace-widgets-keys.json",
+        "python_fields_on_change": "tests/reference/reference-browser/widgets/on_change/trace-widgets-on_change.json",
+        "python_fields_disabled": "tests/reference/reference-browser/widgets/disabled/trace-widgets-disabled.json",
+        "python_fields_dup_key": "tests/reference/reference-browser/widgets/dup_key/trace-widgets-dup_key.json",
+        "python_fields_none_option": "tests/reference/reference-browser/widgets/none_option/trace-widgets-none_option.json",
+        "python_fields_none_unset": "tests/reference/reference-browser/widgets/none_unset/trace-widgets-none_unset.json"
+      },
+      "rust_plan": "Return boolean checkbox values through CheckboxOptions, preserve keyed state, and run measured core on_change callbacks before rerender.",
+      "compatibility_scope": "Measured W1/W2 core only: complete Element comparisons for eight Python reference cases normalize only opaque widget ID digests. These older references establish field and finite callback facts, not same-connection interaction proof. The frozen Rust six-case capture proves changed target state, real requestId, same-connection successful completion and DOM values for the corresponding API.",
+      "limitations": [
+        "Only measured boolean/default/key/core-callback cases are verified; other widget evidence does not extend checkbox compatibility.",
+        "Rust Result<_, WidgetError> is not the complete Python exception-rendering UI; complete invalid-input UI equivalence is unverified.",
+        "Core callback/key behavior and sampled parameters only: not all on_change modes, argument combinations or parameter-change/reset semantics.",
+        "The disabled Python reference operated selectbox and checkbox only; slider disabled parameters were observed, but no disabled-slider click is claimed.",
+        "Frozen Rust widgets SHA256 4062f4c57bd52d54fcea72293910dd797093f7e61a7eb6490bd12df2978d909a; Python numeric SHA256 a782e87707f1ae055ee99a8bb16653e1208729cb42c4a4939675de6aff669cc7; widget_api source SHA256 c4ca692118cd4485282c31757483fd2f72e099894394e51e5f5f6e54f6b7f3b8."
+      ]
     },
     {
       "feature_id": "st.color_picker",
@@ -1729,26 +1752,74 @@
       "category": "PAGE ELEMENTS/Input widgets",
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.selectbox",
-      "rust_source_path": null,
-      "implementation_status": "absent",
-      "compatibility_status": "unverified",
+      "rust_source_path": "streamlit/src/widget_api.rs",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "2c08b5d712f95b9c0bf2b33e36b9694675476c9ab388ff5e6a9738448914411e",
-        "python_browser_trace": "tests/reference/reference-browser/closed-loop/trace.json"
-      }
+        "python_browser_trace": "tests/reference/reference-browser/closed-loop/trace.json",
+        "rust_source": "streamlit/src/widget_api.rs",
+        "rust_api_test": "streamlit/tests/runtime/widgets_reference.rs",
+        "rust_core_regression": "streamlit/tests/runtime/widgets.rs",
+        "rust_wire_observation": "tests/browser/rust-widgets/trace-widgets.json",
+        "official_frontend_browser_e2e": "tests/browser/rust-widgets/trace-widgets.json",
+        "capture_entry": "tests/browser/numeric_capture.py",
+        "python_fields_defaults": "tests/reference/reference-browser/widgets/defaults/trace-widgets-defaults.json",
+        "python_fields_options": "tests/reference/reference-browser/widgets/options/trace-widgets-options.json",
+        "python_fields_keys": "tests/reference/reference-browser/widgets/keys/trace-widgets-keys.json",
+        "python_fields_on_change": "tests/reference/reference-browser/widgets/on_change/trace-widgets-on_change.json",
+        "python_fields_disabled": "tests/reference/reference-browser/widgets/disabled/trace-widgets-disabled.json",
+        "python_fields_dup_key": "tests/reference/reference-browser/widgets/dup_key/trace-widgets-dup_key.json",
+        "python_fields_none_option": "tests/reference/reference-browser/widgets/none_option/trace-widgets-none_option.json",
+        "python_fields_none_unset": "tests/reference/reference-browser/widgets/none_unset/trace-widgets-none_unset.json"
+      },
+      "rust_plan": "Return typed optional selections through SelectboxOptions<T>, preserve keyed state, and run measured core on_change callbacks before rerender.",
+      "compatibility_scope": "Measured W1/W2 core only: complete Element comparisons for eight Python reference cases normalize only opaque widget ID digests. These older references establish field and finite callback facts, not same-connection interaction proof. The frozen Rust six-case capture proves changed target state, real requestId, same-connection successful completion and DOM values for the corresponding API.",
+      "limitations": [
+        "Only sampled string selections and measured optional/index/key behavior are verified; no arbitrary value-type or complete option-update compatibility claim.",
+        "Rust Result<_, WidgetError> is not the complete Python exception-rendering UI; complete invalid-input UI equivalence is unverified.",
+        "Core callback/key behavior and sampled parameters only: not all on_change modes, argument combinations or parameter-change/reset semantics.",
+        "The disabled Python reference operated selectbox and checkbox only; slider disabled parameters were observed, but no disabled-slider click is claimed.",
+        "Frozen Rust widgets SHA256 4062f4c57bd52d54fcea72293910dd797093f7e61a7eb6490bd12df2978d909a; Python numeric SHA256 a782e87707f1ae055ee99a8bb16653e1208729cb42c4a4939675de6aff669cc7; widget_api source SHA256 c4ca692118cd4485282c31757483fd2f72e099894394e51e5f5f6e54f6b7f3b8."
+      ]
     },
     {
       "feature_id": "st.slider",
       "category": "PAGE ELEMENTS/Input widgets",
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.slider",
-      "rust_source_path": null,
-      "implementation_status": "absent",
-      "compatibility_status": "unverified",
+      "rust_source_path": "streamlit/src/widget_api.rs",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "7f79d29ca5098e54b154b69a1b5a980b14807649717019122a8f54e980ff16da",
-        "python_browser_trace": "tests/reference/reference-browser/closed-loop/trace.json"
-      }
+        "python_browser_trace": "tests/reference/reference-browser/numeric/trace-widgets-numeric.json",
+        "rust_source": "streamlit/src/widget_api.rs",
+        "rust_api_test": "streamlit/tests/runtime/widgets_reference.rs",
+        "rust_core_regression": "streamlit/tests/runtime/widgets.rs",
+        "rust_wire_observation": "tests/browser/rust-widgets/trace-widgets.json",
+        "official_frontend_browser_e2e": "tests/browser/rust-widgets/trace-widgets.json",
+        "capture_entry": "tests/browser/numeric_capture.py",
+        "python_fields_defaults": "tests/reference/reference-browser/widgets/defaults/trace-widgets-defaults.json",
+        "python_fields_options": "tests/reference/reference-browser/widgets/options/trace-widgets-options.json",
+        "python_fields_keys": "tests/reference/reference-browser/widgets/keys/trace-widgets-keys.json",
+        "python_fields_on_change": "tests/reference/reference-browser/widgets/on_change/trace-widgets-on_change.json",
+        "python_fields_disabled": "tests/reference/reference-browser/widgets/disabled/trace-widgets-disabled.json",
+        "python_fields_dup_key": "tests/reference/reference-browser/widgets/dup_key/trace-widgets-dup_key.json",
+        "python_fields_none_option": "tests/reference/reference-browser/widgets/none_option/trace-widgets-none_option.json",
+        "python_fields_none_unset": "tests/reference/reference-browser/widgets/none_unset/trace-widgets-none_unset.json",
+        "python_numeric": "tests/reference/reference-browser/numeric/trace-widgets-numeric.json",
+        "python_default_behavior": "tests/reference/reference-browser/closed-loop/trace.json"
+      },
+      "rust_plan": "Return typed numeric integer/float scalar or range values through SliderOptions<T>, serialize the official Slider Element and consume DoubleArray client state.",
+      "compatibility_scope": "Measured W1/W2 core only: complete Element comparisons for eight Python reference cases normalize only opaque widget ID digests. These older references establish field and finite callback facts, not same-connection interaction proof. The frozen Rust six-case capture proves changed target state, real requestId, same-connection successful completion and DOM values for the corresponding API. Four numeric representatives (integer/float scalar and range) additionally have the frozen Python four-case interaction oracle; no checkbox oracle is used to prove numeric behavior.",
+      "limitations": [
+        "Date/time slider values are not implemented; only measured integer/float scalar and range cases are covered.",
+        "Rust Result<_, WidgetError> is not the complete Python exception-rendering UI; complete invalid-input UI equivalence is unverified.",
+        "Core callback/key behavior and sampled parameters only: not all on_change modes, argument combinations or parameter-change/reset semantics.",
+        "The disabled Python reference operated selectbox and checkbox only; slider disabled parameters were observed, but no disabled-slider click is claimed.",
+        "Frozen Rust widgets SHA256 4062f4c57bd52d54fcea72293910dd797093f7e61a7eb6490bd12df2978d909a; Python numeric SHA256 a782e87707f1ae055ee99a8bb16653e1208729cb42c4a4939675de6aff669cc7; widget_api source SHA256 c4ca692118cd4485282c31757483fd2f72e099894394e51e5f5f6e54f6b7f3b8."
+      ]
     },
     {
       "feature_id": "st.text_area",

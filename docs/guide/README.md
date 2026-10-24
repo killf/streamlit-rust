@@ -5,10 +5,38 @@ This crate is an early Rust implementation of the Streamlit server. It is not ye
 ## Run
 
 ```powershell
-cargo run --example hello
+cargo run --example quickstart --locked
 ```
 
-Run these commands from the repository root, then open `http://127.0.0.1:8501/`. Examples are in `streamlit/examples/`. `hello` is the smallest starting point; `basic` shows the currently available text and layout API; `timer` shows async execution. The server expects the repository-root `www/` directory, which contains the unmodified official Streamlit 1.66.1 frontend. Running the Rust server does not require Python.
+Run from the repository root, then open `http://127.0.0.1:8503/`. The [runnable quickstart](../../streamlit/examples/quickstart.rs) displays a selectbox, slider, checkbox, and their returned values. No Python process is required. The server currently resolves `./www` from its working directory; running the binary elsewhere does not locate the repository frontend automatically.
+
+Use the same widget methods with concise inputs inside a function returning `Result<(), WidgetError>`:
+
+```rust
+use ::streamlit::*;
+
+fn render(st: &Streamlit) -> Result<(), WidgetError> {
+    let group = st.selectbox(("Group by", ["category", "region"]))?;
+    let minimum = st.slider(("Minimum amount", 0_i64, 0..=200))?;
+    let include = st.checkbox(("Include unknown", true))?;
+    st.write(format!("{group:?}, minimum={minimum}, include={include}"));
+    Ok(())
+}
+```
+
+The quickstart entry handles a render error once and displays it. The current `#[streamlit::main]` macro accepts unit-returning user functions; put `?` in a fallible helper rather than giving the macro function a `Result` return type. The example uses port 8503; macro-based examples normally use 8501. `cargo run --example hello --locked` is the smallest text-only example. `basic` shows text/layout and `timer` shows async execution. All use the unmodified official Streamlit 1.66.1 frontend in `www/`.
+
+| Input | Same defaults as the advanced builder |
+|---|---|
+| `st.checkbox("Include")?` | false initially |
+| `st.checkbox(("Include", true))?` | explicit initial bool |
+| `st.selectbox(("Group", ["category", "region"]))?` | first option selected; original option type returned |
+| `st.slider(("Count", 0_i64))?` | integer bounds 0..100, step 1 |
+| `st.slider(("Ratio", 0.25_f64))?` | float bounds 0..1, step 0.01 |
+| `st.slider(("Amount", 20_i64, 10..=200))?` | explicit permitted bounds; initial value 20, step 1 |
+| `st.slider(("Range", (20_i64, 80_i64)))?` | selected endpoints 20..80, permitted bounds still 0..100 |
+
+Use the [advanced widget options](../../streamlit/src/widget_api.rs) for keys, callbacks, custom step/format, disabled state and other settings; the [widgets example](../../streamlit/examples/widgets.rs) shows them together. Concise calls keep the same defaults and `Result` error handling.
 
 For a minimal button example:
 
@@ -16,7 +44,7 @@ For a minimal button example:
 cargo run --example button --locked
 ```
 
-The page shows a `Pulse` button and `Ready`. A click reruns the Rust function and shows `Pulse received`; further clicks request further reruns. Three successive clicks were exercised through the official frontend, with each receiving a successful server completion; the [recorded smoke](../../tests/browser/rust-smoke/trace-smoke.json) covers this minimal demo. This example has no file upload or persistent session counter.
+The page shows a `Pulse` button and `Ready`. A click reruns the Rust function and shows `Pulse received`; further clicks request further reruns. This example has no file upload or persistent session counter.
 
 ## Session state and counter
 
@@ -30,12 +58,38 @@ Use the native typed state API inside your app:
 
 ```rust
 let state = st.session_state();
-let count = state.get::<u64>("count").expect("count must be an integer").unwrap_or(0);
-state.set("count", count + 1).expect("counter is JSON-serializable");
+let count = state.get::<u64>("count")?.unwrap_or(0);
+state.set("count", count + 1)?;
 state.remove("obsolete");
 ```
 
-`get` returns `Ok(None)` for a missing key and an error for a type mismatch. `set` accepts JSON-serializable Rust values; failed serialization leaves the old value intact. `remove` returns the previous JSON value if present. Each browser session has its own state. This application-value API does not yet implement automatic widget-key binding, callbacks, or persistence across server restarts. Disconnected state is retained for 120 seconds by default; manual server construction can set this local policy with `with_disconnected_session_ttl(Duration)`. Retention is not a compatibility claim about Streamlit's default TTL.
+`get` returns `Ok(None)` for a missing key and an error for a type mismatch. `set` accepts JSON-serializable Rust values; failed serialization leaves the old value intact. `remove` returns the previous JSON value if present; deleting a key does not reset a widget that is still rendered. Each browser session has its own state. Explicit input-widget keys bind to these values. Set a key before instantiating its widget; `set` rejects assignment after that widget is instantiated in the current run, and assigning button keys is forbidden. Values do not persist across server restarts. Disconnected state is retained for 120 seconds by default; manual server construction can set this local policy with `with_disconnected_session_ttl(Duration)`. Retention is not a compatibility claim about Streamlit's default TTL.
+
+## Input widgets
+
+```powershell
+cargo run --example widgets --locked
+```
+
+Open `http://127.0.0.1:8501/`. The example renders selectbox, checkbox, integer and floating-point scalar sliders, integer tuple and floating-point array range sliders, a disabled button, and returned values. Each changed input updates its returned value and increments the callback count. It does not render a data table or implement date/time sliders.
+
+```rust
+let group = st.selectbox(
+    SelectboxOptions::new("Group by", ["category", "region"]).key("group_by")
+)?;
+let minimum = st.slider(
+    SliderOptions::new("Minimum amount", 0_i64).max(200).step(10).key("minimum")
+)?;
+let include = st.checkbox(
+    CheckboxOptions::new("Include unknown").value(true).key("include")
+)?;
+```
+
+These methods return `Result` and also work in containers and columns. Selectbox returns an original option (`Option<T>`), not its display label or index. `.index(None)` starts empty; `.format_func(|option| ...)` changes labels only. Use `SelectboxOptions::with_format_func(...)` for types without Display, including `Option<T>` and `()`. A selected None option returns `Some(None)`; an unselected `Option<T>` selectbox returns `None`. Empty options disable selection. Checkbox defaults to content width; selectbox and slider stretch. Numeric sliders accept `i32`, `i64`, `f64`, or two scalar endpoints of the same type as `(T, T)` or `[T; 2]`. Pass the lower bound as the initial value to start there. Bounds and step must be finite, ordered, and positive as appropriate; integer bounds stay within JavaScript's exact integer range and the chosen Rust return type (`i32` or `i64`). `.format(...)` changes slider display only. Date/time sliders and adding new selectbox options are not available yet.
+
+Use `.on_change(|st| { ... })` on inputs or `ButtonOptions::new("Apply").on_click(|st| { ... })` for a button callback. Incoming widget values are applied together, then synchronous callbacks execute before main. Captures must be `Send + Sync + 'static`; callbacks can read updated keys and write application state. `.ignore_rerun(true)` buffers an input change in the frontend until another event reruns the script. Default reruns preserve input values and one-shot buttons reset each run. Give repeated widgets distinct keys: duplicate keys or automatic IDs return `WidgetError`. The original `button` returns `bool` and panics on a registration error; use `try_button` for a `Result`.
+
+Widget keys are removed at the end of a run if that widget was not rendered; unrelated application keys remain. Keyed slider bounds/step changes reset its value. These behaviors do not establish full widget identity, cleanup-exception or callback/error parity, or complete compatibility.
 
 ## Information, warnings, errors, and success messages
 
@@ -67,28 +121,8 @@ Supported options and behavior:
 
 Each call returns `Result<(), StatusError>`. Invalid widths or icons return an error without appending that message; earlier messages remain. Two independent emoji such as `.icon("🔥💡")` are rejected. Icons must be strings in Rust. The listed compound emoji are the measured examples, not a claim that every Unicode sequence behaves identically to Python Streamlit.
 
-## Minimal application
-
-```rust
-use ::streamlit::*;
-
-#[main]
-async fn main(st: &Streamlit) {
-    st.title("Sales dashboard");
-    st.write("Upload a CSV to see aggregated data.");
-}
-```
-
-The macro requires `async fn main(st: &Streamlit)`. Doctest compilation uses `rust,no_run` so it does not start a server during `cargo test`.
-
 ## Current API
 
-The developer surface currently centers on `title`, `header`, `sub_header`, `markdown`, `caption`, `code`, `write`, `badge`, `divider`, `info`, `warning`, `error`, `success`, containers, columns, `button`, and native application session state. Signatures are in `streamlit/src/api.rs` and `streamlit/src/session.rs`; behavior is not marked fully compatible from source availability alone.
+Available APIs include text and layout, static status messages, `button`, `selectbox`, numeric `slider`, `checkbox`, and native session state. See the [text/layout/status API](../../streamlit/src/api.rs), [widget options](../../streamlit/src/widget_api.rs), and [session API](../../streamlit/src/session.rs).
 
-Known boundaries are significant: the table/chart APIs, file uploader, form, cache, stop/cancel, callbacks, automatic widget-state association, and most input widgets are not implemented. Native application session values, ordinary reruns, retained-session reconnects, and one-shot button triggers are implemented; this does not establish complete Streamlit execution or API compatibility.
-
-## Reference evidence
-
-Deterministic CSV fixtures are in `tests/fixtures`. The pinned Python application and browser collector are in `tests/reference`. Real Python HTTP/WS/protobuf traces and selected screenshots are committed under `tests/reference/reference-browser`; they establish the oracle behavior only and do not exercise the Rust server.
-
-The [Rust counter observations](../../tests/browser/rust-counter-s1/trace-counter.json) cover session recovery, fresh-load reset, and tab isolation. The [Rust status observations](../../tests/browser/rust-status/trace-status.json) cover the static message example and its measured options. These examples do not implement a complete file-upload/data journey.
+Table/chart APIs, file uploader, forms, cache, stop/cancel, query binding, persistent hidden widgets, date/time sliders, and most other input widgets are not implemented. Widget failures are Rust `Result` errors; Python-style exception elements and matching exception UI are not implemented. Native session values, reruns, retained-session reconnects, synchronous callbacks, explicit widget keys and one-shot button triggers are available, without a claim of complete Streamlit compatibility.

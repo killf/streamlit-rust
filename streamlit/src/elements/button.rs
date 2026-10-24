@@ -46,6 +46,11 @@ impl ButtonElement {
         self
     }
 
+    pub fn disabled(mut self, disabled: bool) -> Self {
+        self.disabled = disabled;
+        self
+    }
+
     pub fn width(mut self, width: ElementWidth) -> Self {
         self.width = Some(width);
         self

@@ -14,6 +14,8 @@ Current captures:
   leading-icon extraction cases and the invalid-parameter semantics; `trace-status-icon-composite.json`
   was appended last with the icon grammar (ZWJ, skin tone, flag, two independent emoji).
   The earlier files were left untouched.
+- `numeric/`: the four numeric representatives -- one int value, one float value, an int range and a float range -- against the Python 1.66.1 reference app.
+- `widgets/`: the selectbox, the slider and the checkbox against the Python 1.66.1 reference app.  The full Element protobuf of each widget, every client widget state, the callback order, the key binding, the disabled widgets and the duplicate-key error.
 - `reconnect-ids/`: three WebSocket handshakes that carry a session id in the third subprotocol entry, against the Python 1.66.1 reference app.  A valid but unknown UUID and a non-UUID string each start a new session; the id of a live session resumes it.  No 400, no 409.  The fate of the previously open socket was not observed.
 - `reconnect/`: the live socket is closed from the page, the frontend reconnects on its own, and the
   reconnect handshake carries a third subprotocol entry.  Every connection is recorded separately with

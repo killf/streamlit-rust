@@ -16,7 +16,8 @@ async fn do_rerun_script(session: &mut Session, lease: &SessionLease, server: &S
     }
     // Only application values persist. The render tree and widget triggers are
     // rebuilt for each run, so a previous button click cannot become sticky.
-    let st = Streamlit::with_session_state(lease.state.clone()).process_widget_states(widget_states);
+    let st = Streamlit::with_session_state(lease.state.clone());
+    let callbacks = lease.state.begin_widgets(widget_states);
 
     // 创建 channel 用于流式发送消息
     let (tx, mut rx) = tokio::sync::mpsc::unbounded_channel::<crate::proto::ForwardMsg>();
@@ -43,7 +44,11 @@ async fn do_rerun_script(session: &mut Session, lease: &SessionLease, server: &S
 
     // 使用 tokio::select! 并发执行用户代码和消息发送
     let entry_future = async {
+        for callback in callbacks {
+            callback(&st);
+        }
         server.entry.call(&st).await;
+        lease.state.finish_widgets();
         // 执行完毕后发送 script_finished
         let mut app = st.app.lock();
         if let Some(context) = app.render_context_mut() {

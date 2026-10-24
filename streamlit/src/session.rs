@@ -9,10 +9,11 @@ use std::time::{Duration, Instant};
 
 /// JSON-serializable application values shared across reruns of one session.
 /// Cloning this handle shares that session's values, not another user's state.
-/// Widget triggers are deliberately kept outside this persistent map.
+/// Widget values with explicit keys share this map; button triggers reset each run.
 #[derive(Clone, Default)]
 pub struct SessionState {
-    values: Arc<Mutex<HashMap<String, Value>>>,
+    pub(crate) values: Arc<Mutex<HashMap<String, Value>>>,
+    pub(crate) widgets: Arc<Mutex<crate::widgets::WidgetRegistry>>,
 }
 
 impl SessionState {
@@ -24,14 +25,21 @@ impl SessionState {
     }
 
     /// Store a JSON-serializable value, replacing the previous value only when
-    /// serialization succeeds. This API does not bind values to widget keys.
+    /// serialization succeeds. Explicit widget keys share these values; writes
+    /// after that widget is instantiated in a run are rejected.
     pub fn set<T: Serialize>(&self, key: impl Into<String>, value: T) -> serde_json::Result<()> {
         let value = serde_json::to_value(value)?;
-        self.values.lock().insert(key.into(), value);
+        let key = key.into();
+        let mut registry = self.widgets.lock();
+        registry.check_write(&key)?;
+        registry.mark_write(&key);
+        self.values.lock().insert(key, value);
         Ok(())
     }
 
     /// Delete an application value and return its previous JSON representation.
+    /// Removing a widget key does not reset a still-rendered widget: its current
+    /// value recreates the key when that widget is instantiated again.
     pub fn remove(&self, key: &str) -> Option<Value> {
         self.values.lock().remove(key)
     }

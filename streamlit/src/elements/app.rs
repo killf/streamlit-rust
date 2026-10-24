@@ -1,17 +1,13 @@
 use crate::elements::common::{Element, RenderContext};
 use crate::error::StreamlitError;
-use crate::proto::widget_state::Value;
-use crate::proto::{Block, Config, Delta, EnvironmentInfo, ForwardMsg, ForwardMsgMetadata, Initialize, NewSession, SessionStatus, UserInfo, WidgetState, block, delta, forward_msg};
+use crate::proto::{Block, Config, Delta, EnvironmentInfo, ForwardMsg, ForwardMsgMetadata, Initialize, NewSession, SessionStatus, UserInfo, block, delta, forward_msg};
 use crate::utils::hash::hash;
-use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
-use std::collections::HashMap;
 use std::rc::Rc;
 
 pub(crate) struct App {
     pub(crate) session_state: crate::SessionState,
     elements: Vec<Rc<RefCell<dyn Element>>>,
-    widget_states: HashMap<String, WidgetValue>,
     main_script: String,
     render_context: Option<RenderContext>,
 }
@@ -21,7 +17,6 @@ impl App {
         Self {
             session_state: Default::default(),
             elements: Default::default(),
-            widget_states: Default::default(),
             main_script: Default::default(),
             render_context: None,
         }
@@ -33,31 +28,6 @@ impl App {
 
     pub fn render_context_mut(&mut self) -> Option<&mut RenderContext> {
         self.render_context.as_mut()
-    }
-
-    pub fn get_widget_state(&self, widget_id: &str) -> Option<WidgetValue> {
-        self.widget_states.get(widget_id).cloned()
-    }
-
-    pub fn set_widget_state(&mut self, key: String, value: WidgetValue) {
-        self.widget_states.insert(key.to_string(), value);
-    }
-
-    pub fn process_widget_states(&mut self, widget_states: Vec<WidgetState>) {
-        log::info!("Processing {} widget states", widget_states.len());
-        for widget_state in widget_states {
-            if let Some(value) = widget_state.value {
-                match value {
-                    Value::TriggerValue(clicked) => {
-                        log::info!("Button '{}' clicked: {}", widget_state.id, clicked);
-                        self.set_widget_state(widget_state.id, WidgetValue::Boolean(clicked));
-                    }
-                    _ => {
-                        log::info!("Received other widget type: {} - {:?}", widget_state.id, value);
-                    }
-                }
-            }
-        }
     }
 
     pub fn push(&mut self, element: Rc<RefCell<dyn Element>>) {
@@ -181,38 +151,5 @@ pub(crate) fn create_script_finished() -> ForwardMsg {
         hash: "script_finished".to_string(),
         metadata: None,
         r#type: Some(forward_msg::Type::ScriptFinished(forward_msg::ScriptFinishedStatus::FinishedSuccessfully as i32)),
-    }
-}
-
-/// Widget value types
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum WidgetValue {
-    String(String),
-    Float(f64),
-    Integer(i64),
-    Boolean(bool),
-}
-
-impl From<String> for WidgetValue {
-    fn from(s: String) -> Self {
-        WidgetValue::String(s)
-    }
-}
-
-impl From<f64> for WidgetValue {
-    fn from(f: f64) -> Self {
-        WidgetValue::Float(f)
-    }
-}
-
-impl From<i64> for WidgetValue {
-    fn from(i: i64) -> Self {
-        WidgetValue::Integer(i)
-    }
-}
-
-impl From<bool> for WidgetValue {
-    fn from(b: bool) -> Self {
-        WidgetValue::Boolean(b)
     }
 }

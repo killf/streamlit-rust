@@ -24,9 +24,13 @@ pub mod server;
 mod session;
 pub(crate) mod utils;
 pub(crate) mod websocket;
+mod widget_api;
+mod widgets;
 
 pub use api::*;
 pub use server::StreamlitServer;
 pub use session::SessionState;
+pub use widget_api::*;
+pub use widgets::{WidgetCallback, WidgetError};
 
 pub use streamlit_macros::main;

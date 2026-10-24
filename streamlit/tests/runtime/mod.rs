@@ -12,6 +12,7 @@ use tokio::net::TcpStream;
 
 mod overlap;
 mod sessions;
+mod widgets;
 
 fn entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
     Box::pin(async move {
@@ -58,9 +59,14 @@ async fn http_endpoints_and_official_assets() {
 
 // Minimal RFC 6455 framing for test traffic. Client frames must be masked.
 async fn send_binary(stream: &mut TcpStream, payload: &[u8]) {
-    assert!(payload.len() < 126);
     let mask = [0x12, 0x34, 0x56, 0x78];
-    let mut frame = vec![0x82, 0x80 | payload.len() as u8];
+    let mut frame = vec![0x82];
+    if payload.len() < 126 {
+        frame.push(0x80 | payload.len() as u8);
+    } else {
+        frame.push(0x80 | 126);
+        frame.extend_from_slice(&u16::try_from(payload.len()).unwrap().to_be_bytes());
+    }
     frame.extend_from_slice(&mask);
     frame.extend(payload.iter().enumerate().map(|(i, byte)| byte ^ mask[i % 4]));
     stream.write_all(&frame).await.unwrap();
