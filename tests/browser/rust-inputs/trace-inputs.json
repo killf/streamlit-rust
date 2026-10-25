@@ -1,0 +1,1491 @@
+{
+ "schema_version": 1,
+ "journey": "inputs-sequence",
+ "contract": "journey-inputs-v1",
+ "scope": "native",
+ "url": "http://127.0.0.1:8508/",
+ "observation": {
+  "journey": "inputs-sequence",
+  "contract": "journey-inputs-v1",
+  "scope": "native",
+  "url": "http://127.0.0.1:8508/",
+  "binary": null,
+  "source": {
+   "file": "streamlit/examples/inputs.rs",
+   "sha256": "1052058ec8ed7d354853e611ecbf8e0986a369093794e80467e5d6448acfc309"
+  },
+  "capture_sources": {
+   "inputs_capture.py": "3ebb9b65c6adfc1bde1d501710f5ba9132e3c0edf3e853dc5dcc9aebf94d0f3d",
+   "inputs_contract.py": "0e88f76b2cd2689c0791cd4f7236db4d86e855210c41f7a45494245a648a3689"
+  },
+  "stages": [
+   {
+    "name": "01-load",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 35257.866155,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": []
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35257.867455,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "3a206cea-49ab-4100-addd-a7b3ae9c8931",
+        "name": "Streamlit Rust",
+        "main_script_path": "",
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "session_id": "d9f541fd-1599-476b-aa1d-c9c717cce375"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35257.87337,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35257.873471,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "main_container",
+        "block_type": "vertical"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35257.8737,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "radio",
+        "widget": {
+         "id": "$$ID-8824776d5be17fc480fdfa17415ea4f3-None",
+         "label": "Channel",
+         "default": 0,
+         "options": [
+          "email",
+          "sms",
+          "push"
+         ],
+         "labelVisibility": {}
+        },
+        "id": "$$ID-8824776d5be17fc480fdfa17415ea4f3-None",
+        "label": "Channel",
+        "form_id": ""
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35257.874012,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "multiselect",
+        "widget": {
+         "id": "$$ID-bdc58bdc059986fde2d1913aea16c94b-None",
+         "label": "Tags",
+         "default": [
+          0
+         ],
+         "options": [
+          "alpha",
+          "beta",
+          "gamma"
+         ],
+         "labelVisibility": {},
+         "acceptNewOptions": false,
+         "selectAll": 1000
+        },
+        "id": "$$ID-bdc58bdc059986fde2d1913aea16c94b-None",
+        "label": "Tags",
+        "form_id": ""
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35257.874146,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "number_input",
+        "widget": {
+         "id": "$$ID-2f611767bd4873ec225bbd8ca9a5187b-None",
+         "label": "Count",
+         "format": "%d",
+         "hasMin": true,
+         "hasMax": true,
+         "default": 7.0,
+         "step": 1.0,
+         "max": 100.0,
+         "labelVisibility": {}
+        },
+        "id": "$$ID-2f611767bd4873ec225bbd8ca9a5187b-None",
+        "label": "Count",
+        "form_id": ""
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35257.874271,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "text_area",
+        "widget": {
+         "id": "$$ID-903cf328542b1fcb9bbb096feca5f9df-None",
+         "label": "Note",
+         "default": "first line\nsecond line",
+         "labelVisibility": {}
+        },
+        "id": "$$ID-903cf328542b1fcb9bbb096feca5f9df-None",
+        "label": "Note",
+        "form_id": ""
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35257.874373,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "channel='email'"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35257.874447,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "tags=['alpha']"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35257.87448,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "count=7 type=int"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35257.874509,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "note='first line\\nsecond line'"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35257.874531,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35257.87462,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "dom": {
+     "markdowns": [
+      "channel='email'",
+      "tags=['alpha']",
+      "count=7 type=int",
+      "note='first line\\nsecond line'"
+     ],
+     "radio": {
+      "label": "Channel",
+      "checked": 1,
+      "value": [
+       "Channel",
+       "email",
+       "sms",
+       "push"
+      ]
+     },
+     "multiselect": {
+      "chips": [],
+      "options": []
+     },
+     "number": {
+      "value": "7"
+     },
+     "textarea": {
+      "value": "first line\nsecond line"
+     },
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "01-load.png",
+     "sha256": "9a69e2c494ab331d1754c5fdca587b9f6432e5490938c24848ae5f411c84584b"
+    }
+   },
+   {
+    "name": "02-radio-sms",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 35261.095956,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": [
+         {
+          "id": "$$ID-8824776d5be17fc480fdfa17415ea4f3-None",
+          "value_field": "string_value",
+          "value": "sms"
+         },
+         {
+          "id": "$$ID-bdc58bdc059986fde2d1913aea16c94b-None",
+          "value_field": "string_array_value",
+          "value": {
+           "data": "['alpha']"
+          },
+          "value_full": {
+           "data": [
+            "alpha"
+           ]
+          }
+         },
+         {
+          "id": "$$ID-2f611767bd4873ec225bbd8ca9a5187b-None",
+          "value_field": "int_value",
+          "value": 7
+         },
+         {
+          "id": "$$ID-903cf328542b1fcb9bbb096feca5f9df-None",
+          "value_field": "string_value",
+          "value": "first line\nsecond line"
+         }
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35261.097326,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "c2fe278e-9553-4c70-8032-b5ca14b95c71",
+        "name": "Streamlit Rust",
+        "main_script_path": "",
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "session_id": "d9f541fd-1599-476b-aa1d-c9c717cce375"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35261.097622,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35261.098927,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "main_container",
+        "block_type": "vertical"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35261.099026,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "radio",
+        "widget": {
+         "id": "$$ID-8824776d5be17fc480fdfa17415ea4f3-None",
+         "label": "Channel",
+         "default": 0,
+         "options": [
+          "email",
+          "sms",
+          "push"
+         ],
+         "labelVisibility": {}
+        },
+        "id": "$$ID-8824776d5be17fc480fdfa17415ea4f3-None",
+        "label": "Channel",
+        "form_id": ""
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35261.099091,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "multiselect",
+        "widget": {
+         "id": "$$ID-bdc58bdc059986fde2d1913aea16c94b-None",
+         "label": "Tags",
+         "default": [
+          0
+         ],
+         "options": [
+          "alpha",
+          "beta",
+          "gamma"
+         ],
+         "labelVisibility": {},
+         "acceptNewOptions": false,
+         "selectAll": 1000
+        },
+        "id": "$$ID-bdc58bdc059986fde2d1913aea16c94b-None",
+        "label": "Tags",
+        "form_id": ""
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35261.099148,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "number_input",
+        "widget": {
+         "id": "$$ID-2f611767bd4873ec225bbd8ca9a5187b-None",
+         "label": "Count",
+         "format": "%d",
+         "hasMin": true,
+         "hasMax": true,
+         "default": 7.0,
+         "step": 1.0,
+         "max": 100.0,
+         "labelVisibility": {}
+        },
+        "id": "$$ID-2f611767bd4873ec225bbd8ca9a5187b-None",
+        "label": "Count",
+        "form_id": ""
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35261.099227,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "text_area",
+        "widget": {
+         "id": "$$ID-903cf328542b1fcb9bbb096feca5f9df-None",
+         "label": "Note",
+         "default": "first line\nsecond line",
+         "labelVisibility": {}
+        },
+        "id": "$$ID-903cf328542b1fcb9bbb096feca5f9df-None",
+        "label": "Note",
+        "form_id": ""
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35261.099268,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "channel='sms'"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35261.099301,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "tags=['alpha']"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35261.09932,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "count=7 type=int"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35261.099338,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "note='first line\\nsecond line'"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35261.09935,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35261.099374,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "dom": {
+     "markdowns": [
+      "channel='sms'",
+      "tags=['alpha']",
+      "count=7 type=int",
+      "note='first line\\nsecond line'"
+     ],
+     "radio": {
+      "label": "Channel",
+      "checked": 2,
+      "value": [
+       "Channel",
+       "email",
+       "sms",
+       "push"
+      ]
+     },
+     "multiselect": {
+      "chips": [],
+      "options": []
+     },
+     "number": {
+      "value": "7"
+     },
+     "textarea": {
+      "value": "first line\nsecond line"
+     },
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "02-radio-sms.png",
+     "sha256": "98b18f2a4e874137907b51e1259c595b6a4e1702c57a8e52c1f0eea22369d52c"
+    }
+   },
+   {
+    "name": "03-multiselect-beta",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 35264.787517,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": [
+         {
+          "id": "$$ID-8824776d5be17fc480fdfa17415ea4f3-None",
+          "value_field": "string_value",
+          "value": "sms"
+         },
+         {
+          "id": "$$ID-bdc58bdc059986fde2d1913aea16c94b-None",
+          "value_field": "string_array_value",
+          "value": {
+           "data": "['alpha', 'beta']"
+          },
+          "value_full": {
+           "data": [
+            "alpha",
+            "beta"
+           ]
+          }
+         },
+         {
+          "id": "$$ID-2f611767bd4873ec225bbd8ca9a5187b-None",
+          "value_field": "int_value",
+          "value": 7
+         },
+         {
+          "id": "$$ID-903cf328542b1fcb9bbb096feca5f9df-None",
+          "value_field": "string_value",
+          "value": "first line\nsecond line"
+         }
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35264.789606,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "cfce460d-bd1f-448d-ac7f-4b03c6c17796",
+        "name": "Streamlit Rust",
+        "main_script_path": "",
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "session_id": "d9f541fd-1599-476b-aa1d-c9c717cce375"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35264.789892,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35264.791122,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "main_container",
+        "block_type": "vertical"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35264.791227,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "radio",
+        "widget": {
+         "id": "$$ID-8824776d5be17fc480fdfa17415ea4f3-None",
+         "label": "Channel",
+         "default": 0,
+         "options": [
+          "email",
+          "sms",
+          "push"
+         ],
+         "labelVisibility": {}
+        },
+        "id": "$$ID-8824776d5be17fc480fdfa17415ea4f3-None",
+        "label": "Channel",
+        "form_id": ""
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35264.791289,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "multiselect",
+        "widget": {
+         "id": "$$ID-bdc58bdc059986fde2d1913aea16c94b-None",
+         "label": "Tags",
+         "default": [
+          0
+         ],
+         "options": [
+          "alpha",
+          "beta",
+          "gamma"
+         ],
+         "labelVisibility": {},
+         "acceptNewOptions": false,
+         "selectAll": 1000
+        },
+        "id": "$$ID-bdc58bdc059986fde2d1913aea16c94b-None",
+        "label": "Tags",
+        "form_id": ""
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35264.791339,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "number_input",
+        "widget": {
+         "id": "$$ID-2f611767bd4873ec225bbd8ca9a5187b-None",
+         "label": "Count",
+         "format": "%d",
+         "hasMin": true,
+         "hasMax": true,
+         "default": 7.0,
+         "step": 1.0,
+         "max": 100.0,
+         "labelVisibility": {}
+        },
+        "id": "$$ID-2f611767bd4873ec225bbd8ca9a5187b-None",
+        "label": "Count",
+        "form_id": ""
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35264.791381,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "text_area",
+        "widget": {
+         "id": "$$ID-903cf328542b1fcb9bbb096feca5f9df-None",
+         "label": "Note",
+         "default": "first line\nsecond line",
+         "labelVisibility": {}
+        },
+        "id": "$$ID-903cf328542b1fcb9bbb096feca5f9df-None",
+        "label": "Note",
+        "form_id": ""
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35264.791433,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "channel='sms'"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35264.791461,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "tags=['alpha', 'beta']"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35264.791476,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "count=7 type=int"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35264.791501,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "note='first line\\nsecond line'"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35264.791521,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35264.791575,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "dom": {
+     "markdowns": [
+      "channel='sms'",
+      "tags=['alpha', 'beta']",
+      "count=7 type=int",
+      "note='first line\\nsecond line'"
+     ],
+     "radio": {
+      "label": "Channel",
+      "checked": 2,
+      "value": [
+       "Channel",
+       "email",
+       "sms",
+       "push"
+      ]
+     },
+     "multiselect": {
+      "chips": [],
+      "options": []
+     },
+     "number": {
+      "value": "7"
+     },
+     "textarea": {
+      "value": "first line\nsecond line"
+     },
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "03-multiselect-beta.png",
+     "sha256": "f7191a7f1aa61801fc99597b19fb5c6f1907d7fa9b83f6f49af7def70ff4dff4"
+    }
+   },
+   {
+    "name": "04-number-42",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 35268.034888,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": [
+         {
+          "id": "$$ID-8824776d5be17fc480fdfa17415ea4f3-None",
+          "value_field": "string_value",
+          "value": "sms"
+         },
+         {
+          "id": "$$ID-bdc58bdc059986fde2d1913aea16c94b-None",
+          "value_field": "string_array_value",
+          "value": {
+           "data": "['alpha', 'beta']"
+          },
+          "value_full": {
+           "data": [
+            "alpha",
+            "beta"
+           ]
+          }
+         },
+         {
+          "id": "$$ID-2f611767bd4873ec225bbd8ca9a5187b-None",
+          "value_field": "int_value",
+          "value": 7
+         },
+         {
+          "id": "$$ID-903cf328542b1fcb9bbb096feca5f9df-None",
+          "value_field": "string_value",
+          "value": "first line\nsecond line"
+         }
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35268.03637,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "a0f0473c-830d-435b-912a-780b068c9ef3",
+        "name": "Streamlit Rust",
+        "main_script_path": "",
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "session_id": "d9f541fd-1599-476b-aa1d-c9c717cce375"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35268.036882,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35268.037825,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "main_container",
+        "block_type": "vertical"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35268.037915,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "radio",
+        "widget": {
+         "id": "$$ID-8824776d5be17fc480fdfa17415ea4f3-None",
+         "label": "Channel",
+         "default": 0,
+         "options": [
+          "email",
+          "sms",
+          "push"
+         ],
+         "labelVisibility": {}
+        },
+        "id": "$$ID-8824776d5be17fc480fdfa17415ea4f3-None",
+        "label": "Channel",
+        "form_id": ""
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35268.063885,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "multiselect",
+        "widget": {
+         "id": "$$ID-bdc58bdc059986fde2d1913aea16c94b-None",
+         "label": "Tags",
+         "default": [
+          0
+         ],
+         "options": [
+          "alpha",
+          "beta",
+          "gamma"
+         ],
+         "labelVisibility": {},
+         "acceptNewOptions": false,
+         "selectAll": 1000
+        },
+        "id": "$$ID-bdc58bdc059986fde2d1913aea16c94b-None",
+        "label": "Tags",
+        "form_id": ""
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35268.064005,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "number_input",
+        "widget": {
+         "id": "$$ID-2f611767bd4873ec225bbd8ca9a5187b-None",
+         "label": "Count",
+         "format": "%d",
+         "hasMin": true,
+         "hasMax": true,
+         "default": 7.0,
+         "step": 1.0,
+         "max": 100.0,
+         "labelVisibility": {}
+        },
+        "id": "$$ID-2f611767bd4873ec225bbd8ca9a5187b-None",
+        "label": "Count",
+        "form_id": ""
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35268.064055,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "text_area",
+        "widget": {
+         "id": "$$ID-903cf328542b1fcb9bbb096feca5f9df-None",
+         "label": "Note",
+         "default": "first line\nsecond line",
+         "labelVisibility": {}
+        },
+        "id": "$$ID-903cf328542b1fcb9bbb096feca5f9df-None",
+        "label": "Note",
+        "form_id": ""
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35268.064087,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "channel='sms'"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35268.064106,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "tags=['alpha', 'beta']"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35268.064122,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "count=7 type=int"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35268.064139,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "note='first line\\nsecond line'"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35268.064163,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35268.064203,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "dom": {
+     "markdowns": [
+      "channel='sms'",
+      "tags=['alpha', 'beta']",
+      "count=7 type=int",
+      "note='first line\\nsecond line'"
+     ],
+     "radio": {
+      "label": "Channel",
+      "checked": 2,
+      "value": [
+       "Channel",
+       "email",
+       "sms",
+       "push"
+      ]
+     },
+     "multiselect": {
+      "chips": [],
+      "options": []
+     },
+     "number": {
+      "value": "42"
+     },
+     "textarea": {
+      "value": "first line\nsecond line"
+     },
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "04-number-42.png",
+     "sha256": "3ec47e0052110396f7de3f113f4c5dac02e3052c50ede92bdaf71fb385dd96bb"
+    }
+   },
+   {
+    "name": "05-textarea-append",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 35271.676048,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": [
+         {
+          "id": "$$ID-8824776d5be17fc480fdfa17415ea4f3-None",
+          "value_field": "string_value",
+          "value": "sms"
+         },
+         {
+          "id": "$$ID-bdc58bdc059986fde2d1913aea16c94b-None",
+          "value_field": "string_array_value",
+          "value": {
+           "data": "['alpha', 'beta']"
+          },
+          "value_full": {
+           "data": [
+            "alpha",
+            "beta"
+           ]
+          }
+         },
+         {
+          "id": "$$ID-2f611767bd4873ec225bbd8ca9a5187b-None",
+          "value_field": "int_value",
+          "value": 42
+         },
+         {
+          "id": "$$ID-903cf328542b1fcb9bbb096feca5f9df-None",
+          "value_field": "string_value",
+          "value": "first line\nsecond line"
+         }
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35271.677249,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "f94099eb-d734-46df-961b-2b389ffc9edd",
+        "name": "Streamlit Rust",
+        "main_script_path": "",
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "session_id": "d9f541fd-1599-476b-aa1d-c9c717cce375"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35271.677513,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35271.678798,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "main_container",
+        "block_type": "vertical"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35271.67891,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "radio",
+        "widget": {
+         "id": "$$ID-8824776d5be17fc480fdfa17415ea4f3-None",
+         "label": "Channel",
+         "default": 0,
+         "options": [
+          "email",
+          "sms",
+          "push"
+         ],
+         "labelVisibility": {}
+        },
+        "id": "$$ID-8824776d5be17fc480fdfa17415ea4f3-None",
+        "label": "Channel",
+        "form_id": ""
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35271.678957,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "multiselect",
+        "widget": {
+         "id": "$$ID-bdc58bdc059986fde2d1913aea16c94b-None",
+         "label": "Tags",
+         "default": [
+          0
+         ],
+         "options": [
+          "alpha",
+          "beta",
+          "gamma"
+         ],
+         "labelVisibility": {},
+         "acceptNewOptions": false,
+         "selectAll": 1000
+        },
+        "id": "$$ID-bdc58bdc059986fde2d1913aea16c94b-None",
+        "label": "Tags",
+        "form_id": ""
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35271.679018,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "number_input",
+        "widget": {
+         "id": "$$ID-2f611767bd4873ec225bbd8ca9a5187b-None",
+         "label": "Count",
+         "format": "%d",
+         "hasMin": true,
+         "hasMax": true,
+         "default": 7.0,
+         "step": 1.0,
+         "max": 100.0,
+         "labelVisibility": {}
+        },
+        "id": "$$ID-2f611767bd4873ec225bbd8ca9a5187b-None",
+        "label": "Count",
+        "form_id": ""
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35271.679063,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "text_area",
+        "widget": {
+         "id": "$$ID-903cf328542b1fcb9bbb096feca5f9df-None",
+         "label": "Note",
+         "default": "first line\nsecond line",
+         "labelVisibility": {}
+        },
+        "id": "$$ID-903cf328542b1fcb9bbb096feca5f9df-None",
+        "label": "Note",
+        "form_id": ""
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35271.679112,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "channel='sms'"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35271.679164,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "tags=['alpha', 'beta']"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35271.679188,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "count=42 type=int"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35271.679221,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "note='first line\\nsecond line'"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35271.679244,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 35271.679293,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "dom": {
+     "markdowns": [
+      "channel='sms'",
+      "tags=['alpha', 'beta']",
+      "count=42 type=int",
+      "note='first line\\nsecond line'"
+     ],
+     "radio": {
+      "label": "Channel",
+      "checked": 2,
+      "value": [
+       "Channel",
+       "email",
+       "sms",
+       "push"
+      ]
+     },
+     "multiselect": {
+      "chips": [],
+      "options": []
+     },
+     "number": {
+      "value": "42"
+     },
+     "textarea": {
+      "value": "first line\nsecond line third"
+     },
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "05-textarea-append.png",
+     "sha256": "f6a8a52a94f35e1afd4f6f8244a51f5ee2e124bd9f1a19e078b934d650a9a925"
+    }
+   }
+  ],
+  "ipc_dir": "D:\\dlab\\streamlit-rust\\target\\checks\\m2-inputs-publish-rust"
+ },
+ "counts": {
+  "expected": 11,
+  "executed": 11,
+  "asserted": 11
+ },
+ "failures": []
+}

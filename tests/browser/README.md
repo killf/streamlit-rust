@@ -122,3 +122,29 @@ under contract `d54226fabc0e2e09f69787d01de5b5fb6c108602e38f358681210167350aab1c
 The contract tolerates only the documented leading `main_block` delta on the
 Rust side; the vega shape and the table's arrow payload are compared as
 normalized shapes, not bytes.
+
+## Input widgets (radio, multiselect, number_input, text_area)
+
+[inputs_capture.py](inputs_capture.py) is the permanent entry for the
+four-widget input chain; [inputs_contract.py](inputs_contract.py) is its
+strict criterion (journey-inputs-v1, 11 checks) with unit tests in
+[tests/reference/test_inputs_contract.py](../reference/test_inputs_contract.py).
+The collector starts its own Chrome and drives a radio pick, a multiselect
+pick through its real popover, number_input retyping with real key events
+and a text_area append across the five measured stages. The tables freeze
+the measured commit semantics: radio and multiselect commit immediately,
+number_input and text_area commit on blur — the typed text sits in the DOM
+while the widget state keeps the previously committed value until the next
+stage's click blurs the control. The published chains:
+
+```powershell
+target\pyref-venv\Scripts\python.exe tests\browser\inputs_capture.py --replay tests\reference\reference-browser\inputs\trace-inputs.json
+target\pyref-venv\Scripts\python.exe tests\browser\inputs_capture.py --replay tests\browser\rust-inputs\trace-inputs.json
+```
+
+Both return 11 expected / 11 executed / 11 asserted with exit 0. Raw SHA256:
+python `af839527e3ac0d55e2626b10768ae3caae2d8904df6588b5e0f418489f90980c`,
+native `e9cbb682f47ba4d1ab14cab92904b3985fd1c7360091b6f1c814ba6449635854`,
+under contract `0e88f76b2cd2689c0791cd4f7236db4d86e855210c41f7a45494245a648a3689`.
+The Rust side carries the pre-existing per-run `main_block` delta (one extra
+frame per stage); the contract compares content, not frame counts.

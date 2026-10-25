@@ -13,6 +13,7 @@ use tokio::net::TcpStream;
 mod data_views;
 mod execution;
 mod forms;
+mod inputs;
 mod overlap;
 mod sessions;
 mod static_assets;

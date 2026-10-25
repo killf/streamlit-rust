@@ -111,11 +111,38 @@ pub enum WidgetError {
 pub(crate) enum Codec {
     Trigger,
     Bool,
-    Text { max_chars: Option<usize> },
+    Text {
+        max_chars: Option<usize>,
+    },
     Select(Vec<(String, Value)>),
-    Slider { min: f64, max: f64, count: usize, integer: bool },
-    TemporalSlider { min: f64, max: f64, count: usize, kind: TemporalKind },
-    Files { store: Arc<parking_lot::Mutex<crate::upload::UploadStore>>, multiple: bool },
+    /// Radio option labels; the wire state is the selected option's text.
+    Radio(Vec<String>),
+    /// Multiselect options paired with their native values; the wire state is
+    /// the selected option texts, in selection order.
+    MultiSelect(Vec<(String, Value)>),
+    /// Number bounds in wire units; the state is int_value or double_value
+    /// according to the measured integer/float split.
+    NumberInput {
+        min: Option<f64>,
+        max: Option<f64>,
+        integer: bool,
+    },
+    Slider {
+        min: f64,
+        max: f64,
+        count: usize,
+        integer: bool,
+    },
+    TemporalSlider {
+        min: f64,
+        max: f64,
+        count: usize,
+        kind: TemporalKind,
+    },
+    Files {
+        store: Arc<parking_lot::Mutex<crate::upload::UploadStore>>,
+        multiple: bool,
+    },
 }
 
 impl Codec {
@@ -125,6 +152,13 @@ impl Codec {
             (Self::Bool, widget_state::Value::BoolValue(value)) => Some((*value).into()),
             (Self::Text { .. }, widget_state::Value::StringValue(value)) => Some(Value::String(value.clone())),
             (Self::Select(options), widget_state::Value::StringValue(label)) => options.iter().position(|(text, _)| text == label).map(Value::from),
+            (Self::Radio(options), widget_state::Value::StringValue(label)) => options.iter().position(|text| text == label).map(Value::from),
+            (Self::MultiSelect(options), widget_state::Value::StringArrayValue(array)) => {
+                let indices: Option<Vec<Value>> = array.data.iter().map(|label| options.iter().position(|(text, _)| text == label).map(Value::from)).collect();
+                indices.map(Value::Array)
+            }
+            (Self::NumberInput { integer, .. }, widget_state::Value::IntValue(value)) if *integer => Some(Value::from(*value)),
+            (Self::NumberInput { integer, .. }, widget_state::Value::DoubleValue(value)) if !*integer => Some(Value::from(*value)),
             (Self::Files { store, multiple }, widget_state::Value::FileUploaderStateValue(state)) => {
                 let store = store.lock();
                 let ids: Vec<Value> = state.uploaded_file_info.iter().filter(|file| store.get(&file.file_id).is_some()).map(|file| Value::String(file.file_id.clone())).collect();
@@ -163,6 +197,11 @@ impl Codec {
             Self::Trigger | Self::Bool => value.is_boolean(),
             Self::Text { max_chars } => value.is_null() || value.as_str().is_some_and(|text| max_chars.is_none_or(|limit| text.chars().count() <= limit)),
             Self::Select(options) => value.is_null() || value.as_u64().is_some_and(|index| index < options.len() as u64),
+            Self::Radio(options) => value.is_null() || value.as_u64().is_some_and(|index| index < options.len() as u64),
+            Self::MultiSelect(options) => value.as_array().is_some_and(|indices| indices.iter().all(|index| index.as_u64().is_some_and(|i| i < options.len() as u64))),
+            Self::NumberInput { min, max, integer } => value
+                .as_f64()
+                .is_some_and(|number| number.is_finite() && (!*integer || number.fract() == 0.0) && min.is_none_or(|bound| number >= bound) && max.is_none_or(|bound| number <= bound)),
             Self::Files { multiple, .. } => value.as_array().is_some_and(|ids| (*multiple || ids.len() <= 1) && ids.iter().all(Value::is_string)),
             Codec::Slider { min, max, count, integer } => {
                 let values = match value {
@@ -191,6 +230,13 @@ impl Codec {
     fn session_value(&self, value: &Value) -> Value {
         match self {
             Self::Select(options) => value.as_u64().and_then(|index| options.get(index as usize)).map(|(_, native)| native.clone()).unwrap_or(Value::Null),
+            Self::Radio(options) => value.as_u64().and_then(|index| options.get(index as usize)).cloned().map(Value::String).unwrap_or(Value::Null),
+            Self::MultiSelect(options) => Value::Array(
+                value
+                    .as_array()
+                    .map(|indices| indices.iter().filter_map(|index| index.as_u64().and_then(|i| options.get(i as usize)).map(|(_, native)| native.clone())).collect())
+                    .unwrap_or_default(),
+            ),
             _ => value.clone(),
         }
     }
@@ -217,6 +263,25 @@ impl Codec {
                 .map(Value::from)
                 .or_else(|| native.is_null().then_some(Value::Null))
                 .ok_or_else(|| WidgetError::InvalidValue("session value is absent from selectbox options".into()));
+        }
+        if let Self::Radio(options) = self {
+            return native
+                .as_str()
+                .and_then(|text| options.iter().position(|option| option == text))
+                .map(Value::from)
+                .or_else(|| native.is_null().then_some(Value::Null))
+                .ok_or_else(|| WidgetError::InvalidValue("session value is absent from radio options".into()));
+        }
+        if let Self::MultiSelect(options) = self {
+            let Some(items) = native.as_array() else {
+                return Err(WidgetError::InvalidValue("multiselect session value must be an array".into()));
+            };
+            let mut indices = Vec::with_capacity(items.len());
+            for item in items {
+                let index = options.iter().position(|(_, value)| value == item).ok_or_else(|| WidgetError::InvalidValue("session value is absent from multiselect options".into()))?;
+                indices.push(Value::from(index));
+            }
+            return Ok(Value::Array(indices));
         }
         Ok(native.clone())
     }

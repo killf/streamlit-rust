@@ -530,6 +530,199 @@ impl<T> SelectboxOptions<T> {
     common_builders!();
 }
 
+/// Radio options. The plain `(label, options)` call selects the first option,
+/// matching the measured reference; `.index(None)` starts unselected.
+pub struct RadioOptions {
+    common: InputOptions,
+    options: Vec<String>,
+    index: Option<usize>,
+}
+impl RadioOptions {
+    pub fn new(label: impl Into<String>, options: impl IntoIterator<Item = impl ToString>) -> Self {
+        Self {
+            common: InputOptions::new(label),
+            options: options.into_iter().map(|option| option.to_string()).collect(),
+            index: Some(0),
+        }
+    }
+    pub fn index(mut self, index: Option<usize>) -> Self {
+        self.index = index;
+        self
+    }
+    common_builders!();
+}
+impl<L: Into<String>, I: IntoIterator<Item = T>, T: ToString> From<(L, I)> for RadioOptions {
+    fn from((label, options): (L, I)) -> Self {
+        Self::new(label, options)
+    }
+}
+
+/// Multiselect options. Selections return in selection order; the plain call
+/// starts empty, matching the reference's empty default.
+pub struct MultiselectOptions<T> {
+    common: InputOptions,
+    options: Vec<T>,
+    labels: Vec<String>,
+    default: Vec<usize>,
+}
+impl<T: ToString> MultiselectOptions<T> {
+    pub fn new(label: impl Into<String>, options: impl IntoIterator<Item = T>) -> Self {
+        let options: Vec<T> = options.into_iter().collect();
+        let labels = options.iter().map(ToString::to_string).collect();
+        Self {
+            common: InputOptions::new(label),
+            options,
+            labels,
+            default: Vec::new(),
+        }
+    }
+}
+impl<L, I, T> From<(L, I)> for MultiselectOptions<T>
+where
+    L: Into<String>,
+    I: IntoIterator<Item = T>,
+    T: ToString,
+{
+    fn from((label, options): (L, I)) -> Self {
+        Self::new(label, options)
+    }
+}
+impl<T> MultiselectOptions<T> {
+    /// Select defaults by option position, like the reference's index list.
+    pub fn default_indices(mut self, indices: impl IntoIterator<Item = usize>) -> Self {
+        self.default = indices.into_iter().collect();
+        self
+    }
+    /// Formatting changes labels, never the returned original option values.
+    pub fn format_func(mut self, format: impl Fn(&T) -> String) -> Self {
+        self.labels = self.options.iter().map(format).collect();
+        self
+    }
+    common_builders!();
+}
+
+/// The number types a number input returns; the wire's integer/float split
+/// follows the value's type, as measured on the reference.
+pub trait NumberValue: Copy + Serialize + DeserializeOwned + PartialOrd + 'static {
+    const INTEGER: bool;
+    fn to_f64(self) -> f64;
+    // Session state mirrors the declared type: integer inputs store integer
+    // JSON so the default round-trips through from_value.
+    fn to_value(self) -> Value;
+    fn from_value(value: &Value) -> Option<Self>;
+}
+impl NumberValue for i64 {
+    const INTEGER: bool = true;
+    fn to_f64(self) -> f64 {
+        self as f64
+    }
+    fn to_value(self) -> Value {
+        Value::from(self)
+    }
+    fn from_value(value: &Value) -> Option<Self> {
+        value.as_i64()
+    }
+}
+impl NumberValue for f64 {
+    const INTEGER: bool = false;
+    fn to_f64(self) -> f64 {
+        self
+    }
+    fn to_value(self) -> Value {
+        Value::from(self)
+    }
+    fn from_value(value: &Value) -> Option<Self> {
+        value.as_f64()
+    }
+}
+
+/// Number input options. The plain `(label, value)` call starts at the value
+/// with the reference's default step (1 for integers, 0.01 for floats).
+pub struct NumberInputOptions<T: NumberValue> {
+    common: InputOptions,
+    value: T,
+    min: Option<T>,
+    max: Option<T>,
+    step: f64,
+}
+impl<T: NumberValue> NumberInputOptions<T> {
+    pub fn new(label: impl Into<String>, value: T) -> Self {
+        Self {
+            common: InputOptions::new(label),
+            value,
+            min: None,
+            max: None,
+            step: if T::INTEGER { 1.0 } else { 0.01 },
+        }
+    }
+    pub fn min(mut self, min: impl Into<T>) -> Self {
+        self.min = Some(min.into());
+        self
+    }
+    pub fn max(mut self, max: impl Into<T>) -> Self {
+        self.max = Some(max.into());
+        self
+    }
+    pub fn step(mut self, step: impl Into<f64>) -> Self {
+        self.step = step.into();
+        self
+    }
+    common_builders!();
+}
+impl<L: Into<String>, T: NumberValue> From<(L, T)> for NumberInputOptions<T> {
+    fn from((label, value): (L, T)) -> Self {
+        Self::new(label, value)
+    }
+}
+impl<L: Into<String>, T: NumberValue> From<(L, T, std::ops::RangeInclusive<T>)> for NumberInputOptions<T> {
+    fn from((label, value, bounds): (L, T, std::ops::RangeInclusive<T>)) -> Self {
+        let (min, max) = bounds.into_inner();
+        Self::new(label, value).min(min).max(max)
+    }
+}
+
+/// Text area options. The plain `(label, value)` call starts with the value;
+/// `.value_none()` starts empty.
+pub struct TextAreaOptions {
+    common: InputOptions,
+    value: Option<String>,
+    max_chars: Option<usize>,
+    placeholder: Option<String>,
+}
+impl TextAreaOptions {
+    pub fn new(label: impl Into<String>, value: impl Into<String>) -> Self {
+        Self {
+            common: InputOptions::new(label),
+            value: Some(value.into()),
+            max_chars: None,
+            placeholder: None,
+        }
+    }
+    pub fn value_none(mut self) -> Self {
+        self.value = None;
+        self
+    }
+    pub fn max_chars(mut self, max_chars: usize) -> Self {
+        self.max_chars = Some(max_chars);
+        self
+    }
+    pub fn placeholder(mut self, placeholder: impl Into<String>) -> Self {
+        self.placeholder = Some(placeholder.into());
+        self
+    }
+    common_builders!();
+}
+impl<L: Into<String>, S: Into<String>> From<(L, S)> for TextAreaOptions {
+    fn from((label, value): (L, S)) -> Self {
+        Self::new(label, value)
+    }
+}
+impl From<&str> for TextAreaOptions {
+    fn from(label: &str) -> Self {
+        Self::new(label, "")
+    }
+}
+
 mod sealed {
     use chrono::{NaiveDate, NaiveDateTime, NaiveTime};
     pub trait Scalar {}
@@ -1038,6 +1231,15 @@ pub trait InputWidgets {
     fn text_input(&self, options: impl Into<TextInputOptions>) -> Result<Option<String>, WidgetError>;
     /// Accept a builder or `(label, options)`; both retain the same defaults.
     fn selectbox<T: Clone + Serialize>(&self, options: impl Into<SelectboxOptions<T>>) -> Result<Option<T>, WidgetError>;
+    /// Accept a builder or `(label, options)`. The plain call selects the
+    /// first option; `.index(None)` starts unselected.
+    fn radio(&self, options: impl Into<RadioOptions>) -> Result<Option<String>, WidgetError>;
+    /// Accept a builder or `(label, options)`. The plain call starts empty.
+    fn multiselect<T: Clone + Serialize>(&self, options: impl Into<MultiselectOptions<T>>) -> Result<Vec<T>, WidgetError>;
+    /// Accept a builder, `(label, value)` or `(label, value, min..=max)`.
+    fn number_input<T: NumberValue>(&self, options: impl Into<NumberInputOptions<T>>) -> Result<T, WidgetError>;
+    /// Accept a builder or `(label, value)`; `.value_none()` starts empty.
+    fn text_area(&self, options: impl Into<TextAreaOptions>) -> Result<Option<String>, WidgetError>;
     /// Accept a builder, `(label, value)`, or `(label, value, min..=max)`.
     /// A tuple/array value denotes the selected range, not the permitted bounds.
     fn slider<T: SliderValue>(&self, options: impl Into<SliderOptions<T>>) -> Result<T, WidgetError>;
@@ -1287,6 +1489,229 @@ impl<C: AppendChild> InputWidgets for C {
                 label_visibility: c.visibility.wire(),
                 placeholder: options.placeholder.unwrap_or_default(),
                 accept_new_options: Some(false),
+                ignore_rerun: c.ignore_rerun,
+                ..Default::default()
+            })),
+            ..Default::default()
+        }))));
+        Ok(result)
+    }
+
+    fn radio(&self, options: impl Into<RadioOptions>) -> Result<Option<String>, WidgetError> {
+        let options = options.into();
+        let c = options.common;
+        let form_id = form_scope(self, c.callback.is_some())?;
+        let width_config = c.width(false)?;
+        if !options.options.is_empty() && options.index.is_some_and(|index| index >= options.options.len()) {
+            return Err(WidgetError::InvalidValue("radio index is outside options".into()));
+        }
+        let default = options.index.map(Value::from).unwrap_or(Value::Null);
+        let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { format!("{:?}:{:?}", options.options, options.index) });
+        let (id, selected, set_value) = self.register_widget_parity(
+            WidgetSpec {
+                kind: "radio",
+                key: c.key.as_deref(),
+                identity: &identity,
+                default: default.clone(),
+                codec: Codec::Radio(options.options.clone()),
+                callback: c.callback,
+            },
+            |value| {
+                if value.is_null() {
+                    return Ok(None);
+                }
+                value
+                    .as_u64()
+                    .and_then(|index| usize::try_from(index).ok())
+                    .filter(|index| *index < options.options.len())
+                    .map(|index| Some(options.options[index].clone()))
+                    .ok_or_else(|| WidgetError::InvalidValue("invalid radio selection index".into()))
+            },
+        )?;
+        let result = selected.clone();
+        self.push(Rc::new(RefCell::new(InputElement(proto::Element {
+            width_config,
+            has_one_shot_effect: set_value.then_some(true),
+            r#type: Some(element::Type::Radio(proto::Radio {
+                id,
+                label: c.label,
+                form_id,
+                default: options.index.map(|index| index as i32),
+                options: options.options.clone(),
+                help: c.help,
+                disabled: c.disabled || options.options.is_empty(),
+                label_visibility: c.visibility.wire(),
+                ignore_rerun: c.ignore_rerun,
+                ..Default::default()
+            })),
+            ..Default::default()
+        }))));
+        Ok(result)
+    }
+
+    fn multiselect<T: Clone + Serialize>(&self, options: impl Into<MultiselectOptions<T>>) -> Result<Vec<T>, WidgetError> {
+        let options = options.into();
+        let c = options.common;
+        let form_id = form_scope(self, c.callback.is_some())?;
+        let width_config = c.width(false)?;
+        if options.default.iter().any(|index| *index >= options.options.len()) || options.default.len() > options.options.len() || options.default.iter().collect::<std::collections::HashSet<_>>().len() != options.default.len() {
+            return Err(WidgetError::InvalidValue("multiselect defaults must be distinct indices inside options".into()));
+        }
+        let native: Vec<Value> = options.options.iter().map(serde_json::to_value).collect::<Result<_, _>>()?;
+        let default = Value::Array(options.default.iter().map(|index| Value::from(*index)).collect::<Vec<_>>());
+        let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { format!("{:?}:{:?}", options.labels, options.default) });
+        let codec = Codec::MultiSelect(options.labels.iter().cloned().zip(native.iter().cloned()).collect());
+        let (id, selected, set_value) = self.register_widget_parity(
+            WidgetSpec {
+                kind: "multiselect",
+                key: c.key.as_deref(),
+                identity: &identity,
+                default,
+                codec,
+                callback: c.callback,
+            },
+            // Resolve on indices and clone the native options, matching
+            // selectbox: from_value::<Vec<T>> trips the higher-ranked
+            // lifetime check and borrowed types like &str cannot be
+            // deserialized from owned state at all.
+            |value| {
+                value
+                    .as_array()
+                    .ok_or_else(|| WidgetError::InvalidValue("multiselect selection must be an index array".into()))?
+                    .iter()
+                    .map(|item| {
+                        item.as_u64()
+                            .and_then(|index| usize::try_from(index).ok())
+                            .filter(|index| *index < options.options.len())
+                            .map(|index| options.options[index].clone())
+                            .ok_or_else(|| WidgetError::InvalidValue("invalid multiselect selection index".into()))
+                    })
+                    .collect()
+            },
+        )?;
+        let selected: Vec<T> = selected;
+        let default_wire: Vec<i32> = options.default.iter().map(|index| *index as i32).collect();
+        self.push(Rc::new(RefCell::new(InputElement(proto::Element {
+            width_config,
+            has_one_shot_effect: set_value.then_some(true),
+            r#type: Some(element::Type::Multiselect(proto::MultiSelect {
+                id,
+                label: c.label,
+                form_id,
+                default: default_wire,
+                options: options.labels.clone(),
+                help: c.help,
+                disabled: c.disabled || options.options.is_empty(),
+                label_visibility: c.visibility.wire(),
+                accept_new_options: Some(false),
+                select_all: Some(1000),
+                ignore_rerun: c.ignore_rerun,
+                ..Default::default()
+            })),
+            ..Default::default()
+        }))));
+        Ok(selected)
+    }
+
+    fn number_input<T: NumberValue>(&self, options: impl Into<NumberInputOptions<T>>) -> Result<T, WidgetError> {
+        let options = options.into();
+        let c = options.common;
+        let form_id = form_scope(self, c.callback.is_some())?;
+        let width_config = c.width(false)?;
+        let (min, max) = (options.min.map(T::to_f64), options.max.map(T::to_f64));
+        let numbers = [options.value.to_f64(), min.unwrap_or_default(), max.unwrap_or_default(), options.step];
+        if !options.step.is_finite()
+            || options.step <= 0.0
+            || min.is_some_and(|low| low >= max.unwrap_or(f64::INFINITY))
+            || numbers.iter().any(|number| !number.is_finite())
+            || (T::INTEGER && numbers.iter().any(|number| number.fract() != 0.0 || number.abs() > crate::widgets::JS_SAFE_INTEGER))
+            || min.is_some_and(|low| options.value.to_f64() < low)
+            || max.is_some_and(|high| options.value.to_f64() > high)
+        {
+            return Err(WidgetError::InvalidValue("number input needs a value inside ordered finite bounds (integers must be JS-safe) and a positive step".into()));
+        }
+        let default = options.value.to_value();
+        let constraints = format!("{}:{}:{}:{}", min.unwrap_or_default(), max.unwrap_or_default(), options.step, T::INTEGER);
+        let identity = c.identity_in_form(&form_id, &if c.key.is_some() { constraints } else { format!("{constraints}:{default}") });
+        let (id, result, set_value) = self.register_widget_parity(
+            WidgetSpec {
+                kind: "number_input",
+                key: c.key.as_deref(),
+                identity: &identity,
+                default,
+                codec: Codec::NumberInput { min, max, integer: T::INTEGER },
+                callback: c.callback,
+            },
+            |value| T::from_value(value).ok_or_else(|| WidgetError::InvalidValue("number input expects its declared number type".into())),
+        )?;
+        self.push(Rc::new(RefCell::new(InputElement(proto::Element {
+            width_config,
+            has_one_shot_effect: set_value.then_some(true),
+            r#type: Some(element::Type::NumberInput(proto::NumberInput {
+                id,
+                label: c.label,
+                form_id,
+                // The measured integer format is %d; the float format is left
+                // unset until a reference capture observes it.
+                format: if T::INTEGER { "%d".into() } else { String::new() },
+                data_type: i32::from(!T::INTEGER),
+                has_min: min.is_some(),
+                has_max: max.is_some(),
+                default: Some(options.value.to_f64()),
+                step: options.step,
+                min: min.unwrap_or_default(),
+                max: max.unwrap_or_default(),
+                value: set_value.then(|| result.to_f64()),
+                set_value,
+                help: c.help,
+                disabled: c.disabled,
+                label_visibility: c.visibility.wire(),
+                ignore_rerun: c.ignore_rerun,
+                ..Default::default()
+            })),
+            ..Default::default()
+        }))));
+        Ok(result)
+    }
+
+    fn text_area(&self, options: impl Into<TextAreaOptions>) -> Result<Option<String>, WidgetError> {
+        let options = options.into();
+        let c = options.common;
+        let form_id = form_scope(self, c.callback.is_some())?;
+        let width_config = c.width(false)?;
+        let default = options.value.clone().map(Value::String).unwrap_or(Value::Null);
+        let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { format!("{:?}:{:?}", options.value, options.max_chars) });
+        let (id, result, set_value) = self.register_widget_parity(
+            WidgetSpec {
+                kind: "text_area",
+                key: c.key.as_deref(),
+                identity: &identity,
+                default: default.clone(),
+                codec: Codec::Text { max_chars: options.max_chars },
+                callback: c.callback,
+            },
+            |value| {
+                if value.is_null() {
+                    return Ok(None);
+                }
+                value.as_str().map(|text| Some(text.to_string())).ok_or_else(|| WidgetError::InvalidValue("text area expects text".into()))
+            },
+        )?;
+        self.push(Rc::new(RefCell::new(InputElement(proto::Element {
+            width_config,
+            has_one_shot_effect: set_value.then_some(true),
+            r#type: Some(element::Type::TextArea(proto::TextArea {
+                id,
+                label: c.label,
+                form_id,
+                default: options.value.clone(),
+                max_chars: options.max_chars.unwrap_or_default() as u32,
+                value: if set_value { result.clone() } else { None },
+                set_value,
+                help: c.help,
+                disabled: c.disabled,
+                label_visibility: c.visibility.wire(),
+                placeholder: options.placeholder.unwrap_or_default(),
                 ignore_rerun: c.ignore_rerun,
                 ..Default::default()
             })),

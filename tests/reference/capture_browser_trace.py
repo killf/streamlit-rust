@@ -639,6 +639,7 @@ WIDGET_ELEMENTS = (
     "slider",
     "checkbox",
     "text_input",
+    "text_area",
     "number_input",
     "radio",
     "multiselect",

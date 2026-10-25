@@ -209,6 +209,30 @@ Use `.on_change(|st| { ... })` on inputs or `ButtonOptions::new("Apply").on_clic
 
 Widget keys are removed at the end of a run if that widget was not rendered; unrelated application keys remain. Keyed slider bounds/step changes reset its value. These behaviors do not establish full widget identity, cleanup-exception or callback/error parity, or complete compatibility.
 
+## Choice and text inputs
+
+```powershell
+cargo run --example inputs --locked
+```
+
+Open `http://127.0.0.1:8508/`. Radio, multiselect, number_input and text_area follow the same value-first style, with a one-line shorthand beside every full-options form:
+
+```rust
+let channel = st.radio(("Channel", ["email", "sms", "push"]))?;            // Option<String>, first option checked
+let tags = st.multiselect(("Tags", ["alpha", "beta", "gamma"]))?;          // Vec<T>, nothing preselected
+let count = st.number_input(("Count", 7_i64, 0..=100))?;                   // i64, step 1
+let note = st.text_area(("Note", "first line\nsecond line"))?;             // Option<String>
+
+let pick = st.radio(RadioOptions::new("Channel", ["email", "sms"]).index(None).key("channel"))?;
+let tagged = st.multiselect(
+    MultiselectOptions::new("Tags", ["alpha", "beta", "gamma"]).default_indices([0]).key("tags"),
+)?;
+let ratio = st.number_input(NumberInputOptions::new("Ratio", 0.5_f64).min(0.0).max(1.0).step(0.05))?;
+let remark = st.text_area(TextAreaOptions::new("Note", "").value_none().max_chars(200).placeholder("Add a note"))?;
+```
+
+`st.radio` returns the selected option's text (`Option<String>`); `.index(None)` starts unchecked. `st.multiselect` returns `Vec<T>` of the selected original options; `.default_indices([0, 2])` preselects by position and `.format_func(|item| ...)` changes labels only. `st.number_input` returns `i64` or `f64` as declared — the plain `("Count", 7_i64)` starts at the value with step 1 and no bounds, and the range tuple `("Count", 7_i64, 0..=100)` pins explicit bounds in one expression; floats start with step 0.01. `st.text_area` returns `Option<String>`; `.value_none()` starts the return value as `None` while the field stays empty. All four commit the way the official frontend does — radio and multiselect immediately, number_input and text_area when the control loses focus. The integer wire shapes (default indices, `%d` format, `INT` data type, `accept_new_options`/`select_all` flags, string/string-array/int states) are the measured 1.66.1 contract behind [journey-inputs-v1](../../tests/browser/inputs_contract.py); the float number_input path follows the same encoding but is not yet reference-measured.
+
 ## Temporal sliders
 
 ```powershell

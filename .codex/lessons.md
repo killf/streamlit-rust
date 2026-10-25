@@ -37,3 +37,19 @@ deleted. Product-level quality norms live in the
    concise, stable and fast: value-first builders, `Into` conversions,
    measured defaults so the plain call renders the reference page, and a
    one-line shorthand documented next to every full-options form.
+9. **Resolve widgets from registry values, not generic serde.** A generic
+   `from_value::<Vec<T>>` inside a closure trips the higher-ranked lifetime
+   check, and `DeserializeOwned` bounds exclude borrowed option types (`&str`)
+   outright. Resolve on the internal representation (indices) and clone the
+   caller's options instead — the selectbox pattern generalizes (hit during
+   the inputs chain).
+10. **Deterministic DOM lag is semantics, not a race.** A DOM echo that lags
+    one stage behind on every capture is measured behavior (number_input and
+    text_area commit on blur), not a capture-timing bug. Cross-check the
+    state snapshot against the DOM pattern in the wire itself before adding
+    wait-for-stability heuristics; keep the heuristic anyway as a guard for
+    genuinely racy repaints.
+11. **Guard tests must not alias the oracle tables.** Spreading contract
+    constants into a synthetic observation shares dict references; a mutation
+    then edits the oracle itself and the mutation test passes vacuously.
+    Deep-copy in synthetic builders.
