@@ -3337,7 +3337,14 @@ def test_j06_cache_reference_uses_current_metadata_without_repeated_entity():
     def observe(data):
         msg=ForwardMsg();msg.ParseFromString(data);seen.append(msg);return decode(data)
     with patch.object(c,'summarise_forward',observe):resolved=c._j06_materialize_frames(tab)
-    assert resolved[1]['decoded']==resolved[0]['decoded']
+    # The summary now exposes the delta path, so the ref resolution differs
+    # from the original full only by carrying the CURRENT metadata's path;
+    # the inner delta dict is copied, not mutated, by the strip helper.
+    def strip_path(summary):
+        copy=dict(summary);delta=dict(summary.get('delta') or {});delta.pop('path',None);copy['delta']=delta;return copy
+    assert strip_path(resolved[1]['decoded'])==strip_path(resolved[0]['decoded'])
+    assert resolved[0]['decoded']['delta']['path']==[0,1]
+    assert resolved[1]['decoded']['delta']['path']==[0,7]
     assert seen[-1].metadata.delta_path==[0,7] and seen[-1].delta.new_element.markdown.body=='cached entity'
     assert tab['frames'][1]['decoded']['type']=='ref_hash' # immutable raw
 
@@ -3684,7 +3691,15 @@ def test_j09_reader_preserves_reconnect_cache_and_clears_it_only_for_f5(fresh_do
     if fresh_document:
         with pytest.raises(ValueError,match='cache reference'):c._j09_materialize_frames(page)
     else:
-        resolved=c._j09_materialize_frames(page);assert resolved[1]['decoded']==resolved[0]['decoded']
+        resolved=c._j09_materialize_frames(page)
+        # Path-stripped equality: the ref resolution carries the CURRENT
+        # metadata's path where the original full carried none. The inner
+        # delta dict is copied, not mutated, so later asserts still see it.
+        def strip_path(summary):
+            copy=dict(summary);delta=dict(summary.get('delta') or {});delta.pop('path',None);copy['delta']=delta;return copy
+        assert strip_path(resolved[1]['decoded'])==strip_path(resolved[0]['decoded'])
+        assert resolved[0]['decoded']['delta']['path']==[]
+        assert resolved[1]['decoded']['delta']['path']==[0,4]
 
 
 @pytest.mark.parametrize('observation',[None,{},[],{'journey':'j09-sequence'},{'journey':'j06-sequence'}])

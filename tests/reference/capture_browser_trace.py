@@ -497,6 +497,17 @@ def summarise_forward(payload: bytes) -> dict:
         elif dkind == "add_block":
             entry["block_id"] = delta.add_block.id
             entry["block_type"] = delta.add_block.WhichOneof("type")
+        elif dkind == "new_transient":
+            # The whole transient delta: the spinner lifecycle rides the
+            # element list (one spinner active, then none at block exit).
+            try:
+                from google.protobuf.json_format import MessageToDict
+
+                entry["transient"] = MessageToDict(delta.new_transient)
+            except Exception as exc:  # pragma: no cover - defensive
+                entry["transient"] = {"error": f"{type(exc).__name__}: {exc}"}
+        if msg.metadata:
+            entry["path"] = list(msg.metadata.delta_path)
         out["delta"] = entry
     elif kind == "file_urls_response":
         out["file_urls_response"] = {
@@ -733,6 +744,9 @@ MEDIA_ELEMENT_TYPES = (
     "audio",
     "metric",
     "progress",
+    "toast",
+    "balloons",
+    "spinner",
 )
 
 

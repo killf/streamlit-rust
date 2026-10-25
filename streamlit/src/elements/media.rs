@@ -27,6 +27,109 @@ fn push_element(context: &mut RenderContext, element_hash: String, inner: elemen
     }
 }
 
+/// Pushes a one-shot element (balloons): the measured wire marks these
+/// `has_one_shot_effect` and carries no width or height config.
+fn push_one_shot_element(context: &mut RenderContext, element_hash: String, inner: element::Type) {
+    let mut msg = delta_base_with_path(context.delta_path.clone(), context.active_script_hash.clone(), element_hash);
+    msg.r#type = Some(forward_msg::Type::Delta(Delta {
+        fragment_id: String::new(),
+        r#type: Some(delta::Type::NewElement(crate::proto::Element {
+            has_one_shot_effect: Some(true),
+            r#type: Some(inner),
+            ..Default::default()
+        })),
+    }));
+    context.push(msg);
+    if let Some(index) = context.delta_path.pop() {
+        context.delta_path.push(index + 1);
+    }
+}
+
+pub(crate) struct ToastElement {
+    body: String,
+    icon: String,
+    duration: Option<i32>,
+}
+
+impl ToastElement {
+    pub fn new(body: String, icon: String, duration: Option<i32>) -> Self {
+        Self { body, icon, duration }
+    }
+}
+
+impl Element for ToastElement {
+    fn render(&self, context: &mut RenderContext) -> Result<(), StreamlitError> {
+        // The measured toast routes to the dedicated root path [2, 0], not
+        // the calling container, and does not consume a container slot.
+        let element_hash = hash(format!("toast_{}_{}_{}", self.body, self.icon, self.duration.unwrap_or(0)).as_str());
+        let mut msg = delta_base_with_path(vec![2, 0], context.active_script_hash.clone(), element_hash);
+        msg.r#type = Some(forward_msg::Type::Delta(Delta {
+            fragment_id: String::new(),
+            r#type: Some(delta::Type::NewElement(crate::proto::Element {
+                has_one_shot_effect: Some(true),
+                r#type: Some(element::Type::Toast(crate::proto::Toast {
+                    body: self.body.clone(),
+                    icon: self.icon.clone(),
+                    duration: self.duration,
+                })),
+                ..Default::default()
+            })),
+        }));
+        context.push(msg);
+        Ok(())
+    }
+}
+
+pub(crate) struct BalloonsElement;
+
+impl Element for BalloonsElement {
+    fn render(&self, context: &mut RenderContext) -> Result<(), StreamlitError> {
+        push_one_shot_element(context, hash("balloons"), element::Type::Balloons(crate::proto::Balloons { show: true }));
+        Ok(())
+    }
+}
+
+/// One transient-element delta: the spinner lifecycle rides `new_transient`
+/// (one active spinner, then an empty list when the block exits).
+pub(crate) struct SpinnerTransientElement {
+    text: Option<String>,
+}
+
+impl SpinnerTransientElement {
+    pub fn active(text: String) -> Self {
+        Self { text: Some(text) }
+    }
+
+    pub fn cleared() -> Self {
+        Self { text: None }
+    }
+}
+
+impl Element for SpinnerTransientElement {
+    fn render(&self, context: &mut RenderContext) -> Result<(), StreamlitError> {
+        let elements = match &self.text {
+            Some(text) => vec![crate::proto::Element {
+                width_config: Some(crate::proto::streamlit::WidthConfig {
+                    width_spec: Some(crate::proto::streamlit::width_config::WidthSpec::UseContent(true)),
+                }),
+                r#type: Some(element::Type::Spinner(crate::proto::Spinner { text: text.clone(), ..Default::default() })),
+                ..Default::default()
+            }],
+            None => vec![],
+        };
+        let element_hash = hash(format!("spinner_transient_{:?}", self.text).as_str());
+        let mut msg = delta_base_with_path(context.delta_path.clone(), context.active_script_hash.clone(), element_hash);
+        msg.r#type = Some(forward_msg::Type::Delta(Delta {
+            fragment_id: String::new(),
+            // The transient spinner does not advance the element path: the
+            // with-block's later elements keep their own positions.
+            r#type: Some(delta::Type::NewTransient(crate::proto::Transient { elements })),
+        }));
+        context.push(msg);
+        Ok(())
+    }
+}
+
 pub(crate) struct ImgsElement {
     urls: Vec<(String, String)>, // (url, caption)
     width: Option<ElementWidth>,

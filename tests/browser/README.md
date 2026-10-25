@@ -197,4 +197,32 @@ target\pyref-venv\Scripts\python.exe tests\browser\video_capture.py --replay tes
 Both return 10 expected / 10 executed / 10 asserted with exit 0. Raw SHA256:
 python `b27a3a2cf6c5c260a91a1d63700167e6615a0121f199c70dfe9530a322550602`,
 native `76b6ca787e40143b5fa652f6e08c5e9fa3eac4c19d2c57fcd192f673d5110cc0`,
-under contract `0866a5fed363fb1670b847e3f3aa703656df969a15705451df340126572b1ee5`.
+under contract `425a2ec0a7dd8004ed16d6866db283af371890a6aa8fd18aa5f6f00d5e6f0f47`
+(the post-review criterion with the exactly-one-/media-request assertion).
+
+## Presentation widgets (spinner, toast, balloons)
+
+[presentation_capture.py](presentation_capture.py) is the permanent entry
+for the presentation chain; [presentation_contract.py](presentation_contract.py)
+is its strict criterion (journey-presentation-v1, 11 checks) with unit
+tests in [tests/reference/test_presentation_contract.py](../reference/test_presentation_contract.py).
+The page runs a spinner context that sleeps two seconds, one toast and
+balloons; the contract pins the full delta timeline — the two
+`new_transient` deltas at path [0, 0] (active spinner, then cleared,
+consuming no element path), the toast as a one-shot element routed to the
+dedicated root path [2, 0] with an explicit four-second duration, and the
+one-shot balloons at the container's next slot [0, 1]. The published
+chains:
+
+```powershell
+target\pyref-venv\Scripts\python.exe tests\browser\presentation_capture.py --replay tests\reference\reference-browser\presentation\trace-presentation.json
+target\pyref-venv\Scripts\python.exe tests\browser\presentation_capture.py --replay tests\browser\rust-presentation\trace-presentation.json
+```
+
+Both return 11 expected / 11 executed / 11 asserted with exit 0. Raw
+SHA256: python `30e882bb9460935e97c6fa67496f5834b87864000d716367c0219f1b211ef407`,
+native `54843db1ba9b2ad163db7ae1a11111c32040c4c3d33f9768d517fb62cbfc011e`,
+under contract `fe02d5e625da8fa0e372b7084fb0cca31b332419fe3a6e5254b154932b9938fd`
+(the post-review criterion: the transient timeline carries the full element
+list, an extra hidden transient element or an unknown delta kind fails the
+timeline, and the spinner lifecycle reads the whole list).

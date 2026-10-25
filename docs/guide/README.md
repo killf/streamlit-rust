@@ -255,6 +255,8 @@ bar.set(75);                                                  // coalesces: one 
 
 `st.video((bytes, "video/mp4"))` follows the same route with the measured NATIVE element and stretch width inside its message; the chain behind [journey-video-v1](../../tests/browser/video_contract.py) serves a committed sample byte-identically across runtimes.
 
+For feedback moments: `st.spinner("Loading data", || { ... })` streams a transient spinner around the closure and clears it on exit (consuming no element slot), `st.toast(ToastOptions::new("Saved").icon("✅"))` shows a four-second one-shot toast routed to the frontend's dedicated toast slot, and `st.balloons()` celebrates — all on the measured timeline behind [journey-presentation-v1](../../tests/browser/presentation_contract.py).
+
 ## Temporal sliders
 
 ```powershell

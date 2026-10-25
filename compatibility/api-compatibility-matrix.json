@@ -88,12 +88,12 @@
     "unavailable_requested_pages": 7,
     "redirect_aliases_not_counted": 2,
     "implementation_status_counts": {
-      "absent": 145,
-      "implemented": 37
+      "absent": 142,
+      "implemented": 40
     },
     "compatibility_status_counts": {
-      "unverified": 145,
-      "partial": 37
+      "unverified": 142,
+      "partial": 40
     },
     "unique_feature_ids": 182,
     "unique_official_urls": 182,
@@ -2320,13 +2320,27 @@
       "category": "PAGE ELEMENTS/Status elements",
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/status/st.balloons",
-      "rust_source_path": null,
-      "implementation_status": "absent",
-      "compatibility_status": "unverified",
+      "rust_source_path": "streamlit/src/elements/media.rs",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "6b9bac11e3e6bfb431efd1669a74aecf0954091aaff7b3f4c0b81fc5ef9c298d",
-        "python_browser_trace": null
-      }
+        "python_browser_trace": "tests/reference/reference-browser/presentation/trace-presentation.json",
+        "rust_wire_observation": "tests/browser/rust-presentation/trace-presentation.json",
+        "official_frontend_browser_e2e": "tests/browser/rust-presentation/trace-presentation.json",
+        "capture_entry": "tests/browser/presentation_capture.py",
+        "presentation_contract": "tests/browser/presentation_contract.py",
+        "contract_guards": "tests/reference/test_presentation_contract.py",
+        "driven_fixture": "tests/reference/presentation_app.py",
+        "driven_example": "streamlit/examples/presentation.rs",
+        "rust_runtime_regression": "streamlit/tests/runtime/presentation.rs"
+      },
+      "rust_plan": "st.balloons() emits a one-shot Balloons{show: true} element at the calling container's next slot, as measured.",
+      "compatibility_scope": "The journey-presentation-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were both loaded by a real Chrome; both published replays return 11/11/11 exit 0 (python 30e882bb... / native 54843db1...) with identical delta timelines — kinds, paths and element shapes — plus identical DOM projections (loaded markdown, visible toast, cleared spinner, no exception).",
+      "limitations": [
+        "Coverage is the single default call; there are no further public parameters.",
+        "elements source SHA256 3b2bead1a55244c008f3e05bb980bf0008780e26d0f33fc4683dd0a14d73d98e; fixture SHA256 386f744f39f90874bab6b31a2c1b1593a3657de6c6eebd83e9b1a40a3994aba1; example SHA256 2f9c2b678e865d2c283c8c2856e80a8d837a9a92647abeca12bb39ba17950f04."
+      ]
     },
     {
       "feature_id": "st.error",
@@ -2451,13 +2465,27 @@
       "category": "PAGE ELEMENTS/Status elements",
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/status/st.spinner",
-      "rust_source_path": null,
-      "implementation_status": "absent",
-      "compatibility_status": "unverified",
+      "rust_source_path": "streamlit/src/elements/media.rs",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "317a50ad0ad24c0c764c4eb4487801d3a503cb4550645bbda004eee95a4357c0",
-        "python_browser_trace": null
-      }
+        "python_browser_trace": "tests/reference/reference-browser/presentation/trace-presentation.json",
+        "rust_wire_observation": "tests/browser/rust-presentation/trace-presentation.json",
+        "official_frontend_browser_e2e": "tests/browser/rust-presentation/trace-presentation.json",
+        "capture_entry": "tests/browser/presentation_capture.py",
+        "presentation_contract": "tests/browser/presentation_contract.py",
+        "contract_guards": "tests/reference/test_presentation_contract.py",
+        "driven_fixture": "tests/reference/presentation_app.py",
+        "driven_example": "streamlit/examples/presentation.rs",
+        "rust_runtime_regression": "streamlit/tests/runtime/presentation.rs"
+      },
+      "rust_plan": "st.spinner(\"text\", closure) streams two new_transient deltas at path [0, 0] — the active spinner (text plus content width, cache/show_time unset), then an empty element list at block exit — consuming no element path, so the block's next element lands at the same position, exactly as measured.",
+      "compatibility_scope": "The journey-presentation-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were both loaded by a real Chrome; both published replays return 11/11/11 exit 0 (python 30e882bb... / native 54843db1...) with identical delta timelines — kinds, paths and element shapes — plus identical DOM projections (loaded markdown, visible toast, cleared spinner, no exception).",
+      "limitations": [
+        "Coverage is one top-level spinner around a two-second sleep; nested spinners, elements pushed inside the block, cache=True/show_time, and the async-context form are unobserved.",
+        "elements source SHA256 3b2bead1a55244c008f3e05bb980bf0008780e26d0f33fc4683dd0a14d73d98e; fixture SHA256 386f744f39f90874bab6b31a2c1b1593a3657de6c6eebd83e9b1a40a3994aba1; example SHA256 2f9c2b678e865d2c283c8c2856e80a8d837a9a92647abeca12bb39ba17950f04."
+      ]
     },
     {
       "feature_id": "st.status",
@@ -2503,13 +2531,27 @@
       "category": "PAGE ELEMENTS/Status elements",
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/status/st.toast",
-      "rust_source_path": null,
-      "implementation_status": "absent",
-      "compatibility_status": "unverified",
+      "rust_source_path": "streamlit/src/elements/media.rs",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "d99f9363465a61b21dcbe60cfa0ba4ebd39a94adef0316010f765b7abca55c4c",
-        "python_browser_trace": null
-      }
+        "python_browser_trace": "tests/reference/reference-browser/presentation/trace-presentation.json",
+        "rust_wire_observation": "tests/browser/rust-presentation/trace-presentation.json",
+        "official_frontend_browser_e2e": "tests/browser/rust-presentation/trace-presentation.json",
+        "capture_entry": "tests/browser/presentation_capture.py",
+        "presentation_contract": "tests/browser/presentation_contract.py",
+        "contract_guards": "tests/reference/test_presentation_contract.py",
+        "driven_fixture": "tests/reference/presentation_app.py",
+        "driven_example": "streamlit/examples/presentation.rs",
+        "rust_runtime_regression": "streamlit/tests/runtime/presentation.rs"
+      },
+      "rust_plan": "st.toast(ToastOptions::new(body).icon(...)) emits a one-shot Toast element routed to the dedicated root path [2, 0] with the measured explicit four-second default duration.",
+      "compatibility_scope": "The journey-presentation-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were both loaded by a real Chrome; both published replays return 11/11/11 exit 0 (python 30e882bb... / native 54843db1...) with identical delta timelines — kinds, paths and element shapes — plus identical DOM projections (loaded markdown, visible toast, cleared spinner, no exception).",
+      "limitations": [
+        "Coverage is one measured toast with an icon; custom durations, zero-duration toasts and toasts issued from inside containers are unobserved (the path is always [2, 0]).",
+        "elements source SHA256 3b2bead1a55244c008f3e05bb980bf0008780e26d0f33fc4683dd0a14d73d98e; fixture SHA256 386f744f39f90874bab6b31a2c1b1593a3657de6c6eebd83e9b1a40a3994aba1; example SHA256 2f9c2b678e865d2c283c8c2856e80a8d837a9a92647abeca12bb39ba17950f04."
+      ]
     },
     {
       "feature_id": "st.warning",

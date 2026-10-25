@@ -841,6 +841,41 @@ impl<L: Into<String>, V: Into<String>> From<(L, V)> for MetricOptions {
     }
 }
 
+/// Toast options. The plain message call shows the measured four-second
+/// toast; `.icon(...)` and `.duration(...)` override.
+pub struct ToastOptions {
+    body: String,
+    icon: String,
+    duration: Option<i32>,
+}
+impl ToastOptions {
+    pub fn new(body: impl Into<String>) -> Self {
+        Self {
+            body: body.into(),
+            icon: String::new(),
+            duration: Some(4),
+        }
+    }
+    pub fn icon(mut self, icon: impl Into<String>) -> Self {
+        self.icon = icon.into();
+        self
+    }
+    pub fn duration(mut self, duration: i32) -> Self {
+        self.duration = Some(duration);
+        self
+    }
+}
+impl From<&str> for ToastOptions {
+    fn from(body: &str) -> Self {
+        Self::new(body)
+    }
+}
+impl From<String> for ToastOptions {
+    fn from(body: String) -> Self {
+        Self::new(body)
+    }
+}
+
 /// The handle `st.progress` returns: updates coalesce into the single delta
 /// the reference streams at the end of the run.
 pub struct Progress {
@@ -923,6 +958,14 @@ pub trait StreamlitApi {
     fn metric<T: Into<MetricOptions>>(&self, options: T);
 
     fn progress(&self, value: u32) -> Result<Progress, WidgetError>;
+
+    /// Streams a transient spinner around `body`, clearing it on exit the
+    /// way the reference's `with st.spinner(...)` does.
+    fn spinner<T>(&self, text: impl Into<String>, body: impl FnOnce() -> T) -> T;
+
+    fn toast<T: Into<ToastOptions>>(&self, options: T);
+
+    fn balloons(&self);
 }
 
 fn create_status<C: AppendChild>(this: &C, options: StatusOptions, format: crate::proto::alert::Format) -> Result<(), StatusError> {
@@ -1185,6 +1228,23 @@ impl<C: AppendChild> StreamlitApi for C {
         let element = Rc::new(RefCell::new(crate::elements::media::ProgressElement::new(value)));
         self.push(element.clone());
         Ok(Progress { element })
+    }
+
+    fn toast<T: Into<ToastOptions>>(&self, options: T) {
+        let options = options.into();
+        let element = crate::elements::media::ToastElement::new(options.body, options.icon, options.duration);
+        self.push(Rc::new(RefCell::new(element)));
+    }
+
+    fn balloons(&self) {
+        self.push(Rc::new(RefCell::new(crate::elements::media::BalloonsElement)));
+    }
+
+    fn spinner<T>(&self, text: impl Into<String>, body: impl FnOnce() -> T) -> T {
+        self.push(Rc::new(RefCell::new(crate::elements::media::SpinnerTransientElement::active(text.into()))));
+        let result = body();
+        self.push(Rc::new(RefCell::new(crate::elements::media::SpinnerTransientElement::cleared())));
+        result
     }
 }
 
