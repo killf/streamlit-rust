@@ -1508,7 +1508,7 @@
       "id": "J09",
       "title": "Reconnect and refresh semantics",
       "priority": "P0",
-      "status": "failed",
+      "status": "passed",
       "steps": [
         {
           "id": "J09-S1",
@@ -1583,22 +1583,28 @@
           "id": "J09-S4",
           "action": "Optional and slow: drop the WebSocket, wait more than 120 seconds, then reconnect.",
           "expectation": "The stored session has expired, so the reconnect is treated as a new session: a new session id is issued and the state is gone. Deferred to a later phase because it costs a two-minute wait.",
-          "status": "failed",
+          "status": "passed",
           "optional": true,
-          "measured": "2026-10-25 real slow round under contract journey-j09-expiry-v1: Python 1.66.1 (explicit effective disconnectedSessionTTL=120 with live PID/argv/config/effective-config provenance) and the sealed Rust 769+dirty candidate each completed all 13 phases including a genuine >=135-second single-socket disconnect; the formal read-only replay returns 20 executed / 19 asserted on both raws, the only failing check being the fail-closed recovery_oracle_verified that awaits independently reviewed oracle evidence. Observed on BOTH sides: the three-entry reconnect requested the aged session id and the server answered with a NEW session id; Script runs reset to 1, Pulses to 0, the uploader is empty and no table/chart remains. Raws retained in the ignored capture round target/checks/j09-slow-python-m0-20261025T1404 (sha256 52690c154321b7030eee285c566779b24f14390681a13dca00f0db6afe87cd18) and target/checks/j09-slow-rust-m0-20261025T1425 (sha256 9610adb11f75ece995fd13f120633324d3a11241094f450f25216c88a7d03d1f) under criteria cedbc8647018adff87a3c7469b58c1a86d056e674b368a14ffddebc2e7ea74ce; not yet published under tests/.",
-          "pending": "Independent review of the Python oracle capture, then supplying the reviewed recovery golden to the j09_slow_checks judge, publication of both chains under tests/, and only then promotion of this step."
+          "python_reference_trace": "tests/reference/reference-browser/journeys/j09-slow-sequence/trace-data-loop.json",
+          "evidence_phase": "s4-recovery-read",
+          "rust_evidence": "tests/browser/rust-journeys/j09-slow-sequence/trace-data-loop.json",
+          "screenshot": "tests/e2e/J09/J09-S4.png",
+          "screenshot_sha256": "b4240058f01ce53a773c582c19a3b1f77f587e7de38f1fec57dde00a87f77f49",
+          "measured": "2026-10-25 real slow round under contract journey-j09-expiry-v1: Python 1.66.1 (explicit effective disconnectedSessionTTL=120 with live PID/argv/config/effective-config provenance) and the sealed Rust 769+dirty candidate each completed all 13 phases including a genuine >=135-second single-socket disconnect; formal read-only replay returns 20 executed / 19 asserted on both raws under capture-time criteria cedbc864..., the only failing check being the then fail-closed recovery_oracle_verified. An independent reviewer then audited both frozen chains end to end and derived the recovery golden from the raw bytes; after the reviewed golden was integrated into j09_slow_checks (final criteria aa0f7042...) both replays return 20 executed / 20 asserted with exit 0. Observed on BOTH sides: the three-entry reconnect requested the aged session id and the server answered with a NEW session id; server-side state fully reset (Script runs 1, Pulses 0, no table/chart, null IPC, the info alert restored) while the browser RETAINS the uploaded file chip and re-sends widget state referencing the aged session's file. Published raws: tests/reference/reference-browser/journeys/j09-slow-sequence/trace-data-loop.json (sha256 52690c154321b7030eee285c566779b24f14390681a13dca00f0db6afe87cd18) and tests/browser/rust-journeys/j09-slow-sequence/trace-data-loop.json (sha256 9610adb11f75ece995fd13f120633324d3a11241094f450f25216c88a7d03d1f).",
+          "verification": "Independent reviewer audit of both frozen chains (integrity, provenance, real 135-second hold windows, retry lifecycles, session semantics, both formal replays); the reviewed recovery golden is integrated into j09_slow_checks and both published replays return 20/20/20 with exit 0."
         }
       ],
       "python_reference_trace": "tests/reference/reference-browser/journeys/j09-sequence/trace-data-loop.json",
-      "failure": {
-        "reason": "Bounded S1-S3 are independently verified; S4 was really measured on 2026-10-25 on both runtimes (20 executed / 19 common-guard asserted each, only the fail-closed recovery-oracle check outstanding, artifacts retained in the ignored slow round), so the complete four-step journey is still not marked passed."
-      },
       "attempt": {
-        "kind": "bounded_final_verification",
+        "kind": "final_verification",
         "command": "target/pyref-venv/Scripts/python.exe tests/browser/numeric_capture.py --replay tests/browser/rust-journeys/j09-sequence/trace-data-loop.json",
         "exit_code": 0,
         "python_command": "target/pyref-venv/Scripts/python.exe tests/browser/numeric_capture.py --replay tests/reference/reference-browser/journeys/j09-sequence/trace-data-loop.json",
-        "python_exit_code": 0
+        "python_exit_code": 0,
+        "slow_command": "target/pyref-venv/Scripts/python.exe tests/browser/numeric_capture.py --replay tests/browser/rust-journeys/j09-slow-sequence/trace-data-loop.json",
+        "slow_exit_code": 0,
+        "slow_python_command": "target/pyref-venv/Scripts/python.exe tests/browser/numeric_capture.py --replay tests/reference/reference-browser/journeys/j09-slow-sequence/trace-data-loop.json",
+        "slow_python_exit_code": 0
       },
       "capture_history": {
         "python": {
@@ -1628,31 +1634,62 @@
           "observed_process_exit_code": 0,
           "driver_sha256_captured": "15b606fe8a2076286d7082d55ccac885f1ae61249967093bc769edc8db312f9d",
           "criteria_sha256_captured": "46537c0dc56f5327662012dc4766b86536b990e7d7da4f8a9a416061c64c5aed"
+        },
+        "slow_expiry_round": {
+          "date": "2026-10-25",
+          "contract": "journey-j09-expiry-v1",
+          "python": {
+            "raw": "tests/reference/reference-browser/journeys/j09-slow-sequence/trace-data-loop.json",
+            "raw_sha256": "52690c154321b7030eee285c566779b24f14390681a13dca00f0db6afe87cd18",
+            "execution_manifest": "tests/reference/reference-browser/journeys/j09-slow-sequence/execution-manifest.json",
+            "hold_seconds_real": 135,
+            "counts_capture_time_criteria_cedbc864": {
+              "expected": 20,
+              "executed": 20,
+              "asserted": 19
+            },
+            "counts_final_criteria_aa0f7042": {
+              "expected": 20,
+              "executed": 20,
+              "asserted": 20
+            },
+            "observed_process_exit_code_final_replay": 0
+          },
+          "rust": {
+            "raw": "tests/browser/rust-journeys/j09-slow-sequence/trace-data-loop.json",
+            "raw_sha256": "9610adb11f75ece995fd13f120633324d3a11241094f450f25216c88a7d03d1f",
+            "execution_manifest": "tests/browser/rust-journeys/j09-slow-sequence/execution-manifest.json",
+            "hold_seconds_real": 135,
+            "counts_capture_time_criteria_cedbc864": {
+              "expected": 20,
+              "executed": 20,
+              "asserted": 19
+            },
+            "counts_final_criteria_aa0f7042": {
+              "expected": 20,
+              "executed": 20,
+              "asserted": 20
+            },
+            "observed_process_exit_code_final_replay": 0
+          },
+          "review": "Independent reviewer audited both frozen chains end to end and derived the recovery golden from the raw bytes; the golden is integrated into j09_slow_checks."
         }
       },
       "verification": {
-        "method": "Actual official frontend HTTP/WS/protobuf/Arrow/DOM/PNG capture, independent Hooke bounded S1-S3 review and read-only formal replay. S4 measured 2026-10-25 on both runtimes under journey-j09-expiry-v1 (19/20 slow guards each; the fail-closed recovery oracle check is the remaining outstanding item).",
+        "method": "Actual official frontend HTTP/WS/protobuf/Arrow/DOM/PNG captures: independent Hooke bounded S1-S3 review with read-only formal replay, plus the 2026-10-25 real >=135-second slow-expiry round on both runtimes, independently reviewed, with the reviewed recovery golden integrated into j09_slow_checks and both published replays returning 20/20/20 exit 0.",
         "covered_steps": [
           "J09-S1",
           "J09-S2",
-          "J09-S3"
-        ],
-        "unverified_steps": [
+          "J09-S3",
           "J09-S4"
         ],
-        "criteria_sha256": "46537c0dc56f5327662012dc4766b86536b990e7d7da4f8a9a416061c64c5aed",
-        "driver_sha256": "15b606fe8a2076286d7082d55ccac885f1ae61249967093bc769edc8db312f9d",
+        "criteria_sha256": "aa0f7042463acf04a441eb694d50e7184f79cef90dcb86039b5612270f2e2f3f",
+        "driver_sha256": "ce521cd5deacc40419224bcbef757fcd91c2226a6ba610cf4a43199d17ce7bec",
         "expected": 20,
         "executed": 20,
         "asserted": 20,
-        "scope": "Mandatory S1-S3 verified; S4 measured on 2026-10-25 with 19/20 shared slow guards on both runtimes and the recovery oracle awaiting independent review; whole four-step J09 is not passed."
+        "scope": "All four steps verified, including the optional slow expiry measured for real on both runtimes; whole four-step J09 is passed."
       },
-      "waived_evidence": [
-        {
-          "artifact": "tests/e2e/J09/J09-S4.png",
-          "reason": "The 2026-10-25 slow round measured S4 on both runtimes with genuine >=135-second holds and 13 phase PNGs per raw, but the canonical step PNG is not published until the recovery-oracle review completes and both chains are archived under tests/. This records unfinished publication, not a permanent exemption."
-        }
-      ],
       "preparation_contract": {
         "version": "journey-j09-reconnect-v1",
         "note": "Both actual plans are ui-probe, eight continuous phases. The 5-second observation alone is not a new-result proof; category restoration on e1 provides that proof. All original PNGs remain.",
@@ -1742,9 +1779,59 @@
         "tests/reference/reference-browser/journeys/j09-sequence/arrow-2.bin",
         "tests/reference/reference-browser/journeys/j09-sequence/capture-source/capture_browser_trace.py",
         "tests/reference/reference-browser/journeys/j09-sequence/capture-source/numeric_capture.py",
-        "tests/reference/reference-browser/journeys/j09-sequence/execution-manifest.json",
-        "tests/reference/reference-browser/journeys/j09-sequence/trace-data-loop.json"
-      ]
+    "tests/reference/reference-browser/journeys/j09-sequence/execution-manifest.json",
+    "tests/reference/reference-browser/journeys/j09-sequence/trace-data-loop.json",
+    "tests/e2e/J09/J09-S4.png",
+    "tests/reference/reference-browser/journeys/j09-slow-sequence/01-initial.png",
+    "tests/reference/reference-browser/journeys/j09-slow-sequence/02-upload-baseline.png",
+    "tests/reference/reference-browser/journeys/j09-slow-sequence/03-pulse-1.png",
+    "tests/reference/reference-browser/journeys/j09-slow-sequence/04-pulse-2.png",
+    "tests/reference/reference-browser/journeys/j09-slow-sequence/05-reconnect-observe.png",
+    "tests/reference/reference-browser/journeys/j09-slow-sequence/06-probe-region.png",
+    "tests/reference/reference-browser/journeys/j09-slow-sequence/07-probe-category.png",
+    "tests/reference/reference-browser/journeys/j09-slow-sequence/08-refresh.png",
+    "tests/reference/reference-browser/journeys/j09-slow-sequence/09-s4-upload-baseline.png",
+    "tests/reference/reference-browser/journeys/j09-slow-sequence/10-s4-pulse.png",
+    "tests/reference/reference-browser/journeys/j09-slow-sequence/11-s4-disconnected-hold.png",
+    "tests/reference/reference-browser/journeys/j09-slow-sequence/12-s4-expired-reconnect.png",
+    "tests/reference/reference-browser/journeys/j09-slow-sequence/13-s4-recovery-read.png",
+    "tests/reference/reference-browser/journeys/j09-slow-sequence/arrow-1.bin",
+    "tests/reference/reference-browser/journeys/j09-slow-sequence/arrow-2.bin",
+    "tests/reference/reference-browser/journeys/j09-slow-sequence/capture-source/capture_browser_trace.py",
+    "tests/reference/reference-browser/journeys/j09-slow-sequence/capture-source/numeric_capture.py",
+    "tests/reference/reference-browser/journeys/j09-slow-sequence/execution-manifest.json",
+    "tests/reference/reference-browser/journeys/j09-slow-sequence/trace-data-loop.json",
+    "tests/reference/reference-browser/journeys/j09-slow-sequence/ttl-evidence/0-process.json",
+    "tests/reference/reference-browser/journeys/j09-slow-sequence/ttl-evidence/1-config.toml",
+    "tests/reference/reference-browser/journeys/j09-slow-sequence/ttl-evidence/2-effective-config.txt",
+    "tests/reference/reference-browser/journeys/j09-slow-sequence/ttl-evidence/3-app.py",
+    "tests/reference/reference-browser/journeys/j09-slow-sequence/ttl-evidence/input.json",
+    "tests/browser/rust-journeys/j09-slow-sequence/01-initial.png",
+    "tests/browser/rust-journeys/j09-slow-sequence/02-upload-baseline.png",
+    "tests/browser/rust-journeys/j09-slow-sequence/03-pulse-1.png",
+    "tests/browser/rust-journeys/j09-slow-sequence/04-pulse-2.png",
+    "tests/browser/rust-journeys/j09-slow-sequence/05-reconnect-observe.png",
+    "tests/browser/rust-journeys/j09-slow-sequence/06-probe-region.png",
+    "tests/browser/rust-journeys/j09-slow-sequence/07-probe-category.png",
+    "tests/browser/rust-journeys/j09-slow-sequence/08-refresh.png",
+    "tests/browser/rust-journeys/j09-slow-sequence/09-s4-upload-baseline.png",
+    "tests/browser/rust-journeys/j09-slow-sequence/10-s4-pulse.png",
+    "tests/browser/rust-journeys/j09-slow-sequence/11-s4-disconnected-hold.png",
+    "tests/browser/rust-journeys/j09-slow-sequence/12-s4-expired-reconnect.png",
+    "tests/browser/rust-journeys/j09-slow-sequence/13-s4-recovery-read.png",
+    "tests/browser/rust-journeys/j09-slow-sequence/arrow-1.bin",
+    "tests/browser/rust-journeys/j09-slow-sequence/arrow-2.bin",
+    "tests/browser/rust-journeys/j09-slow-sequence/capture-source/capture_browser_trace.py",
+    "tests/browser/rust-journeys/j09-slow-sequence/capture-source/numeric_capture.py",
+    "tests/browser/rust-journeys/j09-slow-sequence/execution-manifest.json",
+    "tests/browser/rust-journeys/j09-slow-sequence/trace-data-loop.json",
+    "tests/browser/rust-journeys/j09-slow-sequence/ttl-evidence/0-process.json",
+    "tests/browser/rust-journeys/j09-slow-sequence/ttl-evidence/1-candidate.json",
+    "tests/browser/rust-journeys/j09-slow-sequence/ttl-evidence/2-launch-config.json",
+    "tests/browser/rust-journeys/j09-slow-sequence/ttl-evidence/3-server.rs",
+    "tests/browser/rust-journeys/j09-slow-sequence/ttl-evidence/4-data_app.rs",
+    "tests/browser/rust-journeys/j09-slow-sequence/ttl-evidence/input.json"
+  ]
     }
   ]
 }

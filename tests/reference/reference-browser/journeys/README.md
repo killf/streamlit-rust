@@ -1,6 +1,6 @@
 # Reference journeys of the data app
 
-## J09: bounded reconnect and refresh, S4 unmeasured
+## J09: bounded reconnect and refresh, plus the measured slow expiry
 
 [Original Python raw](j09-sequence/trace-data-loop.json), SHA256
 `b4d244ce30b918dcc5ff2f9a775863858faf9d6dced6c5df8afc0bc1e6b34b3d`,
@@ -19,14 +19,17 @@ was executed with 20/20/20, no failures, exit0:
 target/pyref-venv/Scripts/python.exe tests/browser/numeric_capture.py --replay tests/reference/reference-browser/journeys/j09-sequence/trace-data-loop.json
 ```
 
-The [native J09 section](../../../browser/rust-journeys/README.md#j09-bounded-reconnect-and-refresh-s4-unmeasured)
+The [native J09 section](../../../browser/rust-journeys/README.md#j09-bounded-reconnect-and-refresh-plus-the-measured-slow-expiry)
 records the measured S1-S3 roles, observe-plus-probe evidence, preparation
 actions, current replay identities and one shared recoverable candidate.
 This actual ui-probe plan observed no natural run for 5.133 seconds after
 HTTP101, then used real region/category selections to demonstrate recovery.
-It does not claim that an automatic run can never occur. Optional S4's
-greater-than-120-second disconnected expiry remains unmeasured, with no PNG
-or passed result. Original 17 targets were retained; only the own tab closed.
+It does not claim that an automatic run can never occur. S4's slow expiry is
+measured by the separate [j09-slow-sequence round](../../../browser/rust-journeys/README.md#j09-s4-measured-slow-expiry)
+with its own [Python raw](j09-slow-sequence/trace-data-loop.json) (SHA256
+`52690c154321b7030eee285c566779b24f14390681a13dca00f0db6afe87cd18`, replay
+20/20/20 exit 0 after the reviewed golden was integrated). Original 17
+targets were retained; only the own tab closed.
 
 ## J06: continuous two-tab isolation
 

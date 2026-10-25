@@ -1,6 +1,6 @@
 # Rust data journeys
 
-## J09: bounded reconnect and refresh, S4 unmeasured
+## J09: bounded reconnect and refresh, plus the measured slow expiry
 
 [Original native raw](j09-sequence/trace-data-loop.json), SHA256
 `8fee2ebbeae60c08c5bb909622d85e72f0845fbf67308059a13d41159595d4ad`,
@@ -8,8 +8,9 @@ retains 154 frames, all eight PNGs, two deduplicated IPCs and both loaded source
 files. Its [Python counterpart](../../reference/reference-browser/journeys/j09-sequence/trace-data-loop.json)
 retains 161 frames with the same eight-phase ui-probe plan. Both historical
 captures completed with 20/20/20, no failures, CLI exit0; Hooke independently
-reviewed the bounded S1-S3 evidence. Optional S4 is outside these 20 checks.
-The complete four-step journey is not marked passed: S4 remains not_run.
+reviewed the bounded S1-S3 evidence. S4 is now measured and passed by the
+[slow-expiry round below](#j09-s4-measured-slow-expiry); the complete
+four-step journey is passed.
 
 Historical browser invocations are retained in original execution manifests:
 [native](j09-sequence/execution-manifest.json) and
@@ -43,7 +44,7 @@ No historical source identity, raw event, DOM value or verdict was backfilled.
 | S1 | [01 initial](j09-sequence/01-initial.png), fresh two-entry handshake | [S1](../../e2e/J09/J09-S1.png) |
 | S2 | [05 observe](j09-sequence/05-reconnect-observe.png) plus [07 category probe](j09-sequence/07-probe-category.png), retained session/file/Pulses2 | [S2: 07](../../e2e/J09/J09-S2.png) |
 | S3 | [08 refresh](j09-sequence/08-refresh.png), new session/defaults/empty uploader | [S3](../../e2e/J09/J09-S3.png) |
-| S4 | Optional >120-second disconnected expiry: not_run | No screenshot or passed claim |
+| S4 | [13 recovery read](j09-slow-sequence/13-s4-recovery-read.png), expired old-ID reconnect answered with a new session | [S4](../../e2e/J09/J09-S4.png) |
 
 S2's images are separate observations in one continuous session, not a
 composite or a claim of simultaneous capture. Native's real close and
@@ -71,6 +72,44 @@ and [130-input reconstruction recipe](#shared-7297-candidate-inputs).
 That recipe was executed again for this publication: 110 direct Git blobs,
 19 captured-CRLF blobs and the one archived42e override restore all130 hashes.
 No binary or second130-source package is added.
+
+## J09-S4: measured slow expiry
+
+The 2026-10-25 slow round measured S4 for real on both runtimes under contract
+`journey-j09-expiry-v1`: a genuine >=135-second single-socket disconnect
+(CDP `Network.emulateNetworkConditionsByRule` scoped to the exact stream URL,
+no global offline), a native WebSocket close, then an unblock that let the
+frontend's three-entry old-ID reconnect through. The [native raw](j09-slow-sequence/trace-data-loop.json)
+(SHA256 `9610adb11f75ece995fd13f120633324d3a11241094f450f25216c88a7d03d1f`)
+and the [Python raw](../../reference/reference-browser/journeys/j09-slow-sequence/trace-data-loop.json)
+(SHA256 `52690c154321b7030eee285c566779b24f14390681a13dca00f0db6afe87cd18`)
+each retain 13 phases, 13 PNGs, the TTL provenance (`ttl-evidence/`) and both
+loaded source files.
+
+Both sides answered the expired old-ID reconnect with a NEW server-selected
+session id and a server-side state reset: Script runs 1, Pulses 0, no
+table/chart, null IPC, the info alert restored. The browser retained the
+uploaded file chip and re-sent widget state referencing the aged session's
+file — that retained chip is part of the verified semantics, not an "empty
+uploader". An independent reviewer audited both frozen chains end to end and
+derived the recovery golden from the raw bytes; the golden is integrated into
+`j09_slow_checks` (criteria SHA256
+`aa0f7042463acf04a441eb694d50e7184f79cef90dcb86039b5612270f2e2f3f`), and the
+synthetic unit models still cannot satisfy it.
+
+Capture time (criteria `cedbc864...`, oracle still fail-closed) both replays
+returned 20/20/19; after the reviewed golden was integrated, both return
+**20/20/20, no failures, exit 0**:
+
+```powershell
+target/pyref-venv/Scripts/python.exe tests/browser/numeric_capture.py --replay tests/browser/rust-journeys/j09-slow-sequence/trace-data-loop.json
+target/pyref-venv/Scripts/python.exe tests/browser/numeric_capture.py --replay tests/reference/reference-browser/journeys/j09-slow-sequence/trace-data-loop.json
+```
+
+The earlier same-day Python attempt (`target/checks/j09-slow-python-20261025T0255019294527`)
+failed on tooling — its effective-config evidence was written in the Windows
+ANSI codepage and failed the judge's strict UTF-8 decode — and never reached
+any S4 semantic check; it is preserved as the failed-partial record.
 
 ## J06: continuous two-tab isolation
 

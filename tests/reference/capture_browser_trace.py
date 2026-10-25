@@ -3324,6 +3324,88 @@ J09_SLOW_ACTIONS = dict(J09_ACTIONS, **{
     "s4-recovery-read":{"action":"read-recovery"},
 })
 J09_SLOW_RECOVERY_ACTIONS = ("observe","rerun")
+# Independently reviewed expired-recovery oracle, from the 2026-10-25 slow
+# round. A separate reviewer audited both frozen raws end to end (integrity,
+# provenance, real 135s hold windows, retry lifecycles, session semantics,
+# both formal replays) and derived these values from the raw bytes. The
+# semantics are identical on both runtimes; the evidence identities differ.
+# Observed nuance the golden pins: the browser RETAINS the uploaded file chip
+# after expiry and re-sends widget state referencing the AGED session's file;
+# the reset is server-side -- counters back to 1/0, no table/chart, the info
+# alert restored and null IPC.
+J09_SLOW_ORACLE_SEMANTICS = {
+    "aged": {
+        "script_runs": "3", "pulses": "1", "uploaded_files": ["sales_basic.csv"],
+        "table_present": True, "chart_bars": 4, "alerts": [],
+        "selectbox_value": "category", "slider_value": "0", "checkbox_checked": True,
+    },
+    "recovered": {
+        "script_runs": "1", "pulses": "0", "uploaded_files": ["sales_basic.csv"],
+        "has_uploader": True, "table_present": False, "table_cells": [],
+        "chart_present": False, "chart_bars": 0, "chart_marks": "", "exceptions": [],
+        "alerts": ["Upload a CSV to see the aggregated result."],
+        "selectbox_value": "category", "slider_value": "0", "checkbox_checked": True,
+    },
+    "recovered_ipc": {"table": None, "chart": None},
+    "recovery_action": "rerun",
+}
+J09_SLOW_ORACLE_REVIEW = {
+    "python": {
+        "raw_sha256": "52690c154321b7030eee285c566779b24f14390681a13dca00f0db6afe87cd18",
+        "aged_session_id": "04227a38-fa1e-4a2a-bdf0-1fb5beeb5a22",
+        "recovered_session_id": "704f16ae-fcbb-4323-bc47-68e88180fb30",
+        "hold_first_utc": "2026-10-25T05:59:46Z", "hold_last_utc": "2026-10-25T06:02:01Z", "hold_samples": 125,
+        "screenshots": (
+            "0f31248ed4afb3161e8109150303b9c49f5b7566ad455d4e4f3cba0348644b2e",
+            "d0bfe9c32be9e08f18b926364bc93ae8d73bf20b7b1123ff19c7a266c3a12db9",
+            "f8f8b15f59caf48fe1069051a7600931c1f73755ce3318c59780b4edbcce64d5",
+            "db7276ccfefd3f2e9c47a182487021d6b7b4cb602406b037aba939122ca403a6",
+            "db7276ccfefd3f2e9c47a182487021d6b7b4cb602406b037aba939122ca403a6",
+            "9896d6d565c421bad6a1a7d910b37939ba520df6646837a1d0f1a928e2a0b892",
+            "9bb5e3b4f38414e1079210a6c9b005f8a20aa11ac74b5efcbe8211e874c5a344",
+            "0f31248ed4afb3161e8109150303b9c49f5b7566ad455d4e4f3cba0348644b2e",
+            "d0bfe9c32be9e08f18b926364bc93ae8d73bf20b7b1123ff19c7a266c3a12db9",
+            "f8f8b15f59caf48fe1069051a7600931c1f73755ce3318c59780b4edbcce64d5",
+            "d722d1ff1f8390f5bd53090f285f3610ace42d903033645b6d9098046b217381",
+            "f8f8b15f59caf48fe1069051a7600931c1f73755ce3318c59780b4edbcce64d5",
+            "bc42c66c67e8bb82d84f0feb55779c8ac0fb866a6e23a62d07645baa27abed5b",
+        ),
+        "ttl_evidence": (
+            "6a9348feb3744565b1062d1572aee47ad21508733ddceb1b620e2e6ce467f1a8",
+            "ef9479bcd907e4573a695770c3bf9c7c407d73d85ee1f21dbca951dd0baa9f09",
+            "2a21dec21d32ac4e12b823a61ecd19e66027f957fbcff21314c7d5ca75027178",
+            "475e27d4d957a2d20ca31f882bcc7add8c7005a6bfdee81a92e3c3784fdc0b9c",
+        ),
+    },
+    "native": {
+        "raw_sha256": "9610adb11f75ece995fd13f120633324d3a11241094f450f25216c88a7d03d1f",
+        "aged_session_id": "32bae1e8-eb5a-4c98-917a-25bc07587b04",
+        "recovered_session_id": "c5679ee4-ce82-422d-b8a8-7b443667d481",
+        "hold_first_utc": "2026-10-25T06:04:13Z", "hold_last_utc": "2026-10-25T06:06:29Z", "hold_samples": 126,
+        "screenshots": (
+            "cd514b9144c358dcbc7995a100fffca9f1b304e270e044861e055f12a2018704",
+            "04d29bc70c225a00a30c09de97afc43e4f8113fac793551bfe66d9fb5654a0d1",
+            "455839436fdde005a8fa1cb638181c3d196085245a00f500df390aba78e31993",
+            "64f6d962a441d8bfc3e9c5ec8ca0627dd3fd7a55356c6789ff03903aff437221",
+            "64f6d962a441d8bfc3e9c5ec8ca0627dd3fd7a55356c6789ff03903aff437221",
+            "9e7f9299fbe2daf104834ffc5e513fa96e103bab3c45a7aa384c346dd0fef3fe",
+            "7c6829ddfaf226ba0f86c243964a158cf567011692d9eb99a8d642a8545ef893",
+            "cd514b9144c358dcbc7995a100fffca9f1b304e270e044861e055f12a2018704",
+            "04d29bc70c225a00a30c09de97afc43e4f8113fac793551bfe66d9fb5654a0d1",
+            "455839436fdde005a8fa1cb638181c3d196085245a00f500df390aba78e31993",
+            "017075929e002e6bc448fe1202206843ea3f1bc32d2677bb3a0037635360fadf",
+            "455839436fdde005a8fa1cb638181c3d196085245a00f500df390aba78e31993",
+            "b4240058f01ce53a773c582c19a3b1f77f587e7de38f1fec57dde00a87f77f49",
+        ),
+        "ttl_evidence": (
+            "101354402fc243ac10522dad25fbc3b82da9f2acd0279e3baed3ac76e8b65387",
+            "eef1173d9cbb2c26e4471a5059254db07af7fb31cdadb06b049d36f1c3966b7d",
+            "5ab7564d2de266fcb8c23bdca1b45cb5512fa74b0721fa9168ba7f443494da5e",
+            "71e0bd33d947dd190c1561887c406ae6262026c67325fe7d171955734019fcc4",
+            "42e54a740db398b0cad26681f9e28099e77d70c84abf3b85c62cf3d36121f418",
+        ),
+    },
+}
 J09_SLOW_TTL_EVIDENCE_KINDS = {"python":("process","config","effective-config","app-source"),
                              "native":("process","build","config","server-source","entry-source")}
 J09_SLOW_PNG_ROLES = dict(J09_PNG_ROLES, **{name:(("J09-S4",) if name == "s4-recovery-read" else ()) for name in J09_SLOW_SUFFIX})
@@ -3345,8 +3427,14 @@ JOURNEY_REQUIRED[J09_SLOW_CASE] = {(J09_SLOW_CASE,key) for key in J09_SLOW_REQUI
 # One new complete capture: the original J09 prefix, then all five S4 phases.
 # plan still selects natural/ui-probe only for S1-S3. S4's read-recovery phase
 # records the actual observe/rerun string in recovery.recovery_action; no placeholder
-# run. Its oracle_status is "unverified" until real 1.66.1 slow evidence is
-# independently reviewed. No recovered widget/file/counter golden is supplied.
+# run. The recovery oracle is the independently reviewed 2026-10-25 golden:
+# identical aged/recovered semantics on both runtimes (the browser keeps the
+# file chip and re-references the aged session's file state; the server-side
+# reset returns counters 1/0, removes table/chart, restores the info alert and
+# emits null IPC) plus one of the two reviewed evidence identities. Synthetic
+# or mutated evidence cannot satisfy both layers; the raw's capture-time
+# recovery.oracle_status stays the driver's capture-time "unverified" string
+# and is superseded by this reviewed judgment.
 # The S3 fresh session s1/e2/d1 is explicitly populated by S4's upload + one
 # Pulse before it is aged. Only two uploads total; no PUT/Pulse/F5 after prep.
 # All attempts, including failed ones, remain in page.events. page.epochs keeps
@@ -3372,18 +3460,42 @@ JOURNEY_REQUIRED[J09_SLOW_CASE] = {(J09_SLOW_CASE,key) for key in J09_SLOW_REQUI
 
 
 def j09_slow_checks(*, observation=None):
-    """Validate known S4 guards; recovery semantics remain independently unknown."""
+    """Validate the S4 guards and the independently reviewed recovery oracle."""
     verified = set()
     try:
         _j09_slow_verify(observation,verified)
     except (ValueError,TypeError,KeyError,IndexError,OSError,AttributeError) as exc:
         failure = str(exc)
     else:
-        failure = "common guards verified; recovery widget/file oracle is not verified"
+        failure = "guard pass complete"
     return _journey_finish(J09_SLOW_CASE, [_check(J09_SLOW_CASE,key,"complete real J09 including S4 evidence",
-        "NOT VERIFIED: actual 1.66.1 expired widget/file recovery oracle awaits independent evidence" if key == "recovery_oracle_verified"
+        "reviewed expired-recovery oracle verified" if key == "recovery_oracle_verified" and key in verified
         else "common guard verified" if key in verified else failure,
-        key in verified and key != "recovery_oracle_verified") for key in J09_SLOW_REQUIRED])
+        key in verified) for key in J09_SLOW_REQUIRED])
+
+
+def _j09_slow_recovery_oracle(observation):
+    """The reviewed golden: matching semantics AND one of the reviewed identities."""
+    phases = {phase["name"]: phase for phase in observation["phases"]}
+    aged, recovered = phases["s4-pulse"], phases["s4-recovery-read"]
+    semantics = J09_SLOW_ORACLE_SEMANTICS
+    _journey_need({key: aged["dom_after"][key] for key in semantics["aged"]} == semantics["aged"],
+                  "S4 oracle aged state differs from the reviewed golden")
+    _journey_need({key: recovered["dom_after"][key] for key in semantics["recovered"]} == semantics["recovered"],
+                  "S4 oracle recovered state differs from the reviewed golden")
+    _journey_need(recovered["ipc"] == semantics["recovered_ipc"],
+                  "S4 oracle recovered IPC differs from the reviewed golden")
+    _journey_need(observation["recovery"]["recovery_action"] == semantics["recovery_action"],
+                  "S4 oracle recovery action differs from the reviewed golden")
+    samples = observation["hold"]["samples"]
+    identity = (observation["recovery"]["requested_session_id"], observation["recovery"]["observed_session_id"],
+                samples[0]["utc"], samples[-1]["utc"], len(samples),
+                tuple(record["sha256"] for record in observation["screenshots"]),
+                tuple(record["sha256"] for record in observation["ttl_configuration"]["evidence"]))
+    reviewed = {(golden["aged_session_id"], golden["recovered_session_id"], golden["hold_first_utc"],
+                 golden["hold_last_utc"], golden["hold_samples"], tuple(golden["screenshots"]),
+                 tuple(golden["ttl_evidence"])) for golden in J09_SLOW_ORACLE_REVIEW.values()}
+    _journey_need(identity in reviewed, "S4 oracle evidence identity is not one of the two reviewed raws")
 
 
 def _j09_slow_base_view(observation):
@@ -3714,6 +3826,7 @@ def _j09_slow_verify(observation,verified):
     _journey_need(not any(c["method"] in ("Page.navigate","Page.reload") and c["cdp_before"] > observation["base_range"]["cutoff_timestamp"] for c in observation["commands"]), "S4 explicit F5/navigation bypassed expiry")
     verified.update(("single_capture","no_reupload_or_extra_actions"))
     _j09_slow_pngs(observation);verified.add("png_sources")
+    _j09_slow_recovery_oracle(observation);verified.add("recovery_oracle_verified")
 
 
 def _j09_slow_post_close_inputs(observation,closed):

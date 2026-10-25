@@ -3875,11 +3875,11 @@ def test_j09_slow_prefix_view_preserves_complete_tail_in_original_observation(tm
 
 
 @pytest.mark.parametrize('observation',[None,{},[],{'oracle_status':'verified','elapsed':135,'passed':True}])
-def test_j09_slow_unimplemented_oracle_is_explicitly_fail_closed(observation):
+def test_j09_slow_degenerate_input_stays_fail_closed_on_every_check(observation):
     from capture_browser_trace import j09_slow_checks,J09_SLOW_REQUIRED
     result=journey_result(j09_slow_checks(observation=observation))
     assert not result['ok'] and result['counts']['expected']==len(J09_SLOW_REQUIRED)==20
-    assert any(f['check']=='recovery_oracle_verified' and 'NOT VERIFIED' in f['actual'] for f in result['failures'])
+    assert any(f['check']=='recovery_oracle_verified' for f in result['failures'])
 
 
 def _j09_slow_unit_complete(tmp_path,natural=False):
@@ -3977,7 +3977,7 @@ def _j09_slow_unit_complete(tmp_path,natural=False):
 
 
 @pytest.mark.parametrize('natural',[False,True])
-def test_j09_slow_common_guards_pass_but_unknown_recovery_oracle_never_does(tmp_path,natural):
+def test_j09_slow_synthetic_model_cannot_satisfy_the_reviewed_recovery_oracle(tmp_path,natural):
     import capture_browser_trace as c
     o=_j09_slow_unit_complete(tmp_path,natural);result=journey_result(c.j09_slow_checks(observation=o))
     assert result['counts']=={'expected':20,'executed':20,'asserted':19},result['failures']
@@ -4087,13 +4087,64 @@ def test_j09_slow_known_guard_mutations_fail_independently_of_unknown_oracle(tmp
     assert not result['ok'] and result['counts']['asserted']<19,(mutation,result)
 
 
-def test_j09_slow_unknown_oracle_and_misleading_initial101_summary_are_not_truth(tmp_path):
+def test_j09_slow_reviewed_oracle_and_misleading_initial101_summary_are_not_truth(tmp_path):
     import capture_browser_trace as c
     o=_j09_slow_unit_complete(tmp_path);o['recovery']['oracle_status']='verified'
     o['a_responses_while_rule_active']=[{'status':101,'timestamp':0}]
     result=journey_result(c.j09_slow_checks(observation=o))
     assert result['counts']['asserted']==19
     assert [f['check'] for f in result['failures']]==['recovery_oracle_verified']
+
+
+def _j09_oracle_clone(runtime):
+    """Minimal projection carrying the reviewed identity and semantics."""
+    import copy
+    import capture_browser_trace as c
+    golden=c.J09_SLOW_ORACLE_REVIEW[runtime];semantics=c.J09_SLOW_ORACLE_SEMANTICS
+    samples=[{'utc':golden['hold_first_utc']}]*(golden['hold_samples']-1)+[{'utc':golden['hold_last_utc']}]
+    return dict(
+        phases=[{'name':'s4-pulse','dom_after':copy.deepcopy(semantics['aged'])},
+                {'name':'s4-recovery-read','dom_after':copy.deepcopy(semantics['recovered']),
+                 'ipc':copy.deepcopy(semantics['recovered_ipc'])}],
+        recovery={'recovery_action':semantics['recovery_action'],
+                  'requested_session_id':golden['aged_session_id'],
+                  'observed_session_id':golden['recovered_session_id']},
+        hold={'samples':samples},
+        screenshots=[{'sha256':value} for value in golden['screenshots']],
+        ttl_configuration={'evidence':[{'sha256':value} for value in golden['ttl_evidence']]})
+
+
+@pytest.mark.parametrize('runtime',['python','native'])
+def test_j09_slow_recovery_oracle_accepts_the_reviewed_identities(runtime):
+    import capture_browser_trace as c
+    c._j09_slow_recovery_oracle(_j09_oracle_clone(runtime))
+
+
+@pytest.mark.parametrize('mutation',[
+    'aged_runs','aged_files','recovered_runs','recovered_files','recovered_table','recovered_alert',
+    'recovered_ipc','recovery_action','requested_id','observed_id','hold_first_utc','hold_last_utc',
+    'hold_samples','screenshot_sha','ttl_sha',
+])
+def test_j09_slow_recovery_oracle_rejects_golden_mutations(mutation):
+    import capture_browser_trace as c
+    o=_j09_oracle_clone('python')
+    aged,recovered=o['phases']
+    if mutation=='aged_runs':aged['dom_after']['script_runs']='9'
+    elif mutation=='aged_files':aged['dom_after']['uploaded_files']=[]
+    elif mutation=='recovered_runs':recovered['dom_after']['script_runs']='2'
+    elif mutation=='recovered_files':recovered['dom_after']['uploaded_files']=[]
+    elif mutation=='recovered_table':recovered['dom_after']['table_present']=True
+    elif mutation=='recovered_alert':recovered['dom_after']['alerts']=[]
+    elif mutation=='recovered_ipc':recovered['ipc']={'table':'kept','chart':None}
+    elif mutation=='recovery_action':o['recovery']['recovery_action']='observe'
+    elif mutation=='requested_id':o['recovery']['requested_session_id']='forged-aged-id'
+    elif mutation=='observed_id':o['recovery']['observed_session_id']='forged-new-id'
+    elif mutation=='hold_first_utc':o['hold']['samples'][0]['utc']='2026-10-25T05:00:00Z'
+    elif mutation=='hold_last_utc':o['hold']['samples'][-1]['utc']='2026-10-25T06:00:00Z'
+    elif mutation=='hold_samples':o['hold']['samples']=o['hold']['samples'][:-1]
+    elif mutation=='screenshot_sha':o['screenshots'][0]['sha256']='0'*64
+    elif mutation=='ttl_sha':o['ttl_configuration']['evidence'][0]['sha256']='0'*64
+    with pytest.raises(ValueError):c._j09_slow_recovery_oracle(o)
 
 
 def _j09_slow_hidden_input(o,kind,phase_index):
