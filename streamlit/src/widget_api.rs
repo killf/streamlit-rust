@@ -790,8 +790,7 @@ impl Form<'_> {
             ))?
         };
         let identity = serde_json::to_string(&(self.parent_form_id(), identity))?;
-        let state = self.get_app().lock().session_state.clone();
-        let (id, value, _) = state.register_widget(
+        let (id, value, _) = self.register_widget_parity(
             WidgetSpec {
                 kind: "form_submit_button",
                 key: options.key.as_deref(),
@@ -856,9 +855,8 @@ impl<C: AppendChild> InputWidgets for C {
         let multiple = options.mode != FileUploadMode::Single;
         let constraints = serde_json::to_string(&(&options.accepted_types, options.max_upload_size_mb, format!("{:?}", options.mode)))?;
         let identity = c.identity_in_form(&form_id, &constraints);
-        let state = self.get_app().lock().session_state.clone();
-        let uploads = state.uploads.clone();
-        let (id, files, _) = state.register_widget(
+        let uploads = self.get_app().lock().session_state.uploads.clone();
+        let (id, files, _) = self.register_widget_parity(
             WidgetSpec {
                 kind: "file_uploader",
                 key: c.key.as_deref(),
@@ -899,8 +897,7 @@ impl<C: AppendChild> InputWidgets for C {
         let form_id = form_scope(self, c.callback.is_some())?;
         let width_config = c.width(true)?;
         let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { options.value.to_string() });
-        let state = self.get_app().lock().session_state.clone();
-        let (id, value, set_value) = state.register_widget(
+        let (id, value, set_value) = self.register_widget_parity(
             WidgetSpec {
                 kind: "checkbox",
                 key: c.key.as_deref(),
@@ -984,8 +981,7 @@ impl<C: AppendChild> InputWidgets for C {
                 ))?
             },
         );
-        let state = self.get_app().lock().session_state.clone();
-        let (id, value, set_value) = state.register_widget(
+        let (id, value, set_value) = self.register_widget_parity(
             WidgetSpec {
                 kind: "text_input",
                 key: c.key.as_deref(),
@@ -1049,8 +1045,7 @@ impl<C: AppendChild> InputWidgets for C {
         let default = options.index.filter(|index| *index < native.len()).map(Value::from).unwrap_or(Value::Null);
         let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { format!("{:?}:{:?}", options.labels, options.index) });
         let codec = Codec::Select(options.labels.iter().cloned().zip(native.iter().cloned()).collect());
-        let state = self.get_app().lock().session_state.clone();
-        let (id, selected, set_value) = state.register_widget(
+        let (id, selected, set_value) = self.register_widget_parity(
             WidgetSpec {
                 kind: "selectbox",
                 key: c.key.as_deref(),
@@ -1126,8 +1121,7 @@ impl<C: AppendChild> InputWidgets for C {
         }
         let constraints = format!("{}:{}:{}:{}:{}", options.min, options.max, options.step, T::INTEGER, T::COUNT);
         let identity = c.identity_in_form(&form_id, &if c.key.is_some() { constraints } else { format!("{constraints}:{default}:{:?}", options.format) });
-        let state = self.get_app().lock().session_state.clone();
-        let (id, result, set_value) = state.register_widget(
+        let (id, result, set_value) = self.register_widget_parity(
             WidgetSpec {
                 kind: "slider",
                 key: c.key.as_deref(),
@@ -1175,8 +1169,7 @@ impl<C: AppendChild> InputWidgets for C {
         } else {
             serde_json::to_string(&(&options.label, &options.help, &options.r#type, &options.icon))?
         };
-        let state = self.get_app().lock().session_state.clone();
-        let (id, value, _) = state.register_widget(
+        let (id, value, _) = self.register_widget_parity(
             WidgetSpec {
                 kind: "button",
                 key: options.key.as_deref(),
@@ -1404,7 +1397,28 @@ mod tests {
             form.form_submit_button("Submit")
         })
         .unwrap();
-        assert!(matches!(st.text_input(TextInputOptions::new("Root").key("same")), Err(WidgetError::DuplicateKey(_))));
+        // The duplicate key takes over the run like upstream: the exception
+        // element renders, later output is suppressed and the caller receives
+        // the default it requested instead of an error (measured dup_key
+        // reference wire; text_input's default is the empty string).
+        assert_eq!(st.text_input(TextInputOptions::new("Root").key("same")).unwrap(), Some(String::new()));
+        assert_eq!(state.run_control(), Some(crate::session::RunControl::Stop));
+        let _ = form_block(&mut wire);
+        match input(&mut wire) {
+            element::Type::TextInput(text) => assert_eq!(text.label, "Note"),
+            other => panic!("expected the form text input before the exception, got {other:?}"),
+        }
+        let _ = input(&mut wire); // the form submit button
+        match input(&mut wire) {
+            element::Type::Exception(exception) => {
+                assert_eq!(exception.r#type, "streamlit.errors.StreamlitDuplicateElementKey");
+                assert!(exception.message.contains("key='same'"));
+                assert!(exception.is_streamlit_exception && exception.message_is_markdown);
+                assert_eq!(exception.stack_trace.len(), 1);
+            }
+            other => panic!("expected the duplicate-key exception element, got {other:?}"),
+        }
+        assert!(wire.try_recv().is_err());
     }
 
     #[test]
@@ -1725,11 +1739,23 @@ mod tests {
         assert_eq!(select.raw_value.as_deref(), Some("option-20"));
         assert!(select.set_value);
         assert!(state.set("chosen", 10).is_err());
-        assert!(matches!(st.checkbox(CheckboxOptions::new("Other").key("chosen")), Err(WidgetError::DuplicateKey(_))));
         assert!(!st.try_button(ButtonOptions::new("Pulse").key("pulse").disabled(true)).unwrap());
         let element::Type::Button(button) = input(&mut wire) else { panic!() };
         assert!(button.disabled);
         assert!(state.set("pulse", true).is_err());
+        // A duplicated widget key takes over the run the way upstream does:
+        // the exception element renders, later output is suppressed and the
+        // caller receives the default (measured dup_key reference wire).
+        assert!(!st.checkbox(CheckboxOptions::new("Other").key("chosen")).unwrap());
+        assert_eq!(state.run_control(), Some(crate::session::RunControl::Stop));
+        match input(&mut wire) {
+            element::Type::Exception(exception) => {
+                assert_eq!(exception.r#type, "streamlit.errors.StreamlitDuplicateElementKey");
+                assert!(exception.message.contains("key='chosen'"));
+            }
+            other => panic!("expected the duplicate-key exception element, got {other:?}"),
+        }
+        assert!(wire.try_recv().is_err(), "output after the takeover is suppressed");
         state.finish_widgets();
         let callbacks = state.begin_widgets(vec![WidgetState {
             id: button.id.clone(),

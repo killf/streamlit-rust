@@ -6,6 +6,7 @@ pub mod columns;
 pub mod common;
 pub mod container;
 pub mod data;
+pub mod exception;
 pub mod form;
 pub mod input;
 pub mod markdown;

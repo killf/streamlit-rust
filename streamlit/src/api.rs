@@ -44,6 +44,28 @@ pub(crate) trait AppendChild {
     fn next_child_path(&self) -> Vec<u32> {
         self.get_app().lock().render_context_mut().map(|context| context.delta_path.clone()).unwrap_or_default()
     }
+
+    /// Register a widget against the session registry, or take over the run
+    /// the way upstream does when the key is already live: the framework
+    /// renders the `StreamlitDuplicateElementKey` exception element, every
+    /// later element and state write of the run is suppressed, and the run
+    /// still finishes `FINISHED_SUCCESSFULLY`. The caller receives its
+    /// default value, mirroring upstream code that never runs past the raise.
+    fn register_widget_parity<T>(&self, spec: crate::widgets::WidgetSpec<'_>, resolve: impl Fn(&serde_json::Value) -> Result<T, WidgetError>) -> Result<(String, T, bool), WidgetError> {
+        let state = self.get_app().lock().session_state.clone();
+        let default = spec.default.clone();
+        let kind = spec.kind.to_owned();
+        match state.register_widget(spec, &resolve) {
+            Ok(triple) => Ok(triple),
+            Err(WidgetError::DuplicateKey(key)) => {
+                self.push(Rc::new(RefCell::new(crate::elements::exception::ExceptionElement::duplicate_key(&kind, &key))));
+                state.set_run_control(crate::session::RunControl::Stop);
+                let value = resolve(&default)?;
+                Ok((String::new(), value, false))
+            }
+            Err(other) => Err(other),
+        }
+    }
 }
 
 impl AppendChild for Streamlit {

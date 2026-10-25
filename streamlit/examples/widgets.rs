@@ -24,4 +24,11 @@ async fn main(st: &Streamlit) {
     // This is a values/callback demo. A data view is not implemented here.
     st.button(ButtonOptions::new("Disabled button").disabled(true));
     st.button("Rerun");
+    // Press once to see the framework-rendered duplicate-key exception: the
+    // run renders the error box, suppresses everything after it and still
+    // finishes successfully — the measured Streamlit 1.66.1 behavior.
+    if st.button(ButtonOptions::new("Show duplicate-key error")) {
+        let _ = st.selectbox(SelectboxOptions::new("First", ["a", "b"]).key("duplicate-demo")).unwrap();
+        let _ = st.selectbox(SelectboxOptions::new("Second", ["a", "b"]).key("duplicate-demo")).unwrap();
+    }
 }

@@ -114,8 +114,13 @@ fn render_case(case: &str, st: &Streamlit) {
     }
     if case == "dup_key" {
         st.selectbox(SelectboxOptions::new("Group by", ["category", "region"]).key("the_same_key")).unwrap();
-        assert!(matches!(st.selectbox(SelectboxOptions::new("Other group by", ["category", "region"]).key("the_same_key")), Err(WidgetError::DuplicateKey(_))));
-        // Rust exposes a typed Result. This does not claim the Python exception UI.
+        // Upstream raises StreamlitDuplicateElementKey and the framework
+        // renders the exception element; the Rust takeover mirrors that wire
+        // instead of surfacing a typed error, returning the requested
+        // default (the first option) to the caller.
+        let second = st.selectbox(SelectboxOptions::new("Other group by", ["category", "region"]).key("the_same_key")).unwrap();
+        assert_eq!(second, Some("category"));
+        assert_eq!(st.session_state().run_control(), Some(crate::RunControl::Stop));
         return;
     }
     let mut select = SelectboxOptions::new("Group by", ["category", "region", "channel"]);
@@ -168,6 +173,9 @@ fn eight_chrome_cases_match_full_elements_optional_presence_and_callback_order()
         let per_run = full.len() / runs.len();
         let state = SessionState::default();
         let mut ids: HashMap<String, String> = HashMap::new();
+        // The run loop clears the run-control signal before every run; the
+        // duplicate-key takeover sets it, so the simulation must too.
+        let mut exceptions: Vec<_> = raw["frames"].as_array().unwrap().iter().filter_map(|frame| frame.pointer("/decoded/delta/exception")).cloned().collect();
         for (run, incoming) in runs.iter().enumerate() {
             let widgets = incoming
                 .as_array()
@@ -187,6 +195,7 @@ fn eight_chrome_cases_match_full_elements_optional_presence_and_callback_order()
                 })
                 .collect();
             let callbacks = state.begin_widgets(widgets);
+            state.reset_run_control();
             let st = Streamlit::with_session_state(state.clone());
             let (sender, mut receiver) = tokio::sync::mpsc::unbounded_channel();
             st.app.lock().set_render_context(RenderContext::with_sender("reference".into(), sender));
@@ -214,6 +223,33 @@ fn eight_chrome_cases_match_full_elements_optional_presence_and_callback_order()
                 }
                 *id_mut(&mut expected) = actual_id;
                 assert_eq!(actual.encode_to_vec(), expected.encode_to_vec(), "case={case} run={run}: {actual:?} vs {expected:?}");
+            }
+            // The duplicate-key takeover renders the framework exception
+            // element after the widgets. Its type/message/flags match the
+            // reference exactly; only the stack trace line differs, because
+            // Rust cannot know the caller's source line.
+            while let Some(expected_exception) = exceptions.first() {
+                let Some(forward_msg::Type::Delta(proto::Delta {
+                    r#type: Some(delta::Type::NewElement(element)), ..
+                })) = receiver.try_recv().unwrap().r#type
+                else {
+                    panic!("expected the duplicate-key exception element in {case} run={run}")
+                };
+                let element::Type::Exception(exception) = element.r#type.unwrap() else {
+                    panic!("expected an exception element in {case} run={run}")
+                };
+                assert_eq!(exception.r#type, expected_exception["type"].as_str().unwrap(), "case={case} run={run}");
+                assert_eq!(exception.message, expected_exception["message"].as_str().unwrap(), "case={case} run={run}");
+                assert_eq!(exception.message_is_markdown, expected_exception["messageIsMarkdown"].as_bool().unwrap());
+                assert_eq!(exception.is_streamlit_exception, expected_exception["isStreamlitException"].as_bool().unwrap());
+                assert!(matches!(
+                    exception.width_config,
+                    Some(proto::streamlit::WidthConfig {
+                        width_spec: Some(proto::streamlit::width_config::WidthSpec::UseStretch(true))
+                    })
+                ));
+                assert_eq!(exception.stack_trace.len(), 1, "one honest context line, not the unknowable app source line");
+                exceptions.remove(0);
             }
             assert!(receiver.try_recv().is_err(), "extra elements in {case}");
             state.finish_widgets();

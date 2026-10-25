@@ -219,7 +219,7 @@ impl SessionState {
         callbacks
     }
 
-    pub(crate) fn register_widget<T>(&self, spec: WidgetSpec<'_>, resolve: impl FnOnce(&Value) -> Result<T, WidgetError>) -> Result<(String, T, bool), WidgetError> {
+    pub(crate) fn register_widget<T>(&self, spec: WidgetSpec<'_>, resolve: impl Fn(&Value) -> Result<T, WidgetError>) -> Result<(String, T, bool), WidgetError> {
         let WidgetSpec { kind, key, identity, default, codec, callback } = spec;
         let identity_fields = serde_json::to_string(&(kind, identity, key))?;
         let id = format!("$$ID-{}-{}", crate::utils::hash::hash(&identity_fields), key.unwrap_or("None"));

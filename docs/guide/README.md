@@ -97,7 +97,7 @@ Values inside the form are staged by the official frontend and sent together whe
 
 See [TextInputOptions](../../streamlit/src/widget_api.rs) for text types, validation, debounce and presentation options. Browser validation is performed by the official frontend; security-sensitive application code must still validate submitted values on the server.
 
-Query binding and persistent hidden-widget state are not yet claimed complete. Form and submit-button layout fields beyond the measured defaults, Python exception UI parity, and full widget lifecycle/error parity also remain outside a complete compatibility claim.
+Query binding and persistent hidden-widget state are not yet claimed complete. Form and submit-button layout fields beyond the measured defaults, exception elements beyond duplicate widget keys, and full widget lifecycle/error parity also remain outside a complete compatibility claim.
 
 The basic form flow is available; support beyond it remains partial. See [form validation scope](../../.codex/compatibility.md#forms-validation-scope) for the reference/Rust coverage and remaining limits.
 
@@ -256,8 +256,10 @@ st.write("rendered from the second run");
 
 Both follow the measured Streamlit 1.66.1 wire: an aborted rerun finishes with `FINISHED_EARLY_FOR_RERUN`, a stopped run still finishes `FINISHED_SUCCESSFULLY`, and elements streamed before the call stay on the page. The [execution example](../../streamlit/examples/execution.rs) mirrors the reference fixture and lets you watch both behaviors through the selector.
 
+A widget whose explicit `key` is already live in the run no longer returns an error: like Python Streamlit, the framework itself renders the `StreamlitDuplicateElementKey` exception box (the red box users know), suppresses every later element of that run and still finishes successfully; your code receives the widget's default value and keeps running with its output suppressed. Invalid options (bad widths, out-of-range indexes, illegal form layouts and so on) remain ordinary `Result` errors you handle yourself. Press **Show duplicate-key error** in the [widgets example](#input-widgets) to see the rendered box; only its trace line differs from Python, because Rust cannot know your source line.
+
 ## Current API
 
 Available APIs include text and layout, static status messages, `button`, `selectbox`, numeric `slider`, `checkbox`, the measured `form`/`form_submit_button`/`text_input` core, native session state, and the `st.rerun`/`st.stop` execution controls. See the [text/layout/status API](../../streamlit/src/api.rs), [widget options](../../streamlit/src/widget_api.rs), and [session API](../../streamlit/src/session.rs).
 
-Upload and columnar data views currently cover the limited paths described above. General table/chart APIs, selection, complete forms/text-input behavior, cache, `st.quit`, query binding, persistent hidden widgets, date/time sliders, and most other input widgets remain incomplete or absent. Widget failures are Rust `Result` errors; Python-style exception elements and matching exception UI are not implemented. Native session values, reruns, retained-session reconnects, synchronous callbacks, explicit widget keys and one-shot button triggers are available, without a claim of complete Streamlit compatibility.
+Upload and columnar data views currently cover the limited paths described above. General table/chart APIs, selection, complete forms/text-input behavior, cache, query binding, persistent hidden widgets, date/time sliders, and most other input widgets remain incomplete or absent (`st.quit` does not exist in 1.66.1). Duplicate widget keys render the framework exception box as described above; other widget failures are Rust `Result` errors you handle yourself. Native session values, reruns, retained-session reconnects, synchronous callbacks, explicit widget keys and one-shot button triggers are available, without a claim of complete Streamlit compatibility.

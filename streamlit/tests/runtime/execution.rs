@@ -32,8 +32,25 @@ fn stop_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
     })
 }
 
+fn duplicate_key_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        let armed: Option<bool> = st.session_state().get("armed").ok().flatten();
+        if armed.is_none() {
+            st.markdown("first");
+            st.session_state().set("armed", true).unwrap();
+            return;
+        }
+        // Later runs hit the takeover: upstream raises on every rerun too.
+        let _first = crate::InputWidgets::selectbox(st, crate::SelectboxOptions::new("Group by", ["category", "region"]).key("group")).unwrap();
+        let second = crate::InputWidgets::selectbox(st, crate::SelectboxOptions::new("Other group by", ["category", "region"]).key("group")).unwrap();
+        assert_eq!(second, Some("category"), "the takeover returns the requested default");
+        st.markdown("unreachable-after-duplicate");
+    })
+}
+
 struct RunTrace {
     markdowns: Vec<String>,
+    exceptions: Vec<(String, String)>,
     finish_statuses: Vec<i32>,
 }
 
@@ -52,14 +69,20 @@ async fn receive_run(stream: &mut TcpStream, session_id: &mut String, run_ids: &
     }
     assert!(run_ids.insert(new_session.script_run_id), "every run needs a fresh script_run_id");
     assert!(matches!(receive(stream).await.r#type, Some(forward_msg::Type::SessionStatusChanged(status)) if status.script_is_running));
-    let mut trace = RunTrace { markdowns: vec![], finish_statuses: vec![] };
+    let mut trace = RunTrace {
+        markdowns: vec![],
+        exceptions: vec![],
+        finish_statuses: vec![],
+    };
     loop {
         match receive(stream).await.r#type {
             Some(forward_msg::Type::Delta(delta)) => {
-                if let Some(delta::Type::NewElement(new_element)) = delta.r#type
-                    && let Some(element::Type::Markdown(text)) = new_element.r#type
-                {
-                    trace.markdowns.push(text.body);
+                if let Some(delta::Type::NewElement(new_element)) = delta.r#type {
+                    match new_element.r#type {
+                        Some(element::Type::Markdown(text)) => trace.markdowns.push(text.body),
+                        Some(element::Type::Exception(exception)) => trace.exceptions.push((exception.r#type, exception.message)),
+                        _ => {}
+                    }
                 }
             }
             Some(forward_msg::Type::ScriptFinished(status)) => trace.finish_statuses.push(status),
@@ -138,6 +161,38 @@ async fn st_stop_finishes_successfully_and_suppresses_later_elements_and_writes(
     let second = receive_run(&mut stream, &mut session_id, &mut run_ids).await;
     assert_eq!(second.finish_statuses, [0]);
     assert_eq!(second.markdowns, ["late-is-present=false"], "a session-state write after st.stop() never lands");
+    drop(stream);
+    handle.stop(false).await;
+    task.await.unwrap().unwrap();
+}
+
+#[actix_web::test]
+async fn duplicate_widget_key_renders_the_reference_exception_and_suppresses_the_rest() {
+    let (_address, handle, task, mut stream) = start_server(duplicate_key_entry).await;
+    let mut session_id = String::new();
+    let mut run_ids = std::collections::HashSet::new();
+    send_binary(&mut stream, &rerun_request()).await;
+    let first = receive_run(&mut stream, &mut session_id, &mut run_ids).await;
+    assert_eq!(first.finish_statuses, [0]);
+    assert_eq!(first.markdowns, ["first"]);
+    assert!(first.exceptions.is_empty());
+    send_binary(&mut stream, &rerun_request()).await;
+    let second = receive_run(&mut stream, &mut session_id, &mut run_ids).await;
+    assert_eq!(second.finish_statuses, [0], "the takeover run finishes FINISHED_SUCCESSFULLY (measured dup_key wire)");
+    assert!(second.markdowns.is_empty(), "nothing renders after the exception element");
+    assert_eq!(
+        second.exceptions,
+        [(
+            "streamlit.errors.StreamlitDuplicateElementKey".to_owned(),
+            "There are multiple elements with the same `key='group'`. To fix this, please make sure that the `key` argument is unique for each element you create.".to_owned(),
+        )],
+        "the exception element matches the reference type and message exactly"
+    );
+    // A third rerun proves the session keeps serving; upstream raises again.
+    send_binary(&mut stream, &rerun_request()).await;
+    let third = receive_run(&mut stream, &mut session_id, &mut run_ids).await;
+    assert_eq!(third.finish_statuses, [0]);
+    assert_eq!(third.exceptions.len(), 1);
     drop(stream);
     handle.stop(false).await;
     task.await.unwrap().unwrap();
