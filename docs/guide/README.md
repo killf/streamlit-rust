@@ -233,6 +233,26 @@ let remark = st.text_area(TextAreaOptions::new("Note", "").value_none().max_char
 
 `st.radio` returns the selected option's text (`Option<String>`); `.index(None)` starts unchecked. `st.multiselect` returns `Vec<T>` of the selected original options; `.default_indices([0, 2])` preselects by position and `.format_func(|item| ...)` changes labels only. `st.number_input` returns `i64` or `f64` as declared — the plain `("Count", 7_i64)` starts at the value with step 1 and no bounds, and the range tuple `("Count", 7_i64, 0..=100)` pins explicit bounds in one expression; floats start with step 0.01. `st.text_area` returns `Option<String>`; `.value_none()` starts the return value as `None` while the field stays empty. All four commit the way the official frontend does — radio and multiselect immediately, number_input and text_area when the control loses focus. The integer wire shapes (default indices, `%d` format, `INT` data type, `accept_new_options`/`select_all` flags, string/string-array/int states) are the measured 1.66.1 contract behind [journey-inputs-v1](../../tests/browser/inputs_contract.py); the float number_input path follows the same encoding but is not yet reference-measured.
 
+## Media and metrics
+
+```powershell
+cargo run --example media --locked
+```
+
+Open `http://127.0.0.1:8509/`. Images, audio, metrics and progress follow the measured 1.66.1 media route — each media asset is served from `GET /media/{file_id}.{ext}`, a content address the reference derives as BLAKE2b-128 over `"{len}:" + bytes + mime type`:
+
+```rust
+let shot = st.image((gradient, "gradient"));                  // (RgbaImage, caption) or plain RgbaImage
+st.audio((wav_bytes, "audio/wav"));                          // (bytes, MIME type)
+st.metric(MetricOptions::new("Temperature", "72 °F").delta("2 °F"));
+st.metric(MetricOptions::new("Wind", "8 mph").delta("-3 mph").delta_color(DeltaColor::Inverse));
+
+let bar = st.progress(50)?;
+bar.set(75);                                                  // coalesces: one delta with the final value
+```
+
+`RgbaImage::new(width, height, pixels)` takes `width*height*4` RGBA8 bytes and is the measured `st.image` input shape. Metrics derive their arrow direction and color from the delta's first number word plus the `DeltaColor` mode (`Normal`, `Inverse`, `Off`). `st.progress` returns a handle whose updates coalesce into the single final-value delta the reference streams at the end of the run. The wire shapes behind [journey-media-v1](../../tests/browser/media_contract.py).
+
 ## Temporal sliders
 
 ```powershell

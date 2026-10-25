@@ -88,12 +88,12 @@
     "unavailable_requested_pages": 7,
     "redirect_aliases_not_counted": 2,
     "implementation_status_counts": {
-      "absent": 150,
-      "implemented": 32
+      "absent": 146,
+      "implemented": 36
     },
     "compatibility_status_counts": {
-      "unverified": 150,
-      "partial": 32
+      "unverified": 146,
+      "partial": 36
     },
     "unique_feature_ids": 182,
     "unique_official_urls": 182,
@@ -1506,12 +1506,25 @@
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/data/st.metric",
       "rust_source_path": null,
-      "implementation_status": "absent",
-      "compatibility_status": "unverified",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "474d0f039d160cd0e2f45d964d4615fc139c24c7bd1872fda0c335d260da38e7",
-        "python_browser_trace": null
-      }
+        "python_browser_trace": "tests/reference/reference-browser/media/trace-media.json",
+        "rust_wire_observation": "tests/browser/rust-media/trace-media.json",
+        "official_frontend_browser_e2e": "tests/browser/rust-media/trace-media.json",
+        "capture_entry": "tests/browser/media_capture.py",
+        "media_contract": "tests/browser/media_contract.py",
+        "contract_guards": "tests/reference/test_media_contract.py",
+        "driven_fixture": "tests/reference/media_app.py",
+        "driven_example": "streamlit/examples/media.rs"
+      },
+      "rust_plan": "st.metric(MetricOptions::new(label, value).delta(...).delta_color(...)) emits the measured Metric with direction/color derived from the delta's first number word and the delta_color mode; the element carries the measured stretch width and content height.",
+      "compatibility_scope": "The journey-media-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were both loaded by a real Chrome through the official frontend; both published replays return 10/10/10 exit 0 with identical element protos, DOM projections and /media response shapes (python 763beee2..., native fb8f5e64...). The WAV fixture is byte-identical across runtimes, so its address, range response and body digest are the exact measured ones; the PNG encodes per side (the reference deflates with PIL) with identical pixels.",
+      "limitations": [
+        "Coverage is the measured normal-positive and inverse-negative pair (UP/GREEN and DOWN/GREEN); no-delta, zero, non-numeric-delta, off/gray and the numeric formatting/chart fields are unobserved.",
+        "media store source SHA256 82200de623c3c193dad38ad1d858d025b5a806a6a98f5764b1957f5113598055; elements source SHA256 72499c716daf0c6b8b074134026ca356d06a06b2ba8db68f1421a79f0cd072f7; route source SHA256 1cd9d5e90bece87881dfc8ce7cd497d52962cea8822cf9e6fdefcfecfd5bbc68; fixture SHA256 6079286f3d84cb2478a35ec38532b007b188c5c7cfed5c528e271dce08e4046e; example SHA256 f80ac67a3d30312042ebf4aaaf15e0807cf73191b7bfb93b34dfaab2dbf86f26."
+      ]
     },
     {
       "feature_id": "st.table",
@@ -2202,12 +2215,25 @@
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/media/st.audio",
       "rust_source_path": null,
-      "implementation_status": "absent",
-      "compatibility_status": "unverified",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "4e6efadb9c3e3ed4a0d78ba46996fbdea5b686a2a535c83ea0ad824adc8c7c02",
-        "python_browser_trace": null
-      }
+        "python_browser_trace": "tests/reference/reference-browser/media/trace-media.json",
+        "rust_wire_observation": "tests/browser/rust-media/trace-media.json",
+        "official_frontend_browser_e2e": "tests/browser/rust-media/trace-media.json",
+        "capture_entry": "tests/browser/media_capture.py",
+        "media_contract": "tests/browser/media_contract.py",
+        "contract_guards": "tests/reference/test_media_contract.py",
+        "driven_fixture": "tests/reference/media_app.py",
+        "driven_example": "streamlit/examples/media.rs"
+      },
+      "rust_plan": "st.audio((bytes, \"audio/wav\")) registers the bytes and emits the measured Audio element with a relative /media/{blake2b}.wav URL and the stretch width inside the message.",
+      "compatibility_scope": "The journey-media-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were both loaded by a real Chrome through the official frontend; both published replays return 10/10/10 exit 0 with identical element protos, DOM projections and /media response shapes (python 763beee2..., native fb8f5e64...). The WAV fixture is byte-identical across runtimes, so its address, range response and body digest are the exact measured ones; the PNG encodes per side (the reference deflates with PIL) with identical pixels.",
+      "limitations": [
+        "The measured page is one synthesized WAV; autoplay, start_time/end_time, loop and mime types beyond the measured map are unobserved.",
+        "media store source SHA256 82200de623c3c193dad38ad1d858d025b5a806a6a98f5764b1957f5113598055; elements source SHA256 72499c716daf0c6b8b074134026ca356d06a06b2ba8db68f1421a79f0cd072f7; route source SHA256 1cd9d5e90bece87881dfc8ce7cd497d52962cea8822cf9e6fdefcfecfd5bbc68; fixture SHA256 6079286f3d84cb2478a35ec38532b007b188c5c7cfed5c528e271dce08e4046e; example SHA256 f80ac67a3d30312042ebf4aaaf15e0807cf73191b7bfb93b34dfaab2dbf86f26."
+      ]
     },
     {
       "feature_id": "st.image",
@@ -2215,12 +2241,26 @@
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/media/st.image",
       "rust_source_path": null,
-      "implementation_status": "absent",
-      "compatibility_status": "unverified",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "88a3518ffb078af6ba003b0b21ee05e833ac64bed197bb625751713f26d54ebe",
-        "python_browser_trace": null
-      }
+        "python_browser_trace": "tests/reference/reference-browser/media/trace-media.json",
+        "rust_wire_observation": "tests/browser/rust-media/trace-media.json",
+        "official_frontend_browser_e2e": "tests/browser/rust-media/trace-media.json",
+        "capture_entry": "tests/browser/media_capture.py",
+        "media_contract": "tests/browser/media_contract.py",
+        "contract_guards": "tests/reference/test_media_contract.py",
+        "driven_fixture": "tests/reference/media_app.py",
+        "driven_example": "streamlit/examples/media.rs"
+      },
+      "rust_plan": "st.image((RgbaImage, \"caption\")) encodes RGBA pixels to a valid PNG (stored-deflate) and registers it in the content-addressed store; the wire is the measured Imgs ImageList with a relative /media/{blake2b}.png URL, caption and content width.",
+      "compatibility_scope": "The journey-media-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were both loaded by a real Chrome through the official frontend; both published replays return 10/10/10 exit 0 with identical element protos, DOM projections and /media response shapes (python 763beee2..., native fb8f5e64...). The WAV fixture is byte-identical across runtimes, so its address, range response and body digest are the exact measured ones; the PNG encodes per side (the reference deflates with PIL) with identical pixels.",
+      "limitations": [
+        "In-memory RGBA input only: URL/path/PIL-image inputs, use_container_width, multiple images and output sizing are unobserved.",
+        "The PNG encoder differs from PIL's (stored deflate), so PNG bytes and their address differ per side; pixels are identical and only the response shape compares.",
+        "media store source SHA256 82200de623c3c193dad38ad1d858d025b5a806a6a98f5764b1957f5113598055; elements source SHA256 72499c716daf0c6b8b074134026ca356d06a06b2ba8db68f1421a79f0cd072f7; route source SHA256 1cd9d5e90bece87881dfc8ce7cd497d52962cea8822cf9e6fdefcfecfd5bbc68; fixture SHA256 6079286f3d84cb2478a35ec38532b007b188c5c7cfed5c528e271dce08e4046e; example SHA256 f80ac67a3d30312042ebf4aaaf15e0807cf73191b7bfb93b34dfaab2dbf86f26."
+      ]
     },
     {
       "feature_id": "st.logo",
@@ -2345,12 +2385,26 @@
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/status/st.progress",
       "rust_source_path": null,
-      "implementation_status": "absent",
-      "compatibility_status": "unverified",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "5643d8342643b524dabade68218d7b845ca1a03cec6ba05b7809e8b68dd5cfab",
-        "python_browser_trace": null
-      }
+        "python_browser_trace": "tests/reference/reference-browser/media/trace-media.json",
+        "rust_wire_observation": "tests/browser/rust-media/trace-media.json",
+        "official_frontend_browser_e2e": "tests/browser/rust-media/trace-media.json",
+        "capture_entry": "tests/browser/media_capture.py",
+        "media_contract": "tests/browser/media_contract.py",
+        "contract_guards": "tests/reference/test_media_contract.py",
+        "driven_fixture": "tests/reference/media_app.py",
+        "driven_example": "streamlit/examples/media.rs"
+      },
+      "rust_plan": "st.progress(value) returns a handle whose set() coalesces into the single final-value delta the reference streams at its same-tick flush (50-then-75 emits one Progress{value:75}); the element carries the measured stretch width.",
+      "compatibility_scope": "The journey-media-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were both loaded by a real Chrome through the official frontend; both published replays return 10/10/10 exit 0 with identical element protos, DOM projections and /media response shapes (python 763beee2..., native fb8f5e64...). The WAV fixture is byte-identical across runtimes, so its address, range response and body digest are the exact measured ones; the PNG encodes per side (the reference deflates with PIL) with identical pixels.",
+      "limitations": [
+        "Coverage is the measured 0..=100 integer value pair; text, float values and mid-run timing beyond the same-tick window are unobserved.",
+        "A deferred element placed before later non-deferred elements streams after them at run end; the measured page has progress last.",
+        "media store source SHA256 82200de623c3c193dad38ad1d858d025b5a806a6a98f5764b1957f5113598055; elements source SHA256 72499c716daf0c6b8b074134026ca356d06a06b2ba8db68f1421a79f0cd072f7; route source SHA256 1cd9d5e90bece87881dfc8ce7cd497d52962cea8822cf9e6fdefcfecfd5bbc68; fixture SHA256 6079286f3d84cb2478a35ec38532b007b188c5c7cfed5c528e271dce08e4046e; example SHA256 f80ac67a3d30312042ebf4aaaf15e0807cf73191b7bfb93b34dfaab2dbf86f26."
+      ]
     },
     {
       "feature_id": "st.skeleton",

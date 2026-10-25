@@ -1,0 +1,314 @@
+{
+ "schema_version": 1,
+ "journey": "media-page",
+ "contract": "journey-media-v1",
+ "scope": "PYTHON SIDE ONLY",
+ "url": "http://127.0.0.1:8609/",
+ "observation": {
+  "journey": "media-page",
+  "contract": "journey-media-v1",
+  "scope": "PYTHON SIDE ONLY",
+  "url": "http://127.0.0.1:8609/",
+  "binary": null,
+  "source": {
+   "file": "tests/reference/media_app.py",
+   "sha256": "6079286f3d84cb2478a35ec38532b007b188c5c7cfed5c528e271dce08e4046e"
+  },
+  "capture_sources": {
+   "media_capture.py": "a446dab9902f44cc6d17f13e2b26e7efe8033f5fe698bb28bf82fcf708b2020a",
+   "media_contract.py": "e6a231832c3b0641f815f4862c7a9b59232b940653777a8ea5c6624f3604936e"
+  },
+  "stages": [
+   {
+    "name": "01-load",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 40622.145933,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": []
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 40622.14759,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "4e60fc62-c194-48aa-a903-07ef07f7d71a",
+        "name": "media_app",
+        "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\media_app.py",
+        "page_script_hash": "78135e8d4b7c29ef2fe9e37c6600189e",
+        "main_script_hash": "78135e8d4b7c29ef2fe9e37c6600189e",
+        "session_id": "7d7c7332-9c51-4271-9370-c987d645d46f"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 40622.155066,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 40622.157382,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "imgs",
+        "element_full": {
+         "imgs": {
+          "imgs": [
+           {
+            "caption": "gradient",
+            "url": "/media/cf4408c83ff436091bbd1df85c8b71b7.png"
+           }
+          ]
+         },
+         "widthConfig": {
+          "useContent": true
+         }
+        }
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 40622.16872,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "audio",
+        "element_full": {
+         "audio": {
+          "url": "/media/431dec53348c010fe7c4e0be3ac78ede.wav",
+          "widthConfig": {
+           "useStretch": true
+          }
+         }
+        },
+        "id": ""
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 40622.170452,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "metric",
+        "element_full": {
+         "metric": {
+          "label": "Temperature",
+          "body": "72 °F",
+          "delta": "2 °F",
+          "direction": "UP",
+          "color": "GREEN",
+          "labelVisibility": {}
+         },
+         "heightConfig": {
+          "useContent": true
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "label": "Temperature",
+        "body": "72 °F"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 40622.174593,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "metric",
+        "element_full": {
+         "metric": {
+          "label": "Wind",
+          "body": "8 mph",
+          "delta": "-3 mph",
+          "color": "GREEN",
+          "labelVisibility": {}
+         },
+         "heightConfig": {
+          "useContent": true
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "label": "Wind",
+        "body": "8 mph"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 40622.174711,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "progress",
+        "element_full": {
+         "progress": {
+          "value": 75
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        }
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 40622.174863,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 40622.174998,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "http": [
+     {
+      "url": "http://127.0.0.1:8609/media/431dec53348c010fe7c4e0be3ac78ede.wav",
+      "method": "GET",
+      "headers": {
+       "accept-ranges": "bytes",
+       "Content-Length": "22094",
+       "date": "Sun, 25 Oct 2026 13:29:47 GMT",
+       "content-type": "audio/wav",
+       "server": "uvicorn",
+       "Content-Range": "bytes 0-22093/22094"
+      },
+      "status": 206,
+      "mime": "audio/wav",
+      "body": {
+       "base64": true,
+       "sha256": "369b43b692e118c4a54b0a90c787bed3988ba4c94a8a68554268276d945436d2",
+       "length": 22094
+      }
+     },
+     {
+      "url": "http://127.0.0.1:8609/media/cf4408c83ff436091bbd1df85c8b71b7.png",
+      "method": "GET",
+      "headers": {
+       "accept-ranges": "bytes",
+       "content-length": "85",
+       "date": "Sun, 25 Oct 2026 13:29:47 GMT",
+       "content-type": "image/png",
+       "server": "uvicorn"
+      },
+      "status": 200,
+      "mime": "image/png",
+      "body": {
+       "base64": true,
+       "sha256": "1389472570ad982f76a472346c731b2d5c577cb04f5facab8852a3356dd05244",
+       "length": 85,
+       "data_b64": "iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAHElEQVR4nGNkYOH4LyAgwIALMza0dOBXMCxMAAAi2xjhgP6spgAAAABJRU5ErkJggg=="
+      }
+     }
+    ],
+    "dom": {
+     "markdowns": [],
+     "images": [
+      {
+       "src": "http://127.0.0.1:8609/media/cf4408c83ff436091bbd1df85c8b71b7.png",
+       "alt": null,
+       "width": null,
+       "testid": "stImageContainer"
+      }
+     ],
+     "audios": [
+      {
+       "src": "http://127.0.0.1:8609/media/431dec53348c010fe7c4e0be3ac78ede.wav",
+       "controls": true
+      }
+     ],
+     "metrics": [
+      {
+       "label": "Temperature",
+       "value": "72 °F",
+       "delta": "2 °F",
+       "delta_class": "st-emotion-cache-18iyadg e3lvb7d5"
+      },
+      {
+       "label": "Wind",
+       "value": "8 mph",
+       "delta": "-3 mph",
+       "delta_class": "st-emotion-cache-18iyadg e3lvb7d5"
+      }
+     ],
+     "progress": [
+      {
+       "testid": "stProgress",
+       "role": null,
+       "value": null,
+       "text": ""
+      },
+      {
+       "testid": null,
+       "role": "progressbar",
+       "value": "75",
+       "text": ""
+      }
+     ],
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "01-load.png",
+     "sha256": "bb239bcefcb6915f35989d6df787b07dd2e10ff3ad69a1dac75f2a05e153950a"
+    }
+   }
+  ],
+  "ipc_dir": "D:\\dlab\\streamlit-rust\\target\\checks\\m3-media-final-python"
+ },
+ "counts": {
+  "expected": 11,
+  "executed": 11,
+  "asserted": 11
+ },
+ "failures": []
+}

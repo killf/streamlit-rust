@@ -148,23 +148,59 @@ fn crc32(data: &[u8]) -> u32 {
 }
 
 fn zlib_stored(data: &[u8]) -> Vec<u8> {
+    // RFC 1951 stored blocks: one header byte (BFINAL in bit 0, BTYPE=00,
+    // five padding bits), then LEN and its one's complement, both little
+    // endian. A stray byte between the header and LEN once made every PNG
+    // undecodable while the shape-only checks stayed green — the decoder
+    // round-trip test below exists so that class of defect cannot return.
     let mut out = Vec::with_capacity(data.len() + data.len() / 65535 * 5 + 6);
     out.extend_from_slice(&[0x78, 0x01]);
     let mut offset = 0;
     while offset < data.len() {
         let len = (data.len() - offset).min(65535);
         let last = offset + len == data.len();
-        out.extend_from_slice(&[u8::from(last), 0x00]);
+        out.push(u8::from(last));
         out.extend_from_slice(&(len as u16).to_le_bytes());
         out.extend_from_slice(&(!(len as u16)).to_le_bytes());
         out.extend_from_slice(&data[offset..offset + len]);
         offset += len;
     }
     if data.is_empty() {
-        out.extend_from_slice(&[1, 0, 0, 0, 0]);
+        out.extend_from_slice(&[1, 0, 0, 0xFF, 0xFF]);
     }
     out.extend_from_slice(&adler32(data).to_be_bytes());
     out
+}
+
+/// Decodes the stored-deflate stream back, proving the encoder emits what
+/// standard decoders read (unit-test oracle for the wire bytes).
+#[cfg(test)]
+fn zlib_stored_decode(stream: &[u8]) -> Option<Vec<u8>> {
+    if stream.len() < 6 || stream[0] != 0x78 {
+        return None;
+    }
+    let mut out = Vec::new();
+    let mut offset = 2;
+    loop {
+        let header = *stream.get(offset)?;
+        offset += 1;
+        if (header >> 1) & 0b11 != 0b00 {
+            return None; // only stored blocks are produced
+        }
+        let len = u16::from_le_bytes([*stream.get(offset)?, *stream.get(offset + 1)?]);
+        let nlen = u16::from_le_bytes([*stream.get(offset + 2)?, *stream.get(offset + 3)?]);
+        offset += 4;
+        if nlen != !len {
+            return None;
+        }
+        out.extend_from_slice(stream.get(offset..offset + len as usize)?);
+        offset += len as usize;
+        if header & 1 == 1 {
+            break;
+        }
+    }
+    let checksum = u32::from_be_bytes([*stream.get(offset)?, *stream.get(offset + 1)?, *stream.get(offset + 2)?, *stream.get(offset + 3)?]);
+    (checksum == adler32(&out)).then_some(out)
 }
 
 fn adler32(data: &[u8]) -> u32 {
@@ -240,12 +276,36 @@ mod tests {
             let channel = (4u32.wrapping_mul(index) % 256) as u8;
             pixels.extend_from_slice(&[channel, channel, channel, 255]);
         }
-        let png = png_encode(&RgbaImage::new(8, 8, pixels));
+        let png = png_encode(&RgbaImage::new(8, 8, pixels.clone()));
         assert!(png.starts_with(b"\x89PNG\r\n\x1a\n"));
         assert_eq!(&png[12..16], b"IHDR");
         assert_eq!(u32::from_be_bytes(png[16..20].try_into().unwrap()), 8);
         assert_eq!(u32::from_be_bytes(png[20..24].try_into().unwrap()), 8);
         assert!(png.windows(4).any(|window| window == b"IDAT"));
         assert!(png.windows(4).any(|window| window == b"IEND"));
+        // The deflate stream must decode back to the filtered scanlines:
+        // an encoder bug once shipped PNGs no browser could read while
+        // every shape-only check stayed green.
+        let idat_at = png.windows(4).position(|window| window == b"IDAT").expect("IDAT chunk");
+        let length = u32::from_be_bytes(png[idat_at - 4..idat_at].try_into().unwrap()) as usize;
+        let idat = png[idat_at + 4..idat_at + 4 + length].to_vec();
+        let mut scanlines = Vec::new();
+        for row in 0..8 {
+            scanlines.push(0);
+            scanlines.extend_from_slice(&pixels[row * 32..row * 32 + 32]);
+        }
+        assert_eq!(zlib_stored_decode(&idat).as_deref(), Some(scanlines.as_slice()));
+    }
+
+    #[test]
+    fn stored_deflate_round_trips_through_the_decoder() {
+        assert_eq!(zlib_stored_decode(&zlib_stored(b"")).as_deref(), Some(b"".as_slice()));
+        assert_eq!(zlib_stored_decode(&zlib_stored(b"single block")).as_deref(), Some(b"single block".as_slice()));
+        let big = (0..200_000u32).map(|index| (index % 251) as u8).collect::<Vec<_>>();
+        assert_eq!(zlib_stored_decode(&zlib_stored(&big)), Some(big));
+        let corrupt = zlib_stored(b"single block");
+        let mut corrupt = corrupt.to_vec();
+        corrupt[4] ^= 0xFF; // break NLEN
+        assert_eq!(zlib_stored_decode(&corrupt), None);
     }
 }

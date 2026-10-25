@@ -1,0 +1,325 @@
+{
+ "schema_version": 1,
+ "journey": "media-page",
+ "contract": "journey-media-v1",
+ "scope": "native",
+ "url": "http://127.0.0.1:8509/",
+ "observation": {
+  "journey": "media-page",
+  "contract": "journey-media-v1",
+  "scope": "native",
+  "url": "http://127.0.0.1:8509/",
+  "binary": "target/debug/examples/media.exe",
+  "source": {
+   "file": "streamlit/examples/media.rs",
+   "sha256": "f80ac67a3d30312042ebf4aaaf15e0807cf73191b7bfb93b34dfaab2dbf86f26"
+  },
+  "capture_sources": {
+   "media_capture.py": "a446dab9902f44cc6d17f13e2b26e7efe8033f5fe698bb28bf82fcf708b2020a",
+   "media_contract.py": "e6a231832c3b0641f815f4862c7a9b59232b940653777a8ea5c6624f3604936e"
+  },
+  "stages": [
+   {
+    "name": "01-load",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 40627.577299,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": []
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 40627.579308,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "d4996d00-b056-4619-ba05-f70adb6b4a51",
+        "name": "Streamlit Rust",
+        "main_script_path": "",
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "session_id": "d6be3dc3-33a2-4663-b380-18da83d980f3"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 40627.580592,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 40627.584993,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "main_container",
+        "block_type": "vertical"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 40627.58526,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "imgs",
+        "element_full": {
+         "imgs": {
+          "imgs": [
+           {
+            "caption": "gradient",
+            "url": "/media/32d0caa04f1a16deed53619f202a4626.png"
+           }
+          ]
+         },
+         "widthConfig": {
+          "useContent": true
+         }
+        }
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 40627.585551,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "audio",
+        "element_full": {
+         "audio": {
+          "url": "/media/431dec53348c010fe7c4e0be3ac78ede.wav",
+          "widthConfig": {
+           "useStretch": true
+          }
+         }
+        },
+        "id": ""
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 40627.585633,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "metric",
+        "element_full": {
+         "metric": {
+          "label": "Temperature",
+          "body": "72 °F",
+          "delta": "2 °F",
+          "direction": "UP",
+          "color": "GREEN",
+          "labelVisibility": {}
+         },
+         "heightConfig": {
+          "useContent": true
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "label": "Temperature",
+        "body": "72 °F"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 40627.5858,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "metric",
+        "element_full": {
+         "metric": {
+          "label": "Wind",
+          "body": "8 mph",
+          "delta": "-3 mph",
+          "color": "GREEN",
+          "labelVisibility": {}
+         },
+         "heightConfig": {
+          "useContent": true
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "label": "Wind",
+        "body": "8 mph"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 40627.585846,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "progress",
+        "element_full": {
+         "progress": {
+          "value": 75
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        }
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 40627.585913,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 40627.586,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "http": [
+     {
+      "url": "http://127.0.0.1:8509/media/32d0caa04f1a16deed53619f202a4626.png",
+      "method": "GET",
+      "headers": {
+       "accept-ranges": "bytes",
+       "content-length": "332",
+       "date": "Sun, 25 Oct 2026 13:29:52 GMT",
+       "content-type": "image/png"
+      },
+      "status": 200,
+      "mime": "image/png",
+      "body": {
+       "base64": true,
+       "sha256": "46bca184d34afdf0a84c2cfc5df45697b9a517b7bcb3a2634689731d8f333c20",
+       "length": 332,
+       "data_b64": "iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAABE0lEQVR4AQEIAff+AAAECP8QFBj/ICQo/zA0OP9AREj/UFRY/2BkaP9wdHj/AICEiP+QlJj/oKSo/7C0uP/AxMj/0NTY/+Dk6P/w9Pj/AAAECP8QFBj/ICQo/zA0OP9AREj/UFRY/2BkaP9wdHj/AICEiP+QlJj/oKSo/7C0uP/AxMj/0NTY/+Dk6P/w9Pj/AAAECP8QFBj/ICQo/zA0OP9AREj/UFRY/2BkaP9wdHj/AICEiP+QlJj/oKSo/7C0uP/AxMj/0NTY/+Dk6P/w9Pj/AAAECP8QFBj/ICQo/zA0OP9AREj/UFRY/2BkaP9wdHj/AICEiP+QlJj/oKSo/7C0uP/AxMj/0NTY/+Dk6P/w9Pj/kVycwbbqgyIAAAAASUVORK5CYII="
+      }
+     },
+     {
+      "url": "http://127.0.0.1:8509/media/431dec53348c010fe7c4e0be3ac78ede.wav",
+      "method": "GET",
+      "headers": {
+       "accept-ranges": "bytes",
+       "Content-Length": "22094",
+       "date": "Sun, 25 Oct 2026 13:29:52 GMT",
+       "content-type": "audio/wav",
+       "Content-Range": "bytes 0-22093/22094"
+      },
+      "status": 206,
+      "mime": "audio/wav",
+      "body": {
+       "base64": true,
+       "sha256": "369b43b692e118c4a54b0a90c787bed3988ba4c94a8a68554268276d945436d2",
+       "length": 22094
+      }
+     }
+    ],
+    "dom": {
+     "markdowns": [],
+     "images": [
+      {
+       "src": "http://127.0.0.1:8509/media/32d0caa04f1a16deed53619f202a4626.png",
+       "alt": null,
+       "width": null,
+       "testid": "stImageContainer"
+      }
+     ],
+     "audios": [
+      {
+       "src": "http://127.0.0.1:8509/media/431dec53348c010fe7c4e0be3ac78ede.wav",
+       "controls": true
+      }
+     ],
+     "metrics": [
+      {
+       "label": "Temperature",
+       "value": "72 °F",
+       "delta": "2 °F",
+       "delta_class": "st-emotion-cache-18iyadg e3lvb7d5"
+      },
+      {
+       "label": "Wind",
+       "value": "8 mph",
+       "delta": "-3 mph",
+       "delta_class": "st-emotion-cache-18iyadg e3lvb7d5"
+      }
+     ],
+     "progress": [
+      {
+       "testid": "stProgress",
+       "role": null,
+       "value": null,
+       "text": ""
+      },
+      {
+       "testid": null,
+       "role": "progressbar",
+       "value": "75",
+       "text": ""
+      }
+     ],
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "01-load.png",
+     "sha256": "bb239bcefcb6915f35989d6df787b07dd2e10ff3ad69a1dac75f2a05e153950a"
+    }
+   }
+  ],
+  "ipc_dir": "D:\\dlab\\streamlit-rust\\target\\checks\\m3-media-final-rust"
+ },
+ "counts": {
+  "expected": 11,
+  "executed": 11,
+  "asserted": 11
+ },
+ "failures": []
+}

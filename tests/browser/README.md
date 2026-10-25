@@ -148,3 +148,32 @@ native `e9cbb682f47ba4d1ab14cab92904b3985fd1c7360091b6f1c814ba6449635854`,
 under contract `0e88f76b2cd2689c0791cd4f7236db4d86e855210c41f7a45494245a648a3689`.
 The Rust side carries the pre-existing per-run `main_block` delta (one extra
 frame per stage); the contract compares content, not frame counts.
+
+## Media route (image, audio, metric, progress)
+
+[media_capture.py](media_capture.py) is the permanent entry for the W05
+media-route chain; [media_contract.py](media_contract.py) is its strict
+criterion (journey-media-v1, 11 checks) with unit tests in
+[tests/reference/test_media_contract.py](../reference/test_media_contract.py).
+The collector starts its own Chrome, records the decoded frames, the real
+`GET /media/{file_id}.{ext}` round trips (status, content type,
+accept-ranges, content-range, body digests and the served PNG bytes) and
+the resolved DOM. The byte-identical WAV is judged under its exact measured
+address; the PNG address and body length ride the per-side encoder, but the
+served PNG bytes ride the trace and the contract decodes them with PIL,
+pinning the measured gradient pixels. The published chains:
+
+```powershell
+target\pyref-venv\Scripts\python.exe tests\browser\media_capture.py --replay tests\reference\reference-browser\media\trace-media.json
+target\pyref-venv\Scripts\python.exe tests\browser\media_capture.py --replay tests\browser\rust-media\trace-media.json
+```
+
+Both return 11 expected / 11 executed / 11 asserted with exit 0. Raw SHA256:
+python `a238dd74e97d77ab03b659f126a013717a525ac412788f1cb0fc44eb897af2dc`,
+native `d20aa7c55170a62a7d621444ecde2a3fd5a9e5bb8411c1c8b2a2e6911a677d1b`,
+under contract `e6a231832c3b0641f815f4862c7a9b59232b940653777a8ea5c6624f3604936e`.
+The first review round caught a real defect the shape-only chain missed —
+the stored-deflate encoder emitted a corrupt PNG that no browser decoded,
+so st.image rendered blank while every check passed; the encoder now has a
+decoder round-trip test, the contract pins the PIL-decoded pixels, and the
+republished stage screenshots differ by 0.0000% (byte-identical renders).

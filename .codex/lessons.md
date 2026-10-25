@@ -53,3 +53,11 @@ deleted. Product-level quality norms live in the
     constants into a synthetic observation shares dict references; a mutation
     then edits the oracle itself and the mutation test passes vacuously.
     Deep-copy in synthetic builders.
+12. **Shape-only checks hide broken payloads — pin decoded content.** The
+    media chain's first review failed a P1 defect every shape check missed:
+    a corrupt zlib stream served undecodable PNGs, the browser rendered
+    blank, and 10/10 stayed green because nothing decoded the bytes. Media
+    payloads now ride the trace and the contract decodes them (PIL pixel
+    table), the encoder has a decoder round-trip test, and the screenshot
+    diff went to exactly 0. Any binary-emitting feature needs at least one
+    independent decoder in its evidence chain.
