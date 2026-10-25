@@ -1,0 +1,645 @@
+{
+ "schema_version": 1,
+ "journey": "execution-sequence",
+ "contract": "journey-execution-v1",
+ "scope": "PYTHON SIDE ONLY",
+ "url": "http://127.0.0.1:8605/",
+ "observation": {
+  "journey": "execution-sequence",
+  "contract": "journey-execution-v1",
+  "scope": "PYTHON SIDE ONLY",
+  "url": "http://127.0.0.1:8605/",
+  "binary": null,
+  "source": {
+   "file": "tests/reference/execution_app.py",
+   "sha256": "3d3f1fbd98fcdda490f76cf4557d2f5f36de3ca12bc3e94b026cc54059f0732e"
+  },
+  "capture_sources": {
+   "execution_capture.py": "6d95d6c2ef7728b4d969feb1f307fbf354828f4d1d441269ba4827765efffe84",
+   "execution_contract.py": "ae1c098afe94e235003ee1a8a6eb4be2f2233681f3ebbb9dd1dc93a130aab29e"
+  },
+  "stages": [
+   {
+    "name": "plain",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 21124.833179,
+      "bytes": 96,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": []
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21124.83495,
+      "bytes": 536,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "8c9ddbcf-9f69-4bbf-87de-6aa17d8168c3",
+        "name": "execution_app",
+        "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\execution_app.py",
+        "page_script_hash": "b9c894e1dfbd879fbfbcf80c1cad2289",
+        "main_script_hash": "b9c894e1dfbd879fbfbcf80c1cad2289",
+        "session_id": "b303e68d-1f91-44a9-a79e-b37c141ff779"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21124.836392,
+      "bytes": 8,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21124.860913,
+      "bytes": 240,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "selectbox",
+        "element_full": {
+         "selectbox": {
+          "id": "$$ID-9d6e644bc4d24b0a18af63311807df88-None",
+          "label": "mode",
+          "default": 0,
+          "options": [
+           "plain",
+           "rerun",
+           "rerun-slow",
+           "stop",
+           "quit"
+          ],
+          "labelVisibility": {},
+          "acceptNewOptions": false
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "widget": {
+         "id": "$$ID-9d6e644bc4d24b0a18af63311807df88-None",
+         "label": "mode",
+         "default": 0,
+         "options": [
+          "plain",
+          "rerun",
+          "rerun-slow",
+          "stop",
+          "quit"
+         ],
+         "labelVisibility": {},
+         "acceptNewOptions": false
+        },
+        "id": "$$ID-9d6e644bc4d24b0a18af63311807df88-None",
+        "label": "mode",
+        "form_id": ""
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21124.862305,
+      "bytes": 160,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "mode=plain runs=1 reruns=0"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21124.87361,
+      "bytes": 136,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "epilogue"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21124.873792,
+      "bytes": 4,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21124.873953,
+      "bytes": 4,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "dom": {
+     "mode": "plain",
+     "markdowns": [
+      "mode=plain runs=1 reruns=0",
+      "epilogue"
+     ]
+    },
+    "screenshot": {
+     "file": "01-plain.png",
+     "sha256": "82b3ac33d794fdf06c5ddfcd9ee16b8276b233b5e32da2d70af1310b1eafdc3b"
+    }
+   },
+   {
+    "name": "rerun",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 21129.944988,
+      "bytes": 212,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": [
+         {
+          "id": "$$ID-9d6e644bc4d24b0a18af63311807df88-None",
+          "value_field": "string_value",
+          "value": "rerun"
+         }
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21129.964311,
+      "bytes": 536,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "936c9336-2d49-486d-97ac-4bba41b43a3e",
+        "name": "execution_app",
+        "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\execution_app.py",
+        "page_script_hash": "b9c894e1dfbd879fbfbcf80c1cad2289",
+        "main_script_hash": "b9c894e1dfbd879fbfbcf80c1cad2289",
+        "session_id": "b303e68d-1f91-44a9-a79e-b37c141ff779"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21129.966389,
+      "bytes": 8,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21129.979966,
+      "bytes": 240,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "selectbox",
+        "element_full": {
+         "selectbox": {
+          "id": "$$ID-9d6e644bc4d24b0a18af63311807df88-None",
+          "label": "mode",
+          "default": 0,
+          "options": [
+           "plain",
+           "rerun",
+           "rerun-slow",
+           "stop",
+           "quit"
+          ],
+          "labelVisibility": {},
+          "acceptNewOptions": false
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "widget": {
+         "id": "$$ID-9d6e644bc4d24b0a18af63311807df88-None",
+         "label": "mode",
+         "default": 0,
+         "options": [
+          "plain",
+          "rerun",
+          "rerun-slow",
+          "stop",
+          "quit"
+         ],
+         "labelVisibility": {},
+         "acceptNewOptions": false
+        },
+        "id": "$$ID-9d6e644bc4d24b0a18af63311807df88-None",
+        "label": "mode",
+        "form_id": ""
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21129.981528,
+      "bytes": 160,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "mode=rerun runs=2 reruns=0"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21129.983778,
+      "bytes": 4,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 2,
+        "status_name": "FINISHED_EARLY_FOR_RERUN"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21129.983895,
+      "bytes": 4,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21129.983942,
+      "bytes": 536,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "69fdd783-69c5-4119-b2ec-e21965f15c44",
+        "name": "execution_app",
+        "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\execution_app.py",
+        "page_script_hash": "b9c894e1dfbd879fbfbcf80c1cad2289",
+        "main_script_hash": "b9c894e1dfbd879fbfbcf80c1cad2289",
+        "session_id": "b303e68d-1f91-44a9-a79e-b37c141ff779"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21129.984143,
+      "bytes": 8,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21129.984181,
+      "bytes": 240,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "selectbox",
+        "element_full": {
+         "selectbox": {
+          "id": "$$ID-9d6e644bc4d24b0a18af63311807df88-None",
+          "label": "mode",
+          "default": 0,
+          "options": [
+           "plain",
+           "rerun",
+           "rerun-slow",
+           "stop",
+           "quit"
+          ],
+          "labelVisibility": {},
+          "acceptNewOptions": false
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "widget": {
+         "id": "$$ID-9d6e644bc4d24b0a18af63311807df88-None",
+         "label": "mode",
+         "default": 0,
+         "options": [
+          "plain",
+          "rerun",
+          "rerun-slow",
+          "stop",
+          "quit"
+         ],
+         "labelVisibility": {},
+         "acceptNewOptions": false
+        },
+        "id": "$$ID-9d6e644bc4d24b0a18af63311807df88-None",
+        "label": "mode",
+        "form_id": ""
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21129.984239,
+      "bytes": 160,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "mode=rerun runs=3 reruns=1"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21129.984279,
+      "bytes": 136,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "epilogue"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21129.984309,
+      "bytes": 4,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21129.984341,
+      "bytes": 4,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "dom": {
+     "mode": "rerun",
+     "markdowns": [
+      "mode=rerun runs=3 reruns=1",
+      "epilogue"
+     ]
+    },
+    "screenshot": {
+     "file": "02-rerun.png",
+     "sha256": "391d51df96e3fe37f7848a2bf3d575db2bac3db67e5da62f0c62ff313bb2f4f6"
+    }
+   },
+   {
+    "name": "stop",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 21134.381862,
+      "bytes": 212,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": [
+         {
+          "id": "$$ID-9d6e644bc4d24b0a18af63311807df88-None",
+          "value_field": "string_value",
+          "value": "stop"
+         }
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21134.402743,
+      "bytes": 536,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "c52fe62d-6d95-4dd2-82be-e316623950f3",
+        "name": "execution_app",
+        "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\execution_app.py",
+        "page_script_hash": "b9c894e1dfbd879fbfbcf80c1cad2289",
+        "main_script_hash": "b9c894e1dfbd879fbfbcf80c1cad2289",
+        "session_id": "b303e68d-1f91-44a9-a79e-b37c141ff779"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21134.404241,
+      "bytes": 8,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21134.404336,
+      "bytes": 240,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "selectbox",
+        "element_full": {
+         "selectbox": {
+          "id": "$$ID-9d6e644bc4d24b0a18af63311807df88-None",
+          "label": "mode",
+          "default": 0,
+          "options": [
+           "plain",
+           "rerun",
+           "rerun-slow",
+           "stop",
+           "quit"
+          ],
+          "labelVisibility": {},
+          "acceptNewOptions": false
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "widget": {
+         "id": "$$ID-9d6e644bc4d24b0a18af63311807df88-None",
+         "label": "mode",
+         "default": 0,
+         "options": [
+          "plain",
+          "rerun",
+          "rerun-slow",
+          "stop",
+          "quit"
+         ],
+         "labelVisibility": {},
+         "acceptNewOptions": false
+        },
+        "id": "$$ID-9d6e644bc4d24b0a18af63311807df88-None",
+        "label": "mode",
+        "form_id": ""
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21134.404419,
+      "bytes": 156,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "mode=stop runs=4 reruns=1"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21134.404523,
+      "bytes": 140,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "before-stop"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21134.404617,
+      "bytes": 4,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21134.404666,
+      "bytes": 4,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "dom": {
+     "mode": "stop",
+     "markdowns": [
+      "mode=stop runs=4 reruns=1",
+      "before-stop"
+     ]
+    },
+    "screenshot": {
+     "file": "03-stop.png",
+     "sha256": "4907cb7649a94b6f71043278e92d541e3c605e42d33bd4c5c8ceb500b24283c3"
+    }
+   }
+  ],
+  "ipc_dir": "D:\\dlab\\streamlit-rust\\target\\checks\\execution-python-j04"
+ },
+ "counts": {
+  "expected": 8,
+  "executed": 8,
+  "asserted": 8
+ },
+ "failures": []
+}

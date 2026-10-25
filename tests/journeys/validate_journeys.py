@@ -24,8 +24,8 @@ def validate() -> list[str]:
     journeys = data.get("journeys", [])
     if len(journeys) != 10:
         fail(errors, "R1", f"expected 10 journeys, found {len(journeys)}")
-    if sum(len(journey.get("steps", [])) for journey in journeys) != 42:
-        fail(errors, "R1", "expected 42 journey steps")
+    if sum(len(journey.get("steps", [])) for journey in journeys) != 43:
+        fail(errors, "R1", "expected 43 journey steps")
     root = ROOT / data.get("artifact_root", "tests/e2e")
     seen_journeys: set[str] = set()
     seen_steps: set[str] = set()
@@ -102,7 +102,7 @@ def validate() -> list[str]:
 def main() -> int:
     errors = validate()
     if not errors:
-        print("10 journeys / 42 steps valid; failed partials retain evidence; no false pass")
+        print("10 journeys / 43 steps valid; failed partials retain evidence; no false pass")
         return 0
     for error in errors:
         print(error)

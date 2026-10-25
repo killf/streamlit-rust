@@ -713,26 +713,47 @@
           "rust_evidence": "tests/browser/rust-journeys/state/trace-data-loop.json",
           "screenshot": "tests/e2e/J04/J04-S2.png"
         },
-        {
-          "id": "J04-S3",
-          "action": "Click the Pulse button once.",
-          "expectation": "'Pulses' increases by exactly 1 and 'Script runs' also increases by exactly 1; the table content is unchanged by the click.",
-          "python_reference_trace": "tests/reference/reference-browser/journeys/session-state/trace-data-loop.json",
-          "rust_result": "'Script runs: 4' and 'Pulses: 1' after the Pulse click, with the table unchanged.",
-          "rust_evidence": "tests/browser/rust-journeys/state/trace-data-loop.json",
-          "screenshot": "tests/e2e/J04/J04-S3.png"
-        }
+  {
+   "id": "J04-S3",
+   "action": "Click the Pulse button once.",
+   "expectation": "'Pulses' increases by exactly 1 and 'Script runs' also increases by exactly 1; the table content is unchanged by the click.",
+   "python_reference_trace": "tests/reference/reference-browser/journeys/session-state/trace-data-loop.json",
+   "rust_result": "'Script runs: 4' and 'Pulses: 1' after the Pulse click, with the table unchanged.",
+   "rust_evidence": "tests/browser/rust-journeys/state/trace-data-loop.json",
+   "screenshot": "tests/e2e/J04/J04-S3.png"
+  },
+  {
+   "id": "J04-S4",
+   "action": "Trigger one guarded st.rerun() and then one st.stop() through the mode selector of the mirrored execution apps.",
+   "expectation": "The run aborted by st.rerun() finishes FINISHED_EARLY_FOR_RERUN (status 2) and the server immediately starts the next run without any browser request, preserving the session and issuing a fresh run id; the stopped run finishes FINISHED_SUCCESSFULLY (status 0), keeps its prefix and never emits the epilogue; both sides reach identical DOM end states (runs 1/3/4, epilogue only where allowed).",
+   "python_reference_trace": "tests/reference/reference-browser/execution-j04/trace-execution.json",
+   "rust_result": "Journey-execution-v1 captures on both runtimes return 8/8/8 exit 0; the cascade DOM is mode=rerun runs=3 reruns=1 plus epilogue and the stop DOM is mode=stop runs=4 reruns=1 plus before-stop, byte-identical across sides. Independently reviewed 2026-10-25; three documented cross-side differences (per-run main_block delta, fast-rerun live streaming, populated ForwardMsg.hash) are recorded in .codex/compatibility.md.",
+   "rust_evidence": "tests/browser/rust-execution-j04/trace-execution.json",
+   "screenshot": "tests/e2e/J04/J04-S4.png",
+   "screenshot_sha256": "391d51df96e3fe37f7848a2bf3d575db2bac3db67e5da62f0c62ff313bb2f4f6"
+  }
       ],
       "python_reference_trace": "tests/reference/reference-browser/journeys/session-state/trace-data-loop.json",
-      "linked_artifacts": [
-        "tests/browser/rust-journeys/state/trace-data-loop.json",
-        "tests/reference/reference-browser/journeys/session-state/trace-data-loop.json",
-        "tests/e2e/J04/J04-S1.png",
-        "tests/e2e/J04/J04-S2.png",
-        "tests/e2e/J04/J04-S3.png"
-      ],
-      "verification": {
-        "method": "the permanent entry (tests/browser/numeric_capture.py --case data-loop --journey state) drives the official frontend of the Rust candidate with a real mouse event on the visible Pulse button; the shared criterion (tests/reference/capture_browser_trace.py state_checks) judges the counters of the window, the distinct script run ids and the three pictures.",
+ "linked_artifacts": [
+  "tests/browser/rust-journeys/state/trace-data-loop.json",
+  "tests/reference/reference-browser/journeys/session-state/trace-data-loop.json",
+  "tests/e2e/J04/J04-S1.png",
+  "tests/e2e/J04/J04-S2.png",
+  "tests/e2e/J04/J04-S3.png",
+  "tests/e2e/J04/J04-S4.png",
+  "tests/reference/reference-browser/execution-j04/trace-execution.json",
+  "tests/reference/reference-browser/execution-j04/execution-manifest.json",
+  "tests/reference/reference-browser/execution-j04/01-plain.png",
+  "tests/reference/reference-browser/execution-j04/02-rerun.png",
+  "tests/reference/reference-browser/execution-j04/03-stop.png",
+  "tests/browser/rust-execution-j04/trace-execution.json",
+  "tests/browser/rust-execution-j04/execution-manifest.json",
+  "tests/browser/rust-execution-j04/01-plain.png",
+  "tests/browser/rust-execution-j04/02-rerun.png",
+  "tests/browser/rust-execution-j04/03-stop.png"
+ ],
+ "verification": {
+  "method": "the permanent entry (tests/browser/numeric_capture.py --case data-loop --journey state) drives the official frontend of the Rust candidate with a real mouse event on the visible Pulse button; the shared criterion (tests/reference/capture_browser_trace.py state_checks) judges the counters of the window, the distinct script run ids and the three pictures. J04-S4 is judged by the dedicated execution criterion (tests/browser/execution_contract.py, journey-execution-v1): the committed collector drives the mirrored mode selector on both runtimes, and both published chains independently reviewed on 2026-10-25 replay 8/8/8 exit 0.",
         "driver_sha256": "4194835B77379A2E63D783D292183B70061DBD8D221575EFE8C50D0A5BF462AD",
         "criteria_sha256": "1D1A5C8415C8D212948045EF75B971E9AC278E4C925D3110CD75AA70C3AB422F",
         "binary_sha256": "9430149DE61EA521AE873D2AE77A97A62D9BE5F63F547F00E9D5F7A1D23F4A57",

@@ -88,13 +88,13 @@
     "unavailable_requested_pages": 7,
     "redirect_aliases_not_counted": 2,
     "implementation_status_counts": {
-      "absent": 161,
-      "implemented": 11,
+      "absent": 159,
+      "implemented": 13,
       "candidate": 10
     },
     "compatibility_status_counts": {
-      "unverified": 171,
-      "partial": 11
+      "unverified": 169,
+      "partial": 13
     },
     "unique_feature_ids": 182,
     "unique_official_urls": 182,
@@ -574,12 +574,24 @@
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/execution-flow/st.rerun",
       "rust_source_path": null,
-      "implementation_status": "absent",
-      "compatibility_status": "unverified",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "c739f41660f3d9840f5a881563b29a55170aeba0bc6155d3c69dd749443f9a2a",
-        "python_browser_trace": null
-      }
+        "python_browser_trace": null,
+        "rust_source": "streamlit/src/websocket/handler.rs",
+        "rust_api_test": "streamlit/tests/runtime/execution.rs",
+        "python_execution_trace": "tests/reference/reference-browser/execution-j04/trace-execution.json",
+        "rust_execution_trace": "tests/browser/rust-execution-j04/trace-execution.json",
+        "official_frontend_browser_e2e": "tests/browser/rust-execution-j04/trace-execution.json"
+      },
+      "rust_plan": "Mirror the measured 1.66.1 wire: a bounded-ownership run loop in the rerun handler whose `st.rerun()` iteration finishes FINISHED_EARLY_FOR_RERUN (rerun) or FINISHED_SUCCESSFULLY (stop) and, for rerun, immediately starts the next run without a client BackMsg; element pushes and session-state writes after the call are suppressed.",
+      "compatibility_scope": "Journey-execution-v1 measured subset: the aborted run finishes status 2 with the server starting the next run on the same session and a fresh run id; cascade end state identical to the reference. Three documented cross-side differences are recorded in .codex/compatibility.md (pre-existing per-run main_block delta, fast-rerun live streaming of the pre-rerun element, populated ForwardMsg.hash on lifecycle frames).",
+      "limitations": [
+        "An unguarded rerun loops forever exactly as upstream; no depth cap is imposed.",
+        "Same-tick upstream message coalescing is not replicated: elements written just before st.rerun() stream live (matching the upstream slow case).",
+        "st.quit does not exist in 1.66.1 and is not offered."
+      ]
     },
     {
       "feature_id": "st.stop",
@@ -587,12 +599,23 @@
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/execution-flow/st.stop",
       "rust_source_path": null,
-      "implementation_status": "absent",
-      "compatibility_status": "unverified",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "9aaf449afa527781e263bd4c3dfcc31f3e4c767dff8413ed80943a0fea32eb5e",
-        "python_browser_trace": null
-      }
+        "python_browser_trace": null,
+        "rust_source": "streamlit/src/websocket/handler.rs",
+        "rust_api_test": "streamlit/tests/runtime/execution.rs",
+        "python_execution_trace": "tests/reference/reference-browser/execution-j04/trace-execution.json",
+        "rust_execution_trace": "tests/browser/rust-execution-j04/trace-execution.json",
+        "official_frontend_browser_e2e": "tests/browser/rust-execution-j04/trace-execution.json"
+      },
+      "rust_plan": "Mirror the measured 1.66.1 wire: st.stop() ends the run at the call point, keeps earlier elements, suppresses every later element and session-state write, and still finishes FINISHED_SUCCESSFULLY.",
+      "compatibility_scope": "Journey-execution-v1 measured subset: the stopped run keeps its prefix, never emits the epilogue and finishes status 0; session-state writes after the call are suppressed. Three documented cross-side differences are recorded in .codex/compatibility.md.",
+      "limitations": [
+        "Suppression covers element pushes and session-state writes; other side effects of later user code still run (Rust has no unwinding).",
+        "st.quit does not exist in 1.66.1 and is not offered."
+      ]
     },
     {
       "feature_id": "st.navigation",

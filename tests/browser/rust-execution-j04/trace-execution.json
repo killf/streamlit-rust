@@ -1,0 +1,685 @@
+{
+ "schema_version": 1,
+ "journey": "execution-sequence",
+ "contract": "journey-execution-v1",
+ "scope": "RUST SIDE ONLY",
+ "url": "http://127.0.0.1:8501/",
+ "observation": {
+  "journey": "execution-sequence",
+  "contract": "journey-execution-v1",
+  "scope": "RUST SIDE ONLY",
+  "url": "http://127.0.0.1:8501/",
+  "binary": "D:\\dlab\\streamlit-rust\\target\\debug\\examples\\execution.exe sha256 ae23464326b24579559b9a63bb4ad283522062205e2b3c99c1d84314179fcdf2 built-from a62c2cf",
+  "source": {
+   "file": "streamlit/examples/execution.rs",
+   "sha256": "b5bfabaa7ff08762bf3b7a47ac3f60a26764fa3b7eb5544ce25843b02aac2b98"
+  },
+  "capture_sources": {
+   "execution_capture.py": "6d95d6c2ef7728b4d969feb1f307fbf354828f4d1d441269ba4827765efffe84",
+   "execution_contract.py": "ae1c098afe94e235003ee1a8a6eb4be2f2233681f3ebbb9dd1dc93a130aab29e"
+  },
+  "stages": [
+   {
+    "name": "plain",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 21139.059858,
+      "bytes": 96,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": []
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21139.06154,
+      "bytes": 292,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "ae25b3ff-c73c-46e4-919b-4eb110bd89db",
+        "name": "Streamlit Rust",
+        "main_script_path": "",
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "session_id": "7d57b029-73b5-414a-9a75-1ce0a5e13742"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21139.069396,
+      "bytes": 40,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21139.069546,
+      "bytes": 52,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "main_container",
+        "block_type": "vertical"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21139.070005,
+      "bytes": 216,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "selectbox",
+        "element_full": {
+         "selectbox": {
+          "id": "$$ID-3a901f2c7323f3807a1a4364cb78a75f-None",
+          "label": "mode",
+          "default": 0,
+          "options": [
+           "plain",
+           "rerun",
+           "stop"
+          ],
+          "labelVisibility": {},
+          "acceptNewOptions": false
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "widget": {
+         "id": "$$ID-3a901f2c7323f3807a1a4364cb78a75f-None",
+         "label": "mode",
+         "default": 0,
+         "options": [
+          "plain",
+          "rerun",
+          "stop"
+         ],
+         "labelVisibility": {},
+         "acceptNewOptions": false
+        },
+        "id": "$$ID-3a901f2c7323f3807a1a4364cb78a75f-None",
+        "label": "mode",
+        "form_id": ""
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21139.070459,
+      "bytes": 160,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "mode=plain runs=1 reruns=0"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21139.070597,
+      "bytes": 136,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "epilogue"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21139.070649,
+      "bytes": 28,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21139.070766,
+      "bytes": 36,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "dom": {
+     "mode": "plain",
+     "markdowns": [
+      "mode=plain runs=1 reruns=0",
+      "epilogue"
+     ]
+    },
+    "screenshot": {
+     "file": "01-plain.png",
+     "sha256": "82b3ac33d794fdf06c5ddfcd9ee16b8276b233b5e32da2d70af1310b1eafdc3b"
+    }
+   },
+   {
+    "name": "rerun",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 21144.133929,
+      "bytes": 212,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": [
+         {
+          "id": "$$ID-3a901f2c7323f3807a1a4364cb78a75f-None",
+          "value_field": "string_value",
+          "value": "rerun"
+         }
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21144.135487,
+      "bytes": 292,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "cdbbee6b-2391-45db-a926-cb436becd912",
+        "name": "Streamlit Rust",
+        "main_script_path": "",
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "session_id": "7d57b029-73b5-414a-9a75-1ce0a5e13742"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21144.13577,
+      "bytes": 40,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21144.137164,
+      "bytes": 52,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "main_container",
+        "block_type": "vertical"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21144.13729,
+      "bytes": 216,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "selectbox",
+        "element_full": {
+         "selectbox": {
+          "id": "$$ID-3a901f2c7323f3807a1a4364cb78a75f-None",
+          "label": "mode",
+          "default": 0,
+          "options": [
+           "plain",
+           "rerun",
+           "stop"
+          ],
+          "labelVisibility": {},
+          "acceptNewOptions": false
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "widget": {
+         "id": "$$ID-3a901f2c7323f3807a1a4364cb78a75f-None",
+         "label": "mode",
+         "default": 0,
+         "options": [
+          "plain",
+          "rerun",
+          "stop"
+         ],
+         "labelVisibility": {},
+         "acceptNewOptions": false
+        },
+        "id": "$$ID-3a901f2c7323f3807a1a4364cb78a75f-None",
+        "label": "mode",
+        "form_id": ""
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21144.137403,
+      "bytes": 160,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "mode=rerun runs=2 reruns=0"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21144.137445,
+      "bytes": 28,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 2,
+        "status_name": "FINISHED_EARLY_FOR_RERUN"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21144.137478,
+      "bytes": 36,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21144.137499,
+      "bytes": 292,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "e1a4bc03-656a-415f-b853-6d4090ac699f",
+        "name": "Streamlit Rust",
+        "main_script_path": "",
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "session_id": "7d57b029-73b5-414a-9a75-1ce0a5e13742"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21144.137595,
+      "bytes": 40,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21144.13762,
+      "bytes": 52,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "main_container",
+        "block_type": "vertical"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21144.13766,
+      "bytes": 216,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "selectbox",
+        "element_full": {
+         "selectbox": {
+          "id": "$$ID-3a901f2c7323f3807a1a4364cb78a75f-None",
+          "label": "mode",
+          "default": 0,
+          "options": [
+           "plain",
+           "rerun",
+           "stop"
+          ],
+          "labelVisibility": {},
+          "acceptNewOptions": false
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "widget": {
+         "id": "$$ID-3a901f2c7323f3807a1a4364cb78a75f-None",
+         "label": "mode",
+         "default": 0,
+         "options": [
+          "plain",
+          "rerun",
+          "stop"
+         ],
+         "labelVisibility": {},
+         "acceptNewOptions": false
+        },
+        "id": "$$ID-3a901f2c7323f3807a1a4364cb78a75f-None",
+        "label": "mode",
+        "form_id": ""
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21144.137708,
+      "bytes": 160,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "mode=rerun runs=3 reruns=1"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21144.137743,
+      "bytes": 136,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "epilogue"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21144.13777,
+      "bytes": 28,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21144.1378,
+      "bytes": 36,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "dom": {
+     "mode": "rerun",
+     "markdowns": [
+      "mode=rerun runs=3 reruns=1",
+      "epilogue"
+     ]
+    },
+    "screenshot": {
+     "file": "02-rerun.png",
+     "sha256": "391d51df96e3fe37f7848a2bf3d575db2bac3db67e5da62f0c62ff313bb2f4f6"
+    }
+   },
+   {
+    "name": "stop",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 21148.535897,
+      "bytes": 212,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": [
+         {
+          "id": "$$ID-3a901f2c7323f3807a1a4364cb78a75f-None",
+          "value_field": "string_value",
+          "value": "stop"
+         }
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21148.537318,
+      "bytes": 292,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "015b8e13-420e-45c6-ab4a-09464cbc6c5e",
+        "name": "Streamlit Rust",
+        "main_script_path": "",
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "session_id": "7d57b029-73b5-414a-9a75-1ce0a5e13742"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21148.538029,
+      "bytes": 40,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21148.539752,
+      "bytes": 52,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "main_container",
+        "block_type": "vertical"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21148.539877,
+      "bytes": 216,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "selectbox",
+        "element_full": {
+         "selectbox": {
+          "id": "$$ID-3a901f2c7323f3807a1a4364cb78a75f-None",
+          "label": "mode",
+          "default": 0,
+          "options": [
+           "plain",
+           "rerun",
+           "stop"
+          ],
+          "labelVisibility": {},
+          "acceptNewOptions": false
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "widget": {
+         "id": "$$ID-3a901f2c7323f3807a1a4364cb78a75f-None",
+         "label": "mode",
+         "default": 0,
+         "options": [
+          "plain",
+          "rerun",
+          "stop"
+         ],
+         "labelVisibility": {},
+         "acceptNewOptions": false
+        },
+        "id": "$$ID-3a901f2c7323f3807a1a4364cb78a75f-None",
+        "label": "mode",
+        "form_id": ""
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21148.539936,
+      "bytes": 160,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "mode=stop runs=4 reruns=1"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21148.539989,
+      "bytes": 140,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "before-stop"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21148.540019,
+      "bytes": 28,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 21148.540061,
+      "bytes": 36,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "dom": {
+     "mode": "stop",
+     "markdowns": [
+      "mode=stop runs=4 reruns=1",
+      "before-stop"
+     ]
+    },
+    "screenshot": {
+     "file": "03-stop.png",
+     "sha256": "4907cb7649a94b6f71043278e92d541e3c605e42d33bd4c5c8ceb500b24283c3"
+    }
+   }
+  ],
+  "ipc_dir": "D:\\dlab\\streamlit-rust\\target\\checks\\execution-rust-j04"
+ },
+ "counts": {
+  "expected": 8,
+  "executed": 8,
+  "asserted": 8
+ },
+ "failures": []
+}

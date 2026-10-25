@@ -51,3 +51,27 @@ and the uploader would receive no file.
 [test_observe_js.py](test_observe_js.py) runs the DOM probe in the same real
 Chrome and checks what it answers, so a probe that stops answering is caught
 before a capture relies on it.
+
+## Execution semantics (J04-S4)
+
+[execution_capture.py](execution_capture.py) is the permanent entry for the
+st.rerun/st.stop journey; [execution_contract.py](execution_contract.py) is
+its strict criterion (journey-execution-v1, 8 checks) with unit tests in
+[tests/reference/test_execution_contract.py](../reference/test_execution_contract.py).
+The collector starts its own Chrome, drives the mirrored mode selector
+(plain / one guarded rerun / stop) and records the decoded frames, the DOM
+end states and one PNG per stage. The published chains, independently
+reviewed on 2026-10-25:
+
+```powershell
+target\pyref-venv\Scripts\python.exe tests\browser\execution_capture.py --replay tests\reference\reference-browser\execution-j04\trace-execution.json
+target\pyref-venv\Scripts\python.exe tests\browser\execution_capture.py --replay tests\browser\rust-execution-j04\trace-execution.json
+```
+
+Both return 8 expected / 8 executed / 8 asserted with exit 0. Raw SHA256:
+python `c4da12b8481a535a2cd073b3a6a8c6dbac29ad9f5421286d9e53ad5fc3024ba9`,
+native `ab79372a8e2d2f29a1f6d8804b9cde4cd3217b4e579f517bc0adf2064285378f`,
+under contract `ae1c098afe94e235003ee1a8a6eb4be2f2233681f3ebbb9dd1dc93a130aab29e`.
+The three documented cross-side differences (per-run `main_block` delta,
+fast-rerun live streaming, populated `ForwardMsg.hash` on lifecycle frames)
+are recorded in [compatibility](../../.codex/compatibility.md#execution-semantics-st-rerun--st-stop).
