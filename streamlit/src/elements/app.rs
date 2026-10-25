@@ -48,8 +48,10 @@ impl App {
         if self.session_state.run_control().is_some() {
             return;
         }
-        // 如果设置了 render_context，立即 render 这个元素
+        // 如果设置了 render_context，立即 render 这个元素；延迟元素除外，
+        // 它们与参考实现的同拍合并一致，只在运行结束时以终值渲染一次。
         if let Some(ref mut context) = self.render_context
+            && !element.borrow().deferred()
             && let Err(e) = element.borrow().render(context)
         {
             log::error!("Failed to render element immediately: {}", e);
@@ -57,6 +59,22 @@ impl App {
 
         // 仍然保存元素，用于后续的批量 render（兼容模式）
         self.elements.push(element);
+    }
+
+    /// Streams every deferred element once, with its final value, before the
+    /// run's closing frames.
+    pub fn flush_deferred(&mut self) {
+        if let Some(ref mut context) = self.render_context {
+            for element in self.elements.iter() {
+                let borrowed = element.borrow_mut();
+                if !borrowed.deferred() {
+                    continue;
+                }
+                if let Err(e) = borrowed.render(context) {
+                    log::error!("Failed to render deferred element: {}", e);
+                }
+            }
+        }
     }
 }
 

@@ -729,6 +729,111 @@ impl From<&str> for ButtonOptions {
     }
 }
 
+/// Image options. The plain `RgbaImage` call renders the image with no
+/// caption; `(image, "caption")` names it, matching the measured reference.
+pub struct ImageOptions {
+    image: crate::media::RgbaImage,
+    caption: String,
+    width: Option<ElementWidth>,
+}
+impl ImageOptions {
+    pub fn new(image: crate::media::RgbaImage) -> Self {
+        Self { image, caption: String::new(), width: None }
+    }
+    pub fn caption(mut self, caption: impl Into<String>) -> Self {
+        self.caption = caption.into();
+        self
+    }
+    pub fn width(mut self, width: ElementWidth) -> Self {
+        self.width = Some(width);
+        self
+    }
+}
+impl From<crate::media::RgbaImage> for ImageOptions {
+    fn from(image: crate::media::RgbaImage) -> Self {
+        Self::new(image)
+    }
+}
+impl From<(crate::media::RgbaImage, &str)> for ImageOptions {
+    fn from((image, caption): (crate::media::RgbaImage, &str)) -> Self {
+        Self::new(image).caption(caption)
+    }
+}
+impl From<(crate::media::RgbaImage, String)> for ImageOptions {
+    fn from((image, caption): (crate::media::RgbaImage, String)) -> Self {
+        Self::new(image).caption(caption)
+    }
+}
+
+/// Audio options: the measured call passes the bytes and their MIME type.
+pub struct AudioOptions {
+    data: Vec<u8>,
+    mime: String,
+}
+impl AudioOptions {
+    pub fn new(data: Vec<u8>, mime: impl Into<String>) -> Self {
+        Self { data, mime: mime.into() }
+    }
+}
+impl From<(Vec<u8>, &str)> for AudioOptions {
+    fn from((data, mime): (Vec<u8>, &str)) -> Self {
+        Self::new(data, mime)
+    }
+}
+impl From<(Vec<u8>, String)> for AudioOptions {
+    fn from((data, mime): (Vec<u8>, String)) -> Self {
+        Self::new(data, mime)
+    }
+}
+
+pub use crate::elements::media::DeltaColor;
+
+/// Metric options. The plain `(label, value)` call renders without a delta;
+/// `.delta("2 °F")` derives the measured direction and color from the sign.
+pub struct MetricOptions {
+    label: String,
+    value: String,
+    delta: Option<String>,
+    delta_color: DeltaColor,
+}
+impl MetricOptions {
+    pub fn new(label: impl Into<String>, value: impl Into<String>) -> Self {
+        Self {
+            label: label.into(),
+            value: value.into(),
+            delta: None,
+            delta_color: DeltaColor::Normal,
+        }
+    }
+    pub fn delta(mut self, delta: impl Into<String>) -> Self {
+        self.delta = Some(delta.into());
+        self
+    }
+    pub fn delta_color(mut self, delta_color: DeltaColor) -> Self {
+        self.delta_color = delta_color;
+        self
+    }
+}
+impl<L: Into<String>, V: Into<String>> From<(L, V)> for MetricOptions {
+    fn from((label, value): (L, V)) -> Self {
+        Self::new(label, value)
+    }
+}
+
+/// The handle `st.progress` returns: updates coalesce into the single delta
+/// the reference streams at the end of the run.
+pub struct Progress {
+    element: Rc<RefCell<crate::elements::media::ProgressElement>>,
+}
+impl Progress {
+    pub fn set(&self, value: u32) {
+        self.element.borrow_mut().set(value);
+    }
+    pub fn text(&self, text: impl Into<String>) {
+        self.element.borrow_mut().set_text(text.into());
+    }
+}
+
 pub trait StreamlitApi {
     fn write<T: Into<WriteOptions>>(&self, body: T);
 
@@ -787,6 +892,14 @@ pub trait StreamlitApi {
     fn columns<T: Into<ColumnsOptions>>(&self, spec: T) -> &[Column<'_>];
 
     fn button<T: Into<ButtonOptions>>(&self, options: T) -> bool;
+
+    fn image<T: Into<ImageOptions>>(&self, options: T);
+
+    fn audio<T: Into<AudioOptions>>(&self, options: T);
+
+    fn metric<T: Into<MetricOptions>>(&self, options: T);
+
+    fn progress(&self, value: u32) -> Result<Progress, WidgetError>;
 }
 
 fn create_status<C: AppendChild>(this: &C, options: StatusOptions, format: crate::proto::alert::Format) -> Result<(), StatusError> {
@@ -996,6 +1109,48 @@ impl<C: AppendChild> StreamlitApi for C {
     /// Display a button. Use `try_button` to handle duplicate key/ID errors.
     fn button<T: Into<ButtonOptions>>(&self, options: T) -> bool {
         crate::InputWidgets::try_button(self, options).expect("button registration failed")
+    }
+
+    fn image<T: Into<ImageOptions>>(&self, options: T) {
+        let options = options.into();
+        if !options.image.valid() {
+            log::error!("st.image needs width*height*4 RGBA pixels");
+            return;
+        }
+        let png = crate::media::png_encode(&options.image);
+        match crate::elements::media::media_url(&png, "image/png") {
+            Ok(url) => {
+                let element = crate::elements::media::ImgsElement::new(vec![(url, options.caption)], options.width);
+                self.push(Rc::new(RefCell::new(element)));
+            }
+            Err(error) => log::error!("st.image failed to register media: {}", error),
+        }
+    }
+
+    fn audio<T: Into<AudioOptions>>(&self, options: T) {
+        let options = options.into();
+        match crate::elements::media::media_url(&options.data, &options.mime) {
+            Ok(url) => {
+                let element = crate::elements::media::AudioElement::new(url);
+                self.push(Rc::new(RefCell::new(element)));
+            }
+            Err(error) => log::error!("st.audio failed to register media: {}", error),
+        }
+    }
+
+    fn metric<T: Into<MetricOptions>>(&self, options: T) {
+        let options = options.into();
+        let element = crate::elements::media::MetricElement::new(options.label, options.value, options.delta, options.delta_color);
+        self.push(Rc::new(RefCell::new(element)));
+    }
+
+    fn progress(&self, value: u32) -> Result<Progress, WidgetError> {
+        if value > 100 {
+            return Err(WidgetError::InvalidValue("progress value must be within 0..=100".into()));
+        }
+        let element = Rc::new(RefCell::new(crate::elements::media::ProgressElement::new(value)));
+        self.push(element.clone());
+        Ok(Progress { element })
     }
 }
 

@@ -127,6 +127,13 @@ impl RenderContext {
 
 pub(crate) trait Element {
     fn render(&self, context: &mut RenderContext) -> Result<(), StreamlitError>;
+
+    /// A deferred element streams once at the end of the run with its final
+    /// value, mirroring the reference's same-tick element coalescing (the
+    /// measured st.progress page streams one delta holding the last value).
+    fn deferred(&self) -> bool {
+        false
+    }
 }
 
 impl From<ElementWidth> for WidthConfig {

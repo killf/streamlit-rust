@@ -20,6 +20,7 @@ pub mod data;
 mod data_api;
 mod elements;
 pub mod error;
+pub mod media;
 mod memory;
 pub mod proto;
 pub mod server;
@@ -32,6 +33,7 @@ mod widgets;
 
 pub use api::*;
 pub use data_api::*;
+pub use media::{ByteRange, RgbaImage};
 pub use server::StreamlitServer;
 pub use session::{RunControl, SessionState};
 pub use upload::{UploadedFile, UploadedFiles};

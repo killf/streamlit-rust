@@ -64,6 +64,7 @@ async fn do_rerun_script(session: &mut Session, lease: &SessionLease, server: &S
                 _ => crate::proto::forward_msg::ScriptFinishedStatus::FinishedSuccessfully,
             };
             let mut app = st.app.lock();
+            app.flush_deferred();
             if let Some(context) = app.render_context_mut() {
                 context.push(crate::elements::app::create_script_finished(status));
                 context.push(crate::elements::app::create_session_status_changed(false, false));

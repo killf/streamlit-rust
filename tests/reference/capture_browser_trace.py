@@ -461,6 +461,16 @@ def summarise_forward(payload: bytes) -> dict:
                         entry["element_full"] = MessageToDict(element)
                     except Exception as exc:  # pragma: no cover - defensive
                         entry["element_full"] = {"error": f"{type(exc).__name__}: {exc}"}
+                if name in MEDIA_ELEMENT_TYPES:
+                    # The whole Element message for the media and presentation
+                    # elements: the URLs, captions, metric fields and the
+                    # progress value.
+                    try:
+                        from google.protobuf.json_format import MessageToDict
+
+                        entry["element_full"] = MessageToDict(element)
+                    except Exception as exc:  # pragma: no cover - defensive
+                        entry["element_full"] = {"error": f"{type(exc).__name__}: {exc}"}
                 if name in WIDGET_ELEMENTS:
                     # The whole widget message is the field oracle for the
                     # public parameters: options, index, default, min, max,
@@ -712,6 +722,17 @@ DATA_ELEMENT_TYPES = (
     "table",
     "vega_lite_chart",
     "file_uploader",
+)
+
+# The media and presentation elements whose full message is the field
+# oracle: URLs and captions for the media elements, the metric fields and
+# the progress value.
+MEDIA_ELEMENT_TYPES = (
+    "imgs",
+    "video",
+    "audio",
+    "metric",
+    "progress",
 )
 
 

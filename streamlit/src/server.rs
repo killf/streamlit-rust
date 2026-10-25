@@ -114,8 +114,54 @@ async fn delete_upload(req: HttpRequest, path: web::Path<(String, String)>, serv
     Ok(HttpResponse::NoContent().finish())
 }
 
+// The measured media route (see .codex/compatibility.md, Media route): the
+// browser resolves the element's relative URL `GET /media/{md5}.{ext}`. A
+// full request answers 200 with `accept-ranges: bytes`; a `bytes=a-b`
+// Range request answers 206 with `content-range` and the sliced body.
+// Content types ride the store's addressing, so the extension is cosmetic.
+#[get("/media/{name}")]
+async fn media_file(req: HttpRequest, path: web::Path<String>) -> HttpResponse {
+    use actix_web::http::header::{ACCEPT_RANGES, CONTENT_RANGE, CONTENT_TYPE};
+    let name = path.into_inner();
+    let Some((id, extension)) = name.rsplit_once('.') else {
+        return HttpResponse::NotFound().finish();
+    };
+    let mime = match extension {
+        "png" => "image/png",
+        "jpg" | "jpeg" => "image/jpeg",
+        "webp" => "image/webp",
+        "gif" => "image/gif",
+        "wav" => "audio/wav",
+        "mp3" => "audio/mpeg",
+        "ogg" => "audio/ogg",
+        "flac" => "audio/flac",
+        "aac" => "audio/aac",
+        "mp4" => "video/mp4",
+        "webm" => "video/webm",
+        "ogv" => "video/ogg",
+        _ => return HttpResponse::NotFound().finish(),
+    };
+    let Some(bytes) = crate::media::get(id) else {
+        return HttpResponse::NotFound().finish();
+    };
+    let range = req.headers().get("range").and_then(|value| value.to_str().ok()).and_then(|header| crate::media::ByteRange::parse(header, bytes.len() as u64));
+    match range {
+        Some(range) => {
+            let total = bytes.len() as u64;
+            let start = range.start as usize;
+            let end = range.end as usize;
+            HttpResponse::PartialContent()
+                .insert_header((ACCEPT_RANGES, "bytes"))
+                .insert_header((CONTENT_TYPE, mime))
+                .insert_header((CONTENT_RANGE, format!("bytes {}-{}/{}", range.start, range.end, total)))
+                .body(bytes[start..=end].to_vec())
+        }
+        None => HttpResponse::Ok().insert_header((ACCEPT_RANGES, "bytes")).insert_header((CONTENT_TYPE, mime)).body(bytes),
+    }
+}
+
 fn configure_routes(config: &mut web::ServiceConfig) {
-    config.service(websocket_handler).service(health_check).service(host_config).service(upload_file).service(delete_upload);
+    config.service(websocket_handler).service(health_check).service(host_config).service(upload_file).service(delete_upload).service(media_file);
 }
 
 /// Handler type that can be either synchronous or asynchronous
