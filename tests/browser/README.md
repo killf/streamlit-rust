@@ -97,3 +97,28 @@ native `4d43936e402aeb298eaa5bd72bc72af3ad1d5c3a802a3e24deecc1bcee115f47`,
 under contract `c375aafd11d725a104510a8ae91dd22104cb8a533addf065b26e67936e02fd65`.
 The Rust side carries the pre-existing per-run `main_block` delta (one extra
 frame per stage); the contract compares content, not frame counts.
+
+## Elements page (fifteen APIs)
+
+[elements_capture.py](elements_capture.py) is the permanent entry for the
+fifteen-API elements chain (title, header, caption, badge, divider, code,
+markdown, write, columns, container, form, text_input, form_submit_button,
+table, bar_chart); [elements_contract.py](elements_contract.py) is its strict
+criterion (journey-elements-v1, 11 checks) with unit tests in
+[tests/reference/test_elements_contract.py](../reference/test_elements_contract.py).
+The collector starts its own Chrome and drives the second stage with real
+typing into the form's Note input plus a real Apply click. The published
+chains:
+
+```powershell
+target\pyref-venv\Scripts\python.exe tests\browser\elements_capture.py --replay tests\reference\reference-browser\elements\trace-elements.json
+target\pyref-venv\Scripts\python.exe tests\browser\elements_capture.py --replay tests\browser\rust-elements\trace-elements.json
+```
+
+Both return 11 expected / 11 executed / 11 asserted with exit 0. Raw SHA256:
+python `b4b26a61be511d0de18ac393c53b052d28a4302429c5e8532148ac3423ac1119`,
+native `14ab0ea580c2183d2f9e43db05d2de48f53aaaffcb9a755a91dd006a19a9159a`,
+under contract `d54226fabc0e2e09f69787d01de5b5fb6c108602e38f358681210167350aab1c`.
+The contract tolerates only the documented leading `main_block` delta on the
+Rust side; the vega shape and the table's arrow payload are compared as
+normalized shapes, not bytes.

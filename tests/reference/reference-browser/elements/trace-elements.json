@@ -1,0 +1,1326 @@
+{
+ "schema_version": 1,
+ "journey": "elements-sequence",
+ "contract": "journey-elements-v1",
+ "scope": "PYTHON SIDE ONLY",
+ "url": "http://127.0.0.1:8607/",
+ "observation": {
+  "journey": "elements-sequence",
+  "contract": "journey-elements-v1",
+  "scope": "PYTHON SIDE ONLY",
+  "url": "http://127.0.0.1:8607/",
+  "binary": null,
+  "source": {
+   "file": "tests/reference/elements_app.py",
+   "sha256": "cddda07bee7988e70db1c89e1c8036ae87fa1bfaa55b4e1fc7a19ada36ac6b1c"
+  },
+  "capture_sources": {
+   "elements_capture.py": "aa4f4401f70ce37ac9b5ae5ffe09e030e20ef0af3cd22bf1bd6f443ad9e3dfed",
+   "elements_contract.py": "f5b7687d3faa1e2d80b44e2ef8ed1a494e758e6e1ca14bb0d090c8a87c55e8cf"
+  },
+  "stages": [
+   {
+    "name": "01-load",
+    "action": "load",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 29882.200936,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": []
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29882.202222,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "4bf0e1b7-a5d4-4e1c-9f36-195aed7972e0",
+        "name": "elements_app",
+        "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\elements_app.py",
+        "page_script_hash": "baa6eb7e09d927cf09bcd1f715608e62",
+        "main_script_hash": "baa6eb7e09d927cf09bcd1f715608e62",
+        "session_id": "8e9c6e55-4950-4e38-b3ee-f9de2de3b42e"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29882.20811,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29882.208917,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "heading",
+        "body": "Elements parity title"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29882.209349,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "heading",
+        "body": "Header level"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29882.209399,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "A caption line"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29882.209488,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": ":blue-badge[BETA]"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29882.209519,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "---"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29882.22191,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "code"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29882.222174,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "**bold** and `inline`"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29882.230528,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "plain write"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29882.249386,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "",
+        "block_type": "flex_container"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29882.251602,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "",
+        "block_type": "column"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29882.260897,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "",
+        "block_type": "column"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29882.261193,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "left column"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29882.261247,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "right column"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29882.26128,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "",
+        "block_type": "flex_container"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29882.261352,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "inside container"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29882.26137,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "",
+        "block_type": "form"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29882.261537,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "text_input",
+        "widget": {
+         "id": "$$ID-1f30ad68898cb9ab2e176c0611a69b5f-None",
+         "label": "Note",
+         "default": "hello",
+         "formId": "note_form",
+         "labelVisibility": {}
+        },
+        "id": "$$ID-1f30ad68898cb9ab2e176c0611a69b5f-None",
+        "label": "Note",
+        "accepted_types": [
+         "0"
+        ],
+        "form_id": "note_form"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29882.261751,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "button",
+        "widget": {
+         "id": "$$ID-0d931dc89581d97524a1d5425f7dbbe5-FormSubmitter:note_form-Apply",
+         "label": "Apply",
+         "formId": "note_form",
+         "isFormSubmitter": true,
+         "type": "secondary"
+        },
+        "id": "$$ID-0d931dc89581d97524a1d5425f7dbbe5-FormSubmitter:note_form-Apply",
+        "label": "Apply",
+        "accepted_types": [
+         "secondary"
+        ],
+        "form_id": "note_form"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29882.261967,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "form: note='hello' submitted=False"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29882.262012,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "table",
+        "element_full": {
+         "table": {
+          "arrowData": {
+           "data": "/////wgDAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAFwCAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAA0AgAABAAAACUCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAia2luZCIsICJmaWVsZF9uYW1lIjogImtpbmQiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJjb3VudCIsICJmaWVsZF9uYW1lIjogImNvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAACAAAAUAAAAAQAAADI////AAABAhAAAAAgAAAABAAAAAAAAAAFAAAAY291bnQAAAAIAAwACAAHAAgAAAAAAAABQAAAABAAFAAIAAYABwAMAAAAEAAQAAAAAAABFBAAAAAcAAAABAAAAAAAAAAEAAAAa2luZAAAAAAEAAQABAAAAP/////IAAAAFAAAAAAAAAAMABYABgAFAAgADAAMAAAAAAMEABgAAAAwAAAAAAAAAAAACgAYAAwABAAIAAoAAABsAAAAEAAAAAIAAAAAAAAAAAAAAAUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYAAAAAAAAABgAAAAAAAAAAgAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAQAAAAAAAAAAAAAAACAAAAAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAgAAAAAAAABhYgAAAAAAAAEAAAAAAAAAAgAAAAAAAAD/////AAAAAA=="
+          },
+          "hideIndex": true
+         },
+         "heightConfig": {
+          "useContent": true
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "arrow": {
+         "bytes": 1048,
+         "sha256": "a6ac20b72102a2339164167e2d47686935d54abf12cc040d036e4ea827bbb8f8",
+         "base64": "/////wgDAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAFwCAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAA0AgAABAAAACUCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAia2luZCIsICJmaWVsZF9uYW1lIjogImtpbmQiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJjb3VudCIsICJmaWVsZF9uYW1lIjogImNvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAACAAAAUAAAAAQAAADI////AAABAhAAAAAgAAAABAAAAAAAAAAFAAAAY291bnQAAAAIAAwACAAHAAgAAAAAAAABQAAAABAAFAAIAAYABwAMAAAAEAAQAAAAAAABFBAAAAAcAAAABAAAAAAAAAAEAAAAa2luZAAAAAAEAAQABAAAAP/////IAAAAFAAAAAAAAAAMABYABgAFAAgADAAMAAAAAAMEABgAAAAwAAAAAAAAAAAACgAYAAwABAAIAAoAAABsAAAAEAAAAAIAAAAAAAAAAAAAAAUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYAAAAAAAAABgAAAAAAAAAAgAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAQAAAAAAAAAAAAAAACAAAAAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAgAAAAAAAABhYgAAAAAAAAEAAAAAAAAAAgAAAAAAAAD/////AAAAAA==",
+         "schema": "kind: large_string\ncount: int64\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 485",
+         "columns": [
+          "kind",
+          "count"
+         ],
+         "row_count": 2,
+         "rows": [
+          {
+           "kind": "a",
+           "count": 1
+          },
+          {
+           "kind": "b",
+           "count": 2
+          }
+         ]
+        },
+        "arrow_fields": {
+         "border_mode": 0,
+         "hide_index": true,
+         "hide_header": false
+        }
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29882.262181,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "vega_lite_chart",
+        "element_full": {
+         "vegaLiteChart": {
+          "spec": "{\"data\": {\"name\": \"6f3e813db9f8f944c994a4a6703922e8\"}, \"mark\": {\"type\": \"bar\"}, \"encoding\": {\"tooltip\": [{\"field\": \"kind\", \"type\": \"nominal\"}, {\"field\": \"count\", \"type\": \"quantitative\"}], \"x\": {\"axis\": {\"grid\": false}, \"field\": \"kind\", \"scale\": {}, \"title\": \"kind\", \"type\": \"ordinal\"}, \"y\": {\"axis\": {\"grid\": true, \"tickMinStep\": 1}, \"field\": \"count\", \"scale\": {}, \"title\": \"count\", \"type\": \"quantitative\"}}, \"height\": 0, \"params\": [{\"name\": \"param_1\", \"select\": {\"type\": \"interval\", \"encodings\": [\"x\", \"y\"]}, \"bind\": \"scales\"}], \"width\": 0, \"$schema\": \"https://vega.github.io/schema/vega-lite/v5.20.1.json\", \"autosize\": {\"type\": \"fit\", \"contains\": \"padding\"}}",
+          "datasets": [
+           {
+            "name": "6f3e813db9f8f944c994a4a6703922e8",
+            "data": {
+             "data": "/////wgDAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAFwCAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAA0AgAABAAAACUCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAia2luZCIsICJmaWVsZF9uYW1lIjogImtpbmQiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJjb3VudCIsICJmaWVsZF9uYW1lIjogImNvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAACAAAAUAAAAAQAAADI////AAABAhAAAAAgAAAABAAAAAAAAAAFAAAAY291bnQAAAAIAAwACAAHAAgAAAAAAAABQAAAABAAFAAIAAYABwAMAAAAEAAQAAAAAAABFBAAAAAcAAAABAAAAAAAAAAEAAAAa2luZAAAAAAEAAQABAAAAP/////IAAAAFAAAAAAAAAAMABYABgAFAAgADAAMAAAAAAMEABgAAAAwAAAAAAAAAAAACgAYAAwABAAIAAoAAABsAAAAEAAAAAIAAAAAAAAAAAAAAAUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYAAAAAAAAABgAAAAAAAAAAgAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAQAAAAAAAAAAAAAAACAAAAAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAgAAAAAAAABhYgAAAAAAAAEAAAAAAAAAAgAAAAAAAAD/////AAAAAA=="
+            },
+            "hasName": true
+           }
+          ],
+          "theme": "streamlit"
+         },
+         "heightConfig": {
+          "useContent": true
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "vega_lite_spec_raw": "{\"data\": {\"name\": \"6f3e813db9f8f944c994a4a6703922e8\"}, \"mark\": {\"type\": \"bar\"}, \"encoding\": {\"tooltip\": [{\"field\": \"kind\", \"type\": \"nominal\"}, {\"field\": \"count\", \"type\": \"quantitative\"}], \"x\": {\"axis\": {\"grid\": false}, \"field\": \"kind\", \"scale\": {}, \"title\": \"kind\", \"type\": \"ordinal\"}, \"y\": {\"axis\": {\"grid\": true, \"tickMinStep\": 1}, \"field\": \"count\", \"scale\": {}, \"title\": \"count\", \"type\": \"quantitative\"}}, \"height\": 0, \"params\": [{\"name\": \"param_1\", \"select\": {\"type\": \"interval\", \"encodings\": [\"x\", \"y\"]}, \"bind\": \"scales\"}], \"width\": 0, \"$schema\": \"https://vega.github.io/schema/vega-lite/v5.20.1.json\", \"autosize\": {\"type\": \"fit\", \"contains\": \"padding\"}}",
+        "vega_lite_spec": {
+         "data": {
+          "name": "6f3e813db9f8f944c994a4a6703922e8"
+         },
+         "mark": {
+          "type": "bar"
+         },
+         "encoding": {
+          "tooltip": [
+           {
+            "field": "kind",
+            "type": "nominal"
+           },
+           {
+            "field": "count",
+            "type": "quantitative"
+           }
+          ],
+          "x": {
+           "axis": {
+            "grid": false
+           },
+           "field": "kind",
+           "scale": {},
+           "title": "kind",
+           "type": "ordinal"
+          },
+          "y": {
+           "axis": {
+            "grid": true,
+            "tickMinStep": 1
+           },
+           "field": "count",
+           "scale": {},
+           "title": "count",
+           "type": "quantitative"
+          }
+         },
+         "height": 0,
+         "params": [
+          {
+           "name": "param_1",
+           "select": {
+            "type": "interval",
+            "encodings": [
+             "x",
+             "y"
+            ]
+           },
+           "bind": "scales"
+          }
+         ],
+         "width": 0,
+         "$schema": "https://vega.github.io/schema/vega-lite/v5.20.1.json",
+         "autosize": {
+          "type": "fit",
+          "contains": "padding"
+         }
+        },
+        "vega_lite_datasets": [
+         {
+          "name": "6f3e813db9f8f944c994a4a6703922e8",
+          "has_name": true,
+          "arrow": {
+           "bytes": 1048,
+           "sha256": "a6ac20b72102a2339164167e2d47686935d54abf12cc040d036e4ea827bbb8f8",
+           "base64": "/////wgDAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAFwCAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAA0AgAABAAAACUCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAia2luZCIsICJmaWVsZF9uYW1lIjogImtpbmQiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJjb3VudCIsICJmaWVsZF9uYW1lIjogImNvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAACAAAAUAAAAAQAAADI////AAABAhAAAAAgAAAABAAAAAAAAAAFAAAAY291bnQAAAAIAAwACAAHAAgAAAAAAAABQAAAABAAFAAIAAYABwAMAAAAEAAQAAAAAAABFBAAAAAcAAAABAAAAAAAAAAEAAAAa2luZAAAAAAEAAQABAAAAP/////IAAAAFAAAAAAAAAAMABYABgAFAAgADAAMAAAAAAMEABgAAAAwAAAAAAAAAAAACgAYAAwABAAIAAoAAABsAAAAEAAAAAIAAAAAAAAAAAAAAAUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYAAAAAAAAABgAAAAAAAAAAgAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAQAAAAAAAAAAAAAAACAAAAAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAgAAAAAAAABhYgAAAAAAAAEAAAAAAAAAAgAAAAAAAAD/////AAAAAA==",
+           "schema": "kind: large_string\ncount: int64\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 485",
+           "columns": [
+            "kind",
+            "count"
+           ],
+           "row_count": 2,
+           "rows": [
+            {
+             "kind": "a",
+             "count": 1
+            },
+            {
+             "kind": "b",
+             "count": 2
+            }
+           ]
+          }
+         }
+        ],
+        "vega_lite_fields": {
+         "use_container_width": false,
+         "theme": "streamlit",
+         "id": "",
+         "form_id": ""
+        },
+        "id": "",
+        "form_id": ""
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29882.27231,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29882.27249,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "dom": {
+     "items": [
+      {
+       "t": "stHeader",
+       "x": "Deploy"
+      },
+      {
+       "t": "stVerticalBlock",
+       "x": "Elements parity title Header level A caption line BETA print('hello') bold and inline plain write left column right column inside container Note Apply form: not"
+      },
+      {
+       "t": "stMarkdown",
+       "x": "A caption line"
+      },
+      {
+       "t": "stMarkdown",
+       "x": "BETA"
+      },
+      {
+       "t": "stMarkdown",
+       "x": ""
+      },
+      {
+       "t": "stMarkdown",
+       "x": "bold and inline"
+      },
+      {
+       "t": "stMarkdown",
+       "x": "plain write"
+      },
+      {
+       "t": "stHorizontalBlock",
+       "x": "left column right column"
+      },
+      {
+       "t": "stColumn",
+       "x": "left column"
+      },
+      {
+       "t": "stVerticalBlock",
+       "x": "left column"
+      },
+      {
+       "t": "stMarkdown",
+       "x": "left column"
+      },
+      {
+       "t": "stColumn",
+       "x": "right column"
+      },
+      {
+       "t": "stVerticalBlock",
+       "x": "right column"
+      },
+      {
+       "t": "stMarkdown",
+       "x": "right column"
+      },
+      {
+       "t": "stVerticalBlock",
+       "x": "inside container"
+      },
+      {
+       "t": "stMarkdown",
+       "x": "inside container"
+      },
+      {
+       "t": "stForm",
+       "x": "Note Apply"
+      },
+      {
+       "t": "stVerticalBlock",
+       "x": "Note Apply"
+      },
+      {
+       "t": "stTextInput",
+       "x": "Note"
+      },
+      {
+       "t": "stFormSubmitButton",
+       "x": "Apply"
+      },
+      {
+       "t": "stMarkdown",
+       "x": "form: note='hello' submitted=False"
+      },
+      {
+       "t": "stTable",
+       "x": "kind count a 1 b 2"
+      },
+      {
+       "t": "stVegaLiteChart",
+       "x": "a b kind 0 1 2 count"
+      }
+     ],
+     "headings": [
+      "H1:Elements parity title",
+      "H2:Header level"
+     ],
+     "code_blocks": [
+      "print('hello')",
+      "print('hello')"
+     ],
+     "note": "hello",
+     "chart_bars": 2,
+     "table_cells": [],
+     "markdowns": [
+      "A caption line",
+      "BETA",
+      "",
+      "bold and inline",
+      "plain write",
+      "left column",
+      "right column",
+      "inside container",
+      "form: note='hello' submitted=False"
+     ],
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "01-load.png",
+     "sha256": "902a6327c1e64fd7e079fe711032a7149940afc0ce9118fe79c2cd35e2101287"
+    }
+   },
+   {
+    "name": "02-apply",
+    "action": "type-and-apply",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 29886.1023,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": [
+         {
+          "id": "$$ID-1f30ad68898cb9ab2e176c0611a69b5f-None",
+          "value_field": "string_value",
+          "value": "hello typed"
+         },
+         {
+          "id": "$$ID-0d931dc89581d97524a1d5425f7dbbe5-FormSubmitter:note_form-Apply",
+          "value_field": "trigger_value",
+          "value": true
+         }
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29886.114328,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "0c4cef53-c2ce-4841-8897-87c6df2792aa",
+        "name": "elements_app",
+        "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\elements_app.py",
+        "page_script_hash": "baa6eb7e09d927cf09bcd1f715608e62",
+        "main_script_hash": "baa6eb7e09d927cf09bcd1f715608e62",
+        "session_id": "8e9c6e55-4950-4e38-b3ee-f9de2de3b42e"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29886.117678,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29886.117794,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "heading",
+        "body": "Elements parity title"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29886.117942,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "heading",
+        "body": "Header level"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29886.118039,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "A caption line"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29886.160734,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": ":blue-badge[BETA]"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29886.163306,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "---"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29886.163402,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "code"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29886.163467,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "**bold** and `inline`"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29886.163522,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "plain write"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29886.164972,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "",
+        "block_type": "flex_container"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29886.165077,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "",
+        "block_type": "column"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29886.165156,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "",
+        "block_type": "column"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29886.165188,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "left column"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29886.165216,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "right column"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29886.165239,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "",
+        "block_type": "flex_container"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29886.165269,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "inside container"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29886.165291,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "",
+        "block_type": "form"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29886.165316,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "text_input",
+        "widget": {
+         "id": "$$ID-1f30ad68898cb9ab2e176c0611a69b5f-None",
+         "label": "Note",
+         "default": "hello",
+         "formId": "note_form",
+         "labelVisibility": {}
+        },
+        "id": "$$ID-1f30ad68898cb9ab2e176c0611a69b5f-None",
+        "label": "Note",
+        "accepted_types": [
+         "0"
+        ],
+        "form_id": "note_form"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29886.165356,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "button",
+        "widget": {
+         "id": "$$ID-0d931dc89581d97524a1d5425f7dbbe5-FormSubmitter:note_form-Apply",
+         "label": "Apply",
+         "formId": "note_form",
+         "isFormSubmitter": true,
+         "type": "secondary"
+        },
+        "id": "$$ID-0d931dc89581d97524a1d5425f7dbbe5-FormSubmitter:note_form-Apply",
+        "label": "Apply",
+        "accepted_types": [
+         "secondary"
+        ],
+        "form_id": "note_form"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29886.165393,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "form: note='hello typed' submitted=True"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29886.165426,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "table",
+        "element_full": {
+         "table": {
+          "arrowData": {
+           "data": "/////wgDAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAFwCAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAA0AgAABAAAACUCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAia2luZCIsICJmaWVsZF9uYW1lIjogImtpbmQiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJjb3VudCIsICJmaWVsZF9uYW1lIjogImNvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAACAAAAUAAAAAQAAADI////AAABAhAAAAAgAAAABAAAAAAAAAAFAAAAY291bnQAAAAIAAwACAAHAAgAAAAAAAABQAAAABAAFAAIAAYABwAMAAAAEAAQAAAAAAABFBAAAAAcAAAABAAAAAAAAAAEAAAAa2luZAAAAAAEAAQABAAAAP/////IAAAAFAAAAAAAAAAMABYABgAFAAgADAAMAAAAAAMEABgAAAAwAAAAAAAAAAAACgAYAAwABAAIAAoAAABsAAAAEAAAAAIAAAAAAAAAAAAAAAUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYAAAAAAAAABgAAAAAAAAAAgAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAQAAAAAAAAAAAAAAACAAAAAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAgAAAAAAAABhYgAAAAAAAAEAAAAAAAAAAgAAAAAAAAD/////AAAAAA=="
+          },
+          "hideIndex": true
+         },
+         "heightConfig": {
+          "useContent": true
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "arrow": {
+         "bytes": 1048,
+         "sha256": "a6ac20b72102a2339164167e2d47686935d54abf12cc040d036e4ea827bbb8f8",
+         "base64": "/////wgDAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAFwCAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAA0AgAABAAAACUCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAia2luZCIsICJmaWVsZF9uYW1lIjogImtpbmQiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJjb3VudCIsICJmaWVsZF9uYW1lIjogImNvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAACAAAAUAAAAAQAAADI////AAABAhAAAAAgAAAABAAAAAAAAAAFAAAAY291bnQAAAAIAAwACAAHAAgAAAAAAAABQAAAABAAFAAIAAYABwAMAAAAEAAQAAAAAAABFBAAAAAcAAAABAAAAAAAAAAEAAAAa2luZAAAAAAEAAQABAAAAP/////IAAAAFAAAAAAAAAAMABYABgAFAAgADAAMAAAAAAMEABgAAAAwAAAAAAAAAAAACgAYAAwABAAIAAoAAABsAAAAEAAAAAIAAAAAAAAAAAAAAAUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYAAAAAAAAABgAAAAAAAAAAgAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAQAAAAAAAAAAAAAAACAAAAAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAgAAAAAAAABhYgAAAAAAAAEAAAAAAAAAAgAAAAAAAAD/////AAAAAA==",
+         "schema": "kind: large_string\ncount: int64\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 485",
+         "columns": [
+          "kind",
+          "count"
+         ],
+         "row_count": 2,
+         "rows": [
+          {
+           "kind": "a",
+           "count": 1
+          },
+          {
+           "kind": "b",
+           "count": 2
+          }
+         ]
+        },
+        "arrow_fields": {
+         "border_mode": 0,
+         "hide_index": true,
+         "hide_header": false
+        }
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29886.165476,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "vega_lite_chart",
+        "element_full": {
+         "vegaLiteChart": {
+          "spec": "{\"data\": {\"name\": \"6f3e813db9f8f944c994a4a6703922e8\"}, \"mark\": {\"type\": \"bar\"}, \"encoding\": {\"tooltip\": [{\"field\": \"kind\", \"type\": \"nominal\"}, {\"field\": \"count\", \"type\": \"quantitative\"}], \"x\": {\"axis\": {\"grid\": false}, \"field\": \"kind\", \"scale\": {}, \"title\": \"kind\", \"type\": \"ordinal\"}, \"y\": {\"axis\": {\"grid\": true, \"tickMinStep\": 1}, \"field\": \"count\", \"scale\": {}, \"title\": \"count\", \"type\": \"quantitative\"}}, \"height\": 0, \"params\": [{\"name\": \"param_1\", \"select\": {\"type\": \"interval\", \"encodings\": [\"x\", \"y\"]}, \"bind\": \"scales\"}], \"width\": 0, \"$schema\": \"https://vega.github.io/schema/vega-lite/v5.20.1.json\", \"autosize\": {\"type\": \"fit\", \"contains\": \"padding\"}}",
+          "datasets": [
+           {
+            "name": "6f3e813db9f8f944c994a4a6703922e8",
+            "data": {
+             "data": "/////wgDAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAFwCAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAA0AgAABAAAACUCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAia2luZCIsICJmaWVsZF9uYW1lIjogImtpbmQiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJjb3VudCIsICJmaWVsZF9uYW1lIjogImNvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAACAAAAUAAAAAQAAADI////AAABAhAAAAAgAAAABAAAAAAAAAAFAAAAY291bnQAAAAIAAwACAAHAAgAAAAAAAABQAAAABAAFAAIAAYABwAMAAAAEAAQAAAAAAABFBAAAAAcAAAABAAAAAAAAAAEAAAAa2luZAAAAAAEAAQABAAAAP/////IAAAAFAAAAAAAAAAMABYABgAFAAgADAAMAAAAAAMEABgAAAAwAAAAAAAAAAAACgAYAAwABAAIAAoAAABsAAAAEAAAAAIAAAAAAAAAAAAAAAUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYAAAAAAAAABgAAAAAAAAAAgAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAQAAAAAAAAAAAAAAACAAAAAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAgAAAAAAAABhYgAAAAAAAAEAAAAAAAAAAgAAAAAAAAD/////AAAAAA=="
+            },
+            "hasName": true
+           }
+          ],
+          "theme": "streamlit"
+         },
+         "heightConfig": {
+          "useContent": true
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "vega_lite_spec_raw": "{\"data\": {\"name\": \"6f3e813db9f8f944c994a4a6703922e8\"}, \"mark\": {\"type\": \"bar\"}, \"encoding\": {\"tooltip\": [{\"field\": \"kind\", \"type\": \"nominal\"}, {\"field\": \"count\", \"type\": \"quantitative\"}], \"x\": {\"axis\": {\"grid\": false}, \"field\": \"kind\", \"scale\": {}, \"title\": \"kind\", \"type\": \"ordinal\"}, \"y\": {\"axis\": {\"grid\": true, \"tickMinStep\": 1}, \"field\": \"count\", \"scale\": {}, \"title\": \"count\", \"type\": \"quantitative\"}}, \"height\": 0, \"params\": [{\"name\": \"param_1\", \"select\": {\"type\": \"interval\", \"encodings\": [\"x\", \"y\"]}, \"bind\": \"scales\"}], \"width\": 0, \"$schema\": \"https://vega.github.io/schema/vega-lite/v5.20.1.json\", \"autosize\": {\"type\": \"fit\", \"contains\": \"padding\"}}",
+        "vega_lite_spec": {
+         "data": {
+          "name": "6f3e813db9f8f944c994a4a6703922e8"
+         },
+         "mark": {
+          "type": "bar"
+         },
+         "encoding": {
+          "tooltip": [
+           {
+            "field": "kind",
+            "type": "nominal"
+           },
+           {
+            "field": "count",
+            "type": "quantitative"
+           }
+          ],
+          "x": {
+           "axis": {
+            "grid": false
+           },
+           "field": "kind",
+           "scale": {},
+           "title": "kind",
+           "type": "ordinal"
+          },
+          "y": {
+           "axis": {
+            "grid": true,
+            "tickMinStep": 1
+           },
+           "field": "count",
+           "scale": {},
+           "title": "count",
+           "type": "quantitative"
+          }
+         },
+         "height": 0,
+         "params": [
+          {
+           "name": "param_1",
+           "select": {
+            "type": "interval",
+            "encodings": [
+             "x",
+             "y"
+            ]
+           },
+           "bind": "scales"
+          }
+         ],
+         "width": 0,
+         "$schema": "https://vega.github.io/schema/vega-lite/v5.20.1.json",
+         "autosize": {
+          "type": "fit",
+          "contains": "padding"
+         }
+        },
+        "vega_lite_datasets": [
+         {
+          "name": "6f3e813db9f8f944c994a4a6703922e8",
+          "has_name": true,
+          "arrow": {
+           "bytes": 1048,
+           "sha256": "a6ac20b72102a2339164167e2d47686935d54abf12cc040d036e4ea827bbb8f8",
+           "base64": "/////wgDAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAFwCAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAA0AgAABAAAACUCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAia2luZCIsICJmaWVsZF9uYW1lIjogImtpbmQiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJjb3VudCIsICJmaWVsZF9uYW1lIjogImNvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAACAAAAUAAAAAQAAADI////AAABAhAAAAAgAAAABAAAAAAAAAAFAAAAY291bnQAAAAIAAwACAAHAAgAAAAAAAABQAAAABAAFAAIAAYABwAMAAAAEAAQAAAAAAABFBAAAAAcAAAABAAAAAAAAAAEAAAAa2luZAAAAAAEAAQABAAAAP/////IAAAAFAAAAAAAAAAMABYABgAFAAgADAAMAAAAAAMEABgAAAAwAAAAAAAAAAAACgAYAAwABAAIAAoAAABsAAAAEAAAAAIAAAAAAAAAAAAAAAUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYAAAAAAAAABgAAAAAAAAAAgAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAQAAAAAAAAAAAAAAACAAAAAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAgAAAAAAAABhYgAAAAAAAAEAAAAAAAAAAgAAAAAAAAD/////AAAAAA==",
+           "schema": "kind: large_string\ncount: int64\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 485",
+           "columns": [
+            "kind",
+            "count"
+           ],
+           "row_count": 2,
+           "rows": [
+            {
+             "kind": "a",
+             "count": 1
+            },
+            {
+             "kind": "b",
+             "count": 2
+            }
+           ]
+          }
+         }
+        ],
+        "vega_lite_fields": {
+         "use_container_width": false,
+         "theme": "streamlit",
+         "id": "",
+         "form_id": ""
+        },
+        "id": "",
+        "form_id": ""
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29886.165516,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 29886.165556,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "dom": {
+     "items": [
+      {
+       "t": "stHeader",
+       "x": "Deploy"
+      },
+      {
+       "t": "stVerticalBlock",
+       "x": "Elements parity title Header level A caption line BETA print('hello') bold and inline plain write left column right column inside container Note Apply form: not"
+      },
+      {
+       "t": "stMarkdown",
+       "x": "A caption line"
+      },
+      {
+       "t": "stMarkdown",
+       "x": "BETA"
+      },
+      {
+       "t": "stMarkdown",
+       "x": ""
+      },
+      {
+       "t": "stMarkdown",
+       "x": "bold and inline"
+      },
+      {
+       "t": "stMarkdown",
+       "x": "plain write"
+      },
+      {
+       "t": "stHorizontalBlock",
+       "x": "left column right column"
+      },
+      {
+       "t": "stColumn",
+       "x": "left column"
+      },
+      {
+       "t": "stVerticalBlock",
+       "x": "left column"
+      },
+      {
+       "t": "stMarkdown",
+       "x": "left column"
+      },
+      {
+       "t": "stColumn",
+       "x": "right column"
+      },
+      {
+       "t": "stVerticalBlock",
+       "x": "right column"
+      },
+      {
+       "t": "stMarkdown",
+       "x": "right column"
+      },
+      {
+       "t": "stVerticalBlock",
+       "x": "inside container"
+      },
+      {
+       "t": "stMarkdown",
+       "x": "inside container"
+      },
+      {
+       "t": "stForm",
+       "x": "Note Apply"
+      },
+      {
+       "t": "stVerticalBlock",
+       "x": "Note Apply"
+      },
+      {
+       "t": "stTextInput",
+       "x": "Note"
+      },
+      {
+       "t": "stFormSubmitButton",
+       "x": "Apply"
+      },
+      {
+       "t": "stMarkdown",
+       "x": "form: note='hello typed' submitted=True"
+      },
+      {
+       "t": "stTable",
+       "x": "kind count a 1 b 2"
+      },
+      {
+       "t": "stVegaLiteChart",
+       "x": "a b kind 0 1 2 count"
+      }
+     ],
+     "headings": [
+      "H1:Elements parity title",
+      "H2:Header level"
+     ],
+     "code_blocks": [
+      "print('hello')",
+      "print('hello')"
+     ],
+     "note": "hello typed",
+     "chart_bars": 2,
+     "table_cells": [],
+     "markdowns": [
+      "A caption line",
+      "BETA",
+      "",
+      "bold and inline",
+      "plain write",
+      "left column",
+      "right column",
+      "inside container",
+      "form: note='hello typed' submitted=True"
+     ],
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "02-apply.png",
+     "sha256": "3bdffd841b7d52ae710f8d9cc1115d4628c1876c55fd827731680e49551746c3"
+    }
+   }
+  ],
+  "ipc_dir": "D:\\dlab\\streamlit-rust\\target\\checks\\m2-elements-publish-python"
+ },
+ "counts": {
+  "expected": 11,
+  "executed": 11,
+  "asserted": 11
+ },
+ "failures": []
+}

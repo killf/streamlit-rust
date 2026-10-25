@@ -62,7 +62,12 @@ impl Element for BadgeElement {
                 width_config,
                 text_alignment_config,
                 r#type: Some(element::Type::Markdown(crate::proto::Markdown {
-                    body: format!(":{}-badge[{} {}]", self.color, self.icon, self.label),
+                    // Measured on the reference: no separator without an icon.
+                    body: if self.icon.is_empty() {
+                        format!(":{}-badge[{}]", self.color, self.label)
+                    } else {
+                        format!(":{}-badge[{} {}]", self.color, self.icon, self.label)
+                    },
                     unterminated_parsing: false,
                     hide_anchors: false,
                     wrap: None,

@@ -88,13 +88,12 @@
     "unavailable_requested_pages": 7,
     "redirect_aliases_not_counted": 2,
     "implementation_status_counts": {
-      "absent": 159,
-      "implemented": 13,
-      "candidate": 10
+      "absent": 154,
+      "implemented": 28
     },
     "compatibility_status_counts": {
-      "unverified": 169,
-      "partial": 13
+      "unverified": 154,
+      "partial": 28
     },
     "unique_feature_ids": 182,
     "unique_official_urls": 182,
@@ -534,26 +533,38 @@
       "category": "APPLICATION LOGIC/Execution flow",
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/execution-flow/st.form",
-      "rust_source_path": null,
-      "implementation_status": "absent",
-      "compatibility_status": "unverified",
+      "rust_source_path": "streamlit/src/elements/form.rs",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "f64cc2337fc0704fe06fd1bc99dba4aa690ed9d40ce9c2994e182604c6153a2c",
-        "python_browser_trace": "tests/reference/reference-browser/form/trace-form.json"
-      }
+        "python_browser_trace": "tests/reference/reference-browser/form/trace-form.json",
+        "python_elements": "tests/reference/reference-browser/elements/trace-elements.json",
+        "rust_elements": "tests/browser/rust-elements/trace-elements.json",
+        "elements_contract": "tests/browser/elements_contract.py",
+        "elements_capture_entry": "tests/browser/elements_capture.py"
+      },
+      "compatibility_scope": "The 2026-10-25 journey-elements-v1 chain drives one official-frontend page on both runtimes with a real Chrome (load plus typed-and-applied form stage); both published replays assert 11/11/11 with identical normalized wire streams and DOM fingerprints. Adds the measured form block wire and a typed-and-applied interaction; the 25-case forms-final reference and J05 remain the deeper form evidence.",
+      "limitations": []
     },
     {
       "feature_id": "st.form_submit_button",
       "category": "APPLICATION LOGIC/Execution flow",
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/execution-flow/st.form_submit_button",
-      "rust_source_path": null,
-      "implementation_status": "absent",
-      "compatibility_status": "unverified",
+      "rust_source_path": "streamlit/src/widget_api.rs",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "0ad295076315e14c467937bf324de4b67229d82108293e7ff9383244e867c0db",
-        "python_browser_trace": "tests/reference/reference-browser/form/trace-form.json"
-      }
+        "python_browser_trace": "tests/reference/reference-browser/form/trace-form.json",
+        "python_elements": "tests/reference/reference-browser/elements/trace-elements.json",
+        "rust_elements": "tests/browser/rust-elements/trace-elements.json",
+        "elements_contract": "tests/browser/elements_contract.py",
+        "elements_capture_entry": "tests/browser/elements_capture.py"
+      },
+      "compatibility_scope": "The 2026-10-25 journey-elements-v1 chain drives one official-frontend page on both runtimes with a real Chrome (load plus typed-and-applied form stage); both published replays assert 11/11/11 with identical normalized wire streams and DOM fingerprints. Adds the measured submit-button widget fields (secondary type, form submitter); forms-final remains the deeper evidence.",
+      "limitations": []
     },
     {
       "feature_id": "st.fragment",
@@ -960,13 +971,19 @@
       "category": "PAGE ELEMENTS/Chart elements",
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/charts/st.bar_chart",
-      "rust_source_path": null,
-      "implementation_status": "absent",
-      "compatibility_status": "unverified",
+      "rust_source_path": "streamlit/src/data_api.rs",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "1b0e9572048d3af931c04305555d780d3b008524fd2605f90698b9ea396e0a52",
-        "python_browser_trace": null
-      }
+        "python_browser_trace": null,
+        "python_elements": "tests/reference/reference-browser/elements/trace-elements.json",
+        "rust_elements": "tests/browser/rust-elements/trace-elements.json",
+        "elements_contract": "tests/browser/elements_contract.py",
+        "elements_capture_entry": "tests/browser/elements_capture.py"
+      },
+      "compatibility_scope": "The 2026-10-25 journey-elements-v1 chain drives one official-frontend page on both runtimes with a real Chrome (load plus typed-and-applied form stage); both published replays assert 11/11/11 with identical normalized wire streams and DOM fingerprints. Covers the measured vega shape (bar mark, ordinal x, integer-tick quantitative y, v5.20.1 schema, one named arrow dataset) and two rendered bars; altair decoration beyond the normalized shape and other chart options are not compared.",
+      "limitations": []
     },
     {
       "feature_id": "st.echarts_chart",
@@ -1501,13 +1518,19 @@
       "category": "PAGE ELEMENTS/Data elements",
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/data/st.table",
-      "rust_source_path": null,
-      "implementation_status": "absent",
-      "compatibility_status": "unverified",
+      "rust_source_path": "streamlit/src/data_api.rs",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "0c21acc6a793d1066a14d74dc11c5e4f52c7ebb98c831fe708885f6a78fe13af",
-        "python_browser_trace": null
-      }
+        "python_browser_trace": null,
+        "python_elements": "tests/reference/reference-browser/elements/trace-elements.json",
+        "rust_elements": "tests/browser/rust-elements/trace-elements.json",
+        "elements_contract": "tests/browser/elements_contract.py",
+        "elements_capture_entry": "tests/browser/elements_capture.py"
+      },
+      "compatibility_scope": "The 2026-10-25 journey-elements-v1 chain drives one official-frontend page on both runtimes with a real Chrome (load plus typed-and-applied form stage); both published replays assert 11/11/11 with identical normalized wire streams and DOM fingerprints. Covers the measured two-column table's element kind, arrow presence and rendered cells; arrow bytes are not compared (different Arrow encoders); the table-native chain remains the deeper evidence.",
+      "limitations": []
     },
     {
       "feature_id": "st.audio_input",
@@ -1935,13 +1958,20 @@
       "category": "PAGE ELEMENTS/Input widgets",
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.text_input",
-      "rust_source_path": null,
-      "implementation_status": "absent",
-      "compatibility_status": "unverified",
+      "rust_source_path": "streamlit/src/widget_api.rs",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "11309264eb669a12ce6ab6fd09000380b43b6c6f6fe53781c3a740ccbbf596df",
-        "python_browser_trace": null
-      }
+        "python_browser_trace": null,
+        "python_elements": "tests/reference/reference-browser/elements/trace-elements.json",
+        "rust_elements": "tests/browser/rust-elements/trace-elements.json",
+        "elements_contract": "tests/browser/elements_contract.py",
+        "elements_capture_entry": "tests/browser/elements_capture.py",
+        "rust_api_test": "streamlit/tests/runtime/forms.rs"
+      },
+      "compatibility_scope": "The 2026-10-25 journey-elements-v1 chain drives one official-frontend page on both runtimes with a real Chrome (load plus typed-and-applied form stage); both published replays assert 11/11/11 with identical normalized wire streams and DOM fingerprints. Adds the measured text-input widget wire and real typing; the forms-final reference and J05 remain the deeper input evidence.",
+      "limitations": []
     },
     {
       "feature_id": "st.time_input",
@@ -1987,28 +2017,40 @@
       "category": "PAGE ELEMENTS/Layouts and containers",
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/layout/st.columns",
-      "rust_source_path": "streamlit/src/api.rs:601",
-      "implementation_status": "candidate",
-      "compatibility_status": "unverified",
+      "rust_source_path": "streamlit/src/api.rs",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "ac07395db152b76324e18a9cdea904663d8ad569f5a3d9113c25c6d47d15eff0",
         "python_browser_trace": null,
-        "rust_source": "streamlit/src/api.rs:601"
-      }
+        "rust_source": "streamlit/src/api.rs:601",
+        "python_elements": "tests/reference/reference-browser/elements/trace-elements.json",
+        "rust_elements": "tests/browser/rust-elements/trace-elements.json",
+        "elements_contract": "tests/browser/elements_contract.py",
+        "elements_capture_entry": "tests/browser/elements_capture.py"
+      },
+      "compatibility_scope": "The 2026-10-25 journey-elements-v1 chain drives one official-frontend page on both runtimes with a real Chrome (load plus typed-and-applied form stage); both published replays assert 11/11/11 with identical normalized wire streams and DOM fingerprints. Covers a two-column block with gap defaults; other specs/gaps/alignment/border unobserved.",
+      "limitations": []
     },
     {
       "feature_id": "st.container",
       "category": "PAGE ELEMENTS/Layouts and containers",
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/layout/st.container",
-      "rust_source_path": "streamlit/src/api.rs:595",
-      "implementation_status": "candidate",
-      "compatibility_status": "unverified",
+      "rust_source_path": "streamlit/src/api.rs",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "a2e88d6b3266ba21751da26d6fb2912caa06130c16568e8717c995eda32e86b0",
         "python_browser_trace": null,
-        "rust_source": "streamlit/src/api.rs:595"
-      }
+        "rust_source": "streamlit/src/api.rs:595",
+        "python_elements": "tests/reference/reference-browser/elements/trace-elements.json",
+        "rust_elements": "tests/browser/rust-elements/trace-elements.json",
+        "elements_contract": "tests/browser/elements_contract.py",
+        "elements_capture_entry": "tests/browser/elements_capture.py"
+      },
+      "compatibility_scope": "The 2026-10-25 journey-elements-v1 chain drives one official-frontend page on both runtimes with a real Chrome (load plus typed-and-applied form stage); both published replays assert 11/11/11 with identical normalized wire streams and DOM fingerprints. Covers a plain container with its measured flex_container add_block and one child; border/height/horizontal options unobserved.",
+      "limitations": []
     },
     {
       "feature_id": "st.empty",
@@ -2366,56 +2408,80 @@
       "category": "PAGE ELEMENTS/Text elements",
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/text/st.badge",
-      "rust_source_path": "streamlit/src/api.rs:579",
-      "implementation_status": "candidate",
-      "compatibility_status": "unverified",
+      "rust_source_path": "streamlit/src/api.rs",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "eb28c030ebb1d69f6cdd338a85ac657caca9011dec95fff998892c1b2c879db9",
         "python_browser_trace": null,
-        "rust_source": "streamlit/src/api.rs:579"
-      }
+        "rust_source": "streamlit/src/api.rs:579",
+        "python_elements": "tests/reference/reference-browser/elements/trace-elements.json",
+        "rust_elements": "tests/browser/rust-elements/trace-elements.json",
+        "elements_contract": "tests/browser/elements_contract.py",
+        "elements_capture_entry": "tests/browser/elements_capture.py"
+      },
+      "compatibility_scope": "The 2026-10-25 journey-elements-v1 chain drives one official-frontend page on both runtimes with a real Chrome (load plus typed-and-applied form stage); both published replays assert 11/11/11 with identical normalized wire streams and DOM fingerprints. Covers the measured default badge (no icon, blue); other colors/icons are unobserved.",
+      "limitations": []
     },
     {
       "feature_id": "st.caption",
       "category": "PAGE ELEMENTS/Text elements",
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/text/st.caption",
-      "rust_source_path": "streamlit/src/api.rs:581",
-      "implementation_status": "candidate",
-      "compatibility_status": "unverified",
+      "rust_source_path": "streamlit/src/api.rs",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "c76b7f2358329186918b34cd3d76b4fd2d5d3776282d29b8899fc6f72587931b",
         "python_browser_trace": null,
-        "rust_source": "streamlit/src/api.rs:581"
-      }
+        "rust_source": "streamlit/src/api.rs:581",
+        "python_elements": "tests/reference/reference-browser/elements/trace-elements.json",
+        "rust_elements": "tests/browser/rust-elements/trace-elements.json",
+        "elements_contract": "tests/browser/elements_contract.py",
+        "elements_capture_entry": "tests/browser/elements_capture.py"
+      },
+      "compatibility_scope": "The 2026-10-25 journey-elements-v1 chain drives one official-frontend page on both runtimes with a real Chrome (load plus typed-and-applied form stage); both published replays assert 11/11/11 with identical normalized wire streams and DOM fingerprints. Covers the measured caption markdown element on the elements page.",
+      "limitations": []
     },
     {
       "feature_id": "st.code",
       "category": "PAGE ELEMENTS/Text elements",
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/text/st.code",
-      "rust_source_path": "streamlit/src/api.rs:583",
-      "implementation_status": "candidate",
-      "compatibility_status": "unverified",
+      "rust_source_path": "streamlit/src/api.rs",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "6c82e17ee059360c0685e749fa0e523787b440452b86ddcb7dd2f615103f7cb1",
         "python_browser_trace": null,
-        "rust_source": "streamlit/src/api.rs:583"
-      }
+        "rust_source": "streamlit/src/api.rs:583",
+        "python_elements": "tests/reference/reference-browser/elements/trace-elements.json",
+        "rust_elements": "tests/browser/rust-elements/trace-elements.json",
+        "elements_contract": "tests/browser/elements_contract.py",
+        "elements_capture_entry": "tests/browser/elements_capture.py"
+      },
+      "compatibility_scope": "The 2026-10-25 journey-elements-v1 chain drives one official-frontend page on both runtimes with a real Chrome (load plus typed-and-applied form stage); both published replays assert 11/11/11 with identical normalized wire streams and DOM fingerprints. Covers body + default python language on the elements page; line_numbers/wrap/height unobserved.",
+      "limitations": []
     },
     {
       "feature_id": "st.divider",
       "category": "PAGE ELEMENTS/Text elements",
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/text/st.divider",
-      "rust_source_path": "streamlit/src/api.rs:589",
-      "implementation_status": "candidate",
-      "compatibility_status": "unverified",
+      "rust_source_path": "streamlit/src/api.rs",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "2272dccf721429b455180f484c92d8379d8f2e0d720b8ab1ecd15c387f3ac259",
         "python_browser_trace": null,
-        "rust_source": "streamlit/src/api.rs:589"
-      }
+        "rust_source": "streamlit/src/api.rs:589",
+        "python_elements": "tests/reference/reference-browser/elements/trace-elements.json",
+        "rust_elements": "tests/browser/rust-elements/trace-elements.json",
+        "elements_contract": "tests/browser/elements_contract.py",
+        "elements_capture_entry": "tests/browser/elements_capture.py"
+      },
+      "compatibility_scope": "The 2026-10-25 journey-elements-v1 chain drives one official-frontend page on both runtimes with a real Chrome (load plus typed-and-applied form stage); both published replays assert 11/11/11 with identical normalized wire streams and DOM fingerprints. Covers the measured bare divider ('---' markdown) on the elements page.",
+      "limitations": []
     },
     {
       "feature_id": "st.echo",
@@ -2435,14 +2501,20 @@
       "category": "PAGE ELEMENTS/Text elements",
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/text/st.header",
-      "rust_source_path": "streamlit/src/api.rs:563",
-      "implementation_status": "candidate",
-      "compatibility_status": "unverified",
+      "rust_source_path": "streamlit/src/api.rs",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "2d5e78ed7950a65eae62d54b033009d764b9da2b5993cae74f3ba56b194b2dd0",
         "python_browser_trace": null,
-        "rust_source": "streamlit/src/api.rs:563"
-      }
+        "rust_source": "streamlit/src/api.rs:563",
+        "python_elements": "tests/reference/reference-browser/elements/trace-elements.json",
+        "rust_elements": "tests/browser/rust-elements/trace-elements.json",
+        "elements_contract": "tests/browser/elements_contract.py",
+        "elements_capture_entry": "tests/browser/elements_capture.py"
+      },
+      "compatibility_scope": "The 2026-10-25 journey-elements-v1 chain drives one official-frontend page on both runtimes with a real Chrome (load plus typed-and-applied form stage); both published replays assert 11/11/11 with identical normalized wire streams and DOM fingerprints. Covers the measured single-call heading (level, body) on the elements page.",
+      "limitations": []
     },
     {
       "feature_id": "st.help",
@@ -2501,14 +2573,20 @@
       "category": "PAGE ELEMENTS/Text elements",
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/text/st.markdown",
-      "rust_source_path": "streamlit/src/api.rs:577",
-      "implementation_status": "candidate",
-      "compatibility_status": "unverified",
+      "rust_source_path": "streamlit/src/api.rs",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "3cc3ae37bf6780ad5ab6be16405d23439a3edd12efbb66e9c91ff53c74cbde48",
         "python_browser_trace": null,
-        "rust_source": "streamlit/src/api.rs:577"
-      }
+        "rust_source": "streamlit/src/api.rs:577",
+        "python_elements": "tests/reference/reference-browser/elements/trace-elements.json",
+        "rust_elements": "tests/browser/rust-elements/trace-elements.json",
+        "elements_contract": "tests/browser/elements_contract.py",
+        "elements_capture_entry": "tests/browser/elements_capture.py"
+      },
+      "compatibility_scope": "The 2026-10-25 journey-elements-v1 chain drives one official-frontend page on both runtimes with a real Chrome (load plus typed-and-applied form stage); both published replays assert 11/11/11 with identical normalized wire streams and DOM fingerprints. Covers inline-markdown bodies on the elements page; the wider markdown repertoire rides the journeys.",
+      "limitations": []
     },
     {
       "feature_id": "st.subheader",
@@ -2541,14 +2619,20 @@
       "category": "PAGE ELEMENTS/Text elements",
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/text/st.title",
-      "rust_source_path": "streamlit/src/api.rs:559",
-      "implementation_status": "candidate",
-      "compatibility_status": "unverified",
+      "rust_source_path": "streamlit/src/api.rs",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "b0e1678f0d43800a4274e3401d90e87e552ca9238e156da782f571031d8e6b59",
         "python_browser_trace": null,
-        "rust_source": "streamlit/src/api.rs:559"
-      }
+        "rust_source": "streamlit/src/api.rs:559",
+        "python_elements": "tests/reference/reference-browser/elements/trace-elements.json",
+        "rust_elements": "tests/browser/rust-elements/trace-elements.json",
+        "elements_contract": "tests/browser/elements_contract.py",
+        "elements_capture_entry": "tests/browser/elements_capture.py"
+      },
+      "compatibility_scope": "The 2026-10-25 journey-elements-v1 chain drives one official-frontend page on both runtimes with a real Chrome (load plus typed-and-applied form stage); both published replays assert 11/11/11 with identical normalized wire streams and DOM fingerprints. Covers the measured single-call heading (level, body) on the elements page.",
+      "limitations": []
     },
     {
       "feature_id": "magic",
@@ -2568,14 +2652,20 @@
       "category": "PAGE ELEMENTS/Write and magic",
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/write-magic/st.write",
-      "rust_source_path": "streamlit/src/api.rs:557",
-      "implementation_status": "candidate",
-      "compatibility_status": "unverified",
+      "rust_source_path": "streamlit/src/api.rs",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "ce38026b364a4c320bab751607da7330d9e04b9f031418d093405112650c2aa9",
         "python_browser_trace": null,
-        "rust_source": "streamlit/src/api.rs:557"
-      }
+        "rust_source": "streamlit/src/api.rs:557",
+        "python_elements": "tests/reference/reference-browser/elements/trace-elements.json",
+        "rust_elements": "tests/browser/rust-elements/trace-elements.json",
+        "elements_contract": "tests/browser/elements_contract.py",
+        "elements_capture_entry": "tests/browser/elements_capture.py"
+      },
+      "compatibility_scope": "The 2026-10-25 journey-elements-v1 chain drives one official-frontend page on both runtimes with a real Chrome (load plus typed-and-applied form stage); both published replays assert 11/11/11 with identical normalized wire streams and DOM fingerprints. Covers string writes projecting to markdown on the elements page; other write kinds unobserved.",
+      "limitations": []
     },
     {
       "feature_id": "st.write_stream",

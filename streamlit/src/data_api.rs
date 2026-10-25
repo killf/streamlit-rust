@@ -299,6 +299,29 @@ fn field_type(data: &RecordBatch, name: &str) -> Result<&'static str, DataError>
     }
 }
 
+// Measured on the reference: an integer y axis renders integer ticks
+// (altair's default tickMinStep 1), a float axis does not.
+fn field_is_integer(data: &RecordBatch, name: &str) -> bool {
+    data.schema_ref()
+        .field_with_name(name)
+        .map(|field| {
+            matches!(
+                field.data_type(),
+                DataType::Int8 | DataType::Int16 | DataType::Int32 | DataType::Int64 | DataType::UInt8 | DataType::UInt16 | DataType::UInt32 | DataType::UInt64
+            )
+        })
+        .unwrap_or(false)
+}
+
+// Measured on the reference: the bar chart's x axis encodes strings as
+// ordinal, while tooltips stay nominal.
+fn x_field_type(data: &RecordBatch, name: &str) -> Result<&'static str, DataError> {
+    match field_type(data, name)? {
+        "nominal" => Ok("ordinal"),
+        other => Ok(other),
+    }
+}
+
 // Arrow columns are literal names, whereas Vega field strings are access paths.
 // Escape each original character once; serde_json separately escapes the JSON
 // representation. Schema lookup, IPC names, and tooltip titles stay unchanged.
@@ -621,7 +644,7 @@ impl<C: AppendChild> DataApi for C {
         if let Some(native) = &options.native {
             return append_native_bar(self, &options, native);
         }
-        let x_type = field_type(options.data, &options.x)?;
+        let x_type = x_field_type(options.data, &options.x)?;
         let y_type = field_type(options.data, &options.y)?;
         if y_type != "quantitative" {
             return Err(DataError::InvalidOption("bar chart y must be numeric".into()));
@@ -635,7 +658,11 @@ impl<C: AppendChild> DataApi for C {
         if let Some(order) = options.x_order {
             x["sort"] = json!(order);
         }
-        let mut encoding = json!({"x":x, "y":{"field":vega_literal_field(&options.y), "type":y_type}});
+        let mut y = json!({"field":vega_literal_field(&options.y), "type":y_type});
+        if field_is_integer(options.data, &options.y) {
+            y["axis"] = json!({"grid": true, "tickMinStep":1});
+        }
+        let mut encoding = json!({"x":x, "y":y});
         if !options.tooltips.is_empty() {
             let tooltips = options
                 .tooltips

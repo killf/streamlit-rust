@@ -392,22 +392,15 @@ def summarise_forward(payload: bytes) -> dict:
                     if message is not None:
                         if message.arrow_data.data:
                             entry["arrow"] = arrow_summary(message.arrow_data.data)
+                        # The pinned 1.66.1 Table message carries only a
+                        # subset of these fields; every access stays optional
+                        # so one missing field cannot drop the whole frame.
                         entry["arrow_fields"] = {
                             field: value
-                            for field, value in (
-                                ("id", message.id),
-                                ("columns", message.columns),
-                                ("editing_mode", message.editing_mode),
-                                ("disabled", message.disabled),
-                                ("form_id", message.form_id),
-                                ("column_order", list(message.column_order)),
-                                ("selection_mode", list(message.selection_mode)),
-                                ("row_height", message.row_height),
-                                ("placeholder", message.placeholder),
-                                ("border_mode", getattr(message, "border_mode", None)),
-                                ("hide_index", getattr(message, "hide_index", None)),
-                            )
-                            if value not in (None, "", [], ())
+                            for field in ("id", "columns", "editing_mode", "disabled", "form_id",
+                                          "column_order", "selection_mode", "row_height", "placeholder",
+                                          "border_mode", "hide_index", "hide_header", "alt")
+                            if (value := getattr(message, field, None)) not in (None, "", [], ())
                         }
                 if name == "vega_lite_chart":
                     chart = element.vega_lite_chart

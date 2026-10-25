@@ -156,6 +156,9 @@ fn configured_bar_matches_real_altair_bar_spec_without_claiming_default_bar_char
     let actual: Value = serde_json::from_str(&chart.spec).unwrap();
     // Dataset names are opaque content hashes, not frontend-visible semantics.
     expected["data"]["name"] = actual["data"]["name"].clone();
+    // The capture is a real st.altair_chart spec; the 2026-10-25 elements
+    // chain measured st.bar_chart encoding string x axes as ordinal instead.
+    expected["encoding"]["x"]["type"] = json!("ordinal");
     assert_eq!(actual, expected);
     assert!(chart.data.is_none());
     assert_eq!(chart.datasets.len(), 1);
@@ -283,6 +286,9 @@ fn all_four_browser_update_stages_preserve_rows_metadata_and_change_ipc_and_data
         let actual_spec: Value = serde_json::from_str(&chart.spec).unwrap();
         let mut expected_spec = stage["chart"]["spec"].clone();
         expected_spec["data"]["name"] = json!(chart.datasets[0].name);
+        // The stage capture is a real altair spec; st.bar_chart encodes its
+        // string x axis as ordinal (measured on the 2026-10-25 elements chain).
+        expected_spec["encoding"]["x"]["type"] = json!("ordinal");
         assert_eq!(actual_spec, expected_spec);
         assert!(payloads.insert(payload), "every reference action must change serialized data");
         assert!(dataset_names.insert(chart.datasets[0].name.clone()));

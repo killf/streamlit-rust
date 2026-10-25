@@ -229,6 +229,14 @@ let window = st.slider((
 .step(TimeDelta::days(1))?;
 ```
 
+## The elements page
+
+```powershell
+cargo run --example elements --locked
+```
+
+Open `http://127.0.0.1:8507/`. One page shows the text and layout APIs (title, header, caption, badge, divider, code, markdown, write), two columns, a container, a working form with a text input and submit button, a table and a bar chart. It mirrors the Python reference fixture of the elements differential chain, so what you see is byte-for-byte the rendered reference page.
+
 ## Information, warnings, errors, and success messages
 
 ```powershell
