@@ -1,6 +1,8 @@
 //! Session-local input values and callback ordering. No process-global widget state.
 use crate::proto::{WidgetState, widget_state};
 use crate::{SessionState, Streamlit};
+use chrono::{NaiveDate, NaiveDateTime, NaiveTime, Timelike};
+use serde::Deserialize;
 use serde_json::Value;
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
@@ -8,6 +10,90 @@ use std::sync::Arc;
 /// A synchronous callback runs after all incoming values are applied and before main.
 /// Captured Rust values replace Python's args/kwargs; the callback must be thread safe.
 pub type WidgetCallback = Arc<dyn Fn(&Streamlit) + Send + Sync>;
+
+/// The largest integer every f64 carries exactly. Both the numeric and the
+/// temporal slider wires are f64 arrays; temporal values are integer epoch
+/// microseconds, which stay inside this bound for roughly 1677..2262.
+pub(crate) const JS_SAFE_INTEGER: f64 = 9_007_199_254_740_991.0;
+
+/// 2000-01-01T00:00:00Z in microseconds: the anchor of time-of-day sliders,
+/// measured on the pinned 1.66.1 reference wire.
+pub(crate) const TIME_ANCHOR_MICROS: i64 = 946_684_800_000_000;
+
+/// One temporal day/step in microseconds, as measured on the reference.
+pub(crate) const DAY_MICROS: i64 = 86_400_000_000;
+
+pub(crate) fn date_micros(date: NaiveDate) -> i64 {
+    date.and_hms_opt(0, 0, 0).expect("midnight is valid for every date").and_utc().timestamp_micros()
+}
+
+pub(crate) fn time_micros(time: NaiveTime) -> i64 {
+    let sub_second = (time.nanosecond() % 1_000_000_000) as i64 / 1_000;
+    TIME_ANCHOR_MICROS + time.num_seconds_from_midnight() as i64 * 1_000_000 + sub_second
+}
+
+pub(crate) fn datetime_micros(value: NaiveDateTime) -> i64 {
+    value.and_utc().timestamp_micros()
+}
+
+fn date_from_micros(micros: i64) -> Option<NaiveDate> {
+    chrono::DateTime::from_timestamp_micros(micros).map(|value| value.date_naive())
+}
+
+fn time_from_micros(micros: i64) -> Option<NaiveTime> {
+    let day = micros.checked_sub(TIME_ANCHOR_MICROS)?;
+    if !(0..DAY_MICROS).contains(&day) {
+        return None;
+    }
+    let seconds = (day / 1_000_000) as u32;
+    let nanos = (day % 1_000_000 * 1_000) as u32;
+    NaiveTime::from_num_seconds_from_midnight_opt(seconds, nanos)
+}
+
+fn datetime_from_micros(micros: i64) -> Option<NaiveDateTime> {
+    chrono::DateTime::from_timestamp_micros(micros).map(|value| value.naive_utc())
+}
+
+/// The temporal slider kinds, measured on the pinned 1.66.1 wire: every value
+/// is an integer number of epoch microseconds carried as a double. Naive
+/// date-times encode as if UTC; a time-of-day encodes against the 2000-01-01
+/// anchor above.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum TemporalKind {
+    Datetime,
+    Date,
+    Time,
+}
+
+impl TemporalKind {
+    /// The `Slider.DataType` enum value: DATETIME = 2, DATE = 3, TIME = 4.
+    pub(crate) fn data_type(self) -> i32 {
+        match self {
+            Self::Datetime => 2,
+            Self::Date => 3,
+            Self::Time => 4,
+        }
+    }
+
+    /// The typed JSON form (chrono serde strings) of one wire value.
+    pub(crate) fn typed_value(self, micros: i64) -> Option<Value> {
+        let value = match self {
+            Self::Datetime => serde_json::to_value(datetime_from_micros(micros)?).ok()?,
+            Self::Date => serde_json::to_value(date_from_micros(micros)?).ok()?,
+            Self::Time => serde_json::to_value(time_from_micros(micros)?).ok()?,
+        };
+        Some(value)
+    }
+
+    /// The microseconds of one typed JSON value.
+    pub(crate) fn micros(self, value: &Value) -> Option<i64> {
+        match self {
+            Self::Datetime => NaiveDateTime::deserialize(value).ok().map(datetime_micros),
+            Self::Date => NaiveDate::deserialize(value).ok().map(date_micros),
+            Self::Time => NaiveTime::deserialize(value).ok().map(time_micros),
+        }
+    }
+}
 
 #[derive(Debug, thiserror::Error)]
 pub enum WidgetError {
@@ -28,6 +114,7 @@ pub(crate) enum Codec {
     Text { max_chars: Option<usize> },
     Select(Vec<(String, Value)>),
     Slider { min: f64, max: f64, count: usize, integer: bool },
+    TemporalSlider { min: f64, max: f64, count: usize, kind: TemporalKind },
     Files { store: Arc<parking_lot::Mutex<crate::upload::UploadStore>>, multiple: bool },
 }
 
@@ -46,13 +133,25 @@ impl Codec {
                 }
                 Some(Value::Array(ids))
             }
-            (Self::Slider { count, integer, .. }, widget_state::Value::DoubleArrayValue(array)) if array.data.len() == *count => {
+            (Codec::Slider { count, integer, .. }, widget_state::Value::DoubleArrayValue(array)) if array.data.len() == *count => {
                 let values: Vec<Value> = array.data.iter().map(|value| if *integer { Value::from(*value as i64) } else { Value::from(*value) }).collect();
                 let result = if *count == 1 { values[0].clone() } else { Value::Array(values) };
                 // Validate the wire numbers before converting them to integers.
                 if array.data.iter().any(|value| !value.is_finite() || (*integer && value.fract() != 0.0)) {
                     return None;
                 }
+                self.valid(&result).then_some(result)
+            }
+            (Codec::TemporalSlider { count, kind, .. }, widget_state::Value::DoubleArrayValue(array)) if array.data.len() == *count => {
+                // Temporal wires carry integer epoch microseconds as doubles.
+                if array.data.iter().any(|value| !value.is_finite() || value.fract() != 0.0 || value.abs() > JS_SAFE_INTEGER) {
+                    return None;
+                }
+                let mut values = Vec::with_capacity(*count);
+                for value in &array.data {
+                    values.push(kind.typed_value(*value as i64)?);
+                }
+                let result = if *count == 1 { values[0].clone() } else { Value::Array(values) };
                 self.valid(&result).then_some(result)
             }
             _ => None,
@@ -65,13 +164,24 @@ impl Codec {
             Self::Text { max_chars } => value.is_null() || value.as_str().is_some_and(|text| max_chars.is_none_or(|limit| text.chars().count() <= limit)),
             Self::Select(options) => value.is_null() || value.as_u64().is_some_and(|index| index < options.len() as u64),
             Self::Files { multiple, .. } => value.as_array().is_some_and(|ids| (*multiple || ids.len() <= 1) && ids.iter().all(Value::is_string)),
-            Self::Slider { min, max, count, integer } => {
+            Codec::Slider { min, max, count, integer } => {
                 let values = match value {
                     Value::Array(values) if *count == 2 => values.clone(),
                     _ if *count == 1 => vec![value.clone()],
                     _ => return false,
                 };
                 values.len() == *count && values.iter().all(|value| value.as_f64().is_some_and(|v| v.is_finite() && v >= *min && v <= *max && (!*integer || v.fract() == 0.0))) && (*count == 1 || values[0].as_f64() <= values[1].as_f64())
+            }
+            Codec::TemporalSlider { min, max, count, kind } => {
+                let values = match value {
+                    Value::Array(values) if *count == 2 => values.clone(),
+                    _ if *count == 1 => vec![value.clone()],
+                    _ => return false,
+                };
+                let Some(micros) = values.iter().map(|value| kind.micros(value)).collect::<Option<Vec<i64>>>() else {
+                    return false;
+                };
+                micros.len() == *count && micros.iter().all(|value| (*value as f64) >= *min && (*value as f64) <= *max) && (*count == 1 || micros[0] <= micros[1])
             }
         }
     }
@@ -359,5 +469,38 @@ mod tests {
         }]);
         assert!(callbacks.is_empty());
         assert_eq!(state.get::<[i64; 2]>("range").unwrap(), Some([2, 8]));
+    }
+
+    #[test]
+    fn temporal_codec_decodes_measured_micros_and_rejects_fabricated_payloads() {
+        let kind = TemporalKind::Time;
+        let codec = Codec::TemporalSlider {
+            min: TIME_ANCHOR_MICROS as f64,
+            max: (TIME_ANCHOR_MICROS + DAY_MICROS - 1) as f64,
+            count: 1,
+            kind,
+        };
+        // The reference End key: 23:45 on the 15-minute grid.
+        let wire = widget_state::Value::DoubleArrayValue(crate::proto::DoubleArray { data: vec![946770300000000.0] });
+        assert_eq!(codec.decode(&wire), Some(serde_json::json!("23:45:00")));
+        // Microseconds round-trip through the typed JSON form.
+        let wire = widget_state::Value::DoubleArrayValue(crate::proto::DoubleArray { data: vec![946729807123456.0] });
+        assert_eq!(codec.decode(&wire), Some(serde_json::json!("12:30:07.123456")));
+        // Fractional microseconds, off-grid times and wrong counts never decode.
+        for data in [vec![946729807123456.5], vec![1710460800000000.0], vec![], vec![946684800000000.0, 946770300000000.0]] {
+            let wire = widget_state::Value::DoubleArrayValue(crate::proto::DoubleArray { data });
+            assert_eq!(codec.decode(&wire), None, "fabricated temporal payload must not decode");
+        }
+        // Typed JSON values validate against the same bounds; a reversed pair fails.
+        let codec = Codec::TemporalSlider {
+            min: 1709251200000000.0,
+            max: 1711670400000000.0,
+            count: 2,
+            kind: TemporalKind::Date,
+        };
+        assert!(codec.valid(&serde_json::json!(["2024-03-10", "2024-03-20"])));
+        assert!(!codec.valid(&serde_json::json!(["2024-03-20", "2024-03-10"])));
+        assert!(!codec.valid(&serde_json::json!(["2024-04-01", "2024-04-02"])));
+        assert!(!codec.valid(&serde_json::json!("2024-03-15")));
     }
 }

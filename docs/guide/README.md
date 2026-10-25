@@ -37,6 +37,7 @@ The quickstart entry handles a render error once and displays it. The current `#
 | `st.slider(("Ratio", 0.25_f64))?` | float bounds 0..1, step 0.01 |
 | `st.slider(("Amount", 20_i64, 10..=200))?` | explicit permitted bounds; initial value 20, step 1 |
 | `st.slider(("Range", (20_i64, 80_i64)))?` | selected endpoints 20..80, permitted bounds still 0..100 |
+| `st.slider(("When", NaiveDate::from_ymd_opt(2024, 3, 15)?))?` | date bounds 2024-03-01..2024-03-29, step 1 day |
 
 Use the [advanced widget options](../../streamlit/src/widget_api.rs) for keys, callbacks, custom step/format, disabled state and other settings; the [widgets example](../../streamlit/examples/widgets.rs) shows them together. Concise calls keep the same defaults and `Result` error handling.
 
@@ -188,7 +189,7 @@ Support is partial: the native bar path covers the measured Int64/Float64 series
 cargo run --example widgets --locked
 ```
 
-Open `http://127.0.0.1:8501/`. The example renders selectbox, checkbox, integer and floating-point scalar sliders, integer tuple and floating-point array range sliders, a disabled button, and returned values. Each changed input updates its returned value and increments the callback count. It does not render a data table or implement date/time sliders.
+Open `http://127.0.0.1:8501/`. The example renders selectbox, checkbox, integer and floating-point scalar sliders, integer tuple and floating-point array range sliders, a disabled button, and returned values. Each changed input updates its returned value and increments the callback count. It does not render a data table; date/time sliders have their own [example](#temporal-sliders).
 
 ```rust
 let group = st.selectbox(
@@ -202,11 +203,31 @@ let include = st.checkbox(
 )?;
 ```
 
-These methods return `Result` and also work in containers and columns. Selectbox returns an original option (`Option<T>`), not its display label or index. `.index(None)` starts empty; `.format_func(|option| ...)` changes labels only. Use `SelectboxOptions::with_format_func(...)` for types without Display, including `Option<T>` and `()`. A selected None option returns `Some(None)`; an unselected `Option<T>` selectbox returns `None`. Empty options disable selection. Checkbox defaults to content width; selectbox and slider stretch. Numeric sliders accept `i32`, `i64`, `f64`, or two scalar endpoints of the same type as `(T, T)` or `[T; 2]`. Pass the lower bound as the initial value to start there. Bounds and step must be finite, ordered, and positive as appropriate; integer bounds stay within JavaScript's exact integer range and the chosen Rust return type (`i32` or `i64`). `.format(...)` changes slider display only. Date/time sliders and adding new selectbox options are not available yet.
+These methods return `Result` and also work in containers and columns. Selectbox returns an original option (`Option<T>`), not its display label or index. `.index(None)` starts empty; `.format_func(|option| ...)` changes labels only. Use `SelectboxOptions::with_format_func(...)` for types without Display, including `Option<T>` and `()`. A selected None option returns `Some(None)`; an unselected `Option<T>` selectbox returns `None`. Empty options disable selection. Checkbox defaults to content width; selectbox and slider stretch. Numeric sliders accept `i32`, `i64`, `f64`, or two scalar endpoints of the same type as `(T, T)` or `[T; 2]`. Pass the lower bound as the initial value to start there. Bounds and step must be finite, ordered, and positive as appropriate; integer bounds stay within JavaScript's exact integer range and the chosen Rust return type (`i32` or `i64`). `.format(...)` changes slider display only. Date/time sliders are covered below; adding new selectbox options is not available yet.
 
-Use `.on_change(|st| { ... })` on inputs or `ButtonOptions::new("Apply").on_click(|st| { ... })` for a button callback. Incoming widget values are applied together, then synchronous callbacks execute before main. Captures must be `Send + Sync + 'static`; callbacks can read updated keys and write application state. `.ignore_rerun(true)` buffers an input change in the frontend until another event reruns the script. Default reruns preserve input values and one-shot buttons reset each run. Give repeated widgets distinct keys: duplicate keys or automatic IDs return `WidgetError`. The original `button` returns `bool` and panics on a registration error; use `try_button` for a `Result`.
+Use `.on_change(|st| { ... })` on inputs or `ButtonOptions::new("Apply").on_click(|st| { ... })` for a button callback. Incoming widget values are applied together, then synchronous callbacks execute before main. Captures must be `Send + Sync + 'static`; callbacks can read updated keys and write application state. `.ignore_rerun(true)` buffers an input change in the frontend until another event reruns the script. Default reruns preserve input values and one-shot buttons reset each run. Give repeated widgets distinct keys: a duplicate explicit key makes the framework render the duplicate-key exception box and stop that run's remaining output (see [Execution semantics](#execution-semantics-rerun-and-stop)); colliding automatic IDs return `WidgetError`. The original `button` returns `bool` and panics on a registration error; use `try_button` for a `Result`.
 
 Widget keys are removed at the end of a run if that widget was not rendered; unrelated application keys remain. Keyed slider bounds/step changes reset its value. These behaviors do not establish full widget identity, cleanup-exception or callback/error parity, or complete compatibility.
+
+## Temporal sliders
+
+```powershell
+cargo run --example temporal --locked
+```
+
+Open `http://127.0.0.1:8506/`. `st.slider` also accepts `chrono::NaiveDate`, `NaiveTime`, `NaiveDateTime`, or two endpoints of one type as `(T, T)` / `[T; 2]`. On the wire — measured against Python 1.66.1 with the official frontend — every temporal value is an integer number of epoch microseconds carried as a double: a naive date-time encodes as if UTC, and a time of day counts from 2000-01-01 00:00:00. Without explicit bounds, a date or date-time spans its value ± 14 days with a daily step, a time spans the full day with a 15-minute step, and a range hangs its window off the first endpoint. Microsecond components round-trip exactly; values outside the exactly-representable double range (roughly 1677–2262) are rejected as invalid instead of silently losing precision. `.min(...)`/`.max(...)` accept the temporal type itself, and `.step(...)` accepts a `chrono::TimeDelta` (whole microseconds only):
+
+```rust
+use chrono::{NaiveDate, NaiveTime, TimeDelta};
+
+let when = st.slider(("When", NaiveDate::from_ymd_opt(2024, 3, 15)?))?;
+let at = st.slider(("At", NaiveTime::from_hms_opt(9, 30, 0)?))?;
+let window = st.slider((
+    "Window",
+    (NaiveDate::from_ymd_opt(2024, 3, 10)?, NaiveDate::from_ymd_opt(2024, 3, 20)?),
+))
+.step(TimeDelta::days(1))?;
+```
 
 ## Information, warnings, errors, and success messages
 
@@ -260,6 +281,6 @@ A widget whose explicit `key` is already live in the run no longer returns an er
 
 ## Current API
 
-Available APIs include text and layout, static status messages, `button`, `selectbox`, numeric `slider`, `checkbox`, the measured `form`/`form_submit_button`/`text_input` core, native session state, and the `st.rerun`/`st.stop` execution controls. See the [text/layout/status API](../../streamlit/src/api.rs), [widget options](../../streamlit/src/widget_api.rs), and [session API](../../streamlit/src/session.rs).
+Available APIs include text and layout, static status messages, `button`, `selectbox`, numeric and date/time `slider`, `checkbox`, the measured `form`/`form_submit_button`/`text_input` core, native session state, and the `st.rerun`/`st.stop` execution controls. See the [text/layout/status API](../../streamlit/src/api.rs), [widget options](../../streamlit/src/widget_api.rs), and [session API](../../streamlit/src/session.rs).
 
-Upload and columnar data views currently cover the limited paths described above. General table/chart APIs, selection, complete forms/text-input behavior, cache, query binding, persistent hidden widgets, date/time sliders, and most other input widgets remain incomplete or absent (`st.quit` does not exist in 1.66.1). Duplicate widget keys render the framework exception box as described above; other widget failures are Rust `Result` errors you handle yourself. Native session values, reruns, retained-session reconnects, synchronous callbacks, explicit widget keys and one-shot button triggers are available, without a claim of complete Streamlit compatibility.
+Upload and columnar data views currently cover the limited paths described above. General table/chart APIs, selection, complete forms/text-input behavior, cache, query binding, persistent hidden widgets, and most other input widgets remain incomplete or absent (`st.quit` does not exist in 1.66.1). Duplicate widget keys render the framework exception box as described above; other widget failures are Rust `Result` errors you handle yourself. Native session values, reruns, retained-session reconnects, synchronous callbacks, explicit widget keys and one-shot button triggers are available, without a claim of complete Streamlit compatibility.

@@ -16,6 +16,7 @@ mod forms;
 mod overlap;
 mod sessions;
 mod static_assets;
+mod temporal;
 mod uploads;
 mod widgets;
 

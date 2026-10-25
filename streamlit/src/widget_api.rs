@@ -531,73 +531,275 @@ impl<T> SelectboxOptions<T> {
 }
 
 mod sealed {
+    use chrono::{NaiveDate, NaiveDateTime, NaiveTime};
     pub trait Scalar {}
     impl Scalar for i64 {}
     impl Scalar for i32 {}
     impl Scalar for f64 {}
-    pub trait Numeric {}
-    impl Numeric for i64 {}
-    impl Numeric for i32 {}
-    impl Numeric for f64 {}
-    impl<T: Scalar> Numeric for (T, T) {}
-    impl<T: Scalar> Numeric for [T; 2] {}
+    impl Scalar for NaiveDate {}
+    impl Scalar for NaiveTime {}
+    impl Scalar for NaiveDateTime {}
+    pub trait SliderGate {}
+    impl SliderGate for i64 {}
+    impl SliderGate for i32 {}
+    impl SliderGate for f64 {}
+    impl SliderGate for NaiveDate {}
+    impl SliderGate for NaiveTime {}
+    impl SliderGate for NaiveDateTime {}
+    impl<T: Scalar> SliderGate for (T, T) {}
+    impl<T: Scalar> SliderGate for [T; 2] {}
 }
 
-/// Numeric scalar or two-endpoint range. Date/time sliders are not implemented yet.
+/// Numeric or date/time scalar, or a two-endpoint range of one scalar type.
 /// Ranges must contain exactly two scalar endpoints, never nested ranges.
 /// ```compile_fail
 /// use streamlit::SliderOptions;
 /// let _ = SliderOptions::new("Nested", ((1_i64, 2_i64), (3_i64, 4_i64)));
 /// ```
-pub trait SliderValue: sealed::Numeric + Serialize + DeserializeOwned + Clone {
-    const INTEGER: bool;
+pub trait SliderValue: sealed::SliderGate + Serialize + DeserializeOwned + Clone {
     const COUNT: usize;
-    /// Native return-type bounds, additionally constrained by the widget bounds.
-    const NATIVE_MIN: f64;
-    const NATIVE_MAX: f64;
-    fn numbers(&self) -> Vec<f64>;
+    /// Identity discriminator plus wire defaults, all measured on the pinned
+    /// 1.66.1 reference. See `.codex/compatibility.md` for the observed table.
+    fn slider_identity_kind() -> &'static str;
+    /// The `Slider.DataType` enum; the builder derives the wire codec from it.
+    fn slider_data_type() -> i32;
+    fn slider_wire_integral() -> bool;
+    /// The window every user-supplied min/max must lie inside.
+    fn slider_domain() -> (f64, f64);
+    fn slider_default_format() -> String;
+    fn slider_default_step() -> f64;
+    /// The wire numbers of this value: raw numbers, or epoch microseconds.
+    fn slider_numbers(&self) -> Vec<f64>;
+    /// The default (min, max) when the caller supplies none.
+    fn slider_default_bounds(&self) -> (f64, f64);
 }
 macro_rules! slider_scalar {
-    ($t:ty, $int:expr, $min:expr, $max:expr) => {
+    ($t:ty, $kind:expr, $data_type:expr, $integer:expr, $domain:expr, $format:expr, $step:expr, $max_default:expr) => {
         impl SliderValue for $t {
-            const INTEGER: bool = $int;
             const COUNT: usize = 1;
-            const NATIVE_MIN: f64 = $min;
-            const NATIVE_MAX: f64 = $max;
-            fn numbers(&self) -> Vec<f64> {
+            fn slider_identity_kind() -> &'static str {
+                $kind
+            }
+            fn slider_data_type() -> i32 {
+                $data_type
+            }
+            fn slider_wire_integral() -> bool {
+                $integer
+            }
+            fn slider_domain() -> (f64, f64) {
+                $domain
+            }
+            fn slider_default_format() -> String {
+                $format.into()
+            }
+            fn slider_default_step() -> f64 {
+                $step
+            }
+            fn slider_numbers(&self) -> Vec<f64> {
                 vec![*self as f64]
+            }
+            fn slider_default_bounds(&self) -> (f64, f64) {
+                (0.0, $max_default)
             }
         }
     };
 }
-slider_scalar!(i64, true, -9_007_199_254_740_991.0, 9_007_199_254_740_991.0);
-slider_scalar!(i32, true, i32::MIN as f64, i32::MAX as f64);
-slider_scalar!(f64, false, f64::MIN, f64::MAX);
+slider_scalar!(i64, "int", 0, true, (-9_007_199_254_740_991.0, 9_007_199_254_740_991.0), "%d", 1.0, 100.0);
+slider_scalar!(i32, "int", 0, true, (i32::MIN as f64, i32::MAX as f64), "%d", 1.0, 100.0);
+slider_scalar!(f64, "float", 1, false, (f64::MIN, f64::MAX), "%0.2f", 0.01, 1.0);
+macro_rules! slider_temporal {
+    ($t:ty, $kind:expr, $wire_kind:expr, $format:expr, $step:expr, $micros:expr, $bounds:expr) => {
+        impl SliderValue for $t {
+            const COUNT: usize = 1;
+            fn slider_identity_kind() -> &'static str {
+                $kind
+            }
+            fn slider_data_type() -> i32 {
+                $wire_kind.data_type()
+            }
+            fn slider_wire_integral() -> bool {
+                true
+            }
+            fn slider_domain() -> (f64, f64) {
+                (-crate::widgets::JS_SAFE_INTEGER, crate::widgets::JS_SAFE_INTEGER)
+            }
+            fn slider_default_format() -> String {
+                $format.into()
+            }
+            fn slider_default_step() -> f64 {
+                $step as f64
+            }
+            fn slider_numbers(&self) -> Vec<f64> {
+                vec![$micros(*self) as f64]
+            }
+            fn slider_default_bounds(&self) -> (f64, f64) {
+                $bounds($micros(*self))
+            }
+        }
+    };
+}
+/// The value plus/minus 14 days: the measured date and datetime default window.
+fn plus_minus_14_days(micros: i64) -> (f64, f64) {
+    let span = 14 * crate::widgets::DAY_MICROS;
+    ((micros - span) as f64, (micros + span) as f64)
+}
+/// The full 2000-01-01 day, 00:00:00.000000 through 23:59:59.999999: the
+/// measured time-of-day default window.
+fn full_day_bounds() -> (f64, f64) {
+    let anchor = crate::widgets::TIME_ANCHOR_MICROS;
+    (anchor as f64, (anchor + crate::widgets::DAY_MICROS - 1) as f64)
+}
+slider_temporal!(chrono::NaiveDate, "date", crate::widgets::TemporalKind::Date, "YYYY-MM-DD", crate::widgets::DAY_MICROS, crate::widgets::date_micros, plus_minus_14_days);
+slider_temporal!(chrono::NaiveTime, "time", crate::widgets::TemporalKind::Time, "HH:mm", 900_000_000, crate::widgets::time_micros, |_| full_day_bounds());
+slider_temporal!(
+    chrono::NaiveDateTime,
+    "datetime",
+    crate::widgets::TemporalKind::Datetime,
+    "YYYY-MM-DD",
+    crate::widgets::DAY_MICROS,
+    crate::widgets::datetime_micros,
+    plus_minus_14_days
+);
+
 impl<T: SliderValue + sealed::Scalar> SliderValue for (T, T) {
-    const INTEGER: bool = T::INTEGER;
     const COUNT: usize = 2;
-    const NATIVE_MIN: f64 = T::NATIVE_MIN;
-    const NATIVE_MAX: f64 = T::NATIVE_MAX;
-    fn numbers(&self) -> Vec<f64> {
-        vec![self.0.numbers()[0], self.1.numbers()[0]]
+    fn slider_identity_kind() -> &'static str {
+        T::slider_identity_kind()
+    }
+    fn slider_data_type() -> i32 {
+        T::slider_data_type()
+    }
+    fn slider_wire_integral() -> bool {
+        T::slider_wire_integral()
+    }
+    fn slider_domain() -> (f64, f64) {
+        T::slider_domain()
+    }
+    fn slider_default_format() -> String {
+        T::slider_default_format()
+    }
+    fn slider_default_step() -> f64 {
+        T::slider_default_step()
+    }
+    fn slider_numbers(&self) -> Vec<f64> {
+        vec![self.0.slider_numbers()[0], self.1.slider_numbers()[0]]
+    }
+    fn slider_default_bounds(&self) -> (f64, f64) {
+        // Measured on the reference: a range's default window hangs off the
+        // FIRST endpoint alone (for a date pair, value0 ± 14 days).
+        self.0.slider_default_bounds()
     }
 }
 impl<T: SliderValue + sealed::Scalar> SliderValue for [T; 2] {
-    const INTEGER: bool = T::INTEGER;
     const COUNT: usize = 2;
-    const NATIVE_MIN: f64 = T::NATIVE_MIN;
-    const NATIVE_MAX: f64 = T::NATIVE_MAX;
-    fn numbers(&self) -> Vec<f64> {
-        vec![self[0].numbers()[0], self[1].numbers()[0]]
+    fn slider_identity_kind() -> &'static str {
+        T::slider_identity_kind()
+    }
+    fn slider_data_type() -> i32 {
+        T::slider_data_type()
+    }
+    fn slider_wire_integral() -> bool {
+        T::slider_wire_integral()
+    }
+    fn slider_domain() -> (f64, f64) {
+        T::slider_domain()
+    }
+    fn slider_default_format() -> String {
+        T::slider_default_format()
+    }
+    fn slider_default_step() -> f64 {
+        T::slider_default_step()
+    }
+    fn slider_numbers(&self) -> Vec<f64> {
+        vec![self[0].slider_numbers()[0], self[1].slider_numbers()[0]]
+    }
+    fn slider_default_bounds(&self) -> (f64, f64) {
+        self[0].slider_default_bounds()
     }
 }
 
+/// A slider bound: a plain number, or a date/time value carried through the
+/// measured epoch-microsecond encoding.
+pub trait SliderBound: slider_sealed::Sealed {
+    fn slider_bound(self) -> f64;
+}
+mod slider_sealed {
+    pub trait Sealed {}
+    impl Sealed for i64 {}
+    impl Sealed for i32 {}
+    impl Sealed for f64 {}
+    impl Sealed for chrono::NaiveDate {}
+    impl Sealed for chrono::NaiveTime {}
+    impl Sealed for chrono::NaiveDateTime {}
+    impl Sealed for chrono::TimeDelta {}
+}
+impl SliderBound for i64 {
+    fn slider_bound(self) -> f64 {
+        self as f64
+    }
+}
+impl SliderBound for i32 {
+    fn slider_bound(self) -> f64 {
+        self as f64
+    }
+}
+impl SliderBound for f64 {
+    fn slider_bound(self) -> f64 {
+        self
+    }
+}
+impl SliderBound for chrono::NaiveDate {
+    fn slider_bound(self) -> f64 {
+        crate::widgets::date_micros(self) as f64
+    }
+}
+impl SliderBound for chrono::NaiveTime {
+    fn slider_bound(self) -> f64 {
+        crate::widgets::time_micros(self) as f64
+    }
+}
+impl SliderBound for chrono::NaiveDateTime {
+    fn slider_bound(self) -> f64 {
+        crate::widgets::datetime_micros(self) as f64
+    }
+}
+
+/// A slider step: a plain number of wire units (microseconds for date/time
+/// sliders), or a chrono duration converted to microseconds.
+pub trait SliderStep: slider_sealed::Sealed {
+    fn slider_step(self) -> f64;
+}
+impl SliderStep for i64 {
+    fn slider_step(self) -> f64 {
+        self as f64
+    }
+}
+impl SliderStep for f64 {
+    fn slider_step(self) -> f64 {
+        self
+    }
+}
+impl SliderStep for chrono::TimeDelta {
+    fn slider_step(self) -> f64 {
+        // The temporal wire carries whole microseconds; a delta outside that
+        // grid becomes NaN and fails the finite-step validation below.
+        self.num_microseconds().map(|micros| micros as f64).unwrap_or(f64::NAN)
+    }
+}
+
+/// Options for [`InputWidgets::slider`]. Date/time sliders use the measured
+/// 1.66.1 wire encoding: integer epoch microseconds carried as doubles, naive
+/// date-times as if UTC, time-of-day anchored at 2000-01-01. Defaults when no
+/// bounds are given: a date or datetime spans its value ± 14 days with a daily
+/// step; a time spans the full day with a 15-minute step; a range hangs its
+/// window off the first endpoint. Values stay inside the exactly-representable
+/// double range (roughly 1677..2262); microsecond components round-trip.
 pub struct SliderOptions<T> {
     common: InputOptions,
     value: T,
-    min: f64,
-    max: f64,
-    step: f64,
+    min: Option<f64>,
+    max: Option<f64>,
+    step: Option<f64>,
     format: Option<String>,
 }
 impl<T: SliderValue> SliderOptions<T> {
@@ -605,22 +807,22 @@ impl<T: SliderValue> SliderOptions<T> {
         Self {
             common: InputOptions::new(label),
             value,
-            min: 0.0,
-            max: if T::INTEGER { 100.0 } else { 1.0 },
-            step: if T::INTEGER { 1.0 } else { 0.01 },
+            min: None,
+            max: None,
+            step: None,
             format: None,
         }
     }
-    pub fn min(mut self, min: impl Into<f64>) -> Self {
-        self.min = min.into();
+    pub fn min(mut self, min: impl SliderBound) -> Self {
+        self.min = Some(min.slider_bound());
         self
     }
-    pub fn max(mut self, max: impl Into<f64>) -> Self {
-        self.max = max.into();
+    pub fn max(mut self, max: impl SliderBound) -> Self {
+        self.max = Some(max.slider_bound());
         self
     }
-    pub fn step(mut self, step: impl Into<f64>) -> Self {
-        self.step = step.into();
+    pub fn step(mut self, step: impl SliderStep) -> Self {
+        self.step = Some(step.slider_step());
         self
     }
     pub fn format(mut self, format: impl Into<String>) -> Self {
@@ -634,7 +836,7 @@ impl<L: Into<String>, T: SliderValue> From<(L, T)> for SliderOptions<T> {
         Self::new(label, value)
     }
 }
-impl<L: Into<String>, T: SliderValue, B: Into<f64>> From<(L, T, std::ops::RangeInclusive<B>)> for SliderOptions<T> {
+impl<L: Into<String>, T: SliderValue, B: SliderBound> From<(L, T, std::ops::RangeInclusive<B>)> for SliderOptions<T> {
     fn from((label, value, bounds): (L, T, std::ops::RangeInclusive<B>)) -> Self {
         let (min, max) = bounds.into_inner();
         Self::new(label, value).min(min).max(max)
@@ -1098,28 +1300,45 @@ impl<C: AppendChild> InputWidgets for C {
         let c = options.common;
         let form_id = form_scope(self, c.callback.is_some())?;
         let width_config = c.width(false)?;
-        if !options.min.is_finite()
-            || !options.max.is_finite()
-            || !options.step.is_finite()
-            || options.min >= options.max
-            || options.step <= 0.0
-            || options.min < T::NATIVE_MIN
-            || options.max > T::NATIVE_MAX
-            || (T::INTEGER && [options.min, options.max, options.step].iter().any(|v| v.fract() != 0.0 || v.abs() > 9_007_199_254_740_991.0))
+        let (default_min, default_max) = T::slider_default_bounds(&options.value);
+        let min = options.min.unwrap_or(default_min);
+        let max = options.max.unwrap_or(default_max);
+        let step = options.step.unwrap_or_else(T::slider_default_step);
+        let (domain_min, domain_max) = T::slider_domain();
+        if !min.is_finite()
+            || !max.is_finite()
+            || !step.is_finite()
+            || min >= max
+            || step <= 0.0
+            || min < domain_min
+            || max > domain_max
+            || (T::slider_wire_integral() && [min, max, step].iter().any(|v| v.fract() != 0.0 || v.abs() > crate::widgets::JS_SAFE_INTEGER))
         {
-            return Err(WidgetError::InvalidValue("slider needs ordered finite bounds representable by its return type and a positive step (integers must be JS-safe)".into()));
+            return Err(WidgetError::InvalidValue(
+                "slider needs ordered finite bounds representable by its return type and a positive step (integers and date/time values are JS-safe microsecond counts)".into(),
+            ));
         }
         let default = serde_json::to_value(&options.value)?;
-        let codec = Codec::Slider {
-            min: options.min,
-            max: options.max,
-            count: T::COUNT,
-            integer: T::INTEGER,
+        // The measured DataType enum selects the codec: INT/FLOAT are raw
+        // numeric doubles; DATETIME/DATE/TIME are epoch-microsecond doubles.
+        let codec = match T::slider_data_type() {
+            0 => Codec::Slider { min, max, count: T::COUNT, integer: true },
+            1 => Codec::Slider { min, max, count: T::COUNT, integer: false },
+            data_type => Codec::TemporalSlider {
+                min,
+                max,
+                count: T::COUNT,
+                kind: match data_type {
+                    2 => crate::widgets::TemporalKind::Datetime,
+                    3 => crate::widgets::TemporalKind::Date,
+                    _ => crate::widgets::TemporalKind::Time,
+                },
+            },
         };
         if !codec.valid(&default) {
             return Err(WidgetError::InvalidValue("slider default is outside bounds or range is reversed".into()));
         }
-        let constraints = format!("{}:{}:{}:{}:{}", options.min, options.max, options.step, T::INTEGER, T::COUNT);
+        let constraints = format!("{}:{}:{}:{}:{}", min, max, step, T::slider_identity_kind(), T::COUNT);
         let identity = c.identity_in_form(&form_id, &if c.key.is_some() { constraints } else { format!("{constraints}:{default}:{:?}", options.format) });
         let (id, result, set_value) = self.register_widget_parity(
             WidgetSpec {
@@ -1139,15 +1358,15 @@ impl<C: AppendChild> InputWidgets for C {
                 id,
                 label: c.label,
                 form_id,
-                default: options.value.numbers(),
-                value: if set_value { result.numbers() } else { vec![] },
+                default: options.value.slider_numbers(),
+                value: if set_value { result.slider_numbers() } else { vec![] },
                 set_value,
-                min: options.min,
-                max: options.max,
-                step: options.step,
-                data_type: if T::INTEGER { 0 } else { 1 },
+                min,
+                max,
+                step,
+                data_type: T::slider_data_type(),
                 r#type: 1,
-                format: options.format.unwrap_or_else(|| if T::INTEGER { "%d" } else { "%0.2f" }.into()),
+                format: options.format.unwrap_or_else(T::slider_default_format),
                 help: c.help,
                 disabled: c.disabled,
                 label_visibility: c.visibility.wire(),
@@ -1980,5 +2199,73 @@ mod tests {
         assert!(st.file_uploader(options()).unwrap().as_slice().is_empty());
         assert!(st.file_uploader(FileUploaderOptions::new("Bad").max_upload_size_mb(0)).is_err());
         // Directory flags are docs/native coverage; no directory browser PASS.
+    }
+
+    #[test]
+    fn temporal_sliders_emit_the_measured_wire_and_keep_microseconds() {
+        let state = SessionState::default();
+        state.begin_widgets(vec![]);
+        let (st, mut wire) = app(&state);
+        let date = chrono::NaiveDate::from_ymd_opt(2024, 3, 15).unwrap();
+        let time = chrono::NaiveTime::from_hms_micro_opt(12, 30, 7, 123456).unwrap();
+        let datetime = date.and_hms_micro_opt(12, 30, 7, 123456).unwrap();
+        assert_eq!(st.slider(SliderOptions::new("date", date).key("date")).unwrap(), date);
+        let element::Type::Slider(slider) = input(&mut wire) else { panic!() };
+        // Numbers captured from the pinned 1.66.1 reference: value ± 14 days,
+        // daily step, DATE enum, and the date-only default format.
+        assert_eq!((slider.min, slider.max, slider.step, slider.data_type, slider.format.as_str()), (1709251200000000.0, 1711670400000000.0, 86400000000.0, 3, "YYYY-MM-DD"));
+        assert_eq!(slider.default, vec![1710460800000000.0]);
+        assert_eq!(st.slider(SliderOptions::new("time", time).key("time")).unwrap(), time);
+        let element::Type::Slider(slider) = input(&mut wire) else { panic!() };
+        // The full 2000-01-01 day with an off-grid max and a 15-minute step.
+        assert_eq!((slider.min, slider.max, slider.step, slider.data_type, slider.format.as_str()), (946684800000000.0, 946771199999999.0, 900000000.0, 4, "HH:mm"));
+        assert_eq!(slider.default, vec![946729807123456.0]);
+        assert_eq!(st.slider(SliderOptions::new("datetime", datetime).key("datetime")).unwrap(), datetime);
+        let element::Type::Slider(slider) = input(&mut wire) else { panic!() };
+        // Bounds keep the value's time-of-day and microseconds; DATETIME enum.
+        assert_eq!((slider.min, slider.max, slider.step, slider.data_type, slider.format.as_str()), (1709296207123456.0, 1711715407123456.0, 86400000000.0, 2, "YYYY-MM-DD"));
+        assert_eq!(slider.default, vec![1710505807123456.0]);
+        let pair = (chrono::NaiveDate::from_ymd_opt(2024, 3, 10).unwrap(), chrono::NaiveDate::from_ymd_opt(2024, 3, 20).unwrap());
+        assert_eq!(st.slider(SliderOptions::new("date-range", pair).key("date-range")).unwrap(), pair);
+        let element::Type::Slider(slider) = input(&mut wire) else { panic!() };
+        // A range's default window hangs off the FIRST endpoint alone.
+        assert_eq!((slider.min, slider.max), (1708819200000000.0, 1711238400000000.0));
+        assert_eq!(slider.default, vec![1710028800000000.0, 1710892800000000.0]);
+        state.finish_widgets();
+    }
+
+    #[test]
+    fn temporal_slider_states_round_trip_and_out_of_domain_bounds_are_rejected() {
+        use chrono::Datelike;
+        let state = SessionState::default();
+        state.begin_widgets(vec![]);
+        let (st, mut wire) = app(&state);
+        let time = chrono::NaiveTime::from_hms_micro_opt(12, 30, 7, 123456).unwrap();
+        let _ = st.slider(SliderOptions::new("time", time).key("time")).unwrap();
+        let element::Type::Slider(slider) = input(&mut wire) else { panic!() };
+        state.finish_widgets();
+        // The reference's End key lands on the 15-minute grid at 23:45; the
+        // returned native value keeps the typed form, not the wire double.
+        state.begin_widgets(vec![WidgetState {
+            id: slider.id,
+            value: Some(widget_state::Value::DoubleArrayValue(proto::DoubleArray { data: vec![946770300000000.0] })),
+        }]);
+        let (st, _) = app(&state);
+        assert_eq!(st.slider(SliderOptions::new("time", time).key("time")).unwrap(), chrono::NaiveTime::from_hms_opt(23, 45, 0).unwrap());
+        state.finish_widgets();
+        // Dates outside the exactly-representable double range are refused
+        // instead of silently losing microseconds.
+        let far = chrono::NaiveDate::from_ymd_opt(1500, 1, 1).unwrap();
+        assert!(st.slider(SliderOptions::new("past", far)).is_err());
+        // Explicit temporal bounds and a chrono step land on the wire unconverted.
+        let bounded = st
+            .slider(
+                SliderOptions::new("window", far.with_year(2024).unwrap())
+                    .min(chrono::NaiveDate::from_ymd_opt(2024, 1, 1).unwrap())
+                    .max(chrono::NaiveDate::from_ymd_opt(2024, 12, 31).unwrap())
+                    .step(chrono::TimeDelta::days(7)),
+            )
+            .unwrap();
+        assert_eq!(bounded, chrono::NaiveDate::from_ymd_opt(2024, 1, 1).unwrap());
     }
 }
