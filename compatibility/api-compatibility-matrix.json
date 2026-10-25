@@ -1900,12 +1900,17 @@
         "python_fields_none_option": "tests/reference/reference-browser/widgets/none_option/trace-widgets-none_option.json",
         "python_fields_none_unset": "tests/reference/reference-browser/widgets/none_unset/trace-widgets-none_unset.json",
         "python_numeric": "tests/reference/reference-browser/numeric/trace-widgets-numeric.json",
-        "python_default_behavior": "tests/reference/reference-browser/closed-loop/trace.json"
+        "python_default_behavior": "tests/reference/reference-browser/closed-loop/trace.json",
+        "python_temporal": "tests/reference/reference-browser/temporal/trace-temporal.json",
+        "rust_temporal": "tests/browser/rust-temporal/trace-temporal.json",
+        "temporal_contract": "tests/browser/temporal_contract.py",
+        "temporal_capture_entry": "tests/browser/temporal_capture.py",
+        "rust_temporal_regression": "streamlit/tests/runtime/temporal.rs"
       },
-      "rust_plan": "Return typed numeric integer/float scalar or range values through SliderOptions<T>, serialize the official Slider Element and consume DoubleArray client state.",
-      "compatibility_scope": "Measured W1/W2 core only: complete Element comparisons for eight Python reference cases normalize only opaque widget ID digests. These older references establish field and finite callback facts, not same-connection interaction proof. The frozen Rust six-case capture proves changed target state, real requestId, same-connection successful completion and DOM values for the corresponding API. Four numeric representatives (integer/float scalar and range) additionally have the frozen Python four-case interaction oracle; no checkbox oracle is used to prove numeric behavior.",
+      "rust_plan": "Return typed numeric integer/float scalar or range values through SliderOptions<T>, serialize the official Slider Element and consume DoubleArray client state; temporal date/time/datetime scalars and pairs encode as measured integer epoch-microsecond doubles (naive-as-if-UTC, 2000-01-01 time anchor) with typed bounds/TimeDelta steps.",
+      "compatibility_scope": "Measured W1/W2 core only: complete Element comparisons for eight Python reference cases normalize only opaque widget ID digests. These older references establish field and finite callback facts, not same-connection interaction proof. The frozen Rust six-case capture proves changed target state, real requestId, same-connection successful completion and DOM values for the corresponding API. Four numeric representatives (integer/float scalar and range) additionally have the frozen Python four-case interaction oracle; no checkbox oracle is used to prove numeric behavior. The 2026-10-25 temporal round adds the journey-temporal-v1 chain: the pinned Python 1.66.1 reference and the Rust example were both driven by a real Chrome with End/Home keys across 13 stages (six sliders), and the published replays assert 11/11/11 each — identical wire configs, double_array_value state snapshots, grid-snapped native range inputs and Python-repr echoes, including microsecond-faithful round trips.",
       "limitations": [
-        "Date/time slider values are not implemented; only measured integer/float scalar and range cases are covered.",
+        "Temporal coverage is the measured default windows/steps and End/Home landings: a midnight-valued datetime's default step, timezone-aware datetimes, and format strings beyond the measured defaults remain unobserved; values outside the exactly-representable double range (roughly 1677-2262) are rejected rather than losing microseconds.",
         "Rust Result<_, WidgetError> is not the complete Python exception-rendering UI; complete invalid-input UI equivalence is unverified.",
         "Core callback/key behavior and sampled parameters only: not all on_change modes, argument combinations or parameter-change/reset semantics.",
         "The disabled Python reference operated selectbox and checkbox only; slider disabled parameters were observed, but no disabled-slider click is claimed.",

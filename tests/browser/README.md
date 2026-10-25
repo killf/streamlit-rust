@@ -75,3 +75,25 @@ under contract `ae1c098afe94e235003ee1a8a6eb4be2f2233681f3ebbb9dd1dc93a130aab29e
 The three documented cross-side differences (per-run `main_block` delta,
 fast-rerun live streaming, populated `ForwardMsg.hash` on lifecycle frames)
 are recorded in [compatibility](../../.codex/compatibility.md#execution-semantics-st-rerun--st-stop).
+
+## Temporal sliders
+
+[temporal_capture.py](temporal_capture.py) is the permanent entry for the
+date/time/datetime slider chain; [temporal_contract.py](temporal_contract.py)
+is its strict criterion (journey-temporal-v1, 11 checks) with unit tests in
+[tests/reference/test_temporal_contract.py](../reference/test_temporal_contract.py).
+The collector starts its own Chrome and drives every slider's hidden native
+range input with real End/Home keys across the 13 measured stages. The
+published chains:
+
+```powershell
+target\pyref-venv\Scripts\python.exe tests\browser\temporal_capture.py --replay tests\reference\reference-browser\temporal\trace-temporal.json
+target\pyref-venv\Scripts\python.exe tests\browser\temporal_capture.py --replay tests\browser\rust-temporal\trace-temporal.json
+```
+
+Both return 11 expected / 11 executed / 11 asserted with exit 0. Raw SHA256:
+python `0bafb49dbe5ed904771d7dd1d7f86272f04cb4a5c26468f6f21217d2133a987b`,
+native `4d43936e402aeb298eaa5bd72bc72af3ad1d5c3a802a3e24deecc1bcee115f47`,
+under contract `c375aafd11d725a104510a8ae91dd22104cb8a533addf065b26e67936e02fd65`.
+The Rust side carries the pre-existing per-run `main_block` delta (one extra
+frame per stage); the contract compares content, not frame counts.
