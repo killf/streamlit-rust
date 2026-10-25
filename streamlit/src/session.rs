@@ -5,7 +5,25 @@ use serde::{Serialize, de::DeserializeOwned};
 use serde_json::Value;
 use std::collections::HashMap;
 use std::sync::Arc;
+use std::sync::atomic::{AtomicU8, Ordering};
 use std::time::{Duration, Instant};
+
+/// Run-control signal raised by [`Streamlit::rerun`] and [`Streamlit::stop`].
+///
+/// Mirrors the measured Python 1.66.1 wire: after either call, later element
+/// pushes and session-state writes of the same run have no effect, and the
+/// run's finish status follows the signal — `rerun` finishes early for the
+/// next run, `stop` still finishes successfully.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum RunControl {
+    Rerun,
+    Stop,
+}
+
+impl RunControl {
+    const RERUN: u8 = 1;
+    const STOP: u8 = 2;
+}
 
 /// JSON-serializable application values shared across reruns of one session.
 /// Cloning this handle shares that session's values, not another user's state.
@@ -15,6 +33,7 @@ pub struct SessionState {
     pub(crate) values: Arc<Mutex<HashMap<String, Value>>>,
     pub(crate) widgets: Arc<Mutex<crate::widgets::WidgetRegistry>>,
     pub(crate) uploads: Arc<Mutex<crate::upload::UploadStore>>,
+    pub(crate) run_control: Arc<AtomicU8>,
 }
 
 impl SessionState {
@@ -29,6 +48,11 @@ impl SessionState {
     /// serialization succeeds. Explicit widget keys share these values; writes
     /// after that widget is instantiated in a run are rejected.
     pub fn set<T: Serialize>(&self, key: impl Into<String>, value: T) -> serde_json::Result<()> {
+        // Code after st.rerun()/st.stop() never executes upstream, so its
+        // writes must not land here either.
+        if self.run_control().is_some() {
+            return Ok(());
+        }
         let value = serde_json::to_value(value)?;
         let key = key.into();
         let mut registry = self.widgets.lock();
@@ -42,7 +66,31 @@ impl SessionState {
     /// Removing a widget key does not reset a still-rendered widget: its current
     /// value recreates the key when that widget is instantiated again.
     pub fn remove(&self, key: &str) -> Option<Value> {
+        if self.run_control().is_some() {
+            return None;
+        }
         self.values.lock().remove(key)
+    }
+
+    /// The run-control signal of the current run, if `st.rerun()`/`st.stop()` was called.
+    pub fn run_control(&self) -> Option<RunControl> {
+        match self.run_control.load(Ordering::Relaxed) {
+            RunControl::RERUN => Some(RunControl::Rerun),
+            RunControl::STOP => Some(RunControl::Stop),
+            _ => None,
+        }
+    }
+
+    pub(crate) fn set_run_control(&self, control: RunControl) {
+        let raw = match control {
+            RunControl::Rerun => RunControl::RERUN,
+            RunControl::Stop => RunControl::STOP,
+        };
+        self.run_control.store(raw, Ordering::Relaxed);
+    }
+
+    pub(crate) fn reset_run_control(&self) {
+        self.run_control.store(0, Ordering::Relaxed);
     }
 }
 
@@ -50,6 +98,26 @@ impl Streamlit {
     /// Application state for the current browser session, preserved across reruns.
     pub fn session_state(&self) -> SessionState {
         self.app.lock().session_state.clone()
+    }
+
+    /// Rerun the script immediately, mirroring `st.rerun()`.
+    ///
+    /// The current run aborts at this point — the measured 1.66.1 wire finishes
+    /// it with `FINISHED_EARLY_FOR_RERUN` and the server starts the next run
+    /// without any browser request. Elements and session-state writes after
+    /// this call have no effect in the current run. Guard the call so it fires
+    /// exactly once (for example with a session-state flag): an unguarded
+    /// `rerun` reruns forever, exactly as upstream does.
+    pub fn rerun(&self) {
+        self.session_state().set_run_control(RunControl::Rerun);
+    }
+
+    /// Stop the current run without an error, mirroring `st.stop()`.
+    ///
+    /// Elements emitted before this call stay on the page; later elements never
+    /// emit, and the run still finishes `FINISHED_SUCCESSFULLY` on the wire.
+    pub fn stop(&self) {
+        self.session_state().set_run_control(RunControl::Stop);
     }
 
     pub(crate) fn with_session_state(state: SessionState) -> Self {

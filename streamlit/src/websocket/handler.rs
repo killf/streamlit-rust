@@ -9,70 +9,89 @@ use prost::Message;
 
 async fn do_rerun_script(session: &mut Session, lease: &SessionLease, server: &StreamlitServer, widget_states: Vec<WidgetState>) -> Result<(), StreamlitError> {
     // Serialise runs even if a replacement connection arrives while its
-    // predecessor is finishing. Stop/cancel remains outside this implementation.
+    // predecessor is finishing.
     let _run = lease.run.lock().await;
     if !lease.is_current() {
         return Err(StreamlitError::Session("connection was superseded".into()));
     }
-    // Only application values persist. The render tree and widget triggers are
-    // rebuilt for each run, so a previous button click cannot become sticky.
-    let st = Streamlit::with_session_state(lease.state.clone());
-    let callbacks = lease.state.begin_widgets(widget_states);
+    // Browser widget states apply to the first run only: a run that
+    // `st.rerun()` starts re-executes with the registry values and no second
+    // BackMsg (measured 1.66.1 wire). Each run rebuilds the render tree,
+    // re-zeroes trigger widgets and gets a fresh run id; only application
+    // values persist.
+    let mut incoming = Some(widget_states);
+    loop {
+        let callbacks = lease.state.begin_widgets(incoming.take().unwrap_or_default());
+        lease.state.reset_run_control();
+        let st = Streamlit::with_session_state(lease.state.clone());
 
-    // 创建 channel 用于流式发送消息
-    let (tx, mut rx) = tokio::sync::mpsc::unbounded_channel::<crate::proto::ForwardMsg>();
+        // 创建 channel 用于流式发送消息
+        let (tx, mut rx) = tokio::sync::mpsc::unbounded_channel::<crate::proto::ForwardMsg>();
 
-    // 创建 RenderContext 并设置到 App 中，让 App::push 时能立即发送消息
-    let context = RenderContext::with_sender(lease.id.clone(), tx.clone());
-    st.app.lock().set_render_context(context);
+        // 创建 RenderContext 并设置到 App 中，让 App::push 时能立即发送消息
+        let context = RenderContext::with_sender(lease.id.clone(), tx.clone());
+        st.app.lock().set_render_context(context);
 
-    // 发送初始化消息（new_session, main_block）
-    {
-        let mut app = st.app.lock();
-        if let Some(context) = app.render_context_mut() {
-            let main_script_hash = crate::utils::hash::hash("");
-            context.active_script_hash = main_script_hash.clone();
-            context.push(crate::elements::app::create_new_session(context.session_id.clone(), main_script_hash));
-            context.push(crate::elements::app::create_session_status_changed(true, false));
-            context.delta_path.push(0);
-            context.push(crate::elements::app::create_main_block());
-            context.delta_path.push(0);
+        // 发送初始化消息（new_session, main_block）
+        {
+            let mut app = st.app.lock();
+            if let Some(context) = app.render_context_mut() {
+                let main_script_hash = crate::utils::hash::hash("");
+                context.active_script_hash = main_script_hash.clone();
+                context.push(crate::elements::app::create_new_session(context.session_id.clone(), main_script_hash));
+                context.push(crate::elements::app::create_session_status_changed(true, false));
+                context.delta_path.push(0);
+                context.push(crate::elements::app::create_main_block());
+                context.delta_path.push(0);
+            }
         }
+
+        log::info!("Executing user main function...");
+
+        let state = lease.state.clone();
+        // 使用 tokio::select! 并发执行用户代码和消息发送
+        let entry_future = async {
+            for callback in callbacks {
+                callback(&st);
+            }
+            server.entry.call(&st).await;
+            state.finish_widgets();
+            // 执行完毕后发送 script_finished。测量到的 1.66.1 wire：
+            // st.rerun() 中止的 run 以 FINISHED_EARLY_FOR_RERUN 结束，
+            // st.stop() 与正常结束都以 FINISHED_SUCCESSFULLY 结束。
+            let status = match state.run_control() {
+                Some(crate::session::RunControl::Rerun) => crate::proto::forward_msg::ScriptFinishedStatus::FinishedEarlyForRerun,
+                _ => crate::proto::forward_msg::ScriptFinishedStatus::FinishedSuccessfully,
+            };
+            let mut app = st.app.lock();
+            if let Some(context) = app.render_context_mut() {
+                context.push(crate::elements::app::create_script_finished(status));
+                context.push(crate::elements::app::create_session_status_changed(false, false));
+                context.sender.take();
+            }
+            drop(tx); // 关闭 sender
+        };
+
+        let send_future = async {
+            let mut count = 0;
+            while let Some(msg) = rx.recv().await {
+                log::info!("Sending ForwardMsg #{}: {:?}", count, msg);
+                session.binary(msg.encode_to_vec()).await?;
+                count += 1;
+            }
+            log::info!("Sent {} messages total", count);
+            Ok::<_, StreamlitError>(())
+        };
+
+        // 并发执行
+        let (_, send_result) = tokio::join!(entry_future, send_future);
+        send_result?;
+
+        if lease.state.run_control() != Some(crate::session::RunControl::Rerun) {
+            break;
+        }
+        log::info!("st.rerun() requested within the run; starting the next run for session {}", lease.id);
     }
-
-    log::info!("Executing user main function...");
-
-    // 使用 tokio::select! 并发执行用户代码和消息发送
-    let entry_future = async {
-        for callback in callbacks {
-            callback(&st);
-        }
-        server.entry.call(&st).await;
-        lease.state.finish_widgets();
-        // 执行完毕后发送 script_finished
-        let mut app = st.app.lock();
-        if let Some(context) = app.render_context_mut() {
-            context.push(crate::elements::app::create_script_finished());
-            context.push(crate::elements::app::create_session_status_changed(false, false));
-            context.sender.take();
-        }
-        drop(tx); // 关闭 sender
-    };
-
-    let send_future = async {
-        let mut count = 0;
-        while let Some(msg) = rx.recv().await {
-            log::info!("Sending ForwardMsg #{}: {:?}", count, msg);
-            session.binary(msg.encode_to_vec()).await?;
-            count += 1;
-        }
-        log::info!("Sent {} messages total", count);
-        Ok::<_, StreamlitError>(())
-    };
-
-    // 并发执行
-    let (_, send_result) = tokio::join!(entry_future, send_future);
-    send_result?;
 
     log::info!("Rerun script completed for session: {}", lease.id);
     Ok(())

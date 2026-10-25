@@ -43,6 +43,11 @@ impl App {
     }
 
     pub fn push(&mut self, element: Rc<RefCell<dyn Element>>) {
+        // st.rerun()/st.stop() ended this run's output: later elements never
+        // reach the wire, matching the measured upstream semantics.
+        if self.session_state.run_control().is_some() {
+            return;
+        }
         // 如果设置了 render_context，立即 render 这个元素
         if let Some(ref mut context) = self.render_context
             && let Err(e) = element.borrow().render(context)
@@ -74,7 +79,7 @@ impl Element for App {
         }
 
         // 3. Finished
-        context.push(create_script_finished());
+        context.push(create_script_finished(forward_msg::ScriptFinishedStatus::FinishedSuccessfully));
         Ok(())
     }
 }
@@ -158,10 +163,10 @@ pub(crate) fn create_main_block() -> ForwardMsg {
     }
 }
 
-pub(crate) fn create_script_finished() -> ForwardMsg {
+pub(crate) fn create_script_finished(status: forward_msg::ScriptFinishedStatus) -> ForwardMsg {
     ForwardMsg {
         hash: "script_finished".to_string(),
         metadata: None,
-        r#type: Some(forward_msg::Type::ScriptFinished(forward_msg::ScriptFinishedStatus::FinishedSuccessfully as i32)),
+        r#type: Some(forward_msg::Type::ScriptFinished(status as i32)),
     }
 }

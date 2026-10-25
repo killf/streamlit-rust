@@ -136,7 +136,7 @@ The CSV needs lowercase `amount` and `region` headers. Optional `category` and `
 
 A header-only file shows **The uploaded CSV contains no data rows.** To filter all sample rows out, set **Minimum amount** to 200: **No rows match the current filters.** appears with an empty four-column dataframe and no chart. Set the slider back to 0 to restore the results without reloading. Totals and averages use this application's decimal HALF_UP rule, not a universal Streamlit rounding rule; averages round once from the unrounded sum divided by the count. Decimals exceeding the example's native precision are rejected instead of silently rounded.
 
-Below the results, **Interaction** contains **Pulse**, followed by **Script runs: N** and **Pulses: N**. Each script run increments the session's run count once; clicking Pulse increments both counters once while leaving the aggregate data unchanged. Filter changes rerun the script without adding a pulse. These counters are session-local and start at 1/0 on the first run of a fresh session; they do not implement the developer `st.rerun`/`st.stop` APIs or the reference application's Note form.
+Below the results, **Interaction** contains **Pulse**, followed by **Script runs: N** and **Pulses: N**. Each script run increments the session's run count once; clicking Pulse increments both counters once while leaving the aggregate data unchanged. Filter changes rerun the script without adding a pulse. These counters are session-local and start at 1/0 on the first run of a fresh session; this data app does not use the `st.rerun`/`st.stop` execution controls — the [execution example](#execution-semantics-rerun-and-stop) demonstrates them.
 
 Inside a fallible render function, read the original uploaded bytes:
 
@@ -238,8 +238,26 @@ Supported options and behavior:
 
 Each call returns `Result<(), StatusError>`. Invalid widths or icons return an error without appending that message; earlier messages remain. Two independent emoji such as `.icon("🔥💡")` are rejected. Icons must be strings in Rust. The listed compound emoji are the measured examples, not a claim that every Unicode sequence behaves identically to Python Streamlit.
 
+## Execution semantics: rerun and stop
+
+```powershell
+cargo run --example execution --locked
+```
+
+`st.rerun()` aborts the current run and starts the next one immediately, without a browser request; `st.stop()` ends the run but keeps everything rendered so far. After either call, later element pushes and session-state writes of the same run have no effect. Guard `rerun` so it fires exactly once — for example with a session-state flag — or the app reruns forever:
+
+```rust
+if st.session_state().get::<bool>("initialized").ok().flatten().is_none() {
+    st.session_state().set("initialized", true)?;
+    st.rerun();
+}
+st.write("rendered from the second run");
+```
+
+Both follow the measured Streamlit 1.66.1 wire: an aborted rerun finishes with `FINISHED_EARLY_FOR_RERUN`, a stopped run still finishes `FINISHED_SUCCESSFULLY`, and elements streamed before the call stay on the page. The [execution example](../../streamlit/examples/execution.rs) mirrors the reference fixture and lets you watch both behaviors through the selector.
+
 ## Current API
 
-Available APIs include text and layout, static status messages, `button`, `selectbox`, numeric `slider`, `checkbox`, the measured `form`/`form_submit_button`/`text_input` core, and native session state. See the [text/layout/status API](../../streamlit/src/api.rs), [widget options](../../streamlit/src/widget_api.rs), and [session API](../../streamlit/src/session.rs).
+Available APIs include text and layout, static status messages, `button`, `selectbox`, numeric `slider`, `checkbox`, the measured `form`/`form_submit_button`/`text_input` core, native session state, and the `st.rerun`/`st.stop` execution controls. See the [text/layout/status API](../../streamlit/src/api.rs), [widget options](../../streamlit/src/widget_api.rs), and [session API](../../streamlit/src/session.rs).
 
-Upload and columnar data views currently cover the limited paths described above. General table/chart APIs, selection, complete forms/text-input behavior, cache, stop/cancel, query binding, persistent hidden widgets, date/time sliders, and most other input widgets remain incomplete or absent. Widget failures are Rust `Result` errors; Python-style exception elements and matching exception UI are not implemented. Native session values, reruns, retained-session reconnects, synchronous callbacks, explicit widget keys and one-shot button triggers are available, without a claim of complete Streamlit compatibility.
+Upload and columnar data views currently cover the limited paths described above. General table/chart APIs, selection, complete forms/text-input behavior, cache, `st.quit`, query binding, persistent hidden widgets, date/time sliders, and most other input widgets remain incomplete or absent. Widget failures are Rust `Result` errors; Python-style exception elements and matching exception UI are not implemented. Native session values, reruns, retained-session reconnects, synchronous callbacks, explicit widget keys and one-shot button triggers are available, without a claim of complete Streamlit compatibility.

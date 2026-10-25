@@ -33,7 +33,7 @@ mod widgets;
 pub use api::*;
 pub use data_api::*;
 pub use server::StreamlitServer;
-pub use session::SessionState;
+pub use session::{RunControl, SessionState};
 pub use upload::{UploadedFile, UploadedFiles};
 pub use widget_api::*;
 pub use widgets::{WidgetCallback, WidgetError};
