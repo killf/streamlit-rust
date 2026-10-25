@@ -26,6 +26,8 @@ Feature completeness is necessary but not sufficient. The norms below bind every
 
 **Human-facing examples.** `streamlit/examples/` is product surface, not scratch space: every user-facing API added by a milestone appears in a minimal, runnable example; examples are edited or removed in the same milestone that changes their API; `docs/guide` stays an accurate index of what each example shows and how to run it. The usability bar: a human with only the Rust toolchain goes from fresh clone to a running app of their own using `README`, `docs/guide` and the examples, without reading server internals.
 
+**Usability.** Full parity never excuses a heavier call. Builders are value-first with `Into`/tuple conversions so the plain call is the common call; defaults equal the measured reference, so zero configuration renders the reference page; knobs beyond what evidence requires are not added; the hot path stays allocation-light and never blocks the render loop. Every new API documents a one-line shorthand next to its full-options form, and a milestone whose API reads worse than the reference's Python call is not closed.
+
 **Hygiene and cleanup.** Superseded code, tests that no longer exercise live behavior, spent probe scripts and stale doc sections are deleted in the milestone that retires them. Cleanup explicitly does not delete retained failure evidence or frozen capture artifacts: [acceptance](acceptance.md) requires failed and partial attempts to keep their real artifacts, and those are records, not clutter. Ignored `target/` rounds never migrate into the repository.
 
 ## Milestone ladder
@@ -56,4 +58,5 @@ The elements chain (journey-elements-v1) then promoted fifteen rows with one mea
 - journeys.json remains the only live step ledger and the matrix the only per-API ledger; roadmap updates at milestone close record only structure, ordering, and focus movement.
 - A feature is done when it works, is evidence-verified, reads like the rest of the codebase, is documented concisely for its audience, is shown in an example (when user-facing), and leaves nothing superseded behind. Any missing subset is an open task, not a finished feature.
 - Milestone close runs the quality pass: the clippy/fmt gates, an example build, a documentation accuracy check of everything the milestone touched, and a cleanup sweep for retired code, tests and docs.
+- Milestone close distills process lessons into [lessons](lessons.md) and prunes entries that no longer change how we work; recurring friction is promoted to a lesson the moment it is paid for twice.
 - Each milestone close updates this file's focus pointer and commits together with its evidence.
