@@ -16,6 +16,7 @@
 extern crate streamlit_macros;
 
 pub mod api;
+mod charts;
 pub mod data;
 mod data_api;
 mod elements;
@@ -23,6 +24,7 @@ pub mod error;
 pub mod media;
 mod memory;
 pub mod proto;
+pub mod pywire;
 pub mod server;
 mod session;
 mod upload;
@@ -32,6 +34,7 @@ mod widget_api;
 mod widgets;
 
 pub use api::*;
+pub use charts::{AreaChartOptions, LineChartOptions, MapOptions, ScatterChartOptions};
 pub use data_api::*;
 pub use media::{ByteRange, RgbaImage};
 pub use server::StreamlitServer;

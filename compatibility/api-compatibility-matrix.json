@@ -88,12 +88,12 @@
     "unavailable_requested_pages": 7,
     "redirect_aliases_not_counted": 2,
     "implementation_status_counts": {
-      "absent": 142,
-      "implemented": 40
+      "absent": 138,
+      "implemented": 44
     },
     "compatibility_status_counts": {
-      "unverified": 142,
-      "partial": 40
+      "unverified": 138,
+      "partial": 44
     },
     "unique_feature_ids": 182,
     "unique_official_urls": 182,
@@ -958,13 +958,29 @@
       "category": "PAGE ELEMENTS/Chart elements",
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/charts/st.area_chart",
-      "rust_source_path": null,
-      "implementation_status": "absent",
-      "compatibility_status": "unverified",
+      "rust_source_path": "streamlit/src/charts.rs",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "138a29ae29bcd21498ececbbdc6bb495f8eaac971e03297c24292824d5cd8348",
-        "python_browser_trace": null
-      }
+        "python_browser_trace": "tests/reference/reference-browser/charts/trace-charts.json",
+        "rust_wire_observation": "tests/browser/rust-charts/trace-charts.json",
+        "official_frontend_browser_e2e": "tests/browser/rust-charts/trace-charts.json",
+        "capture_entry": "tests/browser/charts_capture.py",
+        "charts_contract": "tests/browser/charts_contract.py",
+        "contract_guards": "tests/reference/test_charts_contract.py",
+        "driven_fixture": "tests/reference/charts_app.py",
+        "driven_example": "streamlit/examples/charts.rs",
+        "rust_runtime_regression": "streamlit/tests/runtime/charts.rs",
+        "frozen_dataset_oracles": "tests/reference/chart-line.arrow, tests/reference/chart-area.arrow, tests/reference/chart-scatter.arrow"
+      },
+      "rust_plan": "st.area_chart(&batch) melts every numeric series into the long form (index/color/value -- streamlit-generated), emits the measured area mark with opacity 0.7, unstacked y (stack: false), the bottom legend and the three-field tooltip.",
+      "compatibility_scope": "The journey-charts-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were both loaded by a real Chrome; both published replays return 12/12/12 exit 0 (python eb054d26... / native 849e71b8...) with identical element sequences, vega spec strings byte-equal modulo the dataset name, dataset frames equal in schema/columns/rows/pandas metadata, byte-identical deck.gl json, and identical DOM projections (three rendered charts, both deck canvases, no exception). Each served dataset name is the reference formula calc_hash(str(arrow_bytes)) — blake2b/16 of the Python str() of the bytes — over the bytes served in the same delta, verified on both sides.",
+      "limitations": [
+        "Coverage is int64 series (a non-int64 series returns an explicit error rather than approximating); stack=True and color/size selection are unobserved.",
+        "The Arrow IPC dataset bytes come from arrow-rs, whose flatbuffer layout differs from pyarrow's writer; the bytes and the name derived from them therefore differ from the reference (invisible to the frontend, which resolves names against the datasets shipped in the same message). The schema, columns, row count, rows and pandas metadata are equal and the name follows the measured formula.",
+        "charts source SHA256 10d1231ddf874e064d908c46b7cadaaf8c892e763e384b99420e24be1decadc1; fixture SHA256 bb49103ead1673de17c33c297e44587089f2a1a6903411e38d90b63ce8c5c076; example SHA256 11d1267eb2156bea9b32f77d1902d23c792674a9d963a70cfb28753df4e9b9e1."
+      ]
     },
     {
       "feature_id": "st.bar_chart",
@@ -1016,26 +1032,57 @@
       "category": "PAGE ELEMENTS/Chart elements",
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/charts/st.line_chart",
-      "rust_source_path": null,
-      "implementation_status": "absent",
-      "compatibility_status": "unverified",
+      "rust_source_path": "streamlit/src/charts.rs",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "8370e480e77e4a4e57b4643b038fc0c72fcfa0cba330417a29832c2ba9404aab",
-        "python_browser_trace": null
-      }
+        "python_browser_trace": "tests/reference/reference-browser/charts/trace-charts.json",
+        "rust_wire_observation": "tests/browser/rust-charts/trace-charts.json",
+        "official_frontend_browser_e2e": "tests/browser/rust-charts/trace-charts.json",
+        "capture_entry": "tests/browser/charts_capture.py",
+        "charts_contract": "tests/browser/charts_contract.py",
+        "contract_guards": "tests/reference/test_charts_contract.py",
+        "driven_fixture": "tests/reference/charts_app.py",
+        "driven_example": "streamlit/examples/charts.rs",
+        "rust_runtime_regression": "streamlit/tests/runtime/charts.rs",
+        "frozen_dataset_oracles": "tests/reference/chart-line.arrow, tests/reference/chart-area.arrow, tests/reference/chart-scatter.arrow"
+      },
+      "rust_plan": "st.line_chart(&batch) emits the measured three-layer interactive spec (line mark plus an invisible hover anchor and a hover highlight with a param filter) over a generated int64 index column named \"index -- streamlit-generated\" and the single numeric series, with a point-select param on mousemove and an interval zoom param, exactly as measured.",
+      "compatibility_scope": "The journey-charts-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were both loaded by a real Chrome; both published replays return 12/12/12 exit 0 (python eb054d26... / native 849e71b8...) with identical element sequences, vega spec strings byte-equal modulo the dataset name, dataset frames equal in schema/columns/rows/pandas metadata, byte-identical deck.gl json, and identical DOM projections (three rendered charts, both deck canvases, no exception). Each served dataset name is the reference formula calc_hash(str(arrow_bytes)) — blake2b/16 of the Python str() of the bytes — over the bytes served in the same delta, verified on both sides.",
+      "limitations": [
+        "Coverage is one int64 series; multiple numeric series (melted color encoding), float series tick behavior, x/y selection and width/height overrides are unobserved.",
+        "The Arrow IPC dataset bytes come from arrow-rs, whose flatbuffer layout differs from pyarrow's writer; the bytes and the name derived from them therefore differ from the reference (invisible to the frontend, which resolves names against the datasets shipped in the same message). The schema, columns, row count, rows and pandas metadata are equal and the name follows the measured formula.",
+        "charts source SHA256 10d1231ddf874e064d908c46b7cadaaf8c892e763e384b99420e24be1decadc1; fixture SHA256 bb49103ead1673de17c33c297e44587089f2a1a6903411e38d90b63ce8c5c076; example SHA256 11d1267eb2156bea9b32f77d1902d23c792674a9d963a70cfb28753df4e9b9e1."
+      ]
     },
     {
       "feature_id": "st.map",
       "category": "PAGE ELEMENTS/Chart elements",
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/charts/st.map",
-      "rust_source_path": null,
-      "implementation_status": "absent",
-      "compatibility_status": "unverified",
+      "rust_source_path": "streamlit/src/charts.rs",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "d195d032353a5b3009a3aa03b2c380c73541a9fffd3d86c8eb54244dbc7038f8",
-        "python_browser_trace": null
-      }
+        "python_browser_trace": "tests/reference/reference-browser/charts/trace-charts.json",
+        "rust_wire_observation": "tests/browser/rust-charts/trace-charts.json",
+        "official_frontend_browser_e2e": "tests/browser/rust-charts/trace-charts.json",
+        "capture_entry": "tests/browser/charts_capture.py",
+        "charts_contract": "tests/browser/charts_contract.py",
+        "contract_guards": "tests/reference/test_charts_contract.py",
+        "driven_fixture": "tests/reference/charts_app.py",
+        "driven_example": "streamlit/examples/charts.rs",
+        "rust_runtime_regression": "streamlit/tests/runtime/charts.rs",
+        "frozen_dataset_oracles": "tests/reference/chart-line.arrow, tests/reference/chart-area.arrow, tests/reference/chart-scatter.arrow"
+      },
+      "rust_plan": "st.map(&batch) emits one DeckGlJsonChart whose json string is byte-identical to the reference: a ScatterplotLayer with getPosition \"@@=[lon, lat]\", radius 100 meters with 3px minimum, fill [200, 30, 0, 160], inline data rows under alphabetically ordered keys, an initialViewState at the bounding-box midpoint, and the pinned 21-entry zoom ladder (street-level tail verified against map.py's own bisect; empty data serializes the fixed EMPTY_MAP).",
+      "compatibility_scope": "The journey-charts-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were both loaded by a real Chrome; both published replays return 12/12/12 exit 0 (python eb054d26... / native 849e71b8...) with identical element sequences, vega spec strings byte-equal modulo the dataset name, dataset frames equal in schema/columns/rows/pandas metadata, byte-identical deck.gl json, and identical DOM projections (three rendered charts, both deck canvases, no exception). Each served dataset name is the reference formula calc_hash(str(arrow_bytes)) — blake2b/16 of the Python str() of the bytes — over the bytes served in the same delta, verified on both sides.",
+      "limitations": [
+        "Coverage is the default size/color and auto viewport; the size and color parameters, custom zoom passthrough behavior beyond the ladder, named styles and the mapbox token environment variable are unobserved.",
+        "charts source SHA256 10d1231ddf874e064d908c46b7cadaaf8c892e763e384b99420e24be1decadc1; fixture SHA256 bb49103ead1673de17c33c297e44587089f2a1a6903411e38d90b63ce8c5c076; example SHA256 11d1267eb2156bea9b32f77d1902d23c792674a9d963a70cfb28753df4e9b9e1."
+      ]
     },
     {
       "feature_id": "st.mermaid_chart",
@@ -1094,13 +1141,29 @@
       "category": "PAGE ELEMENTS/Chart elements",
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/charts/st.scatter_chart",
-      "rust_source_path": null,
-      "implementation_status": "absent",
-      "compatibility_status": "unverified",
+      "rust_source_path": "streamlit/src/charts.rs",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "720e40a053e1ef081bc56140d908e8fdef5737519858a2d41443f53ac9e3e267",
-        "python_browser_trace": null
-      }
+        "python_browser_trace": "tests/reference/reference-browser/charts/trace-charts.json",
+        "rust_wire_observation": "tests/browser/rust-charts/trace-charts.json",
+        "official_frontend_browser_e2e": "tests/browser/rust-charts/trace-charts.json",
+        "capture_entry": "tests/browser/charts_capture.py",
+        "charts_contract": "tests/browser/charts_contract.py",
+        "contract_guards": "tests/reference/test_charts_contract.py",
+        "driven_fixture": "tests/reference/charts_app.py",
+        "driven_example": "streamlit/examples/charts.rs",
+        "rust_runtime_regression": "streamlit/tests/runtime/charts.rs",
+        "frozen_dataset_oracles": "tests/reference/chart-line.arrow, tests/reference/chart-area.arrow, tests/reference/chart-scatter.arrow"
+      },
+      "rust_plan": "st.scatter_chart(ScatterChartOptions::new(&batch, x, y)) emits the measured circle mark with size 100, titleless tooltips and axis titles from the column names over the two explicit numeric columns with no generated index.",
+      "compatibility_scope": "The journey-charts-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were both loaded by a real Chrome; both published replays return 12/12/12 exit 0 (python eb054d26... / native 849e71b8...) with identical element sequences, vega spec strings byte-equal modulo the dataset name, dataset frames equal in schema/columns/rows/pandas metadata, byte-identical deck.gl json, and identical DOM projections (three rendered charts, both deck canvases, no exception). Each served dataset name is the reference formula calc_hash(str(arrow_bytes)) — blake2b/16 of the Python str() of the bytes — over the bytes served in the same delta, verified on both sides.",
+      "limitations": [
+        "Coverage is explicit numeric x/y; the default column inference, the size/color parameters and non-numeric columns are unobserved (the latter return explicit errors).",
+        "The Arrow IPC dataset bytes come from arrow-rs, whose flatbuffer layout differs from pyarrow's writer; the bytes and the name derived from them therefore differ from the reference (invisible to the frontend, which resolves names against the datasets shipped in the same message). The schema, columns, row count, rows and pandas metadata are equal and the name follows the measured formula.",
+        "charts source SHA256 10d1231ddf874e064d908c46b7cadaaf8c892e763e384b99420e24be1decadc1; fixture SHA256 bb49103ead1673de17c33c297e44587089f2a1a6903411e38d90b63ce8c5c076; example SHA256 11d1267eb2156bea9b32f77d1902d23c792674a9d963a70cfb28753df4e9b9e1."
+      ]
     },
     {
       "feature_id": "st.vega_lite_chart",

@@ -183,6 +183,23 @@ Use `TableOptions::new(&batch)` for borders, index/header visibility, size and a
 
 Support is partial: the native bar path covers the measured Int64/Float64 series and string/numeric categories, including the captured null/negative-value configurations. Other Arrow types, color rules and stack variants are not fully covered. Mixed large integer/float input can return a Rust error where Python rounds; do not rely on matching that conversion. Selection, `add_rows` and the complete table/chart surface remain incomplete. See [data options](../../streamlit/src/data_api.rs) for the current typed API.
 
+## Line, area, scatter charts and maps
+
+```powershell
+cargo run --example charts --locked
+```
+
+Open `http://127.0.0.1:8512/` (stop another example on that port first). The [charts example](../../streamlit/examples/charts.rs) mirrors the Python reference fixture of the charts differential chain: one line, area and scatter chart plus one map, rendered byte-for-byte like the reference page.
+
+```rust
+st.line_chart(batch)?;                                          // one numeric series over a generated index
+st.area_chart(batch)?;                                          // every numeric series melted into one area
+st.scatter_chart(ScatterChartOptions::new(batch, "x", "y"))?;   // explicit numeric columns
+st.map(batch)?;                                                 // latitude/longitude columns, auto viewport
+```
+
+`MapOptions::new(batch).latitude("lat").longitude("lon").zoom(12)` renames the coordinate columns or pins the zoom; the default bisects the data's extent over the reference's zoom ladder. Line charts require exactly one numeric series and area charts int64 series — out-of-subset input returns an error instead of approximating. The chart datasets' Arrow bytes come from the Rust writer (semantically identical, including the pandas metadata; the content-derived dataset name therefore differs from a pyarrow run, which the frontend never observes).
+
 ## Input widgets
 
 ```powershell

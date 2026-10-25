@@ -426,6 +426,17 @@ def summarise_forward(payload: bytes) -> dict:
                     }
                     if chart.data and chart.data.data:
                         entry["arrow"] = arrow_summary(chart.data.data)
+                if name == "deck_gl_json_chart":
+                    deck = element.deck_gl_json_chart
+                    entry["deck_gl_json"] = json.loads(deck.json) if deck.json else None
+                    entry["deck_gl_fields"] = {
+                        "id": deck.id,
+                        "tooltip": deck.tooltip,
+                        "mapbox_token": deck.mapbox_token,
+                        "selection_mode": list(deck.selection_mode),
+                        "form_id": deck.form_id,
+                        "alt": deck.alt,
+                    }
                 if name in ("arrow_data_frame", "arrow_vega_lite_chart"):
                     arrow = getattr(element, name, None)
                     if arrow is not None:
@@ -732,6 +743,7 @@ DATA_ELEMENT_TYPES = (
     "dataframe",
     "table",
     "vega_lite_chart",
+    "deck_gl_json_chart",
     "file_uploader",
 )
 

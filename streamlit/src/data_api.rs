@@ -1,8 +1,10 @@
 //! Columnar data views using the same element pipeline as native inputs.
 use crate::api::AppendChild;
-use crate::data::{Array, ArrayRef, DataError, DataType, Field, Float64Array, Int64Array, LargeStringArray, RecordBatch, Schema, to_ipc_stream};
+use crate::charts::{self, AreaChartOptions, LineChartOptions, MapOptions, ScatterChartOptions, VEGA_SCHEMA_URL, chart_batch, chart_dataset};
+use crate::data::{Array, ArrayRef, DataError, DataType, Field, Float64Array, Int64Array, LargeStringArray, RecordBatch, to_ipc_stream};
 use crate::elements::data::DataElement;
 use crate::proto::{self, element};
+use crate::pywire::py_dumps;
 use serde_json::{Value, json};
 use std::{cell::RefCell, rc::Rc, sync::Arc};
 
@@ -21,7 +23,7 @@ impl From<i32> for DataSize {
 }
 
 impl DataSize {
-    fn width(self) -> Result<Option<proto::streamlit::WidthConfig>, DataError> {
+    pub(crate) fn width(self) -> Result<Option<proto::streamlit::WidthConfig>, DataError> {
         use proto::streamlit::width_config::WidthSpec;
         let width_spec = match self {
             Self::Stretch => WidthSpec::UseStretch(true),
@@ -32,7 +34,7 @@ impl DataSize {
         Ok(Some(proto::streamlit::WidthConfig { width_spec: Some(width_spec) }))
     }
 
-    fn height(self) -> Result<Option<proto::streamlit::HeightConfig>, DataError> {
+    pub(crate) fn height(self) -> Result<Option<proto::streamlit::HeightConfig>, DataError> {
         use proto::streamlit::height_config::HeightSpec;
         let height_spec = match self {
             Self::Auto => return Ok(None),
@@ -279,6 +281,10 @@ pub trait DataApi {
     fn table<'a>(&self, data: impl Into<TableOptions<'a>>) -> Result<(), DataError>;
     fn dataframe<'a>(&self, data: impl Into<DataframeOptions<'a>>) -> Result<(), DataError>;
     fn bar_chart<'a>(&self, options: impl Into<BarChartOptions<'a>>) -> Result<(), DataError>;
+    fn line_chart<'a>(&self, options: impl Into<LineChartOptions<'a>>) -> Result<(), DataError>;
+    fn area_chart<'a>(&self, options: impl Into<AreaChartOptions<'a>>) -> Result<(), DataError>;
+    fn scatter_chart<'a>(&self, options: impl Into<ScatterChartOptions<'a>>) -> Result<(), DataError>;
+    fn map<'a>(&self, options: impl Into<MapOptions<'a>>) -> Result<(), DataError>;
 }
 
 fn append(this: &impl AppendChild, element: proto::Element) {
@@ -525,9 +531,8 @@ fn append_native_bar(this: &impl AppendChild, options: &BarChartOptions<'_>, nat
         fields.push(Field::new(&y_name, values.data_type().clone(), values.is_nullable()));
         arrays.push(values);
     }
-    let batch = RecordBatch::try_new(Arc::new(Schema::new(fields)), arrays)?;
-    let data = arrow_data(&batch)?;
-    let name = format!("{:x}", md5::compute(&data.data));
+    let batch = chart_batch(fields.into_iter().zip(arrays).collect())?;
+    let (name, ipc) = chart_dataset(&batch)?;
     let mut category = json!({"axis":{"grid":false},"field":vega_literal_field(&x_name),"scale":{},"title":x_title,"type":"ordinal"});
     if x_tooltip_type == "quantitative" {
         category["axis"]["tickMinStep"] = json!(1);
@@ -540,13 +545,24 @@ fn append_native_bar(this: &impl AppendChild, options: &BarChartOptions<'_>, nat
     if batch.column_by_name(&y_name).expect("constructed field").data_type() == &DataType::Int64 {
         value["axis"]["tickMinStep"] = json!(1);
     }
-    let mut tooltip = json!([
-        {"field":vega_literal_field(&x_name),"title":if x_title.is_empty() { "index" } else { &x_title },"type":x_tooltip_type},
-        {"field":vega_literal_field(&y_name),"title":if wide { "value" } else { &y_title },"type":"quantitative"}
-    ]);
-    if inferred_single {
-        tooltip[1].as_object_mut().expect("tooltip object").remove("title");
-    }
+    // The measured tooltip rule: a field carries a title only when its wire
+    // name is generated (the index) or an alias of a dotted/bracketed
+    // original, never for a plain column name.
+    let x_tooltip = if x_name == "index -- streamlit-generated" {
+        json!({"field":vega_literal_field(&x_name),"title":"index","type":x_tooltip_type})
+    } else if x_name != x_title {
+        json!({"field":vega_literal_field(&x_name),"title":x_title,"type":x_tooltip_type})
+    } else {
+        json!({"field":vega_literal_field(&x_name),"type":x_tooltip_type})
+    };
+    let y_tooltip = if y_name == "value -- streamlit-generated" {
+        json!({"field":vega_literal_field(&y_name),"title":"value","type":"quantitative"})
+    } else if y_name != y_title {
+        json!({"field":vega_literal_field(&y_name),"title":y_title,"type":"quantitative"})
+    } else {
+        json!({"field":vega_literal_field(&y_name),"type":"quantitative"})
+    };
+    let tooltip = json!([x_tooltip, y_tooltip]);
     let mut encoding = if native.horizontal {
         json!({"x":value,"y":category,"tooltip":tooltip})
     } else {
@@ -564,17 +580,21 @@ fn append_native_bar(this: &impl AppendChild, options: &BarChartOptions<'_>, nat
     }
     let spec = json!({"data":{"name":name},"mark":{"type":"bar"},"encoding":encoding,
         "height":if let DataSize::Pixels(value) = options.height { value } else { 0 },
-        "width":if let DataSize::Pixels(value) = options.width { value } else { 0 },
         "params":[{"name":"param_1","select":{"type":"interval","encodings":["x","y"]},"bind":"scales"}],
-        "$schema":"https://vega.github.io/schema/vega-lite/v5.20.1.json","autosize":{"type":"fit","contains":"padding"}});
+        "width":if let DataSize::Pixels(value) = options.width { value } else { 0 },
+        "$schema":VEGA_SCHEMA_URL,"autosize":{"type":"fit","contains":"padding"}});
     append(
         this,
         proto::Element {
             width_config,
             height_config,
             r#type: Some(element::Type::VegaLiteChart(proto::VegaLiteChart {
-                spec: serde_json::to_string(&spec)?,
-                datasets: vec![proto::ArrowNamedDataSet { name, has_name: true, data: Some(data) }],
+                spec: py_dumps(&spec),
+                datasets: vec![proto::ArrowNamedDataSet {
+                    name,
+                    has_name: true,
+                    data: Some(proto::ArrowData { data: ipc, styler: None }),
+                }],
                 theme: "streamlit".into(),
                 ..Default::default()
             })),
@@ -695,6 +715,22 @@ impl<C: AppendChild> DataApi for C {
         };
         append(self, element);
         Ok(())
+    }
+
+    fn line_chart<'a>(&self, options: impl Into<LineChartOptions<'a>>) -> Result<(), DataError> {
+        charts::render_line_chart(self, &options.into())
+    }
+
+    fn area_chart<'a>(&self, options: impl Into<AreaChartOptions<'a>>) -> Result<(), DataError> {
+        charts::render_area_chart(self, &options.into())
+    }
+
+    fn scatter_chart<'a>(&self, options: impl Into<ScatterChartOptions<'a>>) -> Result<(), DataError> {
+        charts::render_scatter_chart(self, &options.into())
+    }
+
+    fn map<'a>(&self, options: impl Into<MapOptions<'a>>) -> Result<(), DataError> {
+        charts::render_map(self, &options.into())
     }
 }
 

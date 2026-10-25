@@ -19,7 +19,9 @@ actix-multipart = { workspace = true }
 futures-util = { workspace = true }
 tokio = { workspace = true }
 serde = { workspace = true }
-serde_json = { workspace = true }
+# Insertion-order maps: the measured chart specs serialize in the
+# reference's construction order, not sorted order.
+serde_json = { workspace = true, features = ["preserve_order"] }
 uuid = { workspace = true }
 subtle = { workspace = true }
 chrono = { workspace = true }

@@ -61,3 +61,19 @@ deleted. Product-level quality norms live in the
     table), the encoder has a decoder round-trip test, and the screenshot
     diff went to exactly 0. Any binary-emitting feature needs at least one
     independent decoder in its evidence chain.
+13. **Never transcribe constant tables from a partial read — extract them
+    programmatically.** The charts review caught a fabricated zoom-ladder
+    tail: the first twelve entries were read from the reference source and
+    the remaining nine were reconstructed from a plausible pattern, silently
+    diverging exactly where the fixture never looked (distances < 0.003°).
+    Copy every numeric table out of the pinned source with a script (or
+    freeze it from the reference at test time), and when a fixture exercises
+    only one region of a table, pin the unexercised regions separately.
+14. **Serialization parity means separators and key order, not just
+    structure.** The native bar chart had shipped with compact alphabetical
+    serde_json output where the reference emits `json.dumps` defaults
+    (`", "`/`": "` separators) in construction order; both survived because
+    comparisons parsed the JSON. When the wire carries a string, freeze the
+    string. A small Python-compatible dumper plus insertion-ordered maps
+    (`serde_json` `preserve_order`) made spec strings byte-comparable, and
+    auditing the identity-hash inputs first kept the feature flip safe.

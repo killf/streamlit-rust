@@ -1,0 +1,777 @@
+{
+ "schema_version": 1,
+ "journey": "charts-page",
+ "contract": "journey-charts-v1",
+ "scope": "RUST SIDE ONLY",
+ "url": "http://127.0.0.1:8512/",
+ "observation": {
+  "journey": "charts-page",
+  "contract": "journey-charts-v1",
+  "scope": "RUST SIDE ONLY",
+  "url": "http://127.0.0.1:8512/",
+  "binary": null,
+  "source": {
+   "file": "streamlit/examples/charts.rs",
+   "sha256": "11d1267eb2156bea9b32f77d1902d23c792674a9d963a70cfb28753df4e9b9e1"
+  },
+  "capture_sources": {
+   "charts_capture.py": "0b6e24d828bae8046f8b31264d8899b8de6b287de6fa5e8c53d0f7ed4e261303",
+   "charts_contract.py": "dee7fedbe000b937a6902a55ba95113a962f3e3e793de953258ffc0603c87baf"
+  },
+  "stages": [
+   {
+    "name": "01-load",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 5497.882896,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": []
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 5497.885752,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "cfd8005e-2dbb-452b-8015-32c925d67f31",
+        "name": "Streamlit Rust",
+        "main_script_path": "",
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "session_id": "4384722b-2182-4cee-90f8-943054dbc6fa"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 5497.887067,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 5497.891976,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "main_container",
+        "block_type": "vertical",
+        "path": [
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 5497.892302,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "vega_lite_chart",
+        "element_full": {
+         "vegaLiteChart": {
+          "spec": "{\"layer\": [{\"mark\": {\"type\": \"line\"}, \"encoding\": {\"tooltip\": [{\"field\": \"index -- streamlit-generated\", \"title\": \"index\", \"type\": \"quantitative\"}, {\"field\": \"value\", \"type\": \"quantitative\"}], \"x\": {\"axis\": {\"grid\": false, \"tickMinStep\": 1}, \"field\": \"index -- streamlit-generated\", \"scale\": {}, \"title\": \"\", \"type\": \"quantitative\"}, \"y\": {\"axis\": {\"grid\": true, \"tickMinStep\": 1}, \"field\": \"value\", \"scale\": {}, \"title\": \"\", \"type\": \"quantitative\"}}, \"name\": \"view_1\"}, {\"mark\": {\"type\": \"point\", \"opacity\": 0}, \"encoding\": {\"tooltip\": [{\"field\": \"index -- streamlit-generated\", \"title\": \"index\", \"type\": \"quantitative\"}, {\"field\": \"value\", \"type\": \"quantitative\"}], \"x\": {\"axis\": {\"grid\": false, \"tickMinStep\": 1}, \"field\": \"index -- streamlit-generated\", \"scale\": {}, \"title\": \"\", \"type\": \"quantitative\"}, \"y\": {\"axis\": {\"grid\": true, \"tickMinStep\": 1}, \"field\": \"value\", \"scale\": {}, \"title\": \"\", \"type\": \"quantitative\"}}, \"name\": \"view_2\"}, {\"mark\": {\"type\": \"point\", \"filled\": true, \"size\": 65}, \"encoding\": {\"tooltip\": [{\"field\": \"index -- streamlit-generated\", \"title\": \"index\", \"type\": \"quantitative\"}, {\"field\": \"value\", \"type\": \"quantitative\"}], \"x\": {\"axis\": {\"grid\": false, \"tickMinStep\": 1}, \"field\": \"index -- streamlit-generated\", \"scale\": {}, \"title\": \"\", \"type\": \"quantitative\"}, \"y\": {\"axis\": {\"grid\": true, \"tickMinStep\": 1}, \"field\": \"value\", \"scale\": {}, \"title\": \"\", \"type\": \"quantitative\"}}, \"transform\": [{\"filter\": {\"param\": \"param_1\", \"empty\": false}}]}], \"config\": {\"legend\": {\"symbolType\": \"stroke\"}}, \"data\": {\"name\": \"ce370825173e5d22f6f0cd31cbb9887a\"}, \"height\": 0, \"params\": [{\"name\": \"param_1\", \"select\": {\"type\": \"point\", \"clear\": \"mouseleave\", \"fields\": [\"index -- streamlit-generated\"], \"nearest\": true, \"on\": \"mousemove\"}, \"views\": [\"view_2\"]}, {\"name\": \"param_2\", \"select\": {\"type\": \"interval\", \"encodings\": [\"x\", \"y\"]}, \"bind\": \"scales\", \"views\": [\"view_1\"]}], \"width\": 0, \"$schema\": \"https://vega.github.io/schema/vega-lite/v5.20.1.json\", \"autosize\": {\"type\": \"fit\", \"contains\": \"padding\"}}",
+          "datasets": [
+           {
+            "name": "ce370825173e5d22f6f0cd31cbb9887a",
+            "data": {
+             "data": "/////3gDAAAQAAAAAAAKAA4ADAALAAQACgAAABQAAAAAAAABBAAKAAwAAAAIAAQACgAAAAgAAACIAgAAAQAAAAwAAAAIAAwACAAEAAgAAAAIAAAAYAIAAFYCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDMsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAiaW5kZXggLS0gc3RyZWFtbGl0LWdlbmVyYXRlZCIsICJmaWVsZF9uYW1lIjogImluZGV4IC0tIHN0cmVhbWxpdC1nZW5lcmF0ZWQiLCAicGFuZGFzX3R5cGUiOiAiaW50NjQiLCAibnVtcHlfdHlwZSI6ICJpbnQ2NCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAidmFsdWUiLCAiZmllbGRfbmFtZSI6ICJ2YWx1ZSIsICJwYW5kYXNfdHlwZSI6ICJpbnQ2NCIsICJudW1weV90eXBlIjogImludDY0IiwgIm1ldGFkYXRhIjogbnVsbH1dLCAiYXR0cmlidXRlcyI6IHt9LCAiY3JlYXRvciI6IHsibGlicmFyeSI6ICJweWFycm93IiwgInZlcnNpb24iOiAiMjYuMC4wIn0sICJwYW5kYXNfdmVyc2lvbiI6ICIzLjEuMCJ9AAAGAAAAcGFuZGFzAAACAAAASAAAAAQAAADQ////EAAAABgAAAAAAAECFAAAAMD///9AAAAAAAAAAQAAAAAFAAAAdmFsdWUAAAAQABQAEAAOAA8ABAAAAAgAEAAAABgAAAAgAAAAAAABAhwAAAAIAAwABAALAAgAAABAAAAAAAAAAQAAAAAcAAAAaW5kZXggLS0gc3RyZWFtbGl0LWdlbmVyYXRlZAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/////uAAAABAAAAAMABoAGAAXAAQACAAMAAAAIAAAAAABAAAAAAAAAAAAAAAAAAMEAAoAGAAMAAgABAAKAAAAPAAAABAAAAADAAAAAAAAAAAAAAACAAAAAwAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAQAAAAAAAABAAAAAAAAAABgAAAAAAAAAgAAAAAAAAAABAAAAAAAAAMAAAAAAAAAAGAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAEAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/////wAAAAA="
+            },
+            "hasName": true
+           }
+          ],
+          "theme": "streamlit"
+         },
+         "heightConfig": {
+          "useContent": true
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "vega_lite_spec_raw": "{\"layer\": [{\"mark\": {\"type\": \"line\"}, \"encoding\": {\"tooltip\": [{\"field\": \"index -- streamlit-generated\", \"title\": \"index\", \"type\": \"quantitative\"}, {\"field\": \"value\", \"type\": \"quantitative\"}], \"x\": {\"axis\": {\"grid\": false, \"tickMinStep\": 1}, \"field\": \"index -- streamlit-generated\", \"scale\": {}, \"title\": \"\", \"type\": \"quantitative\"}, \"y\": {\"axis\": {\"grid\": true, \"tickMinStep\": 1}, \"field\": \"value\", \"scale\": {}, \"title\": \"\", \"type\": \"quantitative\"}}, \"name\": \"view_1\"}, {\"mark\": {\"type\": \"point\", \"opacity\": 0}, \"encoding\": {\"tooltip\": [{\"field\": \"index -- streamlit-generated\", \"title\": \"index\", \"type\": \"quantitative\"}, {\"field\": \"value\", \"type\": \"quantitative\"}], \"x\": {\"axis\": {\"grid\": false, \"tickMinStep\": 1}, \"field\": \"index -- streamlit-generated\", \"scale\": {}, \"title\": \"\", \"type\": \"quantitative\"}, \"y\": {\"axis\": {\"grid\": true, \"tickMinStep\": 1}, \"field\": \"value\", \"scale\": {}, \"title\": \"\", \"type\": \"quantitative\"}}, \"name\": \"view_2\"}, {\"mark\": {\"type\": \"point\", \"filled\": true, \"size\": 65}, \"encoding\": {\"tooltip\": [{\"field\": \"index -- streamlit-generated\", \"title\": \"index\", \"type\": \"quantitative\"}, {\"field\": \"value\", \"type\": \"quantitative\"}], \"x\": {\"axis\": {\"grid\": false, \"tickMinStep\": 1}, \"field\": \"index -- streamlit-generated\", \"scale\": {}, \"title\": \"\", \"type\": \"quantitative\"}, \"y\": {\"axis\": {\"grid\": true, \"tickMinStep\": 1}, \"field\": \"value\", \"scale\": {}, \"title\": \"\", \"type\": \"quantitative\"}}, \"transform\": [{\"filter\": {\"param\": \"param_1\", \"empty\": false}}]}], \"config\": {\"legend\": {\"symbolType\": \"stroke\"}}, \"data\": {\"name\": \"ce370825173e5d22f6f0cd31cbb9887a\"}, \"height\": 0, \"params\": [{\"name\": \"param_1\", \"select\": {\"type\": \"point\", \"clear\": \"mouseleave\", \"fields\": [\"index -- streamlit-generated\"], \"nearest\": true, \"on\": \"mousemove\"}, \"views\": [\"view_2\"]}, {\"name\": \"param_2\", \"select\": {\"type\": \"interval\", \"encodings\": [\"x\", \"y\"]}, \"bind\": \"scales\", \"views\": [\"view_1\"]}], \"width\": 0, \"$schema\": \"https://vega.github.io/schema/vega-lite/v5.20.1.json\", \"autosize\": {\"type\": \"fit\", \"contains\": \"padding\"}}",
+        "vega_lite_spec": {
+         "layer": [
+          {
+           "mark": {
+            "type": "line"
+           },
+           "encoding": {
+            "tooltip": [
+             {
+              "field": "index -- streamlit-generated",
+              "title": "index",
+              "type": "quantitative"
+             },
+             {
+              "field": "value",
+              "type": "quantitative"
+             }
+            ],
+            "x": {
+             "axis": {
+              "grid": false,
+              "tickMinStep": 1
+             },
+             "field": "index -- streamlit-generated",
+             "scale": {},
+             "title": "",
+             "type": "quantitative"
+            },
+            "y": {
+             "axis": {
+              "grid": true,
+              "tickMinStep": 1
+             },
+             "field": "value",
+             "scale": {},
+             "title": "",
+             "type": "quantitative"
+            }
+           },
+           "name": "view_1"
+          },
+          {
+           "mark": {
+            "type": "point",
+            "opacity": 0
+           },
+           "encoding": {
+            "tooltip": [
+             {
+              "field": "index -- streamlit-generated",
+              "title": "index",
+              "type": "quantitative"
+             },
+             {
+              "field": "value",
+              "type": "quantitative"
+             }
+            ],
+            "x": {
+             "axis": {
+              "grid": false,
+              "tickMinStep": 1
+             },
+             "field": "index -- streamlit-generated",
+             "scale": {},
+             "title": "",
+             "type": "quantitative"
+            },
+            "y": {
+             "axis": {
+              "grid": true,
+              "tickMinStep": 1
+             },
+             "field": "value",
+             "scale": {},
+             "title": "",
+             "type": "quantitative"
+            }
+           },
+           "name": "view_2"
+          },
+          {
+           "mark": {
+            "type": "point",
+            "filled": true,
+            "size": 65
+           },
+           "encoding": {
+            "tooltip": [
+             {
+              "field": "index -- streamlit-generated",
+              "title": "index",
+              "type": "quantitative"
+             },
+             {
+              "field": "value",
+              "type": "quantitative"
+             }
+            ],
+            "x": {
+             "axis": {
+              "grid": false,
+              "tickMinStep": 1
+             },
+             "field": "index -- streamlit-generated",
+             "scale": {},
+             "title": "",
+             "type": "quantitative"
+            },
+            "y": {
+             "axis": {
+              "grid": true,
+              "tickMinStep": 1
+             },
+             "field": "value",
+             "scale": {},
+             "title": "",
+             "type": "quantitative"
+            }
+           },
+           "transform": [
+            {
+             "filter": {
+              "param": "param_1",
+              "empty": false
+             }
+            }
+           ]
+          }
+         ],
+         "config": {
+          "legend": {
+           "symbolType": "stroke"
+          }
+         },
+         "data": {
+          "name": "ce370825173e5d22f6f0cd31cbb9887a"
+         },
+         "height": 0,
+         "params": [
+          {
+           "name": "param_1",
+           "select": {
+            "type": "point",
+            "clear": "mouseleave",
+            "fields": [
+             "index -- streamlit-generated"
+            ],
+            "nearest": true,
+            "on": "mousemove"
+           },
+           "views": [
+            "view_2"
+           ]
+          },
+          {
+           "name": "param_2",
+           "select": {
+            "type": "interval",
+            "encodings": [
+             "x",
+             "y"
+            ]
+           },
+           "bind": "scales",
+           "views": [
+            "view_1"
+           ]
+          }
+         ],
+         "width": 0,
+         "$schema": "https://vega.github.io/schema/vega-lite/v5.20.1.json",
+         "autosize": {
+          "type": "fit",
+          "contains": "padding"
+         }
+        },
+        "vega_lite_datasets": [
+         {
+          "name": "ce370825173e5d22f6f0cd31cbb9887a",
+          "has_name": true,
+          "arrow": {
+           "bytes": 1352,
+           "sha256": "193565f163c5d94ac71aabb1b08f5f41a2bde730ec5074df141db6cc77a5d352",
+           "base64": "/////3gDAAAQAAAAAAAKAA4ADAALAAQACgAAABQAAAAAAAABBAAKAAwAAAAIAAQACgAAAAgAAACIAgAAAQAAAAwAAAAIAAwACAAEAAgAAAAIAAAAYAIAAFYCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDMsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAiaW5kZXggLS0gc3RyZWFtbGl0LWdlbmVyYXRlZCIsICJmaWVsZF9uYW1lIjogImluZGV4IC0tIHN0cmVhbWxpdC1nZW5lcmF0ZWQiLCAicGFuZGFzX3R5cGUiOiAiaW50NjQiLCAibnVtcHlfdHlwZSI6ICJpbnQ2NCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAidmFsdWUiLCAiZmllbGRfbmFtZSI6ICJ2YWx1ZSIsICJwYW5kYXNfdHlwZSI6ICJpbnQ2NCIsICJudW1weV90eXBlIjogImludDY0IiwgIm1ldGFkYXRhIjogbnVsbH1dLCAiYXR0cmlidXRlcyI6IHt9LCAiY3JlYXRvciI6IHsibGlicmFyeSI6ICJweWFycm93IiwgInZlcnNpb24iOiAiMjYuMC4wIn0sICJwYW5kYXNfdmVyc2lvbiI6ICIzLjEuMCJ9AAAGAAAAcGFuZGFzAAACAAAASAAAAAQAAADQ////EAAAABgAAAAAAAECFAAAAMD///9AAAAAAAAAAQAAAAAFAAAAdmFsdWUAAAAQABQAEAAOAA8ABAAAAAgAEAAAABgAAAAgAAAAAAABAhwAAAAIAAwABAALAAgAAABAAAAAAAAAAQAAAAAcAAAAaW5kZXggLS0gc3RyZWFtbGl0LWdlbmVyYXRlZAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/////uAAAABAAAAAMABoAGAAXAAQACAAMAAAAIAAAAAABAAAAAAAAAAAAAAAAAAMEAAoAGAAMAAgABAAKAAAAPAAAABAAAAADAAAAAAAAAAAAAAACAAAAAwAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAQAAAAAAAABAAAAAAAAAABgAAAAAAAAAgAAAAAAAAAABAAAAAAAAAMAAAAAAAAAAGAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAEAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/////wAAAAA=",
+           "schema": "index -- streamlit-generated: int64\nvalue: int64\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 534",
+           "columns": [
+            "index -- streamlit-generated",
+            "value"
+           ],
+           "row_count": 3,
+           "rows": [
+            {
+             "index -- streamlit-generated": 0,
+             "value": 2
+            },
+            {
+             "index -- streamlit-generated": 1,
+             "value": 1
+            },
+            {
+             "index -- streamlit-generated": 2,
+             "value": 3
+            }
+           ]
+          }
+         }
+        ],
+        "vega_lite_fields": {
+         "use_container_width": false,
+         "theme": "streamlit",
+         "id": "",
+         "form_id": ""
+        },
+        "id": "",
+        "form_id": "",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 5497.892731,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "vega_lite_chart",
+        "element_full": {
+         "vegaLiteChart": {
+          "spec": "{\"data\": {\"name\": \"b862c308d508b3d595a8374d375df1a7\"}, \"mark\": {\"type\": \"area\"}, \"encoding\": {\"color\": {\"field\": \"color -- streamlit-generated\", \"legend\": {\"titlePadding\": 5, \"offset\": 5, \"orient\": \"bottom\"}, \"title\": \" \", \"type\": \"nominal\"}, \"opacity\": {\"value\": 0.7}, \"tooltip\": [{\"field\": \"index -- streamlit-generated\", \"title\": \"index\", \"type\": \"quantitative\"}, {\"field\": \"value -- streamlit-generated\", \"title\": \"value\", \"type\": \"quantitative\"}, {\"field\": \"color -- streamlit-generated\", \"title\": \"color\", \"type\": \"nominal\"}], \"x\": {\"axis\": {\"grid\": false, \"tickMinStep\": 1}, \"field\": \"index -- streamlit-generated\", \"scale\": {}, \"title\": \"\", \"type\": \"quantitative\"}, \"y\": {\"axis\": {\"grid\": true, \"tickMinStep\": 1}, \"field\": \"value -- streamlit-generated\", \"scale\": {}, \"stack\": false, \"title\": \"\", \"type\": \"quantitative\"}}, \"height\": 0, \"params\": [{\"name\": \"param_1\", \"select\": {\"type\": \"interval\", \"encodings\": [\"x\", \"y\"]}, \"bind\": \"scales\"}], \"width\": 0, \"$schema\": \"https://vega.github.io/schema/vega-lite/v5.20.1.json\", \"autosize\": {\"type\": \"fit\", \"contains\": \"padding\"}}",
+          "datasets": [
+           {
+            "name": "b862c308d508b3d595a8374d375df1a7",
+            "data": {
+             "data": "/////7gEAAAQAAAAAAAKAA4ADAALAAQACgAAABQAAAAAAAABBAAKAAwAAAAIAAQACgAAAAgAAABQAwAAAQAAAAwAAAAIAAwACAAEAAgAAAAIAAAAKAMAABwDAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDYsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAiaW5kZXggLS0gc3RyZWFtbGl0LWdlbmVyYXRlZCIsICJmaWVsZF9uYW1lIjogImluZGV4IC0tIHN0cmVhbWxpdC1nZW5lcmF0ZWQiLCAicGFuZGFzX3R5cGUiOiAiaW50NjQiLCAibnVtcHlfdHlwZSI6ICJpbnQ2NCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAiY29sb3IgLS0gc3RyZWFtbGl0LWdlbmVyYXRlZCIsICJmaWVsZF9uYW1lIjogImNvbG9yIC0tIHN0cmVhbWxpdC1nZW5lcmF0ZWQiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJ2YWx1ZSAtLSBzdHJlYW1saXQtZ2VuZXJhdGVkIiwgImZpZWxkX25hbWUiOiAidmFsdWUgLS0gc3RyZWFtbGl0LWdlbmVyYXRlZCIsICJwYW5kYXNfdHlwZSI6ICJpbnQ2NCIsICJudW1weV90eXBlIjogImludDY0IiwgIm1ldGFkYXRhIjogbnVsbH1dLCAiYXR0cmlidXRlcyI6IHt9LCAiY3JlYXRvciI6IHsibGlicmFyeSI6ICJweWFycm93IiwgInZlcnNpb24iOiAiMjYuMC4wIn0sICJwYW5kYXNfdmVyc2lvbiI6ICIzLjEuMCJ9AAAAAAYAAABwYW5kYXMAAAMAAACoAAAAUAAAAAQAAAB0////EAAAABgAAAAAAAECFAAAAGT///9AAAAAAAAAAQAAAAAcAAAAdmFsdWUgLS0gc3RyZWFtbGl0LWdlbmVyYXRlZAAAAAC8////GAAAAAwAAAAAAAEUEAAAAAAAAAAEAAQABAAAABwAAABjb2xvciAtLSBzdHJlYW1saXQtZ2VuZXJhdGVkAAAAABAAFAAQAA4ADwAEAAAACAAQAAAAGAAAACAAAAAAAAECHAAAAAgADAAEAAsACAAAAEAAAAAAAAABAAAAABwAAABpbmRleCAtLSBzdHJlYW1saXQtZ2VuZXJhdGVkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/////4AAAAEAAAAAwAGgAYABcABAAIAAwAAAAgAAAAwAEAAAAAAAAAAAAAAAAAAwQACgAYAAwACAAEAAoAAABMAAAAEAAAAAYAAAAAAAAAAAAAAAMAAAAGAAAAAAAAAAAAAAAAAAAABgAAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAAAAAAAAAAAABwAAAAAAAAAAAAAAAQAAAAAAAABAAAAAAAAAADAAAAAAAAAAgAAAAAAAAAABAAAAAAAAAMAAAAAAAAAAOAAAAAAAAAAAAQAAAAAAABsAAAAAAAAAQAEAAAAAAAABAAAAAAAAAIABAAAAAAAAMAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAACgAAAAAAAAAPAAAAAAAAABMAAAAAAAAAFwAAAAAAAAAbAAAAAAAAAAAAAAAAAAAAYWxwaGFhbHBoYWFscGhhYmV0YWJldGFiZXRhAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAIAAAAAAAAAAwAAAAAAAAADAAAAAAAAAAIAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/////wAAAAA="
+            },
+            "hasName": true
+           }
+          ],
+          "theme": "streamlit"
+         },
+         "heightConfig": {
+          "useContent": true
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "vega_lite_spec_raw": "{\"data\": {\"name\": \"b862c308d508b3d595a8374d375df1a7\"}, \"mark\": {\"type\": \"area\"}, \"encoding\": {\"color\": {\"field\": \"color -- streamlit-generated\", \"legend\": {\"titlePadding\": 5, \"offset\": 5, \"orient\": \"bottom\"}, \"title\": \" \", \"type\": \"nominal\"}, \"opacity\": {\"value\": 0.7}, \"tooltip\": [{\"field\": \"index -- streamlit-generated\", \"title\": \"index\", \"type\": \"quantitative\"}, {\"field\": \"value -- streamlit-generated\", \"title\": \"value\", \"type\": \"quantitative\"}, {\"field\": \"color -- streamlit-generated\", \"title\": \"color\", \"type\": \"nominal\"}], \"x\": {\"axis\": {\"grid\": false, \"tickMinStep\": 1}, \"field\": \"index -- streamlit-generated\", \"scale\": {}, \"title\": \"\", \"type\": \"quantitative\"}, \"y\": {\"axis\": {\"grid\": true, \"tickMinStep\": 1}, \"field\": \"value -- streamlit-generated\", \"scale\": {}, \"stack\": false, \"title\": \"\", \"type\": \"quantitative\"}}, \"height\": 0, \"params\": [{\"name\": \"param_1\", \"select\": {\"type\": \"interval\", \"encodings\": [\"x\", \"y\"]}, \"bind\": \"scales\"}], \"width\": 0, \"$schema\": \"https://vega.github.io/schema/vega-lite/v5.20.1.json\", \"autosize\": {\"type\": \"fit\", \"contains\": \"padding\"}}",
+        "vega_lite_spec": {
+         "data": {
+          "name": "b862c308d508b3d595a8374d375df1a7"
+         },
+         "mark": {
+          "type": "area"
+         },
+         "encoding": {
+          "color": {
+           "field": "color -- streamlit-generated",
+           "legend": {
+            "titlePadding": 5,
+            "offset": 5,
+            "orient": "bottom"
+           },
+           "title": " ",
+           "type": "nominal"
+          },
+          "opacity": {
+           "value": 0.7
+          },
+          "tooltip": [
+           {
+            "field": "index -- streamlit-generated",
+            "title": "index",
+            "type": "quantitative"
+           },
+           {
+            "field": "value -- streamlit-generated",
+            "title": "value",
+            "type": "quantitative"
+           },
+           {
+            "field": "color -- streamlit-generated",
+            "title": "color",
+            "type": "nominal"
+           }
+          ],
+          "x": {
+           "axis": {
+            "grid": false,
+            "tickMinStep": 1
+           },
+           "field": "index -- streamlit-generated",
+           "scale": {},
+           "title": "",
+           "type": "quantitative"
+          },
+          "y": {
+           "axis": {
+            "grid": true,
+            "tickMinStep": 1
+           },
+           "field": "value -- streamlit-generated",
+           "scale": {},
+           "stack": false,
+           "title": "",
+           "type": "quantitative"
+          }
+         },
+         "height": 0,
+         "params": [
+          {
+           "name": "param_1",
+           "select": {
+            "type": "interval",
+            "encodings": [
+             "x",
+             "y"
+            ]
+           },
+           "bind": "scales"
+          }
+         ],
+         "width": 0,
+         "$schema": "https://vega.github.io/schema/vega-lite/v5.20.1.json",
+         "autosize": {
+          "type": "fit",
+          "contains": "padding"
+         }
+        },
+        "vega_lite_datasets": [
+         {
+          "name": "b862c308d508b3d595a8374d375df1a7",
+          "has_name": true,
+          "arrow": {
+           "bytes": 1928,
+           "sha256": "623afc567c988db4b2f96bb9c8177798d18cd45addc90d12b05b1e289526b317",
+           "base64": "/////7gEAAAQAAAAAAAKAA4ADAALAAQACgAAABQAAAAAAAABBAAKAAwAAAAIAAQACgAAAAgAAABQAwAAAQAAAAwAAAAIAAwACAAEAAgAAAAIAAAAKAMAABwDAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDYsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAiaW5kZXggLS0gc3RyZWFtbGl0LWdlbmVyYXRlZCIsICJmaWVsZF9uYW1lIjogImluZGV4IC0tIHN0cmVhbWxpdC1nZW5lcmF0ZWQiLCAicGFuZGFzX3R5cGUiOiAiaW50NjQiLCAibnVtcHlfdHlwZSI6ICJpbnQ2NCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAiY29sb3IgLS0gc3RyZWFtbGl0LWdlbmVyYXRlZCIsICJmaWVsZF9uYW1lIjogImNvbG9yIC0tIHN0cmVhbWxpdC1nZW5lcmF0ZWQiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJ2YWx1ZSAtLSBzdHJlYW1saXQtZ2VuZXJhdGVkIiwgImZpZWxkX25hbWUiOiAidmFsdWUgLS0gc3RyZWFtbGl0LWdlbmVyYXRlZCIsICJwYW5kYXNfdHlwZSI6ICJpbnQ2NCIsICJudW1weV90eXBlIjogImludDY0IiwgIm1ldGFkYXRhIjogbnVsbH1dLCAiYXR0cmlidXRlcyI6IHt9LCAiY3JlYXRvciI6IHsibGlicmFyeSI6ICJweWFycm93IiwgInZlcnNpb24iOiAiMjYuMC4wIn0sICJwYW5kYXNfdmVyc2lvbiI6ICIzLjEuMCJ9AAAAAAYAAABwYW5kYXMAAAMAAACoAAAAUAAAAAQAAAB0////EAAAABgAAAAAAAECFAAAAGT///9AAAAAAAAAAQAAAAAcAAAAdmFsdWUgLS0gc3RyZWFtbGl0LWdlbmVyYXRlZAAAAAC8////GAAAAAwAAAAAAAEUEAAAAAAAAAAEAAQABAAAABwAAABjb2xvciAtLSBzdHJlYW1saXQtZ2VuZXJhdGVkAAAAABAAFAAQAA4ADwAEAAAACAAQAAAAGAAAACAAAAAAAAECHAAAAAgADAAEAAsACAAAAEAAAAAAAAABAAAAABwAAABpbmRleCAtLSBzdHJlYW1saXQtZ2VuZXJhdGVkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/////4AAAAEAAAAAwAGgAYABcABAAIAAwAAAAgAAAAwAEAAAAAAAAAAAAAAAAAAwQACgAYAAwACAAEAAoAAABMAAAAEAAAAAYAAAAAAAAAAAAAAAMAAAAGAAAAAAAAAAAAAAAAAAAABgAAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAAAAAAAAAAAABwAAAAAAAAAAAAAAAQAAAAAAAABAAAAAAAAAADAAAAAAAAAAgAAAAAAAAAABAAAAAAAAAMAAAAAAAAAAOAAAAAAAAAAAAQAAAAAAABsAAAAAAAAAQAEAAAAAAAABAAAAAAAAAIABAAAAAAAAMAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAACgAAAAAAAAAPAAAAAAAAABMAAAAAAAAAFwAAAAAAAAAbAAAAAAAAAAAAAAAAAAAAYWxwaGFhbHBoYWFscGhhYmV0YWJldGFiZXRhAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAIAAAAAAAAAAwAAAAAAAAADAAAAAAAAAAIAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/////wAAAAA=",
+           "schema": "index -- streamlit-generated: int64\ncolor -- streamlit-generated: large_string\nvalue -- streamlit-generated: int64\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 732",
+           "columns": [
+            "index -- streamlit-generated",
+            "color -- streamlit-generated",
+            "value -- streamlit-generated"
+           ],
+           "row_count": 6,
+           "rows": [
+            {
+             "index -- streamlit-generated": 0,
+             "color -- streamlit-generated": "alpha",
+             "value -- streamlit-generated": 1
+            },
+            {
+             "index -- streamlit-generated": 1,
+             "color -- streamlit-generated": "alpha",
+             "value -- streamlit-generated": 2
+            },
+            {
+             "index -- streamlit-generated": 2,
+             "color -- streamlit-generated": "alpha",
+             "value -- streamlit-generated": 3
+            },
+            {
+             "index -- streamlit-generated": 0,
+             "color -- streamlit-generated": "beta",
+             "value -- streamlit-generated": 3
+            },
+            {
+             "index -- streamlit-generated": 1,
+             "color -- streamlit-generated": "beta",
+             "value -- streamlit-generated": 2
+            },
+            {
+             "index -- streamlit-generated": 2,
+             "color -- streamlit-generated": "beta",
+             "value -- streamlit-generated": 1
+            }
+           ]
+          }
+         }
+        ],
+        "vega_lite_fields": {
+         "use_container_width": false,
+         "theme": "streamlit",
+         "id": "",
+         "form_id": ""
+        },
+        "id": "",
+        "form_id": "",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 5497.892785,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "vega_lite_chart",
+        "element_full": {
+         "vegaLiteChart": {
+          "spec": "{\"data\": {\"name\": \"c65a2a610c054a5e39b6ae25d6f31572\"}, \"mark\": {\"type\": \"circle\"}, \"encoding\": {\"size\": {\"value\": 100}, \"tooltip\": [{\"field\": \"x\", \"type\": \"quantitative\"}, {\"field\": \"y\", \"type\": \"quantitative\"}], \"x\": {\"axis\": {\"grid\": false, \"tickMinStep\": 1}, \"field\": \"x\", \"scale\": {}, \"title\": \"x\", \"type\": \"quantitative\"}, \"y\": {\"axis\": {\"grid\": true, \"tickMinStep\": 1}, \"field\": \"y\", \"scale\": {}, \"title\": \"y\", \"type\": \"quantitative\"}}, \"height\": 0, \"params\": [{\"name\": \"param_1\", \"select\": {\"type\": \"interval\", \"encodings\": [\"x\", \"y\"]}, \"bind\": \"scales\"}], \"width\": 0, \"$schema\": \"https://vega.github.io/schema/vega-lite/v5.20.1.json\", \"autosize\": {\"type\": \"fit\", \"contains\": \"padding\"}}",
+          "datasets": [
+           {
+            "name": "c65a2a610c054a5e39b6ae25d6f31572",
+            "data": {
+             "data": "//////gCAAAQAAAAAAAKAA4ADAALAAQACgAAABQAAAAAAAABBAAKAAwAAAAIAAQACgAAAAgAAABMAgAAAQAAAAwAAAAIAAwACAAEAAgAAAAIAAAAJAIAABgCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDMsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAieCIsICJmaWVsZF9uYW1lIjogIngiLCAicGFuZGFzX3R5cGUiOiAiaW50NjQiLCAibnVtcHlfdHlwZSI6ICJpbnQ2NCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAieSIsICJmaWVsZF9uYW1lIjogInkiLCAicGFuZGFzX3R5cGUiOiAiaW50NjQiLCAibnVtcHlfdHlwZSI6ICJpbnQ2NCIsICJtZXRhZGF0YSI6IG51bGx9XSwgImF0dHJpYnV0ZXMiOiB7fSwgImNyZWF0b3IiOiB7ImxpYnJhcnkiOiAicHlhcnJvdyIsICJ2ZXJzaW9uIjogIjI2LjAuMCJ9LCAicGFuZGFzX3ZlcnNpb24iOiAiMy4xLjAifQAAAAAGAAAAcGFuZGFzAAACAAAARAAAAAQAAADU////EAAAABgAAAAAAAECFAAAAMT///9AAAAAAAAAAQAAAAABAAAAeQAAABAAFAAQAA4ADwAEAAAACAAQAAAAGAAAACAAAAAAAAECHAAAAAgADAAEAAsACAAAAEAAAAAAAAABAAAAAAEAAAB4AAAA/////7gAAAAQAAAADAAaABgAFwAEAAgADAAAACAAAAAAAQAAAAAAAAAAAAAAAAADBAAKABgADAAIAAQACgAAADwAAAAQAAAAAwAAAAAAAAAAAAAAAgAAAAMAAAAAAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAEAAAAAAAAAQAAAAAAAAAAYAAAAAAAAAIAAAAAAAAAAAQAAAAAAAADAAAAAAAAAABgAAAAAAAAA/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAABAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA"
+            },
+            "hasName": true
+           }
+          ],
+          "theme": "streamlit"
+         },
+         "heightConfig": {
+          "useContent": true
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "vega_lite_spec_raw": "{\"data\": {\"name\": \"c65a2a610c054a5e39b6ae25d6f31572\"}, \"mark\": {\"type\": \"circle\"}, \"encoding\": {\"size\": {\"value\": 100}, \"tooltip\": [{\"field\": \"x\", \"type\": \"quantitative\"}, {\"field\": \"y\", \"type\": \"quantitative\"}], \"x\": {\"axis\": {\"grid\": false, \"tickMinStep\": 1}, \"field\": \"x\", \"scale\": {}, \"title\": \"x\", \"type\": \"quantitative\"}, \"y\": {\"axis\": {\"grid\": true, \"tickMinStep\": 1}, \"field\": \"y\", \"scale\": {}, \"title\": \"y\", \"type\": \"quantitative\"}}, \"height\": 0, \"params\": [{\"name\": \"param_1\", \"select\": {\"type\": \"interval\", \"encodings\": [\"x\", \"y\"]}, \"bind\": \"scales\"}], \"width\": 0, \"$schema\": \"https://vega.github.io/schema/vega-lite/v5.20.1.json\", \"autosize\": {\"type\": \"fit\", \"contains\": \"padding\"}}",
+        "vega_lite_spec": {
+         "data": {
+          "name": "c65a2a610c054a5e39b6ae25d6f31572"
+         },
+         "mark": {
+          "type": "circle"
+         },
+         "encoding": {
+          "size": {
+           "value": 100
+          },
+          "tooltip": [
+           {
+            "field": "x",
+            "type": "quantitative"
+           },
+           {
+            "field": "y",
+            "type": "quantitative"
+           }
+          ],
+          "x": {
+           "axis": {
+            "grid": false,
+            "tickMinStep": 1
+           },
+           "field": "x",
+           "scale": {},
+           "title": "x",
+           "type": "quantitative"
+          },
+          "y": {
+           "axis": {
+            "grid": true,
+            "tickMinStep": 1
+           },
+           "field": "y",
+           "scale": {},
+           "title": "y",
+           "type": "quantitative"
+          }
+         },
+         "height": 0,
+         "params": [
+          {
+           "name": "param_1",
+           "select": {
+            "type": "interval",
+            "encodings": [
+             "x",
+             "y"
+            ]
+           },
+           "bind": "scales"
+          }
+         ],
+         "width": 0,
+         "$schema": "https://vega.github.io/schema/vega-lite/v5.20.1.json",
+         "autosize": {
+          "type": "fit",
+          "contains": "padding"
+         }
+        },
+        "vega_lite_datasets": [
+         {
+          "name": "c65a2a610c054a5e39b6ae25d6f31572",
+          "has_name": true,
+          "arrow": {
+           "bytes": 1224,
+           "sha256": "9be28fdb865cdfda52a65933e08c10e4372eb16a98b12582ff198118b10df860",
+           "base64": "//////gCAAAQAAAAAAAKAA4ADAALAAQACgAAABQAAAAAAAABBAAKAAwAAAAIAAQACgAAAAgAAABMAgAAAQAAAAwAAAAIAAwACAAEAAgAAAAIAAAAJAIAABgCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDMsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAieCIsICJmaWVsZF9uYW1lIjogIngiLCAicGFuZGFzX3R5cGUiOiAiaW50NjQiLCAibnVtcHlfdHlwZSI6ICJpbnQ2NCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAieSIsICJmaWVsZF9uYW1lIjogInkiLCAicGFuZGFzX3R5cGUiOiAiaW50NjQiLCAibnVtcHlfdHlwZSI6ICJpbnQ2NCIsICJtZXRhZGF0YSI6IG51bGx9XSwgImF0dHJpYnV0ZXMiOiB7fSwgImNyZWF0b3IiOiB7ImxpYnJhcnkiOiAicHlhcnJvdyIsICJ2ZXJzaW9uIjogIjI2LjAuMCJ9LCAicGFuZGFzX3ZlcnNpb24iOiAiMy4xLjAifQAAAAAGAAAAcGFuZGFzAAACAAAARAAAAAQAAADU////EAAAABgAAAAAAAECFAAAAMT///9AAAAAAAAAAQAAAAABAAAAeQAAABAAFAAQAA4ADwAEAAAACAAQAAAAGAAAACAAAAAAAAECHAAAAAgADAAEAAsACAAAAEAAAAAAAAABAAAAAAEAAAB4AAAA/////7gAAAAQAAAADAAaABgAFwAEAAgADAAAACAAAAAAAQAAAAAAAAAAAAAAAAADBAAKABgADAAIAAQACgAAADwAAAAQAAAAAwAAAAAAAAAAAAAAAgAAAAMAAAAAAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAEAAAAAAAAAQAAAAAAAAAAYAAAAAAAAAIAAAAAAAAAAAQAAAAAAAADAAAAAAAAAABgAAAAAAAAA/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAABAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA",
+           "schema": "x: int64\ny: int64\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 472",
+           "columns": [
+            "x",
+            "y"
+           ],
+           "row_count": 3,
+           "rows": [
+            {
+             "x": 1,
+             "y": 3
+            },
+            {
+             "x": 2,
+             "y": 1
+            },
+            {
+             "x": 3,
+             "y": 2
+            }
+           ]
+          }
+         }
+        ],
+        "vega_lite_fields": {
+         "use_container_width": false,
+         "theme": "streamlit",
+         "id": "",
+         "form_id": ""
+        },
+        "id": "",
+        "form_id": "",
+        "path": [
+         0,
+         2
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 5497.892831,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "deck_gl_json_chart",
+        "element_full": {
+         "deckGlJsonChart": {
+          "json": "{\"initialViewState\": {\"latitude\": 40.85, \"longitude\": -73.95, \"pitch\": 0, \"zoom\": 10}, \"layers\": [{\"@@type\": \"ScatterplotLayer\", \"getPosition\": \"@@=[lon, lat]\", \"getRadius\": 100, \"radiusMinPixels\": 3, \"radiusUnits\": \"meters\", \"getFillColor\": [200, 30, 0, 160], \"data\": [{\"lat\": 40.7, \"lon\": -74.0}, {\"lat\": 41.0, \"lon\": -73.9}]}]}"
+         },
+         "heightConfig": {
+          "pixelHeight": 500
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "deck_gl_json": {
+         "initialViewState": {
+          "latitude": 40.85,
+          "longitude": -73.95,
+          "pitch": 0,
+          "zoom": 10
+         },
+         "layers": [
+          {
+           "@@type": "ScatterplotLayer",
+           "getPosition": "@@=[lon, lat]",
+           "getRadius": 100,
+           "radiusMinPixels": 3,
+           "radiusUnits": "meters",
+           "getFillColor": [
+            200,
+            30,
+            0,
+            160
+           ],
+           "data": [
+            {
+             "lat": 40.7,
+             "lon": -74.0
+            },
+            {
+             "lat": 41.0,
+             "lon": -73.9
+            }
+           ]
+          }
+         ]
+        },
+        "deck_gl_fields": {
+         "id": "",
+         "tooltip": "",
+         "mapbox_token": "",
+         "selection_mode": [],
+         "form_id": "",
+         "alt": ""
+        },
+        "id": "",
+        "form_id": "",
+        "path": [
+         0,
+         3
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 5497.892943,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 5497.893041,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "http": [],
+    "dom": {
+     "charts": [
+      "0120123",
+      "0120123alphabeta",
+      "0123x0123y"
+     ],
+     "deckish": [
+      "stVegaLiteChart",
+      "stVegaLiteChart",
+      "stVegaLiteChart",
+      "stDeckGlJsonChart",
+      "stDeckGlJsonChartZoomButton"
+     ],
+     "canvases": 2,
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "01-load.png",
+     "sha256": "6dc0c086f7335114a597c660309994e4cffa45e5c8870ebd04563dfbdf96debf"
+    }
+   }
+  ],
+  "ipc_dir": "D:\\dlab\\streamlit-rust\\target\\charts-rust"
+ },
+ "counts": {
+  "expected": 12,
+  "executed": 12,
+  "asserted": 12
+ },
+ "failures": []
+}

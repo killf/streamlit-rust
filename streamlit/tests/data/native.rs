@@ -89,7 +89,11 @@ fn chart(options: impl for<'a> FnOnce(&'a Streamlit)) -> (Value, RecordBatch) {
     assert_eq!(spec["data"]["name"], chart.datasets[0].name);
     assert!(chart.datasets[0].has_name);
     let batch = from_ipc_stream(&chart.datasets[0].data.as_ref().unwrap().data).unwrap().remove(0);
-    assert!(batch.schema_ref().metadata().is_empty(), "projected/melted native data needs no pandas dependency");
+    // The reference serializes chart data through pandas, so the batch
+    // carries the measured pandas schema metadata.
+    let pandas: Value = serde_json::from_str(batch.schema_ref().metadata().get("pandas").unwrap()).unwrap();
+    assert_eq!(pandas["creator"], json!({"library": "pyarrow", "version": "26.0.0"}));
+    assert_eq!(pandas["pandas_version"], "3.1.0");
     spec["data"]["name"] = json!("DATASET");
     (spec, batch)
 }

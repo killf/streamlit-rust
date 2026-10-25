@@ -226,3 +226,32 @@ under contract `fe02d5e625da8fa0e372b7084fb0cca31b332419fe3a6e5254b154932b9938fd
 (the post-review criterion: the transient timeline carries the full element
 list, an extra hidden transient element or an unknown delta kind fails the
 timeline, and the spinner lifecycle reads the whole list).
+
+## Charts (line, area, scatter, map)
+
+[charts_capture.py](charts_capture.py) is the permanent entry for the charts
+chain; [charts_contract.py](charts_contract.py) is its strict criterion
+(journey-charts-v1, 12 checks) with unit tests in
+[tests/reference/test_charts_contract.py](../reference/test_charts_contract.py).
+The page renders one native line, area and scatter chart plus one `st.map`;
+the contract pins each vega spec string (byte-equal modulo the dataset
+name), requires each served dataset name to be the reference formula
+`calc_hash(str(arrow_bytes))` over the bytes served in the same delta,
+judges the dataset frames semantically (schema including the pandas
+metadata, columns, rows), requires the deck.gl json to be byte-identical,
+and pins the DOM projection. The published chains:
+
+```powershell
+target\pyref-venv\Scripts\python.exe tests\browser\charts_capture.py --replay tests\reference\reference-browser\charts\trace-charts.json
+target\pyref-venv\Scripts\python.exe tests\browser\charts_capture.py --replay tests\browser\rust-charts\trace-charts.json
+```
+
+Both return 12 expected / 12 executed / 12 asserted with exit 0. Raw
+SHA256: python `eb054d26800aa245031cb38dd9a48aca3024d10f2953b3dc4860d443ea715feb`,
+native `849e71b85209dfc37c45b4740176073b159ad608a957e1444f9da417fdf12d12`,
+under contract `46bd806175c2090952a2bd1c3b27aee4fd38eb95ce9a2ee98eed3ca6180d9070`
+(the post-review criterion: every chart must carry exactly one dataset —
+a rogue appended dataset fails — and the map zoom ladder is the pinned
+21-entry ladder from map.py, with the street-level tail and the empty-map
+serialization frozen in the runtime regression). The two stage PNGs are
+byte-identical (0 differing pixels).
