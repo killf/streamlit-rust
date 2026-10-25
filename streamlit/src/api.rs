@@ -786,6 +786,27 @@ impl From<(Vec<u8>, String)> for AudioOptions {
     }
 }
 
+/// Video options: the measured call passes the bytes and their MIME type.
+pub struct VideoOptions {
+    data: Vec<u8>,
+    mime: String,
+}
+impl VideoOptions {
+    pub fn new(data: Vec<u8>, mime: impl Into<String>) -> Self {
+        Self { data, mime: mime.into() }
+    }
+}
+impl From<(Vec<u8>, &str)> for VideoOptions {
+    fn from((data, mime): (Vec<u8>, &str)) -> Self {
+        Self::new(data, mime)
+    }
+}
+impl From<(Vec<u8>, String)> for VideoOptions {
+    fn from((data, mime): (Vec<u8>, String)) -> Self {
+        Self::new(data, mime)
+    }
+}
+
 pub use crate::elements::media::DeltaColor;
 
 /// Metric options. The plain `(label, value)` call renders without a delta;
@@ -896,6 +917,8 @@ pub trait StreamlitApi {
     fn image<T: Into<ImageOptions>>(&self, options: T);
 
     fn audio<T: Into<AudioOptions>>(&self, options: T);
+
+    fn video<T: Into<VideoOptions>>(&self, options: T);
 
     fn metric<T: Into<MetricOptions>>(&self, options: T);
 
@@ -1135,6 +1158,17 @@ impl<C: AppendChild> StreamlitApi for C {
                 self.push(Rc::new(RefCell::new(element)));
             }
             Err(error) => log::error!("st.audio failed to register media: {}", error),
+        }
+    }
+
+    fn video<T: Into<VideoOptions>>(&self, options: T) {
+        let options = options.into();
+        match crate::elements::media::media_url(&options.data, &options.mime) {
+            Ok(url) => {
+                let element = crate::elements::media::VideoElement::new(url);
+                self.push(Rc::new(RefCell::new(element)));
+            }
+            Err(error) => log::error!("st.video failed to register media: {}", error),
         }
     }
 

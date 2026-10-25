@@ -253,6 +253,8 @@ bar.set(75);                                                  // coalesces: one 
 
 `RgbaImage::new(width, height, pixels)` takes `width*height*4` RGBA8 bytes and is the measured `st.image` input shape. Metrics derive their arrow direction and color from the delta's first number word plus the `DeltaColor` mode (`Normal`, `Inverse`, `Off`). `st.progress` returns a handle whose updates coalesce into the single final-value delta the reference streams at the end of the run. The wire shapes behind [journey-media-v1](../../tests/browser/media_contract.py).
 
+`st.video((bytes, "video/mp4"))` follows the same route with the measured NATIVE element and stretch width inside its message; the chain behind [journey-video-v1](../../tests/browser/video_contract.py) serves a committed sample byte-identically across runtimes.
+
 ## Temporal sliders
 
 ```powershell

@@ -177,3 +177,24 @@ the stored-deflate encoder emitted a corrupt PNG that no browser decoded,
 so st.image rendered blank while every check passed; the encoder now has a
 decoder round-trip test, the contract pins the PIL-decoded pixels, and the
 republished stage screenshots differ by 0.0000% (byte-identical renders).
+
+## Video (st.video)
+
+[video_capture.py](video_capture.py) is the permanent entry for the video
+chain; [video_contract.py](video_contract.py) is its strict criterion
+(journey-video-v1, 10 checks) with unit tests in
+[tests/reference/test_video_contract.py](../reference/test_video_contract.py).
+The page serves one committed one-second sample (a deterministic ffmpeg
+testsrc2 encode) under the default `st.video` call; both runtimes embed the
+same committed bytes, so the media address, the 206 Range response and the
+served body digest are byte-identical across sides. The published chains:
+
+```powershell
+target\pyref-venv\Scripts\python.exe tests\browser\video_capture.py --replay tests\reference\reference-browser\video\trace-video.json
+target\pyref-venv\Scripts\python.exe tests\browser\video_capture.py --replay tests\browser\rust-video\trace-video.json
+```
+
+Both return 10 expected / 10 executed / 10 asserted with exit 0. Raw SHA256:
+python `b27a3a2cf6c5c260a91a1d63700167e6615a0121f199c70dfe9530a322550602`,
+native `76b6ca787e40143b5fa652f6e08c5e9fa3eac4c19d2c57fcd192f673d5110cc0`,
+under contract `0866a5fed363fb1670b847e3f3aa703656df969a15705451df340126572b1ee5`.

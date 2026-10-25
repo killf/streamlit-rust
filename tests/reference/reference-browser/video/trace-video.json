@@ -1,0 +1,163 @@
+{
+ "schema_version": 1,
+ "journey": "video-page",
+ "contract": "journey-video-v1",
+ "scope": "PYTHON SIDE ONLY",
+ "url": "http://127.0.0.1:8610/",
+ "observation": {
+  "journey": "video-page",
+  "contract": "journey-video-v1",
+  "scope": "PYTHON SIDE ONLY",
+  "url": "http://127.0.0.1:8610/",
+  "binary": null,
+  "source": {
+   "file": "tests/reference/video_app.py",
+   "sha256": "d4e68536b660625c83a839cab53497c645be6c7a4874317205634359854f63e9"
+  },
+  "capture_sources": {
+   "video_capture.py": "727e0b8479fff25ff3600122897ed7b9a08b321524be185116fb24e45f9b98c9",
+   "video_contract.py": "0866a5fed363fb1670b847e3f3aa703656df969a15705451df340126572b1ee5"
+  },
+  "stages": [
+   {
+    "name": "01-load",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 41546.718427,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": []
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 41546.719722,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "1cdb31a1-f016-4ae6-826e-a5e01e178a50",
+        "name": "video_app",
+        "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\video_app.py",
+        "page_script_hash": "e57acbd4b05647d414da3ae145f2ebd4",
+        "main_script_hash": "e57acbd4b05647d414da3ae145f2ebd4",
+        "session_id": "612a84f7-82ce-4f85-83d9-e587e5f41325"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 41546.726006,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 41546.733295,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "video",
+        "element_full": {
+         "video": {
+          "type": "NATIVE",
+          "url": "/media/89d6baf253834c013e2bc52aab2354d4.mp4",
+          "widthConfig": {
+           "useStretch": true
+          }
+         }
+        },
+        "id": "",
+        "accepted_types": [
+         "1"
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 41546.733815,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 41546.736139,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "http": [
+     {
+      "url": "http://127.0.0.1:8610/media/89d6baf253834c013e2bc52aab2354d4.mp4",
+      "method": "GET",
+      "headers": {
+       "accept-ranges": "bytes",
+       "Content-Length": "3605",
+       "date": "Sun, 25 Oct 2026 13:45:11 GMT",
+       "content-type": "video/mp4",
+       "server": "uvicorn",
+       "Content-Range": "bytes 0-3604/3605"
+      },
+      "status": 206,
+      "mime": "video/mp4",
+      "body": {
+       "base64": true,
+       "sha256": "dcda48c8cec73a32406a184d635c41a324107f0f51a0cb0fe1124cc0791a19a6",
+       "length": 3605
+      }
+     }
+    ],
+    "dom": {
+     "markdowns": [],
+     "videos": [
+      {
+       "src": "http://127.0.0.1:8610/media/89d6baf253834c013e2bc52aab2354d4.mp4",
+       "controls": true,
+       "muted": false,
+       "loop": false,
+       "autoplay": false,
+       "testid": "stVideo"
+      }
+     ],
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "01-load.png",
+     "sha256": "b84e134ee737124fbeeb9563544b50acb2315dda2aeaea4d6393219f8fe316bd"
+    }
+   }
+  ],
+  "ipc_dir": "D:\\dlab\\streamlit-rust\\target\\checks\\m3-video-publish-python"
+ },
+ "counts": {
+  "expected": 10,
+  "executed": 10,
+  "asserted": 10
+ },
+ "failures": []
+}

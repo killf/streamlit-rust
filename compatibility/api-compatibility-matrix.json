@@ -88,12 +88,12 @@
     "unavailable_requested_pages": 7,
     "redirect_aliases_not_counted": 2,
     "implementation_status_counts": {
-      "absent": 146,
-      "implemented": 36
+      "absent": 145,
+      "implemented": 37
     },
     "compatibility_status_counts": {
-      "unverified": 146,
-      "partial": 36
+      "unverified": 145,
+      "partial": 37
     },
     "unique_feature_ids": 182,
     "unique_official_urls": 182,
@@ -2293,13 +2293,27 @@
       "category": "PAGE ELEMENTS/Media elements",
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/media/st.video",
-      "rust_source_path": null,
-      "implementation_status": "absent",
-      "compatibility_status": "unverified",
+      "rust_source_path": "streamlit/src/elements/media.rs",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "2bb6e1c0d90229b9e2d40bafe73d49ecbc563962f02f90f66561ea1692b4b161",
-        "python_browser_trace": null
-      }
+        "python_browser_trace": "tests/reference/reference-browser/video/trace-video.json",
+        "rust_wire_observation": "tests/browser/rust-video/trace-video.json",
+        "official_frontend_browser_e2e": "tests/browser/rust-video/trace-video.json",
+        "capture_entry": "tests/browser/video_capture.py",
+        "video_contract": "tests/browser/video_contract.py",
+        "contract_guards": "tests/reference/test_video_contract.py",
+        "driven_fixture": "tests/reference/video_app.py",
+        "driven_example": "streamlit/examples/video.rs",
+        "committed_sample": "tests/reference/video_sample.mp4"
+      },
+      "rust_plan": "st.video((bytes, \"video/mp4\")) registers the bytes in the content-addressed store and emits the measured Video element: the NATIVE type, the relative /media/{blake2b}.mp4 URL and the stretch width inside the message.",
+      "compatibility_scope": "The journey-video-v1 chain: the pinned Python 1.66.1 fixture and the Rust example both serve the same committed one-second sample (a deterministic ffmpeg testsrc2 encode), so the media address /media/89d6baf253834c013e2bc52aab2354d4.mp4, the 206 Range response with content-range bytes 0-3604/3605 and the served body digest are byte-identical across runtimes; the element proto (NATIVE + in-message stretch width) and the DOM player projection match exactly (both published replays 10/10/10 exit 0, python b27a3a2c... / native 76b6ca78...).",
+      "limitations": [
+        "Coverage is the measured default call with in-memory mp4 bytes; start_time/end_time, loop, autoplay, muted, subtitles, YouTube/iframes and mime types beyond the measured map are unobserved.",
+        "elements source SHA256 a3ed5029dc980c92940a32491c2804b441cfe6d47957a90dec710a36b7fabe57; fixture SHA256 d4e68536b660625c83a839cab53497c645be6c7a4874317205634359854f63e9; example SHA256 16cb08e45262af3a4810fc004f6f0880a786b5ca31089a492b8a1579d0a1d4d5; sample SHA256 dcda48c8cec73a32406a184d635c41a324107f0f51a0cb0fe1124cc0791a19a6."
+      ]
     },
     {
       "feature_id": "st.balloons",

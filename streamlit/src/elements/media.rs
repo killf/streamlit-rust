@@ -95,6 +95,39 @@ impl Element for AudioElement {
     }
 }
 
+pub(crate) struct VideoElement {
+    url: String,
+}
+
+impl VideoElement {
+    pub fn new(url: String) -> Self {
+        Self { url }
+    }
+}
+
+impl Element for VideoElement {
+    fn render(&self, context: &mut RenderContext) -> Result<(), StreamlitError> {
+        let element_hash = hash(format!("video_{}", self.url).as_str());
+        // The measured video element: the NATIVE type, the relative URL and
+        // the stretch width inside the message; element level carries none.
+        push_element(
+            context,
+            element_hash,
+            element::Type::Video(crate::proto::Video {
+                url: self.url.clone(),
+                r#type: crate::proto::video::Type::Native as i32,
+                width_config: Some(crate::proto::streamlit::WidthConfig {
+                    width_spec: Some(crate::proto::streamlit::width_config::WidthSpec::UseStretch(true)),
+                }),
+                ..Default::default()
+            }),
+            None,
+            None,
+        );
+        Ok(())
+    }
+}
+
 /// How a metric colors its delta. The measured normal/inverse pair derives
 /// the proto color from the delta sign; "off" grays it out.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

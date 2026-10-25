@@ -263,3 +263,101 @@ async fn media_elements_match_the_measured_wire_and_serve_the_measured_http() {
     handle.stop(false).await;
     task.await.unwrap().unwrap();
 }
+
+/// The committed one-second sample the video fixture serves; the same bytes
+/// feed the Python reference, so the media address is the exact measured one.
+const VIDEO_SAMPLE: &[u8] = include_bytes!("../../../tests/reference/video_sample.mp4");
+
+fn video_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        // Mirrors tests/reference/video_app.py.
+        st.video((VIDEO_SAMPLE.to_vec(), "video/mp4"));
+    })
+}
+
+#[actix_web::test]
+async fn video_matches_the_measured_wire_and_serves_the_sample_unchanged() {
+    let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+    let address = listener.local_addr().unwrap();
+    let server = HttpServer::new(move || App::new().app_data(web::Data::new(StreamlitServer::new(video_entry, "127.0.0.1".into(), 0))).configure(configure_routes))
+        .workers(1)
+        .listen(listener)
+        .unwrap()
+        .run();
+    let handle = server.handle();
+    let task = actix_web::rt::spawn(server);
+    let mut stream = TcpStream::connect(address).await.unwrap();
+    let request = format!("GET /_stcore/stream HTTP/1.1\r\nHost: {address}\r\nConnection: Upgrade\r\nUpgrade: websocket\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\nSec-WebSocket-Protocol: streamlit, test-xsrf\r\n\r\n");
+    stream.write_all(request.as_bytes()).await.unwrap();
+    let headers = tokio::time::timeout(Duration::from_secs(5), async {
+        let mut response = Vec::new();
+        while !response.ends_with(b"\r\n\r\n") {
+            response.push(stream.read_u8().await.unwrap());
+            assert!(response.len() < 8192);
+        }
+        String::from_utf8(response).unwrap().to_ascii_lowercase()
+    })
+    .await
+    .unwrap();
+    assert!(headers.starts_with("http/1.1 101"));
+
+    let request = BackMsg {
+        r#type: Some(back_msg::Type::RerunScript(ClientState {
+            widget_states: Some(WidgetStates { widgets: vec![] }),
+            ..Default::default()
+        })),
+    };
+    send_binary(&mut stream, &request.encode_to_vec()).await;
+    let mut video: Option<crate::proto::Video> = None;
+    let mut finished = false;
+    let first = receive(&mut stream).await;
+    assert!(matches!(first.r#type, Some(forward_msg::Type::NewSession(_))));
+    assert!(matches!(receive(&mut stream).await.r#type, Some(forward_msg::Type::SessionStatusChanged(status)) if status.script_is_running));
+    loop {
+        match receive(&mut stream).await.r#type {
+            Some(forward_msg::Type::Delta(delta)) => {
+                let Some(delta::Type::NewElement(element)) = delta.r#type else { continue };
+                match element.r#type {
+                    Some(element::Type::Video(wire)) => video = Some(wire),
+                    Some(other) => panic!("unexpected element: {other:?}"),
+                    None => {}
+                }
+            }
+            Some(forward_msg::Type::ScriptFinished(status)) => {
+                assert_eq!(status, 0);
+                assert!(!finished);
+                finished = true;
+            }
+            Some(forward_msg::Type::SessionStatusChanged(status)) if !status.script_is_running => break,
+            other => panic!("unexpected lifecycle response: {other:?}"),
+        }
+    }
+    assert!(finished);
+
+    // The measured video wire: NATIVE type, the exact byte-derived address,
+    // and the stretch width inside the message with nothing at element level.
+    let video = video.expect("video wire");
+    assert_eq!(video.url, "/media/89d6baf253834c013e2bc52aab2354d4.mp4");
+    assert_eq!(video.r#type, crate::proto::video::Type::Native as i32);
+    assert_eq!((video.start_time, video.end_time, video.r#loop, video.autoplay, video.muted, video.id.as_str()), (0, 0, false, false, false, ""));
+    assert!(video.subtitles.is_empty());
+    assert_eq!(width_kind_local(&video.width_config), "stretch");
+
+    let (status, headers, body) = http_get(address, &video.url, Some("bytes=0-")).await;
+    assert_eq!(status, 206);
+    assert_eq!(headers.iter().find(|(name, _)| name == "content-type").map(|(_, value)| value.as_str()), Some("video/mp4"));
+    let expected_range = format!("bytes 0-{}/{}", VIDEO_SAMPLE.len() - 1, VIDEO_SAMPLE.len());
+    assert_eq!(headers.iter().find(|(name, _)| name == "content-range").map(|(_, value)| value.as_str()), Some(expected_range.as_str()));
+    assert_eq!(body, VIDEO_SAMPLE);
+
+    drop(stream);
+    handle.stop(false).await;
+    task.await.unwrap().unwrap();
+}
+
+fn width_kind_local(config: &Option<crate::proto::streamlit::WidthConfig>) -> &'static str {
+    match config.as_ref().and_then(|config| config.width_spec.as_ref()) {
+        Some(crate::proto::streamlit::width_config::WidthSpec::UseStretch(_)) => "stretch",
+        _ => "",
+    }
+}
