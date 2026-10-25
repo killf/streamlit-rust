@@ -449,7 +449,7 @@ class _ReconnectCDP(_IsolationCDP):
         return super().call(method,params)
 
 
-def _reconnect_driver(monkeypatch,tmp_path,branch="ui-probe",fault=None):
+def _reconnect_driver(monkeypatch,tmp_path,branch="ui-probe",fault=None,*,slow=False):
     _ReconnectCDP.instances = [];_ReconnectCDP.log = [];_ReconnectCDP.branch = branch
     created,closed,selected = [],[],[]
     def http(url,method="GET"):
@@ -504,6 +504,41 @@ def _reconnect_driver(monkeypatch,tmp_path,branch="ui-probe",fault=None):
     # sends no ref_hash and is never a production fallback/cache algorithm.
     materialize=lambda page:[dict(f) for f in page['frames']]
     args=SimpleNamespace(label="j09-model",port=60667,url="http://test/",scope="driver model only",binary="",build_base="",journey=numeric_capture.J09_CASE)
+    if slow:
+        args.journey=numeric_capture.J09_SLOW_CASE;args.port=60923;args.url="http://127.0.0.1:8604/";args.scope="PYTHON SIDE ONLY"
+        monkeypatch.setattr(numeric_capture,"_slow_configuration",lambda *a:dict(effective_seconds=120))
+        judge=numeric_capture._judge_sequence
+        # Transport model has no fixture IPC/rendered chart, so only bypass
+        # the separately tested base proof here. Never manufacture S4 PASS.
+        monkeypatch.setattr(numeric_capture,"_judge_sequence",lambda name,obs:
+            dict(failures=[]) if name==numeric_capture.J09_CASE else judge(name,obs))
+        def hold(state,obs,save):
+            obs['hold'].update(samples=[dict(cdp_timestamp=1,driver_monotonic=1,utc='model')])
+            state['rule_active']=True;save()
+            if fault=='hold-failed':raise RuntimeError('model interrupted hold')
+        def recover(state,obs):
+            state['rule_active']=False
+            state['recorder'].call('Runtime.evaluate',{'expression':'window.__stWs.close()'})
+            obs['recovery']['requested_session_id']='model-old'
+        def read(state,obs):
+            start=len(numeric_capture.frames_of(state['recorder']))
+            state['recorder'].complete('natural')
+            if fault=='rerun-overlap':
+                # A spontaneous server-only result, not the model helper's
+                # default synthetic client-state + response exchange.
+                state['recorder'].events.pop(-3)
+            obs['recovery'].update(observed_session_id='model-new',recovery_action='rerun' if fault=='rerun-overlap' else 'observe')
+            if fault=='rerun-overlap':state['rerun_input_timestamp']=0.
+            return numeric_capture._reconnect_window(numeric_capture.frames_of(state['recorder']),start,natural=True)
+        monkeypatch.setattr(numeric_capture,'_slow_hold',hold)
+        monkeypatch.setattr(numeric_capture,'_slow_reconnect',recover)
+        monkeypatch.setattr(numeric_capture,'_slow_recovery_read',read)
+        monkeypatch.setattr(numeric_capture,'_slow_recovery_paint',lambda *a:None)
+        def clear(state,obs,*,block):
+            assert block is False
+            obs['commands'].append({'model_cleanup_only':True});state['rule_active']=False
+            return len(obs['commands'])-1
+        monkeypatch.setattr(numeric_capture,'_slow_network_command',clear)
     result=numeric_capture.run_reconnect_journey(args,tmp_path,materialize=materialize)
     trace=json.loads((tmp_path/'trace-data-loop.json').read_bytes())
     return result,trace,created,closed,selected
@@ -1218,3 +1253,364 @@ def test_replay_entry_reports_predicate_exception_nonzero(monkeypatch, tmp_path,
     assert _replay_main(monkeypatch, raw) == 1
     assert json.loads(capsys.readouterr().out)["failures"][0]["actual"] == "NameError: predicate failed"
     assert raw.read_bytes() == before
+
+
+@pytest.mark.parametrize('branch',['ui-probe','natural'])
+def test_slow_transport_appends_shared_suffix_to_one_original_stream(monkeypatch,tmp_path,branch):
+    result,trace,created,closed,selected=_reconnect_driver(monkeypatch,tmp_path,branch,slow=True)
+    n=numeric_capture;obs=trace['observation']
+    assert trace['summary']['producer_error'] is None
+    assert result==1  # Mechanical transport mocks are not an expiry oracle.
+    assert tuple(p['name'] for p in obs['phases'])==n.J09_PHASES[branch]+n.J09_SLOW_SUFFIX
+    assert len(obs['screenshots'])==len(obs['phases'])
+    assert created==closed==['owned-j09']
+    assert len([p for p in obs['phases'] if p['action']['action']=='upload'])==2
+    assert len([p for p in obs['phases'] if p['action']['action']=='pulse'])==3
+    assert len([p for p in obs['phases'] if p['action']['action']=='refresh'])==1
+    assert obs['recovery']['oracle_status']=='unverified'
+    base=n._j09_slow_base_view(obs)
+    assert tuple(p['name'] for p in base['phases'])==n.J09_PHASES[branch]
+    assert len(base['page']['frames'])<len(obs['page']['frames'])
+    assert [e['id'] for e in obs['page']['epochs']]==['e0','e1','e2','e3']
+    assert obs['page']['epochs'][2]['document_event']==obs['page']['epochs'][3]['document_event']
+
+
+def test_slow_failed_hold_saves_original_stream_and_cleans_owned_target(monkeypatch,tmp_path):
+    result,trace,created,closed,_=_reconnect_driver(monkeypatch,tmp_path,fault='hold-failed',slow=True)
+    assert result==1 and 'model interrupted hold' in trace['summary']['producer_error']
+    assert trace['observation']['page']['frames']
+    assert trace['observation']['hold']['samples']
+    assert trace['observation']['screenshots']
+    assert trace['observation']['commands']==[{'model_cleanup_only':True}]
+    assert created==closed==['owned-j09']
+
+
+def test_slow_driver_final_overlap_is_nonzero_with_full_original_raw(monkeypatch,tmp_path):
+    result,trace,created,closed,_=_reconnect_driver(monkeypatch,tmp_path,fault='rerun-overlap',slow=True)
+    assert result==1 and 'final Rerun attribution' in trace['summary']['producer_error']
+    assert 'overlaps Rerun' in trace['summary']['producer_error']
+    assert len(trace['observation']['phases'])==len(numeric_capture.J09_PHASES['ui-probe'])+len(numeric_capture.J09_SLOW_SUFFIX)
+    recorder=_ReconnectCDP.instances[-1]
+    page=trace['observation']['page']
+    assert page['events']==recorder.take()
+    assert page['frames'][-1]['base64']==recorder.take()[-1]['params']['response']['payloadData']
+    assert created==closed==['owned-j09']
+
+
+def _slow_config_input(tmp_path):
+    rows=[]
+    for kind in ('process','config','effective-config','app-source'):
+        path=tmp_path/(kind+'.txt');path.write_bytes((kind+'\r\n').encode())
+        rows.append(dict(kind=kind,file=path.name,sha256=hashlib.sha256(path.read_bytes()).hexdigest()))
+    data=dict(runtime='unit-transport-only',effective_seconds=120,process_id=123,
+              process_command_line='unit transport fixture; not actual runtime provenance',evidence=rows)
+    path=tmp_path/'configuration.json';path.write_text(json.dumps(data),encoding='utf-8')
+    return path,data
+
+
+@pytest.mark.parametrize('fault',['short-ttl','missing-kind','duplicate-kind','wrong-hash','no-process'])
+def test_slow_configuration_rejects_unproven_or_short_ttl(tmp_path,fault):
+    path,data=_slow_config_input(tmp_path)
+    if fault=='short-ttl':data['effective_seconds']=1
+    elif fault=='missing-kind':data['evidence'].pop()
+    elif fault=='duplicate-kind':data['evidence'][-1]['kind']='process'
+    elif fault=='wrong-hash':data['evidence'][0]['sha256']='0'*64
+    else:data['process_command_line']=''
+    path.write_text(json.dumps(data),encoding='utf-8');out=tmp_path/'out';out.mkdir()
+    with pytest.raises(ValueError):numeric_capture._slow_configuration(SimpleNamespace(ttl_configuration=str(path),scope='PYTHON SIDE ONLY'),out)
+
+
+def test_slow_configuration_preserves_evidence_bytes_and_portable_paths(tmp_path):
+    path,data=_slow_config_input(tmp_path);out=tmp_path/'out';out.mkdir()
+    saved=numeric_capture._slow_configuration(SimpleNamespace(ttl_configuration=str(path),scope='PYTHON SIDE ONLY'),out)
+    assert (out/'ttl-evidence/input.json').read_bytes()==path.read_bytes()
+    for original,record in zip(data['evidence'],saved['evidence']):
+        assert not pathlib.Path(record['file']).is_absolute()
+        assert (out/record['file']).read_bytes()==(tmp_path/original['file']).read_bytes()
+
+
+def test_slow_no101_uses_real_interval_not_misleading_summary():
+    event=lambda stamp,status:dict(method='Network.webSocketHandshakeResponseReceived',params=dict(timestamp=stamp,response=dict(status=status)))
+    tab=dict(events=[event(1,101),event(20,503),event(30,400)])
+    numeric_capture._slow_no_101(tab,10,145)  # Initial101 is not a retry.
+    tab['events'].append(event(40,101))
+    with pytest.raises(RuntimeError,match='HTTP101'):numeric_capture._slow_no_101(tab,10,145)
+
+
+@pytest.mark.parametrize('active,window',[(True,None),(True,{'run':0,'end':1})])
+def test_slow_recovery_never_reruns_an_active_natural_run(monkeypatch,active,window):
+    n=numeric_capture;calls=[]
+    monkeypatch.setattr(n,'_slow_recovery_status',lambda s:(active,window,[]))
+    monkeypatch.setattr(n,'_slow_rerun',lambda s:calls.append('forbidden'))
+    monkeypatch.setattr(n,'_isolation_read',lambda s:{})
+    obs=dict(recovery={})
+    with pytest.raises(RuntimeError,match='no complete'):n._slow_recovery_read({},obs,timeout=0)
+    assert calls==[] and obs['recovery']['recovery_action']=='observe'
+
+
+def _s4_real_menu_model(monkeypatch,*,inject=None,natural='pending'):
+    """Real Page scroll/rect/input + real full-ledger reader, mock CDP only."""
+    n=numeric_capture;frames=[];clicks=[]
+    class Transport:
+        def __init__(self):self.clock=10.;self.item=False;self.rect_read=False;self.metrics_after_rect=0;self.ident=0
+        def add(self,decoded,direction='server->client'):
+            frames.append(dict(connection=3,request_id='e3',timestamp=self.clock+.001,
+                               direction=direction,decoded=decoded))
+        def natural(self,completion):
+            self.add(dict(type='new_session',new_session=dict(script_run_id='natural',session_id='observed')))
+            self.add(dict(type='session_status_changed',session_status_changed=dict(script_is_running=True)))
+            self.add(dict(type='delta',delta=dict(element='markdown',body='Script runs: 1')))
+            self.add(dict(type='delta',delta=dict(element='markdown',body='Pulses: 0')))
+            if completion!='pending':self.add(dict(type='script_finished',script_finished=dict(status=0 if completion=='complete' else 1)))
+        def call(self,method,params=None):
+            params=params or {};self.ident+=1
+            if method=='Performance.getMetrics':
+                self.clock+=.01
+                if self.rect_read:
+                    self.metrics_after_rect+=1
+                    # After the outer post-geometry guard, inside the final
+                    # Input boundary's actual clock/pump operation.
+                    if inject=='input-clock' and self.metrics_after_rect==2 and not frames:self.natural(natural)
+                return dict(id=self.ident,result=dict(metrics=[dict(name='Timestamp',value=self.clock)]))
+            if method=='Runtime.evaluate':
+                expression=params['expression'];self.item='stMainMenuItem-rerun' in expression
+                if 'getBoundingClientRect' in expression:
+                    if self.item:
+                        self.rect_read=True
+                        if inject=='rect' and not frames:self.natural(natural)
+                    value=dict(x=10,y=10)
+                else:value=True
+                return dict(id=self.ident,result=dict(result=dict(type='object' if isinstance(value,dict) else 'boolean',value=value)))
+            assert method=='Input.dispatchMouseEvent'
+            clicks.append(('rerun-item' if self.item else 'open-menu',params['type']))
+            if self.item and inject=='pressed-response' and params['type']=='mousePressed' and not frames:self.natural(natural)
+            if self.item and params['type']=='mouseReleased':
+                if inject=='release-response':self.natural('complete')
+                self.add(dict(type='rerun_script',rerun_script=dict(widget_states=[])),'client->server')
+                if inject!='release-response':self.natural('complete')
+            return dict(id=self.ident,result={})
+    recorder=Transport();page=n.Page(recorder)
+    state=dict(page=page,recorder=recorder,target_id='owned-s4',commands=[])
+    def sleep(seconds):
+        if inject=='scroll' and recorder.item and not frames:recorder.natural(natural)
+    monkeypatch.setattr(n.time,'sleep',sleep)
+    monkeypatch.setattr(n,'_reconnect_tab',lambda s:dict(epochs=[dict(request_id='e3')]))
+    monkeypatch.setattr(n,'_reconnect_frames',lambda s,t:frames)
+    return state,frames,clicks
+
+
+@pytest.mark.parametrize('injection',['scroll','rect','input-clock'])
+@pytest.mark.parametrize('completion',['pending','failed','complete'])
+def test_slow_real_helper_suppresses_rerun_at_final_dispatch_race(monkeypatch,injection,completion):
+    n=numeric_capture;state,frames,clicks=_s4_real_menu_model(monkeypatch,inject=injection,natural=completion)
+    assert n._slow_rerun(state) is False
+    assert clicks==[('open-menu','mousePressed'),('open-menu','mouseReleased')]
+    active,window,same=n._slow_recovery_status(state)
+    assert active and same is frames
+    assert (window is not None)==(completion=='complete')
+    assert not any(c['method']=='Input.dispatchMouseEvent' and 'rerun_input_timestamp' in state for c in state['commands'])
+    assert state['page'].cdp is state['recorder'] and 'click' not in state['page'].__dict__
+
+
+def test_slow_real_helper_menu_commands_and_input_responses_are_preserved(monkeypatch):
+    n=numeric_capture;state,frames,clicks=_s4_real_menu_model(monkeypatch)
+    assert n._slow_rerun(state) is True
+    assert clicks==[('open-menu','mousePressed'),('open-menu','mouseReleased'),('rerun-item','mousePressed'),('rerun-item','mouseReleased')]
+    commands=state['commands']
+    assert len(commands)==8  # scroll + rect + press/release for each menu button
+    assert sum(c['method']=='Runtime.evaluate' for c in commands)==4
+    for command in commands:
+        assert command['target_id']=='owned-s4' and command['response']['id']>0
+        assert command['started_monotonic']<=command['finished_monotonic']
+        assert command['cdp_before']<=command['cdp_after']
+    active,window,_=n._slow_recovery_status(state)
+    assert active and window
+    n._slow_rerun_binding(state,frames,window)
+
+
+def test_slow_natural_start_after_press_aborts_without_release(monkeypatch):
+    state,frames,clicks=_s4_real_menu_model(monkeypatch,inject='pressed-response')
+    with pytest.raises(RuntimeError,match='partially dispatched'):numeric_capture._slow_rerun(state)
+    assert clicks[-1]==('rerun-item','mousePressed')
+    assert ('rerun-item','mouseReleased') not in clicks
+    assert frames and state['commands'][-1]['response']
+
+
+def test_slow_full_ledger_rejects_natural_result_overlapping_released_input(monkeypatch):
+    n=numeric_capture;state,frames,_=_s4_real_menu_model(monkeypatch,inject='release-response')
+    assert n._slow_rerun(state) is True
+    active,window,_=n._slow_recovery_status(state)
+    assert active and window
+    with pytest.raises(RuntimeError,match='overlaps Rerun'):n._slow_rerun_binding(state,frames,window)
+
+
+def test_slow_full_ledger_rejects_extra_delta_after_finished_ui_run(monkeypatch):
+    n=numeric_capture;state,frames,_=_s4_real_menu_model(monkeypatch)
+    assert n._slow_rerun(state) is True
+    _,window,_=n._slow_recovery_status(state)
+    state['recorder'].add(dict(type='delta',delta=dict(element='markdown',body='late unrelated output')))
+    with pytest.raises(RuntimeError,match='overlaps Rerun'):n._slow_rerun_binding(state,frames,window)
+
+
+@pytest.mark.parametrize('response',[{}, {'id':3,'error':{'message':'input rejected'}},
+                                    {'id':3,'result':{'exceptionDetails':{'text':'query threw'}}}])
+def test_slow_menu_retains_failed_raw_command_response(monkeypatch,response):
+    n=numeric_capture
+    state=dict(target_id='owned',commands=[],recorder=SimpleNamespace(call=lambda *a:response))
+    monkeypatch.setattr(n,'_isolation_clock',lambda r:12.)
+    with pytest.raises(RuntimeError,match='menu command failed'):
+        n._S4MenuRecorder(state).call('Runtime.evaluate',{'expression':'actual menu query'})
+    assert state['commands'][0]['response'] is response
+    assert state['commands'][0]['params']=={'expression':'actual menu query'}
+
+
+def test_slow_network_command_exact_rule_bracket_and_cleanup(monkeypatch):
+    n=numeric_capture;calls=[];clock=iter([5.,6.,7.,8.])
+    recorder=SimpleNamespace(call=lambda m,p:calls.append((m,p)) or {'id':3,'result':{'ruleIds':['opaque']}})
+    tab=dict(epochs=[dict(request_id='actual')],events=[dict(method='Network.webSocketCreated',params=dict(requestId='actual',url='ws://127.0.0.1:8604/_stcore/stream'))])
+    monkeypatch.setattr(n,'_reconnect_tab',lambda s:tab)
+    monkeypatch.setattr(n,'_isolation_clock',lambda r:next(clock))
+    state=dict(target_id='owned',recorder=recorder);obs=dict(commands=[])
+    assert n._slow_network_command(state,obs,block=True)==0
+    assert state['rule_active'] is True
+    assert n._slow_network_command(state,obs,block=False)==1
+    assert state['rule_active'] is False
+    assert obs['commands'][0]['cdp_before']==5 and obs['commands'][0]['cdp_after']==6
+    assert calls[0]==('Network.emulateNetworkConditionsByRule',{'matchedNetworkConditions':[dict(urlPattern='ws://127.0.0.1:8604/_stcore/stream',offline=True,latency=0,downloadThroughput=-1,uploadThroughput=-1)]})
+    assert calls[1][1]=={'matchedNetworkConditions':[]}
+
+
+@pytest.mark.parametrize('cdp_rate',[.5,1.,2.])
+def test_slow_hold_waits_both_real_clocks_and_checkpoints_original_events(monkeypatch,cdp_rate):
+    """Synthetic clock only tests scheduling, never supplies browser proof."""
+    n=numeric_capture;clock={'value':10.};saved=[]
+    events=[dict(method='Network.webSocketHandshakeResponseReceived',params=dict(timestamp=1,response=dict(status=101))),
+            dict(method='Network.webSocketClosed',params=dict(requestId='old',timestamp=10.))]
+    tab=dict(epochs=[dict(request_id='old')],events=events)
+    recorder=SimpleNamespace(call=lambda *a:{'id':24,'result':{'result':{'type':'string','value':'closed'}}})
+    state=dict(recorder=recorder);obs=dict(hold=dict(samples=[]))
+    monkeypatch.setattr(n,'_slow_network_command',lambda *a,**k:0)
+    monkeypatch.setattr(n,'_reconnect_tab',lambda s:tab)
+    monkeypatch.setattr(n,'_isolation_clock',lambda r:10+(clock['value']-10)*cdp_rate)
+    monkeypatch.setattr(n.time,'monotonic',lambda:clock['value'])
+    monkeypatch.setattr(n.time,'sleep',lambda seconds:clock.update(value=clock['value']+seconds))
+    n._slow_hold(state,obs,lambda:saved.append(list(events)))
+    assert obs['hold']['samples'][-1]['driver_monotonic']>=145
+    assert obs['hold']['samples'][-1]['cdp_timestamp']>=145
+    assert len(saved)>=135 and saved[-1]==events
+    assert obs['hold']['close']['evaluation_result']['id']==24
+
+
+def test_slow_profile_refuses_original_chrome_before_any_browser_access(monkeypatch,tmp_path):
+    n=numeric_capture
+    monkeypatch.setattr(n,'http_json',lambda *a,**k:pytest.fail('must not access original Chrome'))
+    args=SimpleNamespace(journey=n.J09_SLOW_CASE,port=60667,url='http://127.0.0.1:8604/',scope='PYTHON SIDE ONLY',binary='',build_base='')
+    assert n.run_reconnect_journey(args,tmp_path)==1
+    trace=json.loads((tmp_path/'trace-data-loop.json').read_bytes())
+    assert 'separately owned Chrome60923' in trace['summary']['producer_error']
+
+
+def _slow_paint_model(tmp_path):
+    frames=[dict(decoded=dict(type='new_session',new_session=dict(session_id='actually-observed-model')))]
+    frames.extend(dict(decoded=dict(type='delta',delta=dict(element='markdown',body=body)))
+                  for body in ('Script runs: 1','Pulses: 0'))
+    frames.append(dict(decoded=dict(type='script_finished',status=0)))
+    window=dict(start=0,run=0,end=4,finish=3)
+    dom=dict(script_runs='1',pulses='0',table_present=False,chart_present=False,table_cells=[],chart_marks=[],
+             alerts=[],exceptions=[],uploaded_files=['actual-unknown-recovery-file.csv'])
+    state=dict(arrows=numeric_capture._ArrowFiles(tmp_path),ipc_dir=str(tmp_path))
+    return state,frames,window,dom
+
+
+def test_slow_completed_natural_run_is_readonly_without_guessing_file_state(monkeypatch,tmp_path):
+    n=numeric_capture;state,frames,window,dom=_slow_paint_model(tmp_path)
+    monkeypatch.setattr(n,'_slow_recovery_status',lambda s:(True,window,frames))
+    monkeypatch.setattr(n,'_slow_rerun',lambda s:pytest.fail('completed natural run must remain readonly'))
+    monkeypatch.setattr(n,'_isolation_read',lambda s:dom)
+    obs=dict(recovery=dict(oracle_status='unverified'))
+    assert n._slow_recovery_read(state,obs)==window
+    assert obs['recovery']==dict(oracle_status='unverified',observed_session_id='actually-observed-model',recovery_action='observe')
+    assert dom['uploaded_files']==['actual-unknown-recovery-file.csv']
+
+
+@pytest.mark.parametrize('fault',['old-counter','stale-table','stale-chart','stale-alert'])
+def test_slow_recovery_paint_rejects_stale_render_without_oracle_defaults(tmp_path,fault):
+    state,frames,window,dom=_slow_paint_model(tmp_path)
+    if fault=='old-counter':dom['script_runs']='99'
+    elif fault=='stale-table':dom['table_present']=True
+    elif fault=='stale-chart':dom['chart_marks']=[dict(path='old')]
+    else:dom['alerts']=['old error']
+    with pytest.raises(ValueError):numeric_capture._slow_recovery_paint(state,frames,window,dom)
+
+
+def test_slow_recovery_no_natural_run_uses_one_real_menu_action(monkeypatch,tmp_path):
+    n=numeric_capture;state,frames,clicks=_s4_real_menu_model(monkeypatch)
+    _,_,_,dom=_slow_paint_model(tmp_path)
+    state.update(arrows=n._ArrowFiles(tmp_path),ipc_dir=str(tmp_path))
+    monkeypatch.setattr(n,'_isolation_read',lambda s:dom)
+    obs=dict(recovery=dict(oracle_status='unverified'))
+    result=n._slow_recovery_read(state,obs)
+    assert result['finish']==len(frames)-1 and obs['recovery']['recovery_action']=='rerun'
+    assert clicks.count(('rerun-item','mouseReleased'))==1
+
+
+def test_slow_epoch_ignores_failed_attempt_but_preserves_its_raw_lifecycle(monkeypatch):
+    n=numeric_capture
+    doc=dict(method='Network.requestWillBeSent',params=dict(type='Document',timestamp=1))
+    events=[doc]
+    for request,status in [('old',101),('failed-retry',503),('new',101)]:
+        events.extend([dict(method='Network.webSocketWillSendHandshakeRequest',params=dict(requestId=request)),
+                       dict(method='Network.webSocketHandshakeResponseReceived',params=dict(requestId=request,response=dict(status=status)))])
+    tab=dict(events=events,frames=[dict(request_id='old',connection=0),dict(request_id='new',connection=1)])
+    monkeypatch.setattr(n,'_isolation_tab',lambda s:dict(tab))
+    result=n._reconnect_tab(dict(slow=True,navigations=[1]))
+    assert [e['request_id'] for e in result['epochs']]==['old','new']
+    assert [e['connection'] for e in result['epochs']]==[0,1]
+    assert result['events']==events and len(result['events'])==7
+
+
+def test_slow_native_configuration_requires_native_kinds_and_preserves_process_hash(tmp_path):
+    path,data=_slow_config_input(tmp_path)
+    rows=[]
+    for kind in ('process','build','config','server-source','entry-source'):
+        file=tmp_path/(kind+'.json')
+        file.write_text(json.dumps({'kind':kind,'binary_sha256':'unit-model-only'}),encoding='utf-8')
+        rows.append(dict(kind=kind,file=file.name,sha256=hashlib.sha256(file.read_bytes()).hexdigest()))
+    data['evidence']=rows;path.write_text(json.dumps(data),encoding='utf-8')
+    out=tmp_path/'native';out.mkdir()
+    saved=numeric_capture._slow_configuration(SimpleNamespace(ttl_configuration=str(path),scope='RUST'),out)
+    process=next(item for item in saved['evidence'] if item['kind']=='process')
+    assert json.loads((out/process['file']).read_bytes())['binary_sha256']=='unit-model-only'
+    bad=tmp_path/'wrong-runtime';bad.mkdir()
+    with pytest.raises(ValueError):
+        numeric_capture._slow_configuration(SimpleNamespace(ttl_configuration=str(path),scope='PYTHON SIDE ONLY'),bad)
+
+
+def test_slow_cli_dispatches_existing_recorder_with_explicit_profile(monkeypatch,tmp_path):
+    n=numeric_capture;called=[]
+    def runner(args,out):
+        called.append((args.journey,args.port,args.ttl_configuration,out));return 1
+    monkeypatch.setattr(n,'require_decoder',lambda:None)
+    monkeypatch.setitem(n.JOURNEY_RUNNERS,n.J09_SLOW_CASE,runner)
+    monkeypatch.setattr(sys,'argv',['numeric_capture.py','--journey',n.J09_SLOW_CASE,'--case','data-loop',
+        '--port','60923','--url','http://127.0.0.1:8604/','--ttl-configuration','actual-provenance.json','--out',str(tmp_path)])
+    assert n.main()==1
+    assert called==[(n.J09_SLOW_CASE,60923,'actual-provenance.json',tmp_path)]
+
+
+def test_slow_replay_remains_readonly_and_uses_full_single_capture(monkeypatch,tmp_path,capsys):
+    n=numeric_capture
+    raw=tmp_path/'raw.json'
+    obs=dict(journey=n.J09_SLOW_CASE,contract=n.J09_SLOW_CONTRACT,page={'events':['full-original-tail']})
+    raw.write_text(json.dumps(dict(journey=n.J09_SLOW_CASE,case=n.J09_SLOW_CASE,observation=obs)),encoding='utf-8')
+    original=raw.read_bytes();seen=[]
+    def criterion(*,observation):
+        seen.append(observation)
+        return [dict(journey=n.J09_SLOW_CASE,step=n.J09_SLOW_CASE,check=key,ok=False,actual='unverified',expected='actual slow proof') for key in n.J09_SLOW_REQUIRED]
+    monkeypatch.setattr(n,'j09_slow_checks',criterion)
+    monkeypatch.setattr(n,'http_json',lambda *a,**k:pytest.fail('no browser/network in replay'))
+    monkeypatch.setattr(n,'require_decoder',lambda:None)
+    assert n.replay_sequence(raw)==1
+    assert seen[0]['page']['events']==['full-original-tail']
+    assert json.loads(capsys.readouterr().out)['counts']==dict(expected=20,executed=20,asserted=0)
+    assert raw.read_bytes()==original

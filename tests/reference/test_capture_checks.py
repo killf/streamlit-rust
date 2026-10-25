@@ -3821,3 +3821,352 @@ def test_j09_actual_hook_success_keeps_natural_run_without_client_state_legal(tm
     assert o['phases'][4]['client_states']==[]
     result=journey_result(c.j09_checks(observation=o))
     assert result['ok'],result['failures']
+
+
+def _j09_slow_unit_prefix(tmp_path,plan):
+    """Capture-in-progress unit model only; no S4 elapsed time or oracle."""
+    import capture_browser_trace as c
+    o=_j09_unit_observation(tmp_path,plan);page=o['page'];count=len(o['phases'])
+    o.update(journey=c.J09_SLOW_CASE,contract=c.J09_SLOW_CONTRACT,base_range={
+        'phase_count':count,'frame_end':len(page['frames']),'event_end':len(page['events']),
+        'http_end':len(page['http_timeline']),'screenshot_count':len(o['screenshots']),
+        'cutoff_timestamp':o['phases'][-1]['observation_end_timestamp']})
+    return o
+
+
+@pytest.mark.parametrize('plan',['natural','ui-probe'])
+def test_j09_slow_exports_and_explicit_prefix_do_not_claim_s4_pass(tmp_path,plan):
+    import capture_browser_trace as c
+    o=_j09_slow_unit_prefix(tmp_path,plan)
+    assert c.J09_SLOW_PHASES[plan]==c.J09_PHASES[plan]+c.J09_SLOW_SUFFIX
+    assert c.J09_SLOW_TTL_SECONDS==120 and c.J09_SLOW_HOLD_SECONDS==135
+    assert c.J09_SLOW_ACTIONS['s4-recovery-read']=={'action':'read-recovery'}
+    assert c.J09_SLOW_RECOVERY_ACTIONS==('observe','rerun')
+    base=c._j09_slow_base_view(o);assert journey_result(c.j09_checks(observation=base))['ok']
+    base['phases'][0]['action']['ok']=False
+    assert o['phases'][0]['action']['ok'] is True # independent derived view
+    result=journey_result(c.j09_slow_checks(observation=o))
+    assert not result['ok'] and result['counts']=={'expected':20,'executed':20,'asserted':1}
+
+
+@pytest.mark.parametrize('mutation',['phase_count','frame_end','event_end','http_end','screenshot_count','cutoff_timestamp','phase_order'])
+def test_j09_slow_prefix_cursor_tampering_is_not_silent_truncation(tmp_path,mutation):
+    import capture_browser_trace as c
+    o=_j09_slow_unit_prefix(tmp_path,'ui-probe')
+    if mutation=='phase_order':o['phases'][2],o['phases'][3]=o['phases'][3],o['phases'][2]
+    else:o['base_range'][mutation]-=1
+    with pytest.raises(ValueError):c._j09_slow_base_view(o)
+
+
+def test_j09_slow_prefix_view_preserves_complete_tail_in_original_observation(tmp_path):
+    import copy
+    import capture_browser_trace as c
+    from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
+    o=_j09_slow_unit_prefix(tmp_path,'ui-probe');page=o['page'];r=o['base_range']
+    tail=_j06_unit_wire([ForwardMsg(heartbeat_ack=True)])
+    frame=tail['frames'][0];stamp=r['cutoff_timestamp']+1
+    frame.update(namespace=page['namespace'],connection=2,request_id=page['epochs'][2]['request_id'],timestamp=stamp)
+    event=tail['events'][0];event['params'].update(timestamp=stamp,requestId=frame['request_id'])
+    page['frames'].append(frame);page['events'].append(event);before=copy.deepcopy(o)
+    projected=c._j09_slow_base_view(o)
+    assert len(projected['page']['frames'])+1==len(page['frames'])
+    assert o==before and journey_result(c.j09_checks(observation=projected))['ok']
+    assert not journey_result(c.j09_slow_checks(observation=o))['ok']
+
+
+@pytest.mark.parametrize('observation',[None,{},[],{'oracle_status':'verified','elapsed':135,'passed':True}])
+def test_j09_slow_unimplemented_oracle_is_explicitly_fail_closed(observation):
+    from capture_browser_trace import j09_slow_checks,J09_SLOW_REQUIRED
+    result=journey_result(j09_slow_checks(observation=observation))
+    assert not result['ok'] and result['counts']['expected']==len(J09_SLOW_REQUIRED)==20
+    assert any(f['check']=='recovery_oracle_verified' and 'NOT VERIFIED' in f['actual'] for f in result['failures'])
+
+
+def _j09_slow_unit_complete(tmp_path,natural=False):
+    """Synthetic clock/protobuf model, NOT real elapsed time or expiry oracle.
+
+    Recovery deliberately retains data/counts in a new session. Common guards
+    validate that actual outcome; the unknown oracle must prevent whole PASS.
+    """
+    import copy,base64,hashlib,runpy
+    from datetime import datetime,timezone
+    from google.protobuf.json_format import MessageToDict,ParseDict
+    from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
+    from streamlit.proto.BackMsg_pb2 import BackMsg
+    import capture_browser_trace as c
+    o=_j09_slow_unit_prefix(tmp_path,'ui-probe');page=o['page'];n=len(o['phases']);cut=o['base_range']['cutoff_timestamp']
+    app=HERE/'app.py';app_path=str(app.resolve());command=f'python -m streamlit run {app_path} --server.port 8501 --server.disconnectedSessionTTL 120'
+    for i,f in enumerate(page['frames']):
+        if f['decoded']['type']=='new_session':
+            msg=ForwardMsg();msg.ParseFromString(base64.b64decode(f['base64']));msg.new_session.initialize.environment_info.streamlit_version='1.66.1';msg.new_session.main_script_path=app_path;_j06_replace_proto(page,i,msg)
+    _j09_refresh_unit_summaries(o)
+    evidence=[]
+    for kind,data,extension in [('process',json.dumps([{'pid':777,'port':8501,'command_line':command}]).encode(),'.json'),
+                                ('config',b'[server]\ndisconnectedSessionTTL = 120\n','.toml'),
+                                ('effective-config',b'disconnectedSessionTTL = 120\n','.txt'),('app-source',app.read_bytes(),'.py')]:
+        file='slow-'+kind+extension;(tmp_path/file).write_bytes(data);evidence.append({'kind':kind,'file':file,'sha256':hashlib.sha256(data).hexdigest()})
+    o['ttl_configuration']={'runtime':'python','effective_seconds':120,'process_id':777,'process_command_line':command,'evidence':evidence}
+    driver=runpy.run_path(str(HERE.parent/'browser/numeric_capture.py'));store=driver['_ArrowFiles'](tmp_path)
+    store.by_digest={hashlib.sha256(p.read_bytes()).hexdigest():p.name for p in tmp_path.glob('arrow-*.bin')}
+    templates={key:copy.deepcopy(page['frames'][o['phases'][i]['start']:o['phases'][i]['end']]) for key,i in [('upload',1),('pulse',2)]}
+    doms={key:copy.deepcopy(o['phases'][i]['dom_after']) for key,i in [('upload',1),('pulse',2)]}
+    s0='session-unit-a';aged=s0+'-refreshed';fresh='expired-new-session';doc=page['epochs'][2]['document_event'];ws='ws://127.0.0.1:8501/_stcore/stream'
+    png=(tmp_path/'j09-refresh.png').read_bytes();previous=copy.deepcopy(o['phases'][-1]['dom_after']);checkpoint=copy.deepcopy(o['phases'][-1]['checkpoint'])
+    def record(method,params,before,after):return {'target_id':page['target_id'],'method':method,'params':params,'cdp_before':before,'cdp_after':after,'started_monotonic':before+500,'finished_monotonic':after+500,'response':{'id':40,'result':{}}}
+    hold_clock=cut+50;clear_clock=hold_clock+150
+    block=record('Network.emulateNetworkConditionsByRule',{'matchedNetworkConditions':[{'urlPattern':ws,'offline':True,'latency':0,'downloadThroughput':-1,'uploadThroughput':-1}]},hold_clock+1,hold_clock+1.01)
+    block['response']['result']={'ruleIds':['actual-unit-rule']}
+    clear=record('Network.emulateNetworkConditionsByRule',{'matchedNetworkConditions':[]},clear_clock+1,clear_clock+1.01);clear['response']['result']={'ruleIds':[]}
+    o['commands']=[block,clear]
+    o['hold']={'block_command':0,'unblock_command':1,'samples':[{'cdp_timestamp':x,'driver_monotonic':x+500,'utc':datetime.fromtimestamp(1700000000+x,timezone.utc).isoformat()} for x in (hold_clock+2,hold_clock+70,hold_clock+137)]}
+    o['recovery']={'requested_session_id':aged,'observed_session_id':fresh,'recovery_action':'observe' if natural else 'rerun','oracle_status':'unverified'}
+    for index,name in enumerate(c.J09_SLOW_SUFFIX):
+        clock=cut+10+index*20 if index<3 else clear_clock+(0 if index==3 else 20)
+        start=len(page['frames']);before=copy.deepcopy(previous);action=dict(c.J09_SLOW_ACTIONS[name],ok=True);extra={};template=None
+        if index<2:template=templates['upload' if index==0 else 'pulse'];counts=(2+index,index);conn=2
+        elif index==2:
+            conn=2;closed_index=len(page['events']);closed=hold_clock+1.05
+            page['events'].append({'method':'Network.webSocketClosed','params':{'requestId':page['epochs'][2]['request_id'],'timestamp':closed}})
+            o['hold']['close']={'request_id':page['epochs'][2]['request_id'],'command_timestamp':hold_clock+1.02,'completed_timestamp':hold_clock+1.06,'evaluation_result':{'id':41,'result':{'result':{'type':'string','value':'closed'}}},'closed_event':closed_index}
+            page['events'] += [{'method':'Network.webSocketCreated','params':{'requestId':'blocked-retry','url':ws}},
+                              {'method':'Network.webSocketFrameError','params':{'requestId':'blocked-retry','timestamp':hold_clock+5,'errorMessage':'net::ERR_INTERNET_DISCONNECTED'}},
+                              {'method':'Network.webSocketClosed','params':{'requestId':'blocked-retry','timestamp':hold_clock+5.01}}]
+        else:
+            conn=3
+            if index==3:
+                hs=len(page['events']);page['events'].append({'method':'Network.webSocketWillSendHandshakeRequest','params':{'requestId':'slow-restored','timestamp':clock+1.2,'request':{'headers':{'Sec-WebSocket-Protocol':'streamlit, token, '+aged}}}})
+                response=len(page['events']);page['events'].append({'method':'Network.webSocketHandshakeResponseReceived','params':{'requestId':'slow-restored','timestamp':clock+1.3,'response':{'status':101,'headers':{'Sec-WebSocket-Protocol':'streamlit'}}}})
+                page['epochs'].append({'id':'e3','connection':3,'request_id':'slow-restored','document_event':doc,'navigation_event':None,'navigation_timestamp':None,'handshake_event':hs,'response_event':response})
+            if (index==3 and natural) or (index==4 and not natural):template=templates['pulse'];counts=(7,1)
+            if index==4 and not natural:
+                for kind,delta in [('rawKeyDown',.05),('keyUp',.1)]:o['commands'].append(record('Input.dispatchKeyEvent',{'type':kind,'key':'r','code':'KeyR'},clock+1+delta,clock+1+delta+.01))
+        after=copy.deepcopy(previous)
+        if template:
+            for offset,f in enumerate(template):
+                if index>=3 and natural and f['direction']=='client->server':continue
+                cls=BackMsg if f['direction']=='client->server' else ForwardMsg;msg=cls();msg.ParseFromString(base64.b64decode(f['base64']))
+                obj=json.loads(json.dumps(MessageToDict(msg)).replace(s0,aged).replace('file-sales_basic.csv','s4-file'))
+                msg=ParseDict(obj,cls())
+                if f['direction']=='client->server' and msg.WhichOneof('type')=='rerun_script' and index>=3:
+                    widgets=msg.rerun_script.widget_states.widgets
+                    for item in list(widgets):
+                        if item.WhichOneof('value')=='trigger_value':widgets.remove(item)
+                if f['direction']=='server->client':
+                    if msg.WhichOneof('type')=='new_session':msg.new_session.initialize.session_id=aged if index<2 else fresh;msg.new_session.script_run_id='slow-'+name
+                    if msg.WhichOneof('type')=='delta' and msg.delta.WhichOneof('type')=='new_element' and msg.delta.new_element.WhichOneof('type')=='markdown':
+                        body=msg.delta.new_element.markdown.body
+                        if body.startswith('Script runs:'):msg.delta.new_element.markdown.body=f'Script runs: {counts[0]}'
+                        if body.startswith('Pulses:'):msg.delta.new_element.markdown.body=f'Pulses: {counts[1]}'
+                data=msg.SerializeToString();encoded=base64.b64encode(data).decode();stamp=clock+2+offset*.01;request=page['epochs'][conn]['request_id']
+                page['frames'].append({'namespace':page['namespace'],'connection':conn,'request_id':request,'timestamp':stamp,'direction':f['direction'],'base64':encoded,'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest(),'decoded':c.summarise_back(data) if f['direction']=='client->server' else c.summarise_forward(data)})
+                page['events'].append({'method':'Network.webSocketFrameSent' if f['direction']=='client->server' else 'Network.webSocketFrameReceived','params':{'requestId':request,'timestamp':stamp,'response':{'opcode':2,'payloadData':encoded}}})
+            after=copy.deepcopy(doms['upload' if index==0 else 'pulse']);after.update(script_runs=str(counts[0]),pulses=str(counts[1]))
+            checkpoint={'epoch':'e2' if index<2 else 'e3','script_run_id':'slow-'+name,'finish_frame':len(page['frames'])-1}
+        if index==0:
+            action.update(file=str((HERE.parent/'fixtures/csv/sales_basic.csv').resolve()),file_bytes=737,file_sha256=c.J01_FILE_FINGERPRINTS['sales_basic.csv'][1])
+            f=next(f for f in page['frames'][start:] if f['decoded']['type']=='file_urls_response');url='http://127.0.0.1:8501'+f['decoded']['file_urls_response']['file_urls'][0]['upload_url'];stamp=f['timestamp']+.001
+            h={'request_id':'put-s4','method':'PUT','url':url,'timestamp':stamp,'response_timestamp':stamp+.001,'status':204,'request_headers':{'Content-Type':'multipart/form-data; boundary=unit'}};page['http_timeline'].append(h)
+            page['events'] += [{'method':'Network.requestWillBeSent','params':{'requestId':h['request_id'],'timestamp':stamp,'request':{'method':'PUT','url':url}}},
+                              {'method':'Network.responseReceived','params':{'requestId':h['request_id'],'timestamp':stamp+.001,'response':{'status':204}}}]
+        phase=driver['_phase'](name,action,page['frames'],start,len(page['frames']),before,after,store)
+        read_end=hold_clock+138 if index==2 else clock+8
+        phase.update(epoch='e2' if index<3 else 'e3',action_timestamp=clock+1,read_start_timestamp=clock,read_end_timestamp=read_end,observation_end_timestamp=read_end+2,checkpoint=copy.deepcopy(checkpoint));o['phases'].append(phase)
+        file='slow-'+name+'.png';(tmp_path/file).write_bytes(png);o['screenshots'].append({'phase':name,'namespace':page['namespace'],'epoch':phase['epoch'],'file':file,'sha256':hashlib.sha256(png).hexdigest(),'timestamp':read_end+1,'step_ids':list(c.J09_SLOW_PNG_ROLES[name]),'role':'preparation'})
+        previous=after
+    return o
+
+
+@pytest.mark.parametrize('natural',[False,True])
+def test_j09_slow_common_guards_pass_but_unknown_recovery_oracle_never_does(tmp_path,natural):
+    import capture_browser_trace as c
+    o=_j09_slow_unit_complete(tmp_path,natural);result=journey_result(c.j09_slow_checks(observation=o))
+    assert result['counts']=={'expected':20,'executed':20,'asserted':19},result['failures']
+    assert [f['check'] for f in result['failures']]==['recovery_oracle_verified']
+
+
+def _j09_slow_unit_menu(o):
+    """Actual CDP menu locator and mouse input shape; synthetic timing only."""
+    import copy
+    clock=o['phases'][-1]['action_timestamp'];template=o['commands'][2]
+    commands=[]
+    for offset,method,params in [(.05,'Runtime.evaluate',{'expression':"document.querySelector('[data-testid=stMainMenuItem-rerun]')"}),
+                                  (.10,'Input.dispatchMouseEvent',{'type':'mousePressed','x':123,'y':234,'button':'left'}),
+                                  (.15,'Input.dispatchMouseEvent',{'type':'mouseReleased','x':123,'y':234,'button':'left'})]:
+        cmd=copy.deepcopy(template);at=clock+offset
+        cmd.update(method=method,params=params,cdp_before=at,cdp_after=at+.01,started_monotonic=at+500,finished_monotonic=at+500+.01)
+        cmd['response']={'id':50+len(commands),'result':{'result':{'type':'object','value':{'x':123,'y':234}}} if method=='Runtime.evaluate' else {}}
+        commands.append(cmd)
+    o['commands'][2:]=commands
+
+
+def test_j09_slow_actual_menu_dispatch_is_accepted_without_keyr_or_extra_wait(tmp_path):
+    import capture_browser_trace as c
+    o=_j09_slow_unit_complete(tmp_path);_j09_slow_unit_menu(o)
+    assert journey_result(c.j09_slow_checks(observation=o))['counts']['asserted']==19
+
+
+def test_j09_slow_actual_click_visible_scroll_then_rectangle_contract(tmp_path):
+    import copy
+    import capture_browser_trace as c
+    o=_j09_slow_unit_complete(tmp_path);_j09_slow_unit_menu(o)
+    scroll=copy.deepcopy(o['commands'][2]);scroll['params']['expression']="(()=>{const e=document.querySelector('[data-testid=stMainMenuItem-rerun]');e.scrollIntoView();return true;})()"
+    scroll['response']['result']['result']={'type':'boolean','value':True}
+    for key in ('cdp_before','cdp_after','started_monotonic','finished_monotonic'):scroll[key]-=.02
+    o['commands'].insert(2,scroll)
+    assert journey_result(c.j09_slow_checks(observation=o))['counts']['asserted']==19
+
+
+@pytest.mark.parametrize('late_at',['before_press','between_press_release'])
+def test_j09_slow_late_natural_run_cannot_be_credited_to_menu_rerun(tmp_path,late_at):
+    import capture_browser_trace as c
+    o=_j09_slow_unit_complete(tmp_path);_j09_slow_unit_menu(o)
+    state=next(f['timestamp'] for f in o['page']['frames'][o['phases'][-1]['start']:] if f['decoded']['type']=='rerun_script')
+    # Keep metadata saying Rerun and retain all valid IPC/DOM. Only actual
+    # command dispatch proves this run was already active before the click.
+    for cmd,at in zip(o['commands'][2:],[state-.1,state+.01 if late_at=='before_press' else state-.02,state+.05]):
+        cmd.update(cdp_before=at,cdp_after=at+.005,started_monotonic=at+500,finished_monotonic=at+500+.005)
+    result=journey_result(c.j09_slow_checks(observation=o))
+    assert result['counts']['asserted']<19
+    assert any('natural activity preceded actual Rerun dispatch' in f['actual'] for f in result['failures'])
+
+
+def test_j09_slow_late_natural_completion_needs_no_invented_ui_input(tmp_path):
+    import capture_browser_trace as c
+    o=_j09_slow_unit_complete(tmp_path);o['commands']=o['commands'][:2];o['recovery']['recovery_action']='observe'
+    assert journey_result(c.j09_slow_checks(observation=o))['counts']['asserted']==19
+
+
+@pytest.mark.parametrize('mutation',[
+    'base_cursor','prefix_action','ttl','pid','artifact_sha','config_bytes','argv','app_source',
+    'global_network','foreign_target','foreign_url','clear_error','close_false','close_socket',
+    'short_cdp','short_driver','fake_utc','early_clear','hold101','missing_retry_error',
+    'old_requested_id','extra_delete','extra_document','missing_png','png_sha',
+    'missing_input','input_failed','input_wrong_point','natural_forced_rerun',
+])
+def test_j09_slow_known_guard_mutations_fail_independently_of_unknown_oracle(tmp_path,mutation):
+    import copy,hashlib
+    import capture_browser_trace as c
+    o=_j09_slow_unit_complete(tmp_path,natural=mutation=='natural_forced_rerun');page=o['page']
+    _j09_slow_unit_menu(o) if mutation in ('input_failed','input_wrong_point') else None
+    def artifact(kind,data):
+        r=next(r for r in o['ttl_configuration']['evidence'] if r['kind']==kind)
+        (tmp_path/r['file']).write_bytes(data);r['sha256']=hashlib.sha256(data).hexdigest()
+    if mutation=='base_cursor':o['base_range']['frame_end']-=1
+    elif mutation=='prefix_action':o['phases'][1]['action']['ok']=False
+    elif mutation=='ttl':o['ttl_configuration']['effective_seconds']=119
+    elif mutation=='pid':o['ttl_configuration']['process_id']=778
+    elif mutation=='artifact_sha':o['ttl_configuration']['evidence'][0]['sha256']='0'*64
+    elif mutation=='config_bytes':artifact('config',b'[server]\ndisconnectedSessionTTL = 10\n')
+    elif mutation=='argv':o['ttl_configuration']['process_command_line']=o['ttl_configuration']['process_command_line'].replace('TTL 120','TTL 10')
+    elif mutation=='app_source':artifact('app-source',b'# unrelated application\n')
+    elif mutation=='global_network':o['commands'][0]['method']='Network.emulateNetworkConditions'
+    elif mutation=='foreign_target':o['commands'][0]['target_id']='peer-target'
+    elif mutation=='foreign_url':o['commands'][0]['params']['matchedNetworkConditions'][0]['urlPattern']='ws://127.0.0.1:9999/_stcore/stream'
+    elif mutation=='clear_error':o['commands'][1]['response']={'id':40,'error':{'message':'failed'}}
+    elif mutation=='close_false':o['hold']['close']['evaluation_result']=False
+    elif mutation=='close_socket':o['hold']['close']['request_id']='different-socket'
+    elif mutation=='short_cdp':o['hold']['samples'][-1]['cdp_timestamp']-=1
+    elif mutation=='short_driver':o['hold']['samples'][-1]['driver_monotonic']-=1
+    elif mutation=='fake_utc':o['hold']['samples'][-1]['utc']=o['hold']['samples'][0]['utc']
+    elif mutation=='early_clear':o['commands'][1]['cdp_before']=o['hold']['samples'][0]['cdp_timestamp']+120
+    elif mutation=='hold101':
+        e=copy.deepcopy(page['events'][page['epochs'][3]['response_event']]);e['params']['timestamp']=o['hold']['samples'][1]['cdp_timestamp'];page['events'].append(e)
+    elif mutation=='missing_retry_error':
+        next(e for e in page['events'] if e['method']=='Network.webSocketFrameError')['params']['errorMessage']='unrelated failure'
+    elif mutation=='old_requested_id':
+        page['events'][page['epochs'][3]['handshake_event']]['params']['request']['headers']['Sec-WebSocket-Protocol']='streamlit, token, session-unit-a'
+    elif mutation=='extra_delete':page['http_timeline'].append(dict(page['http_timeline'][-1],method='DELETE'))
+    elif mutation=='extra_document':page['events'].append({'method':'Network.requestWillBeSent','params':{'type':'Document','requestId':'reload','timestamp':o['phases'][-1]['action_timestamp']}})
+    elif mutation=='missing_png':(tmp_path/o['screenshots'][-1]['file']).unlink()
+    elif mutation=='png_sha':o['screenshots'][-1]['sha256']='0'*64
+    elif mutation=='missing_input':o['commands']=o['commands'][:2]
+    elif mutation=='input_failed':o['commands'][-1]['response']={'id':52,'error':{'message':'failed'}}
+    elif mutation=='input_wrong_point':o['commands'][-1]['params']['x']+=1
+    elif mutation=='natural_forced_rerun':o['recovery']['recovery_action']='rerun'
+    result=journey_result(c.j09_slow_checks(observation=o))
+    assert not result['ok'] and result['counts']['asserted']<19,(mutation,result)
+
+
+def test_j09_slow_unknown_oracle_and_misleading_initial101_summary_are_not_truth(tmp_path):
+    import capture_browser_trace as c
+    o=_j09_slow_unit_complete(tmp_path);o['recovery']['oracle_status']='verified'
+    o['a_responses_while_rule_active']=[{'status':101,'timestamp':0}]
+    result=journey_result(c.j09_slow_checks(observation=o))
+    assert result['counts']['asserted']==19
+    assert [f['check'] for f in result['failures']]==['recovery_oracle_verified']
+
+
+def _j09_slow_hidden_input(o,kind,phase_index):
+    import copy
+    scratch=copy.deepcopy(o)
+    scratch['commands']=scratch['commands'][:2]+[copy.deepcopy(scratch['commands'][0])]
+    _j09_slow_unit_menu(scratch)
+    commands=scratch['commands'][2:]
+    clock=o['phases'][phase_index]['action_timestamp']+.4
+    if kind=='key':
+        commands=commands[1:]
+        for cmd,event in zip(commands,('rawKeyDown','keyUp')):
+            cmd.update(method='Input.dispatchKeyEvent',params={'type':event,'key':'r','code':'KeyR'})
+    for i,cmd in enumerate(commands):
+        at=clock+i*.02
+        cmd.update(cdp_before=at,cdp_after=at+.005,started_monotonic=at+500,finished_monotonic=at+500+.005)
+    o['commands'].extend(commands)
+
+
+@pytest.mark.parametrize('kind',['key','menu'])
+@pytest.mark.parametrize('phase_index',[-3,-2,-1])
+def test_j09_slow_c1_hidden_rerun_anywhere_after_close_is_not_natural(tmp_path,kind,phase_index):
+    import capture_browser_trace as c
+    o=_j09_slow_unit_complete(tmp_path,natural=True);_j09_slow_hidden_input(o,kind,phase_index)
+    # Hold action precedes close by .05s; move this mutation after actual close.
+    if phase_index==-3:
+        for cmd in o['commands'][2:]:
+            for field in ('cdp_before','cdp_after','started_monotonic','finished_monotonic'):cmd[field]+=1
+    result=journey_result(c.j09_slow_checks(observation=o))
+    assert result['counts']['asserted']<19,result
+
+
+@pytest.mark.parametrize('kind',['key','menu'])
+@pytest.mark.parametrize('phase_index',[-3,-2])
+def test_j09_slow_c1_valid_final_input_cannot_cover_an_earlier_extra_rerun(tmp_path,kind,phase_index):
+    import capture_browser_trace as c
+    o=_j09_slow_unit_complete(tmp_path);old=len(o['commands']);_j09_slow_hidden_input(o,kind,phase_index)
+    if phase_index==-3:
+        for cmd in o['commands'][old:]:
+            for field in ('cdp_before','cdp_after','started_monotonic','finished_monotonic'):cmd[field]+=1
+    result=journey_result(c.j09_slow_checks(observation=o))
+    assert result['counts']['asserted']<19
+    assert any('outside its single authorized recovery window' in f['actual'] for f in result['failures'])
+
+
+def test_j09_slow_c1_opening_main_menu_without_rerun_does_not_invalidate_natural(tmp_path):
+    import capture_browser_trace as c
+    o=_j09_slow_unit_complete(tmp_path,natural=True);_j09_slow_hidden_input(o,'menu',-1)
+    o['commands'][2]['params']['expression']="document.querySelector('[data-testid=stMainMenu]')?.querySelector('button')"
+    result=journey_result(c.j09_slow_checks(observation=o))
+    assert result['counts']['asserted']==19,result['failures']
+
+
+@pytest.mark.parametrize('inside',[True,False])
+@pytest.mark.parametrize('kind',['pending_run','pending_state','heartbeat'])
+def test_j09_slow_c1_natural_completion_cannot_hide_pending_business_tail(tmp_path,inside,kind):
+    from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
+    from streamlit.proto.BackMsg_pb2 import BackMsg
+    import capture_browser_trace as c
+    o=_j09_slow_unit_complete(tmp_path,natural=True);page=o['page'];phase=o['phases'][-1]
+    if kind=='pending_state':msg=BackMsg();msg.rerun_script.page_script_hash='pending'
+    elif kind=='pending_run':msg=ForwardMsg();msg.new_session.initialize.session_id='expired-new-session';msg.new_session.script_run_id='uncompleted-tail'
+    else:msg=ForwardMsg(heartbeat_ack=True)
+    wire=_j06_unit_wire([msg]);frame,event=wire['frames'][0],wire['events'][0]
+    if kind=='pending_state':
+        frame.update(direction='client->server',decoded=c.summarise_back(msg.SerializeToString()))
+        event['method']='Network.webSocketFrameSent'
+    stamp=phase['action_timestamp']+.5 if inside else phase['observation_end_timestamp']+.1
+    frame.update(namespace=page['namespace'],connection=3,request_id=page['epochs'][3]['request_id'],timestamp=stamp)
+    event['params'].update(requestId=frame['request_id'],timestamp=stamp)
+    page['frames'].append(frame);page['events'].append(event)
+    if inside:
+        phase.update(end=len(page['frames']),start_timestamp=stamp,end_timestamp=stamp)
+        _j09_refresh_unit_summaries(o)
+    result=journey_result(c.j09_slow_checks(observation=o))
+    assert (result['counts']['asserted']==19) is (kind=='heartbeat'),result['failures']

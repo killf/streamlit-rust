@@ -3308,6 +3308,493 @@ def _j09_pngs(observation):
         paths.add(path)
 
 
+J09_SLOW_CASE = "j09-slow-sequence"
+J09_SLOW_CONTRACT = "journey-j09-expiry-v1"
+J09_SLOW_BASE_CRITERIA_SHA256 = "46537c0dc56f5327662012dc4766b86536b990e7d7da4f8a9a416061c64c5aed"
+J09_SLOW_TTL_SECONDS = 120
+J09_SLOW_HOLD_SECONDS = 135
+J09_SLOW_SUFFIX = ("s4-upload-baseline", "s4-pulse", "s4-disconnected-hold",
+                   "s4-expired-reconnect", "s4-recovery-read")
+J09_SLOW_PHASES = {plan:prefix+J09_SLOW_SUFFIX for plan,prefix in J09_PHASES.items()}
+J09_SLOW_INPUTS = dict(J09_INPUTS, **{"s4-upload-baseline":"sales_basic.csv"})
+J09_SLOW_ACTIONS = dict(J09_ACTIONS, **{
+    "s4-upload-baseline":{"action":"upload"}, "s4-pulse":{"action":"pulse","label":"Pulse"},
+    "s4-disconnected-hold":{"action":"close-and-hold"},
+    "s4-expired-reconnect":{"action":"clear-block-and-reconnect"},
+    "s4-recovery-read":{"action":"read-recovery"},
+})
+J09_SLOW_RECOVERY_ACTIONS = ("observe","rerun")
+J09_SLOW_TTL_EVIDENCE_KINDS = {"python":("process","config","effective-config","app-source"),
+                             "native":("process","build","config","server-source","entry-source")}
+J09_SLOW_PNG_ROLES = dict(J09_PNG_ROLES, **{name:(("J09-S4",) if name == "s4-recovery-read" else ()) for name in J09_SLOW_SUFFIX})
+J09_SLOW_REQUIRED = ("contract", "single_capture", "base_range", "base_s1_s3", "prep_state", "effective_ttl120",
+    "runtime_provenance", "scoped_block_rule", "actual_close", "hold_135_real_seconds", "no_101_during_hold",
+    "retry_event_coverage", "unblock_boundary", "old_id_requested", "new_session_observed", "same_document_cache",
+    "no_reupload_or_extra_actions", "actual_recovery_run", "recovery_oracle_verified", "png_sources")
+J09_SLOW_OBSERVATION_FIELDS = dict(J09_OBSERVATION_FIELDS, **{
+    "root":J09_OBSERVATION_FIELDS["root"]+("base_range","ttl_configuration","commands","hold","recovery"),
+    "base_range":("phase_count","frame_end","event_end","http_end","screenshot_count","cutoff_timestamp"),
+    "ttl_configuration":("runtime","effective_seconds","process_id","process_command_line","evidence"),
+    "evidence":("kind","file","sha256"),
+    "command":("target_id","method","params","started_monotonic","finished_monotonic","cdp_before","cdp_after","response"),
+    "hold":("close","block_command","unblock_command","samples"),
+    "sample":("cdp_timestamp","driver_monotonic","utc"),
+    "recovery":("requested_session_id","observed_session_id","recovery_action","oracle_status"),
+})
+JOURNEY_REQUIRED[J09_SLOW_CASE] = {(J09_SLOW_CASE,key) for key in J09_SLOW_REQUIRED}
+# One new complete capture: the original J09 prefix, then all five S4 phases.
+# plan still selects natural/ui-probe only for S1-S3. S4's read-recovery phase
+# records the actual observe/rerun string in recovery.recovery_action; no placeholder
+# run. Its oracle_status is "unverified" until real 1.66.1 slow evidence is
+# independently reviewed. No recovered widget/file/counter golden is supplied.
+# The S3 fresh session s1/e2/d1 is explicitly populated by S4's upload + one
+# Pulse before it is aged. Only two uploads total; no PUT/Pulse/F5 after prep.
+# All attempts, including failed ones, remain in page.events. page.epochs keeps
+# successful protocol epochs: e0/e1 share d0; e2 and recovered e3 share d1.
+# No successful HTTP101 is allowed between the actual e2 closed event and the
+# unblock command: its cdp_before must be >= closed timestamp + 135 real seconds.
+# hold.close uses J09's full raw CDP close response and actual closed_event.
+# block/unblock_command are indices into root.commands (target-only exact WS
+# rule/clear); cdp_before/cdp_after come from actual Performance.getMetrics
+# Timestamp reads bracketing that command. Apply/ack the scoped rule before
+# native close, as actually measured by the short preflight. Samples retain
+# real CDP/driver monotonic clocks plus UTC. Recompute
+# interval membership from raw events, never a_responses_while_rule_active or
+# a producer success boolean. No global network rule, proxy or virtual time.
+# ttl_configuration.effective_seconds must be 120. Python evidence includes
+# actual PID argv, config/config-source and runtime 1.66.1. Native evidence must
+# include the sealed 769+dirty candidate/build manifest, source snapshot proving
+# the 120s constructor/no override, launch config and matching running binary;
+# merely quoting the current source default is insufficient. Evidence artifacts
+# are relative to ipc_dir, preserving their original bytes and SHA256.
+# base_range is captured at S3 completion, before any S4 action. All *_end values
+# are exclusive cursors into this same full capture. No events/raw are rewritten.
+
+
+def j09_slow_checks(*, observation=None):
+    """Validate known S4 guards; recovery semantics remain independently unknown."""
+    verified = set()
+    try:
+        _j09_slow_verify(observation,verified)
+    except (ValueError,TypeError,KeyError,IndexError,OSError,AttributeError) as exc:
+        failure = str(exc)
+    else:
+        failure = "common guards verified; recovery widget/file oracle is not verified"
+    return _journey_finish(J09_SLOW_CASE, [_check(J09_SLOW_CASE,key,"complete real J09 including S4 evidence",
+        "NOT VERIFIED: actual 1.66.1 expired widget/file recovery oracle awaits independent evidence" if key == "recovery_oracle_verified"
+        else "common guard verified" if key in verified else failure,
+        key in verified and key != "recovery_oracle_verified") for key in J09_SLOW_REQUIRED])
+
+
+def _j09_slow_base_view(observation):
+    """Explicit, validated prefix projection; never a replacement for full raw.
+
+    Only the S1-S3 validator consumes this view. The slow validator must still
+    inspect every original tail frame/event/HTTP request and all S4 phases.
+    This reader is also usable before S4 starts, when the capture has no tail.
+    """
+    import copy
+
+    _journey_need(observation.get("journey") == J09_SLOW_CASE and observation.get("contract") == J09_SLOW_CONTRACT
+                  and observation.get("plan") in J09_PHASES, "J09 slow missing versioned prefix contract")
+    ranges,page = observation["base_range"],observation["page"]
+    count = len(J09_PHASES[observation["plan"]])
+    _journey_need(ranges["phase_count"] == ranges["screenshot_count"] == count
+                  and tuple(p["name"] for p in observation["phases"][:count]) == J09_PHASES[observation["plan"]], "J09 slow prefix phase/PNG count differs")
+    for key,items in (("frame_end",page["frames"]),("event_end",page["events"]),("http_end",page["http_timeline"]),
+                      ("phase_count",observation["phases"]),("screenshot_count",observation["screenshots"])):
+        _journey_need(type(ranges[key]) is int and 0 <= ranges[key] <= len(items), "J09 slow invalid exclusive prefix cursor: " + key)
+    cut = ranges["cutoff_timestamp"]
+    _journey_need(_j06_number(cut) and cut == observation["phases"][count-1]["observation_end_timestamp"]
+                  and ranges["frame_end"] > 0 and all(f["timestamp"] <= cut for f in page["frames"][:ranges["frame_end"]])
+                  and all(f["timestamp"] > cut for f in page["frames"][ranges["frame_end"]:]), "J09 slow prefix cutoff hides or borrows frames")
+    binary = lambda events:sum(e.get("method") in ("Network.webSocketFrameSent","Network.webSocketFrameReceived")
+                              and e.get("params",{}).get("response",{}).get("opcode") == 2 for e in events)
+    _journey_need(binary(page["events"][:ranges["event_end"]]) == ranges["frame_end"]
+                  and binary(page["events"]) == len(page["frames"]), "J09 slow prefix frame/event cursor mismatch")
+    _journey_need(all(_j06_number(h.get("timestamp")) and h["timestamp"] <= cut for h in page["http_timeline"][:ranges["http_end"]])
+                  and all(_j06_number(h.get("timestamp")) and h["timestamp"] > cut for h in page["http_timeline"][ranges["http_end"]:]), "J09 slow prefix HTTP cursor mismatch")
+    prefix_page = dict(page,frames=page["frames"][:ranges["frame_end"]],events=page["events"][:ranges["event_end"]],
+                       http_timeline=page["http_timeline"][:ranges["http_end"]],epochs=page["epochs"][:3])
+    return copy.deepcopy(dict(journey=J09_CASE,contract=J09_CONTRACT,plan=observation["plan"],url=observation["url"],
+        ipc_dir=observation["ipc_dir"],page=prefix_page,phases=observation["phases"][:count],screenshots=observation["screenshots"][:count]))
+
+
+def _j09_slow_artifact(observation,record):
+    root = pathlib.Path(observation["ipc_dir"]).resolve();file = pathlib.Path(record["file"]);path = (root/file).resolve()
+    _journey_need(not file.is_absolute() and ".." not in file.parts and path.is_relative_to(root) and path.is_file(), "S4 missing/unsafe provenance artifact")
+    data = path.read_bytes()
+    _journey_need(hashlib.sha256(data).hexdigest() == record["sha256"], "S4 provenance artifact SHA mismatch")
+    return data
+
+
+def _j09_slow_ttl(observation):
+    import tomllib
+    from urllib.parse import urlsplit
+    from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
+
+    ttl = observation["ttl_configuration"]
+    _journey_need(type(ttl["effective_seconds"]) is int and ttl["effective_seconds"] == 120
+                  and type(ttl["process_id"]) is int and ttl["process_id"] > 0 and ttl["runtime"] in ("python","native"), "S4 effective TTL/runtime/PID is not explicit 120")
+    records = {r["kind"]:r for r in ttl["evidence"]}
+    _journey_need(len(records) == len(ttl["evidence"]) and set(records) == set(J09_SLOW_TTL_EVIDENCE_KINDS[ttl["runtime"]]), "S4 missing/duplicate provenance kind")
+    contents = {kind:_j09_slow_artifact(observation,r) for kind,r in records.items()}
+    process = json.loads(contents["process"])
+    processes = process if isinstance(process,list) else [process]
+    matches = [p for p in processes if p.get("pid") == ttl["process_id"]]
+    _journey_need(len(matches) == 1 and type(matches[0].get("pid")) is int and matches[0]["command_line"] == ttl["process_command_line"]
+                  and matches[0]["port"] == urlsplit(observation["url"]).port, "S4 process/argv/listener identity differs")
+    command = ttl["process_command_line"]
+    if ttl["runtime"] == "python":
+        config = tomllib.loads(contents["config"].decode("utf-8"))
+        _journey_need(type(config["server"]["disconnectedSessionTTL"]) is int and config["server"]["disconnectedSessionTTL"] == 120
+                      and re.findall(r"--server\.disconnectedSessionTTL(?:=|\s+)(\d+)(?=\s|$)",command) == ["120"]
+                      and re.search(r"(?m)^\s*disconnectedSessionTTL\s*=\s*120\s*$",contents["effective-config"].decode("utf-8")), "S4 Python argv/config/effective configuration disagree")
+        _journey_need(records["app-source"]["sha256"] == "475e27d4d957a2d20ca31f882bcc7add8c7005a6bfdee81a92e3c3784fdc0b9c", "S4 reference app source is not the frozen public fixture")
+        found = False
+        for frame in observation["page"]["frames"][:observation["base_range"]["frame_end"]]:
+            if frame["direction"] != "server->client":continue
+            message = ForwardMsg();message.ParseFromString(base64.b64decode(frame["base64"],validate=True))
+            if message.WhichOneof("type") == "new_session":
+                _journey_need(message.new_session.initialize.environment_info.streamlit_version == "1.66.1"
+                              and message.new_session.main_script_path.replace("\\","/") in command.replace("\\","/"), "S4 Python actual NewSession runtime/app path mismatch")
+                found = True
+        _journey_need(found, "S4 no actual Python runtime NewSession")
+    else:
+        build = json.loads(contents["build"])
+        _journey_need(records["build"]["sha256"] == "eef1173d9cbb2c26e4471a5059254db07af7fb31cdadb06b049d36f1c3966b7d"
+                      and build["git_base"] == "76938fb643149424e69af0ddbccc3127be751178"
+                      and "Dirty" in build["source_state"] and matches[0]["binary_sha256"] == build["binary_sha256"]
+                      and build["binary_path"].replace("\\","/").lower() in command.replace("\\","/").lower()
+                      and records["config"]["sha256"] == build["config_sha256"]
+                      and records["entry-source"]["sha256"] == build["actual_data_app_sha256"]
+                      and records["server-source"]["sha256"] == build["runtime_members"]["repo/streamlit/src/server.rs"], "S4 native process/build/source/config identity differs from sealed 769+dirty candidate")
+        _journey_need(b"SessionStore::new(Duration::from_secs(120))" in contents["server-source"]
+                      and not re.search(rb"\.\s*with_disconnected_session_ttl\s*\(",contents["entry-source"]), "S4 native compiled entry overrides retention or lacks the sealed 120s constructor")
+
+
+def _j09_slow_command(observation,index):
+    _journey_need(type(index) is int and 0 <= index < len(observation["commands"]), "S4 missing actual command index")
+    command = observation["commands"][index]
+    _journey_need(command["target_id"] == observation["page"]["target_id"]
+                  and all(_j06_number(command[k]) for k in ("started_monotonic","finished_monotonic","cdp_before","cdp_after"))
+                  and command["started_monotonic"] <= command["finished_monotonic"] and command["cdp_before"] <= command["cdp_after"]
+                  and abs((command["cdp_after"]-command["cdp_before"])-(command["finished_monotonic"]-command["started_monotonic"])) <= 1,
+                  "S4 command target/paired real clocks mismatch")
+    response = command["response"]
+    _journey_need(type(response) is dict and set(response) == {"id","result"} and type(response["id"]) is int and response["id"] > 0
+                  and type(response["result"]) is dict, "S4 command failed or has contradictory response")
+    return command
+
+
+def _j09_slow_hold(observation,page,phase):
+    from urllib.parse import urlsplit,urlunsplit
+
+    hold,events = observation["hold"],page["events"]
+    block = _j09_slow_command(observation,hold["block_command"]);clear = _j09_slow_command(observation,hold["unblock_command"])
+    url = urlsplit(observation["url"]);ws = urlunsplit(("wss" if url.scheme == "https" else "ws",url.netloc,url.path.rstrip("/")+"/_stcore/stream","",""))
+    _journey_need(block["method"] == clear["method"] == "Network.emulateNetworkConditionsByRule"
+                  and block["params"] == {"matchedNetworkConditions":[{"urlPattern":ws,"offline":True,"latency":0,"downloadThroughput":-1,"uploadThroughput":-1}]}
+                  and clear["params"] == {"matchedNetworkConditions":[]}
+                  and set(block["response"]["result"]) == {"ruleIds"} and isinstance(block["response"]["result"]["ruleIds"],list)
+                  and len(block["response"]["result"]["ruleIds"]) == 1 and isinstance(block["response"]["result"]["ruleIds"][0],str)
+                  and block["response"]["result"]["ruleIds"][0] and clear["response"]["result"] == {"ruleIds":[]}, "S4 not an acknowledged exact target WS rule/clear")
+    rules = [i for i,c in enumerate(observation["commands"]) if c["method"] == "Network.emulateNetworkConditionsByRule"]
+    _journey_need(rules == [hold["block_command"],hold["unblock_command"]]
+                  and not any(c["method"] in ("Network.emulateNetworkConditions","Network.overrideNetworkState","Emulation.setVirtualTimePolicy","Fetch.enable") for c in observation["commands"]), "S4 extra/global network or virtual-time intervention")
+    close = hold["close"];index = close["closed_event"]
+    _journey_need(type(index) is int and 0 <= index < len(events), "S4 missing actual closed event")
+    event = events[index];closed = event["params"]["timestamp"]
+    _journey_need(event["method"] == "Network.webSocketClosed" and event["params"]["requestId"] == close["request_id"] == page["epochs"][2]["request_id"]
+                  and _j09_close_success(close["evaluation_result"])
+                  and all(_j06_number(close[k]) for k in ("command_timestamp","completed_timestamp"))
+                  and phase["action_timestamp"] <= block["cdp_before"] <= block["cdp_after"] <= close["command_timestamp"] <= closed
+                  and close["command_timestamp"] <= close["completed_timestamp"] <= phase["read_end_timestamp"], "S4 explicit native close/rule order or old socket identity failed")
+    samples = hold["samples"]
+    _journey_need(isinstance(samples,list) and len(samples) >= 2, "S4 missing actual paired clock samples")
+    times = []
+    for sample in samples:
+        instant = datetime.fromisoformat(sample["utc"].replace("Z","+00:00"))
+        _journey_need(instant.utcoffset() is not None and _j06_number(sample["cdp_timestamp"]) and _j06_number(sample["driver_monotonic"]), "S4 invalid real clock/UTC sample")
+        times.append((sample["cdp_timestamp"],sample["driver_monotonic"],instant.timestamp()))
+    _journey_need(closed <= times[0][0] and times[-1][0] <= phase["read_end_timestamp"] <= clear["cdp_before"]
+                  and all(all(a[k] < b[k] for k in (0,1,2)) for a,b in zip(times,times[1:]))
+                  and times[-1][0]-times[0][0] >= 135 and times[-1][1]-times[0][1] >= 135
+                  and all(abs((t[0]-times[0][0])-(t[1]-times[0][1])) <= 1 and abs((t[0]-times[0][0])-(t[2]-times[0][2])) <= 2
+                          and abs((t[1]-t[0])-(block["started_monotonic"]-block["cdp_before"])) <= 1
+                          and abs((t[1]-t[0])-(clear["started_monotonic"]-clear["cdp_before"])) <= 1 for t in times), "S4 no continuous >=135s real CDP+driver+UTC interval after close")
+    _journey_need(not any(e.get("method") == "Network.webSocketHandshakeResponseReceived" and e["params"]["response"].get("status") == 101
+                          and closed <= e["params"]["timestamp"] < clear["cdp_before"] for e in events), "S4 successful HTTP101 occurred during disconnected hold")
+    _journey_need(not any(closed < f["timestamp"] < clear["cdp_before"] for f in page["frames"]), "S4 WS frames occurred during supposedly disconnected hold")
+    return closed,clear,ws
+
+
+def _j09_slow_epoch(observation,page,previous,closed,clear,ws):
+    epochs,events = page["epochs"],page["events"]
+    _journey_need([e["id"] for e in epochs] == ["e0","e1","e2","e3"], "S4 undeclared/missing successful epoch")
+    e = epochs[3]
+    _journey_need(e["document_event"] == epochs[2]["document_event"] and e["navigation_event"] is None and e["navigation_timestamp"] is None
+                  and e["connection"] == 3 and e["request_id"] not in {p["request_id"] for p in epochs[:3]}, "S4 restore changed document or reused a connection")
+    for key in ("handshake_event","response_event"):
+        _journey_need(type(e[key]) is int and 0 <= e[key] < len(events), "S4 missing restore handshake event")
+    hs,response = events[e["handshake_event"]],events[e["response_event"]]
+    hp,rp = hs["params"],response["params"]
+    protocols = [s.strip() for s in {k.lower():v for k,v in hp["request"]["headers"].items()}.get("sec-websocket-protocol","").split(",")]
+    _journey_need(hs["method"] == "Network.webSocketWillSendHandshakeRequest" and response["method"] == "Network.webSocketHandshakeResponseReceived"
+                  and hp["requestId"] == rp["requestId"] == e["request_id"] and rp["response"]["status"] == 101
+                  and {k.lower():v for k,v in rp["response"]["headers"].items()}.get("sec-websocket-protocol") == "streamlit"
+                  and len(protocols) == 3 and protocols[:2] == ["streamlit",protocols[1]] and protocols[1]
+                  and protocols[2] == previous["session"] and clear["cdp_before"] <= hp["timestamp"] <= rp["timestamp"], "S4 restore did not request the expired s1 via its actual third subprotocol")
+    success = [p["params"] for p in events if p.get("method") == "Network.webSocketHandshakeResponseReceived" and p["params"]["response"].get("status") == 101]
+    _journey_need(len(success) == 4 and {p["requestId"] for p in success} == {p["request_id"] for p in epochs}, "S4 hidden successful reconnect")
+    docs = {i for i,v in enumerate(events) if v.get("method") == "Network.requestWillBeSent" and v.get("params",{}).get("type") == "Document"}
+    _journey_need(docs == {epochs[0]["document_event"],epochs[2]["document_event"]}, "S4 F5/new document occurred during expiry proof")
+    tail = events[observation["base_range"]["event_end"]:]
+    ids = {p["params"]["requestId"] for p in tail if p.get("method","").startswith("Network.webSocket")}
+    successes = {p["request_id"] for p in epochs}
+    blocked = 0
+    for request in ids-successes:
+        created = [p for p in tail if p.get("method") == "Network.webSocketCreated" and p["params"]["requestId"] == request]
+        errors = [p for p in tail if p.get("method") in ("Network.webSocketFrameError","Network.webSocketClosed") and p["params"]["requestId"] == request]
+        _journey_need(len(created) == 1 and created[0]["params"]["url"] == ws and errors
+                      and all(_j06_number(p["params"].get("timestamp")) and p["params"]["timestamp"] >= closed for p in errors), "S4 incomplete/foreign retry lifecycle")
+        if any(p["method"] == "Network.webSocketFrameError" and "ERR_INTERNET_DISCONNECTED" in p["params"].get("errorMessage","")
+               and closed <= p["params"]["timestamp"] < clear["cdp_before"] for p in errors):blocked += 1
+    _journey_need(blocked > 0, "S4 no actual failed target WS retry proves the block")
+    _journey_need(all((f["connection"],f["request_id"]) in {(p["connection"],p["request_id"]) for p in epochs} for f in page["frames"])
+                  and all(f["timestamp"] >= rp["timestamp"] for f in page["frames"] if f["request_id"] == e["request_id"]), "S4 restore frame/HTTP101 epoch mismatch")
+    return e,rp["timestamp"]
+
+
+def _j09_slow_run(observation,page,phase,epoch):
+    frames = page["frames"];indices = range(phase["start"],phase["end"])
+    starts = [i for i in indices if frames[i]["decoded"].get("type") == "new_session"]
+    done = [i for i in indices if frames[i]["decoded"].get("type") == "script_finished"]
+    clients = [i for i in indices if frames[i]["decoded"].get("type") == "rerun_script"]
+    _journey_need(len(starts) == len(done) == 1 and starts[0] < done[0] and len(clients) <= 1
+                  and (not clients or clients[0] < starts[0]), "S4 pending/extra recovery run cannot be replaced by a UI rerun")
+    start,finish = starts[0],done[0];message = frames[start]["decoded"]["new_session"]
+    _journey_need(message.get("session_id") and message.get("script_run_id") and frames[finish]["decoded"]["script_finished"].get("status") == 0
+                  and all((frames[i]["connection"],frames[i]["request_id"]) == (epoch["connection"],epoch["request_id"]) for i in indices), "S4 recovery run missing success/session/epoch identity")
+    for i in indices:
+        if start <= i <= finish or i in clients:continue
+        _journey_need(_j09_quiet(frames[i]["decoded"]), "S4 recovery output lies outside the target run")
+    deltas = [frames[i]["decoded"]["delta"] for i in range(start+1,finish) if frames[i]["decoded"].get("type") == "delta"]
+    dom = phase["dom_after"]
+    alerts = [d.get("alert") for d in deltas if d.get("element") == "alert"]
+    exceptions = [d.get("exception") for d in deltas if d.get("element") == "exception"]
+    _journey_need(all(isinstance(a,dict) for a in alerts) and dom["alerts"] == [a.get("body") for a in alerts]
+                  and len(dom["exceptions"]) == len(exceptions)
+                  and all(isinstance(e,dict) and isinstance(text,str) and str(e.get("message") or e.get("type") or "") in text for e,text in zip(exceptions,dom["exceptions"])), "S4 actual recovery alerts/exceptions differ from DOM")
+    for label,key in (("Script runs","script_runs"),("Pulses","pulses")):
+        values = [int(m[1]) for d in deltas if d.get("element") in ("text","markdown") and isinstance(d.get("body"),str)
+                  and (m := re.fullmatch(re.escape(label)+r":\s*(\d+)",d["body"].strip()))]
+        _journey_need(values == [_stage2_counter(dom,key)], "S4 actual recovery counter/DOM mismatch")
+    if clients:
+        states = frames[clients[0]]["decoded"]["rerun_script"]["widget_states"]
+        _journey_need(len({s.get("id") for s in states}) == len(states), "S4 duplicate recovery widget state")
+        _stage2_typed_controls(deltas,states,dom,float(dom["slider_value"]),group=dom["selectbox_value"],include_unknown=dom["checkbox_checked"])
+    tables = [d for d in deltas if d.get("element") == "dataframe"]
+    charts = [d for d in deltas if d.get("element") == "vega_lite_chart"]
+    _journey_need(len(tables) <= 1 and len(charts) <= 1, "S4 duplicate actual recovery result")
+    # Self-consistency only. Whether any file/data/widget should survive is an
+    # unverified oracle criterion, never inferred from this result's own rows.
+    if tables:
+        kept = phase["ipc"]["table"]["arrow"]
+        table = _journey_ipc(tables[0]["arrow"],{"ipc_dir":observation["ipc_dir"],"ipc_files":{kept["sha256"]:kept["file"]}})
+        if table["row_count"]:
+            _stage2_static_view(observation,phase,{"deltas":deltas},expected_rows=table["rows"])
+        else:
+            _journey_need(dom["table_present"] is True and not _filled_cells(dom["table_cells"]) and not charts and dom["chart_present"] is False and dom["chart_bars"] == 0, "S4 stale empty result DOM/chart")
+    else:
+        _journey_need(not charts and phase["ipc"] == {"table":None,"chart":None} and dom["table_present"] is False
+                      and not _filled_cells(dom["table_cells"]) and dom["chart_present"] is False and dom["chart_bars"] == 0, "S4 old DOM/IPC substituted for actual recovery output")
+    return {"session":message["session_id"],"checkpoint":{"epoch":"e3","script_run_id":message["script_run_id"],"finish_frame":finish},"client":clients[0] if clients else None}
+
+
+def _j09_slow_signature(dom):
+    _journey_need(isinstance(dom,dict) and set(J06_OBSERVATION_FIELDS["dom"]) <= dom.keys()
+                  and isinstance(dom["uploaded_files"],list) and isinstance(dom["exceptions"],list), "S4 missing fresh actual DOM fields")
+    return {k:dom[k] for k in J06_OBSERVATION_FIELDS["dom"]}
+
+
+def _j09_slow_summary(page,phase):
+    selected = page["frames"][phase["start"]:phase["end"]]
+    states = [{k:s.get(k) for k in ("id","value_field","value")} for f in selected if f["decoded"].get("type") == "rerun_script"
+              for s in f["decoded"]["rerun_script"]["widget_states"]]
+    completions = [{"frame":i,"connection":f["connection"],"request_id":f["request_id"],"status":f["decoded"]["script_finished"].get("status"),
+                    "status_name":f["decoded"]["script_finished"].get("status_name")} for i,f in enumerate(selected) if f["decoded"].get("type") == "script_finished"]
+    _journey_need(phase["client_states"] == states and phase["completions"] == completions, "S4 summaries do not match effective raw")
+
+
+def _j09_slow_verify(observation,verified):
+    _journey_need(isinstance(observation,dict) and observation.get("journey") == J09_SLOW_CASE and observation.get("contract") == J09_SLOW_CONTRACT
+                  and observation.get("plan") in J09_SLOW_PHASES, "S4 missing versioned slow contract")
+    verified.add("contract")
+    _journey_need(tuple(p["name"] for p in observation["phases"]) == J09_SLOW_PHASES[observation["plan"]], "S4 missing/reordered complete single-capture phases")
+    base = _j09_slow_base_view(observation);verified.add("base_range")
+    result = journey_result(j09_checks(observation=base));_journey_need(result["ok"], "S4 original S1-S3 prefix failed: " + str(result["failures"][:1]))
+    verified.add("base_s1_s3")
+    _j09_slow_ttl(observation);verified.update(("effective_ttl120","runtime_provenance"))
+    page = dict(observation["page"],frames=_j09_materialize_frames(observation["page"]))
+    n = len(base["phases"]);phases = observation["phases"][n:];frames = page["frames"]
+    base_phase = base["phases"][-1]
+    previous = _j06_active(observation,page,base_phase,dict(base_phase,mode="refresh"),None)
+    covered = set(range(observation["base_range"]["frame_end"]))
+    targets = {f["decoded"]["new_session"]["script_run_id"] for f in frames[:observation["base_range"]["frame_end"]] if f["decoded"].get("type") == "new_session"}
+    last_dom,last_end = previous["signature"],base_phase["observation_end_timestamp"]
+    aged,natural,recovered = None,False,None
+    for index,phase in enumerate(phases):
+        name,action = phase["name"],phase["action"]
+        _journey_need(all(action.get(k) == v for k,v in J09_SLOW_ACTIONS[name].items()) and action.get("ok") is True and not action.get("failed"), "S4 failed/unobserved/wrong explicit action")
+        before,at,after,end = [phase[k] for k in ("read_start_timestamp","action_timestamp","read_end_timestamp","observation_end_timestamp")]
+        start,stop = phase["start"],phase["end"]
+        _journey_need(all(_j06_number(t) for t in (before,at,after,end)) and last_end < before <= at < after <= end
+                      and type(start) is int and type(stop) is int and 0 <= start <= stop <= len(frames)
+                      and start == sum(f["timestamp"] <= before for f in frames) and stop == sum(f["timestamp"] <= after for f in frames)
+                      and not covered.intersection(range(start,stop)), "S4 action/read clocks or full frame cursors are invalid")
+        covered.update(range(start,stop));selected = frames[start:stop]
+        _journey_need(phase["start_timestamp"] == (selected[0]["timestamp"] if selected else None)
+                      and phase["end_timestamp"] == (selected[-1]["timestamp"] if selected else None)
+                      and _j09_slow_signature(phase["dom_before"]) == last_dom, "S4 stale DOM/timestamp or unrecorded transition")
+        signature = _j09_slow_signature(phase["dom_after"])
+        expected_epoch = "e2" if index < 3 else "e3"
+        _journey_need(phase["epoch"] == expected_epoch and all(f["request_id"] == page["epochs"][2 if index < 3 else 3]["request_id"] for f in selected), "S4 crossed successful epoch")
+        if index < 2:
+            previous = _j06_active(observation,page,phase,dict(phase,mode="upload" if index == 0 else "pulse"),previous)
+            _journey_need(phase["checkpoint"] == previous["checkpoint"] and previous["checkpoint"]["script_run_id"] not in targets, "S4 prep checkpoint/run reused")
+            targets.add(previous["checkpoint"]["script_run_id"])
+            if index == 1:
+                aged = previous;verified.add("prep_state")
+        elif index == 2:
+            closed,clear,ws = _j09_slow_hold(observation,page,phase)
+            _journey_need(all(_j09_quiet(f["decoded"]) for f in selected) and phase["ipc"] == {"table":None,"chart":None}
+                          and phase["checkpoint"] == aged["checkpoint"], "S4 invented a run/result while disconnected")
+            verified.update(("scoped_block_rule","actual_close","hold_135_real_seconds","no_101_during_hold"))
+        elif index == 3:
+            epoch,response_time = _j09_slow_epoch(observation,page,aged,closed,clear,ws)
+            _journey_need(at <= clear["cdp_before"] <= clear["cdp_after"] <= after and after >= response_time, "S4 clear/actual recovery observation is outside its phase")
+            natural = any(not _j09_quiet(f["decoded"]) for f in selected)
+            if natural:recovered = _j09_slow_run(observation,page,phase,epoch)
+            else:_journey_need(phase["ipc"] == {"table":None,"chart":None}, "S4 no-run reconnect invented fresh IPC")
+            _journey_need(phase["checkpoint"] == (recovered["checkpoint"] if recovered else aged["checkpoint"]), "S4 HTTP101 was substituted for a verified run")
+            verified.update(("retry_event_coverage","unblock_boundary","old_id_requested","same_document_cache"))
+        else:
+            actual = observation["recovery"]["recovery_action"]
+            _journey_need(actual in J09_SLOW_RECOVERY_ACTIONS, "S4 missing actual observe/Rerun UI action")
+            inputs = _j09_slow_post_close_inputs(observation,closed)
+            if actual == "observe":
+                _journey_need(not inputs, "S4 natural/observe concealed post-close Rerun input")
+            else:
+                _journey_need(len(inputs) == 2 and all(at <= observation["commands"][i]["cdp_before"] <= observation["commands"][i]["cdp_after"] <= after for i in inputs), "S4 Rerun input outside its single authorized recovery window")
+            if natural:
+                _journey_need(actual == "observe" and all(_j09_quiet(f["decoded"]) for f in selected)
+                              and signature == last_dom and phase["ipc"] == {"table":None,"chart":None}, "S4 forced an extra rerun after natural completion")
+            elif actual == "observe":
+                recovered = _j09_slow_run(observation,page,phase,epoch)
+            else:
+                input_time = _j09_slow_rerun_input(observation,phase)
+                _journey_need(all(_j09_quiet(f["decoded"]) for f in frames if f["request_id"] == epoch["request_id"] and f["timestamp"] < input_time), "S4 natural activity preceded actual Rerun dispatch")
+                recovered = _j09_slow_run(observation,page,phase,epoch)
+                _journey_need(recovered["client"] is not None and frames[recovered["client"]]["timestamp"] >= input_time, "S4 Rerun UI did not produce its new ClientState/run")
+            _journey_need(recovered["session"] != aged["session"] and observation["recovery"]["requested_session_id"] == aged["session"]
+                          and observation["recovery"]["observed_session_id"] == recovered["session"] and phase["checkpoint"] == recovered["checkpoint"]
+                          and recovered["checkpoint"]["script_run_id"] not in targets, "S4 old session resumed or new ID/target run proof was forged")
+            verified.update(("new_session_observed","actual_recovery_run"))
+        _j09_slow_summary(page,phase);last_dom,last_end = signature,end
+    _journey_need(all(i in covered or _j09_quiet(f["decoded"]) for i,f in enumerate(frames)), "S4 base range/tail windows hide business output")
+    mutations = [h for h in page["http_timeline"] if h.get("method") in ("PUT","DELETE")]
+    sent = [e for e in page["events"] if e.get("method") == "Network.requestWillBeSent" and e.get("params",{}).get("request",{}).get("method") in ("PUT","DELETE")]
+    _journey_need(len(mutations) == len(sent) == 2 and all(h["method"] == "PUT" and h["status"] == 204 for h in mutations)
+                  and all(h["response_timestamp"] <= phases[0]["read_end_timestamp"] for h in mutations), "S4 re-upload/DELETE occurred or HTTP evidence was omitted")
+    for h in mutations:
+        _j06_http_events(dict(http_timeline=[h],events=[e for e in page["events"] if e.get("params",{}).get("requestId") == h["request_id"]]))
+    for f in frames[phases[1]["end"]:]:
+        _journey_need(not any(s.get("value_field") == "trigger_value" and s.get("value") is True for s in f["decoded"].get("rerun_script",{}).get("widget_states",[])), "S4 extra Pulse/submit after prep")
+    _journey_need(not any(c["method"] in ("Page.navigate","Page.reload") and c["cdp_before"] > observation["base_range"]["cutoff_timestamp"] for c in observation["commands"]), "S4 explicit F5/navigation bypassed expiry")
+    verified.update(("single_capture","no_reupload_or_extra_actions"))
+    _j09_slow_pngs(observation);verified.add("png_sources")
+
+
+def _j09_slow_post_close_inputs(observation,closed):
+    """Attribute raw input across the whole tail, not a chosen phase slice."""
+    rerun,points = [],[]
+    commands = sorted(enumerate(observation["commands"]),key=lambda pair:pair[1]["cdp_before"])
+    for index,c in commands:
+        if c["cdp_after"] < closed:continue
+        if c["method"] == "Runtime.evaluate":
+            expression = c["params"].get("expression","")
+            item = "document.querySelector('[data-testid=stMainMenuItem-rerun]')" in expression
+            menu = "[data-testid=stMainMenu]" in expression or "button[data-testid=stMainMenu]" in expression
+            if not (item or menu):continue
+            remote = _j09_slow_command(observation,index)["response"]["result"]
+            _journey_need(set(remote) == {"result"}, "S4 post-close menu evaluation failed")
+            value = remote["result"].get("value")
+            if remote["result"].get("type") == "object" and isinstance(value,dict) and all(_j06_number(value.get(k)) for k in ("x","y")):
+                points.append((c["cdp_after"],value,item))
+        elif c["method"].startswith("Input."):
+            c = _j09_slow_command(observation,index);p = c["params"]
+            _journey_need(c["cdp_before"] >= closed, "S4 UI input straddled native close")
+            if c["method"] == "Input.dispatchKeyEvent":
+                _journey_need(p.get("key") == "r" and p.get("code") == "KeyR" and p.get("type") in ("rawKeyDown","keyUp") and not p.get("modifiers",0), "S4 unattributed post-close keyboard action")
+                rerun.append(index)
+            else:
+                _journey_need(c["method"] == "Input.dispatchMouseEvent" and p.get("type") in ("mousePressed","mouseReleased") and p.get("button") == "left", "S4 unattributed post-close UI action")
+                locations = [point for point in points if point[0] <= c["cdp_before"] and all(p.get(k) == point[1][k] for k in ("x","y"))]
+                _journey_need(locations, "S4 post-close mouse input lacks actual menu geometry")
+                if locations[-1][2]:rerun.append(index)
+    return rerun
+
+
+def _j09_slow_rerun_input(observation,phase):
+    commands = [(i,c) for i,c in enumerate(observation["commands"])
+                if phase["action_timestamp"] <= c["cdp_before"] <= c["cdp_after"] <= phase["read_end_timestamp"]]
+    keys = [(i,c) for i,c in commands if c["method"] == "Input.dispatchKeyEvent"]
+    if keys:
+        _journey_need(len(keys) == 2, "S4 extra/missing Rerun key commands")
+        down,up = [_j09_slow_command(observation,i) for i,c in keys]
+        _journey_need(down["params"].get("type") == "rawKeyDown" and up["params"].get("type") == "keyUp"
+                      and all(c["params"].get("key") == "r" and c["params"].get("code") == "KeyR" and not c["params"].get("modifiers",0) for c in (down,up))
+                      and down["cdp_after"] <= up["cdp_before"], "S4 recovery input was not actual frontend Rerun")
+        return down["cdp_before"]
+    candidates = [(i,c) for i,c in commands if c["method"] == "Runtime.evaluate" and "document.querySelector('[data-testid=stMainMenuItem-rerun]')" in c["params"].get("expression","")]
+    # click_visible first evaluates scrollIntoView (boolean), then reads the
+    # post-scroll rectangle (object). Only that actual geometry locates input.
+    probes = []
+    for i,c in candidates:
+        remote = _j09_slow_command(observation,i)["response"]["result"]
+        _journey_need(set(remote) == {"result"}, "S4 menu evaluation failed")
+        if remote["result"].get("type") == "object":probes.append((i,c))
+        else:_journey_need(remote["result"].get("type") == "boolean" and remote["result"].get("value") is True, "S4 menu item was not actually visible")
+    _journey_need(len(probes) == 1, "S4 no raw visible Rerun menu locator response")
+    probe = _j09_slow_command(observation,probes[0][0]);remote = probe["response"]["result"]
+    _journey_need(set(remote) == {"result"} and remote["result"].get("type") == "object" and type(remote["result"].get("value")) is dict, "S4 menu target evaluation failed")
+    point = remote["result"]["value"]
+    _journey_need(all(_j06_number(point.get(k)) for k in ("x","y")), "S4 menu locator has no actual point")
+    clicks = [(i,c) for i,c in commands if c["method"] == "Input.dispatchMouseEvent" and c["cdp_before"] >= probe["cdp_after"]]
+    _journey_need(len(clicks) == 2, "S4 missing/extra actual Rerun menu clicks")
+    down,up = [_j09_slow_command(observation,i) for i,c in clicks]
+    _journey_need([c["params"].get("type") for c in (down,up)] == ["mousePressed","mouseReleased"]
+                  and all(c["params"].get("button") == "left" and c["params"].get("x") == point["x"] and c["params"].get("y") == point["y"] for c in (down,up))
+                  and down["cdp_after"] <= up["cdp_before"], "S4 click did not target the actually located Rerun menu")
+    return up["cdp_before"] # the menu click activates on mouse release
+
+
+def _j09_slow_pngs(observation):
+    records = observation["screenshots"];phases = observation["phases"];paths = set();root = pathlib.Path(observation["ipc_dir"]).resolve()
+    _journey_need(len(records) == len(phases), "S4 missing full single-chain phase PNGs")
+    for phase in phases:
+        matches = [r for r in records if r.get("phase") == phase["name"]]
+        _journey_need(len(matches) == 1, "S4 missing/duplicate PNG phase")
+        r = matches[0];file = pathlib.Path(r["file"]);path = (root/file).resolve()
+        _journey_need(r["namespace"] == observation["page"]["namespace"] and r["epoch"] == phase["epoch"] and r["step_ids"] == list(J09_SLOW_PNG_ROLES[phase["name"]])
+                      and (r["step_ids"] or r.get("role") == "preparation") and not file.is_absolute() and ".." not in file.parts and path.is_relative_to(root) and path.is_file() and path not in paths, "S4 PNG source/role/path mismatch")
+        data = path.read_bytes();stamp = r["timestamp"]
+        _journey_need(data.startswith(b"\x89PNG\r\n\x1a\n") and hashlib.sha256(data).hexdigest() == r["sha256"] and _j06_number(stamp)
+                      and phase["read_end_timestamp"] <= stamp <= phase["observation_end_timestamp"] and stamp-phase["read_end_timestamp"] <= STAGE2_SCREENSHOT_MAX_LAG_SECONDS, "S4 PNG hash/actual phase clock mismatch")
+        paths.add(path)
+
+
 SEQUENCE_CONTRACT = "journey-sequence-v1"
 SEQUENCE_PHASES = {
     J00_CASE: J00_PHASES,

@@ -41,6 +41,9 @@ from capture_browser_trace import (  # noqa: E402
     J09_CASE, J09_CONTRACT, J09_AUTO_OBSERVE_SECONDS, J09_PREFIX, J09_PHASES,
     J09_INPUTS, J09_ACTIONS, J09_PNG_ROLES, J09_REQUIRED, J09_OBSERVATION_FIELDS, j09_checks,
     _j09_materialize_frames, _j09_close_success,
+    J09_SLOW_CASE, J09_SLOW_CONTRACT, J09_SLOW_TTL_SECONDS, J09_SLOW_HOLD_SECONDS,
+    J09_SLOW_SUFFIX, J09_SLOW_INPUTS, J09_SLOW_ACTIONS, J09_SLOW_PNG_ROLES,
+    J09_SLOW_REQUIRED, j09_slow_checks, _j09_slow_base_view, _j09_quiet,
     J01_EXPECTED_ROWS, _stage2_static_view, _stage2_typed_controls,
     _stage2_specific_alerts, _j06_empty, _same_cell_value,
 )
@@ -140,6 +143,7 @@ JOURNEYS = (
     J00_CASE,
     J06_CASE,
     J09_CASE,
+    J09_SLOW_CASE,
 )
 
 
@@ -2959,10 +2963,21 @@ def _reconnect_tab(state):
                      and e.get("params",{}).get("requestId") == request]
         if not docs or not responses:
             continue
+        if state.get("slow") and events[responses[0]]["params"]["response"].get("status") != 101:
+            continue
         document = docs[-1]
         new_document = not epochs or epochs[-1]["document_event"] != document
         nav_number = documents.index(document)
-        epochs.append(dict(id="e"+str(number),connection=number,request_id=request,document_event=document,
+        connection = number
+        if state.get("slow"):
+            connections = {f["connection"] for f in tab["frames"] if f["request_id"] == request}
+            # Before the socket's first binary frame, the raw decoder assigns
+            # the next connection in first-binary-frame order. Failed attempts
+            # remain raw events, never invented successful protocol epochs.
+            if len(connections) > 1:
+                raise RuntimeError("one request has multiple raw connections")
+            connection = next(iter(connections)) if connections else len({f["connection"] for f in tab["frames"]})
+        epochs.append(dict(id="e"+str(len(epochs) if state.get("slow") else number),connection=connection,request_id=request,document_event=document,
                            navigation_event=document if new_document else None,
                            navigation_timestamp=state["navigations"][nav_number] if new_document else None,
                            handshake_event=hi,response_event=responses[0]))
@@ -3195,13 +3210,327 @@ def _reconnect_promote(state,observation,out,arrows,index,pending):
     return phase["checkpoint"]
 
 
+def _slow_configuration(args,out):
+    """Archive explicit live-process/config provenance; never infer a TTL."""
+    path=pathlib.Path(args.ttl_configuration).resolve()
+    data=json.loads(path.read_bytes())
+    if (data.get("effective_seconds") != J09_SLOW_TTL_SECONDS or
+            type(data.get("process_id")) is not int or data["process_id"] <= 0 or
+            not isinstance(data.get("process_command_line"),str) or not data["process_command_line"].strip() or
+            not data.get("runtime") or not isinstance(data.get("evidence"),list) or not data["evidence"]):
+        raise ValueError("explicit TTL120 process/config/runtime evidence is required")
+    kinds=[item.get("kind") for item in data["evidence"]]
+    required=({"process","config","effective-config","app-source"} if args.scope=="PYTHON SIDE ONLY" else
+              {"process","build","config","server-source","entry-source"})
+    if len(kinds)!=len(required) or set(kinds)!=required:
+        raise ValueError("TTL evidence must contain the frozen runtime-specific kinds exactly once")
+    saved=[]
+    folder=out/"ttl-evidence";folder.mkdir(exist_ok=False)
+    for index,item in enumerate(data["evidence"]):
+        source=(path.parent/item["file"]).resolve()
+        content=source.read_bytes()
+        digest=hashlib.sha256(content).hexdigest()
+        if not item.get("kind") or digest != item.get("sha256"):
+            raise ValueError("TTL evidence identity mismatch")
+        name=str(index)+"-"+source.name
+        (folder/name).write_bytes(content)
+        saved.append(dict(kind=item["kind"],file="ttl-evidence/"+name,sha256=digest))
+    (folder/"input.json").write_bytes(path.read_bytes())
+    return dict(data,evidence=saved)
+
+
+def _slow_network_command(state,observation,*,block):
+    """Only the owned target's exact observed WS URL; no global offline."""
+    tab=_reconnect_tab(state)
+    request=tab["epochs"][-1]["request_id"]
+    urls={e["params"]["url"] for e in tab["events"] if e.get("method")=="Network.webSocketCreated"
+          and e.get("params",{}).get("requestId")==request}
+    if len(urls)!=1 or not next(iter(urls)).startswith(("ws://127.0.0.1:","wss://127.0.0.1:")):
+        raise RuntimeError("missing exact loopback WebSocket URL")
+    params={"matchedNetworkConditions":[dict(urlPattern=next(iter(urls)),offline=True,latency=0,
+                downloadThroughput=-1,uploadThroughput=-1)] if block else []}
+    recorder=state["recorder"]
+    entry=dict(target_id=state["target_id"],method="Network.emulateNetworkConditionsByRule",params=params,
+               started_monotonic=time.monotonic(),cdp_before=_isolation_clock(recorder))
+    observation["commands"].append(entry)
+    # Clear conservatively in finally even if an applied command loses its
+    # acknowledgement. A command error is still a capture failure.
+    if block:state["rule_active"]=True
+    try:
+        result=recorder.call(entry["method"],params)
+        entry["response"]=result
+    finally:
+        after=_isolation_clock(recorder)
+        entry.update(cdp_after=after,finished_monotonic=time.monotonic())
+    if "error" in result or not isinstance(result.get("result"),dict):
+        raise RuntimeError("scoped network command failed")
+    state["rule_active"]=block
+    return len(observation["commands"])-1
+
+
+def _slow_no_101(tab,closed_timestamp,end_timestamp):
+    bad=[e for e in tab["events"] if e.get("method")=="Network.webSocketHandshakeResponseReceived"
+         and closed_timestamp <= e["params"]["timestamp"] <= end_timestamp
+         and e["params"]["response"].get("status")==101]
+    if bad:
+        raise RuntimeError("successful HTTP101 inside the actual disconnected hold interval")
+
+
+def _slow_hold(state,observation,save,timeout=20):
+    hold=observation["hold"]
+    hold["block_command"]=_slow_network_command(state,observation,block=True)
+    recorder=state["recorder"];tab=_reconnect_tab(state)
+    request=tab["epochs"][-1]["request_id"]
+    close=dict(request_id=request,command_timestamp=_isolation_clock(recorder),closed_event=None)
+    hold["close"]=close
+    close["evaluation_result"]=recorder.call("Runtime.evaluate",{
+        "expression":"window.__stWs ? (window.__stWs.close(), 'closed') : 'no socket'","returnByValue":True})
+    close["completed_timestamp"]=_isolation_clock(recorder)
+    if not _j09_close_success(close["evaluation_result"]):
+        raise RuntimeError("S4 actual native WebSocket close failed")
+    deadline=time.monotonic()+timeout
+    while time.monotonic()<deadline:
+        tab=_reconnect_tab(state)
+        found=[i for i,e in enumerate(tab["events"]) if e.get("method")=="Network.webSocketClosed"
+               and e["params"].get("requestId")==request]
+        if found:
+            close["closed_event"]=found[0]
+            closed_at=tab["events"][found[0]]["params"]["timestamp"]
+            break
+        time.sleep(.1)
+    else:
+        raise RuntimeError("S4 actual closed event timeout")
+    driver_start=None
+    while True:
+        stamp=_isolation_clock(recorder);driver=time.monotonic()
+        if driver_start is None:driver_start=driver
+        hold["samples"].append(dict(cdp_timestamp=stamp,driver_monotonic=driver,
+                                    utc=time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime())))
+        _slow_no_101(_reconnect_tab(state),closed_at,stamp)
+        save()  # Checkpoint full original events even if interrupted mid-hold.
+        if (stamp-closed_at>=J09_SLOW_HOLD_SECONDS and driver-driver_start>=J09_SLOW_HOLD_SECONDS and
+                stamp-hold["samples"][0]["cdp_timestamp"]>=J09_SLOW_HOLD_SECONDS):
+            return
+        if driver-driver_start>2*J09_SLOW_HOLD_SECONDS+30:
+            raise RuntimeError("S4 actual CDP/driver clocks did not establish the real hold interval")
+        time.sleep(1)
+
+
+def _slow_reconnect(state,observation,timeout=45):
+    observation["hold"]["unblock_command"]=_slow_network_command(state,observation,block=False)
+    command=observation["commands"][observation["hold"]["unblock_command"]]
+    close=observation["hold"]["close"]
+    tab=_reconnect_tab(state);closed_at=tab["events"][close["closed_event"]]["params"]["timestamp"]
+    _slow_no_101(tab,closed_at,command["cdp_before"])
+    if command["cdp_before"]-closed_at<J09_SLOW_HOLD_SECONDS:
+        raise RuntimeError("S4 unblock started before real135s hold completed")
+    deadline=time.monotonic()+timeout
+    while time.monotonic()<deadline:
+        tab=_reconnect_tab(state)
+        if len(tab["epochs"])==4:
+            epoch=tab["epochs"][-1]
+            handshake=tab["events"][epoch["handshake_event"]]["params"]["request"]["headers"]
+            protocols=[v for k,v in handshake.items() if k.lower()=="sec-websocket-protocol"]
+            parts=protocols[0].split(",") if len(protocols)==1 else []
+            if len(parts)!=3 or not parts[2].strip():
+                raise RuntimeError("actual expiry reconnect lacks third session subprotocol")
+            observation["recovery"]["requested_session_id"]=parts[2].strip()
+            return
+        time.sleep(.1)
+    raise RuntimeError("S4 actual recovered HTTP101 timeout")
+
+
+def _slow_recovery_status(state,tab=None):
+    tab=_reconnect_tab(state) if tab is None else tab
+    frames=_reconnect_frames(state,tab)
+    epoch=tab["epochs"][-1]
+    indices=[i for i,f in enumerate(frames) if f["request_id"]==epoch["request_id"]]
+    active=any(not _j09_quiet(frames[i]["decoded"]) for i in indices)
+    window=_reconnect_window(frames,indices[0],natural=True) if active else None
+    return active,window,frames
+
+
+class _S4NaturalBeforeInput(Exception):
+    """No Rerun input was dispatched; continue observing the natural run."""
+
+
+class _S4MenuRecorder:
+    """S4-local command log and final input guard; Page stays unchanged."""
+    def __init__(self,state):
+        self.state=state
+        self.recorder=state["recorder"]
+        self.item=False
+        self.pressed=False
+
+    def guard(self):
+        active,_,_=_slow_recovery_status(self.state)
+        if active:
+            if self.pressed:
+                raise RuntimeError("S4 natural output overlapped partially dispatched Rerun input")
+            raise _S4NaturalBeforeInput()
+
+    def call(self,method,params=None):
+        params={} if params is None else params
+        entry=dict(target_id=self.state["target_id"],method=method,params=params,
+                   started_monotonic=time.monotonic(),cdp_before=_isolation_clock(self.recorder))
+        # The real Page helper has finished scrolling/waiting/reading geometry.
+        # Pump through the clock response, then inspect the full raw ledger at
+        # the final dispatch boundary, with no further helper wait before send.
+        if self.item and method=="Input.dispatchMouseEvent":
+            self.guard()
+            if params.get("type")=="mousePressed":
+                self.state["rerun_input_timestamp"]=entry["cdp_before"]
+                self.pressed=True
+        self.state["commands"].append(entry)
+        try:
+            response=self.recorder.call(method,params)
+            entry["response"]=response
+        finally:
+            after=_isolation_clock(self.recorder)
+            entry.update(cdp_after=after,finished_monotonic=time.monotonic())
+        if (not isinstance(response,dict) or type(response.get("id")) is not int or response["id"]<=0 or
+                "error" in response or not isinstance(response.get("result"),dict) or
+                "exceptionDetails" in response["result"]):
+            raise RuntimeError("S4 menu command failed: "+method)
+        return response
+
+
+def _slow_rerun(state):
+    page=state["page"]
+    transport=_S4MenuRecorder(state)
+    original_cdp,original_click=page.cdp,page.click
+    had_click="click" in page.__dict__
+    def guarded_click(x,y):
+        if transport.item:transport.guard()
+        return original_click(x,y)
+    # Only this owned Page instance for this menu operation. The shared Page
+    # methods/AST and all ordinary capture paths remain exactly unchanged.
+    page.cdp=transport;page.click=guarded_click
+    try:
+        menu="document.querySelector('[data-testid=stMainMenu]')?.querySelector('button') || document.querySelector('button[data-testid=stMainMenu]')"
+        if not page.click_visible(menu):
+            raise RuntimeError("visible official menu did not open")
+        transport.item=True
+        deadline=time.monotonic()+5
+        while time.monotonic()<deadline:
+            transport.guard()
+            if page.click_visible("document.querySelector('[data-testid=stMainMenuItem-rerun]')"):
+                return True
+            time.sleep(.1)
+        raise RuntimeError("visible official Rerun item could not be clicked")
+    except _S4NaturalBeforeInput:
+        return False
+    finally:
+        page.cdp=original_cdp
+        if had_click:page.click=original_click
+        else:del page.click
+
+
+def _slow_rerun_binding(state,frames,window,tab=None):
+    """A menu result must start with its own real post-input client state."""
+    tab=_reconnect_tab(state) if tab is None else tab
+    request=tab["epochs"][-1]["request_id"]
+    business=[i for i,f in enumerate(frames) if f["request_id"]==request and not _j09_quiet(f["decoded"])]
+    stamp=state.get("rerun_input_timestamp")
+    if not business or stamp is None:
+        raise RuntimeError("S4 Rerun lacks actual input/target request provenance")
+    first=frames[business[0]]
+    clients=[i for i in business if frames[i]["decoded"].get("type")=="rerun_script"]
+    if (first.get("direction")!="client->server" or first["decoded"].get("type")!="rerun_script" or
+            first["timestamp"]<stamp or clients!=[business[0]] or window is None or
+            not all(window["start"]<=i<window["end"] for i in business)):
+        raise RuntimeError("S4 natural/extra output overlaps Rerun; refusing UI attribution")
+
+
+def _slow_recovery_paint(state,frames,window,dom):
+    """Render coherence with measured output, never an expiry golden."""
+    deltas=[f["decoded"].get("delta",{}) for f in frames[window["run"]:window["end"]]]
+    for label,key in (("Script runs","script_runs"),("Pulses","pulses")):
+        matches=[int(m[1]) for d in deltas if (m:=re.fullmatch(re.escape(label)+r":\s*(\d+)",str(d.get("body","")).strip()))]
+        if len(matches)!=1 or _isolation_counter(dom.get(key))!=matches[0]:
+            raise ValueError("S4 recovery DOM counter does not match its actual run")
+    alerts=[(d["alert"].get("format"),d["alert"].get("body")) for d in deltas if d.get("element")=="alert"]
+    _stage2_specific_alerts(deltas,dom,alerts)
+    proof=_phase("recovery-paint",{},frames,window["start"],window["end"],None,dom,state["arrows"])
+    table=proof["ipc"]["table"]
+    if table:
+        _stage2_static_view({"ipc_dir":state["ipc_dir"]},proof,{"deltas":deltas},expected_rows=table["arrow"]["rows"])
+    elif dom.get("table_present") is not False or dom.get("chart_present") is not False or dom.get("table_cells") or dom.get("chart_marks"):
+        raise ValueError("recovery retained stale rendered data absent from its actual result")
+
+
+def _slow_recovery_read(state,observation,timeout=45):
+    active,window,frames=_slow_recovery_status(state)
+    action="observe"
+    if not active:
+        # Fresh full-epoch read immediately before input, as in the reviewed
+        # base late-natural-run guard. Never mask a pending natural result.
+        active,window,frames=_slow_recovery_status(state)
+        if not active:
+            action="rerun" if _slow_rerun(state) else "observe"
+    observation["recovery"]["recovery_action"]=action
+    deadline=time.monotonic()+timeout
+    while time.monotonic()<deadline:
+        active,window,frames=_slow_recovery_status(state)
+        dom=_isolation_read(state)
+        if window:
+            if action=="rerun":_slow_rerun_binding(state,frames,window)
+            try:
+                _slow_recovery_paint(state,frames,window,dom)
+            except ValueError as exc:
+                state["readiness_error"]=str(exc)
+            else:
+                marker=frames[window["run"]]["decoded"]["new_session"]
+                observation["recovery"]["observed_session_id"]=marker["session_id"]
+                return window
+        time.sleep(.1)
+    raise RuntimeError("S4 recovery has no complete successful run and actual painted counters")
+
+
+def _slow_store_phase(state,observation,out,arrows,index,name,action,before,read_start,checkpoint,at,window):
+    after=_isolation_read(state);read_end=_isolation_clock(state["recorder"])
+    tab=_reconnect_tab(state);frames=_reconnect_frames(state,tab)
+    start=sum(f["timestamp"]<=read_start for f in frames);end=sum(f["timestamp"]<=read_end for f in frames)
+    phase=_phase(name,action,frames,start,end,before,after,arrows)
+    epoch=tab["epochs"][-1]["id"]
+    if window:
+        if name==J09_SLOW_SUFFIX[-1]:
+            _slow_recovery_paint(state,frames,window,after)
+        else:
+            _reconnect_ready(state,frames,window,after,"upload-baseline" if name==J09_SLOW_SUFFIX[0] else "pulse-1")
+        checkpoint=dict(epoch=epoch,script_run_id=_run_id(frames,window),finish_frame=window["finish"])
+    phase.update(epoch=epoch,read_start_timestamp=read_start,read_end_timestamp=read_end,
+                 checkpoint=checkpoint,action_timestamp=at)
+    observation["phases"].append(phase)
+    file=f"{index+1:02d}-{name}.png"
+    if not state["page"].screenshot(out/file,restore=False):raise RuntimeError("actual S4 screenshot failed")
+    observation["screenshots"].append(dict(phase=name,namespace=state["namespace"],epoch=epoch,file=file,
+        sha256=hashlib.sha256((out/file).read_bytes()).hexdigest(),timestamp=_isolation_clock(state["recorder"]),
+        step_ids=list(J09_SLOW_PNG_ROLES[name]),role="preparation"))
+    phase["observation_end_timestamp"]=_isolation_clock(state["recorder"])
+    return phase
+
+
 def run_reconnect_journey(args,out,*,materialize=_j09_materialize_frames):
     """One owned page, real close, bounded no-input observation, then F5."""
-    observation = dict(journey=J09_CASE,contract=J09_CONTRACT,plan=None,url=args.url,ipc_dir=str(out.resolve()),page={},phases=[],screenshots=[])
+    slow=args.journey==J09_SLOW_CASE
+    case=J09_SLOW_CASE if slow else J09_CASE
+    observation = dict(journey=case,contract=J09_SLOW_CONTRACT if slow else J09_CONTRACT,plan=None,url=args.url,ipc_dir=str(out.resolve()),page={},phases=[],screenshots=[])
+    if slow:
+        observation.update(commands=[],hold=dict(close=None,block_command=None,unblock_command=None,samples=[]),
+                           recovery=dict(requested_session_id=None,observed_session_id=None,recovery_action=None,oracle_status="unverified"))
     manifest = dict(executable=sys.executable,argv=list(sys.argv[1:]),cwd=str(pathlib.Path.cwd()),started_unix=time.time(),exit_code=None)
     state,original,error,current = None,None,None,None
     arrows,checkpoint = _ArrowFiles(out),None
     try:
+        if slow:
+            if args.port!=60923:
+                raise ValueError("S4 is restricted to its separately owned Chrome60923")
+            parsed=urllib.parse.urlparse(args.url)
+            port=8604 if args.scope=="PYTHON SIDE ONLY" else 8501
+            if parsed.hostname!="127.0.0.1" or parsed.port!=port:
+                raise ValueError("S4 is restricted to its explicitly owned loopback runtime port")
+            observation["ttl_configuration"]=_slow_configuration(args,out)
         source_dir=out/"capture-source";source_dir.mkdir(exist_ok=True)
         observation["capture_sources"]={}
         for name,data in CAPTURE_SOURCE_BYTES.items():
@@ -3227,7 +3556,8 @@ def run_reconnect_journey(args,out,*,materialize=_j09_materialize_frames):
         if len(matches)!=1 or matches[0].get("type")!="page" or matches[0].get("url")!="about:blank" or not created.get("webSocketDebuggerUrl") or matches[0].get("webSocketDebuggerUrl")!=created["webSocketDebuggerUrl"]:
             raise RuntimeError("fresh blank target ownership unverified; refusing attachment/cleanup")
         state=dict(key="a",target_id=ident,namespace=args.label,navigations=[],materialize=materialize,
-                   arrows=arrows,ipc_dir=str(out.resolve()))
+                   arrows=arrows,ipc_dir=str(out.resolve()),slow=slow)
+        if slow:state["commands"]=observation["commands"]
         recorder=CDP(created["webSocketDebuggerUrl"],label=args.label);state.update(recorder=recorder,page=Page(recorder))
         recorder.start();recorder.call("Performance.enable");state["started"]=_isolation_clock(recorder)
         recorder.call("Emulation.setDeviceMetricsOverride",{"width":1264,"height":1800,"deviceScaleFactor":1,"mobile":False})
@@ -3247,14 +3577,15 @@ def run_reconnect_journey(args,out,*,materialize=_j09_materialize_frames):
             before=None if number==0 else _isolation_read(state)
             read_start=_isolation_clock(recorder)
             start=len(frames_of(recorder,raw=True))
-            action=dict(J09_ACTIONS[name]);action["ok"]=True
+            action=dict((J09_SLOW_ACTIONS if slow else J09_ACTIONS)[name]);action["ok"]=True
             at=_isolation_clock(recorder)
+            slow_window=None
             if action["action"] in ("initial","refresh"):
                 state["navigations"].append(_isolation_clock(recorder))
                 result=recorder.call("Page.navigate",{"url":args.url}) if name==J09_PREFIX[0] else recorder.call("Page.reload",{"ignoreCache":False})
                 action["ok"]="error" not in result and "errorText" not in result.get("result",{})
-            elif name in J09_INPUTS:
-                path=ROOT/"tests/fixtures/csv"/J09_INPUTS[name];action.update(_file_fingerprint(path))
+            elif name in (J09_SLOW_INPUTS if slow else J09_INPUTS):
+                path=ROOT/"tests/fixtures/csv"/(J09_SLOW_INPUTS if slow else J09_INPUTS)[name];action.update(_file_fingerprint(path))
                 action["ok"]=bool(state["page"].upload(str(path.resolve())))
             elif action["action"]=="pulse":
                 action["ok"]=bool(state["page"].click_visible(PULSE_JS))
@@ -3271,26 +3602,58 @@ def run_reconnect_journey(args,out,*,materialize=_j09_materialize_frames):
                 at=close["command_timestamp"]
                 state["plan"]=plan;observation["plan"]=plan
                 pending.extend(J09_PHASES[plan][len(J09_PREFIX):])
+            elif slow and action["action"]=="close-and-hold":
+                def save_hold():
+                    observation["page"]=_reconnect_tab(state)
+                    _write_case(out,args,observation,case,dict(completed_phases=number,active_phase=name))
+                _slow_hold(state,observation,save_hold)
+            elif slow and action["action"]=="clear-block-and-reconnect":
+                _slow_reconnect(state,observation)
+            elif slow and action["action"]=="read-recovery":
+                slow_window=_slow_recovery_read(state,observation)
             else:
                 raise RuntimeError("unsupported shared J09 action")
             if not action["ok"]:
                 raise RuntimeError("real UI action failed: "+name)
-            if action["action"]!="close-websocket":
+            if name in J09_SLOW_SUFFIX:
+                if name==J09_SLOW_SUFFIX[0]:
+                    slow_window=_reconnect_wait(state,start,"upload-baseline",J09_SLOW_INPUTS[name])
+                elif name==J09_SLOW_SUFFIX[1]:
+                    slow_window=_reconnect_wait(state,start,"pulse-1")
+            elif action["action"]!="close-websocket":
                 _reconnect_wait(state,start,name,J09_INPUTS.get(name))
             if number==0:
                 observation["initial_new_sessions"]=_isolation_runtime(_reconnect_tab(state),reference=args.scope=="PYTHON SIDE ONLY")
-            phase=_reconnect_store_phase(state,observation,out,arrows,number,name,action,before,read_start,checkpoint,at)
+            store=_slow_store_phase if name in J09_SLOW_SUFFIX else _reconnect_store_phase
+            extra=(slow_window,) if name in J09_SLOW_SUFFIX else ()
+            phase=store(state,observation,out,arrows,number,name,action,before,read_start,checkpoint,at,*extra)
             checkpoint=phase["checkpoint"]
             if name==J09_PREFIX[-1]:
                 observation["plan"]=state["plan"]
                 pending[len(J09_PREFIX):]=J09_PHASES[state["plan"]][len(J09_PREFIX):]
             observation["page"]=_reconnect_tab(state)
-            _write_case(out,args,observation,J09_CASE,dict(completed_phases=number+1))
+            if slow and state.get("plan") in J09_PHASES and name==J09_PHASES[state["plan"]][-1]:
+                # Capture exclusive prefix cursors at the real S3 read/screenshot
+                # end; never borrow later frames or modify archived events.
+                cut=phase["observation_end_timestamp"];tab=observation["page"]
+                event_end=next((i for i,e in enumerate(tab["events"]) if e.get("params",{}).get("timestamp",float("-inf"))>cut),len(tab["events"]))
+                observation["base_range"]=dict(phase_count=number+1,screenshot_count=len(observation["screenshots"]),
+                    frame_end=sum(f["timestamp"]<=cut for f in tab["frames"]),event_end=event_end,
+                    http_end=sum(h["timestamp"]<=cut for h in tab["http_timeline"]),cutoff_timestamp=cut)
+                # Fail closed on a broken prefix before spending real135s.
+                prefix=_judge_sequence(J09_CASE,_j09_slow_base_view(observation))
+                if prefix["failures"]:
+                    raise RuntimeError("S4 base J09 validation failed: "+str(prefix["failures"]))
+                pending.extend(J09_SLOW_SUFFIX)
+            _write_case(out,args,observation,case,dict(completed_phases=number+1))
             number+=1
     except Exception as exc:
         error=f"{type(exc).__name__}: {exc}"
     finally:
         if state:
+            if state.get("rule_active"):
+                try:_slow_network_command(state,observation,block=False)
+                except Exception as exc:error=(error or "")+f"; scoped rule cleanup: {exc}"
             if "plan" in state:observation["plan"]=state["plan"]
             try:_isolation_read(state)
             except Exception as exc:error=(error or "")+f"; last DOM: {exc}"
@@ -3299,6 +3662,11 @@ def run_reconnect_journey(args,out,*,materialize=_j09_materialize_frames):
             except Exception as exc:
                 observation["page"]=dict(namespace=state["namespace"],events=state["recorder"].take(),frames=frames_of(state["recorder"],state["namespace"],raw=True))
                 error=(error or "")+f"; snapshot: {exc}"
+            if slow and observation["recovery"].get("recovery_action")=="rerun":
+                try:
+                    _,window,frames=_slow_recovery_status(state,observation["page"])
+                    _slow_rerun_binding(state,frames,window,observation["page"])
+                except Exception as exc:error=(error or "")+f"; final Rerun attribution: {exc}"
             if any(f.get("decode_error") or (f.get("decoded") or {}).get("message")=="undecoded" for f in observation["page"].get("frames",[])):
                 error=(error or "")+"; raw decode failure (original retained)"
             try:state["recorder"].stop()
@@ -3306,6 +3674,8 @@ def run_reconnect_journey(args,out,*,materialize=_j09_materialize_frames):
             try:observation["target_cleanup"]=_close_owned_target(args.port,state["target_id"])
             except Exception as exc:error=(error or "")+f"; owned target cleanup: {exc}"
         try:
+            if slow and original is None:
+                raise RuntimeError("S4 browser ownership never established; no final inventory access")
             final=http_json(f"http://127.0.0.1:{args.port}/json/list")
             if not isinstance(final,list) or any(not isinstance(t,dict) or not t.get("id") for t in final):raise RuntimeError("invalid final inventory")
             manifest["targets_after_count"]=len(final)
@@ -3316,8 +3686,8 @@ def run_reconnect_journey(args,out,*,materialize=_j09_materialize_frames):
     summary=dict(completed_phases=len(observation["phases"]),failed_phase=current if error else None,producer_error=error)
     if error:
         failure=dict(check="producer_exception",actual=error,ok=False)
-        result=_write_case(out,args,observation,J09_CASE,summary,dict(checks=[failure],failures=[failure],counts=dict(expected=len(J09_REQUIRED),executed=0,asserted=0)))
-    else:result=_write_case(out,args,observation,J09_CASE,summary,lambda:_judge_sequence(J09_CASE,observation))
+        result=_write_case(out,args,observation,case,summary,dict(checks=[failure],failures=[failure],counts=dict(expected=len(J09_SLOW_REQUIRED if slow else J09_REQUIRED),executed=0,asserted=0)))
+    else:result=_write_case(out,args,observation,case,summary,lambda:_judge_sequence(case,observation))
     manifest.update(exit_code=result,finished_unix=time.time());_write_trace(out/"execution-manifest.json",manifest)
     return result
 
@@ -3329,7 +3699,7 @@ def _judge_sequence(name, observation):
     written first, so the evidence is on the disk, and the verdict says that
     nothing was judged.
     """
-    criterion = {J09_CASE:j09_checks, J06_CASE:j06_checks, J00_CASE: j00_checks, J01_CASE: j01_checks, J02_CASE: j02_checks, J03_CASE: j03_checks}.get(name, sequence_checks)
+    criterion = {J09_SLOW_CASE:j09_slow_checks, J09_CASE:j09_checks, J06_CASE:j06_checks, J00_CASE: j00_checks, J01_CASE: j01_checks, J02_CASE: j02_checks, J03_CASE: j03_checks}.get(name, sequence_checks)
     if criterion is None:
         checks = [
             {
@@ -3363,6 +3733,7 @@ JOURNEY_RUNNERS = {
     J00_CASE: run_sequence_journey,
     J06_CASE: run_isolation_journey,
     J09_CASE: run_reconnect_journey,
+    J09_SLOW_CASE: run_reconnect_journey,
 }
 
 
@@ -3403,6 +3774,7 @@ def main() -> int:
     parser.add_argument("--label", default="numeric")
     parser.add_argument("--out", default="")
     parser.add_argument("--port", type=int, default=CHROME_PORT)
+    parser.add_argument("--ttl-configuration", default="",help="S4 explicit live-process/config evidence JSON; archived without changing its bytes")
     parser.add_argument("--binary", default="")
     parser.add_argument("--scope", default="PYTHON SIDE ONLY")
     parser.add_argument("--kind", default="python-reference-widget-trace")
@@ -3439,7 +3811,7 @@ def main() -> int:
     out = pathlib.Path(args.out or f"target/numeric-{args.label}")
     out.mkdir(parents=True, exist_ok=True)
 
-    if args.journey in (J06_CASE,J09_CASE):
+    if args.journey in (J06_CASE,J09_CASE,J09_SLOW_CASE):
         if args.case != "data-loop":
             parser.error("sequence requires --case data-loop")
         return JOURNEY_RUNNERS[args.journey](args,out)
