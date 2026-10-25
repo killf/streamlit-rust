@@ -14,7 +14,7 @@ if "runs" not in st.session_state:
     st.session_state.reruns = 0
 st.session_state.runs += 1
 
-mode = st.selectbox("mode", ["plain", "rerun", "rerun-slow", "stop"])
+mode = st.selectbox("mode", ["plain", "rerun", "rerun-slow", "stop", "quit"])
 
 st.markdown(f"mode={mode} runs={st.session_state.runs} reruns={st.session_state.reruns}")
 
@@ -32,5 +32,10 @@ if mode == "rerun-slow" and st.session_state.reruns < 2:
 if mode == "stop":
     st.markdown("before-stop")
     st.stop()
+
+if mode == "quit" and st.session_state.get("quits", 0) == 0:
+    st.session_state.quits = 1
+    st.markdown("before-quit")
+    st.quit()
 
 st.markdown("epilogue")
