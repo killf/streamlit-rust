@@ -23,7 +23,7 @@ use std::rc::Rc;
 /// Streamlit Rust API - provides a Python-like Streamlit interface
 pub struct Streamlit {
     pub(crate) app: Rc<Mutex<App>>,
-    allocator: Allocator,
+    pub(crate) allocator: Allocator,
 }
 
 impl Streamlit {

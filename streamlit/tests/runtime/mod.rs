@@ -20,6 +20,7 @@ mod media;
 mod overlap;
 mod pageconfig;
 mod presentation;
+mod queryparams;
 mod sessions;
 mod static_assets;
 mod temporal;

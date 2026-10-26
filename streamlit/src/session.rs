@@ -34,6 +34,9 @@ pub struct SessionState {
     pub(crate) widgets: Arc<Mutex<crate::widgets::WidgetRegistry>>,
     pub(crate) uploads: Arc<Mutex<crate::upload::UploadStore>>,
     pub(crate) run_control: Arc<AtomicU8>,
+    /// The URL-synced parameter store, reseeded from every browser-reported
+    /// query string at run start (st.query_params).
+    pub(crate) query_params: Arc<Mutex<crate::query_params::QueryParamStore>>,
 }
 
 impl SessionState {
@@ -98,6 +101,15 @@ impl Streamlit {
     /// Application state for the current browser session, preserved across reruns.
     pub fn session_state(&self) -> SessionState {
         self.app.lock().session_state.clone()
+    }
+
+    /// The URL-synced query parameters of the current run: reads reflect the
+    /// browser's URL as reported with the run request; writes stream the
+    /// merged URL state back to the frontend.
+    pub fn query_params(&self) -> crate::QueryParams<'_> {
+        let app = self.app.clone();
+        let state = self.session_state();
+        crate::QueryParams::new(app, state, &self.allocator)
     }
 
     /// Rerun the script immediately, mirroring `st.rerun()`.

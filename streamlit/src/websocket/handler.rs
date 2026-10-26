@@ -7,7 +7,7 @@ use actix_ws::{MessageStream, Session};
 use futures_util::StreamExt;
 use prost::Message;
 
-async fn do_rerun_script(session: &mut Session, lease: &SessionLease, server: &StreamlitServer, widget_states: Vec<WidgetState>) -> Result<(), StreamlitError> {
+async fn do_rerun_script(session: &mut Session, lease: &SessionLease, server: &StreamlitServer, widget_states: Vec<WidgetState>, query_string: String) -> Result<(), StreamlitError> {
     // Serialise runs even if a replacement connection arrives while its
     // predecessor is finishing.
     let _run = lease.run.lock().await;
@@ -20,9 +20,13 @@ async fn do_rerun_script(session: &mut Session, lease: &SessionLease, server: &S
     // re-zeroes trigger widgets and gets a fresh run id; only application
     // values persist.
     let mut incoming = Some(widget_states);
+    let incoming_query_string = query_string;
     loop {
         let callbacks = lease.state.begin_widgets(incoming.take().unwrap_or_default());
         lease.state.reset_run_control();
+        // The URL state the browser reports with this rerun seeds the run's
+        // query parameters (st.query_params reads and merges from it).
+        lease.state.query_params.lock().load(&incoming_query_string);
         let st = Streamlit::with_session_state(lease.state.clone());
 
         // 创建 channel 用于流式发送消息
@@ -115,7 +119,7 @@ async fn handle_back_message(session: &mut Session, lease: &SessionLease, back_m
             Type::RerunScript(client_state) => {
                 log::info!("Handling rerun script request");
                 let widget_states = client_state.widget_states.map(|ws| ws.widgets).unwrap_or_default();
-                do_rerun_script(session, lease, server, widget_states).await?;
+                do_rerun_script(session, lease, server, widget_states, client_state.query_string).await?;
             }
             Type::AppHeartbeat(_) => {
                 let reply = ForwardMsg {
