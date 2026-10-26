@@ -77,3 +77,37 @@ deleted. Product-level quality norms live in the
     string. A small Python-compatible dumper plus insertion-ordered maps
     (`serde_json` `preserve_order`) made spec strings byte-comparable, and
     auditing the identity-hash inputs first kept the feature flip safe.
+15. **Re-emitted wire messages must reproduce the live render's cursor
+    accounting.** The cache hit-run replayed recorded ForwardMsgs verbatim:
+    the element streamed at the right path but the render cursor never
+    advanced, so the next live write took the same slot (`[0, 3]` twice) and
+    the frontend silently dropped the replayed element. Any mechanism that
+    replays or re-emits stored messages must re-anchor each recorded path to
+    the current cursor (layout drift between runs) and advance the cursor
+    per element/block slot (transients advance nothing), the way a live
+    render would. The WS regression did not catch this because its
+    expectation had been written from the implementation's output — derive
+    runtime-test expectations from the frozen browser trace, and let the
+    differential, not the test you just greened, arbitrate the shape.
+16. **Process-global reference state needs a fresh server per formal
+    capture.** The Python 1.66.1 cache store lives in the server process:
+    a warm server served a fresh browser session's first call as a hit (no
+    miss transient), silently diverging the capture from the frozen oracle.
+    Whenever a fixture touches process-global state (caches, singletons,
+    module-level registries), restart the reference server before each
+    formal capture, and when a fresh capture disagrees with a frozen trace,
+    ask first what state survived between sessions on each side.
+17. **Prune probe chrome profiles before staging a published capture.** The
+    collectors keep `chrome-profile/` beside the trace for warm reruns; a
+    `git add -A` then stages thousands of cache files into evidence
+    directories (paid at the cache chain: 1593 files amended back out).
+    Published chains carry exactly the trace, the stage PNGs and the
+    manifest — delete the profile from the published directory before
+    committing, and review the commit stat before pushing past `--amend`.
+18. **Emit logic lives in free functions; impl blocks only dispatch.** A
+    trait default method needing a private supertrait bound (`AppendChild`)
+    and an inherent method inside a blanket `impl<C: AppendChild>` block
+    (E0407) both fight the compiler; the pattern that survives is a thin
+    public method delegating to a private free function
+    `fn emit_x<C: AppendChild, ...>(this: &C, ...)`. Paid twice in M4
+    (`set_page_config`, then `selectbox_creation` after the file rebuild).
