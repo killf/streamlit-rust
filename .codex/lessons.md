@@ -111,3 +111,40 @@ deleted. Product-level quality norms live in the
     public method delegating to a private free function
     `fn emit_x<C: AppendChild, ...>(this: &C, ...)`. Paid twice in M4
     (`set_page_config`, then `selectbox_creation` after the file rebuild).
+19. **A differential only compares what it enumerates — enumerate the whole
+    element.** The colconfig probe compared the columns JSON, the arrow data
+    and the layout, and MATCH passed while the dataframe proto's
+    `buttonClickWidgets` map was missing on the Rust side; the formal
+    contract's full-element `MessageToDict` comparison caught it. Prefer
+    whole-element comparisons in contracts, and treat "the probe matched" as
+    a hypothesis the contract must still falsify. The same lesson inverts:
+    the elements contract compared vega *shapes* and never the dataset
+    bytes, so a plain-Arrow bar-chart dataset survived its own 11/11 for
+    weeks while the reference served pandas-3 — a loose contract is a
+    standing divergence license.
+20. **Read the not_applicable candidate's real signature before writing its
+    reason.** `st.components.v2.component` was drafted as a Python hosting
+    closure on the strength of its name and the v1 precedent; the pinned
+    source showed inline `html/css/js` strings — the same surface class as
+    the already-implemented `st.components.v1.html`. A not_applicable reason
+    is a factual claim about the pinned reference: quote its signature, not
+    the docs page's vibe.
+21. **Time-anchored wire values make day-crossing captures stale.** The
+    datetime chain froze `min/max = today ± 10 years` verbatim; the next
+    day's re-capture of one side failed on a one-day window shift. When a
+    frozen constant derives from wall-clock time, either normalize it in the
+    contract or re-freeze BOTH sides (probe + captures) on the same day —
+    and record the anchor day next to the published SHAs.
+22. **A stale source pin can outlive its own commit.** The navigation
+    contract pinned a pre-final example SHA in the same commit that fixed
+    the example; nothing re-ran the rust replay, so the divergence sat
+    latent until a full pin audit. Audit every chain's pins (script, not
+    memory) at each milestone close — a published replay is only evidence
+    while the pinned source is the file on disk.
+23. **Clippy sees what the gates let through.** A chain's lib code that
+    ships between gate runs accumulates `too_many_arguments`/lifestyle
+    debt silently; the M5 close paid it back with a `ColumnBase` builder —
+    which also read better than twelve positional `None`s (usability and
+    lintability pointed the same way). When a refactor changes a pinned
+    example, the chain refresh is part of the refactor, not an afterthought.
+

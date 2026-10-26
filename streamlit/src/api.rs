@@ -1363,6 +1363,13 @@ pub trait StreamlitApi {
     /// Embed an external page in an iframe, like `st.iframe`.
     fn iframe<T: Into<IFrameOptions>>(&self, body: T);
 
+    /// Mount one registered `st.components.v2.component` instance: streams
+    /// the bidi_component element carrying the definition's inline
+    /// HTML/CSS/JS and the JSON data payload, registers the instance's
+    /// state widget, and returns the current state (the default object
+    /// before any component interaction).
+    fn component_v2<'a>(&self, component: &crate::elements::components::ComponentV2, mount: impl Into<crate::elements::components::ComponentMount<'a>>) -> Result<serde_json::Value, WidgetError>;
+
     /// The one-shot snowfall, like `st.snow()`.
     fn snow(&self);
 
@@ -1679,10 +1686,10 @@ impl<C: AppendChild> StreamlitApi for C {
                 let app_handle = self.get_app();
                 let mut app = app_handle.lock();
                 let slot_path = app.render_context_mut().map(|context| context.delta_path.clone()).unwrap_or_default();
-                if let Some(context) = app.render_context_mut() {
-                    if let Some(index) = context.delta_path.pop() {
-                        context.delta_path.push(index + 1);
-                    }
+                if let Some(context) = app.render_context_mut()
+                    && let Some(index) = context.delta_path.pop()
+                {
+                    context.delta_path.push(index + 1);
                 }
                 drop(app);
                 self.allocator().malloc(EmptyHandle::new(self.allocator(), app_handle.clone(), self.parent_form_id(), slot_path))
@@ -1761,6 +1768,10 @@ impl<C: AppendChild> StreamlitApi for C {
             element = element.height(height);
         }
         self.push(Rc::new(RefCell::new(element)));
+    }
+
+    fn component_v2<'a>(&self, component: &crate::elements::components::ComponentV2, mount: impl Into<crate::elements::components::ComponentMount<'a>>) -> Result<serde_json::Value, WidgetError> {
+        crate::elements::components::mount_component(self, component, mount.into())
     }
 
     fn snow(&self) {

@@ -63,8 +63,8 @@ DATETIME_TIMELINE = {
             'widget': {
                 'id': '$$ID-slot',
                 'label': 'Optional slot',
-                'min': '2016-10-26T00:00',
-                'max': '2036-10-26T23:59',
+                'min': '2016-10-27T00:00',
+                'max': '2036-10-27T23:59',
                 'labelVisibility': {},
                 'format': 'YYYY/MM/DD',
                 'step': '900'
@@ -100,7 +100,7 @@ DATETIME_SOURCE_PINS = {
 ],
     "native": [
     'streamlit/examples/datetime.rs',
-    'ac35a299e657b862cd39ec65bacc21e586467b098bf6e7df30565ce4dbfb2e48'
+    'be6fc65ff0000b732d0406f6edf82a6978bc024f35d24f50083ad88dc87ebd55'
 ],
 }
 

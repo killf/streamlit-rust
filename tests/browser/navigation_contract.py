@@ -534,7 +534,7 @@ NAVIGATION_SOURCE_PINS = {
 ],
     "native": [
     'streamlit/examples/navigation.rs',
-    'f1b32639d7cf386c5a277baaf4a4a9c57a896842f4b0ddb6b9dff4cec536c4d0'
+    'abe2e4b7651ff54073b3bbfdd610a7747574ea12c64662ec118d440143ec0554'
 ],
 }
 

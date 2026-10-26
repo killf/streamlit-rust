@@ -189,9 +189,15 @@ fn vega_literal_columns_are_escaped_once_without_renaming_arrow_fields() {
         let spec: Value = serde_json::from_str(&chart.spec).unwrap();
         let bytes = &chart.datasets[0].data.as_ref().unwrap().data;
         let decoded = from_ipc_stream(bytes).unwrap().remove(0);
-        assert_eq!(decoded, batch);
+        // The dataset rides the reference's pandas-3 IPC (large_string text
+        // columns and the creator stamp); compare names and values logically.
         assert_eq!(decoded.schema().field(0).name(), x);
         assert_eq!(decoded.schema().field(1).name(), y);
+        assert!(decoded.schema().metadata().contains_key("pandas"));
+        let texts = decoded.column_by_name(x).unwrap().as_any().downcast_ref::<LargeStringArray>().expect("large_string text column");
+        assert_eq!(texts.iter().map(|text| text.unwrap_or_default().to_string()).collect::<Vec<_>>(), vec!["North"]);
+        let values = decoded.column_by_name(y).unwrap().as_any().downcast_ref::<Int64Array>().expect("numeric column");
+        assert_eq!(values.values().as_ref(), &[42]);
         if std::env::var_os("STREAMLIT_DATA_D1_PROBE").is_some() {
             // Optional verification output lets the actual Vega accessor consume
             // the API's spec and Python-decoded native IPC, without a JS runtime

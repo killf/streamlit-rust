@@ -53,6 +53,7 @@ pub struct DataframeOptions<'a> {
     height: DataSize,
     hide_index: Option<bool>,
     column_order: Vec<String>,
+    column_config: crate::column_config::ColumnConfigs,
 }
 
 impl<'a> DataframeOptions<'a> {
@@ -63,10 +64,17 @@ impl<'a> DataframeOptions<'a> {
             height: DataSize::Auto,
             hide_index: None,
             column_order: Vec::new(),
+            column_config: crate::column_config::ColumnConfigs::new(),
         }
     }
     pub fn hide_index(mut self, hide: bool) -> Self {
         self.hide_index = Some(hide);
+        self
+    }
+    /// Per-column configuration (labels, widths, typed editors), serialized
+    /// onto the element's columns field like the reference.
+    pub fn column_config(mut self, configs: crate::column_config::ColumnConfigs) -> Self {
+        self.column_config = configs;
         self
     }
     pub fn column_order(mut self, columns: impl IntoIterator<Item = impl Into<String>>) -> Self {
@@ -277,9 +285,91 @@ impl<'a> From<&'a RecordBatch> for BarChartOptions<'a> {
     }
 }
 
+/// The editable dataframe's row policy, like st.data_editor's num_rows.
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub enum EditorRows {
+    Fixed,
+    Dynamic,
+    Add,
+    Delete,
+}
+
+impl EditorRows {
+    fn wire(self) -> i32 {
+        match self {
+            Self::Fixed => 1,
+            Self::Dynamic => 2,
+            Self::Add => 3,
+            Self::Delete => 4,
+        }
+    }
+}
+
+/// st.data_editor options: the data, per-column configuration, the row
+/// policy, column order and layout.
+pub struct DataEditorOptions<'a> {
+    data: &'a RecordBatch,
+    column_config: crate::column_config::ColumnConfigs,
+    num_rows: EditorRows,
+    column_order: Vec<String>,
+    width: DataSize,
+    height: DataSize,
+    disabled: bool,
+    key: Option<String>,
+}
+
+impl<'a> DataEditorOptions<'a> {
+    pub fn new(data: &'a RecordBatch) -> Self {
+        Self {
+            data,
+            column_config: crate::column_config::ColumnConfigs::new(),
+            num_rows: EditorRows::Fixed,
+            column_order: Vec::new(),
+            width: DataSize::Stretch,
+            // The reference's default editor height carries no config.
+            height: DataSize::Auto,
+            disabled: false,
+            key: None,
+        }
+    }
+    pub fn column_config(mut self, configs: crate::column_config::ColumnConfigs) -> Self {
+        self.column_config = configs;
+        self
+    }
+    pub fn num_rows(mut self, num_rows: EditorRows) -> Self {
+        self.num_rows = num_rows;
+        self
+    }
+    pub fn column_order(mut self, columns: impl IntoIterator<Item = impl Into<String>>) -> Self {
+        self.column_order = columns.into_iter().map(Into::into).collect();
+        self
+    }
+    pub fn width(mut self, width: impl Into<DataSize>) -> Self {
+        self.width = width.into();
+        self
+    }
+    pub fn height(mut self, height: impl Into<DataSize>) -> Self {
+        self.height = height.into();
+        self
+    }
+    pub fn disabled(mut self, disabled: bool) -> Self {
+        self.disabled = disabled;
+        self
+    }
+    pub fn key(mut self, key: impl Into<String>) -> Self {
+        self.key = Some(key.into());
+        self
+    }
+}
+
 pub trait DataApi {
     fn table<'a>(&self, data: impl Into<TableOptions<'a>>) -> Result<(), DataError>;
     fn dataframe<'a>(&self, data: impl Into<DataframeOptions<'a>>) -> Result<(), DataError>;
+    /// The editable dataframe, like st.data_editor: a dataframe element with
+    /// an editing mode and a registered widget whose state is the edited
+    /// cells (a JSON object of {row: {column: value}}); the returned value
+    /// is the parsed edits layered over the data.
+    fn data_editor<'a>(&self, options: impl Into<DataEditorOptions<'a>>) -> Result<Value, DataError>;
     fn bar_chart<'a>(&self, options: impl Into<BarChartOptions<'a>>) -> Result<(), DataError>;
     fn line_chart<'a>(&self, options: impl Into<LineChartOptions<'a>>) -> Result<(), DataError>;
     fn area_chart<'a>(&self, options: impl Into<AreaChartOptions<'a>>) -> Result<(), DataError>;
@@ -291,26 +381,61 @@ fn append(this: &impl AppendChild, element: proto::Element) {
     this.push(Rc::new(RefCell::new(DataElement(element))));
 }
 
+/// One click widget per button column, like the reference's
+/// register_button_column_widgets: each registers a one-shot string trigger
+/// under the column's key and lands on the dataframe proto's
+/// button_click_widgets map as `$$ID-<digest>-<key>`.
+fn button_column_widgets(host: &impl AppendChild, configs: &crate::column_config::ColumnConfigs) -> Result<std::collections::HashMap<String, String>, DataError> {
+    let mut widgets = std::collections::HashMap::new();
+    for (column, key) in configs.button_columns() {
+        let (id, _click, _set) = host
+            .register_widget_parity(
+                crate::widgets::WidgetSpec {
+                    kind: "dataframe_button",
+                    key: key.as_deref(),
+                    identity: "",
+                    default: Value::Null,
+                    codec: crate::widgets::Codec::ButtonColumn,
+                    callback: None,
+                },
+                |value| Ok::<_, crate::widgets::WidgetError>(value.clone()),
+            )
+            .map_err(|error| DataError::InvalidOption(error.to_string()))?;
+        widgets.insert(column, id);
+    }
+    Ok(widgets)
+}
+
 fn arrow_data(data: &RecordBatch) -> Result<proto::ArrowData, DataError> {
     Ok(proto::ArrowData { data: to_ipc_stream(data)?, styler: None })
 }
 
-/// The library-chart datasets (altair, vega_lite inline values) ride the
-/// exact pandas-3 IPC the pinned reference emits: large_string text columns
-/// and the measured pandas metadata (creator stamp replicated from the
-/// measured wire, not invented), serialized with python JSON separators.
+/// The reference's pandas-3 conversion, measured on the pinned 1.66.1
+/// server: text columns become large_string and every column gains its
+/// pandas descriptor (creator stamp replicated from the measured wire, not
+/// invented), serialized with python JSON separators. The chart datasets,
+/// the dataframe and the data editor all ride this path.
 pub(crate) fn chart_arrow_data(data: &RecordBatch) -> Result<proto::ArrowData, DataError> {
     let mut fields = Vec::with_capacity(data.num_columns());
     let mut columns: Vec<ArrayRef> = Vec::with_capacity(data.num_columns());
     for (index, field) in data.schema_ref().fields().iter().enumerate() {
         let array = data.column(index);
-        if matches!(field.data_type(), DataType::Utf8) {
-            let texts: Vec<&str> = array.as_any().downcast_ref::<StringArray>().expect("utf8 column").iter().map(Option::unwrap_or_default).collect();
-            fields.push(Field::new(field.name(), DataType::LargeUtf8, field.is_nullable()));
-            columns.push(Arc::new(LargeStringArray::from(texts)));
-        } else {
-            fields.push(field.as_ref().clone());
-            columns.push(array.clone());
+        match field.data_type() {
+            DataType::Utf8 => {
+                let texts: Vec<&str> = array.as_any().downcast_ref::<StringArray>().expect("utf8 column").iter().map(Option::unwrap_or_default).collect();
+                fields.push(Field::new(field.name(), DataType::LargeUtf8, field.is_nullable()));
+                columns.push(Arc::new(LargeStringArray::from(texts)));
+            }
+            DataType::List(inner) if matches!(inner.data_type(), DataType::Utf8) => {
+                // The reference widens only top-level object columns; list
+                // items stay plain string (measured: list<item: string>).
+                fields.push(field.as_ref().clone());
+                columns.push(array.clone());
+            }
+            _ => {
+                fields.push(field.as_ref().clone());
+                columns.push(array.clone());
+            }
         }
     }
     let wire_columns: Vec<Value> = fields
@@ -321,7 +446,12 @@ pub(crate) fn chart_arrow_data(data: &RecordBatch) -> Result<proto::ArrowData, D
                 DataType::Int64 => ("int64", "int64"),
                 DataType::Float64 => ("float64", "float64"),
                 DataType::Boolean => ("bool", "bool"),
-                kind => return Err(DataError::InvalidOption(format!("chart dataset column type is not supported yet: {kind}"))),
+                DataType::Date32 => ("date", "object"),
+                DataType::Timestamp(arrow_schema::TimeUnit::Microsecond, None) => ("datetime", "datetime64[us]"),
+                DataType::Time64(arrow_schema::TimeUnit::Microsecond) => ("time", "object"),
+                DataType::List(inner) if matches!(inner.data_type(), DataType::LargeUtf8 | DataType::Utf8) => ("list[unicode]", "object"),
+                DataType::Struct(_) => ("object", "object"),
+                kind => return Err(DataError::InvalidOption(format!("reference pandas conversion is not supported yet for {kind}"))),
             };
             Ok(json!({"name":field.name(),"field_name":field.name(),"pandas_type":pandas_type,"numpy_type":numpy_type,"metadata":null}))
         })
@@ -690,19 +820,79 @@ impl<C: AppendChild> DataApi for C {
         if let Some(hidden) = options.hide_index {
             columns["_index"] = json!({"hidden":hidden});
         }
+        if let Value::Object(mapping) = &mut columns
+            && let Ok(Value::Object(configured)) = serde_json::from_str::<Value>(&options.column_config.wire())
+        {
+            for (name, config) in configured {
+                mapping.insert(name, config);
+            }
+        }
+        let button_click_widgets = button_column_widgets(self, &options.column_config)?;
         let element = proto::Element {
             width_config: options.width.width()?,
             height_config: options.height.height()?,
             r#type: Some(element::Type::Dataframe(proto::Dataframe {
-                arrow_data: Some(arrow_data(options.data)?),
-                columns: serde_json::to_string(&columns)?,
+                arrow_data: Some(chart_arrow_data(options.data)?),
+                columns: crate::pywire::py_dumps(&columns),
                 column_order: options.column_order,
+                button_click_widgets,
                 ..Default::default()
             })),
             ..Default::default()
         };
         append(self, element);
         Ok(())
+    }
+
+    fn data_editor<'a>(&self, options: impl Into<DataEditorOptions<'a>>) -> Result<Value, DataError> {
+        let options = options.into();
+        // The reference hides the index by default on the editor.
+        let mut columns = json!({"_index": {"hidden": true}});
+        if let Ok(Value::Object(configured)) = serde_json::from_str::<Value>(&options.column_config.wire())
+            && let Value::Object(mapping) = &mut columns
+        {
+            for (name, config) in configured {
+                mapping.insert(name, config);
+            }
+        }
+        // The edits widget: string_value state carrying the edited cells as
+        // one JSON object; the empty default is "{}".
+        let (id, edits, set_value) = if options.disabled {
+            (String::new(), Value::Object(Default::default()), false)
+        } else {
+            self.register_widget_parity(
+                crate::widgets::WidgetSpec {
+                    kind: "data_editor",
+                    key: options.key.as_deref(),
+                    identity: "",
+                    default: Value::String("{}".into()),
+                    codec: crate::widgets::Codec::Text { max_chars: None },
+                    callback: None,
+                },
+                |value| Ok::<_, crate::widgets::WidgetError>(value.clone()),
+            )
+            .map_err(|error| DataError::InvalidOption(error.to_string()))?
+        };
+        let element = proto::Element {
+            width_config: options.width.width()?,
+            height_config: options.height.height()?,
+            r#type: Some(element::Type::Dataframe(proto::Dataframe {
+                id,
+                arrow_data: Some(chart_arrow_data(options.data)?),
+                columns: crate::pywire::py_dumps(&columns),
+                column_order: options.column_order,
+                editing_mode: options.num_rows.wire(),
+                disabled: options.disabled,
+                // Clicks must not fire on a disabled editor, so its button
+                // columns never register widgets.
+                button_click_widgets: if options.disabled { Default::default() } else { button_column_widgets(self, &options.column_config)? },
+                ..Default::default()
+            })),
+            ..Default::default()
+        };
+        append(self, element);
+        let _ = set_value;
+        Ok(edits)
     }
 
     fn bar_chart<'a>(&self, options: impl Into<BarChartOptions<'a>>) -> Result<(), DataError> {
@@ -718,7 +908,10 @@ impl<C: AppendChild> DataApi for C {
         if options.plot_height == Some(0) {
             return Err(DataError::InvalidOption("plot height must be positive".into()));
         }
-        let data = arrow_data(options.data)?;
+        // The dataset rides the reference's pandas-3 IPC (large_string text
+        // columns and the creator stamp), like every other chart dataset —
+        // the elements chain measured this on both sides.
+        let data = chart_arrow_data(options.data)?;
         let name = format!("{:x}", md5::compute(&data.data));
         let mut x = json!({"field":vega_literal_field(&options.x), "type":x_type});
         if let Some(order) = options.x_order {

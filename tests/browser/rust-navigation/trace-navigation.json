@@ -2,21 +2,21 @@
  "schema_version": 1,
  "journey": "navigation-page",
  "contract": "journey-navigation-v1",
- "scope": "RUST SIDE",
+ "scope": "RUST SIDE DIFFERENTIAL",
  "url": "http://127.0.0.1:8517/",
  "observation": {
   "journey": "navigation-page",
   "contract": "journey-navigation-v1",
-  "scope": "RUST SIDE",
+  "scope": "RUST SIDE DIFFERENTIAL",
   "url": "http://127.0.0.1:8517/",
   "binary": null,
   "source": {
    "file": "streamlit/examples/navigation.rs",
-   "sha256": "f1b32639d7cf386c5a277baaf4a4a9c57a896842f4b0ddb6b9dff4cec536c4d0"
+   "sha256": "abe2e4b7651ff54073b3bbfdd610a7747574ea12c64662ec118d440143ec0554"
   },
   "capture_sources": {
    "navigation_capture.py": "40112f4506f8e8312acbb7e32b7735d6e3a883f28c9a4c571a81d456029422bb",
-   "navigation_contract.py": "89922dba98f5ff9a61fc8b9590cd00d216a6428da1d17846c15c4befd7d6ed17"
+   "navigation_contract.py": "d773207df2781818c36c8b27ef2451d790f4bae1604e7239652e3fca12b02320"
   },
   "stages": [
    {
@@ -24,7 +24,7 @@
     "new_frames": [
      {
       "direction": "client->server",
-      "timestamp": 54313.001236,
+      "timestamp": 11371.326129,
       "summary": {
        "message": "BackMsg",
        "type": "rerun_script",
@@ -35,23 +35,23 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 54313.002626,
+      "timestamp": 11371.327458,
       "summary": {
        "message": "ForwardMsg",
        "type": "new_session",
        "new_session": {
-        "script_run_id": "1a631151-9fa2-48c7-b1db-6292cd2b5e5b",
+        "script_run_id": "72a37651-eb7f-49ea-b4f4-2167f1e13bef",
         "name": "Streamlit Rust",
         "main_script_path": "",
         "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
         "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
-        "session_id": "430e8a7f-594a-4376-9149-d6b38a60b063"
+        "session_id": "b8634956-1ba7-4d32-bf2c-0417f02926f2"
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 54313.009299,
+      "timestamp": 11371.334026,
       "summary": {
        "message": "ForwardMsg",
        "type": "session_status_changed",
@@ -63,7 +63,7 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 54313.009404,
+      "timestamp": 11371.334155,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
@@ -83,7 +83,7 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 54313.009636,
+      "timestamp": 11371.334406,
       "summary": {
        "message": "ForwardMsg",
        "type": "navigation",
@@ -111,13 +111,23 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 54313.009976,
+      "timestamp": 11371.334745,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
        "delta": {
         "type": "new_element",
         "element": "markdown",
+        "element_full": {
+         "markdown": {
+          "body": "page=main hits=1",
+          "elementType": "NATIVE",
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
         "body": "page=main hits=1",
         "path": [
          0,
@@ -128,7 +138,7 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 54313.010222,
+      "timestamp": 11371.335026,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
@@ -155,7 +165,7 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 54313.010334,
+      "timestamp": 11371.335137,
       "summary": {
        "message": "ForwardMsg",
        "type": "script_finished",
@@ -167,7 +177,7 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 54313.010427,
+      "timestamp": 11371.33523,
       "summary": {
        "message": "ForwardMsg",
        "type": "session_status_changed",
@@ -192,7 +202,7 @@
     },
     "screenshot": {
      "file": "01-load.png",
-     "sha256": "e0cb342d3027d69277854322fc46a93378b9e4cfff92739970eac4dacb1d22cd"
+     "sha256": "e476c9154ac3493707fa7eba24bb3b53d8197665f4c3224d6ad1a7010c70e494"
     }
    },
    {
@@ -200,7 +210,7 @@
     "new_frames": [
      {
       "direction": "client->server",
-      "timestamp": 54317.832324,
+      "timestamp": 11374.80346,
       "summary": {
        "message": "BackMsg",
        "type": "rerun_script",
@@ -212,23 +222,23 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 54317.844671,
+      "timestamp": 11374.810718,
       "summary": {
        "message": "ForwardMsg",
        "type": "new_session",
        "new_session": {
-        "script_run_id": "5169f134-741c-4eb1-9885-d78294a429f4",
+        "script_run_id": "07bf2556-d1cf-4a95-adcf-3606c558bf2b",
         "name": "Streamlit Rust",
         "main_script_path": "",
         "page_script_hash": "d681734f8c454b90df4d5feea7487445",
         "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
-        "session_id": "430e8a7f-594a-4376-9149-d6b38a60b063"
+        "session_id": "b8634956-1ba7-4d32-bf2c-0417f02926f2"
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 54317.848886,
+      "timestamp": 11374.814015,
       "summary": {
        "message": "ForwardMsg",
        "type": "session_status_changed",
@@ -240,7 +250,7 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 54317.849021,
+      "timestamp": 11374.814101,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
@@ -260,7 +270,7 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 54317.849079,
+      "timestamp": 11374.81414,
       "summary": {
        "message": "ForwardMsg",
        "type": "navigation",
@@ -288,13 +298,23 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 54317.849238,
+      "timestamp": 11374.814245,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
        "delta": {
         "type": "new_element",
         "element": "markdown",
+        "element_full": {
+         "markdown": {
+          "body": "page=two",
+          "elementType": "NATIVE",
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
         "body": "page=two",
         "path": [
          0,
@@ -305,7 +325,7 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 54317.849286,
+      "timestamp": 11374.81429,
       "summary": {
        "message": "ForwardMsg",
        "type": "script_finished",
@@ -317,7 +337,7 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 54317.849323,
+      "timestamp": 11374.814318,
       "summary": {
        "message": "ForwardMsg",
        "type": "session_status_changed",
@@ -342,7 +362,7 @@
     },
     "screenshot": {
      "file": "02-click-two.png",
-     "sha256": "329d1d92962932a7983909e54769f22b9e187292a0a636c866895806efe7398b"
+     "sha256": "ee2b4c091cad08c0168be1115b9b8f1b6a13d4df2ffc557f15fe34904e2a5bf1"
     }
    },
    {
@@ -350,7 +370,7 @@
     "new_frames": [
      {
       "direction": "client->server",
-      "timestamp": 54321.938695,
+      "timestamp": 11377.869443,
       "summary": {
        "message": "BackMsg",
        "type": "rerun_script",
@@ -362,23 +382,23 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 54321.969869,
+      "timestamp": 11377.870276,
       "summary": {
        "message": "ForwardMsg",
        "type": "new_session",
        "new_session": {
-        "script_run_id": "7cf55ded-4f61-4615-99c4-2e786bc071cc",
+        "script_run_id": "b0f2b0ec-2974-46f2-82cf-b74bae74de5d",
         "name": "Streamlit Rust",
         "main_script_path": "",
         "page_script_hash": "4e89e30dce2a0c9070887e292d3255e7",
         "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
-        "session_id": "430e8a7f-594a-4376-9149-d6b38a60b063"
+        "session_id": "b8634956-1ba7-4d32-bf2c-0417f02926f2"
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 54321.972537,
+      "timestamp": 11377.872854,
       "summary": {
        "message": "ForwardMsg",
        "type": "session_status_changed",
@@ -390,7 +410,7 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 54321.972628,
+      "timestamp": 11377.872929,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
@@ -410,7 +430,7 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 54321.972687,
+      "timestamp": 11377.872979,
       "summary": {
        "message": "ForwardMsg",
        "type": "navigation",
@@ -438,13 +458,23 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 54321.972925,
+      "timestamp": 11377.873139,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
        "delta": {
         "type": "new_element",
         "element": "markdown",
+        "element_full": {
+         "markdown": {
+          "body": "page=main hits=2",
+          "elementType": "NATIVE",
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
         "body": "page=main hits=2",
         "path": [
          0,
@@ -455,7 +485,7 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 54321.972979,
+      "timestamp": 11377.873191,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
@@ -482,7 +512,7 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 54321.973009,
+      "timestamp": 11377.873219,
       "summary": {
        "message": "ForwardMsg",
        "type": "script_finished",
@@ -494,7 +524,7 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 54321.973041,
+      "timestamp": 11377.873242,
       "summary": {
        "message": "ForwardMsg",
        "type": "session_status_changed",
@@ -519,7 +549,7 @@
     },
     "screenshot": {
      "file": "03-back-main.png",
-     "sha256": "08e3ab1a67cde3de4018f01d1a4e85b7f5821945461d21a04ea4933e38f3f641"
+     "sha256": "8d58aab8bb52d395204c378cc76663b4ef86927cac4fb128b18fd4665599d395"
     }
    },
    {
@@ -527,7 +557,7 @@
     "new_frames": [
      {
       "direction": "client->server",
-      "timestamp": 54326.376197,
+      "timestamp": 11380.951146,
       "summary": {
        "message": "BackMsg",
        "type": "rerun_script",
@@ -545,23 +575,23 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 54326.37735,
+      "timestamp": 11380.951916,
       "summary": {
        "message": "ForwardMsg",
        "type": "new_session",
        "new_session": {
-        "script_run_id": "6c72da4c-7975-4948-aa0a-8f9f9fe312bb",
+        "script_run_id": "0207741e-7cb5-4407-ad11-c021a153398c",
         "name": "Streamlit Rust",
         "main_script_path": "",
         "page_script_hash": "4e89e30dce2a0c9070887e292d3255e7",
         "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
-        "session_id": "430e8a7f-594a-4376-9149-d6b38a60b063"
+        "session_id": "b8634956-1ba7-4d32-bf2c-0417f02926f2"
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 54326.377673,
+      "timestamp": 11380.952197,
       "summary": {
        "message": "ForwardMsg",
        "type": "session_status_changed",
@@ -573,7 +603,7 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 54326.381027,
+      "timestamp": 11380.955261,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
@@ -593,7 +623,7 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 54326.381116,
+      "timestamp": 11380.955351,
       "summary": {
        "message": "ForwardMsg",
        "type": "navigation",
@@ -621,13 +651,23 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 54326.381227,
+      "timestamp": 11380.955466,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
        "delta": {
         "type": "new_element",
         "element": "markdown",
+        "element_full": {
+         "markdown": {
+          "body": "page=main hits=3",
+          "elementType": "NATIVE",
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
         "body": "page=main hits=3",
         "path": [
          0,
@@ -638,7 +678,7 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 54326.38126,
+      "timestamp": 11380.955502,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
@@ -665,7 +705,7 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 54326.38129,
+      "timestamp": 11380.955533,
       "summary": {
        "message": "ForwardMsg",
        "type": "page_info_changed",
@@ -676,7 +716,7 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 54326.381469,
+      "timestamp": 11380.955709,
       "summary": {
        "message": "ForwardMsg",
        "type": "script_finished",
@@ -688,7 +728,7 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 54326.381494,
+      "timestamp": 11380.955732,
       "summary": {
        "message": "ForwardMsg",
        "type": "session_status_changed",
@@ -700,23 +740,23 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 54326.381511,
+      "timestamp": 11380.955753,
       "summary": {
        "message": "ForwardMsg",
        "type": "new_session",
        "new_session": {
-        "script_run_id": "56cd35d2-969b-4f77-85a8-2df6b4411518",
+        "script_run_id": "efde7150-fda1-4959-b19a-10264e339e06",
         "name": "Streamlit Rust",
         "main_script_path": "",
         "page_script_hash": "d681734f8c454b90df4d5feea7487445",
         "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
-        "session_id": "430e8a7f-594a-4376-9149-d6b38a60b063"
+        "session_id": "b8634956-1ba7-4d32-bf2c-0417f02926f2"
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 54326.38158,
+      "timestamp": 11380.955835,
       "summary": {
        "message": "ForwardMsg",
        "type": "session_status_changed",
@@ -728,7 +768,7 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 54326.381596,
+      "timestamp": 11380.955849,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
@@ -748,7 +788,7 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 54326.381613,
+      "timestamp": 11380.955872,
       "summary": {
        "message": "ForwardMsg",
        "type": "navigation",
@@ -776,13 +816,23 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 54326.381671,
+      "timestamp": 11380.95593,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
        "delta": {
         "type": "new_element",
         "element": "markdown",
+        "element_full": {
+         "markdown": {
+          "body": "page=two",
+          "elementType": "NATIVE",
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
         "body": "page=two",
         "path": [
          0,
@@ -793,7 +843,7 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 54326.381698,
+      "timestamp": 11380.955953,
       "summary": {
        "message": "ForwardMsg",
        "type": "script_finished",
@@ -805,7 +855,7 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 54326.381716,
+      "timestamp": 11380.95597,
       "summary": {
        "message": "ForwardMsg",
        "type": "session_status_changed",
@@ -830,11 +880,11 @@
     },
     "screenshot": {
      "file": "04-switch-button.png",
-     "sha256": "d9706e94c1999e213c47b81cc62ded90e7fcb3e51f134a626541bc19db262bf7"
+     "sha256": "eed6917262ec0c97c20fe1047e27504e5664fc26193085fb0a67071e484031ad"
     }
    }
   ],
-  "ipc_dir": "D:\\dlab\\streamlit-rust\\tests\\browser\\rust-navigation"
+  "ipc_dir": "D:\\dlab\\streamlit-rust\\target\\navigation-rust"
  },
  "counts": {
   "expected": 12,

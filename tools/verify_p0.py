@@ -275,6 +275,11 @@ def merge_progress(entry: dict, old: dict | None, root: Path) -> dict:
             if not isinstance(value, dict):
                 raise ValueError("reviewed captures must be explicit provenance records")
             continue
+        # API identifiers (the alias rows' upstream targets), not file paths.
+        if key in ("alias_target_python", "alias_target_native"):
+            if not isinstance(value, str) or not value.strip():
+                raise ValueError(f"empty alias target: {key}")
+            continue
         if key == "official_document_sha256" or (key == "python_browser_trace" and value is None and compatibility in ("unverified", "not_applicable")):
             continue
         if isinstance(value, (list, tuple)):

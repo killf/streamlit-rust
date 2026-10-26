@@ -5,6 +5,7 @@ pub mod charts;
 pub mod code;
 pub mod columns;
 pub mod common;
+pub mod components;
 pub mod container;
 pub mod data;
 pub mod exception;

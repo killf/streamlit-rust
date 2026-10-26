@@ -169,6 +169,13 @@ pub(crate) enum Codec {
     /// The menu button's one-shot string trigger: the selected option's
     /// label, resetting to None after the run like button triggers.
     StringTrigger(Vec<String>),
+    /// A dataframe button column's one-shot string trigger: the click state
+    /// as one JSON object ({"row": index, "label": text}), resetting to None
+    /// after the run like the reference's ButtonClickSerde.
+    ButtonColumn,
+    /// A bidi component's persistent state: the whole state object as one
+    /// JSON string (json_value), like the reference's BidiComponentSerde.
+    JsonValue,
     /// date_input: ISO "YYYY-MM-DD" strings, one for a single date or two
     /// for a range; the value stays a string and the emitter parses it.
     DateInput {
@@ -184,6 +191,12 @@ pub(crate) enum Codec {
 }
 
 impl Codec {
+    /// The reference's ButtonColumnClickState shape: a non-negative row
+    /// index and a text label.
+    fn button_click_shape(value: &Value) -> bool {
+        value.as_object().is_some_and(|click| click.get("row").is_some_and(Value::is_u64) && click.get("label").is_some_and(Value::is_string))
+    }
+
     pub(crate) fn decode(&self, wire: &widget_state::Value) -> Option<Value> {
         match (self, wire) {
             (Self::Trigger, widget_state::Value::TriggerValue(value)) => Some((*value).into()),
@@ -231,6 +244,11 @@ impl Codec {
                 }
             }
             (Self::StringTrigger(options), widget_state::Value::StringTriggerValue(trigger)) => trigger.data.as_deref().and_then(|label| options.iter().position(|option| option == label).map(Value::from)),
+            (Self::ButtonColumn, widget_state::Value::StringTriggerValue(trigger)) => Some(match trigger.data.as_deref() {
+                None | Some("") => Value::Null,
+                Some(data) => serde_json::from_str::<Value>(data).ok().filter(Self::button_click_shape)?,
+            }),
+            (Self::JsonValue, widget_state::Value::JsonValue(text)) => serde_json::from_str::<Value>(text).ok(),
             (Self::DateInput { range }, widget_state::Value::StringArrayValue(array)) => {
                 let dates: Option<Vec<Value>> = array.data.iter().map(|text| chrono::NaiveDate::parse_from_str(text, "%Y-%m-%d").ok().map(|_| Value::String(text.clone()))).collect();
                 let dates = dates?;
@@ -299,6 +317,8 @@ impl Codec {
                 if *multi { value.as_array().is_some_and(|indices| indices.iter().all(within)) } else { value.is_null() || within(value) }
             }
             Self::StringTrigger(options) => value.is_null() || value.as_u64().is_some_and(|index| index < options.len() as u64),
+            Self::ButtonColumn => value.is_null() || Self::button_click_shape(value),
+            Self::JsonValue => true,
             Self::DateInput { range } => {
                 let iso = |item: &Value| item.as_str().is_some_and(|text| chrono::NaiveDate::parse_from_str(text, "%Y-%m-%d").is_ok());
                 if *range {
@@ -457,7 +477,7 @@ impl Codec {
 fn one_shot_reset(codec: &Codec) -> Option<Value> {
     match codec {
         Codec::Trigger => Some(Value::Bool(false)),
-        Codec::ChatInput | Codec::StringTrigger(_) => Some(Value::Null),
+        Codec::ChatInput | Codec::StringTrigger(_) | Codec::ButtonColumn => Some(Value::Null),
         _ => None,
     }
 }
@@ -597,7 +617,7 @@ impl SessionState {
             return Err(WidgetError::DuplicateId(id));
         }
         let mut values = self.values.lock();
-        if matches!(codec, Codec::Trigger | Codec::Files { .. } | Codec::ChatInput | Codec::StringTrigger(_)) && key.is_some_and(|key| values.contains_key(key)) && !registry.records.contains_key(&id) {
+        if matches!(codec, Codec::Trigger | Codec::Files { .. } | Codec::ChatInput | Codec::StringTrigger(_) | Codec::ButtonColumn) && key.is_some_and(|key| values.contains_key(key)) && !registry.records.contains_key(&id) {
             return Err(WidgetError::InvalidValue("button, chat input, menu button and uploader state cannot be preseeded".into()));
         }
         // A constraint-dependent identity change resets the old widget binding.

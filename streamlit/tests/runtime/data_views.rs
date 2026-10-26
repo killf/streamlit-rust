@@ -89,7 +89,7 @@ async fn native_dataframe_and_bar_chart_really_update_over_the_same_websocket() 
         let chart = chart.unwrap();
         assert_eq!(chart.datasets[0].data.as_ref().unwrap().data, dataframe);
         let batch: RecordBatch = from_ipc_stream(&dataframe).unwrap().remove(0);
-        assert!(batch.schema().metadata().is_empty(), "ordinary native Arrow data needs no fabricated pandas metadata");
+        assert!(batch.schema().metadata().contains_key("pandas"), "chart/dataframe data rides the reference's pandas-3 IPC stamp");
         let values = batch.column_by_name("amount").unwrap().as_any().downcast_ref::<Int64Array>().unwrap();
         assert_eq!(values.values().as_ref(), &[10 + expected_revision, 20 + expected_revision]);
         let spec: serde_json::Value = serde_json::from_str(&chart.spec).unwrap();

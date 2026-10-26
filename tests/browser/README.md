@@ -117,8 +117,11 @@ target\pyref-venv\Scripts\python.exe tests\browser\elements_capture.py --replay 
 
 Both return 11 expected / 11 executed / 11 asserted with exit 0. Raw SHA256:
 python `b4b26a61be511d0de18ac393c53b052d28a4302429c5e8532148ac3423ac1119`,
-native `14ab0ea580c2183d2f9e43db05d2de48f53aaaffcb9a755a91dd006a19a9159a`,
+native `320949c68e96d7f5466143e925b5a346b523d599614af0a65c484ee14708589b`,
 under contract `d54226fabc0e2e09f69787d01de5b5fb6c108602e38f358681210167350aab1c`.
+The native side was re-captured 2026-10-27 after the bar-chart dataset moved
+from plain Arrow to the measured pandas-3 IPC (large_string text columns and
+the creator stamp) that both sides of this chain's published traces show.
 The contract tolerates only the documented leading `main_block` delta on the
 Rust side; the vega shape and the table's arrow payload are compared as
 normalized shapes, not bytes.
@@ -407,8 +410,8 @@ target\pyref-venv\Scripts\python.exe tests\browser\navigation_capture.py --repla
 
 Both return 12 expected / 12 executed / 12 asserted with exit 0. Raw
 SHA256: python `52d778f9d5d437dba3850acec7397a53be2e350df1c4688b2b9c85f091e8e7cb`,
-native `b857ece721f5bc91fe45cf0907e291085922210fad414fd589c08beec5d72abf`,
-under contract `89922dba98f5ff9a61fc8b9590cd00d216a6428da1d17846c15c4befd7d6ed17`.
+native `8cfedea9288696f501cac06b826da40221f694754f05b72db80c9fa4537f3c03`,
+under contract `d773207df2781818c36c8b27ef2451d790f4bae1604e7239652e3fca12b02320`.
 The runtime regression (streamlit/tests/runtime/navigation.rs) pins the
 page hashes, nav fields, addressing, the hits round trip and the switch
 two-run timeline over the production websocket.
@@ -616,12 +619,14 @@ target\pyref-venv\Scripts\python.exe tests\browser\datetime_capture.py --replay 
 ```
 
 Both return 7 expected / 7 executed / 7 asserted with exit 0. Raw
-SHA256: python `079fcd2a3e190f487f398c798ef4e99a395c6238fd30a31773047e726fea2ab9`,
-native `417b0363901a69feaf1e939612eeb1058f0d317e81c977039291553c37bbe96e`,
-under contract `75089b10e902bc945d52d88a73e5f9feed7f4a371e22470617f89f6f28d470f1`.
+SHA256: python `df95b137edb93a791a6effa53ca9d831b86e5210cdf8d9e2168f42aa9ac39451`,
+native `a7e45182450a1e2c9aa2b4bb09225333f5738215ef7b5fe262aa1ac5cbd5304c`,
+under contract `af80300a251a094ba29e479225a4149aba3eb3ec72743dc25e08197c7282b29c`.
 The runtime regression (streamlit/tests/runtime/datetime.rs) pins the load
 timeline over the production websocket plus the codec's ISO/legacy/cleared
-semantics.
+semantics. The None-valued picker's window anchors on the capture day
+(today ±10 years), so the frozen bytes above are the cross-side evidence;
+re-capturing on another day shifts both sides' windows equally.
 
 ## Write stream (write_stream)
 
@@ -683,6 +688,66 @@ under contract `3c293ca61fc71c870308c21e68cb67f9b97c6ecfc0c21190eded393c64e4d756
 The runtime regression (streamlit/tests/runtime/chartlibs.rs) pins the
 seven surfaces' wire shapes over the production websocket plus the
 graphviz path-hash formula.
+
+## Column config (st.column_config.* and st.data_editor)
+
+[colconfig_capture.py](colconfig_capture.py) is the permanent entry for the
+column-config chain; [colconfig_contract.py](colconfig_contract.py) is its
+strict criterion (journey-colconfig-v1, 7 checks) with unit tests in
+[tests/reference/test_colconfig_contract.py](../reference/test_colconfig_contract.py).
+The page renders one dataframe carrying all 21 column-config helpers plus
+one dynamic data_editor; the load pins both dataframes' full wire — the
+whole config mapping as ONE columns JSON string (json.dumps default
+separators), the pandas-3 typed-frame arrow IPC (compared logically),
+the editor's hidden `_index`, `editing_mode` 2 and its `$$ID` edits widget
+id, and the button column's `buttonClickWidgets` entry (`$$ID-<digest>-key`
+masked as side-specific, one one-shot click widget per button column).
+The Rust runtime's per-batch `main_container` re-announcement at [0] is the
+documented divergence. The published chains:
+
+```powershell
+target\pyref-venv\Scripts\python.exe tests\browser\colconfig_capture.py --replay tests\reference\reference-browser\colconfig\trace-colconfig.json
+target\pyref-venv\Scripts\python.exe tests\browser\colconfig_capture.py --replay tests\browser\rust-colconfig\trace-colconfig.json
+```
+
+Both return 7 expected / 7 executed / 7 asserted with exit 0. Raw
+SHA256: python `f2c6114bf3cc1f620b42e56c0f8def34d7b8f63782b624b4de10bc450b0611ff`,
+native `aecdafe02b6f71a38971a61f75db684aacf9c60a471400934f6453bec8226a34`,
+under contract `8edb7d35abbbb0ffd01abbe7a1926bf2ceff64a3e77b688297d716e8db425dcb`.
+The runtime regression (streamlit/tests/runtime/colconfig.rs) pins the
+21-helper columns JSON byte-for-byte, the button click-widget id shape and
+the editor wire over the production websocket.
+
+## Custom components v2 (st.components.v2.component)
+
+[componentv2_capture.py](componentv2_capture.py) is the permanent entry for
+the components.v2 chain; [componentv2_contract.py](componentv2_contract.py)
+is its strict criterion (journey-componentv2-v1, 7 checks) with unit tests
+in [tests/reference/test_componentv2_contract.py](../reference/test_componentv2_contract.py).
+The page registers one inline HTML/CSS/JS component (isolated styles) and
+mounts it once with a JSON data payload and a default state; the load pins
+the bidi_component element's full wire — the instance widget id
+(`$$ID-<digest>-key`, masked), the trusted content strings, the explicitly
+empty source paths, the json.dumps-default-separator payload, the
+stretch/content layout — plus the settled DOM testid catalog including the
+`stBidiComponentIsolated` mount. The Rust runtime's per-batch
+`main_container` re-announcement at [0] is the documented divergence. The
+published chains:
+
+```powershell
+target\pyref-venv\Scripts\python.exe tests\browser\componentv2_capture.py --replay tests\reference\reference-browser\componentv2\trace-componentv2.json
+target\pyref-venv\Scripts\python.exe tests\browser\componentv2_capture.py --replay tests\browser\rust-componentv2\trace-componentv2.json
+```
+
+Both return 7 expected / 7 executed / 7 asserted with exit 0. Raw
+SHA256: python `6f5b273f9a8b623abe8e72ef7683004d17b18fcab186502ce759426b37bbd7b6`,
+native `71942486d7cd0faec4f405a9223a4b3b78f232cab1d09c30896db542b614cd01`,
+under contract `e30fe3eb3c48383c79fdbba7df7b4536962a555cc21f3054cba2b0e1cf8378bf`.
+The runtime regression (streamlit/tests/runtime/componentv2.rs) pins the
+element wire — id shape, content strings, empty source paths, payload
+separators, layout — and the default-state return over the production
+websocket.
+
 
 
 

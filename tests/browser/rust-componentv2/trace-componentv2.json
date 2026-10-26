@@ -1,0 +1,207 @@
+{
+ "schema_version": 1,
+ "observation": {
+  "journey": "componentv2-page",
+  "contract": "journey-componentv2-v1",
+  "scope": "RUST SIDE DIFFERENTIAL",
+  "url": "http://127.0.0.1:8539/",
+  "source": {
+   "file": "streamlit/examples/componentv2.rs",
+   "sha256": "492af61d056a6a5ca86b54c2c00623859909dbc667fcb32863af32fd189bcfaf"
+  },
+  "stages": [
+   {
+    "name": "01-load",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 10538.96067,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": []
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 10538.961998,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "8c9ca668-c62d-475e-8714-97eafc986ef3",
+        "name": "Streamlit Rust",
+        "main_script_path": "",
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "session_id": "0976b39c-36ca-4b7c-9987-1dcb9633dcc1"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 10538.968112,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 10538.96823,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "main_container",
+        "block_type": "vertical",
+        "block": {
+         "vertical": {},
+         "id": "main_container"
+        },
+        "path": [
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 10538.968464,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "bidi_component",
+        "element_full": {
+         "heightConfig": {
+          "useContent": true
+         },
+         "widthConfig": {
+          "useStretch": true
+         },
+         "bidiComponent": {
+          "id": "$$ID-7ce1ac809e1d648382fcd5a4051cfca6-greeter",
+          "componentName": "greeting",
+          "jsContent": "\n    export default function(component) {\n        const { setStateValue, parentElement } = component;\n        const input = parentElement.querySelector('input');\n        input.onkeydown = (e) => {\n            if (e.key === 'Enter') {\n                setStateValue('value', e.target.value);\n            }\n        };\n    }\n",
+          "jsSourcePath": "",
+          "htmlContent": "\n    <label style='padding-right: 1em;' for='txt'>Enter text</label>\n    <input id='txt' type='text' />\n",
+          "cssContent": "label { color: red; }",
+          "cssSourcePath": "",
+          "isolateStyles": true,
+          "json": "{\"label\": \"Name\", \"value\": \"hi\"}"
+         }
+        },
+        "id": "$$ID-7ce1ac809e1d648382fcd5a4051cfca6-greeter",
+        "form_id": "",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 10538.9688,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "element_full": {
+         "markdown": {
+          "body": "value=hi",
+          "elementType": "NATIVE",
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "value=hi",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 10538.968904,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 10538.968993,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "http": [],
+    "dom": {
+     "testids": [
+      "portal",
+      "stApp",
+      "stAppDeployButton",
+      "stAppIframeResizerAnchor",
+      "stAppViewContainer",
+      "stBaseButton-header",
+      "stBidiComponentIsolated",
+      "stElementContainer",
+      "stHeader",
+      "stMain",
+      "stMainBlockContainer",
+      "stMainMenu",
+      "stMainMenuButton",
+      "stMarkdown",
+      "stMarkdownContainer",
+      "stScreencast",
+      "stSkipToContent",
+      "stToolbar",
+      "stToolbarActions",
+      "stVerticalBlock"
+     ],
+     "exceptions": [],
+     "markdowns": [
+      "value=hi"
+     ]
+    },
+    "screenshot": {
+     "file": "01-load.png",
+     "sha256": "aebbcd8e35d5404bf8f65644e913e4925ca6509605fe142e02110f9bc203772c"
+    }
+   }
+  ],
+  "ipc_dir": "D:\\dlab\\streamlit-rust\\target\\componentv2-rust"
+ },
+ "counts": {
+  "expected": 7,
+  "executed": 7,
+  "asserted": 7
+ },
+ "failures": []
+}

@@ -15,6 +15,8 @@ mod cache;
 mod chartlibs;
 mod charts;
 mod chat;
+mod colconfig;
+mod componentv2;
 mod data_views;
 mod datetime;
 mod display;

@@ -3073,10 +3073,10 @@ impl<C: AppendChild> InputWidgets for C {
         if min > max {
             return Err(WidgetError::InvalidValue("datetime_input min is after max".into()));
         }
-        if let Some(value) = options.value {
-            if value < min || value > max {
-                return Err(WidgetError::InvalidValue("datetime_input value is outside min/max".into()));
-            }
+        if let Some(value) = options.value
+            && (value < min || value > max)
+        {
+            return Err(WidgetError::InvalidValue("datetime_input value is outside min/max".into()));
         }
         let default = options.value.map(|moment| Value::String(wire(moment))).unwrap_or(Value::Null);
         let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { format!("{:?}:{}:{}", options.value.map(wire), options.step, options.format) });

@@ -1,0 +1,312 @@
+{
+ "schema_version": 1,
+ "observation": {
+  "journey": "colconfig-page",
+  "contract": "journey-colconfig-v1",
+  "scope": "PYTHON SIDE ONLY",
+  "url": "http://127.0.0.1:8629/",
+  "source": {
+   "file": "tests/reference/colconfig_app.py",
+   "sha256": "c2b3a4cc3239297a12d955c9b77cf86860d69c1a35df54098884c3e3b3a653c0"
+  },
+  "stages": [
+   {
+    "name": "01-load",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 6422.187127,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": []
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 6422.191578,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "f33dd4ad-a716-4017-95bd-c15168fac73e",
+        "name": "colconfig_app",
+        "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\colconfig_app.py",
+        "page_script_hash": "9ab666aa6eb2110016fb9f6d190a10fa",
+        "main_script_hash": "9ab666aa6eb2110016fb9f6d190a10fa",
+        "session_id": "57d3142f-2f08-4dfb-ab11-568e962c2e04"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 6422.193281,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 6422.200648,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "dataframe",
+        "element_full": {
+         "dataframe": {
+          "arrowData": {
+           "data": "/////wAPAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAFAKAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAAoCgAABAAAABoKAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAibmFtZSIsICJmaWVsZF9uYW1lIjogIm5hbWUiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJ0aXRsZSIsICJmaWVsZF9uYW1lIjogInRpdGxlIiwgInBhbmRhc190eXBlIjogIm9iamVjdCIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAic2NvcmUiLCAiZmllbGRfbmFtZSI6ICJzY29yZSIsICJwYW5kYXNfdHlwZSI6ICJpbnQ2NCIsICJudW1weV90eXBlIjogImludDY0IiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJkb25lIiwgImZpZWxkX25hbWUiOiAiZG9uZSIsICJwYW5kYXNfdHlwZSI6ICJib29sIiwgIm51bXB5X3R5cGUiOiAiYm9vbCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAia2luZCIsICJmaWVsZF9uYW1lIjogImtpbmQiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJ0YWdzIiwgImZpZWxkX25hbWUiOiAidGFncyIsICJwYW5kYXNfdHlwZSI6ICJsaXN0W3VuaWNvZGVdIiwgIm51bXB5X3R5cGUiOiAib2JqZWN0IiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJkYXkiLCAiZmllbGRfbmFtZSI6ICJkYXkiLCAicGFuZGFzX3R5cGUiOiAiZGF0ZSIsICJudW1weV90eXBlIjogIm9iamVjdCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAibW9tZW50IiwgImZpZWxkX25hbWUiOiAibW9tZW50IiwgInBhbmRhc190eXBlIjogImRhdGV0aW1lIiwgIm51bXB5X3R5cGUiOiAiZGF0ZXRpbWU2NFt1c10iLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogImNsb2NrIiwgImZpZWxkX25hbWUiOiAiY2xvY2siLCAicGFuZGFzX3R5cGUiOiAidGltZSIsICJudW1weV90eXBlIjogIm9iamVjdCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAiaXRlbXMiLCAiZmllbGRfbmFtZSI6ICJpdGVtcyIsICJwYW5kYXNfdHlwZSI6ICJsaXN0W3VuaWNvZGVdIiwgIm51bXB5X3R5cGUiOiAib2JqZWN0IiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJwYXlsb2FkIiwgImZpZWxkX25hbWUiOiAicGF5bG9hZCIsICJwYW5kYXNfdHlwZSI6ICJvYmplY3QiLCAibnVtcHlfdHlwZSI6ICJvYmplY3QiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogIm5vdGVzIiwgImZpZWxkX25hbWUiOiAibm90ZXMiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJzaXRlIiwgImZpZWxkX25hbWUiOiAic2l0ZSIsICJwYW5kYXNfdHlwZSI6ICJvYmplY3QiLCAibnVtcHlfdHlwZSI6ICJzdHIiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogInBpYyIsICJmaWVsZF9uYW1lIjogInBpYyIsICJwYW5kYXNfdHlwZSI6ICJvYmplY3QiLCAibnVtcHlfdHlwZSI6ICJzdHIiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogInRyZW5kIiwgImZpZWxkX25hbWUiOiAidHJlbmQiLCAicGFuZGFzX3R5cGUiOiAiaW50NjQiLCAibnVtcHlfdHlwZSI6ICJpbnQ2NCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAiY291bnQiLCAiZmllbGRfbmFtZSI6ICJjb3VudCIsICJwYW5kYXNfdHlwZSI6ICJpbnQ2NCIsICJudW1weV90eXBlIjogImludDY0IiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJzaWduYWwiLCAiZmllbGRfbmFtZSI6ICJzaWduYWwiLCAicGFuZGFzX3R5cGUiOiAiaW50NjQiLCAibnVtcHlfdHlwZSI6ICJpbnQ2NCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAiZmlsbCIsICJmaWVsZF9uYW1lIjogImZpbGwiLCAicGFuZGFzX3R5cGUiOiAiaW50NjQiLCAibnVtcHlfdHlwZSI6ICJpbnQ2NCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAiY2xpcCIsICJmaWVsZF9uYW1lIjogImNsaXAiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJyZWVsIiwgImZpZWxkX25hbWUiOiAicmVlbCIsICJwYW5kYXNfdHlwZSI6ICJvYmplY3QiLCAibnVtcHlfdHlwZSI6ICJzdHIiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogImFjdCIsICJmaWVsZF9uYW1lIjogImFjdCIsICJwYW5kYXNfdHlwZSI6ICJvYmplY3QiLCAibnVtcHlfdHlwZSI6ICJzdHIiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAYAAABwYW5kYXMAABUAAABQBAAA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"
+          },
+          "columns": "{\"name\": {\"label\": \"Name\", \"width\": \"medium\", \"help\": \"the name\", \"pinned\": true, \"alignment\": \"center\"}, \"title\": {\"label\": \"Title\", \"default\": \"hi\", \"type_config\": {\"type\": \"text\", \"max_chars\": 10, \"validate\": \"^h\"}}, \"score\": {\"label\": \"Score\", \"default\": 1, \"type_config\": {\"type\": \"number\", \"min_value\": 0, \"max_value\": 10, \"format\": \"%d\", \"step\": 1}}, \"done\": {\"label\": \"Done\", \"default\": true, \"type_config\": {\"type\": \"checkbox\"}}, \"kind\": {\"label\": \"Kind\", \"default\": \"a\", \"type_config\": {\"type\": \"selectbox\", \"options\": [\"a\", \"b\"]}}, \"tags\": {\"label\": \"Tags\", \"default\": [\"x\"], \"type_config\": {\"type\": \"multiselect\", \"options\": [{\"value\": \"x\"}, {\"value\": \"y\"}], \"accept_new_options\": true}}, \"day\": {\"label\": \"Day\", \"default\": \"2025-01-02\", \"type_config\": {\"type\": \"date\", \"format\": \"YYYY/MM/DD\", \"min_value\": \"2024-01-01\", \"max_value\": \"2026-01-01\", \"step\": 1}}, \"moment\": {\"label\": \"Moment\", \"default\": \"2025-01-02T03:04:00\", \"type_config\": {\"type\": \"datetime\", \"format\": \"YYYY/MM/DD HH:mm\", \"min_value\": \"2024-01-01T00:00:00\", \"max_value\": \"2026-01-01T00:00:00\", \"step\": 60, \"timezone\": \"UTC\"}}, \"clock\": {\"label\": \"Clock\", \"default\": \"03:04:00\", \"type_config\": {\"type\": \"time\", \"format\": \"HH:mm\", \"min_value\": \"01:00:00\", \"max_value\": \"23:00:00\", \"step\": 60}}, \"items\": {\"label\": \"Items\", \"default\": [\"a\"], \"type_config\": {\"type\": \"list\"}}, \"payload\": {\"label\": \"Payload\", \"type_config\": {\"type\": \"json\"}}, \"notes\": {\"label\": \"Notes\", \"default\": \"**bold**\", \"type_config\": {\"type\": \"markdown\"}}, \"site\": {\"label\": \"Site\", \"default\": \"https://example.com\", \"type_config\": {\"type\": \"link\", \"max_chars\": 40, \"validate\": \"^https\", \"display_text\": \"open\"}}, \"pic\": {\"label\": \"Pic\", \"type_config\": {\"type\": \"image\"}}, \"trend\": {\"label\": \"Trend\", \"type_config\": {\"type\": \"area_chart\", \"y_min\": 0, \"y_max\": 10, \"color\": \"#ff0000\"}}, \"count\": {\"label\": \"Count\", \"type_config\": {\"type\": \"bar_chart\", \"y_min\": 0, \"y_max\": 10, \"color\": \"#00ff00\"}}, \"signal\": {\"label\": \"Signal\", \"type_config\": {\"type\": \"line_chart\", \"y_min\": 0, \"y_max\": 10, \"color\": \"#0000ff\"}}, \"fill\": {\"label\": \"Fill\", \"type_config\": {\"type\": \"progress\", \"format\": \"%d\", \"min_value\": 0, \"max_value\": 100, \"step\": 1, \"color\": \"green\"}}, \"clip\": {\"label\": \"Clip\", \"type_config\": {\"type\": \"audio\"}}, \"reel\": {\"label\": \"Reel\", \"type_config\": {\"type\": \"video\"}}, \"act\": {\"label\": \"Act\", \"disabled\": true, \"type_config\": {\"type\": \"button\", \"button_type\": \"primary\"}}}",
+          "buttonClickWidgets": {
+           "act": "$$ID-32e694974f27b93aeac7bacfe8b42fa9-act"
+          }
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "arrow": {
+         "bytes": 5832,
+         "sha256": "34ea9e686d28f9a2ac4d98e9de4c66eeb7070542c42616d0c5220ea64964c90a",
+         "base64": "/////wAPAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAFAKAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAAoCgAABAAAABoKAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAibmFtZSIsICJmaWVsZF9uYW1lIjogIm5hbWUiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJ0aXRsZSIsICJmaWVsZF9uYW1lIjogInRpdGxlIiwgInBhbmRhc190eXBlIjogIm9iamVjdCIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAic2NvcmUiLCAiZmllbGRfbmFtZSI6ICJzY29yZSIsICJwYW5kYXNfdHlwZSI6ICJpbnQ2NCIsICJudW1weV90eXBlIjogImludDY0IiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJkb25lIiwgImZpZWxkX25hbWUiOiAiZG9uZSIsICJwYW5kYXNfdHlwZSI6ICJib29sIiwgIm51bXB5X3R5cGUiOiAiYm9vbCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAia2luZCIsICJmaWVsZF9uYW1lIjogImtpbmQiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJ0YWdzIiwgImZpZWxkX25hbWUiOiAidGFncyIsICJwYW5kYXNfdHlwZSI6ICJsaXN0W3VuaWNvZGVdIiwgIm51bXB5X3R5cGUiOiAib2JqZWN0IiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJkYXkiLCAiZmllbGRfbmFtZSI6ICJkYXkiLCAicGFuZGFzX3R5cGUiOiAiZGF0ZSIsICJudW1weV90eXBlIjogIm9iamVjdCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAibW9tZW50IiwgImZpZWxkX25hbWUiOiAibW9tZW50IiwgInBhbmRhc190eXBlIjogImRhdGV0aW1lIiwgIm51bXB5X3R5cGUiOiAiZGF0ZXRpbWU2NFt1c10iLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogImNsb2NrIiwgImZpZWxkX25hbWUiOiAiY2xvY2siLCAicGFuZGFzX3R5cGUiOiAidGltZSIsICJudW1weV90eXBlIjogIm9iamVjdCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAiaXRlbXMiLCAiZmllbGRfbmFtZSI6ICJpdGVtcyIsICJwYW5kYXNfdHlwZSI6ICJsaXN0W3VuaWNvZGVdIiwgIm51bXB5X3R5cGUiOiAib2JqZWN0IiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJwYXlsb2FkIiwgImZpZWxkX25hbWUiOiAicGF5bG9hZCIsICJwYW5kYXNfdHlwZSI6ICJvYmplY3QiLCAibnVtcHlfdHlwZSI6ICJvYmplY3QiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogIm5vdGVzIiwgImZpZWxkX25hbWUiOiAibm90ZXMiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJzaXRlIiwgImZpZWxkX25hbWUiOiAic2l0ZSIsICJwYW5kYXNfdHlwZSI6ICJvYmplY3QiLCAibnVtcHlfdHlwZSI6ICJzdHIiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogInBpYyIsICJmaWVsZF9uYW1lIjogInBpYyIsICJwYW5kYXNfdHlwZSI6ICJvYmplY3QiLCAibnVtcHlfdHlwZSI6ICJzdHIiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogInRyZW5kIiwgImZpZWxkX25hbWUiOiAidHJlbmQiLCAicGFuZGFzX3R5cGUiOiAiaW50NjQiLCAibnVtcHlfdHlwZSI6ICJpbnQ2NCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAiY291bnQiLCAiZmllbGRfbmFtZSI6ICJjb3VudCIsICJwYW5kYXNfdHlwZSI6ICJpbnQ2NCIsICJudW1weV90eXBlIjogImludDY0IiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJzaWduYWwiLCAiZmllbGRfbmFtZSI6ICJzaWduYWwiLCAicGFuZGFzX3R5cGUiOiAiaW50NjQiLCAibnVtcHlfdHlwZSI6ICJpbnQ2NCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAiZmlsbCIsICJmaWVsZF9uYW1lIjogImZpbGwiLCAicGFuZGFzX3R5cGUiOiAiaW50NjQiLCAibnVtcHlfdHlwZSI6ICJpbnQ2NCIsICJtZXRhZGF0YSI6IG51bGx9LCB7Im5hbWUiOiAiY2xpcCIsICJmaWVsZF9uYW1lIjogImNsaXAiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJyZWVsIiwgImZpZWxkX25hbWUiOiAicmVlbCIsICJwYW5kYXNfdHlwZSI6ICJvYmplY3QiLCAibnVtcHlfdHlwZSI6ICJzdHIiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogImFjdCIsICJmaWVsZF9uYW1lIjogImFjdCIsICJwYW5kYXNfdHlwZSI6ICJvYmplY3QiLCAibnVtcHlfdHlwZSI6ICJzdHIiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAYAAABwYW5kYXMAABUAAABQBAAA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",
+         "schema": "name: large_string\ntitle: large_string\nscore: int64\ndone: bool\nkind: large_string\ntags: list<item: string>\n  child 0, item: string\nday: date32[day]\nmoment: timestamp[us]\nclock: time64[us]\nitems: list<item: string>\n  child 0, item: string\npayload: struct<k: int64>\n  child 0, k: int64\nnotes: large_string\nsite: large_string\npic: large_string\ntrend: int64\ncount: int64\nsignal: int64\nfill: int64\nclip: large_string\nreel: large_string\nact: large_string\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 2522",
+         "columns": [
+          "name",
+          "title",
+          "score",
+          "done",
+          "kind",
+          "tags",
+          "day",
+          "moment",
+          "clock",
+          "items",
+          "payload",
+          "notes",
+          "site",
+          "pic",
+          "trend",
+          "count",
+          "signal",
+          "fill",
+          "clip",
+          "reel",
+          "act"
+         ],
+         "row_count": 2,
+         "rows": [
+          {
+           "name": "alpha",
+           "title": "Chief",
+           "score": 1,
+           "done": true,
+           "kind": "a",
+           "tags": [
+            "x"
+           ],
+           "day": "2025-01-02",
+           "moment": "2025-01-02 03:04:00",
+           "clock": "03:04:00",
+           "items": [
+            "a",
+            "b"
+           ],
+           "payload": {
+            "k": 1
+           },
+           "notes": "**bold**",
+           "site": "https://example.com",
+           "pic": "a",
+           "trend": 1,
+           "count": 3,
+           "signal": 5,
+           "fill": 50,
+           "clip": "c1",
+           "reel": "r1",
+           "act": "go"
+          },
+          {
+           "name": "beta",
+           "title": "Deputy",
+           "score": 2,
+           "done": false,
+           "kind": "b",
+           "tags": [
+            "y"
+           ],
+           "day": "2025-02-03",
+           "moment": "2025-02-03 04:05:00",
+           "clock": "04:05:00",
+           "items": [
+            "c"
+           ],
+           "payload": {
+            "k": 2
+           },
+           "notes": "plain",
+           "site": "https://example.org",
+           "pic": "b",
+           "trend": 2,
+           "count": 4,
+           "signal": 6,
+           "fill": 60,
+           "clip": "c2",
+           "reel": "r2",
+           "act": "stop"
+          }
+         ]
+        },
+        "arrow_fields": {
+         "columns": "{\"name\": {\"label\": \"Name\", \"width\": \"medium\", \"help\": \"the name\", \"pinned\": true, \"alignment\": \"center\"}, \"title\": {\"label\": \"Title\", \"default\": \"hi\", \"type_config\": {\"type\": \"text\", \"max_chars\": 10, \"validate\": \"^h\"}}, \"score\": {\"label\": \"Score\", \"default\": 1, \"type_config\": {\"type\": \"number\", \"min_value\": 0, \"max_value\": 10, \"format\": \"%d\", \"step\": 1}}, \"done\": {\"label\": \"Done\", \"default\": true, \"type_config\": {\"type\": \"checkbox\"}}, \"kind\": {\"label\": \"Kind\", \"default\": \"a\", \"type_config\": {\"type\": \"selectbox\", \"options\": [\"a\", \"b\"]}}, \"tags\": {\"label\": \"Tags\", \"default\": [\"x\"], \"type_config\": {\"type\": \"multiselect\", \"options\": [{\"value\": \"x\"}, {\"value\": \"y\"}], \"accept_new_options\": true}}, \"day\": {\"label\": \"Day\", \"default\": \"2025-01-02\", \"type_config\": {\"type\": \"date\", \"format\": \"YYYY/MM/DD\", \"min_value\": \"2024-01-01\", \"max_value\": \"2026-01-01\", \"step\": 1}}, \"moment\": {\"label\": \"Moment\", \"default\": \"2025-01-02T03:04:00\", \"type_config\": {\"type\": \"datetime\", \"format\": \"YYYY/MM/DD HH:mm\", \"min_value\": \"2024-01-01T00:00:00\", \"max_value\": \"2026-01-01T00:00:00\", \"step\": 60, \"timezone\": \"UTC\"}}, \"clock\": {\"label\": \"Clock\", \"default\": \"03:04:00\", \"type_config\": {\"type\": \"time\", \"format\": \"HH:mm\", \"min_value\": \"01:00:00\", \"max_value\": \"23:00:00\", \"step\": 60}}, \"items\": {\"label\": \"Items\", \"default\": [\"a\"], \"type_config\": {\"type\": \"list\"}}, \"payload\": {\"label\": \"Payload\", \"type_config\": {\"type\": \"json\"}}, \"notes\": {\"label\": \"Notes\", \"default\": \"**bold**\", \"type_config\": {\"type\": \"markdown\"}}, \"site\": {\"label\": \"Site\", \"default\": \"https://example.com\", \"type_config\": {\"type\": \"link\", \"max_chars\": 40, \"validate\": \"^https\", \"display_text\": \"open\"}}, \"pic\": {\"label\": \"Pic\", \"type_config\": {\"type\": \"image\"}}, \"trend\": {\"label\": \"Trend\", \"type_config\": {\"type\": \"area_chart\", \"y_min\": 0, \"y_max\": 10, \"color\": \"#ff0000\"}}, \"count\": {\"label\": \"Count\", \"type_config\": {\"type\": \"bar_chart\", \"y_min\": 0, \"y_max\": 10, \"color\": \"#00ff00\"}}, \"signal\": {\"label\": \"Signal\", \"type_config\": {\"type\": \"line_chart\", \"y_min\": 0, \"y_max\": 10, \"color\": \"#0000ff\"}}, \"fill\": {\"label\": \"Fill\", \"type_config\": {\"type\": \"progress\", \"format\": \"%d\", \"min_value\": 0, \"max_value\": 100, \"step\": 1, \"color\": \"green\"}}, \"clip\": {\"label\": \"Clip\", \"type_config\": {\"type\": \"audio\"}}, \"reel\": {\"label\": \"Reel\", \"type_config\": {\"type\": \"video\"}}, \"act\": {\"label\": \"Act\", \"disabled\": true, \"type_config\": {\"type\": \"button\", \"button_type\": \"primary\"}}}",
+         "editing_mode": 0,
+         "disabled": false,
+         "row_height": 0
+        },
+        "id": "",
+        "form_id": "",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 6422.282355,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "dataframe",
+        "element_full": {
+         "dataframe": {
+          "arrowData": {
+           "data": "/////2gCAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAPABAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAADIAQAABAAAALkBAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAicXR5IiwgImZpZWxkX25hbWUiOiAicXR5IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAABAAAAFAAAABAAFAAIAAYABwAMAAAAEAAQAAAAAAABAhAAAAAcAAAABAAAAAAAAAADAAAAcXR5AAgADAAIAAcACAAAAAAAAAFAAAAA/////4gAAAAUAAAAAAAAAAwAFgAGAAUACAAMAAwAAAAAAwQAGAAAABAAAAAAAAAAAAAKABgADAAEAAgACgAAADwAAAAQAAAAAgAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAEAAAACAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAP////8AAAAA"
+          },
+          "id": "$$ID-1ef54a566c5c80d6e543cc1e5d569d40-editor",
+          "columns": "{\"_index\": {\"hidden\": true}}",
+          "editingMode": "DYNAMIC"
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "arrow": {
+         "bytes": 792,
+         "sha256": "7e1d86a21f3561aef43ad24bd7af497c601cbe237490e0450e10ffad29bac18c",
+         "base64": "/////2gCAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAPABAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAADIAQAABAAAALkBAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAicXR5IiwgImZpZWxkX25hbWUiOiAicXR5IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAABAAAAFAAAABAAFAAIAAYABwAMAAAAEAAQAAAAAAABAhAAAAAcAAAABAAAAAAAAAADAAAAcXR5AAgADAAIAAcACAAAAAAAAAFAAAAA/////4gAAAAUAAAAAAAAAAwAFgAGAAUACAAMAAwAAAAAAwQAGAAAABAAAAAAAAAAAAAKABgADAAEAAgACgAAADwAAAAQAAAAAgAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAEAAAACAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAP////8AAAAA",
+         "schema": "qty: int64\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 377",
+         "columns": [
+          "qty"
+         ],
+         "row_count": 2,
+         "rows": [
+          {
+           "qty": 1
+          },
+          {
+           "qty": 2
+          }
+         ]
+        },
+        "arrow_fields": {
+         "id": "$$ID-1ef54a566c5c80d6e543cc1e5d569d40-editor",
+         "columns": "{\"_index\": {\"hidden\": true}}",
+         "editing_mode": 2,
+         "disabled": false,
+         "row_height": 0
+        },
+        "id": "$$ID-1ef54a566c5c80d6e543cc1e5d569d40-editor",
+        "form_id": "",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 6422.308435,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "element_full": {
+         "markdown": {
+          "body": "edits=(2, 1)",
+          "elementType": "NATIVE",
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "edits=(2, 1)",
+        "path": [
+         0,
+         2
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 6422.308759,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 6422.308919,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "http": [],
+    "dom": {
+     "grids": 2,
+     "headers": [],
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "01-load.png",
+     "sha256": "41be4f024ae000186629590eb4b377889d6a1f22cec6f25b23651ee553578b42"
+    }
+   }
+  ],
+  "ipc_dir": "D:\\dlab\\streamlit-rust\\target\\colconfig-python"
+ },
+ "counts": {
+  "expected": 7,
+  "executed": 7,
+  "asserted": 7
+ },
+ "failures": []
+}

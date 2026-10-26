@@ -584,8 +584,41 @@ st.echarts_chart(json!({"series": [...]}));        // compact-separator option o
 
 The chart-building libraries (altair, plotly, pydeck, graphviz) are Python-only: every Rust surface takes the final payload the reference produced and streams it through the same element. The [chartlibs example](../../streamlit/examples/chartlibs.rs) mirrors the reference fixture of the chartlibs differential chain.
 
+## Column config and the data editor
+
+```rust
+use streamlit::column_config as cc;
+
+let configs = ColumnConfigs::new()
+    .add("name", cc::column(ColumnBase::new(Some("Name")).width("medium").help("the name").pinned(true).alignment("center")))
+    .add("score", cc::number_column(ColumnBase::new(Some("Score")),
+                                     Some(json!(1)), Some("%d"), Some(json!(0)), Some(json!(10)), Some(json!(1))))
+    .add("act", cc::button_column(ColumnBase::new(Some("Act")), Some("primary"), Some("act")));
+st.dataframe(DataframeOptions::new(&batch).column_config(configs))?; // one columns JSON string
+
+let edits = st.data_editor(DataEditorOptions::new(&qty).num_rows(EditorRows::Dynamic)
+    .key("editor"))?;                                               // hidden _index, editing_mode 2, edits state
+```
+
+Every helper builds the exact JSON the reference's `ColumnConfig`/`type_config` produces (only the fields you set appear; the number column's `min_value, max_value, format, step` order is fixed). A `button_column`'s key never serializes into the columns JSON — it names one one-shot click widget stamped on the dataframe proto's `buttonClickWidgets`. The [colconfig example](../../streamlit/examples/colconfig.rs) mirrors the reference fixture of the colconfig differential chain.
+
+## Custom components v2
+
+```rust
+let widget = ComponentV2::new("greeting")
+    .html("<label for='txt'>Enter text</label><input id='txt' type='text' />")
+    .css("label { color: red; }")
+    .js("export default function(component) { ... }");
+let state = st.component_v2(&widget, ComponentMount::new()
+    .key("greeter")
+    .data(json!({"label": "Name"}))
+    .default_state(json!({"value": "hi"})))?;   // the default state object back
+```
+
+`st.components.v2.component` in 1.66.1 takes inline trusted HTML/CSS/JS strings (not a hosted bundle); mounting streams a `bidi_component` element carrying the instance's widget id, the content strings and the JSON payload, and registers the whole state object as one `json_value` widget. The component's JavaScript callbacks (`on_<event>_change`) are Python-only and not part of the Rust surface. The [componentv2 example](../../streamlit/examples/componentv2.rs) mirrors the reference fixture of the componentv2 differential chain.
+
 ## Current API
 
-Available APIs include text and layout, static status messages, the text family (`text`/`sub_header`/`latex`/`html`/`iframe` embeds and the `snow` one-shot, plus `echo` and `exception`), the display containers (`json`/`status`/`empty`/`space`/`bottom`), the chat elements (`chat_message`/`chat_input`), `button` and the button family (`toggle`/`feedback`/`pills`/`segmented_control`/`pagination`/`menu_button`/`download_button`/`link_button`/`page_link`), the picker inputs (`date_input`/`time_input`/`datetime_input`/`color_picker`/`select_slider`/`audio_input`/`camera_input`), the presentation leftovers (`logo`/`help`/`skeleton`/`pdf`), `write_stream` (with or without a cursor), the library charts (`altair_chart`/`vega_lite_chart`/`plotly_chart`/`pydeck_chart`/`graphviz_chart`/`mermaid_chart`/`echarts_chart` over final payloads), `selectbox` (including creation mode, filter modes and query binding), numeric and date/time `slider`, `checkbox`, the measured `form`/`form_submit_button`/`text_input` core, native session state, the layout containers (sidebar, expander, tabs, popover, dialog), `set_page_config`, `query_params`, `cache_data`/`cache_resource`, multipage navigation (`navigation`/`Page`/`switch_page`), media and chart elements, and the `st.rerun`/`st.stop` execution controls. See the [text/layout/status API](../../streamlit/src/api.rs), [text element implementations](../../streamlit/src/elements/text.rs), [layout containers](../../streamlit/src/elements/layouts.rs), [widget options](../../streamlit/src/widget_api.rs), [query params](../../streamlit/src/query_params.rs), [cache](../../streamlit/src/cache.rs), [navigation](../../streamlit/src/navigation.rs), and [session API](../../streamlit/src/session.rs).
+Available APIs include text and layout, static status messages, the text family (`text`/`sub_header`/`latex`/`html`/`iframe` embeds and the `snow` one-shot, plus `echo` and `exception`), the display containers (`json`/`status`/`empty`/`space`/`bottom`), the chat elements (`chat_message`/`chat_input`), `button` and the button family (`toggle`/`feedback`/`pills`/`segmented_control`/`pagination`/`menu_button`/`download_button`/`link_button`/`page_link`), the picker inputs (`date_input`/`time_input`/`datetime_input`/`color_picker`/`select_slider`/`audio_input`/`camera_input`), the presentation leftovers (`logo`/`help`/`skeleton`/`pdf`), `write_stream` (with or without a cursor), the library charts (`altair_chart`/`vega_lite_chart`/`plotly_chart`/`pydeck_chart`/`graphviz_chart`/`mermaid_chart`/`echarts_chart` over final payloads), the column-config helpers and the data editor (`column_config`/`dataframe`/`data_editor`), custom components v2 (`component_v2`), `selectbox` (including creation mode, filter modes and query binding), numeric and date/time `slider`, `checkbox`, the measured `form`/`form_submit_button`/`text_input` core, native session state, the layout containers (sidebar, expander, tabs, popover, dialog), `set_page_config`, `query_params`, `cache_data`/`cache_resource`, multipage navigation (`navigation`/`Page`/`switch_page`), media and chart elements, and the `st.rerun`/`st.stop` execution controls. See the [text/layout/status API](../../streamlit/src/api.rs), [text element implementations](../../streamlit/src/elements/text.rs), [layout containers](../../streamlit/src/elements/layouts.rs), [column config](../../streamlit/src/column_config.rs), [components v2](../../streamlit/src/elements/components.rs), [widget options](../../streamlit/src/widget_api.rs), [query params](../../streamlit/src/query_params.rs), [cache](../../streamlit/src/cache.rs), [navigation](../../streamlit/src/navigation.rs), and [session API](../../streamlit/src/session.rs).
 
-Upload and columnar data views currently cover the limited paths described above. General table/chart APIs, selection, complete forms/text-input behavior, persistent hidden widgets, and most other input widgets remain incomplete or absent (`st.quit` does not exist in 1.66.1; the Rust cache is session-scoped, not process-wide like Python's). Duplicate widget keys render the framework exception box as described above; other widget failures are Rust `Result` errors you handle yourself. Native session values, reruns, retained-session reconnects, synchronous callbacks, explicit widget keys and one-shot button triggers are available, without a claim of complete Streamlit compatibility.
+Every matrix row is now either measured (with per-chain evidence links in [the matrix](../../../compatibility/api-compatibility-matrix.json)) or closed `not_applicable` with a recorded reason (Python hosting surfaces, Python-only libraries, deliberate divergences). Per-surface scope stays partial where only the measured defaults are pinned — read each row's `compatibility_scope` and `limitations` for the exact boundary (`st.quit` does not exist in 1.66.1; the Rust cache is session-scoped, not process-wide like Python's). Duplicate widget keys render the framework exception box as described above; other widget failures are Rust `Result` errors you handle yourself.

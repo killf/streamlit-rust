@@ -25,7 +25,7 @@
     "new_frames": [
      {
       "direction": "client->server",
-      "timestamp": 31260.336478,
+      "timestamp": 12123.423953,
       "summary": {
        "message": "BackMsg",
        "type": "rerun_script",
@@ -36,23 +36,23 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 31260.338723,
+      "timestamp": 12123.426301,
       "summary": {
        "message": "ForwardMsg",
        "type": "new_session",
        "new_session": {
-        "script_run_id": "745e722b-e7d5-45f7-baa6-ef2ad7d8117c",
+        "script_run_id": "78037fee-2830-4be1-b8ca-7890961900c6",
         "name": "Streamlit Rust",
         "main_script_path": "",
         "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
         "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
-        "session_id": "677b696d-d347-4002-97f0-1f4d821daf13"
+        "session_id": "1d91adea-04d2-4e43-a2b1-0caef3c28ec6"
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31260.33997,
+      "timestamp": 12123.427799,
       "summary": {
        "message": "ForwardMsg",
        "type": "session_status_changed",
@@ -64,227 +64,500 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 31260.344334,
+      "timestamp": 12123.432423,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
        "delta": {
         "type": "add_block",
         "block_id": "main_container",
-        "block_type": "vertical"
+        "block_type": "vertical",
+        "block": {
+         "vertical": {},
+         "id": "main_container"
+        },
+        "path": [
+         0
+        ]
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31260.344624,
+      "timestamp": 12123.432703,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
        "delta": {
         "type": "new_element",
         "element": "heading",
-        "body": "Elements parity title"
+        "element_full": {
+         "heading": {
+          "tag": "h1",
+          "body": "Elements parity title",
+          "wrap": true
+         },
+         "widthConfig": {
+          "useStretch": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "Elements parity title",
+        "path": [
+         0,
+         0
+        ]
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31260.344923,
+      "timestamp": 12123.433009,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
        "delta": {
         "type": "new_element",
         "element": "heading",
-        "body": "Header level"
+        "element_full": {
+         "heading": {
+          "tag": "h2",
+          "body": "Header level",
+          "wrap": true
+         },
+         "widthConfig": {
+          "useStretch": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "Header level",
+        "path": [
+         0,
+         1
+        ]
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31260.344959,
+      "timestamp": 12123.433046,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
        "delta": {
         "type": "new_element",
         "element": "markdown",
-        "body": "A caption line"
+        "element_full": {
+         "markdown": {
+          "body": "A caption line",
+          "elementType": "CAPTION",
+          "wrap": true
+         },
+         "widthConfig": {
+          "useStretch": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "A caption line",
+        "path": [
+         0,
+         2
+        ]
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31260.345035,
+      "timestamp": 12123.433124,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
        "delta": {
         "type": "new_element",
         "element": "markdown",
-        "body": ":blue-badge[BETA]"
+        "element_full": {
+         "markdown": {
+          "body": ":blue-badge[BETA]",
+          "elementType": "NATIVE",
+          "wrap": true
+         },
+         "widthConfig": {
+          "useContent": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": ":blue-badge[BETA]",
+        "path": [
+         0,
+         3
+        ]
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31260.345069,
+      "timestamp": 12123.433159,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
        "delta": {
         "type": "new_element",
         "element": "markdown",
-        "body": "---"
+        "element_full": {
+         "markdown": {
+          "body": "---",
+          "elementType": "DIVIDER",
+          "wrap": true
+         },
+         "widthConfig": {
+          "useStretch": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "---",
+        "path": [
+         0,
+         4
+        ]
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31260.345101,
+      "timestamp": 12123.433186,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
        "delta": {
         "type": "new_element",
-        "element": "code"
+        "element": "code",
+        "element_full": {
+         "code": {
+          "codeText": "print('hello')",
+          "language": "python"
+         },
+         "heightConfig": {
+          "useContent": true
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "path": [
+         0,
+         5
+        ]
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31260.345222,
+      "timestamp": 12123.433305,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
        "delta": {
         "type": "new_element",
         "element": "markdown",
-        "body": "**bold** and `inline`"
+        "element_full": {
+         "markdown": {
+          "body": "**bold** and `inline`",
+          "elementType": "NATIVE",
+          "wrap": true
+         },
+         "widthConfig": {
+          "useStretch": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "**bold** and `inline`",
+        "path": [
+         0,
+         6
+        ]
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31260.345265,
+      "timestamp": 12123.433348,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
        "delta": {
         "type": "new_element",
         "element": "markdown",
-        "body": "plain write"
+        "element_full": {
+         "markdown": {
+          "body": "plain write",
+          "elementType": "NATIVE",
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "plain write",
+        "path": [
+         0,
+         7
+        ]
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31260.345298,
+      "timestamp": 12123.433391,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
        "delta": {
         "type": "add_block",
         "block_id": "",
-        "block_type": "flex_container"
+        "block_type": "flex_container",
+        "block": {
+         "allowEmpty": true,
+         "flexContainer": {
+          "gapConfig": {
+           "gapSize": "SMALL"
+          },
+          "direction": "HORIZONTAL",
+          "justify": "JUSTIFY_START",
+          "align": "ALIGN_START"
+         }
+        },
+        "path": [
+         0,
+         8
+        ]
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31260.3454,
+      "timestamp": 12123.433501,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
        "delta": {
         "type": "add_block",
         "block_id": "",
-        "block_type": "column"
+        "block_type": "column",
+        "block": {
+         "column": {
+          "weight": 0.5,
+          "gapConfig": {
+           "gapSize": "SMALL"
+          }
+         },
+         "allowEmpty": true,
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "path": [
+         0,
+         8,
+         0
+        ]
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31260.345479,
+      "timestamp": 12123.433581,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
        "delta": {
         "type": "add_block",
         "block_id": "",
-        "block_type": "column"
+        "block_type": "column",
+        "block": {
+         "column": {
+          "weight": 0.5,
+          "gapConfig": {
+           "gapSize": "SMALL"
+          }
+         },
+         "allowEmpty": true,
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "path": [
+         0,
+         8,
+         1
+        ]
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31260.345502,
+      "timestamp": 12123.433605,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
        "delta": {
         "type": "new_element",
         "element": "markdown",
-        "body": "left column"
+        "element_full": {
+         "markdown": {
+          "body": "left column",
+          "elementType": "NATIVE",
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "left column",
+        "path": [
+         0,
+         8,
+         0,
+         0
+        ]
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31260.345516,
+      "timestamp": 12123.433625,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
        "delta": {
         "type": "new_element",
         "element": "markdown",
-        "body": "right column"
+        "element_full": {
+         "markdown": {
+          "body": "right column",
+          "elementType": "NATIVE",
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "right column",
+        "path": [
+         0,
+         8,
+         1,
+         0
+        ]
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31260.345532,
+      "timestamp": 12123.433641,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
        "delta": {
         "type": "add_block",
         "block_id": "",
-        "block_type": "flex_container"
+        "block_type": "flex_container",
+        "block": {
+         "allowEmpty": true,
+         "flexContainer": {
+          "gapConfig": {
+           "gapSize": "SMALL"
+          },
+          "direction": "VERTICAL",
+          "justify": "JUSTIFY_START",
+          "align": "ALIGN_START"
+         },
+         "heightConfig": {
+          "useContent": true
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "path": [
+         0,
+         9
+        ]
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31260.345554,
+      "timestamp": 12123.433665,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
        "delta": {
         "type": "new_element",
         "element": "markdown",
-        "body": "inside container"
+        "element_full": {
+         "markdown": {
+          "body": "inside container",
+          "elementType": "NATIVE",
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "inside container",
+        "path": [
+         0,
+         9,
+         0
+        ]
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31260.345568,
+      "timestamp": 12123.433682,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
        "delta": {
         "type": "add_block",
         "block_id": "",
-        "block_type": "form"
+        "block_type": "form",
+        "block": {
+         "form": {
+          "formId": "note_form",
+          "border": true,
+          "enterToSubmit": true
+         },
+         "heightConfig": {
+          "useContent": true
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "path": [
+         0,
+         10
+        ]
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31260.345624,
+      "timestamp": 12123.43374,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
@@ -303,13 +576,18 @@
         "accepted_types": [
          "0"
         ],
-        "form_id": "note_form"
+        "form_id": "note_form",
+        "path": [
+         0,
+         10,
+         0
+        ]
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31260.345736,
+      "timestamp": 12123.433864,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
@@ -328,26 +606,45 @@
         "accepted_types": [
          "secondary"
         ],
-        "form_id": "note_form"
+        "form_id": "note_form",
+        "path": [
+         0,
+         10,
+         1
+        ]
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31260.345809,
+      "timestamp": 12123.433935,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
        "delta": {
         "type": "new_element",
         "element": "markdown",
-        "body": "form: note='hello' submitted=False"
+        "element_full": {
+         "markdown": {
+          "body": "form: note='hello' submitted=False",
+          "elementType": "NATIVE",
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "form: note='hello' submitted=False",
+        "path": [
+         0,
+         11
+        ]
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31260.345827,
+      "timestamp": 12123.433955,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
@@ -393,13 +690,17 @@
          "border_mode": 0,
          "hide_index": true,
          "hide_header": false
-        }
+        },
+        "path": [
+         0,
+         12
+        ]
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31260.345931,
+      "timestamp": 12123.434061,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
@@ -408,12 +709,12 @@
         "element": "vega_lite_chart",
         "element_full": {
          "vegaLiteChart": {
-          "spec": "{\"$schema\":\"https://vega.github.io/schema/vega-lite/v5.20.1.json\",\"autosize\":{\"contains\":\"padding\",\"type\":\"fit\"},\"data\":{\"name\":\"e30b1137747023571e6ae78a59b3ee23\"},\"encoding\":{\"x\":{\"field\":\"kind\",\"type\":\"ordinal\"},\"y\":{\"axis\":{\"grid\":true,\"tickMinStep\":1},\"field\":\"count\",\"type\":\"quantitative\"}},\"mark\":{\"type\":\"bar\"}}",
+          "spec": "{\"data\":{\"name\":\"d80c8d000e4041c3fb3e20013a6aa715\"},\"mark\":{\"type\":\"bar\"},\"encoding\":{\"x\":{\"field\":\"kind\",\"type\":\"ordinal\"},\"y\":{\"field\":\"count\",\"type\":\"quantitative\",\"axis\":{\"grid\":true,\"tickMinStep\":1}}},\"$schema\":\"https://vega.github.io/schema/vega-lite/v5.20.1.json\",\"autosize\":{\"type\":\"fit\",\"contains\":\"padding\"}}",
           "datasets": [
            {
-            "name": "e30b1137747023571e6ae78a59b3ee23",
+            "name": "d80c8d000e4041c3fb3e20013a6aa715",
             "data": {
-             "data": "/////7gAAAAQAAAAAAAKAAwACgAJAAQACgAAABAAAAAAAQQACAAIAAAABAAIAAAABAAAAAIAAABQAAAABAAAAMj///8YAAAAIAAAAAAAAAIcAAAACAAMAAQACwAIAAAAQAAAAAAAAAEAAAAABQAAAGNvdW50AAAAEAAUABAAAAAPAAQAAAAIABAAAAAYAAAADAAAAAAAAAUQAAAAAAAAAAQABAAEAAAABAAAAGtpbmQAAAAAAAAAAAAAAAAAAAAA//////gAAAAQAAAADAAaABgAFwAEAAgADAAAACAAAABAAQAAAAAAAAAAAAAAAAADBAAKABgADAAIAAQACgAAADwAAAAQAAAAAgAAAAAAAAAAAAAAAgAAAAIAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAAAAAAAAEAAAAAAAAAQAAAAAAAAAAMAAAAAAAAAIAAAAAAAAAAAgAAAAAAAADAAAAAAAAAAAEAAAAAAAAAAAEAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYWIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/////wAAAAA="
+             "data": "/////zgDAAAQAAAAAAAKAA4ADAALAAQACgAAABQAAAAAAAABBAAKAAwAAAAIAAQACgAAAAgAAABYAgAAAQAAAAwAAAAIAAwACAAEAAgAAAAIAAAAMAIAACUCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAia2luZCIsICJmaWVsZF9uYW1lIjogImtpbmQiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJjb3VudCIsICJmaWVsZF9uYW1lIjogImNvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAACAAAAUAAAAAQAAADI////GAAAACAAAAAAAAACHAAAAAgADAAEAAsACAAAAEAAAAAAAAABAAAAAAUAAABjb3VudAAAABAAFAAQAAAADwAEAAAACAAQAAAAGAAAAAwAAAAAAAAUEAAAAAAAAAAEAAQABAAAAAQAAABraW5kAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/////4AAAAEAAAAAwAGgAYABcABAAIAAwAAAAgAAAAQAEAAAAAAAAAAAAAAAAAAwQACgAYAAwACAAEAAoAAAA8AAAAEAAAAAIAAAAAAAAAAAAAAAIAAAACAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAGAAAAAAAAACAAAAAAAAAAAIAAAAAAAAAwAAAAAAAAAABAAAAAAAAAAABAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGFiAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA"
             },
             "hasName": true
            }
@@ -427,15 +728,13 @@
           "useStretch": true
          }
         },
-        "vega_lite_spec_raw": "{\"$schema\":\"https://vega.github.io/schema/vega-lite/v5.20.1.json\",\"autosize\":{\"contains\":\"padding\",\"type\":\"fit\"},\"data\":{\"name\":\"e30b1137747023571e6ae78a59b3ee23\"},\"encoding\":{\"x\":{\"field\":\"kind\",\"type\":\"ordinal\"},\"y\":{\"axis\":{\"grid\":true,\"tickMinStep\":1},\"field\":\"count\",\"type\":\"quantitative\"}},\"mark\":{\"type\":\"bar\"}}",
+        "vega_lite_spec_raw": "{\"data\":{\"name\":\"d80c8d000e4041c3fb3e20013a6aa715\"},\"mark\":{\"type\":\"bar\"},\"encoding\":{\"x\":{\"field\":\"kind\",\"type\":\"ordinal\"},\"y\":{\"field\":\"count\",\"type\":\"quantitative\",\"axis\":{\"grid\":true,\"tickMinStep\":1}}},\"$schema\":\"https://vega.github.io/schema/vega-lite/v5.20.1.json\",\"autosize\":{\"type\":\"fit\",\"contains\":\"padding\"}}",
         "vega_lite_spec": {
-         "$schema": "https://vega.github.io/schema/vega-lite/v5.20.1.json",
-         "autosize": {
-          "contains": "padding",
-          "type": "fit"
-         },
          "data": {
-          "name": "e30b1137747023571e6ae78a59b3ee23"
+          "name": "d80c8d000e4041c3fb3e20013a6aa715"
+         },
+         "mark": {
+          "type": "bar"
          },
          "encoding": {
           "x": {
@@ -443,27 +742,29 @@
            "type": "ordinal"
           },
           "y": {
+           "field": "count",
+           "type": "quantitative",
            "axis": {
             "grid": true,
             "tickMinStep": 1
-           },
-           "field": "count",
-           "type": "quantitative"
+           }
           }
          },
-         "mark": {
-          "type": "bar"
+         "$schema": "https://vega.github.io/schema/vega-lite/v5.20.1.json",
+         "autosize": {
+          "type": "fit",
+          "contains": "padding"
          }
         },
         "vega_lite_datasets": [
          {
-          "name": "e30b1137747023571e6ae78a59b3ee23",
+          "name": "d80c8d000e4041c3fb3e20013a6aa715",
           "has_name": true,
           "arrow": {
-           "bytes": 776,
-           "sha256": "f664fd9ce36de431b066287b534f849310c45f42100a9ceb4ed102233f32772c",
-           "base64": "/////7gAAAAQAAAAAAAKAAwACgAJAAQACgAAABAAAAAAAQQACAAIAAAABAAIAAAABAAAAAIAAABQAAAABAAAAMj///8YAAAAIAAAAAAAAAIcAAAACAAMAAQACwAIAAAAQAAAAAAAAAEAAAAABQAAAGNvdW50AAAAEAAUABAAAAAPAAQAAAAIABAAAAAYAAAADAAAAAAAAAUQAAAAAAAAAAQABAAEAAAABAAAAGtpbmQAAAAAAAAAAAAAAAAAAAAA//////gAAAAQAAAADAAaABgAFwAEAAgADAAAACAAAABAAQAAAAAAAAAAAAAAAAADBAAKABgADAAIAAQACgAAADwAAAAQAAAAAgAAAAAAAAAAAAAAAgAAAAIAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAAAAAAAAEAAAAAAAAAQAAAAAAAAAAMAAAAAAAAAIAAAAAAAAAAAgAAAAAAAADAAAAAAAAAAAEAAAAAAAAAAAEAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYWIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/////wAAAAA=",
-           "schema": "kind: string not null\ncount: int64 not null",
+           "bytes": 1416,
+           "sha256": "3a5308f9d7039554283a1a5b20e321cd1b83d0cdf9f3a1da47006c00ed748c76",
+           "base64": "/////zgDAAAQAAAAAAAKAA4ADAALAAQACgAAABQAAAAAAAABBAAKAAwAAAAIAAQACgAAAAgAAABYAgAAAQAAAAwAAAAIAAwACAAEAAgAAAAIAAAAMAIAACUCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAia2luZCIsICJmaWVsZF9uYW1lIjogImtpbmQiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJjb3VudCIsICJmaWVsZF9uYW1lIjogImNvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAACAAAAUAAAAAQAAADI////GAAAACAAAAAAAAACHAAAAAgADAAEAAsACAAAAEAAAAAAAAABAAAAAAUAAABjb3VudAAAABAAFAAQAAAADwAEAAAACAAQAAAAGAAAAAwAAAAAAAAUEAAAAAAAAAAEAAQABAAAAAQAAABraW5kAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/////4AAAAEAAAAAwAGgAYABcABAAIAAwAAAAgAAAAQAEAAAAAAAAAAAAAAAAAAwQACgAYAAwACAAEAAoAAAA8AAAAEAAAAAIAAAAAAAAAAAAAAAIAAAACAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAGAAAAAAAAACAAAAAAAAAAAIAAAAAAAAAwAAAAAAAAAABAAAAAAAAAAABAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGFiAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA",
+           "schema": "kind: large_string not null\ncount: int64 not null\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 485",
            "columns": [
             "kind",
             "count"
@@ -489,13 +790,17 @@
          "form_id": ""
         },
         "id": "",
-        "form_id": ""
+        "form_id": "",
+        "path": [
+         0,
+         13
+        ]
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31260.34605,
+      "timestamp": 12123.43418,
       "summary": {
        "message": "ForwardMsg",
        "type": "script_finished",
@@ -507,7 +812,7 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 31260.346143,
+      "timestamp": 12123.434267,
       "summary": {
        "message": "ForwardMsg",
        "type": "session_status_changed",
@@ -639,7 +944,7 @@
     },
     "screenshot": {
      "file": "01-load.png",
-     "sha256": "b8009163687da768cf2421e32da636f018964f35da6bda5bb43b325c7daf40c9"
+     "sha256": "30788c1021837351142029932aa0506b66d149decadf452e4c769a6194fbfacc"
     }
    },
    {
@@ -648,7 +953,7 @@
     "new_frames": [
      {
       "direction": "client->server",
-      "timestamp": 31264.171182,
+      "timestamp": 12128.373044,
       "summary": {
        "message": "BackMsg",
        "type": "rerun_script",
@@ -664,29 +969,30 @@
           "value_field": "trigger_value",
           "value": true
          }
-        ]
+        ],
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31264.229767,
+      "timestamp": 12128.388979,
       "summary": {
        "message": "ForwardMsg",
        "type": "new_session",
        "new_session": {
-        "script_run_id": "eb75a1d7-40fb-401e-ae92-5645525535c1",
+        "script_run_id": "85eeec51-7e53-4f15-8462-b8b8d8acfa60",
         "name": "Streamlit Rust",
         "main_script_path": "",
         "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
         "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
-        "session_id": "677b696d-d347-4002-97f0-1f4d821daf13"
+        "session_id": "1d91adea-04d2-4e43-a2b1-0caef3c28ec6"
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31264.233582,
+      "timestamp": 12128.391108,
       "summary": {
        "message": "ForwardMsg",
        "type": "session_status_changed",
@@ -698,227 +1004,500 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 31264.233719,
+      "timestamp": 12128.391195,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
        "delta": {
         "type": "add_block",
         "block_id": "main_container",
-        "block_type": "vertical"
+        "block_type": "vertical",
+        "block": {
+         "vertical": {},
+         "id": "main_container"
+        },
+        "path": [
+         0
+        ]
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31264.233808,
+      "timestamp": 12128.391268,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
        "delta": {
         "type": "new_element",
         "element": "heading",
-        "body": "Elements parity title"
+        "element_full": {
+         "heading": {
+          "tag": "h1",
+          "body": "Elements parity title",
+          "wrap": true
+         },
+         "widthConfig": {
+          "useStretch": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "Elements parity title",
+        "path": [
+         0,
+         0
+        ]
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31264.233936,
+      "timestamp": 12128.391355,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
        "delta": {
         "type": "new_element",
         "element": "heading",
-        "body": "Header level"
+        "element_full": {
+         "heading": {
+          "tag": "h2",
+          "body": "Header level",
+          "wrap": true
+         },
+         "widthConfig": {
+          "useStretch": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "Header level",
+        "path": [
+         0,
+         1
+        ]
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31264.234078,
+      "timestamp": 12128.391401,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
        "delta": {
         "type": "new_element",
         "element": "markdown",
-        "body": "A caption line"
+        "element_full": {
+         "markdown": {
+          "body": "A caption line",
+          "elementType": "CAPTION",
+          "wrap": true
+         },
+         "widthConfig": {
+          "useStretch": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "A caption line",
+        "path": [
+         0,
+         2
+        ]
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31264.234155,
+      "timestamp": 12128.391434,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
        "delta": {
         "type": "new_element",
         "element": "markdown",
-        "body": ":blue-badge[BETA]"
+        "element_full": {
+         "markdown": {
+          "body": ":blue-badge[BETA]",
+          "elementType": "NATIVE",
+          "wrap": true
+         },
+         "widthConfig": {
+          "useContent": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": ":blue-badge[BETA]",
+        "path": [
+         0,
+         3
+        ]
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31264.234238,
+      "timestamp": 12128.391461,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
        "delta": {
         "type": "new_element",
         "element": "markdown",
-        "body": "---"
+        "element_full": {
+         "markdown": {
+          "body": "---",
+          "elementType": "DIVIDER",
+          "wrap": true
+         },
+         "widthConfig": {
+          "useStretch": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "---",
+        "path": [
+         0,
+         4
+        ]
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31264.234278,
+      "timestamp": 12128.391487,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
        "delta": {
         "type": "new_element",
-        "element": "code"
+        "element": "code",
+        "element_full": {
+         "code": {
+          "codeText": "print('hello')",
+          "language": "python"
+         },
+         "heightConfig": {
+          "useContent": true
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "path": [
+         0,
+         5
+        ]
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31264.23444,
+      "timestamp": 12128.391525,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
        "delta": {
         "type": "new_element",
         "element": "markdown",
-        "body": "**bold** and `inline`"
+        "element_full": {
+         "markdown": {
+          "body": "**bold** and `inline`",
+          "elementType": "NATIVE",
+          "wrap": true
+         },
+         "widthConfig": {
+          "useStretch": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "**bold** and `inline`",
+        "path": [
+         0,
+         6
+        ]
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31264.234551,
+      "timestamp": 12128.391549,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
        "delta": {
         "type": "new_element",
         "element": "markdown",
-        "body": "plain write"
+        "element_full": {
+         "markdown": {
+          "body": "plain write",
+          "elementType": "NATIVE",
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "plain write",
+        "path": [
+         0,
+         7
+        ]
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31264.234626,
+      "timestamp": 12128.39157,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
        "delta": {
         "type": "add_block",
         "block_id": "",
-        "block_type": "flex_container"
+        "block_type": "flex_container",
+        "block": {
+         "allowEmpty": true,
+         "flexContainer": {
+          "gapConfig": {
+           "gapSize": "SMALL"
+          },
+          "direction": "HORIZONTAL",
+          "justify": "JUSTIFY_START",
+          "align": "ALIGN_START"
+         }
+        },
+        "path": [
+         0,
+         8
+        ]
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31264.234733,
+      "timestamp": 12128.391605,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
        "delta": {
         "type": "add_block",
         "block_id": "",
-        "block_type": "column"
+        "block_type": "column",
+        "block": {
+         "column": {
+          "weight": 0.5,
+          "gapConfig": {
+           "gapSize": "SMALL"
+          }
+         },
+         "allowEmpty": true,
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "path": [
+         0,
+         8,
+         0
+        ]
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31264.234833,
+      "timestamp": 12128.391663,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
        "delta": {
         "type": "add_block",
         "block_id": "",
-        "block_type": "column"
+        "block_type": "column",
+        "block": {
+         "column": {
+          "weight": 0.5,
+          "gapConfig": {
+           "gapSize": "SMALL"
+          }
+         },
+         "allowEmpty": true,
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "path": [
+         0,
+         8,
+         1
+        ]
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31264.234966,
+      "timestamp": 12128.391738,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
        "delta": {
         "type": "new_element",
         "element": "markdown",
-        "body": "left column"
+        "element_full": {
+         "markdown": {
+          "body": "left column",
+          "elementType": "NATIVE",
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "left column",
+        "path": [
+         0,
+         8,
+         0,
+         0
+        ]
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31264.235018,
+      "timestamp": 12128.391798,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
        "delta": {
         "type": "new_element",
         "element": "markdown",
-        "body": "right column"
+        "element_full": {
+         "markdown": {
+          "body": "right column",
+          "elementType": "NATIVE",
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "right column",
+        "path": [
+         0,
+         8,
+         1,
+         0
+        ]
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31264.23548,
+      "timestamp": 12128.391865,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
        "delta": {
         "type": "add_block",
         "block_id": "",
-        "block_type": "flex_container"
+        "block_type": "flex_container",
+        "block": {
+         "allowEmpty": true,
+         "flexContainer": {
+          "gapConfig": {
+           "gapSize": "SMALL"
+          },
+          "direction": "VERTICAL",
+          "justify": "JUSTIFY_START",
+          "align": "ALIGN_START"
+         },
+         "heightConfig": {
+          "useContent": true
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "path": [
+         0,
+         9
+        ]
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31264.235596,
+      "timestamp": 12128.391919,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
        "delta": {
         "type": "new_element",
         "element": "markdown",
-        "body": "inside container"
+        "element_full": {
+         "markdown": {
+          "body": "inside container",
+          "elementType": "NATIVE",
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "inside container",
+        "path": [
+         0,
+         9,
+         0
+        ]
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31264.235682,
+      "timestamp": 12128.39197,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
        "delta": {
         "type": "add_block",
         "block_id": "",
-        "block_type": "form"
+        "block_type": "form",
+        "block": {
+         "form": {
+          "formId": "note_form",
+          "border": true,
+          "enterToSubmit": true
+         },
+         "heightConfig": {
+          "useContent": true
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "path": [
+         0,
+         10
+        ]
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31264.2358,
+      "timestamp": 12128.392034,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
@@ -937,13 +1516,18 @@
         "accepted_types": [
          "0"
         ],
-        "form_id": "note_form"
+        "form_id": "note_form",
+        "path": [
+         0,
+         10,
+         0
+        ]
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31264.235946,
+      "timestamp": 12128.392091,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
@@ -962,26 +1546,45 @@
         "accepted_types": [
          "secondary"
         ],
-        "form_id": "note_form"
+        "form_id": "note_form",
+        "path": [
+         0,
+         10,
+         1
+        ]
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31264.236069,
+      "timestamp": 12128.392131,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
        "delta": {
         "type": "new_element",
         "element": "markdown",
-        "body": "form: note='hello typed' submitted=True"
+        "element_full": {
+         "markdown": {
+          "body": "form: note='hello typed' submitted=True",
+          "elementType": "NATIVE",
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "form: note='hello typed' submitted=True",
+        "path": [
+         0,
+         11
+        ]
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31264.236145,
+      "timestamp": 12128.392172,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
@@ -1027,13 +1630,17 @@
          "border_mode": 0,
          "hide_index": true,
          "hide_header": false
-        }
+        },
+        "path": [
+         0,
+         12
+        ]
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31264.23624,
+      "timestamp": 12128.39224,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
@@ -1042,12 +1649,12 @@
         "element": "vega_lite_chart",
         "element_full": {
          "vegaLiteChart": {
-          "spec": "{\"$schema\":\"https://vega.github.io/schema/vega-lite/v5.20.1.json\",\"autosize\":{\"contains\":\"padding\",\"type\":\"fit\"},\"data\":{\"name\":\"e30b1137747023571e6ae78a59b3ee23\"},\"encoding\":{\"x\":{\"field\":\"kind\",\"type\":\"ordinal\"},\"y\":{\"axis\":{\"grid\":true,\"tickMinStep\":1},\"field\":\"count\",\"type\":\"quantitative\"}},\"mark\":{\"type\":\"bar\"}}",
+          "spec": "{\"data\":{\"name\":\"d80c8d000e4041c3fb3e20013a6aa715\"},\"mark\":{\"type\":\"bar\"},\"encoding\":{\"x\":{\"field\":\"kind\",\"type\":\"ordinal\"},\"y\":{\"field\":\"count\",\"type\":\"quantitative\",\"axis\":{\"grid\":true,\"tickMinStep\":1}}},\"$schema\":\"https://vega.github.io/schema/vega-lite/v5.20.1.json\",\"autosize\":{\"type\":\"fit\",\"contains\":\"padding\"}}",
           "datasets": [
            {
-            "name": "e30b1137747023571e6ae78a59b3ee23",
+            "name": "d80c8d000e4041c3fb3e20013a6aa715",
             "data": {
-             "data": "/////7gAAAAQAAAAAAAKAAwACgAJAAQACgAAABAAAAAAAQQACAAIAAAABAAIAAAABAAAAAIAAABQAAAABAAAAMj///8YAAAAIAAAAAAAAAIcAAAACAAMAAQACwAIAAAAQAAAAAAAAAEAAAAABQAAAGNvdW50AAAAEAAUABAAAAAPAAQAAAAIABAAAAAYAAAADAAAAAAAAAUQAAAAAAAAAAQABAAEAAAABAAAAGtpbmQAAAAAAAAAAAAAAAAAAAAA//////gAAAAQAAAADAAaABgAFwAEAAgADAAAACAAAABAAQAAAAAAAAAAAAAAAAADBAAKABgADAAIAAQACgAAADwAAAAQAAAAAgAAAAAAAAAAAAAAAgAAAAIAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAAAAAAAAEAAAAAAAAAQAAAAAAAAAAMAAAAAAAAAIAAAAAAAAAAAgAAAAAAAADAAAAAAAAAAAEAAAAAAAAAAAEAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYWIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/////wAAAAA="
+             "data": "/////zgDAAAQAAAAAAAKAA4ADAALAAQACgAAABQAAAAAAAABBAAKAAwAAAAIAAQACgAAAAgAAABYAgAAAQAAAAwAAAAIAAwACAAEAAgAAAAIAAAAMAIAACUCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAia2luZCIsICJmaWVsZF9uYW1lIjogImtpbmQiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJjb3VudCIsICJmaWVsZF9uYW1lIjogImNvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAACAAAAUAAAAAQAAADI////GAAAACAAAAAAAAACHAAAAAgADAAEAAsACAAAAEAAAAAAAAABAAAAAAUAAABjb3VudAAAABAAFAAQAAAADwAEAAAACAAQAAAAGAAAAAwAAAAAAAAUEAAAAAAAAAAEAAQABAAAAAQAAABraW5kAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/////4AAAAEAAAAAwAGgAYABcABAAIAAwAAAAgAAAAQAEAAAAAAAAAAAAAAAAAAwQACgAYAAwACAAEAAoAAAA8AAAAEAAAAAIAAAAAAAAAAAAAAAIAAAACAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAGAAAAAAAAACAAAAAAAAAAAIAAAAAAAAAwAAAAAAAAAABAAAAAAAAAAABAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGFiAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA"
             },
             "hasName": true
            }
@@ -1061,15 +1668,13 @@
           "useStretch": true
          }
         },
-        "vega_lite_spec_raw": "{\"$schema\":\"https://vega.github.io/schema/vega-lite/v5.20.1.json\",\"autosize\":{\"contains\":\"padding\",\"type\":\"fit\"},\"data\":{\"name\":\"e30b1137747023571e6ae78a59b3ee23\"},\"encoding\":{\"x\":{\"field\":\"kind\",\"type\":\"ordinal\"},\"y\":{\"axis\":{\"grid\":true,\"tickMinStep\":1},\"field\":\"count\",\"type\":\"quantitative\"}},\"mark\":{\"type\":\"bar\"}}",
+        "vega_lite_spec_raw": "{\"data\":{\"name\":\"d80c8d000e4041c3fb3e20013a6aa715\"},\"mark\":{\"type\":\"bar\"},\"encoding\":{\"x\":{\"field\":\"kind\",\"type\":\"ordinal\"},\"y\":{\"field\":\"count\",\"type\":\"quantitative\",\"axis\":{\"grid\":true,\"tickMinStep\":1}}},\"$schema\":\"https://vega.github.io/schema/vega-lite/v5.20.1.json\",\"autosize\":{\"type\":\"fit\",\"contains\":\"padding\"}}",
         "vega_lite_spec": {
-         "$schema": "https://vega.github.io/schema/vega-lite/v5.20.1.json",
-         "autosize": {
-          "contains": "padding",
-          "type": "fit"
-         },
          "data": {
-          "name": "e30b1137747023571e6ae78a59b3ee23"
+          "name": "d80c8d000e4041c3fb3e20013a6aa715"
+         },
+         "mark": {
+          "type": "bar"
          },
          "encoding": {
           "x": {
@@ -1077,27 +1682,29 @@
            "type": "ordinal"
           },
           "y": {
+           "field": "count",
+           "type": "quantitative",
            "axis": {
             "grid": true,
             "tickMinStep": 1
-           },
-           "field": "count",
-           "type": "quantitative"
+           }
           }
          },
-         "mark": {
-          "type": "bar"
+         "$schema": "https://vega.github.io/schema/vega-lite/v5.20.1.json",
+         "autosize": {
+          "type": "fit",
+          "contains": "padding"
          }
         },
         "vega_lite_datasets": [
          {
-          "name": "e30b1137747023571e6ae78a59b3ee23",
+          "name": "d80c8d000e4041c3fb3e20013a6aa715",
           "has_name": true,
           "arrow": {
-           "bytes": 776,
-           "sha256": "f664fd9ce36de431b066287b534f849310c45f42100a9ceb4ed102233f32772c",
-           "base64": "/////7gAAAAQAAAAAAAKAAwACgAJAAQACgAAABAAAAAAAQQACAAIAAAABAAIAAAABAAAAAIAAABQAAAABAAAAMj///8YAAAAIAAAAAAAAAIcAAAACAAMAAQACwAIAAAAQAAAAAAAAAEAAAAABQAAAGNvdW50AAAAEAAUABAAAAAPAAQAAAAIABAAAAAYAAAADAAAAAAAAAUQAAAAAAAAAAQABAAEAAAABAAAAGtpbmQAAAAAAAAAAAAAAAAAAAAA//////gAAAAQAAAADAAaABgAFwAEAAgADAAAACAAAABAAQAAAAAAAAAAAAAAAAADBAAKABgADAAIAAQACgAAADwAAAAQAAAAAgAAAAAAAAAAAAAAAgAAAAIAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAAAAAAAAEAAAAAAAAAQAAAAAAAAAAMAAAAAAAAAIAAAAAAAAAAAgAAAAAAAADAAAAAAAAAAAEAAAAAAAAAAAEAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYWIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/////wAAAAA=",
-           "schema": "kind: string not null\ncount: int64 not null",
+           "bytes": 1416,
+           "sha256": "3a5308f9d7039554283a1a5b20e321cd1b83d0cdf9f3a1da47006c00ed748c76",
+           "base64": "/////zgDAAAQAAAAAAAKAA4ADAALAAQACgAAABQAAAAAAAABBAAKAAwAAAAIAAQACgAAAAgAAABYAgAAAQAAAAwAAAAIAAwACAAEAAgAAAAIAAAAMAIAACUCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAia2luZCIsICJmaWVsZF9uYW1lIjogImtpbmQiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJjb3VudCIsICJmaWVsZF9uYW1lIjogImNvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAACAAAAUAAAAAQAAADI////GAAAACAAAAAAAAACHAAAAAgADAAEAAsACAAAAEAAAAAAAAABAAAAAAUAAABjb3VudAAAABAAFAAQAAAADwAEAAAACAAQAAAAGAAAAAwAAAAAAAAUEAAAAAAAAAAEAAQABAAAAAQAAABraW5kAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/////4AAAAEAAAAAwAGgAYABcABAAIAAwAAAAgAAAAQAEAAAAAAAAAAAAAAAAAAwQACgAYAAwACAAEAAoAAAA8AAAAEAAAAAIAAAAAAAAAAAAAAAIAAAACAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAGAAAAAAAAACAAAAAAAAAAAIAAAAAAAAAwAAAAAAAAAABAAAAAAAAAAABAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGFiAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA",
+           "schema": "kind: large_string not null\ncount: int64 not null\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 485",
            "columns": [
             "kind",
             "count"
@@ -1123,13 +1730,17 @@
          "form_id": ""
         },
         "id": "",
-        "form_id": ""
+        "form_id": "",
+        "path": [
+         0,
+         13
+        ]
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 31264.236311,
+      "timestamp": 12128.392292,
       "summary": {
        "message": "ForwardMsg",
        "type": "script_finished",
@@ -1141,7 +1752,7 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 31264.236388,
+      "timestamp": 12128.392331,
       "summary": {
        "message": "ForwardMsg",
        "type": "session_status_changed",
@@ -1273,7 +1884,7 @@
     },
     "screenshot": {
      "file": "02-apply.png",
-     "sha256": "b10f89cc64350134df33d2733f7f4fd56914cdc1dcc1a81659a94c79868351a0"
+     "sha256": "4ff5ce98c4f65537b0486da02899c9b1f80fad1ec86f168c091fdc3355d79b27"
     }
    }
   ],

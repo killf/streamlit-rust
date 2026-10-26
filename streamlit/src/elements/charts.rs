@@ -77,8 +77,8 @@ impl ElementTrait for ChartElement {
         msg.r#type = Some(forward_msg::Type::Delta(Delta {
             fragment_id: String::new(),
             r#type: Some(delta::Type::NewElement(Element {
-                width_config: self.width.clone(),
-                height_config: self.height.clone(),
+                width_config: self.width,
+                height_config: self.height,
                 r#type: Some(inner),
                 ..Default::default()
             })),
