@@ -1,0 +1,726 @@
+//! The measured 1.66.1 layout blocks: the expander, the tabs container with
+//! its tab blocks, the popover, the dialog (two add_blocks on the event root
+//! plus a flex content container) and the fixed sidebar root, which takes no
+//! block at all (see .codex/compatibility.md, Layouts).
+
+use crate::api::AppendChild;
+use crate::elements::App;
+use crate::elements::common::{Element, ElementHeight, ElementWidth, RenderContext};
+use crate::error::StreamlitError;
+use crate::memory::Allocator;
+use crate::proto::block::dialog::{DialogPosition, DialogWidth};
+use crate::proto::block::flex_container::{Align, Direction, Justify};
+use crate::proto::block::{Dialog, Expandable, FlexContainer, TabContainer};
+use crate::proto::block::{Popover as PopoverProto, Tab as TabProto};
+use crate::proto::{Block, Delta, delta, delta_base_with_path, forward_msg};
+use crate::utils::hash::hash;
+use parking_lot::Mutex;
+use std::cell::RefCell;
+use std::rc::Rc;
+
+/// Expander options: the measured subset (label, expanded, icon).
+pub struct ExpanderOptions {
+    label: String,
+    expanded: bool,
+    icon: String,
+}
+
+impl ExpanderOptions {
+    pub fn new(label: impl Into<String>) -> Self {
+        Self {
+            label: label.into(),
+            expanded: false,
+            icon: String::new(),
+        }
+    }
+    pub fn expanded(mut self, expanded: bool) -> Self {
+        self.expanded = expanded;
+        self
+    }
+    pub fn icon(mut self, icon: impl Into<String>) -> Self {
+        self.icon = icon.into();
+        self
+    }
+}
+
+impl From<&str> for ExpanderOptions {
+    fn from(label: &str) -> Self {
+        Self::new(label)
+    }
+}
+
+/// Popover options: the measured subset (label, icon, use_container_width
+/// carried by the block's content width).
+pub struct PopoverOptions {
+    label: String,
+    icon: String,
+}
+
+impl PopoverOptions {
+    pub fn new(label: impl Into<String>) -> Self {
+        Self { label: label.into(), icon: String::new() }
+    }
+    pub fn icon(mut self, icon: impl Into<String>) -> Self {
+        self.icon = icon.into();
+        self
+    }
+}
+
+impl From<&str> for PopoverOptions {
+    fn from(label: &str) -> Self {
+        Self::new(label)
+    }
+}
+
+/// Tabs options: just the labels, in order.
+pub struct TabsOptions<'a> {
+    pub(crate) labels: Vec<String>,
+    _marker: std::marker::PhantomData<&'a ()>,
+}
+
+impl<'a> TabsOptions<'a> {
+    pub fn new(labels: impl IntoIterator<Item = impl Into<String>>) -> Self {
+        Self {
+            labels: labels.into_iter().map(Into::into).collect(),
+            _marker: std::marker::PhantomData,
+        }
+    }
+}
+
+impl<'a, const N: usize> From<[&'a str; N]> for TabsOptions<'a> {
+    fn from(labels: [&'a str; N]) -> Self {
+        Self::new(labels.iter().copied())
+    }
+}
+
+impl<'a> From<&'a [&'a str]> for TabsOptions<'a> {
+    fn from(labels: &'a [&'a str]) -> Self {
+        Self::new(labels.iter().copied())
+    }
+}
+
+impl<'a> From<&'a Vec<&'a str>> for TabsOptions<'a> {
+    fn from(labels: &'a Vec<&'a str>) -> Self {
+        Self::new(labels.iter().copied())
+    }
+}
+
+impl<'a> From<Vec<String>> for TabsOptions<'a> {
+    fn from(labels: Vec<String>) -> Self {
+        Self { labels, _marker: std::marker::PhantomData }
+    }
+}
+
+/// Dialog options: the measured subset (title, width, position, dismissible,
+/// icon). The measured default is small/center/dismissible.
+pub struct DialogOptions {
+    title: String,
+    width: DialogWidth,
+    position: DialogPosition,
+    dismissible: bool,
+    icon: String,
+}
+
+impl DialogOptions {
+    pub fn new(title: impl Into<String>) -> Self {
+        Self {
+            title: title.into(),
+            width: DialogWidth::Small,
+            position: DialogPosition::Center,
+            dismissible: true,
+            icon: String::new(),
+        }
+    }
+    pub fn width(mut self, width: DialogWidth) -> Self {
+        self.width = width;
+        self
+    }
+    pub fn position(mut self, position: DialogPosition) -> Self {
+        self.position = position;
+        self
+    }
+    pub fn dismissible(mut self, dismissible: bool) -> Self {
+        self.dismissible = dismissible;
+        self
+    }
+    pub fn icon(mut self, icon: impl Into<String>) -> Self {
+        self.icon = icon.into();
+        self
+    }
+    /// The Python str() of each id input, in the reference's call order.
+    fn id_inputs(&self) -> Vec<(&'static str, String)> {
+        vec![
+            ("title", self.title.clone()),
+            ("dismissible", py_bool(self.dismissible)),
+            ("width", self.width.python_value().to_string()),
+            ("position", self.position.python_value().to_string()),
+            ("icon", py_str_none(&self.icon)),
+            ("on_dismiss", "ignore".into()),
+        ]
+    }
+}
+
+impl From<&str> for DialogOptions {
+    fn from(title: &str) -> Self {
+        Self::new(title)
+    }
+}
+
+trait PythonValue {
+    fn python_value(self) -> &'static str;
+}
+
+impl PythonValue for DialogWidth {
+    fn python_value(self) -> &'static str {
+        match self {
+            DialogWidth::Small => "small",
+            DialogWidth::Large => "large",
+            DialogWidth::Medium => "medium",
+        }
+    }
+}
+
+impl PythonValue for DialogPosition {
+    fn python_value(self) -> &'static str {
+        match self {
+            DialogPosition::Center => "center",
+            DialogPosition::Left => "left",
+            DialogPosition::Right => "right",
+        }
+    }
+}
+
+fn py_bool(value: bool) -> String {
+    if value { "True".into() } else { "False".into() }
+}
+
+fn py_str_none(value: &str) -> String {
+    if value.is_empty() { "None".into() } else { value.to_string() }
+}
+
+/// The reference names a dialog `$$ID-<blake2b16 of the inputs>-<key>`;
+/// the hash mixes the runtime's script identity, which has no cross-runtime
+/// counterpart, so each side hashes its own identity the same way.
+pub(crate) fn dialog_id(options: &DialogOptions, active_script_hash: &str) -> String {
+    use blake2::digest::consts::U16;
+    use blake2::{Blake2b, Digest};
+    let mut hasher = Blake2b::<U16>::new();
+    hasher.update(b"dialog");
+    for (key, value) in options.id_inputs() {
+        hasher.update(key.as_bytes());
+        hasher.update(value.as_bytes());
+    }
+    for (key, value) in [("active_script_hash", active_script_hash.to_string()), ("form_id", String::new()), ("active_dg_root_container", "2".to_string())] {
+        hasher.update(key.as_bytes());
+        hasher.update(value.as_bytes());
+    }
+    format!("$$ID-{:x}-None", hasher.finalize())
+}
+
+pub(crate) struct ExpanderElement {
+    options: ExpanderOptions,
+    pub(crate) children: Vec<Rc<RefCell<dyn Element>>>,
+}
+
+impl ExpanderElement {
+    pub fn new(options: ExpanderOptions) -> Self {
+        Self { options, children: Vec::new() }
+    }
+}
+
+impl Element for ExpanderElement {
+    fn render(&self, context: &mut RenderContext) -> Result<(), StreamlitError> {
+        let element_hash = hash(format!("expander_{}_{}_{}", self.options.label, self.options.expanded, self.options.icon).as_str());
+        let mut msg = delta_base_with_path(context.delta_path.clone(), context.active_script_hash.clone(), element_hash);
+        msg.r#type = Some(forward_msg::Type::Delta(Delta {
+            fragment_id: String::new(),
+            r#type: Some(delta::Type::AddBlock(Block {
+                autoscroll: None,
+                allow_empty: true,
+                id: None,
+                height_config: None,
+                width_config: Some(ElementWidth::Stretch.into()),
+                r#type: Some(crate::proto::block::Type::Expandable(Expandable {
+                    label: self.options.label.clone(),
+                    expanded: Some(self.options.expanded),
+                    icon: self.options.icon.clone(),
+                    ..Default::default()
+                })),
+            })),
+        }));
+        context.push(msg);
+
+        context.delta_path.push(0);
+        for child in self.children.iter() {
+            child.borrow().render(context)?;
+        }
+        context.delta_path.pop();
+        if let Some(index) = context.delta_path.pop() {
+            context.delta_path.push(index + 1);
+        }
+        Ok(())
+    }
+}
+
+pub(crate) struct PopoverElement {
+    options: PopoverOptions,
+    pub(crate) children: Vec<Rc<RefCell<dyn Element>>>,
+}
+
+impl PopoverElement {
+    pub fn new(options: PopoverOptions) -> Self {
+        Self { options, children: Vec::new() }
+    }
+}
+
+impl Element for PopoverElement {
+    fn render(&self, context: &mut RenderContext) -> Result<(), StreamlitError> {
+        let element_hash = hash(format!("popover_{}_{}", self.options.label, self.options.icon).as_str());
+        let mut msg = delta_base_with_path(context.delta_path.clone(), context.active_script_hash.clone(), element_hash);
+        msg.r#type = Some(forward_msg::Type::Delta(Delta {
+            fragment_id: String::new(),
+            r#type: Some(delta::Type::AddBlock(Block {
+                autoscroll: None,
+                allow_empty: true,
+                id: None,
+                height_config: None,
+                width_config: Some(ElementWidth::Content.into()),
+                r#type: Some(crate::proto::block::Type::Popover(PopoverProto {
+                    label: self.options.label.clone(),
+                    help: String::new(),
+                    disabled: false,
+                    icon: self.options.icon.clone(),
+                    r#type: "secondary".into(),
+                    open: Some(false),
+                    ..Default::default()
+                })),
+            })),
+        }));
+        context.push(msg);
+
+        context.delta_path.push(0);
+        for child in self.children.iter() {
+            child.borrow().render(context)?;
+        }
+        context.delta_path.pop();
+        if let Some(index) = context.delta_path.pop() {
+            context.delta_path.push(index + 1);
+        }
+        Ok(())
+    }
+}
+
+/// One tab: its block (label only) and the elements written inside it.
+pub(crate) struct TabsElement {
+    labels: Vec<String>,
+    pub(crate) tabs: Vec<Vec<Rc<RefCell<dyn Element>>>>,
+}
+
+impl TabsElement {
+    pub fn new(labels: Vec<String>) -> Self {
+        Self {
+            tabs: labels.iter().map(|_| Vec::new()).collect(),
+            labels,
+        }
+    }
+
+    pub(crate) fn tab_count(&self) -> usize {
+        self.labels.len()
+    }
+}
+
+impl Element for TabsElement {
+    fn render(&self, context: &mut RenderContext) -> Result<(), StreamlitError> {
+        let element_hash = hash(format!("tabs_{}", self.labels.join("|")).as_str());
+        let mut msg = delta_base_with_path(context.delta_path.clone(), context.active_script_hash.clone(), element_hash);
+        msg.r#type = Some(forward_msg::Type::Delta(Delta {
+            fragment_id: String::new(),
+            r#type: Some(delta::Type::AddBlock(Block {
+                autoscroll: None,
+                allow_empty: false,
+                id: None,
+                height_config: Some(ElementHeight::Content.into()),
+                width_config: Some(ElementWidth::Stretch.into()),
+                r#type: Some(crate::proto::block::Type::TabContainer(TabContainer::default())),
+            })),
+        }));
+        context.push(msg);
+
+        for (index, label) in self.labels.iter().enumerate() {
+            context.delta_path.push(index as u32);
+            let tab_hash = hash(format!("tab_{}_{}", index, label).as_str());
+            let mut tab_msg = delta_base_with_path(context.delta_path.clone(), context.active_script_hash.clone(), tab_hash);
+            tab_msg.r#type = Some(forward_msg::Type::Delta(Delta {
+                fragment_id: String::new(),
+                r#type: Some(delta::Type::AddBlock(Block {
+                    autoscroll: None,
+                    allow_empty: true,
+                    id: None,
+                    height_config: None,
+                    width_config: None,
+                    r#type: Some(crate::proto::block::Type::Tab(TabProto { label: label.clone() })),
+                })),
+            }));
+            context.push(tab_msg);
+
+            context.delta_path.push(0);
+            for child in self.tabs[index].iter() {
+                child.borrow().render(context)?;
+            }
+            context.delta_path.pop();
+            context.delta_path.pop();
+        }
+        if let Some(index) = context.delta_path.pop() {
+            context.delta_path.push(index + 1);
+        }
+        Ok(())
+    }
+}
+
+/// The dialog: two add_blocks on the event root (the block itself, then the
+/// same block reopened with isOpen), then the flex content container and its
+/// children.
+pub(crate) struct DialogElement {
+    options: DialogOptions,
+    id: String,
+    pub(crate) children: Vec<Rc<RefCell<dyn Element>>>,
+}
+
+impl DialogElement {
+    pub fn new(options: DialogOptions, active_script_hash: &str) -> Self {
+        Self {
+            id: dialog_id(&options, active_script_hash),
+            options,
+            children: Vec::new(),
+        }
+    }
+
+    fn block(&self, is_open: Option<bool>) -> Block {
+        Block {
+            autoscroll: None,
+            allow_empty: false,
+            id: Some(self.id.clone()),
+            height_config: None,
+            width_config: None,
+            r#type: Some(crate::proto::block::Type::Dialog(Dialog {
+                title: self.options.title.clone(),
+                dismissible: self.options.dismissible,
+                width: self.options.width as i32,
+                is_open,
+                id: String::new(),
+                icon: self.options.icon.clone(),
+                position: self.options.position as i32,
+            })),
+        }
+    }
+}
+
+impl Element for DialogElement {
+    fn render(&self, context: &mut RenderContext) -> Result<(), StreamlitError> {
+        // The dialog lives on the event root at slot 0, outside the normal
+        // flow, whatever container it was opened from.
+        let saved_path = context.delta_path.clone();
+        context.delta_path = vec![2, 0];
+        let element_hash = hash(format!("dialog_{}", self.id).as_str());
+        let mut block = delta_base_with_path(context.delta_path.clone(), context.active_script_hash.clone(), element_hash.clone());
+        block.r#type = Some(forward_msg::Type::Delta(Delta {
+            fragment_id: String::new(),
+            r#type: Some(delta::Type::AddBlock(self.block(None))),
+        }));
+        context.push(block);
+        let mut open = delta_base_with_path(context.delta_path.clone(), context.active_script_hash.clone(), element_hash);
+        open.r#type = Some(forward_msg::Type::Delta(Delta {
+            fragment_id: String::new(),
+            r#type: Some(delta::Type::AddBlock(self.block(Some(true)))),
+        }));
+        context.push(open);
+
+        context.delta_path.push(0);
+        let mut content = delta_base_with_path(context.delta_path.clone(), context.active_script_hash.clone(), hash(format!("dialog_content_{}", self.id).as_str()));
+        content.r#type = Some(forward_msg::Type::Delta(Delta {
+            fragment_id: String::new(),
+            r#type: Some(delta::Type::AddBlock(Block {
+                autoscroll: None,
+                allow_empty: false,
+                id: None,
+                height_config: Some(ElementHeight::Content.into()),
+                width_config: Some(ElementWidth::Stretch.into()),
+                r#type: Some(crate::proto::block::Type::FlexContainer(FlexContainer {
+                    border: false,
+                    gap_config: Some(crate::elements::common::Gap::Small.into()),
+                    scale: 0.0,
+                    direction: Direction::Vertical as i32,
+                    wrap: false,
+                    justify: Justify::Start as i32,
+                    align: Align::Start as i32,
+                })),
+            })),
+        }));
+        context.push(content);
+
+        context.delta_path.push(0);
+        for child in self.children.iter() {
+            child.borrow().render(context)?;
+        }
+        context.delta_path.pop();
+        context.delta_path.pop();
+        context.delta_path = saved_path;
+        Ok(())
+    }
+}
+
+/// Renders children into a fixed block path and restores the exit path —
+/// the shared push shape of every layout handle below.
+pub(crate) fn push_at(element: Rc<RefCell<dyn Element>>, app: &Rc<Mutex<App>>, form_id: &Option<String>, base_path: &[u32], child_index: u32, exit_path: &[u32]) {
+    if form_id.is_some() {
+        return;
+    }
+    let mut app = app.lock();
+    if let Some(context) = app.render_context_mut()
+        && context.sender.is_some()
+    {
+        context.delta_path = base_path.to_vec();
+        context.delta_path.push(child_index);
+        if let Err(error) = element.borrow().render(context) {
+            log::error!("Failed to render layout child immediately: {error}");
+        }
+        context.delta_path = exit_path.to_vec();
+    }
+}
+
+pub struct Expander<'a> {
+    element: Rc<RefCell<ExpanderElement>>,
+    allocator: &'a Allocator,
+    app: Rc<Mutex<App>>,
+    form_id: Option<String>,
+    base_path: Vec<u32>,
+    exit_path: Vec<u32>,
+}
+
+impl<'a> Expander<'a> {
+    pub(crate) fn new(element: Rc<RefCell<ExpanderElement>>, allocator: &'a Allocator, app: Rc<Mutex<App>>, form_id: Option<String>, base_path: Vec<u32>, exit_path: Vec<u32>) -> Self {
+        Self {
+            element,
+            allocator,
+            app,
+            form_id,
+            base_path,
+            exit_path,
+        }
+    }
+}
+
+impl AppendChild for Expander<'_> {
+    fn push(&self, element: Rc<RefCell<dyn Element>>) {
+        let child_index = self.element.borrow().children.len() as u32;
+        self.element.borrow_mut().children.push(element.clone());
+        push_at(element, &self.app, &self.form_id, &self.base_path, child_index, &self.exit_path);
+    }
+
+    fn allocator(&self) -> &Allocator {
+        self.allocator
+    }
+
+    fn get_app(&self) -> Rc<Mutex<App>> {
+        self.app.clone()
+    }
+
+    fn parent_form_id(&self) -> Option<String> {
+        self.form_id.clone()
+    }
+
+    fn next_child_path(&self) -> Vec<u32> {
+        let mut path = self.base_path.clone();
+        path.push(self.element.borrow().children.len() as u32);
+        path
+    }
+}
+
+pub struct Popover<'a> {
+    element: Rc<RefCell<PopoverElement>>,
+    allocator: &'a Allocator,
+    app: Rc<Mutex<App>>,
+    form_id: Option<String>,
+    base_path: Vec<u32>,
+    exit_path: Vec<u32>,
+}
+
+impl<'a> Popover<'a> {
+    pub(crate) fn new(element: Rc<RefCell<PopoverElement>>, allocator: &'a Allocator, app: Rc<Mutex<App>>, form_id: Option<String>, base_path: Vec<u32>, exit_path: Vec<u32>) -> Self {
+        Self {
+            element,
+            allocator,
+            app,
+            form_id,
+            base_path,
+            exit_path,
+        }
+    }
+}
+
+impl AppendChild for Popover<'_> {
+    fn push(&self, element: Rc<RefCell<dyn Element>>) {
+        let child_index = self.element.borrow().children.len() as u32;
+        self.element.borrow_mut().children.push(element.clone());
+        push_at(element, &self.app, &self.form_id, &self.base_path, child_index, &self.exit_path);
+    }
+
+    fn allocator(&self) -> &Allocator {
+        self.allocator
+    }
+
+    fn get_app(&self) -> Rc<Mutex<App>> {
+        self.app.clone()
+    }
+
+    fn parent_form_id(&self) -> Option<String> {
+        self.form_id.clone()
+    }
+
+    fn next_child_path(&self) -> Vec<u32> {
+        let mut path = self.base_path.clone();
+        path.push(self.element.borrow().children.len() as u32);
+        path
+    }
+}
+
+pub struct Tab<'a> {
+    index: usize,
+    tabs: Rc<RefCell<TabsElement>>,
+    allocator: &'a Allocator,
+    app: Rc<Mutex<App>>,
+    form_id: Option<String>,
+    base_path: Vec<u32>,
+    exit_path: Vec<u32>,
+}
+
+impl<'a> Tab<'a> {
+    pub(crate) fn new(index: usize, tabs: Rc<RefCell<TabsElement>>, allocator: &'a Allocator, app: Rc<Mutex<App>>, form_id: Option<String>, base_path: Vec<u32>, exit_path: Vec<u32>) -> Self {
+        Self {
+            index,
+            tabs,
+            allocator,
+            app,
+            form_id,
+            base_path,
+            exit_path,
+        }
+    }
+}
+
+impl AppendChild for Tab<'_> {
+    fn push(&self, element: Rc<RefCell<dyn Element>>) {
+        let child_index = self.tabs.borrow().tabs[self.index].len() as u32;
+        self.tabs.borrow_mut().tabs[self.index].push(element.clone());
+        let mut base = self.base_path.clone();
+        base.push(self.index as u32);
+        push_at(element, &self.app, &self.form_id, &base, child_index, &self.exit_path);
+    }
+
+    fn allocator(&self) -> &Allocator {
+        self.allocator
+    }
+
+    fn get_app(&self) -> Rc<Mutex<App>> {
+        self.app.clone()
+    }
+
+    fn parent_form_id(&self) -> Option<String> {
+        self.form_id.clone()
+    }
+
+    fn next_child_path(&self) -> Vec<u32> {
+        let mut path = self.base_path.clone();
+        path.push(self.index as u32);
+        path.push(self.tabs.borrow().tabs[self.index].len() as u32);
+        path
+    }
+}
+
+/// The dialog body handle: writes stream into the dialog's content
+/// container on the event root.
+pub struct DialogBody<'a> {
+    element: Rc<RefCell<DialogElement>>,
+    allocator: &'a Allocator,
+    app: Rc<Mutex<App>>,
+    form_id: Option<String>,
+    exit_path: Vec<u32>,
+}
+
+impl<'a> DialogBody<'a> {
+    pub(crate) fn new(element: Rc<RefCell<DialogElement>>, allocator: &'a Allocator, app: Rc<Mutex<App>>, form_id: Option<String>, exit_path: Vec<u32>) -> Self {
+        Self { element, allocator, app, form_id, exit_path }
+    }
+}
+
+impl AppendChild for DialogBody<'_> {
+    fn push(&self, element: Rc<RefCell<dyn Element>>) {
+        let child_index = self.element.borrow().children.len() as u32;
+        self.element.borrow_mut().children.push(element.clone());
+        push_at(element, &self.app, &self.form_id, &[2, 0, 0], child_index, &self.exit_path);
+    }
+
+    fn allocator(&self) -> &Allocator {
+        self.allocator
+    }
+
+    fn get_app(&self) -> Rc<Mutex<App>> {
+        self.app.clone()
+    }
+
+    fn parent_form_id(&self) -> Option<String> {
+        self.form_id.clone()
+    }
+
+    fn next_child_path(&self) -> Vec<u32> {
+        let mut path = vec![2, 0, 0];
+        path.push(self.element.borrow().children.len() as u32);
+        path
+    }
+}
+
+/// The sidebar is a fixed root ([1]) that takes no block: children stream
+/// straight into it, interleaved with the main flow.
+pub struct Sidebar<'a> {
+    allocator: &'a Allocator,
+    app: Rc<Mutex<App>>,
+    form_id: Option<String>,
+    exit_path: Vec<u32>,
+    children: std::cell::Cell<u32>,
+}
+
+impl<'a> Sidebar<'a> {
+    pub(crate) fn new(allocator: &'a Allocator, app: Rc<Mutex<App>>, form_id: Option<String>, exit_path: Vec<u32>) -> Self {
+        Self {
+            allocator,
+            app,
+            form_id,
+            exit_path,
+            children: std::cell::Cell::new(0),
+        }
+    }
+}
+
+impl AppendChild for Sidebar<'_> {
+    fn push(&self, element: Rc<RefCell<dyn Element>>) {
+        let child_index = self.children.get();
+        self.children.set(child_index + 1);
+        push_at(element, &self.app, &self.form_id, &[1], child_index, &self.exit_path);
+    }
+
+    fn allocator(&self) -> &Allocator {
+        self.allocator
+    }
+
+    fn get_app(&self) -> Rc<Mutex<App>> {
+        self.app.clone()
+    }
+
+    fn parent_form_id(&self) -> Option<String> {
+        self.form_id.clone()
+    }
+
+    fn next_child_path(&self) -> Vec<u32> {
+        vec![1, self.children.get()]
+    }
+}

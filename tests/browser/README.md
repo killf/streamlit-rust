@@ -255,3 +255,64 @@ a rogue appended dataset fails — and the map zoom ladder is the pinned
 21-entry ladder from map.py, with the street-level tail and the empty-map
 serialization frozen in the runtime regression). The two stage PNGs are
 byte-identical (0 differing pixels).
+
+## Layouts (sidebar, expander, tabs, popover, dialog)
+
+[layouts_capture.py](layouts_capture.py) is the permanent entry for the
+layouts chain; [layouts_contract.py](layouts_contract.py) is its strict
+criterion (journey-layouts-v1, 9 checks) with unit tests in
+[tests/reference/test_layouts_contract.py](../reference/test_layouts_contract.py).
+The page renders a sidebar note, an expanded expander, two tabs, a popover
+and a modal dialog; the contract pins the full 14-delta layout timeline —
+the sidebar element at the fixed root [1] with no block of its own,
+expander/popover children at `[slot, k]`, every tab block emitted before
+any tab child, and the dialog's closed-then-reopened `add_block` pair at
+the event root `[2, 0]` around the measured flex content container — with
+the dialog's `$$ID` name judged by shape and pair-equality (its digest
+legitimately mixes each runtime's own script identity). One leading
+`main_container` add_block at [0] is the Rust runtime's documented
+divergence and the only normalization the timeline applies; two or more
+fail closed. The published chains:
+
+```powershell
+target\pyref-venv\Scripts\python.exe tests\browser\layouts_capture.py --replay tests\reference\reference-browser\layouts\trace-layouts.json
+target\pyref-venv\Scripts\python.exe tests\browser\layouts_capture.py --replay tests\browser\rust-layouts\trace-layouts.json
+```
+
+Both return 9 expected / 9 executed / 9 asserted with exit 0. Raw
+SHA256: python `0d55720a77a829fd825a3f5277d81c288f6aa058d7d7842e29d0e132d17bc1d4`,
+native `ad8543ac6012bca3a8e5a9a4ea6018c066c50a477fb942c450547cec1a96b9b3`,
+under contract `9488516d0a8f34caf67c1684e612570d14ef6ef592f04bef0fb3cd94cfec8020`.
+The runtime regression (streamlit/tests/runtime/layouts.rs) additionally
+pins the timeline string, every block payload and the dialog id formula
+over the production transport.
+
+## Page config (st.set_page_config)
+
+[pageconfig_capture.py](pageconfig_capture.py) is the permanent entry for
+the page-config chain; [pageconfig_contract.py](pageconfig_contract.py) is
+its strict criterion (journey-pageconfig-v1, 9 checks) with unit tests in
+[tests/reference/test_pageconfig_contract.py](../reference/test_pageconfig_contract.py).
+The page runs one full `st.set_page_config` call and a write; the contract
+pins the single `page_config_changed` frame — it must stream between the
+running status and the first delta, consume no element path, and carry the
+measured title, material icon, WIDE layout, EXPANDED sidebar state and all
+three menu entries — plus the settled DOM (document title, the
+frontend-resolved material-symbols favicon, the streamlit-wide root class,
+zero exceptions). One leading `main_container` add_block at [0] is the
+Rust runtime's documented divergence; two or more fail closed. The
+published chains:
+
+```powershell
+target\pyref-venv\Scripts\python.exe tests\browser\pageconfig_capture.py --replay tests\reference\reference-browser\pageconfig\trace-pageconfig.json
+target\pyref-venv\Scripts\python.exe tests\browser\pageconfig_capture.py --replay tests\browser\rust-pageconfig\trace-pageconfig.json
+```
+
+Both return 9 expected / 9 executed / 9 asserted with exit 0. Raw
+SHA256: python `55faa132cde133fb985a369a95cc1404a6e0d6d0f7e3bf2ce62351fc8f058c73`,
+native `cba8f3ce51e516dc4321988ee04b00cf3759a7d88e877a7aeccb7dfffdbe198a`,
+under contract `864ef01304b698e788e0566ab1d7744d59e923994105556a4a143359ac8ad41c`.
+The runtime regression (streamlit/tests/runtime/pageconfig.rs) additionally
+pins the measured duplicate-call behavior — a second call streams a second
+config (no exception) and the run continues — plus the LAYOUT_UNSET /
+SIDEBAR_UNSET inherit markers.

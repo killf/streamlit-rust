@@ -350,6 +350,10 @@ def summarise_forward(payload: bytes) -> dict:
             "main_script_hash": msg.new_session.main_script_hash,
             "session_id": msg.new_session.initialize.session_id,
         }
+    elif kind == "page_config_changed":
+        from google.protobuf.json_format import MessageToDict
+
+        out["page_config"] = MessageToDict(msg.page_config_changed)
     elif kind == "delta":
         delta = msg.delta
         dkind = delta.WhichOneof("type")
@@ -508,6 +512,14 @@ def summarise_forward(payload: bytes) -> dict:
         elif dkind == "add_block":
             entry["block_id"] = delta.add_block.id
             entry["block_type"] = delta.add_block.WhichOneof("type")
+            # The whole Block message: expander/popover/dialog metadata and
+            # allowed widget state ride here.
+            try:
+                from google.protobuf.json_format import MessageToDict
+
+                entry["block"] = MessageToDict(delta.add_block)
+            except Exception as exc:  # pragma: no cover - defensive
+                entry["block"] = {"error": f"{type(exc).__name__}: {exc}"}
         elif dkind == "new_transient":
             # The whole transient delta: the spinner lifecycle rides the
             # element list (one spinner active, then none at block exit).

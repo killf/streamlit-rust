@@ -1,0 +1,180 @@
+{
+ "schema_version": 1,
+ "journey": "pageconfig-page",
+ "contract": "journey-pageconfig-v1",
+ "scope": "RUST SIDE ONLY",
+ "url": "http://127.0.0.1:8514/",
+ "observation": {
+  "journey": "pageconfig-page",
+  "contract": "journey-pageconfig-v1",
+  "scope": "RUST SIDE ONLY",
+  "url": "http://127.0.0.1:8514/",
+  "binary": "target/debug/examples/pageconfig.exe sha256 db1a56350641ab954bb4553b5ba0bc86d957b5f5cbb4bc76b6ab436057cde44a",
+  "source": {
+   "file": "streamlit/examples/pageconfig.rs",
+   "sha256": "bbcd65516b3ba329ed2092eb4ec8628f93508d6a0a3e513663e0351fc43dff28"
+  },
+  "capture_sources": {
+   "pageconfig_capture.py": "0e1886d96ada125241fc9fc3228cf59043add0061508a57fd83cf2196f0e1057",
+   "pageconfig_contract.py": "864ef01304b698e788e0566ab1d7744d59e923994105556a4a143359ac8ad41c"
+  },
+  "stages": [
+   {
+    "name": "01-load",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 42941.803954,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": []
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 42941.805308,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "64d77ed8-601f-4c54-b489-1e11507a33a5",
+        "name": "Streamlit Rust",
+        "main_script_path": "",
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "session_id": "be45092b-489d-41d3-afa9-bfb4f5e90ed1"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 42941.811776,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 42941.811893,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "main_container",
+        "block_type": "vertical",
+        "block": {
+         "vertical": {},
+         "id": "main_container"
+        },
+        "path": [
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 42941.812131,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "page_config_changed",
+       "page_config": {
+        "title": "Wide demo",
+        "favicon": ":material/check_circle:",
+        "layout": "WIDE",
+        "initialSidebarState": "EXPANDED",
+        "menuItems": {
+         "getHelpUrl": "https://docs.streamlit.io/",
+         "reportABugUrl": "https://github.com/streamlit/streamlit/issues",
+         "aboutSectionMd": "### About text\nCreated with the reference fixture."
+        }
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 42941.812437,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "configured",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 42941.812698,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 42941.812791,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "http": [],
+    "dom": {
+     "title": "Wide demo",
+     "favicons": [
+      "shortcut icon https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsrounded/check_circle/default/24px.svg"
+     ],
+     "wideClasses": [
+      "DIV.stApp stAppEmbeddingId-tnht3udrxdu9 streamlit-wide st-emotion-cache-13k62yr e1vju3fw0"
+     ],
+     "mainClass": null,
+     "appClasses": [
+      "stAppViewContainer stAppViewContainer appview-container st-emotion-cache-1yiq2ps e87roqt0",
+      "stMain stMain st-emotion-cache-170etyg e87roqt2"
+     ],
+     "sidebarExpanded": 0,
+     "menuItems": [],
+     "markdowns": [
+      "configured"
+     ],
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "01-load.png",
+     "sha256": "fab83e05b38b19a0d9ec5f4f777ff8216592aa1652a8ccae4d970583ab4ba75c"
+    }
+   }
+  ],
+  "ipc_dir": "D:\\dlab\\streamlit-rust\\target\\pageconfig-rust"
+ },
+ "counts": {
+  "expected": 9,
+  "executed": 9,
+  "asserted": 9
+ },
+ "failures": []
+}

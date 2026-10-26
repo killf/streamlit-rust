@@ -1,0 +1,463 @@
+{
+ "schema_version": 1,
+ "journey": "layouts-page",
+ "contract": "journey-layouts-v1",
+ "scope": "PYTHON SIDE ONLY",
+ "url": "http://127.0.0.1:8613/",
+ "observation": {
+  "journey": "layouts-page",
+  "contract": "journey-layouts-v1",
+  "scope": "PYTHON SIDE ONLY",
+  "url": "http://127.0.0.1:8613/",
+  "binary": null,
+  "source": {
+   "file": "tests/reference/layouts_app.py",
+   "sha256": "4bb61a02a09d9e9ec12526e86da4f5bab1cc28fec2655ac2149df25f124ad74b"
+  },
+  "capture_sources": {
+   "layouts_capture.py": "08c4d7dc0796dbdbc22da5f4c91d3ba5f51ba863f0a38d83f5c4bab2938d5f43",
+   "layouts_contract.py": "9488516d0a8f34caf67c1684e612570d14ef6ef592f04bef0fb3cd94cfec8020"
+  },
+  "stages": [
+   {
+    "name": "01-load",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 40987.886851,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": []
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 40987.888179,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "e62741b1-dce0-4877-b7d6-4b4ad68b2d63",
+        "name": "layouts_app",
+        "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\layouts_app.py",
+        "page_script_hash": "e74b8d8d12629009dfe4804e71292aff",
+        "main_script_hash": "e74b8d8d12629009dfe4804e71292aff",
+        "session_id": "4e803be1-b262-40eb-8a8c-c7ed70687c4b"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 40987.894478,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 40987.894595,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "side note",
+        "path": [
+         1,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 40987.906113,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "",
+        "block_type": "expandable",
+        "block": {
+         "expandable": {
+          "label": "Details",
+          "expanded": true
+         },
+         "allowEmpty": true,
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 40987.906411,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "inside expander",
+        "path": [
+         0,
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 40987.906466,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "",
+        "block_type": "tab_container",
+        "block": {
+         "tabContainer": {},
+         "heightConfig": {
+          "useContent": true
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 40987.919908,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "",
+        "block_type": "tab",
+        "block": {
+         "tab": {
+          "label": "One"
+         },
+         "allowEmpty": true
+        },
+        "path": [
+         0,
+         1,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 40987.930294,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "",
+        "block_type": "tab",
+        "block": {
+         "tab": {
+          "label": "Two"
+         },
+         "allowEmpty": true
+        },
+        "path": [
+         0,
+         1,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 40987.930447,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "first tab",
+        "path": [
+         0,
+         1,
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 40987.930507,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "second tab",
+        "path": [
+         0,
+         1,
+         1,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 40987.930548,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "",
+        "block_type": "popover",
+        "block": {
+         "allowEmpty": true,
+         "popover": {
+          "label": "Open settings",
+          "type": "secondary",
+          "open": false
+         },
+         "widthConfig": {
+          "useContent": true
+         }
+        },
+        "path": [
+         0,
+         2
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 40987.930698,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "inside popover",
+        "path": [
+         0,
+         2,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 40987.930731,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "$$ID-79b26fd5542f64b238f6f878327b6b00-None",
+        "block_type": "dialog",
+        "block": {
+         "dialog": {
+          "title": "Confirm",
+          "dismissible": true
+         },
+         "id": "$$ID-79b26fd5542f64b238f6f878327b6b00-None"
+        },
+        "path": [
+         2,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 40987.93083,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "$$ID-79b26fd5542f64b238f6f878327b6b00-None",
+        "block_type": "dialog",
+        "block": {
+         "dialog": {
+          "title": "Confirm",
+          "dismissible": true,
+          "isOpen": true
+         },
+         "id": "$$ID-79b26fd5542f64b238f6f878327b6b00-None"
+        },
+        "path": [
+         2,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 40987.930851,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "",
+        "block_type": "flex_container",
+        "block": {
+         "flexContainer": {
+          "gapConfig": {
+           "gapSize": "SMALL"
+          },
+          "direction": "VERTICAL",
+          "justify": "JUSTIFY_START",
+          "align": "ALIGN_START"
+         },
+         "heightConfig": {
+          "useContent": true
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "path": [
+         2,
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 40987.93096,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "inside dialog",
+        "path": [
+         2,
+         0,
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 40987.930987,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 40987.931084,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "http": [],
+    "dom": {
+     "blocks": [
+      "stSidebar",
+      "stSidebarContent",
+      "stSidebarHeader",
+      "stSidebarCollapseButton",
+      "stSidebarUserContent",
+      "stVerticalBlock",
+      "stSidebarResizeHandle",
+      "stVerticalBlock",
+      "stExpander",
+      "stExpanderDetails",
+      "stVerticalBlock",
+      "stTabs",
+      "stTab",
+      "stTab",
+      "stTabPanel",
+      "stVerticalBlock",
+      "stTabPanel",
+      "stVerticalBlock",
+      "stPopover",
+      "stPopoverButton",
+      "stVerticalBlock",
+      "stDialog",
+      "stVerticalBlock",
+      "stVerticalBlock"
+     ],
+     "markdowns": [
+      "side note",
+      "inside expander",
+      "first tab",
+      "second tab",
+      "inside dialog"
+     ],
+     "expanderOpen": 0,
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "01-load.png",
+     "sha256": "726656e50087b90a893999423534fd344cc5ffb0c42ccaf47fbe80788edf95e3"
+    }
+   }
+  ],
+  "ipc_dir": "D:\\dlab\\streamlit-rust\\target\\layouts-python"
+ },
+ "counts": {
+  "expected": 9,
+  "executed": 9,
+  "asserted": 9
+ },
+ "failures": []
+}

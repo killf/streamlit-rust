@@ -352,8 +352,65 @@ Both follow the measured Streamlit 1.66.1 wire: an aborted rerun finishes with `
 
 A widget whose explicit `key` is already live in the run no longer returns an error: like Python Streamlit, the framework itself renders the `StreamlitDuplicateElementKey` exception box (the red box users know), suppresses every later element of that run and still finishes successfully; your code receives the widget's default value and keeps running with its output suppressed. Invalid options (bad widths, out-of-range indexes, illegal form layouts and so on) remain ordinary `Result` errors you handle yourself. Press **Show duplicate-key error** in the [widgets example](#input-widgets) to see the rendered box; only its trace line differs from Python, because Rust cannot know your source line.
 
+## Layouts: sidebar, expander, tabs, popover, and dialogs
+
+```powershell
+cargo run --example layouts --locked
+```
+
+Open `http://127.0.0.1:8513/`. Every layout container is a handle you write into, mirroring the Python `with` blocks:
+
+```rust
+let sidebar = st.sidebar();
+sidebar.write("side note");
+
+let expander = st.expander(ExpanderOptions::new("Details").expanded(true));
+expander.write("inside expander");
+
+let tabs = st.tabs(["One", "Two"]);
+tabs[0].write("first tab");
+tabs[1].write("second tab");
+
+let popover = st.popover("Open settings");
+popover.write("inside popover");
+
+st.dialog("Confirm", |dialog| {
+    dialog.write("inside dialog");
+});
+```
+
+Use | Rust form
+--- | ---
+Sidebar | `st.sidebar()` — a write handle fixed to the sidebar root; elements interleave with the main flow.
+Expander | `st.expander("Details")` or `ExpanderOptions::new("Details").expanded(true).icon(":material/info:")`.
+Tabs | `st.tabs(["A", "B"])` returns one handle per label; also `TabsOptions::new(["A", "B"])`.
+Popover | `st.popover("Open settings")` or `PopoverOptions::new(label).icon(...)`.
+Dialog | `st.dialog("Confirm", \|dialog\| { dialog.write("..."); })` — opens the modal, streams the body, and closes the scope like a called `@st.dialog` function.
+
+The wire follows the measured 1.66.1 shapes: tab blocks are all emitted when `st.tabs` is called (before any child), expander and popover children stream at the slot's own index, and a dialog opens as a block pair on the event root with the reference's `$$ID-<hash>-None` naming. `DialogOptions::new(title)` carries `.width(DialogWidth::Large)`, `.position(DialogPosition::Left)`, `.dismissible(false)` and `.icon(...)`. The [layouts example](../../streamlit/examples/layouts.rs) mirrors the reference fixture of the layouts differential chain, so the rendered page matches the Python reference.
+
+## Page configuration
+
+```rust
+st.set_page_config(
+    PageConfigOptions::new()
+        .page_title("Wide demo")
+        .page_icon(":material/check_circle:")
+        .layout(PageLayout::Wide)
+        .initial_sidebar_state(InitialSidebarState::Expanded)
+        .menu_items(
+            MenuItems::new()
+                .get_help("https://docs.streamlit.io/")
+                .report_bug("https://github.com/streamlit/streamlit/issues")
+                .about("### About text"),
+        ),
+);
+```
+
+A plain title string works too: `st.set_page_config("Wide demo")`. The call must come before the first element to take visual effect, exactly like Python. Like the measured 1.66.1 reference, every call streams one `page_config_changed` message at the call point and unset fields inherit the previous config — a second call does not fail, it streams an update. The [pageconfig example](../../streamlit/examples/pageconfig.rs) mirrors the reference fixture of the page-config differential chain.
+
 ## Current API
 
-Available APIs include text and layout, static status messages, `button`, `selectbox`, numeric and date/time `slider`, `checkbox`, the measured `form`/`form_submit_button`/`text_input` core, native session state, and the `st.rerun`/`st.stop` execution controls. See the [text/layout/status API](../../streamlit/src/api.rs), [widget options](../../streamlit/src/widget_api.rs), and [session API](../../streamlit/src/session.rs).
+Available APIs include text and layout, static status messages, `button`, `selectbox`, numeric and date/time `slider`, `checkbox`, the measured `form`/`form_submit_button`/`text_input` core, native session state, the layout containers (sidebar, expander, tabs, popover, dialog), `set_page_config`, media and chart elements, and the `st.rerun`/`st.stop` execution controls. See the [text/layout/status API](../../streamlit/src/api.rs), [layout containers](../../streamlit/src/elements/layouts.rs), [widget options](../../streamlit/src/widget_api.rs), and [session API](../../streamlit/src/session.rs).
 
 Upload and columnar data views currently cover the limited paths described above. General table/chart APIs, selection, complete forms/text-input behavior, cache, query binding, persistent hidden widgets, and most other input widgets remain incomplete or absent (`st.quit` does not exist in 1.66.1). Duplicate widget keys render the framework exception box as described above; other widget failures are Rust `Result` errors you handle yourself. Native session values, reruns, retained-session reconnects, synchronous callbacks, explicit widget keys and one-shot button triggers are available, without a claim of complete Streamlit compatibility.

@@ -7,10 +7,15 @@ use crate::elements::common::{Anchor, Divider, Element, ElementHeight, ElementWi
 use crate::elements::container::{Container, ContainerElement};
 pub use crate::elements::form::Form;
 use crate::elements::form::{FormElement, validate_form_dimensions};
+pub use crate::elements::layouts::{DialogBody, DialogOptions, Expander, ExpanderOptions, Popover, PopoverOptions, Sidebar, Tab, TabsOptions};
+use crate::elements::layouts::{DialogElement, ExpanderElement, PopoverElement, TabsElement};
 use crate::elements::markdown::{MarkdownElement, MarkdownElementType};
 use crate::elements::status::{StatusElement, status_content};
 use crate::elements::title::HeadingElement;
 use crate::memory::Allocator;
+pub use crate::proto::block::dialog::{DialogPosition, DialogWidth};
+pub use crate::proto::page_config::{Layout as PageLayout, SidebarState as InitialSidebarState};
+use crate::proto::{ForwardMsg, forward_msg};
 use parking_lot::Mutex;
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -637,6 +642,131 @@ impl From<i32> for ColumnsOptions {
     }
 }
 
+/// Page-config options: the measured 1.66.1 `st.set_page_config` subset.
+/// Every call streams one `page_config_changed` message at the call point;
+/// fields left unset inherit the previous config (they ride the wire as
+/// LAYOUT_UNSET / SIDEBAR_UNSET), matching the reference.
+pub struct PageConfigOptions {
+    page_title: Option<String>,
+    page_icon: Option<String>,
+    layout: Option<PageLayout>,
+    initial_sidebar_state: Option<InitialSidebarState>,
+    menu_items: Option<MenuItems>,
+}
+
+impl PageConfigOptions {
+    pub fn new() -> Self {
+        Self {
+            page_title: None,
+            page_icon: None,
+            layout: None,
+            initial_sidebar_state: None,
+            menu_items: None,
+        }
+    }
+
+    pub fn page_title(mut self, title: impl Into<String>) -> Self {
+        self.page_title = Some(title.into());
+        self
+    }
+
+    pub fn page_icon(mut self, icon: impl Into<String>) -> Self {
+        self.page_icon = Some(icon.into());
+        self
+    }
+
+    pub fn layout(mut self, layout: PageLayout) -> Self {
+        self.layout = Some(layout);
+        self
+    }
+
+    pub fn initial_sidebar_state(mut self, state: InitialSidebarState) -> Self {
+        self.initial_sidebar_state = Some(state);
+        self
+    }
+
+    pub fn menu_items(mut self, menu: MenuItems) -> Self {
+        self.menu_items = Some(menu);
+        self
+    }
+}
+
+impl Default for PageConfigOptions {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl From<&str> for PageConfigOptions {
+    fn from(title: &str) -> Self {
+        Self::new().page_title(title)
+    }
+}
+
+impl From<String> for PageConfigOptions {
+    fn from(title: String) -> Self {
+        Self::new().page_title(title)
+    }
+}
+
+/// The main-menu entries: help and bug-report links plus the About dialog
+/// markdown.
+pub struct MenuItems {
+    get_help_url: Option<String>,
+    report_a_bug_url: Option<String>,
+    about_section_md: Option<String>,
+}
+
+impl MenuItems {
+    pub fn new() -> Self {
+        Self {
+            get_help_url: None,
+            report_a_bug_url: None,
+            about_section_md: None,
+        }
+    }
+
+    pub fn get_help(mut self, url: impl Into<String>) -> Self {
+        self.get_help_url = Some(url.into());
+        self
+    }
+
+    pub fn report_bug(mut self, url: impl Into<String>) -> Self {
+        self.report_a_bug_url = Some(url.into());
+        self
+    }
+
+    pub fn about(mut self, markdown: impl Into<String>) -> Self {
+        self.about_section_md = Some(markdown.into());
+        self
+    }
+}
+
+impl Default for MenuItems {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl From<PageConfigOptions> for crate::proto::PageConfig {
+    fn from(options: PageConfigOptions) -> Self {
+        crate::proto::PageConfig {
+            title: options.page_title.unwrap_or_default(),
+            favicon: options.page_icon.unwrap_or_default(),
+            // Unset enums ride the wire as the reference's inherit markers.
+            layout: options.layout.map(|layout| layout as i32).unwrap_or(crate::proto::page_config::Layout::Unset as i32),
+            initial_sidebar_state: options.initial_sidebar_state.map(|state| state as i32).unwrap_or(crate::proto::page_config::SidebarState::SidebarUnset as i32),
+            menu_items: options.menu_items.map(|menu| crate::proto::page_config::MenuItems {
+                get_help_url: menu.get_help_url.unwrap_or_default(),
+                report_a_bug_url: menu.report_a_bug_url.unwrap_or_default(),
+                about_section_md: menu.about_section_md.unwrap_or_default(),
+                ..Default::default()
+            }),
+            initial_sidebar_width: None,
+        }
+    }
+}
+
 impl<T: Into<f32> + Copy> From<Vec<T>> for ColumnsOptions {
     fn from(spec: Vec<T>) -> Self {
         Self::new(spec.iter().map(|&i| i.into()).collect())
@@ -943,6 +1073,34 @@ pub trait StreamlitApi {
 
     fn container_options<T: Into<ContainerOptions>>(&self, options: T) -> &Container<'_>;
 
+    /// The fixed sidebar root: children stream straight into [1, i],
+    /// interleaved with the main flow, with no block of its own.
+    fn sidebar(&self) -> &Sidebar<'_>;
+
+    fn expander<T: Into<ExpanderOptions>>(&self, options: T) -> &Expander<'_> {
+        self.expander_options(options.into())
+    }
+
+    fn expander_options(&self, options: ExpanderOptions) -> &Expander<'_>;
+
+    fn tabs<'a, T: Into<TabsOptions<'a>>>(&self, labels: T) -> &[Tab<'_>];
+
+    fn popover<T: Into<PopoverOptions>>(&self, options: T) -> &Popover<'_> {
+        self.popover_options(options.into())
+    }
+
+    fn popover_options(&self, options: PopoverOptions) -> &Popover<'_>;
+
+    /// Opens a dialog on the event root and streams `body` into it, the way
+    /// the reference's `@st.dialog` decorator behaves on call.
+    fn dialog<T, F: FnOnce(&DialogBody<'_>) -> T>(&self, options: impl Into<DialogOptions>, body: F) -> T;
+
+    /// Configures the page: title, icon, layout, sidebar state and menu
+    /// links. Like the measured 1.66.1 reference, every call streams one
+    /// `page_config_changed` message at the call point and consumes no
+    /// element path; fields left unset inherit the previous config.
+    fn set_page_config(&self, options: impl Into<PageConfigOptions>);
+
     fn form<T>(&self, options: impl Into<FormOptions>, body: impl FnOnce(&Form<'_>) -> Result<T, WidgetError>) -> Result<T, WidgetError>;
 
     fn columns<T: Into<ColumnsOptions>>(&self, spec: T) -> &[Column<'_>];
@@ -1037,6 +1195,27 @@ impl<C: AppendChild> StreamlitApi for C {
         let body = body.into();
         let element = MarkdownElement::new(body.body).unsafe_allow_html(body.unsafe_allow_html);
         self.push(Rc::new(RefCell::new(element)));
+    }
+
+    fn set_page_config(&self, options: impl Into<PageConfigOptions>) {
+        let page_config: crate::proto::PageConfig = options.into().into();
+        let app = self.get_app();
+        let mut app = app.lock();
+        // Like every other output, a run ended by st.rerun/st.stop streams
+        // nothing further.
+        if app.session_state.run_control().is_some() {
+            return;
+        }
+        if let Some(context) = app.render_context_mut()
+            && context.sender.is_some()
+        {
+            let mut message = ForwardMsg {
+                hash: "page_config_changed".to_string(),
+                ..Default::default()
+            };
+            message.r#type = Some(forward_msg::Type::PageConfigChanged(page_config));
+            context.push(message);
+        }
     }
 
     fn h1<T: Into<HeaderOptions>>(&self, body: T) {
@@ -1142,6 +1321,58 @@ impl<C: AppendChild> StreamlitApi for C {
         let exit_path = app.lock().render_context_mut().map(|context| context.delta_path.clone()).unwrap_or_default();
 
         self.allocator().malloc(Container::new(element, self.allocator(), app, self.parent_form_id(), base_path, exit_path))
+    }
+
+    fn sidebar(&self) -> &Sidebar<'_> {
+        let app = self.get_app();
+        let exit_path = self.next_child_path();
+        self.allocator().malloc(Sidebar::new(self.allocator(), app, self.parent_form_id(), exit_path))
+    }
+
+    fn expander_options(&self, options: ExpanderOptions) -> &Expander<'_> {
+        let element = Rc::new(RefCell::new(ExpanderElement::new(options)));
+        let app = self.get_app();
+        let base_path = self.next_child_path();
+        self.push(element.clone());
+        let exit_path = app.lock().render_context_mut().map(|context| context.delta_path.clone()).unwrap_or_default();
+        self.allocator().malloc(Expander::new(element, self.allocator(), app, self.parent_form_id(), base_path, exit_path))
+    }
+
+    fn tabs<'a, T: Into<TabsOptions<'a>>>(&self, labels: T) -> &[Tab<'_>] {
+        let options = labels.into();
+        if options.labels.is_empty() {
+            return &[];
+        }
+        let element = Rc::new(RefCell::new(TabsElement::new(options.labels)));
+        let app = self.get_app();
+        let base_path = self.next_child_path();
+        self.push(element.clone());
+        let exit_path = app.lock().render_context_mut().map(|context| context.delta_path.clone()).unwrap_or_default();
+
+        let tabs: Vec<Tab<'_>> = (0..element.borrow().tab_count())
+            .map(|index| Tab::new(index, element.clone(), self.allocator(), app.clone(), self.parent_form_id(), base_path.clone(), exit_path.clone()))
+            .collect();
+        self.allocator().malloc(tabs).as_slice()
+    }
+
+    fn popover_options(&self, options: PopoverOptions) -> &Popover<'_> {
+        let element = Rc::new(RefCell::new(PopoverElement::new(options)));
+        let app = self.get_app();
+        let base_path = self.next_child_path();
+        self.push(element.clone());
+        let exit_path = app.lock().render_context_mut().map(|context| context.delta_path.clone()).unwrap_or_default();
+        self.allocator().malloc(Popover::new(element, self.allocator(), app, self.parent_form_id(), base_path, exit_path))
+    }
+
+    fn dialog<T, F: FnOnce(&DialogBody<'_>) -> T>(&self, options: impl Into<DialogOptions>, body: F) -> T {
+        let options = options.into();
+        let app = self.get_app();
+        let script_hash = app.lock().render_context_mut().map(|context| context.active_script_hash.clone()).unwrap_or_default();
+        let element = Rc::new(RefCell::new(DialogElement::new(options, &script_hash)));
+        let exit_path = self.next_child_path();
+        self.push(element.clone());
+        let dialog = self.allocator().malloc(DialogBody::new(element, self.allocator(), app, self.parent_form_id(), exit_path));
+        body(dialog)
     }
 
     fn columns<T: Into<ColumnsOptions>>(&self, spec: T) -> &[Column<'_>] {

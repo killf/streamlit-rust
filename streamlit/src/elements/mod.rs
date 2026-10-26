@@ -9,6 +9,7 @@ pub mod data;
 pub mod exception;
 pub mod form;
 pub mod input;
+pub mod layouts;
 pub mod markdown;
 pub mod media;
 pub mod status;
