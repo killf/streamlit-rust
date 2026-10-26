@@ -718,6 +718,13 @@ WIDGET_ELEMENTS = (
     "date_input",
     "time_input",
     "chat_input",
+    "button_group",
+    "feedback",
+    "pagination",
+    "menu_button",
+    "link_button",
+    "page_link",
+    "download_button",
 )
 
 

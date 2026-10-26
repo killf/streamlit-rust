@@ -727,6 +727,356 @@ impl<T> MultiselectOptions<T> {
     common_builders!();
 }
 
+/// Toggle options. The plain `(label, value)` call starts unchecked, like the
+/// reference's `value=False` default.
+pub struct ToggleOptions {
+    common: InputOptions,
+    value: bool,
+}
+impl ToggleOptions {
+    pub fn new(label: impl Into<String>) -> Self {
+        Self { common: InputOptions::new(label), value: false }
+    }
+    pub fn value(mut self, value: bool) -> Self {
+        self.value = value;
+        self
+    }
+    common_builders!();
+}
+impl From<&str> for ToggleOptions {
+    fn from(label: &str) -> Self {
+        Self::new(label)
+    }
+}
+impl From<String> for ToggleOptions {
+    fn from(label: String) -> Self {
+        Self::new(label)
+    }
+}
+impl<L: Into<String>> From<(L, bool)> for ToggleOptions {
+    fn from((label, value): (L, bool)) -> Self {
+        Self::new(label).value(value)
+    }
+}
+
+/// The feedback styles and their icon counts, as the reference renders them.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FeedbackKind {
+    Thumbs,
+    Faces,
+    Stars,
+}
+impl FeedbackKind {
+    fn count(self) -> usize {
+        match self {
+            Self::Thumbs => 2,
+            Self::Faces | Self::Stars => 5,
+        }
+    }
+    fn wire(self) -> proto::feedback::FeedbackType {
+        match self {
+            Self::Thumbs => proto::feedback::FeedbackType::Thumbs,
+            Self::Faces => proto::feedback::FeedbackType::Faces,
+            Self::Stars => proto::feedback::FeedbackType::Stars,
+        }
+    }
+}
+
+/// Feedback options. The plain call is thumbs, unselected; the value is the
+/// picked icon's index (0 = most negative) or None once cleared. Feedback
+/// has no label or help, like the reference.
+pub struct FeedbackOptions {
+    common: InputOptions,
+    kind: FeedbackKind,
+    default: Option<u32>,
+}
+impl FeedbackOptions {
+    pub fn new(kind: FeedbackKind) -> Self {
+        Self {
+            common: InputOptions::new(String::new()),
+            kind,
+            default: None,
+        }
+    }
+    pub fn default(mut self, default: u32) -> Self {
+        self.default = Some(default);
+        self
+    }
+    pub fn key(mut self, key: impl Into<String>) -> Self {
+        self.common.key = Some(key.into());
+        self
+    }
+    pub fn disabled(mut self, disabled: bool) -> Self {
+        self.common.disabled = disabled;
+        self
+    }
+    pub fn width(mut self, pixels: i32) -> Self {
+        self.common.width = Some(pixels);
+        self
+    }
+    pub fn on_change(mut self, callback: impl Fn(&Streamlit) + Send + Sync + 'static) -> Self {
+        self.common.callback = Some(Arc::new(callback));
+        self.common.ignore_rerun = false;
+        self
+    }
+    pub fn ignore_rerun(mut self, ignore: bool) -> Self {
+        self.common.ignore_rerun = ignore;
+        if ignore {
+            self.common.callback = None;
+        }
+        self
+    }
+}
+impl Default for FeedbackOptions {
+    fn default() -> Self {
+        Self::new(FeedbackKind::Thumbs)
+    }
+}
+impl From<FeedbackKind> for FeedbackOptions {
+    fn from(kind: FeedbackKind) -> Self {
+        Self::new(kind)
+    }
+}
+
+/// How a pills or segmented-control group picks: one option at most, or any
+/// number in selection order.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SelectionMode {
+    Single,
+    Multi,
+}
+
+/// Shared options of pills and segmented control: option labels, either
+/// selection mode, and the initially selected labels. A leading material or
+/// emoji icon on a label travels as its own wire field, like the reference's
+/// transformed format function.
+pub struct ButtonGroupOptions {
+    common: InputOptions,
+    options: Vec<String>,
+    mode: SelectionMode,
+    default: Vec<String>,
+    required: bool,
+}
+impl ButtonGroupOptions {
+    pub fn new(label: impl Into<String>, options: impl IntoIterator<Item = impl ToString>) -> Self {
+        Self {
+            common: InputOptions::new(label),
+            options: options.into_iter().map(|option| option.to_string()).collect(),
+            mode: SelectionMode::Single,
+            default: Vec::new(),
+            required: false,
+        }
+    }
+    pub fn selection_mode(mut self, mode: SelectionMode) -> Self {
+        self.mode = mode;
+        self
+    }
+    /// The initially selected labels; one entry at most in single mode.
+    pub fn default(mut self, default: impl IntoIterator<Item = impl ToString>) -> Self {
+        self.default = default.into_iter().map(|option| option.to_string()).collect();
+        self
+    }
+    /// Keep one option always selected in single mode once a pick exists.
+    pub fn required(mut self, required: bool) -> Self {
+        self.required = required;
+        self
+    }
+    common_builders!();
+}
+impl<L: Into<String>, I: IntoIterator<Item = T>, T: ToString> From<(L, I)> for ButtonGroupOptions {
+    fn from((label, options): (L, I)) -> Self {
+        Self::new(label, options)
+    }
+}
+
+/// Pagination options. Pages are 1-indexed and one page is always selected.
+pub struct PaginationOptions {
+    common: InputOptions,
+    num_pages: u32,
+    default: u32,
+    max_visible_pages: Option<u32>,
+}
+impl PaginationOptions {
+    pub fn new(num_pages: u32) -> Self {
+        Self {
+            common: InputOptions::new(String::new()),
+            num_pages,
+            default: 1,
+            max_visible_pages: Some(7),
+        }
+    }
+    pub fn default(mut self, default: u32) -> Self {
+        self.default = default;
+        self
+    }
+    /// The target page-button count; None lifts the explicit cap.
+    pub fn max_visible_pages(mut self, max_visible_pages: Option<u32>) -> Self {
+        self.max_visible_pages = max_visible_pages;
+        self
+    }
+    pub fn key(mut self, key: impl Into<String>) -> Self {
+        self.common.key = Some(key.into());
+        self
+    }
+    pub fn disabled(mut self, disabled: bool) -> Self {
+        self.common.disabled = disabled;
+        self
+    }
+    pub fn width(mut self, pixels: i32) -> Self {
+        self.common.width = Some(pixels);
+        self
+    }
+    pub fn on_change(mut self, callback: impl Fn(&Streamlit) + Send + Sync + 'static) -> Self {
+        self.common.callback = Some(Arc::new(callback));
+        self.common.ignore_rerun = false;
+        self
+    }
+    pub fn ignore_rerun(mut self, ignore: bool) -> Self {
+        self.common.ignore_rerun = ignore;
+        if ignore {
+            self.common.callback = None;
+        }
+        self
+    }
+}
+impl From<u32> for PaginationOptions {
+    fn from(num_pages: u32) -> Self {
+        Self::new(num_pages)
+    }
+}
+
+/// Menu button options. The trigger returns the picked option's label for
+/// one run, then None, like the reference.
+pub struct MenuButtonOptions {
+    common: InputOptions,
+    options: Vec<String>,
+    r#type: String,
+    icon: Option<String>,
+}
+impl MenuButtonOptions {
+    pub fn new(label: impl Into<String>, options: impl IntoIterator<Item = impl ToString>) -> Self {
+        Self {
+            common: InputOptions::new(label),
+            options: options.into_iter().map(|option| option.to_string()).collect(),
+            r#type: "secondary".to_string(),
+            icon: None,
+        }
+    }
+    pub fn primary(mut self) -> Self {
+        self.r#type = "primary".into();
+        self
+    }
+    pub fn tertiary(mut self) -> Self {
+        self.r#type = "tertiary".into();
+        self
+    }
+    pub fn icon(mut self, icon: impl Into<String>) -> Self {
+        self.icon = Some(icon.into());
+        self
+    }
+    common_builders!();
+}
+impl<L: Into<String>, I: IntoIterator<Item = T>, T: ToString> From<(L, I)> for MenuButtonOptions {
+    fn from((label, options): (L, I)) -> Self {
+        Self::new(label, options)
+    }
+}
+
+/// Link button options. The plain call is a pure link (the reference's
+/// `on_click="ignore"` default: no rerun); `.on_click(...)` turns it into a
+/// trigger widget that reports the click for one run.
+pub struct LinkButtonOptions {
+    common: InputOptions,
+    url: String,
+    r#type: String,
+    icon: Option<String>,
+    rerun: bool,
+}
+impl LinkButtonOptions {
+    pub fn new(label: impl Into<String>, url: impl Into<String>) -> Self {
+        Self {
+            common: InputOptions::new(label),
+            url: url.into(),
+            r#type: "secondary".to_string(),
+            icon: None,
+            rerun: false,
+        }
+    }
+    pub fn primary(mut self) -> Self {
+        self.r#type = "primary".into();
+        self
+    }
+    pub fn tertiary(mut self) -> Self {
+        self.r#type = "tertiary".into();
+        self
+    }
+    pub fn icon(mut self, icon: impl Into<String>) -> Self {
+        self.icon = Some(icon.into());
+        self
+    }
+    /// Report clicks as one-shot trigger values instead of pure navigation.
+    pub fn on_click(mut self) -> Self {
+        self.rerun = true;
+        self.common.ignore_rerun = false;
+        self
+    }
+    common_builders!();
+}
+impl<L: Into<String>, U: Into<String>> From<(L, U)> for LinkButtonOptions {
+    fn from((label, url): (L, U)) -> Self {
+        Self::new(label, url)
+    }
+}
+
+/// Download button options. `data` is served from the media store and the
+/// trigger reports the click for one run.
+pub struct DownloadButtonOptions {
+    common: InputOptions,
+    data: Vec<u8>,
+    file_name: Option<String>,
+    mime: Option<String>,
+    r#type: String,
+    icon: Option<String>,
+}
+impl DownloadButtonOptions {
+    pub fn new(label: impl Into<String>, data: impl Into<Vec<u8>>) -> Self {
+        Self {
+            common: InputOptions::new(label),
+            data: data.into(),
+            file_name: None,
+            mime: None,
+            r#type: "secondary".to_string(),
+            icon: None,
+        }
+    }
+    pub fn file_name(mut self, file_name: impl Into<String>) -> Self {
+        self.file_name = Some(file_name.into());
+        self
+    }
+    pub fn mime(mut self, mime: impl Into<String>) -> Self {
+        self.mime = Some(mime.into());
+        self
+    }
+    pub fn primary(mut self) -> Self {
+        self.r#type = "primary".into();
+        self
+    }
+    pub fn tertiary(mut self) -> Self {
+        self.r#type = "tertiary".into();
+        self
+    }
+    pub fn icon(mut self, icon: impl Into<String>) -> Self {
+        self.icon = Some(icon.into());
+        self
+    }
+    common_builders!();
+}
+impl<L: Into<String>, D: Into<Vec<u8>>> From<(L, D)> for DownloadButtonOptions {
+    fn from((label, data): (L, D)) -> Self {
+        Self::new(label, data)
+    }
+}
+
 /// The number types a number input returns; the wire's integer/float split
 /// follows the value's type, as measured on the reference.
 pub trait NumberValue: Copy + Serialize + DeserializeOwned + PartialOrd + 'static {
@@ -1376,12 +1726,36 @@ pub trait InputWidgets {
     fn slider<T: SliderValue>(&self, options: impl Into<SliderOptions<T>>) -> Result<T, WidgetError>;
     /// Fallible counterpart to the original boolean-returning `button` method.
     fn try_button(&self, options: impl Into<ButtonOptions>) -> Result<bool, WidgetError>;
+    /// Accept a builder or `(label, value)`; the plain call starts unchecked.
+    fn toggle(&self, options: impl Into<ToggleOptions>) -> Result<bool, WidgetError>;
+    /// Accept a builder or a `FeedbackKind`. Returns the picked icon index.
+    fn feedback(&self, options: impl Into<FeedbackOptions>) -> Result<Option<u32>, WidgetError>;
+    /// pills: accept a builder or `(label, options)`.
+    fn pills(&self, options: impl Into<ButtonGroupOptions>) -> Result<ButtonGroupValue, WidgetError>;
+    /// segmented_control: accept a builder or `(label, options)`.
+    fn segmented_control(&self, options: impl Into<ButtonGroupOptions>) -> Result<ButtonGroupValue, WidgetError>;
+    /// Accept a builder or a page count. Returns the 1-indexed page.
+    fn pagination(&self, options: impl Into<PaginationOptions>) -> Result<u32, WidgetError>;
+    /// Accept a builder or `(label, options)`. The pick lasts one run.
+    fn menu_button(&self, options: impl Into<MenuButtonOptions>) -> Result<Option<String>, WidgetError>;
+    /// Accept a builder or `(label, url)`. Pure link unless `.on_click()`.
+    fn link_button(&self, options: impl Into<LinkButtonOptions>) -> Result<bool, WidgetError>;
+    /// Accept a builder or `(label, data)`. Serves `data` from the media store.
+    fn download_button(&self, options: impl Into<DownloadButtonOptions>) -> Result<bool, WidgetError>;
 
     /// The chat input (`st.chat_input`): a trigger widget routed to the
     /// bottom container that returns the submitted prompt on the run it
     /// triggered and `None` afterwards. Accepts a builder or the bare
     /// placeholder string.
     fn chat_input(&self, options: impl Into<ChatInputOptions>) -> Result<Option<String>, WidgetError>;
+}
+
+/// What a pills or segmented-control group returns: the selected label in
+/// single mode, every selected label in selection order in multi mode.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ButtonGroupValue {
+    Single(Option<String>),
+    Multi(Vec<String>),
 }
 
 impl<C: AppendChild> InputWidgets for C {
@@ -1924,6 +2298,284 @@ impl<C: AppendChild> InputWidgets for C {
         Ok(value)
     }
 
+    fn toggle(&self, options: impl Into<ToggleOptions>) -> Result<bool, WidgetError> {
+        let options = options.into();
+        let c = options.common;
+        let form_id = form_scope(self, c.callback.is_some())?;
+        let width_config = c.width(true)?;
+        let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { options.value.to_string() });
+        let (id, value, set_value) = self.register_widget_parity(
+            WidgetSpec {
+                kind: "toggle",
+                key: c.key.as_deref(),
+                identity: &identity,
+                default: options.value.into(),
+                codec: Codec::Bool,
+                callback: c.callback,
+            },
+            |value| value.as_bool().ok_or_else(|| WidgetError::InvalidValue("toggle expects bool".into())),
+        )?;
+        self.push(Rc::new(RefCell::new(InputElement(proto::Element {
+            width_config,
+            has_one_shot_effect: set_value.then_some(true),
+            r#type: Some(element::Type::Checkbox(proto::Checkbox {
+                id,
+                label: c.label,
+                form_id,
+                default: options.value,
+                value: set_value && value,
+                set_value,
+                help: c.help,
+                disabled: c.disabled,
+                label_visibility: c.visibility.wire(),
+                ignore_rerun: c.ignore_rerun,
+                r#type: proto::checkbox::StyleType::Toggle as i32,
+                ..Default::default()
+            })),
+            ..Default::default()
+        }))));
+        Ok(value)
+    }
+
+    fn feedback(&self, options: impl Into<FeedbackOptions>) -> Result<Option<u32>, WidgetError> {
+        let options = options.into();
+        let c = options.common;
+        let form_id = form_scope(self, c.callback.is_some())?;
+        let width_config = c.width(true)?;
+        let count = options.kind.count();
+        if options.default.is_some_and(|default| default as usize >= count) {
+            return Err(WidgetError::InvalidValue("feedback default is outside the style's icons".into()));
+        }
+        let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { format!("{:?}:{}", options.kind, options.default.unwrap_or(0)) });
+        let (id, value, set_value) = self.register_widget_parity(
+            WidgetSpec {
+                kind: "feedback",
+                key: c.key.as_deref(),
+                identity: &identity,
+                default: options.default.map(Value::from).unwrap_or(Value::Null),
+                codec: Codec::Feedback { count },
+                callback: c.callback,
+            },
+            |value| {
+                if value.is_null() {
+                    return Ok(None);
+                }
+                value.as_u64().map(|index| index as u32).map(Some).ok_or_else(|| WidgetError::InvalidValue("feedback expects an icon index".into()))
+            },
+        )?;
+        self.push(Rc::new(RefCell::new(InputElement(proto::Element {
+            width_config,
+            has_one_shot_effect: set_value.then_some(true),
+            r#type: Some(element::Type::Feedback(proto::Feedback {
+                id,
+                r#type: options.kind.wire() as i32,
+                default: options.default,
+                disabled: c.disabled,
+                form_id,
+                value: set_value.then_some(value).flatten(),
+                set_value,
+                ignore_rerun: c.ignore_rerun,
+            })),
+            ..Default::default()
+        }))));
+        Ok(value)
+    }
+
+    fn pills(&self, options: impl Into<ButtonGroupOptions>) -> Result<ButtonGroupValue, WidgetError> {
+        emit_button_group(self, options.into(), proto::button_group::Style::Pills)
+    }
+
+    fn segmented_control(&self, options: impl Into<ButtonGroupOptions>) -> Result<ButtonGroupValue, WidgetError> {
+        emit_button_group(self, options.into(), proto::button_group::Style::SegmentedControl)
+    }
+
+    fn pagination(&self, options: impl Into<PaginationOptions>) -> Result<u32, WidgetError> {
+        let options = options.into();
+        let c = options.common;
+        let form_id = form_scope(self, c.callback.is_some())?;
+        let width_config = c.width(true)?;
+        if options.num_pages < 1 {
+            return Err(WidgetError::InvalidValue("pagination needs at least one page".into()));
+        }
+        if !(1..=options.num_pages).contains(&options.default) {
+            return Err(WidgetError::InvalidValue("pagination default is outside the pages".into()));
+        }
+        let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { format!("{}:{}:{:?}", options.num_pages, options.default, options.max_visible_pages) });
+        let (id, value, set_value) = self.register_widget_parity(
+            WidgetSpec {
+                kind: "pagination",
+                key: c.key.as_deref(),
+                identity: &identity,
+                default: Value::from(options.default as u64),
+                codec: Codec::Pagination { num_pages: options.num_pages },
+                callback: c.callback,
+            },
+            |value| value.as_u64().map(|page| page as u32).ok_or_else(|| WidgetError::InvalidValue("pagination expects a page number".into())),
+        )?;
+        self.push(Rc::new(RefCell::new(InputElement(proto::Element {
+            width_config,
+            has_one_shot_effect: set_value.then_some(true),
+            r#type: Some(element::Type::Pagination(proto::Pagination {
+                id,
+                num_pages: options.num_pages,
+                default: options.default,
+                max_visible_pages: options.max_visible_pages,
+                disabled: c.disabled,
+                form_id,
+                // The reference streams value only with set_value; an
+                // unchanged page stays at the declared default, which the
+                // wire omits.
+                value: if set_value { value } else { 0 },
+                set_value,
+                ignore_rerun: c.ignore_rerun,
+                ..Default::default()
+            })),
+            ..Default::default()
+        }))));
+        Ok(value)
+    }
+
+    fn menu_button(&self, options: impl Into<MenuButtonOptions>) -> Result<Option<String>, WidgetError> {
+        let options = options.into();
+        let c = options.common;
+        if self.parent_form_id().is_some() {
+            return Err(WidgetError::InvalidValue("st.menu_button cannot be added to a form".into()));
+        }
+        if options.options.is_empty() {
+            return Err(WidgetError::InvalidValue("menu_button needs at least one option".into()));
+        }
+        let width_config = c.width(true)?;
+        let identity = c.identity_in_form("", &if c.key.is_some() { String::new() } else { format!("{:?}:{}:{:?}", options.options, options.r#type, options.icon) });
+        let (id, value, _) = self.register_widget_parity(
+            WidgetSpec {
+                kind: "menu_button",
+                key: c.key.as_deref(),
+                identity: &identity,
+                default: Value::Null,
+                codec: Codec::StringTrigger(options.options.clone()),
+                callback: c.callback,
+            },
+            |value| {
+                if value.is_null() {
+                    return Ok(None);
+                }
+                value
+                    .as_u64()
+                    .and_then(|index| options.options.get(index as usize).cloned())
+                    .map(Some)
+                    .ok_or_else(|| WidgetError::InvalidValue("invalid menu_button selection index".into()))
+            },
+        )?;
+        self.push(Rc::new(RefCell::new(InputElement(proto::Element {
+            width_config,
+            r#type: Some(element::Type::MenuButton(proto::MenuButton {
+                id,
+                label: c.label,
+                options: options.options,
+                help: c.help,
+                r#type: options.r#type,
+                disabled: c.disabled,
+                icon: options.icon.unwrap_or_default(),
+                ..Default::default()
+            })),
+            ..Default::default()
+        }))));
+        Ok(value)
+    }
+
+    fn link_button(&self, options: impl Into<LinkButtonOptions>) -> Result<bool, WidgetError> {
+        let options = options.into();
+        let c = options.common;
+        let width_config = c.width(true)?;
+        // The reference's default is `on_click="ignore"`: a pure element
+        // that still registers its id and key when either is given. Only an
+        // opted-in click trigger carries widget state.
+        let (id, value) = if options.rerun || c.key.is_some() {
+            if self.parent_form_id().is_some() {
+                return Err(WidgetError::InvalidValue("st.link_button cannot be added to a form".into()));
+            }
+            let identity = if c.key.is_some() {
+                String::new()
+            } else {
+                serde_json::to_string(&(&c.label, &c.help, &options.url, &options.r#type, &options.icon))?
+            };
+            let (id, value, _) = self.register_widget_parity(
+                WidgetSpec {
+                    kind: "link_button",
+                    key: c.key.as_deref(),
+                    identity: &identity,
+                    default: false.into(),
+                    codec: Codec::Trigger,
+                    callback: if options.rerun { c.callback } else { None },
+                },
+                |value| value.as_bool().ok_or_else(|| WidgetError::InvalidValue("link_button expects bool".into())),
+            )?;
+            (id, value)
+        } else {
+            (String::new(), false)
+        };
+        self.push(Rc::new(RefCell::new(InputElement(proto::Element {
+            width_config,
+            r#type: Some(element::Type::LinkButton(proto::LinkButton {
+                id,
+                label: c.label,
+                help: c.help,
+                url: options.url,
+                disabled: c.disabled,
+                r#type: options.r#type,
+                icon: options.icon.unwrap_or_default(),
+                ignore_rerun: !options.rerun,
+                ..Default::default()
+            })),
+            ..Default::default()
+        }))));
+        Ok(value)
+    }
+
+    fn download_button(&self, options: impl Into<DownloadButtonOptions>) -> Result<bool, WidgetError> {
+        let options = options.into();
+        let c = options.common;
+        if self.parent_form_id().is_some() {
+            return Err(WidgetError::InvalidValue("st.download_button cannot be added to a form".into()));
+        }
+        let width_config = c.width(true)?;
+        let mime = options.mime.clone().unwrap_or_else(|| "application/octet-stream".to_string());
+        let url = format!("/media/{}{}", crate::media::put_download(&options.data, &mime, options.file_name.as_deref()), crate::media::download_extension(&mime));
+        let identity = if c.key.is_some() {
+            String::new()
+        } else {
+            serde_json::to_string(&(&c.label, &c.help, &options.file_name, &mime, &options.r#type, &options.icon))?
+        };
+        let (id, value, _) = self.register_widget_parity(
+            WidgetSpec {
+                kind: "download_button",
+                key: c.key.as_deref(),
+                identity: &identity,
+                default: false.into(),
+                codec: Codec::Trigger,
+                callback: c.callback,
+            },
+            |value| value.as_bool().ok_or_else(|| WidgetError::InvalidValue("download_button expects bool".into())),
+        )?;
+        self.push(Rc::new(RefCell::new(InputElement(proto::Element {
+            width_config,
+            r#type: Some(element::Type::DownloadButton(proto::DownloadButton {
+                id,
+                label: c.label,
+                default: false,
+                help: c.help,
+                url,
+                disabled: c.disabled,
+                r#type: options.r#type,
+                icon: options.icon.unwrap_or_default(),
+                ignore_rerun: c.ignore_rerun,
+                ..Default::default()
+            })),
+            ..Default::default()
+        }))));
+        Ok(value)
+    }
+
     fn chat_input(&self, options: impl Into<ChatInputOptions>) -> Result<Option<String>, WidgetError> {
         let options = options.into();
         if self.parent_form_id().is_some() {
@@ -2044,6 +2696,125 @@ fn emit_selectbox<C: AppendChild, T: Clone + Serialize>(this: &C, options: Selec
         ..Default::default()
     }))));
     Ok(result)
+}
+
+/// The one emitter behind pills and segmented_control: both are the same
+/// button-group element with a different style, the measured 1.66.1 wire.
+fn emit_button_group<C: AppendChild>(this: &C, options: ButtonGroupOptions, style: proto::button_group::Style) -> Result<ButtonGroupValue, WidgetError> {
+    let c = options.common;
+    let multi = options.mode == SelectionMode::Multi;
+    let form_id = form_scope(this, c.callback.is_some())?;
+    let width_config = c.width(true)?;
+    if options.required && multi {
+        return Err(WidgetError::InvalidValue("required is only supported for single-select mode".into()));
+    }
+    if options.default.len() > options.options.len() || (!multi && options.default.len() > 1) {
+        return Err(WidgetError::InvalidValue("button-group defaults must fit the selection mode".into()));
+    }
+    let mut default_indices: Vec<u32> = Vec::with_capacity(options.default.len());
+    for label in &options.default {
+        let index = options.options.iter().position(|option| option == label).ok_or_else(|| WidgetError::InvalidValue("button-group default is absent from options".into()))?;
+        default_indices.push(index as u32);
+    }
+    let native: Vec<Value> = options.options.iter().map(|label| Value::String(label.clone())).collect();
+    let default = if multi {
+        Value::Array(default_indices.iter().map(|index| Value::from(*index as u64)).collect())
+    } else {
+        default_indices.first().map(|index| Value::from(*index as u64)).unwrap_or(Value::Null)
+    };
+    let identity = c.identity_in_form(
+        &form_id,
+        &if c.key.is_some() {
+            String::new()
+        } else {
+            format!("{:?}:{:?}:{}:{:?}", options.options, default_indices, multi, options.required)
+        },
+    );
+    let (id, selected, set_value) = this.register_widget_parity(
+        WidgetSpec {
+            kind: if style == proto::button_group::Style::Pills { "pills" } else { "segmented_control" },
+            key: c.key.as_deref(),
+            identity: &identity,
+            default,
+            codec: Codec::ButtonGroup {
+                options: options.options.iter().cloned().zip(native).collect(),
+                multi,
+            },
+            callback: c.callback,
+        },
+        |value| {
+            let labels = if multi {
+                value
+                    .as_array()
+                    .ok_or_else(|| WidgetError::InvalidValue("multi-select expects an index array".into()))?
+                    .iter()
+                    .map(|item| {
+                        item.as_u64()
+                            .and_then(|index| usize::try_from(index).ok())
+                            .and_then(|index| options.options.get(index).cloned())
+                            .ok_or_else(|| WidgetError::InvalidValue("invalid button-group selection index".into()))
+                    })
+                    .collect::<Result<Vec<_>, _>>()?
+            } else if value.is_null() {
+                Vec::new()
+            } else {
+                vec![
+                    value
+                        .as_u64()
+                        .and_then(|index| usize::try_from(index).ok())
+                        .and_then(|index| options.options.get(index).cloned())
+                        .ok_or_else(|| WidgetError::InvalidValue("invalid button-group selection index".into()))?,
+                ]
+            };
+            Ok(if multi { ButtonGroupValue::Multi(labels) } else { ButtonGroupValue::Single(labels.into_iter().next()) })
+        },
+    )?;
+    // The selection labels re-serialize in selection order, like the
+    // reference's serializer, so the frontend's set_value stays faithful.
+    let raw_values = match &selected {
+        ButtonGroupValue::Single(Some(label)) => vec![label.clone()],
+        ButtonGroupValue::Single(None) => Vec::new(),
+        ButtonGroupValue::Multi(labels) => labels.clone(),
+    };
+    this.push(Rc::new(RefCell::new(InputElement(proto::Element {
+        width_config,
+        has_one_shot_effect: set_value.then_some(true),
+        r#type: Some(element::Type::ButtonGroup(proto::ButtonGroup {
+            id,
+            options: options.options.iter().map(|label| button_group_option(label)).collect(),
+            default: default_indices,
+            disabled: c.disabled,
+            click_mode: if multi { proto::button_group::ClickMode::MultiSelect as i32 } else { proto::button_group::ClickMode::SingleSelect as i32 },
+            form_id,
+            set_value,
+            style: style as i32,
+            label: c.label,
+            label_visibility: c.visibility.wire(),
+            help: if c.help.is_empty() { None } else { Some(c.help) },
+            raw_values: if set_value { raw_values } else { Default::default() },
+            required: options.required,
+            ignore_rerun: c.ignore_rerun,
+            ..Default::default()
+        })),
+        ..Default::default()
+    }))));
+    Ok(selected)
+}
+
+/// The reference's transformed format function: a leading material icon or
+/// emoji travels as its own wire field instead of label text.
+fn button_group_option(label: &str) -> proto::button_group::Option {
+    let mut parts = label.splitn(2, ' ');
+    let first = parts.next().unwrap_or_default();
+    let rest = parts.next().unwrap_or_default();
+    let is_material = first.starts_with(":material/") && first.ends_with(':') && first.len() > ":material/:".len();
+    let is_emoji = !is_material && first.chars().count() == 1 && !first.is_ascii();
+    if (is_material || is_emoji) && rest.chars().any(|character| !character.is_whitespace()) {
+        let content = rest.trim_start().to_string();
+        let content = if content.is_empty() { String::new() } else { content };
+        return proto::button_group::Option { content, content_icon: Some(first.to_string()) };
+    }
+    proto::button_group::Option { content: label.to_string(), content_icon: None }
 }
 
 #[cfg(test)]

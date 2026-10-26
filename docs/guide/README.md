@@ -508,8 +508,33 @@ if let Some(prompt) = st.chat_input("Say something")? {   // pinned to the botto
 
 The chat input is a one-shot trigger routed to the bottom container: it returns the submitted prompt on the run it triggered and `None` afterwards. The [chat example](../../streamlit/examples/chat.rs) mirrors the reference fixture of the chat differential chain.
 
+## Button family
+
+```rust
+let dark = st.toggle(("Night mode", true))?;              // a checkbox with the TOGGLE style
+let rating = st.feedback(FeedbackKind::Stars)?;           // thumbs/faces/stars, the icon index or None
+
+let pick = st.pills(("Priority", ["low", "high"]))?;      // ButtonGroupValue::Single
+let tags = st.pills(ButtonGroupOptions::new("Tags", ["a", "b"])
+    .selection_mode(SelectionMode::Multi)
+    .default(["a"]))?;                                    // ButtonGroupValue::Multi, selection order
+let view = st.segmented_control(("View", ["grid", "list"]).default(["grid"]))?;
+
+let page = st.pagination(PaginationOptions::new(10))?;    // 1-indexed, always selected
+
+if let Some(choice) = st.menu_button(("Export", ["CSV", "JSON"]))? {
+    st.write(choice);                                     // "CSV" for one run, then None
+}
+
+let saved = st.download_button(("Save report", "body").file_name("report.txt").mime("text/plain"))?;
+let visited = st.link_button(("Docs", "https://docs.streamlit.io"))?;  // pure link unless .on_click()
+st.page_link(PageLinkOptions::new("https://example.com").label("Example site"))?;
+```
+
+Every element rides the measured 1.66.1 wire: pills and segmented control are button groups (click modes, index defaults), the download button serves its bytes from the content-addressed `/media/<hash>.<ext>` store, and the link button defaults to the reference's `on_click="ignore"`. The [buttons example](../../streamlit/examples/buttons.rs) mirrors the reference fixture of the buttons differential chain.
+
 ## Current API
 
-Available APIs include text and layout, static status messages, the text family (`text`/`sub_header`/`latex`/`html`/`iframe` embeds and the `snow` one-shot, plus `echo` and `exception`), the display containers (`json`/`status`/`empty`/`space`/`bottom`), the chat elements (`chat_message`/`chat_input`), `button`, `selectbox` (including creation mode, filter modes and query binding), numeric and date/time `slider`, `checkbox`, the measured `form`/`form_submit_button`/`text_input` core, native session state, the layout containers (sidebar, expander, tabs, popover, dialog), `set_page_config`, `query_params`, `cache_data`/`cache_resource`, multipage navigation (`navigation`/`Page`/`switch_page`), media and chart elements, and the `st.rerun`/`st.stop` execution controls. See the [text/layout/status API](../../streamlit/src/api.rs), [text element implementations](../../streamlit/src/elements/text.rs), [layout containers](../../streamlit/src/elements/layouts.rs), [widget options](../../streamlit/src/widget_api.rs), [query params](../../streamlit/src/query_params.rs), [cache](../../streamlit/src/cache.rs), [navigation](../../streamlit/src/navigation.rs), and [session API](../../streamlit/src/session.rs).
+Available APIs include text and layout, static status messages, the text family (`text`/`sub_header`/`latex`/`html`/`iframe` embeds and the `snow` one-shot, plus `echo` and `exception`), the display containers (`json`/`status`/`empty`/`space`/`bottom`), the chat elements (`chat_message`/`chat_input`), `button` and the button family (`toggle`/`feedback`/`pills`/`segmented_control`/`pagination`/`menu_button`/`download_button`/`link_button`/`page_link`), `selectbox` (including creation mode, filter modes and query binding), numeric and date/time `slider`, `checkbox`, the measured `form`/`form_submit_button`/`text_input` core, native session state, the layout containers (sidebar, expander, tabs, popover, dialog), `set_page_config`, `query_params`, `cache_data`/`cache_resource`, multipage navigation (`navigation`/`Page`/`switch_page`), media and chart elements, and the `st.rerun`/`st.stop` execution controls. See the [text/layout/status API](../../streamlit/src/api.rs), [text element implementations](../../streamlit/src/elements/text.rs), [layout containers](../../streamlit/src/elements/layouts.rs), [widget options](../../streamlit/src/widget_api.rs), [query params](../../streamlit/src/query_params.rs), [cache](../../streamlit/src/cache.rs), [navigation](../../streamlit/src/navigation.rs), and [session API](../../streamlit/src/session.rs).
 
 Upload and columnar data views currently cover the limited paths described above. General table/chart APIs, selection, complete forms/text-input behavior, persistent hidden widgets, and most other input widgets remain incomplete or absent (`st.quit` does not exist in 1.66.1; the Rust cache is session-scoped, not process-wide like Python's). Duplicate widget keys render the framework exception box as described above; other widget failures are Rust `Result` errors you handle yourself. Native session values, reruns, retained-session reconnects, synchronous callbacks, explicit widget keys and one-shot button triggers are available, without a claim of complete Streamlit compatibility.

@@ -150,10 +150,29 @@ pub(crate) enum Codec {
     /// chat_input_value state, absent data meaning None (the trigger
     /// resets after the run, like the reference).
     ChatInput,
+    /// The feedback string state: "" (the user cleared, so None) or the
+    /// decimal index of the picked icon, within the style's icon count.
+    Feedback {
+        count: usize,
+    },
+    /// The pagination page, 1-indexed within `num_pages`.
+    Pagination {
+        num_pages: u32,
+    },
+    /// pills/segmented_control: option labels paired with their native
+    /// values; the wire is the selected label strings (one at most in
+    /// single-select mode, in selection order in multi-select).
+    ButtonGroup {
+        options: Vec<(String, Value)>,
+        multi: bool,
+    },
+    /// The menu button's one-shot string trigger: the selected option's
+    /// label, resetting to None after the run like button triggers.
+    StringTrigger(Vec<String>),
 }
 
 impl Codec {
-    fn decode(&self, wire: &widget_state::Value) -> Option<Value> {
+    pub(crate) fn decode(&self, wire: &widget_state::Value) -> Option<Value> {
         match (self, wire) {
             (Self::Trigger, widget_state::Value::TriggerValue(value)) => Some((*value).into()),
             (Self::Bool, widget_state::Value::BoolValue(value)) => Some((*value).into()),
@@ -183,6 +202,23 @@ impl Codec {
                 Some("") | None => Value::Null,
                 Some(data) => Value::String(data.to_owned()),
             }),
+            (Self::Feedback { .. }, widget_state::Value::StringValue(value)) => Some(if value.is_empty() { Value::Null } else { value.parse::<u64>().ok().map(Value::from)? }),
+            (Self::Pagination { num_pages }, widget_state::Value::IntValue(value)) => {
+                let num_pages = *num_pages as u64;
+                (*value >= 1 && *value as u64 <= num_pages).then(|| (*value as u64).into())
+            }
+            (Self::ButtonGroup { options, multi }, widget_state::Value::StringArrayValue(array)) => {
+                let indices: Option<Vec<Value>> = array.data.iter().map(|label| options.iter().position(|(text, _)| text == label).map(Value::from)).collect();
+                let indices = indices?;
+                if *multi {
+                    Some(Value::Array(indices))
+                } else if indices.len() <= 1 {
+                    Some(indices.into_iter().next().unwrap_or(Value::Null))
+                } else {
+                    None
+                }
+            }
+            (Self::StringTrigger(options), widget_state::Value::StringTriggerValue(trigger)) => trigger.data.as_deref().and_then(|label| options.iter().position(|option| option == label).map(Value::from)),
             (Codec::Slider { count, integer, .. }, widget_state::Value::DoubleArrayValue(array)) if array.data.len() == *count => {
                 let values: Vec<Value> = array.data.iter().map(|value| if *integer { Value::from(*value as i64) } else { Value::from(*value) }).collect();
                 let result = if *count == 1 { values[0].clone() } else { Value::Array(values) };
@@ -212,6 +248,13 @@ impl Codec {
         match self {
             Self::Trigger | Self::Bool => value.is_boolean(),
             Self::ChatInput => value.is_null() || value.is_string(),
+            Self::Feedback { count } => value.is_null() || value.as_u64().is_some_and(|index| index < *count as u64),
+            Self::Pagination { num_pages } => value.as_u64().is_some_and(|page| (1..=*num_pages as u64).contains(&page)),
+            Self::ButtonGroup { options, multi } => {
+                let within = |index: &Value| index.as_u64().is_some_and(|index| index < options.len() as u64);
+                if *multi { value.as_array().is_some_and(|indices| indices.iter().all(within)) } else { value.is_null() || within(value) }
+            }
+            Self::StringTrigger(options) => value.is_null() || value.as_u64().is_some_and(|index| index < options.len() as u64),
             Self::Text { max_chars } => value.is_null() || value.as_str().is_some_and(|text| max_chars.is_none_or(|limit| text.chars().count() <= limit)),
             Self::Select(options) => value.is_null() || value.as_u64().is_some_and(|index| index < options.len() as u64),
             Self::SelectCreation(options) => value.is_null() || value.is_string() || value.as_u64().is_some_and(|index| index < options.len() as u64),
@@ -260,6 +303,17 @@ impl Codec {
                     .map(|indices| indices.iter().filter_map(|index| index.as_u64().and_then(|i| options.get(i as usize)).map(|(_, native)| native.clone())).collect())
                     .unwrap_or_default(),
             ),
+            Self::ButtonGroup { options, multi } if *multi => Value::Array(
+                value
+                    .as_array()
+                    .map(|indices| indices.iter().filter_map(|index| index.as_u64().and_then(|i| options.get(i as usize)).map(|(_, native)| native.clone())).collect())
+                    .unwrap_or_default(),
+            ),
+            Self::ButtonGroup { options, multi } => {
+                debug_assert!(!*multi);
+                value.as_u64().and_then(|index| options.get(index as usize)).map(|(_, native)| native.clone()).unwrap_or(Value::Null)
+            }
+            Self::StringTrigger(options) => value.as_u64().and_then(|index| options.get(index as usize)).cloned().map(Value::String).unwrap_or(Value::Null),
             _ => value.clone(),
         }
     }
@@ -306,7 +360,45 @@ impl Codec {
             }
             return Ok(Value::Array(indices));
         }
+        if let Self::ButtonGroup { options, multi } = self {
+            if *multi {
+                let Some(items) = native.as_array() else {
+                    return Err(WidgetError::InvalidValue("multi-select session value must be an array".into()));
+                };
+                let mut indices = Vec::with_capacity(items.len());
+                for item in items {
+                    let index = options.iter().position(|(_, value)| value == item).ok_or_else(|| WidgetError::InvalidValue("session value is absent from options".into()))?;
+                    indices.push(Value::from(index));
+                }
+                return Ok(Value::Array(indices));
+            }
+            return native
+                .as_str()
+                .and_then(|text| options.iter().position(|(label, _)| label == text))
+                .map(Value::from)
+                .or_else(|| native.is_null().then_some(Value::Null))
+                .ok_or_else(|| WidgetError::InvalidValue("session value is absent from options".into()));
+        }
+        if let Self::StringTrigger(options) = self {
+            return native
+                .as_str()
+                .and_then(|text| options.iter().position(|option| option == text))
+                .map(Value::from)
+                .or_else(|| native.is_null().then_some(Value::Null))
+                .ok_or_else(|| WidgetError::InvalidValue("session value is absent from options".into()));
+        }
         Ok(native.clone())
+    }
+}
+
+/// The value a one-shot widget resets to between runs, or None for widgets
+/// that keep their state: buttons and link/download triggers to false, the
+/// chat input to its empty value, the menu button to no selection.
+fn one_shot_reset(codec: &Codec) -> Option<Value> {
+    match codec {
+        Codec::Trigger => Some(Value::Bool(false)),
+        Codec::ChatInput | Codec::StringTrigger(_) => Some(Value::Null),
+        _ => None,
     }
 }
 
@@ -386,13 +478,9 @@ impl SessionState {
         registry.pending.clear();
         let mut values = self.values.lock();
         for record in registry.records.values_mut() {
-            if matches!(record.codec, Codec::Trigger | Codec::ChatInput) {
-                // Both are one-shot: the trigger resets to false, the chat
-                // input to its empty (null) value.
-                let reset = match record.codec {
-                    Codec::ChatInput => Value::Null,
-                    _ => Value::Bool(false),
-                };
+            // Trigger widgets are one-shot: buttons reset to false, the chat
+            // input to its empty (null) value, the menu button to null.
+            if let Some(reset) = one_shot_reset(&record.codec) {
                 record.value = reset.clone();
                 if let Some(key) = &record.key {
                     values.insert(key.clone(), reset);
@@ -449,8 +537,8 @@ impl SessionState {
             return Err(WidgetError::DuplicateId(id));
         }
         let mut values = self.values.lock();
-        if matches!(codec, Codec::Trigger | Codec::Files { .. } | Codec::ChatInput) && key.is_some_and(|key| values.contains_key(key)) && !registry.records.contains_key(&id) {
-            return Err(WidgetError::InvalidValue("button, chat input and uploader state cannot be preseeded".into()));
+        if matches!(codec, Codec::Trigger | Codec::Files { .. } | Codec::ChatInput | Codec::StringTrigger(_)) && key.is_some_and(|key| values.contains_key(key)) && !registry.records.contains_key(&id) {
+            return Err(WidgetError::InvalidValue("button, chat input, menu button and uploader state cannot be preseeded".into()));
         }
         // A constraint-dependent identity change resets the old widget binding.
         let changed_identity = key.is_some_and(|key| registry.records.iter().any(|(old_id, record)| old_id != &id && record.key.as_deref() == Some(key)));
@@ -467,7 +555,7 @@ impl SessionState {
             .filter(|applied| codec.valid(applied));
         let base_value = if changed_identity {
             default
-        } else if matches!(codec, Codec::Trigger | Codec::ChatInput) {
+        } else if one_shot_reset(&codec).is_some() {
             registry.records.get(&id).map(|record| record.value.clone()).unwrap_or(default)
         } else {
             if let Some(native) = key.and_then(|key| values.get(key)) {
@@ -518,11 +606,7 @@ impl SessionState {
                 }
                 return false;
             }
-            if matches!(record.codec, Codec::Trigger | Codec::ChatInput) {
-                let reset = match record.codec {
-                    Codec::ChatInput => Value::Null,
-                    _ => Value::Bool(false),
-                };
+            if let Some(reset) = one_shot_reset(&record.codec) {
                 record.value = reset.clone();
                 if let Some(key) = &record.key {
                     values.insert(key.clone(), reset);

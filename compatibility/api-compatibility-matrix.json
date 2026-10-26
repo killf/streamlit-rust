@@ -88,18 +88,18 @@
   "unavailable_requested_pages": 7,
   "redirect_aliases_not_counted": 2,
   "implementation_status_counts": {
-   "absent": 108,
-   "implemented": 74
+   "absent": 99,
+   "implemented": 83
   },
   "compatibility_status_counts": {
-   "unverified": 108,
-   "partial": 74
+   "unverified": 99,
+   "partial": 83
   },
   "unique_feature_ids": 182,
   "unique_official_urls": 182,
   "captured_sources_valid": 218,
   "captured_sources_total": 218,
-  "python_browser_trace_links": 19
+  "python_browser_trace_links": 68
  },
  "vendor_migration": {
   "status": "verified",
@@ -1949,26 +1949,58 @@
    "category": "PAGE ELEMENTS/Input widgets",
    "scope_type": "api-reference",
    "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.download_button",
-   "rust_source_path": null,
-   "implementation_status": "absent",
-   "compatibility_status": "unverified",
+   "rust_source_path": "streamlit/src/widget_api.rs",
+   "implementation_status": "implemented",
+   "compatibility_status": "partial",
    "evidence": {
     "official_document_sha256": "9ba598bfe14dfcdf36a4bf50177c661e6265e47f462225b437506029c2f6b696",
-    "python_browser_trace": null
-   }
+    "python_browser_trace": "tests/reference/reference-browser/buttons/trace-buttons.json",
+    "rust_source": "streamlit/src/widget_api.rs",
+    "rust_api_test": "streamlit/tests/runtime/buttons.rs",
+    "rust_wire_observation": "tests/browser/rust-buttons/trace-buttons.json",
+    "official_frontend_browser_e2e": "tests/browser/rust-buttons/trace-buttons.json",
+    "capture_entry": "tests/browser/buttons_capture.py",
+    "buttons_contract": "tests/browser/buttons_contract.py",
+    "contract_guards": "tests/reference/test_buttons_contract.py",
+    "driven_fixture": "tests/reference/buttons_app.py",
+    "driven_example": "streamlit/examples/buttons.rs"
+   },
+   "rust_plan": "st.download_button(label, data) registers a trigger widget and streams a download_button element whose url is the content-addressed /media/<blake2b-16>.<ext> address of the declared bytes (the same digest the reference computes, filename included), with the button type and icon.",
+   "compatibility_scope": "The journey-buttons-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome across six measured stages (the load and one committed interaction each for the toggle, the single-select pill, the pagination page, the feedback star and the menu pick); the published replays assert 17/17 checks per side, covering every element's full wire message, the browser's widget-state reports and the settled DOM.",
+   "limitations": [
+    "Coverage is the journey-buttons-v1 chain: the pinned fixture's widget set (two toggles, stars+thumbs feedback, single/multi pills, one segmented control, a 10-page pagination, one menu button, one text download, one keyed link button, one external page link) across the load and five committed interactions (toggle flip, single pill pick, page-2 click, third star, CSV menu pick).",
+    "only a text/plain payload was observed (its .txt extension map); other mime extension mappings mirror the reference table but are unobserved, and the deferred-callable download path is not implemented.",
+    "fixture SHA256 301325fef04f99504bd2577edbeed14991e0b2335170cae7a0d4d99807f1530d; example SHA256 79817da724ca2b6d57f9615b955d9acc6219d30ce7a357026b605c426a705f4d."
+   ]
   },
   {
    "feature_id": "st.feedback",
    "category": "PAGE ELEMENTS/Input widgets",
    "scope_type": "api-reference",
    "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.feedback",
-   "rust_source_path": null,
-   "implementation_status": "absent",
-   "compatibility_status": "unverified",
+   "rust_source_path": "streamlit/src/widget_api.rs",
+   "implementation_status": "implemented",
+   "compatibility_status": "partial",
    "evidence": {
     "official_document_sha256": "6426cf8b57f2e79bba7464e33dc2be1576f38383acda445a2872bfe1cda20c4a",
-    "python_browser_trace": null
-   }
+    "python_browser_trace": "tests/reference/reference-browser/buttons/trace-buttons.json",
+    "rust_source": "streamlit/src/widget_api.rs",
+    "rust_api_test": "streamlit/tests/runtime/buttons.rs",
+    "rust_wire_observation": "tests/browser/rust-buttons/trace-buttons.json",
+    "official_frontend_browser_e2e": "tests/browser/rust-buttons/trace-buttons.json",
+    "capture_entry": "tests/browser/buttons_capture.py",
+    "buttons_contract": "tests/browser/buttons_contract.py",
+    "contract_guards": "tests/reference/test_buttons_contract.py",
+    "driven_fixture": "tests/reference/buttons_app.py",
+    "driven_example": "streamlit/examples/buttons.rs"
+   },
+   "rust_plan": "st.feedback(kind) registers a Feedback{count} widget (thumbs 2, faces/stars 5 icons) decoding the measured string serde (\"\" cleared -> None, decimal index otherwise) and streams a feedback element carrying only the style enum (plus default/value on programmatic writes).",
+   "compatibility_scope": "The journey-buttons-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome across six measured stages (the load and one committed interaction each for the toggle, the single-select pill, the pagination page, the feedback star and the menu pick); the published replays assert 17/17 checks per side, covering every element's full wire message, the browser's widget-state reports and the settled DOM.",
+   "limitations": [
+    "Coverage is the journey-buttons-v1 chain: the pinned fixture's widget set (two toggles, stars+thumbs feedback, single/multi pills, one segmented control, a 10-page pagination, one menu button, one text download, one keyed link button, one external page link) across the load and five committed interactions (toggle flip, single pill pick, page-2 click, third star, CSV menu pick).",
+    "default selections, disabled, on_change and the ignore mode were not observed; faces was not rendered (its style enum is implemented and unit-checked, not browser-observed).",
+    "fixture SHA256 301325fef04f99504bd2577edbeed14991e0b2335170cae7a0d4d99807f1530d; example SHA256 79817da724ca2b6d57f9615b955d9acc6219d30ce7a357026b605c426a705f4d."
+   ]
   },
   {
    "feature_id": "st.file_uploader",
@@ -2022,26 +2054,58 @@
    "category": "PAGE ELEMENTS/Input widgets",
    "scope_type": "api-reference",
    "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.link_button",
-   "rust_source_path": null,
-   "implementation_status": "absent",
-   "compatibility_status": "unverified",
+   "rust_source_path": "streamlit/src/widget_api.rs",
+   "implementation_status": "implemented",
+   "compatibility_status": "partial",
    "evidence": {
     "official_document_sha256": "1354a6ef3fee4f3e4e903341a0b93664ed4fd94afcba9e57daee1e05f79bfbb3",
-    "python_browser_trace": null
-   }
+    "python_browser_trace": "tests/reference/reference-browser/buttons/trace-buttons.json",
+    "rust_source": "streamlit/src/widget_api.rs",
+    "rust_api_test": "streamlit/tests/runtime/buttons.rs",
+    "rust_wire_observation": "tests/browser/rust-buttons/trace-buttons.json",
+    "official_frontend_browser_e2e": "tests/browser/rust-buttons/trace-buttons.json",
+    "capture_entry": "tests/browser/buttons_capture.py",
+    "buttons_contract": "tests/browser/buttons_contract.py",
+    "contract_guards": "tests/reference/test_buttons_contract.py",
+    "driven_fixture": "tests/reference/buttons_app.py",
+    "driven_example": "streamlit/examples/buttons.rs"
+   },
+   "rust_plan": "st.link_button(label, url) streams a link_button element that defaults to the reference's on_click=\"ignore\" (ignore_rerun=true) while still registering its id and key when either is given; .on_click() opts into a trigger widget that reports the click for one run.",
+   "compatibility_scope": "The journey-buttons-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome across six measured stages (the load and one committed interaction each for the toggle, the single-select pill, the pagination page, the feedback star and the menu pick); the published replays assert 17/17 checks per side, covering every element's full wire message, the browser's widget-state reports and the settled DOM.",
+   "limitations": [
+    "Coverage is the journey-buttons-v1 chain: the pinned fixture's widget set (two toggles, stars+thumbs feedback, single/multi pills, one segmented control, a 10-page pagination, one menu button, one text download, one keyed link button, one external page link) across the load and five committed interactions (toggle flip, single pill pick, page-2 click, third star, CSV menu pick).",
+    "on_click rerun/callback mode, icons, primary/tertiary types and click-triggered navigation were not observed; the pure ignore_rerun link is the measured shape.",
+    "fixture SHA256 301325fef04f99504bd2577edbeed14991e0b2335170cae7a0d4d99807f1530d; example SHA256 79817da724ca2b6d57f9615b955d9acc6219d30ce7a357026b605c426a705f4d."
+   ]
   },
   {
    "feature_id": "st.menu_button",
    "category": "PAGE ELEMENTS/Input widgets",
    "scope_type": "api-reference",
    "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.menu_button",
-   "rust_source_path": null,
-   "implementation_status": "absent",
-   "compatibility_status": "unverified",
+   "rust_source_path": "streamlit/src/widget_api.rs",
+   "implementation_status": "implemented",
+   "compatibility_status": "partial",
    "evidence": {
     "official_document_sha256": "6902d77a5aafa4d3eca885ff34d735bf31cc2bea7182e05f02495e27c1939fee",
-    "python_browser_trace": null
-   }
+    "python_browser_trace": "tests/reference/reference-browser/buttons/trace-buttons.json",
+    "rust_source": "streamlit/src/widget_api.rs",
+    "rust_api_test": "streamlit/tests/runtime/buttons.rs",
+    "rust_wire_observation": "tests/browser/rust-buttons/trace-buttons.json",
+    "official_frontend_browser_e2e": "tests/browser/rust-buttons/trace-buttons.json",
+    "capture_entry": "tests/browser/buttons_capture.py",
+    "buttons_contract": "tests/browser/buttons_contract.py",
+    "contract_guards": "tests/reference/test_buttons_contract.py",
+    "driven_fixture": "tests/reference/buttons_app.py",
+    "driven_example": "streamlit/examples/buttons.rs"
+   },
+   "rust_plan": "st.menu_button(label, options) registers a one-shot StringTrigger widget (string_trigger_value{data} decoding to the picked label, resetting to None after the run like button triggers) and streams a menu_button element with label, option strings, type and icon.",
+   "compatibility_scope": "The journey-buttons-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome across six measured stages (the load and one committed interaction each for the toggle, the single-select pill, the pagination page, the feedback star and the menu pick); the published replays assert 17/17 checks per side, covering every element's full wire message, the browser's widget-state reports and the settled DOM.",
+   "limitations": [
+    "Coverage is the journey-buttons-v1 chain: the pinned fixture's widget set (two toggles, stars+thumbs feedback, single/multi pills, one segmented control, a 10-page pagination, one menu button, one text download, one keyed link button, one external page link) across the load and five committed interactions (toggle flip, single pill pick, page-2 click, third star, CSV menu pick).",
+    "primary/tertiary types, icons, help, disabled and the popover-open-without-pick path were not observed; the pick is the only measured trigger.",
+    "fixture SHA256 301325fef04f99504bd2577edbeed14991e0b2335170cae7a0d4d99807f1530d; example SHA256 79817da724ca2b6d57f9615b955d9acc6219d30ce7a357026b605c426a705f4d."
+   ]
   },
   {
    "feature_id": "st.multiselect",
@@ -2107,39 +2171,87 @@
    "category": "PAGE ELEMENTS/Input widgets",
    "scope_type": "api-reference",
    "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.page_link",
-   "rust_source_path": null,
-   "implementation_status": "absent",
-   "compatibility_status": "unverified",
+   "rust_source_path": "streamlit/src/api.rs",
+   "implementation_status": "implemented",
+   "compatibility_status": "partial",
    "evidence": {
     "official_document_sha256": "e30d98bc10639eaeb36fb2c9c4892213398c1f40af6e7e60480812cc4567951d",
-    "python_browser_trace": null
-   }
+    "python_browser_trace": "tests/reference/reference-browser/buttons/trace-buttons.json",
+    "rust_source": "streamlit/src/api.rs",
+    "rust_api_test": "streamlit/tests/runtime/buttons.rs",
+    "rust_wire_observation": "tests/browser/rust-buttons/trace-buttons.json",
+    "official_frontend_browser_e2e": "tests/browser/rust-buttons/trace-buttons.json",
+    "capture_entry": "tests/browser/buttons_capture.py",
+    "buttons_contract": "tests/browser/buttons_contract.py",
+    "contract_guards": "tests/reference/test_buttons_contract.py",
+    "driven_fixture": "tests/reference/buttons_app.py",
+    "driven_example": "streamlit/examples/buttons.rs"
+   },
+   "rust_plan": "st.page_link(target) streams a page_link element: an external URL target carries page/label/external with the label required, a navigation Page target additionally carries the page's script hash and url path with the title/icon as fallbacks.",
+   "compatibility_scope": "The journey-buttons-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome across six measured stages (the load and one committed interaction each for the toggle, the single-select pill, the pagination page, the feedback star and the menu pick); the published replays assert 17/17 checks per side, covering every element's full wire message, the browser's widget-state reports and the settled DOM.",
+   "limitations": [
+    "Coverage is the journey-buttons-v1 chain: the pinned fixture's widget set (two toggles, stars+thumbs feedback, single/multi pills, one segmented control, a 10-page pagination, one menu button, one text download, one keyed link button, one external page link) across the load and five committed interactions (toggle flip, single pill pick, page-2 click, third star, CSV menu pick).",
+    "the registered-Page target (page_script_hash + url path from st.navigation) is implemented and unit-shaped like st.navigation's own page hashes but not browser-observed in this chain; only the external URL form was measured.",
+    "fixture SHA256 301325fef04f99504bd2577edbeed14991e0b2335170cae7a0d4d99807f1530d; example SHA256 79817da724ca2b6d57f9615b955d9acc6219d30ce7a357026b605c426a705f4d."
+   ]
   },
   {
    "feature_id": "st.pagination",
    "category": "PAGE ELEMENTS/Input widgets",
    "scope_type": "api-reference",
    "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.pagination",
-   "rust_source_path": null,
-   "implementation_status": "absent",
-   "compatibility_status": "unverified",
+   "rust_source_path": "streamlit/src/widget_api.rs",
+   "implementation_status": "implemented",
+   "compatibility_status": "partial",
    "evidence": {
     "official_document_sha256": "ab473288c0de431b57259025fbb170796cae75de24b0fd01fd620d3baef10dd3",
-    "python_browser_trace": null
-   }
+    "python_browser_trace": "tests/reference/reference-browser/buttons/trace-buttons.json",
+    "rust_source": "streamlit/src/widget_api.rs",
+    "rust_api_test": "streamlit/tests/runtime/buttons.rs",
+    "rust_wire_observation": "tests/browser/rust-buttons/trace-buttons.json",
+    "official_frontend_browser_e2e": "tests/browser/rust-buttons/trace-buttons.json",
+    "capture_entry": "tests/browser/buttons_capture.py",
+    "buttons_contract": "tests/browser/buttons_contract.py",
+    "contract_guards": "tests/reference/test_buttons_contract.py",
+    "driven_fixture": "tests/reference/buttons_app.py",
+    "driven_example": "streamlit/examples/buttons.rs"
+   },
+   "rust_plan": "st.pagination(num_pages) registers a Pagination{num_pages} widget (int state, 1..=num_pages, default 1) and streams a pagination element with num_pages, default, max_visible_pages (7 by default, omitted when None) and value only alongside set_value.",
+   "compatibility_scope": "The journey-buttons-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome across six measured stages (the load and one committed interaction each for the toggle, the single-select pill, the pagination page, the feedback star and the menu pick); the published replays assert 17/17 checks per side, covering every element's full wire message, the browser's widget-state reports and the settled DOM.",
+   "limitations": [
+    "Coverage is the journey-buttons-v1 chain: the pinned fixture's widget set (two toggles, stars+thumbs feedback, single/multi pills, one segmented control, a 10-page pagination, one menu button, one text download, one keyed link button, one external page link) across the load and five committed interactions (toggle flip, single pill pick, page-2 click, third star, CSV menu pick).",
+    "max_visible_pages=None/0 and bind-to-query-params were not observed; only default=1 with the 7-page cap and a page-2 click.",
+    "fixture SHA256 301325fef04f99504bd2577edbeed14991e0b2335170cae7a0d4d99807f1530d; example SHA256 79817da724ca2b6d57f9615b955d9acc6219d30ce7a357026b605c426a705f4d."
+   ]
   },
   {
    "feature_id": "st.pills",
    "category": "PAGE ELEMENTS/Input widgets",
    "scope_type": "api-reference",
    "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.pills",
-   "rust_source_path": null,
-   "implementation_status": "absent",
-   "compatibility_status": "unverified",
+   "rust_source_path": "streamlit/src/widget_api.rs",
+   "implementation_status": "implemented",
+   "compatibility_status": "partial",
    "evidence": {
     "official_document_sha256": "781fc0ba531eaf7cffa99d19a504644698c8d35f62baa8d8e13b058db933796a",
-    "python_browser_trace": null
-   }
+    "python_browser_trace": "tests/reference/reference-browser/buttons/trace-buttons.json",
+    "rust_source": "streamlit/src/widget_api.rs",
+    "rust_api_test": "streamlit/tests/runtime/buttons.rs",
+    "rust_wire_observation": "tests/browser/rust-buttons/trace-buttons.json",
+    "official_frontend_browser_e2e": "tests/browser/rust-buttons/trace-buttons.json",
+    "capture_entry": "tests/browser/buttons_capture.py",
+    "buttons_contract": "tests/browser/buttons_contract.py",
+    "contract_guards": "tests/reference/test_buttons_contract.py",
+    "driven_fixture": "tests/reference/buttons_app.py",
+    "driven_example": "streamlit/examples/buttons.rs"
+   },
+   "rust_plan": "st.pills(label, options) streams a button_group element: Option content list, SINGLE_SELECT (omitted) or MULTI_SELECT click mode, PILLS style, index defaults, required flag and ignore_rerun; the wire state is the selected label strings via Codec::ButtonGroup.",
+   "compatibility_scope": "The journey-buttons-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome across six measured stages (the load and one committed interaction each for the toggle, the single-select pill, the pagination page, the feedback star and the menu pick); the published replays assert 17/17 checks per side, covering every element's full wire message, the browser's widget-state reports and the settled DOM.",
+   "limitations": [
+    "Coverage is the journey-buttons-v1 chain: the pinned fixture's widget set (two toggles, stars+thumbs feedback, single/multi pills, one segmented control, a 10-page pagination, one menu button, one text download, one keyed link button, one external page link) across the load and five committed interactions (toggle flip, single pill pick, page-2 click, third star, CSV menu pick).",
+    "format_func, required=True single mode, option icons (material/emoji content_icon extraction is implemented but unobserved), query binding, wrap and help were not observed.",
+    "fixture SHA256 301325fef04f99504bd2577edbeed14991e0b2335170cae7a0d4d99807f1530d; example SHA256 79817da724ca2b6d57f9615b955d9acc6219d30ce7a357026b605c426a705f4d."
+   ]
   },
   {
    "feature_id": "st.radio",
@@ -2175,13 +2287,29 @@
    "category": "PAGE ELEMENTS/Input widgets",
    "scope_type": "api-reference",
    "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.segmented_control",
-   "rust_source_path": null,
-   "implementation_status": "absent",
-   "compatibility_status": "unverified",
+   "rust_source_path": "streamlit/src/widget_api.rs",
+   "implementation_status": "implemented",
+   "compatibility_status": "partial",
    "evidence": {
     "official_document_sha256": "1733fd8a155c5028ae9198bc95010db24fe501c94cd0f714c95c30a6034bd007",
-    "python_browser_trace": null
-   }
+    "python_browser_trace": "tests/reference/reference-browser/buttons/trace-buttons.json",
+    "rust_source": "streamlit/src/widget_api.rs",
+    "rust_api_test": "streamlit/tests/runtime/buttons.rs",
+    "rust_wire_observation": "tests/browser/rust-buttons/trace-buttons.json",
+    "official_frontend_browser_e2e": "tests/browser/rust-buttons/trace-buttons.json",
+    "capture_entry": "tests/browser/buttons_capture.py",
+    "buttons_contract": "tests/browser/buttons_contract.py",
+    "contract_guards": "tests/reference/test_buttons_contract.py",
+    "driven_fixture": "tests/reference/buttons_app.py",
+    "driven_example": "streamlit/examples/buttons.rs"
+   },
+   "rust_plan": "st.segmented_control(label, options) streams the same button_group element with the SEGMENTED_CONTROL style (omitted on the wire as the enum default), single or multi selection, index defaults and required flag.",
+   "compatibility_scope": "The journey-buttons-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome across six measured stages (the load and one committed interaction each for the toggle, the single-select pill, the pagination page, the feedback star and the menu pick); the published replays assert 17/17 checks per side, covering every element's full wire message, the browser's widget-state reports and the settled DOM.",
+   "limitations": [
+    "Coverage is the journey-buttons-v1 chain: the pinned fixture's widget set (two toggles, stars+thumbs feedback, single/multi pills, one segmented control, a 10-page pagination, one menu button, one text download, one keyed link button, one external page link) across the load and five committed interactions (toggle flip, single pill pick, page-2 click, third star, CSV menu pick).",
+    "format_func, required=True single mode, option icons, query binding, wrap and help were not observed.",
+    "fixture SHA256 301325fef04f99504bd2577edbeed14991e0b2335170cae7a0d4d99807f1530d; example SHA256 79817da724ca2b6d57f9615b955d9acc6219d30ce7a357026b605c426a705f4d."
+   ]
   },
   {
    "feature_id": "st.select_slider",
@@ -2347,13 +2475,29 @@
    "category": "PAGE ELEMENTS/Input widgets",
    "scope_type": "api-reference",
    "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.toggle",
-   "rust_source_path": null,
-   "implementation_status": "absent",
-   "compatibility_status": "unverified",
+   "rust_source_path": "streamlit/src/widget_api.rs",
+   "implementation_status": "implemented",
+   "compatibility_status": "partial",
    "evidence": {
     "official_document_sha256": "b20b2a0cf104e09a48c2a62daa3642338f8130a68dff6215b4ef55cc0ef4b1f3",
-    "python_browser_trace": null
-   }
+    "python_browser_trace": "tests/reference/reference-browser/buttons/trace-buttons.json",
+    "rust_source": "streamlit/src/widget_api.rs",
+    "rust_api_test": "streamlit/tests/runtime/buttons.rs",
+    "rust_wire_observation": "tests/browser/rust-buttons/trace-buttons.json",
+    "official_frontend_browser_e2e": "tests/browser/rust-buttons/trace-buttons.json",
+    "capture_entry": "tests/browser/buttons_capture.py",
+    "buttons_contract": "tests/browser/buttons_contract.py",
+    "contract_guards": "tests/reference/test_buttons_contract.py",
+    "driven_fixture": "tests/reference/buttons_app.py",
+    "driven_example": "streamlit/examples/buttons.rs"
+   },
+   "rust_plan": "st.toggle(label, value) registers a bool widget (kind \"toggle\", the label/value/help identity) and streams a checkbox element with the TOGGLE style at the call slot (default only when declared, value/set_value only on programmatic writes).",
+   "compatibility_scope": "The journey-buttons-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome across six measured stages (the load and one committed interaction each for the toggle, the single-select pill, the pagination page, the feedback star and the menu pick); the published replays assert 17/17 checks per side, covering every element's full wire message, the browser's widget-state reports and the settled DOM.",
+   "limitations": [
+    "Coverage is the journey-buttons-v1 chain: the pinned fixture's widget set (two toggles, stars+thumbs feedback, single/multi pills, one segmented control, a 10-page pagination, one menu button, one text download, one keyed link button, one external page link) across the load and five committed interactions (toggle flip, single pill pick, page-2 click, third star, CSV menu pick).",
+    "help/label_visibility/on_change/disabled/width and form scoping follow the shared checkbox semantics but were not separately measured; icon-prefixed labels were not observed.",
+    "fixture SHA256 301325fef04f99504bd2577edbeed14991e0b2335170cae7a0d4d99807f1530d; example SHA256 79817da724ca2b6d57f9615b955d9acc6219d30ce7a357026b605c426a705f4d."
+   ]
   },
   {
    "feature_id": "st.bottom",

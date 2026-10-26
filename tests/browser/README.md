@@ -495,3 +495,39 @@ native `07f3f274576d85f75090ec3484764f88f1128b0e55902e59879d14d3669bcffd`,
 under contract `4cfdf313ea8a0ee6b385abfc492abd10a7fa9a1ef6af733b4649aac82c87865b`.
 The runtime regression (streamlit/tests/runtime/chat.rs) pins both measured
 runs over the production websocket.
+
+## Button family (toggle, feedback, pills, segmented_control, pagination, menu_button, download_button, link_button, page_link)
+
+[buttons_capture.py](buttons_capture.py) is the permanent entry for the
+button-family chain; [buttons_contract.py](buttons_contract.py) is its
+strict criterion (journey-buttons-v1, 17 checks) with unit tests in
+[tests/reference/test_buttons_contract.py](../reference/test_buttons_contract.py).
+The page renders the nine-family fixture (two toggles, stars and thumbs
+feedback, single- and multi-select pills, a segmented control, a 10-page
+pagination, a menu button, a text download, a keyed link button and an
+external page link); six real-interaction stages (load, toggle flip,
+single pill pick, page-2 click, third star, CSV menu pick) pin every
+element's full wire message, the browser's widget-state reports and the
+settled DOM — including the toggle's checkbox-with-TOGGLE-style shape, the
+all-default thumbs feedback, the button-group click modes and index
+defaults, pagination's never-stray value, the one-shot menu string
+trigger, the content-addressed `/media/<hash>.txt` download URL (the same
+digest on both sides), link_button's ignore_rerun default with its keyed
+id and page_link's page/label/external. Widget ids are judged modulo the
+`$$ID` digest segment, the browser's widget-state order is normalized
+(hash order differs between sessions), and one leading `main_container`
+add_block at [0] is the Rust runtime's documented divergence. The
+published chains:
+
+```powershell
+target\pyref-venv\Scripts\python.exe tests\browser\buttons_capture.py --replay tests\reference\reference-browser\buttons\trace-buttons.json
+target\pyref-venv\Scripts\python.exe tests\browser\buttons_capture.py --replay tests\browser\rust-buttons\trace-buttons.json
+```
+
+Both return 17 expected / 17 executed / 17 asserted with exit 0. Raw
+SHA256: python `8b9a562c4ada78a548d98c52a98d82e8e569039a171e85287e4521ab26dca7f1`,
+native `d338189786e8f07d049fcb1b022b1147b8654642693b1720629018aeb5e580d4`,
+under contract `0e309888ff5ae1dbd265c1402a33dcc7ce2a98f0a5b87fd099883b75ca967265`.
+The runtime regression (streamlit/tests/runtime/buttons.rs) pins the load
+timeline over the production websocket plus the trigger-reset and codec
+semantics.

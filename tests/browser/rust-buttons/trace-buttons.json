@@ -1,0 +1,3464 @@
+{
+ "schema_version": 1,
+ "journey": "buttons-page",
+ "contract": "journey-buttons-v1",
+ "scope": "RUST SIDE",
+ "url": "http://127.0.0.1:8523/",
+ "observation": {
+  "journey": "buttons-page",
+  "contract": "journey-buttons-v1",
+  "scope": "RUST SIDE",
+  "url": "http://127.0.0.1:8523/",
+  "binary": "target\\debug\\examples\\buttons.exe",
+  "source": {
+   "file": "streamlit/examples/buttons.rs",
+   "sha256": "79817da724ca2b6d57f9615b955d9acc6219d30ce7a357026b605c426a705f4d"
+  },
+  "capture_sources": {
+   "buttons_capture.py": "d824481668cb73afecdba3d1cdf5f0b60ff04ee588ff2dcd2e95f22439cad963",
+   "buttons_contract.py": "0e309888ff5ae1dbd265c1402a33dcc7ce2a98f0a5b87fd099883b75ca967265"
+  },
+  "stages": [
+   {
+    "name": "01-load",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 73435.976097,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": []
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73435.978827,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "ddbe30bf-d3c2-436c-9d06-7ca2c78f9072",
+        "name": "Streamlit Rust",
+        "main_script_path": "",
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "session_id": "d8ada674-2c25-461c-aab2-2144b75defc6"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73435.98635,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73435.986487,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "main_container",
+        "block_type": "vertical",
+        "block": {
+         "vertical": {},
+         "id": "main_container"
+        },
+        "path": [
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73435.986792,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "checkbox",
+        "element_full": {
+         "checkbox": {
+          "id": "$$ID-2971c9302e4dcdcabb08c04837638fdb-night",
+          "label": "Night mode",
+          "labelVisibility": {},
+          "type": "TOGGLE"
+         },
+         "widthConfig": {
+          "useContent": true
+         }
+        },
+        "widget": {
+         "id": "$$ID-2971c9302e4dcdcabb08c04837638fdb-night",
+         "label": "Night mode",
+         "labelVisibility": {},
+         "type": "TOGGLE"
+        },
+        "id": "$$ID-2971c9302e4dcdcabb08c04837638fdb-night",
+        "label": "Night mode",
+        "accepted_types": [
+         "1"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73435.987197,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "checkbox",
+        "element_full": {
+         "checkbox": {
+          "id": "$$ID-3a4198f2fbebf180bbde9d75dc74d107-None",
+          "label": "Sound",
+          "default": true,
+          "labelVisibility": {},
+          "type": "TOGGLE"
+         },
+         "widthConfig": {
+          "useContent": true
+         }
+        },
+        "widget": {
+         "id": "$$ID-3a4198f2fbebf180bbde9d75dc74d107-None",
+         "label": "Sound",
+         "default": true,
+         "labelVisibility": {},
+         "type": "TOGGLE"
+        },
+        "id": "$$ID-3a4198f2fbebf180bbde9d75dc74d107-None",
+        "label": "Sound",
+        "accepted_types": [
+         "1"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73435.987259,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "feedback",
+        "widget": {
+         "id": "$$ID-da4ff0c0bb55d241c9d3590d5678b44d-rate",
+         "type": "STARS"
+        },
+        "id": "$$ID-da4ff0c0bb55d241c9d3590d5678b44d-rate",
+        "accepted_types": [
+         "2"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         2
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73435.987367,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "feedback",
+        "widget": {
+         "id": "$$ID-707f84290cf9a4ba6485cb6b7b38291b-None"
+        },
+        "id": "$$ID-707f84290cf9a4ba6485cb6b7b38291b-None",
+        "accepted_types": [
+         "0"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         3
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73435.987419,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "button_group",
+        "widget": {
+         "id": "$$ID-7dabfa04e5393221489872c04b658d16-priority",
+         "options": [
+          {
+           "content": "low"
+          },
+          {
+           "content": "medium"
+          },
+          {
+           "content": "high"
+          }
+         ],
+         "style": "PILLS",
+         "label": "Priority",
+         "labelVisibility": {}
+        },
+        "id": "$$ID-7dabfa04e5393221489872c04b658d16-priority",
+        "label": "Priority",
+        "form_id": "",
+        "path": [
+         0,
+         4
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73435.987617,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "button_group",
+        "widget": {
+         "id": "$$ID-b9e1c49eff8ca660ed68346464a98e93-tags",
+         "options": [
+          {
+           "content": "alpha"
+          },
+          {
+           "content": "beta"
+          },
+          {
+           "content": "gamma"
+          }
+         ],
+         "default": [
+          0
+         ],
+         "clickMode": "MULTI_SELECT",
+         "style": "PILLS",
+         "label": "Tags",
+         "labelVisibility": {}
+        },
+        "id": "$$ID-b9e1c49eff8ca660ed68346464a98e93-tags",
+        "label": "Tags",
+        "form_id": "",
+        "path": [
+         0,
+         5
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73435.98769,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "button_group",
+        "widget": {
+         "id": "$$ID-7aeab2d13bb62865a73aa32f6c95d8ab-view",
+         "options": [
+          {
+           "content": "grid"
+          },
+          {
+           "content": "list"
+          }
+         ],
+         "default": [
+          0
+         ],
+         "label": "View",
+         "labelVisibility": {}
+        },
+        "id": "$$ID-7aeab2d13bb62865a73aa32f6c95d8ab-view",
+        "label": "View",
+        "form_id": "",
+        "path": [
+         0,
+         6
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73435.98775,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "pagination",
+        "widget": {
+         "id": "$$ID-3aa9543962a021240c19722c51d5e8a3-pager",
+         "numPages": 10,
+         "default": 1,
+         "maxVisiblePages": 7
+        },
+        "id": "$$ID-3aa9543962a021240c19722c51d5e8a3-pager",
+        "form_id": "",
+        "path": [
+         0,
+         7
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73435.987869,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "page=1",
+        "path": [
+         0,
+         8
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73435.987952,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "menu_button",
+        "widget": {
+         "id": "$$ID-8bdb753c75b6acd75088842f1c77d823-export",
+         "label": "Export",
+         "options": [
+          "CSV",
+          "JSON"
+         ],
+         "type": "secondary"
+        },
+        "id": "$$ID-8bdb753c75b6acd75088842f1c77d823-export",
+        "label": "Export",
+        "accepted_types": [
+         "secondary"
+        ],
+        "path": [
+         0,
+         9
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73435.988038,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "download_button",
+        "widget": {
+         "id": "$$ID-2756beaf22a71736d61878782ee92ea1-save",
+         "label": "Save report",
+         "url": "/media/8dfe283c4516576ff59dfb1b6901332d.txt",
+         "type": "secondary"
+        },
+        "id": "$$ID-2756beaf22a71736d61878782ee92ea1-save",
+        "label": "Save report",
+        "accepted_types": [
+         "secondary"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         10
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73435.988143,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "link_button",
+        "widget": {
+         "id": "$$ID-b3f337b411d7d370e605c5140a94a7d6-docs",
+         "label": "Docs",
+         "url": "https://docs.streamlit.io",
+         "type": "secondary",
+         "ignoreRerun": true
+        },
+        "id": "$$ID-b3f337b411d7d370e605c5140a94a7d6-docs",
+        "label": "Docs",
+        "accepted_types": [
+         "secondary"
+        ],
+        "path": [
+         0,
+         11
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73435.988228,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "page_link",
+        "widget": {
+         "page": "https://example.com",
+         "label": "Example site",
+         "external": true
+        },
+        "label": "Example site",
+        "path": [
+         0,
+         12
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73435.98831,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73435.988442,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "http": [],
+    "dom": {
+     "buttons": [
+      "Deploy",
+      "",
+      "star",
+      "star",
+      "star",
+      "star",
+      "star",
+      "thumb_up",
+      "thumb_down",
+      "low",
+      "medium",
+      "high",
+      "alpha",
+      "beta",
+      "gamma",
+      "grid",
+      "list",
+      "chevron_left",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "10",
+      "chevron_right",
+      "Exportexpand_more",
+      "Save report"
+     ],
+     "checkboxes": [
+      "Night mode",
+      "Sound"
+     ],
+     "markdowns": [],
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "01-load.png",
+     "sha256": "81b86317349c59b262b33e78fd698a1a6bfae05a0579c6ee93ac1da0481212fe"
+    }
+   },
+   {
+    "name": "02-toggle",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 73439.533591,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": [
+         {
+          "id": "$$ID-2971c9302e4dcdcabb08c04837638fdb-night",
+          "value_field": "bool_value",
+          "value": true
+         },
+         {
+          "id": "$$ID-3a4198f2fbebf180bbde9d75dc74d107-None",
+          "value_field": "bool_value",
+          "value": true
+         },
+         {
+          "id": "$$ID-da4ff0c0bb55d241c9d3590d5678b44d-rate",
+          "value_field": "string_value",
+          "value": ""
+         },
+         {
+          "id": "$$ID-707f84290cf9a4ba6485cb6b7b38291b-None",
+          "value_field": "string_value",
+          "value": ""
+         },
+         {
+          "id": "$$ID-7dabfa04e5393221489872c04b658d16-priority",
+          "value_field": "string_array_value",
+          "value": {},
+          "value_full": {}
+         },
+         {
+          "id": "$$ID-b9e1c49eff8ca660ed68346464a98e93-tags",
+          "value_field": "string_array_value",
+          "value": {
+           "data": "['alpha']"
+          },
+          "value_full": {
+           "data": [
+            "alpha"
+           ]
+          }
+         },
+         {
+          "id": "$$ID-7aeab2d13bb62865a73aa32f6c95d8ab-view",
+          "value_field": "string_array_value",
+          "value": {
+           "data": "['grid']"
+          },
+          "value_full": {
+           "data": [
+            "grid"
+           ]
+          }
+         },
+         {
+          "id": "$$ID-3aa9543962a021240c19722c51d5e8a3-pager",
+          "value_field": "int_value",
+          "value": 1
+         }
+        ],
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73439.535147,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "c7fced75-2f14-4e8c-94d6-f9bf7da4aa67",
+        "name": "Streamlit Rust",
+        "main_script_path": "",
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "session_id": "d8ada674-2c25-461c-aab2-2144b75defc6"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73439.535554,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73439.538215,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "main_container",
+        "block_type": "vertical",
+        "block": {
+         "vertical": {},
+         "id": "main_container"
+        },
+        "path": [
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73439.538323,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "checkbox",
+        "element_full": {
+         "checkbox": {
+          "id": "$$ID-2971c9302e4dcdcabb08c04837638fdb-night",
+          "label": "Night mode",
+          "labelVisibility": {},
+          "type": "TOGGLE"
+         },
+         "widthConfig": {
+          "useContent": true
+         }
+        },
+        "widget": {
+         "id": "$$ID-2971c9302e4dcdcabb08c04837638fdb-night",
+         "label": "Night mode",
+         "labelVisibility": {},
+         "type": "TOGGLE"
+        },
+        "id": "$$ID-2971c9302e4dcdcabb08c04837638fdb-night",
+        "label": "Night mode",
+        "accepted_types": [
+         "1"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73439.538373,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "checkbox",
+        "element_full": {
+         "checkbox": {
+          "id": "$$ID-3a4198f2fbebf180bbde9d75dc74d107-None",
+          "label": "Sound",
+          "default": true,
+          "labelVisibility": {},
+          "type": "TOGGLE"
+         },
+         "widthConfig": {
+          "useContent": true
+         }
+        },
+        "widget": {
+         "id": "$$ID-3a4198f2fbebf180bbde9d75dc74d107-None",
+         "label": "Sound",
+         "default": true,
+         "labelVisibility": {},
+         "type": "TOGGLE"
+        },
+        "id": "$$ID-3a4198f2fbebf180bbde9d75dc74d107-None",
+        "label": "Sound",
+        "accepted_types": [
+         "1"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73439.538396,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "feedback",
+        "widget": {
+         "id": "$$ID-da4ff0c0bb55d241c9d3590d5678b44d-rate",
+         "type": "STARS"
+        },
+        "id": "$$ID-da4ff0c0bb55d241c9d3590d5678b44d-rate",
+        "accepted_types": [
+         "2"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         2
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73439.538421,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "feedback",
+        "widget": {
+         "id": "$$ID-707f84290cf9a4ba6485cb6b7b38291b-None"
+        },
+        "id": "$$ID-707f84290cf9a4ba6485cb6b7b38291b-None",
+        "accepted_types": [
+         "0"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         3
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73439.538457,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "button_group",
+        "widget": {
+         "id": "$$ID-7dabfa04e5393221489872c04b658d16-priority",
+         "options": [
+          {
+           "content": "low"
+          },
+          {
+           "content": "medium"
+          },
+          {
+           "content": "high"
+          }
+         ],
+         "style": "PILLS",
+         "label": "Priority",
+         "labelVisibility": {}
+        },
+        "id": "$$ID-7dabfa04e5393221489872c04b658d16-priority",
+        "label": "Priority",
+        "form_id": "",
+        "path": [
+         0,
+         4
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73439.5385,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "button_group",
+        "widget": {
+         "id": "$$ID-b9e1c49eff8ca660ed68346464a98e93-tags",
+         "options": [
+          {
+           "content": "alpha"
+          },
+          {
+           "content": "beta"
+          },
+          {
+           "content": "gamma"
+          }
+         ],
+         "default": [
+          0
+         ],
+         "clickMode": "MULTI_SELECT",
+         "style": "PILLS",
+         "label": "Tags",
+         "labelVisibility": {}
+        },
+        "id": "$$ID-b9e1c49eff8ca660ed68346464a98e93-tags",
+        "label": "Tags",
+        "form_id": "",
+        "path": [
+         0,
+         5
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73439.538523,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "button_group",
+        "widget": {
+         "id": "$$ID-7aeab2d13bb62865a73aa32f6c95d8ab-view",
+         "options": [
+          {
+           "content": "grid"
+          },
+          {
+           "content": "list"
+          }
+         ],
+         "default": [
+          0
+         ],
+         "label": "View",
+         "labelVisibility": {}
+        },
+        "id": "$$ID-7aeab2d13bb62865a73aa32f6c95d8ab-view",
+        "label": "View",
+        "form_id": "",
+        "path": [
+         0,
+         6
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73439.538542,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "pagination",
+        "widget": {
+         "id": "$$ID-3aa9543962a021240c19722c51d5e8a3-pager",
+         "numPages": 10,
+         "default": 1,
+         "maxVisiblePages": 7
+        },
+        "id": "$$ID-3aa9543962a021240c19722c51d5e8a3-pager",
+        "form_id": "",
+        "path": [
+         0,
+         7
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73439.538564,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "page=1",
+        "path": [
+         0,
+         8
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73439.538584,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "menu_button",
+        "widget": {
+         "id": "$$ID-8bdb753c75b6acd75088842f1c77d823-export",
+         "label": "Export",
+         "options": [
+          "CSV",
+          "JSON"
+         ],
+         "type": "secondary"
+        },
+        "id": "$$ID-8bdb753c75b6acd75088842f1c77d823-export",
+        "label": "Export",
+        "accepted_types": [
+         "secondary"
+        ],
+        "path": [
+         0,
+         9
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73439.53861,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "download_button",
+        "widget": {
+         "id": "$$ID-2756beaf22a71736d61878782ee92ea1-save",
+         "label": "Save report",
+         "url": "/media/8dfe283c4516576ff59dfb1b6901332d.txt",
+         "type": "secondary"
+        },
+        "id": "$$ID-2756beaf22a71736d61878782ee92ea1-save",
+        "label": "Save report",
+        "accepted_types": [
+         "secondary"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         10
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73439.538638,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "link_button",
+        "widget": {
+         "id": "$$ID-b3f337b411d7d370e605c5140a94a7d6-docs",
+         "label": "Docs",
+         "url": "https://docs.streamlit.io",
+         "type": "secondary",
+         "ignoreRerun": true
+        },
+        "id": "$$ID-b3f337b411d7d370e605c5140a94a7d6-docs",
+        "label": "Docs",
+        "accepted_types": [
+         "secondary"
+        ],
+        "path": [
+         0,
+         11
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73439.538661,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "page_link",
+        "widget": {
+         "page": "https://example.com",
+         "label": "Example site",
+         "external": true
+        },
+        "label": "Example site",
+        "path": [
+         0,
+         12
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73439.538677,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73439.538707,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "http": [],
+    "dom": {
+     "buttons": [
+      "Deploy",
+      "",
+      "star",
+      "star",
+      "star",
+      "star",
+      "star",
+      "thumb_up",
+      "thumb_down",
+      "low",
+      "medium",
+      "high",
+      "alpha",
+      "beta",
+      "gamma",
+      "grid",
+      "list",
+      "chevron_left",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "10",
+      "chevron_right",
+      "Exportexpand_more",
+      "Save report"
+     ],
+     "checkboxes": [
+      "Night mode",
+      "Sound"
+     ],
+     "markdowns": [],
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "02-toggle.png",
+     "sha256": "71bac6d84bc76a078d51a86facf2703a063fa1f6d30c0d7743114e235c22660e"
+    }
+   },
+   {
+    "name": "03-pills",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 73442.658015,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": [
+         {
+          "id": "$$ID-2971c9302e4dcdcabb08c04837638fdb-night",
+          "value_field": "bool_value",
+          "value": true
+         },
+         {
+          "id": "$$ID-3a4198f2fbebf180bbde9d75dc74d107-None",
+          "value_field": "bool_value",
+          "value": true
+         },
+         {
+          "id": "$$ID-da4ff0c0bb55d241c9d3590d5678b44d-rate",
+          "value_field": "string_value",
+          "value": ""
+         },
+         {
+          "id": "$$ID-707f84290cf9a4ba6485cb6b7b38291b-None",
+          "value_field": "string_value",
+          "value": ""
+         },
+         {
+          "id": "$$ID-7dabfa04e5393221489872c04b658d16-priority",
+          "value_field": "string_array_value",
+          "value": {
+           "data": "['high']"
+          },
+          "value_full": {
+           "data": [
+            "high"
+           ]
+          }
+         },
+         {
+          "id": "$$ID-b9e1c49eff8ca660ed68346464a98e93-tags",
+          "value_field": "string_array_value",
+          "value": {
+           "data": "['alpha']"
+          },
+          "value_full": {
+           "data": [
+            "alpha"
+           ]
+          }
+         },
+         {
+          "id": "$$ID-7aeab2d13bb62865a73aa32f6c95d8ab-view",
+          "value_field": "string_array_value",
+          "value": {
+           "data": "['grid']"
+          },
+          "value_full": {
+           "data": [
+            "grid"
+           ]
+          }
+         },
+         {
+          "id": "$$ID-3aa9543962a021240c19722c51d5e8a3-pager",
+          "value_field": "int_value",
+          "value": 1
+         }
+        ],
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73442.659938,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "62b69c6b-5e85-4639-8077-dd50dc1b326c",
+        "name": "Streamlit Rust",
+        "main_script_path": "",
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "session_id": "d8ada674-2c25-461c-aab2-2144b75defc6"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73442.660313,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73442.662179,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "main_container",
+        "block_type": "vertical",
+        "block": {
+         "vertical": {},
+         "id": "main_container"
+        },
+        "path": [
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73442.662315,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "checkbox",
+        "element_full": {
+         "checkbox": {
+          "id": "$$ID-2971c9302e4dcdcabb08c04837638fdb-night",
+          "label": "Night mode",
+          "labelVisibility": {},
+          "type": "TOGGLE"
+         },
+         "widthConfig": {
+          "useContent": true
+         }
+        },
+        "widget": {
+         "id": "$$ID-2971c9302e4dcdcabb08c04837638fdb-night",
+         "label": "Night mode",
+         "labelVisibility": {},
+         "type": "TOGGLE"
+        },
+        "id": "$$ID-2971c9302e4dcdcabb08c04837638fdb-night",
+        "label": "Night mode",
+        "accepted_types": [
+         "1"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73442.662382,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "checkbox",
+        "element_full": {
+         "checkbox": {
+          "id": "$$ID-3a4198f2fbebf180bbde9d75dc74d107-None",
+          "label": "Sound",
+          "default": true,
+          "labelVisibility": {},
+          "type": "TOGGLE"
+         },
+         "widthConfig": {
+          "useContent": true
+         }
+        },
+        "widget": {
+         "id": "$$ID-3a4198f2fbebf180bbde9d75dc74d107-None",
+         "label": "Sound",
+         "default": true,
+         "labelVisibility": {},
+         "type": "TOGGLE"
+        },
+        "id": "$$ID-3a4198f2fbebf180bbde9d75dc74d107-None",
+        "label": "Sound",
+        "accepted_types": [
+         "1"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73442.662413,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "feedback",
+        "widget": {
+         "id": "$$ID-da4ff0c0bb55d241c9d3590d5678b44d-rate",
+         "type": "STARS"
+        },
+        "id": "$$ID-da4ff0c0bb55d241c9d3590d5678b44d-rate",
+        "accepted_types": [
+         "2"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         2
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73442.662454,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "feedback",
+        "widget": {
+         "id": "$$ID-707f84290cf9a4ba6485cb6b7b38291b-None"
+        },
+        "id": "$$ID-707f84290cf9a4ba6485cb6b7b38291b-None",
+        "accepted_types": [
+         "0"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         3
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73442.662494,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "button_group",
+        "widget": {
+         "id": "$$ID-7dabfa04e5393221489872c04b658d16-priority",
+         "options": [
+          {
+           "content": "low"
+          },
+          {
+           "content": "medium"
+          },
+          {
+           "content": "high"
+          }
+         ],
+         "style": "PILLS",
+         "label": "Priority",
+         "labelVisibility": {}
+        },
+        "id": "$$ID-7dabfa04e5393221489872c04b658d16-priority",
+        "label": "Priority",
+        "form_id": "",
+        "path": [
+         0,
+         4
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73442.662537,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "button_group",
+        "widget": {
+         "id": "$$ID-b9e1c49eff8ca660ed68346464a98e93-tags",
+         "options": [
+          {
+           "content": "alpha"
+          },
+          {
+           "content": "beta"
+          },
+          {
+           "content": "gamma"
+          }
+         ],
+         "default": [
+          0
+         ],
+         "clickMode": "MULTI_SELECT",
+         "style": "PILLS",
+         "label": "Tags",
+         "labelVisibility": {}
+        },
+        "id": "$$ID-b9e1c49eff8ca660ed68346464a98e93-tags",
+        "label": "Tags",
+        "form_id": "",
+        "path": [
+         0,
+         5
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73442.662565,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "button_group",
+        "widget": {
+         "id": "$$ID-7aeab2d13bb62865a73aa32f6c95d8ab-view",
+         "options": [
+          {
+           "content": "grid"
+          },
+          {
+           "content": "list"
+          }
+         ],
+         "default": [
+          0
+         ],
+         "label": "View",
+         "labelVisibility": {}
+        },
+        "id": "$$ID-7aeab2d13bb62865a73aa32f6c95d8ab-view",
+        "label": "View",
+        "form_id": "",
+        "path": [
+         0,
+         6
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73442.662589,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "pagination",
+        "widget": {
+         "id": "$$ID-3aa9543962a021240c19722c51d5e8a3-pager",
+         "numPages": 10,
+         "default": 1,
+         "maxVisiblePages": 7
+        },
+        "id": "$$ID-3aa9543962a021240c19722c51d5e8a3-pager",
+        "form_id": "",
+        "path": [
+         0,
+         7
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73442.662631,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "page=1",
+        "path": [
+         0,
+         8
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73442.662659,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "menu_button",
+        "widget": {
+         "id": "$$ID-8bdb753c75b6acd75088842f1c77d823-export",
+         "label": "Export",
+         "options": [
+          "CSV",
+          "JSON"
+         ],
+         "type": "secondary"
+        },
+        "id": "$$ID-8bdb753c75b6acd75088842f1c77d823-export",
+        "label": "Export",
+        "accepted_types": [
+         "secondary"
+        ],
+        "path": [
+         0,
+         9
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73442.662705,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "download_button",
+        "widget": {
+         "id": "$$ID-2756beaf22a71736d61878782ee92ea1-save",
+         "label": "Save report",
+         "url": "/media/8dfe283c4516576ff59dfb1b6901332d.txt",
+         "type": "secondary"
+        },
+        "id": "$$ID-2756beaf22a71736d61878782ee92ea1-save",
+        "label": "Save report",
+        "accepted_types": [
+         "secondary"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         10
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73442.662746,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "link_button",
+        "widget": {
+         "id": "$$ID-b3f337b411d7d370e605c5140a94a7d6-docs",
+         "label": "Docs",
+         "url": "https://docs.streamlit.io",
+         "type": "secondary",
+         "ignoreRerun": true
+        },
+        "id": "$$ID-b3f337b411d7d370e605c5140a94a7d6-docs",
+        "label": "Docs",
+        "accepted_types": [
+         "secondary"
+        ],
+        "path": [
+         0,
+         11
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73442.662773,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "page_link",
+        "widget": {
+         "page": "https://example.com",
+         "label": "Example site",
+         "external": true
+        },
+        "label": "Example site",
+        "path": [
+         0,
+         12
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73442.662806,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73442.662843,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "http": [],
+    "dom": {
+     "buttons": [
+      "Deploy",
+      "",
+      "star",
+      "star",
+      "star",
+      "star",
+      "star",
+      "thumb_up",
+      "thumb_down",
+      "low",
+      "medium",
+      "high",
+      "alpha",
+      "beta",
+      "gamma",
+      "grid",
+      "list",
+      "chevron_left",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "10",
+      "chevron_right",
+      "Exportexpand_more",
+      "Save report"
+     ],
+     "checkboxes": [
+      "Night mode",
+      "Sound"
+     ],
+     "markdowns": [],
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "03-pills.png",
+     "sha256": "a08a31c7d74fb6df1a71a65b2adfed94c30bfdfda73652443e545ac24cf8e8b1"
+    }
+   },
+   {
+    "name": "04-pagination",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 73445.783297,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": [
+         {
+          "id": "$$ID-2971c9302e4dcdcabb08c04837638fdb-night",
+          "value_field": "bool_value",
+          "value": true
+         },
+         {
+          "id": "$$ID-3a4198f2fbebf180bbde9d75dc74d107-None",
+          "value_field": "bool_value",
+          "value": true
+         },
+         {
+          "id": "$$ID-da4ff0c0bb55d241c9d3590d5678b44d-rate",
+          "value_field": "string_value",
+          "value": ""
+         },
+         {
+          "id": "$$ID-707f84290cf9a4ba6485cb6b7b38291b-None",
+          "value_field": "string_value",
+          "value": ""
+         },
+         {
+          "id": "$$ID-7dabfa04e5393221489872c04b658d16-priority",
+          "value_field": "string_array_value",
+          "value": {
+           "data": "['high']"
+          },
+          "value_full": {
+           "data": [
+            "high"
+           ]
+          }
+         },
+         {
+          "id": "$$ID-b9e1c49eff8ca660ed68346464a98e93-tags",
+          "value_field": "string_array_value",
+          "value": {
+           "data": "['alpha']"
+          },
+          "value_full": {
+           "data": [
+            "alpha"
+           ]
+          }
+         },
+         {
+          "id": "$$ID-7aeab2d13bb62865a73aa32f6c95d8ab-view",
+          "value_field": "string_array_value",
+          "value": {
+           "data": "['grid']"
+          },
+          "value_full": {
+           "data": [
+            "grid"
+           ]
+          }
+         },
+         {
+          "id": "$$ID-3aa9543962a021240c19722c51d5e8a3-pager",
+          "value_field": "int_value",
+          "value": 2
+         }
+        ],
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73445.785488,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "16caf877-3631-428c-a7a8-fff6e0d902db",
+        "name": "Streamlit Rust",
+        "main_script_path": "",
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "session_id": "d8ada674-2c25-461c-aab2-2144b75defc6"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73445.785761,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73445.787302,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "main_container",
+        "block_type": "vertical",
+        "block": {
+         "vertical": {},
+         "id": "main_container"
+        },
+        "path": [
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73445.787424,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "checkbox",
+        "element_full": {
+         "checkbox": {
+          "id": "$$ID-2971c9302e4dcdcabb08c04837638fdb-night",
+          "label": "Night mode",
+          "labelVisibility": {},
+          "type": "TOGGLE"
+         },
+         "widthConfig": {
+          "useContent": true
+         }
+        },
+        "widget": {
+         "id": "$$ID-2971c9302e4dcdcabb08c04837638fdb-night",
+         "label": "Night mode",
+         "labelVisibility": {},
+         "type": "TOGGLE"
+        },
+        "id": "$$ID-2971c9302e4dcdcabb08c04837638fdb-night",
+        "label": "Night mode",
+        "accepted_types": [
+         "1"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73445.787471,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "checkbox",
+        "element_full": {
+         "checkbox": {
+          "id": "$$ID-3a4198f2fbebf180bbde9d75dc74d107-None",
+          "label": "Sound",
+          "default": true,
+          "labelVisibility": {},
+          "type": "TOGGLE"
+         },
+         "widthConfig": {
+          "useContent": true
+         }
+        },
+        "widget": {
+         "id": "$$ID-3a4198f2fbebf180bbde9d75dc74d107-None",
+         "label": "Sound",
+         "default": true,
+         "labelVisibility": {},
+         "type": "TOGGLE"
+        },
+        "id": "$$ID-3a4198f2fbebf180bbde9d75dc74d107-None",
+        "label": "Sound",
+        "accepted_types": [
+         "1"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73445.787497,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "feedback",
+        "widget": {
+         "id": "$$ID-da4ff0c0bb55d241c9d3590d5678b44d-rate",
+         "type": "STARS"
+        },
+        "id": "$$ID-da4ff0c0bb55d241c9d3590d5678b44d-rate",
+        "accepted_types": [
+         "2"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         2
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73445.787536,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "feedback",
+        "widget": {
+         "id": "$$ID-707f84290cf9a4ba6485cb6b7b38291b-None"
+        },
+        "id": "$$ID-707f84290cf9a4ba6485cb6b7b38291b-None",
+        "accepted_types": [
+         "0"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         3
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73445.787561,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "button_group",
+        "widget": {
+         "id": "$$ID-7dabfa04e5393221489872c04b658d16-priority",
+         "options": [
+          {
+           "content": "low"
+          },
+          {
+           "content": "medium"
+          },
+          {
+           "content": "high"
+          }
+         ],
+         "style": "PILLS",
+         "label": "Priority",
+         "labelVisibility": {}
+        },
+        "id": "$$ID-7dabfa04e5393221489872c04b658d16-priority",
+        "label": "Priority",
+        "form_id": "",
+        "path": [
+         0,
+         4
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73445.787597,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "button_group",
+        "widget": {
+         "id": "$$ID-b9e1c49eff8ca660ed68346464a98e93-tags",
+         "options": [
+          {
+           "content": "alpha"
+          },
+          {
+           "content": "beta"
+          },
+          {
+           "content": "gamma"
+          }
+         ],
+         "default": [
+          0
+         ],
+         "clickMode": "MULTI_SELECT",
+         "style": "PILLS",
+         "label": "Tags",
+         "labelVisibility": {}
+        },
+        "id": "$$ID-b9e1c49eff8ca660ed68346464a98e93-tags",
+        "label": "Tags",
+        "form_id": "",
+        "path": [
+         0,
+         5
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73445.78763,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "button_group",
+        "widget": {
+         "id": "$$ID-7aeab2d13bb62865a73aa32f6c95d8ab-view",
+         "options": [
+          {
+           "content": "grid"
+          },
+          {
+           "content": "list"
+          }
+         ],
+         "default": [
+          0
+         ],
+         "label": "View",
+         "labelVisibility": {}
+        },
+        "id": "$$ID-7aeab2d13bb62865a73aa32f6c95d8ab-view",
+        "label": "View",
+        "form_id": "",
+        "path": [
+         0,
+         6
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73445.787658,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "pagination",
+        "widget": {
+         "id": "$$ID-3aa9543962a021240c19722c51d5e8a3-pager",
+         "numPages": 10,
+         "default": 1,
+         "maxVisiblePages": 7
+        },
+        "id": "$$ID-3aa9543962a021240c19722c51d5e8a3-pager",
+        "form_id": "",
+        "path": [
+         0,
+         7
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73445.787691,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "page=2",
+        "path": [
+         0,
+         8
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73445.787719,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "menu_button",
+        "widget": {
+         "id": "$$ID-8bdb753c75b6acd75088842f1c77d823-export",
+         "label": "Export",
+         "options": [
+          "CSV",
+          "JSON"
+         ],
+         "type": "secondary"
+        },
+        "id": "$$ID-8bdb753c75b6acd75088842f1c77d823-export",
+        "label": "Export",
+        "accepted_types": [
+         "secondary"
+        ],
+        "path": [
+         0,
+         9
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73445.787761,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "download_button",
+        "widget": {
+         "id": "$$ID-2756beaf22a71736d61878782ee92ea1-save",
+         "label": "Save report",
+         "url": "/media/8dfe283c4516576ff59dfb1b6901332d.txt",
+         "type": "secondary"
+        },
+        "id": "$$ID-2756beaf22a71736d61878782ee92ea1-save",
+        "label": "Save report",
+        "accepted_types": [
+         "secondary"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         10
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73445.787793,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "link_button",
+        "widget": {
+         "id": "$$ID-b3f337b411d7d370e605c5140a94a7d6-docs",
+         "label": "Docs",
+         "url": "https://docs.streamlit.io",
+         "type": "secondary",
+         "ignoreRerun": true
+        },
+        "id": "$$ID-b3f337b411d7d370e605c5140a94a7d6-docs",
+        "label": "Docs",
+        "accepted_types": [
+         "secondary"
+        ],
+        "path": [
+         0,
+         11
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73445.787826,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "page_link",
+        "widget": {
+         "page": "https://example.com",
+         "label": "Example site",
+         "external": true
+        },
+        "label": "Example site",
+        "path": [
+         0,
+         12
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73445.787856,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73445.787892,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "http": [],
+    "dom": {
+     "buttons": [
+      "Deploy",
+      "",
+      "star",
+      "star",
+      "star",
+      "star",
+      "star",
+      "thumb_up",
+      "thumb_down",
+      "low",
+      "medium",
+      "high",
+      "alpha",
+      "beta",
+      "gamma",
+      "grid",
+      "list",
+      "chevron_left",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "10",
+      "chevron_right",
+      "Exportexpand_more",
+      "Save report"
+     ],
+     "checkboxes": [
+      "Night mode",
+      "Sound"
+     ],
+     "markdowns": [],
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "04-pagination.png",
+     "sha256": "8018104004d9909b7926f3d86f7c0dd64dc88a879049569162fd7ae43ce35f47"
+    }
+   },
+   {
+    "name": "05-feedback",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 73448.908244,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": [
+         {
+          "id": "$$ID-2971c9302e4dcdcabb08c04837638fdb-night",
+          "value_field": "bool_value",
+          "value": true
+         },
+         {
+          "id": "$$ID-3a4198f2fbebf180bbde9d75dc74d107-None",
+          "value_field": "bool_value",
+          "value": true
+         },
+         {
+          "id": "$$ID-da4ff0c0bb55d241c9d3590d5678b44d-rate",
+          "value_field": "string_value",
+          "value": "2"
+         },
+         {
+          "id": "$$ID-707f84290cf9a4ba6485cb6b7b38291b-None",
+          "value_field": "string_value",
+          "value": ""
+         },
+         {
+          "id": "$$ID-7dabfa04e5393221489872c04b658d16-priority",
+          "value_field": "string_array_value",
+          "value": {
+           "data": "['high']"
+          },
+          "value_full": {
+           "data": [
+            "high"
+           ]
+          }
+         },
+         {
+          "id": "$$ID-b9e1c49eff8ca660ed68346464a98e93-tags",
+          "value_field": "string_array_value",
+          "value": {
+           "data": "['alpha']"
+          },
+          "value_full": {
+           "data": [
+            "alpha"
+           ]
+          }
+         },
+         {
+          "id": "$$ID-7aeab2d13bb62865a73aa32f6c95d8ab-view",
+          "value_field": "string_array_value",
+          "value": {
+           "data": "['grid']"
+          },
+          "value_full": {
+           "data": [
+            "grid"
+           ]
+          }
+         },
+         {
+          "id": "$$ID-3aa9543962a021240c19722c51d5e8a3-pager",
+          "value_field": "int_value",
+          "value": 2
+         }
+        ],
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73448.909826,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "57dbf667-a1b0-4fb0-a2ef-9af8c825e1c1",
+        "name": "Streamlit Rust",
+        "main_script_path": "",
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "session_id": "d8ada674-2c25-461c-aab2-2144b75defc6"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73448.910052,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73448.91134,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "main_container",
+        "block_type": "vertical",
+        "block": {
+         "vertical": {},
+         "id": "main_container"
+        },
+        "path": [
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73448.911403,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "checkbox",
+        "element_full": {
+         "checkbox": {
+          "id": "$$ID-2971c9302e4dcdcabb08c04837638fdb-night",
+          "label": "Night mode",
+          "labelVisibility": {},
+          "type": "TOGGLE"
+         },
+         "widthConfig": {
+          "useContent": true
+         }
+        },
+        "widget": {
+         "id": "$$ID-2971c9302e4dcdcabb08c04837638fdb-night",
+         "label": "Night mode",
+         "labelVisibility": {},
+         "type": "TOGGLE"
+        },
+        "id": "$$ID-2971c9302e4dcdcabb08c04837638fdb-night",
+        "label": "Night mode",
+        "accepted_types": [
+         "1"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73448.91145,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "checkbox",
+        "element_full": {
+         "checkbox": {
+          "id": "$$ID-3a4198f2fbebf180bbde9d75dc74d107-None",
+          "label": "Sound",
+          "default": true,
+          "labelVisibility": {},
+          "type": "TOGGLE"
+         },
+         "widthConfig": {
+          "useContent": true
+         }
+        },
+        "widget": {
+         "id": "$$ID-3a4198f2fbebf180bbde9d75dc74d107-None",
+         "label": "Sound",
+         "default": true,
+         "labelVisibility": {},
+         "type": "TOGGLE"
+        },
+        "id": "$$ID-3a4198f2fbebf180bbde9d75dc74d107-None",
+        "label": "Sound",
+        "accepted_types": [
+         "1"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73448.911468,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "feedback",
+        "widget": {
+         "id": "$$ID-da4ff0c0bb55d241c9d3590d5678b44d-rate",
+         "type": "STARS"
+        },
+        "id": "$$ID-da4ff0c0bb55d241c9d3590d5678b44d-rate",
+        "accepted_types": [
+         "2"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         2
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73448.911487,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "feedback",
+        "widget": {
+         "id": "$$ID-707f84290cf9a4ba6485cb6b7b38291b-None"
+        },
+        "id": "$$ID-707f84290cf9a4ba6485cb6b7b38291b-None",
+        "accepted_types": [
+         "0"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         3
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73448.911507,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "button_group",
+        "widget": {
+         "id": "$$ID-7dabfa04e5393221489872c04b658d16-priority",
+         "options": [
+          {
+           "content": "low"
+          },
+          {
+           "content": "medium"
+          },
+          {
+           "content": "high"
+          }
+         ],
+         "style": "PILLS",
+         "label": "Priority",
+         "labelVisibility": {}
+        },
+        "id": "$$ID-7dabfa04e5393221489872c04b658d16-priority",
+        "label": "Priority",
+        "form_id": "",
+        "path": [
+         0,
+         4
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73448.911539,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "button_group",
+        "widget": {
+         "id": "$$ID-b9e1c49eff8ca660ed68346464a98e93-tags",
+         "options": [
+          {
+           "content": "alpha"
+          },
+          {
+           "content": "beta"
+          },
+          {
+           "content": "gamma"
+          }
+         ],
+         "default": [
+          0
+         ],
+         "clickMode": "MULTI_SELECT",
+         "style": "PILLS",
+         "label": "Tags",
+         "labelVisibility": {}
+        },
+        "id": "$$ID-b9e1c49eff8ca660ed68346464a98e93-tags",
+        "label": "Tags",
+        "form_id": "",
+        "path": [
+         0,
+         5
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73448.911564,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "button_group",
+        "widget": {
+         "id": "$$ID-7aeab2d13bb62865a73aa32f6c95d8ab-view",
+         "options": [
+          {
+           "content": "grid"
+          },
+          {
+           "content": "list"
+          }
+         ],
+         "default": [
+          0
+         ],
+         "label": "View",
+         "labelVisibility": {}
+        },
+        "id": "$$ID-7aeab2d13bb62865a73aa32f6c95d8ab-view",
+        "label": "View",
+        "form_id": "",
+        "path": [
+         0,
+         6
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73448.911578,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "pagination",
+        "widget": {
+         "id": "$$ID-3aa9543962a021240c19722c51d5e8a3-pager",
+         "numPages": 10,
+         "default": 1,
+         "maxVisiblePages": 7
+        },
+        "id": "$$ID-3aa9543962a021240c19722c51d5e8a3-pager",
+        "form_id": "",
+        "path": [
+         0,
+         7
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73448.911596,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "page=2",
+        "path": [
+         0,
+         8
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73448.911621,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "menu_button",
+        "widget": {
+         "id": "$$ID-8bdb753c75b6acd75088842f1c77d823-export",
+         "label": "Export",
+         "options": [
+          "CSV",
+          "JSON"
+         ],
+         "type": "secondary"
+        },
+        "id": "$$ID-8bdb753c75b6acd75088842f1c77d823-export",
+        "label": "Export",
+        "accepted_types": [
+         "secondary"
+        ],
+        "path": [
+         0,
+         9
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73448.911642,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "download_button",
+        "widget": {
+         "id": "$$ID-2756beaf22a71736d61878782ee92ea1-save",
+         "label": "Save report",
+         "url": "/media/8dfe283c4516576ff59dfb1b6901332d.txt",
+         "type": "secondary"
+        },
+        "id": "$$ID-2756beaf22a71736d61878782ee92ea1-save",
+        "label": "Save report",
+        "accepted_types": [
+         "secondary"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         10
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73448.911658,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "link_button",
+        "widget": {
+         "id": "$$ID-b3f337b411d7d370e605c5140a94a7d6-docs",
+         "label": "Docs",
+         "url": "https://docs.streamlit.io",
+         "type": "secondary",
+         "ignoreRerun": true
+        },
+        "id": "$$ID-b3f337b411d7d370e605c5140a94a7d6-docs",
+        "label": "Docs",
+        "accepted_types": [
+         "secondary"
+        ],
+        "path": [
+         0,
+         11
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73448.911675,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "page_link",
+        "widget": {
+         "page": "https://example.com",
+         "label": "Example site",
+         "external": true
+        },
+        "label": "Example site",
+        "path": [
+         0,
+         12
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73448.911693,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73448.911725,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "http": [],
+    "dom": {
+     "buttons": [
+      "Deploy",
+      "",
+      "",
+      "",
+      "",
+      "star",
+      "star",
+      "thumb_up",
+      "thumb_down",
+      "low",
+      "medium",
+      "high",
+      "alpha",
+      "beta",
+      "gamma",
+      "grid",
+      "list",
+      "chevron_left",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "10",
+      "chevron_right",
+      "Exportexpand_more",
+      "Save report"
+     ],
+     "checkboxes": [
+      "Night mode",
+      "Sound"
+     ],
+     "markdowns": [],
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "05-feedback.png",
+     "sha256": "c9bf86c462e98169a01f2d058b1e86cbbb6ef4c5a0f554d889c10bcf3f1d6893"
+    }
+   },
+   {
+    "name": "06-menu",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 73453.095292,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": [
+         {
+          "id": "$$ID-2971c9302e4dcdcabb08c04837638fdb-night",
+          "value_field": "bool_value",
+          "value": true
+         },
+         {
+          "id": "$$ID-3a4198f2fbebf180bbde9d75dc74d107-None",
+          "value_field": "bool_value",
+          "value": true
+         },
+         {
+          "id": "$$ID-da4ff0c0bb55d241c9d3590d5678b44d-rate",
+          "value_field": "string_value",
+          "value": "2"
+         },
+         {
+          "id": "$$ID-707f84290cf9a4ba6485cb6b7b38291b-None",
+          "value_field": "string_value",
+          "value": ""
+         },
+         {
+          "id": "$$ID-7dabfa04e5393221489872c04b658d16-priority",
+          "value_field": "string_array_value",
+          "value": {
+           "data": "['high']"
+          },
+          "value_full": {
+           "data": [
+            "high"
+           ]
+          }
+         },
+         {
+          "id": "$$ID-b9e1c49eff8ca660ed68346464a98e93-tags",
+          "value_field": "string_array_value",
+          "value": {
+           "data": "['alpha']"
+          },
+          "value_full": {
+           "data": [
+            "alpha"
+           ]
+          }
+         },
+         {
+          "id": "$$ID-7aeab2d13bb62865a73aa32f6c95d8ab-view",
+          "value_field": "string_array_value",
+          "value": {
+           "data": "['grid']"
+          },
+          "value_full": {
+           "data": [
+            "grid"
+           ]
+          }
+         },
+         {
+          "id": "$$ID-3aa9543962a021240c19722c51d5e8a3-pager",
+          "value_field": "int_value",
+          "value": 2
+         },
+         {
+          "id": "$$ID-8bdb753c75b6acd75088842f1c77d823-export",
+          "value_field": "string_trigger_value",
+          "value": {
+           "data": "CSV"
+          },
+          "value_full": {
+           "data": "CSV"
+          }
+         }
+        ],
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73453.096842,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "3dbc12ac-4b3a-4bdb-94c9-71eb6dd0fed1",
+        "name": "Streamlit Rust",
+        "main_script_path": "",
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "session_id": "d8ada674-2c25-461c-aab2-2144b75defc6"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73453.097081,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73453.0988,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "main_container",
+        "block_type": "vertical",
+        "block": {
+         "vertical": {},
+         "id": "main_container"
+        },
+        "path": [
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73453.098946,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "checkbox",
+        "element_full": {
+         "checkbox": {
+          "id": "$$ID-2971c9302e4dcdcabb08c04837638fdb-night",
+          "label": "Night mode",
+          "labelVisibility": {},
+          "type": "TOGGLE"
+         },
+         "widthConfig": {
+          "useContent": true
+         }
+        },
+        "widget": {
+         "id": "$$ID-2971c9302e4dcdcabb08c04837638fdb-night",
+         "label": "Night mode",
+         "labelVisibility": {},
+         "type": "TOGGLE"
+        },
+        "id": "$$ID-2971c9302e4dcdcabb08c04837638fdb-night",
+        "label": "Night mode",
+        "accepted_types": [
+         "1"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73453.099137,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "checkbox",
+        "element_full": {
+         "checkbox": {
+          "id": "$$ID-3a4198f2fbebf180bbde9d75dc74d107-None",
+          "label": "Sound",
+          "default": true,
+          "labelVisibility": {},
+          "type": "TOGGLE"
+         },
+         "widthConfig": {
+          "useContent": true
+         }
+        },
+        "widget": {
+         "id": "$$ID-3a4198f2fbebf180bbde9d75dc74d107-None",
+         "label": "Sound",
+         "default": true,
+         "labelVisibility": {},
+         "type": "TOGGLE"
+        },
+        "id": "$$ID-3a4198f2fbebf180bbde9d75dc74d107-None",
+        "label": "Sound",
+        "accepted_types": [
+         "1"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73453.099155,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "feedback",
+        "widget": {
+         "id": "$$ID-da4ff0c0bb55d241c9d3590d5678b44d-rate",
+         "type": "STARS"
+        },
+        "id": "$$ID-da4ff0c0bb55d241c9d3590d5678b44d-rate",
+        "accepted_types": [
+         "2"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         2
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73453.099173,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "feedback",
+        "widget": {
+         "id": "$$ID-707f84290cf9a4ba6485cb6b7b38291b-None"
+        },
+        "id": "$$ID-707f84290cf9a4ba6485cb6b7b38291b-None",
+        "accepted_types": [
+         "0"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         3
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73453.099192,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "button_group",
+        "widget": {
+         "id": "$$ID-7dabfa04e5393221489872c04b658d16-priority",
+         "options": [
+          {
+           "content": "low"
+          },
+          {
+           "content": "medium"
+          },
+          {
+           "content": "high"
+          }
+         ],
+         "style": "PILLS",
+         "label": "Priority",
+         "labelVisibility": {}
+        },
+        "id": "$$ID-7dabfa04e5393221489872c04b658d16-priority",
+        "label": "Priority",
+        "form_id": "",
+        "path": [
+         0,
+         4
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73453.099223,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "button_group",
+        "widget": {
+         "id": "$$ID-b9e1c49eff8ca660ed68346464a98e93-tags",
+         "options": [
+          {
+           "content": "alpha"
+          },
+          {
+           "content": "beta"
+          },
+          {
+           "content": "gamma"
+          }
+         ],
+         "default": [
+          0
+         ],
+         "clickMode": "MULTI_SELECT",
+         "style": "PILLS",
+         "label": "Tags",
+         "labelVisibility": {}
+        },
+        "id": "$$ID-b9e1c49eff8ca660ed68346464a98e93-tags",
+        "label": "Tags",
+        "form_id": "",
+        "path": [
+         0,
+         5
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73453.099236,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "button_group",
+        "widget": {
+         "id": "$$ID-7aeab2d13bb62865a73aa32f6c95d8ab-view",
+         "options": [
+          {
+           "content": "grid"
+          },
+          {
+           "content": "list"
+          }
+         ],
+         "default": [
+          0
+         ],
+         "label": "View",
+         "labelVisibility": {}
+        },
+        "id": "$$ID-7aeab2d13bb62865a73aa32f6c95d8ab-view",
+        "label": "View",
+        "form_id": "",
+        "path": [
+         0,
+         6
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73453.099248,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "pagination",
+        "widget": {
+         "id": "$$ID-3aa9543962a021240c19722c51d5e8a3-pager",
+         "numPages": 10,
+         "default": 1,
+         "maxVisiblePages": 7
+        },
+        "id": "$$ID-3aa9543962a021240c19722c51d5e8a3-pager",
+        "form_id": "",
+        "path": [
+         0,
+         7
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73453.099289,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "page=2",
+        "path": [
+         0,
+         8
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73453.099313,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "menu_button",
+        "widget": {
+         "id": "$$ID-8bdb753c75b6acd75088842f1c77d823-export",
+         "label": "Export",
+         "options": [
+          "CSV",
+          "JSON"
+         ],
+         "type": "secondary"
+        },
+        "id": "$$ID-8bdb753c75b6acd75088842f1c77d823-export",
+        "label": "Export",
+        "accepted_types": [
+         "secondary"
+        ],
+        "path": [
+         0,
+         9
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73453.099328,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "download_button",
+        "widget": {
+         "id": "$$ID-2756beaf22a71736d61878782ee92ea1-save",
+         "label": "Save report",
+         "url": "/media/8dfe283c4516576ff59dfb1b6901332d.txt",
+         "type": "secondary"
+        },
+        "id": "$$ID-2756beaf22a71736d61878782ee92ea1-save",
+        "label": "Save report",
+        "accepted_types": [
+         "secondary"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         10
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73453.099352,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "link_button",
+        "widget": {
+         "id": "$$ID-b3f337b411d7d370e605c5140a94a7d6-docs",
+         "label": "Docs",
+         "url": "https://docs.streamlit.io",
+         "type": "secondary",
+         "ignoreRerun": true
+        },
+        "id": "$$ID-b3f337b411d7d370e605c5140a94a7d6-docs",
+        "label": "Docs",
+        "accepted_types": [
+         "secondary"
+        ],
+        "path": [
+         0,
+         11
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73453.099377,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "page_link",
+        "widget": {
+         "page": "https://example.com",
+         "label": "Example site",
+         "external": true
+        },
+        "label": "Example site",
+        "path": [
+         0,
+         12
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73453.099397,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 73453.099427,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "http": [],
+    "dom": {
+     "buttons": [
+      "Deploy",
+      "",
+      "",
+      "",
+      "",
+      "star",
+      "star",
+      "thumb_up",
+      "thumb_down",
+      "low",
+      "medium",
+      "high",
+      "alpha",
+      "beta",
+      "gamma",
+      "grid",
+      "list",
+      "chevron_left",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "10",
+      "chevron_right",
+      "Exportexpand_more",
+      "Save report"
+     ],
+     "checkboxes": [
+      "Night mode",
+      "Sound"
+     ],
+     "markdowns": [],
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "06-menu.png",
+     "sha256": "e8acb59e26208a7baee36c2710899cd44020b0ec210de94dfd0b2ac00875226c"
+    }
+   }
+  ],
+  "ipc_dir": "D:\\dlab\\streamlit-rust\\target\\buttons-rust"
+ },
+ "counts": {
+  "expected": 17,
+  "executed": 17,
+  "asserted": 17
+ },
+ "failures": []
+}

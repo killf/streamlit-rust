@@ -45,6 +45,42 @@ pub fn put(data: &[u8], mime: &str) -> String {
     id
 }
 
+/// Registers download-button bytes under the content address that includes
+/// the download's file name, like the reference's memory media manager.
+pub fn put_download(data: &[u8], mime: &str, file_name: Option<&str>) -> String {
+    let id = file_id(data, mime, file_name);
+    FILES.entry(id.clone()).or_insert_with(|| data.to_vec());
+    id
+}
+
+/// The extension of a download URL: the reference maps the mime through its
+/// preferred table, then `mimetypes.guess_extension`; unknown types get no
+/// extension at all (the file id alone remains a valid address).
+pub fn download_extension(mime: &str) -> &'static str {
+    match mime {
+        "text/plain" => ".txt",
+        "text/csv" => ".csv",
+        "text/markdown" => ".md",
+        "text/html" => ".html",
+        "application/json" => ".json",
+        "application/pdf" => ".pdf",
+        "application/zip" => ".zip",
+        "application/gzip" => ".gz",
+        "application/octet-stream" => ".bin",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" => ".xlsx",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => ".docx",
+        "image/png" => ".png",
+        "image/jpeg" => ".jpg",
+        "image/webp" => ".webp",
+        "image/gif" => ".gif",
+        "image/svg+xml" => ".svg",
+        "audio/wav" | "audio/x-wav" | "audio/wave" => ".wav",
+        "audio/mpeg" => ".mp3",
+        "video/mp4" => ".mp4",
+        _ => "",
+    }
+}
+
 /// The stored bytes of a content address, if this process ever registered it.
 pub fn get(id: &str) -> Option<Vec<u8>> {
     FILES.get(id).map(|entry| entry.value().clone())

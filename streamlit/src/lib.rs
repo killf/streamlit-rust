@@ -41,7 +41,7 @@ pub use cache::{CachedData, CachedResource};
 pub use charts::{AreaChartOptions, LineChartOptions, MapOptions, ScatterChartOptions};
 pub use data_api::*;
 pub use media::{ByteRange, RgbaImage};
-pub use navigation::{Navigation, Page};
+pub use navigation::{Navigation, Page, PageLinkOptions, PageTarget};
 pub use query_params::QueryParams;
 pub use server::StreamlitServer;
 pub use session::{RunControl, SessionState};

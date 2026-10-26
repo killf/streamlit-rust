@@ -1338,6 +1338,12 @@ pub trait StreamlitApi {
     /// Display an exception, like `st.exception`: the type name, the
     /// message and the caller's trace lines in the framework's box.
     fn exception<T: Into<ExceptionOptions>>(&self, error: T);
+
+    /// A link to another page or an external URL, like `st.page_link`: a
+    /// pure navigation element with no widget state. A registered page keeps
+    /// its title and icon as the link's label and icon unless overridden;
+    /// an external URL needs an explicit label, as in the reference.
+    fn page_link<'a>(&self, options: impl Into<crate::navigation::PageLinkOptions<'a>>) -> Result<(), WidgetError>;
 }
 
 fn create_status<C: AppendChild>(this: &C, options: StatusOptions, format: crate::proto::alert::Format) -> Result<(), StatusError> {
@@ -1491,6 +1497,49 @@ impl<C: AppendChild> StreamlitApi for C {
     fn exception<T: Into<ExceptionOptions>>(&self, error: T) {
         let options = error.into();
         self.push(Rc::new(RefCell::new(AppException::new(options.kind, options.message, options.stack_trace))));
+    }
+
+    fn page_link<'a>(&self, options: impl Into<crate::navigation::PageLinkOptions<'a>>) -> Result<(), WidgetError> {
+        use crate::elements::input::InputElement;
+        use crate::navigation::PageTarget;
+        use crate::navigation::page_hash;
+        let options = options.into();
+        let (page, label, icon, script_hash, external) = match &options.target {
+            PageTarget::Page(page) => (
+                page.url_path.clone(),
+                options.label.clone().unwrap_or_else(|| page.title.clone()),
+                options.icon.clone().or_else(|| page.icon.clone()),
+                page_hash(&page.url_path),
+                false,
+            ),
+            PageTarget::Url(url) => {
+                let label = options.label.clone().ok_or_else(|| WidgetError::InvalidValue("st.page_link cannot infer a label for an external URL".into()))?;
+                if label.is_empty() {
+                    return Err(WidgetError::InvalidValue("st.page_link cannot infer a label for an external URL".into()));
+                }
+                (url.clone(), label, options.icon.clone(), String::new(), true)
+            }
+        };
+        let width_spec = match options.width {
+            Some(pixels) if pixels > 0 => crate::proto::streamlit::width_config::WidthSpec::PixelWidth(pixels as u32),
+            Some(_) => return Err(WidgetError::InvalidValue("width must be positive".into())),
+            None => crate::proto::streamlit::width_config::WidthSpec::UseContent(true),
+        };
+        self.push(Rc::new(RefCell::new(InputElement(crate::proto::Element {
+            width_config: Some(crate::proto::streamlit::WidthConfig { width_spec: Some(width_spec) }),
+            r#type: Some(element::Type::PageLink(crate::proto::PageLink {
+                page,
+                label,
+                icon: icon.unwrap_or_default(),
+                page_script_hash: script_hash,
+                help: options.help,
+                disabled: options.disabled,
+                external,
+                ..Default::default()
+            })),
+            ..Default::default()
+        }))));
+        Ok(())
     }
 
     fn set_page_config(&self, options: impl Into<PageConfigOptions>) {

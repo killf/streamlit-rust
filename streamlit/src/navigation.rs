@@ -39,12 +39,12 @@ pub(crate) struct NavigationStore {
 /// body closure. The url path is the page's identity on the wire (its hash
 /// derives from it) and defaults to the sanitized title.
 pub struct Page<'a> {
-    title: String,
-    icon: Option<String>,
-    url_path: String,
-    default: bool,
-    hidden: bool,
-    render: Box<dyn Fn(&Streamlit) + 'a>,
+    pub(crate) title: String,
+    pub(crate) icon: Option<String>,
+    pub(crate) url_path: String,
+    pub(crate) default: bool,
+    pub(crate) hidden: bool,
+    pub(crate) render: Box<dyn Fn(&Streamlit) + 'a>,
 }
 
 impl<'a> Page<'a> {
@@ -87,6 +87,93 @@ impl<'a> Page<'a> {
     pub fn hidden(mut self, hidden: bool) -> Self {
         self.hidden = hidden;
         self
+    }
+}
+
+/// The page a page link points at: one of the app's registered pages, or an
+/// external URL (which needs an explicit label, like the reference).
+pub enum PageTarget<'a> {
+    Page(&'a Page<'a>),
+    Url(String),
+}
+
+/// Page link options: a registered page or an external URL, with optional
+/// label, icon, help and width. A page link keeps its label and icon from
+/// the page when not overridden.
+pub struct PageLinkOptions<'a> {
+    pub(crate) target: PageTarget<'a>,
+    pub(crate) label: Option<String>,
+    pub(crate) icon: Option<String>,
+    pub(crate) help: String,
+    pub(crate) disabled: bool,
+    pub(crate) width: Option<i32>,
+}
+impl<'a> PageLinkOptions<'a> {
+    pub fn new(target: impl Into<PageTarget<'a>>) -> Self {
+        Self {
+            target: target.into(),
+            label: None,
+            icon: None,
+            help: String::new(),
+            disabled: false,
+            width: None,
+        }
+    }
+    pub fn label(mut self, label: impl Into<String>) -> Self {
+        self.label = Some(label.into());
+        self
+    }
+    pub fn icon(mut self, icon: impl Into<String>) -> Self {
+        self.icon = Some(icon.into());
+        self
+    }
+    pub fn help(mut self, help: impl Into<String>) -> Self {
+        self.help = help.into();
+        self
+    }
+    pub fn disabled(mut self, disabled: bool) -> Self {
+        self.disabled = disabled;
+        self
+    }
+    /// A positive pixel width; the default fits the link's content.
+    pub fn width(mut self, pixels: i32) -> Self {
+        self.width = Some(pixels);
+        self
+    }
+}
+impl<'a> From<&'a Page<'a>> for PageTarget<'a> {
+    fn from(page: &'a Page<'a>) -> Self {
+        Self::Page(page)
+    }
+}
+impl<'a> From<&'a str> for PageTarget<'a> {
+    fn from(url: &'a str) -> Self {
+        Self::Url(url.to_string())
+    }
+}
+impl<'a> From<String> for PageTarget<'a> {
+    fn from(url: String) -> Self {
+        Self::Url(url)
+    }
+}
+impl<'a> From<PageTarget<'a>> for PageLinkOptions<'a> {
+    fn from(target: PageTarget<'a>) -> Self {
+        Self::new(target)
+    }
+}
+impl<'a> From<&'a Page<'a>> for PageLinkOptions<'a> {
+    fn from(page: &'a Page<'a>) -> Self {
+        Self::new(PageTarget::Page(page))
+    }
+}
+impl From<&str> for PageLinkOptions<'_> {
+    fn from(url: &str) -> Self {
+        Self::new(PageTarget::Url(url.to_string()))
+    }
+}
+impl From<String> for PageLinkOptions<'_> {
+    fn from(url: String) -> Self {
+        Self::new(PageTarget::Url(url))
     }
 }
 
