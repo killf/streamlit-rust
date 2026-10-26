@@ -354,6 +354,8 @@ def summarise_forward(payload: bytes) -> dict:
         from google.protobuf.json_format import MessageToDict
 
         out["page_config"] = MessageToDict(msg.page_config_changed)
+    elif kind == "page_info_changed":
+        out["page_info"] = {"query_string": msg.page_info_changed.query_string}
     elif kind == "delta":
         delta = msg.delta
         dkind = delta.WhichOneof("type")
@@ -586,7 +588,15 @@ def summarise_back(payload: bytes) -> dict:
                 except Exception as exc:  # pragma: no cover - defensive
                     item["value_full"] = {"error": f"{type(exc).__name__}: {exc}"}
             states.append(item)
+        # The URL state the browser reports with every rerun: query params,
+        # page identity.
         out["rerun_script"] = {"widget_states": states}
+        if msg.rerun_script.query_string:
+            out["rerun_script"]["query_string"] = msg.rerun_script.query_string
+        if msg.rerun_script.page_script_hash:
+            out["rerun_script"]["page_script_hash"] = msg.rerun_script.page_script_hash
+        if msg.rerun_script.page_name:
+            out["rerun_script"]["page_name"] = msg.rerun_script.page_name
     return out
 
 
