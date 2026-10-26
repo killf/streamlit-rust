@@ -88,18 +88,18 @@
   "unavailable_requested_pages": 7,
   "redirect_aliases_not_counted": 2,
   "implementation_status_counts": {
-   "absent": 123,
-   "implemented": 59
+   "absent": 115,
+   "implemented": 67
   },
   "compatibility_status_counts": {
-   "unverified": 123,
-   "partial": 59
+   "unverified": 115,
+   "partial": 67
   },
   "unique_feature_ids": 182,
   "unique_official_urls": 182,
   "captured_sources_valid": 218,
   "captured_sources_total": 218,
-  "python_browser_trace_links": 16
+  "python_browser_trace_links": 17
  },
  "vendor_migration": {
   "status": "verified",
@@ -2670,13 +2670,29 @@
    "category": "PAGE ELEMENTS/Status elements",
    "scope_type": "api-reference",
    "official_url": "https://docs.streamlit.io/develop/api-reference/status/st.exception",
-   "rust_source_path": null,
-   "implementation_status": "absent",
-   "compatibility_status": "unverified",
+   "rust_source_path": "streamlit/src/elements/text.rs",
+   "implementation_status": "implemented",
+   "compatibility_status": "partial",
    "evidence": {
     "official_document_sha256": "e88a36d048aabd5c94440b6dfd61fec2c504bc7d07ecba001d882dbbda3eb524",
-    "python_browser_trace": null
-   }
+    "python_browser_trace": "tests/reference/reference-browser/textelements/trace-textelements.json",
+    "rust_source": "streamlit/src/elements/text.rs",
+    "rust_api_test": "streamlit/tests/runtime/textelements.rs",
+    "rust_wire_observation": "tests/browser/rust-textelements/trace-textelements.json",
+    "official_frontend_browser_e2e": "tests/browser/rust-textelements/trace-textelements.json",
+    "capture_entry": "tests/browser/textelements_capture.py",
+    "textelements_contract": "tests/browser/textelements_contract.py",
+    "contract_guards": "tests/reference/test_textelements_contract.py",
+    "driven_fixture": "tests/reference/textelements_app.py",
+    "driven_example": "streamlit/examples/textelements.rs"
+   },
+   "rust_plan": "st.exception(ExceptionOptions::new(kind, message).trace(line)) streams the application Exception element: the bare type name, the message, the caller's trace lines and stretch width, without the streamlit-error flag.",
+   "compatibility_scope": "The journey-textelements-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome through one measured load; the published replays assert 12/12 checks per side -- st.text is the wrapped content-width left-aligned Text element, st.subheader the wrapped h3 heading with stretch width, st.latex one markdown element with the formula in $$ display-math blocks, st.html the stretch-width embed, st.iframe scrolling with the 400 px default height, st.snow the one-shot, st.echo an empty placeholder whose slot the block exit retro-fills with the python code (content height) while the body's output streams after it, and st.exception the bare type, message and caller trace lines in the stretch-width box; the DOM shows every element with the exception trace normalized.",
+   "limitations": [
+    "Coverage is the measured defaults of each element (one call each on one page); text/subheader width and alignment overrides, html unsafe_allow_javascript, iframe srcdoc/tab_index/alt/height overrides, echo code_location and st.echo of containers, exception message_is_markdown and non-default widths remain unobserved.",
+    "The echoed code text and the exception trace lines are each app's own source: Rust callers supply them explicitly (st.echo takes the snippet; st.exception takes the trace lines), the language stays python and the trace is judged by line count.",
+    "fixture SHA256 1b15aba28d2d3b9dca0828ead6a1714040dbe792a640c809941bedcfd1dd573c; example SHA256 e11833903ce9c3ab5d1b96547e17a174121fa43c03ad88248e460476c2e986a0; text element source SHA256 ba29eeb7f2518ba07356f01b081af8d117042bd0f4ce507d4828798a40120fab."
+   ]
   },
   {
    "feature_id": "st.info",
@@ -2749,13 +2765,29 @@
    "category": "PAGE ELEMENTS/Status elements",
    "scope_type": "api-reference",
    "official_url": "https://docs.streamlit.io/develop/api-reference/status/st.snow",
-   "rust_source_path": null,
-   "implementation_status": "absent",
-   "compatibility_status": "unverified",
+   "rust_source_path": "streamlit/src/elements/text.rs",
+   "implementation_status": "implemented",
+   "compatibility_status": "partial",
    "evidence": {
     "official_document_sha256": "da79ce406e81180fdb6a774a2ad3c457c10873e2c8974e41f9018411cadba2a1",
-    "python_browser_trace": null
-   }
+    "python_browser_trace": "tests/reference/reference-browser/textelements/trace-textelements.json",
+    "rust_source": "streamlit/src/elements/text.rs",
+    "rust_api_test": "streamlit/tests/runtime/textelements.rs",
+    "rust_wire_observation": "tests/browser/rust-textelements/trace-textelements.json",
+    "official_frontend_browser_e2e": "tests/browser/rust-textelements/trace-textelements.json",
+    "capture_entry": "tests/browser/textelements_capture.py",
+    "textelements_contract": "tests/browser/textelements_contract.py",
+    "contract_guards": "tests/reference/test_textelements_contract.py",
+    "driven_fixture": "tests/reference/textelements_app.py",
+    "driven_example": "streamlit/examples/textelements.rs"
+   },
+   "rust_plan": "st.snow() streams the one-shot Snow{show: true} like balloons.",
+   "compatibility_scope": "The journey-textelements-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome through one measured load; the published replays assert 12/12 checks per side -- st.text is the wrapped content-width left-aligned Text element, st.subheader the wrapped h3 heading with stretch width, st.latex one markdown element with the formula in $$ display-math blocks, st.html the stretch-width embed, st.iframe scrolling with the 400 px default height, st.snow the one-shot, st.echo an empty placeholder whose slot the block exit retro-fills with the python code (content height) while the body's output streams after it, and st.exception the bare type, message and caller trace lines in the stretch-width box; the DOM shows every element with the exception trace normalized.",
+   "limitations": [
+    "Coverage is the measured defaults of each element (one call each on one page); text/subheader width and alignment overrides, html unsafe_allow_javascript, iframe srcdoc/tab_index/alt/height overrides, echo code_location and st.echo of containers, exception message_is_markdown and non-default widths remain unobserved.",
+    "The echoed code text and the exception trace lines are each app's own source: Rust callers supply them explicitly (st.echo takes the snippet; st.exception takes the trace lines), the language stays python and the trace is judged by line count.",
+    "fixture SHA256 1b15aba28d2d3b9dca0828ead6a1714040dbe792a640c809941bedcfd1dd573c; example SHA256 e11833903ce9c3ab5d1b96547e17a174121fa43c03ad88248e460476c2e986a0; text element source SHA256 ba29eeb7f2518ba07356f01b081af8d117042bd0f4ce507d4828798a40120fab."
+   ]
   },
   {
    "feature_id": "st.spinner",
@@ -2961,13 +2993,29 @@
    "category": "PAGE ELEMENTS/Text elements",
    "scope_type": "api-reference",
    "official_url": "https://docs.streamlit.io/develop/api-reference/text/st.echo",
-   "rust_source_path": null,
-   "implementation_status": "absent",
-   "compatibility_status": "unverified",
+   "rust_source_path": "streamlit/src/elements/text.rs",
+   "implementation_status": "implemented",
+   "compatibility_status": "partial",
    "evidence": {
     "official_document_sha256": "277f8d061277c08dd9175bedae5db94901c335753a32580e289234ca87fe439f",
-    "python_browser_trace": null
-   }
+    "python_browser_trace": "tests/reference/reference-browser/textelements/trace-textelements.json",
+    "rust_source": "streamlit/src/elements/text.rs",
+    "rust_api_test": "streamlit/tests/runtime/textelements.rs",
+    "rust_wire_observation": "tests/browser/rust-textelements/trace-textelements.json",
+    "official_frontend_browser_e2e": "tests/browser/rust-textelements/trace-textelements.json",
+    "capture_entry": "tests/browser/textelements_capture.py",
+    "textelements_contract": "tests/browser/textelements_contract.py",
+    "contract_guards": "tests/reference/test_textelements_contract.py",
+    "driven_fixture": "tests/reference/textelements_app.py",
+    "driven_example": "streamlit/examples/textelements.rs"
+   },
+   "rust_plan": "st.echo(code, |st| ...) streams an Empty placeholder at the call slot, runs the closure (its output streams after the placeholder), then replaces the placeholder path with Code{codeText: code, language: python} at content height and stretch width; the snippet is caller-supplied since Rust cannot read its own source.",
+   "compatibility_scope": "The journey-textelements-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome through one measured load; the published replays assert 12/12 checks per side -- st.text is the wrapped content-width left-aligned Text element, st.subheader the wrapped h3 heading with stretch width, st.latex one markdown element with the formula in $$ display-math blocks, st.html the stretch-width embed, st.iframe scrolling with the 400 px default height, st.snow the one-shot, st.echo an empty placeholder whose slot the block exit retro-fills with the python code (content height) while the body's output streams after it, and st.exception the bare type, message and caller trace lines in the stretch-width box; the DOM shows every element with the exception trace normalized.",
+   "limitations": [
+    "Coverage is the measured defaults of each element (one call each on one page); text/subheader width and alignment overrides, html unsafe_allow_javascript, iframe srcdoc/tab_index/alt/height overrides, echo code_location and st.echo of containers, exception message_is_markdown and non-default widths remain unobserved.",
+    "The echoed code text and the exception trace lines are each app's own source: Rust callers supply them explicitly (st.echo takes the snippet; st.exception takes the trace lines), the language stays python and the trace is judged by line count.",
+    "fixture SHA256 1b15aba28d2d3b9dca0828ead6a1714040dbe792a640c809941bedcfd1dd573c; example SHA256 e11833903ce9c3ab5d1b96547e17a174121fa43c03ad88248e460476c2e986a0; text element source SHA256 ba29eeb7f2518ba07356f01b081af8d117042bd0f4ce507d4828798a40120fab."
+   ]
   },
   {
    "feature_id": "st.header",
@@ -3007,39 +3055,87 @@
    "category": "PAGE ELEMENTS/Text elements",
    "scope_type": "api-reference",
    "official_url": "https://docs.streamlit.io/develop/api-reference/text/st.html",
-   "rust_source_path": null,
-   "implementation_status": "absent",
-   "compatibility_status": "unverified",
+   "rust_source_path": "streamlit/src/elements/text.rs",
+   "implementation_status": "implemented",
+   "compatibility_status": "partial",
    "evidence": {
     "official_document_sha256": "3327f76962345cb7acf8e69160eb38743a1f1d646400389c3903f2637dcf16c9",
-    "python_browser_trace": null
-   }
+    "python_browser_trace": "tests/reference/reference-browser/textelements/trace-textelements.json",
+    "rust_source": "streamlit/src/elements/text.rs",
+    "rust_api_test": "streamlit/tests/runtime/textelements.rs",
+    "rust_wire_observation": "tests/browser/rust-textelements/trace-textelements.json",
+    "official_frontend_browser_e2e": "tests/browser/rust-textelements/trace-textelements.json",
+    "capture_entry": "tests/browser/textelements_capture.py",
+    "textelements_contract": "tests/browser/textelements_contract.py",
+    "contract_guards": "tests/reference/test_textelements_contract.py",
+    "driven_fixture": "tests/reference/textelements_app.py",
+    "driven_example": "streamlit/examples/textelements.rs"
+   },
+   "rust_plan": "st.html(body) streams Html{body} with stretch width.",
+   "compatibility_scope": "The journey-textelements-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome through one measured load; the published replays assert 12/12 checks per side -- st.text is the wrapped content-width left-aligned Text element, st.subheader the wrapped h3 heading with stretch width, st.latex one markdown element with the formula in $$ display-math blocks, st.html the stretch-width embed, st.iframe scrolling with the 400 px default height, st.snow the one-shot, st.echo an empty placeholder whose slot the block exit retro-fills with the python code (content height) while the body's output streams after it, and st.exception the bare type, message and caller trace lines in the stretch-width box; the DOM shows every element with the exception trace normalized.",
+   "limitations": [
+    "Coverage is the measured defaults of each element (one call each on one page); text/subheader width and alignment overrides, html unsafe_allow_javascript, iframe srcdoc/tab_index/alt/height overrides, echo code_location and st.echo of containers, exception message_is_markdown and non-default widths remain unobserved.",
+    "The echoed code text and the exception trace lines are each app's own source: Rust callers supply them explicitly (st.echo takes the snippet; st.exception takes the trace lines), the language stays python and the trace is judged by line count.",
+    "fixture SHA256 1b15aba28d2d3b9dca0828ead6a1714040dbe792a640c809941bedcfd1dd573c; example SHA256 e11833903ce9c3ab5d1b96547e17a174121fa43c03ad88248e460476c2e986a0; text element source SHA256 ba29eeb7f2518ba07356f01b081af8d117042bd0f4ce507d4828798a40120fab."
+   ]
   },
   {
    "feature_id": "st.iframe",
    "category": "PAGE ELEMENTS/Text elements",
    "scope_type": "api-reference",
    "official_url": "https://docs.streamlit.io/develop/api-reference/text/st.iframe",
-   "rust_source_path": null,
-   "implementation_status": "absent",
-   "compatibility_status": "unverified",
+   "rust_source_path": "streamlit/src/elements/text.rs",
+   "implementation_status": "implemented",
+   "compatibility_status": "partial",
    "evidence": {
     "official_document_sha256": "83e1ecb77af9d249fee236d7302795ff414d5b3cbb7e5747e5a6e2e5375a8639",
-    "python_browser_trace": null
-   }
+    "python_browser_trace": "tests/reference/reference-browser/textelements/trace-textelements.json",
+    "rust_source": "streamlit/src/elements/text.rs",
+    "rust_api_test": "streamlit/tests/runtime/textelements.rs",
+    "rust_wire_observation": "tests/browser/rust-textelements/trace-textelements.json",
+    "official_frontend_browser_e2e": "tests/browser/rust-textelements/trace-textelements.json",
+    "capture_entry": "tests/browser/textelements_capture.py",
+    "textelements_contract": "tests/browser/textelements_contract.py",
+    "contract_guards": "tests/reference/test_textelements_contract.py",
+    "driven_fixture": "tests/reference/textelements_app.py",
+    "driven_example": "streamlit/examples/textelements.rs"
+   },
+   "rust_plan": "st.iframe(url) streams IFrame{src, scrolling: true} with the 400 px default height and stretch width; IFrameOptions carries srcdoc and height.",
+   "compatibility_scope": "The journey-textelements-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome through one measured load; the published replays assert 12/12 checks per side -- st.text is the wrapped content-width left-aligned Text element, st.subheader the wrapped h3 heading with stretch width, st.latex one markdown element with the formula in $$ display-math blocks, st.html the stretch-width embed, st.iframe scrolling with the 400 px default height, st.snow the one-shot, st.echo an empty placeholder whose slot the block exit retro-fills with the python code (content height) while the body's output streams after it, and st.exception the bare type, message and caller trace lines in the stretch-width box; the DOM shows every element with the exception trace normalized.",
+   "limitations": [
+    "Coverage is the measured defaults of each element (one call each on one page); text/subheader width and alignment overrides, html unsafe_allow_javascript, iframe srcdoc/tab_index/alt/height overrides, echo code_location and st.echo of containers, exception message_is_markdown and non-default widths remain unobserved.",
+    "The echoed code text and the exception trace lines are each app's own source: Rust callers supply them explicitly (st.echo takes the snippet; st.exception takes the trace lines), the language stays python and the trace is judged by line count.",
+    "fixture SHA256 1b15aba28d2d3b9dca0828ead6a1714040dbe792a640c809941bedcfd1dd573c; example SHA256 e11833903ce9c3ab5d1b96547e17a174121fa43c03ad88248e460476c2e986a0; text element source SHA256 ba29eeb7f2518ba07356f01b081af8d117042bd0f4ce507d4828798a40120fab."
+   ]
   },
   {
    "feature_id": "st.latex",
    "category": "PAGE ELEMENTS/Text elements",
    "scope_type": "api-reference",
    "official_url": "https://docs.streamlit.io/develop/api-reference/text/st.latex",
-   "rust_source_path": null,
-   "implementation_status": "absent",
-   "compatibility_status": "unverified",
+   "rust_source_path": "streamlit/src/elements/text.rs",
+   "implementation_status": "implemented",
+   "compatibility_status": "partial",
    "evidence": {
     "official_document_sha256": "e476a36ce822f1241b0c3116c75044adf435ec158a15dd557269039a50756a54",
-    "python_browser_trace": null
-   }
+    "python_browser_trace": "tests/reference/reference-browser/textelements/trace-textelements.json",
+    "rust_source": "streamlit/src/elements/text.rs",
+    "rust_api_test": "streamlit/tests/runtime/textelements.rs",
+    "rust_wire_observation": "tests/browser/rust-textelements/trace-textelements.json",
+    "official_frontend_browser_e2e": "tests/browser/rust-textelements/trace-textelements.json",
+    "capture_entry": "tests/browser/textelements_capture.py",
+    "textelements_contract": "tests/browser/textelements_contract.py",
+    "contract_guards": "tests/reference/test_textelements_contract.py",
+    "driven_fixture": "tests/reference/textelements_app.py",
+    "driven_example": "streamlit/examples/textelements.rs"
+   },
+   "rust_plan": "st.latex(formula) streams one markdown element whose body is the formula wrapped in $$ display-math blocks.",
+   "compatibility_scope": "The journey-textelements-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome through one measured load; the published replays assert 12/12 checks per side -- st.text is the wrapped content-width left-aligned Text element, st.subheader the wrapped h3 heading with stretch width, st.latex one markdown element with the formula in $$ display-math blocks, st.html the stretch-width embed, st.iframe scrolling with the 400 px default height, st.snow the one-shot, st.echo an empty placeholder whose slot the block exit retro-fills with the python code (content height) while the body's output streams after it, and st.exception the bare type, message and caller trace lines in the stretch-width box; the DOM shows every element with the exception trace normalized.",
+   "limitations": [
+    "Coverage is the measured defaults of each element (one call each on one page); text/subheader width and alignment overrides, html unsafe_allow_javascript, iframe srcdoc/tab_index/alt/height overrides, echo code_location and st.echo of containers, exception message_is_markdown and non-default widths remain unobserved.",
+    "The echoed code text and the exception trace lines are each app's own source: Rust callers supply them explicitly (st.echo takes the snippet; st.exception takes the trace lines), the language stays python and the trace is judged by line count.",
+    "fixture SHA256 1b15aba28d2d3b9dca0828ead6a1714040dbe792a640c809941bedcfd1dd573c; example SHA256 e11833903ce9c3ab5d1b96547e17a174121fa43c03ad88248e460476c2e986a0; text element source SHA256 ba29eeb7f2518ba07356f01b081af8d117042bd0f4ce507d4828798a40120fab."
+   ]
   },
   {
    "feature_id": "st.markdown",
@@ -3066,26 +3162,58 @@
    "category": "PAGE ELEMENTS/Text elements",
    "scope_type": "api-reference",
    "official_url": "https://docs.streamlit.io/develop/api-reference/text/st.subheader",
-   "rust_source_path": null,
-   "implementation_status": "absent",
-   "compatibility_status": "unverified",
+   "rust_source_path": "streamlit/src/elements/title.rs",
+   "implementation_status": "implemented",
+   "compatibility_status": "partial",
    "evidence": {
     "official_document_sha256": "a1ec453108684db24d9882a5d0a9abcda281c7a0641747562f3d49fa6652f1b6",
-    "python_browser_trace": null
-   }
+    "python_browser_trace": "tests/reference/reference-browser/textelements/trace-textelements.json",
+    "rust_source": "streamlit/src/elements/title.rs",
+    "rust_api_test": "streamlit/tests/runtime/textelements.rs",
+    "rust_wire_observation": "tests/browser/rust-textelements/trace-textelements.json",
+    "official_frontend_browser_e2e": "tests/browser/rust-textelements/trace-textelements.json",
+    "capture_entry": "tests/browser/textelements_capture.py",
+    "textelements_contract": "tests/browser/textelements_contract.py",
+    "contract_guards": "tests/reference/test_textelements_contract.py",
+    "driven_fixture": "tests/reference/textelements_app.py",
+    "driven_example": "streamlit/examples/textelements.rs"
+   },
+   "rust_plan": "st.sub_header(body) is the existing h3 HeadingElement; the chain pins wrap true and stretch width on the wire.",
+   "compatibility_scope": "The journey-textelements-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome through one measured load; the published replays assert 12/12 checks per side -- st.text is the wrapped content-width left-aligned Text element, st.subheader the wrapped h3 heading with stretch width, st.latex one markdown element with the formula in $$ display-math blocks, st.html the stretch-width embed, st.iframe scrolling with the 400 px default height, st.snow the one-shot, st.echo an empty placeholder whose slot the block exit retro-fills with the python code (content height) while the body's output streams after it, and st.exception the bare type, message and caller trace lines in the stretch-width box; the DOM shows every element with the exception trace normalized.",
+   "limitations": [
+    "Coverage is the measured defaults of each element (one call each on one page); text/subheader width and alignment overrides, html unsafe_allow_javascript, iframe srcdoc/tab_index/alt/height overrides, echo code_location and st.echo of containers, exception message_is_markdown and non-default widths remain unobserved.",
+    "The echoed code text and the exception trace lines are each app's own source: Rust callers supply them explicitly (st.echo takes the snippet; st.exception takes the trace lines), the language stays python and the trace is judged by line count.",
+    "fixture SHA256 1b15aba28d2d3b9dca0828ead6a1714040dbe792a640c809941bedcfd1dd573c; example SHA256 e11833903ce9c3ab5d1b96547e17a174121fa43c03ad88248e460476c2e986a0; text element source SHA256 ba29eeb7f2518ba07356f01b081af8d117042bd0f4ce507d4828798a40120fab."
+   ]
   },
   {
    "feature_id": "st.text",
    "category": "PAGE ELEMENTS/Text elements",
    "scope_type": "api-reference",
    "official_url": "https://docs.streamlit.io/develop/api-reference/text/st.text",
-   "rust_source_path": null,
-   "implementation_status": "absent",
-   "compatibility_status": "unverified",
+   "rust_source_path": "streamlit/src/elements/text.rs",
+   "implementation_status": "implemented",
+   "compatibility_status": "partial",
    "evidence": {
     "official_document_sha256": "6220f05fc2e520afd04e49f9e44408b4066dca78ac76f216628472a08337d10e",
-    "python_browser_trace": null
-   }
+    "python_browser_trace": "tests/reference/reference-browser/textelements/trace-textelements.json",
+    "rust_source": "streamlit/src/elements/text.rs",
+    "rust_api_test": "streamlit/tests/runtime/textelements.rs",
+    "rust_wire_observation": "tests/browser/rust-textelements/trace-textelements.json",
+    "official_frontend_browser_e2e": "tests/browser/rust-textelements/trace-textelements.json",
+    "capture_entry": "tests/browser/textelements_capture.py",
+    "textelements_contract": "tests/browser/textelements_contract.py",
+    "contract_guards": "tests/reference/test_textelements_contract.py",
+    "driven_fixture": "tests/reference/textelements_app.py",
+    "driven_example": "streamlit/examples/textelements.rs"
+   },
+   "rust_plan": "st.text(body) streams Text{body, wrap: true} with content width and left alignment; TextOptions carries width/alignment overrides.",
+   "compatibility_scope": "The journey-textelements-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome through one measured load; the published replays assert 12/12 checks per side -- st.text is the wrapped content-width left-aligned Text element, st.subheader the wrapped h3 heading with stretch width, st.latex one markdown element with the formula in $$ display-math blocks, st.html the stretch-width embed, st.iframe scrolling with the 400 px default height, st.snow the one-shot, st.echo an empty placeholder whose slot the block exit retro-fills with the python code (content height) while the body's output streams after it, and st.exception the bare type, message and caller trace lines in the stretch-width box; the DOM shows every element with the exception trace normalized.",
+   "limitations": [
+    "Coverage is the measured defaults of each element (one call each on one page); text/subheader width and alignment overrides, html unsafe_allow_javascript, iframe srcdoc/tab_index/alt/height overrides, echo code_location and st.echo of containers, exception message_is_markdown and non-default widths remain unobserved.",
+    "The echoed code text and the exception trace lines are each app's own source: Rust callers supply them explicitly (st.echo takes the snippet; st.exception takes the trace lines), the language stays python and the trace is judged by line count.",
+    "fixture SHA256 1b15aba28d2d3b9dca0828ead6a1714040dbe792a640c809941bedcfd1dd573c; example SHA256 e11833903ce9c3ab5d1b96547e17a174121fa43c03ad88248e460476c2e986a0; text element source SHA256 ba29eeb7f2518ba07356f01b081af8d117042bd0f4ce507d4828798a40120fab."
+   ]
   },
   {
    "feature_id": "st.title",

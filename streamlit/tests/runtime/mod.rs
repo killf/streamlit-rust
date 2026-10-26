@@ -26,6 +26,7 @@ mod queryparams;
 mod sessions;
 mod static_assets;
 mod temporal;
+mod textelements;
 mod uploads;
 mod widgets;
 

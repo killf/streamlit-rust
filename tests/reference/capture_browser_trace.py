@@ -391,8 +391,9 @@ def summarise_forward(payload: bytes) -> dict:
                     MessageToDict(element.height_config) if element.HasField("height_config") else None
                 )
             if widget is not None:
-                if name in DATA_ELEMENT_TYPES:
-                    # The whole element: the table, the chart or the uploader.
+                if name in DATA_ELEMENT_TYPES or name in FULL_ELEMENT_PRESENTATION:
+                    # The whole element: the table, the chart, the uploader or
+                    # the presentation element's full parameter set.
                     try:
                         from google.protobuf.json_format import MessageToDict
 
@@ -693,6 +694,11 @@ def _pulses(observation: dict) -> str:
 # example renders the same page, so the wire fields can be compared directly:
 # same body, format, icon, title and width.
 FULL_ELEMENT_WIDGETS = ("selectbox", "slider", "checkbox")
+
+# The whole Element message for the text family and one-shot presentation
+# elements: the heading level, the iframe src/scrolling, the html scrolling,
+# the code body/language of st.echo, the snow/empty flags.
+FULL_ELEMENT_PRESENTATION = ("text", "heading", "html", "iframe", "snow", "empty", "code")
 
 WIDGET_ELEMENTS = (
     "selectbox",

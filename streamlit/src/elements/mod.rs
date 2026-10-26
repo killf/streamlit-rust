@@ -13,6 +13,7 @@ pub mod layouts;
 pub mod markdown;
 pub mod media;
 pub mod status;
+pub mod text;
 pub mod title;
 
 pub(crate) use app::App;

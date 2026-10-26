@@ -412,3 +412,30 @@ under contract `89922dba98f5ff9a61fc8b9590cd00d216a6428da1d17846c15c4befd7d6ed17
 The runtime regression (streamlit/tests/runtime/navigation.rs) pins the
 page hashes, nav fields, addressing, the hits round trip and the switch
 two-run timeline over the production websocket.
+
+## Text elements (st.text, st.subheader, st.latex, st.html, st.iframe, st.snow, st.echo, st.exception)
+
+[textelements_capture.py](textelements_capture.py) is the permanent entry
+for the text-elements chain; [textelements_contract.py](textelements_contract.py)
+is its strict criterion (journey-textelements-v1, 12 checks) with unit
+tests in [tests/reference/test_textelements_contract.py](../reference/test_textelements_contract.py).
+One measured load pins every element's full wire shape: the wrapped
+content-width text, the wrapped h3 subheader, latex as one markdown
+element in `$$` display math, the stretch-width html embed, the scrolling
+iframe with its 400 px default height, the one-shot snow, the echo
+placeholder/retro-fill pair (the code replaces the placeholder's own
+path), and the application exception box (type, message, trace judged by
+line count). One leading `main_container` add_block at [0] is the Rust
+runtime's documented divergence. The published chains:
+
+```powershell
+target\pyref-venv\Scripts\python.exe tests\browser\textelements_capture.py --replay tests\reference\reference-browser\textelements\trace-textelements.json
+target\pyref-venv\Scripts\python.exe tests\browser\textelements_capture.py --replay tests\browser\rust-textelements\trace-textelements.json
+```
+
+Both return 12 expected / 12 executed / 12 asserted with exit 0. Raw
+SHA256: python `b6128c6cefaf110424cf8a8dd98259d345996f5fc3a5b6e15b7f308bb5bf001e`,
+native `c534ac116d9e6492fb3f816f532ea1882601f2fd78267a2bb4095e9f60ec44f5`,
+under contract `876d1128e0a9baba1c0c02df21fb6e2ea104b54068c205a0002cb3b2ed4a5530`.
+The runtime regression (streamlit/tests/runtime/textelements.rs) pins the
+ten-element timeline over the production websocket.

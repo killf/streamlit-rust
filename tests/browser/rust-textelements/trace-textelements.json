@@ -1,0 +1,387 @@
+{
+ "schema_version": 1,
+ "journey": "textelements-page",
+ "contract": "journey-textelements-v1",
+ "scope": "RUST SIDE",
+ "url": "http://127.0.0.1:8520/",
+ "observation": {
+  "journey": "textelements-page",
+  "contract": "journey-textelements-v1",
+  "scope": "RUST SIDE",
+  "url": "http://127.0.0.1:8520/",
+  "binary": null,
+  "source": {
+   "file": "streamlit/examples/textelements.rs",
+   "sha256": "e4a041aea590d7a794851914199d1b799d56143df01baaf8f22efdd97c52ff29"
+  },
+  "capture_sources": {
+   "textelements_capture.py": "0c12d03ce73a9b70b3acc8f32d29bde239b820effac640d60a4e8d5d2c2d57d1",
+   "textelements_contract.py": "876d1128e0a9baba1c0c02df21fb6e2ea104b54068c205a0002cb3b2ed4a5530"
+  },
+  "stages": [
+   {
+    "name": "01-load",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 58554.631181,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": []
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 58554.633446,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "40fddb2b-0b4b-41a7-91a5-ddec95816e57",
+        "name": "Streamlit Rust",
+        "main_script_path": "",
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "session_id": "b861c7d9-0eb4-4b24-a9eb-991afddcc58d"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 58554.639673,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 58554.639776,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "main_container",
+        "block_type": "vertical",
+        "block": {
+         "vertical": {},
+         "id": "main_container"
+        },
+        "path": [
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 58554.640003,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "text",
+        "element_full": {
+         "text": {
+          "body": "plain text",
+          "wrap": true
+         },
+         "widthConfig": {
+          "useContent": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "plain text",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 58554.640286,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "heading",
+        "element_full": {
+         "heading": {
+          "tag": "h3",
+          "body": "Sub header",
+          "wrap": true
+         },
+         "widthConfig": {
+          "useStretch": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "Sub header",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 58554.64036,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "$$\na^2 + b^2 = c^2\n$$",
+        "path": [
+         0,
+         2
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 58554.640435,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "html",
+        "element_full": {
+         "html": {
+          "body": "<p><b>bold</b> html</p>"
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "body": "<p><b>bold</b> html</p>",
+        "path": [
+         0,
+         3
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 58554.640502,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "iframe",
+        "element_full": {
+         "iframe": {
+          "src": "https://example.com",
+          "scrolling": true
+         },
+         "heightConfig": {
+          "pixelHeight": 400
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "path": [
+         0,
+         4
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 58554.640601,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "snow",
+        "element_full": {
+         "snow": {
+          "show": true
+         },
+         "hasOneShotEffect": true
+        },
+        "path": [
+         0,
+         5
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 58554.64068,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "empty",
+        "element_full": {
+         "empty": {}
+        },
+        "path": [
+         0,
+         6
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 58554.640746,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "echoed inside",
+        "path": [
+         0,
+         7
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 58554.640772,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "code",
+        "element_full": {
+         "code": {
+          "codeText": "st.write(\"echoed inside\")",
+          "language": "python"
+         },
+         "heightConfig": {
+          "useContent": true
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "path": [
+         0,
+         6
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 58554.640834,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "exception",
+        "exception": {
+         "type": "ValueError",
+         "message": "boom",
+         "stackTrace": [
+          "streamlit-rust: the application raised ValueError: boom"
+         ],
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "accepted_types": [
+         "ValueError"
+        ],
+        "path": [
+         0,
+         8
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 58554.640906,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 58554.640991,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "http": [],
+    "dom": {
+     "texts": [
+      "plain text"
+     ],
+     "markdowns": [
+      "a2+b2=c2a^2 + b^2 = c^2a2+b2=c2",
+      "echoed inside"
+     ],
+     "htmls": [
+      "bold html"
+     ],
+     "iframes": [
+      "https://example.com/"
+     ],
+     "snow": 1,
+     "exceptions": [
+      "ValueError: boom\nTraceback:\nstreamlit-rust: the application raised ValueError: boom"
+     ]
+    },
+    "screenshot": {
+     "file": "01-load.png",
+     "sha256": "657f900ceac1d6b021c4906f21137e52442ec20b73ccf1f2cfaf677edcde96c2"
+    }
+   }
+  ],
+  "ipc_dir": "D:\\dlab\\streamlit-rust\\tests\\browser\\rust-textelements"
+ },
+ "counts": {
+  "expected": 12,
+  "executed": 12,
+  "asserted": 12
+ },
+ "failures": []
+}

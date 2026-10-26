@@ -5,17 +5,19 @@ use crate::elements::code::CodeElement;
 use crate::elements::columns::{Column, ColumnElement};
 use crate::elements::common::{Anchor, Divider, Element, ElementHeight, ElementWidth, Gap, HorizontalAlignment, TextAlignment, VerticalAlignment};
 use crate::elements::container::{Container, ContainerElement};
+use crate::elements::exception::AppException;
 pub use crate::elements::form::Form;
 use crate::elements::form::{FormElement, validate_form_dimensions};
 pub use crate::elements::layouts::{DialogBody, DialogOptions, Expander, ExpanderOptions, Popover, PopoverOptions, Sidebar, Tab, TabsOptions};
 use crate::elements::layouts::{DialogElement, ExpanderElement, PopoverElement, TabsElement};
 use crate::elements::markdown::{MarkdownElement, MarkdownElementType};
 use crate::elements::status::{StatusElement, status_content};
+use crate::elements::text::{EmptyElement, HtmlElement, IframeElement, SnowElement, TextElement};
 use crate::elements::title::HeadingElement;
 use crate::memory::Allocator;
 pub use crate::proto::block::dialog::{DialogPosition, DialogWidth};
 pub use crate::proto::page_config::{Layout as PageLayout, SidebarState as InitialSidebarState};
-use crate::proto::{ForwardMsg, forward_msg};
+use crate::proto::{Delta, ForwardMsg, delta, delta_base_with_path, element, forward_msg};
 use parking_lot::Mutex;
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -1006,6 +1008,129 @@ impl From<String> for ToastOptions {
     }
 }
 
+/// Options for `st.text`: the body plus the measured defaults (wrapped
+/// text, content width, left alignment).
+pub struct TextOptions {
+    pub body: String,
+    pub width: Option<ElementWidth>,
+    pub text_alignment: Option<TextAlignment>,
+}
+
+impl TextOptions {
+    pub fn new(body: impl Into<String>) -> Self {
+        Self {
+            body: body.into(),
+            width: None,
+            text_alignment: None,
+        }
+    }
+
+    pub fn width(mut self, width: ElementWidth) -> Self {
+        self.width = Some(width);
+        self
+    }
+
+    pub fn text_alignment(mut self, alignment: TextAlignment) -> Self {
+        self.text_alignment = Some(alignment);
+        self
+    }
+}
+
+impl From<&str> for TextOptions {
+    fn from(body: &str) -> Self {
+        Self::new(body)
+    }
+}
+
+impl From<String> for TextOptions {
+    fn from(body: String) -> Self {
+        Self::new(body)
+    }
+}
+
+/// Options for `st.html`: the body of the embedded document.
+pub struct HtmlOptions {
+    pub body: String,
+}
+
+impl HtmlOptions {
+    pub fn new(body: impl Into<String>) -> Self {
+        Self { body: body.into() }
+    }
+}
+
+impl From<&str> for HtmlOptions {
+    fn from(body: &str) -> Self {
+        Self::new(body)
+    }
+}
+
+impl From<String> for HtmlOptions {
+    fn from(body: String) -> Self {
+        Self::new(body)
+    }
+}
+
+/// What an `st.iframe` embeds: a URL or an inline document.
+pub enum IFrameSource {
+    Src(String),
+    Srcdoc(String),
+}
+
+/// Options for `st.iframe`: the source plus the measured defaults
+/// (scrolling on, a 400 px height, stretch width).
+pub struct IFrameOptions {
+    pub source: IFrameSource,
+    pub height: Option<ElementHeight>,
+}
+
+impl IFrameOptions {
+    pub fn new(source: IFrameSource) -> Self {
+        Self { source, height: None }
+    }
+
+    pub fn height(mut self, height: ElementHeight) -> Self {
+        self.height = Some(height);
+        self
+    }
+}
+
+impl From<&str> for IFrameOptions {
+    fn from(url: &str) -> Self {
+        Self::new(IFrameSource::Src(url.to_owned()))
+    }
+}
+
+impl From<String> for IFrameOptions {
+    fn from(url: String) -> Self {
+        Self::new(IFrameSource::Src(url))
+    }
+}
+
+/// Options for `st.exception`: the exception's type name, its message and
+/// the trace lines the box shows (the runtime cannot know the application's
+/// source, so the caller supplies them).
+pub struct ExceptionOptions {
+    pub kind: String,
+    pub message: String,
+    pub stack_trace: Vec<String>,
+}
+
+impl ExceptionOptions {
+    pub fn new(kind: impl Into<String>, message: impl Into<String>) -> Self {
+        Self {
+            kind: kind.into(),
+            message: message.into(),
+            stack_trace: Vec::new(),
+        }
+    }
+
+    pub fn trace(mut self, line: impl Into<String>) -> Self {
+        self.stack_trace.push(line.into());
+        self
+    }
+}
+
 /// The handle `st.progress` returns: updates coalesce into the single delta
 /// the reference streams at the end of the run.
 pub struct Progress {
@@ -1124,6 +1249,33 @@ pub trait StreamlitApi {
     fn toast<T: Into<ToastOptions>>(&self, options: T);
 
     fn balloons(&self);
+
+    /// Plain pre-formatted text, like `st.text`: wrapped, content width.
+    fn text<T: Into<TextOptions>>(&self, body: T);
+
+    /// A LaTeX formula rendered as display math, like `st.latex`.
+    fn latex(&self, formula: impl Into<String>);
+
+    /// Embed an html document in the page, like `st.html`.
+    fn html<T: Into<HtmlOptions>>(&self, body: T);
+
+    /// Embed an external page in an iframe, like `st.iframe`.
+    fn iframe<T: Into<IFrameOptions>>(&self, body: T);
+
+    /// The one-shot snowfall, like `st.snow()`.
+    fn snow(&self);
+
+    /// Show `code` beside the output of `body`, like `with st.echo():` --
+    /// an empty placeholder takes the call slot, `body`'s output streams
+    /// after it, and the block exit replaces the placeholder with the code.
+    /// Rust cannot read the caller's source, so the code text is supplied.
+    fn echo<F: FnOnce(&Self)>(&self, code: impl Into<String>, body: F)
+    where
+        Self: Sized;
+
+    /// Display an exception, like `st.exception`: the type name, the
+    /// message and the caller's trace lines in the framework's box.
+    fn exception<T: Into<ExceptionOptions>>(&self, error: T);
 }
 
 fn create_status<C: AppendChild>(this: &C, options: StatusOptions, format: crate::proto::alert::Format) -> Result<(), StatusError> {
@@ -1144,6 +1296,39 @@ fn create_status<C: AppendChild>(this: &C, options: StatusOptions, format: crate
     });
     this.push(Rc::new(RefCell::new(element)));
     Ok(())
+}
+
+/// The measured echo shape: an empty placeholder takes the call slot, the
+/// body's output streams after it, and the block exit replaces the
+/// placeholder with the code (python, content height, stretch width)
+/// without touching the cursor.
+fn emit_echo<C: AppendChild, F: FnOnce(&C)>(this: &C, code: String, body: F) {
+    let app_handle = this.get_app();
+    let placeholder_path = {
+        let mut app = app_handle.lock();
+        app.render_context_mut().map(|context| context.delta_path.clone()).unwrap_or_default()
+    };
+    this.push(Rc::new(RefCell::new(EmptyElement)));
+    body(this);
+    let mut app = app_handle.lock();
+    if let Some(context) = app.render_context_mut() {
+        let element_hash = crate::utils::hash::hash(format!("echo_{code}").as_str());
+        let mut msg = delta_base_with_path(placeholder_path, context.active_script_hash.clone(), element_hash);
+        msg.r#type = Some(forward_msg::Type::Delta(Delta {
+            fragment_id: String::new(),
+            r#type: Some(delta::Type::NewElement(crate::proto::Element {
+                height_config: Some(ElementHeight::Content.into()),
+                width_config: Some(ElementWidth::Stretch.into()),
+                r#type: Some(element::Type::Code(crate::proto::Code {
+                    code_text: code,
+                    language: "python".to_string(),
+                    ..Default::default()
+                })),
+                ..Default::default()
+            })),
+        }));
+        context.push(msg);
+    }
 }
 
 fn create_header<C: AppendChild, T: Into<HeaderOptions>>(this: &C, data: T, tag: &str) {
@@ -1195,6 +1380,55 @@ impl<C: AppendChild> StreamlitApi for C {
         let body = body.into();
         let element = MarkdownElement::new(body.body).unsafe_allow_html(body.unsafe_allow_html);
         self.push(Rc::new(RefCell::new(element)));
+    }
+
+    fn text<T: Into<TextOptions>>(&self, body: T) {
+        let options = body.into();
+        let mut element = TextElement::new(options.body);
+        if let Some(width) = options.width {
+            element = element.width(width);
+        }
+        if let Some(alignment) = options.text_alignment {
+            element = element.text_alignment(alignment);
+        }
+        self.push(Rc::new(RefCell::new(element)));
+    }
+
+    fn latex(&self, formula: impl Into<String>) {
+        self.markdown(format!("$$\n{}\n$$", formula.into()));
+    }
+
+    fn html<T: Into<HtmlOptions>>(&self, body: T) {
+        let options = body.into();
+        self.push(Rc::new(RefCell::new(HtmlElement::new(options.body))));
+    }
+
+    fn iframe<T: Into<IFrameOptions>>(&self, body: T) {
+        let options = body.into();
+        let mut element = match options.source {
+            IFrameSource::Src(url) => IframeElement::src(url),
+            IFrameSource::Srcdoc(html) => IframeElement::srcdoc(html),
+        };
+        if let Some(height) = options.height {
+            element = element.height(height);
+        }
+        self.push(Rc::new(RefCell::new(element)));
+    }
+
+    fn snow(&self) {
+        self.push(Rc::new(RefCell::new(SnowElement)));
+    }
+
+    fn echo<F: FnOnce(&Self)>(&self, code: impl Into<String>, body: F)
+    where
+        Self: Sized,
+    {
+        emit_echo(self, code.into(), body);
+    }
+
+    fn exception<T: Into<ExceptionOptions>>(&self, error: T) {
+        let options = error.into();
+        self.push(Rc::new(RefCell::new(AppException::new(options.kind, options.message, options.stack_trace))));
     }
 
     fn set_page_config(&self, options: impl Into<PageConfigOptions>) {

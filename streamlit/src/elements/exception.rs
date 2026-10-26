@@ -53,3 +53,43 @@ impl Element for ExceptionElement {
         Ok(())
     }
 }
+
+/// The application exception element `st.exception` renders (the measured
+/// 1.66.1 shape: the bare type name, the message, the caller-supplied trace
+/// lines, the stretch width, no streamlit-error flag).
+pub(crate) struct AppException {
+    kind: String,
+    message: String,
+    stack_trace: Vec<String>,
+}
+
+impl AppException {
+    pub(crate) fn new(kind: String, message: String, stack_trace: Vec<String>) -> Self {
+        Self { kind, message, stack_trace }
+    }
+}
+
+impl Element for AppException {
+    fn render(&self, context: &mut RenderContext) -> Result<(), StreamlitError> {
+        let element = WireElement {
+            r#type: Some(crate::proto::element::Type::Exception(Exception {
+                r#type: self.kind.clone(),
+                message: self.message.clone(),
+                stack_trace: self.stack_trace.clone(),
+                width_config: Some(ElementWidth::Stretch.into()),
+                ..Default::default()
+            })),
+            ..Default::default()
+        };
+        let mut message = delta_base_with_path(context.delta_path.clone(), context.active_script_hash.clone(), crate::utils::hash::hash(&format!("{element:?}")));
+        message.r#type = Some(forward_msg::Type::Delta(Delta {
+            fragment_id: String::new(),
+            r#type: Some(delta::Type::NewElement(element)),
+        }));
+        context.push(message);
+        if let Some(index) = context.delta_path.last_mut() {
+            *index += 1;
+        }
+        Ok(())
+    }
+}

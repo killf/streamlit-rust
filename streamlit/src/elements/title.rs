@@ -77,7 +77,7 @@ impl Element for HeadingElement {
                 text_alignment_config,
                 r#type: Some(element::Type::Heading(crate::proto::Heading {
                     icon: String::new(),
-                    wrap: None,
+                    wrap: Some(true),
                     tag: self.tag.clone(),
                     anchor: self.anchor.clone(),
                     body: self.body.clone(),

@@ -1,0 +1,367 @@
+{
+ "schema_version": 1,
+ "journey": "textelements-page",
+ "contract": "journey-textelements-v1",
+ "scope": "PYTHON SIDE ONLY",
+ "url": "http://127.0.0.1:8619/",
+ "observation": {
+  "journey": "textelements-page",
+  "contract": "journey-textelements-v1",
+  "scope": "PYTHON SIDE ONLY",
+  "url": "http://127.0.0.1:8619/",
+  "binary": null,
+  "source": {
+   "file": "tests/reference/textelements_app.py",
+   "sha256": "1b15aba28d2d3b9dca0828ead6a1714040dbe792a640c809941bedcfd1dd573c"
+  },
+  "capture_sources": {
+   "textelements_capture.py": "0c12d03ce73a9b70b3acc8f32d29bde239b820effac640d60a4e8d5d2c2d57d1",
+   "textelements_contract.py": "876d1128e0a9baba1c0c02df21fb6e2ea104b54068c205a0002cb3b2ed4a5530"
+  },
+  "stages": [
+   {
+    "name": "01-load",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 58559.718475,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": []
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 58559.720184,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "27efce42-3b7e-4dcc-9a07-f7ac0fe9058a",
+        "name": "textelements_app",
+        "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\textelements_app.py",
+        "page_script_hash": "8735b04721a6011d63fce6a3b736ad68",
+        "main_script_hash": "8735b04721a6011d63fce6a3b736ad68",
+        "session_id": "3da3f78c-6879-4b5b-8e73-0dd0e1515e7f"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 58559.727175,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 58559.727283,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "text",
+        "element_full": {
+         "text": {
+          "body": "plain text",
+          "wrap": true
+         },
+         "widthConfig": {
+          "useContent": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "plain text",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 58559.729236,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "heading",
+        "element_full": {
+         "heading": {
+          "tag": "h3",
+          "body": "Sub header",
+          "wrap": true
+         },
+         "widthConfig": {
+          "useStretch": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "Sub header",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 58559.729401,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "$$\na^2 + b^2 = c^2\n$$",
+        "path": [
+         0,
+         2
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 58559.729497,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "html",
+        "element_full": {
+         "html": {
+          "body": "<p><b>bold</b> html</p>"
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "body": "<p><b>bold</b> html</p>",
+        "path": [
+         0,
+         3
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 58559.729567,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "iframe",
+        "element_full": {
+         "iframe": {
+          "src": "https://example.com",
+          "scrolling": true
+         },
+         "heightConfig": {
+          "pixelHeight": 400
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "path": [
+         0,
+         4
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 58559.729691,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "snow",
+        "element_full": {
+         "snow": {
+          "show": true
+         },
+         "hasOneShotEffect": true
+        },
+        "path": [
+         0,
+         5
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 58559.729771,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "empty",
+        "element_full": {
+         "empty": {}
+        },
+        "path": [
+         0,
+         6
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 58559.729829,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "echoed inside",
+        "path": [
+         0,
+         7
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 58559.72987,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "code",
+        "element_full": {
+         "code": {
+          "codeText": "st.write(\"echoed inside\")",
+          "language": "python"
+         },
+         "heightConfig": {
+          "useContent": true
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "path": [
+         0,
+         6
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 58559.746882,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "exception",
+        "exception": {
+         "type": "ValueError",
+         "message": "boom",
+         "stackTrace": [
+          "File \"D:\\dlab\\streamlit-rust\\tests\\reference\\textelements_app.py\", line 18, in <module>\n    raise ValueError(\"boom\")"
+         ],
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "accepted_types": [
+         "ValueError"
+        ],
+        "path": [
+         0,
+         8
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 58559.751156,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 58559.766246,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "http": [],
+    "dom": {
+     "texts": [
+      "plain text"
+     ],
+     "markdowns": [
+      "a2+b2=c2a^2 + b^2 = c^2a2+b2=c2",
+      "echoed inside"
+     ],
+     "htmls": [
+      "bold html"
+     ],
+     "iframes": [
+      "https://example.com/"
+     ],
+     "snow": 1,
+     "exceptions": [
+      "ValueError: boom\nTraceback:\nFile \"D:\\dlab\\streamlit-rust\\tests\\reference\\textelements_app.py\", line 18, in <module>\n    raise ValueError(\"boom\")\nCopy\nAsk Google\nAsk ChatGPT"
+     ]
+    },
+    "screenshot": {
+     "file": "01-load.png",
+     "sha256": "609a38c9d91e4ac89af843b994dd52286edb28ffb148842e049de093496ca13a"
+    }
+   }
+  ],
+  "ipc_dir": "D:\\dlab\\streamlit-rust\\tests\\reference\\reference-browser\\textelements"
+ },
+ "counts": {
+  "expected": 12,
+  "executed": 12,
+  "asserted": 12
+ },
+ "failures": []
+}
