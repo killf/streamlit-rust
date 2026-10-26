@@ -1,0 +1,293 @@
+{
+ "schema_version": 1,
+ "journey": "display-page",
+ "contract": "journey-display-v1",
+ "scope": "PYTHON SIDE ONLY",
+ "url": "http://127.0.0.1:8620/",
+ "observation": {
+  "journey": "display-page",
+  "contract": "journey-display-v1",
+  "scope": "PYTHON SIDE ONLY",
+  "url": "http://127.0.0.1:8620/",
+  "binary": null,
+  "source": {
+   "file": "tests/reference/display_app.py",
+   "sha256": "6ff9cca00a26fa36b0e89d45bef7596bf1ec4e47dd6d1de87291fe2d8904fee6"
+  },
+  "capture_sources": {
+   "display_capture.py": "95000d68974988a56ef14fd44aa37f73b167de8d5f6dbb6ef7f566fc6696f71e",
+   "display_contract.py": "9f6cbedf7030ef4a82b8e3d369b030f96408c81983eefc80e44929084fe387f0"
+  },
+  "stages": [
+   {
+    "name": "01-load",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 61220.91378,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": []
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 61220.920011,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "f5ef90b4-beea-4904-93c3-3d8853c2d51b",
+        "name": "display_app",
+        "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\display_app.py",
+        "page_script_hash": "31272e8e61a674226ce3fa74d9d4e369",
+        "main_script_hash": "31272e8e61a674226ce3fa74d9d4e369",
+        "session_id": "5c098e16-ad0b-42b0-842e-fe8637458cc4"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 61220.927824,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 61221.005422,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "json",
+        "element_full": {
+         "json": {
+          "body": "{\"a\": 1, \"b\": [true, null]}",
+          "expanded": true
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "body": "{\"a\": 1, \"b\": [true, null]}",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 61221.0065,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "",
+        "block_type": "expandable",
+        "block": {
+         "expandable": {
+          "label": "Working...",
+          "expanded": true,
+          "icon": "spinner",
+          "state": "RUNNING"
+         },
+         "allowEmpty": true,
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 61221.092995,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "step one",
+        "path": [
+         0,
+         1,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 61221.093509,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "step two",
+        "path": [
+         0,
+         1,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 61221.097872,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "",
+        "block_type": "expandable",
+        "block": {
+         "expandable": {
+          "label": "Done",
+          "expanded": false,
+          "icon": ":material/check:",
+          "state": "COMPLETE"
+         },
+         "allowEmpty": true,
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 61221.098107,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "replaced",
+        "path": [
+         0,
+         2
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 61221.09817,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "space",
+        "element_full": {
+         "heightConfig": {
+          "pixelHeight": 3
+         },
+         "widthConfig": {
+          "pixelWidth": 3
+         },
+         "space": {}
+        },
+        "path": [
+         0,
+         3
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 61221.098483,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "bottom line",
+        "path": [
+         3,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 61221.098556,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 61221.098847,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "http": [],
+    "dom": {
+     "json": [
+      "{\"a\":1\"b\":[0:true1:NULL]}"
+     ],
+     "markdowns": [],
+     "bottom": [
+      "bottom line"
+     ],
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "01-load.png",
+     "sha256": "28c05425c655c90d2cc7823553fcaaff05c9d18c694a8519c2f9bf8bbad311a1"
+    }
+   }
+  ],
+  "ipc_dir": "D:\\dlab\\streamlit-rust\\tests\\reference\\reference-browser\\display"
+ },
+ "counts": {
+  "expected": 12,
+  "executed": 12,
+  "asserted": 12
+ },
+ "failures": []
+}

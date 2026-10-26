@@ -679,6 +679,277 @@ impl AppendChild for DialogBody<'_> {
     }
 }
 
+/// The status container state, mirroring the reference's block states and
+/// their icons ("spinner" / ":material/check:" / ":material/error:").
+#[derive(Clone, Copy, Debug)]
+pub enum StatusState {
+    Running,
+    Complete,
+    Error,
+}
+
+impl StatusState {
+    fn wire(self) -> crate::proto::block::expandable::State {
+        match self {
+            Self::Running => crate::proto::block::expandable::State::Running,
+            Self::Complete => crate::proto::block::expandable::State::Complete,
+            Self::Error => crate::proto::block::expandable::State::Error,
+        }
+    }
+
+    fn icon(self) -> &'static str {
+        match self {
+            Self::Running => "spinner",
+            Self::Complete => ":material/check:",
+            Self::Error => ":material/error:",
+        }
+    }
+}
+
+/// The st.status container: an expandable block whose label/icon/state can
+/// be updated mid-run -- `status.update(...)` re-streams the same block
+/// path with the new payload (the measured 1.66.1 shape).
+pub(crate) struct StatusElement {
+    label: String,
+    expanded: bool,
+    icon: String,
+    state: crate::proto::block::expandable::State,
+    pub(crate) children: Vec<Rc<RefCell<dyn Element>>>,
+}
+
+impl StatusElement {
+    pub fn new(label: String, expanded: bool) -> Self {
+        Self {
+            label,
+            expanded,
+            icon: StatusState::Running.icon().to_string(),
+            state: StatusState::Running.wire(),
+            children: Vec::new(),
+        }
+    }
+
+    pub fn update(&mut self, label: Option<String>, state: Option<StatusState>, expanded: Option<bool>) {
+        if let Some(label) = label {
+            self.label = label;
+        }
+        if let Some(state) = state {
+            self.state = state.wire();
+            self.icon = state.icon().to_string();
+        }
+        if let Some(expanded) = expanded {
+            self.expanded = expanded;
+        }
+    }
+}
+
+impl Element for StatusElement {
+    fn render(&self, context: &mut RenderContext) -> Result<(), StreamlitError> {
+        self.render_block(context, self.label.clone(), self.icon.clone(), self.state, self.expanded)?;
+        context.delta_path.push(0);
+        for child in self.children.iter() {
+            child.borrow().render(context)?;
+        }
+        context.delta_path.pop();
+        if let Some(index) = context.delta_path.pop() {
+            context.delta_path.push(index + 1);
+        }
+        Ok(())
+    }
+}
+
+impl StatusElement {
+    fn render_block(&self, context: &mut RenderContext, label: String, icon: String, state: crate::proto::block::expandable::State, expanded: bool) -> Result<(), StreamlitError> {
+        let element_hash = hash(format!("status_{label}_{icon}_{expanded}_{}", state.as_str_name()).as_str());
+        let mut msg = delta_base_with_path(context.delta_path.clone(), context.active_script_hash.clone(), element_hash);
+        msg.r#type = Some(forward_msg::Type::Delta(Delta {
+            fragment_id: String::new(),
+            r#type: Some(delta::Type::AddBlock(Block {
+                autoscroll: None,
+                allow_empty: true,
+                id: None,
+                height_config: None,
+                width_config: Some(ElementWidth::Stretch.into()),
+                r#type: Some(crate::proto::block::Type::Expandable(Expandable {
+                    label,
+                    expanded: Some(expanded),
+                    icon,
+                    state: state as i32,
+                    ..Default::default()
+                })),
+            })),
+        }));
+        context.push(msg);
+        Ok(())
+    }
+}
+
+/// The status handle: children stream into the block; `update` re-streams
+/// the block with the new label/state/expanded after the children.
+pub struct Status<'a> {
+    element: Rc<RefCell<StatusElement>>,
+    allocator: &'a Allocator,
+    app: Rc<Mutex<App>>,
+    form_id: Option<String>,
+    base_path: Vec<u32>,
+    exit_path: Vec<u32>,
+}
+
+impl<'a> Status<'a> {
+    pub(crate) fn new(element: Rc<RefCell<StatusElement>>, allocator: &'a Allocator, app: Rc<Mutex<App>>, form_id: Option<String>, base_path: Vec<u32>, exit_path: Vec<u32>) -> Self {
+        Self {
+            element,
+            allocator,
+            app,
+            form_id,
+            base_path,
+            exit_path,
+        }
+    }
+
+    /// Update the container mid-run, like `status.update(label=...,
+    /// state=..., expanded=...)`: the same block path re-streams with the
+    /// new payload (the state drives the icon like the reference).
+    pub fn update(&self, label: Option<String>, state: Option<StatusState>, expanded: Option<bool>) {
+        let mut app = self.app.lock();
+        if app.session_state.run_control().is_some() {
+            return;
+        }
+        self.element.borrow_mut().update(label, state, expanded);
+        let Some(context) = app.render_context_mut() else { return };
+        // The update re-streams at the block's own path; the container
+        // cursor does not move.
+        let saved = context.delta_path.clone();
+        context.delta_path = self.base_path.clone();
+        let updated = self.element.borrow();
+        let _ = updated.render_block(context, updated.label.clone(), updated.icon.clone(), updated.state, updated.expanded);
+        context.delta_path = saved;
+    }
+}
+
+impl AppendChild for Status<'_> {
+    fn push(&self, element: Rc<RefCell<dyn Element>>) {
+        let child_index = self.element.borrow().children.len() as u32;
+        self.element.borrow_mut().children.push(element.clone());
+        push_at(element, &self.app, &self.form_id, &self.base_path, child_index, &self.exit_path);
+    }
+
+    fn allocator(&self) -> &Allocator {
+        self.allocator
+    }
+
+    fn get_app(&self) -> Rc<Mutex<App>> {
+        self.app.clone()
+    }
+
+    fn parent_form_id(&self) -> Option<String> {
+        self.form_id.clone()
+    }
+
+    fn next_child_path(&self) -> Vec<u32> {
+        let mut path = self.base_path.clone();
+        path.push(self.element.borrow().children.len() as u32);
+        path
+    }
+}
+
+/// The st.empty handle: the placeholder consumed its slot at creation;
+/// `write` streams any element at that same slot, replacing what it held
+/// without advancing the container cursor.
+pub struct EmptyHandle<'a> {
+    allocator: &'a Allocator,
+    app: Rc<Mutex<App>>,
+    form_id: Option<String>,
+    slot_path: Vec<u32>,
+}
+
+impl<'a> EmptyHandle<'a> {
+    pub(crate) fn new(allocator: &'a Allocator, app: Rc<Mutex<App>>, form_id: Option<String>, slot_path: Vec<u32>) -> Self {
+        Self { allocator, app, form_id, slot_path }
+    }
+}
+
+impl AppendChild for EmptyHandle<'_> {
+    fn push(&self, element: Rc<RefCell<dyn Element>>) {
+        let mut app = self.app.lock();
+        if app.session_state.run_control().is_some() {
+            return;
+        }
+        // The replacement writes at the stored slot path; the container
+        // cursor does not move (a later sibling still takes the next slot).
+        if let Some(context) = app.render_context_mut() {
+            let saved = context.delta_path.clone();
+            context.delta_path = self.slot_path.clone();
+            if let Err(error) = element.borrow().render(context) {
+                log::error!("failed to render into the empty slot: {error}");
+            }
+            context.delta_path = saved;
+        }
+    }
+
+    fn allocator(&self) -> &Allocator {
+        self.allocator
+    }
+
+    fn get_app(&self) -> Rc<Mutex<App>> {
+        self.app.clone()
+    }
+
+    fn parent_form_id(&self) -> Option<String> {
+        self.form_id.clone()
+    }
+
+    fn next_child_path(&self) -> Vec<u32> {
+        self.slot_path.clone()
+    }
+}
+
+/// The bottom container is a fixed root ([3]) that takes no block: children
+/// stream straight into it, interleaved with the main flow, like the
+/// sidebar's [1].
+pub struct Bottom<'a> {
+    allocator: &'a Allocator,
+    app: Rc<Mutex<App>>,
+    form_id: Option<String>,
+    exit_path: Vec<u32>,
+    children: std::cell::Cell<u32>,
+}
+
+impl<'a> Bottom<'a> {
+    pub(crate) fn new(allocator: &'a Allocator, app: Rc<Mutex<App>>, form_id: Option<String>, exit_path: Vec<u32>) -> Self {
+        Self {
+            allocator,
+            app,
+            form_id,
+            exit_path,
+            children: std::cell::Cell::new(0),
+        }
+    }
+}
+
+impl AppendChild for Bottom<'_> {
+    fn push(&self, element: Rc<RefCell<dyn Element>>) {
+        let child_index = self.children.get();
+        self.children.set(child_index + 1);
+        push_at(element, &self.app, &self.form_id, &[3], child_index, &self.exit_path);
+    }
+
+    fn allocator(&self) -> &Allocator {
+        self.allocator
+    }
+
+    fn get_app(&self) -> Rc<Mutex<App>> {
+        self.app.clone()
+    }
+
+    fn parent_form_id(&self) -> Option<String> {
+        self.form_id.clone()
+    }
+
+    fn next_child_path(&self) -> Vec<u32> {
+        vec![3, self.children.get()]
+    }
+}
+
 /// The sidebar is a fixed root ([1]) that takes no block: children stream
 /// straight into it, interleaved with the main flow.
 pub struct Sidebar<'a> {

@@ -8,11 +8,11 @@ use crate::elements::container::{Container, ContainerElement};
 use crate::elements::exception::AppException;
 pub use crate::elements::form::Form;
 use crate::elements::form::{FormElement, validate_form_dimensions};
-pub use crate::elements::layouts::{DialogBody, DialogOptions, Expander, ExpanderOptions, Popover, PopoverOptions, Sidebar, Tab, TabsOptions};
-use crate::elements::layouts::{DialogElement, ExpanderElement, PopoverElement, TabsElement};
+pub use crate::elements::layouts::{Bottom, DialogBody, DialogOptions, EmptyHandle, Expander, ExpanderOptions, Popover, PopoverOptions, Sidebar, Status, StatusState, Tab, TabsOptions};
+use crate::elements::layouts::{DialogElement, ExpanderElement, PopoverElement, StatusElement, TabsElement};
 use crate::elements::markdown::{MarkdownElement, MarkdownElementType};
-use crate::elements::status::{StatusElement, status_content};
-use crate::elements::text::{EmptyElement, HtmlElement, IframeElement, SnowElement, TextElement};
+use crate::elements::status::{StatusElement as AlertStatusElement, status_content};
+use crate::elements::text::{EmptyElement, HtmlElement, IframeElement, JsonElement, SnowElement, SpaceElement, TextElement};
 use crate::elements::title::HeadingElement;
 use crate::memory::Allocator;
 pub use crate::proto::block::dialog::{DialogPosition, DialogWidth};
@@ -1131,6 +1131,36 @@ impl ExceptionOptions {
     }
 }
 
+/// Options for the `st.status` container: the label and its initial
+/// expansion.
+pub struct StatusContainerOptions {
+    pub label: String,
+    pub expanded: bool,
+}
+
+impl StatusContainerOptions {
+    pub fn new(label: impl Into<String>) -> Self {
+        Self { label: label.into(), expanded: false }
+    }
+
+    pub fn expanded(mut self, expanded: bool) -> Self {
+        self.expanded = expanded;
+        self
+    }
+}
+
+impl From<&str> for StatusContainerOptions {
+    fn from(label: &str) -> Self {
+        Self::new(label)
+    }
+}
+
+impl From<String> for StatusContainerOptions {
+    fn from(label: String) -> Self {
+        Self::new(label)
+    }
+}
+
 /// The handle `st.progress` returns: updates coalesce into the single delta
 /// the reference streams at the end of the run.
 pub struct Progress {
@@ -1201,6 +1231,30 @@ pub trait StreamlitApi {
     /// The fixed sidebar root: children stream straight into [1, i],
     /// interleaved with the main flow, with no block of its own.
     fn sidebar(&self) -> &Sidebar<'_>;
+
+    /// The fixed bottom root: children stream straight into [3, i], pinned
+    /// to the bottom of the viewport, with no block of its own.
+    fn bottom(&self) -> &Bottom<'_>;
+
+    /// An expandable status container, like `with st.status("Working...")`;
+    /// `status.update(...)` re-streams the block with the new label, state
+    /// and expansion.
+    fn status<T: Into<StatusContainerOptions>>(&self, options: T) -> &Status<'_>;
+
+    /// An overwritable placeholder slot, like `st.empty()`: the placeholder
+    /// takes the call slot and anything written through the handle replaces
+    /// that slot.
+    fn empty(&self) -> &EmptyHandle<'_>;
+
+    /// A JSON viewer, like `st.json(body)`: the body is the Python
+    /// `json.dumps` rendering of the value, collapsed by default.
+    fn json<T: serde::Serialize>(&self, body: T);
+
+    /// The expanded form, like `st.json(body, expanded=True)`.
+    fn json_expanded<T: serde::Serialize>(&self, body: T, expanded: bool);
+
+    /// A square spacer, like `st.space(pixels)`.
+    fn space(&self, size: u32);
 
     fn expander<T: Into<ExpanderOptions>>(&self, options: T) -> &Expander<'_> {
         self.expander_options(options.into())
@@ -1287,7 +1341,7 @@ fn create_status<C: AppendChild>(this: &C, options: StatusOptions, format: crate
         StatusWidth::Pixels(value) => return Err(StatusError::InvalidWidth(value.to_string())),
     };
     let (body, icon) = status_content(&options.body, options.icon.as_deref())?;
-    let element = StatusElement::new(crate::proto::Alert {
+    let element = AlertStatusElement::new(crate::proto::Alert {
         body,
         format: format as i32,
         icon,
@@ -1561,6 +1615,45 @@ impl<C: AppendChild> StreamlitApi for C {
         let app = self.get_app();
         let exit_path = self.next_child_path();
         self.allocator().malloc(Sidebar::new(self.allocator(), app, self.parent_form_id(), exit_path))
+    }
+
+    fn bottom(&self) -> &Bottom<'_> {
+        let app = self.get_app();
+        let exit_path = self.next_child_path();
+        self.allocator().malloc(Bottom::new(self.allocator(), app, self.parent_form_id(), exit_path))
+    }
+
+    fn status<T: Into<StatusContainerOptions>>(&self, options: T) -> &Status<'_> {
+        let options = options.into();
+        let element = Rc::new(RefCell::new(StatusElement::new(options.label, options.expanded)));
+        let app = self.get_app();
+        let base_path = self.next_child_path();
+        self.push(element.clone());
+        let exit_path = app.lock().render_context_mut().map(|context| context.delta_path.clone()).unwrap_or_default();
+        self.allocator().malloc(Status::new(element, self.allocator(), app, self.parent_form_id(), base_path, exit_path))
+    }
+
+    fn empty(&self) -> &EmptyHandle<'_> {
+        let app = self.get_app();
+        let slot_path = self.next_child_path();
+        self.push(Rc::new(RefCell::new(EmptyElement)));
+        self.allocator().malloc(EmptyHandle::new(self.allocator(), app, self.parent_form_id(), slot_path))
+    }
+
+    fn json<T: serde::Serialize>(&self, body: T) {
+        if let Ok(value) = serde_json::to_value(&body) {
+            self.push(Rc::new(RefCell::new(JsonElement::new(crate::pywire::py_dumps(&value), false))));
+        }
+    }
+
+    fn json_expanded<T: serde::Serialize>(&self, body: T, expanded: bool) {
+        if let Ok(value) = serde_json::to_value(&body) {
+            self.push(Rc::new(RefCell::new(JsonElement::new(crate::pywire::py_dumps(&value), expanded))));
+        }
+    }
+
+    fn space(&self, size: u32) {
+        self.push(Rc::new(RefCell::new(SpaceElement::new(size))));
     }
 
     fn expander_options(&self, options: ExpanderOptions) -> &Expander<'_> {

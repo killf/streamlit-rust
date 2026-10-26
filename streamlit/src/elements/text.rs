@@ -166,7 +166,7 @@ impl Element for SnowElement {
 
 /// The empty placeholder: no fields, no configs. It consumes a container
 /// slot that a later element can replace (st.echo retro-fills its slot
-/// with the echoed code).
+/// with the echoed code; the st.empty handle overwrites it via write).
 pub(crate) struct EmptyElement;
 
 impl Element for EmptyElement {
@@ -176,6 +176,74 @@ impl Element for EmptyElement {
             fragment_id: String::new(),
             r#type: Some(delta::Type::NewElement(crate::proto::Element {
                 r#type: Some(element::Type::Empty(Empty {})),
+                ..Default::default()
+            })),
+        }));
+        context.push(msg);
+        if let Some(index) = context.delta_path.last_mut() {
+            *index += 1;
+        }
+        Ok(())
+    }
+}
+
+pub(crate) struct JsonElement {
+    body: String,
+    expanded: bool,
+}
+
+impl JsonElement {
+    pub fn new(body: String, expanded: bool) -> Self {
+        Self { body, expanded }
+    }
+}
+
+impl Element for JsonElement {
+    fn render(&self, context: &mut RenderContext) -> Result<(), StreamlitError> {
+        let element_hash = hash(format!("json_{}_{}", self.body, self.expanded).as_str());
+        let mut msg = delta_base_with_path(context.delta_path.clone(), context.active_script_hash.clone(), element_hash);
+        msg.r#type = Some(forward_msg::Type::Delta(Delta {
+            fragment_id: String::new(),
+            r#type: Some(delta::Type::NewElement(crate::proto::Element {
+                width_config: Some(ElementWidth::Stretch.into()),
+                r#type: Some(element::Type::Json(crate::proto::Json {
+                    body: self.body.clone(),
+                    expanded: self.expanded,
+                    ..Default::default()
+                })),
+                ..Default::default()
+            })),
+        }));
+        context.push(msg);
+        if let Some(index) = context.delta_path.last_mut() {
+            *index += 1;
+        }
+        Ok(())
+    }
+}
+
+/// The spacer: no fields; both the width and height configs carry the same
+/// pixel value (the measured `st.space(3)` shape).
+pub(crate) struct SpaceElement {
+    size: u32,
+}
+
+impl SpaceElement {
+    pub fn new(size: u32) -> Self {
+        Self { size }
+    }
+}
+
+impl Element for SpaceElement {
+    fn render(&self, context: &mut RenderContext) -> Result<(), StreamlitError> {
+        let element_hash = hash(format!("space_{}", self.size).as_str());
+        let mut msg = delta_base_with_path(context.delta_path.clone(), context.active_script_hash.clone(), element_hash);
+        msg.r#type = Some(forward_msg::Type::Delta(Delta {
+            fragment_id: String::new(),
+            r#type: Some(delta::Type::NewElement(crate::proto::Element {
+                height_config: Some(ElementHeight::Value(self.size as i32).into()),
+                width_config: Some(ElementWidth::Value(self.size as i32).into()),
+                r#type: Some(element::Type::Space(crate::proto::Space {})),
                 ..Default::default()
             })),
         }));

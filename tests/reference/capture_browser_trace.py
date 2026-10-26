@@ -598,6 +598,8 @@ def summarise_back(payload: bytes) -> dict:
         # The URL state the browser reports with every rerun: query params,
         # page identity.
         out["rerun_script"] = {"widget_states": states}
+        if msg.rerun_script.cached_message_hashes:
+            out["rerun_script"]["cached_message_hashes"] = sorted(msg.rerun_script.cached_message_hashes)
         if msg.rerun_script.query_string:
             out["rerun_script"]["query_string"] = msg.rerun_script.query_string
         if msg.rerun_script.page_script_hash:
@@ -697,8 +699,9 @@ FULL_ELEMENT_WIDGETS = ("selectbox", "slider", "checkbox")
 
 # The whole Element message for the text family and one-shot presentation
 # elements: the heading level, the iframe src/scrolling, the html scrolling,
-# the code body/language of st.echo, the snow/empty flags.
-FULL_ELEMENT_PRESENTATION = ("text", "heading", "html", "iframe", "snow", "empty", "code")
+# the code body/language of st.echo, the snow/empty flags, the json
+# expansion default and the space height.
+FULL_ELEMENT_PRESENTATION = ("text", "heading", "html", "iframe", "snow", "empty", "code", "json", "space")
 
 WIDGET_ELEMENTS = (
     "selectbox",

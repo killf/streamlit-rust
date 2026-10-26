@@ -88,18 +88,18 @@
   "unavailable_requested_pages": 7,
   "redirect_aliases_not_counted": 2,
   "implementation_status_counts": {
-   "absent": 115,
-   "implemented": 67
+   "absent": 110,
+   "implemented": 72
   },
   "compatibility_status_counts": {
-   "unverified": 115,
-   "partial": 67
+   "unverified": 110,
+   "partial": 72
   },
   "unique_feature_ids": 182,
   "unique_official_urls": 182,
   "captured_sources_valid": 218,
   "captured_sources_total": 218,
-  "python_browser_trace_links": 17
+  "python_browser_trace_links": 18
  },
  "vendor_migration": {
   "status": "verified",
@@ -1717,13 +1717,29 @@
    "category": "PAGE ELEMENTS/Data elements",
    "scope_type": "api-reference",
    "official_url": "https://docs.streamlit.io/develop/api-reference/data/st.json",
-   "rust_source_path": null,
-   "implementation_status": "absent",
-   "compatibility_status": "unverified",
+   "rust_source_path": "streamlit/src/elements/text.rs",
+   "implementation_status": "implemented",
+   "compatibility_status": "partial",
    "evidence": {
     "official_document_sha256": "d22fc8f0e080bf120fbb6c8df3c0f4698ac5a009e724a2181725e3199f9666c1",
-    "python_browser_trace": null
-   }
+    "python_browser_trace": "tests/reference/reference-browser/display/trace-display.json",
+    "rust_source": "streamlit/src/elements/text.rs",
+    "rust_api_test": "streamlit/tests/runtime/display.rs",
+    "rust_wire_observation": "tests/browser/rust-display/trace-display.json",
+    "official_frontend_browser_e2e": "tests/browser/rust-display/trace-display.json",
+    "capture_entry": "tests/browser/display_capture.py",
+    "display_contract": "tests/browser/display_contract.py",
+    "contract_guards": "tests/reference/test_display_contract.py",
+    "driven_fixture": "tests/reference/display_app.py",
+    "driven_example": "streamlit/examples/display.rs"
+   },
+   "rust_plan": "st.json(body) streams Json{body: py_dumps(value), expanded: false} with stretch width; st.json_expanded(body, true) sets the initial expansion.",
+   "compatibility_scope": "The journey-display-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome through one measured load; the published replays assert 12/12 checks per side -- st.json streams the Python json.dumps rendering with stretch width, st.status is an expandable block (allowEmpty, stretch) whose update re-streams the same path with the new label/state/expansion (RUNNING pairs spinner, COMPLETE pairs :material/check:), st.empty takes a slot and the handle replaces that slot without advancing the cursor (the reference's queue composes the placeholder into a same-path replacement within one flush batch -- both the streamed and the coalesced shape are accepted, the replacement always lands), st.space is the square spacer with both configs at the pixel value, and st.bottom streams children at the fixed root [3, i] with no block.",
+   "limitations": [
+    "Coverage is the measured defaults of each element on one page; json max_expand_depth and non-expanded default, status error state and non-label updates, space via tuple/height-only forms, nested bottom interplay and repeated empty overwrites remain unobserved.",
+    "st.json serializes with the reference's json.dumps defaults (\", \"/\": \" separators, construction order); the value's serde_json rendering feeds it, so exotic float formats may differ from Python's repr.",
+    "fixture SHA256 6ff9cca00a26fa36b0e89d45bef7596bf1ec4e47dd6d1de87291fe2d8904fee6; example SHA256 876779e3a6e1d2c3a8ad85d79eb135177ae1f51973ec701d9784c2ecc47d324c; display element sources SHA256 b298701264c9e5d6a9a3075d3f5689f57f06a983a8987f30e3d75ceb98af84d6 + 6d71d2173ab767496efacc498a35ae6d5ecfcb6980758becea0ee2f3277eb7f8."
+   ]
   },
   {
    "feature_id": "st.metric",
@@ -2312,13 +2328,29 @@
    "category": "PAGE ELEMENTS/Layouts and containers",
    "scope_type": "api-reference",
    "official_url": "https://docs.streamlit.io/develop/api-reference/layout/st.bottom",
-   "rust_source_path": null,
-   "implementation_status": "absent",
-   "compatibility_status": "unverified",
+   "rust_source_path": "streamlit/src/elements/layouts.rs",
+   "implementation_status": "implemented",
+   "compatibility_status": "partial",
    "evidence": {
     "official_document_sha256": "749e9559d1bac73d2cf2f2124a3c0a6b8660d52fca82ba4cd19ae4cf1ee0ca4f",
-    "python_browser_trace": null
-   }
+    "python_browser_trace": "tests/reference/reference-browser/display/trace-display.json",
+    "rust_source": "streamlit/src/elements/layouts.rs",
+    "rust_api_test": "streamlit/tests/runtime/display.rs",
+    "rust_wire_observation": "tests/browser/rust-display/trace-display.json",
+    "official_frontend_browser_e2e": "tests/browser/rust-display/trace-display.json",
+    "capture_entry": "tests/browser/display_capture.py",
+    "display_contract": "tests/browser/display_contract.py",
+    "contract_guards": "tests/reference/test_display_contract.py",
+    "driven_fixture": "tests/reference/display_app.py",
+    "driven_example": "streamlit/examples/display.rs"
+   },
+   "rust_plan": "st.bottom() returns the fixed [3] root container (no block): children stream at [3, i] interleaved with the main flow, like the sidebar's [1].",
+   "compatibility_scope": "The journey-display-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome through one measured load; the published replays assert 12/12 checks per side -- st.json streams the Python json.dumps rendering with stretch width, st.status is an expandable block (allowEmpty, stretch) whose update re-streams the same path with the new label/state/expansion (RUNNING pairs spinner, COMPLETE pairs :material/check:), st.empty takes a slot and the handle replaces that slot without advancing the cursor (the reference's queue composes the placeholder into a same-path replacement within one flush batch -- both the streamed and the coalesced shape are accepted, the replacement always lands), st.space is the square spacer with both configs at the pixel value, and st.bottom streams children at the fixed root [3, i] with no block.",
+   "limitations": [
+    "Coverage is the measured defaults of each element on one page; json max_expand_depth and non-expanded default, status error state and non-label updates, space via tuple/height-only forms, nested bottom interplay and repeated empty overwrites remain unobserved.",
+    "st.json serializes with the reference's json.dumps defaults (\", \"/\": \" separators, construction order); the value's serde_json rendering feeds it, so exotic float formats may differ from Python's repr.",
+    "fixture SHA256 6ff9cca00a26fa36b0e89d45bef7596bf1ec4e47dd6d1de87291fe2d8904fee6; example SHA256 876779e3a6e1d2c3a8ad85d79eb135177ae1f51973ec701d9784c2ecc47d324c; display element sources SHA256 b298701264c9e5d6a9a3075d3f5689f57f06a983a8987f30e3d75ceb98af84d6 + 6d71d2173ab767496efacc498a35ae6d5ecfcb6980758becea0ee2f3277eb7f8."
+   ]
   },
   {
    "feature_id": "st.columns",
@@ -2365,13 +2397,29 @@
    "category": "PAGE ELEMENTS/Layouts and containers",
    "scope_type": "api-reference",
    "official_url": "https://docs.streamlit.io/develop/api-reference/layout/st.empty",
-   "rust_source_path": null,
-   "implementation_status": "absent",
-   "compatibility_status": "unverified",
+   "rust_source_path": "streamlit/src/elements/layouts.rs",
+   "implementation_status": "implemented",
+   "compatibility_status": "partial",
    "evidence": {
     "official_document_sha256": "06ddd9a089422b0f8a5dec5aa3b6389e722bae600ddd47bf808f10b3a1652ad1",
-    "python_browser_trace": null
-   }
+    "python_browser_trace": "tests/reference/reference-browser/display/trace-display.json",
+    "rust_source": "streamlit/src/elements/layouts.rs",
+    "rust_api_test": "streamlit/tests/runtime/display.rs",
+    "rust_wire_observation": "tests/browser/rust-display/trace-display.json",
+    "official_frontend_browser_e2e": "tests/browser/rust-display/trace-display.json",
+    "capture_entry": "tests/browser/display_capture.py",
+    "display_contract": "tests/browser/display_contract.py",
+    "contract_guards": "tests/reference/test_display_contract.py",
+    "driven_fixture": "tests/reference/display_app.py",
+    "driven_example": "streamlit/examples/display.rs"
+   },
+   "rust_plan": "st.empty() streams the Empty placeholder at the call slot and returns a handle whose writes render at that stored slot without advancing the container cursor (the replacement overwrites the slot).",
+   "compatibility_scope": "The journey-display-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome through one measured load; the published replays assert 12/12 checks per side -- st.json streams the Python json.dumps rendering with stretch width, st.status is an expandable block (allowEmpty, stretch) whose update re-streams the same path with the new label/state/expansion (RUNNING pairs spinner, COMPLETE pairs :material/check:), st.empty takes a slot and the handle replaces that slot without advancing the cursor (the reference's queue composes the placeholder into a same-path replacement within one flush batch -- both the streamed and the coalesced shape are accepted, the replacement always lands), st.space is the square spacer with both configs at the pixel value, and st.bottom streams children at the fixed root [3, i] with no block.",
+   "limitations": [
+    "Coverage is the measured defaults of each element on one page; json max_expand_depth and non-expanded default, status error state and non-label updates, space via tuple/height-only forms, nested bottom interplay and repeated empty overwrites remain unobserved.",
+    "st.json serializes with the reference's json.dumps defaults (\", \"/\": \" separators, construction order); the value's serde_json rendering feeds it, so exotic float formats may differ from Python's repr.",
+    "fixture SHA256 6ff9cca00a26fa36b0e89d45bef7596bf1ec4e47dd6d1de87291fe2d8904fee6; example SHA256 876779e3a6e1d2c3a8ad85d79eb135177ae1f51973ec701d9784c2ecc47d324c; display element sources SHA256 b298701264c9e5d6a9a3075d3f5689f57f06a983a8987f30e3d75ceb98af84d6 + 6d71d2173ab767496efacc498a35ae6d5ecfcb6980758becea0ee2f3277eb7f8."
+   ]
   },
   {
    "feature_id": "st.expander",
@@ -2468,13 +2516,29 @@
    "category": "PAGE ELEMENTS/Layouts and containers",
    "scope_type": "api-reference",
    "official_url": "https://docs.streamlit.io/develop/api-reference/layout/st.space",
-   "rust_source_path": null,
-   "implementation_status": "absent",
-   "compatibility_status": "unverified",
+   "rust_source_path": "streamlit/src/elements/text.rs",
+   "implementation_status": "implemented",
+   "compatibility_status": "partial",
    "evidence": {
     "official_document_sha256": "63e75dbb29e043fc60da0708cb0f0a502d1c2fbabbe397e2a259d7b3bc3ca8d6",
-    "python_browser_trace": null
-   }
+    "python_browser_trace": "tests/reference/reference-browser/display/trace-display.json",
+    "rust_source": "streamlit/src/elements/text.rs",
+    "rust_api_test": "streamlit/tests/runtime/display.rs",
+    "rust_wire_observation": "tests/browser/rust-display/trace-display.json",
+    "official_frontend_browser_e2e": "tests/browser/rust-display/trace-display.json",
+    "capture_entry": "tests/browser/display_capture.py",
+    "display_contract": "tests/browser/display_contract.py",
+    "contract_guards": "tests/reference/test_display_contract.py",
+    "driven_fixture": "tests/reference/display_app.py",
+    "driven_example": "streamlit/examples/display.rs"
+   },
+   "rust_plan": "st.space(pixels) streams Space{} with BOTH the width and height configs at the pixel value (a square spacer).",
+   "compatibility_scope": "The journey-display-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome through one measured load; the published replays assert 12/12 checks per side -- st.json streams the Python json.dumps rendering with stretch width, st.status is an expandable block (allowEmpty, stretch) whose update re-streams the same path with the new label/state/expansion (RUNNING pairs spinner, COMPLETE pairs :material/check:), st.empty takes a slot and the handle replaces that slot without advancing the cursor (the reference's queue composes the placeholder into a same-path replacement within one flush batch -- both the streamed and the coalesced shape are accepted, the replacement always lands), st.space is the square spacer with both configs at the pixel value, and st.bottom streams children at the fixed root [3, i] with no block.",
+   "limitations": [
+    "Coverage is the measured defaults of each element on one page; json max_expand_depth and non-expanded default, status error state and non-label updates, space via tuple/height-only forms, nested bottom interplay and repeated empty overwrites remain unobserved.",
+    "st.json serializes with the reference's json.dumps defaults (\", \"/\": \" separators, construction order); the value's serde_json rendering feeds it, so exotic float formats may differ from Python's repr.",
+    "fixture SHA256 6ff9cca00a26fa36b0e89d45bef7596bf1ec4e47dd6d1de87291fe2d8904fee6; example SHA256 876779e3a6e1d2c3a8ad85d79eb135177ae1f51973ec701d9784c2ecc47d324c; display element sources SHA256 b298701264c9e5d6a9a3075d3f5689f57f06a983a8987f30e3d75ceb98af84d6 + 6d71d2173ab767496efacc498a35ae6d5ecfcb6980758becea0ee2f3277eb7f8."
+   ]
   },
   {
    "feature_id": "st.tabs",
@@ -2821,13 +2885,29 @@
    "category": "PAGE ELEMENTS/Status elements",
    "scope_type": "api-reference",
    "official_url": "https://docs.streamlit.io/develop/api-reference/status/st.status",
-   "rust_source_path": null,
-   "implementation_status": "absent",
-   "compatibility_status": "unverified",
+   "rust_source_path": "streamlit/src/elements/layouts.rs",
+   "implementation_status": "implemented",
+   "compatibility_status": "partial",
    "evidence": {
     "official_document_sha256": "5e5b2230d3695ee98562c54a8918ab8ab56f0a04aca6223c353b47f21036f152",
-    "python_browser_trace": null
-   }
+    "python_browser_trace": "tests/reference/reference-browser/display/trace-display.json",
+    "rust_source": "streamlit/src/elements/layouts.rs",
+    "rust_api_test": "streamlit/tests/runtime/display.rs",
+    "rust_wire_observation": "tests/browser/rust-display/trace-display.json",
+    "official_frontend_browser_e2e": "tests/browser/rust-display/trace-display.json",
+    "capture_entry": "tests/browser/display_capture.py",
+    "display_contract": "tests/browser/display_contract.py",
+    "contract_guards": "tests/reference/test_display_contract.py",
+    "driven_fixture": "tests/reference/display_app.py",
+    "driven_example": "streamlit/examples/display.rs"
+   },
+   "rust_plan": "st.status(StatusContainerOptions) returns a handle: the container opens an expandable block (label, spinner icon, RUNNING state, allowEmpty, stretch width), children stream at [slot, k], and update(label, state, expanded) re-streams the SAME block path with the new payload -- the state drives the icon (spinner/:material/check:/:material/error:).",
+   "compatibility_scope": "The journey-display-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome through one measured load; the published replays assert 12/12 checks per side -- st.json streams the Python json.dumps rendering with stretch width, st.status is an expandable block (allowEmpty, stretch) whose update re-streams the same path with the new label/state/expansion (RUNNING pairs spinner, COMPLETE pairs :material/check:), st.empty takes a slot and the handle replaces that slot without advancing the cursor (the reference's queue composes the placeholder into a same-path replacement within one flush batch -- both the streamed and the coalesced shape are accepted, the replacement always lands), st.space is the square spacer with both configs at the pixel value, and st.bottom streams children at the fixed root [3, i] with no block.",
+   "limitations": [
+    "Coverage is the measured defaults of each element on one page; json max_expand_depth and non-expanded default, status error state and non-label updates, space via tuple/height-only forms, nested bottom interplay and repeated empty overwrites remain unobserved.",
+    "st.json serializes with the reference's json.dumps defaults (\", \"/\": \" separators, construction order); the value's serde_json rendering feeds it, so exotic float formats may differ from Python's repr.",
+    "fixture SHA256 6ff9cca00a26fa36b0e89d45bef7596bf1ec4e47dd6d1de87291fe2d8904fee6; example SHA256 876779e3a6e1d2c3a8ad85d79eb135177ae1f51973ec701d9784c2ecc47d324c; display element sources SHA256 b298701264c9e5d6a9a3075d3f5689f57f06a983a8987f30e3d75ceb98af84d6 + 6d71d2173ab767496efacc498a35ae6d5ecfcb6980758becea0ee2f3277eb7f8."
+   ]
   },
   {
    "feature_id": "st.success",

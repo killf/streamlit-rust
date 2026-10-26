@@ -439,3 +439,31 @@ native `c534ac116d9e6492fb3f816f532ea1882601f2fd78267a2bb4095e9f60ec44f5`,
 under contract `876d1128e0a9baba1c0c02df21fb6e2ea104b54068c205a0002cb3b2ed4a5530`.
 The runtime regression (streamlit/tests/runtime/textelements.rs) pins the
 ten-element timeline over the production websocket.
+
+## Display containers (st.json, st.status, st.empty, st.space, st.bottom)
+
+[display_capture.py](display_capture.py) is the permanent entry for the
+display chain; [display_contract.py](display_contract.py) is its strict
+criterion (journey-display-v1, 12 checks) with unit tests in
+[tests/reference/test_display_contract.py](../reference/test_display_contract.py).
+One measured load pins the json element (the json.dumps rendering, stretch
+width), the status container's RUNNING block and its updated COMPLETE
+re-stream at the same path (the state pairs the icon), the empty slot and
+its same-path replacement (the reference's queue composes the placeholder
+into the replacement within one flush batch — both the streamed and the
+coalesced shape are accepted), the square spacer (both configs at the
+pixel value) and the bottom root's [3, 0] child. One leading
+`main_container` add_block at [0] is the Rust runtime's documented
+divergence. The published chains:
+
+```powershell
+target\pyref-venv\Scripts\python.exe tests\browser\display_capture.py --replay tests\reference\reference-browser\display\trace-display.json
+target\pyref-venv\Scripts\python.exe tests\browser\display_capture.py --replay tests\browser\rust-display\trace-display.json
+```
+
+Both return 12 expected / 12 executed / 12 asserted with exit 0. Raw
+SHA256: python `95e139d4a87816e73ced52fe461b7c57fefa4e76aad9cbd4ce735d007c4984e1`,
+native `bb6ee7d0b308e6c7ab3c3aa02736636ffd9febd95d9318318603ee1f2c715052`,
+under contract `9f6cbedf7030ef4a82b8e3d369b030f96408c81983eefc80e44929084fe387f0`.
+The runtime regression (streamlit/tests/runtime/display.rs) pins the
+full timeline over the production websocket.

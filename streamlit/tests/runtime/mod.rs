@@ -13,6 +13,7 @@ use tokio::net::TcpStream;
 mod cache;
 mod charts;
 mod data_views;
+mod display;
 mod execution;
 mod forms;
 mod inputs;

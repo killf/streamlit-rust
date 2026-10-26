@@ -476,8 +476,25 @@ st.exception(ExceptionOptions::new("ValueError", "boom").trace("..."));  // the 
 
 The echo placeholder takes the call slot and the block exit replaces it with the code; since Rust cannot read its own source, you pass the snippet to show. Likewise `st.exception` takes the type name, message and trace lines explicitly. The [text elements example](../../streamlit/examples/textelements.rs) mirrors the reference fixture of the text-elements differential chain.
 
+## Display containers
+
+```rust
+st.json(payload);                                   // collapsed by default
+st.json_expanded(payload, true);                    // the expanded form
+let status = st.status(StatusContainerOptions::new("Working...").expanded(true));
+status.write("step one");
+status.update(Some("Done".into()), Some(StatusState::Complete), Some(false));
+let slot = st.empty();
+slot.write("replaced");                             // overwrites the slot
+st.space(3);                                        // square spacer
+let bottom = st.bottom();
+bottom.write("pinned to the bottom");               // the [3] root
+```
+
+`status.update` re-streams the container with the new label, state and expansion (the state picks the icon); writes through an `st.empty` handle replace the slot without shifting later siblings. The [display example](../../streamlit/examples/display.rs) mirrors the reference fixture of the display differential chain.
+
 ## Current API
 
-Available APIs include text and layout, static status messages, the text family (`text`/`sub_header`/`latex`/`html`/`iframe` embeds and the `snow` one-shot, plus `echo` and `exception`), `button`, `selectbox` (including creation mode, filter modes and query binding), numeric and date/time `slider`, `checkbox`, the measured `form`/`form_submit_button`/`text_input` core, native session state, the layout containers (sidebar, expander, tabs, popover, dialog), `set_page_config`, `query_params`, `cache_data`/`cache_resource`, multipage navigation (`navigation`/`Page`/`switch_page`), media and chart elements, and the `st.rerun`/`st.stop` execution controls. See the [text/layout/status API](../../streamlit/src/api.rs), [text element implementations](../../streamlit/src/elements/text.rs), [layout containers](../../streamlit/src/elements/layouts.rs), [widget options](../../streamlit/src/widget_api.rs), [query params](../../streamlit/src/query_params.rs), [cache](../../streamlit/src/cache.rs), [navigation](../../streamlit/src/navigation.rs), and [session API](../../streamlit/src/session.rs).
+Available APIs include text and layout, static status messages, the text family (`text`/`sub_header`/`latex`/`html`/`iframe` embeds and the `snow` one-shot, plus `echo` and `exception`), the display containers (`json`/`status`/`empty`/`space`/`bottom`), `button`, `selectbox` (including creation mode, filter modes and query binding), numeric and date/time `slider`, `checkbox`, the measured `form`/`form_submit_button`/`text_input` core, native session state, the layout containers (sidebar, expander, tabs, popover, dialog), `set_page_config`, `query_params`, `cache_data`/`cache_resource`, multipage navigation (`navigation`/`Page`/`switch_page`), media and chart elements, and the `st.rerun`/`st.stop` execution controls. See the [text/layout/status API](../../streamlit/src/api.rs), [text element implementations](../../streamlit/src/elements/text.rs), [layout containers](../../streamlit/src/elements/layouts.rs), [widget options](../../streamlit/src/widget_api.rs), [query params](../../streamlit/src/query_params.rs), [cache](../../streamlit/src/cache.rs), [navigation](../../streamlit/src/navigation.rs), and [session API](../../streamlit/src/session.rs).
 
 Upload and columnar data views currently cover the limited paths described above. General table/chart APIs, selection, complete forms/text-input behavior, persistent hidden widgets, and most other input widgets remain incomplete or absent (`st.quit` does not exist in 1.66.1; the Rust cache is session-scoped, not process-wide like Python's). Duplicate widget keys render the framework exception box as described above; other widget failures are Rust `Result` errors you handle yourself. Native session values, reruns, retained-session reconnects, synchronous callbacks, explicit widget keys and one-shot button triggers are available, without a claim of complete Streamlit compatibility.
