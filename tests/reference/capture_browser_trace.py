@@ -717,6 +717,7 @@ WIDGET_ELEMENTS = (
     "file_uploader",
     "date_input",
     "time_input",
+    "chat_input",
 )
 
 

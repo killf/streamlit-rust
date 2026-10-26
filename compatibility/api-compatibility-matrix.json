@@ -88,18 +88,18 @@
   "unavailable_requested_pages": 7,
   "redirect_aliases_not_counted": 2,
   "implementation_status_counts": {
-   "absent": 110,
-   "implemented": 72
+   "absent": 108,
+   "implemented": 74
   },
   "compatibility_status_counts": {
-   "unverified": 110,
-   "partial": 72
+   "unverified": 108,
+   "partial": 74
   },
   "unique_feature_ids": 182,
   "unique_official_urls": 182,
   "captured_sources_valid": 218,
   "captured_sources_total": 218,
-  "python_browser_trace_links": 18
+  "python_browser_trace_links": 19
  },
  "vendor_migration": {
   "status": "verified",
@@ -1345,26 +1345,58 @@
    "category": "PAGE ELEMENTS/Chat elements",
    "scope_type": "api-reference",
    "official_url": "https://docs.streamlit.io/develop/api-reference/chat/st.chat_input",
-   "rust_source_path": null,
-   "implementation_status": "absent",
-   "compatibility_status": "unverified",
+   "rust_source_path": "streamlit/src/widget_api.rs",
+   "implementation_status": "implemented",
+   "compatibility_status": "partial",
    "evidence": {
     "official_document_sha256": "f24a0b5abbc5b87a9ce3541371feaf304c4eee792edd74c913d0939159db63cb",
-    "python_browser_trace": null
-   }
+    "python_browser_trace": "tests/reference/reference-browser/chat/trace-chat.json",
+    "rust_source": "streamlit/src/widget_api.rs",
+    "rust_api_test": "streamlit/tests/runtime/chat.rs",
+    "rust_wire_observation": "tests/browser/rust-chat/trace-chat.json",
+    "official_frontend_browser_e2e": "tests/browser/rust-chat/trace-chat.json",
+    "capture_entry": "tests/browser/chat_capture.py",
+    "chat_contract": "tests/browser/chat_contract.py",
+    "contract_guards": "tests/reference/test_chat_contract.py",
+    "driven_fixture": "tests/reference/chat_app.py",
+    "driven_example": "streamlit/examples/chat.rs"
+   },
+   "rust_plan": "st.chat_input(placeholder) registers a trigger widget (Codec::ChatInput decoding chat_input_value{data}) and streams the ChatInput element at the bottom root [3, 0] without consuming a main slot (placeholder, 200 MB cap, 16000 Hz sample rate, auto-position marker); the submitted prompt returns on the triggering run and resets to None after it.",
+   "compatibility_scope": "The journey-chat-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome across two measured stages (the load and an Enter commit of \"hi\" through the real input); the published replays assert 11/11 checks per side -- st.chat_message streams a chat_message block (name, avatar defaulting to the name, ICON avatar type, allowEmpty, stretch width) with children at [slot, 0], and st.chat_input is a trigger widget routed to the bottom root [3, 0] without consuming a main-flow slot (placeholder, the 200 MB upload cap, the 16000 Hz audio sample rate, the auto-position marker) whose Enter commit round trips chat_input_value{data, file_uploader_state} and drives the run's output at the next main slot.",
+   "limitations": [
+    "Coverage is the two measured avatar forms (the name default and a material shortcode, both ICON type) and one Enter commit; image/URL avatars, emoji-type avatars, accept_file/accept_audio submissions, max_chars, disabled, on_change callbacks, submit_mode and programmatic set_value remain unobserved.",
+    "The chat input is a one-shot trigger: the value returns on the run it triggered and resets to None after, like the reference's trigger semantics (the registry resets it with the button triggers).",
+    "fixture SHA256 e85271b6a4bd78e4eb28a128d307f2bf8dd3eb7450afe230c161274fedfbe0d2; example SHA256 7e0f5afb36cd35a915ff6f9e546357afd960c9975edb2a4319c4ad008f77b240; chat block source SHA256 4029d37bd1f5b1b85f93bd15cf7485b93d33f8f5549ad42715bc9c5f40c42eac."
+   ]
   },
   {
    "feature_id": "st.chat_message",
    "category": "PAGE ELEMENTS/Chat elements",
    "scope_type": "api-reference",
    "official_url": "https://docs.streamlit.io/develop/api-reference/chat/st.chat_message",
-   "rust_source_path": null,
-   "implementation_status": "absent",
-   "compatibility_status": "unverified",
+   "rust_source_path": "streamlit/src/elements/layouts.rs",
+   "implementation_status": "implemented",
+   "compatibility_status": "partial",
    "evidence": {
     "official_document_sha256": "6278c7c6900deaff58456eb21a1bc474973a2bdf8a7c948c64450a8b6d27d8d2",
-    "python_browser_trace": null
-   }
+    "python_browser_trace": "tests/reference/reference-browser/chat/trace-chat.json",
+    "rust_source": "streamlit/src/elements/layouts.rs",
+    "rust_api_test": "streamlit/tests/runtime/chat.rs",
+    "rust_wire_observation": "tests/browser/rust-chat/trace-chat.json",
+    "official_frontend_browser_e2e": "tests/browser/rust-chat/trace-chat.json",
+    "capture_entry": "tests/browser/chat_capture.py",
+    "chat_contract": "tests/browser/chat_contract.py",
+    "contract_guards": "tests/reference/test_chat_contract.py",
+    "driven_fixture": "tests/reference/chat_app.py",
+    "driven_example": "streamlit/examples/chat.rs"
+   },
+   "rust_plan": "st.chat_message(name) or ChatMessageOptions::new(name).avatar(...) opens a chat_message block (avatar defaulting to the name, ICON avatar type, allowEmpty, stretch width); children stream at [slot, k] through the container handle.",
+   "compatibility_scope": "The journey-chat-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome across two measured stages (the load and an Enter commit of \"hi\" through the real input); the published replays assert 11/11 checks per side -- st.chat_message streams a chat_message block (name, avatar defaulting to the name, ICON avatar type, allowEmpty, stretch width) with children at [slot, 0], and st.chat_input is a trigger widget routed to the bottom root [3, 0] without consuming a main-flow slot (placeholder, the 200 MB upload cap, the 16000 Hz audio sample rate, the auto-position marker) whose Enter commit round trips chat_input_value{data, file_uploader_state} and drives the run's output at the next main slot.",
+   "limitations": [
+    "Coverage is the two measured avatar forms (the name default and a material shortcode, both ICON type) and one Enter commit; image/URL avatars, emoji-type avatars, accept_file/accept_audio submissions, max_chars, disabled, on_change callbacks, submit_mode and programmatic set_value remain unobserved.",
+    "The chat input is a one-shot trigger: the value returns on the run it triggered and resets to None after, like the reference's trigger semantics (the registry resets it with the button triggers).",
+    "fixture SHA256 e85271b6a4bd78e4eb28a128d307f2bf8dd3eb7450afe230c161274fedfbe0d2; example SHA256 7e0f5afb36cd35a915ff6f9e546357afd960c9975edb2a4319c4ad008f77b240; chat block source SHA256 4029d37bd1f5b1b85f93bd15cf7485b93d33f8f5549ad42715bc9c5f40c42eac."
+   ]
   },
   {
    "feature_id": "st.column_config",

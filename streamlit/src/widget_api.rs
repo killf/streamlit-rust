@@ -332,6 +332,36 @@ pub struct TextInputOptions {
     bind: TextBind,
 }
 
+/// Options for `st.chat_input`: the placeholder (the bare form) plus the
+/// measured server-configured defaults.
+pub struct ChatInputOptions {
+    placeholder: String,
+    key: Option<String>,
+}
+
+impl ChatInputOptions {
+    pub fn new(placeholder: impl Into<String>) -> Self {
+        Self { placeholder: placeholder.into(), key: None }
+    }
+
+    pub fn key(mut self, key: impl Into<String>) -> Self {
+        self.key = Some(key.into());
+        self
+    }
+}
+
+impl From<&str> for ChatInputOptions {
+    fn from(placeholder: &str) -> Self {
+        Self::new(placeholder)
+    }
+}
+
+impl From<String> for ChatInputOptions {
+    fn from(placeholder: String) -> Self {
+        Self::new(placeholder)
+    }
+}
+
 impl TextInputOptions {
     pub fn new(label: impl Into<String>) -> Self {
         Self {
@@ -1346,6 +1376,12 @@ pub trait InputWidgets {
     fn slider<T: SliderValue>(&self, options: impl Into<SliderOptions<T>>) -> Result<T, WidgetError>;
     /// Fallible counterpart to the original boolean-returning `button` method.
     fn try_button(&self, options: impl Into<ButtonOptions>) -> Result<bool, WidgetError>;
+
+    /// The chat input (`st.chat_input`): a trigger widget routed to the
+    /// bottom container that returns the submitted prompt on the run it
+    /// triggered and `None` afterwards. Accepts a builder or the bare
+    /// placeholder string.
+    fn chat_input(&self, options: impl Into<ChatInputOptions>) -> Result<Option<String>, WidgetError>;
 }
 
 impl<C: AppendChild> InputWidgets for C {
@@ -1885,6 +1921,41 @@ impl<C: AppendChild> InputWidgets for C {
             .width(options.width)
             .disabled(options.disabled);
         self.push(Rc::new(RefCell::new(element)));
+        Ok(value)
+    }
+
+    fn chat_input(&self, options: impl Into<ChatInputOptions>) -> Result<Option<String>, WidgetError> {
+        let options = options.into();
+        if self.parent_form_id().is_some() {
+            return Err(WidgetError::InvalidValue("st.chat_input cannot be added to a form".into()));
+        }
+        let identity = if options.key.is_some() { String::new() } else { options.placeholder.clone() };
+        let (id, value, _) = self.register_widget_parity(
+            WidgetSpec {
+                kind: "chat_input",
+                key: options.key.as_deref(),
+                identity: &identity,
+                default: Value::Null,
+                codec: Codec::ChatInput,
+                callback: None,
+            },
+            |value| Ok(value.as_str().map(str::to_owned)),
+        )?;
+        // The measured shape: the widget routes to the bottom root [3, 0]
+        // without consuming a main-flow slot, carrying the placeholder, the
+        // 200 MB server upload cap, the 16000 Hz audio sample rate and the
+        // auto-position marker.
+        self.push(Rc::new(RefCell::new(crate::elements::input::BottomRoutedElement(proto::Element {
+            r#type: Some(element::Type::ChatInput(proto::ChatInput {
+                id,
+                placeholder: options.placeholder,
+                max_upload_size_mb: 200,
+                audio_sample_rate: Some(16000),
+                is_auto_positioned_at_bottom: true,
+                ..Default::default()
+            })),
+            ..Default::default()
+        }))));
         Ok(value)
     }
 }

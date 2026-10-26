@@ -8,8 +8,8 @@ use crate::elements::container::{Container, ContainerElement};
 use crate::elements::exception::AppException;
 pub use crate::elements::form::Form;
 use crate::elements::form::{FormElement, validate_form_dimensions};
-pub use crate::elements::layouts::{Bottom, DialogBody, DialogOptions, EmptyHandle, Expander, ExpanderOptions, Popover, PopoverOptions, Sidebar, Status, StatusState, Tab, TabsOptions};
-use crate::elements::layouts::{DialogElement, ExpanderElement, PopoverElement, StatusElement, TabsElement};
+pub use crate::elements::layouts::{Bottom, ChatMessage, ChatMessageOptions, DialogBody, DialogOptions, EmptyHandle, Expander, ExpanderOptions, Popover, PopoverOptions, Sidebar, Status, StatusState, Tab, TabsOptions};
+use crate::elements::layouts::{ChatMessageElement, DialogElement, ExpanderElement, PopoverElement, StatusElement, TabsElement};
 use crate::elements::markdown::{MarkdownElement, MarkdownElementType};
 use crate::elements::status::{StatusElement as AlertStatusElement, status_content};
 use crate::elements::text::{EmptyElement, HtmlElement, IframeElement, JsonElement, SnowElement, SpaceElement, TextElement};
@@ -1256,6 +1256,14 @@ pub trait StreamlitApi {
     /// A square spacer, like `st.space(pixels)`.
     fn space(&self, size: u32);
 
+    /// A chat message container, like `with st.chat_message("user")`: the
+    /// avatar defaults to the name.
+    fn chat_message<T: Into<ChatMessageOptions>>(&self, options: T) -> &ChatMessage<'_> {
+        self.chat_message_options(options.into())
+    }
+
+    fn chat_message_options(&self, options: ChatMessageOptions) -> &ChatMessage<'_>;
+
     fn expander<T: Into<ExpanderOptions>>(&self, options: T) -> &Expander<'_> {
         self.expander_options(options.into())
     }
@@ -1663,6 +1671,15 @@ impl<C: AppendChild> StreamlitApi for C {
         self.push(element.clone());
         let exit_path = app.lock().render_context_mut().map(|context| context.delta_path.clone()).unwrap_or_default();
         self.allocator().malloc(Expander::new(element, self.allocator(), app, self.parent_form_id(), base_path, exit_path))
+    }
+
+    fn chat_message_options(&self, options: ChatMessageOptions) -> &ChatMessage<'_> {
+        let element = Rc::new(RefCell::new(ChatMessageElement::new(options)));
+        let app = self.get_app();
+        let base_path = self.next_child_path();
+        self.push(element.clone());
+        let exit_path = app.lock().render_context_mut().map(|context| context.delta_path.clone()).unwrap_or_default();
+        self.allocator().malloc(ChatMessage::new(element, self.allocator(), app, self.parent_form_id(), base_path, exit_path))
     }
 
     fn tabs<'a, T: Into<TabsOptions<'a>>>(&self, labels: T) -> &[Tab<'_>] {

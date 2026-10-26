@@ -222,6 +222,88 @@ pub(crate) struct ExpanderElement {
     pub(crate) children: Vec<Rc<RefCell<dyn Element>>>,
 }
 
+/// The st.chat_message container: a chat_message block (name, avatar,
+/// ICON avatar type, allowEmpty, stretch width) with children at
+/// [slot, k] (the measured 1.66.1 shape; the avatar defaults to the name).
+pub(crate) struct ChatMessageElement {
+    name: String,
+    avatar: String,
+    pub(crate) children: Vec<Rc<RefCell<dyn Element>>>,
+}
+
+/// Options for `st.chat_message`: the speaker name and an optional avatar
+/// (a material shortcode or emoji; defaults to the name).
+pub struct ChatMessageOptions {
+    pub(crate) name: String,
+    pub(crate) avatar: Option<String>,
+}
+
+impl ChatMessageOptions {
+    pub fn new(name: impl Into<String>) -> Self {
+        Self { name: name.into(), avatar: None }
+    }
+
+    pub fn avatar(mut self, avatar: impl Into<String>) -> Self {
+        self.avatar = Some(avatar.into());
+        self
+    }
+}
+
+impl From<&str> for ChatMessageOptions {
+    fn from(name: &str) -> Self {
+        Self::new(name)
+    }
+}
+
+impl From<String> for ChatMessageOptions {
+    fn from(name: String) -> Self {
+        Self::new(name)
+    }
+}
+
+impl ChatMessageElement {
+    pub fn new(options: ChatMessageOptions) -> Self {
+        let avatar = options.avatar.unwrap_or_else(|| options.name.clone());
+        Self {
+            name: options.name,
+            avatar,
+            children: Vec::new(),
+        }
+    }
+}
+
+impl Element for ChatMessageElement {
+    fn render(&self, context: &mut RenderContext) -> Result<(), StreamlitError> {
+        let element_hash = hash(format!("chat_message_{}_{}", self.name, self.avatar).as_str());
+        let mut msg = delta_base_with_path(context.delta_path.clone(), context.active_script_hash.clone(), element_hash);
+        msg.r#type = Some(forward_msg::Type::Delta(Delta {
+            fragment_id: String::new(),
+            r#type: Some(delta::Type::AddBlock(Block {
+                autoscroll: None,
+                allow_empty: true,
+                id: None,
+                height_config: None,
+                width_config: Some(ElementWidth::Stretch.into()),
+                r#type: Some(crate::proto::block::Type::ChatMessage(crate::proto::block::ChatMessage {
+                    name: self.name.clone(),
+                    avatar: self.avatar.clone(),
+                    avatar_type: crate::proto::block::chat_message::AvatarType::Icon as i32,
+                })),
+            })),
+        }));
+        context.push(msg);
+        context.delta_path.push(0);
+        for child in self.children.iter() {
+            child.borrow().render(context)?;
+        }
+        context.delta_path.pop();
+        if let Some(index) = context.delta_path.pop() {
+            context.delta_path.push(index + 1);
+        }
+        Ok(())
+    }
+}
+
 impl ExpanderElement {
     pub fn new(options: ExpanderOptions) -> Self {
         Self { options, children: Vec::new() }
@@ -495,6 +577,55 @@ pub struct Expander<'a> {
     form_id: Option<String>,
     base_path: Vec<u32>,
     exit_path: Vec<u32>,
+}
+
+/// The st.chat_message handle: children stream into the chat block.
+pub struct ChatMessage<'a> {
+    element: Rc<RefCell<ChatMessageElement>>,
+    allocator: &'a Allocator,
+    app: Rc<Mutex<App>>,
+    form_id: Option<String>,
+    base_path: Vec<u32>,
+    exit_path: Vec<u32>,
+}
+
+impl<'a> ChatMessage<'a> {
+    pub(crate) fn new(element: Rc<RefCell<ChatMessageElement>>, allocator: &'a Allocator, app: Rc<Mutex<App>>, form_id: Option<String>, base_path: Vec<u32>, exit_path: Vec<u32>) -> Self {
+        Self {
+            element,
+            allocator,
+            app,
+            form_id,
+            base_path,
+            exit_path,
+        }
+    }
+}
+
+impl AppendChild for ChatMessage<'_> {
+    fn push(&self, element: Rc<RefCell<dyn Element>>) {
+        let child_index = self.element.borrow().children.len() as u32;
+        self.element.borrow_mut().children.push(element.clone());
+        push_at(element, &self.app, &self.form_id, &self.base_path, child_index, &self.exit_path);
+    }
+
+    fn allocator(&self) -> &Allocator {
+        self.allocator
+    }
+
+    fn get_app(&self) -> Rc<Mutex<App>> {
+        self.app.clone()
+    }
+
+    fn parent_form_id(&self) -> Option<String> {
+        self.form_id.clone()
+    }
+
+    fn next_child_path(&self) -> Vec<u32> {
+        let mut path = self.base_path.clone();
+        path.push(self.element.borrow().children.len() as u32);
+        path
+    }
 }
 
 impl<'a> Expander<'a> {

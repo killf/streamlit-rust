@@ -1,0 +1,498 @@
+{
+ "schema_version": 1,
+ "journey": "chat-page",
+ "contract": "journey-chat-v1",
+ "scope": "RUST SIDE",
+ "url": "http://127.0.0.1:8522/",
+ "observation": {
+  "journey": "chat-page",
+  "contract": "journey-chat-v1",
+  "scope": "RUST SIDE",
+  "url": "http://127.0.0.1:8522/",
+  "binary": null,
+  "source": {
+   "file": "streamlit/examples/chat.rs",
+   "sha256": "7e0f5afb36cd35a915ff6f9e546357afd960c9975edb2a4319c4ad008f77b240"
+  },
+  "capture_sources": {
+   "chat_capture.py": "faedf99240986821ce4bb244e57b9945a630189c9461b778cabe390d06c5c2cf",
+   "chat_contract.py": "4cfdf313ea8a0ee6b385abfc492abd10a7fa9a1ef6af733b4649aac82c87865b"
+  },
+  "stages": [
+   {
+    "name": "01-load",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 64728.039354,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": []
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 64728.041447,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "539098b0-06b3-4a77-9c9a-21b9cef8df46",
+        "name": "Streamlit Rust",
+        "main_script_path": "",
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "session_id": "07b68003-bb7d-4e02-9bfc-532ea2d975c2"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 64728.042973,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 64728.047876,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "main_container",
+        "block_type": "vertical",
+        "block": {
+         "vertical": {},
+         "id": "main_container"
+        },
+        "path": [
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 64728.048161,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "",
+        "block_type": "chat_message",
+        "block": {
+         "allowEmpty": true,
+         "chatMessage": {
+          "name": "user",
+          "avatar": "user",
+          "avatarType": "ICON"
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 64728.04828,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "hello from user",
+        "path": [
+         0,
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 64728.048522,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "",
+        "block_type": "chat_message",
+        "block": {
+         "allowEmpty": true,
+         "chatMessage": {
+          "name": "assistant",
+          "avatar": ":material/robot:",
+          "avatarType": "ICON"
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 64728.048561,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "hello from assistant",
+        "path": [
+         0,
+         1,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 64728.048588,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "chat_input",
+        "widget": {
+         "id": "$$ID-12351384b846cb09f2904923c0f820ee-None",
+         "placeholder": "Say something",
+         "maxUploadSizeMb": 200,
+         "audioSampleRate": 16000,
+         "isAutoPositionedAtBottom": true
+        },
+        "id": "$$ID-12351384b846cb09f2904923c0f820ee-None",
+        "path": [
+         3,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 64728.048696,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 64728.048795,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "http": [],
+    "dom": {
+     "messages": [
+      "face\n\nhello from user",
+      "robot\n\nhello from assistant"
+     ],
+     "input": "Say something",
+     "markdowns": [],
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "01-load.png",
+     "sha256": "552e7f65541aaa9633ccf96259658730b0eb3dbda1cd8b4d32e18bb650c17211"
+    }
+   },
+   {
+    "name": "02-enter-commit",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 64732.344633,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": [
+         {
+          "id": "$$ID-12351384b846cb09f2904923c0f820ee-None",
+          "value_field": "chat_input_value",
+          "value": {
+           "data": "hi",
+           "file_uploader_state": {}
+          },
+          "value_full": {
+           "data": "hi",
+           "fileUploaderState": {}
+          }
+         }
+        ],
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 64732.345688,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "9a95ed46-bb2c-45c8-b093-c2e020f89497",
+        "name": "Streamlit Rust",
+        "main_script_path": "",
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "session_id": "07b68003-bb7d-4e02-9bfc-532ea2d975c2"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 64732.345936,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 64732.347917,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "main_container",
+        "block_type": "vertical",
+        "block": {
+         "vertical": {},
+         "id": "main_container"
+        },
+        "path": [
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 64732.348014,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "",
+        "block_type": "chat_message",
+        "block": {
+         "allowEmpty": true,
+         "chatMessage": {
+          "name": "user",
+          "avatar": "user",
+          "avatarType": "ICON"
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 64732.348076,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "hello from user",
+        "path": [
+         0,
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 64732.34811,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "",
+        "block_type": "chat_message",
+        "block": {
+         "allowEmpty": true,
+         "chatMessage": {
+          "name": "assistant",
+          "avatar": ":material/robot:",
+          "avatarType": "ICON"
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 64732.348138,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "hello from assistant",
+        "path": [
+         0,
+         1,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 64732.348165,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "chat_input",
+        "widget": {
+         "id": "$$ID-12351384b846cb09f2904923c0f820ee-None",
+         "placeholder": "Say something",
+         "maxUploadSizeMb": 200,
+         "audioSampleRate": 16000,
+         "isAutoPositionedAtBottom": true
+        },
+        "id": "$$ID-12351384b846cb09f2904923c0f820ee-None",
+        "path": [
+         3,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 64732.348195,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "echo: hi",
+        "path": [
+         0,
+         2
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 64732.348229,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 64732.348267,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "http": [],
+    "dom": {
+     "messages": [
+      "face\n\nhello from user",
+      "robot\n\nhello from assistant"
+     ],
+     "input": "Say something",
+     "markdowns": [],
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "02-enter-commit.png",
+     "sha256": "ad3c695a2a484a1cf98459b9f2fa0fd987cf90e06168bcedfce8e99f20fc3e45"
+    }
+   }
+  ],
+  "ipc_dir": "D:\\dlab\\streamlit-rust\\tests\\browser\\rust-chat"
+ },
+ "counts": {
+  "expected": 11,
+  "executed": 11,
+  "asserted": 11
+ },
+ "failures": []
+}

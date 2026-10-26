@@ -146,6 +146,10 @@ pub(crate) enum Codec {
         store: Arc<parking_lot::Mutex<crate::upload::UploadStore>>,
         multiple: bool,
     },
+    /// The chat input's submitted value: the data string of the
+    /// chat_input_value state, absent data meaning None (the trigger
+    /// resets after the run, like the reference).
+    ChatInput,
 }
 
 impl Codec {
@@ -175,6 +179,10 @@ impl Codec {
                 }
                 Some(Value::Array(ids))
             }
+            (Self::ChatInput, widget_state::Value::ChatInputValue(value)) => Some(match value.data.as_deref() {
+                Some("") | None => Value::Null,
+                Some(data) => Value::String(data.to_owned()),
+            }),
             (Codec::Slider { count, integer, .. }, widget_state::Value::DoubleArrayValue(array)) if array.data.len() == *count => {
                 let values: Vec<Value> = array.data.iter().map(|value| if *integer { Value::from(*value as i64) } else { Value::from(*value) }).collect();
                 let result = if *count == 1 { values[0].clone() } else { Value::Array(values) };
@@ -203,6 +211,7 @@ impl Codec {
     pub(crate) fn valid(&self, value: &Value) -> bool {
         match self {
             Self::Trigger | Self::Bool => value.is_boolean(),
+            Self::ChatInput => value.is_null() || value.is_string(),
             Self::Text { max_chars } => value.is_null() || value.as_str().is_some_and(|text| max_chars.is_none_or(|limit| text.chars().count() <= limit)),
             Self::Select(options) => value.is_null() || value.as_u64().is_some_and(|index| index < options.len() as u64),
             Self::SelectCreation(options) => value.is_null() || value.is_string() || value.as_u64().is_some_and(|index| index < options.len() as u64),
@@ -377,10 +386,16 @@ impl SessionState {
         registry.pending.clear();
         let mut values = self.values.lock();
         for record in registry.records.values_mut() {
-            if matches!(record.codec, Codec::Trigger) {
-                record.value = false.into();
+            if matches!(record.codec, Codec::Trigger | Codec::ChatInput) {
+                // Both are one-shot: the trigger resets to false, the chat
+                // input to its empty (null) value.
+                let reset = match record.codec {
+                    Codec::ChatInput => Value::Null,
+                    _ => Value::Bool(false),
+                };
+                record.value = reset.clone();
                 if let Some(key) = &record.key {
-                    values.insert(key.clone(), false.into());
+                    values.insert(key.clone(), reset);
                 }
             }
         }
@@ -434,8 +449,8 @@ impl SessionState {
             return Err(WidgetError::DuplicateId(id));
         }
         let mut values = self.values.lock();
-        if matches!(codec, Codec::Trigger | Codec::Files { .. }) && key.is_some_and(|key| values.contains_key(key)) && !registry.records.contains_key(&id) {
-            return Err(WidgetError::InvalidValue("button and uploader state cannot be preseeded".into()));
+        if matches!(codec, Codec::Trigger | Codec::Files { .. } | Codec::ChatInput) && key.is_some_and(|key| values.contains_key(key)) && !registry.records.contains_key(&id) {
+            return Err(WidgetError::InvalidValue("button, chat input and uploader state cannot be preseeded".into()));
         }
         // A constraint-dependent identity change resets the old widget binding.
         let changed_identity = key.is_some_and(|key| registry.records.iter().any(|(old_id, record)| old_id != &id && record.key.as_deref() == Some(key)));
@@ -452,7 +467,7 @@ impl SessionState {
             .filter(|applied| codec.valid(applied));
         let base_value = if changed_identity {
             default
-        } else if matches!(codec, Codec::Trigger) {
+        } else if matches!(codec, Codec::Trigger | Codec::ChatInput) {
             registry.records.get(&id).map(|record| record.value.clone()).unwrap_or(default)
         } else {
             if let Some(native) = key.and_then(|key| values.get(key)) {
@@ -503,10 +518,14 @@ impl SessionState {
                 }
                 return false;
             }
-            if matches!(record.codec, Codec::Trigger) {
-                record.value = false.into();
+            if matches!(record.codec, Codec::Trigger | Codec::ChatInput) {
+                let reset = match record.codec {
+                    Codec::ChatInput => Value::Null,
+                    _ => Value::Bool(false),
+                };
+                record.value = reset.clone();
                 if let Some(key) = &record.key {
-                    values.insert(key.clone(), false.into());
+                    values.insert(key.clone(), reset);
                 }
             }
             true

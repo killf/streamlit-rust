@@ -467,3 +467,31 @@ native `bb6ee7d0b308e6c7ab3c3aa02736636ffd9febd95d9318318603ee1f2c715052`,
 under contract `9f6cbedf7030ef4a82b8e3d369b030f96408c81983eefc80e44929084fe387f0`.
 The runtime regression (streamlit/tests/runtime/display.rs) pins the
 full timeline over the production websocket.
+
+## Chat elements (st.chat_message, st.chat_input)
+
+[chat_capture.py](chat_capture.py) is the permanent entry for the chat
+chain; [chat_contract.py](chat_contract.py) is its strict criterion
+(journey-chat-v1, 11 checks) with unit tests in
+[tests/reference/test_chat_contract.py](../reference/test_chat_contract.py).
+The page renders two chat messages (the name-defaulted avatar and a
+material shortcode, both ICON type) and the chat input; two real-interaction
+stages (load, Enter commit of "hi" through the real input) pin the
+chat_message blocks with their children paths, the chat_input widget
+(placeholder, the 200 MB cap, the 16000 Hz sample rate, the auto-position
+marker, the bottom-root [3, 0] routing) and the chat_input_value commit
+report. Widget ids are judged modulo the `$$ID` digest segment; one leading
+`main_container` add_block at [0] is the Rust runtime's documented
+divergence. The published chains:
+
+```powershell
+target\pyref-venv\Scripts\python.exe tests\browser\chat_capture.py --replay tests\reference\reference-browser\chat\trace-chat.json
+target\pyref-venv\Scripts\python.exe tests\browser\chat_capture.py --replay tests\browser\rust-chat\trace-chat.json
+```
+
+Both return 11 expected / 11 executed / 11 asserted with exit 0. Raw
+SHA256: python `63c62667f2c5e5cf0884d7cc413720fd305de6f8e31f31574cfecb20787fe2a1`,
+native `07f3f274576d85f75090ec3484764f88f1128b0e55902e59879d14d3669bcffd`,
+under contract `4cfdf313ea8a0ee6b385abfc492abd10a7fa9a1ef6af733b4649aac82c87865b`.
+The runtime regression (streamlit/tests/runtime/chat.rs) pins both measured
+runs over the production websocket.

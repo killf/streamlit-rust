@@ -493,8 +493,23 @@ bottom.write("pinned to the bottom");               // the [3] root
 
 `status.update` re-streams the container with the new label, state and expansion (the state picks the icon); writes through an `st.empty` handle replace the slot without shifting later siblings. The [display example](../../streamlit/examples/display.rs) mirrors the reference fixture of the display differential chain.
 
+## Chat
+
+```rust
+let user = st.chat_message("user");          // avatar defaults to the name
+user.write("hello from user");
+let bot = st.chat_message(ChatMessageOptions::new("assistant").avatar(":material/robot:"));
+bot.write("hello from assistant");
+
+if let Some(prompt) = st.chat_input("Say something")? {   // pinned to the bottom
+    st.write(format!("echo: {prompt}"));
+}
+```
+
+The chat input is a one-shot trigger routed to the bottom container: it returns the submitted prompt on the run it triggered and `None` afterwards. The [chat example](../../streamlit/examples/chat.rs) mirrors the reference fixture of the chat differential chain.
+
 ## Current API
 
-Available APIs include text and layout, static status messages, the text family (`text`/`sub_header`/`latex`/`html`/`iframe` embeds and the `snow` one-shot, plus `echo` and `exception`), the display containers (`json`/`status`/`empty`/`space`/`bottom`), `button`, `selectbox` (including creation mode, filter modes and query binding), numeric and date/time `slider`, `checkbox`, the measured `form`/`form_submit_button`/`text_input` core, native session state, the layout containers (sidebar, expander, tabs, popover, dialog), `set_page_config`, `query_params`, `cache_data`/`cache_resource`, multipage navigation (`navigation`/`Page`/`switch_page`), media and chart elements, and the `st.rerun`/`st.stop` execution controls. See the [text/layout/status API](../../streamlit/src/api.rs), [text element implementations](../../streamlit/src/elements/text.rs), [layout containers](../../streamlit/src/elements/layouts.rs), [widget options](../../streamlit/src/widget_api.rs), [query params](../../streamlit/src/query_params.rs), [cache](../../streamlit/src/cache.rs), [navigation](../../streamlit/src/navigation.rs), and [session API](../../streamlit/src/session.rs).
+Available APIs include text and layout, static status messages, the text family (`text`/`sub_header`/`latex`/`html`/`iframe` embeds and the `snow` one-shot, plus `echo` and `exception`), the display containers (`json`/`status`/`empty`/`space`/`bottom`), the chat elements (`chat_message`/`chat_input`), `button`, `selectbox` (including creation mode, filter modes and query binding), numeric and date/time `slider`, `checkbox`, the measured `form`/`form_submit_button`/`text_input` core, native session state, the layout containers (sidebar, expander, tabs, popover, dialog), `set_page_config`, `query_params`, `cache_data`/`cache_resource`, multipage navigation (`navigation`/`Page`/`switch_page`), media and chart elements, and the `st.rerun`/`st.stop` execution controls. See the [text/layout/status API](../../streamlit/src/api.rs), [text element implementations](../../streamlit/src/elements/text.rs), [layout containers](../../streamlit/src/elements/layouts.rs), [widget options](../../streamlit/src/widget_api.rs), [query params](../../streamlit/src/query_params.rs), [cache](../../streamlit/src/cache.rs), [navigation](../../streamlit/src/navigation.rs), and [session API](../../streamlit/src/session.rs).
 
 Upload and columnar data views currently cover the limited paths described above. General table/chart APIs, selection, complete forms/text-input behavior, persistent hidden widgets, and most other input widgets remain incomplete or absent (`st.quit` does not exist in 1.66.1; the Rust cache is session-scoped, not process-wide like Python's). Duplicate widget keys render the framework exception box as described above; other widget failures are Rust `Result` errors you handle yourself. Native session values, reruns, retained-session reconnects, synchronous callbacks, explicit widget keys and one-shot button triggers are available, without a claim of complete Streamlit compatibility.
