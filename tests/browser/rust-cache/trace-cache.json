@@ -1,0 +1,568 @@
+{
+ "schema_version": 1,
+ "journey": "cache-page",
+ "contract": "journey-cache-v1",
+ "scope": "RUST SIDE",
+ "url": "http://127.0.0.1:8516/",
+ "observation": {
+  "journey": "cache-page",
+  "contract": "journey-cache-v1",
+  "scope": "RUST SIDE",
+  "url": "http://127.0.0.1:8516/",
+  "binary": null,
+  "source": {
+   "file": "streamlit/examples/cache.rs",
+   "sha256": "dc82a0ff63330054a0245b7fe7eb393d968ae2defe6e707d8f4d0301d9b39081"
+  },
+  "capture_sources": {
+   "cache_capture.py": "2bd61945291a7c5ad1882d5af18746a0fdc0782f2104a65247527fb70fda7c67",
+   "cache_contract.py": "8d60e0034e52fde5c512af2101777745a7ecc39911b812f0e017a4500815b94f"
+  },
+  "stages": [
+   {
+    "name": "01-load",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 51579.873756,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": []
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51579.874979,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "7ccf08f4-85d6-4289-9047-0cd3804f29a0",
+        "name": "Streamlit Rust",
+        "main_script_path": "",
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "session_id": "ad1ca423-99ac-4786-b6d1-97b943a8ca06"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51579.881197,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51579.881313,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "main_container",
+        "block_type": "vertical",
+        "block": {
+         "vertical": {},
+         "id": "main_container"
+        },
+        "path": [
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51579.881539,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "runs=1",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51579.881773,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_transient",
+        "transient": {},
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51579.881836,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "cached=42",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51579.881864,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_transient",
+        "transient": {},
+        "path": [
+         0,
+         2
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51579.881886,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "cached_other=14",
+        "path": [
+         0,
+         2
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51579.881917,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "inside cached fn",
+        "path": [
+         0,
+         3
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51579.88194,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_transient",
+        "transient": {},
+        "path": [
+         0,
+         3
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51579.881972,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "side=1",
+        "path": [
+         0,
+         4
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51579.882002,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "button",
+        "widget": {
+         "id": "$$ID-8c68be8021ff88e967715340edcdfdb9-None",
+         "label": "Again",
+         "type": "secondary"
+        },
+        "id": "$$ID-8c68be8021ff88e967715340edcdfdb9-None",
+        "label": "Again",
+        "accepted_types": [
+         "secondary"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         5
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51579.882126,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51579.882217,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "http": [],
+    "dom": {
+     "markdowns": [
+      "runs=1",
+      "cached=42",
+      "cached_other=14",
+      "inside cached fn",
+      "side=1"
+     ],
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "01-load.png",
+     "sha256": "2649fd68d87b16ed9e360f0e196d33d9850b09742f7eea6a37623b245f782aef"
+    }
+   },
+   {
+    "name": "02-again-click",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 51583.407438,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": [
+         {
+          "id": "$$ID-8c68be8021ff88e967715340edcdfdb9-None",
+          "value_field": "trigger_value",
+          "value": true
+         }
+        ],
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51583.408435,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "5a4e0cef-a882-4fb2-a332-c4ec86576844",
+        "name": "Streamlit Rust",
+        "main_script_path": "",
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "session_id": "ad1ca423-99ac-4786-b6d1-97b943a8ca06"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51583.408711,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51583.411382,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "main_container",
+        "block_type": "vertical",
+        "block": {
+         "vertical": {},
+         "id": "main_container"
+        },
+        "path": [
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51583.411506,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "runs=2",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51583.411543,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "cached=42",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51583.41156,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "cached_other=14",
+        "path": [
+         0,
+         2
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51583.411577,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "inside cached fn",
+        "path": [
+         0,
+         3
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51583.411592,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "side=1",
+        "path": [
+         0,
+         4
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51583.411605,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "button",
+        "widget": {
+         "id": "$$ID-8c68be8021ff88e967715340edcdfdb9-None",
+         "label": "Again",
+         "type": "secondary"
+        },
+        "id": "$$ID-8c68be8021ff88e967715340edcdfdb9-None",
+        "label": "Again",
+        "accepted_types": [
+         "secondary"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         5
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51583.411631,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "cleared",
+        "path": [
+         0,
+         6
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51583.411646,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_transient",
+        "transient": {},
+        "path": [
+         0,
+         7
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51583.41166,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "cached_after_clear=42",
+        "path": [
+         0,
+         7
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51583.411672,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51583.411701,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "http": [],
+    "dom": {
+     "markdowns": [
+      "runs=2",
+      "cached=42",
+      "cached_other=14",
+      "inside cached fn",
+      "side=1",
+      "cleared",
+      "cached_after_clear=42"
+     ],
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "02-again-click.png",
+     "sha256": "d7ee23372e489b470cb94e3cec7413312fec3e744a8dfa0eaf3163643e142a99"
+    }
+   }
+  ],
+  "ipc_dir": "D:\\dlab\\streamlit-rust\\tests\\browser\\rust-cache"
+ },
+ "counts": {
+  "expected": 12,
+  "executed": 12,
+  "asserted": 12
+ },
+ "failures": []
+}

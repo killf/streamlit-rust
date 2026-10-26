@@ -102,6 +102,10 @@ pub(crate) struct RenderContext {
     pub active_script_hash: String,
     pub session_id: String,
     pub sender: Option<tokio::sync::mpsc::UnboundedSender<ForwardMsg>>,
+    /// While a cached function executes (miss), every streamed message is
+    /// copied here so a later hit can replay the side effects at their
+    /// original paths.
+    pub recording: Option<Vec<ForwardMsg>>,
 }
 
 impl RenderContext {
@@ -112,6 +116,7 @@ impl RenderContext {
             delta_path: vec![],
             active_script_hash: "".to_string(),
             sender: Some(sender),
+            recording: None,
         }
     }
 
@@ -119,6 +124,9 @@ impl RenderContext {
         // 如果有 sender，立即发送到 channel
         if let Some(ref sender) = self.sender {
             let _ = sender.send(msg.clone());
+        }
+        if let Some(recording) = &mut self.recording {
+            recording.push(msg.clone());
         }
         // 同时保存到 Vec，保持兼容性
         self.stream.push(msg);

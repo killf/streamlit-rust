@@ -170,6 +170,7 @@ async fn forms_buffered_layout_keeps_deep_paths_and_empty_columns_once() {
         active_script_hash: String::new(),
         session_id: "buffered-layout".into(),
         sender: None,
+        recording: None,
     };
     st.app.lock().render(&mut context).unwrap();
     let mut paths = std::collections::BTreeSet::new();

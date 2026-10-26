@@ -1,0 +1,528 @@
+{
+ "schema_version": 1,
+ "journey": "cache-page",
+ "contract": "journey-cache-v1",
+ "scope": "PYTHON SIDE ONLY",
+ "url": "http://127.0.0.1:8617/",
+ "observation": {
+  "journey": "cache-page",
+  "contract": "journey-cache-v1",
+  "scope": "PYTHON SIDE ONLY",
+  "url": "http://127.0.0.1:8617/",
+  "binary": null,
+  "source": {
+   "file": "tests/reference/cache_app.py",
+   "sha256": "e82c00d6711edd51802bc4855144b614232ad97d4ecc5a8aed376f6cd3d8d7ff"
+  },
+  "capture_sources": {
+   "cache_capture.py": "2bd61945291a7c5ad1882d5af18746a0fdc0782f2104a65247527fb70fda7c67",
+   "cache_contract.py": "8d60e0034e52fde5c512af2101777745a7ecc39911b812f0e017a4500815b94f"
+  },
+  "stages": [
+   {
+    "name": "01-load",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 51562.742614,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": []
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51562.746521,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "90927b58-c88f-4ba2-8790-725d6fcd16b1",
+        "name": "cache_app",
+        "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\cache_app.py",
+        "page_script_hash": "fe610eef41abf943c7788f4b3b3b99ad",
+        "main_script_hash": "fe610eef41abf943c7788f4b3b3b99ad",
+        "session_id": "6e25b542-b29a-4b87-a9c8-e5464051a3c0"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51562.74788,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51562.810273,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "runs=1",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51562.817431,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_transient",
+        "transient": {},
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51562.82007,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "cached=42",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51562.820183,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_transient",
+        "transient": {},
+        "path": [
+         0,
+         2
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51562.820222,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "cached_other=14",
+        "path": [
+         0,
+         2
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51562.82026,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "inside cached fn",
+        "path": [
+         0,
+         3
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51562.833128,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_transient",
+        "transient": {},
+        "path": [
+         0,
+         3
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51562.833343,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "side=1",
+        "path": [
+         0,
+         4
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51562.834953,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "button",
+        "widget": {
+         "id": "$$ID-ca80e2944c65088786bdb4f6a1134a49-None",
+         "label": "Again",
+         "type": "secondary"
+        },
+        "id": "$$ID-ca80e2944c65088786bdb4f6a1134a49-None",
+        "label": "Again",
+        "accepted_types": [
+         "secondary"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         5
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51562.835263,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51562.835405,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "http": [],
+    "dom": {
+     "markdowns": [
+      "runs=1",
+      "cached=42",
+      "cached_other=14",
+      "inside cached fn",
+      "side=1"
+     ],
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "01-load.png",
+     "sha256": "2a4a11bed0a4eb61069754e1998b03bbfda81afcee24c66854ecda46c68678f8"
+    }
+   },
+   {
+    "name": "02-again-click",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 51567.532469,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": [
+         {
+          "id": "$$ID-ca80e2944c65088786bdb4f6a1134a49-None",
+          "value_field": "trigger_value",
+          "value": true
+         }
+        ],
+        "page_script_hash": "fe610eef41abf943c7788f4b3b3b99ad"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51567.534372,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "56e5522f-4639-43c7-974f-32d585734805",
+        "name": "cache_app",
+        "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\cache_app.py",
+        "page_script_hash": "fe610eef41abf943c7788f4b3b3b99ad",
+        "main_script_hash": "fe610eef41abf943c7788f4b3b3b99ad",
+        "session_id": "6e25b542-b29a-4b87-a9c8-e5464051a3c0"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51567.536392,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51567.537337,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "runs=2",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51567.537425,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "cached=42",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51567.538982,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "cached_other=14",
+        "path": [
+         0,
+         2
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51567.539068,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "inside cached fn",
+        "path": [
+         0,
+         3
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51567.540029,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "side=1",
+        "path": [
+         0,
+         4
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51567.540088,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "button",
+        "widget": {
+         "id": "$$ID-ca80e2944c65088786bdb4f6a1134a49-None",
+         "label": "Again",
+         "type": "secondary"
+        },
+        "id": "$$ID-ca80e2944c65088786bdb4f6a1134a49-None",
+        "label": "Again",
+        "accepted_types": [
+         "secondary"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         5
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51567.540119,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "cleared",
+        "path": [
+         0,
+         6
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51567.560072,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_transient",
+        "transient": {},
+        "path": [
+         0,
+         7
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51567.561002,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "cached_after_clear=42",
+        "path": [
+         0,
+         7
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51567.561086,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 51567.561132,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "http": [],
+    "dom": {
+     "markdowns": [
+      "runs=2",
+      "cached=42",
+      "cached_other=14",
+      "inside cached fn",
+      "side=1",
+      "cleared",
+      "cached_after_clear=42"
+     ],
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "02-again-click.png",
+     "sha256": "179c92cb5632bfbbabee3bed8b23b56202eeb34aee1d3a12fc46a6edb14e85f7"
+    }
+   }
+  ],
+  "ipc_dir": "D:\\dlab\\streamlit-rust\\tests\\reference\\reference-browser\\cache"
+ },
+ "counts": {
+  "expected": 12,
+  "executed": 12,
+  "asserted": 12
+ },
+ "failures": []
+}

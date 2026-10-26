@@ -16,6 +16,7 @@
 extern crate streamlit_macros;
 
 pub mod api;
+mod cache;
 mod charts;
 pub mod data;
 mod data_api;
@@ -35,6 +36,7 @@ mod widget_api;
 mod widgets;
 
 pub use api::*;
+pub use cache::{CachedData, CachedResource};
 pub use charts::{AreaChartOptions, LineChartOptions, MapOptions, ScatterChartOptions};
 pub use data_api::*;
 pub use media::{ByteRange, RgbaImage};

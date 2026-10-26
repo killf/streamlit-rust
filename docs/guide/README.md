@@ -433,8 +433,18 @@ let bound = st.selectbox(
 
 The [queryparams example](../../streamlit/examples/queryparams.rs) mirrors the reference fixture of the query-params differential chain, so the URL behavior matches the Python reference.
 
+## Caching
+
+```rust
+let doubled = st.cache_data("double").call(21, |n: i64| n * 2);  // 42, computed once per argument
+let shared = st.cache_resource("model").call((), |()| vec![1, 2, 3]);  // Arc<Vec<i32>>, built once and shared
+st.cache_clear();                                                // drop every entry of this session
+```
+
+A miss runs the function, streams one empty spinner-shaped transient at the call site and records everything the function streamed (an `st.write` inside a cached function replays on every hit at its original position); a hit replays those elements with no transient and the value comes back without recomputation. Keys are the name plus the JSON serialization of the argument, so `call(21, ...)` and `call(7, ...)` are distinct entries. Unlike Python's process-wide store, the cache lives in the session state. The [cache example](../../streamlit/examples/cache.rs) mirrors the reference fixture of the cache differential chain.
+
 ## Current API
 
-Available APIs include text and layout, static status messages, `button`, `selectbox` (including creation mode, filter modes and query binding), numeric and date/time `slider`, `checkbox`, the measured `form`/`form_submit_button`/`text_input` core, native session state, the layout containers (sidebar, expander, tabs, popover, dialog), `set_page_config`, `query_params`, media and chart elements, and the `st.rerun`/`st.stop` execution controls. See the [text/layout/status API](../../streamlit/src/api.rs), [layout containers](../../streamlit/src/elements/layouts.rs), [widget options](../../streamlit/src/widget_api.rs), [query params](../../streamlit/src/query_params.rs), and [session API](../../streamlit/src/session.rs).
+Available APIs include text and layout, static status messages, `button`, `selectbox` (including creation mode, filter modes and query binding), numeric and date/time `slider`, `checkbox`, the measured `form`/`form_submit_button`/`text_input` core, native session state, the layout containers (sidebar, expander, tabs, popover, dialog), `set_page_config`, `query_params`, `cache_data`/`cache_resource`, media and chart elements, and the `st.rerun`/`st.stop` execution controls. See the [text/layout/status API](../../streamlit/src/api.rs), [layout containers](../../streamlit/src/elements/layouts.rs), [widget options](../../streamlit/src/widget_api.rs), [query params](../../streamlit/src/query_params.rs), [cache](../../streamlit/src/cache.rs), and [session API](../../streamlit/src/session.rs).
 
-Upload and columnar data views currently cover the limited paths described above. General table/chart APIs, selection, complete forms/text-input behavior, cache, query binding, persistent hidden widgets, and most other input widgets remain incomplete or absent (`st.quit` does not exist in 1.66.1). Duplicate widget keys render the framework exception box as described above; other widget failures are Rust `Result` errors you handle yourself. Native session values, reruns, retained-session reconnects, synchronous callbacks, explicit widget keys and one-shot button triggers are available, without a claim of complete Streamlit compatibility.
+Upload and columnar data views currently cover the limited paths described above. General table/chart APIs, selection, complete forms/text-input behavior, persistent hidden widgets, and most other input widgets remain incomplete or absent (`st.quit` does not exist in 1.66.1; the Rust cache is session-scoped, not process-wide like Python's). Duplicate widget keys render the framework exception box as described above; other widget failures are Rust `Result` errors you handle yourself. Native session values, reruns, retained-session reconnects, synchronous callbacks, explicit widget keys and one-shot button triggers are available, without a claim of complete Streamlit compatibility.

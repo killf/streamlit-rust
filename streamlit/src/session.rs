@@ -37,6 +37,8 @@ pub struct SessionState {
     /// The URL-synced parameter store, reseeded from every browser-reported
     /// query string at run start (st.query_params).
     pub(crate) query_params: Arc<Mutex<crate::query_params::QueryParamStore>>,
+    /// The memoized cache_data/cache_resource entries of this session.
+    pub(crate) caches: Arc<Mutex<crate::cache::CacheStore>>,
 }
 
 impl SessionState {

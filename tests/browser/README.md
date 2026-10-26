@@ -345,3 +345,37 @@ native `09dfc2d91c95d65d51f1a0644a09c2cc4d6d91b81d35d7bfd6964cb6b1c1aec3`,
 under contract `4f9e83f9c9b3f2fba7730b0f019591857a770124f8f3ce41b93818258a5210eb`.
 The runtime regression (streamlit/tests/runtime/queryparams.rs) pins both
 measured runs over the production websocket.
+
+## Caching (st.cache_data, st.cache_resource)
+
+[cache_capture.py](cache_capture.py) is the permanent entry for the cache
+chain; [cache_contract.py](cache_contract.py) is its strict criterion
+(journey-cache-v1, 12 checks) with unit tests in
+[tests/reference/test_cache_contract.py](../reference/test_cache_contract.py).
+The page memoizes an i64 function under two distinct arguments, a
+side-effecting function writing a markdown inside, an Again button and a
+runs==2 clear branch; two real-interaction stages (cold load, button click)
+pin the empty cleared-spinner transient every miss streams at the call
+site's entry path (before the outside write for an element-free function,
+after its element for a side-effecting one), the hit replay of the
+function-internal element with no transient and the slot it consumes (the
+following write lands after it), the stable values across the rerun, the
+post-clear remiss and the DOM projections. The Python reference must be a
+fresh process for stage 01 (its cache store lives in the server process and
+is shared across browser sessions); the Rust store is session state. Widget
+ids are judged modulo the `$$ID` digest segment; one leading
+`main_container` add_block at [0] is the Rust runtime's documented
+divergence. The published chains:
+
+```powershell
+target\pyref-venv\Scripts\python.exe tests\browser\cache_capture.py --replay tests\reference\reference-browser\cache\trace-cache.json
+target\pyref-venv\Scripts\python.exe tests\browser\cache_capture.py --replay tests\browser\rust-cache\trace-cache.json
+```
+
+Both return 12 expected / 12 executed / 12 asserted with exit 0. Raw
+SHA256: python `1c01c8045d141b9210b31b13ec66f6950c202293d7e4b9e28aed5e4bc51fa400`,
+native `eee3ccc1c62bb2be9b049d5f779f3f03a65fed49f858079ac4cc1a3ae09f9fcd`,
+under contract `8d60e0034e52fde5c512af2101777745a7ecc39911b812f0e017a4500815b94f`.
+The runtime regression (streamlit/tests/runtime/cache.rs) pins both measured
+runs over the production websocket plus the argument-sensitive keying, the
+shared resource identity and the clear.
