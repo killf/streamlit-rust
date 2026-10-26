@@ -178,6 +178,9 @@ pub(crate) enum Codec {
     TimeInput {
         step: i64,
     },
+    /// datetime_input: ISO "YYYY-MM-DDTHH:MM" strings (the reference also
+    /// accepts the legacy "YYYY/MM/DD, HH:MM" spelling on input).
+    DateTimeInput,
 }
 
 impl Codec {
@@ -246,6 +249,20 @@ impl Codec {
                 }
                 chrono::NaiveTime::parse_from_str(text, format).ok().map(|_| Value::String(text.clone()))
             }
+            (Self::DateTimeInput, widget_state::Value::StringArrayValue(array)) => {
+                // One entry, minute precision; an empty array is the cleared
+                // picker. The ISO spelling is canonical; the legacy
+                // "YYYY/MM/DD, HH:MM" form is accepted and re-normalized.
+                let parse = |text: &str| {
+                    chrono::NaiveDateTime::parse_from_str(text, "%Y-%m-%dT%H:%M")
+                        .or_else(|_| chrono::NaiveDateTime::parse_from_str(text, "%Y/%m/%d, %H:%M"))
+                        .map(|moment| moment.format("%Y-%m-%dT%H:%M").to_string())
+                };
+                match array.data.first() {
+                    None => Some(Value::Null),
+                    Some(text) => parse(text).ok().map(Value::String),
+                }
+            }
             (Codec::Slider { count, integer, .. }, widget_state::Value::DoubleArrayValue(array)) if array.data.len() == *count => {
                 let values: Vec<Value> = array.data.iter().map(|value| if *integer { Value::from(*value as i64) } else { Value::from(*value) }).collect();
                 let result = if *count == 1 { values[0].clone() } else { Value::Array(values) };
@@ -293,6 +310,10 @@ impl Codec {
             Self::TimeInput { step } => {
                 let format = if step % 60 != 0 { "%H:%M:%S" } else { "%H:%M" };
                 value.is_null() || value.as_str().is_some_and(|text| chrono::NaiveTime::parse_from_str(text, format).is_ok())
+            }
+            Self::DateTimeInput => {
+                let iso = |text: &str| chrono::NaiveDateTime::parse_from_str(text, "%Y-%m-%dT%H:%M").is_ok();
+                value.is_null() || value.as_str().is_some_and(iso)
             }
             Self::Text { max_chars } => value.is_null() || value.as_str().is_some_and(|text| max_chars.is_none_or(|limit| text.chars().count() <= limit)),
             Self::Select(options) => value.is_null() || value.as_u64().is_some_and(|index| index < options.len() as u64),

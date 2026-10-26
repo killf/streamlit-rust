@@ -15,6 +15,7 @@ mod cache;
 mod charts;
 mod chat;
 mod data_views;
+mod datetime;
 mod display;
 mod display2;
 mod execution;

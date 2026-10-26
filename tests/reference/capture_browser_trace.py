@@ -732,6 +732,7 @@ WIDGET_ELEMENTS = (
     "file_uploader",
     "date_input",
     "time_input",
+    "date_time_input",
     "chat_input",
     "button_group",
     "feedback",

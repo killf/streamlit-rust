@@ -1,0 +1,181 @@
+{
+ "schema_version": 1,
+ "observation": {
+  "journey": "datetime-page",
+  "contract": "journey-datetime-v1",
+  "scope": "RUST SIDE DIFFERENTIAL",
+  "url": "http://127.0.0.1:8526/",
+  "source": {
+   "file": "streamlit/examples/datetime.rs",
+   "sha256": "ac35a299e657b862cd39ec65bacc21e586467b098bf6e7df30565ce4dbfb2e48"
+  },
+  "stages": [
+   {
+    "name": "01-load",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 81068.232409,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": []
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 81068.233673,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "0c15b826-8c2a-4685-a7c2-ce98c3f16b07",
+        "name": "Streamlit Rust",
+        "main_script_path": "",
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "session_id": "a8f46557-8556-4927-ba11-0173e4d784b5"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 81068.239805,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 81068.239928,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "main_container",
+        "block_type": "vertical",
+        "block": {
+         "vertical": {},
+         "id": "main_container"
+        },
+        "path": [
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 81068.240187,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "date_time_input",
+        "widget": {
+         "id": "$$ID-9868afef411d918c8b262f8d74fcc83d-launch",
+         "label": "Launch window",
+         "default": [
+          "2025-03-15T14:30"
+         ],
+         "min": "2015-03-15T00:00",
+         "max": "2035-03-15T23:59",
+         "labelVisibility": {},
+         "format": "YYYY/MM/DD",
+         "step": "900"
+        },
+        "id": "$$ID-9868afef411d918c8b262f8d74fcc83d-launch",
+        "label": "Launch window",
+        "form_id": "",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 81068.240574,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "date_time_input",
+        "widget": {
+         "id": "$$ID-f547c95e3e971715e4e0d4d5ca10e49c-slot",
+         "label": "Optional slot",
+         "min": "2016-10-26T00:00",
+         "max": "2036-10-26T23:59",
+         "labelVisibility": {},
+         "format": "YYYY/MM/DD",
+         "step": "900"
+        },
+        "id": "$$ID-f547c95e3e971715e4e0d4d5ca10e49c-slot",
+        "label": "Optional slot",
+        "form_id": "",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 81068.240623,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 81068.240711,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "http": [],
+    "dom": {
+     "datetimeInputs": [
+      "2025-03-15T14:30",
+      ""
+     ],
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "01-load.png",
+     "sha256": "e39d134acda757da6b556c0e00c7c2a4730dd79f3b92dc74d7ee5b786b8433bb"
+    }
+   }
+  ],
+  "ipc_dir": "D:\\dlab\\streamlit-rust\\target\\datetime-rust"
+ },
+ "counts": {
+  "expected": 7,
+  "executed": 7,
+  "asserted": 7
+ },
+ "failures": []
+}

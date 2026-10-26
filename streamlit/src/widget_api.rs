@@ -1190,6 +1190,71 @@ impl From<String> for TimeInputOptions {
     }
 }
 
+/// Datetime input options. The plain call starts at now (minute precision);
+/// the default bounds are the ten-year window around the value's date.
+pub struct DateTimeInputOptions {
+    common: InputOptions,
+    value: Option<chrono::NaiveDateTime>,
+    min: Option<chrono::NaiveDateTime>,
+    max: Option<chrono::NaiveDateTime>,
+    step: i64,
+    format: String,
+}
+impl DateTimeInputOptions {
+    pub fn new(label: impl Into<String>) -> Self {
+        use chrono::Timelike;
+        Self {
+            common: InputOptions::new(label),
+            value: chrono::Local::now().naive_local().with_second(0).and_then(|moment| moment.with_nanosecond(0)),
+            min: None,
+            max: None,
+            step: 900,
+            format: "YYYY/MM/DD".to_string(),
+        }
+    }
+    pub fn value(mut self, value: chrono::NaiveDateTime) -> Self {
+        use chrono::Timelike;
+        self.value = Some(value.with_second(0).and_then(|moment| moment.with_nanosecond(0)).unwrap_or(value));
+        self
+    }
+    /// An unset picker: starts empty and may be cleared back to None.
+    pub fn value_none(mut self) -> Self {
+        self.value = None;
+        self
+    }
+    pub fn min(mut self, min: chrono::NaiveDateTime) -> Self {
+        self.min = Some(min);
+        self
+    }
+    pub fn max(mut self, max: chrono::NaiveDateTime) -> Self {
+        self.max = Some(max);
+        self
+    }
+    /// The picker's minute granularity, in seconds (900 = 15 minutes;
+    /// the reference bounds it to [60, 82800]).
+    pub fn step(mut self, step: i64) -> Self {
+        self.step = step;
+        self
+    }
+    /// The frontend's date display format (the reference's default is
+    /// "YYYY/MM/DD"); the wire always carries ISO datetimes.
+    pub fn format(mut self, format: impl Into<String>) -> Self {
+        self.format = format.into();
+        self
+    }
+    common_builders!();
+}
+impl From<&str> for DateTimeInputOptions {
+    fn from(label: &str) -> Self {
+        Self::new(label)
+    }
+}
+impl From<String> for DateTimeInputOptions {
+    fn from(label: String) -> Self {
+        Self::new(label)
+    }
+}
+
 /// Color picker options. The plain call starts at black; values are
 /// "#RRGGBB" strings like the reference.
 pub struct ColorPickerOptions {
@@ -1981,6 +2046,10 @@ pub trait InputWidgets {
     /// Accept a builder or a label; the plain call starts at now.
     /// Returns None when the picker is clearable and cleared.
     fn time_input(&self, options: impl Into<TimeInputOptions>) -> Result<Option<chrono::NaiveTime>, WidgetError>;
+    /// A combined date-and-time picker, like `st.datetime_input`: ISO
+    /// "YYYY-MM-DDTHH:MM" values in a ten-year window around the value's
+    /// date, with a minute-granularity step.
+    fn datetime_input(&self, options: impl Into<DateTimeInputOptions>) -> Result<Option<chrono::NaiveDateTime>, WidgetError>;
     /// Accept a builder or a label; the plain call starts at black.
     fn color_picker(&self, options: impl Into<ColorPickerOptions>) -> Result<String, WidgetError>;
     /// Accept a builder or `(label, options)`; two default labels make a
@@ -2970,6 +3039,83 @@ impl<C: AppendChild> InputWidgets for C {
                 label_visibility: c.visibility.wire(),
                 step: options.step,
                 format: Some(options.format.to_string()),
+                ignore_rerun: c.ignore_rerun,
+                ..Default::default()
+            })),
+            ..Default::default()
+        }))));
+        Ok(value)
+    }
+
+    fn datetime_input(&self, options: impl Into<DateTimeInputOptions>) -> Result<Option<chrono::NaiveDateTime>, WidgetError> {
+        use chrono::{Datelike, NaiveDate, NaiveDateTime};
+        let options = options.into();
+        let c = options.common;
+        let form_id = form_scope(self, c.callback.is_some())?;
+        let width_config = c.width(false)?;
+        if !(60..=82_800).contains(&options.step) {
+            return Err(WidgetError::InvalidValue("datetime_input step must be between 60 seconds and 23 hours".into()));
+        }
+        let wire = |moment: NaiveDateTime| moment.format("%Y-%m-%dT%H:%M").to_string();
+        // The reference's default bounds: ten years either side of the
+        // value's date, min at 00:00 and max at 23:59.
+        let ten_years = |date: NaiveDate, forward: bool| {
+            let shift = if forward { 10 } else { -10 };
+            NaiveDate::from_ymd_opt(date.year() + shift, date.month(), date.day())
+                .or_else(|| NaiveDate::from_ymd_opt(date.year() + shift, date.month(), (date.day() - 1).max(1)))
+                .expect("a shifted date always exists")
+        };
+        let base_date = options.value.map(|moment| moment.date()).unwrap_or_else(|| chrono::Local::now().date_naive());
+        let midnight = chrono::NaiveTime::from_hms_opt(0, 0, 0).expect("midnight");
+        let end_of_day = chrono::NaiveTime::from_hms_opt(23, 59, 0).expect("23:59");
+        let min = options.min.unwrap_or_else(|| ten_years(base_date, false).and_time(midnight));
+        let max = options.max.unwrap_or_else(|| ten_years(base_date, true).and_time(end_of_day));
+        if min > max {
+            return Err(WidgetError::InvalidValue("datetime_input min is after max".into()));
+        }
+        if let Some(value) = options.value {
+            if value < min || value > max {
+                return Err(WidgetError::InvalidValue("datetime_input value is outside min/max".into()));
+            }
+        }
+        let default = options.value.map(|moment| Value::String(wire(moment))).unwrap_or(Value::Null);
+        let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { format!("{:?}:{}:{}", options.value.map(wire), options.step, options.format) });
+        let (id, value, set_value) = self.register_widget_parity(
+            WidgetSpec {
+                kind: "datetime_input",
+                key: c.key.as_deref(),
+                identity: &identity,
+                default,
+                codec: Codec::DateTimeInput,
+                callback: c.callback,
+            },
+            |value| {
+                if value.is_null() {
+                    return Ok(None);
+                }
+                NaiveDateTime::parse_from_str(value.as_str().unwrap_or_default(), "%Y-%m-%dT%H:%M")
+                    .map(Some)
+                    .map_err(|_| WidgetError::InvalidValue("datetime_input expects an ISO datetime".into()))
+            },
+        )?;
+        self.push(Rc::new(RefCell::new(InputElement(proto::Element {
+            width_config,
+            has_one_shot_effect: set_value.then_some(true),
+            r#type: Some(element::Type::DateTimeInput(proto::DateTimeInput {
+                id,
+                label: c.label,
+                default: options.value.map(|moment| vec![wire(moment)]).unwrap_or_default(),
+                min: wire(min),
+                max: wire(max),
+                help: c.help,
+                form_id,
+                value: set_value.then_some(value.map(wire)).flatten().into_iter().collect(),
+                set_value,
+                disabled: c.disabled,
+                label_visibility: c.visibility.wire(),
+                format: options.format,
+                step: options.step,
+                is_range: false,
                 ignore_rerun: c.ignore_rerun,
                 ..Default::default()
             })),

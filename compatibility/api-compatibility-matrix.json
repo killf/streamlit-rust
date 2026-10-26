@@ -89,19 +89,19 @@
     "redirect_aliases_not_counted": 2,
     "implementation_status_counts": {
       "not_applicable": 54,
-      "implemented": 93,
-      "absent": 35
+      "implemented": 94,
+      "absent": 34
     },
     "compatibility_status_counts": {
       "not_applicable": 54,
-      "partial": 93,
-      "unverified": 35
+      "partial": 94,
+      "unverified": 34
     },
     "unique_feature_ids": 182,
     "unique_official_urls": 182,
     "captured_sources_valid": 218,
     "captured_sources_total": 218,
-    "python_browser_trace_links": 93
+    "python_browser_trace_links": 94
   },
   "vendor_migration": {
     "status": "verified",
@@ -2103,13 +2103,29 @@
       "category": "PAGE ELEMENTS/Input widgets",
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.datetime_input",
-      "rust_source_path": null,
-      "implementation_status": "absent",
-      "compatibility_status": "unverified",
+      "rust_source_path": "streamlit/src/widget_api.rs",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "499c3bbedec18a51f774bc91ec5187e765eba248e3d748566ce27e43be89bcd5",
-        "python_browser_trace": null
-      }
+        "python_browser_trace": "tests/reference/reference-browser/datetime/trace-datetime.json",
+        "rust_source": "streamlit/src/widget_api.rs",
+        "rust_api_test": "streamlit/tests/runtime/datetime.rs",
+        "rust_wire_observation": "tests/browser/rust-datetime/trace-datetime.json",
+        "official_frontend_browser_e2e": "tests/browser/rust-datetime/trace-datetime.json",
+        "capture_entry": "tests/browser/datetime_capture.py",
+        "datetime_contract": "tests/browser/datetime_contract.py",
+        "contract_guards": "tests/reference/test_datetime_contract.py",
+        "driven_fixture": "tests/reference/datetime_app.py",
+        "driven_example": "streamlit/examples/datetime.rs"
+      },
+      "rust_plan": "st.datetime_input(label, value) registers a DateTimeInput widget (string_array_value of one ISO \"YYYY-MM-DDTHH:MM\") and streams a date_time_input element with the ISO default, the ten-year window around the value's date (min at 00:00, max at 23:59; a None value anchors on today), the 15-minute default step and the YYYY/MM/DD display format.",
+      "compatibility_scope": "The journey-datetime-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome across the load stage; the published replays assert 7/7 checks per side, covering both pickers' full widget wire (modulo the $$ID digest), the settled DOM input values and the successful finish.",
+      "limitations": [
+        "Load-only coverage: this frontend commits datetime values only through its calendar widget (typing never triggers a rerun), so committed changes, custom bounds, non-default steps and formats remain unobserved.",
+        "The legacy \"YYYY/MM/DD, HH:MM\" input spelling is decoded but was not exercised end-to-end in a browser.",
+        "fixture SHA256 584879326bf4881286bf1f416d09eb2a2721d77d125b6a368e7f665a506217e0; example SHA256 ac35a299e657b862cd39ec65bacc21e586467b098bf6e7df30565ce4dbfb2e48."
+      ]
     },
     {
       "feature_id": "st.download_button",

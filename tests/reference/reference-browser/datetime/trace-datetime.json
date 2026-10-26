@@ -1,0 +1,161 @@
+{
+ "schema_version": 1,
+ "observation": {
+  "journey": "datetime-page",
+  "contract": "journey-datetime-v1",
+  "scope": "PYTHON SIDE ONLY",
+  "url": "http://127.0.0.1:8626/",
+  "source": {
+   "file": "tests/reference/datetime_app.py",
+   "sha256": "584879326bf4881286bf1f416d09eb2a2721d77d125b6a368e7f665a506217e0"
+  },
+  "stages": [
+   {
+    "name": "01-load",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 80983.123888,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": []
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 80983.126053,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "74b8c91e-b26d-421b-8caa-508d3f9ced06",
+        "name": "datetime_app",
+        "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\datetime_app.py",
+        "page_script_hash": "c029c1cc2df98d6fbb938111f7e23e82",
+        "main_script_hash": "c029c1cc2df98d6fbb938111f7e23e82",
+        "session_id": "d350a8dd-a113-4eb2-8fe5-be3d8743cc02"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 80983.134768,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 80983.145436,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "date_time_input",
+        "widget": {
+         "id": "$$ID-2f2a7077dc444299d8c037a5289f5eea-launch",
+         "label": "Launch window",
+         "default": [
+          "2025-03-15T14:30"
+         ],
+         "min": "2015-03-15T00:00",
+         "max": "2035-03-15T23:59",
+         "labelVisibility": {},
+         "format": "YYYY/MM/DD",
+         "step": "900"
+        },
+        "id": "$$ID-2f2a7077dc444299d8c037a5289f5eea-launch",
+        "label": "Launch window",
+        "form_id": "",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 80983.150179,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "date_time_input",
+        "widget": {
+         "id": "$$ID-7a5f5f9aa998e0f09cf119288a2fed64-slot",
+         "label": "Optional slot",
+         "min": "2016-10-26T00:00",
+         "max": "2036-10-26T23:59",
+         "labelVisibility": {},
+         "format": "YYYY/MM/DD",
+         "step": "900"
+        },
+        "id": "$$ID-7a5f5f9aa998e0f09cf119288a2fed64-slot",
+        "label": "Optional slot",
+        "form_id": "",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 80983.15036,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 80983.150493,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "http": [],
+    "dom": {
+     "datetimeInputs": [
+      "2025-03-15T14:30",
+      ""
+     ],
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "01-load.png",
+     "sha256": "e39d134acda757da6b556c0e00c7c2a4730dd79f3b92dc74d7ee5b786b8433bb"
+    }
+   }
+  ],
+  "ipc_dir": "D:\\dlab\\streamlit-rust\\target\\datetime-python"
+ },
+ "counts": {
+  "expected": 7,
+  "executed": 7,
+  "asserted": 7
+ },
+ "failures": []
+}

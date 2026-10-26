@@ -595,3 +595,32 @@ under contract `a55e670fd952a1ed83285bcc2c48178f4365fc08aab53fe25271edf1f5445c8a
 The runtime regression (streamlit/tests/runtime/display2.rs) pins the load
 timeline over the production websocket, including the logo metadata stamp.
 
+## Datetime input (datetime_input)
+
+[datetime_capture.py](datetime_capture.py) is the permanent entry for the
+datetime chain; [datetime_contract.py](datetime_contract.py) is its strict
+criterion (journey-datetime-v1, 7 checks) with unit tests in
+[tests/reference/test_datetime_contract.py](../reference/test_datetime_contract.py).
+The page renders the datetime fixture (a valued picker and a None-valued
+picker); the load pins each picker's full widget wire — the ISO
+"YYYY-MM-DDTHH:MM" default, the ten-year window around the value's date
+(min at 00:00, max at 23:59; a None value anchors on today), the
+15-minute step and the YYYY/MM/DD format — plus the settled DOM input
+values. Widget ids are judged modulo the `$$ID` digest segment and the
+Rust runtime's per-batch `main_container` re-announcement at [0] is the
+documented divergence. The published chains:
+
+```powershell
+target\pyref-venv\Scripts\python.exe tests\browser\datetime_capture.py --replay tests\reference\reference-browser\datetime\trace-datetime.json
+target\pyref-venv\Scripts\python.exe tests\browser\datetime_capture.py --replay tests\browser\rust-datetime\trace-datetime.json
+```
+
+Both return 7 expected / 7 executed / 7 asserted with exit 0. Raw
+SHA256: python `079fcd2a3e190f487f398c798ef4e99a395c6238fd30a31773047e726fea2ab9`,
+native `417b0363901a69feaf1e939612eeb1058f0d317e81c977039291553c37bbe96e`,
+under contract `75089b10e902bc945d52d88a73e5f9feed7f4a371e22470617f89f6f28d470f1`.
+The runtime regression (streamlit/tests/runtime/datetime.rs) pins the load
+timeline over the production websocket plus the codec's ISO/legacy/cleared
+semantics.
+
+
