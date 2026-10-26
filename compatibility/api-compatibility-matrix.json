@@ -89,19 +89,19 @@
     "redirect_aliases_not_counted": 2,
     "implementation_status_counts": {
       "not_applicable": 54,
-      "implemented": 94,
-      "absent": 34
+      "implemented": 95,
+      "absent": 33
     },
     "compatibility_status_counts": {
       "not_applicable": 54,
-      "partial": 94,
-      "unverified": 34
+      "partial": 95,
+      "unverified": 33
     },
     "unique_feature_ids": 182,
     "unique_official_urls": 182,
     "captured_sources_valid": 218,
     "captured_sources_total": 218,
-    "python_browser_trace_links": 94
+    "python_browser_trace_links": 95
   },
   "vendor_migration": {
     "status": "verified",
@@ -3866,13 +3866,29 @@
       "category": "PAGE ELEMENTS/Write and magic",
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/write-magic/st.write_stream",
-      "rust_source_path": null,
-      "implementation_status": "absent",
-      "compatibility_status": "unverified",
+      "rust_source_path": "streamlit/src/api.rs",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "59073ea2a64c3d297ebbd732de19bc28cdfd51439cca81f21b72eda2d5c4ffa1",
-        "python_browser_trace": null
-      }
+        "python_browser_trace": "tests/reference/reference-browser/writestream/trace-writestream.json",
+        "rust_source": "streamlit/src/api.rs",
+        "rust_api_test": "streamlit/tests/runtime/writestream.rs",
+        "rust_wire_observation": "tests/browser/rust-writestream/trace-writestream.json",
+        "official_frontend_browser_e2e": "tests/browser/rust-writestream/trace-writestream.json",
+        "capture_entry": "tests/browser/writestream_capture.py",
+        "writestream_contract": "tests/browser/writestream_contract.py",
+        "contract_guards": "tests/reference/test_writestream_contract.py",
+        "driven_fixture": "tests/reference/writestream_app.py",
+        "driven_example": "streamlit/examples/writestream.rs"
+      },
+      "rust_plan": "st.write_stream(chunks) streams text into one growing markdown element: each chunk replaces the slot with the accumulated body (cleaned like the reference's clean_text, unterminated parsing), a cursor rides every chunk after the first when given, and a final cursor-less flush closes the parsing; the placeholder element is coalesced away like the reference's message queue does.",
+      "compatibility_scope": "The journey-writestream-v1 chain: the pinned Python 1.66.1 fixture (two four-chunk streams, one cursorless and one with the ▌ cursor) and the Rust example were each driven by a real owned Chrome across the load stage; the published replays assert 7/7 checks per side, covering every markdown delta's full element, the settled DOM and the successful finish.",
+      "limitations": [
+        "Text-only streams: the reference also interleaves non-string chunks (written in place via st.write) and callable side effects, which the Rust port does not model.",
+        "The typewriter pacing is generator-driven in the reference; the Rust iterator consumes synchronously, so only the final wire (not the pacing) is measured.",
+        "fixture SHA256 31bc5498e21e700b06fda7ecae0be67f68604729a03f7778bc7cd4f51af365ce; example SHA256 fed2972fa89718803340162ed78671c1da6e1367c8f57aee618b3b284031822f."
+      ]
     },
     {
       "feature_id": "st.testing.v1.AppTest",

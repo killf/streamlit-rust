@@ -1178,6 +1178,16 @@ impl Progress {
 pub trait StreamlitApi {
     fn write<T: Into<WriteOptions>>(&self, body: T);
 
+    /// Stream text chunks into one growing markdown element, like
+    /// `st.write_stream`: each chunk replaces the placeholder with the
+    /// accumulated text (unclosed markdown stays renderable mid-stream) and
+    /// the final flush closes the parsing. Returns the accumulated text.
+    fn write_stream<S: Into<String>>(&self, chunks: impl IntoIterator<Item = S>) -> String;
+
+    /// The cursor form of `write_stream`: from the second chunk on, the
+    /// cursor rides the streamed body until the final flush drops it.
+    fn write_stream_with_cursor<S: Into<String>>(&self, cursor: &str, chunks: impl IntoIterator<Item = S>) -> String;
+
     fn info<T: Into<StatusOptions>>(&self, options: T) -> Result<(), StatusError>;
 
     fn warning<T: Into<StatusOptions>>(&self, options: T) -> Result<(), StatusError>;
@@ -1614,6 +1624,51 @@ impl<C: AppendChild> StreamlitApi for C {
         let body = body.into();
         let element = MarkdownElement::new(body.body).unsafe_allow_html(body.unsafe_allow_html);
         self.push(Rc::new(RefCell::new(element)));
+    }
+
+    fn write_stream<S: Into<String>>(&self, chunks: impl IntoIterator<Item = S>) -> String {
+        self.write_stream_with_cursor("", chunks)
+    }
+
+    fn write_stream_with_cursor<S: Into<String>>(&self, cursor: &str, chunks: impl IntoIterator<Item = S>) -> String {
+        // Mirrors the reference loop: the empty placeholder is created at the
+        // first text chunk, each chunk replaces it with the accumulated
+        // markdown (parsing left open mid-stream), and a final cursor-less
+        // flush closes the parsing. The reference's message queue coalesces
+        // the placeholder with the first same-path write, so the placeholder
+        // element itself never reaches the wire: the slot is created
+        // silently and the parent cursor still advances.
+        let mut slot: Option<&EmptyHandle<'_>> = None;
+        let mut accumulated = String::new();
+        for chunk in chunks {
+            let chunk = chunk.into();
+            if chunk.is_empty() {
+                continue;
+            }
+            let first = slot.is_none();
+            let slot = slot.get_or_insert_with(|| {
+                let app_handle = self.get_app();
+                let mut app = app_handle.lock();
+                let slot_path = app.render_context_mut().map(|context| context.delta_path.clone()).unwrap_or_default();
+                if let Some(context) = app.render_context_mut() {
+                    if let Some(index) = context.delta_path.pop() {
+                        context.delta_path.push(index + 1);
+                    }
+                }
+                drop(app);
+                self.allocator().malloc(EmptyHandle::new(self.allocator(), app_handle.clone(), self.parent_form_id(), slot_path))
+            });
+            accumulated.push_str(&chunk);
+            let mut body = accumulated.clone();
+            if !first {
+                body.push_str(cursor);
+            }
+            slot.push(Rc::new(RefCell::new(crate::elements::markdown::MarkdownElement::new(body).unterminated())));
+        }
+        if let Some(slot) = slot {
+            slot.push(Rc::new(RefCell::new(crate::elements::markdown::MarkdownElement::new(accumulated.clone()))));
+        }
+        accumulated
     }
 
     fn text<T: Into<TextOptions>>(&self, body: T) {

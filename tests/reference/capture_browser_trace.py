@@ -716,7 +716,7 @@ FULL_ELEMENT_WIDGETS = ("selectbox", "slider", "checkbox")
 # elements: the heading level, the iframe src/scrolling, the html scrolling,
 # the code body/language of st.echo, the snow/empty flags, the json
 # expansion default and the space height.
-FULL_ELEMENT_PRESENTATION = ("text", "heading", "html", "iframe", "snow", "empty", "code", "json", "space", "help_info", "skeleton")
+FULL_ELEMENT_PRESENTATION = ("text", "heading", "html", "iframe", "snow", "empty", "code", "json", "space", "help_info", "skeleton", "markdown")
 
 WIDGET_ELEMENTS = (
     "selectbox",

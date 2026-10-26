@@ -23,17 +23,30 @@ pub(crate) struct MarkdownElement {
     help: Option<String>,
     width: Option<ElementWidth>,
     text_alignment: Option<TextAlignment>,
+    unterminated_parsing: bool,
+    wrap: bool,
+}
+
+/// The reference's clean_text: dedent the common leading whitespace, then
+/// strip.
+fn clean_text(body: &str) -> String {
+    let lines: Vec<&str> = body.lines().collect();
+    let margin = lines.iter().filter(|line| !line.trim().is_empty()).map(|line| line.len() - line.trim_start().len()).min().unwrap_or(0);
+    let dedented: Vec<String> = lines.iter().map(|line| line.get(margin..).unwrap_or("").to_string()).collect();
+    dedented.join("\n").trim().to_string()
 }
 
 impl MarkdownElement {
     pub fn new(body: String) -> Self {
         Self {
-            body,
+            body: clean_text(&body),
             unsafe_allow_html: false,
-            element_type: MarkdownElementType::Unspecified,
+            element_type: MarkdownElementType::Native,
             help: None,
             width: None,
             text_alignment: None,
+            unterminated_parsing: false,
+            wrap: true,
         }
     }
 
@@ -61,15 +74,24 @@ impl MarkdownElement {
         self.element_type = value;
         self
     }
+
+    /// Keep unclosed markdown syntax renderable mid-stream, like the
+    /// reference's write_stream intermediates.
+    pub fn unterminated(mut self) -> Self {
+        self.unterminated_parsing = true;
+        self
+    }
 }
 
 impl Element for MarkdownElement {
     fn render(&self, context: &mut RenderContext) -> Result<(), StreamlitError> {
-        let element_hash = hash(format!("markdown_{}_{:?}_{:?}_{:?}", self.body, self.unsafe_allow_html, self.width, self.text_alignment).as_str());
+        let element_hash = hash(format!("markdown_{}_{:?}_{:?}_{:?}_{}_{}", self.body, self.unsafe_allow_html, self.width, self.text_alignment, self.unterminated_parsing, self.wrap).as_str());
         let mut msg = delta_base_with_path(context.delta_path.clone(), context.active_script_hash.clone(), element_hash);
 
         let width_config: Option<WidthConfig> = self.width.clone().map(Into::into);
-        let text_alignment_config: Option<TextAlignmentConfig> = self.text_alignment.clone().map(Into::into);
+        // The reference defaults text_alignment to left, and the config is
+        // always present on the wire.
+        let text_alignment_config: Option<TextAlignmentConfig> = Some(self.text_alignment.clone().map(Into::into).unwrap_or_else(|| TextAlignment::Left.into()));
 
         msg.r#type = Some(forward_msg::Type::Delta(Delta {
             fragment_id: String::new(),
@@ -80,9 +102,9 @@ impl Element for MarkdownElement {
                 text_alignment_config,
                 r#type: Some(element::Type::Markdown(crate::proto::Markdown {
                     body: self.body.clone(),
-                    unterminated_parsing: false,
+                    unterminated_parsing: self.unterminated_parsing,
                     hide_anchors: false,
-                    wrap: None,
+                    wrap: Some(self.wrap),
                     allow_html: self.unsafe_allow_html,
                     element_type: self.element_type as i32,
                     help: self.help.clone().unwrap_or_default(),

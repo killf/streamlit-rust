@@ -623,4 +623,33 @@ The runtime regression (streamlit/tests/runtime/datetime.rs) pins the load
 timeline over the production websocket plus the codec's ISO/legacy/cleared
 semantics.
 
+## Write stream (write_stream)
+
+[writestream_capture.py](writestream_capture.py) is the permanent entry for
+the write-stream chain; [writestream_contract.py](writestream_contract.py)
+is its strict criterion (journey-writestream-v1, 7 checks) with unit tests
+in [tests/reference/test_writestream_contract.py](../reference/test_writestream_contract.py).
+The page renders two four-chunk streams (one cursorless, one with the ▌
+cursor); the load pins every markdown delta's full element — the
+accumulated body cleaned like the reference's clean_text,
+`unterminatedParsing` on intermediates, NATIVE type, wrap and LEFT
+alignment — and the cursor-less closing flush. The reference's message
+queue coalesces the placeholder with the first same-path write, so no
+empty element reaches the wire; the Rust runtime's per-batch
+`main_container` re-announcement at [0] is the documented divergence. The
+published chains:
+
+```powershell
+target\pyref-venv\Scripts\python.exe tests\browser\writestream_capture.py --replay tests\reference\reference-browser\writestream\trace-writestream.json
+target\pyref-venv\Scripts\python.exe tests\browser\writestream_capture.py --replay tests\browser\rust-writestream\trace-writestream.json
+```
+
+Both return 7 expected / 7 executed / 7 asserted with exit 0. Raw
+SHA256: python `91bf69ba34dac7fc644b35291dbdea820033bc6ce74b930b3ef0bcfca59ed1b5`,
+native `844cb5b92556bba1d4b0da3d4bfcaefa8df9ea59e5b076b6e4b3dc740ea47f0e`,
+under contract `36a8090ae03d62c06c19028748fe064c9c607dda4da9da79e84edb75d2e4ce08`.
+The runtime regression (streamlit/tests/runtime/writestream.rs) pins the
+full markdown timeline over the production websocket.
+
+
 

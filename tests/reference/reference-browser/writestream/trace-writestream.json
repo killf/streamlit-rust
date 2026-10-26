@@ -1,0 +1,380 @@
+{
+ "schema_version": 1,
+ "observation": {
+  "journey": "writestream-page",
+  "contract": "journey-writestream-v1",
+  "scope": "PYTHON SIDE ONLY",
+  "url": "http://127.0.0.1:8627/",
+  "source": {
+   "file": "tests/reference/datetime_app.py",
+   "sha256": "584879326bf4881286bf1f416d09eb2a2721d77d125b6a368e7f665a506217e0"
+  },
+  "stages": [
+   {
+    "name": "01-load",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 82913.412151,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": []
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 82913.416661,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "478501a7-3ab1-4ddf-a1ee-72949419e0cc",
+        "name": "writestream_app",
+        "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\writestream_app.py",
+        "page_script_hash": "0cad7b02cbd5045988c11b46de9ab8af",
+        "main_script_hash": "0cad7b02cbd5045988c11b46de9ab8af",
+        "session_id": "a09c267e-ab08-424e-a5a9-38ca4b0acfb2"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 82913.418056,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 82913.730055,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "element_full": {
+         "markdown": {
+          "body": "The",
+          "elementType": "NATIVE",
+          "unterminatedParsing": true,
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "The",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 82913.780636,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "element_full": {
+         "markdown": {
+          "body": "The quick",
+          "elementType": "NATIVE",
+          "unterminatedParsing": true,
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "The quick",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 82913.831188,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "element_full": {
+         "markdown": {
+          "body": "The quick **brown**",
+          "elementType": "NATIVE",
+          "unterminatedParsing": true,
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "The quick **brown**",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 82913.881874,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "element_full": {
+         "markdown": {
+          "body": "The quick **brown** fox.",
+          "elementType": "NATIVE",
+          "unterminatedParsing": true,
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "The quick **brown** fox.",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 82913.935118,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "element_full": {
+         "markdown": {
+          "body": "The quick **brown** fox.",
+          "elementType": "NATIVE",
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "The quick **brown** fox.",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 82913.937337,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "element_full": {
+         "markdown": {
+          "body": "Streamed",
+          "elementType": "NATIVE",
+          "unterminatedParsing": true,
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "Streamed",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 82913.983801,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "element_full": {
+         "markdown": {
+          "body": "Streamed with ▌",
+          "elementType": "NATIVE",
+          "unterminatedParsing": true,
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "Streamed with ▌",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 82914.034526,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "element_full": {
+         "markdown": {
+          "body": "Streamed with a ▌",
+          "elementType": "NATIVE",
+          "unterminatedParsing": true,
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "Streamed with a ▌",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 82914.085316,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "element_full": {
+         "markdown": {
+          "body": "Streamed with a cursor.▌",
+          "elementType": "NATIVE",
+          "unterminatedParsing": true,
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "Streamed with a cursor.▌",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 82914.159484,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "element_full": {
+         "markdown": {
+          "body": "Streamed with a cursor.",
+          "elementType": "NATIVE",
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "Streamed with a cursor.",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 82914.159667,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 82914.162118,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "http": [],
+    "dom": {
+     "markdowns": [
+      "The quick brown fox.",
+      "Streamed with a cursor."
+     ],
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "01-load.png",
+     "sha256": "69be27f8cc3b3caaa19d40ffb520dcebd58c8c5a1ffe71b711f545667a5763da"
+    }
+   }
+  ],
+  "ipc_dir": "D:\\dlab\\streamlit-rust\\target\\writestream-python"
+ },
+ "counts": {
+  "expected": 7,
+  "executed": 7,
+  "asserted": 7
+ },
+ "failures": []
+}

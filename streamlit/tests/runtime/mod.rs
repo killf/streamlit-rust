@@ -35,6 +35,7 @@ mod temporal;
 mod textelements;
 mod uploads;
 mod widgets;
+mod writestream;
 
 fn entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
     Box::pin(async move {

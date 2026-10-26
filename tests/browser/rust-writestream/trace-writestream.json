@@ -1,0 +1,400 @@
+{
+ "schema_version": 1,
+ "observation": {
+  "journey": "writestream-page",
+  "contract": "journey-writestream-v1",
+  "scope": "RUST SIDE DIFFERENTIAL",
+  "url": "http://127.0.0.1:8527/",
+  "source": {
+   "file": "streamlit/examples/writestream.rs",
+   "sha256": "fed2972fa89718803340162ed78671c1da6e1367c8f57aee618b3b284031822f"
+  },
+  "stages": [
+   {
+    "name": "01-load",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 82917.795824,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": []
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 82917.797096,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "d87f152e-6baf-4e21-b1f3-bb59fb94ac73",
+        "name": "Streamlit Rust",
+        "main_script_path": "",
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "session_id": "f5d10f0c-67cb-40dd-ae3c-85f32dae4363"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 82917.803176,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 82917.803282,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "main_container",
+        "block_type": "vertical",
+        "block": {
+         "vertical": {},
+         "id": "main_container"
+        },
+        "path": [
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 82917.803512,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "element_full": {
+         "markdown": {
+          "body": "The",
+          "elementType": "NATIVE",
+          "unterminatedParsing": true,
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "The",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 82917.803781,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "element_full": {
+         "markdown": {
+          "body": "The quick",
+          "elementType": "NATIVE",
+          "unterminatedParsing": true,
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "The quick",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 82917.803815,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "element_full": {
+         "markdown": {
+          "body": "The quick **brown**",
+          "elementType": "NATIVE",
+          "unterminatedParsing": true,
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "The quick **brown**",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 82917.803848,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "element_full": {
+         "markdown": {
+          "body": "The quick **brown** fox.",
+          "elementType": "NATIVE",
+          "unterminatedParsing": true,
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "The quick **brown** fox.",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 82917.803878,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "element_full": {
+         "markdown": {
+          "body": "The quick **brown** fox.",
+          "elementType": "NATIVE",
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "The quick **brown** fox.",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 82917.803903,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "element_full": {
+         "markdown": {
+          "body": "Streamed",
+          "elementType": "NATIVE",
+          "unterminatedParsing": true,
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "Streamed",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 82917.803948,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "element_full": {
+         "markdown": {
+          "body": "Streamed with ▌",
+          "elementType": "NATIVE",
+          "unterminatedParsing": true,
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "Streamed with ▌",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 82917.80401,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "element_full": {
+         "markdown": {
+          "body": "Streamed with a ▌",
+          "elementType": "NATIVE",
+          "unterminatedParsing": true,
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "Streamed with a ▌",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 82917.804037,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "element_full": {
+         "markdown": {
+          "body": "Streamed with a cursor.▌",
+          "elementType": "NATIVE",
+          "unterminatedParsing": true,
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "Streamed with a cursor.▌",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 82917.804053,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "element_full": {
+         "markdown": {
+          "body": "Streamed with a cursor.",
+          "elementType": "NATIVE",
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "Streamed with a cursor.",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 82917.804067,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 82917.804153,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "http": [],
+    "dom": {
+     "markdowns": [
+      "The quick brown fox.",
+      "Streamed with a cursor."
+     ],
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "01-load.png",
+     "sha256": "69be27f8cc3b3caaa19d40ffb520dcebd58c8c5a1ffe71b711f545667a5763da"
+    }
+   }
+  ],
+  "ipc_dir": "D:\\dlab\\streamlit-rust\\target\\writestream-rust"
+ },
+ "counts": {
+  "expected": 7,
+  "executed": 7,
+  "asserted": 7
+ },
+ "failures": []
+}
