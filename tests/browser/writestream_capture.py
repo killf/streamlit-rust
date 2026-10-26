@@ -112,7 +112,7 @@ def collect(args) -> int:
     out = pathlib.Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     side = "python" if args.scope == "PYTHON SIDE ONLY" else "native"
-    source_path = ROOT / ("tests/reference/datetime_app.py" if side == "python" else "streamlit/examples/writestream.rs")
+    source_path = ROOT / ("tests/reference/writestream_app.py" if side == "python" else "streamlit/examples/writestream.rs")
     observation = {
         "journey": WRITESTREAM_CASE,
         "contract": WRITESTREAM_CONTRACT,

@@ -237,8 +237,8 @@ WRITESTREAM_DOMS = {
 
 WRITESTREAM_SOURCE_PINS = {
     "python": [
-    'tests/reference/datetime_app.py',
-    '584879326bf4881286bf1f416d09eb2a2721d77d125b6a368e7f665a506217e0'
+    'tests/reference/writestream_app.py',
+    '31bc5498e21e700b06fda7ecae0be67f68604729a03f7778bc7cd4f51af365ce'
 ],
     "native": [
     'streamlit/examples/writestream.rs',

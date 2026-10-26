@@ -12,6 +12,7 @@ use tokio::net::TcpStream;
 
 mod buttons;
 mod cache;
+mod chartlibs;
 mod charts;
 mod chat;
 mod data_views;

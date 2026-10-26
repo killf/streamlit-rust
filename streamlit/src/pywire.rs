@@ -16,6 +16,48 @@ pub fn py_dumps(value: &Value) -> String {
     out
 }
 
+/// The compact variant some reference call sites use:
+/// `json.dumps(..., separators=(",", ":"))` (the echarts spec).
+pub fn py_dumps_compact(value: &Value) -> String {
+    let mut out = String::new();
+    write_value_compact(&mut out, value);
+    out
+}
+
+fn write_value_compact(out: &mut String, value: &Value) {
+    match value {
+        Value::Null => out.push_str("null"),
+        Value::Bool(true) => out.push_str("true"),
+        Value::Bool(false) => out.push_str("false"),
+        Value::Number(number) => out.push_str(&number.to_string()),
+        Value::String(text) => write_string(out, text),
+        Value::Array(items) => {
+            out.push('[');
+            for item in items {
+                write_value_compact(out, item);
+                out.push(',');
+            }
+            if out.ends_with(',') {
+                out.pop();
+            }
+            out.push(']');
+        }
+        Value::Object(map) => {
+            out.push('{');
+            for (key, item) in map {
+                write_string(out, key);
+                out.push(':');
+                write_value_compact(out, item);
+                out.push(',');
+            }
+            if out.ends_with(',') {
+                out.pop();
+            }
+            out.push('}');
+        }
+    }
+}
+
 fn write_value(out: &mut String, value: &Value) {
     match value {
         Value::Null => out.push_str("null"),

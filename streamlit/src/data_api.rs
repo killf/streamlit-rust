@@ -1,7 +1,7 @@
 //! Columnar data views using the same element pipeline as native inputs.
 use crate::api::AppendChild;
 use crate::charts::{self, AreaChartOptions, LineChartOptions, MapOptions, ScatterChartOptions, VEGA_SCHEMA_URL, chart_batch, chart_dataset};
-use crate::data::{Array, ArrayRef, DataError, DataType, Field, Float64Array, Int64Array, LargeStringArray, RecordBatch, to_ipc_stream};
+use crate::data::{Array, ArrayRef, DataError, DataType, Field, Float64Array, Int64Array, LargeStringArray, RecordBatch, Schema, StringArray, to_ipc_stream};
 use crate::elements::data::DataElement;
 use crate::proto::{self, element};
 use crate::pywire::py_dumps;
@@ -293,6 +293,52 @@ fn append(this: &impl AppendChild, element: proto::Element) {
 
 fn arrow_data(data: &RecordBatch) -> Result<proto::ArrowData, DataError> {
     Ok(proto::ArrowData { data: to_ipc_stream(data)?, styler: None })
+}
+
+/// The library-chart datasets (altair, vega_lite inline values) ride the
+/// exact pandas-3 IPC the pinned reference emits: large_string text columns
+/// and the measured pandas metadata (creator stamp replicated from the
+/// measured wire, not invented), serialized with python JSON separators.
+pub(crate) fn chart_arrow_data(data: &RecordBatch) -> Result<proto::ArrowData, DataError> {
+    let mut fields = Vec::with_capacity(data.num_columns());
+    let mut columns: Vec<ArrayRef> = Vec::with_capacity(data.num_columns());
+    for (index, field) in data.schema_ref().fields().iter().enumerate() {
+        let array = data.column(index);
+        if matches!(field.data_type(), DataType::Utf8) {
+            let texts: Vec<&str> = array.as_any().downcast_ref::<StringArray>().expect("utf8 column").iter().map(Option::unwrap_or_default).collect();
+            fields.push(Field::new(field.name(), DataType::LargeUtf8, field.is_nullable()));
+            columns.push(Arc::new(LargeStringArray::from(texts)));
+        } else {
+            fields.push(field.as_ref().clone());
+            columns.push(array.clone());
+        }
+    }
+    let wire_columns: Vec<Value> = fields
+        .iter()
+        .map(|field| {
+            let (pandas_type, numpy_type) = match field.data_type() {
+                DataType::Utf8 | DataType::LargeUtf8 => ("object", "str"),
+                DataType::Int64 => ("int64", "int64"),
+                DataType::Float64 => ("float64", "float64"),
+                DataType::Boolean => ("bool", "bool"),
+                kind => return Err(DataError::InvalidOption(format!("chart dataset column type is not supported yet: {kind}"))),
+            };
+            Ok(json!({"name":field.name(),"field_name":field.name(),"pandas_type":pandas_type,"numpy_type":numpy_type,"metadata":null}))
+        })
+        .collect::<Result<_, DataError>>()?;
+    let metadata = crate::pywire::py_dumps(&json!({
+        "index_columns":[{"kind":"range","name":null,"start":0,"stop":data.num_rows(),"step":1}],
+        "column_indexes":[{"name":null,"field_name":null,"pandas_type":"unicode","numpy_type":"str","metadata":{"encoding":"UTF-8"}}],
+        "columns":wire_columns,
+        "attributes":{},
+        "creator":{"library":"pyarrow","version":"26.0.0"},
+        "pandas_version":"3.1.0"
+    }));
+    let mut schema_metadata = data.schema_ref().metadata().clone();
+    schema_metadata.insert("pandas".to_string(), metadata);
+    let schema = Schema::new_with_metadata(fields, schema_metadata);
+    let batch = RecordBatch::try_new(Arc::new(schema), columns)?;
+    arrow_data(&batch)
 }
 
 fn field_type(data: &RecordBatch, name: &str) -> Result<&'static str, DataError> {

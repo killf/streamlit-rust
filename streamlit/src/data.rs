@@ -28,3 +28,44 @@ pub fn to_ipc_stream(batch: &RecordBatch) -> Result<Vec<u8>, DataError> {
 pub fn from_ipc_stream(bytes: &[u8]) -> Result<Vec<RecordBatch>, DataError> {
     StreamReader::try_new(bytes, None)?.collect::<Result<Vec<_>, _>>().map_err(Into::into)
 }
+
+/// Build a batch from a vega-lite inline `values` list (objects with the
+/// same keys, like pandas.DataFrame(records)): keys in first-appearance
+/// order, int64 for all-integer columns, utf8 otherwise.
+pub fn values_to_batch(values: &[serde_json::Value]) -> Result<RecordBatch, DataError> {
+    use std::sync::Arc;
+
+    let mut names: Vec<String> = Vec::new();
+    for value in values {
+        if let Some(fields) = value.as_object() {
+            for key in fields.keys() {
+                if !names.iter().any(|name| name == key) {
+                    names.push(key.clone());
+                }
+            }
+        }
+    }
+    let mut fields = Vec::with_capacity(names.len());
+    let mut arrays: Vec<ArrayRef> = Vec::with_capacity(names.len());
+    for name in &names {
+        let column: Vec<&serde_json::Value> = values.iter().map(|row| &row[name]).collect();
+        let all_integers = column.iter().all(|value| value.is_i64() || value.is_u64());
+        if all_integers && !column.is_empty() {
+            let numbers: Vec<i64> = column.iter().map(|value| value.as_i64().unwrap_or_default()).collect();
+            fields.push(Field::new(name, DataType::Int64, true));
+            arrays.push(Arc::new(Int64Array::from(numbers)));
+        } else {
+            let texts: Vec<String> = column
+                .iter()
+                .map(|value| match value {
+                    serde_json::Value::String(text) => text.clone(),
+                    serde_json::Value::Null => String::new(),
+                    other => other.to_string(),
+                })
+                .collect();
+            fields.push(Field::new(name, DataType::Utf8, true));
+            arrays.push(Arc::new(StringArray::from(texts)));
+        }
+    }
+    RecordBatch::try_new(Arc::new(Schema::new(fields)), arrays).map_err(Into::into)
+}

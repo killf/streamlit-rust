@@ -1,0 +1,492 @@
+{
+ "schema_version": 1,
+ "observation": {
+  "journey": "chartlibs-page",
+  "contract": "journey-chartlibs-v1",
+  "scope": "RUST SIDE DIFFERENTIAL",
+  "url": "http://127.0.0.1:8528/",
+  "source": {
+   "file": "streamlit/examples/chartlibs.rs",
+   "sha256": "6c27e9192c4097160b233c9fc034e4711726c6dc315827392b2e01528c93683b"
+  },
+  "stages": [
+   {
+    "name": "01-load",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 1773.153607,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": []
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 1773.155267,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "7b684f41-a36c-4999-9bfb-4c67975c22f7",
+        "name": "Streamlit Rust",
+        "main_script_path": "",
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "session_id": "52a47c7b-704e-4871-9702-7f7de266e1ce"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 1773.163902,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 1773.164051,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "main_container",
+        "block_type": "vertical",
+        "block": {
+         "vertical": {},
+         "id": "main_container"
+        },
+        "path": [
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 1773.164382,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "vega_lite_chart",
+        "element_full": {
+         "vegaLiteChart": {
+          "spec": "{\"data\": {\"name\": \"6cee0d724432667de6288bd73bc5badc\"}, \"mark\": {\"type\": \"bar\"}, \"encoding\": {\"x\": {\"field\": \"kind\", \"type\": \"nominal\"}, \"y\": {\"field\": \"count\", \"type\": \"quantitative\"}}, \"$schema\": \"https://vega.github.io/schema/vega-lite/v5.20.1.json\", \"autosize\": {\"type\": \"fit\", \"contains\": \"padding\"}}",
+          "datasets": [
+           {
+            "name": "6cee0d724432667de6288bd73bc5badc",
+            "data": {
+             "data": "/////zgDAAAQAAAAAAAKAA4ADAALAAQACgAAABQAAAAAAAABBAAKAAwAAAAIAAQACgAAAAgAAABYAgAAAQAAAAwAAAAIAAwACAAEAAgAAAAIAAAAMAIAACUCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAia2luZCIsICJmaWVsZF9uYW1lIjogImtpbmQiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJjb3VudCIsICJmaWVsZF9uYW1lIjogImNvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAACAAAAUAAAAAQAAADI////GAAAACAAAAAAAAECHAAAAAgADAAEAAsACAAAAEAAAAAAAAABAAAAAAUAAABjb3VudAAAABAAFAAQAA4ADwAEAAAACAAQAAAAGAAAAAwAAAAAAAEUEAAAAAAAAAAEAAQABAAAAAQAAABraW5kAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/////4AAAAEAAAAAwAGgAYABcABAAIAAwAAAAgAAAAQAEAAAAAAAAAAAAAAAAAAwQACgAYAAwACAAEAAoAAAA8AAAAEAAAAAIAAAAAAAAAAAAAAAIAAAACAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAGAAAAAAAAACAAAAAAAAAAAIAAAAAAAAAwAAAAAAAAAABAAAAAAAAAAABAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGFiAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA"
+            },
+            "hasName": true
+           }
+          ],
+          "theme": "streamlit"
+         },
+         "heightConfig": {
+          "useContent": true
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "vega_lite_spec_raw": "{\"data\": {\"name\": \"6cee0d724432667de6288bd73bc5badc\"}, \"mark\": {\"type\": \"bar\"}, \"encoding\": {\"x\": {\"field\": \"kind\", \"type\": \"nominal\"}, \"y\": {\"field\": \"count\", \"type\": \"quantitative\"}}, \"$schema\": \"https://vega.github.io/schema/vega-lite/v5.20.1.json\", \"autosize\": {\"type\": \"fit\", \"contains\": \"padding\"}}",
+        "vega_lite_spec": {
+         "data": {
+          "name": "6cee0d724432667de6288bd73bc5badc"
+         },
+         "mark": {
+          "type": "bar"
+         },
+         "encoding": {
+          "x": {
+           "field": "kind",
+           "type": "nominal"
+          },
+          "y": {
+           "field": "count",
+           "type": "quantitative"
+          }
+         },
+         "$schema": "https://vega.github.io/schema/vega-lite/v5.20.1.json",
+         "autosize": {
+          "type": "fit",
+          "contains": "padding"
+         }
+        },
+        "vega_lite_datasets": [
+         {
+          "name": "6cee0d724432667de6288bd73bc5badc",
+          "has_name": true,
+          "arrow": {
+           "bytes": 1416,
+           "sha256": "2c503e5daccd7076dfaa5aa35ac9de16e790d9e17eef9d83cb35fc6baf8826a1",
+           "base64": "/////zgDAAAQAAAAAAAKAA4ADAALAAQACgAAABQAAAAAAAABBAAKAAwAAAAIAAQACgAAAAgAAABYAgAAAQAAAAwAAAAIAAwACAAEAAgAAAAIAAAAMAIAACUCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAia2luZCIsICJmaWVsZF9uYW1lIjogImtpbmQiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJjb3VudCIsICJmaWVsZF9uYW1lIjogImNvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAACAAAAUAAAAAQAAADI////GAAAACAAAAAAAAECHAAAAAgADAAEAAsACAAAAEAAAAAAAAABAAAAAAUAAABjb3VudAAAABAAFAAQAA4ADwAEAAAACAAQAAAAGAAAAAwAAAAAAAEUEAAAAAAAAAAEAAQABAAAAAQAAABraW5kAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/////4AAAAEAAAAAwAGgAYABcABAAIAAwAAAAgAAAAQAEAAAAAAAAAAAAAAAAAAwQACgAYAAwACAAEAAoAAAA8AAAAEAAAAAIAAAAAAAAAAAAAAAIAAAACAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAGAAAAAAAAACAAAAAAAAAAAIAAAAAAAAAwAAAAAAAAAABAAAAAAAAAAABAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGFiAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA",
+           "schema": "kind: large_string\ncount: int64\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 485",
+           "columns": [
+            "kind",
+            "count"
+           ],
+           "row_count": 2,
+           "rows": [
+            {
+             "kind": "a",
+             "count": 3
+            },
+            {
+             "kind": "b",
+             "count": 7
+            }
+           ]
+          }
+         }
+        ],
+        "vega_lite_fields": {
+         "use_container_width": false,
+         "theme": "streamlit",
+         "id": "",
+         "form_id": ""
+        },
+        "id": "",
+        "form_id": "",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 1773.164938,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "vega_lite_chart",
+        "element_full": {
+         "vegaLiteChart": {
+          "spec": "{\"mark\": \"bar\", \"encoding\": {\"x\": {\"field\": \"kind\", \"type\": \"nominal\"}, \"y\": {\"field\": \"count\", \"type\": \"quantitative\"}}, \"autosize\": {\"type\": \"fit\", \"contains\": \"padding\"}}",
+          "data": {
+           "data": "/////zgDAAAQAAAAAAAKAA4ADAALAAQACgAAABQAAAAAAAABBAAKAAwAAAAIAAQACgAAAAgAAABYAgAAAQAAAAwAAAAIAAwACAAEAAgAAAAIAAAAMAIAACUCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAia2luZCIsICJmaWVsZF9uYW1lIjogImtpbmQiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJjb3VudCIsICJmaWVsZF9uYW1lIjogImNvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAACAAAAUAAAAAQAAADI////GAAAACAAAAAAAAECHAAAAAgADAAEAAsACAAAAEAAAAAAAAABAAAAAAUAAABjb3VudAAAABAAFAAQAA4ADwAEAAAACAAQAAAAGAAAAAwAAAAAAAEUEAAAAAAAAAAEAAQABAAAAAQAAABraW5kAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/////4AAAAEAAAAAwAGgAYABcABAAIAAwAAAAgAAAAQAEAAAAAAAAAAAAAAAAAAwQACgAYAAwACAAEAAoAAAA8AAAAEAAAAAIAAAAAAAAAAAAAAAIAAAACAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAGAAAAAAAAACAAAAAAAAAAAIAAAAAAAAAwAAAAAAAAAABAAAAAAAAAAABAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGFiAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA"
+          },
+          "theme": "streamlit"
+         },
+         "heightConfig": {
+          "useContent": true
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "vega_lite_spec_raw": "{\"mark\": \"bar\", \"encoding\": {\"x\": {\"field\": \"kind\", \"type\": \"nominal\"}, \"y\": {\"field\": \"count\", \"type\": \"quantitative\"}}, \"autosize\": {\"type\": \"fit\", \"contains\": \"padding\"}}",
+        "vega_lite_spec": {
+         "mark": "bar",
+         "encoding": {
+          "x": {
+           "field": "kind",
+           "type": "nominal"
+          },
+          "y": {
+           "field": "count",
+           "type": "quantitative"
+          }
+         },
+         "autosize": {
+          "type": "fit",
+          "contains": "padding"
+         }
+        },
+        "vega_lite_datasets": [],
+        "vega_lite_fields": {
+         "use_container_width": false,
+         "theme": "streamlit",
+         "id": "",
+         "form_id": ""
+        },
+        "arrow": {
+         "bytes": 1416,
+         "sha256": "2c503e5daccd7076dfaa5aa35ac9de16e790d9e17eef9d83cb35fc6baf8826a1",
+         "base64": "/////zgDAAAQAAAAAAAKAA4ADAALAAQACgAAABQAAAAAAAABBAAKAAwAAAAIAAQACgAAAAgAAABYAgAAAQAAAAwAAAAIAAwACAAEAAgAAAAIAAAAMAIAACUCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAia2luZCIsICJmaWVsZF9uYW1lIjogImtpbmQiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJjb3VudCIsICJmaWVsZF9uYW1lIjogImNvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAACAAAAUAAAAAQAAADI////GAAAACAAAAAAAAECHAAAAAgADAAEAAsACAAAAEAAAAAAAAABAAAAAAUAAABjb3VudAAAABAAFAAQAA4ADwAEAAAACAAQAAAAGAAAAAwAAAAAAAEUEAAAAAAAAAAEAAQABAAAAAQAAABraW5kAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/////4AAAAEAAAAAwAGgAYABcABAAIAAwAAAAgAAAAQAEAAAAAAAAAAAAAAAAAAwQACgAYAAwACAAEAAoAAAA8AAAAEAAAAAIAAAAAAAAAAAAAAAIAAAACAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAGAAAAAAAAACAAAAAAAAAAAIAAAAAAAAAwAAAAAAAAAABAAAAAAAAAAABAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGFiAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA",
+         "schema": "kind: large_string\ncount: int64\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 485",
+         "columns": [
+          "kind",
+          "count"
+         ],
+         "row_count": 2,
+         "rows": [
+          {
+           "kind": "a",
+           "count": 3
+          },
+          {
+           "kind": "b",
+           "count": 7
+          }
+         ]
+        },
+        "id": "",
+        "form_id": "",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 1773.165011,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "plotly_chart",
+        "element_full": {
+         "plotlyChart": {
+          "theme": "streamlit",
+          "id": "$$ID-5a166a4da6c2234efdedf202d580a563-None",
+          "spec": "{\"data\":[{\"x\":[\"a\",\"b\"],\"y\":[3,7],\"type\":\"bar\"}],\"layout\":{\"template\":{\"data\":{\"candlestick\":[{\"decreasing\":{\"line\":{\"color\":\"#000033\"}},\"increasing\":{\"line\":{\"color\":\"#000032\"}},\"type\":\"candlestick\"}],\"contourcarpet\":[{\"colorscale\":[[0.0,\"#000011\"],[0.1111111111111111,\"#000012\"],[0.2222222222222222,\"#000013\"],[0.3333333333333333,\"#000014\"],[0.4444444444444444,\"#000015\"],[0.5555555555555556,\"#000016\"],[0.6666666666666666,\"#000017\"],[0.7777777777777778,\"#000018\"],[0.8888888888888888,\"#000019\"],[1.0,\"#000020\"]],\"type\":\"contourcarpet\"}],\"contour\":[{\"colorscale\":[[0.0,\"#000011\"],[0.1111111111111111,\"#000012\"],[0.2222222222222222,\"#000013\"],[0.3333333333333333,\"#000014\"],[0.4444444444444444,\"#000015\"],[0.5555555555555556,\"#000016\"],[0.6666666666666666,\"#000017\"],[0.7777777777777778,\"#000018\"],[0.8888888888888888,\"#000019\"],[1.0,\"#000020\"]],\"type\":\"contour\"}],\"heatmap\":[{\"colorscale\":[[0.0,\"#000011\"],[0.1111111111111111,\"#000012\"],[0.2222222222222222,\"#000013\"],[0.3333333333333333,\"#000014\"],[0.4444444444444444,\"#000015\"],[0.5555555555555556,\"#000016\"],[0.6666666666666666,\"#000017\"],[0.7777777777777778,\"#000018\"],[0.8888888888888888,\"#000019\"],[1.0,\"#000020\"]],\"type\":\"heatmap\"}],\"histogram2d\":[{\"colorscale\":[[0.0,\"#000011\"],[0.1111111111111111,\"#000012\"],[0.2222222222222222,\"#000013\"],[0.3333333333333333,\"#000014\"],[0.4444444444444444,\"#000015\"],[0.5555555555555556,\"#000016\"],[0.6666666666666666,\"#000017\"],[0.7777777777777778,\"#000018\"],[0.8888888888888888,\"#000019\"],[1.0,\"#000020\"]],\"type\":\"histogram2d\"}],\"icicle\":[{\"textfont\":{\"color\":\"white\"},\"type\":\"icicle\"}],\"sankey\":[{\"textfont\":{\"color\":\"#000036\"},\"type\":\"sankey\"}],\"scatter\":[{\"marker\":{\"line\":{\"width\":0}},\"type\":\"scatter\"}],\"table\":[{\"cells\":{\"fill\":{\"color\":\"#000038\"},\"font\":{\"color\":\"#000037\"},\"line\":{\"color\":\"#000039\"}},\"header\":{\"fill\":{\"color\":\"#000040\"},\"font\":{\"color\":\"#000036\"},\"line\":{\"color\":\"#000039\"}},\"type\":\"table\"}],\"waterfall\":[{\"connector\":{\"line\":{\"color\":\"#000036\",\"width\":2}},\"decreasing\":{\"marker\":{\"color\":\"#000033\"}},\"increasing\":{\"marker\":{\"color\":\"#000032\"}},\"totals\":{\"marker\":{\"color\":\"#000034\"}},\"type\":\"waterfall\"}]},\"layout\":{\"coloraxis\":{\"colorscale\":[[0.0,\"#000011\"],[0.1111111111111111,\"#000012\"],[0.2222222222222222,\"#000013\"],[0.3333333333333333,\"#000014\"],[0.4444444444444444,\"#000015\"],[0.5555555555555556,\"#000016\"],[0.6666666666666666,\"#000017\"],[0.7777777777777778,\"#000018\"],[0.8888888888888888,\"#000019\"],[1.0,\"#000020\"]]},\"colorscale\":{\"diverging\":[[0.0,\"#000021\"],[0.1111111111111111,\"#000022\"],[0.2222222222222222,\"#000023\"],[0.3333333333333333,\"#000024\"],[0.4444444444444444,\"#000025\"],[0.5555555555555556,\"#000026\"],[0.6666666666666666,\"#000027\"],[0.7777777777777778,\"#000028\"],[0.8888888888888888,\"#000029\"],[1.0,\"#000030\"]],\"sequential\":[[0.0,\"#000011\"],[0.1111111111111111,\"#000012\"],[0.2222222222222222,\"#000013\"],[0.3333333333333333,\"#000014\"],[0.4444444444444444,\"#000015\"],[0.5555555555555556,\"#000016\"],[0.6666666666666666,\"#000017\"],[0.7777777777777778,\"#000018\"],[0.8888888888888888,\"#000019\"],[1.0,\"#000020\"]],\"sequentialminus\":[[0.0,\"#000011\"],[0.1111111111111111,\"#000012\"],[0.2222222222222222,\"#000013\"],[0.3333333333333333,\"#000014\"],[0.4444444444444444,\"#000015\"],[0.5555555555555556,\"#000016\"],[0.6666666666666666,\"#000017\"],[0.7777777777777778,\"#000018\"],[0.8888888888888888,\"#000019\"],[1.0,\"#000020\"]]},\"colorway\":[\"#000001\",\"#000002\",\"#000003\",\"#000004\",\"#000005\",\"#000006\",\"#000007\",\"#000008\",\"#000009\",\"#000010\"]}}}}",
+          "config": "{}"
+         },
+         "heightConfig": {
+          "pixelHeight": 450
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "id": "$$ID-5a166a4da6c2234efdedf202d580a563-None",
+        "form_id": "",
+        "path": [
+         0,
+         2
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 1773.165176,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "deck_gl_json_chart",
+        "element_full": {
+         "deckGlJsonChart": {
+          "json": "{\n  \"initialViewState\": {\n    \"latitude\": 0.0,\n    \"longitude\": 0.0,\n    \"zoom\": 1\n  },\n  \"layers\": [\n    {\n      \"@@type\": \"ScatterplotLayer\",\n      \"data\": [\n        {\n          \"position\": [\n            0.0,\n            0.0\n          ],\n          \"size\": 4\n        }\n      ],\n      \"getColor\": [\n        255,\n        0,\n        0\n      ],\n      \"getRadius\": 100,\n      \"id\": \"a967d8f5-a335-47f2-b232-7b2fb5216c09\"\n    }\n  ],\n  \"mapProvider\": \"carto\",\n  \"mapStyle\": \"https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json\",\n  \"views\": [\n    {\n      \"@@type\": \"MapView\",\n      \"controller\": true\n    }\n  ]\n}"
+         },
+         "heightConfig": {
+          "pixelHeight": 500
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "deck_gl_json": {
+         "initialViewState": {
+          "latitude": 0.0,
+          "longitude": 0.0,
+          "zoom": 1
+         },
+         "layers": [
+          {
+           "@@type": "ScatterplotLayer",
+           "data": [
+            {
+             "position": [
+              0.0,
+              0.0
+             ],
+             "size": 4
+            }
+           ],
+           "getColor": [
+            255,
+            0,
+            0
+           ],
+           "getRadius": 100,
+           "id": "a967d8f5-a335-47f2-b232-7b2fb5216c09"
+          }
+         ],
+         "mapProvider": "carto",
+         "mapStyle": "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
+         "views": [
+          {
+           "@@type": "MapView",
+           "controller": true
+          }
+         ]
+        },
+        "deck_gl_fields": {
+         "id": "",
+         "tooltip": "",
+         "mapbox_token": "",
+         "selection_mode": [],
+         "form_id": "",
+         "alt": ""
+        },
+        "id": "",
+        "form_id": "",
+        "path": [
+         0,
+         3
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 1773.165312,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "graphviz_chart",
+        "element_full": {
+         "graphvizChart": {
+          "spec": "digraph { a -> b }",
+          "elementId": "342a5ac24f2b29e74222b5f39ab31d99",
+          "engine": "dot"
+         },
+         "heightConfig": {
+          "useContent": true
+         },
+         "widthConfig": {
+          "useContent": true
+         }
+        },
+        "path": [
+         0,
+         4
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 1773.165411,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "element_full": {
+         "markdown": {
+          "body": "````mermaid\ngraph LR\n    A[Start] --> B{Decision}\n````",
+          "elementType": "NATIVE",
+          "wrap": true
+         },
+         "widthConfig": {
+          "useStretch": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "````mermaid\ngraph LR\n    A[Start] --> B{Decision}\n````",
+        "path": [
+         0,
+         5
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 1773.165553,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "echarts_chart",
+        "element_full": {
+         "heightConfig": {
+          "pixelHeight": 350
+         },
+         "widthConfig": {
+          "useStretch": true
+         },
+         "echartsChart": {
+          "spec": "{\"xAxis\":{\"type\":\"category\",\"data\":[\"a\",\"b\"]},\"yAxis\":{\"type\":\"value\"},\"series\":[{\"type\":\"bar\",\"data\":[3,7]}]}",
+          "theme": "streamlit"
+         }
+        },
+        "id": "",
+        "path": [
+         0,
+         6
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 1773.165679,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 1773.165812,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "http": [],
+    "dom": {
+     "charts": 2,
+     "plotly": 1,
+     "deck": 0,
+     "graphviz": 1,
+     "mermaid": 0,
+     "echarts": 0,
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "01-load.png",
+     "sha256": "ed37736b1e761a2420069bc1d01c2096a1f9943b00881ee41da1ce661f8793cc"
+    }
+   }
+  ],
+  "ipc_dir": "D:\\dlab\\streamlit-rust\\target\\chartlibs-rust"
+ },
+ "counts": {
+  "expected": 7,
+  "executed": 7,
+  "asserted": 7
+ },
+ "failures": []
+}

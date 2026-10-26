@@ -52,7 +52,9 @@ impl Element for BadgeElement {
         let mut msg = delta_base_with_path(context.delta_path.clone(), context.active_script_hash.clone(), element_hash);
 
         let width_config: Option<WidthConfig> = self.width.clone().map(Into::into);
-        let text_alignment_config: Option<TextAlignmentConfig> = self.text_alignment.clone().map(Into::into);
+        // The badge rides the markdown element, so the reference's markdown
+        // defaults apply: always-present LEFT alignment and wrap.
+        let text_alignment_config: Option<TextAlignmentConfig> = Some(self.text_alignment.clone().map(Into::into).unwrap_or_else(|| TextAlignment::Left.into()));
 
         msg.r#type = Some(forward_msg::Type::Delta(Delta {
             fragment_id: String::new(),
@@ -70,7 +72,7 @@ impl Element for BadgeElement {
                     },
                     unterminated_parsing: false,
                     hide_anchors: false,
-                    wrap: None,
+                    wrap: Some(true),
                     allow_html: false,
                     element_type: MarkdownElementType::Native as i32,
                     help: self.help.clone().unwrap_or_default(),

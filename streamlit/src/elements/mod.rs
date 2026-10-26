@@ -1,6 +1,7 @@
 pub mod app;
 pub mod badge;
 pub mod button;
+pub mod charts;
 pub mod code;
 pub mod columns;
 pub mod common;

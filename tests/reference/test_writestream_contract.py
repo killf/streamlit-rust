@@ -9,7 +9,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tests" / "browser"))
 sys.path.insert(0, str(ROOT / "tests" / "reference"))
 
-spec = importlib.util.spec_from_file_location("datetime_contract", ROOT / "tests/browser/writestream_contract.py")
+spec = importlib.util.spec_from_file_location("writestream_contract", ROOT / "tests/browser/writestream_contract.py")
 contract = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(contract)
 

@@ -1,0 +1,472 @@
+{
+ "schema_version": 1,
+ "observation": {
+  "journey": "chartlibs-page",
+  "contract": "journey-chartlibs-v1",
+  "scope": "PYTHON SIDE ONLY",
+  "url": "http://127.0.0.1:8628/",
+  "source": {
+   "file": "tests/reference/chartlibs_app.py",
+   "sha256": "439036d2e8f9096f99cc7813febb07658d7070fd4275625f58514d6c5400560e"
+  },
+  "stages": [
+   {
+    "name": "01-load",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 1724.844974,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": []
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 1724.846756,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "a3df09ae-e0b3-4569-aaaa-50435e1336a0",
+        "name": "chartlibs_app",
+        "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\chartlibs_app.py",
+        "page_script_hash": "27eb7ff9830ca8b54781579533aa869d",
+        "main_script_hash": "27eb7ff9830ca8b54781579533aa869d",
+        "session_id": "9eb4a698-8df9-4e16-b7fa-2145a50eb0fb"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 1724.854529,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 1724.856008,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "vega_lite_chart",
+        "element_full": {
+         "vegaLiteChart": {
+          "spec": "{\"data\": {\"name\": \"4996e56008a948139fdf8626258e41e7\"}, \"mark\": {\"type\": \"bar\"}, \"encoding\": {\"x\": {\"field\": \"kind\", \"type\": \"nominal\"}, \"y\": {\"field\": \"count\", \"type\": \"quantitative\"}}, \"$schema\": \"https://vega.github.io/schema/vega-lite/v5.20.1.json\", \"autosize\": {\"type\": \"fit\", \"contains\": \"padding\"}}",
+          "datasets": [
+           {
+            "name": "4996e56008a948139fdf8626258e41e7",
+            "data": {
+             "data": "/////wgDAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAFwCAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAA0AgAABAAAACUCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAia2luZCIsICJmaWVsZF9uYW1lIjogImtpbmQiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJjb3VudCIsICJmaWVsZF9uYW1lIjogImNvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAACAAAAUAAAAAQAAADI////AAABAhAAAAAgAAAABAAAAAAAAAAFAAAAY291bnQAAAAIAAwACAAHAAgAAAAAAAABQAAAABAAFAAIAAYABwAMAAAAEAAQAAAAAAABFBAAAAAcAAAABAAAAAAAAAAEAAAAa2luZAAAAAAEAAQABAAAAP/////IAAAAFAAAAAAAAAAMABYABgAFAAgADAAMAAAAAAMEABgAAAAwAAAAAAAAAAAACgAYAAwABAAIAAoAAABsAAAAEAAAAAIAAAAAAAAAAAAAAAUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYAAAAAAAAABgAAAAAAAAAAgAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAQAAAAAAAAAAAAAAACAAAAAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAgAAAAAAAABhYgAAAAAAAAMAAAAAAAAABwAAAAAAAAD/////AAAAAA=="
+            },
+            "hasName": true
+           }
+          ],
+          "theme": "streamlit"
+         },
+         "heightConfig": {
+          "useContent": true
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "vega_lite_spec_raw": "{\"data\": {\"name\": \"4996e56008a948139fdf8626258e41e7\"}, \"mark\": {\"type\": \"bar\"}, \"encoding\": {\"x\": {\"field\": \"kind\", \"type\": \"nominal\"}, \"y\": {\"field\": \"count\", \"type\": \"quantitative\"}}, \"$schema\": \"https://vega.github.io/schema/vega-lite/v5.20.1.json\", \"autosize\": {\"type\": \"fit\", \"contains\": \"padding\"}}",
+        "vega_lite_spec": {
+         "data": {
+          "name": "4996e56008a948139fdf8626258e41e7"
+         },
+         "mark": {
+          "type": "bar"
+         },
+         "encoding": {
+          "x": {
+           "field": "kind",
+           "type": "nominal"
+          },
+          "y": {
+           "field": "count",
+           "type": "quantitative"
+          }
+         },
+         "$schema": "https://vega.github.io/schema/vega-lite/v5.20.1.json",
+         "autosize": {
+          "type": "fit",
+          "contains": "padding"
+         }
+        },
+        "vega_lite_datasets": [
+         {
+          "name": "4996e56008a948139fdf8626258e41e7",
+          "has_name": true,
+          "arrow": {
+           "bytes": 1048,
+           "sha256": "8aa3eb8199744b79991a3a4ff3a3e43cea064ede2c7bf53d92d0cfd36960329a",
+           "base64": "/////wgDAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAFwCAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAA0AgAABAAAACUCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAia2luZCIsICJmaWVsZF9uYW1lIjogImtpbmQiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJjb3VudCIsICJmaWVsZF9uYW1lIjogImNvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAACAAAAUAAAAAQAAADI////AAABAhAAAAAgAAAABAAAAAAAAAAFAAAAY291bnQAAAAIAAwACAAHAAgAAAAAAAABQAAAABAAFAAIAAYABwAMAAAAEAAQAAAAAAABFBAAAAAcAAAABAAAAAAAAAAEAAAAa2luZAAAAAAEAAQABAAAAP/////IAAAAFAAAAAAAAAAMABYABgAFAAgADAAMAAAAAAMEABgAAAAwAAAAAAAAAAAACgAYAAwABAAIAAoAAABsAAAAEAAAAAIAAAAAAAAAAAAAAAUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYAAAAAAAAABgAAAAAAAAAAgAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAQAAAAAAAAAAAAAAACAAAAAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAgAAAAAAAABhYgAAAAAAAAMAAAAAAAAABwAAAAAAAAD/////AAAAAA==",
+           "schema": "kind: large_string\ncount: int64\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 485",
+           "columns": [
+            "kind",
+            "count"
+           ],
+           "row_count": 2,
+           "rows": [
+            {
+             "kind": "a",
+             "count": 3
+            },
+            {
+             "kind": "b",
+             "count": 7
+            }
+           ]
+          }
+         }
+        ],
+        "vega_lite_fields": {
+         "use_container_width": false,
+         "theme": "streamlit",
+         "id": "",
+         "form_id": ""
+        },
+        "id": "",
+        "form_id": "",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 1724.862752,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "vega_lite_chart",
+        "element_full": {
+         "vegaLiteChart": {
+          "spec": "{\"mark\": \"bar\", \"encoding\": {\"x\": {\"field\": \"kind\", \"type\": \"nominal\"}, \"y\": {\"field\": \"count\", \"type\": \"quantitative\"}}, \"autosize\": {\"type\": \"fit\", \"contains\": \"padding\"}}",
+          "data": {
+           "data": "/////wgDAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAFwCAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAA0AgAABAAAACUCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAia2luZCIsICJmaWVsZF9uYW1lIjogImtpbmQiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJjb3VudCIsICJmaWVsZF9uYW1lIjogImNvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAACAAAAUAAAAAQAAADI////AAABAhAAAAAgAAAABAAAAAAAAAAFAAAAY291bnQAAAAIAAwACAAHAAgAAAAAAAABQAAAABAAFAAIAAYABwAMAAAAEAAQAAAAAAABFBAAAAAcAAAABAAAAAAAAAAEAAAAa2luZAAAAAAEAAQABAAAAP/////IAAAAFAAAAAAAAAAMABYABgAFAAgADAAMAAAAAAMEABgAAAAwAAAAAAAAAAAACgAYAAwABAAIAAoAAABsAAAAEAAAAAIAAAAAAAAAAAAAAAUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYAAAAAAAAABgAAAAAAAAAAgAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAQAAAAAAAAAAAAAAACAAAAAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAgAAAAAAAABhYgAAAAAAAAMAAAAAAAAABwAAAAAAAAD/////AAAAAA=="
+          },
+          "theme": "streamlit"
+         },
+         "heightConfig": {
+          "useContent": true
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "vega_lite_spec_raw": "{\"mark\": \"bar\", \"encoding\": {\"x\": {\"field\": \"kind\", \"type\": \"nominal\"}, \"y\": {\"field\": \"count\", \"type\": \"quantitative\"}}, \"autosize\": {\"type\": \"fit\", \"contains\": \"padding\"}}",
+        "vega_lite_spec": {
+         "mark": "bar",
+         "encoding": {
+          "x": {
+           "field": "kind",
+           "type": "nominal"
+          },
+          "y": {
+           "field": "count",
+           "type": "quantitative"
+          }
+         },
+         "autosize": {
+          "type": "fit",
+          "contains": "padding"
+         }
+        },
+        "vega_lite_datasets": [],
+        "vega_lite_fields": {
+         "use_container_width": false,
+         "theme": "streamlit",
+         "id": "",
+         "form_id": ""
+        },
+        "arrow": {
+         "bytes": 1048,
+         "sha256": "8aa3eb8199744b79991a3a4ff3a3e43cea064ede2c7bf53d92d0cfd36960329a",
+         "base64": "/////wgDAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAFwCAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAA0AgAABAAAACUCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAia2luZCIsICJmaWVsZF9uYW1lIjogImtpbmQiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJjb3VudCIsICJmaWVsZF9uYW1lIjogImNvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAACAAAAUAAAAAQAAADI////AAABAhAAAAAgAAAABAAAAAAAAAAFAAAAY291bnQAAAAIAAwACAAHAAgAAAAAAAABQAAAABAAFAAIAAYABwAMAAAAEAAQAAAAAAABFBAAAAAcAAAABAAAAAAAAAAEAAAAa2luZAAAAAAEAAQABAAAAP/////IAAAAFAAAAAAAAAAMABYABgAFAAgADAAMAAAAAAMEABgAAAAwAAAAAAAAAAAACgAYAAwABAAIAAoAAABsAAAAEAAAAAIAAAAAAAAAAAAAAAUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYAAAAAAAAABgAAAAAAAAAAgAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAQAAAAAAAAAAAAAAACAAAAAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAgAAAAAAAABhYgAAAAAAAAMAAAAAAAAABwAAAAAAAAD/////AAAAAA==",
+         "schema": "kind: large_string\ncount: int64\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 485",
+         "columns": [
+          "kind",
+          "count"
+         ],
+         "row_count": 2,
+         "rows": [
+          {
+           "kind": "a",
+           "count": 3
+          },
+          {
+           "kind": "b",
+           "count": 7
+          }
+         ]
+        },
+        "id": "",
+        "form_id": "",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 1724.862902,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "plotly_chart",
+        "element_full": {
+         "plotlyChart": {
+          "theme": "streamlit",
+          "id": "$$ID-26cf839c192a52c8eb8ba6e60ee04da9-None",
+          "spec": "{\"data\":[{\"x\":[\"a\",\"b\"],\"y\":[3,7],\"type\":\"bar\"}],\"layout\":{\"template\":{\"data\":{\"candlestick\":[{\"decreasing\":{\"line\":{\"color\":\"#000033\"}},\"increasing\":{\"line\":{\"color\":\"#000032\"}},\"type\":\"candlestick\"}],\"contourcarpet\":[{\"colorscale\":[[0.0,\"#000011\"],[0.1111111111111111,\"#000012\"],[0.2222222222222222,\"#000013\"],[0.3333333333333333,\"#000014\"],[0.4444444444444444,\"#000015\"],[0.5555555555555556,\"#000016\"],[0.6666666666666666,\"#000017\"],[0.7777777777777778,\"#000018\"],[0.8888888888888888,\"#000019\"],[1.0,\"#000020\"]],\"type\":\"contourcarpet\"}],\"contour\":[{\"colorscale\":[[0.0,\"#000011\"],[0.1111111111111111,\"#000012\"],[0.2222222222222222,\"#000013\"],[0.3333333333333333,\"#000014\"],[0.4444444444444444,\"#000015\"],[0.5555555555555556,\"#000016\"],[0.6666666666666666,\"#000017\"],[0.7777777777777778,\"#000018\"],[0.8888888888888888,\"#000019\"],[1.0,\"#000020\"]],\"type\":\"contour\"}],\"heatmap\":[{\"colorscale\":[[0.0,\"#000011\"],[0.1111111111111111,\"#000012\"],[0.2222222222222222,\"#000013\"],[0.3333333333333333,\"#000014\"],[0.4444444444444444,\"#000015\"],[0.5555555555555556,\"#000016\"],[0.6666666666666666,\"#000017\"],[0.7777777777777778,\"#000018\"],[0.8888888888888888,\"#000019\"],[1.0,\"#000020\"]],\"type\":\"heatmap\"}],\"histogram2d\":[{\"colorscale\":[[0.0,\"#000011\"],[0.1111111111111111,\"#000012\"],[0.2222222222222222,\"#000013\"],[0.3333333333333333,\"#000014\"],[0.4444444444444444,\"#000015\"],[0.5555555555555556,\"#000016\"],[0.6666666666666666,\"#000017\"],[0.7777777777777778,\"#000018\"],[0.8888888888888888,\"#000019\"],[1.0,\"#000020\"]],\"type\":\"histogram2d\"}],\"icicle\":[{\"textfont\":{\"color\":\"white\"},\"type\":\"icicle\"}],\"sankey\":[{\"textfont\":{\"color\":\"#000036\"},\"type\":\"sankey\"}],\"scatter\":[{\"marker\":{\"line\":{\"width\":0}},\"type\":\"scatter\"}],\"table\":[{\"cells\":{\"fill\":{\"color\":\"#000038\"},\"font\":{\"color\":\"#000037\"},\"line\":{\"color\":\"#000039\"}},\"header\":{\"fill\":{\"color\":\"#000040\"},\"font\":{\"color\":\"#000036\"},\"line\":{\"color\":\"#000039\"}},\"type\":\"table\"}],\"waterfall\":[{\"connector\":{\"line\":{\"color\":\"#000036\",\"width\":2}},\"decreasing\":{\"marker\":{\"color\":\"#000033\"}},\"increasing\":{\"marker\":{\"color\":\"#000032\"}},\"totals\":{\"marker\":{\"color\":\"#000034\"}},\"type\":\"waterfall\"}]},\"layout\":{\"coloraxis\":{\"colorscale\":[[0.0,\"#000011\"],[0.1111111111111111,\"#000012\"],[0.2222222222222222,\"#000013\"],[0.3333333333333333,\"#000014\"],[0.4444444444444444,\"#000015\"],[0.5555555555555556,\"#000016\"],[0.6666666666666666,\"#000017\"],[0.7777777777777778,\"#000018\"],[0.8888888888888888,\"#000019\"],[1.0,\"#000020\"]]},\"colorscale\":{\"diverging\":[[0.0,\"#000021\"],[0.1111111111111111,\"#000022\"],[0.2222222222222222,\"#000023\"],[0.3333333333333333,\"#000024\"],[0.4444444444444444,\"#000025\"],[0.5555555555555556,\"#000026\"],[0.6666666666666666,\"#000027\"],[0.7777777777777778,\"#000028\"],[0.8888888888888888,\"#000029\"],[1.0,\"#000030\"]],\"sequential\":[[0.0,\"#000011\"],[0.1111111111111111,\"#000012\"],[0.2222222222222222,\"#000013\"],[0.3333333333333333,\"#000014\"],[0.4444444444444444,\"#000015\"],[0.5555555555555556,\"#000016\"],[0.6666666666666666,\"#000017\"],[0.7777777777777778,\"#000018\"],[0.8888888888888888,\"#000019\"],[1.0,\"#000020\"]],\"sequentialminus\":[[0.0,\"#000011\"],[0.1111111111111111,\"#000012\"],[0.2222222222222222,\"#000013\"],[0.3333333333333333,\"#000014\"],[0.4444444444444444,\"#000015\"],[0.5555555555555556,\"#000016\"],[0.6666666666666666,\"#000017\"],[0.7777777777777778,\"#000018\"],[0.8888888888888888,\"#000019\"],[1.0,\"#000020\"]]},\"colorway\":[\"#000001\",\"#000002\",\"#000003\",\"#000004\",\"#000005\",\"#000006\",\"#000007\",\"#000008\",\"#000009\",\"#000010\"]}}}}",
+          "config": "{}"
+         },
+         "heightConfig": {
+          "pixelHeight": 450
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "id": "$$ID-26cf839c192a52c8eb8ba6e60ee04da9-None",
+        "form_id": "",
+        "path": [
+         0,
+         2
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 1724.917557,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "deck_gl_json_chart",
+        "element_full": {
+         "deckGlJsonChart": {
+          "json": "{\n  \"initialViewState\": {\n    \"latitude\": 0.0,\n    \"longitude\": 0.0,\n    \"zoom\": 1\n  },\n  \"layers\": [\n    {\n      \"@@type\": \"ScatterplotLayer\",\n      \"data\": [\n        {\n          \"position\": [\n            0.0,\n            0.0\n          ],\n          \"size\": 4\n        }\n      ],\n      \"getColor\": [\n        255,\n        0,\n        0\n      ],\n      \"getRadius\": 100,\n      \"id\": \"6fd80dc0-c470-4393-a636-ab600b338209\"\n    }\n  ],\n  \"mapProvider\": \"carto\",\n  \"mapStyle\": \"https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json\",\n  \"views\": [\n    {\n      \"@@type\": \"MapView\",\n      \"controller\": true\n    }\n  ]\n}"
+         },
+         "heightConfig": {
+          "pixelHeight": 500
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "deck_gl_json": {
+         "initialViewState": {
+          "latitude": 0.0,
+          "longitude": 0.0,
+          "zoom": 1
+         },
+         "layers": [
+          {
+           "@@type": "ScatterplotLayer",
+           "data": [
+            {
+             "position": [
+              0.0,
+              0.0
+             ],
+             "size": 4
+            }
+           ],
+           "getColor": [
+            255,
+            0,
+            0
+           ],
+           "getRadius": 100,
+           "id": "6fd80dc0-c470-4393-a636-ab600b338209"
+          }
+         ],
+         "mapProvider": "carto",
+         "mapStyle": "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
+         "views": [
+          {
+           "@@type": "MapView",
+           "controller": true
+          }
+         ]
+        },
+        "deck_gl_fields": {
+         "id": "",
+         "tooltip": "",
+         "mapbox_token": "",
+         "selection_mode": [],
+         "form_id": "",
+         "alt": ""
+        },
+        "id": "",
+        "form_id": "",
+        "path": [
+         0,
+         3
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 1724.920578,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "graphviz_chart",
+        "element_full": {
+         "graphvizChart": {
+          "spec": "digraph { a -> b }",
+          "elementId": "342a5ac24f2b29e74222b5f39ab31d99",
+          "engine": "dot"
+         },
+         "heightConfig": {
+          "useContent": true
+         },
+         "widthConfig": {
+          "useContent": true
+         }
+        },
+        "path": [
+         0,
+         4
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 1724.923103,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "element_full": {
+         "markdown": {
+          "body": "````mermaid\ngraph LR\n    A[Start] --> B{Decision}\n````",
+          "elementType": "NATIVE",
+          "wrap": true
+         },
+         "widthConfig": {
+          "useStretch": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "````mermaid\ngraph LR\n    A[Start] --> B{Decision}\n````",
+        "path": [
+         0,
+         5
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 1724.923453,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "echarts_chart",
+        "element_full": {
+         "heightConfig": {
+          "pixelHeight": 350
+         },
+         "widthConfig": {
+          "useStretch": true
+         },
+         "echartsChart": {
+          "spec": "{\"xAxis\":{\"type\":\"category\",\"data\":[\"a\",\"b\"]},\"yAxis\":{\"type\":\"value\"},\"series\":[{\"type\":\"bar\",\"data\":[3,7]}]}",
+          "theme": "streamlit"
+         }
+        },
+        "id": "",
+        "path": [
+         0,
+         6
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 1724.923777,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 1724.923935,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "http": [],
+    "dom": {
+     "charts": 2,
+     "plotly": 1,
+     "deck": 0,
+     "graphviz": 1,
+     "mermaid": 0,
+     "echarts": 0,
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "01-load.png",
+     "sha256": "ed37736b1e761a2420069bc1d01c2096a1f9943b00881ee41da1ce661f8793cc"
+    }
+   }
+  ],
+  "ipc_dir": "D:\\dlab\\streamlit-rust\\target\\chartlibs-python"
+ },
+ "counts": {
+  "expected": 7,
+  "executed": 7,
+  "asserted": 7
+ },
+ "failures": []
+}

@@ -89,19 +89,19 @@
     "redirect_aliases_not_counted": 2,
     "implementation_status_counts": {
       "not_applicable": 54,
-      "implemented": 95,
-      "absent": 33
+      "implemented": 102,
+      "absent": 26
     },
     "compatibility_status_counts": {
       "not_applicable": 54,
-      "partial": 95,
-      "unverified": 33
+      "partial": 102,
+      "unverified": 26
     },
     "unique_feature_ids": 182,
     "unique_official_urls": 182,
     "captured_sources_valid": 218,
     "captured_sources_total": 218,
-    "python_browser_trace_links": 95
+    "python_browser_trace_links": 102
   },
   "vendor_migration": {
     "status": "verified",
@@ -1179,13 +1179,29 @@
       "category": "PAGE ELEMENTS/Chart elements",
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/charts/st.altair_chart",
-      "rust_source_path": null,
-      "implementation_status": "absent",
-      "compatibility_status": "unverified",
+      "rust_source_path": "streamlit/src/elements/charts.rs",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "247186c21d52b11d733fbe9cdd9d249cc240a00d71ca5ace93d2cb1405bf0340",
-        "python_browser_trace": null
-      }
+        "python_browser_trace": "tests/reference/reference-browser/chartlibs/trace-chartlibs.json",
+        "rust_source": "streamlit/src/elements/charts.rs",
+        "rust_api_test": "streamlit/tests/runtime/chartlibs.rs",
+        "rust_wire_observation": "tests/browser/rust-chartlibs/trace-chartlibs.json",
+        "official_frontend_browser_e2e": "tests/browser/rust-chartlibs/trace-chartlibs.json",
+        "capture_entry": "tests/browser/chartlibs_capture.py",
+        "chartlibs_contract": "tests/browser/chartlibs_contract.py",
+        "contract_guards": "tests/reference/test_chartlibs_contract.py",
+        "driven_fixture": "tests/reference/chartlibs_app.py",
+        "driven_example": "streamlit/examples/chartlibs.rs"
+      },
+      "rust_plan": "st.altair_chart(spec, data) streams a vega_lite_chart element carrying the dataset-name indirection spec (the caller's keys, then the v5.20.1 schema URL and the fit autosize appended; theme streamlit) with the chart's arrow dataset named by the md5 of its IPC bytes. The chart-building library is Python-only; the Rust surface takes the transformed spec plus data.",
+      "compatibility_scope": "The journey-chartlibs-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome across the load stage; the published replays assert 7/7 checks per side, covering every chart element's full wire (spec strings, layout configs, themes and heights; arrow datasets compared logically; $$ID digests, content-addressed dataset names and pydeck's per-run layer UUIDs masked as side-specific) plus the settled DOM chart counts.",
+      "limitations": [
+        "Coverage is the journey-chartlibs-v1 chain: one measured page rendering all seven library-chart surfaces at their defaults across the load stage. The chart-building libraries (altair, plotly, pydeck, graphviz) are Python-only; the Rust surfaces take the final payloads the reference produced.",
+        "The Rust surface requires the caller's spec WITHOUT the dataset indirection/schema/autosize (those are appended exactly like the reference); building a chart object from data transformations is out of scope. Selection modes, alt and non-default themes/heights are unobserved.",
+        "fixture SHA256 439036d2e8f9096f99cc7813febb07658d7070fd4275625f58514d6c5400560e; example SHA256 6c27e9192c4097160b233c9fc034e4711726c6dc315827392b2e01528c93683b."
+      ]
     },
     {
       "feature_id": "st.area_chart",
@@ -1249,26 +1265,58 @@
       "category": "PAGE ELEMENTS/Chart elements",
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/charts/st.echarts_chart",
-      "rust_source_path": null,
-      "implementation_status": "absent",
-      "compatibility_status": "unverified",
+      "rust_source_path": "streamlit/src/elements/charts.rs",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "8c3376ebf35e60151c4baf65fba14626c9f17c215703426a9fb076d02037b9e0",
-        "python_browser_trace": null
-      }
+        "python_browser_trace": "tests/reference/reference-browser/chartlibs/trace-chartlibs.json",
+        "rust_source": "streamlit/src/elements/charts.rs",
+        "rust_api_test": "streamlit/tests/runtime/chartlibs.rs",
+        "rust_wire_observation": "tests/browser/rust-chartlibs/trace-chartlibs.json",
+        "official_frontend_browser_e2e": "tests/browser/rust-chartlibs/trace-chartlibs.json",
+        "capture_entry": "tests/browser/chartlibs_capture.py",
+        "chartlibs_contract": "tests/browser/chartlibs_contract.py",
+        "contract_guards": "tests/reference/test_chartlibs_contract.py",
+        "driven_fixture": "tests/reference/chartlibs_app.py",
+        "driven_example": "streamlit/examples/chartlibs.rs"
+      },
+      "rust_plan": "st.echarts_chart(option) streams an echarts_chart element with the option object serialized with the reference's compact JSON separators, theme streamlit and the 350px default height.",
+      "compatibility_scope": "The journey-chartlibs-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome across the load stage; the published replays assert 7/7 checks per side, covering every chart element's full wire (spec strings, layout configs, themes and heights; arrow datasets compared logically; $$ID digests, content-addressed dataset names and pydeck's per-run layer UUIDs masked as side-specific) plus the settled DOM chart counts.",
+      "limitations": [
+        "Coverage is the journey-chartlibs-v1 chain: one measured page rendering all seven library-chart surfaces at their defaults across the load stage. The chart-building libraries (altair, plotly, pydeck, graphviz) are Python-only; the Rust surfaces take the final payloads the reference produced.",
+        "Only the canvas default renderer shape is observed; the svg renderer, theme overrides and explicit sizing are unobserved.",
+        "fixture SHA256 439036d2e8f9096f99cc7813febb07658d7070fd4275625f58514d6c5400560e; example SHA256 6c27e9192c4097160b233c9fc034e4711726c6dc315827392b2e01528c93683b."
+      ]
     },
     {
       "feature_id": "st.graphviz_chart",
       "category": "PAGE ELEMENTS/Chart elements",
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/charts/st.graphviz_chart",
-      "rust_source_path": null,
-      "implementation_status": "absent",
-      "compatibility_status": "unverified",
+      "rust_source_path": "streamlit/src/elements/charts.rs",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "3e8bbc5b119fd09bd70902c4d567b58f41b4d86361f635f2f3ebace8293b609f",
-        "python_browser_trace": null
-      }
+        "python_browser_trace": "tests/reference/reference-browser/chartlibs/trace-chartlibs.json",
+        "rust_source": "streamlit/src/elements/charts.rs",
+        "rust_api_test": "streamlit/tests/runtime/chartlibs.rs",
+        "rust_wire_observation": "tests/browser/rust-chartlibs/trace-chartlibs.json",
+        "official_frontend_browser_e2e": "tests/browser/rust-chartlibs/trace-chartlibs.json",
+        "capture_entry": "tests/browser/chartlibs_capture.py",
+        "chartlibs_contract": "tests/browser/chartlibs_contract.py",
+        "contract_guards": "tests/reference/test_chartlibs_contract.py",
+        "driven_fixture": "tests/reference/chartlibs_app.py",
+        "driven_example": "streamlit/examples/chartlibs.rs"
+      },
+      "rust_plan": "st.graphviz_chart(spec) streams a graphviz_chart element with the DOT source, the dot engine, content width and content height; the element id is the reference's calc_hash (BLAKE2b-16) of the delta-path repr.",
+      "compatibility_scope": "The journey-chartlibs-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome across the load stage; the published replays assert 7/7 checks per side, covering every chart element's full wire (spec strings, layout configs, themes and heights; arrow datasets compared logically; $$ID digests, content-addressed dataset names and pydeck's per-run layer UUIDs masked as side-specific) plus the settled DOM chart counts.",
+      "limitations": [
+        "Coverage is the journey-chartlibs-v1 chain: one measured page rendering all seven library-chart surfaces at their defaults across the load stage. The chart-building libraries (altair, plotly, pydeck, graphviz) are Python-only; the Rust surfaces take the final payloads the reference produced.",
+        "Only the dot engine is observed; neato/other engines, alt and explicit sizing are unobserved.",
+        "fixture SHA256 439036d2e8f9096f99cc7813febb07658d7070fd4275625f58514d6c5400560e; example SHA256 6c27e9192c4097160b233c9fc034e4711726c6dc315827392b2e01528c93683b."
+      ]
     },
     {
       "feature_id": "st.line_chart",
@@ -1342,39 +1390,87 @@
       "category": "PAGE ELEMENTS/Chart elements",
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/charts/st.mermaid_chart",
-      "rust_source_path": null,
-      "implementation_status": "absent",
-      "compatibility_status": "unverified",
+      "rust_source_path": "streamlit/src/elements/charts.rs",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "ccde1516bb5090319d7199763337bd925d96671b0ba68a051c5988a9722fdcd5",
-        "python_browser_trace": null
-      }
+        "python_browser_trace": "tests/reference/reference-browser/chartlibs/trace-chartlibs.json",
+        "rust_source": "streamlit/src/elements/charts.rs",
+        "rust_api_test": "streamlit/tests/runtime/chartlibs.rs",
+        "rust_wire_observation": "tests/browser/rust-chartlibs/trace-chartlibs.json",
+        "official_frontend_browser_e2e": "tests/browser/rust-chartlibs/trace-chartlibs.json",
+        "capture_entry": "tests/browser/chartlibs_capture.py",
+        "chartlibs_contract": "tests/browser/chartlibs_contract.py",
+        "contract_guards": "tests/reference/test_chartlibs_contract.py",
+        "driven_fixture": "tests/reference/chartlibs_app.py",
+        "driven_example": "streamlit/examples/chartlibs.rs"
+      },
+      "rust_plan": "st.mermaid_chart(body) renders the diagram as a fenced markdown block — the fence is one backtick longer than the longest run in the body (four minimum) — with stretch width; no dedicated element exists on the wire.",
+      "compatibility_scope": "The journey-chartlibs-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome across the load stage; the published replays assert 7/7 checks per side, covering every chart element's full wire (spec strings, layout configs, themes and heights; arrow datasets compared logically; $$ID digests, content-addressed dataset names and pydeck's per-run layer UUIDs masked as side-specific) plus the settled DOM chart counts.",
+      "limitations": [
+        "Coverage is the journey-chartlibs-v1 chain: one measured page rendering all seven library-chart surfaces at their defaults across the load stage. The chart-building libraries (altair, plotly, pydeck, graphviz) are Python-only; the Rust surfaces take the final payloads the reference produced.",
+        "Only the fenced-markdown wire is observed (the reference has no mermaid element); the alt marker, custom width and non-flowchart diagram types are unobserved.",
+        "fixture SHA256 439036d2e8f9096f99cc7813febb07658d7070fd4275625f58514d6c5400560e; example SHA256 6c27e9192c4097160b233c9fc034e4711726c6dc315827392b2e01528c93683b."
+      ]
     },
     {
       "feature_id": "st.plotly_chart",
       "category": "PAGE ELEMENTS/Chart elements",
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/charts/st.plotly_chart",
-      "rust_source_path": null,
-      "implementation_status": "absent",
-      "compatibility_status": "unverified",
+      "rust_source_path": "streamlit/src/elements/charts.rs",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "d9430fc217f0fed6d929f3a230a328eef2b130e8be461a83594b2e7ed6d5a1d9",
-        "python_browser_trace": null
-      }
+        "python_browser_trace": "tests/reference/reference-browser/chartlibs/trace-chartlibs.json",
+        "rust_source": "streamlit/src/elements/charts.rs",
+        "rust_api_test": "streamlit/tests/runtime/chartlibs.rs",
+        "rust_wire_observation": "tests/browser/rust-chartlibs/trace-chartlibs.json",
+        "official_frontend_browser_e2e": "tests/browser/rust-chartlibs/trace-chartlibs.json",
+        "capture_entry": "tests/browser/chartlibs_capture.py",
+        "chartlibs_contract": "tests/browser/chartlibs_contract.py",
+        "contract_guards": "tests/reference/test_chartlibs_contract.py",
+        "driven_fixture": "tests/reference/chartlibs_app.py",
+        "driven_example": "streamlit/examples/chartlibs.rs"
+      },
+      "rust_plan": "st.plotly_chart(spec) streams a plotly_chart element with the figure JSON as produced by plotly's to_json, theme streamlit, config \"{}\" and the 450px default height. Plotly itself is Python-only; the Rust surface takes the serialized figure.",
+      "compatibility_scope": "The journey-chartlibs-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome across the load stage; the published replays assert 7/7 checks per side, covering every chart element's full wire (spec strings, layout configs, themes and heights; arrow datasets compared logically; $$ID digests, content-addressed dataset names and pydeck's per-run layer UUIDs masked as side-specific) plus the settled DOM chart counts.",
+      "limitations": [
+        "Coverage is the journey-chartlibs-v1 chain: one measured page rendering all seven library-chart surfaces at their defaults across the load stage. The chart-building libraries (altair, plotly, pydeck, graphviz) are Python-only; the Rust surfaces take the final payloads the reference produced.",
+        "The Rust surface takes the serialized figure; plotly figure construction is out of scope. Selection modes, config overrides and non-default themes/heights are unobserved.",
+        "fixture SHA256 439036d2e8f9096f99cc7813febb07658d7070fd4275625f58514d6c5400560e; example SHA256 6c27e9192c4097160b233c9fc034e4711726c6dc315827392b2e01528c93683b."
+      ]
     },
     {
       "feature_id": "st.pydeck_chart",
       "category": "PAGE ELEMENTS/Chart elements",
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/charts/st.pydeck_chart",
-      "rust_source_path": null,
-      "implementation_status": "absent",
-      "compatibility_status": "unverified",
+      "rust_source_path": "streamlit/src/elements/charts.rs",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "6f0c32bb79f0f2524a41ed9729d04d8c58bc20bd406e3ee2561b1495c0f4a430",
-        "python_browser_trace": null
-      }
+        "python_browser_trace": "tests/reference/reference-browser/chartlibs/trace-chartlibs.json",
+        "rust_source": "streamlit/src/elements/charts.rs",
+        "rust_api_test": "streamlit/tests/runtime/chartlibs.rs",
+        "rust_wire_observation": "tests/browser/rust-chartlibs/trace-chartlibs.json",
+        "official_frontend_browser_e2e": "tests/browser/rust-chartlibs/trace-chartlibs.json",
+        "capture_entry": "tests/browser/chartlibs_capture.py",
+        "chartlibs_contract": "tests/browser/chartlibs_contract.py",
+        "contract_guards": "tests/reference/test_chartlibs_contract.py",
+        "driven_fixture": "tests/reference/chartlibs_app.py",
+        "driven_example": "streamlit/examples/chartlibs.rs"
+      },
+      "rust_plan": "st.pydeck_chart(json) streams a deck_gl_json_chart element with the deck JSON as produced by Deck.to_json at the 500px default height. Pydeck itself is Python-only; the Rust surface takes the serialized deck.",
+      "compatibility_scope": "The journey-chartlibs-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome across the load stage; the published replays assert 7/7 checks per side, covering every chart element's full wire (spec strings, layout configs, themes and heights; arrow datasets compared logically; $$ID digests, content-addressed dataset names and pydeck's per-run layer UUIDs masked as side-specific) plus the settled DOM chart counts.",
+      "limitations": [
+        "Coverage is the journey-chartlibs-v1 chain: one measured page rendering all seven library-chart surfaces at their defaults across the load stage. The chart-building libraries (altair, plotly, pydeck, graphviz) are Python-only; the Rust surfaces take the final payloads the reference produced.",
+        "The Rust surface takes the serialized deck; Deck construction (layers, view states, tooltips) is out of scope. The reference assigns unnamed layers a fresh UUID per run, so layer ids are masked in the contract.",
+        "fixture SHA256 439036d2e8f9096f99cc7813febb07658d7070fd4275625f58514d6c5400560e; example SHA256 6c27e9192c4097160b233c9fc034e4711726c6dc315827392b2e01528c93683b."
+      ]
     },
     {
       "feature_id": "st.pyplot",
@@ -1429,13 +1525,29 @@
       "category": "PAGE ELEMENTS/Chart elements",
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/charts/st.vega_lite_chart",
-      "rust_source_path": null,
-      "implementation_status": "absent",
-      "compatibility_status": "unverified",
+      "rust_source_path": "streamlit/src/elements/charts.rs",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "9cd8f0903929cc315863fc103d8d3eef41fe310cc95fca18acd10dd7119ce7dd",
-        "python_browser_trace": null
-      }
+        "python_browser_trace": "tests/reference/reference-browser/chartlibs/trace-chartlibs.json",
+        "rust_source": "streamlit/src/elements/charts.rs",
+        "rust_api_test": "streamlit/tests/runtime/chartlibs.rs",
+        "rust_wire_observation": "tests/browser/rust-chartlibs/trace-chartlibs.json",
+        "official_frontend_browser_e2e": "tests/browser/rust-chartlibs/trace-chartlibs.json",
+        "capture_entry": "tests/browser/chartlibs_capture.py",
+        "chartlibs_contract": "tests/browser/chartlibs_contract.py",
+        "contract_guards": "tests/reference/test_chartlibs_contract.py",
+        "driven_fixture": "tests/reference/chartlibs_app.py",
+        "driven_example": "streamlit/examples/chartlibs.rs"
+      },
+      "rust_plan": "st.vega_lite_chart(spec) streams a vega_lite_chart element whose inline data.values list is pulled out of the spec into the element's arrow data (autosize appended when absent; theme streamlit).",
+      "compatibility_scope": "The journey-chartlibs-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome across the load stage; the published replays assert 7/7 checks per side, covering every chart element's full wire (spec strings, layout configs, themes and heights; arrow datasets compared logically; $$ID digests, content-addressed dataset names and pydeck's per-run layer UUIDs masked as side-specific) plus the settled DOM chart counts.",
+      "limitations": [
+        "Coverage is the journey-chartlibs-v1 chain: one measured page rendering all seven library-chart surfaces at their defaults across the load stage. The chart-building libraries (altair, plotly, pydeck, graphviz) are Python-only; the Rust surfaces take the final payloads the reference produced.",
+        "Named spec datasets and url data stay in the spec unobserved; selection modes, alt and non-default themes/heights are unobserved.",
+        "fixture SHA256 439036d2e8f9096f99cc7813febb07658d7070fd4275625f58514d6c5400560e; example SHA256 6c27e9192c4097160b233c9fc034e4711726c6dc315827392b2e01528c93683b."
+      ]
     },
     {
       "feature_id": "st.chat_input",

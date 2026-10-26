@@ -645,11 +645,45 @@ target\pyref-venv\Scripts\python.exe tests\browser\writestream_capture.py --repl
 ```
 
 Both return 7 expected / 7 executed / 7 asserted with exit 0. Raw
-SHA256: python `91bf69ba34dac7fc644b35291dbdea820033bc6ce74b930b3ef0bcfca59ed1b5`,
-native `844cb5b92556bba1d4b0da3d4bfcaefa8df9ea59e5b076b6e4b3dc740ea47f0e`,
-under contract `36a8090ae03d62c06c19028748fe064c9c607dda4da9da79e84edb75d2e4ce08`.
+SHA256: python `d83c603efd5562690ea3112c5f074e72ab28efc23a1513afc43ba36b54a3ac77`,
+native `febc8e3b6a83d7c148533c7cd8fe6140b46edc70f48e53afffc8d4052a2b91e8`,
+under contract `61e6b54dd4b0b22cc2fabf40017c004d59ade3e860c7b055337cdccae5ce92ad`
+(the first publication's python source pin misattributed the driven fixture;
+both sides were recaptured against the corrected pin).
 The runtime regression (streamlit/tests/runtime/writestream.rs) pins the
 full markdown timeline over the production websocket.
+
+## Chart libraries (altair, vega_lite, plotly, pydeck, graphviz, mermaid, echarts)
+
+[chartlibs_capture.py](chartlibs_capture.py) is the permanent entry for the
+chart-library chain; [chartlibs_contract.py](chartlibs_contract.py) is its
+strict criterion (journey-chartlibs-v1, 7 checks) with unit tests in
+[tests/reference/test_chartlibs_contract.py](../reference/test_chartlibs_contract.py).
+The page renders all seven library-chart surfaces at their defaults; the
+load pins each element's full wire — the altair dataset-indirection spec
+with the md5-named arrow dataset, the vega_lite inline values extracted to
+arrow data, the plotly figure JSON with config "{}" at 450px, the pydeck
+JSON at 500px, the graphviz DOT with the path-hash element id, the mermaid
+fenced markdown block and the compact-separator echarts spec at 350px.
+Side-specific normalizations: arrow IPC flatbuffers compared logically,
+content-addressed dataset names, $$ID digests, and pydeck's per-run random
+layer UUIDs (the reference assigns a fresh one to every unnamed layer).
+The Rust runtime's per-batch `main_container` re-announcement at [0] is the
+documented divergence. The published chains:
+
+```powershell
+target\pyref-venv\Scripts\python.exe tests\browser\chartlibs_capture.py --replay tests\reference\reference-browser\chartlibs\trace-chartlibs.json
+target\pyref-venv\Scripts\python.exe tests\browser\chartlibs_capture.py --replay tests\browser\rust-chartlibs\trace-chartlibs.json
+```
+
+Both return 7 expected / 7 executed / 7 asserted with exit 0. Raw
+SHA256: python `16b61b16077f890c43c844729840695920fbdbee54e765352e73e1034c868ef6`,
+native `af9fa564013d284bc90c03fcefa52e3d150c1257b157ff3af4e8b96e10ec7b35`,
+under contract `3c293ca61fc71c870308c21e68cb67f9b97c6ecfc0c21190eded393c64e4d756`.
+The runtime regression (streamlit/tests/runtime/chartlibs.rs) pins the
+seven surfaces' wire shapes over the production websocket plus the
+graphviz path-hash formula.
+
 
 
 

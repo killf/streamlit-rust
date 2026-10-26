@@ -1188,6 +1188,35 @@ pub trait StreamlitApi {
     /// cursor rides the streamed body until the final flush drops it.
     fn write_stream_with_cursor<S: Into<String>>(&self, cursor: &str, chunks: impl IntoIterator<Item = S>) -> String;
 
+    /// An altair-style chart, like `st.altair_chart`: the final vega-lite
+    /// spec (without the dataset indirection, schema or autosize) plus the
+    /// chart's data. The chart-building library is Python-only; the Rust
+    /// surface takes the transformed payload.
+    fn altair_chart(&self, spec: serde_json::Value, data: &crate::data::RecordBatch);
+
+    /// A vega-lite chart, like `st.vega_lite_chart`: the spec dict; an
+    /// inline `data.values` list is extracted into the element's arrow data
+    /// exactly like the reference does.
+    fn vega_lite_chart(&self, spec: serde_json::Value);
+
+    /// A plotly chart, like `st.plotly_chart`: the figure JSON as produced
+    /// by plotly's `to_json`.
+    fn plotly_chart(&self, spec: impl Into<String>);
+
+    /// A pydeck chart, like `st.pydeck_chart`: the deck JSON as produced by
+    /// `Deck.to_json`.
+    fn pydeck_chart(&self, json: impl Into<String>);
+
+    /// A graphviz chart, like `st.graphviz_chart`: the DOT source.
+    fn graphviz_chart(&self, spec: impl Into<String>);
+
+    /// A mermaid diagram, like `st.mermaid_chart`: the diagram source,
+    /// rendered through a fenced markdown block.
+    fn mermaid_chart(&self, body: impl Into<String>);
+
+    /// An echarts chart, like `st.echarts_chart`: the option object.
+    fn echarts_chart(&self, spec: serde_json::Value);
+
     fn info<T: Into<StatusOptions>>(&self, options: T) -> Result<(), StatusError>;
 
     fn warning<T: Into<StatusOptions>>(&self, options: T) -> Result<(), StatusError>;
@@ -1669,6 +1698,36 @@ impl<C: AppendChild> StreamlitApi for C {
             slot.push(Rc::new(RefCell::new(crate::elements::markdown::MarkdownElement::new(accumulated.clone()))));
         }
         accumulated
+    }
+
+    fn altair_chart(&self, spec: serde_json::Value, data: &crate::data::RecordBatch) {
+        let Ok(arrow) = crate::data_api::chart_arrow_data(data) else { return };
+        self.push(Rc::new(RefCell::new(crate::elements::charts::altair_chart(spec, arrow))));
+    }
+
+    fn vega_lite_chart(&self, spec: serde_json::Value) {
+        let Ok(element) = crate::elements::charts::vega_lite_chart(spec, None) else { return };
+        self.push(Rc::new(RefCell::new(element)));
+    }
+
+    fn plotly_chart(&self, spec: impl Into<String>) {
+        self.push(Rc::new(RefCell::new(crate::elements::charts::plotly_chart(spec.into()))));
+    }
+
+    fn pydeck_chart(&self, json: impl Into<String>) {
+        self.push(Rc::new(RefCell::new(crate::elements::charts::pydeck_chart(json.into()))));
+    }
+
+    fn graphviz_chart(&self, spec: impl Into<String>) {
+        self.push(Rc::new(RefCell::new(crate::elements::charts::graphviz_chart(spec.into()))));
+    }
+
+    fn mermaid_chart(&self, body: impl Into<String>) {
+        self.push(Rc::new(RefCell::new(crate::elements::charts::mermaid_element(body.into(), None))));
+    }
+
+    fn echarts_chart(&self, spec: serde_json::Value) {
+        self.push(Rc::new(RefCell::new(crate::elements::charts::echarts_chart(spec))));
     }
 
     fn text<T: Into<TextOptions>>(&self, body: T) {
