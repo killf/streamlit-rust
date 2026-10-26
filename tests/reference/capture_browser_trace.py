@@ -356,6 +356,12 @@ def summarise_forward(payload: bytes) -> dict:
         out["page_config"] = MessageToDict(msg.page_config_changed)
     elif kind == "page_info_changed":
         out["page_info"] = {"query_string": msg.page_info_changed.query_string}
+    elif kind == "navigation":
+        # The whole NavigationCommand message: the pages (label, icon, url
+        # path, script hash), the position and the expanded flag.
+        from google.protobuf.json_format import MessageToDict
+
+        out["navigation"] = MessageToDict(msg.navigation)
     elif kind == "delta":
         delta = msg.delta
         dkind = delta.WhichOneof("type")
