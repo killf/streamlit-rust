@@ -725,6 +725,9 @@ WIDGET_ELEMENTS = (
     "link_button",
     "page_link",
     "download_button",
+    "color_picker",
+    "audio_input",
+    "camera_input",
 )
 
 

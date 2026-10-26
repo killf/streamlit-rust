@@ -88,18 +88,18 @@
   "unavailable_requested_pages": 7,
   "redirect_aliases_not_counted": 2,
   "implementation_status_counts": {
-   "absent": 99,
-   "implemented": 83
+   "absent": 93,
+   "implemented": 89
   },
   "compatibility_status_counts": {
-   "unverified": 99,
-   "partial": 83
+   "unverified": 93,
+   "partial": 89
   },
   "unique_feature_ids": 182,
   "unique_official_urls": 182,
   "captured_sources_valid": 218,
   "captured_sources_total": 218,
-  "python_browser_trace_links": 68
+  "python_browser_trace_links": 74
  },
  "vendor_migration": {
   "status": "verified",
@@ -1823,13 +1823,29 @@
    "category": "PAGE ELEMENTS/Input widgets",
    "scope_type": "api-reference",
    "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.audio_input",
-   "rust_source_path": null,
-   "implementation_status": "absent",
-   "compatibility_status": "unverified",
+   "rust_source_path": "streamlit/src/widget_api.rs",
+   "implementation_status": "implemented",
+   "compatibility_status": "partial",
    "evidence": {
     "official_document_sha256": "f10cce27b89dedce9269267a98ac79d168871a16a26195541e95196b1f4551e1",
-    "python_browser_trace": null
-   }
+    "python_browser_trace": "tests/reference/reference-browser/pickers/trace-pickers.json",
+    "rust_source": "streamlit/src/widget_api.rs",
+    "rust_api_test": "streamlit/tests/runtime/pickers.rs",
+    "rust_wire_observation": "tests/browser/rust-pickers/trace-pickers.json",
+    "official_frontend_browser_e2e": "tests/browser/rust-pickers/trace-pickers.json",
+    "capture_entry": "tests/browser/pickers_capture.py",
+    "pickers_contract": "tests/browser/pickers_contract.py",
+    "contract_guards": "tests/reference/test_pickers_contract.py",
+    "driven_fixture": "tests/reference/pickers_app.py",
+    "driven_example": "streamlit/examples/pickers.rs"
+   },
+   "rust_plan": "st.audio_input(label) registers a single-file uploader-state widget (Codec::Files) and streams an audio_input element with label, visibility and the 16000 Hz sample rate; the return is the recorded UploadedFile.",
+   "compatibility_scope": "The journey-pickers-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome across two measured stages (the load and two committed ArrowRight steps on the single select slider); the published replays assert 14/14 checks per side, covering every element's full wire message, the browser's widget-state reports and the settled DOM.",
+   "limitations": [
+    "Coverage is the journey-pickers-v1 chain: the pinned fixture's widget set (single and range date inputs, a time input, a color picker, single and range select sliders, an audio input and a camera input) across the load and two committed ArrowRight steps on the single select slider.",
+    "Only the element wire and the empty uploader-state echo were observed; recording, a committed upload and the returned file handle remain unobserved (the single-file uploader machinery itself is covered by the file_uploader chain).",
+    "fixture SHA256 0243f923d03c966dfe2c91f197f7ef9f631de7c397cbca55f17ebce3a6beb668; example SHA256 3112cb6e5dbc4879a73054d66f88c9aa7c3f62b3ab394cbebd72667eb9b78e3d."
+   ]
   },
   {
    "feature_id": "st.button",
@@ -1861,13 +1877,29 @@
    "category": "PAGE ELEMENTS/Input widgets",
    "scope_type": "api-reference",
    "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.camera_input",
-   "rust_source_path": null,
-   "implementation_status": "absent",
-   "compatibility_status": "unverified",
+   "rust_source_path": "streamlit/src/widget_api.rs",
+   "implementation_status": "implemented",
+   "compatibility_status": "partial",
    "evidence": {
     "official_document_sha256": "a863317b61598fce49d636df79ec41c3c195ecf471956bc08f13f4688c9fa2be",
-    "python_browser_trace": null
-   }
+    "python_browser_trace": "tests/reference/reference-browser/pickers/trace-pickers.json",
+    "rust_source": "streamlit/src/widget_api.rs",
+    "rust_api_test": "streamlit/tests/runtime/pickers.rs",
+    "rust_wire_observation": "tests/browser/rust-pickers/trace-pickers.json",
+    "official_frontend_browser_e2e": "tests/browser/rust-pickers/trace-pickers.json",
+    "capture_entry": "tests/browser/pickers_capture.py",
+    "pickers_contract": "tests/browser/pickers_contract.py",
+    "contract_guards": "tests/reference/test_pickers_contract.py",
+    "driven_fixture": "tests/reference/pickers_app.py",
+    "driven_example": "streamlit/examples/pickers.rs"
+   },
+   "rust_plan": "st.camera_input(label) registers a single-file uploader-state widget (Codec::Files) and streams a camera_input element with label and visibility; the return is the captured UploadedFile.",
+   "compatibility_scope": "The journey-pickers-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome across two measured stages (the load and two committed ArrowRight steps on the single select slider); the published replays assert 14/14 checks per side, covering every element's full wire message, the browser's widget-state reports and the settled DOM.",
+   "limitations": [
+    "Coverage is the journey-pickers-v1 chain: the pinned fixture's widget set (single and range date inputs, a time input, a color picker, single and range select sliders, an audio input and a camera input) across the load and two committed ArrowRight steps on the single select slider.",
+    "Only the element wire and the empty uploader-state echo were observed; capture flows and the returned file handle remain unobserved.",
+    "fixture SHA256 0243f923d03c966dfe2c91f197f7ef9f631de7c397cbca55f17ebce3a6beb668; example SHA256 3112cb6e5dbc4879a73054d66f88c9aa7c3f62b3ab394cbebd72667eb9b78e3d."
+   ]
   },
   {
    "feature_id": "st.checkbox",
@@ -1910,26 +1942,58 @@
    "category": "PAGE ELEMENTS/Input widgets",
    "scope_type": "api-reference",
    "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.color_picker",
-   "rust_source_path": null,
-   "implementation_status": "absent",
-   "compatibility_status": "unverified",
+   "rust_source_path": "streamlit/src/widget_api.rs",
+   "implementation_status": "implemented",
+   "compatibility_status": "partial",
    "evidence": {
     "official_document_sha256": "bb66c1af44404905301f16b52478a1f36223227041d24fac6c26e8c8e8581c0e",
-    "python_browser_trace": null
-   }
+    "python_browser_trace": "tests/reference/reference-browser/pickers/trace-pickers.json",
+    "rust_source": "streamlit/src/widget_api.rs",
+    "rust_api_test": "streamlit/tests/runtime/pickers.rs",
+    "rust_wire_observation": "tests/browser/rust-pickers/trace-pickers.json",
+    "official_frontend_browser_e2e": "tests/browser/rust-pickers/trace-pickers.json",
+    "capture_entry": "tests/browser/pickers_capture.py",
+    "pickers_contract": "tests/browser/pickers_contract.py",
+    "contract_guards": "tests/reference/test_pickers_contract.py",
+    "driven_fixture": "tests/reference/pickers_app.py",
+    "driven_example": "streamlit/examples/pickers.rs"
+   },
+   "rust_plan": "st.color_picker(label, value) registers a string widget validated as #RRGGBB and streams a color_picker element with the default hex; value/set_value ride only programmatic writes.",
+   "compatibility_scope": "The journey-pickers-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome across two measured stages (the load and two committed ArrowRight steps on the single select slider); the published replays assert 14/14 checks per side, covering every element's full wire message, the browser's widget-state reports and the settled DOM.",
+   "limitations": [
+    "Coverage is the journey-pickers-v1 chain: the pinned fixture's widget set (single and range date inputs, a time input, a color picker, single and range select sliders, an audio input and a camera input) across the load and two committed ArrowRight steps on the single select slider.",
+    "Only the default-value load shape and the state echo were observed; the picker's native color dialog is not CDP-drivable, so committed color changes, value_none and programmatic set_value remain unobserved.",
+    "fixture SHA256 0243f923d03c966dfe2c91f197f7ef9f631de7c397cbca55f17ebce3a6beb668; example SHA256 3112cb6e5dbc4879a73054d66f88c9aa7c3f62b3ab394cbebd72667eb9b78e3d."
+   ]
   },
   {
    "feature_id": "st.date_input",
    "category": "PAGE ELEMENTS/Input widgets",
    "scope_type": "api-reference",
    "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.date_input",
-   "rust_source_path": null,
-   "implementation_status": "absent",
-   "compatibility_status": "unverified",
+   "rust_source_path": "streamlit/src/widget_api.rs",
+   "implementation_status": "implemented",
+   "compatibility_status": "partial",
    "evidence": {
     "official_document_sha256": "673b18d96dff0f8c516dac93e1e6cc73b8276550ac3f66ada444fd4b3705186e",
-    "python_browser_trace": null
-   }
+    "python_browser_trace": "tests/reference/reference-browser/pickers/trace-pickers.json",
+    "rust_source": "streamlit/src/widget_api.rs",
+    "rust_api_test": "streamlit/tests/runtime/pickers.rs",
+    "rust_wire_observation": "tests/browser/rust-pickers/trace-pickers.json",
+    "official_frontend_browser_e2e": "tests/browser/rust-pickers/trace-pickers.json",
+    "capture_entry": "tests/browser/pickers_capture.py",
+    "pickers_contract": "tests/browser/pickers_contract.py",
+    "contract_guards": "tests/reference/test_pickers_contract.py",
+    "driven_fixture": "tests/reference/pickers_app.py",
+    "driven_example": "streamlit/examples/pickers.rs"
+   },
+   "rust_plan": "st.date_input(label, value) registers a DateInput{range} widget (string_array_value of ISO dates) and streams a date_input element with the ISO defaults, the ten-year min/max window anchored on the value (each range endpoint its own side), isRange for two-endpoint values and the YYYY/MM/DD display format.",
+   "compatibility_scope": "The journey-pickers-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome across two measured stages (the load and two committed ArrowRight steps on the single select slider); the published replays assert 14/14 checks per side, covering every element's full wire message, the browser's widget-state reports and the settled DOM.",
+   "limitations": [
+    "Coverage is the journey-pickers-v1 chain: the pinned fixture's widget set (single and range date inputs, a time input, a color picker, single and range select sliders, an audio input and a camera input) across the load and two committed ArrowRight steps on the single select slider.",
+    "The ten-year default window and the YYYY/MM/DD format were observed; custom min/max, other display formats, on_change/help/disabled/width and query binding are implemented but unobserved, and calendar-picker interactions (the only commit path in this frontend) were not driven.",
+    "fixture SHA256 0243f923d03c966dfe2c91f197f7ef9f631de7c397cbca55f17ebce3a6beb668; example SHA256 3112cb6e5dbc4879a73054d66f88c9aa7c3f62b3ab394cbebd72667eb9b78e3d."
+   ]
   },
   {
    "feature_id": "st.datetime_input",
@@ -2316,13 +2380,29 @@
    "category": "PAGE ELEMENTS/Input widgets",
    "scope_type": "api-reference",
    "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.select_slider",
-   "rust_source_path": null,
-   "implementation_status": "absent",
-   "compatibility_status": "unverified",
+   "rust_source_path": "streamlit/src/widget_api.rs",
+   "implementation_status": "implemented",
+   "compatibility_status": "partial",
    "evidence": {
     "official_document_sha256": "f297dc059a2806fc3ec5f1bc56493605c287e09023b027117825925569e66f5a",
-    "python_browser_trace": null
-   }
+    "python_browser_trace": "tests/reference/reference-browser/pickers/trace-pickers.json",
+    "rust_source": "streamlit/src/widget_api.rs",
+    "rust_api_test": "streamlit/tests/runtime/pickers.rs",
+    "rust_wire_observation": "tests/browser/rust-pickers/trace-pickers.json",
+    "official_frontend_browser_e2e": "tests/browser/rust-pickers/trace-pickers.json",
+    "capture_entry": "tests/browser/pickers_capture.py",
+    "pickers_contract": "tests/browser/pickers_contract.py",
+    "contract_guards": "tests/reference/test_pickers_contract.py",
+    "driven_fixture": "tests/reference/pickers_app.py",
+    "driven_example": "streamlit/examples/pickers.rs"
+   },
+   "rust_plan": "st.select_slider(label, options) streams a slider element with the SELECT_SLIDER type, the %s format, option-label indices (0..len-1, step 1, INT, the first option as the unset default) whose wire state is the selected label string(s).",
+   "compatibility_scope": "The journey-pickers-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome across two measured stages (the load and two committed ArrowRight steps on the single select slider); the published replays assert 14/14 checks per side, covering every element's full wire message, the browser's widget-state reports and the settled DOM.",
+   "limitations": [
+    "Coverage is the journey-pickers-v1 chain: the pinned fixture's widget set (single and range date inputs, a time input, a color picker, single and range select sliders, an audio input and a camera input) across the load and two committed ArrowRight steps on the single select slider.",
+    "The single slider's two committed ArrowRight steps (low -> medium -> high) were observed; the range slider's interactions, format_func, reversed ranges and required semantics remain unobserved.",
+    "fixture SHA256 0243f923d03c966dfe2c91f197f7ef9f631de7c397cbca55f17ebce3a6beb668; example SHA256 3112cb6e5dbc4879a73054d66f88c9aa7c3f62b3ab394cbebd72667eb9b78e3d."
+   ]
   },
   {
    "feature_id": "st.selectbox",
@@ -2462,13 +2542,29 @@
    "category": "PAGE ELEMENTS/Input widgets",
    "scope_type": "api-reference",
    "official_url": "https://docs.streamlit.io/develop/api-reference/widgets/st.time_input",
-   "rust_source_path": null,
-   "implementation_status": "absent",
-   "compatibility_status": "unverified",
+   "rust_source_path": "streamlit/src/widget_api.rs",
+   "implementation_status": "implemented",
+   "compatibility_status": "partial",
    "evidence": {
     "official_document_sha256": "0f6120e19257060b7fa1bcf174ba135db1efe6ed2b6294e8351e21e70be601cd",
-    "python_browser_trace": null
-   }
+    "python_browser_trace": "tests/reference/reference-browser/pickers/trace-pickers.json",
+    "rust_source": "streamlit/src/widget_api.rs",
+    "rust_api_test": "streamlit/tests/runtime/pickers.rs",
+    "rust_wire_observation": "tests/browser/rust-pickers/trace-pickers.json",
+    "official_frontend_browser_e2e": "tests/browser/rust-pickers/trace-pickers.json",
+    "capture_entry": "tests/browser/pickers_capture.py",
+    "pickers_contract": "tests/browser/pickers_contract.py",
+    "contract_guards": "tests/reference/test_pickers_contract.py",
+    "driven_fixture": "tests/reference/pickers_app.py",
+    "driven_example": "streamlit/examples/pickers.rs"
+   },
+   "rust_plan": "st.time_input(label, value) registers a TimeInput{step} widget (string_value, \"HH:MM\" for whole-minute steps and \"HH:MM:SS\" otherwise, empty string = cleared) and streams a time_input element with the default, step seconds and the 24h format.",
+   "compatibility_scope": "The journey-pickers-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome across two measured stages (the load and two committed ArrowRight steps on the single select slider); the published replays assert 14/14 checks per side, covering every element's full wire message, the browser's widget-state reports and the settled DOM.",
+   "limitations": [
+    "Coverage is the journey-pickers-v1 chain: the pinned fixture's widget set (single and range date inputs, a time input, a color picker, single and range select sliders, an audio input and a camera input) across the load and two committed ArrowRight steps on the single select slider.",
+    "The default-value load shape and the step/format wire were observed; typing never commits in this frontend (only its picker does), so committed time changes, cleared values, 12h/localized formats and custom steps remain unobserved.",
+    "fixture SHA256 0243f923d03c966dfe2c91f197f7ef9f631de7c397cbca55f17ebce3a6beb668; example SHA256 3112cb6e5dbc4879a73054d66f88c9aa7c3f62b3ab394cbebd72667eb9b78e3d."
+   ]
   },
   {
    "feature_id": "st.toggle",

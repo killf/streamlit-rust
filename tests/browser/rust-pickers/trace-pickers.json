@@ -1,0 +1,1779 @@
+{
+ "schema_version": 1,
+ "journey": "pickers-page",
+ "contract": "journey-pickers-v1",
+ "scope": "RUST SIDE",
+ "url": "http://127.0.0.1:8524/",
+ "observation": {
+  "journey": "pickers-page",
+  "contract": "journey-pickers-v1",
+  "scope": "RUST SIDE",
+  "url": "http://127.0.0.1:8524/",
+  "binary": "target\\debug\\examples\\pickers.exe",
+  "source": {
+   "file": "streamlit/examples/pickers.rs",
+   "sha256": "3112cb6e5dbc4879a73054d66f88c9aa7c3f62b3ab394cbebd72667eb9b78e3d"
+  },
+  "capture_sources": {
+   "pickers_capture.py": "105f42511b15498a1224be07ceaaf640a8abe8c792994081a370348036ea2d6b",
+   "pickers_contract.py": "1d1690148ee129a6e59272ead1c65830d43812844c0f9c12b070925d613d0210"
+  },
+  "stages": [
+   {
+    "name": "01-load",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 75641.268035,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": []
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75641.271008,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "d7396d01-f374-4b61-9380-87f53d2256df",
+        "name": "Streamlit Rust",
+        "main_script_path": "",
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "session_id": "2d896d3c-b8d0-4a6b-98aa-38b342d06ef5"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75641.272577,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75641.277838,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "main_container",
+        "block_type": "vertical",
+        "block": {
+         "vertical": {},
+         "id": "main_container"
+        },
+        "path": [
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75641.278152,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "date_input",
+        "widget": {
+         "id": "$$ID-c22a26483ff188f5f15f3f7164ffc314-start",
+         "label": "Start date",
+         "default": [
+          "2025-01-15"
+         ],
+         "min": "2015-01-15",
+         "max": "2035-01-15",
+         "labelVisibility": {},
+         "format": "YYYY/MM/DD"
+        },
+        "id": "$$ID-c22a26483ff188f5f15f3f7164ffc314-start",
+        "label": "Start date",
+        "form_id": "",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75641.278876,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "date_input",
+        "widget": {
+         "id": "$$ID-d42d18493e09b218b93fb59ebe65192a-window",
+         "label": "Window",
+         "default": [
+          "2025-01-15",
+          "2025-02-15"
+         ],
+         "min": "2015-01-15",
+         "max": "2035-02-15",
+         "isRange": true,
+         "labelVisibility": {},
+         "format": "YYYY/MM/DD"
+        },
+        "id": "$$ID-d42d18493e09b218b93fb59ebe65192a-window",
+        "label": "Window",
+        "form_id": "",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75641.278989,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "time_input",
+        "widget": {
+         "id": "$$ID-518128555714b626c6b1f57ab0ca573e-meeting",
+         "label": "Meeting",
+         "default": "14:30",
+         "labelVisibility": {},
+         "step": "900",
+         "format": "24h"
+        },
+        "id": "$$ID-518128555714b626c6b1f57ab0ca573e-meeting",
+        "label": "Meeting",
+        "form_id": "",
+        "path": [
+         0,
+         2
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75641.279274,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "color_picker",
+        "widget": {
+         "id": "$$ID-1a525c63ad705eda82090035ebe13856-accent",
+         "label": "Accent",
+         "default": "#FF5733",
+         "labelVisibility": {}
+        },
+        "id": "$$ID-1a525c63ad705eda82090035ebe13856-accent",
+        "label": "Accent",
+        "form_id": "",
+        "path": [
+         0,
+         3
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75641.279423,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "slider",
+        "element_full": {
+         "slider": {
+          "id": "$$ID-56362a689d727078d2b70dc1e38cda8c-one",
+          "label": "Pick one",
+          "format": "%s",
+          "default": [
+           0.0
+          ],
+          "max": 2.0,
+          "step": 1.0,
+          "options": [
+           "low",
+           "medium",
+           "high"
+          ],
+          "labelVisibility": {},
+          "type": "SELECT_SLIDER"
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "widget": {
+         "id": "$$ID-56362a689d727078d2b70dc1e38cda8c-one",
+         "label": "Pick one",
+         "format": "%s",
+         "default": [
+          0.0
+         ],
+         "max": 2.0,
+         "step": 1.0,
+         "options": [
+          "low",
+          "medium",
+          "high"
+         ],
+         "labelVisibility": {},
+         "type": "SELECT_SLIDER"
+        },
+        "id": "$$ID-56362a689d727078d2b70dc1e38cda8c-one",
+        "label": "Pick one",
+        "accepted_types": [
+         "2"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         4
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75641.279637,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "slider",
+        "element_full": {
+         "slider": {
+          "id": "$$ID-2b759a8a170ce1298565e1e1d7467bfc-range",
+          "label": "Pick range",
+          "format": "%s",
+          "default": [
+           1.0,
+           3.0
+          ],
+          "max": 3.0,
+          "step": 1.0,
+          "options": [
+           "a",
+           "b",
+           "c",
+           "d"
+          ],
+          "labelVisibility": {},
+          "type": "SELECT_SLIDER"
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "widget": {
+         "id": "$$ID-2b759a8a170ce1298565e1e1d7467bfc-range",
+         "label": "Pick range",
+         "format": "%s",
+         "default": [
+          1.0,
+          3.0
+         ],
+         "max": 3.0,
+         "step": 1.0,
+         "options": [
+          "a",
+          "b",
+          "c",
+          "d"
+         ],
+         "labelVisibility": {},
+         "type": "SELECT_SLIDER"
+        },
+        "id": "$$ID-2b759a8a170ce1298565e1e1d7467bfc-range",
+        "label": "Pick range",
+        "accepted_types": [
+         "2"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         5
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75641.279712,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "audio_input",
+        "widget": {
+         "id": "$$ID-509675d088ca0fdf8bd2465ccccb7761-voice",
+         "label": "Voice note",
+         "labelVisibility": {},
+         "sampleRate": 16000
+        },
+        "id": "$$ID-509675d088ca0fdf8bd2465ccccb7761-voice",
+        "label": "Voice note",
+        "form_id": "",
+        "path": [
+         0,
+         6
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75641.279833,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "camera_input",
+        "widget": {
+         "id": "$$ID-34e539b4b7cbf02b07383d4df2d6b798-shot",
+         "label": "Snapshot",
+         "labelVisibility": {}
+        },
+        "id": "$$ID-34e539b4b7cbf02b07383d4df2d6b798-shot",
+        "label": "Snapshot",
+        "form_id": "",
+        "path": [
+         0,
+         7
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75641.279938,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75641.280109,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "http": [],
+    "dom": {
+     "dateInputs": [
+      "2025-01-15",
+      "2025-01-15"
+     ],
+     "timeInputs": [
+      "14:30:00"
+     ],
+     "colorPickers": 1,
+     "sliderThumbs": [
+      "low",
+      "b",
+      "d"
+     ],
+     "audioInputs": 1,
+     "cameraInputs": 1,
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "01-load.png",
+     "sha256": "31931f417bd99bff93046d835097be75c0eddf8bf0b47de7b953def9ac138abe"
+    }
+   },
+   {
+    "name": "02-slider",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 75644.816369,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": [
+         {
+          "id": "$$ID-c22a26483ff188f5f15f3f7164ffc314-start",
+          "value_field": "string_array_value",
+          "value": {
+           "data": "['2025-01-15']"
+          },
+          "value_full": {
+           "data": [
+            "2025-01-15"
+           ]
+          }
+         },
+         {
+          "id": "$$ID-d42d18493e09b218b93fb59ebe65192a-window",
+          "value_field": "string_array_value",
+          "value": {
+           "data": "['2025-01-15', '2025-02-15']"
+          },
+          "value_full": {
+           "data": [
+            "2025-01-15",
+            "2025-02-15"
+           ]
+          }
+         },
+         {
+          "id": "$$ID-518128555714b626c6b1f57ab0ca573e-meeting",
+          "value_field": "string_value",
+          "value": "14:30"
+         },
+         {
+          "id": "$$ID-1a525c63ad705eda82090035ebe13856-accent",
+          "value_field": "string_value",
+          "value": "#FF5733"
+         },
+         {
+          "id": "$$ID-56362a689d727078d2b70dc1e38cda8c-one",
+          "value_field": "string_array_value",
+          "value": {
+           "data": "['medium']"
+          },
+          "value_full": {
+           "data": [
+            "medium"
+           ]
+          }
+         },
+         {
+          "id": "$$ID-2b759a8a170ce1298565e1e1d7467bfc-range",
+          "value_field": "string_array_value",
+          "value": {
+           "data": "['b', 'd']"
+          },
+          "value_full": {
+           "data": [
+            "b",
+            "d"
+           ]
+          }
+         },
+         {
+          "id": "$$ID-34e539b4b7cbf02b07383d4df2d6b798-shot",
+          "value_field": "file_uploader_state_value",
+          "value": {},
+          "value_full": {}
+         }
+        ],
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75644.818365,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "acd5e978-a37a-49f0-9ea0-a92cd663f6ca",
+        "name": "Streamlit Rust",
+        "main_script_path": "",
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "session_id": "2d896d3c-b8d0-4a6b-98aa-38b342d06ef5"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75644.818666,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75644.821094,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "main_container",
+        "block_type": "vertical",
+        "block": {
+         "vertical": {},
+         "id": "main_container"
+        },
+        "path": [
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75644.821206,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "date_input",
+        "widget": {
+         "id": "$$ID-c22a26483ff188f5f15f3f7164ffc314-start",
+         "label": "Start date",
+         "default": [
+          "2025-01-15"
+         ],
+         "min": "2015-01-15",
+         "max": "2035-01-15",
+         "labelVisibility": {},
+         "format": "YYYY/MM/DD"
+        },
+        "id": "$$ID-c22a26483ff188f5f15f3f7164ffc314-start",
+        "label": "Start date",
+        "form_id": "",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75644.821277,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "date_input",
+        "widget": {
+         "id": "$$ID-d42d18493e09b218b93fb59ebe65192a-window",
+         "label": "Window",
+         "default": [
+          "2025-01-15",
+          "2025-02-15"
+         ],
+         "min": "2015-01-15",
+         "max": "2035-02-15",
+         "isRange": true,
+         "labelVisibility": {},
+         "format": "YYYY/MM/DD"
+        },
+        "id": "$$ID-d42d18493e09b218b93fb59ebe65192a-window",
+        "label": "Window",
+        "form_id": "",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75644.821301,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "time_input",
+        "widget": {
+         "id": "$$ID-518128555714b626c6b1f57ab0ca573e-meeting",
+         "label": "Meeting",
+         "default": "14:30",
+         "labelVisibility": {},
+         "step": "900",
+         "format": "24h"
+        },
+        "id": "$$ID-518128555714b626c6b1f57ab0ca573e-meeting",
+        "label": "Meeting",
+        "form_id": "",
+        "path": [
+         0,
+         2
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75644.821411,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "color_picker",
+        "widget": {
+         "id": "$$ID-1a525c63ad705eda82090035ebe13856-accent",
+         "label": "Accent",
+         "default": "#FF5733",
+         "labelVisibility": {}
+        },
+        "id": "$$ID-1a525c63ad705eda82090035ebe13856-accent",
+        "label": "Accent",
+        "form_id": "",
+        "path": [
+         0,
+         3
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75644.821472,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "slider",
+        "element_full": {
+         "slider": {
+          "id": "$$ID-56362a689d727078d2b70dc1e38cda8c-one",
+          "label": "Pick one",
+          "format": "%s",
+          "default": [
+           0.0
+          ],
+          "max": 2.0,
+          "step": 1.0,
+          "options": [
+           "low",
+           "medium",
+           "high"
+          ],
+          "labelVisibility": {},
+          "type": "SELECT_SLIDER"
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "widget": {
+         "id": "$$ID-56362a689d727078d2b70dc1e38cda8c-one",
+         "label": "Pick one",
+         "format": "%s",
+         "default": [
+          0.0
+         ],
+         "max": 2.0,
+         "step": 1.0,
+         "options": [
+          "low",
+          "medium",
+          "high"
+         ],
+         "labelVisibility": {},
+         "type": "SELECT_SLIDER"
+        },
+        "id": "$$ID-56362a689d727078d2b70dc1e38cda8c-one",
+        "label": "Pick one",
+        "accepted_types": [
+         "2"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         4
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75644.821524,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "slider",
+        "element_full": {
+         "slider": {
+          "id": "$$ID-2b759a8a170ce1298565e1e1d7467bfc-range",
+          "label": "Pick range",
+          "format": "%s",
+          "default": [
+           1.0,
+           3.0
+          ],
+          "max": 3.0,
+          "step": 1.0,
+          "options": [
+           "a",
+           "b",
+           "c",
+           "d"
+          ],
+          "labelVisibility": {},
+          "type": "SELECT_SLIDER"
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "widget": {
+         "id": "$$ID-2b759a8a170ce1298565e1e1d7467bfc-range",
+         "label": "Pick range",
+         "format": "%s",
+         "default": [
+          1.0,
+          3.0
+         ],
+         "max": 3.0,
+         "step": 1.0,
+         "options": [
+          "a",
+          "b",
+          "c",
+          "d"
+         ],
+         "labelVisibility": {},
+         "type": "SELECT_SLIDER"
+        },
+        "id": "$$ID-2b759a8a170ce1298565e1e1d7467bfc-range",
+        "label": "Pick range",
+        "accepted_types": [
+         "2"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         5
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75644.821547,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "audio_input",
+        "widget": {
+         "id": "$$ID-509675d088ca0fdf8bd2465ccccb7761-voice",
+         "label": "Voice note",
+         "labelVisibility": {},
+         "sampleRate": 16000
+        },
+        "id": "$$ID-509675d088ca0fdf8bd2465ccccb7761-voice",
+        "label": "Voice note",
+        "form_id": "",
+        "path": [
+         0,
+         6
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75644.821578,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "camera_input",
+        "widget": {
+         "id": "$$ID-34e539b4b7cbf02b07383d4df2d6b798-shot",
+         "label": "Snapshot",
+         "labelVisibility": {}
+        },
+        "id": "$$ID-34e539b4b7cbf02b07383d4df2d6b798-shot",
+        "label": "Snapshot",
+        "form_id": "",
+        "path": [
+         0,
+         7
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75644.821602,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75644.82164,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "client->server",
+      "timestamp": 75645.127456,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": [
+         {
+          "id": "$$ID-c22a26483ff188f5f15f3f7164ffc314-start",
+          "value_field": "string_array_value",
+          "value": {
+           "data": "['2025-01-15']"
+          },
+          "value_full": {
+           "data": [
+            "2025-01-15"
+           ]
+          }
+         },
+         {
+          "id": "$$ID-d42d18493e09b218b93fb59ebe65192a-window",
+          "value_field": "string_array_value",
+          "value": {
+           "data": "['2025-01-15', '2025-02-15']"
+          },
+          "value_full": {
+           "data": [
+            "2025-01-15",
+            "2025-02-15"
+           ]
+          }
+         },
+         {
+          "id": "$$ID-518128555714b626c6b1f57ab0ca573e-meeting",
+          "value_field": "string_value",
+          "value": "14:30"
+         },
+         {
+          "id": "$$ID-1a525c63ad705eda82090035ebe13856-accent",
+          "value_field": "string_value",
+          "value": "#FF5733"
+         },
+         {
+          "id": "$$ID-56362a689d727078d2b70dc1e38cda8c-one",
+          "value_field": "string_array_value",
+          "value": {
+           "data": "['high']"
+          },
+          "value_full": {
+           "data": [
+            "high"
+           ]
+          }
+         },
+         {
+          "id": "$$ID-2b759a8a170ce1298565e1e1d7467bfc-range",
+          "value_field": "string_array_value",
+          "value": {
+           "data": "['b', 'd']"
+          },
+          "value_full": {
+           "data": [
+            "b",
+            "d"
+           ]
+          }
+         },
+         {
+          "id": "$$ID-34e539b4b7cbf02b07383d4df2d6b798-shot",
+          "value_field": "file_uploader_state_value",
+          "value": {},
+          "value_full": {}
+         }
+        ],
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75645.129237,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "94c541e9-4092-4859-a7b0-5f1683cd9838",
+        "name": "Streamlit Rust",
+        "main_script_path": "",
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "session_id": "2d896d3c-b8d0-4a6b-98aa-38b342d06ef5"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75645.129609,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75645.131548,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "main_container",
+        "block_type": "vertical",
+        "block": {
+         "vertical": {},
+         "id": "main_container"
+        },
+        "path": [
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75645.131977,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "date_input",
+        "widget": {
+         "id": "$$ID-c22a26483ff188f5f15f3f7164ffc314-start",
+         "label": "Start date",
+         "default": [
+          "2025-01-15"
+         ],
+         "min": "2015-01-15",
+         "max": "2035-01-15",
+         "labelVisibility": {},
+         "format": "YYYY/MM/DD"
+        },
+        "id": "$$ID-c22a26483ff188f5f15f3f7164ffc314-start",
+        "label": "Start date",
+        "form_id": "",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75645.132081,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "date_input",
+        "widget": {
+         "id": "$$ID-d42d18493e09b218b93fb59ebe65192a-window",
+         "label": "Window",
+         "default": [
+          "2025-01-15",
+          "2025-02-15"
+         ],
+         "min": "2015-01-15",
+         "max": "2035-02-15",
+         "isRange": true,
+         "labelVisibility": {},
+         "format": "YYYY/MM/DD"
+        },
+        "id": "$$ID-d42d18493e09b218b93fb59ebe65192a-window",
+        "label": "Window",
+        "form_id": "",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75645.132109,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "time_input",
+        "widget": {
+         "id": "$$ID-518128555714b626c6b1f57ab0ca573e-meeting",
+         "label": "Meeting",
+         "default": "14:30",
+         "labelVisibility": {},
+         "step": "900",
+         "format": "24h"
+        },
+        "id": "$$ID-518128555714b626c6b1f57ab0ca573e-meeting",
+        "label": "Meeting",
+        "form_id": "",
+        "path": [
+         0,
+         2
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75645.132171,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "color_picker",
+        "widget": {
+         "id": "$$ID-1a525c63ad705eda82090035ebe13856-accent",
+         "label": "Accent",
+         "default": "#FF5733",
+         "labelVisibility": {}
+        },
+        "id": "$$ID-1a525c63ad705eda82090035ebe13856-accent",
+        "label": "Accent",
+        "form_id": "",
+        "path": [
+         0,
+         3
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75645.132207,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "slider",
+        "element_full": {
+         "slider": {
+          "id": "$$ID-56362a689d727078d2b70dc1e38cda8c-one",
+          "label": "Pick one",
+          "format": "%s",
+          "default": [
+           0.0
+          ],
+          "max": 2.0,
+          "step": 1.0,
+          "options": [
+           "low",
+           "medium",
+           "high"
+          ],
+          "labelVisibility": {},
+          "type": "SELECT_SLIDER"
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "widget": {
+         "id": "$$ID-56362a689d727078d2b70dc1e38cda8c-one",
+         "label": "Pick one",
+         "format": "%s",
+         "default": [
+          0.0
+         ],
+         "max": 2.0,
+         "step": 1.0,
+         "options": [
+          "low",
+          "medium",
+          "high"
+         ],
+         "labelVisibility": {},
+         "type": "SELECT_SLIDER"
+        },
+        "id": "$$ID-56362a689d727078d2b70dc1e38cda8c-one",
+        "label": "Pick one",
+        "accepted_types": [
+         "2"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         4
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75645.132254,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "slider",
+        "element_full": {
+         "slider": {
+          "id": "$$ID-2b759a8a170ce1298565e1e1d7467bfc-range",
+          "label": "Pick range",
+          "format": "%s",
+          "default": [
+           1.0,
+           3.0
+          ],
+          "max": 3.0,
+          "step": 1.0,
+          "options": [
+           "a",
+           "b",
+           "c",
+           "d"
+          ],
+          "labelVisibility": {},
+          "type": "SELECT_SLIDER"
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "widget": {
+         "id": "$$ID-2b759a8a170ce1298565e1e1d7467bfc-range",
+         "label": "Pick range",
+         "format": "%s",
+         "default": [
+          1.0,
+          3.0
+         ],
+         "max": 3.0,
+         "step": 1.0,
+         "options": [
+          "a",
+          "b",
+          "c",
+          "d"
+         ],
+         "labelVisibility": {},
+         "type": "SELECT_SLIDER"
+        },
+        "id": "$$ID-2b759a8a170ce1298565e1e1d7467bfc-range",
+        "label": "Pick range",
+        "accepted_types": [
+         "2"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         5
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75645.1323,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "audio_input",
+        "widget": {
+         "id": "$$ID-509675d088ca0fdf8bd2465ccccb7761-voice",
+         "label": "Voice note",
+         "labelVisibility": {},
+         "sampleRate": 16000
+        },
+        "id": "$$ID-509675d088ca0fdf8bd2465ccccb7761-voice",
+        "label": "Voice note",
+        "form_id": "",
+        "path": [
+         0,
+         6
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75645.13238,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "camera_input",
+        "widget": {
+         "id": "$$ID-34e539b4b7cbf02b07383d4df2d6b798-shot",
+         "label": "Snapshot",
+         "labelVisibility": {}
+        },
+        "id": "$$ID-34e539b4b7cbf02b07383d4df2d6b798-shot",
+        "label": "Snapshot",
+        "form_id": "",
+        "path": [
+         0,
+         7
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75645.132412,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75645.132465,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "client->server",
+      "timestamp": 75645.562605,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": [
+         {
+          "id": "$$ID-c22a26483ff188f5f15f3f7164ffc314-start",
+          "value_field": "string_array_value",
+          "value": {
+           "data": "['2025-01-15']"
+          },
+          "value_full": {
+           "data": [
+            "2025-01-15"
+           ]
+          }
+         },
+         {
+          "id": "$$ID-d42d18493e09b218b93fb59ebe65192a-window",
+          "value_field": "string_array_value",
+          "value": {
+           "data": "['2025-01-15', '2025-02-15']"
+          },
+          "value_full": {
+           "data": [
+            "2025-01-15",
+            "2025-02-15"
+           ]
+          }
+         },
+         {
+          "id": "$$ID-518128555714b626c6b1f57ab0ca573e-meeting",
+          "value_field": "string_value",
+          "value": "14:30"
+         },
+         {
+          "id": "$$ID-1a525c63ad705eda82090035ebe13856-accent",
+          "value_field": "string_value",
+          "value": "#FF5733"
+         },
+         {
+          "id": "$$ID-56362a689d727078d2b70dc1e38cda8c-one",
+          "value_field": "string_array_value",
+          "value": {
+           "data": "['high']"
+          },
+          "value_full": {
+           "data": [
+            "high"
+           ]
+          }
+         },
+         {
+          "id": "$$ID-2b759a8a170ce1298565e1e1d7467bfc-range",
+          "value_field": "string_array_value",
+          "value": {
+           "data": "['b', 'd']"
+          },
+          "value_full": {
+           "data": [
+            "b",
+            "d"
+           ]
+          }
+         },
+         {
+          "id": "$$ID-34e539b4b7cbf02b07383d4df2d6b798-shot",
+          "value_field": "file_uploader_state_value",
+          "value": {},
+          "value_full": {}
+         }
+        ],
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75645.56553,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "d16e6f64-c91b-4183-b195-e0b48ddfda40",
+        "name": "Streamlit Rust",
+        "main_script_path": "",
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "session_id": "2d896d3c-b8d0-4a6b-98aa-38b342d06ef5"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75645.565825,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75645.569845,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "main_container",
+        "block_type": "vertical",
+        "block": {
+         "vertical": {},
+         "id": "main_container"
+        },
+        "path": [
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75645.569998,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "date_input",
+        "widget": {
+         "id": "$$ID-c22a26483ff188f5f15f3f7164ffc314-start",
+         "label": "Start date",
+         "default": [
+          "2025-01-15"
+         ],
+         "min": "2015-01-15",
+         "max": "2035-01-15",
+         "labelVisibility": {},
+         "format": "YYYY/MM/DD"
+        },
+        "id": "$$ID-c22a26483ff188f5f15f3f7164ffc314-start",
+        "label": "Start date",
+        "form_id": "",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75645.570055,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "date_input",
+        "widget": {
+         "id": "$$ID-d42d18493e09b218b93fb59ebe65192a-window",
+         "label": "Window",
+         "default": [
+          "2025-01-15",
+          "2025-02-15"
+         ],
+         "min": "2015-01-15",
+         "max": "2035-02-15",
+         "isRange": true,
+         "labelVisibility": {},
+         "format": "YYYY/MM/DD"
+        },
+        "id": "$$ID-d42d18493e09b218b93fb59ebe65192a-window",
+        "label": "Window",
+        "form_id": "",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75645.570085,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "time_input",
+        "widget": {
+         "id": "$$ID-518128555714b626c6b1f57ab0ca573e-meeting",
+         "label": "Meeting",
+         "default": "14:30",
+         "labelVisibility": {},
+         "step": "900",
+         "format": "24h"
+        },
+        "id": "$$ID-518128555714b626c6b1f57ab0ca573e-meeting",
+        "label": "Meeting",
+        "form_id": "",
+        "path": [
+         0,
+         2
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75645.570129,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "color_picker",
+        "widget": {
+         "id": "$$ID-1a525c63ad705eda82090035ebe13856-accent",
+         "label": "Accent",
+         "default": "#FF5733",
+         "labelVisibility": {}
+        },
+        "id": "$$ID-1a525c63ad705eda82090035ebe13856-accent",
+        "label": "Accent",
+        "form_id": "",
+        "path": [
+         0,
+         3
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75645.570157,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "slider",
+        "element_full": {
+         "slider": {
+          "id": "$$ID-56362a689d727078d2b70dc1e38cda8c-one",
+          "label": "Pick one",
+          "format": "%s",
+          "default": [
+           0.0
+          ],
+          "max": 2.0,
+          "step": 1.0,
+          "options": [
+           "low",
+           "medium",
+           "high"
+          ],
+          "labelVisibility": {},
+          "type": "SELECT_SLIDER"
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "widget": {
+         "id": "$$ID-56362a689d727078d2b70dc1e38cda8c-one",
+         "label": "Pick one",
+         "format": "%s",
+         "default": [
+          0.0
+         ],
+         "max": 2.0,
+         "step": 1.0,
+         "options": [
+          "low",
+          "medium",
+          "high"
+         ],
+         "labelVisibility": {},
+         "type": "SELECT_SLIDER"
+        },
+        "id": "$$ID-56362a689d727078d2b70dc1e38cda8c-one",
+        "label": "Pick one",
+        "accepted_types": [
+         "2"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         4
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75645.570203,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "slider",
+        "element_full": {
+         "slider": {
+          "id": "$$ID-2b759a8a170ce1298565e1e1d7467bfc-range",
+          "label": "Pick range",
+          "format": "%s",
+          "default": [
+           1.0,
+           3.0
+          ],
+          "max": 3.0,
+          "step": 1.0,
+          "options": [
+           "a",
+           "b",
+           "c",
+           "d"
+          ],
+          "labelVisibility": {},
+          "type": "SELECT_SLIDER"
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "widget": {
+         "id": "$$ID-2b759a8a170ce1298565e1e1d7467bfc-range",
+         "label": "Pick range",
+         "format": "%s",
+         "default": [
+          1.0,
+          3.0
+         ],
+         "max": 3.0,
+         "step": 1.0,
+         "options": [
+          "a",
+          "b",
+          "c",
+          "d"
+         ],
+         "labelVisibility": {},
+         "type": "SELECT_SLIDER"
+        },
+        "id": "$$ID-2b759a8a170ce1298565e1e1d7467bfc-range",
+        "label": "Pick range",
+        "accepted_types": [
+         "2"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         5
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75645.570224,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "audio_input",
+        "widget": {
+         "id": "$$ID-509675d088ca0fdf8bd2465ccccb7761-voice",
+         "label": "Voice note",
+         "labelVisibility": {},
+         "sampleRate": 16000
+        },
+        "id": "$$ID-509675d088ca0fdf8bd2465ccccb7761-voice",
+        "label": "Voice note",
+        "form_id": "",
+        "path": [
+         0,
+         6
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75645.570263,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "camera_input",
+        "widget": {
+         "id": "$$ID-34e539b4b7cbf02b07383d4df2d6b798-shot",
+         "label": "Snapshot",
+         "labelVisibility": {}
+        },
+        "id": "$$ID-34e539b4b7cbf02b07383d4df2d6b798-shot",
+        "label": "Snapshot",
+        "form_id": "",
+        "path": [
+         0,
+         7
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75645.570301,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75645.57039,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "http": [],
+    "dom": {
+     "dateInputs": [
+      "2025-01-15",
+      "2025-01-15"
+     ],
+     "timeInputs": [
+      "14:30:00"
+     ],
+     "colorPickers": 1,
+     "sliderThumbs": [
+      "high",
+      "b",
+      "d"
+     ],
+     "audioInputs": 1,
+     "cameraInputs": 1,
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "02-slider.png",
+     "sha256": "48800c72a075a1c5e1956c6a3f1918e7d0911fbb1b2356a510476754a23a975b"
+    }
+   }
+  ],
+  "ipc_dir": "D:\\dlab\\streamlit-rust\\target\\pickers-rust"
+ },
+ "counts": {
+  "expected": 14,
+  "executed": 14,
+  "asserted": 14
+ },
+ "failures": []
+}

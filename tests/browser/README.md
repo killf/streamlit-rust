@@ -531,3 +531,35 @@ under contract `0e309888ff5ae1dbd265c1402a33dcc7ce2a98f0a5b87fd099883b75ca967265
 The runtime regression (streamlit/tests/runtime/buttons.rs) pins the load
 timeline over the production websocket plus the trigger-reset and codec
 semantics.
+
+## Picker inputs (date_input, time_input, color_picker, select_slider, audio_input, camera_input)
+
+[pickers_capture.py](pickers_capture.py) is the permanent entry for the
+picker chain; [pickers_contract.py](pickers_contract.py) is its strict
+criterion (journey-pickers-v1, 14 checks) with unit tests in
+[tests/reference/test_pickers_contract.py](../reference/test_pickers_contract.py).
+The page renders the picker fixture (single and range date inputs, a time
+input, a color picker, single and range select sliders, an audio input and
+a camera input); the load pins every element's full wire message —
+date_input's ISO defaults with the ten-year min/max window (each range
+endpoint its own side) and isRange, time_input's "14:30" default with the
+900-second step and 24h format, color_picker's `#FF5733` default, the
+select sliders' SELECT_SLIDER shape (label indices, first-option default,
+range index pairs), audio_input's 16000 Hz rate — and two real ArrowRight
+steps on the single select slider pin the committed label states
+(low -> medium -> high). Widget ids are judged modulo the `$$ID` digest
+segment, the browser's widget-state order is normalized, and the Rust
+runtime's per-batch `main_container` re-announcement at [0] is the
+documented divergence. The published chains:
+
+```powershell
+target\pyref-venv\Scripts\python.exe tests\browser\pickers_capture.py --replay tests\reference\reference-browser\pickers\trace-pickers.json
+target\pyref-venv\Scripts\python.exe tests\browser\pickers_capture.py --replay tests\browser\rust-pickers\trace-pickers.json
+```
+
+Both return 14 expected / 14 executed / 14 asserted with exit 0. Raw
+SHA256: python `b9c74e189c2d88609eb21d551a70e72f09658b26b53832967b00a0de47052fa2`,
+native `03a2da98850eb69345d213839b41605d6b592788a47bc9c87317b3b747dc2302`,
+under contract `1d1690148ee129a6e59272ead1c65830d43812844c0f9c12b070925d613d0210`.
+The runtime regression (streamlit/tests/runtime/pickers.rs) pins the load
+timeline over the production websocket plus the date/time codec semantics.

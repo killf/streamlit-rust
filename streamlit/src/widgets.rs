@@ -169,6 +169,15 @@ pub(crate) enum Codec {
     /// The menu button's one-shot string trigger: the selected option's
     /// label, resetting to None after the run like button triggers.
     StringTrigger(Vec<String>),
+    /// date_input: ISO "YYYY-MM-DD" strings, one for a single date or two
+    /// for a range; the value stays a string and the emitter parses it.
+    DateInput {
+        range: bool,
+    },
+    /// time_input: "HH:MM" for whole-minute steps, "HH:MM:SS" otherwise.
+    TimeInput {
+        step: i64,
+    },
 }
 
 impl Codec {
@@ -219,6 +228,24 @@ impl Codec {
                 }
             }
             (Self::StringTrigger(options), widget_state::Value::StringTriggerValue(trigger)) => trigger.data.as_deref().and_then(|label| options.iter().position(|option| option == label).map(Value::from)),
+            (Self::DateInput { range }, widget_state::Value::StringArrayValue(array)) => {
+                let dates: Option<Vec<Value>> = array.data.iter().map(|text| chrono::NaiveDate::parse_from_str(text, "%Y-%m-%d").ok().map(|_| Value::String(text.clone()))).collect();
+                let dates = dates?;
+                if *range {
+                    (dates.len() == 2).then(|| Value::Array(dates))
+                } else if dates.len() <= 1 {
+                    Some(dates.into_iter().next().unwrap_or(Value::Null))
+                } else {
+                    None
+                }
+            }
+            (Self::TimeInput { step }, widget_state::Value::StringValue(text)) => {
+                let format = if step % 60 != 0 { "%H:%M:%S" } else { "%H:%M" };
+                if text.is_empty() {
+                    return Some(Value::Null);
+                }
+                chrono::NaiveTime::parse_from_str(text, format).ok().map(|_| Value::String(text.clone()))
+            }
             (Codec::Slider { count, integer, .. }, widget_state::Value::DoubleArrayValue(array)) if array.data.len() == *count => {
                 let values: Vec<Value> = array.data.iter().map(|value| if *integer { Value::from(*value as i64) } else { Value::from(*value) }).collect();
                 let result = if *count == 1 { values[0].clone() } else { Value::Array(values) };
@@ -255,6 +282,18 @@ impl Codec {
                 if *multi { value.as_array().is_some_and(|indices| indices.iter().all(within)) } else { value.is_null() || within(value) }
             }
             Self::StringTrigger(options) => value.is_null() || value.as_u64().is_some_and(|index| index < options.len() as u64),
+            Self::DateInput { range } => {
+                let iso = |item: &Value| item.as_str().is_some_and(|text| chrono::NaiveDate::parse_from_str(text, "%Y-%m-%d").is_ok());
+                if *range {
+                    value.as_array().is_some_and(|dates| dates.len() == 2 && dates.iter().all(iso))
+                } else {
+                    value.is_null() || iso(value)
+                }
+            }
+            Self::TimeInput { step } => {
+                let format = if step % 60 != 0 { "%H:%M:%S" } else { "%H:%M" };
+                value.is_null() || value.as_str().is_some_and(|text| chrono::NaiveTime::parse_from_str(text, format).is_ok())
+            }
             Self::Text { max_chars } => value.is_null() || value.as_str().is_some_and(|text| max_chars.is_none_or(|limit| text.chars().count() <= limit)),
             Self::Select(options) => value.is_null() || value.as_u64().is_some_and(|index| index < options.len() as u64),
             Self::SelectCreation(options) => value.is_null() || value.is_string() || value.as_u64().is_some_and(|index| index < options.len() as u64),

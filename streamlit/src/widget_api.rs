@@ -5,7 +5,7 @@ use crate::elements::form::Form;
 use crate::elements::{button::ButtonElement, input::InputElement};
 use crate::proto::{self, element};
 use crate::widgets::{Codec, WidgetSpec};
-use crate::{Streamlit, WidgetCallback, WidgetError};
+use crate::{Streamlit, UploadedFile, WidgetCallback, WidgetError};
 use serde::{Serialize, de::DeserializeOwned};
 use serde_json::Value;
 use std::{cell::RefCell, rc::Rc, sync::Arc};
@@ -1077,6 +1077,239 @@ impl<L: Into<String>, D: Into<Vec<u8>>> From<(L, D)> for DownloadButtonOptions {
     }
 }
 
+/// What a date input returns: one date, or the two endpoints of a range.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DateSelection {
+    Single(chrono::NaiveDate),
+    Range(chrono::NaiveDate, chrono::NaiveDate),
+}
+
+/// Date input options. The plain call starts at today (the reference's
+/// value=None default); `value_range` switches to the two-endpoint range.
+pub struct DateInputOptions {
+    common: InputOptions,
+    single: Option<chrono::NaiveDate>,
+    range: Option<(chrono::NaiveDate, chrono::NaiveDate)>,
+    min: Option<chrono::NaiveDate>,
+    max: Option<chrono::NaiveDate>,
+    format: String,
+}
+impl DateInputOptions {
+    pub fn new(label: impl Into<String>) -> Self {
+        Self {
+            common: InputOptions::new(label),
+            single: Some(chrono::Local::now().date_naive()),
+            range: None,
+            min: None,
+            max: None,
+            format: "YYYY/MM/DD".to_string(),
+        }
+    }
+    pub fn value(mut self, value: chrono::NaiveDate) -> Self {
+        self.single = Some(value);
+        self
+    }
+    /// The two endpoints of a range picker, in order.
+    pub fn value_range(mut self, start: chrono::NaiveDate, end: chrono::NaiveDate) -> Self {
+        self.range = Some((start, end));
+        self
+    }
+    pub fn min(mut self, min: chrono::NaiveDate) -> Self {
+        self.min = Some(min);
+        self
+    }
+    pub fn max(mut self, max: chrono::NaiveDate) -> Self {
+        self.max = Some(max);
+        self
+    }
+    /// The frontend's display format (the reference's default is
+    /// "YYYY/MM/DD"); the wire always carries ISO dates.
+    pub fn format(mut self, format: impl Into<String>) -> Self {
+        self.format = format.into();
+        self
+    }
+    common_builders!();
+}
+impl From<&str> for DateInputOptions {
+    fn from(label: &str) -> Self {
+        Self::new(label)
+    }
+}
+impl From<String> for DateInputOptions {
+    fn from(label: String) -> Self {
+        Self::new(label)
+    }
+}
+
+/// Time input options. The plain call starts at now; the step decides the
+/// wire precision (whole minutes carry "HH:MM", finer steps "HH:MM:SS").
+pub struct TimeInputOptions {
+    common: InputOptions,
+    value: Option<chrono::NaiveTime>,
+    step: i64,
+    format: &'static str,
+}
+impl TimeInputOptions {
+    pub fn new(label: impl Into<String>) -> Self {
+        Self {
+            common: InputOptions::new(label),
+            value: Some(chrono::Local::now().time()),
+            step: 900,
+            format: "24h",
+        }
+    }
+    pub fn value(mut self, value: chrono::NaiveTime) -> Self {
+        self.value = Some(value);
+        self
+    }
+    /// An unset picker: starts empty and may be cleared back to None.
+    pub fn value_none(mut self) -> Self {
+        self.value = None;
+        self
+    }
+    /// The picker's minute granularity, in seconds (900 = 15 minutes).
+    pub fn step(mut self, step: i64) -> Self {
+        self.step = step;
+        self
+    }
+    /// The clock presentation: "24h" (default), "12h" or "localized".
+    pub fn format(mut self, format: &'static str) -> Self {
+        self.format = format;
+        self
+    }
+    common_builders!();
+}
+impl From<&str> for TimeInputOptions {
+    fn from(label: &str) -> Self {
+        Self::new(label)
+    }
+}
+impl From<String> for TimeInputOptions {
+    fn from(label: String) -> Self {
+        Self::new(label)
+    }
+}
+
+/// Color picker options. The plain call starts at black; values are
+/// "#RRGGBB" strings like the reference.
+pub struct ColorPickerOptions {
+    common: InputOptions,
+    value: String,
+}
+impl ColorPickerOptions {
+    pub fn new(label: impl Into<String>) -> Self {
+        Self {
+            common: InputOptions::new(label),
+            value: "#000000".to_string(),
+        }
+    }
+    pub fn value(mut self, value: impl Into<String>) -> Self {
+        self.value = value.into();
+        self
+    }
+    common_builders!();
+}
+impl From<&str> for ColorPickerOptions {
+    fn from(label: &str) -> Self {
+        Self::new(label)
+    }
+}
+impl From<String> for ColorPickerOptions {
+    fn from(label: String) -> Self {
+        Self::new(label)
+    }
+}
+
+/// What a select slider returns: one option, or both ends of a range.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum SelectSliderValue {
+    Single(String),
+    Range(String, String),
+}
+
+/// Select slider options: option labels with one selected label, or two
+/// for a range. The wire is a slider of label indices.
+pub struct SelectSliderOptions {
+    common: InputOptions,
+    options: Vec<String>,
+    default: Vec<String>,
+}
+impl SelectSliderOptions {
+    pub fn new(label: impl Into<String>, options: impl IntoIterator<Item = impl ToString>) -> Self {
+        Self {
+            common: InputOptions::new(label),
+            options: options.into_iter().map(|option| option.to_string()).collect(),
+            default: Vec::new(),
+        }
+    }
+    /// The selected label(s); two labels make a range picker.
+    pub fn default(mut self, default: impl IntoIterator<Item = impl ToString>) -> Self {
+        self.default = default.into_iter().map(|option| option.to_string()).collect();
+        self
+    }
+    common_builders!();
+}
+impl<L: Into<String>, I: IntoIterator<Item = T>, T: ToString> From<(L, I)> for SelectSliderOptions {
+    fn from((label, options): (L, I)) -> Self {
+        Self::new(label, options)
+    }
+}
+
+/// Audio input options: a single-file recorder widget.
+pub struct AudioInputOptions {
+    common: InputOptions,
+    sample_rate: Option<i32>,
+}
+impl AudioInputOptions {
+    pub fn new(label: impl Into<String>) -> Self {
+        Self {
+            common: InputOptions::new(label),
+            sample_rate: Some(16000),
+        }
+    }
+    pub fn sample_rate(mut self, sample_rate: i32) -> Self {
+        self.sample_rate = Some(sample_rate);
+        self
+    }
+    /// Omit the declared rate from the wire.
+    pub fn no_sample_rate(mut self) -> Self {
+        self.sample_rate = None;
+        self
+    }
+    common_builders!();
+}
+impl From<&str> for AudioInputOptions {
+    fn from(label: &str) -> Self {
+        Self::new(label)
+    }
+}
+impl From<String> for AudioInputOptions {
+    fn from(label: String) -> Self {
+        Self::new(label)
+    }
+}
+
+/// Camera input options: a single-file photo widget.
+pub struct CameraInputOptions {
+    common: InputOptions,
+}
+impl CameraInputOptions {
+    pub fn new(label: impl Into<String>) -> Self {
+        Self { common: InputOptions::new(label) }
+    }
+    common_builders!();
+}
+impl From<&str> for CameraInputOptions {
+    fn from(label: &str) -> Self {
+        Self::new(label)
+    }
+}
+impl From<String> for CameraInputOptions {
+    fn from(label: String) -> Self {
+        Self::new(label)
+    }
+}
+
 /// The number types a number input returns; the wire's integer/float split
 /// follows the value's type, as measured on the reference.
 pub trait NumberValue: Copy + Serialize + DeserializeOwned + PartialOrd + 'static {
@@ -1742,6 +1975,21 @@ pub trait InputWidgets {
     fn link_button(&self, options: impl Into<LinkButtonOptions>) -> Result<bool, WidgetError>;
     /// Accept a builder or `(label, data)`. Serves `data` from the media store.
     fn download_button(&self, options: impl Into<DownloadButtonOptions>) -> Result<bool, WidgetError>;
+    /// Accept a builder or `(label, options)`; the plain call starts at
+    /// today, `value_range` makes a range picker. Returns the date(s).
+    fn date_input(&self, options: impl Into<DateInputOptions>) -> Result<DateSelection, WidgetError>;
+    /// Accept a builder or a label; the plain call starts at now.
+    /// Returns None when the picker is clearable and cleared.
+    fn time_input(&self, options: impl Into<TimeInputOptions>) -> Result<Option<chrono::NaiveTime>, WidgetError>;
+    /// Accept a builder or a label; the plain call starts at black.
+    fn color_picker(&self, options: impl Into<ColorPickerOptions>) -> Result<String, WidgetError>;
+    /// Accept a builder or `(label, options)`; two default labels make a
+    /// range picker.
+    fn select_slider(&self, options: impl Into<SelectSliderOptions>) -> Result<SelectSliderValue, WidgetError>;
+    /// Accept a builder or a label; a single-file recorder widget.
+    fn audio_input(&self, options: impl Into<AudioInputOptions>) -> Result<Option<UploadedFile>, WidgetError>;
+    /// Accept a builder or a label; a single-file photo widget.
+    fn camera_input(&self, options: impl Into<CameraInputOptions>) -> Result<Option<UploadedFile>, WidgetError>;
 
     /// The chat input (`st.chat_input`): a trigger widget routed to the
     /// bottom container that returns the submitted prompt on the run it
@@ -2574,6 +2822,376 @@ impl<C: AppendChild> InputWidgets for C {
             ..Default::default()
         }))));
         Ok(value)
+    }
+
+    fn date_input(&self, options: impl Into<DateInputOptions>) -> Result<DateSelection, WidgetError> {
+        use chrono::{Datelike, NaiveDate};
+        let options = options.into();
+        let c = options.common;
+        let form_id = form_scope(self, c.callback.is_some())?;
+        let width_config = c.width(false)?;
+        let iso = |date: NaiveDate| date.format("%Y-%m-%d").to_string();
+        // The reference's default bounds: a ten-year window around the
+        // value (the range's endpoints each anchor their own side).
+        let ten_years = |date: NaiveDate, forward: bool| {
+            let shift = if forward { 10 } else { -10 };
+            NaiveDate::from_ymd_opt(date.year() + shift, date.month(), date.day())
+                .or_else(|| NaiveDate::from_ymd_opt(date.year() + shift, date.month(), (date.day() - 1).max(1)))
+                .expect("a shifted date always exists")
+        };
+        let (range, default, default_wire, min, max) = if let Some((start, end)) = options.range {
+            if start > end {
+                return Err(WidgetError::InvalidValue("date_input range is reversed".into()));
+            }
+            let min = options.min.unwrap_or_else(|| ten_years(start, false));
+            let max = options.max.unwrap_or_else(|| ten_years(end, true));
+            if start < min || end > max {
+                return Err(WidgetError::InvalidValue("date_input value is outside min/max".into()));
+            }
+            (true, Value::Array(vec![Value::String(iso(start)), Value::String(iso(end))]), vec![iso(start), iso(end)], min, max)
+        } else {
+            let date = options.single.ok_or_else(|| WidgetError::InvalidValue("date_input needs a value".into()))?;
+            let min = options.min.unwrap_or_else(|| ten_years(date, false));
+            let max = options.max.unwrap_or_else(|| ten_years(date, true));
+            if date < min || date > max {
+                return Err(WidgetError::InvalidValue("date_input value is outside min/max".into()));
+            }
+            (false, Value::String(iso(date)), vec![iso(date)], min, max)
+        };
+        let identity = c.identity_in_form(
+            &form_id,
+            &if c.key.is_some() {
+                String::new()
+            } else {
+                format!(
+                    "{:?}:{:?}:{:?}:{}:{}",
+                    options.single.map(iso),
+                    options.range.map(|(start, end)| (iso(start), iso(end))),
+                    (options.min.map(iso), options.max.map(iso)),
+                    options.format,
+                    range
+                )
+            },
+        );
+        let (id, selected, set_value) = self.register_widget_parity(
+            WidgetSpec {
+                kind: "date_input",
+                key: c.key.as_deref(),
+                identity: &identity,
+                default,
+                codec: Codec::DateInput { range },
+                callback: c.callback,
+            },
+            |value| {
+                let parse = |text: &str| NaiveDate::parse_from_str(text, "%Y-%m-%d").map_err(|_| WidgetError::InvalidValue("date_input expects ISO dates".into()));
+                Ok(if range {
+                    let items = value.as_array().ok_or_else(|| WidgetError::InvalidValue("date_input range expects two dates".into()))?;
+                    DateSelection::Range(parse(items[0].as_str().unwrap_or_default())?, parse(items[1].as_str().unwrap_or_default())?)
+                } else {
+                    DateSelection::Single(parse(value.as_str().unwrap_or_default())?)
+                })
+            },
+        )?;
+        self.push(Rc::new(RefCell::new(InputElement(proto::Element {
+            width_config,
+            has_one_shot_effect: set_value.then_some(true),
+            r#type: Some(element::Type::DateInput(proto::DateInput {
+                id,
+                label: c.label,
+                default: default_wire,
+                min: iso(min),
+                max: iso(max),
+                is_range: range,
+                help: c.help,
+                form_id,
+                value: if set_value {
+                    match &selected {
+                        DateSelection::Single(date) => vec![iso(*date)],
+                        DateSelection::Range(start, end) => vec![iso(*start), iso(*end)],
+                    }
+                } else {
+                    Vec::new()
+                },
+                set_value,
+                disabled: c.disabled,
+                label_visibility: c.visibility.wire(),
+                format: options.format,
+                ignore_rerun: c.ignore_rerun,
+                ..Default::default()
+            })),
+            ..Default::default()
+        }))));
+        Ok(selected)
+    }
+
+    fn time_input(&self, options: impl Into<TimeInputOptions>) -> Result<Option<chrono::NaiveTime>, WidgetError> {
+        use chrono::NaiveTime;
+        let options = options.into();
+        let c = options.common;
+        let form_id = form_scope(self, c.callback.is_some())?;
+        let width_config = c.width(false)?;
+        if !(1..=82_800).contains(&options.step) {
+            return Err(WidgetError::InvalidValue("time_input step must be between one second and 23 hours".into()));
+        }
+        let wire_format = if options.step % 60 != 0 { "%H:%M:%S" } else { "%H:%M" };
+        let wire = |time: NaiveTime| time.format(wire_format).to_string();
+        let default = options.value.map(|time| Value::String(wire(time))).unwrap_or(Value::Null);
+        let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { format!("{:?}:{}:{}", options.value.map(wire), options.step, options.format) });
+        let (id, value, set_value) = self.register_widget_parity(
+            WidgetSpec {
+                kind: "time_input",
+                key: c.key.as_deref(),
+                identity: &identity,
+                default,
+                codec: Codec::TimeInput { step: options.step },
+                callback: c.callback,
+            },
+            |value| {
+                if value.is_null() {
+                    return Ok(None);
+                }
+                NaiveTime::parse_from_str(value.as_str().unwrap_or_default(), wire_format)
+                    .map(Some)
+                    .map_err(|_| WidgetError::InvalidValue("time_input expects a clock time".into()))
+            },
+        )?;
+        self.push(Rc::new(RefCell::new(InputElement(proto::Element {
+            width_config,
+            has_one_shot_effect: set_value.then_some(true),
+            r#type: Some(element::Type::TimeInput(proto::TimeInput {
+                id,
+                label: c.label,
+                default: options.value.map(wire),
+                help: c.help,
+                form_id,
+                value: set_value.then_some(value.map(wire)).flatten(),
+                set_value,
+                disabled: c.disabled,
+                label_visibility: c.visibility.wire(),
+                step: options.step,
+                format: Some(options.format.to_string()),
+                ignore_rerun: c.ignore_rerun,
+                ..Default::default()
+            })),
+            ..Default::default()
+        }))));
+        Ok(value)
+    }
+
+    fn color_picker(&self, options: impl Into<ColorPickerOptions>) -> Result<String, WidgetError> {
+        let options = options.into();
+        let c = options.common;
+        let form_id = form_scope(self, c.callback.is_some())?;
+        let width_config = c.width(true)?;
+        let valid_hex = |value: &str| {
+            let digits = value.strip_prefix('#').unwrap_or(value);
+            digits.len() == 6 && digits.bytes().all(|byte| byte.is_ascii_hexdigit())
+        };
+        if !valid_hex(&options.value) {
+            return Err(WidgetError::InvalidValue("color_picker expects a #RRGGBB value".into()));
+        }
+        let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { options.value.clone() });
+        let (id, value, set_value) = self.register_widget_parity(
+            WidgetSpec {
+                kind: "color_picker",
+                key: c.key.as_deref(),
+                identity: &identity,
+                default: Value::String(options.value.clone()),
+                codec: Codec::Text { max_chars: None },
+                callback: c.callback,
+            },
+            |value| {
+                let text = value.as_str().ok_or_else(|| WidgetError::InvalidValue("color_picker expects a string".into()))?;
+                valid_hex(text).then(|| text.to_string()).ok_or_else(|| WidgetError::InvalidValue("color_picker expects a #RRGGBB value".into()))
+            },
+        )?;
+        self.push(Rc::new(RefCell::new(InputElement(proto::Element {
+            width_config,
+            has_one_shot_effect: set_value.then_some(true),
+            r#type: Some(element::Type::ColorPicker(proto::ColorPicker {
+                id,
+                label: c.label,
+                default: options.value,
+                help: c.help,
+                form_id,
+                value: if set_value { value.clone() } else { String::new() },
+                set_value,
+                disabled: c.disabled,
+                label_visibility: c.visibility.wire(),
+                ignore_rerun: c.ignore_rerun,
+                ..Default::default()
+            })),
+            ..Default::default()
+        }))));
+        Ok(value)
+    }
+
+    fn select_slider(&self, options: impl Into<SelectSliderOptions>) -> Result<SelectSliderValue, WidgetError> {
+        let options = options.into();
+        let c = options.common;
+        let form_id = form_scope(self, c.callback.is_some())?;
+        let width_config = c.width(false)?;
+        if options.options.len() < 2 {
+            return Err(WidgetError::InvalidValue("select_slider needs at least two options".into()));
+        }
+        if options.default.len() > 2 || options.default.iter().collect::<std::collections::HashSet<_>>().len() != options.default.len() {
+            return Err(WidgetError::InvalidValue("select_slider defaults must be one or two distinct labels".into()));
+        }
+        let mut default_indices: Vec<f64> = Vec::with_capacity(options.default.len());
+        for label in &options.default {
+            let index = options.options.iter().position(|option| option == label).ok_or_else(|| WidgetError::InvalidValue("select_slider default is absent from options".into()))?;
+            default_indices.push(index as f64);
+        }
+        if default_indices.len() == 2 && default_indices[0] > default_indices[1] {
+            return Err(WidgetError::InvalidValue("select_slider range is reversed".into()));
+        }
+        let range = default_indices.len() == 2;
+        let native: Vec<Value> = options.options.iter().map(|label| Value::String(label.clone())).collect();
+        let default = if range {
+            Value::Array(vec![Value::from(default_indices[0] as u64), Value::from(default_indices[1] as u64)])
+        } else {
+            default_indices.first().map(|index| Value::from(*index as u64)).unwrap_or(Value::from(0_u64))
+        };
+        let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { format!("{:?}:{:?}", options.options, options.default) });
+        let (id, selected, set_value) = self.register_widget_parity(
+            WidgetSpec {
+                kind: "select_slider",
+                key: c.key.as_deref(),
+                identity: &identity,
+                default,
+                codec: Codec::ButtonGroup {
+                    options: options.options.iter().cloned().zip(native).collect(),
+                    multi: range,
+                },
+                callback: c.callback,
+            },
+            |value| {
+                let label_at = |index: &Value| {
+                    index
+                        .as_u64()
+                        .and_then(|index| usize::try_from(index).ok())
+                        .and_then(|index| options.options.get(index).cloned())
+                        .ok_or_else(|| WidgetError::InvalidValue("invalid select_slider index".into()))
+                };
+                Ok(if range {
+                    let items = value.as_array().ok_or_else(|| WidgetError::InvalidValue("a select-slider range expects two labels".into()))?;
+                    SelectSliderValue::Range(label_at(&items[0])?, label_at(&items[1])?)
+                } else {
+                    SelectSliderValue::Single(label_at(value)?)
+                })
+            },
+        )?;
+        let raw_values = match &selected {
+            SelectSliderValue::Single(label) => vec![label.clone()],
+            SelectSliderValue::Range(start, end) => vec![start.clone(), end.clone()],
+        };
+        self.push(Rc::new(RefCell::new(InputElement(proto::Element {
+            width_config,
+            has_one_shot_effect: set_value.then_some(true),
+            r#type: Some(element::Type::Slider(proto::Slider {
+                id,
+                label: c.label,
+                form_id,
+                format: "%s".to_string(),
+                data_type: 0,
+                default: if default_indices.is_empty() { vec![0.0] } else { default_indices },
+                min: 0.0,
+                max: (options.options.len() - 1) as f64,
+                step: 1.0,
+                value: Vec::new(),
+                set_value,
+                options: options.options.clone(),
+                help: c.help,
+                disabled: c.disabled,
+                label_visibility: c.visibility.wire(),
+                r#type: 2,
+                raw_value: if set_value { raw_values } else { Vec::new() },
+                ignore_rerun: c.ignore_rerun,
+                ..Default::default()
+            })),
+            ..Default::default()
+        }))));
+        Ok(selected)
+    }
+
+    fn audio_input(&self, options: impl Into<AudioInputOptions>) -> Result<Option<UploadedFile>, WidgetError> {
+        let options = options.into();
+        let c = options.common;
+        let form_id = form_scope(self, c.callback.is_some())?;
+        let width_config = c.width(false)?;
+        let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { format!("{:?}", options.sample_rate) });
+        let uploads = self.get_app().lock().session_state.uploads.clone();
+        let resolve_store = uploads.clone();
+        let (id, file, _) = self.register_widget_parity(
+            WidgetSpec {
+                kind: "audio_input",
+                key: c.key.as_deref(),
+                identity: &identity,
+                default: Value::Array(Vec::new()),
+                codec: Codec::Files { store: uploads, multiple: false },
+                callback: c.callback,
+            },
+            move |value| {
+                let ids: Vec<String> = serde_json::from_value(value.clone())?;
+                let store = resolve_store.lock();
+                Ok(ids.first().and_then(|id| store.get(id)))
+            },
+        )?;
+        self.push(Rc::new(RefCell::new(InputElement(proto::Element {
+            width_config,
+            r#type: Some(element::Type::AudioInput(proto::AudioInput {
+                id,
+                label: c.label,
+                help: c.help,
+                form_id,
+                disabled: c.disabled,
+                label_visibility: c.visibility.wire(),
+                sample_rate: options.sample_rate,
+                ignore_rerun: c.ignore_rerun,
+            })),
+            ..Default::default()
+        }))));
+        Ok(file)
+    }
+
+    fn camera_input(&self, options: impl Into<CameraInputOptions>) -> Result<Option<UploadedFile>, WidgetError> {
+        let options = options.into();
+        let c = options.common;
+        let form_id = form_scope(self, c.callback.is_some())?;
+        let width_config = c.width(false)?;
+        let identity = c.identity_in_form(&form_id, "");
+        let uploads = self.get_app().lock().session_state.uploads.clone();
+        let resolve_store = uploads.clone();
+        let (id, file, _) = self.register_widget_parity(
+            WidgetSpec {
+                kind: "camera_input",
+                key: c.key.as_deref(),
+                identity: &identity,
+                default: Value::Array(Vec::new()),
+                codec: Codec::Files { store: uploads, multiple: false },
+                callback: c.callback,
+            },
+            move |value| {
+                let ids: Vec<String> = serde_json::from_value(value.clone())?;
+                let store = resolve_store.lock();
+                Ok(ids.first().and_then(|id| store.get(id)))
+            },
+        )?;
+        self.push(Rc::new(RefCell::new(InputElement(proto::Element {
+            width_config,
+            r#type: Some(element::Type::CameraInput(proto::CameraInput {
+                id,
+                label: c.label,
+                help: c.help,
+                form_id,
+                disabled: c.disabled,
+                label_visibility: c.visibility.wire(),
+                ignore_rerun: c.ignore_rerun,
+                ..Default::default()
+            })),
+            ..Default::default()
+        }))));
+        Ok(file)
     }
 
     fn chat_input(&self, options: impl Into<ChatInputOptions>) -> Result<Option<String>, WidgetError> {

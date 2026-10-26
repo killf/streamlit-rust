@@ -533,8 +533,29 @@ st.page_link(PageLinkOptions::new("https://example.com").label("Example site"))?
 
 Every element rides the measured 1.66.1 wire: pills and segmented control are button groups (click modes, index defaults), the download button serves its bytes from the content-addressed `/media/<hash>.<ext>` store, and the link button defaults to the reference's `on_click="ignore"`. The [buttons example](../../streamlit/examples/buttons.rs) mirrors the reference fixture of the buttons differential chain.
 
+## Picker inputs
+
+```rust
+use chrono::{NaiveDate, NaiveTime};
+
+let start = st.date_input("Start date")?;                     // DateSelection; today by default
+let window = st.date_input(DateInputOptions::new("Window")
+    .value_range(NaiveDate::from_ymd_opt(2025, 1, 15)?, NaiveDate::from_ymd_opt(2025, 2, 15)?))?;
+
+let meeting = st.time_input("Meeting")?;                      // Option<NaiveTime>, now by default
+let accent = st.color_picker(("Accent", "#FF5733"))?;         // "#RRGGBB"
+
+let one = st.select_slider(("Pick one", ["low", "high"]))?;   // SelectSliderValue::Single
+let span = st.select_slider(("Pick range", ["a", "b", "c"]).default(["a", "c"]))?;
+
+if let Some(voice) = st.audio_input("Voice note")? { /* UploadedFile */ }
+if let Some(shot) = st.camera_input("Snapshot")? { /* UploadedFile */ }
+```
+
+Date inputs carry the ten-year min/max window the reference derives from the value (each range endpoint its own side); select sliders are label-index sliders whose wire state is the selected label(s). The [pickers example](../../streamlit/examples/pickers.rs) mirrors the reference fixture of the pickers differential chain.
+
 ## Current API
 
-Available APIs include text and layout, static status messages, the text family (`text`/`sub_header`/`latex`/`html`/`iframe` embeds and the `snow` one-shot, plus `echo` and `exception`), the display containers (`json`/`status`/`empty`/`space`/`bottom`), the chat elements (`chat_message`/`chat_input`), `button` and the button family (`toggle`/`feedback`/`pills`/`segmented_control`/`pagination`/`menu_button`/`download_button`/`link_button`/`page_link`), `selectbox` (including creation mode, filter modes and query binding), numeric and date/time `slider`, `checkbox`, the measured `form`/`form_submit_button`/`text_input` core, native session state, the layout containers (sidebar, expander, tabs, popover, dialog), `set_page_config`, `query_params`, `cache_data`/`cache_resource`, multipage navigation (`navigation`/`Page`/`switch_page`), media and chart elements, and the `st.rerun`/`st.stop` execution controls. See the [text/layout/status API](../../streamlit/src/api.rs), [text element implementations](../../streamlit/src/elements/text.rs), [layout containers](../../streamlit/src/elements/layouts.rs), [widget options](../../streamlit/src/widget_api.rs), [query params](../../streamlit/src/query_params.rs), [cache](../../streamlit/src/cache.rs), [navigation](../../streamlit/src/navigation.rs), and [session API](../../streamlit/src/session.rs).
+Available APIs include text and layout, static status messages, the text family (`text`/`sub_header`/`latex`/`html`/`iframe` embeds and the `snow` one-shot, plus `echo` and `exception`), the display containers (`json`/`status`/`empty`/`space`/`bottom`), the chat elements (`chat_message`/`chat_input`), `button` and the button family (`toggle`/`feedback`/`pills`/`segmented_control`/`pagination`/`menu_button`/`download_button`/`link_button`/`page_link`), the picker inputs (`date_input`/`time_input`/`color_picker`/`select_slider`/`audio_input`/`camera_input`), `selectbox` (including creation mode, filter modes and query binding), numeric and date/time `slider`, `checkbox`, the measured `form`/`form_submit_button`/`text_input` core, native session state, the layout containers (sidebar, expander, tabs, popover, dialog), `set_page_config`, `query_params`, `cache_data`/`cache_resource`, multipage navigation (`navigation`/`Page`/`switch_page`), media and chart elements, and the `st.rerun`/`st.stop` execution controls. See the [text/layout/status API](../../streamlit/src/api.rs), [text element implementations](../../streamlit/src/elements/text.rs), [layout containers](../../streamlit/src/elements/layouts.rs), [widget options](../../streamlit/src/widget_api.rs), [query params](../../streamlit/src/query_params.rs), [cache](../../streamlit/src/cache.rs), [navigation](../../streamlit/src/navigation.rs), and [session API](../../streamlit/src/session.rs).
 
 Upload and columnar data views currently cover the limited paths described above. General table/chart APIs, selection, complete forms/text-input behavior, persistent hidden widgets, and most other input widgets remain incomplete or absent (`st.quit` does not exist in 1.66.1; the Rust cache is session-scoped, not process-wide like Python's). Duplicate widget keys render the framework exception box as described above; other widget failures are Rust `Result` errors you handle yourself. Native session values, reruns, retained-session reconnects, synchronous callbacks, explicit widget keys and one-shot button triggers are available, without a claim of complete Streamlit compatibility.

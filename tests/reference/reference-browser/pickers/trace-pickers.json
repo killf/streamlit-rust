@@ -1,0 +1,1699 @@
+{
+ "schema_version": 1,
+ "journey": "pickers-page",
+ "contract": "journey-pickers-v1",
+ "scope": "PYTHON SIDE ONLY",
+ "url": "http://127.0.0.1:8624/",
+ "observation": {
+  "journey": "pickers-page",
+  "contract": "journey-pickers-v1",
+  "scope": "PYTHON SIDE ONLY",
+  "url": "http://127.0.0.1:8624/",
+  "binary": null,
+  "source": {
+   "file": "tests/reference/pickers_app.py",
+   "sha256": "0243f923d03c966dfe2c91f197f7ef9f631de7c397cbca55f17ebce3a6beb668"
+  },
+  "capture_sources": {
+   "pickers_capture.py": "105f42511b15498a1224be07ceaaf640a8abe8c792994081a370348036ea2d6b",
+   "pickers_contract.py": "141721e1c1159a62637da9f90c329df48f5c9168bf61ca3c8961f27548c78018"
+  },
+  "stages": [
+   {
+    "name": "01-load",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 75337.9053,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": []
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75337.919987,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "12b36380-7bf2-45f1-82ae-94646f14d9df",
+        "name": "pickers_app",
+        "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\pickers_app.py",
+        "page_script_hash": "f0a154818d2d1e86d053f616efc72530",
+        "main_script_hash": "f0a154818d2d1e86d053f616efc72530",
+        "session_id": "5891afc8-dcee-4ed6-a01a-78576151aff5"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75337.927694,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75338.279771,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "date_input",
+        "widget": {
+         "id": "$$ID-f1e5714d1ab5eeaaaa7b8093928e49f3-start",
+         "label": "Start date",
+         "default": [
+          "2025-01-15"
+         ],
+         "min": "2015-01-15",
+         "max": "2035-01-15",
+         "labelVisibility": {},
+         "format": "YYYY/MM/DD"
+        },
+        "id": "$$ID-f1e5714d1ab5eeaaaa7b8093928e49f3-start",
+        "label": "Start date",
+        "form_id": "",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75338.287091,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "date_input",
+        "widget": {
+         "id": "$$ID-b0835f57a80cb719d4bbf0e433fcc062-window",
+         "label": "Window",
+         "default": [
+          "2025-01-15",
+          "2025-02-15"
+         ],
+         "min": "2015-01-15",
+         "max": "2035-02-15",
+         "isRange": true,
+         "labelVisibility": {},
+         "format": "YYYY/MM/DD"
+        },
+        "id": "$$ID-b0835f57a80cb719d4bbf0e433fcc062-window",
+        "label": "Window",
+        "form_id": "",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75338.289671,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "time_input",
+        "widget": {
+         "id": "$$ID-767f7ca96b6d24c921ee5d3d38ac67d5-meeting",
+         "label": "Meeting",
+         "default": "14:30",
+         "labelVisibility": {},
+         "step": "900",
+         "format": "24h"
+        },
+        "id": "$$ID-767f7ca96b6d24c921ee5d3d38ac67d5-meeting",
+        "label": "Meeting",
+        "form_id": "",
+        "path": [
+         0,
+         2
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75338.290367,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "color_picker",
+        "widget": {
+         "id": "$$ID-27fb33a6f9a376341fcae45e668d4e02-accent",
+         "label": "Accent",
+         "default": "#FF5733",
+         "labelVisibility": {}
+        },
+        "id": "$$ID-27fb33a6f9a376341fcae45e668d4e02-accent",
+        "label": "Accent",
+        "form_id": "",
+        "path": [
+         0,
+         3
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75338.290649,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "slider",
+        "element_full": {
+         "slider": {
+          "id": "$$ID-4a053c776d55f4894f6b5c43c565801e-one",
+          "label": "Pick one",
+          "format": "%s",
+          "default": [
+           0.0
+          ],
+          "max": 2.0,
+          "step": 1.0,
+          "options": [
+           "low",
+           "medium",
+           "high"
+          ],
+          "labelVisibility": {},
+          "type": "SELECT_SLIDER"
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "widget": {
+         "id": "$$ID-4a053c776d55f4894f6b5c43c565801e-one",
+         "label": "Pick one",
+         "format": "%s",
+         "default": [
+          0.0
+         ],
+         "max": 2.0,
+         "step": 1.0,
+         "options": [
+          "low",
+          "medium",
+          "high"
+         ],
+         "labelVisibility": {},
+         "type": "SELECT_SLIDER"
+        },
+        "id": "$$ID-4a053c776d55f4894f6b5c43c565801e-one",
+        "label": "Pick one",
+        "accepted_types": [
+         "2"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         4
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75338.290913,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "slider",
+        "element_full": {
+         "slider": {
+          "id": "$$ID-8169d1aca1f17218514e30904060cb84-range",
+          "label": "Pick range",
+          "format": "%s",
+          "default": [
+           1.0,
+           3.0
+          ],
+          "max": 3.0,
+          "step": 1.0,
+          "options": [
+           "a",
+           "b",
+           "c",
+           "d"
+          ],
+          "labelVisibility": {},
+          "type": "SELECT_SLIDER"
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "widget": {
+         "id": "$$ID-8169d1aca1f17218514e30904060cb84-range",
+         "label": "Pick range",
+         "format": "%s",
+         "default": [
+          1.0,
+          3.0
+         ],
+         "max": 3.0,
+         "step": 1.0,
+         "options": [
+          "a",
+          "b",
+          "c",
+          "d"
+         ],
+         "labelVisibility": {},
+         "type": "SELECT_SLIDER"
+        },
+        "id": "$$ID-8169d1aca1f17218514e30904060cb84-range",
+        "label": "Pick range",
+        "accepted_types": [
+         "2"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         5
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75338.291003,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "audio_input",
+        "widget": {
+         "id": "$$ID-967161ffb1a5893de9b0b254964fce22-voice",
+         "label": "Voice note",
+         "labelVisibility": {},
+         "sampleRate": 16000
+        },
+        "id": "$$ID-967161ffb1a5893de9b0b254964fce22-voice",
+        "label": "Voice note",
+        "form_id": "",
+        "path": [
+         0,
+         6
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75338.291144,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "camera_input",
+        "widget": {
+         "id": "$$ID-f3ca01f4b12dd15f94fb708196df5036-shot",
+         "label": "Snapshot",
+         "labelVisibility": {}
+        },
+        "id": "$$ID-f3ca01f4b12dd15f94fb708196df5036-shot",
+        "label": "Snapshot",
+        "form_id": "",
+        "path": [
+         0,
+         7
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75338.291286,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75338.291477,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "http": [],
+    "dom": {
+     "dateInputs": [
+      "2025-01-15",
+      "2025-01-15"
+     ],
+     "timeInputs": [
+      "14:30:00"
+     ],
+     "colorPickers": 1,
+     "sliderThumbs": [
+      "low",
+      "b",
+      "d"
+     ],
+     "audioInputs": 1,
+     "cameraInputs": 1,
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "01-load.png",
+     "sha256": "f84f299916631e77df5e5c5066e7b2300f833e8586853943840f6f10e27994bb"
+    }
+   },
+   {
+    "name": "02-slider",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 75341.877201,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": [
+         {
+          "id": "$$ID-f1e5714d1ab5eeaaaa7b8093928e49f3-start",
+          "value_field": "string_array_value",
+          "value": {
+           "data": "['2025-01-15']"
+          },
+          "value_full": {
+           "data": [
+            "2025-01-15"
+           ]
+          }
+         },
+         {
+          "id": "$$ID-b0835f57a80cb719d4bbf0e433fcc062-window",
+          "value_field": "string_array_value",
+          "value": {
+           "data": "['2025-01-15', '2025-02-15']"
+          },
+          "value_full": {
+           "data": [
+            "2025-01-15",
+            "2025-02-15"
+           ]
+          }
+         },
+         {
+          "id": "$$ID-767f7ca96b6d24c921ee5d3d38ac67d5-meeting",
+          "value_field": "string_value",
+          "value": "14:30"
+         },
+         {
+          "id": "$$ID-27fb33a6f9a376341fcae45e668d4e02-accent",
+          "value_field": "string_value",
+          "value": "#FF5733"
+         },
+         {
+          "id": "$$ID-4a053c776d55f4894f6b5c43c565801e-one",
+          "value_field": "string_array_value",
+          "value": {
+           "data": "['medium']"
+          },
+          "value_full": {
+           "data": [
+            "medium"
+           ]
+          }
+         },
+         {
+          "id": "$$ID-8169d1aca1f17218514e30904060cb84-range",
+          "value_field": "string_array_value",
+          "value": {
+           "data": "['b', 'd']"
+          },
+          "value_full": {
+           "data": [
+            "b",
+            "d"
+           ]
+          }
+         },
+         {
+          "id": "$$ID-f3ca01f4b12dd15f94fb708196df5036-shot",
+          "value_field": "file_uploader_state_value",
+          "value": {},
+          "value_full": {}
+         }
+        ],
+        "page_script_hash": "f0a154818d2d1e86d053f616efc72530"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75341.88024,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "88023ea1-f7f2-46fb-afd3-6ea3bbb1b3bd",
+        "name": "pickers_app",
+        "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\pickers_app.py",
+        "page_script_hash": "f0a154818d2d1e86d053f616efc72530",
+        "main_script_hash": "f0a154818d2d1e86d053f616efc72530",
+        "session_id": "5891afc8-dcee-4ed6-a01a-78576151aff5"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75341.880579,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75341.890857,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "date_input",
+        "widget": {
+         "id": "$$ID-f1e5714d1ab5eeaaaa7b8093928e49f3-start",
+         "label": "Start date",
+         "default": [
+          "2025-01-15"
+         ],
+         "min": "2015-01-15",
+         "max": "2035-01-15",
+         "labelVisibility": {},
+         "format": "YYYY/MM/DD"
+        },
+        "id": "$$ID-f1e5714d1ab5eeaaaa7b8093928e49f3-start",
+        "label": "Start date",
+        "form_id": "",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75341.892519,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "date_input",
+        "widget": {
+         "id": "$$ID-b0835f57a80cb719d4bbf0e433fcc062-window",
+         "label": "Window",
+         "default": [
+          "2025-01-15",
+          "2025-02-15"
+         ],
+         "min": "2015-01-15",
+         "max": "2035-02-15",
+         "isRange": true,
+         "labelVisibility": {},
+         "format": "YYYY/MM/DD"
+        },
+        "id": "$$ID-b0835f57a80cb719d4bbf0e433fcc062-window",
+        "label": "Window",
+        "form_id": "",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75342.123737,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "time_input",
+        "widget": {
+         "id": "$$ID-767f7ca96b6d24c921ee5d3d38ac67d5-meeting",
+         "label": "Meeting",
+         "default": "14:30",
+         "labelVisibility": {},
+         "step": "900",
+         "format": "24h"
+        },
+        "id": "$$ID-767f7ca96b6d24c921ee5d3d38ac67d5-meeting",
+        "label": "Meeting",
+        "form_id": "",
+        "path": [
+         0,
+         2
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75342.125572,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "color_picker",
+        "widget": {
+         "id": "$$ID-27fb33a6f9a376341fcae45e668d4e02-accent",
+         "label": "Accent",
+         "default": "#FF5733",
+         "labelVisibility": {}
+        },
+        "id": "$$ID-27fb33a6f9a376341fcae45e668d4e02-accent",
+        "label": "Accent",
+        "form_id": "",
+        "path": [
+         0,
+         3
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75342.125863,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "slider",
+        "element_full": {
+         "slider": {
+          "id": "$$ID-4a053c776d55f4894f6b5c43c565801e-one",
+          "label": "Pick one",
+          "format": "%s",
+          "default": [
+           0.0
+          ],
+          "max": 2.0,
+          "step": 1.0,
+          "options": [
+           "low",
+           "medium",
+           "high"
+          ],
+          "labelVisibility": {},
+          "type": "SELECT_SLIDER"
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "widget": {
+         "id": "$$ID-4a053c776d55f4894f6b5c43c565801e-one",
+         "label": "Pick one",
+         "format": "%s",
+         "default": [
+          0.0
+         ],
+         "max": 2.0,
+         "step": 1.0,
+         "options": [
+          "low",
+          "medium",
+          "high"
+         ],
+         "labelVisibility": {},
+         "type": "SELECT_SLIDER"
+        },
+        "id": "$$ID-4a053c776d55f4894f6b5c43c565801e-one",
+        "label": "Pick one",
+        "accepted_types": [
+         "2"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         4
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75342.127659,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "slider",
+        "element_full": {
+         "slider": {
+          "id": "$$ID-8169d1aca1f17218514e30904060cb84-range",
+          "label": "Pick range",
+          "format": "%s",
+          "default": [
+           1.0,
+           3.0
+          ],
+          "max": 3.0,
+          "step": 1.0,
+          "options": [
+           "a",
+           "b",
+           "c",
+           "d"
+          ],
+          "labelVisibility": {},
+          "type": "SELECT_SLIDER"
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "widget": {
+         "id": "$$ID-8169d1aca1f17218514e30904060cb84-range",
+         "label": "Pick range",
+         "format": "%s",
+         "default": [
+          1.0,
+          3.0
+         ],
+         "max": 3.0,
+         "step": 1.0,
+         "options": [
+          "a",
+          "b",
+          "c",
+          "d"
+         ],
+         "labelVisibility": {},
+         "type": "SELECT_SLIDER"
+        },
+        "id": "$$ID-8169d1aca1f17218514e30904060cb84-range",
+        "label": "Pick range",
+        "accepted_types": [
+         "2"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         5
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75342.127856,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "audio_input",
+        "widget": {
+         "id": "$$ID-967161ffb1a5893de9b0b254964fce22-voice",
+         "label": "Voice note",
+         "labelVisibility": {},
+         "sampleRate": 16000
+        },
+        "id": "$$ID-967161ffb1a5893de9b0b254964fce22-voice",
+        "label": "Voice note",
+        "form_id": "",
+        "path": [
+         0,
+         6
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75342.129298,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "camera_input",
+        "widget": {
+         "id": "$$ID-f3ca01f4b12dd15f94fb708196df5036-shot",
+         "label": "Snapshot",
+         "labelVisibility": {}
+        },
+        "id": "$$ID-f3ca01f4b12dd15f94fb708196df5036-shot",
+        "label": "Snapshot",
+        "form_id": "",
+        "path": [
+         0,
+         7
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75342.129448,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75342.129574,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "client->server",
+      "timestamp": 75342.191898,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": [
+         {
+          "id": "$$ID-f1e5714d1ab5eeaaaa7b8093928e49f3-start",
+          "value_field": "string_array_value",
+          "value": {
+           "data": "['2025-01-15']"
+          },
+          "value_full": {
+           "data": [
+            "2025-01-15"
+           ]
+          }
+         },
+         {
+          "id": "$$ID-b0835f57a80cb719d4bbf0e433fcc062-window",
+          "value_field": "string_array_value",
+          "value": {
+           "data": "['2025-01-15', '2025-02-15']"
+          },
+          "value_full": {
+           "data": [
+            "2025-01-15",
+            "2025-02-15"
+           ]
+          }
+         },
+         {
+          "id": "$$ID-767f7ca96b6d24c921ee5d3d38ac67d5-meeting",
+          "value_field": "string_value",
+          "value": "14:30"
+         },
+         {
+          "id": "$$ID-27fb33a6f9a376341fcae45e668d4e02-accent",
+          "value_field": "string_value",
+          "value": "#FF5733"
+         },
+         {
+          "id": "$$ID-4a053c776d55f4894f6b5c43c565801e-one",
+          "value_field": "string_array_value",
+          "value": {
+           "data": "['high']"
+          },
+          "value_full": {
+           "data": [
+            "high"
+           ]
+          }
+         },
+         {
+          "id": "$$ID-8169d1aca1f17218514e30904060cb84-range",
+          "value_field": "string_array_value",
+          "value": {
+           "data": "['b', 'd']"
+          },
+          "value_full": {
+           "data": [
+            "b",
+            "d"
+           ]
+          }
+         },
+         {
+          "id": "$$ID-f3ca01f4b12dd15f94fb708196df5036-shot",
+          "value_field": "file_uploader_state_value",
+          "value": {},
+          "value_full": {}
+         }
+        ],
+        "page_script_hash": "f0a154818d2d1e86d053f616efc72530"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75342.195072,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "67688c1d-d25c-4c64-9589-5a2b52df8962",
+        "name": "pickers_app",
+        "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\pickers_app.py",
+        "page_script_hash": "f0a154818d2d1e86d053f616efc72530",
+        "main_script_hash": "f0a154818d2d1e86d053f616efc72530",
+        "session_id": "5891afc8-dcee-4ed6-a01a-78576151aff5"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75342.196921,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75342.220722,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "date_input",
+        "widget": {
+         "id": "$$ID-f1e5714d1ab5eeaaaa7b8093928e49f3-start",
+         "label": "Start date",
+         "default": [
+          "2025-01-15"
+         ],
+         "min": "2015-01-15",
+         "max": "2035-01-15",
+         "labelVisibility": {},
+         "format": "YYYY/MM/DD"
+        },
+        "id": "$$ID-f1e5714d1ab5eeaaaa7b8093928e49f3-start",
+        "label": "Start date",
+        "form_id": "",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75342.222247,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "date_input",
+        "widget": {
+         "id": "$$ID-b0835f57a80cb719d4bbf0e433fcc062-window",
+         "label": "Window",
+         "default": [
+          "2025-01-15",
+          "2025-02-15"
+         ],
+         "min": "2015-01-15",
+         "max": "2035-02-15",
+         "isRange": true,
+         "labelVisibility": {},
+         "format": "YYYY/MM/DD"
+        },
+        "id": "$$ID-b0835f57a80cb719d4bbf0e433fcc062-window",
+        "label": "Window",
+        "form_id": "",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75342.222404,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "time_input",
+        "widget": {
+         "id": "$$ID-767f7ca96b6d24c921ee5d3d38ac67d5-meeting",
+         "label": "Meeting",
+         "default": "14:30",
+         "labelVisibility": {},
+         "step": "900",
+         "format": "24h"
+        },
+        "id": "$$ID-767f7ca96b6d24c921ee5d3d38ac67d5-meeting",
+        "label": "Meeting",
+        "form_id": "",
+        "path": [
+         0,
+         2
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75342.222502,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "color_picker",
+        "widget": {
+         "id": "$$ID-27fb33a6f9a376341fcae45e668d4e02-accent",
+         "label": "Accent",
+         "default": "#FF5733",
+         "labelVisibility": {}
+        },
+        "id": "$$ID-27fb33a6f9a376341fcae45e668d4e02-accent",
+        "label": "Accent",
+        "form_id": "",
+        "path": [
+         0,
+         3
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75342.222546,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "slider",
+        "element_full": {
+         "slider": {
+          "id": "$$ID-4a053c776d55f4894f6b5c43c565801e-one",
+          "label": "Pick one",
+          "format": "%s",
+          "default": [
+           0.0
+          ],
+          "max": 2.0,
+          "step": 1.0,
+          "options": [
+           "low",
+           "medium",
+           "high"
+          ],
+          "labelVisibility": {},
+          "type": "SELECT_SLIDER"
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "widget": {
+         "id": "$$ID-4a053c776d55f4894f6b5c43c565801e-one",
+         "label": "Pick one",
+         "format": "%s",
+         "default": [
+          0.0
+         ],
+         "max": 2.0,
+         "step": 1.0,
+         "options": [
+          "low",
+          "medium",
+          "high"
+         ],
+         "labelVisibility": {},
+         "type": "SELECT_SLIDER"
+        },
+        "id": "$$ID-4a053c776d55f4894f6b5c43c565801e-one",
+        "label": "Pick one",
+        "accepted_types": [
+         "2"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         4
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75342.222612,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "slider",
+        "element_full": {
+         "slider": {
+          "id": "$$ID-8169d1aca1f17218514e30904060cb84-range",
+          "label": "Pick range",
+          "format": "%s",
+          "default": [
+           1.0,
+           3.0
+          ],
+          "max": 3.0,
+          "step": 1.0,
+          "options": [
+           "a",
+           "b",
+           "c",
+           "d"
+          ],
+          "labelVisibility": {},
+          "type": "SELECT_SLIDER"
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "widget": {
+         "id": "$$ID-8169d1aca1f17218514e30904060cb84-range",
+         "label": "Pick range",
+         "format": "%s",
+         "default": [
+          1.0,
+          3.0
+         ],
+         "max": 3.0,
+         "step": 1.0,
+         "options": [
+          "a",
+          "b",
+          "c",
+          "d"
+         ],
+         "labelVisibility": {},
+         "type": "SELECT_SLIDER"
+        },
+        "id": "$$ID-8169d1aca1f17218514e30904060cb84-range",
+        "label": "Pick range",
+        "accepted_types": [
+         "2"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         5
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75342.222647,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "audio_input",
+        "widget": {
+         "id": "$$ID-967161ffb1a5893de9b0b254964fce22-voice",
+         "label": "Voice note",
+         "labelVisibility": {},
+         "sampleRate": 16000
+        },
+        "id": "$$ID-967161ffb1a5893de9b0b254964fce22-voice",
+        "label": "Voice note",
+        "form_id": "",
+        "path": [
+         0,
+         6
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75342.223839,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "camera_input",
+        "widget": {
+         "id": "$$ID-f3ca01f4b12dd15f94fb708196df5036-shot",
+         "label": "Snapshot",
+         "labelVisibility": {}
+        },
+        "id": "$$ID-f3ca01f4b12dd15f94fb708196df5036-shot",
+        "label": "Snapshot",
+        "form_id": "",
+        "path": [
+         0,
+         7
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75342.224005,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75342.22409,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "client->server",
+      "timestamp": 75342.627086,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": [
+         {
+          "id": "$$ID-f1e5714d1ab5eeaaaa7b8093928e49f3-start",
+          "value_field": "string_array_value",
+          "value": {
+           "data": "['2025-01-15']"
+          },
+          "value_full": {
+           "data": [
+            "2025-01-15"
+           ]
+          }
+         },
+         {
+          "id": "$$ID-b0835f57a80cb719d4bbf0e433fcc062-window",
+          "value_field": "string_array_value",
+          "value": {
+           "data": "['2025-01-15', '2025-02-15']"
+          },
+          "value_full": {
+           "data": [
+            "2025-01-15",
+            "2025-02-15"
+           ]
+          }
+         },
+         {
+          "id": "$$ID-767f7ca96b6d24c921ee5d3d38ac67d5-meeting",
+          "value_field": "string_value",
+          "value": "14:30"
+         },
+         {
+          "id": "$$ID-27fb33a6f9a376341fcae45e668d4e02-accent",
+          "value_field": "string_value",
+          "value": "#FF5733"
+         },
+         {
+          "id": "$$ID-4a053c776d55f4894f6b5c43c565801e-one",
+          "value_field": "string_array_value",
+          "value": {
+           "data": "['high']"
+          },
+          "value_full": {
+           "data": [
+            "high"
+           ]
+          }
+         },
+         {
+          "id": "$$ID-8169d1aca1f17218514e30904060cb84-range",
+          "value_field": "string_array_value",
+          "value": {
+           "data": "['b', 'd']"
+          },
+          "value_full": {
+           "data": [
+            "b",
+            "d"
+           ]
+          }
+         },
+         {
+          "id": "$$ID-f3ca01f4b12dd15f94fb708196df5036-shot",
+          "value_field": "file_uploader_state_value",
+          "value": {},
+          "value_full": {}
+         }
+        ],
+        "page_script_hash": "f0a154818d2d1e86d053f616efc72530"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75342.631136,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "96d06a11-af79-4006-9e93-1427fc6755d4",
+        "name": "pickers_app",
+        "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\pickers_app.py",
+        "page_script_hash": "f0a154818d2d1e86d053f616efc72530",
+        "main_script_hash": "f0a154818d2d1e86d053f616efc72530",
+        "session_id": "5891afc8-dcee-4ed6-a01a-78576151aff5"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75342.632418,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75342.657277,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "date_input",
+        "widget": {
+         "id": "$$ID-f1e5714d1ab5eeaaaa7b8093928e49f3-start",
+         "label": "Start date",
+         "default": [
+          "2025-01-15"
+         ],
+         "min": "2015-01-15",
+         "max": "2035-01-15",
+         "labelVisibility": {},
+         "format": "YYYY/MM/DD"
+        },
+        "id": "$$ID-f1e5714d1ab5eeaaaa7b8093928e49f3-start",
+        "label": "Start date",
+        "form_id": "",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75342.658725,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "date_input",
+        "widget": {
+         "id": "$$ID-b0835f57a80cb719d4bbf0e433fcc062-window",
+         "label": "Window",
+         "default": [
+          "2025-01-15",
+          "2025-02-15"
+         ],
+         "min": "2015-01-15",
+         "max": "2035-02-15",
+         "isRange": true,
+         "labelVisibility": {},
+         "format": "YYYY/MM/DD"
+        },
+        "id": "$$ID-b0835f57a80cb719d4bbf0e433fcc062-window",
+        "label": "Window",
+        "form_id": "",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75342.658873,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "time_input",
+        "widget": {
+         "id": "$$ID-767f7ca96b6d24c921ee5d3d38ac67d5-meeting",
+         "label": "Meeting",
+         "default": "14:30",
+         "labelVisibility": {},
+         "step": "900",
+         "format": "24h"
+        },
+        "id": "$$ID-767f7ca96b6d24c921ee5d3d38ac67d5-meeting",
+        "label": "Meeting",
+        "form_id": "",
+        "path": [
+         0,
+         2
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75342.658942,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "color_picker",
+        "widget": {
+         "id": "$$ID-27fb33a6f9a376341fcae45e668d4e02-accent",
+         "label": "Accent",
+         "default": "#FF5733",
+         "labelVisibility": {}
+        },
+        "id": "$$ID-27fb33a6f9a376341fcae45e668d4e02-accent",
+        "label": "Accent",
+        "form_id": "",
+        "path": [
+         0,
+         3
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75342.658969,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "slider",
+        "element_full": {
+         "slider": {
+          "id": "$$ID-4a053c776d55f4894f6b5c43c565801e-one",
+          "label": "Pick one",
+          "format": "%s",
+          "default": [
+           0.0
+          ],
+          "max": 2.0,
+          "step": 1.0,
+          "options": [
+           "low",
+           "medium",
+           "high"
+          ],
+          "labelVisibility": {},
+          "type": "SELECT_SLIDER"
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "widget": {
+         "id": "$$ID-4a053c776d55f4894f6b5c43c565801e-one",
+         "label": "Pick one",
+         "format": "%s",
+         "default": [
+          0.0
+         ],
+         "max": 2.0,
+         "step": 1.0,
+         "options": [
+          "low",
+          "medium",
+          "high"
+         ],
+         "labelVisibility": {},
+         "type": "SELECT_SLIDER"
+        },
+        "id": "$$ID-4a053c776d55f4894f6b5c43c565801e-one",
+        "label": "Pick one",
+        "accepted_types": [
+         "2"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         4
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75342.659032,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "slider",
+        "element_full": {
+         "slider": {
+          "id": "$$ID-8169d1aca1f17218514e30904060cb84-range",
+          "label": "Pick range",
+          "format": "%s",
+          "default": [
+           1.0,
+           3.0
+          ],
+          "max": 3.0,
+          "step": 1.0,
+          "options": [
+           "a",
+           "b",
+           "c",
+           "d"
+          ],
+          "labelVisibility": {},
+          "type": "SELECT_SLIDER"
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "widget": {
+         "id": "$$ID-8169d1aca1f17218514e30904060cb84-range",
+         "label": "Pick range",
+         "format": "%s",
+         "default": [
+          1.0,
+          3.0
+         ],
+         "max": 3.0,
+         "step": 1.0,
+         "options": [
+          "a",
+          "b",
+          "c",
+          "d"
+         ],
+         "labelVisibility": {},
+         "type": "SELECT_SLIDER"
+        },
+        "id": "$$ID-8169d1aca1f17218514e30904060cb84-range",
+        "label": "Pick range",
+        "accepted_types": [
+         "2"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         5
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75342.659058,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "audio_input",
+        "widget": {
+         "id": "$$ID-967161ffb1a5893de9b0b254964fce22-voice",
+         "label": "Voice note",
+         "labelVisibility": {},
+         "sampleRate": 16000
+        },
+        "id": "$$ID-967161ffb1a5893de9b0b254964fce22-voice",
+        "label": "Voice note",
+        "form_id": "",
+        "path": [
+         0,
+         6
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75342.659091,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "camera_input",
+        "widget": {
+         "id": "$$ID-f3ca01f4b12dd15f94fb708196df5036-shot",
+         "label": "Snapshot",
+         "labelVisibility": {}
+        },
+        "id": "$$ID-f3ca01f4b12dd15f94fb708196df5036-shot",
+        "label": "Snapshot",
+        "form_id": "",
+        "path": [
+         0,
+         7
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75342.659122,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 75342.659167,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "http": [],
+    "dom": {
+     "dateInputs": [
+      "2025-01-15",
+      "2025-01-15"
+     ],
+     "timeInputs": [
+      "14:30:00"
+     ],
+     "colorPickers": 1,
+     "sliderThumbs": [
+      "high",
+      "b",
+      "d"
+     ],
+     "audioInputs": 1,
+     "cameraInputs": 1,
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "02-slider.png",
+     "sha256": "48800c72a075a1c5e1956c6a3f1918e7d0911fbb1b2356a510476754a23a975b"
+    }
+   }
+  ],
+  "ipc_dir": "D:\\dlab\\streamlit-rust\\target\\pickers-python"
+ },
+ "counts": {
+  "expected": 14,
+  "executed": 14,
+  "asserted": 14
+ },
+ "failures": []
+}

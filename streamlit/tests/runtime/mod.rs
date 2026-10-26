@@ -24,6 +24,7 @@ mod media;
 mod navigation;
 mod overlap;
 mod pageconfig;
+mod pickers;
 mod presentation;
 mod queryparams;
 mod sessions;
