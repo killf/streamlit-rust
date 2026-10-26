@@ -254,3 +254,96 @@ impl Element for SpaceElement {
         Ok(())
     }
 }
+
+/// The help viewer: the doc string with the object's type, name, value and
+/// members. Rust cannot introspect values the way Python's st.help(obj)
+/// does, so every field is supplied explicitly on the measured wire shape.
+pub(crate) struct HelpElement {
+    doc_string: String,
+    type_name: String,
+    name: String,
+    value: String,
+    width: Option<ElementWidth>,
+}
+
+impl HelpElement {
+    pub fn new(doc_string: String, type_name: String) -> Self {
+        Self {
+            doc_string,
+            type_name,
+            name: String::new(),
+            value: String::new(),
+            width: None,
+        }
+    }
+
+    pub fn name(mut self, name: String) -> Self {
+        self.name = name;
+        self
+    }
+
+    pub fn value(mut self, value: String) -> Self {
+        self.value = value;
+        self
+    }
+}
+
+impl Element for HelpElement {
+    fn render(&self, context: &mut RenderContext) -> Result<(), StreamlitError> {
+        let element_hash = hash(format!("help_{}_{:?}", self.doc_string, self.width).as_str());
+        let mut msg = delta_base_with_path(context.delta_path.clone(), context.active_script_hash.clone(), element_hash);
+        msg.r#type = Some(forward_msg::Type::Delta(Delta {
+            fragment_id: String::new(),
+            r#type: Some(delta::Type::NewElement(crate::proto::Element {
+                width_config: Some(self.width.clone().map_or_else(|| ElementWidth::Stretch.into(), Into::into)),
+                r#type: Some(element::Type::HelpInfo(crate::proto::Help {
+                    doc_string: self.doc_string.clone(),
+                    r#type: self.type_name.clone(),
+                    name: self.name.clone(),
+                    value: self.value.clone(),
+                    ..Default::default()
+                })),
+                ..Default::default()
+            })),
+        }));
+        context.push(msg);
+        if let Some(index) = context.delta_path.last_mut() {
+            *index += 1;
+        }
+        Ok(())
+    }
+}
+
+/// The skeleton placeholder: an all-default Skeleton element sized entirely
+/// by its layout config (the proto height field is deprecated and unset).
+pub(crate) struct SkeletonElement {
+    width: Option<ElementWidth>,
+    height: Option<ElementHeight>,
+}
+
+impl SkeletonElement {
+    pub fn new(width: Option<ElementWidth>, height: Option<ElementHeight>) -> Self {
+        Self { width, height }
+    }
+}
+
+impl Element for SkeletonElement {
+    fn render(&self, context: &mut RenderContext) -> Result<(), StreamlitError> {
+        let element_hash = hash(format!("skeleton_{:?}_{:?}", self.width, self.height).as_str());
+        let mut msg = delta_base_with_path(context.delta_path.clone(), context.active_script_hash.clone(), element_hash);
+        msg.r#type = Some(forward_msg::Type::Delta(Delta {
+            fragment_id: String::new(),
+            r#type: Some(delta::Type::NewElement(crate::proto::Element {
+                width_config: Some(self.width.clone().map_or_else(|| ElementWidth::Stretch.into(), Into::into)),
+                height_config: self.height.as_ref().map(|height| height.clone().into()),
+                r#type: Some(element::Type::Skeleton(crate::proto::Skeleton { ..Default::default() })),
+                ..Default::default()
+            })),
+        }));
+        context.push(msg);
+        if let Some(index) = context.delta_path.last_mut() {
+            *index += 1;
+        }
+        Ok(())
+    }
+}

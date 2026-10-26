@@ -563,3 +563,35 @@ native `03a2da98850eb69345d213839b41605d6b592788a47bc9c87317b3b747dc2302`,
 under contract `1d1690148ee129a6e59272ead1c65830d43812844c0f9c12b070925d613d0210`.
 The runtime regression (streamlit/tests/runtime/pickers.rs) pins the load
 timeline over the production websocket plus the date/time codec semantics.
+
+## Presentation leftovers (logo, skeleton, help, pdf)
+
+[display2_capture.py](display2_capture.py) is the permanent entry for the
+presentation-leftover chain; [display2_contract.py](display2_contract.py) is
+its strict criterion (journey-display2-v1, 11 checks) with unit tests in
+[tests/reference/test_display2_contract.py](../reference/test_display2_contract.py).
+The page renders the display2 fixture (an emoji `st.logo`, `st.help` over the
+`len` builtin, a `st.skeleton(100)` placeholder and `st.pdf` on a URL); the
+load pins the logo ForwardMsg INCLUDING its metadata shape — the reference
+stamps `metadata.active_script_hash` on every enqueued message and the
+frontend's logo handler dereferences it unconditionally, so a metadata-less
+logo blanks the whole page — the help_info `{docString, type, name, value}`
+element with stretch width, the all-default Skeleton with its pixel height
+config, and the measured st.pdf exception (the pinned reference lacks the
+optional streamlit-pdf component, so the framework exception IS the observed
+behavior on both sides). Widget ids are judged modulo the `$$ID` digest
+segment and the exception's stack trace is side-specific. The published
+chains:
+
+```powershell
+target\pyref-venv\Scripts\python.exe tests\browser\display2_capture.py --replay tests\reference\reference-browser\display2\trace-display2.json
+target\pyref-venv\Scripts\python.exe tests\browser\display2_capture.py --replay tests\browser\rust-display2\trace-display2.json
+```
+
+Both return 11 expected / 11 executed / 11 asserted with exit 0. Raw
+SHA256: python `d21148934f11e301b7558437941a6cc8aa5b81f1801627576fd1194d61ee05f5`,
+native `b1e2caab7fe8b300836ad735eb4a8edd90afdb6270d7048ca2e648a5067a81b8`,
+under contract `a55e670fd952a1ed83285bcc2c48178f4365fc08aab53fe25271edf1f5445c8a`.
+The runtime regression (streamlit/tests/runtime/display2.rs) pins the load
+timeline over the production websocket, including the logo metadata stamp.
+

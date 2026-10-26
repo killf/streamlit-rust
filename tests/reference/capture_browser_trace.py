@@ -362,6 +362,21 @@ def summarise_forward(payload: bytes) -> dict:
         from google.protobuf.json_format import MessageToDict
 
         out["navigation"] = MessageToDict(msg.navigation)
+    elif kind == "logo":
+        # The whole Logo message: the image (emoji, icon or URL), the size,
+        # the optional link and the collapsed-sidebar icon.  The logo handler
+        # in the frontend dereferences metadata.activeScriptHash, so a logo
+        # frame without metadata blanks the page: record its presence (the
+        # hash value itself is side-specific and stays out of the summary).
+        from google.protobuf.json_format import MessageToDict
+
+        out["logo"] = MessageToDict(msg.logo)
+        out["metadata_shape"] = {
+            "present": msg.HasField("metadata"),
+            "cacheable": msg.metadata.cacheable,
+            "delta_path_len": len(msg.metadata.delta_path),
+            "has_active_script_hash": bool(msg.metadata.active_script_hash),
+        }
     elif kind == "delta":
         delta = msg.delta
         dkind = delta.WhichOneof("type")
@@ -701,7 +716,7 @@ FULL_ELEMENT_WIDGETS = ("selectbox", "slider", "checkbox")
 # elements: the heading level, the iframe src/scrolling, the html scrolling,
 # the code body/language of st.echo, the snow/empty flags, the json
 # expansion default and the space height.
-FULL_ELEMENT_PRESENTATION = ("text", "heading", "html", "iframe", "snow", "empty", "code", "json", "space")
+FULL_ELEMENT_PRESENTATION = ("text", "heading", "html", "iframe", "snow", "empty", "code", "json", "space", "help_info", "skeleton")
 
 WIDGET_ELEMENTS = (
     "selectbox",
@@ -728,6 +743,8 @@ WIDGET_ELEMENTS = (
     "color_picker",
     "audio_input",
     "camera_input",
+    "help_info",
+    "skeleton",
 )
 
 

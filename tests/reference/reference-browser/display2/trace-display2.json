@@ -1,0 +1,225 @@
+{
+ "schema_version": 1,
+ "journey": "display2-page",
+ "contract": "journey-display2-v1",
+ "scope": "PYTHON SIDE ONLY",
+ "url": "http://127.0.0.1:8625/",
+ "observation": {
+  "journey": "display2-page",
+  "contract": "journey-display2-v1",
+  "scope": "PYTHON SIDE ONLY",
+  "url": "http://127.0.0.1:8625/",
+  "binary": null,
+  "source": {
+   "file": "tests/reference/display2_app.py",
+   "sha256": "510eec70e4841262091df7cd674010f86aa3dadc8d6c89747f149b22997805cc"
+  },
+  "capture_sources": {
+   "display2_capture.py": "313028756f5810bf09eb08565caf87b5fd248eb20cac4779ec4db2a3d4c57392",
+   "display2_contract.py": "a55e670fd952a1ed83285bcc2c48178f4365fc08aab53fe25271edf1f5445c8a"
+  },
+  "stages": [
+   {
+    "name": "01-load",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 77881.426321,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": []
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 77881.429803,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "2890a56f-1744-4f29-bc4e-e2fed791f688",
+        "name": "display2_app",
+        "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\display2_app.py",
+        "page_script_hash": "550fe73d385321eb7bfd9792f2c9a4f8",
+        "main_script_hash": "550fe73d385321eb7bfd9792f2c9a4f8",
+        "session_id": "b9e59c4e-82e3-42f8-b9a9-14ece68f98d3"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 77881.431218,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 77881.461455,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "logo",
+       "logo": {
+        "image": "🏠",
+        "size": "small",
+        "imageType": "EMOJI"
+       },
+       "metadata_shape": {
+        "present": true,
+        "cacheable": false,
+        "delta_path_len": 0,
+        "has_active_script_hash": true
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 77881.52824,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "help_info",
+        "element_full": {
+         "helpInfo": {
+          "docString": "Return the number of items in a container.",
+          "type": "builtin_function_or_method",
+          "name": "len",
+          "value": "builtins.len(obj, /)"
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "widget": {
+         "docString": "Return the number of items in a container.",
+         "type": "builtin_function_or_method",
+         "name": "len",
+         "value": "builtins.len(obj, /)"
+        },
+        "accepted_types": [
+         "builtin_function_or_method"
+        ],
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 77881.529033,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "skeleton",
+        "element_full": {
+         "skeleton": {},
+         "heightConfig": {
+          "pixelHeight": 100
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "widget": {},
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 77881.550059,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "exception",
+        "exception": {
+         "type": "streamlit.errors.StreamlitAPIException",
+         "message": "The PDF viewer requires the `streamlit-pdf` component to be installed.\n\nPlease run `pip install streamlit[pdf]` to install it.\n\nFor more information, see the Streamlit PDF documentation at https://docs.streamlit.io/develop/api-reference/media/st.pdf.",
+         "stackTrace": [
+          "File \"D:\\dlab\\streamlit-rust\\tests\\reference\\display2_app.py\", line 17, in <module>\n    st.pdf(\"https://example.com/sample.pdf\")"
+         ],
+         "messageIsMarkdown": true,
+         "widthConfig": {
+          "useStretch": true
+         },
+         "isStreamlitException": true
+        },
+        "accepted_types": [
+         "streamlit.errors.StreamlitAPIException"
+        ],
+        "path": [
+         0,
+         2
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 77881.550535,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 77881.560162,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "http": [],
+    "dom": {
+     "help": [
+      "lenbuiltin_function_or_methodbuiltins.len(obj, /)Return the number of items in a container."
+     ],
+     "skeletons": 0,
+     "exceptions": [
+      "streamlit.errors.StreamlitAPIException: The PDF viewer requires the streamlit-pdf component to be installed.\n\nPlease run pip install streamlit[pdf] to install it.\n\nFor more information, see the Stream"
+     ]
+    },
+    "screenshot": {
+     "file": "01-load.png",
+     "sha256": "63fa5d46e229d0f9c8837d5daece3a96dedcb2f074b8cd13802c8220a11da19f"
+    }
+   }
+  ],
+  "ipc_dir": "D:\\dlab\\streamlit-rust\\target\\display2-python"
+ },
+ "counts": {
+  "expected": 11,
+  "executed": 11,
+  "asserted": 11
+ },
+ "failures": []
+}

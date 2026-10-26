@@ -61,11 +61,27 @@ pub(crate) struct AppException {
     kind: String,
     message: String,
     stack_trace: Vec<String>,
+    markdown: bool,
+    streamlit_error: bool,
 }
 
 impl AppException {
     pub(crate) fn new(kind: String, message: String, stack_trace: Vec<String>) -> Self {
-        Self { kind, message, stack_trace }
+        Self {
+            kind,
+            message,
+            stack_trace,
+            markdown: false,
+            streamlit_error: false,
+        }
+    }
+
+    /// Mark the message as markdown and flag the framework error, the shape
+    /// the reference's own raised StreamlitAPIExceptions carry.
+    pub(crate) fn streamlit_markdown(mut self) -> Self {
+        self.markdown = true;
+        self.streamlit_error = true;
+        self
     }
 }
 
@@ -76,6 +92,8 @@ impl Element for AppException {
                 r#type: self.kind.clone(),
                 message: self.message.clone(),
                 stack_trace: self.stack_trace.clone(),
+                message_is_markdown: self.markdown,
+                is_streamlit_exception: self.streamlit_error,
                 width_config: Some(ElementWidth::Stretch.into()),
                 ..Default::default()
             })),

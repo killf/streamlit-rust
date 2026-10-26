@@ -16,6 +16,7 @@ mod charts;
 mod chat;
 mod data_views;
 mod display;
+mod display2;
 mod execution;
 mod forms;
 mod inputs;

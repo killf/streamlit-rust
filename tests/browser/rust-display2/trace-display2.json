@@ -1,0 +1,242 @@
+{
+ "schema_version": 1,
+ "journey": "display2-page",
+ "contract": "journey-display2-v1",
+ "scope": "RUST SIDE DIFFERENTIAL",
+ "url": "http://127.0.0.1:8525/",
+ "observation": {
+  "journey": "display2-page",
+  "contract": "journey-display2-v1",
+  "scope": "RUST SIDE DIFFERENTIAL",
+  "url": "http://127.0.0.1:8525/",
+  "binary": null,
+  "source": {
+   "file": "streamlit/examples/display2.rs",
+   "sha256": "e24913670e6fe46c58556fa3bf58fcb396432e617e4e0a5059c58c907ba8b05a"
+  },
+  "capture_sources": {
+   "display2_capture.py": "313028756f5810bf09eb08565caf87b5fd248eb20cac4779ec4db2a3d4c57392",
+   "display2_contract.py": "a55e670fd952a1ed83285bcc2c48178f4365fc08aab53fe25271edf1f5445c8a"
+  },
+  "stages": [
+   {
+    "name": "01-load",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 77903.487512,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": []
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 77903.489538,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "938d88fa-b52e-489a-9132-779a3d4bf07d",
+        "name": "Streamlit Rust",
+        "main_script_path": "",
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "session_id": "eab43fdb-57bd-4597-a3c1-52b7c6a46208"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 77903.496229,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 77903.496413,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "add_block",
+        "block_id": "main_container",
+        "block_type": "vertical",
+        "block": {
+         "vertical": {},
+         "id": "main_container"
+        },
+        "path": [
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 77903.496645,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "logo",
+       "logo": {
+        "image": "🏠",
+        "size": "small",
+        "imageType": "EMOJI"
+       },
+       "metadata_shape": {
+        "present": true,
+        "cacheable": false,
+        "delta_path_len": 0,
+        "has_active_script_hash": true
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 77903.496749,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "help_info",
+        "element_full": {
+         "helpInfo": {
+          "docString": "Return the number of items in a container.",
+          "type": "builtin_function_or_method",
+          "name": "len",
+          "value": "builtins.len(obj, /)"
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "widget": {
+         "docString": "Return the number of items in a container.",
+         "type": "builtin_function_or_method",
+         "name": "len",
+         "value": "builtins.len(obj, /)"
+        },
+        "accepted_types": [
+         "builtin_function_or_method"
+        ],
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 77903.49702,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "skeleton",
+        "element_full": {
+         "skeleton": {},
+         "heightConfig": {
+          "pixelHeight": 100
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "widget": {},
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 77903.497128,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "exception",
+        "exception": {
+         "type": "streamlit.errors.StreamlitAPIException",
+         "message": "The PDF viewer requires the `streamlit-pdf` component to be installed.\n\nPlease run `pip install streamlit[pdf]` to install it.\n\nFor more information, see the Streamlit PDF documentation at https://docs.streamlit.io/develop/api-reference/media/st.pdf.",
+         "messageIsMarkdown": true,
+         "widthConfig": {
+          "useStretch": true
+         },
+         "isStreamlitException": true
+        },
+        "accepted_types": [
+         "streamlit.errors.StreamlitAPIException"
+        ],
+        "path": [
+         0,
+         2
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 77903.49722,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 77903.497334,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "http": [],
+    "dom": {
+     "help": [
+      "lenbuiltin_function_or_methodbuiltins.len(obj, /)Return the number of items in a container."
+     ],
+     "skeletons": 0,
+     "exceptions": [
+      "streamlit.errors.StreamlitAPIException: The PDF viewer requires the streamlit-pdf component to be installed.\n\nPlease run pip install streamlit[pdf] to install it.\n\nFor more information, see the Stream"
+     ]
+    },
+    "screenshot": {
+     "file": "01-load.png",
+     "sha256": "d9c8bc7df04a34c5550b26790af7e63fb11bd2e66be964352422c36bc4628e30"
+    }
+   }
+  ],
+  "ipc_dir": "D:\\dlab\\streamlit-rust\\target\\display2-rust"
+ },
+ "counts": {
+  "expected": 11,
+  "executed": 11,
+  "asserted": 11
+ },
+ "failures": []
+}

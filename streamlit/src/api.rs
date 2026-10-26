@@ -1344,6 +1344,172 @@ pub trait StreamlitApi {
     /// its title and icon as the link's label and icon unless overridden;
     /// an external URL needs an explicit label, as in the reference.
     fn page_link<'a>(&self, options: impl Into<crate::navigation::PageLinkOptions<'a>>) -> Result<(), WidgetError>;
+
+    /// The app logo, like `st.logo`: a ForwardMsg-level message (no element
+    /// path) carrying the image (an emoji, a material icon or an image URL),
+    /// the size and an optional link and collapsed-sidebar icon.
+    fn logo(&self, options: impl Into<LogoOptions>);
+
+    /// The help viewer, like `st.help`: the doc string with the object's
+    /// type, name and value. Rust cannot introspect a value the way Python
+    /// does, so every field is supplied explicitly.
+    fn help(&self, options: impl Into<HelpOptions>);
+
+    /// A skeleton loading placeholder, like `st.skeleton`: the returned
+    /// handle replaces the placeholder's slot, like `st.empty`.
+    fn skeleton(&self, options: impl Into<SkeletonOptions>) -> &EmptyHandle<'_>;
+
+    /// The PDF viewer, like `st.pdf`. The pinned reference lacks the
+    /// optional `streamlit-pdf` component, so the measured behavior is the
+    /// framework exception; this port mirrors exactly that path.
+    fn pdf(&self, data: impl Into<String>);
+}
+
+/// The logo image: an emoji, a material icon shortcode, or a URL.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum LogoImage {
+    Emoji(String),
+    Icon(String),
+    Url(String),
+}
+
+impl LogoImage {
+    fn wire(self) -> (String, i32) {
+        match self {
+            Self::Emoji(value) => (value, crate::proto::logo::ImageType::Emoji as i32),
+            Self::Icon(value) => (value, crate::proto::logo::ImageType::Icon as i32),
+            Self::Url(value) => (value, crate::proto::logo::ImageType::Image as i32),
+        }
+    }
+}
+
+/// Logo options: the image (emoji, material icon or URL), the size and an
+/// optional external link plus the collapsed-sidebar icon.
+pub struct LogoOptions {
+    image: LogoImage,
+    size: &'static str,
+    link: Option<String>,
+    icon_image: Option<LogoImage>,
+}
+impl LogoOptions {
+    pub fn new(image: impl Into<LogoImage>) -> Self {
+        Self {
+            image: image.into(),
+            size: "medium",
+            link: None,
+            icon_image: None,
+        }
+    }
+    pub fn small(mut self) -> Self {
+        self.size = "small";
+        self
+    }
+    pub fn large(mut self) -> Self {
+        self.size = "large";
+        self
+    }
+    pub fn link(mut self, link: impl Into<String>) -> Self {
+        self.link = Some(link.into());
+        self
+    }
+    pub fn icon_image(mut self, icon: impl Into<LogoImage>) -> Self {
+        self.icon_image = Some(icon.into());
+        self
+    }
+}
+impl From<&str> for LogoImage {
+    fn from(value: &str) -> Self {
+        if value.starts_with(":material/") && value.ends_with(':') {
+            Self::Icon(value.to_string())
+        } else if !value.is_ascii() && value.chars().count() <= 2 {
+            Self::Emoji(value.to_string())
+        } else {
+            Self::Url(value.to_string())
+        }
+    }
+}
+impl From<String> for LogoImage {
+    fn from(value: String) -> Self {
+        Self::from(value.as_str())
+    }
+}
+impl From<LogoImage> for LogoOptions {
+    fn from(image: LogoImage) -> Self {
+        Self::new(image)
+    }
+}
+impl From<&str> for LogoOptions {
+    fn from(image: &str) -> Self {
+        Self::new(LogoImage::from(image))
+    }
+}
+impl From<String> for LogoOptions {
+    fn from(image: String) -> Self {
+        Self::new(LogoImage::from(image))
+    }
+}
+
+/// Help options: the doc string and the object's type, name and value.
+pub struct HelpOptions {
+    doc_string: String,
+    type_name: String,
+    name: Option<String>,
+    value: Option<String>,
+}
+impl HelpOptions {
+    pub fn new(doc_string: impl Into<String>, type_name: impl Into<String>) -> Self {
+        Self {
+            doc_string: doc_string.into(),
+            type_name: type_name.into(),
+            name: None,
+            value: None,
+        }
+    }
+    pub fn name(mut self, name: impl Into<String>) -> Self {
+        self.name = Some(name.into());
+        self
+    }
+    pub fn value(mut self, value: impl Into<String>) -> Self {
+        self.value = Some(value.into());
+        self
+    }
+}
+impl<D: Into<String>, T: Into<String>> From<(D, T)> for HelpOptions {
+    fn from((doc_string, type_name): (D, T)) -> Self {
+        Self::new(doc_string, type_name)
+    }
+}
+
+/// Skeleton options: a pixel height (`None` keeps the standard element
+/// height, `"stretch"` fills the parent) with the stretch width default.
+pub struct SkeletonOptions {
+    width: Option<ElementWidth>,
+    height: Option<ElementHeight>,
+}
+impl SkeletonOptions {
+    pub fn new() -> Self {
+        Self { width: None, height: None }
+    }
+    /// A fixed pixel height.
+    pub fn height(mut self, pixels: i32) -> Self {
+        self.height = Some(ElementHeight::Value(pixels));
+        self
+    }
+    /// A height matching the parent container.
+    pub fn stretch_height(mut self) -> Self {
+        self.height = Some(ElementHeight::Stretch);
+        self
+    }
+    /// A fixed pixel width; the default stretches.
+    pub fn width(mut self, pixels: i32) -> Self {
+        self.width = Some(ElementWidth::Value(pixels));
+        self
+    }
+}
+impl Default for SkeletonOptions {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 fn create_status<C: AppendChild>(this: &C, options: StatusOptions, format: crate::proto::alert::Format) -> Result<(), StatusError> {
@@ -1540,6 +1706,79 @@ impl<C: AppendChild> StreamlitApi for C {
             ..Default::default()
         }))));
         Ok(())
+    }
+
+    fn logo(&self, options: impl Into<LogoOptions>) {
+        let options = options.into();
+        let app = self.get_app();
+        let mut app = app.lock();
+        if app.session_state.run_control().is_some() {
+            return;
+        }
+        let Some(context) = app.render_context_mut() else { return };
+        if context.sender.is_none() {
+            return;
+        }
+        let (image, image_type) = options.image.wire();
+        let mut logo = crate::proto::Logo {
+            image,
+            image_type,
+            size: options.size.to_string(),
+            ..Default::default()
+        };
+        if let Some(link) = options.link {
+            logo.link = link;
+        }
+        if let Some(icon) = options.icon_image {
+            let (icon_image, icon_image_type) = icon.wire();
+            logo.icon_image = icon_image;
+            logo.icon_image_type = icon_image_type;
+        }
+        // The reference stamps metadata.active_script_hash on every enqueued
+        // ForwardMsg (script_run_context.enqueue); the frontend's logo handler
+        // dereferences it unconditionally, so omitting it blanks the page.
+        let message = ForwardMsg {
+            metadata: Some(crate::proto::ForwardMsgMetadata {
+                cacheable: false,
+                delta_path: Vec::new(),
+                active_script_hash: context.active_script_hash.clone(),
+            }),
+            r#type: Some(forward_msg::Type::Logo(logo)),
+            ..Default::default()
+        };
+        context.push(message);
+    }
+
+    fn help(&self, options: impl Into<HelpOptions>) {
+        let options = options.into();
+        let mut element = crate::elements::text::HelpElement::new(options.doc_string, options.type_name);
+        if let Some(name) = options.name {
+            element = element.name(name);
+        }
+        if let Some(value) = options.value {
+            element = element.value(value);
+        }
+        self.push(Rc::new(RefCell::new(element)));
+    }
+
+    fn skeleton(&self, options: impl Into<SkeletonOptions>) -> &EmptyHandle<'_> {
+        let options = options.into();
+        let app = self.get_app();
+        let slot_path = self.next_child_path();
+        self.push(Rc::new(RefCell::new(crate::elements::text::SkeletonElement::new(options.width, options.height))));
+        self.allocator().malloc(EmptyHandle::new(self.allocator(), app, self.parent_form_id(), slot_path))
+    }
+
+    fn pdf(&self, data: impl Into<String>) {
+        let _ = data.into();
+        // The pinned reference lacks the optional streamlit-pdf component;
+        // its st.pdf raises before any viewer element streams. Mirror that
+        // measured path: the full error path type, the exact message, the
+        // markdown + streamlit-error flags, and an empty trace (the
+        // reference's trace lines name the caller's Python file).
+        let message = "The PDF viewer requires the `streamlit-pdf` component to be installed.\n\nPlease run `pip install streamlit[pdf]` to install it.\n\nFor more information, see the Streamlit PDF documentation at https://docs.streamlit.io/develop/api-reference/media/st.pdf.";
+        let exception = AppException::new("streamlit.errors.StreamlitAPIException".to_string(), message.to_string(), Vec::new()).streamlit_markdown();
+        self.push(Rc::new(RefCell::new(exception)));
     }
 
     fn set_page_config(&self, options: impl Into<PageConfigOptions>) {
