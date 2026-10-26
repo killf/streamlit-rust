@@ -482,6 +482,8 @@ pub struct SelectboxOptions<T> {
     labels: Vec<String>,
     index: Option<usize>,
     placeholder: Option<String>,
+    filter_mode: Option<SelectFilterMode>,
+    bind: TextBind,
 }
 impl<T: ToString> SelectboxOptions<T> {
     pub fn new(label: impl Into<String>, options: impl IntoIterator<Item = T>) -> Self {
@@ -510,6 +512,8 @@ impl<T> SelectboxOptions<T> {
             labels,
             index: Some(0),
             placeholder: None,
+            filter_mode: None,
+            bind: TextBind::None,
         }
     }
 }
@@ -527,7 +531,99 @@ impl<T> SelectboxOptions<T> {
         self.placeholder = Some(placeholder.into());
         self
     }
+    /// The option-filter behavior of the dropdown (`filterMode` on the wire).
+    /// The measured default is fuzzy; `None` disables filtering and cannot
+    /// combine with creation mode.
+    pub fn filter_mode(mut self, mode: Option<SelectFilterMode>) -> Self {
+        self.filter_mode = mode;
+        self
+    }
+    /// Bind the selection to the URL under this run's query parameters,
+    /// carrying `queryParamKey` on the wire (requires `key`).
+    pub fn bind(mut self, bind: TextBind) -> Self {
+        self.bind = bind;
+        self
+    }
     common_builders!();
+}
+
+/// The select-like filter behaviors of the measured wire.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum SelectFilterMode {
+    Fuzzy,
+    Contains,
+    Prefix,
+}
+
+impl SelectFilterMode {
+    pub(crate) fn wire(self) -> i32 {
+        match self {
+            Self::Fuzzy => crate::proto::streamlit::SelectWidgetFilterMode::FilterModeFuzzy as i32,
+            Self::Contains => crate::proto::streamlit::SelectWidgetFilterMode::FilterModeContains as i32,
+            Self::Prefix => crate::proto::streamlit::SelectWidgetFilterMode::FilterModePrefix as i32,
+        }
+    }
+}
+
+/// Creation-mode selectbox options (`accept_new_options`): any typed value is
+/// accepted and returned as its string, like the reference's str overload.
+pub struct SelectboxCreationOptions {
+    common: InputOptions,
+    options: Vec<String>,
+    index: Option<usize>,
+    placeholder: Option<String>,
+    filter_mode: Option<SelectFilterMode>,
+    bind: TextBind,
+}
+
+impl SelectboxCreationOptions {
+    pub fn new(label: impl Into<String>, options: impl IntoIterator<Item = impl Into<String>>) -> Self {
+        let options: Vec<String> = options.into_iter().map(Into::into).collect();
+        Self {
+            common: InputOptions::new(label),
+            index: (!options.is_empty()).then_some(0),
+            filter_mode: Some(SelectFilterMode::Fuzzy),
+            options,
+            placeholder: None,
+            bind: TextBind::None,
+        }
+    }
+
+    pub fn index(mut self, index: Option<usize>) -> Self {
+        self.index = index;
+        self
+    }
+
+    pub fn placeholder(mut self, placeholder: impl Into<String>) -> Self {
+        self.placeholder = Some(placeholder.into());
+        self
+    }
+
+    pub fn filter_mode(mut self, mode: SelectFilterMode) -> Self {
+        self.filter_mode = Some(mode);
+        self
+    }
+
+    pub fn bind(mut self, bind: TextBind) -> Self {
+        self.bind = bind;
+        self
+    }
+
+    common_builders!();
+}
+
+impl From<SelectboxCreationOptions> for SelectboxOptions<String> {
+    fn from(options: SelectboxCreationOptions) -> Self {
+        SelectboxOptions {
+            common: options.common,
+            labels: options.options.clone(),
+            options: options.options,
+            index: options.index,
+            placeholder: options.placeholder,
+            filter_mode: options.filter_mode,
+            bind: options.bind,
+        }
+    }
 }
 
 /// Radio options. The plain `(label, options)` call selects the first option,
@@ -1231,6 +1327,11 @@ pub trait InputWidgets {
     fn text_input(&self, options: impl Into<TextInputOptions>) -> Result<Option<String>, WidgetError>;
     /// Accept a builder or `(label, options)`; both retain the same defaults.
     fn selectbox<T: Clone + Serialize>(&self, options: impl Into<SelectboxOptions<T>>) -> Result<Option<T>, WidgetError>;
+
+    /// The creation-mode selectbox (`accept_new_options`): accepts typed
+    /// values outside its options and returns the selected string, like the
+    /// reference's str overload.
+    fn selectbox_creation(&self, options: impl Into<SelectboxCreationOptions>) -> Result<Option<String>, WidgetError>;
     /// Accept a builder or `(label, options)`. The plain call selects the
     /// first option; `.index(None)` starts unselected.
     fn radio(&self, options: impl Into<RadioOptions>) -> Result<Option<String>, WidgetError>;
@@ -1438,63 +1539,15 @@ impl<C: AppendChild> InputWidgets for C {
     }
 
     fn selectbox<T: Clone + Serialize>(&self, options: impl Into<SelectboxOptions<T>>) -> Result<Option<T>, WidgetError> {
-        let options = options.into();
-        let c = options.common;
-        let form_id = form_scope(self, c.callback.is_some())?;
-        let width_config = c.width(false)?;
-        if !options.options.is_empty() && options.index.is_some_and(|i| i >= options.options.len()) {
-            return Err(WidgetError::InvalidValue("selectbox index is outside options".into()));
-        }
-        let native: Vec<Value> = options.options.iter().map(serde_json::to_value).collect::<Result<_, _>>()?;
-        let default = options.index.filter(|index| *index < native.len()).map(Value::from).unwrap_or(Value::Null);
-        let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { format!("{:?}:{:?}", options.labels, options.index) });
-        let codec = Codec::Select(options.labels.iter().cloned().zip(native.iter().cloned()).collect());
-        let (id, selected, set_value) = self.register_widget_parity(
-            WidgetSpec {
-                kind: "selectbox",
-                key: c.key.as_deref(),
-                identity: &identity,
-                default: default.clone(),
-                codec,
-                callback: c.callback,
-            },
-            |value| {
-                if value.is_null() {
-                    Ok(None)
-                } else {
-                    value
-                        .as_u64()
-                        .and_then(|index| usize::try_from(index).ok())
-                        .filter(|index| *index < options.options.len())
-                        .map(Some)
-                        .ok_or_else(|| WidgetError::InvalidValue("invalid selection index".into()))
-                }
-            },
-        )?;
-        let result = selected.map(|index| options.options[index].clone());
-        let empty = options.options.is_empty();
-        self.push(Rc::new(RefCell::new(InputElement(proto::Element {
-            width_config,
-            has_one_shot_effect: set_value.then_some(true),
-            r#type: Some(element::Type::Selectbox(proto::Selectbox {
-                id,
-                label: c.label,
-                form_id,
-                default: if empty { None } else { options.index.map(|i| i as i32) },
-                options: options.labels.clone(),
-                help: c.help,
-                raw_value: if set_value { selected.map(|i| options.labels[i].clone()) } else { None },
-                set_value,
-                disabled: c.disabled || empty,
-                label_visibility: c.visibility.wire(),
-                placeholder: options.placeholder.unwrap_or_default(),
-                accept_new_options: Some(false),
-                ignore_rerun: c.ignore_rerun,
-                ..Default::default()
-            })),
-            ..Default::default()
-        }))));
-        Ok(result)
+        emit_selectbox(self, options.into(), false, &|_| None)
+    }
+
+    /// The creation-mode selectbox (`accept_new_options`): the wire carries
+    /// `acceptNewOptions` and a freshly typed value keeps its label string,
+    /// so the call returns `Option<String>` like the reference's str overload.
+    fn selectbox_creation(&self, options: impl Into<SelectboxCreationOptions>) -> Result<Option<String>, WidgetError> {
+        let creation: SelectboxOptions<String> = options.into().into();
+        emit_selectbox(self, creation, true, &|label| Some(label.to_string()))
     }
 
     fn radio(&self, options: impl Into<RadioOptions>) -> Result<Option<String>, WidgetError> {
@@ -1834,6 +1887,92 @@ impl<C: AppendChild> InputWidgets for C {
         self.push(Rc::new(RefCell::new(element)));
         Ok(value)
     }
+}
+
+/// The one selectbox emitter behind both the plain and the creation-mode
+/// calls: the measured 1.66.1 wire (acceptNewOptions, filterMode,
+/// queryParamKey, the string state of a freshly typed creation value).
+#[allow(clippy::type_complexity)]
+fn emit_selectbox<C: AppendChild, T: Clone + Serialize>(this: &C, options: SelectboxOptions<T>, creation: bool, creation_build: &dyn Fn(&str) -> Option<T>) -> Result<Option<T>, WidgetError> {
+    let c = options.common;
+    let form_id = form_scope(this, c.callback.is_some())?;
+    let width_config = c.width(false)?;
+    if !options.options.is_empty() && options.index.is_some_and(|i| i >= options.options.len()) {
+        return Err(WidgetError::InvalidValue("selectbox index is outside options".into()));
+    }
+    if creation && options.filter_mode.is_none() {
+        return Err(WidgetError::InvalidValue("selectbox filter_mode cannot be disabled with accept_new_options".into()));
+    }
+    if options.bind == TextBind::QueryParams && c.key.is_none() {
+        return Err(WidgetError::InvalidValue("selectbox query binding requires a key".into()));
+    }
+    let native: Vec<Value> = options.options.iter().map(serde_json::to_value).collect::<Result<_, _>>()?;
+    let default = options.index.filter(|index| *index < native.len()).map(Value::from).unwrap_or(Value::Null);
+    // Creation mode joins the widget identity, like the reference's
+    // key_as_main_identity("accept_new_options").
+    let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { format!("{:?}:{:?}:{}", options.labels, options.index, creation) });
+    let pairs = options.labels.iter().cloned().zip(native.iter().cloned()).collect();
+    let codec = if creation { Codec::SelectCreation(pairs) } else { Codec::Select(pairs) };
+    let labels = options.labels.clone();
+    let values = options.options.clone();
+    let (id, selected, set_value) = this.register_widget_parity(
+        WidgetSpec {
+            kind: "selectbox",
+            key: c.key.as_deref(),
+            identity: &identity,
+            default: default.clone(),
+            codec,
+            callback: c.callback,
+        },
+        |value| {
+            if value.is_null() {
+                return Ok(None);
+            }
+            let index = value.as_u64().and_then(|index| usize::try_from(index).ok()).filter(|index| *index < labels.len());
+            match index {
+                Some(index) => Ok(Some(values[index].clone())),
+                // Creation mode: a freshly typed value arrives as its
+                // label string outside the options list.
+                None if creation => value.as_str().and_then(creation_build).map(Some).ok_or_else(|| WidgetError::InvalidValue("invalid selection value".into())),
+                None => Err(WidgetError::InvalidValue("invalid selection index".into())),
+            }
+        },
+    )?;
+    let result = selected.clone();
+    let empty = options.options.is_empty();
+    let raw_label = |selected: &Option<T>| -> Option<String> {
+        let value = selected.as_ref()?;
+        let json = serde_json::to_value(value).ok()?;
+        native
+            .iter()
+            .position(|candidate| *candidate == json)
+            .map(|index| labels[index].clone())
+            .or_else(|| json.as_str().map(str::to_string))
+            .or_else(|| labels.first().cloned())
+    };
+    this.push(Rc::new(RefCell::new(InputElement(proto::Element {
+        width_config,
+        has_one_shot_effect: set_value.then_some(true),
+        r#type: Some(element::Type::Selectbox(proto::Selectbox {
+            id,
+            label: c.label,
+            form_id,
+            default: if empty { None } else { options.index.map(|i| i as i32) },
+            options: options.labels.clone(),
+            help: c.help,
+            raw_value: if set_value { raw_label(&selected) } else { None },
+            set_value,
+            disabled: c.disabled || (empty && !creation),
+            label_visibility: c.visibility.wire(),
+            placeholder: options.placeholder.unwrap_or_default(),
+            accept_new_options: Some(creation),
+            query_param_key: (options.bind == TextBind::QueryParams).then(|| c.key.clone()).flatten(),
+            filter_mode: options.filter_mode.map(|mode| mode.wire()).unwrap_or(crate::proto::streamlit::SelectWidgetFilterMode::FilterModeFuzzy as i32),
+            ignore_rerun: c.ignore_rerun,
+        })),
+        ..Default::default()
+    }))));
+    Ok(result)
 }
 
 #[cfg(test)]

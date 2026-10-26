@@ -115,6 +115,9 @@ pub(crate) enum Codec {
         max_chars: Option<usize>,
     },
     Select(Vec<(String, Value)>),
+    /// Creation-mode selectbox: a known label decodes to its index, an
+    /// unknown label passes through as its string (accept_new_options).
+    SelectCreation(Vec<(String, Value)>),
     /// Radio option labels; the wire state is the selected option's text.
     Radio(Vec<String>),
     /// Multiselect options paired with their native values; the wire state is
@@ -152,6 +155,11 @@ impl Codec {
             (Self::Bool, widget_state::Value::BoolValue(value)) => Some((*value).into()),
             (Self::Text { .. }, widget_state::Value::StringValue(value)) => Some(Value::String(value.clone())),
             (Self::Select(options), widget_state::Value::StringValue(label)) => options.iter().position(|(text, _)| text == label).map(Value::from),
+            (Self::SelectCreation(options), widget_state::Value::StringValue(label)) => Some(match options.iter().position(|(text, _)| text == label) {
+                Some(index) => Value::from(index),
+                // A freshly typed value keeps its label as the native value.
+                None => Value::String(label.clone()),
+            }),
             (Self::Radio(options), widget_state::Value::StringValue(label)) => options.iter().position(|text| text == label).map(Value::from),
             (Self::MultiSelect(options), widget_state::Value::StringArrayValue(array)) => {
                 let indices: Option<Vec<Value>> = array.data.iter().map(|label| options.iter().position(|(text, _)| text == label).map(Value::from)).collect();
@@ -197,6 +205,7 @@ impl Codec {
             Self::Trigger | Self::Bool => value.is_boolean(),
             Self::Text { max_chars } => value.is_null() || value.as_str().is_some_and(|text| max_chars.is_none_or(|limit| text.chars().count() <= limit)),
             Self::Select(options) => value.is_null() || value.as_u64().is_some_and(|index| index < options.len() as u64),
+            Self::SelectCreation(options) => value.is_null() || value.is_string() || value.as_u64().is_some_and(|index| index < options.len() as u64),
             Self::Radio(options) => value.is_null() || value.as_u64().is_some_and(|index| index < options.len() as u64),
             Self::MultiSelect(options) => value.as_array().is_some_and(|indices| indices.iter().all(|index| index.as_u64().is_some_and(|i| i < options.len() as u64))),
             Self::NumberInput { min, max, integer } => value
@@ -230,6 +239,11 @@ impl Codec {
     fn session_value(&self, value: &Value) -> Value {
         match self {
             Self::Select(options) => value.as_u64().and_then(|index| options.get(index as usize)).map(|(_, native)| native.clone()).unwrap_or(Value::Null),
+            Self::SelectCreation(options) => match value.as_u64().and_then(|index| options.get(index as usize)).map(|(_, native)| native.clone()) {
+                Some(native) => native,
+                // A freshly typed label already is the native value.
+                None => value.clone(),
+            },
             Self::Radio(options) => value.as_u64().and_then(|index| options.get(index as usize)).cloned().map(Value::String).unwrap_or(Value::Null),
             Self::MultiSelect(options) => Value::Array(
                 value
