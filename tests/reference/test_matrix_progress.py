@@ -74,6 +74,52 @@ def test_regeneration_preserves_bounded_partial_and_plan(workspace):
         assert regenerated["summary"]["compatibility_status_counts"] == {"partial": 1}
 
 
+def reasoned_inapplicable(data):
+    row = data["entries"][0]
+    row.update(implementation_status="not_applicable", compatibility_status="not_applicable",
+               not_applicable_reason="The page documents a Python-hosting concern with no wire surface.",
+               rust_source_path=None)
+    row["evidence"] = {"official_document_sha256": row["evidence"]["official_document_sha256"],
+                       "python_browser_trace": None}
+    return data
+
+
+def test_reasoned_inapplicable_survives_regeneration(workspace):
+    root, matrix = workspace
+    data = reasoned_inapplicable(json.loads(matrix.read_text(encoding="utf-8")))
+    expected = copy.deepcopy(data["entries"][0])
+    matrix.write_text(json.dumps(data), encoding="utf-8")
+    for _ in range(2):
+        assert verify.main() == 0
+        regenerated = json.loads(matrix.read_text(encoding="utf-8"))
+        assert regenerated["entries"][0] == expected
+        assert regenerated["summary"]["implementation_status_counts"] == {"not_applicable": 1}
+
+
+@pytest.mark.parametrize("corruption", ["no_reason", "blank_reason", "paired_wrong", "rust_source", "rust_evidence", "trace_evidence"])
+def test_inapplicable_without_reason_or_with_claims_is_rejected(workspace, corruption):
+    root, matrix = workspace
+    data = reasoned_inapplicable(json.loads(matrix.read_text(encoding="utf-8")))
+    row = data["entries"][0]
+    if corruption == "no_reason":
+        del row["not_applicable_reason"]
+    elif corruption == "blank_reason":
+        row["not_applicable_reason"] = "  "
+    elif corruption == "paired_wrong":
+        row["compatibility_status"] = "unverified"
+    elif corruption == "rust_source":
+        row["rust_source_path"] = "button.rs"
+    elif corruption == "rust_evidence":
+        row["evidence"]["rust_api_test"] = "api-test.rs"
+    else:
+        row["evidence"]["python_browser_trace"] = "oracle.json"
+    matrix.write_text(json.dumps(data), encoding="utf-8")
+    before = matrix.read_bytes()
+    with pytest.raises(ValueError):
+        verify.main()
+    assert matrix.read_bytes() == before
+
+
 @pytest.mark.parametrize("corruption", ["status", "missing", "empty", "no_oracle", "no_api", "no_ws", "no_ui", "no_scope", "supported", "supported_observation", "compatibility_status", "fake_capture"])
 def test_unsupported_claim_is_rejected_without_rewriting(workspace, corruption):
     root, matrix = workspace

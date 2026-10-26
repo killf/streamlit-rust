@@ -239,7 +239,7 @@ def merge_progress(entry: dict, old: dict | None, root: Path) -> dict:
     if old is not None:
         if old.get("official_url") != entry["official_url"]:
             raise ValueError(f"official URL changed; review retained progress for {entry['feature_id']}")
-        for key in ("implementation_status", "compatibility_status", "rust_plan", "compatibility_scope", "limitations", "rust_source_path"):
+        for key in ("implementation_status", "compatibility_status", "rust_plan", "compatibility_scope", "limitations", "rust_source_path", "not_applicable_reason"):
             if key in old:
                 entry[key] = old[key]
         if not isinstance(old.get("evidence", {}), dict):
@@ -249,8 +249,22 @@ def merge_progress(entry: dict, old: dict | None, root: Path) -> dict:
                 entry["evidence"][key] = value
     implementation = entry["implementation_status"]
     compatibility = entry["compatibility_status"]
-    if implementation not in ("absent", "candidate", "implemented") or compatibility not in ("unverified", "partial", "supported"):
+    if implementation not in ("absent", "candidate", "implemented", "not_applicable") or compatibility not in ("unverified", "partial", "supported", "not_applicable"):
         raise ValueError(f"invalid status for {entry['feature_id']}")
+    if "not_applicable" in (implementation, compatibility):
+        # An inapplicability record is a reasoned closure, not an evidence
+        # claim: the two statuses travel together, the reason is mandatory,
+        # and no Rust implementation evidence may ride along.
+        if (implementation, compatibility) != ("not_applicable", "not_applicable"):
+            raise ValueError(f"not_applicable statuses must pair for {entry['feature_id']}")
+        reason = entry.get("not_applicable_reason")
+        if not isinstance(reason, str) or not reason.strip():
+            raise ValueError(f"not_applicable requires a reason for {entry['feature_id']}")
+        if entry.get("rust_source_path"):
+            raise ValueError(f"not_applicable cannot claim Rust source for {entry['feature_id']}")
+        for key in ("python_browser_trace", "rust_api_test", "rust_wire_observation", "official_frontend_browser_e2e", "rust_api_differential", "rust_wire_differential"):
+            if entry.get("evidence", {}).get(key):
+                raise ValueError(f"not_applicable cannot carry Rust evidence ({key}) for {entry['feature_id']}")
     for key in ("rust_plan", "compatibility_scope"):
         if key in entry and (not isinstance(entry[key], str) or not entry[key].strip()):
             raise ValueError(f"empty {key}")
@@ -261,10 +275,18 @@ def merge_progress(entry: dict, old: dict | None, root: Path) -> dict:
             if not isinstance(value, dict):
                 raise ValueError("reviewed captures must be explicit provenance records")
             continue
-        if key == "official_document_sha256" or (key == "python_browser_trace" and value is None and compatibility == "unverified"):
+        if key == "official_document_sha256" or (key == "python_browser_trace" and value is None and compatibility in ("unverified", "not_applicable")):
             continue
-        evidence_file(value, root)
-    if compatibility != "unverified":
+        if isinstance(value, (list, tuple)):
+            # Fixture lists: every member must resolve, fail-closed like a
+            # single reference.
+            if not value:
+                raise ValueError(f"empty evidence list: {key}")
+            for member in value:
+                evidence_file(member, root)
+        else:
+            evidence_file(value, root)
+    if compatibility not in ("unverified", "not_applicable"):
         for key in ("python_browser_trace", "rust_wire_observation", "official_frontend_browser_e2e"):
             path = evidence_file(entry["evidence"].get(key), root)
             capture = json.loads(path.read_text(encoding="utf-8"))
@@ -306,10 +328,19 @@ def merge_progress(entry: dict, old: dict | None, root: Path) -> dict:
             if (capture.get("versions", {}).get("streamlit") != "1.66.1"
                     or not capture.get("steps") or capture.get("failures") != []
                     or not {"client->server", "server->client"} <= directions):
-                raise ValueError(f"incomplete browser/wire capture: {key}")
-    if implementation != "absent" and not entry.get("rust_source_path"):
+                # The journey chains (navigation, textelements, buttons,
+                # pickers, display2, ...) publish the observation layout:
+                # schema_version 1 with staged new_frames plus a manifest.
+                stages = (capture.get("observation") or {}).get("stages")
+                frames = [frame for stage in stages or [] for frame in stage.get("new_frames", [])]
+                stage_directions = {frame.get("direction") for frame in frames}
+                if (capture.get("schema_version") != 1 or capture.get("producer_error")
+                        or not stages or not frames
+                        or not {"client->server", "server->client"} <= stage_directions):
+                    raise ValueError(f"incomplete browser/wire capture: {key}")
+    if implementation not in ("absent", "not_applicable") and not entry.get("rust_source_path"):
         raise ValueError("candidate/implemented requires Rust source")
-    if compatibility != "unverified":
+    if compatibility not in ("unverified", "not_applicable"):
         if implementation != "implemented" or not entry.get("compatibility_scope") or not entry.get("rust_plan"):
             raise ValueError("verified progress requires implementation, concrete plan and bounded scope")
         required = ["python_browser_trace", "rust_api_test", "rust_wire_observation", "official_frontend_browser_e2e"]
