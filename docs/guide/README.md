@@ -409,8 +409,32 @@ st.set_page_config(
 
 A plain title string works too: `st.set_page_config("Wide demo")`. The call must come before the first element to take visual effect, exactly like Python. Like the measured 1.66.1 reference, every call streams one `page_config_changed` message at the call point and unset fields inherit the previous config — a second call does not fail, it streams an update. The [pageconfig example](../../streamlit/examples/pageconfig.rs) mirrors the reference fixture of the page-config differential chain.
 
+## URL query parameters
+
+```rust
+let params = st.query_params();
+params.set("mode", "demo")?;              // streams the merged URL state
+let mode = params.get("mode");            // Some("demo") once the browser reports it
+for (key, value) in params.to_vec() { /* ... */ }
+```
+
+The handle reads the URL state the browser reports with every rerun; writes stream one `page_info_changed` at the call point and merge into the current URL (alphabetically sorted, percent-encoded like Python's urlencode). `get_all`, `set_all`, `remove` (missing keys error, like Python) and `clear` are available.
+
+Selectboxes can bind to the URL and accept new values:
+
+```rust
+let pick = st.selectbox_creation(
+    SelectboxCreationOptions::new("Pick", ["a", "b"]).filter_mode(SelectFilterMode::Contains),
+)?;                                       // Option<String>; typed values are accepted
+let bound = st.selectbox(
+    SelectboxOptions::new("Bound", ["x", "y"]).key("bound").bind(TextBind::QueryParams),
+)?;                                       // queryParamKey on the wire; the frontend syncs the URL
+```
+
+The [queryparams example](../../streamlit/examples/queryparams.rs) mirrors the reference fixture of the query-params differential chain, so the URL behavior matches the Python reference.
+
 ## Current API
 
-Available APIs include text and layout, static status messages, `button`, `selectbox`, numeric and date/time `slider`, `checkbox`, the measured `form`/`form_submit_button`/`text_input` core, native session state, the layout containers (sidebar, expander, tabs, popover, dialog), `set_page_config`, media and chart elements, and the `st.rerun`/`st.stop` execution controls. See the [text/layout/status API](../../streamlit/src/api.rs), [layout containers](../../streamlit/src/elements/layouts.rs), [widget options](../../streamlit/src/widget_api.rs), and [session API](../../streamlit/src/session.rs).
+Available APIs include text and layout, static status messages, `button`, `selectbox` (including creation mode, filter modes and query binding), numeric and date/time `slider`, `checkbox`, the measured `form`/`form_submit_button`/`text_input` core, native session state, the layout containers (sidebar, expander, tabs, popover, dialog), `set_page_config`, `query_params`, media and chart elements, and the `st.rerun`/`st.stop` execution controls. See the [text/layout/status API](../../streamlit/src/api.rs), [layout containers](../../streamlit/src/elements/layouts.rs), [widget options](../../streamlit/src/widget_api.rs), [query params](../../streamlit/src/query_params.rs), and [session API](../../streamlit/src/session.rs).
 
 Upload and columnar data views currently cover the limited paths described above. General table/chart APIs, selection, complete forms/text-input behavior, cache, query binding, persistent hidden widgets, and most other input widgets remain incomplete or absent (`st.quit` does not exist in 1.66.1). Duplicate widget keys render the framework exception box as described above; other widget failures are Rust `Result` errors you handle yourself. Native session values, reruns, retained-session reconnects, synchronous callbacks, explicit widget keys and one-shot button triggers are available, without a claim of complete Streamlit compatibility.

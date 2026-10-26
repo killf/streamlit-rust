@@ -316,3 +316,32 @@ The runtime regression (streamlit/tests/runtime/pageconfig.rs) additionally
 pins the measured duplicate-call behavior — a second call streams a second
 config (no exception) and the run continues — plus the LAYOUT_UNSET /
 SIDEBAR_UNSET inherit markers.
+
+## Query params (st.query_params, selectbox upgrades)
+
+[queryparams_capture.py](queryparams_capture.py) is the permanent entry for
+the query-params chain; [queryparams_contract.py](queryparams_contract.py)
+is its strict criterion (journey-queryparams-v1, 11 checks) with unit tests
+in [tests/reference/test_queryparams_contract.py](../reference/test_queryparams_contract.py).
+The page writes one server-side param, renders a creation-mode filtered
+selectbox and a query-bound selectbox; three real-interaction stages (load,
+typed new option committed with Enter, bound pick through the dropdown)
+pin exactly one merged alphabetically-sorted `page_info_changed` per run,
+the browser-reported `ClientState.query_string` with every rerun, both
+selectbox elements field-for-field (acceptNewOptions, filterMode,
+queryParamKey), the creation string state and the DOM URL/markdown
+projections. Widget ids are judged modulo the `$$ID` digest segment; one
+leading `main_container` add_block at [0] is the Rust runtime's documented
+divergence. The published chains:
+
+```powershell
+target\pyref-venv\Scripts\python.exe tests\browser\queryparams_capture.py --replay tests\reference\reference-browser\queryparams\trace-queryparams.json
+target\pyref-venv\Scripts\python.exe tests\browser\queryparams_capture.py --replay tests\browser\rust-queryparams\trace-queryparams.json
+```
+
+Both return 11 expected / 11 executed / 11 asserted with exit 0. Raw
+SHA256: python `a7af243d6f6dfed18941dd31e63da91ecd6e4f0a9c113fb822eb1473701b8a90`,
+native `09dfc2d91c95d65d51f1a0644a09c2cc4d6d91b81d35d7bfd6964cb6b1c1aec3`,
+under contract `4f9e83f9c9b3f2fba7730b0f019591857a770124f8f3ce41b93818258a5210eb`.
+The runtime regression (streamlit/tests/runtime/queryparams.rs) pins both
+measured runs over the production websocket.
