@@ -316,6 +316,11 @@ pub(crate) struct WidgetRegistry {
     keys: HashSet<String>,
     active: bool,
     dirty_keys: HashSet<String>,
+    /// Incoming widget states whose widget is not registered yet this run;
+    /// the reference applies the browser's state at widget creation, so
+    /// these land when the widget registers (for example after another
+    /// page left it unrendered).
+    pending: Vec<crate::proto::WidgetState>,
 }
 
 pub(crate) struct WidgetSpec<'a> {
@@ -369,6 +374,7 @@ impl SessionState {
         registry.active = true;
         registry.seen.clear();
         registry.keys.clear();
+        registry.pending.clear();
         let mut values = self.values.lock();
         for record in registry.records.values_mut() {
             if matches!(record.codec, Codec::Trigger) {
@@ -392,6 +398,12 @@ impl SessionState {
         }
         for widget in incoming {
             if !received.insert(widget.id.clone()) {
+                continue;
+            }
+            if !registry.records.contains_key(&widget.id) {
+                // Applied at registration, like the reference's lazy
+                // widget-state application.
+                registry.pending.push(widget);
                 continue;
             }
             let Some(record) = registry.records.get_mut(&widget.id) else { continue };
@@ -427,7 +439,18 @@ impl SessionState {
         }
         // A constraint-dependent identity change resets the old widget binding.
         let changed_identity = key.is_some_and(|key| registry.records.iter().any(|(old_id, record)| old_id != &id && record.key.as_deref() == Some(key)));
-        let value = if changed_identity {
+        // A state the browser sent while this widget was not registered
+        // (for example on a run that rendered another page) applies here,
+        // exactly like begin_widgets would have applied it to the record.
+        // on_change callbacks of these late applications do not run.
+        let pending_value = registry
+            .pending
+            .iter()
+            .position(|state| state.id == id)
+            .map(|position| registry.pending.remove(position))
+            .and_then(|state| state.value.as_ref().and_then(|wire| codec.decode(wire)))
+            .filter(|applied| codec.valid(applied));
+        let base_value = if changed_identity {
             default
         } else if matches!(codec, Codec::Trigger) {
             registry.records.get(&id).map(|record| record.value.clone()).unwrap_or(default)
@@ -438,6 +461,7 @@ impl SessionState {
                 registry.records.get(&id).map(|record| record.value.clone()).unwrap_or(default)
             }
         };
+        let value = pending_value.unwrap_or(base_value);
         if !codec.valid(&value) {
             return Err(WidgetError::InvalidValue(format!("value does not match {kind}")));
         }

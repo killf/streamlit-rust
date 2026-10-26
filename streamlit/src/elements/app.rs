@@ -84,7 +84,7 @@ impl Element for App {
         context.active_script_hash = main_script_hash.clone();
 
         // 1. New Session
-        context.push(create_new_session(context.session_id.clone(), main_script_hash));
+        context.push(create_new_session(context.session_id.clone(), main_script_hash.clone(), main_script_hash.clone()));
         context.push(create_session_status_changed(true, false));
 
         // 2. Main Block
@@ -102,7 +102,7 @@ impl Element for App {
     }
 }
 
-pub(crate) fn create_new_session(session_id: String, main_script_hash: String) -> ForwardMsg {
+pub(crate) fn create_new_session(session_id: String, page_script_hash: String, main_script_hash: String) -> ForwardMsg {
     ForwardMsg {
         hash: "".to_string(),
         metadata: Some(ForwardMsgMetadata {
@@ -144,7 +144,7 @@ pub(crate) fn create_new_session(session_id: String, main_script_hash: String) -
             }),
             custom_theme: None,
             app_pages: vec![],
-            page_script_hash: main_script_hash.clone(),
+            page_script_hash,
             fragment_ids_this_run: vec![],
             main_script_hash,
         })),

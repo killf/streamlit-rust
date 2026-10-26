@@ -379,3 +379,36 @@ under contract `8d60e0034e52fde5c512af2101777745a7ecc39911b812f0e017a4500815b94f
 The runtime regression (streamlit/tests/runtime/cache.rs) pins both measured
 runs over the production websocket plus the argument-sensitive keying, the
 shared resource identity and the clear.
+
+## Multipage navigation (st.navigation, st.Page, st.switch_page)
+
+[navigation_capture.py](navigation_capture.py) is the permanent entry for
+the navigation chain; [navigation_contract.py](navigation_contract.py) is
+its strict criterion (journey-navigation-v1, 12 checks) with unit tests in
+[tests/reference/test_navigation_contract.py](../reference/test_navigation_contract.py).
+The page registers two function pages (a default one with session state, a
+switch button and a material icon, plus one with a custom url_path); four
+real-interaction stages (load, sidebar pick, pick back, switch through the
+button trigger) pin the per-run navigation message (pages with their
+BLAKE2b/16 url-path hashes, icon strings, the default marker, urlPathname,
+SIDEBAR position, unnamed sections, the current page), the page-hash
+addressing riding the rerun report and NewSession, session state across the
+page round trip, the switch_page empty page_info plus
+FINISHED_EARLY_FOR_RERUN and the server-only next run on the target page,
+and the DOM URL/nav/markdown projections. Widget ids are judged modulo the
+`$$ID` digest segment; the initial NewSession page hash is each runtime's
+own main script hash, and one leading `main_container` add_block per run is
+the Rust runtime's documented divergence. The published chains:
+
+```powershell
+target\pyref-venv\Scripts\python.exe tests\browser\navigation_capture.py --replay tests\reference\reference-browser\navigation\trace-navigation.json
+target\pyref-venv\Scripts\python.exe tests\browser\navigation_capture.py --replay tests\browser\rust-navigation\trace-navigation.json
+```
+
+Both return 12 expected / 12 executed / 12 asserted with exit 0. Raw
+SHA256: python `52d778f9d5d437dba3850acec7397a53be2e350df1c4688b2b9c85f091e8e7cb`,
+native `b857ece721f5bc91fe45cf0907e291085922210fad414fd589c08beec5d72abf`,
+under contract `89922dba98f5ff9a61fc8b9590cd00d216a6428da1d17846c15c4befd7d6ed17`.
+The runtime regression (streamlit/tests/runtime/navigation.rs) pins the
+page hashes, nav fields, addressing, the hits round trip and the switch
+two-run timeline over the production websocket.

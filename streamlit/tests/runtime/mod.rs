@@ -18,6 +18,7 @@ mod forms;
 mod inputs;
 mod layouts;
 mod media;
+mod navigation;
 mod overlap;
 mod pageconfig;
 mod presentation;

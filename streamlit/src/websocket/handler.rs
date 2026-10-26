@@ -7,7 +7,7 @@ use actix_ws::{MessageStream, Session};
 use futures_util::StreamExt;
 use prost::Message;
 
-async fn do_rerun_script(session: &mut Session, lease: &SessionLease, server: &StreamlitServer, widget_states: Vec<WidgetState>, query_string: String) -> Result<(), StreamlitError> {
+async fn do_rerun_script(session: &mut Session, lease: &SessionLease, server: &StreamlitServer, widget_states: Vec<WidgetState>, query_string: String, page_hash: String) -> Result<(), StreamlitError> {
     // Serialise runs even if a replacement connection arrives while its
     // predecessor is finishing.
     let _run = lease.run.lock().await;
@@ -21,12 +21,17 @@ async fn do_rerun_script(session: &mut Session, lease: &SessionLease, server: &S
     // values persist.
     let mut incoming = Some(widget_states);
     let incoming_query_string = query_string;
+    // The page the browser addressed by hash; a server-started rerun keeps
+    // the current page unless st.switch_page picked another one (measured
+    // 1.66.1 wire: the addressed page's hash rides NewSession).
+    let mut incoming_page = if page_hash.is_empty() { None } else { Some(page_hash) };
     loop {
         let callbacks = lease.state.begin_widgets(incoming.take().unwrap_or_default());
         lease.state.reset_run_control();
         // The URL state the browser reports with this rerun seeds the run's
         // query parameters (st.query_params reads and merges from it).
         lease.state.query_params.lock().load(&incoming_query_string);
+        lease.state.navigation.lock().incoming_page_hash = incoming_page.clone();
         let st = Streamlit::with_session_state(lease.state.clone());
 
         // 创建 channel 用于流式发送消息
@@ -42,7 +47,7 @@ async fn do_rerun_script(session: &mut Session, lease: &SessionLease, server: &S
             if let Some(context) = app.render_context_mut() {
                 let main_script_hash = crate::utils::hash::hash("");
                 context.active_script_hash = main_script_hash.clone();
-                context.push(crate::elements::app::create_new_session(context.session_id.clone(), main_script_hash));
+                context.push(crate::elements::app::create_new_session(context.session_id.clone(), incoming_page.clone().unwrap_or_else(|| main_script_hash.clone()), main_script_hash));
                 context.push(crate::elements::app::create_session_status_changed(true, false));
                 context.delta_path.push(0);
                 context.push(crate::elements::app::create_main_block());
@@ -95,6 +100,11 @@ async fn do_rerun_script(session: &mut Session, lease: &SessionLease, server: &S
         if lease.state.run_control() != Some(crate::session::RunControl::Rerun) {
             break;
         }
+        // st.switch_page retargets the server-started next run; a plain
+        // st.rerun keeps the page the browser addressed.
+        if let Some(target) = lease.state.navigation.lock().switch_target.take() {
+            incoming_page = Some(target);
+        }
         log::info!("st.rerun() requested within the run; starting the next run for session {}", lease.id);
     }
 
@@ -119,7 +129,7 @@ async fn handle_back_message(session: &mut Session, lease: &SessionLease, back_m
             Type::RerunScript(client_state) => {
                 log::info!("Handling rerun script request");
                 let widget_states = client_state.widget_states.map(|ws| ws.widgets).unwrap_or_default();
-                do_rerun_script(session, lease, server, widget_states, client_state.query_string).await?;
+                do_rerun_script(session, lease, server, widget_states, client_state.query_string, client_state.page_script_hash).await?;
             }
             Type::AppHeartbeat(_) => {
                 let reply = ForwardMsg {

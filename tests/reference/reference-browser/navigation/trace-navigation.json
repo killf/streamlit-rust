@@ -1,0 +1,745 @@
+{
+ "schema_version": 1,
+ "journey": "navigation-page",
+ "contract": "journey-navigation-v1",
+ "scope": "PYTHON SIDE ONLY",
+ "url": "http://127.0.0.1:8618/",
+ "observation": {
+  "journey": "navigation-page",
+  "contract": "journey-navigation-v1",
+  "scope": "PYTHON SIDE ONLY",
+  "url": "http://127.0.0.1:8618/",
+  "binary": null,
+  "source": {
+   "file": "tests/reference/navigation_app.py",
+   "sha256": "ec3eed1425f88a1bc25c1bde7c8884eb953bca1658344a4b15e5b66b28701bb4"
+  },
+  "capture_sources": {
+   "navigation_capture.py": "40112f4506f8e8312acbb7e32b7735d6e3a883f28c9a4c571a81d456029422bb",
+   "navigation_contract.py": "89922dba98f5ff9a61fc8b9590cd00d216a6428da1d17846c15c4befd7d6ed17"
+  },
+  "stages": [
+   {
+    "name": "01-load",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 54346.463304,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": []
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 54346.46491,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "5108141b-1275-4fea-8a30-0cb6474131dc",
+        "name": "navigation_app",
+        "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\navigation_app.py",
+        "page_script_hash": "20374b949b7cda45590748d5bfc630f1",
+        "main_script_hash": "20374b949b7cda45590748d5bfc630f1",
+        "session_id": "c19c6cce-e771-4a46-9fea-24fae90d2e8e"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 54346.466324,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 54346.496221,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "navigation",
+       "navigation": {
+        "sections": [
+         ""
+        ],
+        "appPages": [
+         {
+          "pageScriptHash": "4e89e30dce2a0c9070887e292d3255e7",
+          "pageName": "Main",
+          "icon": ":material/home:",
+          "isDefault": true
+         },
+         {
+          "pageScriptHash": "d681734f8c454b90df4d5feea7487445",
+          "pageName": "Two",
+          "urlPathname": "two"
+         }
+        ],
+        "position": "SIDEBAR",
+        "pageScriptHash": "4e89e30dce2a0c9070887e292d3255e7"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 54346.503629,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "page=main hits=1",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 54346.504099,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "button",
+        "widget": {
+         "id": "$$ID-bf8a25d7cee6b6b11e53de1446109712-None",
+         "label": "Switch",
+         "type": "secondary"
+        },
+        "id": "$$ID-bf8a25d7cee6b6b11e53de1446109712-None",
+        "label": "Switch",
+        "accepted_types": [
+         "secondary"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 54346.504252,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 54346.50436,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "http": [],
+    "dom": {
+     "url": "/",
+     "nav": [
+      "homeMain",
+      "Two"
+     ],
+     "markdowns": [
+      "page=main hits=1"
+     ],
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "01-load.png",
+     "sha256": "e0cb342d3027d69277854322fc46a93378b9e4cfff92739970eac4dacb1d22cd"
+    }
+   },
+   {
+    "name": "02-click-two",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 54351.416293,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": [],
+        "page_script_hash": "d681734f8c454b90df4d5feea7487445"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 54351.438745,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "254baed4-4b12-4a88-9cbd-79b470cb0b06",
+        "name": "navigation_app",
+        "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\navigation_app.py",
+        "page_script_hash": "d681734f8c454b90df4d5feea7487445",
+        "main_script_hash": "20374b949b7cda45590748d5bfc630f1",
+        "session_id": "c19c6cce-e771-4a46-9fea-24fae90d2e8e"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 54351.446903,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 54351.449707,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "navigation",
+       "navigation": {
+        "sections": [
+         ""
+        ],
+        "appPages": [
+         {
+          "pageScriptHash": "4e89e30dce2a0c9070887e292d3255e7",
+          "pageName": "Main",
+          "icon": ":material/home:",
+          "isDefault": true
+         },
+         {
+          "pageScriptHash": "d681734f8c454b90df4d5feea7487445",
+          "pageName": "Two",
+          "urlPathname": "two"
+         }
+        ],
+        "position": "SIDEBAR",
+        "pageScriptHash": "d681734f8c454b90df4d5feea7487445"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 54351.454297,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "page=two",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 54351.454553,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 54351.454619,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "http": [],
+    "dom": {
+     "url": "/two",
+     "nav": [
+      "homeMain",
+      "Two"
+     ],
+     "markdowns": [
+      "page=two"
+     ],
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "02-click-two.png",
+     "sha256": "329d1d92962932a7983909e54769f22b9e187292a0a636c866895806efe7398b"
+    }
+   },
+   {
+    "name": "03-back-main",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 54355.557957,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": [],
+        "page_script_hash": "4e89e30dce2a0c9070887e292d3255e7"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 54355.563679,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "daf79dac-06d1-4e27-9afe-aab56c19927c",
+        "name": "navigation_app",
+        "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\navigation_app.py",
+        "page_script_hash": "4e89e30dce2a0c9070887e292d3255e7",
+        "main_script_hash": "20374b949b7cda45590748d5bfc630f1",
+        "session_id": "c19c6cce-e771-4a46-9fea-24fae90d2e8e"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 54355.580317,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 54355.583452,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "navigation",
+       "navigation": {
+        "sections": [
+         ""
+        ],
+        "appPages": [
+         {
+          "pageScriptHash": "4e89e30dce2a0c9070887e292d3255e7",
+          "pageName": "Main",
+          "icon": ":material/home:",
+          "isDefault": true
+         },
+         {
+          "pageScriptHash": "d681734f8c454b90df4d5feea7487445",
+          "pageName": "Two",
+          "urlPathname": "two"
+         }
+        ],
+        "position": "SIDEBAR",
+        "pageScriptHash": "4e89e30dce2a0c9070887e292d3255e7"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 54355.583712,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "page=main hits=2",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 54355.588411,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "button",
+        "widget": {
+         "id": "$$ID-bf8a25d7cee6b6b11e53de1446109712-None",
+         "label": "Switch",
+         "type": "secondary"
+        },
+        "id": "$$ID-bf8a25d7cee6b6b11e53de1446109712-None",
+        "label": "Switch",
+        "accepted_types": [
+         "secondary"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 54355.588526,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 54355.588567,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "http": [],
+    "dom": {
+     "url": "/",
+     "nav": [
+      "homeMain",
+      "Two"
+     ],
+     "markdowns": [
+      "page=main hits=2"
+     ],
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "03-back-main.png",
+     "sha256": "08e3ab1a67cde3de4018f01d1a4e85b7f5821945461d21a04ea4933e38f3f641"
+    }
+   },
+   {
+    "name": "04-switch-button",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 54359.969726,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": [
+         {
+          "id": "$$ID-bf8a25d7cee6b6b11e53de1446109712-None",
+          "value_field": "trigger_value",
+          "value": true
+         }
+        ],
+        "page_script_hash": "4e89e30dce2a0c9070887e292d3255e7"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 54359.971521,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "2ee1a80b-2765-4322-9cb4-01e1ecc48b3b",
+        "name": "navigation_app",
+        "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\navigation_app.py",
+        "page_script_hash": "4e89e30dce2a0c9070887e292d3255e7",
+        "main_script_hash": "20374b949b7cda45590748d5bfc630f1",
+        "session_id": "c19c6cce-e771-4a46-9fea-24fae90d2e8e"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 54359.974404,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 54359.976563,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "navigation",
+       "navigation": {
+        "sections": [
+         ""
+        ],
+        "appPages": [
+         {
+          "pageScriptHash": "4e89e30dce2a0c9070887e292d3255e7",
+          "pageName": "Main",
+          "icon": ":material/home:",
+          "isDefault": true
+         },
+         {
+          "pageScriptHash": "d681734f8c454b90df4d5feea7487445",
+          "pageName": "Two",
+          "urlPathname": "two"
+         }
+        ],
+        "position": "SIDEBAR",
+        "pageScriptHash": "4e89e30dce2a0c9070887e292d3255e7"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 54359.976724,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "page=main hits=3",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 54359.976778,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "button",
+        "widget": {
+         "id": "$$ID-bf8a25d7cee6b6b11e53de1446109712-None",
+         "label": "Switch",
+         "type": "secondary"
+        },
+        "id": "$$ID-bf8a25d7cee6b6b11e53de1446109712-None",
+        "label": "Switch",
+        "accepted_types": [
+         "secondary"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 54359.976814,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "page_info_changed",
+       "page_info": {
+        "query_string": ""
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 54360.001638,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 2,
+        "status_name": "FINISHED_EARLY_FOR_RERUN"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 54360.003794,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 54360.0136,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "a77ba6a4-c7a8-4b4d-9c31-c887ac35b6fc",
+        "name": "navigation_app",
+        "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\navigation_app.py",
+        "page_script_hash": "d681734f8c454b90df4d5feea7487445",
+        "main_script_hash": "20374b949b7cda45590748d5bfc630f1",
+        "session_id": "c19c6cce-e771-4a46-9fea-24fae90d2e8e"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 54360.013808,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 54360.01601,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "navigation",
+       "navigation": {
+        "sections": [
+         ""
+        ],
+        "appPages": [
+         {
+          "pageScriptHash": "4e89e30dce2a0c9070887e292d3255e7",
+          "pageName": "Main",
+          "icon": ":material/home:",
+          "isDefault": true
+         },
+         {
+          "pageScriptHash": "d681734f8c454b90df4d5feea7487445",
+          "pageName": "Two",
+          "urlPathname": "two"
+         }
+        ],
+        "position": "SIDEBAR",
+        "pageScriptHash": "d681734f8c454b90df4d5feea7487445"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 54360.018694,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "body": "page=two",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 54360.018758,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 54360.018792,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "http": [],
+    "dom": {
+     "url": "/two",
+     "nav": [
+      "homeMain",
+      "Two"
+     ],
+     "markdowns": [
+      "page=two"
+     ],
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "04-switch-button.png",
+     "sha256": "d9706e94c1999e213c47b81cc62ded90e7fcb3e51f134a626541bc19db262bf7"
+    }
+   }
+  ],
+  "ipc_dir": "D:\\dlab\\streamlit-rust\\tests\\reference\\reference-browser\\navigation"
+ },
+ "counts": {
+  "expected": 12,
+  "executed": 12,
+  "asserted": 12
+ },
+ "failures": []
+}

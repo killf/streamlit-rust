@@ -39,6 +39,10 @@ pub struct SessionState {
     pub(crate) query_params: Arc<Mutex<crate::query_params::QueryParamStore>>,
     /// The memoized cache_data/cache_resource entries of this session.
     pub(crate) caches: Arc<Mutex<crate::cache::CacheStore>>,
+    /// The multipage navigation state: the browser-reported page hash of the
+    /// current run, the registered pages and a pending st.switch_page
+    /// target (st.navigation / st.switch_page).
+    pub(crate) navigation: Arc<Mutex<crate::navigation::NavigationStore>>,
 }
 
 impl SessionState {
