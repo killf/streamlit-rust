@@ -16,6 +16,8 @@
 
 **长期 M0：建立完整能力与验证基线，进行中。** 起点为 `99b1ed8e4b35737c9495764fb70269271a10bada`，开始时工作区干净。当前正在依据官方文档盘点功能和场景、复核不适用项、建立 Rust/Python 验证及性能基线。已校验的 wheel 用于固定参考环境，不能代替官方文档的功能分母。未运行、失败和历史结果分别记录；未宣称 M0 已完成。
 
+已完成 54 项历史 `not_applicable` 的用户文档适用性复核，结论见 [compatibility](compatibility.md#historical-not-applicable-closures-and-m0-review)；没有将缺少 Rust 实现视为永久排除，也没有自动改写旧状态。Q1–Q6 的已确认修复与对应证据已分批落地，覆盖范围见 acceptance；这不等于完整 M0 或全功能验收结束。
+
 本轮临时测量和日志保存在忽略的 `target/checks/m0-baseline/`；功能清单在现有官方文档矩阵基础上补足范围与子能力，不另建 Python API 分母。缺失的旧 docs HTML/catalog 不由下载归档冒充恢复；新抓取保留实际日期和文档版本。长期 M0 的数据和工具完成后，经独立 Review 核验，再进入 M1。
 
 ## Long-term milestones
