@@ -131,3 +131,7 @@
 # Public script cache observations preserve data and original warnings.
 /tests/reference/reference-browser/cache-kind-isolation/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 /tests/reference/reference-browser/cache-kind-isolation/**/*.log whitespace=blank-at-eol,space-before-tab,cr-at-eol,-blank-at-eof
+
+# Original Range request/response bytes retain captured CRLF and logs.
+/tests/reference/reference-browser/media-range/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+/tests/reference/reference-browser/media-range/**/*.log whitespace=blank-at-eol,space-before-tab,cr-at-eol,-blank-at-eof

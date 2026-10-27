@@ -219,6 +219,71 @@ fn download_boundaries_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> 
     })
 }
 
+fn range_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        let result: TestResult = (|| {
+            st.download_button(crate::DownloadButtonOptions::new("range-csv", b"id,region\nA,north\n".to_vec()).file_name("range.csv").mime("text/csv").key("range-csv").ignore_rerun(true))?;
+            st.download_button(crate::DownloadButtonOptions::new("range-empty", Vec::new()).file_name("empty.bin").mime("application/octet-stream").key("range-empty").ignore_rerun(true))?;
+            st.video((VIDEO_SAMPLE.to_vec(), "video/mp4"));
+            Ok(())
+        })();
+        assert!(result.is_ok(), "range fixture failed: {result:?}");
+    })
+}
+
+#[actix_web::test]
+async fn media_ranges_match_twenty_seven_frozen_public_http_requests() -> TestResult {
+    let reference: serde_json::Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/media-range/range-input-output.json"))?;
+    assert_eq!(reference["reference_version"], "1.66.1");
+    let cases = reference["cases"].as_array().ok_or("range cases missing")?;
+    assert_eq!(cases.len(), 27);
+    let (address, handle, task, mut socket) = start_media_server(range_entry).await?;
+    let captured = tokio::time::timeout(Duration::from_secs(10), async {
+        let wires = run_once(&mut socket, &mut String::new()).await?;
+        let urls: std::collections::HashMap<_, _> = wires
+            .elements
+            .into_iter()
+            .filter_map(|element| match element.r#type {
+                Some(element::Type::DownloadButton(button)) => Some((button.label.trim_start_matches("range-").to_string(), button.url)),
+                Some(element::Type::Video(video)) => Some(("video".into(), video.url)),
+                _ => None,
+            })
+            .collect();
+        let mut responses = Vec::new();
+        for case in cases {
+            let asset = case["asset"].as_str().ok_or("range asset missing")?;
+            let url = urls.get(asset).ok_or("public entry did not emit the asset")?;
+            responses.push((url.clone(), http_get(address, url, case["range_header"].as_str()).await?));
+        }
+        Ok::<_, Box<dyn std::error::Error>>(responses)
+    })
+    .await;
+    // 先采完并清理，再逐项比对；红断言不会遗留服务。
+    drop(socket);
+    handle.stop(false).await;
+    task.await??;
+    let responses = captured??;
+    for ((_, (status, _, _)), case) in responses.iter().zip(cases) {
+        println!("range case={} asset={} header={} actual={} expected={}", case["label"], case["asset"], case["range_header"], status, case["status"]);
+    }
+    assert_eq!(responses.len(), cases.len());
+    for ((url, (status, headers, body)), case) in responses.into_iter().zip(cases) {
+        assert_eq!(url, case["url"], "{}: actual public URL", case["label"]);
+        assert_eq!(Some(u64::from(status)), case["status"].as_u64(), "{}", case["label"]);
+        let expected: Vec<(String, String)> = serde_json::from_value(case["headers"].clone())?;
+        for name in ["content-range", "content-length", "content-type", "content-disposition", "accept-ranges"] {
+            assert_eq!(
+                headers.iter().find(|(key, _)| key == name).map(|(_, value)| value),
+                expected.iter().find(|(key, _)| key.eq_ignore_ascii_case(name)).map(|(_, value)| value),
+                "{}: {name}",
+                case["label"]
+            );
+        }
+        assert_eq!(body, serde_json::from_value::<Vec<u8>>(case["body_bytes"].clone())?, "{}: response bytes", case["label"]);
+    }
+    Ok(())
+}
+
 #[actix_web::test]
 async fn download_headers_and_bytes_match_ten_frozen_public_cases() -> TestResult {
     let reference: serde_json::Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/download-boundaries/download-cases.json"))?;

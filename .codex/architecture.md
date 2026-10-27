@@ -163,6 +163,16 @@ A 的 wire 规范化仅限此 generic Vega 的顶层 Arrow data 与单个 named 
 
 已按上述最小设计修复：原真实公开调用的 `Some(42)`→None 红断言转绿。Python 四组 bare-script 公开调用证明同函数双包装独立，真实 MemoryCacheStorageManager 告警原样保留，数据已冻结；Rust 复用初始四次调用和合法 null，另验证参数变化、两类清空和 Arc 身份。新两轮真实 Rust WS 证明各自的 computed=1/2 输出在原会话重放，后轮不重复计算、不带 miss transient，路径连续；不是 Python UI/wire 对照。缓存组六项和新五项离线检查通过，独立 Review 无阻塞；跨会话/全局/TTL/分类别清空仍未据此完成。
 
+## Media Range boundary correction
+
+原 `ByteRange::parse` 只接受 bytes=a-b/a-；后缀、非法、越界、多范围均回退为整文件 200。新一次公开 download_button/video 的真实 WS→HTTP 参考包含 23 请求，证明后缀等为 206，非法/越界/多范围及空文件上的非空 Range 为 416、正文 `Invalid range` 与 `Content-Range: bytes */N`。仅另补四个此前未测数字语法/空 header 请求，原 23 条不重采；无连字符、下划线、超 u64 的 end 均有实际响应依据。不存在 multipart 设计选择，目标 1.66.1 实际拒绝多范围。
+
+先补使用说明，再让真实 Rust 公共调用发射同一内容地址，以原 Range 字符串逐个 GET 留红。修复范围仅 `media.rs` 的既有解析器、`server.rs` 的 416 分支、现有媒体运行回归与冻结证据/指南/矩阵：保留公开 `Option<ByteRange>` 签名，不增接口或依赖。数字语法保留已测的空白、大小写、可选加号/下划线；用校验十进制字符后饱和累积避免固定整数溢出导致合法后缀/end 被误拒，最终范围始终受文件长度约束。非空但无效 Range 提前返回精确 416，不带成功下载的附件/Accept-Ranges；空 header 与无 header 保持整文件响应。
+
+验收按冻结 27 请求精确对照状态、Content-Range/Length/Type、附件/Accept-Ranges 有无及原字节；解析器同时读取相同参考，覆盖 0 长度和超 u64 数字。保留已有普通媒体、200/206/404、下载文件名与重复读取回归，不改旧正确 raw 或标准。新参考是协议/HTTP，不能冒称浏览器定位动作已测；HTTP HEAD、If-Range/CORS、全部数字字符或超长 header 与完整生命周期不在本批已测范围，长期媒体目标不因此关闭。
+
+已完成真实红→绿：`bytes=-5` 原为 200，而目标为 206；修后全部 27 个请求逐字匹配，11 项媒体相关 Rust 检查及五项新离线检查通过。首次夹具误用未声明 base64 crate 的编译失败另存，纠正为从原 HTTP 提取受核验字节数组后才构成产品红复现，无新依赖。旧 suffix=未知时返回 None 的内部断言已按新公开参考改为有效后缀区间，不更改旧 Python raw；原有效 200/206/404、重复下载和文件名边界继续检查。
+
 ## Dependency and launch audit (2026-10-25)
 
 这是基于 `590aed547f062b6791689ffe48940ffd6461a603`、Windows MSVC 的历史依赖审计，不是当前安全检测或 MSRV 认证。当前依赖以 Cargo.toml/Cargo.lock 为准，当前工具链和检查见 [acceptance](acceptance.md#current-m0-baseline-2026-10-27)；不再把当时的“最新版本”、测试计数或升级范围写成现行约束。历史 stable 1.95 / nightly 1.98 的编译不能证明最低 Rust 版本可用。

@@ -116,6 +116,16 @@ Rust 新增三项回归：原错误值/资源身份、参数变化和清空；�
 
 该修复不关闭完整缓存能力：全局/跨会话、分类别或函数清空、TTL、持久化、全部序列化类型、异常与并发仍待后续设计/验证。CSV 来源规则和 generic Vega 方案继续待用户选择，长期 Goal 保持进行中。
 
+## Current media Range validation (2026-10-27)
+
+原 Rust 对 `bytes=-5` 返回整文件 200，而冻结公开参考为 206；许多非法/越界请求同样错返整文件。使用说明先行后，扩展既有单范围解析并在非空无效 Range 时提前返回 416，保留公开 `Option<ByteRange>` 签名、内容地址与依赖。先校验数字再饱和累积，合法超大 suffix/end 仍按文件边界解释，不引入新大小限额；空内容与空 header 分别核验。旧 suffix fallback 的内部断言按新真实参考更新，旧 Python raw 未改。
+
+[冻结参考](../tests/reference/reference-browser/media-range/README.md)包含最初 23 个新请求和仅四个补充整数/空 header 输入，合计 16 PB、27 HTTP；原 23 个未重采。实际 2×200、12×206、13×416，所有 416 均为 13 字节 `Invalid range`、`Content-Range: bytes */N` 且无成功下载头。Rust 公共调用实际发射 URL 后逐个 GET，精确核对状态、五项头的值/有无及原字节；解析器复用同一组记录。派生字节表逐项连接原请求/响应与公开输入，避免加 base64 依赖；首次夹具编译失败单独保留，不充当产品红复现。两次自有进程、WS 和端口都已清理，root 再核对 PID 消失、无监听。
+
+格式与全目标 Clippy、11 项媒体相关 Rust 检查、最终 192 项 Rust（169 库/运行模块、2 宏、1 ledger、4 rustdoc、16 示例）及 1513 项冻结参考检查通过，96 条既有 Pillow 告警和 MSVC linker_messages 提示保留。独立只读 Review 核对数学边界、16 PB、原 HTTP 与派生字节，无范围内阻塞；完整命令/退出码/红绿日志索引见本地 `target/checks/m3-media-range/results.json`。矩阵仅在下载/视频条目补传输子集，状态及 summary 不变。
+
+未据此宣称浏览器拖动定位、HEAD、If-Range/CORS、重复或全部数字/header 语法、所有媒体类型及完整资源生命周期已验收。按当前 Goal 授权提交推送工作分支，不创建 PR/MR、不合并/发布/部署；CSV 来源与 generic Vega 关键取舍仍待用户选择，长期 Goal 继续。
+
 ## Required fresh-checkout checks
 
 ```powershell

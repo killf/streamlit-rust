@@ -131,8 +131,9 @@ pub fn extension(mime: &str) -> Option<&'static str> {
     })
 }
 
-/// A parsed `Range: bytes=...` request. `bytes=a-` (open end) and `bytes=a-b`
-/// are the measured forms; anything else is served as a full 200 response.
+/// A parsed single byte range, including open-ended and suffix requests.
+/// Invalid ranges return `None`; the media route answers nonempty invalid
+/// Range headers with the measured 416 response instead of the full file.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ByteRange {
     pub start: u64,
@@ -141,23 +142,42 @@ pub struct ByteRange {
 
 impl ByteRange {
     pub fn parse(header: &str, total: u64) -> Option<Self> {
-        let spec = header.strip_prefix("bytes=")?;
-        let (start, end) = spec.split_once('-')?;
-        if start.is_empty() {
-            // A suffix range (`bytes=-n`) was never measured; serve the
-            // full body rather than guessing upstream's shape.
+        // 1. 空内容、未知单位和多范围都没有可返回的单个区间。
+        if total == 0 {
             return None;
         }
-        let start: u64 = start.parse().ok()?;
+        let (units, spec) = header.split_once('=')?;
+        if !units.trim().eq_ignore_ascii_case("bytes") || spec.contains(',') {
+            return None;
+        }
+        let spec = spec.trim();
+        let last = total - 1;
+
+        // 2. 后缀大于文件长度时取整文件；零后缀仍是无效请求。
+        if let Some(suffix) = spec.strip_prefix('-') {
+            let suffix = range_integer(suffix)?;
+            return (suffix > 0).then(|| Self { start: total.saturating_sub(suffix), end: last });
+        }
+
+        // 3. 先校验起点，再把开放或超长终点收敛到最后一个字节。
+        let (start, end) = spec.split_once('-').unwrap_or((spec, ""));
+        let start = range_integer(start)?;
         if start >= total {
             return None;
         }
-        let end = match end {
-            "" => total - 1,
-            text => text.parse::<u64>().ok()?.min(total - 1),
-        };
+        let end = if end.is_empty() { last } else { range_integer(end)?.min(last) };
         (start <= end).then_some(Self { start, end })
     }
+}
+
+/// 饱和只影响超过 u64 的数量，不改变最终受文件长度限制的范围。
+fn range_integer(text: &str) -> Option<u64> {
+    let text = text.trim();
+    let digits = text.strip_prefix('+').unwrap_or(text);
+    if digits.split('_').any(|part| part.is_empty() || !part.bytes().all(|byte| byte.is_ascii_digit())) {
+        return None;
+    }
+    Some(digits.bytes().filter(|byte| *byte != b'_').fold(0_u64, |value, byte| value.saturating_mul(10).saturating_add(u64::from(byte - b'0'))))
 }
 
 /// A minimal RGBA PNG encoder: stored (uncompressed) deflate blocks in a
@@ -320,8 +340,39 @@ mod tests {
         assert_eq!(ByteRange::parse("bytes=90-500", 100), Some(ByteRange { start: 90, end: 99 }));
         assert_eq!(ByteRange::parse("bytes=100-", 100), None);
         assert_eq!(ByteRange::parse("bytes=5-2", 100), None);
-        assert_eq!(ByteRange::parse("bytes=-500", 100), None);
+        assert_eq!(ByteRange::parse("bytes=-500", 100), Some(ByteRange { start: 0, end: 99 }));
         assert_eq!(ByteRange::parse("items=0-", 100), None);
+    }
+
+    #[test]
+    fn byte_range_parser_matches_frozen_response_intervals() -> anyhow::Result<()> {
+        let reference: serde_json::Value = serde_json::from_str(include_str!("../../tests/reference/reference-browser/media-range/range-input-output.json"))?;
+        assert_eq!(reference["reference_version"], "1.66.1");
+        let cases = reference["cases"].as_array().ok_or_else(|| anyhow::anyhow!("range cases missing"))?;
+        assert_eq!(cases.len(), 27);
+        for case in cases {
+            let asset = case["asset"].as_str().ok_or_else(|| anyhow::anyhow!("asset missing"))?;
+            let total = reference["asset_lengths"][asset].as_u64().ok_or_else(|| anyhow::anyhow!("asset length missing"))?;
+            let actual = ByteRange::parse(case["range_header"].as_str().unwrap_or(""), total);
+            let expected = if case["status"] == 206 {
+                let headers: Vec<(String, String)> = serde_json::from_value(case["headers"].clone())?;
+                let header = headers.iter().find(|(key, _)| key.eq_ignore_ascii_case("content-range")).ok_or_else(|| anyhow::anyhow!("content-range missing"))?;
+                let span = header.1.strip_prefix("bytes ").and_then(|value| value.split_once('/')).ok_or_else(|| anyhow::anyhow!("invalid interval"))?;
+                assert_eq!(span.1.parse::<u64>()?, total);
+                let (start, end) = span.0.split_once('-').ok_or_else(|| anyhow::anyhow!("invalid endpoints"))?;
+                Some(ByteRange { start: start.parse()?, end: end.parse()? })
+            } else {
+                None
+            };
+            assert_eq!(actual, expected, "{}", case["label"]);
+        }
+
+        // 额外的 Rust 整数/格式边界，不冒称已采集 Python 超长输入。
+        assert_eq!(ByteRange::parse("bytes=-18446744073709551616", u64::MAX), Some(ByteRange { start: 0, end: u64::MAX - 1 }));
+        for header in ["bytes=1__0-", "bytes=_1-", "bytes=1_-", "bytes=0--1", "bytes=--1", "bytes=0-+"] {
+            assert_eq!(ByteRange::parse(header, 18), None, "{header}");
+        }
+        Ok(())
     }
 
     #[test]

@@ -115,7 +115,7 @@ async fn delete_upload(req: HttpRequest, path: web::Path<(String, String)>, serv
 }
 
 // The measured media route (see .codex/compatibility.md, Media route): the
-// browser resolves the element's relative URL `GET /media/{md5}.{ext}`. A
+// browser resolves the element's relative URL `GET /media/{file_id}.{ext}`. A
 // full request answers 200 with `accept-ranges: bytes`; a `bytes=a-b`
 // Range request answers 206 with `content-range` and the sliced body.
 // Content types ride the store's addressing, so the extension is cosmetic.
@@ -148,7 +148,18 @@ async fn media_file(req: HttpRequest, path: web::Path<String>) -> HttpResponse {
         }
     };
     let bytes = file.bytes;
-    let range = req.headers().get("range").and_then(|value| value.to_str().ok()).and_then(|header| crate::media::ByteRange::parse(header, bytes.len() as u64));
+    let range = match req.headers().get("range").filter(|value| !value.as_bytes().is_empty()) {
+        Some(header) => match header.to_str().ok().and_then(|header| crate::media::ByteRange::parse(header, bytes.len() as u64)) {
+            Some(range) => Some(range),
+            None => {
+                return HttpResponse::RangeNotSatisfiable()
+                    .insert_header((CONTENT_RANGE, format!("bytes */{}", bytes.len())))
+                    .content_type("text/plain; charset=utf-8")
+                    .body("Invalid range");
+            }
+        },
+        None => None,
+    };
     let mut response = if range.is_some() { HttpResponse::PartialContent() } else { HttpResponse::Ok() };
     response.insert_header((ACCEPT_RANGES, "bytes"));
     // 1. 只补响应头；原 MIME 仍决定内容地址和默认文件后缀。

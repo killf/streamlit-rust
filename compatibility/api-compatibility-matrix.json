@@ -2718,6 +2718,11 @@
         "contract_guards": "tests/reference/test_buttons_contract.py",
         "driven_fixture": "tests/reference/buttons_app.py",
         "driven_example": "streamlit/examples/buttons.rs",
+        "media_range_boundaries": [
+          "tests/reference/reference-browser/media-range/README.md",
+          "tests/reference/test_media_range_reference.py",
+          "streamlit/tests/runtime/media.rs"
+        ],
         "csv_workbench": [
           "tests/reference/reference-browser/csv-workbench/README.md",
           "tests/browser/rust-csv-workbench/README.md",
@@ -2734,7 +2739,8 @@
       "compatibility_scope": "The journey-buttons-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome across six measured stages (the load and one committed interaction each for the toggle, the single-select pill, the pagination page, the feedback star and the menu pick); the published replays assert 17/17 checks per side, covering every element's full wire message, the browser's widget-state reports and the settled DOM. Added 2026-10-27: 33 native text-CSV workflow stages (20 main and 13 filters) match frozen Python logical rows, draft behavior, counts and actual downloaded CSV bytes, including two-session isolation. Source replacement/reset remains unresolved; this is a measured subset, not complete CSV or default-chart compatibility.",
       "limitations": [
         "Coverage is the journey-buttons-v1 chain: the pinned fixture's widget set (two toggles, stars+thumbs feedback, single/multi pills, one segmented control, a 10-page pagination, one menu button, one text download, one keyed link button, one external page link) across the load and five committed interactions (toggle flip, single pill pick, page-2 click, third star, CSV menu pick).",
-        "Text/plain element evidence is retained; the CSV workflow proves real UTF-8 CSV GET/download bytes and attachment filename, plus Rust HTTP Range/repeat/unknown-id regression. Ten additional frozen public byte inputs now match actual Rust WS/HTTP URLs, headers and bytes: default/empty/ASCII/Unicode/quote/backslash filenames, text charset, explicit charset, JSON and unknown MIME. Two real Rust browser clicks save the default and Unicode filenames with original bytes; HTTP Fetch occurred during initial rendering, before clicks. Other punctuation, all MIME mappings, text/file-like inference, deferred callable generation and complete media lifecycle remain unverified or incomplete."
+        "Text/plain element evidence is retained; the CSV workflow proves real UTF-8 CSV GET/download bytes and attachment filename, plus Rust HTTP Range/repeat/unknown-id regression. Ten additional frozen public byte inputs now match actual Rust WS/HTTP URLs, headers and bytes: default/empty/ASCII/Unicode/quote/backslash filenames, text charset, explicit charset, JSON and unknown MIME. Two real Rust browser clicks save the default and Unicode filenames with original bytes; HTTP Fetch occurred during initial rendering, before clicks. Other punctuation, all MIME mappings, text/file-like inference, deferred callable generation and complete media lifecycle remain unverified or incomplete.",
+        "Added Range subset: 27 actual public-call WS/HTTP inputs across CSV, empty download and the committed MP4, including three video requests. Rust matches frozen status/URL/range/length/type/disposition/accept-ranges and original bytes, with 206 suffixes and 416 invalid or unsatisfiable single/multi requests. This does not establish browser seeking, HEAD, If-Range/CORS, duplicate or all numeric/header forms, or full media lifecycle."
       ]
     },
     {
@@ -3693,13 +3699,19 @@
         "driven_fixture": "tests/reference/video_app.py",
         "driven_example": "streamlit/examples/video.rs",
         "committed_sample": "tests/reference/video_sample.mp4",
-        "rust_api_test": "streamlit/tests/runtime/media.rs"
+        "rust_api_test": "streamlit/tests/runtime/media.rs",
+        "media_range_boundaries": [
+          "tests/reference/reference-browser/media-range/README.md",
+          "tests/reference/test_media_range_reference.py",
+          "streamlit/tests/runtime/media.rs"
+        ]
       },
       "rust_plan": "st.video((bytes, \"video/mp4\")) registers the bytes in the content-addressed store and emits the measured Video element: the NATIVE type, the relative /media/{blake2b}.mp4 URL and the stretch width inside the message.",
       "compatibility_scope": "The journey-video-v1 chain: the pinned Python 1.66.1 fixture and the Rust example both serve the same committed one-second sample (a deterministic ffmpeg testsrc2 encode), so the media address /media/89d6baf253834c013e2bc52aab2354d4.mp4, the 206 Range response with content-range bytes 0-3604/3605 and the served body digest are byte-identical across runtimes; the element proto (NATIVE + in-message stretch width) and the DOM player projection match exactly (both published replays 10/10/10 exit 0, python b27a3a2c... / native 76b6ca78...).",
       "limitations": [
         "Coverage is the measured default call with in-memory mp4 bytes; start_time/end_time, loop, autoplay, muted, subtitles, YouTube/iframes and mime types beyond the measured map are unobserved.",
-        "elements source SHA256 a3ed5029dc980c92940a32491c2804b441cfe6d47957a90dec710a36b7fabe57; fixture SHA256 d4e68536b660625c83a839cab53497c645be6c7a4874317205634359854f63e9; example SHA256 16cb08e45262af3a4810fc004f6f0880a786b5ca31089a492b8a1579d0a1d4d5; sample SHA256 dcda48c8cec73a32406a184d635c41a324107f0f51a0cb0fe1124cc0791a19a6."
+        "Committed video sample SHA256 dcda48c8cec73a32406a184d635c41a324107f0f51a0cb0fe1124cc0791a19a6; data integrity is retained without source identity gates.",
+        "Added Range subset: 27 actual public-call WS/HTTP inputs across CSV, empty download and the committed MP4, including three video requests. Rust matches frozen status/URL/range/length/type/disposition/accept-ranges and original bytes, with 206 suffixes and 416 invalid or unsatisfiable single/multi requests. This does not establish browser seeking, HEAD, If-Range/CORS, duplicate or all numeric/header forms, or full media lifecycle."
       ]
     },
     {

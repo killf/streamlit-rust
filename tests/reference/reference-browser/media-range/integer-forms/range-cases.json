@@ -1,0 +1,243 @@
+{
+  "schema_version": 1,
+  "reference_version": "1.66.1",
+  "scope": "Public st.download_button/st.video actual WS URLs and native HTTP Range GET; no browser or UI-seek claim.",
+  "raw_file": "trace.json",
+  "inputs_file": "inputs.json",
+  "emitted_assets": {
+    "csv": {
+      "url": "/media/d66cb2aa8e6e27e384b1aa915da34d37.csv",
+      "delta_path": [
+        0,
+        0
+      ],
+      "fields": {
+        "id": "$$ID-77f06e0092f0fb39f683f23aa53a74eb-range-csv",
+        "label": "range-csv",
+        "url": "/media/d66cb2aa8e6e27e384b1aa915da34d37.csv",
+        "type": "secondary",
+        "ignore_rerun": true
+      }
+    }
+  },
+  "public_results": [
+    {
+      "asset": "csv",
+      "accepted": true
+    }
+  ],
+  "cases": [
+    {
+      "label": "integer-01-no-hyphen",
+      "asset": "csv",
+      "range_header": "bytes=5",
+      "url": "/media/d66cb2aa8e6e27e384b1aa915da34d37.csv",
+      "request_base64": "R0VUIC9tZWRpYS9kNjZjYjJhYThlNmUyN2UzODRiMWFhOTE1ZGEzNGQzNy5jc3YgSFRUUC8xLjENCkhvc3Q6IDEyNy4wLjAuMTo1MTQzNw0KUmFuZ2U6IGJ5dGVzPTUNCkNvbm5lY3Rpb246IGNsb3NlDQoNCg==",
+      "request_text": "GET /media/d66cb2aa8e6e27e384b1aa915da34d37.csv HTTP/1.1\r\nHost: 127.0.0.1:51437\r\nRange: bytes=5\r\nConnection: close\r\n\r\n",
+      "raw_response_base64": "SFRUUC8xLjEgMjA2IFBhcnRpYWwgQ29udGVudA0KZGF0ZTogVHVlLCAyNyBPY3QgMjAyNiAxMjo0MDoxMSBHTVQNCnNlcnZlcjogdXZpY29ybg0KY29udGVudC1kaXNwb3NpdGlvbjogYXR0YWNobWVudDsgZmlsZW5hbWU9InJhbmdlLmNzdiINCmFjY2VwdC1yYW5nZXM6IGJ5dGVzDQpjb250ZW50LXJhbmdlOiBieXRlcyA1LTE3LzE4DQpjb250ZW50LWxlbmd0aDogMTMNCmNvbnRlbnQtdHlwZTogdGV4dC9jc3Y7IGNoYXJzZXQ9dXRmLTgNCkNvbm5lY3Rpb246IGNsb3NlDQoNCmdpb24KQSxub3J0aAo=",
+      "status": 206,
+      "reason": "Partial Content",
+      "http_version": 11,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 12:40:11 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-disposition",
+          "attachment; filename=\"range.csv\""
+        ],
+        [
+          "accept-ranges",
+          "bytes"
+        ],
+        [
+          "content-range",
+          "bytes 5-17/18"
+        ],
+        [
+          "content-length",
+          "13"
+        ],
+        [
+          "content-type",
+          "text/csv; charset=utf-8"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "Z2lvbgpBLG5vcnRoCg==",
+      "body_length": 13,
+      "actual_range_header_preserved": true,
+      "response_bytes_verified_against_input": true
+    },
+    {
+      "label": "integer-02-underscores",
+      "asset": "csv",
+      "range_header": "bytes=1_0-1_7",
+      "url": "/media/d66cb2aa8e6e27e384b1aa915da34d37.csv",
+      "request_base64": "R0VUIC9tZWRpYS9kNjZjYjJhYThlNmUyN2UzODRiMWFhOTE1ZGEzNGQzNy5jc3YgSFRUUC8xLjENCkhvc3Q6IDEyNy4wLjAuMTo1MTQzNw0KUmFuZ2U6IGJ5dGVzPTFfMC0xXzcNCkNvbm5lY3Rpb246IGNsb3NlDQoNCg==",
+      "request_text": "GET /media/d66cb2aa8e6e27e384b1aa915da34d37.csv HTTP/1.1\r\nHost: 127.0.0.1:51437\r\nRange: bytes=1_0-1_7\r\nConnection: close\r\n\r\n",
+      "raw_response_base64": "SFRUUC8xLjEgMjA2IFBhcnRpYWwgQ29udGVudA0KZGF0ZTogVHVlLCAyNyBPY3QgMjAyNiAxMjo0MDoxMSBHTVQNCnNlcnZlcjogdXZpY29ybg0KY29udGVudC1kaXNwb3NpdGlvbjogYXR0YWNobWVudDsgZmlsZW5hbWU9InJhbmdlLmNzdiINCmFjY2VwdC1yYW5nZXM6IGJ5dGVzDQpjb250ZW50LXJhbmdlOiBieXRlcyAxMC0xNy8xOA0KY29udGVudC1sZW5ndGg6IDgNCmNvbnRlbnQtdHlwZTogdGV4dC9jc3Y7IGNoYXJzZXQ9dXRmLTgNCkNvbm5lY3Rpb246IGNsb3NlDQoNCkEsbm9ydGgK",
+      "status": 206,
+      "reason": "Partial Content",
+      "http_version": 11,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 12:40:11 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-disposition",
+          "attachment; filename=\"range.csv\""
+        ],
+        [
+          "accept-ranges",
+          "bytes"
+        ],
+        [
+          "content-range",
+          "bytes 10-17/18"
+        ],
+        [
+          "content-length",
+          "8"
+        ],
+        [
+          "content-type",
+          "text/csv; charset=utf-8"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "QSxub3J0aAo=",
+      "body_length": 8,
+      "actual_range_header_preserved": true,
+      "response_bytes_verified_against_input": true
+    },
+    {
+      "label": "integer-03-end-over-u64",
+      "asset": "csv",
+      "range_header": "bytes=0-18446744073709551616",
+      "url": "/media/d66cb2aa8e6e27e384b1aa915da34d37.csv",
+      "request_base64": "R0VUIC9tZWRpYS9kNjZjYjJhYThlNmUyN2UzODRiMWFhOTE1ZGEzNGQzNy5jc3YgSFRUUC8xLjENCkhvc3Q6IDEyNy4wLjAuMTo1MTQzNw0KUmFuZ2U6IGJ5dGVzPTAtMTg0NDY3NDQwNzM3MDk1NTE2MTYNCkNvbm5lY3Rpb246IGNsb3NlDQoNCg==",
+      "request_text": "GET /media/d66cb2aa8e6e27e384b1aa915da34d37.csv HTTP/1.1\r\nHost: 127.0.0.1:51437\r\nRange: bytes=0-18446744073709551616\r\nConnection: close\r\n\r\n",
+      "raw_response_base64": "SFRUUC8xLjEgMjA2IFBhcnRpYWwgQ29udGVudA0KZGF0ZTogVHVlLCAyNyBPY3QgMjAyNiAxMjo0MDoxMSBHTVQNCnNlcnZlcjogdXZpY29ybg0KY29udGVudC1kaXNwb3NpdGlvbjogYXR0YWNobWVudDsgZmlsZW5hbWU9InJhbmdlLmNzdiINCmFjY2VwdC1yYW5nZXM6IGJ5dGVzDQpjb250ZW50LXJhbmdlOiBieXRlcyAwLTE3LzE4DQpjb250ZW50LWxlbmd0aDogMTgNCmNvbnRlbnQtdHlwZTogdGV4dC9jc3Y7IGNoYXJzZXQ9dXRmLTgNCkNvbm5lY3Rpb246IGNsb3NlDQoNCmlkLHJlZ2lvbgpBLG5vcnRoCg==",
+      "status": 206,
+      "reason": "Partial Content",
+      "http_version": 11,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 12:40:11 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-disposition",
+          "attachment; filename=\"range.csv\""
+        ],
+        [
+          "accept-ranges",
+          "bytes"
+        ],
+        [
+          "content-range",
+          "bytes 0-17/18"
+        ],
+        [
+          "content-length",
+          "18"
+        ],
+        [
+          "content-type",
+          "text/csv; charset=utf-8"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "body_length": 18,
+      "actual_range_header_preserved": true,
+      "response_bytes_verified_against_input": true
+    },
+    {
+      "label": "integer-04-empty-header",
+      "asset": "csv",
+      "range_header": "",
+      "url": "/media/d66cb2aa8e6e27e384b1aa915da34d37.csv",
+      "request_base64": "R0VUIC9tZWRpYS9kNjZjYjJhYThlNmUyN2UzODRiMWFhOTE1ZGEzNGQzNy5jc3YgSFRUUC8xLjENCkhvc3Q6IDEyNy4wLjAuMTo1MTQzNw0KUmFuZ2U6IA0KQ29ubmVjdGlvbjogY2xvc2UNCg0K",
+      "request_text": "GET /media/d66cb2aa8e6e27e384b1aa915da34d37.csv HTTP/1.1\r\nHost: 127.0.0.1:51437\r\nRange: \r\nConnection: close\r\n\r\n",
+      "raw_response_base64": "SFRUUC8xLjEgMjAwIE9LDQpkYXRlOiBUdWUsIDI3IE9jdCAyMDI2IDEyOjQwOjExIEdNVA0Kc2VydmVyOiB1dmljb3JuDQpjb250ZW50LWRpc3Bvc2l0aW9uOiBhdHRhY2htZW50OyBmaWxlbmFtZT0icmFuZ2UuY3N2Ig0KYWNjZXB0LXJhbmdlczogYnl0ZXMNCmNvbnRlbnQtbGVuZ3RoOiAxOA0KY29udGVudC10eXBlOiB0ZXh0L2NzdjsgY2hhcnNldD11dGYtOA0KQ29ubmVjdGlvbjogY2xvc2UNCg0KaWQscmVnaW9uCkEsbm9ydGgK",
+      "status": 200,
+      "reason": "OK",
+      "http_version": 11,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 12:40:11 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-disposition",
+          "attachment; filename=\"range.csv\""
+        ],
+        [
+          "accept-ranges",
+          "bytes"
+        ],
+        [
+          "content-length",
+          "18"
+        ],
+        [
+          "content-type",
+          "text/csv; charset=utf-8"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "body_length": 18,
+      "actual_range_header_preserved": true,
+      "response_bytes_verified_against_input": true
+    }
+  ],
+  "finishes": [
+    0
+  ],
+  "cleanup": {
+    "websocket_closed": true,
+    "close_code": 1000,
+    "server_stopped": true,
+    "listener_count": "0",
+    "listener_check_exit_code": 0,
+    "browser_started": false
+  },
+  "cleanup_errors": [],
+  "counts": {
+    "new_http_requests": 4,
+    "raw_pb_frames": 7
+  }
+}

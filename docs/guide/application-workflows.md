@@ -197,6 +197,12 @@ let value = st.cache_data("outer").call(21, |n: i64| {
 
 运行 `cargo run --example buttons --locked`，打开 `http://127.0.0.1:8523/`。**Save default bytes** 和 **Save Unicode CSV** 已通过[真实浏览器保存验证](../../tests/browser/rust-download-boundaries/README.md)，分别落盘为 `streamlit_download.bin` 与 `数据 é.csv`，内容均为合成 CSV 字节。这两个按钮配置 `ignore_rerun(true)`；前端加载时 Fetch 文件，点击后保存，不将它描述为点击后重新取文件。其他标点组合、所有 MIME 映射和下载生命周期仍未完整验收。
 
+## 媒体范围读取
+
+音视频与下载文件共用 `/media/` 路由。有效单范围（包括 `bytes=-N` 后缀）返回 206 和对应字节，非法、越界、多范围或空文件的非空 Range 返回 416、`Content-Range: bytes */N` 与 `Invalid range`；无 Range 或空 header 仍返回完整 200。已用 [27 个冻结公开请求](../../tests/reference/reference-browser/media-range/README.md)精确核对 Rust 的状态、头与字节，修复了原先许多情况直接返回整文件的问题。后缀或终点大于文件长度时按有效区间返回；已测的大小写、空白、加号、下划线数字和无连字符形式按参考解释，没有新增应用选项。
+
+调用方无需新增选项；文件名、MIME 和内容地址沿用原下载/视频配置。这里验证 HTTP 范围响应，不将它描述为已完成浏览器拖动定位或完整播放器兼容。
+
 ## 参考数据与验证
 
 参考行为以锁定的 Python Streamlit 1.66.1 一次采集的正确输入、输出及版本信息冻结；之后 Rust 单元测试和协议重放复用这些数据，无需因每次 Rust 修改或路径变化重新运行 Python。只有新行为、版本升级或证据失效时才补采。Rust、Python 和采集工具的源码 SHA 不作为验收条件；改变错误处理或实现方式不会使正确的冻结结果失效，也不需要另存历史源码。当前 Rust 仍需实际通过对应功能、协议和交互验证。

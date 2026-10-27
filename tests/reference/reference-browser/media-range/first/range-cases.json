@@ -1,0 +1,1229 @@
+{
+  "schema_version": 1,
+  "reference_version": "1.66.1",
+  "scope": "Public st.download_button/st.video actual WS URLs and native HTTP Range GET; no browser or UI-seek claim.",
+  "raw_file": "trace.json",
+  "inputs_file": "inputs.json",
+  "emitted_assets": {
+    "csv": {
+      "url": "/media/d66cb2aa8e6e27e384b1aa915da34d37.csv",
+      "delta_path": [
+        0,
+        0
+      ],
+      "fields": {
+        "id": "$$ID-dfcfc3a03f1d80a5e8de1f9600787d99-range-csv",
+        "label": "range-csv",
+        "url": "/media/d66cb2aa8e6e27e384b1aa915da34d37.csv",
+        "type": "secondary",
+        "ignore_rerun": true
+      }
+    },
+    "empty": {
+      "url": "/media/e6f8d296dc27d45493744a3e50992bd2.bin",
+      "delta_path": [
+        0,
+        1
+      ],
+      "fields": {
+        "id": "$$ID-31f51377d5c120b7cd142280660b501a-range-empty",
+        "label": "range-empty",
+        "url": "/media/e6f8d296dc27d45493744a3e50992bd2.bin",
+        "type": "secondary",
+        "ignore_rerun": true
+      }
+    },
+    "video": {
+      "url": "/media/89d6baf253834c013e2bc52aab2354d4.mp4",
+      "delta_path": [
+        0,
+        2
+      ],
+      "fields": {
+        "type": "NATIVE",
+        "url": "/media/89d6baf253834c013e2bc52aab2354d4.mp4",
+        "width_config": {
+          "use_stretch": true
+        }
+      }
+    }
+  },
+  "public_results": [
+    {
+      "asset": "csv",
+      "accepted": true
+    },
+    {
+      "asset": "empty",
+      "accepted": true
+    },
+    {
+      "asset": "video",
+      "accepted": true
+    }
+  ],
+  "cases": [
+    {
+      "label": "csv-01",
+      "asset": "csv",
+      "range_header": "bytes=-5",
+      "url": "/media/d66cb2aa8e6e27e384b1aa915da34d37.csv",
+      "request_base64": "R0VUIC9tZWRpYS9kNjZjYjJhYThlNmUyN2UzODRiMWFhOTE1ZGEzNGQzNy5jc3YgSFRUUC8xLjENCkhvc3Q6IDEyNy4wLjAuMTo2MTQyOA0KUmFuZ2U6IGJ5dGVzPS01DQpDb25uZWN0aW9uOiBjbG9zZQ0KDQo=",
+      "request_text": "GET /media/d66cb2aa8e6e27e384b1aa915da34d37.csv HTTP/1.1\r\nHost: 127.0.0.1:61428\r\nRange: bytes=-5\r\nConnection: close\r\n\r\n",
+      "raw_response_base64": "SFRUUC8xLjEgMjA2IFBhcnRpYWwgQ29udGVudA0KZGF0ZTogVHVlLCAyNyBPY3QgMjAyNiAxMjozNzoxOSBHTVQNCnNlcnZlcjogdXZpY29ybg0KY29udGVudC1kaXNwb3NpdGlvbjogYXR0YWNobWVudDsgZmlsZW5hbWU9InJhbmdlLmNzdiINCmFjY2VwdC1yYW5nZXM6IGJ5dGVzDQpjb250ZW50LXJhbmdlOiBieXRlcyAxMy0xNy8xOA0KY29udGVudC1sZW5ndGg6IDUNCmNvbnRlbnQtdHlwZTogdGV4dC9jc3Y7IGNoYXJzZXQ9dXRmLTgNCkNvbm5lY3Rpb246IGNsb3NlDQoNCm9ydGgK",
+      "status": 206,
+      "reason": "Partial Content",
+      "http_version": 11,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 12:37:19 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-disposition",
+          "attachment; filename=\"range.csv\""
+        ],
+        [
+          "accept-ranges",
+          "bytes"
+        ],
+        [
+          "content-range",
+          "bytes 13-17/18"
+        ],
+        [
+          "content-length",
+          "5"
+        ],
+        [
+          "content-type",
+          "text/csv; charset=utf-8"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "b3J0aAo=",
+      "body_length": 5
+    },
+    {
+      "label": "csv-02",
+      "asset": "csv",
+      "range_header": "bytes=-999",
+      "url": "/media/d66cb2aa8e6e27e384b1aa915da34d37.csv",
+      "request_base64": "R0VUIC9tZWRpYS9kNjZjYjJhYThlNmUyN2UzODRiMWFhOTE1ZGEzNGQzNy5jc3YgSFRUUC8xLjENCkhvc3Q6IDEyNy4wLjAuMTo2MTQyOA0KUmFuZ2U6IGJ5dGVzPS05OTkNCkNvbm5lY3Rpb246IGNsb3NlDQoNCg==",
+      "request_text": "GET /media/d66cb2aa8e6e27e384b1aa915da34d37.csv HTTP/1.1\r\nHost: 127.0.0.1:61428\r\nRange: bytes=-999\r\nConnection: close\r\n\r\n",
+      "raw_response_base64": "SFRUUC8xLjEgMjA2IFBhcnRpYWwgQ29udGVudA0KZGF0ZTogVHVlLCAyNyBPY3QgMjAyNiAxMjozNzoxOSBHTVQNCnNlcnZlcjogdXZpY29ybg0KY29udGVudC1kaXNwb3NpdGlvbjogYXR0YWNobWVudDsgZmlsZW5hbWU9InJhbmdlLmNzdiINCmFjY2VwdC1yYW5nZXM6IGJ5dGVzDQpjb250ZW50LXJhbmdlOiBieXRlcyAwLTE3LzE4DQpjb250ZW50LWxlbmd0aDogMTgNCmNvbnRlbnQtdHlwZTogdGV4dC9jc3Y7IGNoYXJzZXQ9dXRmLTgNCkNvbm5lY3Rpb246IGNsb3NlDQoNCmlkLHJlZ2lvbgpBLG5vcnRoCg==",
+      "status": 206,
+      "reason": "Partial Content",
+      "http_version": 11,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 12:37:19 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-disposition",
+          "attachment; filename=\"range.csv\""
+        ],
+        [
+          "accept-ranges",
+          "bytes"
+        ],
+        [
+          "content-range",
+          "bytes 0-17/18"
+        ],
+        [
+          "content-length",
+          "18"
+        ],
+        [
+          "content-type",
+          "text/csv; charset=utf-8"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "body_length": 18
+    },
+    {
+      "label": "csv-03",
+      "asset": "csv",
+      "range_header": "bytes=-0",
+      "url": "/media/d66cb2aa8e6e27e384b1aa915da34d37.csv",
+      "request_base64": "R0VUIC9tZWRpYS9kNjZjYjJhYThlNmUyN2UzODRiMWFhOTE1ZGEzNGQzNy5jc3YgSFRUUC8xLjENCkhvc3Q6IDEyNy4wLjAuMTo2MTQyOA0KUmFuZ2U6IGJ5dGVzPS0wDQpDb25uZWN0aW9uOiBjbG9zZQ0KDQo=",
+      "request_text": "GET /media/d66cb2aa8e6e27e384b1aa915da34d37.csv HTTP/1.1\r\nHost: 127.0.0.1:61428\r\nRange: bytes=-0\r\nConnection: close\r\n\r\n",
+      "raw_response_base64": "SFRUUC8xLjEgNDE2IFJhbmdlIE5vdCBTYXRpc2ZpYWJsZQ0KZGF0ZTogVHVlLCAyNyBPY3QgMjAyNiAxMjozNzoxOSBHTVQNCnNlcnZlcjogdXZpY29ybg0KY29udGVudC1yYW5nZTogYnl0ZXMgKi8xOA0KY29udGVudC1sZW5ndGg6IDEzDQpjb250ZW50LXR5cGU6IHRleHQvcGxhaW47IGNoYXJzZXQ9dXRmLTgNCkNvbm5lY3Rpb246IGNsb3NlDQoNCkludmFsaWQgcmFuZ2U=",
+      "status": 416,
+      "reason": "Range Not Satisfiable",
+      "http_version": 11,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 12:37:19 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-range",
+          "bytes */18"
+        ],
+        [
+          "content-length",
+          "13"
+        ],
+        [
+          "content-type",
+          "text/plain; charset=utf-8"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "SW52YWxpZCByYW5nZQ==",
+      "body_length": 13,
+      "error_body_utf8": "Invalid range"
+    },
+    {
+      "label": "csv-04",
+      "asset": "csv",
+      "range_header": "bytes=18-",
+      "url": "/media/d66cb2aa8e6e27e384b1aa915da34d37.csv",
+      "request_base64": "R0VUIC9tZWRpYS9kNjZjYjJhYThlNmUyN2UzODRiMWFhOTE1ZGEzNGQzNy5jc3YgSFRUUC8xLjENCkhvc3Q6IDEyNy4wLjAuMTo2MTQyOA0KUmFuZ2U6IGJ5dGVzPTE4LQ0KQ29ubmVjdGlvbjogY2xvc2UNCg0K",
+      "request_text": "GET /media/d66cb2aa8e6e27e384b1aa915da34d37.csv HTTP/1.1\r\nHost: 127.0.0.1:61428\r\nRange: bytes=18-\r\nConnection: close\r\n\r\n",
+      "raw_response_base64": "SFRUUC8xLjEgNDE2IFJhbmdlIE5vdCBTYXRpc2ZpYWJsZQ0KZGF0ZTogVHVlLCAyNyBPY3QgMjAyNiAxMjozNzoxOSBHTVQNCnNlcnZlcjogdXZpY29ybg0KY29udGVudC1yYW5nZTogYnl0ZXMgKi8xOA0KY29udGVudC1sZW5ndGg6IDEzDQpjb250ZW50LXR5cGU6IHRleHQvcGxhaW47IGNoYXJzZXQ9dXRmLTgNCkNvbm5lY3Rpb246IGNsb3NlDQoNCkludmFsaWQgcmFuZ2U=",
+      "status": 416,
+      "reason": "Range Not Satisfiable",
+      "http_version": 11,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 12:37:19 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-range",
+          "bytes */18"
+        ],
+        [
+          "content-length",
+          "13"
+        ],
+        [
+          "content-type",
+          "text/plain; charset=utf-8"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "SW52YWxpZCByYW5nZQ==",
+      "body_length": 13,
+      "error_body_utf8": "Invalid range"
+    },
+    {
+      "label": "csv-05",
+      "asset": "csv",
+      "range_header": "bytes=7-2",
+      "url": "/media/d66cb2aa8e6e27e384b1aa915da34d37.csv",
+      "request_base64": "R0VUIC9tZWRpYS9kNjZjYjJhYThlNmUyN2UzODRiMWFhOTE1ZGEzNGQzNy5jc3YgSFRUUC8xLjENCkhvc3Q6IDEyNy4wLjAuMTo2MTQyOA0KUmFuZ2U6IGJ5dGVzPTctMg0KQ29ubmVjdGlvbjogY2xvc2UNCg0K",
+      "request_text": "GET /media/d66cb2aa8e6e27e384b1aa915da34d37.csv HTTP/1.1\r\nHost: 127.0.0.1:61428\r\nRange: bytes=7-2\r\nConnection: close\r\n\r\n",
+      "raw_response_base64": "SFRUUC8xLjEgNDE2IFJhbmdlIE5vdCBTYXRpc2ZpYWJsZQ0KZGF0ZTogVHVlLCAyNyBPY3QgMjAyNiAxMjozNzoxOSBHTVQNCnNlcnZlcjogdXZpY29ybg0KY29udGVudC1yYW5nZTogYnl0ZXMgKi8xOA0KY29udGVudC1sZW5ndGg6IDEzDQpjb250ZW50LXR5cGU6IHRleHQvcGxhaW47IGNoYXJzZXQ9dXRmLTgNCkNvbm5lY3Rpb246IGNsb3NlDQoNCkludmFsaWQgcmFuZ2U=",
+      "status": 416,
+      "reason": "Range Not Satisfiable",
+      "http_version": 11,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 12:37:19 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-range",
+          "bytes */18"
+        ],
+        [
+          "content-length",
+          "13"
+        ],
+        [
+          "content-type",
+          "text/plain; charset=utf-8"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "SW52YWxpZCByYW5nZQ==",
+      "body_length": 13,
+      "error_body_utf8": "Invalid range"
+    },
+    {
+      "label": "csv-06",
+      "asset": "csv",
+      "range_header": "items=0-1",
+      "url": "/media/d66cb2aa8e6e27e384b1aa915da34d37.csv",
+      "request_base64": "R0VUIC9tZWRpYS9kNjZjYjJhYThlNmUyN2UzODRiMWFhOTE1ZGEzNGQzNy5jc3YgSFRUUC8xLjENCkhvc3Q6IDEyNy4wLjAuMTo2MTQyOA0KUmFuZ2U6IGl0ZW1zPTAtMQ0KQ29ubmVjdGlvbjogY2xvc2UNCg0K",
+      "request_text": "GET /media/d66cb2aa8e6e27e384b1aa915da34d37.csv HTTP/1.1\r\nHost: 127.0.0.1:61428\r\nRange: items=0-1\r\nConnection: close\r\n\r\n",
+      "raw_response_base64": "SFRUUC8xLjEgNDE2IFJhbmdlIE5vdCBTYXRpc2ZpYWJsZQ0KZGF0ZTogVHVlLCAyNyBPY3QgMjAyNiAxMjozNzoxOSBHTVQNCnNlcnZlcjogdXZpY29ybg0KY29udGVudC1yYW5nZTogYnl0ZXMgKi8xOA0KY29udGVudC1sZW5ndGg6IDEzDQpjb250ZW50LXR5cGU6IHRleHQvcGxhaW47IGNoYXJzZXQ9dXRmLTgNCkNvbm5lY3Rpb246IGNsb3NlDQoNCkludmFsaWQgcmFuZ2U=",
+      "status": 416,
+      "reason": "Range Not Satisfiable",
+      "http_version": 11,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 12:37:19 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-range",
+          "bytes */18"
+        ],
+        [
+          "content-length",
+          "13"
+        ],
+        [
+          "content-type",
+          "text/plain; charset=utf-8"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "SW52YWxpZCByYW5nZQ==",
+      "body_length": 13,
+      "error_body_utf8": "Invalid range"
+    },
+    {
+      "label": "csv-07",
+      "asset": "csv",
+      "range_header": "bytes=abc",
+      "url": "/media/d66cb2aa8e6e27e384b1aa915da34d37.csv",
+      "request_base64": "R0VUIC9tZWRpYS9kNjZjYjJhYThlNmUyN2UzODRiMWFhOTE1ZGEzNGQzNy5jc3YgSFRUUC8xLjENCkhvc3Q6IDEyNy4wLjAuMTo2MTQyOA0KUmFuZ2U6IGJ5dGVzPWFiYw0KQ29ubmVjdGlvbjogY2xvc2UNCg0K",
+      "request_text": "GET /media/d66cb2aa8e6e27e384b1aa915da34d37.csv HTTP/1.1\r\nHost: 127.0.0.1:61428\r\nRange: bytes=abc\r\nConnection: close\r\n\r\n",
+      "raw_response_base64": "SFRUUC8xLjEgNDE2IFJhbmdlIE5vdCBTYXRpc2ZpYWJsZQ0KZGF0ZTogVHVlLCAyNyBPY3QgMjAyNiAxMjozNzoxOSBHTVQNCnNlcnZlcjogdXZpY29ybg0KY29udGVudC1yYW5nZTogYnl0ZXMgKi8xOA0KY29udGVudC1sZW5ndGg6IDEzDQpjb250ZW50LXR5cGU6IHRleHQvcGxhaW47IGNoYXJzZXQ9dXRmLTgNCkNvbm5lY3Rpb246IGNsb3NlDQoNCkludmFsaWQgcmFuZ2U=",
+      "status": 416,
+      "reason": "Range Not Satisfiable",
+      "http_version": 11,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 12:37:19 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-range",
+          "bytes */18"
+        ],
+        [
+          "content-length",
+          "13"
+        ],
+        [
+          "content-type",
+          "text/plain; charset=utf-8"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "SW52YWxpZCByYW5nZQ==",
+      "body_length": 13,
+      "error_body_utf8": "Invalid range"
+    },
+    {
+      "label": "csv-08",
+      "asset": "csv",
+      "range_header": "bytes= 0 - 2 ",
+      "url": "/media/d66cb2aa8e6e27e384b1aa915da34d37.csv",
+      "request_base64": "R0VUIC9tZWRpYS9kNjZjYjJhYThlNmUyN2UzODRiMWFhOTE1ZGEzNGQzNy5jc3YgSFRUUC8xLjENCkhvc3Q6IDEyNy4wLjAuMTo2MTQyOA0KUmFuZ2U6IGJ5dGVzPSAwIC0gMiANCkNvbm5lY3Rpb246IGNsb3NlDQoNCg==",
+      "request_text": "GET /media/d66cb2aa8e6e27e384b1aa915da34d37.csv HTTP/1.1\r\nHost: 127.0.0.1:61428\r\nRange: bytes= 0 - 2 \r\nConnection: close\r\n\r\n",
+      "raw_response_base64": "SFRUUC8xLjEgMjA2IFBhcnRpYWwgQ29udGVudA0KZGF0ZTogVHVlLCAyNyBPY3QgMjAyNiAxMjozNzoxOSBHTVQNCnNlcnZlcjogdXZpY29ybg0KY29udGVudC1kaXNwb3NpdGlvbjogYXR0YWNobWVudDsgZmlsZW5hbWU9InJhbmdlLmNzdiINCmFjY2VwdC1yYW5nZXM6IGJ5dGVzDQpjb250ZW50LXJhbmdlOiBieXRlcyAwLTIvMTgNCmNvbnRlbnQtbGVuZ3RoOiAzDQpjb250ZW50LXR5cGU6IHRleHQvY3N2OyBjaGFyc2V0PXV0Zi04DQpDb25uZWN0aW9uOiBjbG9zZQ0KDQppZCw=",
+      "status": 206,
+      "reason": "Partial Content",
+      "http_version": 11,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 12:37:19 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-disposition",
+          "attachment; filename=\"range.csv\""
+        ],
+        [
+          "accept-ranges",
+          "bytes"
+        ],
+        [
+          "content-range",
+          "bytes 0-2/18"
+        ],
+        [
+          "content-length",
+          "3"
+        ],
+        [
+          "content-type",
+          "text/csv; charset=utf-8"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "aWQs",
+      "body_length": 3
+    },
+    {
+      "label": "csv-09",
+      "asset": "csv",
+      "range_header": "bytes=0-999",
+      "url": "/media/d66cb2aa8e6e27e384b1aa915da34d37.csv",
+      "request_base64": "R0VUIC9tZWRpYS9kNjZjYjJhYThlNmUyN2UzODRiMWFhOTE1ZGEzNGQzNy5jc3YgSFRUUC8xLjENCkhvc3Q6IDEyNy4wLjAuMTo2MTQyOA0KUmFuZ2U6IGJ5dGVzPTAtOTk5DQpDb25uZWN0aW9uOiBjbG9zZQ0KDQo=",
+      "request_text": "GET /media/d66cb2aa8e6e27e384b1aa915da34d37.csv HTTP/1.1\r\nHost: 127.0.0.1:61428\r\nRange: bytes=0-999\r\nConnection: close\r\n\r\n",
+      "raw_response_base64": "SFRUUC8xLjEgMjA2IFBhcnRpYWwgQ29udGVudA0KZGF0ZTogVHVlLCAyNyBPY3QgMjAyNiAxMjozNzoxOSBHTVQNCnNlcnZlcjogdXZpY29ybg0KY29udGVudC1kaXNwb3NpdGlvbjogYXR0YWNobWVudDsgZmlsZW5hbWU9InJhbmdlLmNzdiINCmFjY2VwdC1yYW5nZXM6IGJ5dGVzDQpjb250ZW50LXJhbmdlOiBieXRlcyAwLTE3LzE4DQpjb250ZW50LWxlbmd0aDogMTgNCmNvbnRlbnQtdHlwZTogdGV4dC9jc3Y7IGNoYXJzZXQ9dXRmLTgNCkNvbm5lY3Rpb246IGNsb3NlDQoNCmlkLHJlZ2lvbgpBLG5vcnRoCg==",
+      "status": 206,
+      "reason": "Partial Content",
+      "http_version": 11,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 12:37:19 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-disposition",
+          "attachment; filename=\"range.csv\""
+        ],
+        [
+          "accept-ranges",
+          "bytes"
+        ],
+        [
+          "content-range",
+          "bytes 0-17/18"
+        ],
+        [
+          "content-length",
+          "18"
+        ],
+        [
+          "content-type",
+          "text/csv; charset=utf-8"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "body_length": 18
+    },
+    {
+      "label": "csv-10",
+      "asset": "csv",
+      "range_header": "bytes=",
+      "url": "/media/d66cb2aa8e6e27e384b1aa915da34d37.csv",
+      "request_base64": "R0VUIC9tZWRpYS9kNjZjYjJhYThlNmUyN2UzODRiMWFhOTE1ZGEzNGQzNy5jc3YgSFRUUC8xLjENCkhvc3Q6IDEyNy4wLjAuMTo2MTQyOA0KUmFuZ2U6IGJ5dGVzPQ0KQ29ubmVjdGlvbjogY2xvc2UNCg0K",
+      "request_text": "GET /media/d66cb2aa8e6e27e384b1aa915da34d37.csv HTTP/1.1\r\nHost: 127.0.0.1:61428\r\nRange: bytes=\r\nConnection: close\r\n\r\n",
+      "raw_response_base64": "SFRUUC8xLjEgNDE2IFJhbmdlIE5vdCBTYXRpc2ZpYWJsZQ0KZGF0ZTogVHVlLCAyNyBPY3QgMjAyNiAxMjozNzoxOSBHTVQNCnNlcnZlcjogdXZpY29ybg0KY29udGVudC1yYW5nZTogYnl0ZXMgKi8xOA0KY29udGVudC1sZW5ndGg6IDEzDQpjb250ZW50LXR5cGU6IHRleHQvcGxhaW47IGNoYXJzZXQ9dXRmLTgNCkNvbm5lY3Rpb246IGNsb3NlDQoNCkludmFsaWQgcmFuZ2U=",
+      "status": 416,
+      "reason": "Range Not Satisfiable",
+      "http_version": 11,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 12:37:19 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-range",
+          "bytes */18"
+        ],
+        [
+          "content-length",
+          "13"
+        ],
+        [
+          "content-type",
+          "text/plain; charset=utf-8"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "SW52YWxpZCByYW5nZQ==",
+      "body_length": 13,
+      "error_body_utf8": "Invalid range"
+    },
+    {
+      "label": "csv-11",
+      "asset": "csv",
+      "range_header": "bytes=0-1,4-5",
+      "url": "/media/d66cb2aa8e6e27e384b1aa915da34d37.csv",
+      "request_base64": "R0VUIC9tZWRpYS9kNjZjYjJhYThlNmUyN2UzODRiMWFhOTE1ZGEzNGQzNy5jc3YgSFRUUC8xLjENCkhvc3Q6IDEyNy4wLjAuMTo2MTQyOA0KUmFuZ2U6IGJ5dGVzPTAtMSw0LTUNCkNvbm5lY3Rpb246IGNsb3NlDQoNCg==",
+      "request_text": "GET /media/d66cb2aa8e6e27e384b1aa915da34d37.csv HTTP/1.1\r\nHost: 127.0.0.1:61428\r\nRange: bytes=0-1,4-5\r\nConnection: close\r\n\r\n",
+      "raw_response_base64": "SFRUUC8xLjEgNDE2IFJhbmdlIE5vdCBTYXRpc2ZpYWJsZQ0KZGF0ZTogVHVlLCAyNyBPY3QgMjAyNiAxMjozNzoxOSBHTVQNCnNlcnZlcjogdXZpY29ybg0KY29udGVudC1yYW5nZTogYnl0ZXMgKi8xOA0KY29udGVudC1sZW5ndGg6IDEzDQpjb250ZW50LXR5cGU6IHRleHQvcGxhaW47IGNoYXJzZXQ9dXRmLTgNCkNvbm5lY3Rpb246IGNsb3NlDQoNCkludmFsaWQgcmFuZ2U=",
+      "status": 416,
+      "reason": "Range Not Satisfiable",
+      "http_version": 11,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 12:37:19 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-range",
+          "bytes */18"
+        ],
+        [
+          "content-length",
+          "13"
+        ],
+        [
+          "content-type",
+          "text/plain; charset=utf-8"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "SW52YWxpZCByYW5nZQ==",
+      "body_length": 13,
+      "error_body_utf8": "Invalid range"
+    },
+    {
+      "label": "csv-12",
+      "asset": "csv",
+      "range_header": "bytes=0-4,2-7",
+      "url": "/media/d66cb2aa8e6e27e384b1aa915da34d37.csv",
+      "request_base64": "R0VUIC9tZWRpYS9kNjZjYjJhYThlNmUyN2UzODRiMWFhOTE1ZGEzNGQzNy5jc3YgSFRUUC8xLjENCkhvc3Q6IDEyNy4wLjAuMTo2MTQyOA0KUmFuZ2U6IGJ5dGVzPTAtNCwyLTcNCkNvbm5lY3Rpb246IGNsb3NlDQoNCg==",
+      "request_text": "GET /media/d66cb2aa8e6e27e384b1aa915da34d37.csv HTTP/1.1\r\nHost: 127.0.0.1:61428\r\nRange: bytes=0-4,2-7\r\nConnection: close\r\n\r\n",
+      "raw_response_base64": "SFRUUC8xLjEgNDE2IFJhbmdlIE5vdCBTYXRpc2ZpYWJsZQ0KZGF0ZTogVHVlLCAyNyBPY3QgMjAyNiAxMjozNzoxOSBHTVQNCnNlcnZlcjogdXZpY29ybg0KY29udGVudC1yYW5nZTogYnl0ZXMgKi8xOA0KY29udGVudC1sZW5ndGg6IDEzDQpjb250ZW50LXR5cGU6IHRleHQvcGxhaW47IGNoYXJzZXQ9dXRmLTgNCkNvbm5lY3Rpb246IGNsb3NlDQoNCkludmFsaWQgcmFuZ2U=",
+      "status": 416,
+      "reason": "Range Not Satisfiable",
+      "http_version": 11,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 12:37:19 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-range",
+          "bytes */18"
+        ],
+        [
+          "content-length",
+          "13"
+        ],
+        [
+          "content-type",
+          "text/plain; charset=utf-8"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "SW52YWxpZCByYW5nZQ==",
+      "body_length": 13,
+      "error_body_utf8": "Invalid range"
+    },
+    {
+      "label": "csv-13",
+      "asset": "csv",
+      "range_header": "Bytes=0-1",
+      "url": "/media/d66cb2aa8e6e27e384b1aa915da34d37.csv",
+      "request_base64": "R0VUIC9tZWRpYS9kNjZjYjJhYThlNmUyN2UzODRiMWFhOTE1ZGEzNGQzNy5jc3YgSFRUUC8xLjENCkhvc3Q6IDEyNy4wLjAuMTo2MTQyOA0KUmFuZ2U6IEJ5dGVzPTAtMQ0KQ29ubmVjdGlvbjogY2xvc2UNCg0K",
+      "request_text": "GET /media/d66cb2aa8e6e27e384b1aa915da34d37.csv HTTP/1.1\r\nHost: 127.0.0.1:61428\r\nRange: Bytes=0-1\r\nConnection: close\r\n\r\n",
+      "raw_response_base64": "SFRUUC8xLjEgMjA2IFBhcnRpYWwgQ29udGVudA0KZGF0ZTogVHVlLCAyNyBPY3QgMjAyNiAxMjozNzoxOSBHTVQNCnNlcnZlcjogdXZpY29ybg0KY29udGVudC1kaXNwb3NpdGlvbjogYXR0YWNobWVudDsgZmlsZW5hbWU9InJhbmdlLmNzdiINCmFjY2VwdC1yYW5nZXM6IGJ5dGVzDQpjb250ZW50LXJhbmdlOiBieXRlcyAwLTEvMTgNCmNvbnRlbnQtbGVuZ3RoOiAyDQpjb250ZW50LXR5cGU6IHRleHQvY3N2OyBjaGFyc2V0PXV0Zi04DQpDb25uZWN0aW9uOiBjbG9zZQ0KDQppZA==",
+      "status": 206,
+      "reason": "Partial Content",
+      "http_version": 11,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 12:37:19 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-disposition",
+          "attachment; filename=\"range.csv\""
+        ],
+        [
+          "accept-ranges",
+          "bytes"
+        ],
+        [
+          "content-range",
+          "bytes 0-1/18"
+        ],
+        [
+          "content-length",
+          "2"
+        ],
+        [
+          "content-type",
+          "text/csv; charset=utf-8"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "aWQ=",
+      "body_length": 2
+    },
+    {
+      "label": "csv-14",
+      "asset": "csv",
+      "range_header": "bytes=18446744073709551616-",
+      "url": "/media/d66cb2aa8e6e27e384b1aa915da34d37.csv",
+      "request_base64": "R0VUIC9tZWRpYS9kNjZjYjJhYThlNmUyN2UzODRiMWFhOTE1ZGEzNGQzNy5jc3YgSFRUUC8xLjENCkhvc3Q6IDEyNy4wLjAuMTo2MTQyOA0KUmFuZ2U6IGJ5dGVzPTE4NDQ2NzQ0MDczNzA5NTUxNjE2LQ0KQ29ubmVjdGlvbjogY2xvc2UNCg0K",
+      "request_text": "GET /media/d66cb2aa8e6e27e384b1aa915da34d37.csv HTTP/1.1\r\nHost: 127.0.0.1:61428\r\nRange: bytes=18446744073709551616-\r\nConnection: close\r\n\r\n",
+      "raw_response_base64": "SFRUUC8xLjEgNDE2IFJhbmdlIE5vdCBTYXRpc2ZpYWJsZQ0KZGF0ZTogVHVlLCAyNyBPY3QgMjAyNiAxMjozNzoxOSBHTVQNCnNlcnZlcjogdXZpY29ybg0KY29udGVudC1yYW5nZTogYnl0ZXMgKi8xOA0KY29udGVudC1sZW5ndGg6IDEzDQpjb250ZW50LXR5cGU6IHRleHQvcGxhaW47IGNoYXJzZXQ9dXRmLTgNCkNvbm5lY3Rpb246IGNsb3NlDQoNCkludmFsaWQgcmFuZ2U=",
+      "status": 416,
+      "reason": "Range Not Satisfiable",
+      "http_version": 11,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 12:37:19 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-range",
+          "bytes */18"
+        ],
+        [
+          "content-length",
+          "13"
+        ],
+        [
+          "content-type",
+          "text/plain; charset=utf-8"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "SW52YWxpZCByYW5nZQ==",
+      "body_length": 13,
+      "error_body_utf8": "Invalid range"
+    },
+    {
+      "label": "csv-15",
+      "asset": "csv",
+      "range_header": "bytes=-18446744073709551616",
+      "url": "/media/d66cb2aa8e6e27e384b1aa915da34d37.csv",
+      "request_base64": "R0VUIC9tZWRpYS9kNjZjYjJhYThlNmUyN2UzODRiMWFhOTE1ZGEzNGQzNy5jc3YgSFRUUC8xLjENCkhvc3Q6IDEyNy4wLjAuMTo2MTQyOA0KUmFuZ2U6IGJ5dGVzPS0xODQ0Njc0NDA3MzcwOTU1MTYxNg0KQ29ubmVjdGlvbjogY2xvc2UNCg0K",
+      "request_text": "GET /media/d66cb2aa8e6e27e384b1aa915da34d37.csv HTTP/1.1\r\nHost: 127.0.0.1:61428\r\nRange: bytes=-18446744073709551616\r\nConnection: close\r\n\r\n",
+      "raw_response_base64": "SFRUUC8xLjEgMjA2IFBhcnRpYWwgQ29udGVudA0KZGF0ZTogVHVlLCAyNyBPY3QgMjAyNiAxMjozNzoxOSBHTVQNCnNlcnZlcjogdXZpY29ybg0KY29udGVudC1kaXNwb3NpdGlvbjogYXR0YWNobWVudDsgZmlsZW5hbWU9InJhbmdlLmNzdiINCmFjY2VwdC1yYW5nZXM6IGJ5dGVzDQpjb250ZW50LXJhbmdlOiBieXRlcyAwLTE3LzE4DQpjb250ZW50LWxlbmd0aDogMTgNCmNvbnRlbnQtdHlwZTogdGV4dC9jc3Y7IGNoYXJzZXQ9dXRmLTgNCkNvbm5lY3Rpb246IGNsb3NlDQoNCmlkLHJlZ2lvbgpBLG5vcnRoCg==",
+      "status": 206,
+      "reason": "Partial Content",
+      "http_version": 11,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 12:37:19 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-disposition",
+          "attachment; filename=\"range.csv\""
+        ],
+        [
+          "accept-ranges",
+          "bytes"
+        ],
+        [
+          "content-range",
+          "bytes 0-17/18"
+        ],
+        [
+          "content-length",
+          "18"
+        ],
+        [
+          "content-type",
+          "text/csv; charset=utf-8"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "body_length": 18
+    },
+    {
+      "label": "csv-16",
+      "asset": "csv",
+      "range_header": "bytes=+0-1",
+      "url": "/media/d66cb2aa8e6e27e384b1aa915da34d37.csv",
+      "request_base64": "R0VUIC9tZWRpYS9kNjZjYjJhYThlNmUyN2UzODRiMWFhOTE1ZGEzNGQzNy5jc3YgSFRUUC8xLjENCkhvc3Q6IDEyNy4wLjAuMTo2MTQyOA0KUmFuZ2U6IGJ5dGVzPSswLTENCkNvbm5lY3Rpb246IGNsb3NlDQoNCg==",
+      "request_text": "GET /media/d66cb2aa8e6e27e384b1aa915da34d37.csv HTTP/1.1\r\nHost: 127.0.0.1:61428\r\nRange: bytes=+0-1\r\nConnection: close\r\n\r\n",
+      "raw_response_base64": "SFRUUC8xLjEgMjA2IFBhcnRpYWwgQ29udGVudA0KZGF0ZTogVHVlLCAyNyBPY3QgMjAyNiAxMjozNzoxOSBHTVQNCnNlcnZlcjogdXZpY29ybg0KY29udGVudC1kaXNwb3NpdGlvbjogYXR0YWNobWVudDsgZmlsZW5hbWU9InJhbmdlLmNzdiINCmFjY2VwdC1yYW5nZXM6IGJ5dGVzDQpjb250ZW50LXJhbmdlOiBieXRlcyAwLTEvMTgNCmNvbnRlbnQtbGVuZ3RoOiAyDQpjb250ZW50LXR5cGU6IHRleHQvY3N2OyBjaGFyc2V0PXV0Zi04DQpDb25uZWN0aW9uOiBjbG9zZQ0KDQppZA==",
+      "status": 206,
+      "reason": "Partial Content",
+      "http_version": 11,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 12:37:19 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-disposition",
+          "attachment; filename=\"range.csv\""
+        ],
+        [
+          "accept-ranges",
+          "bytes"
+        ],
+        [
+          "content-range",
+          "bytes 0-1/18"
+        ],
+        [
+          "content-length",
+          "2"
+        ],
+        [
+          "content-type",
+          "text/csv; charset=utf-8"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "aWQ=",
+      "body_length": 2
+    },
+    {
+      "label": "empty-01",
+      "asset": "empty",
+      "range_header": null,
+      "url": "/media/e6f8d296dc27d45493744a3e50992bd2.bin",
+      "request_base64": "R0VUIC9tZWRpYS9lNmY4ZDI5NmRjMjdkNDU0OTM3NDRhM2U1MDk5MmJkMi5iaW4gSFRUUC8xLjENCkhvc3Q6IDEyNy4wLjAuMTo2MTQyOA0KQ29ubmVjdGlvbjogY2xvc2UNCg0K",
+      "request_text": "GET /media/e6f8d296dc27d45493744a3e50992bd2.bin HTTP/1.1\r\nHost: 127.0.0.1:61428\r\nConnection: close\r\n\r\n",
+      "raw_response_base64": "SFRUUC8xLjEgMjAwIE9LDQpkYXRlOiBUdWUsIDI3IE9jdCAyMDI2IDEyOjM3OjE5IEdNVA0Kc2VydmVyOiB1dmljb3JuDQpjb250ZW50LWRpc3Bvc2l0aW9uOiBhdHRhY2htZW50OyBmaWxlbmFtZT0iZW1wdHkuYmluIg0KYWNjZXB0LXJhbmdlczogYnl0ZXMNCmNvbnRlbnQtbGVuZ3RoOiAwDQpjb250ZW50LXR5cGU6IGFwcGxpY2F0aW9uL29jdGV0LXN0cmVhbQ0KQ29ubmVjdGlvbjogY2xvc2UNCg0K",
+      "status": 200,
+      "reason": "OK",
+      "http_version": 11,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 12:37:19 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-disposition",
+          "attachment; filename=\"empty.bin\""
+        ],
+        [
+          "accept-ranges",
+          "bytes"
+        ],
+        [
+          "content-length",
+          "0"
+        ],
+        [
+          "content-type",
+          "application/octet-stream"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "",
+      "body_length": 0
+    },
+    {
+      "label": "empty-02",
+      "asset": "empty",
+      "range_header": "bytes=0-",
+      "url": "/media/e6f8d296dc27d45493744a3e50992bd2.bin",
+      "request_base64": "R0VUIC9tZWRpYS9lNmY4ZDI5NmRjMjdkNDU0OTM3NDRhM2U1MDk5MmJkMi5iaW4gSFRUUC8xLjENCkhvc3Q6IDEyNy4wLjAuMTo2MTQyOA0KUmFuZ2U6IGJ5dGVzPTAtDQpDb25uZWN0aW9uOiBjbG9zZQ0KDQo=",
+      "request_text": "GET /media/e6f8d296dc27d45493744a3e50992bd2.bin HTTP/1.1\r\nHost: 127.0.0.1:61428\r\nRange: bytes=0-\r\nConnection: close\r\n\r\n",
+      "raw_response_base64": "SFRUUC8xLjEgNDE2IFJhbmdlIE5vdCBTYXRpc2ZpYWJsZQ0KZGF0ZTogVHVlLCAyNyBPY3QgMjAyNiAxMjozNzoxOSBHTVQNCnNlcnZlcjogdXZpY29ybg0KY29udGVudC1yYW5nZTogYnl0ZXMgKi8wDQpjb250ZW50LWxlbmd0aDogMTMNCmNvbnRlbnQtdHlwZTogdGV4dC9wbGFpbjsgY2hhcnNldD11dGYtOA0KQ29ubmVjdGlvbjogY2xvc2UNCg0KSW52YWxpZCByYW5nZQ==",
+      "status": 416,
+      "reason": "Range Not Satisfiable",
+      "http_version": 11,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 12:37:19 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-range",
+          "bytes */0"
+        ],
+        [
+          "content-length",
+          "13"
+        ],
+        [
+          "content-type",
+          "text/plain; charset=utf-8"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "SW52YWxpZCByYW5nZQ==",
+      "body_length": 13,
+      "error_body_utf8": "Invalid range"
+    },
+    {
+      "label": "empty-03",
+      "asset": "empty",
+      "range_header": "bytes=-5",
+      "url": "/media/e6f8d296dc27d45493744a3e50992bd2.bin",
+      "request_base64": "R0VUIC9tZWRpYS9lNmY4ZDI5NmRjMjdkNDU0OTM3NDRhM2U1MDk5MmJkMi5iaW4gSFRUUC8xLjENCkhvc3Q6IDEyNy4wLjAuMTo2MTQyOA0KUmFuZ2U6IGJ5dGVzPS01DQpDb25uZWN0aW9uOiBjbG9zZQ0KDQo=",
+      "request_text": "GET /media/e6f8d296dc27d45493744a3e50992bd2.bin HTTP/1.1\r\nHost: 127.0.0.1:61428\r\nRange: bytes=-5\r\nConnection: close\r\n\r\n",
+      "raw_response_base64": "SFRUUC8xLjEgNDE2IFJhbmdlIE5vdCBTYXRpc2ZpYWJsZQ0KZGF0ZTogVHVlLCAyNyBPY3QgMjAyNiAxMjozNzoxOSBHTVQNCnNlcnZlcjogdXZpY29ybg0KY29udGVudC1yYW5nZTogYnl0ZXMgKi8wDQpjb250ZW50LWxlbmd0aDogMTMNCmNvbnRlbnQtdHlwZTogdGV4dC9wbGFpbjsgY2hhcnNldD11dGYtOA0KQ29ubmVjdGlvbjogY2xvc2UNCg0KSW52YWxpZCByYW5nZQ==",
+      "status": 416,
+      "reason": "Range Not Satisfiable",
+      "http_version": 11,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 12:37:19 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-range",
+          "bytes */0"
+        ],
+        [
+          "content-length",
+          "13"
+        ],
+        [
+          "content-type",
+          "text/plain; charset=utf-8"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "SW52YWxpZCByYW5nZQ==",
+      "body_length": 13,
+      "error_body_utf8": "Invalid range"
+    },
+    {
+      "label": "empty-04",
+      "asset": "empty",
+      "range_header": "bytes=0-0",
+      "url": "/media/e6f8d296dc27d45493744a3e50992bd2.bin",
+      "request_base64": "R0VUIC9tZWRpYS9lNmY4ZDI5NmRjMjdkNDU0OTM3NDRhM2U1MDk5MmJkMi5iaW4gSFRUUC8xLjENCkhvc3Q6IDEyNy4wLjAuMTo2MTQyOA0KUmFuZ2U6IGJ5dGVzPTAtMA0KQ29ubmVjdGlvbjogY2xvc2UNCg0K",
+      "request_text": "GET /media/e6f8d296dc27d45493744a3e50992bd2.bin HTTP/1.1\r\nHost: 127.0.0.1:61428\r\nRange: bytes=0-0\r\nConnection: close\r\n\r\n",
+      "raw_response_base64": "SFRUUC8xLjEgNDE2IFJhbmdlIE5vdCBTYXRpc2ZpYWJsZQ0KZGF0ZTogVHVlLCAyNyBPY3QgMjAyNiAxMjozNzoxOSBHTVQNCnNlcnZlcjogdXZpY29ybg0KY29udGVudC1yYW5nZTogYnl0ZXMgKi8wDQpjb250ZW50LWxlbmd0aDogMTMNCmNvbnRlbnQtdHlwZTogdGV4dC9wbGFpbjsgY2hhcnNldD11dGYtOA0KQ29ubmVjdGlvbjogY2xvc2UNCg0KSW52YWxpZCByYW5nZQ==",
+      "status": 416,
+      "reason": "Range Not Satisfiable",
+      "http_version": 11,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 12:37:19 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-range",
+          "bytes */0"
+        ],
+        [
+          "content-length",
+          "13"
+        ],
+        [
+          "content-type",
+          "text/plain; charset=utf-8"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "SW52YWxpZCByYW5nZQ==",
+      "body_length": 13,
+      "error_body_utf8": "Invalid range"
+    },
+    {
+      "label": "video-01",
+      "asset": "video",
+      "range_header": "bytes=-17",
+      "url": "/media/89d6baf253834c013e2bc52aab2354d4.mp4",
+      "request_base64": "R0VUIC9tZWRpYS84OWQ2YmFmMjUzODM0YzAxM2UyYmM1MmFhYjIzNTRkNC5tcDQgSFRUUC8xLjENCkhvc3Q6IDEyNy4wLjAuMTo2MTQyOA0KUmFuZ2U6IGJ5dGVzPS0xNw0KQ29ubmVjdGlvbjogY2xvc2UNCg0K",
+      "request_text": "GET /media/89d6baf253834c013e2bc52aab2354d4.mp4 HTTP/1.1\r\nHost: 127.0.0.1:61428\r\nRange: bytes=-17\r\nConnection: close\r\n\r\n",
+      "raw_response_base64": "SFRUUC8xLjEgMjA2IFBhcnRpYWwgQ29udGVudA0KZGF0ZTogVHVlLCAyNyBPY3QgMjAyNiAxMjozNzoxOSBHTVQNCnNlcnZlcjogdXZpY29ybg0KYWNjZXB0LXJhbmdlczogYnl0ZXMNCmNvbnRlbnQtcmFuZ2U6IGJ5dGVzIDM1ODgtMzYwNC8zNjA1DQpjb250ZW50LWxlbmd0aDogMTcNCmNvbnRlbnQtdHlwZTogdmlkZW8vbXA0DQpDb25uZWN0aW9uOiBjbG9zZQ0KDQoAAAAATGF2ZjYyLjEyLjEwMg==",
+      "status": 206,
+      "reason": "Partial Content",
+      "http_version": 11,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 12:37:19 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "accept-ranges",
+          "bytes"
+        ],
+        [
+          "content-range",
+          "bytes 3588-3604/3605"
+        ],
+        [
+          "content-length",
+          "17"
+        ],
+        [
+          "content-type",
+          "video/mp4"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "AAAAAExhdmY2Mi4xMi4xMDI=",
+      "body_length": 17
+    },
+    {
+      "label": "video-02",
+      "asset": "video",
+      "range_header": "bytes=3605-",
+      "url": "/media/89d6baf253834c013e2bc52aab2354d4.mp4",
+      "request_base64": "R0VUIC9tZWRpYS84OWQ2YmFmMjUzODM0YzAxM2UyYmM1MmFhYjIzNTRkNC5tcDQgSFRUUC8xLjENCkhvc3Q6IDEyNy4wLjAuMTo2MTQyOA0KUmFuZ2U6IGJ5dGVzPTM2MDUtDQpDb25uZWN0aW9uOiBjbG9zZQ0KDQo=",
+      "request_text": "GET /media/89d6baf253834c013e2bc52aab2354d4.mp4 HTTP/1.1\r\nHost: 127.0.0.1:61428\r\nRange: bytes=3605-\r\nConnection: close\r\n\r\n",
+      "raw_response_base64": "SFRUUC8xLjEgNDE2IFJhbmdlIE5vdCBTYXRpc2ZpYWJsZQ0KZGF0ZTogVHVlLCAyNyBPY3QgMjAyNiAxMjozNzoxOSBHTVQNCnNlcnZlcjogdXZpY29ybg0KY29udGVudC1yYW5nZTogYnl0ZXMgKi8zNjA1DQpjb250ZW50LWxlbmd0aDogMTMNCmNvbnRlbnQtdHlwZTogdGV4dC9wbGFpbjsgY2hhcnNldD11dGYtOA0KQ29ubmVjdGlvbjogY2xvc2UNCg0KSW52YWxpZCByYW5nZQ==",
+      "status": 416,
+      "reason": "Range Not Satisfiable",
+      "http_version": 11,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 12:37:19 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-range",
+          "bytes */3605"
+        ],
+        [
+          "content-length",
+          "13"
+        ],
+        [
+          "content-type",
+          "text/plain; charset=utf-8"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "SW52YWxpZCByYW5nZQ==",
+      "body_length": 13,
+      "error_body_utf8": "Invalid range"
+    },
+    {
+      "label": "video-03",
+      "asset": "video",
+      "range_header": "bytes=3600-9999",
+      "url": "/media/89d6baf253834c013e2bc52aab2354d4.mp4",
+      "request_base64": "R0VUIC9tZWRpYS84OWQ2YmFmMjUzODM0YzAxM2UyYmM1MmFhYjIzNTRkNC5tcDQgSFRUUC8xLjENCkhvc3Q6IDEyNy4wLjAuMTo2MTQyOA0KUmFuZ2U6IGJ5dGVzPTM2MDAtOTk5OQ0KQ29ubmVjdGlvbjogY2xvc2UNCg0K",
+      "request_text": "GET /media/89d6baf253834c013e2bc52aab2354d4.mp4 HTTP/1.1\r\nHost: 127.0.0.1:61428\r\nRange: bytes=3600-9999\r\nConnection: close\r\n\r\n",
+      "raw_response_base64": "SFRUUC8xLjEgMjA2IFBhcnRpYWwgQ29udGVudA0KZGF0ZTogVHVlLCAyNyBPY3QgMjAyNiAxMjozNzoxOSBHTVQNCnNlcnZlcjogdXZpY29ybg0KYWNjZXB0LXJhbmdlczogYnl0ZXMNCmNvbnRlbnQtcmFuZ2U6IGJ5dGVzIDM2MDAtMzYwNC8zNjA1DQpjb250ZW50LWxlbmd0aDogNQ0KY29udGVudC10eXBlOiB2aWRlby9tcDQNCkNvbm5lY3Rpb246IGNsb3NlDQoNCjIuMTAy",
+      "status": 206,
+      "reason": "Partial Content",
+      "http_version": 11,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 12:37:19 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "accept-ranges",
+          "bytes"
+        ],
+        [
+          "content-range",
+          "bytes 3600-3604/3605"
+        ],
+        [
+          "content-length",
+          "5"
+        ],
+        [
+          "content-type",
+          "video/mp4"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "Mi4xMDI=",
+      "body_length": 5
+    }
+  ],
+  "finishes": [
+    0
+  ],
+  "cleanup": {
+    "websocket_closed": true,
+    "close_code": 1000,
+    "server_stopped": true,
+    "listener_count": "0",
+    "listener_check_exit_code": 0,
+    "browser_started": false
+  },
+  "cleanup_errors": [],
+  "counts": {
+    "cases": 23,
+    "raw_pb_frames": 9,
+    "http_statuses": {
+      "206": 9,
+      "416": 13,
+      "200": 1
+    }
+  },
+  "byte_checks": [
+    {
+      "label": "csv-01",
+      "actual_request_preserved": true,
+      "body_length_matches_header": true,
+      "range_body_matches_input_slice": true
+    },
+    {
+      "label": "csv-02",
+      "actual_request_preserved": true,
+      "body_length_matches_header": true,
+      "range_body_matches_input_slice": true
+    },
+    {
+      "label": "csv-03",
+      "actual_request_preserved": true,
+      "body_length_matches_header": true,
+      "range_body_matches_input_slice": false
+    },
+    {
+      "label": "csv-04",
+      "actual_request_preserved": true,
+      "body_length_matches_header": true,
+      "range_body_matches_input_slice": false
+    },
+    {
+      "label": "csv-05",
+      "actual_request_preserved": true,
+      "body_length_matches_header": true,
+      "range_body_matches_input_slice": false
+    },
+    {
+      "label": "csv-06",
+      "actual_request_preserved": true,
+      "body_length_matches_header": true,
+      "range_body_matches_input_slice": false
+    },
+    {
+      "label": "csv-07",
+      "actual_request_preserved": true,
+      "body_length_matches_header": true,
+      "range_body_matches_input_slice": false
+    },
+    {
+      "label": "csv-08",
+      "actual_request_preserved": true,
+      "body_length_matches_header": true,
+      "range_body_matches_input_slice": true
+    },
+    {
+      "label": "csv-09",
+      "actual_request_preserved": true,
+      "body_length_matches_header": true,
+      "range_body_matches_input_slice": true
+    },
+    {
+      "label": "csv-10",
+      "actual_request_preserved": true,
+      "body_length_matches_header": true,
+      "range_body_matches_input_slice": false
+    },
+    {
+      "label": "csv-11",
+      "actual_request_preserved": true,
+      "body_length_matches_header": true,
+      "range_body_matches_input_slice": false
+    },
+    {
+      "label": "csv-12",
+      "actual_request_preserved": true,
+      "body_length_matches_header": true,
+      "range_body_matches_input_slice": false
+    },
+    {
+      "label": "csv-13",
+      "actual_request_preserved": true,
+      "body_length_matches_header": true,
+      "range_body_matches_input_slice": true
+    },
+    {
+      "label": "csv-14",
+      "actual_request_preserved": true,
+      "body_length_matches_header": true,
+      "range_body_matches_input_slice": false
+    },
+    {
+      "label": "csv-15",
+      "actual_request_preserved": true,
+      "body_length_matches_header": true,
+      "range_body_matches_input_slice": true
+    },
+    {
+      "label": "csv-16",
+      "actual_request_preserved": true,
+      "body_length_matches_header": true,
+      "range_body_matches_input_slice": true
+    },
+    {
+      "label": "empty-01",
+      "actual_request_preserved": true,
+      "body_length_matches_header": true,
+      "range_body_matches_input_slice": false
+    },
+    {
+      "label": "empty-02",
+      "actual_request_preserved": true,
+      "body_length_matches_header": true,
+      "range_body_matches_input_slice": false
+    },
+    {
+      "label": "empty-03",
+      "actual_request_preserved": true,
+      "body_length_matches_header": true,
+      "range_body_matches_input_slice": false
+    },
+    {
+      "label": "empty-04",
+      "actual_request_preserved": true,
+      "body_length_matches_header": true,
+      "range_body_matches_input_slice": false
+    },
+    {
+      "label": "video-01",
+      "actual_request_preserved": true,
+      "body_length_matches_header": true,
+      "range_body_matches_input_slice": true
+    },
+    {
+      "label": "video-02",
+      "actual_request_preserved": true,
+      "body_length_matches_header": true,
+      "range_body_matches_input_slice": false
+    },
+    {
+      "label": "video-03",
+      "actual_request_preserved": true,
+      "body_length_matches_header": true,
+      "range_body_matches_input_slice": true
+    }
+  ]
+}
