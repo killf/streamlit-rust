@@ -6,7 +6,9 @@
 
 本批另有真实 HTTP 红绿回归：原 `.csv` 下载地址返回 404；修复后 CSV 200、`text/csv; charset=utf-8`、附件名 `workbench.csv`、原始字节、206 Range、重复下载和未知 id 404 均通过。实现保留注册时的下载元数据、原内容地址和首次写入语义；普通媒体路由范围没有扩大。
 
-保留差异：Python 下载设为 ignore，Rust 下载另触发重跑；Python Arrow nullable 和索引呈现与 Rust 不完全相同；空计数时 Python 发空图而 Rust 不发；Vega spec 不相等。Python 部分截图仍是更新前柱高，Rust 实际截图显示新计数，尚未证明该 Python 呈现差异的原因。只声明逻辑计数和所见的 Rust 图，不声明完整 schema/IPC/像素或默认图表兼容。
+保留差异：Python 下载设为 ignore，Rust 下载另触发重跑；Python Arrow nullable 和索引呈现与 Rust 不完全相同；空计数时 Python 发空图而 Rust 不发；Vega spec 不相等。Python 部分截图仍是更新前柱高，Rust 实际截图显示新计数，采集当时尚未证明该 Python 呈现差异的原因。只声明逻辑计数和所见的 Rust 图，不声明完整 schema/IPC/像素或默认图表兼容。
+
+后续调查另用公开 generic Vega API [复现同形状漏刷](../rust-vega-refresh-before/README.md)，并找到官方前端值判断的盲点；这里使用的内容命名 bar 路径与该 generic 路径分开记录，不能把原正确 CSV 结果冒称通用图更新均已通过。
 
 来源替换 UI 尚未验收，等待“上传器空状态和清空工作副本”的规则选择；没有把该失败隐藏或改为通过。本证据也不覆盖全部数据类型、所有选择模式/参数、完整错误/安全边界或长期目标其余阶段。
 

@@ -646,7 +646,13 @@ fn apply_edits(data: &RecordBatch, edits: &Value) -> Result<RecordBatch, DataErr
     if let Some(deleted) = deleted_rows.as_array() {
         let mut positions: Vec<usize> = deleted
             .iter()
-            .map(|value| value.as_u64().map(|position| position as usize).ok_or_else(|| DataError::InvalidOption("deleted row must be a position".into())))
+            .map(|value| {
+                let position = value.as_u64().and_then(|position| usize::try_from(position).ok()).ok_or_else(|| DataError::InvalidOption("deleted row must be a position".into()))?;
+                if position >= rows.len() {
+                    return Err(DataError::InvalidOption(format!("deleted row is out of range: {position}")));
+                }
+                Ok(position)
+            })
             .collect::<Result<_, DataError>>()?;
         positions.sort_unstable();
         positions.dedup();

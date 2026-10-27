@@ -1,7 +1,8 @@
 //! Library-chart demo: the seven measured chart surfaces. Mirrors
 //! tests/reference/chartlibs_app.py — the chart-building libraries are
 //! Python-only, so the Rust side passes the same final payloads the
-//! reference produced.
+//! reference produced. The initial seven payloads stay fixed; the button then
+//! probes a same-shape inline Vega data update on the second chart.
 use ::streamlit::*;
 use std::sync::Arc;
 
@@ -17,6 +18,9 @@ fn kind_count_batch() -> anyhow::Result<RecordBatch> {
 }
 
 fn render(st: &Streamlit) -> anyhow::Result<()> {
+    let state = st.session_state();
+    let vega_count = state.get::<i64>("vega-count")?.unwrap_or(3);
+
     st.altair_chart(
         json!({"mark": {"type": "bar"}, "encoding": {"x": {"field": "kind", "type": "nominal"}, "y": {"field": "count", "type": "quantitative"}}}),
         &kind_count_batch()?,
@@ -28,7 +32,7 @@ fn render(st: &Streamlit) -> anyhow::Result<()> {
             "x": {"field": "kind", "type": "nominal"},
             "y": {"field": "count", "type": "quantitative"},
         },
-        "data": {"values": [{"kind": "a", "count": 3}, {"kind": "b", "count": 7}]},
+        "data": {"values": [{"kind": "a", "count": vega_count}, {"kind": "b", "count": 7}]},
     }));
 
     st.plotly_chart(include_str!("../../tests/reference/chartlibs-plotly_spec.json"));
@@ -44,6 +48,13 @@ fn render(st: &Streamlit) -> anyhow::Result<()> {
         "yAxis": {"type": "value"},
         "series": [{"type": "bar", "data": [3, 7]}],
     }));
+
+    if st.button("Change Vega data") {
+        state.set("vega-count", if vega_count == 3 { 8_i64 } else { 3_i64 })?;
+        st.rerun();
+        return Ok(());
+    }
+
     Ok(())
 }
 

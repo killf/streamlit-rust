@@ -84,6 +84,16 @@ Q5/Q6 在用户确认选择性 nullable 规则后完成：76 项库单元、2 �
 
 本批修复已复现的 CSV 下载 404 及附件元数据丢失，公开接口/内容地址/首次存储不变。代码检查通过；当前 184 项 Rust（161 库/运行模块、2 宏、1 ledger、4 rustdoc、16 示例）及 1498 项冻结参考测试通过，保留 96 条既有 Pillow 告警。新离线测试链接原 PB、Arrow、输入和下载；库内编辑回归直接复用冻结选择、真实编辑输入及下载预期，应用另有 5 项纯模型测试，没有重采旧正确 Python 数据。另 17 阶段显式 Rust WS/18 次运行防旧 Apply/Append 误写已独立通过，不能冒称 UI/Python 证据。全部自有服务/浏览器已清理；日志索引为本地 `target/checks/m2-csv-workbench/`。首次整库收尾因正在运行的示例占用 Windows 链接目标失败，停自有服务后重新完整通过；不隐去失败或把环境错误算为产品缺陷。
 
+上述 1498 项运行先于该子批最终追加的矩阵元数据，未覆盖后来引入的嵌套证据格式错误；本轮已发现、修正并完整复验，见下节，不将旧通过结果当作该元数据有效性的证明。
+
+## Current editor bounds validation (2026-10-27)
+
+已修复两行表删除位置 2 的 panic：全部删除位置先验证整数可表示性及范围，沿用 DataError，不裁剪、不忽略。使用说明先于生产修复；[新冻结参考](../tests/reference/reference-browser/dataeditor-invalid-rows/README.md)保留 18 个脚本级实验及独立四阶段真实协议。Rust 单元复用 13 个非负场景、另验空表，真实 WS 回放错误→合法删除→恢复，原输入与会话/editor 身份保持。负索引另有差异未改，错误文字与 Python Exception 元素不作逐字段等价声明。
+
+当前格式、全目标 Clippy、186 项 Rust（163 库/运行模块、2 宏、1 ledger、4 rustdoc、16 示例）及 1500 项冻结参考检查通过，96 条 Pillow 告警保留；结果和完整命令/日志索引见本地 `target/checks/m2-editor-invalid-rows/results.json`。首次全参考为 1499 通过/1 失败，定位到前批矩阵用了校验器不支持的嵌套 evidence；只改回既有路径列表，未动生成器或断言，相关 49 项及随后完整 1500 项通过，原失败日志保留。Python 新协议首次即时端口关闭观察未通过，原退出 1/port_closed:false 未改，独立补证明确确认原 PID 77124 消失、61412 无监听，不重采。
+
+另已归档 [generic Vega 的真实更新失败](../tests/browser/rust-vega-refresh-before/README.md)：四阶段消息值 3→8→8→3、可见值仍 3，图生产代码与旧 oracle 未改。A/B/C 协议及交互状态取舍仍待用户选择，CSV 来源规则亦待决，M2 与长期 Goal 均未完成。静态、运行回归及数据归档已独立 Review，无本编辑器修复范围内剩余阻塞。
+
 ## Required fresh-checkout checks
 
 ```powershell

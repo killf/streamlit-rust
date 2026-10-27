@@ -19,6 +19,38 @@ fn qty_label_batch(nullable: [bool; 2]) -> TestResult<RecordBatch> {
     Ok(RecordBatch::try_new(Arc::new(Schema::new(fields)), arrays)?)
 }
 
+#[test]
+fn positive_out_of_range_deletions_return_error_without_panicking() -> TestResult {
+    let original = qty_label_batch([false, false])?;
+    let snapshot = original.clone();
+    let reference: serde_json::Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/dataeditor-invalid-rows/observations.json"))?;
+    assert_eq!(reference["versions"]["streamlit"], "1.66.1");
+    let mut compared = 0;
+    for case in reference["cases"].as_array().ok_or("editor reference must include cases")? {
+        let edits: serde_json::Value = serde_json::from_str(case["input_string_value"].as_str().ok_or("recorded edits must be a string")?)?;
+        let has_negative = edits["deleted_rows"].as_array().into_iter().flatten().any(|value| value.as_i64().is_some_and(|value| value < 0)) || edits["edited_rows"].as_object().into_iter().flatten().any(|(row, _)| row.starts_with('-'));
+        if has_negative {
+            continue; // 负索引是另一个未确认差异，不把现有拒绝行为定为新规则。
+        }
+        let result = crate::data_api::apply_edits_for_test(&original, &edits);
+        if case["outcome"] == "exception" {
+            assert!(result.is_err(), "reference exception must become a DataError: {}", case["name"]);
+        } else {
+            let returned = result?;
+            let qty = returned.column(0).as_any().downcast_ref::<Int64Array>().ok_or("returned quantity must stay int64")?;
+            let label = returned.column(1).as_any().downcast_ref::<StringArray>().ok_or("returned labels must stay text")?;
+            let rows = (0..returned.num_rows()).map(|row| json!({"qty": qty.value(row), "label": label.value(row)})).collect::<Vec<_>>();
+            assert_eq!(json!(rows), case["working_after"]["rows"], "{}", case["name"]);
+        }
+        assert_eq!(original, snapshot, "caller input must stay unchanged: {}", case["name"]);
+        compared += 1;
+    }
+    assert_eq!(compared, 13);
+    // Rust 内部空表边界，复用同一删除首行输入，不冒称另一次 Python 采证。
+    assert!(crate::data_api::apply_edits_for_test(&original.slice(0, 0), &json!({"deleted_rows": [0]})).is_err());
+    Ok(())
+}
+
 fn frozen_editor_stages() -> TestResult<Vec<(String, Option<String>)>> {
     let raw: serde_json::Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/dataeditor/trace-dataeditor.json"))?;
     assert_eq!(raw["schema_version"], 1);
@@ -64,6 +96,134 @@ fn dataeditor_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
 
         assert!(result.is_ok(), "dataeditor fixture must render successfully: {result:?}");
     })
+}
+
+fn editor_recovery_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        let result: TestResult = (|| {
+            let original = qty_label_batch([true, true])?;
+            let snapshot = original.clone();
+            match st.data_editor(crate::DataEditorOptions::new(&original).num_rows(crate::EditorRows::Dynamic).key("editor")) {
+                Ok(edited) => {
+                    st.dataframe(&edited)?;
+                    st.write(format!("rows={}", edited.num_rows()));
+                }
+                Err(error) => st.write(format!("editor-error: {error}")),
+            }
+            assert_eq!(original, snapshot);
+            Ok(())
+        })();
+        assert!(result.is_ok(), "recovery fixture setup failed: {result:?}");
+    })
+}
+
+#[actix_web::test]
+async fn frozen_invalid_editor_input_recovers_on_the_same_websocket() -> TestResult {
+    let reference: serde_json::Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/dataeditor-invalid-rows/protocol-first/protocol-input-output.json"))?;
+    assert_eq!(reference["reference_version"], "1.66.1");
+    let expected = reference["stages"].as_array().ok_or("protocol stages are missing")?.clone();
+    assert_eq!(expected.len(), 4);
+    let stages = expected.clone();
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
+    let server = HttpServer::new(move || App::new().app_data(web::Data::new(StreamlitServer::new(editor_recovery_entry, "127.0.0.1".into(), 0))).configure(configure_routes))
+        .workers(1)
+        .listen(listener)?
+        .run();
+    let handle = server.handle();
+    let task = actix_web::rt::spawn(server);
+    let mut capture = actix_web::rt::spawn(async move {
+        let mut stream = sessions::connect(address, None).await;
+        let (mut editor_id, mut session_id) = (String::new(), String::new());
+        let mut runs = Vec::new();
+        for stage in stages {
+            let widgets = stage["input_string_value"]
+                .as_str()
+                .map(|payload| {
+                    vec![WidgetState {
+                        id: editor_id.clone(),
+                        value: Some(widget_state::Value::StringValue(payload.into())),
+                    }]
+                })
+                .unwrap_or_default();
+            send_binary(
+                &mut stream,
+                &BackMsg {
+                    r#type: Some(back_msg::Type::RerunScript(ClientState {
+                        widget_states: Some(WidgetStates { widgets }),
+                        ..Default::default()
+                    })),
+                }
+                .encode_to_vec(),
+            )
+            .await;
+            let (mut frames, mut messages, mut finishes) = (Vec::new(), Vec::new(), Vec::new());
+            loop {
+                match receive(&mut stream).await.r#type {
+                    Some(forward_msg::Type::NewSession(run)) => {
+                        let id = run.initialize.ok_or("new session initialization is missing")?.session_id;
+                        if session_id.is_empty() {
+                            session_id = id;
+                        } else {
+                            assert_eq!(session_id, id);
+                        }
+                    }
+                    Some(forward_msg::Type::Delta(delta)) => {
+                        if let Some(delta::Type::NewElement(element)) = delta.r#type {
+                            match element.r#type {
+                                Some(element::Type::Dataframe(frame)) => {
+                                    if frame.editing_mode == 2 {
+                                        if editor_id.is_empty() {
+                                            editor_id = frame.id.clone();
+                                        } else {
+                                            assert_eq!(editor_id, frame.id);
+                                        }
+                                    }
+                                    frames.push(frame);
+                                }
+                                Some(element::Type::Markdown(message)) => messages.push(message.body),
+                                _ => {}
+                            }
+                        }
+                    }
+                    Some(forward_msg::Type::ScriptFinished(status)) => finishes.push(status),
+                    Some(forward_msg::Type::SessionStatusChanged(status)) if !status.script_is_running => break,
+                    _ => {}
+                }
+            }
+            runs.push((frames, messages, finishes));
+        }
+        Ok::<_, Box<dyn std::error::Error>>(runs)
+    });
+    // 任一输入失败也先回收连接任务与自有 server，再进行输出断言。
+    let captured = tokio::time::timeout(Duration::from_secs(10), &mut capture).await;
+    if captured.is_err() {
+        capture.abort();
+        let _ = capture.await;
+    }
+    handle.stop(false).await;
+    task.await??;
+    let runs = captured???;
+    for (expected, (frames, messages, finishes)) in expected.iter().zip(runs) {
+        assert_eq!(finishes, [0]);
+        println!("editor recovery stage={} frames={} messages={messages:?} finishes={finishes:?}", expected["name"], frames.len());
+        if !expected["exceptions"].as_array().ok_or("reference exceptions are missing")?.is_empty() {
+            assert!(frames.is_empty(), "invalid editing must not emit a partial table");
+            assert!(messages.iter().any(|message| message.starts_with("editor-error:") && message.contains("out of range")));
+            continue;
+        }
+        assert_eq!(messages, serde_json::from_value::<Vec<String>>(expected["markdowns"].clone())?);
+        let expected_frames = expected["dataframes"].as_array().ok_or("reference dataframes are missing")?;
+        assert_eq!(frames.len(), expected_frames.len());
+        for (frame, expected) in frames.iter().zip(expected_frames) {
+            let batch = crate::data::from_ipc_stream(&frame.arrow_data.as_ref().ok_or("frame data is missing")?.data)?.into_iter().next().ok_or("frame must contain a batch")?;
+            let qty = batch.column(0).as_any().downcast_ref::<Int64Array>().ok_or("qty must be int64")?;
+            let labels = batch.column(1).as_any().downcast_ref::<crate::data::LargeStringArray>().ok_or("labels must be large text")?;
+            let actual = (0..batch.num_rows()).map(|row| json!({"qty": qty.value(row), "label": labels.value(row)})).collect::<Vec<_>>();
+            assert_eq!(json!(actual), expected["rows"]);
+        }
+    }
+    Ok(())
 }
 
 #[actix_web::test]

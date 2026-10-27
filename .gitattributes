@@ -113,3 +113,11 @@
 /tests/reference/reference-browser/csv-workbench/**/*.log whitespace=blank-at-eol,space-before-tab,cr-at-eol,-blank-at-eof
 /tests/browser/rust-csv-workbench/** -text
 /tests/browser/rust-csv-workbench/**/*.log whitespace=blank-at-eol,space-before-tab,cr-at-eol,-blank-at-eof
+
+# Editor error/recovery observations retain original data bytes and failures.
+/tests/reference/reference-browser/dataeditor-invalid-rows/** -text
+/tests/reference/reference-browser/dataeditor-invalid-rows/**/*.log whitespace=blank-at-eol,space-before-tab,cr-at-eol,-blank-at-eof
+
+# The Vega refresh red record is retained as an observed failure.
+/tests/browser/rust-vega-refresh-before/** -text
+/tests/browser/rust-vega-refresh-before/**/*.log whitespace=blank-at-eol,space-before-tab,cr-at-eol,-blank-at-eof

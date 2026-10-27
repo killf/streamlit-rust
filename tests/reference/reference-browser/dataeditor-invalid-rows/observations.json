@@ -1,0 +1,1722 @@
+{
+  "schema_version": 1,
+  "scope": "script-level private implementation experiment; no public API, HTTP, WS or browser assertion",
+  "versions": {
+    "streamlit": "1.66.1",
+    "pandas": "3.1.0",
+    "pyarrow": "26.0.0"
+  },
+  "copy_path": "streamlit.dataframe_util.convert_anything_to_pandas_df(original, ensure_copy=True), as used by data_editor",
+  "helpers": [
+    {
+      "qualified_name": "DataEditorSerde.deserialize",
+      "source_file": "C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\streamlit\\elements\\widgets\\data_editor.py",
+      "line_start": 179,
+      "line_end": 201
+    },
+    {
+      "qualified_name": "_apply_dataframe_edits",
+      "source_file": "C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\streamlit\\elements\\widgets\\data_editor.py",
+      "line_start": 566,
+      "line_end": 595
+    },
+    {
+      "qualified_name": "_apply_row_deletions",
+      "source_file": "C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\streamlit\\elements\\widgets\\data_editor.py",
+      "line_start": 551,
+      "line_end": 563
+    },
+    {
+      "qualified_name": "_apply_cell_edits",
+      "source_file": "C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\streamlit\\elements\\widgets\\data_editor.py",
+      "line_start": 385,
+      "line_end": 422
+    }
+  ],
+  "cases": [
+    {
+      "name": "delete-first",
+      "input_string_value": "{\"edited_rows\":{},\"added_rows\":[],\"deleted_rows\":[0]}",
+      "original_before": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "working_before": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "deserialized_state": {
+        "edited_rows": {},
+        "added_rows": [],
+        "deleted_rows": [
+          0
+        ]
+      },
+      "outcome": "returned",
+      "helper_return": null,
+      "original_after": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "working_after": {
+        "index": [
+          1
+        ],
+        "rows": [
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "original_unchanged": true,
+      "working_changed": true
+    },
+    {
+      "name": "delete-last",
+      "input_string_value": "{\"edited_rows\":{},\"added_rows\":[],\"deleted_rows\":[1]}",
+      "original_before": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "working_before": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "deserialized_state": {
+        "edited_rows": {},
+        "added_rows": [],
+        "deleted_rows": [
+          1
+        ]
+      },
+      "outcome": "returned",
+      "helper_return": null,
+      "original_after": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "working_after": {
+        "index": [
+          0
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "original_unchanged": true,
+      "working_changed": true
+    },
+    {
+      "name": "delete-duplicate",
+      "input_string_value": "{\"edited_rows\":{},\"added_rows\":[],\"deleted_rows\":[0,0]}",
+      "original_before": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "working_before": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "deserialized_state": {
+        "edited_rows": {},
+        "added_rows": [],
+        "deleted_rows": [
+          0,
+          0
+        ]
+      },
+      "outcome": "returned",
+      "helper_return": null,
+      "original_after": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "working_after": {
+        "index": [
+          1
+        ],
+        "rows": [
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "original_unchanged": true,
+      "working_changed": true
+    },
+    {
+      "name": "delete-ascending",
+      "input_string_value": "{\"edited_rows\":{},\"added_rows\":[],\"deleted_rows\":[0,1]}",
+      "original_before": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "working_before": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "deserialized_state": {
+        "edited_rows": {},
+        "added_rows": [],
+        "deleted_rows": [
+          0,
+          1
+        ]
+      },
+      "outcome": "returned",
+      "helper_return": null,
+      "original_after": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "working_after": {
+        "index": [],
+        "rows": [],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "original_unchanged": true,
+      "working_changed": true
+    },
+    {
+      "name": "delete-descending",
+      "input_string_value": "{\"edited_rows\":{},\"added_rows\":[],\"deleted_rows\":[1,0]}",
+      "original_before": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "working_before": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "deserialized_state": {
+        "edited_rows": {},
+        "added_rows": [],
+        "deleted_rows": [
+          1,
+          0
+        ]
+      },
+      "outcome": "returned",
+      "helper_return": null,
+      "original_after": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "working_after": {
+        "index": [],
+        "rows": [],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "original_unchanged": true,
+      "working_changed": true
+    },
+    {
+      "name": "delete-equals-len",
+      "input_string_value": "{\"edited_rows\":{},\"added_rows\":[],\"deleted_rows\":[2]}",
+      "original_before": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "working_before": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "deserialized_state": {
+        "edited_rows": {},
+        "added_rows": [],
+        "deleted_rows": [
+          2
+        ]
+      },
+      "outcome": "exception",
+      "exception_type": "builtins.IndexError",
+      "exception_message": "index 2 is out of bounds for axis 0 with size 2",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\checks\\m2-editor-invalid-rows\\python\\probe.py\", line 64, in <module>\n    returned = _apply_dataframe_edits(working, edits, schema)\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\streamlit\\elements\\widgets\\data_editor.py\", line 590, in _apply_dataframe_edits\n    _apply_row_deletions(df, data_editor_state[\"deleted_rows\"])\n    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\streamlit\\elements\\widgets\\data_editor.py\", line 563, in _apply_row_deletions\n    df.drop(df.index[deleted_rows], inplace=True)  # noqa: PD002\n            ~~~~~~~~^^^^^^^^^^^^^^\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\pandas\\core\\indexes\\range.py\", line 1390, in __getitem__\n    return self.take(key)\n           ~~~~~~~~~^^^^^\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\pandas\\core\\indexes\\range.py\", line 1614, in take\n    raise IndexError(\n        f\"index {ind_max} is out of bounds for axis 0 with size {len(self)}\"\n    )\nIndexError: index 2 is out of bounds for axis 0 with size 2\n",
+      "original_after": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "working_after": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "original_unchanged": true,
+      "working_changed": false
+    },
+    {
+      "name": "delete-far",
+      "input_string_value": "{\"edited_rows\":{},\"added_rows\":[],\"deleted_rows\":[1000000]}",
+      "original_before": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "working_before": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "deserialized_state": {
+        "edited_rows": {},
+        "added_rows": [],
+        "deleted_rows": [
+          1000000
+        ]
+      },
+      "outcome": "exception",
+      "exception_type": "builtins.IndexError",
+      "exception_message": "index 1000000 is out of bounds for axis 0 with size 2",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\checks\\m2-editor-invalid-rows\\python\\probe.py\", line 64, in <module>\n    returned = _apply_dataframe_edits(working, edits, schema)\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\streamlit\\elements\\widgets\\data_editor.py\", line 590, in _apply_dataframe_edits\n    _apply_row_deletions(df, data_editor_state[\"deleted_rows\"])\n    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\streamlit\\elements\\widgets\\data_editor.py\", line 563, in _apply_row_deletions\n    df.drop(df.index[deleted_rows], inplace=True)  # noqa: PD002\n            ~~~~~~~~^^^^^^^^^^^^^^\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\pandas\\core\\indexes\\range.py\", line 1390, in __getitem__\n    return self.take(key)\n           ~~~~~~~~~^^^^^\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\pandas\\core\\indexes\\range.py\", line 1614, in take\n    raise IndexError(\n        f\"index {ind_max} is out of bounds for axis 0 with size {len(self)}\"\n    )\nIndexError: index 1000000 is out of bounds for axis 0 with size 2\n",
+      "original_after": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "working_after": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "original_unchanged": true,
+      "working_changed": false
+    },
+    {
+      "name": "delete-u64-max",
+      "input_string_value": "{\"edited_rows\":{},\"added_rows\":[],\"deleted_rows\":[18446744073709551615]}",
+      "original_before": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "working_before": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "deserialized_state": {
+        "edited_rows": {},
+        "added_rows": [],
+        "deleted_rows": [
+          18446744073709551615
+        ]
+      },
+      "outcome": "exception",
+      "exception_type": "builtins.OverflowError",
+      "exception_message": "int too big to convert",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\checks\\m2-editor-invalid-rows\\python\\probe.py\", line 64, in <module>\n    returned = _apply_dataframe_edits(working, edits, schema)\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\streamlit\\elements\\widgets\\data_editor.py\", line 590, in _apply_dataframe_edits\n    _apply_row_deletions(df, data_editor_state[\"deleted_rows\"])\n    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\streamlit\\elements\\widgets\\data_editor.py\", line 563, in _apply_row_deletions\n    df.drop(df.index[deleted_rows], inplace=True)  # noqa: PD002\n            ~~~~~~~~^^^^^^^^^^^^^^\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\pandas\\core\\indexes\\range.py\", line 1390, in __getitem__\n    return self.take(key)\n           ~~~~~~~~~^^^^^\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\pandas\\core\\indexes\\range.py\", line 1579, in take\n    indices = ensure_platform_int(indices)\n  File \"pandas/_libs/algos_common_helper.pxi\", line 22, in pandas._libs.algos.ensure_platform_int\nOverflowError: int too big to convert\n",
+      "original_after": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "working_after": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "original_unchanged": true,
+      "working_changed": false
+    },
+    {
+      "name": "delete-negative-one",
+      "input_string_value": "{\"edited_rows\":{},\"added_rows\":[],\"deleted_rows\":[-1]}",
+      "original_before": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "working_before": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "deserialized_state": {
+        "edited_rows": {},
+        "added_rows": [],
+        "deleted_rows": [
+          -1
+        ]
+      },
+      "outcome": "returned",
+      "helper_return": null,
+      "original_after": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "working_after": {
+        "index": [
+          0
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "original_unchanged": true,
+      "working_changed": true
+    },
+    {
+      "name": "delete-negative-len",
+      "input_string_value": "{\"edited_rows\":{},\"added_rows\":[],\"deleted_rows\":[-2]}",
+      "original_before": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "working_before": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "deserialized_state": {
+        "edited_rows": {},
+        "added_rows": [],
+        "deleted_rows": [
+          -2
+        ]
+      },
+      "outcome": "returned",
+      "helper_return": null,
+      "original_after": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "working_after": {
+        "index": [
+          1
+        ],
+        "rows": [
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "original_unchanged": true,
+      "working_changed": true
+    },
+    {
+      "name": "delete-negative-beyond",
+      "input_string_value": "{\"edited_rows\":{},\"added_rows\":[],\"deleted_rows\":[-3]}",
+      "original_before": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "working_before": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "deserialized_state": {
+        "edited_rows": {},
+        "added_rows": [],
+        "deleted_rows": [
+          -3
+        ]
+      },
+      "outcome": "exception",
+      "exception_type": "builtins.IndexError",
+      "exception_message": "index -3 is out of bounds for axis 0 with size 2",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\checks\\m2-editor-invalid-rows\\python\\probe.py\", line 64, in <module>\n    returned = _apply_dataframe_edits(working, edits, schema)\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\streamlit\\elements\\widgets\\data_editor.py\", line 590, in _apply_dataframe_edits\n    _apply_row_deletions(df, data_editor_state[\"deleted_rows\"])\n    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\streamlit\\elements\\widgets\\data_editor.py\", line 563, in _apply_row_deletions\n    df.drop(df.index[deleted_rows], inplace=True)  # noqa: PD002\n            ~~~~~~~~^^^^^^^^^^^^^^\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\pandas\\core\\indexes\\range.py\", line 1390, in __getitem__\n    return self.take(key)\n           ~~~~~~~~~^^^^^\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\pandas\\core\\indexes\\range.py\", line 1619, in take\n    raise IndexError(\n        f\"index {ind_min} is out of bounds for axis 0 with size {len(self)}\"\n    )\nIndexError: index -3 is out of bounds for axis 0 with size 2\n",
+      "original_after": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "working_after": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "original_unchanged": true,
+      "working_changed": false
+    },
+    {
+      "name": "delete-valid-then-invalid",
+      "input_string_value": "{\"edited_rows\":{},\"added_rows\":[],\"deleted_rows\":[0,2]}",
+      "original_before": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "working_before": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "deserialized_state": {
+        "edited_rows": {},
+        "added_rows": [],
+        "deleted_rows": [
+          0,
+          2
+        ]
+      },
+      "outcome": "exception",
+      "exception_type": "builtins.IndexError",
+      "exception_message": "index 2 is out of bounds for axis 0 with size 2",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\checks\\m2-editor-invalid-rows\\python\\probe.py\", line 64, in <module>\n    returned = _apply_dataframe_edits(working, edits, schema)\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\streamlit\\elements\\widgets\\data_editor.py\", line 590, in _apply_dataframe_edits\n    _apply_row_deletions(df, data_editor_state[\"deleted_rows\"])\n    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\streamlit\\elements\\widgets\\data_editor.py\", line 563, in _apply_row_deletions\n    df.drop(df.index[deleted_rows], inplace=True)  # noqa: PD002\n            ~~~~~~~~^^^^^^^^^^^^^^\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\pandas\\core\\indexes\\range.py\", line 1390, in __getitem__\n    return self.take(key)\n           ~~~~~~~~~^^^^^\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\pandas\\core\\indexes\\range.py\", line 1614, in take\n    raise IndexError(\n        f\"index {ind_max} is out of bounds for axis 0 with size {len(self)}\"\n    )\nIndexError: index 2 is out of bounds for axis 0 with size 2\n",
+      "original_after": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "working_after": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "original_unchanged": true,
+      "working_changed": false
+    },
+    {
+      "name": "delete-invalid-then-valid",
+      "input_string_value": "{\"edited_rows\":{},\"added_rows\":[],\"deleted_rows\":[2,0]}",
+      "original_before": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "working_before": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "deserialized_state": {
+        "edited_rows": {},
+        "added_rows": [],
+        "deleted_rows": [
+          2,
+          0
+        ]
+      },
+      "outcome": "exception",
+      "exception_type": "builtins.IndexError",
+      "exception_message": "index 2 is out of bounds for axis 0 with size 2",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\checks\\m2-editor-invalid-rows\\python\\probe.py\", line 64, in <module>\n    returned = _apply_dataframe_edits(working, edits, schema)\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\streamlit\\elements\\widgets\\data_editor.py\", line 590, in _apply_dataframe_edits\n    _apply_row_deletions(df, data_editor_state[\"deleted_rows\"])\n    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\streamlit\\elements\\widgets\\data_editor.py\", line 563, in _apply_row_deletions\n    df.drop(df.index[deleted_rows], inplace=True)  # noqa: PD002\n            ~~~~~~~~^^^^^^^^^^^^^^\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\pandas\\core\\indexes\\range.py\", line 1390, in __getitem__\n    return self.take(key)\n           ~~~~~~~~~^^^^^\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\pandas\\core\\indexes\\range.py\", line 1614, in take\n    raise IndexError(\n        f\"index {ind_max} is out of bounds for axis 0 with size {len(self)}\"\n    )\nIndexError: index 2 is out of bounds for axis 0 with size 2\n",
+      "original_after": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "working_after": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "original_unchanged": true,
+      "working_changed": false
+    },
+    {
+      "name": "delete-valid-plus-negative",
+      "input_string_value": "{\"edited_rows\":{},\"added_rows\":[],\"deleted_rows\":[0,-1]}",
+      "original_before": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "working_before": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "deserialized_state": {
+        "edited_rows": {},
+        "added_rows": [],
+        "deleted_rows": [
+          0,
+          -1
+        ]
+      },
+      "outcome": "returned",
+      "helper_return": null,
+      "original_after": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "working_after": {
+        "index": [],
+        "rows": [],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "original_unchanged": true,
+      "working_changed": true
+    },
+    {
+      "name": "edit-equals-len",
+      "input_string_value": "{\"edited_rows\":{\"2\":{\"qty\":9}},\"added_rows\":[],\"deleted_rows\":[]}",
+      "original_before": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "working_before": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "deserialized_state": {
+        "edited_rows": {
+          "2": {
+            "qty": 9
+          }
+        },
+        "added_rows": [],
+        "deleted_rows": []
+      },
+      "outcome": "exception",
+      "exception_type": "builtins.IndexError",
+      "exception_message": "index 2 is out of bounds for axis 0 with size 2",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\checks\\m2-editor-invalid-rows\\python\\probe.py\", line 64, in <module>\n    returned = _apply_dataframe_edits(working, edits, schema)\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\streamlit\\elements\\widgets\\data_editor.py\", line 587, in _apply_dataframe_edits\n    _apply_cell_edits(df, data_editor_state[\"edited_rows\"], dataframe_schema)\n    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\streamlit\\elements\\widgets\\data_editor.py\", line 420, in _apply_cell_edits\n    df.iat[row_pos, col_pos] = _parse_value(  # type: ignore\n    ~~~~~~^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\pandas\\core\\indexing.py\", line 3539, in __setitem__\n    return super().__setitem__(key, value)\n           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\pandas\\core\\indexing.py\", line 3318, in __setitem__\n    self.obj._set_value(*key, value=value, takeable=self._takeable)\n    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\pandas\\core\\frame.py\", line 4934, in _set_value\n    self._mgr.column_setitem(icol, iindex, value, inplace_only=True)\n    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\pandas\\core\\internals\\managers.py\", line 1566, in column_setitem\n    col_mgr.setitem_inplace(idx, value)\n    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\pandas\\core\\internals\\managers.py\", line 2284, in setitem_inplace\n    arr[indexer] = value\n    ~~~^^^^^^^^^\nIndexError: index 2 is out of bounds for axis 0 with size 2\n",
+      "original_after": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "working_after": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "original_unchanged": true,
+      "working_changed": false
+    },
+    {
+      "name": "edit-far",
+      "input_string_value": "{\"edited_rows\":{\"1000000\":{\"qty\":9}},\"added_rows\":[],\"deleted_rows\":[]}",
+      "original_before": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "working_before": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "deserialized_state": {
+        "edited_rows": {
+          "1000000": {
+            "qty": 9
+          }
+        },
+        "added_rows": [],
+        "deleted_rows": []
+      },
+      "outcome": "exception",
+      "exception_type": "builtins.IndexError",
+      "exception_message": "index 1000000 is out of bounds for axis 0 with size 2",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\checks\\m2-editor-invalid-rows\\python\\probe.py\", line 64, in <module>\n    returned = _apply_dataframe_edits(working, edits, schema)\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\streamlit\\elements\\widgets\\data_editor.py\", line 587, in _apply_dataframe_edits\n    _apply_cell_edits(df, data_editor_state[\"edited_rows\"], dataframe_schema)\n    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\streamlit\\elements\\widgets\\data_editor.py\", line 420, in _apply_cell_edits\n    df.iat[row_pos, col_pos] = _parse_value(  # type: ignore\n    ~~~~~~^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\pandas\\core\\indexing.py\", line 3539, in __setitem__\n    return super().__setitem__(key, value)\n           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\pandas\\core\\indexing.py\", line 3318, in __setitem__\n    self.obj._set_value(*key, value=value, takeable=self._takeable)\n    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\pandas\\core\\frame.py\", line 4934, in _set_value\n    self._mgr.column_setitem(icol, iindex, value, inplace_only=True)\n    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\pandas\\core\\internals\\managers.py\", line 1566, in column_setitem\n    col_mgr.setitem_inplace(idx, value)\n    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\pandas\\core\\internals\\managers.py\", line 2284, in setitem_inplace\n    arr[indexer] = value\n    ~~~^^^^^^^^^\nIndexError: index 1000000 is out of bounds for axis 0 with size 2\n",
+      "original_after": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "working_after": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "original_unchanged": true,
+      "working_changed": false
+    },
+    {
+      "name": "edit-negative-one",
+      "input_string_value": "{\"edited_rows\":{\"-1\":{\"qty\":9}},\"added_rows\":[],\"deleted_rows\":[]}",
+      "original_before": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "working_before": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "deserialized_state": {
+        "edited_rows": {
+          "-1": {
+            "qty": 9
+          }
+        },
+        "added_rows": [],
+        "deleted_rows": []
+      },
+      "outcome": "returned",
+      "helper_return": null,
+      "original_after": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "working_after": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 9,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "original_unchanged": true,
+      "working_changed": true
+    },
+    {
+      "name": "edit-valid-before-invalid-delete",
+      "input_string_value": "{\"edited_rows\":{\"0\":{\"qty\":9}},\"added_rows\":[],\"deleted_rows\":[2]}",
+      "original_before": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "working_before": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "deserialized_state": {
+        "edited_rows": {
+          "0": {
+            "qty": 9
+          }
+        },
+        "added_rows": [],
+        "deleted_rows": [
+          2
+        ]
+      },
+      "outcome": "exception",
+      "exception_type": "builtins.IndexError",
+      "exception_message": "index 2 is out of bounds for axis 0 with size 2",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\checks\\m2-editor-invalid-rows\\python\\probe.py\", line 64, in <module>\n    returned = _apply_dataframe_edits(working, edits, schema)\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\streamlit\\elements\\widgets\\data_editor.py\", line 590, in _apply_dataframe_edits\n    _apply_row_deletions(df, data_editor_state[\"deleted_rows\"])\n    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\streamlit\\elements\\widgets\\data_editor.py\", line 563, in _apply_row_deletions\n    df.drop(df.index[deleted_rows], inplace=True)  # noqa: PD002\n            ~~~~~~~~^^^^^^^^^^^^^^\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\pandas\\core\\indexes\\range.py\", line 1390, in __getitem__\n    return self.take(key)\n           ~~~~~~~~~^^^^^\n  File \"C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Lib\\site-packages\\pandas\\core\\indexes\\range.py\", line 1614, in take\n    raise IndexError(\n        f\"index {ind_max} is out of bounds for axis 0 with size {len(self)}\"\n    )\nIndexError: index 2 is out of bounds for axis 0 with size 2\n",
+      "original_after": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 1,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "working_after": {
+        "index": [
+          0,
+          1
+        ],
+        "rows": [
+          {
+            "qty": 9,
+            "label": "a"
+          },
+          {
+            "qty": 2,
+            "label": "b"
+          }
+        ],
+        "dtypes": {
+          "qty": "int64",
+          "label": "str"
+        }
+      },
+      "original_unchanged": true,
+      "working_changed": true
+    }
+  ],
+  "all_original_inputs_unchanged": true
+}

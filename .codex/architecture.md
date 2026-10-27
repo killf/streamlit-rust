@@ -123,6 +123,28 @@ A 的拟改范围：`streamlit/examples/csv_workbench.rs` 包含数据与视图�
 
 采纳 A 后的可执行子目标：在当前长期 Goal 的 M2 内交付上述文本 CSV 工作台，按已说明的会话编辑、应用、追加与导出语义完成实现、冻结参考、Rust 回归、真实前端和独立 Review，保留旧销售示例与有效证据；不增依赖/库接口，不做外部数据写入、发布或部署。关键偏差另交用户决定，普通细节自主处理，验收后及时提交推送工作分支并继续未完成的长期目标。
 
+## Data editor positive deletion bounds
+
+`ff1290d` 在两行原表回送 `deleted_rows:[2]` 时因 `Vec::remove` 越界 panic，已留本地红复现 `target/checks/m2-editor-invalid-rows/rust/before.log`。锁定 Python 1.66.1 的 18 个脚本级边界中，非法正删除位置产生 IndexError/OverflowError、原 caller 输入不变；脚本实验不冒充协议或 UI 证据。另一次四阶段真实 Python WS 已证明错误后同连接可合法删除并恢复，Rust 直接复用其原始输入回归；[冻结数据及清理说明](../tests/reference/reference-browser/dataeditor-invalid-rows/README.md)明确区分首次采集清理观察失利和最终资源退出。
+
+本批仅修复正删除位置的范围检查：`data_api.rs` 将数值转换为本机索引时检查可表示性，并在删除前核对所有位置；非法值沿用现有 `DataError::InvalidOption`，不忽略、截断或选择其他行。合法删除的倒序/去重、先编辑后删除再新增的顺序、原表不变及公开接口不变。先补使用者错误说明，再修生产逻辑；复用冻结参考、合法/混合非法输入、空表及真实 WS 错误后恢复，最后独立 Review。拟改范围为现有 data_api、编辑器运行测试及相关证据/指南，无新依赖。
+
+Python 私有实现对负位置采用 pandas 索引语义，Rust 目前拒绝负数；该差异另行保留，不在本批悄悄改写为新的索引规则。CSV 来源规则仍待用户决定，与此修复无依赖。
+
+## Vega-Lite same-shape updates — decision pending
+
+现有 `vega_lite_chart` 已真实复现：同一图、同列/行数、同 1416 字节 IPC，实际 a.count 从 3 改为 8，但可见 ARIA/SVG/PNG 仍为 3，普通 rerun 也未恢复；四阶段保留于本地 `target/checks/m2-chart-refresh/rust-before/focused/`。官方前端 Quiver 的数据判定不含值；Python 先前的两组记录也有同 shape/length 的漏刷，其 ForwardMsg hash 已改变，证明仅修 Rust 漏含数据的消息 hash 不充分。Rust 现有 CSV/原生 bar 路径使用内容名进入 spec，已测不受该问题影响。
+
+| 待选方案 | 目的、改动和取舍 |
+| --- | --- |
+| A，推荐 | 在现有 generic Vega 的 Arrow 数据路径复用内容命名的 `ArrowNamedDataSet`，让 spec 引用随数据变化的名称，官方前端无需改动。保持用户 API、数据类型及 Arrow 传输；每次数据 hash 随 IPC 大小线性计算。spec 改变会重建 Vega view，可能重置缩放、brush/selection、params/signal，并产生重绘成本，不承诺原地更新。发射形态由顶层 data 变为 named dataset，需用户认可这一有限协议/呈现偏差和交互状态风险；原 Python raw 不改、不重采。 |
+| B | 对当前公开 JSON inline-values 调用保留 `data.values` 在 spec 内，让 spec 值变化触发刷新；实现更直接，但失去该路径的列式 IPC 传输，JSON 体积、类型和大数据行为需重新验证，同样重建 view、可能重置图内交互状态，并需声明协议/呈现差异。 |
+| C | 暂缓 generic Vega 更新修复，保留现有发射与已测静态 wire；明确动态图存在已复现缺陷，长期目标仍未完成，继续其他独立能力。 |
+
+A 的 wire 规范化仅限此 generic Vega 的顶层 Arrow data 与单个 named dataset 之间的承载差别；内容名须匹配数据，逻辑 Arrow 字段/metadata/行序/值及 spec 其他字段仍严格校验，不删除其他断言。URL、调用方已有 data.name 与嵌套 spec 不自动改写或假称已验证。这是有意修正已观察到的 1.66.1 漏刷，不是声称与其错误像素一致；图内交互状态保持仍是完整目标的未验收项，不能用本修复关闭。
+
+拟改范围（A）：`elements/charts.rs` 的现有数据提取/图元素构造、现有 chartlibs 示例和运行回归，以及使用指南/该项证据映射。不加依赖或公共接口，不改官方静态资源，不将此推广成所有图类型或所有 spec 组合已通过。验收：保留原 7 图初始语义，真实按钮 3→8→普通 rerun→3 的可见条值与实际 Arrow 一致，同形状/同长度的数据变化必须改变有效更新身份；空值/无数据、原有 named/URL spec 边界按受影响调用回归，旧正确 Python 记录继续复用，最后独立 Review。选择之前仅保留复现示例，不实施生产修复或调整协议验收。
+
 ## Dependency and launch audit (2026-10-25)
 
 这是基于 `590aed547f062b6791689ffe48940ffd6461a603`、Windows MSVC 的历史依赖审计，不是当前安全检测或 MSRV 认证。当前依赖以 Cargo.toml/Cargo.lock 为准，当前工具链和检查见 [acceptance](acceptance.md#current-m0-baseline-2026-10-27)；不再把当时的“最新版本”、测试计数或升级范围写成现行约束。历史 stable 1.95 / nightly 1.98 的编译不能证明最低 Rust 版本可用。

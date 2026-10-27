@@ -67,6 +67,8 @@ game,south,20
 
 已复现不可空字段遇到空行时的 schema 冲突，并选择按编辑结果放宽：仅实际产生 null 的结果列设为 nullable，未产生 null 的列保留输入的可空标记，原始输入表不变。调用方须读取返回表的 schema，不能假定它仍与输入完全相同。整数列遇 null 时已有的 Float64 转换规则继续适用；填齐新增行后，每轮仍基于原始输入重新应用编辑。该规则已有冻结输入回归、真实 WS 和 Rust 官方前端四步交互验证。删除行、其他编辑模式和回调的覆盖仍有限。参考官方[数据编辑器](https://docs.streamlit.io/develop/api-reference/data/st.data_editor)与矩阵 `st.data_editor`、`st.dataframe`。
 
+编辑器对非法正删除位置通过既有 `DataError` 返回，调用方可显示错误并接收后续有效编辑，原输入表不被修改。已用冻结非负输入及真实 WS 错误后恢复核验，不对异常位置做裁剪或自动改选；负位置及完整恶意编辑输入尚未获得兼容结论，范围见[错误与恢复证据](../../tests/reference/reference-browser/dataeditor-invalid-rows/README.md)。
+
 选择接口正按[单入口设计](../../.codex/architecture.md#dataframe-selection-and-data-updates--proposal)实现与验证。用户已澄清无需保留旧 Rust 返回类型，因此使用同一个 `dataframe` 显示并返回选择，不另增兼容入口。下列基本用法已编译验证；完整参数和组合仍限于已测范围：
 
 ```rust
@@ -184,6 +186,10 @@ let value = st.cache_data("outer").call(21, |n: i64| {
 两层嵌套已对照 Python 1.66.1 的[冻结输入输出](../../tests/reference/reference-browser/cache-nested/cache-cases.json)验证：同时覆盖内外未命中、外层未命中而内层命中、外层命中及位置平移。只有最外层未命中发送临时 spinner 清除消息；缓存命中只重放持久输出。该组数据未验证异常、更多递归层或容器组合。当前 Rust 缓存仍按会话保存，使用不同名称标识不同缓存函数。
 
 依据官方 [缓存静态元素](https://docs.streamlit.io/develop/api-reference/caching-and-state/st.cache_data#static-elements) 的重放约定；该页标注 1.66.0，与本项目的 1.66.1 参考运行版本分别记录。
+
+## 同形状数据的图表更新（已复现缺陷，修法待决）
+
+运行 `cargo run --example chartlibs --locked`，打开 `http://127.0.0.1:8528/`。本批给既有示例补充 **Change Vega data**：仅将 Vega-Lite 图的 a 从 3 切换到 8，b 保持 7，再切回；其他图保持原数据。真实按钮已复现数据变为 8、可见值仍为 3，普通重跑仍旧，见[失败记录](../../tests/browser/rust-vega-refresh-before/README.md)。同形状、同 IPC 长度的值可能被官方前端漏判，不能仅凭新的 Arrow 数据宣称柱高已更新。[修复方案](../../.codex/architecture.md#vega-lite-same-shape-updates--decision-pending)涉及有限协议差异和图内交互状态取舍，等待用户选择。
 
 ## 参考数据与验证
 
