@@ -1,0 +1,255 @@
+{
+  "schema_version": 1,
+  "runtime": "native",
+  "reference_version": "1.66.1",
+  "scope": "User-selected native nullability widening; Python frozen source input fields were nullable.",
+  "python_reference": {
+    "file": "tests/reference/reference-browser/dataeditor/trace-dataeditor.json",
+    "bytes": 47321,
+    "sha256": "d708bd418a36c87404d9f935095f4358247e4e9056285e245ccaa0b38716dcc9"
+  },
+  "stages": [
+    {
+      "name": "01-load",
+      "edits": {},
+      "editor_schema": [
+        {
+          "name": "qty",
+          "type": "int64",
+          "nullable": false
+        },
+        {
+          "name": "label",
+          "type": "large_string",
+          "nullable": false
+        }
+      ],
+      "editor_rows": [
+        {
+          "qty": 1,
+          "label": "a"
+        },
+        {
+          "qty": 2,
+          "label": "b"
+        }
+      ],
+      "returned_schema": [
+        {
+          "name": "qty",
+          "type": "int64",
+          "nullable": false
+        },
+        {
+          "name": "label",
+          "type": "large_string",
+          "nullable": false
+        }
+      ],
+      "returned_rows": [
+        {
+          "qty": 1,
+          "label": "a"
+        },
+        {
+          "qty": 2,
+          "label": "b"
+        }
+      ],
+      "logical_output_matches_python": true
+    },
+    {
+      "name": "02-edit-cell",
+      "edits": {
+        "edited_rows": {
+          "0": {
+            "qty": 7
+          }
+        },
+        "added_rows": [],
+        "deleted_rows": []
+      },
+      "editor_schema": [
+        {
+          "name": "qty",
+          "type": "int64",
+          "nullable": false
+        },
+        {
+          "name": "label",
+          "type": "large_string",
+          "nullable": false
+        }
+      ],
+      "editor_rows": [
+        {
+          "qty": 1,
+          "label": "a"
+        },
+        {
+          "qty": 2,
+          "label": "b"
+        }
+      ],
+      "returned_schema": [
+        {
+          "name": "qty",
+          "type": "int64",
+          "nullable": false
+        },
+        {
+          "name": "label",
+          "type": "large_string",
+          "nullable": false
+        }
+      ],
+      "returned_rows": [
+        {
+          "qty": 7,
+          "label": "a"
+        },
+        {
+          "qty": 2,
+          "label": "b"
+        }
+      ],
+      "logical_output_matches_python": true
+    },
+    {
+      "name": "03-add-row",
+      "edits": {
+        "edited_rows": {
+          "0": {
+            "qty": 7
+          }
+        },
+        "added_rows": [
+          {}
+        ],
+        "deleted_rows": []
+      },
+      "editor_schema": [
+        {
+          "name": "qty",
+          "type": "int64",
+          "nullable": false
+        },
+        {
+          "name": "label",
+          "type": "large_string",
+          "nullable": false
+        }
+      ],
+      "editor_rows": [
+        {
+          "qty": 1,
+          "label": "a"
+        },
+        {
+          "qty": 2,
+          "label": "b"
+        }
+      ],
+      "returned_schema": [
+        {
+          "name": "qty",
+          "type": "double",
+          "nullable": true
+        },
+        {
+          "name": "label",
+          "type": "large_string",
+          "nullable": true
+        }
+      ],
+      "returned_rows": [
+        {
+          "qty": 7.0,
+          "label": "a"
+        },
+        {
+          "qty": 2.0,
+          "label": "b"
+        },
+        {
+          "qty": null,
+          "label": null
+        }
+      ],
+      "logical_output_matches_python": true
+    },
+    {
+      "name": "04-edit-added-row",
+      "edits": {
+        "edited_rows": {
+          "0": {
+            "qty": 7
+          }
+        },
+        "added_rows": [
+          {
+            "qty": 9
+          }
+        ],
+        "deleted_rows": []
+      },
+      "editor_schema": [
+        {
+          "name": "qty",
+          "type": "int64",
+          "nullable": false
+        },
+        {
+          "name": "label",
+          "type": "large_string",
+          "nullable": false
+        }
+      ],
+      "editor_rows": [
+        {
+          "qty": 1,
+          "label": "a"
+        },
+        {
+          "qty": 2,
+          "label": "b"
+        }
+      ],
+      "returned_schema": [
+        {
+          "name": "qty",
+          "type": "int64",
+          "nullable": false
+        },
+        {
+          "name": "label",
+          "type": "large_string",
+          "nullable": true
+        }
+      ],
+      "returned_rows": [
+        {
+          "qty": 7,
+          "label": "a"
+        },
+        {
+          "qty": 2,
+          "label": "b"
+        },
+        {
+          "qty": 9,
+          "label": null
+        }
+      ],
+      "logical_output_matches_python": true
+    }
+  ],
+  "observed_native_wire_versions": [
+    "1.66.1"
+  ],
+  "cleanup": {
+    "chrome_stopped": true,
+    "server_stopped": true
+  },
+  "cleanup_errors": []
+}

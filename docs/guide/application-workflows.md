@@ -43,9 +43,9 @@ cargo run --example data_app --locked
 
 目标流程是：在结果表中选择一条记录，查看其详情，修改并确认，再将新数据追加到已有视图；重跑时应明确保留哪些选择和编辑结果。空选择、筛选后所选记录消失、编辑失败、重复提交和数据来源更新等行为仍待设计和验证。
 
-当前 CSV 示例没有行选择或这一整套交互，也没有公开的 `add_rows` API。[dataeditor 示例](../../streamlit/examples/dataeditor.rs)是独立演示，可通过 `cargo run --example dataeditor --locked` 在 8541 端口查看编辑与新增行。编辑方法返回编辑后的数据，调用方使用返回值继续处理；它不会自动保存或改写上传的 CSV。
+当前 CSV 示例没有行选择或这一整套交互，也没有公开的 `add_rows` API。[dataeditor 示例](../../streamlit/examples/dataeditor.rs)是独立演示，可通过 `cargo run --example dataeditor --locked` 在 8541 端口查看编辑与新增行。编辑器每轮发送原始输入表，并返回应用编辑后的 `RecordBatch`；调用方可像示例一样通过 `st.dataframe` 单独显示或继续处理返回值。它不会自动保存或改写上传的 CSV。
 
-源码检查发现不可空字段产生 null 时的 schema 冲突，尚未完成该边界的运行时复现；允许空值还是保持输入 schema 约束需要确认。删除行、其他编辑模式和回调的覆盖仍有限。参考官方[数据编辑器](https://docs.streamlit.io/develop/api-reference/data/st.data_editor)与矩阵 `st.data_editor`、`st.dataframe`。
+已复现不可空字段遇到空行时的 schema 冲突，并选择按编辑结果放宽：仅实际产生 null 的结果列设为 nullable，未产生 null 的列保留输入的可空标记，原始输入表不变。调用方须读取返回表的 schema，不能假定它仍与输入完全相同。整数列遇 null 时已有的 Float64 转换规则继续适用；填齐新增行后，每轮仍基于原始输入重新应用编辑。该规则已有冻结输入回归、真实 WS 和 Rust 官方前端四步交互验证。删除行、其他编辑模式和回调的覆盖仍有限。参考官方[数据编辑器](https://docs.streamlit.io/develop/api-reference/data/st.data_editor)与矩阵 `st.data_editor`、`st.dataframe`。
 
 ## 会话、重跑和错误
 

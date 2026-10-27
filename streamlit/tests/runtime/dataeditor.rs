@@ -4,8 +4,8 @@
 //! added_rows as column-name-keyed cells — an untouched added row arrives
 //! as `{}` — and deleted_rows positions) are applied server-side like the
 //! reference's _apply_dataframe_edits: cell edits, then deletions, then
-//! additions; the re-emitted dataframe and the caller's return value carry
-//! the edited table.
+//! additions. The editor re-emits the original input table; the caller's
+//! return value and the separately written dataframe carry the edited table.
 use super::*;
 use crate::DataApi;
 use crate::data::{Array, Field, Int64Array, RecordBatch, Schema, StringArray};
@@ -13,17 +13,48 @@ use crate::proto::{WidgetState, WidgetStates, element, forward_msg, widget_state
 use serde_json::json;
 use std::sync::Arc;
 
-fn qty_label_batch() -> TestResult<RecordBatch> {
-    let fields = vec![Field::new("qty", crate::data::DataType::Int64, true), Field::new("label", crate::data::DataType::Utf8, true)];
+fn qty_label_batch(nullable: [bool; 2]) -> TestResult<RecordBatch> {
+    let fields = vec![Field::new("qty", crate::data::DataType::Int64, nullable[0]), Field::new("label", crate::data::DataType::Utf8, nullable[1])];
     let arrays = vec![Arc::new(Int64Array::from(vec![1, 2])) as _, Arc::new(StringArray::from(vec!["a", "b"])) as _];
     Ok(RecordBatch::try_new(Arc::new(Schema::new(fields)), arrays)?)
+}
+
+fn frozen_editor_stages() -> TestResult<Vec<(String, Option<String>)>> {
+    let raw: serde_json::Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/dataeditor/trace-dataeditor.json"))?;
+    assert_eq!(raw["schema_version"], 1);
+    assert_eq!(raw["observation"]["journey"], "dataeditor-grid");
+    assert_eq!(raw["observation"]["contract"], "journey-dataeditor-v1");
+    let mut inputs = Vec::new();
+    let mut reference_id = None;
+    for stage in raw["observation"]["stages"].as_array().ok_or("frozen editor stages must be an array")? {
+        let name = stage["name"].as_str().ok_or("frozen editor stage must have a name")?;
+        let requests: Vec<_> = stage["new_frames"].as_array().ok_or("frozen editor stage must include frames")?.iter().filter(|frame| frame["summary"]["type"] == "rerun_script").collect();
+        assert_eq!(requests.len(), 1, "one browser rerun per frozen stage {name}");
+        let states = requests[0]["summary"]["rerun_script"]["widget_states"].as_array().ok_or("frozen rerun must contain widget states")?;
+        assert!(states.len() <= 1, "the measured editor has at most one state");
+        let payload = if let Some(state) = states.first() {
+            assert_eq!(state["value_field"], "string_value");
+            let id = state["id"].as_str().ok_or("frozen editor state must have an id")?;
+            assert!(id.starts_with("$$ID-") && id.ends_with("-editor"));
+            assert_eq!(reference_id.get_or_insert_with(|| id.to_owned()), id, "frozen editor id is stable");
+            Some(state["value"].as_str().ok_or("frozen editor state must carry its JSON string")?.to_owned())
+        } else {
+            None
+        };
+        inputs.push((name.to_owned(), payload));
+    }
+    assert_eq!(inputs.iter().map(|(name, _)| name.as_str()).collect::<Vec<_>>(), ["01-load", "02-edit-cell", "03-add-row", "04-edit-added-row"]);
+    Ok(inputs)
 }
 
 fn dataeditor_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
     Box::pin(async move {
         let result: TestResult = async {
-            // Mirrors tests/reference/dataeditor_app.py.
-            let edited = st.data_editor(crate::DataEditorOptions::new(&qty_label_batch()?).num_rows(crate::EditorRows::Dynamic).key("editor"))?;
+            // Frozen Python edits are reused with a Rust-only nonnullable input boundary.
+            let original = qty_label_batch([false, false])?;
+            let snapshot = original.clone();
+            let edited = st.data_editor(crate::DataEditorOptions::new(&original).num_rows(crate::EditorRows::Dynamic).key("editor"))?;
+            assert_eq!(original, snapshot, "editing must not mutate the caller input batch");
             st.dataframe(crate::DataframeOptions::new(&edited))?;
             st.write(format!("rows={}", edited.num_rows()));
 
@@ -37,6 +68,8 @@ fn dataeditor_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
 
 #[actix_web::test]
 async fn committed_edits_apply_serverside_over_the_production_websocket() -> TestResult {
+    let inputs = frozen_editor_stages()?;
+    let capture_inputs = inputs.clone();
     let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
     let address = listener.local_addr()?;
     let server = HttpServer::new(move || App::new().app_data(web::Data::new(StreamlitServer::new(dataeditor_entry, "127.0.0.1".into(), 0))).configure(configure_routes))
@@ -45,75 +78,83 @@ async fn committed_edits_apply_serverside_over_the_production_websocket() -> Tes
         .run();
     let handle = server.handle();
     let task = actix_web::rt::spawn(server);
-    let mut stream = TcpStream::connect(address).await?;
-    let request = format!("GET /_stcore/stream HTTP/1.1\r\nHost: {address}\r\nConnection: Upgrade\r\nUpgrade: websocket\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\nSec-WebSocket-Protocol: streamlit, test-xsrf\r\n\r\n");
-    stream.write_all(request.as_bytes()).await?;
-    let headers = tokio::time::timeout(Duration::from_secs(5), async {
-        let mut response = Vec::new();
-        while !response.ends_with(b"\r\n\r\n") {
-            response.push(stream.read_u8().await?);
-        }
-        Ok::<_, Box<dyn std::error::Error>>(String::from_utf8(response)?.to_ascii_lowercase())
-    })
-    .await??;
-    assert!(headers.starts_with("http/1.1 101"));
-
-    // (edits-state JSON, expected markdown, expected qty column, int-or-float)
-    // pairs, mirroring the measured journey stages: the plain load, a cell
-    // edit, an empty added row (the int column upcasts to float64 under the
-    // added null, like pandas), then a typed one (back to int64).
-    let stages: Vec<(&str, &str, Vec<Option<f64>>, bool)> = vec![
-        (r#"{}"#, "rows=2", vec![Some(1.0), Some(2.0)], true),
-        (r#"{"edited_rows":{"0":{"qty":7}},"added_rows":[],"deleted_rows":[]}"#, "rows=2", vec![Some(7.0), Some(2.0)], true),
-        (r#"{"edited_rows":{"0":{"qty":7}},"added_rows":[{}],"deleted_rows":[]}"#, "rows=3", vec![Some(7.0), Some(2.0), None], false),
-        (r#"{"edited_rows":{"0":{"qty":7}},"added_rows":[{"qty":9}],"deleted_rows":[]}"#, "rows=3", vec![Some(7.0), Some(2.0), Some(9.0)], true),
-    ];
-    let mut editor_id = String::new();
-    for (state, expected_rows, expected_qty, expect_int) in stages {
-        let widgets = if editor_id.is_empty() && state == "{}" {
-            vec![]
-        } else {
-            vec![WidgetState {
-                id: editor_id.clone(),
-                value: Some(widget_state::Value::StringValue(state.to_owned())),
-            }]
-        };
-        send_binary(
-            &mut stream,
-            &(BackMsg {
-                r#type: Some(back_msg::Type::RerunScript(ClientState {
-                    widget_states: Some(WidgetStates { widgets }),
-                    ..Default::default()
-                })),
-            })
-            .encode_to_vec(),
-        )
-        .await;
-        let mut dataframes = Vec::new();
-        let mut trailing = String::new();
-        loop {
-            let message = receive(&mut stream).await;
-            match message.r#type {
-                Some(forward_msg::Type::NewSession(_)) => {}
-                Some(forward_msg::Type::SessionStatusChanged(status)) if !status.script_is_running => break,
-                Some(forward_msg::Type::Delta(delta)) => {
-                    let Some(delta::Type::NewElement(element)) = delta.r#type else { continue };
-                    match element.r#type {
-                        Some(element::Type::Dataframe(frame)) => {
-                            if frame.editing_mode == 2 && !frame.id.is_empty() {
-                                editor_id = frame.id.clone();
-                            }
-                            dataframes.push(frame);
-                        }
-                        Some(element::Type::Markdown(markdown)) => trailing = markdown.body,
-                        _ => {}
-                    }
+    let mut capture_task = actix_web::rt::spawn(async move {
+        let mut stream = sessions::connect(address, None).await;
+        let mut editor_id = String::new();
+        let mut runs = Vec::new();
+        let mut finishes = Vec::new();
+        for (_, state) in capture_inputs {
+            let widgets = if let Some(payload) = state {
+                assert!(!editor_id.is_empty(), "load must provide the native editor id");
+                vec![WidgetState {
+                    id: editor_id.clone(),
+                    value: Some(widget_state::Value::StringValue(payload)),
+                }]
+            } else {
+                vec![]
+            };
+            send_binary(
+                &mut stream,
+                &BackMsg {
+                    r#type: Some(back_msg::Type::RerunScript(ClientState {
+                        widget_states: Some(WidgetStates { widgets }),
+                        ..Default::default()
+                    })),
                 }
-                Some(forward_msg::Type::ScriptFinished(status)) => assert_eq!(status, 0),
-                Some(forward_msg::Type::SessionStatusChanged(_)) => {}
-                other => panic!("unexpected lifecycle response: {other:?}"),
+                .encode_to_vec(),
+            )
+            .await;
+            let mut dataframes = Vec::new();
+            let mut trailing = String::new();
+            loop {
+                let message = receive(&mut stream).await;
+                match message.r#type {
+                    Some(forward_msg::Type::NewSession(_)) => {}
+                    Some(forward_msg::Type::SessionStatusChanged(status)) if !status.script_is_running => break,
+                    Some(forward_msg::Type::Delta(delta)) => {
+                        let Some(delta::Type::NewElement(element)) = delta.r#type else { continue };
+                        match element.r#type {
+                            Some(element::Type::Dataframe(frame)) => {
+                                if frame.editing_mode == 2 && !frame.id.is_empty() {
+                                    editor_id = frame.id.clone();
+                                }
+                                dataframes.push(frame);
+                            }
+                            Some(element::Type::Markdown(markdown)) => trailing = markdown.body,
+                            _ => {}
+                        }
+                    }
+                    Some(forward_msg::Type::ScriptFinished(status)) => {
+                        assert_eq!(status, 0);
+                        finishes.push(status);
+                    }
+                    Some(forward_msg::Type::SessionStatusChanged(_)) => {}
+                    other => panic!("unexpected lifecycle response: {other:?}"),
+                }
             }
+            runs.push((dataframes, trailing));
         }
+        Ok::<_, Box<dyn std::error::Error>>((runs, finishes))
+    });
+    let captured = tokio::time::timeout(Duration::from_secs(10), &mut capture_task).await;
+    if captured.is_err() {
+        capture_task.abort();
+        let _ = capture_task.await;
+    }
+    handle.stop(false).await;
+    task.await??;
+    let (runs, finishes) = captured???;
+    assert_eq!(finishes, [0, 0, 0, 0]);
+    assert_eq!(runs.len(), inputs.len());
+    // Values follow the existing Python wire; nullability flags are the selected Rust contract.
+    let expected = [
+        ("rows=2", vec![Some(1.0), Some(2.0)], true, [false, false]),
+        ("rows=2", vec![Some(7.0), Some(2.0)], true, [false, false]),
+        ("rows=3", vec![Some(7.0), Some(2.0), None], false, [true, true]),
+        ("rows=3", vec![Some(7.0), Some(2.0), Some(9.0)], true, [false, true]),
+    ];
+    for (((name, state), (dataframes, trailing)), (expected_rows, expected_qty, expect_int, expected_nullable)) in inputs.into_iter().zip(runs).zip(expected) {
+        let state = state.as_deref().unwrap_or("{}");
         assert_eq!(trailing, expected_rows, "the edits change the row count the app sees");
         assert_eq!(dataframes.len(), 2, "the editor and the written table");
         // The editor element keeps the ORIGINAL table; the written table
@@ -121,6 +162,18 @@ async fn committed_edits_apply_serverside_over_the_production_websocket() -> Tes
         // an added null like pandas.
         let editor = &dataframes[0];
         let editor_batch: RecordBatch = crate::data::from_ipc_stream(&editor.arrow_data.as_ref().ok_or("data editor must emit its Arrow data")?.data)?.remove(0);
+        assert_eq!(
+            editor_batch.schema().fields().iter().map(|field| field.is_nullable()).collect::<Vec<_>>(),
+            [false, false],
+            "editor must keep the original nonnullable schema"
+        );
+        let editor_labels = editor_batch
+            .column_by_name("label")
+            .ok_or("editor must retain original label column")?
+            .as_any()
+            .downcast_ref::<crate::data::LargeStringArray>()
+            .ok_or("editor labels must be LargeStringArray")?;
+        assert_eq!(editor_labels.iter().collect::<Vec<_>>(), [Some("a"), Some("b")], "editor must keep the original labels");
         let editor_qty = editor_batch
             .column_by_name("qty")
             .ok_or("edited Arrow schema must retain qty column")?
@@ -151,18 +204,70 @@ async fn committed_edits_apply_serverside_over_the_production_websocket() -> Tes
             _ => vec![Some("a".to_owned()), Some("b".to_owned()), None],
         };
         assert_eq!(labels, expected_labels, "the label column after {state}");
+        assert_eq!(
+            decoded.schema().fields().iter().map(|field| field.is_nullable()).collect::<Vec<_>>(),
+            expected_nullable,
+            "only output columns containing null become nullable at {name}"
+        );
+    }
+    Ok(())
+}
+
+#[test]
+fn nonnullable_inputs_relax_only_columns_with_output_nulls() -> TestResult {
+    let stages = frozen_editor_stages()?;
+    let empty_row: serde_json::Value = serde_json::from_str(stages[2].1.as_deref().ok_or("frozen add-row stage must include edits")?)?;
+    let qty_filled: serde_json::Value = serde_json::from_str(stages[3].1.as_deref().ok_or("frozen added-row edit stage must include edits")?)?;
+    let ordinary = RecordBatch::try_from_iter(vec![
+        ("qty", Arc::new(Int64Array::from(vec![1, 2])) as crate::data::ArrayRef),
+        ("label", Arc::new(StringArray::from(vec!["a", "b"])) as crate::data::ArrayRef),
+    ])?;
+    assert_eq!(ordinary.schema().fields().iter().map(|field| field.is_nullable()).collect::<Vec<_>>(), [false, false]);
+    let cases = [
+        ("nonnullable qty", qty_label_batch([false, true])?, [false, true]),
+        ("nonnullable label", qty_label_batch([true, false])?, [true, true]),
+        ("nonnullable both", qty_label_batch([false, false])?, [false, true]),
+        ("try_from_iter", ordinary, [false, true]),
+    ];
+    for (case, batch, filled_nullable) in cases {
+        let original = batch.clone();
+        let result = data_editor_edits_for_test(&batch, &empty_row);
+        assert!(result.is_ok(), "{case}: applying the frozen empty row must succeed: {result:?}");
+        let empty = result?;
+        assert_eq!(empty.schema().fields().iter().map(|field| field.is_nullable()).collect::<Vec<_>>(), [true, true], "{case}");
+        assert_eq!(empty.column(0).data_type(), &crate::data::DataType::Float64, "{case}: added numeric null retains the measured upcast");
+        assert_eq!(empty.columns().iter().map(|column| column.null_count()).collect::<Vec<_>>(), [1, 1], "{case}");
+
+        let filled = data_editor_edits_for_test(&batch, &qty_filled)?;
+        assert_eq!(filled.schema().fields().iter().map(|field| field.is_nullable()).collect::<Vec<_>>(), filled_nullable, "{case}: a filled qty column keeps its original flag");
+        assert_eq!(filled.column(0).data_type(), &crate::data::DataType::Int64);
+        assert_eq!(filled.columns().iter().map(|column| column.null_count()).collect::<Vec<_>>(), [0, 1]);
+        assert_eq!(batch, original, "{case}: original schema and contents remain unchanged");
     }
 
-    drop(stream);
-    handle.stop(false).await;
-    task.await??;
+    // Rust-only controls extend the frozen edits explicitly; these inputs were not browser captures.
+    let batch = qty_label_batch([false, false])?;
+    let original = batch.clone();
+    let mut label_filled = empty_row;
+    label_filled["added_rows"][0]["label"] = json!("c");
+    let only_qty_null = data_editor_edits_for_test(&batch, &label_filled)?;
+    assert_eq!(only_qty_null.schema().fields().iter().map(|field| field.is_nullable()).collect::<Vec<_>>(), [true, false], "a complete text column must not be widened");
+    assert_eq!(only_qty_null.column(0).data_type(), &crate::data::DataType::Float64);
+    assert_eq!(only_qty_null.columns().iter().map(|column| column.null_count()).collect::<Vec<_>>(), [1, 0]);
 
+    let mut fully_filled = qty_filled;
+    fully_filled["added_rows"][0]["label"] = json!("c");
+    let complete = data_editor_edits_for_test(&batch, &fully_filled)?;
+    assert_eq!(complete.schema().fields().iter().map(|field| field.is_nullable()).collect::<Vec<_>>(), [false, false], "fully populated output keeps both flags");
+    assert_eq!(complete.column(0).data_type(), &crate::data::DataType::Int64);
+    assert_eq!(complete.columns().iter().map(|column| column.null_count()).collect::<Vec<_>>(), [0, 0]);
+    assert_eq!(batch, original, "the controls also leave original schema and contents unchanged");
     Ok(())
 }
 
 #[test]
 fn apply_edits_follows_the_reference_order() -> TestResult {
-    let batch = qty_label_batch()?;
+    let batch = qty_label_batch([false, false])?;
     let edits = json!({
         "edited_rows": {"0": {"qty": 5, "label": "x"}},
         "deleted_rows": [1],

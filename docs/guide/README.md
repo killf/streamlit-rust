@@ -617,9 +617,12 @@ let configs = ColumnConfigs::new()
     .add("act", cc::button_column(ColumnBase::new(Some("Act")), Some("primary"), Some("act")));
 st.dataframe(DataframeOptions::new(&batch).column_config(configs))?; // one columns JSON string
 
-let edits = st.data_editor(DataEditorOptions::new(&qty).num_rows(EditorRows::Dynamic)
-    .key("editor"))?;                                               // hidden _index, editing_mode 2, edits state
+let edited = st.data_editor(DataEditorOptions::new(&qty).num_rows(EditorRows::Dynamic)
+    .key("editor"))?;                                               // edited RecordBatch
+st.dataframe(DataframeOptions::new(&edited))?;                       // display the returned table
 ```
+
+The editor sends the original input table on each run and returns a `RecordBatch` with edits applied; display or process the returned table explicitly, as above. It does not automatically save or rewrite an uploaded CSV. Only result columns containing null become nullable, other columns retain their input nullability, and the input stays unchanged. Int64 columns with null continue to convert to Float64. Read the returned schema instead of assuming it matches the input.
 
 Every helper builds the exact JSON the reference's `ColumnConfig`/`type_config` produces (only the fields you set appear; the number column's `min_value, max_value, format, step` order is fixed). A `button_column`'s key never serializes into the columns JSON — it names one one-shot click widget stamped on the dataframe proto's `buttonClickWidgets`. The [colconfig example](../../streamlit/examples/colconfig.rs) mirrors the reference fixture of the colconfig differential chain.
 

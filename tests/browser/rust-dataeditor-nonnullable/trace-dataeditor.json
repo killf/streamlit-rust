@@ -1,0 +1,990 @@
+{
+ "schema_version": 1,
+ "observation": {
+  "journey": "dataeditor-grid",
+  "contract": "journey-dataeditor-v1",
+  "scope": "RUST SIDE DIFFERENTIAL",
+  "url": "http://127.0.0.1:8541/",
+  "runtime": "native",
+  "reference_version": "1.66.1",
+  "source": {
+   "file": "streamlit/examples/dataeditor.rs"
+  },
+  "stages": [
+   {
+    "name": "01-load",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 100688.500044,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": []
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 100688.503892,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "c31dda57-f3e5-429f-8558-ae376bbf05a0",
+        "name": "Streamlit Rust",
+        "main_script_path": "",
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "session_id": "26d33bac-ab14-4acc-a590-fd59c3430be2"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 100688.514103,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 100688.514323,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "dataframe",
+        "element_full": {
+         "dataframe": {
+          "arrowData": {
+           "data": "/////zgDAAAQAAAAAAAKAA4ADAALAAQACgAAABQAAAAAAAABBAAKAAwAAAAIAAQACgAAAAgAAABUAgAAAQAAAAwAAAAIAAwACAAEAAgAAAAIAAAALAIAACMCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAicXR5IiwgImZpZWxkX25hbWUiOiAicXR5IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogImxhYmVsIiwgImZpZWxkX25hbWUiOiAibGFiZWwiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH1dLCAiYXR0cmlidXRlcyI6IHt9LCAiY3JlYXRvciI6IHsibGlicmFyeSI6ICJweWFycm93IiwgInZlcnNpb24iOiAiMjYuMC4wIn0sICJwYW5kYXNfdmVyc2lvbiI6ICIzLjEuMCJ9AAYAAABwYW5kYXMAAAIAAABEAAAABAAAANT///8YAAAADAAAAAAAABQQAAAAAAAAAAQABAAEAAAABQAAAGxhYmVsAAAAEAAUABAAAAAPAAQAAAAIABAAAAAYAAAAIAAAAAAAAAIcAAAACAAMAAQACwAIAAAAQAAAAAAAAAEAAAAAAwAAAHF0eQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/////4AAAAEAAAAAwAGgAYABcABAAIAAwAAAAgAAAAQAEAAAAAAAAAAAAAAAAAAwQACgAYAAwACAAEAAoAAAA8AAAAEAAAAAIAAAAAAAAAAAAAAAIAAAACAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAEAAAAAAAAACAAAAAAAAAAAEAAAAAAAAAwAAAAAAAAAAYAAAAAAAAAAABAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYWIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA"
+          },
+          "id": "$$ID-f34ca23a27e6d350e58413d0303bb096-editor",
+          "columns": "{\"_index\": {\"hidden\": true}}",
+          "editingMode": "DYNAMIC"
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "arrow": {
+         "bytes": 1416,
+         "sha256": "39ea4ef23be4356bd91a944bf225ac98a43f3fd4329fb6e841223a787842298a",
+         "base64": "/////zgDAAAQAAAAAAAKAA4ADAALAAQACgAAABQAAAAAAAABBAAKAAwAAAAIAAQACgAAAAgAAABUAgAAAQAAAAwAAAAIAAwACAAEAAgAAAAIAAAALAIAACMCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAicXR5IiwgImZpZWxkX25hbWUiOiAicXR5IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogImxhYmVsIiwgImZpZWxkX25hbWUiOiAibGFiZWwiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH1dLCAiYXR0cmlidXRlcyI6IHt9LCAiY3JlYXRvciI6IHsibGlicmFyeSI6ICJweWFycm93IiwgInZlcnNpb24iOiAiMjYuMC4wIn0sICJwYW5kYXNfdmVyc2lvbiI6ICIzLjEuMCJ9AAYAAABwYW5kYXMAAAIAAABEAAAABAAAANT///8YAAAADAAAAAAAABQQAAAAAAAAAAQABAAEAAAABQAAAGxhYmVsAAAAEAAUABAAAAAPAAQAAAAIABAAAAAYAAAAIAAAAAAAAAIcAAAACAAMAAQACwAIAAAAQAAAAAAAAAEAAAAAAwAAAHF0eQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/////4AAAAEAAAAAwAGgAYABcABAAIAAwAAAAgAAAAQAEAAAAAAAAAAAAAAAAAAwQACgAYAAwACAAEAAoAAAA8AAAAEAAAAAIAAAAAAAAAAAAAAAIAAAACAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAEAAAAAAAAACAAAAAAAAAAAEAAAAAAAAAwAAAAAAAAAAYAAAAAAAAAAABAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYWIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA",
+         "schema": "qty: int64 not null\nlabel: large_string not null\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 483",
+         "columns": [
+          "qty",
+          "label"
+         ],
+         "row_count": 2,
+         "rows": [
+          {
+           "qty": 1,
+           "label": "a"
+          },
+          {
+           "qty": 2,
+           "label": "b"
+          }
+         ]
+        },
+        "arrow_fields": {
+         "id": "$$ID-f34ca23a27e6d350e58413d0303bb096-editor",
+         "columns": "{\"_index\": {\"hidden\": true}}",
+         "editing_mode": 2,
+         "disabled": false,
+         "row_height": 0
+        },
+        "id": "$$ID-f34ca23a27e6d350e58413d0303bb096-editor",
+        "form_id": "",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 100688.515004,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "dataframe",
+        "element_full": {
+         "dataframe": {
+          "arrowData": {
+           "data": "/////zgDAAAQAAAAAAAKAA4ADAALAAQACgAAABQAAAAAAAABBAAKAAwAAAAIAAQACgAAAAgAAABUAgAAAQAAAAwAAAAIAAwACAAEAAgAAAAIAAAALAIAACMCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAicXR5IiwgImZpZWxkX25hbWUiOiAicXR5IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogImxhYmVsIiwgImZpZWxkX25hbWUiOiAibGFiZWwiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH1dLCAiYXR0cmlidXRlcyI6IHt9LCAiY3JlYXRvciI6IHsibGlicmFyeSI6ICJweWFycm93IiwgInZlcnNpb24iOiAiMjYuMC4wIn0sICJwYW5kYXNfdmVyc2lvbiI6ICIzLjEuMCJ9AAYAAABwYW5kYXMAAAIAAABEAAAABAAAANT///8YAAAADAAAAAAAABQQAAAAAAAAAAQABAAEAAAABQAAAGxhYmVsAAAAEAAUABAAAAAPAAQAAAAIABAAAAAYAAAAIAAAAAAAAAIcAAAACAAMAAQACwAIAAAAQAAAAAAAAAEAAAAAAwAAAHF0eQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/////4AAAAEAAAAAwAGgAYABcABAAIAAwAAAAgAAAAQAEAAAAAAAAAAAAAAAAAAwQACgAYAAwACAAEAAoAAAA8AAAAEAAAAAIAAAAAAAAAAAAAAAIAAAACAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAEAAAAAAAAACAAAAAAAAAAAEAAAAAAAAAwAAAAAAAAAAYAAAAAAAAAAABAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYWIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA"
+          },
+          "columns": "{}"
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "arrow": {
+         "bytes": 1416,
+         "sha256": "39ea4ef23be4356bd91a944bf225ac98a43f3fd4329fb6e841223a787842298a",
+         "base64": "/////zgDAAAQAAAAAAAKAA4ADAALAAQACgAAABQAAAAAAAABBAAKAAwAAAAIAAQACgAAAAgAAABUAgAAAQAAAAwAAAAIAAwACAAEAAgAAAAIAAAALAIAACMCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAicXR5IiwgImZpZWxkX25hbWUiOiAicXR5IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogImxhYmVsIiwgImZpZWxkX25hbWUiOiAibGFiZWwiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH1dLCAiYXR0cmlidXRlcyI6IHt9LCAiY3JlYXRvciI6IHsibGlicmFyeSI6ICJweWFycm93IiwgInZlcnNpb24iOiAiMjYuMC4wIn0sICJwYW5kYXNfdmVyc2lvbiI6ICIzLjEuMCJ9AAYAAABwYW5kYXMAAAIAAABEAAAABAAAANT///8YAAAADAAAAAAAABQQAAAAAAAAAAQABAAEAAAABQAAAGxhYmVsAAAAEAAUABAAAAAPAAQAAAAIABAAAAAYAAAAIAAAAAAAAAIcAAAACAAMAAQACwAIAAAAQAAAAAAAAAEAAAAAAwAAAHF0eQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/////4AAAAEAAAAAwAGgAYABcABAAIAAwAAAAgAAAAQAEAAAAAAAAAAAAAAAAAAwQACgAYAAwACAAEAAoAAAA8AAAAEAAAAAIAAAAAAAAAAAAAAAIAAAACAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAEAAAAAAAAACAAAAAAAAAAAEAAAAAAAAAwAAAAAAAAAAYAAAAAAAAAAABAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYWIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA",
+         "schema": "qty: int64 not null\nlabel: large_string not null\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 483",
+         "columns": [
+          "qty",
+          "label"
+         ],
+         "row_count": 2,
+         "rows": [
+          {
+           "qty": 1,
+           "label": "a"
+          },
+          {
+           "qty": 2,
+           "label": "b"
+          }
+         ]
+        },
+        "arrow_fields": {
+         "columns": "{}",
+         "editing_mode": 0,
+         "disabled": false,
+         "row_height": 0
+        },
+        "id": "",
+        "form_id": "",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 100688.515084,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "element_full": {
+         "markdown": {
+          "body": "rows=2",
+          "elementType": "NATIVE",
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "rows=2",
+        "path": [
+         0,
+         2
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 100688.515248,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 100688.515382,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "dom": {
+     "cells": [
+      "1",
+      "a",
+      "2",
+      "b",
+      "0",
+      "1",
+      "a",
+      "1",
+      "2",
+      "b"
+     ],
+     "markdowns": [
+      "rows=2"
+     ],
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "01-load.png",
+     "sha256": "a9f711ba1cf49b863afb9b4ba7d7fc99bc07940757ac6e2e03b82078c79472df"
+    }
+   },
+   {
+    "name": "02-edit-cell",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 100692.008351,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": [
+         {
+          "id": "$$ID-f34ca23a27e6d350e58413d0303bb096-editor",
+          "value_field": "string_value",
+          "value": "{\"edited_rows\":{\"0\":{\"qty\":7}},\"added_rows\":[],\"deleted_rows\":[]}"
+         }
+        ],
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 100692.010546,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "f36107cd-b6d1-4c67-922a-5c4d00002e5f",
+        "name": "Streamlit Rust",
+        "main_script_path": "",
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "session_id": "26d33bac-ab14-4acc-a590-fd59c3430be2"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 100692.010993,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 100692.013734,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "dataframe",
+        "element_full": {
+         "dataframe": {
+          "arrowData": {
+           "data": "/////zgDAAAQAAAAAAAKAA4ADAALAAQACgAAABQAAAAAAAABBAAKAAwAAAAIAAQACgAAAAgAAABUAgAAAQAAAAwAAAAIAAwACAAEAAgAAAAIAAAALAIAACMCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAicXR5IiwgImZpZWxkX25hbWUiOiAicXR5IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogImxhYmVsIiwgImZpZWxkX25hbWUiOiAibGFiZWwiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH1dLCAiYXR0cmlidXRlcyI6IHt9LCAiY3JlYXRvciI6IHsibGlicmFyeSI6ICJweWFycm93IiwgInZlcnNpb24iOiAiMjYuMC4wIn0sICJwYW5kYXNfdmVyc2lvbiI6ICIzLjEuMCJ9AAYAAABwYW5kYXMAAAIAAABEAAAABAAAANT///8YAAAADAAAAAAAABQQAAAAAAAAAAQABAAEAAAABQAAAGxhYmVsAAAAEAAUABAAAAAPAAQAAAAIABAAAAAYAAAAIAAAAAAAAAIcAAAACAAMAAQACwAIAAAAQAAAAAAAAAEAAAAAAwAAAHF0eQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/////4AAAAEAAAAAwAGgAYABcABAAIAAwAAAAgAAAAQAEAAAAAAAAAAAAAAAAAAwQACgAYAAwACAAEAAoAAAA8AAAAEAAAAAIAAAAAAAAAAAAAAAIAAAACAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAEAAAAAAAAACAAAAAAAAAAAEAAAAAAAAAwAAAAAAAAAAYAAAAAAAAAAABAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYWIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA"
+          },
+          "id": "$$ID-f34ca23a27e6d350e58413d0303bb096-editor",
+          "columns": "{\"_index\": {\"hidden\": true}}",
+          "editingMode": "DYNAMIC"
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "arrow": {
+         "bytes": 1416,
+         "sha256": "39ea4ef23be4356bd91a944bf225ac98a43f3fd4329fb6e841223a787842298a",
+         "base64": "/////zgDAAAQAAAAAAAKAA4ADAALAAQACgAAABQAAAAAAAABBAAKAAwAAAAIAAQACgAAAAgAAABUAgAAAQAAAAwAAAAIAAwACAAEAAgAAAAIAAAALAIAACMCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAicXR5IiwgImZpZWxkX25hbWUiOiAicXR5IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogImxhYmVsIiwgImZpZWxkX25hbWUiOiAibGFiZWwiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH1dLCAiYXR0cmlidXRlcyI6IHt9LCAiY3JlYXRvciI6IHsibGlicmFyeSI6ICJweWFycm93IiwgInZlcnNpb24iOiAiMjYuMC4wIn0sICJwYW5kYXNfdmVyc2lvbiI6ICIzLjEuMCJ9AAYAAABwYW5kYXMAAAIAAABEAAAABAAAANT///8YAAAADAAAAAAAABQQAAAAAAAAAAQABAAEAAAABQAAAGxhYmVsAAAAEAAUABAAAAAPAAQAAAAIABAAAAAYAAAAIAAAAAAAAAIcAAAACAAMAAQACwAIAAAAQAAAAAAAAAEAAAAAAwAAAHF0eQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/////4AAAAEAAAAAwAGgAYABcABAAIAAwAAAAgAAAAQAEAAAAAAAAAAAAAAAAAAwQACgAYAAwACAAEAAoAAAA8AAAAEAAAAAIAAAAAAAAAAAAAAAIAAAACAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAEAAAAAAAAACAAAAAAAAAAAEAAAAAAAAAwAAAAAAAAAAYAAAAAAAAAAABAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYWIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA",
+         "schema": "qty: int64 not null\nlabel: large_string not null\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 483",
+         "columns": [
+          "qty",
+          "label"
+         ],
+         "row_count": 2,
+         "rows": [
+          {
+           "qty": 1,
+           "label": "a"
+          },
+          {
+           "qty": 2,
+           "label": "b"
+          }
+         ]
+        },
+        "arrow_fields": {
+         "id": "$$ID-f34ca23a27e6d350e58413d0303bb096-editor",
+         "columns": "{\"_index\": {\"hidden\": true}}",
+         "editing_mode": 2,
+         "disabled": false,
+         "row_height": 0
+        },
+        "id": "$$ID-f34ca23a27e6d350e58413d0303bb096-editor",
+        "form_id": "",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 100692.013918,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "dataframe",
+        "element_full": {
+         "dataframe": {
+          "arrowData": {
+           "data": "/////zgDAAAQAAAAAAAKAA4ADAALAAQACgAAABQAAAAAAAABBAAKAAwAAAAIAAQACgAAAAgAAABUAgAAAQAAAAwAAAAIAAwACAAEAAgAAAAIAAAALAIAACMCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAicXR5IiwgImZpZWxkX25hbWUiOiAicXR5IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogImxhYmVsIiwgImZpZWxkX25hbWUiOiAibGFiZWwiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH1dLCAiYXR0cmlidXRlcyI6IHt9LCAiY3JlYXRvciI6IHsibGlicmFyeSI6ICJweWFycm93IiwgInZlcnNpb24iOiAiMjYuMC4wIn0sICJwYW5kYXNfdmVyc2lvbiI6ICIzLjEuMCJ9AAYAAABwYW5kYXMAAAIAAABEAAAABAAAANT///8YAAAADAAAAAAAABQQAAAAAAAAAAQABAAEAAAABQAAAGxhYmVsAAAAEAAUABAAAAAPAAQAAAAIABAAAAAYAAAAIAAAAAAAAAIcAAAACAAMAAQACwAIAAAAQAAAAAAAAAEAAAAAAwAAAHF0eQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/////4AAAAEAAAAAwAGgAYABcABAAIAAwAAAAgAAAAQAEAAAAAAAAAAAAAAAAAAwQACgAYAAwACAAEAAoAAAA8AAAAEAAAAAIAAAAAAAAAAAAAAAIAAAACAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAEAAAAAAAAACAAAAAAAAAAAEAAAAAAAAAwAAAAAAAAAAYAAAAAAAAAAABAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABwAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYWIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA"
+          },
+          "columns": "{}"
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "arrow": {
+         "bytes": 1416,
+         "sha256": "4914fb6432a8523020c34ef994d7a3673d0abbda23a8bc93d49be93de7363ad0",
+         "base64": "/////zgDAAAQAAAAAAAKAA4ADAALAAQACgAAABQAAAAAAAABBAAKAAwAAAAIAAQACgAAAAgAAABUAgAAAQAAAAwAAAAIAAwACAAEAAgAAAAIAAAALAIAACMCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAicXR5IiwgImZpZWxkX25hbWUiOiAicXR5IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogImxhYmVsIiwgImZpZWxkX25hbWUiOiAibGFiZWwiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH1dLCAiYXR0cmlidXRlcyI6IHt9LCAiY3JlYXRvciI6IHsibGlicmFyeSI6ICJweWFycm93IiwgInZlcnNpb24iOiAiMjYuMC4wIn0sICJwYW5kYXNfdmVyc2lvbiI6ICIzLjEuMCJ9AAYAAABwYW5kYXMAAAIAAABEAAAABAAAANT///8YAAAADAAAAAAAABQQAAAAAAAAAAQABAAEAAAABQAAAGxhYmVsAAAAEAAUABAAAAAPAAQAAAAIABAAAAAYAAAAIAAAAAAAAAIcAAAACAAMAAQACwAIAAAAQAAAAAAAAAEAAAAAAwAAAHF0eQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/////4AAAAEAAAAAwAGgAYABcABAAIAAwAAAAgAAAAQAEAAAAAAAAAAAAAAAAAAwQACgAYAAwACAAEAAoAAAA8AAAAEAAAAAIAAAAAAAAAAAAAAAIAAAACAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAEAAAAAAAAACAAAAAAAAAAAEAAAAAAAAAwAAAAAAAAAAYAAAAAAAAAAABAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABwAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYWIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA",
+         "schema": "qty: int64 not null\nlabel: large_string not null\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 483",
+         "columns": [
+          "qty",
+          "label"
+         ],
+         "row_count": 2,
+         "rows": [
+          {
+           "qty": 7,
+           "label": "a"
+          },
+          {
+           "qty": 2,
+           "label": "b"
+          }
+         ]
+        },
+        "arrow_fields": {
+         "columns": "{}",
+         "editing_mode": 0,
+         "disabled": false,
+         "row_height": 0
+        },
+        "id": "",
+        "form_id": "",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 100692.013979,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "element_full": {
+         "markdown": {
+          "body": "rows=2",
+          "elementType": "NATIVE",
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "rows=2",
+        "path": [
+         0,
+         2
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 100692.014037,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 100692.0141,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "dom": {
+     "cells": [
+      "7",
+      "a",
+      "2",
+      "b",
+      "0",
+      "7",
+      "a",
+      "1",
+      "2",
+      "b"
+     ],
+     "markdowns": [
+      "rows=2"
+     ],
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "02-edit-cell.png",
+     "sha256": "cfa05b4880d78cb80e8d9f29b428a624ddde3ccb8281cf3f41b0c41444b9f585"
+    }
+   },
+   {
+    "name": "03-add-row",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 100695.048931,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": [
+         {
+          "id": "$$ID-f34ca23a27e6d350e58413d0303bb096-editor",
+          "value_field": "string_value",
+          "value": "{\"edited_rows\":{\"0\":{\"qty\":7}},\"added_rows\":[{}],\"deleted_rows\":[]}"
+         }
+        ],
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 100695.051143,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "fa65bda5-d63d-4f66-a63b-133d64be6e1f",
+        "name": "Streamlit Rust",
+        "main_script_path": "",
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "session_id": "26d33bac-ab14-4acc-a590-fd59c3430be2"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 100695.051598,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 100695.056217,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "dataframe",
+        "element_full": {
+         "dataframe": {
+          "arrowData": {
+           "data": "/////zgDAAAQAAAAAAAKAA4ADAALAAQACgAAABQAAAAAAAABBAAKAAwAAAAIAAQACgAAAAgAAABUAgAAAQAAAAwAAAAIAAwACAAEAAgAAAAIAAAALAIAACMCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAicXR5IiwgImZpZWxkX25hbWUiOiAicXR5IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogImxhYmVsIiwgImZpZWxkX25hbWUiOiAibGFiZWwiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH1dLCAiYXR0cmlidXRlcyI6IHt9LCAiY3JlYXRvciI6IHsibGlicmFyeSI6ICJweWFycm93IiwgInZlcnNpb24iOiAiMjYuMC4wIn0sICJwYW5kYXNfdmVyc2lvbiI6ICIzLjEuMCJ9AAYAAABwYW5kYXMAAAIAAABEAAAABAAAANT///8YAAAADAAAAAAAABQQAAAAAAAAAAQABAAEAAAABQAAAGxhYmVsAAAAEAAUABAAAAAPAAQAAAAIABAAAAAYAAAAIAAAAAAAAAIcAAAACAAMAAQACwAIAAAAQAAAAAAAAAEAAAAAAwAAAHF0eQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/////4AAAAEAAAAAwAGgAYABcABAAIAAwAAAAgAAAAQAEAAAAAAAAAAAAAAAAAAwQACgAYAAwACAAEAAoAAAA8AAAAEAAAAAIAAAAAAAAAAAAAAAIAAAACAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAEAAAAAAAAACAAAAAAAAAAAEAAAAAAAAAwAAAAAAAAAAYAAAAAAAAAAABAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYWIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA"
+          },
+          "id": "$$ID-f34ca23a27e6d350e58413d0303bb096-editor",
+          "columns": "{\"_index\": {\"hidden\": true}}",
+          "editingMode": "DYNAMIC"
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "arrow": {
+         "bytes": 1416,
+         "sha256": "39ea4ef23be4356bd91a944bf225ac98a43f3fd4329fb6e841223a787842298a",
+         "base64": "/////zgDAAAQAAAAAAAKAA4ADAALAAQACgAAABQAAAAAAAABBAAKAAwAAAAIAAQACgAAAAgAAABUAgAAAQAAAAwAAAAIAAwACAAEAAgAAAAIAAAALAIAACMCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAicXR5IiwgImZpZWxkX25hbWUiOiAicXR5IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogImxhYmVsIiwgImZpZWxkX25hbWUiOiAibGFiZWwiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH1dLCAiYXR0cmlidXRlcyI6IHt9LCAiY3JlYXRvciI6IHsibGlicmFyeSI6ICJweWFycm93IiwgInZlcnNpb24iOiAiMjYuMC4wIn0sICJwYW5kYXNfdmVyc2lvbiI6ICIzLjEuMCJ9AAYAAABwYW5kYXMAAAIAAABEAAAABAAAANT///8YAAAADAAAAAAAABQQAAAAAAAAAAQABAAEAAAABQAAAGxhYmVsAAAAEAAUABAAAAAPAAQAAAAIABAAAAAYAAAAIAAAAAAAAAIcAAAACAAMAAQACwAIAAAAQAAAAAAAAAEAAAAAAwAAAHF0eQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/////4AAAAEAAAAAwAGgAYABcABAAIAAwAAAAgAAAAQAEAAAAAAAAAAAAAAAAAAwQACgAYAAwACAAEAAoAAAA8AAAAEAAAAAIAAAAAAAAAAAAAAAIAAAACAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAEAAAAAAAAACAAAAAAAAAAAEAAAAAAAAAwAAAAAAAAAAYAAAAAAAAAAABAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYWIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA",
+         "schema": "qty: int64 not null\nlabel: large_string not null\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 483",
+         "columns": [
+          "qty",
+          "label"
+         ],
+         "row_count": 2,
+         "rows": [
+          {
+           "qty": 1,
+           "label": "a"
+          },
+          {
+           "qty": 2,
+           "label": "b"
+          }
+         ]
+        },
+        "arrow_fields": {
+         "id": "$$ID-f34ca23a27e6d350e58413d0303bb096-editor",
+         "columns": "{\"_index\": {\"hidden\": true}}",
+         "editing_mode": 2,
+         "disabled": false,
+         "row_height": 0
+        },
+        "id": "$$ID-f34ca23a27e6d350e58413d0303bb096-editor",
+        "form_id": "",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 100695.056581,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "dataframe",
+        "element_full": {
+         "dataframe": {
+          "arrowData": {
+           "data": "/////zgDAAAQAAAAAAAKAA4ADAALAAQACgAAABQAAAAAAAABBAAKAAwAAAAIAAQACgAAAAgAAABYAgAAAQAAAAwAAAAIAAwACAAEAAgAAAAIAAAAMAIAACcCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDMsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAicXR5IiwgImZpZWxkX25hbWUiOiAicXR5IiwgInBhbmRhc190eXBlIjogImZsb2F0NjQiLCAibnVtcHlfdHlwZSI6ICJmbG9hdDY0IiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJsYWJlbCIsICJmaWVsZF9uYW1lIjogImxhYmVsIiwgInBhbmRhc190eXBlIjogIm9iamVjdCIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IG51bGx9XSwgImF0dHJpYnV0ZXMiOiB7fSwgImNyZWF0b3IiOiB7ImxpYnJhcnkiOiAicHlhcnJvdyIsICJ2ZXJzaW9uIjogIjI2LjAuMCJ9LCAicGFuZGFzX3ZlcnNpb24iOiAiMy4xLjAifQAGAAAAcGFuZGFzAAACAAAAVAAAABQAAAAQABQAEAAOAA8ABAAAAAgAEAAAABgAAAAMAAAAAAABFBAAAAAAAAAABAAEAAQAAAAFAAAAbGFiZWwAAAAQABYAEAAOAA8ABAAAAAgAEAAAABgAAAAcAAAAAAABAxgAAAAAAAYACAAGAAYAAAAAAAIAAAAAAAMAAABxdHkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/////4AAAAEAAAAAwAGgAYABcABAAIAAwAAAAgAAAAQAEAAAAAAAAAAAAAAAAAAwQACgAYAAwACAAEAAoAAAA8AAAAEAAAAAMAAAAAAAAAAAAAAAIAAAADAAAAAAAAAAEAAAAAAAAAAwAAAAAAAAABAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAGAAAAAAAAACAAAAAAAAAAAEAAAAAAAAAwAAAAAAAAAAgAAAAAAAAAAABAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHEAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYWIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA"
+          },
+          "columns": "{}"
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "arrow": {
+         "bytes": 1416,
+         "sha256": "aea8cb19d42d2e02e22edbae04a6576271c26ad9fa2fbeb753d5e3930110246d",
+         "base64": "/////zgDAAAQAAAAAAAKAA4ADAALAAQACgAAABQAAAAAAAABBAAKAAwAAAAIAAQACgAAAAgAAABYAgAAAQAAAAwAAAAIAAwACAAEAAgAAAAIAAAAMAIAACcCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDMsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAicXR5IiwgImZpZWxkX25hbWUiOiAicXR5IiwgInBhbmRhc190eXBlIjogImZsb2F0NjQiLCAibnVtcHlfdHlwZSI6ICJmbG9hdDY0IiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJsYWJlbCIsICJmaWVsZF9uYW1lIjogImxhYmVsIiwgInBhbmRhc190eXBlIjogIm9iamVjdCIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IG51bGx9XSwgImF0dHJpYnV0ZXMiOiB7fSwgImNyZWF0b3IiOiB7ImxpYnJhcnkiOiAicHlhcnJvdyIsICJ2ZXJzaW9uIjogIjI2LjAuMCJ9LCAicGFuZGFzX3ZlcnNpb24iOiAiMy4xLjAifQAGAAAAcGFuZGFzAAACAAAAVAAAABQAAAAQABQAEAAOAA8ABAAAAAgAEAAAABgAAAAMAAAAAAABFBAAAAAAAAAABAAEAAQAAAAFAAAAbGFiZWwAAAAQABYAEAAOAA8ABAAAAAgAEAAAABgAAAAcAAAAAAABAxgAAAAAAAYACAAGAAYAAAAAAAIAAAAAAAMAAABxdHkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/////4AAAAEAAAAAwAGgAYABcABAAIAAwAAAAgAAAAQAEAAAAAAAAAAAAAAAAAAwQACgAYAAwACAAEAAoAAAA8AAAAEAAAAAMAAAAAAAAAAAAAAAIAAAADAAAAAAAAAAEAAAAAAAAAAwAAAAAAAAABAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAGAAAAAAAAACAAAAAAAAAAAEAAAAAAAAAwAAAAAAAAAAgAAAAAAAAAAABAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHEAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYWIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA",
+         "schema": "qty: double\nlabel: large_string\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 487",
+         "columns": [
+          "qty",
+          "label"
+         ],
+         "row_count": 3,
+         "rows": [
+          {
+           "qty": 7.0,
+           "label": "a"
+          },
+          {
+           "qty": 2.0,
+           "label": "b"
+          },
+          {
+           "qty": null,
+           "label": null
+          }
+         ]
+        },
+        "arrow_fields": {
+         "columns": "{}",
+         "editing_mode": 0,
+         "disabled": false,
+         "row_height": 0
+        },
+        "id": "",
+        "form_id": "",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 100695.056686,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "element_full": {
+         "markdown": {
+          "body": "rows=3",
+          "elementType": "NATIVE",
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "rows=3",
+        "path": [
+         0,
+         2
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 100695.05676,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 100695.056835,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "dom": {
+     "cells": [
+      "7",
+      "a",
+      "2",
+      "b",
+      "",
+      "",
+      "0",
+      "7",
+      "a",
+      "1",
+      "2",
+      "b",
+      "2",
+      "",
+      ""
+     ],
+     "markdowns": [
+      "rows=3"
+     ],
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "03-add-row.png",
+     "sha256": "90f4af5f53636468787c99558d6b3f6a345ac9be06fa7ea637ae32a45f67ea0d"
+    }
+   },
+   {
+    "name": "04-edit-added-row",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 100698.415966,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": [
+         {
+          "id": "$$ID-f34ca23a27e6d350e58413d0303bb096-editor",
+          "value_field": "string_value",
+          "value": "{\"edited_rows\":{\"0\":{\"qty\":7}},\"added_rows\":[{\"qty\":9}],\"deleted_rows\":[]}"
+         }
+        ],
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 100698.417916,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "a34f1b8c-2ca2-4bbf-a970-c7e1445e1ede",
+        "name": "Streamlit Rust",
+        "main_script_path": "",
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "session_id": "26d33bac-ab14-4acc-a590-fd59c3430be2"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 100698.418318,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 100698.419743,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "dataframe",
+        "element_full": {
+         "dataframe": {
+          "arrowData": {
+           "data": "/////zgDAAAQAAAAAAAKAA4ADAALAAQACgAAABQAAAAAAAABBAAKAAwAAAAIAAQACgAAAAgAAABUAgAAAQAAAAwAAAAIAAwACAAEAAgAAAAIAAAALAIAACMCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAicXR5IiwgImZpZWxkX25hbWUiOiAicXR5IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogImxhYmVsIiwgImZpZWxkX25hbWUiOiAibGFiZWwiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH1dLCAiYXR0cmlidXRlcyI6IHt9LCAiY3JlYXRvciI6IHsibGlicmFyeSI6ICJweWFycm93IiwgInZlcnNpb24iOiAiMjYuMC4wIn0sICJwYW5kYXNfdmVyc2lvbiI6ICIzLjEuMCJ9AAYAAABwYW5kYXMAAAIAAABEAAAABAAAANT///8YAAAADAAAAAAAABQQAAAAAAAAAAQABAAEAAAABQAAAGxhYmVsAAAAEAAUABAAAAAPAAQAAAAIABAAAAAYAAAAIAAAAAAAAAIcAAAACAAMAAQACwAIAAAAQAAAAAAAAAEAAAAAAwAAAHF0eQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/////4AAAAEAAAAAwAGgAYABcABAAIAAwAAAAgAAAAQAEAAAAAAAAAAAAAAAAAAwQACgAYAAwACAAEAAoAAAA8AAAAEAAAAAIAAAAAAAAAAAAAAAIAAAACAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAEAAAAAAAAACAAAAAAAAAAAEAAAAAAAAAwAAAAAAAAAAYAAAAAAAAAAABAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYWIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA"
+          },
+          "id": "$$ID-f34ca23a27e6d350e58413d0303bb096-editor",
+          "columns": "{\"_index\": {\"hidden\": true}}",
+          "editingMode": "DYNAMIC"
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "arrow": {
+         "bytes": 1416,
+         "sha256": "39ea4ef23be4356bd91a944bf225ac98a43f3fd4329fb6e841223a787842298a",
+         "base64": "/////zgDAAAQAAAAAAAKAA4ADAALAAQACgAAABQAAAAAAAABBAAKAAwAAAAIAAQACgAAAAgAAABUAgAAAQAAAAwAAAAIAAwACAAEAAgAAAAIAAAALAIAACMCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAicXR5IiwgImZpZWxkX25hbWUiOiAicXR5IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogImxhYmVsIiwgImZpZWxkX25hbWUiOiAibGFiZWwiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH1dLCAiYXR0cmlidXRlcyI6IHt9LCAiY3JlYXRvciI6IHsibGlicmFyeSI6ICJweWFycm93IiwgInZlcnNpb24iOiAiMjYuMC4wIn0sICJwYW5kYXNfdmVyc2lvbiI6ICIzLjEuMCJ9AAYAAABwYW5kYXMAAAIAAABEAAAABAAAANT///8YAAAADAAAAAAAABQQAAAAAAAAAAQABAAEAAAABQAAAGxhYmVsAAAAEAAUABAAAAAPAAQAAAAIABAAAAAYAAAAIAAAAAAAAAIcAAAACAAMAAQACwAIAAAAQAAAAAAAAAEAAAAAAwAAAHF0eQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/////4AAAAEAAAAAwAGgAYABcABAAIAAwAAAAgAAAAQAEAAAAAAAAAAAAAAAAAAwQACgAYAAwACAAEAAoAAAA8AAAAEAAAAAIAAAAAAAAAAAAAAAIAAAACAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAEAAAAAAAAACAAAAAAAAAAAEAAAAAAAAAwAAAAAAAAAAYAAAAAAAAAAABAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYWIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA",
+         "schema": "qty: int64 not null\nlabel: large_string not null\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 483",
+         "columns": [
+          "qty",
+          "label"
+         ],
+         "row_count": 2,
+         "rows": [
+          {
+           "qty": 1,
+           "label": "a"
+          },
+          {
+           "qty": 2,
+           "label": "b"
+          }
+         ]
+        },
+        "arrow_fields": {
+         "id": "$$ID-f34ca23a27e6d350e58413d0303bb096-editor",
+         "columns": "{\"_index\": {\"hidden\": true}}",
+         "editing_mode": 2,
+         "disabled": false,
+         "row_height": 0
+        },
+        "id": "$$ID-f34ca23a27e6d350e58413d0303bb096-editor",
+        "form_id": "",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 100698.41986,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "dataframe",
+        "element_full": {
+         "dataframe": {
+          "arrowData": {
+           "data": "/////zgDAAAQAAAAAAAKAA4ADAALAAQACgAAABQAAAAAAAABBAAKAAwAAAAIAAQACgAAAAgAAABUAgAAAQAAAAwAAAAIAAwACAAEAAgAAAAIAAAALAIAACMCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDMsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAicXR5IiwgImZpZWxkX25hbWUiOiAicXR5IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogImxhYmVsIiwgImZpZWxkX25hbWUiOiAibGFiZWwiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH1dLCAiYXR0cmlidXRlcyI6IHt9LCAiY3JlYXRvciI6IHsibGlicmFyeSI6ICJweWFycm93IiwgInZlcnNpb24iOiAiMjYuMC4wIn0sICJwYW5kYXNfdmVyc2lvbiI6ICIzLjEuMCJ9AAYAAABwYW5kYXMAAAIAAABUAAAAFAAAABAAFAAQAA4ADwAEAAAACAAQAAAAGAAAAAwAAAAAAAEUEAAAAAAAAAAEAAQABAAAAAUAAABsYWJlbAAAABAAFAAQAAAADwAEAAAACAAQAAAAGAAAACAAAAAAAAACHAAAAAgADAAEAAsACAAAAEAAAAAAAAABAAAAAAMAAABxdHkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/////4AAAAEAAAAAwAGgAYABcABAAIAAwAAAAgAAAAQAEAAAAAAAAAAAAAAAAAAwQACgAYAAwACAAEAAoAAAA8AAAAEAAAAAMAAAAAAAAAAAAAAAIAAAADAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAABAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAGAAAAAAAAACAAAAAAAAAAAEAAAAAAAAAwAAAAAAAAAAgAAAAAAAAAAABAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABwAAAAAAAAACAAAAAAAAAAkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYWIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA"
+          },
+          "columns": "{}"
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "arrow": {
+         "bytes": 1416,
+         "sha256": "39edaeb7b0c4d06236e9a92c5c6f06edb57a669ee267e213d078aca31187070f",
+         "base64": "/////zgDAAAQAAAAAAAKAA4ADAALAAQACgAAABQAAAAAAAABBAAKAAwAAAAIAAQACgAAAAgAAABUAgAAAQAAAAwAAAAIAAwACAAEAAgAAAAIAAAALAIAACMCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDMsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAicXR5IiwgImZpZWxkX25hbWUiOiAicXR5IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogImxhYmVsIiwgImZpZWxkX25hbWUiOiAibGFiZWwiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH1dLCAiYXR0cmlidXRlcyI6IHt9LCAiY3JlYXRvciI6IHsibGlicmFyeSI6ICJweWFycm93IiwgInZlcnNpb24iOiAiMjYuMC4wIn0sICJwYW5kYXNfdmVyc2lvbiI6ICIzLjEuMCJ9AAYAAABwYW5kYXMAAAIAAABUAAAAFAAAABAAFAAQAA4ADwAEAAAACAAQAAAAGAAAAAwAAAAAAAEUEAAAAAAAAAAEAAQABAAAAAUAAABsYWJlbAAAABAAFAAQAAAADwAEAAAACAAQAAAAGAAAACAAAAAAAAACHAAAAAgADAAEAAsACAAAAEAAAAAAAAABAAAAAAMAAABxdHkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/////4AAAAEAAAAAwAGgAYABcABAAIAAwAAAAgAAAAQAEAAAAAAAAAAAAAAAAAAwQACgAYAAwACAAEAAoAAAA8AAAAEAAAAAMAAAAAAAAAAAAAAAIAAAADAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAABAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAGAAAAAAAAACAAAAAAAAAAAEAAAAAAAAAwAAAAAAAAAAgAAAAAAAAAAABAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABwAAAAAAAAACAAAAAAAAAAkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYWIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA",
+         "schema": "qty: int64 not null\nlabel: large_string\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 483",
+         "columns": [
+          "qty",
+          "label"
+         ],
+         "row_count": 3,
+         "rows": [
+          {
+           "qty": 7,
+           "label": "a"
+          },
+          {
+           "qty": 2,
+           "label": "b"
+          },
+          {
+           "qty": 9,
+           "label": null
+          }
+         ]
+        },
+        "arrow_fields": {
+         "columns": "{}",
+         "editing_mode": 0,
+         "disabled": false,
+         "row_height": 0
+        },
+        "id": "",
+        "form_id": "",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 100698.419907,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "element_full": {
+         "markdown": {
+          "body": "rows=3",
+          "elementType": "NATIVE",
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "rows=3",
+        "path": [
+         0,
+         2
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 100698.419987,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 100698.420044,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "dom": {
+     "cells": [
+      "7",
+      "a",
+      "2",
+      "b",
+      "9",
+      "",
+      "0",
+      "7",
+      "a",
+      "1",
+      "2",
+      "b",
+      "2",
+      "9",
+      ""
+     ],
+     "markdowns": [
+      "rows=3"
+     ],
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "04-edit-added-row.png",
+     "sha256": "ae797b89c0aef6c06ad634cb2979fecc74ef856596e2202161e03e5ee9fb5ac9"
+    }
+   }
+  ],
+  "ipc_dir": "C:\\Users\\killf\\github\\streamlit-rust\\target\\checks\\q5-editor-schema\\native-once"
+ },
+ "counts": {
+  "expected": 6,
+  "executed": 6,
+  "asserted": 6
+ },
+ "failures": []
+}

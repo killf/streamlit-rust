@@ -370,8 +370,9 @@ pub trait DataApi {
     /// (`{"edited_rows": {row: {column: value}}, "added_rows": [{column:
     /// value}], "deleted_rows": [row]}`); the edits are applied to the data
     /// the way the reference does (cell edits, then deletions, then
-    /// additions), the element re-emits the EDITED table, and the caller
-    /// receives it.
+    /// additions). The element sends the original input table; the caller
+    /// receives the edited table. Result columns containing null become nullable;
+    /// other columns retain their input nullability. The input is unchanged.
     fn data_editor<'a>(&self, options: impl Into<DataEditorOptions<'a>>) -> Result<RecordBatch, DataError>;
     fn bar_chart<'a>(&self, options: impl Into<BarChartOptions<'a>>) -> Result<(), DataError>;
     fn line_chart<'a>(&self, options: impl Into<LineChartOptions<'a>>) -> Result<(), DataError>;
@@ -413,8 +414,8 @@ fn button_column_widgets(host: &impl AppendChild, configs: &crate::column_config
 /// `_apply_dataframe_edits` does: cell edits by row position and column
 /// name (typed per the column), then row deletions by position, then row
 /// additions (missing cells null) — additions land after deletions so the
-/// deleted positions never shift. The edited table is what the element
-/// re-emits and what the caller receives.
+/// deleted positions never shift. The caller receives the edited table;
+/// the editor element itself sends the original input table.
 fn apply_edits(data: &RecordBatch, edits: &Value) -> Result<RecordBatch, DataError> {
     let empty = json!({});
     let edited_rows = edits.get("edited_rows").filter(|value| value.as_object().is_some_and(|rows| !rows.is_empty())).unwrap_or(&empty);
@@ -497,11 +498,13 @@ fn apply_edits(data: &RecordBatch, edits: &Value) -> Result<RecordBatch, DataErr
             DataType::Utf8 => Arc::new(StringArray::from(column.iter().map(|value| value.as_str().map(str::to_owned)).collect::<Vec<_>>())),
             kind => return Err(DataError::InvalidOption(format!("data_editor edits are not supported for column {kind}"))),
         };
-        let field = if matches!(field.data_type(), DataType::Int64) && has_null {
-            Field::new(field.name(), DataType::Float64, field.is_nullable())
-        } else {
-            field.as_ref().clone()
-        };
+        let mut field = field.as_ref().clone();
+        if matches!(field.data_type(), DataType::Int64) && has_null {
+            field = field.with_data_type(DataType::Float64);
+        }
+        if has_null {
+            field = field.with_nullable(true);
+        }
         fields.push(field);
         arrays.push(array);
     }

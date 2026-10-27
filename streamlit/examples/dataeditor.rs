@@ -1,15 +1,16 @@
 //! data_editor demo: a dynamic editor over a typed two-column frame whose
-//! committed edits are applied server-side. Mirrors
-//! tests/reference/dataeditor_app.py.
+//! committed edits are applied server-side. Uses the reference's values with
+//! inferred nonnullable input fields; edited nulls can widen the returned schema.
 use ::streamlit::*;
 use std::sync::Arc;
 
-use streamlit::data::{DataType, Field, Int64Array, RecordBatch, Schema, StringArray};
+use streamlit::data::{ArrayRef, Int64Array, RecordBatch, StringArray};
 
 fn data_batch() -> anyhow::Result<RecordBatch> {
-    let fields = vec![Field::new("qty", DataType::Int64, true), Field::new("label", DataType::Utf8, true)];
-    let arrays = vec![Arc::new(Int64Array::from(vec![1, 2])) as _, Arc::new(StringArray::from(vec!["a", "b"])) as _];
-    Ok(RecordBatch::try_new(Arc::new(Schema::new(fields)), arrays)?)
+    Ok(RecordBatch::try_from_iter(vec![
+        ("qty", Arc::new(Int64Array::from(vec![1, 2])) as ArrayRef),
+        ("label", Arc::new(StringArray::from(vec!["a", "b"])) as ArrayRef),
+    ])?)
 }
 
 fn render(st: &Streamlit) -> anyhow::Result<()> {
