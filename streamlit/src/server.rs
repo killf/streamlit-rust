@@ -121,42 +121,51 @@ async fn delete_upload(req: HttpRequest, path: web::Path<(String, String)>, serv
 // Content types ride the store's addressing, so the extension is cosmetic.
 #[get("/media/{name}")]
 async fn media_file(req: HttpRequest, path: web::Path<String>) -> HttpResponse {
-    use actix_web::http::header::{ACCEPT_RANGES, CONTENT_RANGE, CONTENT_TYPE};
+    use actix_web::http::header::{ACCEPT_RANGES, CONTENT_RANGE, CONTENT_TYPE, ContentDisposition, DispositionParam, DispositionType};
     let name = path.into_inner();
-    let Some((id, extension)) = name.rsplit_once('.') else {
+    let (id, extension) = name.rsplit_once('.').unwrap_or((&name, ""));
+    let Some(file) = crate::media::stored_file(id) else {
         return HttpResponse::NotFound().finish();
     };
-    let mime = match extension {
-        "png" => "image/png",
-        "jpg" | "jpeg" => "image/jpeg",
-        "webp" => "image/webp",
-        "gif" => "image/gif",
-        "wav" => "audio/wav",
-        "mp3" => "audio/mpeg",
-        "ogg" => "audio/ogg",
-        "flac" => "audio/flac",
-        "aac" => "audio/aac",
-        "mp4" => "video/mp4",
-        "webm" => "video/webm",
-        "ogv" => "video/ogg",
-        _ => return HttpResponse::NotFound().finish(),
+    let mime = if file.download {
+        file.mime.as_str()
+    } else {
+        match extension {
+            "png" => "image/png",
+            "jpg" | "jpeg" => "image/jpeg",
+            "webp" => "image/webp",
+            "gif" => "image/gif",
+            "wav" => "audio/wav",
+            "mp3" => "audio/mpeg",
+            "ogg" => "audio/ogg",
+            "flac" => "audio/flac",
+            "aac" => "audio/aac",
+            "mp4" => "video/mp4",
+            "webm" => "video/webm",
+            "ogv" => "video/ogg",
+            _ => return HttpResponse::NotFound().finish(),
+        }
     };
-    let Some(bytes) = crate::media::get(id) else {
-        return HttpResponse::NotFound().finish();
-    };
+    let bytes = file.bytes;
     let range = req.headers().get("range").and_then(|value| value.to_str().ok()).and_then(|header| crate::media::ByteRange::parse(header, bytes.len() as u64));
+    let mut response = if range.is_some() { HttpResponse::PartialContent() } else { HttpResponse::Ok() };
+    response.insert_header((ACCEPT_RANGES, "bytes"));
+    // CSV headers follow the measured UTF-8 download response.
+    response.insert_header((CONTENT_TYPE, if mime == "text/csv" { "text/csv; charset=utf-8" } else { mime }));
+    if file.download {
+        response.insert_header(ContentDisposition {
+            disposition: DispositionType::Attachment,
+            parameters: file.file_name.into_iter().map(DispositionParam::Filename).collect(),
+        });
+    }
     match range {
         Some(range) => {
             let total = bytes.len() as u64;
             let start = range.start as usize;
             let end = range.end as usize;
-            HttpResponse::PartialContent()
-                .insert_header((ACCEPT_RANGES, "bytes"))
-                .insert_header((CONTENT_TYPE, mime))
-                .insert_header((CONTENT_RANGE, format!("bytes {}-{}/{}", range.start, range.end, total)))
-                .body(bytes[start..=end].to_vec())
+            response.insert_header((CONTENT_RANGE, format!("bytes {}-{}/{}", range.start, range.end, total))).body(bytes[start..=end].to_vec())
         }
-        None => HttpResponse::Ok().insert_header((ACCEPT_RANGES, "bytes")).insert_header((CONTENT_TYPE, mime)).body(bytes),
+        None => response.body(bytes),
     }
 }
 

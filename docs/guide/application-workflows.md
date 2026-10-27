@@ -7,7 +7,7 @@
 | 输入控件、CSV 上传、筛选、表格和图表 | 当前可用；兼容性部分验证 | [data_app](../../streamlit/examples/data_app.rs)；矩阵 `st.file_uploader`、`st.dataframe`、`st.bar_chart`。只覆盖已测组合。 |
 | 表单、会话状态和普通重跑 | 当前可用；部分验证 | 矩阵 `st.form`、`st.form_submit_button`、`st.session_state`。状态在内存中，恢复有边界。 |
 | 单独编辑表格 | 部分验证 | 矩阵 `st.data_editor`；[dataeditor 示例](../../streamlit/examples/dataeditor.rs)覆盖单元格编辑和新增行，不能代表所有类型与操作。 |
-| 选择行 → 详情 → 编辑 → 追加 | 部分实现与验证 | dataframe_selection 示例已验证选择、详情和编辑；CSV 应用整合及数据追加/更新仍未完成。 |
+| 选择行 → 详情 → 编辑 → 追加 | 主流程与筛选部分验证 | csv_workbench 已测编辑、应用、追加及下载；来源切换规则仍待决，未完成整体验收。 |
 | 布局、导航、组件、流式文本 | 部分验证 | 矩阵 `st.navigation`、`st.components.v2.component`、`st.write_stream` 等；具体入口见下文。 |
 | 配置、认证、主题与部署 | 待完成或待设计 | 存在启动配置和前端资源部署路径；完整配置、认证和主题能力尚无足够证据。 |
 
@@ -39,11 +39,31 @@ cargo run --example data_app --locked
 
 此示例的聚合和舍入是应用自身规则，不是所有 Streamlit 应用的通用行为。上传的替换、删除、多文件、会话过期和安全边界仍未完整验证；不要将当前上传端点视为面向不可信用户的生产认证边界。参见官方[文件上传](https://docs.streamlit.io/develop/api-reference/widgets/st.file_uploader)、[表格](https://docs.streamlit.io/develop/api-reference/data/st.dataframe)、[表单](https://docs.streamlit.io/develop/api-reference/execution-flow/st.form)及矩阵对应条目。
 
+## CSV workbench：编辑会话工作副本
+
+**主流程与筛选已验证，来源切换未完整验收。** [csv_workbench 示例](../../streamlit/examples/csv_workbench.rs)与现有销售统计 `data_app` 分开。从仓库根目录运行 `cargo run --example csv_workbench --locked`，打开 `http://127.0.0.1:8545/`。已测 20 阶段主流程和 13 阶段筛选流程，含实际下载与双会话；[证据和局限](../../tests/browser/rust-csv-workbench/README.md)不代表全部模式、数据类型或完整 CSV 验收。
+
+例如，将以下内容保存为 UTF-8 CSV 后上传：
+
+```csv
+item,region,quantity
+book,north,10
+game,south,20
+```
+
+1. 在 **CSV workbench** 的 **Upload CSV**（key `wb-upload`）上传一个 CSV。工作台按文本处理每个单元格，不推断数字或日期类型；保留原列及顺序，支持 UTF-8、BOM 和 CSV 引号内容。空列名、重复列名、结构或编码错误会显示错误。
+2. **Filter column** 默认选择首列；**Filter enabled** 默认关闭。启用后，**Exact value** 按文本精确匹配，空字符串也是有效的匹配值。**Count by** 默认首列，计数图统计当前筛选结果。**Rows** 展示完整筛选结果，初始无选择；排序或筛选后的行选择映射回对应的原始明细位置。
+3. 在 **Rows** 选一行，修改单行 **Detail draft**。只有点击 **Apply** 才将草稿应用到当前会话的工作副本，并更新表格和图表；单独编辑草稿不会改动工作数据。筛选变化清除旧选择和详情草稿，选行变化清除旧详情草稿；来源、工作数据版本和视图变化后，过期草稿不能写入其他行。
+4. 在独立的 **New rows draft** 动态表中填写新行，点击 **Append** 后才追加。重复行保留，空单元格导出为空 CSV 字段；新增草稿在应用或切换有效来源前保留。成功 **Apply** 或 **Append** 后更新数据版本并重置选择与草稿。
+5. **Download CSV** 下载修订后的 `workbench.csv`；原上传内容不变，示例不写文件或数据库。**Ordinary rerun** 可观察当前会话状态。每个浏览器会话有独立工作副本，普通重跑不应混入其他会话的数据。
+
+已采纳的目标要求坏文件保留上次有效副本、主动清除重置工作副本，但来源切换规则正在等待调整：真实前端替换单文件时会先产生空上传状态，当前实现会提前清空旧副本，尚不能同时满足两项约定。正在选择显式清空工作副本、暂存后导入，或调整移除即清空的验收；选定前不把坏替换保留标为可用。无匹配、排序映射、下载字节及会话隔离已有上述子流程证据；空表、完整替换与恢复仍未关闭。
+
 ## 选择、查看、编辑和追加：目标体验
 
 目标流程是：在结果表中选择一条记录，查看其详情，修改并确认，再将新数据追加到已有视图；重跑时应明确保留哪些选择和编辑结果。空选择、筛选后所选记录消失、编辑失败、重复提交和数据来源更新等行为仍待设计和验证。
 
-当前 CSV 示例没有行选择或这一整套交互。官方已在 1.58.0 移除 `element.add_rows`，它不是本项目 1.66.1 的兼容缺口；数据追加流程仍保留在目标中，应用数据更新/重新渲染与新增 Rust 扩展需要分开选择。[dataeditor 示例](../../streamlit/examples/dataeditor.rs)是独立演示，可通过 `cargo run --example dataeditor --locked` 在 8541 端口查看编辑与新增行。编辑器每轮发送原始输入表，并返回应用编辑后的 `RecordBatch`；调用方可像示例一样通过 `st.dataframe` 单独显示或继续处理返回值。它不会自动保存或改写上传的 CSV。
+现有销售 `data_app` 没有行选择或这一整套交互；独立 `csv_workbench` 按上节实现和验证，来源切换仍待决。官方已在 1.58.0 移除 `element.add_rows`，它不是本项目 1.66.1 的兼容缺口；工作台采用应用更新数据再渲染，没有新增 Rust 追加扩展。[dataeditor 示例](../../streamlit/examples/dataeditor.rs)是独立演示，可通过 `cargo run --example dataeditor --locked` 在 8541 端口查看编辑与新增行。编辑器每轮发送原始输入表，并返回应用编辑后的 `RecordBatch`；调用方可像示例一样通过 `st.dataframe` 单独显示或继续处理返回值。它不会自动保存或改写上传的 CSV。
 
 已复现不可空字段遇到空行时的 schema 冲突，并选择按编辑结果放宽：仅实际产生 null 的结果列设为 nullable，未产生 null 的列保留输入的可空标记，原始输入表不变。调用方须读取返回表的 schema，不能假定它仍与输入完全相同。整数列遇 null 时已有的 Float64 转换规则继续适用；填齐新增行后，每轮仍基于原始输入重新应用编辑。该规则已有冻结输入回归、真实 WS 和 Rust 官方前端四步交互验证。删除行、其他编辑模式和回调的覆盖仍有限。参考官方[数据编辑器](https://docs.streamlit.io/develop/api-reference/data/st.data_editor)与矩阵 `st.data_editor`、`st.dataframe`。
 

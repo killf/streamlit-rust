@@ -1,0 +1,181 @@
+{
+  "schema_version": 1,
+  "runtime": "rust",
+  "scope": "explicit-protocol-injection; no browser-reachability or Python parity claim",
+  "expected_source": "User accepted CSV workbench A contract: only current detail/view/source/version can commit; uploaded bytes immutable",
+  "passed": true,
+  "checks": [
+    {
+      "name": "17 completed stages and every CSV comparison passed",
+      "passed": true,
+      "actual": 17
+    },
+    {
+      "name": "same retained session",
+      "passed": true,
+      "actual": [
+        "c2c3984e-cedd-471d-82f1-d766c100b19e"
+      ]
+    },
+    {
+      "name": "selected A before old Apply",
+      "passed": true,
+      "actual": [
+        {
+          "id": "A",
+          "region": "north"
+        }
+      ]
+    },
+    {
+      "name": "filter change presents B with new selection identity",
+      "passed": true,
+      "actual": [
+        {
+          "id": "B",
+          "region": "south"
+        }
+      ]
+    },
+    {
+      "name": "selection switch presents B under new Apply identity",
+      "passed": true,
+      "actual": [
+        {
+          "id": "B",
+          "region": "south"
+        }
+      ]
+    },
+    {
+      "name": "source replacement changes Append identity",
+      "passed": true,
+      "actual": [
+        "$$ID-2b95b7e88ef683c7c2e0327db030d69d-wb-append-1",
+        "$$ID-f5f6387db0be3d7df96836572aa8c977-wb-append-2"
+      ]
+    },
+    {
+      "name": "valid Apply changes only X and advances Append identity",
+      "passed": true,
+      "actual": [
+        {
+          "id": "X",
+          "region": "edited-west"
+        },
+        {
+          "id": "Y",
+          "region": "east"
+        }
+      ]
+    },
+    {
+      "name": "all HTTP succeeded",
+      "passed": true,
+      "actual": {
+        "count": 18,
+        "statuses": [
+          204,
+          200,
+          200,
+          200,
+          200,
+          200,
+          200,
+          200,
+          200,
+          200,
+          200,
+          204,
+          200,
+          200,
+          200,
+          200,
+          200,
+          200
+        ]
+      }
+    },
+    {
+      "name": "owned WS closed, existing service untouched",
+      "passed": true,
+      "actual": {
+        "owned_websocket_closed": true,
+        "existing_root_service_stop_attempted": false,
+        "close_code": 1000,
+        "close_reason": ""
+      }
+    },
+    {
+      "name": "05-filter-b-with-old-apply actual same-batch stale payloads",
+      "passed": true,
+      "actual": {
+        "old_trigger_id": "$$ID-29313826319dd6583a5dc2406e3133c6-wb-apply-1-1-1",
+        "old_editor_id": "$$ID-c8867541a180009946d9f3079e440b07-wb-detail-1-1-1",
+        "old_editor_string_value": "{\"edited_rows\":{\"0\":{\"region\":\"STALE-A\"}},\"added_rows\":[],\"deleted_rows\":[]}",
+        "old_action_absent_from_new_render": true
+      }
+    },
+    {
+      "name": "06-delayed-old-apply actual same-batch stale payloads",
+      "passed": true,
+      "actual": {
+        "old_trigger_id": "$$ID-29313826319dd6583a5dc2406e3133c6-wb-apply-1-1-1",
+        "old_editor_id": "$$ID-c8867541a180009946d9f3079e440b07-wb-detail-1-1-1",
+        "old_editor_string_value": "{\"edited_rows\":{\"0\":{\"region\":\"STALE-A\"}},\"added_rows\":[],\"deleted_rows\":[]}",
+        "old_action_absent_from_new_render": true
+      }
+    },
+    {
+      "name": "10-select-b-with-old-apply actual same-batch stale payloads",
+      "passed": true,
+      "actual": {
+        "old_trigger_id": "$$ID-8c73bac57e664cc1cdfe4198440cdb90-wb-apply-1-3-3",
+        "old_editor_id": "$$ID-e77a46f3129af8203b78409a82d4c38d-wb-detail-1-3-3",
+        "old_editor_string_value": "{\"edited_rows\":{\"0\":{\"region\":\"STALE-A-NEWVIEW\"}},\"added_rows\":[],\"deleted_rows\":[]}",
+        "old_action_absent_from_new_render": true
+      }
+    },
+    {
+      "name": "12-new-source-with-old-append actual same-batch stale payloads",
+      "passed": true,
+      "actual": {
+        "old_trigger_id": "$$ID-2b95b7e88ef683c7c2e0327db030d69d-wb-append-1",
+        "old_editor_id": "$$ID-683ea2cb0585940ed35a177f5708f0c3-wb-new-1",
+        "old_editor_string_value": "{\"edited_rows\":{},\"added_rows\":[{\"id\":\"STALE\",\"region\":\"stale\"}],\"deleted_rows\":[]}",
+        "old_action_absent_from_new_render": true
+      }
+    },
+    {
+      "name": "13-delayed-old-append actual same-batch stale payloads",
+      "passed": true,
+      "actual": {
+        "old_trigger_id": "$$ID-2b95b7e88ef683c7c2e0327db030d69d-wb-append-1",
+        "old_editor_id": "$$ID-683ea2cb0585940ed35a177f5708f0c3-wb-new-1",
+        "old_editor_string_value": "{\"edited_rows\":{},\"added_rows\":[{\"id\":\"STALE\",\"region\":\"stale\"}],\"deleted_rows\":[]}",
+        "old_action_absent_from_new_render": true
+      }
+    },
+    {
+      "name": "17-old-append-after-version-change actual same-batch stale payloads",
+      "passed": true,
+      "actual": {
+        "old_trigger_id": "$$ID-f5f6387db0be3d7df96836572aa8c977-wb-append-2",
+        "old_editor_id": "$$ID-2d541c3ac8534e0681e4812d4ba771ef-wb-new-2",
+        "old_editor_string_value": "{\"edited_rows\":{},\"added_rows\":[{\"id\":\"STALE2\",\"region\":\"stale2\"}],\"deleted_rows\":[]}",
+        "old_action_absent_from_new_render": true
+      }
+    }
+  ],
+  "counts": {
+    "stages": 17,
+    "frames": 400,
+    "http": 18
+  },
+  "cleanup": {
+    "owned_websocket_closed": true,
+    "existing_root_service_stop_attempted": false,
+    "close_code": 1000,
+    "close_reason": ""
+  }
+}

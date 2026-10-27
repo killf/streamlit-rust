@@ -24,9 +24,11 @@
 
 选择接口按用户最新无需旧 Rust API 向后兼容的取舍，采用单入口返回 typed state，实施与验收见[当前设计](architecture.md#dataframe-selection-and-data-updates--proposal)。官方 1.58.0 已移除旧 add_rows；数据追加流程仍在 M2，是否另增 Rust 扩展由用户选择，不自动增加追加扩展。
 
-选择参考保留[原 34 阶段前端输入](../tests/reference/reference-browser/dataframe-selection/README.md)，另补[八阶段 required 协议输入](../tests/reference/reference-browser/dataframe-required-protocol/README.md)，真实 Rust WS 共用 42 阶段回放。已修复空协议选择在返回、keyed 与 callback 间分裂的问题，包含空表/恢复时使用前轮行数上下文；当前 177 项 Rust 和 1496 项冻结参考回归通过。新协议探针不宣称浏览器能清除 required 行，旧正确数据未重采。CSV 应用的[整合方案](architecture.md#csv-application-integration--proposal)另待用户选择。
+选择参考保留[原 34 阶段前端输入](../tests/reference/reference-browser/dataframe-selection/README.md)，另补[八阶段 required 协议输入](../tests/reference/reference-browser/dataframe-required-protocol/README.md)，真实 Rust WS 共用 42 阶段回放。已修复空协议选择在返回、keyed 与 callback 间分裂的问题，包含空表/恢复时使用前轮行数上下文；此前选择批次的 177 项 Rust 和 1496 项冻结参考回归通过。新协议探针不宣称浏览器能清除 required 行，旧正确数据未重采。CSV 应用已由用户采纳[独立工作台方案 A](architecture.md#csv-application-integration--accepted-a)，先补使用说明，再实现与验证；其余方案不纳入本次范围。
 
 ## Long-term milestones
+
+CSV 工作台 A 已交付主流程 20 阶段与筛选 13 阶段的实现、冻结参考及真实前端对照，当前仍为 M2 子集。来源替换的空状态与主动清空冲突等待用户选择；不推进依赖该决定的规则，也不因已有下载/编辑/追加证据关闭 M2。图表仅已核逻辑计数及所见 Rust 呈现，Python 部分更新后截图仍旧值的原因另待核，不推定完整默认图表兼容。
 
 下列 M0–M7 属于 2026-10-27 确认的长期目标，与文末已经关闭的历史 P0 里程碑区分。
 

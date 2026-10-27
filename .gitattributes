@@ -107,3 +107,9 @@
 # Required-row protocol inputs and outputs retain reviewed data bytes.
 /tests/reference/reference-browser/dataframe-required-protocol/** -text
 /tests/reference/reference-browser/dataframe-required-protocol/**/*.log whitespace=blank-at-eol,space-before-tab,cr-at-eol,-blank-at-eof
+
+# Frozen CSV workflow bytes are data, not source identity gates.
+/tests/reference/reference-browser/csv-workbench/** -text
+/tests/reference/reference-browser/csv-workbench/**/*.log whitespace=blank-at-eol,space-before-tab,cr-at-eol,-blank-at-eof
+/tests/browser/rust-csv-workbench/** -text
+/tests/browser/rust-csv-workbench/**/*.log whitespace=blank-at-eol,space-before-tab,cr-at-eol,-blank-at-eof

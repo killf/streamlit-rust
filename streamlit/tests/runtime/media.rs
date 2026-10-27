@@ -158,6 +158,45 @@ fn width_kind(config: &Option<crate::proto::streamlit::WidthConfig>) -> String {
 }
 
 #[actix_web::test]
+async fn csv_download_serves_named_attachment_and_repeatable_range_bytes() -> TestResult {
+    let bytes = b"id,region\nA,north\n";
+    let mime = "text/csv";
+    let id = crate::media::put_download(bytes, mime, Some("workbench.csv"));
+    let path = format!("/media/{id}{}", crate::media::download_extension(mime));
+    let (address, handle, task, stream) = start_media_server().await?;
+
+    // 1. 复用真实 HTTP 路由采集完整、范围、重复与未知地址响应。
+    let captured = tokio::time::timeout(Duration::from_secs(10), async {
+        let full = http_get(address, &path, None).await?;
+        let range = http_get(address, &path, Some("bytes=0-1")).await?;
+        let repeated = http_get(address, &path, None).await?;
+        let unknown = http_get(address, "/media/0123456789abcdef0123456789abcdef.csv", None).await?;
+        Ok::<_, Box<dyn std::error::Error>>((full, range, repeated, unknown))
+    })
+    .await;
+
+    // 2. 任一路径失败也先回收自有连接与 server，再断言下载内容和响应头。
+    drop(stream);
+    handle.stop(false).await;
+    task.await??;
+    let (full, range, repeated, unknown) = captured??;
+    println!("CSV download path={path}; full={full:?}; range={range:?}; repeated={repeated:?}; unknown_status={}", unknown.0);
+    assert_eq!(full.0, 200, "registered CSV download must be reachable through its actual extension");
+    assert_eq!(full.1.iter().find(|(name, _)| name == "content-type").map(|(_, value)| value.as_str()), Some("text/csv; charset=utf-8"));
+    let disposition = full.1.iter().find(|(name, _)| name == "content-disposition").map(|(_, value)| value.as_str()).ok_or("CSV download must provide Content-Disposition")?;
+    assert!(disposition.starts_with("attachment;") && disposition.contains("workbench.csv"), "CSV download must retain its attachment filename: {disposition}");
+    assert_eq!(full.2, bytes);
+    assert_eq!(range.0, 206);
+    let expected_range = format!("bytes 0-1/{}", bytes.len());
+    assert_eq!(range.1.iter().find(|(name, _)| name == "content-range").map(|(_, value)| value.as_str()), Some(expected_range.as_str()));
+    assert_eq!(range.2, &bytes[..2]);
+    assert_eq!(repeated.0, 200);
+    assert_eq!(repeated.2, bytes, "downloading must not consume or change the stored CSV");
+    assert_eq!(unknown.0, 404);
+    Ok(())
+}
+
+#[actix_web::test]
 async fn media_elements_match_the_measured_wire_and_serve_the_measured_http() -> TestResult {
     let (address, handle, task, mut stream) = start_media_server().await?;
     let mut session_id = String::new();

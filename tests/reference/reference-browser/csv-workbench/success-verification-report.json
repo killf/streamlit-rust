@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "scope": "Successful main and filters only; sources remain pending. Counts compare logical value/count data, not chart spec or element presence.",
+  "captures": [
+    {
+      "name": "main-complete",
+      "stages": 20,
+      "frames": 333,
+      "events": 3450,
+      "commands": 179,
+      "sessions": {
+        "A": [
+          "eb03f89e-2390-4d6a-a2b0-01cc0f15d79b"
+        ],
+        "B": [
+          "22c0b630-8323-49f0-a268-badcfd851680"
+        ]
+      },
+      "server_pid": 52644,
+      "chrome_pid": 60708,
+      "ports_closed": true,
+      "profile_removed": true,
+      "cleanup_errors": [],
+      "result": "PASS"
+    },
+    {
+      "name": "filters-first",
+      "stages": 13,
+      "frames": 282,
+      "events": 2595,
+      "commands": 119,
+      "sessions": {
+        "A": [
+          "557a32a2-612b-4aca-a652-c580c293c444"
+        ]
+      },
+      "server_pid": 65136,
+      "chrome_pid": 70684,
+      "ports_closed": true,
+      "profile_removed": true,
+      "cleanup_errors": [],
+      "result": "PASS"
+    }
+  ],
+  "behavior_checks": [
+    "Main single A session BOM/Unicode/quoted LF/order/all text -> real sorted source row1 -> unapplied unchanged -> Apply changes counts/download -> Append -> ordinary run -> independent B and retained A: PASS",
+    "Filters empty-string/no-match, exact retained while disabled, detail reset, append draft retained across filters, Append/download: PASS"
+  ]
+}

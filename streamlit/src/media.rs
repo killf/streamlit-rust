@@ -12,7 +12,17 @@ use blake2::{Blake2b, Digest};
 use dashmap::DashMap;
 use std::sync::LazyLock;
 
-static FILES: LazyLock<DashMap<String, Vec<u8>>> = LazyLock::new(DashMap::new);
+#[derive(Clone)]
+pub(crate) struct StoredFile {
+    pub bytes: Vec<u8>,
+
+    // 下载响应沿用注册时声明的类型与文件名。
+    pub mime: String,
+    pub file_name: Option<String>,
+    pub download: bool,
+}
+
+static FILES: LazyLock<DashMap<String, StoredFile>> = LazyLock::new(DashMap::new);
 
 // The reference's measured partial-hash constants: above 1 MiB only the
 // length plus head, middle and tail samples are hashed.
@@ -41,7 +51,12 @@ pub fn file_id(data: &[u8], mime: &str, filename: Option<&str>) -> String {
 /// Registers bytes under the reference's content address and returns the id.
 pub fn put(data: &[u8], mime: &str) -> String {
     let id = file_id(data, mime, None);
-    FILES.entry(id.clone()).or_insert_with(|| data.to_vec());
+    FILES.entry(id.clone()).or_insert_with(|| StoredFile {
+        bytes: data.to_vec(),
+        mime: mime.into(),
+        file_name: None,
+        download: false,
+    });
     id
 }
 
@@ -49,7 +64,12 @@ pub fn put(data: &[u8], mime: &str) -> String {
 /// the download's file name, like the reference's memory media manager.
 pub fn put_download(data: &[u8], mime: &str, file_name: Option<&str>) -> String {
     let id = file_id(data, mime, file_name);
-    FILES.entry(id.clone()).or_insert_with(|| data.to_vec());
+    FILES.entry(id.clone()).or_insert_with(|| StoredFile {
+        bytes: data.to_vec(),
+        mime: mime.into(),
+        file_name: file_name.map(str::to_owned),
+        download: true,
+    });
     id
 }
 
@@ -83,12 +103,12 @@ pub fn download_extension(mime: &str) -> &'static str {
 
 /// The stored bytes of a content address, if this process ever registered it.
 pub fn get(id: &str) -> Option<Vec<u8>> {
-    FILES.get(id).map(|entry| entry.value().clone())
+    FILES.get(id).map(|entry| entry.bytes.clone())
 }
 
-#[cfg(test)]
-pub(crate) fn clear() {
-    FILES.clear();
+/// One snapshot keeps response bytes and download metadata together.
+pub(crate) fn stored_file(id: &str) -> Option<StoredFile> {
+    FILES.get(id).map(|entry| entry.value().clone())
 }
 
 /// The extension of the measured media content types. The URL extension is
@@ -272,7 +292,6 @@ mod tests {
 
     #[test]
     fn put_is_content_addressed_and_get_round_trips() {
-        clear();
         let id = put(b"deterministic", "image/png");
         assert_eq!(id.len(), 32);
         assert!(id.chars().all(|c| c.is_ascii_hexdigit()));

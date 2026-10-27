@@ -88,9 +88,9 @@ if let Some(event) = st.dataframe(
 
 必选单行的空协议输入已完成[独立八阶段补证](../tests/reference/reference-browser/dataframe-required-protocol/README.md)及修复。`12f3664` 的真实 WS 红复现表明：非空表空 rows 时返回 `[0]`，keyed/callback 却看到空 rows。现在 codec 携带注册时的 required/行数，在变更判断和回调前补齐协议字段及必选首行，注册更新下一轮元数据；删除 renderer 按本轮行数强补返回值的分支。空→非空恢复当轮仍可为空，非空→空当轮也可保留旧位置，符合固定 Python 实测；程序 partial keyed JSON 保留，不统一裁剪位置。原 34 与新增 8 阶段共用 42 阶段真实 Rust WS 回归，旧 UI 证据不重采；新增探针仅为显式协议注入，没有浏览器可清除的声明，无新公共 API 或依赖。
 
-## CSV application integration — proposal
+## CSV application integration — accepted A
 
-状态：待用户选择，尚未实现。现有 `data_app` 表是 `group_key/row_count/total_amount/avg_amount` 聚合结果；其 Row 仅保留四个销售字段，不能把所选聚合位置当成唯一订单，也不能无依据回写原 CSV。建议用通用示例验证框架链路，销售统计继续保留自身规则。
+状态：用户已于 2026-10-27 选择 A，按当前长期 Goal 执行，尚未验收。现有 `data_app` 表是 `group_key/row_count/total_amount/avg_amount` 聚合结果；其 Row 仅保留四个销售字段，不能把所选聚合位置当成唯一订单，也不能无依据回写原 CSV。使用通用示例验证框架链路，销售统计继续保留自身规则。B/C 不进入本次范围。
 
 | 方案 | 交付与代价 |
 | --- | --- |
@@ -98,9 +98,15 @@ if let Some(event) = st.dataframe(
 | B | 将相同的明细编辑流程并入当前 `data_app`；聚合结果仍只读，从应用后的原始明细重新计算。需扩充既有解析模型以保留所有列，并更新原页面、参考应用和整合旅程；耦合与复验范围更大。 |
 | C | 暂缓 CSV 应用整合，先推进其他已确认的库内能力。CSV 闭环仍是未完成的 M2 目标，不取消或视为已过。 |
 
-A 的具体行为供确认：UTF-8/BOM CSV，列名与内容原样保留；空/重复列名及结构、编码错误明确报错。所有值按文本展示，不猜测数值/日期类型。筛选为指定列的文本精确匹配；计数图按用户选择的列统计当前筛选结果。选择位置映射到原始明细，并先检查有效性。详情使用固定行编辑器，显式 Apply 后才更新本会话工作数据、表和图；原上传 bytes 不变，仅提供修订 CSV 下载，不落盘或写数据库。
+A 的已采纳行为：UTF-8/BOM CSV，列名与内容原样保留；空/重复列名及结构、编码错误明确报错。所有值按文本展示，不猜测数值/日期类型。筛选为指定列的文本精确匹配；计数图按用户选择的列统计当前筛选结果。选择位置映射到原始明细，并先检查有效性。详情使用固定行编辑器，显式 Apply 后才更新本会话工作数据、表和图；原上传 bytes 不变，仅提供修订 CSV 下载，不落盘或写数据库。
+
+共享控件契约：`CSV workbench` 标题；`Upload CSV` 单文件；`Filter column` 与 `Count by` 默认首列；`Filter enabled` 默认 false，启用时 `Exact value` 连空串也按精确文本筛选；`Rows` 单行选择，`Detail draft` 固定单行编辑器配 `Apply`，`New rows draft` 空输入动态编辑器配 `Append`；`Download CSV` 下载 `workbench.csv`，`Ordinary rerun` 普通重跑。示例监听 `127.0.0.1:8545`，使用 `#[main]`。Python 和 Rust 参考使用同一行为契约，传输与运行身份各自记录。
+
+实际 WS/HTTP 探针发现下载前置缺陷：按钮已生成真实 `.csv` 地址，但媒体路由白名单拒绝，GET 404；下载 MIME/文件名参与地址计算后未存储，HTTP 不能提供既有 `file_name` 参数指定的名称。修复归入已采纳的 CSV 下载链路：`media.rs` 内存记录保留下载元数据，`server.rs` 对已注册下载按其 MIME 和 attachment 文件名响应；现有公开存取接口、内容地址、普通媒体路由及 Range 语义保持，未知 id 仍 404，不引入磁盘读取或依赖。先保留红复现，再在 `tests/runtime/media.rs` 检查真实 CSV GET、响应头、字节与 Range；文件名、无后缀及其他 MIME 的完整兼容不从这个 CSV 场景推定。原始诊断和回归日志位于本地 `target/checks/m2-csv-workbench/`。
 
 新增行用独立动态编辑器及显式 Append，保留重复行，空单元格导出为空 CSV 字段；不隐式合并其他文件或去重。保留筛选结果位置到原始行的映射，选择和详情编辑器绑定上传 id、数据版本、筛选视图身份及原始行位置；筛选变化清空旧选择及详情草稿，选行变化清空旧详情草稿。Apply 只接受仍属于同一视图和行版本的草稿；筛选/选行与 Apply 同轮或延迟旧状态不能写入另一行。新增行草稿保留至应用或切换有效源文件；成功 Apply/Append 增加数据版本并重置选择及草稿。成功替换文件或主动清除上传会重置工作副本；坏文件显示错误并保留上次有效副本，界面明确标记仍在显示旧来源。不生成业务主键。
+
+来源切换待决：真实 Python 前端在单文件替换时先发空 uploader state，再发新文件；当前应用把中间 `None` 当作主动移除，坏文件到来前已清掉旧副本。原 A 的“移除立即清空”与“坏替换保留旧副本”不能仅凭该返回值同时保证，Rust 同路径暂未改语义。已向用户提出：1，增加显式 `Clear working copy`，上传器空状态仅清选择、保留工作副本（推荐）；2，暂存验证后 `Use CSV` 显式导入，另设清空操作；3，保留移除即清空，调整坏替换验收。推荐不等于采纳，来源部分暂停；有效的其他参考不重采。失败 PB 与清理记录位于本地 `target/checks/m2-csv-workbench/python/sources-first/trace.json`。
 
 A 的拟改范围：`streamlit/examples/csv_workbench.rs` 包含数据与视图的简洁实现及纯函数回归；`tests/reference/csv_workbench_app.py` 与一个复用既有 Recorder/解码工具的采集器仅冻结新组合，旧正确数据不重采；现有使用指南、矩阵证据和必要运行回归同步。只使用现有依赖和公共 API，不另建解析框架、存储服务或 Rust 追加接口。处理与整表传输成本随内存数据量增长，不通过截断结果或新限额获得性能结论。
 

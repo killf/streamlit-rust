@@ -357,4 +357,62 @@ fn all_four_browser_update_stages_preserve_rows_metadata_and_change_ipc_and_data
     Ok(())
 }
 
+#[test]
+fn csv_workbench_frozen_editor_inputs_match_independent_python_downloads() -> anyhow::Result<()> {
+    let base = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../tests/reference/reference-browser/csv-workbench");
+    let reference: Value = serde_json::from_slice(&std::fs::read(base.join("csv-input-output.json"))?)?;
+    assert_eq!(reference["reference_version"], "1.66.1");
+    let stages = reference["stages"].as_array().context("frozen workbench stages are missing")?;
+    let stage = |name: &str| -> anyhow::Result<&Value> { stages.iter().find(|stage| stage["capture"] == "main-complete" && stage["name"] == name).context("frozen main stage is missing") };
+    let input = |name: &str, marker: &str| -> anyhow::Result<String> {
+        stage(name)?["widget_inputs"]
+            .as_array()
+            .context("widget input is missing")?
+            .iter()
+            .find(|input| input["id"].as_str().is_some_and(|id| id.contains(marker)))
+            .and_then(|input| input["value"].as_str())
+            .map(str::to_owned)
+            .context("recorded string_value is missing")
+    };
+    let rows = |batch: &RecordBatch| -> anyhow::Result<Vec<Vec<String>>> {
+        let columns = batch.columns().iter().map(|column| column.as_any().downcast_ref::<StringArray>().context("text column expected")).collect::<anyhow::Result<Vec<_>>>()?;
+        Ok((0..batch.num_rows())
+            .map(|row| columns.iter().map(|column| if column.is_null(row) { String::new() } else { column.value(row).to_owned() }).collect())
+            .collect())
+    };
+
+    // 1. 原始 BOM CSV 和真实排序选择作为输入，下载数据只提供独立输出预期。
+    let source = std::fs::read(base.join(stage("upload-bom")?["input"]["file"].as_str().context("upload fixture is missing")?))?;
+    let text = std::str::from_utf8(&source)?;
+    let mut reader = csv::Reader::from_reader(text.strip_prefix('\u{feff}').unwrap_or(text).as_bytes());
+    let headers = reader.headers()?.clone();
+    let original = reader.records().collect::<Result<Vec<_>, _>>()?;
+    let batch = RecordBatch::try_from_iter(
+        headers
+            .iter()
+            .enumerate()
+            .map(|(column, name)| (name, Arc::new(StringArray::from(original.iter().map(|row| &row[column]).collect::<Vec<_>>())) as ArrayRef)),
+    )?;
+    let selection: DataframeState = serde_json::from_str(&input("select-sorted-first", "-wb-rows-")?)?;
+    let selected = *selection.selection.rows.first().context("recorded selection must contain a row")?;
+    assert!(selected < batch.num_rows());
+    let st = Streamlit::new();
+    st.session_state().set("frozen-detail", input("edit-detail-unapplied", "-wb-detail-")?)?;
+    let detail_source = batch.slice(selected, 1);
+    let detail = st.data_editor(DataEditorOptions::new(&detail_source).key("frozen-detail"))?;
+    let applied: Vec<Vec<String>> = serde_json::from_value(stage("download-applied")?["download"]["rows"].clone())?;
+    assert_eq!(rows(&detail)?, vec![applied[selected].clone()]);
+    let unchanged: Vec<Vec<String>> = serde_json::from_value(stage("download-unapplied")?["download"]["rows"].clone())?;
+    assert_eq!(rows(&batch)?, unchanged, "the editor must not mutate the uploaded input");
+
+    // 2. 实际新增 StringValue 经同一生产编辑入口，空单元格按 CSV 约定比较。
+    st.session_state().set("frozen-new", input("edit-new-row", "-wb-add-")?)?;
+    let empty = batch.slice(0, 0);
+    let added = st.data_editor(DataEditorOptions::new(&empty).key("frozen-new").num_rows(EditorRows::Dynamic))?;
+    let appended: Vec<Vec<String>> = serde_json::from_value(stage("download-appended")?["download"]["rows"].clone())?;
+    assert_eq!(rows(&added)?, appended[applied.len()..]);
+    assert_eq!(detail.schema().fields().iter().map(|field| field.name()).collect::<Vec<_>>(), headers.iter().collect::<Vec<_>>());
+    Ok(())
+}
+
 mod native;

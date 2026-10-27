@@ -1298,11 +1298,18 @@
         "elements_capture_entry": "tests/browser/elements_capture.py",
         "rust_wire_observation": "tests/browser/rust-elements/trace-elements.json",
         "official_frontend_browser_e2e": "tests/browser/rust-elements/trace-elements.json",
-        "rust_api_test": "streamlit/tests/runtime/data_views.rs"
+        "rust_api_test": "streamlit/tests/runtime/data_views.rs",
+        "csv_workbench": {
+          "reference": "tests/reference/reference-browser/csv-workbench/README.md",
+          "rust": "tests/browser/rust-csv-workbench/README.md",
+          "example": "streamlit/examples/csv_workbench.rs"
+        }
       },
       "rust_plan": "Render the bar chart element from columnar data with the measured inferred and explicit-typed chart wire.",
-      "compatibility_scope": "The 2026-10-25 journey-elements-v1 chain drives one official-frontend page on both runtimes with a real Chrome (load plus typed-and-applied form stage); both published replays assert 11/11/11 with identical normalized wire streams and DOM fingerprints. Covers the measured vega shape (bar mark, ordinal x, integer-tick quantitative y, v5.20.1 schema, one named arrow dataset) and two rendered bars; altair decoration beyond the normalized shape and other chart options are not compared.",
-      "limitations": []
+      "compatibility_scope": "The 2026-10-25 journey-elements-v1 chain drives one official-frontend page on both runtimes with a real Chrome (load plus typed-and-applied form stage); both published replays assert 11/11/11 with identical normalized wire streams and DOM fingerprints. Covers the measured vega shape (bar mark, ordinal x, integer-tick quantitative y, v5.20.1 schema, one named arrow dataset) and two rendered bars; altair decoration beyond the normalized shape and other chart options are not compared. Added 2026-10-27: 33 native text-CSV workflow stages (20 main and 13 filters) match frozen Python logical rows, draft behavior, counts and actual downloaded CSV bytes, including two-session isolation. Source replacement/reset remains unresolved; this is a measured subset, not complete CSV or default-chart compatibility.",
+      "limitations": [
+        "Workbench evidence compares logical value/count data; the Python reference uses vega_lite_chart after an Altair/Python environment failure. Some Python post-Append PNGs retain earlier bar heights despite updated Arrow data. Pixel/spec equivalence and the cause are unresolved."
+      ]
     },
     {
       "feature_id": "st.echarts_chart",
@@ -2309,14 +2316,18 @@
         "contract_guards": "tests/reference/test_dataeditor_contract.py",
         "driven_fixture": "tests/reference/dataeditor_app.py",
         "driven_example": "streamlit/examples/dataeditor.rs",
-        "prior_chain": "tests/reference/reference-browser/colconfig/trace-colconfig.json"
+        "prior_chain": "tests/reference/reference-browser/colconfig/trace-colconfig.json",
+        "csv_workbench": {
+          "reference": "tests/reference/reference-browser/csv-workbench/README.md",
+          "rust": "tests/browser/rust-csv-workbench/README.md",
+          "example": "streamlit/examples/csv_workbench.rs"
+        }
       },
       "rust_plan": "st.data_editor(data, ...) streams an editable dataframe: the dataframe proto with its edits widget id ($$ID-<digest>-<key>), the editing_mode from num_rows (fixed=1/dynamic=2/add=3/delete=4), the hidden _index by default and the edits carried as one string_value widget state (\"{}\" default); it returns the edited table — cell edits applied first (row-position and column-NAME keys, typed values), then row deletions, then additions (missing cells null), an int64 column that gains a null upcasting to float64 like pandas and back once filled. The editor element always re-emits the ORIGINAL table (the frontend holds edits client-side); the return value carries the applied edits. Button columns register their click widgets unless disabled.",
-      "compatibility_scope": "Two chains pin the surface. The journey-dataeditor-v1 chain drives a dynamic-rows editor with real mouse and keyboard through four stages (load, committed cell edit, added row, edit inside the added row) on both sides: every rerun sends exactly one string_value edit state (string row keys, column-NAME keys, an untouched added row as {}), the editor element re-emits the original table, the written table carries the applied edits with the pandas int64→float64 upcast and null text cells, and the settled DOM grid matches cell-for-cell; published replays assert 7/7 checks per side. The journey-colconfig-page chain additionally covers the load wire of all 21 column-config helpers on one editor (columns JSON verbatim, button_click_widgets ids masked).",
+      "compatibility_scope": "Two chains pin the surface. The journey-dataeditor-v1 chain drives a dynamic-rows editor with real mouse and keyboard through four stages (load, committed cell edit, added row, edit inside the added row) on both sides: every rerun sends exactly one string_value edit state (string row keys, column-NAME keys, an untouched added row as {}), the editor element re-emits the original table, the written table carries the applied edits with the pandas int64→float64 upcast and null text cells, and the settled DOM grid matches cell-for-cell; published replays assert 7/7 checks per side. The journey-colconfig-page chain additionally covers the load wire of all 21 column-config helpers on one editor (columns JSON verbatim, button_click_widgets ids masked). Added 2026-10-27: 33 native text-CSV workflow stages (20 main and 13 filters) match frozen Python logical rows, draft behavior, counts and actual downloaded CSV bytes, including two-session isolation. Source replacement/reset remains unresolved; this is a measured subset, not complete CSV or default-chart compatibility.",
       "limitations": [
-        "The journey-dataeditor-v1 chain covers num_rows=\"dynamic\"; the fixed/add/delete editing modes (editing_mode 1/3/4) and row deletion stay unobserved on the wire — the pinned frontend exposes no delete affordance for keyboard/mouse driving — and the deletion logic is implemented from the reference source (cell edits → deletions → additions order) with runtime tests only.",
-        "The on_change/on_click callback surfaces are Python-only.",
-        "colconfig fixture SHA256 c2b3a4cc3239297a12d955c9b77cf86860d69c1a35df54098884c3e3b3a653c0; colconfig example SHA256 c5c76825ca64a8de6e23a6cab915012e4717617f6b2821db9253aad325009876; dataeditor fixture and example are pinned by their own contract guards."
+        "Fixed-row text detail editing and dynamic appended text rows are now observed in the CSV workbench. Add/delete-only modes, general row deletion and all type combinations remain outside that evidence; existing deletion runtime tests do not establish frontend parity.",
+        "The on_change/on_click callback surfaces are Python-only."
       ]
     },
     {
@@ -2364,13 +2375,18 @@
         "selection_required_protocol_reference": [
           "tests/reference/reference-browser/dataframe-required-protocol/required-protocol-input-output.json",
           "tests/reference/reference-browser/dataframe-required-protocol/README.md"
-        ]
+        ],
+        "csv_workbench": {
+          "reference": "tests/reference/reference-browser/csv-workbench/README.md",
+          "rust": "tests/browser/rust-csv-workbench/README.md",
+          "example": "streamlit/examples/csv_workbench.rs"
+        }
       },
       "rust_plan": "Render Arrow IPC dataframes and return typed selections through the same call; validate remaining documented modes, parameters and combined workflows against pinned reference behavior.",
-      "compatibility_scope": "The retained positive CSV data loop proves its measured upload/filter/table path only. Added 2026-10-27: 42 frozen Python selection stages (34 frontend stages plus eight explicitly injected required-row protocol stages) replayed over real Rust WS cover Ignore, MultiRow, single/multi row-column-cell combinations, SingleRowRequired, default/program state, callback order, ordinary reruns, same-key replacement/shrink and hidden cleanup. A separate six-stage Rust official-frontend SingleRow example proves actual row selection, browser sorting with original-input positions, ordinary rerun, detail display and keyboard editing; the original table/editor input stays unchanged while the edited return changes. This is partial compatibility, not all selection boundaries, full CSV integration or native/default chart parity. Captured source metadata is historical provenance, never a source fingerprint gate. Required-row protocol values normalize before callbacks using the previous registration row count; new registration updates the next decode context. This does not prove browser-reachable clearing.",
+      "compatibility_scope": "The retained positive CSV data loop proves its measured upload/filter/table path only. Added 2026-10-27: 42 frozen Python selection stages (34 frontend stages plus eight explicitly injected required-row protocol stages) replayed over real Rust WS cover Ignore, MultiRow, single/multi row-column-cell combinations, SingleRowRequired, default/program state, callback order, ordinary reruns, same-key replacement/shrink and hidden cleanup. A separate six-stage Rust official-frontend SingleRow example proves actual row selection, browser sorting with original-input positions, ordinary rerun, detail display and keyboard editing; the original table/editor input stays unchanged while the edited return changes. This is partial compatibility, not all selection boundaries, full CSV integration or native/default chart parity. Captured source metadata is historical provenance, never a source fingerprint gate. Required-row protocol values normalize before callbacks using the previous registration row count; new registration updates the next decode context. This does not prove browser-reachable clearing. Added 2026-10-27: 33 native text-CSV workflow stages (20 main and 13 filters) match frozen Python logical rows, draft behavior, counts and actual downloaded CSV bytes, including two-session isolation. Source replacement/reset remains unresolved; this is a measured subset, not complete CSV or default-chart compatibility.",
       "limitations": [
         "The CSV portion does not establish XSRF/security-handshake, DELETE/remove/replace, rejection/error-flow or session-authorization compatibility.",
-        "Rust browser selection evidence is limited to the six-stage SingleRow synthetic example; broader mode/callback/program/shrink coverage comes from frozen Python inputs replayed over WS, not every Rust browser interaction.",
+        "Rust browser selection evidence covers the six-stage SingleRow synthetic example and the measured CSV workbench subset; broader mode/callback/program/shrink coverage comes from frozen Python inputs replayed over WS, not every Rust browser interaction.",
         "Invalid/unknown mode and program-value combinations, all options, lazy delivery, cross-page/session behavior and the complete CSV selection/edit/update loop remain unverified or incomplete.",
         "Data editor and column-configuration rows retain their own measured scopes; observed hide_index/column_order and this selection path do not establish complete configuration/type parity.",
         "Retained CSV captures compare logical Arrow schemas/ordered values rather than IPC byte identity; their older metadata does not define the current native selection schema.",
@@ -2684,14 +2700,18 @@
         "buttons_contract": "tests/browser/buttons_contract.py",
         "contract_guards": "tests/reference/test_buttons_contract.py",
         "driven_fixture": "tests/reference/buttons_app.py",
-        "driven_example": "streamlit/examples/buttons.rs"
+        "driven_example": "streamlit/examples/buttons.rs",
+        "csv_workbench": {
+          "reference": "tests/reference/reference-browser/csv-workbench/README.md",
+          "rust": "tests/browser/rust-csv-workbench/README.md",
+          "example": "streamlit/examples/csv_workbench.rs"
+        }
       },
       "rust_plan": "st.download_button(label, data) registers a trigger widget and streams a download_button element whose url is the content-addressed /media/<blake2b-16>.<ext> address of the declared bytes (the same digest the reference computes, filename included), with the button type and icon.",
-      "compatibility_scope": "The journey-buttons-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome across six measured stages (the load and one committed interaction each for the toggle, the single-select pill, the pagination page, the feedback star and the menu pick); the published replays assert 17/17 checks per side, covering every element's full wire message, the browser's widget-state reports and the settled DOM.",
+      "compatibility_scope": "The journey-buttons-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome across six measured stages (the load and one committed interaction each for the toggle, the single-select pill, the pagination page, the feedback star and the menu pick); the published replays assert 17/17 checks per side, covering every element's full wire message, the browser's widget-state reports and the settled DOM. Added 2026-10-27: 33 native text-CSV workflow stages (20 main and 13 filters) match frozen Python logical rows, draft behavior, counts and actual downloaded CSV bytes, including two-session isolation. Source replacement/reset remains unresolved; this is a measured subset, not complete CSV or default-chart compatibility.",
       "limitations": [
         "Coverage is the journey-buttons-v1 chain: the pinned fixture's widget set (two toggles, stars+thumbs feedback, single/multi pills, one segmented control, a 10-page pagination, one menu button, one text download, one keyed link button, one external page link) across the load and five committed interactions (toggle flip, single pill pick, page-2 click, third star, CSV menu pick).",
-        "only a text/plain payload was observed (its .txt extension map); other mime extension mappings mirror the reference table but are unobserved, and the deferred-callable download path is not implemented.",
-        "fixture SHA256 301325fef04f99504bd2577edbeed14991e0b2335170cae7a0d4d99807f1530d; example SHA256 79817da724ca2b6d57f9615b955d9acc6219d30ce7a357026b605c426a705f4d."
+        "Text/plain element evidence is retained; the new CSV workflow additionally proves real UTF-8 CSV GET/download bytes and attachment filename, plus Rust HTTP Range/repeat/unknown-id regression. Other MIME/filename variants and deferred callable generation remain unverified or incomplete."
       ]
     },
     {
@@ -2757,15 +2777,20 @@
             "provenance_sha256": "bf5b967747b73b47f72d1a17330f8a689fb4a7b58c8e0980afd743cbaff94152",
             "reviewed_commit": "1c6161d3d8fd21ce847f76bed1a46e4ce99804ab"
           }
+        },
+        "csv_workbench": {
+          "reference": "tests/reference/reference-browser/csv-workbench/README.md",
+          "rust": "tests/browser/rust-csv-workbench/README.md",
+          "example": "streamlit/examples/csv_workbench.rs"
         }
       },
       "rust_plan": "Serve native upload URL exchange and multipart PUT, retain uploaded CSV bytes for the measured session reruns.",
-      "compatibility_scope": "Positive CSV data loop integrated in commit 1c6161d3d8fd21ce847f76bed1a46e4ce99804ab only: upload URL request/response, multipart PUT 204, uploaded-file state, then four Arrow/DOM table snapshots with three actual changed-filter actions and successful same-connection completions. Python uses st.dataframe and st.altair_chart; Rust uses native dataframe and a configured Vega bar chart. This is not proof of any full native/default chart API. Frozen binary/source fingerprints remain those in the raw and README (capture source HEAD 1d0f7c2 + dirty), not a fabricated build at the integration commit.",
+      "compatibility_scope": "Positive CSV data loop integrated in commit 1c6161d3d8fd21ce847f76bed1a46e4ce99804ab only: upload URL request/response, multipart PUT 204, uploaded-file state, then four Arrow/DOM table snapshots with three actual changed-filter actions and successful same-connection completions. Python uses st.dataframe and st.altair_chart; Rust uses native dataframe and a configured Vega bar chart. This is not proof of any full native/default chart API. Legacy capture metadata remains historical provenance, never a current-source fingerprint gate. Added 2026-10-27: 33 native text-CSV workflow stages (20 main and 13 filters) match frozen Python logical rows, draft behavior, counts and actual downloaded CSV bytes, including two-session isolation. Source replacement/reset remains unresolved; this is a measured subset, not complete CSV or default-chart compatibility.",
       "limitations": [
-        "Positive single CSV upload/display/update path only; no XSRF/security-handshake, DELETE/remove/replace, rejection/error-flow or session-authorization compatibility claim from this milestone.",
-        "Dataframe selection, editing and general column_config behavior remain unverified or absent; observed hide_index/column_order do not establish complete configuration parity.",
+        "Full uploader behavior, XSRF/security-handshake, DELETE/remove/replace, general rejection/error-flow and session authorization are not established by the positive captures. Workbench source replacement currently reveals an intermediate-empty-state application conflict awaiting a user decision.",
+        "The workbench provides measured text selection/detail/edit integration only; general column_config behavior and type parity remain unverified.",
         "Arrow schemas/ordered values are compared; Rust IPC lacks Python pandas metadata and byte equality of Rust/Python Arrow is not claimed.",
-        "Current uncommitted XSRF/table work is outside the accepted commit and this evidence scope. Frozen Rust raw inherits Python-only kind/scope strings; Rust NewSession identity, URL and README binary provenance identify the actual server.",
+        "Legacy CSV raw inherits Python-only kind/scope strings; its Rust NewSession/URL identify that historical server. New native workbench evidence records its own actual runtime and owned-process cleanup separately.",
         "python_browser_trace frozen SHA256 82399d788f9237a560daf1e88310cbeefe271f243396f6ab7a2fa1199519f35a.",
         "rust_wire_observation frozen SHA256 b593b0af924cd6bda1eb9b38a43089e200214eb1041b0fdfd1c98eba2e74f5b5."
       ]
