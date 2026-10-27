@@ -154,6 +154,18 @@ Rust 新增三项回归：原错误值/资源身份、参数变化和清空；�
 
 媒体仍是进程全局存储，没有自动淘汰；此次共享响应不解决生命周期、完整平台或容量验收，M5 和长期 Goal 保持未完成。CSV 来源、Vega、宏支撑和源码包分发的已存待决方案不因本批通过而采纳。
 
+## Current session boundary validation (2026-10-27)
+
+本批没有发现需要修改生产逻辑的证据，只补 session.rs 的 `#[cfg(test)]` 与既有会话运行测试。使用说明先行；不改连接接管、默认 120 秒/测试零保留期、上传/缓存归属，不新增公共接口或依赖。
+
+实际 16 个 WS 客户端在两个 Actix worker 配置下建立不同计数；一半先关闭确认再重连，一半继续点击，逐会话核对 ID、计数、运行次数、单个 finish 及普通重跑不重放按钮。共完成 72 次运行，保留 32 次点击计数；新增测试统一在停止并等待自有服务器后返回或重抛，成功清理已实测，错误/超时/panic 清理按控制流核对而未做故障注入。进行中接管不是该新增流程，而是另一次实际通过的旧运行暂停回归，它确认旧运行/发送先完成，其他会话不被注册表锁阻塞，旧连接不能越过所有权继续运行。
+
+零保留期测试四轮、每轮同时保留 32 个 lease。活跃时各对象仍在，drop lease 后注册表仍保留惰性条目；下一次连接清理旧条目并创建一个新会话，旧应用值、上传容器与缓存资源的 Weak 均不能再升级。最后释放新 lease，再用未知上传会话查询触发清理，每轮注册表为零，共观察 128 个旧会话对象释放。Weak 不持有资源，不将这个结果称为 RSS 下降、所有上传外部句柄已释放、全局媒体回收或长时无泄漏。
+
+格式与全目标 Clippy 通过；会话单元 7 项、真实 WS 会话组 5 项、暂停接管 1 项共 13 项通过，既有 MSVC linker_messages 提示保留。命令依次为 `cargo test -p streamlit --lib session::tests:: --locked --offline -- --nocapture`、`cargo test -p streamlit --lib server::tests::sessions:: --locked --offline -- --nocapture`、`cargo test -p streamlit --lib server::tests::overlap:: --locked --offline -- --nocapture`。原始日志及索引位于本地 `target/checks/m5-session-boundaries/`；最初测试错误类型推断导致的编译失败单独保留，不当作产品红复现。
+
+本批未改 Python/前端/公开行为，不重采参考，也未重复未受影响的全量参考和示例运行；上一媒体批次的 194/1516 仅是对应版本的记录。本次并发客户端正确性不证明应用执行必定重叠、同时处理能力或 SLO；M5、其余未验证组合和长期目标继续保持未完成。
+
 ## Required fresh-checkout checks
 
 ```powershell

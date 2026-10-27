@@ -24,6 +24,12 @@ The present module boundaries are appropriate for this stage: `api.rs` defines t
 
 `session.rs` now owns typed JSON application state and the server-instance session registry shared across Actix workers. A versioned WebSocket lease retains one session's application values across reruns; each rerun still builds a fresh App/render tree and trigger map. A known-ID connection may upgrade immediately, but ownership transfers only after the predecessor's run and outgoing sends finish, using that session's run mutex. The registry mutex is never held across an await, so other sessions remain concurrent. Only the current owner's Drop marks it disconnected, so an older socket cannot expire its replacement. Later connections lazily evict disconnected state past the configurable retention window (local default 120 seconds). No user state is static/global. `SessionState` is exported from `lib.rs`; its Streamlit accessor is an inherent impl in `session.rs`, leaving `api.rs` independent of this batch.
 
+### Session concurrency and reclamation validation
+
+本轮在既有 M5 内核验两个缺口，不改 SessionStore/WS 接管规则：16 个真实 WS 客户端使用两个 Actix worker 配置，各自建立不同计数，再并行让一半在关闭确认后重连、一半继续点击，最后核对各自 session ID、计数与普通重跑；另用零保留期和每轮 32 个会话做四轮到期清理，通过 Weak 观察应用值、上传容器及缓存资源对象在无外部强引用时释放。零保留期是既有测试参数，16/32/4 是本次负载，不是新产品限额或 SLO。
+
+先补使用说明，再只修改 session.rs 的既有单元模块与 tests/runtime/sessions.rs；复用真实 WS 工具和已有接管暂停回归，无新依赖/公共接口。新增 WS 测试用自有服务器，成功、错误或 panic 后均先停止并等待自有 handle，再报告；清理测试观察对象所有权，不从 Weak 释放推断 RSS 下降、全局媒体回收或长时无泄漏。实际 72 次运行、32 个保留计数以及 128 个到期会话均通过，对运行中接管另复验既有暂停回归；未发现需修改生产逻辑的证据。相关格式/全目标 Clippy 和 13 项单元/真实 WS 检查已过；没有重采 Python 或将上一版本全量结果冒称本批全量验收。
+
 ## Dataframe selection and data updates — proposal
 
 执行取舍：用户于 2026-10-27 最新澄清无需保持旧 Rust API 的向后兼容；Python 1.66.1 的功能和行为目标不变。本阶段按此前单入口方案推进 dataframe 选择，随后接通详情与编辑；不增加兼容入口或扩展 trait。数据追加的独立 Rust 扩展尚未批准。

@@ -331,6 +331,45 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn expired_sessions_release_values_uploads_and_cached_resources_across_cycles() -> anyhow::Result<()> {
+        let store = Arc::new(SessionStore::new(Duration::ZERO));
+        for cycle in 0..4 {
+            // 1. 活跃会话保留各自状态；Weak 观测不延长对象生命周期。
+            let mut active = Vec::new();
+            let mut watched = Vec::new();
+            for index in 0..32 {
+                let lease = store.connect(None).await;
+                lease.state.set("marker", format!("{cycle}-{index}"))?;
+                lease.state.uploads.lock().insert("fixture".into(), "fixture.bin".into(), None, vec![42; 4096]);
+                let st = Streamlit::with_session_state(lease.state.clone());
+                let resource = crate::cache::cache_resource(&st, "fixture-resource", (), |_| vec![42_u8; 4096]);
+                watched.push((lease.id.clone(), Arc::downgrade(&lease.state.values), Arc::downgrade(&lease.state.uploads), Arc::downgrade(&resource)));
+                active.push(lease);
+            }
+            assert_eq!(store.sessions.lock().len(), 32);
+            assert!(watched.iter().all(|(_, values, uploads, resource)| values.upgrade().is_some() && uploads.upgrade().is_some() && resource.upgrade().is_some()));
+
+            // 2. 当前 lease 退出后仍是惰性到期；下次连接才释放注册表引用。
+            drop(active);
+            assert_eq!(store.sessions.lock().len(), 32);
+            let fresh = store.connect(None).await;
+            assert_eq!(store.sessions.lock().len(), 1);
+            for (id, values, uploads, resource) in watched {
+                assert!(store.state_for_upload(&id).is_none());
+                assert!(values.upgrade().is_none(), "expired session values retained at cycle {cycle}");
+                assert!(uploads.upgrade().is_none(), "expired upload store retained at cycle {cycle}");
+                assert!(resource.upgrade().is_none(), "expired cached resource retained at cycle {cycle}");
+            }
+            drop(fresh);
+            assert!(store.state_for_upload("unknown").is_none());
+            assert!(store.sessions.lock().is_empty());
+            println!("session_reclamation cycle={cycle} expired_sessions=32 values_released=32 uploads_released=32 cached_resources_released=32 registry_entries=0");
+        }
+
+        Ok(())
+    }
+
+    #[tokio::test]
     async fn leases_restore_expire_and_ignore_superseded_drop() -> anyhow::Result<()> {
         let store = Arc::new(SessionStore::new(Duration::from_secs(5)));
         let lease = store.connect(None).await;

@@ -200,6 +200,63 @@ async fn counter_survives_reruns_reconnects_and_stays_isolated_across_workers() 
 }
 
 #[actix_web::test]
+async fn concurrent_sessions_keep_distinct_counters_during_partial_reconnects() -> TestResult {
+    use futures_util::FutureExt;
+    use futures_util::future::try_join_all;
+
+    let (address, handle, task) = start(Duration::from_secs(120)).await?;
+    let captured = std::panic::AssertUnwindSafe(tokio::time::timeout(Duration::from_secs(30), async {
+        // 1. 同时建立独立 WS，会话计数各异，避免全零状态掩盖串会话。
+        let clients = try_join_all((0..16).map(|index| async move {
+            let mut stream = connect(address, None).await;
+            let mut run = rerun(&mut stream, None).await?;
+            for _ in 0..index % 4 {
+                run = rerun(&mut stream, Some(&run.button_id)).await?;
+            }
+            assert_eq!((run.pulses, run.runs), (index % 4, 1 + index % 4), "initial counters differ for client {index}");
+            Ok::<_, Box<dyn std::error::Error>>((stream, run))
+        }))
+        .await?;
+        let ids: std::collections::HashSet<_> = clients.iter().map(|(_, run)| run.session_id.as_str()).collect();
+        assert_eq!(ids.len(), 16, "fresh sessions must have distinct server-assigned IDs");
+
+        // 2. 一半重连、一半继续点击；普通重跑不得重放按钮或混入其他会话。
+        let counts = try_join_all(clients.into_iter().enumerate().map(|(index, (mut stream, before))| async move {
+            let reconnect = index % 2 == 0;
+            if reconnect {
+                disconnect(stream).await;
+                stream = connect(address, Some(&before.session_id)).await;
+            }
+            let current = rerun(&mut stream, if reconnect { None } else { Some(&before.button_id) }).await?;
+            assert_eq!(current.session_id, before.session_id, "session identity changed for client {index}");
+            assert_eq!((current.pulses, current.runs), (before.pulses + u64::from(!reconnect), before.runs + 1), "state crossed sessions or trigger replayed for client {index}");
+            let ordinary = rerun(&mut stream, None).await?;
+            assert_eq!(
+                (&ordinary.session_id, ordinary.pulses, ordinary.runs),
+                (&current.session_id, current.pulses, current.runs + 1),
+                "ordinary rerun lost state for client {index}"
+            );
+            disconnect(stream).await;
+            Ok::<_, Box<dyn std::error::Error>>((ordinary.runs, ordinary.pulses))
+        }))
+        .await?;
+        Ok::<_, Box<dyn std::error::Error>>((counts.iter().map(|(runs, _)| runs).sum::<u64>(), counts.iter().map(|(_, pulses)| pulses).sum::<u64>()))
+    }))
+    .catch_unwind()
+    .await;
+
+    // 3. 先停止自有服务，超时、错误和断言 panic 都不能跳过清理。
+    handle.stop(false).await;
+    task.await??;
+    let (runs, pulses) = match captured {
+        Ok(result) => result??,
+        Err(panic) => std::panic::resume_unwind(panic),
+    };
+    println!("session_concurrency clients=16 workers=2 reconnected=8 continued=8 completed_runs={runs} retained_pulses={pulses} owned_server_stopped=true");
+    Ok(())
+}
+
+#[actix_web::test]
 async fn local_zero_retention_and_unknown_lookup_start_empty_sessions() -> TestResult {
     // Zero retention makes expiry deterministic at the first disconnected lookup.
     let (address, handle, task) = start(Duration::ZERO).await?;
