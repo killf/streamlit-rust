@@ -10,7 +10,7 @@ This repository is an early baseline. It is **not yet compatible with Streamlit 
 - `www/`: frontend distribution; do not edit production bundle files by hand.
 - `tests/reference/`: Python 1.66.1 oracle, deterministic fixtures, and real browser HTTP/WS/protobuf traces.
 - `compatibility/`: generated docs-driven matrix and baseline.
-- `docs/`: project usage documentation; start with the [user guide](docs/guide/README.md).
+- `docs/`: project usage documentation; start with the [user guide](docs/guide/README.md) or [应用流程与能力边界（中文）](docs/guide/application-workflows.md).
 - `tools/`: fixed upstream and matrix verification tools.
 - `.codex/`: local agent configuration, development planning, [architecture](.codex/architecture.md), [compatibility policy](.codex/compatibility.md), and [acceptance requirements](.codex/acceptance.md).
 

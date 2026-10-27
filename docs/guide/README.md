@@ -2,6 +2,8 @@
 
 This crate is an early Rust implementation of the Streamlit server. It is not yet Streamlit-compatible. The authoritative feature status is the [compatibility matrix](../../.codex/compatibility.md), not the presence of an example or same-name function.
 
+For an end-to-end view of what you can use today and what is planned, read [应用流程与能力边界（中文）](application-workflows.md). It covers startup, CSV workflows, state and errors, and separates runnable features from future designs.
+
 ## Run
 
 ```powershell
@@ -10,7 +12,7 @@ cargo run --example quickstart --locked
 
 Run this development command from the repository root, then open `http://127.0.0.1:8503/`. The [runnable quickstart](../../streamlit/examples/quickstart.rs) displays a selectbox, slider, checkbox, and their returned values. No Python process is required. Debug builds can locate the repository's `www` from that root; installed executables use the sidecar/configuration described below.
 
-The executable/native tests use `rustc 1.98.0-nightly (54333ff07 2026-05-22)` on Windows MSVC; stable Rust 1.95.0 also passes the workspace all-targets compilation check. A minimum supported Rust version has not been validated.
+Historical Windows MSVC verification used `rustc 1.98.0-nightly (54333ff07 2026-05-22)` and included a stable Rust 1.95.0 all-targets compilation check. These are retained results, not a current minimum-version guarantee. A minimum supported Rust version has not been validated; current validation and limitations are tracked in the development acceptance records.
 
 Use the same widget methods with concise inputs inside a function returning `Result<(), WidgetError>`:
 
@@ -407,18 +409,18 @@ st.set_page_config(
 );
 ```
 
-A plain title string works too: `st.set_page_config("Wide demo")`. The call must come before the first element to take visual effect, exactly like Python. Like the measured 1.66.1 reference, every call streams one `page_config_changed` message at the call point and unset fields inherit the previous config — a second call does not fail, it streams an update. The [pageconfig example](../../streamlit/examples/pageconfig.rs) mirrors the reference fixture of the page-config differential chain.
+A plain title string works too: `st.set_page_config("Wide demo")`. Like the measured 1.66.1 reference, every call streams one `page_config_changed` message at the call point and unset fields inherit the previous config — a second call does not fail, it streams an update. The [pageconfig example](../../streamlit/examples/pageconfig.rs) mirrors the reference fixture of the page-config differential chain; its first configuration precedes the elements, without establishing a general call-order restriction.
 
 ## URL query parameters
 
 ```rust
 let params = st.query_params();
 params.set("mode", "demo")?;              // streams the merged URL state
-let mode = params.get("mode");            // Some("demo") once the browser reports it
+let mode = params.get("mode");            // Some("demo") immediately in this run
 for (key, value) in params.to_vec() { /* ... */ }
 ```
 
-The handle reads the URL state the browser reports with every rerun; writes stream one `page_info_changed` at the call point and merge into the current URL (alphabetically sorted, percent-encoded like Python's urlencode). `get_all`, `set_all`, `remove` (missing keys error, like Python) and `clear` are available.
+The handle reads the URL state the browser reports with a run request; writes update the local values immediately and stream one `page_info_changed` at the call point, merging into the current URL (alphabetically sorted, percent-encoded like Python's urlencode). A known defect can discard those writes on a server-started rerun; see [current workflow limits](application-workflows.md). `get_all`, `set_all`, `remove` (missing keys error, like Python) and `clear` are available.
 
 Selectboxes can bind to the URL and accept new values:
 
@@ -621,4 +623,4 @@ let state = st.component_v2(&widget, ComponentMount::new()
 
 Available APIs include text and layout, static status messages, the text family (`text`/`sub_header`/`latex`/`html`/`iframe` embeds and the `snow` one-shot, plus `echo` and `exception`), the display containers (`json`/`status`/`empty`/`space`/`bottom`), the chat elements (`chat_message`/`chat_input`), `button` and the button family (`toggle`/`feedback`/`pills`/`segmented_control`/`pagination`/`menu_button`/`download_button`/`link_button`/`page_link`), the picker inputs (`date_input`/`time_input`/`datetime_input`/`color_picker`/`select_slider`/`audio_input`/`camera_input`), the presentation leftovers (`logo`/`help`/`skeleton`/`pdf`), `write_stream` (with or without a cursor), the library charts (`altair_chart`/`vega_lite_chart`/`plotly_chart`/`pydeck_chart`/`graphviz_chart`/`mermaid_chart`/`echarts_chart` over final payloads), the column-config helpers and the data editor (`column_config`/`dataframe`/`data_editor`), custom components v2 (`component_v2`), `selectbox` (including creation mode, filter modes and query binding), numeric and date/time `slider`, `checkbox`, the measured `form`/`form_submit_button`/`text_input` core, native session state, the layout containers (sidebar, expander, tabs, popover, dialog), `set_page_config`, `query_params`, `cache_data`/`cache_resource`, multipage navigation (`navigation`/`Page`/`switch_page`), media and chart elements, and the `st.rerun`/`st.stop` execution controls. See the [text/layout/status API](../../streamlit/src/api.rs), [text element implementations](../../streamlit/src/elements/text.rs), [layout containers](../../streamlit/src/elements/layouts.rs), [column config](../../streamlit/src/column_config.rs), [components v2](../../streamlit/src/elements/components.rs), [widget options](../../streamlit/src/widget_api.rs), [query params](../../streamlit/src/query_params.rs), [cache](../../streamlit/src/cache.rs), [navigation](../../streamlit/src/navigation.rs), and [session API](../../streamlit/src/session.rs).
 
-Every matrix row is now either measured (with per-chain evidence links in [the matrix](../../../compatibility/api-compatibility-matrix.json)) or closed `not_applicable` with a recorded reason (Python hosting surfaces, Python-only libraries, deliberate divergences). Per-surface scope stays partial where only the measured defaults are pinned — read each row's `compatibility_scope` and `limitations` for the exact boundary (`st.quit` does not exist in 1.66.1; the Rust cache is session-scoped, not process-wide like Python's). Duplicate widget keys render the framework exception box as described above; other widget failures are Rust `Result` errors you handle yourself.
+Every historical matrix row is either measured (with per-chain evidence links in [the matrix](../../compatibility/api-compatibility-matrix.json)) or marked `not_applicable` with a recorded reason. Those closures are being reviewed against the long-term goal; a missing Rust implementation alone is not a reason to exclude a documented user capability. Per-surface scope stays partial where only measured defaults are pinned — read each row's `compatibility_scope` and `limitations` for the exact boundary (`st.quit` does not exist in 1.66.1; the Rust cache is session-scoped, not process-wide like Python's). Duplicate widget keys render the framework exception box as described above; other widget failures are Rust `Result` errors you handle yourself.

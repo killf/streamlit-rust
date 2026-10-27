@@ -1,10 +1,51 @@
 # Roadmap
 
-This document fixes the terminal goal and the milestone ladder for reaching verifiable runtime compatibility with the pinned Python Streamlit 1.66.1. It records goal structure and ordering only. Live progress stays in [the journey manifest](../tests/journeys/journeys.json) (whole journeys and steps) and [the compatibility matrix](../compatibility/api-compatibility-matrix.json) (per-API status and evidence); this file never duplicates those counts. Requirements and evidence rules stay in [acceptance](acceptance.md); known gaps and slider-type obligations stay in [compatibility](compatibility.md).
+本文记录已确认的长期目标、阶段依赖和当前停止位置。用户于 2026-10-27 确认建立长期 Goal 并从 M0 持续执行，随后更新授权为及时提交、推送已验收批次；允许本地实现、验证和按需组队，不发布或部署。主分支更新仍经 PR/MR；创建 PR/MR 和合并分别核对本轮授权。
 
-## Terminal goal
+功能证据仍由[兼容性矩阵](../compatibility/api-compatibility-matrix.json)维护，原有应用旅程由[journey 清单](../tests/journeys/journeys.json)维护。这里不另建逐项通过记录；验收要求见 [acceptance](acceptance.md)，能力边界见 [compatibility](compatibility.md)。
 
-The project reaches **verifiable runtime compatibility with Python Streamlit 1.66.1** when all five end states hold:
+## Long-term goal
+
+交付功能完整、行为可信、易于开发和分发的原生 Rust Streamlit，以锁定的 Python Streamlit 1.66.1 为首个完整兼容目标。生产运行保持原生 Rust，Python 只用于开发参考与差分验证；复用官方前端和协议。
+
+完整性以官方用户文档中的功能、子能力、配置和使用流程为权威范围，不以 Python 导出符号、已捕获页面数、同名函数数或旧旅程通过数作为完整分母。Rust 的接口和实现可以不同；源码只用于核实行为及实现线索，不定义待实现功能。每项适用能力都需要实现、接通、异常与边界验证、文档和必要的浏览器证据。现有 `not_applicable` 理由须复核：缺少 Rust 实现本身不构成不适用。
+
+最终完成要求覆盖功能、行为、用户体验、架构与资源生命周期、Rust API 易用性、测试可信度、性能报告、文档、工程检查、独立 Review 和本地分发。关键行为、公共接口、依赖、架构取舍或验收变化提交用户决定；普通实现细节自主处理。上游版本升级作为后续独立决定，不移动本目标的基线。
+
+## Current focus
+
+**长期 M0：建立完整能力与验证基线，进行中。** 起点为 `99b1ed8e4b35737c9495764fb70269271a10bada`，开始时工作区干净。当前正在依据官方文档盘点功能和场景、复核不适用项、建立 Rust/Python 验证及性能基线。已校验的 wheel 用于固定参考环境，不能代替官方文档的功能分母。未运行、失败和历史结果分别记录；未宣称 M0 已完成。
+
+本轮临时测量和日志保存在忽略的 `target/checks/m0-baseline/`；功能清单在现有官方文档矩阵基础上补足范围与子能力，不另建 Python API 分母。缺失的旧 docs HTML/catalog 不由下载归档冒充恢复；新抓取保留实际日期和文档版本。长期 M0 的数据和工具完成后，经独立 Review 核验，再进入 M1。
+
+## Long-term milestones
+
+下列 M0–M7 属于 2026-10-27 确认的长期目标，与文末已经关闭的历史 P0 里程碑区分。
+
+| 阶段 | 交付 | 退出条件 |
+|---|---|---|
+| M0 完整基线 | 公开能力和子能力盘点、不适用复核、当前测试与性能基线、依赖及待决策项 | 盘点来源可追踪，未验证和未实现明确，范围取舍可审阅；不将静态盘点当兼容证明。 |
+| M1 运行基础 | 复现并处理 Q1–Q6：查询参数重跑、运行控制覆盖、组件默认状态、嵌套缓存录制、编辑空值与文档矛盾 | 修复前后证据、相关 Rust/协议回归及必要浏览器差分；空值 schema 等关键规则先确认。 |
+| M2 数据应用 | 上传、筛选、选择、详情、编辑、增量更新和图表联动 | 完整用户流程及空集、替换、恢复、排序映射、会话隔离有实际操作证据。 |
+| M3 适用公开能力 | 补齐输入、布局、媒体、导航、缓存、流式输出与组件的适用能力 | 经确认的适用能力无未实现或未接通项，参数、返回值、状态和失败边界均有覆盖。 |
+| M4 运行集成 | 配置、请求上下文、认证、用户信息及必要 Rust 等价集成 | 关键设计获确认，使用假凭据和隔离依赖验证，权限边界清楚。 |
+| M5 稳定性与性能 | 并发、慢连接、重连、长时运行、大数据、资源回收和测量驱动优化 | 已确认测试负载下无未处理的正确性或稳定性阻塞，性能资源报告可复现；不自定产品 SLO。 |
+| M6 开发与分发 | API 一致性、完整示例、文档、支持工具链及平台、本地安装产物 | 干净环境可依文档构建、安装并完成代表性应用；不是公开发布。 |
+| M7 完整验收 | 全量回归、关键组合差分、独立 Review、文档核验和遗留清理 | 长期验收全部满足，剩余限制经用户明确确认，停止于本地可审查、可分发成果。 |
+
+文档、测试、架构一致性和代码规范随每项能力同步验收；性能自 M0 起保留测量。阶段通过后推进已确认范围，不以进入下一阶段为由自动批准新的公共接口、依赖或关键规则。
+
+用户进一步明确开发顺序：先写面向使用者的功能流程、Rust 用法、返回值、错误及状态说明，再开发对应能力。使用文档清楚区分当前可用、部分验证与待实现；拟新增公共接口和关键规则先供确认，不能将规划接口写成已可用。已完成的代码和证据保留，顺序调整不用于回退他人工作。
+
+## Team and integration
+
+峰值最多四个代理，包含主代理。主代理负责关键路径、共享接口、唯一共享文件写入和最终验收；独立能力按需并行，紧密耦合逻辑归同一代理。参考测量先于兼容实现，稳定交付交给只读 Reviewer 审查。
+
+模型池沿用已批准配置：复杂核心和参考协议使用 Sol/high，普通实现 Sol/medium 或 high，界面和文档 Terra/medium，明确检索 Luna/medium，独立 Reviewer Sol/high。主代理模型由客户端控制，无法核验时报告，不宣称配置已生效。不使用固定满编团队，也不允许子代理继续委派。
+
+## Historical P0 terminal goal
+
+以下为长期 Goal 建立前的 P0 退出条件和历史记录，只证明当时已捕获范围的完成，不构成长期目标的完整兼容结论：
 
 1. The journey manifest shows all 10 journeys / 43 steps `passed`, including J09-S4 measured by a real slow disconnect (not by policy or inference).
 2. Every captured matrix row (182 documentation entries) has left `absent`/`unverified` through linked black-box differential evidence, or carries an explicit recorded reason it does not apply.
@@ -16,9 +57,11 @@ Compatibility is only established by black-box evidence against the pinned refer
 
 ## Cross-cutting quality acceptance
 
-Feature completeness is necessary but not sufficient. The norms below bind every milestone and the terminal state alike; a milestone that ships behavior while failing any of them is not closed. The first full pass runs at the M0 close.
+下列既有质量约定继续适用于长期里程碑；仅历史阶段名称和关闭记录不代表当前验证已运行。
 
 **Code quality.** `cargo clippy --workspace --locked --all-targets -- -D warnings` and `cargo fmt --all -- --check` stay green (already fresh-checkout gates). Beyond the tools: no dead code, no superseded duplicate paths, no speculative abstraction — the simplest implementation that passes its evidence chain wins, and public user-facing API carries rustdoc that agrees with the guide.
+
+2026-10-27 用户明确要求 Rust 禁止使用 `.unwrap()`。工作区须通过 `clippy::unwrap_used = deny` 执行，两 crate 须继承，检查包含生产代码、构建工具、示例和测试；配置与既有用法迁移在后续代码批次交付。既有用法按错误语义整改：可恢复错误正常传播，测试用明确断言表达预期，不能机械替换为 `.expect()` 或通用 panic 包装来绕过规则。新增 lint 前的通过记录保留其原始配置身份；既有用法清理完成前不能声称新规范已全量通过。
 
 **Rust-first tests.** Repository tests default to Rust under `cargo test`: runtime regressions, protocol contracts and ledger validation live in the workspace. Python is reserved for the reference side of the evidence chain — fixtures executed by the pinned Python server and the Chrome CDP capture tooling — and when a Python test no longer needs that side, it migrates to Rust in the same change that retires the reason.
 
@@ -30,7 +73,7 @@ Feature completeness is necessary but not sufficient. The norms below bind every
 
 **Hygiene and cleanup.** Superseded code, tests that no longer exercise live behavior, spent probe scripts and stale doc sections are deleted in the milestone that retires them. Cleanup explicitly does not delete retained failure evidence or frozen capture artifacts: [acceptance](acceptance.md) requires failed and partial attempts to keep their real artifacts, and those are records, not clutter. Ignored `target/` rounds never migrate into the repository.
 
-## Milestone ladder
+## Historical P0 milestones
 
 Each milestone follows the same discipline: capture the Python 1.66.1 reference behavior first, implement in Rust, add runtime regressions, capture the real-browser Rust differential, then update the manifest/matrix. The fresh-checkout checks and the cross-cutting quality pass above run at every milestone close.
 

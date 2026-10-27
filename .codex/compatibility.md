@@ -2,6 +2,16 @@
 
 Streamlit runtime compatibility is pinned to 1.66.1. Product scope follows the official documentation catalog captured in the ignored cache `target/upstream/docs`; its observed docs label is 1.66.0 and its runtime target is 1.66.1. Version labels are recorded separately and no inaccessible versioned URL is synthesized.
 
+## Long-term documentation scope
+
+2026-10-27 用户确认长期完整实现目标，并明确功能范围来自官方用户文档，不能从 Python API 导出构造分母。按文档中的功能、子能力、参数行为、配置及使用场景组织工作；Rust 接口和实现可以不同。源码、协议和参考运行只用于核实行为和实现线索。
+
+官方入口包括 [API reference](https://docs.streamlit.io/develop/api-reference)、[开发概念](https://docs.streamlit.io/develop/concepts)和[部署概念](https://docs.streamlit.io/deploy/concepts)。历史目录未覆盖的主题、测试与部署说明也需盘点；每页根据用户可获得的能力归类，不把导航页、概念页或 Python 符号各算成一个待实现接口。托管平台操作与 Rust 应用本身的职责分开判断。
+
+现有矩阵保留各条目的历史证据范围；`not_applicable` 正在复核，不代表长期目标永久排除该用户能力。缺少 Rust 对应实现的理由需要重新审查，已有行为的概念页关联实际功能证据。源码盘点不能给予实现或兼容信用，也不另建 Python API 进度表。
+
+长期 M0 进行中；旧 HTML/catalog 当前未恢复，新抓取须记录来源、实际日期、文档版本及内容身份，不覆盖或冒用旧目录的锁定哈希。当前通过、当前失败、环境受阻和历史结果分别记录。
+
 The only feature matrix is [compatibility/api-compatibility-matrix.json](../compatibility/api-compatibility-matrix.json). Its captured-page scope is not a claim of completeness: unavailable legacy pages and redirect aliases stay explicit in the matrix and [p0-baseline.json](../compatibility/p0-baseline.json).
 
 Current whole-journey progress, deferred steps and evidence links are tracked in [the journey manifest](../tests/journeys/journeys.json); [acceptance](acceptance.md#remaining-first-release-journeys) retains the requirements and explicit UI preparations. Forms/text input and CSV-app integration are now on mainline. Component reviews and journey results do not independently change the feature matrix or establish complete compatibility.
