@@ -1,0 +1,959 @@
+{
+  "schema_version": 1,
+  "reference_version": "1.66.1",
+  "scope": "Actual public st.download_button initial WS outputs and same-session localhost HTTP GET; explicit protocol, no browser/UI claim.",
+  "raw_file": "trace.json",
+  "cases": [
+    {
+      "label": "01-default-bytes",
+      "file_name_option": null,
+      "mime_option": null,
+      "payload_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "payload_bytes": [
+        105,
+        100,
+        44,
+        114,
+        101,
+        103,
+        105,
+        111,
+        110,
+        10,
+        65,
+        44,
+        110,
+        111,
+        114,
+        116,
+        104,
+        10
+      ],
+      "accepted": true,
+      "url": "/media/f8b2cda8270dcc19bdbd78c647aa8423.bin",
+      "download_fields": {
+        "id": "$$ID-90f760f98b9804ddeef9bbc8397e2402-01-default-bytes",
+        "label": "01-default-bytes",
+        "url": "/media/f8b2cda8270dcc19bdbd78c647aa8423.bin",
+        "type": "secondary",
+        "ignore_rerun": true
+      },
+      "delta_path": [
+        0,
+        0
+      ],
+      "status": 200,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 11:54:17 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-disposition",
+          "attachment; filename=\"streamlit_download.bin\""
+        ],
+        [
+          "accept-ranges",
+          "bytes"
+        ],
+        [
+          "content-length",
+          "18"
+        ],
+        [
+          "content-type",
+          "application/octet-stream"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "body_bytes": [
+        105,
+        100,
+        44,
+        114,
+        101,
+        103,
+        105,
+        111,
+        110,
+        10,
+        65,
+        44,
+        110,
+        111,
+        114,
+        116,
+        104,
+        10
+      ],
+      "body_length": 18,
+      "body_matches_input": true
+    },
+    {
+      "label": "02-default-text",
+      "file_name_option": null,
+      "mime_option": "text/plain",
+      "payload_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "payload_bytes": [
+        105,
+        100,
+        44,
+        114,
+        101,
+        103,
+        105,
+        111,
+        110,
+        10,
+        65,
+        44,
+        110,
+        111,
+        114,
+        116,
+        104,
+        10
+      ],
+      "accepted": true,
+      "url": "/media/bc607a55e7c344d43ff045b396831435.txt",
+      "download_fields": {
+        "id": "$$ID-07fa8e3bd2de1e8f0b4d634d7845334d-02-default-text",
+        "label": "02-default-text",
+        "url": "/media/bc607a55e7c344d43ff045b396831435.txt",
+        "type": "secondary",
+        "ignore_rerun": true
+      },
+      "delta_path": [
+        0,
+        1
+      ],
+      "status": 200,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 11:54:17 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-disposition",
+          "attachment; filename=\"streamlit_download.txt\""
+        ],
+        [
+          "accept-ranges",
+          "bytes"
+        ],
+        [
+          "content-length",
+          "18"
+        ],
+        [
+          "content-type",
+          "text/plain; charset=utf-8"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "body_bytes": [
+        105,
+        100,
+        44,
+        114,
+        101,
+        103,
+        105,
+        111,
+        110,
+        10,
+        65,
+        44,
+        110,
+        111,
+        114,
+        116,
+        104,
+        10
+      ],
+      "body_length": 18,
+      "body_matches_input": true
+    },
+    {
+      "label": "03-unicode-csv",
+      "file_name_option": "数据 é.csv",
+      "mime_option": "text/csv",
+      "payload_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "payload_bytes": [
+        105,
+        100,
+        44,
+        114,
+        101,
+        103,
+        105,
+        111,
+        110,
+        10,
+        65,
+        44,
+        110,
+        111,
+        114,
+        116,
+        104,
+        10
+      ],
+      "accepted": true,
+      "url": "/media/93606c834faee7e8f15eed7a1d21b925.csv",
+      "download_fields": {
+        "id": "$$ID-ff1db10af3cd814c17968b4632d54196-03-unicode-csv",
+        "label": "03-unicode-csv",
+        "url": "/media/93606c834faee7e8f15eed7a1d21b925.csv",
+        "type": "secondary",
+        "ignore_rerun": true
+      },
+      "delta_path": [
+        0,
+        2
+      ],
+      "status": 200,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 11:54:17 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-disposition",
+          "attachment; filename*=utf-8''%E6%95%B0%E6%8D%AE%20%C3%A9.csv"
+        ],
+        [
+          "accept-ranges",
+          "bytes"
+        ],
+        [
+          "content-length",
+          "18"
+        ],
+        [
+          "content-type",
+          "text/csv; charset=utf-8"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "body_bytes": [
+        105,
+        100,
+        44,
+        114,
+        101,
+        103,
+        105,
+        111,
+        110,
+        10,
+        65,
+        44,
+        110,
+        111,
+        114,
+        116,
+        104,
+        10
+      ],
+      "body_length": 18,
+      "body_matches_input": true
+    },
+    {
+      "label": "04-quote-csv",
+      "file_name_option": "a\"b.csv",
+      "mime_option": "text/csv",
+      "payload_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "payload_bytes": [
+        105,
+        100,
+        44,
+        114,
+        101,
+        103,
+        105,
+        111,
+        110,
+        10,
+        65,
+        44,
+        110,
+        111,
+        114,
+        116,
+        104,
+        10
+      ],
+      "accepted": true,
+      "url": "/media/8dad9a1b6e8796fffc8c86c74b02c1a9.csv",
+      "download_fields": {
+        "id": "$$ID-14a72fbcb95af81693f40d914c9aa85a-04-quote-csv",
+        "label": "04-quote-csv",
+        "url": "/media/8dad9a1b6e8796fffc8c86c74b02c1a9.csv",
+        "type": "secondary",
+        "ignore_rerun": true
+      },
+      "delta_path": [
+        0,
+        3
+      ],
+      "status": 200,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 11:54:17 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-disposition",
+          "attachment; filename*=utf-8''a%22b.csv"
+        ],
+        [
+          "accept-ranges",
+          "bytes"
+        ],
+        [
+          "content-length",
+          "18"
+        ],
+        [
+          "content-type",
+          "text/csv; charset=utf-8"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "body_bytes": [
+        105,
+        100,
+        44,
+        114,
+        101,
+        103,
+        105,
+        111,
+        110,
+        10,
+        65,
+        44,
+        110,
+        111,
+        114,
+        116,
+        104,
+        10
+      ],
+      "body_length": 18,
+      "body_matches_input": true
+    },
+    {
+      "label": "05-backslash-csv",
+      "file_name_option": "a\\b.csv",
+      "mime_option": "text/csv",
+      "payload_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "payload_bytes": [
+        105,
+        100,
+        44,
+        114,
+        101,
+        103,
+        105,
+        111,
+        110,
+        10,
+        65,
+        44,
+        110,
+        111,
+        114,
+        116,
+        104,
+        10
+      ],
+      "accepted": true,
+      "url": "/media/14e750ab8244392ffd236cce09716b96.csv",
+      "download_fields": {
+        "id": "$$ID-8cff74542a8026e533f88cef9a8b72da-05-backslash-csv",
+        "label": "05-backslash-csv",
+        "url": "/media/14e750ab8244392ffd236cce09716b96.csv",
+        "type": "secondary",
+        "ignore_rerun": true
+      },
+      "delta_path": [
+        0,
+        4
+      ],
+      "status": 200,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 11:54:17 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-disposition",
+          "attachment; filename*=utf-8''a%5Cb.csv"
+        ],
+        [
+          "accept-ranges",
+          "bytes"
+        ],
+        [
+          "content-length",
+          "18"
+        ],
+        [
+          "content-type",
+          "text/csv; charset=utf-8"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "body_bytes": [
+        105,
+        100,
+        44,
+        114,
+        101,
+        103,
+        105,
+        111,
+        110,
+        10,
+        65,
+        44,
+        110,
+        111,
+        114,
+        116,
+        104,
+        10
+      ],
+      "body_length": 18,
+      "body_matches_input": true
+    },
+    {
+      "label": "06-empty-filename",
+      "file_name_option": "",
+      "mime_option": "text/csv",
+      "payload_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "payload_bytes": [
+        105,
+        100,
+        44,
+        114,
+        101,
+        103,
+        105,
+        111,
+        110,
+        10,
+        65,
+        44,
+        110,
+        111,
+        114,
+        116,
+        104,
+        10
+      ],
+      "accepted": true,
+      "url": "/media/d13ab1ed94911120f4a6a35b28300650.csv",
+      "download_fields": {
+        "id": "$$ID-7703a9e08769801dd25a00677c12a533-06-empty-filename",
+        "label": "06-empty-filename",
+        "url": "/media/d13ab1ed94911120f4a6a35b28300650.csv",
+        "type": "secondary",
+        "ignore_rerun": true
+      },
+      "delta_path": [
+        0,
+        5
+      ],
+      "status": 200,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 11:54:17 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-disposition",
+          "attachment; filename=\"streamlit_download.csv\""
+        ],
+        [
+          "accept-ranges",
+          "bytes"
+        ],
+        [
+          "content-length",
+          "18"
+        ],
+        [
+          "content-type",
+          "text/csv; charset=utf-8"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "body_bytes": [
+        105,
+        100,
+        44,
+        114,
+        101,
+        103,
+        105,
+        111,
+        110,
+        10,
+        65,
+        44,
+        110,
+        111,
+        114,
+        116,
+        104,
+        10
+      ],
+      "body_length": 18,
+      "body_matches_input": true
+    },
+    {
+      "label": "07-text-explicit-charset",
+      "file_name_option": null,
+      "mime_option": "text/plain; charset=utf-8",
+      "payload_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "payload_bytes": [
+        105,
+        100,
+        44,
+        114,
+        101,
+        103,
+        105,
+        111,
+        110,
+        10,
+        65,
+        44,
+        110,
+        111,
+        114,
+        116,
+        104,
+        10
+      ],
+      "accepted": true,
+      "url": "/media/c3b90ab161fc060cb5d57f0c05fae540",
+      "download_fields": {
+        "id": "$$ID-f831ce8e6297167131c789289dc0a041-07-text-explicit-charset",
+        "label": "07-text-explicit-charset",
+        "url": "/media/c3b90ab161fc060cb5d57f0c05fae540",
+        "type": "secondary",
+        "ignore_rerun": true
+      },
+      "delta_path": [
+        0,
+        6
+      ],
+      "status": 200,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 11:54:17 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-disposition",
+          "attachment; filename=\"streamlit_download\""
+        ],
+        [
+          "accept-ranges",
+          "bytes"
+        ],
+        [
+          "content-length",
+          "18"
+        ],
+        [
+          "content-type",
+          "text/plain; charset=utf-8"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "body_bytes": [
+        105,
+        100,
+        44,
+        114,
+        101,
+        103,
+        105,
+        111,
+        110,
+        10,
+        65,
+        44,
+        110,
+        111,
+        114,
+        116,
+        104,
+        10
+      ],
+      "body_length": 18,
+      "body_matches_input": true
+    },
+    {
+      "label": "08-json",
+      "file_name_option": null,
+      "mime_option": "application/json",
+      "payload_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "payload_bytes": [
+        105,
+        100,
+        44,
+        114,
+        101,
+        103,
+        105,
+        111,
+        110,
+        10,
+        65,
+        44,
+        110,
+        111,
+        114,
+        116,
+        104,
+        10
+      ],
+      "accepted": true,
+      "url": "/media/030e00a43a045b3431fe2ad484290b8e.json",
+      "download_fields": {
+        "id": "$$ID-015d2f021297cd7d03137aef3e56953e-08-json",
+        "label": "08-json",
+        "url": "/media/030e00a43a045b3431fe2ad484290b8e.json",
+        "type": "secondary",
+        "ignore_rerun": true
+      },
+      "delta_path": [
+        0,
+        7
+      ],
+      "status": 200,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 11:54:17 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-disposition",
+          "attachment; filename=\"streamlit_download.json\""
+        ],
+        [
+          "accept-ranges",
+          "bytes"
+        ],
+        [
+          "content-length",
+          "18"
+        ],
+        [
+          "content-type",
+          "application/json"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "body_bytes": [
+        105,
+        100,
+        44,
+        114,
+        101,
+        103,
+        105,
+        111,
+        110,
+        10,
+        65,
+        44,
+        110,
+        111,
+        114,
+        116,
+        104,
+        10
+      ],
+      "body_length": 18,
+      "body_matches_input": true
+    },
+    {
+      "label": "09-unknown-mime",
+      "file_name_option": null,
+      "mime_option": "application/x-synthetic-type",
+      "payload_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "payload_bytes": [
+        105,
+        100,
+        44,
+        114,
+        101,
+        103,
+        105,
+        111,
+        110,
+        10,
+        65,
+        44,
+        110,
+        111,
+        114,
+        116,
+        104,
+        10
+      ],
+      "accepted": true,
+      "url": "/media/570b5ca5a0e8e22fa7bb6caef9cb48e9",
+      "download_fields": {
+        "id": "$$ID-d2a97027c695f1c9b10e4db0d38fbf78-09-unknown-mime",
+        "label": "09-unknown-mime",
+        "url": "/media/570b5ca5a0e8e22fa7bb6caef9cb48e9",
+        "type": "secondary",
+        "ignore_rerun": true
+      },
+      "delta_path": [
+        0,
+        8
+      ],
+      "status": 200,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 11:54:17 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-disposition",
+          "attachment; filename=\"streamlit_download\""
+        ],
+        [
+          "accept-ranges",
+          "bytes"
+        ],
+        [
+          "content-length",
+          "18"
+        ],
+        [
+          "content-type",
+          "application/x-synthetic-type"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "body_bytes": [
+        105,
+        100,
+        44,
+        114,
+        101,
+        103,
+        105,
+        111,
+        110,
+        10,
+        65,
+        44,
+        110,
+        111,
+        114,
+        116,
+        104,
+        10
+      ],
+      "body_length": 18,
+      "body_matches_input": true
+    },
+    {
+      "label": "10-ascii-name",
+      "file_name_option": "hello.txt",
+      "mime_option": "text/plain",
+      "payload_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "payload_bytes": [
+        105,
+        100,
+        44,
+        114,
+        101,
+        103,
+        105,
+        111,
+        110,
+        10,
+        65,
+        44,
+        110,
+        111,
+        114,
+        116,
+        104,
+        10
+      ],
+      "accepted": true,
+      "url": "/media/568520468b68af968eee59631020aab0.txt",
+      "download_fields": {
+        "id": "$$ID-599453464e870d593963bdd296f4d687-10-ascii-name",
+        "label": "10-ascii-name",
+        "url": "/media/568520468b68af968eee59631020aab0.txt",
+        "type": "secondary",
+        "ignore_rerun": true
+      },
+      "delta_path": [
+        0,
+        9
+      ],
+      "status": 200,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 11:54:17 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-disposition",
+          "attachment; filename=\"hello.txt\""
+        ],
+        [
+          "accept-ranges",
+          "bytes"
+        ],
+        [
+          "content-length",
+          "18"
+        ],
+        [
+          "content-type",
+          "text/plain; charset=utf-8"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "body_bytes": [
+        105,
+        100,
+        44,
+        114,
+        101,
+        103,
+        105,
+        111,
+        110,
+        10,
+        65,
+        44,
+        110,
+        111,
+        114,
+        116,
+        104,
+        10
+      ],
+      "body_length": 18,
+      "body_matches_input": true
+    }
+  ],
+  "all_accepted_bodies_match": true,
+  "initial_run_finishes": [
+    {
+      "value": 0,
+      "name": "FINISHED_SUCCESSFULLY"
+    }
+  ],
+  "cleanup": {
+    "websocket_closed": true,
+    "close_code": 1000,
+    "server_stopped": true,
+    "listener_count": "0",
+    "listener_check_exit_code": 0,
+    "browser_started": false
+  },
+  "cleanup_errors": [],
+  "counts": {
+    "cases": 10,
+    "raw_pb_frames": 16,
+    "http_downloads": 10
+  }
+}

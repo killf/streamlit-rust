@@ -1,5 +1,5 @@
 //! st.cache_data / st.cache_resource on the measured 1.66.1 wire: results
-//! are memoized per session keyed by the serialized arguments; an outermost miss
+//! are memoized per session and cache kind keyed by name and serialized arguments; an outermost miss
 //! streams an empty-element transient (the cleared-spinner shape) at the
 //! call site and records every element the function emitted, and a hit
 //! replays those elements at their original paths with no transient
@@ -25,12 +25,16 @@ pub(crate) struct CacheRecord {
 
 #[derive(Default)]
 pub(crate) struct CacheStore {
-    entries: HashMap<String, CacheRecord>,
+    // 数据结果和资源引用分别存放，允许两类缓存使用相同名称和参数。
+    data: HashMap<String, CacheRecord>,
+
+    resources: HashMap<String, CacheRecord>,
 }
 
 impl CacheStore {
     pub(crate) fn clear(&mut self) {
-        self.entries.clear();
+        self.data.clear();
+        self.resources.clear();
     }
 }
 
@@ -45,7 +49,7 @@ pub fn cache_data<T: Serialize, R: Clone + Serialize + DeserializeOwned>(st: &St
         Err(_) => return f(arg),
     };
     let caches = state.caches.lock();
-    if let Some(record) = caches.entries.get(&key) {
+    if let Some(record) = caches.data.get(&key) {
         let value = record.value.clone();
         let recorded = record.recorded.clone();
         let entry_path = record.entry_path.clone();
@@ -56,7 +60,7 @@ pub fn cache_data<T: Serialize, R: Clone + Serialize + DeserializeOwned>(st: &St
     drop(caches);
     let (value, recorded, entry_path) = execute_with_recording(st, || f(arg));
     if let Ok(serialized) = serde_json::to_value(&value) {
-        state.caches.lock().entries.insert(
+        state.caches.lock().data.insert(
             key,
             CacheRecord {
                 value: serialized,
@@ -79,7 +83,7 @@ pub fn cache_resource<T: Serialize, R: Send + Sync + 'static>(st: &Streamlit, na
         Err(_) => return std::sync::Arc::new(f(arg)),
     };
     let caches = state.caches.lock();
-    if let Some(record) = caches.entries.get(&key)
+    if let Some(record) = caches.resources.get(&key)
         && let Some(shared) = record.resource.clone()
         && let Ok(typed) = shared.downcast::<R>()
     {
@@ -92,7 +96,7 @@ pub fn cache_resource<T: Serialize, R: Send + Sync + 'static>(st: &Streamlit, na
     drop(caches);
     let (value, recorded, entry_path) = execute_with_recording(st, || f(arg));
     let shared = std::sync::Arc::new(value);
-    st.session_state().caches.lock().entries.insert(
+    st.session_state().caches.lock().resources.insert(
         key,
         CacheRecord {
             value: serde_json::Value::Null,

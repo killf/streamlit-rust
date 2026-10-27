@@ -94,6 +94,28 @@ Q5/Q6 在用户确认选择性 nullable 规则后完成：76 项库单元、2 �
 
 另已归档 [generic Vega 的真实更新失败](../tests/browser/rust-vega-refresh-before/README.md)：四阶段消息值 3→8→8→3、可见值仍 3，图生产代码与旧 oracle 未改。A/B/C 协议及交互状态取舍仍待用户选择，CSV 来源规则亦待决，M2 与长期 Goal 均未完成。静态、运行回归及数据归档已独立 Review，无本编辑器修复范围内剩余阻塞。
 
+## Current download boundaries validation (2026-10-27)
+
+按使用文档先行、冻结参考复用的约定，补十条新的 Python 1.66.1 公开字节下载输入/真实 WS/HTTP，不重采已有正确场景。Rust 留下缺默认文件名的真实红断言后，修复默认/空名、Unicode/引号/反斜杠扩展参数及文本 charset；原始 MIME 仍决定地址和扩展名，现有媒体、Range、首次写入保持。十条 URL、四项响应头及原字节精确对照通过，没有新增公共 API、依赖或源码 SHA 门槛。
+
+[原生浏览器证据](../tests/browser/rust-download-boundaries/README.md)另记录两次真实点击和落盘文件名/原字节；HTTP 是加载时 Fetch、随后点击保存，不伪称点击后重新请求。三项新离线检查连接冻结 PB、公开参数、HTTP、下载字节及两次 Rust 浏览器保存。所有自有服务、Chrome/profile 已清理，root 复核两 PID 消失、8523 无监听。
+
+格式及全目标 Clippy 通过，既有 MSVC linker_messages 提示保留；该下载批次 187 项 Rust（164 库/运行模块、2 宏、1 ledger、4 rustdoc、16 示例）与 1503 项冻结参考检查通过，96 条既有 Pillow 告警保留。矩阵最终证据只挂下载条目、维持 partial，并额外复核 47 项矩阵检查。完整命令、退出码与本地红/绿日志索引在 `target/checks/m3-download-boundaries/results.json`；生产代码、冻结参考及真实保存证据经独立只读 Review。最终工作分支交付与下节缓存修复一并记录，未发布或部署。
+
+该批仅是 M3 下载子集，不证明所有标点/MIME、文本和文件对象自动类型推断、延迟 callable 或完整媒体生命周期。CSV 来源与 generic Vega 的关键取舍仍待用户选择；M2、M3 与长期 Goal 都未关闭。
+
+## Current cache kind isolation validation (2026-10-27)
+
+真实复现同名同参 data→resource→data 将 `Some(42)` 错返 None；按使用说明先行，内部存储分为 data/resources，保留原会话作用域、Arc、重放和总清空。新[冻结公开参考](../tests/reference/reference-browser/cache-kind-isolation/README.md)包含四组结构值/None、正反顺序，初始计数均 1/2/2/2；它是 bare-script API 实验，真实 MemoryCacheStorageManager 告警保留，不冒称 Python UI/wire。独立分类 clear 的 Python 记录没有变成 Rust 公共接口。
+
+Rust 新增三项回归：原错误值/资源身份、参数变化和清空；直接复用四组初始值/计数；两轮真实 WS 在同会话重放各自 computed=1/2 和连续路径，后轮不重复计算。既有嵌套与基础缓存回归保留，缓存组六项通过，五项新离线检查核对公开计划、原日志、值与计数。数据完整性仅绑定输入输出，不绑源码。
+
+最终格式、全目标 Clippy、190 项 Rust（167 库/运行模块、2 宏、1 ledger、4 rustdoc、16 示例）及 1508 项冻结参考检查通过；96 条既有 Pillow 告警与 MSVC linker_messages 提示保留。独立只读 Review 未发现本修复范围内阻塞。最终完整命令、退出码及红/绿日志索引见本地 `target/checks/m3-cache-kind-isolation/results.json`；本批按 Goal 授权提交、推送工作分支，不创建 PR/MR、合并、发布或部署。
+
+归档阶段先发现原始 JSON 的 CRLF 空白误报和默认忽略的日志未入索引；仅补原换行识别并显式纳入日志，未重写 raw 或改预期。最终暂存空白检查通过，27 个原始证据文件的索引大小/数据 SHA 全部与 manifest 一致，避免将工作区数据通过误当作完整提交归档。
+
+该修复不关闭完整缓存能力：全局/跨会话、分类别或函数清空、TTL、持久化、全部序列化类型、异常与并发仍待后续设计/验证。CSV 来源规则和 generic Vega 方案继续待用户选择，长期 Goal 保持进行中。
+
 ## Required fresh-checkout checks
 
 ```powershell

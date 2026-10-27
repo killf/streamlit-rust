@@ -145,6 +145,24 @@ A 的 wire 规范化仅限此 generic Vega 的顶层 Arrow data 与单个 named 
 
 拟改范围（A）：`elements/charts.rs` 的现有数据提取/图元素构造、现有 chartlibs 示例和运行回归，以及使用指南/该项证据映射。不加依赖或公共接口，不改官方静态资源，不将此推广成所有图类型或所有 spec 组合已通过。验收：保留原 7 图初始语义，真实按钮 3→8→普通 rerun→3 的可见条值与实际 Arrow 一致，同形状/同长度的数据变化必须改变有效更新身份；空值/无数据、原有 named/URL spec 边界按受影响调用回归，旧正确 Python 记录继续复用，最后独立 Review。选择之前仅保留复现示例，不实施生产修复或调整协议验收。
 
+## Download filename and MIME boundaries
+
+本批补齐现有 `DownloadButtonOptions` 的响应头边界，不增加公共接口或依赖。一次锁定 Python 1.66.1 的真实公开调用/WS/HTTP 已收 10 个合成字节案例：默认/空文件名、ASCII、Unicode、引号、反斜杠、显式 charset、JSON 及未知 MIME。默认名为 `streamlit_download` 加原 MIME 对应后缀；Unicode 和特殊字符使用扩展 filename 参数。该参考不是浏览器保存对话框证据。
+
+先用这些冻结输入通过 Rust 公共 download_button 发射 URL，再真实 GET 比较状态、内容类型、附件名和原字节，留红后修。`server.rs` 复用已有 typed ContentDisposition/FilenameExt 和原始 UTF-8 字节，不手拼未转义文件名；默认/空名回退、文本响应补 charset 只发生在响应头，不能反改 StoredFile MIME、内容地址或 URL 后缀。显式含 charset 的 MIME、未知 MIME 仍遵从原后缀映射，普通媒体、Range、首次写入语义不变。
+
+已完成红→绿：默认下载原为只有 attachment 而无文件名；修后十条真实 WS/HTTP 精确比较通过，既有媒体/Range/重复下载不变。`buttons` 新增两控件经真实 Chrome 保存默认名及 Unicode 名，原字节一致；前端先 Fetch 后点击保存的顺序原样记录。[冻结参考](../tests/reference/reference-browser/download-boundaries/README.md)及[原生保存证据](../tests/browser/rust-download-boundaries/README.md)均仅绑定数据完整性，不绑定源码。该批是 M3 子集，其他符号/MIME、文本与文件对象自动推断和完整资源生命周期仍未验收；无新 API 或依赖。
+
+拟改既有媒体运行测试、server 响应头、buttons 示例和指南，冻结新参考供后续回归；原 ASCII CSV/图片/音频与新默认/Unicode 的真实保存按受影响范围验收。只承诺实际测过的 10 种组合，标准扩展参数编码与 Python quote 在其他符号上的差别不隐藏，也不放宽这 10 项预期。字符串或文件对象的自动 MIME 推断、延迟 callable、其他 HTTP 边界仍不据此宣称完成。CSV 来源和 Vega 取舍与此无依赖，继续待决。
+
+## Cache kind isolation
+
+静态调用链显示 `cache_data` 与 `cache_resource` 以同一个 name + JSON 参数访问同一张 entries 表；resource 写入的 JSON 占位是 null。当同名同参数的数据结果类型能反序列化 null（如 `Option<i64>`），先 data→resource→data 可能返回 None，而非原有 Some(42)；其他类型可能重复计算或混用录制输出。先用现有公共调用复现，再一次性记录 Python 1.66.1 对同一函数双包装的公开行为；脚本实验与真实 WS 证据分别标注，不推定全量缓存兼容。
+
+若复现和参考确认，两种缓存的现有 name/参数键分开存放，`cache_clear` 仍清当前会话的两种缓存，数据反序列化、共享 Arc、嵌套录制与调用点重放逻辑保持。拟改 `cache.rs` 内部存储及现有缓存运行回归、指南和证据映射；不加文件层抽象、依赖或公共接口，不改变已声明的会话作用域，也不在此引入 TTL/持久化/并发策略。使用说明先行，验收覆盖调用次序、合法 null、参数变化、清空、共享身份和输出重放；既有正确 Python 参考继续复用，最后独立只读 Review。
+
+已按上述最小设计修复：原真实公开调用的 `Some(42)`→None 红断言转绿。Python 四组 bare-script 公开调用证明同函数双包装独立，真实 MemoryCacheStorageManager 告警原样保留，数据已冻结；Rust 复用初始四次调用和合法 null，另验证参数变化、两类清空和 Arc 身份。新两轮真实 Rust WS 证明各自的 computed=1/2 输出在原会话重放，后轮不重复计算、不带 miss transient，路径连续；不是 Python UI/wire 对照。缓存组六项和新五项离线检查通过，独立 Review 无阻塞；跨会话/全局/TTL/分类别清空仍未据此完成。
+
 ## Dependency and launch audit (2026-10-25)
 
 这是基于 `590aed547f062b6791689ffe48940ffd6461a603`、Windows MSVC 的历史依赖审计，不是当前安全检测或 MSRV 认证。当前依赖以 Cargo.toml/Cargo.lock 为准，当前工具链和检查见 [acceptance](acceptance.md#current-m0-baseline-2026-10-27)；不再把当时的“最新版本”、测试计数或升级范围写成现行约束。历史 stable 1.95 / nightly 1.98 的编译不能证明最低 Rust 版本可用。

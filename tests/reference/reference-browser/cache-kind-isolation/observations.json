@@ -1,0 +1,485 @@
+{
+  "schema_version": 1,
+  "reference_version": "1.66.1",
+  "python_version": "3.14.7 (tags/v3.14.7:823f032, Aug  5 2026, 10:51:32) [MSC v.1944 64 bit (AMD64)]",
+  "scope": "Public decorator and wrapper calls in bare script mode; no AppTest, HTTP, WS, session or browser claim.",
+  "inputs_file": "inputs.json",
+  "plans": [
+    {
+      "name": "value-data-first",
+      "arg": "value",
+      "calls": [
+        {
+          "action": "data",
+          "returned": {
+            "value": 42
+          },
+          "counter_before": 0,
+          "counter_after": 1,
+          "function_executed": true
+        },
+        {
+          "action": "resource",
+          "returned": {
+            "value": 42
+          },
+          "counter_before": 1,
+          "counter_after": 2,
+          "function_executed": true
+        },
+        {
+          "action": "data",
+          "returned": {
+            "value": 42
+          },
+          "counter_before": 2,
+          "counter_after": 2,
+          "function_executed": false
+        },
+        {
+          "action": "resource",
+          "returned": {
+            "value": 42
+          },
+          "counter_before": 2,
+          "counter_after": 2,
+          "function_executed": false
+        },
+        {
+          "action": "clear-data",
+          "returned": null,
+          "counter_before": 2,
+          "counter_after": 2
+        },
+        {
+          "action": "resource",
+          "returned": {
+            "value": 42
+          },
+          "counter_before": 2,
+          "counter_after": 2,
+          "function_executed": false
+        },
+        {
+          "action": "data",
+          "returned": {
+            "value": 42
+          },
+          "counter_before": 2,
+          "counter_after": 3,
+          "function_executed": true
+        },
+        {
+          "action": "resource",
+          "returned": {
+            "value": 42
+          },
+          "counter_before": 3,
+          "counter_after": 3,
+          "function_executed": false
+        },
+        {
+          "action": "clear-resource",
+          "returned": null,
+          "counter_before": 3,
+          "counter_after": 3
+        },
+        {
+          "action": "data",
+          "returned": {
+            "value": 42
+          },
+          "counter_before": 3,
+          "counter_after": 3,
+          "function_executed": false
+        },
+        {
+          "action": "resource",
+          "returned": {
+            "value": 42
+          },
+          "counter_before": 3,
+          "counter_after": 4,
+          "function_executed": true
+        },
+        {
+          "action": "data",
+          "returned": {
+            "value": 42
+          },
+          "counter_before": 4,
+          "counter_after": 4,
+          "function_executed": false
+        }
+      ],
+      "initial_counters": [
+        1,
+        2,
+        2,
+        2
+      ],
+      "initial_both_kinds_retained": true,
+      "after_clear_data_counters": [
+        2,
+        3,
+        3
+      ],
+      "after_clear_resource_counters": [
+        3,
+        4,
+        4
+      ],
+      "clear_data_leaves_resource_hit": true,
+      "clear_resource_leaves_data_hit": true
+    },
+    {
+      "name": "value-resource-first",
+      "arg": "value",
+      "calls": [
+        {
+          "action": "resource",
+          "returned": {
+            "value": 42
+          },
+          "counter_before": 0,
+          "counter_after": 1,
+          "function_executed": true
+        },
+        {
+          "action": "data",
+          "returned": {
+            "value": 42
+          },
+          "counter_before": 1,
+          "counter_after": 2,
+          "function_executed": true
+        },
+        {
+          "action": "resource",
+          "returned": {
+            "value": 42
+          },
+          "counter_before": 2,
+          "counter_after": 2,
+          "function_executed": false
+        },
+        {
+          "action": "data",
+          "returned": {
+            "value": 42
+          },
+          "counter_before": 2,
+          "counter_after": 2,
+          "function_executed": false
+        },
+        {
+          "action": "clear-data",
+          "returned": null,
+          "counter_before": 2,
+          "counter_after": 2
+        },
+        {
+          "action": "resource",
+          "returned": {
+            "value": 42
+          },
+          "counter_before": 2,
+          "counter_after": 2,
+          "function_executed": false
+        },
+        {
+          "action": "data",
+          "returned": {
+            "value": 42
+          },
+          "counter_before": 2,
+          "counter_after": 3,
+          "function_executed": true
+        },
+        {
+          "action": "resource",
+          "returned": {
+            "value": 42
+          },
+          "counter_before": 3,
+          "counter_after": 3,
+          "function_executed": false
+        },
+        {
+          "action": "clear-resource",
+          "returned": null,
+          "counter_before": 3,
+          "counter_after": 3
+        },
+        {
+          "action": "data",
+          "returned": {
+            "value": 42
+          },
+          "counter_before": 3,
+          "counter_after": 3,
+          "function_executed": false
+        },
+        {
+          "action": "resource",
+          "returned": {
+            "value": 42
+          },
+          "counter_before": 3,
+          "counter_after": 4,
+          "function_executed": true
+        },
+        {
+          "action": "data",
+          "returned": {
+            "value": 42
+          },
+          "counter_before": 4,
+          "counter_after": 4,
+          "function_executed": false
+        }
+      ],
+      "initial_counters": [
+        1,
+        2,
+        2,
+        2
+      ],
+      "initial_both_kinds_retained": true,
+      "after_clear_data_counters": [
+        2,
+        3,
+        3
+      ],
+      "after_clear_resource_counters": [
+        3,
+        4,
+        4
+      ],
+      "clear_data_leaves_resource_hit": true,
+      "clear_resource_leaves_data_hit": true
+    },
+    {
+      "name": "null-data-first",
+      "arg": "null",
+      "calls": [
+        {
+          "action": "data",
+          "returned": null,
+          "counter_before": 0,
+          "counter_after": 1,
+          "function_executed": true
+        },
+        {
+          "action": "resource",
+          "returned": null,
+          "counter_before": 1,
+          "counter_after": 2,
+          "function_executed": true
+        },
+        {
+          "action": "data",
+          "returned": null,
+          "counter_before": 2,
+          "counter_after": 2,
+          "function_executed": false
+        },
+        {
+          "action": "resource",
+          "returned": null,
+          "counter_before": 2,
+          "counter_after": 2,
+          "function_executed": false
+        },
+        {
+          "action": "clear-data",
+          "returned": null,
+          "counter_before": 2,
+          "counter_after": 2
+        },
+        {
+          "action": "resource",
+          "returned": null,
+          "counter_before": 2,
+          "counter_after": 2,
+          "function_executed": false
+        },
+        {
+          "action": "data",
+          "returned": null,
+          "counter_before": 2,
+          "counter_after": 3,
+          "function_executed": true
+        },
+        {
+          "action": "resource",
+          "returned": null,
+          "counter_before": 3,
+          "counter_after": 3,
+          "function_executed": false
+        },
+        {
+          "action": "clear-resource",
+          "returned": null,
+          "counter_before": 3,
+          "counter_after": 3
+        },
+        {
+          "action": "data",
+          "returned": null,
+          "counter_before": 3,
+          "counter_after": 3,
+          "function_executed": false
+        },
+        {
+          "action": "resource",
+          "returned": null,
+          "counter_before": 3,
+          "counter_after": 4,
+          "function_executed": true
+        },
+        {
+          "action": "data",
+          "returned": null,
+          "counter_before": 4,
+          "counter_after": 4,
+          "function_executed": false
+        }
+      ],
+      "initial_counters": [
+        1,
+        2,
+        2,
+        2
+      ],
+      "initial_both_kinds_retained": true,
+      "after_clear_data_counters": [
+        2,
+        3,
+        3
+      ],
+      "after_clear_resource_counters": [
+        3,
+        4,
+        4
+      ],
+      "clear_data_leaves_resource_hit": true,
+      "clear_resource_leaves_data_hit": true
+    },
+    {
+      "name": "null-resource-first",
+      "arg": "null",
+      "calls": [
+        {
+          "action": "resource",
+          "returned": null,
+          "counter_before": 0,
+          "counter_after": 1,
+          "function_executed": true
+        },
+        {
+          "action": "data",
+          "returned": null,
+          "counter_before": 1,
+          "counter_after": 2,
+          "function_executed": true
+        },
+        {
+          "action": "resource",
+          "returned": null,
+          "counter_before": 2,
+          "counter_after": 2,
+          "function_executed": false
+        },
+        {
+          "action": "data",
+          "returned": null,
+          "counter_before": 2,
+          "counter_after": 2,
+          "function_executed": false
+        },
+        {
+          "action": "clear-data",
+          "returned": null,
+          "counter_before": 2,
+          "counter_after": 2
+        },
+        {
+          "action": "resource",
+          "returned": null,
+          "counter_before": 2,
+          "counter_after": 2,
+          "function_executed": false
+        },
+        {
+          "action": "data",
+          "returned": null,
+          "counter_before": 2,
+          "counter_after": 3,
+          "function_executed": true
+        },
+        {
+          "action": "resource",
+          "returned": null,
+          "counter_before": 3,
+          "counter_after": 3,
+          "function_executed": false
+        },
+        {
+          "action": "clear-resource",
+          "returned": null,
+          "counter_before": 3,
+          "counter_after": 3
+        },
+        {
+          "action": "data",
+          "returned": null,
+          "counter_before": 3,
+          "counter_after": 3,
+          "function_executed": false
+        },
+        {
+          "action": "resource",
+          "returned": null,
+          "counter_before": 3,
+          "counter_after": 4,
+          "function_executed": true
+        },
+        {
+          "action": "data",
+          "returned": null,
+          "counter_before": 4,
+          "counter_after": 4,
+          "function_executed": false
+        }
+      ],
+      "initial_counters": [
+        1,
+        2,
+        2,
+        2
+      ],
+      "initial_both_kinds_retained": true,
+      "after_clear_data_counters": [
+        2,
+        3,
+        3
+      ],
+      "after_clear_resource_counters": [
+        3,
+        4,
+        4
+      ],
+      "clear_data_leaves_resource_hit": true,
+      "clear_resource_leaves_data_hit": true
+    }
+  ],
+  "observed_independent_kinds": true,
+  "cleanup": {
+    "owned_wrapper_caches_cleared": true,
+    "errors": [],
+    "AppTest_started": false,
+    "server_started": false,
+    "browser_started": false
+  }
+}

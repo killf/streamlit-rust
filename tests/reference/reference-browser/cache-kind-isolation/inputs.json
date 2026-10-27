@@ -1,0 +1,88 @@
+{
+  "same_compute_function_object": true,
+  "show_spinner": false,
+  "return_expression": "None for arg='null', otherwise {'value':42}",
+  "reset_between_plans": "both public wrapper.clear() then reset application counter to zero",
+  "plans": [
+    {
+      "name": "value-data-first",
+      "arg": "value",
+      "order": [
+        "data",
+        "resource",
+        "data",
+        "resource"
+      ],
+      "after_initial": [
+        "clear-data",
+        "resource",
+        "data",
+        "resource",
+        "clear-resource",
+        "data",
+        "resource",
+        "data"
+      ]
+    },
+    {
+      "name": "value-resource-first",
+      "arg": "value",
+      "order": [
+        "resource",
+        "data",
+        "resource",
+        "data"
+      ],
+      "after_initial": [
+        "clear-data",
+        "resource",
+        "data",
+        "resource",
+        "clear-resource",
+        "data",
+        "resource",
+        "data"
+      ]
+    },
+    {
+      "name": "null-data-first",
+      "arg": "null",
+      "order": [
+        "data",
+        "resource",
+        "data",
+        "resource"
+      ],
+      "after_initial": [
+        "clear-data",
+        "resource",
+        "data",
+        "resource",
+        "clear-resource",
+        "data",
+        "resource",
+        "data"
+      ]
+    },
+    {
+      "name": "null-resource-first",
+      "arg": "null",
+      "order": [
+        "resource",
+        "data",
+        "resource",
+        "data"
+      ],
+      "after_initial": [
+        "clear-data",
+        "resource",
+        "data",
+        "resource",
+        "clear-resource",
+        "data",
+        "resource",
+        "data"
+      ]
+    }
+  ]
+}

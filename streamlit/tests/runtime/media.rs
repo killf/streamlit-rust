@@ -5,6 +5,7 @@
 //! progress coalesces to one final-value delta, and /media answers 200/206
 //! with the measured headers.
 use super::*;
+use crate::InputWidgets;
 use crate::{DeltaColor, MetricOptions, RgbaImage};
 
 /// The WAV fixture tests/reference/media_app.py synthesizes: half a second
@@ -65,10 +66,10 @@ struct MediaWires {
     elements: Vec<crate::proto::Element>,
 }
 
-async fn start_media_server() -> TestResult<(std::net::SocketAddr, actix_web::dev::ServerHandle, tokio::task::JoinHandle<std::io::Result<()>>, TcpStream)> {
+async fn start_media_server(entry: fn(&Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>>) -> TestResult<(std::net::SocketAddr, actix_web::dev::ServerHandle, tokio::task::JoinHandle<std::io::Result<()>>, TcpStream)> {
     let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
     let address = listener.local_addr()?;
-    let server = HttpServer::new(move || App::new().app_data(web::Data::new(StreamlitServer::new(media_entry, "127.0.0.1".into(), 0))).configure(configure_routes))
+    let server = HttpServer::new(move || App::new().app_data(web::Data::new(StreamlitServer::new(entry, "127.0.0.1".into(), 0))).configure(configure_routes))
         .workers(1)
         .listen(listener)?
         .run();
@@ -163,7 +164,7 @@ async fn csv_download_serves_named_attachment_and_repeatable_range_bytes() -> Te
     let mime = "text/csv";
     let id = crate::media::put_download(bytes, mime, Some("workbench.csv"));
     let path = format!("/media/{id}{}", crate::media::download_extension(mime));
-    let (address, handle, task, stream) = start_media_server().await?;
+    let (address, handle, task, stream) = start_media_server(media_entry).await?;
 
     // 1. 复用真实 HTTP 路由采集完整、范围、重复与未知地址响应。
     let captured = tokio::time::timeout(Duration::from_secs(10), async {
@@ -196,9 +197,81 @@ async fn csv_download_serves_named_attachment_and_repeatable_range_bytes() -> Te
     Ok(())
 }
 
+fn download_boundaries_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        let result: TestResult = (|| {
+            let reference: serde_json::Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/download-boundaries/download-cases.json"))?;
+            for case in reference["cases"].as_array().ok_or("download reference cases are missing")? {
+                let label = case["label"].as_str().ok_or("download label is missing")?;
+                let payload = serde_json::from_value::<Vec<u8>>(case["payload_bytes"].clone())?;
+                let mut options = crate::DownloadButtonOptions::new(label, payload).key(label).ignore_rerun(true);
+                if let Some(name) = case["file_name_option"].as_str() {
+                    options = options.file_name(name);
+                }
+                if let Some(mime) = case["mime_option"].as_str() {
+                    options = options.mime(mime);
+                }
+                st.download_button(options)?;
+            }
+            Ok(())
+        })();
+        assert!(result.is_ok(), "download fixture failed: {result:?}");
+    })
+}
+
+#[actix_web::test]
+async fn download_headers_and_bytes_match_ten_frozen_public_cases() -> TestResult {
+    let reference: serde_json::Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/download-boundaries/download-cases.json"))?;
+    assert_eq!(reference["reference_version"], "1.66.1");
+    let cases = reference["cases"].as_array().ok_or("download cases are missing")?;
+    assert_eq!(cases.len(), 10);
+    let (address, handle, task, mut stream) = start_media_server(download_boundaries_entry).await?;
+    let captured = tokio::time::timeout(Duration::from_secs(10), async {
+        let wires = run_once(&mut stream, &mut String::new()).await?;
+        let mut actual = Vec::new();
+        for element in wires.elements {
+            let Some(element::Type::DownloadButton(button)) = element.r#type else {
+                return Err("unexpected element in download fixture".into());
+            };
+            let response = http_get(address, &button.url, None).await?;
+            actual.push((button.label, button.url, response));
+        }
+        Ok::<_, Box<dyn std::error::Error>>(actual)
+    })
+    .await;
+    // 先完整取回十个真实响应并回收自有连接，再比较，失败不会遗留 server。
+    drop(stream);
+    handle.stop(false).await;
+    task.await??;
+    let actual = captured??;
+    assert_eq!(actual.len(), cases.len());
+    for (label, url, (status, headers, _)) in &actual {
+        println!(
+            "download case={label} url={url} status={status} content_type={:?} disposition={:?}",
+            headers.iter().find(|(name, _)| name == "content-type"),
+            headers.iter().find(|(name, _)| name == "content-disposition")
+        );
+    }
+    for ((label, url, (status, headers, body)), expected) in actual.into_iter().zip(cases) {
+        assert_eq!(label, expected["label"]);
+        assert_eq!(url, expected["url"], "content address and extension must match at {label}");
+        assert_eq!(status, expected["status"].as_u64().ok_or("expected status is missing")? as u16);
+        let expected_headers: Vec<(String, String)> = serde_json::from_value(expected["headers"].clone())?;
+        for name in ["content-type", "content-disposition", "content-length", "accept-ranges"] {
+            assert_eq!(
+                headers.iter().find(|(key, _)| key == name).map(|(_, value)| value),
+                expected_headers.iter().find(|(key, _)| key.eq_ignore_ascii_case(name)).map(|(_, value)| value),
+                "{label}: {name}"
+            );
+        }
+        assert_eq!(body, serde_json::from_value::<Vec<u8>>(expected["body_bytes"].clone())?, "{label}");
+    }
+    Ok(())
+}
+
 #[actix_web::test]
 async fn media_elements_match_the_measured_wire_and_serve_the_measured_http() -> TestResult {
-    let (address, handle, task, mut stream) = start_media_server().await?;
+    let (address, handle, task, mut stream) = start_media_server(media_entry).await?;
     let mut session_id = String::new();
 
     let wires = run_once(&mut stream, &mut session_id).await?;

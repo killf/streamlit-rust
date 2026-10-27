@@ -121,7 +121,8 @@ async fn delete_upload(req: HttpRequest, path: web::Path<(String, String)>, serv
 // Content types ride the store's addressing, so the extension is cosmetic.
 #[get("/media/{name}")]
 async fn media_file(req: HttpRequest, path: web::Path<String>) -> HttpResponse {
-    use actix_web::http::header::{ACCEPT_RANGES, CONTENT_RANGE, CONTENT_TYPE, ContentDisposition, DispositionParam, DispositionType};
+    use actix_web::http::header::{ACCEPT_RANGES, CONTENT_RANGE, CONTENT_TYPE, Charset, ContentDisposition, DispositionParam, DispositionType, ExtendedValue};
+
     let name = path.into_inner();
     let (id, extension) = name.rsplit_once('.').unwrap_or((&name, ""));
     let Some(file) = crate::media::stored_file(id) else {
@@ -150,14 +151,33 @@ async fn media_file(req: HttpRequest, path: web::Path<String>) -> HttpResponse {
     let range = req.headers().get("range").and_then(|value| value.to_str().ok()).and_then(|header| crate::media::ByteRange::parse(header, bytes.len() as u64));
     let mut response = if range.is_some() { HttpResponse::PartialContent() } else { HttpResponse::Ok() };
     response.insert_header((ACCEPT_RANGES, "bytes"));
-    // CSV headers follow the measured UTF-8 download response.
-    response.insert_header((CONTENT_TYPE, if mime == "text/csv" { "text/csv; charset=utf-8" } else { mime }));
+    // 1. 只补响应头；原 MIME 仍决定内容地址和默认文件后缀。
+    let content_type = if mime.starts_with("text/") && !mime.to_ascii_lowercase().contains("charset=") {
+        format!("{mime}; charset=utf-8")
+    } else {
+        mime.to_owned()
+    };
+    response.insert_header((CONTENT_TYPE, content_type));
+
     if file.download {
+        // 2. 默认名和特殊字符遵循已测下载行为，扩展参数接收未编码的 UTF-8。
+        let name = file.file_name.filter(|name| !name.is_empty()).unwrap_or_else(|| format!("streamlit_download{}", crate::media::download_extension(mime)));
+        let filename = if name.bytes().all(|byte| byte.is_ascii_alphanumeric() || b"/-._~".contains(&byte)) {
+            DispositionParam::Filename(name)
+        } else {
+            DispositionParam::FilenameExt(ExtendedValue {
+                charset: Charset::Ext("utf-8".into()),
+                language_tag: None,
+                value: name.into_bytes(),
+            })
+        };
+
         response.insert_header(ContentDisposition {
             disposition: DispositionType::Attachment,
-            parameters: file.file_name.into_iter().map(DispositionParam::Filename).collect(),
+            parameters: vec![filename],
         });
     }
+
     match range {
         Some(range) => {
             let total = bytes.len() as u64;

@@ -186,14 +186,19 @@
         "cache_contract": "tests/browser/cache_contract.py",
         "contract_guards": "tests/reference/test_cache_contract.py",
         "driven_fixture": "tests/reference/cache_app.py",
-        "driven_example": "streamlit/examples/cache.rs"
+        "driven_example": "streamlit/examples/cache.rs",
+        "kind_isolation_reference": [
+          "tests/reference/reference-browser/cache-kind-isolation/README.md",
+          "tests/reference/test_cache_kind_isolation_reference.py",
+          "streamlit/tests/runtime/cache.rs"
+        ]
       },
-      "rust_plan": "st.cache_data(\"name\").call(arg, |arg| ...) memoizes per session keyed by name + the serde_json serialization of the argument; a miss runs the function under a recording RenderContext, streams one empty-element cleared-spinner transient at the entry path after the function returns and stores the recorded ForwardMsgs; a hit re-anchors the recorded paths to the current cursor, replays them and advances the element cursor per slot; st.cache_clear() drops the store.",
+      "rust_plan": "st.cache_data(\"name\").call(arg, |arg| ...) memoizes per session and cache kind keyed by name + the serde_json serialization of the argument; a miss runs the function under a recording RenderContext, streams one empty-element cleared-spinner transient at the entry path after the function returns and stores the recorded ForwardMsgs; a hit re-anchors the recorded paths to the current cursor, replays them and advances the element cursor per slot; st.cache_clear() drops the store.",
       "compatibility_scope": "The journey-cache-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome across the two measured stages (a cold load with three misses, the Again click with three hits plus the clear remiss); the published replays assert 12/12 checks per side -- every miss streams exactly one empty-element transient (the cleared-spinner shape) at the call site's entry path (before the outside write for an element-free function, after its element for a side-effecting one), a hit replays the recorded function-internal elements with no transient and the replayed element consumes its path slot like a live render so following writes land after it, values stay stable across the rerun, st.cache_clear() drops the store so the next call remisses, the DOM shows the replayed element, zero exceptions.",
       "limitations": [
         "Coverage is one i64 function called with two distinct arguments, one side-effecting function writing a markdown inside, a button-triggered same-session rerun and one clear; TTL/expiry, persist to disk, hash_funcs, non-JSON argument and return types, exceptions raised inside a cached function, experimental_* parameters and concurrent reruns remain unobserved.",
         "The Python 1.66.1 store lives in the server process and is shared across browser sessions (observed while re-capturing: a warm process serves a session's first call as a hit); the Rust store is per session state, so cross-session hits and the process-lifetime warm-up are not reproduced.",
-        "cache source SHA256 e280fdb36ee0c31c0406c9e4f9b24fc10de81088c7255f292f63c9920af638b2; fixture SHA256 e82c00d6711edd51802bc4855144b614232ad97d4ecc5a8aed376f6cd3d8d7ff; example SHA256 dc82a0ff63330054a0245b7fe7eb393d968ae2defe6e707d8f4d0301d9b39081."
+        "Added kind-isolation subset: four Python 1.66.1 bare-script public decorator plans (same compute function object; structured/null results; both call orders) are frozen and reused. Rust checks each kind computes once, returns the original result, preserves resource Arc identity, and replays its own output across two real WS runs. Python per-kind clear observations are retained but Rust still offers only its session-wide cache_clear; no Python browser/wire parity is claimed for these new plans."
       ]
     },
     {
@@ -215,13 +220,18 @@
         "cache_contract": "tests/browser/cache_contract.py",
         "contract_guards": "tests/reference/test_cache_contract.py",
         "driven_fixture": "tests/reference/cache_app.py",
-        "driven_example": "streamlit/examples/cache.rs"
+        "driven_example": "streamlit/examples/cache.rs",
+        "kind_isolation_reference": [
+          "tests/reference/reference-browser/cache-kind-isolation/README.md",
+          "tests/reference/test_cache_kind_isolation_reference.py",
+          "streamlit/tests/runtime/cache.rs"
+        ]
       },
       "rust_plan": "st.cache_resource(\"name\").call(arg, |arg| ...) shares the miss/hit wire with st.cache_data but returns Arc<R> (R: Send + Sync + 'static) stored as Arc<dyn Any + Send + Sync>, so hits hand out the same allocation instead of cloning; st.cache_clear() drops it with every data entry.",
       "compatibility_scope": "The journey-cache-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome across the two measured stages (a cold load with three misses, the Again click with three hits plus the clear remiss); the published replays assert 12/12 checks per side -- every miss streams exactly one empty-element transient (the cleared-spinner shape) at the call site's entry path (before the outside write for an element-free function, after its element for a side-effecting one), a hit replays the recorded function-internal elements with no transient and the replayed element consumes its path slot like a live render so following writes land after it, values stay stable across the rerun, st.cache_clear() drops the store so the next call remisses, the DOM shows the replayed element, zero exceptions.",
       "limitations": [
         "Coverage is the shared-Arc semantics pinned by the Rust regression (a resource is built once per key and shared on every hit, never rebuilt) plus the miss/hit wire shared with st.cache_data; the browser journey drives cache_data only, and model/connection teardown, TTL and cross-session sharing remain unobserved.",
-        "cache source SHA256 e280fdb36ee0c31c0406c9e4f9b24fc10de81088c7255f292f63c9920af638b2; fixture SHA256 e82c00d6711edd51802bc4855144b614232ad97d4ecc5a8aed376f6cd3d8d7ff; example SHA256 dc82a0ff63330054a0245b7fe7eb393d968ae2defe6e707d8f4d0301d9b39081."
+        "Added kind-isolation subset: four Python 1.66.1 bare-script public decorator plans (same compute function object; structured/null results; both call orders) are frozen and reused. Rust checks each kind computes once, returns the original result, preserves resource Arc identity, and replays its own output across two real WS runs. Python per-kind clear observations are retained but Rust still offers only its session-wide cache_clear; no Python browser/wire parity is claimed for these new plans."
       ]
     },
     {
@@ -2712,13 +2722,19 @@
           "tests/reference/reference-browser/csv-workbench/README.md",
           "tests/browser/rust-csv-workbench/README.md",
           "streamlit/examples/csv_workbench.rs"
+        ],
+        "download_boundaries": [
+          "tests/reference/reference-browser/download-boundaries/README.md",
+          "tests/reference/test_download_boundaries_reference.py",
+          "streamlit/tests/runtime/media.rs",
+          "tests/browser/rust-download-boundaries/README.md"
         ]
       },
       "rust_plan": "st.download_button(label, data) registers a trigger widget and streams a download_button element whose url is the content-addressed /media/<blake2b-16>.<ext> address of the declared bytes (the same digest the reference computes, filename included), with the button type and icon.",
       "compatibility_scope": "The journey-buttons-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome across six measured stages (the load and one committed interaction each for the toggle, the single-select pill, the pagination page, the feedback star and the menu pick); the published replays assert 17/17 checks per side, covering every element's full wire message, the browser's widget-state reports and the settled DOM. Added 2026-10-27: 33 native text-CSV workflow stages (20 main and 13 filters) match frozen Python logical rows, draft behavior, counts and actual downloaded CSV bytes, including two-session isolation. Source replacement/reset remains unresolved; this is a measured subset, not complete CSV or default-chart compatibility.",
       "limitations": [
         "Coverage is the journey-buttons-v1 chain: the pinned fixture's widget set (two toggles, stars+thumbs feedback, single/multi pills, one segmented control, a 10-page pagination, one menu button, one text download, one keyed link button, one external page link) across the load and five committed interactions (toggle flip, single pill pick, page-2 click, third star, CSV menu pick).",
-        "Text/plain element evidence is retained; the new CSV workflow additionally proves real UTF-8 CSV GET/download bytes and attachment filename, plus Rust HTTP Range/repeat/unknown-id regression. Other MIME/filename variants and deferred callable generation remain unverified or incomplete."
+        "Text/plain element evidence is retained; the CSV workflow proves real UTF-8 CSV GET/download bytes and attachment filename, plus Rust HTTP Range/repeat/unknown-id regression. Ten additional frozen public byte inputs now match actual Rust WS/HTTP URLs, headers and bytes: default/empty/ASCII/Unicode/quote/backslash filenames, text charset, explicit charset, JSON and unknown MIME. Two real Rust browser clicks save the default and Unicode filenames with original bytes; HTTP Fetch occurred during initial rendering, before clicks. Other punctuation, all MIME mappings, text/file-like inference, deferred callable generation and complete media lifecycle remain unverified or incomplete."
       ]
     },
     {

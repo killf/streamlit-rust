@@ -73,7 +73,7 @@
 /tests/reference/refcore.py -text
 /tests/reference/test_capture_checks.py -text
 # Existing guide and forms test newline handling.
-/docs/guide/README.md -text
+/docs/guide/README.md -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 /tests/browser/test_forms_capture_attach.py -text
 /tests/browser/test_forms_capture_replay.py -text
 /tests/reference/test_forms_bundle.py -text
@@ -121,3 +121,13 @@
 # The Vega refresh red record is retained as an observed failure.
 /tests/browser/rust-vega-refresh-before/** -text
 /tests/browser/rust-vega-refresh-before/**/*.log whitespace=blank-at-eol,space-before-tab,cr-at-eol,-blank-at-eof
+
+# Frozen download input/output and native saved bytes retain original bytes.
+/tests/reference/reference-browser/download-boundaries/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+/tests/reference/reference-browser/download-boundaries/**/*.log whitespace=blank-at-eol,space-before-tab,cr-at-eol,-blank-at-eof
+/tests/browser/rust-download-boundaries/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+/tests/browser/rust-download-boundaries/**/*.log whitespace=blank-at-eol,space-before-tab,cr-at-eol,-blank-at-eof
+
+# Public script cache observations preserve data and original warnings.
+/tests/reference/reference-browser/cache-kind-isolation/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+/tests/reference/reference-browser/cache-kind-isolation/**/*.log whitespace=blank-at-eol,space-before-tab,cr-at-eol,-blank-at-eof

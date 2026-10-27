@@ -420,3 +420,162 @@ fn cache_keys_are_argument_sensitive_and_clear_drops_entries() {
     assert_eq!(st.cache_data("double").call(21, bump), 42);
     assert_eq!(computations.get(), 3, "clear drops every entry");
 }
+
+#[test]
+fn data_and_resource_with_the_same_name_keep_independent_values() {
+    let st = crate::Streamlit::with_session_state(crate::SessionState::default());
+    let computations = std::cell::Cell::new(0);
+    let compute = |n: i64| {
+        computations.set(computations.get() + 1);
+        Some(n * 2)
+    };
+
+    assert_eq!(st.cache_data("same").call(21, compute), Some(42));
+    let resource = st.cache_resource("same").call(21, compute);
+    assert_eq!(*resource, Some(42));
+    assert_eq!(st.cache_data("same").call(21, compute), Some(42), "a resource's internal null is not a cached data result");
+    let hit = st.cache_resource("same").call(21, compute);
+    assert!(std::sync::Arc::ptr_eq(&resource, &hit));
+    assert_eq!(computations.get(), 2, "each cache kind computes once");
+
+    assert_eq!(st.cache_data("same").call(7, compute), Some(14));
+    assert_eq!(*st.cache_resource("same").call(7, compute), Some(14));
+    assert_eq!(st.cache_data("same").call(21, compute), Some(42));
+    assert_eq!(computations.get(), 4, "different arguments miss without evicting the original pair");
+
+    st.cache_clear();
+    assert_eq!(st.cache_data("same").call(21, compute), Some(42));
+    let rebuilt = st.cache_resource("same").call(21, compute);
+    assert!(!std::sync::Arc::ptr_eq(&resource, &rebuilt));
+    assert_eq!(computations.get(), 6, "clear still drops both kinds");
+}
+
+#[test]
+fn cache_kinds_match_four_frozen_public_call_sequences() -> TestResult {
+    let reference: serde_json::Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/cache-kind-isolation/observations.json"))?;
+    assert_eq!(reference["reference_version"], "1.66.1");
+    let plans = reference["plans"].as_array().ok_or("cache plans are missing")?;
+    assert_eq!(plans.len(), 4);
+    for plan in plans {
+        let st = crate::Streamlit::with_session_state(crate::SessionState::default());
+        let computations = std::cell::Cell::new(0_u64);
+        let compute = |arg: &str| {
+            computations.set(computations.get() + 1);
+            (arg != "null").then(|| serde_json::json!({"value": 42}))
+        };
+        let arg = plan["arg"].as_str().ok_or("cache argument is missing")?;
+        let calls = plan["calls"].as_array().ok_or("cache calls are missing")?;
+        assert!(calls.len() >= 4);
+        let mut resource = None;
+        // 只复用初始四次公开调用；不冒称 Rust 有 Python 的分类别 clear 接口。
+        for call in &calls[..4] {
+            let value = match call["action"].as_str() {
+                Some("data") => st.cache_data("same").call(arg, compute),
+                Some("resource") => {
+                    let shared = st.cache_resource("same").call(arg, compute);
+                    if let Some(previous) = &resource {
+                        assert!(std::sync::Arc::ptr_eq(previous, &shared));
+                    }
+                    resource = Some(shared.clone());
+                    (*shared).clone()
+                }
+                other => panic!("unexpected initial cache action: {other:?}"),
+            };
+            assert_eq!(serde_json::to_value(value)?, call["returned"], "{}", plan["name"]);
+            assert_eq!(Some(computations.get()), call["counter_after"].as_u64(), "{}", plan["name"]);
+        }
+    }
+    Ok(())
+}
+
+fn cache_kind_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        let result: TestResult = (|| {
+            let state = st.session_state();
+            let computations = std::cell::Cell::new(state.get::<u64>("computations")?.unwrap_or(0));
+            let compute = |()| {
+                computations.set(computations.get() + 1);
+                st.write(format!("computed={}", computations.get()));
+                Some(42)
+            };
+            for _ in 0..2 {
+                st.write(format!("data={:?}", st.cache_data("same").call((), compute)));
+                st.write(format!("resource={:?}", st.cache_resource("same").call((), compute)));
+            }
+            state.set("computations", computations.get())?;
+            st.write(format!("computations={}", computations.get()));
+            Ok(())
+        })();
+        assert!(result.is_ok(), "cache kind fixture failed: {result:?}");
+    })
+}
+
+#[actix_web::test]
+async fn same_name_cache_kinds_replay_their_own_output_across_websocket_runs() -> TestResult {
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
+    let server = HttpServer::new(move || App::new().app_data(web::Data::new(StreamlitServer::new(cache_kind_entry, "127.0.0.1".into(), 0))).configure(configure_routes))
+        .workers(1)
+        .listen(listener)?
+        .run();
+    let handle = server.handle();
+    let server_task = actix_web::rt::spawn(server);
+    let mut capture = actix_web::rt::spawn(async move {
+        let mut socket = sessions::connect(address, None).await;
+        let mut runs = Vec::new();
+        for _ in 0..2 {
+            send_binary(
+                &mut socket,
+                &BackMsg {
+                    r#type: Some(back_msg::Type::RerunScript(ClientState::default())),
+                }
+                .encode_to_vec(),
+            )
+            .await;
+            let (mut texts, mut transients, mut session, mut finishes) = (Vec::new(), 0, String::new(), Vec::new());
+            loop {
+                let message = receive(&mut socket).await;
+                match message.r#type {
+                    Some(forward_msg::Type::NewSession(new)) => session = new.initialize.ok_or("initialization missing")?.session_id,
+                    Some(forward_msg::Type::ScriptFinished(status)) => finishes.push(status),
+                    Some(forward_msg::Type::SessionStatusChanged(status)) if !status.script_is_running => break,
+                    Some(forward_msg::Type::Delta(delta)) => match delta.r#type {
+                        Some(delta::Type::NewElement(element)) => match element.r#type {
+                            Some(element::Type::Markdown(text)) => texts.push((text.body, message.metadata.ok_or("delta path missing")?.delta_path)),
+                            other => return Err(format!("unexpected cache element: {other:?}").into()),
+                        },
+                        Some(delta::Type::NewTransient(_)) => transients += 1,
+                        _ => {}
+                    },
+                    _ => {}
+                }
+            }
+            runs.push((texts, transients, session, finishes));
+        }
+        Ok::<_, Box<dyn std::error::Error>>(runs)
+    });
+    let captured = tokio::time::timeout(Duration::from_secs(10), &mut capture).await;
+    if captured.is_err() {
+        capture.abort();
+        let _ = capture.await;
+    }
+    handle.stop(false).await;
+    server_task.await??;
+    let runs = captured???;
+
+    let expected = ["computed=1", "data=Some(42)", "computed=2", "resource=Some(42)", "computed=1", "data=Some(42)", "computed=2", "resource=Some(42)", "computations=2"];
+    assert_eq!(runs.len(), 2);
+    assert!(!runs[0].2.is_empty());
+    assert_eq!(runs[0].2, runs[1].2, "both rounds use the same session");
+    for (round, (texts, transients, _, finishes)) in runs.into_iter().enumerate() {
+        println!("cache kinds round={round} transients={transients} texts={texts:?}");
+        assert_eq!(finishes, [0]);
+        assert_eq!(transients, if round == 0 { 2 } else { 0 });
+        assert_eq!(texts.len(), expected.len());
+        for (index, ((text, path), expected)) in texts.into_iter().zip(expected).enumerate() {
+            assert_eq!(text, expected);
+            assert_eq!(path, [0, index as u32], "each replay consumes its current slot");
+        }
+    }
+    Ok(())
+}

@@ -1,0 +1,1575 @@
+{
+  "schema_version": 1,
+  "reference_version": "1.66.1",
+  "runtime": "python",
+  "captured_at_utc": "2026-10-27T11:54:16.406842+00:00",
+  "scope": "Actual public st.download_button initial WS outputs and same-session localhost HTTP GET; explicit protocol, no browser/UI claim.",
+  "server_command": [
+    "C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Scripts\\python.exe",
+    "-B",
+    "-m",
+    "streamlit",
+    "run",
+    "C:\\Users\\killf\\github\\streamlit-rust\\target\\checks\\m3-download-boundaries\\python\\app.py",
+    "--server.address=127.0.0.1",
+    "--server.port=54244",
+    "--server.headless=true",
+    "--server.fileWatcherType=none",
+    "--browser.gatherUsageStats=false"
+  ],
+  "url": "http://127.0.0.1:54244",
+  "security_cli_overrides": [],
+  "browser": null,
+  "inputs": [
+    {
+      "label": "01-default-bytes",
+      "file_name_option": null,
+      "mime_option": null,
+      "payload_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "payload_bytes": [
+        105,
+        100,
+        44,
+        114,
+        101,
+        103,
+        105,
+        111,
+        110,
+        10,
+        65,
+        44,
+        110,
+        111,
+        114,
+        116,
+        104,
+        10
+      ]
+    },
+    {
+      "label": "02-default-text",
+      "file_name_option": null,
+      "mime_option": "text/plain",
+      "payload_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "payload_bytes": [
+        105,
+        100,
+        44,
+        114,
+        101,
+        103,
+        105,
+        111,
+        110,
+        10,
+        65,
+        44,
+        110,
+        111,
+        114,
+        116,
+        104,
+        10
+      ]
+    },
+    {
+      "label": "03-unicode-csv",
+      "file_name_option": "数据 é.csv",
+      "mime_option": "text/csv",
+      "payload_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "payload_bytes": [
+        105,
+        100,
+        44,
+        114,
+        101,
+        103,
+        105,
+        111,
+        110,
+        10,
+        65,
+        44,
+        110,
+        111,
+        114,
+        116,
+        104,
+        10
+      ]
+    },
+    {
+      "label": "04-quote-csv",
+      "file_name_option": "a\"b.csv",
+      "mime_option": "text/csv",
+      "payload_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "payload_bytes": [
+        105,
+        100,
+        44,
+        114,
+        101,
+        103,
+        105,
+        111,
+        110,
+        10,
+        65,
+        44,
+        110,
+        111,
+        114,
+        116,
+        104,
+        10
+      ]
+    },
+    {
+      "label": "05-backslash-csv",
+      "file_name_option": "a\\b.csv",
+      "mime_option": "text/csv",
+      "payload_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "payload_bytes": [
+        105,
+        100,
+        44,
+        114,
+        101,
+        103,
+        105,
+        111,
+        110,
+        10,
+        65,
+        44,
+        110,
+        111,
+        114,
+        116,
+        104,
+        10
+      ]
+    },
+    {
+      "label": "06-empty-filename",
+      "file_name_option": "",
+      "mime_option": "text/csv",
+      "payload_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "payload_bytes": [
+        105,
+        100,
+        44,
+        114,
+        101,
+        103,
+        105,
+        111,
+        110,
+        10,
+        65,
+        44,
+        110,
+        111,
+        114,
+        116,
+        104,
+        10
+      ]
+    },
+    {
+      "label": "07-text-explicit-charset",
+      "file_name_option": null,
+      "mime_option": "text/plain; charset=utf-8",
+      "payload_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "payload_bytes": [
+        105,
+        100,
+        44,
+        114,
+        101,
+        103,
+        105,
+        111,
+        110,
+        10,
+        65,
+        44,
+        110,
+        111,
+        114,
+        116,
+        104,
+        10
+      ]
+    },
+    {
+      "label": "08-json",
+      "file_name_option": null,
+      "mime_option": "application/json",
+      "payload_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "payload_bytes": [
+        105,
+        100,
+        44,
+        114,
+        101,
+        103,
+        105,
+        111,
+        110,
+        10,
+        65,
+        44,
+        110,
+        111,
+        114,
+        116,
+        104,
+        10
+      ]
+    },
+    {
+      "label": "09-unknown-mime",
+      "file_name_option": null,
+      "mime_option": "application/x-synthetic-type",
+      "payload_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "payload_bytes": [
+        105,
+        100,
+        44,
+        114,
+        101,
+        103,
+        105,
+        111,
+        110,
+        10,
+        65,
+        44,
+        110,
+        111,
+        114,
+        116,
+        104,
+        10
+      ]
+    },
+    {
+      "label": "10-ascii-name",
+      "file_name_option": "hello.txt",
+      "mime_option": "text/plain",
+      "payload_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "payload_bytes": [
+        105,
+        100,
+        44,
+        114,
+        101,
+        103,
+        105,
+        111,
+        110,
+        10,
+        65,
+        44,
+        110,
+        111,
+        114,
+        116,
+        104,
+        10
+      ]
+    }
+  ],
+  "frames": [
+    {
+      "direction": "client->server",
+      "bytes": 2,
+      "base64": "WgA=",
+      "message": {
+        "rerun_script": {}
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 423,
+      "base64": "IqQDCq0BCl4KJDc5MDk1MDBjLWU1OWEtNTJlNy05ZjUzLWQzZGUwYzZhN2RmNCokNzkwOTUwMGMtZTU5YS01MmU3LTlmNTMtZDNkZTBjNmE3ZGY0MhBuby1tYWNoaW5lLWlkLXY0GiEKBjEuNjYuMRIOMy4xNC43LmZpbmFsLjAaB3dpbmRvd3MiAhABMiQ5Y2FiY2Y2OC00NmY1LTRkMzMtYjhkMC00MjUyMDYyZGY4YWESJDBkZGNhNWQzLTA0YWEtNGMzZi1iYjZkLThhYjI0OGRmOTMyZRoDYXBwIldDOlxVc2Vyc1xraWxsZlxnaXRodWJcc3RyZWFtbGl0LXJ1c3RcdGFyZ2V0XGNoZWNrc1xtMy1kb3dubG9hZC1ib3VuZGFyaWVzXHB5dGhvblxhcHAucHkyBhgCKAFIAUIiCiA0NTZmZjFmOGUyNjVmZjY1NDI1ZjdmM2EwMTA5NmJiOEogNDU2ZmYxZjhlMjY1ZmY2NTQyNWY3ZjNhMDEwOTZiYjhaIDQ1NmZmMWY4ZTI2NWZmNjU0MjVmN2YzYTAxMDk2YmI4",
+      "message": {
+        "new_session": {
+          "initialize": {
+            "user_info": {
+              "installation_id": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v3": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v4": "no-machine-id-v4"
+            },
+            "environment_info": {
+              "streamlit_version": "1.66.1",
+              "python_version": "3.14.7.final.0",
+              "server_os": "windows"
+            },
+            "session_status": {
+              "script_is_running": true
+            },
+            "session_id": "9cabcf68-46f5-4d33-b8d0-4252062df8aa"
+          },
+          "script_run_id": "0ddca5d3-04aa-4c3f-bb6d-8ab248df932e",
+          "name": "app",
+          "main_script_path": "C:\\Users\\killf\\github\\streamlit-rust\\target\\checks\\m3-download-boundaries\\python\\app.py",
+          "config": {
+            "max_cached_message_age": 2,
+            "allow_run_on_save": true,
+            "show_error_links": "SHOW_ERROR_LINKS_AUTO"
+          },
+          "app_pages": [
+            {
+              "page_script_hash": "456ff1f8e265ff65425f7f3a01096bb8"
+            }
+          ],
+          "page_script_hash": "456ff1f8e265ff65425f7f3a01096bb8",
+          "main_script_hash": "456ff1f8e265ff65425f7f3a01096bb8"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 4,
+      "base64": "SgIQAQ==",
+      "message": {
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 221,
+      "base64": "CiBhNDU5MTk1ZTg2MjAyY2JhNjJjY2FlMDQyODA5MDYyNhImEgIAACIgNDU2ZmYxZjhlMjY1ZmY2NTQyNWY3ZjNhMDEwOTZiYjgqkAEajQHaAoQBCjYkJElELTkwZjc2MGY5OGI5ODA0ZGRlZWY5YmJjODM5N2UyNDAyLTAxLWRlZmF1bHQtYnl0ZXMSEDAxLWRlZmF1bHQtYnl0ZXMyKy9tZWRpYS9mOGIyY2RhODI3MGRjYzE5YmRiZDc4YzY0N2FhODQyMy5iaW5KCXNlY29uZGFyeVgB0gMCEAE=",
+      "message": {
+        "hash": "a459195e86202cba62ccae0428090626",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "456ff1f8e265ff65425f7f3a01096bb8"
+        },
+        "delta": {
+          "new_element": {
+            "download_button": {
+              "id": "$$ID-90f760f98b9804ddeef9bbc8397e2402-01-default-bytes",
+              "label": "01-default-bytes",
+              "url": "/media/f8b2cda8270dcc19bdbd78c647aa8423.bin",
+              "type": "secondary",
+              "ignore_rerun": true
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 219,
+      "base64": "CiBlNDExNjVmMzI5N2Y1NGZkMWQ0Y2FiZmU5NmUzMTUyMxImEgIAASIgNDU2ZmYxZjhlMjY1ZmY2NTQyNWY3ZjNhMDEwOTZiYjgqjgEaiwHaAoIBCjUkJElELTA3ZmE4ZTNiZDJkZTFlOGYwYjRkNjM0ZDc4NDUzMzRkLTAyLWRlZmF1bHQtdGV4dBIPMDItZGVmYXVsdC10ZXh0MisvbWVkaWEvYmM2MDdhNTVlN2MzNDRkNDNmZjA0NWIzOTY4MzE0MzUudHh0SglzZWNvbmRhcnlYAdIDAhAB",
+      "message": {
+        "hash": "e41165f3297f54fd1d4cabfe96e31523",
+        "metadata": {
+          "delta_path": [
+            0,
+            1
+          ],
+          "active_script_hash": "456ff1f8e265ff65425f7f3a01096bb8"
+        },
+        "delta": {
+          "new_element": {
+            "download_button": {
+              "id": "$$ID-07fa8e3bd2de1e8f0b4d634d7845334d-02-default-text",
+              "label": "02-default-text",
+              "url": "/media/bc607a55e7c344d43ff045b396831435.txt",
+              "type": "secondary",
+              "ignore_rerun": true
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 217,
+      "base64": "CiBiNjNhNzcxZjMxNjU0MzhjMzcxMmQwNzlkZGE3ZmYzOBImEgIAAiIgNDU2ZmYxZjhlMjY1ZmY2NTQyNWY3ZjNhMDEwOTZiYjgqjAEaiQHaAoABCjQkJElELWZmMWRiMTBhZjNjZDgxNGMxNzk2OGI0NjMyZDU0MTk2LTAzLXVuaWNvZGUtY3N2Eg4wMy11bmljb2RlLWNzdjIrL21lZGlhLzkzNjA2YzgzNGZhZWU3ZThmMTVlZWQ3YTFkMjFiOTI1LmNzdkoJc2Vjb25kYXJ5WAHSAwIQAQ==",
+      "message": {
+        "hash": "b63a771f3165438c3712d079dda7ff38",
+        "metadata": {
+          "delta_path": [
+            0,
+            2
+          ],
+          "active_script_hash": "456ff1f8e265ff65425f7f3a01096bb8"
+        },
+        "delta": {
+          "new_element": {
+            "download_button": {
+              "id": "$$ID-ff1db10af3cd814c17968b4632d54196-03-unicode-csv",
+              "label": "03-unicode-csv",
+              "url": "/media/93606c834faee7e8f15eed7a1d21b925.csv",
+              "type": "secondary",
+              "ignore_rerun": true
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 212,
+      "base64": "CiA5N2VjZjQ2NmQ3ZjA5MDcxMzczZDgzNzE3NDk5ZmJlZRImEgIAAyIgNDU2ZmYxZjhlMjY1ZmY2NTQyNWY3ZjNhMDEwOTZiYjgqhwEahAHaAnwKMiQkSUQtMTRhNzJmYmNiOTVhZjgxNjkzZjQwZDkxNGM5YWE4NWEtMDQtcXVvdGUtY3N2EgwwNC1xdW90ZS1jc3YyKy9tZWRpYS84ZGFkOWExYjZlODc5NmZmZmM4Yzg2Yzc0YjAyYzFhOS5jc3ZKCXNlY29uZGFyeVgB0gMCEAE=",
+      "message": {
+        "hash": "97ecf466d7f09071373d83717499fbee",
+        "metadata": {
+          "delta_path": [
+            0,
+            3
+          ],
+          "active_script_hash": "456ff1f8e265ff65425f7f3a01096bb8"
+        },
+        "delta": {
+          "new_element": {
+            "download_button": {
+              "id": "$$ID-14a72fbcb95af81693f40d914c9aa85a-04-quote-csv",
+              "label": "04-quote-csv",
+              "url": "/media/8dad9a1b6e8796fffc8c86c74b02c1a9.csv",
+              "type": "secondary",
+              "ignore_rerun": true
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 221,
+      "base64": "CiBkNzExN2FmNTE2ZjNjYjk1YzYyODgzNDE0YzljM2I5YhImEgIABCIgNDU2ZmYxZjhlMjY1ZmY2NTQyNWY3ZjNhMDEwOTZiYjgqkAEajQHaAoQBCjYkJElELThjZmY3NDU0MmE4MDI2ZTUzM2Y4OGNlZjlhOGI3MmRhLTA1LWJhY2tzbGFzaC1jc3YSEDA1LWJhY2tzbGFzaC1jc3YyKy9tZWRpYS8xNGU3NTBhYjgyNDQzOTJmZmQyMzZjY2UwOTcxNmI5Ni5jc3ZKCXNlY29uZGFyeVgB0gMCEAE=",
+      "message": {
+        "hash": "d7117af516f3cb95c62883414c9c3b9b",
+        "metadata": {
+          "delta_path": [
+            0,
+            4
+          ],
+          "active_script_hash": "456ff1f8e265ff65425f7f3a01096bb8"
+        },
+        "delta": {
+          "new_element": {
+            "download_button": {
+              "id": "$$ID-8cff74542a8026e533f88cef9a8b72da-05-backslash-csv",
+              "label": "05-backslash-csv",
+              "url": "/media/14e750ab8244392ffd236cce09716b96.csv",
+              "type": "secondary",
+              "ignore_rerun": true
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 223,
+      "base64": "CiBlYzczYzgxYmE4NjRhNWM0Mjg2OTI1MzRlYjBhMTU5YxImEgIABSIgNDU2ZmYxZjhlMjY1ZmY2NTQyNWY3ZjNhMDEwOTZiYjgqkgEajwHaAoYBCjckJElELTc3MDNhOWUwODc2OTgwMWRkMjVhMDA2NzdjMTJhNTMzLTA2LWVtcHR5LWZpbGVuYW1lEhEwNi1lbXB0eS1maWxlbmFtZTIrL21lZGlhL2QxM2FiMWVkOTQ5MTExMjBmNGE2YTM1YjI4MzAwNjUwLmNzdkoJc2Vjb25kYXJ5WAHSAwIQAQ==",
+      "message": {
+        "hash": "ec73c81ba864a5c428692534eb0a159c",
+        "metadata": {
+          "delta_path": [
+            0,
+            5
+          ],
+          "active_script_hash": "456ff1f8e265ff65425f7f3a01096bb8"
+        },
+        "delta": {
+          "new_element": {
+            "download_button": {
+              "id": "$$ID-7703a9e08769801dd25a00677c12a533-06-empty-filename",
+              "label": "06-empty-filename",
+              "url": "/media/d13ab1ed94911120f4a6a35b28300650.csv",
+              "type": "secondary",
+              "ignore_rerun": true
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 233,
+      "base64": "CiBkODRjMDk1MzA0ZmUwOWI0MmMwN2E3YzJlNTU0MDY5YxImEgIABiIgNDU2ZmYxZjhlMjY1ZmY2NTQyNWY3ZjNhMDEwOTZiYjgqnAEamQHaApABCj4kJElELWY4MzFjZThlNjI5NzE2NzEzMWM3ODkyODlkYzBhMDQxLTA3LXRleHQtZXhwbGljaXQtY2hhcnNldBIYMDctdGV4dC1leHBsaWNpdC1jaGFyc2V0MicvbWVkaWEvYzNiOTBhYjE2MWZjMDYwY2I1ZDU3ZjBjMDVmYWU1NDBKCXNlY29uZGFyeVgB0gMCEAE=",
+      "message": {
+        "hash": "d84c095304fe09b42c07a7c2e554069c",
+        "metadata": {
+          "delta_path": [
+            0,
+            6
+          ],
+          "active_script_hash": "456ff1f8e265ff65425f7f3a01096bb8"
+        },
+        "delta": {
+          "new_element": {
+            "download_button": {
+              "id": "$$ID-f831ce8e6297167131c789289dc0a041-07-text-explicit-charset",
+              "label": "07-text-explicit-charset",
+              "url": "/media/c3b90ab161fc060cb5d57f0c05fae540",
+              "type": "secondary",
+              "ignore_rerun": true
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 201,
+      "base64": "CiA4ZjYwMmEwYWEyOGFlNGRlNjg0ODU5YWQyM2I5MDMzMBImEgIAByIgNDU2ZmYxZjhlMjY1ZmY2NTQyNWY3ZjNhMDEwOTZiYjgqfRp72gJzCi0kJElELTAxNWQyZjAyMTI5N2NkN2QwMzEzN2FlZjNlNTY5NTNlLTA4LWpzb24SBzA4LWpzb24yLC9tZWRpYS8wMzBlMDBhNDNhMDQ1YjM0MzFmZTJhZDQ4NDI5MGI4ZS5qc29uSglzZWNvbmRhcnlYAdIDAhAB",
+      "message": {
+        "hash": "8f602a0aa28ae4de684859ad23b90330",
+        "metadata": {
+          "delta_path": [
+            0,
+            7
+          ],
+          "active_script_hash": "456ff1f8e265ff65425f7f3a01096bb8"
+        },
+        "delta": {
+          "new_element": {
+            "download_button": {
+              "id": "$$ID-015d2f021297cd7d03137aef3e56953e-08-json",
+              "label": "08-json",
+              "url": "/media/030e00a43a045b3431fe2ad484290b8e.json",
+              "type": "secondary",
+              "ignore_rerun": true
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 214,
+      "base64": "CiAxZWJlYWIzMTQ0ODFkODNlM2M1MWQ4ZDBkMTdhNTc0ORImEgIACCIgNDU2ZmYxZjhlMjY1ZmY2NTQyNWY3ZjNhMDEwOTZiYjgqiQEahgHaAn4KNSQkSUQtZDJhOTcwMjdjNjk1ZjFjOWIxMGU0ZGIwZDM4ZmJmNzgtMDktdW5rbm93bi1taW1lEg8wOS11bmtub3duLW1pbWUyJy9tZWRpYS81NzBiNWNhNWEwZThlMjJmYTdiYjZjYWVmOWNiNDhlOUoJc2Vjb25kYXJ5WAHSAwIQAQ==",
+      "message": {
+        "hash": "1ebeab314481d83e3c51d8d0d17a5749",
+        "metadata": {
+          "delta_path": [
+            0,
+            8
+          ],
+          "active_script_hash": "456ff1f8e265ff65425f7f3a01096bb8"
+        },
+        "delta": {
+          "new_element": {
+            "download_button": {
+              "id": "$$ID-d2a97027c695f1c9b10e4db0d38fbf78-09-unknown-mime",
+              "label": "09-unknown-mime",
+              "url": "/media/570b5ca5a0e8e22fa7bb6caef9cb48e9",
+              "type": "secondary",
+              "ignore_rerun": true
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 214,
+      "base64": "CiAzNjdjYmE0YjliZTk2NjkxZmNiZGE3YTM3OTYwMjUwORImEgIACSIgNDU2ZmYxZjhlMjY1ZmY2NTQyNWY3ZjNhMDEwOTZiYjgqiQEahgHaAn4KMyQkSUQtNTk5NDUzNDY0ZTg3MGQ1OTM5NjNiZGQyOTZmNGQ2ODctMTAtYXNjaWktbmFtZRINMTAtYXNjaWktbmFtZTIrL21lZGlhLzU2ODUyMDQ2OGI2OGFmOTY4ZWVlNTk2MzEwMjBhYWIwLnR4dEoJc2Vjb25kYXJ5WAHSAwIQAQ==",
+      "message": {
+        "hash": "367cba4b9be96691fcbda7a379602509",
+        "metadata": {
+          "delta_path": [
+            0,
+            9
+          ],
+          "active_script_hash": "456ff1f8e265ff65425f7f3a01096bb8"
+        },
+        "delta": {
+          "new_element": {
+            "download_button": {
+              "id": "$$ID-599453464e870d593963bdd296f4d687-10-ascii-name",
+              "label": "10-ascii-name",
+              "url": "/media/568520468b68af968eee59631020aab0.txt",
+              "type": "secondary",
+              "ignore_rerun": true
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 612,
+      "base64": "CiAyMGI1ODllMjFjMThlYzkxNzA5MjU0NzJhMzEwYmZjNhImEgIACiIgNDU2ZmYxZjhlMjY1ZmY2NTQyNWY3ZjNhMDEwOTZiYjgqlwQalASCA4YECv0DeyJwdWJsaWNfcGFyYW1ldGVyX3Jlc3VsdHMiOiBbeyJsYWJlbCI6ICIwMS1kZWZhdWx0LWJ5dGVzIiwgImFjY2VwdGVkIjogdHJ1ZX0sIHsibGFiZWwiOiAiMDItZGVmYXVsdC10ZXh0IiwgImFjY2VwdGVkIjogdHJ1ZX0sIHsibGFiZWwiOiAiMDMtdW5pY29kZS1jc3YiLCAiYWNjZXB0ZWQiOiB0cnVlfSwgeyJsYWJlbCI6ICIwNC1xdW90ZS1jc3YiLCAiYWNjZXB0ZWQiOiB0cnVlfSwgeyJsYWJlbCI6ICIwNS1iYWNrc2xhc2gtY3N2IiwgImFjY2VwdGVkIjogdHJ1ZX0sIHsibGFiZWwiOiAiMDYtZW1wdHktZmlsZW5hbWUiLCAiYWNjZXB0ZWQiOiB0cnVlfSwgeyJsYWJlbCI6ICIwNy10ZXh0LWV4cGxpY2l0LWNoYXJzZXQiLCAiYWNjZXB0ZWQiOiB0cnVlfSwgeyJsYWJlbCI6ICIwOC1qc29uIiwgImFjY2VwdGVkIjogdHJ1ZX0sIHsibGFiZWwiOiAiMDktdW5rbm93bi1taW1lIiwgImFjY2VwdGVkIjogdHJ1ZX0sIHsibGFiZWwiOiAiMTAtYXNjaWktbmFtZSIsICJhY2NlcHRlZCI6IHRydWV9XX0SBGpzb27KAwIQAdIDAggB",
+      "message": {
+        "hash": "20b589e21c18ec9170925472a310bfc6",
+        "metadata": {
+          "delta_path": [
+            0,
+            10
+          ],
+          "active_script_hash": "456ff1f8e265ff65425f7f3a01096bb8"
+        },
+        "delta": {
+          "new_element": {
+            "code": {
+              "code_text": "{\"public_parameter_results\": [{\"label\": \"01-default-bytes\", \"accepted\": true}, {\"label\": \"02-default-text\", \"accepted\": true}, {\"label\": \"03-unicode-csv\", \"accepted\": true}, {\"label\": \"04-quote-csv\", \"accepted\": true}, {\"label\": \"05-backslash-csv\", \"accepted\": true}, {\"label\": \"06-empty-filename\", \"accepted\": true}, {\"label\": \"07-text-explicit-charset\", \"accepted\": true}, {\"label\": \"08-json\", \"accepted\": true}, {\"label\": \"09-unknown-mime\", \"accepted\": true}, {\"label\": \"10-ascii-name\", \"accepted\": true}]}",
+              "language": "json"
+            },
+            "height_config": {
+              "use_content": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "MAA=",
+      "message": {
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "SgA=",
+      "message": {
+        "session_status_changed": {}
+      }
+    }
+  ],
+  "http": [
+    {
+      "method": "GET",
+      "path": "/_stcore/health",
+      "status": 200,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 11:54:17 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-length",
+          "2"
+        ],
+        [
+          "content-type",
+          "text/plain; charset=utf-8"
+        ],
+        [
+          "cache-control",
+          "no-cache"
+        ],
+        [
+          "set-cookie",
+          "_streamlit_xsrf=2|fab3c293|d26574e7214322dca2e9172d6347fde5|1793102057; Path=/; SameSite=Lax"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "b2s="
+    },
+    {
+      "label": "01-default-bytes",
+      "method": "GET",
+      "path": "/media/f8b2cda8270dcc19bdbd78c647aa8423.bin",
+      "url": "http://127.0.0.1:54244/media/f8b2cda8270dcc19bdbd78c647aa8423.bin",
+      "response_url": "http://127.0.0.1:54244/media/f8b2cda8270dcc19bdbd78c647aa8423.bin",
+      "status": 200,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 11:54:17 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-disposition",
+          "attachment; filename=\"streamlit_download.bin\""
+        ],
+        [
+          "accept-ranges",
+          "bytes"
+        ],
+        [
+          "content-length",
+          "18"
+        ],
+        [
+          "content-type",
+          "application/octet-stream"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "body_bytes": [
+        105,
+        100,
+        44,
+        114,
+        101,
+        103,
+        105,
+        111,
+        110,
+        10,
+        65,
+        44,
+        110,
+        111,
+        114,
+        116,
+        104,
+        10
+      ],
+      "body_length": 18
+    },
+    {
+      "label": "02-default-text",
+      "method": "GET",
+      "path": "/media/bc607a55e7c344d43ff045b396831435.txt",
+      "url": "http://127.0.0.1:54244/media/bc607a55e7c344d43ff045b396831435.txt",
+      "response_url": "http://127.0.0.1:54244/media/bc607a55e7c344d43ff045b396831435.txt",
+      "status": 200,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 11:54:17 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-disposition",
+          "attachment; filename=\"streamlit_download.txt\""
+        ],
+        [
+          "accept-ranges",
+          "bytes"
+        ],
+        [
+          "content-length",
+          "18"
+        ],
+        [
+          "content-type",
+          "text/plain; charset=utf-8"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "body_bytes": [
+        105,
+        100,
+        44,
+        114,
+        101,
+        103,
+        105,
+        111,
+        110,
+        10,
+        65,
+        44,
+        110,
+        111,
+        114,
+        116,
+        104,
+        10
+      ],
+      "body_length": 18
+    },
+    {
+      "label": "03-unicode-csv",
+      "method": "GET",
+      "path": "/media/93606c834faee7e8f15eed7a1d21b925.csv",
+      "url": "http://127.0.0.1:54244/media/93606c834faee7e8f15eed7a1d21b925.csv",
+      "response_url": "http://127.0.0.1:54244/media/93606c834faee7e8f15eed7a1d21b925.csv",
+      "status": 200,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 11:54:17 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-disposition",
+          "attachment; filename*=utf-8''%E6%95%B0%E6%8D%AE%20%C3%A9.csv"
+        ],
+        [
+          "accept-ranges",
+          "bytes"
+        ],
+        [
+          "content-length",
+          "18"
+        ],
+        [
+          "content-type",
+          "text/csv; charset=utf-8"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "body_bytes": [
+        105,
+        100,
+        44,
+        114,
+        101,
+        103,
+        105,
+        111,
+        110,
+        10,
+        65,
+        44,
+        110,
+        111,
+        114,
+        116,
+        104,
+        10
+      ],
+      "body_length": 18
+    },
+    {
+      "label": "04-quote-csv",
+      "method": "GET",
+      "path": "/media/8dad9a1b6e8796fffc8c86c74b02c1a9.csv",
+      "url": "http://127.0.0.1:54244/media/8dad9a1b6e8796fffc8c86c74b02c1a9.csv",
+      "response_url": "http://127.0.0.1:54244/media/8dad9a1b6e8796fffc8c86c74b02c1a9.csv",
+      "status": 200,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 11:54:17 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-disposition",
+          "attachment; filename*=utf-8''a%22b.csv"
+        ],
+        [
+          "accept-ranges",
+          "bytes"
+        ],
+        [
+          "content-length",
+          "18"
+        ],
+        [
+          "content-type",
+          "text/csv; charset=utf-8"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "body_bytes": [
+        105,
+        100,
+        44,
+        114,
+        101,
+        103,
+        105,
+        111,
+        110,
+        10,
+        65,
+        44,
+        110,
+        111,
+        114,
+        116,
+        104,
+        10
+      ],
+      "body_length": 18
+    },
+    {
+      "label": "05-backslash-csv",
+      "method": "GET",
+      "path": "/media/14e750ab8244392ffd236cce09716b96.csv",
+      "url": "http://127.0.0.1:54244/media/14e750ab8244392ffd236cce09716b96.csv",
+      "response_url": "http://127.0.0.1:54244/media/14e750ab8244392ffd236cce09716b96.csv",
+      "status": 200,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 11:54:17 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-disposition",
+          "attachment; filename*=utf-8''a%5Cb.csv"
+        ],
+        [
+          "accept-ranges",
+          "bytes"
+        ],
+        [
+          "content-length",
+          "18"
+        ],
+        [
+          "content-type",
+          "text/csv; charset=utf-8"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "body_bytes": [
+        105,
+        100,
+        44,
+        114,
+        101,
+        103,
+        105,
+        111,
+        110,
+        10,
+        65,
+        44,
+        110,
+        111,
+        114,
+        116,
+        104,
+        10
+      ],
+      "body_length": 18
+    },
+    {
+      "label": "06-empty-filename",
+      "method": "GET",
+      "path": "/media/d13ab1ed94911120f4a6a35b28300650.csv",
+      "url": "http://127.0.0.1:54244/media/d13ab1ed94911120f4a6a35b28300650.csv",
+      "response_url": "http://127.0.0.1:54244/media/d13ab1ed94911120f4a6a35b28300650.csv",
+      "status": 200,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 11:54:17 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-disposition",
+          "attachment; filename=\"streamlit_download.csv\""
+        ],
+        [
+          "accept-ranges",
+          "bytes"
+        ],
+        [
+          "content-length",
+          "18"
+        ],
+        [
+          "content-type",
+          "text/csv; charset=utf-8"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "body_bytes": [
+        105,
+        100,
+        44,
+        114,
+        101,
+        103,
+        105,
+        111,
+        110,
+        10,
+        65,
+        44,
+        110,
+        111,
+        114,
+        116,
+        104,
+        10
+      ],
+      "body_length": 18
+    },
+    {
+      "label": "07-text-explicit-charset",
+      "method": "GET",
+      "path": "/media/c3b90ab161fc060cb5d57f0c05fae540",
+      "url": "http://127.0.0.1:54244/media/c3b90ab161fc060cb5d57f0c05fae540",
+      "response_url": "http://127.0.0.1:54244/media/c3b90ab161fc060cb5d57f0c05fae540",
+      "status": 200,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 11:54:17 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-disposition",
+          "attachment; filename=\"streamlit_download\""
+        ],
+        [
+          "accept-ranges",
+          "bytes"
+        ],
+        [
+          "content-length",
+          "18"
+        ],
+        [
+          "content-type",
+          "text/plain; charset=utf-8"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "body_bytes": [
+        105,
+        100,
+        44,
+        114,
+        101,
+        103,
+        105,
+        111,
+        110,
+        10,
+        65,
+        44,
+        110,
+        111,
+        114,
+        116,
+        104,
+        10
+      ],
+      "body_length": 18
+    },
+    {
+      "label": "08-json",
+      "method": "GET",
+      "path": "/media/030e00a43a045b3431fe2ad484290b8e.json",
+      "url": "http://127.0.0.1:54244/media/030e00a43a045b3431fe2ad484290b8e.json",
+      "response_url": "http://127.0.0.1:54244/media/030e00a43a045b3431fe2ad484290b8e.json",
+      "status": 200,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 11:54:17 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-disposition",
+          "attachment; filename=\"streamlit_download.json\""
+        ],
+        [
+          "accept-ranges",
+          "bytes"
+        ],
+        [
+          "content-length",
+          "18"
+        ],
+        [
+          "content-type",
+          "application/json"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "body_bytes": [
+        105,
+        100,
+        44,
+        114,
+        101,
+        103,
+        105,
+        111,
+        110,
+        10,
+        65,
+        44,
+        110,
+        111,
+        114,
+        116,
+        104,
+        10
+      ],
+      "body_length": 18
+    },
+    {
+      "label": "09-unknown-mime",
+      "method": "GET",
+      "path": "/media/570b5ca5a0e8e22fa7bb6caef9cb48e9",
+      "url": "http://127.0.0.1:54244/media/570b5ca5a0e8e22fa7bb6caef9cb48e9",
+      "response_url": "http://127.0.0.1:54244/media/570b5ca5a0e8e22fa7bb6caef9cb48e9",
+      "status": 200,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 11:54:17 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-disposition",
+          "attachment; filename=\"streamlit_download\""
+        ],
+        [
+          "accept-ranges",
+          "bytes"
+        ],
+        [
+          "content-length",
+          "18"
+        ],
+        [
+          "content-type",
+          "application/x-synthetic-type"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "body_bytes": [
+        105,
+        100,
+        44,
+        114,
+        101,
+        103,
+        105,
+        111,
+        110,
+        10,
+        65,
+        44,
+        110,
+        111,
+        114,
+        116,
+        104,
+        10
+      ],
+      "body_length": 18
+    },
+    {
+      "label": "10-ascii-name",
+      "method": "GET",
+      "path": "/media/568520468b68af968eee59631020aab0.txt",
+      "url": "http://127.0.0.1:54244/media/568520468b68af968eee59631020aab0.txt",
+      "response_url": "http://127.0.0.1:54244/media/568520468b68af968eee59631020aab0.txt",
+      "status": 200,
+      "headers": [
+        [
+          "date",
+          "Tue, 27 Oct 2026 11:54:17 GMT"
+        ],
+        [
+          "server",
+          "uvicorn"
+        ],
+        [
+          "content-disposition",
+          "attachment; filename=\"hello.txt\""
+        ],
+        [
+          "accept-ranges",
+          "bytes"
+        ],
+        [
+          "content-length",
+          "18"
+        ],
+        [
+          "content-type",
+          "text/plain; charset=utf-8"
+        ],
+        [
+          "Connection",
+          "close"
+        ]
+      ],
+      "body_base64": "aWQscmVnaW9uCkEsbm9ydGgK",
+      "body_bytes": [
+        105,
+        100,
+        44,
+        114,
+        101,
+        103,
+        105,
+        111,
+        110,
+        10,
+        65,
+        44,
+        110,
+        111,
+        114,
+        116,
+        104,
+        10
+      ],
+      "body_length": 18
+    }
+  ],
+  "downloads": [
+    {
+      "delta_path": [
+        0,
+        0
+      ],
+      "fields": {
+        "id": "$$ID-90f760f98b9804ddeef9bbc8397e2402-01-default-bytes",
+        "label": "01-default-bytes",
+        "url": "/media/f8b2cda8270dcc19bdbd78c647aa8423.bin",
+        "type": "secondary",
+        "ignore_rerun": true
+      }
+    },
+    {
+      "delta_path": [
+        0,
+        1
+      ],
+      "fields": {
+        "id": "$$ID-07fa8e3bd2de1e8f0b4d634d7845334d-02-default-text",
+        "label": "02-default-text",
+        "url": "/media/bc607a55e7c344d43ff045b396831435.txt",
+        "type": "secondary",
+        "ignore_rerun": true
+      }
+    },
+    {
+      "delta_path": [
+        0,
+        2
+      ],
+      "fields": {
+        "id": "$$ID-ff1db10af3cd814c17968b4632d54196-03-unicode-csv",
+        "label": "03-unicode-csv",
+        "url": "/media/93606c834faee7e8f15eed7a1d21b925.csv",
+        "type": "secondary",
+        "ignore_rerun": true
+      }
+    },
+    {
+      "delta_path": [
+        0,
+        3
+      ],
+      "fields": {
+        "id": "$$ID-14a72fbcb95af81693f40d914c9aa85a-04-quote-csv",
+        "label": "04-quote-csv",
+        "url": "/media/8dad9a1b6e8796fffc8c86c74b02c1a9.csv",
+        "type": "secondary",
+        "ignore_rerun": true
+      }
+    },
+    {
+      "delta_path": [
+        0,
+        4
+      ],
+      "fields": {
+        "id": "$$ID-8cff74542a8026e533f88cef9a8b72da-05-backslash-csv",
+        "label": "05-backslash-csv",
+        "url": "/media/14e750ab8244392ffd236cce09716b96.csv",
+        "type": "secondary",
+        "ignore_rerun": true
+      }
+    },
+    {
+      "delta_path": [
+        0,
+        5
+      ],
+      "fields": {
+        "id": "$$ID-7703a9e08769801dd25a00677c12a533-06-empty-filename",
+        "label": "06-empty-filename",
+        "url": "/media/d13ab1ed94911120f4a6a35b28300650.csv",
+        "type": "secondary",
+        "ignore_rerun": true
+      }
+    },
+    {
+      "delta_path": [
+        0,
+        6
+      ],
+      "fields": {
+        "id": "$$ID-f831ce8e6297167131c789289dc0a041-07-text-explicit-charset",
+        "label": "07-text-explicit-charset",
+        "url": "/media/c3b90ab161fc060cb5d57f0c05fae540",
+        "type": "secondary",
+        "ignore_rerun": true
+      }
+    },
+    {
+      "delta_path": [
+        0,
+        7
+      ],
+      "fields": {
+        "id": "$$ID-015d2f021297cd7d03137aef3e56953e-08-json",
+        "label": "08-json",
+        "url": "/media/030e00a43a045b3431fe2ad484290b8e.json",
+        "type": "secondary",
+        "ignore_rerun": true
+      }
+    },
+    {
+      "delta_path": [
+        0,
+        8
+      ],
+      "fields": {
+        "id": "$$ID-d2a97027c695f1c9b10e4db0d38fbf78-09-unknown-mime",
+        "label": "09-unknown-mime",
+        "url": "/media/570b5ca5a0e8e22fa7bb6caef9cb48e9",
+        "type": "secondary",
+        "ignore_rerun": true
+      }
+    },
+    {
+      "delta_path": [
+        0,
+        9
+      ],
+      "fields": {
+        "id": "$$ID-599453464e870d593963bdd296f4d687-10-ascii-name",
+        "label": "10-ascii-name",
+        "url": "/media/568520468b68af968eee59631020aab0.txt",
+        "type": "secondary",
+        "ignore_rerun": true
+      }
+    }
+  ],
+  "exceptions": [],
+  "finishes": [
+    {
+      "value": 0,
+      "name": "FINISHED_SUCCESSFULLY"
+    }
+  ],
+  "runs": [
+    {
+      "initialize": {
+        "user_info": {
+          "installation_id": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+          "installation_id_v3": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+          "installation_id_v4": "no-machine-id-v4"
+        },
+        "environment_info": {
+          "streamlit_version": "1.66.1",
+          "python_version": "3.14.7.final.0",
+          "server_os": "windows"
+        },
+        "session_status": {
+          "script_is_running": true
+        },
+        "session_id": "9cabcf68-46f5-4d33-b8d0-4252062df8aa"
+      },
+      "script_run_id": "0ddca5d3-04aa-4c3f-bb6d-8ab248df932e",
+      "name": "app",
+      "main_script_path": "C:\\Users\\killf\\github\\streamlit-rust\\target\\checks\\m3-download-boundaries\\python\\app.py",
+      "config": {
+        "max_cached_message_age": 2,
+        "allow_run_on_save": true,
+        "show_error_links": "SHOW_ERROR_LINKS_AUTO"
+      },
+      "app_pages": [
+        {
+          "page_script_hash": "456ff1f8e265ff65425f7f3a01096bb8"
+        }
+      ],
+      "page_script_hash": "456ff1f8e265ff65425f7f3a01096bb8",
+      "main_script_hash": "456ff1f8e265ff65425f7f3a01096bb8"
+    }
+  ],
+  "server_pid": 79104,
+  "handshake": {
+    "status": 101,
+    "headers": [
+      [
+        "Upgrade",
+        "websocket"
+      ],
+      [
+        "Connection",
+        "Upgrade"
+      ],
+      [
+        "Sec-WebSocket-Accept",
+        "onzlQrZOyWi7pmckjYU5swYHnvE="
+      ],
+      [
+        "date",
+        "Tue, 27 Oct 2026 11:54:17 GMT"
+      ],
+      [
+        "server",
+        "uvicorn"
+      ],
+      [
+        "Sec-WebSocket-Protocol",
+        "streamlit"
+      ]
+    ],
+    "subprotocol": "streamlit"
+  },
+  "public_parameter_results": [
+    {
+      "label": "01-default-bytes",
+      "accepted": true
+    },
+    {
+      "label": "02-default-text",
+      "accepted": true
+    },
+    {
+      "label": "03-unicode-csv",
+      "accepted": true
+    },
+    {
+      "label": "04-quote-csv",
+      "accepted": true
+    },
+    {
+      "label": "05-backslash-csv",
+      "accepted": true
+    },
+    {
+      "label": "06-empty-filename",
+      "accepted": true
+    },
+    {
+      "label": "07-text-explicit-charset",
+      "accepted": true
+    },
+    {
+      "label": "08-json",
+      "accepted": true
+    },
+    {
+      "label": "09-unknown-mime",
+      "accepted": true
+    },
+    {
+      "label": "10-ascii-name",
+      "accepted": true
+    }
+  ],
+  "completed_all_cases": true,
+  "cleanup": {
+    "websocket_closed": true,
+    "close_code": 1000,
+    "server_stopped": true,
+    "listener_count": "0",
+    "listener_check_exit_code": 0,
+    "browser_started": false
+  },
+  "cleanup_errors": []
+}

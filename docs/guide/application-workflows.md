@@ -191,6 +191,12 @@ let value = st.cache_data("outer").call(21, |n: i64| {
 
 运行 `cargo run --example chartlibs --locked`，打开 `http://127.0.0.1:8528/`。本批给既有示例补充 **Change Vega data**：仅将 Vega-Lite 图的 a 从 3 切换到 8，b 保持 7，再切回；其他图保持原数据。真实按钮已复现数据变为 8、可见值仍为 3，普通重跑仍旧，见[失败记录](../../tests/browser/rust-vega-refresh-before/README.md)。同形状、同 IPC 长度的值可能被官方前端漏判，不能仅凭新的 Arrow 数据宣称柱高已更新。[修复方案](../../.codex/architecture.md#vega-lite-same-shape-updates--decision-pending)涉及有限协议差异和图内交互状态取舍，等待用户选择。
 
+## 下载文件名和类型
+
+下载字节数据时，用 `DownloadButtonOptions` 指定文件名及 MIME，例如 `.file_name("数据 é.csv").mime("text/csv")`。缺省或空文件名按类型生成 `streamlit_download` 加后缀，已测特殊文件名采用 UTF-8 扩展参数编码；文本类型补 charset，已有 charset 不重复。十个冻结公开输入已通过 Rust 真实 WS/HTTP 精确对照，见[参考范围](../../tests/reference/reference-browser/download-boundaries/README.md)。显式带 charset 或未知 MIME 的 URL/默认名没有后缀，这沿用原始 MIME 映射；响应头补 charset 不改变文件内容地址。当前字节接口不代表已实现 Python 字符串/文件对象自动推断 MIME 或延迟生成文件。
+
+运行 `cargo run --example buttons --locked`，打开 `http://127.0.0.1:8523/`。**Save default bytes** 和 **Save Unicode CSV** 已通过[真实浏览器保存验证](../../tests/browser/rust-download-boundaries/README.md)，分别落盘为 `streamlit_download.bin` 与 `数据 é.csv`，内容均为合成 CSV 字节。这两个按钮配置 `ignore_rerun(true)`；前端加载时 Fetch 文件，点击后保存，不将它描述为点击后重新取文件。其他标点组合、所有 MIME 映射和下载生命周期仍未完整验收。
+
 ## 参考数据与验证
 
 参考行为以锁定的 Python Streamlit 1.66.1 一次采集的正确输入、输出及版本信息冻结；之后 Rust 单元测试和协议重放复用这些数据，无需因每次 Rust 修改或路径变化重新运行 Python。只有新行为、版本升级或证据失效时才补采。Rust、Python 和采集工具的源码 SHA 不作为验收条件；改变错误处理或实现方式不会使正确的冻结结果失效，也不需要另存历史源码。当前 Rust 仍需实际通过对应功能、协议和交互验证。
