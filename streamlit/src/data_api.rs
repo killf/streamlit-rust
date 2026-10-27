@@ -1180,7 +1180,10 @@ impl<C: AppendChild> DataApi for C {
                         key: options.key.as_deref(),
                         identity: &identity,
                         default,
-                        codec: crate::widgets::Codec::DataframeSelection,
+                        codec: crate::widgets::Codec::DataframeSelection {
+                            required_row: modes.contains(&DataframeSelectionMode::SingleRowRequired),
+                            num_rows: options.data.num_rows(),
+                        },
                         callback,
                     },
                     |value| Ok::<_, crate::WidgetError>(value.clone()),
@@ -1190,10 +1193,7 @@ impl<C: AppendChild> DataApi for C {
 
             // 2. 程序设置发送正规化状态，但 SessionState 保留用户的原部分对象。
             // 普通返回保留旧位置，不能因换表而静默清除选择。
-            let mut state = if set_value { programmatic_selection(&value, options.data, &modes)? } else { serde_json::from_value::<DataframeState>(value)? };
-            if modes.contains(&DataframeSelectionMode::SingleRowRequired) && state.selection.rows.is_empty() && options.data.num_rows() > 0 {
-                state.selection.rows.push(0);
-            }
+            let state = if set_value { programmatic_selection(&value, options.data, &modes)? } else { serde_json::from_value::<DataframeState>(value)? };
             if set_value {
                 selection_state = Some(py_dumps(&serde_json::to_value(&state)?));
             }

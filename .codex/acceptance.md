@@ -72,11 +72,11 @@ Q5/Q6 在用户确认选择性 nullable 规则后完成：76 项库单元、2 �
 
 ## Current M2 selection validation (2026-10-27)
 
-当前开发工作区的单入口选择实现通过格式检查、全目标 Clippy 与 177 项 Rust 测试：80 库单元、2 宏单元、11 示例、4 rustdoc、79 运行模块和 1 journey ledger。运行模块包含真实 HTTP/WS 与纯单元，不将所有 79 项称为网络测试。全量冻结参考回归另有 1494 项通过，96 条既有 Pillow 弃用告警保留；本次仅修复矩阵负向测试未复制列表证据的准备缺陷，未削弱拒绝或未写入断言，也未重采 Python。原始日志和带工作区范围的记录在本地 `target/checks/m2-dataframe-selection/rust/results.json`；指南中 show_selection 的原样代码另通过 rustc 编译检查。畸形浏览器选择与有效 trigger 同批时必须整批拒绝，程序部分 JSON 仍保留并由渲染层正规化；这是已有 batch 防御的扩展，不冒称完整恶意输入兼容。
+当前 required 空协议输入修复通过格式检查、全目标 Clippy、177 项 Rust 测试（80 库单元、2 宏、11 示例、4 rustdoc、79 运行模块、1 journey ledger）及 1496 项冻结参考回归；96 条既有 Pillow 弃用告警保留。运行模块含真实 HTTP/WS 与纯单元，不全称网络测试。结果、范围和日志见本地 `target/checks/m2-required-selection/results.json`；前一单入口实现批的结果与指南原样编译记录仍在 `target/checks/m2-dataframe-selection/rust/`，不混作本次新增行为证明。
 
-新增 [Rust 官方前端证据](../tests/browser/rust-dataframe-selection/README.md)经独立核验：六阶段选择/重跑/排序/详情/键盘编辑，75 个原始 PB、同一会话五轮成功；原输入与 editor 原表不变，返回编辑结果改变，自有资源已清理。34 阶段冻结参考还通过真实 Rust WS 重放模式、默认/程序状态、partial keyed、callback、缩行和隐藏/恢复。这些不同层次的证据分别保留，不用 WS 注入替代真实几何交互。
+`12f3664` 的真实 WS 红复现证明 returned rows[0] 而 keyed/callback 为空；[新增八阶段协议参考](../tests/reference/reference-browser/dataframe-required-protocol/README.md)固定了非空/空表、恢复、程序 partial 与实际 server echo 的生命周期。修复后原 34 前端输入与新 8 显式协议阶段共用 42 阶段真实 Rust WS 回归，原 oneof 来源检查保留；新增两项离线检查直接连接 raw PB、compact、Arrow 和实际 echo。协议反序列化先按旧注册元数据正规化，再比较变更、写 keyed 和安排回调，注册更新下一轮行数；程序 partial keyed 与旧位置不被裁剪。没有新依赖、公共接口或旧数据重采。
 
-Rust API 不承担旧返回类型兼容；仍未验证全部选择参数、非法组合/程序值、required-row 空浏览器 payload、多页/会话与 lazy，CSV 全流程及数据追加也未完成。矩阵保持 partial，M2 与长期 Goal 均未关闭。旧 M0 数字只是该代码快照的阶段基线，不代替这里的新代码结果。
+先前 [Rust 官方前端六阶段证据](../tests/browser/rust-dataframe-selection/README.md)保留 SingleRow 选择/重跑/排序/详情/键盘编辑的实际范围，不能据此宣称浏览器能清除 required 行。畸形选择和有效 trigger 同批的整体拒绝回归继续通过；这不替代完整恶意输入兼容。未验证的全部模式/参数、非法组合/程序值、多页/会话、lazy 及 CSV 完整闭环、追加仍属后续工作。矩阵保持 partial，M2 和长期 Goal 均未关闭。
 
 ## Required fresh-checkout checks
 

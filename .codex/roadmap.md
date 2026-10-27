@@ -24,7 +24,7 @@
 
 选择接口按用户最新无需旧 Rust API 向后兼容的取舍，采用单入口返回 typed state，实施与验收见[当前设计](architecture.md#dataframe-selection-and-data-updates--proposal)。官方 1.58.0 已移除旧 add_rows；数据追加流程仍在 M2，是否另增 Rust 扩展由用户选择，不自动增加追加扩展。
 
-已完成独立于接口的 [dataframe 选择参考](../tests/reference/reference-browser/dataframe-selection/README.md)：五配置加缩行补充共 34 阶段，冻结实际输入/输出供后续 Rust 单元和 WS 回归复用。参考观察与已测 Rust 实现范围分别记录；原先正确的 Python 数据没有重采，6 项新增离线核验通过。
+选择参考保留[原 34 阶段前端输入](../tests/reference/reference-browser/dataframe-selection/README.md)，另补[八阶段 required 协议输入](../tests/reference/reference-browser/dataframe-required-protocol/README.md)，真实 Rust WS 共用 42 阶段回放。已修复空协议选择在返回、keyed 与 callback 间分裂的问题，包含空表/恢复时使用前轮行数上下文；当前 177 项 Rust 和 1496 项冻结参考回归通过。新协议探针不宣称浏览器能清除 required 行，旧正确数据未重采。CSV 应用的[整合方案](architecture.md#csv-application-integration--proposal)另待用户选择。
 
 ## Long-term milestones
 

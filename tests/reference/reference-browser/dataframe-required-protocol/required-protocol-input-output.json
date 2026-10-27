@@ -1,0 +1,1247 @@
+{
+  "schema_version": 1,
+  "runtime": "python",
+  "reference_version": "1.66.1",
+  "transport": "native-websocket-protocol-probe",
+  "scope": "Explicit StringValue and button-trigger protocol inputs; no browser, UI clear, CDP, DOM, or screenshot claim.",
+  "raw_identity": {
+    "file": "first-attempt/trace.json",
+    "bytes": 250222,
+    "sha256": "f6781a538e7e3e12b9cb0e072f61188bb5f92e86dd4710751758bb6bb7bfe65c"
+  },
+  "stages": [
+    {
+      "name": "01-load",
+      "protocol_injection": "initial-protocol-load",
+      "selection_input_source": null,
+      "frame_start": 0,
+      "frame_end": 22,
+      "target_widget_states": [],
+      "all_widget_inputs": [],
+      "button_trigger_label": null,
+      "input_rows": [
+        {
+          "id": "rC",
+          "label": "C",
+          "qty": 30
+        },
+        {
+          "id": "rA",
+          "label": "A",
+          "qty": 10
+        },
+        {
+          "id": "rB",
+          "label": "B",
+          "qty": 20
+        }
+      ],
+      "version": 1,
+      "visible": true,
+      "run": 1,
+      "before": null,
+      "expected_returned": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0
+          ]
+        }
+      },
+      "expected_keyed": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0
+          ]
+        }
+      },
+      "expected_key_present": true,
+      "events": [
+        {
+          "kind": "main",
+          "run": 1
+        }
+      ],
+      "server_selection_state": null,
+      "dataframes": [
+        {
+          "frame_index": 18,
+          "delta_path": [
+            0,
+            3
+          ],
+          "fields": {
+            "id": "$$ID-efa2b7045c7cc9952da4e23f6396ce93-selection-required-protocol",
+            "columns": "{\"id\": {\"width\": 160}, \"qty\": {\"width\": 160}, \"label\": {\"width\": 160}, \"_index\": {\"hidden\": true}}",
+            "selection_mode": [
+              "SINGLE_ROW_REQUIRED"
+            ],
+            "row_height": 32
+          },
+          "schema": [
+            {
+              "name": "id",
+              "type": "large_string",
+              "nullable": true
+            },
+            {
+              "name": "qty",
+              "type": "int64",
+              "nullable": true
+            },
+            {
+              "name": "label",
+              "type": "large_string",
+              "nullable": true
+            }
+          ],
+          "rows": [
+            {
+              "id": "rC",
+              "qty": 30,
+              "label": "C"
+            },
+            {
+              "id": "rA",
+              "qty": 10,
+              "label": "A"
+            },
+            {
+              "id": "rB",
+              "qty": 20,
+              "label": "B"
+            }
+          ]
+        }
+      ],
+      "run_messages": [
+        {
+          "frame_index": 1,
+          "script_run_id": "83ba8a56-2de9-4eba-af68-ce8d42332b6a",
+          "session_id": "55ccc925-12a8-44d3-a1a8-687041128ff8",
+          "wire_version": "1.66.1"
+        }
+      ]
+    },
+    {
+      "name": "02-empty-nonempty",
+      "protocol_injection": "explicit-protocol-injection",
+      "selection_input_source": "manual-empty",
+      "frame_start": 22,
+      "frame_end": 44,
+      "target_widget_states": [
+        {
+          "frame_index": 22,
+          "id": "$$ID-efa2b7045c7cc9952da4e23f6396ce93-selection-required-protocol",
+          "value_oneof": "string_value",
+          "value": "{\"selection\":{\"rows\":[],\"columns\":[],\"cells\":[]}}"
+        }
+      ],
+      "all_widget_inputs": [
+        {
+          "frame_index": 22,
+          "id": "$$ID-efa2b7045c7cc9952da4e23f6396ce93-selection-required-protocol",
+          "value_oneof": "string_value",
+          "value": "{\"selection\":{\"rows\":[],\"columns\":[],\"cells\":[]}}"
+        }
+      ],
+      "button_trigger_label": null,
+      "input_rows": [
+        {
+          "id": "rC",
+          "label": "C",
+          "qty": 30
+        },
+        {
+          "id": "rA",
+          "label": "A",
+          "qty": 10
+        },
+        {
+          "id": "rB",
+          "label": "B",
+          "qty": 20
+        }
+      ],
+      "version": 1,
+      "visible": true,
+      "run": 2,
+      "before": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0
+          ]
+        }
+      },
+      "expected_returned": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0
+          ]
+        }
+      },
+      "expected_keyed": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0
+          ]
+        }
+      },
+      "expected_key_present": true,
+      "events": [
+        {
+          "kind": "main",
+          "run": 1
+        },
+        {
+          "kind": "main",
+          "run": 2
+        }
+      ],
+      "server_selection_state": null,
+      "dataframes": [
+        {
+          "frame_index": 40,
+          "delta_path": [
+            0,
+            3
+          ],
+          "fields": {
+            "id": "$$ID-efa2b7045c7cc9952da4e23f6396ce93-selection-required-protocol",
+            "columns": "{\"id\": {\"width\": 160}, \"qty\": {\"width\": 160}, \"label\": {\"width\": 160}, \"_index\": {\"hidden\": true}}",
+            "selection_mode": [
+              "SINGLE_ROW_REQUIRED"
+            ],
+            "row_height": 32
+          },
+          "schema": [
+            {
+              "name": "id",
+              "type": "large_string",
+              "nullable": true
+            },
+            {
+              "name": "qty",
+              "type": "int64",
+              "nullable": true
+            },
+            {
+              "name": "label",
+              "type": "large_string",
+              "nullable": true
+            }
+          ],
+          "rows": [
+            {
+              "id": "rC",
+              "qty": 30,
+              "label": "C"
+            },
+            {
+              "id": "rA",
+              "qty": 10,
+              "label": "A"
+            },
+            {
+              "id": "rB",
+              "qty": 20,
+              "label": "B"
+            }
+          ]
+        }
+      ],
+      "run_messages": [
+        {
+          "frame_index": 23,
+          "script_run_id": "62bbab56-e317-438e-adda-577b10df0e4a",
+          "session_id": "55ccc925-12a8-44d3-a1a8-687041128ff8",
+          "wire_version": "1.66.1"
+        }
+      ]
+    },
+    {
+      "name": "03-probe-nonempty",
+      "protocol_injection": "explicit-protocol-injection",
+      "selection_input_source": "manual-empty",
+      "frame_start": 44,
+      "frame_end": 66,
+      "target_widget_states": [
+        {
+          "frame_index": 44,
+          "id": "$$ID-efa2b7045c7cc9952da4e23f6396ce93-selection-required-protocol",
+          "value_oneof": "string_value",
+          "value": "{\"selection\":{\"rows\":[],\"columns\":[],\"cells\":[]}}"
+        }
+      ],
+      "all_widget_inputs": [
+        {
+          "frame_index": 44,
+          "id": "$$ID-efa2b7045c7cc9952da4e23f6396ce93-selection-required-protocol",
+          "value_oneof": "string_value",
+          "value": "{\"selection\":{\"rows\":[],\"columns\":[],\"cells\":[]}}"
+        },
+        {
+          "frame_index": 44,
+          "id": "$$ID-53caf6fa67bff50e76fa3b40290da0fa-None",
+          "value_oneof": "trigger_value",
+          "value": true
+        }
+      ],
+      "button_trigger_label": "Probe",
+      "input_rows": [
+        {
+          "id": "rC",
+          "label": "C",
+          "qty": 30
+        },
+        {
+          "id": "rA",
+          "label": "A",
+          "qty": 10
+        },
+        {
+          "id": "rB",
+          "label": "B",
+          "qty": 20
+        }
+      ],
+      "version": 1,
+      "visible": true,
+      "run": 3,
+      "before": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0
+          ]
+        }
+      },
+      "expected_returned": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0
+          ]
+        }
+      },
+      "expected_keyed": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0
+          ]
+        }
+      },
+      "expected_key_present": true,
+      "events": [
+        {
+          "kind": "main",
+          "run": 1
+        },
+        {
+          "kind": "main",
+          "run": 2
+        },
+        {
+          "kind": "main",
+          "run": 3
+        }
+      ],
+      "server_selection_state": null,
+      "dataframes": [
+        {
+          "frame_index": 62,
+          "delta_path": [
+            0,
+            3
+          ],
+          "fields": {
+            "id": "$$ID-efa2b7045c7cc9952da4e23f6396ce93-selection-required-protocol",
+            "columns": "{\"id\": {\"width\": 160}, \"qty\": {\"width\": 160}, \"label\": {\"width\": 160}, \"_index\": {\"hidden\": true}}",
+            "selection_mode": [
+              "SINGLE_ROW_REQUIRED"
+            ],
+            "row_height": 32
+          },
+          "schema": [
+            {
+              "name": "id",
+              "type": "large_string",
+              "nullable": true
+            },
+            {
+              "name": "qty",
+              "type": "int64",
+              "nullable": true
+            },
+            {
+              "name": "label",
+              "type": "large_string",
+              "nullable": true
+            }
+          ],
+          "rows": [
+            {
+              "id": "rC",
+              "qty": 30,
+              "label": "C"
+            },
+            {
+              "id": "rA",
+              "qty": 10,
+              "label": "A"
+            },
+            {
+              "id": "rB",
+              "qty": 20,
+              "label": "B"
+            }
+          ]
+        }
+      ],
+      "run_messages": [
+        {
+          "frame_index": 45,
+          "script_run_id": "709046a3-99c3-4198-8913-0dafe7f67cca",
+          "session_id": "55ccc925-12a8-44d3-a1a8-687041128ff8",
+          "wire_version": "1.66.1"
+        }
+      ]
+    },
+    {
+      "name": "04-switch-empty",
+      "protocol_injection": "explicit-protocol-injection",
+      "selection_input_source": "manual-empty",
+      "frame_start": 66,
+      "frame_end": 88,
+      "target_widget_states": [
+        {
+          "frame_index": 66,
+          "id": "$$ID-efa2b7045c7cc9952da4e23f6396ce93-selection-required-protocol",
+          "value_oneof": "string_value",
+          "value": "{\"selection\":{\"rows\":[],\"columns\":[],\"cells\":[]}}"
+        }
+      ],
+      "all_widget_inputs": [
+        {
+          "frame_index": 66,
+          "id": "$$ID-efa2b7045c7cc9952da4e23f6396ce93-selection-required-protocol",
+          "value_oneof": "string_value",
+          "value": "{\"selection\":{\"rows\":[],\"columns\":[],\"cells\":[]}}"
+        },
+        {
+          "frame_index": 66,
+          "id": "$$ID-2910e3bf837b1c3ffde5f2fcfe8907c2-None",
+          "value_oneof": "trigger_value",
+          "value": true
+        }
+      ],
+      "button_trigger_label": "Empty table",
+      "input_rows": [],
+      "version": 0,
+      "visible": true,
+      "run": 4,
+      "before": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0
+          ]
+        }
+      },
+      "expected_returned": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0
+          ]
+        }
+      },
+      "expected_keyed": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0
+          ]
+        }
+      },
+      "expected_key_present": true,
+      "events": [
+        {
+          "kind": "main",
+          "run": 1
+        },
+        {
+          "kind": "main",
+          "run": 2
+        },
+        {
+          "kind": "main",
+          "run": 3
+        },
+        {
+          "kind": "main",
+          "run": 4
+        }
+      ],
+      "server_selection_state": null,
+      "dataframes": [
+        {
+          "frame_index": 84,
+          "delta_path": [
+            0,
+            3
+          ],
+          "fields": {
+            "id": "$$ID-efa2b7045c7cc9952da4e23f6396ce93-selection-required-protocol",
+            "columns": "{\"id\": {\"width\": 160}, \"qty\": {\"width\": 160}, \"label\": {\"width\": 160}, \"_index\": {\"hidden\": true}}",
+            "selection_mode": [
+              "SINGLE_ROW_REQUIRED"
+            ],
+            "row_height": 32
+          },
+          "schema": [
+            {
+              "name": "id",
+              "type": "large_string",
+              "nullable": true
+            },
+            {
+              "name": "qty",
+              "type": "int64",
+              "nullable": true
+            },
+            {
+              "name": "label",
+              "type": "large_string",
+              "nullable": true
+            }
+          ],
+          "rows": []
+        }
+      ],
+      "run_messages": [
+        {
+          "frame_index": 67,
+          "script_run_id": "eab8f21f-94f3-4189-936d-afb8c294fb84",
+          "session_id": "55ccc925-12a8-44d3-a1a8-687041128ff8",
+          "wire_version": "1.66.1"
+        }
+      ]
+    },
+    {
+      "name": "05-empty-empty",
+      "protocol_injection": "explicit-protocol-injection",
+      "selection_input_source": "manual-empty",
+      "frame_start": 88,
+      "frame_end": 110,
+      "target_widget_states": [
+        {
+          "frame_index": 88,
+          "id": "$$ID-efa2b7045c7cc9952da4e23f6396ce93-selection-required-protocol",
+          "value_oneof": "string_value",
+          "value": "{\"selection\":{\"rows\":[],\"columns\":[],\"cells\":[]}}"
+        }
+      ],
+      "all_widget_inputs": [
+        {
+          "frame_index": 88,
+          "id": "$$ID-efa2b7045c7cc9952da4e23f6396ce93-selection-required-protocol",
+          "value_oneof": "string_value",
+          "value": "{\"selection\":{\"rows\":[],\"columns\":[],\"cells\":[]}}"
+        }
+      ],
+      "button_trigger_label": null,
+      "input_rows": [],
+      "version": 0,
+      "visible": true,
+      "run": 5,
+      "before": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": []
+        }
+      },
+      "expected_returned": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": []
+        }
+      },
+      "expected_keyed": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": []
+        }
+      },
+      "expected_key_present": true,
+      "events": [
+        {
+          "kind": "main",
+          "run": 1
+        },
+        {
+          "kind": "main",
+          "run": 2
+        },
+        {
+          "kind": "main",
+          "run": 3
+        },
+        {
+          "kind": "main",
+          "run": 4
+        },
+        {
+          "kind": "callback",
+          "run_seen": 4,
+          "state": {
+            "selection": {
+              "cells": [],
+              "columns": [],
+              "rows": []
+            }
+          }
+        },
+        {
+          "kind": "main",
+          "run": 5
+        }
+      ],
+      "server_selection_state": null,
+      "dataframes": [
+        {
+          "frame_index": 106,
+          "delta_path": [
+            0,
+            3
+          ],
+          "fields": {
+            "id": "$$ID-efa2b7045c7cc9952da4e23f6396ce93-selection-required-protocol",
+            "columns": "{\"id\": {\"width\": 160}, \"qty\": {\"width\": 160}, \"label\": {\"width\": 160}, \"_index\": {\"hidden\": true}}",
+            "selection_mode": [
+              "SINGLE_ROW_REQUIRED"
+            ],
+            "row_height": 32
+          },
+          "schema": [
+            {
+              "name": "id",
+              "type": "large_string",
+              "nullable": true
+            },
+            {
+              "name": "qty",
+              "type": "int64",
+              "nullable": true
+            },
+            {
+              "name": "label",
+              "type": "large_string",
+              "nullable": true
+            }
+          ],
+          "rows": []
+        }
+      ],
+      "run_messages": [
+        {
+          "frame_index": 89,
+          "script_run_id": "e4884dc1-3402-4abd-ad4d-82b93e479f4d",
+          "session_id": "55ccc925-12a8-44d3-a1a8-687041128ff8",
+          "wire_version": "1.66.1"
+        }
+      ]
+    },
+    {
+      "name": "06-restore",
+      "protocol_injection": "explicit-protocol-injection",
+      "selection_input_source": "manual-empty",
+      "frame_start": 110,
+      "frame_end": 132,
+      "target_widget_states": [
+        {
+          "frame_index": 110,
+          "id": "$$ID-efa2b7045c7cc9952da4e23f6396ce93-selection-required-protocol",
+          "value_oneof": "string_value",
+          "value": "{\"selection\":{\"rows\":[],\"columns\":[],\"cells\":[]}}"
+        }
+      ],
+      "all_widget_inputs": [
+        {
+          "frame_index": 110,
+          "id": "$$ID-efa2b7045c7cc9952da4e23f6396ce93-selection-required-protocol",
+          "value_oneof": "string_value",
+          "value": "{\"selection\":{\"rows\":[],\"columns\":[],\"cells\":[]}}"
+        },
+        {
+          "frame_index": 110,
+          "id": "$$ID-27ab5cc96b06f406bd704a429bc9b2e4-None",
+          "value_oneof": "trigger_value",
+          "value": true
+        }
+      ],
+      "button_trigger_label": "Restore table",
+      "input_rows": [
+        {
+          "id": "rC",
+          "label": "C",
+          "qty": 30
+        },
+        {
+          "id": "rA",
+          "label": "A",
+          "qty": 10
+        },
+        {
+          "id": "rB",
+          "label": "B",
+          "qty": 20
+        }
+      ],
+      "version": 1,
+      "visible": true,
+      "run": 6,
+      "before": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": []
+        }
+      },
+      "expected_returned": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": []
+        }
+      },
+      "expected_keyed": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": []
+        }
+      },
+      "expected_key_present": true,
+      "events": [
+        {
+          "kind": "main",
+          "run": 1
+        },
+        {
+          "kind": "main",
+          "run": 2
+        },
+        {
+          "kind": "main",
+          "run": 3
+        },
+        {
+          "kind": "main",
+          "run": 4
+        },
+        {
+          "kind": "callback",
+          "run_seen": 4,
+          "state": {
+            "selection": {
+              "cells": [],
+              "columns": [],
+              "rows": []
+            }
+          }
+        },
+        {
+          "kind": "main",
+          "run": 5
+        },
+        {
+          "kind": "main",
+          "run": 6
+        }
+      ],
+      "server_selection_state": null,
+      "dataframes": [
+        {
+          "frame_index": 128,
+          "delta_path": [
+            0,
+            3
+          ],
+          "fields": {
+            "id": "$$ID-efa2b7045c7cc9952da4e23f6396ce93-selection-required-protocol",
+            "columns": "{\"id\": {\"width\": 160}, \"qty\": {\"width\": 160}, \"label\": {\"width\": 160}, \"_index\": {\"hidden\": true}}",
+            "selection_mode": [
+              "SINGLE_ROW_REQUIRED"
+            ],
+            "row_height": 32
+          },
+          "schema": [
+            {
+              "name": "id",
+              "type": "large_string",
+              "nullable": true
+            },
+            {
+              "name": "qty",
+              "type": "int64",
+              "nullable": true
+            },
+            {
+              "name": "label",
+              "type": "large_string",
+              "nullable": true
+            }
+          ],
+          "rows": [
+            {
+              "id": "rC",
+              "qty": 30,
+              "label": "C"
+            },
+            {
+              "id": "rA",
+              "qty": 10,
+              "label": "A"
+            },
+            {
+              "id": "rB",
+              "qty": 20,
+              "label": "B"
+            }
+          ]
+        }
+      ],
+      "run_messages": [
+        {
+          "frame_index": 111,
+          "script_run_id": "67986ac0-8c93-4854-b954-4f9e588666e3",
+          "session_id": "55ccc925-12a8-44d3-a1a8-687041128ff8",
+          "wire_version": "1.66.1"
+        }
+      ]
+    },
+    {
+      "name": "07-program-partial-empty",
+      "protocol_injection": "explicit-protocol-injection",
+      "selection_input_source": "manual-empty",
+      "frame_start": 132,
+      "frame_end": 154,
+      "target_widget_states": [
+        {
+          "frame_index": 132,
+          "id": "$$ID-efa2b7045c7cc9952da4e23f6396ce93-selection-required-protocol",
+          "value_oneof": "string_value",
+          "value": "{\"selection\":{\"rows\":[],\"columns\":[],\"cells\":[]}}"
+        }
+      ],
+      "all_widget_inputs": [
+        {
+          "frame_index": 132,
+          "id": "$$ID-efa2b7045c7cc9952da4e23f6396ce93-selection-required-protocol",
+          "value_oneof": "string_value",
+          "value": "{\"selection\":{\"rows\":[],\"columns\":[],\"cells\":[]}}"
+        },
+        {
+          "frame_index": 132,
+          "id": "$$ID-540c0f83de53ad1455958bf5f35ee8b0-None",
+          "value_oneof": "trigger_value",
+          "value": true
+        }
+      ],
+      "button_trigger_label": "Program empty rows",
+      "input_rows": [
+        {
+          "id": "rC",
+          "label": "C",
+          "qty": 30
+        },
+        {
+          "id": "rA",
+          "label": "A",
+          "qty": 10
+        },
+        {
+          "id": "rB",
+          "label": "B",
+          "qty": 20
+        }
+      ],
+      "version": 1,
+      "visible": true,
+      "run": 7,
+      "before": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0
+          ]
+        }
+      },
+      "expected_returned": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0
+          ]
+        }
+      },
+      "expected_keyed": {
+        "selection": {
+          "rows": []
+        }
+      },
+      "expected_key_present": true,
+      "events": [
+        {
+          "kind": "main",
+          "run": 1
+        },
+        {
+          "kind": "main",
+          "run": 2
+        },
+        {
+          "kind": "main",
+          "run": 3
+        },
+        {
+          "kind": "main",
+          "run": 4
+        },
+        {
+          "kind": "callback",
+          "run_seen": 4,
+          "state": {
+            "selection": {
+              "cells": [],
+              "columns": [],
+              "rows": []
+            }
+          }
+        },
+        {
+          "kind": "main",
+          "run": 5
+        },
+        {
+          "kind": "main",
+          "run": 6
+        },
+        {
+          "kind": "callback",
+          "run_seen": 6,
+          "state": {
+            "selection": {
+              "cells": [],
+              "columns": [],
+              "rows": [
+                0
+              ]
+            }
+          }
+        },
+        {
+          "kind": "main",
+          "run": 7
+        }
+      ],
+      "server_selection_state": "{\"selection\": {\"rows\": [0], \"columns\": [], \"cells\": []}}",
+      "dataframes": [
+        {
+          "frame_index": 150,
+          "delta_path": [
+            0,
+            3
+          ],
+          "fields": {
+            "id": "$$ID-efa2b7045c7cc9952da4e23f6396ce93-selection-required-protocol",
+            "columns": "{\"id\": {\"width\": 160}, \"qty\": {\"width\": 160}, \"label\": {\"width\": 160}, \"_index\": {\"hidden\": true}}",
+            "selection_mode": [
+              "SINGLE_ROW_REQUIRED"
+            ],
+            "row_height": 32,
+            "selection_state": "{\"selection\": {\"rows\": [0], \"columns\": [], \"cells\": []}}"
+          },
+          "schema": [
+            {
+              "name": "id",
+              "type": "large_string",
+              "nullable": true
+            },
+            {
+              "name": "qty",
+              "type": "int64",
+              "nullable": true
+            },
+            {
+              "name": "label",
+              "type": "large_string",
+              "nullable": true
+            }
+          ],
+          "rows": [
+            {
+              "id": "rC",
+              "qty": 30,
+              "label": "C"
+            },
+            {
+              "id": "rA",
+              "qty": 10,
+              "label": "A"
+            },
+            {
+              "id": "rB",
+              "qty": 20,
+              "label": "B"
+            }
+          ]
+        }
+      ],
+      "run_messages": [
+        {
+          "frame_index": 133,
+          "script_run_id": "bfd0f946-2e7d-4100-ab56-f54fd079c750",
+          "session_id": "55ccc925-12a8-44d3-a1a8-687041128ff8",
+          "wire_version": "1.66.1"
+        }
+      ]
+    },
+    {
+      "name": "08-probe-server-echo",
+      "protocol_injection": "explicit-protocol-injection",
+      "selection_input_source": "server-echo",
+      "frame_start": 154,
+      "frame_end": 176,
+      "target_widget_states": [
+        {
+          "frame_index": 154,
+          "id": "$$ID-efa2b7045c7cc9952da4e23f6396ce93-selection-required-protocol",
+          "value_oneof": "string_value",
+          "value": "{\"selection\": {\"rows\": [0], \"columns\": [], \"cells\": []}}"
+        }
+      ],
+      "all_widget_inputs": [
+        {
+          "frame_index": 154,
+          "id": "$$ID-efa2b7045c7cc9952da4e23f6396ce93-selection-required-protocol",
+          "value_oneof": "string_value",
+          "value": "{\"selection\": {\"rows\": [0], \"columns\": [], \"cells\": []}}"
+        },
+        {
+          "frame_index": 154,
+          "id": "$$ID-53caf6fa67bff50e76fa3b40290da0fa-None",
+          "value_oneof": "trigger_value",
+          "value": true
+        }
+      ],
+      "button_trigger_label": "Probe",
+      "input_rows": [
+        {
+          "id": "rC",
+          "label": "C",
+          "qty": 30
+        },
+        {
+          "id": "rA",
+          "label": "A",
+          "qty": 10
+        },
+        {
+          "id": "rB",
+          "label": "B",
+          "qty": 20
+        }
+      ],
+      "version": 1,
+      "visible": true,
+      "run": 8,
+      "before": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0
+          ]
+        }
+      },
+      "expected_returned": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0
+          ]
+        }
+      },
+      "expected_keyed": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0
+          ]
+        }
+      },
+      "expected_key_present": true,
+      "events": [
+        {
+          "kind": "main",
+          "run": 1
+        },
+        {
+          "kind": "main",
+          "run": 2
+        },
+        {
+          "kind": "main",
+          "run": 3
+        },
+        {
+          "kind": "main",
+          "run": 4
+        },
+        {
+          "kind": "callback",
+          "run_seen": 4,
+          "state": {
+            "selection": {
+              "cells": [],
+              "columns": [],
+              "rows": []
+            }
+          }
+        },
+        {
+          "kind": "main",
+          "run": 5
+        },
+        {
+          "kind": "main",
+          "run": 6
+        },
+        {
+          "kind": "callback",
+          "run_seen": 6,
+          "state": {
+            "selection": {
+              "cells": [],
+              "columns": [],
+              "rows": [
+                0
+              ]
+            }
+          }
+        },
+        {
+          "kind": "main",
+          "run": 7
+        },
+        {
+          "kind": "callback",
+          "run_seen": 7,
+          "state": {
+            "selection": {
+              "cells": [],
+              "columns": [],
+              "rows": [
+                0
+              ]
+            }
+          }
+        },
+        {
+          "kind": "main",
+          "run": 8
+        }
+      ],
+      "server_selection_state": null,
+      "dataframes": [
+        {
+          "frame_index": 172,
+          "delta_path": [
+            0,
+            3
+          ],
+          "fields": {
+            "id": "$$ID-efa2b7045c7cc9952da4e23f6396ce93-selection-required-protocol",
+            "columns": "{\"id\": {\"width\": 160}, \"qty\": {\"width\": 160}, \"label\": {\"width\": 160}, \"_index\": {\"hidden\": true}}",
+            "selection_mode": [
+              "SINGLE_ROW_REQUIRED"
+            ],
+            "row_height": 32
+          },
+          "schema": [
+            {
+              "name": "id",
+              "type": "large_string",
+              "nullable": true
+            },
+            {
+              "name": "qty",
+              "type": "int64",
+              "nullable": true
+            },
+            {
+              "name": "label",
+              "type": "large_string",
+              "nullable": true
+            }
+          ],
+          "rows": [
+            {
+              "id": "rC",
+              "qty": 30,
+              "label": "C"
+            },
+            {
+              "id": "rA",
+              "qty": 10,
+              "label": "A"
+            },
+            {
+              "id": "rB",
+              "qty": 20,
+              "label": "B"
+            }
+          ]
+        }
+      ],
+      "run_messages": [
+        {
+          "frame_index": 155,
+          "script_run_id": "610d0af8-56e8-4c06-a42f-ee4ea26531e3",
+          "session_id": "55ccc925-12a8-44d3-a1a8-687041128ff8",
+          "wire_version": "1.66.1"
+        }
+      ]
+    }
+  ],
+  "cleanup": {
+    "server_stopped": true,
+    "websocket_closed": true
+  },
+  "cleanup_errors": []
+}

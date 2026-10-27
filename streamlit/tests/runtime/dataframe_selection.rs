@@ -1,6 +1,6 @@
-//! Frozen official-frontend selection inputs replayed over the production WS.
+//! Frozen frontend and explicit protocol selection inputs replayed over production WS.
 //! Canvas geometry and visual sorting were verified by the Python capture;
-//! this regression checks their recorded input indices and server behavior.
+//! the required-row protocol supplement makes no browser-interaction claim.
 use super::*;
 use crate::data::{ArrayRef, DataType, Field, Int64Array, RecordBatch, Schema, StringArray};
 use crate::{DataApi, DataframeOptions, DataframeSelection, DataframeSelectionMode, OnSelect};
@@ -9,6 +9,7 @@ use serde_json::{Value, json};
 use std::sync::Arc;
 
 const REFERENCE: &str = include_str!("../../../tests/reference/reference-browser/dataframe-selection/selection-input-output.json");
+const REQUIRED_PROTOCOL_REFERENCE: &str = include_str!("../../../tests/reference/reference-browser/dataframe-required-protocol/required-protocol-input-output.json");
 
 #[derive(Deserialize)]
 struct Reference {
@@ -35,6 +36,8 @@ struct Stage {
     expected_keyed: Value,
     events: Vec<Value>,
     target_widget_states: Vec<SelectionInput>,
+    #[serde(default)]
+    all_widget_inputs: Vec<Value>,
     dataframes: Vec<CapturedDataframe>,
 }
 
@@ -48,7 +51,7 @@ struct Row {
 #[derive(Clone, Deserialize)]
 struct SelectionInput {
     id: String,
-    message_oneof: String,
+    message_oneof: Option<String>,
     value_oneof: String,
     value: String,
 }
@@ -57,6 +60,29 @@ struct SelectionInput {
 struct CapturedDataframe {
     delta_path: Vec<u32>,
     fields: Value,
+}
+
+fn selection_reference() -> TestResult<Reference> {
+    let mut reference: Reference = serde_json::from_str(REFERENCE)?;
+    assert_eq!(reference.schema_version, 1);
+    assert_eq!(reference.reference_version, "1.66.1");
+    assert_eq!(reference.stages.len(), 34);
+    let protocol: Value = serde_json::from_str(REQUIRED_PROTOCOL_REFERENCE)?;
+    assert_eq!(protocol["schema_version"], 1);
+    assert_eq!(protocol["reference_version"], "1.66.1");
+    assert_eq!(protocol["transport"], "native-websocket-protocol-probe");
+    let stages = protocol["stages"].as_array().ok_or("required protocol reference must contain stages")?;
+    assert_eq!(stages.len(), 8);
+
+    // 仅适配紧凑参考的元数据；原始 widget oneof/value 和所有预期逐字保留。
+    for stage in stages {
+        let mut adapted = stage.clone();
+        adapted["case"] = json!("required-protocol");
+        adapted["did_run"] = json!(true);
+        adapted["trigger"] = stage["button_trigger_label"].clone();
+        reference.stages.push(serde_json::from_value(adapted)?);
+    }
+    Ok(reference)
 }
 
 fn input_batch(rows: &[Row]) -> TestResult<RecordBatch> {
@@ -78,7 +104,7 @@ fn record_callback(st: &Streamlit, key: &str) -> TestResult {
 }
 
 fn render_selection(st: &Streamlit) -> TestResult {
-    let reference: Reference = serde_json::from_str(REFERENCE)?;
+    let reference = selection_reference()?;
     let index: usize = st.query_params().get("stage").ok_or("selection fixture requires its stage index")?.parse()?;
     let stage = reference.stages.get(index).ok_or("selection fixture stage index is out of range")?;
     let state = st.session_state();
@@ -101,10 +127,16 @@ fn render_selection(st: &Streamlit) -> TestResult {
             column.button(label);
         }
     }
+    if stage.case == "required-protocol" {
+        for (column, label) in st.columns(3).iter().zip(["Empty table", "Restore table", "Program empty rows"]) {
+            column.button(label);
+        }
+    }
     let program = match stage.trigger.as_deref() {
         Some("Program rows") => Some(json!({"rows": [0]})),
         Some("Program columns") => Some(json!({"columns": ["id"]})),
         Some("Program cells") => Some(json!({"cells": [[0, "qty"]]})),
+        Some("Program empty rows") => Some(json!({"rows": []})),
         _ => None,
     };
     if let Some(selection) = program {
@@ -141,6 +173,14 @@ fn render_selection(st: &Streamlit) -> TestResult {
                 .selection_modes([DataframeSelectionMode::MultiRow, DataframeSelectionMode::MultiColumn, DataframeSelectionMode::MultiCell])
         }
         "required" => options = options.on_select(OnSelect::Rerun).selection_mode(DataframeSelectionMode::SingleRowRequired),
+        "required-protocol" => {
+            let callback_key = key.clone();
+            options = options.selection_mode(DataframeSelectionMode::SingleRowRequired).on_select(OnSelect::callback(move |st| {
+                if let Err(error) = record_callback(st, &callback_key) {
+                    st.code(json!({"callback_error": error.to_string()}).to_string(), "json");
+                }
+            }));
+        }
         _ => return Err("unknown frozen selection case".into()),
     }
     let returned = if stage.visible { st.dataframe(options)? } else { None };
@@ -201,6 +241,7 @@ async fn replay(address: std::net::SocketAddr, stages: Vec<Stage>) -> TestResult
     let mut stream = sessions::connect(address, None).await;
     let mut case = String::new();
     let mut native_id = String::new();
+    let mut button_ids: std::collections::HashMap<String, String> = std::collections::HashMap::new();
     let mut session_id = None;
     let mut last_report = None;
     for (index, stage) in stages.iter().enumerate() {
@@ -210,6 +251,7 @@ async fn replay(address: std::net::SocketAddr, stages: Vec<Stage>) -> TestResult
             }
             case.clone_from(&stage.case);
             native_id.clear();
+            button_ids.clear();
             session_id = None;
             last_report = None;
         }
@@ -227,7 +269,7 @@ async fn replay(address: std::net::SocketAddr, stages: Vec<Stage>) -> TestResult
 
         let mut widgets = Vec::new();
         for input in &stage.target_widget_states {
-            assert_eq!(input.message_oneof, "rerun_script");
+            assert_eq!(input.message_oneof.as_deref(), if stage.case == "required-protocol" { None } else { Some("rerun_script") });
             assert_eq!(input.value_oneof, "string_value");
             assert!(input.id.ends_with(&format!("-selection-{}", stage.case)));
             assert!(!native_id.is_empty(), "a completed load supplies the actual native id");
@@ -235,6 +277,26 @@ async fn replay(address: std::net::SocketAddr, stages: Vec<Stage>) -> TestResult
                 id: native_id.clone(),
                 value: Some(widget_state::Value::StringValue(input.value.clone())),
             });
+        }
+        if stage.case == "required-protocol" {
+            let mut trigger_count = 0;
+            for input in &stage.all_widget_inputs {
+                match input["value_oneof"].as_str() {
+                    Some("string_value") => assert!(stage.target_widget_states.iter().any(|target| input["id"] == target.id && input["value"] == target.value)),
+                    Some("trigger_value") => {
+                        let label = stage.trigger.as_ref().ok_or("required protocol trigger must have its recorded button label")?;
+                        let id = button_ids.get(label).ok_or("required protocol button must be rendered before its trigger")?;
+                        assert_eq!(input["value"], true);
+                        widgets.push(WidgetState {
+                            id: id.clone(),
+                            value: Some(widget_state::Value::TriggerValue(true)),
+                        });
+                        trigger_count += 1;
+                    }
+                    _ => return Err("unexpected required protocol widget oneof".into()),
+                }
+            }
+            assert_eq!(trigger_count, usize::from(stage.trigger.is_some()));
         }
         send_binary(
             &mut stream,
@@ -264,6 +326,9 @@ async fn replay(address: std::net::SocketAddr, stages: Vec<Stage>) -> TestResult
                         match element.r#type.as_ref() {
                             Some(element::Type::Dataframe(frame)) => dataframes.push((message.metadata.ok_or("dataframe requires its delta path")?.delta_path, frame.clone(), element)),
                             Some(element::Type::Code(code)) => reports.push(serde_json::from_str::<Value>(&code.code_text)?),
+                            Some(element::Type::Button(button)) => {
+                                button_ids.insert(button.label.clone(), button.id.clone());
+                            }
                             _ => {}
                         }
                     }
@@ -297,10 +362,8 @@ async fn replay(address: std::net::SocketAddr, stages: Vec<Stage>) -> TestResult
 
 #[actix_web::test]
 async fn frozen_dataframe_selection_inputs_match_return_state_callbacks_and_wire() -> TestResult {
-    let reference: Reference = serde_json::from_str(REFERENCE)?;
-    assert_eq!(reference.schema_version, 1);
-    assert_eq!(reference.reference_version, "1.66.1");
-    assert_eq!(reference.stages.len(), 34);
+    let reference = selection_reference()?;
+    assert_eq!(reference.stages.len(), 42);
     let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
     let address = listener.local_addr()?;
     let server = HttpServer::new(move || App::new().app_data(web::Data::new(StreamlitServer::new(selection_entry, "127.0.0.1".into(), 0))).configure(configure_routes))

@@ -7,7 +7,7 @@ import streamlit as st
 
 
 case = st.query_params.get("case", "ignore")
-allowed = {"ignore", "multi", "single-combo", "multi-combo", "required", "multi-shrink"}
+allowed = {"ignore", "multi", "single-combo", "multi-combo", "required", "multi-shrink", "required-protocol"}
 if case not in allowed:
     raise ValueError("unknown synthetic selection case")
 key = "selection-" + case
@@ -39,11 +39,28 @@ if case == "single-combo":
             st.session_state[key] = {"selection": selection}
             trigger = label
 
+if case == "required-protocol":
+    st.session_state.setdefault("protocol_empty", False)
+    protocol = st.columns(3)
+    if protocol[0].button("Empty table"):
+        st.session_state["protocol_empty"] = True
+        st.session_state["version"] = 0
+        trigger = "Empty table"
+    if protocol[1].button("Restore table"):
+        st.session_state["protocol_empty"] = False
+        st.session_state["version"] = 1
+        trigger = "Restore table"
+    if protocol[2].button("Program empty rows"):
+        st.session_state[key] = {"selection": {"rows": []}}
+        trigger = "Program empty rows"
+
 version = st.session_state["version"]
 data = pd.DataFrame({"id": ["rC", "rA", "rB"], "qty": [30, 10, 20] if version == 1 else [300, 100, 200],
                      "label": ["C", "A", "B"] if version == 1 else ["CX", "AX", "BX"]})
 if case == "multi-shrink" and version == 2:
     data = data.iloc[:1].copy()
+if case == "required-protocol" and st.session_state["protocol_empty"]:
+    data = data.iloc[:0].copy()
 
 
 def selection_changed():
@@ -62,6 +79,8 @@ elif case == "multi-combo":
     options.update(on_select="rerun", selection_mode=["multi-row", "multi-column", "multi-cell"])
 elif case == "required":
     options.update(on_select="rerun", selection_mode="single-row-required")
+elif case == "required-protocol":
+    options.update(on_select=selection_changed, selection_mode="single-row-required")
 
 event = st.dataframe(data, **options) if st.session_state["visible"] else None
 output = {"case": case, "run": run, "version": version, "visible": st.session_state["visible"], "trigger": trigger,

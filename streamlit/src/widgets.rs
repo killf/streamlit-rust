@@ -174,9 +174,12 @@ pub(crate) enum Codec {
     /// after the run like the reference's ButtonClickSerde.
     ButtonColumn,
 
-    /// A dataframe's persistent selection object, carried by string_value.
-    /// Keep partial programmatic state intact; the emitter resolves typed defaults.
-    DataframeSelection,
+    /// Browser selections are decoded before callbacks using the previous run's
+    /// mode and row count. Application writes keep their original partial JSON.
+    DataframeSelection {
+        required_row: bool,
+        num_rows: usize,
+    },
 
     /// A bidi component's persistent state: the whole state object as one
     /// JSON string (json_value). Missing top-level keys retain their defaults.
@@ -265,10 +268,23 @@ impl Codec {
                 None | Some("") => Value::Null,
                 Some(data) => serde_json::from_str::<Value>(data).ok().filter(Self::button_click_shape)?,
             }),
-            (Self::DataframeSelection, widget_state::Value::StringValue(text)) => {
-                let value = serde_json::from_str::<Value>(text).ok()?;
-                // 浏览器值须先通过 typed 校验，整批验证后才允许安排回调；仍保留原始字段。
-                (Self::dataframe_selection_shape(&value) && serde_json::from_value::<crate::DataframeState>(value.clone()).is_ok()).then_some(value)
+            (Self::DataframeSelection { required_row, num_rows }, widget_state::Value::StringValue(text)) => {
+                let mut value = serde_json::from_str::<Value>(text).ok()?;
+                if !Self::dataframe_selection_shape(&value) {
+                    return None;
+                }
+                let state = serde_json::from_value::<crate::DataframeState>(value.clone()).ok()?;
+                let selection = value.get_mut("selection")?.as_object_mut()?;
+                // 先正规化协议值再比较变更和安排回调；不能到 main 末尾只修返回值。
+                for field in ["rows", "columns", "cells"] {
+                    if !selection.contains_key(field) {
+                        selection.insert(field.into(), Value::Array(Vec::new()));
+                    }
+                }
+                if *required_row && *num_rows > 0 && state.selection.rows.is_empty() {
+                    selection.insert("rows".into(), serde_json::json!([0]));
+                }
+                Some(value)
             }
             (Self::JsonValue { defaults }, widget_state::Value::JsonValue(text)) => {
                 let mut value = serde_json::from_str::<Value>(text).ok()?;
@@ -356,7 +372,7 @@ impl Codec {
             }
             Self::StringTrigger(options) => value.is_null() || value.as_u64().is_some_and(|index| index < options.len() as u64),
             Self::ButtonColumn => value.is_null() || Self::button_click_shape(value),
-            Self::DataframeSelection => Self::dataframe_selection_shape(value),
+            Self::DataframeSelection { .. } => Self::dataframe_selection_shape(value),
             Self::JsonValue { .. } => true,
             Self::JsonTrigger => value.is_null() || value.is_array(),
             Self::DateInput { range } => {
@@ -769,7 +785,7 @@ mod tests {
         assert_eq!(reference["schema_version"], 1);
         assert_eq!(reference["reference_version"], "1.66.1");
         let stages = reference["stages"].as_array().ok_or_else(|| anyhow::anyhow!("selection reference must contain stages"))?;
-        let codec = Codec::DataframeSelection;
+        let codec = Codec::DataframeSelection { required_row: false, num_rows: 0 };
         let mut decoded_count = 0;
 
         // 1. 逐条读取真实 string_value，保留 rows、columns、cells 和缩行后的原位置。
@@ -809,7 +825,7 @@ mod tests {
                 key: Some("selection"),
                 identity: "batch-validation",
                 default: initial.clone(),
-                codec: Codec::DataframeSelection,
+                codec: Codec::DataframeSelection { required_row: false, num_rows: 0 },
                 callback: Some(callback.clone()),
             },
             |value| Ok(value.clone()),
@@ -838,7 +854,7 @@ mod tests {
         ];
         for fields in invalid_fields {
             let value = serde_json::json!({"selection": fields});
-            assert!(Codec::DataframeSelection.valid(&value), "programmatic fields remain available to the emitter's normalizer");
+            assert!(Codec::DataframeSelection { required_row: false, num_rows: 0 }.valid(&value), "programmatic fields remain available to the emitter's normalizer");
             let callbacks = state.begin_widgets(vec![
                 WidgetState {
                     id: button_id.clone(),
@@ -890,7 +906,7 @@ mod tests {
             key: Some("selection"),
             identity: "single-combo",
             default: program_rows["before"].clone(),
-            codec: Codec::DataframeSelection,
+            codec: Codec::DataframeSelection { required_row: false, num_rows: 0 },
             callback: Some(callback.clone()),
         };
 
@@ -968,7 +984,7 @@ mod tests {
                     key: Some("selection"),
                     identity: "shrink",
                     default: serde_json::json!({"selection": {"rows": [], "columns": [], "cells": []}}),
-                    codec: Codec::DataframeSelection,
+                    codec: Codec::DataframeSelection { required_row: false, num_rows: 0 },
                     callback: None,
                 },
                 "shrink",

@@ -74,6 +74,8 @@ fn show_selection(st: &Streamlit, batch: &RecordBatch) -> Result<(), DataError> 
 
 默认忽略选择时返回 `None`；启用选择后返回 `Some(DataframeState)`，其中选择可以为空。行位置对应本轮输入表，不是浏览器排序后的视觉位置或业务记录 ID。换表后位置可能越界，读取详情前需要检查；框架不会静默替应用选择其他记录。编辑结果的保存、记录身份及追加策略属于应用后续流程，不会自动改写上传的 CSV。
 
+`SingleRowRequired` 的首次非空表默认首行，真实前端的清除尝试不触发重跑。空协议输入现已在回调前按已注册的行数正规化，返回与 keyed state 保持一致。动态换表时输入先于本轮应用代码执行，因此从空表恢复当轮仍可能返回空选择，下一次输入才使用新行数；同样，切成空表当轮也可能保留旧位置。应用仍须检查位置有效性。程序赋值的 partial keyed 原值另行保留；[八阶段协议证据](../../tests/reference/reference-browser/dataframe-required-protocol/README.md)不代表浏览器允许清除必选行。
+
 最小流程见 [dataframe_selection 示例](../../streamlit/examples/dataframe_selection.rs)：在仓库根目录运行 `cargo run --example dataframe_selection --locked`，打开 `http://127.0.0.1:8544/`。选择一行后查看详情、编辑并在下方查看返回结果；**Ordinary rerun** 用于观察选择是否保留，**Selection state** 显示返回状态。示例使用固定的三行数据，所选位置只在此固定输入内作为编辑器 key 的一部分；编辑结果仅展示或供应用处理，不写文件或数据库，也不会自动持久化源数据。该示例已通过构建、单元/WS 回归及[六阶段 Rust 官方前端验证](../../tests/browser/rust-dataframe-selection/README.md)，不代表 CSV 应用已经接通选择、编辑和追加。
 
 这条流程所需的 [Python 选择参考](../../tests/reference/reference-browser/dataframe-selection/README.md)已单独冻结，Rust 回归直接复用。参考中，排序选择指向输入位置；同 key 换成更短的表时旧行位置可能仍保留；程序赋值的部分 keyed state 与补齐后的返回值也可能不同。这些边界需结合本批 Rust 验证结果判断，不能仅凭参考证明完整兼容。

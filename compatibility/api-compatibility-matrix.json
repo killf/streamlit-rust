@@ -2360,14 +2360,18 @@
         ],
         "selection_rust_regression": "streamlit/tests/runtime/dataframe_selection.rs",
         "selection_rust_browser": "tests/browser/rust-dataframe-selection/first-attempt/trace.json",
-        "selection_provenance": "tests/browser/rust-dataframe-selection/README.md"
+        "selection_provenance": "tests/browser/rust-dataframe-selection/README.md",
+        "selection_required_protocol_reference": [
+          "tests/reference/reference-browser/dataframe-required-protocol/required-protocol-input-output.json",
+          "tests/reference/reference-browser/dataframe-required-protocol/README.md"
+        ]
       },
       "rust_plan": "Render Arrow IPC dataframes and return typed selections through the same call; validate remaining documented modes, parameters and combined workflows against pinned reference behavior.",
-      "compatibility_scope": "The retained positive CSV data loop proves its measured upload/filter/table path only. Added 2026-10-27: 34 frozen Python selection stages replayed over real Rust WS cover Ignore, MultiRow, single/multi row-column-cell combinations, SingleRowRequired, default/program state, callback order, ordinary reruns, same-key replacement/shrink and hidden cleanup. A separate six-stage current Rust official-frontend SingleRow example proves actual row selection, browser sorting with original-input positions, ordinary rerun, detail display and keyboard editing; the original table/editor input stays unchanged while the edited return changes. This is partial compatibility, not all selection boundaries, full CSV integration or native/default chart parity. Captured source metadata is historical provenance, never a source fingerprint gate.",
+      "compatibility_scope": "The retained positive CSV data loop proves its measured upload/filter/table path only. Added 2026-10-27: 42 frozen Python selection stages (34 frontend stages plus eight explicitly injected required-row protocol stages) replayed over real Rust WS cover Ignore, MultiRow, single/multi row-column-cell combinations, SingleRowRequired, default/program state, callback order, ordinary reruns, same-key replacement/shrink and hidden cleanup. A separate six-stage Rust official-frontend SingleRow example proves actual row selection, browser sorting with original-input positions, ordinary rerun, detail display and keyboard editing; the original table/editor input stays unchanged while the edited return changes. This is partial compatibility, not all selection boundaries, full CSV integration or native/default chart parity. Captured source metadata is historical provenance, never a source fingerprint gate. Required-row protocol values normalize before callbacks using the previous registration row count; new registration updates the next decode context. This does not prove browser-reachable clearing.",
       "limitations": [
         "The CSV portion does not establish XSRF/security-handshake, DELETE/remove/replace, rejection/error-flow or session-authorization compatibility.",
         "Rust browser selection evidence is limited to the six-stage SingleRow synthetic example; broader mode/callback/program/shrink coverage comes from frozen Python inputs replayed over WS, not every Rust browser interaction.",
-        "Required-row empty browser payloads, invalid/unknown mode and program-value combinations, all options, lazy delivery, cross-page/session behavior and the complete CSV selection/edit/update loop remain unverified or incomplete.",
+        "Invalid/unknown mode and program-value combinations, all options, lazy delivery, cross-page/session behavior and the complete CSV selection/edit/update loop remain unverified or incomplete.",
         "Data editor and column-configuration rows retain their own measured scopes; observed hide_index/column_order and this selection path do not establish complete configuration/type parity.",
         "Retained CSV captures compare logical Arrow schemas/ordered values rather than IPC byte identity; their older metadata does not define the current native selection schema.",
         "Legacy CSV raw carries Python-only kind/scope strings; its Rust NewSession, URL and provenance identify the historical server. The new native capture records the actual Rust example process separately.",
