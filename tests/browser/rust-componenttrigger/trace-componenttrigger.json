@@ -1,0 +1,471 @@
+{
+ "schema_version": 1,
+ "observation": {
+  "journey": "componenttrigger-page",
+  "contract": "journey-componenttrigger-v1",
+  "scope": "RUST SIDE DIFFERENTIAL",
+  "url": "http://127.0.0.1:8542/",
+  "source": {
+   "file": "streamlit/examples/componenttrigger.rs",
+   "sha256": "0fefde51aee3d943a3b489798abe2288e3ede2229116f82b293b3f06506c2d15"
+  },
+  "stages": [
+   {
+    "name": "01-load",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 47502.04033,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": []
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 47502.041666,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "f1b2ac7e-b9d8-44d3-bdb8-7d5182d641ec",
+        "name": "Streamlit Rust",
+        "main_script_path": "",
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "session_id": "14986a28-e57c-4fd3-a5aa-550e43604375"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 47502.047811,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 47502.047919,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "bidi_component",
+        "element_full": {
+         "heightConfig": {
+          "useContent": true
+         },
+         "widthConfig": {
+          "useStretch": true
+         },
+         "bidiComponent": {
+          "id": "$$ID-b7d22028b8c2dbd3741cc04c1fcbfbde-triggers",
+          "componentName": "trigger_demo",
+          "jsContent": "\n    export default function(component) {\n        const { parentElement, setTriggerValue } = component;\n        const button = parentElement.querySelector('button');\n        let count = 0;\n        button.onclick = () => {\n            count += 1;\n            setTriggerValue('ping', { count });\n        };\n    }\n",
+          "jsSourcePath": "",
+          "htmlContent": "<button id='fire' type='button'>Fire</button>",
+          "cssContent": "button { color: red; }",
+          "cssSourcePath": "",
+          "isolateStyles": true
+         }
+        },
+        "id": "$$ID-b7d22028b8c2dbd3741cc04c1fcbfbde-triggers",
+        "form_id": "",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 47502.04835,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "element_full": {
+         "markdown": {
+          "body": "ping=null",
+          "elementType": "NATIVE",
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "ping=null",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 47502.048463,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 47502.048553,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "dom": {
+     "markdowns": [
+      "ping=null"
+     ],
+     "buttons": [
+      "Deploy",
+      ""
+     ],
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "01-load.png",
+     "sha256": "d60757f99b53e47a858f0928e0bd77822d683dd4bfff9977fd5edb5cc72ae29a"
+    }
+   },
+   {
+    "name": "02-click-fire",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 47504.407392,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": [
+         {
+          "id": "$$STREAMLIT_INTERNAL_KEY_$$ID-b7d22028b8c2dbd3741cc04c1fcbfbde-triggers__events",
+          "value_field": "json_trigger_value",
+          "value": "[{\"event\":\"ping\",\"value\":{\"count\":1}}]"
+         }
+        ],
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 47504.407918,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "d20812f8-6072-441e-9735-0515fb7b69e7",
+        "name": "Streamlit Rust",
+        "main_script_path": "",
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "session_id": "14986a28-e57c-4fd3-a5aa-550e43604375"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 47504.408145,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 47504.40974,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "bidi_component",
+        "element_full": {
+         "heightConfig": {
+          "useContent": true
+         },
+         "widthConfig": {
+          "useStretch": true
+         },
+         "bidiComponent": {
+          "id": "$$ID-b7d22028b8c2dbd3741cc04c1fcbfbde-triggers",
+          "componentName": "trigger_demo",
+          "jsContent": "\n    export default function(component) {\n        const { parentElement, setTriggerValue } = component;\n        const button = parentElement.querySelector('button');\n        let count = 0;\n        button.onclick = () => {\n            count += 1;\n            setTriggerValue('ping', { count });\n        };\n    }\n",
+          "jsSourcePath": "",
+          "htmlContent": "<button id='fire' type='button'>Fire</button>",
+          "cssContent": "button { color: red; }",
+          "cssSourcePath": "",
+          "isolateStyles": true
+         }
+        },
+        "id": "$$ID-b7d22028b8c2dbd3741cc04c1fcbfbde-triggers",
+        "form_id": "",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 47504.4099,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "element_full": {
+         "markdown": {
+          "body": "ping={\"count\": 1}",
+          "elementType": "NATIVE",
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "ping={\"count\": 1}",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 47504.40997,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 47504.410015,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "dom": {
+     "markdowns": [
+      "ping={\"count\": 1}"
+     ],
+     "buttons": [
+      "Deploy",
+      ""
+     ],
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "02-click-fire.png",
+     "sha256": "3a272dc38d88b57297a156f8d9ab1adf3c556d48975557e5d0f0c97030216771"
+    }
+   },
+   {
+    "name": "03-click-again",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 47506.594904,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": [
+         {
+          "id": "$$STREAMLIT_INTERNAL_KEY_$$ID-b7d22028b8c2dbd3741cc04c1fcbfbde-triggers__events",
+          "value_field": "json_trigger_value",
+          "value": "[{\"event\":\"ping\",\"value\":{\"count\":2}}]"
+         }
+        ],
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 47506.595387,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "2db52b7e-abd1-4566-959f-f1b395fac133",
+        "name": "Streamlit Rust",
+        "main_script_path": "",
+        "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "session_id": "14986a28-e57c-4fd3-a5aa-550e43604375"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 47506.595654,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 47506.596785,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "bidi_component",
+        "element_full": {
+         "heightConfig": {
+          "useContent": true
+         },
+         "widthConfig": {
+          "useStretch": true
+         },
+         "bidiComponent": {
+          "id": "$$ID-b7d22028b8c2dbd3741cc04c1fcbfbde-triggers",
+          "componentName": "trigger_demo",
+          "jsContent": "\n    export default function(component) {\n        const { parentElement, setTriggerValue } = component;\n        const button = parentElement.querySelector('button');\n        let count = 0;\n        button.onclick = () => {\n            count += 1;\n            setTriggerValue('ping', { count });\n        };\n    }\n",
+          "jsSourcePath": "",
+          "htmlContent": "<button id='fire' type='button'>Fire</button>",
+          "cssContent": "button { color: red; }",
+          "cssSourcePath": "",
+          "isolateStyles": true
+         }
+        },
+        "id": "$$ID-b7d22028b8c2dbd3741cc04c1fcbfbde-triggers",
+        "form_id": "",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 47506.596911,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "element_full": {
+         "markdown": {
+          "body": "ping={\"count\": 2}",
+          "elementType": "NATIVE",
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "ping={\"count\": 2}",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 47506.596952,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 47506.596982,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "dom": {
+     "markdowns": [
+      "ping={\"count\": 2}"
+     ],
+     "buttons": [
+      "Deploy",
+      ""
+     ],
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "03-click-again.png",
+     "sha256": "382ca001a40411f5fcdffe37fbfdd8aac821c5c5098b7ab2b4fc86389945fba4"
+    }
+   }
+  ],
+  "ipc_dir": "D:\\dlab\\streamlit-rust\\target\\componenttrigger-rust"
+ },
+ "counts": {
+  "expected": 7,
+  "executed": 7,
+  "asserted": 7
+ },
+ "failures": []
+}

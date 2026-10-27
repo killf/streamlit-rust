@@ -3,8 +3,12 @@
 //! definition carries inline HTML/CSS/JS; each mount streams a
 //! bidi_component element whose id is the instance's widget id
 //! (`$$ID-<digest>-<key>`), with the JSON data payload serialized like the
-//! reference's json.dumps defaults and the state carried as one json_value
-//! widget (the default object before any component interaction).
+//! reference's json.dumps defaults, the state carried as one json_value
+//! widget (the default object before any component interaction) and the
+//! trigger events carried as one internal json_trigger_value aggregator
+//! (`$$STREAMLIT_INTERNAL_KEY_<id>__events`) — the frontend accumulates the
+//! fired {"event", "value"} payloads there and the mount surfaces the
+//! declared events on its result object.
 use crate::elements::common::{Element, ElementHeight, ElementWidth, RenderContext};
 use crate::error::StreamlitError;
 use crate::proto::{Delta, bidi_component, delta, delta_base_with_path, element, forward_msg};
@@ -64,12 +68,13 @@ impl ComponentV2 {
 }
 
 /// One mount's parameters: `key`, the JSON `data` payload, the `default`
-/// state object and the sizing (stretch width and content height by
-/// default, like the reference).
+/// state object, the trigger events the app reads and the sizing (stretch
+/// width and content height by default, like the reference).
 pub struct ComponentMount<'a> {
     key: Option<&'a str>,
     data: Option<Value>,
     default: Value,
+    events: Vec<String>,
     width: ElementWidth,
     height: ElementHeight,
 }
@@ -80,6 +85,7 @@ impl Default for ComponentMount<'_> {
             key: None,
             data: None,
             default: Value::Null,
+            events: Vec::new(),
             width: ElementWidth::Stretch,
             height: ElementHeight::Content,
         }
@@ -108,6 +114,16 @@ impl<'a> ComponentMount<'a> {
         self
     }
 
+    /// The trigger events the app reads from the result, like the reference's
+    /// `on_<event>_change` callbacks declaring them: every declared event
+    /// surfaces on the returned object (null until it fires), unfired events
+    /// of the run included; the component's `setTriggerValue` payloads reach
+    /// them through the internal events aggregator widget.
+    pub fn events(mut self, events: impl IntoIterator<Item = impl Into<String>>) -> Self {
+        self.events = events.into_iter().map(Into::into).collect();
+        self
+    }
+
     pub fn width(mut self, width: ElementWidth) -> Self {
         self.width = width;
         self
@@ -129,10 +145,13 @@ pub(crate) struct BidiComponentElement {
 }
 
 /// Mount one instance: register the state widget (its id lands on the
-/// element), serialize the JSON payload with the reference's json.dumps
-/// defaults, and enqueue the bidi_component element.
+/// element) and the internal trigger aggregator under the frontend-derived
+/// id, serialize the JSON payload with the reference's json.dumps defaults,
+/// enqueue the bidi_component element, and return the ComponentResult
+/// object — {**trigger values, **state}, state winning on collision like
+/// the reference.
 pub(crate) fn mount_component(host: &impl crate::api::AppendChild, component: &ComponentV2, mount: ComponentMount<'_>) -> Result<Value, crate::widgets::WidgetError> {
-    let ComponentMount { key, data, default, width, height } = mount;
+    let ComponentMount { key, data, default, events, width, height } = mount;
     let (id, state, _set) = host.register_widget_parity(
         crate::widgets::WidgetSpec {
             kind: "bidi_component",
@@ -147,6 +166,21 @@ pub(crate) fn mount_component(host: &impl crate::api::AppendChild, component: &C
         },
         |value| Ok::<_, crate::widgets::WidgetError>(value.clone()),
     )?;
+    // The reference registers the aggregator on every mount, its id derived
+    // from the state widget's id (the frontend recomputes the same shape).
+    let aggregator_id = format!("$$STREAMLIT_INTERNAL_KEY_{id}__events");
+    let (_, fired, _aggregator_set) = host.register_widget_with_id_parity(
+        crate::widgets::WidgetSpec {
+            kind: "bidi_component_trigger",
+            key: None,
+            identity: "",
+            default: Value::Null,
+            codec: crate::widgets::Codec::JsonTrigger,
+            callback: None,
+        },
+        &aggregator_id,
+        |value| Ok::<_, crate::widgets::WidgetError>(value.clone()),
+    )?;
     let data_json = data.map(|data| crate::pywire::py_dumps(&data));
     host.push(std::rc::Rc::new(std::cell::RefCell::new(BidiComponentElement::new(
         component.clone(),
@@ -156,7 +190,28 @@ pub(crate) fn mount_component(host: &impl crate::api::AppendChild, component: &C
         width,
         height,
     ))));
-    Ok(state)
+    // ComponentResult: every declared event surfaces (null until it fires),
+    // the last payload per event wins, and state keys overwrite collisions.
+    if events.is_empty() {
+        return Ok(state);
+    }
+    let mut result = serde_json::Map::new();
+    if let Value::Array(payloads) = &fired {
+        for payload in payloads {
+            if let (Some(event), Some(value)) = (payload.get("event").and_then(Value::as_str), payload.get("value")) {
+                result.insert(event.to_owned(), value.clone());
+            }
+        }
+    }
+    for event in &events {
+        result.entry(event.clone()).or_insert(Value::Null);
+    }
+    if let Value::Object(object) = state {
+        for (name, value) in object {
+            result.insert(name, value);
+        }
+    }
+    Ok(Value::Object(result))
 }
 
 impl BidiComponentElement {

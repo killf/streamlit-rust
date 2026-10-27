@@ -16,6 +16,7 @@ mod chartlibs;
 mod charts;
 mod chat;
 mod colconfig;
+mod componenttrigger;
 mod componentv2;
 mod data_views;
 mod dataeditor;

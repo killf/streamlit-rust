@@ -176,6 +176,11 @@ pub(crate) enum Codec {
     /// A bidi component's persistent state: the whole state object as one
     /// JSON string (json_value), like the reference's BidiComponentSerde.
     JsonValue,
+    /// A bidi component's trigger aggregator: json_trigger_value carries the
+    /// fired events as one JSON array string of {"event", "value"} payloads
+    /// (the frontend accumulates them), resetting to null after the run like
+    /// every reference trigger.
+    JsonTrigger,
     /// date_input: ISO "YYYY-MM-DD" strings, one for a single date or two
     /// for a range; the value stays a string and the emitter parses it.
     DateInput {
@@ -249,6 +254,14 @@ impl Codec {
                 Some(data) => serde_json::from_str::<Value>(data).ok().filter(Self::button_click_shape)?,
             }),
             (Self::JsonValue, widget_state::Value::JsonValue(text)) => serde_json::from_str::<Value>(text).ok(),
+            (Self::JsonTrigger, widget_state::Value::JsonTriggerValue(text)) => Some(match serde_json::from_str::<Value>(text) {
+                Ok(Value::Array(list)) => Value::Array(list),
+                Ok(Value::Null) => Value::Null,
+                Ok(single) => Value::Array(vec![single]),
+                // The reference's handle_deserialize keeps an unparsable
+                // payload as its raw string, list-normalized.
+                Err(_) => Value::Array(vec![Value::String(text.clone())]),
+            }),
             (Self::DateInput { range }, widget_state::Value::StringArrayValue(array)) => {
                 let dates: Option<Vec<Value>> = array.data.iter().map(|text| chrono::NaiveDate::parse_from_str(text, "%Y-%m-%d").ok().map(|_| Value::String(text.clone()))).collect();
                 let dates = dates?;
@@ -319,6 +332,7 @@ impl Codec {
             Self::StringTrigger(options) => value.is_null() || value.as_u64().is_some_and(|index| index < options.len() as u64),
             Self::ButtonColumn => value.is_null() || Self::button_click_shape(value),
             Self::JsonValue => true,
+            Self::JsonTrigger => value.is_null() || value.is_array(),
             Self::DateInput { range } => {
                 let iso = |item: &Value| item.as_str().is_some_and(|text| chrono::NaiveDate::parse_from_str(text, "%Y-%m-%d").is_ok());
                 if *range {
@@ -477,7 +491,7 @@ impl Codec {
 fn one_shot_reset(codec: &Codec) -> Option<Value> {
     match codec {
         Codec::Trigger => Some(Value::Bool(false)),
-        Codec::ChatInput | Codec::StringTrigger(_) | Codec::ButtonColumn => Some(Value::Null),
+        Codec::ChatInput | Codec::StringTrigger(_) | Codec::ButtonColumn | Codec::JsonTrigger => Some(Value::Null),
         _ => None,
     }
 }
@@ -604,9 +618,25 @@ impl SessionState {
     }
 
     pub(crate) fn register_widget<T>(&self, spec: WidgetSpec<'_>, resolve: impl Fn(&Value) -> Result<T, WidgetError>) -> Result<(String, T, bool), WidgetError> {
-        let WidgetSpec { kind, key, identity, default, codec, callback } = spec;
-        let identity_fields = serde_json::to_string(&(kind, identity, key))?;
+        let WidgetSpec { kind, key, .. } = spec;
+        let identity_fields = serde_json::to_string(&(kind, spec.identity, key))?;
         let id = format!("$$ID-{}-{}", crate::utils::hash::hash(&identity_fields), key.unwrap_or("None"));
+        self.register_widget_with_id(spec, &id, resolve)
+    }
+
+    /// Registration under an externally derived id — the bidi component's
+    /// trigger aggregator ($$STREAMLIT_INTERNAL_KEY_<widget-id>__events),
+    /// whose id the frontend recomputes from the state widget's id.
+    pub(crate) fn register_widget_with_id<T>(&self, spec: WidgetSpec<'_>, id: &str, resolve: impl Fn(&Value) -> Result<T, WidgetError>) -> Result<(String, T, bool), WidgetError> {
+        let WidgetSpec {
+            kind,
+            key,
+            identity: _,
+            default,
+            codec,
+            callback,
+        } = spec;
+        let id = id.to_owned();
         let mut registry = self.widgets.lock();
         if let Some(key) = key
             && registry.keys.contains(key)

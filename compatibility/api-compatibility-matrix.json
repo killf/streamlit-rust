@@ -613,23 +613,23 @@
       "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "d5de3743e11882374e91eec1d22b2abb328fea0af13562d781b802cfcb67b703",
-        "python_browser_trace": "tests/reference/reference-browser/componentv2/trace-componentv2.json",
+        "python_browser_trace": "tests/reference/reference-browser/componenttrigger/trace-componenttrigger.json",
         "rust_source": "streamlit/src/elements/components.rs",
-        "rust_api_test": "streamlit/tests/runtime/componentv2.rs",
-        "rust_wire_observation": "tests/browser/rust-componentv2/trace-componentv2.json",
-        "official_frontend_browser_e2e": "tests/browser/rust-componentv2/trace-componentv2.json",
-        "capture_entry": "tests/browser/componentv2_capture.py",
-        "componentv2_contract": "tests/browser/componentv2_contract.py",
-        "contract_guards": "tests/reference/test_componentv2_contract.py",
-        "driven_fixture": "tests/reference/componentv2_app.py",
-        "driven_example": "streamlit/examples/componentv2.rs"
+        "rust_api_test": "streamlit/tests/runtime/componenttrigger.rs",
+        "rust_wire_observation": "tests/browser/rust-componenttrigger/trace-componenttrigger.json",
+        "official_frontend_browser_e2e": "tests/browser/rust-componenttrigger/trace-componenttrigger.json",
+        "capture_entry": "tests/browser/componenttrigger_capture.py",
+        "componenttrigger_contract": "tests/browser/componenttrigger_contract.py",
+        "contract_guards": "tests/reference/test_componenttrigger_contract.py",
+        "driven_fixture": "tests/reference/componenttrigger_app.py",
+        "driven_example": "streamlit/examples/componenttrigger.rs",
+        "prior_chain": "tests/reference/reference-browser/componentv2/trace-componentv2.json"
       },
-      "rust_plan": "st.components.v2.component(name, html=, css=, js=, isolate_styles=) registers one inline component; mounting it streams a bidi_component element carrying the instance's widget id ($$ID-<digest>-<key>), the trusted HTML/CSS/JS content strings, the empty source paths, the isolate_styles flag and the JSON data payload serialized with the reference's json.dumps separators, at stretch width and content height. The mount registers the instance's whole state object as one json_value widget and returns it (the default object before any component interaction).",
-      "compatibility_scope": "The journey-componentv2-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome across the load stage; the published replays assert 7/7 checks per side, covering the bidi_component element's full wire (id shape, content strings, empty source paths, isolate_styles, the json.dumps-separator payload, stretch/content layout) plus the settled DOM testid catalog including the isolated component mount.",
+      "rust_plan": "st.components.v2.component(name, html=, css=, js=, isolate_styles=) registers one inline component; mounting it streams a bidi_component element carrying the instance's widget id ($$ID-<digest>-<key>), the trusted HTML/CSS/JS content strings, the empty source paths, the isolate_styles flag and the JSON data payload serialized with the reference's json.dumps separators, at stretch width and content height. The mount registers the instance's whole state object as one json_value widget and the internal trigger aggregator $$STREAMLIT_INTERNAL_KEY_<id>__events (one json_trigger_value state carrying the fired {\"event\", \"value\"} payloads as a JSON array string, fresh per run and reset after it), and returns the ComponentResult object {**declared trigger events, **state} — every declared event null until it fires, the last payload per event, state overwriting collisions.",
+      "compatibility_scope": "Two chains pin the surface. The journey-componenttrigger-v1 chain drives the trigger round-trip with a real button click inside the component's shadow root (load, first fire, second fire) on both sides: each fire sends exactly one internal json_trigger_value state on the aggregator id (digest masked), its value the JSON array of the fired payloads; each run re-emits the element and the surfaced trigger markdown, the value fresh per run and null before the first fire; published replays assert 7/7 checks per side. The journey-componentv2-v1 chain additionally covers the load wire of a data+default mount (content strings, empty source paths, json.dumps payload, stretch/content layout, DOM testid catalog).",
       "limitations": [
-        "Coverage is the journey-componentv2-v1 chain: one measured page registering one component (inline HTML/CSS/JS, isolated styles) and mounting it once with a JSON data payload and a default state, across the load stage.",
-        "The on_<event>_change callback surface and the internal trigger-aggregator widget (json_trigger_value) are Python-only and unobserved; arrow/bytes/mixed data payloads, asset-path html/css/js (installed packages), non-isolated styles, non-default sizing and multiple mounts are unobserved.",
-        "fixture SHA256 c73710b397cbb5175f2aab30c7dc4f15801ff5b53cc5b05bf6e2ec4b30d6d391; example SHA256 4f4737a87ba4410b2d708778067161a22a43f5582a5c4136661448f4e4dcf408."
+        "The journey-componenttrigger-v1 chain covers one event name with JSON object payloads through the Rust events declaration (ComponentMount::events, the counterpart of the reference's on_<event>_change registration); the on_<event>_change callback invocation itself is Python-only, and arrow/bytes/mixed data payloads, asset-path html/css/js (installed packages), non-isolated styles, non-default sizing and multiple mounts are unobserved.",
+        "componentv2 fixture SHA256 c73710b397cbb5175f2aab30c7dc4f15801ff5b53cc5b05bf6e2ec4b30d6d391; componentv2 example SHA256 4f4737a87ba4410b2d708778067161a22a43f5582a5c4136661448f4e4dcf408; the componenttrigger fixture and example are pinned by their own contract guards."
       ]
     },
     {

@@ -615,7 +615,7 @@ let state = st.component_v2(&widget, ComponentMount::new()
     .default_state(json!({"value": "hi"})))?;   // the default state object back
 ```
 
-`st.components.v2.component` in 1.66.1 takes inline trusted HTML/CSS/JS strings (not a hosted bundle); mounting streams a `bidi_component` element carrying the instance's widget id, the content strings and the JSON payload, and registers the whole state object as one `json_value` widget. The component's JavaScript callbacks (`on_<event>_change`) are Python-only and not part of the Rust surface. The [componentv2 example](../../streamlit/examples/componentv2.rs) mirrors the reference fixture of the componentv2 differential chain.
+`st.components.v2.component` in 1.66.1 takes inline trusted HTML/CSS/JS strings (not a hosted bundle); mounting streams a `bidi_component` element carrying the instance's widget id, the content strings and the JSON payload, and registers the whole state object as one `json_value` widget. The component's JavaScript (an ES module default export receiving `{parentElement, setStateValue, setTriggerValue, ...}`) can also fire trigger events: `setTriggerValue("ping", payload)` rides one internal `json_trigger_value` aggregator widget (fresh per run, reset after it), and the mount surfaces the declared events on its result — declare them with `ComponentMount::events(["ping"])`, the counterpart of the reference's `on_<event>_change` registration; the callback invocation itself is Python-only. The [componentv2 example](../../streamlit/examples/componentv2.rs) mirrors the reference fixture of the componentv2 differential chain, and the [componenttrigger example](../../streamlit/examples/componenttrigger.rs) mirrors the trigger round-trip chain.
 
 ## Current API
 

@@ -745,6 +745,39 @@ element wire — id shape, content strings, empty source paths, payload
 separators, layout — and the default-state return over the production
 websocket.
 
+## Components v2 trigger round-trip (setTriggerValue end-to-end)
+
+[componenttrigger_capture.py](componenttrigger_capture.py) is the permanent
+entry for the components.v2 trigger chain;
+[componenttrigger_contract.py](componenttrigger_contract.py) is its strict
+criterion (journey-componenttrigger-v1, 7 checks) with unit tests in
+[tests/reference/test_componenttrigger_contract.py](../reference/test_componenttrigger_contract.py)
+(reading the published python trace, never target/). The page registers one
+inline component whose JS fires `setTriggerValue("ping", {count})` from a
+real button click — the isolated component renders its HTML inside a shadow
+root, so the collector pierces `shadowRoot` to click the component's own
+button. Three stages (load, first fire, second fire) pin: the SENT internal
+json_trigger_value state on `$$STREAMLIT_INTERNAL_KEY_<widget-id>__events`
+(digest masked), its value the JSON array string of the fired
+`{"event", "value"}` payloads; the frame timeline (7 frames per rerun); the
+re-emitted bidi_component element and the surfaced trigger markdown
+(`ping=null` → `ping={"count": 1}` → `ping={"count": 2}`, fresh per run);
+and the settled DOM. The published chains:
+
+```powershell
+target\pyref-venv\Scripts\python.exe tests\browser\componenttrigger_capture.py --replay tests\reference\reference-browser\componenttrigger\trace-componenttrigger.json
+target\pyref-venv\Scripts\python.exe tests\browser\componenttrigger_capture.py --replay tests\browser\rust-componenttrigger\trace-componenttrigger.json
+```
+
+Both return 7 expected / 7 executed / 7 asserted with exit 0. Raw
+SHA256: python `4540c85c84055b1102489f4ed9a7c6f7a5aab9ea452b6fbde71198d12bfafd19`,
+native `946d9f01010ae35a60309c192ec0ed0489bf61b8aa2067472881e1174b8de416`,
+under contract `686fbc6e1a6501f7e1b7583f735e61c7fb002f5715a38351434c4f24ba21f730`.
+The runtime regression (streamlit/tests/runtime/componenttrigger.rs) pins
+the round-trip over the production websocket — the aggregator state
+applying as the surfaced trigger value, the fresh-per-run semantics, and
+the one-shot reset back to null on a plain following rerun.
+
 ## Data editor interaction (st.data_editor edits round-trip)
 
 [dataeditor_capture.py](dataeditor_capture.py) is the permanent entry for

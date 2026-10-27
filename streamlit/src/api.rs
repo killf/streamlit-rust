@@ -73,6 +73,24 @@ pub(crate) trait AppendChild {
             Err(other) => Err(other),
         }
     }
+
+    /// Registration under a derived widget id (the bidi component's trigger
+    /// aggregator), with the same duplicate-key takeover as above.
+    fn register_widget_with_id_parity<T>(&self, spec: crate::widgets::WidgetSpec<'_>, id: &str, resolve: impl Fn(&serde_json::Value) -> Result<T, WidgetError>) -> Result<(String, T, bool), WidgetError> {
+        let state = self.get_app().lock().session_state.clone();
+        let default = spec.default.clone();
+        let kind = spec.kind.to_owned();
+        match state.register_widget_with_id(spec, id, &resolve) {
+            Ok(triple) => Ok(triple),
+            Err(WidgetError::DuplicateKey(key)) => {
+                self.push(Rc::new(RefCell::new(crate::elements::exception::ExceptionElement::duplicate_key(&kind, &key))));
+                state.set_run_control(crate::session::RunControl::Stop);
+                let value = resolve(&default)?;
+                Ok((String::new(), value, false))
+            }
+            Err(other) => Err(other),
+        }
+    }
 }
 
 impl AppendChild for Streamlit {
