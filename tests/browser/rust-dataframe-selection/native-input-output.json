@@ -1,0 +1,1518 @@
+{
+  "schema_version": 1,
+  "runtime": "native",
+  "reference_version": "1.66.1",
+  "raw_identity": {
+    "file": "first-attempt/trace.json",
+    "bytes": 1501854,
+    "sha256": "8291bce985a40d8d2d8050d5c05a4233383b58019599616eecd42fa1f456dd65"
+  },
+  "stages": [
+    {
+      "name": "01-load",
+      "frame_start": 0,
+      "frame_end": 11,
+      "command_start": 3,
+      "command_end": 6,
+      "did_run": true,
+      "selection": {
+        "selection": {
+          "rows": [],
+          "columns": [],
+          "cells": []
+        }
+      },
+      "screenshot": {
+        "file": "01-load.png",
+        "bytes": 37621,
+        "sha256": "516146152ca714de774c398591a878d0927d6dbd04b41a985b487c28b97b66ad"
+      },
+      "tables": [
+        {
+          "frame_index": 4,
+          "delta_path": [
+            0,
+            1
+          ],
+          "fields": {
+            "id": "$$ID-b0cc324258bced709651ee0254db5977-orders",
+            "columns": "{\"_index\": {\"hidden\": true}}",
+            "selection_mode": [
+              "SINGLE_ROW"
+            ]
+          },
+          "schema": [
+            {
+              "name": "id",
+              "type": "large_string",
+              "nullable": false
+            },
+            {
+              "name": "qty",
+              "type": "int64",
+              "nullable": false
+            },
+            {
+              "name": "label",
+              "type": "large_string",
+              "nullable": false
+            }
+          ],
+          "rows": [
+            {
+              "id": "rC",
+              "qty": 30,
+              "label": "C"
+            },
+            {
+              "id": "rA",
+              "qty": 10,
+              "label": "A"
+            },
+            {
+              "id": "rB",
+              "qty": 20,
+              "label": "B"
+            }
+          ]
+        }
+      ],
+      "widget_inputs": [],
+      "visual_grids": [
+        {
+          "cells": [
+            {
+              "id": "glide-cell-1-0",
+              "text": "rC"
+            },
+            {
+              "id": "glide-cell-2-0",
+              "text": "30"
+            },
+            {
+              "id": "glide-cell-3-0",
+              "text": "C"
+            },
+            {
+              "id": "glide-cell-1-1",
+              "text": "rA"
+            },
+            {
+              "id": "glide-cell-2-1",
+              "text": "10"
+            },
+            {
+              "id": "glide-cell-3-1",
+              "text": "A"
+            },
+            {
+              "id": "glide-cell-1-2",
+              "text": "rB"
+            },
+            {
+              "id": "glide-cell-2-2",
+              "text": "20"
+            },
+            {
+              "id": "glide-cell-3-2",
+              "text": "B"
+            }
+          ],
+          "canvas": {
+            "x": 281,
+            "y": 185.796875,
+            "width": 698,
+            "height": 188
+          }
+        }
+      ]
+    },
+    {
+      "name": "02-select-input-row0",
+      "frame_start": 11,
+      "frame_end": 27,
+      "command_start": 6,
+      "command_end": 11,
+      "did_run": true,
+      "selection": {
+        "selection": {
+          "rows": [
+            0
+          ],
+          "columns": [],
+          "cells": []
+        }
+      },
+      "screenshot": {
+        "file": "02-select-input-row0.png",
+        "bytes": 53315,
+        "sha256": "1276148c8495899f2e362884658e543ee5eb94856e99a9efdda1046bd08fef79"
+      },
+      "tables": [
+        {
+          "frame_index": 15,
+          "delta_path": [
+            0,
+            1
+          ],
+          "fields": {
+            "id": "$$ID-b0cc324258bced709651ee0254db5977-orders",
+            "columns": "{\"_index\": {\"hidden\": true}}",
+            "selection_mode": [
+              "SINGLE_ROW"
+            ]
+          },
+          "schema": [
+            {
+              "name": "id",
+              "type": "large_string",
+              "nullable": false
+            },
+            {
+              "name": "qty",
+              "type": "int64",
+              "nullable": false
+            },
+            {
+              "name": "label",
+              "type": "large_string",
+              "nullable": false
+            }
+          ],
+          "rows": [
+            {
+              "id": "rC",
+              "qty": 30,
+              "label": "C"
+            },
+            {
+              "id": "rA",
+              "qty": 10,
+              "label": "A"
+            },
+            {
+              "id": "rB",
+              "qty": 20,
+              "label": "B"
+            }
+          ]
+        },
+        {
+          "frame_index": 20,
+          "delta_path": [
+            0,
+            6
+          ],
+          "fields": {
+            "columns": "{}"
+          },
+          "schema": [
+            {
+              "name": "id",
+              "type": "large_string",
+              "nullable": false
+            },
+            {
+              "name": "qty",
+              "type": "int64",
+              "nullable": false
+            },
+            {
+              "name": "label",
+              "type": "large_string",
+              "nullable": false
+            }
+          ],
+          "rows": [
+            {
+              "id": "rC",
+              "qty": 30,
+              "label": "C"
+            }
+          ]
+        },
+        {
+          "frame_index": 22,
+          "delta_path": [
+            0,
+            8
+          ],
+          "fields": {
+            "id": "$$ID-158ae763c3326091cf0df31ccd1a43d9-detail-0",
+            "columns": "{\"_index\": {\"hidden\": true}}",
+            "editing_mode": "FIXED"
+          },
+          "schema": [
+            {
+              "name": "id",
+              "type": "large_string",
+              "nullable": false
+            },
+            {
+              "name": "qty",
+              "type": "int64",
+              "nullable": false
+            },
+            {
+              "name": "label",
+              "type": "large_string",
+              "nullable": false
+            }
+          ],
+          "rows": [
+            {
+              "id": "rC",
+              "qty": 30,
+              "label": "C"
+            }
+          ]
+        },
+        {
+          "frame_index": 24,
+          "delta_path": [
+            0,
+            10
+          ],
+          "fields": {
+            "columns": "{}"
+          },
+          "schema": [
+            {
+              "name": "id",
+              "type": "large_string",
+              "nullable": false
+            },
+            {
+              "name": "qty",
+              "type": "int64",
+              "nullable": false
+            },
+            {
+              "name": "label",
+              "type": "large_string",
+              "nullable": false
+            }
+          ],
+          "rows": [
+            {
+              "id": "rC",
+              "qty": 30,
+              "label": "C"
+            }
+          ]
+        }
+      ],
+      "widget_inputs": [
+        {
+          "frame_index": 11,
+          "id": "$$ID-b0cc324258bced709651ee0254db5977-orders",
+          "value_oneof": "string_value",
+          "value": "{\"selection\":{\"rows\":[0],\"columns\":[],\"cells\":[]}}"
+        }
+      ],
+      "visual_grids": [
+        {
+          "cells": [
+            {
+              "id": "glide-cell-1-0",
+              "text": "rC"
+            },
+            {
+              "id": "glide-cell-2-0",
+              "text": "30"
+            },
+            {
+              "id": "glide-cell-3-0",
+              "text": "C"
+            },
+            {
+              "id": "glide-cell-1-1",
+              "text": "rA"
+            },
+            {
+              "id": "glide-cell-2-1",
+              "text": "10"
+            },
+            {
+              "id": "glide-cell-3-1",
+              "text": "A"
+            },
+            {
+              "id": "glide-cell-1-2",
+              "text": "rB"
+            },
+            {
+              "id": "glide-cell-2-2",
+              "text": "20"
+            },
+            {
+              "id": "glide-cell-3-2",
+              "text": "B"
+            }
+          ],
+          "canvas": {
+            "x": 281,
+            "y": 185.796875,
+            "width": 698,
+            "height": 188
+          }
+        },
+        {
+          "cells": [
+            {
+              "id": "glide-cell-0-0",
+              "text": "0"
+            },
+            {
+              "id": "glide-cell-1-0",
+              "text": "rC"
+            },
+            {
+              "id": "glide-cell-2-0",
+              "text": "30"
+            },
+            {
+              "id": "glide-cell-3-0",
+              "text": "C"
+            }
+          ],
+          "canvas": {
+            "x": 281,
+            "y": 780.5,
+            "width": 702,
+            "height": 72
+          }
+        },
+        {
+          "cells": [
+            {
+              "id": "glide-cell-0-0",
+              "text": "rC"
+            },
+            {
+              "id": "glide-cell-1-0",
+              "text": "30"
+            },
+            {
+              "id": "glide-cell-2-0",
+              "text": "C"
+            }
+          ],
+          "canvas": {
+            "x": 281,
+            "y": 917.6875,
+            "width": 702,
+            "height": 72
+          }
+        },
+        {
+          "cells": [
+            {
+              "id": "glide-cell-0-0",
+              "text": "0"
+            },
+            {
+              "id": "glide-cell-1-0",
+              "text": "rC"
+            },
+            {
+              "id": "glide-cell-2-0",
+              "text": "30"
+            },
+            {
+              "id": "glide-cell-3-0",
+              "text": "C"
+            }
+          ],
+          "canvas": {
+            "x": 281,
+            "y": 1054.875,
+            "width": 702,
+            "height": 72
+          }
+        }
+      ]
+    },
+    {
+      "name": "03-ordinary-rerun",
+      "frame_start": 27,
+      "frame_end": 43,
+      "command_start": 11,
+      "command_end": 16,
+      "did_run": true,
+      "selection": {
+        "selection": {
+          "rows": [
+            0
+          ],
+          "columns": [],
+          "cells": []
+        }
+      },
+      "screenshot": {
+        "file": "03-ordinary-rerun.png",
+        "bytes": 53370,
+        "sha256": "ee83ccf17d8bcd7e9e32b33a37a751cf12cfb3054163f6d79c0395a750477612"
+      },
+      "tables": [
+        {
+          "frame_index": 31,
+          "delta_path": [
+            0,
+            1
+          ],
+          "fields": {
+            "id": "$$ID-b0cc324258bced709651ee0254db5977-orders",
+            "columns": "{\"_index\": {\"hidden\": true}}",
+            "selection_mode": [
+              "SINGLE_ROW"
+            ]
+          },
+          "schema": [
+            {
+              "name": "id",
+              "type": "large_string",
+              "nullable": false
+            },
+            {
+              "name": "qty",
+              "type": "int64",
+              "nullable": false
+            },
+            {
+              "name": "label",
+              "type": "large_string",
+              "nullable": false
+            }
+          ],
+          "rows": [
+            {
+              "id": "rC",
+              "qty": 30,
+              "label": "C"
+            },
+            {
+              "id": "rA",
+              "qty": 10,
+              "label": "A"
+            },
+            {
+              "id": "rB",
+              "qty": 20,
+              "label": "B"
+            }
+          ]
+        },
+        {
+          "frame_index": 36,
+          "delta_path": [
+            0,
+            6
+          ],
+          "fields": {
+            "columns": "{}"
+          },
+          "schema": [
+            {
+              "name": "id",
+              "type": "large_string",
+              "nullable": false
+            },
+            {
+              "name": "qty",
+              "type": "int64",
+              "nullable": false
+            },
+            {
+              "name": "label",
+              "type": "large_string",
+              "nullable": false
+            }
+          ],
+          "rows": [
+            {
+              "id": "rC",
+              "qty": 30,
+              "label": "C"
+            }
+          ]
+        },
+        {
+          "frame_index": 38,
+          "delta_path": [
+            0,
+            8
+          ],
+          "fields": {
+            "id": "$$ID-158ae763c3326091cf0df31ccd1a43d9-detail-0",
+            "columns": "{\"_index\": {\"hidden\": true}}",
+            "editing_mode": "FIXED"
+          },
+          "schema": [
+            {
+              "name": "id",
+              "type": "large_string",
+              "nullable": false
+            },
+            {
+              "name": "qty",
+              "type": "int64",
+              "nullable": false
+            },
+            {
+              "name": "label",
+              "type": "large_string",
+              "nullable": false
+            }
+          ],
+          "rows": [
+            {
+              "id": "rC",
+              "qty": 30,
+              "label": "C"
+            }
+          ]
+        },
+        {
+          "frame_index": 40,
+          "delta_path": [
+            0,
+            10
+          ],
+          "fields": {
+            "columns": "{}"
+          },
+          "schema": [
+            {
+              "name": "id",
+              "type": "large_string",
+              "nullable": false
+            },
+            {
+              "name": "qty",
+              "type": "int64",
+              "nullable": false
+            },
+            {
+              "name": "label",
+              "type": "large_string",
+              "nullable": false
+            }
+          ],
+          "rows": [
+            {
+              "id": "rC",
+              "qty": 30,
+              "label": "C"
+            }
+          ]
+        }
+      ],
+      "widget_inputs": [
+        {
+          "frame_index": 27,
+          "id": "$$ID-b0cc324258bced709651ee0254db5977-orders",
+          "value_oneof": "string_value",
+          "value": "{\"selection\":{\"rows\":[0],\"columns\":[],\"cells\":[]}}"
+        },
+        {
+          "frame_index": 27,
+          "id": "$$ID-a2663fb9b0eb4fbcb15b0d6e33aa63dc-ordinary-rerun",
+          "value_oneof": "trigger_value",
+          "value": true
+        }
+      ],
+      "visual_grids": [
+        {
+          "cells": [
+            {
+              "id": "glide-cell-1-0",
+              "text": "rC"
+            },
+            {
+              "id": "glide-cell-2-0",
+              "text": "30"
+            },
+            {
+              "id": "glide-cell-3-0",
+              "text": "C"
+            },
+            {
+              "id": "glide-cell-1-1",
+              "text": "rA"
+            },
+            {
+              "id": "glide-cell-2-1",
+              "text": "10"
+            },
+            {
+              "id": "glide-cell-3-1",
+              "text": "A"
+            },
+            {
+              "id": "glide-cell-1-2",
+              "text": "rB"
+            },
+            {
+              "id": "glide-cell-2-2",
+              "text": "20"
+            },
+            {
+              "id": "glide-cell-3-2",
+              "text": "B"
+            }
+          ],
+          "canvas": {
+            "x": 281,
+            "y": 185.796875,
+            "width": 698,
+            "height": 188
+          }
+        },
+        {
+          "cells": [
+            {
+              "id": "glide-cell-0-0",
+              "text": "0"
+            },
+            {
+              "id": "glide-cell-1-0",
+              "text": "rC"
+            },
+            {
+              "id": "glide-cell-2-0",
+              "text": "30"
+            },
+            {
+              "id": "glide-cell-3-0",
+              "text": "C"
+            }
+          ],
+          "canvas": {
+            "x": 281,
+            "y": 780.5,
+            "width": 702,
+            "height": 72
+          }
+        },
+        {
+          "cells": [
+            {
+              "id": "glide-cell-0-0",
+              "text": "rC"
+            },
+            {
+              "id": "glide-cell-1-0",
+              "text": "30"
+            },
+            {
+              "id": "glide-cell-2-0",
+              "text": "C"
+            }
+          ],
+          "canvas": {
+            "x": 281,
+            "y": 917.6875,
+            "width": 702,
+            "height": 72
+          }
+        },
+        {
+          "cells": [
+            {
+              "id": "glide-cell-0-0",
+              "text": "0"
+            },
+            {
+              "id": "glide-cell-1-0",
+              "text": "rC"
+            },
+            {
+              "id": "glide-cell-2-0",
+              "text": "30"
+            },
+            {
+              "id": "glide-cell-3-0",
+              "text": "C"
+            }
+          ],
+          "canvas": {
+            "x": 281,
+            "y": 1054.875,
+            "width": 702,
+            "height": 72
+          }
+        }
+      ]
+    },
+    {
+      "name": "04-sort-qty",
+      "frame_start": 43,
+      "frame_end": 43,
+      "command_start": 16,
+      "command_end": 21,
+      "did_run": false,
+      "selection": {
+        "selection": {
+          "rows": [
+            0
+          ],
+          "columns": [],
+          "cells": []
+        }
+      },
+      "screenshot": {
+        "file": "04-sort-qty.png",
+        "bytes": 53320,
+        "sha256": "c68c9ab31fcfa15c9644cd8410426925e63f49545cbc255073d1968838664683"
+      },
+      "tables": [],
+      "widget_inputs": [],
+      "visual_grids": [
+        {
+          "cells": [
+            {
+              "id": "glide-cell-1-0",
+              "text": "rA"
+            },
+            {
+              "id": "glide-cell-2-0",
+              "text": "10"
+            },
+            {
+              "id": "glide-cell-3-0",
+              "text": "A"
+            },
+            {
+              "id": "glide-cell-1-1",
+              "text": "rB"
+            },
+            {
+              "id": "glide-cell-2-1",
+              "text": "20"
+            },
+            {
+              "id": "glide-cell-3-1",
+              "text": "B"
+            },
+            {
+              "id": "glide-cell-1-2",
+              "text": "rC"
+            },
+            {
+              "id": "glide-cell-2-2",
+              "text": "30"
+            },
+            {
+              "id": "glide-cell-3-2",
+              "text": "C"
+            }
+          ],
+          "canvas": {
+            "x": 281,
+            "y": 185.796875,
+            "width": 698,
+            "height": 188
+          }
+        },
+        {
+          "cells": [
+            {
+              "id": "glide-cell-0-0",
+              "text": "0"
+            },
+            {
+              "id": "glide-cell-1-0",
+              "text": "rC"
+            },
+            {
+              "id": "glide-cell-2-0",
+              "text": "30"
+            },
+            {
+              "id": "glide-cell-3-0",
+              "text": "C"
+            }
+          ],
+          "canvas": {
+            "x": 281,
+            "y": 780.5,
+            "width": 702,
+            "height": 72
+          }
+        },
+        {
+          "cells": [
+            {
+              "id": "glide-cell-0-0",
+              "text": "rC"
+            },
+            {
+              "id": "glide-cell-1-0",
+              "text": "30"
+            },
+            {
+              "id": "glide-cell-2-0",
+              "text": "C"
+            }
+          ],
+          "canvas": {
+            "x": 281,
+            "y": 917.6875,
+            "width": 702,
+            "height": 72
+          }
+        },
+        {
+          "cells": [
+            {
+              "id": "glide-cell-0-0",
+              "text": "0"
+            },
+            {
+              "id": "glide-cell-1-0",
+              "text": "rC"
+            },
+            {
+              "id": "glide-cell-2-0",
+              "text": "30"
+            },
+            {
+              "id": "glide-cell-3-0",
+              "text": "C"
+            }
+          ],
+          "canvas": {
+            "x": 281,
+            "y": 1054.875,
+            "width": 702,
+            "height": 72
+          }
+        }
+      ]
+    },
+    {
+      "name": "05-select-sorted-first",
+      "frame_start": 43,
+      "frame_end": 59,
+      "command_start": 21,
+      "command_end": 26,
+      "did_run": true,
+      "selection": {
+        "selection": {
+          "rows": [
+            1
+          ],
+          "columns": [],
+          "cells": []
+        }
+      },
+      "screenshot": {
+        "file": "05-select-sorted-first.png",
+        "bytes": 52859,
+        "sha256": "847035d561aa9ffc5ff754283439cf73b5b86e83da88aff9e0aca91696e65213"
+      },
+      "tables": [
+        {
+          "frame_index": 47,
+          "delta_path": [
+            0,
+            1
+          ],
+          "fields": {
+            "id": "$$ID-b0cc324258bced709651ee0254db5977-orders",
+            "columns": "{\"_index\": {\"hidden\": true}}",
+            "selection_mode": [
+              "SINGLE_ROW"
+            ]
+          },
+          "schema": [
+            {
+              "name": "id",
+              "type": "large_string",
+              "nullable": false
+            },
+            {
+              "name": "qty",
+              "type": "int64",
+              "nullable": false
+            },
+            {
+              "name": "label",
+              "type": "large_string",
+              "nullable": false
+            }
+          ],
+          "rows": [
+            {
+              "id": "rC",
+              "qty": 30,
+              "label": "C"
+            },
+            {
+              "id": "rA",
+              "qty": 10,
+              "label": "A"
+            },
+            {
+              "id": "rB",
+              "qty": 20,
+              "label": "B"
+            }
+          ]
+        },
+        {
+          "frame_index": 52,
+          "delta_path": [
+            0,
+            6
+          ],
+          "fields": {
+            "columns": "{}"
+          },
+          "schema": [
+            {
+              "name": "id",
+              "type": "large_string",
+              "nullable": false
+            },
+            {
+              "name": "qty",
+              "type": "int64",
+              "nullable": false
+            },
+            {
+              "name": "label",
+              "type": "large_string",
+              "nullable": false
+            }
+          ],
+          "rows": [
+            {
+              "id": "rA",
+              "qty": 10,
+              "label": "A"
+            }
+          ]
+        },
+        {
+          "frame_index": 54,
+          "delta_path": [
+            0,
+            8
+          ],
+          "fields": {
+            "id": "$$ID-454500291ee153904327776a95ff3e01-detail-1",
+            "columns": "{\"_index\": {\"hidden\": true}}",
+            "editing_mode": "FIXED"
+          },
+          "schema": [
+            {
+              "name": "id",
+              "type": "large_string",
+              "nullable": false
+            },
+            {
+              "name": "qty",
+              "type": "int64",
+              "nullable": false
+            },
+            {
+              "name": "label",
+              "type": "large_string",
+              "nullable": false
+            }
+          ],
+          "rows": [
+            {
+              "id": "rA",
+              "qty": 10,
+              "label": "A"
+            }
+          ]
+        },
+        {
+          "frame_index": 56,
+          "delta_path": [
+            0,
+            10
+          ],
+          "fields": {
+            "columns": "{}"
+          },
+          "schema": [
+            {
+              "name": "id",
+              "type": "large_string",
+              "nullable": false
+            },
+            {
+              "name": "qty",
+              "type": "int64",
+              "nullable": false
+            },
+            {
+              "name": "label",
+              "type": "large_string",
+              "nullable": false
+            }
+          ],
+          "rows": [
+            {
+              "id": "rA",
+              "qty": 10,
+              "label": "A"
+            }
+          ]
+        }
+      ],
+      "widget_inputs": [
+        {
+          "frame_index": 43,
+          "id": "$$ID-b0cc324258bced709651ee0254db5977-orders",
+          "value_oneof": "string_value",
+          "value": "{\"selection\":{\"rows\":[1],\"columns\":[],\"cells\":[]}}"
+        }
+      ],
+      "visual_grids": [
+        {
+          "cells": [
+            {
+              "id": "glide-cell-1-0",
+              "text": "rA"
+            },
+            {
+              "id": "glide-cell-2-0",
+              "text": "10"
+            },
+            {
+              "id": "glide-cell-3-0",
+              "text": "A"
+            },
+            {
+              "id": "glide-cell-1-1",
+              "text": "rB"
+            },
+            {
+              "id": "glide-cell-2-1",
+              "text": "20"
+            },
+            {
+              "id": "glide-cell-3-1",
+              "text": "B"
+            },
+            {
+              "id": "glide-cell-1-2",
+              "text": "rC"
+            },
+            {
+              "id": "glide-cell-2-2",
+              "text": "30"
+            },
+            {
+              "id": "glide-cell-3-2",
+              "text": "C"
+            }
+          ],
+          "canvas": {
+            "x": 281,
+            "y": 185.796875,
+            "width": 698,
+            "height": 188
+          }
+        },
+        {
+          "cells": [
+            {
+              "id": "glide-cell-0-0",
+              "text": "0"
+            },
+            {
+              "id": "glide-cell-1-0",
+              "text": "rA"
+            },
+            {
+              "id": "glide-cell-2-0",
+              "text": "10"
+            },
+            {
+              "id": "glide-cell-3-0",
+              "text": "A"
+            }
+          ],
+          "canvas": {
+            "x": 281,
+            "y": 780.5,
+            "width": 702,
+            "height": 72
+          }
+        },
+        {
+          "cells": [
+            {
+              "id": "glide-cell-0-0",
+              "text": "rA"
+            },
+            {
+              "id": "glide-cell-1-0",
+              "text": "10"
+            },
+            {
+              "id": "glide-cell-2-0",
+              "text": "A"
+            }
+          ],
+          "canvas": {
+            "x": 281,
+            "y": 917.6875,
+            "width": 702,
+            "height": 72
+          }
+        },
+        {
+          "cells": [
+            {
+              "id": "glide-cell-0-0",
+              "text": "0"
+            },
+            {
+              "id": "glide-cell-1-0",
+              "text": "rA"
+            },
+            {
+              "id": "glide-cell-2-0",
+              "text": "10"
+            },
+            {
+              "id": "glide-cell-3-0",
+              "text": "A"
+            }
+          ],
+          "canvas": {
+            "x": 281,
+            "y": 1054.875,
+            "width": 702,
+            "height": 72
+          }
+        }
+      ]
+    },
+    {
+      "name": "06-edit-selected-qty15",
+      "frame_start": 59,
+      "frame_end": 75,
+      "command_start": 26,
+      "command_end": 39,
+      "did_run": true,
+      "selection": {
+        "selection": {
+          "rows": [
+            1
+          ],
+          "columns": [],
+          "cells": []
+        }
+      },
+      "screenshot": {
+        "file": "06-edit-selected-qty15.png",
+        "bytes": 53166,
+        "sha256": "961ff084ad5d1a692e95061b08b0a96cde2351e64f4ade867520e10de4f611fa"
+      },
+      "tables": [
+        {
+          "frame_index": 63,
+          "delta_path": [
+            0,
+            1
+          ],
+          "fields": {
+            "id": "$$ID-b0cc324258bced709651ee0254db5977-orders",
+            "columns": "{\"_index\": {\"hidden\": true}}",
+            "selection_mode": [
+              "SINGLE_ROW"
+            ]
+          },
+          "schema": [
+            {
+              "name": "id",
+              "type": "large_string",
+              "nullable": false
+            },
+            {
+              "name": "qty",
+              "type": "int64",
+              "nullable": false
+            },
+            {
+              "name": "label",
+              "type": "large_string",
+              "nullable": false
+            }
+          ],
+          "rows": [
+            {
+              "id": "rC",
+              "qty": 30,
+              "label": "C"
+            },
+            {
+              "id": "rA",
+              "qty": 10,
+              "label": "A"
+            },
+            {
+              "id": "rB",
+              "qty": 20,
+              "label": "B"
+            }
+          ]
+        },
+        {
+          "frame_index": 68,
+          "delta_path": [
+            0,
+            6
+          ],
+          "fields": {
+            "columns": "{}"
+          },
+          "schema": [
+            {
+              "name": "id",
+              "type": "large_string",
+              "nullable": false
+            },
+            {
+              "name": "qty",
+              "type": "int64",
+              "nullable": false
+            },
+            {
+              "name": "label",
+              "type": "large_string",
+              "nullable": false
+            }
+          ],
+          "rows": [
+            {
+              "id": "rA",
+              "qty": 10,
+              "label": "A"
+            }
+          ]
+        },
+        {
+          "frame_index": 70,
+          "delta_path": [
+            0,
+            8
+          ],
+          "fields": {
+            "id": "$$ID-454500291ee153904327776a95ff3e01-detail-1",
+            "columns": "{\"_index\": {\"hidden\": true}}",
+            "editing_mode": "FIXED"
+          },
+          "schema": [
+            {
+              "name": "id",
+              "type": "large_string",
+              "nullable": false
+            },
+            {
+              "name": "qty",
+              "type": "int64",
+              "nullable": false
+            },
+            {
+              "name": "label",
+              "type": "large_string",
+              "nullable": false
+            }
+          ],
+          "rows": [
+            {
+              "id": "rA",
+              "qty": 10,
+              "label": "A"
+            }
+          ]
+        },
+        {
+          "frame_index": 72,
+          "delta_path": [
+            0,
+            10
+          ],
+          "fields": {
+            "columns": "{}"
+          },
+          "schema": [
+            {
+              "name": "id",
+              "type": "large_string",
+              "nullable": false
+            },
+            {
+              "name": "qty",
+              "type": "int64",
+              "nullable": false
+            },
+            {
+              "name": "label",
+              "type": "large_string",
+              "nullable": false
+            }
+          ],
+          "rows": [
+            {
+              "id": "rA",
+              "qty": 15,
+              "label": "A"
+            }
+          ]
+        }
+      ],
+      "widget_inputs": [
+        {
+          "frame_index": 59,
+          "id": "$$ID-b0cc324258bced709651ee0254db5977-orders",
+          "value_oneof": "string_value",
+          "value": "{\"selection\":{\"rows\":[1],\"columns\":[],\"cells\":[]}}"
+        },
+        {
+          "frame_index": 59,
+          "id": "$$ID-454500291ee153904327776a95ff3e01-detail-1",
+          "value_oneof": "string_value",
+          "value": "{\"edited_rows\":{\"0\":{\"qty\":15}},\"added_rows\":[],\"deleted_rows\":[]}"
+        }
+      ],
+      "visual_grids": [
+        {
+          "cells": [
+            {
+              "id": "glide-cell-1-0",
+              "text": "rA"
+            },
+            {
+              "id": "glide-cell-2-0",
+              "text": "10"
+            },
+            {
+              "id": "glide-cell-3-0",
+              "text": "A"
+            },
+            {
+              "id": "glide-cell-1-1",
+              "text": "rB"
+            },
+            {
+              "id": "glide-cell-2-1",
+              "text": "20"
+            },
+            {
+              "id": "glide-cell-3-1",
+              "text": "B"
+            },
+            {
+              "id": "glide-cell-1-2",
+              "text": "rC"
+            },
+            {
+              "id": "glide-cell-2-2",
+              "text": "30"
+            },
+            {
+              "id": "glide-cell-3-2",
+              "text": "C"
+            }
+          ],
+          "canvas": {
+            "x": 281,
+            "y": 185.796875,
+            "width": 698,
+            "height": 188
+          }
+        },
+        {
+          "cells": [
+            {
+              "id": "glide-cell-0-0",
+              "text": "0"
+            },
+            {
+              "id": "glide-cell-1-0",
+              "text": "rA"
+            },
+            {
+              "id": "glide-cell-2-0",
+              "text": "10"
+            },
+            {
+              "id": "glide-cell-3-0",
+              "text": "A"
+            }
+          ],
+          "canvas": {
+            "x": 281,
+            "y": 780.5,
+            "width": 702,
+            "height": 72
+          }
+        },
+        {
+          "cells": [
+            {
+              "id": "glide-cell-0-0",
+              "text": "rA"
+            },
+            {
+              "id": "glide-cell-1-0",
+              "text": "15"
+            },
+            {
+              "id": "glide-cell-2-0",
+              "text": "A"
+            }
+          ],
+          "canvas": {
+            "x": 281,
+            "y": 917.6875,
+            "width": 702,
+            "height": 72
+          }
+        },
+        {
+          "cells": [
+            {
+              "id": "glide-cell-0-0",
+              "text": "0"
+            },
+            {
+              "id": "glide-cell-1-0",
+              "text": "rA"
+            },
+            {
+              "id": "glide-cell-2-0",
+              "text": "15"
+            },
+            {
+              "id": "glide-cell-3-0",
+              "text": "A"
+            }
+          ],
+          "canvas": {
+            "x": 281,
+            "y": 1054.875,
+            "width": 702,
+            "height": 72
+          }
+        }
+      ]
+    }
+  ],
+  "cleanup": {
+    "chrome_stopped": true,
+    "server_stopped": true
+  },
+  "cleanup_errors": []
+}

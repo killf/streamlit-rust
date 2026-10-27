@@ -22,6 +22,7 @@ mod componenttrigger;
 mod componentv2;
 mod data_views;
 mod dataeditor;
+mod dataframe_selection;
 mod datetime;
 mod display;
 mod display2;

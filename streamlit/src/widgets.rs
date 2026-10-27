@@ -174,6 +174,10 @@ pub(crate) enum Codec {
     /// after the run like the reference's ButtonClickSerde.
     ButtonColumn,
 
+    /// A dataframe's persistent selection object, carried by string_value.
+    /// Keep partial programmatic state intact; the emitter resolves typed defaults.
+    DataframeSelection,
+
     /// A bidi component's persistent state: the whole state object as one
     /// JSON string (json_value). Missing top-level keys retain their defaults.
     JsonValue {
@@ -200,6 +204,10 @@ pub(crate) enum Codec {
 }
 
 impl Codec {
+    fn dataframe_selection_shape(value: &Value) -> bool {
+        value.as_object().and_then(|state| state.get("selection")).is_some_and(Value::is_object)
+    }
+
     /// The reference's ButtonColumnClickState shape: a non-negative row
     /// index and a text label.
     fn button_click_shape(value: &Value) -> bool {
@@ -257,6 +265,11 @@ impl Codec {
                 None | Some("") => Value::Null,
                 Some(data) => serde_json::from_str::<Value>(data).ok().filter(Self::button_click_shape)?,
             }),
+            (Self::DataframeSelection, widget_state::Value::StringValue(text)) => {
+                let value = serde_json::from_str::<Value>(text).ok()?;
+                // 浏览器值须先通过 typed 校验，整批验证后才允许安排回调；仍保留原始字段。
+                (Self::dataframe_selection_shape(&value) && serde_json::from_value::<crate::DataframeState>(value.clone()).is_ok()).then_some(value)
+            }
             (Self::JsonValue { defaults }, widget_state::Value::JsonValue(text)) => {
                 let mut value = serde_json::from_str::<Value>(text).ok()?;
                 if let (Value::Object(state), Value::Object(defaults)) = (&mut value, defaults) {
@@ -343,6 +356,7 @@ impl Codec {
             }
             Self::StringTrigger(options) => value.is_null() || value.as_u64().is_some_and(|index| index < options.len() as u64),
             Self::ButtonColumn => value.is_null() || Self::button_click_shape(value),
+            Self::DataframeSelection => Self::dataframe_selection_shape(value),
             Self::JsonValue { .. } => true,
             Self::JsonTrigger => value.is_null() || value.is_array(),
             Self::DateInput { range } => {
@@ -746,6 +760,233 @@ impl SessionState {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    const DATAFRAME_SELECTION_REFERENCE: &str = include_str!("../../tests/reference/reference-browser/dataframe-selection/selection-input-output.json");
+
+    #[test]
+    fn dataframe_selection_codec_preserves_frozen_string_states() -> anyhow::Result<()> {
+        let reference: Value = serde_json::from_str(DATAFRAME_SELECTION_REFERENCE)?;
+        assert_eq!(reference["schema_version"], 1);
+        assert_eq!(reference["reference_version"], "1.66.1");
+        let stages = reference["stages"].as_array().ok_or_else(|| anyhow::anyhow!("selection reference must contain stages"))?;
+        let codec = Codec::DataframeSelection;
+        let mut decoded_count = 0;
+
+        // 1. 逐条读取真实 string_value，保留 rows、columns、cells 和缩行后的原位置。
+        for stage in stages {
+            let incoming = stage["target_widget_states"].as_array().ok_or_else(|| anyhow::anyhow!("selection stage must contain target widget states"))?;
+            for widget in incoming {
+                assert_eq!(widget["value_oneof"], "string_value");
+                let text = widget["value"].as_str().ok_or_else(|| anyhow::anyhow!("selection string_value must be text"))?;
+                let decoded = codec.decode(&widget_state::Value::StringValue(text.into()));
+                assert_eq!(decoded, Some(stage["before"].clone()), "{} / {}", stage["case"], stage["name"]);
+                decoded_count += 1;
+            }
+        }
+        assert!(decoded_count > 0, "reference must exercise real selection inputs");
+
+        // 2. 以下仅验证 Rust 的输入防御，不宣称已测 Python 的恶意输入行为。
+        for text in ["{", "null", "[]", "{}", r#"{"selection":null}"#, r#"{"selection":[]}"#] {
+            assert_eq!(codec.decode(&widget_state::Value::StringValue(text.into())), None);
+        }
+        assert_eq!(codec.decode(&widget_state::Value::JsonValue(r#"{"selection":{}}"#.into())), None);
+        assert!(codec.valid(&serde_json::json!({"selection": {"rows": "filtered by emitter", "columns": null, "cells": [null]}})));
+
+        Ok(())
+    }
+
+    #[test]
+    fn malformed_dataframe_selection_rejects_the_whole_widget_batch() -> anyhow::Result<()> {
+        let state = SessionState::default();
+        let initial = serde_json::json!({"selection": {"rows": [0], "columns": [], "cells": []}});
+        let callback: WidgetCallback = Arc::new(|_| {});
+
+        // 1. 同时注册选择与有效按钮，确保畸形选择不会放行同批其他状态或回调。
+        state.begin_widgets(vec![]);
+        let (selection_id, _, _) = state.register_widget(
+            WidgetSpec {
+                kind: "dataframe",
+                key: Some("selection"),
+                identity: "batch-validation",
+                default: initial.clone(),
+                codec: Codec::DataframeSelection,
+                callback: Some(callback.clone()),
+            },
+            |value| Ok(value.clone()),
+        )?;
+        let (button_id, _, _) = state.register_widget(
+            WidgetSpec {
+                kind: "button",
+                key: Some("action"),
+                identity: "batch-validation",
+                default: Value::Bool(false),
+                codec: Codec::Trigger,
+                callback: Some(callback),
+            },
+            |value| Ok(value.clone()),
+        )?;
+        state.finish_widgets();
+
+        // 2. 仅验证 Rust 既有 batch 防御，不宣称 Python 对伪造恶意 payload 的兼容性。
+        let invalid_fields = [
+            serde_json::json!({"rows": "bad"}),
+            serde_json::json!({"rows": [1.5]}),
+            serde_json::json!({"columns": [1]}),
+            serde_json::json!({"cells": [[0]]}),
+            serde_json::json!({"cells": [[0, 4]]}),
+            serde_json::json!({"cells": [[-1, "qty"]]}),
+        ];
+        for fields in invalid_fields {
+            let value = serde_json::json!({"selection": fields});
+            assert!(Codec::DataframeSelection.valid(&value), "programmatic fields remain available to the emitter's normalizer");
+            let callbacks = state.begin_widgets(vec![
+                WidgetState {
+                    id: button_id.clone(),
+                    value: Some(widget_state::Value::TriggerValue(true)),
+                },
+                WidgetState {
+                    id: selection_id.clone(),
+                    value: Some(widget_state::Value::StringValue(value.to_string())),
+                },
+            ]);
+            assert!(callbacks.is_empty(), "malformed selection must reject the whole batch: {value}");
+            assert_eq!(state.get::<Value>("selection")?, Some(initial.clone()));
+            assert_eq!(state.get::<bool>("action")?, Some(false));
+        }
+
+        // 3. 合法选择仍允许同批按钮更新并安排其回调，防止 fixture 本身失效。
+        let callbacks = state.begin_widgets(vec![
+            WidgetState {
+                id: button_id,
+                value: Some(widget_state::Value::TriggerValue(true)),
+            },
+            WidgetState {
+                id: selection_id,
+                value: Some(widget_state::Value::StringValue(initial.to_string())),
+            },
+        ]);
+        assert_eq!(callbacks.len(), 1);
+        assert_eq!(state.get::<bool>("action")?, Some(true));
+
+        Ok(())
+    }
+
+    #[test]
+    fn dataframe_selection_registry_keeps_partial_state_until_browser_roundtrip() -> anyhow::Result<()> {
+        let reference: Value = serde_json::from_str(DATAFRAME_SELECTION_REFERENCE)?;
+        let stages = reference["stages"].as_array().ok_or_else(|| anyhow::anyhow!("selection reference must contain stages"))?;
+        let program_rows = stages
+            .iter()
+            .find(|stage| stage["case"] == "single-combo" && stage["name"] == "program-rows")
+            .ok_or_else(|| anyhow::anyhow!("reference must contain program-rows"))?;
+        let program_columns = stages
+            .iter()
+            .find(|stage| stage["case"] == "single-combo" && stage["name"] == "program-columns")
+            .ok_or_else(|| anyhow::anyhow!("reference must contain program-columns"))?;
+        let state = SessionState::default();
+        let callback: WidgetCallback = Arc::new(|_| {});
+        let spec = || WidgetSpec {
+            kind: "dataframe",
+            key: Some("selection"),
+            identity: "single-combo",
+            default: program_rows["before"].clone(),
+            codec: Codec::DataframeSelection,
+            callback: Some(callback.clone()),
+        };
+
+        // 1. 程序只写 rows；record 和 keyed state 均保留冻结的 partial 对象。
+        state.begin_widgets(vec![]);
+        let (id, _, _) = state.register_widget(spec(), |value| Ok(value.clone()))?;
+        state.finish_widgets();
+        state.begin_widgets(vec![]);
+        state.set("selection", &program_rows["expected_keyed"])?;
+        let (_, raw, set_value) = state.register_widget(spec(), |value| Ok(value.clone()))?;
+        assert!(set_value);
+        assert_eq!(raw, program_rows["expected_keyed"]);
+        assert_eq!(raw, serde_json::json!({"selection": {"rows": [0]}}));
+        assert_eq!(state.get::<Value>("selection")?, Some(raw.clone()));
+        assert_eq!(state.widgets.lock().records.get(&id).map(|record| record.value.clone()), Some(raw));
+        state.finish_widgets();
+
+        // 非法外壳只触发 Rust 的 batch 防御，不改写已保存的 partial 状态。
+        assert!(
+            state
+                .begin_widgets(vec![WidgetState {
+                    id: id.clone(),
+                    value: Some(widget_state::Value::StringValue(r#"{"selection":null}"#.into()))
+                }])
+                .is_empty()
+        );
+        assert_eq!(state.get::<Value>("selection")?, Some(program_rows["expected_keyed"].clone()));
+
+        // 2. 浏览器回送完整对象才发生下一次变化，不能提前补齐后吞掉该回调。
+        let incoming = program_columns["target_widget_states"]
+            .as_array()
+            .and_then(|states| states.first())
+            .ok_or_else(|| anyhow::anyhow!("program-columns must include the browser roundtrip"))?;
+        assert_eq!(incoming["value_oneof"], "string_value");
+        let text = incoming["value"].as_str().ok_or_else(|| anyhow::anyhow!("browser selection state must be text"))?;
+        let wire = WidgetState {
+            id,
+            value: Some(widget_state::Value::StringValue(text.into())),
+        };
+        let callbacks = state.begin_widgets(vec![wire.clone()]);
+        assert_eq!(callbacks.len(), 1);
+        assert_eq!(state.get::<Value>("selection")?, Some(program_columns["before"].clone()));
+        let (_, raw, set_value) = state.register_widget(spec(), |value| Ok(value.clone()))?;
+        assert!(!set_value);
+        assert_eq!(raw, program_columns["before"]);
+        state.finish_widgets();
+        assert!(state.begin_widgets(vec![wire]).is_empty(), "the unchanged full state must not repeat the callback");
+
+        Ok(())
+    }
+
+    #[test]
+    fn dataframe_selection_registry_retains_frozen_positions_after_shrink() -> anyhow::Result<()> {
+        let reference: Value = serde_json::from_str(DATAFRAME_SELECTION_REFERENCE)?;
+        let stages = reference["stages"].as_array().ok_or_else(|| anyhow::anyhow!("selection reference must contain stages"))?;
+        let state = SessionState::default();
+        let mut observed_shrink = false;
+
+        // 首次 pending 注册与后续缩行使用同一 codec，不按当前表行数裁剪位置。
+        for stage in stages.iter().filter(|stage| stage["case"] == "multi-shrink" && stage["name"] != "load") {
+            let incoming = stage["target_widget_states"].as_array().and_then(|states| states.first()).ok_or_else(|| anyhow::anyhow!("shrink stage must include selection input"))?;
+            assert_eq!(incoming["value_oneof"], "string_value");
+            let text = incoming["value"].as_str().ok_or_else(|| anyhow::anyhow!("shrink selection state must be text"))?;
+            assert!(
+                state
+                    .begin_widgets(vec![WidgetState {
+                        id: "shrink".into(),
+                        value: Some(widget_state::Value::StringValue(text.into()))
+                    }])
+                    .is_empty()
+            );
+            let (_, raw, _) = state.register_widget_with_id(
+                WidgetSpec {
+                    kind: "dataframe",
+                    key: Some("selection"),
+                    identity: "shrink",
+                    default: serde_json::json!({"selection": {"rows": [], "columns": [], "cells": []}}),
+                    codec: Codec::DataframeSelection,
+                    callback: None,
+                },
+                "shrink",
+                |value| Ok(value.clone()),
+            )?;
+            assert_eq!(raw, stage["expected_keyed"]);
+            assert_eq!(state.get::<Value>("selection")?, Some(raw.clone()));
+            if stage["name"] == "replace-shrink" {
+                assert_eq!(stage["input_rows"].as_array().map(Vec::len), Some(1));
+                assert_eq!(raw["selection"]["rows"], serde_json::json!([2]));
+                observed_shrink = true;
+            }
+            state.finish_widgets();
+        }
+        assert!(observed_shrink, "reference must exercise the actual shrink stage");
+
+        Ok(())
+    }
 
     #[test]
     fn removed_upload_cannot_be_rebound_by_resending_old_file_state() -> anyhow::Result<()> {

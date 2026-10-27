@@ -47,6 +47,77 @@ impl DataSize {
     }
 }
 
+/// Dataframe selections refer to positions in the input batch, even after browser sorting.
+/// Retained positions can outlive a replacement batch; check them before indexing.
+#[derive(Clone, Debug, Default, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+pub struct DataframeSelection {
+    pub rows: Vec<usize>,
+
+    pub columns: Vec<String>,
+
+    pub cells: Vec<(usize, String)>,
+}
+
+/// The selection event returned by a dataframe and stored under its optional key.
+/// Missing fields in programmatically assigned JSON deserialize as empty selections.
+#[derive(Clone, Debug, Default, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+pub struct DataframeState {
+    pub selection: DataframeSelection,
+}
+
+/// One selection mode per dimension; row, column and cell modes can be combined.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum DataframeSelectionMode {
+    SingleRow,
+
+    #[default]
+    MultiRow,
+
+    SingleColumn,
+
+    MultiColumn,
+
+    SingleCell,
+
+    MultiCell,
+
+    SingleRowRequired,
+}
+
+impl DataframeSelectionMode {
+    fn wire(self) -> i32 {
+        use proto::dataframe::SelectionMode;
+        match self {
+            Self::SingleRow => SelectionMode::SingleRow as i32,
+            Self::MultiRow => SelectionMode::MultiRow as i32,
+            Self::SingleColumn => SelectionMode::SingleColumn as i32,
+            Self::MultiColumn => SelectionMode::MultiColumn as i32,
+            Self::SingleCell => SelectionMode::SingleCell as i32,
+            Self::MultiCell => SelectionMode::MultiCell as i32,
+            Self::SingleRowRequired => SelectionMode::SingleRowRequired as i32,
+        }
+    }
+}
+
+/// Ignore selection (the default), rerun, or invoke a callback before the next main.
+#[derive(Clone, Default)]
+pub enum OnSelect {
+    #[default]
+    Ignore,
+
+    Rerun,
+
+    Callback(crate::WidgetCallback),
+}
+
+impl OnSelect {
+    pub fn callback(callback: impl Fn(&crate::Streamlit) + Send + Sync + 'static) -> Self {
+        Self::Callback(Arc::new(callback))
+    }
+}
+
 pub struct DataframeOptions<'a> {
     data: &'a RecordBatch,
     width: DataSize,
@@ -54,6 +125,11 @@ pub struct DataframeOptions<'a> {
     hide_index: Option<bool>,
     column_order: Vec<String>,
     column_config: crate::column_config::ColumnConfigs,
+
+    key: Option<String>,
+    on_select: OnSelect,
+    selection_modes: Vec<DataframeSelectionMode>,
+    selection_default: Option<DataframeSelection>,
 }
 
 impl<'a> DataframeOptions<'a> {
@@ -65,6 +141,11 @@ impl<'a> DataframeOptions<'a> {
             hide_index: None,
             column_order: Vec::new(),
             column_config: crate::column_config::ColumnConfigs::new(),
+
+            key: None,
+            on_select: OnSelect::Ignore,
+            selection_modes: vec![DataframeSelectionMode::MultiRow],
+            selection_default: None,
         }
     }
     pub fn hide_index(mut self, hide: bool) -> Self {
@@ -89,12 +170,113 @@ impl<'a> DataframeOptions<'a> {
         self.height = height.into();
         self
     }
+
+    /// Bind selections to session state. Without a key, identity includes the data/options.
+    pub fn key(mut self, key: impl Into<String>) -> Self {
+        self.key = Some(key.into());
+        self
+    }
+
+    pub fn on_select(mut self, on_select: OnSelect) -> Self {
+        self.on_select = on_select;
+        self
+    }
+
+    pub fn selection_mode(mut self, mode: DataframeSelectionMode) -> Self {
+        self.selection_modes = vec![mode];
+        self
+    }
+
+    /// Replace the modes; mutually exclusive modes of the same dimension are invalid.
+    pub fn selection_modes(mut self, modes: impl IntoIterator<Item = DataframeSelectionMode>) -> Self {
+        self.selection_modes = modes.into_iter().collect();
+        self
+    }
+
+    /// Apply an initial selection when enabled. Later user selections take precedence.
+    /// Programmatic cell selection is supported only in single-cell mode.
+    pub fn selection_default(mut self, selection: DataframeSelection) -> Self {
+        self.selection_default = Some(selection);
+        self
+    }
 }
 
 impl<'a> From<&'a RecordBatch> for DataframeOptions<'a> {
     fn from(data: &'a RecordBatch) -> Self {
         Self::new(data)
     }
+}
+
+fn normalized_selection_modes(mut modes: Vec<DataframeSelectionMode>) -> Result<Vec<DataframeSelectionMode>, DataError> {
+    use DataframeSelectionMode::*;
+    modes.sort_by_key(|mode| mode.wire());
+    modes.dedup();
+    let row_modes = modes.iter().filter(|mode| matches!(mode, SingleRow | MultiRow | SingleRowRequired)).count();
+    if row_modes > 1 || (modes.contains(&SingleColumn) && modes.contains(&MultiColumn)) || (modes.contains(&SingleCell) && modes.contains(&MultiCell)) {
+        return Err(DataError::InvalidOption("only one row, column, or cell selection mode may be specified per dimension".into()));
+    }
+    Ok(modes)
+}
+
+/// Normalize only defaults and application writes. Retained/browser positions are
+/// not filtered when a batch shrinks, matching the frozen reference.
+fn programmatic_selection(value: &Value, batch: &RecordBatch, modes: &[DataframeSelectionMode]) -> Result<DataframeState, DataError> {
+    use DataframeSelectionMode::*;
+    use std::collections::HashSet;
+
+    let selection = value.get("selection").and_then(Value::as_object).ok_or_else(|| DataError::InvalidOption("selection state must contain a selection object".into()))?;
+    let mut state = DataframeState::default();
+    let output = &mut state.selection;
+
+    // 1. 程序行位置去重、过滤并按单选模式截取；空的必选模式取首行。
+    let mut seen_rows = HashSet::new();
+    if modes.iter().any(|mode| matches!(mode, SingleRow | MultiRow | SingleRowRequired)) {
+        for row in selection.get("rows").and_then(Value::as_array).into_iter().flatten() {
+            if let Some(row) = row.as_u64().and_then(|row| usize::try_from(row).ok())
+                && row < batch.num_rows()
+                && seen_rows.insert(row)
+            {
+                output.rows.push(row);
+                if !modes.contains(&MultiRow) {
+                    break;
+                }
+            }
+        }
+    }
+    if modes.contains(&SingleRowRequired) && output.rows.is_empty() && batch.num_rows() > 0 {
+        output.rows.push(0);
+    }
+
+    // 2. 程序列名只能指向输入列，保持原顺序；浏览器排序不改变这个名称。
+    let schema = batch.schema();
+    let columns: HashSet<&str> = schema.fields().iter().map(|field| field.name().as_str()).collect();
+    let mut seen_columns = HashSet::new();
+    if modes.contains(&SingleColumn) || modes.contains(&MultiColumn) {
+        for column in selection.get("columns").and_then(Value::as_array).into_iter().flatten().filter_map(Value::as_str) {
+            if columns.contains(column) && seen_columns.insert(column) {
+                output.columns.push(column.to_owned());
+                if !modes.contains(&MultiColumn) {
+                    break;
+                }
+            }
+        }
+    }
+
+    // 3. 矩形多单元格只由前端产生；程序设置仅取首个有效单元格。
+    if modes.contains(&SingleCell) {
+        for cell in selection.get("cells").and_then(Value::as_array).into_iter().flatten() {
+            let Some(cell) = cell.as_array() else { continue };
+            let [row, column] = cell.as_slice() else { continue };
+            if let (Some(row), Some(column)) = (row.as_u64().and_then(|row| usize::try_from(row).ok()), column.as_str())
+                && row < batch.num_rows()
+                && columns.contains(column)
+            {
+                output.cells.push((row, column.to_owned()));
+                break;
+            }
+        }
+    }
+    Ok(state)
 }
 
 /// Table border modes accepted by the public reference API.
@@ -364,7 +546,9 @@ impl<'a> DataEditorOptions<'a> {
 
 pub trait DataApi {
     fn table<'a>(&self, data: impl Into<TableOptions<'a>>) -> Result<(), DataError>;
-    fn dataframe<'a>(&self, data: impl Into<DataframeOptions<'a>>) -> Result<(), DataError>;
+    /// Display a table; return `None` when selection is ignored, otherwise its typed state.
+    /// With the default `on_select`, `st.dataframe(&batch)?` is the plain display call.
+    fn dataframe<'a>(&self, data: impl Into<DataframeOptions<'a>>) -> Result<Option<DataframeState>, DataError>;
     /// The editable dataframe, like st.data_editor: a dataframe element with
     /// an editing mode and a registered widget whose state is the edits
     /// (`{"edited_rows": {row: {column: value}}, "added_rows": [{column:
@@ -934,8 +1118,16 @@ impl<C: AppendChild> DataApi for C {
         Ok(())
     }
 
-    fn dataframe<'a>(&self, data: impl Into<DataframeOptions<'a>>) -> Result<(), DataError> {
+    fn dataframe<'a>(&self, data: impl Into<DataframeOptions<'a>>) -> Result<Option<DataframeState>, DataError> {
         let options = data.into();
+        let enabled = !matches!(options.on_select, OnSelect::Ignore);
+        if !enabled && options.selection_default.is_some() {
+            return Err(DataError::InvalidOption("selection_default requires on_select rerun or a callback".into()));
+        }
+        let modes = if enabled { normalized_selection_modes(options.selection_modes.clone())? } else { Vec::new() };
+        let width_config = options.width.width()?;
+        let height_config = options.height.height()?;
+        let arrow_data = chart_arrow_data(options.data)?;
         let mut columns = json!({});
         if let Some(hidden) = options.hide_index {
             columns["_index"] = json!({"hidden":hidden});
@@ -947,21 +1139,87 @@ impl<C: AppendChild> DataApi for C {
                 mapping.insert(name, config);
             }
         }
+        let columns = crate::pywire::py_dumps(&columns);
+        let mut id = String::new();
+        let mut selection_state = None;
+        let mut selection_default = None;
+        let mut returned = None;
+
+        if enabled {
+            // 1. 首次默认值按模式正规化；显式 key 的身份不绑定数据内容或行数。
+            let default = DataframeState {
+                selection: options.selection_default.clone().unwrap_or_default(),
+            };
+            let default = programmatic_selection(&serde_json::to_value(default)?, options.data, &modes)?;
+            let default = serde_json::to_value(default)?;
+            if options.selection_default.is_some() {
+                selection_default = Some(py_dumps(&default));
+            }
+            let wire_modes: Vec<_> = modes.iter().map(|mode| mode.wire()).collect();
+            let identity = if options.key.is_some() {
+                serde_json::to_string(&wire_modes)?
+            } else {
+                serde_json::to_string(&(
+                    wire_modes,
+                    format!("{:?}", options.width),
+                    format!("{:?}", options.height),
+                    &options.column_order,
+                    &columns,
+                    &selection_default,
+                    format!("{:x}", md5::compute(&arrow_data.data)),
+                ))?
+            };
+            let callback = match &options.on_select {
+                OnSelect::Callback(callback) => Some(callback.clone()),
+                _ => None,
+            };
+            let (widget_id, value, set_value) = self
+                .register_widget_parity(
+                    crate::widgets::WidgetSpec {
+                        kind: "dataframe",
+                        key: options.key.as_deref(),
+                        identity: &identity,
+                        default,
+                        codec: crate::widgets::Codec::DataframeSelection,
+                        callback,
+                    },
+                    |value| Ok::<_, crate::WidgetError>(value.clone()),
+                )
+                .map_err(|error| DataError::InvalidOption(error.to_string()))?;
+            id = widget_id;
+
+            // 2. 程序设置发送正规化状态，但 SessionState 保留用户的原部分对象。
+            // 普通返回保留旧位置，不能因换表而静默清除选择。
+            let mut state = if set_value { programmatic_selection(&value, options.data, &modes)? } else { serde_json::from_value::<DataframeState>(value)? };
+            if modes.contains(&DataframeSelectionMode::SingleRowRequired) && state.selection.rows.is_empty() && options.data.num_rows() > 0 {
+                state.selection.rows.push(0);
+            }
+            if set_value {
+                selection_state = Some(py_dumps(&serde_json::to_value(&state)?));
+            }
+            returned = Some(state);
+        }
+
+        // 3. 复用原元素及 Arrow 路径；未启用选择时仍是原来的纯显示元素。
         let button_click_widgets = button_column_widgets(self, &options.column_config)?;
         let element = proto::Element {
-            width_config: options.width.width()?,
-            height_config: options.height.height()?,
+            width_config,
+            height_config,
             r#type: Some(element::Type::Dataframe(proto::Dataframe {
-                arrow_data: Some(chart_arrow_data(options.data)?),
-                columns: crate::pywire::py_dumps(&columns),
+                arrow_data: Some(arrow_data),
+                id,
+                columns,
                 column_order: options.column_order,
+                selection_mode: modes.iter().map(|mode| mode.wire()).collect(),
+                selection_state,
+                selection_default,
                 button_click_widgets,
                 ..Default::default()
             })),
             ..Default::default()
         };
         append(self, element);
-        Ok(())
+        Ok(returned)
     }
 
     fn data_editor<'a>(&self, options: impl Into<DataEditorOptions<'a>>) -> Result<RecordBatch, DataError> {

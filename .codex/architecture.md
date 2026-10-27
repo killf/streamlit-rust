@@ -26,28 +26,22 @@ The present module boundaries are appropriate for this stage: `api.rs` defines t
 
 ## Dataframe selection and data updates — proposal
 
-状态：2026-10-27 人审方案，尚未批准或实现新接口。目标是在现有官方前端上打通选择、详情与编辑的调用路径，不把旧 Python 方法名当成功能分母。
+执行取舍：用户于 2026-10-27 最新澄清无需保持旧 Rust API 的向后兼容；Python 1.66.1 的功能和行为目标不变。本阶段按此前单入口方案推进 dataframe 选择，随后接通详情与编辑；不增加兼容入口或扩展 trait。数据追加的独立 Rust 扩展尚未批准。
 
-现状：`DataApi::dataframe` 返回 `Result<(), DataError>`，`DataframeOptions` 尚无 key/选择选项，也没有 dataframe 选择 codec。协议已有 `selection_mode`、`selection_state`、`selection_default` 和 widget id，现有 registry 可在运行前应用状态和 callback；因此无需改官方 proto 或引入依赖。既有 Arrow、列配置、编辑和整表渲染参考可复用；本批另已冻结下述所测选择输入与结果，尚未接入 Rust 实现。
+实现沿用现有 `DataApi::dataframe`，新增 typed 返回、key/选择选项和专用 string_value codec；协议已有 `selection_mode`、`selection_state`、`selection_default` 与 widget id，复用 registry 的运行前状态应用、callback 和清理，无需改官方 proto 或引入依赖。既有 Arrow、列配置、编辑参考继续复用，新增选择输入已接入真实 Rust WS 回归及最小官方前端流程，覆盖边界见下述证据。
 
 版本更正：官方 [2026 发布说明](https://docs.streamlit.io/develop/quick-reference/release-notes/2026)记录 1.58.0 已移除 `element.add_rows`，当前 Delta 也没有 eager 追加消息。数据追加的用户流程保留；旧接口不是 1.66.1 的兼容义务，新增 Rust 追加 API 则属于独立扩展，不能用整表发送冒称协议增量追加。
 
-### 待选择的返回接口
+### 单入口与状态
 
-| 方案 | 公开调用 | 兼容与成本 |
-| --- | --- | --- |
-| A，推荐 | `dataframe(options) -> Result<Option<DataframeState>, DataError>` | 一次调用显示并读取状态。未开启选择为 None，开启后即使未选中也有 Some(empty)。带分号的普通显示调用通常保留；以它作为 `Result<()>` 尾表达式、显式接收 unit 或外部实现 DataApi trait 的调用需迁移。 |
-| B | 原 dataframe 保持 unit；新增 `dataframe_with_state(options) -> Result<Option<DataframeState>, DataError>` | 保持旧调用的返回签名；新增必需 trait 方法仍要求外部 DataApi 实现补实现，只有存在有意义的默认实现时才能避免。复用 Options 与渲染路径，但用户有两个入口，文档与后续能力需同步。 |
-| C | dataframe 保持 unit；开启选择后按 key 从 SessionState 读取 DataframeState | 返回签名兼容、复用状态容器；选择读取依赖显式 key，缺 key/未渲染/已清理与空选择必须分清，调用方多一步。 |
-
-推荐 A 的具体提议：
+`dataframe(options) -> Result<Option<DataframeState>, DataError>` 同时显示并读取选择。默认未开启选择返回 None；开启后返回 Some 状态（其中可以为空），SingleRowRequired 的实测首次状态包含首行。旧 Result<()> 尾表达式及测试回调按新返回类型迁移，不为保留旧签名增加第二入口。
 
 - `DataframeState { selection: DataframeSelection }`；后者含 `rows: Vec<usize>`、`columns: Vec<String>`、`cells: Vec<(usize, String)>`，支持 serde 和默认空集合，与 wire 的 selection 外层对应。
 - `DataframeOptions::key`、`on_select(OnSelect)`、`selection_mode(DataframeSelectionMode)`、`selection_default(DataframeSelection)`。`OnSelect` 为 Ignore/Rerun/Callback，callback 构造接受与现有 widget 相同的 `Fn(&Streamlit) + Send + Sync + 'static`。不让调用方管理内部 Arc。
 - 默认 Ignore 保持纯显示；显式启用后默认选择模式按参考的 MultiRow，模式类型包含官方 single/multi row、column、cell 及 SingleRowRequired。组合、默认值、程序写入限制和异常先由固定 1.66.1 参考补证，再实现，不从 proto 字段存在推断兼容通过。
 - 选择进入专用 codec，使用现有运行前状态应用/callback 和未渲染 widget 清理；不复用组件的宽松 JSON 解析。keyed SessionState 使用同一个 DataframeState，避免返回值与状态出现两套格式。
 
-拟议用法（当前版本不可运行）：
+已实现的基本用法（完整模式和组合仍受已测范围限制）：
 
 ```rust
 if let Some(event) = st.dataframe(
@@ -70,39 +64,35 @@ if let Some(event) = st.dataframe(
 2. 若需要可复用的 Rust 追加扩展，先单独设计句柄或按 key 的接口、schema 合并、会话/运行身份与资源回收，再批准实现；不能只保存会被下一轮复用的 delta path。
 3. 可先交付选择/详情/编辑，再推进数据追加；追加目标继续留在 M2，不将暂缓写成取消或完成。
 
-### 拟改范围与验收
+### 实现范围与验收
 
-选定接口后主要修改 `data_api.rs`、`widgets.rs` 与 `lib.rs`，复用 registry/传输；对应使用指南、选择示例、原 dataframe 调用的必要迁移及 Rust runtime/data 回归同步更新。新参考应用/交互输入仅在既有数据缺失处采集一次并冻结，旧数据不重写。
+本批修改 `data_api.rs`、`widgets.rs`，复用 registry/传输和已有导出；同步使用指南、最小选择/详情/编辑示例及 Rust runtime/data 回归。旧测试显示 helper 泛化返回值，不为旧 unit 签名增加兼容层。参考应用仅采已有数据缺失处并冻结，旧数据不重写；全部参数、非法组合、跨页/会话及 CSV 完整闭环仍需继续验证。
 
 验收覆盖：默认纯显示、空选择、行/列/单元格及组合、真实选择输入到 typed 返回和 keyed state、callback 顺序、排序输入位置映射、程序默认/更新、数据替换与隐藏/恢复边界；超出当前可测范围明确待核，不宣称全部模式完成。原有数据显示、配置、编辑、chart、形式及会话测试不回归。真实官方前端验证选择→详情→编辑，错误能定位 session/widget/phase/reason，避免逐帧打印数据。
 
-Team 随最终采纳范围落地：主代理负责公共 API、codec、整合与验收；参考协议代理负责一次 Python 行为与冻结数据；示例/指南在核心接口稳定后并行；独立 Reviewer 只读。峰值不超过四个（含主代理），同一数据 API 与 widget 状态写入归主代理，不并行抢写。当前只交付设计与基线，等待公共接口和追加范围的决定，不启动产品实现。
+当前 Team 按选择能力的独立验收边界执行，峰值不超过四个（含主代理）；核心类型先稳定，再整合协议回归，Review 在写入者交付后开始。同一文件仅一个写入者，不继续委派。
 
-参考采证独立于 A/B/C 接口取舍：使用固定三行、可区分视觉排序与输入位置的合成表，Python 1.66.1 采集五种配置：默认 Ignore；默认 MultiRow；官方示例的 single-row/column/cell 组合；multi-row/column/cell 组合；SingleRowRequired。覆盖真实选择、排序、首次默认与程序设置、callback/main 顺序、普通重跑、换表及隐藏后再探测/恢复；不预设换表或清理结果，不以注入 JSON 冒充浏览器操作。`tests/reference/dataframe_selection_app.py` 与 `tests/browser/dataframe_selection_capture.py` 复用既有 Recorder、协议解码和自有进程清理，独立核验后冻结结果供后续 Rust 回归使用。原 Arrow/editor 参考保持原样，无新增依赖或源码指纹门槛。
+| 工作项 | 交付物 | 依赖 | 主/子代理、模型与档位 | 修改范围/只读 | 验收方式 | 启动与停止条件 |
+| --- | --- | --- | --- | --- | --- | --- |
+| 单入口与渲染 | typed state、Options、协议字段及错误传播 | 已冻结输入/输出 | 主代理，目标 Sol/high，实际由客户端控制 | data_api.rs、必要调用迁移和使用指南 | 默认渲染不回归，选择返回对照参考 | 立即开始，整合及最终验收后停止 |
+| 选择 codec | string_value 解码与部分 keyed JSON 保留 | DataframeState 类型约定 | 子代理 Sol/high | widgets.rs | 复用冻结输入；不按新表行数清理旧位置 | 类型约定后开始，单元交付后停止 |
+| 冻结协议回归 | 单元及真实 WS 的选择/run/callback/清理检查 | 核心 API 与 codec | 子代理 Sol/high | tests/data/mod.rs、tests/runtime/dataframe_selection.rs 及模块声明 | 直接重放冻结数据，验证返回与 keyed state、缩行观察 | 先写回归，核心可编译后整合运行 |
+| 文档清理 | 压缩重复历史说明，保留验收边界和证据入口 | 当前清单与链接核对 | 子代理 Terra/medium | roadmap.md、acceptance.md | 无失效规则或断链，不删有效冻结证据 | 可并行，限定候选完成后停止 |
+| 独立 Review | 缺陷与验收范围结论 | 最终实现与实际检查 | 子代理 Sol/high | 只读 | 当前 diff、单元/WS/官方前端与冻结参考对照 | 写入者交付释放并发后开始 |
 
-该参考采证已完成并独立核验：[冻结数据说明](../tests/reference/reference-browser/dataframe-selection/README.md)。五配置首次成功 30 阶段，仅另补三行缩成一行的 4 阶段。程序写入部分 keyed JSON 时，返回值补齐空字段而 keyed 原结构保持部分；同 key 缩行后仍保留可能已超出新表范围的旧行位置，不自动清理。隐藏当轮仍读到 key，下一隐藏探测才无 key，恢复为空选择。callback 包含浏览器回送上轮程序状态导致的后续触发，需复用真实 run 顺序。后续 typed state 可以通过 serde 默认读取缺失字段，但不能把此处部分 keyed JSON 冒称已经被参考补全。尚未修改 Rust 实现或采纳 A/B/C 接口。
+主代理串行整合共享类型与 codec，集中执行代码检查、单元、集成及官方前端验证；没有额外协调框架或新增依赖，成本是三处边界交接与一次独立审查。
+
+参考采证独立于返回接口取舍：使用固定三行、可区分视觉排序与输入位置的合成表，Python 1.66.1 采集五种配置：默认 Ignore；默认 MultiRow；官方示例的 single-row/column/cell 组合；multi-row/column/cell 组合；SingleRowRequired。覆盖真实选择、排序、首次默认与程序设置、callback/main 顺序、普通重跑、换表及隐藏后再探测/恢复；不预设换表或清理结果，不以注入 JSON 冒充浏览器操作。`tests/reference/dataframe_selection_app.py` 与 `tests/browser/dataframe_selection_capture.py` 复用既有 Recorder、协议解码和自有进程清理，独立核验后冻结结果供后续 Rust 回归使用。原 Arrow/editor 参考保持原样，无新增依赖或源码指纹门槛。
+
+该参考采证已完成并独立核验：[冻结数据说明](../tests/reference/reference-browser/dataframe-selection/README.md)。五配置首次成功 30 阶段，仅另补三行缩成一行的 4 阶段。程序写入部分 keyed JSON 时，返回值补齐空字段而 keyed 原结构保持部分；同 key 缩行后仍保留可能已超出新表范围的旧行位置，不自动清理。隐藏当轮仍读到 key，下一隐藏探测才无 key，恢复为空选择。callback 包含浏览器回送上轮程序状态导致的后续触发，需复用真实 run 顺序。后续 typed state 可以通过 serde 默认读取缺失字段，但不能把此处部分 keyed JSON 冒称已经被参考补全。Rust 选择实现按本节单入口推进，兼容通过仍需实际验收。
 
 ## Dependency and launch audit (2026-10-25)
 
-Base: `590aed547f062b6791689ffe48940ffd6461a603`, Windows x86_64 MSVC. No package declares `rust-version`; edition 2024 alone does not establish the workspace MSRV. Host-filtered Cargo metadata reports a highest dependency declaration of Rust 1.88 (Arrow 60 and actix-multipart 0.8.5). Installed stable is Rust/Cargo 1.95.0; its isolated `check --workspace --all-targets --locked --offline` passed on the original lock. Default Rust remains 1.98.0-nightly (54333ff07). Neither result is a Rust 1.88/MSRV test. Stable logs record a nonfatal Windows incremental-cache finalization warning, not a source-check failure.
+这是基于 `590aed547f062b6791689ffe48940ffd6461a603`、Windows MSVC 的历史依赖审计，不是当前安全检测或 MSRV 认证。当前依赖以 Cargo.toml/Cargo.lock 为准，当前工具链和检查见 [acceptance](acceptance.md#current-m0-baseline-2026-10-27)；不再把当时的“最新版本”、测试计数或升级范围写成现行约束。历史 stable 1.95 / nightly 1.98 的编译不能证明最低 Rust 版本可用。
 
-The official crates.io API was queried for all 34 workspace dependencies rather than treating every newer version as necessary. Arrow 60.0.0, actix-multipart 0.8.5, emojis 0.9.1, subtle 2.6.1, CSV 1.4.0 and rust_decimal 1.43.0 remain current there. Examples of newer optional upgrades are paired prost/prost-build 0.14.4, actix-web 4.18.1, actix-ws 0.4.0 and actix-files 0.7.2; these are outside this minimal security patch. The two previously reviewed actix-files advisories affect <=0.6.9 and are fixed by the already locked 0.6.10: [path fallback](https://github.com/actix/actix-web/security/advisories/GHSA-8v2v-wjwg-vx6r), [empty Range](https://github.com/actix/actix-web/security/advisories/GHSA-gcqf-3g44-vc9p).
+已独立审查的修补提交 `bae7d199f7d7be692fbd960a5eb0d8b926fe74fd` 处理 bytes、time、anyhow、rand、tokio 的锁定版本。对应依据分别为 [0007](https://rustsec.org/advisories/RUSTSEC-2026-0007.html)、[0009](https://rustsec.org/advisories/RUSTSEC-2026-0009.html)、[0190](https://rustsec.org/advisories/RUSTSEC-2026-0190.html)、[0097](https://rustsec.org/advisories/RUSTSEC-2026-0097.html)、[0386](https://rustsec.org/advisories/RUSTSEC-2026-0386.html)。其中 rand 的受影响 log 配置未启用、Tokio 的 Unix AsyncFd 问题不适用于当时的 Windows 检查；这些适用性边界不等于没有其他风险。RustSec 库快照为 `21d909e4c8bd4e14c7aea58bf980c881a0053ab1`，原诊断日志在本地 `target/checks/dependency-audit-590aed5/`，没有把该比较冒称 cargo-audit 或攻击复现。
 
-The RustSec database was read at revision `21d909e4c8bd4e14c7aea58bf980c881a0053ab1`; registry responses, package/feature graphs and check logs are rebuildable local diagnostics under ignored `target/checks/dependency-audit-590aed5/`. This is a lock/advisory comparison, not a cargo-audit run or proof of exploitability.
-
-| Package | Locked before -> minimal repair | Official advisory and applicability |
-|---|---|---|
-| bytes | 1.11.0 -> 1.11.1 | [RUSTSEC-2026-0007](https://rustsec.org/advisories/RUSTSEC-2026-0007.html): `BytesMut::reserve` overflow with wrapping arithmetic; no application exploit reproduced. |
-| time | 0.3.44 -> 0.3.47 | [RUSTSEC-2026-0009](https://rustsec.org/advisories/RUSTSEC-2026-0009.html): RFC2822 parsing stack exhaustion; linked through Actix/cookies/logging, no public attack path established here. |
-| anyhow | 1.0.100 -> 1.0.103 | [RUSTSEC-2026-0190](https://rustsec.org/advisories/RUSTSEC-2026-0190.html): unsound contextual `downcast_mut`; no call in workspace production source. |
-| rand | 0.9.2 -> 0.9.3 | [RUSTSEC-2026-0097](https://rustsec.org/advisories/RUSTSEC-2026-0097.html): custom reentrant logger/ThreadRng conditions; resolved `log` feature is absent, so no affected current configuration claimed. |
-| tokio | 1.48.0 -> 1.51.6 | [RUSTSEC-2026-0386](https://rustsec.org/advisories/RUSTSEC-2026-0386.html): Unix AsyncFd safety; does not affect the checked Windows target. 1.51.6 is a patched branch; latest 1.54.1 is unnecessary here. |
-
-The three existing direct requirements now exclude their vulnerable lower versions; rand/time remain transitive, with no artificial direct dependency added. Necessary lock companions: time-core 0.1.8, time-macros 0.2.27, num-conv 0.2.0; Tokio requires mio >=1.2.0, socket2 >=0.6.3 and tokio-macros ~2.7.0, locked at those minima, plus libc 0.2.183 required by mio. Tokio's windows-sys ^0.61 requirement reuses the existing 0.61.2 and removes the otherwise unused 0.60.2/0.53 target packages. Unrelated errno/rustix/tempfile Windows dependency selections retain their original 0.61.2 edges. No unrelated package upgrades, frontend/protocol changes or old proof fingerprints are permitted.
-
-On this repaired lock, installed stable 1.95.0 and default nightly 1.98.0 both passed all-targets workspace checks, 66 workspace unit tests, 2 doctests and 8 data-app tests (`--locked --offline` after downloading the selected crates). Stable used isolated `target/checks/stable-audit-590aed5`; the two toolchains' logs are under the diagnostic directory above. These are compilation/native regression results, not a new official-browser capture, MSRV validation or complete security clearance. The already captured 943 binary keeps its original lock/config provenance; this patch does not rewrite old raw or advertise that old process as a rebuilt candidate.
-
-The five-item repair was independently reviewed and committed separately as `bae7d199f7d7be692fbd960a5eb0d8b926fe74fd`. The separately reviewed second stage was committed as `1f2a852` and removes unused HTTP2: [h2 0.3.27](https://rustsec.org/advisories/RUSTSEC-2026-0258.html) was in the default Actix graph; the advisory fixes only >=0.4.16. Even current actix-http 3.19.0 requires h2 ^0.3.27, so a broad Actix update or forcing h2 0.4 is not justified. Current `HttpServer::bind` uses the plain HTTP1 path; HTTP2 was not an exposed/accepted product capability, and no live exploit is claimed. actix-web defaults are now disabled with every other original default explicitly retained: `macros`, `compress-brotli`, `compress-gzip`, `compress-zstd`, `cookies`, `unicode`, `compat`, `ws`. The only lock change is removal of the h2 package and actix-http's h2 edge; no package version changes. Locked workspace feature-tree inspection finds neither h2 nor http2; inverse `cargo tree -i h2` reports package not found (expected exit 101). Stable 1.95.0 isolated all-targets check passed, and default-nightly real HTTP/static/WS/upload/session/data/ownership regressions passed 15/15. Logs are `no-http2-*` under the same ignored diagnostic directory. Independent review passed before that separate commit. Downstream Cargo feature unification can re-enable HTTP2; reassess if TLS/HTTP2 features are introduced. Removing this unused dependency does not prove complete transport security.
+第二批 `1f2a852` 移除未使用的 Actix HTTP2/h2 默认依赖，保留其他原有功能，依据为 [h2 advisory](https://rustsec.org/advisories/RUSTSEC-2026-0258.html)。当时服务仅使用明文 HTTP1，没有通过强行跨代替换 h2 来声称支持 HTTP2。下游 Cargo feature 合并可能重新启用它，未来 TLS/HTTP2 设计必须重新核实；移除依赖不构成完整传输安全结论。原二进制与冻结轨迹仍保留其捕获时的依赖/配置来源，不冒称已由后来的补丁重建。
 
 ## Static directory launch contract (frozen for Raman / Hooke)
 

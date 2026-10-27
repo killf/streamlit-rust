@@ -24,9 +24,11 @@ The 1.66.1 runtime migration adds Rust regressions in `streamlit/tests/runtime/m
 
 对应能力先写面向使用者的用法和行为文档，再实现；文档中的当前能力与规划接口分开标注。关键公共接口或行为规则确认后实施，普通实现细节自主处理。
 
+用户最新澄清无需保持旧 Rust API 的向后兼容；Python Streamlit 1.66.1 的功能和行为目标继续保持。清理无关、过时的文档、图片、测试和代码，持续保持实现整洁；有效冻结数据仍用于回归，不因年代较早而视为无关。
+
 ## Current M0 baseline (2026-10-27)
 
-代码快照 `b94ac474d541533e36ca278c02838ebffba44db3` 在干净工作区完成本次基线；之后本批只修改文档与能力追溯数据。Git 版本仅用于追溯，不是源码 SHA 门禁。原始命令、退出码、环境及日志索引见本地 `target/checks/m0-current-20261027/baseline.json`。
+代码快照 `b94ac474d541533e36ca278c02838ebffba44db3` 在干净工作区完成本次基线；该 M0 批次随后仅修改文档与能力追溯数据；M2 新代码的验证另记于下文。Git 版本仅用于追溯，不是源码 SHA 门禁。原始命令、退出码、环境及日志索引见本地 `target/checks/m0-current-20261027/baseline.json`。
 
 环境为 Windows 11 / x86_64 MSVC、Rust/Cargo 1.98.1、Python 3.14.7，参考 Streamlit 1.66.1 / PyArrow 26.0.0；使用已有固定依赖和 protoc 缓存。按代码、单元、集成顺序执行，格式、全目标 Clippy 和 quickstart 构建均通过；Rust 测试共 172 项（76 库单元、2 宏单元、11 示例、4 rustdoc、78 运行模块、1 journey ledger）。运行模块包含真实 HTTP/WS，也包含纯单元测试，不将 78 项全称为网络集成。冻结参考回归 1488 项通过，仍有 96 条既有 Pillow 弃用告警；本次没有重采 Python 行为。
 
@@ -66,7 +68,15 @@ Q5/Q6 在用户确认选择性 nullable 规则后完成：76 项库单元、2 �
 
 独立参考补证已冻结在 [dataframe-selection](../tests/reference/reference-browser/dataframe-selection/README.md)：五种配置 30 阶段，单独缩行补充 4 阶段，共 512 个原始二进制帧；两批均由独立 Reviewer 核对真实输入、协议/DOM/截图、1.66.1 版本、成功运行及自有资源清理。程序部分 keyed state、返回值补齐、回调实际顺序、排序输入位置、隐藏清理与缩行仍保留旧位置均按观察保留，不从待测 Rust 产生 expected。
 
-新增 `test_dataframe_selection_reference.py` 的 6 项离线核验通过，包含数据字节、原 PB/CDP、compact 输入预期、Arrow 数据、DOM/截图与关键行为；不启动 Python 服务或浏览器。旧参考与 Rust 代码未改，本批未重跑旧全套，也没有实现 dataframe 选择公共 API。此处只增加参考依据，不提升 Rust 兼容状态。
+参考批次 `31f539f` 新增 `test_dataframe_selection_reference.py` 的 6 项离线核验通过，包含数据字节、原 PB/CDP、compact 输入预期、Arrow 数据、DOM/截图与关键行为；当时只增加参考依据，未改旧数据或 Rust 代码。后续 Rust 选择实现与当前验证见下一节；参考结果本身不提升 Rust 兼容状态。
+
+## Current M2 selection validation (2026-10-27)
+
+当前开发工作区的单入口选择实现通过格式检查、全目标 Clippy 与 177 项 Rust 测试：80 库单元、2 宏单元、11 示例、4 rustdoc、79 运行模块和 1 journey ledger。运行模块包含真实 HTTP/WS 与纯单元，不将所有 79 项称为网络测试。全量冻结参考回归另有 1494 项通过，96 条既有 Pillow 弃用告警保留；本次仅修复矩阵负向测试未复制列表证据的准备缺陷，未削弱拒绝或未写入断言，也未重采 Python。原始日志和带工作区范围的记录在本地 `target/checks/m2-dataframe-selection/rust/results.json`；指南中 show_selection 的原样代码另通过 rustc 编译检查。畸形浏览器选择与有效 trigger 同批时必须整批拒绝，程序部分 JSON 仍保留并由渲染层正规化；这是已有 batch 防御的扩展，不冒称完整恶意输入兼容。
+
+新增 [Rust 官方前端证据](../tests/browser/rust-dataframe-selection/README.md)经独立核验：六阶段选择/重跑/排序/详情/键盘编辑，75 个原始 PB、同一会话五轮成功；原输入与 editor 原表不变，返回编辑结果改变，自有资源已清理。34 阶段冻结参考还通过真实 Rust WS 重放模式、默认/程序状态、partial keyed、callback、缩行和隐藏/恢复。这些不同层次的证据分别保留，不用 WS 注入替代真实几何交互。
+
+Rust API 不承担旧返回类型兼容；仍未验证全部选择参数、非法组合/程序值、required-row 空浏览器 payload、多页/会话与 lazy，CSV 全流程及数据追加也未完成。矩阵保持 partial，M2 与长期 Goal 均未关闭。旧 M0 数字只是该代码快照的阶段基线，不代替这里的新代码结果。
 
 ## Required fresh-checkout checks
 
@@ -91,36 +101,15 @@ The official docs cache is an ignored input under `target/upstream/docs`; when p
 
 ## Remaining first-release journeys
 
-Read current whole-journey status, measured/deferred steps and linked evidence from [the journey manifest](../tests/journeys/journeys.json), and per-feature scope/status from [the compatibility matrix](../compatibility/api-compatibility-matrix.json). `not_run` means unmeasured, not necessarily unimplemented; captured pages are not a complete feature denominator. Forms/text input were integrated in `76938fb` and the CSV-app form integration in `e28f1d3`. Their presence does not replace whole-journey evidence or authorize a feature-matrix status change.
+Read current whole-journey status, original assertions, `preparation_contract` actions and linked evidence from [the journey manifest](../tests/journeys/journeys.json); per-feature scope and limitations are in [the compatibility matrix](../compatibility/api-compatibility-matrix.json). `not_run` means unmeasured, not necessarily unimplemented. The original 10 journeys had 42 steps; J04-S4 was added later, making 43. These application journeys are not a complete feature denominator.
 
-Product behavior follows official [widget semantics](https://docs.streamlit.io/develop/concepts/architecture/widget-behavior), [session state](https://docs.streamlit.io/develop/concepts/architecture/session-state), [uploader](https://docs.streamlit.io/develop/api-reference/widgets/st.file_uploader), [dataframe](https://docs.streamlit.io/develop/api-reference/data/st.dataframe), and [forms](https://docs.streamlit.io/develop/concepts/architecture/forms). API pages currently show 1.66.0; execution evidence must use 1.66.1. CSV aggregates and literal messages below are application contracts from the [existing 10-journey / 43-step manifest](../tests/journeys/journeys.json), not claims derived from Python framework implementation.
+Product behavior follows official [widget semantics](https://docs.streamlit.io/develop/concepts/architecture/widget-behavior), [session state](https://docs.streamlit.io/develop/concepts/architecture/session-state), [uploader](https://docs.streamlit.io/develop/api-reference/widgets/st.file_uploader), [dataframe](https://docs.streamlit.io/develop/api-reference/data/st.dataframe), and [forms](https://docs.streamlit.io/develop/concepts/architecture/forms). Execution reference is Python Streamlit 1.66.1; CSV aggregates and literal messages are application contracts in the manifest.
 
-The table below preserves acceptance obligations, not a second live progress ledger. Follow remaining work in the manifest, reusing the reviewed API/capture helpers and explicit preparations below; add implementation only when a measured failure identifies missing behavior.
+For each whole journey, verify 100% of its original assertions, retain the required step screenshots and allow no unexplained missing artifacts or mismatches. Component tests, a positive raw, a screenshot or a manifest entry alone do not establish the complete journey. Preserve original expected results; do not change them or introduce hidden resets to turn a failing check green. If the reference contradicts a preparation or expectation, retain the failure and review the contract.
 
-| Journey | Acceptance obligation / minimum acceptance |
-|---|---|
-| J01 (5 steps) | Ordered category/region/channel aggregates, Unicode keys, BOM-equivalent output. Existing upload/dataframe methods cover the core; require 5/5 original assertions, cell-by-cell Arrow/DOM agreement and 0 BOM leaks. Establish the grouping reset needed before the Unicode replacement cases. |
-| J02 (5) | Preserve the other controls while filtering, exclude the two unknown keys, inclusive amount threshold, then category regrouping. Require 5/5 assertions; each ordinary changed control causes exactly one run/completion and runs delta +1; absent groups must not become zero rows. |
-| J03 (4) | Table/chart update in the same run, order/value geometry and removal of stale/empty chart. Require 4/4 assertions, table row count = bar count, value-proportional bars, and no chart element/DOM at the empty stage. Shared Vega wire does not prove every chart API. |
-| J04 (4) | S1-S3 stay as originally verified. S4 is the measured execution-semantics step: one guarded `st.rerun()` aborts its run with `FINISHED_EARLY_FOR_RERUN` and the server starts the next run without a browser request (same session, fresh run id); `st.stop()` finishes `FINISHED_SUCCESSFULLY` with every later element suppressed; both runtimes reach identical DOM end states, judged by `journey-execution-v1` with both published chains replaying 8/8/8. |
-| J06 (5) | Two live contexts with upload + three pulses + filtering + A-only reload. Require 5/5 assertions: distinct IDs, 0 cross-session file/counter/result changes, A gets a fresh ID on reload and B keeps its ID/state. Earlier counter-only isolation does not prove this combined journey. |
-| J09 (4; S4 measured and passed 2026-10-25) | Fresh two-entry handshake, genuine disconnect followed by three-entry same-ID recovery preserving two pulses and uploaded aggregation, then reload reset. Require S1-S3 3/3, both handshake headers/NewSession IDs, retained file result and DOM counters. S4 is closed by the reviewed slow-expiry round: a genuine >=135-second disconnect on both runtimes, the old-ID reconnect answered with a new session and a server-side reset, the fail-closed recovery oracle satisfied only by the two reviewed raws (both published chains replay 20/20/20, exit 0). |
-| J05 (3) | Combine Note, Applied note, runs and Pulse in one session. Require 3/3: before submit no value submission and runs delta 0; submit delta +1 with hello applied and input retained; three pulses give pulses=3 and runs delta +3. Isolated note/agree fixtures do not cover this; J05 itself does not require a CSV/table. |
-| J00 (6) | Final integrated title/upload/three filters/Pulse/form/counters plus aggregate/chart loop. Require 6/6 original assertions; existing component evidence does not replace this exact integrated whole-journey run. |
+Perform the recorded preparations as real UI actions. Record before/after control values, target client state, successful request/completion windows on the same connection and resulting DOM/Arrow data. Each ordinary changed control requires one rerun and a runs delta of one; use the observed ledger for uploads and preparations rather than inventing a fixed total. Dependent recovery and counter steps must remain in the same session and preserve their request/completion evidence. In the two-session journey, verify A remains unchanged during B operations and B retains its session, upload and result when only A reloads.
 
-Explicit preparations independently passed Carver review; version them before new continuous Python/Rust capture. Keep the original 10 journeys / 42 step IDs and expected results; add these visible actions to the relevant step's preparation, with no hidden reset or expected-value rewrite:
-
-| Step boundary | Explicit UI action and state to prove |
-|---|---|
-| J00-S4 | After S3's six region groups, visibly choose category while minimum=0 and include-unknown=true; await that run. Then move minimum to 100. The original two groups are now coherent: Books 1/120.50 and Games 2/349.49, two bars. |
-| J00-S5 | Starting from category/100/on, visibly move minimum to 0, await completion, then choose region and await completion. Record six groups/12 rows before unchecking include-unknown; the original four known groups/9 rows and four bars must follow that click. S6 counts all preparation runs as well as the named actions. |
-| J03-S3 | After S2's category/100/on two-group result, visibly reset minimum to 0 and await the restored four categories. Then choose region; verify six keys including missing/UNKNOWN, six table rows and six bars in that operation's run. S4 subsequently moves minimum to 200, retaining region/on, and must remove the chart entirely. |
-| J06-S4 | First finish S3 with B still empty and A's upload + pulses=3 intact. Then upload sales_basic.csv in B with category/0/on; verify B's own four-group baseline and A unchanged. Change B's group to region, obtaining six groups while A keeps its original table/chart/counters. S5 reloads only A; B must retain its session ID, uploaded file and region result. |
-| J01-S4/S5 | After channel verification, explicitly restore category/0/on before replacing the upload with Unicode CSV. Replace with the BOM equivalent under the same controls. Verify original Unicode keys, totals and ordering plus BOM equivalence; any auto-reset from replacement is an observation to record, not an assumed precondition. |
-
-Each preparation action is real UI input with before/after control values, the target ClientState value, same-request/connection successful completion, and the resulting table/chart DOM/Arrow. For these normal changed controls, require one rerun and runs delta +1 per action; use an observed run ledger for upload/preparation rather than inventing a fixed total. Capture the dependent chain in the same page/session, including unchanged A snapshots after B operations. Require the original per-step PNGs and all original assertions; a written manifest entry alone is not acceptance. If the Python reference contradicts this proposal, retain the failure and review the contract before claiming Rust parity.
-
-For each whole journey, verify every original assertion (100%), allow 0 unexplained missing artifacts/mismatches, and retain screenshots for every required step. Link frozen binary/source/driver/criteria provenance and actual same-connection request/completion windows to DOM/Arrow observations. Dependency-linked recovery/count steps must share session continuity. Positive raw, a PNG, or isolated API tests alone cannot close a missing guard or prove all 42 steps.
+J04-S4 requires a guarded rerun ending `FINISHED_EARLY_FOR_RERUN`, a server-triggered run on the same session with a fresh run ID, and `stop` ending successfully with later output suppressed. Both runtimes must reach the measured DOM end state. J09 requires recovery of uploaded data and counters in the same session, followed by reload reset; S4 requires a genuine disconnect of at least 135 seconds and the observed new-session/state-reset outcome. The frozen reference and Rust evidence remain linked from the manifest. Earlier component-only observations cannot replace these combined journeys.
 
 ## API and wire differential obligations
 

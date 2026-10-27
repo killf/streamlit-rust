@@ -346,13 +346,16 @@ def test_missing_source_provenance_aborts_generator_before_either_write(workspac
     # This test targets provenance rejection, not the optional 218-page cache
     # audit. Keep a single explicitly hashed catalog page and real tracked
     # evidence bytes; neither the repository target directory nor network is used.
-    for key, reference in row["evidence"].items():
-        if key == "official_document_sha256" or not isinstance(reference, str):
+    for key, references in row["evidence"].items():
+        if key == "official_document_sha256" or not isinstance(references, (str, list)):
             continue
-        source = verify.evidence_file(reference, ROOT)
-        target = root / source.relative_to(ROOT)
-        target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_bytes(source.read_bytes())
+        # Evidence paths may be a scalar or a list; prepare both before testing
+        # the missing runtime-version attestation, not an unrelated missing file.
+        for reference in [references] if isinstance(references, str) else references:
+            source = verify.evidence_file(reference, ROOT)
+            target = root / source.relative_to(ROOT)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(source.read_bytes())
     catalog_path = root / "cache/catalog.json"
     catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
     catalog["items"][0].update(id=row["feature_id"], canonicalurl=row["official_url"])

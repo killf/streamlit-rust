@@ -7,7 +7,7 @@
 | 输入控件、CSV 上传、筛选、表格和图表 | 当前可用；兼容性部分验证 | [data_app](../../streamlit/examples/data_app.rs)；矩阵 `st.file_uploader`、`st.dataframe`、`st.bar_chart`。只覆盖已测组合。 |
 | 表单、会话状态和普通重跑 | 当前可用；部分验证 | 矩阵 `st.form`、`st.form_submit_button`、`st.session_state`。状态在内存中，恢复有边界。 |
 | 单独编辑表格 | 部分验证 | 矩阵 `st.data_editor`；[dataeditor 示例](../../streamlit/examples/dataeditor.rs)覆盖单元格编辑和新增行，不能代表所有类型与操作。 |
-| 选择行 → 详情 → 编辑 → 追加 | 待实现或待设计 | 当前没有 dataframe 选择公共 API，也没有将独立编辑示例接入 CSV 应用的完整流程。数据追加/更新的方式仍待设计。 |
+| 选择行 → 详情 → 编辑 → 追加 | 部分实现与验证 | dataframe_selection 示例已验证选择、详情和编辑；CSV 应用整合及数据追加/更新仍未完成。 |
 | 布局、导航、组件、流式文本 | 部分验证 | 矩阵 `st.navigation`、`st.components.v2.component`、`st.write_stream` 等；具体入口见下文。 |
 | 配置、认证、主题与部署 | 待完成或待设计 | 存在启动配置和前端资源部署路径；完整配置、认证和主题能力尚无足够证据。 |
 
@@ -47,9 +47,36 @@ cargo run --example data_app --locked
 
 已复现不可空字段遇到空行时的 schema 冲突，并选择按编辑结果放宽：仅实际产生 null 的结果列设为 nullable，未产生 null 的列保留输入的可空标记，原始输入表不变。调用方须读取返回表的 schema，不能假定它仍与输入完全相同。整数列遇 null 时已有的 Float64 转换规则继续适用；填齐新增行后，每轮仍基于原始输入重新应用编辑。该规则已有冻结输入回归、真实 WS 和 Rust 官方前端四步交互验证。删除行、其他编辑模式和回调的覆盖仍有限。参考官方[数据编辑器](https://docs.streamlit.io/develop/api-reference/data/st.data_editor)与矩阵 `st.data_editor`、`st.dataframe`。
 
-选择接口的候选用法及返回值兼容影响见[待确认设计](../../.codex/architecture.md#dataframe-selection-and-data-updates--proposal)；它尚未实现，不能将提议示例作为当前可用接口。
+选择接口正按[单入口设计](../../.codex/architecture.md#dataframe-selection-and-data-updates--proposal)实现与验证。用户已澄清无需保留旧 Rust 返回类型，因此使用同一个 `dataframe` 显示并返回选择，不另增兼容入口。下列基本用法已编译验证；完整参数和组合仍限于已测范围：
 
-这条流程所需的 [Python 选择参考](../../tests/reference/reference-browser/dataframe-selection/README.md)已单独冻结，后续 Rust 回归直接复用。参考中，排序选择指向输入位置；同 key 换成更短的表时旧行位置可能仍保留；程序赋值的部分 keyed state 与补齐后的返回值也可能不同。这些是后续实现需核对的行为，并非当前 Rust 已提供的选择功能。
+```rust
+use streamlit::{DataApi, DataframeOptions, DataframeSelectionMode, OnSelect, Streamlit, StreamlitApi};
+use streamlit::data::{DataError, RecordBatch};
+
+fn show_selection(st: &Streamlit, batch: &RecordBatch) -> Result<(), DataError> {
+    if let Some(event) = st.dataframe(
+        DataframeOptions::new(batch)
+            .key("orders")
+            .on_select(OnSelect::Rerun)
+            .selection_mode(DataframeSelectionMode::SingleRow),
+    )? {
+        for row in event.selection.rows {
+            if row < batch.num_rows() {
+                st.dataframe(&batch.slice(row, 1))?;
+            } else {
+                st.write("所选位置已不在当前数据中");
+            }
+        }
+    }
+    Ok(())
+}
+```
+
+默认忽略选择时返回 `None`；启用选择后返回 `Some(DataframeState)`，其中选择可以为空。行位置对应本轮输入表，不是浏览器排序后的视觉位置或业务记录 ID。换表后位置可能越界，读取详情前需要检查；框架不会静默替应用选择其他记录。编辑结果的保存、记录身份及追加策略属于应用后续流程，不会自动改写上传的 CSV。
+
+最小流程见 [dataframe_selection 示例](../../streamlit/examples/dataframe_selection.rs)：在仓库根目录运行 `cargo run --example dataframe_selection --locked`，打开 `http://127.0.0.1:8544/`。选择一行后查看详情、编辑并在下方查看返回结果；**Ordinary rerun** 用于观察选择是否保留，**Selection state** 显示返回状态。示例使用固定的三行数据，所选位置只在此固定输入内作为编辑器 key 的一部分；编辑结果仅展示或供应用处理，不写文件或数据库，也不会自动持久化源数据。该示例已通过构建、单元/WS 回归及[六阶段 Rust 官方前端验证](../../tests/browser/rust-dataframe-selection/README.md)，不代表 CSV 应用已经接通选择、编辑和追加。
+
+这条流程所需的 [Python 选择参考](../../tests/reference/reference-browser/dataframe-selection/README.md)已单独冻结，Rust 回归直接复用。参考中，排序选择指向输入位置；同 key 换成更短的表时旧行位置可能仍保留；程序赋值的部分 keyed state 与补齐后的返回值也可能不同。这些边界需结合本批 Rust 验证结果判断，不能仅凭参考证明完整兼容。
 
 ## 会话、重跑和错误
 

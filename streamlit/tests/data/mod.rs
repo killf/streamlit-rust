@@ -46,7 +46,7 @@ fn native_reference_batch() -> anyhow::Result<RecordBatch> {
     .map_err(Into::into)
 }
 
-fn render(call: impl FnOnce(&Streamlit) -> Result<(), DataError>) -> anyhow::Result<(ForwardMsg, Vec<u32>)> {
+fn render<T>(call: impl FnOnce(&Streamlit) -> Result<T, DataError>) -> anyhow::Result<(ForwardMsg, Vec<u32>)> {
     let st = Streamlit::new();
     let (sender, mut receiver) = tokio::sync::mpsc::unbounded_channel();
     let mut context = RenderContext::with_sender("data-test".into(), sender);
