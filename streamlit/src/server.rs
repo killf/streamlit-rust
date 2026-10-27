@@ -282,7 +282,7 @@ impl StreamlitServer {
 }
 
 // A small version identity only: the frontend itself remains an external sidecar.
-const OFFICIAL_INDEX: &str = include_str!("../../www/index.html");
+const OFFICIAL_INDEX: &str = include_str!("../assets/frontend-index.html");
 
 struct StaticDirectory {
     path: PathBuf,

@@ -1,0 +1,40 @@
+   Compiling serde_core v1.0.228
+   Compiling streamlit-macros v0.1.1 (C:\Users\killf\github\streamlit-rust\target\checks\m6-library-portability\source with spaces\streamlit-macros)
+   Compiling streamlit v0.1.1 (C:\Users\killf\github\streamlit-rust\target\checks\m6-library-portability\source with spaces\renamed-library)
+warning: linker stdout: 正在创建库 C:\Users\killf\github\streamlit-rust\target\debug\deps\streamlit_macros-4ff7c8bdf4a8ce7e.dll.lib 和对象 C:\Users\killf\github\streamlit-rust\target\debug\deps\streamlit_macros-4ff7c8bdf4a8ce7e.dll.exp
+  |
+  = note: `#[warn(linker_messages)]` on by default
+
+warning: `streamlit-macros` (lib) generated 1 warning
+   Compiling serde v1.0.228
+   Compiling serde_json v1.0.145
+   Compiling uuid v1.19.0
+   Compiling chrono v0.4.42
+   Compiling actix-router v0.5.3
+   Compiling url v2.5.7
+   Compiling serde_urlencoded v0.7.1
+   Compiling serde_plain v1.0.2
+   Compiling actix-web-codegen v4.3.0
+   Compiling arrow-array v60.0.0
+   Compiling actix-web v4.12.1
+   Compiling arrow-cmp v60.0.0
+   Compiling arrow-select v60.0.0
+   Compiling actix-multipart v0.8.5
+   Compiling actix-ws v0.3.0
+   Compiling actix-files v0.6.10
+   Compiling arrow-ipc v60.0.0
+   Compiling m6-portable-consumer v0.1.0 (C:\Users\killf\github\streamlit-rust\target\checks\m6-library-portability\consumer-app)
+error: Streamlit main function must be async
+  --> src\main.rs:16:1
+   |
+16 | fn main(st: &Streamlit) {
+   | ^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0601]: `main` function not found in crate `m6_portable_consumer`
+  --> src\main.rs:20:2
+   |
+20 | }
+   |  ^ consider adding a `main` function to `src\main.rs`
+
+For more information about this error, try `rustc --explain E0601`.
+error: could not compile `m6-portable-consumer` (bin "m6-portable-consumer") due to 2 previous errors

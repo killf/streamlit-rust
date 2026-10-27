@@ -1,0 +1,16 @@
+   Compiling streamlit-macros v0.1.1 (C:\Users\killf\github\streamlit-rust\target\checks\m6-library-portability\source\streamlit-macros)
+   Compiling streamlit v0.1.1 (C:\Users\killf\github\streamlit-rust\target\checks\m6-library-portability\source\renamed-library)
+warning: linker stdout: 正在创建库 C:\Users\killf\github\streamlit-rust\target\debug\deps\streamlit_macros-f1eae4f109cfad3f.dll.lib 和对象 C:\Users\killf\github\streamlit-rust\target\debug\deps\streamlit_macros-f1eae4f109cfad3f.dll.exp
+  |
+  = note: `#[warn(linker_messages)]` on by default
+
+warning: `streamlit-macros` (lib) generated 1 warning
+error: failed to run custom build command for `streamlit v0.1.1 (C:\Users\killf\github\streamlit-rust\target\checks\m6-library-portability\source\renamed-library)`
+
+Caused by:
+  process didn't exit successfully: `C:\Users\killf\github\streamlit-rust\target\debug\build\streamlit-0cb9ff87902f3be5\build-script-build` (exit code: 1)
+  --- stdout
+  cargo:rerun-if-changed=proto
+
+  --- stderr
+  Error: Custom { kind: Other, error: "protoc failed: Could not make proto path relative: streamlit/proto/Alert.proto: No such file or directory\r\n" }

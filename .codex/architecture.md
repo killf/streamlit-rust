@@ -173,6 +173,28 @@ A 的 wire 规范化仅限此 generic Vega 的顶层 Arrow data 与单个 named 
 
 已完成真实红→绿：`bytes=-5` 原为 200，而目标为 206；修后全部 27 个请求逐字匹配，11 项媒体相关 Rust 检查及五项新离线检查通过。首次夹具误用未声明 base64 crate 的编译失败另存，纠正为从原 HTTP 提取受核验字节数组后才构成产品红复现，无新依赖。旧 suffix=未知时返回 None 的内部断言已按新公开参考改为有效后缀区间，不更改旧 Python raw；原有效 200/206/404、重复下载和文件名边界继续检查。
 
+## Library build portability
+
+M6 新实测在隔离 workspace 中将库目录改名为 renamed-library、保留宏和锁文件但不放置外部 www，`cargo check --offline --locked -p streamlit --lib` 真实失败：protoc 找不到固定的 `streamlit/proto/Alert.proto`。源码另有 `include_str!("../../www/index.html")`，Cargo 包清单不含该外部文件；当前启动校验需要的版本身份因此也依赖仓库相邻目录。不是新依赖或客户端环境故障。
+
+修复维持既有“启动时完整官方 frontend sidecar、编译时只含小版本身份”的设计：build.rs 用已实测可用的 protoc 虚拟目录映射，将官方 streamlit/proto 前缀指向当前 crate 的 proto 目录，协议原文件/导入名保持逐字不变；将启动校验原先已编译进程序的官方 index 原字节放入 `streamlit/assets/frontend-index.html`，服务端只调整 include 路径。完整 347 文件前端仍按既有 sidecar/显式目录规则运行，不改公共 API、依赖或启动优先级。
+
+已通过改名/no-www 库检查及含空格目录的现有 quickstart release 构建；实际安装程序从独立工作目录完成复选框重跑。源/安装/交互后三次 347 文件对照均通过，60 个 HTTP 响应、24 PB、两阶段 DOM/截图归档在[安装证据](../tests/browser/rust-library-portability/README.md)。默认 UI 进程日志为空，另一次启动的 info 日志才确认 sidecar，两个 PID 分开记录。独立 consumer 发现的公共宏支撑缺陷另见下节，未用增加依赖绕过；M6 不因此关闭。
+
+拟改 build.rs、server.rs 的单个 include、上述 private 数据文件与字节属性，以及现有使用指南/验收记录。先写独立应用完整 Cargo.toml/入口、工具链与 sidecar 用法，再实现。验收使用无外部 www 且库目录改名的隔离源码和已有固定缓存编译，另构建仓库外应用、从无仓库工作目录启动，核对真实首页/boot资源/WS及交互、完整 sidecar 字节；已有协议/静态/宏与库回归保持。缓存依赖的 Windows 实验不冒称无缓存机器、MSRV、全部平台或 crates.io 发布已通过；源码包的完整维护者测试/外部 fixtures 仍需另核实，M6 不因本批构建可用而关闭。
+
+## Consumer macro support — decision pending
+
+修正隔离应用示例漏写 async 后，仅依赖 streamlit 的真实调用仍不能编译：宏当前直接展开 `#[tokio::main]` 与 `env_logger::Builder`，但二者不是调用方直接依赖。库内部已有这两种依赖，不能据此认为外部 crate 也能按这些名字解析。失败记录为 `target/checks/m6-library-portability/consumer-macro-red.log`，不以仓库自身示例通过冒充独立应用通过。
+
+| 方案 | 改动、收益与代价 |
+| --- | --- |
+| A，推荐 | 库提供 doc-hidden 的公共宏支撑命名空间，重导出现有运行时/日志依赖；宏全部使用该限定路径，可显式建立同样的 Tokio 运行时。调用方只直接依赖 streamlit。新增的公共符号限宏支撑用途，无新依赖包；要维护库与宏的支撑契约，需用户采纳后实施。 |
+| B | 新增用户可见的同步服务启动方法，由库管理 Tokio/日志，宏调用该方法。也支持手工服务入口，接口更正式；新增公共方法与启动职责更广，需设计返回错误、调用限制和日志归属。 |
+| C | 保留现有宏展开方式，独立应用 Cargo.toml 明确加入现有固定 Tokio 与 env_logger。库公共面不变、实现成本低；调用方需了解并维护运行时/日志直接依赖，最小应用仍需三个依赖。 |
+
+A 拟改 lib.rs 的支撑导出、streamlit-macros/src/lib.rs 的限定调用、既有宏检查和独立应用指南。验收只直接依赖 streamlit 的外部项目、host/port、实际启动/WS/页面交互、现有示例和全部静态资源边界，无源码 SHA 门槛。B/C 仅在采纳后展开相应设计。选择前不新增公共支撑接口，也不将三依赖绕行冒称单依赖已成功；当前仅继续独立的库目录修复及现有示例分发验证。
+
 ## Dependency and launch audit (2026-10-25)
 
 这是基于 `590aed547f062b6791689ffe48940ffd6461a603`、Windows MSVC 的历史依赖审计，不是当前安全检测或 MSRV 认证。当前依赖以 Cargo.toml/Cargo.lock 为准，当前工具链和检查见 [acceptance](acceptance.md#current-m0-baseline-2026-10-27)；不再把当时的“最新版本”、测试计数或升级范围写成现行约束。历史 stable 1.95 / nightly 1.98 的编译不能证明最低 Rust 版本可用。

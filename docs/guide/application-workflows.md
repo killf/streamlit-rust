@@ -203,6 +203,36 @@ let value = st.cache_data("outer").call(21, |n: i64| {
 
 调用方无需新增选项；文件名、MIME 和内容地址沿用原下载/视频配置。这里验证 HTTP 范围响应，不将它描述为已完成浏览器拖动定位或完整播放器兼容。
 
+## 在仓库外创建应用（宏支撑接口待选择）
+
+以下是宏支撑方案 A 的目标用法，**当前尚不可只用这个依赖直接构建**：现有宏还要求调用方直接依赖 tokio 和 env_logger；是否隐藏这些依赖等待用户选择。`#[streamlit::main]` 接收 async 函数并创建运行时和服务入口。以下目录假设 `my-app/` 与本项目 checkout `streamlit-rust/` 并列；这里使用本地源码，不声称已发布 crates.io 包：
+
+```toml
+# my-app/Cargo.toml
+[package]
+name = "my-app"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+streamlit = { path = "../streamlit-rust/streamlit" }
+```
+
+```rust
+// my-app/src/main.rs
+use streamlit::{Streamlit, StreamlitApi};
+
+#[streamlit::main(host = "127.0.0.1", port = 8550)]
+async fn main(st: &Streamlit) {
+    st.title("My Rust app");
+    st.write("Ready");
+}
+```
+
+构建前按[入门环境](#构建并启动)配置 Rust 与 protoc，确保 `PROTOC` 指向本机实际编译器；旧记录中的本机 target 路径不是新机器的安装目录。在 `my-app` 执行 `cargo build`；先由 Cargo 生成该应用自己的 Cargo.lock，后续用 `cargo build --locked` 固定已选依赖。运行前，将本 checkout 完整且未修改的 `www/` 放在应用可执行文件旁边，或用 `STREAMLIT_STATIC_DIR` 指向它，再启动并打开 `http://127.0.0.1:8550/`。[既有 sidecar 规则](README.md#run-an-installed-executable-from-any-directory)继续适用；运行时不需要 Python。
+
+库目录改名、不带外部 www 的独立构建，以及含空格目录的既有 quickstart release 安装已通过[本机验证](../../tests/browser/rust-library-portability/README.md)，包括真实界面交互和完整 sidecar 对照；仅依赖 streamlit 的外部应用仍被上述宏问题阻断。无缓存机器、MSRV、Linux/macOS、系统运行库和完整 crate 打包测试均需要各自证据，不能从本机 Windows 缓存构建推断。
+
 ## 参考数据与验证
 
 参考行为以锁定的 Python Streamlit 1.66.1 一次采集的正确输入、输出及版本信息冻结；之后 Rust 单元测试和协议重放复用这些数据，无需因每次 Rust 修改或路径变化重新运行 Python。只有新行为、版本升级或证据失效时才补采。Rust、Python 和采集工具的源码 SHA 不作为验收条件；改变错误处理或实现方式不会使正确的冻结结果失效，也不需要另存历史源码。当前 Rust 仍需实际通过对应功能、协议和交互验证。

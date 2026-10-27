@@ -1,0 +1,38 @@
+warning: linker stdout: 正在创建库 C:\Users\killf\github\streamlit-rust\target\debug\deps\streamlit_macros-4ff7c8bdf4a8ce7e.dll.lib 和对象 C:\Users\killf\github\streamlit-rust\target\debug\deps\streamlit_macros-4ff7c8bdf4a8ce7e.dll.exp
+  |
+  = note: `#[warn(linker_messages)]` on by default
+
+warning: `streamlit-macros` (lib) generated 1 warning
+   Compiling m6-portable-consumer v0.1.0 (C:\Users\killf\github\streamlit-rust\target\checks\m6-library-portability\consumer-app)
+error[E0433]: cannot find module or crate `tokio` in this scope
+  --> src\main.rs:15:1
+   |
+15 | #[streamlit::main(host = "127.0.0.1", port = 8550)]
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ use of unresolved module or unlinked crate `tokio`
+   |
+   = note: this error originates in the attribute macro `streamlit::main` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0433]: cannot find module or crate `env_logger` in this scope
+  --> src\main.rs:15:1
+   |
+15 | #[streamlit::main(host = "127.0.0.1", port = 8550)]
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ use of unresolved module or unlinked crate `env_logger`
+   |
+   = help: if you wanted to use a crate named `env_logger`, use `cargo add env_logger` to add it to your `Cargo.toml`
+   = note: this error originates in the attribute macro `streamlit::main` (in Nightly builds, run with -Z macro-backtrace for more info)
+help: consider importing this struct
+   |
+ 1 + use std::thread::Builder;
+   |
+
+error[E0752]: `main` function is not allowed to be `async`
+  --> src\main.rs:15:1
+   |
+15 | #[streamlit::main(host = "127.0.0.1", port = 8550)]
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `main` function is not allowed to be `async`
+   |
+   = note: this error originates in the attribute macro `streamlit::main` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+Some errors have detailed explanations: E0433, E0752.
+For more information about an error, try `rustc --explain E0433`.
+error: could not compile `m6-portable-consumer` (bin "m6-portable-consumer") due to 3 previous errors

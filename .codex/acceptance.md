@@ -126,6 +126,16 @@ Rust 新增三项回归：原错误值/资源身份、参数变化和清空；�
 
 未据此宣称浏览器拖动定位、HEAD、If-Range/CORS、重复或全部数字/header 语法、所有媒体类型及完整资源生命周期已验收。按当前 Goal 授权提交推送工作分支，不创建 PR/MR、不合并/发布/部署；CSV 来源与 generic Vega 关键取舍仍待用户选择，长期 Goal 继续。
 
+## Current library portability validation (2026-10-27)
+
+真实隔离库目录改名且无外部 www 时，原 protoc 固定路径编译失败；改为现有编译器的虚拟前缀映射，并把原已内嵌的 6467 字节官方 index 原样作为 crate 私有数据，保留协议、依赖、API 与完整 frontend sidecar 规则。改名/no-www 检查及含空格目录的 quickstart release 构建通过，Cargo 包清单实际包含私有 index；清单命令首次因未提交修改拒绝后，仅用 --allow-dirty 做本地列表核对，不发布包。
+
+[原生安装证据](../tests/browser/rust-library-portability/README.md)保存 24 PB、60 实际 HTTP、同 WS 两轮完成、真实复选框 true→false、DOM/截图及进程清理。源/安装后/交互后三次完整 347 文件集和数据 SHA 均与锁定 wheel 一致；root 再次核对全部实际安装字节和复制 exe 字节。UI 首次日志为空，另外的 info 日志属于第二次健康检查 PID，不混称同一进程。全部自有服务/Chrome/profile 清理，8503 无监听。
+
+格式、全目标 Clippy、192 项 Rust 及原有完整 1513 项冻结参考检查通过，96 条既有 Pillow 告警和 MSVC linker_messages 提示保留。新增三项构建/资产/原 PB-CDP-DOM-PNG 证据检查随后单独通过，未把它写成一次 1516 项全量运行；新增 DOM 绑定校验最初误读 JSON 字符串和坐标对象的两种 CDP 返回形态，修正解码后精确比较通过，失败日志保留、raw 未改。普通构建修复与文档经独立只读 Review；完整命令/日志索引见本地 `target/checks/m6-library-portability/results.json`。
+
+本地生成 quickstart Windows x86_64 演示 zip（exe+347 frontend+README），归档内每个可执行/资源字节与已验证安装目录相同；产物在本地 target，不随 Git 分发，也不是公开发布。仍未验证全新机器运行库、无缓存构建、MSRV、其他平台或完整 crate archive。修正本轮新示例漏写 async 后，仅依赖 streamlit 的外部应用仍真实失败于宏的 tokio/env_logger 名称；公共接口 A/B/C 待用户选择，未擅自实现支撑模块或添加调用方依赖，长期 Goal/M6 保持未完成。
+
 ## Required fresh-checkout checks
 
 ```powershell
