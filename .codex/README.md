@@ -10,6 +10,8 @@ python .codex/verify_roles.py
 
 ## Shared artifacts and completion reports
 
+`compatibility/documentation-scope.json` 是长期 M0 的官方文档范围审读输入，记录用户能力、场景和来源身份；它不是第二份实现进度表，也不是 Python API 导出清单。实现与兼容证据仍归现有矩阵，应用步骤归 journey 清单。本轮动态 Team 的实际配置和并发以最新用户 Goal 授权为准，历史冻结角色表不代表客户端配置已经生效。
+
 Assign exactly one writer to each shared whole-file artifact, including JSON manifests, matrices and generated summaries. Other agents supply proposed fragments or write only their assigned evidence directories; they must not concurrently rewrite the shared file. Transfer ownership explicitly before another writer applies changes.
 
 Match each completion/review report to its task submission, freeze and artifact identity: the agreed scope/base revision, exact paths and reviewed hashes. Preserve results for earlier submissions when a thread proceeds to another task; its latest message does not replace all preceding results. A completion report for one submission cannot approve a different artifact revision. Use the existing submission and freeze records rather than introducing a separate tracking framework.

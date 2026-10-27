@@ -1,6 +1,6 @@
 # Compatibility
 
-Streamlit runtime compatibility is pinned to 1.66.1. Product scope follows the official documentation catalog captured in the ignored cache `target/upstream/docs`; its observed docs label is 1.66.0 and its runtime target is 1.66.1. Version labels are recorded separately and no inaccessible versioned URL is synthesized.
+Streamlit runtime compatibility is pinned to 1.66.1. The historical API matrix comes from the official documentation catalog originally captured under the ignored cache `target/upstream/docs`; its observed docs label is 1.66.0 and its runtime target is 1.66.1. That catalog is a retained evidence scope, not the complete long-term product boundary. Version labels are recorded separately and no inaccessible versioned URL is synthesized.
 
 ## Long-term documentation scope
 
@@ -11,6 +11,14 @@ Streamlit runtime compatibility is pinned to 1.66.1. Product scope follows the o
 现有矩阵保留各条目的历史证据范围；`not_applicable` 正在复核，不代表长期目标永久排除该用户能力。缺少 Rust 对应实现的理由需要重新审查，已有行为的概念页关联实际功能证据。源码盘点不能给予实现或兼容信用，也不另建 Python API 进度表。
 
 长期 M0 进行中；旧 HTML/catalog 当前未恢复，新抓取须记录来源、实际日期、文档版本及内容身份，不覆盖或冒用旧目录的锁定哈希。当前通过、当前失败、环境受阻和历史结果分别记录。
+
+### M0 documentation review
+
+本轮官方文档范围审读保存在 [documentation-scope.json](../compatibility/documentation-scope.json)。它记录用户能力与场景要求、官方 URL、采集时间及内容身份，不记录另一套实现状态。原有 API 页面仍由现有矩阵关联证据；新增审读覆盖过去未登记的概念和部署说明。
+
+新增正文按应用外壳、并发与类型迁移、时区、连接与密钥注入、组件交互及生命周期、富数据、主题与字体、组件打包、应用测试、CI、运行包、Kubernetes/代理/TLS、嵌入等用户能力归并。托管平台账户、面板、分享承诺和 Snowflake 平台操作另作适用性讨论，不直接解释为要重建托管服务。
+
+这是一轮有边界的扩展审读，不代表已穷尽所有参数组合、教程和 FAQ，也不能用分组数或页面数计算功能完成率。未版本化指南保留其实际来源身份，与锁定的 1.66.1 运行语义分开确认。后续实现先写对应使用文档，复用已有冻结参考数据，缺失时补充，再建立 Rust 回归。
 
 The only feature matrix is [compatibility/api-compatibility-matrix.json](../compatibility/api-compatibility-matrix.json). Its captured-page scope is not a claim of completeness: unavailable legacy pages and redirect aliases stay explicit in the matrix and [p0-baseline.json](../compatibility/p0-baseline.json).
 
