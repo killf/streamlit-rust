@@ -1,6 +1,6 @@
 use crate::elements::common::{Element, RenderContext};
 use crate::error::StreamlitError;
-use crate::proto::{Block, Config, Delta, EnvironmentInfo, ForwardMsg, ForwardMsgMetadata, Initialize, NewSession, SessionStatus, UserInfo, block, delta, forward_msg};
+use crate::proto::{Config, EnvironmentInfo, ForwardMsg, ForwardMsgMetadata, Initialize, NewSession, SessionStatus, UserInfo, forward_msg};
 use crate::utils::hash::hash;
 use std::cell::RefCell;
 use std::collections::HashSet;
@@ -87,9 +87,9 @@ impl Element for App {
         context.push(create_new_session(context.session_id.clone(), main_script_hash.clone(), main_script_hash.clone()));
         context.push(create_session_status_changed(true, false));
 
-        // 2. Main Block
+        // 2. Element slots. The root container is implicit — the reference
+        // never streams an add_block for it.
         context.delta_path.push(0);
-        context.push(create_main_block());
 
         context.delta_path.push(0);
         for element in self.elements.iter() {
@@ -156,28 +156,6 @@ pub(crate) fn create_session_status_changed(script_is_running: bool, run_on_save
         hash: "session_status_changed".to_string(),
         metadata: None,
         r#type: Some(forward_msg::Type::SessionStatusChanged(SessionStatus { run_on_save, script_is_running })),
-    }
-}
-
-pub(crate) fn create_main_block() -> ForwardMsg {
-    ForwardMsg {
-        hash: "main_block".to_string(),
-        metadata: Some(ForwardMsgMetadata {
-            cacheable: false,
-            delta_path: vec![0],
-            active_script_hash: String::new(),
-        }),
-        r#type: Some(forward_msg::Type::Delta(Delta {
-            fragment_id: String::new(),
-            r#type: Option::from(delta::Type::AddBlock(Block {
-                autoscroll: None,
-                r#type: Some(block::Type::Vertical(block::Vertical { border: false })),
-                allow_empty: false,
-                id: Some("main_container".to_string()), // This is the crucial ID!
-                height_config: None,
-                width_config: None,
-            })),
-        })),
     }
 }
 

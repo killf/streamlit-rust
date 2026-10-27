@@ -2299,23 +2299,24 @@
       "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "3133afde58101895e4c9ad3340344d535779effe130a200b9a4df49ac85e1703",
-        "python_browser_trace": "tests/reference/reference-browser/colconfig/trace-colconfig.json",
+        "python_browser_trace": "tests/reference/reference-browser/dataeditor/trace-dataeditor.json",
         "rust_source": "streamlit/src/data_api.rs",
-        "rust_api_test": "streamlit/tests/runtime/colconfig.rs",
-        "rust_wire_observation": "tests/browser/rust-colconfig/trace-colconfig.json",
-        "official_frontend_browser_e2e": "tests/browser/rust-colconfig/trace-colconfig.json",
-        "capture_entry": "tests/browser/colconfig_capture.py",
-        "colconfig_contract": "tests/browser/colconfig_contract.py",
-        "contract_guards": "tests/reference/test_colconfig_contract.py",
-        "driven_fixture": "tests/reference/colconfig_app.py",
-        "driven_example": "streamlit/examples/colconfig.rs"
+        "rust_api_test": "streamlit/tests/runtime/dataeditor.rs",
+        "rust_wire_observation": "tests/browser/rust-dataeditor/trace-dataeditor.json",
+        "official_frontend_browser_e2e": "tests/browser/rust-dataeditor/trace-dataeditor.json",
+        "capture_entry": "tests/browser/dataeditor_capture.py",
+        "dataeditor_contract": "tests/browser/dataeditor_contract.py",
+        "contract_guards": "tests/reference/test_dataeditor_contract.py",
+        "driven_fixture": "tests/reference/dataeditor_app.py",
+        "driven_example": "streamlit/examples/dataeditor.rs",
+        "prior_chain": "tests/reference/reference-browser/colconfig/trace-colconfig.json"
       },
-      "rust_plan": "st.data_editor(data, ...) streams an editable dataframe: the dataframe proto with its edits widget id ($$ID-<digest>-<key>), the editing_mode from num_rows (fixed=1/dynamic=2/add=3/delete=4), the hidden _index by default and the edits carried as one string_value widget state (\"{}\" default); it returns the current edits object. Button columns register their click widgets unless disabled.",
-      "compatibility_scope": "The journey-colconfig-page chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome across the load stage; the published replays assert 7/7 checks per side, covering both dataframes' full wire (the 21-helper columns JSON verbatim, the arrow data logically, the layout configs, the button_click_widgets ids masked as side-specific) plus the settled DOM grid counts.",
+      "rust_plan": "st.data_editor(data, ...) streams an editable dataframe: the dataframe proto with its edits widget id ($$ID-<digest>-<key>), the editing_mode from num_rows (fixed=1/dynamic=2/add=3/delete=4), the hidden _index by default and the edits carried as one string_value widget state (\"{}\" default); it returns the edited table — cell edits applied first (row-position and column-NAME keys, typed values), then row deletions, then additions (missing cells null), an int64 column that gains a null upcasting to float64 like pandas and back once filled. The editor element always re-emits the ORIGINAL table (the frontend holds edits client-side); the return value carries the applied edits. Button columns register their click widgets unless disabled.",
+      "compatibility_scope": "Two chains pin the surface. The journey-dataeditor-v1 chain drives a dynamic-rows editor with real mouse and keyboard through four stages (load, committed cell edit, added row, edit inside the added row) on both sides: every rerun sends exactly one string_value edit state (string row keys, column-NAME keys, an untouched added row as {}), the editor element re-emits the original table, the written table carries the applied edits with the pandas int64→float64 upcast and null text cells, and the settled DOM grid matches cell-for-cell; published replays assert 7/7 checks per side. The journey-colconfig-page chain additionally covers the load wire of all 21 column-config helpers on one editor (columns JSON verbatim, button_click_widgets ids masked).",
       "limitations": [
-        "Coverage is the journey-colconfig-page chain: one measured page rendering all 21 helpers on one dataframe (each helper's signature fields at the measured defaults) plus a dynamic data_editor, across the load stage. The on_change/on_click callback surfaces are Python-only.",
-        "Cell edits, added/deleted rows (num_rows fixed/add/delete) and the returned edit-object semantics are unobserved in this chain; only the dynamic editor's load wire is measured.",
-        "fixture SHA256 c2b3a4cc3239297a12d955c9b77cf86860d69c1a35df54098884c3e3b3a653c0; example SHA256 c5c76825ca64a8de6e23a6cab915012e4717617f6b2821db9253aad325009876."
+        "The journey-dataeditor-v1 chain covers num_rows=\"dynamic\"; the fixed/add/delete editing modes (editing_mode 1/3/4) and row deletion stay unobserved on the wire — the pinned frontend exposes no delete affordance for keyboard/mouse driving — and the deletion logic is implemented from the reference source (cell edits → deletions → additions order) with runtime tests only.",
+        "The on_change/on_click callback surfaces are Python-only.",
+        "colconfig fixture SHA256 c2b3a4cc3239297a12d955c9b77cf86860d69c1a35df54098884c3e3b3a653c0; colconfig example SHA256 c5c76825ca64a8de6e23a6cab915012e4717617f6b2821db9253aad325009876; dataeditor fixture and example are pinned by their own contract guards."
       ]
     },
     {

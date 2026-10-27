@@ -1,0 +1,989 @@
+{
+ "schema_version": 1,
+ "observation": {
+  "journey": "dataeditor-grid",
+  "contract": "journey-dataeditor-v1",
+  "scope": "PYTHON SIDE ONLY",
+  "url": "http://127.0.0.1:8632/",
+  "source": {
+   "file": "tests/reference/dataeditor_app.py",
+   "sha256": "fc75313635adec62a6cf8199ec4b506c08ab309f7c99fd3ccadee160da67ddfb"
+  },
+  "stages": [
+   {
+    "name": "01-load",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 44327.785883,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": []
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 44327.799835,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "6e1cf6a7-7aac-483f-9a38-ffc34ffe2abc",
+        "name": "dataeditor_app",
+        "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\dataeditor_app.py",
+        "page_script_hash": "ed823caa32f635a6c6be8a682b048580",
+        "main_script_hash": "ed823caa32f635a6c6be8a682b048580",
+        "session_id": "5ff538ce-0cc8-40e3-8390-4d2c3e33b446"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 44327.809154,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 44328.3015,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "dataframe",
+        "element_full": {
+         "dataframe": {
+          "arrowData": {
+           "data": "/////wADAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAFgCAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAAwAgAABAAAACMCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAicXR5IiwgImZpZWxkX25hbWUiOiAicXR5IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogImxhYmVsIiwgImZpZWxkX25hbWUiOiAibGFiZWwiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH1dLCAiYXR0cmlidXRlcyI6IHt9LCAiY3JlYXRvciI6IHsibGlicmFyeSI6ICJweWFycm93IiwgInZlcnNpb24iOiAiMjYuMC4wIn0sICJwYW5kYXNfdmVyc2lvbiI6ICIzLjEuMCJ9AAYAAABwYW5kYXMAAAIAAABEAAAABAAAANT///8AAAEUEAAAABwAAAAEAAAAAAAAAAUAAABsYWJlbAAAAAQABAAEAAAAEAAUAAgABgAHAAwAAAAQABAAAAAAAAECEAAAABwAAAAEAAAAAAAAAAMAAABxdHkACAAMAAgABwAIAAAAAAAAAUAAAAD/////yAAAABQAAAAAAAAADAAWAAYABQAIAAwADAAAAAADBAAYAAAAMAAAAAAAAAAAAAoAGAAMAAQACAAKAAAAbAAAABAAAAACAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAYAAAAAAAAACgAAAAAAAAAAgAAAAAAAAAAAAAAAgAAAAIAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAGFiAAAAAAAA/////wAAAAA="
+          },
+          "id": "$$ID-a3cd098453c7ad9157e35f0109a401d5-editor",
+          "columns": "{\"_index\": {\"hidden\": true}}",
+          "editingMode": "DYNAMIC"
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "arrow": {
+         "bytes": 1040,
+         "sha256": "cd3d4e7068742d6f37597fb1dee18fe9fb1f3a7e46707352e80649f85bcd0373",
+         "base64": "/////wADAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAFgCAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAAwAgAABAAAACMCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAicXR5IiwgImZpZWxkX25hbWUiOiAicXR5IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogImxhYmVsIiwgImZpZWxkX25hbWUiOiAibGFiZWwiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH1dLCAiYXR0cmlidXRlcyI6IHt9LCAiY3JlYXRvciI6IHsibGlicmFyeSI6ICJweWFycm93IiwgInZlcnNpb24iOiAiMjYuMC4wIn0sICJwYW5kYXNfdmVyc2lvbiI6ICIzLjEuMCJ9AAYAAABwYW5kYXMAAAIAAABEAAAABAAAANT///8AAAEUEAAAABwAAAAEAAAAAAAAAAUAAABsYWJlbAAAAAQABAAEAAAAEAAUAAgABgAHAAwAAAAQABAAAAAAAAECEAAAABwAAAAEAAAAAAAAAAMAAABxdHkACAAMAAgABwAIAAAAAAAAAUAAAAD/////yAAAABQAAAAAAAAADAAWAAYABQAIAAwADAAAAAADBAAYAAAAMAAAAAAAAAAAAAoAGAAMAAQACAAKAAAAbAAAABAAAAACAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAYAAAAAAAAACgAAAAAAAAAAgAAAAAAAAAAAAAAAgAAAAIAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAGFiAAAAAAAA/////wAAAAA=",
+         "schema": "qty: int64\nlabel: large_string\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 483",
+         "columns": [
+          "qty",
+          "label"
+         ],
+         "row_count": 2,
+         "rows": [
+          {
+           "qty": 1,
+           "label": "a"
+          },
+          {
+           "qty": 2,
+           "label": "b"
+          }
+         ]
+        },
+        "arrow_fields": {
+         "id": "$$ID-a3cd098453c7ad9157e35f0109a401d5-editor",
+         "columns": "{\"_index\": {\"hidden\": true}}",
+         "editing_mode": 2,
+         "disabled": false,
+         "row_height": 0
+        },
+        "id": "$$ID-a3cd098453c7ad9157e35f0109a401d5-editor",
+        "form_id": "",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 44328.6046,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "dataframe",
+        "element_full": {
+         "dataframe": {
+          "arrowData": {
+           "data": "/////wADAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAFgCAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAAwAgAABAAAACMCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAicXR5IiwgImZpZWxkX25hbWUiOiAicXR5IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogImxhYmVsIiwgImZpZWxkX25hbWUiOiAibGFiZWwiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH1dLCAiYXR0cmlidXRlcyI6IHt9LCAiY3JlYXRvciI6IHsibGlicmFyeSI6ICJweWFycm93IiwgInZlcnNpb24iOiAiMjYuMC4wIn0sICJwYW5kYXNfdmVyc2lvbiI6ICIzLjEuMCJ9AAYAAABwYW5kYXMAAAIAAABEAAAABAAAANT///8AAAEUEAAAABwAAAAEAAAAAAAAAAUAAABsYWJlbAAAAAQABAAEAAAAEAAUAAgABgAHAAwAAAAQABAAAAAAAAECEAAAABwAAAAEAAAAAAAAAAMAAABxdHkACAAMAAgABwAIAAAAAAAAAUAAAAD/////yAAAABQAAAAAAAAADAAWAAYABQAIAAwADAAAAAADBAAYAAAAMAAAAAAAAAAAAAoAGAAMAAQACAAKAAAAbAAAABAAAAACAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAYAAAAAAAAACgAAAAAAAAAAgAAAAAAAAAAAAAAAgAAAAIAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAGFiAAAAAAAA/////wAAAAA="
+          },
+          "columns": "{}"
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "arrow": {
+         "bytes": 1040,
+         "sha256": "cd3d4e7068742d6f37597fb1dee18fe9fb1f3a7e46707352e80649f85bcd0373",
+         "base64": "/////wADAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAFgCAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAAwAgAABAAAACMCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAicXR5IiwgImZpZWxkX25hbWUiOiAicXR5IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogImxhYmVsIiwgImZpZWxkX25hbWUiOiAibGFiZWwiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH1dLCAiYXR0cmlidXRlcyI6IHt9LCAiY3JlYXRvciI6IHsibGlicmFyeSI6ICJweWFycm93IiwgInZlcnNpb24iOiAiMjYuMC4wIn0sICJwYW5kYXNfdmVyc2lvbiI6ICIzLjEuMCJ9AAYAAABwYW5kYXMAAAIAAABEAAAABAAAANT///8AAAEUEAAAABwAAAAEAAAAAAAAAAUAAABsYWJlbAAAAAQABAAEAAAAEAAUAAgABgAHAAwAAAAQABAAAAAAAAECEAAAABwAAAAEAAAAAAAAAAMAAABxdHkACAAMAAgABwAIAAAAAAAAAUAAAAD/////yAAAABQAAAAAAAAADAAWAAYABQAIAAwADAAAAAADBAAYAAAAMAAAAAAAAAAAAAoAGAAMAAQACAAKAAAAbAAAABAAAAACAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAYAAAAAAAAACgAAAAAAAAAAgAAAAAAAAAAAAAAAgAAAAIAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAGFiAAAAAAAA/////wAAAAA=",
+         "schema": "qty: int64\nlabel: large_string\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 483",
+         "columns": [
+          "qty",
+          "label"
+         ],
+         "row_count": 2,
+         "rows": [
+          {
+           "qty": 1,
+           "label": "a"
+          },
+          {
+           "qty": 2,
+           "label": "b"
+          }
+         ]
+        },
+        "arrow_fields": {
+         "columns": "{}",
+         "editing_mode": 0,
+         "disabled": false,
+         "row_height": 0
+        },
+        "id": "",
+        "form_id": "",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 44328.605029,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "element_full": {
+         "markdown": {
+          "body": "rows=2",
+          "elementType": "NATIVE",
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "rows=2",
+        "path": [
+         0,
+         2
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 44328.605462,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 44328.605702,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "dom": {
+     "cells": [
+      "1",
+      "a",
+      "2",
+      "b",
+      "0",
+      "1",
+      "a",
+      "1",
+      "2",
+      "b"
+     ],
+     "markdowns": [
+      "rows=2"
+     ],
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "01-load.png",
+     "sha256": "addbe2c39c0ff078fa1b1c344f9f6ac4af0a18930e1f9b9f9eb08b2dff8063c0"
+    }
+   },
+   {
+    "name": "02-edit-cell",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 44332.961828,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": [
+         {
+          "id": "$$ID-a3cd098453c7ad9157e35f0109a401d5-editor",
+          "value_field": "string_value",
+          "value": "{\"edited_rows\":{\"0\":{\"qty\":7}},\"added_rows\":[],\"deleted_rows\":[]}"
+         }
+        ],
+        "page_script_hash": "ed823caa32f635a6c6be8a682b048580"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 44332.965234,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "6dc92f7e-f723-44c7-8f33-5cafd76a8bbb",
+        "name": "dataeditor_app",
+        "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\dataeditor_app.py",
+        "page_script_hash": "ed823caa32f635a6c6be8a682b048580",
+        "main_script_hash": "ed823caa32f635a6c6be8a682b048580",
+        "session_id": "5ff538ce-0cc8-40e3-8390-4d2c3e33b446"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 44332.965607,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 44332.967823,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "dataframe",
+        "element_full": {
+         "dataframe": {
+          "arrowData": {
+           "data": "/////wADAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAFgCAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAAwAgAABAAAACMCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAicXR5IiwgImZpZWxkX25hbWUiOiAicXR5IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogImxhYmVsIiwgImZpZWxkX25hbWUiOiAibGFiZWwiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH1dLCAiYXR0cmlidXRlcyI6IHt9LCAiY3JlYXRvciI6IHsibGlicmFyeSI6ICJweWFycm93IiwgInZlcnNpb24iOiAiMjYuMC4wIn0sICJwYW5kYXNfdmVyc2lvbiI6ICIzLjEuMCJ9AAYAAABwYW5kYXMAAAIAAABEAAAABAAAANT///8AAAEUEAAAABwAAAAEAAAAAAAAAAUAAABsYWJlbAAAAAQABAAEAAAAEAAUAAgABgAHAAwAAAAQABAAAAAAAAECEAAAABwAAAAEAAAAAAAAAAMAAABxdHkACAAMAAgABwAIAAAAAAAAAUAAAAD/////yAAAABQAAAAAAAAADAAWAAYABQAIAAwADAAAAAADBAAYAAAAMAAAAAAAAAAAAAoAGAAMAAQACAAKAAAAbAAAABAAAAACAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAYAAAAAAAAACgAAAAAAAAAAgAAAAAAAAAAAAAAAgAAAAIAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAGFiAAAAAAAA/////wAAAAA="
+          },
+          "id": "$$ID-a3cd098453c7ad9157e35f0109a401d5-editor",
+          "columns": "{\"_index\": {\"hidden\": true}}",
+          "editingMode": "DYNAMIC"
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "arrow": {
+         "bytes": 1040,
+         "sha256": "cd3d4e7068742d6f37597fb1dee18fe9fb1f3a7e46707352e80649f85bcd0373",
+         "base64": "/////wADAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAFgCAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAAwAgAABAAAACMCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAicXR5IiwgImZpZWxkX25hbWUiOiAicXR5IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogImxhYmVsIiwgImZpZWxkX25hbWUiOiAibGFiZWwiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH1dLCAiYXR0cmlidXRlcyI6IHt9LCAiY3JlYXRvciI6IHsibGlicmFyeSI6ICJweWFycm93IiwgInZlcnNpb24iOiAiMjYuMC4wIn0sICJwYW5kYXNfdmVyc2lvbiI6ICIzLjEuMCJ9AAYAAABwYW5kYXMAAAIAAABEAAAABAAAANT///8AAAEUEAAAABwAAAAEAAAAAAAAAAUAAABsYWJlbAAAAAQABAAEAAAAEAAUAAgABgAHAAwAAAAQABAAAAAAAAECEAAAABwAAAAEAAAAAAAAAAMAAABxdHkACAAMAAgABwAIAAAAAAAAAUAAAAD/////yAAAABQAAAAAAAAADAAWAAYABQAIAAwADAAAAAADBAAYAAAAMAAAAAAAAAAAAAoAGAAMAAQACAAKAAAAbAAAABAAAAACAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAYAAAAAAAAACgAAAAAAAAAAgAAAAAAAAAAAAAAAgAAAAIAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAGFiAAAAAAAA/////wAAAAA=",
+         "schema": "qty: int64\nlabel: large_string\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 483",
+         "columns": [
+          "qty",
+          "label"
+         ],
+         "row_count": 2,
+         "rows": [
+          {
+           "qty": 1,
+           "label": "a"
+          },
+          {
+           "qty": 2,
+           "label": "b"
+          }
+         ]
+        },
+        "arrow_fields": {
+         "id": "$$ID-a3cd098453c7ad9157e35f0109a401d5-editor",
+         "columns": "{\"_index\": {\"hidden\": true}}",
+         "editing_mode": 2,
+         "disabled": false,
+         "row_height": 0
+        },
+        "id": "$$ID-a3cd098453c7ad9157e35f0109a401d5-editor",
+        "form_id": "",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 44333.04077,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "dataframe",
+        "element_full": {
+         "dataframe": {
+          "arrowData": {
+           "data": "/////wADAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAFgCAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAAwAgAABAAAACMCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAicXR5IiwgImZpZWxkX25hbWUiOiAicXR5IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogImxhYmVsIiwgImZpZWxkX25hbWUiOiAibGFiZWwiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH1dLCAiYXR0cmlidXRlcyI6IHt9LCAiY3JlYXRvciI6IHsibGlicmFyeSI6ICJweWFycm93IiwgInZlcnNpb24iOiAiMjYuMC4wIn0sICJwYW5kYXNfdmVyc2lvbiI6ICIzLjEuMCJ9AAYAAABwYW5kYXMAAAIAAABEAAAABAAAANT///8AAAEUEAAAABwAAAAEAAAAAAAAAAUAAABsYWJlbAAAAAQABAAEAAAAEAAUAAgABgAHAAwAAAAQABAAAAAAAAECEAAAABwAAAAEAAAAAAAAAAMAAABxdHkACAAMAAgABwAIAAAAAAAAAUAAAAD/////yAAAABQAAAAAAAAADAAWAAYABQAIAAwADAAAAAADBAAYAAAAMAAAAAAAAAAAAAoAGAAMAAQACAAKAAAAbAAAABAAAAACAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAYAAAAAAAAACgAAAAAAAAAAgAAAAAAAAAAAAAAAgAAAAIAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAABwAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAGFiAAAAAAAA/////wAAAAA="
+          },
+          "columns": "{}"
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "arrow": {
+         "bytes": 1040,
+         "sha256": "29c4ecb69708254b6b802ed8df317d3ff7d4b92eefffca811cb811b2bc98091b",
+         "base64": "/////wADAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAFgCAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAAwAgAABAAAACMCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAicXR5IiwgImZpZWxkX25hbWUiOiAicXR5IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogImxhYmVsIiwgImZpZWxkX25hbWUiOiAibGFiZWwiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH1dLCAiYXR0cmlidXRlcyI6IHt9LCAiY3JlYXRvciI6IHsibGlicmFyeSI6ICJweWFycm93IiwgInZlcnNpb24iOiAiMjYuMC4wIn0sICJwYW5kYXNfdmVyc2lvbiI6ICIzLjEuMCJ9AAYAAABwYW5kYXMAAAIAAABEAAAABAAAANT///8AAAEUEAAAABwAAAAEAAAAAAAAAAUAAABsYWJlbAAAAAQABAAEAAAAEAAUAAgABgAHAAwAAAAQABAAAAAAAAECEAAAABwAAAAEAAAAAAAAAAMAAABxdHkACAAMAAgABwAIAAAAAAAAAUAAAAD/////yAAAABQAAAAAAAAADAAWAAYABQAIAAwADAAAAAADBAAYAAAAMAAAAAAAAAAAAAoAGAAMAAQACAAKAAAAbAAAABAAAAACAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAYAAAAAAAAACgAAAAAAAAAAgAAAAAAAAAAAAAAAgAAAAIAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAABwAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAGFiAAAAAAAA/////wAAAAA=",
+         "schema": "qty: int64\nlabel: large_string\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 483",
+         "columns": [
+          "qty",
+          "label"
+         ],
+         "row_count": 2,
+         "rows": [
+          {
+           "qty": 7,
+           "label": "a"
+          },
+          {
+           "qty": 2,
+           "label": "b"
+          }
+         ]
+        },
+        "arrow_fields": {
+         "columns": "{}",
+         "editing_mode": 0,
+         "disabled": false,
+         "row_height": 0
+        },
+        "id": "",
+        "form_id": "",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 44333.047257,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "element_full": {
+         "markdown": {
+          "body": "rows=2",
+          "elementType": "NATIVE",
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "rows=2",
+        "path": [
+         0,
+         2
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 44333.047496,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 44333.047591,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "dom": {
+     "cells": [
+      "7",
+      "a",
+      "2",
+      "b",
+      "0",
+      "7",
+      "a",
+      "1",
+      "2",
+      "b"
+     ],
+     "markdowns": [
+      "rows=2"
+     ],
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "02-edit-cell.png",
+     "sha256": "cdebe4c57fa8ec4d07ead6e02caff35d173f2a9be18b5fc981610e08c8c50383"
+    }
+   },
+   {
+    "name": "03-add-row",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 44337.345311,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": [
+         {
+          "id": "$$ID-a3cd098453c7ad9157e35f0109a401d5-editor",
+          "value_field": "string_value",
+          "value": "{\"edited_rows\":{\"0\":{\"qty\":7}},\"added_rows\":[{}],\"deleted_rows\":[]}"
+         }
+        ],
+        "page_script_hash": "ed823caa32f635a6c6be8a682b048580"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 44337.347051,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "8d7bb7a6-6b19-4541-a504-29de8403687f",
+        "name": "dataeditor_app",
+        "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\dataeditor_app.py",
+        "page_script_hash": "ed823caa32f635a6c6be8a682b048580",
+        "main_script_hash": "ed823caa32f635a6c6be8a682b048580",
+        "session_id": "5ff538ce-0cc8-40e3-8390-4d2c3e33b446"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 44337.348795,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 44337.4002,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "dataframe",
+        "element_full": {
+         "dataframe": {
+          "arrowData": {
+           "data": "/////wADAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAFgCAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAAwAgAABAAAACMCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAicXR5IiwgImZpZWxkX25hbWUiOiAicXR5IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogImxhYmVsIiwgImZpZWxkX25hbWUiOiAibGFiZWwiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH1dLCAiYXR0cmlidXRlcyI6IHt9LCAiY3JlYXRvciI6IHsibGlicmFyeSI6ICJweWFycm93IiwgInZlcnNpb24iOiAiMjYuMC4wIn0sICJwYW5kYXNfdmVyc2lvbiI6ICIzLjEuMCJ9AAYAAABwYW5kYXMAAAIAAABEAAAABAAAANT///8AAAEUEAAAABwAAAAEAAAAAAAAAAUAAABsYWJlbAAAAAQABAAEAAAAEAAUAAgABgAHAAwAAAAQABAAAAAAAAECEAAAABwAAAAEAAAAAAAAAAMAAABxdHkACAAMAAgABwAIAAAAAAAAAUAAAAD/////yAAAABQAAAAAAAAADAAWAAYABQAIAAwADAAAAAADBAAYAAAAMAAAAAAAAAAAAAoAGAAMAAQACAAKAAAAbAAAABAAAAACAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAYAAAAAAAAACgAAAAAAAAAAgAAAAAAAAAAAAAAAgAAAAIAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAGFiAAAAAAAA/////wAAAAA="
+          },
+          "id": "$$ID-a3cd098453c7ad9157e35f0109a401d5-editor",
+          "columns": "{\"_index\": {\"hidden\": true}}",
+          "editingMode": "DYNAMIC"
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "arrow": {
+         "bytes": 1040,
+         "sha256": "cd3d4e7068742d6f37597fb1dee18fe9fb1f3a7e46707352e80649f85bcd0373",
+         "base64": "/////wADAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAFgCAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAAwAgAABAAAACMCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAicXR5IiwgImZpZWxkX25hbWUiOiAicXR5IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogImxhYmVsIiwgImZpZWxkX25hbWUiOiAibGFiZWwiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH1dLCAiYXR0cmlidXRlcyI6IHt9LCAiY3JlYXRvciI6IHsibGlicmFyeSI6ICJweWFycm93IiwgInZlcnNpb24iOiAiMjYuMC4wIn0sICJwYW5kYXNfdmVyc2lvbiI6ICIzLjEuMCJ9AAYAAABwYW5kYXMAAAIAAABEAAAABAAAANT///8AAAEUEAAAABwAAAAEAAAAAAAAAAUAAABsYWJlbAAAAAQABAAEAAAAEAAUAAgABgAHAAwAAAAQABAAAAAAAAECEAAAABwAAAAEAAAAAAAAAAMAAABxdHkACAAMAAgABwAIAAAAAAAAAUAAAAD/////yAAAABQAAAAAAAAADAAWAAYABQAIAAwADAAAAAADBAAYAAAAMAAAAAAAAAAAAAoAGAAMAAQACAAKAAAAbAAAABAAAAACAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAYAAAAAAAAACgAAAAAAAAAAgAAAAAAAAAAAAAAAgAAAAIAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAGFiAAAAAAAA/////wAAAAA=",
+         "schema": "qty: int64\nlabel: large_string\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 483",
+         "columns": [
+          "qty",
+          "label"
+         ],
+         "row_count": 2,
+         "rows": [
+          {
+           "qty": 1,
+           "label": "a"
+          },
+          {
+           "qty": 2,
+           "label": "b"
+          }
+         ]
+        },
+        "arrow_fields": {
+         "id": "$$ID-a3cd098453c7ad9157e35f0109a401d5-editor",
+         "columns": "{\"_index\": {\"hidden\": true}}",
+         "editing_mode": 2,
+         "disabled": false,
+         "row_height": 0
+        },
+        "id": "$$ID-a3cd098453c7ad9157e35f0109a401d5-editor",
+        "form_id": "",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 44337.401325,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "dataframe",
+        "element_full": {
+         "dataframe": {
+          "arrowData": {
+           "data": "/////wADAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAFwCAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAA0AgAABAAAACcCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDMsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAicXR5IiwgImZpZWxkX25hbWUiOiAicXR5IiwgInBhbmRhc190eXBlIjogImZsb2F0NjQiLCAibnVtcHlfdHlwZSI6ICJmbG9hdDY0IiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJsYWJlbCIsICJmaWVsZF9uYW1lIjogImxhYmVsIiwgInBhbmRhc190eXBlIjogIm9iamVjdCIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IG51bGx9XSwgImF0dHJpYnV0ZXMiOiB7fSwgImNyZWF0b3IiOiB7ImxpYnJhcnkiOiAicHlhcnJvdyIsICJ2ZXJzaW9uIjogIjI2LjAuMCJ9LCAicGFuZGFzX3ZlcnNpb24iOiAiMy4xLjAifQAGAAAAcGFuZGFzAAACAAAARAAAAAQAAADU////AAABFBAAAAAcAAAABAAAAAAAAAAFAAAAbGFiZWwAAAAEAAQABAAAABAAFAAIAAYABwAMAAAAEAAQAAAAAAABAxAAAAAcAAAABAAAAAAAAAADAAAAcXR5AAAABgAIAAYABgAAAAAAAgD/////yAAAABQAAAAAAAAADAAWAAYABQAIAAwADAAAAAADBAAYAAAAUAAAAAAAAAAAAAoAGAAMAAQACAAKAAAAbAAAABAAAAADAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAABAAAAAAAAAAgAAAAAAAAAGAAAAAAAAAAgAAAAAAAAAAEAAAAAAAAAKAAAAAAAAAAgAAAAAAAAAEgAAAAAAAAAAgAAAAAAAAAAAAAAAgAAAAMAAAAAAAAAAQAAAAAAAAADAAAAAAAAAAEAAAAAAAAAAwAAAAAAAAAAAAAAAAAcQAAAAAAAAABAAAAAAAAA+H8DAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAAIAAAAAAAAAYWIAAAAAAAD/////AAAAAA=="
+          },
+          "columns": "{}"
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "arrow": {
+         "bytes": 1072,
+         "sha256": "fb3559760564f36d5484dbae03338aabd4369cc8de6e82852b1b96ac29d27ae1",
+         "base64": "/////wADAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAFwCAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAA0AgAABAAAACcCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDMsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAicXR5IiwgImZpZWxkX25hbWUiOiAicXR5IiwgInBhbmRhc190eXBlIjogImZsb2F0NjQiLCAibnVtcHlfdHlwZSI6ICJmbG9hdDY0IiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJsYWJlbCIsICJmaWVsZF9uYW1lIjogImxhYmVsIiwgInBhbmRhc190eXBlIjogIm9iamVjdCIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IG51bGx9XSwgImF0dHJpYnV0ZXMiOiB7fSwgImNyZWF0b3IiOiB7ImxpYnJhcnkiOiAicHlhcnJvdyIsICJ2ZXJzaW9uIjogIjI2LjAuMCJ9LCAicGFuZGFzX3ZlcnNpb24iOiAiMy4xLjAifQAGAAAAcGFuZGFzAAACAAAARAAAAAQAAADU////AAABFBAAAAAcAAAABAAAAAAAAAAFAAAAbGFiZWwAAAAEAAQABAAAABAAFAAIAAYABwAMAAAAEAAQAAAAAAABAxAAAAAcAAAABAAAAAAAAAADAAAAcXR5AAAABgAIAAYABgAAAAAAAgD/////yAAAABQAAAAAAAAADAAWAAYABQAIAAwADAAAAAADBAAYAAAAUAAAAAAAAAAAAAoAGAAMAAQACAAKAAAAbAAAABAAAAADAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAABAAAAAAAAAAgAAAAAAAAAGAAAAAAAAAAgAAAAAAAAAAEAAAAAAAAAKAAAAAAAAAAgAAAAAAAAAEgAAAAAAAAAAgAAAAAAAAAAAAAAAgAAAAMAAAAAAAAAAQAAAAAAAAADAAAAAAAAAAEAAAAAAAAAAwAAAAAAAAAAAAAAAAAcQAAAAAAAAABAAAAAAAAA+H8DAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAAIAAAAAAAAAYWIAAAAAAAD/////AAAAAA==",
+         "schema": "qty: double\nlabel: large_string\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 487",
+         "columns": [
+          "qty",
+          "label"
+         ],
+         "row_count": 3,
+         "rows": [
+          {
+           "qty": 7.0,
+           "label": "a"
+          },
+          {
+           "qty": 2.0,
+           "label": "b"
+          },
+          {
+           "qty": null,
+           "label": null
+          }
+         ]
+        },
+        "arrow_fields": {
+         "columns": "{}",
+         "editing_mode": 0,
+         "disabled": false,
+         "row_height": 0
+        },
+        "id": "",
+        "form_id": "",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 44337.401451,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "element_full": {
+         "markdown": {
+          "body": "rows=3",
+          "elementType": "NATIVE",
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "rows=3",
+        "path": [
+         0,
+         2
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 44337.401541,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 44337.40159,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "dom": {
+     "cells": [
+      "7",
+      "a",
+      "2",
+      "b",
+      "",
+      "",
+      "0",
+      "7",
+      "a",
+      "1",
+      "2",
+      "b",
+      "2",
+      "",
+      ""
+     ],
+     "markdowns": [
+      "rows=3"
+     ],
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "03-add-row.png",
+     "sha256": "1cc90abe772f43e5a2c2d6a0281800a015924c997d58074c18440ea27e40564a"
+    }
+   },
+   {
+    "name": "04-edit-added-row",
+    "new_frames": [
+     {
+      "direction": "client->server",
+      "timestamp": 44342.065024,
+      "summary": {
+       "message": "BackMsg",
+       "type": "rerun_script",
+       "rerun_script": {
+        "widget_states": [
+         {
+          "id": "$$ID-a3cd098453c7ad9157e35f0109a401d5-editor",
+          "value_field": "string_value",
+          "value": "{\"edited_rows\":{\"0\":{\"qty\":7}},\"added_rows\":[{\"qty\":9}],\"deleted_rows\":[]}"
+         }
+        ],
+        "page_script_hash": "ed823caa32f635a6c6be8a682b048580"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 44342.067665,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "new_session",
+       "new_session": {
+        "script_run_id": "70e5d048-b50f-46d2-97f2-43c1201b0bc3",
+        "name": "dataeditor_app",
+        "main_script_path": "D:\\dlab\\streamlit-rust\\tests\\reference\\dataeditor_app.py",
+        "page_script_hash": "ed823caa32f635a6c6be8a682b048580",
+        "main_script_hash": "ed823caa32f635a6c6be8a682b048580",
+        "session_id": "5ff538ce-0cc8-40e3-8390-4d2c3e33b446"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 44342.069262,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": true,
+        "run_on_save": false
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 44342.072011,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "dataframe",
+        "element_full": {
+         "dataframe": {
+          "arrowData": {
+           "data": "/////wADAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAFgCAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAAwAgAABAAAACMCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAicXR5IiwgImZpZWxkX25hbWUiOiAicXR5IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogImxhYmVsIiwgImZpZWxkX25hbWUiOiAibGFiZWwiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH1dLCAiYXR0cmlidXRlcyI6IHt9LCAiY3JlYXRvciI6IHsibGlicmFyeSI6ICJweWFycm93IiwgInZlcnNpb24iOiAiMjYuMC4wIn0sICJwYW5kYXNfdmVyc2lvbiI6ICIzLjEuMCJ9AAYAAABwYW5kYXMAAAIAAABEAAAABAAAANT///8AAAEUEAAAABwAAAAEAAAAAAAAAAUAAABsYWJlbAAAAAQABAAEAAAAEAAUAAgABgAHAAwAAAAQABAAAAAAAAECEAAAABwAAAAEAAAAAAAAAAMAAABxdHkACAAMAAgABwAIAAAAAAAAAUAAAAD/////yAAAABQAAAAAAAAADAAWAAYABQAIAAwADAAAAAADBAAYAAAAMAAAAAAAAAAAAAoAGAAMAAQACAAKAAAAbAAAABAAAAACAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAYAAAAAAAAACgAAAAAAAAAAgAAAAAAAAAAAAAAAgAAAAIAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAGFiAAAAAAAA/////wAAAAA="
+          },
+          "id": "$$ID-a3cd098453c7ad9157e35f0109a401d5-editor",
+          "columns": "{\"_index\": {\"hidden\": true}}",
+          "editingMode": "DYNAMIC"
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "arrow": {
+         "bytes": 1040,
+         "sha256": "cd3d4e7068742d6f37597fb1dee18fe9fb1f3a7e46707352e80649f85bcd0373",
+         "base64": "/////wADAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAFgCAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAAwAgAABAAAACMCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAicXR5IiwgImZpZWxkX25hbWUiOiAicXR5IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogImxhYmVsIiwgImZpZWxkX25hbWUiOiAibGFiZWwiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH1dLCAiYXR0cmlidXRlcyI6IHt9LCAiY3JlYXRvciI6IHsibGlicmFyeSI6ICJweWFycm93IiwgInZlcnNpb24iOiAiMjYuMC4wIn0sICJwYW5kYXNfdmVyc2lvbiI6ICIzLjEuMCJ9AAYAAABwYW5kYXMAAAIAAABEAAAABAAAANT///8AAAEUEAAAABwAAAAEAAAAAAAAAAUAAABsYWJlbAAAAAQABAAEAAAAEAAUAAgABgAHAAwAAAAQABAAAAAAAAECEAAAABwAAAAEAAAAAAAAAAMAAABxdHkACAAMAAgABwAIAAAAAAAAAUAAAAD/////yAAAABQAAAAAAAAADAAWAAYABQAIAAwADAAAAAADBAAYAAAAMAAAAAAAAAAAAAoAGAAMAAQACAAKAAAAbAAAABAAAAACAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAYAAAAAAAAACgAAAAAAAAAAgAAAAAAAAAAAAAAAgAAAAIAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAGFiAAAAAAAA/////wAAAAA=",
+         "schema": "qty: int64\nlabel: large_string\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 483",
+         "columns": [
+          "qty",
+          "label"
+         ],
+         "row_count": 2,
+         "rows": [
+          {
+           "qty": 1,
+           "label": "a"
+          },
+          {
+           "qty": 2,
+           "label": "b"
+          }
+         ]
+        },
+        "arrow_fields": {
+         "id": "$$ID-a3cd098453c7ad9157e35f0109a401d5-editor",
+         "columns": "{\"_index\": {\"hidden\": true}}",
+         "editing_mode": 2,
+         "disabled": false,
+         "row_height": 0
+        },
+        "id": "$$ID-a3cd098453c7ad9157e35f0109a401d5-editor",
+        "form_id": "",
+        "path": [
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 44342.126432,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "dataframe",
+        "element_full": {
+         "dataframe": {
+          "arrowData": {
+           "data": "/////wADAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAFgCAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAAwAgAABAAAACMCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDMsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAicXR5IiwgImZpZWxkX25hbWUiOiAicXR5IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogImxhYmVsIiwgImZpZWxkX25hbWUiOiAibGFiZWwiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH1dLCAiYXR0cmlidXRlcyI6IHt9LCAiY3JlYXRvciI6IHsibGlicmFyeSI6ICJweWFycm93IiwgInZlcnNpb24iOiAiMjYuMC4wIn0sICJwYW5kYXNfdmVyc2lvbiI6ICIzLjEuMCJ9AAYAAABwYW5kYXMAAAIAAABEAAAABAAAANT///8AAAEUEAAAABwAAAAEAAAAAAAAAAUAAABsYWJlbAAAAAQABAAEAAAAEAAUAAgABgAHAAwAAAAQABAAAAAAAAECEAAAABwAAAAEAAAAAAAAAAMAAABxdHkACAAMAAgABwAIAAAAAAAAAUAAAAD/////yAAAABQAAAAAAAAADAAWAAYABQAIAAwADAAAAAADBAAYAAAASAAAAAAAAAAAAAoAGAAMAAQACAAKAAAAbAAAABAAAAADAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGAAAAAAAAAAYAAAAAAAAAAEAAAAAAAAAIAAAAAAAAAAgAAAAAAAAAEAAAAAAAAAAAgAAAAAAAAAAAAAAAgAAAAMAAAAAAAAAAAAAAAAAAAADAAAAAAAAAAEAAAAAAAAABwAAAAAAAAACAAAAAAAAAAkAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAACAAAAAAAAAGFiAAAAAAAA/////wAAAAA="
+          },
+          "columns": "{}"
+         },
+         "widthConfig": {
+          "useStretch": true
+         }
+        },
+        "arrow": {
+         "bytes": 1064,
+         "sha256": "7a1e1672947adb2e9aa9703593c3f09e20dc3c18e68279d45872813fe3233f72",
+         "base64": "/////wADAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAFgCAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAAAwAgAABAAAACMCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDMsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAicXR5IiwgImZpZWxkX25hbWUiOiAicXR5IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfSwgeyJuYW1lIjogImxhYmVsIiwgImZpZWxkX25hbWUiOiAibGFiZWwiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH1dLCAiYXR0cmlidXRlcyI6IHt9LCAiY3JlYXRvciI6IHsibGlicmFyeSI6ICJweWFycm93IiwgInZlcnNpb24iOiAiMjYuMC4wIn0sICJwYW5kYXNfdmVyc2lvbiI6ICIzLjEuMCJ9AAYAAABwYW5kYXMAAAIAAABEAAAABAAAANT///8AAAEUEAAAABwAAAAEAAAAAAAAAAUAAABsYWJlbAAAAAQABAAEAAAAEAAUAAgABgAHAAwAAAAQABAAAAAAAAECEAAAABwAAAAEAAAAAAAAAAMAAABxdHkACAAMAAgABwAIAAAAAAAAAUAAAAD/////yAAAABQAAAAAAAAADAAWAAYABQAIAAwADAAAAAADBAAYAAAASAAAAAAAAAAAAAoAGAAMAAQACAAKAAAAbAAAABAAAAADAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGAAAAAAAAAAYAAAAAAAAAAEAAAAAAAAAIAAAAAAAAAAgAAAAAAAAAEAAAAAAAAAAAgAAAAAAAAAAAAAAAgAAAAMAAAAAAAAAAAAAAAAAAAADAAAAAAAAAAEAAAAAAAAABwAAAAAAAAACAAAAAAAAAAkAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAACAAAAAAAAAGFiAAAAAAAA/////wAAAAA=",
+         "schema": "qty: int64\nlabel: large_string\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 483",
+         "columns": [
+          "qty",
+          "label"
+         ],
+         "row_count": 3,
+         "rows": [
+          {
+           "qty": 7,
+           "label": "a"
+          },
+          {
+           "qty": 2,
+           "label": "b"
+          },
+          {
+           "qty": 9,
+           "label": null
+          }
+         ]
+        },
+        "arrow_fields": {
+         "columns": "{}",
+         "editing_mode": 0,
+         "disabled": false,
+         "row_height": 0
+        },
+        "id": "",
+        "form_id": "",
+        "path": [
+         0,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 44342.131025,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "markdown",
+        "element_full": {
+         "markdown": {
+          "body": "rows=3",
+          "elementType": "NATIVE",
+          "wrap": true
+         },
+         "textAlignmentConfig": {
+          "alignment": "LEFT"
+         }
+        },
+        "body": "rows=3",
+        "path": [
+         0,
+         2
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 44342.131171,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "script_finished",
+       "script_finished": {
+        "status": 0,
+        "status_name": "FINISHED_SUCCESSFULLY"
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 44342.131267,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "session_status_changed",
+       "session_status_changed": {
+        "script_is_running": false,
+        "run_on_save": false
+       }
+      }
+     }
+    ],
+    "dom": {
+     "cells": [
+      "7",
+      "a",
+      "2",
+      "b",
+      "9",
+      "",
+      "0",
+      "7",
+      "a",
+      "1",
+      "2",
+      "b",
+      "2",
+      "9",
+      ""
+     ],
+     "markdowns": [
+      "rows=3"
+     ],
+     "exceptions": []
+    },
+    "screenshot": {
+     "file": "04-edit-added-row.png",
+     "sha256": "d792030552dd48feb16cf51c031336b3d94bdd1fd474d51d7e791b829074be11"
+    }
+   }
+  ],
+  "ipc_dir": "D:\\dlab\\streamlit-rust\\target\\dataeditor-python"
+ },
+ "counts": {
+  "expected": 7,
+  "executed": 7,
+  "asserted": 7
+ },
+ "failures": []
+}

@@ -21,10 +21,10 @@ def frozen():
         "scope": "PYTHON SIDE ONLY",
         "url": "http://127.0.0.1:8629/",
         "source": {"file": contract.COLCONFIG_SOURCE_PINS["python"][0], "sha256": contract.COLCONFIG_SOURCE_PINS["python"][1]},
-        "ipc_dir": str(ROOT / "target/checks/m5-colconfig-pyref"),
+        "ipc_dir": str(ROOT / "tests/reference/reference-browser/colconfig"),
         "stages": [],
     }
-    raw = json.loads((ROOT / "target/checks/m5-colconfig-pyref/trace-colconfig.json").read_text(encoding="utf-8"))
+    raw = json.loads((ROOT / "tests/reference/reference-browser/colconfig/trace-colconfig.json").read_text(encoding="utf-8"))
     for stage in raw["observation"]["stages"]:
         record = copy.deepcopy(stage)
         record["new_frames"] = copy.deepcopy(stage["new_frames"])

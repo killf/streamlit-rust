@@ -79,7 +79,6 @@ async fn collect_kinds_and_configs(entry: fn(&Streamlit) -> Pin<Box<dyn Future<O
                 configs.push(config);
             }
             Some(ForwardKind::Delta(delta)) => match delta.r#type {
-                Some(delta::Type::AddBlock(_)) => kinds.push("main_block"),
                 Some(delta::Type::NewElement(element)) => match element.r#type {
                     Some(element::Type::Markdown(text)) => {
                         kinds.push("markdown");
@@ -88,7 +87,7 @@ async fn collect_kinds_and_configs(entry: fn(&Streamlit) -> Pin<Box<dyn Future<O
                     Some(other) => panic!("unexpected element: {other:?}"),
                     None => {}
                 },
-                _ => {}
+                other => panic!("unexpected delta kind: {other:?}"),
             },
             Some(ForwardKind::ScriptFinished(status)) => {
                 assert_eq!(status, 0);
@@ -111,7 +110,7 @@ async fn page_config_streams_once_at_the_call_point_on_the_measured_wire() {
     let (kinds, configs, markdowns) = collect_kinds_and_configs(pageconfig_entry).await;
     // The message lands between the running status and the first delta, and
     // consumes no element path: the write still streams at [0, 0].
-    assert_eq!(kinds, vec!["new_session", "running", "main_block", "page_config_changed", "markdown", "finished", "idle"]);
+    assert_eq!(kinds, vec!["new_session", "running", "page_config_changed", "markdown", "finished", "idle"]);
     assert_eq!(markdowns, vec!["configured"]);
     assert_eq!(configs.len(), 1);
     let config = &configs[0];
@@ -140,7 +139,7 @@ fn duplicate_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
 #[actix_web::test]
 async fn a_second_call_streams_a_second_config_and_the_run_continues() {
     let (kinds, configs, markdowns) = collect_kinds_and_configs(duplicate_entry).await;
-    assert_eq!(kinds, vec!["new_session", "running", "main_block", "page_config_changed", "page_config_changed", "markdown", "finished", "idle"]);
+    assert_eq!(kinds, vec!["new_session", "running", "page_config_changed", "page_config_changed", "markdown", "finished", "idle"]);
     assert_eq!(markdowns, vec!["after"]);
     assert_eq!(configs.len(), 2);
     assert_eq!(configs[0].title, "Once");

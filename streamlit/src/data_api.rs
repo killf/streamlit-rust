@@ -1,7 +1,7 @@
 //! Columnar data views using the same element pipeline as native inputs.
 use crate::api::AppendChild;
 use crate::charts::{self, AreaChartOptions, LineChartOptions, MapOptions, ScatterChartOptions, VEGA_SCHEMA_URL, chart_batch, chart_dataset};
-use crate::data::{Array, ArrayRef, DataError, DataType, Field, Float64Array, Int64Array, LargeStringArray, RecordBatch, Schema, StringArray, to_ipc_stream};
+use crate::data::{Array, ArrayRef, BooleanArray, DataError, DataType, Field, Float64Array, Int64Array, LargeStringArray, RecordBatch, Schema, StringArray, to_ipc_stream};
 use crate::elements::data::DataElement;
 use crate::proto::{self, element};
 use crate::pywire::py_dumps;
@@ -366,10 +366,13 @@ pub trait DataApi {
     fn table<'a>(&self, data: impl Into<TableOptions<'a>>) -> Result<(), DataError>;
     fn dataframe<'a>(&self, data: impl Into<DataframeOptions<'a>>) -> Result<(), DataError>;
     /// The editable dataframe, like st.data_editor: a dataframe element with
-    /// an editing mode and a registered widget whose state is the edited
-    /// cells (a JSON object of {row: {column: value}}); the returned value
-    /// is the parsed edits layered over the data.
-    fn data_editor<'a>(&self, options: impl Into<DataEditorOptions<'a>>) -> Result<Value, DataError>;
+    /// an editing mode and a registered widget whose state is the edits
+    /// (`{"edited_rows": {row: {column: value}}, "added_rows": [{column:
+    /// value}], "deleted_rows": [row]}`); the edits are applied to the data
+    /// the way the reference does (cell edits, then deletions, then
+    /// additions), the element re-emits the EDITED table, and the caller
+    /// receives it.
+    fn data_editor<'a>(&self, options: impl Into<DataEditorOptions<'a>>) -> Result<RecordBatch, DataError>;
     fn bar_chart<'a>(&self, options: impl Into<BarChartOptions<'a>>) -> Result<(), DataError>;
     fn line_chart<'a>(&self, options: impl Into<LineChartOptions<'a>>) -> Result<(), DataError>;
     fn area_chart<'a>(&self, options: impl Into<AreaChartOptions<'a>>) -> Result<(), DataError>;
@@ -406,6 +409,118 @@ fn button_column_widgets(host: &impl AppendChild, configs: &crate::column_config
     Ok(widgets)
 }
 
+/// Apply the data_editor's edit state to the batch the way the reference's
+/// `_apply_dataframe_edits` does: cell edits by row position and column
+/// name (typed per the column), then row deletions by position, then row
+/// additions (missing cells null) — additions land after deletions so the
+/// deleted positions never shift. The edited table is what the element
+/// re-emits and what the caller receives.
+fn apply_edits(data: &RecordBatch, edits: &Value) -> Result<RecordBatch, DataError> {
+    let empty = json!({});
+    let edited_rows = edits.get("edited_rows").filter(|value| value.as_object().is_some_and(|rows| !rows.is_empty())).unwrap_or(&empty);
+    let deleted_rows = edits.get("deleted_rows").filter(|value| value.as_array().is_some_and(|rows| !rows.is_empty())).unwrap_or(&empty);
+    let added_rows = edits.get("added_rows").filter(|value| value.as_array().is_some_and(|rows| !rows.is_empty())).unwrap_or(&empty);
+    if edited_rows == &empty && deleted_rows == &empty && added_rows == &empty {
+        return Ok(clone_batch(data));
+    }
+    // Materialize every column as editable cells (the edits touch whole
+    // rows, so untouched columns still move with deletions and additions).
+    let schema = data.schema_ref();
+    let mut names: Vec<String> = Vec::with_capacity(data.num_columns());
+    let mut cells: Vec<Vec<Value>> = Vec::with_capacity(data.num_columns());
+    for (index, field) in schema.fields().iter().enumerate() {
+        let column: Vec<Value> = match field.data_type() {
+            DataType::Int64 => data.column(index).as_any().downcast_ref::<Int64Array>().expect("int64 column").iter().map(|value| value.map(Value::from).unwrap_or(Value::Null)).collect(),
+            DataType::Float64 => data
+                .column(index)
+                .as_any()
+                .downcast_ref::<Float64Array>()
+                .expect("float64 column")
+                .iter()
+                .map(|value| value.map(Value::from).unwrap_or(Value::Null))
+                .collect(),
+            DataType::Boolean => data.column(index).as_any().downcast_ref::<BooleanArray>().expect("bool column").iter().map(|value| value.map(Value::from).unwrap_or(Value::Null)).collect(),
+            DataType::Utf8 => data.column(index).as_any().downcast_ref::<StringArray>().expect("utf8 column").iter().map(|value| value.map(Value::from).unwrap_or(Value::Null)).collect(),
+            kind => return Err(DataError::InvalidOption(format!("data_editor edits are not supported for column {kind}"))),
+        };
+        names.push(field.name().to_owned());
+        cells.push(column);
+    }
+    let mut rows: Vec<Vec<Value>> = (0..data.num_rows()).map(|row| cells.iter().map(|column| column[row].clone()).collect()).collect();
+    // 1. Cell edits: row position -> column name -> typed value.
+    for (row, changes) in edited_rows.as_object().into_iter().flatten() {
+        let row: usize = row.parse().map_err(|_| DataError::InvalidOption(format!("edited row is not a position: {row}")))?;
+        let changes = changes.as_object().ok_or_else(|| DataError::InvalidOption("edited row must map columns to values".into()))?;
+        for (name, value) in changes {
+            let column = names.iter().position(|candidate| candidate == name).ok_or_else(|| DataError::InvalidOption(format!("edited column does not exist: {name}")))?;
+            let row = rows.get_mut(row).ok_or_else(|| DataError::InvalidOption(format!("edited row is out of range: {row}")))?;
+            row[column] = value.clone();
+        }
+    }
+    // 2. Deletions by position (descending so earlier drops never shift).
+    if let Some(deleted) = deleted_rows.as_array() {
+        let mut positions: Vec<usize> = deleted
+            .iter()
+            .map(|value| value.as_u64().map(|position| position as usize).ok_or_else(|| DataError::InvalidOption("deleted row must be a position".into())))
+            .collect::<Result<_, DataError>>()?;
+        positions.sort_unstable();
+        positions.dedup();
+        for position in positions.into_iter().rev() {
+            rows.remove(position);
+        }
+    }
+    // 3. Additions: column-name-keyed cells, missing cells null.
+    if let Some(added) = added_rows.as_array() {
+        for addition in added {
+            let mut row = vec![Value::Null; names.len()];
+            for (name, value) in addition.as_object().into_iter().flatten() {
+                let column = names.iter().position(|candidate| candidate == name).ok_or_else(|| DataError::InvalidOption(format!("added-row column does not exist: {name}")))?;
+                row[column] = value.clone();
+            }
+            rows.push(row);
+        }
+    }
+    // Rebuild the typed arrays. A pandas int64 column that gains a null
+    // (an added row's untouched cell) upcasts to float64 — the measured
+    // reference return table shows 7.0/2.0/NaN there, and back to int64
+    // once every added cell is filled.
+    let mut fields = Vec::with_capacity(names.len());
+    let mut arrays: Vec<std::sync::Arc<dyn Array>> = Vec::with_capacity(names.len());
+    for (index, field) in schema.fields().iter().enumerate() {
+        let column = rows.iter().map(|row| row[index].clone()).collect::<Vec<_>>();
+        let has_null = column.iter().any(Value::is_null);
+        let array: std::sync::Arc<dyn Array> = match field.data_type() {
+            DataType::Int64 if has_null => Arc::new(Float64Array::from(column.iter().map(|value| value.as_f64().or_else(|| value.as_i64().map(|number| number as f64))).collect::<Vec<_>>())),
+            DataType::Int64 => Arc::new(Int64Array::from(column.iter().map(|value| value.as_i64()).collect::<Vec<_>>())),
+            DataType::Float64 => Arc::new(Float64Array::from(column.iter().map(|value| value.as_f64()).collect::<Vec<_>>())),
+            DataType::Boolean => Arc::new(BooleanArray::from(column.iter().map(|value| value.as_bool()).collect::<Vec<_>>())),
+            DataType::Utf8 => Arc::new(StringArray::from(column.iter().map(|value| value.as_str().map(str::to_owned)).collect::<Vec<_>>())),
+            kind => return Err(DataError::InvalidOption(format!("data_editor edits are not supported for column {kind}"))),
+        };
+        let field = if matches!(field.data_type(), DataType::Int64) && has_null {
+            Field::new(field.name(), DataType::Float64, field.is_nullable())
+        } else {
+            field.as_ref().clone()
+        };
+        fields.push(field);
+        arrays.push(array);
+    }
+    RecordBatch::try_new(Arc::new(Schema::new(fields)), arrays).map_err(|error| DataError::InvalidOption(error.to_string()))
+}
+
+/// A deep copy of the batch (apply_edits returns an owned table either way).
+fn clone_batch(data: &RecordBatch) -> RecordBatch {
+    let fields: Vec<_> = data.schema_ref().fields().iter().map(|field| field.as_ref().clone()).collect();
+    let arrays: Vec<_> = data.columns().to_vec();
+    RecordBatch::try_new(Arc::new(Schema::new(fields)), arrays).expect("same schema and columns")
+}
+
+/// Test-only exposure of the edit application for unit regressions.
+#[cfg(test)]
+pub(crate) fn apply_edits_for_test(data: &RecordBatch, edits: &Value) -> Result<RecordBatch, DataError> {
+    apply_edits(data, edits)
+}
+
 fn arrow_data(data: &RecordBatch) -> Result<proto::ArrowData, DataError> {
     Ok(proto::ArrowData { data: to_ipc_stream(data)?, styler: None })
 }
@@ -422,7 +537,9 @@ pub(crate) fn chart_arrow_data(data: &RecordBatch) -> Result<proto::ArrowData, D
         let array = data.column(index);
         match field.data_type() {
             DataType::Utf8 => {
-                let texts: Vec<&str> = array.as_any().downcast_ref::<StringArray>().expect("utf8 column").iter().map(Option::unwrap_or_default).collect();
+                // Nulls stay null: the measured written table carries None in
+                // an added row's untouched text cell, not an empty string.
+                let texts: Vec<Option<String>> = array.as_any().downcast_ref::<StringArray>().expect("utf8 column").iter().map(|value| value.map(str::to_owned)).collect();
                 fields.push(Field::new(field.name(), DataType::LargeUtf8, field.is_nullable()));
                 columns.push(Arc::new(LargeStringArray::from(texts)));
             }
@@ -844,7 +961,7 @@ impl<C: AppendChild> DataApi for C {
         Ok(())
     }
 
-    fn data_editor<'a>(&self, options: impl Into<DataEditorOptions<'a>>) -> Result<Value, DataError> {
+    fn data_editor<'a>(&self, options: impl Into<DataEditorOptions<'a>>) -> Result<RecordBatch, DataError> {
         let options = options.into();
         // The reference hides the index by default on the editor.
         let mut columns = json!({"_index": {"hidden": true}});
@@ -855,10 +972,13 @@ impl<C: AppendChild> DataApi for C {
                 mapping.insert(name, config);
             }
         }
-        // The edits widget: string_value state carrying the edited cells as
-        // one JSON object; the empty default is "{}".
+        // The edits widget: string_value state carrying the edits as one
+        // JSON object; the empty default is "{}". The committed edits are
+        // applied to the data before the element is queued, so the re-emitted
+        // table — and the caller's return value — carry them like the
+        // reference's _apply_dataframe_edits.
         let (id, edits, set_value) = if options.disabled {
-            (String::new(), Value::Object(Default::default()), false)
+            (String::new(), Value::String("{}".into()), false)
         } else {
             self.register_widget_parity(
                 crate::widgets::WidgetSpec {
@@ -873,6 +993,15 @@ impl<C: AppendChild> DataApi for C {
             )
             .map_err(|error| DataError::InvalidOption(error.to_string()))?
         };
+        let edits = match edits {
+            Value::String(text) => serde_json::from_str::<Value>(&text).unwrap_or_else(|_| json!({})),
+            other => other,
+        };
+        // The element re-emits the ORIGINAL table: the frontend holds the
+        // edits client-side (its grid state and its add/delete rows), so a
+        // server-side rebake would look like an external dataset change and
+        // reset them. The edits shape only the caller's return value.
+        let edited = apply_edits(options.data, &edits)?;
         let element = proto::Element {
             width_config: options.width.width()?,
             height_config: options.height.height()?,
@@ -892,7 +1021,7 @@ impl<C: AppendChild> DataApi for C {
         };
         append(self, element);
         let _ = set_value;
-        Ok(edits)
+        Ok(edited)
     }
 
     fn bar_chart<'a>(&self, options: impl Into<BarChartOptions<'a>>) -> Result<(), DataError> {

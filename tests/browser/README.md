@@ -702,8 +702,7 @@ separators), the pandas-3 typed-frame arrow IPC (compared logically),
 the editor's hidden `_index`, `editing_mode` 2 and its `$$ID` edits widget
 id, and the button column's `buttonClickWidgets` entry (`$$ID-<digest>-key`
 masked as side-specific, one one-shot click widget per button column).
-The Rust runtime's per-batch `main_container` re-announcement at [0] is the
-documented divergence. The published chains:
+The published chains:
 
 ```powershell
 target\pyref-venv\Scripts\python.exe tests\browser\colconfig_capture.py --replay tests\reference\reference-browser\colconfig\trace-colconfig.json
@@ -730,9 +729,7 @@ the bidi_component element's full wire — the instance widget id
 (`$$ID-<digest>-key`, masked), the trusted content strings, the explicitly
 empty source paths, the json.dumps-default-separator payload, the
 stretch/content layout — plus the settled DOM testid catalog including the
-`stBidiComponentIsolated` mount. The Rust runtime's per-batch
-`main_container` re-announcement at [0] is the documented divergence. The
-published chains:
+`stBidiComponentIsolated` mount. The published chains:
 
 ```powershell
 target\pyref-venv\Scripts\python.exe tests\browser\componentv2_capture.py --replay tests\reference\reference-browser\componentv2\trace-componentv2.json
@@ -747,6 +744,42 @@ The runtime regression (streamlit/tests/runtime/componentv2.rs) pins the
 element wire — id shape, content strings, empty source paths, payload
 separators, layout — and the default-state return over the production
 websocket.
+
+## Data editor interaction (st.data_editor edits round-trip)
+
+[dataeditor_capture.py](dataeditor_capture.py) is the permanent entry for
+the data-editor interaction chain; [dataeditor_contract.py](dataeditor_contract.py)
+is its strict criterion (journey-dataeditor-v1, 7 checks) with unit tests
+in [tests/reference/test_dataeditor_contract.py](../reference/test_dataeditor_contract.py)
+(reading the published python trace, never target/). The page renders one
+dynamic-rows data_editor plus the written table; four stages drive it with
+real mouse and keyboard — load, a committed cell edit (canvas click +
+typing + Enter), one added row (toolbar's Add row button), an edit inside
+the added row. Every stage pins: the SENT edit state (one `string_value`
+widget: string row keys, column-NAME keys, typed cells, an untouched added
+row as `{}`), the frame timeline (8 frames per rerun — the reference never
+announces a main-container add_block), the editor element re-emitting the
+ORIGINAL table, the written table carrying the applied edits (compared by
+decoded content: schema types and column values, nulls included — the
+pandas int64→float64 upcast under an added null and back when filled, an
+untouched text cell staying None), and the settled DOM grid cell-by-cell.
+The delete-row surface has no affordance in the pinned frontend and stays
+unobserved. The published chains:
+
+```powershell
+target\pyref-venv\Scripts\python.exe tests\browser\dataeditor_capture.py --replay tests\reference\reference-browser\dataeditor\trace-dataeditor.json
+target\pyref-venv\Scripts\python.exe tests\browser\dataeditor_capture.py --replay tests\browser\rust-dataeditor\trace-dataeditor.json
+```
+
+Both return 7 expected / 7 executed / 7 asserted with exit 0. Raw
+SHA256: python `34f1905e23b763ff88701bc3bcc9257107f7dee4476530dca5b6c421c46b3d26`,
+native `56552aa94ed2f3b6dd12df2a1154c3203419008fe3aeb1d9d093fc467f100ff9`,
+under contract `8c442794fa67832d41e37d9c75de839942409589b6e575e3d5c059af5eeac1d8`.
+The runtime regressions (streamlit/tests/runtime/dataeditor.rs) pin the
+edit-state application over the production websocket — the original-table
+re-emit, the applied written table with the pandas upcast, and the
+null-preserving text column — plus the unit-level edit-order semantics
+(cell edits → deletions → additions).
 
 
 

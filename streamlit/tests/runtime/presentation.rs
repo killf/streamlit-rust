@@ -100,7 +100,7 @@ async fn presentation_widgets_match_the_measured_wire() {
                     one_shot_count += usize::from(one_shot);
                     timeline.push(("new_element".into(), path, kind));
                 }
-                Some(delta::Type::AddBlock(_)) => {} // the documented leading main_block delta
+                Some(delta::Type::AddBlock(_)) => panic!("the wire never announces a block for this app"),
                 None => {}
             },
             Some(forward_msg::Type::ScriptFinished(status)) => {

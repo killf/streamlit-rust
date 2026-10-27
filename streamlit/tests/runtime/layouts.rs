@@ -119,8 +119,7 @@ async fn layout_blocks_match_the_measured_wire() {
     let describe = |timeline: &[(String, Vec<u32>, String)]| timeline.iter().map(|(kind, path, detail)| format!("{kind}{path:?}:{detail}")).collect::<Vec<_>>().join(" | ");
     assert_eq!(
         describe(&timeline),
-        "add_block[0]:main_container \
-         | new_element[1, 0]:markdown:side note \
+        "new_element[1, 0]:markdown:side note \
          | add_block[0, 0]:expander:Details \
          | new_element[0, 0, 0]:markdown:inside expander \
          | add_block[0, 1]:tabContainer \
@@ -162,11 +161,9 @@ async fn layout_blocks_match_the_measured_wire() {
             .unwrap_or_else(|| "absent".into())
     }
 
-    // The documented leading main block: an id-tagged vertical container.
-    let main = block_at(&[0]);
-    assert_eq!(main.len(), 1);
-    assert!(matches!(main[0].1.r#type, Some(crate::proto::block::Type::Vertical(_))));
-    assert_eq!(main[0].1.id.as_deref(), Some("main_container"));
+    // The root container is implicit: every published python trace streams
+    // no add_block for it, so the wire must not announce one either.
+    assert!(block_at(&[0]).is_empty(), "the main container must stay unannounced");
 
     // Expander: measured subset label/expanded, allowEmpty, stretch width.
     let expander = block_at(&[0, 0]);

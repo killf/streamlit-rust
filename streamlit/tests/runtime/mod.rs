@@ -18,6 +18,7 @@ mod chat;
 mod colconfig;
 mod componentv2;
 mod data_views;
+mod dataeditor;
 mod datetime;
 mod display;
 mod display2;

@@ -41,7 +41,9 @@ async fn do_rerun_script(session: &mut Session, lease: &SessionLease, server: &S
         let context = RenderContext::with_sender(lease.id.clone(), tx.clone());
         st.app.lock().set_render_context(context);
 
-        // 发送初始化消息（new_session, main_block）
+        // 发送初始化消息（new_session）。测量的 1.66.1 wire 从不为根容器
+        // 发送 add_block：官方前端在 new_session 时隐式创建它，python 参照
+        // 的全部已发布 trace 中没有任何 main_container 宣告。
         {
             let mut app = st.app.lock();
             if let Some(context) = app.render_context_mut() {
@@ -50,7 +52,6 @@ async fn do_rerun_script(session: &mut Session, lease: &SessionLease, server: &S
                 context.push(crate::elements::app::create_new_session(context.session_id.clone(), incoming_page.clone().unwrap_or_else(|| main_script_hash.clone()), main_script_hash));
                 context.push(crate::elements::app::create_session_status_changed(true, false));
                 context.delta_path.push(0);
-                context.push(crate::elements::app::create_main_block());
                 context.delta_path.push(0);
             }
         }

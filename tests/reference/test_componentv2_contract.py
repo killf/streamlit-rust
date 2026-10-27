@@ -21,7 +21,7 @@ def frozen():
         "scope": "PYTHON SIDE ONLY",
         "url": "http://127.0.0.1:8630/",
         "source": {"file": contract.COMPONENTV2_SOURCE_PINS["python"][0], "sha256": contract.COMPONENTV2_SOURCE_PINS["python"][1]},
-        "ipc_dir": str(ROOT / "target/checks/m5-componentv2-pyref"),
+        "ipc_dir": str(ROOT / "tests/reference/reference-browser/componentv2"),
         "stages": [],
     }
     raw = json.loads((ROOT / "target/checks/m5-componentv2-pyref/trace-colconfig.json").read_text(encoding="utf-8"))

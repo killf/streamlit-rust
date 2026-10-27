@@ -147,4 +147,42 @@ deleted. Product-level quality norms live in the
     which also read better than twelve positional `None`s (usability and
     lintability pointed the same way). When a refactor changes a pinned
     example, the chain refresh is part of the refactor, not an afterthought.
+24. **`CDP.take()` is a snapshot, not a drain.** Counting events by polling
+    `take()` and summing recounts the same buffer every poll — a 2 Hz poll
+    over 120 polls turned one page-load burst into a phantom "reload
+    storm" whose counts divided exactly by 120. Settle logic must diff a
+    cumulative counter (`frame_count()`) between polls; any "storm" whose
+    magnitude tracks the poll count is a measurement artifact.
+25. **Read the reference's element-vs-return data flow before baking state
+    server-side.** The Rust data_editor applied edits into the element's
+    table (looks helpful, breaks the contract): the official frontend's
+    editor class diffs its element table against `originalNumRows`, treats
+    any change as an external dataset swap, resets the client edit state
+    and fires empty-state reruns. The reference serializes the element
+    BEFORE applying edits — the element always re-emits the ORIGINAL table
+    and only the RETURN value carries edits. Wire semantics live in the
+    reference's serialization order, not in what seems friendlier.
+26. **Check which frames the reference actually sends before inventing
+    one.** Rust's per-run leading `main_container` add_block was an
+    invention that 47 published python traces quietly contradicted (none
+    contains it; the frontend creates the root block on new_session) and
+    contracts had grown a skip-if-present tolerance around. A tolerated
+    divergence is still a divergence: grep the frozen evidence for the
+    frame kind before writing the emitter, and re-audit tolerated skips
+    when a new chain touches the same wire.
+27. **Reference servers must run with `--browser.gatherUsageStats false`.**
+    With stats on, every run appends a `page_profile` ForwardMsg (breaking
+    the 8-frame timeline) and the frontend nudge steals keyboard focus so
+    grid-typing stages silently commit nothing (+0 frames, no exception).
+    Every earlier chain's captures ran stats-off; a fresh server launched
+    without the flag diverges on both the wire and the interaction — and
+    the failure mode (missing reruns) looks like a product bug, not a
+    config one.
+28. **Guards must read committed bytes.** Five chain guards read their
+    frozen python trace from git-ignored `target/checks/`, so the
+    "fresh-checkout gates green" claim held only where `target/` happened
+    to survive the checkout. Guards should point at the published trace
+    under `tests/reference/reference-browser/` (PNGs resolve from the same
+    committed dir); any guard that fails on a clean clone is a gate that
+    does not exist.
 
