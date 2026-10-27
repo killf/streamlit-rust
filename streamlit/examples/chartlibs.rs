@@ -35,11 +35,11 @@ fn render(st: &Streamlit) -> anyhow::Result<()> {
         "data": {"values": [{"kind": "a", "count": vega_count}, {"kind": "b", "count": 7}]},
     }));
 
-    st.plotly_chart(include_str!("../../tests/reference/chartlibs-plotly_spec.json"));
+    st.plotly_chart(include_str!("data/chartlibs-plotly_spec.json"));
 
-    st.pydeck_chart(include_str!("../../tests/reference/chartlibs-deck_json.json"));
+    st.pydeck_chart(include_str!("data/chartlibs-deck_json.json"));
 
-    st.graphviz_chart(include_str!("../../tests/reference/chartlibs-graphviz_spec.json"));
+    st.graphviz_chart(include_str!("data/chartlibs-graphviz_spec.json"));
 
     st.mermaid_chart("graph LR\n    A[Start] --> B{Decision}");
 

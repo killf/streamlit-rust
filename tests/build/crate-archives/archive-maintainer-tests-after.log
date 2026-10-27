@@ -1,0 +1,193 @@
+warning: linker stdout: 正在创建库 C:\Users\killf\github\streamlit-rust\target\debug\deps\streamlit_macros-901e60d1f1bef7ac.dll.lib 和对象 C:\Users\killf\github\streamlit-rust\target\debug\deps\streamlit_macros-901e60d1f1bef7ac.dll.exp
+  |
+  = note: `#[warn(linker_messages)]` on by default
+
+warning: `streamlit-macros` (lib) generated 1 warning
+   Compiling streamlit v0.1.1 (C:\Users\killf\github\streamlit-rust\target\checks\m6-crate-archives\unpacked-final\streamlit-0.1.1)
+error: couldn't read `streamlit-0.1.1\src\..\tests\data\../../../tests/reference/reference-browser/data-loop/upload/trace-data-loop.json`: 系统找不到指定的路径。 (os error 3)
+  --> streamlit-0.1.1\src\..\tests\data\mod.rs:11:29
+   |
+11 |     Ok(serde_json::from_str(include_str!("../../../tests/reference/reference-browser/data-loop/upload/trace-data-loop.json"))?)
+   |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `streamlit-0.1.1\src\..\tests\data\../../../tests/reference/reference-browser/data-loop/upload/arrow-1.bin`: 系统找不到指定的路径。 (os error 3)
+  --> streamlit-0.1.1\src\..\tests\data\mod.rs:27:21
+   |
+27 |     from_ipc_stream(include_bytes!("../../../tests/reference/reference-browser/data-loop/upload/arrow-1.bin"))?
+   |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `streamlit-0.1.1\src\elements\../../../tests/reference/reference-browser/status/trace-status.json`: 系统找不到指定的路径。 (os error 3)
+  --> streamlit-0.1.1\src\elements\status.rs:77:65
+   |
+77 | ...= serde_json::from_str(include_str!("../../../tests/reference/reference-browser/status/trace-status.json"))?;
+   |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `streamlit-0.1.1\src\elements\../../../tests/reference/reference-browser/status/trace-status-leading.json`: 系统找不到指定的路径。 (os error 3)
+   --> streamlit-0.1.1\src\elements\status.rs:166:65
+    |
+166 | ...de_json::from_str(include_str!("../../../tests/reference/reference-browser/status/trace-status-leading.json"))?;
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `streamlit-0.1.1\src\elements\../../../tests/reference/reference-browser/status/trace-status-icon-composite.json`: 系统找不到指定的路径。 (os error 3)
+   --> streamlit-0.1.1\src\elements\status.rs:196:65
+    |
+196 | ...json::from_str(include_str!("../../../tests/reference/reference-browser/status/trace-status-icon-composite.json"))?;
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `streamlit-0.1.1\src\elements\../../../tests/reference/reference-browser/status/trace-status-icon-composite.json`: 系统找不到指定的路径。 (os error 3)
+   --> streamlit-0.1.1\src\elements\status.rs:245:65
+    |
+245 | ...json::from_str(include_str!("../../../tests/reference/reference-browser/status/trace-status-icon-composite.json"))?;
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `streamlit-0.1.1\src\elements\../../../tests/reference/reference-browser/status/trace-status-leading.json`: 系统找不到指定的路径。 (os error 3)
+   --> streamlit-0.1.1\src\elements\status.rs:295:65
+    |
+295 | ...de_json::from_str(include_str!("../../../tests/reference/reference-browser/status/trace-status-leading.json"))?;
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `streamlit-0.1.1\src\../../tests/reference/reference-browser/media-range/range-input-output.json`: 系统找不到指定的路径。 (os error 3)
+   --> streamlit-0.1.1\src\media.rs:349:65
+    |
+349 | ...de_json::from_str(include_str!("../../tests/reference/reference-browser/media-range/range-input-output.json"))?;
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `streamlit-0.1.1\src\..\tests\runtime\../../../tests/reference/reference-browser/cache-nested/cache-cases.json`: 系统找不到指定的路径。 (os error 3)
+   --> streamlit-0.1.1\src\..\tests\runtime\cache.rs:162:56
+    |
+162 | ...erde_json::from_str(include_str!("../../../tests/reference/reference-browser/cache-nested/cache-cases.json"))?;
+    |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `streamlit-0.1.1\src\..\tests\runtime\../../../tests/reference/reference-browser/cache-kind-isolation/observations.json`: 系统找不到指定的路径。 (os error 3)
+   --> streamlit-0.1.1\src\..\tests\runtime\cache.rs:455:61
+    |
+455 | ...json::from_str(include_str!("../../../tests/reference/reference-browser/cache-kind-isolation/observations.json"))?;
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `streamlit-0.1.1\src\..\tests\runtime\../../../tests/reference/chartlibs-plotly_spec.json`: 系统找不到指定的路径。 (os error 3)
+  --> streamlit-0.1.1\src\..\tests\runtime\chartlibs.rs:44:29
+   |
+44 |             st.plotly_chart(include_str!("../../../tests/reference/chartlibs-plotly_spec.json"));
+   |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `streamlit-0.1.1\src\..\tests\runtime\../../../tests/reference/chartlibs-deck_json.json`: 系统找不到指定的路径。 (os error 3)
+  --> streamlit-0.1.1\src\..\tests\runtime\chartlibs.rs:45:29
+   |
+45 |             st.pydeck_chart(include_str!("../../../tests/reference/chartlibs-deck_json.json"));
+   |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `streamlit-0.1.1\src\..\tests\runtime\../../../tests/reference/chartlibs-graphviz_spec.json`: 系统找不到指定的路径。 (os error 3)
+  --> streamlit-0.1.1\src\..\tests\runtime\chartlibs.rs:46:31
+   |
+46 |             st.graphviz_chart(include_str!("../../../tests/reference/chartlibs-graphviz_spec.json"));
+   |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `streamlit-0.1.1\src\..\tests\runtime\../../../tests/reference/colconfig-columns.json`: 系统找不到指定的路径。 (os error 3)
+   --> streamlit-0.1.1\src\..\tests\runtime\colconfig.rs:137:36
+    |
+137 |     assert_eq!(configured.columns, include_str!("../../../tests/reference/colconfig-columns.json"), "the 21-helper columns JSON, by...
+    |                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `streamlit-0.1.1\src\..\tests\runtime\../../../tests/reference/reference-browser/componentv2-state/state-cases.json`: 系统找不到指定的路径。 (os error 3)
+  --> streamlit-0.1.1\src\..\tests\runtime\componentv2.rs:20:27
+   |
+20 | const STATE_CASES: &str = include_str!("../../../tests/reference/reference-browser/componentv2-state/state-cases.json");
+   |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `streamlit-0.1.1\src\..\tests\runtime\../../../tests/reference/reference-browser/dataeditor-invalid-rows/observations.json`: 系统找不到指定的路径。 (os error 3)
+  --> streamlit-0.1.1\src\..\tests\runtime\dataeditor.rs:26:61
+   |
+26 | ...son::from_str(include_str!("../../../tests/reference/reference-browser/dataeditor-invalid-rows/observations.json"))?;
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `streamlit-0.1.1\src\..\tests\runtime\../../../tests/reference/reference-browser/dataeditor/trace-dataeditor.json`: 系统找不到指定的路径。 (os error 3)
+  --> streamlit-0.1.1\src\..\tests\runtime\dataeditor.rs:55:55
+   |
+55 | ...rde_json::from_str(include_str!("../../../tests/reference/reference-browser/dataeditor/trace-dataeditor.json"))?;
+   |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `streamlit-0.1.1\src\..\tests\runtime\../../../tests/reference/reference-browser/dataeditor-invalid-rows/protocol-first/protocol-input-output.json`: 系统找不到指定的路径。 (os error 3)
+   --> streamlit-0.1.1\src\..\tests\runtime\dataeditor.rs:122:61
+    |
+122 | ...tr(include_str!("../../../tests/reference/reference-browser/dataeditor-invalid-rows/protocol-first/protocol-input-output.json"))?;
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `streamlit-0.1.1\src\..\tests\runtime\../../../tests/reference/reference-browser/dataframe-selection/selection-input-output.json`: 系统找不到指定的路径。 (os error 3)
+  --> streamlit-0.1.1\src\..\tests\runtime\dataframe_selection.rs:11:25
+   |
+11 | const REFERENCE: &str = include_str!("../../../tests/reference/reference-browser/dataframe-selection/selection-input-output.json");
+   |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `streamlit-0.1.1\src\..\tests\runtime\../../../tests/reference/reference-browser/dataframe-required-protocol/required-protocol-input-output.json`: 系统找不到指定的路径。 (os error 3)
+  --> streamlit-0.1.1\src\..\tests\runtime\dataframe_selection.rs:12:43
+   |
+12 | ... = include_str!("../../../tests/reference/reference-browser/dataframe-required-protocol/required-protocol-input-output.json");
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `streamlit-0.1.1\src\..\tests\runtime\../../../tests/reference/reference-browser/download-boundaries/download-cases.json`: 系统找不到指定的路径。 (os error 3)
+   --> streamlit-0.1.1\src\..\tests\runtime\media.rs:203:69
+    |
+203 | ...json::from_str(include_str!("../../../tests/reference/reference-browser/download-boundaries/download-cases.json"))?;
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `streamlit-0.1.1\src\..\tests\runtime\../../../tests/reference/reference-browser/media-range/range-input-output.json`: 系统找不到指定的路径。 (os error 3)
+   --> streamlit-0.1.1\src\..\tests\runtime\media.rs:236:61
+    |
+236 | ...e_json::from_str(include_str!("../../../tests/reference/reference-browser/media-range/range-input-output.json"))?;
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `streamlit-0.1.1\src\..\tests\runtime\../../../tests/reference/reference-browser/download-boundaries/download-cases.json`: 系统找不到指定的路径。 (os error 3)
+   --> streamlit-0.1.1\src\..\tests\runtime\media.rs:289:61
+    |
+289 | ...json::from_str(include_str!("../../../tests/reference/reference-browser/download-boundaries/download-cases.json"))?;
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `streamlit-0.1.1\src\..\tests\runtime\../../../tests/reference/video_sample.mp4`: 系统找不到指定的路径。 (os error 3)
+   --> streamlit-0.1.1\src\..\tests\runtime\media.rs:450:29
+    |
+450 | const VIDEO_SAMPLE: &[u8] = include_bytes!("../../../tests/reference/video_sample.mp4");
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `streamlit-0.1.1\src\..\tests\runtime\../../../tests/fixtures/csv/sales_basic.csv`: 系统找不到指定的路径。 (os error 3)
+   --> streamlit-0.1.1\src\..\tests\runtime\reconnect_inputs.rs:110:17
+    |
+110 |     let bytes = include_bytes!("../../../tests/fixtures/csv/sales_basic.csv");
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `streamlit-0.1.1\src\..\tests\runtime\../../../tests/fixtures/csv/sales_basic.csv`: 系统找不到指定的路径。 (os error 3)
+   --> streamlit-0.1.1\src\..\tests\runtime\uploads.rs:256:19
+    |
+256 |     let fixture = include_bytes!("../../../tests/fixtures/csv/sales_basic.csv");
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `streamlit-0.1.1\src\..\tests\runtime\../../../tests/fixtures/csv/sales_basic.csv`: 系统找不到指定的路径。 (os error 3)
+   --> streamlit-0.1.1\src\..\tests\runtime\uploads.rs:308:19
+    |
+308 |     let fixture = include_bytes!("../../../tests/fixtures/csv/sales_basic.csv");
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `streamlit-0.1.1\src\../../tests/fixtures/csv/sales_basic.csv`: 系统找不到指定的路径。 (os error 3)
+   --> streamlit-0.1.1\src\upload.rs:436:21
+    |
+436 |         let bytes = include_bytes!("../../tests/fixtures/csv/sales_basic.csv");
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `streamlit-0.1.1\src\../../tests/reference/reference-browser/data-loop/upload/trace-data-loop.json`: 系统找不到指定的路径。 (os error 3)
+    --> streamlit-0.1.1\src\widget_api.rs:4327:53
+     |
+4327 | ...e_json::from_str(include_str!("../../tests/reference/reference-browser/data-loop/upload/trace-data-loop.json"))?;
+     |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `streamlit-0.1.1\src\../../tests/fixtures/csv/sales_basic.csv`: 系统找不到指定的路径。 (os error 3)
+    --> streamlit-0.1.1\src\widget_api.rs:4342:21
+     |
+4342 |         let bytes = include_bytes!("../../tests/fixtures/csv/sales_basic.csv");
+     |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `streamlit-0.1.1\src\../../tests/reference/reference-browser/dataframe-selection/selection-input-output.json`: 系统找不到指定的路径。 (os error 3)
+   --> streamlit-0.1.1\src\widgets.rs:780:49
+    |
+780 | ...NCE: &str = include_str!("../../tests/reference/reference-browser/dataframe-selection/selection-input-output.json");
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: could not compile `streamlit` (lib test) due to 31 previous errors

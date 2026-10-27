@@ -1,0 +1,33 @@
+warning: linker stdout: 正在创建库 C:\Users\killf\github\streamlit-rust\target\debug\deps\streamlit_macros-901e60d1f1bef7ac.dll.lib 和对象 C:\Users\killf\github\streamlit-rust\target\debug\deps\streamlit_macros-901e60d1f1bef7ac.dll.exp
+  |
+  = note: `#[warn(linker_messages)]` on by default
+
+warning: `streamlit-macros` (lib) generated 1 warning
+   Compiling streamlit v0.1.1 (C:\Users\killf\github\streamlit-rust\target\checks\m6-crate-archives\unpacked\streamlit-0.1.1)
+error: couldn't read `streamlit-0.1.1\examples\../../tests/reference/chartlibs-plotly_spec.json`: 系统找不到指定的路径。 (os error 3)
+  --> streamlit-0.1.1\examples\chartlibs.rs:38:21
+   |
+38 |     st.plotly_chart(include_str!("../../tests/reference/chartlibs-plotly_spec.json"));
+   |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `streamlit-0.1.1\examples\../../tests/reference/chartlibs-deck_json.json`: 系统找不到指定的路径。 (os error 3)
+  --> streamlit-0.1.1\examples\chartlibs.rs:40:21
+   |
+40 |     st.pydeck_chart(include_str!("../../tests/reference/chartlibs-deck_json.json"));
+   |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `streamlit-0.1.1\examples\../../tests/reference/chartlibs-graphviz_spec.json`: 系统找不到指定的路径。 (os error 3)
+  --> streamlit-0.1.1\examples\chartlibs.rs:42:23
+   |
+42 |     st.graphviz_chart(include_str!("../../tests/reference/chartlibs-graphviz_spec.json"));
+   |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `streamlit-0.1.1\examples\../../tests/reference/video_sample.mp4`: 系统找不到指定的路径。 (os error 3)
+ --> streamlit-0.1.1\examples\video.rs:6:29
+  |
+6 | const VIDEO_SAMPLE: &[u8] = include_bytes!("../../tests/reference/video_sample.mp4");
+  |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: could not compile `streamlit` (example "chartlibs") due to 3 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `streamlit` (example "video") due to 1 previous error

@@ -233,6 +233,14 @@ async fn main(st: &Streamlit) {
 
 库目录改名、不带外部 www 的独立构建，以及含空格目录的既有 quickstart release 安装已通过[本机验证](../../tests/browser/rust-library-portability/README.md)，包括真实界面交互和完整 sidecar 对照；仅依赖 streamlit 的外部应用仍被上述宏问题阻断。无缓存机器、MSRV、Linux/macOS、系统运行库和完整 crate 打包测试均需要各自证据，不能从本机 Windows 缓存构建推断。
 
+## 检查本地 crate 源码包（维护者）
+
+在干净工作区且已配置 protoc/固定依赖缓存时，可从仓库根目录执行 `cargo package --workspace --offline --locked`。这会实际生成并编译验证库与宏两个源码包，输出在 `target/package/`；不会发布到 registry。Cargo 为同 workspace 的尚未发布依赖使用临时本地 registry，因此成功不能证明 crates.io 已存在这些版本。只运行 `--list` 仅能检查文件清单。
+
+本机两个 0.1.1 包已完成此验证，库内协议和 index 可独立编译，普通 SDK consumer 的 library target 也已通过。图表配置和视频样本现随源码包的 examples/data 提供；从实际包提取后，全部示例已通过编译检查，无需另找这些样本。宏包有 6 个文件，修复后的库包有 227 个文件；这些是本次产物计数，不是未来文件数量限制。
+
+维护者 lib test 目前仍依赖完整仓库中的参考数据，已实测不能直接在独立 crate 包中编译，不能把 `cargo package` 成功当作它已通过。应用入口宏的公共支撑方案继续待选择，不能把 SDK library 检查说成单依赖应用已成功。Python 参考环境或维护者回归不是应用运行时依赖。
+
 ## 参考数据与验证
 
 参考行为以锁定的 Python Streamlit 1.66.1 一次采集的正确输入、输出及版本信息冻结；之后 Rust 单元测试和协议重放复用这些数据，无需因每次 Rust 修改或路径变化重新运行 Python。只有新行为、版本升级或证据失效时才补采。Rust、Python 和采集工具的源码 SHA 不作为验收条件；改变错误处理或实现方式不会使正确的冻结结果失效，也不需要另存历史源码。当前 Rust 仍需实际通过对应功能、协议和交互验证。

@@ -1,0 +1,22 @@
+   Compiling streamlit-macros v0.1.1 (C:\Users\killf\github\streamlit-rust\target\checks\m6-crate-archives\unpacked\streamlit-macros-0.1.1)
+   Compiling streamlit v0.1.1 (C:\Users\killf\github\streamlit-rust\target\checks\m6-crate-archives\unpacked\streamlit-0.1.1)
+warning: linker stdout: 正在创建库 C:\Users\killf\github\streamlit-rust\target\debug\deps\streamlit_macros-1966fd9df4138143.dll.lib 和对象 C:\Users\killf\github\streamlit-rust\target\debug\deps\streamlit_macros-1966fd9df4138143.dll.exp
+  |
+  = note: `#[warn(linker_messages)]` on by default
+
+warning: `streamlit-macros` (lib) generated 1 warning
+    Checking m6-archive-consumer v0.1.0 (C:\Users\killf\github\streamlit-rust\target\checks\m6-crate-archives\sdk-consumer)
+error[E0599]: no method named `checkbox` found for reference `&Streamlit` in the current scope
+ --> src\lib.rs:5:22
+  |
+5 |     let enabled = st.checkbox(("Enabled", true))?;
+  |                      ^^^^^^^^ method not found in `&Streamlit`
+  |
+  = help: items from traits can only be used if the trait is in scope
+help: trait `InputWidgets` which provides `checkbox` is implemented but not in scope; perhaps you want to import it
+  |
+1 + use streamlit::InputWidgets;
+  |
+
+For more information about this error, try `rustc --explain E0599`.
+error: could not compile `m6-archive-consumer` (lib) due to 1 previous error

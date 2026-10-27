@@ -1,6 +1,7 @@
 # Official distributions and protocol sources must survive checkout byte-for-byte.
 /www/** -text
 /streamlit/assets/frontend-index.html -text
+/streamlit/examples/data/video_sample.mp4 -text
 /streamlit/proto/*.proto -text
 
 # SHA-bound evidence provenance must survive checkout byte-for-byte.
@@ -141,3 +142,7 @@
 /tests/browser/rust-library-portability/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 /tests/browser/rust-library-portability/http/*.bin binary
 /tests/browser/rust-library-portability/**/*.log whitespace=blank-at-eol,space-before-tab,cr-at-eol,-blank-at-eof
+
+# Actual local crate verification records preserve their original logs.
+/tests/build/crate-archives/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+/tests/build/crate-archives/*.log whitespace=blank-at-eol,space-before-tab,cr-at-eol,-blank-at-eof

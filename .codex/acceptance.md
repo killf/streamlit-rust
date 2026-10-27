@@ -136,6 +136,14 @@ Rust 新增三项回归：原错误值/资源身份、参数变化和清空；�
 
 本地生成 quickstart Windows x86_64 演示 zip（exe+347 frontend+README），归档内每个可执行/资源字节与已验证安装目录相同；产物在本地 target，不随 Git 分发，也不是公开发布。仍未验证全新机器运行库、无缓存构建、MSRV、其他平台或完整 crate archive。修正本轮新示例漏写 async 后，仅依赖 streamlit 的外部应用仍真实失败于宏的 tokio/env_logger 名称；公共接口 A/B/C 待用户选择，未擅自实现支撑模块或添加调用方依赖，长期 Goal/M6 保持未完成。
 
+## Current crate archive example validation (2026-10-27)
+
+真实执行 workspace package 后默认库/宏验证已通过，但提取出的 chartlibs/video 示例因四个仓库外数据输入编译失败。先补使用说明，再把少量配置/媒体原样放入 examples/data，两个示例只改 include 路径；保留原参考、不改依赖/接口/Vega 逻辑。最终真实库包 227 文件、宏包 6 文件，全部 41 个包内示例及普通 SDK consumer library target 编译检查通过。原/私有数据/最终 tarball/提取目录逐字一致，MP4 换行保护，JSON/DOT 文本保持原 Git 换行策略。
+
+格式、全目标 Clippy、仓库 192 项 Rust 及这次完整 1516 项冻结参考检查通过，96 条 Pillow 告警和既有 MSVC linker_messages 提示保留，无旧 Python 数据重采。独立只读 Review 已核对源改动、实际包及依赖子集，无本示例修复范围内阻塞；[原日志与成员/状态](../tests/build/crate-archives/README.md)不绑定源码指纹，实际 crate 为本地生成，不是发布。
+
+必须保留的失败：最终独立源码包的维护者 lib test --no-run 仍报 31 个仓库级输入读取缺失，并未执行这些测试；不能用普通 SDK/示例通过冒充它通过。PKG-A/B/C 分发与测试边界等待用户选择，宏支撑接口也未采纳，M6/长期 Goal 未关闭。首次 probe 漏 InputWidgets 导入、提取目录误发现祖先 workspace 的设置失败另存，不作产品缺陷。完整命令/退出码与结果索引见本地 `target/checks/m6-crate-archives/results.json`。
+
 ## Required fresh-checkout checks
 
 ```powershell

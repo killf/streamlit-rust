@@ -183,6 +183,28 @@ M6 新实测在隔离 workspace 中将库目录改名为 renamed-library、保�
 
 拟改 build.rs、server.rs 的单个 include、上述 private 数据文件与字节属性，以及现有使用指南/验收记录。先写独立应用完整 Cargo.toml/入口、工具链与 sidecar 用法，再实现。验收使用无外部 www 且库目录改名的隔离源码和已有固定缓存编译，另构建仓库外应用、从无仓库工作目录启动，核对真实首页/boot资源/WS及交互、完整 sidecar 字节；已有协议/静态/宏与库回归保持。缓存依赖的 Windows 实验不冒称无缓存机器、MSRV、全部平台或 crates.io 发布已通过；源码包的完整维护者测试/外部 fixtures 仍需另核实，M6 不因本批构建可用而关闭。
 
+## Local crate archive verification
+
+M6 继续核实真实源码包而非仅文件清单。当前 Cargo 1.98.1 的 `cargo package --workspace --offline --locked` 实际生成并验证两个 0.1.1 crate：宏包 6 文件、库包 223 文件；Cargo 用 target 下临时本地 registry 连接同 workspace 的未发布依赖，没有发布或外部写入。库包已含私有 index，版本/proto 数据与仓库输入相同，目录版本后缀不再阻断库编译。
+
+独立 consumer 的 library target 已从实际 tarball 提取的两个包通过检查；局部 path/patch 仅连接本地宏包，第三方 270 个包的版本/校验与既有锁文件一致，没有调用未采纳的启动宏。该检查不能替代单依赖宏应用或真实运行验证。
+
+继续实测揭示两种包内缺口：维护者 lib test 编译产生 31 个包外 include 缺失；普通 examples 检查则因 chartlibs 的三个配置与 video 的样本共四个包外文件失败。先为普通示例补使用说明，然后将这四份小型配置/媒体输入作为 `streamlit/examples/data/` 私有示例资源提供，两个示例只调整 include 路径；参考数据原位置保留，配置/视频内容不变，无新依赖或公共接口。JSON 沿用原普通文本换行规则，MP4 保持原字节。
+
+重新执行真实 workspace package verify、从最终 tarball 提取检查全部 examples、普通 SDK consumer，以及现有代码/协议回归；私有示例资源逐项与旧输入核对。维护者测试的仓库级 fixtures 布局不在此偷改，不添加关闭测试的 cfg 或捆绑全部旧参考；对应失败和完整维护者源码分发边界继续明确保留，M6 不关闭。
+
+### Maintainer source distribution — decision pending
+
+最终库包的 lib test 仍实际编译失败，31 个缺失均指向仓库级参考/fixture；这不是普通 SDK consumer 或已修复的示例失败。分发形态与维护者测试归属需要确认，不在本批关闭测试或改写通过标准。
+
+| 方案 | 交付及取舍 |
+| --- | --- |
+| PKG-A，推荐 | 分开定义两种交付：SDK crate 保证库和包内示例可构建；完整仓库源码交付承载全部维护者测试。原全部断言保留，完整源码仍必须通过现有全量回归；SDK crate 的独立维护者测试限制继续明示。维护者需要完整源码目录，不能只下载单个 crate 运行这套回归。 |
+| PKG-B | 重组测试资源布局，使单个 SDK crate 的维护者测试也自足。完整保留原断言，迁移必要 fixture/前端测试输入并调整消费路径，增加包体积和迁移/复验范围；实施前收敛具体依赖集合与文件计划，不把所有历史资料直接捆入。 |
+| PKG-C | 暂缓源码分发策略，只保留当前库/示例已验证的实验包及明确失败，不关闭 M6；继续其他独立能力。 |
+
+该选择独立于上游/现有接口行为和下节宏方案。推荐不等于采纳；当前只交付已证实的私有示例资源修复及本地包验证，测试布局没有改动。
+
 ## Consumer macro support — decision pending
 
 修正隔离应用示例漏写 async 后，仅依赖 streamlit 的真实调用仍不能编译：宏当前直接展开 `#[tokio::main]` 与 `env_logger::Builder`，但二者不是调用方直接依赖。库内部已有这两种依赖，不能据此认为外部 crate 也能按这些名字解析。失败记录为 `target/checks/m6-library-portability/consumer-macro-red.log`，不以仓库自身示例通过冒充独立应用通过。
