@@ -24,6 +24,8 @@
 
 下一步数据应用的选择接口、兼容影响、数据更新方式与验收已形成[待确认设计](architecture.md#dataframe-selection-and-data-updates--proposal)。官方 1.58.0 已移除旧 add_rows；数据追加流程仍在 M2，是否另增 Rust 扩展由用户选择，不自动实施候选公共接口。
 
+等待接口决定期间，已完成独立于接口的 [dataframe 选择参考](../tests/reference/reference-browser/dataframe-selection/README.md)：五配置加缩行补充共 34 阶段，冻结实际输入/输出供后续 Rust 单元和 WS 回归复用。参考观察与 Rust 待实现明确分开；原先正确的 Python 数据没有重采，6 项新增离线核验通过。
+
 ## Long-term milestones
 
 下列 M0–M7 属于 2026-10-27 确认的长期目标，与文末已经关闭的历史 P0 里程碑区分。

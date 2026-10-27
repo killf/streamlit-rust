@@ -49,6 +49,8 @@ cargo run --example data_app --locked
 
 选择接口的候选用法及返回值兼容影响见[待确认设计](../../.codex/architecture.md#dataframe-selection-and-data-updates--proposal)；它尚未实现，不能将提议示例作为当前可用接口。
 
+这条流程所需的 [Python 选择参考](../../tests/reference/reference-browser/dataframe-selection/README.md)已单独冻结，后续 Rust 回归直接复用。参考中，排序选择指向输入位置；同 key 换成更短的表时旧行位置可能仍保留；程序赋值的部分 keyed state 与补齐后的返回值也可能不同。这些是后续实现需核对的行为，并非当前 Rust 已提供的选择功能。
+
 ## 会话、重跑和错误
 
 交互通常使整个应用函数重新执行。每个浏览器会话有独立的内存状态；普通重跑保留状态，断线后在服务端仍保留该会话时可以恢复。刷新页面或另开标签页创建新会话，服务重启后内存状态消失。当前默认断线保留 120 秒，这是本实现的本地策略，并非对上游默认值的兼容承诺。运行 `cargo run --example counter --locked` 可观察计数与重跑。

@@ -1,0 +1,5484 @@
+{
+  "schema_version": 1,
+  "runtime": "python",
+  "reference_version": "1.66.1",
+  "captures": [
+    {
+      "name": "first-attempt",
+      "raw_file": "first-attempt/trace.json",
+      "bytes": 4807741,
+      "sha256": "36eafbb1ed7e9cc491ceb3af7746294bc948291d1477ab61b303de654fc3778c",
+      "captured_at_utc": "2026-10-27T07:28:15.054887+00:00",
+      "wire_versions": [
+        "1.66.1"
+      ],
+      "frame_count": 452,
+      "cleanup": {
+        "chrome_stopped": true,
+        "server_stopped": true
+      },
+      "cleanup_errors": []
+    },
+    {
+      "name": "shrink-supplement",
+      "raw_file": "shrink-supplement/trace.json",
+      "bytes": 1099516,
+      "sha256": "36ff2e569b910fc72c1a057c03ca5d1020a51e17fce96dec0034b6e3dbd337f9",
+      "captured_at_utc": "2026-10-27T07:29:51.394850+00:00",
+      "wire_versions": [
+        "1.66.1"
+      ],
+      "frame_count": 60,
+      "cleanup": {
+        "chrome_stopped": true,
+        "server_stopped": true
+      },
+      "cleanup_errors": []
+    }
+  ],
+  "stages": [
+    {
+      "capture": "first-attempt",
+      "case": "ignore",
+      "name": "load",
+      "did_run": true,
+      "wait": "run",
+      "frame_start": 0,
+      "frame_end": 15,
+      "command_start": 3,
+      "command_end": 5,
+      "input_rows": [
+        {
+          "id": "rC",
+          "label": "C",
+          "qty": 30
+        },
+        {
+          "id": "rA",
+          "label": "A",
+          "qty": 10
+        },
+        {
+          "id": "rB",
+          "label": "B",
+          "qty": 20
+        }
+      ],
+      "version": 1,
+      "visible": true,
+      "run": 1,
+      "trigger": null,
+      "before": null,
+      "expected_returned_type": "DeltaGenerator",
+      "expected_returned": null,
+      "expected_key_present": false,
+      "expected_keyed": null,
+      "events": [
+        {
+          "kind": "main",
+          "run": 1
+        }
+      ],
+      "visual_cells": [
+        {
+          "id": "glide-cell-0-0",
+          "text": "rC"
+        },
+        {
+          "id": "glide-cell-1-0",
+          "text": "30"
+        },
+        {
+          "id": "glide-cell-2-0",
+          "text": "C"
+        },
+        {
+          "id": "glide-cell-0-1",
+          "text": "rA"
+        },
+        {
+          "id": "glide-cell-1-1",
+          "text": "10"
+        },
+        {
+          "id": "glide-cell-2-1",
+          "text": "A"
+        },
+        {
+          "id": "glide-cell-0-2",
+          "text": "rB"
+        },
+        {
+          "id": "glide-cell-1-2",
+          "text": "20"
+        },
+        {
+          "id": "glide-cell-2-2",
+          "text": "B"
+        }
+      ],
+      "screenshot": {
+        "file": "first-attempt/00-ignore-load.png",
+        "bytes": 27012,
+        "sha256": "404c68f811f3ebf08f8fb9389a90e4893422f7035cc4415193385ac2067e010e"
+      },
+      "target_widget_states": [],
+      "dataframes": [
+        {
+          "frame_index": 11,
+          "message_oneof": "delta",
+          "delta_oneof": "new_element",
+          "element_oneof": "dataframe",
+          "delta_path": [
+            0,
+            2
+          ],
+          "fields": {
+            "columns": "{\"id\": {\"width\": 160}, \"qty\": {\"width\": 160}, \"label\": {\"width\": 160}, \"_index\": {\"hidden\": true}}",
+            "row_height": 32
+          }
+        }
+      ],
+      "run_messages": [
+        {
+          "frame_index": 1,
+          "message_oneof": "new_session",
+          "script_run_id": "1131c3d1-8d53-4d05-80d2-1132823562b0",
+          "session_id": "06df0f2b-cae4-4c57-beab-bac60892d312",
+          "wire_version": "1.66.1"
+        },
+        {
+          "frame_index": 13,
+          "message_oneof": "script_finished",
+          "status": "FINISHED_SUCCESSFULLY"
+        }
+      ]
+    },
+    {
+      "capture": "first-attempt",
+      "case": "ignore",
+      "name": "selection-attempt",
+      "did_run": false,
+      "wait": "bounded",
+      "frame_start": 15,
+      "frame_end": 15,
+      "command_start": 6,
+      "command_end": 10,
+      "input_rows": [
+        {
+          "id": "rC",
+          "label": "C",
+          "qty": 30
+        },
+        {
+          "id": "rA",
+          "label": "A",
+          "qty": 10
+        },
+        {
+          "id": "rB",
+          "label": "B",
+          "qty": 20
+        }
+      ],
+      "version": 1,
+      "visible": true,
+      "run": 1,
+      "trigger": null,
+      "before": null,
+      "expected_returned_type": "DeltaGenerator",
+      "expected_returned": null,
+      "expected_key_present": false,
+      "expected_keyed": null,
+      "events": [
+        {
+          "kind": "main",
+          "run": 1
+        }
+      ],
+      "visual_cells": [
+        {
+          "id": "glide-cell-0-0",
+          "text": "rC"
+        },
+        {
+          "id": "glide-cell-1-0",
+          "text": "30"
+        },
+        {
+          "id": "glide-cell-2-0",
+          "text": "C"
+        },
+        {
+          "id": "glide-cell-0-1",
+          "text": "rA"
+        },
+        {
+          "id": "glide-cell-1-1",
+          "text": "10"
+        },
+        {
+          "id": "glide-cell-2-1",
+          "text": "A"
+        },
+        {
+          "id": "glide-cell-0-2",
+          "text": "rB"
+        },
+        {
+          "id": "glide-cell-1-2",
+          "text": "20"
+        },
+        {
+          "id": "glide-cell-2-2",
+          "text": "B"
+        }
+      ],
+      "screenshot": {
+        "file": "first-attempt/01-ignore-selection-attempt.png",
+        "bytes": 27098,
+        "sha256": "d8621f50cb858c076483ab06c1272d2dbb79511851b59480aca23457f6985e59"
+      },
+      "target_widget_states": [],
+      "dataframes": [],
+      "run_messages": []
+    },
+    {
+      "capture": "first-attempt",
+      "case": "ignore",
+      "name": "probe",
+      "did_run": true,
+      "wait": "run",
+      "frame_start": 15,
+      "frame_end": 30,
+      "command_start": 11,
+      "command_end": 15,
+      "input_rows": [
+        {
+          "id": "rC",
+          "label": "C",
+          "qty": 30
+        },
+        {
+          "id": "rA",
+          "label": "A",
+          "qty": 10
+        },
+        {
+          "id": "rB",
+          "label": "B",
+          "qty": 20
+        }
+      ],
+      "version": 1,
+      "visible": true,
+      "run": 2,
+      "trigger": "Probe",
+      "before": null,
+      "expected_returned_type": "DeltaGenerator",
+      "expected_returned": null,
+      "expected_key_present": false,
+      "expected_keyed": null,
+      "events": [
+        {
+          "kind": "main",
+          "run": 1
+        },
+        {
+          "kind": "main",
+          "run": 2
+        }
+      ],
+      "visual_cells": [
+        {
+          "id": "glide-cell-0-0",
+          "text": "rC"
+        },
+        {
+          "id": "glide-cell-1-0",
+          "text": "30"
+        },
+        {
+          "id": "glide-cell-2-0",
+          "text": "C"
+        },
+        {
+          "id": "glide-cell-0-1",
+          "text": "rA"
+        },
+        {
+          "id": "glide-cell-1-1",
+          "text": "10"
+        },
+        {
+          "id": "glide-cell-2-1",
+          "text": "A"
+        },
+        {
+          "id": "glide-cell-0-2",
+          "text": "rB"
+        },
+        {
+          "id": "glide-cell-1-2",
+          "text": "20"
+        },
+        {
+          "id": "glide-cell-2-2",
+          "text": "B"
+        }
+      ],
+      "screenshot": {
+        "file": "first-attempt/02-ignore-probe.png",
+        "bytes": 27400,
+        "sha256": "d3aa80a4776c287e01f7b54654d76c9834c543f92cba06579fd9c5ecc3a0d485"
+      },
+      "target_widget_states": [],
+      "dataframes": [
+        {
+          "frame_index": 26,
+          "message_oneof": "delta",
+          "delta_oneof": "new_element",
+          "element_oneof": "dataframe",
+          "delta_path": [
+            0,
+            2
+          ],
+          "fields": {
+            "columns": "{\"id\": {\"width\": 160}, \"qty\": {\"width\": 160}, \"label\": {\"width\": 160}, \"_index\": {\"hidden\": true}}",
+            "row_height": 32
+          }
+        }
+      ],
+      "run_messages": [
+        {
+          "frame_index": 16,
+          "message_oneof": "new_session",
+          "script_run_id": "f32801be-da69-476a-bd5f-f4e9f1410104",
+          "session_id": "06df0f2b-cae4-4c57-beab-bac60892d312",
+          "wire_version": "1.66.1"
+        },
+        {
+          "frame_index": 28,
+          "message_oneof": "script_finished",
+          "status": "FINISHED_SUCCESSFULLY"
+        }
+      ]
+    },
+    {
+      "capture": "first-attempt",
+      "case": "multi",
+      "name": "load",
+      "did_run": true,
+      "wait": "run",
+      "frame_start": 30,
+      "frame_end": 45,
+      "command_start": 16,
+      "command_end": 18,
+      "input_rows": [
+        {
+          "id": "rC",
+          "label": "C",
+          "qty": 30
+        },
+        {
+          "id": "rA",
+          "label": "A",
+          "qty": 10
+        },
+        {
+          "id": "rB",
+          "label": "B",
+          "qty": 20
+        }
+      ],
+      "version": 1,
+      "visible": true,
+      "run": 1,
+      "trigger": null,
+      "before": null,
+      "expected_returned_type": "DataframeState",
+      "expected_returned": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": []
+        }
+      },
+      "expected_key_present": true,
+      "expected_keyed": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": []
+        }
+      },
+      "events": [
+        {
+          "kind": "main",
+          "run": 1
+        }
+      ],
+      "visual_cells": [
+        {
+          "id": "glide-cell-1-0",
+          "text": "rC"
+        },
+        {
+          "id": "glide-cell-2-0",
+          "text": "30"
+        },
+        {
+          "id": "glide-cell-3-0",
+          "text": "C"
+        },
+        {
+          "id": "glide-cell-1-1",
+          "text": "rA"
+        },
+        {
+          "id": "glide-cell-2-1",
+          "text": "10"
+        },
+        {
+          "id": "glide-cell-3-1",
+          "text": "A"
+        },
+        {
+          "id": "glide-cell-1-2",
+          "text": "rB"
+        },
+        {
+          "id": "glide-cell-2-2",
+          "text": "20"
+        },
+        {
+          "id": "glide-cell-3-2",
+          "text": "B"
+        }
+      ],
+      "screenshot": {
+        "file": "first-attempt/03-multi-load.png",
+        "bytes": 26884,
+        "sha256": "dc94cb5bd438dcd1c37b418816f49096a98c626c3d8f47e0676b04f84e255ef4"
+      },
+      "target_widget_states": [],
+      "dataframes": [
+        {
+          "frame_index": 41,
+          "message_oneof": "delta",
+          "delta_oneof": "new_element",
+          "element_oneof": "dataframe",
+          "delta_path": [
+            0,
+            2
+          ],
+          "fields": {
+            "id": "$$ID-ca7e365adc1ea1da4ae0246e0e571e66-selection-multi",
+            "columns": "{\"id\": {\"width\": 160}, \"qty\": {\"width\": 160}, \"label\": {\"width\": 160}, \"_index\": {\"hidden\": true}}",
+            "selection_mode": [
+              "MULTI_ROW"
+            ],
+            "row_height": 32
+          }
+        }
+      ],
+      "run_messages": [
+        {
+          "frame_index": 31,
+          "message_oneof": "new_session",
+          "script_run_id": "8ec4ba7e-4c9f-4d53-8b69-5dfddc5597c9",
+          "session_id": "0209c06f-ae21-4f16-96cf-be7774170194",
+          "wire_version": "1.66.1"
+        },
+        {
+          "frame_index": 43,
+          "message_oneof": "script_finished",
+          "status": "FINISHED_SUCCESSFULLY"
+        }
+      ]
+    },
+    {
+      "capture": "first-attempt",
+      "case": "multi",
+      "name": "row-first",
+      "did_run": true,
+      "wait": "run",
+      "frame_start": 45,
+      "frame_end": 60,
+      "command_start": 19,
+      "command_end": 23,
+      "input_rows": [
+        {
+          "id": "rC",
+          "label": "C",
+          "qty": 30
+        },
+        {
+          "id": "rA",
+          "label": "A",
+          "qty": 10
+        },
+        {
+          "id": "rB",
+          "label": "B",
+          "qty": 20
+        }
+      ],
+      "version": 1,
+      "visible": true,
+      "run": 2,
+      "trigger": null,
+      "before": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0
+          ]
+        }
+      },
+      "expected_returned_type": "DataframeState",
+      "expected_returned": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0
+          ]
+        }
+      },
+      "expected_key_present": true,
+      "expected_keyed": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0
+          ]
+        }
+      },
+      "events": [
+        {
+          "kind": "main",
+          "run": 1
+        },
+        {
+          "kind": "main",
+          "run": 2
+        }
+      ],
+      "visual_cells": [
+        {
+          "id": "glide-cell-1-0",
+          "text": "rC"
+        },
+        {
+          "id": "glide-cell-2-0",
+          "text": "30"
+        },
+        {
+          "id": "glide-cell-3-0",
+          "text": "C"
+        },
+        {
+          "id": "glide-cell-1-1",
+          "text": "rA"
+        },
+        {
+          "id": "glide-cell-2-1",
+          "text": "10"
+        },
+        {
+          "id": "glide-cell-3-1",
+          "text": "A"
+        },
+        {
+          "id": "glide-cell-1-2",
+          "text": "rB"
+        },
+        {
+          "id": "glide-cell-2-2",
+          "text": "20"
+        },
+        {
+          "id": "glide-cell-3-2",
+          "text": "B"
+        }
+      ],
+      "screenshot": {
+        "file": "first-attempt/04-multi-row-first.png",
+        "bytes": 27243,
+        "sha256": "fe279f240f1fe4bed10607b5f055e6807183d2f2da9b4bd412413d7072715cb6"
+      },
+      "target_widget_states": [
+        {
+          "frame_index": 45,
+          "message_oneof": "rerun_script",
+          "id": "$$ID-ca7e365adc1ea1da4ae0246e0e571e66-selection-multi",
+          "value_oneof": "string_value",
+          "value": "{\"selection\":{\"rows\":[0],\"columns\":[],\"cells\":[]}}"
+        }
+      ],
+      "dataframes": [
+        {
+          "frame_index": 56,
+          "message_oneof": "delta",
+          "delta_oneof": "new_element",
+          "element_oneof": "dataframe",
+          "delta_path": [
+            0,
+            2
+          ],
+          "fields": {
+            "id": "$$ID-ca7e365adc1ea1da4ae0246e0e571e66-selection-multi",
+            "columns": "{\"id\": {\"width\": 160}, \"qty\": {\"width\": 160}, \"label\": {\"width\": 160}, \"_index\": {\"hidden\": true}}",
+            "selection_mode": [
+              "MULTI_ROW"
+            ],
+            "row_height": 32
+          }
+        }
+      ],
+      "run_messages": [
+        {
+          "frame_index": 46,
+          "message_oneof": "new_session",
+          "script_run_id": "6a6e74f0-fc5e-496e-bd51-db395feacb8f",
+          "session_id": "0209c06f-ae21-4f16-96cf-be7774170194",
+          "wire_version": "1.66.1"
+        },
+        {
+          "frame_index": 58,
+          "message_oneof": "script_finished",
+          "status": "FINISHED_SUCCESSFULLY"
+        }
+      ]
+    },
+    {
+      "capture": "first-attempt",
+      "case": "multi",
+      "name": "row-third",
+      "did_run": true,
+      "wait": "run",
+      "frame_start": 60,
+      "frame_end": 75,
+      "command_start": 24,
+      "command_end": 28,
+      "input_rows": [
+        {
+          "id": "rC",
+          "label": "C",
+          "qty": 30
+        },
+        {
+          "id": "rA",
+          "label": "A",
+          "qty": 10
+        },
+        {
+          "id": "rB",
+          "label": "B",
+          "qty": 20
+        }
+      ],
+      "version": 1,
+      "visible": true,
+      "run": 3,
+      "trigger": null,
+      "before": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0,
+            2
+          ]
+        }
+      },
+      "expected_returned_type": "DataframeState",
+      "expected_returned": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0,
+            2
+          ]
+        }
+      },
+      "expected_key_present": true,
+      "expected_keyed": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0,
+            2
+          ]
+        }
+      },
+      "events": [
+        {
+          "kind": "main",
+          "run": 1
+        },
+        {
+          "kind": "main",
+          "run": 2
+        },
+        {
+          "kind": "main",
+          "run": 3
+        }
+      ],
+      "visual_cells": [
+        {
+          "id": "glide-cell-1-0",
+          "text": "rC"
+        },
+        {
+          "id": "glide-cell-2-0",
+          "text": "30"
+        },
+        {
+          "id": "glide-cell-3-0",
+          "text": "C"
+        },
+        {
+          "id": "glide-cell-1-1",
+          "text": "rA"
+        },
+        {
+          "id": "glide-cell-2-1",
+          "text": "10"
+        },
+        {
+          "id": "glide-cell-3-1",
+          "text": "A"
+        },
+        {
+          "id": "glide-cell-1-2",
+          "text": "rB"
+        },
+        {
+          "id": "glide-cell-2-2",
+          "text": "20"
+        },
+        {
+          "id": "glide-cell-3-2",
+          "text": "B"
+        }
+      ],
+      "screenshot": {
+        "file": "first-attempt/05-multi-row-third.png",
+        "bytes": 27282,
+        "sha256": "f1da74181471fcaa6dd27e77467fa596ca47193fe9091d63e51738167ffc5ba4"
+      },
+      "target_widget_states": [
+        {
+          "frame_index": 60,
+          "message_oneof": "rerun_script",
+          "id": "$$ID-ca7e365adc1ea1da4ae0246e0e571e66-selection-multi",
+          "value_oneof": "string_value",
+          "value": "{\"selection\":{\"rows\":[0,2],\"columns\":[],\"cells\":[]}}"
+        }
+      ],
+      "dataframes": [
+        {
+          "frame_index": 71,
+          "message_oneof": "delta",
+          "delta_oneof": "new_element",
+          "element_oneof": "dataframe",
+          "delta_path": [
+            0,
+            2
+          ],
+          "fields": {
+            "id": "$$ID-ca7e365adc1ea1da4ae0246e0e571e66-selection-multi",
+            "columns": "{\"id\": {\"width\": 160}, \"qty\": {\"width\": 160}, \"label\": {\"width\": 160}, \"_index\": {\"hidden\": true}}",
+            "selection_mode": [
+              "MULTI_ROW"
+            ],
+            "row_height": 32
+          }
+        }
+      ],
+      "run_messages": [
+        {
+          "frame_index": 61,
+          "message_oneof": "new_session",
+          "script_run_id": "ace0c5b9-8078-43f6-8bef-1d0aeabf5b9d",
+          "session_id": "0209c06f-ae21-4f16-96cf-be7774170194",
+          "wire_version": "1.66.1"
+        },
+        {
+          "frame_index": 73,
+          "message_oneof": "script_finished",
+          "status": "FINISHED_SUCCESSFULLY"
+        }
+      ]
+    },
+    {
+      "capture": "first-attempt",
+      "case": "multi",
+      "name": "ordinary-rerun",
+      "did_run": true,
+      "wait": "run",
+      "frame_start": 75,
+      "frame_end": 90,
+      "command_start": 29,
+      "command_end": 33,
+      "input_rows": [
+        {
+          "id": "rC",
+          "label": "C",
+          "qty": 30
+        },
+        {
+          "id": "rA",
+          "label": "A",
+          "qty": 10
+        },
+        {
+          "id": "rB",
+          "label": "B",
+          "qty": 20
+        }
+      ],
+      "version": 1,
+      "visible": true,
+      "run": 4,
+      "trigger": "Probe",
+      "before": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0,
+            2
+          ]
+        }
+      },
+      "expected_returned_type": "DataframeState",
+      "expected_returned": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0,
+            2
+          ]
+        }
+      },
+      "expected_key_present": true,
+      "expected_keyed": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0,
+            2
+          ]
+        }
+      },
+      "events": [
+        {
+          "kind": "main",
+          "run": 1
+        },
+        {
+          "kind": "main",
+          "run": 2
+        },
+        {
+          "kind": "main",
+          "run": 3
+        },
+        {
+          "kind": "main",
+          "run": 4
+        }
+      ],
+      "visual_cells": [
+        {
+          "id": "glide-cell-1-0",
+          "text": "rC"
+        },
+        {
+          "id": "glide-cell-2-0",
+          "text": "30"
+        },
+        {
+          "id": "glide-cell-3-0",
+          "text": "C"
+        },
+        {
+          "id": "glide-cell-1-1",
+          "text": "rA"
+        },
+        {
+          "id": "glide-cell-2-1",
+          "text": "10"
+        },
+        {
+          "id": "glide-cell-3-1",
+          "text": "A"
+        },
+        {
+          "id": "glide-cell-1-2",
+          "text": "rB"
+        },
+        {
+          "id": "glide-cell-2-2",
+          "text": "20"
+        },
+        {
+          "id": "glide-cell-3-2",
+          "text": "B"
+        }
+      ],
+      "screenshot": {
+        "file": "first-attempt/06-multi-ordinary-rerun.png",
+        "bytes": 27691,
+        "sha256": "856e079b63a9302fe48850f5cfe4b62bbe184693155d293c64a5f4f3802e8f6a"
+      },
+      "target_widget_states": [
+        {
+          "frame_index": 75,
+          "message_oneof": "rerun_script",
+          "id": "$$ID-ca7e365adc1ea1da4ae0246e0e571e66-selection-multi",
+          "value_oneof": "string_value",
+          "value": "{\"selection\":{\"rows\":[0,2],\"columns\":[],\"cells\":[]}}"
+        }
+      ],
+      "dataframes": [
+        {
+          "frame_index": 86,
+          "message_oneof": "delta",
+          "delta_oneof": "new_element",
+          "element_oneof": "dataframe",
+          "delta_path": [
+            0,
+            2
+          ],
+          "fields": {
+            "id": "$$ID-ca7e365adc1ea1da4ae0246e0e571e66-selection-multi",
+            "columns": "{\"id\": {\"width\": 160}, \"qty\": {\"width\": 160}, \"label\": {\"width\": 160}, \"_index\": {\"hidden\": true}}",
+            "selection_mode": [
+              "MULTI_ROW"
+            ],
+            "row_height": 32
+          }
+        }
+      ],
+      "run_messages": [
+        {
+          "frame_index": 76,
+          "message_oneof": "new_session",
+          "script_run_id": "66657d76-f1d4-452a-b22a-6e6f6447b2fb",
+          "session_id": "0209c06f-ae21-4f16-96cf-be7774170194",
+          "wire_version": "1.66.1"
+        },
+        {
+          "frame_index": 88,
+          "message_oneof": "script_finished",
+          "status": "FINISHED_SUCCESSFULLY"
+        }
+      ]
+    },
+    {
+      "capture": "first-attempt",
+      "case": "multi",
+      "name": "sort-qty",
+      "did_run": false,
+      "wait": "bounded",
+      "frame_start": 90,
+      "frame_end": 90,
+      "command_start": 34,
+      "command_end": 38,
+      "input_rows": [
+        {
+          "id": "rC",
+          "label": "C",
+          "qty": 30
+        },
+        {
+          "id": "rA",
+          "label": "A",
+          "qty": 10
+        },
+        {
+          "id": "rB",
+          "label": "B",
+          "qty": 20
+        }
+      ],
+      "version": 1,
+      "visible": true,
+      "run": 4,
+      "trigger": "Probe",
+      "before": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0,
+            2
+          ]
+        }
+      },
+      "expected_returned_type": "DataframeState",
+      "expected_returned": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0,
+            2
+          ]
+        }
+      },
+      "expected_key_present": true,
+      "expected_keyed": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0,
+            2
+          ]
+        }
+      },
+      "events": [
+        {
+          "kind": "main",
+          "run": 1
+        },
+        {
+          "kind": "main",
+          "run": 2
+        },
+        {
+          "kind": "main",
+          "run": 3
+        },
+        {
+          "kind": "main",
+          "run": 4
+        }
+      ],
+      "visual_cells": [
+        {
+          "id": "glide-cell-1-0",
+          "text": "rA"
+        },
+        {
+          "id": "glide-cell-2-0",
+          "text": "10"
+        },
+        {
+          "id": "glide-cell-3-0",
+          "text": "A"
+        },
+        {
+          "id": "glide-cell-1-1",
+          "text": "rB"
+        },
+        {
+          "id": "glide-cell-2-1",
+          "text": "20"
+        },
+        {
+          "id": "glide-cell-3-1",
+          "text": "B"
+        },
+        {
+          "id": "glide-cell-1-2",
+          "text": "rC"
+        },
+        {
+          "id": "glide-cell-2-2",
+          "text": "30"
+        },
+        {
+          "id": "glide-cell-3-2",
+          "text": "C"
+        }
+      ],
+      "screenshot": {
+        "file": "first-attempt/07-multi-sort-qty.png",
+        "bytes": 27306,
+        "sha256": "d73ab57113c23075041d5ef358498341b800f47225458485d86a6dd8dcda2ed4"
+      },
+      "target_widget_states": [],
+      "dataframes": [],
+      "run_messages": []
+    },
+    {
+      "capture": "first-attempt",
+      "case": "multi",
+      "name": "sorted-row-first",
+      "did_run": true,
+      "wait": "run",
+      "frame_start": 90,
+      "frame_end": 105,
+      "command_start": 39,
+      "command_end": 43,
+      "input_rows": [
+        {
+          "id": "rC",
+          "label": "C",
+          "qty": 30
+        },
+        {
+          "id": "rA",
+          "label": "A",
+          "qty": 10
+        },
+        {
+          "id": "rB",
+          "label": "B",
+          "qty": 20
+        }
+      ],
+      "version": 1,
+      "visible": true,
+      "run": 5,
+      "trigger": null,
+      "before": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0,
+            1,
+            2
+          ]
+        }
+      },
+      "expected_returned_type": "DataframeState",
+      "expected_returned": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0,
+            1,
+            2
+          ]
+        }
+      },
+      "expected_key_present": true,
+      "expected_keyed": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0,
+            1,
+            2
+          ]
+        }
+      },
+      "events": [
+        {
+          "kind": "main",
+          "run": 1
+        },
+        {
+          "kind": "main",
+          "run": 2
+        },
+        {
+          "kind": "main",
+          "run": 3
+        },
+        {
+          "kind": "main",
+          "run": 4
+        },
+        {
+          "kind": "main",
+          "run": 5
+        }
+      ],
+      "visual_cells": [
+        {
+          "id": "glide-cell-1-0",
+          "text": "rA"
+        },
+        {
+          "id": "glide-cell-2-0",
+          "text": "10"
+        },
+        {
+          "id": "glide-cell-3-0",
+          "text": "A"
+        },
+        {
+          "id": "glide-cell-1-1",
+          "text": "rB"
+        },
+        {
+          "id": "glide-cell-2-1",
+          "text": "20"
+        },
+        {
+          "id": "glide-cell-3-1",
+          "text": "B"
+        },
+        {
+          "id": "glide-cell-1-2",
+          "text": "rC"
+        },
+        {
+          "id": "glide-cell-2-2",
+          "text": "30"
+        },
+        {
+          "id": "glide-cell-3-2",
+          "text": "C"
+        }
+      ],
+      "screenshot": {
+        "file": "first-attempt/08-multi-sorted-row-first.png",
+        "bytes": 27662,
+        "sha256": "22ec18eb5409ebb8d58bcdb67f82b3a60a469e37d82da9c1971fd4a746051efe"
+      },
+      "target_widget_states": [
+        {
+          "frame_index": 90,
+          "message_oneof": "rerun_script",
+          "id": "$$ID-ca7e365adc1ea1da4ae0246e0e571e66-selection-multi",
+          "value_oneof": "string_value",
+          "value": "{\"selection\":{\"rows\":[0,1,2],\"columns\":[],\"cells\":[]}}"
+        }
+      ],
+      "dataframes": [
+        {
+          "frame_index": 101,
+          "message_oneof": "delta",
+          "delta_oneof": "new_element",
+          "element_oneof": "dataframe",
+          "delta_path": [
+            0,
+            2
+          ],
+          "fields": {
+            "id": "$$ID-ca7e365adc1ea1da4ae0246e0e571e66-selection-multi",
+            "columns": "{\"id\": {\"width\": 160}, \"qty\": {\"width\": 160}, \"label\": {\"width\": 160}, \"_index\": {\"hidden\": true}}",
+            "selection_mode": [
+              "MULTI_ROW"
+            ],
+            "row_height": 32
+          }
+        }
+      ],
+      "run_messages": [
+        {
+          "frame_index": 91,
+          "message_oneof": "new_session",
+          "script_run_id": "612295f5-7712-4f40-928c-e39d70a068bd",
+          "session_id": "0209c06f-ae21-4f16-96cf-be7774170194",
+          "wire_version": "1.66.1"
+        },
+        {
+          "frame_index": 103,
+          "message_oneof": "script_finished",
+          "status": "FINISHED_SUCCESSFULLY"
+        }
+      ]
+    },
+    {
+      "capture": "first-attempt",
+      "case": "multi",
+      "name": "replace",
+      "did_run": true,
+      "wait": "run",
+      "frame_start": 105,
+      "frame_end": 120,
+      "command_start": 44,
+      "command_end": 48,
+      "input_rows": [
+        {
+          "id": "rC",
+          "label": "CX",
+          "qty": 300
+        },
+        {
+          "id": "rA",
+          "label": "AX",
+          "qty": 100
+        },
+        {
+          "id": "rB",
+          "label": "BX",
+          "qty": 200
+        }
+      ],
+      "version": 2,
+      "visible": true,
+      "run": 6,
+      "trigger": "Replace data",
+      "before": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0,
+            1,
+            2
+          ]
+        }
+      },
+      "expected_returned_type": "DataframeState",
+      "expected_returned": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0,
+            1,
+            2
+          ]
+        }
+      },
+      "expected_key_present": true,
+      "expected_keyed": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0,
+            1,
+            2
+          ]
+        }
+      },
+      "events": [
+        {
+          "kind": "main",
+          "run": 1
+        },
+        {
+          "kind": "main",
+          "run": 2
+        },
+        {
+          "kind": "main",
+          "run": 3
+        },
+        {
+          "kind": "main",
+          "run": 4
+        },
+        {
+          "kind": "main",
+          "run": 5
+        },
+        {
+          "kind": "main",
+          "run": 6
+        }
+      ],
+      "visual_cells": [
+        {
+          "id": "glide-cell-1-0",
+          "text": "rA"
+        },
+        {
+          "id": "glide-cell-2-0",
+          "text": "100"
+        },
+        {
+          "id": "glide-cell-3-0",
+          "text": "AX"
+        },
+        {
+          "id": "glide-cell-1-1",
+          "text": "rB"
+        },
+        {
+          "id": "glide-cell-2-1",
+          "text": "200"
+        },
+        {
+          "id": "glide-cell-3-1",
+          "text": "BX"
+        },
+        {
+          "id": "glide-cell-1-2",
+          "text": "rC"
+        },
+        {
+          "id": "glide-cell-2-2",
+          "text": "300"
+        },
+        {
+          "id": "glide-cell-3-2",
+          "text": "CX"
+        }
+      ],
+      "screenshot": {
+        "file": "first-attempt/09-multi-replace.png",
+        "bytes": 28928,
+        "sha256": "ce4b7afb42d25deb7d240ba3a784e40fdba79f3f268c2e5504fd8d2612ef2886"
+      },
+      "target_widget_states": [
+        {
+          "frame_index": 105,
+          "message_oneof": "rerun_script",
+          "id": "$$ID-ca7e365adc1ea1da4ae0246e0e571e66-selection-multi",
+          "value_oneof": "string_value",
+          "value": "{\"selection\":{\"rows\":[0,1,2],\"columns\":[],\"cells\":[]}}"
+        }
+      ],
+      "dataframes": [
+        {
+          "frame_index": 116,
+          "message_oneof": "delta",
+          "delta_oneof": "new_element",
+          "element_oneof": "dataframe",
+          "delta_path": [
+            0,
+            2
+          ],
+          "fields": {
+            "id": "$$ID-ca7e365adc1ea1da4ae0246e0e571e66-selection-multi",
+            "columns": "{\"id\": {\"width\": 160}, \"qty\": {\"width\": 160}, \"label\": {\"width\": 160}, \"_index\": {\"hidden\": true}}",
+            "selection_mode": [
+              "MULTI_ROW"
+            ],
+            "row_height": 32
+          }
+        }
+      ],
+      "run_messages": [
+        {
+          "frame_index": 106,
+          "message_oneof": "new_session",
+          "script_run_id": "78f74643-1342-4536-939f-4afaade04f87",
+          "session_id": "0209c06f-ae21-4f16-96cf-be7774170194",
+          "wire_version": "1.66.1"
+        },
+        {
+          "frame_index": 118,
+          "message_oneof": "script_finished",
+          "status": "FINISHED_SUCCESSFULLY"
+        }
+      ]
+    },
+    {
+      "capture": "first-attempt",
+      "case": "multi",
+      "name": "hide",
+      "did_run": true,
+      "wait": "run",
+      "frame_start": 120,
+      "frame_end": 134,
+      "command_start": 49,
+      "command_end": 53,
+      "input_rows": [
+        {
+          "id": "rC",
+          "label": "CX",
+          "qty": 300
+        },
+        {
+          "id": "rA",
+          "label": "AX",
+          "qty": 100
+        },
+        {
+          "id": "rB",
+          "label": "BX",
+          "qty": 200
+        }
+      ],
+      "version": 2,
+      "visible": false,
+      "run": 7,
+      "trigger": "Toggle visible",
+      "before": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0,
+            1,
+            2
+          ]
+        }
+      },
+      "expected_returned_type": "NoneType",
+      "expected_returned": null,
+      "expected_key_present": true,
+      "expected_keyed": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0,
+            1,
+            2
+          ]
+        }
+      },
+      "events": [
+        {
+          "kind": "main",
+          "run": 1
+        },
+        {
+          "kind": "main",
+          "run": 2
+        },
+        {
+          "kind": "main",
+          "run": 3
+        },
+        {
+          "kind": "main",
+          "run": 4
+        },
+        {
+          "kind": "main",
+          "run": 5
+        },
+        {
+          "kind": "main",
+          "run": 6
+        },
+        {
+          "kind": "main",
+          "run": 7
+        }
+      ],
+      "visual_cells": [],
+      "screenshot": {
+        "file": "first-attempt/10-multi-hide.png",
+        "bytes": 20414,
+        "sha256": "d673416b5a5dc1ea19270bfda5e4c83d43989ec7780edff12f270e94d9299ad9"
+      },
+      "target_widget_states": [
+        {
+          "frame_index": 120,
+          "message_oneof": "rerun_script",
+          "id": "$$ID-ca7e365adc1ea1da4ae0246e0e571e66-selection-multi",
+          "value_oneof": "string_value",
+          "value": "{\"selection\":{\"rows\":[0,1,2],\"columns\":[],\"cells\":[]}}"
+        }
+      ],
+      "dataframes": [],
+      "run_messages": [
+        {
+          "frame_index": 121,
+          "message_oneof": "new_session",
+          "script_run_id": "12d6983a-846f-408c-ab34-07c802a29d3a",
+          "session_id": "0209c06f-ae21-4f16-96cf-be7774170194",
+          "wire_version": "1.66.1"
+        },
+        {
+          "frame_index": 132,
+          "message_oneof": "script_finished",
+          "status": "FINISHED_SUCCESSFULLY"
+        }
+      ]
+    },
+    {
+      "capture": "first-attempt",
+      "case": "multi",
+      "name": "hidden-probe",
+      "did_run": true,
+      "wait": "run",
+      "frame_start": 134,
+      "frame_end": 148,
+      "command_start": 54,
+      "command_end": 58,
+      "input_rows": [
+        {
+          "id": "rC",
+          "label": "CX",
+          "qty": 300
+        },
+        {
+          "id": "rA",
+          "label": "AX",
+          "qty": 100
+        },
+        {
+          "id": "rB",
+          "label": "BX",
+          "qty": 200
+        }
+      ],
+      "version": 2,
+      "visible": false,
+      "run": 8,
+      "trigger": "Probe",
+      "before": null,
+      "expected_returned_type": "NoneType",
+      "expected_returned": null,
+      "expected_key_present": false,
+      "expected_keyed": null,
+      "events": [
+        {
+          "kind": "main",
+          "run": 1
+        },
+        {
+          "kind": "main",
+          "run": 2
+        },
+        {
+          "kind": "main",
+          "run": 3
+        },
+        {
+          "kind": "main",
+          "run": 4
+        },
+        {
+          "kind": "main",
+          "run": 5
+        },
+        {
+          "kind": "main",
+          "run": 6
+        },
+        {
+          "kind": "main",
+          "run": 7
+        },
+        {
+          "kind": "main",
+          "run": 8
+        }
+      ],
+      "visual_cells": [],
+      "screenshot": {
+        "file": "first-attempt/11-multi-hidden-probe.png",
+        "bytes": 20847,
+        "sha256": "b7e7d33f0a01e65da4be44d6e2d5395e264c8f4e90a5cf0eecab738cc4b01209"
+      },
+      "target_widget_states": [],
+      "dataframes": [],
+      "run_messages": [
+        {
+          "frame_index": 135,
+          "message_oneof": "new_session",
+          "script_run_id": "2e21886a-2ef8-4d76-bf6e-a8cd30ae436e",
+          "session_id": "0209c06f-ae21-4f16-96cf-be7774170194",
+          "wire_version": "1.66.1"
+        },
+        {
+          "frame_index": 146,
+          "message_oneof": "script_finished",
+          "status": "FINISHED_SUCCESSFULLY"
+        }
+      ]
+    },
+    {
+      "capture": "first-attempt",
+      "case": "multi",
+      "name": "restore",
+      "did_run": true,
+      "wait": "run",
+      "frame_start": 148,
+      "frame_end": 163,
+      "command_start": 59,
+      "command_end": 63,
+      "input_rows": [
+        {
+          "id": "rC",
+          "label": "CX",
+          "qty": 300
+        },
+        {
+          "id": "rA",
+          "label": "AX",
+          "qty": 100
+        },
+        {
+          "id": "rB",
+          "label": "BX",
+          "qty": 200
+        }
+      ],
+      "version": 2,
+      "visible": true,
+      "run": 9,
+      "trigger": "Toggle visible",
+      "before": null,
+      "expected_returned_type": "DataframeState",
+      "expected_returned": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": []
+        }
+      },
+      "expected_key_present": true,
+      "expected_keyed": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": []
+        }
+      },
+      "events": [
+        {
+          "kind": "main",
+          "run": 1
+        },
+        {
+          "kind": "main",
+          "run": 2
+        },
+        {
+          "kind": "main",
+          "run": 3
+        },
+        {
+          "kind": "main",
+          "run": 4
+        },
+        {
+          "kind": "main",
+          "run": 5
+        },
+        {
+          "kind": "main",
+          "run": 6
+        },
+        {
+          "kind": "main",
+          "run": 7
+        },
+        {
+          "kind": "main",
+          "run": 8
+        },
+        {
+          "kind": "main",
+          "run": 9
+        }
+      ],
+      "visual_cells": [
+        {
+          "id": "glide-cell-1-0",
+          "text": "rC"
+        },
+        {
+          "id": "glide-cell-2-0",
+          "text": "300"
+        },
+        {
+          "id": "glide-cell-3-0",
+          "text": "CX"
+        },
+        {
+          "id": "glide-cell-1-1",
+          "text": "rA"
+        },
+        {
+          "id": "glide-cell-2-1",
+          "text": "100"
+        },
+        {
+          "id": "glide-cell-3-1",
+          "text": "AX"
+        },
+        {
+          "id": "glide-cell-1-2",
+          "text": "rB"
+        },
+        {
+          "id": "glide-cell-2-2",
+          "text": "200"
+        },
+        {
+          "id": "glide-cell-3-2",
+          "text": "BX"
+        }
+      ],
+      "screenshot": {
+        "file": "first-attempt/12-multi-restore.png",
+        "bytes": 28223,
+        "sha256": "c9d05a17f39629cd25c8007ca495e554e9e77b4f242605257c224a8d51ee2d1e"
+      },
+      "target_widget_states": [],
+      "dataframes": [
+        {
+          "frame_index": 159,
+          "message_oneof": "delta",
+          "delta_oneof": "new_element",
+          "element_oneof": "dataframe",
+          "delta_path": [
+            0,
+            2
+          ],
+          "fields": {
+            "id": "$$ID-ca7e365adc1ea1da4ae0246e0e571e66-selection-multi",
+            "columns": "{\"id\": {\"width\": 160}, \"qty\": {\"width\": 160}, \"label\": {\"width\": 160}, \"_index\": {\"hidden\": true}}",
+            "selection_mode": [
+              "MULTI_ROW"
+            ],
+            "row_height": 32
+          }
+        }
+      ],
+      "run_messages": [
+        {
+          "frame_index": 149,
+          "message_oneof": "new_session",
+          "script_run_id": "2e5af237-23a5-4f4f-b36f-d669ae0f7a22",
+          "session_id": "0209c06f-ae21-4f16-96cf-be7774170194",
+          "wire_version": "1.66.1"
+        },
+        {
+          "frame_index": 161,
+          "message_oneof": "script_finished",
+          "status": "FINISHED_SUCCESSFULLY"
+        }
+      ]
+    },
+    {
+      "capture": "first-attempt",
+      "case": "single-combo",
+      "name": "load",
+      "did_run": true,
+      "wait": "run",
+      "frame_start": 163,
+      "frame_end": 185,
+      "command_start": 64,
+      "command_end": 66,
+      "input_rows": [
+        {
+          "id": "rC",
+          "label": "C",
+          "qty": 30
+        },
+        {
+          "id": "rA",
+          "label": "A",
+          "qty": 10
+        },
+        {
+          "id": "rB",
+          "label": "B",
+          "qty": 20
+        }
+      ],
+      "version": 1,
+      "visible": true,
+      "run": 1,
+      "trigger": null,
+      "before": null,
+      "expected_returned_type": "DataframeState",
+      "expected_returned": {
+        "selection": {
+          "cells": [
+            [
+              2,
+              "label"
+            ]
+          ],
+          "columns": [
+            "qty"
+          ],
+          "rows": [
+            1
+          ]
+        }
+      },
+      "expected_key_present": true,
+      "expected_keyed": {
+        "selection": {
+          "cells": [
+            [
+              2,
+              "label"
+            ]
+          ],
+          "columns": [
+            "qty"
+          ],
+          "rows": [
+            1
+          ]
+        }
+      },
+      "events": [
+        {
+          "kind": "main",
+          "run": 1
+        }
+      ],
+      "visual_cells": [
+        {
+          "id": "glide-cell-1-0",
+          "text": "rC"
+        },
+        {
+          "id": "glide-cell-2-0",
+          "text": "30"
+        },
+        {
+          "id": "glide-cell-3-0",
+          "text": "C"
+        },
+        {
+          "id": "glide-cell-1-1",
+          "text": "rA"
+        },
+        {
+          "id": "glide-cell-2-1",
+          "text": "10"
+        },
+        {
+          "id": "glide-cell-3-1",
+          "text": "A"
+        },
+        {
+          "id": "glide-cell-1-2",
+          "text": "rB"
+        },
+        {
+          "id": "glide-cell-2-2",
+          "text": "20"
+        },
+        {
+          "id": "glide-cell-3-2",
+          "text": "B"
+        }
+      ],
+      "screenshot": {
+        "file": "first-attempt/13-single-combo-load.png",
+        "bytes": 31379,
+        "sha256": "894752d3f57ff331230ed9ef0b7926b8e60df17c45458687238f5241a67bcbd3"
+      },
+      "target_widget_states": [],
+      "dataframes": [
+        {
+          "frame_index": 181,
+          "message_oneof": "delta",
+          "delta_oneof": "new_element",
+          "element_oneof": "dataframe",
+          "delta_path": [
+            0,
+            3
+          ],
+          "fields": {
+            "id": "$$ID-e35f9c9cd722f43fdf9ccf092ceabbff-selection-single-combo",
+            "columns": "{\"id\": {\"width\": 160}, \"qty\": {\"width\": 160}, \"label\": {\"width\": 160}, \"_index\": {\"hidden\": true}}",
+            "selection_mode": [
+              "SINGLE_ROW",
+              "SINGLE_COLUMN",
+              "SINGLE_CELL"
+            ],
+            "row_height": 32,
+            "selection_default": "{\"selection\": {\"rows\": [1], \"columns\": [\"qty\"], \"cells\": [[2, \"label\"]]}}"
+          }
+        }
+      ],
+      "run_messages": [
+        {
+          "frame_index": 164,
+          "message_oneof": "new_session",
+          "script_run_id": "73716791-8ff1-4cfd-8ccd-17850b7cc383",
+          "session_id": "0e96953b-f1a9-4ccc-a568-169bd94fd1cb",
+          "wire_version": "1.66.1"
+        },
+        {
+          "frame_index": 183,
+          "message_oneof": "script_finished",
+          "status": "FINISHED_SUCCESSFULLY"
+        }
+      ]
+    },
+    {
+      "capture": "first-attempt",
+      "case": "single-combo",
+      "name": "user-cell",
+      "did_run": true,
+      "wait": "run",
+      "frame_start": 185,
+      "frame_end": 207,
+      "command_start": 67,
+      "command_end": 71,
+      "input_rows": [
+        {
+          "id": "rC",
+          "label": "C",
+          "qty": 30
+        },
+        {
+          "id": "rA",
+          "label": "A",
+          "qty": 10
+        },
+        {
+          "id": "rB",
+          "label": "B",
+          "qty": 20
+        }
+      ],
+      "version": 1,
+      "visible": true,
+      "run": 2,
+      "trigger": null,
+      "before": {
+        "selection": {
+          "cells": [
+            [
+              2,
+              "qty"
+            ]
+          ],
+          "columns": [
+            "qty"
+          ],
+          "rows": [
+            1
+          ]
+        }
+      },
+      "expected_returned_type": "DataframeState",
+      "expected_returned": {
+        "selection": {
+          "cells": [
+            [
+              2,
+              "qty"
+            ]
+          ],
+          "columns": [
+            "qty"
+          ],
+          "rows": [
+            1
+          ]
+        }
+      },
+      "expected_key_present": true,
+      "expected_keyed": {
+        "selection": {
+          "cells": [
+            [
+              2,
+              "qty"
+            ]
+          ],
+          "columns": [
+            "qty"
+          ],
+          "rows": [
+            1
+          ]
+        }
+      },
+      "events": [
+        {
+          "kind": "main",
+          "run": 1
+        },
+        {
+          "kind": "callback",
+          "run_seen": 1,
+          "state": {
+            "selection": {
+              "cells": [
+                [
+                  2,
+                  "qty"
+                ]
+              ],
+              "columns": [
+                "qty"
+              ],
+              "rows": [
+                1
+              ]
+            }
+          }
+        },
+        {
+          "kind": "main",
+          "run": 2
+        }
+      ],
+      "visual_cells": [
+        {
+          "id": "glide-cell-1-0",
+          "text": "rC"
+        },
+        {
+          "id": "glide-cell-2-0",
+          "text": "30"
+        },
+        {
+          "id": "glide-cell-3-0",
+          "text": "C"
+        },
+        {
+          "id": "glide-cell-1-1",
+          "text": "rA"
+        },
+        {
+          "id": "glide-cell-2-1",
+          "text": "10"
+        },
+        {
+          "id": "glide-cell-3-1",
+          "text": "A"
+        },
+        {
+          "id": "glide-cell-1-2",
+          "text": "rB"
+        },
+        {
+          "id": "glide-cell-2-2",
+          "text": "20"
+        },
+        {
+          "id": "glide-cell-3-2",
+          "text": "B"
+        }
+      ],
+      "screenshot": {
+        "file": "first-attempt/14-single-combo-user-cell.png",
+        "bytes": 31552,
+        "sha256": "d35871970f3129bc8c58eeb9ae6aa3f74c2daad980d5e298b7b622f423e7d8db"
+      },
+      "target_widget_states": [
+        {
+          "frame_index": 185,
+          "message_oneof": "rerun_script",
+          "id": "$$ID-e35f9c9cd722f43fdf9ccf092ceabbff-selection-single-combo",
+          "value_oneof": "string_value",
+          "value": "{\"selection\":{\"rows\":[1],\"columns\":[\"qty\"],\"cells\":[[2,\"qty\"]]}}"
+        }
+      ],
+      "dataframes": [
+        {
+          "frame_index": 203,
+          "message_oneof": "delta",
+          "delta_oneof": "new_element",
+          "element_oneof": "dataframe",
+          "delta_path": [
+            0,
+            3
+          ],
+          "fields": {
+            "id": "$$ID-e35f9c9cd722f43fdf9ccf092ceabbff-selection-single-combo",
+            "columns": "{\"id\": {\"width\": 160}, \"qty\": {\"width\": 160}, \"label\": {\"width\": 160}, \"_index\": {\"hidden\": true}}",
+            "selection_mode": [
+              "SINGLE_ROW",
+              "SINGLE_COLUMN",
+              "SINGLE_CELL"
+            ],
+            "row_height": 32,
+            "selection_default": "{\"selection\": {\"rows\": [1], \"columns\": [\"qty\"], \"cells\": [[2, \"label\"]]}}"
+          }
+        }
+      ],
+      "run_messages": [
+        {
+          "frame_index": 186,
+          "message_oneof": "new_session",
+          "script_run_id": "cc574744-7d95-410a-8a4d-d7a9a26e31a4",
+          "session_id": "0e96953b-f1a9-4ccc-a568-169bd94fd1cb",
+          "wire_version": "1.66.1"
+        },
+        {
+          "frame_index": 205,
+          "message_oneof": "script_finished",
+          "status": "FINISHED_SUCCESSFULLY"
+        }
+      ]
+    },
+    {
+      "capture": "first-attempt",
+      "case": "single-combo",
+      "name": "ordinary-rerun",
+      "did_run": true,
+      "wait": "run",
+      "frame_start": 207,
+      "frame_end": 229,
+      "command_start": 72,
+      "command_end": 76,
+      "input_rows": [
+        {
+          "id": "rC",
+          "label": "C",
+          "qty": 30
+        },
+        {
+          "id": "rA",
+          "label": "A",
+          "qty": 10
+        },
+        {
+          "id": "rB",
+          "label": "B",
+          "qty": 20
+        }
+      ],
+      "version": 1,
+      "visible": true,
+      "run": 3,
+      "trigger": "Probe",
+      "before": {
+        "selection": {
+          "cells": [
+            [
+              2,
+              "qty"
+            ]
+          ],
+          "columns": [
+            "qty"
+          ],
+          "rows": [
+            1
+          ]
+        }
+      },
+      "expected_returned_type": "DataframeState",
+      "expected_returned": {
+        "selection": {
+          "cells": [
+            [
+              2,
+              "qty"
+            ]
+          ],
+          "columns": [
+            "qty"
+          ],
+          "rows": [
+            1
+          ]
+        }
+      },
+      "expected_key_present": true,
+      "expected_keyed": {
+        "selection": {
+          "cells": [
+            [
+              2,
+              "qty"
+            ]
+          ],
+          "columns": [
+            "qty"
+          ],
+          "rows": [
+            1
+          ]
+        }
+      },
+      "events": [
+        {
+          "kind": "main",
+          "run": 1
+        },
+        {
+          "kind": "callback",
+          "run_seen": 1,
+          "state": {
+            "selection": {
+              "cells": [
+                [
+                  2,
+                  "qty"
+                ]
+              ],
+              "columns": [
+                "qty"
+              ],
+              "rows": [
+                1
+              ]
+            }
+          }
+        },
+        {
+          "kind": "main",
+          "run": 2
+        },
+        {
+          "kind": "main",
+          "run": 3
+        }
+      ],
+      "visual_cells": [
+        {
+          "id": "glide-cell-1-0",
+          "text": "rC"
+        },
+        {
+          "id": "glide-cell-2-0",
+          "text": "30"
+        },
+        {
+          "id": "glide-cell-3-0",
+          "text": "C"
+        },
+        {
+          "id": "glide-cell-1-1",
+          "text": "rA"
+        },
+        {
+          "id": "glide-cell-2-1",
+          "text": "10"
+        },
+        {
+          "id": "glide-cell-3-1",
+          "text": "A"
+        },
+        {
+          "id": "glide-cell-1-2",
+          "text": "rB"
+        },
+        {
+          "id": "glide-cell-2-2",
+          "text": "20"
+        },
+        {
+          "id": "glide-cell-3-2",
+          "text": "B"
+        }
+      ],
+      "screenshot": {
+        "file": "first-attempt/15-single-combo-ordinary-rerun.png",
+        "bytes": 31946,
+        "sha256": "1da1467cc3fb9caa98db0978cbd4469720841ac18d5532caeb84ffd7af3f8865"
+      },
+      "target_widget_states": [
+        {
+          "frame_index": 207,
+          "message_oneof": "rerun_script",
+          "id": "$$ID-e35f9c9cd722f43fdf9ccf092ceabbff-selection-single-combo",
+          "value_oneof": "string_value",
+          "value": "{\"selection\":{\"rows\":[1],\"columns\":[\"qty\"],\"cells\":[[2,\"qty\"]]}}"
+        }
+      ],
+      "dataframes": [
+        {
+          "frame_index": 225,
+          "message_oneof": "delta",
+          "delta_oneof": "new_element",
+          "element_oneof": "dataframe",
+          "delta_path": [
+            0,
+            3
+          ],
+          "fields": {
+            "id": "$$ID-e35f9c9cd722f43fdf9ccf092ceabbff-selection-single-combo",
+            "columns": "{\"id\": {\"width\": 160}, \"qty\": {\"width\": 160}, \"label\": {\"width\": 160}, \"_index\": {\"hidden\": true}}",
+            "selection_mode": [
+              "SINGLE_ROW",
+              "SINGLE_COLUMN",
+              "SINGLE_CELL"
+            ],
+            "row_height": 32,
+            "selection_default": "{\"selection\": {\"rows\": [1], \"columns\": [\"qty\"], \"cells\": [[2, \"label\"]]}}"
+          }
+        }
+      ],
+      "run_messages": [
+        {
+          "frame_index": 208,
+          "message_oneof": "new_session",
+          "script_run_id": "2c59c66d-9094-4fd2-94b9-b85087d51cec",
+          "session_id": "0e96953b-f1a9-4ccc-a568-169bd94fd1cb",
+          "wire_version": "1.66.1"
+        },
+        {
+          "frame_index": 227,
+          "message_oneof": "script_finished",
+          "status": "FINISHED_SUCCESSFULLY"
+        }
+      ]
+    },
+    {
+      "capture": "first-attempt",
+      "case": "single-combo",
+      "name": "program-rows",
+      "did_run": true,
+      "wait": "run",
+      "frame_start": 229,
+      "frame_end": 251,
+      "command_start": 77,
+      "command_end": 81,
+      "input_rows": [
+        {
+          "id": "rC",
+          "label": "C",
+          "qty": 30
+        },
+        {
+          "id": "rA",
+          "label": "A",
+          "qty": 10
+        },
+        {
+          "id": "rB",
+          "label": "B",
+          "qty": 20
+        }
+      ],
+      "version": 1,
+      "visible": true,
+      "run": 4,
+      "trigger": "Program rows",
+      "before": {
+        "selection": {
+          "cells": [
+            [
+              2,
+              "qty"
+            ]
+          ],
+          "columns": [
+            "qty"
+          ],
+          "rows": [
+            1
+          ]
+        }
+      },
+      "expected_returned_type": "DataframeState",
+      "expected_returned": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0
+          ]
+        }
+      },
+      "expected_key_present": true,
+      "expected_keyed": {
+        "selection": {
+          "rows": [
+            0
+          ]
+        }
+      },
+      "events": [
+        {
+          "kind": "main",
+          "run": 1
+        },
+        {
+          "kind": "callback",
+          "run_seen": 1,
+          "state": {
+            "selection": {
+              "cells": [
+                [
+                  2,
+                  "qty"
+                ]
+              ],
+              "columns": [
+                "qty"
+              ],
+              "rows": [
+                1
+              ]
+            }
+          }
+        },
+        {
+          "kind": "main",
+          "run": 2
+        },
+        {
+          "kind": "main",
+          "run": 3
+        },
+        {
+          "kind": "main",
+          "run": 4
+        }
+      ],
+      "visual_cells": [
+        {
+          "id": "glide-cell-1-0",
+          "text": "rC"
+        },
+        {
+          "id": "glide-cell-2-0",
+          "text": "30"
+        },
+        {
+          "id": "glide-cell-3-0",
+          "text": "C"
+        },
+        {
+          "id": "glide-cell-1-1",
+          "text": "rA"
+        },
+        {
+          "id": "glide-cell-2-1",
+          "text": "10"
+        },
+        {
+          "id": "glide-cell-3-1",
+          "text": "A"
+        },
+        {
+          "id": "glide-cell-1-2",
+          "text": "rB"
+        },
+        {
+          "id": "glide-cell-2-2",
+          "text": "20"
+        },
+        {
+          "id": "glide-cell-3-2",
+          "text": "B"
+        }
+      ],
+      "screenshot": {
+        "file": "first-attempt/16-single-combo-program-rows.png",
+        "bytes": 32765,
+        "sha256": "bf651e01660b6c3da1d78f249fb8e1096c4d75c91b35990e05d123e762b98859"
+      },
+      "target_widget_states": [
+        {
+          "frame_index": 229,
+          "message_oneof": "rerun_script",
+          "id": "$$ID-e35f9c9cd722f43fdf9ccf092ceabbff-selection-single-combo",
+          "value_oneof": "string_value",
+          "value": "{\"selection\":{\"rows\":[1],\"columns\":[\"qty\"],\"cells\":[[2,\"qty\"]]}}"
+        }
+      ],
+      "dataframes": [
+        {
+          "frame_index": 247,
+          "message_oneof": "delta",
+          "delta_oneof": "new_element",
+          "element_oneof": "dataframe",
+          "delta_path": [
+            0,
+            3
+          ],
+          "fields": {
+            "id": "$$ID-e35f9c9cd722f43fdf9ccf092ceabbff-selection-single-combo",
+            "columns": "{\"id\": {\"width\": 160}, \"qty\": {\"width\": 160}, \"label\": {\"width\": 160}, \"_index\": {\"hidden\": true}}",
+            "selection_mode": [
+              "SINGLE_ROW",
+              "SINGLE_COLUMN",
+              "SINGLE_CELL"
+            ],
+            "row_height": 32,
+            "selection_state": "{\"selection\": {\"rows\": [0], \"columns\": [], \"cells\": []}}",
+            "selection_default": "{\"selection\": {\"rows\": [1], \"columns\": [\"qty\"], \"cells\": [[2, \"label\"]]}}"
+          }
+        }
+      ],
+      "run_messages": [
+        {
+          "frame_index": 230,
+          "message_oneof": "new_session",
+          "script_run_id": "96b2c36e-30e5-4461-9559-89046a333d7f",
+          "session_id": "0e96953b-f1a9-4ccc-a568-169bd94fd1cb",
+          "wire_version": "1.66.1"
+        },
+        {
+          "frame_index": 249,
+          "message_oneof": "script_finished",
+          "status": "FINISHED_SUCCESSFULLY"
+        }
+      ]
+    },
+    {
+      "capture": "first-attempt",
+      "case": "single-combo",
+      "name": "program-columns",
+      "did_run": true,
+      "wait": "run",
+      "frame_start": 251,
+      "frame_end": 273,
+      "command_start": 82,
+      "command_end": 86,
+      "input_rows": [
+        {
+          "id": "rC",
+          "label": "C",
+          "qty": 30
+        },
+        {
+          "id": "rA",
+          "label": "A",
+          "qty": 10
+        },
+        {
+          "id": "rB",
+          "label": "B",
+          "qty": 20
+        }
+      ],
+      "version": 1,
+      "visible": true,
+      "run": 5,
+      "trigger": "Program columns",
+      "before": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0
+          ]
+        }
+      },
+      "expected_returned_type": "DataframeState",
+      "expected_returned": {
+        "selection": {
+          "cells": [],
+          "columns": [
+            "id"
+          ],
+          "rows": []
+        }
+      },
+      "expected_key_present": true,
+      "expected_keyed": {
+        "selection": {
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "events": [
+        {
+          "kind": "main",
+          "run": 1
+        },
+        {
+          "kind": "callback",
+          "run_seen": 1,
+          "state": {
+            "selection": {
+              "cells": [
+                [
+                  2,
+                  "qty"
+                ]
+              ],
+              "columns": [
+                "qty"
+              ],
+              "rows": [
+                1
+              ]
+            }
+          }
+        },
+        {
+          "kind": "main",
+          "run": 2
+        },
+        {
+          "kind": "main",
+          "run": 3
+        },
+        {
+          "kind": "main",
+          "run": 4
+        },
+        {
+          "kind": "callback",
+          "run_seen": 4,
+          "state": {
+            "selection": {
+              "cells": [],
+              "columns": [],
+              "rows": [
+                0
+              ]
+            }
+          }
+        },
+        {
+          "kind": "main",
+          "run": 5
+        }
+      ],
+      "visual_cells": [
+        {
+          "id": "glide-cell-1-0",
+          "text": "rC"
+        },
+        {
+          "id": "glide-cell-2-0",
+          "text": "30"
+        },
+        {
+          "id": "glide-cell-3-0",
+          "text": "C"
+        },
+        {
+          "id": "glide-cell-1-1",
+          "text": "rA"
+        },
+        {
+          "id": "glide-cell-2-1",
+          "text": "10"
+        },
+        {
+          "id": "glide-cell-3-1",
+          "text": "A"
+        },
+        {
+          "id": "glide-cell-1-2",
+          "text": "rB"
+        },
+        {
+          "id": "glide-cell-2-2",
+          "text": "20"
+        },
+        {
+          "id": "glide-cell-3-2",
+          "text": "B"
+        }
+      ],
+      "screenshot": {
+        "file": "first-attempt/17-single-combo-program-columns.png",
+        "bytes": 32390,
+        "sha256": "fed38520c77f8342621026f1a2760a6a699c744509a895ea6a4f9eedf2096dba"
+      },
+      "target_widget_states": [
+        {
+          "frame_index": 251,
+          "message_oneof": "rerun_script",
+          "id": "$$ID-e35f9c9cd722f43fdf9ccf092ceabbff-selection-single-combo",
+          "value_oneof": "string_value",
+          "value": "{\"selection\": {\"rows\": [0], \"columns\": [], \"cells\": []}}"
+        }
+      ],
+      "dataframes": [
+        {
+          "frame_index": 269,
+          "message_oneof": "delta",
+          "delta_oneof": "new_element",
+          "element_oneof": "dataframe",
+          "delta_path": [
+            0,
+            3
+          ],
+          "fields": {
+            "id": "$$ID-e35f9c9cd722f43fdf9ccf092ceabbff-selection-single-combo",
+            "columns": "{\"id\": {\"width\": 160}, \"qty\": {\"width\": 160}, \"label\": {\"width\": 160}, \"_index\": {\"hidden\": true}}",
+            "selection_mode": [
+              "SINGLE_ROW",
+              "SINGLE_COLUMN",
+              "SINGLE_CELL"
+            ],
+            "row_height": 32,
+            "selection_state": "{\"selection\": {\"rows\": [], \"columns\": [\"id\"], \"cells\": []}}",
+            "selection_default": "{\"selection\": {\"rows\": [1], \"columns\": [\"qty\"], \"cells\": [[2, \"label\"]]}}"
+          }
+        }
+      ],
+      "run_messages": [
+        {
+          "frame_index": 252,
+          "message_oneof": "new_session",
+          "script_run_id": "606e1aa8-abff-4715-ad86-6dcec0c3e503",
+          "session_id": "0e96953b-f1a9-4ccc-a568-169bd94fd1cb",
+          "wire_version": "1.66.1"
+        },
+        {
+          "frame_index": 271,
+          "message_oneof": "script_finished",
+          "status": "FINISHED_SUCCESSFULLY"
+        }
+      ]
+    },
+    {
+      "capture": "first-attempt",
+      "case": "single-combo",
+      "name": "program-cells",
+      "did_run": true,
+      "wait": "run",
+      "frame_start": 273,
+      "frame_end": 295,
+      "command_start": 87,
+      "command_end": 91,
+      "input_rows": [
+        {
+          "id": "rC",
+          "label": "C",
+          "qty": 30
+        },
+        {
+          "id": "rA",
+          "label": "A",
+          "qty": 10
+        },
+        {
+          "id": "rB",
+          "label": "B",
+          "qty": 20
+        }
+      ],
+      "version": 1,
+      "visible": true,
+      "run": 6,
+      "trigger": "Program cells",
+      "before": {
+        "selection": {
+          "cells": [],
+          "columns": [
+            "id"
+          ],
+          "rows": []
+        }
+      },
+      "expected_returned_type": "DataframeState",
+      "expected_returned": {
+        "selection": {
+          "cells": [
+            [
+              0,
+              "qty"
+            ]
+          ],
+          "columns": [],
+          "rows": []
+        }
+      },
+      "expected_key_present": true,
+      "expected_keyed": {
+        "selection": {
+          "cells": [
+            [
+              0,
+              "qty"
+            ]
+          ]
+        }
+      },
+      "events": [
+        {
+          "kind": "main",
+          "run": 1
+        },
+        {
+          "kind": "callback",
+          "run_seen": 1,
+          "state": {
+            "selection": {
+              "cells": [
+                [
+                  2,
+                  "qty"
+                ]
+              ],
+              "columns": [
+                "qty"
+              ],
+              "rows": [
+                1
+              ]
+            }
+          }
+        },
+        {
+          "kind": "main",
+          "run": 2
+        },
+        {
+          "kind": "main",
+          "run": 3
+        },
+        {
+          "kind": "main",
+          "run": 4
+        },
+        {
+          "kind": "callback",
+          "run_seen": 4,
+          "state": {
+            "selection": {
+              "cells": [],
+              "columns": [],
+              "rows": [
+                0
+              ]
+            }
+          }
+        },
+        {
+          "kind": "main",
+          "run": 5
+        },
+        {
+          "kind": "callback",
+          "run_seen": 5,
+          "state": {
+            "selection": {
+              "cells": [],
+              "columns": [
+                "id"
+              ],
+              "rows": []
+            }
+          }
+        },
+        {
+          "kind": "main",
+          "run": 6
+        }
+      ],
+      "visual_cells": [
+        {
+          "id": "glide-cell-1-0",
+          "text": "rC"
+        },
+        {
+          "id": "glide-cell-2-0",
+          "text": "30"
+        },
+        {
+          "id": "glide-cell-3-0",
+          "text": "C"
+        },
+        {
+          "id": "glide-cell-1-1",
+          "text": "rA"
+        },
+        {
+          "id": "glide-cell-2-1",
+          "text": "10"
+        },
+        {
+          "id": "glide-cell-3-1",
+          "text": "A"
+        },
+        {
+          "id": "glide-cell-1-2",
+          "text": "rB"
+        },
+        {
+          "id": "glide-cell-2-2",
+          "text": "20"
+        },
+        {
+          "id": "glide-cell-3-2",
+          "text": "B"
+        }
+      ],
+      "screenshot": {
+        "file": "first-attempt/18-single-combo-program-cells.png",
+        "bytes": 32469,
+        "sha256": "68480dd84a9d9803b49246805c75fcf050c1a044c142bc30dce362b9bba1053e"
+      },
+      "target_widget_states": [
+        {
+          "frame_index": 273,
+          "message_oneof": "rerun_script",
+          "id": "$$ID-e35f9c9cd722f43fdf9ccf092ceabbff-selection-single-combo",
+          "value_oneof": "string_value",
+          "value": "{\"selection\": {\"rows\": [], \"columns\": [\"id\"], \"cells\": []}}"
+        }
+      ],
+      "dataframes": [
+        {
+          "frame_index": 291,
+          "message_oneof": "delta",
+          "delta_oneof": "new_element",
+          "element_oneof": "dataframe",
+          "delta_path": [
+            0,
+            3
+          ],
+          "fields": {
+            "id": "$$ID-e35f9c9cd722f43fdf9ccf092ceabbff-selection-single-combo",
+            "columns": "{\"id\": {\"width\": 160}, \"qty\": {\"width\": 160}, \"label\": {\"width\": 160}, \"_index\": {\"hidden\": true}}",
+            "selection_mode": [
+              "SINGLE_ROW",
+              "SINGLE_COLUMN",
+              "SINGLE_CELL"
+            ],
+            "row_height": 32,
+            "selection_state": "{\"selection\": {\"rows\": [], \"columns\": [], \"cells\": [[0, \"qty\"]]}}",
+            "selection_default": "{\"selection\": {\"rows\": [1], \"columns\": [\"qty\"], \"cells\": [[2, \"label\"]]}}"
+          }
+        }
+      ],
+      "run_messages": [
+        {
+          "frame_index": 274,
+          "message_oneof": "new_session",
+          "script_run_id": "2d8611d9-c694-4126-8653-b4fdf1cc3b80",
+          "session_id": "0e96953b-f1a9-4ccc-a568-169bd94fd1cb",
+          "wire_version": "1.66.1"
+        },
+        {
+          "frame_index": 293,
+          "message_oneof": "script_finished",
+          "status": "FINISHED_SUCCESSFULLY"
+        }
+      ]
+    },
+    {
+      "capture": "first-attempt",
+      "case": "single-combo",
+      "name": "callback-cell",
+      "did_run": true,
+      "wait": "run",
+      "frame_start": 295,
+      "frame_end": 317,
+      "command_start": 92,
+      "command_end": 96,
+      "input_rows": [
+        {
+          "id": "rC",
+          "label": "C",
+          "qty": 30
+        },
+        {
+          "id": "rA",
+          "label": "A",
+          "qty": 10
+        },
+        {
+          "id": "rB",
+          "label": "B",
+          "qty": 20
+        }
+      ],
+      "version": 1,
+      "visible": true,
+      "run": 7,
+      "trigger": null,
+      "before": {
+        "selection": {
+          "cells": [
+            [
+              1,
+              "qty"
+            ]
+          ],
+          "columns": [],
+          "rows": []
+        }
+      },
+      "expected_returned_type": "DataframeState",
+      "expected_returned": {
+        "selection": {
+          "cells": [
+            [
+              1,
+              "qty"
+            ]
+          ],
+          "columns": [],
+          "rows": []
+        }
+      },
+      "expected_key_present": true,
+      "expected_keyed": {
+        "selection": {
+          "cells": [
+            [
+              1,
+              "qty"
+            ]
+          ],
+          "columns": [],
+          "rows": []
+        }
+      },
+      "events": [
+        {
+          "kind": "main",
+          "run": 1
+        },
+        {
+          "kind": "callback",
+          "run_seen": 1,
+          "state": {
+            "selection": {
+              "cells": [
+                [
+                  2,
+                  "qty"
+                ]
+              ],
+              "columns": [
+                "qty"
+              ],
+              "rows": [
+                1
+              ]
+            }
+          }
+        },
+        {
+          "kind": "main",
+          "run": 2
+        },
+        {
+          "kind": "main",
+          "run": 3
+        },
+        {
+          "kind": "main",
+          "run": 4
+        },
+        {
+          "kind": "callback",
+          "run_seen": 4,
+          "state": {
+            "selection": {
+              "cells": [],
+              "columns": [],
+              "rows": [
+                0
+              ]
+            }
+          }
+        },
+        {
+          "kind": "main",
+          "run": 5
+        },
+        {
+          "kind": "callback",
+          "run_seen": 5,
+          "state": {
+            "selection": {
+              "cells": [],
+              "columns": [
+                "id"
+              ],
+              "rows": []
+            }
+          }
+        },
+        {
+          "kind": "main",
+          "run": 6
+        },
+        {
+          "kind": "callback",
+          "run_seen": 6,
+          "state": {
+            "selection": {
+              "cells": [
+                [
+                  1,
+                  "qty"
+                ]
+              ],
+              "columns": [],
+              "rows": []
+            }
+          }
+        },
+        {
+          "kind": "main",
+          "run": 7
+        }
+      ],
+      "visual_cells": [
+        {
+          "id": "glide-cell-1-0",
+          "text": "rC"
+        },
+        {
+          "id": "glide-cell-2-0",
+          "text": "30"
+        },
+        {
+          "id": "glide-cell-3-0",
+          "text": "C"
+        },
+        {
+          "id": "glide-cell-1-1",
+          "text": "rA"
+        },
+        {
+          "id": "glide-cell-2-1",
+          "text": "10"
+        },
+        {
+          "id": "glide-cell-3-1",
+          "text": "A"
+        },
+        {
+          "id": "glide-cell-1-2",
+          "text": "rB"
+        },
+        {
+          "id": "glide-cell-2-2",
+          "text": "20"
+        },
+        {
+          "id": "glide-cell-3-2",
+          "text": "B"
+        }
+      ],
+      "screenshot": {
+        "file": "first-attempt/19-single-combo-callback-cell.png",
+        "bytes": 30979,
+        "sha256": "64c120d4060589415346b00aa6237cf812c61504b69eb42687c6be3c6aa880e5"
+      },
+      "target_widget_states": [
+        {
+          "frame_index": 295,
+          "message_oneof": "rerun_script",
+          "id": "$$ID-e35f9c9cd722f43fdf9ccf092ceabbff-selection-single-combo",
+          "value_oneof": "string_value",
+          "value": "{\"selection\":{\"rows\":[],\"columns\":[],\"cells\":[[1,\"qty\"]]}}"
+        }
+      ],
+      "dataframes": [
+        {
+          "frame_index": 313,
+          "message_oneof": "delta",
+          "delta_oneof": "new_element",
+          "element_oneof": "dataframe",
+          "delta_path": [
+            0,
+            3
+          ],
+          "fields": {
+            "id": "$$ID-e35f9c9cd722f43fdf9ccf092ceabbff-selection-single-combo",
+            "columns": "{\"id\": {\"width\": 160}, \"qty\": {\"width\": 160}, \"label\": {\"width\": 160}, \"_index\": {\"hidden\": true}}",
+            "selection_mode": [
+              "SINGLE_ROW",
+              "SINGLE_COLUMN",
+              "SINGLE_CELL"
+            ],
+            "row_height": 32,
+            "selection_default": "{\"selection\": {\"rows\": [1], \"columns\": [\"qty\"], \"cells\": [[2, \"label\"]]}}"
+          }
+        }
+      ],
+      "run_messages": [
+        {
+          "frame_index": 296,
+          "message_oneof": "new_session",
+          "script_run_id": "0c9c36d0-e502-42da-9f2b-8816efc58901",
+          "session_id": "0e96953b-f1a9-4ccc-a568-169bd94fd1cb",
+          "wire_version": "1.66.1"
+        },
+        {
+          "frame_index": 315,
+          "message_oneof": "script_finished",
+          "status": "FINISHED_SUCCESSFULLY"
+        }
+      ]
+    },
+    {
+      "capture": "first-attempt",
+      "case": "multi-combo",
+      "name": "load",
+      "did_run": true,
+      "wait": "run",
+      "frame_start": 317,
+      "frame_end": 332,
+      "command_start": 97,
+      "command_end": 99,
+      "input_rows": [
+        {
+          "id": "rC",
+          "label": "C",
+          "qty": 30
+        },
+        {
+          "id": "rA",
+          "label": "A",
+          "qty": 10
+        },
+        {
+          "id": "rB",
+          "label": "B",
+          "qty": 20
+        }
+      ],
+      "version": 1,
+      "visible": true,
+      "run": 1,
+      "trigger": null,
+      "before": null,
+      "expected_returned_type": "DataframeState",
+      "expected_returned": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": []
+        }
+      },
+      "expected_key_present": true,
+      "expected_keyed": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": []
+        }
+      },
+      "events": [
+        {
+          "kind": "main",
+          "run": 1
+        }
+      ],
+      "visual_cells": [
+        {
+          "id": "glide-cell-1-0",
+          "text": "rC"
+        },
+        {
+          "id": "glide-cell-2-0",
+          "text": "30"
+        },
+        {
+          "id": "glide-cell-3-0",
+          "text": "C"
+        },
+        {
+          "id": "glide-cell-1-1",
+          "text": "rA"
+        },
+        {
+          "id": "glide-cell-2-1",
+          "text": "10"
+        },
+        {
+          "id": "glide-cell-3-1",
+          "text": "A"
+        },
+        {
+          "id": "glide-cell-1-2",
+          "text": "rB"
+        },
+        {
+          "id": "glide-cell-2-2",
+          "text": "20"
+        },
+        {
+          "id": "glide-cell-3-2",
+          "text": "B"
+        }
+      ],
+      "screenshot": {
+        "file": "first-attempt/20-multi-combo-load.png",
+        "bytes": 27652,
+        "sha256": "d4868053ddc8d2b37f7e7a934818b2a15e4de76aa8365f3bb11e0824fb22a3e5"
+      },
+      "target_widget_states": [],
+      "dataframes": [
+        {
+          "frame_index": 328,
+          "message_oneof": "delta",
+          "delta_oneof": "new_element",
+          "element_oneof": "dataframe",
+          "delta_path": [
+            0,
+            2
+          ],
+          "fields": {
+            "id": "$$ID-45c3f1ba36f6f18ec36c2fcc7e5f5436-selection-multi-combo",
+            "columns": "{\"id\": {\"width\": 160}, \"qty\": {\"width\": 160}, \"label\": {\"width\": 160}, \"_index\": {\"hidden\": true}}",
+            "selection_mode": [
+              "MULTI_ROW",
+              "MULTI_COLUMN",
+              "MULTI_CELL"
+            ],
+            "row_height": 32
+          }
+        }
+      ],
+      "run_messages": [
+        {
+          "frame_index": 318,
+          "message_oneof": "new_session",
+          "script_run_id": "44d0d6d0-1d6f-45f7-b8fa-80a11786f7b1",
+          "session_id": "77ff42f1-8093-4360-a9b4-69e99249bb33",
+          "wire_version": "1.66.1"
+        },
+        {
+          "frame_index": 330,
+          "message_oneof": "script_finished",
+          "status": "FINISHED_SUCCESSFULLY"
+        }
+      ]
+    },
+    {
+      "capture": "first-attempt",
+      "case": "multi-combo",
+      "name": "row-first",
+      "did_run": true,
+      "wait": "run",
+      "frame_start": 332,
+      "frame_end": 347,
+      "command_start": 100,
+      "command_end": 104,
+      "input_rows": [
+        {
+          "id": "rC",
+          "label": "C",
+          "qty": 30
+        },
+        {
+          "id": "rA",
+          "label": "A",
+          "qty": 10
+        },
+        {
+          "id": "rB",
+          "label": "B",
+          "qty": 20
+        }
+      ],
+      "version": 1,
+      "visible": true,
+      "run": 2,
+      "trigger": null,
+      "before": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0
+          ]
+        }
+      },
+      "expected_returned_type": "DataframeState",
+      "expected_returned": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0
+          ]
+        }
+      },
+      "expected_key_present": true,
+      "expected_keyed": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0
+          ]
+        }
+      },
+      "events": [
+        {
+          "kind": "main",
+          "run": 1
+        },
+        {
+          "kind": "main",
+          "run": 2
+        }
+      ],
+      "visual_cells": [
+        {
+          "id": "glide-cell-1-0",
+          "text": "rC"
+        },
+        {
+          "id": "glide-cell-2-0",
+          "text": "30"
+        },
+        {
+          "id": "glide-cell-3-0",
+          "text": "C"
+        },
+        {
+          "id": "glide-cell-1-1",
+          "text": "rA"
+        },
+        {
+          "id": "glide-cell-2-1",
+          "text": "10"
+        },
+        {
+          "id": "glide-cell-3-1",
+          "text": "A"
+        },
+        {
+          "id": "glide-cell-1-2",
+          "text": "rB"
+        },
+        {
+          "id": "glide-cell-2-2",
+          "text": "20"
+        },
+        {
+          "id": "glide-cell-3-2",
+          "text": "B"
+        }
+      ],
+      "screenshot": {
+        "file": "first-attempt/21-multi-combo-row-first.png",
+        "bytes": 27579,
+        "sha256": "c680c9ee7fe79fb4d1dfa353d34ca653d972b97439981950e609715fbc7882f1"
+      },
+      "target_widget_states": [
+        {
+          "frame_index": 332,
+          "message_oneof": "rerun_script",
+          "id": "$$ID-45c3f1ba36f6f18ec36c2fcc7e5f5436-selection-multi-combo",
+          "value_oneof": "string_value",
+          "value": "{\"selection\":{\"rows\":[0],\"columns\":[],\"cells\":[]}}"
+        }
+      ],
+      "dataframes": [
+        {
+          "frame_index": 343,
+          "message_oneof": "delta",
+          "delta_oneof": "new_element",
+          "element_oneof": "dataframe",
+          "delta_path": [
+            0,
+            2
+          ],
+          "fields": {
+            "id": "$$ID-45c3f1ba36f6f18ec36c2fcc7e5f5436-selection-multi-combo",
+            "columns": "{\"id\": {\"width\": 160}, \"qty\": {\"width\": 160}, \"label\": {\"width\": 160}, \"_index\": {\"hidden\": true}}",
+            "selection_mode": [
+              "MULTI_ROW",
+              "MULTI_COLUMN",
+              "MULTI_CELL"
+            ],
+            "row_height": 32
+          }
+        }
+      ],
+      "run_messages": [
+        {
+          "frame_index": 333,
+          "message_oneof": "new_session",
+          "script_run_id": "f3ee646a-38ea-487f-b73f-7d1f2b07845b",
+          "session_id": "77ff42f1-8093-4360-a9b4-69e99249bb33",
+          "wire_version": "1.66.1"
+        },
+        {
+          "frame_index": 345,
+          "message_oneof": "script_finished",
+          "status": "FINISHED_SUCCESSFULLY"
+        }
+      ]
+    },
+    {
+      "capture": "first-attempt",
+      "case": "multi-combo",
+      "name": "row-third",
+      "did_run": true,
+      "wait": "run",
+      "frame_start": 347,
+      "frame_end": 362,
+      "command_start": 105,
+      "command_end": 109,
+      "input_rows": [
+        {
+          "id": "rC",
+          "label": "C",
+          "qty": 30
+        },
+        {
+          "id": "rA",
+          "label": "A",
+          "qty": 10
+        },
+        {
+          "id": "rB",
+          "label": "B",
+          "qty": 20
+        }
+      ],
+      "version": 1,
+      "visible": true,
+      "run": 3,
+      "trigger": null,
+      "before": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0,
+            2
+          ]
+        }
+      },
+      "expected_returned_type": "DataframeState",
+      "expected_returned": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0,
+            2
+          ]
+        }
+      },
+      "expected_key_present": true,
+      "expected_keyed": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0,
+            2
+          ]
+        }
+      },
+      "events": [
+        {
+          "kind": "main",
+          "run": 1
+        },
+        {
+          "kind": "main",
+          "run": 2
+        },
+        {
+          "kind": "main",
+          "run": 3
+        }
+      ],
+      "visual_cells": [
+        {
+          "id": "glide-cell-1-0",
+          "text": "rC"
+        },
+        {
+          "id": "glide-cell-2-0",
+          "text": "30"
+        },
+        {
+          "id": "glide-cell-3-0",
+          "text": "C"
+        },
+        {
+          "id": "glide-cell-1-1",
+          "text": "rA"
+        },
+        {
+          "id": "glide-cell-2-1",
+          "text": "10"
+        },
+        {
+          "id": "glide-cell-3-1",
+          "text": "A"
+        },
+        {
+          "id": "glide-cell-1-2",
+          "text": "rB"
+        },
+        {
+          "id": "glide-cell-2-2",
+          "text": "20"
+        },
+        {
+          "id": "glide-cell-3-2",
+          "text": "B"
+        }
+      ],
+      "screenshot": {
+        "file": "first-attempt/22-multi-combo-row-third.png",
+        "bytes": 27620,
+        "sha256": "1df3ccbd7058bcafc38161bc08d2f37e938d492bb4a00dfbdae00a956d40a52a"
+      },
+      "target_widget_states": [
+        {
+          "frame_index": 347,
+          "message_oneof": "rerun_script",
+          "id": "$$ID-45c3f1ba36f6f18ec36c2fcc7e5f5436-selection-multi-combo",
+          "value_oneof": "string_value",
+          "value": "{\"selection\":{\"rows\":[0,2],\"columns\":[],\"cells\":[]}}"
+        }
+      ],
+      "dataframes": [
+        {
+          "frame_index": 358,
+          "message_oneof": "delta",
+          "delta_oneof": "new_element",
+          "element_oneof": "dataframe",
+          "delta_path": [
+            0,
+            2
+          ],
+          "fields": {
+            "id": "$$ID-45c3f1ba36f6f18ec36c2fcc7e5f5436-selection-multi-combo",
+            "columns": "{\"id\": {\"width\": 160}, \"qty\": {\"width\": 160}, \"label\": {\"width\": 160}, \"_index\": {\"hidden\": true}}",
+            "selection_mode": [
+              "MULTI_ROW",
+              "MULTI_COLUMN",
+              "MULTI_CELL"
+            ],
+            "row_height": 32
+          }
+        }
+      ],
+      "run_messages": [
+        {
+          "frame_index": 348,
+          "message_oneof": "new_session",
+          "script_run_id": "06ca6dfa-d573-4506-919c-d5a542da45fb",
+          "session_id": "77ff42f1-8093-4360-a9b4-69e99249bb33",
+          "wire_version": "1.66.1"
+        },
+        {
+          "frame_index": 360,
+          "message_oneof": "script_finished",
+          "status": "FINISHED_SUCCESSFULLY"
+        }
+      ]
+    },
+    {
+      "capture": "first-attempt",
+      "case": "multi-combo",
+      "name": "column-id",
+      "did_run": true,
+      "wait": "run",
+      "frame_start": 362,
+      "frame_end": 377,
+      "command_start": 110,
+      "command_end": 114,
+      "input_rows": [
+        {
+          "id": "rC",
+          "label": "C",
+          "qty": 30
+        },
+        {
+          "id": "rA",
+          "label": "A",
+          "qty": 10
+        },
+        {
+          "id": "rB",
+          "label": "B",
+          "qty": 20
+        }
+      ],
+      "version": 1,
+      "visible": true,
+      "run": 4,
+      "trigger": null,
+      "before": {
+        "selection": {
+          "cells": [],
+          "columns": [
+            "id"
+          ],
+          "rows": [
+            0,
+            2
+          ]
+        }
+      },
+      "expected_returned_type": "DataframeState",
+      "expected_returned": {
+        "selection": {
+          "cells": [],
+          "columns": [
+            "id"
+          ],
+          "rows": [
+            0,
+            2
+          ]
+        }
+      },
+      "expected_key_present": true,
+      "expected_keyed": {
+        "selection": {
+          "cells": [],
+          "columns": [
+            "id"
+          ],
+          "rows": [
+            0,
+            2
+          ]
+        }
+      },
+      "events": [
+        {
+          "kind": "main",
+          "run": 1
+        },
+        {
+          "kind": "main",
+          "run": 2
+        },
+        {
+          "kind": "main",
+          "run": 3
+        },
+        {
+          "kind": "main",
+          "run": 4
+        }
+      ],
+      "visual_cells": [
+        {
+          "id": "glide-cell-1-0",
+          "text": "rC"
+        },
+        {
+          "id": "glide-cell-2-0",
+          "text": "30"
+        },
+        {
+          "id": "glide-cell-3-0",
+          "text": "C"
+        },
+        {
+          "id": "glide-cell-1-1",
+          "text": "rA"
+        },
+        {
+          "id": "glide-cell-2-1",
+          "text": "10"
+        },
+        {
+          "id": "glide-cell-3-1",
+          "text": "A"
+        },
+        {
+          "id": "glide-cell-1-2",
+          "text": "rB"
+        },
+        {
+          "id": "glide-cell-2-2",
+          "text": "20"
+        },
+        {
+          "id": "glide-cell-3-2",
+          "text": "B"
+        }
+      ],
+      "screenshot": {
+        "file": "first-attempt/23-multi-combo-column-id.png",
+        "bytes": 28286,
+        "sha256": "17e8654028f6459c401feed617cbeb40b1f16cdb1d3ad6e08b3edcaf600e95f5"
+      },
+      "target_widget_states": [
+        {
+          "frame_index": 362,
+          "message_oneof": "rerun_script",
+          "id": "$$ID-45c3f1ba36f6f18ec36c2fcc7e5f5436-selection-multi-combo",
+          "value_oneof": "string_value",
+          "value": "{\"selection\":{\"rows\":[0,2],\"columns\":[\"id\"],\"cells\":[]}}"
+        }
+      ],
+      "dataframes": [
+        {
+          "frame_index": 373,
+          "message_oneof": "delta",
+          "delta_oneof": "new_element",
+          "element_oneof": "dataframe",
+          "delta_path": [
+            0,
+            2
+          ],
+          "fields": {
+            "id": "$$ID-45c3f1ba36f6f18ec36c2fcc7e5f5436-selection-multi-combo",
+            "columns": "{\"id\": {\"width\": 160}, \"qty\": {\"width\": 160}, \"label\": {\"width\": 160}, \"_index\": {\"hidden\": true}}",
+            "selection_mode": [
+              "MULTI_ROW",
+              "MULTI_COLUMN",
+              "MULTI_CELL"
+            ],
+            "row_height": 32
+          }
+        }
+      ],
+      "run_messages": [
+        {
+          "frame_index": 363,
+          "message_oneof": "new_session",
+          "script_run_id": "ae30e081-1ae3-4043-9e8c-a4a1bb693d53",
+          "session_id": "77ff42f1-8093-4360-a9b4-69e99249bb33",
+          "wire_version": "1.66.1"
+        },
+        {
+          "frame_index": 375,
+          "message_oneof": "script_finished",
+          "status": "FINISHED_SUCCESSFULLY"
+        }
+      ]
+    },
+    {
+      "capture": "first-attempt",
+      "case": "multi-combo",
+      "name": "column-qty",
+      "did_run": true,
+      "wait": "run",
+      "frame_start": 377,
+      "frame_end": 392,
+      "command_start": 115,
+      "command_end": 119,
+      "input_rows": [
+        {
+          "id": "rC",
+          "label": "C",
+          "qty": 30
+        },
+        {
+          "id": "rA",
+          "label": "A",
+          "qty": 10
+        },
+        {
+          "id": "rB",
+          "label": "B",
+          "qty": 20
+        }
+      ],
+      "version": 1,
+      "visible": true,
+      "run": 5,
+      "trigger": null,
+      "before": {
+        "selection": {
+          "cells": [],
+          "columns": [
+            "id",
+            "qty"
+          ],
+          "rows": [
+            0,
+            2
+          ]
+        }
+      },
+      "expected_returned_type": "DataframeState",
+      "expected_returned": {
+        "selection": {
+          "cells": [],
+          "columns": [
+            "id",
+            "qty"
+          ],
+          "rows": [
+            0,
+            2
+          ]
+        }
+      },
+      "expected_key_present": true,
+      "expected_keyed": {
+        "selection": {
+          "cells": [],
+          "columns": [
+            "id",
+            "qty"
+          ],
+          "rows": [
+            0,
+            2
+          ]
+        }
+      },
+      "events": [
+        {
+          "kind": "main",
+          "run": 1
+        },
+        {
+          "kind": "main",
+          "run": 2
+        },
+        {
+          "kind": "main",
+          "run": 3
+        },
+        {
+          "kind": "main",
+          "run": 4
+        },
+        {
+          "kind": "main",
+          "run": 5
+        }
+      ],
+      "visual_cells": [
+        {
+          "id": "glide-cell-1-0",
+          "text": "rC"
+        },
+        {
+          "id": "glide-cell-2-0",
+          "text": "30"
+        },
+        {
+          "id": "glide-cell-3-0",
+          "text": "C"
+        },
+        {
+          "id": "glide-cell-1-1",
+          "text": "rA"
+        },
+        {
+          "id": "glide-cell-2-1",
+          "text": "10"
+        },
+        {
+          "id": "glide-cell-3-1",
+          "text": "A"
+        },
+        {
+          "id": "glide-cell-1-2",
+          "text": "rB"
+        },
+        {
+          "id": "glide-cell-2-2",
+          "text": "20"
+        },
+        {
+          "id": "glide-cell-3-2",
+          "text": "B"
+        }
+      ],
+      "screenshot": {
+        "file": "first-attempt/24-multi-combo-column-qty.png",
+        "bytes": 28271,
+        "sha256": "3c6c27f3a7f9cefdefa6b246d439e4a550d7f5627293b90f909407345b4a7130"
+      },
+      "target_widget_states": [
+        {
+          "frame_index": 377,
+          "message_oneof": "rerun_script",
+          "id": "$$ID-45c3f1ba36f6f18ec36c2fcc7e5f5436-selection-multi-combo",
+          "value_oneof": "string_value",
+          "value": "{\"selection\":{\"rows\":[0,2],\"columns\":[\"id\",\"qty\"],\"cells\":[]}}"
+        }
+      ],
+      "dataframes": [
+        {
+          "frame_index": 388,
+          "message_oneof": "delta",
+          "delta_oneof": "new_element",
+          "element_oneof": "dataframe",
+          "delta_path": [
+            0,
+            2
+          ],
+          "fields": {
+            "id": "$$ID-45c3f1ba36f6f18ec36c2fcc7e5f5436-selection-multi-combo",
+            "columns": "{\"id\": {\"width\": 160}, \"qty\": {\"width\": 160}, \"label\": {\"width\": 160}, \"_index\": {\"hidden\": true}}",
+            "selection_mode": [
+              "MULTI_ROW",
+              "MULTI_COLUMN",
+              "MULTI_CELL"
+            ],
+            "row_height": 32
+          }
+        }
+      ],
+      "run_messages": [
+        {
+          "frame_index": 378,
+          "message_oneof": "new_session",
+          "script_run_id": "716b6555-bff2-4cef-98ec-c297b5bd2c68",
+          "session_id": "77ff42f1-8093-4360-a9b4-69e99249bb33",
+          "wire_version": "1.66.1"
+        },
+        {
+          "frame_index": 390,
+          "message_oneof": "script_finished",
+          "status": "FINISHED_SUCCESSFULLY"
+        }
+      ]
+    },
+    {
+      "capture": "first-attempt",
+      "case": "multi-combo",
+      "name": "rectangle",
+      "did_run": true,
+      "wait": "run",
+      "frame_start": 392,
+      "frame_end": 407,
+      "command_start": 120,
+      "command_end": 126,
+      "input_rows": [
+        {
+          "id": "rC",
+          "label": "C",
+          "qty": 30
+        },
+        {
+          "id": "rA",
+          "label": "A",
+          "qty": 10
+        },
+        {
+          "id": "rB",
+          "label": "B",
+          "qty": 20
+        }
+      ],
+      "version": 1,
+      "visible": true,
+      "run": 6,
+      "trigger": null,
+      "before": {
+        "selection": {
+          "cells": [
+            [
+              0,
+              "id"
+            ],
+            [
+              0,
+              "qty"
+            ],
+            [
+              1,
+              "id"
+            ],
+            [
+              1,
+              "qty"
+            ],
+            [
+              2,
+              "id"
+            ],
+            [
+              2,
+              "qty"
+            ]
+          ],
+          "columns": [
+            "id",
+            "qty"
+          ],
+          "rows": [
+            0,
+            2
+          ]
+        }
+      },
+      "expected_returned_type": "DataframeState",
+      "expected_returned": {
+        "selection": {
+          "cells": [
+            [
+              0,
+              "id"
+            ],
+            [
+              0,
+              "qty"
+            ],
+            [
+              1,
+              "id"
+            ],
+            [
+              1,
+              "qty"
+            ],
+            [
+              2,
+              "id"
+            ],
+            [
+              2,
+              "qty"
+            ]
+          ],
+          "columns": [
+            "id",
+            "qty"
+          ],
+          "rows": [
+            0,
+            2
+          ]
+        }
+      },
+      "expected_key_present": true,
+      "expected_keyed": {
+        "selection": {
+          "cells": [
+            [
+              0,
+              "id"
+            ],
+            [
+              0,
+              "qty"
+            ],
+            [
+              1,
+              "id"
+            ],
+            [
+              1,
+              "qty"
+            ],
+            [
+              2,
+              "id"
+            ],
+            [
+              2,
+              "qty"
+            ]
+          ],
+          "columns": [
+            "id",
+            "qty"
+          ],
+          "rows": [
+            0,
+            2
+          ]
+        }
+      },
+      "events": [
+        {
+          "kind": "main",
+          "run": 1
+        },
+        {
+          "kind": "main",
+          "run": 2
+        },
+        {
+          "kind": "main",
+          "run": 3
+        },
+        {
+          "kind": "main",
+          "run": 4
+        },
+        {
+          "kind": "main",
+          "run": 5
+        },
+        {
+          "kind": "main",
+          "run": 6
+        }
+      ],
+      "visual_cells": [
+        {
+          "id": "glide-cell-1-0",
+          "text": "rC"
+        },
+        {
+          "id": "glide-cell-2-0",
+          "text": "30"
+        },
+        {
+          "id": "glide-cell-3-0",
+          "text": "C"
+        },
+        {
+          "id": "glide-cell-1-1",
+          "text": "rA"
+        },
+        {
+          "id": "glide-cell-2-1",
+          "text": "10"
+        },
+        {
+          "id": "glide-cell-3-1",
+          "text": "A"
+        },
+        {
+          "id": "glide-cell-1-2",
+          "text": "rB"
+        },
+        {
+          "id": "glide-cell-2-2",
+          "text": "20"
+        },
+        {
+          "id": "glide-cell-3-2",
+          "text": "B"
+        }
+      ],
+      "screenshot": {
+        "file": "first-attempt/25-multi-combo-rectangle.png",
+        "bytes": 28046,
+        "sha256": "29a352c96cddca1e6484a4fe355e30aaa6c642b34fd8b9aa67e88733fdc9ef9a"
+      },
+      "target_widget_states": [
+        {
+          "frame_index": 392,
+          "message_oneof": "rerun_script",
+          "id": "$$ID-45c3f1ba36f6f18ec36c2fcc7e5f5436-selection-multi-combo",
+          "value_oneof": "string_value",
+          "value": "{\"selection\":{\"rows\":[0,2],\"columns\":[\"id\",\"qty\"],\"cells\":[[0,\"id\"],[0,\"qty\"],[1,\"id\"],[1,\"qty\"],[2,\"id\"],[2,\"qty\"]]}}"
+        }
+      ],
+      "dataframes": [
+        {
+          "frame_index": 403,
+          "message_oneof": "delta",
+          "delta_oneof": "new_element",
+          "element_oneof": "dataframe",
+          "delta_path": [
+            0,
+            2
+          ],
+          "fields": {
+            "id": "$$ID-45c3f1ba36f6f18ec36c2fcc7e5f5436-selection-multi-combo",
+            "columns": "{\"id\": {\"width\": 160}, \"qty\": {\"width\": 160}, \"label\": {\"width\": 160}, \"_index\": {\"hidden\": true}}",
+            "selection_mode": [
+              "MULTI_ROW",
+              "MULTI_COLUMN",
+              "MULTI_CELL"
+            ],
+            "row_height": 32
+          }
+        }
+      ],
+      "run_messages": [
+        {
+          "frame_index": 393,
+          "message_oneof": "new_session",
+          "script_run_id": "23faea17-5211-4526-a3ce-49c07fa3cd51",
+          "session_id": "77ff42f1-8093-4360-a9b4-69e99249bb33",
+          "wire_version": "1.66.1"
+        },
+        {
+          "frame_index": 405,
+          "message_oneof": "script_finished",
+          "status": "FINISHED_SUCCESSFULLY"
+        }
+      ]
+    },
+    {
+      "capture": "first-attempt",
+      "case": "required",
+      "name": "load",
+      "did_run": true,
+      "wait": "run",
+      "frame_start": 407,
+      "frame_end": 422,
+      "command_start": 127,
+      "command_end": 129,
+      "input_rows": [
+        {
+          "id": "rC",
+          "label": "C",
+          "qty": 30
+        },
+        {
+          "id": "rA",
+          "label": "A",
+          "qty": 10
+        },
+        {
+          "id": "rB",
+          "label": "B",
+          "qty": 20
+        }
+      ],
+      "version": 1,
+      "visible": true,
+      "run": 1,
+      "trigger": null,
+      "before": null,
+      "expected_returned_type": "DataframeState",
+      "expected_returned": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0
+          ]
+        }
+      },
+      "expected_key_present": true,
+      "expected_keyed": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            0
+          ]
+        }
+      },
+      "events": [
+        {
+          "kind": "main",
+          "run": 1
+        }
+      ],
+      "visual_cells": [
+        {
+          "id": "glide-cell-1-0",
+          "text": "rC"
+        },
+        {
+          "id": "glide-cell-2-0",
+          "text": "30"
+        },
+        {
+          "id": "glide-cell-3-0",
+          "text": "C"
+        },
+        {
+          "id": "glide-cell-1-1",
+          "text": "rA"
+        },
+        {
+          "id": "glide-cell-2-1",
+          "text": "10"
+        },
+        {
+          "id": "glide-cell-3-1",
+          "text": "A"
+        },
+        {
+          "id": "glide-cell-1-2",
+          "text": "rB"
+        },
+        {
+          "id": "glide-cell-2-2",
+          "text": "20"
+        },
+        {
+          "id": "glide-cell-3-2",
+          "text": "B"
+        }
+      ],
+      "screenshot": {
+        "file": "first-attempt/26-required-load.png",
+        "bytes": 28139,
+        "sha256": "0efe8a8905ce0f57c9e051aff3a00c8d3e938ca8798e41f88350cf36130af59c"
+      },
+      "target_widget_states": [],
+      "dataframes": [
+        {
+          "frame_index": 418,
+          "message_oneof": "delta",
+          "delta_oneof": "new_element",
+          "element_oneof": "dataframe",
+          "delta_path": [
+            0,
+            2
+          ],
+          "fields": {
+            "id": "$$ID-441be833e24735388d7d88e346df5014-selection-required",
+            "columns": "{\"id\": {\"width\": 160}, \"qty\": {\"width\": 160}, \"label\": {\"width\": 160}, \"_index\": {\"hidden\": true}}",
+            "selection_mode": [
+              "SINGLE_ROW_REQUIRED"
+            ],
+            "row_height": 32
+          }
+        }
+      ],
+      "run_messages": [
+        {
+          "frame_index": 408,
+          "message_oneof": "new_session",
+          "script_run_id": "2a0c5e72-1ce9-44a7-ac41-90224f150540",
+          "session_id": "12ff3d0e-967d-445d-b7c1-27a92e1458f9",
+          "wire_version": "1.66.1"
+        },
+        {
+          "frame_index": 420,
+          "message_oneof": "script_finished",
+          "status": "FINISHED_SUCCESSFULLY"
+        }
+      ]
+    },
+    {
+      "capture": "first-attempt",
+      "case": "required",
+      "name": "row-third",
+      "did_run": true,
+      "wait": "run",
+      "frame_start": 422,
+      "frame_end": 437,
+      "command_start": 130,
+      "command_end": 134,
+      "input_rows": [
+        {
+          "id": "rC",
+          "label": "C",
+          "qty": 30
+        },
+        {
+          "id": "rA",
+          "label": "A",
+          "qty": 10
+        },
+        {
+          "id": "rB",
+          "label": "B",
+          "qty": 20
+        }
+      ],
+      "version": 1,
+      "visible": true,
+      "run": 2,
+      "trigger": null,
+      "before": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            2
+          ]
+        }
+      },
+      "expected_returned_type": "DataframeState",
+      "expected_returned": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            2
+          ]
+        }
+      },
+      "expected_key_present": true,
+      "expected_keyed": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            2
+          ]
+        }
+      },
+      "events": [
+        {
+          "kind": "main",
+          "run": 1
+        },
+        {
+          "kind": "main",
+          "run": 2
+        }
+      ],
+      "visual_cells": [
+        {
+          "id": "glide-cell-1-0",
+          "text": "rC"
+        },
+        {
+          "id": "glide-cell-2-0",
+          "text": "30"
+        },
+        {
+          "id": "glide-cell-3-0",
+          "text": "C"
+        },
+        {
+          "id": "glide-cell-1-1",
+          "text": "rA"
+        },
+        {
+          "id": "glide-cell-2-1",
+          "text": "10"
+        },
+        {
+          "id": "glide-cell-3-1",
+          "text": "A"
+        },
+        {
+          "id": "glide-cell-1-2",
+          "text": "rB"
+        },
+        {
+          "id": "glide-cell-2-2",
+          "text": "20"
+        },
+        {
+          "id": "glide-cell-3-2",
+          "text": "B"
+        }
+      ],
+      "screenshot": {
+        "file": "first-attempt/27-required-row-third.png",
+        "bytes": 27667,
+        "sha256": "14123d9777bfadd402061329840ec667423e0c26aa1bd7ba142c71c24ed93a79"
+      },
+      "target_widget_states": [
+        {
+          "frame_index": 422,
+          "message_oneof": "rerun_script",
+          "id": "$$ID-441be833e24735388d7d88e346df5014-selection-required",
+          "value_oneof": "string_value",
+          "value": "{\"selection\":{\"rows\":[2],\"columns\":[],\"cells\":[]}}"
+        }
+      ],
+      "dataframes": [
+        {
+          "frame_index": 433,
+          "message_oneof": "delta",
+          "delta_oneof": "new_element",
+          "element_oneof": "dataframe",
+          "delta_path": [
+            0,
+            2
+          ],
+          "fields": {
+            "id": "$$ID-441be833e24735388d7d88e346df5014-selection-required",
+            "columns": "{\"id\": {\"width\": 160}, \"qty\": {\"width\": 160}, \"label\": {\"width\": 160}, \"_index\": {\"hidden\": true}}",
+            "selection_mode": [
+              "SINGLE_ROW_REQUIRED"
+            ],
+            "row_height": 32
+          }
+        }
+      ],
+      "run_messages": [
+        {
+          "frame_index": 423,
+          "message_oneof": "new_session",
+          "script_run_id": "b776fe41-93c7-4e5c-95fe-1735bd047a92",
+          "session_id": "12ff3d0e-967d-445d-b7c1-27a92e1458f9",
+          "wire_version": "1.66.1"
+        },
+        {
+          "frame_index": 435,
+          "message_oneof": "script_finished",
+          "status": "FINISHED_SUCCESSFULLY"
+        }
+      ]
+    },
+    {
+      "capture": "first-attempt",
+      "case": "required",
+      "name": "clear-attempt",
+      "did_run": false,
+      "wait": "bounded",
+      "frame_start": 437,
+      "frame_end": 437,
+      "command_start": 135,
+      "command_end": 139,
+      "input_rows": [
+        {
+          "id": "rC",
+          "label": "C",
+          "qty": 30
+        },
+        {
+          "id": "rA",
+          "label": "A",
+          "qty": 10
+        },
+        {
+          "id": "rB",
+          "label": "B",
+          "qty": 20
+        }
+      ],
+      "version": 1,
+      "visible": true,
+      "run": 2,
+      "trigger": null,
+      "before": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            2
+          ]
+        }
+      },
+      "expected_returned_type": "DataframeState",
+      "expected_returned": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            2
+          ]
+        }
+      },
+      "expected_key_present": true,
+      "expected_keyed": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            2
+          ]
+        }
+      },
+      "events": [
+        {
+          "kind": "main",
+          "run": 1
+        },
+        {
+          "kind": "main",
+          "run": 2
+        }
+      ],
+      "visual_cells": [
+        {
+          "id": "glide-cell-1-0",
+          "text": "rC"
+        },
+        {
+          "id": "glide-cell-2-0",
+          "text": "30"
+        },
+        {
+          "id": "glide-cell-3-0",
+          "text": "C"
+        },
+        {
+          "id": "glide-cell-1-1",
+          "text": "rA"
+        },
+        {
+          "id": "glide-cell-2-1",
+          "text": "10"
+        },
+        {
+          "id": "glide-cell-3-1",
+          "text": "A"
+        },
+        {
+          "id": "glide-cell-1-2",
+          "text": "rB"
+        },
+        {
+          "id": "glide-cell-2-2",
+          "text": "20"
+        },
+        {
+          "id": "glide-cell-3-2",
+          "text": "B"
+        }
+      ],
+      "screenshot": {
+        "file": "first-attempt/28-required-clear-attempt.png",
+        "bytes": 27667,
+        "sha256": "14123d9777bfadd402061329840ec667423e0c26aa1bd7ba142c71c24ed93a79"
+      },
+      "target_widget_states": [],
+      "dataframes": [],
+      "run_messages": []
+    },
+    {
+      "capture": "first-attempt",
+      "case": "required",
+      "name": "probe",
+      "did_run": true,
+      "wait": "run",
+      "frame_start": 437,
+      "frame_end": 452,
+      "command_start": 140,
+      "command_end": 144,
+      "input_rows": [
+        {
+          "id": "rC",
+          "label": "C",
+          "qty": 30
+        },
+        {
+          "id": "rA",
+          "label": "A",
+          "qty": 10
+        },
+        {
+          "id": "rB",
+          "label": "B",
+          "qty": 20
+        }
+      ],
+      "version": 1,
+      "visible": true,
+      "run": 3,
+      "trigger": "Probe",
+      "before": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            2
+          ]
+        }
+      },
+      "expected_returned_type": "DataframeState",
+      "expected_returned": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            2
+          ]
+        }
+      },
+      "expected_key_present": true,
+      "expected_keyed": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            2
+          ]
+        }
+      },
+      "events": [
+        {
+          "kind": "main",
+          "run": 1
+        },
+        {
+          "kind": "main",
+          "run": 2
+        },
+        {
+          "kind": "main",
+          "run": 3
+        }
+      ],
+      "visual_cells": [
+        {
+          "id": "glide-cell-1-0",
+          "text": "rC"
+        },
+        {
+          "id": "glide-cell-2-0",
+          "text": "30"
+        },
+        {
+          "id": "glide-cell-3-0",
+          "text": "C"
+        },
+        {
+          "id": "glide-cell-1-1",
+          "text": "rA"
+        },
+        {
+          "id": "glide-cell-2-1",
+          "text": "10"
+        },
+        {
+          "id": "glide-cell-3-1",
+          "text": "A"
+        },
+        {
+          "id": "glide-cell-1-2",
+          "text": "rB"
+        },
+        {
+          "id": "glide-cell-2-2",
+          "text": "20"
+        },
+        {
+          "id": "glide-cell-3-2",
+          "text": "B"
+        }
+      ],
+      "screenshot": {
+        "file": "first-attempt/29-required-probe.png",
+        "bytes": 28075,
+        "sha256": "478b3fa77d4b2feade60b4815fad02319a8d45cf9cce6be5b72b2ec1ca48f2f6"
+      },
+      "target_widget_states": [
+        {
+          "frame_index": 437,
+          "message_oneof": "rerun_script",
+          "id": "$$ID-441be833e24735388d7d88e346df5014-selection-required",
+          "value_oneof": "string_value",
+          "value": "{\"selection\":{\"rows\":[2],\"columns\":[],\"cells\":[]}}"
+        }
+      ],
+      "dataframes": [
+        {
+          "frame_index": 448,
+          "message_oneof": "delta",
+          "delta_oneof": "new_element",
+          "element_oneof": "dataframe",
+          "delta_path": [
+            0,
+            2
+          ],
+          "fields": {
+            "id": "$$ID-441be833e24735388d7d88e346df5014-selection-required",
+            "columns": "{\"id\": {\"width\": 160}, \"qty\": {\"width\": 160}, \"label\": {\"width\": 160}, \"_index\": {\"hidden\": true}}",
+            "selection_mode": [
+              "SINGLE_ROW_REQUIRED"
+            ],
+            "row_height": 32
+          }
+        }
+      ],
+      "run_messages": [
+        {
+          "frame_index": 438,
+          "message_oneof": "new_session",
+          "script_run_id": "080b30ac-fbc0-4c6e-8956-43f4df3a1e96",
+          "session_id": "12ff3d0e-967d-445d-b7c1-27a92e1458f9",
+          "wire_version": "1.66.1"
+        },
+        {
+          "frame_index": 450,
+          "message_oneof": "script_finished",
+          "status": "FINISHED_SUCCESSFULLY"
+        }
+      ]
+    },
+    {
+      "capture": "shrink-supplement",
+      "case": "multi-shrink",
+      "name": "load",
+      "did_run": true,
+      "wait": "run",
+      "frame_start": 0,
+      "frame_end": 15,
+      "command_start": 3,
+      "command_end": 5,
+      "input_rows": [
+        {
+          "id": "rC",
+          "label": "C",
+          "qty": 30
+        },
+        {
+          "id": "rA",
+          "label": "A",
+          "qty": 10
+        },
+        {
+          "id": "rB",
+          "label": "B",
+          "qty": 20
+        }
+      ],
+      "version": 1,
+      "visible": true,
+      "run": 1,
+      "trigger": null,
+      "before": null,
+      "expected_returned_type": "DataframeState",
+      "expected_returned": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": []
+        }
+      },
+      "expected_key_present": true,
+      "expected_keyed": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": []
+        }
+      },
+      "events": [
+        {
+          "kind": "main",
+          "run": 1
+        }
+      ],
+      "visual_cells": [
+        {
+          "id": "glide-cell-1-0",
+          "text": "rC"
+        },
+        {
+          "id": "glide-cell-2-0",
+          "text": "30"
+        },
+        {
+          "id": "glide-cell-3-0",
+          "text": "C"
+        },
+        {
+          "id": "glide-cell-1-1",
+          "text": "rA"
+        },
+        {
+          "id": "glide-cell-2-1",
+          "text": "10"
+        },
+        {
+          "id": "glide-cell-3-1",
+          "text": "A"
+        },
+        {
+          "id": "glide-cell-1-2",
+          "text": "rB"
+        },
+        {
+          "id": "glide-cell-2-2",
+          "text": "20"
+        },
+        {
+          "id": "glide-cell-3-2",
+          "text": "B"
+        }
+      ],
+      "screenshot": {
+        "file": "shrink-supplement/00-multi-shrink-load.png",
+        "bytes": 27414,
+        "sha256": "fec08daac259758d57d504a8951f9df4272c593d44e8226a2042c52dbf1b4a12"
+      },
+      "target_widget_states": [],
+      "dataframes": [
+        {
+          "frame_index": 11,
+          "message_oneof": "delta",
+          "delta_oneof": "new_element",
+          "element_oneof": "dataframe",
+          "delta_path": [
+            0,
+            2
+          ],
+          "fields": {
+            "id": "$$ID-632dcbe021bd43a6b3f1948b9e923465-selection-multi-shrink",
+            "columns": "{\"id\": {\"width\": 160}, \"qty\": {\"width\": 160}, \"label\": {\"width\": 160}, \"_index\": {\"hidden\": true}}",
+            "selection_mode": [
+              "MULTI_ROW"
+            ],
+            "row_height": 32
+          }
+        }
+      ],
+      "run_messages": [
+        {
+          "frame_index": 1,
+          "message_oneof": "new_session",
+          "script_run_id": "85e096d0-d6ae-4780-a5b4-2a7a3825a17c",
+          "session_id": "63529784-2e24-459d-a715-d20dc79f3f3b",
+          "wire_version": "1.66.1"
+        },
+        {
+          "frame_index": 13,
+          "message_oneof": "script_finished",
+          "status": "FINISHED_SUCCESSFULLY"
+        }
+      ]
+    },
+    {
+      "capture": "shrink-supplement",
+      "case": "multi-shrink",
+      "name": "row-third",
+      "did_run": true,
+      "wait": "run",
+      "frame_start": 15,
+      "frame_end": 30,
+      "command_start": 6,
+      "command_end": 10,
+      "input_rows": [
+        {
+          "id": "rC",
+          "label": "C",
+          "qty": 30
+        },
+        {
+          "id": "rA",
+          "label": "A",
+          "qty": 10
+        },
+        {
+          "id": "rB",
+          "label": "B",
+          "qty": 20
+        }
+      ],
+      "version": 1,
+      "visible": true,
+      "run": 2,
+      "trigger": null,
+      "before": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            2
+          ]
+        }
+      },
+      "expected_returned_type": "DataframeState",
+      "expected_returned": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            2
+          ]
+        }
+      },
+      "expected_key_present": true,
+      "expected_keyed": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            2
+          ]
+        }
+      },
+      "events": [
+        {
+          "kind": "main",
+          "run": 1
+        },
+        {
+          "kind": "main",
+          "run": 2
+        }
+      ],
+      "visual_cells": [
+        {
+          "id": "glide-cell-1-0",
+          "text": "rC"
+        },
+        {
+          "id": "glide-cell-2-0",
+          "text": "30"
+        },
+        {
+          "id": "glide-cell-3-0",
+          "text": "C"
+        },
+        {
+          "id": "glide-cell-1-1",
+          "text": "rA"
+        },
+        {
+          "id": "glide-cell-2-1",
+          "text": "10"
+        },
+        {
+          "id": "glide-cell-3-1",
+          "text": "A"
+        },
+        {
+          "id": "glide-cell-1-2",
+          "text": "rB"
+        },
+        {
+          "id": "glide-cell-2-2",
+          "text": "20"
+        },
+        {
+          "id": "glide-cell-3-2",
+          "text": "B"
+        }
+      ],
+      "screenshot": {
+        "file": "shrink-supplement/01-multi-shrink-row-third.png",
+        "bytes": 27601,
+        "sha256": "b53dc48a28c42bc43288fedae1068c5260bbf46335439fd6151c7f2e6a184da0"
+      },
+      "target_widget_states": [
+        {
+          "frame_index": 15,
+          "message_oneof": "rerun_script",
+          "id": "$$ID-632dcbe021bd43a6b3f1948b9e923465-selection-multi-shrink",
+          "value_oneof": "string_value",
+          "value": "{\"selection\":{\"rows\":[2],\"columns\":[],\"cells\":[]}}"
+        }
+      ],
+      "dataframes": [
+        {
+          "frame_index": 26,
+          "message_oneof": "delta",
+          "delta_oneof": "new_element",
+          "element_oneof": "dataframe",
+          "delta_path": [
+            0,
+            2
+          ],
+          "fields": {
+            "id": "$$ID-632dcbe021bd43a6b3f1948b9e923465-selection-multi-shrink",
+            "columns": "{\"id\": {\"width\": 160}, \"qty\": {\"width\": 160}, \"label\": {\"width\": 160}, \"_index\": {\"hidden\": true}}",
+            "selection_mode": [
+              "MULTI_ROW"
+            ],
+            "row_height": 32
+          }
+        }
+      ],
+      "run_messages": [
+        {
+          "frame_index": 16,
+          "message_oneof": "new_session",
+          "script_run_id": "92a49508-0200-488c-b239-b24c87ceba26",
+          "session_id": "63529784-2e24-459d-a715-d20dc79f3f3b",
+          "wire_version": "1.66.1"
+        },
+        {
+          "frame_index": 28,
+          "message_oneof": "script_finished",
+          "status": "FINISHED_SUCCESSFULLY"
+        }
+      ]
+    },
+    {
+      "capture": "shrink-supplement",
+      "case": "multi-shrink",
+      "name": "replace-shrink",
+      "did_run": true,
+      "wait": "run",
+      "frame_start": 30,
+      "frame_end": 45,
+      "command_start": 11,
+      "command_end": 15,
+      "input_rows": [
+        {
+          "id": "rC",
+          "label": "CX",
+          "qty": 300
+        }
+      ],
+      "version": 2,
+      "visible": true,
+      "run": 3,
+      "trigger": "Replace data",
+      "before": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            2
+          ]
+        }
+      },
+      "expected_returned_type": "DataframeState",
+      "expected_returned": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            2
+          ]
+        }
+      },
+      "expected_key_present": true,
+      "expected_keyed": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            2
+          ]
+        }
+      },
+      "events": [
+        {
+          "kind": "main",
+          "run": 1
+        },
+        {
+          "kind": "main",
+          "run": 2
+        },
+        {
+          "kind": "main",
+          "run": 3
+        }
+      ],
+      "visual_cells": [
+        {
+          "id": "glide-cell-1-0",
+          "text": "rC"
+        },
+        {
+          "id": "glide-cell-2-0",
+          "text": "300"
+        },
+        {
+          "id": "glide-cell-3-0",
+          "text": "CX"
+        }
+      ],
+      "screenshot": {
+        "file": "shrink-supplement/02-multi-shrink-replace-shrink.png",
+        "bytes": 26726,
+        "sha256": "d36260dc9935c104716f2e62c5fe5580d417fdf10f0bafdeb2fe0e55a6d2e963"
+      },
+      "target_widget_states": [
+        {
+          "frame_index": 30,
+          "message_oneof": "rerun_script",
+          "id": "$$ID-632dcbe021bd43a6b3f1948b9e923465-selection-multi-shrink",
+          "value_oneof": "string_value",
+          "value": "{\"selection\":{\"rows\":[2],\"columns\":[],\"cells\":[]}}"
+        }
+      ],
+      "dataframes": [
+        {
+          "frame_index": 41,
+          "message_oneof": "delta",
+          "delta_oneof": "new_element",
+          "element_oneof": "dataframe",
+          "delta_path": [
+            0,
+            2
+          ],
+          "fields": {
+            "id": "$$ID-632dcbe021bd43a6b3f1948b9e923465-selection-multi-shrink",
+            "columns": "{\"id\": {\"width\": 160}, \"qty\": {\"width\": 160}, \"label\": {\"width\": 160}, \"_index\": {\"hidden\": true}}",
+            "selection_mode": [
+              "MULTI_ROW"
+            ],
+            "row_height": 32
+          }
+        }
+      ],
+      "run_messages": [
+        {
+          "frame_index": 31,
+          "message_oneof": "new_session",
+          "script_run_id": "c8354758-d3bd-4433-935a-233fe2fadf55",
+          "session_id": "63529784-2e24-459d-a715-d20dc79f3f3b",
+          "wire_version": "1.66.1"
+        },
+        {
+          "frame_index": 43,
+          "message_oneof": "script_finished",
+          "status": "FINISHED_SUCCESSFULLY"
+        }
+      ]
+    },
+    {
+      "capture": "shrink-supplement",
+      "case": "multi-shrink",
+      "name": "probe-after-shrink",
+      "did_run": true,
+      "wait": "run",
+      "frame_start": 45,
+      "frame_end": 60,
+      "command_start": 16,
+      "command_end": 20,
+      "input_rows": [
+        {
+          "id": "rC",
+          "label": "CX",
+          "qty": 300
+        }
+      ],
+      "version": 2,
+      "visible": true,
+      "run": 4,
+      "trigger": "Probe",
+      "before": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            2
+          ]
+        }
+      },
+      "expected_returned_type": "DataframeState",
+      "expected_returned": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            2
+          ]
+        }
+      },
+      "expected_key_present": true,
+      "expected_keyed": {
+        "selection": {
+          "cells": [],
+          "columns": [],
+          "rows": [
+            2
+          ]
+        }
+      },
+      "events": [
+        {
+          "kind": "main",
+          "run": 1
+        },
+        {
+          "kind": "main",
+          "run": 2
+        },
+        {
+          "kind": "main",
+          "run": 3
+        },
+        {
+          "kind": "main",
+          "run": 4
+        }
+      ],
+      "visual_cells": [
+        {
+          "id": "glide-cell-1-0",
+          "text": "rC"
+        },
+        {
+          "id": "glide-cell-2-0",
+          "text": "300"
+        },
+        {
+          "id": "glide-cell-3-0",
+          "text": "CX"
+        }
+      ],
+      "screenshot": {
+        "file": "shrink-supplement/03-multi-shrink-probe-after-shrink.png",
+        "bytes": 26520,
+        "sha256": "352e6ab0a4b0f524850b24e766c9f16eec4375e82da62ebf92b30bc3bb53ba7b"
+      },
+      "target_widget_states": [
+        {
+          "frame_index": 45,
+          "message_oneof": "rerun_script",
+          "id": "$$ID-632dcbe021bd43a6b3f1948b9e923465-selection-multi-shrink",
+          "value_oneof": "string_value",
+          "value": "{\"selection\":{\"rows\":[2],\"columns\":[],\"cells\":[]}}"
+        }
+      ],
+      "dataframes": [
+        {
+          "frame_index": 56,
+          "message_oneof": "delta",
+          "delta_oneof": "new_element",
+          "element_oneof": "dataframe",
+          "delta_path": [
+            0,
+            2
+          ],
+          "fields": {
+            "id": "$$ID-632dcbe021bd43a6b3f1948b9e923465-selection-multi-shrink",
+            "columns": "{\"id\": {\"width\": 160}, \"qty\": {\"width\": 160}, \"label\": {\"width\": 160}, \"_index\": {\"hidden\": true}}",
+            "selection_mode": [
+              "MULTI_ROW"
+            ],
+            "row_height": 32
+          }
+        }
+      ],
+      "run_messages": [
+        {
+          "frame_index": 46,
+          "message_oneof": "new_session",
+          "script_run_id": "93084013-dd37-4f92-9370-42240cb861ad",
+          "session_id": "63529784-2e24-459d-a715-d20dc79f3f3b",
+          "wire_version": "1.66.1"
+        },
+        {
+          "frame_index": 58,
+          "message_oneof": "script_finished",
+          "status": "FINISHED_SUCCESSFULLY"
+        }
+      ]
+    }
+  ]
+}

@@ -28,7 +28,7 @@ The present module boundaries are appropriate for this stage: `api.rs` defines t
 
 状态：2026-10-27 人审方案，尚未批准或实现新接口。目标是在现有官方前端上打通选择、详情与编辑的调用路径，不把旧 Python 方法名当成功能分母。
 
-现状：`DataApi::dataframe` 返回 `Result<(), DataError>`，`DataframeOptions` 尚无 key/选择选项，也没有 dataframe 选择 codec。协议已有 `selection_mode`、`selection_state`、`selection_default` 和 widget id，现有 registry 可在运行前应用状态和 callback；因此无需改官方 proto 或引入依赖。既有 Arrow、列配置、编辑和整表渲染参考可复用，但没有选择事件的冻结输入。
+现状：`DataApi::dataframe` 返回 `Result<(), DataError>`，`DataframeOptions` 尚无 key/选择选项，也没有 dataframe 选择 codec。协议已有 `selection_mode`、`selection_state`、`selection_default` 和 widget id，现有 registry 可在运行前应用状态和 callback；因此无需改官方 proto 或引入依赖。既有 Arrow、列配置、编辑和整表渲染参考可复用；本批另已冻结下述所测选择输入与结果，尚未接入 Rust 实现。
 
 版本更正：官方 [2026 发布说明](https://docs.streamlit.io/develop/quick-reference/release-notes/2026)记录 1.58.0 已移除 `element.add_rows`，当前 Delta 也没有 eager 追加消息。数据追加的用户流程保留；旧接口不是 1.66.1 的兼容义务，新增 Rust 追加 API 则属于独立扩展，不能用整表发送冒称协议增量追加。
 
@@ -62,7 +62,7 @@ if let Some(event) = st.dataframe(
 }
 ```
 
-官方 [dataframe 选择说明](https://docs.streamlit.io/develop/api-reference/data/st.dataframe)标注 1.66.0：浏览器排序后的行选择仍指向输入位置，不承诺跨过滤/换表的业务记录身份。应用的稳定记录键与恢复策略不能由 runtime 静默生成。数据替换、程序设置、callback 和多页/隐藏恢复的具体行为须补 1.66.1 证据；需要额外 Rust 规则时再确认。
+官方 [dataframe 选择说明](https://docs.streamlit.io/develop/api-reference/data/st.dataframe)标注 1.66.0：浏览器排序后的行选择仍指向输入位置，不承诺跨过滤/换表的业务记录身份。应用的稳定记录键与恢复策略不能由 runtime 静默生成。基本数据替换、程序设置、callback 和隐藏恢复已有下述 1.66.1 参考；多页、其他参数变化及所有模式边界仍待验证，需要额外 Rust 规则时再确认。
 
 ### 数据更新的范围取舍
 
@@ -77,6 +77,10 @@ if let Some(event) = st.dataframe(
 验收覆盖：默认纯显示、空选择、行/列/单元格及组合、真实选择输入到 typed 返回和 keyed state、callback 顺序、排序输入位置映射、程序默认/更新、数据替换与隐藏/恢复边界；超出当前可测范围明确待核，不宣称全部模式完成。原有数据显示、配置、编辑、chart、形式及会话测试不回归。真实官方前端验证选择→详情→编辑，错误能定位 session/widget/phase/reason，避免逐帧打印数据。
 
 Team 随最终采纳范围落地：主代理负责公共 API、codec、整合与验收；参考协议代理负责一次 Python 行为与冻结数据；示例/指南在核心接口稳定后并行；独立 Reviewer 只读。峰值不超过四个（含主代理），同一数据 API 与 widget 状态写入归主代理，不并行抢写。当前只交付设计与基线，等待公共接口和追加范围的决定，不启动产品实现。
+
+参考采证独立于 A/B/C 接口取舍：使用固定三行、可区分视觉排序与输入位置的合成表，Python 1.66.1 采集五种配置：默认 Ignore；默认 MultiRow；官方示例的 single-row/column/cell 组合；multi-row/column/cell 组合；SingleRowRequired。覆盖真实选择、排序、首次默认与程序设置、callback/main 顺序、普通重跑、换表及隐藏后再探测/恢复；不预设换表或清理结果，不以注入 JSON 冒充浏览器操作。`tests/reference/dataframe_selection_app.py` 与 `tests/browser/dataframe_selection_capture.py` 复用既有 Recorder、协议解码和自有进程清理，独立核验后冻结结果供后续 Rust 回归使用。原 Arrow/editor 参考保持原样，无新增依赖或源码指纹门槛。
+
+该参考采证已完成并独立核验：[冻结数据说明](../tests/reference/reference-browser/dataframe-selection/README.md)。五配置首次成功 30 阶段，仅另补三行缩成一行的 4 阶段。程序写入部分 keyed JSON 时，返回值补齐空字段而 keyed 原结构保持部分；同 key 缩行后仍保留可能已超出新表范围的旧行位置，不自动清理。隐藏当轮仍读到 key，下一隐藏探测才无 key，恢复为空选择。callback 包含浏览器回送上轮程序状态导致的后续触发，需复用真实 run 顺序。后续 typed state 可以通过 serde 默认读取缺失字段，但不能把此处部分 keyed JSON 冒称已经被参考补全。尚未修改 Rust 实现或采纳 A/B/C 接口。
 
 ## Dependency and launch audit (2026-10-25)
 
