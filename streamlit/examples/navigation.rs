@@ -18,18 +18,8 @@ fn render_two(st: &Streamlit) {
     st.write("page=two");
 }
 
-#[tokio::main]
-async fn main() -> std::io::Result<()> {
-    StreamlitServer::new(
-        |st| {
-            Box::pin(async move {
-                let nav = st.navigation([Page::new("Main", render_main).icon(":material/home:").default(true).url_path("render_main"), Page::new("Two", render_two).url_path("two")]);
-                nav.run();
-            })
-        },
-        "127.0.0.1".into(),
-        8517,
-    )
-    .start()
-    .await
+#[main(host = "127.0.0.1", port = 8517)]
+async fn main(st: &Streamlit) {
+    let nav = st.navigation([Page::new("Main", render_main).icon(":material/home:").default(true).url_path("render_main"), Page::new("Two", render_two).url_path("two")]);
+    nav.run();
 }

@@ -11,21 +11,9 @@ fn render(st: &Streamlit) -> Result<(), WidgetError> {
     Ok(())
 }
 
-#[tokio::main]
-async fn main() -> std::io::Result<()> {
-    // The current #[streamlit::main] macro accepts unit-returning functions.
-    // Handle the fallible render once, without changing the runtime contract.
-    StreamlitServer::new(
-        |st| {
-            Box::pin(async move {
-                if let Err(error) = render(st) {
-                    st.write(format!("Input error: {error}"));
-                }
-            })
-        },
-        "127.0.0.1".into(),
-        8503,
-    )
-    .start()
-    .await
+#[main(host = "127.0.0.1", port = 8503)]
+async fn main(st: &Streamlit) {
+    if let Err(error) = render(st) {
+        st.write(format!("Input error: {error}"));
+    }
 }

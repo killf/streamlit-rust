@@ -20,17 +20,7 @@ fn render(st: &Streamlit) {
     st.write("configured");
 }
 
-#[tokio::main]
-async fn main() -> std::io::Result<()> {
-    StreamlitServer::new(
-        |st| {
-            Box::pin(async move {
-                render(st);
-            })
-        },
-        "127.0.0.1".into(),
-        8514,
-    )
-    .start()
-    .await
+#[main(host = "127.0.0.1", port = 8514)]
+async fn main(st: &Streamlit) {
+    render(st);
 }

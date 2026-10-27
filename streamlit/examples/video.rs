@@ -5,17 +5,7 @@ use ::streamlit::*;
 
 const VIDEO_SAMPLE: &[u8] = include_bytes!("../../tests/reference/video_sample.mp4");
 
-#[tokio::main]
-async fn main() -> std::io::Result<()> {
-    StreamlitServer::new(
-        |st| {
-            Box::pin(async move {
-                st.video((VIDEO_SAMPLE.to_vec(), "video/mp4"));
-            })
-        },
-        "127.0.0.1".into(),
-        8510,
-    )
-    .start()
-    .await
+#[main(host = "127.0.0.1", port = 8510)]
+async fn main(st: &Streamlit) {
+    st.video((VIDEO_SAMPLE.to_vec(), "video/mp4"));
 }

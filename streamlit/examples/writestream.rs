@@ -8,17 +8,7 @@ fn render(st: &Streamlit) {
     st.write_stream_with_cursor("▌", ["Streamed ", "with ", "a ", "cursor."]);
 }
 
-#[tokio::main]
-async fn main() -> std::io::Result<()> {
-    StreamlitServer::new(
-        |st| {
-            Box::pin(async move {
-                render(st);
-            })
-        },
-        "127.0.0.1".into(),
-        8527,
-    )
-    .start()
-    .await
+#[main(host = "127.0.0.1", port = 8527)]
+async fn main(st: &Streamlit) {
+    render(st);
 }

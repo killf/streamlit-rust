@@ -23,10 +23,7 @@ fn status_page(st: &Streamlit) -> Result<(), StatusError> {
     Ok(())
 }
 
-#[tokio::main]
-async fn main() -> std::io::Result<()> {
-    env_logger::Builder::from_default_env().init();
-    StreamlitServer::new(|st| Box::pin(async move { status_page(st).expect("the status demo uses valid parameters") }), "127.0.0.1".to_string(), 8502)
-        .start()
-        .await
+#[main(host = "127.0.0.1", port = 8502)]
+async fn main(st: &Streamlit) {
+    status_page(st).expect("the status demo uses valid parameters")
 }

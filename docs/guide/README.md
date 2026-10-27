@@ -28,7 +28,7 @@ fn render(st: &Streamlit) -> Result<(), WidgetError> {
 }
 ```
 
-The quickstart entry handles a render error once and displays it. The current `#[streamlit::main]` macro accepts unit-returning user functions; put `?` in a fallible helper rather than giving the macro function a `Result` return type. The example uses port 8503; macro-based examples normally use 8501. `cargo run --example hello --locked` is the smallest text-only example. `basic` shows text/layout and `timer` shows async execution. All use the unmodified official Streamlit 1.66.1 frontend in `www/`.
+The quickstart entry handles a render error once and displays it. The current `#[streamlit::main]` macro accepts unit-returning user functions; put `?` in a fallible helper rather than giving the macro function a `Result` return type. The example configures port 8503 in the macro; an unconfigured macro uses port 8501. `cargo run --example hello --locked` is the smallest text-only example. `basic` shows text/layout and `timer` shows async execution. All use the unmodified official Streamlit 1.66.1 frontend in `www/`.
 
 | Input | Same defaults as the advanced builder |
 |---|---|
@@ -50,6 +50,23 @@ cargo run --example button --locked
 ```
 
 The page shows a `Pulse` button and `Ready`. A click reruns the Rust function and shows `Pulse received`; further clicks request further reruns. This example has no file upload or persistent session counter.
+
+## Configure the application address
+
+`#[main]` starts an async application with the default address `0.0.0.0:8501`. Configure either or both values in the attribute:
+
+```rust
+use ::streamlit::*;
+
+#[main(host = "127.0.0.1", port = 8503)]
+async fn main(st: &Streamlit) {
+    st.title("Local app");
+}
+```
+
+`#[main(host = "127.0.0.1")]` keeps port 8501; `#[main(port = 8503)]` keeps host `0.0.0.0`. Host is a string literal and port is an integer literal in `0..=65535`. Duplicate or unknown settings and invalid values are compile errors. Address binding errors are returned when the server starts.
+
+Application examples use this macro with their existing addresses. The `tables` example also exports Arrow IPC and accepts `--port`/`--native`; it keeps a synchronous tool entry point and explicitly starts its runtime when serving. Examples do not use `#[tokio::main]`.
 
 ## Run an installed executable from any directory
 

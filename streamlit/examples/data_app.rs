@@ -271,23 +271,11 @@ pub(crate) fn render(st: &Streamlit) -> Result<()> {
     Ok(())
 }
 
-#[tokio::main]
-async fn main() -> std::io::Result<()> {
-    env_logger::Builder::from_default_env().init();
-    log::info!("Starting Streamlit Rust Backend v0.1.0");
-    StreamlitServer::new(
-        |st| {
-            Box::pin(async move {
-                if let Err(error) = render(st) {
-                    st.write(format!("Data app error: {error}"));
-                }
-            })
-        },
-        "127.0.0.1".into(),
-        8501,
-    )
-    .start()
-    .await
+#[main(host = "127.0.0.1", port = 8501)]
+async fn main(st: &Streamlit) {
+    if let Err(error) = render(st) {
+        st.write(format!("Data app error: {error}"));
+    }
 }
 
 #[cfg(test)]

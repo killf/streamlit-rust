@@ -15,17 +15,7 @@ fn render(st: &Streamlit) {
     st.pdf("https://example.com/sample.pdf");
 }
 
-#[tokio::main]
-async fn main() -> std::io::Result<()> {
-    StreamlitServer::new(
-        |st| {
-            Box::pin(async move {
-                render(st);
-            })
-        },
-        "127.0.0.1".into(),
-        8525,
-    )
-    .start()
-    .await
+#[main(host = "127.0.0.1", port = 8525)]
+async fn main(st: &Streamlit) {
+    render(st);
 }

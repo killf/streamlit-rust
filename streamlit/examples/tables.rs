@@ -61,8 +61,7 @@ fn page(st: &Streamlit) -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Also permits a Python/JS decoder to inspect bytes produced by Rust.
     let mut args = std::env::args().skip(1);
     if args.next().as_deref() == Some("--ipc-out") {
@@ -76,6 +75,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         Some(index) => args.get(index + 1).ok_or("--port requires a number")?.parse()?,
         None => 8503,
     };
-    StreamlitServer::new(|st| Box::pin(async move { page(st).expect("the example uses valid typed data") }), "127.0.0.1".into(), port).start().await?;
+    let server = StreamlitServer::new(
+        |st| {
+            Box::pin(async move {
+                if let Err(error) = page(st) {
+                    st.write(format!("Tables example error: {error}"));
+                }
+            })
+        },
+        "127.0.0.1".into(),
+        port,
+    );
+    let runtime = tokio::runtime::Builder::new_multi_thread().enable_all().build()?;
+    runtime.block_on(server.start())?;
     Ok(())
 }

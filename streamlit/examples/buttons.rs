@@ -26,19 +26,9 @@ fn render(st: &Streamlit) -> anyhow::Result<()> {
     Ok(())
 }
 
-#[tokio::main]
-async fn main() -> std::io::Result<()> {
-    StreamlitServer::new(
-        |st| {
-            Box::pin(async move {
-                if let Err(error) = render(st) {
-                    st.write(format!("Example error: {error}"));
-                }
-            })
-        },
-        "127.0.0.1".into(),
-        8523,
-    )
-    .start()
-    .await
+#[main(host = "127.0.0.1", port = 8523)]
+async fn main(st: &Streamlit) {
+    if let Err(error) = render(st) {
+        st.write(format!("Example error: {error}"));
+    }
 }

@@ -12,6 +12,27 @@
 //!     st.title("Hello world!");
 //! }
 //! ```
+//!
+//! Configure either address setting independently; omitted settings keep
+//! host `0.0.0.0` and port `8501`.
+//!
+//! ```rust,no_run
+//! use ::streamlit::*;
+//!
+//! #[main(host = "127.0.0.1")]
+//! async fn main(st: &Streamlit) {
+//!     st.title("Host configured; port 8501");
+//! }
+//! ```
+//!
+//! ```rust,no_run
+//! use ::streamlit::*;
+//!
+//! #[main(port = 8503)]
+//! async fn main(st: &Streamlit) {
+//!     st.title("Port configured; host 0.0.0.0");
+//! }
+//! ```
 
 extern crate streamlit_macros;
 

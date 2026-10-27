@@ -13,17 +13,7 @@ fn render(st: &Streamlit) {
     st.balloons();
 }
 
-#[tokio::main]
-async fn main() -> std::io::Result<()> {
-    StreamlitServer::new(
-        |st| {
-            Box::pin(async move {
-                render(st);
-            })
-        },
-        "127.0.0.1".into(),
-        8511,
-    )
-    .start()
-    .await
+#[main(host = "127.0.0.1", port = 8511)]
+async fn main(st: &Streamlit) {
+    render(st);
 }
