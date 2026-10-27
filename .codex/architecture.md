@@ -173,6 +173,14 @@ A 的 wire 规范化仅限此 generic Vega 的顶层 Arrow data 与单个 named 
 
 已完成真实红→绿：`bytes=-5` 原为 200，而目标为 206；修后全部 27 个请求逐字匹配，11 项媒体相关 Rust 检查及五项新离线检查通过。首次夹具误用未声明 base64 crate 的编译失败另存，纠正为从原 HTTP 提取受核验字节数组后才构成产品红复现，无新依赖。旧 suffix=未知时返回 None 的内部断言已按新公开参考改为有效后缀区间，不更改旧 Python raw；原有效 200/206/404、重复下载和文件名边界继续检查。
 
+## Media response storage
+
+原 `StoredFile` 持有 `Vec<u8>`，`stored_file` 每次克隆整个文件；206 分支随后再对片段执行 `to_vec`。同一大文件的待发送响应按请求数重复持有整文件，小范围请求也会先复制全文件。优化前产品代码配合同一新增回归已实测：16 个 8 MiB 完整响应持有 16 份独立缓冲。
+
+在既有 M5 范围内先写使用说明并测量，再将 private 字节存储换成已有依赖的 `Bytes`，注册时 `copy_from_slice` 保持输入所有权隔离，快照克隆和范围 `slice` 共享不可变存储。公开 `get -> Option<Vec<u8>>` 在返回时复制，公开签名、内容地址、首次注册元数据及 HTTP 行为保持。没有新依赖、公共接口、限额、淘汰或会话归属规则；进程全局媒体存储的生命周期问题继续留在长期目标。
+
+修改仅 media.rs 的 private 存储/既有 get、server.rs 的范围响应与既有媒体运行回归，指南、测量脚本及数据同步。用同一 8 MiB 合成文件保留 16 个完整及 16 个 64 KiB 范围响应，优化前三次构造耗时为 70,653/74,323/81,656 μs，优化后为 5,737/3,195/3,321 μs；完整响应独立缓冲降为一份，操作系统峰值工作集约从 163 MiB 降为 35 MiB。[原始数据和方法](../tests/performance/media-storage.json)是 debug 进程内路由响应构造测量，不代表网络吞吐/慢客户端容量或性能门槛。回归校验每个响应内容、头与丢弃部分响应后的剩余有效性，并复用冻结 27 个范围和 10 个下载案例及真实 HTTP/WS 测试，不重采 Python；公开注册和读取的输入隔离另有单元回归。不以局部性能结果关闭 M5。
+
 ## Library build portability
 
 M6 新实测在隔离 workspace 中将库目录改名为 renamed-library、保留宏和锁文件但不放置外部 www，`cargo check --offline --locked -p streamlit --lib` 真实失败：protoc 找不到固定的 `streamlit/proto/Alert.proto`。源码另有 `include_str!("../../www/index.html")`，Cargo 包清单不含该外部文件；当前启动校验需要的版本身份因此也依赖仓库相邻目录。不是新依赖或客户端环境故障。

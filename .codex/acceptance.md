@@ -144,6 +144,16 @@ Rust 新增三项回归：原错误值/资源身份、参数变化和清空；�
 
 必须保留的失败：最终独立源码包的维护者 lib test --no-run 仍报 31 个仓库级输入读取缺失，并未执行这些测试；不能用普通 SDK/示例通过冒充它通过。PKG-A/B/C 分发与测试边界等待用户选择，宏支撑接口也未采纳，M6/长期 Goal 未关闭。首次 probe 漏 InputWidgets 导入、提取目录误发现祖先 workspace 的设置失败另存，不作产品缺陷。完整命令/退出码与结果索引见本地 `target/checks/m6-crate-archives/results.json`。
 
+## Current media response storage validation (2026-10-27)
+
+媒体完整 GET 原先每次复制整个存储文件，206 又复制片段。先补使用说明和优化前测量，再把 private 存储改为既有 `Bytes`，响应快照及范围共享不可变内容；注册隔离、公开 `get -> Vec<u8>` 的独立返回、内容地址、首次注册元数据及 HTTP 行为保持，没有新接口、依赖或生命周期规则。
+
+[三次前后对照](../tests/performance/media-storage.json)使用同一 8 MiB 合成文件，同时保留 16 个完整及 16 个 64 KiB 范围响应。完整响应独立缓冲数均从 16 降为一份，中位构造耗时从 74.323 降至 3.321 ms，操作系统峰值工作集约从 163 降为 35 MiB。Windows/debug、进程内生产路由构造及整进程内存观测是本次口径；不包含 sockets、CPU、网络吞吐、慢客户端或长期回收，不设性能阈值。5 ms 是请求采样睡眠间隔；调度和观测可能漏掉短峰，操作系统工作集高水位另外保存。前后 executable 路径相同但中途重建，不把当前二进制冒充旧版本；新测量夹具最初误传 &String 的编译错误独立保留，不是产品红复现。
+
+格式、全目标 Clippy、7 项媒体单元及最终 194 项 Rust（171 库/运行模块、2 宏、1 ledger、4 rustdoc、16 示例）通过；全部 1516 项冻结参考检查通过，96 条既有 Pillow 告警和 MSVC linker_messages 提示保留。新增回归检查注册/公开读取隔离、多个完整与范围响应的内容、头和剩余存活期；既有真实 HTTP/WS 精确复用 27 个范围和 10 个下载案例，未重采 Python。各次测量自有 test 进程均退出；原始输出、命令和检查日志索引在本地 `target/checks/m5-media-storage/`。
+
+媒体仍是进程全局存储，没有自动淘汰；此次共享响应不解决生命周期、完整平台或容量验收，M5 和长期 Goal 保持未完成。CSV 来源、Vega、宏支撑和源码包分发的已存待决方案不因本批通过而采纳。
+
 ## Required fresh-checkout checks
 
 ```powershell

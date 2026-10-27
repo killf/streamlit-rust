@@ -1,0 +1,201 @@
+{
+  "schema_version": 1,
+  "measured_at_utc": "2026-10-27T15:35:27.302957+00:00",
+  "environment": {
+    "os": "Windows-11-10.0.26300-SP0",
+    "architecture": "AMD64",
+    "rustc": "1.98.1 (48a229cea 2026-09-01)",
+    "cargo": "1.98.1 (797e8a9bc 2026-08-05)",
+    "build_profile": "debug",
+    "dependencies": "unchanged root Cargo.lock"
+  },
+  "method": {
+    "fixture": "server::tests::media::large_media_responses_keep_full_and_range_bytes_alive_independently",
+    "runner": "tools/measure_media_storage.py",
+    "before_product_revision": "effda7768eaee258d9085a5ec0fefad78566ff0d",
+    "before_fixture_note": "New regression/measurement test was added before measuring; production code remained unchanged.",
+    "after_product_state": "Bytes private storage, shared snapshots and sliced range responses in this delivery.",
+    "binary_path_note": "The same Cargo test executable path was rebuilt after the baseline; before data describes those earlier executions, not the binary currently at that path.",
+    "trials_per_phase": 3,
+    "scope": "Sequential in-process production route responses retained simultaneously: 16 full 8 MiB and 16 64 KiB ranges. No sockets/slow clients, CPU or throughput measurement, long-term reclamation, allocation-count claim, performance threshold, or SLO."
+  },
+  "before": {
+    "phase": "before",
+    "binary": "C:\\Users\\killf\\github\\streamlit-rust\\target\\debug\\deps\\streamlit-38c7a00d3d51f06f.exe",
+    "trials": [
+      {
+        "exit_code": 0,
+        "wall_seconds": 0.34479919998557307,
+        "samples": 58,
+        "max_observed_private_bytes": 162267136,
+        "max_observed_working_set_bytes": 164679680,
+        "peak_working_set_bytes": 171352064,
+        "measurement": {
+          "asset_bytes": 8388608,
+          "full_responses": 16,
+          "range_responses": 16,
+          "range_bytes": 65536,
+          "distinct_full_body_buffers": 16,
+          "construction_us": 70653,
+          "pid": 75396
+        },
+        "log": "before-1.log",
+        "owned_process_exited": true,
+        "requested_sample_period_seconds": 0.005
+      },
+      {
+        "exit_code": 0,
+        "wall_seconds": 0.38476459999219514,
+        "samples": 66,
+        "max_observed_private_bytes": 162258944,
+        "max_observed_working_set_bytes": 163229696,
+        "peak_working_set_bytes": 171335680,
+        "measurement": {
+          "asset_bytes": 8388608,
+          "full_responses": 16,
+          "range_responses": 16,
+          "range_bytes": 65536,
+          "distinct_full_body_buffers": 16,
+          "construction_us": 74323,
+          "pid": 70432
+        },
+        "log": "before-2.log",
+        "owned_process_exited": true,
+        "requested_sample_period_seconds": 0.005
+      },
+      {
+        "exit_code": 0,
+        "wall_seconds": 0.35961759998463094,
+        "samples": 62,
+        "max_observed_private_bytes": 153927680,
+        "max_observed_working_set_bytes": 163225600,
+        "peak_working_set_bytes": 171347968,
+        "measurement": {
+          "asset_bytes": 8388608,
+          "full_responses": 16,
+          "range_responses": 16,
+          "range_bytes": 65536,
+          "distinct_full_body_buffers": 16,
+          "construction_us": 81656,
+          "pid": 81356
+        },
+        "log": "before-3.log",
+        "owned_process_exited": true,
+        "requested_sample_period_seconds": 0.005
+      }
+    ],
+    "scope": "Debug Actix in-process production-route response construction and retention; not sockets, throughput, slow clients, long-term reclamation, or SLO.",
+    "memory_scope": "Whole isolated test process. Sampling requested 5ms sleeps; scheduling and query overhead extend intervals, and observed maxima can miss brief peaks. Peak working set is OS process high-water mark.",
+    "measurement_scope": "construction_us includes route setup per response, headers and retaining body handles, excludes fixture setup and byte validation. Buffer count is observation, not an acceptance threshold."
+  },
+  "after": {
+    "phase": "after",
+    "binary": "C:\\Users\\killf\\github\\streamlit-rust\\target\\debug\\deps\\streamlit-38c7a00d3d51f06f.exe",
+    "trials": [
+      {
+        "exit_code": 0,
+        "wall_seconds": 0.2408731000032276,
+        "samples": 38,
+        "requested_sample_period_seconds": 0.005,
+        "max_observed_private_bytes": 26771456,
+        "max_observed_working_set_bytes": 34365440,
+        "peak_working_set_bytes": 36401152,
+        "measurement": {
+          "asset_bytes": 8388608,
+          "full_responses": 16,
+          "range_responses": 16,
+          "range_bytes": 65536,
+          "distinct_full_body_buffers": 1,
+          "construction_us": 5737,
+          "pid": 65660
+        },
+        "log": "after-1.log",
+        "owned_process_exited": true
+      },
+      {
+        "exit_code": 0,
+        "wall_seconds": 0.2253128000011202,
+        "samples": 37,
+        "requested_sample_period_seconds": 0.005,
+        "max_observed_private_bytes": 18350080,
+        "max_observed_working_set_bytes": 27975680,
+        "peak_working_set_bytes": 36401152,
+        "measurement": {
+          "asset_bytes": 8388608,
+          "full_responses": 16,
+          "range_responses": 16,
+          "range_bytes": 65536,
+          "distinct_full_body_buffers": 1,
+          "construction_us": 3195,
+          "pid": 71268
+        },
+        "log": "after-2.log",
+        "owned_process_exited": true
+      },
+      {
+        "exit_code": 0,
+        "wall_seconds": 0.2345117999939248,
+        "samples": 39,
+        "requested_sample_period_seconds": 0.005,
+        "max_observed_private_bytes": 18358272,
+        "max_observed_working_set_bytes": 28020736,
+        "peak_working_set_bytes": 36442112,
+        "measurement": {
+          "asset_bytes": 8388608,
+          "full_responses": 16,
+          "range_responses": 16,
+          "range_bytes": 65536,
+          "distinct_full_body_buffers": 1,
+          "construction_us": 3321,
+          "pid": 80948
+        },
+        "log": "after-3.log",
+        "owned_process_exited": true
+      }
+    ],
+    "scope": "Debug Actix in-process production-route response construction and retention; not sockets, throughput, slow clients, long-term reclamation, or SLO.",
+    "memory_scope": "Whole isolated test process. Sampling requests a 5ms sleep between observations; scheduling and query overhead can extend intervals, and observed maxima can miss brief peaks. Peak working set is OS process high-water mark.",
+    "measurement_scope": "construction_us includes route setup per response, headers and retaining body handles, excludes fixture setup and byte validation. Buffer count is observation, not an acceptance threshold."
+  },
+  "summary": {
+    "before": {
+      "median_construction_us": 74323,
+      "peak_working_set_bytes": [
+        171352064,
+        171335680,
+        171347968
+      ],
+      "distinct_full_body_buffers": [
+        16,
+        16,
+        16
+      ]
+    },
+    "after": {
+      "median_construction_us": 3321,
+      "peak_working_set_bytes": [
+        36401152,
+        36401152,
+        36442112
+      ],
+      "distinct_full_body_buffers": [
+        1,
+        1,
+        1
+      ]
+    }
+  },
+  "trial_stdout": {
+    "before-1.log": "\nrunning 1 test\ntest server::tests::media::large_media_responses_keep_full_and_range_bytes_alive_independently ... media_storage_measurement={\"asset_bytes\":8388608,\"full_responses\":16,\"range_responses\":16,\"range_bytes\":65536,\"distinct_full_body_buffers\":16,\"construction_us\":70653,\"pid\":75396}\nok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 169 filtered out; finished in 0.29s\n\n",
+    "before-2.log": "\nrunning 1 test\ntest server::tests::media::large_media_responses_keep_full_and_range_bytes_alive_independently ... media_storage_measurement={\"asset_bytes\":8388608,\"full_responses\":16,\"range_responses\":16,\"range_bytes\":65536,\"distinct_full_body_buffers\":16,\"construction_us\":74323,\"pid\":70432}\nok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 169 filtered out; finished in 0.34s\n\n",
+    "before-3.log": "\nrunning 1 test\ntest server::tests::media::large_media_responses_keep_full_and_range_bytes_alive_independently ... media_storage_measurement={\"asset_bytes\":8388608,\"full_responses\":16,\"range_responses\":16,\"range_bytes\":65536,\"distinct_full_body_buffers\":16,\"construction_us\":81656,\"pid\":81356}\nok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 169 filtered out; finished in 0.32s\n\n",
+    "after-1.log": "\nrunning 1 test\ntest server::tests::media::large_media_responses_keep_full_and_range_bytes_alive_independently ... media_storage_measurement={\"asset_bytes\":8388608,\"full_responses\":16,\"range_responses\":16,\"range_bytes\":65536,\"distinct_full_body_buffers\":1,\"construction_us\":5737,\"pid\":65660}\nok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 170 filtered out; finished in 0.19s\n\n",
+    "after-2.log": "\nrunning 1 test\ntest server::tests::media::large_media_responses_keep_full_and_range_bytes_alive_independently ... media_storage_measurement={\"asset_bytes\":8388608,\"full_responses\":16,\"range_responses\":16,\"range_bytes\":65536,\"distinct_full_body_buffers\":1,\"construction_us\":3195,\"pid\":71268}\nok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 170 filtered out; finished in 0.18s\n\n",
+    "after-3.log": "\nrunning 1 test\ntest server::tests::media::large_media_responses_keep_full_and_range_bytes_alive_independently ... media_storage_measurement={\"asset_bytes\":8388608,\"full_responses\":16,\"range_responses\":16,\"range_bytes\":65536,\"distinct_full_body_buffers\":1,\"construction_us\":3321,\"pid\":80948}\nok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 170 filtered out; finished in 0.19s\n\n"
+  },
+  "setup_failure": {
+    "kind": "measurement fixture compile error, not product failure",
+    "reason": "Actix header insert rejects &String; corrected to as_str before baseline.",
+    "local_log": "target/checks/m5-media-storage/probe-compile-error.log"
+  }
+}

@@ -9,12 +9,14 @@
 
 use blake2::digest::consts::U16;
 use blake2::{Blake2b, Digest};
+use bytes::Bytes;
 use dashmap::DashMap;
 use std::sync::LazyLock;
 
 #[derive(Clone)]
 pub(crate) struct StoredFile {
-    pub bytes: Vec<u8>,
+    // 注册时隔离调用方输入，响应快照和范围共享不可变内容。
+    pub bytes: Bytes,
 
     // 下载响应沿用注册时声明的类型与文件名。
     pub mime: String,
@@ -52,7 +54,7 @@ pub fn file_id(data: &[u8], mime: &str, filename: Option<&str>) -> String {
 pub fn put(data: &[u8], mime: &str) -> String {
     let id = file_id(data, mime, None);
     FILES.entry(id.clone()).or_insert_with(|| StoredFile {
-        bytes: data.to_vec(),
+        bytes: Bytes::copy_from_slice(data),
         mime: mime.into(),
         file_name: None,
         download: false,
@@ -65,7 +67,7 @@ pub fn put(data: &[u8], mime: &str) -> String {
 pub fn put_download(data: &[u8], mime: &str, file_name: Option<&str>) -> String {
     let id = file_id(data, mime, file_name);
     FILES.entry(id.clone()).or_insert_with(|| StoredFile {
-        bytes: data.to_vec(),
+        bytes: Bytes::copy_from_slice(data),
         mime: mime.into(),
         file_name: file_name.map(str::to_owned),
         download: true,
@@ -103,7 +105,7 @@ pub fn download_extension(mime: &str) -> &'static str {
 
 /// The stored bytes of a content address, if this process ever registered it.
 pub fn get(id: &str) -> Option<Vec<u8>> {
-    FILES.get(id).map(|entry| entry.bytes.clone())
+    FILES.get(id).map(|entry| entry.bytes.to_vec())
 }
 
 /// One snapshot keeps response bytes and download metadata together.
@@ -321,6 +323,20 @@ mod tests {
         assert_eq!(get("0".repeat(32).as_str()), None);
         assert_eq!(file_id(b"", "image/png", None), file_id(b"", "image/png", None),);
         assert_ne!(file_id(b"", "image/png", None), file_id(b"", "image/png", Some("name.png")));
+    }
+
+    #[test]
+    fn registration_and_public_reads_keep_caller_owned_bytes_independent() -> anyhow::Result<()> {
+        let mut input = b"independent registered bytes".to_vec();
+        let expected = input.clone();
+        let id = put_download(&input, "application/octet-stream", Some("independent.bin"));
+        input.fill(0);
+        let mut read = get(&id).ok_or_else(|| anyhow::anyhow!("registered media must exist"))?;
+        assert_eq!(read, expected);
+        read.fill(1);
+        assert_eq!(get(&id).as_deref(), Some(expected.as_slice()));
+
+        Ok(())
     }
 
     #[test]

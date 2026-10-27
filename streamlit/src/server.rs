@@ -194,7 +194,7 @@ async fn media_file(req: HttpRequest, path: web::Path<String>) -> HttpResponse {
             let total = bytes.len() as u64;
             let start = range.start as usize;
             let end = range.end as usize;
-            response.insert_header((CONTENT_RANGE, format!("bytes {}-{}/{}", range.start, range.end, total))).body(bytes[start..=end].to_vec())
+            response.insert_header((CONTENT_RANGE, format!("bytes {}-{}/{}", range.start, range.end, total))).body(bytes.slice(start..=end))
         }
         None => response.body(bytes),
     }

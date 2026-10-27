@@ -159,6 +159,57 @@ fn width_kind(config: &Option<crate::proto::streamlit::WidthConfig>) -> String {
 }
 
 #[actix_web::test]
+async fn large_media_responses_keep_full_and_range_bytes_alive_independently() -> TestResult {
+    use actix_web::body::MessageBody;
+
+    // 1. 保留多个生产路由响应，观察同一内容的复制成本；不是网络吞吐测试。
+    let bytes: Vec<u8> = (0..8 * 1024 * 1024).map(|index| (index % 251) as u8).collect();
+    let id = crate::media::put_download(&bytes, "application/octet-stream", Some("large-media.bin"));
+    let app = http_test::init_service(App::new().configure(configure_routes)).await;
+    let path = format!("/media/{id}.bin");
+    let start = 12_345;
+    let end = start + 65_536;
+    let range_header = format!("bytes={start}-{}", end - 1);
+    let expected_range = format!("bytes {start}-{}/{}", end - 1, bytes.len());
+    let began = std::time::Instant::now();
+    let mut full = Vec::new();
+    let mut partial = Vec::new();
+    for _ in 0..16 {
+        let response = http_test::call_service(&app, http_test::TestRequest::get().uri(&path).to_request()).await;
+        assert_eq!(response.status(), 200);
+        assert_eq!(response.headers().get("content-type").and_then(|value| value.to_str().ok()), Some("application/octet-stream"));
+        assert_eq!(response.headers().get("content-disposition").and_then(|value| value.to_str().ok()), Some("attachment; filename=\"large-media.bin\""));
+        full.push(response.into_body().try_into_bytes().map_err(|_| "media response must expose its complete body")?);
+
+        let response = http_test::call_service(&app, http_test::TestRequest::get().uri(&path).insert_header(("Range", range_header.as_str())).to_request()).await;
+        assert_eq!(response.status(), 206);
+        assert_eq!(response.headers().get("content-range").and_then(|value| value.to_str().ok()), Some(expected_range.as_str()));
+        partial.push(response.into_body().try_into_bytes().map_err(|_| "range response must expose its complete body")?);
+    }
+    let elapsed = began.elapsed();
+    let full_buffers: std::collections::HashSet<_> = full.iter().map(|body| body.as_ptr()).collect();
+    println!(
+        "media_storage_measurement={}",
+        serde_json::json!({"asset_bytes": bytes.len(), "full_responses": full.len(), "range_responses": partial.len(), "range_bytes": end - start,
+            "distinct_full_body_buffers": full_buffers.len(), "construction_us": elapsed.as_micros(), "pid": std::process::id()})
+    );
+
+    // 2. 每个响应有独立存活期，丢弃其他响应不能破坏完整或范围内容。
+    for body in &full {
+        assert_eq!(body.as_ref(), bytes);
+    }
+    for body in &partial {
+        assert_eq!(body.as_ref(), &bytes[start..end]);
+    }
+    drop(full);
+    let retained = partial.pop().ok_or("expected a retained range response")?;
+    drop(partial);
+    assert_eq!(retained.as_ref(), &bytes[start..end]);
+    assert_eq!(crate::media::get(&id).as_deref(), Some(bytes.as_slice()));
+    Ok(())
+}
+
+#[actix_web::test]
 async fn csv_download_serves_named_attachment_and_repeatable_range_bytes() -> TestResult {
     let bytes = b"id,region\nA,north\n";
     let mime = "text/csv";

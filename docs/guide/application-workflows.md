@@ -203,6 +203,10 @@ let value = st.cache_data("outer").call(21, |n: i64| {
 
 调用方无需新增选项；文件名、MIME 和内容地址沿用原下载/视频配置。这里验证 HTTP 范围响应，不将它描述为已完成浏览器拖动定位或完整播放器兼容。
 
+媒体注册后保存在进程内存中，当前没有自动淘汰。同一内容的完整响应和范围响应现在共享不可变字节，调用方式和响应内容保持；注册时仍复制调用方的输入，公开 `media::get` 仍返回独立的 `Vec<u8>`。同一 8 MiB 文件的 16 个完整及 16 个范围响应构造测量中，完整响应的独立缓冲从 16 份降为一份；[本机三次对照数据](../../tests/performance/media-storage.json)只衡量进程内路由构造与持有成本，不证明网络零复制、慢连接容量或长期资源回收，也不改变媒体存活时间。
+
+复测先执行 `cargo test -p streamlit --lib large_media_responses_keep_full_and_range_bytes_alive_independently --locked -- --nocapture`，测试输出实际 test executable 路径和构造测量。Windows 上可用 Python 标准库执行 `python tools/measure_media_storage.py <该 executable 路径> after target/checks/media-storage-local`，单独运行三次并保存进程内存观测和原始输出；路径取当次 Cargo 输出，不固定文件后缀。采样请求间隔为 5 ms，调度可延长它，观测最大值可能漏掉短峰；操作系统峰值工作集另行保留。旧基线对应优化前产品代码与同一新增测试，不能用当前已重建的 executable 冒充旧版本重测。
+
 ## 在仓库外创建应用（宏支撑接口待选择）
 
 以下是宏支撑方案 A 的目标用法，**当前尚不可只用这个依赖直接构建**：现有宏还要求调用方直接依赖 tokio 和 env_logger；是否隐藏这些依赖等待用户选择。`#[streamlit::main]` 接收 async 函数并创建运行时和服务入口。以下目录假设 `my-app/` 与本项目 checkout `streamlit-rust/` 并列；这里使用本地源码，不声称已发布 crates.io 包：
