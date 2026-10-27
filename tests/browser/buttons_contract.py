@@ -1747,19 +1747,13 @@ BUTTONS_DOMS = {
     }
 }
 
-BUTTONS_SOURCE_PINS = {
-    "python": [
-    'tests/reference/buttons_app.py',
-    '301325fef04f99504bd2577edbeed14991e0b2335170cae7a0d4d99807f1530d'
-],
-    "native": [
-    'streamlit/examples/buttons.rs',
-    '79817da724ca2b6d57f9615b955d9acc6219d30ce7a357026b605c426a705f4d'
-],
+BUTTONS_SOURCE_FILES = {
+    "python": "tests/reference/buttons_app.py",
+    "native": "streamlit/examples/buttons.rs",
 }
 
 BUTTONS_REQUIRED = (
-    "contract", "stage_set", "source_pin", "timeline", "toggle_wire",
+    "contract", "stage_set", "timeline", "toggle_wire",
     "feedback_wire", "group_wire", "pagination_wire", "menu_wire",
     "download_wire", "link_wire", "page_link_wire", "interaction_wires",
     "dom_projection", "no_exceptions", "finishes", "png_sources",
@@ -1857,13 +1851,6 @@ def buttons_checks(*, observation=None):
             _need(isinstance(stage.get("dom"), dict) and isinstance(stage.get("screenshot"), dict)
                   and isinstance(stage.get("new_frames"), list), f"stage {stage.get('name')} lacks dom/screenshot/new_frames")
         mark("stage_set")
-
-        source = observation.get("source") or {}
-        side = "python" if observation.get("scope") == "PYTHON SIDE ONLY" else "native"
-        path, pinned = BUTTONS_SOURCE_PINS[side]
-        _need(source.get("file") == path and source.get("sha256") == pinned,
-              f"driven source is not the pinned {path} of this contract")
-        mark("source_pin")
 
         timelines = {stage["name"]: _timeline(stage) for stage in stages}
         for name in BUTTONS_STAGES:

@@ -7,18 +7,17 @@
 //! the reference fixture `tests/reference/execution_app.py`.
 use ::streamlit::*;
 
-#[streamlit::main]
-async fn main(st: &Streamlit) {
-    let runs: i64 = st.session_state().get("runs").ok().flatten().unwrap_or(0) + 1;
-    let reruns: i64 = st.session_state().get("reruns").ok().flatten().unwrap_or(0);
-    st.session_state().set("runs", runs).unwrap();
+fn render(st: &Streamlit) -> anyhow::Result<()> {
+    let runs: i64 = st.session_state().get("runs")?.unwrap_or(0) + 1;
+    let reruns: i64 = st.session_state().get("reruns")?.unwrap_or(0);
+    st.session_state().set("runs", runs)?;
 
-    let mode = st.selectbox(("mode", ["plain", "rerun", "stop"])).ok().flatten().unwrap_or("plain");
+    let mode = st.selectbox(("mode", ["plain", "rerun", "stop"]))?.unwrap_or("plain");
 
     st.markdown(format!("mode={mode} runs={runs} reruns={reruns}"));
 
     if mode == "rerun" && reruns == 0 {
-        st.session_state().set("reruns", 1_i64).unwrap();
+        st.session_state().set("reruns", 1_i64)?;
         st.rerun();
         st.markdown("unreachable-after-rerun");
     }
@@ -29,4 +28,12 @@ async fn main(st: &Streamlit) {
     }
 
     st.markdown("epilogue");
+    Ok(())
+}
+
+#[streamlit::main]
+async fn main(st: &Streamlit) {
+    if let Err(error) = render(st) {
+        st.write(format!("Execution example error: {error}"));
+    }
 }

@@ -43,7 +43,8 @@ from capture_browser_trace import (  # noqa: E402
     _j09_materialize_frames, _j09_close_success,
     J09_SLOW_CASE, J09_SLOW_CONTRACT, J09_SLOW_TTL_SECONDS, J09_SLOW_HOLD_SECONDS,
     J09_SLOW_SUFFIX, J09_SLOW_INPUTS, J09_SLOW_ACTIONS, J09_SLOW_PNG_ROLES,
-    J09_SLOW_REQUIRED, j09_slow_checks, _j09_slow_base_view, _j09_quiet,
+    J09_SLOW_REQUIRED, J09_SLOW_TTL_EVIDENCE_KINDS, J09_SLOW_LEGACY_SOURCE_KINDS,
+    j09_slow_checks, _j09_slow_base_view, _j09_quiet,
     J01_EXPECTED_ROWS, _stage2_static_view, _stage2_typed_controls,
     _stage2_specific_alerts, _j06_empty, _same_cell_value,
 )
@@ -97,13 +98,6 @@ except ImportError:  # the closed door: the case fails, it never passes by itsel
     sequence_checks = None
 
 CHROME_PORT = 60667
-
-# Loaded-file identity is captured once, before any browser action.  Later
-# verification can use another criterion without rewriting this history.
-CAPTURE_SOURCE_BYTES = {
-    "numeric_capture.py": pathlib.Path(__file__).read_bytes(),
-    "capture_browser_trace.py": pathlib.Path(sys.modules["capture_browser_trace"].__file__).read_bytes(),
-}
 
 # J00 presence/membership only; form interaction belongs to the forms collector.
 J00_FORM_DOM_JS = r"""(()=>{
@@ -1660,6 +1654,8 @@ def _observe(source, recorder, args, out, uploads, phases, states, arrow_files, 
              contract=OBSERVATION_CONTRACT, phase_ids=None):
     """The observation of a journey: one probe, one shape."""
     observation = {
+        "runtime": "python" if args.scope == "PYTHON SIDE ONLY" else "native",
+        "reference_version": "1.66.1",
         "namespace": source,
         "url": args.url,
         "ipc_dir": str(out),
@@ -2812,18 +2808,13 @@ def run_isolation_journey(args, out):
     original_inventory = None
     current_phase = None
     try:
-        source_dir = out / "capture-source"
-        source_dir.mkdir(exist_ok=True)
-        sources = {}
-        for name, data in CAPTURE_SOURCE_BYTES.items():
-            (source_dir/name).write_bytes(data)
-            sources[name] = dict(file="capture-source/"+name, sha256=hashlib.sha256(data).hexdigest())
-        observation["capture_sources"] = sources
+        observation["runtime"] = "python" if args.scope == "PYTHON SIDE ONLY" else "native"
+        observation["reference_version"] = "1.66.1"
         observation["capture_head"] = _git_head()
         manifest["capture_head"] = observation["capture_head"]
         _write_trace(out/"execution-manifest.json",manifest)
         fixture = ROOT / "tests/reference/app.py"
-        observation["reference_fixture"] = dict(file=str(fixture),sha256=hashlib.sha256(fixture.read_bytes()).hexdigest())
+        observation["reference_fixture"] = dict(file=fixture.relative_to(ROOT).as_posix())
         for key in ("a","b"):
             inventory = http_json(f"http://127.0.0.1:{args.port}/json/list")
             if not isinstance(inventory,list) or any(not isinstance(t,dict) or not t.get("id") for t in inventory):
@@ -3219,14 +3210,14 @@ def _slow_configuration(args,out):
             not isinstance(data.get("process_command_line"),str) or not data["process_command_line"].strip() or
             not data.get("runtime") or not isinstance(data.get("evidence"),list) or not data["evidence"]):
         raise ValueError("explicit TTL120 process/config/runtime evidence is required")
-    kinds=[item.get("kind") for item in data["evidence"]]
-    required=({"process","config","effective-config","app-source"} if args.scope=="PYTHON SIDE ONLY" else
-              {"process","build","config","server-source","entry-source"})
+    retained=[item for item in data["evidence"] if item.get("kind") not in J09_SLOW_LEGACY_SOURCE_KINDS]
+    kinds=[item.get("kind") for item in retained]
+    required=set(J09_SLOW_TTL_EVIDENCE_KINDS["python" if args.scope=="PYTHON SIDE ONLY" else "native"])
     if len(kinds)!=len(required) or set(kinds)!=required:
         raise ValueError("TTL evidence must contain the frozen runtime-specific kinds exactly once")
     saved=[]
     folder=out/"ttl-evidence";folder.mkdir(exist_ok=False)
-    for index,item in enumerate(data["evidence"]):
+    for index,item in enumerate(retained):
         source=(path.parent/item["file"]).resolve()
         content=source.read_bytes()
         digest=hashlib.sha256(content).hexdigest()
@@ -3235,7 +3226,6 @@ def _slow_configuration(args,out):
         name=str(index)+"-"+source.name
         (folder/name).write_bytes(content)
         saved.append(dict(kind=item["kind"],file="ttl-evidence/"+name,sha256=digest))
-    (folder/"input.json").write_bytes(path.read_bytes())
     return dict(data,evidence=saved)
 
 
@@ -3531,14 +3521,11 @@ def run_reconnect_journey(args,out,*,materialize=_j09_materialize_frames):
             if parsed.hostname!="127.0.0.1" or parsed.port!=port:
                 raise ValueError("S4 is restricted to its explicitly owned loopback runtime port")
             observation["ttl_configuration"]=_slow_configuration(args,out)
-        source_dir=out/"capture-source";source_dir.mkdir(exist_ok=True)
-        observation["capture_sources"]={}
-        for name,data in CAPTURE_SOURCE_BYTES.items():
-            (source_dir/name).write_bytes(data)
-            observation["capture_sources"][name]=dict(file="capture-source/"+name,sha256=hashlib.sha256(data).hexdigest())
+        observation["runtime"]="python" if args.scope=="PYTHON SIDE ONLY" else "native"
+        observation["reference_version"]="1.66.1"
         observation["capture_head"]=_git_head();manifest["capture_head"]=observation["capture_head"]
         fixture=ROOT/"tests/reference/app.py"
-        observation["reference_fixture"]=dict(file=str(fixture),sha256=hashlib.sha256(fixture.read_bytes()).hexdigest())
+        observation["reference_fixture"]=dict(file=fixture.relative_to(ROOT).as_posix())
         if not callable(materialize):
             raise RuntimeError("canonical J09 document reader is not wired; browser capture not started")
         original=http_json(f"http://127.0.0.1:{args.port}/json/list")
@@ -3754,9 +3741,7 @@ def replay_sequence(path) -> int:
         verdict = _judge_sequence(name, observation)
         if raw_path.read_bytes() != original:
             raise ValueError("raw bytes changed during replay")
-        criteria_path = pathlib.Path(sys.modules["capture_browser_trace"].__file__)
         report = {"journey": name, "raw_sha256": hashlib.sha256(original).hexdigest(),
-                  "criteria_file_sha256": hashlib.sha256(criteria_path.read_bytes()).hexdigest(),
                   **verdict}
         print(json.dumps(report, ensure_ascii=False))
         counts = verdict["counts"]

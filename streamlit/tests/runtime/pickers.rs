@@ -15,47 +15,54 @@ use crate::proto::widget_state::Value as WireValue;
 
 fn pickers_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
     Box::pin(async move {
-        // Mirrors tests/reference/pickers_app.py.
-        let start = chrono::NaiveDate::from_ymd_opt(2025, 1, 15).unwrap();
-        st.date_input(crate::DateInputOptions::new("Start date").value(start).key("start")).unwrap();
-        st.date_input(crate::DateInputOptions::new("Window").value_range(start, chrono::NaiveDate::from_ymd_opt(2025, 2, 15).unwrap()).key("window")).unwrap();
+        let result: TestResult = async {
+            // Mirrors tests/reference/pickers_app.py.
+            let start = chrono::NaiveDate::from_ymd_opt(2025, 1, 15).ok_or("fixture start date must be valid")?;
+            st.date_input(crate::DateInputOptions::new("Start date").value(start).key("start"))?;
+            st.date_input(
+                crate::DateInputOptions::new("Window")
+                    .value_range(start, chrono::NaiveDate::from_ymd_opt(2025, 2, 15).ok_or("fixture end date must be valid")?)
+                    .key("window"),
+            )?;
 
-        st.time_input(crate::TimeInputOptions::new("Meeting").value(chrono::NaiveTime::from_hms_opt(14, 30, 0).unwrap()).key("meeting")).unwrap();
+            st.time_input(crate::TimeInputOptions::new("Meeting").value(chrono::NaiveTime::from_hms_opt(14, 30, 0).ok_or("fixture meeting time must be valid")?).key("meeting"))?;
 
-        st.color_picker(crate::ColorPickerOptions::new("Accent").value("#FF5733").key("accent")).unwrap();
+            st.color_picker(crate::ColorPickerOptions::new("Accent").value("#FF5733").key("accent"))?;
 
-        st.select_slider(crate::SelectSliderOptions::new("Pick one", ["low", "medium", "high"]).key("one")).unwrap();
-        st.select_slider(crate::SelectSliderOptions::new("Pick range", ["a", "b", "c", "d"]).default(["b", "d"]).key("range")).unwrap();
+            st.select_slider(crate::SelectSliderOptions::new("Pick one", ["low", "medium", "high"]).key("one"))?;
+            st.select_slider(crate::SelectSliderOptions::new("Pick range", ["a", "b", "c", "d"]).default(["b", "d"]).key("range"))?;
 
-        st.audio_input(crate::AudioInputOptions::new("Voice note").key("voice")).unwrap();
-        st.camera_input(crate::CameraInputOptions::new("Snapshot").key("shot")).unwrap();
+            st.audio_input(crate::AudioInputOptions::new("Voice note").key("voice"))?;
+            st.camera_input(crate::CameraInputOptions::new("Snapshot").key("shot"))?;
+            Ok(())
+        }
+        .await;
+        assert!(result.is_ok(), "pickers_entry fixture failed: {result:?}");
     })
 }
 
 #[actix_web::test]
-async fn picker_inputs_match_the_measured_wire() {
-    let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
-    let address = listener.local_addr().unwrap();
+async fn picker_inputs_match_the_measured_wire() -> TestResult {
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
     let server = HttpServer::new(move || App::new().app_data(web::Data::new(StreamlitServer::new(pickers_entry, "127.0.0.1".into(), 0))).configure(configure_routes))
         .workers(1)
-        .listen(listener)
-        .unwrap()
+        .listen(listener)?
         .run();
     let handle = server.handle();
     let task = actix_web::rt::spawn(server);
-    let mut stream = TcpStream::connect(address).await.unwrap();
+    let mut stream = TcpStream::connect(address).await?;
     let request = format!("GET /_stcore/stream HTTP/1.1\r\nHost: {address}\r\nConnection: Upgrade\r\nUpgrade: websocket\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\nSec-WebSocket-Protocol: streamlit, test-xsrf\r\n\r\n");
-    stream.write_all(request.as_bytes()).await.unwrap();
+    stream.write_all(request.as_bytes()).await?;
     let headers = tokio::time::timeout(Duration::from_secs(5), async {
         let mut response = Vec::new();
         while !response.ends_with(b"\r\n\r\n") {
-            response.push(stream.read_u8().await.unwrap());
+            response.push(stream.read_u8().await?);
             assert!(response.len() < 8192);
         }
-        String::from_utf8(response).unwrap().to_ascii_lowercase()
+        Ok::<_, Box<dyn std::error::Error>>(String::from_utf8(response)?.to_ascii_lowercase())
     })
-    .await
-    .unwrap();
+    .await??;
     assert!(headers.starts_with("http/1.1 101"));
 
     let mut ids: std::collections::HashMap<&str, String> = std::collections::HashMap::new();
@@ -127,11 +134,12 @@ async fn picker_inputs_match_the_measured_wire() {
 
     drop(stream);
     handle.stop(false).await;
-    task.await.unwrap().unwrap();
+    task.await??;
+    Ok(())
 }
 
 #[actix_web::test]
-async fn date_and_time_codecs_decode_the_measured_wire() {
+async fn date_and_time_codecs_decode_the_measured_wire() -> TestResult {
     use crate::widgets::Codec;
 
     let single = Codec::DateInput { range: false };
@@ -142,15 +150,20 @@ async fn date_and_time_codecs_decode_the_measured_wire() {
         })
     };
 
-    assert_eq!(single.decode(&wire(&["2025-01-15"])).unwrap(), serde_json::json!("2025-01-15"));
+    assert_eq!(single.decode(&wire(&["2025-01-15"])).ok_or("single date codec must decode valid ISO date")?, serde_json::json!("2025-01-15"));
     assert!(single.decode(&wire(&["not-a-date"])).is_none(), "a malformed ISO date is rejected fail-closed");
     assert!(range.decode(&wire(&["2025-01-15"])).is_none(), "a range needs exactly two dates");
-    assert_eq!(range.decode(&wire(&["2025-01-15", "2025-02-15"])).unwrap(), serde_json::json!(["2025-01-15", "2025-02-15"]));
+    assert_eq!(range.decode(&wire(&["2025-01-15", "2025-02-15"])).ok_or("range date codec must decode two valid dates")?, serde_json::json!(["2025-01-15", "2025-02-15"]));
 
     let coarse = Codec::TimeInput { step: 900 };
     let fine = Codec::TimeInput { step: 1 };
-    assert_eq!(coarse.decode(&WireValue::StringValue("14:30".into())).unwrap(), serde_json::json!("14:30"));
+    assert_eq!(coarse.decode(&WireValue::StringValue("14:30".into())).ok_or("coarse time codec must decode HH:MM")?, serde_json::json!("14:30"));
     assert!(coarse.decode(&WireValue::StringValue("14:30:45".into())).is_none(), "whole-minute steps carry HH:MM only");
-    assert_eq!(fine.decode(&WireValue::StringValue("14:30:45".into())).unwrap(), serde_json::json!("14:30:45"));
-    assert_eq!(coarse.decode(&WireValue::StringValue(String::new())).unwrap(), serde_json::Value::Null, "the empty string is the cleared time");
+    assert_eq!(fine.decode(&WireValue::StringValue("14:30:45".into())).ok_or("fine time codec must decode HH:MM:SS")?, serde_json::json!("14:30:45"));
+    assert_eq!(
+        coarse.decode(&WireValue::StringValue(String::new())).ok_or("cleared time must decode to JSON null")?,
+        serde_json::Value::Null,
+        "the empty string is the cleared time"
+    );
+    Ok(())
 }

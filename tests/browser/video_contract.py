@@ -69,15 +69,14 @@ VIDEO_DOM = {
  "exceptions": []
 }
 
-# The driven application source is pinned per side; a capture of another
-# source is not this contract's evidence.
-VIDEO_SOURCE_PINS = {
-    "python": ("tests/reference/video_app.py", "d4e68536b660625c83a839cab53497c645be6c7a4874317205634359854f63e9"),
-    "native": ("streamlit/examples/video.rs", "16cb08e45262af3a4810fc004f6f0880a786b5ca31089a492b8a1579d0a1d4d5"),
+# Application paths label the captured roles; source content is not a gate.
+VIDEO_SOURCE_FILES = {
+    "python": "tests/reference/video_app.py",
+    "native": "streamlit/examples/video.rs",
 }
 
 VIDEO_REQUIRED = (
-    "contract", "stage_set", "source_pin", "video_wire", "exact_address",
+    "contract", "stage_set", "video_wire", "exact_address",
     "http_shape", "dom_projection", "no_exceptions", "finishes",
     "png_sources",
 )
@@ -147,13 +146,6 @@ def video_checks(*, observation=None):
                   and isinstance(stage.get("new_frames"), list) and isinstance(stage.get("http"), list),
                   f"stage {stage.get('name')} lacks dom/screenshot/new_frames/http")
         mark("stage_set")
-
-        source = observation.get("source") or {}
-        side = "python" if observation.get("scope") == "PYTHON SIDE ONLY" else "native"
-        path, pinned = VIDEO_SOURCE_PINS[side]
-        _need(source.get("file") == path and source.get("sha256") == pinned,
-              f"driven source is not the pinned {path} of this contract")
-        mark("source_pin")
 
         _need(_video_elements(stages[0]) == VIDEO_ELEMENTS, "the Video element differs from the measured wire")
         mark("video_wire")

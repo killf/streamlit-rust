@@ -668,8 +668,10 @@ impl SessionState {
         } else if one_shot_reset(&codec).is_some() {
             registry.records.get(&id).map(|record| record.value.clone()).unwrap_or(default)
         } else {
-            if let Some(native) = key.and_then(|key| values.get(key)) {
-                codec.read_session_value(native, if registry.dirty_keys.contains(key.unwrap()) { None } else { registry.records.get(&id) })?
+            if let Some(key) = key
+                && let Some(native) = values.get(key)
+            {
+                codec.read_session_value(native, if registry.dirty_keys.contains(key) { None } else { registry.records.get(&id) })?
             } else {
                 registry.records.get(&id).map(|record| record.value.clone()).unwrap_or(default)
             }
@@ -734,10 +736,10 @@ mod tests {
     use super::*;
 
     #[test]
-    fn removed_upload_cannot_be_rebound_by_resending_old_file_state() {
+    fn removed_upload_cannot_be_rebound_by_resending_old_file_state() -> anyhow::Result<()> {
         let state = SessionState::default();
         state.uploads.lock().insert("removed".into(), "old.csv".into(), Some("text/csv".into()), vec![1, 2, 3]);
-        let retained = state.uploads.lock().get("removed").unwrap();
+        let retained = state.uploads.lock().get("removed").ok_or_else(|| anyhow::anyhow!("test upload must be retained before removal"))?;
         let codec = Codec::Files { store: state.uploads.clone(), multiple: false };
         let old_wire = widget_state::Value::FileUploaderStateValue(crate::proto::FileUploaderState {
             uploaded_file_info: vec![crate::proto::UploadedFileInfo { file_id: "removed".into(), ..Default::default() }],
@@ -747,26 +749,26 @@ mod tests {
         assert_eq!(codec.decode(&old_wire), Some(serde_json::json!([])));
         assert!(!state.uploads.lock().remove("removed"));
         assert_eq!(retained.as_bytes(), &[1, 2, 3]);
+
+        Ok(())
     }
 
     #[test]
-    fn malformed_numeric_payloads_do_not_mutate_values_or_schedule_callbacks() {
+    fn malformed_numeric_payloads_do_not_mutate_values_or_schedule_callbacks() -> anyhow::Result<()> {
         let state = SessionState::default();
         state.begin_widgets(vec![]);
         let callback: WidgetCallback = Arc::new(|_| panic!("invalid input must not schedule a callback"));
-        let (id, _, _) = state
-            .register_widget(
-                WidgetSpec {
-                    kind: "slider",
-                    key: Some("range"),
-                    identity: "range",
-                    default: serde_json::json!([2, 8]),
-                    codec: Codec::Slider { min: 0.0, max: 10.0, count: 2, integer: true },
-                    callback: Some(callback),
-                },
-                |value| Ok(value.clone()),
-            )
-            .unwrap();
+        let (id, _, _) = state.register_widget(
+            WidgetSpec {
+                kind: "slider",
+                key: Some("range"),
+                identity: "range",
+                default: serde_json::json!([2, 8]),
+                codec: Codec::Slider { min: 0.0, max: 10.0, count: 2, integer: true },
+                callback: Some(callback),
+            },
+            |value| Ok(value.clone()),
+        )?;
         state.finish_widgets();
         // These are native decoder robustness tests, not claims about Python's
         // error handling for fabricated client payloads.
@@ -777,14 +779,16 @@ mod tests {
                 value: Some(widget_state::Value::DoubleArrayValue(crate::proto::DoubleArray { data })),
             }]);
             assert!(callbacks.is_empty());
-            assert_eq!(state.get::<[i64; 2]>("range").unwrap(), Some([2, 8]));
+            assert_eq!(state.get::<[i64; 2]>("range")?, Some([2, 8]));
         }
         let callbacks = state.begin_widgets(vec![WidgetState {
             id,
             value: Some(widget_state::Value::BoolValue(true)),
         }]);
         assert!(callbacks.is_empty());
-        assert_eq!(state.get::<[i64; 2]>("range").unwrap(), Some([2, 8]));
+        assert_eq!(state.get::<[i64; 2]>("range")?, Some([2, 8]));
+
+        Ok(())
     }
 
     #[test]

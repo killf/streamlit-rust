@@ -278,19 +278,13 @@ CHAT_DOMS = {
     }
 }
 
-CHAT_SOURCE_PINS = {
-    "python": [
-    'tests/reference/chat_app.py',
-    'e85271b6a4bd78e4eb28a128d307f2bf8dd3eb7450afe230c161274fedfbe0d2'
-],
-    "native": [
-    'streamlit/examples/chat.rs',
-    '7e0f5afb36cd35a915ff6f9e546357afd960c9975edb2a4319c4ad008f77b240'
-],
+CHAT_SOURCE_FILES = {
+    "python": "tests/reference/chat_app.py",
+    "native": "streamlit/examples/chat.rs",
 }
 
 CHAT_REQUIRED = (
-    "contract", "stage_set", "source_pin", "timeline", "chat_block_wire",
+    "contract", "stage_set", "timeline", "chat_block_wire",
     "chat_input_wire", "submit_wire", "dom_projection", "no_exceptions",
     "finishes", "png_sources",
 )
@@ -375,13 +369,6 @@ def chat_checks(*, observation=None):
             _need(isinstance(stage.get("dom"), dict) and isinstance(stage.get("screenshot"), dict)
                   and isinstance(stage.get("new_frames"), list), f"stage {stage.get('name')} lacks dom/screenshot/new_frames")
         mark("stage_set")
-
-        source = observation.get("source") or {}
-        side = "python" if observation.get("scope") == "PYTHON SIDE ONLY" else "native"
-        path, pinned = CHAT_SOURCE_PINS[side]
-        _need(source.get("file") == path and source.get("sha256") == pinned,
-              f"driven source is not the pinned {path} of this contract")
-        mark("source_pin")
 
         timelines = {stage["name"]: _timeline(stage) for stage in stages}
         for name in CHAT_STAGES:

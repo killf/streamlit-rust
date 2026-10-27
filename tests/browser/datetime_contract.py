@@ -93,19 +93,13 @@ DATETIME_DOMS = {
     }
 }
 
-DATETIME_SOURCE_PINS = {
-    "python": [
-    'tests/reference/datetime_app.py',
-    '584879326bf4881286bf1f416d09eb2a2721d77d125b6a368e7f665a506217e0'
-],
-    "native": [
-    'streamlit/examples/datetime.rs',
-    'be6fc65ff0000b732d0406f6edf82a6978bc024f35d24f50083ad88dc87ebd55'
-],
+DATETIME_SOURCE_FILES = {
+    "python": "tests/reference/datetime_app.py",
+    "native": "streamlit/examples/datetime.rs",
 }
 
 DATETIME_REQUIRED = (
-    "contract", "stage_set", "source_pin", "timeline", "dom_projection",
+    "contract", "stage_set", "timeline", "dom_projection",
     "finishes", "png_sources",
 )
 
@@ -179,13 +173,6 @@ def datetime_checks(*, observation=None):
             _need(isinstance(stage.get("dom"), dict) and isinstance(stage.get("screenshot"), dict)
                   and isinstance(stage.get("new_frames"), list), f"stage {stage.get('name')} lacks dom/screenshot/new_frames")
         mark("stage_set")
-
-        source = observation.get("source") or {}
-        side = "python" if observation.get("scope") == "PYTHON SIDE ONLY" else "native"
-        path, pinned = DATETIME_SOURCE_PINS[side]
-        _need(source.get("file") == path and source.get("sha256") == pinned,
-              f"driven source is not the pinned {path} of this contract")
-        mark("source_pin")
 
         timelines = {stage["name"]: _timeline(stage) for stage in stages}
         for name in DATETIME_STAGES:

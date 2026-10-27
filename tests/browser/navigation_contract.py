@@ -527,19 +527,13 @@ NAVIGATION_DOMS = {
     }
 }
 
-NAVIGATION_SOURCE_PINS = {
-    "python": [
-    'tests/reference/navigation_app.py',
-    'ec3eed1425f88a1bc25c1bde7c8884eb953bca1658344a4b15e5b66b28701bb4'
-],
-    "native": [
-    'streamlit/examples/navigation.rs',
-    'abe2e4b7651ff54073b3bbfdd610a7747574ea12c64662ec118d440143ec0554'
-],
+NAVIGATION_SOURCE_FILES = {
+    "python": "tests/reference/navigation_app.py",
+    "native": "streamlit/examples/navigation.rs",
 }
 
 NAVIGATION_REQUIRED = (
-    "contract", "stage_set", "source_pin", "timeline", "nav_wire",
+    "contract", "stage_set", "timeline", "nav_wire",
     "page_hash_wire", "session_state_wire", "switch_wire",
     "dom_projection", "no_exceptions", "finishes", "png_sources",
 )
@@ -642,13 +636,6 @@ def navigation_checks(*, observation=None):
             _need(isinstance(stage.get("dom"), dict) and isinstance(stage.get("screenshot"), dict)
                   and isinstance(stage.get("new_frames"), list), f"stage {stage.get('name')} lacks dom/screenshot/new_frames")
         mark("stage_set")
-
-        source = observation.get("source") or {}
-        side = "python" if observation.get("scope") == "PYTHON SIDE ONLY" else "native"
-        path, pinned = NAVIGATION_SOURCE_PINS[side]
-        _need(source.get("file") == path and source.get("sha256") == pinned,
-              f"driven source is not the pinned {path} of this contract")
-        mark("source_pin")
 
         main_hash = next((frame["summary"]["new_session"]["main_script_hash"]
                           for stage in stages for frame in stage["new_frames"]

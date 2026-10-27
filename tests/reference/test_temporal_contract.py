@@ -14,7 +14,7 @@ from temporal_contract import (  # noqa: E402
     TEMPORAL_INPUTS,
     TEMPORAL_REPRS,
     TEMPORAL_REQUIRED,
-    TEMPORAL_SOURCE_PINS,
+    TEMPORAL_SOURCE_FILES,
     TEMPORAL_STAGES,
     TEMPORAL_STATES,
     TEMPORAL_WIRE,
@@ -66,7 +66,7 @@ def observation(tmp_path, **faults):
         "contract": "journey-temporal-v1",
         "scope": "PYTHON SIDE ONLY",
         "url": "http://127.0.0.1:8606/",
-        "source": {"file": TEMPORAL_SOURCE_PINS["python"][0], "sha256": TEMPORAL_SOURCE_PINS["python"][1]},
+        "source": {"file": TEMPORAL_SOURCE_FILES["python"]},
         "capture_sources": {},
         "stages": stages,
         "ipc_dir": str(tmp_path),
@@ -103,8 +103,6 @@ def observation(tmp_path, **faults):
         (tmp_path / f"{target['name']}.png").unlink()
     elif mutation == "png_sha":
         target["screenshot"]["sha256"] = "0" * 64
-    elif mutation == "wrong_source":
-        observation["source"]["sha256"] = "0" * 64
     elif mutation == "wrong_contract":
         observation["contract"] = "journey-temporal-v0"
     elif mutation == "missing_stage":
@@ -122,14 +120,14 @@ def result(tmp_path, **faults):
 def test_complete_synthetic_model_passes_every_check(tmp_path):
     outcome = result(tmp_path)
     assert outcome["ok"], outcome["failures"]
-    assert outcome["counts"] == {"expected": 11, "executed": 11, "asserted": 11}
+    assert outcome["counts"] == {"expected": 10, "executed": 10, "asserted": 10}
     assert tuple(check["check"] for check in outcome["checks"]) == TEMPORAL_REQUIRED
 
 
 @pytest.mark.parametrize("mutation", [
     "wrong_wire_step", "wrong_state", "wrong_repr", "wrong_input", "wrong_finish",
     "exception_element", "exception_dom", "missing_rerun", "extra_rerun",
-    "missing_png", "png_sha", "wrong_source", "wrong_contract", "missing_stage",
+    "missing_png", "png_sha", "wrong_contract", "missing_stage",
     "reordered_stages",
 ])
 def test_known_mutations_fail(tmp_path, mutation):
@@ -148,14 +146,16 @@ def test_first_stage_snapshots_pin_the_load_run_without_states():
     assert all(TEMPORAL_STATES[name] for name in TEMPORAL_STAGES[1:])
 
 
-def test_contract_pins_the_committed_sources():
-    for side, (relative, pinned) in TEMPORAL_SOURCE_PINS.items():
-        path = HERE.parents[1] / relative
-        assert path.is_file() and hashlib.sha256(path.read_bytes()).hexdigest() == pinned, side
-
-
 def test_states_inputs_and_reprs_cover_every_stage():
     for name in TEMPORAL_STAGES:
         assert set(TEMPORAL_STATES[name]) <= set(TEMPORAL_WIRE)
         assert set(TEMPORAL_INPUTS[name]) == set(TEMPORAL_WIRE)
         assert len(TEMPORAL_REPRS[name]) == len(TEMPORAL_WIRE)
+
+
+def test_source_fingerprints_do_not_gate_functional_evidence(tmp_path):
+    for source in ({"file": "historical-app.py", "sha256": "changed"}, {"file": "historical-app.py"}, None):
+        observed = observation(tmp_path)
+        observed["source"] = source
+        outcome = temporal_result(observation=observed)
+        assert outcome["ok"], outcome["failures"]

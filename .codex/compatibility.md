@@ -12,6 +12,8 @@ Streamlit runtime compatibility is pinned to 1.66.1. The historical API matrix c
 
 长期 M0 进行中；旧 HTML/catalog 当前未恢复，新抓取须记录来源、实际日期、文档版本及内容身份，不覆盖或冒用旧目录的锁定哈希。当前通过、当前失败、环境受阻和历史结果分别记录。
 
+用户已取消实现源码的 SHA 门禁。旧文档和冻结轨迹中的源码指纹是当时的历史元数据，不再要求当前 Rust、Python 或采集工具源码与其逐字相同。兼容判断依赖固定版本、冻结输入输出和实际功能验证，不因普通实现变化强制重采或归档源码。
+
 ### M0 documentation review
 
 本轮官方文档范围审读保存在 [documentation-scope.json](../compatibility/documentation-scope.json)。它记录用户能力与场景要求、官方 URL、采集时间及内容身份，不记录另一套实现状态。原有 API 页面仍由现有矩阵关联证据；新增审读覆盖过去未登记的概念和部署说明。

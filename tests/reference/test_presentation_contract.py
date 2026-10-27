@@ -14,7 +14,7 @@ sys.path.insert(0, str(HERE.parent / "browser"))
 from presentation_contract import (  # noqa: E402
     PRESENTATION_DOM,
     PRESENTATION_REQUIRED,
-    PRESENTATION_SOURCE_PINS,
+    PRESENTATION_SOURCE_FILES,
     PRESENTATION_STAGES,
     PRESENTATION_TIMELINE,
     presentation_result,
@@ -67,7 +67,7 @@ def observation(tmp_path, **faults):
         "contract": "journey-presentation-v1",
         "scope": "PYTHON SIDE ONLY",
         "url": "http://127.0.0.1:8611/",
-        "source": {"file": PRESENTATION_SOURCE_PINS["python"][0], "sha256": PRESENTATION_SOURCE_PINS["python"][1]},
+        "source": {"file": PRESENTATION_SOURCE_FILES["python"]},
         "capture_sources": {},
         "stages": stages,
         "ipc_dir": str(tmp_path),
@@ -123,8 +123,6 @@ def observation(tmp_path, **faults):
         (tmp_path / f"{target['name']}.png").unlink()
     elif mutation == "png_sha":
         target["screenshot"]["sha256"] = "0" * 64
-    elif mutation == "wrong_source":
-        observation["source"]["sha256"] = "0" * 64
     elif mutation == "wrong_contract":
         observation["contract"] = "journey-presentation-v0"
     elif mutation == "missing_stage":
@@ -140,7 +138,7 @@ def result(tmp_path, **faults):
 def test_complete_synthetic_model_passes_every_check(tmp_path):
     outcome = result(tmp_path)
     assert outcome["ok"], outcome["failures"]
-    assert outcome["counts"] == {"expected": 11, "executed": 11, "asserted": 11}
+    assert outcome["counts"] == {"expected": 10, "executed": 10, "asserted": 10}
     assert tuple(check["check"] for check in outcome["checks"]) == PRESENTATION_REQUIRED
 
 
@@ -150,7 +148,7 @@ def test_complete_synthetic_model_passes_every_check(tmp_path):
     "toast_wrong_path", "toast_wrong_duration", "toast_not_one_shot",
     "balloons_hidden", "wrong_dom_toast", "spinner_left_in_dom",
     "exception_element", "wrong_finish", "missing_png", "png_sha",
-    "wrong_source", "wrong_contract", "missing_stage",
+    "wrong_contract", "missing_stage",
 ])
 def test_known_mutations_fail(tmp_path, mutation):
     outcome = result(tmp_path, mutation=mutation)
@@ -174,7 +172,9 @@ def test_the_timeline_pins_the_measured_semantics():
     assert PRESENTATION_DOM["toasts"] and not PRESENTATION_DOM["spinners"] and not PRESENTATION_DOM["exceptions"]
 
 
-def test_contract_pins_the_committed_sources():
-    for side, (relative, pinned) in PRESENTATION_SOURCE_PINS.items():
-        path = HERE.parents[1] / relative
-        assert path.is_file() and hashlib.sha256(path.read_bytes()).hexdigest() == pinned, side
+def test_source_fingerprints_do_not_gate_functional_evidence(tmp_path):
+    for source in ({"file": "historical-app.py", "sha256": "changed"}, {"file": "historical-app.py"}, None):
+        observed = observation(tmp_path)
+        observed["source"] = source
+        outcome = presentation_result(observation=observed)
+        assert outcome["ok"], outcome["failures"]

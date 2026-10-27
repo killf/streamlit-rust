@@ -26,29 +26,27 @@ fn textelements_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> 
 }
 
 #[actix_web::test]
-async fn text_family_elements_match_the_measured_wire() {
-    let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
-    let address = listener.local_addr().unwrap();
+async fn text_family_elements_match_the_measured_wire() -> TestResult {
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
     let server = HttpServer::new(move || App::new().app_data(web::Data::new(StreamlitServer::new(textelements_entry, "127.0.0.1".into(), 0))).configure(configure_routes))
         .workers(1)
-        .listen(listener)
-        .unwrap()
+        .listen(listener)?
         .run();
     let handle = server.handle();
     let task = actix_web::rt::spawn(server);
-    let mut stream = TcpStream::connect(address).await.unwrap();
+    let mut stream = TcpStream::connect(address).await?;
     let request = format!("GET /_stcore/stream HTTP/1.1\r\nHost: {address}\r\nConnection: Upgrade\r\nUpgrade: websocket\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\nSec-WebSocket-Protocol: streamlit, test-xsrf\r\n\r\n");
-    stream.write_all(request.as_bytes()).await.unwrap();
+    stream.write_all(request.as_bytes()).await?;
     let headers = tokio::time::timeout(Duration::from_secs(5), async {
         let mut response = Vec::new();
         while !response.ends_with(b"\r\n\r\n") {
-            response.push(stream.read_u8().await.unwrap());
+            response.push(stream.read_u8().await?);
             assert!(response.len() < 8192);
         }
-        String::from_utf8(response).unwrap().to_ascii_lowercase()
+        Ok::<_, Box<dyn std::error::Error>>(String::from_utf8(response)?.to_ascii_lowercase())
     })
-    .await
-    .unwrap();
+    .await??;
     assert!(headers.starts_with("http/1.1 101"));
 
     send_binary(
@@ -115,5 +113,7 @@ async fn text_family_elements_match_the_measured_wire() {
 
     drop(stream);
     handle.stop(false).await;
-    task.await.unwrap().unwrap();
+    task.await??;
+
+    Ok(())
 }

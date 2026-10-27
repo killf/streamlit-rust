@@ -51,7 +51,11 @@ cargo run --example data_app --locked
 
 交互通常使整个应用函数重新执行。每个浏览器会话有独立的内存状态；普通重跑保留状态，断线后在服务端仍保留该会话时可以恢复。刷新页面或另开标签页创建新会话，服务重启后内存状态消失。当前默认断线保留 120 秒，这是本实现的本地策略，并非对上游默认值的兼容承诺。运行 `cargo run --example counter --locked` 可观察计数与重跑。
 
-`rerun` 和 `stop` 的基本场景有验证，但已复现同一次运行中后续信号覆盖首个信号的问题；不要依赖多个信号的优先级。也已复现 `query_params.set` 后服务端重跑丢失该值；不要依赖该路径保存状态。详情参见矩阵 `st.rerun`、`st.stop`、`st.query_params`、`st.session_state` 和官方[会话状态](https://docs.streamlit.io/develop/api-reference/caching-and-state/st.session_state)。
+普通服务端重跑应保留本轮查询参数写入；`switch_page` 切换页面时清空普通查询参数，目标页面后续的新写入再随普通重跑保留。两条路径使用不同的状态边界，不能用旧浏览器请求覆盖目标页的新状态。
+
+同一次运行的首个 `rerun` 或 `stop` 信号决定该轮结束方式，后续信号不会覆盖它；普通服务端重跑保留本轮 `query_params.set` 写入。两条边界均有真实 WebSocket 回归，切页清空与目标页重跑的组合也有验证。详情参见矩阵 `st.rerun`、`st.stop`、`st.query_params`、`st.session_state` 和官方[会话状态](https://docs.streamlit.io/develop/api-reference/caching-and-state/st.session_state)。
+
+当前 Rust 调用发出运行控制信号，并抑制后续 Streamlit 元素和状态写入；它不会自动跳出任意 Rust 辅助函数或取消普通 Rust 计算。调用后应显式返回，例如在下文的 `Result` 辅助函数中使用 `st.stop(); return Ok(());`；`st.rerun()` 同样处理。多层调用的自动控制流传播仍需单独接口设计。
 
 可失败的控件调用应传播错误，并在应用入口统一处理，例如 [quickstart](../../streamlit/examples/quickstart.rs) 中的实际模式：
 
@@ -84,4 +88,6 @@ fn render(st: &Streamlit) -> Result<(), WidgetError> {
 
 ## 参考数据与验证
 
-参考行为以锁定的 Python Streamlit 1.66.1 一次采集的正确输入、输出及版本信息冻结；之后 Rust 单元测试和协议重放复用这些数据，无需因每次 Rust 修改或路径变化重新运行 Python。只有新行为、版本升级或证据失效时才补采。旧 raw 保持原样；其中旧绝对路径仅用于追溯来源，当前 fixture 应通过受控相对路径、大小和 SHA 定位。各矩阵条目的证据链接说明已覆盖的场景，不应把某一项通过推广到完整功能。本次编写未重新运行服务或浏览器验证。
+参考行为以锁定的 Python Streamlit 1.66.1 一次采集的正确输入、输出及版本信息冻结；之后 Rust 单元测试和协议重放复用这些数据，无需因每次 Rust 修改或路径变化重新运行 Python。只有新行为、版本升级或证据失效时才补采。Rust、Python 和采集工具的源码 SHA 不作为验收条件；改变错误处理或实现方式不会使正确的冻结结果失效，也不需要另存历史源码。当前 Rust 仍需实际通过对应功能、协议和交互验证。
+
+旧 raw 保持原样；其中源码 SHA 与旧绝对路径仅用于追溯来源，当前数据 fixture 应通过受控相对路径、大小和内容 SHA 定位。各矩阵条目的证据链接说明已覆盖的场景，不应把某一项通过推广到完整功能。

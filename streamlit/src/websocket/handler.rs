@@ -20,7 +20,7 @@ async fn do_rerun_script(session: &mut Session, lease: &SessionLease, server: &S
     // re-zeroes trigger widgets and gets a fresh run id; only application
     // values persist.
     let mut incoming = Some(widget_states);
-    let incoming_query_string = query_string;
+    let mut incoming_query_string = Some(query_string);
     // The page the browser addressed by hash; a server-started rerun keeps
     // the current page unless st.switch_page picked another one (measured
     // 1.66.1 wire: the addressed page's hash rides NewSession).
@@ -28,9 +28,10 @@ async fn do_rerun_script(session: &mut Session, lease: &SessionLease, server: &S
     loop {
         let callbacks = lease.state.begin_widgets(incoming.take().unwrap_or_default());
         lease.state.reset_run_control();
-        // The URL state the browser reports with this rerun seeds the run's
-        // query parameters (st.query_params reads and merges from it).
-        lease.state.query_params.lock().load(&incoming_query_string);
+        // 只有新浏览器请求提供 URL 初值；服务端重跑保留本轮写入。
+        if let Some(query_string) = incoming_query_string.take() {
+            lease.state.query_params.lock().load(&query_string);
+        }
         lease.state.navigation.lock().incoming_page_hash = incoming_page.clone();
         let st = Streamlit::with_session_state(lease.state.clone());
 
@@ -105,6 +106,9 @@ async fn do_rerun_script(session: &mut Session, lease: &SessionLease, server: &S
         // st.rerun keeps the page the browser addressed.
         if let Some(target) = lease.state.navigation.lock().switch_target.take() {
             incoming_page = Some(target);
+
+            // switch_page 已发送空查询串，下一页也必须读取相同状态。
+            lease.state.query_params.lock().clear();
         }
         log::info!("st.rerun() requested within the run; starting the next run for session {}", lease.id);
     }

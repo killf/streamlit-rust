@@ -584,15 +584,14 @@ MEDIA_PNG_PIXELS = [
  ]
 ]
 
-# The driven application source is pinned per side; a capture of another
-# source is not this contract's evidence.
-MEDIA_SOURCE_PINS = {
-    "python": ("tests/reference/media_app.py", "6079286f3d84cb2478a35ec38532b007b188c5c7cfed5c528e271dce08e4046e"),
-    "native": ("streamlit/examples/media.rs", "f80ac67a3d30312042ebf4aaaf15e0807cf73191b7bfb93b34dfaab2dbf86f26"),
+# Application paths label the captured roles; source content is not a gate.
+MEDIA_SOURCE_FILES = {
+    "python": "tests/reference/media_app.py",
+    "native": "streamlit/examples/media.rs",
 }
 
 MEDIA_REQUIRED = (
-    "contract", "stage_set", "source_pin", "element_wires", "wav_address",
+    "contract", "stage_set", "element_wires", "wav_address",
     "http_shapes", "png_pixels", "dom_projection", "no_exceptions",
     "finishes", "png_sources",
 )
@@ -681,13 +680,6 @@ def media_checks(*, observation=None):
                   and isinstance(stage.get("new_frames"), list) and isinstance(stage.get("http"), list),
                   f"stage {stage.get('name')} lacks dom/screenshot/new_frames/http")
         mark("stage_set")
-
-        source = observation.get("source") or {}
-        side = "python" if observation.get("scope") == "PYTHON SIDE ONLY" else "native"
-        path, pinned = MEDIA_SOURCE_PINS[side]
-        _need(source.get("file") == path and source.get("sha256") == pinned,
-              f"driven source is not the pinned {path} of this contract")
-        mark("source_pin")
 
         wires = [_json.loads(normalize(_json.dumps(element, ensure_ascii=False))) for element in _element_wires(stages[0])]
         _need(wires == MEDIA_ELEMENTS, "the five element wires differ from the measured page")

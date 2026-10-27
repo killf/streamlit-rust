@@ -15,7 +15,7 @@ sys.path.insert(0, str(HERE.parent / "browser"))
 from cache_contract import (  # noqa: E402
     CACHE_DOMS,
     CACHE_REQUIRED,
-    CACHE_SOURCE_PINS,
+    CACHE_SOURCE_FILES,
     CACHE_STAGES,
     CACHE_TIMELINE,
     CACHE_TRANSIENT_PATHS,
@@ -71,7 +71,7 @@ def observation(tmp_path, **faults):
         "contract": "journey-cache-v1",
         "scope": "PYTHON SIDE ONLY",
         "url": f"{URL}/",
-        "source": {"file": CACHE_SOURCE_PINS["python"][0], "sha256": CACHE_SOURCE_PINS["python"][1]},
+        "source": {"file": CACHE_SOURCE_FILES["python"]},
         "capture_sources": {},
         "stages": stages,
         "ipc_dir": str(tmp_path),
@@ -132,8 +132,6 @@ def observation(tmp_path, **faults):
         (tmp_path / f"{miss['name']}.png").unlink()
     elif mutation == "png_sha":
         miss["screenshot"]["sha256"] = "0" * 64
-    elif mutation == "wrong_source":
-        observation["source"]["sha256"] = "0" * 64
     elif mutation == "wrong_contract":
         observation["contract"] = "journey-cache-v0"
     elif mutation == "missing_stage":
@@ -149,7 +147,7 @@ def result(tmp_path, **faults):
 def test_complete_synthetic_model_passes_every_check(tmp_path):
     outcome = result(tmp_path)
     assert outcome["ok"], outcome["failures"]
-    assert outcome["counts"] == {"expected": 12, "executed": 12, "asserted": 12}
+    assert outcome["counts"] == {"expected": 11, "executed": 11, "asserted": 11}
     assert tuple(check["check"] for check in outcome["checks"]) == CACHE_REQUIRED
 
 
@@ -169,7 +167,7 @@ def test_more_than_one_leading_main_block_fails(tmp_path, leading):
     "hit_transient_present", "replay_path_shifted", "post_replay_unshifted",
     "value_unstable", "remiss_transient_missing", "clear_missing",
     "dom_markdown_missing", "exception_element", "wrong_finish",
-    "missing_png", "png_sha", "wrong_source", "wrong_contract",
+    "missing_png", "png_sha", "wrong_contract",
     "missing_stage",
 ])
 def test_known_mutations_fail(tmp_path, mutation):
@@ -198,3 +196,11 @@ def test_the_constants_pin_the_measured_semantics():
     assert CACHE_DOMS["01-load"]["markdowns"] == ["runs=1", "cached=42", "cached_other=14", "inside cached fn", "side=1"]
     assert CACHE_DOMS["02-again-click"]["markdowns"] == ["runs=2", "cached=42", "cached_other=14", "inside cached fn", "side=1", "cleared", "cached_after_clear=42"]
     assert all(not dom["exceptions"] for dom in CACHE_DOMS.values())
+
+
+def test_source_fingerprints_do_not_gate_functional_evidence(tmp_path):
+    for source in ({"file": "historical-app.py", "sha256": "changed"}, {"file": "historical-app.py"}, None):
+        observed = observation(tmp_path)
+        observed["source"] = source
+        outcome = cache_result(observation=observed)
+        assert outcome["ok"], outcome["failures"]

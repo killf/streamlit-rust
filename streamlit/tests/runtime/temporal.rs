@@ -10,41 +10,46 @@ use crate::proto;
 use chrono::{NaiveDate, NaiveDateTime, NaiveTime};
 use serde_json::{Value, json};
 
-fn date(year: i32, month: u32, day: u32) -> NaiveDate {
-    NaiveDate::from_ymd_opt(year, month, day).unwrap()
+fn date(year: i32, month: u32, day: u32) -> TestResult<NaiveDate> {
+    Ok(NaiveDate::from_ymd_opt(year, month, day).ok_or_else(|| format!("invalid temporal fixture date {year}-{month}-{day}"))?)
 }
 
-fn time(hour: u32, minute: u32, second: u32, micro: u32) -> NaiveTime {
-    NaiveTime::from_hms_micro_opt(hour, minute, second, micro).unwrap()
+fn time(hour: u32, minute: u32, second: u32, micro: u32) -> TestResult<NaiveTime> {
+    Ok(NaiveTime::from_hms_micro_opt(hour, minute, second, micro).ok_or_else(|| format!("invalid temporal fixture time {hour}:{minute}:{second}.{micro}"))?)
 }
 
-fn datetime(year: i32, month: u32, day: u32, hour: u32, minute: u32, second: u32, micro: u32) -> NaiveDateTime {
-    date(year, month, day).and_hms_micro_opt(hour, minute, second, micro).unwrap()
+fn datetime(year: i32, month: u32, day: u32, hour: u32, minute: u32, second: u32, micro: u32) -> TestResult<NaiveDateTime> {
+    Ok(date(year, month, day)?.and_hms_micro_opt(hour, minute, second, micro).ok_or("invalid temporal fixture datetime")?)
 }
 
 fn temporal_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
     Box::pin(async move {
-        // The same fixtures as tests/reference/temporal_app.py, so the wire
-        // below is directly comparable with the captured reference trace.
-        let date_value = st.slider(SliderOptions::new("date", date(2024, 3, 15)).key("date")).unwrap();
-        let time_value = st.slider(SliderOptions::new("time", time(12, 30, 7, 123456)).key("time")).unwrap();
-        let datetime_value = st.slider(SliderOptions::new("datetime", datetime(2024, 3, 15, 12, 30, 7, 123456)).key("datetime")).unwrap();
-        let date_pair = st.slider(SliderOptions::new("date-range", (date(2024, 3, 10), date(2024, 3, 20))).key("date-range")).unwrap();
-        let time_pair = st.slider(SliderOptions::new("time-range", (time(9, 15, 0, 0), time(17, 45, 0, 0))).key("time-range")).unwrap();
-        let datetime_pair = st
-            .slider(SliderOptions::new("datetime-range", (datetime(2024, 3, 10, 9, 30, 7, 123456), datetime(2024, 3, 20, 17, 45, 7, 654321))).key("datetime-range"))
-            .unwrap();
-        st.write(
-            json!({
-                "date": date_value,
-                "time": time_value,
-                "datetime": datetime_value,
-                "date_range": [date_pair.0, date_pair.1],
-                "time_range": [time_pair.0, time_pair.1],
-                "datetime_range": [datetime_pair.0, datetime_pair.1],
-            })
-            .to_string(),
-        );
+        let result: TestResult = async {
+            // The same fixtures as tests/reference/temporal_app.py, so the wire
+            // below is directly comparable with the captured reference trace.
+            let date_value = st.slider(SliderOptions::new("date", date(2024, 3, 15)?).key("date"))?;
+            let time_value = st.slider(SliderOptions::new("time", time(12, 30, 7, 123456)?).key("time"))?;
+            let datetime_value = st.slider(SliderOptions::new("datetime", datetime(2024, 3, 15, 12, 30, 7, 123456)?).key("datetime"))?;
+            let date_pair = st.slider(SliderOptions::new("date-range", (date(2024, 3, 10)?, date(2024, 3, 20)?)).key("date-range"))?;
+            let time_pair = st.slider(SliderOptions::new("time-range", (time(9, 15, 0, 0)?, time(17, 45, 0, 0)?)).key("time-range"))?;
+            let datetime_pair = st.slider(SliderOptions::new("datetime-range", (datetime(2024, 3, 10, 9, 30, 7, 123456)?, datetime(2024, 3, 20, 17, 45, 7, 654321)?)).key("datetime-range"))?;
+            st.write(
+                json!({
+                    "date": date_value,
+                    "time": time_value,
+                    "datetime": datetime_value,
+                    "date_range": [date_pair.0, date_pair.1],
+                    "time_range": [time_pair.0, time_pair.1],
+                    "datetime_range": [datetime_pair.0, datetime_pair.1],
+                })
+                .to_string(),
+            );
+
+            Ok(())
+        }
+        .await;
+
+        assert!(result.is_ok(), "temporal fixture must render successfully: {result:?}");
     })
 }
 
@@ -64,7 +69,7 @@ struct TemporalRun {
     values: Value,
 }
 
-async fn run_once(stream: &mut TcpStream, session_id: &mut String, widgets: Vec<WidgetState>) -> TemporalRun {
+async fn run_once(stream: &mut TcpStream, session_id: &mut String, widgets: Vec<WidgetState>) -> TestResult<TemporalRun> {
     let request = BackMsg {
         r#type: Some(back_msg::Type::RerunScript(ClientState {
             widget_states: Some(WidgetStates { widgets }),
@@ -76,7 +81,7 @@ async fn run_once(stream: &mut TcpStream, session_id: &mut String, widgets: Vec<
     let Some(forward_msg::Type::NewSession(new_session)) = first.r#type else {
         panic!("a run must start with NewSession, got {:?}", first.r#type)
     };
-    let init = new_session.initialize.unwrap();
+    let init = new_session.initialize.ok_or("temporal NewSession must contain initialization")?;
     if session_id.is_empty() {
         *session_id = init.session_id;
     } else {
@@ -107,7 +112,7 @@ async fn run_once(stream: &mut TcpStream, session_id: &mut String, widgets: Vec<
                             },
                         );
                     }
-                    Some(element::Type::Markdown(text)) => run.values = serde_json::from_str(&text.body).unwrap(),
+                    Some(element::Type::Markdown(text)) => run.values = serde_json::from_str(&text.body)?,
                     _ => {}
                 }
             }
@@ -122,7 +127,7 @@ async fn run_once(stream: &mut TcpStream, session_id: &mut String, widgets: Vec<
     }
     assert!(!run.sliders.is_empty());
     assert!(!run.values.is_null());
-    run
+    Ok(run)
 }
 
 fn state(run: &TemporalRun, label: &str, data: Vec<f64>) -> WidgetState {
@@ -132,31 +137,29 @@ fn state(run: &TemporalRun, label: &str, data: Vec<f64>) -> WidgetState {
     }
 }
 
-async fn start_server(entry: fn(&Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>>) -> (std::net::SocketAddr, actix_web::dev::ServerHandle, tokio::task::JoinHandle<std::io::Result<()>>, TcpStream) {
-    let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
-    let address = listener.local_addr().unwrap();
+async fn start_server(entry: fn(&Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>>) -> TestResult<(std::net::SocketAddr, actix_web::dev::ServerHandle, tokio::task::JoinHandle<std::io::Result<()>>, TcpStream)> {
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
     let server = HttpServer::new(move || App::new().app_data(web::Data::new(StreamlitServer::new(entry, "127.0.0.1".into(), 0))).configure(configure_routes))
         .workers(1)
-        .listen(listener)
-        .unwrap()
+        .listen(listener)?
         .run();
     let handle = server.handle();
     let task = actix_web::rt::spawn(server);
-    let mut stream = TcpStream::connect(address).await.unwrap();
+    let mut stream = TcpStream::connect(address).await?;
     let request = format!("GET /_stcore/stream HTTP/1.1\r\nHost: {address}\r\nConnection: Upgrade\r\nUpgrade: websocket\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\nSec-WebSocket-Protocol: streamlit, test-xsrf\r\n\r\n");
-    stream.write_all(request.as_bytes()).await.unwrap();
+    stream.write_all(request.as_bytes()).await?;
     let headers = tokio::time::timeout(Duration::from_secs(5), async {
         let mut response = Vec::new();
         while !response.ends_with(b"\r\n\r\n") {
-            response.push(stream.read_u8().await.unwrap());
+            response.push(stream.read_u8().await?);
             assert!(response.len() < 8192);
         }
-        String::from_utf8(response).unwrap().to_ascii_lowercase()
+        Ok::<_, Box<dyn std::error::Error>>(String::from_utf8(response)?.to_ascii_lowercase())
     })
-    .await
-    .unwrap();
+    .await??;
     assert!(headers.starts_with("http/1.1 101"));
-    (address, handle, task, stream)
+    Ok((address, handle, task, stream))
 }
 
 fn assert_wire(run: &TemporalRun, label: &str, bounds_step: (f64, f64, f64), default: &[f64], wire_fields: (i32, &str)) {
@@ -167,11 +170,11 @@ fn assert_wire(run: &TemporalRun, label: &str, bounds_step: (f64, f64, f64), def
 }
 
 #[actix_web::test]
-async fn temporal_sliders_match_the_measured_wire_and_round_trip_states() {
-    let (_address, handle, task, mut stream) = start_server(temporal_entry).await;
+async fn temporal_sliders_match_the_measured_wire_and_round_trip_states() -> TestResult {
+    let (_address, handle, task, mut stream) = start_server(temporal_entry).await?;
     let mut session_id = String::new();
 
-    let first = run_once(&mut stream, &mut session_id, vec![]).await;
+    let first = run_once(&mut stream, &mut session_id, vec![]).await?;
     // The exact numbers captured from the pinned Python 1.66.1 reference.
     assert_wire(&first, "date", (1709251200000000.0, 1711670400000000.0, 86400000000.0), &[1710460800000000.0], (3, "YYYY-MM-DD"));
     assert_wire(&first, "time", (946684800000000.0, 946771199999999.0, 900000000.0), &[946729807123456.0], (4, "HH:mm"));
@@ -203,7 +206,7 @@ async fn temporal_sliders_match_the_measured_wire_and_round_trip_states() {
             state(&first, "datetime-range", vec![1708853407123456.0, 1711272607123456.0]),
         ],
     )
-    .await;
+    .await?;
     assert_eq!(second.values["date"], json!("2024-03-29"));
     assert_eq!(second.values["time"], json!("23:45:00"));
     assert_eq!(second.values["datetime"], json!("2024-03-01T12:30:07.123456"));
@@ -218,11 +221,13 @@ async fn temporal_sliders_match_the_measured_wire_and_round_trip_states() {
         &mut session_id,
         vec![state(&first, "time", vec![946729807123456.5]), state(&first, "date-range", vec![1710892800000000.0, 1710028800000000.0])],
     )
-    .await;
+    .await?;
     assert_eq!(third.values["time"], json!("23:45:00"));
     assert_eq!(third.values["date_range"], json!(["2024-02-25", "2024-03-24"]));
 
     drop(stream);
     handle.stop(false).await;
-    task.await.unwrap().unwrap();
+    task.await??;
+
+    Ok(())
 }

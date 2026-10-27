@@ -6,16 +6,17 @@ use std::sync::Arc;
 
 use streamlit::data::{DataType, Field, Int64Array, RecordBatch, Schema, StringArray};
 
-fn data_batch() -> RecordBatch {
+fn data_batch() -> anyhow::Result<RecordBatch> {
     let fields = vec![Field::new("qty", DataType::Int64, true), Field::new("label", DataType::Utf8, true)];
     let arrays = vec![Arc::new(Int64Array::from(vec![1, 2])) as _, Arc::new(StringArray::from(vec!["a", "b"])) as _];
-    RecordBatch::try_new(Arc::new(Schema::new(fields)), arrays).unwrap()
+    Ok(RecordBatch::try_new(Arc::new(Schema::new(fields)), arrays)?)
 }
 
-fn render(st: &Streamlit) {
-    let edited = st.data_editor(DataEditorOptions::new(&data_batch()).num_rows(EditorRows::Dynamic).key("editor")).unwrap();
-    st.dataframe(DataframeOptions::new(&edited)).unwrap();
+fn render(st: &Streamlit) -> anyhow::Result<()> {
+    let edited = st.data_editor(DataEditorOptions::new(&data_batch()?).num_rows(EditorRows::Dynamic).key("editor"))?;
+    st.dataframe(DataframeOptions::new(&edited))?;
     st.write(format!("rows={}", edited.num_rows()));
+    Ok(())
 }
 
 #[tokio::main]
@@ -23,7 +24,9 @@ async fn main() -> std::io::Result<()> {
     StreamlitServer::new(
         |st| {
             Box::pin(async move {
-                render(st);
+                if let Err(error) = render(st) {
+                    st.write(format!("Example error: {error}"));
+                }
             })
         },
         "127.0.0.1".into(),

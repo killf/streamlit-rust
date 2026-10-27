@@ -39,7 +39,7 @@ sys.path.insert(0, str(ROOT / "tests" / "reference"))
 sys.path.insert(0, str(HERE))
 
 from capture_browser_trace import CDP, require_decoder, summarise_back, summarise_forward  # noqa: E402
-from layouts_contract import LAYOUTS_CASE, LAYOUTS_CONTRACT, LAYOUTS_STAGES, layouts_result  # noqa: E402
+from layouts_contract import LAYOUTS_SOURCE_FILES, LAYOUTS_CASE, LAYOUTS_CONTRACT, LAYOUTS_STAGES, layouts_result  # noqa: E402
 
 DOM_EXPRESSION = r"""JSON.stringify({
 blocks:[...document.querySelectorAll("[data-testid]")].map(e=>e.getAttribute("data-testid")).filter(t=>/stSidebar|stExpander|stTabs|stTab|stPopover|stDialog|stVerticalBlock/.test(t)),
@@ -149,15 +149,16 @@ def replay(path: str) -> int:
 
 def capture(args, out: pathlib.Path) -> int:
     side = "python" if args.scope == "PYTHON SIDE ONLY" else "native"
-    source_path = ROOT / ("tests/reference/layouts_app.py" if side == "python" else "streamlit/examples/layouts.rs")
+    source_path = ROOT / LAYOUTS_SOURCE_FILES[side]
     observation = {
         "journey": LAYOUTS_CASE,
         "contract": LAYOUTS_CONTRACT,
         "scope": args.scope,
         "url": args.url,
         "binary": args.binary or None,
-        "source": {"file": source_path.relative_to(ROOT).as_posix(), "sha256": digest(source_path)},
-        "capture_sources": {name: digest(ROOT / "tests/browser" / name) for name in ("layouts_capture.py", "layouts_contract.py")},
+        "runtime": side,
+        "reference_version": "1.66.1",
+        "source": {"file": source_path.relative_to(ROOT).as_posix()},
         "stages": [],
         "ipc_dir": str(out.resolve()),
     }

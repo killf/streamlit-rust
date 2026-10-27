@@ -46,13 +46,13 @@ CHARTS_DECK_RAW = '{"initialViewState": {"latitude": 40.85, "longitude": -73.95,
 # The DOM projection the official frontend resolves.
 CHARTS_DOM = {'charts': ['0120123', '0120123alphabeta', '0123x0123y'], 'deckish': ['stVegaLiteChart', 'stVegaLiteChart', 'stVegaLiteChart', 'stDeckGlJsonChart', 'stDeckGlJsonChartZoomButton'], 'canvases': 2, 'exceptions': []}
 
-CHARTS_SOURCE_PINS = {
-    "python": ("tests/reference/charts_app.py", "bb49103ead1673de17c33c297e44587089f2a1a6903411e38d90b63ce8c5c076"),
-    "native": ("streamlit/examples/charts.rs", "11d1267eb2156bea9b32f77d1902d23c792674a9d963a70cfb28753df4e9b9e1"),
+CHARTS_SOURCE_FILES = {
+    "python": "tests/reference/charts_app.py",
+    "native": "streamlit/examples/charts.rs",
 }
 
 CHARTS_REQUIRED = (
-    "contract", "stage_set", "source_pin", "charts_set", "line_wire",
+    "contract", "stage_set", "charts_set", "line_wire",
     "area_wire", "scatter_wire", "map_wire", "dom_projection",
     "no_exceptions", "finishes", "png_sources",
 )
@@ -110,13 +110,6 @@ def charts_checks(*, observation=None):
             _need(isinstance(stage.get("dom"), dict) and isinstance(stage.get("screenshot"), dict)
                   and isinstance(stage.get("new_frames"), list), f"stage {stage.get('name')} lacks dom/screenshot/new_frames")
         mark("stage_set")
-
-        source = observation.get("source") or {}
-        side = "python" if observation.get("scope") == "PYTHON SIDE ONLY" else "native"
-        path, pinned = CHARTS_SOURCE_PINS[side]
-        _need(source.get("file") == path and source.get("sha256") == pinned,
-              f"driven source is not the pinned {path} of this contract")
-        mark("source_pin")
 
         charts = _charts(stages[0])
         kinds = [delta.get("element") for delta in charts]

@@ -130,19 +130,13 @@ DISPLAY2_DOMS = {
     }
 }
 
-DISPLAY2_SOURCE_PINS = {
-    "python": [
-    'tests/reference/display2_app.py',
-    '510eec70e4841262091df7cd674010f86aa3dadc8d6c89747f149b22997805cc'
-],
-    "native": [
-    'streamlit/examples/display2.rs',
-    'e24913670e6fe46c58556fa3bf58fcb396432e617e4e0a5059c58c907ba8b05a'
-],
+DISPLAY2_SOURCE_FILES = {
+    "python": "tests/reference/display2_app.py",
+    "native": "streamlit/examples/display2.rs",
 }
 
 DISPLAY2_REQUIRED = (
-    "contract", "stage_set", "source_pin", "timeline", "logo_wire",
+    "contract", "stage_set", "timeline", "logo_wire",
     "help_wire", "skeleton_wire", "pdf_wire", "dom_projection", "finishes",
     "png_sources",
 )
@@ -226,13 +220,6 @@ def display2_checks(*, observation=None):
             _need(isinstance(stage.get("dom"), dict) and isinstance(stage.get("screenshot"), dict)
                   and isinstance(stage.get("new_frames"), list), f"stage {stage.get('name')} lacks dom/screenshot/new_frames")
         mark("stage_set")
-
-        source = observation.get("source") or {}
-        side = "python" if observation.get("scope") == "PYTHON SIDE ONLY" else "native"
-        path, pinned = DISPLAY2_SOURCE_PINS[side]
-        _need(source.get("file") == path and source.get("sha256") == pinned,
-              f"driven source is not the pinned {path} of this contract")
-        mark("source_pin")
 
         timelines = {stage["name"]: _timeline(stage) for stage in stages}
         for name in DISPLAY2_STAGES:

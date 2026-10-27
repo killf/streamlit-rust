@@ -43,7 +43,7 @@ sys.path.insert(0, str(ROOT / "tests" / "reference"))
 sys.path.insert(0, str(HERE))
 
 from capture_browser_trace import CDP, require_decoder, summarise_back, summarise_forward  # noqa: E402
-from display_contract import DISPLAY_CASE, DISPLAY_CONTRACT, DISPLAY_STAGES, display_result  # noqa: E402
+from display_contract import DISPLAY_SOURCE_FILES, DISPLAY_CASE, DISPLAY_CONTRACT, DISPLAY_STAGES, display_result  # noqa: E402
 
 DOM_EXPRESSION = r"""JSON.stringify({
 json:[...document.querySelectorAll("[data-testid=stJson]")].map(e=>e.textContent.trim().slice(0,120)),
@@ -146,15 +146,16 @@ def replay(path: str) -> int:
 
 def capture(args, out: pathlib.Path) -> int:
     side = "python" if args.scope == "PYTHON SIDE ONLY" else "native"
-    source_path = ROOT / ("tests/reference/display_app.py" if side == "python" else "streamlit/examples/display.rs")
+    source_path = ROOT / DISPLAY_SOURCE_FILES[side]
     observation = {
         "journey": DISPLAY_CASE,
         "contract": DISPLAY_CONTRACT,
         "scope": args.scope,
         "url": args.url,
         "binary": args.binary or None,
-        "source": {"file": source_path.relative_to(ROOT).as_posix(), "sha256": digest(source_path)},
-        "capture_sources": {name: digest(ROOT / "tests/browser" / name) for name in ("display_capture.py", "display_contract.py")},
+        "runtime": side,
+        "reference_version": "1.66.1",
+        "source": {"file": source_path.relative_to(ROOT).as_posix()},
         "stages": [],
         "ipc_dir": str(out.resolve()),
     }

@@ -15,7 +15,7 @@ sys.path.insert(0, str(HERE.parent / "browser"))
 from buttons_contract import (  # noqa: E402
     BUTTONS_DOMS,
     BUTTONS_REQUIRED,
-    BUTTONS_SOURCE_PINS,
+    BUTTONS_SOURCE_FILES,
     BUTTONS_STAGES,
     BUTTONS_TIMELINE,
     buttons_result,
@@ -77,7 +77,7 @@ def observation(tmp_path, **faults):
         "contract": "journey-buttons-v1",
         "scope": "PYTHON SIDE ONLY",
         "url": "http://127.0.0.1:8623/",
-        "source": {"file": BUTTONS_SOURCE_PINS["python"][0], "sha256": BUTTONS_SOURCE_PINS["python"][1]},
+        "source": {"file": BUTTONS_SOURCE_FILES["python"]},
         "capture_sources": {},
         "stages": stages,
         "ipc_dir": str(tmp_path),
@@ -133,8 +133,6 @@ def observation(tmp_path, **faults):
         (tmp_path / f"{load['name']}.png").unlink()
     elif mutation == "png_sha":
         load["screenshot"]["sha256"] = "0" * 64
-    elif mutation == "wrong_source":
-        observation["source"]["sha256"] = "0" * 64
     elif mutation == "wrong_contract":
         observation["contract"] = "journey-buttons-v0"
     elif mutation == "missing_stage":
@@ -175,7 +173,7 @@ def test_more_than_one_leading_main_block_fails(tmp_path, leading):
     "group_default_lost", "pagination_value_stray", "menu_options_changed",
     "download_url_empty", "link_ignore_rerun_lost", "page_link_external_lost",
     "menu_trigger_lost", "dom_buttons_missing", "extra_element",
-    "missing_png", "png_sha", "wrong_source", "wrong_contract", "missing_stage",
+    "missing_png", "png_sha", "wrong_contract", "missing_stage",
 ])
 def test_known_mutations_fail(tmp_path, mutation):
     outcome = result(tmp_path, mutation=mutation)
@@ -210,3 +208,11 @@ def test_the_constants_pin_the_measured_semantics():
     trigger = [state for state in menu["states"] if state.get("value_field") == "string_trigger_value"]
     assert trigger[0]["value"] == {"data": "CSV"}
     assert all(not dom["exceptions"] for dom in BUTTONS_DOMS.values())
+
+
+def test_source_fingerprints_do_not_gate_functional_evidence(tmp_path):
+    for source in ({"file": "historical-app.py", "sha256": "changed"}, {"file": "historical-app.py"}, None):
+        observed = observation(tmp_path)
+        observed["source"] = source
+        outcome = buttons_result(observation=observed)
+        assert outcome["ok"], outcome["failures"]

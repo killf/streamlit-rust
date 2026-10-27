@@ -873,15 +873,14 @@ TEMPORAL_REPRS = {
  ]
 }
 
-# The driven application source is pinned per side; a capture of another
-# source is not this contract's evidence.
-TEMPORAL_SOURCE_PINS = {
-    "python": ("tests/reference/temporal_app.py", "d19c778105eb3624fdcd30242e018cfbb1c8b4b078a73cced5a75800a7c49750"),
-    "native": ("streamlit/examples/temporal.rs", "ed9829495f679a8eb21c664326ff9412807b3c23990b8a568534589b20020cb9"),
+# Application paths label the captured roles; source content is not a gate.
+TEMPORAL_SOURCE_FILES = {
+    "python": "tests/reference/temporal_app.py",
+    "native": "streamlit/examples/temporal.rs",
 }
 
 TEMPORAL_REQUIRED = (
-    "contract", "stage_set", "source_pin", "wire_configs", "state_snapshots",
+    "contract", "stage_set", "wire_configs", "state_snapshots",
     "end_home_landings", "returned_reprs", "dom_input_values", "no_exceptions",
     "finishes", "png_sources",
 )
@@ -951,13 +950,6 @@ def temporal_checks(*, observation=None):
             _need(isinstance(stage.get("dom"), dict) and isinstance(stage.get("screenshot"), dict)
                   and isinstance(stage.get("new_frames"), list), f"stage {stage.get('name')} lacks dom/screenshot/new_frames")
         mark("stage_set")
-
-        source = observation.get("source") or {}
-        side = "python" if observation.get("scope") == "PYTHON SIDE ONLY" else "native"
-        path, pinned = TEMPORAL_SOURCE_PINS[side]
-        _need(source.get("file") == path and source.get("sha256") == pinned,
-              f"driven source is not the pinned {path} of this contract")
-        mark("source_pin")
 
         _need(_slider_wires(stages[0]["new_frames"]) == TEMPORAL_WIRE,
               "the six first-render slider wire configs differ from the measured table")

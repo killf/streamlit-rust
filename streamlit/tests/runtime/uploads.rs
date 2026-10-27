@@ -6,15 +6,24 @@ use serde_json::{Value, json};
 
 fn upload_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
     Box::pin(async move {
-        let selected = st
-            .file_uploader(FileUploaderOptions::new("Upload sales CSV").accepted_types(["csv"]).key("upload").on_change(|st| {
-                let n = st.session_state().get::<u64>("uploads_changed").unwrap().unwrap_or(0);
-                st.session_state().set("uploads_changed", n + 1).unwrap();
-            }))
-            .unwrap();
-        let UploadedFiles::Single(file) = selected else { panic!() };
-        let content = file.map(|file| json!({"name":file.name(),"type":file.content_type(),"size":file.size(),"bytes":file.as_bytes()}));
-        st.write(format!("uploaded={}", json!({"file":content,"callbacks":st.session_state().get::<u64>("uploads_changed").unwrap().unwrap_or(0)})));
+        let result: TestResult = async {
+            let selected = st.file_uploader(FileUploaderOptions::new("Upload sales CSV").accepted_types(["csv"]).key("upload").on_change(|st| {
+                let result = (|| -> TestResult {
+                    let n = st.session_state().get::<u64>("uploads_changed")?.unwrap_or(0);
+                    st.session_state().set("uploads_changed", n + 1)?;
+                    Ok(())
+                })();
+                assert!(result.is_ok(), "upload callback fixture failed: {result:?}");
+            }))?;
+            let UploadedFiles::Single(file) = selected else {
+                return Err("single-file uploader must return UploadedFiles::Single".into());
+            };
+            let content = file.map(|file| json!({"name":file.name(),"type":file.content_type(),"size":file.size(),"bytes":file.as_bytes()}));
+            st.write(format!("uploaded={}", json!({"file":content,"callbacks":st.session_state().get::<u64>("uploads_changed")?.unwrap_or(0)})));
+            Ok(())
+        }
+        .await;
+        assert!(result.is_ok(), "upload_entry fixture failed: {result:?}");
     })
 }
 
@@ -23,7 +32,7 @@ struct Run {
     widget: String,
     value: Value,
 }
-async fn run(socket: &mut TcpStream, widgets: Vec<WidgetState>) -> Run {
+async fn run(socket: &mut TcpStream, widgets: Vec<WidgetState>) -> TestResult<Run> {
     let request = BackMsg {
         r#type: Some(back_msg::Type::RerunScript(ClientState {
             widget_states: Some(WidgetStates { widgets }),
@@ -39,14 +48,14 @@ async fn run(socket: &mut TcpStream, widgets: Vec<WidgetState>) -> Run {
     let mut finished = false;
     loop {
         match receive(socket).await.r#type {
-            Some(forward_msg::Type::NewSession(new)) => run.session = new.initialize.unwrap().session_id,
+            Some(forward_msg::Type::NewSession(new)) => run.session = new.initialize.ok_or("NewSession must include initialization")?.session_id,
             Some(forward_msg::Type::Delta(crate::proto::Delta {
                 r#type: Some(delta::Type::NewElement(element)), ..
             })) => match element.r#type {
                 Some(element::Type::FileUploader(file)) => run.widget = file.id,
                 Some(element::Type::Markdown(text)) => {
                     if let Some(value) = text.body.strip_prefix("uploaded=") {
-                        run.value = serde_json::from_str(value).unwrap();
+                        run.value = serde_json::from_str(value)?;
                     }
                 }
                 _ => (),
@@ -63,10 +72,10 @@ async fn run(socket: &mut TcpStream, widgets: Vec<WidgetState>) -> Run {
         }
     }
     assert!(!run.widget.is_empty() && !run.session.is_empty() && !run.value.is_null());
-    run
+    Ok(run)
 }
 
-async fn urls(socket: &mut TcpStream, session: &str) -> crate::proto::FileUrLs {
+async fn urls(socket: &mut TcpStream, session: &str) -> TestResult<crate::proto::FileUrLs> {
     let request = BackMsg {
         r#type: Some(back_msg::Type::FileUrlsRequest(crate::proto::FileUrLsRequest {
             request_id: "upload-request".into(),
@@ -75,14 +84,16 @@ async fn urls(socket: &mut TcpStream, session: &str) -> crate::proto::FileUrLs {
         })),
     };
     send_binary(socket, &request.encode_to_vec()).await;
-    let Some(forward_msg::Type::FileUrlsResponse(response)) = receive(socket).await.r#type else { panic!() };
+    let Some(forward_msg::Type::FileUrlsResponse(response)) = receive(socket).await.r#type else {
+        panic!("upload URL request must receive FileUrlsResponse")
+    };
     assert_eq!(response.response_id, "upload-request");
     assert!(response.error_msg.is_empty());
     assert_eq!(response.file_urls.len(), 1);
-    let urls = response.file_urls.into_iter().next().unwrap();
+    let urls = response.file_urls.into_iter().next().ok_or("upload URL response must contain one file")?;
     assert_eq!(urls.upload_url, format!("/_stcore/upload_file/{session}/{}", urls.file_id));
     assert_eq!(urls.delete_url, urls.upload_url);
-    urls
+    Ok(urls)
 }
 
 fn file_state(widget: &str, urls: &crate::proto::FileUrLs) -> Vec<WidgetState> {
@@ -105,7 +116,7 @@ struct HttpResult {
     body: Vec<u8>,
 }
 
-async fn request(address: std::net::SocketAddr, method: &str, url: &str, auth: Option<(&str, &str)>, bytes: &[u8]) -> HttpResult {
+async fn request(address: std::net::SocketAddr, method: &str, url: &str, auth: Option<(&str, &str)>, bytes: &[u8]) -> TestResult<HttpResult> {
     let mut headers = Vec::new();
     if let Some((cookie, header)) = auth {
         if !cookie.is_empty() {
@@ -118,8 +129,8 @@ async fn request(address: std::net::SocketAddr, method: &str, url: &str, auth: O
     request_with_headers(address, method, url, headers, bytes).await
 }
 
-async fn request_with_headers(address: std::net::SocketAddr, method: &str, url: &str, headers: Vec<(&str, String)>, bytes: &[u8]) -> HttpResult {
-    let mut socket = TcpStream::connect(address).await.unwrap();
+async fn request_with_headers(address: std::net::SocketAddr, method: &str, url: &str, headers: Vec<(&str, String)>, bytes: &[u8]) -> TestResult<HttpResult> {
+    let mut socket = TcpStream::connect(address).await?;
     let mut body = Vec::new();
     let mut extra = String::new();
     if method == "PUT" {
@@ -132,40 +143,40 @@ async fn request_with_headers(address: std::net::SocketAddr, method: &str, url: 
         extra.push_str(&format!("{name}: {value}\r\n"));
     }
     let headers = format!("{method} {url} HTTP/1.1\r\nHost: {address}\r\n{extra}Content-Length: {}\r\nConnection: close\r\n\r\n", body.len());
-    socket.write_all(headers.as_bytes()).await.unwrap();
-    socket.write_all(&body).await.unwrap();
+    socket.write_all(headers.as_bytes()).await?;
+    socket.write_all(&body).await?;
     let mut response = Vec::new();
-    tokio::time::timeout(Duration::from_secs(5), socket.read_to_end(&mut response)).await.unwrap().unwrap();
-    let split = response.windows(4).position(|part| part == b"\r\n\r\n").unwrap();
-    let headers = String::from_utf8(response[..split].to_vec()).unwrap();
-    let status = headers.split_whitespace().nth(1).unwrap().parse().unwrap();
-    HttpResult {
+    tokio::time::timeout(Duration::from_secs(5), socket.read_to_end(&mut response)).await??;
+    let split = response.windows(4).position(|part| part == b"\r\n\r\n").ok_or("HTTP upload response must include header terminator")?;
+    let headers = String::from_utf8(response[..split].to_vec())?;
+    let status = headers.split_whitespace().nth(1).ok_or("HTTP upload status line must include a code")?.parse()?;
+    Ok(HttpResult {
         status,
         headers,
         body: response[split + 4..].to_vec(),
-    }
+    })
 }
 
-async fn duplicate_cookie_gate_preserves_storage(method: &str) {
-    let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
-    let address = listener.local_addr().unwrap();
+async fn duplicate_cookie_gate_preserves_storage(method: &str) -> TestResult {
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
     let state = StreamlitServer::new(upload_entry, "127.0.0.1".into(), 0);
-    let server = HttpServer::new(move || App::new().app_data(web::Data::new(state.clone())).configure(configure_routes)).workers(2).listen(listener).unwrap().run();
+    let server = HttpServer::new(move || App::new().app_data(web::Data::new(state.clone())).configure(configure_routes)).workers(2).listen(listener)?.run();
     let handle = server.handle();
     let task = actix_web::rt::spawn(server);
     let mut ws = sessions::connect(address, None).await;
-    let initial = run(&mut ws, vec![]).await;
-    let urls = urls(&mut ws, &initial.session).await;
+    let initial = run(&mut ws, vec![]).await?;
+    let urls = urls(&mut ws, &initial.session).await?;
     for separate_headers in [false, true] {
-        assert_eq!(request(address, "PUT", &urls.upload_url, Some(("48dc", "48dc")), b"original").await.status, 204);
+        assert_eq!(request(address, "PUT", &urls.upload_url, Some(("48dc", "48dc")), b"original").await?.status, 204);
         let mut headers = if separate_headers {
             vec![("Cookie", "_streamlit_xsrf=48dc".into()), ("Cookie", "_streamlit_xsrf=0000".into())]
         } else {
             vec![("Cookie", "_streamlit_xsrf=48dc; _streamlit_xsrf=0000".into())]
         };
         headers.push(("X-Xsrftoken", "48dc".into()));
-        let result = request_with_headers(address, method, &urls.upload_url, headers, b"changed-by-duplicate").await;
-        let after = run(&mut ws, file_state(&initial.widget, &urls)).await;
+        let result = request_with_headers(address, method, &urls.upload_url, headers, b"changed-by-duplicate").await?;
+        let after = run(&mut ws, file_state(&initial.widget, &urls)).await?;
         assert_eq!((result.status, after.value["file"]["bytes"].clone()), (403, json!(b"original".as_slice())), "{method}, separate Cookie headers={separate_headers}");
         assert_eq!(result.body, b"XSRF token missing or invalid");
         let mut headers = if separate_headers {
@@ -174,9 +185,9 @@ async fn duplicate_cookie_gate_preserves_storage(method: &str) {
             vec![("Cookie", "_streamlit_xsrf=0000; _streamlit_xsrf=48dc".into())]
         };
         headers.push(("X-Xsrftoken", "48dc".into()));
-        let accepted = request_with_headers(address, method, &urls.upload_url, headers, b"accepted-last-cookie").await;
+        let accepted = request_with_headers(address, method, &urls.upload_url, headers, b"accepted-last-cookie").await?;
         assert_eq!(accepted.status, 204, "last cookie matches");
-        let after = run(&mut ws, file_state(&initial.widget, &urls)).await;
+        let after = run(&mut ws, file_state(&initial.widget, &urls)).await?;
         if method == "PUT" {
             assert_eq!(after.value["file"]["bytes"], json!(b"accepted-last-cookie".as_slice()));
         } else {
@@ -185,130 +196,144 @@ async fn duplicate_cookie_gate_preserves_storage(method: &str) {
     }
     sessions::disconnect(ws).await;
     handle.stop(true).await;
-    task.await.unwrap().unwrap();
+    task.await??;
+    Ok(())
 }
 
 #[actix_web::test]
-async fn duplicate_cookie_gate_put_uses_last_cookie_without_changing_rejected_storage() {
-    duplicate_cookie_gate_preserves_storage("PUT").await;
+async fn duplicate_cookie_gate_put_uses_last_cookie_without_changing_rejected_storage() -> TestResult {
+    duplicate_cookie_gate_preserves_storage("PUT").await?;
+    Ok(())
 }
 
 #[actix_web::test]
-async fn duplicate_cookie_gate_delete_uses_last_cookie_without_changing_rejected_storage() {
-    duplicate_cookie_gate_preserves_storage("DELETE").await;
+async fn duplicate_cookie_gate_delete_uses_last_cookie_without_changing_rejected_storage() -> TestResult {
+    duplicate_cookie_gate_preserves_storage("DELETE").await?;
+    Ok(())
 }
 
-async fn health_token(address: std::net::SocketAddr) -> String {
-    let response = request(address, "GET", "/_stcore/health", None, &[]).await;
+async fn health_token(address: std::net::SocketAddr) -> TestResult<String> {
+    let response = request(address, "GET", "/_stcore/health", None, &[]).await?;
     assert_eq!(response.status, 200);
     assert_eq!(response.body, b"ok");
     assert!(response.headers.to_lowercase().contains("cache-control: no-cache"));
     cookie_from_response(&response)
 }
 
-fn cookie_from_response(response: &HttpResult) -> String {
-    response
+fn cookie_from_response(response: &HttpResult) -> TestResult<String> {
+    let value = response
         .headers
         .lines()
         .find_map(|line| {
             let (name, value) = line.split_once(':')?;
-            name.eq_ignore_ascii_case("set-cookie").then(|| value.trim().strip_prefix("_streamlit_xsrf=").unwrap().split(';').next().unwrap().to_owned())
+            name.eq_ignore_ascii_case("set-cookie").then_some(value)
         })
-        .unwrap()
+        .ok_or("health response must include Set-Cookie")?;
+    let token = value.trim().strip_prefix("_streamlit_xsrf=").ok_or("health response must set the _streamlit_xsrf cookie")?;
+    Ok(token.split(';').next().ok_or("XSRF cookie must contain a value")?.to_owned())
 }
 
-async fn put(address: std::net::SocketAddr, url: &str, bytes: &[u8]) {
-    let token = health_token(address).await;
-    let response = request(address, "PUT", url, Some((&token, &token)), bytes).await;
+async fn put(address: std::net::SocketAddr, url: &str, bytes: &[u8]) -> TestResult {
+    let token = health_token(address).await?;
+    let response = request(address, "PUT", url, Some((&token, &token)), bytes).await?;
     assert_eq!(response.status, 204);
     assert!(response.headers.to_lowercase().contains("content-type: text/plain"));
+    Ok(())
 }
 
 #[actix_web::test]
-async fn real_http_ws_upload_bytes_callbacks_reconnect_fresh_and_isolation() {
-    let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
-    let address = listener.local_addr().unwrap();
+async fn real_http_ws_upload_bytes_callbacks_reconnect_fresh_and_isolation() -> TestResult {
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
     let state = StreamlitServer::new(upload_entry, "127.0.0.1".into(), 0);
-    let server = HttpServer::new(move || App::new().app_data(web::Data::new(state.clone())).configure(configure_routes)).workers(2).listen(listener).unwrap().run();
+    let server = HttpServer::new(move || App::new().app_data(web::Data::new(state.clone())).configure(configure_routes)).workers(2).listen(listener)?.run();
     let handle = server.handle();
     let task = actix_web::rt::spawn(server);
     let mut a = sessions::connect(address, None).await;
-    let initial = run(&mut a, vec![]).await;
+    let initial = run(&mut a, vec![]).await?;
     assert_eq!(initial.value, json!({"file":null,"callbacks":0}));
-    let a_urls = urls(&mut a, &initial.session).await;
+    let a_urls = urls(&mut a, &initial.session).await?;
     let fixture = include_bytes!("../../../tests/fixtures/csv/sales_basic.csv");
     assert_eq!(fixture.len(), 737);
-    put(address, &a_urls.upload_url, fixture).await;
-    let uploaded = run(&mut a, file_state(&initial.widget, &a_urls)).await;
+    put(address, &a_urls.upload_url, fixture).await?;
+    let uploaded = run(&mut a, file_state(&initial.widget, &a_urls)).await?;
     assert_eq!(uploaded.value["file"]["bytes"], json!(fixture.as_slice()));
     assert_eq!(uploaded.value["file"]["size"], 737);
     assert_eq!(uploaded.value["callbacks"], 1);
-    let repeated = run(&mut a, file_state(&initial.widget, &a_urls)).await;
+    let repeated = run(&mut a, file_state(&initial.widget, &a_urls)).await?;
     assert_eq!(repeated.value, uploaded.value);
     let mut b = sessions::connect(address, None).await;
-    let other = run(&mut b, vec![]).await;
+    let other = run(&mut b, vec![]).await?;
     assert_ne!(other.session, initial.session);
-    let spoofed = run(&mut b, file_state(&other.widget, &a_urls)).await;
+    let spoofed = run(&mut b, file_state(&other.widget, &a_urls)).await?;
     assert!(spoofed.value["file"].is_null(), "foreign IDs must not expose bytes");
-    let b_urls = urls(&mut b, &other.session).await;
-    put(address, &b_urls.upload_url, b"other session").await;
-    let different = run(&mut b, file_state(&other.widget, &b_urls)).await;
+    let b_urls = urls(&mut b, &other.session).await?;
+    put(address, &b_urls.upload_url, b"other session").await?;
+    let different = run(&mut b, file_state(&other.widget, &b_urls)).await?;
     assert_eq!(different.value["file"]["bytes"], json!(b"other session".as_slice()));
     sessions::disconnect(a).await;
     let mut restored = sessions::connect(address, Some(&initial.session)).await;
-    let recovered = run(&mut restored, vec![]).await;
+    let recovered = run(&mut restored, vec![]).await?;
     assert_eq!(recovered.session, initial.session);
     assert_eq!(recovered.value, uploaded.value);
     let mut fresh = sessions::connect(address, None).await;
-    let empty = run(&mut fresh, vec![]).await;
+    let empty = run(&mut fresh, vec![]).await?;
     assert_ne!(empty.session, initial.session);
     assert!(empty.value["file"].is_null());
     sessions::disconnect(restored).await;
     sessions::disconnect(fresh).await;
     sessions::disconnect(b).await;
     handle.stop(true).await;
-    task.await.unwrap().unwrap();
+    task.await??;
+    Ok(())
 }
 
 #[actix_web::test]
-async fn real_http_xsrf_gate_and_delete_follow_official_session_boundaries() {
-    let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
-    let address = listener.local_addr().unwrap();
+async fn real_http_xsrf_gate_and_delete_follow_official_session_boundaries() -> TestResult {
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
     let state = StreamlitServer::new(upload_entry, "127.0.0.1".into(), 0);
     let observer = state.clone();
-    let server = HttpServer::new(move || App::new().app_data(web::Data::new(state.clone())).configure(configure_routes)).workers(2).listen(listener).unwrap().run();
+    let server = HttpServer::new(move || App::new().app_data(web::Data::new(state.clone())).configure(configure_routes)).workers(2).listen(listener)?.run();
     let handle = server.handle();
     let task = actix_web::rt::spawn(server);
     let mut a = sessions::connect(address, None).await;
-    let a_run = run(&mut a, vec![]).await;
-    let a_urls = urls(&mut a, &a_run.session).await;
+    let a_run = run(&mut a, vec![]).await?;
+    let a_urls = urls(&mut a, &a_run.session).await?;
     let mut b = sessions::connect(address, None).await;
-    let b_run = run(&mut b, vec![]).await;
-    let token_a = health_token(address).await;
-    let token_b = health_token(address).await;
+    let b_run = run(&mut b, vec![]).await?;
+    let token_a = health_token(address).await?;
+    let token_b = health_token(address).await?;
     assert_ne!(token_a, token_b);
     let fixture = include_bytes!("../../../tests/fixtures/csv/sales_basic.csv");
-    let uploaded = request(address, "PUT", &a_urls.upload_url, Some((&token_a, &token_a)), fixture).await;
+    let uploaded = request(address, "PUT", &a_urls.upload_url, Some((&token_a, &token_a)), fixture).await?;
     assert_eq!(uploaded.status, 204);
-    let retained = observer.sessions.state_for_upload(&a_run.session).unwrap().uploads.lock().get(&a_urls.file_id).unwrap();
+    let retained = observer
+        .sessions
+        .state_for_upload(&a_run.session)
+        .ok_or("connected upload session must remain available")?
+        .uploads
+        .lock()
+        .get(&a_urls.file_id)
+        .ok_or("successful upload must retain file bytes")?;
     for method in ["PUT", "DELETE"] {
         for auth in [None, Some((token_a.as_str(), "")), Some(("", token_a.as_str())), Some((token_a.as_str(), token_b.as_str()))] {
-            let response = request(address, method, &a_urls.upload_url, auth, b"forbidden replacement").await;
+            let response = request(address, method, &a_urls.upload_url, auth, b"forbidden replacement").await?;
             assert_eq!(response.status, 403);
             assert_eq!(response.body, b"XSRF token missing or invalid");
             assert!(response.headers.to_lowercase().contains("content-type: text/plain; charset=utf-8"));
-            let output = run(&mut a, file_state(&a_run.widget, &a_urls)).await;
+            let output = run(&mut a, file_state(&a_run.widget, &a_urls)).await?;
             assert_eq!(output.value["file"]["bytes"], json!(fixture.as_slice()), "rejected request changed application-visible storage");
         }
     }
     let unknown = "/_stcore/upload_file/unknown-session/unknown-file";
     for input in ["48dc", "2|12345678|0011|1"] {
-        let response = request(address, "GET", "/_stcore/health", Some((input, "")), &[]).await;
+        let response = request(address, "GET", "/_stcore/health", Some((input, "")), &[]).await?;
         assert_eq!(response.status, 200);
-        let refreshed = cookie_from_response(&response);
+        let refreshed = cookie_from_response(&response)?;
         assert_ne!(refreshed, input);
         assert!(refreshed.starts_with("2|"));
-        let accepted = request(address, "DELETE", unknown, Some((&refreshed, input)), &[]).await;
+        let accepted = request(address, "DELETE", unknown, Some((&refreshed, input)), &[]).await?;
         assert_eq!(accepted.status, 204, "health must preserve the decoded token");
         if input.starts_with("2|") {
             assert_eq!(refreshed.split('|').nth(3), Some("1"));
@@ -333,7 +358,7 @@ async fn real_http_xsrf_gate_and_delete_follow_official_session_boundaries() {
         ("2|12345678|0011| 1", "2|12345678|0011| 1", 204),
         ("2|12345678|0011|1_0", "2|12345678|0011|1_0", 204),
     ] {
-        let result = request(address, "DELETE", unknown, Some((cookie, header)), &[]).await;
+        let result = request(address, "DELETE", unknown, Some((cookie, header)), &[]).await?;
         assert_eq!(result.status, status);
         if status == 403 {
             assert_eq!(result.body, b"XSRF token missing or invalid");
@@ -342,30 +367,31 @@ async fn real_http_xsrf_gate_and_delete_follow_official_session_boundaries() {
             assert!(!result.headers.to_lowercase().contains("content-type:"));
         }
     }
-    assert_eq!(request(address, "PUT", unknown, None, fixture).await.status, 403);
-    let unknown_put = request(address, "PUT", unknown, Some((&token_b, &token_b)), fixture).await;
+    assert_eq!(request(address, "PUT", unknown, None, fixture).await?.status, 403);
+    let unknown_put = request(address, "PUT", unknown, Some((&token_b, &token_b)), fixture).await?;
     assert_eq!(unknown_put.status, 400);
     assert_eq!(unknown_put.body, crate::upload::UploadHttpError::SessionUnavailable.to_string().as_bytes());
     assert!(unknown_put.headers.to_lowercase().contains("content-type: text/plain; charset=utf-8"));
     // Official accepts valid B XSRF credentials for A's known URL: CSRF is not
     // a second user/session identity layer. Still isolate widget-state reads.
-    assert_eq!(request(address, "PUT", &a_urls.upload_url, Some((&token_b, &token_b)), b"B replaced A").await.status, 204);
-    let replaced = run(&mut a, file_state(&a_run.widget, &a_urls)).await;
+    assert_eq!(request(address, "PUT", &a_urls.upload_url, Some((&token_b, &token_b)), b"B replaced A").await?.status, 204);
+    let replaced = run(&mut a, file_state(&a_run.widget, &a_urls)).await?;
     assert_eq!(replaced.value["file"]["bytes"], json!(b"B replaced A".as_slice()));
-    let foreign = run(&mut b, file_state(&b_run.widget, &a_urls)).await;
+    let foreign = run(&mut b, file_state(&b_run.widget, &a_urls)).await?;
     assert!(foreign.value["file"].is_null());
     for url in [&a_urls.delete_url, &a_urls.delete_url, &format!("/_stcore/upload_file/{}/never-uploaded", a_run.session), unknown] {
-        let response = request(address, "DELETE", url, Some((&token_b, &token_b)), &[]).await;
+        let response = request(address, "DELETE", url, Some((&token_b, &token_b)), &[]).await?;
         assert_eq!(response.status, 204);
         assert!(response.body.is_empty());
         assert!(!response.headers.to_lowercase().contains("content-type:"));
     }
-    assert!(observer.sessions.state_for_upload(&a_run.session).unwrap().uploads.lock().get(&a_urls.file_id).is_none());
-    let stale = run(&mut a, file_state(&a_run.widget, &a_urls)).await;
+    assert!(observer.sessions.state_for_upload(&a_run.session).ok_or("connected upload session must remain available")?.uploads.lock().get(&a_urls.file_id).is_none());
+    let stale = run(&mut a, file_state(&a_run.widget, &a_urls)).await?;
     assert!(stale.value["file"].is_null(), "deleted file must not resurrect from a stale client state");
     assert_eq!(retained.as_bytes(), fixture, "already returned immutable handles remain readable");
     sessions::disconnect(a).await;
     sessions::disconnect(b).await;
     handle.stop(true).await;
-    task.await.unwrap().unwrap();
+    task.await??;
+    Ok(())
 }

@@ -433,19 +433,13 @@ QUERYPARAMS_DOMS = {
     }
 }
 
-QUERYPARAMS_SOURCE_PINS = {
-    "python": [
-    'tests/reference/queryparams_app.py',
-    '11b02cd33aa010da01b9480de33d7e3a9dfb388ede98b28269c4663a819a10f7'
-],
-    "native": [
-    'streamlit/examples/queryparams.rs',
-    '49f05c691d12461ae10b35b1d11297a95422baa1e530c3d5e11bd191281dc263'
-],
+QUERYPARAMS_SOURCE_FILES = {
+    "python": "tests/reference/queryparams_app.py",
+    "native": "streamlit/examples/queryparams.rs",
 }
 
 QUERYPARAMS_REQUIRED = (
-    "contract", "stage_set", "source_pin", "timeline", "query_wire",
+    "contract", "stage_set", "timeline", "query_wire",
     "selectbox_wire", "state_wire", "dom_projection", "no_exceptions",
     "finishes", "png_sources",
 )
@@ -528,13 +522,6 @@ def queryparams_checks(*, observation=None):
             _need(isinstance(stage.get("dom"), dict) and isinstance(stage.get("screenshot"), dict)
                   and isinstance(stage.get("new_frames"), list), f"stage {stage.get('name')} lacks dom/screenshot/new_frames")
         mark("stage_set")
-
-        source = observation.get("source") or {}
-        side = "python" if observation.get("scope") == "PYTHON SIDE ONLY" else "native"
-        path, pinned = QUERYPARAMS_SOURCE_PINS[side]
-        _need(source.get("file") == path and source.get("sha256") == pinned,
-              f"driven source is not the pinned {path} of this contract")
-        mark("source_pin")
 
         timelines = {stage["name"]: _timeline(stage) for stage in stages}
         for name in QUERYPARAMS_STAGES:

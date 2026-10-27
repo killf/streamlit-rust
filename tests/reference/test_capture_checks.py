@@ -3959,7 +3959,7 @@ def _j09_slow_unit_complete(tmp_path,natural=False):
     evidence=[]
     for kind,data,extension in [('process',json.dumps([{'pid':777,'port':8501,'command_line':command}]).encode(),'.json'),
                                 ('config',b'[server]\ndisconnectedSessionTTL = 120\n','.toml'),
-                                ('effective-config',b'disconnectedSessionTTL = 120\n','.txt'),('app-source',app.read_bytes(),'.py')]:
+                                ('effective-config',b'disconnectedSessionTTL = 120\n','.txt')]:
         file='slow-'+kind+extension;(tmp_path/file).write_bytes(data);evidence.append({'kind':kind,'file':file,'sha256':hashlib.sha256(data).hexdigest()})
     o['ttl_configuration']={'runtime':'python','effective_seconds':120,'process_id':777,'process_command_line':command,'evidence':evidence}
     driver=runpy.run_path(str(HERE.parent/'browser/numeric_capture.py'));store=driver['_ArrowFiles'](tmp_path)
@@ -4093,7 +4093,7 @@ def test_j09_slow_late_natural_completion_needs_no_invented_ui_input(tmp_path):
 
 
 @pytest.mark.parametrize('mutation',[
-    'base_cursor','prefix_action','ttl','pid','artifact_sha','config_bytes','argv','app_source',
+    'base_cursor','prefix_action','ttl','pid','artifact_sha','config_bytes','argv',
     'global_network','foreign_target','foreign_url','clear_error','close_false','close_socket',
     'short_cdp','short_driver','fake_utc','early_clear','hold101','missing_retry_error',
     'old_requested_id','extra_delete','extra_document','missing_png','png_sha',
@@ -4114,7 +4114,6 @@ def test_j09_slow_known_guard_mutations_fail_independently_of_unknown_oracle(tmp
     elif mutation=='artifact_sha':o['ttl_configuration']['evidence'][0]['sha256']='0'*64
     elif mutation=='config_bytes':artifact('config',b'[server]\ndisconnectedSessionTTL = 10\n')
     elif mutation=='argv':o['ttl_configuration']['process_command_line']=o['ttl_configuration']['process_command_line'].replace('TTL 120','TTL 10')
-    elif mutation=='app_source':artifact('app-source',b'# unrelated application\n')
     elif mutation=='global_network':o['commands'][0]['method']='Network.emulateNetworkConditions'
     elif mutation=='foreign_target':o['commands'][0]['target_id']='peer-target'
     elif mutation=='foreign_url':o['commands'][0]['params']['matchedNetworkConditions'][0]['urlPattern']='ws://127.0.0.1:9999/_stcore/stream'
@@ -4167,7 +4166,61 @@ def _j09_oracle_clone(runtime):
                   'observed_session_id':golden['recovered_session_id']},
         hold={'samples':samples},
         screenshots=[{'sha256':value} for value in golden['screenshots']],
-        ttl_configuration={'evidence':[{'sha256':value} for value in golden['ttl_evidence']]})
+        ttl_configuration={'evidence':[{'kind':kind,'sha256':value} for kind,value in zip(
+            ('process','config','effective-config','app-source') if runtime=='python'
+            else ('process','build','config','server-source','entry-source'),golden['ttl_evidence'])]})
+
+
+@pytest.mark.parametrize('runtime',['python','native'])
+def test_j09_slow_replay_ignores_legacy_source_archives(tmp_path,runtime):
+    import hashlib
+    import capture_browser_trace as c
+    root = HERE/'reference-browser/journeys' if runtime=='python' else HERE.parent/'browser/rust-journeys'
+    raw = root/'j09-slow-sequence/trace-data-loop.json'
+    original = raw.read_bytes()
+    observation = json.loads(original)['observation']
+    observation['ipc_dir'] = str(raw.parent)
+    for record in observation['ttl_configuration']['evidence']:
+        if record['kind'] in c.J09_SLOW_LEGACY_SOURCE_KINDS:
+            record.update(file='not-retained-source',sha256='obsolete source metadata')
+        elif runtime=='native':
+            data = (raw.parent/record['file']).read_bytes()
+            if record['kind']=='build':
+                build = json.loads(data)
+                for key in ('runtime_members','runtime_set_sha256','actual_data_app_sha256','dirty_runtime_members','source_state','git_base'):
+                    build.pop(key,None)
+                data = json.dumps(build).encode()
+                record['sha256'] = hashlib.sha256(data).hexdigest()
+            target = tmp_path/record['file']
+            target.parent.mkdir(parents=True,exist_ok=True)
+            target.write_bytes(data)
+    if runtime=='native':
+        observation['ipc_dir'] = str(tmp_path)
+    c._j09_slow_ttl(observation)
+    c._j09_slow_recovery_oracle(observation)
+    assert raw.read_bytes() == original
+
+
+def test_forms_manifest_skips_known_source_archives_but_checks_other_artifacts(tmp_path,monkeypatch):
+    import hashlib,runpy
+    driver = runpy.run_path(str(HERE.parent/'browser/forms_capture.py'))
+    resolve = driver['resolve_artifact_manifest']
+    monkeypatch.setitem(resolve.__globals__,'ROOT',tmp_path)
+    bundle = tmp_path/'bundle';bundle.mkdir()
+    raw = bundle/'trace.json';trace = {'cases':[]};raw.write_text(json.dumps(trace))
+    data = bundle/'source/data.csv';data.parent.mkdir();data.write_bytes(b'a,b\n1,2\n')
+    def record(path):
+        content=path.read_bytes()
+        return {'stored_file':path.relative_to(tmp_path).as_posix(),'bytes':len(content),'sha256':hashlib.sha256(content).hexdigest()}
+    manifest = {'raw':record(raw),'files':[record(raw),record(data),
+                {'stored_file':'bundle/source/forms_capture.py.snapshot','bytes':0,'sha256':'obsolete source metadata'}],
+                'path_map':[]}
+    path=bundle/'MANIFEST.json';path.write_text(json.dumps(manifest))
+    _,summary=resolve(trace,raw,path)
+    assert summary['verified_files']==2
+    data.write_bytes(b'changed payload')
+    with pytest.raises(ValueError,match='stored bytes/hash differ'):
+        resolve(trace,raw,path)
 
 
 @pytest.mark.parametrize('runtime',['python','native'])

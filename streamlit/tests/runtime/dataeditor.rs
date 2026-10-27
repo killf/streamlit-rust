@@ -13,44 +13,49 @@ use crate::proto::{WidgetState, WidgetStates, element, forward_msg, widget_state
 use serde_json::json;
 use std::sync::Arc;
 
-fn qty_label_batch() -> RecordBatch {
+fn qty_label_batch() -> TestResult<RecordBatch> {
     let fields = vec![Field::new("qty", crate::data::DataType::Int64, true), Field::new("label", crate::data::DataType::Utf8, true)];
     let arrays = vec![Arc::new(Int64Array::from(vec![1, 2])) as _, Arc::new(StringArray::from(vec!["a", "b"])) as _];
-    RecordBatch::try_new(Arc::new(Schema::new(fields)), arrays).unwrap()
+    Ok(RecordBatch::try_new(Arc::new(Schema::new(fields)), arrays)?)
 }
 
 fn dataeditor_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
     Box::pin(async move {
-        // Mirrors tests/reference/dataeditor_app.py.
-        let edited = st.data_editor(crate::DataEditorOptions::new(&qty_label_batch()).num_rows(crate::EditorRows::Dynamic).key("editor")).unwrap();
-        st.dataframe(crate::DataframeOptions::new(&edited)).unwrap();
-        st.write(format!("rows={}", edited.num_rows()));
+        let result: TestResult = async {
+            // Mirrors tests/reference/dataeditor_app.py.
+            let edited = st.data_editor(crate::DataEditorOptions::new(&qty_label_batch()?).num_rows(crate::EditorRows::Dynamic).key("editor"))?;
+            st.dataframe(crate::DataframeOptions::new(&edited))?;
+            st.write(format!("rows={}", edited.num_rows()));
+
+            Ok(())
+        }
+        .await;
+
+        assert!(result.is_ok(), "dataeditor fixture must render successfully: {result:?}");
     })
 }
 
 #[actix_web::test]
-async fn committed_edits_apply_serverside_over_the_production_websocket() {
-    let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
-    let address = listener.local_addr().unwrap();
+async fn committed_edits_apply_serverside_over_the_production_websocket() -> TestResult {
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
     let server = HttpServer::new(move || App::new().app_data(web::Data::new(StreamlitServer::new(dataeditor_entry, "127.0.0.1".into(), 0))).configure(configure_routes))
         .workers(1)
-        .listen(listener)
-        .unwrap()
+        .listen(listener)?
         .run();
     let handle = server.handle();
     let task = actix_web::rt::spawn(server);
-    let mut stream = TcpStream::connect(address).await.unwrap();
+    let mut stream = TcpStream::connect(address).await?;
     let request = format!("GET /_stcore/stream HTTP/1.1\r\nHost: {address}\r\nConnection: Upgrade\r\nUpgrade: websocket\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\nSec-WebSocket-Protocol: streamlit, test-xsrf\r\n\r\n");
-    stream.write_all(request.as_bytes()).await.unwrap();
+    stream.write_all(request.as_bytes()).await?;
     let headers = tokio::time::timeout(Duration::from_secs(5), async {
         let mut response = Vec::new();
         while !response.ends_with(b"\r\n\r\n") {
-            response.push(stream.read_u8().await.unwrap());
+            response.push(stream.read_u8().await?);
         }
-        String::from_utf8(response).unwrap().to_ascii_lowercase()
+        Ok::<_, Box<dyn std::error::Error>>(String::from_utf8(response)?.to_ascii_lowercase())
     })
-    .await
-    .unwrap();
+    .await??;
     assert!(headers.starts_with("http/1.1 101"));
 
     // (edits-state JSON, expected markdown, expected qty column, int-or-float)
@@ -115,17 +120,22 @@ async fn committed_edits_apply_serverside_over_the_production_websocket() {
         // carries the applied edits, int columns upcasting to float64 under
         // an added null like pandas.
         let editor = &dataframes[0];
-        let editor_batch: RecordBatch = crate::data::from_ipc_stream(&editor.arrow_data.as_ref().unwrap().data).unwrap().remove(0);
-        let editor_qty = editor_batch.column_by_name("qty").unwrap().as_any().downcast_ref::<Int64Array>().unwrap();
+        let editor_batch: RecordBatch = crate::data::from_ipc_stream(&editor.arrow_data.as_ref().ok_or("data editor must emit its Arrow data")?.data)?.remove(0);
+        let editor_qty = editor_batch
+            .column_by_name("qty")
+            .ok_or("edited Arrow schema must retain qty column")?
+            .as_any()
+            .downcast_ref::<Int64Array>()
+            .ok_or("edited Arrow column must be Int64Array")?;
         assert_eq!(editor_qty.values().as_ref(), &[1, 2], "the editor re-emits the original data every run");
         let written = &dataframes[1];
-        let decoded: RecordBatch = crate::data::from_ipc_stream(&written.arrow_data.as_ref().unwrap().data).unwrap().remove(0);
-        let qty_column = decoded.column_by_name("qty").unwrap();
+        let decoded: RecordBatch = crate::data::from_ipc_stream(&written.arrow_data.as_ref().ok_or("data editor must emit its Arrow data")?.data)?.remove(0);
+        let qty_column = decoded.column_by_name("qty").ok_or("edited Arrow schema must retain qty column")?;
         let actual: Vec<Option<f64>> = if expect_int {
-            let qty = qty_column.as_any().downcast_ref::<Int64Array>().unwrap();
+            let qty = qty_column.as_any().downcast_ref::<Int64Array>().ok_or("edited Arrow column must be Int64Array")?;
             (0..qty.len()).map(|index| if qty.is_null(index) { None } else { Some(qty.value(index) as f64) }).collect()
         } else {
-            let qty = qty_column.as_any().downcast_ref::<crate::data::Float64Array>().unwrap();
+            let qty = qty_column.as_any().downcast_ref::<crate::data::Float64Array>().ok_or("edited Arrow column must be crate::data::Float64Array")?;
             (0..qty.len()).map(|index| if qty.is_null(index) { None } else { Some(qty.value(index)) }).collect()
         };
         assert_eq!(actual, expected_qty, "the applied qty column after {state}");
@@ -133,13 +143,9 @@ async fn committed_edits_apply_serverside_over_the_production_websocket() {
         assert_eq!(is_int, expect_int, "the dtype follows the pandas upcast");
         // The added row's untouched label cell is null on the written table
         // (measured python wire: None, never an empty string).
-        let label_column = decoded.column_by_name("label").unwrap();
-        let labels: Vec<Option<String>> = (0..label_column.len())
-            .map(|index| {
-                let texts = label_column.as_any().downcast_ref::<crate::data::LargeStringArray>().unwrap();
-                if texts.is_null(index) { None } else { Some(texts.value(index).to_owned()) }
-            })
-            .collect();
+        let label_column = decoded.column_by_name("label").ok_or("edited Arrow schema must retain label column")?;
+        let texts = label_column.as_any().downcast_ref::<crate::data::LargeStringArray>().ok_or("edited Arrow column must be crate::data::LargeStringArray")?;
+        let labels: Vec<Option<String>> = (0..texts.len()).map(|index| if texts.is_null(index) { None } else { Some(texts.value(index).to_owned()) }).collect();
         let expected_labels: Vec<Option<String>> = match expected_qty.len() {
             2 => vec![Some("a".to_owned()), Some("b".to_owned())],
             _ => vec![Some("a".to_owned()), Some("b".to_owned()), None],
@@ -149,28 +155,42 @@ async fn committed_edits_apply_serverside_over_the_production_websocket() {
 
     drop(stream);
     handle.stop(false).await;
-    task.await.unwrap().unwrap();
+    task.await??;
+
+    Ok(())
 }
 
 #[test]
-fn apply_edits_follows_the_reference_order() {
-    let batch = qty_label_batch();
+fn apply_edits_follows_the_reference_order() -> TestResult {
+    let batch = qty_label_batch()?;
     let edits = json!({
         "edited_rows": {"0": {"qty": 5, "label": "x"}},
         "deleted_rows": [1],
         "added_rows": [{"qty": 9}],
     });
-    let edited = data_editor_edits_for_test(&batch, &edits);
-    let qty = edited.column_by_name("qty").unwrap().as_any().downcast_ref::<Int64Array>().unwrap();
-    let label = edited.column_by_name("label").unwrap().as_any().downcast_ref::<StringArray>().unwrap();
+    let edited = data_editor_edits_for_test(&batch, &edits)?;
+    let qty = edited
+        .column_by_name("qty")
+        .ok_or("edited Arrow schema must retain qty column")?
+        .as_any()
+        .downcast_ref::<Int64Array>()
+        .ok_or("edited Arrow column must be Int64Array")?;
+    let label = edited
+        .column_by_name("label")
+        .ok_or("edited Arrow schema must retain label column")?
+        .as_any()
+        .downcast_ref::<StringArray>()
+        .ok_or("edited Arrow column must be StringArray")?;
     assert_eq!(qty.values().as_ref(), &[5, 9]);
     // The added row's untouched text cell is null, not an empty string
     // (measured written table: label column ends in None).
     assert_eq!(label.iter().collect::<Vec<_>>(), vec![Some("x"), None]);
+
+    Ok(())
 }
 
 /// Direct access for the unit test (the emitter path is covered by the WS
 /// regression above).
-fn data_editor_edits_for_test(batch: &RecordBatch, edits: &serde_json::Value) -> RecordBatch {
-    crate::data_api::apply_edits_for_test(batch, edits).unwrap()
+fn data_editor_edits_for_test(batch: &RecordBatch, edits: &serde_json::Value) -> TestResult<RecordBatch> {
+    Ok(crate::data_api::apply_edits_for_test(batch, edits)?)
 }

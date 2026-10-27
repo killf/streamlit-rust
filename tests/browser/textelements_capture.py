@@ -41,7 +41,7 @@ sys.path.insert(0, str(ROOT / "tests" / "reference"))
 sys.path.insert(0, str(HERE))
 
 from capture_browser_trace import CDP, require_decoder, summarise_back, summarise_forward  # noqa: E402
-from textelements_contract import TEXTELEMENTS_CASE, TEXTELEMENTS_CONTRACT, TEXTELEMENTS_STAGES, textelements_result  # noqa: E402
+from textelements_contract import TEXTELEMENTS_SOURCE_FILES, TEXTELEMENTS_CASE, TEXTELEMENTS_CONTRACT, TEXTELEMENTS_STAGES, textelements_result  # noqa: E402
 
 DOM_EXPRESSION = r"""JSON.stringify({
 texts:[...document.querySelectorAll("[data-testid=stText]")].map(e=>e.textContent.trim()),
@@ -146,15 +146,16 @@ def replay(path: str) -> int:
 
 def capture(args, out: pathlib.Path) -> int:
     side = "python" if args.scope == "PYTHON SIDE ONLY" else "native"
-    source_path = ROOT / ("tests/reference/textelements_app.py" if side == "python" else "streamlit/examples/textelements.rs")
+    source_path = ROOT / TEXTELEMENTS_SOURCE_FILES[side]
     observation = {
         "journey": TEXTELEMENTS_CASE,
         "contract": TEXTELEMENTS_CONTRACT,
         "scope": args.scope,
         "url": args.url,
         "binary": args.binary or None,
-        "source": {"file": source_path.relative_to(ROOT).as_posix(), "sha256": digest(source_path)},
-        "capture_sources": {name: digest(ROOT / "tests/browser" / name) for name in ("textelements_capture.py", "textelements_contract.py")},
+        "runtime": side,
+        "reference_version": "1.66.1",
+        "source": {"file": source_path.relative_to(ROOT).as_posix()},
         "stages": [],
         "ipc_dir": str(out.resolve()),
     }

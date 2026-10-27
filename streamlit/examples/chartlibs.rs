@@ -9,17 +9,17 @@ use serde_json::json;
 use streamlit::StreamlitApi;
 use streamlit::data::{Field, Int64Array, RecordBatch, Schema, StringArray};
 
-fn kind_count_batch() -> RecordBatch {
+fn kind_count_batch() -> anyhow::Result<RecordBatch> {
     let fields = vec![Field::new("kind", streamlit::data::DataType::Utf8, true), Field::new("count", streamlit::data::DataType::Int64, true)];
     let kind: Vec<String> = ["a", "b"].iter().map(|s| (*s).to_string()).collect();
     let arrays = vec![Arc::new(StringArray::from(kind)) as _, Arc::new(Int64Array::from(vec![3, 7])) as _];
-    RecordBatch::try_new(Arc::new(Schema::new(fields)), arrays).unwrap()
+    Ok(RecordBatch::try_new(Arc::new(Schema::new(fields)), arrays)?)
 }
 
-fn render(st: &Streamlit) {
+fn render(st: &Streamlit) -> anyhow::Result<()> {
     st.altair_chart(
         json!({"mark": {"type": "bar"}, "encoding": {"x": {"field": "kind", "type": "nominal"}, "y": {"field": "count", "type": "quantitative"}}}),
-        &kind_count_batch(),
+        &kind_count_batch()?,
     );
 
     st.vega_lite_chart(json!({
@@ -44,6 +44,7 @@ fn render(st: &Streamlit) {
         "yAxis": {"type": "value"},
         "series": [{"type": "bar", "data": [3, 7]}],
     }));
+    Ok(())
 }
 
 #[tokio::main]
@@ -51,7 +52,9 @@ async fn main() -> std::io::Result<()> {
     StreamlitServer::new(
         |st| {
             Box::pin(async move {
-                render(st);
+                if let Err(error) = render(st) {
+                    st.write(format!("Example error: {error}"));
+                }
             })
         },
         "127.0.0.1".into(),

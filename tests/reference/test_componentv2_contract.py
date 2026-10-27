@@ -20,7 +20,7 @@ def frozen():
         "contract": contract.COMPONENTV2_CONTRACT,
         "scope": "PYTHON SIDE ONLY",
         "url": "http://127.0.0.1:8630/",
-        "source": {"file": contract.COMPONENTV2_SOURCE_PINS["python"][0], "sha256": contract.COMPONENTV2_SOURCE_PINS["python"][1]},
+        "source": {"file": contract.COMPONENTV2_SOURCE_FILES["python"]},
         "ipc_dir": str(ROOT / "tests/reference/reference-browser/componentv2"),
         "stages": [],
     }
@@ -61,15 +61,16 @@ def test_dom_projection_is_guarded():
     assert any(check["check"] == "dom_projection" for check in result["failures"])
 
 
-def test_source_pin_is_guarded():
-    observation = frozen()
-    observation["source"]["sha256"] = "0" * 64
-    result = contract.componentv2_result(observation=observation)
-    assert any(check["check"] == "source_pin" for check in result["failures"])
-
-
 def test_degenerate_observation_fails_closed():
     for broken in ({}, {"journey": "other"}, {"stages": []}):
         result = contract.componentv2_result(observation=broken)
         assert not result["ok"]
         assert result["counts"]["asserted"] < result["counts"]["expected"]
+
+
+def test_source_fingerprints_do_not_gate_functional_evidence():
+    for source in ({"file": "historical-app.py", "sha256": "changed"}, {"file": "historical-app.py"}, None):
+        observation = frozen()
+        observation["source"] = source
+        result = contract.componentv2_result(observation=observation)
+        assert result["ok"], result["failures"]

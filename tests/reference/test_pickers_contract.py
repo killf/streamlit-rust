@@ -15,7 +15,7 @@ sys.path.insert(0, str(HERE.parent / "browser"))
 from pickers_contract import (  # noqa: E402
     PICKERS_DOMS,
     PICKERS_REQUIRED,
-    PICKERS_SOURCE_PINS,
+    PICKERS_SOURCE_FILES,
     PICKERS_STAGES,
     PICKERS_TIMELINE,
     pickers_result,
@@ -75,7 +75,7 @@ def observation(tmp_path, **faults):
         "contract": "journey-pickers-v1",
         "scope": "PYTHON SIDE ONLY",
         "url": "http://127.0.0.1:8624/",
-        "source": {"file": PICKERS_SOURCE_PINS["python"][0], "sha256": PICKERS_SOURCE_PINS["python"][1]},
+        "source": {"file": PICKERS_SOURCE_FILES["python"]},
         "capture_sources": {},
         "stages": stages,
         "ipc_dir": str(tmp_path),
@@ -129,8 +129,6 @@ def observation(tmp_path, **faults):
         (tmp_path / f"{load['name']}.png").unlink()
     elif mutation == "png_sha":
         load["screenshot"]["sha256"] = "0" * 64
-    elif mutation == "wrong_source":
-        observation["source"]["sha256"] = "0" * 64
     elif mutation == "wrong_contract":
         observation["contract"] = "journey-pickers-v0"
     elif mutation == "missing_stage":
@@ -179,7 +177,7 @@ def test_a_nested_main_container_block_fails(tmp_path):
     "date_window_lost", "date_range_flag_lost", "time_default_lost",
     "color_default_lost", "slider_type_lost", "slider_first_default_lost",
     "audio_rate_lost", "slider_step_states_lost", "dom_thumbs_stale",
-    "extra_element", "missing_png", "png_sha", "wrong_source",
+    "extra_element", "missing_png", "png_sha",
     "wrong_contract", "missing_stage",
 ])
 def test_known_mutations_fail(tmp_path, mutation):
@@ -212,3 +210,11 @@ def test_the_constants_pin_the_measured_semantics():
                    for state in entry["states"] if state.get("id", "").endswith("-one")]
     assert step_states[0] == {"data": "['medium']"} and step_states[-1] == {"data": "['high']"}
     assert all(not dom["exceptions"] for dom in PICKERS_DOMS.values())
+
+
+def test_source_fingerprints_do_not_gate_functional_evidence(tmp_path):
+    for source in ({"file": "historical-app.py", "sha256": "changed"}, {"file": "historical-app.py"}, None):
+        observed = observation(tmp_path)
+        observed["source"] = source
+        outcome = pickers_result(observation=observed)
+        assert outcome["ok"], outcome["failures"]

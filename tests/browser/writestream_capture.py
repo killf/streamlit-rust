@@ -36,7 +36,7 @@ sys.path.insert(0, str(ROOT / "tests" / "reference"))
 sys.path.insert(0, str(HERE))
 
 from capture_browser_trace import CDP, require_decoder, summarise_back, summarise_forward  # noqa: E402
-from writestream_contract import WRITESTREAM_CASE, WRITESTREAM_CONTRACT, WRITESTREAM_STAGES, writestream_result  # noqa: E402
+from writestream_contract import WRITESTREAM_SOURCE_FILES, WRITESTREAM_CASE, WRITESTREAM_CONTRACT, WRITESTREAM_STAGES, writestream_result  # noqa: E402
 
 DOM_EXPRESSION = r"""JSON.stringify({
 markdowns:[...document.querySelectorAll("[data-testid=stMarkdownContainer]")].map(e=>e.textContent.trim()),
@@ -112,13 +112,15 @@ def collect(args) -> int:
     out = pathlib.Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     side = "python" if args.scope == "PYTHON SIDE ONLY" else "native"
-    source_path = ROOT / ("tests/reference/writestream_app.py" if side == "python" else "streamlit/examples/writestream.rs")
+    source_path = ROOT / WRITESTREAM_SOURCE_FILES[side]
     observation = {
         "journey": WRITESTREAM_CASE,
         "contract": WRITESTREAM_CONTRACT,
         "scope": args.scope,
         "url": args.url,
-        "source": {"file": source_path.relative_to(ROOT).as_posix(), "sha256": digest(source_path)},
+        "runtime": side,
+        "reference_version": "1.66.1",
+        "source": {"file": source_path.relative_to(ROOT).as_posix()},
         "stages": [],
     }
     manifest = {"executable": sys.executable, "argv": sys.argv[1:], "cwd": str(pathlib.Path.cwd()),

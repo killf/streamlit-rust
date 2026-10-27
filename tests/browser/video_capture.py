@@ -40,7 +40,7 @@ sys.path.insert(0, str(ROOT / "tests" / "reference"))
 sys.path.insert(0, str(HERE))
 
 from capture_browser_trace import CDP, require_decoder, summarise_back, summarise_forward  # noqa: E402
-from video_contract import VIDEO_CASE, VIDEO_CONTRACT, VIDEO_STAGES, video_result  # noqa: E402
+from video_contract import VIDEO_SOURCE_FILES, VIDEO_CASE, VIDEO_CONTRACT, VIDEO_STAGES, video_result  # noqa: E402
 
 DOM_EXPRESSION = r"""JSON.stringify({
 markdowns:[...document.querySelectorAll("[data-testid=stMarkdown]")].map(e=>e.textContent.trim()),
@@ -185,15 +185,16 @@ def replay(path: str) -> int:
 
 def capture(args, out: pathlib.Path) -> int:
     side = "python" if args.scope == "PYTHON SIDE ONLY" else "native"
-    source_path = ROOT / ("tests/reference/video_app.py" if side == "python" else "streamlit/examples/video.rs")
+    source_path = ROOT / VIDEO_SOURCE_FILES[side]
     observation = {
         "journey": VIDEO_CASE,
         "contract": VIDEO_CONTRACT,
         "scope": args.scope,
         "url": args.url,
         "binary": args.binary or None,
-        "source": {"file": source_path.relative_to(ROOT).as_posix(), "sha256": digest(source_path)},
-        "capture_sources": {name: digest(ROOT / "tests/browser" / name) for name in ("video_capture.py", "video_contract.py")},
+        "runtime": side,
+        "reference_version": "1.66.1",
+        "source": {"file": source_path.relative_to(ROOT).as_posix()},
         "stages": [],
         "ipc_dir": str(out.resolve()),
     }

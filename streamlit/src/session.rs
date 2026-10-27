@@ -95,7 +95,8 @@ impl SessionState {
             RunControl::Rerun => RunControl::RERUN,
             RunControl::Stop => RunControl::STOP,
         };
-        self.run_control.store(raw, Ordering::Relaxed);
+        // 本轮首次控制请求生效，后续调用不能取消或改写它。
+        let _ = self.run_control.compare_exchange(0, raw, Ordering::Relaxed, Ordering::Relaxed);
     }
 
     pub(crate) fn reset_run_control(&self) {
@@ -262,20 +263,22 @@ mod tests {
     use super::*;
 
     #[test]
-    fn typed_values_removal_and_independent_maps() {
+    fn typed_values_removal_and_independent_maps() -> anyhow::Result<()> {
         let state = SessionState::default();
-        assert_eq!(state.get::<u64>("count").unwrap(), None);
-        state.set("count", 3_u64).unwrap();
-        assert_eq!(state.clone().get::<u64>("count").unwrap(), Some(3));
+        assert_eq!(state.get::<u64>("count")?, None);
+        state.set("count", 3_u64)?;
+        assert_eq!(state.clone().get::<u64>("count")?, Some(3));
         assert!(state.get::<Vec<u8>>("count").is_err());
-        assert_eq!(state.get::<u64>("count").unwrap(), Some(3));
-        assert_eq!(SessionState::default().get::<u64>("count").unwrap(), None);
+        assert_eq!(state.get::<u64>("count")?, Some(3));
+        assert_eq!(SessionState::default().get::<u64>("count")?, None);
         assert_eq!(state.remove("count"), Some(Value::from(3)));
         assert_eq!(state.remove("count"), None);
+
+        Ok(())
     }
 
     #[test]
-    fn failed_serialization_keeps_previous_value() {
+    fn failed_serialization_keeps_previous_value() -> anyhow::Result<()> {
         struct Invalid;
         impl Serialize for Invalid {
             fn serialize<S: serde::Serializer>(&self, _: S) -> Result<S::Ok, S::Error> {
@@ -283,27 +286,35 @@ mod tests {
             }
         }
         let state = SessionState::default();
-        state.set("value", 7).unwrap();
+        state.set("value", 7)?;
         assert!(state.set("value", Invalid).is_err());
-        assert_eq!(state.get::<i32>("value").unwrap(), Some(7));
+        assert_eq!(state.get::<i32>("value")?, Some(7));
+
+        Ok(())
     }
 
     #[tokio::test]
-    async fn retained_uploads_are_session_local_and_fresh_sessions_start_empty() {
+    async fn retained_uploads_are_session_local_and_fresh_sessions_start_empty() -> anyhow::Result<()> {
         let store = Arc::new(SessionStore::new(Duration::from_secs(5)));
         let lease = store.connect(None).await;
         let id = lease.id.clone();
         lease.state.uploads.lock().insert("file".into(), "sales.csv".into(), Some("text/csv".into()), vec![1, 2, 3]);
         let other = store.connect(None).await;
-        assert!(store.state_for_upload(&other.id).unwrap().uploads.lock().get("file").is_none());
+        let other_state = store.state_for_upload(&other.id).ok_or_else(|| anyhow::anyhow!("connected session must exist"))?;
+        assert!(other_state.uploads.lock().get("file").is_none());
         assert!(store.state_for_upload("unknown").is_none());
         drop(lease);
         let restored = store.connect(Some(&id)).await;
         assert_eq!(restored.id, id);
-        assert_eq!(store.state_for_upload(&id).unwrap().uploads.lock().get("file").unwrap().as_bytes(), &[1, 2, 3]);
+        let restored_state = store.state_for_upload(&id).ok_or_else(|| anyhow::anyhow!("retained session must exist"))?;
+        let file = restored_state.uploads.lock().get("file").ok_or_else(|| anyhow::anyhow!("retained upload must exist"))?;
+        assert_eq!(file.as_bytes(), &[1, 2, 3]);
         let fresh = store.connect(None).await;
         assert_ne!(fresh.id, id);
-        assert!(store.state_for_upload(&fresh.id).unwrap().uploads.lock().get("file").is_none());
+        let fresh_state = store.state_for_upload(&fresh.id).ok_or_else(|| anyhow::anyhow!("fresh connected session must exist"))?;
+        assert!(fresh_state.uploads.lock().get("file").is_none());
+
+        Ok(())
     }
 
     #[tokio::test]
@@ -320,44 +331,48 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn leases_restore_expire_and_ignore_superseded_drop() {
+    async fn leases_restore_expire_and_ignore_superseded_drop() -> anyhow::Result<()> {
         let store = Arc::new(SessionStore::new(Duration::from_secs(5)));
         let lease = store.connect(None).await;
         let id = lease.id.clone();
-        lease.state.set("count", 2).unwrap();
+        lease.state.set("count", 2)?;
         let replacement = store.connect(Some(&id)).await;
         assert!(!lease.is_current());
         drop(lease);
         assert!(replacement.is_current());
         assert!(store.sessions.lock()[&id].disconnected_at.is_none());
         drop(replacement);
-        let disconnected = store.sessions.lock()[&id].disconnected_at.unwrap();
+        let disconnected = store.sessions.lock()[&id].disconnected_at.ok_or_else(|| anyhow::anyhow!("current owner drop must start retention"))?;
         let restored = store.connect_at(Some(&id), disconnected + Duration::from_secs(4));
         assert_eq!(restored.id, id);
-        assert_eq!(restored.state.get::<i32>("count").unwrap(), Some(2));
+        assert_eq!(restored.state.get::<i32>("count")?, Some(2));
         drop(restored);
-        let disconnected = store.sessions.lock()[&id].disconnected_at.unwrap();
+        let disconnected = store.sessions.lock()[&id].disconnected_at.ok_or_else(|| anyhow::anyhow!("restored owner drop must start retention"))?;
         let expired = store.connect_at(Some(&id), disconnected + Duration::from_secs(5));
         assert_ne!(expired.id, id);
-        assert_eq!(expired.state.get::<i32>("count").unwrap(), None);
+        assert_eq!(expired.state.get::<i32>("count")?, None);
         assert!(!store.sessions.lock().contains_key(&id));
         let unknown = store.connect(Some(&uuid::Uuid::new_v4().to_string())).await;
         assert_ne!(unknown.id, expired.id);
-        assert_eq!(unknown.state.get::<i32>("count").unwrap(), None);
+        assert_eq!(unknown.state.get::<i32>("count")?, None);
+
+        Ok(())
     }
 
     #[tokio::test]
-    async fn server_stores_do_not_share_sessions_and_active_sessions_do_not_expire() {
+    async fn server_stores_do_not_share_sessions_and_active_sessions_do_not_expire() -> anyhow::Result<()> {
         let a = Arc::new(SessionStore::new(Duration::ZERO));
         let b = Arc::new(SessionStore::new(Duration::ZERO));
         let lease = a.connect(None).await;
-        lease.state.set("private", "a").unwrap();
+        lease.state.set("private", "a")?;
         let latest = a.connect_at(Some(&lease.id), Instant::now() + Duration::from_secs(999));
         assert_eq!(latest.id, lease.id);
         assert!(!lease.is_current());
         assert!(latest.is_current());
         let other = b.connect(Some(&lease.id)).await;
         assert_ne!(other.id, lease.id);
-        assert_eq!(other.state.get::<String>("private").unwrap(), None);
+        assert_eq!(other.state.get::<String>("private")?, None);
+
+        Ok(())
     }
 }

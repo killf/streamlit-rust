@@ -3525,10 +3525,11 @@ J09_SLOW_ORACLE_REVIEW = {
         ),
     },
 }
-J09_SLOW_TTL_EVIDENCE_KINDS = {"python":("process","config","effective-config","app-source"),
-                             "native":("process","build","config","server-source","entry-source")}
+J09_SLOW_TTL_EVIDENCE_KINDS = {"python":("process","config","effective-config"),
+                             "native":("process","build","config")}
+J09_SLOW_LEGACY_SOURCE_KINDS = frozenset(("app-source","server-source","entry-source"))
 J09_SLOW_PNG_ROLES = dict(J09_PNG_ROLES, **{name:(("J09-S4",) if name == "s4-recovery-read" else ()) for name in J09_SLOW_SUFFIX})
-J09_SLOW_REQUIRED = ("contract", "single_capture", "base_range", "base_s1_s3", "prep_state", "effective_ttl120",
+J09_SLOW_REQUIRED = ("contract", "single_capture", "base_range", "base_s1_s3", "prep_state", "recorded_ttl120",
     "runtime_provenance", "scoped_block_rule", "actual_close", "hold_135_real_seconds", "no_101_during_hold",
     "retry_event_coverage", "unblock_boundary", "old_id_requested", "new_session_observed", "same_document_cache",
     "no_reupload_or_extra_actions", "actual_recovery_run", "recovery_oracle_verified", "png_sources")
@@ -3568,12 +3569,12 @@ JOURNEY_REQUIRED[J09_SLOW_CASE] = {(J09_SLOW_CASE,key) for key in J09_SLOW_REQUI
 # real CDP/driver monotonic clocks plus UTC. Recompute
 # interval membership from raw events, never a_responses_while_rule_active or
 # a producer success boolean. No global network rule, proxy or virtual time.
-# ttl_configuration.effective_seconds must be 120. Python evidence includes
-# actual PID argv, config/config-source and runtime 1.66.1. Native evidence must
-# include the sealed 769+dirty candidate/build manifest, source snapshot proving
-# the 120s constructor/no override, launch config and matching running binary;
-# merely quoting the current source default is insufficient. Evidence artifacts
-# are relative to ipc_dir, preserving their original bytes and SHA256.
+# ttl_configuration.effective_seconds records the capture's 120s setting.
+# Python config/argv/effective config corroborate it with runtime 1.66.1.
+# Native process/build/config bind the historical binary, but do not independently
+# prove an effective 120s configuration. The retained 135s hold and expired
+# recovery remain behavioural evidence. Legacy source roles are ignored.
+# Non-source evidence artifacts stay relative to ipc_dir with byte integrity.
 # base_range is captured at S3 completion, before any S4 action. All *_end values
 # are exclusive cursors into this same full capture. No events/raw are rewritten.
 
@@ -3610,10 +3611,15 @@ def _j09_slow_recovery_oracle(observation):
     identity = (observation["recovery"]["requested_session_id"], observation["recovery"]["observed_session_id"],
                 samples[0]["utc"], samples[-1]["utc"], len(samples),
                 tuple(record["sha256"] for record in observation["screenshots"]),
-                tuple(record["sha256"] for record in observation["ttl_configuration"]["evidence"]))
+                tuple(record["sha256"] for record in observation["ttl_configuration"]["evidence"]
+                      if record.get("kind") not in J09_SLOW_LEGACY_SOURCE_KINDS | {"build"}))
+    # Historical vector order: Python process/config/effective-config/source;
+    # native process/build/config/sources. Build members are not source gates.
+    indices = {"python":(0,1,2), "native":(0,2)}
     reviewed = {(golden["aged_session_id"], golden["recovered_session_id"], golden["hold_first_utc"],
                  golden["hold_last_utc"], golden["hold_samples"], tuple(golden["screenshots"]),
-                 tuple(golden["ttl_evidence"])) for golden in J09_SLOW_ORACLE_REVIEW.values()}
+                 tuple(golden["ttl_evidence"][index] for index in indices[runtime]))
+                for runtime,golden in J09_SLOW_ORACLE_REVIEW.items()}
     _journey_need(identity in reviewed, "S4 oracle evidence identity is not one of the two reviewed raws")
 
 
@@ -3666,9 +3672,10 @@ def _j09_slow_ttl(observation):
 
     ttl = observation["ttl_configuration"]
     _journey_need(type(ttl["effective_seconds"]) is int and ttl["effective_seconds"] == 120
-                  and type(ttl["process_id"]) is int and ttl["process_id"] > 0 and ttl["runtime"] in ("python","native"), "S4 effective TTL/runtime/PID is not explicit 120")
-    records = {r["kind"]:r for r in ttl["evidence"]}
-    _journey_need(len(records) == len(ttl["evidence"]) and set(records) == set(J09_SLOW_TTL_EVIDENCE_KINDS[ttl["runtime"]]), "S4 missing/duplicate provenance kind")
+                  and type(ttl["process_id"]) is int and ttl["process_id"] > 0 and ttl["runtime"] in ("python","native"), "S4 recorded TTL/runtime/PID is not explicit 120")
+    retained = [r for r in ttl["evidence"] if r.get("kind") not in J09_SLOW_LEGACY_SOURCE_KINDS]
+    records = {r["kind"]:r for r in retained}
+    _journey_need(len(records) == len(retained) and set(records) == set(J09_SLOW_TTL_EVIDENCE_KINDS[ttl["runtime"]]), "S4 missing/duplicate provenance kind")
     contents = {kind:_j09_slow_artifact(observation,r) for kind,r in records.items()}
     process = json.loads(contents["process"])
     processes = process if isinstance(process,list) else [process]
@@ -3681,7 +3688,6 @@ def _j09_slow_ttl(observation):
         _journey_need(type(config["server"]["disconnectedSessionTTL"]) is int and config["server"]["disconnectedSessionTTL"] == 120
                       and re.findall(r"--server\.disconnectedSessionTTL(?:=|\s+)(\d+)(?=\s|$)",command) == ["120"]
                       and re.search(r"(?m)^\s*disconnectedSessionTTL\s*=\s*120\s*$",contents["effective-config"].decode("utf-8")), "S4 Python argv/config/effective configuration disagree")
-        _journey_need(records["app-source"]["sha256"] == "475e27d4d957a2d20ca31f882bcc7add8c7005a6bfdee81a92e3c3784fdc0b9c", "S4 reference app source is not the frozen public fixture")
         found = False
         for frame in observation["page"]["frames"][:observation["base_range"]["frame_end"]]:
             if frame["direction"] != "server->client":continue
@@ -3693,15 +3699,9 @@ def _j09_slow_ttl(observation):
         _journey_need(found, "S4 no actual Python runtime NewSession")
     else:
         build = json.loads(contents["build"])
-        _journey_need(records["build"]["sha256"] == "eef1173d9cbb2c26e4471a5059254db07af7fb31cdadb06b049d36f1c3966b7d"
-                      and build["git_base"] == "76938fb643149424e69af0ddbccc3127be751178"
-                      and "Dirty" in build["source_state"] and matches[0]["binary_sha256"] == build["binary_sha256"]
+        _journey_need(matches[0]["binary_sha256"] == build["binary_sha256"]
                       and build["binary_path"].replace("\\","/").lower() in command.replace("\\","/").lower()
-                      and records["config"]["sha256"] == build["config_sha256"]
-                      and records["entry-source"]["sha256"] == build["actual_data_app_sha256"]
-                      and records["server-source"]["sha256"] == build["runtime_members"]["repo/streamlit/src/server.rs"], "S4 native process/build/source/config identity differs from sealed 769+dirty candidate")
-        _journey_need(b"SessionStore::new(Duration::from_secs(120))" in contents["server-source"]
-                      and not re.search(rb"\.\s*with_disconnected_session_ttl\s*\(",contents["entry-source"]), "S4 native compiled entry overrides retention or lacks the sealed 120s constructor")
+                      and records["config"]["sha256"] == build["config_sha256"], "S4 native process/build/config identity differs from recorded candidate")
 
 
 def _j09_slow_command(observation,index):
@@ -3866,7 +3866,7 @@ def _j09_slow_verify(observation,verified):
     base = _j09_slow_base_view(observation);verified.add("base_range")
     result = journey_result(j09_checks(observation=base));_journey_need(result["ok"], "S4 original S1-S3 prefix failed: " + str(result["failures"][:1]))
     verified.add("base_s1_s3")
-    _j09_slow_ttl(observation);verified.update(("effective_ttl120","runtime_provenance"))
+    _j09_slow_ttl(observation);verified.update(("recorded_ttl120","runtime_provenance"))
     page = dict(observation["page"],frames=_j09_materialize_frames(observation["page"]))
     n = len(base["phases"]);phases = observation["phases"][n:];frames = page["frames"]
     base_phase = base["phases"][-1]

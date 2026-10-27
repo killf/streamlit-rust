@@ -20,7 +20,7 @@ from charts_contract import (  # noqa: E402
     CHARTS_DOM,
     CHARTS_MARKS,
     CHARTS_REQUIRED,
-    CHARTS_SOURCE_PINS,
+    CHARTS_SOURCE_FILES,
     CHARTS_SPECS,
     charts_result,
 )
@@ -91,7 +91,7 @@ def observation(tmp_path, **faults):
         "contract": "journey-charts-v1",
         "scope": "PYTHON SIDE ONLY",
         "url": f"{URL}/",
-        "source": {"file": CHARTS_SOURCE_PINS["python"][0], "sha256": CHARTS_SOURCE_PINS["python"][1]},
+        "source": {"file": CHARTS_SOURCE_FILES["python"]},
         "capture_sources": {},
         "stages": stages,
         "ipc_dir": str(tmp_path),
@@ -154,8 +154,6 @@ def observation(tmp_path, **faults):
         (tmp_path / f"{target['name']}.png").unlink()
     elif mutation == "png_sha":
         target["screenshot"]["sha256"] = "0" * 64
-    elif mutation == "wrong_source":
-        observation["source"]["sha256"] = "0" * 64
     elif mutation == "wrong_contract":
         observation["contract"] = "journey-charts-v0"
     elif mutation == "missing_stage":
@@ -171,7 +169,7 @@ def result(tmp_path, **faults):
 def test_complete_synthetic_model_passes_every_check(tmp_path):
     outcome = result(tmp_path)
     assert outcome["ok"], outcome["failures"]
-    assert outcome["counts"] == {"expected": 12, "executed": 12, "asserted": 12}
+    assert outcome["counts"] == {"expected": 11, "executed": 11, "asserted": 11}
     assert tuple(check["check"] for check in outcome["checks"]) == CHARTS_REQUIRED
 
 
@@ -181,7 +179,7 @@ def test_complete_synthetic_model_passes_every_check(tmp_path):
     "deck_zoom_changed", "deck_color_changed", "deck_pixel_height",
     "mapbox_token_leak", "missing_chart", "wrong_mark_order",
     "exception_element", "dom_charts_missing", "wrong_finish", "missing_png",
-    "png_sha", "wrong_source", "wrong_contract", "missing_stage",
+    "png_sha", "wrong_contract", "missing_stage",
 ])
 def test_known_mutations_fail(tmp_path, mutation):
     outcome = result(tmp_path, mutation=mutation)
@@ -215,3 +213,11 @@ def test_the_constants_pin_the_measured_semantics():
         assert spec["width"] == 0 and spec["height"] == 0
         assert spec["$schema"].endswith("v5.20.1.json")
         assert CHARTS_DATASETS[mark]["name"] in CHARTS_SPECS[mark]
+
+
+def test_source_fingerprints_do_not_gate_functional_evidence(tmp_path):
+    for source in ({"file": "historical-app.py", "sha256": "changed"}, {"file": "historical-app.py"}, None):
+        observed = observation(tmp_path)
+        observed["source"] = source
+        outcome = charts_result(observation=observed)
+        assert outcome["ok"], outcome["failures"]

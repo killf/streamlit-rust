@@ -39,7 +39,7 @@ sys.path.insert(0, str(ROOT / "tests" / "reference"))
 sys.path.insert(0, str(HERE))
 
 from capture_browser_trace import CDP, require_decoder, summarise_back, summarise_forward  # noqa: E402
-from dataeditor_contract import DATAEDITOR_CASE, DATAEDITOR_CONTRACT, DATAEDITOR_STAGES, dataeditor_result  # noqa: E402
+from dataeditor_contract import DATAEDITOR_SOURCE_FILES, DATAEDITOR_CASE, DATAEDITOR_CONTRACT, DATAEDITOR_STAGES, dataeditor_result  # noqa: E402
 
 DOM_EXPRESSION = r"""JSON.stringify({
 cells:[...document.querySelectorAll('[data-testid^=glide-cell]')].map(e=>e.textContent.trim()),
@@ -179,13 +179,15 @@ def collect(args) -> int:
     out = pathlib.Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     side = "python" if args.scope == "PYTHON SIDE ONLY" else "native"
-    source_path = ROOT / ("tests/reference/dataeditor_app.py" if side == "python" else "streamlit/examples/dataeditor.rs")
+    source_path = ROOT / DATAEDITOR_SOURCE_FILES[side]
     observation = {
         "journey": DATAEDITOR_CASE,
         "contract": DATAEDITOR_CONTRACT,
         "scope": args.scope,
         "url": args.url,
-        "source": {"file": source_path.relative_to(ROOT).as_posix(), "sha256": digest(source_path)},
+        "runtime": side,
+        "reference_version": "1.66.1",
+        "source": {"file": source_path.relative_to(ROOT).as_posix()},
         "stages": [],
     }
     manifest = {"executable": sys.executable, "argv": sys.argv[1:], "cwd": str(pathlib.Path.cwd()),

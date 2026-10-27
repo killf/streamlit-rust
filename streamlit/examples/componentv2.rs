@@ -9,12 +9,11 @@ const HTML: &str = "\n    <label style='padding-right: 1em;' for='txt'>Enter tex
 const CSS: &str = "label { color: red; }";
 const JS: &str = "\n    export default function(component) {\n        const { setStateValue, parentElement } = component;\n        const input = parentElement.querySelector('input');\n        input.onkeydown = (e) => {\n            if (e.key === 'Enter') {\n                setStateValue('value', e.target.value);\n            }\n        };\n    }\n";
 
-fn render(st: &Streamlit) {
+fn render(st: &Streamlit) -> anyhow::Result<()> {
     let text_input = ComponentV2::new("greeting").html(HTML).css(CSS).js(JS);
-    let state = st
-        .component_v2(&text_input, ComponentMount::new().key("greeter").data(json!({"label": "Name", "value": "hi"})).default_state(json!({"value": "hi"})))
-        .unwrap();
+    let state = st.component_v2(&text_input, ComponentMount::new().key("greeter").data(json!({"label": "Name", "value": "hi"})).default_state(json!({"value": "hi"})))?;
     st.write(format!("value={}", state.get("value").and_then(|value| value.as_str()).unwrap_or_default()));
+    Ok(())
 }
 
 #[tokio::main]
@@ -22,7 +21,9 @@ async fn main() -> std::io::Result<()> {
     StreamlitServer::new(
         |st| {
             Box::pin(async move {
-                render(st);
+                if let Err(error) = render(st) {
+                    st.write(format!("Example error: {error}"));
+                }
             })
         },
         "127.0.0.1".into(),

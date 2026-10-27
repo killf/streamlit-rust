@@ -37,21 +37,43 @@ fn py_datetime(value: NaiveDateTime) -> String {
     text + ")"
 }
 
-fn render(st: &Streamlit) {
-    let date_value = st.slider(SliderOptions::new("date", NaiveDate::from_ymd_opt(2024, 3, 15).unwrap())).unwrap();
-    let time_value = st.slider(SliderOptions::new("time", NaiveTime::from_hms_micro_opt(12, 30, 7, 123456).unwrap())).unwrap();
-    let datetime_value = st.slider(SliderOptions::new("datetime", NaiveDate::from_ymd_opt(2024, 3, 15).unwrap().and_hms_micro_opt(12, 30, 7, 123456).unwrap())).unwrap();
-    let date_pair = st.slider(SliderOptions::new("date-range", (NaiveDate::from_ymd_opt(2024, 3, 10).unwrap(), NaiveDate::from_ymd_opt(2024, 3, 20).unwrap()))).unwrap();
-    let time_pair = st.slider(SliderOptions::new("time-range", (NaiveTime::from_hms_opt(9, 15, 0).unwrap(), NaiveTime::from_hms_opt(17, 45, 0).unwrap()))).unwrap();
-    let datetime_pair = st
-        .slider(SliderOptions::new(
-            "datetime-range",
-            (
-                NaiveDate::from_ymd_opt(2024, 3, 10).unwrap().and_hms_micro_opt(9, 30, 7, 123456).unwrap(),
-                NaiveDate::from_ymd_opt(2024, 3, 20).unwrap().and_hms_micro_opt(17, 45, 7, 654321).unwrap(),
-            ),
-        ))
-        .unwrap();
+fn render(st: &Streamlit) -> anyhow::Result<()> {
+    let date_value = st.slider(SliderOptions::new("date", NaiveDate::from_ymd_opt(2024, 3, 15).ok_or_else(|| anyhow::anyhow!("invalid example date or time"))?))?;
+    let time_value = st.slider(SliderOptions::new("time", NaiveTime::from_hms_micro_opt(12, 30, 7, 123456).ok_or_else(|| anyhow::anyhow!("invalid example date or time"))?))?;
+    let datetime_value = st.slider(SliderOptions::new(
+        "datetime",
+        NaiveDate::from_ymd_opt(2024, 3, 15)
+            .ok_or_else(|| anyhow::anyhow!("invalid example date or time"))?
+            .and_hms_micro_opt(12, 30, 7, 123456)
+            .ok_or_else(|| anyhow::anyhow!("invalid example date or time"))?,
+    ))?;
+    let date_pair = st.slider(SliderOptions::new(
+        "date-range",
+        (
+            NaiveDate::from_ymd_opt(2024, 3, 10).ok_or_else(|| anyhow::anyhow!("invalid example date or time"))?,
+            NaiveDate::from_ymd_opt(2024, 3, 20).ok_or_else(|| anyhow::anyhow!("invalid example date or time"))?,
+        ),
+    ))?;
+    let time_pair = st.slider(SliderOptions::new(
+        "time-range",
+        (
+            NaiveTime::from_hms_opt(9, 15, 0).ok_or_else(|| anyhow::anyhow!("invalid example date or time"))?,
+            NaiveTime::from_hms_opt(17, 45, 0).ok_or_else(|| anyhow::anyhow!("invalid example date or time"))?,
+        ),
+    ))?;
+    let datetime_pair = st.slider(SliderOptions::new(
+        "datetime-range",
+        (
+            NaiveDate::from_ymd_opt(2024, 3, 10)
+                .ok_or_else(|| anyhow::anyhow!("invalid example date or time"))?
+                .and_hms_micro_opt(9, 30, 7, 123456)
+                .ok_or_else(|| anyhow::anyhow!("invalid example date or time"))?,
+            NaiveDate::from_ymd_opt(2024, 3, 20)
+                .ok_or_else(|| anyhow::anyhow!("invalid example date or time"))?
+                .and_hms_micro_opt(17, 45, 7, 654321)
+                .ok_or_else(|| anyhow::anyhow!("invalid example date or time"))?,
+        ),
+    ))?;
 
     st.write(format!("date={}|date", py_date(date_value)));
     st.write(format!("time={}|time", py_time(time_value)));
@@ -59,6 +81,7 @@ fn render(st: &Streamlit) {
     st.write(format!("date_pair=({}, {})|tuple", py_date(date_pair.0), py_date(date_pair.1)));
     st.write(format!("time_pair=({}, {})|tuple", py_time(time_pair.0), py_time(time_pair.1)));
     st.write(format!("datetime_pair=({}, {})|tuple", py_datetime(datetime_pair.0), py_datetime(datetime_pair.1)));
+    Ok(())
 }
 
 #[tokio::main]
@@ -66,7 +89,9 @@ async fn main() -> std::io::Result<()> {
     StreamlitServer::new(
         |st| {
             Box::pin(async move {
-                render(st);
+                if let Err(error) = render(st) {
+                    st.write(format!("Example error: {error}"));
+                }
             })
         },
         "127.0.0.1".into(),

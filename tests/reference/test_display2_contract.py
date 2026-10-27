@@ -15,7 +15,7 @@ sys.path.insert(0, str(HERE.parent / "browser"))
 from display2_contract import (  # noqa: E402
     DISPLAY2_DOMS,
     DISPLAY2_REQUIRED,
-    DISPLAY2_SOURCE_PINS,
+    DISPLAY2_SOURCE_FILES,
     DISPLAY2_STAGES,
     DISPLAY2_TIMELINE,
     display2_result,
@@ -69,7 +69,7 @@ def observation(tmp_path, **faults):
         "contract": "journey-display2-v1",
         "scope": "PYTHON SIDE ONLY",
         "url": "http://127.0.0.1:8625/",
-        "source": {"file": DISPLAY2_SOURCE_PINS["python"][0], "sha256": DISPLAY2_SOURCE_PINS["python"][1]},
+        "source": {"file": DISPLAY2_SOURCE_FILES["python"]},
         "capture_sources": {},
         "stages": stages,
         "ipc_dir": str(tmp_path),
@@ -113,8 +113,6 @@ def observation(tmp_path, **faults):
         (tmp_path / f"{load['name']}.png").unlink()
     elif mutation == "png_sha":
         load["screenshot"]["sha256"] = "0" * 64
-    elif mutation == "wrong_source":
-        observation["source"]["sha256"] = "0" * 64
     elif mutation == "wrong_contract":
         observation["contract"] = "journey-display2-v0"
     elif mutation == "missing_stage":
@@ -149,7 +147,7 @@ def test_more_than_one_leading_main_block_fails(tmp_path, leading):
     "logo_type_lost", "logo_size_lost", "help_value_lost",
     "skeleton_height_lost", "pdf_type_shortened", "pdf_flags_lost",
     "pdf_message_edited", "dom_help_missing", "extra_element",
-    "missing_png", "png_sha", "wrong_source", "wrong_contract", "missing_stage",
+    "missing_png", "png_sha", "wrong_contract", "missing_stage",
 ])
 def test_known_mutations_fail(tmp_path, mutation):
     outcome = result(tmp_path, mutation=mutation)
@@ -178,3 +176,11 @@ def test_the_constants_pin_the_measured_semantics():
     assert entry("exception")["exception"]["message"] == PDF_MESSAGE
     assert "stackTrace" not in entry("exception")["exception"]
     assert all(not dom["skeletons"] or dom["skeletons"] for dom in DISPLAY2_DOMS.values())
+
+
+def test_source_fingerprints_do_not_gate_functional_evidence(tmp_path):
+    for source in ({"file": "historical-app.py", "sha256": "changed"}, {"file": "historical-app.py"}, None):
+        observed = observation(tmp_path)
+        observed["source"] = source
+        outcome = display2_result(observation=observed)
+        assert outcome["ok"], outcome["failures"]

@@ -41,7 +41,7 @@ sys.path.insert(0, str(ROOT / "tests" / "reference"))
 sys.path.insert(0, str(HERE))
 
 from capture_browser_trace import CDP, require_decoder, summarise_back, summarise_forward  # noqa: E402
-from componenttrigger_contract import (COMPONENTTRIGGER_CASE, COMPONENTTRIGGER_CONTRACT,  # noqa: E402
+from componenttrigger_contract import (COMPONENTTRIGGER_SOURCE_FILES, COMPONENTTRIGGER_CASE, COMPONENTTRIGGER_CONTRACT,  # noqa: E402
                                        COMPONENTTRIGGER_STAGES, componenttrigger_result)
 
 DOM_EXPRESSION = r"""JSON.stringify({
@@ -163,13 +163,15 @@ def collect(args) -> int:
     out = pathlib.Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     side = "python" if args.scope == "PYTHON SIDE ONLY" else "native"
-    source_path = ROOT / ("tests/reference/componenttrigger_app.py" if side == "python" else "streamlit/examples/componenttrigger.rs")
+    source_path = ROOT / COMPONENTTRIGGER_SOURCE_FILES[side]
     observation = {
         "journey": COMPONENTTRIGGER_CASE,
         "contract": COMPONENTTRIGGER_CONTRACT,
         "scope": args.scope,
         "url": args.url,
-        "source": {"file": source_path.relative_to(ROOT).as_posix(), "sha256": digest(source_path)},
+        "runtime": side,
+        "reference_version": "1.66.1",
+        "source": {"file": source_path.relative_to(ROOT).as_posix()},
         "stages": [],
     }
     manifest = {"executable": sys.executable, "argv": sys.argv[1:], "cwd": str(pathlib.Path.cwd()),

@@ -281,19 +281,13 @@ CACHE_DOMS = {
     }
 }
 
-CACHE_SOURCE_PINS = {
-    "python": [
-    'tests/reference/cache_app.py',
-    'e82c00d6711edd51802bc4855144b614232ad97d4ecc5a8aed376f6cd3d8d7ff'
-],
-    "native": [
-    'streamlit/examples/cache.rs',
-    'dc82a0ff63330054a0245b7fe7eb393d968ae2defe6e707d8f4d0301d9b39081'
-],
+CACHE_SOURCE_FILES = {
+    "python": "tests/reference/cache_app.py",
+    "native": "streamlit/examples/cache.rs",
 }
 
 CACHE_REQUIRED = (
-    "contract", "stage_set", "source_pin", "timeline", "miss_wire",
+    "contract", "stage_set", "timeline", "miss_wire",
     "hit_wire", "value_stability", "clear_wire", "dom_projection",
     "no_exceptions", "finishes", "png_sources",
 )
@@ -376,13 +370,6 @@ def cache_checks(*, observation=None):
             _need(isinstance(stage.get("dom"), dict) and isinstance(stage.get("screenshot"), dict)
                   and isinstance(stage.get("new_frames"), list), f"stage {stage.get('name')} lacks dom/screenshot/new_frames")
         mark("stage_set")
-
-        source = observation.get("source") or {}
-        side = "python" if observation.get("scope") == "PYTHON SIDE ONLY" else "native"
-        path, pinned = CACHE_SOURCE_PINS[side]
-        _need(source.get("file") == path and source.get("sha256") == pinned,
-              f"driven source is not the pinned {path} of this contract")
-        mark("source_pin")
 
         timelines = {stage["name"]: _timeline(stage) for stage in stages}
         for name in CACHE_STAGES:

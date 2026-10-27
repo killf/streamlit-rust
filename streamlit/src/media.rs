@@ -306,7 +306,7 @@ mod tests {
     }
 
     #[test]
-    fn png_bytes_carry_the_signature_and_decode_dimensions() {
+    fn png_bytes_carry_the_signature_and_decode_dimensions() -> anyhow::Result<()> {
         let mut pixels = Vec::new();
         for index in 0..64u32 {
             let channel = (4u32.wrapping_mul(index) % 256) as u8;
@@ -315,15 +315,15 @@ mod tests {
         let png = png_encode(&RgbaImage::new(8, 8, pixels.clone()));
         assert!(png.starts_with(b"\x89PNG\r\n\x1a\n"));
         assert_eq!(&png[12..16], b"IHDR");
-        assert_eq!(u32::from_be_bytes(png[16..20].try_into().unwrap()), 8);
-        assert_eq!(u32::from_be_bytes(png[20..24].try_into().unwrap()), 8);
+        assert_eq!(u32::from_be_bytes(png[16..20].try_into()?), 8);
+        assert_eq!(u32::from_be_bytes(png[20..24].try_into()?), 8);
         assert!(png.windows(4).any(|window| window == b"IDAT"));
         assert!(png.windows(4).any(|window| window == b"IEND"));
         // The deflate stream must decode back to the filtered scanlines:
         // an encoder bug once shipped PNGs no browser could read while
         // every shape-only check stayed green.
-        let idat_at = png.windows(4).position(|window| window == b"IDAT").expect("IDAT chunk");
-        let length = u32::from_be_bytes(png[idat_at - 4..idat_at].try_into().unwrap()) as usize;
+        let idat_at = png.windows(4).position(|window| window == b"IDAT").ok_or_else(|| anyhow::anyhow!("encoded PNG is missing its IDAT chunk"))?;
+        let length = u32::from_be_bytes(png[idat_at - 4..idat_at].try_into()?) as usize;
         let idat = png[idat_at + 4..idat_at + 4 + length].to_vec();
         let mut scanlines = Vec::new();
         for row in 0..8 {
@@ -331,6 +331,8 @@ mod tests {
             scanlines.extend_from_slice(&pixels[row * 32..row * 32 + 32]);
         }
         assert_eq!(zlib_stored_decode(&idat).as_deref(), Some(scanlines.as_slice()));
+
+        Ok(())
     }
 
     #[test]

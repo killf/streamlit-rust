@@ -4,25 +4,26 @@
 use ::streamlit::*;
 use streamlit::{InputWidgets, StreamlitApi};
 
-fn render(st: &Streamlit) {
-    st.toggle(ToggleOptions::new("Night mode").key("night")).unwrap();
-    st.toggle(("Sound", true)).unwrap();
+fn render(st: &Streamlit) -> anyhow::Result<()> {
+    st.toggle(ToggleOptions::new("Night mode").key("night"))?;
+    st.toggle(("Sound", true))?;
 
-    let _stars = st.feedback(FeedbackOptions::new(FeedbackKind::Stars).key("rate")).unwrap();
-    st.feedback(FeedbackKind::Thumbs).unwrap();
+    let _stars = st.feedback(FeedbackOptions::new(FeedbackKind::Stars).key("rate"))?;
+    st.feedback(FeedbackKind::Thumbs)?;
 
-    st.pills(ButtonGroupOptions::new("Priority", ["low", "medium", "high"]).key("priority")).unwrap();
-    st.pills(ButtonGroupOptions::new("Tags", ["alpha", "beta", "gamma"]).selection_mode(SelectionMode::Multi).default(["alpha"]).key("tags")).unwrap();
-    st.segmented_control(ButtonGroupOptions::new("View", ["grid", "list"]).default(["grid"]).key("view")).unwrap();
+    st.pills(ButtonGroupOptions::new("Priority", ["low", "medium", "high"]).key("priority"))?;
+    st.pills(ButtonGroupOptions::new("Tags", ["alpha", "beta", "gamma"]).selection_mode(SelectionMode::Multi).default(["alpha"]).key("tags"))?;
+    st.segmented_control(ButtonGroupOptions::new("View", ["grid", "list"]).default(["grid"]).key("view"))?;
 
-    let page = st.pagination(PaginationOptions::new(10).key("pager")).unwrap();
+    let page = st.pagination(PaginationOptions::new(10).key("pager"))?;
     st.write(format!("page={page}"));
 
-    st.menu_button(MenuButtonOptions::new("Export", ["CSV", "JSON"]).key("export")).unwrap();
+    st.menu_button(MenuButtonOptions::new("Export", ["CSV", "JSON"]).key("export"))?;
 
-    st.download_button(DownloadButtonOptions::new("Save report", "quarterly report body").file_name("report.txt").mime("text/plain").key("save")).unwrap();
-    st.link_button(LinkButtonOptions::new("Docs", "https://docs.streamlit.io").key("docs")).unwrap();
-    st.page_link(PageLinkOptions::new("https://example.com").label("Example site")).unwrap();
+    st.download_button(DownloadButtonOptions::new("Save report", "quarterly report body").file_name("report.txt").mime("text/plain").key("save"))?;
+    st.link_button(LinkButtonOptions::new("Docs", "https://docs.streamlit.io").key("docs"))?;
+    st.page_link(PageLinkOptions::new("https://example.com").label("Example site"))?;
+    Ok(())
 }
 
 #[tokio::main]
@@ -30,7 +31,9 @@ async fn main() -> std::io::Result<()> {
     StreamlitServer::new(
         |st| {
             Box::pin(async move {
-                render(st);
+                if let Err(error) = render(st) {
+                    st.write(format!("Example error: {error}"));
+                }
             })
         },
         "127.0.0.1".into(),

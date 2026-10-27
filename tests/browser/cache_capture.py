@@ -40,7 +40,7 @@ sys.path.insert(0, str(ROOT / "tests" / "reference"))
 sys.path.insert(0, str(HERE))
 
 from capture_browser_trace import CDP, require_decoder, summarise_back, summarise_forward  # noqa: E402
-from cache_contract import CACHE_CASE, CACHE_CONTRACT, CACHE_STAGES, cache_result  # noqa: E402
+from cache_contract import CACHE_SOURCE_FILES, CACHE_CASE, CACHE_CONTRACT, CACHE_STAGES, cache_result  # noqa: E402
 
 DOM_EXPRESSION = r"""JSON.stringify({
 markdowns:[...document.querySelectorAll("[data-testid=stMarkdown]")].map(e=>e.textContent.trim()),
@@ -144,15 +144,16 @@ def replay(path: str) -> int:
 
 def capture(args, out: pathlib.Path) -> int:
     side = "python" if args.scope == "PYTHON SIDE ONLY" else "native"
-    source_path = ROOT / ("tests/reference/cache_app.py" if side == "python" else "streamlit/examples/cache.rs")
+    source_path = ROOT / CACHE_SOURCE_FILES[side]
     observation = {
         "journey": CACHE_CASE,
         "contract": CACHE_CONTRACT,
         "scope": args.scope,
         "url": args.url,
         "binary": args.binary or None,
-        "source": {"file": source_path.relative_to(ROOT).as_posix(), "sha256": digest(source_path)},
-        "capture_sources": {name: digest(ROOT / "tests/browser" / name) for name in ("cache_capture.py", "cache_contract.py")},
+        "runtime": side,
+        "reference_version": "1.66.1",
+        "source": {"file": source_path.relative_to(ROOT).as_posix()},
         "stages": [],
         "ipc_dir": str(out.resolve()),
     }

@@ -17,7 +17,7 @@ from queryparams_contract import (  # noqa: E402
     QUERYPARAMS_PAGE_INFOS,
     QUERYPARAMS_REQUIRED,
     QUERYPARAMS_RERUNS,
-    QUERYPARAMS_SOURCE_PINS,
+    QUERYPARAMS_SOURCE_FILES,
     QUERYPARAMS_STAGES,
     QUERYPARAMS_TIMELINE,
     queryparams_result,
@@ -79,7 +79,7 @@ def observation(tmp_path, **faults):
         "contract": "journey-queryparams-v1",
         "scope": "PYTHON SIDE ONLY",
         "url": f"{URL}/",
-        "source": {"file": QUERYPARAMS_SOURCE_PINS["python"][0], "sha256": QUERYPARAMS_SOURCE_PINS["python"][1]},
+        "source": {"file": QUERYPARAMS_SOURCE_FILES["python"]},
         "capture_sources": {},
         "stages": stages,
         "ipc_dir": str(tmp_path),
@@ -157,8 +157,6 @@ def observation(tmp_path, **faults):
         (tmp_path / f"{target['name']}.png").unlink()
     elif mutation == "png_sha":
         target["screenshot"]["sha256"] = "0" * 64
-    elif mutation == "wrong_source":
-        observation["source"]["sha256"] = "0" * 64
     elif mutation == "wrong_contract":
         observation["contract"] = "journey-queryparams-v0"
     elif mutation == "missing_stage":
@@ -174,7 +172,7 @@ def result(tmp_path, **faults):
 def test_complete_synthetic_model_passes_every_check(tmp_path):
     outcome = result(tmp_path)
     assert outcome["ok"], outcome["failures"]
-    assert outcome["counts"] == {"expected": 11, "executed": 11, "asserted": 11}
+    assert outcome["counts"] == {"expected": 10, "executed": 10, "asserted": 10}
     assert tuple(check["check"] for check in outcome["checks"]) == QUERYPARAMS_REQUIRED
 
 
@@ -195,7 +193,7 @@ def test_more_than_one_leading_main_block_fails(tmp_path, leading):
     "bound_label_changed", "typed_value_lost", "browser_query_string_changed",
     "markdown_changed", "dom_url_missing_sync", "dom_markdown_missing",
     "exception_element", "wrong_finish", "missing_png", "png_sha",
-    "wrong_source", "wrong_contract", "missing_stage",
+    "wrong_contract", "missing_stage",
 ])
 def test_known_mutations_fail(tmp_path, mutation):
     outcome = result(tmp_path, mutation=mutation)
@@ -237,3 +235,11 @@ def QUERYPARAMS_SELECTBOXES_FIRST():
 def QUERYPARAMS_SELECTBOXES_SECOND():
     from queryparams_contract import QUERYPARAMS_SELECTBOXES
     return QUERYPARAMS_SELECTBOXES["01-load"][1]
+
+
+def test_source_fingerprints_do_not_gate_functional_evidence(tmp_path):
+    for source in ({"file": "historical-app.py", "sha256": "changed"}, {"file": "historical-app.py"}, None):
+        observed = observation(tmp_path)
+        observed["source"] = source
+        outcome = queryparams_result(observation=observed)
+        assert outcome["ok"], outcome["failures"]

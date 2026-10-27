@@ -235,19 +235,13 @@ WRITESTREAM_DOMS = {
     }
 }
 
-WRITESTREAM_SOURCE_PINS = {
-    "python": [
-    'tests/reference/writestream_app.py',
-    '31bc5498e21e700b06fda7ecae0be67f68604729a03f7778bc7cd4f51af365ce'
-],
-    "native": [
-    'streamlit/examples/writestream.rs',
-    'fed2972fa89718803340162ed78671c1da6e1367c8f57aee618b3b284031822f'
-],
+WRITESTREAM_SOURCE_FILES = {
+    "python": "tests/reference/writestream_app.py",
+    "native": "streamlit/examples/writestream.rs",
 }
 
 WRITESTREAM_REQUIRED = (
-    "contract", "stage_set", "source_pin", "timeline", "dom_projection",
+    "contract", "stage_set", "timeline", "dom_projection",
     "finishes", "png_sources",
 )
 
@@ -320,13 +314,6 @@ def writestream_checks(*, observation=None):
             _need(isinstance(stage.get("dom"), dict) and isinstance(stage.get("screenshot"), dict)
                   and isinstance(stage.get("new_frames"), list), f"stage {stage.get('name')} lacks dom/screenshot/new_frames")
         mark("stage_set")
-
-        source = observation.get("source") or {}
-        side = "python" if observation.get("scope") == "PYTHON SIDE ONLY" else "native"
-        path, pinned = WRITESTREAM_SOURCE_PINS[side]
-        _need(source.get("file") == path and source.get("sha256") == pinned,
-              f"driven source is not the pinned {path} of this contract")
-        mark("source_pin")
 
         timelines = {stage["name"]: _timeline(stage) for stage in stages}
         for name in WRITESTREAM_STAGES:

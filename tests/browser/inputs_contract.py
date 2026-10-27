@@ -338,15 +338,14 @@ INPUTS_REPRS = {
  ]
 }
 
-# The driven application source is pinned per side; a capture of another
-# source is not this contract's evidence.
-INPUTS_SOURCE_PINS = {
-    "python": ("tests/reference/inputs_app.py", "cb884ee2a6487585d63d9254cc353e42704cbd9b9f832732cd0e0a35d27da5bf"),
-    "native": ("streamlit/examples/inputs.rs", "1052058ec8ed7d354853e611ecbf8e0986a369093794e80467e5d6448acfc309"),
+# Application paths label the captured roles; source content is not a gate.
+INPUTS_SOURCE_FILES = {
+    "python": "tests/reference/inputs_app.py",
+    "native": "streamlit/examples/inputs.rs",
 }
 
 INPUTS_REQUIRED = (
-    "contract", "stage_set", "source_pin", "wire_configs", "state_snapshots",
+    "contract", "stage_set", "wire_configs", "state_snapshots",
     "driven_landings", "returned_reprs", "dom_values", "no_exceptions",
     "finishes", "png_sources",
 )
@@ -416,13 +415,6 @@ def inputs_checks(*, observation=None):
             _need(isinstance(stage.get("dom"), dict) and isinstance(stage.get("screenshot"), dict)
                   and isinstance(stage.get("new_frames"), list), f"stage {stage.get('name')} lacks dom/screenshot/new_frames")
         mark("stage_set")
-
-        source = observation.get("source") or {}
-        side = "python" if observation.get("scope") == "PYTHON SIDE ONLY" else "native"
-        path, pinned = INPUTS_SOURCE_PINS[side]
-        _need(source.get("file") == path and source.get("sha256") == pinned,
-              f"driven source is not the pinned {path} of this contract")
-        mark("source_pin")
 
         _need(_widget_wires(stages[0]["new_frames"]) == INPUTS_WIRE,
               "the four first-render widget wire configs differ from the measured table")

@@ -6,9 +6,10 @@ use super::*;
 fn rerun_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
     Box::pin(async move {
         st.markdown("runs-marker");
-        let initialized: Option<bool> = st.session_state().get("initialized").ok().flatten();
-        if initialized.is_none() {
-            st.session_state().set("initialized", true).unwrap();
+        let initialized = st.session_state().get::<bool>("initialized");
+        assert!(initialized.is_ok(), "initialized must be a boolean: {initialized:?}");
+        if matches!(initialized, Ok(None)) {
+            assert!(st.session_state().set("initialized", true).is_ok(), "fixture state write must succeed");
             st.rerun();
             st.markdown("unreachable-after-rerun");
         }
@@ -18,32 +19,62 @@ fn rerun_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
 
 fn stop_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
     Box::pin(async move {
-        let stopped: Option<bool> = st.session_state().get("stopped").ok().flatten();
-        if stopped.is_none() {
+        let stopped = st.session_state().get::<bool>("stopped");
+        assert!(stopped.is_ok(), "stopped must be a boolean: {stopped:?}");
+        if matches!(stopped, Ok(None)) {
             st.markdown("before-stop");
-            st.session_state().set("stopped", true).unwrap();
+            assert!(st.session_state().set("stopped", true).is_ok(), "fixture state write must succeed");
             st.stop();
             st.markdown("after-stop");
-            st.session_state().set("late", true).unwrap();
+            assert!(st.session_state().set("late", true).is_ok(), "fixture state write must succeed");
         } else {
-            let late = st.session_state().get::<bool>("late").ok().flatten().is_some();
-            st.markdown(format!("late-is-present={late}"));
+            let late = st.session_state().get::<bool>("late");
+            assert!(late.is_ok(), "late must be a boolean: {late:?}");
+            st.markdown(format!("late-is-present={}", matches!(late, Ok(Some(_)))));
+        }
+    })
+}
+
+fn rerun_then_stop_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        let state = st.session_state();
+        let controlled = state.get::<bool>("controlled");
+        assert!(controlled.is_ok(), "controlled must be a boolean: {controlled:?}");
+        if !matches!(controlled, Ok(Some(true))) {
+            assert!(state.set("controlled", true).is_ok(), "fixture state write must succeed");
+            st.rerun();
+            st.stop();
+        }
+    })
+}
+
+fn stop_then_rerun_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        let state = st.session_state();
+        let controlled = state.get::<bool>("controlled");
+        assert!(controlled.is_ok(), "controlled must be a boolean: {controlled:?}");
+        if !matches!(controlled, Ok(Some(true))) {
+            assert!(state.set("controlled", true).is_ok(), "fixture state write must succeed");
+            st.stop();
+            st.rerun();
         }
     })
 }
 
 fn duplicate_key_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
     Box::pin(async move {
-        let armed: Option<bool> = st.session_state().get("armed").ok().flatten();
-        if armed.is_none() {
+        let armed = st.session_state().get::<bool>("armed");
+        assert!(armed.is_ok(), "armed must be a boolean: {armed:?}");
+        if matches!(armed, Ok(None)) {
             st.markdown("first");
-            st.session_state().set("armed", true).unwrap();
+            assert!(st.session_state().set("armed", true).is_ok(), "fixture state write must succeed");
             return;
         }
         // Later runs hit the takeover: upstream raises on every rerun too.
-        let _first = crate::InputWidgets::selectbox(st, crate::SelectboxOptions::new("Group by", ["category", "region"]).key("group")).unwrap();
-        let second = crate::InputWidgets::selectbox(st, crate::SelectboxOptions::new("Other group by", ["category", "region"]).key("group")).unwrap();
-        assert_eq!(second, Some("category"), "the takeover returns the requested default");
+        let first = crate::InputWidgets::selectbox(st, crate::SelectboxOptions::new("Group by", ["category", "region"]).key("group"));
+        assert!(first.is_ok(), "first widget registration must succeed: {first:?}");
+        let second = crate::InputWidgets::selectbox(st, crate::SelectboxOptions::new("Other group by", ["category", "region"]).key("group"));
+        assert!(matches!(second, Ok(Some("category"))), "the takeover returns the requested default");
         st.markdown("unreachable-after-duplicate");
     })
 }
@@ -56,12 +87,12 @@ struct RunTrace {
 
 /// Receive one full run: NewSession, running status, streamed deltas, finish,
 /// idle status. Panics on any out-of-order lifecycle message.
-async fn receive_run(stream: &mut TcpStream, session_id: &mut String, run_ids: &mut std::collections::HashSet<String>) -> RunTrace {
+async fn receive_run(stream: &mut TcpStream, session_id: &mut String, run_ids: &mut std::collections::HashSet<String>) -> TestResult<RunTrace> {
     let first = receive(stream).await;
     let Some(forward_msg::Type::NewSession(new_session)) = first.r#type else {
         panic!("a run must start with NewSession, got {:?}", first.r#type)
     };
-    let init = new_session.initialize.unwrap();
+    let init = new_session.initialize.ok_or("NewSession must include initialization")?;
     if session_id.is_empty() {
         *session_id = init.session_id;
     } else {
@@ -90,34 +121,32 @@ async fn receive_run(stream: &mut TcpStream, session_id: &mut String, run_ids: &
             other => panic!("unexpected lifecycle response: {other:?}"),
         }
     }
-    trace
+    Ok(trace)
 }
 
-async fn start_server(entry: fn(&Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>>) -> (std::net::SocketAddr, actix_web::dev::ServerHandle, tokio::task::JoinHandle<std::io::Result<()>>, TcpStream) {
-    let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
-    let address = listener.local_addr().unwrap();
+async fn start_server(entry: fn(&Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>>) -> TestResult<(std::net::SocketAddr, actix_web::dev::ServerHandle, tokio::task::JoinHandle<std::io::Result<()>>, TcpStream)> {
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
     let server = HttpServer::new(move || App::new().app_data(web::Data::new(StreamlitServer::new(entry, "127.0.0.1".into(), 0))).configure(configure_routes))
         .workers(1)
-        .listen(listener)
-        .unwrap()
+        .listen(listener)?
         .run();
     let handle = server.handle();
     let task = actix_web::rt::spawn(server);
-    let mut stream = TcpStream::connect(address).await.unwrap();
+    let mut stream = TcpStream::connect(address).await?;
     let request = format!("GET /_stcore/stream HTTP/1.1\r\nHost: {address}\r\nConnection: Upgrade\r\nUpgrade: websocket\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\nSec-WebSocket-Protocol: streamlit, test-xsrf\r\n\r\n");
-    stream.write_all(request.as_bytes()).await.unwrap();
+    stream.write_all(request.as_bytes()).await?;
     let headers = tokio::time::timeout(Duration::from_secs(5), async {
         let mut response = Vec::new();
         while !response.ends_with(b"\r\n\r\n") {
-            response.push(stream.read_u8().await.unwrap());
+            response.push(stream.read_u8().await?);
             assert!(response.len() < 8192);
         }
-        String::from_utf8(response).unwrap().to_ascii_lowercase()
+        Ok::<_, Box<dyn std::error::Error>>(String::from_utf8(response)?.to_ascii_lowercase())
     })
-    .await
-    .unwrap();
+    .await??;
     assert!(headers.starts_with("http/1.1 101"));
-    (address, handle, task, stream)
+    Ok((address, handle, task, stream))
 }
 
 fn rerun_request() -> Vec<u8> {
@@ -131,53 +160,81 @@ fn rerun_request() -> Vec<u8> {
 }
 
 #[actix_web::test]
-async fn st_rerun_finishes_early_and_the_server_starts_the_next_run_without_a_backmsg() {
-    let (_address, handle, task, mut stream) = start_server(rerun_entry).await;
+async fn st_rerun_finishes_early_and_the_server_starts_the_next_run_without_a_backmsg() -> TestResult {
+    let (_address, handle, task, mut stream) = start_server(rerun_entry).await?;
     // Exactly ONE BackMsg: the in-run rerun must not wait for the browser.
     send_binary(&mut stream, &rerun_request()).await;
     let mut session_id = String::new();
     let mut run_ids = std::collections::HashSet::new();
-    let first = receive_run(&mut stream, &mut session_id, &mut run_ids).await;
+    let first = receive_run(&mut stream, &mut session_id, &mut run_ids).await?;
     assert_eq!(first.finish_statuses, [2], "the aborted run finishes FINISHED_EARLY_FOR_RERUN");
     assert_eq!(first.markdowns, ["runs-marker"], "elements streamed before st.rerun stay; later ones are suppressed");
-    let second = receive_run(&mut stream, &mut session_id, &mut run_ids).await;
+    let second = receive_run(&mut stream, &mut session_id, &mut run_ids).await?;
     assert_eq!(second.finish_statuses, [0]);
     assert_eq!(second.markdowns, ["runs-marker", "epilogue"], "the rerun re-executes with persisted state and renders the epilogue");
     drop(stream);
     handle.stop(false).await;
-    task.await.unwrap().unwrap();
+    task.await??;
+    Ok(())
 }
 
 #[actix_web::test]
-async fn st_stop_finishes_successfully_and_suppresses_later_elements_and_writes() {
-    let (_address, handle, task, mut stream) = start_server(stop_entry).await;
+async fn st_stop_finishes_successfully_and_suppresses_later_elements_and_writes() -> TestResult {
+    let (_address, handle, task, mut stream) = start_server(stop_entry).await?;
     send_binary(&mut stream, &rerun_request()).await;
     let mut session_id = String::new();
     let mut run_ids = std::collections::HashSet::new();
-    let first = receive_run(&mut stream, &mut session_id, &mut run_ids).await;
+    let first = receive_run(&mut stream, &mut session_id, &mut run_ids).await?;
     assert_eq!(first.finish_statuses, [0], "st.stop finishes FINISHED_SUCCESSFULLY on the measured wire");
     assert_eq!(first.markdowns, ["before-stop"], "the prefix stays and the epilogue never emits");
     send_binary(&mut stream, &rerun_request()).await;
-    let second = receive_run(&mut stream, &mut session_id, &mut run_ids).await;
+    let second = receive_run(&mut stream, &mut session_id, &mut run_ids).await?;
     assert_eq!(second.finish_statuses, [0]);
     assert_eq!(second.markdowns, ["late-is-present=false"], "a session-state write after st.stop() never lands");
     drop(stream);
     handle.stop(false).await;
-    task.await.unwrap().unwrap();
+    task.await??;
+    Ok(())
 }
 
 #[actix_web::test]
-async fn duplicate_widget_key_renders_the_reference_exception_and_suppresses_the_rest() {
-    let (_address, handle, task, mut stream) = start_server(duplicate_key_entry).await;
+async fn first_rerun_signal_survives_later_stop() -> TestResult {
+    let (_address, handle, task, mut stream) = start_server(rerun_then_stop_entry).await?;
+    send_binary(&mut stream, &rerun_request()).await;
+    let first = receive_run(&mut stream, &mut String::new(), &mut std::collections::HashSet::new()).await?;
+    drop(stream);
+    handle.stop(false).await;
+    task.await??;
+
+    assert_eq!(first.finish_statuses, [2], "st.stop after st.rerun must not cancel the first control signal");
+    Ok(())
+}
+
+#[actix_web::test]
+async fn first_stop_signal_survives_later_rerun() -> TestResult {
+    let (_address, handle, task, mut stream) = start_server(stop_then_rerun_entry).await?;
+    send_binary(&mut stream, &rerun_request()).await;
+    let first = receive_run(&mut stream, &mut String::new(), &mut std::collections::HashSet::new()).await?;
+    drop(stream);
+    handle.stop(false).await;
+    task.await??;
+
+    assert_eq!(first.finish_statuses, [0], "st.rerun after st.stop must not replace the first control signal");
+    Ok(())
+}
+
+#[actix_web::test]
+async fn duplicate_widget_key_renders_the_reference_exception_and_suppresses_the_rest() -> TestResult {
+    let (_address, handle, task, mut stream) = start_server(duplicate_key_entry).await?;
     let mut session_id = String::new();
     let mut run_ids = std::collections::HashSet::new();
     send_binary(&mut stream, &rerun_request()).await;
-    let first = receive_run(&mut stream, &mut session_id, &mut run_ids).await;
+    let first = receive_run(&mut stream, &mut session_id, &mut run_ids).await?;
     assert_eq!(first.finish_statuses, [0]);
     assert_eq!(first.markdowns, ["first"]);
     assert!(first.exceptions.is_empty());
     send_binary(&mut stream, &rerun_request()).await;
-    let second = receive_run(&mut stream, &mut session_id, &mut run_ids).await;
+    let second = receive_run(&mut stream, &mut session_id, &mut run_ids).await?;
     assert_eq!(second.finish_statuses, [0], "the takeover run finishes FINISHED_SUCCESSFULLY (measured dup_key wire)");
     assert!(second.markdowns.is_empty(), "nothing renders after the exception element");
     assert_eq!(
@@ -190,10 +247,11 @@ async fn duplicate_widget_key_renders_the_reference_exception_and_suppresses_the
     );
     // A third rerun proves the session keeps serving; upstream raises again.
     send_binary(&mut stream, &rerun_request()).await;
-    let third = receive_run(&mut stream, &mut session_id, &mut run_ids).await;
+    let third = receive_run(&mut stream, &mut session_id, &mut run_ids).await?;
     assert_eq!(third.finish_statuses, [0]);
     assert_eq!(third.exceptions.len(), 1);
     drop(stream);
     handle.stop(false).await;
-    task.await.unwrap().unwrap();
+    task.await??;
+    Ok(())
 }

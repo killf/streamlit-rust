@@ -16,7 +16,7 @@ from chat_contract import (  # noqa: E402
     CHAT_DOMS,
     CHAT_INPUTS,
     CHAT_REQUIRED,
-    CHAT_SOURCE_PINS,
+    CHAT_SOURCE_FILES,
     CHAT_STAGES,
     CHAT_TIMELINE,
     chat_result,
@@ -76,7 +76,7 @@ def observation(tmp_path, **faults):
         "contract": "journey-chat-v1",
         "scope": "PYTHON SIDE ONLY",
         "url": f"{URL}/",
-        "source": {"file": CHAT_SOURCE_PINS["python"][0], "sha256": CHAT_SOURCE_PINS["python"][1]},
+        "source": {"file": CHAT_SOURCE_FILES["python"]},
         "capture_sources": {},
         "stages": stages,
         "ipc_dir": str(tmp_path),
@@ -126,8 +126,6 @@ def observation(tmp_path, **faults):
         (tmp_path / f"{load['name']}.png").unlink()
     elif mutation == "png_sha":
         load["screenshot"]["sha256"] = "0" * 64
-    elif mutation == "wrong_source":
-        observation["source"]["sha256"] = "0" * 64
     elif mutation == "wrong_contract":
         observation["contract"] = "journey-chat-v0"
     elif mutation == "missing_stage":
@@ -143,7 +141,7 @@ def result(tmp_path, **faults):
 def test_complete_synthetic_model_passes_every_check(tmp_path):
     outcome = result(tmp_path)
     assert outcome["ok"], outcome["failures"]
-    assert outcome["counts"] == {"expected": 11, "executed": 11, "asserted": 11}
+    assert outcome["counts"] == {"expected": 10, "executed": 10, "asserted": 10}
     assert tuple(check["check"] for check in outcome["checks"]) == CHAT_REQUIRED
 
 
@@ -162,7 +160,7 @@ def test_more_than_one_leading_main_block_fails(tmp_path, leading):
     "avatar_not_defaulted", "avatar_type_emoji", "block_not_allow_empty",
     "input_main_path", "input_cap_changed", "input_not_bottom_routed",
     "submit_value_lost", "echo_missing", "dom_messages_missing",
-    "extra_element", "missing_png", "png_sha", "wrong_source",
+    "extra_element", "missing_png", "png_sha",
     "wrong_contract", "missing_stage",
 ])
 def test_known_mutations_fail(tmp_path, mutation):
@@ -189,3 +187,11 @@ def test_the_constants_pin_the_measured_semantics():
     assert states[0]["id"] == "$$ID-None"
     assert states[0]["value"] == {"data": "hi", "file_uploader_state": {}}
     assert all(not dom["exceptions"] for dom in CHAT_DOMS.values())
+
+
+def test_source_fingerprints_do_not_gate_functional_evidence(tmp_path):
+    for source in ({"file": "historical-app.py", "sha256": "changed"}, {"file": "historical-app.py"}, None):
+        observed = observation(tmp_path)
+        observed["source"] = source
+        outcome = chat_result(observation=observed)
+        assert outcome["ok"], outcome["failures"]

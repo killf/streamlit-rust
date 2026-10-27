@@ -36,7 +36,7 @@ sys.path.insert(0, str(ROOT / "tests" / "reference"))
 sys.path.insert(0, str(HERE))
 
 from capture_browser_trace import CDP, require_decoder, summarise_back, summarise_forward  # noqa: E402
-from componentv2_contract import COMPONENTV2_CASE, COMPONENTV2_CONTRACT, COMPONENTV2_STAGES, componentv2_result  # noqa: E402
+from componentv2_contract import COMPONENTV2_SOURCE_FILES, COMPONENTV2_CASE, COMPONENTV2_CONTRACT, COMPONENTV2_STAGES, componentv2_result  # noqa: E402
 
 DOM_EXPRESSION = r"""JSON.stringify({
 testids:[...new Set([...document.querySelectorAll('[data-testid]')].map(e=>e.getAttribute('data-testid')))].sort(),
@@ -113,13 +113,15 @@ def collect(args) -> int:
     out = pathlib.Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     side = "python" if args.scope == "PYTHON SIDE ONLY" else "native"
-    source_path = ROOT / ("tests/reference/componentv2_app.py" if side == "python" else "streamlit/examples/componentv2.rs")
+    source_path = ROOT / COMPONENTV2_SOURCE_FILES[side]
     observation = {
         "journey": COMPONENTV2_CASE,
         "contract": COMPONENTV2_CONTRACT,
         "scope": args.scope,
         "url": args.url,
-        "source": {"file": source_path.relative_to(ROOT).as_posix(), "sha256": digest(source_path)},
+        "runtime": side,
+        "reference_version": "1.66.1",
+        "source": {"file": source_path.relative_to(ROOT).as_posix()},
         "stages": [],
     }
     manifest = {"executable": sys.executable, "argv": sys.argv[1:], "cwd": str(pathlib.Path.cwd()),

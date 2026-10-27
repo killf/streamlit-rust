@@ -296,44 +296,47 @@ mod tests {
     use ::streamlit::data::from_ipc_stream;
 
     #[test]
-    fn note_changes_only_on_submit_and_empty_string_is_a_value() {
+    fn note_changes_only_on_submit_and_empty_string_is_a_value() -> Result<()> {
         let state = SessionState::default();
-        assert_eq!(apply_note(&state, false, Some(String::new())).unwrap(), "");
-        assert_eq!(state.get::<String>("applied_note").unwrap().as_deref(), Some(""));
-        assert_eq!(apply_note(&state, false, Some("staged".into())).unwrap(), "");
-        assert_eq!(apply_note(&state, true, Some("hello".into())).unwrap(), "hello");
-        assert_eq!(apply_note(&state, false, Some("later edit".into())).unwrap(), "hello");
-        assert_eq!(apply_note(&state, true, Some(String::new())).unwrap(), "");
+        assert_eq!(apply_note(&state, false, Some(String::new()))?, "");
+        assert_eq!(state.get::<String>("applied_note")?.as_deref(), Some(""));
+        assert_eq!(apply_note(&state, false, Some("staged".into()))?, "");
+        assert_eq!(apply_note(&state, true, Some("hello".into()))?, "hello");
+        assert_eq!(apply_note(&state, false, Some("later edit".into()))?, "hello");
+        assert_eq!(apply_note(&state, true, Some(String::new()))?, "");
+        Ok(())
     }
 
     #[test]
-    fn absent_note_and_invalid_state_do_not_silently_become_empty() {
+    fn absent_note_and_invalid_state_do_not_silently_become_empty() -> Result<()> {
         let state = SessionState::default();
-        apply_note(&state, true, Some("retained".into())).unwrap();
+        apply_note(&state, true, Some("retained".into()))?;
         assert!(apply_note(&state, true, None).is_err());
-        assert_eq!(state.get::<String>("applied_note").unwrap().as_deref(), Some("retained"));
-        state.set("applied_note", 7).unwrap();
+        assert_eq!(state.get::<String>("applied_note")?.as_deref(), Some("retained"));
+        state.set("applied_note", 7)?;
         assert!(apply_note(&state, false, Some(String::new())).is_err());
-        assert_eq!(state.get::<u64>("applied_note").unwrap(), Some(7));
+        assert_eq!(state.get::<u64>("applied_note")?, Some(7));
+        Ok(())
     }
 
     #[test]
-    fn notes_preserve_independent_session_counters() {
+    fn notes_preserve_independent_session_counters() -> Result<()> {
         let a = SessionState::default();
         let b = SessionState::default();
-        assert_eq!(begin_run(&a).unwrap(), 1);
-        apply_note(&a, true, Some("hello".into())).unwrap();
+        assert_eq!(begin_run(&a)?, 1);
+        apply_note(&a, true, Some("hello".into()))?;
         for expected in 1..=3 {
-            assert_eq!(begin_run(&a).unwrap(), expected + 1);
-            assert_eq!(apply_pulse(&a, true).unwrap(), expected);
-            assert_eq!(apply_note(&a, false, Some("hello".into())).unwrap(), "hello");
+            assert_eq!(begin_run(&a)?, expected + 1);
+            assert_eq!(apply_pulse(&a, true)?, expected);
+            assert_eq!(apply_note(&a, false, Some("hello".into()))?, "hello");
         }
-        assert_eq!(begin_run(&b).unwrap(), 1);
-        assert_eq!(apply_pulse(&b, false).unwrap(), 0);
-        assert_eq!(apply_note(&b, false, Some(String::new())).unwrap(), "");
-        assert_eq!(a.get::<String>("applied_note").unwrap().as_deref(), Some("hello"));
-        assert_eq!(a.get::<u64>("run_count").unwrap(), Some(4));
-        assert_eq!(a.get::<u64>("pulse_count").unwrap(), Some(3));
+        assert_eq!(begin_run(&b)?, 1);
+        assert_eq!(apply_pulse(&b, false)?, 0);
+        assert_eq!(apply_note(&b, false, Some(String::new()))?, "");
+        assert_eq!(a.get::<String>("applied_note")?.as_deref(), Some("hello"));
+        assert_eq!(a.get::<u64>("run_count")?, Some(4));
+        assert_eq!(a.get::<u64>("pulse_count")?, Some(3));
+        Ok(())
     }
 
     #[test]
@@ -354,35 +357,37 @@ mod tests {
     }
 
     #[test]
-    fn average_rounds_the_exact_ratio_once_at_the_half_cent_boundary() {
-        let parsed = parse(b"amount,region,category\n0.0099999999999999999999999999,North,A\n0,North,A\n").unwrap();
-        let batch = aggregate(&parsed, "category", 0, true).unwrap();
-        assert_eq!(batch.column(2).as_any().downcast_ref::<Float64Array>().unwrap().value(0), 0.01);
-        assert_eq!(batch.column(3).as_any().downcast_ref::<Float64Array>().unwrap().value(0), 0.00);
+    fn average_rounds_the_exact_ratio_once_at_the_half_cent_boundary() -> Result<()> {
+        let parsed = parse(b"amount,region,category\n0.0099999999999999999999999999,North,A\n0,North,A\n")?;
+        let batch = aggregate(&parsed, "category", 0, true)?;
+        assert_eq!(batch.column(2).as_any().downcast_ref::<Float64Array>().context("unexpected Arrow column type")?.value(0), 0.01);
+        assert_eq!(batch.column(3).as_any().downcast_ref::<Float64Array>().context("unexpected Arrow column type")?.value(0), 0.00);
         for (sum, count, expected) in [("0.01", 2, "0.01"), ("-0.01", 2, "-0.01"), ("3.01", 2, "1.51"), ("-3.01", 2, "-1.51"), ("0.0149999999999999999999999999", 3, "0")] {
-            assert_eq!(rounded_average(sum.parse().unwrap(), count).unwrap(), expected.parse::<Decimal>().unwrap());
+            assert_eq!(rounded_average(sum.parse()?, count)?, expected.parse::<Decimal>()?);
         }
-        assert_eq!(rounded_average(Decimal::MAX, 1).unwrap(), Decimal::MAX);
+        assert_eq!(rounded_average(Decimal::MAX, 1)?, Decimal::MAX);
         assert!(rounded_average(Decimal::ONE, 0).is_err());
+        Ok(())
     }
 
     #[test]
-    fn soft_amount_errors_keep_ten_rows_and_all_four_reference_aggregates() {
-        let parsed = parse(include_bytes!("../../tests/fixtures/csv/sales_with_missing.csv")).unwrap();
+    fn soft_amount_errors_keep_ten_rows_and_all_four_reference_aggregates() -> Result<()> {
+        let parsed = parse(include_bytes!("../../tests/fixtures/csv/sales_with_missing.csv"))?;
         assert_eq!((parsed.rows.len(), parsed.invalid_amounts), (12, 2));
-        let batch = aggregate(&parsed, "category", 0, true).unwrap();
+        let batch = aggregate(&parsed, "category", 0, true)?;
         let expected = [("Books", 2, 200.50, 100.25), ("Games", 3, 409.48, 136.49), ("Music", 2, 51.00, 25.50), ("Toys", 3, 104.49, 34.83)];
         assert_eq!(batch.num_rows(), expected.len());
         for (i, (key, count, total, average)) in expected.into_iter().enumerate() {
-            assert_eq!(batch.column(0).as_any().downcast_ref::<LargeStringArray>().unwrap().value(i), key);
-            assert_eq!(batch.column(1).as_any().downcast_ref::<Int64Array>().unwrap().value(i), count);
-            assert_eq!(batch.column(2).as_any().downcast_ref::<Float64Array>().unwrap().value(i), total);
-            assert_eq!(batch.column(3).as_any().downcast_ref::<Float64Array>().unwrap().value(i), average);
+            assert_eq!(batch.column(0).as_any().downcast_ref::<LargeStringArray>().context("unexpected Arrow column type")?.value(i), key);
+            assert_eq!(batch.column(1).as_any().downcast_ref::<Int64Array>().context("unexpected Arrow column type")?.value(i), count);
+            assert_eq!(batch.column(2).as_any().downcast_ref::<Float64Array>().context("unexpected Arrow column type")?.value(i), total);
+            assert_eq!(batch.column(3).as_any().downcast_ref::<Float64Array>().context("unexpected Arrow column type")?.value(i), average);
         }
+        Ok(())
     }
 
     #[test]
-    fn non_utf8_is_hard_failure_and_valid_unicode_bom_upload_recovers() {
+    fn non_utf8_is_hard_failure_and_valid_unicode_bom_upload_recovers() -> Result<()> {
         for bytes in [b"amount,region\n1,\xff\n".as_slice(), b"amount,region\n1,\xe2\x82".as_slice()] {
             let error = match parse(bytes) {
                 Ok(_) => panic!("invalid UTF-8 was accepted"),
@@ -390,89 +395,97 @@ mod tests {
             };
             assert_eq!(error.to_string(), "the uploaded file is not valid UTF-8");
         }
-        let plain = parse(include_bytes!("../../tests/fixtures/csv/sales_unicode.csv")).unwrap();
-        let bom = parse(include_bytes!("../../tests/fixtures/csv/sales_utf8_bom.csv")).unwrap();
-        let plain = aggregate(&plain, "category", 0, true).unwrap();
-        let recovered = aggregate(&bom, "category", 0, true).unwrap();
+        let plain = parse(include_bytes!("../../tests/fixtures/csv/sales_unicode.csv"))?;
+        let bom = parse(include_bytes!("../../tests/fixtures/csv/sales_utf8_bom.csv"))?;
+        let plain = aggregate(&plain, "category", 0, true)?;
+        let recovered = aggregate(&bom, "category", 0, true)?;
         assert_eq!(plain.schema(), recovered.schema());
         for (a, b) in plain.columns().iter().zip(recovered.columns()) {
             assert_eq!(a.to_data(), b.to_data());
         }
-        assert_eq!(plain.column(0).as_any().downcast_ref::<LargeStringArray>().unwrap().iter().collect::<Vec<_>>(), [Some("Bücher"), Some("Jogos"), Some("游戏")]);
+        assert_eq!(
+            plain.column(0).as_any().downcast_ref::<LargeStringArray>().context("unexpected Arrow column type")?.iter().collect::<Vec<_>>(),
+            [Some("Bücher"), Some("Jogos"), Some("游戏")]
+        );
+        Ok(())
     }
 
     #[test]
-    fn run_and_pulse_counters_follow_reruns_without_cross_session_state() {
+    fn run_and_pulse_counters_follow_reruns_without_cross_session_state() -> Result<()> {
         let a = SessionState::default();
         let b = SessionState::default();
         for (expected_run, clicked, expected_pulses) in [(1, false, 0), (2, false, 0), (3, true, 1), (4, false, 1), (5, true, 2)] {
-            assert_eq!(begin_run(&a).unwrap(), expected_run);
-            assert_eq!(apply_pulse(&a, clicked).unwrap(), expected_pulses);
+            assert_eq!(begin_run(&a)?, expected_run);
+            assert_eq!(apply_pulse(&a, clicked)?, expected_pulses);
         }
-        assert_eq!(begin_run(&b).unwrap(), 1);
-        assert_eq!(apply_pulse(&b, false).unwrap(), 0);
-        assert_eq!(a.get::<u64>("run_count").unwrap(), Some(5));
-        assert_eq!(a.get::<u64>("pulse_count").unwrap(), Some(2));
+        assert_eq!(begin_run(&b)?, 1);
+        assert_eq!(apply_pulse(&b, false)?, 0);
+        assert_eq!(a.get::<u64>("run_count")?, Some(5));
+        assert_eq!(a.get::<u64>("pulse_count")?, Some(2));
+        Ok(())
     }
 
     #[test]
-    fn native_csv_rebuilds_the_four_observed_arrow_results() {
-        let parsed = parse(include_bytes!("../../tests/fixtures/csv/sales_basic.csv")).unwrap();
+    fn native_csv_rebuilds_the_four_observed_arrow_results() -> Result<()> {
+        let parsed = parse(include_bytes!("../../tests/fixtures/csv/sales_basic.csv"))?;
         let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../tests/reference/reference-browser/data-loop/updates");
         let mut previous = None;
         for (i, (group, minimum, unknown)) in [("category", 0, true), ("region", 0, true), ("region", 0, false), ("region", 100, false)].into_iter().enumerate() {
-            let actual = aggregate(&parsed, group, minimum, unknown).unwrap();
-            let expected = from_ipc_stream(&std::fs::read(root.join(format!("arrow-{}.bin", i + 1))).unwrap()).unwrap().remove(0);
+            let actual = aggregate(&parsed, group, minimum, unknown)?;
+            let expected = from_ipc_stream(&std::fs::read(root.join(format!("arrow-{}.bin", i + 1)))?)?.remove(0);
             assert_eq!(actual.num_rows(), expected.num_rows());
             for column in 0..4 {
                 assert_eq!(actual.column(column).to_data(), expected.column(column).to_data(), "stage={} column={column}", i + 1);
             }
-            let ipc = ::streamlit::data::to_ipc_stream(&actual).unwrap();
+            let ipc = ::streamlit::data::to_ipc_stream(&actual)?;
             if let Some(previous) = previous {
                 assert_ne!(ipc, previous);
             }
             previous = Some(ipc);
         }
+        Ok(())
     }
 
     #[test]
-    fn malformed_csv_errors_and_plain_decimals_use_application_half_up() {
+    fn malformed_csv_errors_and_plain_decimals_use_application_half_up() -> Result<()> {
         for invalid in [b"".as_slice(), b"a,b\nx,y\n", b"amount,region\n1,North,extra\n", b"\xff"] {
             assert!(parse(invalid).is_err());
         }
         for invalid in ["NaN", "Infinity", "1_000", "1,000", ""] {
-            assert_eq!(amount(invalid).unwrap(), None);
+            assert_eq!(amount(invalid)?, None);
         }
-        let parsed = parse(b"amount,region,category\n1.005,North,A\n2.005,North,A\ninvalid,North,A\n").unwrap();
+        let parsed = parse(b"amount,region,category\n1.005,North,A\n2.005,North,A\ninvalid,North,A\n")?;
         assert_eq!(parsed.invalid_amounts, 1);
-        let batch = aggregate(&parsed, "category", 0, true).unwrap();
-        let total = batch.column(2).as_any().downcast_ref::<Float64Array>().unwrap().value(0);
-        let avg = batch.column(3).as_any().downcast_ref::<Float64Array>().unwrap().value(0);
+        let batch = aggregate(&parsed, "category", 0, true)?;
+        let total = batch.column(2).as_any().downcast_ref::<Float64Array>().context("unexpected Arrow column type")?.value(0);
+        let avg = batch.column(3).as_any().downcast_ref::<Float64Array>().context("unexpected Arrow column type")?.value(0);
         assert_eq!((total, avg), (3.01, 1.51));
+        Ok(())
     }
 
     #[test]
-    fn failed_parse_does_not_poison_next_upload_and_empty_results_keep_schema() {
+    fn failed_parse_does_not_poison_next_upload_and_empty_results_keep_schema() -> Result<()> {
         assert!(parse(b"bad,header\n1,2\n").is_err());
-        let valid = parse(include_bytes!("../../tests/fixtures/csv/sales_basic.csv")).unwrap();
-        assert_eq!(aggregate(&valid, "category", 0, true).unwrap().num_rows(), 4);
-        let headers_only = parse(b"amount,region,category\n").unwrap();
-        let empty = aggregate(&headers_only, "category", 0, true).unwrap();
+        let valid = parse(include_bytes!("../../tests/fixtures/csv/sales_basic.csv"))?;
+        assert_eq!(aggregate(&valid, "category", 0, true)?.num_rows(), 4);
+        let headers_only = parse(b"amount,region,category\n")?;
+        let empty = aggregate(&headers_only, "category", 0, true)?;
         assert_eq!(empty.num_rows(), 0);
         assert_eq!(empty.num_columns(), 4);
         assert_eq!(empty.schema_ref().fields().iter().map(|field| field.name().as_str()).collect::<Vec<_>>(), COLUMNS);
-        let filtered = aggregate(&valid, "region", 200, false).unwrap();
+        let filtered = aggregate(&valid, "region", 200, false)?;
         assert_eq!(filtered.num_rows(), 0);
         assert_eq!(filtered.schema(), empty.schema());
         for (field, data_type) in empty.schema().fields().iter().zip([DataType::LargeUtf8, DataType::Int64, DataType::Float64, DataType::Float64]) {
             assert_eq!(field.data_type(), &data_type);
             assert!(field.is_nullable());
         }
-        let restored = aggregate(&valid, "category", 0, true).unwrap();
+        let restored = aggregate(&valid, "category", 0, true)?;
         assert_eq!(restored.schema(), empty.schema());
-        let reference = from_ipc_stream(include_bytes!("../../tests/reference/reference-browser/data-loop/updates/arrow-1.bin")).unwrap().remove(0);
+        let reference = from_ipc_stream(include_bytes!("../../tests/reference/reference-browser/data-loop/updates/arrow-1.bin"))?.remove(0);
         for (a, b) in restored.columns().iter().zip(reference.columns()) {
             assert_eq!(a.to_data(), b.to_data());
         }
+        Ok(())
     }
 }

@@ -42,7 +42,7 @@ sys.path.insert(0, str(ROOT / "tests" / "reference"))
 sys.path.insert(0, str(HERE))
 
 from capture_browser_trace import CDP, require_decoder, summarise_back, summarise_forward  # noqa: E402
-from navigation_contract import NAVIGATION_CASE, NAVIGATION_CONTRACT, NAVIGATION_STAGES, navigation_result  # noqa: E402
+from navigation_contract import NAVIGATION_SOURCE_FILES, NAVIGATION_CASE, NAVIGATION_CONTRACT, NAVIGATION_STAGES, navigation_result  # noqa: E402
 
 DOM_EXPRESSION = r"""JSON.stringify({
 url:location.pathname+location.search,
@@ -148,15 +148,16 @@ def replay(path: str) -> int:
 
 def capture(args, out: pathlib.Path) -> int:
     side = "python" if args.scope == "PYTHON SIDE ONLY" else "native"
-    source_path = ROOT / ("tests/reference/navigation_app.py" if side == "python" else "streamlit/examples/navigation.rs")
+    source_path = ROOT / NAVIGATION_SOURCE_FILES[side]
     observation = {
         "journey": NAVIGATION_CASE,
         "contract": NAVIGATION_CONTRACT,
         "scope": args.scope,
         "url": args.url,
         "binary": args.binary or None,
-        "source": {"file": source_path.relative_to(ROOT).as_posix(), "sha256": digest(source_path)},
-        "capture_sources": {name: digest(ROOT / "tests/browser" / name) for name in ("navigation_capture.py", "navigation_contract.py")},
+        "runtime": side,
+        "reference_version": "1.66.1",
+        "source": {"file": source_path.relative_to(ROOT).as_posix()},
         "stages": [],
         "ipc_dir": str(out.resolve()),
     }

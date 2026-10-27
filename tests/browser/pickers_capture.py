@@ -40,7 +40,7 @@ sys.path.insert(0, str(ROOT / "tests" / "reference"))
 sys.path.insert(0, str(HERE))
 
 from capture_browser_trace import CDP, require_decoder, summarise_back, summarise_forward  # noqa: E402
-from pickers_contract import PICKERS_CASE, PICKERS_CONTRACT, PICKERS_STAGES, pickers_result  # noqa: E402
+from pickers_contract import PICKERS_SOURCE_FILES, PICKERS_CASE, PICKERS_CONTRACT, PICKERS_STAGES, pickers_result  # noqa: E402
 
 DOM_EXPRESSION = r"""JSON.stringify({
 dateInputs:[...document.querySelectorAll("[data-testid=stDateInput]")].map(e=>e.querySelector("input")?.value),
@@ -157,15 +157,16 @@ def replay(path: str) -> int:
 
 def capture(args, out: pathlib.Path) -> int:
     side = "python" if args.scope == "PYTHON SIDE ONLY" else "native"
-    source_path = ROOT / ("tests/reference/pickers_app.py" if side == "python" else "streamlit/examples/pickers.rs")
+    source_path = ROOT / PICKERS_SOURCE_FILES[side]
     observation = {
         "journey": PICKERS_CASE,
         "contract": PICKERS_CONTRACT,
         "scope": args.scope,
         "url": args.url,
         "binary": args.binary or None,
-        "source": {"file": source_path.relative_to(ROOT).as_posix(), "sha256": digest(source_path)},
-        "capture_sources": {name: digest(ROOT / "tests/browser" / name) for name in ("pickers_capture.py", "pickers_contract.py")},
+        "runtime": side,
+        "reference_version": "1.66.1",
+        "source": {"file": source_path.relative_to(ROOT).as_posix()},
         "stages": [],
         "ipc_dir": str(out.resolve()),
     }

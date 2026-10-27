@@ -45,13 +45,18 @@ fn gradient() -> RgbaImage {
 
 fn media_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
     Box::pin(async move {
-        // Mirrors tests/reference/media_app.py.
-        st.image((gradient(), "gradient"));
-        st.audio((wav_bytes(), "audio/wav"));
-        st.metric(MetricOptions::new("Temperature", "72 °F").delta("2 °F"));
-        st.metric(MetricOptions::new("Wind", "8 mph").delta("-3 mph").delta_color(DeltaColor::Inverse));
-        let progress = st.progress(50).unwrap();
-        progress.set(75);
+        let result: TestResult = async {
+            // Mirrors tests/reference/media_app.py.
+            st.image((gradient(), "gradient"));
+            st.audio((wav_bytes(), "audio/wav"));
+            st.metric(MetricOptions::new("Temperature", "72 °F").delta("2 °F"));
+            st.metric(MetricOptions::new("Wind", "8 mph").delta("-3 mph").delta_color(DeltaColor::Inverse));
+            let progress = st.progress(50)?;
+            progress.set(75);
+            Ok(())
+        }
+        .await;
+        assert!(result.is_ok(), "media_entry fixture failed: {result:?}");
     })
 }
 
@@ -60,34 +65,32 @@ struct MediaWires {
     elements: Vec<crate::proto::Element>,
 }
 
-async fn start_media_server() -> (std::net::SocketAddr, actix_web::dev::ServerHandle, tokio::task::JoinHandle<std::io::Result<()>>, TcpStream) {
-    let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
-    let address = listener.local_addr().unwrap();
+async fn start_media_server() -> TestResult<(std::net::SocketAddr, actix_web::dev::ServerHandle, tokio::task::JoinHandle<std::io::Result<()>>, TcpStream)> {
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
     let server = HttpServer::new(move || App::new().app_data(web::Data::new(StreamlitServer::new(media_entry, "127.0.0.1".into(), 0))).configure(configure_routes))
         .workers(1)
-        .listen(listener)
-        .unwrap()
+        .listen(listener)?
         .run();
     let handle = server.handle();
     let task = actix_web::rt::spawn(server);
-    let mut stream = TcpStream::connect(address).await.unwrap();
+    let mut stream = TcpStream::connect(address).await?;
     let request = format!("GET /_stcore/stream HTTP/1.1\r\nHost: {address}\r\nConnection: Upgrade\r\nUpgrade: websocket\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\nSec-WebSocket-Protocol: streamlit, test-xsrf\r\n\r\n");
-    stream.write_all(request.as_bytes()).await.unwrap();
+    stream.write_all(request.as_bytes()).await?;
     let headers = tokio::time::timeout(Duration::from_secs(5), async {
         let mut response = Vec::new();
         while !response.ends_with(b"\r\n\r\n") {
-            response.push(stream.read_u8().await.unwrap());
+            response.push(stream.read_u8().await?);
             assert!(response.len() < 8192);
         }
-        String::from_utf8(response).unwrap().to_ascii_lowercase()
+        Ok::<_, Box<dyn std::error::Error>>(String::from_utf8(response)?.to_ascii_lowercase())
     })
-    .await
-    .unwrap();
+    .await??;
     assert!(headers.starts_with("http/1.1 101"));
-    (address, handle, task, stream)
+    Ok((address, handle, task, stream))
 }
 
-async fn run_once(stream: &mut TcpStream, session_id: &mut String) -> MediaWires {
+async fn run_once(stream: &mut TcpStream, session_id: &mut String) -> TestResult<MediaWires> {
     let request = BackMsg {
         r#type: Some(back_msg::Type::RerunScript(ClientState {
             widget_states: Some(WidgetStates { widgets: vec![] }),
@@ -99,7 +102,7 @@ async fn run_once(stream: &mut TcpStream, session_id: &mut String) -> MediaWires
     let Some(forward_msg::Type::NewSession(new_session)) = first.r#type else {
         panic!("a run must start with NewSession, got {:?}", first.r#type)
     };
-    let init = new_session.initialize.unwrap();
+    let init = new_session.initialize.ok_or("NewSession must include initialization")?;
     if session_id.is_empty() {
         *session_id = init.session_id;
     } else {
@@ -124,21 +127,21 @@ async fn run_once(stream: &mut TcpStream, session_id: &mut String) -> MediaWires
         }
     }
     assert!(finished);
-    wires
+    Ok(wires)
 }
 
-async fn http_get(address: std::net::SocketAddr, path: &str, range: Option<&str>) -> (u16, Vec<(String, String)>, Vec<u8>) {
-    let mut stream = TcpStream::connect(address).await.unwrap();
+async fn http_get(address: std::net::SocketAddr, path: &str, range: Option<&str>) -> TestResult<(u16, Vec<(String, String)>, Vec<u8>)> {
+    let mut stream = TcpStream::connect(address).await?;
     let range_header = range.map(|value| format!("Range: {value}\r\n")).unwrap_or_default();
     let request = format!("GET {path} HTTP/1.1\r\nHost: {address}\r\n{range_header}Connection: close\r\n\r\n");
-    stream.write_all(request.as_bytes()).await.unwrap();
+    stream.write_all(request.as_bytes()).await?;
     let mut raw = Vec::new();
-    stream.read_to_end(&mut raw).await.unwrap();
-    let split = raw.windows(4).position(|window| window == b"\r\n\r\n").expect("http header terminator");
+    stream.read_to_end(&mut raw).await?;
+    let split = raw.windows(4).position(|window| window == b"\r\n\r\n").ok_or("HTTP response must include header terminator")?;
     let head = String::from_utf8_lossy(&raw[..split]).to_string();
-    let status: u16 = head.lines().next().unwrap().split_whitespace().nth(1).unwrap().parse().unwrap();
+    let status: u16 = head.lines().next().ok_or("HTTP response must include a status line")?.split_whitespace().nth(1).ok_or("HTTP status line must include a code")?.parse()?;
     let headers = head.lines().skip(1).filter_map(|line| line.split_once(':')).map(|(name, value)| (name.trim().to_ascii_lowercase(), value.trim().to_string())).collect();
-    (status, headers, raw[split + 4..].to_vec())
+    Ok((status, headers, raw[split + 4..].to_vec()))
 }
 
 fn width_kind(config: &Option<crate::proto::streamlit::WidthConfig>) -> String {
@@ -155,26 +158,26 @@ fn width_kind(config: &Option<crate::proto::streamlit::WidthConfig>) -> String {
 }
 
 #[actix_web::test]
-async fn media_elements_match_the_measured_wire_and_serve_the_measured_http() {
-    let (address, handle, task, mut stream) = start_media_server().await;
+async fn media_elements_match_the_measured_wire_and_serve_the_measured_http() -> TestResult {
+    let (address, handle, task, mut stream) = start_media_server().await?;
     let mut session_id = String::new();
 
-    let wires = run_once(&mut stream, &mut session_id).await;
+    let wires = run_once(&mut stream, &mut session_id).await?;
     let kinds: Vec<&str> = wires
         .elements
         .iter()
-        .map(|element| match element.r#type.as_ref().unwrap() {
-            element::Type::Imgs(_) => "imgs",
-            element::Type::Audio(_) => "audio",
-            element::Type::Metric(_) => "metric",
-            element::Type::Progress(_) => "progress",
+        .map(|element| match element.r#type.as_ref() {
+            Some(element::Type::Imgs(_)) => "imgs",
+            Some(element::Type::Audio(_)) => "audio",
+            Some(element::Type::Metric(_)) => "metric",
+            Some(element::Type::Progress(_)) => "progress",
             other => panic!("unexpected element: {other:?}"),
         })
         .collect();
     assert_eq!(kinds, ["imgs", "audio", "metric", "metric", "progress"], "the progress 50/75 pair coalesces into one final-value delta");
 
-    let imgs = match wires.elements[0].r#type.as_ref().unwrap() {
-        element::Type::Imgs(imgs) => imgs,
+    let imgs = match wires.elements[0].r#type.as_ref() {
+        Some(element::Type::Imgs(imgs)) => imgs,
         other => panic!("expected imgs, got {other:?}"),
     };
     assert_eq!(imgs.imgs.len(), 1);
@@ -185,8 +188,8 @@ async fn media_elements_match_the_measured_wire_and_serve_the_measured_http() {
     assert!(image_url.starts_with("/media/") && image_url.ends_with(".png"), "the URL is relative and typed: {image_url}");
     assert_eq!(width_kind(&wires.elements[0].width_config), "content");
 
-    let audio = match wires.elements[1].r#type.as_ref().unwrap() {
-        element::Type::Audio(audio) => audio,
+    let audio = match wires.elements[1].r#type.as_ref() {
+        Some(element::Type::Audio(audio)) => audio,
         other => panic!("expected audio, got {other:?}"),
     };
     let audio_url = audio.url.clone();
@@ -198,8 +201,8 @@ async fn media_elements_match_the_measured_wire_and_serve_the_measured_http() {
 
     let metrics: Vec<&crate::proto::Metric> = wires.elements[2..4]
         .iter()
-        .map(|element| match element.r#type.as_ref().unwrap() {
-            element::Type::Metric(metric) => metric,
+        .map(|element| match element.r#type.as_ref() {
+            Some(element::Type::Metric(metric)) => metric,
             other => panic!("expected metric, got {other:?}"),
         })
         .collect();
@@ -221,8 +224,8 @@ async fn media_elements_match_the_measured_wire_and_serve_the_measured_http() {
         );
     }
 
-    let progress = match wires.elements[4].r#type.as_ref().unwrap() {
-        element::Type::Progress(progress) => progress,
+    let progress = match wires.elements[4].r#type.as_ref() {
+        Some(element::Type::Progress(progress)) => progress,
         other => panic!("expected progress, got {other:?}"),
     };
     assert_eq!(progress.value, 75, "the streamed value is the final one, never the intermediate 50");
@@ -231,7 +234,7 @@ async fn media_elements_match_the_measured_wire_and_serve_the_measured_http() {
 
     // The measured /media round trips: 200 with accept-ranges for a full
     // GET, 206 with content-range for the browser's open-ended Range.
-    let (status, headers, body) = http_get(address, &image_url, None).await;
+    let (status, headers, body) = http_get(address, &image_url, None).await?;
     assert_eq!(status, 200);
     assert_eq!(headers.iter().find(|(name, _)| name == "content-type").map(|(_, value)| value.as_str()), Some("image/png"));
     assert_eq!(headers.iter().find(|(name, _)| name == "accept-ranges").map(|(_, value)| value.as_str()), Some("bytes"));
@@ -243,25 +246,26 @@ async fn media_elements_match_the_measured_wire_and_serve_the_measured_http() {
     // The fixture WAV is byte-identical to the reference's, so the address
     // is the exact measured one.
     assert_eq!(audio_url, "/media/431dec53348c010fe7c4e0be3ac78ede.wav");
-    let (status, headers, body) = http_get(address, &audio_url, Some("bytes=0-")).await;
+    let (status, headers, body) = http_get(address, &audio_url, Some("bytes=0-")).await?;
     assert_eq!(status, 206);
     assert_eq!(headers.iter().find(|(name, _)| name == "content-type").map(|(_, value)| value.as_str()), Some("audio/wav"));
     let expected_range = format!("bytes 0-{}/{}", wav.len() - 1, wav.len());
     assert_eq!(headers.iter().find(|(name, _)| name == "content-range").map(|(_, value)| value.as_str()), Some(expected_range.as_str()));
     assert_eq!(body, wav);
 
-    let (status, _, _) = http_get(address, "/media/0123456789abcdef0123456789abcdef.png", None).await;
+    let (status, _, _) = http_get(address, "/media/0123456789abcdef0123456789abcdef.png", None).await?;
     assert_eq!(status, 404);
-    let (status, _, partial) = http_get(address, &audio_url, Some("bytes=10-99")).await;
+    let (status, _, partial) = http_get(address, &audio_url, Some("bytes=10-99")).await?;
     assert_eq!(status, 206);
     assert_eq!(partial, wav[10..=99]);
-    let (status, _, full) = http_get(address, &audio_url, None).await;
+    let (status, _, full) = http_get(address, &audio_url, None).await?;
     assert_eq!(status, 200);
     assert_eq!(full, wav);
 
     drop(stream);
     handle.stop(false).await;
-    task.await.unwrap().unwrap();
+    task.await??;
+    Ok(())
 }
 
 /// The committed one-second sample the video fixture serves; the same bytes
@@ -276,29 +280,27 @@ fn video_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
 }
 
 #[actix_web::test]
-async fn video_matches_the_measured_wire_and_serves_the_sample_unchanged() {
-    let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
-    let address = listener.local_addr().unwrap();
+async fn video_matches_the_measured_wire_and_serves_the_sample_unchanged() -> TestResult {
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
     let server = HttpServer::new(move || App::new().app_data(web::Data::new(StreamlitServer::new(video_entry, "127.0.0.1".into(), 0))).configure(configure_routes))
         .workers(1)
-        .listen(listener)
-        .unwrap()
+        .listen(listener)?
         .run();
     let handle = server.handle();
     let task = actix_web::rt::spawn(server);
-    let mut stream = TcpStream::connect(address).await.unwrap();
+    let mut stream = TcpStream::connect(address).await?;
     let request = format!("GET /_stcore/stream HTTP/1.1\r\nHost: {address}\r\nConnection: Upgrade\r\nUpgrade: websocket\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\nSec-WebSocket-Protocol: streamlit, test-xsrf\r\n\r\n");
-    stream.write_all(request.as_bytes()).await.unwrap();
+    stream.write_all(request.as_bytes()).await?;
     let headers = tokio::time::timeout(Duration::from_secs(5), async {
         let mut response = Vec::new();
         while !response.ends_with(b"\r\n\r\n") {
-            response.push(stream.read_u8().await.unwrap());
+            response.push(stream.read_u8().await?);
             assert!(response.len() < 8192);
         }
-        String::from_utf8(response).unwrap().to_ascii_lowercase()
+        Ok::<_, Box<dyn std::error::Error>>(String::from_utf8(response)?.to_ascii_lowercase())
     })
-    .await
-    .unwrap();
+    .await??;
     assert!(headers.starts_with("http/1.1 101"));
 
     let request = BackMsg {
@@ -336,14 +338,14 @@ async fn video_matches_the_measured_wire_and_serves_the_sample_unchanged() {
 
     // The measured video wire: NATIVE type, the exact byte-derived address,
     // and the stretch width inside the message with nothing at element level.
-    let video = video.expect("video wire");
+    let video = video.ok_or("video widget must be rendered")?;
     assert_eq!(video.url, "/media/89d6baf253834c013e2bc52aab2354d4.mp4");
     assert_eq!(video.r#type, crate::proto::video::Type::Native as i32);
     assert_eq!((video.start_time, video.end_time, video.r#loop, video.autoplay, video.muted, video.id.as_str()), (0, 0, false, false, false, ""));
     assert!(video.subtitles.is_empty());
     assert_eq!(width_kind_local(&video.width_config), "stretch");
 
-    let (status, headers, body) = http_get(address, &video.url, Some("bytes=0-")).await;
+    let (status, headers, body) = http_get(address, &video.url, Some("bytes=0-")).await?;
     assert_eq!(status, 206);
     assert_eq!(headers.iter().find(|(name, _)| name == "content-type").map(|(_, value)| value.as_str()), Some("video/mp4"));
     let expected_range = format!("bytes 0-{}/{}", VIDEO_SAMPLE.len() - 1, VIDEO_SAMPLE.len());
@@ -352,7 +354,8 @@ async fn video_matches_the_measured_wire_and_serves_the_sample_unchanged() {
 
     drop(stream);
     handle.stop(false).await;
-    task.await.unwrap().unwrap();
+    task.await??;
+    Ok(())
 }
 
 fn width_kind_local(config: &Option<crate::proto::streamlit::WidthConfig>) -> &'static str {

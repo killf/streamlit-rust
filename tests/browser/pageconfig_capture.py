@@ -39,7 +39,7 @@ sys.path.insert(0, str(ROOT / "tests" / "reference"))
 sys.path.insert(0, str(HERE))
 
 from capture_browser_trace import CDP, require_decoder, summarise_back, summarise_forward  # noqa: E402
-from pageconfig_contract import PAGECONFIG_CASE, PAGECONFIG_CONTRACT, PAGECONFIG_STAGES, pageconfig_result  # noqa: E402
+from pageconfig_contract import PAGECONFIG_SOURCE_FILES, PAGECONFIG_CASE, PAGECONFIG_CONTRACT, PAGECONFIG_STAGES, pageconfig_result  # noqa: E402
 
 DOM_EXPRESSION = r"""JSON.stringify({
 title:document.title,
@@ -150,15 +150,16 @@ def replay(path: str) -> int:
 
 def capture(args, out: pathlib.Path) -> int:
     side = "python" if args.scope == "PYTHON SIDE ONLY" else "native"
-    source_path = ROOT / ("tests/reference/pageconfig_app.py" if side == "python" else "streamlit/examples/pageconfig.rs")
+    source_path = ROOT / PAGECONFIG_SOURCE_FILES[side]
     observation = {
         "journey": PAGECONFIG_CASE,
         "contract": PAGECONFIG_CONTRACT,
         "scope": args.scope,
         "url": args.url,
         "binary": args.binary or None,
-        "source": {"file": source_path.relative_to(ROOT).as_posix(), "sha256": digest(source_path)},
-        "capture_sources": {name: digest(ROOT / "tests/browser" / name) for name in ("pageconfig_capture.py", "pageconfig_contract.py")},
+        "runtime": side,
+        "reference_version": "1.66.1",
+        "source": {"file": source_path.relative_to(ROOT).as_posix()},
         "stages": [],
         "ipc_dir": str(out.resolve()),
     }

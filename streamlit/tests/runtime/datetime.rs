@@ -14,36 +14,44 @@ use crate::proto::widget_state::Value as WireValue;
 
 fn datetime_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
     Box::pin(async move {
-        // Mirrors tests/reference/datetime_app.py.
-        let launch = chrono::NaiveDate::from_ymd_opt(2025, 3, 15).unwrap().and_hms_opt(14, 30, 0).unwrap();
-        st.datetime_input(crate::DateTimeInputOptions::new("Launch window").value(launch).key("launch")).unwrap();
-        st.datetime_input(crate::DateTimeInputOptions::new("Optional slot").value_none().key("slot")).unwrap();
+        let result: TestResult = async {
+            // Mirrors tests/reference/datetime_app.py.
+            let launch = chrono::NaiveDate::from_ymd_opt(2025, 3, 15)
+                .ok_or("datetime fixture date 2025-03-15 must exist")?
+                .and_hms_opt(14, 30, 0)
+                .ok_or("datetime fixture time 14:30 must exist")?;
+            st.datetime_input(crate::DateTimeInputOptions::new("Launch window").value(launch).key("launch"))?;
+            st.datetime_input(crate::DateTimeInputOptions::new("Optional slot").value_none().key("slot"))?;
+
+            Ok(())
+        }
+        .await;
+
+        assert!(result.is_ok(), "datetime fixture must render successfully: {result:?}");
     })
 }
 
 #[actix_web::test]
-async fn datetime_input_matches_the_measured_wire() {
-    let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
-    let address = listener.local_addr().unwrap();
+async fn datetime_input_matches_the_measured_wire() -> TestResult {
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
     let server = HttpServer::new(move || App::new().app_data(web::Data::new(StreamlitServer::new(datetime_entry, "127.0.0.1".into(), 0))).configure(configure_routes))
         .workers(1)
-        .listen(listener)
-        .unwrap()
+        .listen(listener)?
         .run();
     let handle = server.handle();
     let task = actix_web::rt::spawn(server);
-    let mut stream = TcpStream::connect(address).await.unwrap();
+    let mut stream = TcpStream::connect(address).await?;
     let request = format!("GET /_stcore/stream HTTP/1.1\r\nHost: {address}\r\nConnection: Upgrade\r\nUpgrade: websocket\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\nSec-WebSocket-Protocol: streamlit, test-xsrf\r\n\r\n");
-    stream.write_all(request.as_bytes()).await.unwrap();
+    stream.write_all(request.as_bytes()).await?;
     let headers = tokio::time::timeout(Duration::from_secs(5), async {
         let mut response = Vec::new();
         while !response.ends_with(b"\r\n\r\n") {
-            response.push(stream.read_u8().await.unwrap());
+            response.push(stream.read_u8().await?);
         }
-        String::from_utf8(response).unwrap().to_ascii_lowercase()
+        Ok::<_, Box<dyn std::error::Error>>(String::from_utf8(response)?.to_ascii_lowercase())
     })
-    .await
-    .unwrap();
+    .await??;
     assert!(headers.starts_with("http/1.1 101"));
 
     send_binary(
@@ -91,7 +99,9 @@ async fn datetime_input_matches_the_measured_wire() {
 
     drop(stream);
     handle.stop(false).await;
-    task.await.unwrap().unwrap();
+    task.await??;
+
+    Ok(())
 }
 
 #[actix_web::test]
@@ -104,9 +114,9 @@ async fn datetime_codec_decodes_the_measured_wire() {
             data: labels.iter().map(|label| label.to_string()).collect(),
         })
     };
-    assert_eq!(codec.decode(&wire(&["2025-03-15T14:30"])).unwrap(), serde_json::json!("2025-03-15T14:30"));
+    assert_eq!(codec.decode(&wire(&["2025-03-15T14:30"])), Some(serde_json::json!("2025-03-15T14:30")));
     // The legacy spelling is accepted and re-normalized to ISO.
-    assert_eq!(codec.decode(&wire(&["2025/03/15, 14:30"])).unwrap(), serde_json::json!("2025-03-15T14:30"));
-    assert_eq!(codec.decode(&wire(&[])).unwrap(), serde_json::Value::Null, "the empty array is the cleared picker");
+    assert_eq!(codec.decode(&wire(&["2025/03/15, 14:30"])), Some(serde_json::json!("2025-03-15T14:30")));
+    assert_eq!(codec.decode(&wire(&[])), Some(serde_json::Value::Null), "the empty array is the cleared picker");
     assert!(codec.decode(&wire(&["not-a-datetime"])).is_none(), "a malformed datetime is rejected fail-closed");
 }

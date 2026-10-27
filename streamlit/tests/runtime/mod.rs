@@ -10,6 +10,8 @@ use std::time::Duration;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpStream;
 
+type TestResult<T = ()> = Result<T, Box<dyn std::error::Error>>;
+
 mod buttons;
 mod cache;
 mod chartlibs;
@@ -53,20 +55,20 @@ fn entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
 }
 
 #[actix_web::test]
-async fn http_endpoints_and_official_assets() {
+async fn http_endpoints_and_official_assets() -> TestResult {
     let www = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../www");
     let app = http_test::init_service(App::new().configure(configure_routes).service(Files::new("/", &www).index_file("index.html"))).await;
     let response = http_test::call_service(&app, http_test::TestRequest::get().uri("/_stcore/health").to_request()).await;
     assert_eq!(response.status(), 200);
-    assert_eq!(response.headers().get("content-type").unwrap(), "text/plain; charset=utf-8");
+    assert_eq!(response.headers().get("content-type").map(|value| value.as_bytes()), Some(b"text/plain; charset=utf-8".as_slice()));
     assert_eq!(http_test::read_body(response).await.as_ref(), b"ok");
 
     let response = http_test::call_service(&app, http_test::TestRequest::get().uri("/_stcore/host-config").to_request()).await;
     assert_eq!(response.status(), 200);
     let config: serde_json::Value = http_test::read_body_json(response).await;
     // Observed from the pinned reference server's real HTTP response.
-    assert_eq!(config.as_object().unwrap().len(), 7);
-    assert_eq!(config["allowedOrigins"].as_array().unwrap().len(), 16);
+    assert_eq!(config.as_object().map(|object| object.len()), Some(7));
+    assert_eq!(config["allowedOrigins"].as_array().map(|origins| origins.len()), Some(16));
     assert_eq!(config["allowedOrigins"][0], "https://devel.streamlit.test");
     for field in ["useExternalAuthToken", "enableCustomParentMessages", "enforceDownloadInNewTab", "blockErrorDialogs"] {
         assert_eq!(config[field], false);
@@ -76,13 +78,19 @@ async fn http_endpoints_and_official_assets() {
 
     let response = http_test::call_service(&app, http_test::TestRequest::get().uri("/").to_request()).await;
     assert_eq!(response.status(), 200);
-    let index = std::fs::read(www.join("index.html")).unwrap();
+    let index = std::fs::read(www.join("index.html"))?;
     assert_eq!(http_test::read_body(response).await.as_ref(), index);
-    let html = std::str::from_utf8(&index).unwrap();
-    let script = html.split("src=\"").skip(1).filter_map(|rest| rest.split('"').next()).find(|path| path.ends_with(".js")).unwrap();
+    let html = std::str::from_utf8(&index)?;
+    let script = html
+        .split("src=\"")
+        .skip(1)
+        .filter_map(|rest| rest.split('"').next())
+        .find(|path| path.ends_with(".js"))
+        .ok_or("index.html must reference a JavaScript asset")?;
     let response = http_test::call_service(&app, http_test::TestRequest::get().uri(&format!("/{}", script.trim_start_matches("./"))).to_request()).await;
     assert_eq!(response.status(), 200);
-    assert_eq!(http_test::read_body(response).await.as_ref(), std::fs::read(www.join(script)).unwrap());
+    assert_eq!(http_test::read_body(response).await.as_ref(), std::fs::read(www.join(script))?);
+    Ok(())
 }
 
 // Minimal RFC 6455 framing for test traffic. Client frames must be masked.
@@ -93,58 +101,62 @@ async fn send_binary(stream: &mut TcpStream, payload: &[u8]) {
         frame.push(0x80 | payload.len() as u8);
     } else {
         frame.push(0x80 | 126);
-        frame.extend_from_slice(&u16::try_from(payload.len()).unwrap().to_be_bytes());
+        assert!(payload.len() <= u16::MAX as usize, "test client framing supports payloads up to 65535 bytes; got {}", payload.len());
+        frame.extend_from_slice(&(payload.len() as u16).to_be_bytes());
     }
     frame.extend_from_slice(&mask);
     frame.extend(payload.iter().enumerate().map(|(i, byte)| byte ^ mask[i % 4]));
-    stream.write_all(&frame).await.unwrap();
+    let sent = stream.write_all(&frame).await;
+    assert!(sent.is_ok(), "sending masked binary WS frame ({} payload bytes) failed: {sent:?}", payload.len());
 }
 
 async fn receive(stream: &mut TcpStream) -> ForwardMsg {
-    tokio::time::timeout(Duration::from_secs(5), async {
+    let received = tokio::time::timeout(Duration::from_secs(5), async {
         let mut header = [0; 2];
-        stream.read_exact(&mut header).await.unwrap();
+        stream.read_exact(&mut header).await?;
         assert_eq!(header[0], 0x82, "expected a complete binary WS frame");
         assert_eq!(header[1] & 0x80, 0, "server frames must not be masked");
         let length = match header[1] & 0x7f {
-            126 => stream.read_u16().await.unwrap() as usize,
-            127 => usize::try_from(stream.read_u64().await.unwrap()).unwrap(),
+            126 => stream.read_u16().await? as usize,
+            127 => usize::try_from(stream.read_u64().await?)?,
             value => value as usize,
         };
         assert!(length < 1024 * 1024);
         let mut body = vec![0; length];
-        stream.read_exact(&mut body).await.unwrap();
-        ForwardMsg::decode(body.as_slice()).unwrap()
+        stream.read_exact(&mut body).await?;
+        Ok::<_, Box<dyn std::error::Error>>(ForwardMsg::decode(body.as_slice())?)
     })
-    .await
-    .expect("WS response timed out (a rerun may be blocking subsequent requests)")
+    .await;
+    match received {
+        Ok(Ok(message)) => message,
+        Ok(Err(error)) => panic!("reading binary WS frame or decoding ForwardMsg failed: {error}"),
+        Err(error) => panic!("WS response timed out (a rerun may be blocking subsequent requests): {error}"),
+    }
 }
 
 #[actix_web::test]
-async fn repeated_reruns_button_trigger_reset_and_heartbeat_over_real_websocket() {
-    let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
-    let address = listener.local_addr().unwrap();
+async fn repeated_reruns_button_trigger_reset_and_heartbeat_over_real_websocket() -> TestResult {
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
     let server = HttpServer::new(|| App::new().app_data(web::Data::new(StreamlitServer::new(entry, "127.0.0.1".into(), 0))).configure(configure_routes))
         .workers(1)
-        .listen(listener)
-        .unwrap()
+        .listen(listener)?
         .run();
     let handle = server.handle();
     let task = actix_web::rt::spawn(server);
-    let mut stream = TcpStream::connect(address).await.unwrap();
+    let mut stream = TcpStream::connect(address).await?;
     // Fresh browser handshake: exactly two entries, never a fake reconnect id.
     let request = format!("GET /_stcore/stream HTTP/1.1\r\nHost: {address}\r\nConnection: Upgrade\r\nUpgrade: websocket\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\nSec-WebSocket-Protocol: streamlit, test-xsrf\r\n\r\n");
-    stream.write_all(request.as_bytes()).await.unwrap();
+    stream.write_all(request.as_bytes()).await?;
     let headers = tokio::time::timeout(Duration::from_secs(5), async {
         let mut response = Vec::new();
         while !response.ends_with(b"\r\n\r\n") {
-            response.push(stream.read_u8().await.unwrap());
+            response.push(stream.read_u8().await?);
             assert!(response.len() < 8192);
         }
-        String::from_utf8(response).unwrap().to_ascii_lowercase()
+        Ok::<_, Box<dyn std::error::Error>>(String::from_utf8(response)?.to_ascii_lowercase())
     })
-    .await
-    .unwrap();
+    .await??;
     assert!(headers.starts_with("http/1.1 101"));
     assert!(headers.contains("sec-websocket-protocol: streamlit\r\n"));
     assert!(!headers.contains("test-xsrf"));
@@ -171,14 +183,14 @@ async fn repeated_reruns_button_trigger_reset_and_heartbeat_over_real_websocket(
         send_binary(&mut stream, &request.encode_to_vec()).await;
         let first = receive(&mut stream).await;
         let Some(forward_msg::Type::NewSession(new_session)) = first.r#type else { panic!("rerun must start with NewSession") };
-        let init = new_session.initialize.unwrap();
-        uuid::Uuid::parse_str(&init.session_id).unwrap();
+        let init = new_session.initialize.ok_or("NewSession must include initialization")?;
+        assert!(uuid::Uuid::parse_str(&init.session_id).is_ok(), "server-selected session id must be a UUID: {}", init.session_id);
         if session_id.is_empty() {
             session_id = init.session_id;
         } else {
             assert_eq!(init.session_id, session_id);
         }
-        assert_eq!(init.environment_info.unwrap().streamlit_version, "1.66.1");
+        assert_eq!(init.environment_info.ok_or("NewSession must include environment information")?.streamlit_version, "1.66.1");
         assert!(run_ids.insert(new_session.script_run_id));
         assert!(matches!(receive(&mut stream).await.r#type, Some(forward_msg::Type::SessionStatusChanged(status)) if status.script_is_running));
         let mut finished = 0;
@@ -225,5 +237,6 @@ async fn repeated_reruns_button_trigger_reset_and_heartbeat_over_real_websocket(
     assert!(matches!(receive(&mut stream).await.r#type, Some(forward_msg::Type::HeartbeatAck(true))));
     drop(stream);
     handle.stop(false).await;
-    task.await.unwrap().unwrap();
+    task.await??;
+    Ok(())
 }

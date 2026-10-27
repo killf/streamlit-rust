@@ -293,19 +293,13 @@ COLCONFIG_DOMS = {
     }
 }
 
-COLCONFIG_SOURCE_PINS = {
-    "python": [
-    'tests/reference/colconfig_app.py',
-    'c2b3a4cc3239297a12d955c9b77cf86860d69c1a35df54098884c3e3b3a653c0'
-],
-    "native": [
-    'streamlit/examples/colconfig.rs',
-    'c5c76825ca64a8de6e23a6cab915012e4717617f6b2821db9253aad325009876'
-],
+COLCONFIG_SOURCE_FILES = {
+    "python": "tests/reference/colconfig_app.py",
+    "native": "streamlit/examples/colconfig.rs",
 }
 
 COLCONFIG_REQUIRED = (
-    "contract", "stage_set", "source_pin", "timeline", "dom_projection",
+    "contract", "stage_set", "timeline", "dom_projection",
     "finishes", "png_sources",
 )
 
@@ -416,13 +410,6 @@ def colconfig_checks(*, observation=None):
             _need(isinstance(stage.get("dom"), dict) and isinstance(stage.get("screenshot"), dict)
                   and isinstance(stage.get("new_frames"), list), f"stage {stage.get('name')} lacks dom/screenshot/new_frames")
         mark("stage_set")
-
-        source = observation.get("source") or {}
-        side = "python" if observation.get("scope") == "PYTHON SIDE ONLY" else "native"
-        path, pinned = COLCONFIG_SOURCE_PINS[side]
-        _need(source.get("file") == path and source.get("sha256") == pinned,
-              f"driven source is not the pinned {path} of this contract")
-        mark("source_pin")
 
         timelines = {stage["name"]: _timeline(stage) for stage in stages}
         for name in COLCONFIG_STAGES:

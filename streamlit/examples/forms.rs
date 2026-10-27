@@ -2,13 +2,13 @@ use ::streamlit::*;
 
 fn render(st: &Streamlit) -> Result<(), WidgetError> {
     let state = st.session_state();
-    let runs = state.get::<u64>("runs").unwrap().unwrap_or(0) + 1;
+    let runs = state.get::<u64>("runs")?.unwrap_or(0) + 1;
     state.set("runs", runs)?;
     st.title("Streamlit Rust form journey");
     let pulse_clicked = st.try_button(ButtonOptions::new("Pulse").key("pulse"))?;
     if pulse_clicked {
         let state = st.session_state();
-        let pulses = state.get::<u64>("pulses").unwrap().unwrap_or(0) + 1;
+        let pulses = state.get::<u64>("pulses")?.unwrap_or(0) + 1;
         state.set("pulses", pulses)?;
     }
 
@@ -22,9 +22,9 @@ fn render(st: &Streamlit) -> Result<(), WidgetError> {
         st.session_state().set("applied_note", note.clone())?;
     }
     let state = st.session_state();
-    st.write(format!("Script runs: {}", state.get::<u64>("runs").unwrap().unwrap_or(0)));
-    st.write(format!("Pulses: {}", state.get::<u64>("pulses").unwrap().unwrap_or(0)));
-    st.write(format!("Applied note: {}", state.get::<String>("applied_note").unwrap().unwrap_or_default()));
+    st.write(format!("Script runs: {}", state.get::<u64>("runs")?.unwrap_or(0)));
+    st.write(format!("Pulses: {}", state.get::<u64>("pulses")?.unwrap_or(0)));
+    st.write(format!("Applied note: {}", state.get::<String>("applied_note")?.unwrap_or_default()));
     Ok(())
 }
 

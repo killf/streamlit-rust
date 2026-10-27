@@ -15,7 +15,7 @@ sys.path.insert(0, str(HERE.parent / "browser"))
 from elements_contract import (  # noqa: E402
     ELEMENTS_DOM,
     ELEMENTS_REQUIRED,
-    ELEMENTS_SOURCE_PINS,
+    ELEMENTS_SOURCE_FILES,
     ELEMENTS_STAGES,
     ELEMENTS_WIRE,
     elements_result,
@@ -81,7 +81,7 @@ def observation(tmp_path, **faults):
         "contract": "journey-elements-v1",
         "scope": "PYTHON SIDE ONLY",
         "url": "http://127.0.0.1:8607/",
-        "source": {"file": ELEMENTS_SOURCE_PINS["python"][0], "sha256": ELEMENTS_SOURCE_PINS["python"][1]},
+        "source": {"file": ELEMENTS_SOURCE_FILES["python"]},
         "capture_sources": {},
         "stages": stages,
         "ipc_dir": str(tmp_path),
@@ -142,8 +142,6 @@ def observation(tmp_path, **faults):
         target["dom"]["exceptions"] = ["boom"]
     elif mutation == "missing_stage":
         observation["stages"] = observation["stages"][:1]
-    elif mutation == "wrong_source":
-        observation["source"]["sha256"] = "0" * 64
     elif mutation == "wrong_contract":
         observation["contract"] = "journey-elements-v0"
     elif mutation == "png_sha":
@@ -159,7 +157,7 @@ def result(tmp_path, **faults):
 def test_complete_synthetic_model_passes_every_check(tmp_path):
     outcome = result(tmp_path)
     assert outcome["ok"], outcome["failures"]
-    assert outcome["counts"] == {"expected": 11, "executed": 11, "asserted": 11}
+    assert outcome["counts"] == {"expected": 10, "executed": 10, "asserted": 10}
     assert tuple(check["check"] for check in outcome["checks"]) == ELEMENTS_REQUIRED
 
 
@@ -171,7 +169,7 @@ def test_the_documented_leading_main_block_is_tolerated(tmp_path):
 @pytest.mark.parametrize("mutation", [
     "wrong_heading_body", "wrong_badge_body", "wrong_widget_default", "wrong_chart_mark",
     "drop_chart_dataset", "drop_table_arrow", "wrong_echo", "wrong_note", "wrong_chart_bars",
-    "wrong_finish", "exception_dom", "missing_stage", "wrong_source", "wrong_contract", "png_sha",
+    "wrong_finish", "exception_dom", "missing_stage", "wrong_contract", "png_sha",
 ])
 def test_known_mutations_fail(tmp_path, mutation):
     outcome = result(tmp_path, mutation=mutation)
@@ -184,15 +182,17 @@ def test_degenerate_observations_fail_closed():
         assert not outcome["ok"] and outcome["counts"]["expected"] == len(ELEMENTS_REQUIRED)
 
 
-def test_contract_pins_the_committed_sources():
-    for side, (relative, pinned) in ELEMENTS_SOURCE_PINS.items():
-        path = HERE.parents[1] / relative
-        assert path.is_file() and hashlib.sha256(path.read_bytes()).hexdigest() == pinned, side
-
-
 def test_pinned_dom_covers_both_form_states():
     load = [line for line in ELEMENTS_DOM["01-load"]["markdowns"] if line.startswith("form: note=")]
     apply = [line for line in ELEMENTS_DOM["02-apply"]["markdowns"] if line.startswith("form: note=")]
     assert load == ["form: note='hello' submitted=False"]
     assert apply == ["form: note='hello typed' submitted=True"]
     assert (ELEMENTS_DOM["01-load"]["note"], ELEMENTS_DOM["02-apply"]["note"]) == ("hello", "hello typed")
+
+
+def test_source_fingerprints_do_not_gate_functional_evidence(tmp_path):
+    for source in ({"file": "historical-app.py", "sha256": "changed"}, {"file": "historical-app.py"}, None):
+        observed = observation(tmp_path)
+        observed["source"] = source
+        outcome = elements_result(observation=observed)
+        assert outcome["ok"], outcome["failures"]

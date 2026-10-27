@@ -16,7 +16,7 @@ from video_contract import (  # noqa: E402
     VIDEO_ELEMENTS,
     VIDEO_HTTP,
     VIDEO_REQUIRED,
-    VIDEO_SOURCE_PINS,
+    VIDEO_SOURCE_FILES,
     VIDEO_STAGES,
     VIDEO_URL,
     VIDEO_SAMPLE_SHA256,
@@ -68,7 +68,7 @@ def observation(tmp_path, **faults):
         "contract": "journey-video-v1",
         "scope": "PYTHON SIDE ONLY",
         "url": "http://127.0.0.1:8610/",
-        "source": {"file": VIDEO_SOURCE_PINS["python"][0], "sha256": VIDEO_SOURCE_PINS["python"][1]},
+        "source": {"file": VIDEO_SOURCE_FILES["python"]},
         "capture_sources": {},
         "stages": stages,
         "ipc_dir": str(tmp_path),
@@ -110,8 +110,6 @@ def observation(tmp_path, **faults):
         (tmp_path / f"{target['name']}.png").unlink()
     elif mutation == "png_sha":
         target["screenshot"]["sha256"] = "0" * 64
-    elif mutation == "wrong_source":
-        observation["source"]["sha256"] = "0" * 64
     elif mutation == "wrong_contract":
         observation["contract"] = "journey-video-v0"
     elif mutation == "missing_stage":
@@ -127,7 +125,7 @@ def result(tmp_path, **faults):
 def test_complete_synthetic_model_passes_every_check(tmp_path):
     outcome = result(tmp_path)
     assert outcome["ok"], outcome["failures"]
-    assert outcome["counts"] == {"expected": 10, "executed": 10, "asserted": 10}
+    assert outcome["counts"] == {"expected": 9, "executed": 9, "asserted": 9}
     assert tuple(check["check"] for check in outcome["checks"]) == VIDEO_REQUIRED
 
 
@@ -136,7 +134,7 @@ def test_complete_synthetic_model_passes_every_check(tmp_path):
     "wrong_status", "wrong_content_range", "wrong_dom_video", "missing_http",
     "duplicate_media_request",
     "exception_element", "exception_dom", "wrong_finish", "missing_png",
-    "png_sha", "wrong_source", "wrong_contract", "missing_stage",
+    "png_sha", "wrong_contract", "missing_stage",
 ])
 def test_known_mutations_fail(tmp_path, mutation):
     outcome = result(tmp_path, mutation=mutation)
@@ -157,14 +155,16 @@ def test_the_sample_bytes_pin_the_measured_address():
     assert VIDEO_ELEMENTS[0]["video"]["url"] == VIDEO_URL
 
 
-def test_contract_pins_the_committed_sources():
-    for side, (relative, pinned) in VIDEO_SOURCE_PINS.items():
-        path = HERE.parents[1] / relative
-        assert path.is_file() and hashlib.sha256(path.read_bytes()).hexdigest() == pinned, side
-
-
 def test_the_dom_is_the_measured_player():
     assert len(VIDEO_DOM["videos"]) == 1
     video = VIDEO_DOM["videos"][0]
     assert video["controls"] is True and video["muted"] is False and video["loop"] is False and video["autoplay"] is False
     assert video["testid"] == "stVideo" and VIDEO_DOM["exceptions"] == []
+
+
+def test_source_fingerprints_do_not_gate_functional_evidence(tmp_path):
+    for source in ({"file": "historical-app.py", "sha256": "changed"}, {"file": "historical-app.py"}, None):
+        observed = observation(tmp_path)
+        observed["source"] = source
+        outcome = video_result(observation=observed)
+        assert outcome["ok"], outcome["failures"]

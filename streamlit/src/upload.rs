@@ -12,7 +12,9 @@ fn unhex(text: &str) -> Option<Vec<u8>> {
     if !text.len().is_multiple_of(2) {
         return None;
     }
-    text.as_bytes().chunks_exact(2).map(|pair| Some((pair[0] as char).to_digit(16)? as u8 * 16 + (pair[1] as char).to_digit(16)? as u8)).collect()
+    let (pairs, _) = text.as_bytes().as_chunks::<2>();
+
+    pairs.iter().map(|pair| Some((pair[0] as char).to_digit(16)? as u8 * 16 + (pair[1] as char).to_digit(16)? as u8)).collect()
 }
 
 fn hex(bytes: &[u8]) -> String {
@@ -383,7 +385,9 @@ mod tests {
             assert_ne!(updated.value(), value);
             assert_eq!(xsrf_payload(updated.value()), xsrf_payload(value));
             if let Some(stamp) = value.split('|').nth(3) {
-                assert_eq!(updated.value().split('|').nth(3).unwrap(), timestamp_decimal(stamp).unwrap());
+                let expected_stamp = timestamp_decimal(stamp);
+                assert!(expected_stamp.is_some(), "fixture timestamp must be accepted: {stamp:?}");
+                assert_eq!(updated.value().split('|').nth(3), expected_stamp.as_deref());
             }
         }
         for accepted in [" 1", "1_0", "+1", "-1", "01", "0", "9999999999999999999999999999999999999999"] {
@@ -395,7 +399,7 @@ mod tests {
     }
 
     #[actix_web::test]
-    async fn upload_byte_limit_accepts_exact_boundary_and_rejects_next_byte() {
+    async fn upload_byte_limit_accepts_exact_boundary_and_rejects_next_byte() -> anyhow::Result<()> {
         use actix_web::http::header::{HeaderMap, HeaderName, HeaderValue};
         for (bytes, limit, accepted) in [(b"abc".as_slice(), 3, true), (b"abcd".as_slice(), 3, false), (b"".as_slice(), 0, true)] {
             let mut headers = HeaderMap::new();
@@ -406,11 +410,13 @@ mod tests {
             let stream = futures_util::stream::iter(vec![Ok::<_, actix_web::error::PayloadError>(bytes::Bytes::from(body))]);
             let result = read_upload(actix_multipart::Multipart::new(&headers, stream), limit).await;
             if accepted {
-                assert_eq!(result.unwrap().bytes, bytes);
+                assert_eq!(result?.bytes, bytes);
             } else {
                 assert!(matches!(result, Err(UploadHttpError::TooLarge)));
             }
         }
+
+        Ok(())
     }
 
     #[test]
@@ -425,43 +431,47 @@ mod tests {
     }
 
     #[test]
-    fn bytes_metadata_and_read_cursors_are_preserved() {
+    fn bytes_metadata_and_read_cursors_are_preserved() -> anyhow::Result<()> {
         let mut store = UploadStore::default();
         let bytes = include_bytes!("../../tests/fixtures/csv/sales_basic.csv");
         store.insert("id".into(), "sales_basic.csv".into(), Some("text/csv".into()), bytes.to_vec());
-        let mut file = store.get("id").unwrap();
+        let mut file = store.get("id").ok_or_else(|| anyhow::anyhow!("inserted sales CSV must be available as id"))?;
         assert_eq!((file.id(), file.name(), file.content_type(), file.size()), ("id", "sales_basic.csv", Some("text/csv"), bytes.len() as u64));
         let mut prefix = [0_u8; 7];
-        file.read_exact(&mut prefix).unwrap();
+        file.read_exact(&mut prefix)?;
         assert_eq!(&prefix, &bytes[..7]);
         assert_eq!(file.position(), 7);
         assert_eq!(file.as_bytes(), bytes);
-        let fresh = store.get("id").unwrap();
+        let fresh = store.get("id").ok_or_else(|| anyhow::anyhow!("reading sales CSV must retain its store entry"))?;
         assert_eq!(fresh.position(), 0);
         assert!(Arc::ptr_eq(file.cursor.get_ref(), fresh.cursor.get_ref()));
-        file.seek(SeekFrom::End(-3)).unwrap();
+        file.seek(SeekFrom::End(-3))?;
         let mut tail = Vec::new();
-        file.read_to_end(&mut tail).unwrap();
+        file.read_to_end(&mut tail)?;
         assert_eq!(&tail, &bytes[bytes.len() - 3..]);
-        assert!(!format!("{file:?}").contains(std::str::from_utf8(&bytes[..7]).unwrap()));
+        assert!(!format!("{file:?}").contains(std::str::from_utf8(&bytes[..7])?));
+
+        Ok(())
     }
 
     #[test]
-    fn stores_do_not_share_ids_or_overwrite_existing_handles() {
+    fn stores_do_not_share_ids_or_overwrite_existing_handles() -> anyhow::Result<()> {
         let mut a = UploadStore::default();
         let mut b = UploadStore::default();
         a.insert("same".into(), "folder/a.csv".into(), None, vec![1, 2]);
         b.insert("same".into(), "b.csv".into(), None, vec![3]);
-        let retained = a.get("same").unwrap();
+        let retained = a.get("same").ok_or_else(|| anyhow::anyhow!("first store must contain folder/a.csv"))?;
         assert_eq!(retained.name(), "folder/a.csv");
-        assert_eq!(b.get("same").unwrap().as_bytes(), &[3]);
+        assert_eq!(b.get("same").ok_or_else(|| anyhow::anyhow!("second store must contain b.csv"))?.as_bytes(), &[3]);
         a.insert("same".into(), "empty.csv".into(), None, vec![]);
         assert_eq!(retained.as_bytes(), &[1, 2]);
-        assert_eq!(a.get("same").unwrap().size(), 0);
+        assert_eq!(a.get("same").ok_or_else(|| anyhow::anyhow!("replacement empty CSV must remain in first store"))?.size(), 0);
         assert!(a.remove("same"));
         assert!(!a.remove("same"));
         assert!(a.get("same").is_none());
         assert_eq!(retained.as_bytes(), &[1, 2]);
-        assert_eq!(b.get("same").unwrap().as_bytes(), &[3]);
+        assert_eq!(b.get("same").ok_or_else(|| anyhow::anyhow!("removing first store entry must retain second store b.csv"))?.as_bytes(), &[3]);
+
+        Ok(())
     }
 }

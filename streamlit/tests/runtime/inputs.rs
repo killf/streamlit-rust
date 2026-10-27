@@ -8,24 +8,29 @@ use crate::MultiselectOptions;
 
 fn inputs_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
     Box::pin(async move {
-        // Mirrors tests/reference/inputs_app.py.
-        let channel = st.radio(("Channel", ["email", "sms", "push"])).unwrap();
-        let tags = st.multiselect(MultiselectOptions::new("Tags", ["alpha", "beta", "gamma"]).default_indices([0])).unwrap();
-        let count = st.number_input(("Count", 7_i64, 0..=100)).unwrap();
-        let note = st.text_area(("Note", "first line\nsecond line")).unwrap();
-        let channel_repr = match &channel {
-            Some(text) => format!("'{text}'"),
-            None => "None".to_string(),
-        };
-        let tags_repr = tags.iter().map(|tag| format!("'{tag}'")).collect::<Vec<_>>().join(", ");
-        let note_repr = match &note {
-            Some(text) => format!("'{}'", text.replace('\n', "\\n")),
-            None => "None".to_string(),
-        };
-        st.write(format!("channel={channel_repr}"));
-        st.write(format!("tags=[{tags_repr}]"));
-        st.write(format!("count={count} type=int"));
-        st.write(format!("note={note_repr}"));
+        let result: TestResult = async {
+            // Mirrors tests/reference/inputs_app.py.
+            let channel = st.radio(("Channel", ["email", "sms", "push"]))?;
+            let tags = st.multiselect(MultiselectOptions::new("Tags", ["alpha", "beta", "gamma"]).default_indices([0]))?;
+            let count = st.number_input(("Count", 7_i64, 0..=100))?;
+            let note = st.text_area(("Note", "first line\nsecond line"))?;
+            let channel_repr = match &channel {
+                Some(text) => format!("'{text}'"),
+                None => "None".to_string(),
+            };
+            let tags_repr = tags.iter().map(|tag| format!("'{tag}'")).collect::<Vec<_>>().join(", ");
+            let note_repr = match &note {
+                Some(text) => format!("'{}'", text.replace('\n', "\\n")),
+                None => "None".to_string(),
+            };
+            st.write(format!("channel={channel_repr}"));
+            st.write(format!("tags=[{tags_repr}]"));
+            st.write(format!("count={count} type=int"));
+            st.write(format!("note={note_repr}"));
+            Ok(())
+        }
+        .await;
+        assert!(result.is_ok(), "inputs_entry fixture failed: {result:?}");
     })
 }
 
@@ -37,34 +42,32 @@ struct InputWires {
     text_area: Option<crate::proto::TextArea>,
 }
 
-async fn start_inputs_server() -> (std::net::SocketAddr, actix_web::dev::ServerHandle, tokio::task::JoinHandle<std::io::Result<()>>, TcpStream) {
-    let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
-    let address = listener.local_addr().unwrap();
+async fn start_inputs_server() -> TestResult<(std::net::SocketAddr, actix_web::dev::ServerHandle, tokio::task::JoinHandle<std::io::Result<()>>, TcpStream)> {
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
     let server = HttpServer::new(move || App::new().app_data(web::Data::new(StreamlitServer::new(inputs_entry, "127.0.0.1".into(), 0))).configure(configure_routes))
         .workers(1)
-        .listen(listener)
-        .unwrap()
+        .listen(listener)?
         .run();
     let handle = server.handle();
     let task = actix_web::rt::spawn(server);
-    let mut stream = TcpStream::connect(address).await.unwrap();
+    let mut stream = TcpStream::connect(address).await?;
     let request = format!("GET /_stcore/stream HTTP/1.1\r\nHost: {address}\r\nConnection: Upgrade\r\nUpgrade: websocket\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\nSec-WebSocket-Protocol: streamlit, test-xsrf\r\n\r\n");
-    stream.write_all(request.as_bytes()).await.unwrap();
+    stream.write_all(request.as_bytes()).await?;
     let headers = tokio::time::timeout(Duration::from_secs(5), async {
         let mut response = Vec::new();
         while !response.ends_with(b"\r\n\r\n") {
-            response.push(stream.read_u8().await.unwrap());
+            response.push(stream.read_u8().await?);
             assert!(response.len() < 8192);
         }
-        String::from_utf8(response).unwrap().to_ascii_lowercase()
+        Ok::<_, Box<dyn std::error::Error>>(String::from_utf8(response)?.to_ascii_lowercase())
     })
-    .await
-    .unwrap();
+    .await??;
     assert!(headers.starts_with("http/1.1 101"));
-    (address, handle, task, stream)
+    Ok((address, handle, task, stream))
 }
 
-async fn run_once(stream: &mut TcpStream, session_id: &mut String, widgets: Vec<WidgetState>) -> (InputWires, Vec<String>) {
+async fn run_once(stream: &mut TcpStream, session_id: &mut String, widgets: Vec<WidgetState>) -> TestResult<(InputWires, Vec<String>)> {
     let request = BackMsg {
         r#type: Some(back_msg::Type::RerunScript(ClientState {
             widget_states: Some(WidgetStates { widgets }),
@@ -76,7 +79,7 @@ async fn run_once(stream: &mut TcpStream, session_id: &mut String, widgets: Vec<
     let Some(forward_msg::Type::NewSession(new_session)) = first.r#type else {
         panic!("a run must start with NewSession, got {:?}", first.r#type)
     };
-    let init = new_session.initialize.unwrap();
+    let init = new_session.initialize.ok_or("NewSession must include initialization")?;
     if session_id.is_empty() {
         *session_id = init.session_id;
     } else {
@@ -109,28 +112,28 @@ async fn run_once(stream: &mut TcpStream, session_id: &mut String, widgets: Vec<
         }
     }
     assert!(finished);
-    (wires, markdowns)
+    Ok((wires, markdowns))
 }
 
 #[actix_web::test]
-async fn input_widgets_match_the_measured_wire_and_round_trip_states() {
-    let (_address, handle, task, mut stream) = start_inputs_server().await;
+async fn input_widgets_match_the_measured_wire_and_round_trip_states() -> TestResult {
+    let (_address, handle, task, mut stream) = start_inputs_server().await?;
     let mut session_id = String::new();
 
-    let (wires, markdowns) = run_once(&mut stream, &mut session_id, vec![]).await;
-    let radio = wires.radio.as_ref().expect("radio wire");
+    let (wires, markdowns) = run_once(&mut stream, &mut session_id, vec![]).await?;
+    let radio = wires.radio.as_ref().ok_or("radio widget must be rendered")?;
     assert_eq!(radio.default, Some(0));
     assert_eq!(radio.options, ["email", "sms", "push"]);
     assert_eq!((radio.disabled, radio.horizontal), (false, false));
-    let multiselect = wires.multiselect.as_ref().expect("multiselect wire");
+    let multiselect = wires.multiselect.as_ref().ok_or("multiselect widget must be rendered")?;
     assert_eq!(multiselect.default, [0]);
     assert_eq!(multiselect.options, ["alpha", "beta", "gamma"]);
     assert_eq!((multiselect.accept_new_options, multiselect.select_all), (Some(false), Some(1000)));
-    let number = wires.number.as_ref().expect("number wire");
+    let number = wires.number.as_ref().ok_or("number widget must be rendered")?;
     assert_eq!(number.format, "%d");
     assert_eq!((number.data_type, number.has_min, number.has_max), (0, true, true));
     assert_eq!((number.default, number.step, number.min, number.max), (Some(7.0), 1.0, 0.0, 100.0));
-    let text_area = wires.text_area.as_ref().expect("text_area wire");
+    let text_area = wires.text_area.as_ref().ok_or("text_area widget must be rendered")?;
     assert_eq!(text_area.default.as_deref(), Some("first line\nsecond line"));
     assert_eq!((text_area.max_chars, text_area.placeholder.as_str()), (0, ""));
     assert_eq!(markdowns, vec!["channel='email'".to_string(), "tags=['alpha']".to_string(), "count=7 type=int".to_string(), "note='first line\\nsecond line'".to_string(),]);
@@ -155,8 +158,8 @@ async fn input_widgets_match_the_measured_wire_and_round_trip_states() {
             value: Some(widget_state::Value::StringValue("first line\nsecond line third".into())),
         },
     ];
-    let (second, markdowns) = run_once(&mut stream, &mut session_id, states).await;
-    assert_eq!(second.radio.unwrap().default, Some(0), "an unchanged wire stays stable");
+    let (second, markdowns) = run_once(&mut stream, &mut session_id, states).await?;
+    assert_eq!(second.radio.ok_or("rerun must render radio widget")?.default, Some(0), "an unchanged wire stays stable");
     assert_eq!(
         markdowns,
         vec!["channel='sms'".to_string(), "tags=['alpha', 'beta']".to_string(), "count=42 type=int".to_string(), "note='first line\\nsecond line third'".to_string(),]
@@ -164,5 +167,6 @@ async fn input_widgets_match_the_measured_wire_and_round_trip_states() {
 
     drop(stream);
     handle.stop(false).await;
-    task.await.unwrap().unwrap();
+    task.await??;
+    Ok(())
 }

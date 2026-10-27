@@ -2259,22 +2259,27 @@ mod quality_tests {
     use super::*;
 
     #[tokio::test]
-    async fn joined_futures_share_one_task_local_streamlit_state() {
+    async fn joined_futures_share_one_task_local_streamlit_state() -> anyhow::Result<()> {
         let st = Streamlit::new();
         let initial_count = Rc::strong_count(&st.app);
 
         let writer = async {
-            st.session_state().set("quality", true).unwrap();
+            st.session_state().set("quality", true)?;
             tokio::task::yield_now().await;
+
+            Ok::<_, anyhow::Error>(())
         };
         let reader = async {
             tokio::task::yield_now().await;
-            st.session_state().get::<bool>("quality").unwrap()
+            st.session_state().get::<bool>("quality")
         };
 
-        let (_, clicked) = tokio::join!(writer, reader);
+        let (written, clicked) = tokio::join!(writer, reader);
+        written?;
 
         assert_eq!(initial_count, 1);
-        assert_eq!(clicked, Some(true));
+        assert_eq!(clicked?, Some(true));
+
+        Ok(())
     }
 }

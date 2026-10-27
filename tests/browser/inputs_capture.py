@@ -41,7 +41,7 @@ sys.path.insert(0, str(HERE))
 
 from capture_browser_trace import CDP, require_decoder, summarise_back, summarise_forward  # noqa: E402
 from numeric_capture import Page  # noqa: E402  the proven CDP input helper
-from inputs_contract import INPUTS_CASE, INPUTS_CONTRACT, INPUTS_STAGES, inputs_result  # noqa: E402
+from inputs_contract import INPUTS_SOURCE_FILES, INPUTS_CASE, INPUTS_CONTRACT, INPUTS_STAGES, inputs_result  # noqa: E402
 
 DOM_EXPRESSION = r"""JSON.stringify({
 markdowns:[...document.querySelectorAll("[data-testid=stMarkdown]")].map(e=>e.textContent.trim()),
@@ -210,15 +210,16 @@ def replay(path: str) -> int:
 
 def capture(args, out: pathlib.Path) -> int:
     side = "python" if args.scope == "PYTHON SIDE ONLY" else "native"
-    source_path = ROOT / ("tests/reference/inputs_app.py" if side == "python" else "streamlit/examples/inputs.rs")
+    source_path = ROOT / INPUTS_SOURCE_FILES[side]
     observation = {
         "journey": INPUTS_CASE,
         "contract": INPUTS_CONTRACT,
         "scope": args.scope,
         "url": args.url,
         "binary": args.binary or None,
-        "source": {"file": source_path.relative_to(ROOT).as_posix(), "sha256": digest(source_path)},
-        "capture_sources": {name: digest(ROOT / "tests/browser" / name) for name in ("inputs_capture.py", "inputs_contract.py")},
+        "runtime": side,
+        "reference_version": "1.66.1",
+        "source": {"file": source_path.relative_to(ROOT).as_posix()},
         "stages": [],
         "ipc_dir": str(out.resolve()),
     }

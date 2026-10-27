@@ -15,7 +15,7 @@ sys.path.insert(0, str(HERE.parent / "browser"))
 from display_contract import (  # noqa: E402
     DISPLAY_DOMS,
     DISPLAY_REQUIRED,
-    DISPLAY_SOURCE_PINS,
+    DISPLAY_SOURCE_FILES,
     DISPLAY_STAGES,
     DISPLAY_TIMELINE,
     display_result,
@@ -70,7 +70,7 @@ def observation(tmp_path, **faults):
         "contract": "journey-display-v1",
         "scope": "PYTHON SIDE ONLY",
         "url": f"{URL}/",
-        "source": {"file": DISPLAY_SOURCE_PINS["python"][0], "sha256": DISPLAY_SOURCE_PINS["python"][1]},
+        "source": {"file": DISPLAY_SOURCE_FILES["python"]},
         "capture_sources": {},
         "stages": stages,
         "ipc_dir": str(tmp_path),
@@ -120,8 +120,6 @@ def observation(tmp_path, **faults):
         (tmp_path / f"{target['name']}.png").unlink()
     elif mutation == "png_sha":
         target["screenshot"]["sha256"] = "0" * 64
-    elif mutation == "wrong_source":
-        observation["source"]["sha256"] = "0" * 64
     elif mutation == "wrong_contract":
         observation["contract"] = "journey-display-v0"
     elif mutation == "missing_stage":
@@ -137,7 +135,7 @@ def result(tmp_path, **faults):
 def test_complete_synthetic_model_passes_every_check(tmp_path):
     outcome = result(tmp_path)
     assert outcome["ok"], outcome["failures"]
-    assert outcome["counts"] == {"expected": 12, "executed": 12, "asserted": 12}
+    assert outcome["counts"] == {"expected": 11, "executed": 11, "asserted": 11}
     assert tuple(check["check"] for check in outcome["checks"]) == DISPLAY_REQUIRED
 
 
@@ -162,7 +160,7 @@ def test_more_than_one_leading_main_block_fails(tmp_path, leading):
     "status_state_lost", "status_icon_stale", "status_allow_empty_lost",
     "empty_replacement_wrong_path", "space_height_lost", "space_rect",
     "bottom_root_wrong", "dom_bottom_missing", "extra_element",
-    "missing_png", "png_sha", "wrong_source", "wrong_contract",
+    "missing_png", "png_sha", "wrong_contract",
     "missing_stage",
 ])
 def test_known_mutations_fail(tmp_path, mutation):
@@ -191,3 +189,11 @@ def test_the_constants_pin_the_measured_semantics():
     assert bottom["path"] == [3, 0]
     assert DISPLAY_DOMS["01-load"]["bottom"] == ["bottom line"]
     assert all(not dom["exceptions"] for dom in DISPLAY_DOMS.values())
+
+
+def test_source_fingerprints_do_not_gate_functional_evidence(tmp_path):
+    for source in ({"file": "historical-app.py", "sha256": "changed"}, {"file": "historical-app.py"}, None):
+        observed = observation(tmp_path)
+        observed["source"] = source
+        outcome = display_result(observation=observed)
+        assert outcome["ok"], outcome["failures"]

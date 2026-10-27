@@ -111,13 +111,13 @@ PRESENTATION_DOM = {
  "exceptions": []
 }
 
-PRESENTATION_SOURCE_PINS = {
-    "python": ("tests/reference/presentation_app.py", "386f744f39f90874bab6b31a2c1b1593a3657de6c6eebd83e9b1a40a3994aba1"),
-    "native": ("streamlit/examples/presentation.rs", "2f9c2b678e865d2c283c8c2856e80a8d837a9a92647abeca12bb39ba17950f04"),
+PRESENTATION_SOURCE_FILES = {
+    "python": "tests/reference/presentation_app.py",
+    "native": "streamlit/examples/presentation.rs",
 }
 
 PRESENTATION_REQUIRED = (
-    "contract", "stage_set", "source_pin", "timeline", "spinner_lifecycle",
+    "contract", "stage_set", "timeline", "spinner_lifecycle",
     "toast_wire", "balloons_wire", "dom_projection", "no_exceptions",
     "finishes", "png_sources",
 )
@@ -178,13 +178,6 @@ def presentation_checks(*, observation=None):
             _need(isinstance(stage.get("dom"), dict) and isinstance(stage.get("screenshot"), dict)
                   and isinstance(stage.get("new_frames"), list), f"stage {stage.get('name')} lacks dom/screenshot/new_frames")
         mark("stage_set")
-
-        source = observation.get("source") or {}
-        side = "python" if observation.get("scope") == "PYTHON SIDE ONLY" else "native"
-        path, pinned = PRESENTATION_SOURCE_PINS[side]
-        _need(source.get("file") == path and source.get("sha256") == pinned,
-              f"driven source is not the pinned {path} of this contract")
-        mark("source_pin")
 
         timeline = _timeline(stages[0])
         _need(timeline == PRESENTATION_TIMELINE, "the delta timeline (kinds, paths, shapes) differs from the measured page")

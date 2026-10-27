@@ -9,51 +9,56 @@ use crate::{MapOptions, ScatterChartOptions, data::Float64Array};
 #[path = "charts_expected.rs"]
 mod charts_expected;
 
-fn int64_batch(columns: &[(&str, Vec<i64>)]) -> crate::data::RecordBatch {
+fn int64_batch(columns: &[(&str, Vec<i64>)]) -> TestResult<crate::data::RecordBatch> {
     let fields: Vec<_> = columns.iter().map(|(name, _)| crate::data::Field::new(*name, crate::data::DataType::Int64, false)).collect();
     let arrays: Vec<_> = columns.iter().map(|(_, values)| std::sync::Arc::new(crate::data::Int64Array::from(values.clone())) as crate::data::ArrayRef).collect();
-    crate::data::RecordBatch::try_new(std::sync::Arc::new(crate::data::Schema::new(fields)), arrays).unwrap()
+    Ok(crate::data::RecordBatch::try_new(std::sync::Arc::new(crate::data::Schema::new(fields)), arrays)?)
 }
 
-fn float64_batch(columns: &[(&str, Vec<f64>)]) -> crate::data::RecordBatch {
+fn float64_batch(columns: &[(&str, Vec<f64>)]) -> TestResult<crate::data::RecordBatch> {
     let fields: Vec<_> = columns.iter().map(|(name, _)| crate::data::Field::new(*name, crate::data::DataType::Float64, false)).collect();
     let arrays: Vec<_> = columns.iter().map(|(_, values)| std::sync::Arc::new(Float64Array::from(values.clone())) as crate::data::ArrayRef).collect();
-    crate::data::RecordBatch::try_new(std::sync::Arc::new(crate::data::Schema::new(fields)), arrays).unwrap()
+    Ok(crate::data::RecordBatch::try_new(std::sync::Arc::new(crate::data::Schema::new(fields)), arrays)?)
 }
 
 fn charts_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
     Box::pin(async move {
-        // Mirrors tests/reference/charts_app.py.
-        st.line_chart(&int64_batch(&[("value", vec![2, 1, 3])])).unwrap();
-        st.area_chart(&int64_batch(&[("alpha", vec![1, 2, 3]), ("beta", vec![3, 2, 1])])).unwrap();
-        st.scatter_chart(ScatterChartOptions::new(&int64_batch(&[("x", vec![1, 2, 3]), ("y", vec![3, 1, 2])]), "x", "y")).unwrap();
-        st.map(MapOptions::new(&float64_batch(&[("lat", vec![40.7, 41.0]), ("lon", vec![-74.0, -73.9])]))).unwrap();
+        let result: TestResult = async {
+            // Mirrors tests/reference/charts_app.py.
+            st.line_chart(&int64_batch(&[("value", vec![2, 1, 3])])?)?;
+            st.area_chart(&int64_batch(&[("alpha", vec![1, 2, 3]), ("beta", vec![3, 2, 1])])?)?;
+            st.scatter_chart(ScatterChartOptions::new(&int64_batch(&[("x", vec![1, 2, 3]), ("y", vec![3, 1, 2])])?, "x", "y"))?;
+            st.map(MapOptions::new(&float64_batch(&[("lat", vec![40.7, 41.0]), ("lon", vec![-74.0, -73.9])])?))?;
+
+            Ok(())
+        }
+        .await;
+
+        assert!(result.is_ok(), "charts fixture must render successfully: {result:?}");
     })
 }
 
-async fn collect_chart_elements() -> Vec<crate::proto::Element> {
-    let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
-    let address = listener.local_addr().unwrap();
+async fn collect_chart_elements() -> TestResult<Vec<crate::proto::Element>> {
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
     let server = HttpServer::new(move || App::new().app_data(web::Data::new(StreamlitServer::new(charts_entry, "127.0.0.1".into(), 0))).configure(configure_routes))
         .workers(1)
-        .listen(listener)
-        .unwrap()
+        .listen(listener)?
         .run();
     let handle = server.handle();
     let task = actix_web::rt::spawn(server);
-    let mut stream = TcpStream::connect(address).await.unwrap();
+    let mut stream = TcpStream::connect(address).await?;
     let request = format!("GET /_stcore/stream HTTP/1.1\r\nHost: {address}\r\nConnection: Upgrade\r\nUpgrade: websocket\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\nSec-WebSocket-Protocol: streamlit, test-xsrf\r\n\r\n");
-    stream.write_all(request.as_bytes()).await.unwrap();
+    stream.write_all(request.as_bytes()).await?;
     let headers = tokio::time::timeout(Duration::from_secs(5), async {
         let mut response = Vec::new();
         while !response.ends_with(b"\r\n\r\n") {
-            response.push(stream.read_u8().await.unwrap());
+            response.push(stream.read_u8().await?);
             assert!(response.len() < 8192);
         }
-        String::from_utf8(response).unwrap().to_ascii_lowercase()
+        Ok::<_, Box<dyn std::error::Error>>(String::from_utf8(response)?.to_ascii_lowercase())
     })
-    .await
-    .unwrap();
+    .await??;
     assert!(headers.starts_with("http/1.1 101"));
     let request = BackMsg {
         r#type: Some(back_msg::Type::RerunScript(ClientState {
@@ -79,12 +84,12 @@ async fn collect_chart_elements() -> Vec<crate::proto::Element> {
     }
     drop(stream);
     handle.stop(false).await;
-    task.await.unwrap().unwrap();
-    elements
+    task.await??;
+    Ok(elements)
 }
 
-fn oracle(name: &str) -> Vec<u8> {
-    std::fs::read(std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../tests/reference").join(name)).unwrap()
+fn oracle(name: &str) -> TestResult<Vec<u8>> {
+    Ok(std::fs::read(std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../tests/reference").join(name))?)
 }
 
 fn stretch_width(element: &crate::proto::Element) -> bool {
@@ -92,8 +97,8 @@ fn stretch_width(element: &crate::proto::Element) -> bool {
 }
 
 #[actix_web::test]
-async fn charts_match_the_measured_wire_byte_for_byte() {
-    let elements = collect_chart_elements().await;
+async fn charts_match_the_measured_wire_byte_for_byte() -> TestResult {
+    let elements = collect_chart_elements().await?;
     assert_eq!(elements.len(), 4, "three vega charts then the map");
 
     let expected_specs = [
@@ -120,7 +125,7 @@ async fn charts_match_the_measured_wire_byte_for_byte() {
             oracle_file
         );
         let served_batches = crate::data::from_ipc_stream(served).expect("the served dataset decodes");
-        let oracle_batches = crate::data::from_ipc_stream(&oracle(oracle_file)).expect("the oracle dataset decodes");
+        let oracle_batches = crate::data::from_ipc_stream(&oracle(oracle_file)?).expect("the oracle dataset decodes");
         assert_eq!(served_batches, oracle_batches, "the {} dataset differs from the reference frame", oracle_file);
         assert!(chart.datasets[0].has_name);
         assert_eq!(chart.theme, "streamlit");
@@ -142,23 +147,25 @@ async fn charts_match_the_measured_wire_byte_for_byte() {
         elements[3].height_config.as_ref().and_then(|config| config.height_spec.as_ref()),
         Some(crate::proto::streamlit::height_config::HeightSpec::PixelHeight(height)) if *height == 500
     ));
+
+    Ok(())
 }
 
 /// Render one map through the element pipeline and return the deck json
 /// string (no server round trip needed for a pure serialization check).
-fn map_deck_json(columns: &[(&'static str, Vec<f64>)]) -> String {
+fn map_deck_json(columns: &[(&'static str, Vec<f64>)]) -> TestResult<String> {
     let st = Streamlit::new();
     let (sender, mut receiver) = tokio::sync::mpsc::unbounded_channel();
     let mut context = crate::elements::common::RenderContext::with_sender("charts-test".into(), sender);
     context.delta_path = vec![0, 0];
     st.app.lock().set_render_context(context);
-    st.map(&float64_batch(columns)).unwrap();
-    let message = receiver.try_recv().unwrap();
-    let decoded = ForwardMsg::decode(message.encode_to_vec().as_slice()).unwrap();
+    st.map(&float64_batch(columns)?)?;
+    let message = receiver.try_recv()?;
+    let decoded = ForwardMsg::decode(message.encode_to_vec().as_slice())?;
     let Some(forward_msg::Type::Delta(delta)) = decoded.r#type else { panic!("missing delta") };
     let Some(delta::Type::NewElement(element)) = delta.r#type else { panic!("missing element") };
     let Some(element::Type::DeckGlJsonChart(chart)) = element.r#type else { panic!("missing deck chart") };
-    chart.json
+    Ok(chart.json)
 }
 
 fn zoom_of(deck_json: &str) -> i64 {
@@ -170,19 +177,21 @@ fn zoom_of(deck_json: &str) -> i64 {
 }
 
 #[test]
-fn map_zoom_ladder_and_empty_frame_match_the_pinned_reference() {
+fn map_zoom_ladder_and_empty_frame_match_the_pinned_reference() -> TestResult {
     // The measured page only exercises distance 0.3 (zoom 10); the ladder
     // tail below 0.003 degrees diverged from the reference before it was
     // pinned, so the tail is frozen here against map.py's own bisect.
-    let street = map_deck_json(&[("lat", vec![40.7000, 40.7004]), ("lon", vec![-74.0, -74.0])]);
+    let street = map_deck_json(&[("lat", vec![40.7000, 40.7004]), ("lon", vec![-74.0, -74.0])])?;
     assert_eq!(zoom_of(&street), 19, "distance 0.0004 must bisect to street level");
-    let block = map_deck_json(&[("lat", vec![40.7000, 40.7027]), ("lon", vec![-74.0, -74.0])]);
+    let block = map_deck_json(&[("lat", vec![40.7000, 40.7027]), ("lon", vec![-74.0, -74.0])])?;
     assert_eq!(zoom_of(&block), 17, "distance 0.0027 must bisect to 17");
-    let tight = map_deck_json(&[("lat", vec![40.7000, 40.7012]), ("lon", vec![-74.0, -74.0])]);
+    let tight = map_deck_json(&[("lat", vec![40.7000, 40.7012]), ("lon", vec![-74.0, -74.0])])?;
     assert_eq!(zoom_of(&tight), 17, "distance 0.0012 must bisect to 17");
-    let cluster = map_deck_json(&[("lat", vec![40.7000, 40.7001]), ("lon", vec![-74.0, -74.0])]);
+    let cluster = map_deck_json(&[("lat", vec![40.7000, 40.7001]), ("lon", vec![-74.0, -74.0])])?;
     assert_eq!(zoom_of(&cluster), 12, "a distance off the ladder tail falls back to the default zoom");
     // An empty frame serializes the reference's fixed EMPTY_MAP verbatim.
-    let empty = map_deck_json(&[("lat", vec![]), ("lon", vec![])]);
+    let empty = map_deck_json(&[("lat", vec![]), ("lon", vec![])])?;
     assert_eq!(empty, "{\"initialViewState\": {\"latitude\": 0, \"longitude\": 0, \"pitch\": 0, \"zoom\": 1}}");
+
+    Ok(())
 }

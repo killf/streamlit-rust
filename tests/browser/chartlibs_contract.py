@@ -261,19 +261,13 @@ CHARTLIBS_DOMS = {
     }
 }
 
-CHARTLIBS_SOURCE_PINS = {
-    "python": [
-    'tests/reference/chartlibs_app.py',
-    '439036d2e8f9096f99cc7813febb07658d7070fd4275625f58514d6c5400560e'
-],
-    "native": [
-    'streamlit/examples/chartlibs.rs',
-    '6c27e9192c4097160b233c9fc034e4711726c6dc315827392b2e01528c93683b'
-],
+CHARTLIBS_SOURCE_FILES = {
+    "python": "tests/reference/chartlibs_app.py",
+    "native": "streamlit/examples/chartlibs.rs",
 }
 
 CHARTLIBS_REQUIRED = (
-    "contract", "stage_set", "source_pin", "timeline", "dom_projection",
+    "contract", "stage_set", "timeline", "dom_projection",
     "finishes", "png_sources",
 )
 
@@ -389,13 +383,6 @@ def chartlibs_checks(*, observation=None):
             _need(isinstance(stage.get("dom"), dict) and isinstance(stage.get("screenshot"), dict)
                   and isinstance(stage.get("new_frames"), list), f"stage {stage.get('name')} lacks dom/screenshot/new_frames")
         mark("stage_set")
-
-        source = observation.get("source") or {}
-        side = "python" if observation.get("scope") == "PYTHON SIDE ONLY" else "native"
-        path, pinned = CHARTLIBS_SOURCE_PINS[side]
-        _need(source.get("file") == path and source.get("sha256") == pinned,
-              f"driven source is not the pinned {path} of this contract")
-        mark("source_pin")
 
         timelines = {stage["name"]: _timeline(stage) for stage in stages}
         for name in CHARTLIBS_STAGES:

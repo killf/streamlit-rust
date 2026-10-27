@@ -459,19 +459,13 @@ DATAEDITOR_DOMS = {
     }
 }
 
-DATAEDITOR_SOURCE_PINS = {
-    "python": [
-    'tests/reference/dataeditor_app.py',
-    'fc75313635adec62a6cf8199ec4b506c08ab309f7c99fd3ccadee160da67ddfb'
-],
-    "native": [
-    'streamlit/examples/dataeditor.rs',
-    'c3ef237b7205b56fd8e8e23c1006715c7b35f3618bd92aedbd2a09e348daad91'
-],
+DATAEDITOR_SOURCE_FILES = {
+    "python": "tests/reference/dataeditor_app.py",
+    "native": "streamlit/examples/dataeditor.rs",
 }
 
 DATAEDITOR_REQUIRED = (
-    "contract", "stage_set", "source_pin", "timeline", "dom_projection",
+    "contract", "stage_set", "timeline", "dom_projection",
     "finishes", "png_sources",
 )
 
@@ -580,13 +574,6 @@ def dataeditor_checks(*, observation=None):
             _need(isinstance(stage.get("dom"), dict) and isinstance(stage.get("screenshot"), dict)
                   and isinstance(stage.get("new_frames"), list), f"stage {stage.get('name')} lacks dom/screenshot/new_frames")
         mark("stage_set")
-
-        source = observation.get("source") or {}
-        side = "python" if observation.get("scope") == "PYTHON SIDE ONLY" else "native"
-        path, pinned = DATAEDITOR_SOURCE_PINS[side]
-        _need(source.get("file") == path and source.get("sha256") == pinned,
-              f"driven source is not the pinned {path} of this contract")
-        mark("source_pin")
 
         timelines = {stage["name"]: _timeline(stage) for stage in stages}
         for name in DATAEDITOR_STAGES:

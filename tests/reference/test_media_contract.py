@@ -18,7 +18,7 @@ from media_contract import (  # noqa: E402
     MEDIA_PNG_PIXELS,
     MEDIA_PNG_SIZE,
     MEDIA_REQUIRED,
-    MEDIA_SOURCE_PINS,
+    MEDIA_SOURCE_FILES,
     MEDIA_STAGES,
     MEDIA_WAV_URL,
     media_result,
@@ -113,7 +113,7 @@ def observation(tmp_path, **faults):
         "contract": "journey-media-v1",
         "scope": "PYTHON SIDE ONLY",
         "url": "http://127.0.0.1:8609/",
-        "source": {"file": MEDIA_SOURCE_PINS["python"][0], "sha256": MEDIA_SOURCE_PINS["python"][1]},
+        "source": {"file": MEDIA_SOURCE_FILES["python"]},
         "capture_sources": {},
         "stages": stages,
         "ipc_dir": str(tmp_path),
@@ -188,8 +188,6 @@ def observation(tmp_path, **faults):
         (tmp_path / f"{target['name']}.png").unlink()
     elif mutation == "png_sha":
         target["screenshot"]["sha256"] = "0" * 64
-    elif mutation == "wrong_source":
-        observation["source"]["sha256"] = "0" * 64
     elif mutation == "wrong_contract":
         observation["contract"] = "journey-media-v0"
     elif mutation == "missing_http":
@@ -205,7 +203,7 @@ def result(tmp_path, **faults):
 def test_complete_synthetic_model_passes_every_check(tmp_path):
     outcome = result(tmp_path)
     assert outcome["ok"], outcome["failures"]
-    assert outcome["counts"] == {"expected": 11, "executed": 11, "asserted": 11}
+    assert outcome["counts"] == {"expected": 10, "executed": 10, "asserted": 10}
     assert tuple(check["check"] for check in outcome["checks"]) == MEDIA_REQUIRED
 
 
@@ -214,7 +212,7 @@ def test_complete_synthetic_model_passes_every_check(tmp_path):
     "wrong_wav_id", "wrong_status", "wrong_content_range", "wrong_body_sha",
     "undecodable_png", "wrong_png_pixels",
     "wrong_dom_metric", "wrong_dom_progress", "exception_element",
-    "exception_dom", "wrong_finish", "missing_png", "png_sha", "wrong_source",
+    "exception_dom", "wrong_finish", "missing_png", "png_sha",
     "wrong_contract", "missing_http",
 ])
 def test_known_mutations_fail(tmp_path, mutation):
@@ -232,12 +230,6 @@ def test_the_wav_address_is_the_measured_one():
     assert MEDIA_WAV_URL == "/media/431dec53348c010fe7c4e0be3ac78ede.wav"
     wav = [entry for entry in MEDIA_HTTP if entry["path"].endswith(".wav")]
     assert len(wav) == 1 and wav[0]["body_length"] == 22094 and wav[0]["status"] == 206
-
-
-def test_contract_pins_the_committed_sources():
-    for side, (relative, pinned) in MEDIA_SOURCE_PINS.items():
-        path = HERE.parents[1] / relative
-        assert path.is_file() and hashlib.sha256(path.read_bytes()).hexdigest() == pinned, side
 
 
 def test_the_png_shape_is_per_side_only():
@@ -267,3 +259,11 @@ def test_elements_dom_and_http_cover_the_measured_page():
     assert [key for key in MEDIA_ELEMENTS[0]] == ["imgs", "widthConfig"]
     assert len(MEDIA_DOM["metrics"]) == 2 and MEDIA_DOM["progress"][1]["value"] == "75"
     assert MEDIA_DOM["exceptions"] == []
+
+
+def test_source_fingerprints_do_not_gate_functional_evidence(tmp_path):
+    for source in ({"file": "historical-app.py", "sha256": "changed"}, {"file": "historical-app.py"}, None):
+        observed = observation(tmp_path)
+        observed["source"] = source
+        outcome = media_result(observation=observed)
+        assert outcome["ok"], outcome["failures"]

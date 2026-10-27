@@ -15,7 +15,7 @@ sys.path.insert(0, str(HERE.parent / "browser"))
 from textelements_contract import (  # noqa: E402
     TEXTELEMENTS_DOMS,
     TEXTELEMENTS_REQUIRED,
-    TEXTELEMENTS_SOURCE_PINS,
+    TEXTELEMENTS_SOURCE_FILES,
     TEXTELEMENTS_STAGES,
     TEXTELEMENTS_TIMELINE,
     textelements_result,
@@ -70,7 +70,7 @@ def observation(tmp_path, **faults):
         "contract": "journey-textelements-v1",
         "scope": "PYTHON SIDE ONLY",
         "url": f"{URL}/",
-        "source": {"file": TEXTELEMENTS_SOURCE_PINS["python"][0], "sha256": TEXTELEMENTS_SOURCE_PINS["python"][1]},
+        "source": {"file": TEXTELEMENTS_SOURCE_FILES["python"]},
         "capture_sources": {},
         "stages": stages,
         "ipc_dir": str(tmp_path),
@@ -117,8 +117,6 @@ def observation(tmp_path, **faults):
         (tmp_path / f"{target['name']}.png").unlink()
     elif mutation == "png_sha":
         target["screenshot"]["sha256"] = "0" * 64
-    elif mutation == "wrong_source":
-        observation["source"]["sha256"] = "0" * 64
     elif mutation == "wrong_contract":
         observation["contract"] = "journey-textelements-v0"
     elif mutation == "missing_stage":
@@ -134,7 +132,7 @@ def result(tmp_path, **faults):
 def test_complete_synthetic_model_passes_every_check(tmp_path):
     outcome = result(tmp_path)
     assert outcome["ok"], outcome["failures"]
-    assert outcome["counts"] == {"expected": 12, "executed": 12, "asserted": 12}
+    assert outcome["counts"] == {"expected": 11, "executed": 11, "asserted": 11}
     assert tuple(check["check"] for check in outcome["checks"]) == TEXTELEMENTS_REQUIRED
 
 
@@ -154,7 +152,7 @@ def test_more_than_one_leading_main_block_fails(tmp_path, leading):
     "iframe_height_changed", "snow_not_one_shot", "echo_code_wrong_path",
     "echo_placeholder_missing", "exception_trace_fabricated",
     "dom_text_missing", "dom_snow_missing", "extra_element",
-    "missing_png", "png_sha", "wrong_source", "wrong_contract",
+    "missing_png", "png_sha", "wrong_contract",
     "missing_stage",
 ])
 def test_known_mutations_fail(tmp_path, mutation):
@@ -180,3 +178,11 @@ def test_the_constants_pin_the_measured_semantics():
     assert TEXTELEMENTS_DOMS["01-load"]["snow"] == 1
     assert TEXTELEMENTS_DOMS["01-load"]["iframes"] == ["https://example.com/"]
     assert TEXTELEMENTS_DOMS["01-load"]["exceptions"] == ["ValueError: boom\nTraceback:"]
+
+
+def test_source_fingerprints_do_not_gate_functional_evidence(tmp_path):
+    for source in ({"file": "historical-app.py", "sha256": "changed"}, {"file": "historical-app.py"}, None):
+        observed = observation(tmp_path)
+        observed["source"] = source
+        outcome = textelements_result(observation=observed)
+        assert outcome["ok"], outcome["failures"]

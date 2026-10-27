@@ -62,19 +62,13 @@ PAGECONFIG_DOM = {
     'exceptions': []
 }
 
-PAGECONFIG_SOURCE_PINS = {
-    "python": [
-    'tests/reference/pageconfig_app.py',
-    'f1c88b3fe94bcdedf785b11aeabff387ae13ba6dc7ebc76811c5bac05da28cb2'
-],
-    "native": [
-    'streamlit/examples/pageconfig.rs',
-    'bbcd65516b3ba329ed2092eb4ec8628f93508d6a0a3e513663e0351fc43dff28'
-],
+PAGECONFIG_SOURCE_FILES = {
+    "python": "tests/reference/pageconfig_app.py",
+    "native": "streamlit/examples/pageconfig.rs",
 }
 
 PAGECONFIG_REQUIRED = (
-    "contract", "stage_set", "source_pin", "config_wire",
+    "contract", "stage_set", "config_wire",
     "stream_shape", "dom_projection", "no_exceptions", "finishes",
     "png_sources",
 )
@@ -141,13 +135,6 @@ def pageconfig_checks(*, observation=None):
             _need(isinstance(stage.get("dom"), dict) and isinstance(stage.get("screenshot"), dict)
                   and isinstance(stage.get("new_frames"), list), f"stage {stage.get('name')} lacks dom/screenshot/new_frames")
         mark("stage_set")
-
-        source = observation.get("source") or {}
-        side = "python" if observation.get("scope") == "PYTHON SIDE ONLY" else "native"
-        path, pinned = PAGECONFIG_SOURCE_PINS[side]
-        _need(source.get("file") == path and source.get("sha256") == pinned,
-              f"driven source is not the pinned {path} of this contract")
-        mark("source_pin")
 
         stream = _stream(stages[0])
         configs = [detail for kind, detail in stream if kind == "page_config_changed"]

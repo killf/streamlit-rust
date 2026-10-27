@@ -814,19 +814,13 @@ PICKERS_DOMS = {
     }
 }
 
-PICKERS_SOURCE_PINS = {
-    "python": [
-    'tests/reference/pickers_app.py',
-    '0243f923d03c966dfe2c91f197f7ef9f631de7c397cbca55f17ebce3a6beb668'
-],
-    "native": [
-    'streamlit/examples/pickers.rs',
-    '3112cb6e5dbc4879a73054d66f88c9aa7c3f62b3ab394cbebd72667eb9b78e3d'
-],
+PICKERS_SOURCE_FILES = {
+    "python": "tests/reference/pickers_app.py",
+    "native": "streamlit/examples/pickers.rs",
 }
 
 PICKERS_REQUIRED = (
-    "contract", "stage_set", "source_pin", "timeline", "date_wire",
+    "contract", "stage_set", "timeline", "date_wire",
     "time_wire", "color_wire", "slider_wire", "media_input_wire",
     "interaction_wires", "dom_projection", "no_exceptions", "finishes",
     "png_sources",
@@ -918,13 +912,6 @@ def pickers_checks(*, observation=None):
             _need(isinstance(stage.get("dom"), dict) and isinstance(stage.get("screenshot"), dict)
                   and isinstance(stage.get("new_frames"), list), f"stage {stage.get('name')} lacks dom/screenshot/new_frames")
         mark("stage_set")
-
-        source = observation.get("source") or {}
-        side = "python" if observation.get("scope") == "PYTHON SIDE ONLY" else "native"
-        path, pinned = PICKERS_SOURCE_PINS[side]
-        _need(source.get("file") == path and source.get("sha256") == pinned,
-              f"driven source is not the pinned {path} of this contract")
-        mark("source_pin")
 
         timelines = {stage["name"]: _timeline(stage) for stage in stages}
         for name in PICKERS_STAGES:

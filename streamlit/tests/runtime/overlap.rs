@@ -2,26 +2,31 @@ use super::*;
 
 fn paused_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
     Box::pin(async move {
-        let state = st.session_state();
-        if state.get::<bool>("pause_next").unwrap().unwrap_or(false) {
-            state.set("pause_next", false).unwrap();
-            st.write("old-paused");
-            // The test, not elapsed wall time, releases this await. State and
-            // output after it reproduce the original in-flight ownership bug.
-            tokio::time::timeout(Duration::from_secs(5), async {
-                while !state.get::<bool>("release_old").unwrap().unwrap_or(false) {
-                    tokio::time::sleep(Duration::from_millis(1)).await;
-                }
-            })
-            .await
-            .expect("test must release the old entry");
-            state.set("phase", "old-completed-before-transfer").unwrap();
-            st.write("old-completed-before-transfer");
-        } else {
-            st.write(format!("before:{}", state.get::<String>("phase").unwrap().unwrap_or_else(|| "empty".into())));
-            state.set("phase", "new-owner").unwrap();
-            st.write("new-owner");
+        let result: TestResult = async {
+            let state = st.session_state();
+            if state.get::<bool>("pause_next")?.unwrap_or(false) {
+                state.set("pause_next", false)?;
+                st.write("old-paused");
+                // The test, not elapsed wall time, releases this await. State and
+                // output after it reproduce the original in-flight ownership bug.
+                tokio::time::timeout(Duration::from_secs(5), async {
+                    while !state.get::<bool>("release_old")?.unwrap_or(false) {
+                        tokio::time::sleep(Duration::from_millis(1)).await;
+                    }
+                    Ok::<_, serde_json::Error>(())
+                })
+                .await??;
+                state.set("phase", "old-completed-before-transfer")?;
+                st.write("old-completed-before-transfer");
+            } else {
+                st.write(format!("before:{}", state.get::<String>("phase")?.unwrap_or_else(|| "empty".into())));
+                state.set("phase", "new-owner")?;
+                st.write("new-owner");
+            }
+            Ok(())
         }
+        .await;
+        assert!(result.is_ok(), "paused_entry fixture failed: {result:?}");
     })
 }
 
@@ -68,17 +73,17 @@ async fn finish_run(stream: &mut TcpStream) -> Vec<String> {
 }
 
 #[actix_web::test]
-async fn takeover_waits_for_awaiting_old_run_without_blocking_other_sessions() {
-    let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
-    let address = listener.local_addr().unwrap();
+async fn takeover_waits_for_awaiting_old_run_without_blocking_other_sessions() -> TestResult {
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
     let server_state = StreamlitServer::new(paused_entry, "127.0.0.1".into(), 0);
     let seed = server_state.sessions.connect(None).await;
     let id = seed.id.clone();
     let control = seed.state.clone();
-    control.set("pause_next", true).unwrap();
+    control.set("pause_next", true)?;
     drop(seed);
     let store = server_state.sessions.clone();
-    let server = HttpServer::new(move || App::new().app_data(web::Data::new(server_state.clone())).configure(configure_routes)).workers(2).listen(listener).unwrap().run();
+    let server = HttpServer::new(move || App::new().app_data(web::Data::new(server_state.clone())).configure(configure_routes)).workers(2).listen(listener)?.run();
     let handle = server.handle();
     let task = actix_web::rt::spawn(server);
     let mut old = sessions::connect(address, Some(&id)).await;
@@ -88,7 +93,7 @@ async fn takeover_waits_for_awaiting_old_run_without_blocking_other_sessions() {
             break;
         }
     }
-    let original_owner = store.owner_for_test(&id).unwrap();
+    let original_owner = store.owner_for_test(&id).ok_or("connected session must have an owner")?;
     // Upgrade succeeds while A is suspended; ownership must not transfer yet.
     let mut new = sessions::connect(address, Some(&id)).await;
     request_run(&mut new).await;
@@ -100,25 +105,26 @@ async fn takeover_waits_for_awaiting_old_run_without_blocking_other_sessions() {
     let mut other = sessions::connect(address, None).await;
     request_run(&mut other).await;
     assert_eq!(finish_run(&mut other).await, ["before:empty", "new-owner"]);
-    assert!(!control.get::<bool>("release_old").unwrap().unwrap_or(false));
+    assert!(!control.get::<bool>("release_old")?.unwrap_or(false));
     assert_eq!(store.owner_for_test(&id), Some(original_owner));
 
-    control.set("release_old", true).unwrap();
+    control.set("release_old", true)?;
     assert_eq!(finish_run(&mut old).await, ["old-completed-before-transfer"]);
     let first_new = receive(&mut new).await;
-    assert!(matches!(first_new.r#type, Some(forward_msg::Type::NewSession(session)) if session.initialize.as_ref().unwrap().session_id == id));
+    assert!(matches!(first_new.r#type, Some(forward_msg::Type::NewSession(session)) if session.initialize.as_ref().is_some_and(|init| init.session_id == id)));
     assert_ne!(store.owner_for_test(&id), Some(original_owner));
     assert_eq!(finish_run(&mut new).await, ["before:old-completed-before-transfer", "new-owner"]);
 
     // Once transferred, a stale socket must neither rerun nor send stale output.
     request_run(&mut old).await;
     let mut close = [0; 2];
-    tokio::time::timeout(Duration::from_secs(5), old.read_exact(&mut close)).await.unwrap().unwrap();
+    tokio::time::timeout(Duration::from_secs(5), old.read_exact(&mut close)).await??;
     assert_eq!(close[0], 0x88, "stale socket emitted output after ownership transferred");
-    assert_eq!(control.get::<String>("phase").unwrap().as_deref(), Some("new-owner"));
+    assert_eq!(control.get::<String>("phase")?.as_deref(), Some("new-owner"));
     drop(old);
     sessions::disconnect(new).await;
     sessions::disconnect(other).await;
     handle.stop(false).await;
-    task.await.unwrap().unwrap();
+    task.await??;
+    Ok(())
 }

@@ -73,10 +73,12 @@ mod tests {
 
     // Expected values come from the real Python 1.66.1 browser capture, not
     // generated Rust output. This file deliberately exercises only measured cases.
-    fn assert_reference_case(case: &str) {
-        let reference: serde_json::Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/status/trace-status.json")).unwrap();
+    fn assert_reference_case(case: &str) -> anyhow::Result<()> {
+        let reference: serde_json::Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/status/trace-status.json"))?;
         assert_eq!(reference["reference_version"], "1.66.1");
-        let alerts = reference["cases"][case]["alerts"].as_array().unwrap();
+        let alerts = reference["cases"][case]["alerts"]
+            .as_array()
+            .ok_or_else(|| anyhow::anyhow!("status reference requires reference[\"cases\"][case][\"alerts\"].as_array()"))?;
         let st = Streamlit::new();
         let (sender, mut receiver) = tokio::sync::mpsc::unbounded_channel();
         let mut context = RenderContext::with_sender("status-test".to_string(), sender);
@@ -86,8 +88,8 @@ mod tests {
 
         for (index, observation) in alerts.iter().enumerate() {
             let wire = &observation["wire"];
-            let body = wire["body"].as_str().unwrap();
-            let format = Format::from_str_name(wire["format"].as_str().unwrap()).unwrap();
+            let body = wire["body"].as_str().ok_or_else(|| anyhow::anyhow!("status reference requires wire[\"body\"].as_str()"))?;
+            let format = Format::from_str_name(wire["format"].as_str().ok_or_else(|| anyhow::anyhow!("status reference requires wire format"))?).ok_or_else(|| anyhow::anyhow!("reference status format must be recognized"))?;
             let mut options = StatusOptions::new(body);
             if let Some(icon) = wire["icon"].as_str() {
                 options = options.icon(icon);
@@ -95,7 +97,7 @@ mod tests {
                 options = options.icon("");
             }
             if let Some(width) = wire["widthConfig"]["pixelWidth"].as_i64() {
-                options = options.width(i32::try_from(width).unwrap());
+                options = options.width(i32::try_from(width)?);
             }
             if let Some(title) = wire["title"].as_str() {
                 options = options.title(title);
@@ -106,13 +108,12 @@ mod tests {
                 Format::Warning => st.warning(options),
                 Format::Error => st.error(options),
                 Format::Unused => panic!("not a measured status format"),
-            }
-            .unwrap();
+            }?;
 
-            let msg = receiver.try_recv().unwrap();
-            let msg = crate::proto::ForwardMsg::decode(msg.encode_to_vec().as_slice()).unwrap();
-            let metadata = msg.metadata.as_ref().unwrap();
-            assert_eq!(metadata.delta_path, vec![0, u32::try_from(index).unwrap()]);
+            let msg = receiver.try_recv()?;
+            let msg = crate::proto::ForwardMsg::decode(msg.encode_to_vec().as_slice())?;
+            let metadata = msg.metadata.as_ref().ok_or_else(|| anyhow::anyhow!("status message must contain delta metadata"))?;
+            assert_eq!(metadata.delta_path, vec![0, u32::try_from(index)?]);
             assert_eq!(metadata.active_script_hash, "status-script");
             let Some(forward_msg::Type::Delta(delta)) = msg.r#type else { panic!("missing delta") };
             let Some(delta::Type::NewElement(element)) = delta.r#type else { panic!("missing element") };
@@ -121,7 +122,7 @@ mod tests {
             assert!(element.text_alignment_config.is_none());
             let Some(element::Type::Alert(alert)) = element.r#type else { panic!("missing alert") };
             let width_spec = if let Some(width) = wire["widthConfig"]["pixelWidth"].as_u64() {
-                WidthSpec::PixelWidth(u32::try_from(width).unwrap())
+                WidthSpec::PixelWidth(u32::try_from(width)?)
             } else {
                 assert_eq!(wire["widthConfig"]["useStretch"], true);
                 WidthSpec::UseStretch(true)
@@ -138,22 +139,31 @@ mod tests {
             );
         }
         assert!(receiver.try_recv().is_err());
-        assert_eq!(st.app.lock().render_context_mut().unwrap().delta_path, vec![0, u32::try_from(alerts.len()).unwrap()]);
+        assert_eq!(
+            st.app.lock().render_context_mut().ok_or_else(|| anyhow::anyhow!("status test must retain its render context"))?.delta_path,
+            vec![0, u32::try_from(alerts.len())?]
+        );
+
+        Ok(())
     }
 
     #[test]
-    fn defaults_match_python_browser_oracle() {
-        assert_reference_case("defaults");
+    fn defaults_match_python_browser_oracle() -> anyhow::Result<()> {
+        assert_reference_case("defaults")?;
+
+        Ok(())
     }
 
     #[test]
-    fn explicit_icon_width_title_and_middle_emoji_match_python_browser_oracle() {
-        assert_reference_case("variants");
+    fn explicit_icon_width_title_and_middle_emoji_match_python_browser_oracle() -> anyhow::Result<()> {
+        assert_reference_case("variants")?;
+
+        Ok(())
     }
 
     #[test]
-    fn leading_icons_and_explicit_empty_icon_match_browser_oracle() {
-        let reference: serde_json::Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/status/trace-status-leading.json")).unwrap();
+    fn leading_icons_and_explicit_empty_icon_match_browser_oracle() -> anyhow::Result<()> {
+        let reference: serde_json::Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/status/trace-status-leading.json"))?;
         let inputs = [
             ("leading_emoji", "💡 INFO-LEADING-EMOJI this body starts with an emoji", None),
             ("leading_emoji_noicon", "💡 INFO-LEADING-NOICON body keeps its emoji", Some("")),
@@ -167,110 +177,147 @@ mod tests {
             if let Some(icon) = icon {
                 options = options.icon(icon);
             }
-            st.info(options).unwrap();
-            let Some(forward_msg::Type::Delta(delta)) = receiver.try_recv().unwrap().r#type else { panic!("missing delta") };
+            st.info(options)?;
+            let Some(forward_msg::Type::Delta(delta)) = receiver.try_recv()?.r#type else { panic!("missing delta") };
             let Some(delta::Type::NewElement(element)) = delta.r#type else { panic!("missing element") };
             let Some(element::Type::Alert(alert)) = element.r#type else { panic!("missing alert") };
             let wire = &reference["cases"][case]["alerts"][0];
-            assert_eq!(alert.body, wire["body"].as_str().unwrap());
+            assert_eq!(alert.body, wire["body"].as_str().ok_or_else(|| anyhow::anyhow!("status reference requires wire[\"body\"].as_str()"))?);
             assert_eq!(alert.icon, wire["icon"].as_str().unwrap_or_default());
             assert_eq!(alert.format, Format::Info as i32);
-            assert_eq!(alert.width_config.unwrap().width_spec, Some(WidthSpec::UseStretch(true)));
+            assert_eq!(alert.width_config.ok_or_else(|| anyhow::anyhow!("status alert must contain width configuration"))?.width_spec, Some(WidthSpec::UseStretch(true)));
         }
+
+        Ok(())
     }
 
     #[test]
-    fn compound_icons_and_leading_cluster_match_python_browser_oracle() {
-        let reference: serde_json::Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/status/trace-status-icon-composite.json")).unwrap();
+    fn compound_icons_and_leading_cluster_match_python_browser_oracle() -> anyhow::Result<()> {
+        let reference: serde_json::Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/status/trace-status-icon-composite.json"))?;
         assert_eq!(reference["reference_version"], "1.66.1");
-        for input in reference["icon_rule"]["accepted_multi_code_point_clusters"].as_array().unwrap() {
-            let case = input["case"].as_str().unwrap();
-            let icon = input["value"].as_str().unwrap();
+        for input in reference["icon_rule"]["accepted_multi_code_point_clusters"]
+            .as_array()
+            .ok_or_else(|| anyhow::anyhow!("status reference requires reference[\"icon_rule\"][\"accepted_multi_code_point_clusters\"].as_array()"))?
+        {
+            let case = input["case"].as_str().ok_or_else(|| anyhow::anyhow!("status reference requires input[\"case\"].as_str()"))?;
+            let icon = input["value"].as_str().ok_or_else(|| anyhow::anyhow!("status reference requires input[\"value\"].as_str()"))?;
             let wire = &reference["cases"][case]["alerts"][0];
-            assert!(reference["cases"][case]["exceptions"].as_array().unwrap().is_empty());
-            assert_compound_alert(StatusOptions::new(wire["body"].as_str().unwrap()).icon(icon), wire);
+            assert!(
+                reference["cases"][case]["exceptions"]
+                    .as_array()
+                    .ok_or_else(|| anyhow::anyhow!("status reference requires reference[\"cases\"][case][\"exceptions\"].as_array()"))?
+                    .is_empty()
+            );
+            assert_compound_alert(StatusOptions::new(wire["body"].as_str().ok_or_else(|| anyhow::anyhow!("status reference requires wire[\"body\"].as_str()"))?).icon(icon), wire)?;
         }
         let wire = &reference["cases"]["leading_composite"]["alerts"][0];
-        assert_compound_alert(StatusOptions::new("👩‍💻 INFO-LEADING-COMPOSITE body starts with a composite emoji"), wire);
+        assert_compound_alert(StatusOptions::new("👩‍💻 INFO-LEADING-COMPOSITE body starts with a composite emoji"), wire)?;
+
+        Ok(())
     }
 
-    fn assert_compound_alert(options: StatusOptions, wire: &serde_json::Value) {
+    fn assert_compound_alert(options: StatusOptions, wire: &serde_json::Value) -> anyhow::Result<()> {
         let st = Streamlit::new();
         let (sender, mut receiver) = tokio::sync::mpsc::unbounded_channel();
         let mut context = RenderContext::with_sender("compound-test".to_string(), sender);
         context.delta_path = vec![0, 0];
         st.app.lock().set_render_context(context);
-        st.info(options).unwrap();
-        let msg = receiver.try_recv().unwrap();
-        let msg = crate::proto::ForwardMsg::decode(msg.encode_to_vec().as_slice()).unwrap();
-        assert_eq!(msg.metadata.as_ref().unwrap().delta_path, vec![0, 0]);
+        st.info(options)?;
+        let msg = receiver.try_recv()?;
+        let msg = crate::proto::ForwardMsg::decode(msg.encode_to_vec().as_slice())?;
+        assert_eq!(msg.metadata.as_ref().ok_or_else(|| anyhow::anyhow!("status message must contain delta metadata"))?.delta_path, vec![0, 0]);
         let Some(forward_msg::Type::Delta(delta)) = msg.r#type else { panic!("missing delta") };
         let Some(delta::Type::NewElement(element)) = delta.r#type else { panic!("missing element") };
         assert!(element.width_config.is_none());
         assert!(element.height_config.is_none());
         let Some(element::Type::Alert(alert)) = element.r#type else { panic!("missing alert") };
-        assert_eq!(alert.body, wire["body"].as_str().unwrap());
-        assert_eq!(alert.icon, wire["icon"].as_str().unwrap());
+        assert_eq!(alert.body, wire["body"].as_str().ok_or_else(|| anyhow::anyhow!("status reference requires wire[\"body\"].as_str()"))?);
+        assert_eq!(alert.icon, wire["icon"].as_str().ok_or_else(|| anyhow::anyhow!("status reference requires wire[\"icon\"].as_str()"))?);
         assert_eq!(alert.format, Format::Info as i32);
-        assert_eq!(alert.width_config.unwrap().width_spec, Some(WidthSpec::UseStretch(true)));
+        assert_eq!(alert.width_config.ok_or_else(|| anyhow::anyhow!("status alert must contain width configuration"))?.width_spec, Some(WidthSpec::UseStretch(true)));
         assert!(receiver.try_recv().is_err());
+
+        Ok(())
     }
 
     #[test]
-    fn two_independent_emoji_return_observed_error_without_emitting_an_alert() {
-        let reference: serde_json::Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/status/trace-status-icon-composite.json")).unwrap();
-        let invalid = reference["icon_rule"]["rejected"]["value"].as_str().unwrap();
+    fn two_independent_emoji_return_observed_error_without_emitting_an_alert() -> anyhow::Result<()> {
+        let reference: serde_json::Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/status/trace-status-icon-composite.json"))?;
+        let invalid = reference["icon_rule"]["rejected"]["value"]
+            .as_str()
+            .ok_or_else(|| anyhow::anyhow!("status reference requires reference[\"icon_rule\"][\"rejected\"][\"value\"].as_str()"))?;
         let st = Streamlit::new();
         let (sender, mut receiver) = tokio::sync::mpsc::unbounded_channel();
         let mut context = RenderContext::with_sender("invalid-compound-test".to_string(), sender);
         context.delta_path = vec![0, 0];
         st.app.lock().set_render_context(context);
-        let error = st.info(StatusOptions::new("INFO-ICON-TWO body").icon(invalid)).unwrap_err();
-        assert_eq!(error.to_string(), reference["cases"]["icon_two_emoji"]["exceptions"][0]["message"].as_str().unwrap());
-        assert!(reference["cases"]["icon_two_emoji"]["alerts"].as_array().unwrap().is_empty());
+        let error = st.info(StatusOptions::new("INFO-ICON-TWO body").icon(invalid)).err().ok_or_else(|| anyhow::anyhow!("compound icon must be rejected"))?;
+        assert_eq!(
+            error.to_string(),
+            reference["cases"]["icon_two_emoji"]["exceptions"][0]["message"]
+                .as_str()
+                .ok_or_else(|| anyhow::anyhow!("status reference requires reference[\"cases\"][\"icon_two_emoji\"][\"exceptions\"][0][\"message\"].as_str()"))?
+        );
+        assert!(
+            reference["cases"]["icon_two_emoji"]["alerts"]
+                .as_array()
+                .ok_or_else(|| anyhow::anyhow!("status reference requires reference[\"cases\"][\"icon_two_emoji\"][\"alerts\"].as_array()"))?
+                .is_empty()
+        );
         assert!(receiver.try_recv().is_err());
         let mut app = st.app.lock();
-        let context = app.render_context_mut().unwrap();
+        let context = app.render_context_mut().ok_or_else(|| anyhow::anyhow!("status test must retain its render context"))?;
         assert_eq!(context.delta_path, vec![0, 0]);
         assert!(context.stream.is_empty());
+
+        Ok(())
     }
 
     #[test]
-    fn unicode_sequence_validation_uses_data_and_preserves_input() {
+    fn unicode_sequence_validation_uses_data_and_preserves_input() -> anyhow::Result<()> {
         // Rust-side validation regressions, beyond the captured Python cases.
         // These do not establish acceptance parity for the entire Unicode set.
         for icon in ["👨‍👩‍👧‍👦", "🧑🏽‍🏫", "🇺🇳", "1️⃣", "❤️", "❤"] {
             assert!(is_single_emoji(icon), "{icon:?}");
-            assert_eq!(status_content("body", Some(icon)).unwrap(), ("body".to_string(), icon.to_string()));
-            assert_eq!(status_content(&format!("{icon} body"), None).unwrap(), ("body".to_string(), icon.to_string()));
+            assert_eq!(status_content("body", Some(icon))?, ("body".to_string(), icon.to_string()));
+            assert_eq!(status_content(&format!("{icon} body"), None)?, ("body".to_string(), icon.to_string()));
         }
         for icon in ["a\u{301}", "👩‍x", "🔥💡", "👍🏽💡", "🇨🇳🇺🇳", "\u{200d}"] {
             assert!(!is_single_emoji(icon), "{icon:?}");
             assert!(status_content("body", Some(icon)).is_err());
         }
+
+        Ok(())
     }
 
     #[test]
-    fn invalid_width_returns_the_observed_message_without_appending_an_element() {
-        let reference: serde_json::Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/status/trace-status-leading.json")).unwrap();
+    fn invalid_width_returns_the_observed_message_without_appending_an_element() -> anyhow::Result<()> {
+        let reference: serde_json::Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/status/trace-status-leading.json"))?;
         let st = Streamlit::new();
         let (sender, mut receiver) = tokio::sync::mpsc::unbounded_channel();
         let mut context = RenderContext::with_sender("invalid-test".to_string(), sender);
         context.delta_path = vec![0, 0];
         st.app.lock().set_render_context(context);
-        st.info("INFO-BODY before the invalid call").unwrap();
-        receiver.try_recv().unwrap();
-        let error = st.info(StatusOptions::new("invalid width follows").width("bogus")).unwrap_err();
-        assert_eq!(error.to_string(), reference["cases"]["invalid_width"]["exceptions"][0]["message"].as_str().unwrap());
+        st.info("INFO-BODY before the invalid call")?;
+        receiver.try_recv()?;
+        let error = st.info(StatusOptions::new("invalid width follows").width("bogus")).err().ok_or_else(|| anyhow::anyhow!("invalid width must be rejected"))?;
+        assert_eq!(
+            error.to_string(),
+            reference["cases"]["invalid_width"]["exceptions"][0]["message"]
+                .as_str()
+                .ok_or_else(|| anyhow::anyhow!("status reference requires reference[\"cases\"][\"invalid_width\"][\"exceptions\"][0][\"message\"].as_str()"))?
+        );
         assert!(receiver.try_recv().is_err());
         let mut app = st.app.lock();
-        let context = app.render_context_mut().unwrap();
+        let context = app.render_context_mut().ok_or_else(|| anyhow::anyhow!("status test must retain its render context"))?;
         assert_eq!(context.delta_path, vec![0, 1]);
         assert_eq!(context.stream.len(), 1);
+
+        Ok(())
     }
 
     #[test]
-    fn rust_parameter_boundaries_and_markdown_are_explicit() {
+    fn rust_parameter_boundaries_and_markdown_are_explicit() -> anyhow::Result<()> {
         use crate::api::StatusError;
         let st = Streamlit::new();
         let (sender, mut receiver) = tokio::sync::mpsc::unbounded_channel();
@@ -285,12 +332,14 @@ mod tests {
         assert!(matches!(st.info(StatusOptions::new("not an emoji sequence").icon("👩‍x")), Err(StatusError::InvalidIcon(_))));
         assert!(receiver.try_recv().is_err());
         let body = "**bold** _italic_ `code` [link](https://streamlit.io)\n\n<script>literal</script>";
-        st.info(StatusOptions::new(body).icon("").width(1).title("**Title**")).unwrap();
-        let Some(forward_msg::Type::Delta(delta)) = receiver.try_recv().unwrap().r#type else { panic!("missing delta") };
+        st.info(StatusOptions::new(body).icon("").width(1).title("**Title**"))?;
+        let Some(forward_msg::Type::Delta(delta)) = receiver.try_recv()?.r#type else { panic!("missing delta") };
         let Some(delta::Type::NewElement(element)) = delta.r#type else { panic!("missing element") };
         let Some(element::Type::Alert(alert)) = element.r#type else { panic!("missing alert") };
         assert_eq!(alert.body, body);
         assert_eq!(alert.title, "**Title**");
-        assert_eq!(alert.width_config.unwrap().width_spec, Some(WidthSpec::PixelWidth(1)));
+        assert_eq!(alert.width_config.ok_or_else(|| anyhow::anyhow!("status alert must contain width configuration"))?.width_spec, Some(WidthSpec::PixelWidth(1)));
+
+        Ok(())
     }
 }

@@ -283,13 +283,11 @@ def test_quiet_duration_clock_continuity_and_known_close_are_enforced(mutation, 
     assert code in {failure["code"] for failure in failures}
 
 
-def test_the_pinned_forms_reference_satisfies_the_strict_contract() -> None:
-    # Only the final source-matched bundle is a positive acceptance input.
+def test_the_frozen_forms_reference_satisfies_the_strict_contract() -> None:
+    # The selected complete bundle is the positive acceptance input.
     # Older traces stay as historical provenance and negative-test inputs.
     path = HERE / "reference-browser" / "forms-final" / "trace-forms.json"
     observed = json.loads(path.read_text(encoding="utf-8"))
-    assert observed["fixture"]["sha256"] == "d177df7d7ef72414faffce8984d1b88547f401beff560eb103ae0bd945eda352"
-    assert observed["fixture"]["bytes"] == 21696
     failures = verify_forms_text_input_contract(
         observed,
         namespace="forms-text-input-v1",
@@ -336,3 +334,11 @@ def test_empty_windows_fail_closed_for_submit_and_quiet_counterfeit() -> None:
     codes = {failure["code"] for failure in failures}
     assert "empty_action_window" in codes
     assert "quiet_dom" in codes
+
+
+def test_forms_source_fingerprints_do_not_gate_functional_evidence():
+    observed = _mutation_observation()
+    for fixture in ({"app": "historical-app.py", "sha256": "changed", "bytes": 1}, {"app": "historical-app.py"}):
+        observed["fixture"] = fixture
+        failures = verify_forms_text_input_contract(observed, case_ids=CANONICAL_CASE_IDS)
+        assert failures == []

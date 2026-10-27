@@ -36,7 +36,7 @@ sys.path.insert(0, str(ROOT / "tests" / "reference"))
 sys.path.insert(0, str(HERE))
 
 from capture_browser_trace import CDP, require_decoder, summarise_back, summarise_forward  # noqa: E402
-from datetime_contract import DATETIME_CASE, DATETIME_CONTRACT, DATETIME_STAGES, datetime_result  # noqa: E402
+from datetime_contract import DATETIME_SOURCE_FILES, DATETIME_CASE, DATETIME_CONTRACT, DATETIME_STAGES, datetime_result  # noqa: E402
 
 DOM_EXPRESSION = r"""JSON.stringify({
 datetimeInputs:[...document.querySelectorAll("[data-testid=stDateTimeInput]")].map(e=>e.querySelector("input")?.value),
@@ -112,13 +112,15 @@ def collect(args) -> int:
     out = pathlib.Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     side = "python" if args.scope == "PYTHON SIDE ONLY" else "native"
-    source_path = ROOT / ("tests/reference/datetime_app.py" if side == "python" else "streamlit/examples/datetime.rs")
+    source_path = ROOT / DATETIME_SOURCE_FILES[side]
     observation = {
         "journey": DATETIME_CASE,
         "contract": DATETIME_CONTRACT,
         "scope": args.scope,
         "url": args.url,
-        "source": {"file": source_path.relative_to(ROOT).as_posix(), "sha256": digest(source_path)},
+        "runtime": side,
+        "reference_version": "1.66.1",
+        "source": {"file": source_path.relative_to(ROOT).as_posix()},
         "stages": [],
     }
     manifest = {"executable": sys.executable, "argv": sys.argv[1:], "cwd": str(pathlib.Path.cwd()),

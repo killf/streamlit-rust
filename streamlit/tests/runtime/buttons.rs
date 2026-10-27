@@ -14,57 +14,60 @@ use crate::proto::widget_state::Value as WireValue;
 
 fn buttons_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
     Box::pin(async move {
-        // Mirrors tests/reference/buttons_app.py.
-        st.toggle(crate::ToggleOptions::new("Night mode").key("night")).unwrap();
-        st.toggle(("Sound", true)).unwrap();
+        let result: TestResult = async {
+            // Mirrors tests/reference/buttons_app.py.
+            st.toggle(crate::ToggleOptions::new("Night mode").key("night"))?;
+            st.toggle(("Sound", true))?;
 
-        let _stars = st.feedback(crate::FeedbackOptions::new(crate::FeedbackKind::Stars).key("rate")).unwrap();
-        st.feedback(crate::FeedbackKind::Thumbs).unwrap();
+            let _stars = st.feedback(crate::FeedbackOptions::new(crate::FeedbackKind::Stars).key("rate"))?;
+            st.feedback(crate::FeedbackKind::Thumbs)?;
 
-        st.pills(crate::ButtonGroupOptions::new("Priority", ["low", "medium", "high"]).key("priority")).unwrap();
-        st.pills(crate::ButtonGroupOptions::new("Tags", ["alpha", "beta", "gamma"]).selection_mode(crate::SelectionMode::Multi).default(["alpha"]).key("tags"))
-            .unwrap();
-        st.segmented_control(crate::ButtonGroupOptions::new("View", ["grid", "list"]).default(["grid"]).key("view")).unwrap();
+            st.pills(crate::ButtonGroupOptions::new("Priority", ["low", "medium", "high"]).key("priority"))?;
+            st.pills(crate::ButtonGroupOptions::new("Tags", ["alpha", "beta", "gamma"]).selection_mode(crate::SelectionMode::Multi).default(["alpha"]).key("tags"))?;
+            st.segmented_control(crate::ButtonGroupOptions::new("View", ["grid", "list"]).default(["grid"]).key("view"))?;
 
-        let page = st.pagination(crate::PaginationOptions::new(10).key("pager")).unwrap();
-        st.write(format!("page={page}"));
+            let page = st.pagination(crate::PaginationOptions::new(10).key("pager"))?;
+            st.write(format!("page={page}"));
 
-        let pick = st.menu_button(crate::MenuButtonOptions::new("Export", ["CSV", "JSON"]).key("export")).unwrap();
-        if pick.is_some() {
-            st.write("picked");
+            let pick = st.menu_button(crate::MenuButtonOptions::new("Export", ["CSV", "JSON"]).key("export"))?;
+            if pick.is_some() {
+                st.write("picked");
+            }
+
+            st.download_button(crate::DownloadButtonOptions::new("Save report", "quarterly report body").file_name("report.txt").mime("text/plain").key("save"))?;
+            st.link_button(crate::LinkButtonOptions::new("Docs", "https://docs.streamlit.io").key("docs"))?;
+            st.page_link(crate::PageLinkOptions::new("https://example.com").label("Example site"))?;
+
+            Ok(())
         }
+        .await;
 
-        st.download_button(crate::DownloadButtonOptions::new("Save report", "quarterly report body").file_name("report.txt").mime("text/plain").key("save"))
-            .unwrap();
-        st.link_button(crate::LinkButtonOptions::new("Docs", "https://docs.streamlit.io").key("docs")).unwrap();
-        st.page_link(crate::PageLinkOptions::new("https://example.com").label("Example site")).unwrap();
+        assert!(result.is_ok(), "buttons fixture must render successfully: {result:?}");
     })
 }
 
 #[actix_web::test]
-async fn button_family_matches_the_measured_wire() {
-    let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
-    let address = listener.local_addr().unwrap();
+async fn button_family_matches_the_measured_wire() -> TestResult {
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
     let server = HttpServer::new(move || App::new().app_data(web::Data::new(StreamlitServer::new(buttons_entry, "127.0.0.1".into(), 0))).configure(configure_routes))
         .workers(1)
-        .listen(listener)
-        .unwrap()
+        .listen(listener)?
         .run();
     let handle = server.handle();
     let task = actix_web::rt::spawn(server);
-    let mut stream = TcpStream::connect(address).await.unwrap();
+    let mut stream = TcpStream::connect(address).await?;
     let request = format!("GET /_stcore/stream HTTP/1.1\r\nHost: {address}\r\nConnection: Upgrade\r\nUpgrade: websocket\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\nSec-WebSocket-Protocol: streamlit, test-xsrf\r\n\r\n");
-    stream.write_all(request.as_bytes()).await.unwrap();
+    stream.write_all(request.as_bytes()).await?;
     let headers = tokio::time::timeout(Duration::from_secs(5), async {
         let mut response = Vec::new();
         while !response.ends_with(b"\r\n\r\n") {
-            response.push(stream.read_u8().await.unwrap());
+            response.push(stream.read_u8().await?);
             assert!(response.len() < 8192);
         }
-        String::from_utf8(response).unwrap().to_ascii_lowercase()
+        Ok::<_, Box<dyn std::error::Error>>(String::from_utf8(response)?.to_ascii_lowercase())
     })
-    .await
-    .unwrap();
+    .await??;
     assert!(headers.starts_with("http/1.1 101"));
 
     let mut ids: std::collections::HashMap<&str, String> = std::collections::HashMap::new();
@@ -193,11 +196,13 @@ async fn button_family_matches_the_measured_wire() {
 
     drop(stream);
     handle.stop(false).await;
-    task.await.unwrap().unwrap();
+    task.await??;
+
+    Ok(())
 }
 
 #[actix_web::test]
-async fn feedback_decodes_its_three_wire_states() {
+async fn feedback_decodes_its_three_wire_states() -> TestResult {
     use crate::widgets::{Codec, WidgetError};
 
     let decode = |wire: WireValue| -> Result<serde_json::Value, WidgetError> {
@@ -207,11 +212,13 @@ async fn feedback_decodes_its_three_wire_states() {
     };
     // The measured serde: "" is the explicit clear, a decimal string is the
     // picked icon, anything else is rejected fail-closed.
-    assert_eq!(decode(WireValue::StringValue(String::new())).unwrap(), serde_json::Value::Null);
-    assert_eq!(decode(WireValue::StringValue("2".into())).unwrap(), serde_json::json!(2));
+    assert_eq!(decode(WireValue::StringValue(String::new()))?, serde_json::Value::Null);
+    assert_eq!(decode(WireValue::StringValue("2".into()))?, serde_json::json!(2));
     assert!(decode(WireValue::StringValue("bogus".into())).is_err());
     assert!(decode(WireValue::StringValue("7".into())).is_err());
     assert!(decode(WireValue::IntValue(2)).is_err());
+
+    Ok(())
 }
 
 #[actix_web::test]
@@ -232,10 +239,10 @@ async fn button_group_decodes_single_and_multi_selections() {
         })
     };
 
-    assert_eq!(single.decode(&wire(&["high"])).unwrap(), serde_json::json!(1));
-    assert_eq!(single.decode(&wire(&[])).unwrap(), serde_json::Value::Null);
+    assert_eq!(single.decode(&wire(&["high"])), Some(serde_json::json!(1)));
+    assert_eq!(single.decode(&wire(&[])), Some(serde_json::Value::Null));
     assert!(single.decode(&wire(&["low", "high"])).is_none(), "a single-select group carries at most one label");
-    assert_eq!(multi.decode(&wire(&["beta", "alpha"])).unwrap(), serde_json::json!([1, 0]), "multi-select preserves the browser's selection order");
+    assert_eq!(multi.decode(&wire(&["beta", "alpha"])), Some(serde_json::json!([1, 0])), "multi-select preserves the browser's selection order");
     assert!(!single.valid(&serde_json::json!(2)), "an out-of-range index is rejected fail-closed");
     assert!(single.valid(&serde_json::Value::Null), "no selection is valid");
 }

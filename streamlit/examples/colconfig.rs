@@ -11,7 +11,7 @@ use streamlit::column_config as cc;
 use streamlit::data::{DataType, Field, RecordBatch, Schema};
 use streamlit::{ColumnBase, ColumnConfigs, DataApi, DataEditorOptions, DataframeOptions, EditorRows, StreamlitApi};
 
-fn wide_batch() -> RecordBatch {
+fn wide_batch() -> anyhow::Result<RecordBatch> {
     // The 21 configured columns typed like the python fixture's frame:
     // utf8 text, int64 counters, bool, date32, timestamp[us], time64[us],
     // list<string> and one struct column.
@@ -74,16 +74,16 @@ fn wide_batch() -> RecordBatch {
         text(["r1", "r2"]),
         text(["go", "stop"]),
     ];
-    RecordBatch::try_new(Arc::new(Schema::new(fields)), arrays).unwrap()
+    Ok(RecordBatch::try_new(Arc::new(Schema::new(fields)), arrays)?)
 }
 
-fn qty_batch() -> RecordBatch {
+fn qty_batch() -> anyhow::Result<RecordBatch> {
     let fields = vec![Field::new("qty", DataType::Int64, true)];
     let arrays = vec![Arc::new(Int64Array::from(vec![1, 2])) as _];
-    RecordBatch::try_new(Arc::new(Schema::new(fields)), arrays).unwrap()
+    Ok(RecordBatch::try_new(Arc::new(Schema::new(fields)), arrays)?)
 }
 
-fn render(st: &Streamlit) {
+fn render(st: &Streamlit) -> anyhow::Result<()> {
     let configs = ColumnConfigs::new()
         .add("name", cc::column(ColumnBase::new(Some("Name")).width("medium").help("the name").pinned(true).alignment("center")))
         .add("title", cc::text_column(ColumnBase::new(Some("Title")), Some("hi"), Some(10), Some(r"^h")))
@@ -118,10 +118,11 @@ fn render(st: &Streamlit) {
         .add("reel", cc::video_column(ColumnBase::new(Some("Reel"))))
         .add("act", cc::button_column(ColumnBase::new(Some("Act")), Some("primary"), Some("act")));
 
-    st.dataframe(DataframeOptions::new(&wide_batch()).column_config(configs)).unwrap();
+    st.dataframe(DataframeOptions::new(&wide_batch()?).column_config(configs))?;
 
-    let _edits = st.data_editor(DataEditorOptions::new(&qty_batch()).num_rows(EditorRows::Dynamic).key("editor")).unwrap();
-    st.write(format!("edits=({}, {})", qty_batch().num_rows(), qty_batch().num_columns()));
+    let _edits = st.data_editor(DataEditorOptions::new(&qty_batch()?).num_rows(EditorRows::Dynamic).key("editor"))?;
+    st.write(format!("edits=({}, {})", qty_batch()?.num_rows(), qty_batch()?.num_columns()));
+    Ok(())
 }
 
 #[tokio::main]
@@ -129,7 +130,9 @@ async fn main() -> std::io::Result<()> {
     StreamlitServer::new(
         |st| {
             Box::pin(async move {
-                render(st);
+                if let Err(error) = render(st) {
+                    st.write(format!("Example error: {error}"));
+                }
             })
         },
         "127.0.0.1".into(),

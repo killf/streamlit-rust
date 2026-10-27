@@ -61,7 +61,7 @@ Compatibility is only established by black-box evidence against the pinned refer
 
 **Code quality.** `cargo clippy --workspace --locked --all-targets -- -D warnings` and `cargo fmt --all -- --check` stay green (already fresh-checkout gates). Beyond the tools: no dead code, no superseded duplicate paths, no speculative abstraction — the simplest implementation that passes its evidence chain wins, and public user-facing API carries rustdoc that agrees with the guide.
 
-2026-10-27 用户明确要求 Rust 禁止使用 `.unwrap()`。工作区须通过 `clippy::unwrap_used = deny` 执行，两 crate 须继承，检查包含生产代码、构建工具、示例和测试；配置与既有用法迁移在后续代码批次交付。既有用法按错误语义整改：可恢复错误正常传播，测试用明确断言表达预期，不能机械替换为 `.expect()` 或通用 panic 包装来绕过规则。新增 lint 前的通过记录保留其原始配置身份；既有用法清理完成前不能声称新规范已全量通过。
+2026-10-27 用户明确要求 Rust 禁止使用 `.unwrap()`。工作区通过 `clippy::unwrap_used = deny` 执行，两 crate 继承，检查包含生产代码、构建工具、示例和测试。既有用法按错误语义整改：可恢复错误正常传播，测试用明确断言表达预期，不能机械替换为 `.expect()` 或通用 panic 包装来绕过规则。当前迁移已通过全目标 Clippy、工作区及示例测试，证据范围见 [acceptance](acceptance.md#rust-error-handling)；新增 lint 前的旧通过记录保留其原始配置身份。
 
 **Rust-first tests.** Repository tests default to Rust under `cargo test`: runtime regressions, protocol contracts and ledger validation live in the workspace. Python is reserved for the reference side of the evidence chain — fixtures executed by the pinned Python server and the Chrome CDP capture tooling — and when a Python test no longer needs that side, it migrates to Rust in the same change that retires the reason.
 

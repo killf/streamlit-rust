@@ -3598,53 +3598,51 @@ mod tests {
         st.app.lock().set_render_context(RenderContext::with_sender("unit".into(), sender));
         (st, receiver)
     }
-    fn input(receiver: &mut tokio::sync::mpsc::UnboundedReceiver<ForwardMsg>) -> element::Type {
-        match receiver.try_recv().unwrap().r#type {
+    fn input(receiver: &mut tokio::sync::mpsc::UnboundedReceiver<ForwardMsg>) -> anyhow::Result<element::Type> {
+        match receiver.try_recv()?.r#type {
             Some(forward_msg::Type::Delta(proto::Delta {
                 r#type: Some(delta::Type::NewElement(element)), ..
-            })) => element.r#type.unwrap(),
+            })) => element.r#type.ok_or_else(|| anyhow::anyhow!("new widget element must contain its type")),
             other => panic!("expected input, got {other:?}"),
         }
     }
 
-    fn form_block(receiver: &mut tokio::sync::mpsc::UnboundedReceiver<ForwardMsg>) -> proto::Block {
-        match receiver.try_recv().unwrap().r#type {
-            Some(forward_msg::Type::Delta(proto::Delta { r#type: Some(delta::Type::AddBlock(block)), .. })) => block,
+    fn form_block(receiver: &mut tokio::sync::mpsc::UnboundedReceiver<ForwardMsg>) -> anyhow::Result<proto::Block> {
+        match receiver.try_recv()?.r#type {
+            Some(forward_msg::Type::Delta(proto::Delta { r#type: Some(delta::Type::AddBlock(block)), .. })) => Ok(block),
             other => panic!("expected form block, got {other:?}"),
         }
     }
 
     #[test]
-    fn form_text_core_matches_reference_and_callbacks_see_batch_first() {
+    fn form_text_core_matches_reference_and_callbacks_see_batch_first() -> anyhow::Result<()> {
         let state = SessionState::default();
         state.begin_widgets(vec![]);
         let (st, mut wire) = app(&state);
         let callback = |st: &Streamlit| {
             let state = st.session_state();
-            assert_eq!(state.get::<String>("default_note").unwrap().as_deref(), Some("hello"));
-            assert_eq!(state.get::<bool>("default_agree").unwrap(), Some(true));
-            state.set("callback_ran", true).unwrap();
+            assert!(matches!(state.get::<String>("default_note"), Ok(Some(value)) if value == "hello"));
+            assert!(matches!(state.get::<bool>("default_agree"), Ok(Some(true))));
+            assert!(state.set("callback_ran", true).is_ok());
         };
-        let (note, agree, submitted) = st
-            .form(FormOptions::new("default_form"), |form| {
-                let note = form.text_input(TextInputOptions::new("Note").key("default_note"))?;
-                let agree = form.checkbox(CheckboxOptions::new("Agree").key("default_agree"))?;
-                let submitted = form.form_submit_button(FormSubmitButtonOptions::new("Apply").key("default_apply").on_click(callback))?;
-                Ok((note, agree, submitted))
-            })
-            .unwrap();
+        let (note, agree, submitted) = st.form(FormOptions::new("default_form"), |form| {
+            let note = form.text_input(TextInputOptions::new("Note").key("default_note"))?;
+            let agree = form.checkbox(CheckboxOptions::new("Agree").key("default_agree"))?;
+            let submitted = form.form_submit_button(FormSubmitButtonOptions::new("Apply").key("default_apply").on_click(callback))?;
+            Ok((note, agree, submitted))
+        })?;
         assert_eq!((note.as_deref(), agree, submitted), (Some(""), false, false));
-        let block = form_block(&mut wire);
+        let block = form_block(&mut wire)?;
         let Some(proto::block::Type::Form(form)) = block.r#type else { panic!() };
         assert_eq!((form.form_id.as_str(), form.clear_on_submit, form.border, form.enter_to_submit), ("default_form", false, true, true));
         assert_eq!(block.width_config.map(|width| width.width_spec), Some(Some(proto::streamlit::width_config::WidthSpec::UseStretch(true))));
         assert_eq!(block.height_config.map(|height| height.height_spec), Some(Some(proto::streamlit::height_config::HeightSpec::UseContent(true))));
-        let element::Type::TextInput(text) = input(&mut wire) else { panic!() };
+        let element::Type::TextInput(text) = input(&mut wire)? else { panic!() };
         assert!(text.id.ends_with("-default_note"));
         assert_eq!((text.label.as_str(), text.default.as_deref(), text.form_id.as_str(), text.r#type), ("Note", Some(""), "default_form", 0));
-        let element::Type::Checkbox(check) = input(&mut wire) else { panic!() };
+        let element::Type::Checkbox(check) = input(&mut wire)? else { panic!() };
         assert_eq!((check.form_id.as_str(), check.default, check.disabled), ("default_form", false, false));
-        let element::Type::Button(button) = input(&mut wire) else { panic!() };
+        let element::Type::Button(button) = input(&mut wire)? else { panic!() };
         assert_eq!((button.form_id.as_str(), button.is_form_submitter, button.r#type.as_str(), button.disabled), ("default_form", true, "secondary", false));
         state.finish_widgets();
 
@@ -3667,80 +3665,77 @@ mod tests {
         for callback in callbacks {
             callback(&st);
         }
-        assert_eq!(state.get::<bool>("callback_ran").unwrap(), Some(true));
-        let (note, agree, submitted) = st
-            .form(FormOptions::new("default_form"), |form| {
-                let note = form.text_input(TextInputOptions::new("Note").key("default_note"))?;
-                let agree = form.checkbox(CheckboxOptions::new("Agree").key("default_agree"))?;
-                let submitted = form.form_submit_button(FormSubmitButtonOptions::new("Apply").key("default_apply"))?;
-                Ok((note, agree, submitted))
-            })
-            .unwrap();
-        let block = form_block(&mut wire);
+        assert_eq!(state.get::<bool>("callback_ran")?, Some(true));
+        let (note, agree, submitted) = st.form(FormOptions::new("default_form"), |form| {
+            let note = form.text_input(TextInputOptions::new("Note").key("default_note"))?;
+            let agree = form.checkbox(CheckboxOptions::new("Agree").key("default_agree"))?;
+            let submitted = form.form_submit_button(FormSubmitButtonOptions::new("Apply").key("default_apply"))?;
+            Ok((note, agree, submitted))
+        })?;
+        let block = form_block(&mut wire)?;
         let Some(proto::block::Type::Form(form)) = block.r#type else { panic!() };
         assert_eq!(form.form_id, "default_form");
-        let element::Type::TextInput(_) = input(&mut wire) else { panic!() };
-        let element::Type::Checkbox(_) = input(&mut wire) else { panic!() };
-        let element::Type::Button(_) = input(&mut wire) else { panic!() };
+        let element::Type::TextInput(_) = input(&mut wire)? else { panic!() };
+        let element::Type::Checkbox(_) = input(&mut wire)? else { panic!() };
+        let element::Type::Button(_) = input(&mut wire)? else { panic!() };
         assert_eq!((note.as_deref(), agree, submitted), (Some("hello"), true, true));
         state.finish_widgets();
         state.begin_widgets(vec![]);
         let (st, _) = app(&state);
-        let submitted = st.form(FormOptions::new("default_form"), |form| form.form_submit_button(FormSubmitButtonOptions::new("Apply").key("default_apply"))).unwrap();
+        let submitted = st.form(FormOptions::new("default_form"), |form| form.form_submit_button(FormSubmitButtonOptions::new("Apply").key("default_apply")))?;
         assert!(!submitted, "submit triggers reset after a completed run");
+
+        Ok(())
     }
 
     #[test]
-    fn forms_render_in_containers_and_containers_render_in_forms() {
+    fn forms_render_in_containers_and_containers_render_in_forms() -> anyhow::Result<()> {
         let state = SessionState::default();
         state.begin_widgets(vec![]);
         let (st, mut wire) = app(&state);
         let container = st.container();
-        container
-            .form(FormOptions::new("outside_form"), |form| {
-                form.text_input(TextInputOptions::new("Note").key("outside_note"))?;
-                form.form_submit_button(FormSubmitButtonOptions::new("Apply").key("outside_apply"))
-            })
-            .unwrap();
-        assert!(matches!(form_block(&mut wire).r#type, Some(proto::block::Type::FlexContainer(_))));
-        assert!(matches!(form_block(&mut wire).r#type, Some(proto::block::Type::Form(_))));
-        let element::Type::TextInput(text) = input(&mut wire) else { panic!() };
+        container.form(FormOptions::new("outside_form"), |form| {
+            form.text_input(TextInputOptions::new("Note").key("outside_note"))?;
+            form.form_submit_button(FormSubmitButtonOptions::new("Apply").key("outside_apply"))
+        })?;
+        assert!(matches!(form_block(&mut wire)?.r#type, Some(proto::block::Type::FlexContainer(_))));
+        assert!(matches!(form_block(&mut wire)?.r#type, Some(proto::block::Type::Form(_))));
+        let element::Type::TextInput(text) = input(&mut wire)? else { panic!() };
         assert_eq!(text.form_id, "outside_form");
-        let element::Type::Button(button) = input(&mut wire) else { panic!() };
+        let element::Type::Button(button) = input(&mut wire)? else { panic!() };
         assert!(button.is_form_submitter);
 
         let columns = st.columns(2);
-        columns[0]
-            .form(FormOptions::new("column_form"), |form| {
-                form.text_input(TextInputOptions::new("Note").key("column_note"))?;
-                form.form_submit_button(FormSubmitButtonOptions::new("Apply").key("column_apply"))
-            })
-            .unwrap();
-        assert!(matches!(form_block(&mut wire).r#type, Some(proto::block::Type::FlexContainer(_))));
-        assert!(matches!(form_block(&mut wire).r#type, Some(proto::block::Type::Column(_))));
-        assert!(matches!(form_block(&mut wire).r#type, Some(proto::block::Type::Column(_))));
-        assert!(matches!(form_block(&mut wire).r#type, Some(proto::block::Type::Form(_))));
-        let element::Type::TextInput(column_text) = input(&mut wire) else { panic!() };
+        columns[0].form(FormOptions::new("column_form"), |form| {
+            form.text_input(TextInputOptions::new("Note").key("column_note"))?;
+            form.form_submit_button(FormSubmitButtonOptions::new("Apply").key("column_apply"))
+        })?;
+        assert!(matches!(form_block(&mut wire)?.r#type, Some(proto::block::Type::FlexContainer(_))));
+        assert!(matches!(form_block(&mut wire)?.r#type, Some(proto::block::Type::Column(_))));
+        assert!(matches!(form_block(&mut wire)?.r#type, Some(proto::block::Type::Column(_))));
+        assert!(matches!(form_block(&mut wire)?.r#type, Some(proto::block::Type::Form(_))));
+        let element::Type::TextInput(column_text) = input(&mut wire)? else { panic!() };
         assert_eq!(column_text.form_id, "column_form");
-        let element::Type::Button(column_button) = input(&mut wire) else { panic!() };
+        let element::Type::Button(column_button) = input(&mut wire)? else { panic!() };
         assert!(column_button.is_form_submitter);
 
         st.form(FormOptions::new("inside_form"), |form| {
             let container = form.container();
             container.text_input(TextInputOptions::new("Note").key("inside_note"))?;
             form.form_submit_button(FormSubmitButtonOptions::new("Apply").key("inside_apply"))
-        })
-        .unwrap();
-        assert!(matches!(form_block(&mut wire).r#type, Some(proto::block::Type::Form(_))));
-        assert!(matches!(form_block(&mut wire).r#type, Some(proto::block::Type::FlexContainer(_))));
-        let element::Type::TextInput(text) = input(&mut wire) else { panic!() };
+        })?;
+        assert!(matches!(form_block(&mut wire)?.r#type, Some(proto::block::Type::Form(_))));
+        assert!(matches!(form_block(&mut wire)?.r#type, Some(proto::block::Type::FlexContainer(_))));
+        let element::Type::TextInput(text) = input(&mut wire)? else { panic!() };
         assert_eq!(text.form_id, "inside_form");
-        let element::Type::Button(button) = input(&mut wire) else { panic!() };
+        let element::Type::Button(button) = input(&mut wire)? else { panic!() };
         assert!(button.is_form_submitter);
+
+        Ok(())
     }
 
     #[test]
-    fn forms_need_submits_and_form_keys_share_widget_spelling() {
+    fn forms_need_submits_and_form_keys_share_widget_spelling() -> anyhow::Result<()> {
         let state = SessionState::default();
         state.begin_widgets(vec![]);
         let (st, mut wire) = app(&state);
@@ -3755,13 +3750,15 @@ mod tests {
         let state = SessionState::default();
         state.begin_widgets(vec![]);
         let (st, mut wire) = app(&state);
-        assert_eq!(st.text_input(TextInputOptions::new("Shared").key("shared")).unwrap(), Some(String::new()));
-        st.form(FormOptions::new("shared"), |form| form.form_submit_button("Submit")).unwrap();
+        assert_eq!(st.text_input(TextInputOptions::new("Shared").key("shared"))?, Some(String::new()));
+        st.form(FormOptions::new("shared"), |form| form.form_submit_button("Submit"))?;
         assert!(wire.try_recv().is_ok());
+
+        Ok(())
     }
 
     #[test]
-    fn forms_anonymous_identity_is_scoped_but_explicit_widget_keys_are_global() {
+    fn forms_anonymous_identity_is_scoped_but_explicit_widget_keys_are_global() -> anyhow::Result<()> {
         let state = SessionState::default();
         state.begin_widgets(vec![]);
         let (st, mut wire) = app(&state);
@@ -3769,36 +3766,34 @@ mod tests {
             st.form(key, |form| {
                 form.text_input("Note")?;
                 form.form_submit_button("Apply")
-            })
-            .unwrap();
+            })?;
         }
         let mut ids = std::collections::HashSet::new();
         for _ in 0..2 {
-            form_block(&mut wire);
-            let element::Type::TextInput(text) = input(&mut wire) else { panic!() };
+            form_block(&mut wire)?;
+            let element::Type::TextInput(text) = input(&mut wire)? else { panic!() };
             assert!(ids.insert(text.id));
-            let element::Type::Button(button) = input(&mut wire) else { panic!() };
+            let element::Type::Button(button) = input(&mut wire)? else { panic!() };
             assert!(ids.insert(button.id));
         }
         assert!(wire.try_recv().is_err());
         st.form("same", |form| {
             form.text_input(TextInputOptions::new("Note").key("same"))?;
             form.form_submit_button("Submit")
-        })
-        .unwrap();
+        })?;
         // The duplicate key takes over the run like upstream: the exception
         // element renders, later output is suppressed and the caller receives
         // the default it requested instead of an error (measured dup_key
         // reference wire; text_input's default is the empty string).
-        assert_eq!(st.text_input(TextInputOptions::new("Root").key("same")).unwrap(), Some(String::new()));
+        assert_eq!(st.text_input(TextInputOptions::new("Root").key("same"))?, Some(String::new()));
         assert_eq!(state.run_control(), Some(crate::session::RunControl::Stop));
-        let _ = form_block(&mut wire);
-        match input(&mut wire) {
+        let _ = form_block(&mut wire)?;
+        match input(&mut wire)? {
             element::Type::TextInput(text) => assert_eq!(text.label, "Note"),
             other => panic!("expected the form text input before the exception, got {other:?}"),
         }
-        let _ = input(&mut wire); // the form submit button
-        match input(&mut wire) {
+        let _ = input(&mut wire)?; // the form submit button
+        match input(&mut wire)? {
             element::Type::Exception(exception) => {
                 assert_eq!(exception.r#type, "streamlit.errors.StreamlitDuplicateElementKey");
                 assert!(exception.message.contains("key='same'"));
@@ -3808,13 +3803,15 @@ mod tests {
             other => panic!("expected the duplicate-key exception element, got {other:?}"),
         }
         assert!(wire.try_recv().is_err());
+
+        Ok(())
     }
 
     #[test]
-    fn forms_abort_rolls_back_registration_and_widget_values() {
+    fn forms_abort_rolls_back_registration_and_widget_values() -> anyhow::Result<()> {
         let state = SessionState::default();
         state.begin_widgets(vec![]);
-        state.set("shared", "seed").unwrap();
+        state.set("shared", "seed")?;
         let (st, mut wire) = app(&state);
         let result = st.form("retry", |form| {
             form.text_input(TextInputOptions::new("Hidden").key("shared"))?;
@@ -3823,28 +3820,31 @@ mod tests {
         });
         assert!(result.is_err());
         assert!(wire.try_recv().is_err());
-        assert_eq!(state.get::<String>("shared").unwrap().as_deref(), Some("seed"));
-        assert_eq!(state.get::<bool>("discard").unwrap(), None);
+        assert_eq!(state.get::<String>("shared")?.as_deref(), Some("seed"));
+        assert_eq!(state.get::<bool>("discard")?, None);
         st.form("retry", |form| {
             form.text_input(TextInputOptions::new("Visible").key("shared"))?;
             form.form_submit_button(FormSubmitButtonOptions::new("Keep").key("discard"))
-        })
-        .unwrap();
-        assert_eq!(state.get::<bool>("discard").unwrap(), Some(false));
+        })?;
+        assert_eq!(state.get::<bool>("discard")?, Some(false));
+
+        Ok(())
     }
 
     #[test]
-    fn forms_live_duration_milliseconds_and_seconds_share_limits() {
+    fn forms_live_duration_milliseconds_and_seconds_share_limits() -> anyhow::Result<()> {
         for (duration, milliseconds) in [("250ms", 250), ("0.25s", 250), ("1ms", 1), ("0", 0), ("60s", 60_000)] {
-            assert_eq!(TextLive::parse_duration(duration).unwrap(), TextLive::Debounce(milliseconds));
+            assert_eq!(TextLive::parse_duration(duration)?, TextLive::Debounce(milliseconds));
         }
         for duration in ["60001ms", "60.001s", "-1ms", "NaNms", "infms", "250"] {
             assert!(TextLive::parse_duration(duration).is_err(), "{duration}");
         }
+
+        Ok(())
     }
 
     #[test]
-    fn forms_invalid_batch_is_rejected_before_values_and_submit_callback() {
+    fn forms_invalid_batch_is_rejected_before_values_and_submit_callback() -> anyhow::Result<()> {
         let state = SessionState::default();
         state.begin_widgets(vec![]);
         let (st, mut wire) = app(&state);
@@ -3852,12 +3852,11 @@ mod tests {
             form.text_input(TextInputOptions::new("Bounded").key("bounded").max_chars(5))?;
             form.checkbox(CheckboxOptions::new("Agree").key("agree"))?;
             form.form_submit_button(FormSubmitButtonOptions::new("Apply").key("apply").on_click(|_| panic!("invalid batch reached callback")))
-        })
-        .unwrap();
-        form_block(&mut wire);
-        let element::Type::TextInput(text) = input(&mut wire) else { panic!() };
-        let element::Type::Checkbox(check) = input(&mut wire) else { panic!() };
-        let element::Type::Button(button) = input(&mut wire) else { panic!() };
+        })?;
+        form_block(&mut wire)?;
+        let element::Type::TextInput(text) = input(&mut wire)? else { panic!() };
+        let element::Type::Checkbox(check) = input(&mut wire)? else { panic!() };
+        let element::Type::Button(button) = input(&mut wire)? else { panic!() };
         state.finish_widgets();
         let callbacks = state.begin_widgets(vec![
             WidgetState {
@@ -3874,23 +3873,25 @@ mod tests {
             },
         ]);
         assert!(callbacks.is_empty());
-        assert_eq!(state.get::<String>("bounded").unwrap().as_deref(), Some(""));
-        assert_eq!(state.get::<bool>("agree").unwrap(), Some(false));
-        assert_eq!(state.get::<bool>("apply").unwrap(), Some(false));
+        assert_eq!(state.get::<String>("bounded")?.as_deref(), Some(""));
+        assert_eq!(state.get::<bool>("agree")?, Some(false));
+        assert_eq!(state.get::<bool>("apply")?, Some(false));
         let (st, _) = app(&state);
-        assert_eq!(st.text_input(TextInputOptions::new("Bounded").key("bounded").max_chars(5)).unwrap(), Some(String::new()));
+        assert_eq!(st.text_input(TextInputOptions::new("Bounded").key("bounded").max_chars(5))?, Some(String::new()));
+
+        Ok(())
     }
 
     #[test]
-    fn text_input_none_and_empty_are_distinct_wire_and_native_values() {
+    fn text_input_none_and_empty_are_distinct_wire_and_native_values() -> anyhow::Result<()> {
         let state = SessionState::default();
         state.begin_widgets(vec![]);
         let (st, mut wire) = app(&state);
-        assert_eq!(st.text_input(TextInputOptions::new("None value").value_none().key("none_value")).unwrap(), None);
-        let element::Type::TextInput(none) = input(&mut wire) else { panic!() };
+        assert_eq!(st.text_input(TextInputOptions::new("None value").value_none().key("none_value"))?, None);
+        let element::Type::TextInput(none) = input(&mut wire)? else { panic!() };
         assert_eq!(none.default, None);
-        assert_eq!(st.text_input(TextInputOptions::new("Empty value").key("empty_value")).unwrap(), Some(String::new()));
-        let element::Type::TextInput(empty) = input(&mut wire) else { panic!() };
+        assert_eq!(st.text_input(TextInputOptions::new("Empty value").key("empty_value"))?, Some(String::new()));
+        let element::Type::TextInput(empty) = input(&mut wire)? else { panic!() };
         assert_eq!(empty.default.as_deref(), Some(""));
         state.finish_widgets();
         let callbacks = state.begin_widgets(vec![
@@ -3905,12 +3906,14 @@ mod tests {
         ]);
         assert!(callbacks.is_empty());
         let (st, _) = app(&state);
-        assert_eq!(st.text_input(TextInputOptions::new("None value").value_none().key("none_value")).unwrap(), Some("x".into()));
-        assert_eq!(st.text_input(TextInputOptions::new("Empty value").key("empty_value")).unwrap(), Some(String::new()));
+        assert_eq!(st.text_input(TextInputOptions::new("None value").value_none().key("none_value"))?, Some("x".into()));
+        assert_eq!(st.text_input(TextInputOptions::new("Empty value").key("empty_value"))?, Some(String::new()));
+
+        Ok(())
     }
 
     #[test]
-    fn text_input_advanced_fields_match_the_pinned_reference() {
+    fn text_input_advanced_fields_match_the_pinned_reference() -> anyhow::Result<()> {
         let state = SessionState::default();
         state.begin_widgets(vec![]);
         let (st, mut wire) = app(&state);
@@ -3923,103 +3926,106 @@ mod tests {
             (TextInputOptions::new("Secret").input_type(TextInputType::Password).key("type_password"), proto::text_input::Type::Password),
         ];
         for (options, wire_type) in cases {
-            assert_eq!(st.text_input(options).unwrap(), Some(String::new()));
-            let element::Type::TextInput(text) = input(&mut wire) else { panic!() };
+            assert_eq!(st.text_input(options)?, Some(String::new()));
+            let element::Type::TextInput(text) = input(&mut wire)? else { panic!() };
             assert_eq!(text.r#type, wire_type as i32);
         }
         // Rewind one frame at a time is awkward; use independent receivers below
         // only when a field assertion needs the whole Element. The five IDs and
         // scalar fields above establish that every specialized type registered.
         state.finish_widgets();
+
+        Ok(())
     }
 
     #[test]
-    fn text_input_advanced_defaults_and_overrides_match_wire_fields() {
-        let field = |st: &Streamlit, options: TextInputOptions| -> proto::TextInput {
+    fn text_input_advanced_defaults_and_overrides_match_wire_fields() -> anyhow::Result<()> {
+        let field = |st: &Streamlit, options: TextInputOptions| -> anyhow::Result<proto::TextInput> {
             let (sender, mut receiver) = tokio::sync::mpsc::unbounded_channel();
             st.app.lock().set_render_context(RenderContext::with_sender("field".into(), sender));
-            st.text_input(options).unwrap();
-            let element::Type::TextInput(text) = input(&mut receiver) else { panic!() };
-            text
+            st.text_input(options)?;
+            let element::Type::TextInput(text) = input(&mut receiver)? else { panic!() };
+            Ok(text)
         };
         let st = Streamlit::new();
-        let email = field(&st, TextInputOptions::new("Email").input_type(TextInputType::Email).key("email"));
+        let email = field(&st, TextInputOptions::new("Email").input_type(TextInputType::Email).key("email"))?;
         assert_eq!(email.autocomplete, "email");
         assert_eq!(email.icon, ":material/mail:");
         assert_eq!(email.placeholder, "you@example.com");
         assert_eq!(email.validate_regex.as_deref(), Some(r"^[^\s@]+@[^\s@]+\.[^\s@]+$"));
         assert_eq!(email.validate_message.as_deref(), Some("Enter a valid email address."));
-        let url = field(&st, TextInputOptions::new("URL").input_type(TextInputType::Url).key("url"));
+        let url = field(&st, TextInputOptions::new("URL").input_type(TextInputType::Url).key("url"))?;
         assert_eq!((url.autocomplete.as_str(), url.icon.as_str(), url.placeholder.as_str()), ("url", ":material/link:", "https://example.com"));
         assert_eq!(url.validate_regex.as_deref(), Some(r"^([Hh][Tt][Tt][Pp][Ss]?://)?[^\s/.]+\.[^\s]+$"));
         assert_eq!(url.validate_message.as_deref(), Some("Enter a valid URL."));
-        let phone = field(&st, TextInputOptions::new("Phone").input_type(TextInputType::Phone).key("phone"));
+        let phone = field(&st, TextInputOptions::new("Phone").input_type(TextInputType::Phone).key("phone"))?;
         assert_eq!((phone.autocomplete.as_str(), phone.icon.as_str(), phone.placeholder.as_str()), ("tel", ":material/call:", "+1 234 567 8900"));
         assert!(phone.validate_regex.is_none() && phone.validate_message.is_none());
-        let search = field(&st, TextInputOptions::new("Search").input_type(TextInputType::Search).key("search"));
+        let search = field(&st, TextInputOptions::new("Search").input_type(TextInputType::Search).key("search"))?;
         assert_eq!((search.autocomplete.as_str(), search.icon.as_str(), search.placeholder.as_str()), ("off", ":material/search:", "Search"));
-        let password = field(&st, TextInputOptions::new("Secret").input_type(TextInputType::Password).key("password"));
+        let password = field(&st, TextInputOptions::new("Secret").input_type(TextInputType::Password).key("password"))?;
         assert_eq!(password.autocomplete, "new-password");
         assert!(password.icon.is_empty() && password.placeholder.is_empty());
 
-        let live = field(&st, TextInputOptions::new("Digits").key("digits").validate_with_message(r"^\d+$", "digits only").live(true));
+        let live = field(&st, TextInputOptions::new("Digits").key("digits").validate_with_message(r"^\d+$", "digits only").live(true))?;
         assert_eq!(live.live_debounce_ms, Some(250));
         assert_eq!(live.validate_regex.as_deref(), Some(r"^\d+$"));
         assert_eq!(live.validate_message.as_deref(), Some("digits only"));
-        let required = field(&st, TextInputOptions::new("Required").key("required").required(true).placeholder("type here"));
+        let required = field(&st, TextInputOptions::new("Required").key("required").required(true).placeholder("type here"))?;
         assert!(required.required && required.placeholder == "type here");
-        let disabled = field(&st, TextInputOptions::new("Disabled").key("disabled").disabled(true).value("fixed"));
+        let disabled = field(&st, TextInputOptions::new("Disabled").key("disabled").disabled(true).value("fixed"))?;
         assert!(disabled.disabled && disabled.default.as_deref() == Some("fixed"));
-        let cjk = field(&st, TextInputOptions::new("中文").key("cjk").max_chars(5));
+        let cjk = field(&st, TextInputOptions::new("中文").key("cjk").max_chars(5))?;
         assert_eq!(cjk.max_chars, 5);
-        let half_second = field(&st, TextInputOptions::new("Search").key("half_second").live_duration("0.5s"));
+        let half_second = field(&st, TextInputOptions::new("Search").key("half_second").live_duration("0.5s"))?;
         assert_eq!(half_second.live_debounce_ms, Some(500));
-        let zero = field(&st, TextInputOptions::new("Zero").key("zero").live_duration("0"));
+        let zero = field(&st, TextInputOptions::new("Zero").key("zero").live_duration("0"))?;
         assert_eq!(zero.live_debounce_ms, Some(0));
         assert!(st.text_input(TextInputOptions::new("Bad live").key("bad_live").live_duration("300")).is_err(), "a nonzero bare number is not a documented duration");
         assert!(st.text_input(TextInputOptions::new("Too slow").key("too_slow").live_debounce_ms(60_001)).is_err());
         assert!(st.text_input(TextInputOptions::new("Bound").key("bound").bind(TextBind::QueryParams).input_type(TextInputType::Password)).is_err());
+
+        Ok(())
     }
 
     #[test]
-    fn form_flags_and_multiple_or_disabled_submits_match_reference() {
+    fn form_flags_and_multiple_or_disabled_submits_match_reference() -> anyhow::Result<()> {
         let state = SessionState::default();
         state.begin_widgets(vec![]);
         let (st, mut wire) = app(&state);
         st.form(FormOptions::new("clear_true_form").clear_on_submit(true), |form| {
             form.text_input(TextInputOptions::new("Note").key("note"))?;
             form.form_submit_button(FormSubmitButtonOptions::new("Apply").key("clear_apply"))
-        })
-        .unwrap();
-        let block = form_block(&mut wire);
+        })?;
+        let block = form_block(&mut wire)?;
         let Some(proto::block::Type::Form(form)) = block.r#type else { panic!() };
         assert!(form.clear_on_submit && form.border && form.enter_to_submit);
-        let _ = input(&mut wire);
-        let _ = input(&mut wire);
+        let _ = input(&mut wire)?;
+        let _ = input(&mut wire)?;
 
         st.form(FormOptions::new("enter_off_form").enter_to_submit(false), |form| {
             form.text_input(TextInputOptions::new("Note").key("enter_note"))?;
             form.form_submit_button(FormSubmitButtonOptions::new("Apply").key("enter_apply"))
-        })
-        .unwrap();
-        let block = form_block(&mut wire);
+        })?;
+        let block = form_block(&mut wire)?;
         let Some(proto::block::Type::Form(form)) = block.r#type else { panic!() };
         assert!(!form.clear_on_submit && form.border && !form.enter_to_submit);
-        let _ = input(&mut wire);
-        let _ = input(&mut wire);
+        let _ = input(&mut wire)?;
+        let _ = input(&mut wire)?;
 
         st.form(FormOptions::new("first_disabled_form"), |form| {
             form.text_input(TextInputOptions::new("Note").key("disabled_note"))?;
             form.form_submit_button(FormSubmitButtonOptions::new("Disabled").key("disabled").disabled(true))?;
             form.form_submit_button(FormSubmitButtonOptions::new("Apply").key("apply"))
-        })
-        .unwrap();
-        let _ = form_block(&mut wire);
-        let _ = input(&mut wire);
-        let element::Type::Button(disabled) = input(&mut wire) else { panic!() };
+        })?;
+        let _ = form_block(&mut wire)?;
+        let _ = input(&mut wire)?;
+        let element::Type::Button(disabled) = input(&mut wire)? else { panic!() };
         assert!(disabled.disabled && disabled.is_form_submitter);
-        let element::Type::Button(enabled) = input(&mut wire) else { panic!() };
+        let element::Type::Button(enabled) = input(&mut wire)? else { panic!() };
         assert!(!enabled.disabled && enabled.is_form_submitter);
+
+        Ok(())
     }
 
     #[test]
@@ -4066,27 +4072,27 @@ mod tests {
     }
 
     #[test]
-    fn typed_values_and_all_inputs_update_before_callback() {
+    fn typed_values_and_all_inputs_update_before_callback() -> anyhow::Result<()> {
         let state = SessionState::default();
         state.begin_widgets(vec![]);
         let (st, mut wire) = app(&state);
-        assert_eq!(st.selectbox(SelectboxOptions::new("Group by", ["category", "region"]).key("group_by")).unwrap(), Some("category"));
-        let element::Type::Selectbox(select) = input(&mut wire) else { panic!() };
+        assert_eq!(st.selectbox(SelectboxOptions::new("Group by", ["category", "region"]).key("group_by"))?, Some("category"));
+        let element::Type::Selectbox(select) = input(&mut wire)? else { panic!() };
         assert!(select.id.ends_with("-group_by"));
         assert_eq!(select.default, Some(0));
         let changed = |st: &Streamlit| {
             let state = st.session_state();
-            assert_eq!(state.get::<String>("group_by").unwrap().as_deref(), Some("region"));
-            assert_eq!(state.get::<i64>("amount").unwrap(), Some(10));
-            assert_eq!(state.get::<bool>("include").unwrap(), Some(false));
-            state.set("callback_ran", true).unwrap();
+            assert!(matches!(state.get::<String>("group_by"), Ok(Some(value)) if value == "region"));
+            assert!(matches!(state.get::<i64>("amount"), Ok(Some(10))));
+            assert!(matches!(state.get::<bool>("include"), Ok(Some(false))));
+            assert!(state.set("callback_ran", true).is_ok());
         };
-        assert_eq!(st.slider(SliderOptions::new("Amount", 0_i64).max(200).step(10).key("amount").on_change(changed)).unwrap(), 0);
-        let element::Type::Slider(slider) = input(&mut wire) else { panic!() };
+        assert_eq!(st.slider(SliderOptions::new("Amount", 0_i64).max(200).step(10).key("amount").on_change(changed))?, 0);
+        let element::Type::Slider(slider) = input(&mut wire)? else { panic!() };
         assert_eq!(slider.default, vec![0.0]);
         assert_eq!((slider.data_type, slider.step), (0, 10.0));
-        assert!(st.checkbox(CheckboxOptions::new("Include").value(true).key("include")).unwrap());
-        let element::Type::Checkbox(check) = input(&mut wire) else { panic!() };
+        assert!(st.checkbox(CheckboxOptions::new("Include").value(true).key("include"))?);
+        let element::Type::Checkbox(check) = input(&mut wire)? else { panic!() };
         assert!(check.default);
         state.finish_widgets();
 
@@ -4110,34 +4116,36 @@ mod tests {
         for callback in callbacks {
             callback(&st);
         }
-        assert_eq!(state.get::<bool>("callback_ran").unwrap(), Some(true));
-        assert_eq!(st.slider(SliderOptions::new("Renamed", 50_i64).max(200).step(10).key("amount")).unwrap(), 10);
+        assert_eq!(state.get::<bool>("callback_ran")?, Some(true));
+        assert_eq!(st.slider(SliderOptions::new("Renamed", 50_i64).max(200).step(10).key("amount"))?, 10);
         state.finish_widgets();
-        assert_eq!(state.get::<String>("group_by").unwrap(), None, "unrendered widget key is cleaned");
-        assert_eq!(state.get::<bool>("callback_ran").unwrap(), Some(true), "manual application keys survive");
+        assert_eq!(state.get::<String>("group_by")?, None, "unrendered widget key is cleaned");
+        assert_eq!(state.get::<bool>("callback_ran")?, Some(true), "manual application keys survive");
+
+        Ok(())
     }
 
     #[test]
-    fn preseed_key_guards_duplicates_and_trigger_reset() {
+    fn preseed_key_guards_duplicates_and_trigger_reset() -> anyhow::Result<()> {
         let state = SessionState::default();
-        state.set("chosen", 20_i32).unwrap();
+        state.set("chosen", 20_i32)?;
         state.begin_widgets(vec![]);
         let (st, mut wire) = app(&state);
-        assert_eq!(st.selectbox(SelectboxOptions::new("Numbers", [10, 20]).format_func(|n| format!("option-{n}")).key("chosen")).unwrap(), Some(20));
-        let element::Type::Selectbox(select) = input(&mut wire) else { panic!() };
+        assert_eq!(st.selectbox(SelectboxOptions::new("Numbers", [10, 20]).format_func(|n| format!("option-{n}")).key("chosen"))?, Some(20));
+        let element::Type::Selectbox(select) = input(&mut wire)? else { panic!() };
         assert_eq!(select.raw_value.as_deref(), Some("option-20"));
         assert!(select.set_value);
         assert!(state.set("chosen", 10).is_err());
-        assert!(!st.try_button(ButtonOptions::new("Pulse").key("pulse").disabled(true)).unwrap());
-        let element::Type::Button(button) = input(&mut wire) else { panic!() };
+        assert!(!st.try_button(ButtonOptions::new("Pulse").key("pulse").disabled(true))?);
+        let element::Type::Button(button) = input(&mut wire)? else { panic!() };
         assert!(button.disabled);
         assert!(state.set("pulse", true).is_err());
         // A duplicated widget key takes over the run the way upstream does:
         // the exception element renders, later output is suppressed and the
         // caller receives the default (measured dup_key reference wire).
-        assert!(!st.checkbox(CheckboxOptions::new("Other").key("chosen")).unwrap());
+        assert!(!st.checkbox(CheckboxOptions::new("Other").key("chosen"))?);
         assert_eq!(state.run_control(), Some(crate::session::RunControl::Stop));
-        match input(&mut wire) {
+        match input(&mut wire)? {
             element::Type::Exception(exception) => {
                 assert_eq!(exception.r#type, "streamlit.errors.StreamlitDuplicateElementKey");
                 assert!(exception.message.contains("key='chosen'"));
@@ -4157,19 +4165,21 @@ mod tests {
         state.begin_widgets(vec![]);
         let (st, _) = app(&state);
         assert!(!st.button(ButtonOptions::new("Pulse").key("pulse")));
-        assert_eq!(SessionState::default().get::<i32>("chosen").unwrap(), None);
+        assert_eq!(SessionState::default().get::<i32>("chosen")?, None);
+
+        Ok(())
     }
 
     #[test]
-    fn numeric_ranges_empty_selection_and_constraint_reset() {
+    fn numeric_ranges_empty_selection_and_constraint_reset() -> anyhow::Result<()> {
         let state = SessionState::default();
         state.begin_widgets(vec![]);
         let (st, mut wire) = app(&state);
-        assert_eq!(st.slider(SliderOptions::new("Range", (0.2, 0.8)).key("range")).unwrap(), (0.2, 0.8));
-        let element::Type::Slider(slider) = input(&mut wire) else { panic!() };
+        assert_eq!(st.slider(SliderOptions::new("Range", (0.2, 0.8)).key("range"))?, (0.2, 0.8));
+        let element::Type::Slider(slider) = input(&mut wire)? else { panic!() };
         assert_eq!((slider.data_type, slider.default), (1, vec![0.2, 0.8]));
-        assert_eq!(st.selectbox(SelectboxOptions::new("Empty", Vec::<String>::new())).unwrap(), None);
-        let element::Type::Selectbox(empty) = input(&mut wire) else { panic!() };
+        assert_eq!(st.selectbox(SelectboxOptions::new("Empty", Vec::<String>::new()))?, None);
+        let element::Type::Selectbox(empty) = input(&mut wire)? else { panic!() };
         assert!(empty.disabled);
         assert_eq!(empty.default, None);
         assert!(matches!(st.selectbox(SelectboxOptions::new("Empty", Vec::<String>::new())), Err(WidgetError::DuplicateId(_))));
@@ -4179,23 +4189,25 @@ mod tests {
         state.finish_widgets();
         state.begin_widgets(vec![]);
         let (st, _) = app(&state);
-        assert_eq!(st.slider(SliderOptions::new("Range", (0.1, 0.9)).max(2.0).key("range")).unwrap(), (0.1, 0.9));
+        assert_eq!(st.slider(SliderOptions::new("Range", (0.1, 0.9)).max(2.0).key("range"))?, (0.1, 0.9));
+
+        Ok(())
     }
 
     #[test]
-    fn float_array_range_and_native_integer_limits() {
+    fn float_array_range_and_native_integer_limits() -> anyhow::Result<()> {
         let state = SessionState::default();
         state.begin_widgets(vec![]);
         let (st, mut wire) = app(&state);
-        assert_eq!(st.slider(SliderOptions::new("Rate", 0.25).format("percent").key("rate")).unwrap(), 0.25);
-        let element::Type::Slider(rate) = input(&mut wire) else { panic!() };
+        assert_eq!(st.slider(SliderOptions::new("Rate", 0.25).format("percent").key("rate"))?, 0.25);
+        let element::Type::Slider(rate) = input(&mut wire)? else { panic!() };
         assert_eq!((rate.min, rate.max, rate.step), (0.0, 1.0, 0.01));
         assert_eq!(rate.format, "percent");
-        assert_eq!(st.slider(SliderOptions::new("Array", [2_i32, 8_i32]).key("array")).unwrap(), [2, 8]);
-        let element::Type::Slider(array) = input(&mut wire) else { panic!() };
+        assert_eq!(st.slider(SliderOptions::new("Array", [2_i32, 8_i32]).key("array"))?, [2, 8]);
+        let element::Type::Slider(array) = input(&mut wire)? else { panic!() };
         // Returning an i32 cannot represent these bounds; reject before registration.
         assert!(st.slider(SliderOptions::new("Too wide", 0_i32).max(3_000_000_000.0).key("wide")).is_err());
-        assert_eq!(state.get::<i32>("wide").unwrap(), None);
+        assert_eq!(state.get::<i32>("wide")?, None);
         state.finish_widgets();
         state.begin_widgets(vec![
             WidgetState {
@@ -4208,68 +4220,74 @@ mod tests {
             },
         ]);
         let (st, _) = app(&state);
-        assert_eq!(st.slider(SliderOptions::new("Rate", 0.25).format("percent").key("rate")).unwrap(), 0.75, "format does not scale the returned value");
-        assert_eq!(st.slider(SliderOptions::new("Array", [2_i32, 8_i32]).key("array")).unwrap(), [4, 10]);
+        assert_eq!(st.slider(SliderOptions::new("Rate", 0.25).format("percent").key("rate"))?, 0.75, "format does not scale the returned value");
+        assert_eq!(st.slider(SliderOptions::new("Array", [2_i32, 8_i32]).key("array"))?, [4, 10]);
+
+        Ok(())
     }
 
     #[test]
-    fn deleted_keys_rebind_and_unrendered_widgets_expire() {
+    fn deleted_keys_rebind_and_unrendered_widgets_expire() -> anyhow::Result<()> {
         let state = SessionState::default();
-        state.set("manual", "keep").unwrap();
+        state.set("manual", "keep")?;
         state.begin_widgets(vec![]);
         let (st, _) = app(&state);
-        assert!(st.checkbox(CheckboxOptions::new("Checked").value(true).key("checked")).unwrap());
+        assert!(st.checkbox(CheckboxOptions::new("Checked").value(true).key("checked"))?);
         state.finish_widgets();
         assert_eq!(state.remove("checked"), Some(Value::Bool(true)));
         state.begin_widgets(vec![]);
         let (st, _) = app(&state);
-        assert!(st.checkbox(CheckboxOptions::new("Renamed").value(false).key("checked")).unwrap(), "deleting a key does not reset an existing widget");
-        assert_eq!(state.get::<bool>("checked").unwrap(), Some(true));
+        assert!(st.checkbox(CheckboxOptions::new("Renamed").value(false).key("checked"))?, "deleting a key does not reset an existing widget");
+        assert_eq!(state.get::<bool>("checked")?, Some(true));
         state.finish_widgets();
         state.begin_widgets(vec![]);
         state.finish_widgets(); // A run that does not render the checkbox.
-        assert_eq!(state.get::<bool>("checked").unwrap(), None);
-        assert_eq!(state.get::<String>("manual").unwrap().as_deref(), Some("keep"));
+        assert_eq!(state.get::<bool>("checked")?, None);
+        assert_eq!(state.get::<String>("manual")?.as_deref(), Some("keep"));
         state.begin_widgets(vec![]);
         let (st, _) = app(&state);
-        assert!(!st.checkbox(CheckboxOptions::new("Checked").key("checked")).unwrap());
+        assert!(!st.checkbox(CheckboxOptions::new("Checked").key("checked"))?);
+
+        Ok(())
     }
 
     #[test]
-    fn identity_fields_cannot_alias_through_delimiters() {
+    fn identity_fields_cannot_alias_through_delimiters() -> anyhow::Result<()> {
         let state = SessionState::default();
         state.begin_widgets(vec![]);
         let (st, mut wire) = app(&state);
-        assert!(!st.checkbox(CheckboxOptions::new("a:b").help("c")).unwrap());
-        assert!(!st.checkbox(CheckboxOptions::new("a").help("b:c")).unwrap());
-        let element::Type::Checkbox(a) = input(&mut wire) else { panic!() };
-        let element::Type::Checkbox(b) = input(&mut wire) else { panic!() };
+        assert!(!st.checkbox(CheckboxOptions::new("a:b").help("c"))?);
+        assert!(!st.checkbox(CheckboxOptions::new("a").help("b:c"))?);
+        let element::Type::Checkbox(a) = input(&mut wire)? else { panic!() };
+        let element::Type::Checkbox(b) = input(&mut wire)? else { panic!() };
         assert_ne!(a.id, b.id, "distinct parameter tuples must not share an automatic ID");
+
+        Ok(())
     }
 
     #[test]
-    fn shorthand_and_advanced_builders_preserve_types_defaults_errors_and_proto() {
+    fn shorthand_and_advanced_builders_preserve_types_defaults_errors_and_proto() -> anyhow::Result<()> {
         use prost::Message;
         let (short, mut short_wire) = app(&SessionState::default());
         let (advanced, mut advanced_wire) = app(&SessionState::default());
 
-        let checked: bool = short.checkbox(("Include", true)).unwrap();
-        assert_eq!(checked, advanced.checkbox(CheckboxOptions::new("Include").value(true)).unwrap());
-        assert_eq!(short.checkbox("Default checkbox").unwrap(), advanced.checkbox(CheckboxOptions::new("Default checkbox")).unwrap());
-        let selected: Option<&str> = short.selectbox(("Group", ["category", "region"])).unwrap();
-        assert_eq!(selected, advanced.selectbox(SelectboxOptions::new("Group", ["category", "region"])).unwrap());
-        let selected: Option<i32> = short.selectbox((String::from("Numbers"), vec![1_i32, 2])).unwrap();
-        assert_eq!(selected, advanced.selectbox::<i32>(SelectboxOptions::new("Numbers", [1_i32, 2])).unwrap());
-        let count: i64 = short.slider(("Count", 0_i64)).unwrap();
-        assert_eq!(count, advanced.slider::<i64>(SliderOptions::new("Count", 0_i64)).unwrap());
-        let bounded: i64 = short.slider(("Amount", 20_i64, 10..=200)).unwrap();
-        assert_eq!(bounded, advanced.slider(SliderOptions::new("Amount", 20_i64).min(10).max(200)).unwrap());
-        let ratio: f64 = short.slider(("Ratio", 0.25_f64)).unwrap();
-        assert_eq!(ratio, advanced.slider(SliderOptions::new("Ratio", 0.25_f64)).unwrap());
-        let range: (i64, i64) = short.slider(("Range", (20_i64, 80_i64))).unwrap();
-        assert_eq!(range, advanced.slider(SliderOptions::new("Range", (20_i64, 80_i64))).unwrap());
-        let array: [f64; 2] = short.slider(("Array", [0.2_f64, 0.8_f64], 0.0..=1.0)).unwrap();
-        assert_eq!(array, advanced.slider(SliderOptions::new("Array", [0.2_f64, 0.8_f64]).min(0.0).max(1.0)).unwrap());
+        let checked: bool = short.checkbox(("Include", true))?;
+        assert_eq!(checked, advanced.checkbox(CheckboxOptions::new("Include").value(true))?);
+        assert_eq!(short.checkbox("Default checkbox")?, advanced.checkbox(CheckboxOptions::new("Default checkbox"))?);
+        let selected: Option<&str> = short.selectbox(("Group", ["category", "region"]))?;
+        assert_eq!(selected, advanced.selectbox(SelectboxOptions::new("Group", ["category", "region"]))?);
+        let selected: Option<i32> = short.selectbox((String::from("Numbers"), vec![1_i32, 2]))?;
+        assert_eq!(selected, advanced.selectbox::<i32>(SelectboxOptions::new("Numbers", [1_i32, 2]))?);
+        let count: i64 = short.slider(("Count", 0_i64))?;
+        assert_eq!(count, advanced.slider::<i64>(SliderOptions::new("Count", 0_i64))?);
+        let bounded: i64 = short.slider(("Amount", 20_i64, 10..=200))?;
+        assert_eq!(bounded, advanced.slider(SliderOptions::new("Amount", 20_i64).min(10).max(200))?);
+        let ratio: f64 = short.slider(("Ratio", 0.25_f64))?;
+        assert_eq!(ratio, advanced.slider(SliderOptions::new("Ratio", 0.25_f64))?);
+        let range: (i64, i64) = short.slider(("Range", (20_i64, 80_i64)))?;
+        assert_eq!(range, advanced.slider(SliderOptions::new("Range", (20_i64, 80_i64)))?);
+        let array: [f64; 2] = short.slider(("Array", [0.2_f64, 0.8_f64], 0.0..=1.0))?;
+        assert_eq!(array, advanced.slider(SliderOptions::new("Array", [0.2_f64, 0.8_f64]).min(0.0).max(1.0))?);
         let bad_short: Result<i64, WidgetError> = short.slider(("Invalid", 0_i64, std::ops::RangeInclusive::new(10, 0)));
         let bad_advanced = advanced.slider(SliderOptions::new("Invalid", 0_i64).min(10).max(0));
         assert!(matches!(bad_short, Err(WidgetError::InvalidValue(_))));
@@ -4286,29 +4304,36 @@ mod tests {
             }
         }
         assert_eq!(compared, 9, "failed calls must not emit an element");
+
+        Ok(())
     }
 
     #[test]
-    fn uploader_matches_csv_reference_and_resolves_native_files_before_callback() {
+    fn uploader_matches_csv_reference_and_resolves_native_files_before_callback() -> anyhow::Result<()> {
         use std::io::Read;
         let state = SessionState::default();
         state.begin_widgets(vec![]);
         let (st, mut wire) = app(&state);
         let options = || {
             FileUploaderOptions::new("Upload sales CSV").accepted_types(["csv"]).key("upload").on_change(|st| {
-                let files = st.session_state().uploaded_files("upload").unwrap();
+                let Ok(files) = st.session_state().uploaded_files("upload") else { panic!("upload callback must resolve its registered files") };
                 assert_eq!(files.len(), 1);
                 assert_eq!(files[0].name(), "sales_basic.csv");
-                st.session_state().set("upload_callback", files[0].size()).unwrap();
+                assert!(st.session_state().set("upload_callback", files[0].size()).is_ok());
             })
         };
-        assert!(matches!(st.file_uploader(options()).unwrap(), UploadedFiles::Single(None)));
-        let element::Type::FileUploader(uploader) = input(&mut wire) else { panic!() };
-        let reference: Value = serde_json::from_str(include_str!("../../tests/reference/reference-browser/data-loop/upload/trace-data-loop.json")).unwrap();
-        let observed = reference["frames"].as_array().unwrap().iter().find_map(|frame| frame.pointer("/decoded/delta/element_full/fileUploader")).unwrap();
+        assert!(matches!(st.file_uploader(options())?, UploadedFiles::Single(None)));
+        let element::Type::FileUploader(uploader) = input(&mut wire)? else { panic!() };
+        let reference: Value = serde_json::from_str(include_str!("../../tests/reference/reference-browser/data-loop/upload/trace-data-loop.json"))?;
+        let observed = reference["frames"]
+            .as_array()
+            .ok_or_else(|| anyhow::anyhow!("upload reference must contain a frames array"))?
+            .iter()
+            .find_map(|frame| frame.pointer("/decoded/delta/element_full/fileUploader"))
+            .ok_or_else(|| anyhow::anyhow!("upload reference must contain a fileUploader element"))?;
         assert_eq!(uploader.label, observed["label"]);
-        assert_eq!(uploader.r#type, vec![observed["type"][0].as_str().unwrap().to_owned()]);
-        assert_eq!(uploader.max_upload_size_mb, observed["maxUploadSizeMb"].as_i64().unwrap() as i32);
+        assert_eq!(uploader.r#type, vec![observed["type"][0].as_str().ok_or_else(|| anyhow::anyhow!("reference uploader must declare an accepted file type"))?.to_owned()]);
+        assert_eq!(uploader.max_upload_size_mb, observed["maxUploadSizeMb"].as_i64().ok_or_else(|| anyhow::anyhow!("reference uploader must declare maxUploadSizeMb"))? as i32);
         assert!(!uploader.multiple_files && !uploader.disabled && !uploader.accept_directory);
         assert_eq!(uploader.label_visibility, Some(proto::LabelVisibility { value: 0 }));
         assert!(uploader.id.ends_with("-upload"));
@@ -4332,28 +4357,30 @@ mod tests {
         for callback in callbacks {
             callback(&st);
         }
-        assert_eq!(state.get::<u64>("upload_callback").unwrap(), Some(bytes.len() as u64));
-        let UploadedFiles::Single(Some(mut file)) = st.file_uploader(options()).unwrap() else { panic!() };
+        assert_eq!(state.get::<u64>("upload_callback")?, Some(bytes.len() as u64));
+        let UploadedFiles::Single(Some(mut file)) = st.file_uploader(options())? else { panic!() };
         assert_eq!(file.content_type(), Some("text/csv"));
         let mut received = Vec::new();
-        file.read_to_end(&mut received).unwrap();
+        file.read_to_end(&mut received)?;
         assert_eq!(received, bytes);
         state.finish_widgets();
         state.begin_widgets(vec![]);
         let (st, _) = app(&state);
-        assert_eq!(st.file_uploader(options()).unwrap().as_slice()[0].position(), 0);
+        assert_eq!(st.file_uploader(options())?.as_slice()[0].position(), 0);
         let other = SessionState::default();
         let (st, _) = app(&other);
-        assert!(st.file_uploader(options()).unwrap().as_slice().is_empty());
+        assert!(st.file_uploader(options())?.as_slice().is_empty());
+
+        Ok(())
     }
 
     #[test]
-    fn uploader_mode_constraints_and_foreign_file_ids_remain_isolated() {
+    fn uploader_mode_constraints_and_foreign_file_ids_remain_isolated() -> anyhow::Result<()> {
         let state = SessionState::default();
         let (st, mut wire) = app(&state);
         let options = || FileUploaderOptions::new("Folder").mode(FileUploadMode::Directory).key("folder");
-        assert!(matches!(st.file_uploader(options()).unwrap(), UploadedFiles::Multiple(files) if files.is_empty()));
-        let element::Type::FileUploader(uploader) = input(&mut wire) else { panic!() };
+        assert!(matches!(st.file_uploader(options())?, UploadedFiles::Multiple(files) if files.is_empty()));
+        let element::Type::FileUploader(uploader) = input(&mut wire)? else { panic!() };
         assert!(uploader.multiple_files && uploader.accept_directory);
         state.finish_widgets();
         state.begin_widgets(vec![WidgetState {
@@ -4366,53 +4393,60 @@ mod tests {
             })),
         }]);
         let (st, _) = app(&state);
-        assert!(st.file_uploader(options()).unwrap().as_slice().is_empty());
+        assert!(st.file_uploader(options())?.as_slice().is_empty());
         assert!(st.file_uploader(FileUploaderOptions::new("Bad").max_upload_size_mb(0)).is_err());
         // Directory flags are docs/native coverage; no directory browser PASS.
+
+        Ok(())
     }
 
     #[test]
-    fn temporal_sliders_emit_the_measured_wire_and_keep_microseconds() {
+    fn temporal_sliders_emit_the_measured_wire_and_keep_microseconds() -> anyhow::Result<()> {
         let state = SessionState::default();
         state.begin_widgets(vec![]);
         let (st, mut wire) = app(&state);
-        let date = chrono::NaiveDate::from_ymd_opt(2024, 3, 15).unwrap();
-        let time = chrono::NaiveTime::from_hms_micro_opt(12, 30, 7, 123456).unwrap();
-        let datetime = date.and_hms_micro_opt(12, 30, 7, 123456).unwrap();
-        assert_eq!(st.slider(SliderOptions::new("date", date).key("date")).unwrap(), date);
-        let element::Type::Slider(slider) = input(&mut wire) else { panic!() };
+        let date = chrono::NaiveDate::from_ymd_opt(2024, 3, 15).ok_or_else(|| anyhow::anyhow!("invalid temporal slider fixture: chrono::NaiveDate::from_ymd_opt(2024, 3, 15)"))?;
+        let time = chrono::NaiveTime::from_hms_micro_opt(12, 30, 7, 123456).ok_or_else(|| anyhow::anyhow!("invalid temporal slider fixture: chrono::NaiveTime::from_hms_micro_opt(12, 30, 7, 123456)"))?;
+        let datetime = date.and_hms_micro_opt(12, 30, 7, 123456).ok_or_else(|| anyhow::anyhow!("invalid temporal slider fixture: date.and_hms_micro_opt(12, 30, 7, 123456)"))?;
+        assert_eq!(st.slider(SliderOptions::new("date", date).key("date"))?, date);
+        let element::Type::Slider(slider) = input(&mut wire)? else { panic!() };
         // Numbers captured from the pinned 1.66.1 reference: value ± 14 days,
         // daily step, DATE enum, and the date-only default format.
         assert_eq!((slider.min, slider.max, slider.step, slider.data_type, slider.format.as_str()), (1709251200000000.0, 1711670400000000.0, 86400000000.0, 3, "YYYY-MM-DD"));
         assert_eq!(slider.default, vec![1710460800000000.0]);
-        assert_eq!(st.slider(SliderOptions::new("time", time).key("time")).unwrap(), time);
-        let element::Type::Slider(slider) = input(&mut wire) else { panic!() };
+        assert_eq!(st.slider(SliderOptions::new("time", time).key("time"))?, time);
+        let element::Type::Slider(slider) = input(&mut wire)? else { panic!() };
         // The full 2000-01-01 day with an off-grid max and a 15-minute step.
         assert_eq!((slider.min, slider.max, slider.step, slider.data_type, slider.format.as_str()), (946684800000000.0, 946771199999999.0, 900000000.0, 4, "HH:mm"));
         assert_eq!(slider.default, vec![946729807123456.0]);
-        assert_eq!(st.slider(SliderOptions::new("datetime", datetime).key("datetime")).unwrap(), datetime);
-        let element::Type::Slider(slider) = input(&mut wire) else { panic!() };
+        assert_eq!(st.slider(SliderOptions::new("datetime", datetime).key("datetime"))?, datetime);
+        let element::Type::Slider(slider) = input(&mut wire)? else { panic!() };
         // Bounds keep the value's time-of-day and microseconds; DATETIME enum.
         assert_eq!((slider.min, slider.max, slider.step, slider.data_type, slider.format.as_str()), (1709296207123456.0, 1711715407123456.0, 86400000000.0, 2, "YYYY-MM-DD"));
         assert_eq!(slider.default, vec![1710505807123456.0]);
-        let pair = (chrono::NaiveDate::from_ymd_opt(2024, 3, 10).unwrap(), chrono::NaiveDate::from_ymd_opt(2024, 3, 20).unwrap());
-        assert_eq!(st.slider(SliderOptions::new("date-range", pair).key("date-range")).unwrap(), pair);
-        let element::Type::Slider(slider) = input(&mut wire) else { panic!() };
+        let pair = (
+            chrono::NaiveDate::from_ymd_opt(2024, 3, 10).ok_or_else(|| anyhow::anyhow!("invalid temporal slider fixture: chrono::NaiveDate::from_ymd_opt(2024, 3, 10)"))?,
+            chrono::NaiveDate::from_ymd_opt(2024, 3, 20).ok_or_else(|| anyhow::anyhow!("invalid temporal slider fixture: chrono::NaiveDate::from_ymd_opt(2024, 3, 20)"))?,
+        );
+        assert_eq!(st.slider(SliderOptions::new("date-range", pair).key("date-range"))?, pair);
+        let element::Type::Slider(slider) = input(&mut wire)? else { panic!() };
         // A range's default window hangs off the FIRST endpoint alone.
         assert_eq!((slider.min, slider.max), (1708819200000000.0, 1711238400000000.0));
         assert_eq!(slider.default, vec![1710028800000000.0, 1710892800000000.0]);
         state.finish_widgets();
+
+        Ok(())
     }
 
     #[test]
-    fn temporal_slider_states_round_trip_and_out_of_domain_bounds_are_rejected() {
+    fn temporal_slider_states_round_trip_and_out_of_domain_bounds_are_rejected() -> anyhow::Result<()> {
         use chrono::Datelike;
         let state = SessionState::default();
         state.begin_widgets(vec![]);
         let (st, mut wire) = app(&state);
-        let time = chrono::NaiveTime::from_hms_micro_opt(12, 30, 7, 123456).unwrap();
-        let _ = st.slider(SliderOptions::new("time", time).key("time")).unwrap();
-        let element::Type::Slider(slider) = input(&mut wire) else { panic!() };
+        let time = chrono::NaiveTime::from_hms_micro_opt(12, 30, 7, 123456).ok_or_else(|| anyhow::anyhow!("invalid temporal slider fixture: chrono::NaiveTime::from_hms_micro_opt(12, 30, 7, 123456)"))?;
+        let _ = st.slider(SliderOptions::new("time", time).key("time"))?;
+        let element::Type::Slider(slider) = input(&mut wire)? else { panic!() };
         state.finish_widgets();
         // The reference's End key lands on the 15-minute grid at 23:45; the
         // returned native value keeps the typed form, not the wire double.
@@ -4421,21 +4455,27 @@ mod tests {
             value: Some(widget_state::Value::DoubleArrayValue(proto::DoubleArray { data: vec![946770300000000.0] })),
         }]);
         let (st, _) = app(&state);
-        assert_eq!(st.slider(SliderOptions::new("time", time).key("time")).unwrap(), chrono::NaiveTime::from_hms_opt(23, 45, 0).unwrap());
+        assert_eq!(
+            st.slider(SliderOptions::new("time", time).key("time"))?,
+            chrono::NaiveTime::from_hms_opt(23, 45, 0).ok_or_else(|| anyhow::anyhow!("invalid temporal slider fixture: chrono::NaiveTime::from_hms_opt(23, 45, 0)"))?
+        );
         state.finish_widgets();
         // Dates outside the exactly-representable double range are refused
         // instead of silently losing microseconds.
-        let far = chrono::NaiveDate::from_ymd_opt(1500, 1, 1).unwrap();
+        let far = chrono::NaiveDate::from_ymd_opt(1500, 1, 1).ok_or_else(|| anyhow::anyhow!("invalid temporal slider fixture: chrono::NaiveDate::from_ymd_opt(1500, 1, 1)"))?;
         assert!(st.slider(SliderOptions::new("past", far)).is_err());
         // Explicit temporal bounds and a chrono step land on the wire unconverted.
-        let bounded = st
-            .slider(
-                SliderOptions::new("window", far.with_year(2024).unwrap())
-                    .min(chrono::NaiveDate::from_ymd_opt(2024, 1, 1).unwrap())
-                    .max(chrono::NaiveDate::from_ymd_opt(2024, 12, 31).unwrap())
-                    .step(chrono::TimeDelta::days(7)),
-            )
-            .unwrap();
-        assert_eq!(bounded, chrono::NaiveDate::from_ymd_opt(2024, 1, 1).unwrap());
+        let bounded = st.slider(
+            SliderOptions::new("window", far.with_year(2024).ok_or_else(|| anyhow::anyhow!("invalid temporal slider fixture: far.with_year(2024)"))?)
+                .min(chrono::NaiveDate::from_ymd_opt(2024, 1, 1).ok_or_else(|| anyhow::anyhow!("invalid temporal slider fixture: chrono::NaiveDate::from_ymd_opt(2024, 1, 1)"))?)
+                .max(chrono::NaiveDate::from_ymd_opt(2024, 12, 31).ok_or_else(|| anyhow::anyhow!("invalid temporal slider fixture: chrono::NaiveDate::from_ymd_opt(2024, 12, 31)"))?)
+                .step(chrono::TimeDelta::days(7)),
+        )?;
+        assert_eq!(
+            bounded,
+            chrono::NaiveDate::from_ymd_opt(2024, 1, 1).ok_or_else(|| anyhow::anyhow!("invalid temporal slider fixture: chrono::NaiveDate::from_ymd_opt(2024, 1, 1)"))?
+        );
+
+        Ok(())
     }
 }

@@ -1234,16 +1234,13 @@ def frontend_record(url: str) -> dict:
 
 
 def fixture_record(app: str = "tests/reference/forms_app.py") -> dict:
-    """The app this capture drove, with its digest."""
+    """The driven app's path, for provenance rather than source validation."""
     app_path = pathlib.Path(app)
     if not app_path.is_absolute():
         app_path = ROOT / app_path
     app = app_path
-    data = app.read_bytes()
     return {
         "app": str(app.relative_to(ROOT)).replace("\\", "/"),
-        "bytes": len(data),
-        "sha256": hashlib.sha256(data).hexdigest(),
     }
 
 
@@ -1339,7 +1336,20 @@ def resolve_artifact_manifest(trace: dict, raw_path: pathlib.Path, manifest_path
         return path
     if stored(manifest["raw"]) != raw_path.resolve(strict=True):
         raise ValueError("manifest is not bound to the requested raw path")
-    records = manifest["files"]
+    source_files = {entry["stored_file"] for entry in manifest.get("runtime_inputs", [])
+                    if entry.get("candidate_member", "").startswith("repo/")
+                    and not entry["candidate_member"].startswith("repo/www/")}
+    for entry in manifest.get("source_snapshots", []):
+        source_files.add(entry.get("stored_file", entry.get("file")))
+    known_source_snapshots = {"app.py.snapshot", "refcore.py.snapshot", "data_app.rs.snapshot", "forms.rs.snapshot", "forms_app.py.snapshot",
+                              "forms_capture.py.snapshot", "forms_contract.py.snapshot", "forms_cases.py.snapshot",
+                              "forms_contract.loaded.py.snapshot", "forms_contract.standalone-v3.py.snapshot"}
+    for entry in manifest["files"]:
+        file = pathlib.PurePosixPath(entry["stored_file"])
+        if (file.parent.name == "source" and file.name in known_source_snapshots
+                or file.as_posix().endswith("/capture/source-identity.json")):
+            source_files.add(entry["stored_file"])
+    records = [entry for entry in manifest["files"] if entry["stored_file"] not in source_files]
     names = [record["stored_file"] for record in records]
     if len(names) != len(set(names)):
         raise ValueError("duplicate stored file record")
@@ -1487,6 +1497,8 @@ def write_checkpoint(args, out, recorder, cases, notes, transport_actions,
         "kind": args.kind,
         "scenario": "forms-text-input",
         "scope": args.scope,
+        "runtime": "python" if args.scope == "PYTHON SIDE ONLY" else "native",
+        "reference_version": "1.66.1",
         "generated_by": "tests/browser/forms_capture.py",
         "generated_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "app_url": args.url,
@@ -1531,6 +1543,9 @@ def write_checkpoint(args, out, recorder, cases, notes, transport_actions,
             artifact = pathlib.Path(value)
             if not artifact.is_absolute():
                 artifact = ROOT / artifact
+            if field == "runtime_source_set":
+                provenance[field] = {"path": str(artifact.resolve())}
+                continue
             artifact = artifact.resolve(strict=True)
             data = artifact.read_bytes()
             provenance[field] = {"path": str(artifact), "bytes": len(data),

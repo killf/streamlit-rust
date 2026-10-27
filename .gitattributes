@@ -2,10 +2,6 @@
 /www/** -text
 /streamlit/proto/*.proto -text
 
-# Frozen source fingerprints must use the same bytes on Windows and Unix.
-/tests/reference/*_app.py text eol=lf
-/streamlit/examples/*.rs text eol=lf
-
 # SHA-bound evidence provenance must survive checkout byte-for-byte.
 /tests/browser/rust-data-loop/README.md -text
 /tests/reference/reference-browser/data-loop/README.md -text
@@ -17,18 +13,17 @@
 /tests/reference/reference-browser/journeys/j01-sequence/** -text
 /tests/browser/rust-journeys/j03-sequence/** -text
 /tests/reference/reference-browser/journeys/j03-sequence/** -text
-# J01 reviewed final-replay criterion/producer identities (not capture-time pins).
+# Preserve existing script newline handling; source SHA is not an acceptance gate.
 /tests/reference/capture_browser_trace.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 /tests/browser/numeric_capture.py -text
 
-# The forms and text-input reference: its trace records the digests of the
-# app and of this README, so they must survive checkout byte-for-byte.
+# Preserve existing checkout bytes for forms scripts and historical evidence.
 /tests/reference/forms_app.py -text
 /tests/browser/forms_capture.py -text
 /tests/reference/reference-browser/forms/README.md -text
 /tests/reference/reference-browser/forms-batch2/README.md -text
 
-# Selected forms evidence and exact source/provenance snapshots.
+# Selected forms evidence and historical provenance snapshots.
 /streamlit/examples/forms.rs -text
 /tests/reference/forms_cases.py -text
 /tests/browser/forms_contract.py -text
@@ -67,7 +62,7 @@
 # Full CSV application J05 evidence and source snapshots.
 /tests/browser/rust-csv-app-j05/** -text
 /tests/reference/reference-browser/csv-app-j05/** -text
-# J00/J02 published evidence and SHA-bound J05 artifact test.
+# J00/J02 published evidence and existing test newline handling.
 /tests/browser/rust-journeys/j00-sequence/** -text
 /tests/reference/reference-browser/journeys/j00-sequence/** -text
 /tests/browser/rust-journeys/j02-sequence/** -text
@@ -77,7 +72,7 @@
 /tests/reference/app.py -text
 /tests/reference/refcore.py -text
 /tests/reference/test_capture_checks.py -text
-# Exact reviewed guide and forms test source bytes.
+# Existing guide and forms test newline handling.
 /docs/guide/README.md -text
 /tests/browser/test_forms_capture_attach.py -text
 /tests/browser/test_forms_capture_replay.py -text
@@ -86,7 +81,10 @@
 # Frozen two-session J06 browser evidence and capture sources.
 /tests/browser/rust-journeys/j06-sequence/** -text
 /tests/reference/reference-browser/journeys/j06-sequence/** -text
-# Bounded J09 reconnect evidence and readiness source pins.
+# Bounded J09 reconnect evidence and historical readiness metadata.
 /tests/browser/rust-journeys/j09-sequence/** -text
 /tests/reference/reference-browser/journeys/j09-sequence/** -text
 /tests/browser/j09-readiness-snapshots.json -text
+# Frozen S4 process/configuration evidence must retain its data bytes.
+/tests/browser/rust-journeys/j09-slow-sequence/** -text
+/tests/reference/reference-browser/journeys/j09-slow-sequence/** -text

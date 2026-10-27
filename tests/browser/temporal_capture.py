@@ -9,8 +9,8 @@ WHAT THIS RECORDS
     every date/time/datetime slider — scalar and range — driven with real
     End/Home keys on its hidden native range input), the DOM end state of
     each stage (repr echo lines, native range input values, exceptions), a
-    PNG per stage, the driven application source identity, and the loaded
-    capture sources. The verdict is computed by the strict contract
+    PNG per stage, the driven application path, and runtime metadata.
+    The verdict is computed by the strict contract
     (temporal_contract.py); this collector only records what the runtime did
     and exits by that verdict. ``--replay <raw>`` rejudges archived bytes
     read-only, without a browser or server.
@@ -40,7 +40,7 @@ sys.path.insert(0, str(HERE))
 
 from capture_browser_trace import CDP, require_decoder, summarise_back, summarise_forward  # noqa: E402
 from numeric_capture import Page  # noqa: E402  the proven CDP input helper
-from temporal_contract import TEMPORAL_CASE, TEMPORAL_CONTRACT, TEMPORAL_STAGES, temporal_result  # noqa: E402
+from temporal_contract import TEMPORAL_SOURCE_FILES, TEMPORAL_CASE, TEMPORAL_CONTRACT, TEMPORAL_STAGES, temporal_result  # noqa: E402
 
 DOM_EXPRESSION = r"""JSON.stringify({
 markdowns:[...document.querySelectorAll("[data-testid=stMarkdown]")].map(e=>e.textContent.trim()),
@@ -151,15 +151,16 @@ def replay(path: str) -> int:
 
 def capture(args, out: pathlib.Path) -> int:
     side = "python" if args.scope == "PYTHON SIDE ONLY" else "native"
-    source_path = ROOT / ("tests/reference/temporal_app.py" if side == "python" else "streamlit/examples/temporal.rs")
+    source_path = ROOT / TEMPORAL_SOURCE_FILES[side]
     observation = {
         "journey": TEMPORAL_CASE,
         "contract": TEMPORAL_CONTRACT,
         "scope": args.scope,
         "url": args.url,
         "binary": args.binary or None,
-        "source": {"file": source_path.relative_to(ROOT).as_posix(), "sha256": digest(source_path)},
-        "capture_sources": {name: digest(ROOT / "tests/browser" / name) for name in ("temporal_capture.py", "temporal_contract.py")},
+        "runtime": side,
+        "reference_version": "1.66.1",
+        "source": {"file": source_path.relative_to(ROOT).as_posix()},
         "stages": [],
         "ipc_dir": str(out.resolve()),
     }

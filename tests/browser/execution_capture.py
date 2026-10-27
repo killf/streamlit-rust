@@ -38,7 +38,7 @@ sys.path.insert(0, str(HERE))
 
 from capture_browser_trace import CDP, require_decoder, summarise_back, summarise_forward  # noqa: E402
 from numeric_capture import Page  # noqa: E402  the proven CDP input helper
-from execution_contract import EXECUTION_STAGES, execution_result  # noqa: E402
+from execution_contract import EXECUTION_SOURCE_FILES, EXECUTION_STAGES, execution_result  # noqa: E402
 
 DOM_EXPRESSION = r"""JSON.stringify({mode:document.querySelector("[data-testid=stSelectbox] input")?.value
 ?? document.querySelector("[data-testid=stSelectbox]")?.textContent,
@@ -128,15 +128,16 @@ def replay(path: str) -> int:
 
 def capture(args, out: pathlib.Path) -> int:
     side = "python" if args.scope == "PYTHON SIDE ONLY" else "native"
-    source_path = ROOT / ("tests/reference/execution_app.py" if side == "python" else "streamlit/examples/execution.rs")
+    source_path = ROOT / EXECUTION_SOURCE_FILES[side]
     observation = {
         "journey": "execution-sequence",
         "contract": "journey-execution-v1",
         "scope": args.scope,
         "url": args.url,
         "binary": args.binary or None,
-        "source": {"file": source_path.relative_to(ROOT).as_posix(), "sha256": digest(source_path)},
-        "capture_sources": {name: digest(ROOT / "tests/browser" / name) for name in ("execution_capture.py", "execution_contract.py")},
+        "runtime": side,
+        "reference_version": "1.66.1",
+        "source": {"file": source_path.relative_to(ROOT).as_posix()},
         "stages": [],
         "ipc_dir": str(out.resolve()),
     }

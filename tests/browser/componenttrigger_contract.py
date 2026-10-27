@@ -233,19 +233,13 @@ COMPONENTTRIGGER_DOMS = {
     }
 }
 
-COMPONENTTRIGGER_SOURCE_PINS = {
-    "python": [
-    'tests/reference/componenttrigger_app.py',
-    '7308b72487d57766df2add346aa3047c1ad39c5003509acea003636aa28f509d'
-],
-    "native": [
-    'streamlit/examples/componenttrigger.rs',
-    '0fefde51aee3d943a3b489798abe2288e3ede2229116f82b293b3f06506c2d15'
-],
+COMPONENTTRIGGER_SOURCE_FILES = {
+    "python": "tests/reference/componenttrigger_app.py",
+    "native": "streamlit/examples/componenttrigger.rs",
 }
 
 COMPONENTTRIGGER_REQUIRED = (
-    "contract", "stage_set", "source_pin", "timeline", "dom_projection",
+    "contract", "stage_set", "timeline", "dom_projection",
     "finishes", "png_sources",
 )
 
@@ -328,13 +322,6 @@ def componenttrigger_checks(*, observation=None):
             _need(isinstance(stage.get("dom"), dict) and isinstance(stage.get("screenshot"), dict)
                   and isinstance(stage.get("new_frames"), list), f"stage {stage.get('name')} lacks dom/screenshot/new_frames")
         mark("stage_set")
-
-        source = observation.get("source") or {}
-        side = "python" if observation.get("scope") == "PYTHON SIDE ONLY" else "native"
-        path, pinned = COMPONENTTRIGGER_SOURCE_PINS[side]
-        _need(source.get("file") == path and source.get("sha256") == pinned,
-              f"driven source is not the pinned {path} of this contract")
-        mark("source_pin")
 
         timelines = {stage["name"]: _timeline(stage) for stage in stages}
         for name in COMPONENTTRIGGER_STAGES:

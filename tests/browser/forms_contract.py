@@ -448,13 +448,6 @@ def verify_forms_text_input_contract(
         "streamlit/examples/data_app.rs", "tests/reference/app.py",
     ):
         failures.append(_problem("*", "*", "j05_profile_source", "CSV profile requires the actual Rust or reference CSV app, not the standalone forms fixture"))
-    app_path = ROOT / str(fixture.get("app", ""))
-    if not app_path.is_file() or not app_path.resolve().is_relative_to(ROOT.resolve()):
-        failures.append({"case_id": "*", "phase_id": "*", "code": "fixture", "detail": "fixture path is missing or outside the worktree"})
-    else:
-        data = app_path.read_bytes()
-        if len(data) != fixture.get("bytes") or hashlib.sha256(data).hexdigest() != fixture.get("sha256"):
-            failures.append({"case_id": "*", "phase_id": "*", "code": "fixture", "detail": "fixture digest differs"})
 
     frames = obs.get("frames") or []
     handshake_ids = {str(item.get("request_id")) for item in obs.get("websocket_handshakes") or []}

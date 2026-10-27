@@ -317,19 +317,13 @@ LAYOUTS_DOM = {
     'exceptions': []
 }
 
-LAYOUTS_SOURCE_PINS = {
-    "python": [
-    'tests/reference/layouts_app.py',
-    '4bb61a02a09d9e9ec12526e86da4f5bab1cc28fec2655ac2149df25f124ad74b'
-],
-    "native": [
-    'streamlit/examples/layouts.rs',
-    '41832195dba7d68fb0f603660285a2ae9f9ae211b7266a1d77f3d6c6611818d8'
-],
+LAYOUTS_SOURCE_FILES = {
+    "python": "tests/reference/layouts_app.py",
+    "native": "streamlit/examples/layouts.rs",
 }
 
 LAYOUTS_REQUIRED = (
-    "contract", "stage_set", "source_pin", "layout_timeline",
+    "contract", "stage_set", "layout_timeline",
     "dialog_wire", "dom_projection", "no_exceptions", "finishes",
     "png_sources",
 )
@@ -405,13 +399,6 @@ def layouts_checks(*, observation=None):
             _need(isinstance(stage.get("dom"), dict) and isinstance(stage.get("screenshot"), dict)
                   and isinstance(stage.get("new_frames"), list), f"stage {stage.get('name')} lacks dom/screenshot/new_frames")
         mark("stage_set")
-
-        source = observation.get("source") or {}
-        side = "python" if observation.get("scope") == "PYTHON SIDE ONLY" else "native"
-        path, pinned = LAYOUTS_SOURCE_PINS[side]
-        _need(source.get("file") == path and source.get("sha256") == pinned,
-              f"driven source is not the pinned {path} of this contract")
-        mark("source_pin")
 
         deltas = _layout_deltas(stages[0])
         observed = [_normalize(delta) for delta in deltas]

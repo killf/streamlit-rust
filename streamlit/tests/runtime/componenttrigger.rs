@@ -18,36 +18,41 @@ const JS: &str = "\n    export default function(component) {\n        const { pa
 
 fn componenttrigger_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
     Box::pin(async move {
-        // Mirrors tests/reference/componenttrigger_app.py.
-        let widget = ComponentV2::new("trigger_demo").html(HTML).css(CSS).js(JS);
-        let result = st.component_v2(&widget, ComponentMount::new().key("triggers").events(["ping"])).unwrap();
-        st.write(format!("ping={}", crate::pywire::py_dumps(&result.get("ping").cloned().unwrap_or(serde_json::Value::Null))));
+        let result: TestResult = async {
+            // Mirrors tests/reference/componenttrigger_app.py.
+            let widget = ComponentV2::new("trigger_demo").html(HTML).css(CSS).js(JS);
+            let result = st.component_v2(&widget, ComponentMount::new().key("triggers").events(["ping"]))?;
+            st.write(format!("ping={}", crate::pywire::py_dumps(&result.get("ping").cloned().unwrap_or(serde_json::Value::Null))));
+
+            Ok(())
+        }
+        .await;
+
+        assert!(result.is_ok(), "componenttrigger fixture must render successfully: {result:?}");
     })
 }
 
 #[actix_web::test]
-async fn trigger_round_trip_over_the_production_websocket() {
-    let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
-    let address = listener.local_addr().unwrap();
+async fn trigger_round_trip_over_the_production_websocket() -> TestResult {
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
     let server = HttpServer::new(move || App::new().app_data(web::Data::new(StreamlitServer::new(componenttrigger_entry, "127.0.0.1".into(), 0))).configure(configure_routes))
         .workers(1)
-        .listen(listener)
-        .unwrap()
+        .listen(listener)?
         .run();
     let handle = server.handle();
     let task = actix_web::rt::spawn(server);
-    let mut stream = TcpStream::connect(address).await.unwrap();
+    let mut stream = TcpStream::connect(address).await?;
     let request = format!("GET /_stcore/stream HTTP/1.1\r\nHost: {address}\r\nConnection: Upgrade\r\nUpgrade: websocket\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\nSec-WebSocket-Protocol: streamlit, test-xsrf\r\n\r\n");
-    stream.write_all(request.as_bytes()).await.unwrap();
+    stream.write_all(request.as_bytes()).await?;
     let headers = tokio::time::timeout(Duration::from_secs(5), async {
         let mut response = Vec::new();
         while !response.ends_with(b"\r\n\r\n") {
-            response.push(stream.read_u8().await.unwrap());
+            response.push(stream.read_u8().await?);
         }
-        String::from_utf8(response).unwrap().to_ascii_lowercase()
+        Ok::<_, Box<dyn std::error::Error>>(String::from_utf8(response)?.to_ascii_lowercase())
     })
-    .await
-    .unwrap();
+    .await??;
     assert!(headers.starts_with("http/1.1 101"));
 
     // (markdown body, incoming aggregator state) per stage: load, first
@@ -109,5 +114,7 @@ async fn trigger_round_trip_over_the_production_websocket() {
 
     drop(stream);
     handle.stop(false).await;
-    task.await.unwrap().unwrap();
+    task.await??;
+
+    Ok(())
 }

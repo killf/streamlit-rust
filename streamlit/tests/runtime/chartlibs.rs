@@ -18,63 +18,68 @@ use crate::proto::forward_msg;
 use serde_json::json;
 use std::sync::Arc;
 
-fn kind_count_batch() -> RecordBatch {
+fn kind_count_batch() -> TestResult<RecordBatch> {
     let fields = vec![Field::new("kind", crate::data::DataType::Utf8, true), Field::new("count", crate::data::DataType::Int64, true)];
     let kind: Vec<&str> = vec!["a", "b"];
     let arrays = vec![Arc::new(StringArray::from(kind)) as _, Arc::new(Int64Array::from(vec![3, 7])) as _];
-    RecordBatch::try_new(Arc::new(Schema::new(fields)), arrays).unwrap()
+    Ok(RecordBatch::try_new(Arc::new(Schema::new(fields)), arrays)?)
 }
 
 fn chartlibs_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
     Box::pin(async move {
-        // Mirrors tests/reference/chartlibs_app.py.
-        st.altair_chart(
-            json!({"mark": {"type": "bar"}, "encoding": {"x": {"field": "kind", "type": "nominal"}, "y": {"field": "count", "type": "quantitative"}}}),
-            &kind_count_batch(),
-        );
-        st.vega_lite_chart(json!({
-            "mark": "bar",
-            "encoding": {
-                "x": {"field": "kind", "type": "nominal"},
-                "y": {"field": "count", "type": "quantitative"},
-            },
-            "data": {"values": [{"kind": "a", "count": 3}, {"kind": "b", "count": 7}]},
-        }));
-        st.plotly_chart(include_str!("../../../tests/reference/chartlibs-plotly_spec.json"));
-        st.pydeck_chart(include_str!("../../../tests/reference/chartlibs-deck_json.json"));
-        st.graphviz_chart(include_str!("../../../tests/reference/chartlibs-graphviz_spec.json"));
-        st.mermaid_chart("graph LR\n    A[Start] --> B{Decision}");
-        st.echarts_chart(json!({
-            "xAxis": {"type": "category", "data": ["a", "b"]},
-            "yAxis": {"type": "value"},
-            "series": [{"type": "bar", "data": [3, 7]}],
-        }));
+        let result: TestResult = async {
+            // Mirrors tests/reference/chartlibs_app.py.
+            st.altair_chart(
+                json!({"mark": {"type": "bar"}, "encoding": {"x": {"field": "kind", "type": "nominal"}, "y": {"field": "count", "type": "quantitative"}}}),
+                &kind_count_batch()?,
+            );
+            st.vega_lite_chart(json!({
+                "mark": "bar",
+                "encoding": {
+                    "x": {"field": "kind", "type": "nominal"},
+                    "y": {"field": "count", "type": "quantitative"},
+                },
+                "data": {"values": [{"kind": "a", "count": 3}, {"kind": "b", "count": 7}]},
+            }));
+            st.plotly_chart(include_str!("../../../tests/reference/chartlibs-plotly_spec.json"));
+            st.pydeck_chart(include_str!("../../../tests/reference/chartlibs-deck_json.json"));
+            st.graphviz_chart(include_str!("../../../tests/reference/chartlibs-graphviz_spec.json"));
+            st.mermaid_chart("graph LR\n    A[Start] --> B{Decision}");
+            st.echarts_chart(json!({
+                "xAxis": {"type": "category", "data": ["a", "b"]},
+                "yAxis": {"type": "value"},
+                "series": [{"type": "bar", "data": [3, 7]}],
+            }));
+
+            Ok(())
+        }
+        .await;
+
+        assert!(result.is_ok(), "chartlibs fixture must render successfully: {result:?}");
     })
 }
 
 #[actix_web::test]
-async fn library_charts_match_the_measured_wire() {
-    let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
-    let address = listener.local_addr().unwrap();
+async fn library_charts_match_the_measured_wire() -> TestResult {
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
     let server = HttpServer::new(move || App::new().app_data(web::Data::new(StreamlitServer::new(chartlibs_entry, "127.0.0.1".into(), 0))).configure(configure_routes))
         .workers(1)
-        .listen(listener)
-        .unwrap()
+        .listen(listener)?
         .run();
     let handle = server.handle();
     let task = actix_web::rt::spawn(server);
-    let mut stream = TcpStream::connect(address).await.unwrap();
+    let mut stream = TcpStream::connect(address).await?;
     let request = format!("GET /_stcore/stream HTTP/1.1\r\nHost: {address}\r\nConnection: Upgrade\r\nUpgrade: websocket\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\nSec-WebSocket-Protocol: streamlit, test-xsrf\r\n\r\n");
-    stream.write_all(request.as_bytes()).await.unwrap();
+    stream.write_all(request.as_bytes()).await?;
     let headers = tokio::time::timeout(Duration::from_secs(5), async {
         let mut response = Vec::new();
         while !response.ends_with(b"\r\n\r\n") {
-            response.push(stream.read_u8().await.unwrap());
+            response.push(stream.read_u8().await?);
         }
-        String::from_utf8(response).unwrap().to_ascii_lowercase()
+        Ok::<_, Box<dyn std::error::Error>>(String::from_utf8(response)?.to_ascii_lowercase())
     })
-    .await
-    .unwrap();
+    .await??;
     assert!(headers.starts_with("http/1.1 101"));
 
     send_binary(
@@ -105,7 +110,7 @@ async fn library_charts_match_the_measured_wire() {
                 };
                 let entry = match kind {
                     element::Type::VegaLiteChart(vega) => {
-                        let spec = serde_json::from_str::<serde_json::Value>(&vega.spec).unwrap();
+                        let spec = serde_json::from_str::<serde_json::Value>(&vega.spec)?;
                         let named = spec["data"]["name"].as_str().is_some();
                         let datasets = vega.datasets.len();
                         let inline = vega.data.is_some();
@@ -156,7 +161,9 @@ async fn library_charts_match_the_measured_wire() {
 
     drop(stream);
     handle.stop(false).await;
-    task.await.unwrap().unwrap();
+    task.await??;
+
+    Ok(())
 }
 
 #[test]

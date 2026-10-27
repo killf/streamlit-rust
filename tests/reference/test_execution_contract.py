@@ -14,7 +14,7 @@ sys.path.insert(0, str(HERE.parent / "browser"))
 from execution_contract import (  # noqa: E402
     EXECUTION_DOM,
     EXECUTION_REQUIRED,
-    EXECUTION_SOURCE_PINS,
+    EXECUTION_SOURCE_FILES,
     execution_checks,
     execution_result,
     runs_of,
@@ -62,7 +62,7 @@ def observation(tmp_path, **faults):
         "contract": "journey-execution-v1",
         "scope": "PYTHON SIDE ONLY",
         "url": "http://127.0.0.1:8605/",
-        "source": {"file": EXECUTION_SOURCE_PINS["python"][0], "sha256": EXECUTION_SOURCE_PINS["python"][1]},
+        "source": {"file": EXECUTION_SOURCE_FILES["python"]},
         "capture_sources": {},
         "stages": stages,
         "ipc_dir": str(tmp_path),
@@ -103,8 +103,6 @@ def observation(tmp_path, **faults):
         stages[2]["screenshot"]["sha256"] = "0" * 64
     elif mutation == "wrong_dom":
         stages[0]["dom"]["markdowns"] = ["mode=plain runs=2 reruns=0", "epilogue"]
-    elif mutation == "wrong_source":
-        observation["source"]["sha256"] = "0" * 64
     elif mutation == "wrong_contract":
         observation["contract"] = "journey-execution-v0"
     elif mutation == "missing_stage":
@@ -120,13 +118,13 @@ def result(tmp_path, **faults):
 def test_complete_synthetic_model_passes_every_check(tmp_path):
     outcome = result(tmp_path)
     assert outcome["ok"], outcome["failures"]
-    assert outcome["counts"] == {"expected": 8, "executed": 8, "asserted": 8}
+    assert outcome["counts"] == {"expected": 7, "executed": 7, "asserted": 7}
     assert tuple(check["check"] for check in outcome["checks"]) == EXECUTION_REQUIRED
 
 
 @pytest.mark.parametrize("mutation", [
     "abort_finish", "extra_backmsg", "epilogue_in_aborted", "stale_session", "reused_run_id",
-    "stop_keeps_epilogue", "missing_png", "png_sha", "wrong_dom", "wrong_source",
+    "stop_keeps_epilogue", "missing_png", "png_sha", "wrong_dom",
     "wrong_contract", "missing_stage",
 ])
 def test_known_mutations_fail(tmp_path, mutation):
@@ -147,7 +145,9 @@ def test_runs_of_attributes_backmsgs_to_the_run_they_precede():
     assert [run["run_id"] for run in runs] == ["r1", "r2"]
 
 
-def test_contract_pins_the_committed_sources():
-    for side, (relative, pinned) in EXECUTION_SOURCE_PINS.items():
-        path = HERE.parents[1] / relative
-        assert path.is_file() and hashlib.sha256(path.read_bytes()).hexdigest() == pinned, side
+def test_source_fingerprints_do_not_gate_functional_evidence(tmp_path):
+    for source in ({"file": "historical-app.py", "sha256": "changed"}, {"file": "historical-app.py"}, None):
+        observed = observation(tmp_path)
+        observed["source"] = source
+        outcome = execution_result(observation=observed)
+        assert outcome["ok"], outcome["failures"]

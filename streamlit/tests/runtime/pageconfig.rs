@@ -29,29 +29,27 @@ fn pageconfig_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
     })
 }
 
-async fn collect_kinds_and_configs(entry: fn(&Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>>) -> (Vec<&'static str>, Vec<crate::proto::PageConfig>, Vec<String>) {
-    let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
-    let address = listener.local_addr().unwrap();
+async fn collect_kinds_and_configs(entry: fn(&Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>>) -> TestResult<(Vec<&'static str>, Vec<crate::proto::PageConfig>, Vec<String>)> {
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
     let server = HttpServer::new(move || App::new().app_data(web::Data::new(StreamlitServer::new(entry, "127.0.0.1".into(), 0))).configure(configure_routes))
         .workers(1)
-        .listen(listener)
-        .unwrap()
+        .listen(listener)?
         .run();
     let handle = server.handle();
     let task = actix_web::rt::spawn(server);
-    let mut stream = TcpStream::connect(address).await.unwrap();
+    let mut stream = TcpStream::connect(address).await?;
     let request = format!("GET /_stcore/stream HTTP/1.1\r\nHost: {address}\r\nConnection: Upgrade\r\nUpgrade: websocket\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\nSec-WebSocket-Protocol: streamlit, test-xsrf\r\n\r\n");
-    stream.write_all(request.as_bytes()).await.unwrap();
+    stream.write_all(request.as_bytes()).await?;
     let headers = tokio::time::timeout(Duration::from_secs(5), async {
         let mut response = Vec::new();
         while !response.ends_with(b"\r\n\r\n") {
-            response.push(stream.read_u8().await.unwrap());
+            response.push(stream.read_u8().await?);
             assert!(response.len() < 8192);
         }
-        String::from_utf8(response).unwrap().to_ascii_lowercase()
+        Ok::<_, Box<dyn std::error::Error>>(String::from_utf8(response)?.to_ascii_lowercase())
     })
-    .await
-    .unwrap();
+    .await??;
     assert!(headers.starts_with("http/1.1 101"));
 
     send_binary(
@@ -101,13 +99,13 @@ async fn collect_kinds_and_configs(entry: fn(&Streamlit) -> Pin<Box<dyn Future<O
     }
     drop(stream);
     handle.stop(false).await;
-    task.await.unwrap().unwrap();
-    (kinds, configs, markdowns)
+    task.await??;
+    Ok((kinds, configs, markdowns))
 }
 
 #[actix_web::test]
-async fn page_config_streams_once_at_the_call_point_on_the_measured_wire() {
-    let (kinds, configs, markdowns) = collect_kinds_and_configs(pageconfig_entry).await;
+async fn page_config_streams_once_at_the_call_point_on_the_measured_wire() -> TestResult {
+    let (kinds, configs, markdowns) = collect_kinds_and_configs(pageconfig_entry).await?;
     // The message lands between the running status and the first delta, and
     // consumes no element path: the write still streams at [0, 0].
     assert_eq!(kinds, vec!["new_session", "running", "page_config_changed", "markdown", "finished", "idle"]);
@@ -124,6 +122,8 @@ async fn page_config_streams_once_at_the_call_point_on_the_measured_wire() {
     assert_eq!(menu.about_section_md, "### About text\nCreated with the reference fixture.");
     assert!(!menu.hide_get_help && !menu.hide_report_a_bug && !menu.clear_about_md);
     assert!(config.initial_sidebar_width.is_none());
+
+    Ok(())
 }
 
 fn duplicate_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
@@ -137,8 +137,8 @@ fn duplicate_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
 }
 
 #[actix_web::test]
-async fn a_second_call_streams_a_second_config_and_the_run_continues() {
-    let (kinds, configs, markdowns) = collect_kinds_and_configs(duplicate_entry).await;
+async fn a_second_call_streams_a_second_config_and_the_run_continues() -> TestResult {
+    let (kinds, configs, markdowns) = collect_kinds_and_configs(duplicate_entry).await?;
     assert_eq!(kinds, vec!["new_session", "running", "page_config_changed", "page_config_changed", "markdown", "finished", "idle"]);
     assert_eq!(markdowns, vec!["after"]);
     assert_eq!(configs.len(), 2);
@@ -149,6 +149,8 @@ async fn a_second_call_streams_a_second_config_and_the_run_continues() {
     assert_eq!(configs[0].initial_sidebar_state, page_config::SidebarState::SidebarUnset as i32);
     assert!(configs[0].menu_items.is_none());
     assert_eq!(configs[1].favicon, "");
+
+    Ok(())
 }
 
 #[test]

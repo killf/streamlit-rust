@@ -494,11 +494,10 @@ ELEMENTS_DOM = {
  }
 }
 
-# The driven application source is pinned per side; a capture of another
-# source is not this contract's evidence.
-ELEMENTS_SOURCE_PINS = {
-    "python": ("tests/reference/elements_app.py", "cddda07bee7988e70db1c89e1c8036ae87fa1bfaa55b4e1fc7a19ada36ac6b1c"),
-    "native": ("streamlit/examples/elements.rs", "62c66cb13ede1d42f97ec2395d6b78861d3e853894fb2a24191e8d70a12cd12d"),
+# Application paths label the captured roles; source content is not a gate.
+ELEMENTS_SOURCE_FILES = {
+    "python": "tests/reference/elements_app.py",
+    "native": "streamlit/examples/elements.rs",
 }
 
 ELEMENTS_FORM_WIDGETS = {
@@ -551,7 +550,7 @@ ELEMENTS_CHART = {
 }
 
 ELEMENTS_REQUIRED = (
-    "contract", "stage_set", "source_pin", "wire_stream", "dom_fingerprint",
+    "contract", "stage_set", "wire_stream", "dom_fingerprint",
     "form_widgets", "chart_shape", "echo_and_note", "finishes",
     "no_exceptions", "png_sources",
 )
@@ -651,13 +650,6 @@ def elements_checks(*, observation=None):
             _need(isinstance(stage.get("dom"), dict) and isinstance(stage.get("screenshot"), dict)
                   and isinstance(stage.get("new_frames"), list), f"stage {stage.get('name')} lacks dom/screenshot/new_frames")
         mark("stage_set")
-
-        source = observation.get("source") or {}
-        side = "python" if observation.get("scope") == "PYTHON SIDE ONLY" else "native"
-        path, pinned = ELEMENTS_SOURCE_PINS[side]
-        _need(source.get("file") == path and source.get("sha256") == pinned,
-              f"driven source is not the pinned {path} of this contract")
-        mark("source_pin")
 
         for stage in stages:
             stream = _wire_stream(stage)

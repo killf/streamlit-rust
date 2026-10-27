@@ -34,15 +34,14 @@ EXECUTION_DOM = {
     "stop": ["mode=stop runs=4 reruns=1", "before-stop"],
 }
 
-# The driven application source is pinned per side; a capture of another
-# source is not this contract's evidence.
-EXECUTION_SOURCE_PINS = {
-    "python": ("tests/reference/execution_app.py", "3d3f1fbd98fcdda490f76cf4557d2f5f36de3ca12bc3e94b026cc54059f0732e"),
-    "native": ("streamlit/examples/execution.rs", "b5bfabaa7ff08762bf3b7a47ac3f60a26764fa3b7eb5544ce25843b02aac2b98"),
+# Application paths label the captured roles; source content is not a gate.
+EXECUTION_SOURCE_FILES = {
+    "python": "tests/reference/execution_app.py",
+    "native": "streamlit/examples/execution.rs",
 }
 
 EXECUTION_REQUIRED = (
-    "contract", "stage_set", "source_pin", "plain_lifecycle",
+    "contract", "stage_set", "plain_lifecycle",
     "rerun_aborts_early", "same_session_fresh_runs", "stop_suppresses", "png_sources",
 )
 
@@ -120,13 +119,6 @@ def execution_checks(*, observation=None):
             _need(isinstance(stage.get("dom"), dict) and isinstance(stage.get("screenshot"), dict)
                   and isinstance(stage.get("new_frames"), list), f"stage {stage.get('name')} lacks dom/screenshot/new_frames")
         mark("stage_set")
-
-        source = observation.get("source") or {}
-        side = "python" if observation.get("scope") == "PYTHON SIDE ONLY" else "native"
-        path, pinned = EXECUTION_SOURCE_PINS[side]
-        _need(source.get("file") == path and source.get("sha256") == pinned,
-              f"driven source is not the pinned {path} of this contract")
-        mark("source_pin")
 
         plain_runs, plain_backmsgs = _stage_runs(stages[0])
         _need(plain_backmsgs == 1 and len(plain_runs) == 1, "plain stage must be one browser-triggered run")

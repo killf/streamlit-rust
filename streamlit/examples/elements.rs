@@ -7,15 +7,14 @@ use arrow_array::{Int64Array, RecordBatch, StringArray};
 use arrow_schema::{DataType, Field, Schema};
 use std::sync::Arc;
 
-fn batch() -> RecordBatch {
-    RecordBatch::try_new(
+fn batch() -> anyhow::Result<RecordBatch> {
+    Ok(RecordBatch::try_new(
         Arc::new(Schema::new(vec![Field::new("kind", DataType::Utf8, false), Field::new("count", DataType::Int64, false)])),
         vec![Arc::new(StringArray::from(vec!["a", "b"])), Arc::new(Int64Array::from(vec![1, 2]))],
-    )
-    .unwrap()
+    )?)
 }
 
-fn render(st: &Streamlit) {
+fn render(st: &Streamlit) -> anyhow::Result<()> {
     st.title("Elements parity title");
     st.header("Header level");
     st.caption(CaptionOptions::new("A caption line"));
@@ -33,13 +32,11 @@ fn render(st: &Streamlit) {
     let container = st.container();
     container.write("inside container");
 
-    let (note, submitted) = st
-        .form(FormOptions::new("note_form"), |form| {
-            let note = form.text_input(TextInputOptions::new("Note").value("hello"))?;
-            let submitted = form.form_submit_button(FormSubmitButtonOptions::new("Apply"))?;
-            Ok::<_, WidgetError>((note, submitted))
-        })
-        .unwrap();
+    let (note, submitted) = st.form(FormOptions::new("note_form"), |form| {
+        let note = form.text_input(TextInputOptions::new("Note").value("hello"))?;
+        let submitted = form.form_submit_button(FormSubmitButtonOptions::new("Apply"))?;
+        Ok::<_, WidgetError>((note, submitted))
+    })?;
     let note_repr = match &note {
         Some(text) => format!("'{text}'"),
         None => "None".to_string(),
@@ -47,9 +44,10 @@ fn render(st: &Streamlit) {
     let submitted_repr = if submitted { "True" } else { "False" };
     st.write(format!("form: note={note_repr} submitted={submitted_repr}"));
 
-    let data = batch();
-    st.table(&data).unwrap();
-    st.bar_chart(BarChartOptions::new(&data, "kind", "count")).unwrap();
+    let data = batch()?;
+    st.table(&data)?;
+    st.bar_chart(BarChartOptions::new(&data, "kind", "count"))?;
+    Ok(())
 }
 
 #[tokio::main]
@@ -57,7 +55,9 @@ async fn main() -> std::io::Result<()> {
     StreamlitServer::new(
         |st| {
             Box::pin(async move {
-                render(st);
+                if let Err(error) = render(st) {
+                    st.write(format!("Example error: {error}"));
+                }
             })
         },
         "127.0.0.1".into(),

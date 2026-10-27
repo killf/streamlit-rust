@@ -6,48 +6,47 @@ use serde_json::{Value, json};
 
 fn layout_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
     Box::pin(async move {
-        st.container()
-            .form(FormOptions::new("in_container"), |form| {
+        let result: TestResult = async {
+            st.container().form(FormOptions::new("in_container"), |form| {
                 form.text_input(TextInputOptions::new("A").key("a"))?;
                 form.form_submit_button("Apply A")
-            })
-            .unwrap();
-        st.columns(2)[0]
-            .form(FormOptions::new("in_column"), |form| {
+            })?;
+            st.columns(2)[0].form(FormOptions::new("in_column"), |form| {
                 form.text_input(TextInputOptions::new("B").key("b"))?;
                 form.form_submit_button("Apply B")
-            })
-            .unwrap();
-        st.form(FormOptions::new("has_container"), |form| {
-            form.container().text_input(TextInputOptions::new("C").key("c"))?;
-            form.form_submit_button("Apply C")
-        })
-        .unwrap();
-        st.form(FormOptions::new("has_columns"), |form| {
-            let columns = form.columns(2);
-            columns[0].text_input(TextInputOptions::new("D").key("d"))?;
-            columns[1].text_input(TextInputOptions::new("E").key("e"))?;
-            form.form_submit_button("Apply D")
-        })
-        .unwrap();
-        st.text_input(TextInputOptions::new("Root").key("root")).unwrap();
-        let outer = st.container();
-        outer.container().write("DEEP");
-        outer.write("SIBLING");
-        st.write("TAIL");
-        let columns = st.columns(2);
-        columns[0].container().write("COLUMN_CHILD");
-        columns[1].write("COLUMN_SIBLING");
-        st.write("COLUMN_TAIL");
+            })?;
+            st.form(FormOptions::new("has_container"), |form| {
+                form.container().text_input(TextInputOptions::new("C").key("c"))?;
+                form.form_submit_button("Apply C")
+            })?;
+            st.form(FormOptions::new("has_columns"), |form| {
+                let columns = form.columns(2);
+                columns[0].text_input(TextInputOptions::new("D").key("d"))?;
+                columns[1].text_input(TextInputOptions::new("E").key("e"))?;
+                form.form_submit_button("Apply D")
+            })?;
+            st.text_input(TextInputOptions::new("Root").key("root"))?;
+            let outer = st.container();
+            outer.container().write("DEEP");
+            outer.write("SIBLING");
+            st.write("TAIL");
+            let columns = st.columns(2);
+            columns[0].container().write("COLUMN_CHILD");
+            columns[1].write("COLUMN_SIBLING");
+            st.write("COLUMN_TAIL");
+            Ok(())
+        }
+        .await;
+        assert!(result.is_ok(), "layout_entry fixture failed: {result:?}");
     })
 }
 
 #[actix_web::test]
-async fn forms_layout_both_directions_emit_once_at_parent_paths_over_real_websocket() {
-    let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
-    let address = listener.local_addr().unwrap();
+async fn forms_layout_both_directions_emit_once_at_parent_paths_over_real_websocket() -> TestResult {
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
     let server = StreamlitServer::new(layout_entry, "127.0.0.1".into(), 0);
-    let http_server = HttpServer::new(move || App::new().app_data(web::Data::new(server.clone())).configure(configure_routes)).workers(1).listen(listener).unwrap().run();
+    let http_server = HttpServer::new(move || App::new().app_data(web::Data::new(server.clone())).configure(configure_routes)).workers(1).listen(listener)?.run();
     let handle = http_server.handle();
     let task = actix_web::rt::spawn(http_server);
     let mut socket = sessions::connect(address, None).await;
@@ -72,12 +71,12 @@ async fn forms_layout_both_directions_emit_once_at_parent_paths_over_real_websoc
         loop {
             let message = receive(&mut socket).await;
             let path = message.metadata.as_ref().map(|m| m.delta_path.clone()).unwrap_or_default();
-            match message.r#type.unwrap() {
+            match message.r#type.ok_or("ForwardMsg must contain a message type")? {
                 forward_msg::Type::Delta(delta) => {
                     assert!(paths.insert(path.clone()), "duplicate delta path {path:?}");
-                    match delta.r#type.unwrap() {
+                    match delta.r#type.ok_or("delta must contain a payload")? {
                         delta::Type::AddBlock(block) => forms += usize::from(matches!(block.r#type, Some(proto::block::Type::Form(_)))),
-                        delta::Type::NewElement(element) => match element.r#type.unwrap() {
+                        delta::Type::NewElement(element) => match element.r#type.ok_or("new element must contain a widget payload")? {
                             element::Type::TextInput(text) => {
                                 assert!(ids.insert(text.id));
                                 texts.push((text.label, text.form_id, path));
@@ -127,40 +126,50 @@ async fn forms_layout_both_directions_emit_once_at_parent_paths_over_real_websoc
     }
     sessions::disconnect(socket).await;
     handle.stop(true).await;
-    task.await.unwrap().unwrap();
+    task.await??;
+    Ok(())
 }
 
 fn forms_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
     Box::pin(async move {
-        let callback = |st: &Streamlit| {
-            let state = st.session_state();
-            let values = json!({
-                "note": state.get::<String>("default_note").unwrap(),
-                "agree": state.get::<bool>("default_agree").unwrap(),
+        let result: TestResult = async {
+            let callback = |st: &Streamlit| {
+                let result = (|| -> TestResult {
+                    let state = st.session_state();
+                    let values = json!({
+                        "note": state.get::<String>("default_note")?,
+                        "agree": state.get::<bool>("default_agree")?,
+                    });
+                    state.set("callback_values", values)?;
+                    Ok(())
+                })();
+                assert!(result.is_ok(), "form submit callback fixture failed: {result:?}");
+            };
+            let result = st.form(FormOptions::new("default_form").clear_on_submit(true), |form| {
+                let note = form.text_input(TextInputOptions::new("Note").key("default_note"))?;
+                let agree = form.checkbox(CheckboxOptions::new("Agree").key("default_agree"))?;
+                let submitted = form.form_submit_button(FormSubmitButtonOptions::new("Apply").key("default_apply").on_click(callback))?;
+                Ok((note, agree, submitted))
             });
-            state.set("callback_values", values).unwrap();
-        };
-        let result = st.form(FormOptions::new("default_form").clear_on_submit(true), |form| {
-            let note = form.text_input(TextInputOptions::new("Note").key("default_note"))?;
-            let agree = form.checkbox(CheckboxOptions::new("Agree").key("default_agree"))?;
-            let submitted = form.form_submit_button(FormSubmitButtonOptions::new("Apply").key("default_apply").on_click(callback))?;
-            Ok((note, agree, submitted))
-        });
-        let (note, agree, submitted) = result.expect("measured form registration");
-        st.write(format!(
-            "values={}",
-            json!({
-                "note": note,
-                "agree": agree,
-                "submitted": submitted,
-                "callback_values": st.session_state().get::<Value>("callback_values").unwrap(),
-            })
-        ));
+            let (note, agree, submitted) = result?;
+            st.write(format!(
+                "values={}",
+                json!({
+                    "note": note,
+                    "agree": agree,
+                    "submitted": submitted,
+                    "callback_values": st.session_state().get::<Value>("callback_values")?,
+                })
+            ));
+            Ok(())
+        }
+        .await;
+        assert!(result.is_ok(), "forms_entry fixture failed: {result:?}");
     })
 }
 
 #[actix_web::test]
-async fn forms_buffered_layout_keeps_deep_paths_and_empty_columns_once() {
+async fn forms_buffered_layout_keeps_deep_paths_and_empty_columns_once() -> TestResult {
     use crate::elements::common::{Element, RenderContext};
     let st = Streamlit::new();
     layout_entry(&st).await;
@@ -172,18 +181,18 @@ async fn forms_buffered_layout_keeps_deep_paths_and_empty_columns_once() {
         sender: None,
         recording: None,
     };
-    st.app.lock().render(&mut context).unwrap();
+    st.app.lock().render(&mut context)?;
     let mut paths = std::collections::BTreeSet::new();
     let mut widgets = std::collections::BTreeSet::new();
     let mut form_count = 0;
     let mut text_paths = Vec::new();
     for message in context.stream {
         if let Some(forward_msg::Type::Delta(delta)) = message.r#type {
-            let path = message.metadata.unwrap().delta_path;
+            let path = message.metadata.ok_or("delta must include path metadata")?.delta_path;
             assert!(paths.insert(path.clone()), "buffered duplicate path {path:?}");
-            match delta.r#type.unwrap() {
+            match delta.r#type.ok_or("delta must contain a payload")? {
                 delta::Type::AddBlock(block) => form_count += usize::from(matches!(block.r#type, Some(proto::block::Type::Form(_)))),
-                delta::Type::NewElement(element) => match element.r#type.unwrap() {
+                delta::Type::NewElement(element) => match element.r#type.ok_or("new element must contain a widget payload")? {
                     element::Type::TextInput(text) => {
                         assert!(widgets.insert(text.id));
                         text_paths.push(path);
@@ -203,6 +212,7 @@ async fn forms_buffered_layout_keeps_deep_paths_and_empty_columns_once() {
     for path in [vec![0, 1, 1], vec![0, 5, 0, 0], vec![0, 5, 1], vec![0, 6], vec![0, 7, 0, 0, 0], vec![0, 7, 1, 0], vec![0, 8]] {
         assert!(paths.contains(&path), "missing buffered path {path:?}");
     }
+    Ok(())
 }
 
 struct FormsRun {
@@ -214,7 +224,7 @@ struct FormsRun {
     values: Value,
 }
 
-async fn forms_rerun(stream: &mut TcpStream, widgets: Vec<WidgetState>) -> FormsRun {
+async fn forms_rerun(stream: &mut TcpStream, widgets: Vec<WidgetState>) -> TestResult<FormsRun> {
     send_binary(
         stream,
         &BackMsg {
@@ -239,7 +249,7 @@ async fn forms_rerun(stream: &mut TcpStream, widgets: Vec<WidgetState>) -> Forms
     while let Some(message) = receive(stream).await.r#type {
         match message {
             forward_msg::Type::NewSession(new) => {
-                run.session_id = new.initialize.unwrap().session_id;
+                run.session_id = new.initialize.ok_or("NewSession must include initialization")?.session_id;
                 run.script_run_id = new.script_run_id;
             }
             forward_msg::Type::Delta(proto::Delta { r#type: Some(delta::Type::AddBlock(block)), .. }) => {
@@ -251,7 +261,7 @@ async fn forms_rerun(stream: &mut TcpStream, widgets: Vec<WidgetState>) -> Forms
                 Some(element::Type::Button(button)) if button.is_form_submitter => run.submit_id = button.id,
                 Some(element::Type::Markdown(value)) => {
                     if let Some(json) = value.body.strip_prefix("values=") {
-                        run.values = serde_json::from_str(json).unwrap();
+                        run.values = serde_json::from_str(json)?;
                     }
                 }
                 _ => (),
@@ -272,20 +282,20 @@ async fn forms_rerun(stream: &mut TcpStream, widgets: Vec<WidgetState>) -> Forms
     assert!(!run.session_id.is_empty() && !run.script_run_id.is_empty());
     assert!(!run.text_id.is_empty() && !run.checkbox_id.is_empty() && !run.submit_id.is_empty());
     assert!(!run.values.is_null());
-    run
+    Ok(run)
 }
 
 #[actix_web::test]
-async fn forms_batch_text_checkbox_and_submit_over_one_real_websocket() {
-    let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
-    let address = listener.local_addr().unwrap();
+async fn forms_batch_text_checkbox_and_submit_over_one_real_websocket() -> TestResult {
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
     let server = StreamlitServer::new(forms_entry, "127.0.0.1".into(), 0);
-    let http_server = HttpServer::new(move || App::new().app_data(web::Data::new(server.clone())).configure(configure_routes)).workers(1).listen(listener).unwrap().run();
+    let http_server = HttpServer::new(move || App::new().app_data(web::Data::new(server.clone())).configure(configure_routes)).workers(1).listen(listener)?.run();
     let handle = http_server.handle();
     let task = actix_web::rt::spawn(http_server);
 
     let mut socket = sessions::connect(address, None).await;
-    let initial = forms_rerun(&mut socket, vec![]).await;
+    let initial = forms_rerun(&mut socket, vec![]).await?;
     assert_eq!(initial.values, json!({"note": "", "agree": false, "submitted": false, "callback_values": null}));
     let submitted = forms_rerun(
         &mut socket,
@@ -304,7 +314,7 @@ async fn forms_batch_text_checkbox_and_submit_over_one_real_websocket() {
             },
         ],
     )
-    .await;
+    .await?;
     assert_eq!(submitted.session_id, initial.session_id);
     assert_ne!(submitted.script_run_id, initial.script_run_id);
     assert_eq!(
@@ -316,7 +326,7 @@ async fn forms_batch_text_checkbox_and_submit_over_one_real_websocket() {
             "callback_values": {"note": "hello", "agree": true},
         })
     );
-    let retained = forms_rerun(&mut socket, vec![]).await;
+    let retained = forms_rerun(&mut socket, vec![]).await?;
     assert_eq!(retained.session_id, initial.session_id);
     assert_ne!(retained.script_run_id, submitted.script_run_id);
     assert_eq!(retained.values["note"], "hello");
@@ -342,14 +352,15 @@ async fn forms_batch_text_checkbox_and_submit_over_one_real_websocket() {
             },
         ],
     )
-    .await;
+    .await?;
     assert_eq!(cleared.values["note"], "");
     assert_eq!(cleared.values["submitted"], true);
-    let after_clear = forms_rerun(&mut socket, vec![]).await;
+    let after_clear = forms_rerun(&mut socket, vec![]).await?;
     assert_eq!(after_clear.values["note"], "");
     assert_eq!(after_clear.values["submitted"], false);
 
     sessions::disconnect(socket).await;
     handle.stop(true).await;
-    task.await.unwrap().unwrap();
+    task.await??;
+    Ok(())
 }
