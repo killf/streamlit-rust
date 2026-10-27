@@ -17,6 +17,30 @@ const HTML: &str = "\n    <label style='padding-right: 1em;' for='txt'>Enter tex
 const CSS: &str = "label { color: red; }";
 const JS: &str = "\n    export default function(component) {\n        const { setStateValue, parentElement } = component;\n        const input = parentElement.querySelector('input');\n        input.onkeydown = (e) => {\n            if (e.key === 'Enter') {\n                setStateValue('value', e.target.value);\n            }\n        };\n    }\n";
 
+const STATE_CASES: &str = include_str!("../../../tests/reference/reference-browser/componentv2-state/state-cases.json");
+
+#[derive(serde::Deserialize)]
+struct StateCases {
+    schema_version: u32,
+    reference_version: String,
+    default_state: serde_json::Value,
+    stages: Vec<StateStage>,
+}
+
+#[derive(Clone, serde::Deserialize)]
+struct StateStage {
+    name: String,
+    browser_widget_states: Vec<StateInput>,
+    expected_result: serde_json::Value,
+    expected_keyed_state: serde_json::Value,
+}
+
+#[derive(Clone, serde::Deserialize)]
+struct StateInput {
+    id: String,
+    json_value: String,
+}
+
 fn componentv2_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
     Box::pin(async move {
         let result: TestResult = async {
@@ -31,6 +55,129 @@ fn componentv2_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
 
         assert!(result.is_ok(), "componentv2 fixture must render successfully: {result:?}");
     })
+}
+
+fn partial_state_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        let result: TestResult = async {
+            let cases: StateCases = serde_json::from_str(STATE_CASES)?;
+            let component = ComponentV2::new("partial_state").html(HTML).js(JS);
+            let mounted = st.component_v2(&component, ComponentMount::new().key("partial").default_state(cases.default_state))?;
+            let session = st.session_state().get::<serde_json::Value>("partial")?;
+            st.write(format!("component-state={}", json!({"mount": mounted, "session": session})));
+            Ok(())
+        }
+        .await;
+        assert!(result.is_ok(), "partial component state fixture must render: {result:?}");
+    })
+}
+
+#[actix_web::test]
+async fn partial_component_state_preserves_defaults_in_mount_and_session() -> TestResult {
+    let cases: StateCases = serde_json::from_str(STATE_CASES)?;
+    assert_eq!(cases.schema_version, 1);
+    assert_eq!(cases.reference_version, "1.66.1");
+    assert_eq!(cases.stages.iter().map(|stage| stage.name.as_str()).collect::<Vec<_>>(), ["load", "set-bye", "ordinary-rerun", "set-null"]);
+    let mut expected = cases.stages;
+    // 额外空输入是 Rust 内部保留边界，不属于 Python 冻结的普通重跑输入。
+    let last = expected.last().ok_or("component state reference must include stages")?;
+    expected.push(StateStage {
+        name: "rust-empty-incoming-after-null".into(),
+        browser_widget_states: vec![],
+        expected_result: last.expected_result.clone(),
+        expected_keyed_state: last.expected_keyed_state.clone(),
+    });
+    let stages = expected.clone();
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
+    let server = HttpServer::new(move || App::new().app_data(web::Data::new(StreamlitServer::new(partial_state_entry, "127.0.0.1".into(), 0))).configure(configure_routes))
+        .workers(1)
+        .listen(listener)?
+        .run();
+    let handle = server.handle();
+    let server_task = actix_web::rt::spawn(server);
+
+    // 采集任务隔离协议断言；失败或超时也先回收连接和服务，再报告结果。
+    let mut capture_task = actix_web::rt::spawn(async move {
+        let mut stream = sessions::connect(address, None).await;
+        let mut component_id = String::new();
+        let mut component_ids = Vec::new();
+        let mut sessions = Vec::new();
+        let mut finishes = Vec::new();
+        let mut reports: Vec<serde_json::Value> = Vec::new();
+        let mut reference_id = None;
+        for stage in stages {
+            let widgets = stage
+                .browser_widget_states
+                .into_iter()
+                .map(|input| {
+                    assert!(!component_id.is_empty(), "load must provide the actual native component id before state updates");
+                    let previous = reference_id.get_or_insert_with(|| input.id.clone());
+                    assert_eq!(previous, &input.id, "the frozen updates address one component instance");
+                    WidgetState {
+                        id: component_id.clone(),
+                        value: Some(widget_state::Value::JsonValue(input.json_value)),
+                    }
+                })
+                .collect();
+            send_binary(
+                &mut stream,
+                &BackMsg {
+                    r#type: Some(back_msg::Type::RerunScript(ClientState {
+                        widget_states: Some(WidgetStates { widgets }),
+                        ..Default::default()
+                    })),
+                }
+                .encode_to_vec(),
+            )
+            .await;
+            loop {
+                match receive(&mut stream).await.r#type {
+                    Some(forward_msg::Type::NewSession(new)) => sessions.push(new.initialize.ok_or("NewSession must include initialization")?.session_id),
+                    Some(forward_msg::Type::Delta(delta)) => {
+                        if let Some(delta::Type::NewElement(element)) = delta.r#type {
+                            match element.r#type {
+                                Some(element::Type::BidiComponent(component)) => {
+                                    component_id = component.id;
+                                    component_ids.push(component_id.clone());
+                                }
+                                Some(element::Type::Markdown(markdown)) => {
+                                    if let Some(report) = markdown.body.strip_prefix("component-state=") {
+                                        reports.push(serde_json::from_str(report)?);
+                                    }
+                                }
+                                _ => {}
+                            }
+                        }
+                    }
+                    Some(forward_msg::Type::ScriptFinished(status)) => finishes.push(status),
+                    Some(forward_msg::Type::SessionStatusChanged(status)) if !status.script_is_running => break,
+                    _ => {}
+                }
+            }
+        }
+        Ok::<_, Box<dyn std::error::Error>>((reports, finishes, sessions, component_ids))
+    });
+    let captured = tokio::time::timeout(Duration::from_secs(10), &mut capture_task).await;
+    if captured.is_err() {
+        capture_task.abort();
+        let _ = capture_task.await;
+    }
+    handle.stop(false).await;
+    server_task.await??;
+    let (reports, finishes, sessions, component_ids) = captured???;
+
+    assert_eq!(finishes, vec![0; expected.len()], "every reference stage and Rust retention check finish once");
+    assert_eq!(sessions.len(), expected.len());
+    assert!(sessions.windows(2).all(|pair| pair[0] == pair[1]), "all runs use one retained session");
+    assert_eq!(component_ids.len(), expected.len());
+    assert!(component_ids.iter().all(|id| !id.is_empty() && id == &component_ids[0]), "the update uses the actual stable component id");
+    assert_eq!(reports.len(), expected.len());
+    for (report, stage) in reports.iter().zip(&expected) {
+        assert_eq!(report.get("mount"), Some(&stage.expected_result), "mount result at stage {}", stage.name);
+        assert_eq!(report.get("session"), Some(&stage.expected_keyed_state), "keyed session state at stage {}", stage.name);
+    }
+    Ok(())
 }
 
 #[actix_web::test]

@@ -173,9 +173,13 @@ pub(crate) enum Codec {
     /// as one JSON object ({"row": index, "label": text}), resetting to None
     /// after the run like the reference's ButtonClickSerde.
     ButtonColumn,
+
     /// A bidi component's persistent state: the whole state object as one
-    /// JSON string (json_value), like the reference's BidiComponentSerde.
-    JsonValue,
+    /// JSON string (json_value). Missing top-level keys retain their defaults.
+    JsonValue {
+        defaults: Value,
+    },
+
     /// A bidi component's trigger aggregator: json_trigger_value carries the
     /// fired events as one JSON array string of {"event", "value"} payloads
     /// (the frontend accumulates them), resetting to null after the run like
@@ -253,7 +257,15 @@ impl Codec {
                 None | Some("") => Value::Null,
                 Some(data) => serde_json::from_str::<Value>(data).ok().filter(Self::button_click_shape)?,
             }),
-            (Self::JsonValue, widget_state::Value::JsonValue(text)) => serde_json::from_str::<Value>(text).ok(),
+            (Self::JsonValue { defaults }, widget_state::Value::JsonValue(text)) => {
+                let mut value = serde_json::from_str::<Value>(text).ok()?;
+                if let (Value::Object(state), Value::Object(defaults)) = (&mut value, defaults) {
+                    for (key, default) in defaults {
+                        state.entry(key.clone()).or_insert_with(|| default.clone());
+                    }
+                }
+                Some(value)
+            }
             (Self::JsonTrigger, widget_state::Value::JsonTriggerValue(text)) => Some(match serde_json::from_str::<Value>(text) {
                 Ok(Value::Array(list)) => Value::Array(list),
                 Ok(Value::Null) => Value::Null,
@@ -331,7 +343,7 @@ impl Codec {
             }
             Self::StringTrigger(options) => value.is_null() || value.as_u64().is_some_and(|index| index < options.len() as u64),
             Self::ButtonColumn => value.is_null() || Self::button_click_shape(value),
-            Self::JsonValue => true,
+            Self::JsonValue { .. } => true,
             Self::JsonTrigger => value.is_null() || value.is_array(),
             Self::DateInput { range } => {
                 let iso = |item: &Value| item.as_str().is_some_and(|text| chrono::NaiveDate::parse_from_str(text, "%Y-%m-%d").is_ok());

@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "reference_version": "1.66.1",
+  "default_state": {
+    "value": "hi",
+    "untouched": 7
+  },
+  "stages": [
+    {
+      "name": "load",
+      "browser_widget_states": [],
+      "expected_result": {
+        "untouched": 7,
+        "value": "hi"
+      },
+      "expected_keyed_state": {
+        "untouched": 7,
+        "value": "hi"
+      }
+    },
+    {
+      "name": "set-bye",
+      "browser_widget_states": [
+        {
+          "id": "$$ID-986c31d5e23b62e2da400ba0d701f25f-greeter",
+          "json_value": "{\"value\":\"bye\"}"
+        }
+      ],
+      "expected_result": {
+        "untouched": 7,
+        "value": "bye"
+      },
+      "expected_keyed_state": {
+        "untouched": 7,
+        "value": "bye"
+      }
+    },
+    {
+      "name": "ordinary-rerun",
+      "browser_widget_states": [
+        {
+          "id": "$$ID-986c31d5e23b62e2da400ba0d701f25f-greeter",
+          "json_value": "{\"value\":\"bye\"}"
+        }
+      ],
+      "expected_result": {
+        "untouched": 7,
+        "value": "bye"
+      },
+      "expected_keyed_state": {
+        "untouched": 7,
+        "value": "bye"
+      }
+    },
+    {
+      "name": "set-null",
+      "browser_widget_states": [
+        {
+          "id": "$$ID-986c31d5e23b62e2da400ba0d701f25f-greeter",
+          "json_value": "{\"value\":null}"
+        }
+      ],
+      "expected_result": {
+        "untouched": 7,
+        "value": null
+      },
+      "expected_keyed_state": {
+        "untouched": 7,
+        "value": null
+      }
+    }
+  ]
+}

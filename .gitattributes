@@ -88,3 +88,7 @@
 # Frozen S4 process/configuration evidence must retain its data bytes.
 /tests/browser/rust-journeys/j09-slow-sequence/** -text
 /tests/reference/reference-browser/journeys/j09-slow-sequence/** -text
+# Frozen component-state input/output and browser evidence.
+/tests/reference/reference-browser/componentv2-state/** -text
+# Captured process logs retain their original trailing blank lines.
+/tests/reference/reference-browser/componentv2-state/*.log whitespace=blank-at-eol,space-before-tab,cr-at-eol,-blank-at-eof

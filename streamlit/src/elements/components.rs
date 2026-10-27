@@ -108,7 +108,8 @@ impl<'a> ComponentMount<'a> {
         self
     }
 
-    /// The initial state object before any component interaction.
+    /// Defaults for missing top-level state keys, including after frontend updates.
+    /// Supplied values take precedence, including explicit JSON nulls.
     pub fn default_state(mut self, default: Value) -> Self {
         self.default = default;
         self
@@ -152,16 +153,18 @@ pub(crate) struct BidiComponentElement {
 /// the reference.
 pub(crate) fn mount_component(host: &impl crate::api::AppendChild, component: &ComponentV2, mount: ComponentMount<'_>) -> Result<Value, crate::widgets::WidgetError> {
     let ComponentMount { key, data, default, events, width, height } = mount;
+    let default = match default {
+        Value::Null => Value::Object(Default::default()),
+        other => other,
+    };
+
     let (id, state, _set) = host.register_widget_parity(
         crate::widgets::WidgetSpec {
             kind: "bidi_component",
             key,
             identity: "",
-            default: match default {
-                Value::Null => Value::Object(Default::default()),
-                other => other,
-            },
-            codec: crate::widgets::Codec::JsonValue,
+            codec: crate::widgets::Codec::JsonValue { defaults: default.clone() },
+            default,
             callback: None,
         },
         |value| Ok::<_, crate::widgets::WidgetError>(value.clone()),

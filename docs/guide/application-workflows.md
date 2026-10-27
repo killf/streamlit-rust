@@ -69,7 +69,7 @@ fn render(st: &Streamlit) -> Result<(), WidgetError> {
 }
 ```
 
-入口可用 `if let Err(error) = render(st)` 显示或记录错误；完整启动代码见示例。当前宏入口接受返回单元类型的函数，因此可在返回 `Result` 的辅助函数中使用 `?`。重复控件 key 会显示框架异常；其他参数错误应由应用处理。Rust 规范禁止 `.unwrap()`，包括示例和测试，也不能机械换成 `.expect()` 或通用 panic 包装。仓库既有用法尚在整改，不能将早期检查通过记录视为已通过新规范。
+入口可用 `if let Err(error) = render(st)` 显示或记录错误；完整启动代码见示例。当前宏入口接受返回单元类型的函数，因此可在返回 `Result` 的辅助函数中使用 `?`。重复控件 key 会显示框架异常；其他参数错误应由应用处理。Rust 规范禁止 `.unwrap()`，包括示例和测试，也不能机械换成 `.expect()` 或通用 panic 包装。当前既有用法迁移已通过全目标 Clippy、工作区与示例测试；以后改动仍需按新规范检查。
 
 ## 更多应用入口
 
@@ -81,10 +81,32 @@ fn render(st: &Streamlit) -> Result<(), WidgetError> {
 | 多页面导航 | [navigation](../../streamlit/examples/navigation.rs) | [导航](https://docs.streamlit.io/develop/api-reference/navigation/st.navigation)；`st.navigation` |
 | 输入与表单 | [widgets](../../streamlit/examples/widgets.rs)、[forms](../../streamlit/examples/forms.rs) | [控件](https://docs.streamlit.io/develop/api-reference/widgets)、`st.form` |
 | 流式文本 | [writestream](../../streamlit/examples/writestream.rs) | [流式输出](https://docs.streamlit.io/develop/api-reference/write-magic/st.write_stream)；`st.write_stream`，当前证据限文本 |
-| 自定义组件 | [componentv2](../../streamlit/examples/componentv2.rs) | [组件](https://docs.streamlit.io/develop/concepts/custom-components)；`st.components.v2.component`。源码检查发现局部 JSON 状态可能丢失默认字段，运行时边界尚待验证。 |
+| 自定义组件 | [componentv2](../../streamlit/examples/componentv2.rs) | [组件](https://docs.streamlit.io/develop/concepts/custom-components)；`st.components.v2.component`。局部 JSON 状态的默认字段补齐已有冻结参考数据与真实 WebSocket 回归。 |
 | 缓存 | [cache](../../streamlit/examples/cache.rs) | [缓存](https://docs.streamlit.io/develop/concepts/architecture/caching)；`st.cache_data`。当前缓存按会话隔离；源码检查发现嵌套调用可能覆盖录制上下文，尚未运行复现。 |
 
 页面配置已有部分接口；完整配置体系、秘密管理、身份认证、主题和生产部署的体验仍待盘点、设计和验证。请参考官方[配置](https://docs.streamlit.io/develop/concepts/configuration)、[认证](https://docs.streamlit.io/develop/concepts/connections/authentication)、[主题](https://docs.streamlit.io/develop/concepts/configuration/theming)及[部署](https://docs.streamlit.io/deploy/concepts)。矩阵中历史 `not_applicable` 条目正在重新审视，不能据此推断长期目标排除这些场景。
+
+## 组件的默认状态与局部更新
+
+组件先通过 `ComponentV2` 注册内容，再通过 `component_v2` 挂载；使用固定 `.key("greeter")` 区分实例。`ComponentMount::default_state` 提供默认状态对象，挂载返回 JSON 状态；有 key 时，还可用 `session_state().get::<serde_json::Value>("greeter")` 读取组件状态。
+
+在已经注册的 `greeting` 组件上，可这样挂载并读取状态：
+
+```rust
+let state = st.component_v2(
+    &greeting,
+    ComponentMount::new()
+        .key("greeter")
+        .default_state(serde_json::json!({"value": "hi", "untouched": 7})),
+)?;
+let stored = st.session_state().get::<serde_json::Value>("greeter")?;
+```
+
+局部更新时，默认 `{"value":"hi","untouched":7}` 收到前端 `{"value":"bye"}` 后，返回值和 session state 都应为 `{"value":"bye","untouched":7}`，后续普通重跑继续保留该状态。缺失字段补默认值，前端提供的字段优先；该规则在对象顶层逐键应用。显式 `null` 是前端提供的值，也会保留。
+
+Python 1.66.1 的[冻结输入输出](../../tests/reference/reference-browser/componentv2-state/state-cases.json)覆盖首次加载、局部更新、普通重跑与显式 null，Rust 通过真实 WebSocket 对照返回值和 keyed session state。额外的 Rust 空输入重跑也保留该状态；嵌套对象、多个实例和回调副作用尚未由这组数据验证。
+
+这一使用场景来自官方 [ComponentRenderer](https://docs.streamlit.io/develop/api-reference/custom-components/st.components.v2.types.componentrenderer) 的默认状态与 keyed session state 约定；页面标注 1.66.0，实际参考运行固定为 1.66.1。Rust 使用上文的挂载与状态读取接口。
 
 ## 参考数据与验证
 
