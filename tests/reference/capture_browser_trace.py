@@ -1519,8 +1519,7 @@ def _journey_context(bundle, fixture_name, group, dom, *, no_result=False, empty
         _journey_need(isinstance(frames, list) and frames and isinstance(source, str) and source, "missing frames/source namespace")
         base = bundle.get("url")
         _journey_need(isinstance(base, str) and base.startswith(("http://", "https://")), "missing application URL")
-        fixture = (REPO_ROOT / "tests/fixtures/csv" / fixture_name).resolve()
-        _journey_need(isinstance(bundle.get("fixture"), str) and pathlib.Path(bundle["fixture"]).resolve() == fixture and fixture.is_file(), "fixture path ownership mismatch")
+        fixture = _replay_csv_fixture(bundle.get("fixture"), fixture_name).resolve()
         window, upload_window = bundle.get("window"), bundle.get("upload_window")
         for candidate in (window, upload_window):
             _journey_need(isinstance(candidate, dict) and type(candidate.get("start")) is int and type(candidate.get("end")) is int
@@ -2040,17 +2039,30 @@ def _stage2_typed_controls(deltas, state, dom, minimum=0, *, group="category", i
     return ids
 
 
+def _replay_csv_fixture(captured_path, filename):
+    """Resolve frozen fixture identity; the original capture root is provenance."""
+    _journey_need(isinstance(captured_path, str) and isinstance(filename, str), "invalid captured fixture path")
+    parts = captured_path.replace("\\", "/").split("/")
+    relative = ("tests", "fixtures", "csv", filename)
+    captured = pathlib.PureWindowsPath(captured_path) if "\\" in captured_path or pathlib.PureWindowsPath(captured_path).drive else pathlib.PurePosixPath(captured_path)
+    _journey_need(not any(part in (".", "..") for part in parts)
+                  and tuple(parts[-4:]) == relative
+                  and (captured.is_absolute() or tuple(captured.parts) == relative), "captured fixture path ownership mismatch: " + filename)
+    path = REPO_ROOT.joinpath(*relative)
+    _journey_need(path.is_file(), "missing local replay fixture: " + filename)
+    return path
+
+
 def _stage2_specific_input(phase, filename):
     expected = {
         "sales_basic.csv": (737, "9692a718edc5bec8f3fee1cfec4f454338c8f8d675cd34c17cdb5bf4403d8d00"),
         "sales_with_missing.csv": (739, "ce8b7f62c729c856ad85c496e044c25ef0f3594e2b3b558fb31e9213122e512d"),
         "sales_latin1.csv": (735, "f73e63eb66c2dccd9285b573094b59c59e5dacd3ece0ef26d48ca3728371d541"),
     }
-    path = REPO_ROOT / "tests/fixtures/csv" / filename
-    data = path.read_bytes()
     action = phase["action"]
+    path = _replay_csv_fixture(action.get("file"), filename)
+    data = path.read_bytes()
     _journey_need(action.get("action") == "upload" and action.get("ok") is True and not action.get("failed")
-                  and pathlib.Path(action["file"]).resolve() == path.resolve()
                   and (len(data), hashlib.sha256(data).hexdigest()) == expected[filename]
                   and (action.get("file_bytes"), action.get("file_sha256")) == expected[filename], "wrong actual fixture/action fingerprint: " + filename)
     if filename == "sales_latin1.csv":
@@ -4293,9 +4305,9 @@ def _sequence_upload(observation, phase, previous, before_runs):
     if filename in ("sales_empty.csv", "sales_malformed.csv"):
         expected = {"sales_empty.csv": (62, "0051f910f9780491c0ba47fe149f3bed4d8ce13b3106d73639227da51bd76bd4"),
                     "sales_malformed.csv": (303, "fbf671b3f566ff3bd62a39ceea76d40cc39b9bddb9565bde683953dcca0a89d5")}[filename]
-        path = REPO_ROOT / "tests/fixtures/csv" / filename
-        action, data = phase["action"], path.read_bytes()
-        _journey_need(action.get("action") == "upload" and pathlib.Path(action["file"]).resolve() == path.resolve()
+        action = phase["action"]
+        data = _replay_csv_fixture(action.get("file"), filename).read_bytes()
+        _journey_need(action.get("action") == "upload"
                       and (len(data), hashlib.sha256(data).hexdigest()) == expected
                       and (action.get("file_bytes"), action.get("file_sha256")) == expected, "wrong sequence fixture fingerprint")
     else:

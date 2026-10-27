@@ -24,7 +24,7 @@ def frozen():
         "ipc_dir": str(ROOT / "tests/reference/reference-browser/componentv2"),
         "stages": [],
     }
-    raw = json.loads((ROOT / "target/checks/m5-componentv2-pyref/trace-colconfig.json").read_text(encoding="utf-8"))
+    raw = json.loads((ROOT / "tests/reference/reference-browser/componentv2/trace-componentv2.json").read_text(encoding="utf-8"))
     for stage in raw["observation"]["stages"]:
         record = copy.deepcopy(stage)
         record["new_frames"] = copy.deepcopy(stage["new_frames"])

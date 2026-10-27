@@ -2037,7 +2037,7 @@ _SPECIFIC_RAW_CASES = [
 
 
 def _stage2_specific_observation(tmp_path, side, directory):
-    """Replay published immutable events with adjacent artifacts in a test sandbox."""
+    """Relocate adjacent artifacts, preserving captured action paths as provenance."""
     import shutil
     root = HERE / "reference-browser/journeys" if side == "python" else HERE.parent / "browser/rust-journeys"
     path = root / directory / "trace-data-loop.json"
@@ -2049,6 +2049,47 @@ def _stage2_specific_observation(tmp_path, side, directory):
             shutil.copyfile(artifact, tmp_path / artifact.name)
     observation["ipc_dir"] = str(tmp_path.resolve())
     return observation
+
+
+@pytest.mark.parametrize("captured,accepted", [
+    (r"D:\dlab\streamlit-rust\tests\fixtures\csv\sales_basic.csv", True),
+    ("/srv/old-checkout/tests/fixtures/csv/sales_basic.csv", True),
+    ("tests/fixtures/csv/sales_basic.csv", True),
+    ("/srv/other-directory/sales_basic.csv", False),
+    ("/srv/tests/other/csv/sales_basic.csv", False),
+    ("/srv/tests/fixtures/csv/sales_with_missing.csv", False),
+    ("/srv/../old-checkout/tests/fixtures/csv/sales_basic.csv", False),
+    (r"D:\dlab\tests\fixtures\other\..\csv\sales_basic.csv", False),
+    ("D:tests/fixtures/csv/sales_basic.csv", False),
+])
+def test_stage2_fixture_identity_uses_controlled_relative_path_without_rewriting_capture(captured, accepted):
+    import capture_browser_trace as checks
+    size, sha = checks.J01_FILE_FINGERPRINTS["sales_basic.csv"]
+    phase = {"action": {"action": "upload", "ok": True, "file": captured, "file_bytes": size, "file_sha256": sha}}
+    original = dict(phase["action"])
+    if accepted:
+        checks._stage2_specific_input(phase, "sales_basic.csv")
+    else:
+        with pytest.raises(ValueError, match="fixture path ownership mismatch"):
+            checks._stage2_specific_input(phase, "sales_basic.csv")
+    assert phase["action"] == original
+
+
+@pytest.mark.parametrize("changed", ["local_bytes", "file_bytes", "file_sha256"])
+def test_stage2_relocated_fixture_still_requires_frozen_local_and_action_fingerprints(tmp_path, monkeypatch, changed):
+    import capture_browser_trace as checks
+    size, sha = checks.J01_FILE_FINGERPRINTS["sales_basic.csv"]
+    phase = {"action": {"action": "upload", "ok": True, "file": "/old/tests/fixtures/csv/sales_basic.csv",
+                        "file_bytes": size, "file_sha256": sha}}
+    if changed == "local_bytes":
+        local = tmp_path / "tests/fixtures/csv/sales_basic.csv"
+        local.parent.mkdir(parents=True)
+        local.write_bytes((checks.REPO_ROOT / "tests/fixtures/csv/sales_basic.csv").read_bytes() + b"\n")
+        monkeypatch.setattr(checks, "REPO_ROOT", tmp_path)
+    else:
+        phase["action"][changed] = size + 1 if changed == "file_bytes" else "0" * 64
+    with pytest.raises(ValueError, match="fixture/action fingerprint"):
+        checks._stage2_specific_input(phase, "sales_basic.csv")
 
 
 def _stage2_specific_result(kind, observation):
