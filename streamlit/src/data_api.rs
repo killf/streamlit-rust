@@ -606,7 +606,7 @@ fn apply_edits(data: &RecordBatch, edits: &Value) -> Result<RecordBatch, DataErr
     let deleted_rows = edits.get("deleted_rows").filter(|value| value.as_array().is_some_and(|rows| !rows.is_empty())).unwrap_or(&empty);
     let added_rows = edits.get("added_rows").filter(|value| value.as_array().is_some_and(|rows| !rows.is_empty())).unwrap_or(&empty);
     if edited_rows == &empty && deleted_rows == &empty && added_rows == &empty {
-        return Ok(clone_batch(data));
+        return Ok(data.clone());
     }
     // Materialize every column as editable cells (the edits touch whole
     // rows, so untouched columns still move with deletions and additions).
@@ -699,13 +699,6 @@ fn apply_edits(data: &RecordBatch, edits: &Value) -> Result<RecordBatch, DataErr
         arrays.push(array);
     }
     RecordBatch::try_new(Arc::new(Schema::new(fields)), arrays).map_err(|error| DataError::InvalidOption(error.to_string()))
-}
-
-/// A deep copy of the batch (apply_edits returns an owned table either way).
-fn clone_batch(data: &RecordBatch) -> RecordBatch {
-    let fields: Vec<_> = data.schema_ref().fields().iter().map(|field| field.as_ref().clone()).collect();
-    let arrays: Vec<_> = data.columns().to_vec();
-    RecordBatch::try_new(Arc::new(Schema::new(fields)), arrays).expect("same schema and columns")
 }
 
 /// Test-only exposure of the edit application for unit regressions.

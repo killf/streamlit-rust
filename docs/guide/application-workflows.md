@@ -201,6 +201,12 @@ let value = st.cache_data("outer").call(21, |n: i64| {
 
 运行 `cargo run --example buttons --locked`，打开 `http://127.0.0.1:8523/`。**Save default bytes** 和 **Save Unicode CSV** 已通过[真实浏览器保存验证](../../tests/browser/rust-download-boundaries/README.md)，分别落盘为 `streamlit_download.bin` 与 `数据 é.csv`，内容均为合成 CSV 字节。这两个按钮配置 `ignore_rerun(true)`；前端加载时 Fetch 文件，点击后保存，不将它描述为点击后重新取文件。其他标点组合、所有 MIME 映射和下载生命周期仍未完整验收。
 
+## 原生输入与未编辑结果
+
+`RgbaImage` 的尺寸必须为正，像素缓冲必须恰好容纳 `width × height × 4` 字节。`st.image` 对无效输入记录错误并跳过该元素；现在用 checked 运算拒绝无法表示的长度，避免在这之前 panic 或把溢出长度绕回零，没有新增图片大小限额、接口或错误策略。无效图片不占用元素位置，后续有效图片仍正常输出。底层 `media::png_encode` 仍要求通过 `RgbaImage::valid` 的输入，这次不改变它的返回接口或无效输入契约。
+
+`data_editor` 没有实际编辑时，直接复制有效 batch，保留行数、字段及 schema 元数据，并共享 Arrow 不可变缓冲；不再重建 schema 或用 expect 把错误变成 panic。零列 batch 的内部无编辑复制已验证保留 0/2 行，但公开编辑器对这些输入仍在后续显示转换返回 Arrow 错误，零列表格呈现尚未支持。实际编辑后的 schema/index 元数据策略也不据此声明完成。验证使用 Rust 原生输入，不为这些 Rust 所有权/算术边界重采旧 Python 数据。
+
 ## 运行日志
 
 `#[main]` 沿用现有 `env_logger` 初始化和 `RUST_LOG` 配置，例如 `RUST_LOG=streamlit=info` 或 `streamlit=debug`；本批不改变默认过滤等级。WS 日志现只记录传输阶段、消息种类标记/序号、字节数、运行耗时与错误原因，不再展开完整输入/输出 protobuf、原始文本帧或关闭描述。Info 保留每轮汇总，逐帧摘要位于 Debug；`elapsed_ms` 是本轮执行与发送调度耗时，不包含运行锁排队、客户端收取或页面呈现。

@@ -179,6 +179,14 @@ A 的 wire 规范化仅限此 generic Vega 的顶层 Arrow data 与单个 named 
 
 已完成真实红→绿：`bytes=-5` 原为 200，而目标为 206；修后全部 27 个请求逐字匹配，11 项媒体相关 Rust 检查及五项新离线检查通过。首次夹具误用未声明 base64 crate 的编译失败另存，纠正为从原 HTTP 提取受核验字节数组后才构成产品红复现，无新依赖。旧 suffix=未知时返回 None 的内部断言已按新公开参考改为有效后缀区间，不更改旧 Python raw；原有效 200/206/404、重复下载和文件名边界继续检查。
 
+## Native input arithmetic and no-op editor ownership
+
+原 RGBA 校验直接相乘 usize，超出可表示字节数的尺寸在 debug 的公开 st.image 调用中已真实复现 panic；release 算术可能绕回零。微小缓冲公共调用留红后，valid 改为 checked_mul，只有尺寸为正、长度可表示且等于现有缓冲时通过。既有无效 image 的日志/跳过行为和有效 PNG 编码保持，不增加产品大小阈值；底层 png_encode 的有效输入前提与签名不改。
+
+data_editor 原无编辑分支用 Schema::new 和 try_new 重建已有效 RecordBatch，丢弃顶层 metadata，合法零列 batch 则触发 expect panic，两项均已由公共 disabled 编辑器调用留红。删除只用于无编辑的 clone_batch 重建辅助，直接返回 data.clone()，保留不可变 Arrow 缓冲共享、schema metadata 和显式 row count，无新依赖、公开接口或编辑规则。实际编辑后 schema/index 策略不在本批变更；chart_arrow_data 对零列的后续错误也不冒称已支持其前端呈现。
+
+修改仅现有 media.rs 的校验及其单元模块、data_api.rs 的无编辑分支、既有 dataeditor 运行回归、指南与两项矩阵证据。有效 1×1 图片、无效长度/尺寸不占元素位置以及无编辑 metadata/显式行数的定向回归已转绿；公开 0/2 行零列输入现在都由后续显示转换返回 Arrow 错误，不再 panic，底层无编辑返回严格等于原 batch。矩阵仅补 Rust 原生边界证据、保留 partial，并清除图片条目过时源码指纹/行号说明，不改分母、历史数据完整性或接受标准。完整检查及独立 Review 后交付，M3/长期 Goal 不关闭。
+
 ## WebSocket diagnostic payloads
 
 原 handler 的 Info 级 ForwardMsg/BackMsg Debug 展开、Debug 级原始 Message、文本及关闭原因日志会输出应用载荷；大字符串/Arrow 还会放大格式化和写出成本。宏只使用 env_logger 默认环境配置，不把这个缺陷描述成默认已开启 Info。真实红探针在完成 wire、错误后心跳、关闭应答和服务清理后，仅因五类合成标记全部进入日志而失败。

@@ -176,6 +176,16 @@ Rust 新增三项回归：原错误值/资源身份、参数变化和清空；�
 
 仅 Rust 内部日志变化，没有 Python/前端/协议或应用用法变更，未重采或重复运行未受影响的全量 Python 参考，不将旧 1516 计为本批新结果。真实 Chrome、认证/权限、外部日志保密及长期容量仍未据此验收。全部自有测试子进程已终止、服务 handle 停止并等待，命令/结果/红绿日志索引见本地 `target/checks/m5-ws-logging/`；M5 与长期 Goal 未关闭，四项旧关键取舍继续待决。
 
+## Current native input boundary validation (2026-10-28)
+
+RGBA 公共 st.image 的微小缓冲/超大尺寸调用已真实复现乘法溢出 panic；改为 checked_mul 后，无效尺寸/缓冲不发出元素，也不占用后续有效 1×1 图片的位置。没有新图片大小阈值、接口或错误策略；底层 png_encode 仍要求通过 valid 的输入，不据此宣称任意无效底层编码调用均安全。
+
+无编辑 data_editor 的公共 disabled 调用已分别复现 metadata 从调用方标记丢为 `{}`、合法零列输入在 clone_batch.expect 中 panic。直接复制已有效 batch 并删除重建 helper 后，普通返回保留完整 schema/data，底层零列复制保留 0/2 行；公开 0/2 行零列输入在后续 chart_arrow_data 显示转换仍返回 Arrow 错误，未完成零列表格呈现。公开调用测试允许正确原样返回或该既有类型的显示错误，不将当前缺口锁成目标；实际编辑后的 schema/index 策略未改。
+
+格式、全目标 Clippy、8 项媒体和 2 项无编辑定向检查、最终 200 项 Rust（177 库/运行模块、2 宏、1 ledger、4 rustdoc、16 示例）通过；定向检查不重复累计。矩阵只更新 st.image/st.data_editor 的原生证据/局限，partial 状态及 summary 不变，并去掉图片条目过时源码指纹/行号说明；47 项矩阵检查通过。未重采 Python 或冒称当前全量参考结果，原图片 HTTP/WS/PNG 和冻结编辑输入由实际 Rust 回归复用，既有 MSVC linker_messages 提示保留。
+
+release RGBA 补验最初因未配置 protoc 在构建阶段失败，未执行测试；改用现有缓存 protoc 后，同一图片边界用例在 optimized profile 实际通过，不再因溢出尺寸接受空缓冲，也未进入巨型分配。这是一个 release 用例复验，不冒称整个 release 测试集或其他平台通过。两次新测试的导入/类型推断/借用编译失误另存，不作产品红复现。原命令、红绿与构建日志位于本地 `target/checks/m3-native-boundaries/`。本批是 Rust 原生算术/所有权与无编辑结果的正确性修复，不证明全部图片类型、全部元数据组合、零列前端兼容或其他平台；M3 和长期 Goal 继续未完成。
+
 ## Required fresh-checkout checks
 
 ```powershell

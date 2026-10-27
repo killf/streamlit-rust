@@ -185,6 +185,7 @@ fn range_integer(text: &str) -> Option<u64> {
 /// A minimal RGBA PNG encoder: stored (uncompressed) deflate blocks in a
 /// valid zlib stream, which every browser decodes. The reference encodes
 /// with PIL's deflate, so PNG bytes differ per side; pixels do not.
+/// The caller must supply an image that passes [`RgbaImage::valid`].
 pub fn png_encode(rgba: &RgbaImage) -> Vec<u8> {
     let mut raw = Vec::with_capacity(rgba.height as usize * (1 + rgba.width as usize * 4));
     for row in 0..rgba.height as usize {
@@ -304,7 +305,8 @@ impl RgbaImage {
     }
 
     pub fn valid(&self) -> bool {
-        self.width > 0 && self.height > 0 && self.pixels.len() == self.width as usize * self.height as usize * 4
+        let required = (self.width as usize).checked_mul(self.height as usize).and_then(|pixels| pixels.checked_mul(4));
+        self.width > 0 && self.height > 0 && required == Some(self.pixels.len())
     }
 }
 
@@ -388,6 +390,40 @@ mod tests {
         for header in ["bytes=1__0-", "bytes=_1-", "bytes=1_-", "bytes=0--1", "bytes=--1", "bytes=0-+"] {
             assert_eq!(ByteRange::parse(header, 18), None, "{header}");
         }
+        Ok(())
+    }
+
+    #[test]
+    fn invalid_rgba_dimensions_do_not_panic_or_consume_an_image_slot() -> anyhow::Result<()> {
+        use crate::StreamlitApi;
+
+        let st = crate::Streamlit::new();
+        let (sender, mut receiver) = tokio::sync::mpsc::unbounded_channel();
+        let mut context = crate::elements::common::RenderContext::with_sender("rgba-validation".into(), sender);
+        context.delta_path = vec![0, 0, 0];
+        st.app.lock().set_render_context(context);
+
+        // 1. 公开调用先拒绝溢出尺寸，不申请巨型缓冲或进入 PNG 编码。
+        st.image(RgbaImage::new(u32::MAX, u32::MAX, vec![]));
+        for (width, height, pixels) in [(1 << 31, 1 << 31, vec![]), (0, 1, vec![]), (1, 0, vec![]), (1, 1, vec![0; 3]), (1, 1, vec![0; 5])] {
+            let image = RgbaImage::new(width, height, pixels);
+            // release 下也先断言 valid，旧错误不会进入可能巨量分配的编码路径。
+            assert!(!image.valid(), "invalid dimensions {width}×{height}");
+            st.image(image);
+        }
+        assert!(receiver.try_recv().is_err(), "invalid images must not emit an element");
+
+        // 2. 后续有效图片仍在原位置输出，验证拒绝没有推进视图游标。
+        let image = RgbaImage::new(1, 1, vec![255, 0, 0, 255]);
+        assert!(image.valid());
+        st.image((image, "valid"));
+        let message = receiver.try_recv()?;
+        assert_eq!(message.metadata.as_ref().map(|metadata| metadata.delta_path.as_slice()), Some([0, 0, 0].as_slice()));
+        let Some(crate::proto::forward_msg::Type::Delta(delta)) = message.r#type else { anyhow::bail!("expected image delta") };
+        let Some(crate::proto::delta::Type::NewElement(element)) = delta.r#type else { anyhow::bail!("expected image element") };
+        let Some(crate::proto::element::Type::Imgs(images)) = element.r#type else { anyhow::bail!("expected image list") };
+        assert_eq!(images.imgs.len(), 1);
+        assert_eq!(images.imgs[0].caption, "valid");
         Ok(())
     }
 
