@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "recorded_at_utc": "2026-10-27T16:11:35.798623+00:00",
+  "scope": "Synthetic real WebSocket diagnostic payload regression, not browser/UI, CPU, throughput or a global data-redaction guarantee.",
+  "configuration": {
+    "target": "streamlit::websocket",
+    "level": "Debug, including Info/Warn/Error records",
+    "default_application_filter_changed": false,
+    "logger_isolation": "exact one-test child process; parent logger unchanged"
+  },
+  "before": {
+    "product_revision": "d42f032be5b5a4bc4fc343a2de4326863ee84b3b",
+    "fixture_note": "new logging regression added before measurement; production code unchanged",
+    "test_exit_code": 101,
+    "log_bytes": 131289,
+    "leaked_categories": [
+      "input",
+      "output",
+      "unsupported_request",
+      "text_frame",
+      "close_description"
+    ]
+  },
+  "after": {
+    "product_state": "handler log summaries in this delivery",
+    "test_exit_code": 0,
+    "log_bytes": 3704,
+    "leaked_categories": [],
+    "required_fields_present": [
+      "kind=",
+      "frames=",
+      "bytes=",
+      "elapsed_ms="
+    ],
+    "malformed_decode_diagnostic_present": true,
+    "unsupported_request_diagnostic_present": true
+  },
+  "verified_wire": {
+    "application_runs": 2,
+    "large_markdown_output": "synthetic-output-not-for-logs repeated 2048 times, checked exactly both runs",
+    "registered_text_input_value_returned_unchanged": true,
+    "heartbeat_after_malformed_and_unsupported_input": true,
+    "close_response_code_and_description_unchanged": true,
+    "owned_server_stopped_and_task_awaited": true,
+    "owned_test_child_exited": true
+  },
+  "reproduce": "cargo test -p streamlit --lib websocket_diagnostics_do_not_expand_application_payloads --locked --offline -- --nocapture",
+  "raw_logs": {
+    "scope": "owned local capture paths; absent after fresh checkout, not replay inputs or source identity gates",
+    "before_capture": "target/checks/m5-ws-logging/before-payloads.log",
+    "before_result": "target/checks/m5-ws-logging/before.log",
+    "after_capture": "target/checks/m5-ws-logging/after-summary.log",
+    "after_result": "target/checks/m5-ws-logging/after.log"
+  }
+}

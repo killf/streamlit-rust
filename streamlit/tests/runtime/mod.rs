@@ -30,6 +30,7 @@ mod execution;
 mod forms;
 mod inputs;
 mod layouts;
+mod logging;
 mod media;
 mod navigation;
 mod overlap;

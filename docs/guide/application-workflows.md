@@ -201,6 +201,12 @@ let value = st.cache_data("outer").call(21, |n: i64| {
 
 运行 `cargo run --example buttons --locked`，打开 `http://127.0.0.1:8523/`。**Save default bytes** 和 **Save Unicode CSV** 已通过[真实浏览器保存验证](../../tests/browser/rust-download-boundaries/README.md)，分别落盘为 `streamlit_download.bin` 与 `数据 é.csv`，内容均为合成 CSV 字节。这两个按钮配置 `ignore_rerun(true)`；前端加载时 Fetch 文件，点击后保存，不将它描述为点击后重新取文件。其他标点组合、所有 MIME 映射和下载生命周期仍未完整验收。
 
+## 运行日志
+
+`#[main]` 沿用现有 `env_logger` 初始化和 `RUST_LOG` 配置，例如 `RUST_LOG=streamlit=info` 或 `streamlit=debug`；本批不改变默认过滤等级。WS 日志现只记录传输阶段、消息种类标记/序号、字节数、运行耗时与错误原因，不再展开完整输入/输出 protobuf、原始文本帧或关闭描述。Info 保留每轮汇总，逐帧摘要位于 Debug；`elapsed_ms` 是本轮执行与发送调度耗时，不包含运行锁排队、客户端收取或页面呈现。
+
+独立 test 子进程的真实 WS 合成回归已验证两轮控件交互、非法消息后的心跳恢复及关闭应答原样保留，五类合成载荷标记不进入日志；仍有错误诊断和摘要字段，未靠关闭全部日志通过。应用自行记录的内容、第三方日志和完整认证/安全范围不在这项保证内。命令为 `cargo test -p streamlit --lib websocket_diagnostics_do_not_expand_application_payloads --locked -- --nocapture`；全局 logger 仅在自有子进程初始化，不影响其他测试。
+
 ## 媒体范围读取
 
 音视频与下载文件共用 `/media/` 路由。有效单范围（包括 `bytes=-N` 后缀）返回 206 和对应字节，非法、越界、多范围或空文件的非空 Range 返回 416、`Content-Range: bytes */N` 与 `Invalid range`；无 Range 或空 header 仍返回完整 200。已用 [27 个冻结公开请求](../../tests/reference/reference-browser/media-range/README.md)精确核对 Rust 的状态、头与字节，修复了原先许多情况直接返回整文件的问题。后缀或终点大于文件长度时按有效区间返回；已测的大小写、空白、加号、下划线数字和无连字符形式按参考解释，没有新增应用选项。

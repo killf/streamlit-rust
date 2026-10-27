@@ -179,6 +179,14 @@ A 的 wire 规范化仅限此 generic Vega 的顶层 Arrow data 与单个 named 
 
 已完成真实红→绿：`bytes=-5` 原为 200，而目标为 206；修后全部 27 个请求逐字匹配，11 项媒体相关 Rust 检查及五项新离线检查通过。首次夹具误用未声明 base64 crate 的编译失败另存，纠正为从原 HTTP 提取受核验字节数组后才构成产品红复现，无新依赖。旧 suffix=未知时返回 None 的内部断言已按新公开参考改为有效后缀区间，不更改旧 Python raw；原有效 200/206/404、重复下载和文件名边界继续检查。
 
+## WebSocket diagnostic payloads
+
+原 handler 的 Info 级 ForwardMsg/BackMsg Debug 展开、Debug 级原始 Message、文本及关闭原因日志会输出应用载荷；大字符串/Arrow 还会放大格式化和写出成本。宏只使用 env_logger 默认环境配置，不把这个缺陷描述成默认已开启 Info。真实红探针在完成 wire、错误后心跳、关闭应答和服务清理后，仅因五类合成标记全部进入日志而失败。
+
+在既有 M5 可观测性范围内，先写使用说明并用合成数据真实复现，再只改 websocket/handler.rs 的日志：输出种类标记/序号、帧长度、汇总数量/字节、运行耗时与错误原因，移除输入/输出内容展开、任意文本及关闭描述。未知 BackMsg 仍保留现有错误处理，只记录其种类；不改协议行为、关闭原应答、过滤级别、宏公共支撑、接口或依赖。ForwardMsg 仍只编码一次，原 payload 交给 binary；计时从已取得运行锁后的本轮开始，到执行与发送调度完成，不是端到端延迟。不是新遥测框架、认证策略或全局脱敏保证。
+
+新增 tests/runtime/logging.rs 并接入既有 mod.rs，复用 WS 工具；通过精确 test 名称启动独立自有 test 子进程，在子进程内初始化捕获 logger。用真实控件输入、较大输出、未支持请求、文本帧、关闭原因各自的合成标记验证原样 wire 与无载荷日志；非法 protobuf 后仍能 heartbeat，错误诊断不被整体禁用。子进程捕获的成功/失败结果在自有服务停止后报告，原失败日志只含合成数据，保留在 target/checks/m5-ws-logging/。同一 Debug 配置下，日志从 131,289 降为 3,704 字节、标记从 5 降为 0；小型记录存入 tests/performance/ws-logging.json，重复的大载荷原日志不复制进 Git。该结果不是吞吐/CPU 或完整安全测量，冻结 Python 不重采；最终相关回归和独立 Review 后交付。
+
 ## Media response storage
 
 原 `StoredFile` 持有 `Vec<u8>`，`stored_file` 每次克隆整个文件；206 分支随后再对片段执行 `to_vec`。同一大文件的待发送响应按请求数重复持有整文件，小范围请求也会先复制全文件。优化前产品代码配合同一新增回归已实测：16 个 8 MiB 完整响应持有 16 份独立缓冲。

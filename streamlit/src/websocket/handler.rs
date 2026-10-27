@@ -26,6 +26,7 @@ async fn do_rerun_script(session: &mut Session, lease: &SessionLease, server: &S
     // 1.66.1 wire: the addressed page's hash rides NewSession).
     let mut incoming_page = if page_hash.is_empty() { None } else { Some(page_hash) };
     loop {
+        let started = std::time::Instant::now();
         let callbacks = lease.state.begin_widgets(incoming.take().unwrap_or_default());
         lease.state.reset_run_control();
         // 只有新浏览器请求提供 URL 初值；服务端重跑保留本轮写入。
@@ -86,18 +87,23 @@ async fn do_rerun_script(session: &mut Session, lease: &SessionLease, server: &S
 
         let send_future = async {
             let mut count = 0;
+            let mut bytes_sent = 0;
             while let Some(msg) = rx.recv().await {
-                log::info!("Sending ForwardMsg #{}: {:?}", count, msg);
-                session.binary(msg.encode_to_vec()).await?;
+                let payload = msg.encode_to_vec();
+                let bytes = payload.len();
+                log::debug!("Sending ForwardMsg frame={} kind={:?} bytes={}", count, msg.r#type.as_ref().map(std::mem::discriminant), bytes);
+                session.binary(payload).await?;
                 count += 1;
+                bytes_sent += bytes;
             }
-            log::info!("Sent {} messages total", count);
+            log::info!("WebSocket send completed frames={} bytes={}", count, bytes_sent);
             Ok::<_, StreamlitError>(())
         };
 
         // 并发执行
         let (_, send_result) = tokio::join!(entry_future, send_future);
         send_result?;
+        log::info!("Script run completed session={} elapsed_ms={}", lease.id, started.elapsed().as_millis());
 
         if lease.state.run_control() != Some(crate::session::RunControl::Rerun) {
             break;
@@ -144,7 +150,7 @@ async fn handle_back_message(session: &mut Session, lease: &SessionLease, back_m
                 session.binary(reply.encode_to_vec()).await?;
             }
             _ => {
-                log::error!("Unknown back_msg type: {:?}", tp);
+                log::error!("Unknown back_msg kind={:?}", std::mem::discriminant(&tp));
             }
         }
     }
@@ -158,7 +164,7 @@ pub(crate) async fn handle_connection(mut session: Session, mut msg_stream: Mess
 
     // Handle incoming messages with proper processing
     let mut message_count = 0;
-    log::info!("Complete message sequence sent, starting message processing loop...");
+    log::debug!("Starting WebSocket message processing loop");
 
     while let Some(msg_result) = msg_stream.next().await {
         if !lease.is_current() {
@@ -166,16 +172,13 @@ pub(crate) async fn handle_connection(mut session: Session, mut msg_stream: Mess
             break;
         }
         message_count += 1;
-        log::info!("🔍 Processing message #{}", message_count);
-        log::debug!("Message result: {:?}", msg_result);
-
         match msg_result {
             Ok(actix_ws::Message::Binary(data)) => {
-                log::info!("Received binary protobuf message: {} bytes", data.len());
+                log::debug!("Received binary protobuf frame={} bytes={}", message_count, data.len());
 
                 match BackMsg::decode(data) {
                     Ok(back_msg) => {
-                        log::info!("Successfully decoded BackMsg: {:?}", back_msg);
+                        log::debug!("Decoded BackMsg kind={:?}", back_msg.r#type.as_ref().map(std::mem::discriminant));
                         handle_back_message(&mut session, &lease, back_msg, server).await?;
                     }
                     Err(e) => {
@@ -184,11 +187,10 @@ pub(crate) async fn handle_connection(mut session: Session, mut msg_stream: Mess
                 }
             }
             Ok(actix_ws::Message::Text(text)) => {
-                log::info!("Received text message: {}", text);
+                log::debug!("Received text frame={} bytes={}", message_count, text.len());
             }
             Ok(actix_ws::Message::Close(reason)) => {
-                log::info!("🚪 WebSocket connection closed: {:?}", reason);
-                log::info!("📊 Total messages processed: {}", message_count);
+                log::info!("WebSocket close received code={:?} frames={}", reason.as_ref().map(|reason| reason.code), message_count);
                 session.close(reason).await?;
                 break;
             }
@@ -215,7 +217,7 @@ pub(crate) async fn handle_connection(mut session: Session, mut msg_stream: Mess
     }
 
     log::info!("Streamlit WebSocket connection closed");
-    log::info!("📈 Connection stats: processed {} messages from frontend", message_count);
+    log::info!("Connection stats: received frames={}", message_count);
     if message_count == 0 {
         log::warn!("⚠️  No messages received from frontend - this suggests protobuf message format issues");
     }

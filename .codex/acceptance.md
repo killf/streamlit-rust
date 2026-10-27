@@ -166,6 +166,16 @@ Rust 新增三项回归：原错误值/资源身份、参数变化和清空；�
 
 本批未改 Python/前端/公开行为，不重采参考，也未重复未受影响的全量参考和示例运行；上一媒体批次的 194/1516 仅是对应版本的记录。本次并发客户端正确性不证明应用执行必定重叠、同时处理能力或 SLO；M5、其余未验证组合和长期目标继续保持未完成。
 
+## Current WebSocket logging validation (2026-10-28)
+
+真实红复现使用隔离 test 子进程，将现有 websocket logger 显式设为 Debug（含 Info/Warn/Error），没有把默认过滤等级冒称 Info。两轮真实控件输入/大文本输出、非法 protobuf 后心跳、未支持请求、原始文本及带描述的关闭帧均已完成，服务停止后仅因五种合成标记进入日志而断言失败。原始日志 131,289 字节；修后同配置探针为 3,704 字节、0 个标记，原 wire 文本、控件 ID、关闭 code/description 及心跳恢复保持，错误诊断和 kind/frames/bytes/elapsed_ms 字段仍在。数据与方法见[小型记录](../tests/performance/ws-logging.json)，重复大载荷 raw 仅留本机 target，不做源码快照或源码 SHA 门槛。
+
+生产改动限 handler 的日志与局部计数/计时：ForwardMsg 仍只编码一次，entry/send join、运行控制、会话锁、错误处理及原关闭应答保持。Info 保留运行汇总，Debug 提供逐帧摘要；不再格式化完整 protobuf、原始消息或文本/关闭描述。elapsed 仅为取得运行锁后的执行与发送调度，不是队列等待、客户端收取或端到端延迟。该字节差异是一个固定合成场景的日志体积，没有 CPU/吞吐结论、性能阈值或完整安全/全局脱敏承诺；应用和第三方日志继续由各自负责。
+
+格式、全目标 Clippy、先行 84 项纯单元检查、日志红→绿及最终 197 项 Rust 检查通过；最终总数为 174 库/运行模块、2 宏、1 ledger、4 rustdoc、16 示例，不重复累计先行检查或日志子进程内部同名用例。实际工作区回归覆盖会话、接管、运行控制、缓存重放、流式输出、HTTP/WS 及静态资源，既有 MSVC linker_messages 提示保留。新测试的 single_match 风格失败已正常修正，原日志独立保留，未 suppress；此前纯单元结果不是替代最终版本全量 Rust 的依据。
+
+仅 Rust 内部日志变化，没有 Python/前端/协议或应用用法变更，未重采或重复运行未受影响的全量 Python 参考，不将旧 1516 计为本批新结果。真实 Chrome、认证/权限、外部日志保密及长期容量仍未据此验收。全部自有测试子进程已终止、服务 handle 停止并等待，命令/结果/红绿日志索引见本地 `target/checks/m5-ws-logging/`；M5 与长期 Goal 未关闭，四项旧关键取舍继续待决。
+
 ## Required fresh-checkout checks
 
 ```powershell
