@@ -14,11 +14,15 @@
 
 ## Current focus
 
-**长期 M0：建立完整能力与验证基线，进行中。** 起点为 `99b1ed8e4b35737c9495764fb70269271a10bada`，开始时工作区干净。当前正在依据官方文档盘点功能和场景、复核不适用项、建立 Rust/Python 验证及性能基线。已校验的 wheel 用于固定参考环境，不能代替官方文档的功能分母。未运行、失败和历史结果分别记录；未宣称 M0 已完成。
+**长期 M0 基线已通过独立 Review；当前进入 M2 公共接口取舍。** M0 起点为 `99b1ed8e4b35737c9495764fb70269271a10bada`，开始时工作区干净。本阶段已建立官方文档能力与缺口清单、复核不适用项并刷新 Rust/Python 验证及性能基线；它不代表全功能或所有参数、教程 FAQ 的验收结束。已校验的 wheel 仅固定参考环境，不能代替官方用户文档的功能范围。
 
-已完成 54 项历史 `not_applicable` 的用户文档适用性复核，结论见 [compatibility](compatibility.md#historical-not-applicable-closures-and-m0-review)；没有将缺少 Rust 实现视为永久排除，也没有自动改写旧状态。Q1–Q6 的已确认修复与对应证据已分批落地，覆盖范围见 acceptance；这不等于完整 M0 或全功能验收结束。
+已完成 54 项历史 `not_applicable` 的用户文档适用性复核，结论见 [compatibility](compatibility.md#historical-not-applicable-closures-and-m0-review)；没有将缺少 Rust 实现视为永久排除，也没有自动改写旧状态。M1 列明的 Q1–Q6 已确认修复、回归、必要前端证据和独立 Review 已分批完成，覆盖范围见 acceptance；未验证的运行组合及资源边界继续留在后续里程碑，不把六项修复当成运行时完整兼容。
 
-本轮临时测量和日志保存在忽略的 `target/checks/m0-baseline/`；功能清单在现有官方文档矩阵基础上补足范围与子能力，不另建 Python API 分母。缺失的旧 docs HTML/catalog 不由下载归档冒充恢复；新抓取保留实际日期和文档版本。长期 M0 的数据和工具完成后，经独立 Review 核验，再进入 M1。
+本次当前基线在干净代码快照 `b94ac474` 上完成，172 项 Rust 与 1488 项冻结参考回归通过，debug 顺序性能冒烟已测 CPU、延迟和内存；方法和局限见 [acceptance](acceptance.md#current-m0-baseline-2026-10-27)，本地原始日志位于 `target/checks/m0-current-20261027/`。旧 `m0-baseline` 测量继续保留为历史记录。
+
+[官方文档范围](../compatibility/documentation-scope.json)按 17 组、59 条子能力建立矩阵关联和证据缺口说明；关联不是完成状态，也不以这些条数宣称覆盖了所有参数、教程或 FAQ。尚未逐项核实的模式、组合和文档入口继续作为长期范围内的待核项。缺失的旧 docs HTML/catalog 不由下载归档冒充恢复；新抓取保留实际日期和文档版本。独立 Reviewer 已核对清单、当前日志与性能边界，确认符合 M0 退出条件。
+
+下一步数据应用的选择接口、兼容影响、数据更新方式与验收已形成[待确认设计](architecture.md#dataframe-selection-and-data-updates--proposal)。官方 1.58.0 已移除旧 add_rows；数据追加流程仍在 M2，是否另增 Rust 扩展由用户选择，不自动实施候选公共接口。
 
 ## Long-term milestones
 

@@ -200,7 +200,7 @@ fn render_data(st: &Streamlit, batch: &RecordBatch) -> Result<(), DataError> {
 
 Use `TableOptions::new(&batch)` for borders, index/header visibility, size and alternative text. Use `BarChartOptions::native(&batch).x("group").y("amount")` to choose columns; the measured subset also exposes horizontal layout, sorting and side-by-side series. Bare `st.bar_chart(&batch)` uses the row index as categories and the supplied numeric series. `BarChartOptions::new(&batch, "group", "amount")` keeps the explicit mapping API used by `data_app`.
 
-Support is partial: the native bar path covers the measured Int64/Float64 series and string/numeric categories, including the captured null/negative-value configurations. Other Arrow types, color rules and stack variants are not fully covered. Mixed large integer/float input can return a Rust error where Python rounds; do not rely on matching that conversion. Selection, `add_rows` and the complete table/chart surface remain incomplete. See [data options](../../streamlit/src/data_api.rs) for the current typed API.
+Support is partial: the native bar path covers the measured Int64/Float64 series and string/numeric categories, including the captured null/negative-value configurations. Other Arrow types, color rules and stack variants are not fully covered. Mixed large integer/float input can return a Rust error where Python rounds; do not rely on matching that conversion. Dataframe selection and the complete table/chart surface remain incomplete. Upstream removed `element.add_rows` in 1.58.0; application data updates and a possible Rust append extension are separate design decisions. See [data options](../../streamlit/src/data_api.rs) for the current typed API.
 
 ## Line, area, scatter charts and maps
 

@@ -8,9 +8,9 @@ Streamlit runtime compatibility is pinned to 1.66.1. The historical API matrix c
 
 官方入口包括 [API reference](https://docs.streamlit.io/develop/api-reference)、[开发概念](https://docs.streamlit.io/develop/concepts)和[部署概念](https://docs.streamlit.io/deploy/concepts)。历史目录未覆盖的主题、测试与部署说明也需盘点；每页根据用户可获得的能力归类，不把导航页、概念页或 Python 符号各算成一个待实现接口。托管平台操作与 Rust 应用本身的职责分开判断。
 
-现有矩阵保留各条目的历史证据范围；`not_applicable` 正在复核，不代表长期目标永久排除该用户能力。缺少 Rust 对应实现的理由需要重新审查，已有行为的概念页关联实际功能证据。源码盘点不能给予实现或兼容信用，也不另建 Python API 进度表。
+现有矩阵保留各条目的历史证据范围；54 项历史 `not_applicable` 已完成本轮适用性复核，结论见下文，不代表长期目标永久排除该用户能力。缺少 Rust 对应实现不构成不适用理由，已有行为的概念页关联实际功能证据。源码盘点不能给予实现或兼容信用，也不另建 Python API 进度表。
 
-长期 M0 进行中；旧 HTML/catalog 当前未恢复，新抓取须记录来源、实际日期、文档版本及内容身份，不覆盖或冒用旧目录的锁定哈希。当前通过、当前失败、环境受阻和历史结果分别记录。
+长期 M0 基线已通过独立 Review，当前缺口及后续阶段见 [roadmap](roadmap.md#current-focus)；旧 HTML/catalog 未恢复，新抓取记录来源、实际日期、文档版本及内容身份，不覆盖或冒用旧目录的锁定哈希。当前通过、当前失败、环境受阻和历史结果分别记录，不将 M0 退出作为完整兼容证明。
 
 用户已取消实现源码的 SHA 门禁。旧文档和冻结轨迹中的源码指纹是当时的历史元数据，不再要求当前 Rust、Python 或采集工具源码与其逐字相同。兼容判断依赖固定版本、冻结输入输出和实际功能验证，不因普通实现变化强制重采或归档源码。
 

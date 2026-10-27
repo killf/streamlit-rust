@@ -2,6 +2,8 @@
   "schema_version": 1,
   "purpose": "Official documentation scope expansion and authored user-capability requirements; not a Python API inventory or second compatibility progress ledger.",
   "reviewed_at_utc": "2026-10-27T04:23:53.208917+00:00",
+  "mapping_reviewed_at_utc": "2026-10-27T07:09:24Z",
+  "mapping_boundary": "子能力映射仅追溯相关矩阵条目及当前已知证据缺口，不是实时状态台账或功能完成分母；无引用不代表不适用。用户数据追加目标保留，Python element.add_rows 已于 1.58 移除，不能作为 1.66.1 缺失接口。",
   "runtime_reference_version": "1.66.1",
   "authority": "Official user documentation defines functionality; Rust interfaces and implementation may differ. Source code only corroborates behavior.",
   "historical_matrix": "compatibility/api-compatibility-matrix.json",
@@ -127,22 +129,42 @@
         {
           "requirement": "按浏览者/开发者/最小/自动模式显示菜单",
           "usage_scenario": "本地开发和远程只读浏览者看到不同菜单；关于/帮助/报错链接可配置",
-          "review_classification": "runtime_requirement"
+          "review_classification": "runtime_requirement",
+          "m0_mapping": {
+            "matrix_features": [],
+            "coverage_boundary": "菜单模式及链接缺少对应矩阵条目；实际行为待核。",
+            "next_milestone": "M3"
+          }
         },
         {
           "requirement": "手动重跑保留widget与Session State，清缓存清除两类缓存",
           "usage_scenario": "菜单或键盘快捷键发起动作后观察本会话和缓存结果",
-          "review_classification": "runtime_requirement"
+          "review_classification": "runtime_requirement",
+          "m0_mapping": {
+            "matrix_features": ["st.cache_data", "st.cache_resource"],
+            "coverage_boundary": "缓存条目覆盖会话缓存的部分行为；菜单或快捷键清理与重跑状态保持待验证。",
+            "next_milestone": "M3"
+          }
         },
         {
           "requirement": "浏览器打印与录屏、自动重跑和运行状态",
           "usage_scenario": "有权限浏览器执行打印/录屏；保存代码触发提示",
-          "review_classification": "frontend_or_development_workflow"
+          "review_classification": "frontend_or_development_workflow",
+          "m0_mapping": {
+            "matrix_features": [],
+            "coverage_boundary": "打印、录屏、代码保存提示与运行状态缺少对应证据，待核。",
+            "next_milestone": "M6"
+          }
         },
         {
           "requirement": "部署按钮对接Community Cloud",
           "usage_scenario": "本地git项目进入托管平台部署页",
-          "review_classification": "external_hosting_operation"
+          "review_classification": "external_hosting_operation",
+          "m0_mapping": {
+            "matrix_features": [],
+            "coverage_boundary": "Community Cloud部署入口属于外部托管操作，Rust适用性待决定。",
+            "next_milestone": "适用性待决"
+          }
         }
       ],
       "sources": [
@@ -165,22 +187,42 @@
         {
           "requirement": "区分计算并行、IO并发、缓存与独立片段更新",
           "usage_scenario": "长耗时数据获取不阻塞错误会话，结果回到发起它的应用上下文",
-          "review_classification": "runtime_equivalence_scope_to_confirm"
+          "review_classification": "runtime_equivalence_scope_to_confirm",
+          "m0_mapping": {
+            "matrix_features": ["st.fragment", "st.cache_resource"],
+            "coverage_boundary": "资源缓存有有限证据；独立片段更新及并发隔离未由该证据证明。",
+            "next_milestone": "M5"
+          }
         },
         {
           "requirement": "明确无会话上下文时UI/状态调用的边界",
           "usage_scenario": "自建任务不能误写其他用户状态或在运行结束后继续使用上下文",
-          "review_classification": "runtime_requirement"
+          "review_classification": "runtime_requirement",
+          "m0_mapping": {
+            "matrix_features": ["st.session_state"],
+            "coverage_boundary": "会话状态部分隔离已有证据；自建任务跨会话和结束后的上下文边界待验证。",
+            "next_milestone": "M5"
+          }
         },
         {
           "requirement": "明确文档自建线程方案非正式支持",
           "usage_scenario": "不把Python add_script_run_ctx模式升级为Rust必需功能",
-          "review_classification": "documented_upstream_limitation"
+          "review_classification": "documented_upstream_limitation",
+          "m0_mapping": {
+            "matrix_features": [],
+            "coverage_boundary": "Python线程上下文方案的支持限制需迁移说明；Rust任务接口待设计。",
+            "next_milestone": "M6"
+          }
         },
         {
           "requirement": "跨rerun自定义选项/枚举的值身份与资源缓存",
           "usage_scenario": "用户选择可稳定返回应用定义的值；Rust无需模拟Python类重定义和enumCoercion",
-          "review_classification": "language_specific_guidance"
+          "review_classification": "language_specific_guidance",
+          "m0_mapping": {
+            "matrix_features": ["st.selectbox", "st.multiselect", "st.cache_resource"],
+            "coverage_boundary": "选项返回和会话资源缓存仅部分覆盖；跨重跑自定义值身份及资源组合待验证。",
+            "next_milestone": "M3"
+          }
         }
       ],
       "sources": [
@@ -206,12 +248,22 @@
         {
           "requirement": "区分无时区和有时区数据",
           "usage_scenario": "两种服务器日期时间被不同时区的浏览器查看",
-          "review_classification": "runtime_requirement"
+          "review_classification": "runtime_requirement",
+          "m0_mapping": {
+            "matrix_features": ["st.datetime_input", "st.dataframe"],
+            "coverage_boundary": "日期时间输入默认值和部分表格已有证据；有时区数据及跨浏览器时区展示待验证。",
+            "next_milestone": "M3"
+          }
         },
         {
           "requirement": "取得浏览器时区/偏移供应用转换",
           "usage_scenario": "同一UTC时刻按用户所在时区展示",
-          "review_classification": "runtime_requirement"
+          "review_classification": "runtime_requirement",
+          "m0_mapping": {
+            "matrix_features": ["st.context"],
+            "coverage_boundary": "历史条目不证明浏览器时区可供应用读取；请求上下文方案待设计。",
+            "next_milestone": "M4"
+          }
         }
       ],
       "sources": [
@@ -234,22 +286,42 @@
         {
           "requirement": "按命名配置或环境选择连接并说明配置优先级",
           "usage_scenario": "本地/测试数据库切换，显式选项与secrets配置共同存在",
-          "review_classification": "runtime_requirement"
+          "review_classification": "runtime_requirement",
+          "m0_mapping": {
+            "matrix_features": ["st.connection", "st.secrets", "secrets.toml"],
+            "coverage_boundary": "历史条目未建立Rust命名连接或配置优先级；环境与密钥注入待设计。",
+            "next_milestone": "M4"
+          }
         },
         {
           "requirement": "连接复用、失效重置、结果TTL与线程安全边界",
           "usage_scenario": "长运行应用避免过期连接和无限增长的查询缓存",
-          "review_classification": "runtime_requirement"
+          "review_classification": "runtime_requirement",
+          "m0_mapping": {
+            "matrix_features": ["st.cache_data", "st.cache_resource", "st.connections.SQLConnection"],
+            "coverage_boundary": "会话缓存有部分证据；连接复用、reset、TTL及线程安全组合待验证。",
+            "next_milestone": "M4"
+          }
         },
         {
           "requirement": "使用现有驱动扩展数据源",
           "usage_scenario": "Rust可用自身驱动/连接抽象，不要求复刻SQLAlchemy继承结构",
-          "review_classification": "rust_equivalence_not_python_surface"
+          "review_classification": "rust_equivalence_not_python_surface",
+          "m0_mapping": {
+            "matrix_features": ["st.connection", "st.connections.BaseConnection"],
+            "coverage_boundary": "历史连接条目不证明Rust驱动扩展接口；等价接入方式待设计。",
+            "next_milestone": "M4"
+          }
         },
         {
           "requirement": "代码与仓库外提供密钥，并说明反序列化信任边界",
           "usage_scenario": "假凭据进入测试/容器secret；真实凭据不出现在repo或日志",
-          "review_classification": "app_authoring_and_deployment_requirement"
+          "review_classification": "app_authoring_and_deployment_requirement",
+          "m0_mapping": {
+            "matrix_features": ["st.secrets", "secrets.toml"],
+            "coverage_boundary": "历史条目不证明安全注入或序列化信任边界；假凭据场景待设计验证。",
+            "next_milestone": "M4"
+          }
         }
       ],
       "sources": [
@@ -279,27 +351,52 @@
         {
           "requirement": "注册与挂载分离，重复实例和key身份",
           "usage_scenario": "同一定义多次挂载；有key时更新数据保留实例，缺key且参数变化可重建",
-          "review_classification": "runtime_requirement"
+          "review_classification": "runtime_requirement",
+          "m0_mapping": {
+            "matrix_features": ["st.components.v2.component"],
+            "coverage_boundary": "单实例挂载有证据；多实例key身份和数据变化时生命周期待验证。",
+            "next_milestone": "M3"
+          }
         },
         {
           "requirement": "初始值、回调声明与返回值形状",
           "usage_scenario": "默认状态和声明的状态/事件在首次运行、交互和普通重跑中可读取",
-          "review_classification": "runtime_requirement"
+          "review_classification": "runtime_requirement",
+          "m0_mapping": {
+            "matrix_features": ["st.components.v2.component"],
+            "coverage_boundary": "默认JSON状态及事件声明有部分证据；回调和多种返回形状待验证。",
+            "next_milestone": "M3"
+          }
         },
         {
           "requirement": "状态持久、trigger复位、多个更新/回调的单次重跑",
           "usage_scenario": "计数器同时改变值并发出reset事件",
-          "review_classification": "runtime_requirement"
+          "review_classification": "runtime_requirement",
+          "m0_mapping": {
+            "matrix_features": ["st.components.v2.component"],
+            "coverage_boundary": "单次trigger往返和默认状态有证据；状态加事件同轮更新与回调合并待验证。",
+            "next_milestone": "M3"
+          }
         },
         {
           "requirement": "程序化数据更新而不覆盖正在输入的DOM值",
           "usage_scenario": "文字输入组件由Session State驱动，应用按钮改变值",
-          "review_classification": "runtime_requirement"
+          "review_classification": "runtime_requirement",
+          "m0_mapping": {
+            "matrix_features": ["st.components.v2.component", "st.session_state"],
+            "coverage_boundary": "组件状态及会话状态分别部分覆盖；程序化更新与正在输入的DOM交互待验证。",
+            "next_milestone": "M3"
+          }
         },
         {
           "requirement": "支持组件的事件清理和移动端交互所需生命周期",
           "usage_scenario": "长按示例清理监听器；示例2秒/冷却时间是应用逻辑，不成为runtime规则",
-          "review_classification": "frontend_extension_contract"
+          "review_classification": "frontend_extension_contract",
+          "m0_mapping": {
+            "matrix_features": ["component-v2-lib-cleanupfunction", "st.components.v2.component"],
+            "coverage_boundary": "组件挂载有部分证据；监听器清理、卸载及移动端交互待验证。",
+            "next_milestone": "M3"
+          }
         }
       ],
       "sources": [
@@ -333,17 +430,32 @@
         {
           "requirement": "JSON与Arrow表格可直接传入或作为映射顶层值",
           "usage_scenario": "表格和描述信息一起进入自定义可视化",
-          "review_classification": "runtime_requirement"
+          "review_classification": "runtime_requirement",
+          "m0_mapping": {
+            "matrix_features": ["st.components.v2.component"],
+            "coverage_boundary": "JSON对象有部分证据；直接Arrow及映射内表格未验证。",
+            "next_milestone": "M3"
+          }
         },
         {
           "requirement": "区分表格直接传入的字节形式与混合映射内解析后的表格形式",
           "usage_scenario": "前端正确识别Uint8Array或Arrow Table",
-          "review_classification": "runtime_requirement"
+          "review_classification": "runtime_requirement",
+          "m0_mapping": {
+            "matrix_features": ["component-v2-lib-frontendrendererargs", "st.components.v2.component"],
+            "coverage_boundary": "前端参数历史条目未证明直接与混合表格的类型语义，待验证。",
+            "next_milestone": "M3"
+          }
         },
         {
           "requirement": "原始bytes直接传入；映射内不支持任意bytes",
           "usage_scenario": "图像按示例使用Base64字符串，非法组合的边界明确",
-          "review_classification": "runtime_requirement"
+          "review_classification": "runtime_requirement",
+          "m0_mapping": {
+            "matrix_features": ["st.components.v2.component"],
+            "coverage_boundary": "raw bytes和混合映射非法组合缺少当前验证证据。",
+            "next_milestone": "M3"
+          }
         }
       ],
       "sources": [
@@ -366,22 +478,42 @@
         {
           "requirement": "明暗主题、侧栏覆盖、继承和运行时刷新",
           "usage_scenario": "用户切换主题；应用主区域与侧栏使用不同配色",
-          "review_classification": "runtime_requirement"
+          "review_classification": "runtime_requirement",
+          "m0_mapping": {
+            "matrix_features": ["config.toml"],
+            "coverage_boundary": "历史配置条目不证明Rust主题切换、侧栏继承与刷新；方案和浏览器验证待完成。",
+            "next_milestone": "M4"
+          }
         },
         {
           "requirement": "颜色、边框、圆角、图表系列色和字体族/字重/大小",
           "usage_scenario": "dataframe、输入、图表和文本视觉一致；未配置值按文档继承",
-          "review_classification": "runtime_requirement"
+          "review_classification": "runtime_requirement",
+          "m0_mapping": {
+            "matrix_features": ["config.toml"],
+            "coverage_boundary": "历史条目不证明主题颜色、边框、图表及字体配置；继承规则待验证。",
+            "next_milestone": "M4"
+          }
         },
         {
           "requirement": "字体文件、fallback与静态托管",
           "usage_scenario": "自托管woff2/变体字体与备用字体在浏览器正确加载",
-          "review_classification": "runtime_requirement"
+          "review_classification": "runtime_requirement",
+          "m0_mapping": {
+            "matrix_features": ["concept.configuration.serving-static-files", "config.toml"],
+            "coverage_boundary": "应用静态字体资源服务与fallback待核；不能等同官方前端www资源目录。",
+            "next_milestone": "M4"
+          }
         },
         {
           "requirement": "组件CSS变量、Shadow DOM隔离和非隔离样式",
           "usage_scenario": "组件随当前/侧栏主题更新，隔离仅样式边界",
-          "review_classification": "runtime_requirement"
+          "review_classification": "runtime_requirement",
+          "m0_mapping": {
+            "matrix_features": ["st.components.v2.component", "config.toml"],
+            "coverage_boundary": "组件隔离挂载有部分证据；主题变量、侧栏与非隔离样式更新待验证。",
+            "next_milestone": "M3"
+          }
         }
       ],
       "sources": [
@@ -408,27 +540,52 @@
         {
           "requirement": "构建资产、相对路径、单文件glob和版本化缓存",
           "usage_scenario": "安装后的组件引用带hash的JS/CSS/图片并被runtime正确服务",
-          "review_classification": "runtime_requirement"
+          "review_classification": "runtime_requirement",
+          "m0_mapping": {
+            "matrix_features": ["st.components.v2.component"],
+            "coverage_boundary": "现有inline组件证据不覆盖打包资产、相对路径、glob或版本缓存。",
+            "next_milestone": "M3"
+          }
         },
         {
           "requirement": "资产目录公开服务边界与清晰错误",
           "usage_scenario": "缺失或多重glob匹配报错；资产不含secret",
-          "review_classification": "runtime_requirement"
+          "review_classification": "runtime_requirement",
+          "m0_mapping": {
+            "matrix_features": ["st.components.v2.component"],
+            "coverage_boundary": "现有组件证据未覆盖资产公开范围、缺失及多重匹配错误。",
+            "next_milestone": "M3"
+          }
         },
         {
           "requirement": "v1 ready/render/value/height握手及JSON/Arrow数据",
           "usage_scenario": "已有iframe组件回传值、触发重跑并自适应高度",
-          "review_classification": "legacy_component_compatibility_requirement"
+          "review_classification": "legacy_component_compatibility_requirement",
+          "m0_mapping": {
+            "matrix_features": ["st.components.v1.declare_component"],
+            "coverage_boundary": "历史条目未证明v1组件握手、数据回传及高度调整；需验证等价能力。",
+            "next_milestone": "M3"
+          }
         },
         {
           "requirement": "区分v1 iframe限制与v2共享页面/样式隔离",
           "usage_scenario": "不把v1不能跨组件修改DOM的限制套到v2",
-          "review_classification": "documented_boundary"
+          "review_classification": "documented_boundary",
+          "m0_mapping": {
+            "matrix_features": ["st.components.v1.iframe", "st.components.v2.component"],
+            "coverage_boundary": "iframe与v2各有有限显示证据；跨组件DOM和隔离边界组合待验证。",
+            "next_milestone": "M3"
+          }
         },
         {
           "requirement": "发布预编译资产和用户接口的可安装组件",
           "usage_scenario": "Rust等价包布局/分发方式待设计，PyPI上传/社区推广是可选外部操作",
-          "review_classification": "ecosystem_workflow_not_python_packaging_clone"
+          "review_classification": "ecosystem_workflow_not_python_packaging_clone",
+          "m0_mapping": {
+            "matrix_features": [],
+            "coverage_boundary": "可安装组件包布局与分发方式待设计；不要求复制PyPI流程。",
+            "next_milestone": "M6"
+          }
         }
       ],
       "sources": [
@@ -456,22 +613,42 @@
         {
           "requirement": "初次运行与每次交互显式驱动，按页面结构检索",
           "usage_scenario": "多个容器里相同类型widget按key和位置定位",
-          "review_classification": "rust_test_equivalence_requirement"
+          "review_classification": "rust_test_equivalence_requirement",
+          "m0_mapping": {
+            "matrix_features": ["st.testing.v1.AppTest", "testing-element-classes"],
+            "coverage_boundary": "历史条目及仓库内部运行测试不等于向应用作者提供交互测试接口；检索与驱动待设计。",
+            "next_milestone": "M6"
+          }
         },
         {
           "requirement": "注入假secret、session state和query参数",
           "usage_scenario": "跳到登录成功状态或跨页场景并断言清理/退出",
-          "review_classification": "rust_test_equivalence_requirement"
+          "review_classification": "rust_test_equivalence_requirement",
+          "m0_mapping": {
+            "matrix_features": ["st.testing.v1.AppTest", "st.session_state", "st.query_params"],
+            "coverage_boundary": "状态及查询参数各有局部证据；应用测试中的假密钥注入和跨页状态待设计验证。",
+            "next_milestone": "M6"
+          }
         },
         {
           "requirement": "可检查展示内容、label和disabled等可观测属性",
           "usage_scenario": "回归测试检查用户行为而非只检查函数调用",
-          "review_classification": "rust_test_equivalence_requirement"
+          "review_classification": "rust_test_equivalence_requirement",
+          "m0_mapping": {
+            "matrix_features": ["testing-element-classes"],
+            "coverage_boundary": "历史条目不证明作者可检查元素属性；Rust测试接口和示例待设计。",
+            "next_milestone": "M6"
+          }
         },
         {
           "requirement": "保留上游模拟测试不支持的边界",
           "usage_scenario": "图表/媒体/iframe/自定义组件/动画及editor直接编辑等需浏览器或协议证据补充",
-          "review_classification": "documented_upstream_testing_limitation"
+          "review_classification": "documented_upstream_testing_limitation",
+          "m0_mapping": {
+            "matrix_features": ["st.testing.v1.AppTest"],
+            "coverage_boundary": "模拟测试未覆盖图表、媒体、组件及编辑器交互；需浏览器或协议证据补充。",
+            "next_milestone": "M6"
+          }
         }
       ],
       "sources": [
@@ -497,12 +674,22 @@
         {
           "requirement": "PR/提交触发、依赖准备、应用与所有页面smoke",
           "usage_scenario": "更新应用后CI发现未处理异常或交互回归",
-          "review_classification": "rust_ci_workflow_requirement"
+          "review_classification": "rust_ci_workflow_requirement",
+          "m0_mapping": {
+            "matrix_features": [],
+            "coverage_boundary": "仓库自身CI不等于应用作者的多页smoke工作流；触发和依赖准备待设计验证。",
+            "next_milestone": "M6"
+          }
         },
         {
           "requirement": "测试失败状态、日志与可选JUnit报告",
           "usage_scenario": "查看失败测试和页面而不是仅见非零退出码",
-          "review_classification": "rust_ci_workflow_requirement"
+          "review_classification": "rust_ci_workflow_requirement",
+          "m0_mapping": {
+            "matrix_features": [],
+            "coverage_boundary": "应用测试的失败定位、日志及可选报告缺少专门证据，待核。",
+            "next_milestone": "M6"
+          }
         }
       ],
       "sources": [
@@ -525,22 +712,42 @@
         {
           "requirement": "区分编译期/运行时依赖并固定版本",
           "usage_scenario": "开发机不存在的干净容器也可构建/启动应用",
-          "review_classification": "rust_deployment_requirement"
+          "review_classification": "rust_deployment_requirement",
+          "m0_mapping": {
+            "matrix_features": [],
+            "coverage_boundary": "Rust构建和运行依赖分离与干净环境可复现性待验证。",
+            "next_milestone": "M6"
+          }
         },
         {
           "requirement": "明确定义工作目录、入口与资源相对路径",
           "usage_scenario": "入口位于子目录、多应用或静态资源从打包目录加载",
-          "review_classification": "rust_deployment_requirement"
+          "review_classification": "rust_deployment_requirement",
+          "m0_mapping": {
+            "matrix_features": ["concept.configuration.serving-static-files"],
+            "coverage_boundary": "当前前端www部署路径不证明应用static资源和多入口工作目录语义；待设计验证。",
+            "next_milestone": "M6"
+          }
         },
         {
           "requirement": "绑定公开地址/端口并提供健康检查",
           "usage_scenario": "容器暴露应用端口，访问/_stcore/health并完成页面交互",
-          "review_classification": "runtime_and_container_requirement"
+          "review_classification": "runtime_and_container_requirement",
+          "m0_mapping": {
+            "matrix_features": ["cli.run"],
+            "coverage_boundary": "历史CLI条目不证明容器内绑定、健康检查和完整交互；需实际验证。",
+            "next_milestone": "M6"
+          }
         },
         {
           "requirement": "容器构建和启动流程可执行",
           "usage_scenario": "Rust多阶段构建/运行方案可不同于Python Dockerfile",
-          "review_classification": "rust_deployment_equivalence"
+          "review_classification": "rust_deployment_equivalence",
+          "m0_mapping": {
+            "matrix_features": [],
+            "coverage_boundary": "Rust容器构建及启动流程缺少干净环境闭环证据，待验证。",
+            "next_milestone": "M6"
+          }
         }
       ],
       "sources": [
@@ -566,22 +773,42 @@
         {
           "requirement": "镜像、Deployment、Service、健康和就绪探针",
           "usage_scenario": "Pod启动后可通过服务访问且探针不会误杀",
-          "review_classification": "rust_deployment_requirement"
+          "review_classification": "rust_deployment_requirement",
+          "m0_mapping": {
+            "matrix_features": [],
+            "coverage_boundary": "Deployment、Service及探针需要隔离集群验证；未由历史矩阵证明。",
+            "next_milestone": "M6"
+          }
         },
         {
           "requirement": "终止信号到应用进程的正确传播",
           "usage_scenario": "Pod终止时停止进程并释放会话资源",
-          "review_classification": "runtime_lifecycle_requirement"
+          "review_classification": "runtime_lifecycle_requirement",
+          "m0_mapping": {
+            "matrix_features": [],
+            "coverage_boundary": "终止信号传播与会话资源释放缺少组合验证，待核。",
+            "next_milestone": "M5"
+          }
         },
         {
           "requirement": "域名、代理、TLS和可选外部OAuth代理",
           "usage_scenario": "远端浏览器的HTTP和交互连接通过代理正常工作",
-          "review_classification": "deployment_integration_requirement"
+          "review_classification": "deployment_integration_requirement",
+          "m0_mapping": {
+            "matrix_features": [],
+            "coverage_boundary": "代理、TLS及外部OAuth代理的HTTP和交互链路待设计验证。",
+            "next_milestone": "M4"
+          }
         },
         {
           "requirement": "直接TLS配置成对校验与代理TLS的边界",
           "usage_scenario": "若选择支持原生TLS，只给cert或key要有明确错误；平台TLS不由应用重建",
-          "review_classification": "optional_surface_requires_scope_confirmation"
+          "review_classification": "optional_surface_requires_scope_confirmation",
+          "m0_mapping": {
+            "matrix_features": ["config.toml"],
+            "coverage_boundary": "是否支持原生TLS及证书和密钥成对规则待用户决定；代理TLS另行验证。",
+            "next_milestone": "适用性待决"
+          }
         }
       ],
       "sources": [
@@ -604,17 +831,32 @@
         {
           "requirement": "embed模式及多次embed_options选择",
           "usage_scenario": "iframe内隐藏菜单/间距，按需展示toolbar、禁用主体滚动或选择theme",
-          "review_classification": "runtime_frontend_requirement"
+          "review_classification": "runtime_frontend_requirement",
+          "m0_mapping": {
+            "matrix_features": [],
+            "coverage_boundary": "embed模式、选项和iframe效果缺少对应矩阵证据，待验证。",
+            "next_milestone": "M3"
+          }
         },
         {
           "requirement": "保留query_params不可读写embed系统参数",
           "usage_scenario": "应用读写普通query参数不改变嵌入保留配置",
-          "review_classification": "runtime_requirement"
+          "review_classification": "runtime_requirement",
+          "m0_mapping": {
+            "matrix_features": ["st.query_params"],
+            "coverage_boundary": "普通query参数有局部证据；embed保留参数不可读写边界待验证。",
+            "next_milestone": "M3"
+          }
         },
         {
           "requirement": "oEmbed服务、自动生成链接和私有app限制",
           "usage_scenario": "Notion等平台自动嵌入是托管平台服务，不推导为本地Rust必需后端",
-          "review_classification": "external_hosting_operation"
+          "review_classification": "external_hosting_operation",
+          "m0_mapping": {
+            "matrix_features": [],
+            "coverage_boundary": "oEmbed发现与私有应用授权属于托管服务；Rust适用性待决定。",
+            "next_milestone": "适用性待决"
+          }
         }
       ],
       "sources": [
@@ -637,17 +879,32 @@
         {
           "requirement": "开户/登录/退出/邮箱迁移与账户删除",
           "usage_scenario": "用户在share.streamlit.io管理托管账户",
-          "review_classification": "external_hosting_operation"
+          "review_classification": "external_hosting_operation",
+          "m0_mapping": {
+            "matrix_features": [],
+            "coverage_boundary": "账户管理属于外部托管操作；不自动要求Rust复刻服务。",
+            "next_milestone": "适用性待决"
+          }
         },
         {
           "requirement": "组织访问、公开/私有仓库授权与团队权限",
           "usage_scenario": "给外部平台部署源代码所需的授权",
-          "review_classification": "external_hosting_operation"
+          "review_classification": "external_hosting_operation",
+          "m0_mapping": {
+            "matrix_features": [],
+            "coverage_boundary": "GitHub和组织授权属于外部服务；Rust适用性待决定。",
+            "next_milestone": "适用性待决"
+          }
         },
         {
           "requirement": "工作区切换、模板/派生项目与codespace",
           "usage_scenario": "外部平台创建和管理开发环境",
-          "review_classification": "external_hosting_operation"
+          "review_classification": "external_hosting_operation",
+          "m0_mapping": {
+            "matrix_features": [],
+            "coverage_boundary": "工作区、模板与codespace由外部平台提供；Rust适用性待决定。",
+            "next_milestone": "适用性待决"
+          }
         }
       ],
       "sources": [
@@ -676,17 +933,32 @@
         {
           "requirement": "部署与代码更新、日志/analytics与app设置",
           "usage_scenario": "外部平台从GitHub坐标构建Python应用",
-          "review_classification": "external_hosting_operation"
+          "review_classification": "external_hosting_operation",
+          "m0_mapping": {
+            "matrix_features": [],
+            "coverage_boundary": "部署面板、日志和analytics属于外部平台；不自动要求Rust SaaS控制台。",
+            "next_milestone": "适用性待决"
+          }
         },
         {
           "requirement": "重启、删除、重命名、升级Python/Streamlit",
           "usage_scenario": "托管应用迁移时可能重新部署且中断用户",
-          "review_classification": "external_hosting_operation"
+          "review_classification": "external_hosting_operation",
+          "m0_mapping": {
+            "matrix_features": [],
+            "coverage_boundary": "外部平台的重启、删除及Python版本升级操作不自动成为Rust运行时功能。",
+            "next_milestone": "适用性待决"
+          }
         },
         {
           "requirement": "Rust部署需要自己的升级与配置说明",
           "usage_scenario": "可重现构建与发布后验证从容器工作流抽取，不复刻Cloud按钮",
-          "review_classification": "rust_documentation_requirement"
+          "review_classification": "rust_documentation_requirement",
+          "m0_mapping": {
+            "matrix_features": [],
+            "coverage_boundary": "Rust应用自身升级、配置和验证文档待完成；外部Cloud面板不等价。",
+            "next_milestone": "M6"
+          }
         }
       ],
       "sources": [
@@ -715,17 +987,32 @@
         {
           "requirement": "公开app索引、分享预览与私有app排除",
           "usage_scenario": "平台读取README/页面信息并生成每日截图",
-          "review_classification": "external_hosting_operation"
+          "review_classification": "external_hosting_operation",
+          "m0_mapping": {
+            "matrix_features": [],
+            "coverage_boundary": "公开索引与预览由外部托管服务提供，适用性待决定。",
+            "next_milestone": "适用性待决"
+          }
         },
         {
           "requirement": "数据托管/删除、OAuth权限、网络边界和资源限制",
           "usage_scenario": "部署方评估平台适用性，不把其地域、IP或更新频率当Rust默认",
-          "review_classification": "external_hosting_contract"
+          "review_classification": "external_hosting_contract",
+          "m0_mapping": {
+            "matrix_features": [],
+            "coverage_boundary": "托管安全、OAuth和配额是外部服务承诺，不能推定为Rust默认。",
+            "next_milestone": "适用性待决"
+          }
         },
         {
           "requirement": "页面标题等应用可控元数据",
           "usage_scenario": "Rust页面标题被浏览器正确显示，SEO效果不能由runtime保证",
-          "review_classification": "runtime_requirement"
+          "review_classification": "runtime_requirement",
+          "m0_mapping": {
+            "matrix_features": ["st.set_page_config"],
+            "coverage_boundary": "页面配置有局部证据；浏览器标题及外部SEO、截图效果需分别验证。",
+            "next_milestone": "M3"
+          }
         }
       ],
       "sources": [
@@ -749,12 +1036,22 @@
         {
           "requirement": "按所需库、公开URL和账户访问方式选择托管路径",
           "usage_scenario": "企业应用和数据放在同一平台",
-          "review_classification": "external_hosting_operation"
+          "review_classification": "external_hosting_operation",
+          "m0_mapping": {
+            "matrix_features": [],
+            "coverage_boundary": "Snowflake不同托管路径及Rust可用性未验证；需按用户选择判断。",
+            "next_milestone": "适用性待决"
+          }
         },
         {
           "requirement": "容器路径存在compute pool等外部前置条件",
           "usage_scenario": "Rust应用若选择该平台，先确认容器服务权限/资源再研究部署",
-          "review_classification": "external_platform_feasibility_to_verify"
+          "review_classification": "external_platform_feasibility_to_verify",
+          "m0_mapping": {
+            "matrix_features": [],
+            "coverage_boundary": "容器服务的权限和compute pool属于外部前置条件，具体可行性待核。",
+            "next_milestone": "适用性待决"
+          }
         }
       ],
       "sources": [

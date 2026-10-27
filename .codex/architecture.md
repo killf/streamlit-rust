@@ -24,6 +24,60 @@ The present module boundaries are appropriate for this stage: `api.rs` defines t
 
 `session.rs` now owns typed JSON application state and the server-instance session registry shared across Actix workers. A versioned WebSocket lease retains one session's application values across reruns; each rerun still builds a fresh App/render tree and trigger map. A known-ID connection may upgrade immediately, but ownership transfers only after the predecessor's run and outgoing sends finish, using that session's run mutex. The registry mutex is never held across an await, so other sessions remain concurrent. Only the current owner's Drop marks it disconnected, so an older socket cannot expire its replacement. Later connections lazily evict disconnected state past the configurable retention window (local default 120 seconds). No user state is static/global. `SessionState` is exported from `lib.rs`; its Streamlit accessor is an inherent impl in `session.rs`, leaving `api.rs` independent of this batch.
 
+## Dataframe selection and data updates — proposal
+
+状态：2026-10-27 人审方案，尚未批准或实现新接口。目标是在现有官方前端上打通选择、详情与编辑的调用路径，不把旧 Python 方法名当成功能分母。
+
+现状：`DataApi::dataframe` 返回 `Result<(), DataError>`，`DataframeOptions` 尚无 key/选择选项，也没有 dataframe 选择 codec。协议已有 `selection_mode`、`selection_state`、`selection_default` 和 widget id，现有 registry 可在运行前应用状态和 callback；因此无需改官方 proto 或引入依赖。既有 Arrow、列配置、编辑和整表渲染参考可复用，但没有选择事件的冻结输入。
+
+版本更正：官方 [2026 发布说明](https://docs.streamlit.io/develop/quick-reference/release-notes/2026)记录 1.58.0 已移除 `element.add_rows`，当前 Delta 也没有 eager 追加消息。数据追加的用户流程保留；旧接口不是 1.66.1 的兼容义务，新增 Rust 追加 API 则属于独立扩展，不能用整表发送冒称协议增量追加。
+
+### 待选择的返回接口
+
+| 方案 | 公开调用 | 兼容与成本 |
+| --- | --- | --- |
+| A，推荐 | `dataframe(options) -> Result<Option<DataframeState>, DataError>` | 一次调用显示并读取状态。未开启选择为 None，开启后即使未选中也有 Some(empty)。带分号的普通显示调用通常保留；以它作为 `Result<()>` 尾表达式、显式接收 unit 或外部实现 DataApi trait 的调用需迁移。 |
+| B | 原 dataframe 保持 unit；新增 `dataframe_with_state(options) -> Result<Option<DataframeState>, DataError>` | 保持旧调用的返回签名；新增必需 trait 方法仍要求外部 DataApi 实现补实现，只有存在有意义的默认实现时才能避免。复用 Options 与渲染路径，但用户有两个入口，文档与后续能力需同步。 |
+| C | dataframe 保持 unit；开启选择后按 key 从 SessionState 读取 DataframeState | 返回签名兼容、复用状态容器；选择读取依赖显式 key，缺 key/未渲染/已清理与空选择必须分清，调用方多一步。 |
+
+推荐 A 的具体提议：
+
+- `DataframeState { selection: DataframeSelection }`；后者含 `rows: Vec<usize>`、`columns: Vec<String>`、`cells: Vec<(usize, String)>`，支持 serde 和默认空集合，与 wire 的 selection 外层对应。
+- `DataframeOptions::key`、`on_select(OnSelect)`、`selection_mode(DataframeSelectionMode)`、`selection_default(DataframeSelection)`。`OnSelect` 为 Ignore/Rerun/Callback，callback 构造接受与现有 widget 相同的 `Fn(&Streamlit) + Send + Sync + 'static`。不让调用方管理内部 Arc。
+- 默认 Ignore 保持纯显示；显式启用后默认选择模式按参考的 MultiRow，模式类型包含官方 single/multi row、column、cell 及 SingleRowRequired。组合、默认值、程序写入限制和异常先由固定 1.66.1 参考补证，再实现，不从 proto 字段存在推断兼容通过。
+- 选择进入专用 codec，使用现有运行前状态应用/callback 和未渲染 widget 清理；不复用组件的宽松 JSON 解析。keyed SessionState 使用同一个 DataframeState，避免返回值与状态出现两套格式。
+
+拟议用法（当前版本不可运行）：
+
+```rust
+if let Some(event) = st.dataframe(
+    DataframeOptions::new(&batch)
+        .key("orders")
+        .on_select(OnSelect::Rerun)
+        .selection_mode(DataframeSelectionMode::SingleRow),
+)? {
+    for row in &event.selection.rows {
+        // row 是当前输入 batch 的位置，应用在此读取详情。
+    }
+}
+```
+
+官方 [dataframe 选择说明](https://docs.streamlit.io/develop/api-reference/data/st.dataframe)标注 1.66.0：浏览器排序后的行选择仍指向输入位置，不承诺跨过滤/换表的业务记录身份。应用的稳定记录键与恢复策略不能由 runtime 静默生成。数据替换、程序设置、callback 和多页/隐藏恢复的具体行为须补 1.66.1 证据；需要额外 Rust 规则时再确认。
+
+### 数据更新的范围取舍
+
+1. 推荐按当前参考的应用数据更新与重新渲染完成追加流程，不增旧 add_rows 同名接口；当前协议是整表 NewElement，成本随结果表大小增长。
+2. 若需要可复用的 Rust 追加扩展，先单独设计句柄或按 key 的接口、schema 合并、会话/运行身份与资源回收，再批准实现；不能只保存会被下一轮复用的 delta path。
+3. 可先交付选择/详情/编辑，再推进数据追加；追加目标继续留在 M2，不将暂缓写成取消或完成。
+
+### 拟改范围与验收
+
+选定接口后主要修改 `data_api.rs`、`widgets.rs` 与 `lib.rs`，复用 registry/传输；对应使用指南、选择示例、原 dataframe 调用的必要迁移及 Rust runtime/data 回归同步更新。新参考应用/交互输入仅在既有数据缺失处采集一次并冻结，旧数据不重写。
+
+验收覆盖：默认纯显示、空选择、行/列/单元格及组合、真实选择输入到 typed 返回和 keyed state、callback 顺序、排序输入位置映射、程序默认/更新、数据替换与隐藏/恢复边界；超出当前可测范围明确待核，不宣称全部模式完成。原有数据显示、配置、编辑、chart、形式及会话测试不回归。真实官方前端验证选择→详情→编辑，错误能定位 session/widget/phase/reason，避免逐帧打印数据。
+
+Team 随最终采纳范围落地：主代理负责公共 API、codec、整合与验收；参考协议代理负责一次 Python 行为与冻结数据；示例/指南在核心接口稳定后并行；独立 Reviewer 只读。峰值不超过四个（含主代理），同一数据 API 与 widget 状态写入归主代理，不并行抢写。当前只交付设计与基线，等待公共接口和追加范围的决定，不启动产品实现。
+
 ## Dependency and launch audit (2026-10-25)
 
 Base: `590aed547f062b6791689ffe48940ffd6461a603`, Windows x86_64 MSVC. No package declares `rust-version`; edition 2024 alone does not establish the workspace MSRV. Host-filtered Cargo metadata reports a highest dependency declaration of Rust 1.88 (Arrow 60 and actix-multipart 0.8.5). Installed stable is Rust/Cargo 1.95.0; its isolated `check --workspace --all-targets --locked --offline` passed on the original lock. Default Rust remains 1.98.0-nightly (54333ff07). Neither result is a Rust 1.88/MSRV test. Stable logs record a nonfatal Windows incremental-cache finalization warning, not a source-check failure.

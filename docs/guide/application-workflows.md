@@ -7,7 +7,7 @@
 | 输入控件、CSV 上传、筛选、表格和图表 | 当前可用；兼容性部分验证 | [data_app](../../streamlit/examples/data_app.rs)；矩阵 `st.file_uploader`、`st.dataframe`、`st.bar_chart`。只覆盖已测组合。 |
 | 表单、会话状态和普通重跑 | 当前可用；部分验证 | 矩阵 `st.form`、`st.form_submit_button`、`st.session_state`。状态在内存中，恢复有边界。 |
 | 单独编辑表格 | 部分验证 | 矩阵 `st.data_editor`；[dataeditor 示例](../../streamlit/examples/dataeditor.rs)覆盖单元格编辑和新增行，不能代表所有类型与操作。 |
-| 选择行 → 详情 → 编辑 → 追加 | 待实现或待设计 | 当前没有 dataframe 选择和 `add_rows` 公共 API，也没有将独立编辑示例接入 CSV 应用的完整流程。 |
+| 选择行 → 详情 → 编辑 → 追加 | 待实现或待设计 | 当前没有 dataframe 选择公共 API，也没有将独立编辑示例接入 CSV 应用的完整流程。数据追加/更新的方式仍待设计。 |
 | 布局、导航、组件、流式文本 | 部分验证 | 矩阵 `st.navigation`、`st.components.v2.component`、`st.write_stream` 等；具体入口见下文。 |
 | 配置、认证、主题与部署 | 待完成或待设计 | 存在启动配置和前端资源部署路径；完整配置、认证和主题能力尚无足够证据。 |
 
@@ -43,9 +43,11 @@ cargo run --example data_app --locked
 
 目标流程是：在结果表中选择一条记录，查看其详情，修改并确认，再将新数据追加到已有视图；重跑时应明确保留哪些选择和编辑结果。空选择、筛选后所选记录消失、编辑失败、重复提交和数据来源更新等行为仍待设计和验证。
 
-当前 CSV 示例没有行选择或这一整套交互，也没有公开的 `add_rows` API。[dataeditor 示例](../../streamlit/examples/dataeditor.rs)是独立演示，可通过 `cargo run --example dataeditor --locked` 在 8541 端口查看编辑与新增行。编辑器每轮发送原始输入表，并返回应用编辑后的 `RecordBatch`；调用方可像示例一样通过 `st.dataframe` 单独显示或继续处理返回值。它不会自动保存或改写上传的 CSV。
+当前 CSV 示例没有行选择或这一整套交互。官方已在 1.58.0 移除 `element.add_rows`，它不是本项目 1.66.1 的兼容缺口；数据追加流程仍保留在目标中，应用数据更新/重新渲染与新增 Rust 扩展需要分开选择。[dataeditor 示例](../../streamlit/examples/dataeditor.rs)是独立演示，可通过 `cargo run --example dataeditor --locked` 在 8541 端口查看编辑与新增行。编辑器每轮发送原始输入表，并返回应用编辑后的 `RecordBatch`；调用方可像示例一样通过 `st.dataframe` 单独显示或继续处理返回值。它不会自动保存或改写上传的 CSV。
 
 已复现不可空字段遇到空行时的 schema 冲突，并选择按编辑结果放宽：仅实际产生 null 的结果列设为 nullable，未产生 null 的列保留输入的可空标记，原始输入表不变。调用方须读取返回表的 schema，不能假定它仍与输入完全相同。整数列遇 null 时已有的 Float64 转换规则继续适用；填齐新增行后，每轮仍基于原始输入重新应用编辑。该规则已有冻结输入回归、真实 WS 和 Rust 官方前端四步交互验证。删除行、其他编辑模式和回调的覆盖仍有限。参考官方[数据编辑器](https://docs.streamlit.io/develop/api-reference/data/st.data_editor)与矩阵 `st.data_editor`、`st.dataframe`。
+
+选择接口的候选用法及返回值兼容影响见[待确认设计](../../.codex/architecture.md#dataframe-selection-and-data-updates--proposal)；它尚未实现，不能将提议示例作为当前可用接口。
 
 ## 会话、重跑和错误
 
