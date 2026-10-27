@@ -460,7 +460,9 @@ let shared = st.cache_resource("model").call((), |()| vec![1, 2, 3]);  // Arc<Ve
 st.cache_clear();                                                // drop every entry of this session
 ```
 
-A miss runs the function, streams one empty spinner-shaped transient at the call site and records everything the function streamed (an `st.write` inside a cached function replays on every hit at its original position); a hit replays those elements with no transient and the value comes back without recomputation. Keys are the name plus the JSON serialization of the argument, so `call(21, ...)` and `call(7, ...)` are distinct entries. Unlike Python's process-wide store, the cache lives in the session state. The [cache example](../../streamlit/examples/cache.rs) mirrors the reference fixture of the cache differential chain.
+A miss runs the function and records its element output; an outermost miss also streams one empty spinner-shaped transient at the call site (an `st.write` inside a cached function replays on every hit at its original position); a hit replays those elements with no transient and the value comes back without recomputation. Keys are the name plus the JSON serialization of the argument, so `call(21, ...)` and `call(7, ...)` are distinct entries. Unlike Python's process-wide store, the cache lives in the session state. The [cache example](../../streamlit/examples/cache.rs) mirrors the reference fixture of the cache differential chain.
+
+Nested calls preserve outer and inner output on later hits, including when the inner call already hit during the outer miss. Only the outermost miss emits the transient. The [nested-cache workflow](application-workflows.md#嵌套缓存中的界面输出) describes the measured two-level data/resource cases and remaining boundaries.
 
 ## Multipage navigation
 

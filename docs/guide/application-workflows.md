@@ -82,7 +82,7 @@ fn render(st: &Streamlit) -> Result<(), WidgetError> {
 | 输入与表单 | [widgets](../../streamlit/examples/widgets.rs)、[forms](../../streamlit/examples/forms.rs) | [控件](https://docs.streamlit.io/develop/api-reference/widgets)、`st.form` |
 | 流式文本 | [writestream](../../streamlit/examples/writestream.rs) | [流式输出](https://docs.streamlit.io/develop/api-reference/write-magic/st.write_stream)；`st.write_stream`，当前证据限文本 |
 | 自定义组件 | [componentv2](../../streamlit/examples/componentv2.rs) | [组件](https://docs.streamlit.io/develop/concepts/custom-components)；`st.components.v2.component`。局部 JSON 状态的默认字段补齐已有冻结参考数据与真实 WebSocket 回归。 |
-| 缓存 | [cache](../../streamlit/examples/cache.rs) | [缓存](https://docs.streamlit.io/develop/concepts/architecture/caching)；`st.cache_data`。当前缓存按会话隔离；源码检查发现嵌套调用可能覆盖录制上下文，尚未运行复现。 |
+| 缓存 | [cache](../../streamlit/examples/cache.rs) | [缓存](https://docs.streamlit.io/develop/concepts/architecture/caching)；`st.cache_data`。当前缓存按会话隔离；两层数据/资源缓存的嵌套输出已有冻结参考与 WebSocket 回归。 |
 
 页面配置已有部分接口；完整配置体系、秘密管理、身份认证、主题和生产部署的体验仍待盘点、设计和验证。请参考官方[配置](https://docs.streamlit.io/develop/concepts/configuration)、[认证](https://docs.streamlit.io/develop/concepts/connections/authentication)、[主题](https://docs.streamlit.io/develop/concepts/configuration/theming)及[部署](https://docs.streamlit.io/deploy/concepts)。矩阵中历史 `not_applicable` 条目正在重新审视，不能据此推断长期目标排除这些场景。
 
@@ -107,6 +107,30 @@ let stored = st.session_state().get::<serde_json::Value>("greeter")?;
 Python 1.66.1 的[冻结输入输出](../../tests/reference/reference-browser/componentv2-state/state-cases.json)覆盖首次加载、局部更新、普通重跑与显式 null，Rust 通过真实 WebSocket 对照返回值和 keyed session state。额外的 Rust 空输入重跑也保留该状态；嵌套对象、多个实例和回调副作用尚未由这组数据验证。
 
 这一使用场景来自官方 [ComponentRenderer](https://docs.streamlit.io/develop/api-reference/custom-components/st.components.v2.types.componentrenderer) 的默认状态与 keyed session state 约定；页面标注 1.66.0，实际参考运行固定为 1.66.1。Rust 使用上文的挂载与状态读取接口。
+
+## 嵌套缓存中的界面输出
+
+运行 `cargo run --example cache_nested --locked` 并打开 `http://127.0.0.1:8543/`。点击 Again 后，数据缓存和资源缓存的内外输出应完整保留，返回值均为 43。
+
+缓存闭包可以调用另一个缓存，并使用现有 `st.write` 等方法输出界面：
+
+```rust
+let value = st.cache_data("outer").call(21, |n: i64| {
+    st.write("outer-before");
+    let doubled = st.cache_data("inner").call(n, |value: i64| {
+        st.write("inner");
+        value * 2
+    });
+    st.write("outer-after");
+    doubled + 1
+});
+```
+
+外层命中时，仍按原顺序显示 outer-before、inner、outer-after，返回缓存结果，并跳过计算闭包。外层未命中而内层命中时，内层输出也应包含在外层后续的重放中；调用位置变化后，输出与后续元素应落在正确的页面位置。`cache_resource` 的界面重放也遵守这一规则，返回值仍为共享 `Arc`。
+
+两层嵌套已对照 Python 1.66.1 的[冻结输入输出](../../tests/reference/reference-browser/cache-nested/cache-cases.json)验证：同时覆盖内外未命中、外层未命中而内层命中、外层命中及位置平移。只有最外层未命中发送临时 spinner 清除消息；缓存命中只重放持久输出。该组数据未验证异常、更多递归层或容器组合。当前 Rust 缓存仍按会话保存，使用不同名称标识不同缓存函数。
+
+依据官方 [缓存静态元素](https://docs.streamlit.io/develop/api-reference/caching-and-state/st.cache_data#static-elements) 的重放约定；该页标注 1.66.0，与本项目的 1.66.1 参考运行版本分别记录。
 
 ## 参考数据与验证
 

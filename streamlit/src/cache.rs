@@ -1,5 +1,5 @@
 //! st.cache_data / st.cache_resource on the measured 1.66.1 wire: results
-//! are memoized per session keyed by the serialized arguments; a miss
+//! are memoized per session keyed by the serialized arguments; an outermost miss
 //! streams an empty-element transient (the cleared-spinner shape) at the
 //! call site and records every element the function emitted, and a hit
 //! replays those elements at their original paths with no transient
@@ -179,56 +179,61 @@ fn delta_path_of(message: &crate::proto::ForwardMsg) -> Option<Vec<u32>> {
     message.metadata.as_ref().map(|metadata| metadata.delta_path.clone())
 }
 
-/// The miss path: the function runs with element output recorded; at exit
-/// the measured empty-element transient streams at the path snapshot taken
-/// on entry (a function that emits elements shows the transient after them,
-/// at the call site's own index), and the recording stops.
+/// Record one miss independently and merge its output back into an enclosing
+/// miss. Only the outermost call emits the measured cleared-spinner transient.
 fn execute_with_recording<R>(st: &Streamlit, f: impl FnOnce() -> R) -> (R, Vec<crate::proto::ForwardMsg>, Vec<u32>) {
     use crate::elements::common::Element;
 
-    let entry_path = {
+    // 1. 独立录制本次调用，暂存父层已经收集的输出。
+    let recording = {
         let mut app = st.app.lock();
         let suppressed = app.session_state.run_control().is_some();
         match app.render_context_mut() {
-            Some(context) if !suppressed && context.sender.is_some() => {
-                let path = context.delta_path.clone();
-                context.recording = Some(Vec::new());
-                path
-            }
-            _ => Vec::new(),
+            Some(context) if !suppressed && context.sender.is_some() => Some((context.delta_path.clone(), context.recording.replace(Vec::new()))),
+            _ => None,
         }
     };
     let value = f();
-    let (recorded, entry_path_out) = {
-        let mut app = st.app.lock();
-        let recorded = app.render_context_mut().and_then(|context| context.recording.take()).unwrap_or_default();
-        if app.session_state.run_control().is_none()
-            && let Some(context) = app.render_context_mut()
-            && context.sender.is_some()
-        {
-            // The measured miss marker: a cleared-shape transient at the
-            // entry path, consuming no element index.
-            let mut snapshot = crate::elements::common::RenderContext {
-                stream: Vec::new(),
-                delta_path: entry_path.clone(),
-                active_script_hash: context.active_script_hash.clone(),
-                session_id: context.session_id.clone(),
-                sender: None,
-                recording: None,
-            };
-            let cleared = Rc::new(RefCell::new(crate::elements::media::SpinnerTransientElement::cleared()));
-            if let Err(error) = cleared.borrow().render(&mut snapshot) {
-                log::error!("cache transient failed to render: {error}");
-            }
-            for message in snapshot.stream {
-                context.push(message);
-            }
-            (recorded, entry_path)
-        } else {
-            (recorded, Vec::new())
-        }
+    let Some((entry_path, mut parent_recording)) = recording else {
+        return (value, Vec::new(), Vec::new());
     };
-    (value, recorded, entry_path_out)
+
+    // 2. 子层持久输出并回父层，外层后续写入继续进入原来的录制。
+    let mut app = st.app.lock();
+    let suppressed = app.session_state.run_control().is_some();
+    let Some(context) = app.render_context_mut() else {
+        return (value, Vec::new(), Vec::new());
+    };
+    let recorded = context.recording.take().unwrap_or_default();
+    let outermost = parent_recording.is_none();
+    if let Some(parent) = &mut parent_recording {
+        parent.extend(recorded.iter().cloned());
+    }
+    context.recording = parent_recording;
+
+    if suppressed || context.sender.is_none() {
+        return (value, recorded, Vec::new());
+    }
+
+    // 3. 仅最外层未命中发送临时 spinner 清除消息，不把它缓存到父层。
+    if outermost {
+        let mut snapshot = crate::elements::common::RenderContext {
+            stream: Vec::new(),
+            delta_path: entry_path.clone(),
+            active_script_hash: context.active_script_hash.clone(),
+            session_id: context.session_id.clone(),
+            sender: None,
+            recording: None,
+        };
+        let cleared = Rc::new(RefCell::new(crate::elements::media::SpinnerTransientElement::cleared()));
+        if let Err(error) = cleared.borrow().render(&mut snapshot) {
+            log::error!("cache transient failed to render: {error}");
+        }
+        for message in snapshot.stream {
+            context.push(message);
+        }
+    }
+    (value, recorded, entry_path)
 }
 
 impl Streamlit {
