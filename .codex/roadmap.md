@@ -14,7 +14,7 @@
 
 ## Current focus
 
-**长期 M2 数据应用已于 2026-10-28 关闭（退出条件逐项有保留证据，见[关闭记录](acceptance.md#m2-milestone-close-2026-10-28)）；当前推进 M3 独立错误边界与 M6 分发收尾，随后启动 M4 运行集成。** M0 起点为 `99b1ed8e4b35737c9495764fb70269271a10bada`，开始时工作区干净。已建立官方文档能力与缺口清单、复核不适用项并刷新 Rust/Python 验证及性能基线；这不代表全功能或所有参数、教程 FAQ 的验收结束。已校验的 wheel 仅固定参考环境，不能代替官方用户文档的功能范围。
+**长期 M2 数据应用已于 2026-10-28 关闭（退出条件逐项有保留证据，见[关闭记录](acceptance.md#m2-milestone-close-2026-10-28)）；M6 两项分发决策已落地（跨环境构建验证后关闭）；M4 运行集成已启动（首个切片 st.context 的 Python 参考已冻结）；当前推进 M3 独立错误边界与 M4 后续切片。** M0 起点为 `99b1ed8e4b35737c9495764fb70269271a10bada`，开始时工作区干净。已建立官方文档能力与缺口清单、复核不适用项并刷新 Rust/Python 验证及性能基线；这不代表全功能或所有参数、教程 FAQ 的验收结束。已校验的 wheel 仅固定参考环境，不能代替官方用户文档的功能范围。
 
 已完成 54 项历史 `not_applicable` 的用户文档适用性复核，结论见 [compatibility](compatibility.md#historical-not-applicable-closures-and-m0-review)；没有将缺少 Rust 实现视为永久排除，也没有自动改写旧状态。M1 列明的 Q1–Q6 已确认修复、回归、必要前端证据和独立 Review 已分批完成，覆盖范围见 acceptance；未验证的运行组合及资源边界继续留在后续里程碑，不把六项修复当成运行时完整兼容。
 
@@ -25,6 +25,8 @@ M0 批次基线在干净代码快照 `b94ac474` 上完成，172 项 Rust 与 148
 选择接口按用户最新无需旧 Rust API 向后兼容的取舍，采用单入口返回 typed state，实施与验收见[当前设计](architecture.md#dataframe-selection-and-data-updates--proposal)。官方 1.58.0 已移除旧 add_rows；数据追加流程仍在 M2，是否另增 Rust 扩展由用户选择，不自动增加追加扩展。
 
 选择参考保留[原 34 阶段前端输入](../tests/reference/reference-browser/dataframe-selection/README.md)，另补[八阶段 required 协议输入](../tests/reference/reference-browser/dataframe-required-protocol/README.md)，真实 Rust WS 共用 42 阶段回放。已修复空协议选择在返回、keyed 与 callback 间分裂的问题，包含空表/恢复时使用前轮行数上下文；此前选择批次的 177 项 Rust 和 1496 项冻结参考回归通过。新协议探针不宣称浏览器能清除 required 行，旧正确数据未重采。CSV 应用已由用户采纳[独立工作台方案 A](architecture.md#csv-application-integration--accepted-a)，先补使用说明，再实现与验证；其余方案不纳入本次范围。
+
+M4 运行集成已启动（2026-10-28）：st.context 条目按实测重开——冻结的 1.66.1 协议参考证明 headers 反映全部 WS 握手请求头（无白名单）、直连下 ip 为 null、url/timezone/locale/theme 来自浏览器会话而非握手；Rust 只读快照 + 默认头白名单的拟议接口已在指南供确认，实现待确认后推进。认证/用户信息（假凭据、可插拔认证器）与配置面整理为后续切片；config.toml 注册表与 secrets 文件存储维持既有不适用边界。见[启动验收](acceptance.md#current-m4-runtime-integration-start-2026-10-28)。
 
 ## Long-term milestones
 

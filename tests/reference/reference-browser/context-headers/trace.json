@@ -1,0 +1,333 @@
+{
+  "schema_version": 1,
+  "runtime": "python",
+  "reference_version": "1.66.1",
+  "versions": {
+    "streamlit": "1.66.1"
+  },
+  "captured_at_utc": "2026-10-28T05:29:23.134285+00:00",
+  "scope": "Actual public st.context reflection over one native WS connection with fixed probe headers; no browser/UI claim.",
+  "server_command": [
+    "C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Scripts\\python.exe",
+    "-B",
+    "-m",
+    "streamlit",
+    "run",
+    "C:\\Users\\killf\\github\\streamlit-rust\\tests\\reference\\context_app.py",
+    "--server.address=127.0.0.1",
+    "--server.port=51365",
+    "--server.headless=true",
+    "--server.fileWatcherType=none",
+    "--browser.gatherUsageStats=false"
+  ],
+  "url": "http://127.0.0.1:51365",
+  "probe_headers": {
+    "User-Agent": "M4ContextProbe/1.0",
+    "X-M4-Probe": "alpha",
+    "Accept-Language": "zh-CN,zh;q=0.9"
+  },
+  "frames": [
+    {
+      "direction": "client->server",
+      "bytes": 2,
+      "base64": "WgA=",
+      "message": {
+        "rerun_script": {}
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 411,
+      "base64": "IpgDCq0BCl4KJDc5MDk1MDBjLWU1OWEtNTJlNy05ZjUzLWQzZGUwYzZhN2RmNCokNzkwOTUwMGMtZTU5YS01MmU3LTlmNTMtZDNkZTBjNmE3ZGY0MhBuby1tYWNoaW5lLWlkLXY0GiEKBjEuNjYuMRIOMy4xNC43LmZpbmFsLjAaB3dpbmRvd3MiAhABMiQxOTM0NzE5MS00NmQ1LTQ5YWUtOGI0My04ZjM2N2ZlNzhlNmYSJDA0ODlhMGNkLWI2YTktNDY5Mi05ZmY2LTNmZWRhODZhYjhiMBoLY29udGV4dF9hcHAiQ0M6XFVzZXJzXGtpbGxmXGdpdGh1YlxzdHJlYW1saXQtcnVzdFx0ZXN0c1xyZWZlcmVuY2VcY29udGV4dF9hcHAucHkyBhgCKAFIAUIiCiBiYzEzYjg1MjZiMzgzNmU0NDBmYWZiMDA4NTBhNmVkNEogYmMxM2I4NTI2YjM4MzZlNDQwZmFmYjAwODUwYTZlZDRaIGJjMTNiODUyNmIzODM2ZTQ0MGZhZmIwMDg1MGE2ZWQ0",
+      "message": {
+        "new_session": {
+          "initialize": {
+            "user_info": {
+              "installation_id": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v3": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v4": "no-machine-id-v4"
+            },
+            "environment_info": {
+              "streamlit_version": "1.66.1",
+              "python_version": "3.14.7.final.0",
+              "server_os": "windows"
+            },
+            "session_status": {
+              "script_is_running": true
+            },
+            "session_id": "19347191-46d5-49ae-8b43-8f367fe78e6f"
+          },
+          "script_run_id": "0489a0cd-b6a9-4692-9ff6-3feda86ab8b0",
+          "name": "context_app",
+          "main_script_path": "C:\\Users\\killf\\github\\streamlit-rust\\tests\\reference\\context_app.py",
+          "config": {
+            "max_cached_message_age": 2,
+            "allow_run_on_save": true,
+            "show_error_links": "SHOW_ERROR_LINKS_AUTO"
+          },
+          "app_pages": [
+            {
+              "page_script_hash": "bc13b8526b3836e440fafb00850a6ed4"
+            }
+          ],
+          "page_script_hash": "bc13b8526b3836e440fafb00850a6ed4",
+          "main_script_hash": "bc13b8526b3836e440fafb00850a6ed4"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 4,
+      "base64": "SgIQAQ==",
+      "message": {
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 645,
+      "base64": "CiA0Y2E2NzJiNWViOGY4YjA2NGY0YWUxZTFiM2FjNTBlNRImEgIAACIgYmMxM2I4NTI2YjM4MzZlNDQwZmFmYjAwODUwYTZlZDQquAQatQSCA6cECp4EeyJoZWFkZXJzIjogeyJBY2NlcHQtTGFuZ3VhZ2UiOiAiemgtQ04semg7cT0wLjkiLCAiQ29ubmVjdGlvbiI6ICJVcGdyYWRlIiwgIkhvc3QiOiAiMTI3LjAuMC4xOjUxMzY1IiwgIk9yaWdpbiI6ICJodHRwOi8vMTI3LjAuMC4xOjUxMzY1IiwgIlNlYy1XZWJzb2NrZXQtRXh0ZW5zaW9ucyI6ICJwZXJtZXNzYWdlLWRlZmxhdGU7IGNsaWVudF9tYXhfd2luZG93X2JpdHMiLCAiU2VjLVdlYnNvY2tldC1LZXkiOiAiWXRwM1RGNk5sem1YZWVpZWdQdDBzdz09IiwgIlNlYy1XZWJzb2NrZXQtUHJvdG9jb2wiOiAic3RyZWFtbGl0IiwgIlNlYy1XZWJzb2NrZXQtVmVyc2lvbiI6ICIxMyIsICJVcGdyYWRlIjogIndlYnNvY2tldCIsICJVc2VyLUFnZW50IjogIk00Q29udGV4dFByb2JlLzEuMCIsICJYLU00LVByb2JlIjogImFscGhhIn0sICJpcF9hZGRyZXNzIjogbnVsbCwgImlzX2VtYmVkZGVkIjogZmFsc2UsICJsb2NhbGUiOiAiIiwgInRoZW1lIjogeyJ0eXBlIjogIiJ9LCAidGltZXpvbmUiOiAiIiwgInRpbWV6b25lX29mZnNldCI6IDAsICJ1cmwiOiAiIn0SBGpzb27KAwIQAdIDAggB",
+      "message": {
+        "hash": "4ca672b5eb8f8b064f4ae1e1b3ac50e5",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "bc13b8526b3836e440fafb00850a6ed4"
+        },
+        "delta": {
+          "new_element": {
+            "code": {
+              "code_text": "{\"headers\": {\"Accept-Language\": \"zh-CN,zh;q=0.9\", \"Connection\": \"Upgrade\", \"Host\": \"127.0.0.1:51365\", \"Origin\": \"http://127.0.0.1:51365\", \"Sec-Websocket-Extensions\": \"permessage-deflate; client_max_window_bits\", \"Sec-Websocket-Key\": \"Ytp3TF6NlzmXeeiegPt0sw==\", \"Sec-Websocket-Protocol\": \"streamlit\", \"Sec-Websocket-Version\": \"13\", \"Upgrade\": \"websocket\", \"User-Agent\": \"M4ContextProbe/1.0\", \"X-M4-Probe\": \"alpha\"}, \"ip_address\": null, \"is_embedded\": false, \"locale\": \"\", \"theme\": {\"type\": \"\"}, \"timezone\": \"\", \"timezone_offset\": 0, \"url\": \"\"}",
+              "language": "json"
+            },
+            "height_config": {
+              "use_content": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "MAA=",
+      "message": {
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    },
+    {
+      "direction": "client->server",
+      "bytes": 2,
+      "base64": "WgA=",
+      "message": {
+        "rerun_script": {}
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "SgA=",
+      "message": {
+        "session_status_changed": {}
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 411,
+      "base64": "IpgDCq0BCl4KJDc5MDk1MDBjLWU1OWEtNTJlNy05ZjUzLWQzZGUwYzZhN2RmNCokNzkwOTUwMGMtZTU5YS01MmU3LTlmNTMtZDNkZTBjNmE3ZGY0MhBuby1tYWNoaW5lLWlkLXY0GiEKBjEuNjYuMRIOMy4xNC43LmZpbmFsLjAaB3dpbmRvd3MiAhABMiQxOTM0NzE5MS00NmQ1LTQ5YWUtOGI0My04ZjM2N2ZlNzhlNmYSJDQzYzNjZjc1LTk4N2YtNGEyMi05ZWJmLThiY2Y3NmViYTg2MhoLY29udGV4dF9hcHAiQ0M6XFVzZXJzXGtpbGxmXGdpdGh1YlxzdHJlYW1saXQtcnVzdFx0ZXN0c1xyZWZlcmVuY2VcY29udGV4dF9hcHAucHkyBhgCKAFIAUIiCiBiYzEzYjg1MjZiMzgzNmU0NDBmYWZiMDA4NTBhNmVkNEogYmMxM2I4NTI2YjM4MzZlNDQwZmFmYjAwODUwYTZlZDRaIGJjMTNiODUyNmIzODM2ZTQ0MGZhZmIwMDg1MGE2ZWQ0",
+      "message": {
+        "new_session": {
+          "initialize": {
+            "user_info": {
+              "installation_id": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v3": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v4": "no-machine-id-v4"
+            },
+            "environment_info": {
+              "streamlit_version": "1.66.1",
+              "python_version": "3.14.7.final.0",
+              "server_os": "windows"
+            },
+            "session_status": {
+              "script_is_running": true
+            },
+            "session_id": "19347191-46d5-49ae-8b43-8f367fe78e6f"
+          },
+          "script_run_id": "43c3cf75-987f-4a22-9ebf-8bcf76eba862",
+          "name": "context_app",
+          "main_script_path": "C:\\Users\\killf\\github\\streamlit-rust\\tests\\reference\\context_app.py",
+          "config": {
+            "max_cached_message_age": 2,
+            "allow_run_on_save": true,
+            "show_error_links": "SHOW_ERROR_LINKS_AUTO"
+          },
+          "app_pages": [
+            {
+              "page_script_hash": "bc13b8526b3836e440fafb00850a6ed4"
+            }
+          ],
+          "page_script_hash": "bc13b8526b3836e440fafb00850a6ed4",
+          "main_script_hash": "bc13b8526b3836e440fafb00850a6ed4"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 4,
+      "base64": "SgIQAQ==",
+      "message": {
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 645,
+      "base64": "CiA0Y2E2NzJiNWViOGY4YjA2NGY0YWUxZTFiM2FjNTBlNRImEgIAACIgYmMxM2I4NTI2YjM4MzZlNDQwZmFmYjAwODUwYTZlZDQquAQatQSCA6cECp4EeyJoZWFkZXJzIjogeyJBY2NlcHQtTGFuZ3VhZ2UiOiAiemgtQ04semg7cT0wLjkiLCAiQ29ubmVjdGlvbiI6ICJVcGdyYWRlIiwgIkhvc3QiOiAiMTI3LjAuMC4xOjUxMzY1IiwgIk9yaWdpbiI6ICJodHRwOi8vMTI3LjAuMC4xOjUxMzY1IiwgIlNlYy1XZWJzb2NrZXQtRXh0ZW5zaW9ucyI6ICJwZXJtZXNzYWdlLWRlZmxhdGU7IGNsaWVudF9tYXhfd2luZG93X2JpdHMiLCAiU2VjLVdlYnNvY2tldC1LZXkiOiAiWXRwM1RGNk5sem1YZWVpZWdQdDBzdz09IiwgIlNlYy1XZWJzb2NrZXQtUHJvdG9jb2wiOiAic3RyZWFtbGl0IiwgIlNlYy1XZWJzb2NrZXQtVmVyc2lvbiI6ICIxMyIsICJVcGdyYWRlIjogIndlYnNvY2tldCIsICJVc2VyLUFnZW50IjogIk00Q29udGV4dFByb2JlLzEuMCIsICJYLU00LVByb2JlIjogImFscGhhIn0sICJpcF9hZGRyZXNzIjogbnVsbCwgImlzX2VtYmVkZGVkIjogZmFsc2UsICJsb2NhbGUiOiAiIiwgInRoZW1lIjogeyJ0eXBlIjogIiJ9LCAidGltZXpvbmUiOiAiIiwgInRpbWV6b25lX29mZnNldCI6IDAsICJ1cmwiOiAiIn0SBGpzb27KAwIQAdIDAggB",
+      "message": {
+        "hash": "4ca672b5eb8f8b064f4ae1e1b3ac50e5",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "bc13b8526b3836e440fafb00850a6ed4"
+        },
+        "delta": {
+          "new_element": {
+            "code": {
+              "code_text": "{\"headers\": {\"Accept-Language\": \"zh-CN,zh;q=0.9\", \"Connection\": \"Upgrade\", \"Host\": \"127.0.0.1:51365\", \"Origin\": \"http://127.0.0.1:51365\", \"Sec-Websocket-Extensions\": \"permessage-deflate; client_max_window_bits\", \"Sec-Websocket-Key\": \"Ytp3TF6NlzmXeeiegPt0sw==\", \"Sec-Websocket-Protocol\": \"streamlit\", \"Sec-Websocket-Version\": \"13\", \"Upgrade\": \"websocket\", \"User-Agent\": \"M4ContextProbe/1.0\", \"X-M4-Probe\": \"alpha\"}, \"ip_address\": null, \"is_embedded\": false, \"locale\": \"\", \"theme\": {\"type\": \"\"}, \"timezone\": \"\", \"timezone_offset\": 0, \"url\": \"\"}",
+              "language": "json"
+            },
+            "height_config": {
+              "use_content": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "MAA=",
+      "message": {
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    }
+  ],
+  "runs": [
+    {
+      "initialize": {
+        "user_info": {
+          "installation_id": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+          "installation_id_v3": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+          "installation_id_v4": "no-machine-id-v4"
+        },
+        "environment_info": {
+          "streamlit_version": "1.66.1",
+          "python_version": "3.14.7.final.0",
+          "server_os": "windows"
+        },
+        "session_status": {
+          "script_is_running": true
+        },
+        "session_id": "19347191-46d5-49ae-8b43-8f367fe78e6f"
+      },
+      "script_run_id": "0489a0cd-b6a9-4692-9ff6-3feda86ab8b0",
+      "name": "context_app",
+      "main_script_path": "C:\\Users\\killf\\github\\streamlit-rust\\tests\\reference\\context_app.py",
+      "config": {
+        "max_cached_message_age": 2,
+        "allow_run_on_save": true,
+        "show_error_links": "SHOW_ERROR_LINKS_AUTO"
+      },
+      "app_pages": [
+        {
+          "page_script_hash": "bc13b8526b3836e440fafb00850a6ed4"
+        }
+      ],
+      "page_script_hash": "bc13b8526b3836e440fafb00850a6ed4",
+      "main_script_hash": "bc13b8526b3836e440fafb00850a6ed4"
+    }
+  ],
+  "finishes": [
+    0,
+    0
+  ],
+  "unhandled_exceptions": [],
+  "report": {
+    "headers": {
+      "Accept-Language": "zh-CN,zh;q=0.9",
+      "Connection": "Upgrade",
+      "Host": "127.0.0.1:51365",
+      "Origin": "http://127.0.0.1:51365",
+      "Sec-Websocket-Extensions": "permessage-deflate; client_max_window_bits",
+      "Sec-Websocket-Key": "Ytp3TF6NlzmXeeiegPt0sw==",
+      "Sec-Websocket-Protocol": "streamlit",
+      "Sec-Websocket-Version": "13",
+      "Upgrade": "websocket",
+      "User-Agent": "M4ContextProbe/1.0",
+      "X-M4-Probe": "alpha"
+    },
+    "ip_address": null,
+    "is_embedded": false,
+    "locale": "",
+    "theme": {
+      "type": ""
+    },
+    "timezone": "",
+    "timezone_offset": 0,
+    "url": ""
+  },
+  "server_pid": 51396,
+  "health": {
+    "status": 200,
+    "body": "ok"
+  },
+  "handshake": {
+    "status": 101,
+    "subprotocol": "streamlit",
+    "headers": [
+      [
+        "upgrade",
+        "websocket"
+      ],
+      [
+        "connection",
+        "Upgrade"
+      ],
+      [
+        "sec-websocket-accept",
+        "MhO5NlYKaZJO95Oh9k2HMCU9b1Y="
+      ],
+      [
+        "date",
+        "Wed, 28 Oct 2026 05:29:24 GMT"
+      ],
+      [
+        "server",
+        "uvicorn"
+      ],
+      [
+        "sec-websocket-protocol",
+        "streamlit"
+      ]
+    ]
+  },
+  "cleanup": {
+    "websocket_closed": true,
+    "close_code": 1000,
+    "server_stopped": true
+  }
+}

@@ -244,9 +244,13 @@
       "compatibility_status": "not_applicable",
       "evidence": {
         "official_document_sha256": "a9c52926368822a0eb8ae0e7307dd497809d766432a70431458756ba25d6ec6b",
-        "python_browser_trace": null
+        "python_browser_trace": null,
+        "m4_python_reference": [
+          "tests/reference/reference-browser/context-headers/trace.json",
+          "tests/reference/reference-browser/context-headers/README.md"
+        ]
       },
-      "not_applicable_reason": "Read-only reflection of the hosting platform's request context (headers, cookies, locale); the embedded Rust runtime does not proxy a host platform, so there is no request context to surface."
+      "not_applicable_reason": "Re-opened for M4 (2026-10-28): the runtime terminates the browser connection itself, so a request context does exist. A frozen 1.66.1 protocol reference now measures the public surface — every WS handshake header is reflected without a whitelist, ip_address is null without X-Forwarded-For, and url/timezone/locale/theme stay empty because they come from the browser session, not the handshake. The Rust interface (read-only per-run snapshot with a default header whitelist, credentials gated) is proposed in the guide and awaits confirmation before implementation; no Rust code claims this surface yet."
     },
     {
       "feature_id": "st.query_params",

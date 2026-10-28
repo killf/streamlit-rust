@@ -224,6 +224,10 @@ WS 回归 `generic_vega_same_shape_updates_change_the_dataset_identity` 驱动 0
 
 PKG-A 与宏支撑 A 实施后逐项对照 M6 退出条件（"干净环境可依文档构建、安装并完成代表性应用；不是公开发布"）：API 一致性（矩阵、易用性规则、rustdoc 与指南一致）、完整示例（42 个全部构建、指南索引）、文档与本地安装产物（含 sidecar 对照与单依赖 consumer 交互）已有保留证据；宏与分发两项待决已全部落地。剩余缺口是"干净环境"字面验证：本机 Windows 为缓存工具链 + 缓存依赖 + vendored protoc，无缓存新机器、MSRV、Linux/macOS 与系统运行库均无证据，不能从本机推断。因此 M6 保持开放，退出仅差跨环境构建验证；这不是本会话可在此机器上补齐的证据，后续以新环境构建批次关闭。无公开发布， crates.io 发布不在范围。
 
+## Current M4 runtime-integration start (2026-10-28)
+
+M4 运行集成启动，按"文档先行、参考测量先于实现"执行。指南新增设计草案章节（请求上下文/认证与用户信息/配置三块，明确标注未实现、拟议接口待确认）；首个切片选 st.context：参考应用 + 带 固定探测头 的原生 WS 采集器一次成功并冻结于 `tests/reference/reference-browser/context-headers/`（11 帧、两轮 rerun 报告逐字相同、清理干净），离线测试双向断言。实测设计输入：Python 反映全部握手头（无白名单），直连 ip 为 null，url/timezone/locale/theme 来自浏览器会话而非握手（原生连接下为空）——Rust 拟议默认白名单构成刻意安全偏离并已在指南与矩阵标注。矩阵 st.context 的 not_applicable 理由按实测重写（运行时自身终结浏览器连接，请求上下文存在），证据挂参考；实现状态仍为未实现，不冒称任何 Rust 能力。采集器首次运行的头部解码笔误发生在 trace 写出前，属采集器编程失误，修正后一次成功，无失败前缀保留。config.toml 注册表与 secrets 文件存储维持不适用；认证/用户信息切片待设计确认后推进。
+
 ## Required fresh-checkout checks
 
 ```powershell
