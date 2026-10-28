@@ -354,6 +354,10 @@ M3 可测面切片（json/badge/feedback 簇）。冻结 Python 参考 `tests/re
 
 M3 可测面切片（录制控件簇）。冻结 Python 参考 `tests/reference/reference-browser/recorder-params/`（3 元素）与 Rust 对照 **3/3 字段一致——零实现改动**：audio_input 显式 sample_rate=44100 进消息；camera_input 默认拍照模式消息仅 label/label_visibility（无 capture 字段）。提交行为（真实麦克风/摄像头）headless 不可测，维持 pickers 链边界。矩阵 st.audio_input 收窄；st.camera_input 原无 limitations 首次补测量记录；清单再生成。
 
+## Current text-family parameter validation (2026-10-29)
+
+M3 可测面切片（文本族簇）。冻结 Python 参考 `tests/reference/reference-browser/text-misc-params/`（5 元素）与 Rust 对照 **5/5 字段一致**。修复两处真实偏差：`st.latex` 此前发普通 NATIVE markdown + wrap true（应为 **LATEX 类型 + wrap 缺省**）；`st.divider` 此前 wrap true（应缺省）——`MarkdownElement::wrap` 因此改为 `Option<bool>`，与此前 badge 修复共同确立"markdown 族各元素 wrap 语义独立实测"的规则。`st.help` 四字段（doc_string/name/type=callable 种类/value=完整签名）经参考对齐示例用法（Rust 显式 API 设计不变）；`st.text` 的显式 wrap true 为零改动确认。矩阵 st.latex/st.help/st.divider/st.text 四条目收窄（其中三条原无 limitations 首获测量记录）；清单再生成。
+
 ## Required fresh-checkout checks
 
 ```powershell

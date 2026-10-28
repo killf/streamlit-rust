@@ -24,7 +24,7 @@ pub(crate) struct MarkdownElement {
     width: Option<ElementWidth>,
     text_alignment: Option<TextAlignment>,
     unterminated_parsing: bool,
-    wrap: bool,
+    wrap: Option<bool>,
 }
 
 /// The reference's clean_text: dedent the common leading whitespace, then
@@ -46,7 +46,7 @@ impl MarkdownElement {
             width: None,
             text_alignment: None,
             unterminated_parsing: false,
-            wrap: true,
+            wrap: Some(true),
         }
     }
 
@@ -70,6 +70,13 @@ impl MarkdownElement {
         self
     }
 
+    /// Text wrapping; None leaves the field unset (measured unset on
+    /// latex, divider, and badge markdown).
+    pub(crate) fn wrap(mut self, value: Option<bool>) -> Self {
+        self.wrap = value;
+        self
+    }
+
     pub fn element_type(mut self, value: MarkdownElementType) -> Self {
         self.element_type = value;
         self
@@ -85,7 +92,7 @@ impl MarkdownElement {
 
 impl Element for MarkdownElement {
     fn render(&self, context: &mut RenderContext) -> Result<(), StreamlitError> {
-        let element_hash = hash(format!("markdown_{}_{:?}_{:?}_{:?}_{}_{}", self.body, self.unsafe_allow_html, self.width, self.text_alignment, self.unterminated_parsing, self.wrap).as_str());
+        let element_hash = hash(format!("markdown_{}_{:?}_{:?}_{:?}_{}_{:?}", self.body, self.unsafe_allow_html, self.width, self.text_alignment, self.unterminated_parsing, self.wrap).as_str());
         let mut msg = delta_base_with_path(context.delta_path.clone(), context.active_script_hash.clone(), element_hash);
 
         let width_config: Option<WidthConfig> = self.width.clone().map(Into::into);
@@ -104,7 +111,7 @@ impl Element for MarkdownElement {
                     body: self.body.clone(),
                     unterminated_parsing: self.unterminated_parsing,
                     hide_anchors: false,
-                    wrap: Some(self.wrap),
+                    wrap: self.wrap,
                     allow_html: self.unsafe_allow_html,
                     element_type: self.element_type as i32,
                     help: self.help.clone().unwrap_or_default(),

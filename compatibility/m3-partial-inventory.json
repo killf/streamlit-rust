@@ -665,7 +665,9 @@
       "buckets": [
         "no-explicit-gap-stated"
       ],
-      "limitations": []
+      "limitations": [
+        "The default divider is now measured (2026-10-29, frozen text-misc-params) as DIVIDER-typed markdown with wrap left unset — fixing a real Rust divergence (wrap true); MarkdownElement::wrap is now Option to distinguish explicit false from omission."
+      ]
     },
     {
       "feature_id": "st.download_button",
@@ -825,6 +827,7 @@
         "unmeasured-parameters"
       ],
       "limitations": [
+        "The full field shape is now measured (2026-10-29, frozen text-misc-params): doc_string plus name, the callable KIND as type (\"method\"), and the complete signature as value; the Rust explicit API reproduces all four field-for-field.",
         "Coverage is the journey-display2-v1 chain: the pinned fixture's presentation leftovers (an emoji logo, st.help over a builtin, a skeleton placeholder and st.pdf's no-component exception) across the load stage.",
         "The builtin len help shape was observed; other object kinds and the interactive disclosure remain unobserved because the fields are caller-supplied in Rust.",
         "fixture SHA256 510eec70e4841262091df7cd674010f86aa3dadc8d6c89747f149b22997805cc; example SHA256 e24913670e6fe46c58556fa3bf58fcb396432e617e4e0a5059c58c907ba8b05a."
@@ -900,7 +903,7 @@
         "unmeasured-parameters"
       ],
       "limitations": [
-        "Coverage is the measured defaults of each element (one call each on one page); text/subheader width and alignment overrides, html unsafe_allow_javascript, iframe srcdoc/tab_index/alt/height overrides, echo code_location and st.echo of containers, exception message_is_markdown and non-default widths remain unobserved.",
+        "The element typing is now measured (2026-10-29, frozen text-misc-params): the display formula rides LATEX-typed markdown with wrap left unset — fixing a real Rust divergence (plain NATIVE markdown with wrap true). Coverage is otherwise the measured defaults of each element (one call each on one page); text/subheader width and alignment overrides, html unsafe_allow_javascript, iframe srcdoc/tab_index/alt/height overrides, echo code_location and st.echo of containers, exception message_is_markdown and non-default widths remain unobserved.",
         "The echoed code text and the exception trace lines are each app's own source: Rust callers supply them explicitly (st.echo takes the snippet; st.exception takes the trace lines), the language stays python and the trace is judged by line count.",
         "fixture SHA256 1b15aba28d2d3b9dca0828ead6a1714040dbe792a640c809941bedcfd1dd573c; example SHA256 e11833903ce9c3ab5d1b96547e17a174121fa43c03ad88248e460476c2e986a0; text element source SHA256 ba29eeb7f2518ba07356f01b081af8d117042bd0f4ce507d4828798a40120fab."
       ]
@@ -1408,6 +1411,7 @@
         "unmeasured-parameters"
       ],
       "limitations": [
+        "The plain body is now measured (2026-10-29, frozen text-misc-params) with wrap explicitly true — confirmed field-identical with zero implementation change.",
         "Coverage is the measured defaults of each element (one call each on one page); text/subheader width and alignment overrides, html unsafe_allow_javascript, iframe srcdoc/tab_index/alt/height overrides, echo code_location and st.echo of containers, exception message_is_markdown and non-default widths remain unobserved.",
         "The echoed code text and the exception trace lines are each app's own source: Rust callers supply them explicitly (st.echo takes the snippet; st.exception takes the trace lines), the language stays python and the trace is judged by line count.",
         "fixture SHA256 1b15aba28d2d3b9dca0828ead6a1714040dbe792a640c809941bedcfd1dd573c; example SHA256 e11833903ce9c3ab5d1b96547e17a174121fa43c03ad88248e460476c2e986a0; text element source SHA256 ba29eeb7f2518ba07356f01b081af8d117042bd0f4ce507d4828798a40120fab."

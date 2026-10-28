@@ -1923,7 +1923,10 @@ impl<C: AppendChild> StreamlitApi for C {
     }
 
     fn latex(&self, formula: impl Into<String>) {
-        self.markdown(format!("$$\n{}\n$$", formula.into()));
+        // Measured (text-misc-params): the reference emits the display
+        // formula as LATEX-typed markdown with wrap LEFT UNSET.
+        let element = MarkdownElement::new(format!("$$\n{}\n$$", formula.into())).element_type(MarkdownElementType::Latex).wrap(None);
+        self.push(Rc::new(RefCell::new(element)));
     }
 
     fn html<T: Into<HtmlOptions>>(&self, body: T) {
@@ -2149,7 +2152,7 @@ impl<C: AppendChild> StreamlitApi for C {
 
     fn divider_options<T: Into<DividerOptions>>(&self, options: T) {
         let body = options.into();
-        let element = MarkdownElement::new("---".to_string()).element_type(MarkdownElementType::Divider).width(match body {
+        let element = MarkdownElement::new("---".to_string()).element_type(MarkdownElementType::Divider).wrap(None).width(match body {
             DividerOptions::Stretch => ElementWidth::Stretch,
             DividerOptions::Width(v) => ElementWidth::Value(v),
         });
