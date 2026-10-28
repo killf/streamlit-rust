@@ -18,11 +18,30 @@ use parking_lot::Mutex;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-/// Expander options: the measured subset (label, expanded, icon).
+/// The expander's visual style (Python `type=`): the bordered default or the
+/// minimal compact toggle; STEP stays unmeasured.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum ExpanderKind {
+    #[default]
+    Default,
+    Compact,
+}
+
+impl ExpanderKind {
+    fn wire(self) -> crate::proto::block::expandable::Type {
+        match self {
+            Self::Default => crate::proto::block::expandable::Type::Default,
+            Self::Compact => crate::proto::block::expandable::Type::Compact,
+        }
+    }
+}
+
+/// Expander options: label, expanded, icon, and the visual style.
 pub struct ExpanderOptions {
     label: String,
     expanded: bool,
     icon: String,
+    pub(crate) kind: ExpanderKind,
 }
 
 impl ExpanderOptions {
@@ -31,6 +50,7 @@ impl ExpanderOptions {
             label: label.into(),
             expanded: false,
             icon: String::new(),
+            kind: ExpanderKind::Default,
         }
     }
     pub fn expanded(mut self, expanded: bool) -> Self {
@@ -41,6 +61,12 @@ impl ExpanderOptions {
         self.icon = icon.into();
         self
     }
+    /// The visual style: the bordered default or the minimal inline toggle
+    /// (Python `type="compact"`).
+    pub fn kind(mut self, kind: ExpanderKind) -> Self {
+        self.kind = kind;
+        self
+    }
 }
 
 impl From<&str> for ExpanderOptions {
@@ -49,19 +75,69 @@ impl From<&str> for ExpanderOptions {
     }
 }
 
-/// Popover options: the measured subset (label, icon, use_container_width
-/// carried by the block's content width).
+/// The popover's button style (Python `type=`): secondary (default) or
+/// primary.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum PopoverKind {
+    #[default]
+    Secondary,
+    Primary,
+}
+
+impl PopoverKind {
+    fn wire(self) -> &'static str {
+        match self {
+            Self::Secondary => "secondary",
+            Self::Primary => "primary",
+        }
+    }
+}
+
+/// Popover options: label, icon, button style, help, disabled, and whether
+/// the trigger stretches with the container (the block's width).
 pub struct PopoverOptions {
     label: String,
     icon: String,
+    pub(crate) kind: PopoverKind,
+    pub(crate) help: String,
+    pub(crate) disabled: bool,
+    pub(crate) use_container_width: bool,
 }
 
 impl PopoverOptions {
     pub fn new(label: impl Into<String>) -> Self {
-        Self { label: label.into(), icon: String::new() }
+        Self {
+            label: label.into(),
+            icon: String::new(),
+            kind: PopoverKind::Secondary,
+            help: String::new(),
+            disabled: false,
+            use_container_width: false,
+        }
     }
     pub fn icon(mut self, icon: impl Into<String>) -> Self {
         self.icon = icon.into();
+        self
+    }
+    /// The trigger's button style (Python `type="primary"`).
+    pub fn kind(mut self, kind: PopoverKind) -> Self {
+        self.kind = kind;
+        self
+    }
+    /// The trigger's help tooltip text.
+    pub fn help(mut self, help: impl Into<String>) -> Self {
+        self.help = help.into();
+        self
+    }
+    /// Disable the trigger.
+    pub fn disabled(mut self, disabled: bool) -> Self {
+        self.disabled = disabled;
+        self
+    }
+    /// Stretch the trigger with the container (the block carries a stretch
+    /// width instead of content).
+    pub fn use_container_width(mut self, value: bool) -> Self {
+        self.use_container_width = value;
         self
     }
 }
@@ -75,6 +151,7 @@ impl From<&str> for PopoverOptions {
 /// Tabs options: just the labels, in order.
 pub struct TabsOptions<'a> {
     pub(crate) labels: Vec<String>,
+    pub(crate) default_tab: Option<String>,
     _marker: std::marker::PhantomData<&'a ()>,
 }
 
@@ -82,8 +159,17 @@ impl<'a> TabsOptions<'a> {
     pub fn new(labels: impl IntoIterator<Item = impl Into<String>>) -> Self {
         Self {
             labels: labels.into_iter().map(Into::into).collect(),
+            default_tab: None,
             _marker: std::marker::PhantomData,
         }
+    }
+
+    /// The label of the tab selected on load (Python's `default` takes a
+    /// label, not a position). An unknown label is logged and ignored —
+    /// Python raises instead; the divergence is recorded in the guide.
+    pub fn default_tab(mut self, label: impl Into<String>) -> Self {
+        self.default_tab = Some(label.into());
+        self
     }
 }
 
@@ -107,7 +193,11 @@ impl<'a> From<&'a Vec<&'a str>> for TabsOptions<'a> {
 
 impl<'a> From<Vec<String>> for TabsOptions<'a> {
     fn from(labels: Vec<String>) -> Self {
-        Self { labels, _marker: std::marker::PhantomData }
+        Self {
+            labels,
+            default_tab: None,
+            _marker: std::marker::PhantomData,
+        }
     }
 }
 
@@ -326,6 +416,7 @@ impl Element for ExpanderElement {
                     label: self.options.label.clone(),
                     expanded: Some(self.options.expanded),
                     icon: self.options.icon.clone(),
+                    r#type: self.options.kind.wire() as i32,
                     ..Default::default()
                 })),
             })),
@@ -357,8 +448,15 @@ impl PopoverElement {
 
 impl Element for PopoverElement {
     fn render(&self, context: &mut RenderContext) -> Result<(), StreamlitError> {
-        let element_hash = hash(format!("popover_{}_{}", self.options.label, self.options.icon).as_str());
+        let element_hash = hash(
+            format!(
+                "popover_{}_{}_{:?}_{}_{}_{}",
+                self.options.label, self.options.icon, self.options.kind, self.options.help, self.options.disabled, self.options.use_container_width
+            )
+            .as_str(),
+        );
         let mut msg = delta_base_with_path(context.delta_path.clone(), context.active_script_hash.clone(), element_hash);
+        let width = if self.options.use_container_width { ElementWidth::Stretch } else { ElementWidth::Content };
         msg.r#type = Some(forward_msg::Type::Delta(Delta {
             fragment_id: String::new(),
             r#type: Some(delta::Type::AddBlock(Block {
@@ -366,13 +464,13 @@ impl Element for PopoverElement {
                 allow_empty: true,
                 id: None,
                 height_config: None,
-                width_config: Some(ElementWidth::Content.into()),
+                width_config: Some(width.into()),
                 r#type: Some(crate::proto::block::Type::Popover(PopoverProto {
                     label: self.options.label.clone(),
-                    help: String::new(),
-                    disabled: false,
+                    help: self.options.help.clone(),
+                    disabled: self.options.disabled,
                     icon: self.options.icon.clone(),
-                    r#type: "secondary".into(),
+                    r#type: self.options.kind.wire().into(),
                     open: Some(false),
                     ..Default::default()
                 })),
@@ -395,14 +493,26 @@ impl Element for PopoverElement {
 /// One tab: its block (label only) and the elements written inside it.
 pub(crate) struct TabsElement {
     labels: Vec<String>,
+    default_tab_index: Option<usize>,
     pub(crate) tabs: Vec<Vec<Rc<RefCell<dyn Element>>>>,
 }
 
 impl TabsElement {
-    pub fn new(labels: Vec<String>) -> Self {
+    pub fn new(labels: Vec<String>, default_tab: Option<String>) -> Self {
+        let default_tab_index = match default_tab {
+            Some(label) => match labels.iter().position(|candidate| candidate == &label) {
+                Some(index) => Some(index),
+                None => {
+                    log::error!("st.tabs default_tab {label:?} matches no tab label; Python raises here");
+                    None
+                }
+            },
+            None => None,
+        };
         Self {
             tabs: labels.iter().map(|_| Vec::new()).collect(),
             labels,
+            default_tab_index,
         }
     }
 
@@ -413,7 +523,7 @@ impl TabsElement {
 
 impl Element for TabsElement {
     fn render(&self, context: &mut RenderContext) -> Result<(), StreamlitError> {
-        let element_hash = hash(format!("tabs_{}", self.labels.join("|")).as_str());
+        let element_hash = hash(format!("tabs_{}_{:?}", self.labels.join("|"), self.default_tab_index).as_str());
         let mut msg = delta_base_with_path(context.delta_path.clone(), context.active_script_hash.clone(), element_hash);
         msg.r#type = Some(forward_msg::Type::Delta(Delta {
             fragment_id: String::new(),
@@ -423,7 +533,10 @@ impl Element for TabsElement {
                 id: None,
                 height_config: Some(ElementHeight::Content.into()),
                 width_config: Some(ElementWidth::Stretch.into()),
-                r#type: Some(crate::proto::block::Type::TabContainer(TabContainer::default())),
+                r#type: Some(crate::proto::block::Type::TabContainer(TabContainer {
+                    default_tab_index: self.default_tab_index.map(|index| index as i32).unwrap_or(0),
+                    ..Default::default()
+                })),
             })),
         }));
         context.push(msg);
@@ -842,7 +955,7 @@ impl StatusState {
 /// path with the new payload (the measured 1.66.1 shape).
 pub(crate) struct StatusElement {
     label: String,
-    expanded: bool,
+    expanded: Option<bool>,
     icon: String,
     state: crate::proto::block::expandable::State,
     pub(crate) children: Vec<Rc<RefCell<dyn Element>>>,
@@ -852,7 +965,7 @@ impl StatusElement {
     pub fn new(label: String, expanded: bool) -> Self {
         Self {
             label,
-            expanded,
+            expanded: Some(expanded),
             icon: StatusState::Running.icon().to_string(),
             state: StatusState::Running.wire(),
             children: Vec::new(),
@@ -867,9 +980,9 @@ impl StatusElement {
             self.state = state.wire();
             self.icon = state.icon().to_string();
         }
-        if let Some(expanded) = expanded {
-            self.expanded = expanded;
-        }
+        // Measured: an update without `expanded` re-streams the block with
+        // the field unset (None clears it); only passing it re-arms the value.
+        self.expanded = expanded;
     }
 }
 
@@ -889,8 +1002,8 @@ impl Element for StatusElement {
 }
 
 impl StatusElement {
-    fn render_block(&self, context: &mut RenderContext, label: String, icon: String, state: crate::proto::block::expandable::State, expanded: bool) -> Result<(), StreamlitError> {
-        let element_hash = hash(format!("status_{label}_{icon}_{expanded}_{}", state.as_str_name()).as_str());
+    fn render_block(&self, context: &mut RenderContext, label: String, icon: String, state: crate::proto::block::expandable::State, expanded: Option<bool>) -> Result<(), StreamlitError> {
+        let element_hash = hash(format!("status_{label}_{icon}_{expanded:?}_{}", state.as_str_name()).as_str());
         let mut msg = delta_base_with_path(context.delta_path.clone(), context.active_script_hash.clone(), element_hash);
         msg.r#type = Some(forward_msg::Type::Delta(Delta {
             fragment_id: String::new(),
@@ -902,7 +1015,7 @@ impl StatusElement {
                 width_config: Some(ElementWidth::Stretch.into()),
                 r#type: Some(crate::proto::block::Type::Expandable(Expandable {
                     label,
-                    expanded: Some(expanded),
+                    expanded,
                     icon,
                     state: state as i32,
                     ..Default::default()

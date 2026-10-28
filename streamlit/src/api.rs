@@ -8,7 +8,7 @@ use crate::elements::container::{Container, ContainerElement};
 use crate::elements::exception::AppException;
 pub use crate::elements::form::Form;
 use crate::elements::form::{FormElement, validate_form_dimensions};
-pub use crate::elements::layouts::{Bottom, ChatMessage, ChatMessageOptions, DialogBody, DialogOptions, EmptyHandle, Expander, ExpanderOptions, Popover, PopoverOptions, Sidebar, Status, StatusState, Tab, TabsOptions};
+pub use crate::elements::layouts::{Bottom, ChatMessage, ChatMessageOptions, DialogBody, DialogOptions, EmptyHandle, Expander, ExpanderKind, ExpanderOptions, Popover, PopoverKind, PopoverOptions, Sidebar, Status, StatusState, Tab, TabsOptions};
 use crate::elements::layouts::{ChatMessageElement, DialogElement, ExpanderElement, PopoverElement, StatusElement, TabsElement};
 use crate::elements::markdown::{MarkdownElement, MarkdownElementType};
 use crate::elements::status::{StatusElement as AlertStatusElement, status_content};
@@ -2202,7 +2202,7 @@ impl<C: AppendChild> StreamlitApi for C {
         if options.labels.is_empty() {
             return &[];
         }
-        let element = Rc::new(RefCell::new(TabsElement::new(options.labels)));
+        let element = Rc::new(RefCell::new(TabsElement::new(options.labels, options.default_tab)));
         let app = self.get_app();
         let base_path = self.next_child_path();
         self.push(element.clone());

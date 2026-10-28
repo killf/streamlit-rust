@@ -276,6 +276,12 @@ M3 媒体参数切片（用户同日追认 M4 公共形态并关闭 M4，见上�
 
 Rust 实施：`AudioOptions/VideoOptions` 新构建器（start_time/end_time/loop_/autoplay/muted/subtitle）；`AudioElement/VideoElement` 携带参数并在 autoplay 时生成同形 id；`media::extension` 按 实测拆分 x-wav（裸地址）并新增 `text/vtt`；`subtitle_track` 做 VTT/SRT 校验与 SRT→VTT 转换（SRT 路径按参考规则实现、未实测）；非法字幕经既有 `AppException` 渲染同形异常（堆栈为 Rust 真实上下文行）。验证：WS 运行时回归（整秒截断、裸地址、$$ID 形状、字幕轨、异常元素）+ 同采集器 --url 对照（六元素字段逐项一致、**payload URL 逐哈希跨端一致**、异常消息逐字一致；autoplay id 与字幕 URL 哈希为记录的运行时身份差异）+ 离线双向断言。参考 app 两次修正（subtitles 需 VTT 文本而非 data: URL、转义损坏）发生在冻结确立前，属采集 fixture 编程修正。边界：SRT 转换、多音轨、YouTube/URL 输入、alt 未测。
 
+## Current layout/streaming parameters validation (2026-10-28)
+
+M3 布局/流式参数切片。冻结 Python 参考 `tests/reference/reference-browser/layout-params/`（原生 WS，逐 add_block/new_element 含块级字段）：expander `type=compact` → COMPACT、icon 透传；popover primary/help/disabled + use_container_width（块级 stretch）；tabs `default=` **接受标签**（索引实测抛 StreamlitValueError）→ `default_tab_index`；dialog width=LARGE 两段发射（`$$ID` + `is_open`）；status update 的 **None 清除 expanded** 语义；toast duration short=4/long=10/毫秒原值；spinner show_time 原生 WS 无可观测增量。
+
+Rust 实施：`ExpanderKind`/`PopoverKind` 枚举与 `kind()/help()/disabled()/use_container_width()`/`default_tab()` 构建器；status 的 expanded 改 `Option<bool>`（初始置位、update 传则置/不传则清除，对齐实测）；TabContainer 携带 default_tab_index。验证：同一采集器 --url 对照——**14/14 块发射字段逐字一致**；WS 回归断言 COMPACT 类型、popover 全参数与块级 stretch、default_tab_index、status 三态与 None 清除；离线双向断言。记录差异：tabs 未知 default 标签 Python 抛错、Rust 日志忽略；spinner show_time 未提供。采集器三次修正（add_block 字段名/oneof 名/块级字段）发生在冻结确立前。边界：STEP expander、popover wrap、tabs 宽度、toast 容器内发射未测。
+
 ## Required fresh-checkout checks
 
 ```powershell

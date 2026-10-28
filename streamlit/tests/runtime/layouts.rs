@@ -269,3 +269,105 @@ fn dialog_id_is_deterministic_and_input_sensitive() {
     assert_ne!(first, crate::elements::layouts::dialog_id(&DialogOptions::new("Confirm").dismissible(false), "aaaa"), "dismissible is mixed in");
     assert_ne!(first, crate::elements::layouts::dialog_id(&DialogOptions::new("Confirm").icon(":material/check:"), "aaaa"), "the icon is mixed in");
 }
+
+/// The frozen layout-params reference: expander kind/icon, popover style/
+/// help/disabled/container width, tabs default label, and the status update's
+/// None-clears-expanded semantics — every block field measured on 1.66.1.
+fn layout_params_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        use crate::{ExpanderKind, ExpanderOptions, PopoverKind, PopoverOptions, StatusState, TabsOptions};
+        let expander = st.expander_options(ExpanderOptions::new("Compact").icon(":material/add:").kind(ExpanderKind::Compact));
+        expander.write("inside");
+        let popover = st.popover_options(PopoverOptions::new("Primary").kind(PopoverKind::Primary).use_container_width(true).disabled(true).help("h"));
+        popover.write("inside");
+        let tabs = st.tabs(TabsOptions::new(["A", "B", "C"]).default_tab("B"));
+        tabs[1].write("tab two");
+        let status = st.status(crate::StatusContainerOptions::new("Working"));
+        status.write("step");
+        status.update(Some("Done".into()), Some(StatusState::Complete), Some(false));
+        status.update(Some("Again".into()), None, None);
+    })
+}
+
+#[actix_web::test]
+async fn layout_parameter_blocks_match_the_frozen_reference() -> TestResult {
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
+    let server = HttpServer::new(move || App::new().app_data(web::Data::new(StreamlitServer::new(layout_params_entry, "127.0.0.1".into(), 0))).configure(configure_routes))
+        .workers(1)
+        .listen(listener)?
+        .run();
+    let handle = server.handle();
+    let task = actix_web::rt::spawn(server);
+    let mut stream = sessions::connect(address, None).await;
+    send_binary(
+        &mut stream,
+        &(BackMsg {
+            r#type: Some(back_msg::Type::RerunScript(ClientState::default())),
+        })
+        .encode_to_vec(),
+    )
+    .await;
+    let mut blocks = Vec::new();
+    loop {
+        let message = receive(&mut stream).await;
+        match message.r#type {
+            Some(forward_msg::Type::Delta(delta)) => {
+                if let Some(delta::Type::AddBlock(block)) = delta.r#type {
+                    blocks.push(block);
+                }
+            }
+            Some(forward_msg::Type::ScriptFinished(status)) => {
+                assert_eq!(status, 0);
+                break;
+            }
+            _ => {}
+        }
+    }
+    let expandables: Vec<_> = blocks
+        .iter()
+        .filter_map(|block| match block.r#type.as_ref() {
+            Some(crate::proto::block::Type::Expandable(expandable)) => Some(expandable),
+            _ => None,
+        })
+        .collect();
+    let compact = expandables[0];
+    assert!(compact.r#type == crate::proto::block::expandable::Type::Compact as i32);
+    assert_eq!(compact.icon, ":material/add:");
+    let popover = blocks
+        .iter()
+        .find_map(|block| match block.r#type.as_ref() {
+            Some(crate::proto::block::Type::Popover(popover)) => Some(popover),
+            _ => None,
+        })
+        .ok_or("popover block must render")?;
+    assert_eq!(popover.r#type, "primary");
+    assert!(popover.disabled && popover.help == "h" && popover.open == Some(false));
+    let popover_block = blocks.iter().find(|block| matches!(block.r#type.as_ref(), Some(crate::proto::block::Type::Popover(_)))).ok_or("popover block")?;
+    assert!(
+        popover_block
+            .width_config
+            .as_ref()
+            .is_some_and(|width| matches!(width.width_spec, Some(crate::proto::streamlit::width_config::WidthSpec::UseStretch(true)))),
+        "use_container_width rides the block stretch width"
+    );
+    let tabs = blocks
+        .iter()
+        .find_map(|block| match block.r#type.as_ref() {
+            Some(crate::proto::block::Type::TabContainer(container)) => Some(container),
+            _ => None,
+        })
+        .ok_or("tab container must render")?;
+    assert_eq!(tabs.default_tab_index, 1);
+    // status: explicit expanded survives one update; an update without it
+    // re-streams with the field cleared (measured None-clears semantics).
+    assert_eq!(expandables[1].label, "Working");
+    assert_eq!(expandables[2].label, "Done");
+    assert_eq!(expandables[2].expanded, Some(false));
+    assert_eq!(expandables[3].label, "Again");
+    assert_eq!(expandables[3].expanded, None);
+    drop(stream);
+    handle.stop(false).await;
+    task.await??;
+    Ok(())
+}

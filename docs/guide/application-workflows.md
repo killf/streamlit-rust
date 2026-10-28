@@ -225,6 +225,10 @@ Rust 已采纳方案 A：显示转换保留真实行数并合成虚拟 RangeInde
 
 运行 `cargo run --example zero_columns --locked`（默认 `http://127.0.0.1:8580/`）：**Two rows**（key `zero-two`）在 0↔2 行间切换，**Ordinary rerun** 触发普通重跑；dataframe、enabled/disabled 两个固定行编辑器和显示索引的 table 走同一 0→2→重跑→0 流程，Rust 真实前端对照见[rust 采集证据](../../tests/browser/rust-zero-columns/README.md)。Python 9＋3 静态单元参考没有重采，也没有把原错误轨迹改成成功；动态行编辑、任意 schema/metadata 组合仍未验证。
 
+## 布局与流式参数
+
+冻结参考实测的参数面（[参考](../../tests/reference/reference-browser/layout-params/README.md)，Rust 侧 14/14 块发射逐字一致）：`ExpanderOptions::kind(ExpanderKind::Compact)`（Python `type="compact"`，默认带边框）；`PopoverOptions` 的 `kind(PopoverKind::Primary)`、`help`、`disabled`、`use_container_width(true)`（由块级 stretch 宽度承载）；`TabsOptions::default_tab("Beta")`——**接受标签而非索引**（Python 传索引抛错；Rust 未知标签记日志忽略，为记录差异）；`DialogOptions::width(DialogWidth::Large)`（`width: LARGE`，两段发射含 `is_open`）；status 的 `update(label, state, expanded)`——**未传 expanded 时重发不带该字段**（None 清除，实测语义）；`ToastOptions::duration`（秒：short=4、long=10、毫秒整数按原值）。spinner `show_time` 在原生 WS 无可观测增量，Rust 未提供该参数不冒称等价。
+
 ## 运行配置面（显式旋钮）
 
 Rust 不解析 `config.toml`（矩阵既有边界：Python 的 TOML 注册表不是兼容目标）；运行项全部是**显式**的服务器构建器与宏参数，无隐藏配置文件。完整清单：
