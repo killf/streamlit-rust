@@ -44,7 +44,7 @@ M5 的独立媒体响应优化已改用共享不可变字节，消除每次 GET 
 
 WS 日志已在真实红→绿后移除完整 protobuf/文本/关闭描述展开，保留种类、长度、数量、运行耗时和错误摘要。隔离合成场景的日志从 131,289 降为 3,704 字节、五类载荷标记降为零，原 WS 行为保持；格式、Clippy 和当前 197 项 Rust 检查通过。[验收边界](acceptance.md#current-websocket-logging-validation-2026-10-28)不含 CPU/网络吞吐或完整安全/第三方日志保证，未重采 Python，也不关闭 M5。
 
-M3 原生输入边界已修复 RGBA 尺寸计算 panic，以及无编辑编辑器复制中的 metadata 丢失/零列 panic；200 项当前 Rust 和 47 项矩阵检查通过，release 补验另见[实际验收状态](acceptance.md#current-native-input-boundary-validation-2026-10-28)。零列公开编辑器仍在后续显示转换返回 Arrow 错误，不以无 panic 代替呈现兼容；没有新接口、依赖、编辑规则或 Python 重采，M3 保持未完成。
+M3 原生输入边界已修复 RGBA 尺寸计算 panic，以及无编辑编辑器复制中的 metadata 丢失/零列 panic；200 项当前 Rust 和 47 项矩阵检查通过，release 补验另见[实际验收状态](acceptance.md#current-native-input-boundary-validation-2026-10-28)。零列呈现已按 2026-10-28 用户采纳的方案 A（虚拟 RangeIndex）落地：显示转换保留真实行数并合成 range 索引描述符，dataframe、table(hide_index=false) 与固定编辑器在官方前端渲染 0/1，Rust 四阶段真实前端对照与 WS 回归已冻结，原 Python 错误参考保留不重采；这是对直接 Arrow 上游格错误/空框的明确修正而非逐字段等价，动态行编辑与任意 schema/metadata 组合仍未验证，M3 保持未完成，验收见[零列呈现状态](acceptance.md#current-zero-column-display-validation-2026-10-28)。
 
 | 阶段 | 交付 | 退出条件 |
 |---|---|---|

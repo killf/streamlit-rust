@@ -205,13 +205,15 @@ let value = st.cache_data("outer").call(21, |n: i64| {
 
 `RgbaImage` 的尺寸必须为正，像素缓冲必须恰好容纳 `width × height × 4` 字节。`st.image` 对无效输入记录错误并跳过该元素；现在用 checked 运算拒绝无法表示的长度，避免在这之前 panic 或把溢出长度绕回零，没有新增图片大小限额、接口或错误策略。无效图片不占用元素位置，后续有效图片仍正常输出。底层 `media::png_encode` 仍要求通过 `RgbaImage::valid` 的输入，这次不改变它的返回接口或无效输入契约。
 
-`data_editor` 没有实际编辑时，直接复制有效 batch，保留行数、字段及 schema 元数据，并共享 Arrow 不可变缓冲；不再重建 schema 或用 expect 把错误变成 panic。零列 batch 的内部无编辑复制已验证保留 0/2 行，但公开编辑器对这些输入仍在后续显示转换返回 Arrow 错误，零列表格呈现尚未支持。实际编辑后的 schema/index 元数据策略也不据此声明完成。验证使用 Rust 原生输入，不为这些 Rust 所有权/算术边界重采旧 Python 数据。
+`data_editor` 没有实际编辑时，直接复制有效 batch，保留行数、字段及 schema 元数据，并共享 Arrow 不可变缓冲；不再重建 schema 或用 expect 把错误变成 panic。零列 batch 的内部无编辑复制保留 0/2 行，公开显示转换现按下节虚拟 RangeIndex 方案输出零列 IPC。实际编辑后的 schema/index 元数据策略也不据此声明完成。验证使用 Rust 原生输入，不为这些 Rust 所有权/算术边界重采旧 Python 数据。
 
-## 零列表格：参考已冻结，呈现策略待选择
+## 零列表格：虚拟 RangeIndex 呈现（已采纳 A）
 
-零列不等于零行：Arrow batch 可以没有物理列，却有显式 0/2 行。新的 Python 1.66.1 公开调用参考已确认 dataframe、固定行编辑器（含 disabled）和显示索引的 table 接受这些输入。首次真实前端却发现直接 Arrow 两行零列的 dataframe 显示 `Error during cell creation`、table 只见空框，两个 editor 正常显示索引 0/1；恢复零行后回到 empty。协议成功不能代替显示正确，[冻结证据和局限](../../tests/reference/reference-browser/zero-columns/README.md)保留这个差异。
+零列不等于零行：Arrow batch 可以没有物理列，却有显式 0/2 行。冻结的 Python 1.66.1 参考确认 dataframe、固定行编辑器（含 disabled）和显示索引的 table 接受这些输入；但首次真实前端中，直接 Arrow 两行零列的 dataframe 显示 `Error during cell creation`、table 只剩空框——wire 缺少索引描述符时前端格子创建失败，而携带 RangeIndex 元数据的编辑器正常显示索引 0/1。
 
-当前 Rust 的零列显示转换仍失败；尚未新增 Rust `zero_columns` 示例。兼容取舍正在等待选择：提供真实行数对应的虚拟 RangeIndex、明确修正上游可见错误；或严格保留直接 Arrow 的已知限制；也可暂缓本实现。参考 app 的 **Two rows**（key `zero-two`，默认 false）和 **Ordinary rerun** 已完成 0→2→重跑→0 的首次 UI 采集。Python 9＋3 静态单元参考没有重采，也没有将原错误轨迹改成成功；Rust 方案采纳后才补同流程对照。
+Rust 已采纳方案 A：显示转换保留真实行数并合成虚拟 RangeIndex 元数据，零列 dataframe、`table(hide_index=false)` 与编辑器一样显示行号 0/1。这是对直接 Arrow 上游可见错误/空框的明确修正，不冒称与 Python 1.66.1 wire 逐字段等价；原错误参考仍保留在[冻结证据和局限](../../tests/reference/reference-browser/zero-columns/README.md)。默认 `table`（隐藏索引）没有可见列，保持空框呈现。
+
+运行 `cargo run --example zero_columns --locked`（默认 `http://127.0.0.1:8580/`）：**Two rows**（key `zero-two`）在 0↔2 行间切换，**Ordinary rerun** 触发普通重跑；dataframe、enabled/disabled 两个固定行编辑器和显示索引的 table 走同一 0→2→重跑→0 流程，Rust 真实前端对照见[rust 采集证据](../../tests/browser/rust-zero-columns/README.md)。Python 9＋3 静态单元参考没有重采，也没有把原错误轨迹改成成功；动态行编辑、任意 schema/metadata 组合仍未验证。
 
 ## 运行日志
 

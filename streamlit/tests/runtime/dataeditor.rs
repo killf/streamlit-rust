@@ -393,13 +393,11 @@ fn unedited_zero_column_batches_keep_explicit_row_counts() -> TestResult {
     let indexed = qty_label_batch([false, true])?.project(&[])?;
     assert_eq!((indexed.num_columns(), indexed.num_rows()), (0, 2));
     for source in [empty, indexed] {
-        // 显示路径仍可能返回 Arrow 错误；公共 Result 不能因无编辑复制而 panic。
+        // The virtual RangeIndex display (accepted A) renders zero-column
+        // batches instead of returning an Arrow error.
         let st = Streamlit::new();
-        match st.data_editor(crate::DataEditorOptions::new(&source).disabled(true)) {
-            Ok(returned) => assert_eq!(returned, source),
-            Err(crate::data::DataError::Arrow(error)) => println!("zero_column_public_editor rows={} display_error={error}", source.num_rows()),
-            Err(other) => return Err(other.into()),
-        }
+        let returned = st.data_editor(crate::DataEditorOptions::new(&source).disabled(true))?;
+        assert_eq!(returned, source);
         let returned = data_editor_edits_for_test(&source, &json!({}))?;
         assert_eq!(returned.num_rows(), source.num_rows());
         assert_eq!(returned, source);

@@ -1,5 +1,5 @@
 //! Native columnar data and Arrow IPC streaming. No Python runtime is involved.
-pub use arrow_array::{Array, ArrayRef, BooleanArray, Float64Array, Int64Array, LargeStringArray, RecordBatch, StringArray, record_batch};
+pub use arrow_array::{Array, ArrayRef, BooleanArray, Float64Array, Int64Array, LargeStringArray, RecordBatch, RecordBatchOptions, StringArray, record_batch};
 use arrow_ipc::{reader::StreamReader, writer::StreamWriter};
 pub use arrow_schema::{DataType, Field, Schema};
 

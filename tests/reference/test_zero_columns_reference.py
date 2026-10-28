@@ -11,6 +11,7 @@ from streamlit.proto.BackMsg_pb2 import BackMsg
 from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
 
 ROOT = Path(__file__).parent / "reference-browser/zero-columns"
+RUST = Path(__file__).parents[1] / "browser/rust-zero-columns"
 
 
 def read(path):
@@ -167,3 +168,65 @@ def test_first_ui_flow_preserves_upstream_cell_errors_instead_of_claiming_succes
     assert failed["producer_error"] == "KeyError: 'value'"
     assert not failed.get("successful") and len(failed["stages"]) == 1
     assert failed["cleanup"] == {"chrome_stopped": True, "server_stopped": True} and not failed["cleanup_errors"]
+
+def test_rust_flow_renders_virtual_range_index_rows_instead_of_upstream_errors():
+    # Accepted option A: the frozen Rust run keeps the real row counts and the
+    # virtual RangeIndex, so every grid — including the plain dataframe that
+    # errors on the pinned Python 1.66.1 wire above — renders 0/1 cells.
+    manifest = json.loads((RUST / "manifest.json").read_text(encoding="utf-8-sig"))
+    assert manifest["scope"] == "frozen rust capture data only; the caller-owned rust server is not archived"
+    for item in manifest["files"]:
+        data = (RUST / item["file"]).read_bytes()
+        assert len(data) == item["bytes"] and hashlib.sha256(data).hexdigest() == item["sha256"]
+
+    raw = json.loads((RUST / "trace.json").read_text(encoding="utf-8-sig"))
+    assert raw["runtime"] == "rust" and raw["successful"] and raw["reference_decoder"] == "1.66.1"
+    assert raw["server_cleanup"] == "caller-owned"
+    assert raw["cleanup"] == {"chrome_stopped": True, "server_stopped": True} and raw["cleanup_errors"] == []
+    assert raw["health"] == {"status": 200, "body": "ok"} and "producer_error" not in raw
+    assert len(raw["frames"]) == 76
+    messages = [decode(frame) for frame in raw["frames"]]
+    sessions = [message.new_session for message in messages if message.WhichOneof("type") == "new_session"]
+    # The Rust run loop opens each of the four runs with a NewSession for the
+    # same session id (the Python reference sends it once per connection); the
+    # official frontend accepts both, and the run count is what matters here.
+    assert len(sessions) == 4 and len({session.initialize.session_id for session in sessions}) == 1
+    assert all(session.initialize.environment_info.streamlit_version == "1.66.1" for session in sessions)
+    assert [stage["name"] for stage in raw["stages"]] == ["zero-initial", "two-rows", "ordinary-rerun", "zero-again"]
+    for stage, rows in zip(raw["stages"], [0, 2, 2, 0]):
+        frames = raw["frames"][stage["frame_start"]:stage["frame_end"]]
+        observed = messages[stage["frame_start"]:stage["frame_end"]]
+        assert [message.script_finished for frame, message in zip(frames, observed)
+                if frame["direction"] == "server->client" and message.WhichOneof("type") == "script_finished"] == [0]
+        views = []
+        back_widgets = []
+        for frame, message in zip(frames, observed):
+            kind = message.WhichOneof("type")
+            if frame["direction"] == "client->server" and kind == "rerun_script":
+                back_widgets.extend(message.rerun_script.widget_states.widgets)
+            elif kind == "delta" and message.delta.WhichOneof("type") == "new_element":
+                element = message.delta.new_element
+                element_kind = element.WhichOneof("type")
+                if element_kind in {"dataframe", "table"}:
+                    views.append((element_kind, pa.ipc.open_stream(getattr(element, element_kind).arrow_data.data).read_all()))
+        # One dataframe plus two editors as grids, and the index-showing table.
+        assert [kind for kind, _ in views] == ["dataframe", "dataframe", "dataframe", "table"]
+        for kind, view in views:
+            assert (view.num_rows, view.num_columns) == (rows, 0), f"{stage['name']}: {kind} keeps the explicit row count"
+            pandas = json.loads(view.schema.metadata[b"pandas"])
+            assert pandas["index_columns"] == [{"kind": "range", "name": None, "start": 0, "stop": rows, "step": 1}]
+        dom = stage["dom"]
+        assert dom["checkboxes"] == [{"checked": rows == 2}] and dom["exceptions"] == []
+        assert f"zero-input rows={rows} columns=0" in dom["text"]
+        for label in ("disabled", "enabled"):
+            assert f"zero-return={label} rows={rows} columns=0" in dom["text"]
+        assert len(dom["grids"]) == 3
+        cells = [[cell["text"] for cell in grid["cells"]] for grid in dom["grids"]]
+        assert cells == [["0", "1"]] * 3 if rows else cells == [[""], [""], [""]]
+        assert "Error during cell creation" not in dom["text"], "the virtual RangeIndex must not replay the upstream cell error"
+        assert dom["tables"][-1].split() == (["0", "1"] if rows else ["empty"])
+        if stage["name"] != "zero-initial":
+            assert any(widget.id.endswith("-zero-two") and widget.WhichOneof("value") == "bool_value"
+                       and widget.bool_value == (rows == 2) for widget in back_widgets)
+        if stage["name"] == "ordinary-rerun":
+            assert any(widget.id.endswith("-zero-rerun") and widget.trigger_value for widget in back_widgets)

@@ -186,6 +186,14 @@ RGBA 公共 st.image 的微小缓冲/超大尺寸调用已真实复现乘法溢�
 
 release RGBA 补验最初因未配置 protoc 在构建阶段失败，未执行测试；改用现有缓存 protoc 后，同一图片边界用例在 optimized profile 实际通过，不再因溢出尺寸接受空缓冲，也未进入巨型分配。这是一个 release 用例复验，不冒称整个 release 测试集或其他平台通过。两次新测试的导入/类型推断/借用编译失误另存，不作产品红复现。原命令、红绿与构建日志位于本地 `target/checks/m3-native-boundaries/`。本批是 Rust 原生算术/所有权与无编辑结果的正确性修复，不证明全部图片类型、全部元数据组合、零列前端兼容或其他平台；M3 和长期 Goal 继续未完成。
 
+## Current zero-column display validation (2026-10-28)
+
+用户于 2026-10-28 采纳零列呈现方案 A（虚拟 RangeIndex）。落点在 `chart_arrow_data` 与 `with_range_index`：重建 batch 时显式携带行数（`RecordBatch::try_new` 在零列时因缺 row count 返回的 Arrow 错误即本批修复的公开缺口），合成的 pandas range 索引描述符保持既有逻辑，零列 wire 因此与实测编辑器同构、官方前端可创建格子；无实体索引列、新公共接口、依赖或前端改动，有列路径行为不变。
+
+WS 回归 `zero_column_views_render_virtual_range_index_over_the_same_flow` 以 0→2→普通重跑→0 驱动同一复选框流，逐阶段断言 dataframe、两个固定编辑器与显示索引 table 四个视图的 IPC 均为（真实行数, 0）列并携带 range 0..行数 描述符；`unedited_zero_column_batches_keep_explicit_row_counts` 不再接受显示错误。真实浏览器用既有 zero_columns 采集器对 `cargo build --example zero_columns` 服务器重放同一契约并冻结于 `tests/browser/rust-zero-columns/`：两行时三个 grid 全部渲染 0/1（Python 参考中 dataframe 为 cell creation 错误、table 空框）、普通重跑保持、归零回空，全程无 stException 与 console 错误；trace 与 PNG 经 manifest sha256 锁定，离线测试双向断言含"不重放上游格错误"。
+
+`cargo fmt --all -- --check`、全目标 Clippy（-D warnings，既有 MSVC linker_messages 提示保留）、`cargo test --workspace --locked`（185 项）与 1521 项冻结参考/矩阵检查通过；Python 9+3 协议参考与首次 UI 错误证据未重采未改写。已知边界：一次成功采集、一台机器的 headless Chrome；动态行编辑、任意 schema/metadata 组合、编辑后元数据策略未验证；Rust run 循环每轮重发同 session id 的 new_session（Python 为每连接一次）是先前批次已有差异且官方前端接受，非本批引入。M3 与长期 Goal 保持未完成。
+
 ## Required fresh-checkout checks
 
 ```powershell

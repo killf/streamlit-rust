@@ -1,7 +1,7 @@
 //! Columnar data views using the same element pipeline as native inputs.
 use crate::api::AppendChild;
 use crate::charts::{self, AreaChartOptions, LineChartOptions, MapOptions, ScatterChartOptions, VEGA_SCHEMA_URL, chart_batch, chart_dataset};
-use crate::data::{Array, ArrayRef, BooleanArray, DataError, DataType, Field, Float64Array, Int64Array, LargeStringArray, RecordBatch, Schema, StringArray, to_ipc_stream};
+use crate::data::{Array, ArrayRef, BooleanArray, DataError, DataType, Field, Float64Array, Int64Array, LargeStringArray, RecordBatch, RecordBatchOptions, Schema, StringArray, to_ipc_stream};
 use crate::elements::data::DataElement;
 use crate::proto::{self, element};
 use crate::pywire::py_dumps;
@@ -770,7 +770,10 @@ pub(crate) fn chart_arrow_data(data: &RecordBatch) -> Result<proto::ArrowData, D
     let mut schema_metadata = data.schema_ref().metadata().clone();
     schema_metadata.insert("pandas".to_string(), metadata);
     let schema = Schema::new_with_metadata(fields, schema_metadata);
-    let batch = RecordBatch::try_new(Arc::new(schema), columns)?;
+    // A zero-column batch keeps its explicit row count (the virtual RangeIndex
+    // above is the only row source), and RecordBatch::try_new rejects zero
+    // columns without one.
+    let batch = RecordBatch::try_new_with_options(Arc::new(schema), columns, &RecordBatchOptions::new().with_row_count(Some(data.num_rows())))?;
     arrow_data(&batch)
 }
 
@@ -870,7 +873,9 @@ fn with_range_index(data: &RecordBatch) -> Result<RecordBatch, DataError> {
         }))?,
     );
     let schema = data.schema_ref().as_ref().clone().with_metadata(metadata);
-    Ok(RecordBatch::try_new(Arc::new(schema), data.columns().to_vec())?)
+    // Same zero-column rule as chart_arrow_data: the row count rides the
+    // options, not a column.
+    Ok(RecordBatch::try_new_with_options(Arc::new(schema), data.columns().to_vec(), &RecordBatchOptions::new().with_row_count(Some(data.num_rows())))?)
 }
 
 fn repeat_column(column: &ArrayRef, repeats: usize) -> Result<ArrayRef, DataError> {

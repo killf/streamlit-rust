@@ -179,23 +179,13 @@ A 的 wire 规范化仅限此 generic Vega 的顶层 Arrow data 与单个 named 
 
 已完成真实红→绿：`bytes=-5` 原为 200，而目标为 206；修后全部 27 个请求逐字匹配，11 项媒体相关 Rust 检查及五项新离线检查通过。首次夹具误用未声明 base64 crate 的编译失败另存，纠正为从原 HTTP 提取受核验字节数组后才构成产品红复现，无新依赖。旧 suffix=未知时返回 None 的内部断言已按新公开参考改为有效后缀区间，不更改旧 Python raw；原有效 200/206/404、重复下载和文件名边界继续检查。
 
-## Zero-column display — new reference, decision pending
+## Zero-column display — accepted A (virtual RangeIndex)
 
 在修复 no-op 克隆 panic 后，真实 Python 1.66.1 新参考证明 Arrow 零列 0/2 行及 pandas index-only 输入可由 dataframe、固定编辑器（enabled/disabled）和 table(hide_index=False) 接受；首次主组 9 场景、独立 table 补充 3 场景，各自一个成功运行，原 caller 输入不变。物理字段为空，行数与 RangeIndex 分开保存。官方目录此次仍显示 1.66.0 标签，运行基线仍锁定 1.66.1；功能范围来自官方 data_editor/dataframe 文档，具体空形状语义来自本次实测，不能由 wheel 符号或实现推定。
 
-首次独立 UI 恢复流程又证明：直接 Arrow 两行零列的 dataframe 出现两个 `Error during cell creation`，table 只剩空框；两个 editor 显示 0/1，普通 rerun 保持这些表现，恢复零行后回到 empty。无 stException 不等于显示正确。原 9＋3 公开调用和四阶段 UI 已分别冻结，第一次 collector 返回值错误的失败前缀也保留；尚未改 Rust 转换、添加 Rust 示例或采集 Rust 对照。
+首次独立 UI 恢复流程又证明：直接 Arrow 两行零列的 dataframe 出现两个 `Error during cell creation`，table 只剩空框；两个 editor 显示 0/1，普通 rerun 保持这些表现，恢复零行后回到 empty。无 stException 不等于显示正确。原 9＋3 公开调用和四阶段 UI 已分别冻结，第一次 collector 返回值错误的失败前缀也保留。已交付候选为一个协议/UI 双模式参考 app、两个复用现有工具的采集器、原始输入/PB/IPC/DOM/PNG/日志及四项离线检查；数据 manifest 不绑定源码，原 PID、端口和 profile 另作只读清理核验。
 
-已交付候选为一个协议/UI 双模式参考 app、两个复用现有工具的采集器、原始输入/PB/IPC/DOM/PNG/日志及四项离线检查。原临时 app/probe 源码没有复制成仓库快照，数据 manifest 不绑定源码；原 PID、端口和 profile 另作只读清理核验。Rust 选择前仅冻结和审查参考，旧正确数据不重采；未验证的选择、动态行编辑、任意 schema/metadata 组合继续未完成。
-
-| 待选 | 交付、收益和风险 |
-| --- | --- |
-| A，推荐 | 沿既有 Rust 索引互操作方向保留真实行数，提供虚拟 RangeIndex，让零列 dataframe/table 显示 0/1，编辑器沿实测正常行为完成。无实体索引列、新接口、依赖或官方前端修改；针对这类输入改变 metadata/呈现，明确作为直接 Arrow 上游错误/空框的修正，不冒称逐字段等价或任意索引均支持。以真实行数和正常 index-only 语义验收，原错误参考仍保留。 |
-| B | 直接 Arrow 的元数据/呈现严格按 1.66.1 观察保留，包括 dataframe 格错误与 table 空框；只按正常编辑器行为提供显示。改动较少，保留直接 Arrow 忠实性；零列表格体验仍有明确限制，不能据此宣称完善。 |
-| C | 本批只交付参考，零列实现继续待决，推进其他独立已授权任务；不删除此 M3 缺口。 |
-
-A/B 采纳后拟改既有 data_api.rs、数据/编辑器回归、zero_columns 最小示例及指南，用同一 Two rows/Ordinary rerun 契约做 Rust 0→2→重跑→0 和独立 Review；有列路径保持，Rust 无编辑返回保留原 batch，Python producer metadata 不被冒称为 Rust 返回完全同构。接受标准和 metadata 策略以用户所选方案为准；选择前不通过修改比较规则或隐藏 UI 错误获得绿色结果。
-
-分工：主代理单写共享文档、整合协议冻结和回归；复用界面代理单写 reference app/UI collector 与首次 UI 证据；参考代理的只读采集已结束，独立 Reviewer 在整合后复用。峰值最多三人含主代理。既有代理本轮仅暴露名称/状态，具体模型/档位无法重新核验，未宣称重新配置成功。M3/Goal 不因参考交付或候选推荐而自动关闭。
+2026-10-28 用户采纳方案 A：保留真实行数，提供虚拟 RangeIndex，让零列 dataframe/table 显示 0/1，编辑器沿实测正常行为完成；B（严格保留直接 Arrow 的格错误/空框）与 C（暂缓）未采纳。落点：`chart_arrow_data` 与 `with_range_index` 重建 batch 时显式携带行数（`RecordBatch::try_new` 在零列时要求 row count，此前在显示路径返回 Arrow 错误），合成的 pandas 元数据本就含 range 索引描述符，故零列 wire 与编辑器同构、官方前端可创建格子。无实体索引列、新接口、依赖或官方前端修改；这是对直接 Arrow 上游错误/空框的明确修正，不冒称逐字段等价或任意索引均支持，原错误参考仍保留。默认隐藏索引的 table 没有可见列，保持空框呈现。新增 `zero_columns` 示例与 Rust 0→2→重跑→0 真实前端对照；有列路径行为不变，Rust 无编辑返回保留原 batch。动态行编辑、任意 schema/metadata 组合继续未完成，M3/Goal 不因此自动关闭。
 
 ## Native input arithmetic and no-op editor ownership
 
