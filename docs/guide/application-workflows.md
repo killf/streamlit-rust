@@ -343,6 +343,7 @@ async fn main(st: &Streamlit) {
 - **colconfig**（`http://127.0.0.1:8529/`）：column configs。
 - **columns_params**（`http://127.0.0.1:8595/`）：st.columns parameters。
 - **media_more**（`http://127.0.0.1:8597/`）：video URL 输入、SRT 字幕、popover wrap、tabs 宽高。
+- **combined_interactive**（`http://127.0.0.1:8598/`）：M7 交互组合差分（上传/勾选/选择/选行/按钮/toast）。
 - **combined**（`http://127.0.0.1:8596/`）：the M7 cross-capability differential page。
 - **componenttrigger**（`http://127.0.0.1:8542/`）：component triggers。
 - **componentv2**（`http://127.0.0.1:8539/`）：components v2。

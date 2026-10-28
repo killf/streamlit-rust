@@ -2486,6 +2486,13 @@
           "tests/browser/rust-combined/trace.json",
           "tests/browser/rust-combined/README.md",
           "tests/reference/test_combined_differential.py"
+        ],
+        "m7_interactive_differential": [
+          "tests/reference/reference-browser/combined-interactive/trace.json",
+          "tests/reference/reference-browser/combined-interactive/README.md",
+          "tests/browser/rust-combined-interactive/trace.json",
+          "tests/browser/rust-combined-interactive/README.md",
+          "tests/reference/test_combined_interactive_reference.py"
         ]
       },
       "rust_plan": "Render Arrow IPC dataframes and return typed selections through the same call; validate remaining documented modes, parameters and combined workflows against pinned reference behavior.",
@@ -2647,7 +2654,14 @@
         "rust_api_test": "streamlit/tests/runtime/mod.rs",
         "rust_wire_observation": "tests/browser/rust-smoke/trace-smoke.json",
         "official_frontend_browser_e2e": "tests/browser/rust-smoke/trace-smoke.json",
-        "evidence_interpretation": ".codex/compatibility.md"
+        "evidence_interpretation": ".codex/compatibility.md",
+        "m7_interactive_differential": [
+          "tests/reference/reference-browser/combined-interactive/trace.json",
+          "tests/reference/reference-browser/combined-interactive/README.md",
+          "tests/browser/rust-combined-interactive/trace.json",
+          "tests/browser/rust-combined-interactive/README.md",
+          "tests/reference/test_combined_interactive_reference.py"
+        ]
       },
       "rust_plan": "Render the default button and return its one-shot trigger on an ordinary rerun; retain this bounded implementation while adding missing option and identity semantics.",
       "compatibility_scope": "Limited comparison of Python closed-loop button trigger/completion with the Rust default Pulse button: rendering and three successive true triggers, each answered by successful script_finished on the same connection. Not full st.button compatibility or a complete journey pass.",
@@ -2710,7 +2724,14 @@
         "python_fields_disabled": "tests/reference/reference-browser/widgets/disabled/trace-widgets-disabled.json",
         "python_fields_dup_key": "tests/reference/reference-browser/widgets/dup_key/trace-widgets-dup_key.json",
         "python_fields_none_option": "tests/reference/reference-browser/widgets/none_option/trace-widgets-none_option.json",
-        "python_fields_none_unset": "tests/reference/reference-browser/widgets/none_unset/trace-widgets-none_unset.json"
+        "python_fields_none_unset": "tests/reference/reference-browser/widgets/none_unset/trace-widgets-none_unset.json",
+        "m7_interactive_differential": [
+          "tests/reference/reference-browser/combined-interactive/trace.json",
+          "tests/reference/reference-browser/combined-interactive/README.md",
+          "tests/browser/rust-combined-interactive/trace.json",
+          "tests/browser/rust-combined-interactive/README.md",
+          "tests/reference/test_combined_interactive_reference.py"
+        ]
       },
       "rust_plan": "Return boolean checkbox values through CheckboxOptions, preserve keyed state, and run measured core on_change callbacks before rerender.",
       "compatibility_scope": "Measured W1/W2 core only: complete Element comparisons for eight Python reference cases normalize only opaque widget ID digests. These older references establish field and finite callback facts, not same-connection interaction proof. The frozen Rust six-case capture proves changed target state, real requestId, same-connection successful completion and DOM values for the corresponding API.",
@@ -2941,6 +2962,13 @@
           "tests/reference/reference-browser/uploads-lifecycle/trace.json",
           "tests/reference/reference-browser/uploads-lifecycle/README.md",
           "streamlit/tests/runtime/uploads.rs"
+        ],
+        "m7_interactive_differential": [
+          "tests/reference/reference-browser/combined-interactive/trace.json",
+          "tests/reference/reference-browser/combined-interactive/README.md",
+          "tests/browser/rust-combined-interactive/trace.json",
+          "tests/browser/rust-combined-interactive/README.md",
+          "tests/reference/test_combined_interactive_reference.py"
         ]
       },
       "rust_plan": "Serve native upload URL exchange and multipart PUT, retain uploaded CSV bytes for the measured session reruns.",
@@ -3272,7 +3300,14 @@
         "python_fields_none_unset": "tests/reference/reference-browser/widgets/none_unset/trace-widgets-none_unset.json",
         "queryparams_upgrade_trace": "tests/reference/reference-browser/queryparams/trace-queryparams.json",
         "queryparams_capture_entry": "tests/browser/queryparams_capture.py",
-        "queryparams_contract": "tests/browser/queryparams_contract.py"
+        "queryparams_contract": "tests/browser/queryparams_contract.py",
+        "m7_interactive_differential": [
+          "tests/reference/reference-browser/combined-interactive/trace.json",
+          "tests/reference/reference-browser/combined-interactive/README.md",
+          "tests/browser/rust-combined-interactive/trace.json",
+          "tests/browser/rust-combined-interactive/README.md",
+          "tests/reference/test_combined_interactive_reference.py"
+        ]
       },
       "rust_plan": "Return typed optional selections through SelectboxOptions<T>, preserve keyed state, and run measured core on_change callbacks before rerender. The journey-queryparams-v1 round adds the creation mode (selectbox_creation returning Option<String>, acceptNewOptions plus the label-string state through the SelectCreation codec), .filter_mode(Option<SelectFilterMode>) (filterMode on the wire, the default FUZZY omitted like the reference) and .bind(TextBind::QueryParams) (queryParamKey, key required; creation mode joins the widget identity like key_as_main_identity).",
       "compatibility_scope": "Measured W1/W2 core only: complete Element comparisons for eight Python reference cases normalize only opaque widget ID digests. These older references establish field and finite callback facts, not same-connection interaction proof. The frozen Rust six-case capture proves changed target state, real requestId, same-connection successful completion and DOM values for the corresponding API. The journey-queryparams-v1 chain (2026-10-26) additionally proves the creation-mode/filtered and query-bound selectbox against the pinned reference on a real owned Chrome across three interaction stages, both replays 11/11: acceptNewOptions/filterMode/queryParamKey field-for-field, the typed creation value committed as a string state, and the bound pick updating the URL.",
@@ -4266,6 +4301,13 @@
           "tests/browser/rust-combined/trace.json",
           "tests/browser/rust-combined/README.md",
           "tests/reference/test_combined_differential.py"
+        ],
+        "m7_interactive_differential": [
+          "tests/reference/reference-browser/combined-interactive/trace.json",
+          "tests/reference/reference-browser/combined-interactive/README.md",
+          "tests/browser/rust-combined-interactive/trace.json",
+          "tests/browser/rust-combined-interactive/README.md",
+          "tests/reference/test_combined_interactive_reference.py"
         ]
       },
       "rust_plan": "st.toast(ToastOptions::new(body).icon(...)) emits a one-shot Toast element routed to the dedicated root path [2, 0] with the measured explicit four-second default duration.",

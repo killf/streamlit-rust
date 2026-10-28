@@ -312,6 +312,14 @@ M3 收窄 + M5 边界批次。冻结 Python 参考 `tests/reference/reference-br
 
 M5 会话容量回归 `many_concurrent_sessions_hold_independent_state`：64 个并发 WS 会话全部完成各自 run、重连保持身份、计数互不串扰（0.09s）。媒体回收经查证为**进程全局内容寻址、会话过期不回收**——与 Python MemoryMediaFileStorage 同语义，属记录在案的设计事实而非缺口（roadmap M5 行已有"进程全局媒体无自动淘汰"）；不据此关闭 M5。
 
+## Current M7 second differential and close evaluation (2026-10-28)
+
+M7 第二组合差分链（交互流 + 真实浏览器 UI 层）：Python fixture [combined_interactive_app.py](../tests/reference/combined_interactive_app.py) 与 Rust 镜像 [combined_interactive.rs](../streamlit/examples/combined_interactive.rs)（8598），同一[采集器](../tests/browser/combined_interactive_capture.py)驱动真实 Chrome 六阶段交互（load → 上传两文件 → 勾选 → 选 b → 点表格首行 → Apply+toast）。双侧冻结（各 10 文件含截图/manifest）：**六阶段应用报告 JSON 值逐阶段一致**（代码块文本因双端序列化格式不同而字面不同——独立 Review 指出后如实改述）；DOM chips/checkbox/toast 同步、无异常、双 PUT、末轮 widget 状态集合 [cb,df,go,k,sel] 双端一致（离线对称断言）。审查确认采集器 baseline+变化轮询无静默造假通道。
+
+独立只读 Review（Sol/high）：**有保留通过**——四项建议（措辞精确化、Rust 断言对称、台账补记、总览索引）全部采纳；记录项（Rust 镜像表格显式宽高/`select-row-2` 命名历史、逐帧校验为各端自一致）已入 README。
+
+**M7 关闭评估（采纳审查结论）：现在不可关闭。** M7 退出条件首句"长期验收全部满足"为硬前置；当前 M3 矩阵 130 项 implemented 全 partial、M5 未关闭（吞吐/容量上限/多小时运行未测），无"前置未齐而关闭后续里程碑"的先例。推进排序：**M3 → M5 → M7 终批**；唯一替代路径是用户对剩余限制的显式确认（尚无该记录）。
+
 ## Required fresh-checkout checks
 
 ```powershell
