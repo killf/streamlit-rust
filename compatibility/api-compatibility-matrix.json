@@ -934,7 +934,7 @@
         "official_document_sha256": "4b6f5cf1a3034b9f5e0519c97a9eefb31ed76f738846e3864a3b89eaf14116c8",
         "python_browser_trace": null
       },
-      "not_applicable_reason": "Concept page on the Python option registry; the Rust server is configured explicitly (builder and flags) - a recorded design divergence (see the config.toml row)."
+      "not_applicable_reason": "Concept page on the Python option registry; the Rust server is configured explicitly (builder and flags) - a recorded design divergence (see the config.toml row). The Rust-native configuration surface (server builder knobs, the two environment variables, and the macro's host/port) is documented explicitly in the guide's configuration table and guarded by tests/reference/test_config_surface_docs.py - no TOML parser exists to be compatible with."
     },
     {
       "feature_id": "concept.configuration.serving-static-files",

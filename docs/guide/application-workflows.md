@@ -225,6 +225,22 @@ Rust 已采纳方案 A：显示转换保留真实行数并合成虚拟 RangeInde
 
 运行 `cargo run --example zero_columns --locked`（默认 `http://127.0.0.1:8580/`）：**Two rows**（key `zero-two`）在 0↔2 行间切换，**Ordinary rerun** 触发普通重跑；dataframe、enabled/disabled 两个固定行编辑器和显示索引的 table 走同一 0→2→重跑→0 流程，Rust 真实前端对照见[rust 采集证据](../../tests/browser/rust-zero-columns/README.md)。Python 9＋3 静态单元参考没有重采，也没有把原错误轨迹改成成功；动态行编辑、任意 schema/metadata 组合仍未验证。
 
+## 运行配置面（显式旋钮）
+
+Rust 不解析 `config.toml`（矩阵既有边界：Python 的 TOML 注册表不是兼容目标）；运行项全部是**显式**的服务器构建器与宏参数，无隐藏配置文件。完整清单：
+
+| 运行项 | 设置方式 | 默认 | 证据 |
+| --- | --- | --- | --- |
+| 监听地址与端口 | `StreamlitServer::new(entry, host, port)` 或 `#[main(host = …, port = …)]`（宏默认 `0.0.0.0:8501`） | — | 全部真实 WS 回归（每项均以配置地址直连）；宏参数见 `main-macro` 检查 |
+| 静态前端目录 | `.with_static_dir(path)`；解析顺序 **builder > `STREAMLIT_STATIC_DIR` 环境变量 > 可执行文件旁的 `www/`**，取第一个有效项，无效即启动失败不回落 | 旁置 `www/` | `static_assets`（builder/env/exe 三级优先级与失败边界 + 真实进程 HTTP/WS 迁移） |
+| 断线会话保留 | `.with_disconnected_session_ttl(Duration)`，同 `server.disconnectedSessionTTL`（默认 120 秒实测同值） | 120s | tests/reference/reference-browser/uploads-lifecycle/README.md + streamlit/tests/runtime/uploads.rs |
+| 上传大小上限 | `.with_max_upload_size_mb(mb)`，同 `server.maxUploadSize`（默认 200MiB；超限 PUT 413 不落存储） | 200 | tests/reference/reference-browser/uploads-limit/README.md + streamlit/tests/runtime/uploads.rs |
+| 请求头白名单 | `.with_request_headers(RequestHeaderAccess)`（Standard/Selected/All；`st.request_context()` 可见面） | Standard | tests/reference/reference-browser/context-headers/README.md + streamlit/tests/runtime/request_context.rs |
+| 认证器 | `.with_authenticator(Arc<dyn RequestAuthenticator>)`（连接建立时以全部握手头调用；`HeaderAuthenticator` 为假凭据） | 无（匿名） | tests/reference/reference-browser/user-cookies/README.md + streamlit/tests/runtime/request_context.rs |
+| 日志 | `RUST_LOG` 环境变量（宏与手动入口的 env_logger；默认过滤等级不变） | info | 运行日志章节（本文件）+ .codex/acceptance.md 的 WS 日志验收 |
+
+配置在构建时一次确定：`with_disconnected_session_ttl` 重建会话存储，不作热重载；各旋钮互不隐藏——改其一不影响其余默认。环境变量仅 `STREAMLIT_STATIC_DIR` 与 `RUST_LOG` 两项，均为开发便利而非必需。上表证据链接由离线检查 `test_config_surface_docs.py` 守护（表格随代码演进，失效即红）。
+
 ## 运行日志
 
 `#[main]` 沿用现有 `env_logger` 初始化和 `RUST_LOG` 配置，例如 `RUST_LOG=streamlit=info` 或 `streamlit=debug`；本批不改变默认过滤等级。WS 日志现只记录传输阶段、消息种类标记/序号、字节数、运行耗时与错误原因，不再展开完整输入/输出 protobuf、原始文本帧或关闭描述。Info 保留每轮汇总，逐帧摘要位于 Debug；`elapsed_ms` 是本轮执行与发送调度耗时，不包含运行锁排队、客户端收取或页面呈现。

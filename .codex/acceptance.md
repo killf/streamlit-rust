@@ -260,6 +260,12 @@ M4 认证/用户信息切片。参考测量先行：实测 1.66.1 的 `st.user` 
 
 验证：单元测试（认证器边界、cookie 解析、空映射基线）；WS 回归双向——带身份头连接 → sub/name/roles/claims 映射 + cookies 可见，无认证器/未带凭据 → 空映射 + cookies 不可见；同采集器 --url 对照采集冻结于 `tests/browser/rust-user-cookies/`（匿名映射与 cookies 解析与 Python 参考逐字一致），离线测试双向断言。采集器本批内两次修正（--url 分支误启动 Python、runtime 字段未参数化）经 trace 元数据核查发现并在冻结确立前修正。边界：假凭据仅本地/测试；OIDC tokens、真实提供方、令牌校验与权限边界未实现不冒称。M4 配置面整理仍待推进。
 
+## Current runtime configuration surface validation (2026-10-28)
+
+M4 配置面切片：无新旋钮、无行为变更——把 builder/环境变量已覆盖的全部运行项（地址端口、静态目录三级解析、会话 TTL、上传上限、头白名单、认证器、RUST_LOG）整理为指南「运行配置面」表格（默认值、设置方式、证据指针）。每个旋钮的生效证据沿用其切片冻结（uploads-lifecycle/uploads-limit/context-headers/user-cookies/static_assets），本批不制造冗余弱测试（途中撤回了一个绕过真实 start() 的自接线静态目录测试）。新增离线文档门 `test_config_surface_docs.py`：表格证据路径必须存在、`server.rs` 的每个 `with_*` 构建器必须入表、两个环境变量必须在册——配置面不得漂移。表格发现并修复：user-cookies 重采时被抹掉的两份 README 复原，证据列全部改为可验证相对路径。
+
+M4 关闭评估：请求上下文（headers/页面上下文/cookies）、认证与用户信息（假凭据）、配置面均已交付并各有冻结证据；剩余不关闭原因——认证与 request_context 的公共形态**待用户追认**（8890ee1 批注）、`ip_address` 未实现（两条实测路径均为 null，无 oracle，属记录边界而非缺口）、真实 OIDC 提供方集成本远期。追认后 M4 可按退出条件（关键设计获确认、假凭据与隔离依赖验证、权限边界清楚——认证器为受信配置、HeaderAuthenticator 明示非生产身份源）关闭。
+
 ## Required fresh-checkout checks
 
 ```powershell
