@@ -1,0 +1,228 @@
+{
+  "schema_version": 1,
+  "reference_version": "1.66.1",
+  "versions": {
+    "streamlit": "1.66.1",
+    "pandas": "3.1.0",
+    "pyarrow": "26.0.0"
+  },
+  "scope": "Actual public st.table(hide_index=False) native WS and return controls; three new cases only, no browser/UI claim.",
+  "raw_file": "trace.json",
+  "inputs_file": "inputs.json",
+  "cases": [
+    {
+      "label": "arrow-zero0/table-index",
+      "tables": [
+        {
+          "frame_index": 4,
+          "delta_path": [
+            0,
+            1
+          ],
+          "fields": {},
+          "arrow_ipc_base64": "/////zAAAAAQAAAAAAAKAAwABgAFAAgACgAAAAABBAAMAAAACAAIAAAABAAIAAAABAAAAAAAAAD/////AAAAAA==",
+          "arrow_ipc_bytes": 64,
+          "num_rows": 0,
+          "num_columns": 0,
+          "rows": [],
+          "schema": {
+            "fields": [],
+            "metadata": []
+          }
+        }
+      ],
+      "report": {
+        "caller_input_unchanged": true,
+        "input": "arrow-zero0",
+        "input_after": {
+          "column_names": [],
+          "num_columns": 0,
+          "num_rows": 0,
+          "rows": [],
+          "schema": {
+            "fields": [],
+            "metadata": []
+          },
+          "serialized_ipc_base64": "/////zAAAAAQAAAAAAAKAAwABgAFAAgACgAAAAABBAAMAAAACAAIAAAABAAIAAAABAAAAAAAAAD/////AAAAAA==",
+          "type": "pyarrow.lib.Table"
+        },
+        "input_before": {
+          "column_names": [],
+          "num_columns": 0,
+          "num_rows": 0,
+          "rows": [],
+          "schema": {
+            "fields": [],
+            "metadata": []
+          },
+          "serialized_ipc_base64": "/////zAAAAAQAAAAAAAKAAwABgAFAAgACgAAAAABBAAMAAAACAAIAAAABAAIAAAABAAAAAAAAAD/////AAAAAA==",
+          "type": "pyarrow.lib.Table"
+        },
+        "label": "arrow-zero0/table-index",
+        "operation": "table-index",
+        "outcome": "returned",
+        "returned": {
+          "type": "streamlit.delta_generator.DeltaGenerator"
+        }
+      }
+    },
+    {
+      "label": "arrow-zero2/table-index",
+      "tables": [
+        {
+          "frame_index": 7,
+          "delta_path": [
+            0,
+            4
+          ],
+          "fields": {},
+          "arrow_ipc_base64": "/////zAAAAAQAAAAAAAKAAwABgAFAAgACgAAAAABBAAMAAAACAAIAAAABAAIAAAABAAAAAAAAAD/////SAAAABQAAAAAAAAAAAAKAA4ABgAFAAgACgAAAAADBAAQAAAAAAAKABQADAAEAAgACgAAABQAAAAMAAAAAgAAAAAAAAAAAAAAAAAAAP////8AAAAA",
+          "arrow_ipc_bytes": 144,
+          "num_rows": 2,
+          "num_columns": 0,
+          "rows": [
+            {},
+            {}
+          ],
+          "schema": {
+            "fields": [],
+            "metadata": []
+          }
+        }
+      ],
+      "report": {
+        "caller_input_unchanged": true,
+        "input": "arrow-zero2",
+        "input_after": {
+          "column_names": [],
+          "num_columns": 0,
+          "num_rows": 2,
+          "rows": [
+            {},
+            {}
+          ],
+          "schema": {
+            "fields": [],
+            "metadata": []
+          },
+          "serialized_ipc_base64": "/////zAAAAAQAAAAAAAKAAwABgAFAAgACgAAAAABBAAMAAAACAAIAAAABAAIAAAABAAAAAAAAAD/////SAAAABQAAAAAAAAAAAAKAA4ABgAFAAgACgAAAAADBAAQAAAAAAAKABQADAAEAAgACgAAABQAAAAMAAAAAgAAAAAAAAAAAAAAAAAAAP////8AAAAA",
+          "type": "pyarrow.lib.Table"
+        },
+        "input_before": {
+          "column_names": [],
+          "num_columns": 0,
+          "num_rows": 2,
+          "rows": [
+            {},
+            {}
+          ],
+          "schema": {
+            "fields": [],
+            "metadata": []
+          },
+          "serialized_ipc_base64": "/////zAAAAAQAAAAAAAKAAwABgAFAAgACgAAAAABBAAMAAAACAAIAAAABAAIAAAABAAAAAAAAAD/////SAAAABQAAAAAAAAAAAAKAA4ABgAFAAgACgAAAAADBAAQAAAAAAAKABQADAAEAAgACgAAABQAAAAMAAAAAgAAAAAAAAAAAAAAAAAAAP////8AAAAA",
+          "type": "pyarrow.lib.Table"
+        },
+        "label": "arrow-zero2/table-index",
+        "operation": "table-index",
+        "outcome": "returned",
+        "returned": {
+          "type": "streamlit.delta_generator.DeltaGenerator"
+        }
+      }
+    },
+    {
+      "label": "pandas-index2/table-index",
+      "tables": [
+        {
+          "frame_index": 10,
+          "delta_path": [
+            0,
+            7
+          ],
+          "fields": {},
+          "arrow_ipc_base64": "/////6gBAAAQAAAAAAAKAA4ABgAFAAgACgAAAAABBAAQAAAAAAAKAAwAAAAEAAgACgAAAHgBAAAEAAAAAQAAAAwAAAAIAAwABAAIAAgAAABQAQAABAAAAEMBAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAiaW50NjQiLCAibnVtcHlfdHlwZSI6ICJpbnQ2NCIsICJtZXRhZGF0YSI6IG51bGx9XSwgImNvbHVtbnMiOiBbXSwgImF0dHJpYnV0ZXMiOiB7fSwgImNyZWF0b3IiOiB7ImxpYnJhcnkiOiAicHlhcnJvdyIsICJ2ZXJzaW9uIjogIjI2LjAuMCJ9LCAicGFuZGFzX3ZlcnNpb24iOiAiMy4xLjAifQAGAAAAcGFuZGFzAAAAAAAA/////0gAAAAUAAAAAAAAAAAACgAOAAYABQAIAAoAAAAAAwQAEAAAAAAACgAUAAwABAAIAAoAAAAUAAAADAAAAAIAAAAAAAAAAAAAAAAAAAD/////AAAAAA==",
+          "arrow_ipc_bytes": 520,
+          "num_rows": 2,
+          "num_columns": 0,
+          "rows": [
+            {},
+            {}
+          ],
+          "schema": {
+            "fields": [],
+            "metadata": [
+              {
+                "key_base64": "cGFuZGFz",
+                "value_base64": "eyJpbmRleF9jb2x1bW5zIjogW3sia2luZCI6ICJyYW5nZSIsICJuYW1lIjogbnVsbCwgInN0YXJ0IjogMCwgInN0b3AiOiAyLCAic3RlcCI6IDF9XSwgImNvbHVtbl9pbmRleGVzIjogW3sibmFtZSI6IG51bGwsICJmaWVsZF9uYW1lIjogbnVsbCwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJjb2x1bW5zIjogW10sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0="
+              }
+            ]
+          }
+        }
+      ],
+      "report": {
+        "caller_input_unchanged": true,
+        "input": "pandas-index2",
+        "input_after": {
+          "column_names": [],
+          "dtypes": {},
+          "index": [
+            0,
+            1
+          ],
+          "index_name": null,
+          "index_type": "RangeIndex",
+          "num_columns": 0,
+          "num_rows": 2,
+          "rows": [
+            {},
+            {}
+          ],
+          "type": "pandas.DataFrame"
+        },
+        "input_before": {
+          "column_names": [],
+          "dtypes": {},
+          "index": [
+            0,
+            1
+          ],
+          "index_name": null,
+          "index_type": "RangeIndex",
+          "num_columns": 0,
+          "num_rows": 2,
+          "rows": [
+            {},
+            {}
+          ],
+          "type": "pandas.DataFrame"
+        },
+        "label": "pandas-index2/table-index",
+        "operation": "table-index",
+        "outcome": "returned",
+        "returned": {
+          "type": "streamlit.delta_generator.DeltaGenerator"
+        }
+      }
+    }
+  ],
+  "finishes": [
+    0
+  ],
+  "unhandled_exceptions": [],
+  "cleanup": {
+    "websocket_closed": true,
+    "close_code": 1000,
+    "server_stopped": true,
+    "listener_count": "0",
+    "listener_check_exit_code": 0,
+    "browser_started": false
+  },
+  "cleanup_errors": [],
+  "counts": {
+    "cases": 3,
+    "raw_pb_frames": 14
+  },
+  "all_caller_inputs_unchanged": true,
+  "all_wire_row_counts_match_actual_inputs": true
+}

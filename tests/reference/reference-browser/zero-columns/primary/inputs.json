@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "scope": "New public zero-column inputs only; no earlier reference recapture.",
+  "input_builders": {
+    "arrow-zero0": "pa.table({})",
+    "arrow-zero2": "pa.table({'drop':[1,2]}).drop(['drop'])",
+    "pandas-index2": "pd.DataFrame(index=range(2))"
+  },
+  "operations": {
+    "dataframe": {},
+    "editor-disabled-fixed": {
+      "disabled": true,
+      "num_rows": "fixed"
+    },
+    "editor-fixed": {
+      "num_rows": "fixed"
+    }
+  },
+  "cases": [
+    {
+      "label": "arrow-zero0/dataframe",
+      "input": "arrow-zero0",
+      "operation": "dataframe"
+    },
+    {
+      "label": "arrow-zero0/editor-disabled-fixed",
+      "input": "arrow-zero0",
+      "operation": "editor-disabled-fixed"
+    },
+    {
+      "label": "arrow-zero0/editor-fixed",
+      "input": "arrow-zero0",
+      "operation": "editor-fixed"
+    },
+    {
+      "label": "arrow-zero2/dataframe",
+      "input": "arrow-zero2",
+      "operation": "dataframe"
+    },
+    {
+      "label": "arrow-zero2/editor-disabled-fixed",
+      "input": "arrow-zero2",
+      "operation": "editor-disabled-fixed"
+    },
+    {
+      "label": "arrow-zero2/editor-fixed",
+      "input": "arrow-zero2",
+      "operation": "editor-fixed"
+    },
+    {
+      "label": "pandas-index2/dataframe",
+      "input": "pandas-index2",
+      "operation": "dataframe"
+    },
+    {
+      "label": "pandas-index2/editor-disabled-fixed",
+      "input": "pandas-index2",
+      "operation": "editor-disabled-fixed"
+    },
+    {
+      "label": "pandas-index2/editor-fixed",
+      "input": "pandas-index2",
+      "operation": "editor-fixed"
+    }
+  ]
+}

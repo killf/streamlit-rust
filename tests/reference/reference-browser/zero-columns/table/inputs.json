@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "scope": "Three new st.table(hide_index=False) controls only; original nine cases not recaptured.",
+  "input_builders": {
+    "arrow-zero0": "pa.table({})",
+    "arrow-zero2": "pa.table({'drop':[1,2]}).drop(['drop'])",
+    "pandas-index2": "pd.DataFrame(index=range(2))"
+  },
+  "operations": {
+    "table-index": {
+      "hide_index": false
+    }
+  },
+  "cases": [
+    {
+      "label": "arrow-zero0/table-index",
+      "input": "arrow-zero0",
+      "operation": "table-index"
+    },
+    {
+      "label": "arrow-zero2/table-index",
+      "input": "arrow-zero2",
+      "operation": "table-index"
+    },
+    {
+      "label": "pandas-index2/table-index",
+      "input": "pandas-index2",
+      "operation": "table-index"
+    }
+  ]
+}

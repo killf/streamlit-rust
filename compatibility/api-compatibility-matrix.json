@@ -2341,6 +2341,12 @@
         "native_no_edit": [
           "streamlit/tests/runtime/dataeditor.rs",
           ".codex/acceptance.md"
+        ],
+        "zero_column_python_reference": [
+          "tests/reference/reference-browser/zero-columns/README.md",
+          "tests/reference/reference-browser/zero-columns/primary/zero-column-cases.json",
+          "tests/reference/reference-browser/zero-columns/table/zero-column-cases.json",
+          "tests/reference/reference-browser/zero-columns/ui/trace.json"
         ]
       },
       "rust_plan": "st.data_editor(data, ...) streams an editable dataframe: the dataframe proto with its edits widget id ($$ID-<digest>-<key>), the editing_mode from num_rows (fixed=1/dynamic=2/add=3/delete=4), the hidden _index by default and the edits carried as one string_value widget state (\"{}\" default); it returns the edited table — cell edits applied first (row-position and column-NAME keys, typed values), then row deletions, then additions (missing cells null), an int64 column that gains a null upcasting to float64 like pandas and back once filled. The editor element always re-emits the ORIGINAL table (the frontend holds edits client-side); the return value carries the applied edits. Button columns register their click widgets unless disabled.",
@@ -2349,7 +2355,8 @@
         "Fixed-row text detail editing and dynamic appended text rows are now observed in the CSV workbench. Add/delete-only modes, general row deletion and all type combinations remain outside that evidence; existing deletion runtime tests do not establish frontend parity.",
         "The on_change/on_click callback surfaces are Python-only.",
         "Python helper experiments support negative row indices while Rust currently rejects them; no new negative-index policy was adopted. The four-stage protocol probe does not prove browser reachability or all malformed edits safe.",
-        "Rust-native no-op returns preserve schema metadata and explicit row counts without rebuilding an already-valid batch. Public zero-column editors no longer panic, but the display conversion still returns an Arrow error for measured 0/2-row inputs; complete zero-column rendering and metadata/index policy after actual edits remain unfinished. These controls are not new Python/frontend parity evidence."
+        "Rust-native no-op returns preserve schema metadata and explicit row counts without rebuilding an already-valid batch. Public zero-column editors no longer panic, but the display conversion still returns an Arrow error for measured 0/2-row inputs; complete zero-column rendering and metadata/index policy after actual edits remain unfinished. These controls are not new Python/frontend parity evidence.",
+        "New Python-only zero-column reference: 9+3 public cases preserve 0/2 rows without physical columns, but the first real Arrow UI flow shows dataframe cell creation errors and a blank table for two rows; editors show 0/1. Rust rendering/metadata policy awaits the user choice. This evidence does not complete Rust compatibility or silently normalize away the upstream UI defect."
       ]
     },
     {
@@ -2402,6 +2409,12 @@
           "tests/reference/reference-browser/csv-workbench/README.md",
           "tests/browser/rust-csv-workbench/README.md",
           "streamlit/examples/csv_workbench.rs"
+        ],
+        "zero_column_python_reference": [
+          "tests/reference/reference-browser/zero-columns/README.md",
+          "tests/reference/reference-browser/zero-columns/primary/zero-column-cases.json",
+          "tests/reference/reference-browser/zero-columns/table/zero-column-cases.json",
+          "tests/reference/reference-browser/zero-columns/ui/trace.json"
         ]
       },
       "rust_plan": "Render Arrow IPC dataframes and return typed selections through the same call; validate remaining documented modes, parameters and combined workflows against pinned reference behavior.",
@@ -2414,7 +2427,8 @@
         "Retained CSV captures compare logical Arrow schemas/ordered values rather than IPC byte identity; their older metadata does not define the current native selection schema.",
         "Legacy CSV raw carries Python-only kind/scope strings; its Rust NewSession, URL and provenance identify the historical server. The new native capture records the actual Rust example process separately.",
         "python_browser_trace frozen SHA256 82399d788f9237a560daf1e88310cbeefe271f243396f6ab7a2fa1199519f35a.",
-        "rust_wire_observation frozen SHA256 b593b0af924cd6bda1eb9b38a43089e200214eb1041b0fdfd1c98eba2e74f5b5."
+        "rust_wire_observation frozen SHA256 b593b0af924cd6bda1eb9b38a43089e200214eb1041b0fdfd1c98eba2e74f5b5.",
+        "New Python-only zero-column reference: 9+3 public cases preserve 0/2 rows without physical columns, but the first real Arrow UI flow shows dataframe cell creation errors and a blank table for two rows; editors show 0/1. Rust rendering/metadata policy awaits the user choice. This evidence does not complete Rust compatibility or silently normalize away the upstream UI defect."
       ]
     },
     {
@@ -2491,11 +2505,19 @@
         "elements_capture_entry": "tests/browser/elements_capture.py",
         "rust_wire_observation": "tests/browser/rust-elements/trace-elements.json",
         "official_frontend_browser_e2e": "tests/browser/rust-elements/trace-elements.json",
-        "rust_api_test": "streamlit/tests/runtime/data_views.rs"
+        "rust_api_test": "streamlit/tests/runtime/data_views.rs",
+        "zero_column_python_reference": [
+          "tests/reference/reference-browser/zero-columns/README.md",
+          "tests/reference/reference-browser/zero-columns/primary/zero-column-cases.json",
+          "tests/reference/reference-browser/zero-columns/table/zero-column-cases.json",
+          "tests/reference/reference-browser/zero-columns/ui/trace.json"
+        ]
       },
       "rust_plan": "Render the static table element on the measured Arrow IPC wire, preserving the custom index.",
       "compatibility_scope": "The 2026-10-25 journey-elements-v1 chain drives one official-frontend page on both runtimes with a real Chrome (load plus typed-and-applied form stage); both published replays assert 11/11/11 with identical normalized wire streams and DOM fingerprints. Covers the measured two-column table's element kind, arrow presence and rendered cells; arrow bytes are not compared (different Arrow encoders); the table-native chain remains the deeper evidence.",
-      "limitations": []
+      "limitations": [
+        "New Python-only zero-column reference: 9+3 public cases preserve 0/2 rows without physical columns, but the first real Arrow UI flow shows dataframe cell creation errors and a blank table for two rows; editors show 0/1. Rust rendering/metadata policy awaits the user choice. This evidence does not complete Rust compatibility or silently normalize away the upstream UI defect."
+      ]
     },
     {
       "feature_id": "st.audio_input",
