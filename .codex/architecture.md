@@ -225,29 +225,13 @@ M6 继续核实真实源码包而非仅文件清单。当前 Cargo 1.98.1 的 `c
 
 重新执行真实 workspace package verify、从最终 tarball 提取检查全部 examples、普通 SDK consumer，以及现有代码/协议回归；私有示例资源逐项与旧输入核对。维护者测试的仓库级 fixtures 布局不在此偷改，不添加关闭测试的 cfg 或捆绑全部旧参考；对应失败和完整维护者源码分发边界继续明确保留，M6 不关闭。
 
-### Maintainer source distribution — decision pending
+### Maintainer source distribution — accepted PKG-A
 
-最终库包的 lib test 仍实际编译失败，31 个缺失均指向仓库级参考/fixture；这不是普通 SDK consumer 或已修复的示例失败。分发形态与维护者测试归属需要确认，不在本批关闭测试或改写通过标准。
+2026-10-28 用户采纳 PKG-A：分开定义两种交付——SDK crate 只保证库和包内示例可构建（`cargo package` 的库/宏编译验证与示例构建即包形态验收）；完整仓库源码交付承载全部维护者测试，原全部断言保留，完整源码仍必须通过现有全量回归。此前实测的 31 项包内 lib test 缺失（均指向仓库级参考/fixture，冻结日志 `archive-maintainer-tests-after.log`）重新定性为该交付边界的记录而非缺陷：维护者需要完整源码目录运行这套回归，SDK crate 的独立维护者测试限制在指南与包验证 README 中明示。PKG-B（重组测试资源使单包自足，包体积与迁移代价）与 PKG-C（暂缓）未采纳；测试布局与断言未改动，不添加关闭测试的 cfg 或捆绑旧参考。
 
-| 方案 | 交付及取舍 |
-| --- | --- |
-| PKG-A，推荐 | 分开定义两种交付：SDK crate 保证库和包内示例可构建；完整仓库源码交付承载全部维护者测试。原全部断言保留，完整源码仍必须通过现有全量回归；SDK crate 的独立维护者测试限制继续明示。维护者需要完整源码目录，不能只下载单个 crate 运行这套回归。 |
-| PKG-B | 重组测试资源布局，使单个 SDK crate 的维护者测试也自足。完整保留原断言，迁移必要 fixture/前端测试输入并调整消费路径，增加包体积和迁移/复验范围；实施前收敛具体依赖集合与文件计划，不把所有历史资料直接捆入。 |
-| PKG-C | 暂缓源码分发策略，只保留当前库/示例已验证的实验包及明确失败，不关闭 M6；继续其他独立能力。 |
+## Consumer macro support — accepted A (doc-hidden support namespace)
 
-该选择独立于上游/现有接口行为和下节宏方案。推荐不等于采纳；当前只交付已证实的私有示例资源修复及本地包验证，测试布局没有改动。
-
-## Consumer macro support — decision pending
-
-修正隔离应用示例漏写 async 后，仅依赖 streamlit 的真实调用仍不能编译：宏当前直接展开 `#[tokio::main]` 与 `env_logger::Builder`，但二者不是调用方直接依赖。库内部已有这两种依赖，不能据此认为外部 crate 也能按这些名字解析。失败记录为 `target/checks/m6-library-portability/consumer-macro-red.log`，不以仓库自身示例通过冒充独立应用通过。
-
-| 方案 | 改动、收益与代价 |
-| --- | --- |
-| A，推荐 | 库提供 doc-hidden 的公共宏支撑命名空间，重导出现有运行时/日志依赖；宏全部使用该限定路径，可显式建立同样的 Tokio 运行时。调用方只直接依赖 streamlit。新增的公共符号限宏支撑用途，无新依赖包；要维护库与宏的支撑契约，需用户采纳后实施。 |
-| B | 新增用户可见的同步服务启动方法，由库管理 Tokio/日志，宏调用该方法。也支持手工服务入口，接口更正式；新增公共方法与启动职责更广，需设计返回错误、调用限制和日志归属。 |
-| C | 保留现有宏展开方式，独立应用 Cargo.toml 明确加入现有固定 Tokio 与 env_logger。库公共面不变、实现成本低；调用方需了解并维护运行时/日志直接依赖，最小应用仍需三个依赖。 |
-
-A 拟改 lib.rs 的支撑导出、streamlit-macros/src/lib.rs 的限定调用、既有宏检查和独立应用指南。验收只直接依赖 streamlit 的外部项目、host/port、实际启动/WS/页面交互、现有示例和全部静态资源边界，无源码 SHA 门槛。B/C 仅在采纳后展开相应设计。选择前不新增公共支撑接口，也不将三依赖绕行冒称单依赖已成功；当前仅继续独立的库目录修复及现有示例分发验证。
+2026-10-28 用户采纳方案 A：库在 lib.rs 提供 `#[doc(hidden)] pub mod __macro`，重导出现有 tokio 与 env_logger 依赖；`#[streamlit::main]` 全部改用 `::streamlit::__macro::…` 限定路径建立同样的 Tokio 运行时与日志初始化。调用方只直接依赖 streamlit 一个包，无新依赖包；新增公共符号仅限宏支撑用途并 doc-hidden，库与宏的支撑契约随两 crate 同仓库同步维护。B（用户可见的同步启动方法）与 C（调用方自备 tokio/env_logger 依赖）未采纳；此前的独立应用红记录（`consumer-macro-red.log` 的 E0433×2 + E0752）保留为修复前证据，复验以改名库目录、含空格路径、单依赖外部应用的真实编译/启动/WS/页面交互为准，不以仓库自身示例通过冒充独立应用通过。
 
 ## Dependency and launch audit (2026-10-25)
 

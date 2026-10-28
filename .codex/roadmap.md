@@ -59,9 +59,9 @@ M3 原生输入边界已修复 RGBA 尺寸计算 panic，以及无编辑编辑�
 
 文档、测试、架构一致性和代码规范随每项能力同步验收；性能自 M0 起保留测量。阶段通过后推进已确认范围，不以进入下一阶段为由自动批准新的公共接口、依赖或关键规则。
 
-M6 独立构建子集已修复协议目录及前端版本身份的仓库路径依赖，完成改名/含空格目录的检查、release 示例构建和本机安装真实交互，完整 sidecar 与锁定 wheel 一致；[证据与边界](../tests/browser/rust-library-portability/README.md)不等于新机器、所有平台或完整源码包验收。仅依赖 streamlit 的外部应用仍因宏直接引用运行时/日志而失败，[公共宏支撑 A/B/C](architecture.md#consumer-macro-support--decision-pending)等待用户选择，不自动实现推荐项。
+M6 独立构建子集已修复协议目录及前端版本身份的仓库路径依赖，完成改名/含空格目录的检查、release 示例构建和本机安装真实交互，完整 sidecar 与锁定 wheel 一致；[证据与边界](../tests/browser/rust-library-portability/README.md)不等于新机器、所有平台或完整源码包验收。宏支撑已按 2026-10-28 采纳的方案 A 实施：doc-hidden `__macro` 重导出 + 限定路径显式建运行时，仅依赖 streamlit 的外部应用（改名/含空格库目录）真实编译、启动并完成浏览器交互，历史红保留（[决策](architecture.md#consumer-macro-support--accepted-a-doc-hidden-support-namespace)）。
 
-后续[真实 crate 检查](../tests/build/crate-archives/README.md)已通过两个包的默认编译验证、全部 41 个示例及普通 SDK consumer。修复了示例对四份包外数据的依赖，数据仍与原参考一致；最终 SDK 227 文件、宏 6 文件。维护者 lib test 的 31 个仓库输入缺失仍真实失败，[PKG-A/B/C](architecture.md#maintainer-source-distribution--decision-pending)等待用户决定分发形态/测试归属；没有删断言或自动关测试，M6 保持未完成。
+后续[真实 crate 检查](../tests/build/crate-archives/README.md)已通过两个包的默认编译验证、全部 41 个示例及普通 SDK consumer。修复了示例对四份包外数据的依赖，数据仍与原参考一致；最终 SDK 227 文件、宏 6 文件。维护者测试归属已按 2026-10-28 采纳的 PKG-A 定义：SDK crate 以库/宏编译与示例构建为验收，全部维护者回归由完整仓库源码交付承载，31 个包内输入缺失是边界记录而非缺陷（[决策](architecture.md#maintainer-source-distribution--accepted-pkg-a)）；断言未删、测试未关。
 
 用户进一步明确开发顺序：先写面向使用者的功能流程、Rust 用法、返回值、错误及状态说明，再开发对应能力。使用文档清楚区分当前可用、部分验证与待实现；拟新增公共接口和关键规则先供确认，不能将规划接口写成已可用。已完成的代码和证据保留，顺序调整不用于回退他人工作。
 

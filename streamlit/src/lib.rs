@@ -74,4 +74,13 @@ pub use upload::{UploadedFile, UploadedFiles};
 pub use widget_api::*;
 pub use widgets::{WidgetCallback, WidgetError};
 
+/// Macro support only: the `#[main]` macro expands to these re-exports so a
+/// consumer needs no direct tokio or env_logger dependency. Not a public API;
+/// the support contract moves with the macro in this workspace.
+#[doc(hidden)]
+pub mod __macro {
+    pub use env_logger;
+    pub use tokio;
+}
+
 pub use streamlit_macros::main;

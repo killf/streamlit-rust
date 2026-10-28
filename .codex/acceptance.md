@@ -214,6 +214,12 @@ WS 回归 `generic_vega_same_shape_updates_change_the_dataset_identity` 驱动 0
 
 遗留项按范围归档，不阻塞 M2：多文件上传模式归 M3 输入能力；上传端点安全/凭据边界归 M4/M5；图内交互状态（缩放/brush/选区）在 Vega view 重建时的保持继续开放；下载/编辑之外的全部参数组合与完整默认图表兼容不在本里程碑声明内。关闭质量门：`cargo fmt --check`、全目标 Clippy（-D warnings）、`cargo test --workspace --locked`（186 项）、全部示例构建、1525 项冻结参考/矩阵检查通过；lessons.md 增补第 29 条（`include_str!` wire 固件的 `-text` 属性）。当前焦点移至 M3/M6，M4 随后启动。
 
+## Current M6 distribution decisions validation (2026-10-28)
+
+用户于 2026-10-28 采纳 PKG-A 与宏支撑 A。PKG-A 为交付边界定义：SDK crate 的验收即 `cargo package` 的库/宏编译与全部示例构建（既有 crate-archives 日志），全部维护者回归由完整仓库源码交付承载；此前实测的 31 项包内 lib test 输入缺失重新定性为边界记录，断言未删、测试未关、包内不捆绑旧参考，crate-archives README 与指南同步改述。
+
+宏支撑 A 落点：lib.rs 新增 `#[doc(hidden)] pub mod __macro`（重导出 tokio/env_logger）；`#[streamlit::main]` 全部走 `::streamlit::__macro::…` 限定路径，并显式构建同样的 Tokio 多线程运行时——不用 `#[tokio::main]` 属性，因为该属性自身展开仍引用裸 `::tokio`，首次实现曾漏此点。复验：改名库目录 + 含空格路径、仅依赖 `streamlit` 一个包的 consumer 应用真实编译（`consumer-macro-green.log`；本机经 crates.io 常规拉取的 vendored protoc 提供 `PROTOC`）、启动 8550、健康检查 ok、真实 Chrome 点击 **Add** 三次 Count 0→1→2→3、无 stException；历史红 `consumer-macro-red.log` 保留。工作区 fmt/Clippy(-D warnings)/186 项测试与全部示例构建通过；既有宏参数解析单测不受影响。边界：单机 Windows 缓存构建，不含新机器、MSRV、其他平台或完整打包分发声明。
+
 ## Required fresh-checkout checks
 
 ```powershell

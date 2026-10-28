@@ -10,7 +10,7 @@
 
 - 最终两个 crate 的 Cargo 默认编译验证通过；全部 41 个包内 examples 经 `cargo check --examples --offline --locked` 通过。
 - 独立 consumer 的 library target 直接使用提取出的 SDK，并局部 patch 到同样提取出的配套宏包；公开 trait/API 编译通过。它不调用启动宏，不能冒称仅依赖 streamlit 的可运行应用已成功，也没有加 tokio/env_logger 绕行。consumer 270 个、提取 workspace 286 个第三方依赖均为现有根锁版本/校验子集。
-- 最终源码包维护者 lib test 的 `--no-run` 编译仍失败：31 个读取缺失均指向仓库级参考或 fixture，失败没有关闭或重定义成通过。PKG-A/B/C 分发策略仍待选择，M6 不关闭。
+- 最终源码包维护者 lib test 的 `--no-run` 编译仍失败：31 个读取缺失均指向仓库级参考或 fixture。2026-10-28 采纳 PKG-A 后这不再是待决缺陷而是已定义的交付边界：SDK crate 的验收就是库/宏编译与全部示例构建（本目录日志），全部维护者回归由完整仓库源码交付承载（需仓库级参考数据，见 `archive-maintainer-tests-after.log` 的真实失败清单）；失败记录保留、不重定义为通过，也不在包内捆绑旧参考。
 
 `observations.json` 保存实际包成员名称/大小、数据一致性与结果；不保存源码内容或源码包哈希门槛。`manifest.json` 仅核对数据/日志原字节。实际 crate 留在本地 target/package，不纳入 Git 快照或要求未来源码保持原指纹。
 

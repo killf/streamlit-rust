@@ -233,9 +233,9 @@ Rust 已采纳方案 A：显示转换保留真实行数并合成虚拟 RangeInde
 
 复测先执行 `cargo test -p streamlit --lib large_media_responses_keep_full_and_range_bytes_alive_independently --locked -- --nocapture`，测试输出实际 test executable 路径和构造测量。Windows 上可用 Python 标准库执行 `python tools/measure_media_storage.py <该 executable 路径> after target/checks/media-storage-local`，单独运行三次并保存进程内存观测和原始输出；路径取当次 Cargo 输出，不固定文件后缀。采样请求间隔为 5 ms，调度可延长它，观测最大值可能漏掉短峰；操作系统峰值工作集另行保留。旧基线对应优化前产品代码与同一新增测试，不能用当前已重建的 executable 冒充旧版本重测。
 
-## 在仓库外创建应用（宏支撑接口待选择）
+## 在仓库外创建应用（单依赖宏，已采纳方案 A）
 
-以下是宏支撑方案 A 的目标用法，**当前尚不可只用这个依赖直接构建**：现有宏还要求调用方直接依赖 tokio 和 env_logger；是否隐藏这些依赖等待用户选择。`#[streamlit::main]` 接收 async 函数并创建运行时和服务入口。以下目录假设 `my-app/` 与本项目 checkout `streamlit-rust/` 并列；这里使用本地源码，不声称已发布 crates.io 包：
+宏支撑方案 A 已实施（2026-10-28）：`#[streamlit::main]` 经库的 doc-hidden 支撑命名空间建立 Tokio 运行时与 env_logger 初始化，调用方**只依赖 `streamlit` 一个包**，不再需要直接依赖 tokio 或 env_logger。`#[streamlit::main]` 接收 async 函数并创建运行时和服务入口。以下目录假设 `my-app/` 与本项目 checkout `streamlit-rust/` 并列；这里使用本地源码，不声称已发布 crates.io 包：
 
 ```toml
 # my-app/Cargo.toml
@@ -261,7 +261,7 @@ async fn main(st: &Streamlit) {
 
 构建前按[入门环境](#构建并启动)配置 Rust 与 protoc，确保 `PROTOC` 指向本机实际编译器；旧记录中的本机 target 路径不是新机器的安装目录。在 `my-app` 执行 `cargo build`；先由 Cargo 生成该应用自己的 Cargo.lock，后续用 `cargo build --locked` 固定已选依赖。运行前，将本 checkout 完整且未修改的 `www/` 放在应用可执行文件旁边，或用 `STREAMLIT_STATIC_DIR` 指向它，再启动并打开 `http://127.0.0.1:8550/`。[既有 sidecar 规则](README.md#run-an-installed-executable-from-any-directory)继续适用；运行时不需要 Python。
 
-库目录改名、不带外部 www 的独立构建，以及含空格目录的既有 quickstart release 安装已通过[本机验证](../../tests/browser/rust-library-portability/README.md)，包括真实界面交互和完整 sidecar 对照；仅依赖 streamlit 的外部应用仍被上述宏问题阻断。无缓存机器、MSRV、Linux/macOS、系统运行库和完整 crate 打包测试均需要各自证据，不能从本机 Windows 缓存构建推断。
+库目录改名、不带外部 www 的独立构建、含空格目录的既有 quickstart release 安装，以及**仅依赖 streamlit 的最小外部应用**（改名库目录 + 含空格路径，宏单依赖编译、启动、真实 WS/页面交互）均已通过[本机验证](../../tests/browser/rust-library-portability/README.md)，包括完整 sidecar 对照。无缓存机器、MSRV、Linux/macOS、系统运行库和完整 crate 打包测试均需要各自证据，不能从本机 Windows 缓存构建推断。
 
 ## 检查本地 crate 源码包（维护者）
 
@@ -269,7 +269,7 @@ async fn main(st: &Streamlit) {
 
 本机两个 0.1.1 包已完成此验证，库内协议和 index 可独立编译，普通 SDK consumer 的 library target 也已通过。图表配置和视频样本现随源码包的 examples/data 提供；从实际包提取后，全部示例已通过编译检查，无需另找这些样本。宏包有 6 个文件，修复后的库包有 227 个文件；这些是本次产物计数，不是未来文件数量限制。
 
-维护者 lib test 目前仍依赖完整仓库中的参考数据，已实测不能直接在独立 crate 包中编译，不能把 `cargo package` 成功当作它已通过。应用入口宏的公共支撑方案继续待选择，不能把 SDK library 检查说成单依赖应用已成功。Python 参考环境或维护者回归不是应用运行时依赖。
+维护者测试的交付边界已按采纳的 PKG-A 定义（2026-10-28）：**SDK crate 只保证库与包内示例可构建**——`cargo package` 的库/宏编译验证与示例构建就是包形态的验收；**全部维护者回归由完整仓库源码交付承载**，其 lib test 引用仓库级参考数据（冻结 trace、fixture CSV 等），不能也不需要在独立 crate 包内编译，实测的 31 项包内缺失是该边界的记录而非缺陷。维护者需要完整源码目录运行这套回归；SDK consumer 的 library 检查不冒称单依赖应用或维护者回归通过。Python 参考环境或维护者回归不是应用运行时依赖。
 
 ## 参考数据与验证
 

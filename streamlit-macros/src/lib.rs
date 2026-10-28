@@ -62,17 +62,22 @@ pub fn main(attr: TokenStream, item: TokenStream) -> TokenStream {
     quote! {
         #fn_vis async fn __streamlit_user_main(st: &::streamlit::Streamlit) #fn_body
 
-        #[tokio::main]
-        async fn main() -> Result<(), Box<dyn std::error::Error>> {
-            env_logger::Builder::from_default_env().init();
-            let server = ::streamlit::StreamlitServer::new(
-                |st: &::streamlit::Streamlit| Box::pin(__streamlit_user_main(st)),
-                #host.into(),
-                #port
-            );
-            server.start().await?;
+        fn main() -> Result<(), Box<dyn std::error::Error>> {
+            ::streamlit::__macro::env_logger::Builder::from_default_env().init();
+            // The runtime is built through the re-exported tokio, never a
+            // bare `::tokio` path: the consumer depends on streamlit alone
+            // and tokio's own #[tokio::main] attribute would emit one.
+            let runtime = ::streamlit::__macro::tokio::runtime::Builder::new_multi_thread().enable_all().build()?;
+            runtime.block_on(async {
+                let server = ::streamlit::StreamlitServer::new(
+                    |st: &::streamlit::Streamlit| Box::pin(__streamlit_user_main(st)),
+                    #host.into(),
+                    #port
+                );
+                server.start().await?;
 
-            Ok(())
+                Ok(())
+            })
         }
     }
     .into()
