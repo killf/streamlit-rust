@@ -242,6 +242,12 @@ M4 运行集成启动，按"文档先行、参考测量先于实现"执行。指
 
 M3 输入切片：`file_uploader` 多文件模式。新增便捷构建器 `multiple_files()`/`directory()`（既有 `mode()` 保留）。双端冻结参考（[Python](../tests/reference/reference-browser/uploads-multi/README.md)/[Rust](../tests/browser/rust-uploads-multi/README.md)，同一采集器与输入，真实 Chrome 四阶段 load→双文件→移除一→清空）：报告 count 0→2→1→0、name/size/字节一致、chip 同步、无异常；wire 上 `multiple_files=true`、一条批量 `file_urls_request`（2 名）、逐文件 PUT、状态列表 `[alpha,beta]→[beta]→[]`、移除即 DELETE（收尾 DELETE 与停采竞态，断言只保证首个）。Rust WS 回归 `multiple_file_uploads_batch_urls_states_and_removal_semantics` 以带 XSRF 凭据的真实 HTTP PUT 复现同链并断言返回值与移除语义；`uploads` 示例（8591）承载单+多上传器。离线测试双向核对两份冻结数据。边界：目录选择器、`max_upload_size_mb` 超限、并发竞争、过期清理未测；采集器两次修正（chip testid、reference_version 字段）发生在冻结确立前，属采集器编程修正。
 
+## Current upload size-limit and directory validation (2026-10-28)
+
+M3 输入切片（续）：上传大小限制与目录模式。协议探针实测锁定 Python 1.66.1 服务端在 `server.maxUploadSize=1` 下对 2MiB PUT 答 **413**；浏览器参考（`uploads_limit_app.py`，`max_upload_size=1`）证明官方前端在 PUT 之前**静默拦截**超限文件（无上传请求、无 alert、报告保持 0），小文件正常。Rust：`UploadHttpError::TooLarge` 修正映射为 413（原落 500 分支，即真实缺口），新增 `StreamlitServer::with_max_upload_size_mb`（默认 200MiB）；WS/HTTP 回归断言 2MiB → 413、同 URL 小文件 → 204、存储未写入；Rust 浏览器采集与 Python 逐项对齐（[双侧冻结](../tests/reference/reference-browser/uploads-limit/README.md) + 离线双向断言，wire `max_upload_size_mb=1` 同值）。
+
+目录模式裁决：锁定 Python 1.66.1 的 `st.file_uploader` 签名**无目录参数**（仅 `max_upload_size` 等），目录模式为 Rust 扩展。探针实测锁定官方前端对 `accept_directory` 正确渲染目录选择器（第三个 dropzone 的 input 带 `webkitdirectory=true`），但 CDP 注入文件经目录控件返回 0——完整目录流需真实 OS 选择器与 `webkitRelativePath`，headless 不可达；渲染已证、返回路径未证，如实不作为可用声明（探针日志在本地 `target/checks/m3-upload-limit/`）。超限 UI 文案（headless 下未见提示）与 Python 413 的响应体内容不作等价声明（仅状态码）。并发竞争与过期清理仍开放。
+
 ## Required fresh-checkout checks
 
 ```powershell

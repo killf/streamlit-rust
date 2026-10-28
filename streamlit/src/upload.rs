@@ -129,6 +129,9 @@ impl actix_web::ResponseError for UploadHttpError {
             Self::Xsrf => actix_web::http::StatusCode::FORBIDDEN,
             // Official 8601: valid XSRF plus unknown-session PUT.
             Self::SessionUnavailable => actix_web::http::StatusCode::BAD_REQUEST,
+            // Measured on the pinned 1.66.1 server (server.maxUploadSize):
+            // an oversized PUT is rejected with 413 before any storage.
+            Self::TooLarge => actix_web::http::StatusCode::PAYLOAD_TOO_LARGE,
             _ => actix_web::http::StatusCode::INTERNAL_SERVER_ERROR,
         }
     }

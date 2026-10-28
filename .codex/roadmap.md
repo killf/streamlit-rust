@@ -38,7 +38,7 @@ CSV 工作台 A 已交付主流程 20 阶段、筛选 13 阶段与来源替换 1
 
 缓存种类共用键表导致的实际返回值错误已独立修复：data/resource 同名同参各自保留结果、资源引用和录制输出；四组公开参考只采一次并冻结，Rust 真实 WS 复验各自重放。仍维持会话级缓存与现有总清空接口，未扩大为完整 Python 全局/会话选项、TTL 或分类别清空兼容；详见[参考及局限](../tests/reference/reference-browser/cache-kind-isolation/README.md)。
 
-M3 输入切片推进（2026-10-28）：`file_uploader` 多文件模式已双端验收——批量地址请求、逐文件 PUT、整表状态与逐文件移除语义、返回值逐字节一致（[验收](acceptance.md#current-multiple-file-upload-validation-2026-10-28)）；目录模式、超限与并发竞争仍开放，M3 保持未完成。
+M3 输入切片推进（2026-10-28）：`file_uploader` 多文件模式已双端验收——批量地址请求、逐文件 PUT、整表状态与逐文件移除语义、返回值逐字节一致（[验收](acceptance.md#current-multiple-file-upload-validation-2026-10-28)）；大小限制双防线（前端 wire 拦截 + 服务端 413）与目录选择器渲染已实测对齐（[验收](acceptance.md#current-upload-size-limit-and-directory-validation-2026-10-28)）；目录完整流（OS 选择器/webkitRelativePath）headless 不可达、并发竞争与过期清理仍开放，M3 保持未完成。
 
 媒体 Range 已按[27 个冻结公开 HTTP 请求](../tests/reference/reference-browser/media-range/README.md)修复后缀、非法/越界/多范围、空文件及超 u64 数字的处理；状态、响应头与字节由实际 Rust GET 精确对照，公开解析器签名不变。它是 M3 传输子集，不代表已测播放器拖动、HEAD/If-Range/CORS、所有输入语法或完整媒体生命周期，M2/M3 继续保持未关闭。
 

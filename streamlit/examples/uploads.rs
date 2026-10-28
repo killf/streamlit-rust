@@ -30,6 +30,27 @@ fn render(st: &Streamlit) -> Result<(), Box<dyn std::error::Error>> {
         ),
         UploadedFiles::Single(_) => st.caption("Unexpected single result"),
     }
+    st.sub_header("Directory");
+    // A Rust extension beyond the pinned Python API (1.66.1 has no directory
+    // parameter); the wire flag asks the official frontend for a directory
+    // picker. Returned files ride the same Multiple flow.
+    match st.file_uploader(FileUploaderOptions::new("Upload a folder").directory().key("dir-upload"))? {
+        UploadedFiles::Multiple(files) => st.caption(format!("{} files from the folder", files.len())),
+        UploadedFiles::Single(_) => st.caption("Unexpected single result"),
+    }
+    st.sub_header("Size-limited (1 MiB)");
+    match st.file_uploader(FileUploaderOptions::new("Upload one small file").max_upload_size_mb(1).key("limit-upload"))? {
+        UploadedFiles::Single(None) => st.caption("No file selected."),
+        UploadedFiles::Single(Some(file)) => st.code(
+            serde_json::json!({
+                "count": 1,
+                "files": [{"name": file.name(), "size": file.size()}],
+            })
+            .to_string(),
+            "json",
+        ),
+        UploadedFiles::Multiple(files) => st.caption(format!("Unexpected multiple result: {} files", files.len())),
+    }
     Ok(())
 }
 

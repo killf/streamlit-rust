@@ -1,0 +1,495 @@
+{
+  "runtime": "python",
+  "reference_version": "1.66.1",
+  "url": "http://127.0.0.1:60704/",
+  "captured_at_utc": "2026-10-28T07:07:46.489557+00:00",
+  "server_command": [
+    "C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Scripts\\python.exe",
+    "-B",
+    "-m",
+    "streamlit",
+    "run",
+    "C:\\Users\\killf\\github\\streamlit-rust\\tests\\reference\\uploads_limit_app.py",
+    "--server.address=127.0.0.1",
+    "--server.port=60704",
+    "--server.headless=true",
+    "--server.fileWatcherType=none",
+    "--browser.gatherUsageStats=false"
+  ],
+  "server_cleanup": "collector-owned",
+  "stages": [
+    {
+      "name": "load",
+      "code_texts": [
+        "{\"count\": 0, \"files\": []}"
+      ],
+      "dom": {
+        "alerts": [],
+        "exceptions": []
+      },
+      "screenshot": "load.png"
+    },
+    {
+      "name": "select-oversize",
+      "code_texts": [
+        "{\"count\": 0, \"files\": []}"
+      ],
+      "dom": {
+        "alerts": [],
+        "exceptions": []
+      },
+      "screenshot": "select-oversize.png"
+    },
+    {
+      "name": "select-small",
+      "code_texts": [
+        "{\"count\": 1, \"files\": [{\"name\": \"small.txt\", \"size\": 14}]}"
+      ],
+      "dom": {
+        "alerts": [],
+        "exceptions": []
+      },
+      "screenshot": "select-small.png"
+    }
+  ],
+  "frames": [
+    {
+      "direction": "client->server",
+      "bytes": 72,
+      "base64": "WkYSAEJCCg1Bc2lhL1NoYW5naGFpEKD8/////////wEaBXpoLUNOIhdodHRwOi8vMTI3LjAuMC4xOjYwNzA0LygAMgRkYXJr",
+      "message": {
+        "rerun_script": {
+          "widget_states": {},
+          "context_info": {
+            "timezone": "Asia/Shanghai",
+            "timezone_offset": -480,
+            "locale": "zh-CN",
+            "url": "http://127.0.0.1:60704/",
+            "is_embedded": false,
+            "color_scheme": "dark"
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 423,
+      "base64": "IqQDCq0BCl4KJDc5MDk1MDBjLWU1OWEtNTJlNy05ZjUzLWQzZGUwYzZhN2RmNCokNzkwOTUwMGMtZTU5YS01MmU3LTlmNTMtZDNkZTBjNmE3ZGY0MhBuby1tYWNoaW5lLWlkLXY0GiEKBjEuNjYuMRIOMy4xNC43LmZpbmFsLjAaB3dpbmRvd3MiAhABMiQxMWIyNjBkNy1iMGQ5LTRmOWQtOWQzMy0zODAzYTA1YjU0ODISJDY3MzdlNzAzLWY4NDktNDBlYS1iZmNjLWE0ODU1Mjk2Yjc1YxoRdXBsb2Fkc19saW1pdF9hcHAiSUM6XFVzZXJzXGtpbGxmXGdpdGh1YlxzdHJlYW1saXQtcnVzdFx0ZXN0c1xyZWZlcmVuY2VcdXBsb2Fkc19saW1pdF9hcHAucHkyBhgCKAFIAUIiCiA3MzJlMTJmMWI5MzY2YjBhNzc2N2ZmMDkwNmU5MjgyYkogNzMyZTEyZjFiOTM2NmIwYTc3NjdmZjA5MDZlOTI4MmJaIDczMmUxMmYxYjkzNjZiMGE3NzY3ZmYwOTA2ZTkyODJi",
+      "message": {
+        "new_session": {
+          "initialize": {
+            "user_info": {
+              "installation_id": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v3": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v4": "no-machine-id-v4"
+            },
+            "environment_info": {
+              "streamlit_version": "1.66.1",
+              "python_version": "3.14.7.final.0",
+              "server_os": "windows"
+            },
+            "session_status": {
+              "script_is_running": true
+            },
+            "session_id": "11b260d7-b0d9-4f9d-9d33-3803a05b5482"
+          },
+          "script_run_id": "6737e703-f849-40ea-bfcc-a4855296b75c",
+          "name": "uploads_limit_app",
+          "main_script_path": "C:\\Users\\killf\\github\\streamlit-rust\\tests\\reference\\uploads_limit_app.py",
+          "config": {
+            "max_cached_message_age": 2,
+            "allow_run_on_save": true,
+            "show_error_links": "SHOW_ERROR_LINKS_AUTO"
+          },
+          "app_pages": [
+            {
+              "page_script_hash": "732e12f1b9366b0a7767ff0906e9282b"
+            }
+          ],
+          "page_script_hash": "732e12f1b9366b0a7767ff0906e9282b",
+          "main_script_hash": "732e12f1b9366b0a7767ff0906e9282b"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 4,
+      "base64": "SgIQAQ==",
+      "message": {
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 118,
+      "base64": "CiAzNWZmNTI2NTMxYzk0ZTc2MDMyYWMyYWNmNzU5MTRmMBImEgIAACIgNzMyZTEyZjFiOTM2NmIwYTc3NjdmZjA5MDZlOTI4MmIqKhoo+gIbCgJoMRoTU2l6ZS1saW1pdGVkIHVwbG9hZDgB0gMCCAHqAwIIAQ==",
+      "message": {
+        "hash": "35ff526531c94e76032ac2acf75914f0",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "732e12f1b9366b0a7767ff0906e9282b"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h1",
+              "body": "Size-limited upload",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 165,
+      "base64": "CiAyMDVkNjAyMGQ1MjFmYzExZWU0NmY1MjY5MTU4NDE4ZhImEgIAASIgNzMyZTEyZjFiOTM2NmIwYTc3NjdmZjA5MDZlOTI4MmIqWRpXigJPCjIkJElELTNkNDA4N2U5NDYyZTVkNmVjYzFhM2I1ZWNmYTBlMjZjLWxpbWl0LXVwbG9hZBIVVXBsb2FkIG9uZSBzbWFsbCBmaWxlIAFSANIDAggB",
+      "message": {
+        "hash": "205d6020d521fc11ee46f5269158418f",
+        "metadata": {
+          "delta_path": [
+            0,
+            1
+          ],
+          "active_script_hash": "732e12f1b9366b0a7767ff0906e9282b"
+        },
+        "delta": {
+          "new_element": {
+            "file_uploader": {
+              "id": "$$ID-3d4087e9462e5d6ecc1a3b5ecfa0e26c-limit-upload",
+              "label": "Upload one small file",
+              "max_upload_size_mb": 1,
+              "label_visibility": {}
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 124,
+      "base64": "CiA1OTlkZWExMTljYjRhODM5ZWIzY2JkNTkxMzIyNzk5NRImEgIAAiIgNzMyZTEyZjFiOTM2NmIwYTc3NjdmZjA5MDZlOTI4MmIqMBouggMhChl7ImNvdW50IjogMCwgImZpbGVzIjogW119EgRqc29uygMCEAHSAwIIAQ==",
+      "message": {
+        "hash": "599dea119cb4a839eb3cbd5913227995",
+        "metadata": {
+          "delta_path": [
+            0,
+            2
+          ],
+          "active_script_hash": "732e12f1b9366b0a7767ff0906e9282b"
+        },
+        "delta": {
+          "new_element": {
+            "code": {
+              "code_text": "{\"count\": 0, \"files\": []}",
+              "language": "json"
+            },
+            "height_config": {
+              "use_content": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "MAA=",
+      "message": {
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "SgA=",
+      "message": {
+        "session_status_changed": {}
+      }
+    },
+    {
+      "direction": "client->server",
+      "bytes": 79,
+      "base64": "ggFMCiQ0YjBmOGU3YS1iOGQzLTQ3N2YtOTU0OS04NzQxNDNjOTllN2YaJDExYjI2MGQ3LWIwZDktNGY5ZC05ZDMzLTM4MDNhMDViNTQ4Mg==",
+      "message": {
+        "file_urls_request": {
+          "request_id": "4b0f8e7a-b8d3-477f-9549-874143c99e7f",
+          "session_id": "11b260d7-b0d9-4f9d-9d33-3803a05b5482"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 41,
+      "base64": "mgEmCiQ0YjBmOGU3YS1iOGQzLTQ3N2YtOTU0OS04NzQxNDNjOTllN2Y=",
+      "message": {
+        "file_urls_response": {
+          "response_id": "4b0f8e7a-b8d3-477f-9549-874143c99e7f"
+        }
+      }
+    },
+    {
+      "direction": "client->server",
+      "bytes": 90,
+      "base64": "ggFXCiRkN2EyYzhlNS1kNDExLTRmOTAtYWQ4Ny02NDQ0YzVlMDRlZDYSCXNtYWxsLnR4dBokMTFiMjYwZDctYjBkOS00ZjlkLTlkMzMtMzgwM2EwNWI1NDgy",
+      "message": {
+        "file_urls_request": {
+          "request_id": "d7a2c8e5-d411-4f90-ad87-6444c5e04ed6",
+          "file_names": [
+            "small.txt"
+          ],
+          "session_id": "11b260d7-b0d9-4f9d-9d33-3803a05b5482"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 275,
+      "base64": "mgGPAgokZDdhMmM4ZTUtZDQxMS00ZjkwLWFkODctNjQ0NGM1ZTA0ZWQ2EuYBCiQzMTk3Y2VhYy1kNGExLTRkYTgtOGE5OC04NWQ3Y2JlOWM4MTQSXi9fc3Rjb3JlL3VwbG9hZF9maWxlLzExYjI2MGQ3LWIwZDktNGY5ZC05ZDMzLTM4MDNhMDViNTQ4Mi8zMTk3Y2VhYy1kNGExLTRkYTgtOGE5OC04NWQ3Y2JlOWM4MTQaXi9fc3Rjb3JlL3VwbG9hZF9maWxlLzExYjI2MGQ3LWIwZDktNGY5ZC05ZDMzLTM4MDNhMDViNTQ4Mi8zMTk3Y2VhYy1kNGExLTRkYTgtOGE5OC04NWQ3Y2JlOWM4MTQ=",
+      "message": {
+        "file_urls_response": {
+          "response_id": "d7a2c8e5-d411-4f90-ad87-6444c5e04ed6",
+          "file_urls": [
+            {
+              "file_id": "3197ceac-d4a1-4da8-8a98-85d7cbe9c814",
+              "upload_url": "/_stcore/upload_file/11b260d7-b0d9-4f9d-9d33-3803a05b5482/3197ceac-d4a1-4da8-8a98-85d7cbe9c814",
+              "delete_url": "/_stcore/upload_file/11b260d7-b0d9-4f9d-9d33-3803a05b5482/3197ceac-d4a1-4da8-8a98-85d7cbe9c814"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "direction": "client->server",
+      "bytes": 453,
+      "base64": "WsIDEtkCCtYCCjIkJElELTNkNDA4N2U5NDYyZTVkNmVjYzFhM2I1ZWNmYTBlMjZjLWxpbWl0LXVwbG9hZGqfAhKcAhIJc21hbGwudHh0GA4iJDMxOTdjZWFjLWQ0YTEtNGRhOC04YTk4LTg1ZDdjYmU5YzgxNCrmAQokMzE5N2NlYWMtZDRhMS00ZGE4LThhOTgtODVkN2NiZTljODE0El4vX3N0Y29yZS91cGxvYWRfZmlsZS8xMWIyNjBkNy1iMGQ5LTRmOWQtOWQzMy0zODAzYTA1YjU0ODIvMzE5N2NlYWMtZDRhMS00ZGE4LThhOTgtODVkN2NiZTljODE0Gl4vX3N0Y29yZS91cGxvYWRfZmlsZS8xMWIyNjBkNy1iMGQ5LTRmOWQtOWQzMy0zODAzYTA1YjU0ODIvMzE5N2NlYWMtZDRhMS00ZGE4LThhOTgtODVkN2NiZTljODE0GiA3MzJlMTJmMWI5MzY2YjBhNzc2N2ZmMDkwNmU5MjgyYkJCCg1Bc2lhL1NoYW5naGFpEKD8/////////wEaBXpoLUNOIhdodHRwOi8vMTI3LjAuMC4xOjYwNzA0LygAMgRkYXJr",
+      "message": {
+        "rerun_script": {
+          "widget_states": {
+            "widgets": [
+              {
+                "id": "$$ID-3d4087e9462e5d6ecc1a3b5ecfa0e26c-limit-upload",
+                "file_uploader_state_value": {
+                  "uploaded_file_info": [
+                    {
+                      "name": "small.txt",
+                      "size": "14",
+                      "file_id": "3197ceac-d4a1-4da8-8a98-85d7cbe9c814",
+                      "file_urls": {
+                        "file_id": "3197ceac-d4a1-4da8-8a98-85d7cbe9c814",
+                        "upload_url": "/_stcore/upload_file/11b260d7-b0d9-4f9d-9d33-3803a05b5482/3197ceac-d4a1-4da8-8a98-85d7cbe9c814",
+                        "delete_url": "/_stcore/upload_file/11b260d7-b0d9-4f9d-9d33-3803a05b5482/3197ceac-d4a1-4da8-8a98-85d7cbe9c814"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "page_script_hash": "732e12f1b9366b0a7767ff0906e9282b",
+          "context_info": {
+            "timezone": "Asia/Shanghai",
+            "timezone_offset": -480,
+            "locale": "zh-CN",
+            "url": "http://127.0.0.1:60704/",
+            "is_embedded": false,
+            "color_scheme": "dark"
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 423,
+      "base64": "IqQDCq0BCl4KJDc5MDk1MDBjLWU1OWEtNTJlNy05ZjUzLWQzZGUwYzZhN2RmNCokNzkwOTUwMGMtZTU5YS01MmU3LTlmNTMtZDNkZTBjNmE3ZGY0MhBuby1tYWNoaW5lLWlkLXY0GiEKBjEuNjYuMRIOMy4xNC43LmZpbmFsLjAaB3dpbmRvd3MiAhABMiQxMWIyNjBkNy1iMGQ5LTRmOWQtOWQzMy0zODAzYTA1YjU0ODISJGJmZWY3YjFmLTdiMjktNGE4OC05NGFmLTc2YzhhYmRkMjllNhoRdXBsb2Fkc19saW1pdF9hcHAiSUM6XFVzZXJzXGtpbGxmXGdpdGh1YlxzdHJlYW1saXQtcnVzdFx0ZXN0c1xyZWZlcmVuY2VcdXBsb2Fkc19saW1pdF9hcHAucHkyBhgCKAFIAUIiCiA3MzJlMTJmMWI5MzY2YjBhNzc2N2ZmMDkwNmU5MjgyYkogNzMyZTEyZjFiOTM2NmIwYTc3NjdmZjA5MDZlOTI4MmJaIDczMmUxMmYxYjkzNjZiMGE3NzY3ZmYwOTA2ZTkyODJi",
+      "message": {
+        "new_session": {
+          "initialize": {
+            "user_info": {
+              "installation_id": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v3": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v4": "no-machine-id-v4"
+            },
+            "environment_info": {
+              "streamlit_version": "1.66.1",
+              "python_version": "3.14.7.final.0",
+              "server_os": "windows"
+            },
+            "session_status": {
+              "script_is_running": true
+            },
+            "session_id": "11b260d7-b0d9-4f9d-9d33-3803a05b5482"
+          },
+          "script_run_id": "bfef7b1f-7b29-4a88-94af-76c8abdd29e6",
+          "name": "uploads_limit_app",
+          "main_script_path": "C:\\Users\\killf\\github\\streamlit-rust\\tests\\reference\\uploads_limit_app.py",
+          "config": {
+            "max_cached_message_age": 2,
+            "allow_run_on_save": true,
+            "show_error_links": "SHOW_ERROR_LINKS_AUTO"
+          },
+          "app_pages": [
+            {
+              "page_script_hash": "732e12f1b9366b0a7767ff0906e9282b"
+            }
+          ],
+          "page_script_hash": "732e12f1b9366b0a7767ff0906e9282b",
+          "main_script_hash": "732e12f1b9366b0a7767ff0906e9282b"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 4,
+      "base64": "SgIQAQ==",
+      "message": {
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 118,
+      "base64": "CiAzNWZmNTI2NTMxYzk0ZTc2MDMyYWMyYWNmNzU5MTRmMBImEgIAACIgNzMyZTEyZjFiOTM2NmIwYTc3NjdmZjA5MDZlOTI4MmIqKhoo+gIbCgJoMRoTU2l6ZS1saW1pdGVkIHVwbG9hZDgB0gMCCAHqAwIIAQ==",
+      "message": {
+        "hash": "35ff526531c94e76032ac2acf75914f0",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "732e12f1b9366b0a7767ff0906e9282b"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h1",
+              "body": "Size-limited upload",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 165,
+      "base64": "CiAyMDVkNjAyMGQ1MjFmYzExZWU0NmY1MjY5MTU4NDE4ZhImEgIAASIgNzMyZTEyZjFiOTM2NmIwYTc3NjdmZjA5MDZlOTI4MmIqWRpXigJPCjIkJElELTNkNDA4N2U5NDYyZTVkNmVjYzFhM2I1ZWNmYTBlMjZjLWxpbWl0LXVwbG9hZBIVVXBsb2FkIG9uZSBzbWFsbCBmaWxlIAFSANIDAggB",
+      "message": {
+        "hash": "205d6020d521fc11ee46f5269158418f",
+        "metadata": {
+          "delta_path": [
+            0,
+            1
+          ],
+          "active_script_hash": "732e12f1b9366b0a7767ff0906e9282b"
+        },
+        "delta": {
+          "new_element": {
+            "file_uploader": {
+              "id": "$$ID-3d4087e9462e5d6ecc1a3b5ecfa0e26c-limit-upload",
+              "label": "Upload one small file",
+              "max_upload_size_mb": 1,
+              "label_visibility": {}
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 157,
+      "base64": "CiAyNmZkODY3NGRjNDdiM2UwZjdkYTEwNzE4NDljMzZkMBImEgIAAiIgNzMyZTEyZjFiOTM2NmIwYTc3NjdmZjA5MDZlOTI4MmIqURpPggNCCjp7ImNvdW50IjogMSwgImZpbGVzIjogW3sibmFtZSI6ICJzbWFsbC50eHQiLCAic2l6ZSI6IDE0fV19EgRqc29uygMCEAHSAwIIAQ==",
+      "message": {
+        "hash": "26fd8674dc47b3e0f7da1071849c36d0",
+        "metadata": {
+          "delta_path": [
+            0,
+            2
+          ],
+          "active_script_hash": "732e12f1b9366b0a7767ff0906e9282b"
+        },
+        "delta": {
+          "new_element": {
+            "code": {
+              "code_text": "{\"count\": 1, \"files\": [{\"name\": \"small.txt\", \"size\": 14}]}",
+              "language": "json"
+            },
+            "height_config": {
+              "use_content": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "MAA=",
+      "message": {
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "SgA=",
+      "message": {
+        "session_status_changed": {}
+      }
+    }
+  ],
+  "uploads": [
+    {
+      "url": "http://127.0.0.1:60704/_stcore/upload_file/11b260d7-b0d9-4f9d-9d33-3803a05b5482/3197ceac-d4a1-4da8-8a98-85d7cbe9c814",
+      "method": "PUT"
+    }
+  ],
+  "server_pid": 45728,
+  "health": {
+    "status": 200,
+    "body": "ok"
+  },
+  "browser": {
+    "Browser": "Chrome/156.0.8078.48",
+    "File-Path-Style": "windows",
+    "Protocol-Version": "1.3",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+    "V8-Version": "15.6.75.19",
+    "WebKit-Version": "537.36 (@d0c02bfad08ec92a6ffcf989e53cd995e6381a4c)",
+    "webSocketDebuggerUrl": "ws://127.0.0.1:60703/devtools/browser/5b0ec73d-04f3-4eef-9b65-d0f50d686033"
+  },
+  "successful": true,
+  "profile_cleaned": true,
+  "server_stopped": true
+}

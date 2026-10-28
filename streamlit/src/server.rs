@@ -106,9 +106,7 @@ async fn upload_file(req: HttpRequest, path: web::Path<(String, String)>, payloa
     crate::upload::check_xsrf(&req)?;
     let (session_id, file_id) = path.into_inner();
     server.sessions.state_for_upload(&session_id).ok_or(crate::upload::UploadHttpError::SessionUnavailable)?;
-    // This bounded native transport limit is the local 200 MiB default. Exact
-    // limit/error boundary parity and per-widget overrides await their probes.
-    let file = crate::upload::read_upload(payload, 200 * 1024 * 1024).await?;
+    let file = crate::upload::read_upload(payload, server.max_upload_bytes).await?;
     // Recheck after reading: a request cannot revive an expired session.
     let state = server.sessions.state_for_upload(&session_id).ok_or(crate::upload::UploadHttpError::SessionUnavailable)?;
     state.uploads.lock().insert(file_id, file.name, file.content_type, file.bytes);
@@ -246,6 +244,9 @@ pub struct StreamlitServer {
     sessions: Arc<SessionStore>,
     static_dir: Option<PathBuf>,
     pub(crate) request_headers: crate::request_context::RequestHeaderAccess,
+    /// The server-side upload byte cap; an oversized PUT answers 413, mirroring
+    /// the pinned server's server.maxUploadSize enforcement (measured 2026-10-28).
+    pub(crate) max_upload_bytes: usize,
 }
 
 impl StreamlitServer {
@@ -257,6 +258,7 @@ impl StreamlitServer {
             sessions: Arc::new(SessionStore::new(Duration::from_secs(120))),
             static_dir: None,
             request_headers: crate::request_context::RequestHeaderAccess::Standard,
+            max_upload_bytes: 200 * 1024 * 1024,
         }
     }
 
@@ -286,6 +288,16 @@ impl StreamlitServer {
     /// and belongs to trusted deployments only.
     pub fn with_request_headers(mut self, access: crate::request_context::RequestHeaderAccess) -> Self {
         self.request_headers = access;
+        self
+    }
+
+    /// Set the server-side upload limit in MiB (default 200, like the pinned
+    /// server's server.maxUploadSize). An oversized PUT answers 413 and is
+    /// never stored. The per-widget `max_upload_size_mb` rides the element
+    /// wire for the frontend's own pre-upload check; the server cap applies
+    /// regardless of which widget requested the URL.
+    pub fn with_max_upload_size_mb(mut self, mb: usize) -> Self {
+        self.max_upload_bytes = mb.saturating_mul(1024 * 1024);
         self
     }
 

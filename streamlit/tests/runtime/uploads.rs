@@ -555,3 +555,41 @@ async fn multiple_file_uploads_batch_urls_states_and_removal_semantics() -> Test
     task.await??;
     Ok(())
 }
+
+/// The measured server-side limit (2026-10-28 probe of the pinned 1.66.1
+/// server with server.maxUploadSize=1): an oversized PUT answers 413 before
+/// any storage; a within-limit PUT on the same URL still succeeds.
+#[actix_web::test]
+async fn oversized_upload_put_answers_413_without_storage() -> TestResult {
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
+    let server = StreamlitServer::new(upload_entry, "127.0.0.1".into(), 0).with_max_upload_size_mb(1);
+    let server = HttpServer::new(move || App::new().app_data(web::Data::new(server.clone())).configure(configure_routes)).workers(1).listen(listener)?.run();
+    let handle = server.handle();
+    let task = actix_web::rt::spawn(server);
+    let mut stream = sessions::connect(address, None).await;
+    let first = run(&mut stream, vec![]).await?;
+    let urls = urls(&mut stream, &first.session).await?;
+    let oversized = b"x".repeat(2 * 1024 * 1024);
+    let status = put_file(address, &urls.upload_url, "big.bin", "application/octet-stream", &oversized).await?;
+    assert_eq!(status, 413, "the measured reference rejects the oversized PUT with 413");
+    // A small file on the same URL still uploads after the rejection.
+    assert_eq!(put_file(address, &urls.upload_url, "small.txt", "text/plain", b"small").await?, 204);
+    let state = vec![WidgetState {
+        id: first.widget,
+        value: Some(widget_state::Value::FileUploaderStateValue(crate::proto::FileUploaderState {
+            uploaded_file_info: vec![crate::proto::UploadedFileInfo {
+                name: "small.txt".into(),
+                size: 5,
+                file_id: urls.file_id.clone(),
+                file_urls: Some(urls.clone()),
+            }],
+        })),
+    }];
+    let after = run(&mut stream, state).await?;
+    assert_eq!(after.value["file"]["bytes"], json!(b"small".as_slice()));
+    drop(stream);
+    handle.stop(false).await;
+    task.await??;
+    Ok(())
+}
