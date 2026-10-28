@@ -42,6 +42,8 @@ M5 三场景批次（2026-10-29）：吞吐（~509 rerun/s、字节/行数逐轮
 
 M5 稳定性批次（2026-10-28）：大数据（100k/50k 行 + 200k 点图表）、长时运行（300 轮 rerun 精确状态）与慢连接（parked reader 不阻塞他 会话）三场景落地可复现回归与 3 试次测量（[验收](acceptance.md#current-stability-scenarios-validation-2026-10-28)）；吞吐/容量上限/多小时运行未测，M5 保持未完成。
 
+M3 select/pills 切片（2026-10-29）：selectbox placeholder/help/disabled、checkbox 参数、pills multi 索引默认双端冻结 5/5（零实现改动确认；[验收](acceptance.md#current-select/pills-parameter-validation-2026-10-29)）。
+
 M3 code/skeleton/logo 切片（2026-10-29）：code 语言/行号、skeleton、logo emoji 端到端双端冻结 3/3 + logo 帧（零实现改动确认；[验收](acceptance.md#current-code/skeleton/logo-parameter-validation-2026-10-29)）。
 
 M3 文本族切片（2026-10-29）：latex LATEX 类型与 divider/help/text 字段形态双端冻结 5/5（修两处 markdown wrap/typing 偏差；[验收](acceptance.md#current-text-family-parameter-validation-2026-10-29)）。

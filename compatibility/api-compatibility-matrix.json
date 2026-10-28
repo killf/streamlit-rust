@@ -2762,12 +2762,17 @@
           "tests/browser/rust-combined-interactive/trace.json",
           "tests/browser/rust-combined-interactive/README.md",
           "tests/reference/test_combined_interactive_reference.py"
+        ],
+        "creation_params_reference": [
+          "tests/reference/reference-browser/select-pills-params/trace.json",
+          "tests/reference/reference-browser/select-pills-params/README.md",
+          "tests/browser/rust-select-pills-params/trace.json"
         ]
       },
       "rust_plan": "Return boolean checkbox values through CheckboxOptions, preserve keyed state, and run measured core on_change callbacks before rerender.",
       "compatibility_scope": "Measured W1/W2 core only: complete Element comparisons for eight Python reference cases normalize only opaque widget ID digests. These older references establish field and finite callback facts, not same-connection interaction proof. The frozen Rust six-case capture proves changed target state, real requestId, same-connection successful completion and DOM values for the corresponding API.",
       "limitations": [
-        "Only measured boolean/default/key/core-callback cases are verified; other widget evidence does not extend checkbox compatibility.",
+        "Value/disabled/help are now measured on the creation wire (2026-10-29, frozen select-pills-params), field-identical cross-runtime with zero implementation change. Only measured boolean/default/key/core-callback cases are otherwise verified; other widget evidence does not extend checkbox compatibility.",
         "Rust Result<_, WidgetError> is not the complete Python exception-rendering UI; complete invalid-input UI equivalence is unverified.",
         "Core callback/key behavior and sampled parameters only: not all on_change modes, argument combinations or parameter-change/reset semantics.",
         "The disabled Python reference operated selectbox and checkbox only; slider disabled parameters were observed, but no disabled-slider click is claimed.",
@@ -3237,13 +3242,18 @@
         "buttons_contract": "tests/browser/buttons_contract.py",
         "contract_guards": "tests/reference/test_buttons_contract.py",
         "driven_fixture": "tests/reference/buttons_app.py",
-        "driven_example": "streamlit/examples/buttons.rs"
+        "driven_example": "streamlit/examples/buttons.rs",
+        "creation_params_reference": [
+          "tests/reference/reference-browser/select-pills-params/trace.json",
+          "tests/reference/reference-browser/select-pills-params/README.md",
+          "tests/browser/rust-select-pills-params/trace.json"
+        ]
       },
       "rust_plan": "st.pills(label, options) streams a button_group element: Option content list, SINGLE_SELECT (omitted) or MULTI_SELECT click mode, PILLS style, index defaults, required flag and ignore_rerun; the wire state is the selected label strings via Codec::ButtonGroup.",
       "compatibility_scope": "The journey-buttons-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome across six measured stages (the load and one committed interaction each for the toggle, the single-select pill, the pagination page, the feedback star and the menu pick); the published replays assert 17/17 checks per side, covering every element's full wire message, the browser's widget-state reports and the settled DOM.",
       "limitations": [
         "Coverage is the journey-buttons-v1 chain: the pinned fixture's widget set (two toggles, stars+thumbs feedback, single/multi pills, one segmented control, a 10-page pagination, one menu button, one text download, one keyed link button, one external page link) across the load and five committed interactions (toggle flip, single pill pick, page-2 click, third star, CSV menu pick).",
-        "format_func, required=True single mode, option icons (material/emoji content_icon extraction is implemented but unobserved), query binding, wrap and help were not observed.",
+        "Multi-mode selection with label-indexed defaults and help is now measured on the creation wire (2026-10-29, frozen select-pills-params) as a MULTI_SELECT button_group with content-object options — field-identical cross-runtime with zero implementation change. format_func, required=True single mode, option icons (material/emoji content_icon extraction is implemented but unobserved), query binding, wrap and help were not observed.",
         "fixture SHA256 301325fef04f99504bd2577edbeed14991e0b2335170cae7a0d4d99807f1530d; example SHA256 79817da724ca2b6d57f9615b955d9acc6219d30ce7a357026b605c426a705f4d."
       ]
     },
@@ -3379,12 +3389,17 @@
           "tests/browser/rust-combined-interactive/trace.json",
           "tests/browser/rust-combined-interactive/README.md",
           "tests/reference/test_combined_interactive_reference.py"
+        ],
+        "creation_params_reference": [
+          "tests/reference/reference-browser/select-pills-params/trace.json",
+          "tests/reference/reference-browser/select-pills-params/README.md",
+          "tests/browser/rust-select-pills-params/trace.json"
         ]
       },
       "rust_plan": "Return typed optional selections through SelectboxOptions<T>, preserve keyed state, and run measured core on_change callbacks before rerender. The journey-queryparams-v1 round adds the creation mode (selectbox_creation returning Option<String>, acceptNewOptions plus the label-string state through the SelectCreation codec), .filter_mode(Option<SelectFilterMode>) (filterMode on the wire, the default FUZZY omitted like the reference) and .bind(TextBind::QueryParams) (queryParamKey, key required; creation mode joins the widget identity like key_as_main_identity).",
       "compatibility_scope": "Measured W1/W2 core only: complete Element comparisons for eight Python reference cases normalize only opaque widget ID digests. These older references establish field and finite callback facts, not same-connection interaction proof. The frozen Rust six-case capture proves changed target state, real requestId, same-connection successful completion and DOM values for the corresponding API. The journey-queryparams-v1 chain (2026-10-26) additionally proves the creation-mode/filtered and query-bound selectbox against the pinned reference on a real owned Chrome across three interaction stages, both replays 11/11: acceptNewOptions/filterMode/queryParamKey field-for-field, the typed creation value committed as a string state, and the bound pick updating the URL.",
       "limitations": [
-        "Only sampled string selections and measured optional/index/key behavior are verified; no arbitrary value-type or complete option-update compatibility claim.",
+        "Placeholder, help, disabled, and index=None (default omitted) are now measured on the creation wire (2026-10-29, frozen select-pills-params), field-identical cross-runtime with zero implementation change. Only sampled string selections and measured optional/index/key behavior are otherwise verified; no arbitrary value-type or complete option-update compatibility claim.",
         "Rust Result<_, WidgetError> is not the complete Python exception-rendering UI; complete invalid-input UI equivalence is unverified.",
         "Core callback/key behavior and sampled parameters only: not all on_change modes, argument combinations or parameter-change/reset semantics.",
         "The disabled Python reference operated selectbox and checkbox only; slider disabled parameters were observed, but no disabled-slider click is claimed.",

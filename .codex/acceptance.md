@@ -382,6 +382,10 @@ M7 终批前置：范围确认问题已**第四次**向用户提交（M3 53 项�
 - **遗留清理扫描**：`streamlit/src`、`streamlit-macros/src`、`tools/*.py` 零 TODO/FIXME/XXX/HACK；`tools/` 五个脚本全部在册使用（inventory/stability 生成器 + 三个历史工具）；无死探针、无过期文档残留。
 - **待确认后即可执行的终批剩余**：据用户答复定格或补测（M3 范围/M5 多小时）→ M7 关闭评估复核 → 最终独立 Review → 关闭记录。
 
+## Current select/pills parameter validation (2026-10-29)
+
+M3 可测面切片（selectbox/checkbox/pills 簇，范围确认未获答复后的最佳判断推进，不冻结任何项）。冻结 Python 参考 `tests/reference/reference-browser/select-pills-params/`（5 元素）与 Rust 对照 **5/5 字段一致——零实现改动**：selectbox 的 `index=None`（不发 default）+ `placeholder`/`help`/`disabled`；checkbox 的 `value/disabled/help`；pills multi 的 `MULTI_SELECT` click_mode、默认标签**索引化 [0,2]**、content 对象选项与 help。矩阵 st.selectbox/st.checkbox/st.pills 三条目收窄挂 `creation_params_reference`；清单再生成。边界：format_func、option icons、query binding、wrap、交互期行为未纳入。
+
 ## Required fresh-checkout checks
 
 ```powershell

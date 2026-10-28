@@ -251,6 +251,8 @@ Rust 已采纳方案 A：显示转换保留真实行数并合成虚拟 RangeInde
 
 **code/skeleton/logo 参数**（[code-logo-params 参考](../../tests/reference/reference-browser/code-logo-params/README.md)，3/3 + logo 帧一致、零实现改动确认）：`st.code` 的 `language` 任意标签原样透传、`line_numbers(true)` → `show_line_numbers`；`st.skeleton` 默认空消息；`st.logo("🧊")` emoji 判型 EMOJI、**缺省 size "medium"**、走顶层 `logo` ForwardMsg（非 delta）。wrap_lines/height、URL logo、icon_image/link 未纳入。
 
+**selectbox/checkbox/pills 参数**（[select-pills-params 参考](../../tests/reference/reference-browser/select-pills-params/README.md)，5/5 一致、零实现改动确认）：`SelectboxOptions` 的 `index(None)`（不发 default）+ `placeholder`/`help`；`CheckboxOptions` 的 `value/disabled/help`；pills 的 `selection_mode(Multi)` → `MULTI_SELECT`、默认标签以**索引**上 wire、选项为 content 对象。format_func、option icons、query binding 未纳入。
+
 ## 运行配置面（显式旋钮）
 
 Rust 不解析 `config.toml`（矩阵既有边界：Python 的 TOML 注册表不是兼容目标）；运行项全部是**显式**的服务器构建器与宏参数，无隐藏配置文件。完整清单：
@@ -371,6 +373,7 @@ async fn main(st: &Streamlit) {
 - **recorder_params**（`http://127.0.0.1:8605/`）：audio_input 显式采样率、camera_input 默认形态。
 - **text_misc_params**（`http://127.0.0.1:8606/`）：latex LATEX 类型、divider/help 字段形态。
 - **code_logo_params**（`http://127.0.0.1:8607/`）：code 语言/行号、skeleton、logo emoji。
+- **select_pills_params**（`http://127.0.0.1:8608/`）：selectbox placeholder/help、checkbox 参数、pills multi 默认。
 - **combined**（`http://127.0.0.1:8596/`）：the M7 cross-capability differential page。
 - **componenttrigger**（`http://127.0.0.1:8542/`）：component triggers。
 - **componentv2**（`http://127.0.0.1:8539/`）：components v2。
