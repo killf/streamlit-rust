@@ -45,6 +45,7 @@ last one, so they could not show which connection a frame belonged to.
 - `chat/`: frozen browser chain cited by the compatibility matrix under st.chat_input, st.chat_message.
 - `colconfig/`: frozen browser chain cited by the compatibility matrix under st.column_config, st.column_config.AreaChartColumn, st.column_config.AudioColumn, st.column_config.BarChartColumn and more.
 - `combined/`: frozen browser chain; see the matrix and .codex/compatibility.md for the exact scope.
+- `code-logo-params/`: code language tags, line numbers, the skeleton default, and the emoji logo frame frozen on both runtimes.
 - `text-misc-params/`: latex typing, divider wrap, help field shape, and text wrap frozen on both runtimes.
 - `recorder-params/`: the audio-input sample rate and the camera-input default message frozen on both runtimes.
 - `json-badge-params/`: json expanded semantics, badge markdown forms with wrap unset, and feedback presets frozen on both runtimes.

@@ -358,6 +358,10 @@ M3 可测面切片（录制控件簇）。冻结 Python 参考 `tests/reference/
 
 M3 可测面切片（文本族簇）。冻结 Python 参考 `tests/reference/reference-browser/text-misc-params/`（5 元素）与 Rust 对照 **5/5 字段一致**。修复两处真实偏差：`st.latex` 此前发普通 NATIVE markdown + wrap true（应为 **LATEX 类型 + wrap 缺省**）；`st.divider` 此前 wrap true（应缺省）——`MarkdownElement::wrap` 因此改为 `Option<bool>`，与此前 badge 修复共同确立"markdown 族各元素 wrap 语义独立实测"的规则。`st.help` 四字段（doc_string/name/type=callable 种类/value=完整签名）经参考对齐示例用法（Rust 显式 API 设计不变）；`st.text` 的显式 wrap true 为零改动确认。矩阵 st.latex/st.help/st.divider/st.text 四条目收窄（其中三条原无 limitations 首获测量记录）；清单再生成。
 
+## Current code/skeleton/logo parameter validation (2026-10-29)
+
+M3 可测面切片（code/skeleton/logo 簇）。冻结 Python 参考 `tests/reference/reference-browser/code-logo-params/`（3 元素 + logo ForwardMsg）与 Rust 对照 **3/3 元素 + logo 帧逐字一致——零实现改动**：`st.code` 的任意 language 标签透传（无白名单）与 `line_numbers→show_line_numbers`；`st.skeleton` 默认空消息；`st.logo` emoji 判型 EMOJI、**缺省 size "medium"**、顶层 logo 字段承载（非 delta，元数据仅 activeScriptHash）。矩阵 st.code/st.skeleton 两条目原无 limitations 首获测量记录、st.logo 在既有 emoji 链上叠加端到端确认；清单再生成。边界：code wrap_lines/height、URL/路径 logo、icon_image/link 未纳入。
+
 ## Required fresh-checkout checks
 
 ```powershell

@@ -248,7 +248,9 @@
       "buckets": [
         "no-explicit-gap-stated"
       ],
-      "limitations": []
+      "limitations": [
+        "Language tags and line numbers are now measured (2026-10-29, frozen code-logo-params): an arbitrary language string passes through verbatim (no whitelist) and line_numbers rides as show_line_numbers — field-identical cross-runtime with zero implementation change."
+      ]
     },
     {
       "feature_id": "st.color_picker",
@@ -940,7 +942,7 @@
       ],
       "limitations": [
         "Coverage is the journey-display2-v1 chain: the pinned fixture's presentation leftovers (an emoji logo, st.help over a builtin, a skeleton placeholder and st.pdf's no-component exception) across the load stage.",
-        "The emoji small-size load shape was observed, including the metadata stamp whose absence blanks the page (the frontend's logo handler dereferences activeScriptHash); URL/material-icon images, links, icon_image and the collapsed-sidebar swap remain unobserved.",
+        "The emoji logo frame is now measured end to end (2026-10-29, frozen code-logo-params): EMOJI typing, the medium DEFAULT size, and the top-level logo ForwardMsg (not a delta) — frame-identical cross-runtime with zero implementation change. The emoji small-size load shape was otherwise observed, including the metadata stamp whose absence blanks the page (the frontend's logo handler dereferences activeScriptHash); URL/material-icon images, links, icon_image and the collapsed-sidebar swap remain unobserved.",
         "fixture SHA256 510eec70e4841262091df7cd674010f86aa3dadc8d6c89747f149b22997805cc; example SHA256 e24913670e6fe46c58556fa3bf58fcb396432e617e4e0a5059c58c907ba8b05a."
       ]
     },
@@ -1264,6 +1266,7 @@
         "unmeasured-parameters"
       ],
       "limitations": [
+        "The default placeholder is now measured (2026-10-29, frozen code-logo-params) as an empty skeleton message — confirmed field-identical with zero implementation change.",
         "Coverage is the journey-display2-v1 chain: the pinned fixture's presentation leftovers (an emoji logo, st.help over a builtin, a skeleton placeholder and st.pdf's no-component exception) across the load stage.",
         "The load shape with a pixel height was observed on both sides (the settled DOM keeps no stSkeleton node after the run finishes); dynamic replacement through the returned handle remains unobserved.",
         "fixture SHA256 510eec70e4841262091df7cd674010f86aa3dadc8d6c89747f149b22997805cc; example SHA256 e24913670e6fe46c58556fa3bf58fcb396432e617e4e0a5059c58c907ba8b05a."
