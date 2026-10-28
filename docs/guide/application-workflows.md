@@ -239,6 +239,8 @@ Rust 已采纳方案 A：显示转换保留真实行数并合成虚拟 RangeInde
 
 **按钮/图片创建参数**（[button-image-params 参考](../../tests/reference/reference-browser/button-image-params/README.md)，6/6 一致）：`ButtonOptions` 的 `r#type("primary")/icon/disabled` 透传；`download_button` 的 **URL 扩展名规则**——显式 file_name 取其扩展、均缺省时按内容推断（裸字节 → `.bin`），消息内只带 url；新增 `st.images(ImageListOptions)` 支持多图列表（captions 逐条、width 元素级、同像素共享内容寻址 URL）。URL/path 图输入与点击交互流未纳入。
 
+**chat/metric/progress 参数**（[chat-metric-params 参考](../../tests/reference/reference-browser/chat-metric-params/README.md)，8/8 一致）：chat 的 emoji 字符串 avatar → `EMOJI` 类型（material 短码为 ICON）；**metric 全规则**——无 delta 与 delta=0 均 NONE+GRAY、`delta_color("off")` 保留方向但灰、负 delta normal 为 DOWN+RED（注意 proto 零值 DOWN/RED 在 JSON 里被省略）；`progress_options(n).text("…")` 标签随消息同行。progress 的 float overload（0..1，越界框架异常）为 **Python-only**，Rust 仅整数 0..=100 面。
+
 ## 运行配置面（显式旋钮）
 
 Rust 不解析 `config.toml`（矩阵既有边界：Python 的 TOML 注册表不是兼容目标）；运行项全部是**显式**的服务器构建器与宏参数，无隐藏配置文件。完整清单：
@@ -353,6 +355,7 @@ async fn main(st: &Streamlit) {
 - **widget_params**（`http://127.0.0.1:8599/`）：number_input float 路径、radio index=None/horizontal/captions、text_area max_chars/placeholder/height、multiselect max_selections。
 - **temporal_params**（`http://127.0.0.1:8600/`）：date_input 边界/±10 年缺省窗/自定义 format、select_slider 范围默认、time_input step。
 - **button_image_params**（`http://127.0.0.1:8601/`）：按钮 primary/icon/disabled、download 命名规则、st.images 多图。
+- **chat_metric_params**（`http://127.0.0.1:8602/`）：emoji avatar、metric 全 delta 规则、progress text。
 - **combined**（`http://127.0.0.1:8596/`）：the M7 cross-capability differential page。
 - **componenttrigger**（`http://127.0.0.1:8542/`）：component triggers。
 - **componentv2**（`http://127.0.0.1:8539/`）：components v2。

@@ -344,6 +344,7 @@ pub(crate) struct ExpanderElement {
 pub(crate) struct ChatMessageElement {
     name: String,
     avatar: String,
+    avatar_type: crate::proto::block::chat_message::AvatarType,
     pub(crate) children: Vec<Rc<RefCell<dyn Element>>>,
 }
 
@@ -379,10 +380,19 @@ impl From<String> for ChatMessageOptions {
 
 impl ChatMessageElement {
     pub fn new(options: ChatMessageOptions) -> Self {
+        // Measured typing (chat.py + frozen chat-metric-params): the name
+        // default and material shortcodes are ICON; a bare emoji string is
+        // EMOJI. Image/URL avatars stay unimplemented.
+        let avatar_type = match &options.avatar {
+            None => crate::proto::block::chat_message::AvatarType::Icon,
+            Some(avatar) if avatar.starts_with(":material/") => crate::proto::block::chat_message::AvatarType::Icon,
+            Some(_) => crate::proto::block::chat_message::AvatarType::Emoji,
+        };
         let avatar = options.avatar.unwrap_or_else(|| options.name.clone());
         Self {
             name: options.name,
             avatar,
+            avatar_type,
             children: Vec::new(),
         }
     }
@@ -403,7 +413,7 @@ impl Element for ChatMessageElement {
                 r#type: Some(crate::proto::block::Type::ChatMessage(crate::proto::block::ChatMessage {
                     name: self.name.clone(),
                     avatar: self.avatar.clone(),
-                    avatar_type: crate::proto::block::chat_message::AvatarType::Icon as i32,
+                    avatar_type: self.avatar_type as i32,
                 })),
             })),
         }));

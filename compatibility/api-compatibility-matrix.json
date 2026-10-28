@@ -1706,12 +1706,17 @@
         "chat_contract": "tests/browser/chat_contract.py",
         "contract_guards": "tests/reference/test_chat_contract.py",
         "driven_fixture": "tests/reference/chat_app.py",
-        "driven_example": "streamlit/examples/chat.rs"
+        "driven_example": "streamlit/examples/chat.rs",
+        "creation_params_reference": [
+          "tests/reference/reference-browser/chat-metric-params/trace.json",
+          "tests/reference/reference-browser/chat-metric-params/README.md",
+          "tests/browser/rust-chat-metric-params/trace.json"
+        ]
       },
       "rust_plan": "st.chat_message(name) or ChatMessageOptions::new(name).avatar(...) opens a chat_message block (avatar defaulting to the name, ICON avatar type, allowEmpty, stretch width); children stream at [slot, k] through the container handle.",
       "compatibility_scope": "The journey-chat-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome across two measured stages (the load and an Enter commit of \"hi\" through the real input); the published replays assert 11/11 checks per side -- st.chat_message streams a chat_message block (name, avatar defaulting to the name, ICON avatar type, allowEmpty, stretch width) with children at [slot, 0], and st.chat_input is a trigger widget routed to the bottom root [3, 0] without consuming a main-flow slot (placeholder, the 200 MB upload cap, the 16000 Hz audio sample rate, the auto-position marker) whose Enter commit round trips chat_input_value{data, file_uploader_state} and drives the run's output at the next main slot.",
       "limitations": [
-        "Coverage is the two measured avatar forms (the name default and a material shortcode, both ICON type) and one Enter commit; image/URL avatars, emoji-type avatars, accept_file/accept_audio submissions, max_chars, disabled, on_change callbacks, submit_mode and programmatic set_value remain unobserved.",
+        "The emoji-string avatar is now measured (2026-10-29, frozen chat-metric-params) riding avatar_type EMOJI alongside the measured ICON shortcodes — a real Rust divergence (emoji was tagged ICON) found and fixed by the differential. Coverage otherwise is the two measured avatar forms (the name default and a material shortcode, both ICON type) and one Enter commit; image/URL avatars, emoji-type avatars, accept_file/accept_audio submissions, max_chars, disabled, on_change callbacks, submit_mode and programmatic set_value remain unobserved.",
         "The chat input is a one-shot trigger: the value returns on the run it triggered and resets to None after, like the reference's trigger semantics (the registry resets it with the button triggers).",
         "fixture SHA256 e85271b6a4bd78e4eb28a128d307f2bf8dd3eb7450afe230c161274fedfbe0d2; example SHA256 7e0f5afb36cd35a915ff6f9e546357afd960c9975edb2a4319c4ad008f77b240; chat block source SHA256 4029d37bd1f5b1b85f93bd15cf7485b93d33f8f5549ad42715bc9c5f40c42eac."
       ]
@@ -2564,12 +2569,17 @@
           "tests/browser/rust-combined/trace.json",
           "tests/browser/rust-combined/README.md",
           "tests/reference/test_combined_differential.py"
+        ],
+        "creation_params_reference": [
+          "tests/reference/reference-browser/chat-metric-params/trace.json",
+          "tests/reference/reference-browser/chat-metric-params/README.md",
+          "tests/browser/rust-chat-metric-params/trace.json"
         ]
       },
       "rust_plan": "st.metric(MetricOptions::new(label, value).delta(...).delta_color(...)) emits the measured Metric with direction/color derived from the delta's first number word and the delta_color mode; the element carries the measured stretch width and content height.",
       "compatibility_scope": "The journey-media-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were both loaded by a real Chrome through the official frontend; both published replays return 10/10/10 exit 0 with identical element protos, DOM projections and /media response shapes (python 763beee2..., native fb8f5e64...). The WAV fixture is byte-identical across runtimes, so its address, range response and body digest are the exact measured ones; the PNG encodes per side (the reference deflates with PIL) with identical pixels.",
       "limitations": [
-        "Coverage is the measured normal-positive and inverse-negative pair (UP/GREEN and DOWN/GREEN); no-delta, zero, non-numeric-delta, off/gray and the numeric formatting/chart fields are unobserved.",
+        "The full delta rule set is now measured (2026-10-29, frozen chat-metric-params): no-delta and zero-delta are NONE+GRAY (two real Rust divergences — RED color and DOWN direction — fixed by the differential), off/gray keeps the direction, negative normal is DOWN+RED with the proto zero-values omitted on the wire. Coverage otherwise is the measured normal-positive and inverse-negative pair (UP/GREEN and DOWN/GREEN); no-delta, zero, non-numeric-delta, off/gray and the numeric formatting/chart fields are unobserved.",
         "media store source SHA256 82200de623c3c193dad38ad1d858d025b5a806a6a98f5764b1957f5113598055; elements source SHA256 72499c716daf0c6b8b074134026ca356d06a06b2ba8db68f1421a79f0cd072f7; route source SHA256 1cd9d5e90bece87881dfc8ce7cd497d52962cea8822cf9e6fdefcfecfd5bbc68; fixture SHA256 6079286f3d84cb2478a35ec38532b007b188c5c7cfed5c528e271dce08e4046e; example SHA256 f80ac67a3d30312042ebf4aaaf15e0807cf73191b7bfb93b34dfaab2dbf86f26."
       ]
     },
@@ -4164,12 +4174,17 @@
         "contract_guards": "tests/reference/test_media_contract.py",
         "driven_fixture": "tests/reference/media_app.py",
         "driven_example": "streamlit/examples/media.rs",
-        "rust_api_test": "streamlit/tests/runtime/media.rs"
+        "rust_api_test": "streamlit/tests/runtime/media.rs",
+        "creation_params_reference": [
+          "tests/reference/reference-browser/chat-metric-params/trace.json",
+          "tests/reference/reference-browser/chat-metric-params/README.md",
+          "tests/browser/rust-chat-metric-params/trace.json"
+        ]
       },
       "rust_plan": "st.progress(value) returns a handle whose set() coalesces into the single final-value delta the reference streams at its same-tick flush (50-then-75 emits one Progress{value:75}); the element carries the measured stretch width.",
       "compatibility_scope": "The journey-media-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were both loaded by a real Chrome through the official frontend; both published replays return 10/10/10 exit 0 with identical element protos, DOM projections and /media response shapes (python 763beee2..., native fb8f5e64...). The WAV fixture is byte-identical across runtimes, so its address, range response and body digest are the exact measured ones; the PNG encodes per side (the reference deflates with PIL) with identical pixels.",
       "limitations": [
-        "Coverage is the measured 0..=100 integer value pair; text, float values and mid-run timing beyond the same-tick window are unobserved.",
+        "The text label is now measured riding the creation message (2026-10-29, frozen chat-metric-params, new progress_options builder). The float overload is python-only (0.0..=1.0, out-of-range raises the framework exception measured in the same trace); the Rust API stays integer-only and does not claim float parity. Coverage otherwise is the measured 0..=100 integer value pair; text, float values and mid-run timing beyond the same-tick window are unobserved.",
         "A deferred element placed before later non-deferred elements streams after them at run end; the measured page has progress last.",
         "media store source SHA256 82200de623c3c193dad38ad1d858d025b5a806a6a98f5764b1957f5113598055; elements source SHA256 72499c716daf0c6b8b074134026ca356d06a06b2ba8db68f1421a79f0cd072f7; route source SHA256 1cd9d5e90bece87881dfc8ce7cd497d52962cea8822cf9e6fdefcfecfd5bbc68; fixture SHA256 6079286f3d84cb2478a35ec38532b007b188c5c7cfed5c528e271dce08e4046e; example SHA256 f80ac67a3d30312042ebf4aaaf15e0807cf73191b7bfb93b34dfaab2dbf86f26."
       ]

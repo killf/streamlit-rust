@@ -1309,6 +1309,29 @@ impl From<String> for StatusContainerOptions {
 pub struct Progress {
     element: Rc<RefCell<crate::elements::media::ProgressElement>>,
 }
+
+/// Progress options: an integer percent (0..=100) with an optional text
+/// label riding the same message (the measured python form); floats are a
+/// python-only overload (0.0..=1.0, else a framework exception) the Rust
+/// API does not carry — the integer path is the measured parity surface.
+pub struct ProgressOptions {
+    value: u32,
+    text: String,
+}
+impl ProgressOptions {
+    pub fn new(value: u32) -> Self {
+        Self { value, text: String::new() }
+    }
+    pub fn text(mut self, text: impl Into<String>) -> Self {
+        self.text = text.into();
+        self
+    }
+}
+impl From<u32> for ProgressOptions {
+    fn from(value: u32) -> Self {
+        Self::new(value)
+    }
+}
 impl Progress {
     pub fn set(&self, value: u32) {
         self.element.borrow_mut().set(value);
@@ -1488,6 +1511,10 @@ pub trait StreamlitApi {
     fn metric<T: Into<MetricOptions>>(&self, options: T);
 
     fn progress(&self, value: u32) -> Result<Progress, WidgetError>;
+
+    /// Progress with a text label riding the creation message
+    /// (Python `st.progress(50, text=…)`).
+    fn progress_options(&self, options: impl Into<ProgressOptions>) -> Result<Progress, WidgetError>;
 
     /// Streams a transient spinner around `body`, clearing it on exit the
     /// way the reference's `with st.spinner(...)` does.
@@ -2434,6 +2461,20 @@ impl<C: AppendChild> StreamlitApi for C {
             return Err(WidgetError::InvalidValue("progress value must be within 0..=100".into()));
         }
         let element = Rc::new(RefCell::new(crate::elements::media::ProgressElement::new(value)));
+        self.push(element.clone());
+        Ok(Progress { element })
+    }
+
+    fn progress_options(&self, options: impl Into<ProgressOptions>) -> Result<Progress, WidgetError> {
+        let options = options.into();
+        if options.value > 100 {
+            return Err(WidgetError::InvalidValue("progress value must be within 0..=100".into()));
+        }
+        let mut element = crate::elements::media::ProgressElement::new(options.value);
+        if !options.text.is_empty() {
+            element.set_text(options.text);
+        }
+        let element = Rc::new(RefCell::new(element));
         self.push(element.clone());
         Ok(Progress { element })
     }

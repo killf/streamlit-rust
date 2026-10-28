@@ -367,20 +367,23 @@ impl MetricElement {
 
 impl Element for MetricElement {
     fn render(&self, context: &mut RenderContext) -> Result<(), StreamlitError> {
-        // The direction follows the delta's numeric sign, read off the first
-        // number word: the measured "2 °F" points UP and "-3 mph" DOWN, so
-        // trailing unit words do not break the parse. No number word at all
-        // has no direction (only the UP/DOWN pair is measured).
-        let sign = self
+        // The frozen chat-metric-params reference pins the full rule set: no
+        // delta and a zero delta are NONE + GRAY; otherwise the direction
+        // follows the first number word's sign ("2 °F" UP, "-3 mph" DOWN)
+        // and only a real delta takes the delta_color mapping.
+        let number = self
             .delta
             .as_deref()
+            .filter(|delta| !delta.is_empty())
             .and_then(|delta| delta.split_whitespace().next())
-            .and_then(|token| token.replace(',', "").parse::<f64>().ok())
-            .map(|number| number > 0.0);
-        let (direction, color) = match sign {
-            Some(true) => (metric::MetricDirection::Up, self.delta_color.wire(true)),
-            Some(false) => (metric::MetricDirection::Down, self.delta_color.wire(false)),
-            None => (metric::MetricDirection::None, metric::MetricColor::Red),
+            .and_then(|token| token.replace(',', "").parse::<f64>().ok());
+        let (direction, color) = match number {
+            None => (metric::MetricDirection::None, metric::MetricColor::Gray),
+            Some(0.0) => (metric::MetricDirection::None, metric::MetricColor::Gray),
+            Some(value) => {
+                let positive = value > 0.0;
+                (if positive { metric::MetricDirection::Up } else { metric::MetricDirection::Down }, self.delta_color.wire(positive))
+            }
         };
         let element_hash = hash(format!("metric_{}_{}_{}_{:?}_{:?}", self.label, self.body, self.delta.as_deref().unwrap_or(""), self.delta_color, direction).as_str());
         push_element(
