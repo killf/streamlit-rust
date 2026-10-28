@@ -36,3 +36,32 @@ Superseded captures (replaced, not kept):
 
 Both were replaced because they merged the handshakes per tab and kept only the
 last one, so they could not show which connection a frame belonged to.
+
+<!-- Legacy chain index: manifest-less captures above stay reachable through the matrix features that cite them. -->
+- `buttons/`: frozen browser chain cited by the compatibility matrix under st.download_button, st.feedback, st.link_button, st.menu_button and more.
+- `cache/`: frozen browser chain cited by the compatibility matrix under st.cache_data, st.cache_resource.
+- `chartlibs/`: frozen browser chain cited by the compatibility matrix under st.altair_chart, st.echarts_chart, st.graphviz_chart, st.mermaid_chart and more.
+- `charts/`: frozen browser chain cited by the compatibility matrix under st.area_chart, st.line_chart, st.map, st.scatter_chart.
+- `chat/`: frozen browser chain cited by the compatibility matrix under st.chat_input, st.chat_message.
+- `colconfig/`: frozen browser chain cited by the compatibility matrix under st.column_config, st.column_config.AreaChartColumn, st.column_config.AudioColumn, st.column_config.BarChartColumn and more.
+- `combined/`: frozen browser chain; see the matrix and .codex/compatibility.md for the exact scope.
+- `componenttrigger/`: frozen browser chain cited by the compatibility matrix under st.components.v2.component.
+- `componentv2/`: frozen browser chain cited by the compatibility matrix under st.components.v2.component.
+- `dataeditor/`: frozen browser chain cited by the compatibility matrix under st.data_editor.
+- `datetime/`: frozen browser chain cited by the compatibility matrix under st.datetime_input.
+- `display/`: frozen browser chain cited by the compatibility matrix under st.json, st.bottom, st.empty, st.space and more.
+- `display2/`: frozen browser chain cited by the compatibility matrix under st.logo, st.pdf, st.skeleton, st.help.
+- `elements/`: frozen browser chain cited by the compatibility matrix under st.form, st.form_submit_button, st.bar_chart, st.table and more.
+- `execution-j04/`: frozen browser chain cited by the compatibility matrix under st.rerun, st.stop.
+- `inputs/`: frozen browser chain cited by the compatibility matrix under st.multiselect, st.number_input, st.radio, st.text_area.
+- `layouts/`: frozen browser chain cited by the compatibility matrix under st.dialog, concept.design.layouts-and-containers, st.expander, st.popover and more.
+- `media/`: frozen browser chain cited by the compatibility matrix under st.metric, st.audio, st.image, st.progress.
+- `navigation/`: frozen browser chain cited by the compatibility matrix under st.navigation, st.Page, st.switch_page, concept.multipage-apps.overview and more.
+- `pageconfig/`: frozen browser chain cited by the compatibility matrix under st.set_page_config.
+- `pickers/`: frozen browser chain cited by the compatibility matrix under st.audio_input, st.camera_input, st.color_picker, st.date_input and more.
+- `presentation/`: frozen browser chain cited by the compatibility matrix under st.balloons, st.spinner, st.toast.
+- `queryparams/`: frozen browser chain cited by the compatibility matrix under st.query_params, st.selectbox.
+- `temporal/`: frozen browser chain cited by the compatibility matrix under st.slider.
+- `textelements/`: frozen browser chain cited by the compatibility matrix under st.components.v1.html, st.components.v1.iframe, st.exception, st.snow and more.
+- `video/`: frozen browser chain cited by the compatibility matrix under st.video.
+- `writestream/`: frozen browser chain cited by the compatibility matrix under st.write_stream.

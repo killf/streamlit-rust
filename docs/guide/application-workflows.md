@@ -324,3 +324,57 @@ async fn main(st: &Streamlit) {
 参考行为以锁定的 Python Streamlit 1.66.1 一次采集的正确输入、输出及版本信息冻结；之后 Rust 单元测试和协议重放复用这些数据，无需因每次 Rust 修改或路径变化重新运行 Python。只有新行为、版本升级或证据失效时才补采。Rust、Python 和采集工具的源码 SHA 不作为验收条件；改变错误处理或实现方式不会使正确的冻结结果失效，也不需要另存历史源码。当前 Rust 仍需实际通过对应功能、协议和交互验证。
 
 旧 raw 保持原样；其中源码 SHA 与旧绝对路径仅用于追溯来源，当前数据 fixture 应通过受控相对路径、大小和内容 SHA 定位。各矩阵条目的证据链接说明已覆盖的场景，不应把某一项通过推广到完整功能。
+
+## 示例索引
+
+每个示例 `cargo run --example <名称> --locked` 后打开对应地址：
+
+- **auth**（`http://127.0.0.1:见源码/`）：fake-credential authentication。
+- **basic**（`http://127.0.0.1:见源码/`）：markdown/text basics。
+- **button**（`http://127.0.0.1:见源码/`）：见源码顶部注释。
+- **buttons**（`http://127.0.0.1:8523/`）：every button flavor。
+- **cache**（`http://127.0.0.1:8516/`）：cache_data/resource。
+- **cache_nested**（`http://127.0.0.1:8543/`）：nested caching。
+- **chartlibs**（`http://127.0.0.1:8528/`）：library charts。
+- **charts**（`http://127.0.0.1:8512/`）：native charts。
+- **chat**（`http://127.0.0.1:8522/`）：chat message and input。
+- **colconfig**（`http://127.0.0.1:8529/`）：column configs。
+- **columns_params**（`http://127.0.0.1:8595/`）：st.columns parameters。
+- **combined**（`http://127.0.0.1:8596/`）：the M7 cross-capability differential page。
+- **componenttrigger**（`http://127.0.0.1:8542/`）：component triggers。
+- **componentv2**（`http://127.0.0.1:8539/`）：components v2。
+- **container**（`http://127.0.0.1:见源码/`）：container basics。
+- **counter**（`http://127.0.0.1:见源码/`）：session-state counter。
+- **csv_workbench**（`http://127.0.0.1:8545/`）：the full CSV workbench (M2)。
+- **data_app**（`http://127.0.0.1:8501/`）：CSV upload to table and chart。
+- **dataeditor**（`http://127.0.0.1:8541/`）：the dynamic editor。
+- **dataframe_selection**（`http://127.0.0.1:8544/`）：typed row selection。
+- **datetime**（`http://127.0.0.1:8526/`）：date/time inputs。
+- **display**（`http://127.0.0.1:8521/`）：display elements。
+- **display2**（`http://127.0.0.1:8525/`）：display leftovers。
+- **elements**（`http://127.0.0.1:8507/`）：element chain page。
+- **execution**（`http://127.0.0.1:见源码/`）：rerun/stop control。
+- **forms**（`http://127.0.0.1:8504/`）：form flows。
+- **hello**（`http://127.0.0.1:见源码/`）：the minimal starter page。
+- **inputs**（`http://127.0.0.1:8508/`）：core input widgets。
+- **layout_params**（`http://127.0.0.1:8594/`）：layout and streaming parameters。
+- **layouts**（`http://127.0.0.1:8513/`）：layout containers。
+- **media**（`http://127.0.0.1:8509/`）：media elements。
+- **media_params**（`http://127.0.0.1:8593/`）：audio/video playback parameters。
+- **navigation**（`http://127.0.0.1:8517/`）：multipage navigation。
+- **pageconfig**（`http://127.0.0.1:8514/`）：page config。
+- **pickers**（`http://127.0.0.1:8524/`）：picker widgets。
+- **presentation**（`http://127.0.0.1:8511/`）：presentation elements。
+- **queryparams**（`http://127.0.0.1:8515/`）：query params。
+- **quickstart**（`http://127.0.0.1:8503/`）：the guided quickstart widgets。
+- **request_context**（`http://127.0.0.1:8590/`）：request context and cookies。
+- **status**（`http://127.0.0.1:8502/`）：status elements。
+- **tables**（`http://127.0.0.1:见源码/`）：tables and native bar charts。
+- **temporal**（`http://127.0.0.1:8506/`）：temporal inputs。
+- **textelements**（`http://127.0.0.1:8520/`）：text elements。
+- **timer**（`http://127.0.0.1:见源码/`）：auto-rerun timer。
+- **uploads**（`http://127.0.0.1:8591/`）：single and multiple uploaders。
+- **video**（`http://127.0.0.1:8510/`）：video and ranges。
+- **widgets**（`http://127.0.0.1:见源码/`）：the widget parity page。
+- **writestream**（`http://127.0.0.1:8527/`）：write_stream。
+- **zero_columns**（`http://127.0.0.1:8580/`）：zero-column tables。

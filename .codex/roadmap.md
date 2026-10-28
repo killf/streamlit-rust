@@ -14,7 +14,7 @@
 
 ## Current focus
 
-**长期 M2、M6、M4 均已于 2026-10-28 关闭（各有保留证据与关闭记录）；当前推进 M3 适用公开能力的参数面收敛与 M5 稳定性，随后 M7 全量验收。** M0 起点为 `99b1ed8e4b35737c9495764fb70269271a10bada`，开始时工作区干净。已建立官方文档能力与缺口清单、复核不适用项并刷新 Rust/Python 验证及性能基线；这不代表全功能或所有参数、教程 FAQ 的验收结束。已校验的 wheel 仅固定参考环境，不能代替官方用户文档的功能范围。
+**长期 M2、M6、M4 均已于 2026-10-28 关闭（各有保留证据与关闭记录）；M5 已交付稳定性三场景批次（保持开放），M3 参数面多切片收敛中；M7 全量验收已启动（首个跨能力组合差分 + 文档核验门 + 独立 Review 有保留通过并补齐阻塞项）。** M0 起点为 `99b1ed8e4b35737c9495764fb70269271a10bada`，开始时工作区干净。已建立官方文档能力与缺口清单、复核不适用项并刷新 Rust/Python 验证及性能基线；这不代表全功能或所有参数、教程 FAQ 的验收结束。已校验的 wheel 仅固定参考环境，不能代替官方用户文档的功能范围。
 
 已完成 54 项历史 `not_applicable` 的用户文档适用性复核，结论见 [compatibility](compatibility.md#historical-not-applicable-closures-and-m0-review)；没有将缺少 Rust 实现视为永久排除，也没有自动改写旧状态。M1 列明的 Q1–Q6 已确认修复、回归、必要前端证据和独立 Review 已分批完成，覆盖范围见 acceptance；未验证的运行组合及资源边界继续留在后续里程碑，不把六项修复当成运行时完整兼容。
 
@@ -39,6 +39,8 @@ CSV 工作台 A 已交付主流程 20 阶段、筛选 13 阶段与来源替换 1
 缓存种类共用键表导致的实际返回值错误已独立修复：data/resource 同名同参各自保留结果、资源引用和录制输出；四组公开参考只采一次并冻结，Rust 真实 WS 复验各自重放。仍维持会话级缓存与现有总清空接口，未扩大为完整 Python 全局/会话选项、TTL 或分类别清空兼容；详见[参考及局限](../tests/reference/reference-browser/cache-kind-isolation/README.md)。
 
 M5 稳定性批次（2026-10-28）：大数据（100k/50k 行 + 200k 点图表）、长时运行（300 轮 rerun 精确状态）与慢连接（parked reader 不阻塞他 会话）三场景落地可复现回归与 3 试次测量（[验收](acceptance.md#current-stability-scenarios-validation-2026-10-28)）；吞吐/容量上限/多小时运行未测，M5 保持未完成。
+
+M7 启动批次（2026-10-28）：跨能力组合差分（22 元素双端冻结、仅两条既有约定归一化）、常驻文档核验门（矩阵证据/指南链接/示例索引/链 README-manifest）与独立只读 Review（有保留通过，两阻塞项已补齐，[验收](acceptance.md#current-m7-kickoff-validation-2026-10-28)）；全量差分扩展与遗留清理未完成，M7 保持开放。
 
 M3 列参数切片（2026-10-28）：st.columns 的 gap/border/vertical_alignment/加权 spec 已双端冻结验收（22/22 块逐字一致，修复容器 scale/wrap、f64 权重与列 gap 复制三处偏差；[验收](acceptance.md#current-columns-parameters-validation-2026-10-28)）；wrap/自定义列宽/嵌套未测。
 

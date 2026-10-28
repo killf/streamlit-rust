@@ -1640,6 +1640,13 @@
           "tests/browser/rust-vega-refresh-after/trace.json",
           "tests/browser/rust-vega-refresh-after/README.md",
           "streamlit/tests/runtime/chartlibs.rs"
+        ],
+        "m7_combined_differential": [
+          "tests/reference/reference-browser/combined/trace.json",
+          "tests/reference/reference-browser/combined/README.md",
+          "tests/browser/rust-combined/trace.json",
+          "tests/browser/rust-combined/README.md",
+          "tests/reference/test_combined_differential.py"
         ]
       },
       "rust_plan": "st.vega_lite_chart(spec) streams a vega_lite_chart element whose inline data.values list is pulled out of the spec into the element's arrow data (autosize appended when absent; theme streamlit).",
@@ -2472,6 +2479,13 @@
           "tests/reference/reference-browser/csv-workbench/sources-clear/README.md",
           "tests/browser/rust-csv-workbench/sources-clear/trace.json",
           "tests/browser/rust-csv-workbench/sources-clear/README.md"
+        ],
+        "m7_combined_differential": [
+          "tests/reference/reference-browser/combined/trace.json",
+          "tests/reference/reference-browser/combined/README.md",
+          "tests/browser/rust-combined/trace.json",
+          "tests/browser/rust-combined/README.md",
+          "tests/reference/test_combined_differential.py"
         ]
       },
       "rust_plan": "Render Arrow IPC dataframes and return typed selections through the same call; validate remaining documented modes, parameters and combined workflows against pinned reference behavior.",
@@ -2536,7 +2550,14 @@
         "contract_guards": "tests/reference/test_media_contract.py",
         "driven_fixture": "tests/reference/media_app.py",
         "driven_example": "streamlit/examples/media.rs",
-        "rust_api_test": "streamlit/tests/runtime/media.rs"
+        "rust_api_test": "streamlit/tests/runtime/media.rs",
+        "m7_combined_differential": [
+          "tests/reference/reference-browser/combined/trace.json",
+          "tests/reference/reference-browser/combined/README.md",
+          "tests/browser/rust-combined/trace.json",
+          "tests/browser/rust-combined/README.md",
+          "tests/reference/test_combined_differential.py"
+        ]
       },
       "rust_plan": "st.metric(MetricOptions::new(label, value).delta(...).delta_color(...)) emits the measured Metric with direction/color derived from the delta's first number word and the delta_color mode; the element carries the measured stretch width and content height.",
       "compatibility_scope": "The journey-media-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were both loaded by a real Chrome through the official frontend; both published replays return 10/10/10 exit 0 with identical element protos, DOM projections and /media response shapes (python 763beee2..., native fb8f5e64...). The WAV fixture is byte-identical across runtimes, so its address, range response and body digest are the exact measured ones; the PNG encodes per side (the reference deflates with PIL) with identical pixels.",
@@ -3471,6 +3492,13 @@
           "tests/reference/reference-browser/columns-params/README.md",
           "tests/browser/rust-columns-params/trace.json",
           "streamlit/tests/runtime/layouts.rs"
+        ],
+        "m7_combined_differential": [
+          "tests/reference/reference-browser/combined/trace.json",
+          "tests/reference/reference-browser/combined/README.md",
+          "tests/browser/rust-combined/trace.json",
+          "tests/browser/rust-combined/README.md",
+          "tests/reference/test_combined_differential.py"
         ]
       },
       "rust_plan": "Render the measured column layout block with per-column weights and gaps.",
@@ -3557,6 +3585,13 @@
           "tests/reference/reference-browser/layout-params/README.md",
           "tests/browser/rust-layout-params/trace.json",
           "streamlit/tests/runtime/layouts.rs"
+        ],
+        "m7_combined_differential": [
+          "tests/reference/reference-browser/combined/trace.json",
+          "tests/reference/reference-browser/combined/README.md",
+          "tests/browser/rust-combined/trace.json",
+          "tests/browser/rust-combined/README.md",
+          "tests/reference/test_combined_differential.py"
         ]
       },
       "rust_plan": "ExpanderOptions{label, expanded, icon} via st.expander(options) -> &Expander; children stream at [slot, k] behind the Block{expandable, allowEmpty, width stretch} measured shape.",
@@ -3593,6 +3628,13 @@
           "tests/reference/reference-browser/layout-params/README.md",
           "tests/browser/rust-layout-params/trace.json",
           "streamlit/tests/runtime/layouts.rs"
+        ],
+        "m7_combined_differential": [
+          "tests/reference/reference-browser/combined/trace.json",
+          "tests/reference/reference-browser/combined/README.md",
+          "tests/browser/rust-combined/trace.json",
+          "tests/browser/rust-combined/README.md",
+          "tests/reference/test_combined_differential.py"
         ]
       },
       "rust_plan": "PopoverOptions{label, icon} via st.popover(label) -> &Popover; Block{popover(label, type secondary, open false), allowEmpty, width content} with children at [slot, k].",
@@ -3688,6 +3730,13 @@
           "tests/reference/reference-browser/layout-params/README.md",
           "tests/browser/rust-layout-params/trace.json",
           "streamlit/tests/runtime/layouts.rs"
+        ],
+        "m7_combined_differential": [
+          "tests/reference/reference-browser/combined/trace.json",
+          "tests/reference/reference-browser/combined/README.md",
+          "tests/browser/rust-combined/trace.json",
+          "tests/browser/rust-combined/README.md",
+          "tests/reference/test_combined_differential.py"
         ]
       },
       "rust_plan": "st.tabs([\"One\", \"Two\"]) -> &[Tab] from TabsOptions (From<[&str; N]>/slices/Vec<String>); emits the tabContainer block (height content, width stretch) plus one allowEmpty tab block per label up front, children then stream at [slot, i, k].",
@@ -3724,6 +3773,13 @@
           "tests/reference/reference-browser/media-params/README.md",
           "tests/browser/rust-media-params/trace.json",
           "streamlit/tests/runtime/media.rs"
+        ],
+        "m7_combined_differential": [
+          "tests/reference/reference-browser/combined/trace.json",
+          "tests/reference/reference-browser/combined/README.md",
+          "tests/browser/rust-combined/trace.json",
+          "tests/browser/rust-combined/README.md",
+          "tests/reference/test_combined_differential.py"
         ]
       },
       "rust_plan": "st.audio((bytes, \"audio/wav\")) registers the bytes and emits the measured Audio element with a relative /media/{blake2b}.wav URL and the stretch width inside the message.",
@@ -3855,6 +3911,13 @@
           "tests/reference/reference-browser/media-params/README.md",
           "tests/browser/rust-media-params/trace.json",
           "streamlit/tests/runtime/media.rs"
+        ],
+        "m7_combined_differential": [
+          "tests/reference/reference-browser/combined/trace.json",
+          "tests/reference/reference-browser/combined/README.md",
+          "tests/browser/rust-combined/trace.json",
+          "tests/browser/rust-combined/README.md",
+          "tests/reference/test_combined_differential.py"
         ]
       },
       "rust_plan": "st.video((bytes, \"video/mp4\")) registers the bytes in the content-addressed store and emits the measured Video element: the NATIVE type, the relative /media/{blake2b}.mp4 URL and the stretch width inside the message.",
@@ -4178,6 +4241,13 @@
           "tests/reference/reference-browser/layout-params/README.md",
           "tests/browser/rust-layout-params/trace.json",
           "streamlit/tests/runtime/layouts.rs"
+        ],
+        "m7_combined_differential": [
+          "tests/reference/reference-browser/combined/trace.json",
+          "tests/reference/reference-browser/combined/README.md",
+          "tests/browser/rust-combined/trace.json",
+          "tests/browser/rust-combined/README.md",
+          "tests/reference/test_combined_differential.py"
         ]
       },
       "rust_plan": "st.toast(ToastOptions::new(body).icon(...)) emits a one-shot Toast element routed to the dedicated root path [2, 0] with the measured explicit four-second default duration.",
@@ -4279,7 +4349,14 @@
         "elements_capture_entry": "tests/browser/elements_capture.py",
         "rust_wire_observation": "tests/browser/rust-elements/trace-elements.json",
         "official_frontend_browser_e2e": "tests/browser/rust-elements/trace-elements.json",
-        "rust_api_test": "streamlit/tests/runtime/textelements.rs"
+        "rust_api_test": "streamlit/tests/runtime/textelements.rs",
+        "m7_combined_differential": [
+          "tests/reference/reference-browser/combined/trace.json",
+          "tests/reference/reference-browser/combined/README.md",
+          "tests/browser/rust-combined/trace.json",
+          "tests/browser/rust-combined/README.md",
+          "tests/reference/test_combined_differential.py"
+        ]
       },
       "rust_plan": "Render the code element (body, language, line numbers) on the measured wire.",
       "compatibility_scope": "The 2026-10-25 journey-elements-v1 chain drives one official-frontend page on both runtimes with a real Chrome (load plus typed-and-applied form stage); both published replays assert 11/11/11 with identical normalized wire streams and DOM fingerprints. Covers body + default python language on the elements page; line_numbers/wrap/height unobserved.",

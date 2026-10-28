@@ -296,6 +296,16 @@ M5 稳定性批次：三个此前未测场景的可复现回归与测量（`stre
 
 边界：单机 debug 构建、每场景单/双会话；吞吐、并发容量上限、真实网络延迟抖动、多小时级长时运行与泄漏证明不在本批；无 SLO。M5 保持未完成（媒体回收、会话容量等既有边界不变）。
 
+## Current M7 kickoff validation (2026-10-28)
+
+M7 全量验收启动批次（组合差分 + 文档核验 + 独立 Review）：
+
+- **跨能力组合差分**：组合页 fixture [combined_app.py](../tests/reference/combined_app.py) 与 Rust 镜像示例 [combined.rs](../streamlit/examples/combined.rs)（8596）逐调用对应，同一采集器原生 WS 双侧各一次冻结（22 元素/26 帧，python `reference-browser/combined/`、rust `browser/rust-combined/`，manifest 哈希锁定）。离线差分 [test_combined_differential.py](../tests/reference/test_combined_differential.py)：kind 序列逐项相等、逐元素字段相等，仅两条既有约定归一化（Arrow 逻辑比较、generic vega accepted-A 承载差）；媒体内容哈希同字节同 URL 逐字一致。矩阵在 11 个被交叉的条目下挂 `m7_combined_differential` 证据。Python 侧 `st.bar_chart` 因锁定的 altair 在 Python 3.14 无法导入（既有记录），组合页两图均用显式 vega spec——与 CSV 参考同款处理。
+- **文档核验扫描** [test_docs_consistency.py](../tests/reference/test_docs_consistency.py)（4 项，常驻离线门）：矩阵证据路径存在（生成器边界内）、指南/README 仓库相对链接可解析、示例注册与目录一致且指南「示例索引」覆盖全部 49 个示例（`**名称**` 形式匹配）、reference-browser 各链 README/manifest 一致（repo 绝对 stored_file 在 ROOT 校验）。扫描落地即修复真缺口：25 个有 manifest 无 README 的链补 README（按矩阵引用生成）、指南新增 49 项示例索引、总览 README 补 27 条链索引。
+- **独立只读 Review**（Sol/high 档位 Explore 代理）：判定**有保留通过**——证据真实、归一化未放宽、抽查全部属实；两个阻塞项（本台账缺失、矩阵未挂 combined 证据 + 索引行悬空）已按审查意见补齐；建议项（stored_file 分支改在 ROOT 校验、示例索引改精确匹配）已采纳，其余建议（差分比较收窄盲区）记为后续增强。审查原文要点存档于本节。
+
+边界：组合差分为单页单轮原生 WS（无浏览器 UI 层、无交互）；差分盲区（markdown element_type/wrap、vega theme、add_block delta_path 参与断言）经审查人工核对当前无差异，列为后续增强；M7 其余义务（全量差分矩阵扩展、最终文档核验、遗留清理）未完成，M7 保持开放。
+
 ## Required fresh-checkout checks
 
 ```powershell
