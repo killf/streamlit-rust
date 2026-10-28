@@ -372,6 +372,16 @@ M5 三场景批次（`tools/measure_stability.py` 扩至六相，[tests/performa
 
 修正一处测试自伤（sustained_window 首轮按钮未注册时 bumps 计数先于交付——测试代码问题，产品零改动）。边界：单机 debug、单 worker；真实网络抖动、跨机分布式与真正多小时运行不在本批。
 
+## M7 terminal-batch preparation status (2026-10-29)
+
+M7 终批前置：范围确认问题已**第四次**向用户提交（M3 53 项含未测参数 + 12 需外部源 + 2 headless 不可达的处理路线；M5 多小时浸泡定格与否），**未获答复**——按既定规则不做默认确认，130 项 partial 与 M5 多小时全部保持开放，等待显式记录。
+
+不依赖确认的终批要件本批完成核验：
+
+- **最终文档核验**：矩阵全量一致性审计通过（182 条目、130 implemented 全部有证据、summary 与条目同步、清单与矩阵强一致）；指南/验收/roadmap 全部仓库相对链接解析；52 项矩阵进度门 + 4 项文档门 + 850 项采集检查全绿。
+- **遗留清理扫描**：`streamlit/src`、`streamlit-macros/src`、`tools/*.py` 零 TODO/FIXME/XXX/HACK；`tools/` 五个脚本全部在册使用（inventory/stability 生成器 + 三个历史工具）；无死探针、无过期文档残留。
+- **待确认后即可执行的终批剩余**：据用户答复定格或补测（M3 范围/M5 多小时）→ M7 关闭评估复核 → 最终独立 Review → 关闭记录。
+
 ## Required fresh-checkout checks
 
 ```powershell
