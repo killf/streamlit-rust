@@ -362,6 +362,16 @@ M3 可测面切片（文本族簇）。冻结 Python 参考 `tests/reference/ref
 
 M3 可测面切片（code/skeleton/logo 簇）。冻结 Python 参考 `tests/reference/reference-browser/code-logo-params/`（3 元素 + logo ForwardMsg）与 Rust 对照 **3/3 元素 + logo 帧逐字一致——零实现改动**：`st.code` 的任意 language 标签透传（无白名单）与 `line_numbers→show_line_numbers`；`st.skeleton` 默认空消息；`st.logo` emoji 判型 EMOJI、**缺省 size "medium"**、顶层 logo 字段承载（非 delta，元数据仅 activeScriptHash）。矩阵 st.code/st.skeleton 两条目原无 limitations 首获测量记录、st.logo 在既有 emoji 链上叠加端到端确认；清单再生成。边界：code wrap_lines/height、URL/路径 logo、icon_image/link 未纳入。
 
+## Current M5 throughput/capacity/sustained validation (2026-10-29)
+
+M5 三场景批次（`tools/measure_stability.py` 扩至六相，[tests/performance/stability.json](../tests/performance/stability.json) 各 3 试次冻结）：
+
+- **吞吐**（`throughput_reruns`）：单会话 200 轮持续 rerun（256 行表），**~509 rerun/s**、每轮 5,256 字节 Arrow 全部逐行解码正确；3 试次峰值私有内存 ~3 MiB。
+- **容量上限**（`capacity_ramp`）：64→128 两级并发会话逐级放大，每级**全部会话完成 run**（128 级 3/3 试次全对，~0.56s/级）；峰值 ~8 MiB。未探到失败上限——本机文件描述符内 128 级全部正确，更高级别的真实失败点未测。
+- **持续运行**（`sustained_window`）：**5 秒有界持续窗口**内 ~9,500 轮 rerun + 197 次按钮触发，计数精确、会话身份稳定（~1,900 runs/s）。**如实声明：这是有界持续窗口，不是多小时浸泡**——多小时级长时运行仍未测，M5 不据此关闭。
+
+修正一处测试自伤（sustained_window 首轮按钮未注册时 bumps 计数先于交付——测试代码问题，产品零改动）。边界：单机 debug、单 worker；真实网络抖动、跨机分布式与真正多小时运行不在本批。
+
 ## Required fresh-checkout checks
 
 ```powershell

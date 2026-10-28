@@ -13,6 +13,9 @@ FIXTURES = {
     "large_payloads": "server::tests::stability::large_payloads_render_correctly_and_survive_a_rerun",
     "long_session_churn": "server::tests::stability::a_long_session_survives_rerun_churn_with_exact_state",
     "slow_reader_isolation": "server::tests::stability::a_slow_reader_does_not_block_a_fast_session",
+    "throughput_reruns": "server::tests::stability::sustained_reruns_hold_their_rate_and_exact_tables",
+    "capacity_ramp": "server::tests::stability::session_ramp_holds_correctness_at_each_stage",
+    "sustained_window": "server::tests::stability::sustained_window_keeps_state_exact",
 }
 
 if len(sys.argv) != 3:
@@ -78,8 +81,11 @@ result = {
     "scope": ("Whole isolated test process per fixture: one WS session rendering 100k/50k-row tables plus a "
               "200k-point chart (large_payloads); 300 reruns with 11 widget triggers on one session "
               "(long_session_churn); a parked reader mid-stream while a second session runs 20 full-speed "
-              "reruns (slow_reader_isolation). Correctness assertions are in-test; memory/timing here are "
-              "observations, not thresholds or SLOs."),
+              "reruns (slow_reader_isolation); 200 sustained reruns of a 256-row table measuring the run "
+              "rate and emitted bytes (throughput_reruns); 64-then-128 concurrent sessions each completing "
+              "a run (capacity_ramp); and a bounded 5-second sustained-churn window with exact state "
+              "(sustained_window — NOT a multi-hour soak). Correctness assertions are in-test; "
+              "memory/timing here are observations, not thresholds or SLOs."),
     "memory_scope": ("Whole test binary process sampled every 5ms; includes fixture setup and test harness. "
                      "Observed maxima can miss brief peaks; cross-machine comparison is not claimed."),
 }

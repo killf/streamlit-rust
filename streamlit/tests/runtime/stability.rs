@@ -403,3 +403,230 @@ async fn many_concurrent_sessions_hold_independent_state() -> TestResult {
     task.await??;
     Ok(())
 }
+
+/// M5 throughput: sustained reruns over one session with a real payload —
+/// the run rate and emitted bytes are observations, the correctness bar is
+/// every run finishing with its exact table.
+fn table_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        let result: TestResult = (|| {
+            let table = crate::data::record_batch!(("idx", Int64, (0..256).map(|i| i as i64).collect::<Vec<_>>()), ("value", Int64, (0..256).map(|i| i * 2).collect::<Vec<_>>()))?;
+            st.dataframe(&table)?;
+            Ok(())
+        })();
+        assert!(result.is_ok(), "table_entry fixture failed: {result:?}");
+    })
+}
+
+#[actix_web::test]
+async fn sustained_reruns_hold_their_rate_and_exact_tables() -> TestResult {
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
+    let server = StreamlitServer::new(table_entry, "127.0.0.1".into(), 0);
+    let server = HttpServer::new(move || App::new().app_data(web::Data::new(server.clone())).configure(configure_routes)).workers(1).listen(listener)?.run();
+    let handle = server.handle();
+    let task = actix_web::rt::spawn(server);
+    let mut stream = sessions::connect(address, None).await;
+    const RUNS: usize = 200;
+    let began = std::time::Instant::now();
+    let mut bytes = 0usize;
+    for _ in 0..RUNS {
+        send_binary(
+            &mut stream,
+            &(BackMsg {
+                r#type: Some(back_msg::Type::RerunScript(ClientState::default())),
+            })
+            .encode_to_vec(),
+        )
+        .await;
+        let mut rows = None;
+        loop {
+            let message = receive(&mut stream).await;
+            match message.r#type {
+                Some(forward_msg::Type::Delta(delta)) => {
+                    if let Some(delta::Type::NewElement(element)) = delta.r#type
+                        && let Some(element::Type::Dataframe(frame)) = element.r#type
+                    {
+                        let payload = frame.arrow_data.ok_or("dataframe arrow")?.data;
+                        bytes += payload.len();
+                        let batch = crate::data::from_ipc_stream(&payload)?.remove(0);
+                        rows = Some(batch.num_rows());
+                    }
+                }
+                Some(forward_msg::Type::ScriptFinished(status)) => {
+                    assert_eq!(status, 0);
+                    break;
+                }
+                _ => {}
+            }
+        }
+        assert_eq!(rows, Some(256), "every run decodes its exact table");
+    }
+    let seconds = began.elapsed().as_secs_f64();
+    println!(
+        "stability_measurement={}",
+        serde_json::json!({
+            "scenario": "throughput_reruns",
+            "runs": RUNS,
+            "rows_per_run": 256,
+            "emitted_arrow_bytes": bytes,
+            "total_wall_seconds": seconds,
+            "runs_per_second": RUNS as f64 / seconds,
+        })
+    );
+    drop(stream);
+    handle.stop(false).await;
+    task.await??;
+    Ok(())
+}
+
+/// M5 capacity ceiling: raise the concurrent-session count in stages; at
+/// each stage every session must complete a run.
+#[actix_web::test]
+async fn session_ramp_holds_correctness_at_each_stage() -> TestResult {
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
+    let server = StreamlitServer::new(table_entry, "127.0.0.1".into(), 0);
+    let server = HttpServer::new(move || App::new().app_data(web::Data::new(server.clone())).configure(configure_routes)).workers(1).listen(listener)?.run();
+    let handle = server.handle();
+    let task = actix_web::rt::spawn(server);
+    let began = std::time::Instant::now();
+    let mut stages_ok = 0;
+    for stage in [64usize, 128] {
+        let mut streams = Vec::with_capacity(stage);
+        for _ in 0..stage {
+            let mut stream = sessions::connect(address, None).await;
+            send_binary(
+                &mut stream,
+                &(BackMsg {
+                    r#type: Some(back_msg::Type::RerunScript(ClientState::default())),
+                })
+                .encode_to_vec(),
+            )
+            .await;
+            streams.push(stream);
+        }
+        let mut finished = 0;
+        for stream in streams.iter_mut() {
+            loop {
+                if let Some(forward_msg::Type::ScriptFinished(status)) = receive(stream).await.r#type {
+                    assert_eq!(status, 0);
+                    finished += 1;
+                    break;
+                }
+            }
+        }
+        assert_eq!(finished, stage, "every session at stage {stage} finishes");
+        stages_ok += 1;
+        drop(streams);
+    }
+    println!(
+        "stability_measurement={}",
+        serde_json::json!({
+            "scenario": "capacity_ramp",
+            "stages": [64, 128],
+            "stages_all_correct": stages_ok == 2,
+            "total_wall_seconds": began.elapsed().as_secs_f64(),
+        })
+    );
+    handle.stop(false).await;
+    task.await??;
+    Ok(())
+}
+
+/// M5 sustained churn: a bounded wall-clock window of continuous reruns with
+/// state churn; the counter must stay exact and the session identity stable.
+/// This is a SUSTAINED window, not a multi-hour soak — the boundary is
+/// recorded as such, not claimed as one.
+#[actix_web::test]
+async fn sustained_window_keeps_state_exact() -> TestResult {
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
+    let server = StreamlitServer::new(counter_entry, "127.0.0.1".into(), 0);
+    let server = HttpServer::new(move || App::new().app_data(web::Data::new(server.clone())).configure(configure_routes)).workers(1).listen(listener)?.run();
+    let handle = server.handle();
+    let task = actix_web::rt::spawn(server);
+    let mut stream = sessions::connect(address, None).await;
+    let began = std::time::Instant::now();
+    let window = Duration::from_secs(5);
+    let mut session_id = String::new();
+    let mut button_id: Option<String> = None;
+    let mut runs = 0usize;
+    let mut bumps = 0usize;
+    let mut last_rounds = 0u64;
+    while began.elapsed() < window {
+        let trigger = runs.is_multiple_of(50);
+        let mut widgets = Vec::new();
+        if trigger && let Some(id) = &button_id {
+            widgets.push(WidgetState {
+                id: id.clone(),
+                value: Some(widget_state::Value::TriggerValue(true)),
+            });
+            bumps += 1;
+        }
+        send_binary(
+            &mut stream,
+            &(BackMsg {
+                r#type: Some(back_msg::Type::RerunScript(ClientState {
+                    widget_states: Some(WidgetStates { widgets }),
+                    ..Default::default()
+                })),
+            })
+            .encode_to_vec(),
+        )
+        .await;
+        let mut finished = false;
+        loop {
+            match receive(&mut stream).await.r#type {
+                Some(forward_msg::Type::NewSession(new)) => {
+                    let id = new.initialize.ok_or("init")?.session_id;
+                    if session_id.is_empty() {
+                        session_id = id;
+                    } else {
+                        assert_eq!(id, session_id);
+                    }
+                }
+                Some(forward_msg::Type::Delta(delta)) => {
+                    if let Some(delta::Type::NewElement(element)) = delta.r#type {
+                        match element.r#type {
+                            Some(element::Type::Button(button)) => button_id = Some(button.id),
+                            Some(element::Type::Markdown(text)) => {
+                                if let Some(value) = text.body.strip_prefix("rounds=") {
+                                    last_rounds = value.parse()?;
+                                }
+                            }
+                            _ => {}
+                        }
+                    }
+                }
+                Some(forward_msg::Type::ScriptFinished(status)) => {
+                    assert_eq!(status, 0);
+                    finished = true;
+                }
+                Some(forward_msg::Type::SessionStatusChanged(status)) if !status.script_is_running => {
+                    assert!(finished);
+                    break;
+                }
+                _ => {}
+            }
+        }
+        runs += 1;
+    }
+    assert_eq!(last_rounds, bumps as u64, "the sustained window lands exactly its triggered bumps");
+    println!(
+        "stability_measurement={}",
+        serde_json::json!({
+            "scenario": "sustained_window",
+            "window_seconds": 5,
+            "runs": runs,
+            "bumps": bumps,
+            "final_rounds": last_rounds,
+            "runs_per_second": runs as f64 / began.elapsed().as_secs_f64(),
+            "note": "a bounded sustained window, not a multi-hour soak",
+        })
+    );
+    drop(stream);
+    handle.stop(false).await;
+    task.await??;
+    Ok(())
+}
