@@ -14,7 +14,7 @@
 
 ## Current focus
 
-**长期 M2 数据应用已于 2026-10-28 关闭（退出条件逐项有保留证据，见[关闭记录](acceptance.md#m2-milestone-close-2026-10-28)）；M6 两项分发决策已落地（跨环境构建验证后关闭）；M4 运行集成已启动（首个切片 st.context 的 Python 参考已冻结）；当前推进 M3 独立错误边界与 M4 后续切片。** M0 起点为 `99b1ed8e4b35737c9495764fb70269271a10bada`，开始时工作区干净。已建立官方文档能力与缺口清单、复核不适用项并刷新 Rust/Python 验证及性能基线；这不代表全功能或所有参数、教程 FAQ 的验收结束。已校验的 wheel 仅固定参考环境，不能代替官方用户文档的功能范围。
+**长期 M2 数据应用已于 2026-10-28 关闭（退出条件逐项有保留证据，见[关闭记录](acceptance.md#m2-milestone-close-2026-10-28)）；M6 已于 2026-10-28 关闭（干净环境构建验证补齐）；M4 运行集成已启动（首个切片 st.context 的 Python 参考已冻结）；当前推进 M3 独立错误边界与 M4 后续切片。** M0 起点为 `99b1ed8e4b35737c9495764fb70269271a10bada`，开始时工作区干净。已建立官方文档能力与缺口清单、复核不适用项并刷新 Rust/Python 验证及性能基线；这不代表全功能或所有参数、教程 FAQ 的验收结束。已校验的 wheel 仅固定参考环境，不能代替官方用户文档的功能范围。
 
 已完成 54 项历史 `not_applicable` 的用户文档适用性复核，结论见 [compatibility](compatibility.md#historical-not-applicable-closures-and-m0-review)；没有将缺少 Rust 实现视为永久排除，也没有自动改写旧状态。M1 列明的 Q1–Q6 已确认修复、回归、必要前端证据和独立 Review 已分批完成，覆盖范围见 acceptance；未验证的运行组合及资源边界继续留在后续里程碑，不把六项修复当成运行时完整兼容。
 
@@ -64,6 +64,8 @@ M3 原生输入边界已修复 RGBA 尺寸计算 panic，以及无编辑编辑�
 M6 独立构建子集已修复协议目录及前端版本身份的仓库路径依赖，完成改名/含空格目录的检查、release 示例构建和本机安装真实交互，完整 sidecar 与锁定 wheel 一致；[证据与边界](../tests/browser/rust-library-portability/README.md)不等于新机器、所有平台或完整源码包验收。宏支撑已按 2026-10-28 采纳的方案 A 实施：doc-hidden `__macro` 重导出 + 限定路径显式建运行时，仅依赖 streamlit 的外部应用（改名/含空格库目录）真实编译、启动并完成浏览器交互，历史红保留（[决策](architecture.md#consumer-macro-support--accepted-a-doc-hidden-support-namespace)）。
 
 后续[真实 crate 检查](../tests/build/crate-archives/README.md)已通过两个包的默认编译验证、全部 41 个示例及普通 SDK consumer。修复了示例对四份包外数据的依赖，数据仍与原参考一致；最终 SDK 227 文件、宏 6 文件。维护者测试归属已按 2026-10-28 采纳的 PKG-A 定义：SDK crate 以库/宏编译与示例构建为验收，全部维护者回归由完整仓库源码交付承载，31 个包内输入缺失是边界记录而非缺陷（[决策](architecture.md#maintainer-source-distribution--accepted-pkg-a)）；断言未删、测试未关。
+
+M6 已于 2026-10-28 关闭：除包验证外，退出条件『干净环境可依文档构建、安装并完成代表性应用』以全新 CARGO_HOME/TARGET（空 registry 按 lockfile 联网实下依赖）+ vendored protoc 构建 quickstart、启动并真实浏览器交互（复选框翻转、无异常）补齐（[关闭记录](acceptance.md#m6-milestone-close-2026-10-28)）。边界：全部证据为同机 Windows/MSVC 与既有 rustup 工具链，新机器安装、MSRV、其他平台不在声明内；无公开发布。
 
 用户进一步明确开发顺序：先写面向使用者的功能流程、Rust 用法、返回值、错误及状态说明，再开发对应能力。使用文档清楚区分当前可用、部分验证与待实现；拟新增公共接口和关键规则先供确认，不能将规划接口写成已可用。已完成的代码和证据保留，顺序调整不用于回退他人工作。
 

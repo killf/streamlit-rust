@@ -10,6 +10,8 @@
 
 UI 进程默认日志为空，原 `server.log` 保留。随后另用同一安装程序/工作目录、RUST_LOG=info 单独启动健康检查，`server-info.log` 才实际记录 executable sidecar；这是第二个 PID，不能把该日志说成 UI 捕获进程输出。该进程与原服务/Chrome/profile 均清理，8503 无监听；两个 Python 工具的采集退出均为 0。最后 PowerShell 因无监听返回 1 是外层观察行为，不伪造为全部工具链统一退出 0。
 
+2026-10-28 补齐 M6 退出条件的干净环境验证（`clean-env-build.log`/`clean-env-browser-check.log`）：全新 `CARGO_HOME`（空 registry，按 lockfile 实际联网下载全部依赖）+ 全新 `CARGO_TARGET_DIR` + vendored protoc，依文档流程 `cargo build --locked --example quickstart` 2m17s 成功；产物以 `STREAMLIT_STATIC_DIR` 指向锁定 `www/` 启动 8503，健康检查 ok，真实 Chrome 打开页面标题正确、**Include unknown** 复选框真实翻转（true→false，文本同步）、无 stException。边界不变：同机既有 rustup 工具链与 OS（Windows/MSVC）；新机器安装、MSRV、其他平台仍不在声明内。
+
 离线检查复用这些数据，不启动 Python Streamlit 或浏览器：
 
 ```powershell
