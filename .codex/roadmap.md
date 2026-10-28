@@ -40,6 +40,8 @@ CSV 工作台 A 已交付主流程 20 阶段、筛选 13 阶段与来源替换 1
 
 M5 稳定性批次（2026-10-28）：大数据（100k/50k 行 + 200k 点图表）、长时运行（300 轮 rerun 精确状态）与慢连接（parked reader 不阻塞他 会话）三场景落地可复现回归与 3 试次测量（[验收](acceptance.md#current-stability-scenarios-validation-2026-10-28)）；吞吐/容量上限/多小时运行未测，M5 保持未完成。
 
+M3 slider/multiselect 切片（2026-10-29）：datetime 微秒步长、date 一天缺省步长、multiselect 索引默认双端冻结 4/4（零实现改动确认；[验收](acceptance.md#current-slider/multiselect-parameter-validation-2026-10-29)）。
+
 M3 chat/metric/progress 切片（2026-10-29）：emoji avatar、metric 全 delta 规则（三处偏差修复）、progress text 双端冻结 8/8 一致；progress float overload 裁决为 Python-only 记录差异（[验收](acceptance.md#current-chat/metric/progress-parameter-validation-2026-10-29)）。
 
 M3 buttons/images 切片（2026-10-29）：按钮 primary/icon/disabled、download URL 命名规则（.txt/.bin）、st.images 多图列表 API 双端冻结 6/6 一致（[验收](acceptance.md#current-button/image-creation-parameter-validation-2026-10-29)）。

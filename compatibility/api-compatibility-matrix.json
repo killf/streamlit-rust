@@ -3086,6 +3086,9 @@
         "driven_fixture": "tests/reference/inputs_app.py",
         "driven_example": "streamlit/examples/inputs.rs",
         "creation_params_reference": [
+          "tests/reference/reference-browser/slider-multi-params/trace.json",
+          "tests/reference/reference-browser/slider-multi-params/README.md",
+          "tests/browser/rust-slider-multi-params/trace.json",
           "tests/reference/reference-browser/widget-params/trace.json",
           "tests/reference/reference-browser/widget-params/README.md",
           "tests/browser/rust-widget-params/trace.json",
@@ -3095,7 +3098,7 @@
       "rust_plan": "MultiselectOptions<T> with (label, options) tuples and .default_indices(iter), format_func labels; returns Vec<T> by cloning the selected native options; the wire carries [i32] defaults, accept_new_options=false, select_all=1000 and a string_array_value state of the selected texts.",
       "compatibility_scope": "The journey-inputs-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were both driven by a real Chrome (popover open plus role=option click) across the five measured stages; the published replays assert 11/11/11 each — identical first-render wire (default [0], accept_new_options/select_all flags), string_array_value state snapshots and DOM projections.",
       "limitations": [
-        "max_selections is now measured on the creation wire (2026-10-28, frozen widget-params), field-identical cross-runtime; ; max_selections, searchable-free filters, format_func label round trips and on_change callbacks remain unobserved.",
+        "Default selections are additionally measured riding as option indices (2026-10-29, frozen slider-multi-params), field-identical cross-runtime with zero implementation change; ; max_selections, searchable-free filters, format_func label round trips and on_change callbacks remain unobserved.",
         "Rust Result<_, WidgetError> is not the complete Python exception-rendering UI; duplicate-default UI equivalence is unverified.",
         "widget_api source SHA256 9e9df5fc32ce482cbc1fbe2c53bc6ec47ed3d26c1f1bdb797dd44db9b86bbd68; fixture SHA256 cb884ee2a6487585d63d9254cc353e42704cbd9b9f832732cd0e0a35d27da5bf; example SHA256 1052058ec8ed7d354853e611ecbf8e0986a369093794e80467e5d6448acfc309."
       ]
@@ -3399,12 +3402,17 @@
         "rust_temporal": "tests/browser/rust-temporal/trace-temporal.json",
         "temporal_contract": "tests/browser/temporal_contract.py",
         "temporal_capture_entry": "tests/browser/temporal_capture.py",
-        "rust_temporal_regression": "streamlit/tests/runtime/temporal.rs"
+        "rust_temporal_regression": "streamlit/tests/runtime/temporal.rs",
+        "creation_params_reference": [
+          "tests/reference/reference-browser/slider-multi-params/trace.json",
+          "tests/reference/reference-browser/slider-multi-params/README.md",
+          "tests/browser/rust-slider-multi-params/trace.json"
+        ]
       },
       "rust_plan": "Return typed numeric integer/float scalar or range values through SliderOptions<T>, serialize the official Slider Element and consume DoubleArray client state; temporal date/time/datetime scalars and pairs encode as measured integer epoch-microsecond doubles (naive-as-if-UTC, 2000-01-01 time anchor) with typed bounds/TimeDelta steps.",
       "compatibility_scope": "Measured W1/W2 core only: complete Element comparisons for eight Python reference cases normalize only opaque widget ID digests. These older references establish field and finite callback facts, not same-connection interaction proof. The frozen Rust six-case capture proves changed target state, real requestId, same-connection successful completion and DOM values for the corresponding API. Four numeric representatives (integer/float scalar and range) additionally have the frozen Python four-case interaction oracle; no checkbox oracle is used to prove numeric behavior. The 2026-10-25 temporal round adds the journey-temporal-v1 chain: the pinned Python 1.66.1 reference and the Rust example were both driven by a real Chrome with End/Home keys across 13 stages (six sliders), and the published replays assert 11/11/11 each — identical wire configs, double_array_value state snapshots, grid-snapped native range inputs and Python-repr echoes, including microsecond-faithful round trips.",
       "limitations": [
-        "Temporal coverage is the measured default windows/steps and End/Home landings: a midnight-valued datetime's default step, timezone-aware datetimes, and format strings beyond the measured defaults remain unobserved; values outside the exactly-representable double range (roughly 1677-2262) are rejected rather than losing microseconds.",
+        "A datetime slider with an explicit timedelta step is now measured (2026-10-29, frozen slider-multi-params): the step rides as microseconds (30min -> 1.8e9) with epoch-microsecond scalars and the YYYY-MM-DD format, and the date window keeps its one-day default step — field-identical cross-runtime with zero implementation change. : a midnight-valued datetime's default step, timezone-aware datetimes, and format strings beyond the measured defaults remain unobserved; values outside the exactly-representable double range (roughly 1677-2262) are rejected rather than losing microseconds.",
         "Rust Result<_, WidgetError> is not the complete Python exception-rendering UI; complete invalid-input UI equivalence is unverified.",
         "Core callback/key behavior and sampled parameters only: not all on_change modes, argument combinations or parameter-change/reset semantics.",
         "The disabled Python reference operated selectbox and checkbox only; slider disabled parameters were observed, but no disabled-slider click is claimed.",

@@ -45,6 +45,7 @@ last one, so they could not show which connection a frame belonged to.
 - `chat/`: frozen browser chain cited by the compatibility matrix under st.chat_input, st.chat_message.
 - `colconfig/`: frozen browser chain cited by the compatibility matrix under st.column_config, st.column_config.AreaChartColumn, st.column_config.AudioColumn, st.column_config.BarChartColumn and more.
 - `combined/`: frozen browser chain; see the matrix and .codex/compatibility.md for the exact scope.
+- `slider-multi-params/`: datetime-slider microsecond steps, date windows, and indexed multiselect defaults frozen on both runtimes.
 - `chat-metric-params/`: emoji avatar typing, the full metric delta rule set, and progress text frozen on both runtimes.
 - `button-image-params/`: button/icon/disabled, download URL naming, and the multi-image list overload frozen on both runtimes.
 - `temporal-params/`: temporal/slider creation-parameter edges (date bounds/format, select-slider range, time step) frozen on both runtimes.

@@ -342,6 +342,10 @@ M3 可测面切片（buttons/images 簇）。冻结 Python 参考 `tests/referen
 
 M3 可测面切片（chat/metric/progress 簇）。冻结 Python 参考 `tests/reference/reference-browser/chat-metric-params/`（9 元素含 1 个 Python-only 异常）与 Rust 对照 **8/8 核心元素一致**。**三处真实偏差由差分暴露并修复**：① metric 无 delta 颜色 RED→GRAY；② delta=0 被当作负（DOWN+RED）→ NONE+GRAY；③ emoji avatar 被标 ICON→EMOJI（按 material 短码前缀判型）。新增 `progress_options(text)`；progress float overload 实测为 Python-only（0..1，25.5 触发框架异常 `[0.0, 1.0]`），Rust 维持整数面不冒称 float 等价——记录差异。proto 零值（DOWN=0/RED=0）在 MessageToDict 中省略，离线断言按此精确锁定。矩阵 st.chat_message/st.metric/st.progress 三条目收窄；清单再生成。边界：image/URL avatar、accept_file、非数值 delta 未纳入。
 
+## Current slider/multiselect parameter validation (2026-10-29)
+
+M3 可测面切片（slider/multiselect 簇）。冻结 Python 参考 `tests/reference/reference-browser/slider-multi-params/`（4 元素）与 Rust 对照 **4/4 字段一致——零实现改动**：datetime 滑杆显式 `timedelta(minutes=30)` 步长以微秒上 wire（1.8e9）、value/min/max 为 epoch 微秒浮点、格式 YYYY-MM-DD（datetime 亦然）；date 滑杆缺省步长一天（8.64e10）；multiselect 默认选择以选项索引 [1,2] 上 wire（与既有 max_selections 证据互补）。既有 Rust 微秒换算与索引默认全部经参考确认。矩阵 st.slider/st.multiselect 两条目收窄挂 `creation_params_reference`；清单再生成。边界：时间值 datetime 滑杆、midnight 缺省步长、搜索过滤交互、format_func 往返未纳入。
+
 ## Required fresh-checkout checks
 
 ```powershell

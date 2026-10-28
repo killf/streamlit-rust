@@ -999,7 +999,7 @@
         "unmeasured-parameters"
       ],
       "limitations": [
-        "max_selections is now measured on the creation wire (2026-10-28, frozen widget-params), field-identical cross-runtime; ; max_selections, searchable-free filters, format_func label round trips and on_change callbacks remain unobserved.",
+        "Default selections are additionally measured riding as option indices (2026-10-29, frozen slider-multi-params), field-identical cross-runtime with zero implementation change; ; max_selections, searchable-free filters, format_func label round trips and on_change callbacks remain unobserved.",
         "Rust Result<_, WidgetError> is not the complete Python exception-rendering UI; duplicate-default UI equivalence is unverified.",
         "widget_api source SHA256 9e9df5fc32ce482cbc1fbe2c53bc6ec47ed3d26c1f1bdb797dd44db9b86bbd68; fixture SHA256 cb884ee2a6487585d63d9254cc353e42704cbd9b9f832732cd0e0a35d27da5bf; example SHA256 1052058ec8ed7d354853e611ecbf8e0986a369093794e80467e5d6448acfc309."
       ]
@@ -1270,7 +1270,7 @@
         "unmeasured-parameters"
       ],
       "limitations": [
-        "Temporal coverage is the measured default windows/steps and End/Home landings: a midnight-valued datetime's default step, timezone-aware datetimes, and format strings beyond the measured defaults remain unobserved; values outside the exactly-representable double range (roughly 1677-2262) are rejected rather than losing microseconds.",
+        "A datetime slider with an explicit timedelta step is now measured (2026-10-29, frozen slider-multi-params): the step rides as microseconds (30min -> 1.8e9) with epoch-microsecond scalars and the YYYY-MM-DD format, and the date window keeps its one-day default step — field-identical cross-runtime with zero implementation change. : a midnight-valued datetime's default step, timezone-aware datetimes, and format strings beyond the measured defaults remain unobserved; values outside the exactly-representable double range (roughly 1677-2262) are rejected rather than losing microseconds.",
         "Rust Result<_, WidgetError> is not the complete Python exception-rendering UI; complete invalid-input UI equivalence is unverified.",
         "Core callback/key behavior and sampled parameters only: not all on_change modes, argument combinations or parameter-change/reset semantics.",
         "The disabled Python reference operated selectbox and checkbox only; slider disabled parameters were observed, but no disabled-slider click is claimed.",
