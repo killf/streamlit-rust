@@ -49,6 +49,9 @@ fn render(st: &Streamlit) -> anyhow::Result<()> {
         "series": [{"type": "bar", "data": [3, 7]}],
     }));
 
+    if st.button("Ordinary rerun") {
+        // No state change: the rerun re-renders the same seven payloads.
+    }
     if st.button("Change Vega data") {
         state.set("vega-count", if vega_count == 3 { 8_i64 } else { 3_i64 })?;
         st.rerun();

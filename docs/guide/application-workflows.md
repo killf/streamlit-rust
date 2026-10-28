@@ -191,9 +191,11 @@ let value = st.cache_data("outer").call(21, |n: i64| {
 
 依据官方 [缓存静态元素](https://docs.streamlit.io/develop/api-reference/caching-and-state/st.cache_data#static-elements) 的重放约定；该页标注 1.66.0，与本项目的 1.66.1 参考运行版本分别记录。
 
-## 同形状数据的图表更新（已复现缺陷，修法待决）
+## 同形状数据的图表更新（已采纳内容命名方案 A）
 
-运行 `cargo run --example chartlibs --locked`，打开 `http://127.0.0.1:8528/`。本批给既有示例补充 **Change Vega data**：仅将 Vega-Lite 图的 a 从 3 切换到 8，b 保持 7，再切回；其他图保持原数据。真实按钮已复现数据变为 8、可见值仍为 3，普通重跑仍旧，见[失败记录](../../tests/browser/rust-vega-refresh-before/README.md)。同形状、同 IPC 长度的值可能被官方前端漏判，不能仅凭新的 Arrow 数据宣称柱高已更新。[修复方案](../../.codex/architecture.md#vega-lite-same-shape-updates--decision-pending)涉及有限协议差异和图内交互状态取舍，等待用户选择。
+运行 `cargo run --example chartlibs --locked`，打开 `http://127.0.0.1:8528/`。示例的 **Change Vega data** 仅将 generic Vega-Lite 图的 a 从 3 切换到 8、b 保持 7，再切回；其他图保持原数据。曾用真实按钮复现官方 1.66.1 前端的漏刷：数据变为 8、可见柱高仍为 3，普通重跑也不恢复（[失败基线](../../tests/browser/rust-vega-refresh-before/README.md)保留，Python 参考同样漏刷）。
+
+已采纳方案 A（2026-10-28）：`st.vega_lite_chart` 的内联 `data.values` 现与 `altair_chart` 一致——Arrow 数据以内容命名（IPC 字节的 md5）放入 `datasets`，spec 以 `data: {"name": …}` 引用该名称。同形状值变化改变数据内容即改变 dataset 名与 spec，官方前端的值无关判定也能看到新数据集；真实按钮 3→8→重跑→切回 的可见柱高已随数据刷新（[修复后证据](../../tests/browser/rust-vega-refresh-after/README.md)）。这是相对 Python 1.66.1 顶层 `data` 承载的有限 wire 差异：逻辑字段、metadata、行序和值仍严格一致，spec 其余字段不变；URL、自带 `data.name` 或嵌套 spec 不自动改写、无数据时行为不变。代价：spec 变化会重建 Vega view，图内缩放/选区等交互状态可能重置；大数据 hash 随 IPC 线性计算。
 
 ## 下载文件名和类型
 

@@ -74,3 +74,28 @@ def test_source_fingerprints_do_not_gate_functional_evidence():
         observation["source"] = source
         result = contract.chartlibs_result(observation=observation)
         assert result["ok"], result["failures"]
+
+def test_native_timeline_diverges_only_in_the_generic_vega_dataset():
+    # Accepted A: the Rust side's generic vega entry alone changes shape
+    # (content-named dataset + spec data.name); altair and every other
+    # surface stay byte-equal to the measured Python wire.
+    import copy
+
+    for stage in contract.CHARTLIBS_STAGES:
+        python = contract.CHARTLIBS_TIMELINE[stage]
+        native = contract.CHARTLIBS_TIMELINE_NATIVE[stage]
+        assert len(python) == len(native)
+        for python_entry, native_entry in zip(python, native):
+            if python_entry.get("kind") != "vega_lite_chart":
+                assert native_entry == python_entry
+                continue
+            python_vega = python_entry["element_full"]["vegaLiteChart"]
+            native_vega = native_entry["element_full"]["vegaLiteChart"]
+            if "data" not in python_vega:
+                assert native_entry == python_entry, "altair keeps the measured wire"
+                continue
+            assert "data" not in native_vega and len(native_vega["datasets"]) == 1
+            assert native_vega["datasets"][0]["data"] == python_vega["data"], "the logical Arrow content is unchanged"
+            assert native_vega["spec"].startswith('{"data": {"name": "<digest>"}, ')
+            assert json.loads(native_vega["spec"])["data"] == {"name": "<digest>"}
+            assert {key: value for key, value in json.loads(native_vega["spec"]).items() if key != "data"} == json.loads(python_vega["spec"])

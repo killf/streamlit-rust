@@ -1601,7 +1601,12 @@
         "contract_guards": "tests/reference/test_chartlibs_contract.py",
         "driven_fixture": "tests/reference/chartlibs_app.py",
         "driven_example": "streamlit/examples/chartlibs.rs",
-        "same_shape_update_red": "tests/browser/rust-vega-refresh-before/README.md"
+        "same_shape_update_red": "tests/browser/rust-vega-refresh-before/README.md",
+        "same_shape_update_accepted_a": [
+          "tests/browser/rust-vega-refresh-after/trace.json",
+          "tests/browser/rust-vega-refresh-after/README.md",
+          "streamlit/tests/runtime/chartlibs.rs"
+        ]
       },
       "rust_plan": "st.vega_lite_chart(spec) streams a vega_lite_chart element whose inline data.values list is pulled out of the spec into the element's arrow data (autosize appended when absent; theme streamlit).",
       "compatibility_scope": "The journey-chartlibs-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome across the load stage; the published replays assert 7/7 checks per side, covering every chart element's full wire (spec strings, layout configs, themes and heights; arrow datasets compared logically; $$ID digests, content-addressed dataset names and pydeck's per-run layer UUIDs masked as side-specific) plus the settled DOM chart counts.",
@@ -1609,7 +1614,7 @@
         "Coverage is the journey-chartlibs-v1 chain: one measured page rendering all seven library-chart surfaces at their defaults across the load stage. The chart-building libraries (altair, plotly, pydeck, graphviz) are Python-only; the Rust surfaces take the final payloads the reference produced.",
         "Named spec datasets and url data stay in the spec unobserved; selection modes, alt and non-default themes/heights are unobserved.",
         "fixture SHA256 439036d2e8f9096f99cc7813febb07658d7070fd4275625f58514d6c5400560e; example SHA256 6c27e9192c4097160b233c9fc034e4711726c6dc315827392b2e01528c93683b.",
-        "A real native browser probe demonstrates that same-shape/same-IPC-length generic inline updates can emit count 8 while still displaying 3, including an ordinary rerun. The official frontend Quiver update identity omits cell values; Rust message hash also omits extracted data. Proposed transport changes and interaction-reset tradeoffs await user choice; no oracle or production chart fix was applied."
+        "Accepted A (2026-10-28) fixes that measured miss: the Rust emission carries the extracted values in one content-named dataset (md5 of the IPC bytes) referenced by the spec's data.name, so same-shape value changes change the dataset identity and the official frontend re-renders — the frozen four-stage after capture shows the visible ARIA marks following the wire 3 -> 8 -> rerun -> 3, and the WS regression pins the identity change. This is a deliberate divergence from the Python 1.66.1 top-level data carriage (logical arrow, schema/metadata/row order and all other spec fields stay strictly compared); URL data, caller-named datasets, nested specs and no-data calls keep the untransformed path. Vega view rebuilds may reset in-chart interaction state (zoom/brush/selection), which remains unverified."
       ]
     },
     {

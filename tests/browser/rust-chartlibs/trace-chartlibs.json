@@ -5,9 +5,10 @@
   "contract": "journey-chartlibs-v1",
   "scope": "RUST SIDE DIFFERENTIAL",
   "url": "http://127.0.0.1:8528/",
+  "runtime": "native",
+  "reference_version": "1.66.1",
   "source": {
-   "file": "streamlit/examples/chartlibs.rs",
-   "sha256": "6c27e9192c4097160b233c9fc034e4711726c6dc315827392b2e01528c93683b"
+   "file": "streamlit/examples/chartlibs.rs"
   },
   "stages": [
    {
@@ -15,7 +16,7 @@
     "new_frames": [
      {
       "direction": "client->server",
-      "timestamp": 1773.153607,
+      "timestamp": 8849.816761,
       "summary": {
        "message": "BackMsg",
        "type": "rerun_script",
@@ -26,23 +27,23 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 1773.155267,
+      "timestamp": 8849.820348,
       "summary": {
        "message": "ForwardMsg",
        "type": "new_session",
        "new_session": {
-        "script_run_id": "7b684f41-a36c-4999-9bfb-4c67975c22f7",
+        "script_run_id": "45ef8fc7-723c-4352-824c-d86759e9d69d",
         "name": "Streamlit Rust",
         "main_script_path": "",
         "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
         "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
-        "session_id": "52a47c7b-704e-4871-9702-7f7de266e1ce"
+        "session_id": "3d91f711-6c64-4cd9-b6bd-382a58222434"
        }
       }
      },
      {
       "direction": "server->client",
-      "timestamp": 1773.163902,
+      "timestamp": 8849.822606,
       "summary": {
        "message": "ForwardMsg",
        "type": "session_status_changed",
@@ -54,27 +55,7 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 1773.164051,
-      "summary": {
-       "message": "ForwardMsg",
-       "type": "delta",
-       "delta": {
-        "type": "add_block",
-        "block_id": "main_container",
-        "block_type": "vertical",
-        "block": {
-         "vertical": {},
-         "id": "main_container"
-        },
-        "path": [
-         0
-        ]
-       }
-      }
-     },
-     {
-      "direction": "server->client",
-      "timestamp": 1773.164382,
+      "timestamp": 8849.830798,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
@@ -170,7 +151,7 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 1773.164938,
+      "timestamp": 8849.831639,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
@@ -179,10 +160,16 @@
         "element": "vega_lite_chart",
         "element_full": {
          "vegaLiteChart": {
-          "spec": "{\"mark\": \"bar\", \"encoding\": {\"x\": {\"field\": \"kind\", \"type\": \"nominal\"}, \"y\": {\"field\": \"count\", \"type\": \"quantitative\"}}, \"autosize\": {\"type\": \"fit\", \"contains\": \"padding\"}}",
-          "data": {
-           "data": "/////zgDAAAQAAAAAAAKAA4ADAALAAQACgAAABQAAAAAAAABBAAKAAwAAAAIAAQACgAAAAgAAABYAgAAAQAAAAwAAAAIAAwACAAEAAgAAAAIAAAAMAIAACUCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAia2luZCIsICJmaWVsZF9uYW1lIjogImtpbmQiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJjb3VudCIsICJmaWVsZF9uYW1lIjogImNvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAACAAAAUAAAAAQAAADI////GAAAACAAAAAAAAECHAAAAAgADAAEAAsACAAAAEAAAAAAAAABAAAAAAUAAABjb3VudAAAABAAFAAQAA4ADwAEAAAACAAQAAAAGAAAAAwAAAAAAAEUEAAAAAAAAAAEAAQABAAAAAQAAABraW5kAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/////4AAAAEAAAAAwAGgAYABcABAAIAAwAAAAgAAAAQAEAAAAAAAAAAAAAAAAAAwQACgAYAAwACAAEAAoAAAA8AAAAEAAAAAIAAAAAAAAAAAAAAAIAAAACAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAGAAAAAAAAACAAAAAAAAAAAIAAAAAAAAAwAAAAAAAAAABAAAAAAAAAAABAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGFiAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA"
-          },
+          "spec": "{\"data\": {\"name\": \"6cee0d724432667de6288bd73bc5badc\"}, \"mark\": \"bar\", \"encoding\": {\"x\": {\"field\": \"kind\", \"type\": \"nominal\"}, \"y\": {\"field\": \"count\", \"type\": \"quantitative\"}}, \"autosize\": {\"type\": \"fit\", \"contains\": \"padding\"}}",
+          "datasets": [
+           {
+            "name": "6cee0d724432667de6288bd73bc5badc",
+            "data": {
+             "data": "/////zgDAAAQAAAAAAAKAA4ADAALAAQACgAAABQAAAAAAAABBAAKAAwAAAAIAAQACgAAAAgAAABYAgAAAQAAAAwAAAAIAAwACAAEAAgAAAAIAAAAMAIAACUCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAia2luZCIsICJmaWVsZF9uYW1lIjogImtpbmQiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJjb3VudCIsICJmaWVsZF9uYW1lIjogImNvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAACAAAAUAAAAAQAAADI////GAAAACAAAAAAAAECHAAAAAgADAAEAAsACAAAAEAAAAAAAAABAAAAAAUAAABjb3VudAAAABAAFAAQAA4ADwAEAAAACAAQAAAAGAAAAAwAAAAAAAEUEAAAAAAAAAAEAAQABAAAAAQAAABraW5kAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/////4AAAAEAAAAAwAGgAYABcABAAIAAwAAAAgAAAAQAEAAAAAAAAAAAAAAAAAAwQACgAYAAwACAAEAAoAAAA8AAAAEAAAAAIAAAAAAAAAAAAAAAIAAAACAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAGAAAAAAAAACAAAAAAAAAAAIAAAAAAAAAwAAAAAAAAAABAAAAAAAAAAABAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGFiAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA"
+            },
+            "hasName": true
+           }
+          ],
           "theme": "streamlit"
          },
          "heightConfig": {
@@ -192,8 +179,11 @@
           "useStretch": true
          }
         },
-        "vega_lite_spec_raw": "{\"mark\": \"bar\", \"encoding\": {\"x\": {\"field\": \"kind\", \"type\": \"nominal\"}, \"y\": {\"field\": \"count\", \"type\": \"quantitative\"}}, \"autosize\": {\"type\": \"fit\", \"contains\": \"padding\"}}",
+        "vega_lite_spec_raw": "{\"data\": {\"name\": \"6cee0d724432667de6288bd73bc5badc\"}, \"mark\": \"bar\", \"encoding\": {\"x\": {\"field\": \"kind\", \"type\": \"nominal\"}, \"y\": {\"field\": \"count\", \"type\": \"quantitative\"}}, \"autosize\": {\"type\": \"fit\", \"contains\": \"padding\"}}",
         "vega_lite_spec": {
+         "data": {
+          "name": "6cee0d724432667de6288bd73bc5badc"
+         },
          "mark": "bar",
          "encoding": {
           "x": {
@@ -210,33 +200,38 @@
           "contains": "padding"
          }
         },
-        "vega_lite_datasets": [],
+        "vega_lite_datasets": [
+         {
+          "name": "6cee0d724432667de6288bd73bc5badc",
+          "has_name": true,
+          "arrow": {
+           "bytes": 1416,
+           "sha256": "2c503e5daccd7076dfaa5aa35ac9de16e790d9e17eef9d83cb35fc6baf8826a1",
+           "base64": "/////zgDAAAQAAAAAAAKAA4ADAALAAQACgAAABQAAAAAAAABBAAKAAwAAAAIAAQACgAAAAgAAABYAgAAAQAAAAwAAAAIAAwACAAEAAgAAAAIAAAAMAIAACUCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAia2luZCIsICJmaWVsZF9uYW1lIjogImtpbmQiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJjb3VudCIsICJmaWVsZF9uYW1lIjogImNvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAACAAAAUAAAAAQAAADI////GAAAACAAAAAAAAECHAAAAAgADAAEAAsACAAAAEAAAAAAAAABAAAAAAUAAABjb3VudAAAABAAFAAQAA4ADwAEAAAACAAQAAAAGAAAAAwAAAAAAAEUEAAAAAAAAAAEAAQABAAAAAQAAABraW5kAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/////4AAAAEAAAAAwAGgAYABcABAAIAAwAAAAgAAAAQAEAAAAAAAAAAAAAAAAAAwQACgAYAAwACAAEAAoAAAA8AAAAEAAAAAIAAAAAAAAAAAAAAAIAAAACAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAGAAAAAAAAACAAAAAAAAAAAIAAAAAAAAAwAAAAAAAAAABAAAAAAAAAAABAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGFiAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA",
+           "schema": "kind: large_string\ncount: int64\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 485",
+           "columns": [
+            "kind",
+            "count"
+           ],
+           "row_count": 2,
+           "rows": [
+            {
+             "kind": "a",
+             "count": 3
+            },
+            {
+             "kind": "b",
+             "count": 7
+            }
+           ]
+          }
+         }
+        ],
         "vega_lite_fields": {
          "use_container_width": false,
          "theme": "streamlit",
          "id": "",
          "form_id": ""
-        },
-        "arrow": {
-         "bytes": 1416,
-         "sha256": "2c503e5daccd7076dfaa5aa35ac9de16e790d9e17eef9d83cb35fc6baf8826a1",
-         "base64": "/////zgDAAAQAAAAAAAKAA4ADAALAAQACgAAABQAAAAAAAABBAAKAAwAAAAIAAQACgAAAAgAAABYAgAAAQAAAAwAAAAIAAwACAAEAAgAAAAIAAAAMAIAACUCAAB7ImluZGV4X2NvbHVtbnMiOiBbeyJraW5kIjogInJhbmdlIiwgIm5hbWUiOiBudWxsLCAic3RhcnQiOiAwLCAic3RvcCI6IDIsICJzdGVwIjogMX1dLCAiY29sdW1uX2luZGV4ZXMiOiBbeyJuYW1lIjogbnVsbCwgImZpZWxkX25hbWUiOiBudWxsLCAicGFuZGFzX3R5cGUiOiAidW5pY29kZSIsICJudW1weV90eXBlIjogInN0ciIsICJtZXRhZGF0YSI6IHsiZW5jb2RpbmciOiAiVVRGLTgifX1dLCAiY29sdW1ucyI6IFt7Im5hbWUiOiAia2luZCIsICJmaWVsZF9uYW1lIjogImtpbmQiLCAicGFuZGFzX3R5cGUiOiAib2JqZWN0IiwgIm51bXB5X3R5cGUiOiAic3RyIiwgIm1ldGFkYXRhIjogbnVsbH0sIHsibmFtZSI6ICJjb3VudCIsICJmaWVsZF9uYW1lIjogImNvdW50IiwgInBhbmRhc190eXBlIjogImludDY0IiwgIm51bXB5X3R5cGUiOiAiaW50NjQiLCAibWV0YWRhdGEiOiBudWxsfV0sICJhdHRyaWJ1dGVzIjoge30sICJjcmVhdG9yIjogeyJsaWJyYXJ5IjogInB5YXJyb3ciLCAidmVyc2lvbiI6ICIyNi4wLjAifSwgInBhbmRhc192ZXJzaW9uIjogIjMuMS4wIn0AAAAGAAAAcGFuZGFzAAACAAAAUAAAAAQAAADI////GAAAACAAAAAAAAECHAAAAAgADAAEAAsACAAAAEAAAAAAAAABAAAAAAUAAABjb3VudAAAABAAFAAQAA4ADwAEAAAACAAQAAAAGAAAAAwAAAAAAAEUEAAAAAAAAAAEAAQABAAAAAQAAABraW5kAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/////4AAAAEAAAAAwAGgAYABcABAAIAAwAAAAgAAAAQAEAAAAAAAAAAAAAAAAAAwQACgAYAAwACAAEAAoAAAA8AAAAEAAAAAIAAAAAAAAAAAAAAAIAAAACAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAGAAAAAAAAACAAAAAAAAAAAIAAAAAAAAAwAAAAAAAAAABAAAAAAAAAAABAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGFiAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////8AAAAA",
-         "schema": "kind: large_string\ncount: int64\n-- schema metadata --\npandas: '{\"index_columns\": [{\"kind\": \"range\", \"name\": null, \"start\": 0, \"' + 485",
-         "columns": [
-          "kind",
-          "count"
-         ],
-         "row_count": 2,
-         "rows": [
-          {
-           "kind": "a",
-           "count": 3
-          },
-          {
-           "kind": "b",
-           "count": 7
-          }
-         ]
         },
         "id": "",
         "form_id": "",
@@ -249,7 +244,7 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 1773.165011,
+      "timestamp": 8849.831739,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
@@ -281,7 +276,7 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 1773.165176,
+      "timestamp": 8849.83197,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
@@ -354,7 +349,7 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 1773.165312,
+      "timestamp": 8849.832101,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
@@ -383,7 +378,7 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 1773.165411,
+      "timestamp": 8849.832273,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
@@ -413,7 +408,7 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 1773.165553,
+      "timestamp": 8849.832454,
       "summary": {
        "message": "ForwardMsg",
        "type": "delta",
@@ -442,7 +437,61 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 1773.165679,
+      "timestamp": 8849.832566,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "button",
+        "widget": {
+         "id": "$$ID-8bd18d1fd3f9707fd045428e0e480b26-None",
+         "label": "Ordinary rerun",
+         "type": "secondary"
+        },
+        "id": "$$ID-8bd18d1fd3f9707fd045428e0e480b26-None",
+        "label": "Ordinary rerun",
+        "accepted_types": [
+         "secondary"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         7
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 8849.832694,
+      "summary": {
+       "message": "ForwardMsg",
+       "type": "delta",
+       "delta": {
+        "type": "new_element",
+        "element": "button",
+        "widget": {
+         "id": "$$ID-b70ed14fd4ace327e3b9083af3f9af30-None",
+         "label": "Change Vega data",
+         "type": "secondary"
+        },
+        "id": "$$ID-b70ed14fd4ace327e3b9083af3f9af30-None",
+        "label": "Change Vega data",
+        "accepted_types": [
+         "secondary"
+        ],
+        "form_id": "",
+        "path": [
+         0,
+         8
+        ]
+       }
+      }
+     },
+     {
+      "direction": "server->client",
+      "timestamp": 8849.83273,
       "summary": {
        "message": "ForwardMsg",
        "type": "script_finished",
@@ -454,7 +503,7 @@
      },
      {
       "direction": "server->client",
-      "timestamp": 1773.165812,
+      "timestamp": 8849.832864,
       "summary": {
        "message": "ForwardMsg",
        "type": "session_status_changed",
@@ -477,16 +526,16 @@
     },
     "screenshot": {
      "file": "01-load.png",
-     "sha256": "ed37736b1e761a2420069bc1d01c2096a1f9943b00881ee41da1ce661f8793cc"
+     "sha256": "3c31cd44643bc00ac853766ebaf9aeb579677629fba75fff120ad68a194bf0cd"
     }
    }
   ],
-  "ipc_dir": "D:\\dlab\\streamlit-rust\\target\\chartlibs-rust"
+  "ipc_dir": "C:\\Users\\killf\\github\\streamlit-rust\\target\\chartlibs-rust-after"
  },
  "counts": {
-  "expected": 7,
-  "executed": 7,
-  "asserted": 7
+  "expected": 6,
+  "executed": 6,
+  "asserted": 6
  },
  "failures": []
 }

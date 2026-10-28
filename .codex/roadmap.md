@@ -28,7 +28,7 @@ M0 批次基线在干净代码快照 `b94ac474` 上完成，172 项 Rust 与 148
 
 ## Long-term milestones
 
-CSV 工作台 A 已交付主流程 20 阶段、筛选 13 阶段与来源替换 16 阶段的实现、冻结参考及真实前端对照，当前仍为 M2 子集。来源切换已按 2026-10-28 采纳的显式清空方案落地：空上传状态仅清选择、坏替换保留旧副本、显式 Clear working copy 唯一清空，双端下载逐字节一致（[验收](acceptance.md#current-csv-source-replacement-validation-2026-10-28)）；不因已有证据自动关闭 M2，多文件上传与上传端点安全边界仍开放。图表后续调查已真实复现 generic Vega 同形状值更新漏刷，有限 wire 变更及图内交互风险的方案等待用户决定；不改旧 oracle、不重采正确 CSV 参考，也不推定完整默认图表兼容。
+CSV 工作台 A 已交付主流程 20 阶段、筛选 13 阶段与来源替换 16 阶段的实现、冻结参考及真实前端对照，当前仍为 M2 子集。来源切换已按 2026-10-28 采纳的显式清空方案落地：空上传状态仅清选择、坏替换保留旧副本、显式 Clear working copy 唯一清空，双端下载逐字节一致（[验收](acceptance.md#current-csv-source-replacement-validation-2026-10-28)）；不因已有证据自动关闭 M2，多文件上传与上传端点安全边界仍开放。图表漏刷已按 2026-10-28 采纳的内容命名方案 A 修复：generic Vega 的内联值走内容命名 dataset 并由 spec 引用，四阶段真实前端可见值随 wire 刷新，失败基线保留（[验收](acceptance.md#current-generic-vega-refresh-validation-2026-10-28)）；图内交互状态保持仍未验收，不推定完整默认图表兼容。
 
 下列 M0–M7 属于 2026-10-27 确认的长期目标，与文末已经关闭的历史 P0 里程碑区分。
 

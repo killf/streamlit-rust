@@ -200,6 +200,14 @@ WS 回归 `zero_column_views_render_virtual_range_index_over_the_same_flow` 以 
 
 双端 sources-clear 16 阶段各一次成功采集并冻结（Python 于 `tests/reference/reference-browser/csv-workbench/sources-clear/`，Rust 于 `tests/browser/rust-csv-workbench/sources-clear/`）：五个坏文件逐个替换保留 `workbench-bom` 旧副本、空表头替换、有效替换、移除上传后副本保留、显式清空回到空态且重跑保持。四次实际下载（坏替换后/空表头/替换后/移除后）双端逐字节相同；离线测试 `test_csv_sources_clear_semantics_match_across_runtimes` 以阶段转移（旧副本→新副本）断言空状态前驱运行仍显示旧副本，双端文案差异（错误前缀、空态提示）按语义断言。此前 main/filters 33 阶段与旧失败链（本地 `sources-first/`）均未重采、未改写。多文件上传、上传端点安全边界与全部坏输入枚举未验证；M2 关闭评估另行执行。
 
+## Current generic Vega refresh validation (2026-10-28)
+
+用户于 2026-10-28 采纳图表漏刷方案 A。落点 `elements/charts.rs`：`split_inline_values` 返回字段映射，`vega_lite_chart` 将提取的 Arrow 数据按 IPC 字节 md5 内容命名、放入 `datasets` 并由 spec `data.name` 引用（与同文件 altair 同构），元素 hash 输入随含名 spec 变化；URL、自带 data.name、嵌套 spec 与无数据调用不改写、行为不变，公共 API 与依赖无变化。
+
+WS 回归 `generic_vega_same_shape_updates_change_the_dataset_identity` 驱动 0→8→普通重跑→回 3：每轮断言单 dataset、md5 名、spec 引用一致、行值正确，且 3↔8 改名、重跑保持。真实浏览器：静态七图页在新 wire 下重采并通过 journey-chartlibs-v1 契约 6/6（契约增加原生时间线变体与名称匹配不变量，Python oracle 与冻结 Python 回放未重采）；新增可复用采集器 `vega_refresh_capture.py` 重放失败基线的四阶段流程并冻结于 `tests/browser/rust-vega-refresh-after/`——可见 ARIA 标记随 wire 同步 3→8→保持→回 3，修复前停留 3 的失败基线保留。修复期间发现并修正本机克隆对 `chartlibs-deck_json.json` 的 CRLF 污染（.gitattributes 补 `-text` 并从索引恢复 LF），该固件经 `include_str!` 直接进入 wire。
+
+`cargo fmt/clippy(-D warnings)/test --workspace --locked` 与冻结参考/矩阵检查通过（数字见最终批记录）。边界：一次采集、一台机器的 headless Chrome；图内交互状态（缩放/brush/选区）在 view 重建时的保持未验收；大数据 hash 成本随 IPC 线性，未做性能声明。M2 关闭评估另行执行。
+
 ## Required fresh-checkout checks
 
 ```powershell

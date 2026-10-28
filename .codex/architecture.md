@@ -137,19 +137,13 @@ A 的拟改范围：`streamlit/examples/csv_workbench.rs` 包含数据与视图�
 
 Python 私有实现对负位置采用 pandas 索引语义，Rust 目前拒绝负数；该差异另行保留，不在本批悄悄改写为新的索引规则。CSV 来源规则仍待用户决定，与此修复无依赖。
 
-## Vega-Lite same-shape updates — decision pending
+## Vega-Lite same-shape updates — accepted A (content-named dataset)
 
-现有 `vega_lite_chart` 已真实复现：同一图、同列/行数、同 1416 字节 IPC，实际 a.count 从 3 改为 8，但可见 ARIA/SVG/PNG 仍为 3，普通 rerun 也未恢复；四阶段保留于本地 `target/checks/m2-chart-refresh/rust-before/focused/`。官方前端 Quiver 的数据判定不含值；Python 先前的两组记录也有同 shape/length 的漏刷，其 ForwardMsg hash 已改变，证明仅修 Rust 漏含数据的消息 hash 不充分。Rust 现有 CSV/原生 bar 路径使用内容名进入 spec，已测不受该问题影响。
+现有 `vega_lite_chart` 曾真实复现：同一图、同列/行数、同 1416 字节 IPC，实际 a.count 从 3 改为 8，但可见 ARIA/SVG/PNG 仍为 3，普通 rerun 也未恢复；四阶段失败基线已冻结于 `tests/browser/rust-vega-refresh-before/`。官方前端 Quiver 的数据判定不含值；Python 先前的两组记录也有同 shape/length 的漏刷，其 ForwardMsg hash 已改变，证明仅修 Rust 漏含数据的消息 hash 不充分。Rust 现有 CSV/原生 bar 路径使用内容名进入 spec，已测不受该问题影响。
 
-| 待选方案 | 目的、改动和取舍 |
-| --- | --- |
-| A，推荐 | 在现有 generic Vega 的 Arrow 数据路径复用内容命名的 `ArrowNamedDataSet`，让 spec 引用随数据变化的名称，官方前端无需改动。保持用户 API、数据类型及 Arrow 传输；每次数据 hash 随 IPC 大小线性计算。spec 改变会重建 Vega view，可能重置缩放、brush/selection、params/signal，并产生重绘成本，不承诺原地更新。发射形态由顶层 data 变为 named dataset，需用户认可这一有限协议/呈现偏差和交互状态风险；原 Python raw 不改、不重采。 |
-| B | 对当前公开 JSON inline-values 调用保留 `data.values` 在 spec 内，让 spec 值变化触发刷新；实现更直接，但失去该路径的列式 IPC 传输，JSON 体积、类型和大数据行为需重新验证，同样重建 view、可能重置图内交互状态，并需声明协议/呈现差异。 |
-| C | 暂缓 generic Vega 更新修复，保留现有发射与已测静态 wire；明确动态图存在已复现缺陷，长期目标仍未完成，继续其他独立能力。 |
+2026-10-28 用户采纳方案 A：generic Vega 的 Arrow 数据路径复用内容命名的 `ArrowNamedDataSet`，spec 以 `data: {"name": <md5(IPC)>}` 引用，官方前端无需改动；B（inline values 留在 spec 内）与 C（暂缓）未采纳。落点：`elements/charts.rs` 的 `split_inline_values` 返回字段映射，`vega_lite_chart` 对提取出的 Arrow 数据按内容命名并加入 `datasets`、spec 以 data.name 引用（与同文件 `altair_chart` 同构），element hash 输入经含名称的 spec 随数据变化。保持用户 API、数据类型及 Arrow 传输；数据 hash 随 IPC 大小线性计算。
 
-A 的 wire 规范化仅限此 generic Vega 的顶层 Arrow data 与单个 named dataset 之间的承载差别；内容名须匹配数据，逻辑 Arrow 字段/metadata/行序/值及 spec 其他字段仍严格校验，不删除其他断言。URL、调用方已有 data.name 与嵌套 spec 不自动改写或假称已验证。这是有意修正已观察到的 1.66.1 漏刷，不是声称与其错误像素一致；图内交互状态保持仍是完整目标的未验收项，不能用本修复关闭。
-
-拟改范围（A）：`elements/charts.rs` 的现有数据提取/图元素构造、现有 chartlibs 示例和运行回归，以及使用指南/该项证据映射。不加依赖或公共接口，不改官方静态资源，不将此推广成所有图类型或所有 spec 组合已通过。验收：保留原 7 图初始语义，真实按钮 3→8→普通 rerun→3 的可见条值与实际 Arrow 一致，同形状/同长度的数据变化必须改变有效更新身份；空值/无数据、原有 named/URL spec 边界按受影响调用回归，旧正确 Python 记录继续复用，最后独立 Review。选择之前仅保留复现示例，不实施生产修复或调整协议验收。
+wire 规范化仅限此 generic Vega 的顶层 Arrow data 与单个 named dataset 之间的承载差别；内容名须匹配数据，逻辑 Arrow 字段/metadata/行序/值及 spec 其他字段仍严格校验。URL、调用方已有 data.name、嵌套 spec 与无数据调用不自动改写、行为不变。这是有意修正已观察到的 1.66.1 漏刷，不是声称与其错误像素一致；spec 变化会重建 Vega view，缩放/brush/selection/params 等图内交互状态可能重置，该项保持完整目标的未验收部分。验收按原计划执行：7 图初始语义保留（chartlibs 契约的 generic vega 预期更新为 named dataset 形态），真实按钮 3→8→普通 rerun→3 可见条值与实际 Arrow 一致（`tests/browser/rust-vega-refresh-after/`），同形状变化改变 dataset 名与元素身份；旧正确 Python 记录复用不重采。
 
 ## Download filename and MIME boundaries
 

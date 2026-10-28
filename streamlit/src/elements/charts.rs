@@ -109,7 +109,8 @@ pub(crate) fn altair_spec(spec: &Value, dataset_name: &str) -> String {
 
 /// The vega_lite_chart transformation: pull an inline `data.values` list out
 /// of the spec (it becomes the element's arrow data) and append autosize.
-pub(crate) fn split_inline_values(spec: &Value) -> Result<(String, Option<Value>), StreamlitError> {
+/// The remaining fields keep the caller's order for serialization.
+pub(crate) fn split_inline_values(spec: &Value) -> (Map<String, Value>, Option<Value>) {
     let mut out = Map::new();
     let mut values = None;
     if let Value::Object(fields) = spec {
@@ -127,7 +128,7 @@ pub(crate) fn split_inline_values(spec: &Value) -> Result<(String, Option<Value>
     if !out.contains_key("autosize") {
         out.insert("autosize".into(), serde_json::json!({"type": "fit", "contains": "padding"}));
     }
-    Ok((crate::pywire::py_dumps(&Value::Object(out)), values))
+    (out, values)
 }
 
 /// The mermaid fence: at least four backticks, always one more than the
@@ -173,9 +174,13 @@ pub fn altair_chart(spec: Value, dataset: crate::proto::ArrowData) -> ChartEleme
 }
 
 /// st.vega_lite_chart: the caller's spec with an optional inline values list
-/// extracted into the element's arrow data.
+/// extracted into a content-named arrow dataset (accepted A). The name rides
+/// the spec's `data.name` like altair's, so the official frontend's
+/// value-blind dataset identity still sees same-shape value changes — the
+/// measured 1.66.1 top-level `data` emission missed them. Specs without
+/// extracted values (URL, own data.name, nested) are untouched.
 pub fn vega_lite_chart(spec: Value, data: Option<crate::proto::ArrowData>) -> Result<ChartElement, StreamlitError> {
-    let (spec_json, values) = split_inline_values(&spec)?;
+    let (fields, values) = split_inline_values(&spec);
     let arrow = match (data, values) {
         (Some(arrow), _) => Some(arrow),
         (None, Some(values)) => {
@@ -185,17 +190,29 @@ pub fn vega_lite_chart(spec: Value, data: Option<crate::proto::ArrowData>) -> Re
         }
         (None, None) => None,
     };
-    Ok(ChartElement::new(
-        format!("vega_lite_{spec_json}"),
-        stretch(),
-        content_height(),
-        element::Type::VegaLiteChart(crate::proto::VegaLiteChart {
-            spec: spec_json,
-            data: arrow,
+    let chart = match arrow {
+        Some(dataset) => {
+            let name = format!("{:x}", md5::compute(&dataset.data));
+            let mut named = Map::new();
+            named.insert("data".into(), serde_json::json!({"name": name}));
+            for (key, value) in fields {
+                named.insert(key, value);
+            }
+            let spec_json = crate::pywire::py_dumps(&Value::Object(named));
+            crate::proto::VegaLiteChart {
+                spec: spec_json,
+                datasets: vec![crate::proto::ArrowNamedDataSet { name, has_name: true, data: Some(dataset) }],
+                theme: "streamlit".into(),
+                ..Default::default()
+            }
+        }
+        None => crate::proto::VegaLiteChart {
+            spec: crate::pywire::py_dumps(&Value::Object(fields)),
             theme: "streamlit".into(),
             ..Default::default()
-        }),
-    ))
+        },
+    };
+    Ok(ChartElement::new(format!("vega_lite_{}", chart.spec), stretch(), content_height(), element::Type::VegaLiteChart(chart)))
 }
 
 /// st.plotly_chart: the figure JSON as produced by plotly's to_json.

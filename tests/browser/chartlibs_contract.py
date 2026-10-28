@@ -6,10 +6,14 @@ This criterion judges the observation the committed collector
 (Chart libraries): the seven chart surfaces (altair, vega_lite, plotly,
 pydeck, graphviz, mermaid, echarts) with their full element wires — spec
 strings, layout configs, themes and heights. The chart-building libraries
-are Python-only; the Rust surfaces pass the same final payloads. Two
+are Python-only; the Rust surfaces pass the same final payloads. Three
 side-specific normalizations apply, like the $$ID digests: the arrow IPC
-flatbuffer layout is compared logically (fields, metadata, rows), and the
-content-addressed dataset names inside vega specs are masked. The run still
+flatbuffer layout is compared logically (fields, metadata, rows), the
+content-addressed dataset names inside vega specs are masked, and — for the
+Rust side only, accepted A (2026-10-28) — the generic vega_lite_chart's
+extracted values ride one content-named dataset referenced by spec data.name
+instead of the measured top-level data, with the name-match checked before
+masking. The run still
 finishes FINISHED_SUCCESSFULLY and the settled DOM shows the mounted chart
 counts. Unbounded leading main-container add_blocks at [0] are the Rust
 runtime's documented divergence.
@@ -249,6 +253,32 @@ CHARTLIBS_TIMELINE = {
     ]
 }
 
+def _native_timeline():
+    """The Rust side under accepted A (2026-10-28): the generic chart's
+    extracted values ride one content-named dataset referenced by the spec's
+    data.name instead of the measured top-level data — the deliberate fix for
+    the official frontend's same-shape refresh miss. Logical Arrow content,
+    the rest of the spec and every other surface stay equal to the measured
+    Python wire."""
+    import copy
+
+    native = copy.deepcopy(CHARTLIBS_TIMELINE)
+    for stage in native.values():
+        for entry in stage:
+            if entry.get("kind") != "vega_lite_chart":
+                continue
+            vega = entry["element_full"]["vegaLiteChart"]
+            if "data" not in vega:
+                continue
+            arrow = vega.pop("data")
+            vega["datasets"] = [{"name": "<digest>", "hasName": True, "data": arrow}]
+            spec = {"data": {"name": "<digest>"}, **json.loads(vega["spec"])}
+            vega["spec"] = json.dumps(spec, separators=(", ", ": "), ensure_ascii=False)
+    return native
+
+
+CHARTLIBS_TIMELINE_NATIVE = _native_timeline()
+
 CHARTLIBS_DOMS = {
     '01-load': {
         'charts': 2,
@@ -327,7 +357,7 @@ def _need(condition, message):
         raise ValueError(message)
 
 
-def _timeline(stage):
+def _timeline(stage, native=False):
     """The stage's normalized frames; the Rust runtime re-announces the
     main container at [0] at the head of every element batch."""
     out = []
@@ -343,9 +373,24 @@ def _timeline(stage):
             if inner == "add_block":
                 _need(False, f"unexpected block {sorted(delta.get('block') or {})}")
             name = delta.get("element")
+            if native and name == "button":
+                # The native example carries the trailing Change Vega data
+                # button from the refresh investigation; it is not part of
+                # the chart wire contract.
+                continue
             if name in ("vega_lite_chart", "plotly_chart", "deck_gl_json_chart", "graphviz_chart", "markdown", "echarts_chart"):
                 full = delta.get("element_full")
                 _need(isinstance(full, dict), f"the {name} delta lacks its full element")
+                if native and name == "vega_lite_chart":
+                    # Accepted A invariants, checked before masking: the values
+                    # ride exactly one dataset whose md5 name the spec references.
+                    vega = full.get("vegaLiteChart") or {}
+                    datasets = vega.get("datasets") or []
+                    _need("data" not in vega and len(datasets) == 1, "accepted A: exactly one named dataset, no top-level data")
+                    dataset_name = datasets[0].get("name")
+                    _need(isinstance(dataset_name, str) and DATASET_NAME_RE.fullmatch(dataset_name), "the dataset name must be the 32-hex md5 of the IPC bytes")
+                    spec = json.loads(vega["spec"])
+                    _need(spec.get("data") == {"name": dataset_name}, "the spec must reference its own dataset's content name")
                 out.append({"kind": name, "element_full": normalize_chart(full), "path": delta.get("path")})
             else:
                 _need(False, f"unexpected element {name!r}")
@@ -384,9 +429,11 @@ def chartlibs_checks(*, observation=None):
                   and isinstance(stage.get("new_frames"), list), f"stage {stage.get('name')} lacks dom/screenshot/new_frames")
         mark("stage_set")
 
-        timelines = {stage["name"]: _timeline(stage) for stage in stages}
+        native = observation.get("scope") != "PYTHON SIDE ONLY"
+        expected_timeline = CHARTLIBS_TIMELINE_NATIVE if native else CHARTLIBS_TIMELINE
+        timelines = {stage["name"]: _timeline(stage, native=native) for stage in stages}
         for name in CHARTLIBS_STAGES:
-            _need(timelines[name] == CHARTLIBS_TIMELINE[name],
+            _need(timelines[name] == expected_timeline[name],
                   f"stage {name} frame timeline differs from the measured wire ({len(timelines[name])} frames)")
         mark("timeline")
 
