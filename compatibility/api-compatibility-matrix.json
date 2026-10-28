@@ -2661,13 +2661,18 @@
           "tests/browser/rust-combined-interactive/trace.json",
           "tests/browser/rust-combined-interactive/README.md",
           "tests/reference/test_combined_interactive_reference.py"
+        ],
+        "creation_params_reference": [
+          "tests/reference/reference-browser/button-image-params/trace.json",
+          "tests/reference/reference-browser/button-image-params/README.md",
+          "tests/browser/rust-button-image-params/trace.json"
         ]
       },
       "rust_plan": "Render the default button and return its one-shot trigger on an ordinary rerun; retain this bounded implementation while adding missing option and identity semantics.",
       "compatibility_scope": "Limited comparison of Python closed-loop button trigger/completion with the Rust default Pulse button: rendering and three successive true triggers, each answered by successful script_finished on the same connection. Not full st.button compatibility or a complete journey pass.",
       "limitations": [
         "No automated Python-versus-Rust API/wire differential result is claimed; runtime test source and the two recorded browser observations support only this finite scope.",
-        "Disabled options, callbacks, duplicate keys, form submission, persistent session state, reconnect and security handshake are outside this verified scope.",
+        "Disabled, primary type, and icon are now measured on the creation wire (2026-10-29, frozen button-image-params), field-identical cross-runtime. Callbacks, duplicate keys, form submission, persistent session state, reconnect and security handshake are outside this verified scope.",
         "Frozen Rust trace has inherited Python-only kind/scope metadata; its Rust NewSession, heading and URL identify the actual Rust run, as explained in .codex/compatibility.md."
       ]
     },
@@ -2870,13 +2875,18 @@
           "tests/reference/test_download_boundaries_reference.py",
           "streamlit/tests/runtime/media.rs",
           "tests/browser/rust-download-boundaries/README.md"
+        ],
+        "creation_params_reference": [
+          "tests/reference/reference-browser/button-image-params/trace.json",
+          "tests/reference/reference-browser/button-image-params/README.md",
+          "tests/browser/rust-button-image-params/trace.json"
         ]
       },
       "rust_plan": "st.download_button(label, data) registers a trigger widget and streams a download_button element whose url is the content-addressed /media/<blake2b-16>.<ext> address of the declared bytes (the same digest the reference computes, filename included), with the button type and icon.",
       "compatibility_scope": "The journey-buttons-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome across six measured stages (the load and one committed interaction each for the toggle, the single-select pill, the pagination page, the feedback star and the menu pick); the published replays assert 17/17 checks per side, covering every element's full wire message, the browser's widget-state reports and the settled DOM. Added 2026-10-27: 33 native text-CSV workflow stages (20 main and 13 filters) match frozen Python logical rows, draft behavior, counts and actual downloaded CSV bytes, including two-session isolation. Source replacement/reset remains unresolved; this is a measured subset, not complete CSV or default-chart compatibility.",
       "limitations": [
         "Coverage is the journey-buttons-v1 chain: the pinned fixture's widget set (two toggles, stars+thumbs feedback, single/multi pills, one segmented control, a 10-page pagination, one menu button, one text download, one keyed link button, one external page link) across the load and five committed interactions (toggle flip, single pill pick, page-2 click, third star, CSV menu pick).",
-        "Text/plain element evidence is retained; the CSV workflow proves real UTF-8 CSV GET/download bytes and attachment filename, plus Rust HTTP Range/repeat/unknown-id regression. Ten additional frozen public byte inputs now match actual Rust WS/HTTP URLs, headers and bytes: default/empty/ASCII/Unicode/quote/backslash filenames, text charset, explicit charset, JSON and unknown MIME. Two real Rust browser clicks save the default and Unicode filenames with original bytes; HTTP Fetch occurred during initial rendering, before clicks. Other punctuation, all MIME mappings, text/file-like inference, deferred callable generation and complete media lifecycle remain unverified or incomplete.",
+        "The creation-wire naming rule is now measured (2026-10-29, frozen button-image-params): the element URL extends from an explicit file_name and addresses as .bin when neither name nor mime is given — field-identical cross-runtime. Text/plain element evidence is retained; the CSV workflow proves real UTF-8 CSV GET/download bytes and attachment filename, plus Rust HTTP Range/repeat/unknown-id regression. Ten additional frozen public byte inputs now match actual Rust WS/HTTP URLs, headers and bytes: default/empty/ASCII/Unicode/quote/backslash filenames, text charset, explicit charset, JSON and unknown MIME. Two real Rust browser clicks save the default and Unicode filenames with original bytes; HTTP Fetch occurred during initial rendering, before clicks. Other punctuation, all MIME mappings, text/file-like inference, deferred callable generation and complete media lifecycle remain unverified or incomplete.",
         "Added Range subset: 27 actual public-call WS/HTTP inputs across CSV, empty download and the committed MP4, including three video requests. Rust matches frozen status/URL/range/length/type/disposition/accept-ranges and original bytes, with 206 suffixes and 416 invalid or unsatisfiable single/multi requests. This does not establish browser seeking, HEAD, If-Range/CORS, duplicate or all numeric/header forms, or full media lifecycle."
       ]
     },
@@ -3898,12 +3908,17 @@
         "native_rgba_validation": [
           "streamlit/src/media.rs",
           ".codex/acceptance.md"
+        ],
+        "creation_params_reference": [
+          "tests/reference/reference-browser/button-image-params/trace.json",
+          "tests/reference/reference-browser/button-image-params/README.md",
+          "tests/browser/rust-button-image-params/trace.json"
         ]
       },
       "rust_plan": "st.image((RgbaImage, \"caption\")) encodes RGBA pixels to a valid PNG (stored-deflate) and registers it in the content-addressed store; the wire is the measured Imgs ImageList with a relative /media/{blake2b}.png URL, caption and content width.",
       "compatibility_scope": "The journey-media-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were both loaded by a real Chrome through the official frontend; both published replays return 10/10/10 exit 0 with identical element protos, DOM projections and /media response shapes (python 763beee2..., native fb8f5e64...). The WAV fixture is byte-identical across runtimes, so its address, range response and body digest are the exact measured ones; the PNG encodes per side (the reference deflates with PIL) with identical pixels.",
       "limitations": [
-        "In-memory RGBA input only: URL/path/PIL-image inputs, use_container_width, multiple images and output sizing are unobserved.",
+        "The list overload is now measured (2026-10-29, frozen button-image-params): multiple RGBA images ride one imgs element with per-image captions and an element-level width, identical pixels sharing one content address — the new st.images API matches field-for-field. In-memory RGBA input only: URL/path/PIL-image inputs, use_container_width, multiple images and output sizing are unobserved.",
         "The PNG encoder differs from PIL's (stored deflate), so PNG bytes and their address differ per side; pixels are identical and only the response shape compares.",
         "Rust-native RGBA validation uses checked dimension arithmetic, rejects unrepresentable byte lengths and leaves the image slot untouched. The low-level PNG encoder still requires a valid input; these controls are not new browser or Python image-type evidence."
       ]

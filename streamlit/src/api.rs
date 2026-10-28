@@ -886,6 +886,32 @@ pub struct ImageOptions {
     caption: String,
     width: Option<ElementWidth>,
 }
+
+/// Multiple images in one element (Python `st.image([a, b], caption=[...])`):
+/// one imgs element whose entries share the element-level width.
+pub struct ImageListOptions {
+    images: Vec<crate::media::RgbaImage>,
+    captions: Vec<String>,
+    width: Option<ElementWidth>,
+}
+impl ImageListOptions {
+    pub fn new(images: impl IntoIterator<Item = crate::media::RgbaImage>) -> Self {
+        Self {
+            images: images.into_iter().collect(),
+            captions: Vec::new(),
+            width: None,
+        }
+    }
+    /// One caption per image, in order.
+    pub fn captions(mut self, captions: impl IntoIterator<Item = impl Into<String>>) -> Self {
+        self.captions = captions.into_iter().map(Into::into).collect();
+        self
+    }
+    pub fn width(mut self, width: ElementWidth) -> Self {
+        self.width = Some(width);
+        self
+    }
+}
 impl ImageOptions {
     pub fn new(image: crate::media::RgbaImage) -> Self {
         Self { image, caption: String::new(), width: None }
@@ -1451,6 +1477,9 @@ pub trait StreamlitApi {
     fn button<T: Into<ButtonOptions>>(&self, options: T) -> bool;
 
     fn image<T: Into<ImageOptions>>(&self, options: T);
+
+    /// Several images in one element, like `st.image([...])`.
+    fn images(&self, options: ImageListOptions);
 
     fn audio<T: Into<AudioOptions>>(&self, options: T);
 
@@ -2300,6 +2329,32 @@ impl<C: AppendChild> StreamlitApi for C {
             }
             Err(error) => log::error!("st.image failed to register media: {}", error),
         }
+    }
+
+    fn images(&self, options: ImageListOptions) {
+        if options.images.len() != options.captions.len() && !options.captions.is_empty() {
+            log::error!("st.images needs one caption per image");
+            return;
+        }
+        let mut entries = Vec::with_capacity(options.images.len());
+        for image in &options.images {
+            if !image.valid() {
+                log::error!("st.images needs width*height*4 RGBA pixels");
+                return;
+            }
+            match crate::elements::media::media_url(&crate::media::png_encode(image), "image/png") {
+                Ok(url) => entries.push((url, String::new())),
+                Err(error) => {
+                    log::error!("st.images failed to register media: {}", error);
+                    return;
+                }
+            }
+        }
+        for (entry, caption) in entries.iter_mut().zip(options.captions) {
+            entry.1 = caption;
+        }
+        let element = crate::elements::media::ImgsElement::new(entries, options.width);
+        self.push(Rc::new(RefCell::new(element)));
     }
 
     fn audio<T: Into<AudioOptions>>(&self, options: T) {

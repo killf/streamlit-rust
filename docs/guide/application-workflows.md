@@ -237,6 +237,8 @@ Rust 已采纳方案 A：显示转换保留真实行数并合成虚拟 RangeInde
 
 **时间/滑块创建参数**（[temporal-params 参考](../../tests/reference/reference-browser/temporal-params/README.md)，5/5 一致、零实现改动确认）：`date_input` 的显式 min/max 透传 ISO、**未给边界时为 value ±10 年窗**、自定义 `format` 原样上 wire；`select_slider` 双端点默认 → `SELECT_SLIDER` 类型 + 选项索引端点（min=0 省略）；`time_input` 的 `step` 以字符串上 wire、`format "24h"`。range date_input 与交互期日历提交未纳入。
 
+**按钮/图片创建参数**（[button-image-params 参考](../../tests/reference/reference-browser/button-image-params/README.md)，6/6 一致）：`ButtonOptions` 的 `r#type("primary")/icon/disabled` 透传；`download_button` 的 **URL 扩展名规则**——显式 file_name 取其扩展、均缺省时按内容推断（裸字节 → `.bin`），消息内只带 url；新增 `st.images(ImageListOptions)` 支持多图列表（captions 逐条、width 元素级、同像素共享内容寻址 URL）。URL/path 图输入与点击交互流未纳入。
+
 ## 运行配置面（显式旋钮）
 
 Rust 不解析 `config.toml`（矩阵既有边界：Python 的 TOML 注册表不是兼容目标）；运行项全部是**显式**的服务器构建器与宏参数，无隐藏配置文件。完整清单：
@@ -350,6 +352,7 @@ async fn main(st: &Streamlit) {
 - **combined_interactive**（`http://127.0.0.1:8598/`）：M7 交互组合差分（上传/勾选/选择/选行/按钮/toast）。
 - **widget_params**（`http://127.0.0.1:8599/`）：number_input float 路径、radio index=None/horizontal/captions、text_area max_chars/placeholder/height、multiselect max_selections。
 - **temporal_params**（`http://127.0.0.1:8600/`）：date_input 边界/±10 年缺省窗/自定义 format、select_slider 范围默认、time_input step。
+- **button_image_params**（`http://127.0.0.1:8601/`）：按钮 primary/icon/disabled、download 命名规则、st.images 多图。
 - **combined**（`http://127.0.0.1:8596/`）：the M7 cross-capability differential page。
 - **componenttrigger**（`http://127.0.0.1:8542/`）：component triggers。
 - **componentv2**（`http://127.0.0.1:8539/`）：components v2。

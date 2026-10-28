@@ -334,6 +334,10 @@ M3 可测面切片（widgets 簇，取自 80 项清单）。冻结 Python 参考
 
 M3 可测面切片（temporal 簇）。冻结 Python 参考 `tests/reference/reference-browser/temporal-params/`（5 元素）与 Rust 对照 **5/5 字段一致——零实现改动**：date_input 显式 min/max、**未给边界时 value ±10 年窗**（2014/2034 实测）与自定义 format；select_slider 双端点范围默认（SELECT_SLIDER + 索引端点，min=0 省略）；time_input step 字符串化（"900"）与 24h 格式。既有 Rust 行为全部经参考确认而非修改。矩阵 st.date_input/st.select_slider/st.time_input 三条目收窄挂 `creation_params_reference`；清单再生成。离线断言含 min 省略等 wire 细节。边界：range date_input、交互期日历提交、on_change 未纳入。
 
+## Current button/image creation-parameter validation (2026-10-29)
+
+M3 可测面切片（buttons/images 簇）。冻结 Python 参考 `tests/reference/reference-browser/button-image-params/`（6 元素）与 Rust 对照 **6/6 字段一致**：按钮 `primary/icon/disabled` 透传；`download_button` 的 **URL 扩展名规则**实测——显式 file_name 取其扩展（`.txt`）、均缺省按内容推断（裸字节 `.bin`），消息仅带 url；`st.image` 列表输入合成单 `imgs` 元素、caption 逐条、同像素**共享内容寻址 URL**。Rust 新增 `st.images(ImageListOptions)` API；其余为既有行为经参考确认。矩阵 st.button/st.download_button/st.image 三条目收窄挂 `creation_params_reference`；清单再生成。边界：URL/path 图输入、use_container_width、点击交互流未纳入。
+
 ## Required fresh-checkout checks
 
 ```powershell
