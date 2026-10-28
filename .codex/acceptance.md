@@ -286,6 +286,16 @@ Rust 实施：`ExpanderKind`/`PopoverKind` 枚举与 `kind()/help()/disabled()/u
 
 M3 列参数切片。冻结 Python 参考 `tests/reference/reference-browser/columns-params/`（七组调用，逐块含块级字段）：容器 `scale 1.0/wrap true/justify UNDEFINED/align STRETCH`、gap 仅 SM/M/L 变化且**复制到每个列块**、列权重 **double 精度**（1/3=0.3333333333333333）、`show_border`/`vertical_alignment`。Rust 实施修复三处真实偏差：容器硬编码 `scale 0.0/wrap false`（且 columns 容器 justify/align 与普通容器不同——新增 `columns_flex` 形态）；权重 f32→**f64**；列块缺 gap 复制。另修正共享容器非默认对齐的枚举映射（Center/Right 此前错映 proto 序号；该路径未经测量，默认 Left/Top 不变）。验证：同采集器 --url 对照 **22/22 块逐字一致**；WS 回回归断言容器形态、f64 权重与 gap 复制；离线双向断言；`Gap/VerticalAlignment` 自 crate 根导出。边界：wrap=false、自定义列宽、嵌套、horizontal_alignment 未测。
 
+## Current stability scenarios validation (2026-10-28)
+
+M5 稳定性批次：三个此前未测场景的可复现回归与测量（`streamlit/tests/runtime/stability.rs` + `tools/measure_stability.py` + [tests/performance/stability.json](../tests/performance/stability.json)，各 3 试次）：
+
+- **大数据/容量**：同一 WS 会话单轮渲染 100k 行 + 50k×4 列两表与 200k 点图表数据集（帧 >1MiB，回归自带 ≤64MiB 大帧读取器），解码行数逐表断言，第二轮 rerun 复现。测量：整测试进程峰值私有内存 52 MiB（含夹具），两轮墙钟 ~2.4s——观测值非阈值。
+- **长时运行**：单会话 300 轮 rerun + 11 次按钮触发，会话身份全程不变、计数精确落在 11、全部 FINISHED_SUCCESSFULLY；300 轮总墙钟 ~0.14s，峰值内存 ~2 MiB 增量（无随轮增长迹象，非泄漏证明）。
+- **慢连接**：一个客户端读到一半停住（parked reader，未读载荷滞留 socket），同时另一会话全速跑完 20 轮（~12ms/轮），随后慢客户端排空并正常结束——每会话独立发送通道，慢读者不阻塞他人。
+
+边界：单机 debug 构建、每场景单/双会话；吞吐、并发容量上限、真实网络延迟抖动、多小时级长时运行与泄漏证明不在本批；无 SLO。M5 保持未完成（媒体回收、会话容量等既有边界不变）。
+
 ## Required fresh-checkout checks
 
 ```powershell

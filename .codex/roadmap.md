@@ -38,6 +38,8 @@ CSV 工作台 A 已交付主流程 20 阶段、筛选 13 阶段与来源替换 1
 
 缓存种类共用键表导致的实际返回值错误已独立修复：data/resource 同名同参各自保留结果、资源引用和录制输出；四组公开参考只采一次并冻结，Rust 真实 WS 复验各自重放。仍维持会话级缓存与现有总清空接口，未扩大为完整 Python 全局/会话选项、TTL 或分类别清空兼容；详见[参考及局限](../tests/reference/reference-browser/cache-kind-isolation/README.md)。
 
+M5 稳定性批次（2026-10-28）：大数据（100k/50k 行 + 200k 点图表）、长时运行（300 轮 rerun 精确状态）与慢连接（parked reader 不阻塞他 会话）三场景落地可复现回归与 3 试次测量（[验收](acceptance.md#current-stability-scenarios-validation-2026-10-28)）；吞吐/容量上限/多小时运行未测，M5 保持未完成。
+
 M3 列参数切片（2026-10-28）：st.columns 的 gap/border/vertical_alignment/加权 spec 已双端冻结验收（22/22 块逐字一致，修复容器 scale/wrap、f64 权重与列 gap 复制三处偏差；[验收](acceptance.md#current-columns-parameters-validation-2026-10-28)）；wrap/自定义列宽/嵌套未测。
 
 M3 布局/流式参数切片（2026-10-28）：expander 类型、popover 参数、tabs 默认标签、status 更新语义与 toast 时长已双端冻结验收，14/14 块发射逐字一致（[验收](acceptance.md#current-layout-streaming-parameters-validation-2026-10-28)）；STEP/wrap/容器内 toast 未测。

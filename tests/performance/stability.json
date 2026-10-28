@@ -1,0 +1,160 @@
+{
+  "schema_version": 1,
+  "measured_at_utc": "2026-10-28T11:15:01+00:00",
+  "environment": {
+    "os": "Windows-11-10.0.26300-SP0",
+    "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)"
+  },
+  "binary": "C:\\Users\\killf\\github\\streamlit-rust\\target\\debug\\deps\\streamlit-38c7a00d3d51f06f.exe",
+  "phases": {
+    "large_payloads": [
+      {
+        "exit_code": 0,
+        "wall_seconds": 2.2276652999971702,
+        "samples": 407,
+        "max_observed_private_bytes": 54771712,
+        "max_observed_working_set_bytes": 57356288,
+        "measurement": {
+          "scenario": "large_payloads",
+          "runs": 2,
+          "rows_per_run": [
+            100000,
+            50000
+          ],
+          "chart_points": 200000,
+          "total_wall_seconds": 2.1774273
+        },
+        "log": "stability-large_payloads-1.log"
+      },
+      {
+        "exit_code": 0,
+        "wall_seconds": 3.0227378999989014,
+        "samples": 554,
+        "max_observed_private_bytes": 54804480,
+        "max_observed_working_set_bytes": 56799232,
+        "measurement": {
+          "scenario": "large_payloads",
+          "runs": 2,
+          "rows_per_run": [
+            100000,
+            50000
+          ],
+          "chart_points": 200000,
+          "total_wall_seconds": 2.9741156
+        },
+        "log": "stability-large_payloads-2.log"
+      },
+      {
+        "exit_code": 0,
+        "wall_seconds": 2.9901094999986526,
+        "samples": 546,
+        "max_observed_private_bytes": 54820864,
+        "max_observed_working_set_bytes": 56795136,
+        "measurement": {
+          "scenario": "large_payloads",
+          "runs": 2,
+          "rows_per_run": [
+            100000,
+            50000
+          ],
+          "chart_points": 200000,
+          "total_wall_seconds": 2.943874
+        },
+        "log": "stability-large_payloads-3.log"
+      }
+    ],
+    "long_session_churn": [
+      {
+        "exit_code": 0,
+        "wall_seconds": 0.1583249000032083,
+        "samples": 26,
+        "max_observed_private_bytes": 2240512,
+        "max_observed_working_set_bytes": 16031744,
+        "measurement": {
+          "scenario": "long_session_churn",
+          "reruns": 300,
+          "bump_triggers": 11,
+          "final_rounds": 11,
+          "total_wall_seconds": 0.1178301
+        },
+        "log": "stability-long_session_churn-1.log"
+      },
+      {
+        "exit_code": 0,
+        "wall_seconds": 0.13266790000125184,
+        "samples": 22,
+        "max_observed_private_bytes": 2351104,
+        "max_observed_working_set_bytes": 15933440,
+        "measurement": {
+          "scenario": "long_session_churn",
+          "reruns": 300,
+          "bump_triggers": 11,
+          "final_rounds": 11,
+          "total_wall_seconds": 0.0906834
+        },
+        "log": "stability-long_session_churn-2.log"
+      },
+      {
+        "exit_code": 0,
+        "wall_seconds": 0.1324700999975903,
+        "samples": 22,
+        "max_observed_private_bytes": 2248704,
+        "max_observed_working_set_bytes": 15798272,
+        "measurement": {
+          "scenario": "long_session_churn",
+          "reruns": 300,
+          "bump_triggers": 11,
+          "final_rounds": 11,
+          "total_wall_seconds": 0.0925091
+        },
+        "log": "stability-long_session_churn-3.log"
+      }
+    ],
+    "slow_reader_isolation": [
+      {
+        "exit_code": 0,
+        "wall_seconds": 0.04939609999928507,
+        "samples": 6,
+        "max_observed_private_bytes": 2277376,
+        "max_observed_working_set_bytes": 15904768,
+        "measurement": {
+          "scenario": "slow_reader_isolation",
+          "fast_session_runs": 20,
+          "fast_session_seconds": 0.0079316,
+          "slow_session_finished": true
+        },
+        "log": "stability-slow_reader_isolation-1.log"
+      },
+      {
+        "exit_code": 0,
+        "wall_seconds": 0.05200719999993453,
+        "samples": 7,
+        "max_observed_private_bytes": 2314240,
+        "max_observed_working_set_bytes": 15753216,
+        "measurement": {
+          "scenario": "slow_reader_isolation",
+          "fast_session_runs": 20,
+          "fast_session_seconds": 0.0092673,
+          "slow_session_finished": true
+        },
+        "log": "stability-slow_reader_isolation-2.log"
+      },
+      {
+        "exit_code": 0,
+        "wall_seconds": 0.05111639999813633,
+        "samples": 7,
+        "max_observed_private_bytes": 2265088,
+        "max_observed_working_set_bytes": 15962112,
+        "measurement": {
+          "scenario": "slow_reader_isolation",
+          "fast_session_runs": 20,
+          "fast_session_seconds": 0.0083876,
+          "slow_session_finished": true
+        },
+        "log": "stability-slow_reader_isolation-3.log"
+      }
+    ]
+  },
+  "scope": "Whole isolated test process per fixture: one WS session rendering 100k/50k-row tables plus a 200k-point chart (large_payloads); 300 reruns with 11 widget triggers on one session (long_session_churn); a parked reader mid-stream while a second session runs 20 full-speed reruns (slow_reader_isolation). Correctness assertions are in-test; memory/timing here are observations, not thresholds or SLOs.",
+  "memory_scope": "Whole test binary process sampled every 5ms; includes fixture setup and test harness. Observed maxima can miss brief peaks; cross-machine comparison is not claimed."
+}
