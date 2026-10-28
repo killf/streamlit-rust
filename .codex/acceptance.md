@@ -220,6 +220,10 @@ WS 回归 `generic_vega_same_shape_updates_change_the_dataset_identity` 驱动 0
 
 宏支撑 A 落点：lib.rs 新增 `#[doc(hidden)] pub mod __macro`（重导出 tokio/env_logger）；`#[streamlit::main]` 全部走 `::streamlit::__macro::…` 限定路径，并显式构建同样的 Tokio 多线程运行时——不用 `#[tokio::main]` 属性，因为该属性自身展开仍引用裸 `::tokio`，首次实现曾漏此点。复验：改名库目录 + 含空格路径、仅依赖 `streamlit` 一个包的 consumer 应用真实编译（`consumer-macro-green.log`；本机经 crates.io 常规拉取的 vendored protoc 提供 `PROTOC`）、启动 8550、健康检查 ok、真实 Chrome 点击 **Add** 三次 Count 0→1→2→3、无 stException；历史红 `consumer-macro-red.log` 保留。工作区 fmt/Clippy(-D warnings)/186 项测试与全部示例构建通过；既有宏参数解析单测不受影响。边界：单机 Windows 缓存构建，不含新机器、MSRV、其他平台或完整打包分发声明。
 
+## M6 closure evaluation (2026-10-28)
+
+PKG-A 与宏支撑 A 实施后逐项对照 M6 退出条件（"干净环境可依文档构建、安装并完成代表性应用；不是公开发布"）：API 一致性（矩阵、易用性规则、rustdoc 与指南一致）、完整示例（42 个全部构建、指南索引）、文档与本地安装产物（含 sidecar 对照与单依赖 consumer 交互）已有保留证据；宏与分发两项待决已全部落地。剩余缺口是"干净环境"字面验证：本机 Windows 为缓存工具链 + 缓存依赖 + vendored protoc，无缓存新机器、MSRV、Linux/macOS 与系统运行库均无证据，不能从本机推断。因此 M6 保持开放，退出仅差跨环境构建验证；这不是本会话可在此机器上补齐的证据，后续以新环境构建批次关闭。无公开发布， crates.io 发布不在范围。
+
 ## Required fresh-checkout checks
 
 ```powershell
