@@ -233,6 +233,8 @@ Rust 已采纳方案 A：显示转换保留真实行数并合成虚拟 RangeInde
 
 **媒体/布局边界补充**（[media-more 参考](../../tests/reference/reference-browser/media-more/README.md)，6/6 逐字一致）：`VideoOptions::from_url("https://…")` 直接 URL 上 wire 不经媒体存储（播放参数同行）；SRT 字幕文本按参考规则转换为 VTT 后存 `.vtt` 轨（本批修复 Rust 校验器把合法 SRT 误判为非法的缺陷）；`PopoverOptions::wrap(true)` 进入消息；`TabsOptions::width/height` 走块级 pixel 配置。多音轨、YouTube/iframe 输入未测。会话容量：64 个并发 WS 会话各自状态独立、重连保持身份（M5 回归 `many_concurrent_sessions_hold_independent_state`）；媒体为进程全局内容寻址、会话过期不回收（与 Python 内存存储同语义，roadmap 记录在案）。
 
+**控件创建参数边界**（[widget-params 参考](../../tests/reference/reference-browser/widget-params/README.md)，8/8 字段一致）：`number_input` float 路径实测——`format "%0.2f"`、默认步长 0.01、无界时携带 f64 哨兵（±1.797e308）、整型为 `"%d"` 且无界时不带 min/max 旗标；`RadioOptions` 的 `index(None)`（不发 default）与 `horizontal(true).captions([...])`；`TextAreaOptions` 的 `max_chars/placeholder`（消息内）与 `height(pixels)`（元素级配置）；`MultiselectOptions::max_selections`。on_change 回调、format_func 往返与交互期行为未纳入本切片。
+
 ## 运行配置面（显式旋钮）
 
 Rust 不解析 `config.toml`（矩阵既有边界：Python 的 TOML 注册表不是兼容目标）；运行项全部是**显式**的服务器构建器与宏参数，无隐藏配置文件。完整清单：
@@ -344,6 +346,7 @@ async fn main(st: &Streamlit) {
 - **columns_params**（`http://127.0.0.1:8595/`）：st.columns parameters。
 - **media_more**（`http://127.0.0.1:8597/`）：video URL 输入、SRT 字幕、popover wrap、tabs 宽高。
 - **combined_interactive**（`http://127.0.0.1:8598/`）：M7 交互组合差分（上传/勾选/选择/选行/按钮/toast）。
+- **widget_params**（`http://127.0.0.1:8599/`）：number_input float 路径、radio index=None/horizontal/captions、text_area max_chars/placeholder/height、multiselect max_selections。
 - **combined**（`http://127.0.0.1:8596/`）：the M7 cross-capability differential page。
 - **componenttrigger**（`http://127.0.0.1:8542/`）：component triggers。
 - **componentv2**（`http://127.0.0.1:8539/`）：components v2。

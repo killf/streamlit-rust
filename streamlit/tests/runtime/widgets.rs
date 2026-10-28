@@ -330,3 +330,97 @@ async fn failed_typed_registration_can_retry_and_selected_null_survives_real_rer
     task.await??;
     Ok(())
 }
+
+/// The frozen widget-params reference: the number-input FLOAT path (%0.2f,
+/// default step 0.01, f64 sentinels when unbounded, %d + 0.0 for integers),
+/// radio index=None (no default) and horizontal+captions, text_area
+/// max_chars/placeholder with the height on the element config, and
+/// multiselect max_selections.
+fn widget_params_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        let result: TestResult = (|| {
+            st.number_input(crate::NumberInputOptions::<f64>::new("Float free", 1.5))?;
+            st.number_input(crate::NumberInputOptions::<f64>::new("Float bounded", 2.5).min(0.25).max(9.75).step(0.25))?;
+            st.number_input(crate::NumberInputOptions::<i64>::new("Int bounded", 4).min(2).max(8).step(2.0))?;
+            st.radio(crate::RadioOptions::new("Plain", ["a", "b"]).index(None).key("r1"))?;
+            st.radio(crate::RadioOptions::new("Horizontal", ["x", "y"]).horizontal(true).captions(["first", "second"]).key("r2"))?;
+            st.text_area(crate::TextAreaOptions::new("Bounded", "hello").max_chars(10).placeholder("type here").height(200).key("t1"))?;
+            st.multiselect(crate::MultiselectOptions::new("Capped", ["p", "q", "r"]).max_selections(2).key("m1"))?;
+            Ok(())
+        })();
+        assert!(result.is_ok(), "widget_params fixture failed: {result:?}");
+    })
+}
+
+#[actix_web::test]
+async fn widget_parameter_edges_match_the_frozen_reference() -> TestResult {
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
+    let server = StreamlitServer::new(widget_params_entry, "127.0.0.1".into(), 0);
+    let server = HttpServer::new(move || App::new().app_data(web::Data::new(server.clone())).configure(configure_routes)).workers(1).listen(listener)?.run();
+    let handle = server.handle();
+    let task = actix_web::rt::spawn(server);
+    let mut stream = sessions::connect(address, None).await;
+    send_binary(
+        &mut stream,
+        &(BackMsg {
+            r#type: Some(back_msg::Type::RerunScript(ClientState::default())),
+        })
+        .encode_to_vec(),
+    )
+    .await;
+    let mut numbers = Vec::new();
+    let mut radios = Vec::new();
+    let mut textarea: Option<(proto::TextArea, Option<crate::proto::streamlit::HeightConfig>)> = None;
+    let mut multiselect: Option<proto::MultiSelect> = None;
+    loop {
+        let message = receive(&mut stream).await;
+        match message.r#type {
+            Some(forward_msg::Type::Delta(delta)) => {
+                if let Some(delta::Type::NewElement(element)) = delta.r#type {
+                    match element.r#type {
+                        Some(element::Type::NumberInput(number)) => numbers.push(number),
+                        Some(element::Type::Radio(radio)) => radios.push(radio),
+                        Some(element::Type::TextArea(area)) => textarea = Some((area, element.height_config)),
+                        Some(element::Type::Multiselect(select)) => multiselect = Some(select),
+                        _ => {}
+                    }
+                }
+            }
+            Some(forward_msg::Type::ScriptFinished(status)) => {
+                assert_eq!(status, 0);
+                break;
+            }
+            _ => {}
+        }
+    }
+    assert_eq!(numbers.len(), 3);
+    let (free, bounded, int_bounded) = (&numbers[0], &numbers[1], &numbers[2]);
+    assert_eq!(free.format, "%0.2f");
+    assert_eq!(free.data_type, proto::number_input::DataType::Float as i32);
+    assert!((free.step - 0.01).abs() < f64::EPSILON, "the float default step");
+    assert!((free.min - f64::MIN).abs() <= 0.0 || free.min == f64::MIN);
+    assert_eq!(free.max, f64::MAX);
+    assert!(!free.has_min && !free.has_max);
+    assert_eq!(bounded.format, "%0.2f");
+    assert!(bounded.has_min && bounded.has_max);
+    assert!((bounded.min - 0.25).abs() < f64::EPSILON && (bounded.max - 9.75).abs() < f64::EPSILON && (bounded.step - 0.25).abs() < f64::EPSILON);
+    assert_eq!(int_bounded.format, "%d");
+    assert_eq!(int_bounded.data_type, proto::number_input::DataType::Int as i32);
+    assert_eq!(radios.len(), 2);
+    assert_eq!(radios[0].default, None, "index=None emits no default");
+    assert!(radios[1].horizontal);
+    assert_eq!(radios[1].captions, ["first", "second"]);
+    assert_eq!(radios[1].default, Some(0));
+    let (area, height) = textarea.ok_or("text_area must render")?;
+    assert_eq!(area.max_chars, 10);
+    assert_eq!(area.placeholder, "type here");
+    let height = height.ok_or("the height rides the element config")?;
+    assert!(matches!(height.height_spec, Some(crate::proto::streamlit::height_config::HeightSpec::PixelHeight(200))));
+    let select = multiselect.ok_or("multiselect must render")?;
+    assert_eq!(select.max_selections, 2);
+    drop(stream);
+    handle.stop(false).await;
+    task.await??;
+    Ok(())
+}

@@ -3059,12 +3059,18 @@
         "inputs_contract": "tests/browser/inputs_contract.py",
         "contract_guards": "tests/reference/test_inputs_contract.py",
         "driven_fixture": "tests/reference/inputs_app.py",
-        "driven_example": "streamlit/examples/inputs.rs"
+        "driven_example": "streamlit/examples/inputs.rs",
+        "creation_params_reference": [
+          "tests/reference/reference-browser/widget-params/trace.json",
+          "tests/reference/reference-browser/widget-params/README.md",
+          "tests/browser/rust-widget-params/trace.json",
+          "streamlit/tests/runtime/widgets.rs"
+        ]
       },
       "rust_plan": "MultiselectOptions<T> with (label, options) tuples and .default_indices(iter), format_func labels; returns Vec<T> by cloning the selected native options; the wire carries [i32] defaults, accept_new_options=false, select_all=1000 and a string_array_value state of the selected texts.",
       "compatibility_scope": "The journey-inputs-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were both driven by a real Chrome (popover open plus role=option click) across the five measured stages; the published replays assert 11/11/11 each — identical first-render wire (default [0], accept_new_options/select_all flags), string_array_value state snapshots and DOM projections.",
       "limitations": [
-        "Coverage is one measured default and one popover pick; max_selections, searchable-free filters, format_func label round trips and on_change callbacks remain unobserved.",
+        "max_selections is now measured on the creation wire (2026-10-28, frozen widget-params), field-identical cross-runtime; ; max_selections, searchable-free filters, format_func label round trips and on_change callbacks remain unobserved.",
         "Rust Result<_, WidgetError> is not the complete Python exception-rendering UI; duplicate-default UI equivalence is unverified.",
         "widget_api source SHA256 9e9df5fc32ce482cbc1fbe2c53bc6ec47ed3d26c1f1bdb797dd44db9b86bbd68; fixture SHA256 cb884ee2a6487585d63d9254cc353e42704cbd9b9f832732cd0e0a35d27da5bf; example SHA256 1052058ec8ed7d354853e611ecbf8e0986a369093794e80467e5d6448acfc309."
       ]
@@ -3088,12 +3094,18 @@
         "inputs_contract": "tests/browser/inputs_contract.py",
         "contract_guards": "tests/reference/test_inputs_contract.py",
         "driven_fixture": "tests/reference/inputs_app.py",
-        "driven_example": "streamlit/examples/inputs.rs"
+        "driven_example": "streamlit/examples/inputs.rs",
+        "creation_params_reference": [
+          "tests/reference/reference-browser/widget-params/trace.json",
+          "tests/reference/reference-browser/widget-params/README.md",
+          "tests/browser/rust-widget-params/trace.json",
+          "streamlit/tests/runtime/widgets.rs"
+        ]
       },
       "rust_plan": "NumberInputOptions<T: NumberValue> with (label, value) and (label, value, RangeInclusive) tuples, .min/.max/.step builders; i64/f64 split the measured INT/FLOAT data_type, %d format, has_min/has_max and bound doubles; the state is int_value for integers and double_value for floats.",
       "compatibility_scope": "The journey-inputs-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were both driven by a real Chrome (focus, End, Backspace, real typing) across the five measured stages; the published replays assert 11/11/11 each — identical first-render wire (%d format, INT enum, has_min/has_max, step 1.0), int_value state snapshots and the measured commit-on-blur semantics (the typed text sits in the DOM while the state keeps the previously committed value until the next stage blurs the control).",
       "limitations": [
-        "The float (FLOAT enum, unset format) path is implemented but unmeasured: no float reference capture exists yet; integer coverage is the measured value/min/max/step defaults and one retype.",
+        "The float path is now measured (2026-10-28, frozen widget-params): format %0.2f, default step 0.01, f64 sentinels when unbounded, %d + no flags for unbounded integers — all field-identical cross-runtime. Integer coverage is unchanged.: no float reference capture exists yet; integer coverage is the measured value/min/max/step defaults and one retype.",
         "Commit-on-blur is frozen from the measured stages; Enter-commit, spin buttons and on_change callbacks remain unobserved.",
         "Rust Result<_, WidgetError> is not the complete Python exception-rendering UI; out-of-range/bad-format UI equivalence is unverified.",
         "widget_api source SHA256 9e9df5fc32ce482cbc1fbe2c53bc6ec47ed3d26c1f1bdb797dd44db9b86bbd68; fixture SHA256 cb884ee2a6487585d63d9254cc353e42704cbd9b9f832732cd0e0a35d27da5bf; example SHA256 1052058ec8ed7d354853e611ecbf8e0986a369093794e80467e5d6448acfc309."
@@ -3205,12 +3217,18 @@
         "inputs_contract": "tests/browser/inputs_contract.py",
         "contract_guards": "tests/reference/test_inputs_contract.py",
         "driven_fixture": "tests/reference/inputs_app.py",
-        "driven_example": "streamlit/examples/inputs.rs"
+        "driven_example": "streamlit/examples/inputs.rs",
+        "creation_params_reference": [
+          "tests/reference/reference-browser/widget-params/trace.json",
+          "tests/reference/reference-browser/widget-params/README.md",
+          "tests/browser/rust-widget-params/trace.json",
+          "streamlit/tests/runtime/widgets.rs"
+        ]
       },
       "rust_plan": "RadioOptions with (label, options) tuples defaulting to index 0, .index(Option<usize>); returns the selected option text (None for no default); the wire carries the default index and a string_value state of the selected text.",
       "compatibility_scope": "The journey-inputs-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were both driven by a real Chrome (option click, real popover-free pick) across the five measured stages; the published replays assert 11/11/11 each — identical first-render wire (default index 0, options list), string_value state snapshots and DOM label/checked/options projections.",
       "limitations": [
-        "Coverage is the measured index=0 default and one option click; index=None, horizontal/captions formatting and on_change callbacks remain unobserved.",
+        "index=None (no default emitted), horizontal, and captions are now measured on the creation wire (2026-10-28, frozen widget-params), field-identical cross-runtime; ; index=None, horizontal/captions formatting and on_change callbacks remain unobserved.",
         "Rust Result<_, WidgetError> is not the complete Python exception-rendering UI; invalid-index UI equivalence is unverified.",
         "widget_api source SHA256 9e9df5fc32ce482cbc1fbe2c53bc6ec47ed3d26c1f1bdb797dd44db9b86bbd68; fixture SHA256 cb884ee2a6487585d63d9254cc353e42704cbd9b9f832732cd0e0a35d27da5bf; example SHA256 1052058ec8ed7d354853e611ecbf8e0986a369093794e80467e5d6448acfc309."
       ]
@@ -3382,13 +3400,19 @@
         "inputs_contract": "tests/browser/inputs_contract.py",
         "contract_guards": "tests/reference/test_inputs_contract.py",
         "driven_fixture": "tests/reference/inputs_app.py",
-        "driven_example": "streamlit/examples/inputs.rs"
+        "driven_example": "streamlit/examples/inputs.rs",
+        "creation_params_reference": [
+          "tests/reference/reference-browser/widget-params/trace.json",
+          "tests/reference/reference-browser/widget-params/README.md",
+          "tests/browser/rust-widget-params/trace.json",
+          "streamlit/tests/runtime/widgets.rs"
+        ]
       },
       "rust_plan": "TextAreaOptions with (label, value) and &str tuples, .value_none/.max_chars/.placeholder builders; the wire carries the string default and a string_value state.",
       "compatibility_scope": "The journey-inputs-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were both driven by a real Chrome (focus, End, real typing) across the five measured stages; the published replays assert 11/11/11 each — identical first-render wire (string default) and string_value state snapshots with the measured commit-on-blur semantics (the appended text sits in the DOM textarea while the state keeps the previous value until the control blurs).",
       "limitations": [
         "The 2026-10-25 review pixel-diff found the text_area control box renders 9px shorter on the native side although the widget protos are byte-identical across runtimes — a frontend autosize/timing artifact outside the wire (compensated content is pixel-identical); recorded as a known boundary, not a wire defect.",
-        "Coverage is the measured default value and one append; max_chars truncation, placeholder, height and on_change callbacks remain unobserved.",
+        "max_chars, placeholder (message fields) and pixel height (element config) are now measured on the creation wire (2026-10-28, frozen widget-params), field-identical cross-runtime; ; max_chars truncation, placeholder, height and on_change callbacks remain unobserved.",
         "Rust Result<_, WidgetError> is not the complete Python exception-rendering UI; invalid-input UI equivalence is unverified.",
         "widget_api source SHA256 9e9df5fc32ce482cbc1fbe2c53bc6ec47ed3d26c1f1bdb797dd44db9b86bbd68; fixture SHA256 cb884ee2a6487585d63d9254cc353e42704cbd9b9f832732cd0e0a35d27da5bf; example SHA256 1052058ec8ed7d354853e611ecbf8e0986a369093794e80467e5d6448acfc309."
       ]

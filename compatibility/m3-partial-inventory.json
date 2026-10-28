@@ -999,7 +999,7 @@
         "unmeasured-parameters"
       ],
       "limitations": [
-        "Coverage is one measured default and one popover pick; max_selections, searchable-free filters, format_func label round trips and on_change callbacks remain unobserved.",
+        "max_selections is now measured on the creation wire (2026-10-28, frozen widget-params), field-identical cross-runtime; ; max_selections, searchable-free filters, format_func label round trips and on_change callbacks remain unobserved.",
         "Rust Result<_, WidgetError> is not the complete Python exception-rendering UI; duplicate-default UI equivalence is unverified.",
         "widget_api source SHA256 9e9df5fc32ce482cbc1fbe2c53bc6ec47ed3d26c1f1bdb797dd44db9b86bbd68; fixture SHA256 cb884ee2a6487585d63d9254cc353e42704cbd9b9f832732cd0e0a35d27da5bf; example SHA256 1052058ec8ed7d354853e611ecbf8e0986a369093794e80467e5d6448acfc309."
       ]
@@ -1024,7 +1024,7 @@
         "unmeasured-parameters"
       ],
       "limitations": [
-        "The float (FLOAT enum, unset format) path is implemented but unmeasured: no float reference capture exists yet; integer coverage is the measured value/min/max/step defaults and one retype.",
+        "The float path is now measured (2026-10-28, frozen widget-params): format %0.2f, default step 0.01, f64 sentinels when unbounded, %d + no flags for unbounded integers — all field-identical cross-runtime. Integer coverage is unchanged.: no float reference capture exists yet; integer coverage is the measured value/min/max/step defaults and one retype.",
         "Commit-on-blur is frozen from the measured stages; Enter-commit, spin buttons and on_change callbacks remain unobserved.",
         "Rust Result<_, WidgetError> is not the complete Python exception-rendering UI; out-of-range/bad-format UI equivalence is unverified.",
         "widget_api source SHA256 9e9df5fc32ce482cbc1fbe2c53bc6ec47ed3d26c1f1bdb797dd44db9b86bbd68; fixture SHA256 cb884ee2a6487585d63d9254cc353e42704cbd9b9f832732cd0e0a35d27da5bf; example SHA256 1052058ec8ed7d354853e611ecbf8e0986a369093794e80467e5d6448acfc309."
@@ -1146,7 +1146,7 @@
         "unmeasured-parameters"
       ],
       "limitations": [
-        "Coverage is the measured index=0 default and one option click; index=None, horizontal/captions formatting and on_change callbacks remain unobserved.",
+        "index=None (no default emitted), horizontal, and captions are now measured on the creation wire (2026-10-28, frozen widget-params), field-identical cross-runtime; ; index=None, horizontal/captions formatting and on_change callbacks remain unobserved.",
         "Rust Result<_, WidgetError> is not the complete Python exception-rendering UI; invalid-index UI equivalence is unverified.",
         "widget_api source SHA256 9e9df5fc32ce482cbc1fbe2c53bc6ec47ed3d26c1f1bdb797dd44db9b86bbd68; fixture SHA256 cb884ee2a6487585d63d9254cc353e42704cbd9b9f832732cd0e0a35d27da5bf; example SHA256 1052058ec8ed7d354853e611ecbf8e0986a369093794e80467e5d6448acfc309."
       ]
@@ -1418,7 +1418,7 @@
       ],
       "limitations": [
         "The 2026-10-25 review pixel-diff found the text_area control box renders 9px shorter on the native side although the widget protos are byte-identical across runtimes — a frontend autosize/timing artifact outside the wire (compensated content is pixel-identical); recorded as a known boundary, not a wire defect.",
-        "Coverage is the measured default value and one append; max_chars truncation, placeholder, height and on_change callbacks remain unobserved.",
+        "max_chars, placeholder (message fields) and pixel height (element config) are now measured on the creation wire (2026-10-28, frozen widget-params), field-identical cross-runtime; ; max_chars truncation, placeholder, height and on_change callbacks remain unobserved.",
         "Rust Result<_, WidgetError> is not the complete Python exception-rendering UI; invalid-input UI equivalence is unverified.",
         "widget_api source SHA256 9e9df5fc32ce482cbc1fbe2c53bc6ec47ed3d26c1f1bdb797dd44db9b86bbd68; fixture SHA256 cb884ee2a6487585d63d9254cc353e42704cbd9b9f832732cd0e0a35d27da5bf; example SHA256 1052058ec8ed7d354853e611ecbf8e0986a369093794e80467e5d6448acfc309."
       ]

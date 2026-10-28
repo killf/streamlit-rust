@@ -326,6 +326,10 @@ M3 收窄前置：机器导出 130 项 implemented/partial 的精确剩余清单
 
 范围确认问题已向用户提出（外部 12 + headless 2 定为已确认限制、80 项继续切片的混合路线为推荐），**未获答复**——按既定规则不做默认确认：130 项全部保持 partial 开放；下一步继续 80 项可测面的逐切片双端验收，外部源项与范围定格等待用户显式记录。
 
+## Current widget creation-parameter validation (2026-10-28)
+
+M3 可测面切片（widgets 簇，取自 80 项清单）。冻结 Python 参考 `tests/reference/reference-browser/widget-params/`（8 元素创建期 wire）与 Rust 对照 **8/8 字段一致**：number_input **float 路径**（format %0.2f、默认步长 0.01、无界 f64 哨兵 ∓1.797e308、整型 %d 无旗标）——本批修复两处真实偏差（float format 此前按注释留空、无界 min/max 此前发 0.0）；radio `index=None` 不发 default + `horizontal/captions`；text_area `max_chars/placeholder`（消息内）+ `height`（元素级）；multiselect `max_selections`。新增四组构建器与 WS 回归 `widget_parameter_edges_match_the_frozen_reference`；矩阵 st.number_input/st.radio/st.text_area/st.multiselect 四条目 limitation 收窄并挂 `creation_params_reference`；清单已再生成（漂移门同步）。on_change、format_func 往返与交互期行为留后续切片。
+
 ## Required fresh-checkout checks
 
 ```powershell

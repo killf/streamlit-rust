@@ -673,6 +673,8 @@ pub struct RadioOptions {
     common: InputOptions,
     options: Vec<String>,
     index: Option<usize>,
+    horizontal: bool,
+    captions: Vec<String>,
 }
 impl RadioOptions {
     pub fn new(label: impl Into<String>, options: impl IntoIterator<Item = impl ToString>) -> Self {
@@ -680,10 +682,22 @@ impl RadioOptions {
             common: InputOptions::new(label),
             options: options.into_iter().map(|option| option.to_string()).collect(),
             index: Some(0),
+            horizontal: false,
+            captions: Vec::new(),
         }
     }
     pub fn index(mut self, index: Option<usize>) -> Self {
         self.index = index;
+        self
+    }
+    /// Lay the options out horizontally (Python `horizontal=True`).
+    pub fn horizontal(mut self, value: bool) -> Self {
+        self.horizontal = value;
+        self
+    }
+    /// Per-option caption lines shown under the options.
+    pub fn captions(mut self, captions: impl IntoIterator<Item = impl Into<String>>) -> Self {
+        self.captions = captions.into_iter().map(Into::into).collect();
         self
     }
     common_builders!();
@@ -701,6 +715,7 @@ pub struct MultiselectOptions<T> {
     options: Vec<T>,
     labels: Vec<String>,
     default: Vec<usize>,
+    max_selections: Option<usize>,
 }
 impl<T: ToString> MultiselectOptions<T> {
     pub fn new(label: impl Into<String>, options: impl IntoIterator<Item = T>) -> Self {
@@ -711,7 +726,13 @@ impl<T: ToString> MultiselectOptions<T> {
             options,
             labels,
             default: Vec::new(),
+            max_selections: None,
         }
+    }
+    /// Cap the selectable count (Python `max_selections=`).
+    pub fn max_selections(mut self, count: usize) -> Self {
+        self.max_selections = Some(count);
+        self
     }
 }
 impl<L, I, T> From<(L, I)> for MultiselectOptions<T>
@@ -1473,6 +1494,7 @@ pub struct TextAreaOptions {
     value: Option<String>,
     max_chars: Option<usize>,
     placeholder: Option<String>,
+    height: Option<i32>,
 }
 impl TextAreaOptions {
     pub fn new(label: impl Into<String>, value: impl Into<String>) -> Self {
@@ -1481,7 +1503,13 @@ impl TextAreaOptions {
             value: Some(value.into()),
             max_chars: None,
             placeholder: None,
+            height: None,
         }
+    }
+    /// The box's pixel height (the element's height config).
+    pub fn height(mut self, pixels: i32) -> Self {
+        self.height = Some(pixels);
+        self
     }
     pub fn value_none(mut self) -> Self {
         self.value = None;
@@ -2329,6 +2357,8 @@ impl<C: AppendChild> InputWidgets for C {
                 form_id,
                 default: options.index.map(|index| index as i32),
                 options: options.options.clone(),
+                horizontal: options.horizontal,
+                captions: options.captions.clone(),
                 help: c.help,
                 disabled: c.disabled || options.options.is_empty(),
                 label_visibility: c.visibility.wire(),
@@ -2396,6 +2426,7 @@ impl<C: AppendChild> InputWidgets for C {
                 label_visibility: c.visibility.wire(),
                 accept_new_options: Some(false),
                 select_all: Some(1000),
+                max_selections: options.max_selections.map(|count| count as i32).unwrap_or(0),
                 ignore_rerun: c.ignore_rerun,
                 ..Default::default()
             })),
@@ -2442,16 +2473,18 @@ impl<C: AppendChild> InputWidgets for C {
                 id,
                 label: c.label,
                 form_id,
-                // The measured integer format is %d; the float format is left
-                // unset until a reference capture observes it.
-                format: if T::INTEGER { "%d".into() } else { String::new() },
+                // The measured formats: %d for integers, %0.2f for floats
+                // (frozen widget-params reference).
+                format: if T::INTEGER { "%d".into() } else { "%0.2f".into() },
                 data_type: i32::from(!T::INTEGER),
                 has_min: min.is_some(),
                 has_max: max.is_some(),
                 default: Some(options.value.to_f64()),
                 step: options.step,
-                min: min.unwrap_or_default(),
-                max: max.unwrap_or_default(),
+                // Unbounded floats carry the f64 sentinels the reference emits;
+                // unbounded integers omit both flags and stay at 0.0.
+                min: min.unwrap_or(if T::INTEGER { 0.0 } else { f64::MIN }),
+                max: max.unwrap_or(f64::MAX),
                 value: set_value.then(|| result.to_f64()),
                 set_value,
                 help: c.help,
@@ -2490,6 +2523,9 @@ impl<C: AppendChild> InputWidgets for C {
         )?;
         self.push(Rc::new(RefCell::new(InputElement(proto::Element {
             width_config,
+            height_config: options.height.map(|pixels| crate::proto::streamlit::HeightConfig {
+                height_spec: Some(crate::proto::streamlit::height_config::HeightSpec::PixelHeight(pixels as u32)),
+            }),
             has_one_shot_effect: set_value.then_some(true),
             r#type: Some(element::Type::TextArea(proto::TextArea {
                 id,
