@@ -915,14 +915,49 @@ impl From<(crate::media::RgbaImage, String)> for ImageOptions {
     }
 }
 
-/// Audio options: the measured call passes the bytes and their MIME type.
+/// Audio options: the measured call passes the bytes and their MIME type;
+/// the playback knobs (frozen media-params reference) mirror the Python
+/// kwargs. `start_time`/`end_time` accept seconds (truncated like Python's
+/// `int()`); `format` is the `mime` positional.
 pub struct AudioOptions {
     data: Vec<u8>,
     mime: String,
+    start_time: Option<f64>,
+    end_time: Option<f64>,
+    loop_: bool,
+    autoplay: bool,
 }
 impl AudioOptions {
     pub fn new(data: Vec<u8>, mime: impl Into<String>) -> Self {
-        Self { data, mime: mime.into() }
+        Self {
+            data,
+            mime: mime.into(),
+            start_time: None,
+            end_time: None,
+            loop_: false,
+            autoplay: false,
+        }
+    }
+    /// Where playback starts, in seconds (fractional seconds truncate).
+    pub fn start_time(mut self, seconds: f64) -> Self {
+        self.start_time = Some(seconds);
+        self
+    }
+    /// Where playback stops, in seconds (fractional seconds truncate).
+    pub fn end_time(mut self, seconds: f64) -> Self {
+        self.end_time = Some(seconds);
+        self
+    }
+    /// Start over once the media ends.
+    pub fn loop_(mut self, value: bool) -> Self {
+        self.loop_ = value;
+        self
+    }
+    /// Attempt to play automatically; an autoplaying player carries a stable
+    /// element id like the reference's.
+    pub fn autoplay(mut self, value: bool) -> Self {
+        self.autoplay = value;
+        self
     }
 }
 impl From<(Vec<u8>, &str)> for AudioOptions {
@@ -936,14 +971,63 @@ impl From<(Vec<u8>, String)> for AudioOptions {
     }
 }
 
-/// Video options: the measured call passes the bytes and their MIME type.
+/// Video options: the measured bytes+MIME call plus the playback knobs and
+/// text subtitles (VTT or SRT text; see `subtitle`).
 pub struct VideoOptions {
     data: Vec<u8>,
     mime: String,
+    start_time: Option<f64>,
+    end_time: Option<f64>,
+    loop_: bool,
+    autoplay: bool,
+    muted: bool,
+    subtitles: Vec<(String, String)>,
 }
 impl VideoOptions {
     pub fn new(data: Vec<u8>, mime: impl Into<String>) -> Self {
-        Self { data, mime: mime.into() }
+        Self {
+            data,
+            mime: mime.into(),
+            start_time: None,
+            end_time: None,
+            loop_: false,
+            autoplay: false,
+            muted: false,
+            subtitles: Vec::new(),
+        }
+    }
+    /// Where playback starts, in seconds (fractional seconds truncate).
+    pub fn start_time(mut self, seconds: f64) -> Self {
+        self.start_time = Some(seconds);
+        self
+    }
+    /// Where playback stops, in seconds (fractional seconds truncate).
+    pub fn end_time(mut self, seconds: f64) -> Self {
+        self.end_time = Some(seconds);
+        self
+    }
+    /// Start over once the media ends.
+    pub fn loop_(mut self, value: bool) -> Self {
+        self.loop_ = value;
+        self
+    }
+    /// Attempt to play automatically; an autoplaying player carries a stable
+    /// element id like the reference's.
+    pub fn autoplay(mut self, value: bool) -> Self {
+        self.autoplay = value;
+        self
+    }
+    /// Begin playback muted.
+    pub fn muted(mut self, value: bool) -> Self {
+        self.muted = value;
+        self
+    }
+    /// One subtitle track: a language/track label and its VTT- or
+    /// SRT-formatted text. Invalid text renders the reference's API exception
+    /// instead of the player.
+    pub fn subtitle(mut self, label: impl Into<String>, text: impl Into<String>) -> Self {
+        self.subtitles.push((label.into(), text.into()));
+        self
     }
 }
 impl From<(Vec<u8>, &str)> for VideoOptions {
@@ -2203,7 +2287,13 @@ impl<C: AppendChild> StreamlitApi for C {
         let options = options.into();
         match crate::elements::media::media_url(&options.data, &options.mime) {
             Ok(url) => {
-                let element = crate::elements::media::AudioElement::new(url);
+                let element = crate::elements::media::AudioElement::new(url).with_playback(crate::elements::media::Playback {
+                    start_time: options.start_time,
+                    end_time: options.end_time,
+                    loop_: options.loop_,
+                    autoplay: options.autoplay,
+                    muted: false,
+                });
                 self.push(Rc::new(RefCell::new(element)));
             }
             Err(error) => log::error!("st.audio failed to register media: {}", error),
@@ -2212,9 +2302,35 @@ impl<C: AppendChild> StreamlitApi for C {
 
     fn video<T: Into<VideoOptions>>(&self, options: T) {
         let options = options.into();
+        // Subtitles resolve first: invalid text renders the reference's API
+        // exception element instead of the player (measured media-params).
+        let mut tracks = Vec::new();
+        for (label, text) in &options.subtitles {
+            match crate::elements::media::subtitle_track(label, text) {
+                Ok(track) => tracks.push(track),
+                Err(message) => {
+                    let exception = crate::elements::exception::AppException::new(
+                        "streamlit.errors.StreamlitAPIException".into(),
+                        message,
+                        vec![format!("streamlit-rust: the video subtitle track {label:?} was rejected by VTT/SRT validation")],
+                    )
+                    .streamlit_markdown();
+                    self.push(Rc::new(RefCell::new(exception)));
+                    return;
+                }
+            }
+        }
         match crate::elements::media::media_url(&options.data, &options.mime) {
             Ok(url) => {
-                let element = crate::elements::media::VideoElement::new(url);
+                let element = crate::elements::media::VideoElement::new(url)
+                    .with_playback(crate::elements::media::Playback {
+                        start_time: options.start_time,
+                        end_time: options.end_time,
+                        loop_: options.loop_,
+                        autoplay: options.autoplay,
+                        muted: options.muted,
+                    })
+                    .with_subtitles(tracks);
                 self.push(Rc::new(RefCell::new(element)));
             }
             Err(error) => log::error!("st.video failed to register media: {}", error),

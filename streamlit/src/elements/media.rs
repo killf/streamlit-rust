@@ -168,24 +168,80 @@ impl Element for ImgsElement {
 
 pub(crate) struct AudioElement {
     url: String,
+    start_time: Option<i32>,
+    end_time: Option<i32>,
+    loop_: bool,
+    autoplay: bool,
+}
+
+/// The playback parameters the measured audio/video calls carry (frozen
+/// media-params reference): second-precision start/end, loop, autoplay, and
+/// (video) muted/subtitles.
+#[derive(Clone, Copy, Debug, Default)]
+pub(crate) struct Playback {
+    pub start_time: Option<f64>,
+    pub end_time: Option<f64>,
+    pub loop_: bool,
+    pub autoplay: bool,
+    pub muted: bool,
+}
+
+impl Playback {
+    /// Python coerces the times to whole seconds (`int(...)` truncation).
+    fn seconds(value: Option<f64>) -> Option<i32> {
+        value.map(|time| time.trunc() as i32)
+    }
 }
 
 impl AudioElement {
     pub fn new(url: String) -> Self {
-        Self { url }
+        Self {
+            url,
+            start_time: None,
+            end_time: None,
+            loop_: false,
+            autoplay: false,
+        }
+    }
+
+    pub fn with_playback(mut self, playback: Playback) -> Self {
+        self.start_time = Playback::seconds(playback.start_time);
+        self.end_time = Playback::seconds(playback.end_time);
+        self.loop_ = playback.loop_;
+        self.autoplay = playback.autoplay;
+        self
     }
 }
 
 impl Element for AudioElement {
     fn render(&self, context: &mut RenderContext) -> Result<(), StreamlitError> {
-        let element_hash = hash(format!("audio_{}", self.url).as_str());
         // The measured audio width sits inside the Audio message as a
         // stretch config; the element level carries none.
+        let id = self.autoplay.then(|| {
+            playback_id(
+                "audio",
+                &self.url,
+                &Playback {
+                    start_time: self.start_time.map(|v| v as f64),
+                    end_time: self.end_time.map(|v| v as f64),
+                    loop_: self.loop_,
+                    autoplay: self.autoplay,
+                    muted: false,
+                },
+                None,
+            )
+        });
+        let element_hash = hash(format!("audio_{}_{}_{:?}_{:?}_{}_{}", self.url, id.as_deref().unwrap_or(""), self.start_time, self.end_time, self.loop_, self.autoplay).as_str());
         push_element(
             context,
             element_hash,
             element::Type::Audio(crate::proto::Audio {
                 url: self.url.clone(),
+                start_time: self.start_time.unwrap_or(0),
+                end_time: self.end_time.unwrap_or(0),
+                r#loop: self.loop_,
+                autoplay: self.autoplay,
+                id: id.unwrap_or_default(),
                 width_config: Some(crate::proto::streamlit::WidthConfig {
                     width_spec: Some(crate::proto::streamlit::width_config::WidthSpec::UseStretch(true)),
                 }),
@@ -198,19 +254,58 @@ impl Element for AudioElement {
     }
 }
 
+/// The element id an autoplaying player carries (measured): the runtime's own
+/// identity inputs hashed into the `$$ID-<32hex>-None` shape. Like the
+/// dialog id, the digest legitimately differs cross-runtime; only the shape
+/// is contractual.
+fn playback_id(kind: &str, url: &str, playback: &Playback, subtitles: Option<&str>) -> String {
+    let _ = subtitles;
+    format!("$$ID-{}-None", hash(&format!("{kind}_{url}_{:?}_{:?}_{}_{}_{}", playback.start_time, playback.end_time, playback.loop_, playback.autoplay, playback.muted)))
+}
+
 pub(crate) struct VideoElement {
     url: String,
+    playback: Playback,
+    subtitles: Vec<crate::proto::SubtitleTrack>,
 }
 
 impl VideoElement {
     pub fn new(url: String) -> Self {
-        Self { url }
+        Self {
+            url,
+            playback: Playback::default(),
+            subtitles: Vec::new(),
+        }
+    }
+
+    pub fn with_playback(mut self, playback: Playback) -> Self {
+        self.playback = playback;
+        self
+    }
+
+    pub fn with_subtitles(mut self, subtitles: Vec<crate::proto::SubtitleTrack>) -> Self {
+        self.subtitles = subtitles;
+        self
     }
 }
 
 impl Element for VideoElement {
     fn render(&self, context: &mut RenderContext) -> Result<(), StreamlitError> {
-        let element_hash = hash(format!("video_{}", self.url).as_str());
+        let id = self.playback.autoplay.then(|| playback_id("video", &self.url, &self.playback, Some(&format!("{:?}", self.subtitles))));
+        let element_hash = hash(
+            format!(
+                "video_{}_{}_{:?}_{:?}_{}_{}_{}_{:?}",
+                self.url,
+                id.as_deref().unwrap_or(""),
+                self.playback.start_time,
+                self.playback.end_time,
+                self.playback.loop_,
+                self.playback.autoplay,
+                self.playback.muted,
+                self.subtitles
+            )
+            .as_str(),
+        );
         // The measured video element: the NATIVE type, the relative URL and
         // the stretch width inside the message; element level carries none.
         push_element(
@@ -219,6 +314,13 @@ impl Element for VideoElement {
             element::Type::Video(crate::proto::Video {
                 url: self.url.clone(),
                 r#type: crate::proto::video::Type::Native as i32,
+                start_time: Playback::seconds(self.playback.start_time).unwrap_or(0),
+                end_time: Playback::seconds(self.playback.end_time).unwrap_or(0),
+                r#loop: self.playback.loop_,
+                autoplay: self.playback.autoplay,
+                muted: self.playback.muted,
+                id: id.unwrap_or_default(),
+                subtitles: self.subtitles.clone(),
                 width_config: Some(crate::proto::streamlit::WidthConfig {
                     width_spec: Some(crate::proto::streamlit::width_config::WidthSpec::UseStretch(true)),
                 }),
@@ -331,8 +433,66 @@ impl Element for ProgressElement {
     }
 }
 
-/// Registers image or audio bytes and returns the relative measured URL.
+/// Registers image or audio bytes and returns the relative measured URL. A
+/// known mime measured to carry no extension (audio/x-wav) addresses bare.
 pub(crate) fn media_url(bytes: &[u8], mime: &str) -> Result<String, StreamlitError> {
     let extension = media::extension(mime).ok_or_else(|| StreamlitError::InvalidMessage(format!("unsupported media type '{mime}'")))?;
-    Ok(format!("/media/{}.{}", media::put(bytes, mime), extension))
+    let id = media::put(bytes, mime);
+    Ok(if extension.is_empty() { format!("/media/{id}") } else { format!("/media/{id}.{extension}") })
+}
+
+/// One validated subtitle track: the label plus the media URL of its
+/// VTT-formatted text. Mirrors the reference's acceptance rules (frozen
+/// media-params): text starting `WEBVTT` passes as-is; SRT (numeric first
+/// line, `hh:mm:ss,mmm --> hh:mm:ss,mmm` second line) is converted; anything
+/// else is rejected with the measured message.
+pub(crate) fn subtitle_track(label: &str, text: &str) -> Result<crate::proto::SubtitleTrack, String> {
+    let invalid = || format!("Failed to process the provided subtitle '{label}': Invalid `subtitles` value. Supported values: VTT-formatted text, SRT-formatted text.");
+    let content = if text.trim_start().starts_with("WEBVTT") {
+        text.as_bytes().to_vec()
+    } else if let Some(converted) = srt_to_vtt(text) {
+        converted
+    } else {
+        return Err(invalid());
+    };
+    let url = media_url(&content, "text/vtt").map_err(|error| format!("Failed to process the provided subtitle '{label}': {error}"))?;
+    Ok(crate::proto::SubtitleTrack { label: label.to_owned(), url })
+}
+
+/// The reference's SRT detection and conversion: a numeric first line and an
+/// SRT timestamp second line; conversion rewrites `,mmm` to `.mmm` and
+/// prepends the WEBVTT header.
+fn srt_to_vtt(text: &str) -> Option<Vec<u8>> {
+    let mut lines = text.lines();
+    let first = lines.next()?.trim();
+    let second = lines.next()?.trim();
+    if first.is_empty() || !first.chars().all(|c| c.is_ascii_digit()) {
+        return None;
+    }
+    let valid = second.len() >= 29
+        && second.as_bytes()[2] == b':'
+        && second.as_bytes()[5] == b':'
+        && second.as_bytes().get(8) == Some(&b',')
+        && second.as_bytes().get(12) == Some(&b' ')
+        && second.as_bytes().get(13) == Some(&b'-')
+        && second.as_bytes().get(14) == Some(&b'-')
+        && second.as_bytes().get(15) == Some(&b'>')
+        && second.as_bytes().get(25) == Some(&b':')
+        && second.as_bytes().get(28) == Some(&b',');
+    if !valid {
+        return None;
+    }
+    let mut out = String::from("WEBVTT\n\n");
+    for line in text.lines().skip(1) {
+        // Only timestamp lines carry the comma; cue text passes through.
+        if let Some((stamp, rest)) = line.split_once(" --> ") {
+            let converted = stamp.replace(',', ".");
+            let rest = rest.split(',').next().map(|tail| format!(".{tail}")).unwrap_or_default();
+            out.push_str(&format!("{converted} --> {rest}\n"));
+        } else {
+            out.push_str(line);
+            out.push('\n');
+        }
+    }
+    Some(out.into_bytes())
 }

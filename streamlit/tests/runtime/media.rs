@@ -592,3 +592,56 @@ fn width_kind_local(config: &Option<crate::proto::streamlit::WidthConfig>) -> &'
         _ => "",
     }
 }
+
+/// The frozen media-params reference: playback knobs ride the audio/video
+/// messages with whole-second truncation, autoplay carries the $$ID identity,
+/// audio/x-wav addresses bare (no suffix), subtitles resolve to .vtt media
+/// URLs, and invalid subtitle text renders the framework's API exception.
+fn media_params_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        st.audio(crate::AudioOptions::new(wav_bytes(), "audio/wav").autoplay(true).loop_(true).start_time(1.5).end_time(3.0));
+        st.audio(crate::AudioOptions::new(wav_bytes(), "audio/x-wav"));
+        st.video(crate::VideoOptions::new(b"ftyp".to_vec(), "video/mp4").muted(true).start_time(2.0).end_time(4.0).autoplay(true));
+        st.video(crate::VideoOptions::new(b"ftyp".to_vec(), "video/mp4").subtitle("en", "WEBVTT\n\n00:00:00.000 --> 00:00:02.000\nHello"));
+        st.video(crate::VideoOptions::new(b"ftyp".to_vec(), "video/mp4").subtitle("en", "data:application/vtt;base64,ZW4="));
+    })
+}
+
+#[actix_web::test]
+async fn media_playback_parameters_match_the_frozen_reference() -> TestResult {
+    let (_address, handle, task, mut stream) = start_media_server(media_params_entry).await?;
+    let mut session = String::new();
+    let wires = run_once(&mut stream, &mut session).await?;
+    let mut audios = Vec::new();
+    let mut videos = Vec::new();
+    let mut exceptions = Vec::new();
+    for element in &wires.elements {
+        match element.r#type.as_ref() {
+            Some(crate::proto::element::Type::Audio(audio)) => audios.push(audio),
+            Some(crate::proto::element::Type::Video(video)) => videos.push(video),
+            Some(crate::proto::element::Type::Exception(exception)) => exceptions.push(exception),
+            _ => {}
+        }
+    }
+    assert_eq!(audios.len(), 2);
+    assert!(audios[0].start_time == 1 && audios[0].end_time == 3, "fractional seconds truncate: {}", audios[0].start_time);
+    assert!(audios[0].r#loop && audios[0].autoplay);
+    assert!(audios[0].id.starts_with("$$ID-") && audios[0].id.ends_with("-None") && audios[0].id.len() == 42);
+    assert_eq!(audios[1].url.split('.').count(), 1, "audio/x-wav addresses bare: {}", audios[1].url);
+    assert!(audios[0].url.ends_with(".wav"));
+    assert_eq!(videos.len(), 2);
+    assert!(videos[0].muted && videos[0].autoplay && videos[0].start_time == 2 && videos[0].end_time == 4);
+    assert!(!videos[0].id.is_empty() && videos[0].id.starts_with("$$ID-"));
+    let track = videos[1].subtitles.first().ok_or("the subtitle track must ride the video")?;
+    assert_eq!(track.label, "en");
+    assert!(track.url.ends_with(".vtt") && track.url.starts_with("/media/"));
+    assert!(videos[1].id.is_empty(), "subtitles alone do not carry an id");
+    assert_eq!(exceptions.len(), 1);
+    assert_eq!(exceptions[0].r#type, "streamlit.errors.StreamlitAPIException");
+    assert!(exceptions[0].message.starts_with("Failed to process the provided subtitle 'en'"));
+    assert!(exceptions[0].message_is_markdown && exceptions[0].is_streamlit_exception);
+    drop(stream);
+    handle.stop(false).await;
+    task.await??;
+    Ok(())
+}

@@ -266,6 +266,16 @@ M4 配置面切片：无新旋钮、无行为变更——把 builder/环境变�
 
 M4 关闭评估：请求上下文（headers/页面上下文/cookies）、认证与用户信息（假凭据）、配置面均已交付并各有冻结证据；剩余不关闭原因——认证与 request_context 的公共形态**待用户追认**（8890ee1 批注）、`ip_address` 未实现（两条实测路径均为 null，无 oracle，属记录边界而非缺口）、真实 OIDC 提供方集成本远期。追认后 M4 可按退出条件（关键设计获确认、假凭据与隔离依赖验证、权限边界清楚——认证器为受信配置、HeaderAuthenticator 明示非生产身份源）关闭。
 
+## M4 milestone close (2026-10-28)
+
+用户于 2026-10-28 追认认证与 request_context 的公共接口形态，M4 按退出条件关闭。交付对照退出条件：请求上下文——`st.request_context()`（白名单握手头 + 前端每轮 `context_info` 页面上下文 + cookies 白名单访问），双路径冻结参考（context-headers 原生 WS、context-browser 浏览器路径）与 WS/浏览器回归；认证与用户信息——`RequestAuthenticator` trait（连接建立时以全部握手头调用）+ `HeaderAuthenticator` 假凭据 + `st.user()` 映射（匿名空映射基线实测对齐），user-cookies 参考 + 认证回归 + 对照采集；配置面——指南显式表格 + 离线文档门（`test_config_surface_docs.py`）。假凭据与隔离依赖验证：HeaderAuthenticator 明示非生产身份源，权限边界为"认证器是受信服务端配置"（应用侧仅见映射）。边界随关闭入档：`ip_address` 两条实测路径均 null（无 oracle，未实现不冒称）；OIDC tokens/真实提供方集成为远期独立决定；关闭质量门沿用本日已过的全部门。
+
+## Current media playback parameters validation (2026-10-28)
+
+M3 媒体参数切片（用户同日追认 M4 公共形态并关闭 M4，见上文关闭记录）。冻结 Python 参考 `tests/reference/reference-browser/media-params/`（原生 WS 六有效调用 + 非法字幕）：start/end 整秒截断（1.5→1）、loop/autoplay、autoplay 携带 `$$ID-<32hex>-None` 身份、`audio/x-wav` 实测**裸地址**（`audio/wav` 带 `.wav`）、VTT 字幕 → `.vtt` 媒体轨（URL 哈希含坐标）、非法字幕渲染框架 `StreamlitAPIException` 异常元素（消息/标记实测）且 run 以 0 结束。
+
+Rust 实施：`AudioOptions/VideoOptions` 新构建器（start_time/end_time/loop_/autoplay/muted/subtitle）；`AudioElement/VideoElement` 携带参数并在 autoplay 时生成同形 id；`media::extension` 按 实测拆分 x-wav（裸地址）并新增 `text/vtt`；`subtitle_track` 做 VTT/SRT 校验与 SRT→VTT 转换（SRT 路径按参考规则实现、未实测）；非法字幕经既有 `AppException` 渲染同形异常（堆栈为 Rust 真实上下文行）。验证：WS 运行时回归（整秒截断、裸地址、$$ID 形状、字幕轨、异常元素）+ 同采集器 --url 对照（六元素字段逐项一致、**payload URL 逐哈希跨端一致**、异常消息逐字一致；autoplay id 与字幕 URL 哈希为记录的运行时身份差异）+ 离线双向断言。参考 app 两次修正（subtitles 需 VTT 文本而非 data: URL、转义损坏）发生在冻结确立前，属采集 fixture 编程修正。边界：SRT 转换、多音轨、YouTube/URL 输入、alt 未测。
+
 ## Required fresh-checkout checks
 
 ```powershell

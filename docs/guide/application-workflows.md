@@ -247,6 +247,10 @@ Rust 不解析 `config.toml`（矩阵既有边界：Python 的 TOML 注册表不
 
 独立 test 子进程的真实 WS 合成回归已验证两轮控件交互、非法消息后的心跳恢复及关闭应答原样保留，五类合成载荷标记不进入日志；仍有错误诊断和摘要字段，未靠关闭全部日志通过。应用自行记录的内容、第三方日志和完整认证/安全范围不在这项保证内。命令为 `cargo test -p streamlit --lib websocket_diagnostics_do_not_expand_application_payloads --locked -- --nocapture`；全局 logger 仅在自有子进程初始化，不影响其他测试。
 
+## 音视频播放参数与字幕
+
+`AudioOptions`/`VideoOptions` 支持 `start_time`/`end_time`（秒，小数按 Python `int()` 截断到整秒）、`loop_(true)`、`autoplay(true)`（自动播放的播放器携带 `$$ID-<32hex>-None` 元素身份）、`muted`（仅视频）与 `subtitle("en", "<VTT/SRT 文本>")`（文本经校验存为 `.vtt` 媒体轨；SRT 按参考规则转换）。`format` 即 mime 参数：实测 `audio/wav` 地址带 `.wav` 后缀、`audio/x-wav` 为**裸地址**；同字节内容双端共享同一 URL（内容寻址）。非法字幕文本（非 VTT/SRT）按参考渲染 `StreamlitAPIException` 异常元素而非播放器。见[冻结参考](../../tests/reference/reference-browser/media-params/README.md)与 WS/离线回归；YouTube/URL 输入、多音轨、alt 未实现未测。
+
 ## 媒体范围读取
 
 音视频与下载文件共用 `/media/` 路由。有效单范围（包括 `bytes=-N` 后缀）返回 206 和对应字节，非法、越界、多范围或空文件的非空 Range 返回 416、`Content-Range: bytes */N` 与 `Invalid range`；无 Range 或空 header 仍返回完整 200。已用 [27 个冻结公开请求](../../tests/reference/reference-browser/media-range/README.md)精确核对 Rust 的状态、头与字节，修复了原先许多情况直接返回整文件的问题。后缀或终点大于文件长度时按有效区间返回；已测的大小写、空白、加号、下划线数字和无连字符形式按参考解释，没有新增应用选项。
@@ -305,7 +309,7 @@ async fn main(st: &Streamlit) {
 
 **配置**：Python 的 `config.toml` 注册表不是 Rust 的兼容目标（矩阵既有边界）；Rust 侧的目标是把当前命令行/builder 已覆盖的运行项（地址、端口、静态目录、头部安全开关等）整理为文档化的显式配置面，并为 M4 新能力（认证器、头转发白名单）扩展同风格的显式选项。`st.secrets` 的文件存储暂维持不适用，若用户需要本地 secrets 加载再立项。
 
-**认证与用户信息（已按指南推荐实施，公共形态待用户追认）**：`StreamlitServer::with_authenticator(Arc<dyn RequestAuthenticator>)`——trait 在连接建立时依据**全部**握手头（不受应用可见白名单限制；认证器是受信服务端配置）返回 `UserIdentity { sub, name, email, picture, roles, extra }` 或匿名；内置 `HeaderAuthenticator::new("x-test-user")`（假凭据：从指定请求头读 JSON 身份，本地/测试用，见 [auth 示例](../../streamlit/examples/auth.rs)），生产部署自行实现 trait。应用侧 `st.user()` 返回等价 `st.user` 的只读映射（`to_dict()`/`is_empty()`；实测无认证的 1.66.1 为**空映射**且无属性式访问，Rust 对齐：未配置认证器、未认证、或空 sub → 空映射）；OIDC `tokens` 子视图未实现（无提供方下参考行为未测）。`st.context.cookies` 等价为 `RequestContext::cookies()`——从**已白名单放行**的 Cookie 头解析键值（[参考](../../tests/reference/reference-browser/user-cookies/README.md)：原生连接 `probe-flavor=oat` → 同值 dict、缺失键 None；默认 Standard 不含 Cookie → 空 dict，显式 Selected/All 才可见）。
+**认证与用户信息（公共形态已经用户追认，2026-10-28）**：`StreamlitServer::with_authenticator(Arc<dyn RequestAuthenticator>)`——trait 在连接建立时依据**全部**握手头（不受应用可见白名单限制；认证器是受信服务端配置）返回 `UserIdentity { sub, name, email, picture, roles, extra }` 或匿名；内置 `HeaderAuthenticator::new("x-test-user")`（假凭据：从指定请求头读 JSON 身份，本地/测试用，见 [auth 示例](../../streamlit/examples/auth.rs)），生产部署自行实现 trait。应用侧 `st.user()` 返回等价 `st.user` 的只读映射（`to_dict()`/`is_empty()`；实测无认证的 1.66.1 为**空映射**且无属性式访问，Rust 对齐：未配置认证器、未认证、或空 sub → 空映射）；OIDC `tokens` 子视图未实现（无提供方下参考行为未测）。`st.context.cookies` 等价为 `RequestContext::cookies()`——从**已白名单放行**的 Cookie 头解析键值（[参考](../../tests/reference/reference-browser/user-cookies/README.md)：原生连接 `probe-flavor=oat` → 同值 dict、缺失键 None；默认 Standard 不含 Cookie → 空 dict，显式 Selected/All 才可见）。
 
 已交付：st.context 的 Python 行为参考（协议级）、矩阵条目重开与 `request_context()` v1/v2（示例 `request_context.rs`、WS 回归与浏览器证据见各证据目录）。
 

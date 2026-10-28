@@ -114,14 +114,17 @@ pub(crate) fn stored_file(id: &str) -> Option<StoredFile> {
 }
 
 /// The extension of the measured media content types. The URL extension is
-/// how the reference names stored media files.
+/// how the reference names stored media files. `audio/x-wav` is known but
+/// measured to carry NO extension (frozen media-params reference), unlike
+/// `audio/wav`/`audio/wave` — an empty extension means a bare address.
 pub fn extension(mime: &str) -> Option<&'static str> {
     Some(match mime {
         "image/png" => "png",
         "image/jpeg" => "jpg",
         "image/webp" => "webp",
         "image/gif" => "gif",
-        "audio/wav" | "audio/x-wav" | "audio/wave" => "wav",
+        "audio/wav" | "audio/wave" => "wav",
+        "audio/x-wav" => "",
         "audio/mpeg" => "mp3",
         "audio/ogg" => "ogg",
         "audio/flac" => "flac",
@@ -129,6 +132,7 @@ pub fn extension(mime: &str) -> Option<&'static str> {
         "video/mp4" => "mp4",
         "video/webm" => "webm",
         "video/ogg" => "ogv",
+        "text/vtt" => "vtt",
         _ => return None,
     })
 }

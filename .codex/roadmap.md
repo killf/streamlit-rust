@@ -14,7 +14,7 @@
 
 ## Current focus
 
-**长期 M2 数据应用已于 2026-10-28 关闭（退出条件逐项有保留证据，见[关闭记录](acceptance.md#m2-milestone-close-2026-10-28)）；M6 已于 2026-10-28 关闭（干净环境构建验证补齐）；M4 运行集成已启动（首个切片 st.context 的 Python 参考已冻结）；当前推进 M3 独立错误边界与 M4 后续切片。** M0 起点为 `99b1ed8e4b35737c9495764fb70269271a10bada`，开始时工作区干净。已建立官方文档能力与缺口清单、复核不适用项并刷新 Rust/Python 验证及性能基线；这不代表全功能或所有参数、教程 FAQ 的验收结束。已校验的 wheel 仅固定参考环境，不能代替官方用户文档的功能范围。
+**长期 M2、M6、M4 均已于 2026-10-28 关闭（各有保留证据与关闭记录）；当前推进 M3 适用公开能力的参数面收敛与 M5 稳定性，随后 M7 全量验收。** M0 起点为 `99b1ed8e4b35737c9495764fb70269271a10bada`，开始时工作区干净。已建立官方文档能力与缺口清单、复核不适用项并刷新 Rust/Python 验证及性能基线；这不代表全功能或所有参数、教程 FAQ 的验收结束。已校验的 wheel 仅固定参考环境，不能代替官方用户文档的功能范围。
 
 已完成 54 项历史 `not_applicable` 的用户文档适用性复核，结论见 [compatibility](compatibility.md#historical-not-applicable-closures-and-m0-review)；没有将缺少 Rust 实现视为永久排除，也没有自动改写旧状态。M1 列明的 Q1–Q6 已确认修复、回归、必要前端证据和独立 Review 已分批完成，覆盖范围见 acceptance；未验证的运行组合及资源边界继续留在后续里程碑，不把六项修复当成运行时完整兼容。
 
@@ -26,7 +26,7 @@ M0 批次基线在干净代码快照 `b94ac474` 上完成，172 项 Rust 与 148
 
 选择参考保留[原 34 阶段前端输入](../tests/reference/reference-browser/dataframe-selection/README.md)，另补[八阶段 required 协议输入](../tests/reference/reference-browser/dataframe-required-protocol/README.md)，真实 Rust WS 共用 42 阶段回放。已修复空协议选择在返回、keyed 与 callback 间分裂的问题，包含空表/恢复时使用前轮行数上下文；此前选择批次的 177 项 Rust 和 1496 项冻结参考回归通过。新协议探针不宣称浏览器能清除 required 行，旧正确数据未重采。CSV 应用已由用户采纳[独立工作台方案 A](architecture.md#csv-application-integration--accepted-a)，先补使用说明，再实现与验证；其余方案不纳入本次范围。
 
-M4 运行集成已启动（2026-10-28）：st.context 首切片已按用户确认实施——`st.request_context()` 返回白名单握手头（小写名）+ `st_embed` 标志，`RequestHeaderAccess` Standard/Selected/All 选择面（All 对齐冻结参考的全部头行为，含凭据，仅限可信部署）；WS 回归双向断言默认白名单不泄漏凭据/传输头、All 与参考集逐头一致，真实前端两阶段采集中 `is_embedded` 随 `?st_embed=true` 翻转。第二切片已按浏览器路径参考实施：url/locale/timezone/timezone_offset/theme/is_embedded 经前端每轮 rerun 的 context_info 上报（`?embed=true` 翻转、`?st_embed=true` 不翻转，双端实测一致）；ip 与 cookies 未实现。认证/用户信息切片已按指南推荐实施（trait 认证器 + HeaderAuthenticator 假凭据 + `st.user()` 空映射基线 + cookies 白名单访问；[验收](acceptance.md#current-fake-credential-auth-and-user-validation-2026-10-28)，公共形态待用户追认）；OIDC tokens 与真实提供方待 oracle。配置面已整理为指南显式表格并由离线文档门守护（[验收](acceptance.md#current-runtime-configuration-surface-validation-2026-10-28)）；M4 待用户追认认证/上下文公共形态后关闭，ip_address 维持记录边界（两路径实测 null）；config.toml 注册表与 secrets 文件存储维持既有不适用边界。见[启动验收](acceptance.md#current-m4-runtime-integration-start-2026-10-28)与[首切片验收](acceptance.md#current-m4-request-context-slice-validation-2026-10-28)。
+M4 运行集成已启动（2026-10-28）：st.context 首切片已按用户确认实施——`st.request_context()` 返回白名单握手头（小写名）+ `st_embed` 标志，`RequestHeaderAccess` Standard/Selected/All 选择面（All 对齐冻结参考的全部头行为，含凭据，仅限可信部署）；WS 回归双向断言默认白名单不泄漏凭据/传输头、All 与参考集逐头一致，真实前端两阶段采集中 `is_embedded` 随 `?st_embed=true` 翻转。第二切片已按浏览器路径参考实施：url/locale/timezone/timezone_offset/theme/is_embedded 经前端每轮 rerun 的 context_info 上报（`?embed=true` 翻转、`?st_embed=true` 不翻转，双端实测一致）；ip 与 cookies 未实现。认证/用户信息切片已按指南推荐实施（trait 认证器 + HeaderAuthenticator 假凭据 + `st.user()` 空映射基线 + cookies 白名单访问；[验收](acceptance.md#current-fake-credential-auth-and-user-validation-2026-10-28)，公共形态待用户追认）；OIDC tokens 与真实提供方待 oracle。配置面已整理为指南显式表格并由离线文档门守护（[验收](acceptance.md#current-runtime-configuration-surface-validation-2026-10-28)）；用户已于 2026-10-28 追认公共形态，M4 关闭（[关闭记录](acceptance.md#m4-milestone-close-2026-10-28)）；ip_address 维持记录边界（两路径实测 null），OIDC tokens 与真实提供方为远期独立决定；config.toml 注册表与 secrets 文件存储维持既有不适用边界。见[启动验收](acceptance.md#current-m4-runtime-integration-start-2026-10-28)与[首切片验收](acceptance.md#current-m4-request-context-slice-validation-2026-10-28)。
 
 ## Long-term milestones
 
@@ -37,6 +37,8 @@ CSV 工作台 A 已交付主流程 20 阶段、筛选 13 阶段与来源替换 1
 独立 M3 下载边界已补默认/空文件名、Unicode/引号/反斜杠编码及文本 charset；十条冻结 Python 公开输入由 Rust 真实 HTTP 精确对照，另有两条实际浏览器保存证据，见[范围与局限](../tests/reference/reference-browser/download-boundaries/README.md)。它不关闭 M3，也不替代 M2 待决的来源/图表工作；完整类型推断、媒体生命周期及其余能力继续按官方文档范围推进。
 
 缓存种类共用键表导致的实际返回值错误已独立修复：data/resource 同名同参各自保留结果、资源引用和录制输出；四组公开参考只采一次并冻结，Rust 真实 WS 复验各自重放。仍维持会话级缓存与现有总清空接口，未扩大为完整 Python 全局/会话选项、TTL 或分类别清空兼容；详见[参考及局限](../tests/reference/reference-browser/cache-kind-isolation/README.md)。
+
+M3 媒体参数切片（2026-10-28）：audio/video 播放参数（start/end/loop/autoplay/muted）与文本字幕已双端冻结验收，`audio/x-wav` 裸地址与非法字幕异常元素均实测对齐（[验收](acceptance.md#current-media-playback-parameters-validation-2026-10-28)）；YouTube/URL 输入、多音轨、SRT 实测仍开放。
 
 M3 输入切片推进（2026-10-28）：`file_uploader` 多文件模式已双端验收——批量地址请求、逐文件 PUT、整表状态与逐文件移除语义、返回值逐字节一致（[验收](acceptance.md#current-multiple-file-upload-validation-2026-10-28)）；大小限制双防线（前端 wire 拦截 + 服务端 413）与目录选择器渲染已实测对齐（[验收](acceptance.md#current-upload-size-limit-and-directory-validation-2026-10-28)）；目录完整流（OS 选择器/webkitRelativePath）headless 不可达；并发竞争与断线过期清理已按协议参考验收（[验收](acceptance.md#current-upload-concurrency-and-expiry-validation-2026-10-28)），更高并发度不冒称已测，M3 保持未完成。
 

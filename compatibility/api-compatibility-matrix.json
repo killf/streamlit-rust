@@ -175,7 +175,7 @@
       },
       "rust_plan": "Fake-credential authentication slice shipped: RequestAuthenticator trait + HeaderAuthenticator + st.user() mapping. OIDC tokens and a real identity provider stay out until a provider-side oracle exists.",
       "limitations": [
-        "Slice 1 (2026-10-28): the anonymous baseline is measured against the frozen 1.66.1 reference (st.user is a mapping proxy with no attribute access; to_dict() empty without a provider) and Rust matches it — the authenticated path has no Python oracle in 1.66.1 (OIDC needs a hosting-platform provider), so the fake-credential HeaderAuthenticator path is proven by real-WS regressions only. The public shape (with_authenticator/UserIdentity/st.user()) follows the guide recommendation and awaits user ratification.",
+        "Slice 1 (2026-10-28): the anonymous baseline is measured against the frozen 1.66.1 reference (st.user is a mapping proxy with no attribute access; to_dict() empty without a provider) and Rust matches it — the authenticated path has no Python oracle in 1.66.1 (OIDC needs a hosting-platform provider), so the fake-credential HeaderAuthenticator path is proven by real-WS regressions only. The public shape (with_authenticator/UserIdentity/st.user()) was ratified by the user on 2026-10-28 (M4 closed).",
         "OIDC tokens sub-view unimplemented; no real identity provider integration, token validation, or session/permission boundaries are claimed — the authenticator is developer-supplied trusted configuration and HeaderAuthenticator is explicitly not a production identity source."
       ]
     },
@@ -3692,12 +3692,18 @@
         "contract_guards": "tests/reference/test_media_contract.py",
         "driven_fixture": "tests/reference/media_app.py",
         "driven_example": "streamlit/examples/media.rs",
-        "rust_api_test": "streamlit/tests/runtime/media.rs"
+        "rust_api_test": "streamlit/tests/runtime/media.rs",
+        "playback_params_reference": [
+          "tests/reference/reference-browser/media-params/trace.json",
+          "tests/reference/reference-browser/media-params/README.md",
+          "tests/browser/rust-media-params/trace.json",
+          "streamlit/tests/runtime/media.rs"
+        ]
       },
       "rust_plan": "st.audio((bytes, \"audio/wav\")) registers the bytes and emits the measured Audio element with a relative /media/{blake2b}.wav URL and the stretch width inside the message.",
       "compatibility_scope": "The journey-media-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were both loaded by a real Chrome through the official frontend; both published replays return 10/10/10 exit 0 with identical element protos, DOM projections and /media response shapes (python 763beee2..., native fb8f5e64...). The WAV fixture is byte-identical across runtimes, so its address, range response and body digest are the exact measured ones; the PNG encodes per side (the reference deflates with PIL) with identical pixels.",
       "limitations": [
-        "The measured page is one synthesized WAV; autoplay, start_time/end_time, loop and mime types beyond the measured map are unobserved.",
+        "The measured page is one synthesized WAV; the playback parameters are now measured end to end (2026-10-28, frozen media-params): start/end truncate to whole seconds, loop and autoplay ride the wire, autoplay carries the $$ID element identity (per-runtime digest, shape-only contractual), and format decides the address suffix — audio/x-wav addresses bare while audio/wav carries .wav; content addressing makes payload URLs identical cross-runtime.",
         "media store source SHA256 82200de623c3c193dad38ad1d858d025b5a806a6a98f5764b1957f5113598055; elements source SHA256 72499c716daf0c6b8b074134026ca356d06a06b2ba8db68f1421a79f0cd072f7; route source SHA256 1cd9d5e90bece87881dfc8ce7cd497d52962cea8822cf9e6fdefcfecfd5bbc68; fixture SHA256 6079286f3d84cb2478a35ec38532b007b188c5c7cfed5c528e271dce08e4046e; example SHA256 f80ac67a3d30312042ebf4aaaf15e0807cf73191b7bfb93b34dfaab2dbf86f26."
       ]
     },
@@ -3817,12 +3823,18 @@
           "tests/reference/reference-browser/media-range/README.md",
           "tests/reference/test_media_range_reference.py",
           "streamlit/tests/runtime/media.rs"
+        ],
+        "playback_params_reference": [
+          "tests/reference/reference-browser/media-params/trace.json",
+          "tests/reference/reference-browser/media-params/README.md",
+          "tests/browser/rust-media-params/trace.json",
+          "streamlit/tests/runtime/media.rs"
         ]
       },
       "rust_plan": "st.video((bytes, \"video/mp4\")) registers the bytes in the content-addressed store and emits the measured Video element: the NATIVE type, the relative /media/{blake2b}.mp4 URL and the stretch width inside the message.",
       "compatibility_scope": "The journey-video-v1 chain: the pinned Python 1.66.1 fixture and the Rust example both serve the same committed one-second sample (a deterministic ffmpeg testsrc2 encode), so the media address /media/89d6baf253834c013e2bc52aab2354d4.mp4, the 206 Range response with content-range bytes 0-3604/3605 and the served body digest are byte-identical across runtimes; the element proto (NATIVE + in-message stretch width) and the DOM player projection match exactly (both published replays 10/10/10 exit 0, python b27a3a2c... / native 76b6ca78...).",
       "limitations": [
-        "Coverage is the measured default call with in-memory mp4 bytes; start_time/end_time, loop, autoplay, muted, subtitles, YouTube/iframes and mime types beyond the measured map are unobserved.",
+        "Coverage is the measured default call with in-memory mp4 bytes; start/end, loop, autoplay, muted and text subtitles are now measured end to end (2026-10-28, frozen media-params): VTT text resolves to .vtt media tracks, invalid text renders the measured StreamlitAPIException element, and the SRT conversion follows the reference rules (unmeasured path). YouTube/iframes, URL inputs, alt and mime types beyond the measured map remain unobserved.",
         "Committed video sample SHA256 dcda48c8cec73a32406a184d635c41a324107f0f51a0cb0fe1124cc0791a19a6; data integrity is retained without source identity gates.",
         "Added Range subset: 27 actual public-call WS/HTTP inputs across CSV, empty download and the committed MP4, including three video requests. Rust matches frozen status/URL/range/length/type/disposition/accept-ranges and original bytes, with 206 suffixes and 416 invalid or unsatisfiable single/multi requests. This does not establish browser seeking, HEAD, If-Range/CORS, duplicate or all numeric/header forms, or full media lifecycle."
       ]
