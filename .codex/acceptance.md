@@ -238,6 +238,10 @@ M4 运行集成启动，按"文档先行、参考测量先于实现"执行。指
 
 第二切片（同日）：冻结的浏览器路径参考证明页面上下文由前端随每轮 rerun 的 `context_info` 上报（url/locale/timezone/timezone_offset/color_scheme/is_embedded），且 `?embed=true` 翻转 embedded 而 `?st_embed=true` 不翻转（三参数探针实测）——首切片从查询串推导 is_embedded 的做法被实测推翻并改为浏览器报告驱动。`RequestContext` 扩为七字段，`SessionState` 持有每轮 context_info；WS 回归以携带 context_info 的 rerun 断言全字段，双端浏览器采集均冻结并通过离线断言（真实前端填充全部页面字段、白名单不泄漏凭据）。采集器本批内两次修正（健康检查双斜杠、embed 参数语义）发生在冻结确立前，属采集器编程修正而非产品发现，无失败前缀保留。
 
+## Current multiple-file upload validation (2026-10-28)
+
+M3 输入切片：`file_uploader` 多文件模式。新增便捷构建器 `multiple_files()`/`directory()`（既有 `mode()` 保留）。双端冻结参考（[Python](../tests/reference/reference-browser/uploads-multi/README.md)/[Rust](../tests/browser/rust-uploads-multi/README.md)，同一采集器与输入，真实 Chrome 四阶段 load→双文件→移除一→清空）：报告 count 0→2→1→0、name/size/字节一致、chip 同步、无异常；wire 上 `multiple_files=true`、一条批量 `file_urls_request`（2 名）、逐文件 PUT、状态列表 `[alpha,beta]→[beta]→[]`、移除即 DELETE（收尾 DELETE 与停采竞态，断言只保证首个）。Rust WS 回归 `multiple_file_uploads_batch_urls_states_and_removal_semantics` 以带 XSRF 凭据的真实 HTTP PUT 复现同链并断言返回值与移除语义；`uploads` 示例（8591）承载单+多上传器。离线测试双向核对两份冻结数据。边界：目录选择器、`max_upload_size_mb` 超限、并发竞争、过期清理未测；采集器两次修正（chip testid、reference_version 字段）发生在冻结确立前，属采集器编程修正。
+
 ## Required fresh-checkout checks
 
 ```powershell

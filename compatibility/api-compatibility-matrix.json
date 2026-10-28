@@ -2885,12 +2885,20 @@
           "tests/reference/reference-browser/csv-workbench/README.md",
           "tests/browser/rust-csv-workbench/README.md",
           "streamlit/examples/csv_workbench.rs"
+        ],
+        "multi_file_reference": [
+          "tests/reference/reference-browser/uploads-multi/trace.json",
+          "tests/reference/reference-browser/uploads-multi/README.md",
+          "tests/browser/rust-uploads-multi/trace.json",
+          "tests/browser/rust-uploads-multi/README.md",
+          "streamlit/tests/runtime/uploads.rs",
+          "streamlit/examples/uploads.rs"
         ]
       },
       "rust_plan": "Serve native upload URL exchange and multipart PUT, retain uploaded CSV bytes for the measured session reruns.",
       "compatibility_scope": "Positive CSV data loop integrated in commit 1c6161d3d8fd21ce847f76bed1a46e4ce99804ab only: upload URL request/response, multipart PUT 204, uploaded-file state, then four Arrow/DOM table snapshots with three actual changed-filter actions and successful same-connection completions. Python uses st.dataframe and st.altair_chart; Rust uses native dataframe and a configured Vega bar chart. This is not proof of any full native/default chart API. Legacy capture metadata remains historical provenance, never a current-source fingerprint gate. Added 2026-10-27: 33 native text-CSV workflow stages (20 main and 13 filters) match frozen Python logical rows, draft behavior, counts and actual downloaded CSV bytes, including two-session isolation. Source replacement/reset remains unresolved; this is a measured subset, not complete CSV or default-chart compatibility.",
       "limitations": [
-        "Full uploader behavior, XSRF/security-handshake, DELETE/remove/replace, general rejection/error-flow and session authorization are not established by the positive captures. The workbench's intermediate empty-state conflict is resolved at the application level (accepted explicit-clear semantics, 2026-10-28): the uploader's empty state only clears the selection and the app keeps its working copy; removal is application behavior, not uploader API behavior.",
+        "Single-file replace/remove and the multiple-file mode are now measured end to end (2026-10-28): one batched URL request per selection, per-file PUTs, full-state widget carriage with per-file removal (frontend DELETE observed), byte-identical return values on both runtimes. Directory picking, max-size rejection, concurrent uploads, expiry cleanup, general rejection/error-flow and session authorization remain unestablished. The workbench's intermediate empty-state conflict is resolved at the application level (accepted explicit-clear semantics, 2026-10-28): the uploader's empty state only clears the selection and the app keeps its working copy; removal is application behavior, not uploader API behavior.",
         "The workbench provides measured text selection/detail/edit integration only; general column_config behavior and type parity remain unverified.",
         "Arrow schemas/ordered values are compared; Rust IPC lacks Python pandas metadata and byte equality of Rust/Python Arrow is not claimed.",
         "Legacy CSV raw inherits Python-only kind/scope strings; its Rust NewSession/URL identify that historical server. New native workbench evidence records its own actual runtime and owned-process cleanup separately.",

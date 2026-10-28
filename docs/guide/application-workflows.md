@@ -37,7 +37,13 @@ cargo run --example data_app --locked
 3. 在 **Interaction** 输入 **Note**，点击 **Apply note** 后才提交；单独输入不会触发提交。改变筛选条件或点击 **Pulse** 后，上次提交的 Note 和上传数据在当前会话中保留。要清空 Note，清空输入后再次提交。
 4. 无法解析的金额会被排除并产生警告；格式错误或非 UTF-8 文件显示错误。选择有效文件可继续使用。只有表头的文件会提示没有数据行。
 
-此示例的聚合和舍入是应用自身规则，不是所有 Streamlit 应用的通用行为。上传的替换、删除、多文件、会话过期和安全边界仍未完整验证；不要将当前上传端点视为面向不可信用户的生产认证边界。参见官方[文件上传](https://docs.streamlit.io/develop/api-reference/widgets/st.file_uploader)、[表格](https://docs.streamlit.io/develop/api-reference/data/st.dataframe)、[表单](https://docs.streamlit.io/develop/api-reference/execution-flow/st.form)及矩阵对应条目。
+此示例的聚合和舍入是应用自身规则，不是所有 Streamlit 应用的通用行为。单文件的替换与删除已随 CSV 工作台与上传回归验证；多文件模式见下节。会话过期和安全边界仍未完整验证；不要将当前上传端点视为面向不可信用户的生产认证边界。参见官方[文件上传](https://docs.streamlit.io/develop/api-reference/widgets/st.file_uploader)、[表格](https://docs.streamlit.io/develop/api-reference/data/st.dataframe)、[表单](https://docs.streamlit.io/develop/api-reference/execution-flow/st.form)及矩阵对应条目。
+
+## 多文件上传（Multiple 模式）
+
+`FileUploaderOptions::new("标签").multiple_files()` 开启多选（返回 `UploadedFiles::Multiple(Vec<UploadedFile>)`，未选时为空 vec）；`directory()` 为目录选择（同样返回多个文件）。真实前端一次会话内可为同一控件追加多个文件：前端为整批文件一次性请求上传地址并逐个 PUT，控件状态携带全部文件的 `uploaded_file_info` 列表；移除某个文件只从列表中去掉对应项，其余保留——[uploads 示例](../../streamlit/examples/uploads.rs)演示单/多两个上传器与返回的名称/大小/字节预览。
+
+多选上传已按双端冻结参考验收（真实 Chrome 上传两个文件、移除其一、清空的完整流程，见[参考](../../tests/reference/reference-browser/uploads-multi/README.md)与 Rust 对照证据）：wire 元素 `multiple_files=true`、批量地址请求、逐文件状态与返回值、移除语义在 Python 1.66.1 与 Rust 一致。目录模式（`accept_directory`）的浏览器选择器与超大文件边界未测；`max_upload_size_mb` 超限、会话过期清理与并发上传竞争仍开放。
 
 ## CSV workbench：编辑会话工作副本
 

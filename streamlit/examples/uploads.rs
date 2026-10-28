@@ -1,0 +1,41 @@
+//! Uploaders: one single-file picker and one multiple-file picker. The
+//! multiple mode returns UploadedFiles::Multiple; removing one file in the
+//! browser keeps the rest, exactly like the reference.
+use ::streamlit::*;
+
+fn render(st: &Streamlit) -> Result<(), Box<dyn std::error::Error>> {
+    st.title("Uploads");
+    st.sub_header("Single file");
+    match st.file_uploader(FileUploaderOptions::new("Upload one file").key("single-upload"))? {
+        UploadedFiles::Single(None) => st.caption("No file selected."),
+        UploadedFiles::Single(Some(file)) => {
+            st.caption(format!("{} ({} bytes)", file.name(), file.size()));
+            st.code(String::from_utf8_lossy(&file.as_bytes()[..file.as_bytes().len().min(60)]).into_owned(), "text");
+        }
+        UploadedFiles::Multiple(files) => st.caption(format!("Unexpected multiple result: {} files", files.len())),
+    }
+    st.sub_header("Multiple files");
+    match st.file_uploader(FileUploaderOptions::new("Upload files").multiple_files().key("multi-upload"))? {
+        UploadedFiles::Multiple(files) => st.code(
+            serde_json::json!({
+                "count": files.len(),
+                "files": files.iter().map(|file| serde_json::json!({
+                    "name": file.name(),
+                    "size": file.size(),
+                    "bytes_head": file.as_bytes().iter().take(8).copied().collect::<Vec<_>>(),
+                })).collect::<Vec<_>>(),
+            })
+            .to_string(),
+            "json",
+        ),
+        UploadedFiles::Single(_) => st.caption("Unexpected single result"),
+    }
+    Ok(())
+}
+
+#[main(host = "127.0.0.1", port = 8591)]
+async fn main(st: &Streamlit) {
+    if let Err(error) = render(st) {
+        st.write(format!("Uploads example error: {error}"));
+    }
+}

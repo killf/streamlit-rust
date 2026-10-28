@@ -169,6 +169,17 @@ impl FileUploaderOptions {
         self.mode = mode;
         self
     }
+    /// Accept several files at once; returns `UploadedFiles::Multiple`.
+    /// Mirrors `st.file_uploader(accept_multiple_files=True)`.
+    pub fn multiple_files(mut self) -> Self {
+        self.mode = FileUploadMode::Multiple;
+        self
+    }
+    /// Pick a whole directory; also returns `UploadedFiles::Multiple`.
+    pub fn directory(mut self) -> Self {
+        self.mode = FileUploadMode::Directory;
+        self
+    }
     common_builders!();
 }
 impl From<&str> for FileUploaderOptions {

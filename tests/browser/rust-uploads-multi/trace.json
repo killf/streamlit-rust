@@ -1,0 +1,1320 @@
+{
+  "runtime": "rust",
+  "reference_version": "1.66.1",
+  "reference_decoder": "1.66.1",
+  "url": "http://127.0.0.1:8591/",
+  "captured_at_utc": "2026-10-28T06:49:59.726926+00:00",
+  "server_command": null,
+  "server_cleanup": "caller-owned",
+  "inputs": {
+    "alpha.txt": 17,
+    "beta.csv": 18
+  },
+  "stages": [
+    {
+      "name": "load",
+      "code_text": "{\"count\":0,\"files\":[]}",
+      "dom": {
+        "chips": [],
+        "exceptions": []
+      },
+      "screenshot": "load.png"
+    },
+    {
+      "name": "upload-two",
+      "code_text": "{\"count\":2,\"files\":[{\"name\":\"alpha.txt\",\"size\":17,\"bytes_head\":[97,108,112,104,97,45,112,97]},{\"name\":\"beta.csv\",\"size\":18,\"bytes_head\":[107,101,121,44,118,97,108,117]}]}",
+      "dom": {
+        "chips": [
+          "alpha.txt\n17.0B",
+          "beta.csv\n18.0B"
+        ],
+        "exceptions": []
+      },
+      "screenshot": "upload-two.png"
+    },
+    {
+      "name": "remove-alpha",
+      "code_text": "{\"count\":1,\"files\":[{\"name\":\"beta.csv\",\"size\":18,\"bytes_head\":[107,101,121,44,118,97,108,117]}]}",
+      "dom": {
+        "chips": [
+          "beta.csv\n18.0B"
+        ],
+        "exceptions": []
+      },
+      "screenshot": "remove-alpha.png"
+    },
+    {
+      "name": "remove-beta",
+      "code_text": "{\"count\":0,\"files\":[]}",
+      "dom": {
+        "chips": [],
+        "exceptions": []
+      },
+      "screenshot": "remove-beta.png"
+    }
+  ],
+  "frames": [
+    {
+      "direction": "client->server",
+      "bytes": 71,
+      "base64": "WkUSAEJBCg1Bc2lhL1NoYW5naGFpEKD8/////////wEaBXpoLUNOIhZodHRwOi8vMTI3LjAuMC4xOjg1OTEvKAAyBGRhcms=",
+      "message": {
+        "rerun_script": {
+          "widget_states": {},
+          "context_info": {
+            "timezone": "Asia/Shanghai",
+            "timezone_offset": -480,
+            "locale": "zh-CN",
+            "url": "http://127.0.0.1:8591/",
+            "is_embedded": false,
+            "color_scheme": "dark"
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 219,
+      "base64": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkNGYxMjJjYjQtOTViYS00MzcwLTg5OTYtMGE3NDkyNzdhYjE4EiRhMTlhNzVlNS0yNWVkLTQ2NGMtYmFkOS0xYjFlMmY5YWYxYzMaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl",
+      "message": {
+        "metadata": {
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "new_session": {
+          "initialize": {
+            "user_info": {},
+            "environment_info": {
+              "streamlit_version": "1.66.1"
+            },
+            "session_status": {},
+            "session_id": "4f122cb4-95ba-4370-8996-0a749277ab18"
+          },
+          "script_run_id": "a19a75e5-25ed-464c-bad9-1b1e2f9af1c3",
+          "name": "Streamlit Rust",
+          "config": {
+            "show_error_links": "SHOW_ERROR_LINKS_FALSE"
+          },
+          "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 28,
+      "base64": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ==",
+      "message": {
+        "hash": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 106,
+      "base64": "CiAyMTU5NWM1ZTJiMTk2OTRhNTY3ZGFmNGRmYTFkMzc1NxImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqHhoc+gIPCgJoMRoHVXBsb2FkczgB0gMCCAHqAwIIAQ==",
+      "message": {
+        "hash": "21595c5e2b19694a567daf4dfa1d3757",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h1",
+              "body": "Uploads",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 110,
+      "base64": "CiAwMDE0M2FmYTFhZjAwZjNhMzBiYmRiMjg1Y2MwYzU1YhImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqIhog+gITCgJoMxoLU2luZ2xlIGZpbGU4AdIDAggB6gMCCAE=",
+      "message": {
+        "hash": "00143afa1af00f3a30bbdb285cc0c55b",
+        "metadata": {
+          "delta_path": [
+            0,
+            1
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h3",
+              "body": "Single file",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 161,
+      "base64": "CiAwMmM5MDdlOTY4NGUwZWM5ZmY4NWU4YWJjYmE3NWJiYRImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqVRpTigJLCjMkJElELWUwYmNlMjUxNzdiNmFkMjk4NWMyNjU2MDc5ZTdlMjQwLXNpbmdsZS11cGxvYWQSD1VwbG9hZCBvbmUgZmlsZSDIAVIA0gMCCAE=",
+      "message": {
+        "hash": "02c907e9684e0ec9ff85e8abcba75bba",
+        "metadata": {
+          "delta_path": [
+            0,
+            2
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "file_uploader": {
+              "id": "$$ID-e0bce25177b6ad2985c2656079e7e240-single-upload",
+              "label": "Upload one file",
+              "max_upload_size_mb": 200,
+              "label_visibility": {}
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 114,
+      "base64": "CiA3OWRkNzI2ZmE2ZmIwMmRiZTMzMTM1Mjc5OWY0MzE5NhImEgIAAyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqJhok6gEXChFObyBmaWxlIHNlbGVjdGVkLiACQAHSAwIIAeoDAggB",
+      "message": {
+        "hash": "79dd726fa6fb02dbe331352799f43196",
+        "metadata": {
+          "delta_path": [
+            0,
+            3
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "No file selected.",
+              "element_type": "CAPTION",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 113,
+      "base64": "CiBhMDY2ZjlkYjkzNzJlNTE4Y2U5ZjdjNmYzZDE4ZDZiZBImEgIABCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqJRoj+gIWCgJoMxoOTXVsdGlwbGUgZmlsZXM4AdIDAggB6gMCCAE=",
+      "message": {
+        "hash": "a066f9db9372e518ce9f7c6f3d18d6bd",
+        "metadata": {
+          "delta_path": [
+            0,
+            4
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h3",
+              "body": "Multiple files",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 159,
+      "base64": "CiA1YTA0MjI5NTNmMjExODYzOTFmNDk0MGMxYTY3YjJjMBImEgIABSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqUxpRigJJCjIkJElELTBjN2MzYjU4MDFkOTNjNWY2NTNkMmZmNzExYjhjMGMwLW11bHRpLXVwbG9hZBIMVXBsb2FkIGZpbGVzIMgBMAFSANIDAggB",
+      "message": {
+        "hash": "5a0422953f21186391f4940c1a67b2c0",
+        "metadata": {
+          "delta_path": [
+            0,
+            5
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "file_uploader": {
+              "id": "$$ID-0c7c3b5801d93c5f653d2ff711b8c0c0-multi-upload",
+              "label": "Upload files",
+              "max_upload_size_mb": 200,
+              "multiple_files": true,
+              "label_visibility": {}
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 121,
+      "base64": "CiAxNmIxM2Q1OGVhNmExNDBlYWZkMTYzNTMxMmU5ZmEyMhImEgIABiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqLRorggMeChZ7ImNvdW50IjowLCJmaWxlcyI6W119EgRqc29uygMCEAHSAwIIAQ==",
+      "message": {
+        "hash": "16b13d58ea6a140eafd1635312e9fa22",
+        "metadata": {
+          "delta_path": [
+            0,
+            6
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "code": {
+              "code_text": "{\"count\":0,\"files\":[]}",
+              "language": "json"
+            },
+            "height_config": {
+              "use_content": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 19,
+      "base64": "Cg9zY3JpcHRfZmluaXNoZWQwAA==",
+      "message": {
+        "hash": "script_finished",
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 26,
+      "base64": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgA=",
+      "message": {
+        "hash": "session_status_changed",
+        "session_status_changed": {}
+      }
+    },
+    {
+      "direction": "client->server",
+      "bytes": 100,
+      "base64": "ggFhCiQ5ZmIwMGJlMC1mODc4LTQzYjYtYWZkYi03YzI0MTc1NzUxYjUSCWFscGhhLnR4dBIIYmV0YS5jc3YaJDRmMTIyY2I0LTk1YmEtNDM3MC04OTk2LTBhNzQ5Mjc3YWIxOA==",
+      "message": {
+        "file_urls_request": {
+          "request_id": "9fb00be0-f878-43b6-afdb-7c24175751b5",
+          "file_names": [
+            "alpha.txt",
+            "beta.csv"
+          ],
+          "session_id": "4f122cb4-95ba-4370-8996-0a749277ab18"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 508,
+      "base64": "mgH4AwokOWZiMDBiZTAtZjg3OC00M2I2LWFmZGItN2MyNDE3NTc1MWI1EuYBCiQ0MDFkNjUzZC1iMmRjLTQ5Y2MtYmI0NC0yNWJmZDdkOWEyOTISXi9fc3Rjb3JlL3VwbG9hZF9maWxlLzRmMTIyY2I0LTk1YmEtNDM3MC04OTk2LTBhNzQ5Mjc3YWIxOC80MDFkNjUzZC1iMmRjLTQ5Y2MtYmI0NC0yNWJmZDdkOWEyOTIaXi9fc3Rjb3JlL3VwbG9hZF9maWxlLzRmMTIyY2I0LTk1YmEtNDM3MC04OTk2LTBhNzQ5Mjc3YWIxOC80MDFkNjUzZC1iMmRjLTQ5Y2MtYmI0NC0yNWJmZDdkOWEyOTIS5gEKJDE2OTMyOWIxLTczYzItNDAyMS1iMWI2LTBjMzcyNWEwYTk0ORJeL19zdGNvcmUvdXBsb2FkX2ZpbGUvNGYxMjJjYjQtOTViYS00MzcwLTg5OTYtMGE3NDkyNzdhYjE4LzE2OTMyOWIxLTczYzItNDAyMS1iMWI2LTBjMzcyNWEwYTk0ORpeL19zdGNvcmUvdXBsb2FkX2ZpbGUvNGYxMjJjYjQtOTViYS00MzcwLTg5OTYtMGE3NDkyNzdhYjE4LzE2OTMyOWIxLTczYzItNDAyMS1iMWI2LTBjMzcyNWEwYTk0OQ==",
+      "message": {
+        "file_urls_response": {
+          "response_id": "9fb00be0-f878-43b6-afdb-7c24175751b5",
+          "file_urls": [
+            {
+              "file_id": "401d653d-b2dc-49cc-bb44-25bfd7d9a292",
+              "upload_url": "/_stcore/upload_file/4f122cb4-95ba-4370-8996-0a749277ab18/401d653d-b2dc-49cc-bb44-25bfd7d9a292",
+              "delete_url": "/_stcore/upload_file/4f122cb4-95ba-4370-8996-0a749277ab18/401d653d-b2dc-49cc-bb44-25bfd7d9a292"
+            },
+            {
+              "file_id": "169329b1-73c2-4021-b1b6-0c3725a0a949",
+              "upload_url": "/_stcore/upload_file/4f122cb4-95ba-4370-8996-0a749277ab18/169329b1-73c2-4021-b1b6-0c3725a0a949",
+              "delete_url": "/_stcore/upload_file/4f122cb4-95ba-4370-8996-0a749277ab18/169329b1-73c2-4021-b1b6-0c3725a0a949"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "direction": "client->server",
+      "bytes": 795,
+      "base64": "WpgGErAFCjcKMyQkSUQtZTBiY2UyNTE3N2I2YWQyOTg1YzI2NTYwNzllN2UyNDAtc2luZ2xlLXVwbG9hZGoACvQECjIkJElELTBjN2MzYjU4MDFkOTNjNWY2NTNkMmZmNzExYjhjMGMwLW11bHRpLXVwbG9hZGq9BBKcAhIJYWxwaGEudHh0GBEiJDQwMWQ2NTNkLWIyZGMtNDljYy1iYjQ0LTI1YmZkN2Q5YTI5MirmAQokNDAxZDY1M2QtYjJkYy00OWNjLWJiNDQtMjViZmQ3ZDlhMjkyEl4vX3N0Y29yZS91cGxvYWRfZmlsZS80ZjEyMmNiNC05NWJhLTQzNzAtODk5Ni0wYTc0OTI3N2FiMTgvNDAxZDY1M2QtYjJkYy00OWNjLWJiNDQtMjViZmQ3ZDlhMjkyGl4vX3N0Y29yZS91cGxvYWRfZmlsZS80ZjEyMmNiNC05NWJhLTQzNzAtODk5Ni0wYTc0OTI3N2FiMTgvNDAxZDY1M2QtYjJkYy00OWNjLWJiNDQtMjViZmQ3ZDlhMjkyEpsCEghiZXRhLmNzdhgSIiQxNjkzMjliMS03M2MyLTQwMjEtYjFiNi0wYzM3MjVhMGE5NDkq5gEKJDE2OTMyOWIxLTczYzItNDAyMS1iMWI2LTBjMzcyNWEwYTk0ORJeL19zdGNvcmUvdXBsb2FkX2ZpbGUvNGYxMjJjYjQtOTViYS00MzcwLTg5OTYtMGE3NDkyNzdhYjE4LzE2OTMyOWIxLTczYzItNDAyMS1iMWI2LTBjMzcyNWEwYTk0ORpeL19zdGNvcmUvdXBsb2FkX2ZpbGUvNGYxMjJjYjQtOTViYS00MzcwLTg5OTYtMGE3NDkyNzdhYjE4LzE2OTMyOWIxLTczYzItNDAyMS1iMWI2LTBjMzcyNWEwYTk0ORogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VCQQoNQXNpYS9TaGFuZ2hhaRCg/P////////8BGgV6aC1DTiIWaHR0cDovLzEyNy4wLjAuMTo4NTkxLygAMgRkYXJr",
+      "message": {
+        "rerun_script": {
+          "widget_states": {
+            "widgets": [
+              {
+                "id": "$$ID-e0bce25177b6ad2985c2656079e7e240-single-upload",
+                "file_uploader_state_value": {}
+              },
+              {
+                "id": "$$ID-0c7c3b5801d93c5f653d2ff711b8c0c0-multi-upload",
+                "file_uploader_state_value": {
+                  "uploaded_file_info": [
+                    {
+                      "name": "alpha.txt",
+                      "size": "17",
+                      "file_id": "401d653d-b2dc-49cc-bb44-25bfd7d9a292",
+                      "file_urls": {
+                        "file_id": "401d653d-b2dc-49cc-bb44-25bfd7d9a292",
+                        "upload_url": "/_stcore/upload_file/4f122cb4-95ba-4370-8996-0a749277ab18/401d653d-b2dc-49cc-bb44-25bfd7d9a292",
+                        "delete_url": "/_stcore/upload_file/4f122cb4-95ba-4370-8996-0a749277ab18/401d653d-b2dc-49cc-bb44-25bfd7d9a292"
+                      }
+                    },
+                    {
+                      "name": "beta.csv",
+                      "size": "18",
+                      "file_id": "169329b1-73c2-4021-b1b6-0c3725a0a949",
+                      "file_urls": {
+                        "file_id": "169329b1-73c2-4021-b1b6-0c3725a0a949",
+                        "upload_url": "/_stcore/upload_file/4f122cb4-95ba-4370-8996-0a749277ab18/169329b1-73c2-4021-b1b6-0c3725a0a949",
+                        "delete_url": "/_stcore/upload_file/4f122cb4-95ba-4370-8996-0a749277ab18/169329b1-73c2-4021-b1b6-0c3725a0a949"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "context_info": {
+            "timezone": "Asia/Shanghai",
+            "timezone_offset": -480,
+            "locale": "zh-CN",
+            "url": "http://127.0.0.1:8591/",
+            "is_embedded": false,
+            "color_scheme": "dark"
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 219,
+      "base64": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkNGYxMjJjYjQtOTViYS00MzcwLTg5OTYtMGE3NDkyNzdhYjE4EiQ3MDZjOGE5MS00YTBhLTQyYjAtYWJiOS01ZjkwMzNiNjBiMDYaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl",
+      "message": {
+        "metadata": {
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "new_session": {
+          "initialize": {
+            "user_info": {},
+            "environment_info": {
+              "streamlit_version": "1.66.1"
+            },
+            "session_status": {},
+            "session_id": "4f122cb4-95ba-4370-8996-0a749277ab18"
+          },
+          "script_run_id": "706c8a91-4a0a-42b0-abb9-5f9033b60b06",
+          "name": "Streamlit Rust",
+          "config": {
+            "show_error_links": "SHOW_ERROR_LINKS_FALSE"
+          },
+          "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 28,
+      "base64": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ==",
+      "message": {
+        "hash": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 106,
+      "base64": "CiAyMTU5NWM1ZTJiMTk2OTRhNTY3ZGFmNGRmYTFkMzc1NxImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqHhoc+gIPCgJoMRoHVXBsb2FkczgB0gMCCAHqAwIIAQ==",
+      "message": {
+        "hash": "21595c5e2b19694a567daf4dfa1d3757",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h1",
+              "body": "Uploads",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 110,
+      "base64": "CiAwMDE0M2FmYTFhZjAwZjNhMzBiYmRiMjg1Y2MwYzU1YhImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqIhog+gITCgJoMxoLU2luZ2xlIGZpbGU4AdIDAggB6gMCCAE=",
+      "message": {
+        "hash": "00143afa1af00f3a30bbdb285cc0c55b",
+        "metadata": {
+          "delta_path": [
+            0,
+            1
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h3",
+              "body": "Single file",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 161,
+      "base64": "CiAwMmM5MDdlOTY4NGUwZWM5ZmY4NWU4YWJjYmE3NWJiYRImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqVRpTigJLCjMkJElELWUwYmNlMjUxNzdiNmFkMjk4NWMyNjU2MDc5ZTdlMjQwLXNpbmdsZS11cGxvYWQSD1VwbG9hZCBvbmUgZmlsZSDIAVIA0gMCCAE=",
+      "message": {
+        "hash": "02c907e9684e0ec9ff85e8abcba75bba",
+        "metadata": {
+          "delta_path": [
+            0,
+            2
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "file_uploader": {
+              "id": "$$ID-e0bce25177b6ad2985c2656079e7e240-single-upload",
+              "label": "Upload one file",
+              "max_upload_size_mb": 200,
+              "label_visibility": {}
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 114,
+      "base64": "CiA3OWRkNzI2ZmE2ZmIwMmRiZTMzMTM1Mjc5OWY0MzE5NhImEgIAAyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqJhok6gEXChFObyBmaWxlIHNlbGVjdGVkLiACQAHSAwIIAeoDAggB",
+      "message": {
+        "hash": "79dd726fa6fb02dbe331352799f43196",
+        "metadata": {
+          "delta_path": [
+            0,
+            3
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "No file selected.",
+              "element_type": "CAPTION",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 113,
+      "base64": "CiBhMDY2ZjlkYjkzNzJlNTE4Y2U5ZjdjNmYzZDE4ZDZiZBImEgIABCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqJRoj+gIWCgJoMxoOTXVsdGlwbGUgZmlsZXM4AdIDAggB6gMCCAE=",
+      "message": {
+        "hash": "a066f9db9372e518ce9f7c6f3d18d6bd",
+        "metadata": {
+          "delta_path": [
+            0,
+            4
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h3",
+              "body": "Multiple files",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 159,
+      "base64": "CiA1YTA0MjI5NTNmMjExODYzOTFmNDk0MGMxYTY3YjJjMBImEgIABSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqUxpRigJJCjIkJElELTBjN2MzYjU4MDFkOTNjNWY2NTNkMmZmNzExYjhjMGMwLW11bHRpLXVwbG9hZBIMVXBsb2FkIGZpbGVzIMgBMAFSANIDAggB",
+      "message": {
+        "hash": "5a0422953f21186391f4940c1a67b2c0",
+        "metadata": {
+          "delta_path": [
+            0,
+            5
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "file_uploader": {
+              "id": "$$ID-0c7c3b5801d93c5f653d2ff711b8c0c0-multi-upload",
+              "label": "Upload files",
+              "max_upload_size_mb": 200,
+              "multiple_files": true,
+              "label_visibility": {}
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 273,
+      "base64": "CiBiZjdkNTFlNTc4Y2VhYjA1NTAwN2MwZWE4ZGFjM2NmYhImEgIABiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqxAEawQGCA7MBCqoBeyJjb3VudCI6MiwiZmlsZXMiOlt7Im5hbWUiOiJhbHBoYS50eHQiLCJzaXplIjoxNywiYnl0ZXNfaGVhZCI6Wzk3LDEwOCwxMTIsMTA0LDk3LDQ1LDExMiw5N119LHsibmFtZSI6ImJldGEuY3N2Iiwic2l6ZSI6MTgsImJ5dGVzX2hlYWQiOlsxMDcsMTAxLDEyMSw0NCwxMTgsOTcsMTA4LDExN119XX0SBGpzb27KAwIQAdIDAggB",
+      "message": {
+        "hash": "bf7d51e578ceab055007c0ea8dac3cfb",
+        "metadata": {
+          "delta_path": [
+            0,
+            6
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "code": {
+              "code_text": "{\"count\":2,\"files\":[{\"name\":\"alpha.txt\",\"size\":17,\"bytes_head\":[97,108,112,104,97,45,112,97]},{\"name\":\"beta.csv\",\"size\":18,\"bytes_head\":[107,101,121,44,118,97,108,117]}]}",
+              "language": "json"
+            },
+            "height_config": {
+              "use_content": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 19,
+      "base64": "Cg9zY3JpcHRfZmluaXNoZWQwAA==",
+      "message": {
+        "hash": "script_finished",
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 26,
+      "base64": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgA=",
+      "message": {
+        "hash": "session_status_changed",
+        "session_status_changed": {}
+      }
+    },
+    {
+      "direction": "client->server",
+      "bytes": 508,
+      "base64": "WvkDEpEDCjcKMyQkSUQtZTBiY2UyNTE3N2I2YWQyOTg1YzI2NTYwNzllN2UyNDAtc2luZ2xlLXVwbG9hZGoACtUCCjIkJElELTBjN2MzYjU4MDFkOTNjNWY2NTNkMmZmNzExYjhjMGMwLW11bHRpLXVwbG9hZGqeAhKbAhIIYmV0YS5jc3YYEiIkMTY5MzI5YjEtNzNjMi00MDIxLWIxYjYtMGMzNzI1YTBhOTQ5KuYBCiQxNjkzMjliMS03M2MyLTQwMjEtYjFiNi0wYzM3MjVhMGE5NDkSXi9fc3Rjb3JlL3VwbG9hZF9maWxlLzRmMTIyY2I0LTk1YmEtNDM3MC04OTk2LTBhNzQ5Mjc3YWIxOC8xNjkzMjliMS03M2MyLTQwMjEtYjFiNi0wYzM3MjVhMGE5NDkaXi9fc3Rjb3JlL3VwbG9hZF9maWxlLzRmMTIyY2I0LTk1YmEtNDM3MC04OTk2LTBhNzQ5Mjc3YWIxOC8xNjkzMjliMS03M2MyLTQwMjEtYjFiNi0wYzM3MjVhMGE5NDkaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlQkEKDUFzaWEvU2hhbmdoYWkQoPz/////////ARoFemgtQ04iFmh0dHA6Ly8xMjcuMC4wLjE6ODU5MS8oADIEZGFyaw==",
+      "message": {
+        "rerun_script": {
+          "widget_states": {
+            "widgets": [
+              {
+                "id": "$$ID-e0bce25177b6ad2985c2656079e7e240-single-upload",
+                "file_uploader_state_value": {}
+              },
+              {
+                "id": "$$ID-0c7c3b5801d93c5f653d2ff711b8c0c0-multi-upload",
+                "file_uploader_state_value": {
+                  "uploaded_file_info": [
+                    {
+                      "name": "beta.csv",
+                      "size": "18",
+                      "file_id": "169329b1-73c2-4021-b1b6-0c3725a0a949",
+                      "file_urls": {
+                        "file_id": "169329b1-73c2-4021-b1b6-0c3725a0a949",
+                        "upload_url": "/_stcore/upload_file/4f122cb4-95ba-4370-8996-0a749277ab18/169329b1-73c2-4021-b1b6-0c3725a0a949",
+                        "delete_url": "/_stcore/upload_file/4f122cb4-95ba-4370-8996-0a749277ab18/169329b1-73c2-4021-b1b6-0c3725a0a949"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "context_info": {
+            "timezone": "Asia/Shanghai",
+            "timezone_offset": -480,
+            "locale": "zh-CN",
+            "url": "http://127.0.0.1:8591/",
+            "is_embedded": false,
+            "color_scheme": "dark"
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 219,
+      "base64": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkNGYxMjJjYjQtOTViYS00MzcwLTg5OTYtMGE3NDkyNzdhYjE4EiQzZTllM2MzYS03ZDI4LTRiNTEtOTVkZC0yODU4MDM0Y2YwZGQaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl",
+      "message": {
+        "metadata": {
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "new_session": {
+          "initialize": {
+            "user_info": {},
+            "environment_info": {
+              "streamlit_version": "1.66.1"
+            },
+            "session_status": {},
+            "session_id": "4f122cb4-95ba-4370-8996-0a749277ab18"
+          },
+          "script_run_id": "3e9e3c3a-7d28-4b51-95dd-2858034cf0dd",
+          "name": "Streamlit Rust",
+          "config": {
+            "show_error_links": "SHOW_ERROR_LINKS_FALSE"
+          },
+          "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 28,
+      "base64": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ==",
+      "message": {
+        "hash": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 106,
+      "base64": "CiAyMTU5NWM1ZTJiMTk2OTRhNTY3ZGFmNGRmYTFkMzc1NxImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqHhoc+gIPCgJoMRoHVXBsb2FkczgB0gMCCAHqAwIIAQ==",
+      "message": {
+        "hash": "21595c5e2b19694a567daf4dfa1d3757",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h1",
+              "body": "Uploads",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 110,
+      "base64": "CiAwMDE0M2FmYTFhZjAwZjNhMzBiYmRiMjg1Y2MwYzU1YhImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqIhog+gITCgJoMxoLU2luZ2xlIGZpbGU4AdIDAggB6gMCCAE=",
+      "message": {
+        "hash": "00143afa1af00f3a30bbdb285cc0c55b",
+        "metadata": {
+          "delta_path": [
+            0,
+            1
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h3",
+              "body": "Single file",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 161,
+      "base64": "CiAwMmM5MDdlOTY4NGUwZWM5ZmY4NWU4YWJjYmE3NWJiYRImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqVRpTigJLCjMkJElELWUwYmNlMjUxNzdiNmFkMjk4NWMyNjU2MDc5ZTdlMjQwLXNpbmdsZS11cGxvYWQSD1VwbG9hZCBvbmUgZmlsZSDIAVIA0gMCCAE=",
+      "message": {
+        "hash": "02c907e9684e0ec9ff85e8abcba75bba",
+        "metadata": {
+          "delta_path": [
+            0,
+            2
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "file_uploader": {
+              "id": "$$ID-e0bce25177b6ad2985c2656079e7e240-single-upload",
+              "label": "Upload one file",
+              "max_upload_size_mb": 200,
+              "label_visibility": {}
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 114,
+      "base64": "CiA3OWRkNzI2ZmE2ZmIwMmRiZTMzMTM1Mjc5OWY0MzE5NhImEgIAAyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqJhok6gEXChFObyBmaWxlIHNlbGVjdGVkLiACQAHSAwIIAeoDAggB",
+      "message": {
+        "hash": "79dd726fa6fb02dbe331352799f43196",
+        "metadata": {
+          "delta_path": [
+            0,
+            3
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "No file selected.",
+              "element_type": "CAPTION",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 113,
+      "base64": "CiBhMDY2ZjlkYjkzNzJlNTE4Y2U5ZjdjNmYzZDE4ZDZiZBImEgIABCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqJRoj+gIWCgJoMxoOTXVsdGlwbGUgZmlsZXM4AdIDAggB6gMCCAE=",
+      "message": {
+        "hash": "a066f9db9372e518ce9f7c6f3d18d6bd",
+        "metadata": {
+          "delta_path": [
+            0,
+            4
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h3",
+              "body": "Multiple files",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 159,
+      "base64": "CiA1YTA0MjI5NTNmMjExODYzOTFmNDk0MGMxYTY3YjJjMBImEgIABSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqUxpRigJJCjIkJElELTBjN2MzYjU4MDFkOTNjNWY2NTNkMmZmNzExYjhjMGMwLW11bHRpLXVwbG9hZBIMVXBsb2FkIGZpbGVzIMgBMAFSANIDAggB",
+      "message": {
+        "hash": "5a0422953f21186391f4940c1a67b2c0",
+        "metadata": {
+          "delta_path": [
+            0,
+            5
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "file_uploader": {
+              "id": "$$ID-0c7c3b5801d93c5f653d2ff711b8c0c0-multi-upload",
+              "label": "Upload files",
+              "max_upload_size_mb": 200,
+              "multiple_files": true,
+              "label_visibility": {}
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 195,
+      "base64": "CiBiMGRlNmU5ZjliNjUxMjYwOWJjZjZmZTA2ZjYwMDFlYxImEgIABiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2Uqdxp1ggNoCmB7ImNvdW50IjoxLCJmaWxlcyI6W3sibmFtZSI6ImJldGEuY3N2Iiwic2l6ZSI6MTgsImJ5dGVzX2hlYWQiOlsxMDcsMTAxLDEyMSw0NCwxMTgsOTcsMTA4LDExN119XX0SBGpzb27KAwIQAdIDAggB",
+      "message": {
+        "hash": "b0de6e9f9b6512609bcf6fe06f6001ec",
+        "metadata": {
+          "delta_path": [
+            0,
+            6
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "code": {
+              "code_text": "{\"count\":1,\"files\":[{\"name\":\"beta.csv\",\"size\":18,\"bytes_head\":[107,101,121,44,118,97,108,117]}]}",
+              "language": "json"
+            },
+            "height_config": {
+              "use_content": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 19,
+      "base64": "Cg9zY3JpcHRfZmluaXNoZWQwAA==",
+      "message": {
+        "hash": "script_finished",
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 26,
+      "base64": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgA=",
+      "message": {
+        "hash": "session_status_changed",
+        "session_status_changed": {}
+      }
+    },
+    {
+      "direction": "client->server",
+      "bytes": 219,
+      "base64": "WtgBEnEKNwozJCRJRC1lMGJjZTI1MTc3YjZhZDI5ODVjMjY1NjA3OWU3ZTI0MC1zaW5nbGUtdXBsb2FkagAKNgoyJCRJRC0wYzdjM2I1ODAxZDkzYzVmNjUzZDJmZjcxMWI4YzBjMC1tdWx0aS11cGxvYWRqABogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VCQQoNQXNpYS9TaGFuZ2hhaRCg/P////////8BGgV6aC1DTiIWaHR0cDovLzEyNy4wLjAuMTo4NTkxLygAMgRkYXJr",
+      "message": {
+        "rerun_script": {
+          "widget_states": {
+            "widgets": [
+              {
+                "id": "$$ID-e0bce25177b6ad2985c2656079e7e240-single-upload",
+                "file_uploader_state_value": {}
+              },
+              {
+                "id": "$$ID-0c7c3b5801d93c5f653d2ff711b8c0c0-multi-upload",
+                "file_uploader_state_value": {}
+              }
+            ]
+          },
+          "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "context_info": {
+            "timezone": "Asia/Shanghai",
+            "timezone_offset": -480,
+            "locale": "zh-CN",
+            "url": "http://127.0.0.1:8591/",
+            "is_embedded": false,
+            "color_scheme": "dark"
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 219,
+      "base64": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkNGYxMjJjYjQtOTViYS00MzcwLTg5OTYtMGE3NDkyNzdhYjE4EiQ4NzlkM2EwZS00ODc5LTQ0OTQtYjY5NS00N2QwNTQ5Y2Y0ZTAaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl",
+      "message": {
+        "metadata": {
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "new_session": {
+          "initialize": {
+            "user_info": {},
+            "environment_info": {
+              "streamlit_version": "1.66.1"
+            },
+            "session_status": {},
+            "session_id": "4f122cb4-95ba-4370-8996-0a749277ab18"
+          },
+          "script_run_id": "879d3a0e-4879-4494-b695-47d0549cf4e0",
+          "name": "Streamlit Rust",
+          "config": {
+            "show_error_links": "SHOW_ERROR_LINKS_FALSE"
+          },
+          "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 28,
+      "base64": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ==",
+      "message": {
+        "hash": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 106,
+      "base64": "CiAyMTU5NWM1ZTJiMTk2OTRhNTY3ZGFmNGRmYTFkMzc1NxImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqHhoc+gIPCgJoMRoHVXBsb2FkczgB0gMCCAHqAwIIAQ==",
+      "message": {
+        "hash": "21595c5e2b19694a567daf4dfa1d3757",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h1",
+              "body": "Uploads",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 110,
+      "base64": "CiAwMDE0M2FmYTFhZjAwZjNhMzBiYmRiMjg1Y2MwYzU1YhImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqIhog+gITCgJoMxoLU2luZ2xlIGZpbGU4AdIDAggB6gMCCAE=",
+      "message": {
+        "hash": "00143afa1af00f3a30bbdb285cc0c55b",
+        "metadata": {
+          "delta_path": [
+            0,
+            1
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h3",
+              "body": "Single file",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 161,
+      "base64": "CiAwMmM5MDdlOTY4NGUwZWM5ZmY4NWU4YWJjYmE3NWJiYRImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqVRpTigJLCjMkJElELWUwYmNlMjUxNzdiNmFkMjk4NWMyNjU2MDc5ZTdlMjQwLXNpbmdsZS11cGxvYWQSD1VwbG9hZCBvbmUgZmlsZSDIAVIA0gMCCAE=",
+      "message": {
+        "hash": "02c907e9684e0ec9ff85e8abcba75bba",
+        "metadata": {
+          "delta_path": [
+            0,
+            2
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "file_uploader": {
+              "id": "$$ID-e0bce25177b6ad2985c2656079e7e240-single-upload",
+              "label": "Upload one file",
+              "max_upload_size_mb": 200,
+              "label_visibility": {}
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 114,
+      "base64": "CiA3OWRkNzI2ZmE2ZmIwMmRiZTMzMTM1Mjc5OWY0MzE5NhImEgIAAyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqJhok6gEXChFObyBmaWxlIHNlbGVjdGVkLiACQAHSAwIIAeoDAggB",
+      "message": {
+        "hash": "79dd726fa6fb02dbe331352799f43196",
+        "metadata": {
+          "delta_path": [
+            0,
+            3
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "No file selected.",
+              "element_type": "CAPTION",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 113,
+      "base64": "CiBhMDY2ZjlkYjkzNzJlNTE4Y2U5ZjdjNmYzZDE4ZDZiZBImEgIABCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqJRoj+gIWCgJoMxoOTXVsdGlwbGUgZmlsZXM4AdIDAggB6gMCCAE=",
+      "message": {
+        "hash": "a066f9db9372e518ce9f7c6f3d18d6bd",
+        "metadata": {
+          "delta_path": [
+            0,
+            4
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h3",
+              "body": "Multiple files",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 159,
+      "base64": "CiA1YTA0MjI5NTNmMjExODYzOTFmNDk0MGMxYTY3YjJjMBImEgIABSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqUxpRigJJCjIkJElELTBjN2MzYjU4MDFkOTNjNWY2NTNkMmZmNzExYjhjMGMwLW11bHRpLXVwbG9hZBIMVXBsb2FkIGZpbGVzIMgBMAFSANIDAggB",
+      "message": {
+        "hash": "5a0422953f21186391f4940c1a67b2c0",
+        "metadata": {
+          "delta_path": [
+            0,
+            5
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "file_uploader": {
+              "id": "$$ID-0c7c3b5801d93c5f653d2ff711b8c0c0-multi-upload",
+              "label": "Upload files",
+              "max_upload_size_mb": 200,
+              "multiple_files": true,
+              "label_visibility": {}
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 121,
+      "base64": "CiAxNmIxM2Q1OGVhNmExNDBlYWZkMTYzNTMxMmU5ZmEyMhImEgIABiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqLRorggMeChZ7ImNvdW50IjowLCJmaWxlcyI6W119EgRqc29uygMCEAHSAwIIAQ==",
+      "message": {
+        "hash": "16b13d58ea6a140eafd1635312e9fa22",
+        "metadata": {
+          "delta_path": [
+            0,
+            6
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "code": {
+              "code_text": "{\"count\":0,\"files\":[]}",
+              "language": "json"
+            },
+            "height_config": {
+              "use_content": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 19,
+      "base64": "Cg9zY3JpcHRfZmluaXNoZWQwAA==",
+      "message": {
+        "hash": "script_finished",
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 26,
+      "base64": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgA=",
+      "message": {
+        "hash": "session_status_changed",
+        "session_status_changed": {}
+      }
+    }
+  ],
+  "uploads": [
+    {
+      "url": "http://127.0.0.1:8591/_stcore/upload_file/4f122cb4-95ba-4370-8996-0a749277ab18/169329b1-73c2-4021-b1b6-0c3725a0a949",
+      "method": "PUT"
+    },
+    {
+      "url": "http://127.0.0.1:8591/_stcore/upload_file/4f122cb4-95ba-4370-8996-0a749277ab18/401d653d-b2dc-49cc-bb44-25bfd7d9a292",
+      "method": "PUT"
+    },
+    {
+      "url": "http://127.0.0.1:8591/_stcore/upload_file/4f122cb4-95ba-4370-8996-0a749277ab18/401d653d-b2dc-49cc-bb44-25bfd7d9a292",
+      "method": "DELETE"
+    },
+    {
+      "url": "http://127.0.0.1:8591/_stcore/upload_file/4f122cb4-95ba-4370-8996-0a749277ab18/169329b1-73c2-4021-b1b6-0c3725a0a949",
+      "method": "DELETE"
+    }
+  ],
+  "health": {
+    "status": 200,
+    "body": "ok"
+  },
+  "browser": {
+    "Browser": "Chrome/156.0.8078.48",
+    "File-Path-Style": "windows",
+    "Protocol-Version": "1.3",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+    "V8-Version": "15.6.75.19",
+    "WebKit-Version": "537.36 (@d0c02bfad08ec92a6ffcf989e53cd995e6381a4c)",
+    "webSocketDebuggerUrl": "ws://127.0.0.1:60228/devtools/browser/f2d9713d-b563-4b64-be96-ae79e889db85"
+  },
+  "successful": true,
+  "profile_cleaned": true
+}
