@@ -11,6 +11,11 @@ fn render(st: &Streamlit) {
     st.code(
         serde_json::json!({
             "headers": context.headers,
+            "url": context.url,
+            "locale": context.locale,
+            "timezone": context.timezone,
+            "timezone_offset": context.timezone_offset,
+            "theme": context.theme,
             "is_embedded": context.is_embedded,
         })
         .to_string(),

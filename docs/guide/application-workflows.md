@@ -275,7 +275,7 @@ async fn main(st: &Streamlit) {
 
 本节是 2026-10-28 启动的 M4 里程碑的设计草案；**除已冻结的 Python 参考外，以下 Rust 接口均未实现**，拟新增公共接口按项目规则先供确认，不将规划写成已可用。
 
-**请求上下文**（首个切片，已确认并实施 v1）：`st.request_context()` 返回当前浏览器连接的只读快照 `RequestContext { headers, is_embedded }`——headers 为本连接 WS 握手请求头经服务器白名单过滤后的映射（名称统一小写；HTTP 头名本就大小写不敏感，Python 参考原样保留收到的拼写是记录在案的刻意差异），`is_embedded` 按 `st_embed=true` 查询参数推导。白名单由服务器构建器选择：`RequestHeaderAccess::Standard`（默认：user-agent、accept-language、accept、origin、host）、`Selected([...])`（显式枚举）或 `All`（全部握手头，即冻结参考实测的 Python 行为，含凭据与传输头，仅限可信部署）。锁定的 Python 1.66.1 实测参考见[冻结证据](../../tests/reference/reference-browser/context-headers/README.md)；`url/locale/timezone/theme/ip` 在参考中来自浏览器前端会话而非握手（原生连接下为空），这些字段与 cookie 读取留待对应浏览器路径实测后再加入，不凭空补值。快照按调用即时生成；标头在连接建立时捕获、重连时刷新。
+**请求上下文**（前两切片已实施）：`st.request_context()` 返回当前浏览器连接的只读快照 `RequestContext { headers, url, locale, timezone, timezone_offset, theme, is_embedded }`——headers 为本连接 WS 握手请求头经服务器白名单过滤后的映射（名称统一小写；HTTP 头名本就大小写不敏感，Python 参考原样保留收到的拼写是记录在案的刻意差异）；`url/locale/timezone/timezone_offset/theme/is_embedded` 来自官方前端随每轮 rerun 上报的 `context_info`（原生客户端不上报则为 None/false，与冻结参考一致；实测前端对 `?embed=true` 报 embedded、对 `?st_embed=true` 不报）。白名单由服务器构建器选择：`RequestHeaderAccess::Standard`（默认：user-agent、accept-language、accept、origin、host）、`Selected([...])`（显式枚举）或 `All`（全部握手头，即冻结参考实测的 Python 行为，含凭据与传输头，仅限可信部署）。锁定的 Python 1.66.1 实测参考见[冻结证据](../../tests/reference/reference-browser/context-headers/README.md)；`ip_address` 与 cookie 读取仍未实现（两种参考路径下 ip 均为 null；cookie 属凭据）。快照按调用即时生成；标头在连接建立时捕获、重连时刷新，页面上下文随每轮 rerun 替换。
 
 **认证与用户信息**：目标是本地可验证的凭据边界——一个可插拔的认证接口（HTTP 头/伪造 OIDC 等价物，测试用假凭据），认证后 `st.user` 等价只读视图暴露身份字段；未配置认证器时应用照常运行。按 M4 退出条件以假凭据与隔离依赖验证，权限边界在设计中明确；真实 OIDC 提供方不在本里程碑范围。
 

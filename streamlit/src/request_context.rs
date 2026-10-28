@@ -37,14 +37,25 @@ impl RequestHeaderAccess {
 ///
 /// Header names are normalized to lowercase (HTTP names are case-insensitive;
 /// the Python reference passes the received spelling through — a documented
-/// divergence). `url`/`locale`/`timezone`/`theme`/`ip_address` come from the
-/// browser session rather than the handshake in the reference and stay out of
-/// this snapshot until their browser path is measured.
+/// divergence). `url`/`locale`/`timezone`/`timezone_offset`/`theme`/`is_embedded`
+/// come from the official frontend's per-rerun context report; native clients
+/// that send none see `None`/`false`, exactly as the frozen references show.
+/// `ip_address` and cookies stay out of this slice.
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct RequestContext {
     /// The whitelisted handshake headers of this connection.
     pub headers: BTreeMap<String, String>,
-    /// Whether the run's query string carries `st_embed=true`.
+    /// The page URL the browser reported with the run, if any.
+    pub url: Option<String>,
+    /// The browser locale, if reported.
+    pub locale: Option<String>,
+    /// The IANA timezone name, if reported.
+    pub timezone: Option<String>,
+    /// The timezone offset in minutes, if reported.
+    pub timezone_offset: Option<i32>,
+    /// The browser color scheme ("light"/"dark"), if reported.
+    pub theme: Option<String>,
+    /// Whether the browser reported the page as embedded.
     pub is_embedded: bool,
 }
 

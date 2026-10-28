@@ -52,7 +52,7 @@ def collect(args):
         target = http_json(f"http://127.0.0.1:{port}/json/new?about:blank", method="PUT")
         recorder = Recorder(target["webSocketDebuggerUrl"])
         recorder.start()
-        for name, url in [("default", args.url), ("embedded", args.url.rstrip("/") + "/?st_embed=true")]:
+        for name, url in [("default", args.url), ("embedded", args.url.rstrip("/") + "/?embed=true")]:
             recorder.call("Page.navigate", {"url": url})
             time.sleep(4)
             code = evaluate(recorder, "document.querySelector('[data-testid=stCode]')?.innerText || ''")

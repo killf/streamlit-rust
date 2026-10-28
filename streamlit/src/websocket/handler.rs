@@ -139,6 +139,12 @@ async fn handle_back_message(session: &mut Session, lease: &SessionLease, back_m
             }
             Type::RerunScript(client_state) => {
                 log::info!("Handling rerun script request");
+                // The official frontend reports the page context (url, locale,
+                // timezone, theme, embedded flag) with every rerun; the
+                // request_context() snapshot reads it per run. Native clients
+                // that send none keep the fields unset, exactly as the frozen
+                // reference shows.
+                lease.state.set_context_info(client_state.context_info);
                 let widget_states = client_state.widget_states.map(|ws| ws.widgets).unwrap_or_default();
                 do_rerun_script(session, lease, server, widget_states, client_state.query_string, client_state.page_script_hash).await?;
             }

@@ -236,6 +236,8 @@ M4 运行集成启动，按"文档先行、参考测量先于实现"执行。指
 
 验证：单元回归覆盖三模式白名单与大小写；真实 WS 回归以带凭据/探测头的原生握手双向断言——默认面只回 user-agent/accept-language/accept/origin/host（Cookie、X-M4-Probe、Sec-WebSocket-* 不泄漏），`All` 模式与冻结 Python 参考的头集合逐头一致（小写化为记录差异），同一连接第二轮 `st_embed=true` 后 is_embedded 翻转；真实官方前端两阶段采集（默认 URL 与 `?st_embed=true`）冻结于 `tests/browser/rust-request-context/`——Chrome 真实连接白名单头渲染、`is_embedded` false→true、无 stException，离线测试断言 manifest 与语义。矩阵 st.context 升 implemented/partial（129/53）。已知边界：url/locale/timezone/theme/ip 未实现（参考证明来自浏览器会话而非握手）、cookies 未设计、caption DOM 抓取因 testid 差异未纳入断言（is_embedded 由 code 文本直接证明）。M4 后续切片待推进。
 
+第二切片（同日）：冻结的浏览器路径参考证明页面上下文由前端随每轮 rerun 的 `context_info` 上报（url/locale/timezone/timezone_offset/color_scheme/is_embedded），且 `?embed=true` 翻转 embedded 而 `?st_embed=true` 不翻转（三参数探针实测）——首切片从查询串推导 is_embedded 的做法被实测推翻并改为浏览器报告驱动。`RequestContext` 扩为七字段，`SessionState` 持有每轮 context_info；WS 回归以携带 context_info 的 rerun 断言全字段，双端浏览器采集均冻结并通过离线断言（真实前端填充全部页面字段、白名单不泄漏凭据）。采集器本批内两次修正（健康检查双斜杠、embed 参数语义）发生在冻结确立前，属采集器编程修正而非产品发现，无失败前缀保留。
+
 ## Required fresh-checkout checks
 
 ```powershell

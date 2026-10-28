@@ -254,12 +254,16 @@
           "tests/browser/rust-request-context/trace.json",
           "tests/browser/rust-request-context/README.md"
         ],
-        "driven_example": "streamlit/examples/request_context.rs"
+        "driven_example": "streamlit/examples/request_context.rs",
+        "m4_browser_reference": [
+          "tests/reference/reference-browser/context-browser/trace.json",
+          "tests/reference/reference-browser/context-browser/README.md"
+        ]
       },
       "rust_plan": "Mirror the measured st.context surface slice by slice: headers and is_embedded shipped; url/locale/timezone/theme/ip await their browser-path measurement; cookies remain undesigned.",
       "limitations": [
         "Partial by slice (2026-10-28): request_context() reflects the whitelisted WebSocket handshake headers (lowercase names — Python passes the received spelling through) plus is_embedded from st_embed; RequestHeaderAccess Standard/Selected/All chooses the surface, All mirroring the measured pass-everything Python behavior including credentials.",
-        "The frozen Python reference shows url/locale/timezone/theme/ip_address come from the browser session, not the handshake (empty on native connections); those fields and cookies are unimplemented until their browser path is measured."
+        "Slice 2 (2026-10-28): url/locale/timezone/timezone_offset/theme and the is_embedded flag ride the official frontend's per-rerun context_info report — measured against the frozen browser reference, including that ?embed=true flips the flag while ?st_embed=true does not on both runtimes. Native clients that send no context keep the fields unset, matching the native-WS reference. ip_address (null on both measured paths) and cookies remain unimplemented."
       ]
     },
     {

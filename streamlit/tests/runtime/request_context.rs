@@ -13,6 +13,11 @@ fn context_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
         st.code(
             json!({
                 "headers": context.headers,
+                "url": context.url,
+                "locale": context.locale,
+                "timezone": context.timezone,
+                "timezone_offset": context.timezone_offset,
+                "theme": context.theme,
                 "is_embedded": context.is_embedded,
             })
             .to_string(),
@@ -51,6 +56,14 @@ async fn run_context(stream: &mut TcpStream, query_string: &str) -> TestResult<s
         &(BackMsg {
             r#type: Some(back_msg::Type::RerunScript(ClientState {
                 query_string: query_string.into(),
+                context_info: Some(crate::proto::ContextInfo {
+                    timezone: Some("Asia/Shanghai".into()),
+                    timezone_offset: Some(-480),
+                    locale: Some("zh-CN".into()),
+                    url: Some("http://127.0.0.1:8590/".into()),
+                    is_embedded: Some(query_string.contains("st_embed=true")),
+                    color_scheme: Some("dark".into()),
+                }),
                 ..Default::default()
             })),
         })
@@ -96,7 +109,14 @@ async fn request_context_reflects_the_server_header_whitelist() -> TestResult {
     assert!(!headers.contains_key("x-m4-probe"), "non-whitelisted probes stay hidden");
     assert!(!headers.contains_key("sec-websocket-key"), "transport noise stays hidden");
     assert_eq!(report["is_embedded"], json!(false));
-    // The st_embed flag rides the run's query string.
+    // The page context rides the rerun's context_info, exactly as the real
+    // frontend reports it (frozen python browser reference).
+    assert_eq!(report["url"], json!("http://127.0.0.1:8590/"));
+    assert_eq!(report["locale"], json!("zh-CN"));
+    assert_eq!(report["timezone"], json!("Asia/Shanghai"));
+    assert_eq!(report["timezone_offset"], json!(-480));
+    assert_eq!(report["theme"], json!("dark"));
+    // The embedded flag rides the browser's context report.
     let embedded = run_context(&mut stream, "st_embed=true").await?;
     assert_eq!(embedded["is_embedded"], json!(true), "query: {embedded}");
     let headers_keys = embedded["headers"].as_object().ok_or("headers")?.keys().cloned().collect::<Vec<_>>();

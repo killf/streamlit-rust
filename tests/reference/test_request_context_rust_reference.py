@@ -30,5 +30,12 @@ def test_whitelisted_headers_and_embedded_flag_render_in_the_official_frontend()
         assert headers["host"] and headers["origin"].startswith("http://127.0.0.1")
         # No credential or transport header leaks through the default whitelist.
         assert not any(name.startswith(("cookie", "sec-websocket", "authorization", "x-")) for name in headers)
+        # The page context rides the frontend's per-rerun context_info, the
+        # same carriage the frozen python browser reference measured.
+        assert report["url"] == "http://127.0.0.1:8590/"
+        assert report["locale"] == "zh-CN" and report["timezone"] == "Asia/Shanghai" and report["timezone_offset"] == -480
+        assert report["theme"] == "dark"
+        # ?embed=true flips the browser-reported flag; ?st_embed=true does not
+        # (measured on both runtimes).
         assert report["is_embedded"] is embedded
         assert stage["exceptions"] == "[]"

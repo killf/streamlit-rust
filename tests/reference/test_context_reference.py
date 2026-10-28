@@ -62,3 +62,23 @@ def test_context_reflects_handshake_headers_and_empty_frontend_fields():
     assert report["ip_address"] is None
     assert report["url"] == "" and report["locale"] == "" and report["timezone"] == ""
     assert report["timezone_offset"] == 0 and report["theme"] == {"type": ""} and report["is_embedded"] is False
+
+
+def test_browser_path_context_rides_the_rerun_context_info():
+    # The browser reference: the official frontend reports the page context
+    # with every rerun (context_info), and ?embed=true flips is_embedded
+    # (?st_embed=true does not — measured).
+    raw = json.loads((Path(__file__).parent / "reference-browser/context-browser/trace.json").read_text(encoding="utf-8-sig"))
+    assert raw["runtime"] == "python" and raw["reference_version"] == "1.66.1" and "producer_error" not in raw
+    assert raw["profile_cleaned"] is True and raw["server_stopped"] is True
+    reruns = [frame for frame in raw["frames"] if frame["direction"] == "client->server" and "rerun_script" in frame["message"]]
+    assert reruns, "the frontend rerun must be on the wire"
+    context = reruns[0]["message"]["rerun_script"]["context_info"]
+    assert context["is_embedded"] is True and context["locale"] == "zh-CN"
+    assert context["timezone"] == "Asia/Shanghai" and context["timezone_offset"] == -480
+    assert context["url"].startswith("http://127.0.0.1:") and context["color_scheme"] == "dark"
+    report = raw["report"]
+    assert report["is_embedded"] is True and report["locale"] == "zh-CN" and report["timezone"] == "Asia/Shanghai"
+    assert report["theme"] == {"type": "dark"} and report["url"] == context["url"].rstrip("/")
+    assert report["ip_address"] is None
+    assert "Cookie" in report["headers"], "the real frontend connection carries the XSRF cookie"

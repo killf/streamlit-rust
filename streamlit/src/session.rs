@@ -46,6 +46,9 @@ pub struct SessionState {
     /// The whitelisted WebSocket handshake headers of the owning connection,
     /// captured at connect time and refreshed on reconnect.
     pub(crate) request_headers: Arc<Mutex<std::collections::BTreeMap<String, String>>>,
+    /// The browser-reported page context of the latest run request
+    /// (url/locale/timezone/theme/embedded); absent for native clients.
+    pub(crate) context_info: Arc<Mutex<Option<crate::proto::ContextInfo>>>,
 }
 
 impl SessionState {
@@ -53,6 +56,12 @@ impl SessionState {
     /// connection; called at connect and reconnect time.
     pub(crate) fn set_request_headers(&self, headers: std::collections::BTreeMap<String, String>) {
         *self.request_headers.lock() = headers;
+    }
+
+    /// Replace the browser-reported page context; called with every rerun
+    /// request, and cleared when the client sends none.
+    pub(crate) fn set_context_info(&self, info: Option<crate::proto::ContextInfo>) {
+        *self.context_info.lock() = info;
     }
 
     /// Read a typed value. Missing keys return `Ok(None)`; type mismatches return
@@ -130,14 +139,25 @@ impl Streamlit {
 
     /// The current browser connection's request context (the measured
     /// `st.context` surface): the server-whitelisted WebSocket handshake
-    /// headers plus the `st_embed=true` flag of this run's query string.
+    /// headers plus the page context (url/locale/timezone/theme/embedded)
+    /// the official frontend reports with every rerun — native clients that
+    /// report none see `None`/`false`, exactly as the frozen references show.
     /// Header names are lowercase; widening the whitelist beyond the common
     /// default is an explicit server-builder choice. The snapshot is taken
     /// per call — store it yourself if you need it across runs.
     pub fn request_context(&self) -> crate::request_context::RequestContext {
-        let headers = self.session_state().request_headers.lock().clone();
-        let is_embedded = self.query_params().get("st_embed").as_deref() == Some("true");
-        crate::request_context::RequestContext { headers, is_embedded }
+        let state = self.session_state();
+        let headers = state.request_headers.lock().clone();
+        let context_info = state.context_info.lock().clone();
+        crate::request_context::RequestContext {
+            headers,
+            url: context_info.as_ref().and_then(|info| info.url.clone()),
+            locale: context_info.as_ref().and_then(|info| info.locale.clone()),
+            timezone: context_info.as_ref().and_then(|info| info.timezone.clone()),
+            timezone_offset: context_info.as_ref().and_then(|info| info.timezone_offset),
+            theme: context_info.as_ref().and_then(|info| info.color_scheme.clone()),
+            is_embedded: context_info.as_ref().and_then(|info| info.is_embedded).unwrap_or(false),
+        }
     }
 
     /// Rerun the script immediately, mirroring `st.rerun()`.    ///
