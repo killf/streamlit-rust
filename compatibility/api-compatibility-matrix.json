@@ -2533,13 +2533,18 @@
         "display_contract": "tests/browser/display_contract.py",
         "contract_guards": "tests/reference/test_display_contract.py",
         "driven_fixture": "tests/reference/display_app.py",
-        "driven_example": "streamlit/examples/display.rs"
+        "driven_example": "streamlit/examples/display.rs",
+        "creation_params_reference": [
+          "tests/reference/reference-browser/json-badge-params/trace.json",
+          "tests/reference/reference-browser/json-badge-params/README.md",
+          "tests/browser/rust-json-badge-params/trace.json"
+        ]
       },
       "rust_plan": "st.json(body) streams Json{body: py_dumps(value), expanded: false} with stretch width; st.json_expanded(body, true) sets the initial expansion.",
       "compatibility_scope": "The journey-display-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome through one measured load; the published replays assert 12/12 checks per side -- st.json streams the Python json.dumps rendering with stretch width, st.status is an expandable block (allowEmpty, stretch) whose update re-streams the same path with the new label/state/expansion (RUNNING pairs spinner, COMPLETE pairs :material/check:), st.empty takes a slot and the handle replaces that slot without advancing the cursor (the reference's queue composes the placeholder into a same-path replacement within one flush batch -- both the streamed and the coalesced shape are accepted, the replacement always lands), st.space is the square spacer with both configs at the pixel value, and st.bottom streams children at the fixed root [3, i] with no block.",
       "limitations": [
         "Coverage is the measured defaults of each element on one page; json max_expand_depth and non-expanded default, status error state and non-label updates, space via tuple/height-only forms, nested bottom interplay and repeated empty overwrites remain unobserved.",
-        "st.json serializes with the reference's json.dumps defaults (\", \"/\": \" separators, construction order); the value's serde_json rendering feeds it, so exotic float formats may differ from Python's repr.",
+        "The expanded semantics are now measured (2026-10-29, frozen json-badge-params): expanded=True rides explicitly and the collapsed default omits the field entirely; the pinned 1.66.1 API has NO depth parameter (passing it raises TypeError, measured). st.json serializes with the reference's json.dumps defaults (\", \"/\": \" separators, construction order); the value's serde_json rendering feeds it, so exotic float formats may differ from Python's repr.",
         "fixture SHA256 6ff9cca00a26fa36b0e89d45bef7596bf1ec4e47dd6d1de87291fe2d8904fee6; example SHA256 876779e3a6e1d2c3a8ad85d79eb135177ae1f51973ec701d9784c2ecc47d324c; display element sources SHA256 b298701264c9e5d6a9a3075d3f5689f57f06a983a8987f30e3d75ceb98af84d6 + 6d71d2173ab767496efacc498a35ae6d5ecfcb6980758becea0ee2f3277eb7f8."
       ]
     },
@@ -2919,12 +2924,17 @@
         "buttons_contract": "tests/browser/buttons_contract.py",
         "contract_guards": "tests/reference/test_buttons_contract.py",
         "driven_fixture": "tests/reference/buttons_app.py",
-        "driven_example": "streamlit/examples/buttons.rs"
+        "driven_example": "streamlit/examples/buttons.rs",
+        "creation_params_reference": [
+          "tests/reference/reference-browser/json-badge-params/trace.json",
+          "tests/reference/reference-browser/json-badge-params/README.md",
+          "tests/browser/rust-json-badge-params/trace.json"
+        ]
       },
       "rust_plan": "st.feedback(kind) registers a Feedback{count} widget (thumbs 2, faces/stars 5 icons) decoding the measured string serde (\"\" cleared -> None, decimal index otherwise) and streams a feedback element carrying only the style enum (plus default/value on programmatic writes).",
       "compatibility_scope": "The journey-buttons-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome across six measured stages (the load and one committed interaction each for the toggle, the single-select pill, the pagination page, the feedback star and the menu pick); the published replays assert 17/17 checks per side, covering every element's full wire message, the browser's widget-state reports and the settled DOM.",
       "limitations": [
-        "Coverage is the journey-buttons-v1 chain: the pinned fixture's widget set (two toggles, stars+thumbs feedback, single/multi pills, one segmented control, a 10-page pagination, one menu button, one text download, one keyed link button, one external page link) across the load and five committed interactions (toggle flip, single pill pick, page-2 click, third star, CSV menu pick).",
+        "The disabled flag on the creation wire is now measured (2026-10-29, frozen json-badge-params), and the positional argument is confirmed as the options preset (options= keyword conflicts, measured TypeError). Coverage otherwise is the journey-buttons-v1 chain: the pinned fixture's widget set (two toggles, stars+thumbs feedback, single/multi pills, one segmented control, a 10-page pagination, one menu button, one text download, one keyed link button, one external page link) across the load and five committed interactions (toggle flip, single pill pick, page-2 click, third star, CSV menu pick).",
         "default selections, disabled, on_change and the ignore mode were not observed; faces was not rendered (its style enum is implemented and unit-checked, not browser-observed).",
         "fixture SHA256 301325fef04f99504bd2577edbeed14991e0b2335170cae7a0d4d99807f1530d; example SHA256 79817da724ca2b6d57f9615b955d9acc6219d30ce7a357026b605c426a705f4d."
       ]
@@ -4438,11 +4448,18 @@
         "elements_capture_entry": "tests/browser/elements_capture.py",
         "rust_wire_observation": "tests/browser/rust-elements/trace-elements.json",
         "official_frontend_browser_e2e": "tests/browser/rust-elements/trace-elements.json",
-        "rust_api_test": "streamlit/tests/runtime/textelements.rs"
+        "rust_api_test": "streamlit/tests/runtime/textelements.rs",
+        "creation_params_reference": [
+          "tests/reference/reference-browser/json-badge-params/trace.json",
+          "tests/reference/reference-browser/json-badge-params/README.md",
+          "tests/browser/rust-json-badge-params/trace.json"
+        ]
       },
       "rust_plan": "Render the badge element (label, color, icon) on the measured wire.",
       "compatibility_scope": "The 2026-10-25 journey-elements-v1 chain drives one official-frontend page on both runtimes with a real Chrome (load plus typed-and-applied form stage); both published replays assert 11/11/11 with identical normalized wire streams and DOM fingerprints. Covers the measured default badge (no icon, blue); other colors/icons are unobserved.",
-      "limitations": []
+      "limitations": [
+        "The color/icon markdown forms are now measured (2026-10-29, frozen json-badge-params) with the badge markdown wrap field LEFT UNSET — fixing a real Rust divergence (Some(true), and the intermediate Some(false) is not equal to omission either)."
+      ]
     },
     {
       "feature_id": "st.caption",

@@ -346,6 +346,10 @@ M3 可测面切片（chat/metric/progress 簇）。冻结 Python 参考 `tests/r
 
 M3 可测面切片（slider/multiselect 簇）。冻结 Python 参考 `tests/reference/reference-browser/slider-multi-params/`（4 元素）与 Rust 对照 **4/4 字段一致——零实现改动**：datetime 滑杆显式 `timedelta(minutes=30)` 步长以微秒上 wire（1.8e9）、value/min/max 为 epoch 微秒浮点、格式 YYYY-MM-DD（datetime 亦然）；date 滑杆缺省步长一天（8.64e10）；multiselect 默认选择以选项索引 [1,2] 上 wire（与既有 max_selections 证据互补）。既有 Rust 微秒换算与索引默认全部经参考确认。矩阵 st.slider/st.multiselect 两条目收窄挂 `creation_params_reference`；清单再生成。边界：时间值 datetime 滑杆、midnight 缺省步长、搜索过滤交互、format_func 往返未纳入。
 
+## Current json/badge/feedback parameter validation (2026-10-29)
+
+M3 可测面切片（json/badge/feedback 簇）。冻结 Python 参考 `tests/reference/reference-browser/json-badge-params/`（6 元素）与 Rust 对照 **6/6 字段一致**：st.json 的 expanded=True 显式、**collapsed 缺省省略字段**（1.66.1 无 depth 参数，传即 TypeError——首采真实触发）；st.badge 的 icon/color 进 body、**wrap 字段缺省**——本批修复 Rust 误发 `Some(true)` 的偏差，且离线差分连续抓两次：显式 `Some(false)` 仍不等价于省略，终改 `None`；st.feedback 位置参数即 preset（options= 关键字冲突实测 TypeError）、disabled 进消息。矩阵 st.json/st.badge/st.feedback 三条目收窄（st.badge 原无 limitations，首次补测量记录）；清单再生成。边界：badge 宽度/帮助、feedback 交互提交、ignore 模式未纳入。
+
 ## Required fresh-checkout checks
 
 ```powershell

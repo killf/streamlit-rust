@@ -243,6 +243,8 @@ Rust 已采纳方案 A：显示转换保留真实行数并合成虚拟 RangeInde
 
 **slider/multiselect 参数**（[slider-multi-params 参考](../../tests/reference/reference-browser/slider-multi-params/README.md)，4/4 一致、零实现改动确认）：datetime 滑杆的显式 `timedelta` 步长以**微秒**上 wire（30 分钟 → 1.8e9），value/min/max 为 epoch 微秒浮点、格式 `YYYY-MM-DD`；date 滑杆缺省步长为一天（8.64e10）；multiselect 的 `default_indices([...])` 以**选项索引**上 wire。时间值 datetime 滑杆、midnight 缺省步长与搜索过滤交互未纳入。
 
+**json/badge/feedback 参数**（[json-badge-params 参考](../../tests/reference/reference-browser/json-badge-params/README.md)，6/6 一致）：`st.json` 的 `expanded=True` 显式置位、**collapsed 缺省省略该字段**（1.66.1 无 depth 参数——实测传即抛 TypeError）；`st.badge` 的 icon/color 进 markdown body 且 **wrap 字段缺省**（本批修正 Rust 误发 true，且显式 false 也不等价于省略）；`st.feedback` 位置参数即 preset、`disabled` 进消息。交互提交与 ignore 模式未纳入。
+
 ## 运行配置面（显式旋钮）
 
 Rust 不解析 `config.toml`（矩阵既有边界：Python 的 TOML 注册表不是兼容目标）；运行项全部是**显式**的服务器构建器与宏参数，无隐藏配置文件。完整清单：
@@ -359,6 +361,7 @@ async fn main(st: &Streamlit) {
 - **button_image_params**（`http://127.0.0.1:8601/`）：按钮 primary/icon/disabled、download 命名规则、st.images 多图。
 - **chat_metric_params**（`http://127.0.0.1:8602/`）：emoji avatar、metric 全 delta 规则、progress text。
 - **slider_multi_params**（`http://127.0.0.1:8603/`）：datetime 滑杆微秒步长、date 窗口、multiselect 索引默认。
+- **json_badge_params**（`http://127.0.0.1:8604/`）：json expanded 语义、badge color/icon、feedback disabled。
 - **combined**（`http://127.0.0.1:8596/`）：the M7 cross-capability differential page。
 - **componenttrigger**（`http://127.0.0.1:8542/`）：component triggers。
 - **componentv2**（`http://127.0.0.1:8539/`）：components v2。
