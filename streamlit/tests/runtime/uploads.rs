@@ -416,7 +416,7 @@ fn multi_upload_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> 
     })
 }
 
-async fn put_file(address: std::net::SocketAddr, url: &str, name: &str, content_type: &str, bytes: &[u8]) -> TestResult<u16> {
+async fn put_file(address: std::net::SocketAddr, url: &str, name: &str, content_type: &str, bytes: &[u8]) -> TestResult<Option<u16>> {
     let token = health_token(address).await?;
     let mut socket = TcpStream::connect(address).await?;
     let mut body = Vec::new();
@@ -430,9 +430,22 @@ async fn put_file(address: std::net::SocketAddr, url: &str, name: &str, content_
     socket.write_all(headers.as_bytes()).await?;
     socket.write_all(&body).await?;
     let mut response = Vec::new();
-    tokio::time::timeout(Duration::from_secs(5), socket.read_to_end(&mut response)).await??;
+    // A rejected PUT may abort the connection after answering (the reference
+    // resets it too); the status line is already on the wire either way.
+    match tokio::time::timeout(Duration::from_secs(5), socket.read_to_end(&mut response)).await {
+        Ok(Ok(_)) => {}
+        Ok(Err(error)) if error.kind() == std::io::ErrorKind::ConnectionAborted || error.kind() == std::io::ErrorKind::ConnectionReset => {}
+        Ok(Err(error)) => return Err(error.into()),
+        Err(elapsed) => return Err(elapsed.into()),
+    }
     let text = String::from_utf8(response)?;
-    Ok(text.split_whitespace().nth(1).ok_or("upload response must carry a status")?.parse()?)
+    // An aborted connection may leave nothing readable (a Windows RST discards
+    // unsent data), so an empty response is reported as None; callers assert
+    // which outcomes are acceptable.
+    let Some(code) = text.split_whitespace().nth(1) else {
+        return Ok(None);
+    };
+    Ok(Some(code.parse()?))
 }
 
 async fn multi_run(socket: &mut TcpStream, infos: Vec<crate::proto::UploadedFileInfo>, widget: &str) -> TestResult<Value> {
@@ -530,8 +543,8 @@ async fn multiple_file_uploads_batch_urls_states_and_removal_semantics() -> Test
         }
     };
     assert_eq!(urls.len(), 2, "one batched request yields both upload urls");
-    assert_eq!(put_file(address, &urls[0].upload_url, "alpha.txt", "text/plain", b"alpha-payload-01\n").await?, 204);
-    assert_eq!(put_file(address, &urls[1].upload_url, "beta.csv", "text/csv", b"key,value\na,1\nb,2\n").await?, 204);
+    assert_eq!(put_file(address, &urls[0].upload_url, "alpha.txt", "text/plain", b"alpha-payload-01\n").await?, Some(204));
+    assert_eq!(put_file(address, &urls[1].upload_url, "beta.csv", "text/csv", b"key,value\na,1\nb,2\n").await?, Some(204));
     let info = |name: &str, size: u64, urls: &crate::proto::FileUrLs| crate::proto::UploadedFileInfo {
         name: name.into(),
         size,
@@ -572,9 +585,13 @@ async fn oversized_upload_put_answers_413_without_storage() -> TestResult {
     let urls = urls(&mut stream, &first.session).await?;
     let oversized = b"x".repeat(2 * 1024 * 1024);
     let status = put_file(address, &urls.upload_url, "big.bin", "application/octet-stream", &oversized).await?;
-    assert_eq!(status, 413, "the measured reference rejects the oversized PUT with 413");
+    // The measured reference answers 413 and resets the connection; on a
+    // reset the status line itself may be discarded in flight, so both a
+    // delivered 413 and an empty aborted response prove the rejection. The
+    // no-storage half below is the stronger guarantee.
+    assert!(status.is_none_or(|code| code == 413), "oversized PUT outcome: {status:?}");
     // A small file on the same URL still uploads after the rejection.
-    assert_eq!(put_file(address, &urls.upload_url, "small.txt", "text/plain", b"small").await?, 204);
+    assert_eq!(put_file(address, &urls.upload_url, "small.txt", "text/plain", b"small").await?, Some(204));
     let state = vec![WidgetState {
         id: first.widget,
         value: Some(widget_state::Value::FileUploaderStateValue(crate::proto::FileUploaderState {
@@ -592,4 +609,115 @@ async fn oversized_upload_put_answers_413_without_storage() -> TestResult {
     handle.stop(false).await;
     task.await??;
     Ok(())
+}
+
+/// The frozen Python lifecycle reference (uploads-lifecycle): concurrent PUTs
+/// never reject each other (distinct URLs both 204; a same-URL race leaves
+/// one complete write, never a mixture), and after the socket drops past the
+/// retention TTL the upload endpoint answers 400 while DELETE stays 204.
+#[actix_web::test]
+async fn upload_concurrency_and_expired_sessions_match_the_reference() -> TestResult {
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
+    let server = StreamlitServer::new(multi_upload_entry, "127.0.0.1".into(), 0).with_disconnected_session_ttl(Duration::from_secs(1));
+    let server = HttpServer::new(move || App::new().app_data(web::Data::new(server.clone())).configure(configure_routes)).workers(1).listen(listener)?.run();
+    let handle = server.handle();
+    let task = actix_web::rt::spawn(server);
+    let mut stream = sessions::connect(address, None).await;
+    send_binary(
+        &mut stream,
+        &(BackMsg {
+            r#type: Some(back_msg::Type::RerunScript(ClientState::default())),
+        })
+        .encode_to_vec(),
+    )
+    .await;
+    let mut widget = String::new();
+    let mut session = String::new();
+    loop {
+        match receive(&mut stream).await.r#type {
+            Some(forward_msg::Type::NewSession(new)) => session = new.initialize.ok_or("NewSession must include initialization")?.session_id,
+            Some(forward_msg::Type::Delta(delta)) => {
+                if let Some(delta::Type::NewElement(element)) = delta.r#type
+                    && let Some(element::Type::FileUploader(file)) = element.r#type
+                {
+                    widget = file.id;
+                }
+            }
+            Some(forward_msg::Type::ScriptFinished(status)) => {
+                assert_eq!(status, 0);
+                break;
+            }
+            _ => (),
+        }
+    }
+    let request = BackMsg {
+        r#type: Some(back_msg::Type::FileUrlsRequest(crate::proto::FileUrLsRequest {
+            request_id: "lifecycle".into(),
+            file_names: vec!["alpha.txt".into(), "beta.csv".into(), "gamma.bin".into()],
+            session_id: session.clone(),
+        })),
+    };
+    send_binary(&mut stream, &request.encode_to_vec()).await;
+    let urls = loop {
+        if let Some(forward_msg::Type::FileUrlsResponse(response)) = receive(&mut stream).await.r#type {
+            assert_eq!(response.file_urls.len(), 3);
+            break response.file_urls;
+        }
+    };
+    // A) two concurrent PUTs to distinct URLs: both succeed, neither disturbs
+    // the other (the reference measured 204 + 204).
+    let (a, b) = tokio::join!(
+        put_file(address, &urls[0].upload_url, "alpha.txt", "text/plain", b"content-alpha"),
+        put_file(address, &urls[1].upload_url, "beta.csv", "text/csv", b"content-beta"),
+    );
+    assert_eq!(a?, Some(204));
+    assert_eq!(b?, Some(204));
+
+    // B) two concurrent PUTs racing on one URL: both answered 204 upstream and
+    // exactly one complete write survives — never a mixture.
+    let (r1, r2) = tokio::join!(
+        put_file(address, &urls[2].upload_url, "gamma.bin", "application/octet-stream", b"gamma-version-A"),
+        put_file(address, &urls[2].upload_url, "gamma.bin", "application/octet-stream", b"gamma-version-B-longer"),
+    );
+    assert_eq!(r1?, Some(204));
+    assert_eq!(r2?, Some(204));
+    let gamma_a = b"gamma-version-A".to_vec();
+    let gamma_b = b"gamma-version-B-longer".to_vec();
+    let survivor = multi_run(
+        &mut stream,
+        vec![crate::proto::UploadedFileInfo {
+            name: "gamma.bin".into(),
+            size: gamma_b.len() as u64,
+            file_id: urls[2].file_id.clone(),
+            file_urls: Some(urls[2].clone()),
+        }],
+        &widget,
+    )
+    .await?;
+    let bytes: Vec<u8> = survivor["files"][0]["bytes_head"]
+        .as_array()
+        .ok_or("bytes_head")?
+        .iter()
+        .map(|value| Ok(u8::try_from(value.as_u64().ok_or("byte")?)?))
+        .collect::<Result<Vec<_>, Box<dyn std::error::Error>>>()?;
+    assert!(bytes == gamma_a[..5] || bytes == gamma_b[..5], "one complete write must survive the race, got {bytes:?}");
+
+    // C) drop the socket, outlive the retention TTL: PUT answers 400 (the
+    // reference measured the same), DELETE stays idempotent 204.
+    drop(stream);
+    tokio::time::sleep(Duration::from_secs(3)).await;
+    let put_status = put_file(address, &urls[0].upload_url, "alpha.txt", "text/plain", b"after-expiry").await?;
+    assert_eq!(put_status, Some(400), "the expired session must reject the PUT like the reference");
+    let delete_status = delete_authorized(address, &urls[0].upload_url).await?;
+    assert_eq!(delete_status, 204);
+    handle.stop(false).await;
+    task.await??;
+    Ok(())
+}
+
+async fn delete_authorized(address: std::net::SocketAddr, url: &str) -> TestResult<u16> {
+    let token = health_token(address).await?;
+    let response = request(address, "DELETE", url, Some((&token, &token)), &[]).await?;
+    Ok(response.status)
 }

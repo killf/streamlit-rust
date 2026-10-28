@@ -248,6 +248,10 @@ M3 输入切片（续）：上传大小限制与目录模式。协议探针实�
 
 目录模式裁决：锁定 Python 1.66.1 的 `st.file_uploader` 签名**无目录参数**（仅 `max_upload_size` 等），目录模式为 Rust 扩展。探针实测锁定官方前端对 `accept_directory` 正确渲染目录选择器（第三个 dropzone 的 input 带 `webkitdirectory=true`），但 CDP 注入文件经目录控件返回 0——完整目录流需真实 OS 选择器与 `webkitRelativePath`，headless 不可达；渲染已证、返回路径未证，如实不作为可用声明（探针日志在本地 `target/checks/m3-upload-limit/`）。超限 UI 文案（headless 下未见提示）与 Python 413 的响应体内容不作等价声明（仅状态码）。并发竞争与过期清理仍开放。
 
+## Current upload concurrency and expiry validation (2026-10-28)
+
+M3 上传边界收尾。协议参考冻结于 `tests/reference/reference-browser/uploads-lifecycle/`（`--server.disconnectedSessionTTL=3`）：并发不同 URL 双 204；并发同 URL 双 204 且最终恰为一次完整写入（冻结轮为 B 版本 22 字节，无混合）；断线超过 TTL 后 PUT **400**、DELETE **204**、未知会话 PUT 400；配置名与默认值（120 秒）与 Rust 既有 `with_disconnected_session_ttl` 同构。Rust 对照回归 `upload_concurrency_and_expired_sessions_match_the_reference`（1 秒 TTL）逐项复现，8 次连跑稳定。途中发现并修复既有 413 回归的读取竞态：被拒 PUT 的连接重置可能丢弃在途状态行（Windows RST 语义，Python 探针同样观测到中途 reset），客户端断言改为"送达的 413 或空中止"双形态，"不存储"作为更强保证保留。边界：单机、单会话、双写者；更高并发与多写者损坏窗口未测。
+
 ## Required fresh-checkout checks
 
 ```powershell

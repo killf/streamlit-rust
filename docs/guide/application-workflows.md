@@ -45,7 +45,7 @@ cargo run --example data_app --locked
 
 多选上传已按双端冻结参考验收（真实 Chrome 上传两个文件、移除其一、清空的完整流程，见[参考](../../tests/reference/reference-browser/uploads-multi/README.md)与 Rust 对照证据）：wire 元素 `multiple_files=true`、批量地址请求、逐文件状态与返回值、移除语义在 Python 1.66.1 与 Rust 一致。
 
-**大小限制是两道防线**（均实测对齐）：`max_upload_size_mb(1)` 走 wire 元素由官方前端在上传前静默拦截超限文件（无 PUT、无提示、报告不变，见[限制参考](../../tests/reference/reference-browser/uploads-limit/README.md)与 Rust 对照）；服务端另有独立字节上限 `StreamlitServer::with_max_upload_size_mb`（默认 200 MiB，同 `server.maxUploadSize`），超限 PUT 答 **413** 且不存储。**目录模式**是 Python 1.66.1 之外的 Rust 扩展（其 API 无目录参数）：实测锁定前端对 `accept_directory` 正确渲染目录选择器（input 带 `webkitdirectory`），但完整目录流需真实 OS 选择器与 `webkitRelativePath`，headless 采集无法完成，返回值路径未验证、不作为可用声明。会话过期清理与并发上传竞争仍开放。
+**大小限制是两道防线**（均实测对齐）：`max_upload_size_mb(1)` 走 wire 元素由官方前端在上传前静默拦截超限文件（无 PUT、无提示、报告不变，见[限制参考](../../tests/reference/reference-browser/uploads-limit/README.md)与 Rust 对照）；服务端另有独立字节上限 `StreamlitServer::with_max_upload_size_mb`（默认 200 MiB，同 `server.maxUploadSize`），超限 PUT 答 **413** 且不存储。**目录模式**是 Python 1.66.1 之外的 Rust 扩展（其 API 无目录参数）：实测锁定前端对 `accept_directory` 正确渲染目录选择器（input 带 `webkitdirectory`），但完整目录流需真实 OS 选择器与 `webkitRelativePath`，headless 采集无法完成，返回值路径未验证、不作为可用声明。断线过期（`server.disconnectedSessionTTL`，默认 120 秒，同 Rust `with_disconnected_session_ttl`）与并发上传竞争已按[协议参考](../../tests/reference/reference-browser/uploads-lifecycle/README.md)验收：并发 PUT 互不互斥、同 URL 竞争恰存一次完整写入、断线超过 TTL 后 PUT 400 / DELETE 204；更高并发度与多写者损坏窗口不冒称已测。
 
 ## CSV workbench：编辑会话工作副本
 
