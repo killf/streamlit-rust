@@ -80,7 +80,7 @@ Q5/Q6 在用户确认选择性 nullable 规则后完成：76 项库单元、2 �
 
 ## Current M2 CSV subset validation (2026-10-27)
 
-用户采纳 A 后先写使用说明，再新增独立 `csv_workbench`，不改销售示例、不增依赖或公共 API。冻结 [Python 33 阶段](../tests/reference/reference-browser/csv-workbench/README.md)及 [Rust 对照](../tests/browser/rust-csv-workbench/README.md)，独立 Review 核对 1358 个 PB、真实交互、Arrow、下载及两会话；只对照逻辑文本数据/计数，保留 schema、索引、空图和下载重跑差异。部分 Python 截图柱高未刷新而 Arrow 已更新，原因未定，不宣称像素等价。来源替换先空状态的真实失败尚待用户决定，M2/长期 Goal 不关闭。
+用户采纳 A 后先写使用说明，再新增独立 `csv_workbench`，不改销售示例、不增依赖或公共 API。冻结 [Python 33 阶段](../tests/reference/reference-browser/csv-workbench/README.md)及 [Rust 对照](../tests/browser/rust-csv-workbench/README.md)，独立 Review 核对 1358 个 PB、真实交互、Arrow、下载及两会话；只对照逻辑文本数据/计数，保留 schema、索引、空图和下载重跑差异。部分 Python 截图柱高未刷新而 Arrow 已更新，原因未定，不宣称像素等价。来源替换先空状态的真实失败已于 2026-10-28 由用户决定改为显式清空方案并双端验收（见上文 Current CSV source replacement validation），M2/长期 Goal 仍不因此自动关闭。
 
 本批修复已复现的 CSV 下载 404 及附件元数据丢失，公开接口/内容地址/首次存储不变。代码检查通过；当前 184 项 Rust（161 库/运行模块、2 宏、1 ledger、4 rustdoc、16 示例）及 1498 项冻结参考测试通过，保留 96 条既有 Pillow 告警。新离线测试链接原 PB、Arrow、输入和下载；库内编辑回归直接复用冻结选择、真实编辑输入及下载预期，应用另有 5 项纯模型测试，没有重采旧正确 Python 数据。另 17 阶段显式 Rust WS/18 次运行防旧 Apply/Append 误写已独立通过，不能冒称 UI/Python 证据。全部自有服务/浏览器已清理；日志索引为本地 `target/checks/m2-csv-workbench/`。首次整库收尾因正在运行的示例占用 Windows 链接目标失败，停自有服务后重新完整通过；不隐去失败或把环境错误算为产品缺陷。
 
@@ -193,6 +193,12 @@ release RGBA 补验最初因未配置 protoc 在构建阶段失败，未执行�
 WS 回归 `zero_column_views_render_virtual_range_index_over_the_same_flow` 以 0→2→普通重跑→0 驱动同一复选框流，逐阶段断言 dataframe、两个固定编辑器与显示索引 table 四个视图的 IPC 均为（真实行数, 0）列并携带 range 0..行数 描述符；`unedited_zero_column_batches_keep_explicit_row_counts` 不再接受显示错误。真实浏览器用既有 zero_columns 采集器对 `cargo build --example zero_columns` 服务器重放同一契约并冻结于 `tests/browser/rust-zero-columns/`：两行时三个 grid 全部渲染 0/1（Python 参考中 dataframe 为 cell creation 错误、table 空框）、普通重跑保持、归零回空，全程无 stException 与 console 错误；trace 与 PNG 经 manifest sha256 锁定，离线测试双向断言含"不重放上游格错误"。
 
 `cargo fmt --all -- --check`、全目标 Clippy（-D warnings，既有 MSVC linker_messages 提示保留）、`cargo test --workspace --locked`（185 项）与 1521 项冻结参考/矩阵检查通过；Python 9+3 协议参考与首次 UI 错误证据未重采未改写。已知边界：一次成功采集、一台机器的 headless Chrome；动态行编辑、任意 schema/metadata 组合、编辑后元数据策略未验证；Rust run 循环每轮重发同 session id 的 new_session（Python 为每连接一次）是先前批次已有差异且官方前端接受，非本批引入。M3 与长期 Goal 保持未完成。
+
+## Current CSV source replacement validation (2026-10-28)
+
+用户于 2026-10-28 采纳来源切换方案 1（显式清空）。Rust `Workbench::source` 的 None 分支不再清空工作副本（空上传状态只清选择），新增 `clear()` 与 `wb-clear` 按钮；Python 参考应用同轮改为同一契约并加同 key 按钮，采集器 sources 段改为 `remove-upload-keeps-copy`（移除保留副本并下载验证）→ `clear-working-copy` → `empty-rerun` 三段。示例单元测试改为断言空状态保留副本、仅显式清空移除。
+
+双端 sources-clear 16 阶段各一次成功采集并冻结（Python 于 `tests/reference/reference-browser/csv-workbench/sources-clear/`，Rust 于 `tests/browser/rust-csv-workbench/sources-clear/`）：五个坏文件逐个替换保留 `workbench-bom` 旧副本、空表头替换、有效替换、移除上传后副本保留、显式清空回到空态且重跑保持。四次实际下载（坏替换后/空表头/替换后/移除后）双端逐字节相同；离线测试 `test_csv_sources_clear_semantics_match_across_runtimes` 以阶段转移（旧副本→新副本）断言空状态前驱运行仍显示旧副本，双端文案差异（错误前缀、空态提示）按语义断言。此前 main/filters 33 阶段与旧失败链（本地 `sources-first/`）均未重采、未改写。多文件上传、上传端点安全边界与全部坏输入枚举未验证；M2 关闭评估另行执行。
 
 ## Required fresh-checkout checks
 

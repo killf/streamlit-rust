@@ -54,32 +54,38 @@ def render():
     st.title("CSV workbench")
     uploaded = st.file_uploader("Upload CSV", type=["csv"], accept_multiple_files=False, key="wb-upload")
     st.button("Ordinary rerun", key="wb-rerun")
-    if uploaded is None:
+    if "wb-work" in st.session_state and st.button("Clear working copy", key="wb-clear"):
         st.session_state.pop("wb-work", None)
         st.session_state.pop("wb-attempt", None)
-        st.info("Upload a CSV to begin.")
+        st.rerun()
         return
 
-    # 1. 新的有效来源替换工作副本；坏文件只更新错误，保留先前有效数据。
-    attempt = st.session_state.get("wb-attempt")
-    if attempt is None or attempt["id"] != uploaded.file_id:
-        attempt = {"id": uploaded.file_id, "error": None}
-        raw = uploaded.getvalue()
-        try:
-            headers, rows = parse_csv(raw)
-        except (UnicodeError, ValueError, csv.Error) as error:
-            attempt["error"] = str(error)
-        else:
-            st.session_state["wb-work"] = {"source": uploaded.file_id, "name": uploaded.name, "original": raw,
-                                           "headers": headers, "rows": rows, "version": 1, "view": None,
-                                           "view_epoch": 0, "selected": None, "detail_token": None, "detail_epoch": 0}
-        st.session_state["wb-attempt"] = attempt
+    # 1. The real frontend emits an empty uploader state before a replacement
+    # file; it only clears the selection. The working copy is removed
+    # exclusively by the explicit Clear button above.
+    if uploaded is None:
+        st.session_state.pop("wb-attempt", None)
+    else:
+        attempt = st.session_state.get("wb-attempt")
+        if attempt is None or attempt["id"] != uploaded.file_id:
+            attempt = {"id": uploaded.file_id, "error": None}
+            raw = uploaded.getvalue()
+            try:
+                headers, rows = parse_csv(raw)
+            except (UnicodeError, ValueError, csv.Error) as error:
+                attempt["error"] = str(error)
+            else:
+                st.session_state["wb-work"] = {"source": uploaded.file_id, "name": uploaded.name, "original": raw,
+                                               "headers": headers, "rows": rows, "version": 1, "view": None,
+                                               "view_epoch": 0, "selected": None, "detail_token": None, "detail_epoch": 0}
+            st.session_state["wb-attempt"] = attempt
+        if st.session_state["wb-attempt"]["error"] is not None:
+            st.error("Could not parse CSV: " + st.session_state["wb-attempt"]["error"])
     work = st.session_state.get("wb-work")
-    if attempt["error"] is not None:
-        st.error("Could not parse CSV: " + attempt["error"])
-        if work is not None:
-            st.warning("Showing previous valid source: " + work["name"])
+    if work is not None and st.session_state.get("wb-attempt", {}).get("error") is not None:
+        st.warning("Showing previous valid source: " + work["name"])
     if work is None:
+        st.info("Upload a CSV to begin.")
         return
 
     st.write("Working source: " + work["name"])

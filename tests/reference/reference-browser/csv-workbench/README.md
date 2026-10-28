@@ -10,7 +10,7 @@
 
 后续独立调查已在 generic Vega 的同形状更新上[真实复现漏刷](../../../browser/rust-vega-refresh-before/README.md)，官方前端的数据判断不含值，机制与本组观察一致；修法涉及协议/交互取舍，尚未实施。不改写本组原始数据或据此追加一次旧流程重采。
 
-来源切换没有通过：官方单文件替换先产生空 uploader state，当前应用会提前清空旧副本，坏替换无法保留旧来源。来源规则正等待用户决定，不能把这 33 阶段称为完整 CSV 验收。旧失败和有效前缀原样保留于本机 `target/checks/m2-csv-workbench/python/`；它们不冒充新的成功链，也没有改写为成功。
+来源切换已按 2026-10-28 采纳的显式清空方案通过。参考应用与采集器按"上传器空状态仅清选择、坏文件保留旧副本、显式 **Clear working copy** 才清空"同步更新后，`sources-clear` 16 阶段一次成功：五个坏文件逐个替换都保留 `workbench-bom` 旧副本并实际下载原字节，空表头替换为无数据行的工作副本，有效替换与移除上传后副本保留、下载字节不变，显式清空后回到初始空态。Rust 对照的四次实际下载与本组逐字节相同，离线测试双向断言空状态前驱运行仍显示旧副本。旧失败链原样保留于本机 `target/checks/m2-csv-workbench/python/sources-first/`，未改写为成功；此前 main/filters 33 阶段未重采。多文件上传、上传端点安全边界与全部坏输入枚举仍不在等价声明内。
 
 参考应用为 [csv_workbench_app.py](../../csv_workbench_app.py)，采集器为 [csv_workbench_capture.py](../../../browser/csv_workbench_capture.py)。当前 Python 3.14.7/Altair 5.5.0 在初次 `st.bar_chart` 时出错，参考用现有 `st.vega_lite_chart` 展示相同分组计数，没有修改或安装依赖。下载同名覆盖和后台标签页截图的采集器故障修复后才完成成功链；正确 filters 没有重采。
 

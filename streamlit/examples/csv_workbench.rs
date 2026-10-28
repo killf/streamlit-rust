@@ -122,6 +122,9 @@ impl Workbench {
         }
         self.upload_id = id.map(str::to_owned);
         self.upload_error = None;
+        // The real frontend emits an empty uploader state before a
+        // replacement file arrives; it only clears the selection. The working
+        // copy is removed exclusively by the explicit clear.
         if let Some((id, name, bytes)) = upload {
             match Sheet::parse(bytes) {
                 Ok(sheet) => {
@@ -132,13 +135,17 @@ impl Workbench {
                 }
                 Err(error) => self.upload_error = Some(error.to_string()),
             }
-        } else {
-            self.sheet = None;
-            self.source_id.clear();
-            self.source_name.clear();
-            self.reset_drafts()?;
         }
         Ok(())
+    }
+
+    fn clear(&mut self) -> Result<()> {
+        self.sheet = None;
+        self.upload_id = None;
+        self.source_id.clear();
+        self.source_name.clear();
+        self.upload_error = None;
+        self.reset_drafts()
     }
 
     fn change_view(&mut self, filter: Option<Filter>) -> Result<()> {
@@ -236,6 +243,12 @@ fn render(st: &Streamlit) -> Result<()> {
     let upload = st.file_uploader(FileUploaderOptions::new("Upload CSV").accepted_types(["csv"]).key("wb-upload"))?;
     work.source(upload.as_slice().first().map(|file| (file.id(), file.name(), file.as_bytes())))?;
     st.try_button(ButtonOptions::new("Ordinary rerun").key("wb-rerun"))?;
+    if work.sheet.is_some() && st.try_button(ButtonOptions::new("Clear working copy").key("wb-clear"))? {
+        work.clear()?;
+        state.set("wb-working-copy", &work)?;
+        st.rerun();
+        return Ok(());
+    }
     if let Some(error) = &work.upload_error {
         st.error(format!("Could not read CSV: {error}"))?;
         if work.sheet.is_some() {
@@ -353,7 +366,7 @@ mod tests {
     }
 
     #[test]
-    fn csv_rejects_invalid_sources_without_replacing_a_valid_copy() -> Result<()> {
+    fn csv_rejects_invalid_sources_and_empty_states_keep_a_valid_copy() -> Result<()> {
         let mut work = Workbench::default();
         work.source(Some(("first", "good.csv", b"a,b\n1,2\n")))?;
         let original = work.sheet.clone();
@@ -363,8 +376,15 @@ mod tests {
             assert_eq!(work.sheet, original);
             assert_eq!(work.source_name, "good.csv");
         }
+        // The empty uploader state (real replacement prologue) keeps the copy.
         work.source(None)?;
+        assert_eq!(work.sheet, original);
+        assert_eq!(work.source_name, "good.csv");
+        assert!(work.upload_error.is_none());
+        // Only the explicit clear removes the working copy.
+        work.clear()?;
         assert!(work.sheet.is_none());
+        assert_eq!(work.source_name, "");
         Ok(())
     }
 

@@ -327,7 +327,11 @@ def collect(args):
                 a.download("header-only-download")
                 a.snapshot("replace-valid", lambda: a.upload(inputs / "replacement.csv"), file=inputs / "replacement.csv")
                 a.download("replacement-download")
-                a.snapshot("clear-upload", a.clear_upload)
+                # Accepted source semantics: removing the uploaded file keeps the
+                # working copy; only the explicit Clear button empties it.
+                a.snapshot("remove-upload-keeps-copy", a.clear_upload)
+                a.download("removed-upload-download")
+                a.snapshot("clear-working-copy", lambda: a.button("Clear working copy"))
                 a.snapshot("empty-rerun", lambda: a.button("Ordinary rerun"))
             capture["successful"] = True
     except Exception as error:

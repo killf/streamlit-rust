@@ -10,7 +10,7 @@
 
 后续调查另用公开 generic Vega API [复现同形状漏刷](../rust-vega-refresh-before/README.md)，并找到官方前端值判断的盲点；这里使用的内容命名 bar 路径与该 generic 路径分开记录，不能把原正确 CSV 结果冒称通用图更新均已通过。
 
-来源替换 UI 尚未验收，等待“上传器空状态和清空工作副本”的规则选择；没有把该失败隐藏或改为通过。本证据也不覆盖全部数据类型、所有选择模式/参数、完整错误/安全边界或长期目标其余阶段。
+来源替换已按 2026-10-28 采纳的显式清空方案验收：`sources-clear` 16 阶段（caller-owned 示例服务器 + 官方前端）与[冻结 Python 参考](../../reference/reference-browser/csv-workbench/sources-clear/)对照——五个坏文件逐个替换保留旧副本、空表头替换、有效替换、移除上传后副本保留、显式 **Clear working copy** 清空、清空后普通重跑保持空态。四次实际下载与 Python 逐字节相同；两侧空态提示文案不同（"Upload a CSV to begin." / "Upload a CSV to start a working copy."）、坏文件错误前缀不同（Could not parse/ read CSV），均按语义断言而非逐字对比。本证据也不覆盖全部数据类型、所有选择模式/参数、完整错误/安全边界或长期目标其余阶段。
 
 `manifest.json` 只校验数据和图片；Git、旧 PID 与路径只用于追溯。两个 browser raw 保留 caller-owned server 的原始 `None` 清理状态。后来主代理通过托管进程句柄停止两次自有服务，`root-cleanup.json` 独立确认 PID 51376/56352 已不存在、8545 端口关闭；Chrome/profile 已分别由各次采集器回收。
 

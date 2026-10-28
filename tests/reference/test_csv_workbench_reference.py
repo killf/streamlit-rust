@@ -114,3 +114,67 @@ def test_csv_frozen_working_copy_and_session_boundaries():
     assert filters["no-match"]["visible_rows"] == []
     assert len(filters["disable-keep-value"]["visible_rows"]) == 3
     assert filters["filtered-flow-download"]["download"]["rows"][-1] == ["pending", "", "", ""]
+
+def test_csv_sources_clear_semantics_match_across_runtimes():
+    # Accepted source semantics (2026-10-28): the empty uploader state only
+    # clears the selection, a bad replacement keeps the previous valid copy,
+    # and the explicit Clear working copy button is the only removal. The
+    # frozen python and rust sources-clear captures must show the same
+    # observable tables, alerts, and byte-identical downloads.
+    python = read_json(PUBLISHED / "sources-clear/trace.json")
+    rust = read_json(Path(__file__).parents[1] / "browser/rust-csv-workbench/sources-clear/trace.json")
+    names = ["load", "upload-bom", "reject-bad-utf8", "reject-empty-header", "reject-duplicate-header", "reject-ragged",
+             "reject-bad-quote", "after-errors-download", "header-only", "header-only-download", "replace-valid",
+             "replacement-download", "remove-upload-keeps-copy", "removed-upload-download", "clear-working-copy", "empty-rerun"]
+    originals = [{"item": "rC", "region": "north", "quantity": "30", "note": 'line 1\nline 2,"quoted"'},
+                 {"item": "rA", "region": "south", "quantity": "10", "note": "é游戏"},
+                 {"item": "rB", "region": "", "quantity": "20", "note": ""}]
+    replaced = [{"item": "other", "region": "east", "quantity": "5", "note": "replaced"}]
+    # Per-stage transition (previous copy, copy after the stage). The real
+    # frontend emits an empty-uploader prologue rerun before a replacement
+    # file; that run must still show the previous copy — the acceptance core.
+    # A rust download click reruns and re-renders in-window while the python
+    # download button (on_click ignore) does not, so table presence is only
+    # required for the interactive stages.
+    transition = {"load": ([], []), "upload-bom": ([], originals),
+                  "reject-bad-utf8": (originals, originals), "reject-empty-header": (originals, originals),
+                  "reject-duplicate-header": (originals, originals), "reject-ragged": (originals, originals),
+                  "reject-bad-quote": (originals, originals), "after-errors-download": (originals, originals),
+                  "header-only": (originals, []), "header-only-download": ([], []), "replace-valid": ([], replaced),
+                  "replacement-download": (replaced, replaced), "remove-upload-keeps-copy": (replaced, replaced),
+                  "removed-upload-download": (replaced, replaced), "clear-working-copy": (replaced, []),
+                  "empty-rerun": ([], [])}
+    must_show = {"upload-bom", "reject-bad-utf8", "reject-empty-header", "reject-duplicate-header", "reject-ragged",
+                 "reject-bad-quote", "replace-valid", "remove-upload-keeps-copy"}
+    downloads = {}
+    for capture in (python, rust):
+        assert capture["successful"] and [stage["name"] for stage in capture["stages"]] == names
+        for stage in capture["stages"]:
+            previous, current = transition[stage["name"]]
+            rows = [table["rows"] for table in stage["tables"] if table["rows"]]
+            assert all(item in (previous, current) for item in rows), \
+                f'{capture["runtime"]} {stage["name"]}: only the previous and current working copies may appear'
+            if stage["name"] in must_show:
+                assert rows and rows[-1] == current, \
+                    f'{capture["runtime"]} {stage["name"]}: the stage must end showing its own working copy'
+            if "download" not in stage:
+                assert stage["finishes"] and stage["finishes"][-1] == "FINISHED_SUCCESSFULLY", f'{capture["runtime"]} {stage["name"]}'
+            alerts = " ".join(stage["dom"]["alerts"])
+            if stage["name"].startswith("reject-") or stage["name"] == "after-errors-download":
+                assert "Showing previous valid source: workbench-bom.csv" in alerts, f'{capture["runtime"]} {stage["name"]}'
+                assert "Could not parse CSV:" in alerts or "Could not read CSV:" in alerts, f'{capture["runtime"]} {stage["name"]}'
+            if stage["name"] in ("clear-working-copy", "empty-rerun"):
+                assert "Upload a CSV" in alerts, f'{capture["runtime"]} {stage["name"]}'
+            if "download" in stage:
+                downloads.setdefault(stage["name"], {})[capture["runtime"]] = base64.b64decode(stage["download"]["base64"], validate=True)
+    # Every download exists on both runtimes and is byte-identical; the bad
+    # replacements never replaced the retained copy and the removal never
+    # cleared it, so both runtimes download the same bytes.
+    assert set(downloads) == {"after-errors-download", "header-only-download", "replacement-download", "removed-upload-download"}
+    for name, sides in downloads.items():
+        assert sides["python"] == sides["rust"], f"{name}: downloads must match across runtimes"
+    bom = (PUBLISHED / "sources-clear/inputs/workbench-bom.csv").read_bytes()
+    assert downloads["after-errors-download"]["python"] == bom.removeprefix(b"\xef\xbb\xbf")
+    assert downloads["header-only-download"]["python"] == b"item,region,quantity,note\n"
+    assert downloads["replacement-download"]["python"] == (PUBLISHED / "sources-clear/inputs/replacement.csv").read_bytes()
+    assert downloads["removed-upload-download"]["python"] == downloads["replacement-download"]["python"]
