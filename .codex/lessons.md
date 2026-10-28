@@ -186,3 +186,11 @@ deleted. Product-level quality norms live in the
     committed dir); any guard that fails on a clean clone is a gate that
     does not exist.
 
+
+29. **Wire fixtures embedded by `include_str!` need `-text` attributes.**
+    Git's autocrlf silently rewrites fixture bytes on Windows clones, and a
+    CRLF-polluted fixture flows straight into the emitted wire — the chartlibs
+    contract failed only at capture time, never at compile time. Any file a
+    build embeds byte-for-byte (specs, IPC, golden JSON) gets a `-text`
+    gitattributes entry in the same change that adds it; `git ls-files --eol`
+    is the quick audit (`w/lf` under `attr/-text` is the healthy state).

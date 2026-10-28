@@ -14,7 +14,7 @@
 
 ## Current focus
 
-**长期 M0 基线已通过独立 Review；当前推进 M2 数据应用与 M3 独立错误边界，并补验 M6 库构建和本地分发路径。** M0 起点为 `99b1ed8e4b35737c9495764fb70269271a10bada`，开始时工作区干净。本阶段已建立官方文档能力与缺口清单、复核不适用项并刷新 Rust/Python 验证及性能基线；它不代表全功能或所有参数、教程 FAQ 的验收结束。已校验的 wheel 仅固定参考环境，不能代替官方用户文档的功能范围。
+**长期 M2 数据应用已于 2026-10-28 关闭（退出条件逐项有保留证据，见[关闭记录](acceptance.md#m2-milestone-close-2026-10-28)）；当前推进 M3 独立错误边界与 M6 分发收尾，随后启动 M4 运行集成。** M0 起点为 `99b1ed8e4b35737c9495764fb70269271a10bada`，开始时工作区干净。已建立官方文档能力与缺口清单、复核不适用项并刷新 Rust/Python 验证及性能基线；这不代表全功能或所有参数、教程 FAQ 的验收结束。已校验的 wheel 仅固定参考环境，不能代替官方用户文档的功能范围。
 
 已完成 54 项历史 `not_applicable` 的用户文档适用性复核，结论见 [compatibility](compatibility.md#historical-not-applicable-closures-and-m0-review)；没有将缺少 Rust 实现视为永久排除，也没有自动改写旧状态。M1 列明的 Q1–Q6 已确认修复、回归、必要前端证据和独立 Review 已分批完成，覆盖范围见 acceptance；未验证的运行组合及资源边界继续留在后续里程碑，不把六项修复当成运行时完整兼容。
 
@@ -28,7 +28,7 @@ M0 批次基线在干净代码快照 `b94ac474` 上完成，172 项 Rust 与 148
 
 ## Long-term milestones
 
-CSV 工作台 A 已交付主流程 20 阶段、筛选 13 阶段与来源替换 16 阶段的实现、冻结参考及真实前端对照，当前仍为 M2 子集。来源切换已按 2026-10-28 采纳的显式清空方案落地：空上传状态仅清选择、坏替换保留旧副本、显式 Clear working copy 唯一清空，双端下载逐字节一致（[验收](acceptance.md#current-csv-source-replacement-validation-2026-10-28)）；不因已有证据自动关闭 M2，多文件上传与上传端点安全边界仍开放。图表漏刷已按 2026-10-28 采纳的内容命名方案 A 修复：generic Vega 的内联值走内容命名 dataset 并由 spec 引用，四阶段真实前端可见值随 wire 刷新，失败基线保留（[验收](acceptance.md#current-generic-vega-refresh-validation-2026-10-28)）；图内交互状态保持仍未验收，不推定完整默认图表兼容。
+CSV 工作台 A 已交付主流程 20 阶段、筛选 13 阶段与来源替换 16 阶段的实现、冻结参考及真实前端对照。来源切换已按 2026-10-28 采纳的显式清空方案落地：空上传状态仅清选择、坏替换保留旧副本、显式 Clear working copy 唯一清空，双端下载逐字节一致（[验收](acceptance.md#current-csv-source-replacement-validation-2026-10-28)）。图表漏刷已按 2026-10-28 采纳的内容命名方案 A 修复：generic Vega 的内联值走内容命名 dataset 并由 spec 引用，四阶段真实前端可见值随 wire 刷新，失败基线保留（[验收](acceptance.md#current-generic-vega-refresh-validation-2026-10-28)）。多文件上传模式归入 M3 输入能力、上传端点安全边界归入 M4/M5，图内交互状态保持继续开放，均不在 M2 退出条件内。
 
 下列 M0–M7 属于 2026-10-27 确认的长期目标，与文末已经关闭的历史 P0 里程碑区分。
 

@@ -208,6 +208,12 @@ WS 回归 `generic_vega_same_shape_updates_change_the_dataset_identity` 驱动 0
 
 `cargo fmt/clippy(-D warnings)/test --workspace --locked` 与冻结参考/矩阵检查通过（数字见最终批记录）。边界：一次采集、一台机器的 headless Chrome；图内交互状态（缩放/brush/选区）在 view 重建时的保持未验收；大数据 hash 成本随 IPC 线性，未做性能声明。M2 关闭评估另行执行。
 
+## M2 milestone close (2026-10-28)
+
+退出条件逐项核对（均含冻结证据与真实前端操作）：完整用户流程——CSV 工作台主流程 20、筛选 13、来源替换 16 阶段双端冻结对照，选择旅程 42 阶段（34 前端 + 8 required 协议）；空集——无匹配/空匹配筛选、空表头工作副本、零列 0/2 行呈现（方案 A）；替换——坏替换保留旧副本、有效替换、空表头替换（sources-clear）；恢复——各流程普通重跑保持状态、会话断线重连接管（M5 批次）；排序映射——浏览器排序后选择映射回原始位置（main-complete + dataframe-selection）；会话隔离——双会话独立上传/编辑/下载（main-complete 与 WS 回归）。上传、筛选、选择、详情、编辑、增量更新（Append 流；官方 1.58.0 已移除 add_rows，按用户决定不新增 Rust 追加扩展）与图表联动（计数图随筛选/编辑联动、generic Vega 同形状刷新修复）均有实现、回归与浏览器证据。
+
+遗留项按范围归档，不阻塞 M2：多文件上传模式归 M3 输入能力；上传端点安全/凭据边界归 M4/M5；图内交互状态（缩放/brush/选区）在 Vega view 重建时的保持继续开放；下载/编辑之外的全部参数组合与完整默认图表兼容不在本里程碑声明内。关闭质量门：`cargo fmt --check`、全目标 Clippy（-D warnings）、`cargo test --workspace --locked`（186 项）、全部示例构建、1525 项冻结参考/矩阵检查通过；lessons.md 增补第 29 条（`include_str!` wire 固件的 `-text` 属性）。当前焦点移至 M3/M6，M4 随后启动。
+
 ## Required fresh-checkout checks
 
 ```powershell
