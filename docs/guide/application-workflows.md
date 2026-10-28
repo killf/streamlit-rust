@@ -235,6 +235,8 @@ Rust 已采纳方案 A：显示转换保留真实行数并合成虚拟 RangeInde
 
 **控件创建参数边界**（[widget-params 参考](../../tests/reference/reference-browser/widget-params/README.md)，8/8 字段一致）：`number_input` float 路径实测——`format "%0.2f"`、默认步长 0.01、无界时携带 f64 哨兵（±1.797e308）、整型为 `"%d"` 且无界时不带 min/max 旗标；`RadioOptions` 的 `index(None)`（不发 default）与 `horizontal(true).captions([...])`；`TextAreaOptions` 的 `max_chars/placeholder`（消息内）与 `height(pixels)`（元素级配置）；`MultiselectOptions::max_selections`。on_change 回调、format_func 往返与交互期行为未纳入本切片。
 
+**时间/滑块创建参数**（[temporal-params 参考](../../tests/reference/reference-browser/temporal-params/README.md)，5/5 一致、零实现改动确认）：`date_input` 的显式 min/max 透传 ISO、**未给边界时为 value ±10 年窗**、自定义 `format` 原样上 wire；`select_slider` 双端点默认 → `SELECT_SLIDER` 类型 + 选项索引端点（min=0 省略）；`time_input` 的 `step` 以字符串上 wire、`format "24h"`。range date_input 与交互期日历提交未纳入。
+
 ## 运行配置面（显式旋钮）
 
 Rust 不解析 `config.toml`（矩阵既有边界：Python 的 TOML 注册表不是兼容目标）；运行项全部是**显式**的服务器构建器与宏参数，无隐藏配置文件。完整清单：
@@ -347,6 +349,7 @@ async fn main(st: &Streamlit) {
 - **media_more**（`http://127.0.0.1:8597/`）：video URL 输入、SRT 字幕、popover wrap、tabs 宽高。
 - **combined_interactive**（`http://127.0.0.1:8598/`）：M7 交互组合差分（上传/勾选/选择/选行/按钮/toast）。
 - **widget_params**（`http://127.0.0.1:8599/`）：number_input float 路径、radio index=None/horizontal/captions、text_area max_chars/placeholder/height、multiselect max_selections。
+- **temporal_params**（`http://127.0.0.1:8600/`）：date_input 边界/±10 年缺省窗/自定义 format、select_slider 范围默认、time_input step。
 - **combined**（`http://127.0.0.1:8596/`）：the M7 cross-capability differential page。
 - **componenttrigger**（`http://127.0.0.1:8542/`）：component triggers。
 - **componentv2**（`http://127.0.0.1:8539/`）：components v2。

@@ -330,6 +330,10 @@ M3 收窄前置：机器导出 130 项 implemented/partial 的精确剩余清单
 
 M3 可测面切片（widgets 簇，取自 80 项清单）。冻结 Python 参考 `tests/reference/reference-browser/widget-params/`（8 元素创建期 wire）与 Rust 对照 **8/8 字段一致**：number_input **float 路径**（format %0.2f、默认步长 0.01、无界 f64 哨兵 ∓1.797e308、整型 %d 无旗标）——本批修复两处真实偏差（float format 此前按注释留空、无界 min/max 此前发 0.0）；radio `index=None` 不发 default + `horizontal/captions`；text_area `max_chars/placeholder`（消息内）+ `height`（元素级）；multiselect `max_selections`。新增四组构建器与 WS 回归 `widget_parameter_edges_match_the_frozen_reference`；矩阵 st.number_input/st.radio/st.text_area/st.multiselect 四条目 limitation 收窄并挂 `creation_params_reference`；清单已再生成（漂移门同步）。on_change、format_func 往返与交互期行为留后续切片。
 
+## Current temporal/slider creation-parameter validation (2026-10-29)
+
+M3 可测面切片（temporal 簇）。冻结 Python 参考 `tests/reference/reference-browser/temporal-params/`（5 元素）与 Rust 对照 **5/5 字段一致——零实现改动**：date_input 显式 min/max、**未给边界时 value ±10 年窗**（2014/2034 实测）与自定义 format；select_slider 双端点范围默认（SELECT_SLIDER + 索引端点，min=0 省略）；time_input step 字符串化（"900"）与 24h 格式。既有 Rust 行为全部经参考确认而非修改。矩阵 st.date_input/st.select_slider/st.time_input 三条目收窄挂 `creation_params_reference`；清单再生成。离线断言含 min 省略等 wire 细节。边界：range date_input、交互期日历提交、on_change 未纳入。
+
 ## Required fresh-checkout checks
 
 ```powershell

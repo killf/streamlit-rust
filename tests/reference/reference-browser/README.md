@@ -45,6 +45,7 @@ last one, so they could not show which connection a frame belonged to.
 - `chat/`: frozen browser chain cited by the compatibility matrix under st.chat_input, st.chat_message.
 - `colconfig/`: frozen browser chain cited by the compatibility matrix under st.column_config, st.column_config.AreaChartColumn, st.column_config.AudioColumn, st.column_config.BarChartColumn and more.
 - `combined/`: frozen browser chain; see the matrix and .codex/compatibility.md for the exact scope.
+- `temporal-params/`: temporal/slider creation-parameter edges (date bounds/format, select-slider range, time step) frozen on both runtimes.
 - `widget-params/`: widget creation-parameter edges (number-input float path, radio index=None/horizontal/captions, text_area bounds, multiselect cap) frozen on both runtimes.
 - `combined-interactive/`: the second M7 combined differential — a six-stage real-UI interaction flow (multi-upload, checkbox, selectbox, row selection, button+toast) frozen on both runtimes with per-stage report equality.
 - `componenttrigger/`: frozen browser chain cited by the compatibility matrix under st.components.v2.component.

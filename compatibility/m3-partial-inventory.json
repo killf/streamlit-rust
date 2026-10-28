@@ -627,7 +627,7 @@
       ],
       "limitations": [
         "Coverage is the journey-pickers-v1 chain: the pinned fixture's widget set (single and range date inputs, a time input, a color picker, single and range select sliders, an audio input and a camera input) across the load and two committed ArrowRight steps on the single select slider.",
-        "The ten-year default window and the YYYY/MM/DD format were observed; custom min/max, other display formats, on_change/help/disabled/width and query binding are implemented but unobserved, and calendar-picker interactions (the only commit path in this frontend) were not driven.",
+        "Explicit min/max, the value-±10-years unbounded window, and a custom display format (DD/MM/YYYY) are now measured on the creation wire (2026-10-29, frozen temporal-params), field-identical cross-runtime with zero implementation change. ; custom min/max, other display formats, on_change/help/disabled/width and query binding are implemented but unobserved, and calendar-picker interactions (the only commit path in this frontend) were not driven.",
         "fixture SHA256 0243f923d03c966dfe2c91f197f7ef9f631de7c397cbca55f17ebce3a6beb668; example SHA256 3112cb6e5dbc4879a73054d66f88c9aa7c3f62b3ab394cbebd72667eb9b78e3d."
       ]
     },
@@ -1195,7 +1195,7 @@
       ],
       "limitations": [
         "Coverage is the journey-pickers-v1 chain: the pinned fixture's widget set (single and range date inputs, a time input, a color picker, single and range select sliders, an audio input and a camera input) across the load and two committed ArrowRight steps on the single select slider.",
-        "The single slider's two committed ArrowRight steps (low -> medium -> high) were observed; the range slider's interactions, format_func, reversed ranges and required semantics remain unobserved.",
+        "The range mode is now measured on the creation wire (2026-10-29, frozen temporal-params): a two-endpoint default rides as option-index endpoints with the SELECT_SLIDER type, %s format, step 1.0, and min omitted at index 0 — field-identical cross-runtime with zero implementation change.  (low -> medium -> high) were observed; the range slider's interactions, format_func, reversed ranges and required semantics remain unobserved.",
         "fixture SHA256 0243f923d03c966dfe2c91f197f7ef9f631de7c397cbca55f17ebce3a6beb668; example SHA256 3112cb6e5dbc4879a73054d66f88c9aa7c3f62b3ab394cbebd72667eb9b78e3d."
       ]
     },
@@ -1439,7 +1439,7 @@
       ],
       "limitations": [
         "Coverage is the journey-pickers-v1 chain: the pinned fixture's widget set (single and range date inputs, a time input, a color picker, single and range select sliders, an audio input and a camera input) across the load and two committed ArrowRight steps on the single select slider.",
-        "The default-value load shape and the step/format wire were observed; typing never commits in this frontend (only its picker does), so committed time changes, cleared values, 12h/localized formats and custom steps remain unobserved.",
+        "An explicit value with step 900 is now measured on the creation wire (2026-10-29, frozen temporal-params) — step stringified, 24h format, HH:MM default — field-identical cross-runtime with zero implementation change. ; typing never commits in this frontend (only its picker does), so committed time changes, cleared values, 12h/localized formats and custom steps remain unobserved.",
         "fixture SHA256 0243f923d03c966dfe2c91f197f7ef9f631de7c397cbca55f17ebce3a6beb668; example SHA256 3112cb6e5dbc4879a73054d66f88c9aa7c3f62b3ab394cbebd72667eb9b78e3d."
       ]
     },
