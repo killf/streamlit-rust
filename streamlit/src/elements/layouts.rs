@@ -102,6 +102,7 @@ pub struct PopoverOptions {
     pub(crate) help: String,
     pub(crate) disabled: bool,
     pub(crate) use_container_width: bool,
+    pub(crate) wrap: bool,
 }
 
 impl PopoverOptions {
@@ -113,6 +114,7 @@ impl PopoverOptions {
             help: String::new(),
             disabled: false,
             use_container_width: false,
+            wrap: false,
         }
     }
     pub fn icon(mut self, icon: impl Into<String>) -> Self {
@@ -140,6 +142,12 @@ impl PopoverOptions {
         self.use_container_width = value;
         self
     }
+
+    /// Wrap the trigger's label text (Python `wrap=True`).
+    pub fn wrap(mut self, value: bool) -> Self {
+        self.wrap = value;
+        self
+    }
 }
 
 impl From<&str> for PopoverOptions {
@@ -152,6 +160,8 @@ impl From<&str> for PopoverOptions {
 pub struct TabsOptions<'a> {
     pub(crate) labels: Vec<String>,
     pub(crate) default_tab: Option<String>,
+    pub(crate) width: Option<ElementWidth>,
+    pub(crate) height: Option<ElementHeight>,
     _marker: std::marker::PhantomData<&'a ()>,
 }
 
@@ -161,6 +171,8 @@ impl<'a> TabsOptions<'a> {
             labels: labels.into_iter().map(Into::into).collect(),
             default_tab: None,
             _marker: std::marker::PhantomData,
+            width: None,
+            height: None,
         }
     }
 
@@ -169,6 +181,18 @@ impl<'a> TabsOptions<'a> {
     /// Python raises instead; the divergence is recorded in the guide.
     pub fn default_tab(mut self, label: impl Into<String>) -> Self {
         self.default_tab = Some(label.into());
+        self
+    }
+
+    /// The tab strip's pixel width (the block's width config).
+    pub fn width(mut self, pixels: i32) -> Self {
+        self.width = Some(ElementWidth::Value(pixels));
+        self
+    }
+
+    /// The tab strip's pixel height (the block's height config).
+    pub fn height(mut self, pixels: i32) -> Self {
+        self.height = Some(ElementHeight::Value(pixels));
         self
     }
 }
@@ -196,6 +220,8 @@ impl<'a> From<Vec<String>> for TabsOptions<'a> {
         Self {
             labels,
             default_tab: None,
+            width: None,
+            height: None,
             _marker: std::marker::PhantomData,
         }
     }
@@ -472,6 +498,7 @@ impl Element for PopoverElement {
                     icon: self.options.icon.clone(),
                     r#type: self.options.kind.wire().into(),
                     open: Some(false),
+                    wrap: Some(self.options.wrap),
                     ..Default::default()
                 })),
             })),
@@ -494,11 +521,13 @@ impl Element for PopoverElement {
 pub(crate) struct TabsElement {
     labels: Vec<String>,
     default_tab_index: Option<usize>,
+    width: Option<ElementWidth>,
+    height: Option<ElementHeight>,
     pub(crate) tabs: Vec<Vec<Rc<RefCell<dyn Element>>>>,
 }
 
 impl TabsElement {
-    pub fn new(labels: Vec<String>, default_tab: Option<String>) -> Self {
+    pub fn new(labels: Vec<String>, default_tab: Option<String>, width: Option<ElementWidth>, height: Option<ElementHeight>) -> Self {
         let default_tab_index = match default_tab {
             Some(label) => match labels.iter().position(|candidate| candidate == &label) {
                 Some(index) => Some(index),
@@ -513,6 +542,8 @@ impl TabsElement {
             tabs: labels.iter().map(|_| Vec::new()).collect(),
             labels,
             default_tab_index,
+            width,
+            height,
         }
     }
 
@@ -531,8 +562,8 @@ impl Element for TabsElement {
                 autoscroll: None,
                 allow_empty: false,
                 id: None,
-                height_config: Some(ElementHeight::Content.into()),
-                width_config: Some(ElementWidth::Stretch.into()),
+                height_config: Some(self.height.clone().unwrap_or(ElementHeight::Content).into()),
+                width_config: Some(self.width.clone().unwrap_or(ElementWidth::Stretch).into()),
                 r#type: Some(crate::proto::block::Type::TabContainer(TabContainer {
                     default_tab_index: self.default_tab_index.map(|index| index as i32).unwrap_or(0),
                     ..Default::default()

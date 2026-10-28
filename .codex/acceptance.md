@@ -306,6 +306,12 @@ M7 全量验收启动批次（组合差分 + 文档核验 + 独立 Review）：
 
 边界：组合差分为单页单轮原生 WS（无浏览器 UI 层、无交互）；差分盲区（markdown element_type/wrap、vega theme、add_block delta_path 参与断言）经审查人工核对当前无差异，列为后续增强；M7 其余义务（全量差分矩阵扩展、最终文档核验、遗留清理）未完成，M7 保持开放。
 
+## Current media/layout edges and session capacity validation (2026-10-28)
+
+M3 收窄 + M5 边界批次。冻结 Python 参考 `tests/reference/reference-browser/media-more/`（四个此前未测边界）与 Rust 对照 **6/6 逐字一致**：st.video 的**直接 URL 输入**原样上 wire 不经媒体存储；**SRT 字幕**按参考转换为 VTT 轨（本批冻结对照暴露并修复 Rust SRT 校验器字节偏移写错、把合法 SRT 误判为非法的真实缺陷——重写为 `dd:dd:dd,ddd` 逐位校验）；`popover wrap` 进消息可选字段；`tabs width/height` 走块级 pixel 配置。新构建器：`VideoOptions::from_url/url`、`PopoverOptions::wrap`、`TabsOptions::width/height`。矩阵 st.video/st.popover/st.tabs 三条目 limitation 收窄并挂 `media-more` 证据。
+
+M5 会话容量回归 `many_concurrent_sessions_hold_independent_state`：64 个并发 WS 会话全部完成各自 run、重连保持身份、计数互不串扰（0.09s）。媒体回收经查证为**进程全局内容寻址、会话过期不回收**——与 Python MemoryMediaFileStorage 同语义，属记录在案的设计事实而非缺口（roadmap M5 行已有"进程全局媒体无自动淘汰"）；不据此关闭 M5。
+
 ## Required fresh-checkout checks
 
 ```powershell

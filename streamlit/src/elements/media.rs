@@ -469,16 +469,11 @@ fn srt_to_vtt(text: &str) -> Option<Vec<u8>> {
     if first.is_empty() || !first.chars().all(|c| c.is_ascii_digit()) {
         return None;
     }
-    let valid = second.len() >= 29
-        && second.as_bytes()[2] == b':'
-        && second.as_bytes()[5] == b':'
-        && second.as_bytes().get(8) == Some(&b',')
-        && second.as_bytes().get(12) == Some(&b' ')
-        && second.as_bytes().get(13) == Some(&b'-')
-        && second.as_bytes().get(14) == Some(&b'-')
-        && second.as_bytes().get(15) == Some(&b'>')
-        && second.as_bytes().get(25) == Some(&b':')
-        && second.as_bytes().get(28) == Some(&b',');
+    // "dd:dd:dd,ddd --> dd:dd:dd,ddd": each side is 12 chars with ':' at 2/5
+    // and ',' at 8; the arrow joins them with single spaces.
+    let (start, end) = second.split_once(" --> ")?;
+    let stamp = |value: &str| value.len() == 12 && value.as_bytes()[2] == b':' && value.as_bytes()[5] == b':' && value.as_bytes()[8] == b',' && value.as_bytes().iter().enumerate().all(|(index, byte)| matches!(index, 2 | 5 | 8) || byte.is_ascii_digit());
+    let valid = stamp(start) && stamp(end);
     if !valid {
         return None;
     }

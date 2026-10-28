@@ -3635,12 +3635,18 @@
           "tests/browser/rust-combined/trace.json",
           "tests/browser/rust-combined/README.md",
           "tests/reference/test_combined_differential.py"
+        ],
+        "wrap_reference": [
+          "tests/reference/reference-browser/media-more/trace.json",
+          "tests/reference/reference-browser/media-more/README.md",
+          "tests/browser/rust-media-more/trace.json",
+          "streamlit/tests/runtime/media.rs"
         ]
       },
       "rust_plan": "PopoverOptions{label, icon} via st.popover(label) -> &Popover; Block{popover(label, type secondary, open false), allowEmpty, width content} with children at [slot, k].",
       "compatibility_scope": "The journey-layouts-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each loaded once by a real owned Chrome against the official frontend; the published replays assert 9/9 checks per side -- the full 14-delta layout wire in order (sidebar root, expander block plus child at [slot, k], tab container with every tab block emitted before any child, popover, the dialog's closed-then-reopened add_block pair around the measured flex content container) and the resolved DOM projection (sidebar/expander/tabs/popover/dialog testids and five markdowns, zero exceptions).",
       "limitations": [
-        "Coverage is one measured default per layout (label-only expanders starting expanded, two plain tabs, a closed secondary popover, one small/center/dismissible dialog); expander type/icon variants, st.status expandables, dynamic tabs/popovers with on_change ids, dialog width/position/icon variants and nested layout combinations remain unobserved. The parameter surface is now measured (2026-10-28, frozen layout-params): primary/secondary type, help, disabled, and use_container_width (block-level stretch) match the reference field-for-field. wrap and on_change ids remain unmeasured.",
+        "Coverage is one measured default per layout (label-only expanders starting expanded, two plain tabs, a closed secondary popover, one small/center/dismissible dialog); expander type/icon variants, st.status expandables, dynamic tabs/popovers with on_change ids, dialog width/position/icon variants and nested layout combinations remain unobserved. The parameter surface is now measured (2026-10-28, frozen layout-params): primary/secondary type, help, disabled, and use_container_width (block-level stretch) match the reference field-for-field. wrap is now measured (2026-10-28, frozen media-more) riding the message field. on_change ids remain unmeasured.",
         "The dialog $$ID name mixes each runtime's own script identity, so the hash segment legitimately differs cross-runtime; the contract judges the shape ($$ID-<32hex>-None), the equality of the pair and every other field, not the digest itself.",
         "st.sidebar is the write-only measured subset; st.sidebar.title/markdown/radio helpers are separate matrix rows.",
         "layouts.rs source SHA256 fb1956b5a6bb4a1b35d2e43e300518e40ebf2757d91a31fa9fb599af45d5df92; fixture SHA256 4bb61a02a09d9e9ec12526e86da4f5bab1cc28fec2655ac2149df25f124ad74b; example SHA256 41832195dba7d68fb0f603660285a2ae9f9ae211b7266a1d77f3d6c6611818d8."
@@ -3737,12 +3743,18 @@
           "tests/browser/rust-combined/trace.json",
           "tests/browser/rust-combined/README.md",
           "tests/reference/test_combined_differential.py"
+        ],
+        "block_size_reference": [
+          "tests/reference/reference-browser/media-more/trace.json",
+          "tests/reference/reference-browser/media-more/README.md",
+          "tests/browser/rust-media-more/trace.json",
+          "streamlit/tests/runtime/media.rs"
         ]
       },
       "rust_plan": "st.tabs([\"One\", \"Two\"]) -> &[Tab] from TabsOptions (From<[&str; N]>/slices/Vec<String>); emits the tabContainer block (height content, width stretch) plus one allowEmpty tab block per label up front, children then stream at [slot, i, k].",
       "compatibility_scope": "The journey-layouts-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each loaded once by a real owned Chrome against the official frontend; the published replays assert 9/9 checks per side -- the full 14-delta layout wire in order (sidebar root, expander block plus child at [slot, k], tab container with every tab block emitted before any child, popover, the dialog's closed-then-reopened add_block pair around the measured flex content container) and the resolved DOM projection (sidebar/expander/tabs/popover/dialog testids and five markdowns, zero exceptions).",
       "limitations": [
-        "Coverage is one measured default per layout (label-only expanders starting expanded, two plain tabs, a closed secondary popover, one small/center/dismissible dialog); expander type/icon variants, st.status expandables, dynamic tabs/popovers with on_change ids, dialog width/position/icon variants and nested layout combinations remain unobserved. The default tab is now measured (2026-10-28, frozen layout-params): Python's default= takes a LABEL (an index raises StreamlitValueError) and rides default_tab_index; Rust's default_tab(label) matches, logging-and-ignoring an unknown label where Python raises (recorded divergence). width/height and on_change ids remain unmeasured.",
+        "Coverage is one measured default per layout (label-only expanders starting expanded, two plain tabs, a closed secondary popover, one small/center/dismissible dialog); expander type/icon variants, st.status expandables, dynamic tabs/popovers with on_change ids, dialog width/position/icon variants and nested layout combinations remain unobserved. The default tab is now measured (2026-10-28, frozen layout-params): Python's default= takes a LABEL (an index raises StreamlitValueError) and rides default_tab_index; Rust's default_tab(label) matches, logging-and-ignoring an unknown label where Python raises (recorded divergence). width/height are now measured (2026-10-28, frozen media-more) as block-level pixel configs. on_change ids remain unmeasured.",
         "The dialog $$ID name mixes each runtime's own script identity, so the hash segment legitimately differs cross-runtime; the contract judges the shape ($$ID-<32hex>-None), the equality of the pair and every other field, not the digest itself.",
         "st.sidebar is the write-only measured subset; st.sidebar.title/markdown/radio helpers are separate matrix rows.",
         "layouts.rs source SHA256 fb1956b5a6bb4a1b35d2e43e300518e40ebf2757d91a31fa9fb599af45d5df92; fixture SHA256 4bb61a02a09d9e9ec12526e86da4f5bab1cc28fec2655ac2149df25f124ad74b; example SHA256 41832195dba7d68fb0f603660285a2ae9f9ae211b7266a1d77f3d6c6611818d8."
@@ -3918,12 +3930,18 @@
           "tests/browser/rust-combined/trace.json",
           "tests/browser/rust-combined/README.md",
           "tests/reference/test_combined_differential.py"
+        ],
+        "url_and_srt_reference": [
+          "tests/reference/reference-browser/media-more/trace.json",
+          "tests/reference/reference-browser/media-more/README.md",
+          "tests/browser/rust-media-more/trace.json",
+          "streamlit/tests/runtime/media.rs"
         ]
       },
       "rust_plan": "st.video((bytes, \"video/mp4\")) registers the bytes in the content-addressed store and emits the measured Video element: the NATIVE type, the relative /media/{blake2b}.mp4 URL and the stretch width inside the message.",
       "compatibility_scope": "The journey-video-v1 chain: the pinned Python 1.66.1 fixture and the Rust example both serve the same committed one-second sample (a deterministic ffmpeg testsrc2 encode), so the media address /media/89d6baf253834c013e2bc52aab2354d4.mp4, the 206 Range response with content-range bytes 0-3604/3605 and the served body digest are byte-identical across runtimes; the element proto (NATIVE + in-message stretch width) and the DOM player projection match exactly (both published replays 10/10/10 exit 0, python b27a3a2c... / native 76b6ca78...).",
       "limitations": [
-        "Coverage is the measured default call with in-memory mp4 bytes; start/end, loop, autoplay, muted and text subtitles are now measured end to end (2026-10-28, frozen media-params): VTT text resolves to .vtt media tracks, invalid text renders the measured StreamlitAPIException element, and the SRT conversion follows the reference rules (unmeasured path). YouTube/iframes, URL inputs, alt and mime types beyond the measured map remain unobserved.",
+        "Coverage is the measured default call with in-memory mp4 bytes; start/end, loop, autoplay, muted and text subtitles are now measured end to end (2026-10-28, frozen media-params): VTT text resolves to .vtt media tracks, invalid text renders the measured StreamlitAPIException element, and the SRT conversion follows the reference rules (unmeasured path). URL inputs are now measured (2026-10-28, frozen media-more): a direct URL rides the wire unchanged bypassing the media store, and SRT subtitle text converts to a VTT track per the reference rules (the Rust validator bug that rejected valid SRT was found and fixed by the differential). YouTube/iframe inputs need a real external source and remain unmeasured, as do alt and mime types beyond the measured map.observed.",
         "Committed video sample SHA256 dcda48c8cec73a32406a184d635c41a324107f0f51a0cb0fe1124cc0791a19a6; data integrity is retained without source identity gates.",
         "Added Range subset: 27 actual public-call WS/HTTP inputs across CSV, empty download and the committed MP4, including three video requests. Rust matches frozen status/URL/range/length/type/disposition/accept-ranges and original bytes, with 206 suffixes and 416 invalid or unsatisfiable single/multi requests. This does not establish browser seeking, HEAD, If-Range/CORS, duplicate or all numeric/header forms, or full media lifecycle."
       ]

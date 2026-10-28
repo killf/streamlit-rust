@@ -300,3 +300,106 @@ async fn receive_large(stream: &mut TcpStream) -> ForwardMsg {
     stream.read_exact(&mut body).await.expect("large frame body");
     prost::Message::decode(body.as_slice()).expect("decode large ForwardMsg")
 }
+
+/// M5 capacity edge: many live sessions at once, each carrying its own state.
+/// Every session must finish its run, keep its identity on reconnect, and
+/// retain its own counter — no cross-talk, no eviction while connected.
+#[actix_web::test]
+async fn many_concurrent_sessions_hold_independent_state() -> TestResult {
+    const SESSIONS: usize = 64;
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
+    let server = StreamlitServer::new(counter_entry, "127.0.0.1".into(), 0);
+    let server = HttpServer::new(move || App::new().app_data(web::Data::new(server.clone())).configure(configure_routes)).workers(1).listen(listener)?.run();
+    let handle = server.handle();
+    let task = actix_web::rt::spawn(server);
+    let began = std::time::Instant::now();
+
+    // Open all sessions first; each parks after its first run.
+    let mut parked = Vec::new();
+    for index in 0..SESSIONS {
+        let mut stream = sessions::connect(address, None).await;
+        send_binary(
+            &mut stream,
+            &(BackMsg {
+                r#type: Some(back_msg::Type::RerunScript(ClientState::default())),
+            })
+            .encode_to_vec(),
+        )
+        .await;
+        let mut session_id = String::new();
+        let mut button_id = String::new();
+        loop {
+            match receive(&mut stream).await.r#type {
+                Some(forward_msg::Type::NewSession(new)) => session_id = new.initialize.ok_or("init")?.session_id,
+                Some(forward_msg::Type::Delta(delta)) => {
+                    if let Some(delta::Type::NewElement(element)) = delta.r#type
+                        && let Some(element::Type::Button(button)) = element.r#type
+                    {
+                        button_id = button.id;
+                    }
+                }
+                Some(forward_msg::Type::ScriptFinished(_)) => break,
+                _ => {}
+            }
+        }
+        parked.push((index, stream, session_id, button_id));
+    }
+    assert_eq!(parked.len(), SESSIONS);
+
+    // Every session now bumps exactly once: each holds its own identity.
+    let mut bumps_ok = 0;
+    for (index, stream, session_id, button_id) in parked.iter_mut() {
+        let _ = index;
+        send_binary(
+            stream,
+            &(BackMsg {
+                r#type: Some(back_msg::Type::RerunScript(ClientState {
+                    widget_states: Some(WidgetStates {
+                        widgets: vec![WidgetState {
+                            id: button_id.clone(),
+                            value: Some(widget_state::Value::TriggerValue(true)),
+                        }],
+                    }),
+                    ..Default::default()
+                })),
+            })
+            .encode_to_vec(),
+        )
+        .await;
+        let mut rounds = None;
+        let mut seen_id = String::new();
+        loop {
+            match receive(stream).await.r#type {
+                Some(forward_msg::Type::NewSession(new)) => seen_id = new.initialize.ok_or("init")?.session_id,
+                Some(forward_msg::Type::Delta(delta)) => {
+                    if let Some(delta::Type::NewElement(element)) = delta.r#type
+                        && let Some(element::Type::Markdown(text)) = element.r#type
+                        && let Some(value) = text.body.strip_prefix("rounds=")
+                    {
+                        rounds = Some(value.parse::<u64>()?);
+                    }
+                }
+                Some(forward_msg::Type::ScriptFinished(_)) => break,
+                _ => {}
+            }
+        }
+        assert_eq!(seen_id, *session_id, "a connected session keeps its identity");
+        assert_eq!(rounds, Some(1), "each session saw exactly its own bump");
+        bumps_ok += 1;
+    }
+    assert_eq!(bumps_ok, SESSIONS);
+    println!(
+        "stability_measurement={}",
+        serde_json::json!({
+            "scenario": "session_capacity",
+            "concurrent_sessions": SESSIONS,
+            "bumps_landed": bumps_ok,
+            "total_wall_seconds": began.elapsed().as_secs_f64(),
+        })
+    );
+    drop(parked);
+    handle.stop(false).await;
+    task.await??;
+    Ok(())
+}

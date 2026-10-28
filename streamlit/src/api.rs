@@ -976,6 +976,9 @@ impl From<(Vec<u8>, String)> for AudioOptions {
 pub struct VideoOptions {
     data: Vec<u8>,
     mime: String,
+    /// A direct URL rides the wire unchanged (no upload): the measured
+    /// reference passes it through with type NATIVE and the playback knobs.
+    url: Option<String>,
     start_time: Option<f64>,
     end_time: Option<f64>,
     loop_: bool,
@@ -988,6 +991,7 @@ impl VideoOptions {
         Self {
             data,
             mime: mime.into(),
+            url: None,
             start_time: None,
             end_time: None,
             loop_: false,
@@ -995,6 +999,17 @@ impl VideoOptions {
             muted: false,
             subtitles: Vec::new(),
         }
+    }
+
+    /// A direct URL instead of bytes (Python `st.video("https://…")`).
+    pub fn from_url(url: impl Into<String>) -> Self {
+        Self::new(Vec::new(), "video/mp4").url(url)
+    }
+
+    /// Set the direct URL (builder form of `from_url`).
+    pub fn url(mut self, url: impl Into<String>) -> Self {
+        self.url = Some(url.into());
+        self
     }
     /// Where playback starts, in seconds (fractional seconds truncate).
     pub fn start_time(mut self, seconds: f64) -> Self {
@@ -2202,7 +2217,7 @@ impl<C: AppendChild> StreamlitApi for C {
         if options.labels.is_empty() {
             return &[];
         }
-        let element = Rc::new(RefCell::new(TabsElement::new(options.labels, options.default_tab)));
+        let element = Rc::new(RefCell::new(TabsElement::new(options.labels, options.default_tab, options.width, options.height)));
         let app = self.get_app();
         let base_path = self.next_child_path();
         self.push(element.clone());
@@ -2306,6 +2321,18 @@ impl<C: AppendChild> StreamlitApi for C {
 
     fn video<T: Into<VideoOptions>>(&self, options: T) {
         let options = options.into();
+        if let Some(url) = options.url.clone() {
+            // Measured: a direct URL bypasses the media store entirely.
+            let element = crate::elements::media::VideoElement::new(url).with_playback(crate::elements::media::Playback {
+                start_time: options.start_time,
+                end_time: options.end_time,
+                loop_: options.loop_,
+                autoplay: options.autoplay,
+                muted: options.muted,
+            });
+            self.push(Rc::new(RefCell::new(element)));
+            return;
+        }
         // Subtitles resolve first: invalid text renders the reference's API
         // exception element instead of the player (measured media-params).
         let mut tracks = Vec::new();

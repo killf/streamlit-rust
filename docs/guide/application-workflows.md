@@ -231,6 +231,8 @@ Rust 已采纳方案 A：显示转换保留真实行数并合成虚拟 RangeInde
 
 **列**（[columns 参考](../../tests/reference/reference-browser/columns-params/README.md)，22/22 块逐字一致）：`ColumnsOptions` 的 `gap(Gap::Small/Medium/Large)`、`border(true)`、`vertical_alignment(Top/Center/Bottom)` 与加权 spec（`vec![3.0, 1.0]` → 权重 0.75/0.25，**f64 精度**：三等分 = 0.3333333333333333）。实测 wire：容器的 gap 同时复制到每个列块；容器固定 scale 1.0 / wrap / justify UNDEFINED / align STRETCH。`Gap`/`VerticalAlignment` 自 crate 根导出。
 
+**媒体/布局边界补充**（[media-more 参考](../../tests/reference/reference-browser/media-more/README.md)，6/6 逐字一致）：`VideoOptions::from_url("https://…")` 直接 URL 上 wire 不经媒体存储（播放参数同行）；SRT 字幕文本按参考规则转换为 VTT 后存 `.vtt` 轨（本批修复 Rust 校验器把合法 SRT 误判为非法的缺陷）；`PopoverOptions::wrap(true)` 进入消息；`TabsOptions::width/height` 走块级 pixel 配置。多音轨、YouTube/iframe 输入未测。会话容量：64 个并发 WS 会话各自状态独立、重连保持身份（M5 回归 `many_concurrent_sessions_hold_independent_state`）；媒体为进程全局内容寻址、会话过期不回收（与 Python 内存存储同语义，roadmap 记录在案）。
+
 ## 运行配置面（显式旋钮）
 
 Rust 不解析 `config.toml`（矩阵既有边界：Python 的 TOML 注册表不是兼容目标）；运行项全部是**显式**的服务器构建器与宏参数，无隐藏配置文件。完整清单：
@@ -340,6 +342,7 @@ async fn main(st: &Streamlit) {
 - **chat**（`http://127.0.0.1:8522/`）：chat message and input。
 - **colconfig**（`http://127.0.0.1:8529/`）：column configs。
 - **columns_params**（`http://127.0.0.1:8595/`）：st.columns parameters。
+- **media_more**（`http://127.0.0.1:8597/`）：video URL 输入、SRT 字幕、popover wrap、tabs 宽高。
 - **combined**（`http://127.0.0.1:8596/`）：the M7 cross-capability differential page。
 - **componenttrigger**（`http://127.0.0.1:8542/`）：component triggers。
 - **componentv2**（`http://127.0.0.1:8539/`）：components v2。
