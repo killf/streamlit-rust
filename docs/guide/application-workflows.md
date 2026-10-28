@@ -275,13 +275,13 @@ async fn main(st: &Streamlit) {
 
 本节是 2026-10-28 启动的 M4 里程碑的设计草案；**除已冻结的 Python 参考外，以下 Rust 接口均未实现**，拟新增公共接口按项目规则先供确认，不将规划写成已可用。
 
-**请求上下文**（首个切片，参考已冻结）：目标 `st.context` 等价能力——应用在每轮渲染中读取当前浏览器连接的请求头、语言、时区与页面 URL。锁定的 Python 1.66.1 实测参考见[冻结证据](../../tests/reference/reference-browser/context-headers/README.md)：`st.context` 暴露 `headers/cookies/ip_address/is_embedded/locale/theme/timezone/timezone_offset/url`，其中 headers 取自 WS 握手请求头。拟议 Rust 接口：`st.request_context()` 返回只读快照（builder/环境变量配置的可选头转发白名单默认不含 `Cookie` 等敏感头，凭据类字段需显式开启）；拒绝在回调外缓存跨轮快照。cookie 读取、theme 反射与 `is_embedded` 的后续切片另行设计。
+**请求上下文**（首个切片，已确认并实施 v1）：`st.request_context()` 返回当前浏览器连接的只读快照 `RequestContext { headers, is_embedded }`——headers 为本连接 WS 握手请求头经服务器白名单过滤后的映射（名称统一小写；HTTP 头名本就大小写不敏感，Python 参考原样保留收到的拼写是记录在案的刻意差异），`is_embedded` 按 `st_embed=true` 查询参数推导。白名单由服务器构建器选择：`RequestHeaderAccess::Standard`（默认：user-agent、accept-language、accept、origin、host）、`Selected([...])`（显式枚举）或 `All`（全部握手头，即冻结参考实测的 Python 行为，含凭据与传输头，仅限可信部署）。锁定的 Python 1.66.1 实测参考见[冻结证据](../../tests/reference/reference-browser/context-headers/README.md)；`url/locale/timezone/theme/ip` 在参考中来自浏览器前端会话而非握手（原生连接下为空），这些字段与 cookie 读取留待对应浏览器路径实测后再加入，不凭空补值。快照按调用即时生成；标头在连接建立时捕获、重连时刷新。
 
 **认证与用户信息**：目标是本地可验证的凭据边界——一个可插拔的认证接口（HTTP 头/伪造 OIDC 等价物，测试用假凭据），认证后 `st.user` 等价只读视图暴露身份字段；未配置认证器时应用照常运行。按 M4 退出条件以假凭据与隔离依赖验证，权限边界在设计中明确；真实 OIDC 提供方不在本里程碑范围。
 
 **配置**：Python 的 `config.toml` 注册表不是 Rust 的兼容目标（矩阵既有边界）；Rust 侧的目标是把当前命令行/builder 已覆盖的运行项（地址、端口、静态目录、头部安全开关等）整理为文档化的显式配置面，并为 M4 新能力（认证器、头转发白名单）扩展同风格的显式选项。`st.secrets` 的文件存储暂维持不适用，若用户需要本地 secrets 加载再立项。
 
-本批已交付：st.context 的 Python 行为参考（协议级）、上述设计草案与矩阵条目重开；Rust 实现与浏览器对照在后续批次按"实现+接通+边界验证+文档+示例+证据"推进。
+已交付：st.context 的 Python 行为参考（协议级）、矩阵条目重开与 `request_context()` v1（示例 `request_context.rs`、WS 回归与浏览器证据见各证据目录）；认证/用户信息切片待设计确认后推进。
 
 ## 参考数据与验证
 

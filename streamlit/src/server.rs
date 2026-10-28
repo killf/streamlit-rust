@@ -62,8 +62,20 @@ async fn websocket_handler(req: HttpRequest, stream: web::Payload, state: web::D
     let requested_id = reconnect_id(protocol).map(str::to_owned);
     let (mut response, session, msg_stream) = actix_ws::handle(&req, stream)?;
 
+    // Capture the whitelisted handshake headers for this connection; the
+    // session store refreshes them on every (re)connect.
+    let headers = req
+        .headers()
+        .iter()
+        .filter(|(name, _)| state.request_headers.allows(name.as_str()))
+        .map(|(name, value)| {
+            let text = value.to_str().map(str::to_owned).unwrap_or_default();
+            (name.as_str().to_owned(), text)
+        })
+        .collect::<std::collections::BTreeMap<_, _>>();
+
     actix_web::rt::spawn(async move {
-        let lease = state.sessions.connect(requested_id.as_deref()).await;
+        let lease = state.sessions.connect(requested_id.as_deref(), headers).await;
         if let Err(e) = handle_connection(session, msg_stream, state.get_ref(), lease).await {
             log::error!("WebSocket connection error: {}", e);
         }
@@ -233,6 +245,7 @@ pub struct StreamlitServer {
     pub(crate) port: u16,
     sessions: Arc<SessionStore>,
     static_dir: Option<PathBuf>,
+    pub(crate) request_headers: crate::request_context::RequestHeaderAccess,
 }
 
 impl StreamlitServer {
@@ -243,6 +256,7 @@ impl StreamlitServer {
             port,
             sessions: Arc::new(SessionStore::new(Duration::from_secs(120))),
             static_dir: None,
+            request_headers: crate::request_context::RequestHeaderAccess::Standard,
         }
     }
 
@@ -263,6 +277,15 @@ impl StreamlitServer {
     /// This builder creates a new store and must not be used as a hot reload.
     pub fn with_disconnected_session_ttl(mut self, ttl: Duration) -> Self {
         self.sessions = Arc::new(SessionStore::new(ttl));
+        self
+    }
+
+    /// Choose which WebSocket handshake headers `st.request_context()`
+    /// reflects. The default exposes only common non-credential headers;
+    /// `All` reproduces the measured Python behavior (credentials included)
+    /// and belongs to trusted deployments only.
+    pub fn with_request_headers(mut self, access: crate::request_context::RequestHeaderAccess) -> Self {
+        self.request_headers = access;
         self
     }
 

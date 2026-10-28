@@ -88,12 +88,12 @@
     "unavailable_requested_pages": 7,
     "redirect_aliases_not_counted": 2,
     "implementation_status_counts": {
-      "not_applicable": 54,
-      "implemented": 128
+      "not_applicable": 53,
+      "implemented": 129
     },
     "compatibility_status_counts": {
-      "not_applicable": 54,
-      "partial": 128
+      "not_applicable": 53,
+      "partial": 129
     },
     "unique_feature_ids": 182,
     "unique_official_urls": 182,
@@ -239,18 +239,28 @@
       "category": "APPLICATION LOGIC/Caching and state",
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/caching-and-state/st.context",
-      "rust_source_path": null,
-      "implementation_status": "not_applicable",
-      "compatibility_status": "not_applicable",
+      "rust_source_path": "streamlit/src/request_context.rs",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "a9c52926368822a0eb8ae0e7307dd497809d766432a70431458756ba25d6ec6b",
         "python_browser_trace": null,
         "m4_python_reference": [
           "tests/reference/reference-browser/context-headers/trace.json",
           "tests/reference/reference-browser/context-headers/README.md"
-        ]
+        ],
+        "m4_rust_regression": "streamlit/tests/runtime/request_context.rs",
+        "m4_rust_browser": [
+          "tests/browser/rust-request-context/trace.json",
+          "tests/browser/rust-request-context/README.md"
+        ],
+        "driven_example": "streamlit/examples/request_context.rs"
       },
-      "not_applicable_reason": "Re-opened for M4 (2026-10-28): the runtime terminates the browser connection itself, so a request context does exist. A frozen 1.66.1 protocol reference now measures the public surface — every WS handshake header is reflected without a whitelist, ip_address is null without X-Forwarded-For, and url/timezone/locale/theme stay empty because they come from the browser session, not the handshake. The Rust interface (read-only per-run snapshot with a default header whitelist, credentials gated) is proposed in the guide and awaits confirmation before implementation; no Rust code claims this surface yet."
+      "rust_plan": "Mirror the measured st.context surface slice by slice: headers and is_embedded shipped; url/locale/timezone/theme/ip await their browser-path measurement; cookies remain undesigned.",
+      "limitations": [
+        "Partial by slice (2026-10-28): request_context() reflects the whitelisted WebSocket handshake headers (lowercase names — Python passes the received spelling through) plus is_embedded from st_embed; RequestHeaderAccess Standard/Selected/All chooses the surface, All mirroring the measured pass-everything Python behavior including credentials.",
+        "The frozen Python reference shows url/locale/timezone/theme/ip_address come from the browser session, not the handshake (empty on native connections); those fields and cookies are unimplemented until their browser path is measured."
+      ]
     },
     {
       "feature_id": "st.query_params",

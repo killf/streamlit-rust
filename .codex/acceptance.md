@@ -230,6 +230,12 @@ PKG-A 与宏支撑 A 实施后逐项对照 M6 退出条件（"干净环境可依
 
 M4 运行集成启动，按"文档先行、参考测量先于实现"执行。指南新增设计草案章节（请求上下文/认证与用户信息/配置三块，明确标注未实现、拟议接口待确认）；首个切片选 st.context：参考应用 + 带 固定探测头 的原生 WS 采集器一次成功并冻结于 `tests/reference/reference-browser/context-headers/`（11 帧、两轮 rerun 报告逐字相同、清理干净），离线测试双向断言。实测设计输入：Python 反映全部握手头（无白名单），直连 ip 为 null，url/timezone/locale/theme 来自浏览器会话而非握手（原生连接下为空）——Rust 拟议默认白名单构成刻意安全偏离并已在指南与矩阵标注。矩阵 st.context 的 not_applicable 理由按实测重写（运行时自身终结浏览器连接，请求上下文存在），证据挂参考；实现状态仍为未实现，不冒称任何 Rust 能力。采集器首次运行的头部解码笔误发生在 trace 写出前，属采集器编程失误，修正后一次成功，无失败前缀保留。config.toml 注册表与 secrets 文件存储维持不适用；认证/用户信息切片待设计确认后推进。
 
+## Current M4 request-context slice validation (2026-10-28)
+
+用户确认拟议接口后实施首切片：新增 `request_context.rs` 模块（`RequestContext { headers, is_embedded }`、`RequestHeaderAccess` Standard/Selected/All，名称大小写不敏感匹配、暴露统一小写）；`StreamlitServer::with_request_headers` 构建器选择白名单，WS 入口按白名单捕获握手头、(重)连接时刷新；`SessionState` 持有头快照，`st.request_context()` 按调用即时生成（headers + 由 `st_embed` 查询参数推导的 is_embedded）。示例 `request_context.rs`（8590，默认白名单）演示并说明扩面方式。
+
+验证：单元回归覆盖三模式白名单与大小写；真实 WS 回归以带凭据/探测头的原生握手双向断言——默认面只回 user-agent/accept-language/accept/origin/host（Cookie、X-M4-Probe、Sec-WebSocket-* 不泄漏），`All` 模式与冻结 Python 参考的头集合逐头一致（小写化为记录差异），同一连接第二轮 `st_embed=true` 后 is_embedded 翻转；真实官方前端两阶段采集（默认 URL 与 `?st_embed=true`）冻结于 `tests/browser/rust-request-context/`——Chrome 真实连接白名单头渲染、`is_embedded` false→true、无 stException，离线测试断言 manifest 与语义。矩阵 st.context 升 implemented/partial（129/53）。已知边界：url/locale/timezone/theme/ip 未实现（参考证明来自浏览器会话而非握手）、cookies 未设计、caption DOM 抓取因 testid 差异未纳入断言（is_embedded 由 code 文本直接证明）。M4 后续切片待推进。
+
 ## Required fresh-checkout checks
 
 ```powershell

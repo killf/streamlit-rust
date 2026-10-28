@@ -26,7 +26,7 @@ M0 批次基线在干净代码快照 `b94ac474` 上完成，172 项 Rust 与 148
 
 选择参考保留[原 34 阶段前端输入](../tests/reference/reference-browser/dataframe-selection/README.md)，另补[八阶段 required 协议输入](../tests/reference/reference-browser/dataframe-required-protocol/README.md)，真实 Rust WS 共用 42 阶段回放。已修复空协议选择在返回、keyed 与 callback 间分裂的问题，包含空表/恢复时使用前轮行数上下文；此前选择批次的 177 项 Rust 和 1496 项冻结参考回归通过。新协议探针不宣称浏览器能清除 required 行，旧正确数据未重采。CSV 应用已由用户采纳[独立工作台方案 A](architecture.md#csv-application-integration--accepted-a)，先补使用说明，再实现与验证；其余方案不纳入本次范围。
 
-M4 运行集成已启动（2026-10-28）：st.context 条目按实测重开——冻结的 1.66.1 协议参考证明 headers 反映全部 WS 握手请求头（无白名单）、直连下 ip 为 null、url/timezone/locale/theme 来自浏览器会话而非握手；Rust 只读快照 + 默认头白名单的拟议接口已在指南供确认，实现待确认后推进。认证/用户信息（假凭据、可插拔认证器）与配置面整理为后续切片；config.toml 注册表与 secrets 文件存储维持既有不适用边界。见[启动验收](acceptance.md#current-m4-runtime-integration-start-2026-10-28)。
+M4 运行集成已启动（2026-10-28）：st.context 首切片已按用户确认实施——`st.request_context()` 返回白名单握手头（小写名）+ `st_embed` 标志，`RequestHeaderAccess` Standard/Selected/All 选择面（All 对齐冻结参考的全部头行为，含凭据，仅限可信部署）；WS 回归双向断言默认白名单不泄漏凭据/传输头、All 与参考集逐头一致，真实前端两阶段采集中 `is_embedded` 随 `?st_embed=true` 翻转。url/locale/timezone/theme/ip 在参考中来自浏览器会话而非握手，留待其浏览器路径实测后再加；cookies 未设计。认证/用户信息（假凭据、可插拔认证器）与配置面整理为后续切片；config.toml 注册表与 secrets 文件存储维持既有不适用边界。见[启动验收](acceptance.md#current-m4-runtime-integration-start-2026-10-28)与[首切片验收](acceptance.md#current-m4-request-context-slice-validation-2026-10-28)。
 
 ## Long-term milestones
 
