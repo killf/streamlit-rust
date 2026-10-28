@@ -289,7 +289,9 @@ async fn main(st: &Streamlit) {
 
 **配置**：Python 的 `config.toml` 注册表不是 Rust 的兼容目标（矩阵既有边界）；Rust 侧的目标是把当前命令行/builder 已覆盖的运行项（地址、端口、静态目录、头部安全开关等）整理为文档化的显式配置面，并为 M4 新能力（认证器、头转发白名单）扩展同风格的显式选项。`st.secrets` 的文件存储暂维持不适用，若用户需要本地 secrets 加载再立项。
 
-已交付：st.context 的 Python 行为参考（协议级）、矩阵条目重开与 `request_context()` v1（示例 `request_context.rs`、WS 回归与浏览器证据见各证据目录）；认证/用户信息切片待设计确认后推进。
+**认证与用户信息（已按指南推荐实施，公共形态待用户追认）**：`StreamlitServer::with_authenticator(Arc<dyn RequestAuthenticator>)`——trait 在连接建立时依据**全部**握手头（不受应用可见白名单限制；认证器是受信服务端配置）返回 `UserIdentity { sub, name, email, picture, roles, extra }` 或匿名；内置 `HeaderAuthenticator::new("x-test-user")`（假凭据：从指定请求头读 JSON 身份，本地/测试用，见 [auth 示例](../../streamlit/examples/auth.rs)），生产部署自行实现 trait。应用侧 `st.user()` 返回等价 `st.user` 的只读映射（`to_dict()`/`is_empty()`；实测无认证的 1.66.1 为**空映射**且无属性式访问，Rust 对齐：未配置认证器、未认证、或空 sub → 空映射）；OIDC `tokens` 子视图未实现（无提供方下参考行为未测）。`st.context.cookies` 等价为 `RequestContext::cookies()`——从**已白名单放行**的 Cookie 头解析键值（[参考](../../tests/reference/reference-browser/user-cookies/README.md)：原生连接 `probe-flavor=oat` → 同值 dict、缺失键 None；默认 Standard 不含 Cookie → 空 dict，显式 Selected/All 才可见）。
+
+已交付：st.context 的 Python 行为参考（协议级）、矩阵条目重开与 `request_context()` v1/v2（示例 `request_context.rs`、WS 回归与浏览器证据见各证据目录）。
 
 ## 参考数据与验证
 

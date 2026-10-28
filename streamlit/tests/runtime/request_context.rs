@@ -148,3 +148,93 @@ async fn request_context_all_mirrors_the_measured_python_surface() -> TestResult
     let _ = server.await;
     Ok(())
 }
+
+fn user_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        let user = st.user();
+        let context = st.request_context();
+        st.code(
+            json!({
+                "user": user.to_dict(),
+                "cookies": context.cookies(),
+            })
+            .to_string(),
+            "json",
+        );
+    })
+}
+
+#[actix_web::test]
+async fn header_identity_and_cookies_ride_the_connection() -> TestResult {
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
+    let server = StreamlitServer::new(user_entry, "127.0.0.1".into(), 0)
+        .with_authenticator(std::sync::Arc::new(crate::HeaderAuthenticator::new("x-test-user")))
+        .with_request_headers(crate::RequestHeaderAccess::Selected(vec!["cookie".into(), "user-agent".into()]));
+    let server = actix_web::rt::spawn(HttpServer::new(move || App::new().app_data(web::Data::new(server.clone())).configure(configure_routes)).workers(1).listen(listener)?.run());
+    let mut stream = TcpStream::connect(address).await?;
+    stream
+        .write_all(
+            format!(
+                "GET /_stcore/stream HTTP/1.1\r\nHost: {address}\r\nConnection: Upgrade\r\nUpgrade: websocket\r\n\
+                 Sec-WebSocket-Version: 13\r\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\nSec-WebSocket-Protocol: streamlit\r\n\
+                 Cookie: probe-flavor=oat; probe-session=42\r\n\
+                 X-Test-User: {{\"sub\":\"u1\",\"name\":\"Ada\",\"roles\":[\"admin\"],\"team\":\"core\"}}\r\n\r\n"
+            )
+            .as_bytes(),
+        )
+        .await?;
+    let mut response = Vec::new();
+    while !response.ends_with(b"\r\n\r\n") {
+        response.push(stream.read_u8().await?);
+    }
+    assert!(String::from_utf8(response)?.to_ascii_lowercase().starts_with("http/1.1 101"));
+    let report = run_context(&mut stream, "").await?;
+    let user = report["user"].as_object().ok_or("user mapping")?;
+    // The fake credential resolved the identity; the mapping mirrors the
+    // reference's dict shape (standard fields + claims).
+    assert_eq!(user.get("sub").and_then(|v| v.as_str()), Some("u1"));
+    assert_eq!(user.get("name").and_then(|v| v.as_str()), Some("Ada"));
+    assert_eq!(user.get("roles").and_then(|v| v.as_str()), Some("admin"));
+    assert_eq!(user.get("team").and_then(|v| v.as_str()), Some("core"));
+    // Cookies are visible because this server whitelisted the cookie header.
+    let cookies = report["cookies"].as_object().ok_or("cookies")?;
+    assert_eq!(cookies.get("probe-flavor").and_then(|v| v.as_str()), Some("oat"));
+    assert_eq!(cookies.get("probe-session").and_then(|v| v.as_str()), Some("42"));
+    drop(stream);
+    server.abort();
+    let _ = server.await;
+    Ok(())
+}
+
+#[actix_web::test]
+async fn without_an_authenticator_the_user_mapping_is_the_anonymous_baseline() -> TestResult {
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
+    let server = StreamlitServer::new(user_entry, "127.0.0.1".into(), 0);
+    let server = actix_web::rt::spawn(HttpServer::new(move || App::new().app_data(web::Data::new(server.clone())).configure(configure_routes)).workers(1).listen(listener)?.run());
+    let mut stream = TcpStream::connect(address).await?;
+    stream
+        .write_all(
+            format!(
+                "GET /_stcore/stream HTTP/1.1\r\nHost: {address}\r\nConnection: Upgrade\r\nUpgrade: websocket\r\n\
+                 Sec-WebSocket-Version: 13\r\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\nSec-WebSocket-Protocol: streamlit\r\n\
+                 Cookie: probe-flavor=oat\r\n\r\n"
+            )
+            .as_bytes(),
+        )
+        .await?;
+    let mut response = Vec::new();
+    while !response.ends_with(b"\r\n\r\n") {
+        response.push(stream.read_u8().await?);
+    }
+    let report = run_context(&mut stream, "").await?;
+    // The frozen reference: anonymous st.user is an empty mapping, and the
+    // default Standard whitelist keeps cookies invisible.
+    assert_eq!(report["user"].as_object().ok_or("user")?.len(), 0);
+    assert_eq!(report["cookies"].as_object().ok_or("cookies")?.len(), 0, "cookies leaked: {report}");
+    drop(stream);
+    server.abort();
+    let _ = server.await;
+    Ok(())
+}

@@ -1,0 +1,198 @@
+{
+  "schema_version": 1,
+  "runtime": "rust",
+  "reference_version": "1.66.1",
+  "captured_at_utc": "2026-10-28T08:11:31.444870+00:00",
+  "scope": "Anonymous st.user mapping and st.context.cookies parsing over one native WS with probe cookies; no authenticated oracle exists in 1.66.1.",
+  "server_command": null,
+  "server_cleanup": "caller-owned",
+  "url": "http://127.0.0.1:8592",
+  "probe_cookies": "probe-flavor=oat; probe-session=42",
+  "frames": [
+    {
+      "direction": "client->server",
+      "bytes": 2,
+      "base64": "WgA=",
+      "message": {
+        "rerun_script": {}
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 219,
+      "base64": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkMjVkZjU0YmMtNTgzZi00MDQ4LTljYzctNTFhNGRhOTU5NTZjEiQ0M2FmNjE3Ni1mYzM5LTRiZDEtOTMwMy01OTJiM2QwNjUwNjMaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl",
+      "message": {
+        "metadata": {
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "new_session": {
+          "initialize": {
+            "user_info": {},
+            "environment_info": {
+              "streamlit_version": "1.66.1"
+            },
+            "session_status": {},
+            "session_id": "25df54bc-583f-4048-9cc7-51a4da95956c"
+          },
+          "script_run_id": "43af6176-fc39-4bd1-9303-592b3d065063",
+          "name": "Streamlit Rust",
+          "config": {
+            "show_error_links": "SHOW_ERROR_LINKS_FALSE"
+          },
+          "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 28,
+      "base64": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ==",
+      "message": {
+        "hash": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 116,
+      "base64": "CiBmOGQ5N2FiMWZlNmEwNjQxZDg0MGM3MGQyYTVlMTU0NhImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqKBom+gIZCgJoMRoRQXV0aGVudGljYXRlZCBhcHA4AdIDAggB6gMCCAE=",
+      "message": {
+        "hash": "f8d97ab1fe6a0641d840c70d2a5e1546",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h1",
+              "body": "Authenticated app",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 101,
+      "base64": "CiAzZjY3MjUyODJjNDRiM2U2N2RmNzI0OWNjYjZmZmFjZhImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqGRoXggMKCgJ7fRIEanNvbsoDAhAB0gMCCAE=",
+      "message": {
+        "hash": "3f6725282c44b3e67df7249ccb6ffacf",
+        "metadata": {
+          "delta_path": [
+            0,
+            1
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "code": {
+              "code_text": "{}",
+              "language": "json"
+            },
+            "height_config": {
+              "use_content": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 164,
+      "base64": "CiA0ZDAyOGIyMTQxZDA4NDI1ODNiYzFhZDUxNGVlY2FiZRImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqWBpWggNJCkF7InVzZXIiOnt9LCJjb29raWVzIjp7InByb2JlLWZsYXZvciI6Im9hdCIsInByb2JlLXNlc3Npb24iOiI0MiJ9fRIEanNvbsoDAhAB0gMCCAE=",
+      "message": {
+        "hash": "4d028b2141d0842583bc1ad514eecabe",
+        "metadata": {
+          "delta_path": [
+            0,
+            2
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "code": {
+              "code_text": "{\"user\":{},\"cookies\":{\"probe-flavor\":\"oat\",\"probe-session\":\"42\"}}",
+              "language": "json"
+            },
+            "height_config": {
+              "use_content": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 19,
+      "base64": "Cg9zY3JpcHRfZmluaXNoZWQwAA==",
+      "message": {
+        "hash": "script_finished",
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    }
+  ],
+  "runs": [
+    {
+      "initialize": {
+        "user_info": {},
+        "environment_info": {
+          "streamlit_version": "1.66.1"
+        },
+        "session_status": {},
+        "session_id": "25df54bc-583f-4048-9cc7-51a4da95956c"
+      },
+      "script_run_id": "43af6176-fc39-4bd1-9303-592b3d065063",
+      "name": "Streamlit Rust",
+      "config": {
+        "show_error_links": "SHOW_ERROR_LINKS_FALSE"
+      },
+      "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+      "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+    }
+  ],
+  "finishes": [
+    0
+  ],
+  "report": {
+    "user": {},
+    "cookies": {
+      "probe-flavor": "oat",
+      "probe-session": "42"
+    }
+  },
+  "health": {
+    "status": 200,
+    "body": "ok"
+  },
+  "handshake": {
+    "status": 101,
+    "subprotocol": "streamlit"
+  },
+  "cleanup": {
+    "websocket_closed": true,
+    "server_stopped": true
+  },
+  "successful": true
+}

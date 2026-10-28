@@ -77,7 +77,7 @@ async fn takeover_waits_for_awaiting_old_run_without_blocking_other_sessions() -
     let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
     let address = listener.local_addr()?;
     let server_state = StreamlitServer::new(paused_entry, "127.0.0.1".into(), 0);
-    let seed = server_state.sessions.connect(None, Default::default()).await;
+    let seed = server_state.sessions.connect(None, Default::default(), Default::default()).await;
     let id = seed.id.clone();
     let control = seed.state.clone();
     control.set("pause_next", true)?;

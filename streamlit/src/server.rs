@@ -64,18 +64,25 @@ async fn websocket_handler(req: HttpRequest, stream: web::Payload, state: web::D
 
     // Capture the whitelisted handshake headers for this connection; the
     // session store refreshes them on every (re)connect.
-    let headers = req
+    let all_headers = req
         .headers()
         .iter()
-        .filter(|(name, _)| state.request_headers.allows(name.as_str()))
         .map(|(name, value)| {
             let text = value.to_str().map(str::to_owned).unwrap_or_default();
             (name.as_str().to_owned(), text)
         })
         .collect::<std::collections::BTreeMap<_, _>>();
+    let headers = all_headers
+        .iter()
+        .filter(|(name, _)| state.request_headers.allows(name))
+        .map(|(name, value)| (name.clone(), value.clone()))
+        .collect::<std::collections::BTreeMap<_, _>>();
+    // The authenticator is trusted server configuration: it reads the full
+    // handshake, never just the app-visible whitelist.
+    let identity = state.authenticator.as_ref().and_then(|authenticator| authenticator.authenticate(&all_headers)).unwrap_or_default();
 
     actix_web::rt::spawn(async move {
-        let lease = state.sessions.connect(requested_id.as_deref(), headers).await;
+        let lease = state.sessions.connect(requested_id.as_deref(), headers, identity).await;
         if let Err(e) = handle_connection(session, msg_stream, state.get_ref(), lease).await {
             log::error!("WebSocket connection error: {}", e);
         }
@@ -247,6 +254,10 @@ pub struct StreamlitServer {
     /// The server-side upload byte cap; an oversized PUT answers 413, mirroring
     /// the pinned server's server.maxUploadSize enforcement (measured 2026-10-28).
     pub(crate) max_upload_bytes: usize,
+    /// Optional connection authenticator; resolved once per (re)connect against
+    /// every handshake header. Without one, `st.user()` maps to empty — the
+    /// measured anonymous 1.66.1 baseline.
+    pub(crate) authenticator: Option<std::sync::Arc<dyn crate::request_context::RequestAuthenticator>>,
 }
 
 impl StreamlitServer {
@@ -259,6 +270,7 @@ impl StreamlitServer {
             static_dir: None,
             request_headers: crate::request_context::RequestHeaderAccess::Standard,
             max_upload_bytes: 200 * 1024 * 1024,
+            authenticator: None,
         }
     }
 
@@ -288,6 +300,15 @@ impl StreamlitServer {
     /// and belongs to trusted deployments only.
     pub fn with_request_headers(mut self, access: crate::request_context::RequestHeaderAccess) -> Self {
         self.request_headers = access;
+        self
+    }
+
+    /// Attach a connection authenticator: it sees every handshake header
+    /// (regardless of the app-visible whitelist) and resolves the identity
+    /// `st.user()` reflects. `HeaderAuthenticator` provides fake credentials
+    /// for local development and tests.
+    pub fn with_authenticator(mut self, authenticator: std::sync::Arc<dyn crate::request_context::RequestAuthenticator>) -> Self {
+        self.authenticator = Some(authenticator);
         self
     }
 

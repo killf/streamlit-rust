@@ -49,6 +49,9 @@ pub struct SessionState {
     /// The browser-reported page context of the latest run request
     /// (url/locale/timezone/theme/embedded); absent for native clients.
     pub(crate) context_info: Arc<Mutex<Option<crate::proto::ContextInfo>>>,
+    /// The identity the server's authenticator resolved for the owning
+    /// connection (empty when none); refreshed on reconnect.
+    pub(crate) user_identity: Arc<Mutex<crate::request_context::UserIdentity>>,
 }
 
 impl SessionState {
@@ -62,6 +65,11 @@ impl SessionState {
     /// request, and cleared when the client sends none.
     pub(crate) fn set_context_info(&self, info: Option<crate::proto::ContextInfo>) {
         *self.context_info.lock() = info;
+    }
+
+    /// Replace the connection identity; called at connect and reconnect time.
+    pub(crate) fn set_user_identity(&self, identity: crate::request_context::UserIdentity) {
+        *self.user_identity.lock() = identity;
     }
 
     /// Read a typed value. Missing keys return `Ok(None)`; type mismatches return
@@ -135,6 +143,17 @@ impl Streamlit {
         let app = self.app.clone();
         let state = self.session_state();
         crate::QueryParams::new(app, state, &self.allocator)
+    }
+
+    /// The authenticated identity of the current connection, as the
+    /// `st.user`-equivalent mapping. Without a server authenticator (or when
+    /// the credentials did not identify a user) the mapping is empty — the
+    /// measured anonymous 1.66.1 baseline. Attribute-style access does not
+    /// exist upstream either; read the mapping's keys.
+    pub fn user(&self) -> crate::request_context::UserView {
+        crate::request_context::UserView {
+            mapping: self.session_state().user_identity.lock().to_dict(),
+        }
     }
 
     /// The current browser connection's request context (the measured
@@ -220,7 +239,7 @@ impl SessionStore {
         }
     }
 
-    pub(crate) async fn connect(self: &Arc<Self>, requested_id: Option<&str>, headers: std::collections::BTreeMap<String, String>) -> SessionLease {
+    pub(crate) async fn connect(self: &Arc<Self>, requested_id: Option<&str>, headers: std::collections::BTreeMap<String, String>, identity: crate::request_context::UserIdentity) -> SessionLease {
         let previous_run = {
             let mut sessions = self.sessions.lock();
             let now = Instant::now();
@@ -234,10 +253,10 @@ impl SessionStore {
             Some(run) => Some(run.lock_owned().await),
             None => None,
         };
-        self.connect_at(requested_id, Instant::now(), headers)
+        self.connect_at(requested_id, Instant::now(), headers, identity)
     }
 
-    fn connect_at(self: &Arc<Self>, requested_id: Option<&str>, now: Instant, headers: std::collections::BTreeMap<String, String>) -> SessionLease {
+    fn connect_at(self: &Arc<Self>, requested_id: Option<&str>, now: Instant, headers: std::collections::BTreeMap<String, String>, identity: crate::request_context::UserIdentity) -> SessionLease {
         let mut sessions = self.sessions.lock();
         // Lazy expiry at each connection; connected sessions never expire.
         sessions.retain(|_, session| session.disconnected_at.is_none_or(|at| now.duration_since(at) < self.disconnected_ttl));
@@ -247,6 +266,7 @@ impl SessionStore {
             session.owner = uuid::Uuid::new_v4();
             session.disconnected_at = None;
             session.state.set_request_headers(headers);
+            session.state.set_user_identity(identity);
             return SessionLease {
                 id: id.to_owned(),
                 state: session.state.clone(),
@@ -261,6 +281,7 @@ impl SessionStore {
         let owner = uuid::Uuid::new_v4();
         let run = Arc::new(tokio::sync::Mutex::new(()));
         state.set_request_headers(headers);
+        state.set_user_identity(identity);
         sessions.insert(
             id.clone(),
             StoredSession {
@@ -338,20 +359,20 @@ mod tests {
     #[tokio::test]
     async fn retained_uploads_are_session_local_and_fresh_sessions_start_empty() -> anyhow::Result<()> {
         let store = Arc::new(SessionStore::new(Duration::from_secs(5)));
-        let lease = store.connect(None, Default::default()).await;
+        let lease = store.connect(None, Default::default(), Default::default()).await;
         let id = lease.id.clone();
         lease.state.uploads.lock().insert("file".into(), "sales.csv".into(), Some("text/csv".into()), vec![1, 2, 3]);
-        let other = store.connect(None, Default::default()).await;
+        let other = store.connect(None, Default::default(), Default::default()).await;
         let other_state = store.state_for_upload(&other.id).ok_or_else(|| anyhow::anyhow!("connected session must exist"))?;
         assert!(other_state.uploads.lock().get("file").is_none());
         assert!(store.state_for_upload("unknown").is_none());
         drop(lease);
-        let restored = store.connect(Some(&id), Default::default()).await;
+        let restored = store.connect(Some(&id), Default::default(), Default::default()).await;
         assert_eq!(restored.id, id);
         let restored_state = store.state_for_upload(&id).ok_or_else(|| anyhow::anyhow!("retained session must exist"))?;
         let file = restored_state.uploads.lock().get("file").ok_or_else(|| anyhow::anyhow!("retained upload must exist"))?;
         assert_eq!(file.as_bytes(), &[1, 2, 3]);
-        let fresh = store.connect(None, Default::default()).await;
+        let fresh = store.connect(None, Default::default(), Default::default()).await;
         assert_ne!(fresh.id, id);
         let fresh_state = store.state_for_upload(&fresh.id).ok_or_else(|| anyhow::anyhow!("fresh connected session must exist"))?;
         assert!(fresh_state.uploads.lock().get("file").is_none());
@@ -362,12 +383,12 @@ mod tests {
     #[tokio::test]
     async fn upload_lookup_obeys_local_retention_and_does_not_renew_expiry() {
         let store = Arc::new(SessionStore::new(Duration::ZERO));
-        let lease = store.connect(None, Default::default()).await;
+        let lease = store.connect(None, Default::default(), Default::default()).await;
         let id = lease.id.clone();
         assert!(store.state_for_upload(&id).is_some(), "connected sessions do not expire");
         drop(lease);
         assert!(store.state_for_upload(&id).is_none());
-        let fresh = store.connect(Some(&id), Default::default()).await;
+        let fresh = store.connect(Some(&id), Default::default(), Default::default()).await;
         assert_ne!(fresh.id, id);
         assert!(fresh.state.uploads.lock().get("file").is_none());
     }
@@ -380,7 +401,7 @@ mod tests {
             let mut active = Vec::new();
             let mut watched = Vec::new();
             for index in 0..32 {
-                let lease = store.connect(None, Default::default()).await;
+                let lease = store.connect(None, Default::default(), Default::default()).await;
                 lease.state.set("marker", format!("{cycle}-{index}"))?;
                 lease.state.uploads.lock().insert("fixture".into(), "fixture.bin".into(), None, vec![42; 4096]);
                 let st = Streamlit::with_session_state(lease.state.clone());
@@ -394,7 +415,7 @@ mod tests {
             // 2. 当前 lease 退出后仍是惰性到期；下次连接才释放注册表引用。
             drop(active);
             assert_eq!(store.sessions.lock().len(), 32);
-            let fresh = store.connect(None, Default::default()).await;
+            let fresh = store.connect(None, Default::default(), Default::default()).await;
             assert_eq!(store.sessions.lock().len(), 1);
             for (id, values, uploads, resource) in watched {
                 assert!(store.state_for_upload(&id).is_none());
@@ -414,26 +435,26 @@ mod tests {
     #[tokio::test]
     async fn leases_restore_expire_and_ignore_superseded_drop() -> anyhow::Result<()> {
         let store = Arc::new(SessionStore::new(Duration::from_secs(5)));
-        let lease = store.connect(None, Default::default()).await;
+        let lease = store.connect(None, Default::default(), Default::default()).await;
         let id = lease.id.clone();
         lease.state.set("count", 2)?;
-        let replacement = store.connect(Some(&id), Default::default()).await;
+        let replacement = store.connect(Some(&id), Default::default(), Default::default()).await;
         assert!(!lease.is_current());
         drop(lease);
         assert!(replacement.is_current());
         assert!(store.sessions.lock()[&id].disconnected_at.is_none());
         drop(replacement);
         let disconnected = store.sessions.lock()[&id].disconnected_at.ok_or_else(|| anyhow::anyhow!("current owner drop must start retention"))?;
-        let restored = store.connect_at(Some(&id), disconnected + Duration::from_secs(4), Default::default());
+        let restored = store.connect_at(Some(&id), disconnected + Duration::from_secs(4), Default::default(), Default::default());
         assert_eq!(restored.id, id);
         assert_eq!(restored.state.get::<i32>("count")?, Some(2));
         drop(restored);
         let disconnected = store.sessions.lock()[&id].disconnected_at.ok_or_else(|| anyhow::anyhow!("restored owner drop must start retention"))?;
-        let expired = store.connect_at(Some(&id), disconnected + Duration::from_secs(5), Default::default());
+        let expired = store.connect_at(Some(&id), disconnected + Duration::from_secs(5), Default::default(), Default::default());
         assert_ne!(expired.id, id);
         assert_eq!(expired.state.get::<i32>("count")?, None);
         assert!(!store.sessions.lock().contains_key(&id));
-        let unknown = store.connect(Some(&uuid::Uuid::new_v4().to_string()), Default::default()).await;
+        let unknown = store.connect(Some(&uuid::Uuid::new_v4().to_string()), Default::default(), Default::default()).await;
         assert_ne!(unknown.id, expired.id);
         assert_eq!(unknown.state.get::<i32>("count")?, None);
 
@@ -444,13 +465,13 @@ mod tests {
     async fn server_stores_do_not_share_sessions_and_active_sessions_do_not_expire() -> anyhow::Result<()> {
         let a = Arc::new(SessionStore::new(Duration::ZERO));
         let b = Arc::new(SessionStore::new(Duration::ZERO));
-        let lease = a.connect(None, Default::default()).await;
+        let lease = a.connect(None, Default::default(), Default::default()).await;
         lease.state.set("private", "a")?;
-        let latest = a.connect_at(Some(&lease.id), Instant::now() + Duration::from_secs(999), Default::default());
+        let latest = a.connect_at(Some(&lease.id), Instant::now() + Duration::from_secs(999), Default::default(), Default::default());
         assert_eq!(latest.id, lease.id);
         assert!(!lease.is_current());
         assert!(latest.is_current());
-        let other = b.connect(Some(&lease.id), Default::default()).await;
+        let other = b.connect(Some(&lease.id), Default::default(), Default::default()).await;
         assert_ne!(other.id, lease.id);
         assert_eq!(other.state.get::<String>("private")?, None);
 

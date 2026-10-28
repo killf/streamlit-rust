@@ -69,7 +69,7 @@ pub use elements::components::{ComponentMount, ComponentV2};
 pub use media::{ByteRange, RgbaImage};
 pub use navigation::{Navigation, Page, PageLinkOptions, PageTarget};
 pub use query_params::QueryParams;
-pub use request_context::{RequestContext, RequestHeaderAccess};
+pub use request_context::{HeaderAuthenticator, RequestAuthenticator, RequestContext, RequestHeaderAccess, UserIdentity, UserView};
 pub use server::StreamlitServer;
 pub use session::{RunControl, SessionState};
 pub use upload::{UploadedFile, UploadedFiles};

@@ -1,0 +1,181 @@
+{
+  "schema_version": 1,
+  "runtime": "python",
+  "reference_version": "1.66.1",
+  "captured_at_utc": "2026-10-28T08:11:29.336051+00:00",
+  "scope": "Anonymous st.user mapping and st.context.cookies parsing over one native WS with probe cookies; no authenticated oracle exists in 1.66.1.",
+  "server_command": [
+    "C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Scripts\\python.exe",
+    "-B",
+    "-m",
+    "streamlit",
+    "run",
+    "C:\\Users\\killf\\github\\streamlit-rust\\tests\\reference\\user_cookies_app.py",
+    "--server.address=127.0.0.1",
+    "--server.port=65209",
+    "--server.headless=true",
+    "--server.fileWatcherType=none",
+    "--browser.gatherUsageStats=false"
+  ],
+  "server_cleanup": "collector-owned",
+  "url": "http://127.0.0.1:65209",
+  "probe_cookies": "probe-flavor=oat; probe-session=42",
+  "frames": [
+    {
+      "direction": "client->server",
+      "bytes": 2,
+      "base64": "WgA=",
+      "message": {
+        "rerun_script": {}
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 421,
+      "base64": "IqIDCq0BCl4KJDc5MDk1MDBjLWU1OWEtNTJlNy05ZjUzLWQzZGUwYzZhN2RmNCokNzkwOTUwMGMtZTU5YS01MmU3LTlmNTMtZDNkZTBjNmE3ZGY0MhBuby1tYWNoaW5lLWlkLXY0GiEKBjEuNjYuMRIOMy4xNC43LmZpbmFsLjAaB3dpbmRvd3MiAhABMiQ0YjE4MjRiZC00MGEzLTQyZTctODU5My00ODRmNTdiNDljNGMSJDdiMTI5MzJlLWUxY2MtNDk5ZS05YWFkLTJlZWViYmY1NGVlMhoQdXNlcl9jb29raWVzX2FwcCJIQzpcVXNlcnNca2lsbGZcZ2l0aHViXHN0cmVhbWxpdC1ydXN0XHRlc3RzXHJlZmVyZW5jZVx1c2VyX2Nvb2tpZXNfYXBwLnB5MgYYAigBSAFCIgogZjQyNzcwZWZhMGNkYzJmMmVjNmE0M2E2NzI0YmYxMzFKIGY0Mjc3MGVmYTBjZGMyZjJlYzZhNDNhNjcyNGJmMTMxWiBmNDI3NzBlZmEwY2RjMmYyZWM2YTQzYTY3MjRiZjEzMQ==",
+      "message": {
+        "new_session": {
+          "initialize": {
+            "user_info": {
+              "installation_id": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v3": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v4": "no-machine-id-v4"
+            },
+            "environment_info": {
+              "streamlit_version": "1.66.1",
+              "python_version": "3.14.7.final.0",
+              "server_os": "windows"
+            },
+            "session_status": {
+              "script_is_running": true
+            },
+            "session_id": "4b1824bd-40a3-42e7-8593-484f57b49c4c"
+          },
+          "script_run_id": "7b12932e-e1cc-499e-9aad-2eeebbf54ee2",
+          "name": "user_cookies_app",
+          "main_script_path": "C:\\Users\\killf\\github\\streamlit-rust\\tests\\reference\\user_cookies_app.py",
+          "config": {
+            "max_cached_message_age": 2,
+            "allow_run_on_save": true,
+            "show_error_links": "SHOW_ERROR_LINKS_AUTO"
+          },
+          "app_pages": [
+            {
+              "page_script_hash": "f42770efa0cdc2f2ec6a43a6724bf131"
+            }
+          ],
+          "page_script_hash": "f42770efa0cdc2f2ec6a43a6724bf131",
+          "main_script_hash": "f42770efa0cdc2f2ec6a43a6724bf131"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 4,
+      "base64": "SgIQAQ==",
+      "message": {
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 213,
+      "base64": "CiA2ZWRkMTQwOThiODM5NDhhZmFjNTczNzFlY2Q0ZTY4MhImEgIAACIgZjQyNzcwZWZhMGNkYzJmMmVjNmE0M2E2NzI0YmYxMzEqiAEahQGCA3gKcHsiY29va2llX21pc3NpbmciOiBudWxsLCAiY29va2llcyI6IHsicHJvYmUtZmxhdm9yIjogIm9hdCIsICJwcm9iZS1zZXNzaW9uIjogIjQyIn0sICJ1c2VyIjoge30sICJ1c2VyX2tleXMiOiBbXX0SBGpzb27KAwIQAdIDAggB",
+      "message": {
+        "hash": "6edd14098b83948afac57371ecd4e682",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "f42770efa0cdc2f2ec6a43a6724bf131"
+        },
+        "delta": {
+          "new_element": {
+            "code": {
+              "code_text": "{\"cookie_missing\": null, \"cookies\": {\"probe-flavor\": \"oat\", \"probe-session\": \"42\"}, \"user\": {}, \"user_keys\": []}",
+              "language": "json"
+            },
+            "height_config": {
+              "use_content": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "MAA=",
+      "message": {
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    }
+  ],
+  "runs": [
+    {
+      "initialize": {
+        "user_info": {
+          "installation_id": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+          "installation_id_v3": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+          "installation_id_v4": "no-machine-id-v4"
+        },
+        "environment_info": {
+          "streamlit_version": "1.66.1",
+          "python_version": "3.14.7.final.0",
+          "server_os": "windows"
+        },
+        "session_status": {
+          "script_is_running": true
+        },
+        "session_id": "4b1824bd-40a3-42e7-8593-484f57b49c4c"
+      },
+      "script_run_id": "7b12932e-e1cc-499e-9aad-2eeebbf54ee2",
+      "name": "user_cookies_app",
+      "main_script_path": "C:\\Users\\killf\\github\\streamlit-rust\\tests\\reference\\user_cookies_app.py",
+      "config": {
+        "max_cached_message_age": 2,
+        "allow_run_on_save": true,
+        "show_error_links": "SHOW_ERROR_LINKS_AUTO"
+      },
+      "app_pages": [
+        {
+          "page_script_hash": "f42770efa0cdc2f2ec6a43a6724bf131"
+        }
+      ],
+      "page_script_hash": "f42770efa0cdc2f2ec6a43a6724bf131",
+      "main_script_hash": "f42770efa0cdc2f2ec6a43a6724bf131"
+    }
+  ],
+  "finishes": [
+    0
+  ],
+  "report": {
+    "cookie_missing": null,
+    "cookies": {
+      "probe-flavor": "oat",
+      "probe-session": "42"
+    },
+    "user": {},
+    "user_keys": []
+  },
+  "server_pid": 44196,
+  "health": {
+    "status": 200,
+    "body": "ok"
+  },
+  "handshake": {
+    "status": 101,
+    "subprotocol": "streamlit"
+  },
+  "cleanup": {
+    "websocket_closed": true,
+    "server_stopped": true
+  },
+  "successful": true
+}

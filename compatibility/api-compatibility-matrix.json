@@ -88,12 +88,12 @@
     "unavailable_requested_pages": 7,
     "redirect_aliases_not_counted": 2,
     "implementation_status_counts": {
-      "not_applicable": 53,
-      "implemented": 129
+      "not_applicable": 52,
+      "implemented": 130
     },
     "compatibility_status_counts": {
-      "not_applicable": 53,
-      "partial": 129
+      "not_applicable": 52,
+      "partial": 130
     },
     "unique_feature_ids": 182,
     "unique_official_urls": 182,
@@ -158,14 +158,26 @@
       "category": "APPLICATION LOGIC/Authentication",
       "scope_type": "api-reference",
       "official_url": "https://docs.streamlit.io/develop/api-reference/user/st.user",
-      "rust_source_path": null,
-      "implementation_status": "not_applicable",
-      "compatibility_status": "not_applicable",
+      "rust_source_path": "streamlit/src/request_context.rs",
+      "implementation_status": "implemented",
+      "compatibility_status": "partial",
       "evidence": {
         "official_document_sha256": "ea9d0dfa18613ba1a94872c7375055d90447ead46e0189421d146a6ffb6f0717",
-        "python_browser_trace": null
+        "python_browser_trace": null,
+        "m4_user_reference": [
+          "tests/reference/reference-browser/user-cookies/trace.json",
+          "tests/reference/reference-browser/user-cookies/README.md",
+          "tests/browser/rust-user-cookies/trace.json",
+          "tests/browser/rust-user-cookies/README.md",
+          "streamlit/tests/runtime/request_context.rs",
+          "streamlit/examples/auth.rs"
+        ]
       },
-      "not_applicable_reason": "The authenticated user identity surfaced by the hosting platform's OIDC integration; without an identity provider the value has no counterpart in the local Rust runtime."
+      "rust_plan": "Fake-credential authentication slice shipped: RequestAuthenticator trait + HeaderAuthenticator + st.user() mapping. OIDC tokens and a real identity provider stay out until a provider-side oracle exists.",
+      "limitations": [
+        "Slice 1 (2026-10-28): the anonymous baseline is measured against the frozen 1.66.1 reference (st.user is a mapping proxy with no attribute access; to_dict() empty without a provider) and Rust matches it — the authenticated path has no Python oracle in 1.66.1 (OIDC needs a hosting-platform provider), so the fake-credential HeaderAuthenticator path is proven by real-WS regressions only. The public shape (with_authenticator/UserIdentity/st.user()) follows the guide recommendation and awaits user ratification.",
+        "OIDC tokens sub-view unimplemented; no real identity provider integration, token validation, or session/permission boundaries are claimed — the authenticator is developer-supplied trusted configuration and HeaderAuthenticator is explicitly not a production identity source."
+      ]
     },
     {
       "feature_id": "st.cache_data",
@@ -258,12 +270,16 @@
         "m4_browser_reference": [
           "tests/reference/reference-browser/context-browser/trace.json",
           "tests/reference/reference-browser/context-browser/README.md"
+        ],
+        "m4_cookies_reference": [
+          "tests/reference/reference-browser/user-cookies/trace.json",
+          "tests/reference/reference-browser/user-cookies/README.md"
         ]
       },
       "rust_plan": "Mirror the measured st.context surface slice by slice: headers and is_embedded shipped; url/locale/timezone/theme/ip await their browser-path measurement; cookies remain undesigned.",
       "limitations": [
         "Partial by slice (2026-10-28): request_context() reflects the whitelisted WebSocket handshake headers (lowercase names — Python passes the received spelling through) plus is_embedded from st_embed; RequestHeaderAccess Standard/Selected/All chooses the surface, All mirroring the measured pass-everything Python behavior including credentials.",
-        "Slice 2 (2026-10-28): url/locale/timezone/timezone_offset/theme and the is_embedded flag ride the official frontend's per-rerun context_info report — measured against the frozen browser reference, including that ?embed=true flips the flag while ?st_embed=true does not on both runtimes. Native clients that send no context keep the fields unset, matching the native-WS reference. ip_address (null on both measured paths) and cookies remain unimplemented."
+        "Slice 2 (2026-10-28): url/locale/timezone/timezone_offset/theme and the is_embedded flag ride the official frontend's per-rerun context_info report — measured against the frozen browser reference, including that ?embed=true flips the flag while ?st_embed=true does not on both runtimes. Native clients that send no context keep the fields unset, matching the native-WS reference. cookies are now implemented behind the header whitelist (RequestContext::cookies() parses the reflected Cookie header; the default Standard surface keeps it empty — a deliberate credential-safe divergence from Python's ungated visibility, measured against the frozen probe-cookie reference). ip_address (null on both measured paths) remains unimplemented."
       ]
     },
     {

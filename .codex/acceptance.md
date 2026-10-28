@@ -252,6 +252,14 @@ M3 输入切片（续）：上传大小限制与目录模式。协议探针实�
 
 M3 上传边界收尾。协议参考冻结于 `tests/reference/reference-browser/uploads-lifecycle/`（`--server.disconnectedSessionTTL=3`）：并发不同 URL 双 204；并发同 URL 双 204 且最终恰为一次完整写入（冻结轮为 B 版本 22 字节，无混合）；断线超过 TTL 后 PUT **400**、DELETE **204**、未知会话 PUT 400；配置名与默认值（120 秒）与 Rust 既有 `with_disconnected_session_ttl` 同构。Rust 对照回归 `upload_concurrency_and_expired_sessions_match_the_reference`（1 秒 TTL）逐项复现，8 次连跑稳定。途中发现并修复既有 413 回归的读取竞态：被拒 PUT 的连接重置可能丢弃在途状态行（Windows RST 语义，Python 探针同样观测到中途 reset），客户端断言改为"送达的 413 或空中止"双形态，"不存储"作为更强保证保留。边界：单机、单会话、双写者；更高并发与多写者损坏窗口未测。
 
+## Current fake-credential auth and user validation (2026-10-28)
+
+M4 认证/用户信息切片。参考测量先行：实测 1.66.1 的 `st.user` 为映射代理（无属性访问、无提供方时 `to_dict()` 空、`tokens` 子代理存在）、`st.context.cookies` 无门控解析；冻结于 `tests/reference/reference-browser/user-cookies/`（原生 WS 带探测 Cookie，一次采集）。1.66.1 无本地认证 oracle，认证路径只能以 Rust 回归证明。
+
+实施（按指南推荐，公共形态待用户追认）：`RequestAuthenticator` trait + `UserIdentity`（sub/name/email/picture/roles/extra → to_dict）+ 内置 `HeaderAuthenticator`（指定头读 JSON 假凭据，垃圾/缺 sub → 匿名）；`StreamlitServer::with_authenticator` 在连接建立时以**全部**握手头调用认证器（不受应用可见白名单限制），身份随会话存储、重连刷新；`st.user()` 返回 `UserView`（匿名/空 sub → 空映射，修复过默认空 sub 混入映射的缺陷）；`RequestContext::cookies()` 从白名单放行的 Cookie 头解析（默认不可见，刻意凭据安全差异）。示例 `auth.rs`（8592，假凭据 + cookies 白名单）。
+
+验证：单元测试（认证器边界、cookie 解析、空映射基线）；WS 回归双向——带身份头连接 → sub/name/roles/claims 映射 + cookies 可见，无认证器/未带凭据 → 空映射 + cookies 不可见；同采集器 --url 对照采集冻结于 `tests/browser/rust-user-cookies/`（匿名映射与 cookies 解析与 Python 参考逐字一致），离线测试双向断言。采集器本批内两次修正（--url 分支误启动 Python、runtime 字段未参数化）经 trace 元数据核查发现并在冻结确立前修正。边界：假凭据仅本地/测试；OIDC tokens、真实提供方、令牌校验与权限边界未实现不冒称。M4 配置面整理仍待推进。
+
 ## Required fresh-checkout checks
 
 ```powershell
