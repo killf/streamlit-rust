@@ -376,3 +376,13 @@ def test_missing_source_provenance_aborts_generator_before_either_write(workspac
     with pytest.raises(ValueError, match="source/target version"):
         verify.main()
     assert (matrix_path.read_bytes(), baseline_path.read_bytes()) == before
+
+def test_m3_partial_inventory_matches_the_matrix():
+    """The scope-decision inventory is machine-derived and must not drift."""
+    import json
+    matrix = json.loads((ROOT / "compatibility/api-compatibility-matrix.json").read_text(encoding="utf-8"))
+    inventory = json.loads((ROOT / "compatibility/m3-partial-inventory.json").read_text(encoding="utf-8"))
+    partial = sorted(entry["feature_id"] for entry in matrix["entries"] if entry["implementation_status"] == "implemented" and entry["compatibility_status"] == "partial")
+    listed = sorted(entry["feature_id"] for entry in inventory["entries"])
+    assert partial == listed, "regenerate with tools/export_m3_inventory.py after matrix edits"
+    assert inventory["summary"]["total_partial"] == len(partial)

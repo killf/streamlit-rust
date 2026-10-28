@@ -40,6 +40,8 @@ CSV 工作台 A 已交付主流程 20 阶段、筛选 13 阶段与来源替换 1
 
 M5 稳定性批次（2026-10-28）：大数据（100k/50k 行 + 200k 点图表）、长时运行（300 轮 rerun 精确状态）与慢连接（parked reader 不阻塞他 会话）三场景落地可复现回归与 3 试次测量（[验收](acceptance.md#current-stability-scenarios-validation-2026-10-28)）；吞吐/容量上限/多小时运行未测，M5 保持未完成。
 
+M3 收窄前置（2026-10-28）：130 项 partial 已机器导出精确清单（80 可测/12 需外部源/2 headless 不可达/36 无未测声明，带漂移门）；范围确认问题已提出未获答复，全部保持开放，继续 80 项可测面切片（[清单](acceptance.md#current-m3-partial-inventory-2026-10-28)）。
+
 M7 第二差分链（2026-10-28）：六阶段真实 UI 交互组合差分双端冻结、报告逐阶段一致、独立 Review 有保留通过（建议项已采纳）；**关闭评估采纳审查结论——M7 现在不可关闭**，须先完成 M3（130 项 partial）与 M5（吞吐/容量/多小时），排序 M3 → M5 → M7 终批（[评估](acceptance.md#current-m7-second-differential-and-close-evaluation-2026-10-28)）。
 
 M3 收窄 + M5 边界批次（2026-10-28）：video URL 输入、SRT 字幕、popover wrap、tabs 宽高双端冻结 6/6 一致（暴露并修复 Rust SRT 校验缺陷）；64 并发会话容量回归落地；媒体回收确认为进程全局设计事实（[验收](acceptance.md#current-media/layout-edges-and-session-capacity-validation-2026-10-28)）。

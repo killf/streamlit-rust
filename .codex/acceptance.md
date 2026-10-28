@@ -320,6 +320,12 @@ M7 第二组合差分链（交互流 + 真实浏览器 UI 层）：Python fixtur
 
 **M7 关闭评估（采纳审查结论）：现在不可关闭。** M7 退出条件首句"长期验收全部满足"为硬前置；当前 M3 矩阵 130 项 implemented 全 partial、M5 未关闭（吞吐/容量上限/多小时运行未测），无"前置未齐而关闭后续里程碑"的先例。推进排序：**M3 → M5 → M7 终批**；唯一替代路径是用户对剩余限制的显式确认（尚无该记录）。
 
+## Current M3 partial inventory (2026-10-28)
+
+M3 收窄前置：机器导出 130 项 implemented/partial 的精确剩余清单 [compatibility/m3-partial-inventory.json](../compatibility/m3-partial-inventory.json)（生成器 `tools/export_m3_inventory.py`，limitation 原文逐条携带，漂移门 `test_m3_partial_inventory_matches_the_matrix` 与矩阵强同步）。分桶（决策辅助、非状态变更）：**80 项含未测参数**（可本地双端测）、**12 项需外部源/环境**（YouTube/iframe/新机器/发布等）、**2 项 headless 不可达**（目录完整流等 Rust 扩展）、**36 项无未测声明**（纯范围/溯源描述，含 12 项空 limitations）。
+
+范围确认问题已向用户提出（外部 12 + headless 2 定为已确认限制、80 项继续切片的混合路线为推荐），**未获答复**——按既定规则不做默认确认：130 项全部保持 partial 开放；下一步继续 80 项可测面的逐切片双端验收，外部源项与范围定格等待用户显式记录。
+
 ## Required fresh-checkout checks
 
 ```powershell
