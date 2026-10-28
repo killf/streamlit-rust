@@ -282,6 +282,10 @@ M3 布局/流式参数切片。冻结 Python 参考 `tests/reference/reference-b
 
 Rust 实施：`ExpanderKind`/`PopoverKind` 枚举与 `kind()/help()/disabled()/use_container_width()`/`default_tab()` 构建器；status 的 expanded 改 `Option<bool>`（初始置位、update 传则置/不传则清除，对齐实测）；TabContainer 携带 default_tab_index。验证：同一采集器 --url 对照——**14/14 块发射字段逐字一致**；WS 回归断言 COMPACT 类型、popover 全参数与块级 stretch、default_tab_index、status 三态与 None 清除；离线双向断言。记录差异：tabs 未知 default 标签 Python 抛错、Rust 日志忽略；spinner show_time 未提供。采集器三次修正（add_block 字段名/oneof 名/块级字段）发生在冻结确立前。边界：STEP expander、popover wrap、tabs 宽度、toast 容器内发射未测。
 
+## Current columns parameters validation (2026-10-28)
+
+M3 列参数切片。冻结 Python 参考 `tests/reference/reference-browser/columns-params/`（七组调用，逐块含块级字段）：容器 `scale 1.0/wrap true/justify UNDEFINED/align STRETCH`、gap 仅 SM/M/L 变化且**复制到每个列块**、列权重 **double 精度**（1/3=0.3333333333333333）、`show_border`/`vertical_alignment`。Rust 实施修复三处真实偏差：容器硬编码 `scale 0.0/wrap false`（且 columns 容器 justify/align 与普通容器不同——新增 `columns_flex` 形态）；权重 f32→**f64**；列块缺 gap 复制。另修正共享容器非默认对齐的枚举映射（Center/Right 此前错映 proto 序号；该路径未经测量，默认 Left/Top 不变）。验证：同采集器 --url 对照 **22/22 块逐字一致**；WS 回回归断言容器形态、f64 权重与 gap 复制；离线双向断言；`Gap/VerticalAlignment` 自 crate 根导出。边界：wrap=false、自定义列宽、嵌套、horizontal_alignment 未测。
+
 ## Required fresh-checkout checks
 
 ```powershell

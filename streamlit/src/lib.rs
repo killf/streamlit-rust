@@ -64,7 +64,7 @@ pub use cache::{CachedData, CachedResource};
 pub use charts::{AreaChartOptions, LineChartOptions, MapOptions, ScatterChartOptions};
 pub use column_config::{ColumnBase, ColumnConfig, ColumnConfigs};
 pub use data_api::*;
-pub use elements::common::{ElementHeight, ElementWidth};
+pub use elements::common::{ElementHeight, ElementWidth, Gap, VerticalAlignment};
 pub use elements::components::{ComponentMount, ComponentV2};
 pub use media::{ByteRange, RgbaImage};
 pub use navigation::{Navigation, Page, PageLinkOptions, PageTarget};

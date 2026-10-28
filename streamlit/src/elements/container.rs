@@ -22,6 +22,9 @@ pub(crate) struct ContainerElement {
     horizontal_alignment: HorizontalAlignment,
     vertical_alignment: VerticalAlignment,
     gap: Gap,
+    /// The st.columns emission shape (scale 1.0, wrap, justify UNDEFINED,
+    /// align STRETCH) — see columns_flex.
+    columns_flex: bool,
 
     pub(crate) children: Vec<Rc<RefCell<dyn Element>>>,
 }
@@ -37,6 +40,7 @@ impl ContainerElement {
             horizontal_alignment: HorizontalAlignment::Left,
             vertical_alignment: VerticalAlignment::Top,
             gap: Gap::Small,
+            columns_flex: false,
 
             children: Vec::new(),
         }
@@ -81,6 +85,16 @@ impl ContainerElement {
         self.gap = gap;
         self
     }
+
+    /// The st.columns shape (measured columns-params reference): a horizontal
+    /// flex container with scale 1.0, wrap true, justify UNDEFINED and align
+    /// STRETCH — distinct from the plain container's START alignments.
+    pub fn columns_flex(mut self, gap: Gap) -> Self {
+        self.horizontal = true;
+        self.gap = gap;
+        self.columns_flex = true;
+        self
+    }
 }
 
 impl Element for ContainerElement {
@@ -98,37 +112,45 @@ impl Element for ContainerElement {
         let width_config: Option<WidthConfig> = self.width.clone().map(Into::into);
         let height_config: Option<HeightConfig> = self.height.clone().map(Into::into);
 
-        let (direction, justify, align) = if self.horizontal {
+        let (direction, justify, align, scale, wrap) = if self.columns_flex {
+            // Measured st.columns wire: HORIZONTAL, justify UNDEFINED (0),
+            // align STRETCH, scale 1.0, wrap true.
+            (2, 0, 4, 1.0, true)
+        } else if self.horizontal {
             (
                 2,
                 match self.horizontal_alignment {
                     HorizontalAlignment::Left => 1,
-                    HorizontalAlignment::Center => 2,
-                    HorizontalAlignment::Right => 3,
+                    HorizontalAlignment::Center => 3,
+                    HorizontalAlignment::Right => 2,
                     HorizontalAlignment::Distribute => 4,
                 },
                 match self.vertical_alignment {
                     VerticalAlignment::Top => 1,
-                    VerticalAlignment::Center => 2,
-                    VerticalAlignment::Bottom => 3,
+                    VerticalAlignment::Center => 3,
+                    VerticalAlignment::Bottom => 2,
                     VerticalAlignment::Distribute => 4,
                 },
+                0.0,
+                false,
             )
         } else {
             (
                 1,
                 match self.vertical_alignment {
                     VerticalAlignment::Top => 1,
-                    VerticalAlignment::Center => 2,
-                    VerticalAlignment::Bottom => 3,
+                    VerticalAlignment::Center => 3,
+                    VerticalAlignment::Bottom => 2,
                     VerticalAlignment::Distribute => 4,
                 },
                 match self.horizontal_alignment {
                     HorizontalAlignment::Left => 1,
-                    HorizontalAlignment::Center => 2,
-                    HorizontalAlignment::Right => 3,
+                    HorizontalAlignment::Center => 3,
+                    HorizontalAlignment::Right => 2,
                     HorizontalAlignment::Distribute => 4,
                 },
+                0.0,
+                false,
             )
         };
 
@@ -143,8 +165,8 @@ impl Element for ContainerElement {
                 r#type: Some(crate::proto::block::Type::FlexContainer(FlexContainer {
                     border: self.border,
                     gap_config: Some(self.gap.clone().into()),
-                    wrap: false,
-                    scale: 0.0,
+                    wrap,
+                    scale,
                     direction,
                     justify,
                     align,

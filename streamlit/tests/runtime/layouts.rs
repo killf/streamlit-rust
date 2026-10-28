@@ -371,3 +371,87 @@ async fn layout_parameter_blocks_match_the_frozen_reference() -> TestResult {
     task.await??;
     Ok(())
 }
+
+/// The frozen columns-params reference: the columns flex container carries
+/// scale 1.0 / wrap / justify UNDEFINED / align STRETCH with the gap on BOTH
+/// the container and every column, weights are double precision, and
+/// border/vertical_alignment ride the column blocks.
+fn columns_params_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        use crate::{ColumnsOptions, Gap, VerticalAlignment};
+        let weighted = st.columns(ColumnsOptions::new(vec![3.0, 1.0]).gap(Gap::Large).border(true).vertical_alignment(VerticalAlignment::Center));
+        weighted[0].write("weighted");
+        weighted[1].write("weighted");
+        let thirds = st.columns(ColumnsOptions::new(vec![1.0, 1.0, 1.0]).gap(Gap::Large));
+        thirds[0].write("thirds");
+    })
+}
+
+#[actix_web::test]
+async fn column_blocks_match_the_frozen_reference() -> TestResult {
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
+    let server = HttpServer::new(move || App::new().app_data(web::Data::new(StreamlitServer::new(columns_params_entry, "127.0.0.1".into(), 0))).configure(configure_routes))
+        .workers(1)
+        .listen(listener)?
+        .run();
+    let handle = server.handle();
+    let task = actix_web::rt::spawn(server);
+    let mut stream = sessions::connect(address, None).await;
+    send_binary(
+        &mut stream,
+        &(BackMsg {
+            r#type: Some(back_msg::Type::RerunScript(ClientState::default())),
+        })
+        .encode_to_vec(),
+    )
+    .await;
+    let mut blocks = Vec::new();
+    loop {
+        let message = receive(&mut stream).await;
+        match message.r#type {
+            Some(forward_msg::Type::Delta(delta)) => {
+                if let Some(delta::Type::AddBlock(block)) = delta.r#type {
+                    blocks.push(block);
+                }
+            }
+            Some(forward_msg::Type::ScriptFinished(status)) => {
+                assert_eq!(status, 0);
+                break;
+            }
+            _ => {}
+        }
+    }
+    let flex = blocks
+        .iter()
+        .find_map(|block| match block.r#type.as_ref() {
+            Some(crate::proto::block::Type::FlexContainer(flex)) => Some(*flex),
+            _ => None,
+        })
+        .ok_or("columns flex container must render")?;
+    assert_eq!(flex.scale, 1.0);
+    assert!(flex.wrap);
+    assert_eq!(flex.justify, crate::proto::block::flex_container::Justify::Undefined as i32);
+    assert_eq!(flex.align, crate::proto::block::flex_container::Align::Stretch as i32);
+    assert!(matches!(flex.gap_config.as_ref().ok_or("gap")?.gap_spec, Some(crate::proto::streamlit::gap_config::GapSpec::GapSize(size)) if size == crate::proto::streamlit::GapSize::Large as i32));
+    let columns: Vec<_> = blocks
+        .iter()
+        .filter_map(|block| match block.r#type.as_ref() {
+            Some(crate::proto::block::Type::Column(column)) => Some(*column),
+            _ => None,
+        })
+        .collect();
+    assert_eq!(columns.len(), 5);
+    let weighted = &columns[0];
+    assert_eq!(weighted.weight, 0.75);
+    assert!(weighted.show_border);
+    assert_eq!(weighted.vertical_alignment, crate::proto::block::column::VerticalAlignment::Center as i32);
+    assert!(matches!(weighted.gap_config.as_ref().ok_or("gap")?.gap_spec, Some(crate::proto::streamlit::gap_config::GapSpec::GapSize(size)) if size == crate::proto::streamlit::GapSize::Large as i32));
+    // Double precision: an equal third stays 1/3 in f64, not the f32 0.33333334.
+    assert_eq!(columns[2].weight, 1.0 / 3.0);
+    assert!((columns[2].weight - 0.3333333333333333_f64).abs() < 1e-16);
+    drop(stream);
+    handle.stop(false).await;
+    task.await??;
+    Ok(())
+}

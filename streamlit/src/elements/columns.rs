@@ -12,7 +12,7 @@ use std::rc::Rc;
 
 pub(crate) struct ColumnElement {
     border: bool,
-    weight: f32,
+    weight: f64,
     gap: Gap,
 
     width: Option<ElementWidth>,
@@ -24,7 +24,7 @@ pub(crate) struct ColumnElement {
 }
 
 impl ColumnElement {
-    pub fn new(weight: f32) -> Self {
+    pub fn new(weight: f64) -> Self {
         Self {
             border: false,
             weight,
@@ -43,6 +43,11 @@ impl ColumnElement {
 
     pub fn width(mut self, width: ElementWidth) -> Self {
         self.width = Some(width);
+        self
+    }
+
+    pub fn gap(mut self, gap: Gap) -> Self {
+        self.gap = gap;
         self
     }
 
@@ -70,7 +75,7 @@ impl Element for ColumnElement {
                 height_config,
                 width_config,
                 r#type: Some(crate::proto::block::Type::Column(crate::proto::block::Column {
-                    weight: self.weight as f64,
+                    weight: self.weight,
                     vertical_alignment: self.vertical_alignment.clone() as i32,
                     show_border: self.border,
                     gap_config: Some(self.gap.clone().into()),

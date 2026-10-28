@@ -2237,14 +2237,16 @@ impl<C: AppendChild> StreamlitApi for C {
     fn columns<T: Into<ColumnsOptions>>(&self, spec: T) -> &[Column<'_>] {
         let options = spec.into();
 
-        let total: f32 = options.spec.iter().sum();
-        let weights: Vec<f32> = options.spec.iter().map(|w| w / total).collect();
+        // The reference computes weights in double precision (measured 1/3
+        // stays 0.3333333333333333); the f32 spec values are widened first.
+        let total: f64 = options.spec.iter().map(|w| *w as f64).sum();
+        let weights: Vec<f64> = options.spec.iter().map(|w| *w as f64 / total).collect();
 
         if weights.is_empty() {
             return &[];
         }
 
-        let container_element = Rc::new(RefCell::new(ContainerElement::new().horizontal(true).gap(options.gap)));
+        let container_element = Rc::new(RefCell::new(ContainerElement::new().columns_flex(options.gap.clone())));
         let app = self.get_app();
         let container_base = self.next_child_path();
         self.push(container_element.clone());
@@ -2252,7 +2254,9 @@ impl<C: AppendChild> StreamlitApi for C {
 
         let mut columns = Vec::with_capacity(weights.len());
         for (index, w) in weights.iter().enumerate() {
-            let column_element = Rc::new(RefCell::new(ColumnElement::new(*w).border(options.border).vertical_alignment(options.vertical_alignment.clone()).width(options.width.clone())));
+            let column_element = Rc::new(RefCell::new(
+                ColumnElement::new(*w).border(options.border).vertical_alignment(options.vertical_alignment.clone()).gap(options.gap.clone()).width(options.width.clone()),
+            ));
             container_element.borrow_mut().children.push(column_element.clone());
 
             let mut column_base = container_base.clone();

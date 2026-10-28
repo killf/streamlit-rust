@@ -229,6 +229,8 @@ Rust 已采纳方案 A：显示转换保留真实行数并合成虚拟 RangeInde
 
 冻结参考实测的参数面（[参考](../../tests/reference/reference-browser/layout-params/README.md)，Rust 侧 14/14 块发射逐字一致）：`ExpanderOptions::kind(ExpanderKind::Compact)`（Python `type="compact"`，默认带边框）；`PopoverOptions` 的 `kind(PopoverKind::Primary)`、`help`、`disabled`、`use_container_width(true)`（由块级 stretch 宽度承载）；`TabsOptions::default_tab("Beta")`——**接受标签而非索引**（Python 传索引抛错；Rust 未知标签记日志忽略，为记录差异）；`DialogOptions::width(DialogWidth::Large)`（`width: LARGE`，两段发射含 `is_open`）；status 的 `update(label, state, expanded)`——**未传 expanded 时重发不带该字段**（None 清除，实测语义）；`ToastOptions::duration`（秒：short=4、long=10、毫秒整数按原值）。spinner `show_time` 在原生 WS 无可观测增量，Rust 未提供该参数不冒称等价。
 
+**列**（[columns 参考](../../tests/reference/reference-browser/columns-params/README.md)，22/22 块逐字一致）：`ColumnsOptions` 的 `gap(Gap::Small/Medium/Large)`、`border(true)`、`vertical_alignment(Top/Center/Bottom)` 与加权 spec（`vec![3.0, 1.0]` → 权重 0.75/0.25，**f64 精度**：三等分 = 0.3333333333333333）。实测 wire：容器的 gap 同时复制到每个列块；容器固定 scale 1.0 / wrap / justify UNDEFINED / align STRETCH。`Gap`/`VerticalAlignment` 自 crate 根导出。
+
 ## 运行配置面（显式旋钮）
 
 Rust 不解析 `config.toml`（矩阵既有边界：Python 的 TOML 注册表不是兼容目标）；运行项全部是**显式**的服务器构建器与宏参数，无隐藏配置文件。完整清单：
