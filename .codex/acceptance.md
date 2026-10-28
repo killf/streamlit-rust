@@ -350,6 +350,10 @@ M3 可测面切片（slider/multiselect 簇）。冻结 Python 参考 `tests/ref
 
 M3 可测面切片（json/badge/feedback 簇）。冻结 Python 参考 `tests/reference/reference-browser/json-badge-params/`（6 元素）与 Rust 对照 **6/6 字段一致**：st.json 的 expanded=True 显式、**collapsed 缺省省略字段**（1.66.1 无 depth 参数，传即 TypeError——首采真实触发）；st.badge 的 icon/color 进 body、**wrap 字段缺省**——本批修复 Rust 误发 `Some(true)` 的偏差，且离线差分连续抓两次：显式 `Some(false)` 仍不等价于省略，终改 `None`；st.feedback 位置参数即 preset（options= 关键字冲突实测 TypeError）、disabled 进消息。矩阵 st.json/st.badge/st.feedback 三条目收窄（st.badge 原无 limitations，首次补测量记录）；清单再生成。边界：badge 宽度/帮助、feedback 交互提交、ignore 模式未纳入。
 
+## Current recorder parameter validation (2026-10-29)
+
+M3 可测面切片（录制控件簇）。冻结 Python 参考 `tests/reference/reference-browser/recorder-params/`（3 元素）与 Rust 对照 **3/3 字段一致——零实现改动**：audio_input 显式 sample_rate=44100 进消息；camera_input 默认拍照模式消息仅 label/label_visibility（无 capture 字段）。提交行为（真实麦克风/摄像头）headless 不可测，维持 pickers 链边界。矩阵 st.audio_input 收窄；st.camera_input 原无 limitations 首次补测量记录；清单再生成。
+
 ## Required fresh-checkout checks
 
 ```powershell

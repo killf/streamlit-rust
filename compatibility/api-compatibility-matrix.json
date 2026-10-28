@@ -2644,13 +2644,18 @@
         "pickers_contract": "tests/browser/pickers_contract.py",
         "contract_guards": "tests/reference/test_pickers_contract.py",
         "driven_fixture": "tests/reference/pickers_app.py",
-        "driven_example": "streamlit/examples/pickers.rs"
+        "driven_example": "streamlit/examples/pickers.rs",
+        "creation_params_reference": [
+          "tests/reference/reference-browser/recorder-params/trace.json",
+          "tests/reference/reference-browser/recorder-params/README.md",
+          "tests/browser/rust-recorder-params/trace.json"
+        ]
       },
       "rust_plan": "st.audio_input(label) registers a single-file uploader-state widget (Codec::Files) and streams an audio_input element with label, visibility and the 16000 Hz sample rate; the return is the recorded UploadedFile.",
       "compatibility_scope": "The journey-pickers-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome across two measured stages (the load and two committed ArrowRight steps on the single select slider); the published replays assert 14/14 checks per side, covering every element's full wire message, the browser's widget-state reports and the settled DOM.",
       "limitations": [
         "Coverage is the journey-pickers-v1 chain: the pinned fixture's widget set (single and range date inputs, a time input, a color picker, single and range select sliders, an audio input and a camera input) across the load and two committed ArrowRight steps on the single select slider.",
-        "Only the element wire and the empty uploader-state echo were observed; recording, a committed upload and the returned file handle remain unobserved (the single-file uploader machinery itself is covered by the file_uploader chain).",
+        "An explicit sample_rate now also rides the creation wire (2026-10-29, frozen recorder-params), field-identical cross-runtime with zero implementation change. Only the element wire and the empty uploader-state echo were otherwise observed; recording, a committed upload and the returned file handle remain unobserved (the single-file uploader machinery itself is covered by the file_uploader chain).",
         "fixture SHA256 0243f923d03c966dfe2c91f197f7ef9f631de7c397cbca55f17ebce3a6beb668; example SHA256 3112cb6e5dbc4879a73054d66f88c9aa7c3f62b3ab394cbebd72667eb9b78e3d."
       ]
     },
@@ -2710,11 +2715,17 @@
         "pickers_contract": "tests/browser/pickers_contract.py",
         "contract_guards": "tests/reference/test_pickers_contract.py",
         "driven_fixture": "tests/reference/pickers_app.py",
-        "driven_example": "streamlit/examples/pickers.rs"
+        "driven_example": "streamlit/examples/pickers.rs",
+        "creation_params_reference": [
+          "tests/reference/reference-browser/recorder-params/trace.json",
+          "tests/reference/reference-browser/recorder-params/README.md",
+          "tests/browser/rust-recorder-params/trace.json"
+        ]
       },
       "rust_plan": "st.camera_input(label) registers a single-file uploader-state widget (Codec::Files) and streams a camera_input element with label and visibility; the return is the captured UploadedFile.",
       "compatibility_scope": "The journey-pickers-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were each driven by a real owned Chrome across two measured stages (the load and two committed ArrowRight steps on the single select slider); the published replays assert 14/14 checks per side, covering every element's full wire message, the browser's widget-state reports and the settled DOM.",
       "limitations": [
+        "The default capture-mode message is now measured (2026-10-29, frozen recorder-params): label and label_visibility only, no capture field — field-identical cross-runtime with zero implementation change.",
         "Coverage is the journey-pickers-v1 chain: the pinned fixture's widget set (single and range date inputs, a time input, a color picker, single and range select sliders, an audio input and a camera input) across the load and two committed ArrowRight steps on the single select slider.",
         "Only the element wire and the empty uploader-state echo were observed; capture flows and the returned file handle remain unobserved.",
         "fixture SHA256 0243f923d03c966dfe2c91f197f7ef9f631de7c397cbca55f17ebce3a6beb668; example SHA256 3112cb6e5dbc4879a73054d66f88c9aa7c3f62b3ab394cbebd72667eb9b78e3d."

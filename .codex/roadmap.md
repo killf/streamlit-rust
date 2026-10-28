@@ -40,6 +40,8 @@ CSV 工作台 A 已交付主流程 20 阶段、筛选 13 阶段与来源替换 1
 
 M5 稳定性批次（2026-10-28）：大数据（100k/50k 行 + 200k 点图表）、长时运行（300 轮 rerun 精确状态）与慢连接（parked reader 不阻塞他 会话）三场景落地可复现回归与 3 试次测量（[验收](acceptance.md#current-stability-scenarios-validation-2026-10-28)）；吞吐/容量上限/多小时运行未测，M5 保持未完成。
 
+M3 录制控件切片（2026-10-29）：audio_input 显式采样率、camera_input 默认形态双端冻结 3/3（零实现改动确认；[验收](acceptance.md#current-recorder-parameter-validation-2026-10-29)）。
+
 M3 json/badge/feedback 切片（2026-10-29）：json expanded 语义（无 depth 参数实测裁决）、badge wrap 缺省修复、feedback 位置 preset 双端冻结 6/6（[验收](acceptance.md#current-json/badge/feedback-parameter-validation-2026-10-29)）。
 
 M3 slider/multiselect 切片（2026-10-29）：datetime 微秒步长、date 一天缺省步长、multiselect 索引默认双端冻结 4/4（零实现改动确认；[验收](acceptance.md#current-slider/multiselect-parameter-validation-2026-10-29)）。

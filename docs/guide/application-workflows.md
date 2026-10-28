@@ -245,6 +245,8 @@ Rust 已采纳方案 A：显示转换保留真实行数并合成虚拟 RangeInde
 
 **json/badge/feedback 参数**（[json-badge-params 参考](../../tests/reference/reference-browser/json-badge-params/README.md)，6/6 一致）：`st.json` 的 `expanded=True` 显式置位、**collapsed 缺省省略该字段**（1.66.1 无 depth 参数——实测传即抛 TypeError）；`st.badge` 的 icon/color 进 markdown body 且 **wrap 字段缺省**（本批修正 Rust 误发 true，且显式 false 也不等价于省略）；`st.feedback` 位置参数即 preset、`disabled` 进消息。交互提交与 ignore 模式未纳入。
 
+**录制控件参数**（[recorder-params 参考](../../tests/reference/reference-browser/recorder-params/README.md)，3/3 一致、零实现改动确认）：`audio_input` 的显式 `sample_rate(44100)` 进消息；`camera_input` 默认拍照模式消息仅 label/label_visibility。录音/拍照**提交行为**需真实设备，headless 不可测（既有 pickers 边界）。
+
 ## 运行配置面（显式旋钮）
 
 Rust 不解析 `config.toml`（矩阵既有边界：Python 的 TOML 注册表不是兼容目标）；运行项全部是**显式**的服务器构建器与宏参数，无隐藏配置文件。完整清单：
@@ -362,6 +364,7 @@ async fn main(st: &Streamlit) {
 - **chat_metric_params**（`http://127.0.0.1:8602/`）：emoji avatar、metric 全 delta 规则、progress text。
 - **slider_multi_params**（`http://127.0.0.1:8603/`）：datetime 滑杆微秒步长、date 窗口、multiselect 索引默认。
 - **json_badge_params**（`http://127.0.0.1:8604/`）：json expanded 语义、badge color/icon、feedback disabled。
+- **recorder_params**（`http://127.0.0.1:8605/`）：audio_input 显式采样率、camera_input 默认形态。
 - **combined**（`http://127.0.0.1:8596/`）：the M7 cross-capability differential page。
 - **componenttrigger**（`http://127.0.0.1:8542/`）：component triggers。
 - **componentv2**（`http://127.0.0.1:8539/`）：components v2。
