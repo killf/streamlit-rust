@@ -38,7 +38,7 @@ def read_query_param_capture(scenario, capture=None):
     assert capture["successful"] and "producer_error" not in capture
     assert capture["cleanup"] == {"websocket_closed": True, "server_stopped": True}
     snapshots, urls, finishes, requests, histories, errors = [], [], [], [], [], []
-    sessions, error_phases, input_types = [], [], []
+    sessions, error_phases, input_types, byte_payloads = [], [], [], []
     slot = 0
     for frame in capture["frames"]:
         assert frame["direction"] in ("client->server", "server->client")
@@ -51,10 +51,12 @@ def read_query_param_capture(scenario, capture=None):
             requests.append(message.rerun_script.query_string)
             histories.append(message.rerun_script.is_history_navigation)
             slot = 0
-            if scenario in ("disabled-types-isolated", "disabled-types-more") and len(requests) % 3 == 2:
+            if scenario in ("disabled-types-isolated", "disabled-types-more", "disabled-types-bytes") and len(requests) % 3 == 2:
                 widgets = message.rerun_script.widget_states.widgets
                 input_types.append((widgets[0].id.rsplit("-", 1)[-1], widgets[0].WhichOneof("value")))
                 assert len(widgets) == 2 and widgets[1].id.endswith("-live")
+                if widgets[0].WhichOneof("value") == "bytes_value":
+                    byte_payloads.append(widgets[0].bytes_value)
         elif message.WhichOneof("type") == "new_session":
             sessions.append(message.new_session.initialize.session_id)
         elif message.WhichOneof("type") == "script_finished":
@@ -75,14 +77,15 @@ def read_query_param_capture(scenario, capture=None):
                     number = int(phase.rsplit("-", 1)[1])
                     expected = {0: "'str' object cannot be interpreted as an integer", 1: "'str' object cannot be interpreted as an integer",
                                 2: "must be real number, not str", 14: "expected bytes, str found",
-                                15: "'str' object cannot be interpreted as an integer"}.get(number)
+                                15: "'str' object cannot be interpreted as an integer",
+                                16: "expected bytes, str found", 17: "expected bytes, str found", 18: "expected bytes, str found"}.get(number)
                     if scenario == "disabled-types-isolated":
                         assert number in (0, 1, 2, 3) and (phase.startswith("malformed-") or number == 3)
                     if expected is None:
-                        kind = {8: "list", 9: "dict"}.get(number, "google._upb._message.RepeatedScalarContainer") if scenario == "disabled-types-more" else "google._upb._message.RepeatedScalarContainer"
+                        kind = {8: "list", 9: "dict"}.get(number, "google._upb._message.RepeatedScalarContainer") if scenario in ("disabled-types-more", "disabled-types-bytes") else "google._upb._message.RepeatedScalarContainer"
                         expected = f"cannot use '{kind}' as a dict key (unhashable type: '{kind}')"
                     assert element.exception.message == expected
-                    assert list(message.metadata.delta_path) == [0, 1 if number in (0, 1, 2, 14, 15) else 0]
+                    assert list(message.metadata.delta_path) == [0, 1 if number in (0, 1, 2, 14, 15, 16, 17, 18) else 0]
                 else:
                     assert scenario == "disabled", "reference must not contain an unexpected exception"
                     assert element.exception.message == "'str' object cannot be interpreted as an integer"
@@ -93,21 +96,25 @@ def read_query_param_capture(scenario, capture=None):
                     assert len(element.exception.stack_trace) == 2
             if element.WhichOneof("type") == "json":
                 snapshots.append(json.loads(element.json.body))
-    expected_errors = {"disabled": 1, "disabled-types": 13, "disabled-types-isolated": 5, "disabled-types-more": 15}.get(scenario, 0)
+    expected_errors = {"disabled": 1, "disabled-types": 13, "disabled-types-isolated": 5, "disabled-types-more": 15, "disabled-types-bytes": 18}.get(scenario, 0)
     assert len(errors) == expected_errors
-    if scenario in ("disabled-types-isolated", "disabled-types-more"):
-        case_count = 16 if scenario == "disabled-types-more" else 8
+    if scenario in ("disabled-types-isolated", "disabled-types-more", "disabled-types-bytes"):
+        case_count = {"disabled-types-isolated": 8, "disabled-types-more": 16, "disabled-types-bytes": 19}[scenario]
         assert len(set(sessions)) == case_count and len(sessions) == case_count * 3
         assert all(len(set(sessions[index:index + 3])) == 1 for index in range(0, case_count * 3, 3))
         assert histories == [False] * (case_count * 3) and finishes == [0] * (case_count * 3)
         assert [query.split("phase=")[1].split("&")[0] for query in requests] == [phase for number in range(case_count) for phase in ("load", f"malformed-{number}", f"recovery-{number}")]
         expected_types = [("bound", kind) for kind in ("bool_value", "int_value", "double_value", "string_array_value", "json_value")] + [("plain", "bool_value"), ("text", "bool_value"), ("check", "string_value")]
         expected_phases = ["malformed-0", "malformed-1", "malformed-2", "malformed-3", "recovery-3"]
-        if case_count == 16:
+        if case_count >= 16:
             expected_types += [("bound", kind) for kind in ("json_value", "json_value", "json_value", "json_value", "int_array_value", "double_array_value", "bytes_value", "trigger_value")]
             expected_phases += [phase for number in (8, 9, 12, 13) for phase in (f"malformed-{number}", f"recovery-{number}")] + ["malformed-14", "malformed-15"]
+        if case_count == 19:
+            expected_types += [("bound", "bytes_value")] * 3
+            expected_phases += [f"malformed-{number}" for number in (16, 17, 18)]
+            assert byte_payloads == [b"", b"x", b"'\0\\\r\n", bytes(range(256))]
         assert input_types == expected_types and error_phases == expected_phases
-        assert len(snapshots) == (33 if case_count == 16 else 19)
+        assert len(snapshots) == {8: 19, 16: 33, 19: 39}[case_count]
         for report in snapshots:
             phase = report["phase"]
             assert [report[key] for key in ("plain", "bound", "text", "check")] == ["safe", "y", "url", False]
@@ -532,27 +539,35 @@ def test_source_fingerprints_do_not_gate_functional_evidence(tmp_path):
         assert outcome["ok"], outcome["failures"]
 
 
-@pytest.mark.parametrize("scenario", ["disabled-types", "disabled-types-isolated", "disabled-types-more"])
+@pytest.mark.parametrize("scenario", ["disabled-types", "disabled-types-isolated", "disabled-types-more", "disabled-types-bytes"])
 def test_disabled_type_oracles_keep_recovery_and_persistent_array_errors(scenario):
     read_query_param_capture(scenario)
 
 
-@pytest.mark.parametrize("mutation", ["exception", "position", "callback", "json-list", "json-dict", "bytes"])
+@pytest.mark.parametrize("mutation", ["exception", "position", "callback", "json-list", "json-dict", "bytes", "byte-value"])
 def test_disabled_type_gate_rejects_coherent_wrong_wire(mutation):
     import base64
     from google.protobuf.json_format import MessageToDict
+    from streamlit.proto.BackMsg_pb2 import BackMsg
     from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
 
-    scenario = "disabled-types-more" if mutation in ("json-list", "json-dict", "bytes") else "disabled-types-isolated"
+    scenario = "disabled-types-bytes" if mutation == "byte-value" else "disabled-types-more" if mutation in ("json-list", "json-dict", "bytes") else "disabled-types-isolated"
     capture = json.loads((HERE / f"reference-browser/queryparams/{scenario}/trace.json").read_text(encoding="utf-8-sig"))
     phase = ""
     for frame in capture["frames"]:
         if frame["direction"] == "client->server":
             phase = frame["message"]["rerun_script"]["query_string"].split("phase=")[1].split("&")[0]
+            if mutation == "byte-value" and phase == "malformed-18":
+                message = BackMsg()
+                message.ParseFromString(base64.b64decode(frame["base64"]))
+                message.rerun_script.widget_states.widgets[0].bytes_value = bytes(reversed(range(256)))
+                raw = message.SerializeToString()
+                frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(message, preserving_proto_field_name=True))
+                break
             continue
         element = frame["message"].get("delta", {}).get("new_element", {})
         target_phase = {"json-list": "malformed-8", "json-dict": "malformed-9", "bytes": "malformed-14"}.get(mutation, "malformed-2")
-        if (mutation != "callback" and phase == target_phase and "exception" in element) or (mutation == "callback" and phase == "recovery-1" and "json" in element):
+        if (mutation not in ("callback", "byte-value") and phase == target_phase and "exception" in element) or (mutation == "callback" and phase == "recovery-1" and "json" in element):
             message = ForwardMsg()
             message.ParseFromString(base64.b64decode(frame["base64"]))
             if mutation in ("exception", "json-list", "json-dict", "bytes"):

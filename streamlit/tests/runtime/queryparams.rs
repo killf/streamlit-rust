@@ -256,6 +256,63 @@ fn queryparams_queue_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + 
     })
 }
 
+fn reference_bytes(value: &str) -> TestResult<Vec<u8>> {
+    // 1. 固定 protobuf JSON 使用标准、带 padding 的 Base64。
+    let payload = value.trim_end_matches('=');
+    let padding = value.len() - payload.len();
+    if !value.len().is_multiple_of(4) || padding > 2 || payload.contains('=') {
+        return Err("invalid reference bytes padding".into());
+    }
+
+    // 2. 逐个六位值还原字节，不改变非 UTF-8、NUL 或控制字符。
+    let mut output = Vec::with_capacity(value.len() / 4 * 3 - padding);
+    let (mut accumulator, mut bits) = (0_u16, 0_u8);
+    for byte in payload.bytes() {
+        let digit = match byte {
+            b'A'..=b'Z' => byte - b'A',
+            b'a'..=b'z' => byte - b'a' + 26,
+            b'0'..=b'9' => byte - b'0' + 52,
+            b'+' => 62,
+            b'/' => 63,
+            _ => return Err("invalid reference bytes alphabet".into()),
+        };
+        accumulator = (accumulator << 6) | u16::from(digit);
+        bits += 6;
+        if bits >= 8 {
+            bits -= 8;
+            output.push((accumulator >> bits) as u8);
+            accumulator &= (1 << bits) - 1;
+        }
+    }
+
+    // 3. padding 对应的剩余位必须为零。
+    if accumulator != 0 {
+        return Err("noncanonical reference bytes padding bits".into());
+    }
+    Ok(output)
+}
+
+#[test]
+fn reference_bytes_preserves_every_octet_and_rejects_invalid_encodings() -> TestResult {
+    for (encoded, expected) in [("", b"".as_slice()), ("eA==", b"x".as_slice()), ("Zm8=", b"fo".as_slice()), ("Zm9v", b"foo".as_slice()), ("JwBcDQo=", b"'\0\\\r\n".as_slice())] {
+        assert_eq!(reference_bytes(encoded)?, expected);
+    }
+    for invalid in ["A", "====", "AA=A", "AB==", "AAB=", "AA--", "AA__", "AAA", "AA A", "中文"] {
+        assert!(reference_bytes(invalid).is_err(), "must reject {invalid:?}");
+    }
+
+    let reference: serde_json::Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/queryparams/disabled-types-bytes/trace.json"))?;
+    let frame = reference["frames"]
+        .as_array()
+        .ok_or("missing bytes frames")?
+        .iter()
+        .find(|frame| frame["message"]["rerun_script"]["query_string"].as_str().is_some_and(|query| query.contains("phase=malformed-18&")))
+        .ok_or("missing every-octet request")?;
+    let encoded = frame["message"]["rerun_script"]["widget_states"]["widgets"][0]["bytes_value"].as_str().ok_or("missing every-octet bytes")?;
+    assert_eq!(reference_bytes(encoded)?, (0..=255).collect::<Vec<u8>>());
+    Ok(())
+}
+
 async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>>, capture: &str, expected_count: usize) -> TestResult {
     // 1. 使用固定参考输入启动独立服务及真实 WS。
     let reference: serde_json::Value = serde_json::from_str(capture)?;
@@ -310,10 +367,7 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
                             data: value.iter().map(|item| item.as_f64().ok_or("missing double array value")).collect::<Result<_, _>>()?,
                         })
                     } else if let Some(value) = state["bytes_value"].as_str() {
-                        if !value.is_empty() {
-                            return Err("this reference fixture only submits empty bytes".into());
-                        }
-                        widget_state::Value::BytesValue(Vec::new())
+                        widget_state::Value::BytesValue(reference_bytes(value)?)
                     } else {
                         widget_state::Value::StringValue(state["string_value"].as_str().ok_or("missing widget text")?.into())
                     }),
@@ -506,6 +560,11 @@ async fn disabled_array_error_persists_on_later_requests_in_the_same_session() -
 #[actix_web::test]
 async fn disabled_json_arrays_bytes_and_trigger_match_the_complete_reference() -> TestResult {
     assert_queryparams_reference(queryparams_disabled_entry, include_str!("../../../tests/reference/reference-browser/queryparams/disabled-types-more/trace.json"), 230).await
+}
+
+#[actix_web::test]
+async fn disabled_nonempty_bytes_preserve_callback_and_recover_on_the_same_socket() -> TestResult {
+    assert_queryparams_reference(queryparams_disabled_entry, include_str!("../../../tests/reference/reference-browser/queryparams/disabled-types-bytes/trace.json"), 272).await
 }
 
 #[actix_web::test]

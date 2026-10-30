@@ -120,6 +120,8 @@ try:
                 ("bound", "json_value", 'null'), ("bound", "json_value", '"x"'),
                 ("bound", "int_array_value", [1]), ("bound", "double_array_value", [1.5]),
                 ("bound", "bytes_value", b""), ("bound", "trigger_value", True),
+                ("bound", "bytes_value", b"x"), ("bound", "bytes_value", b"'\0\\\r\n"),
+                ("bound", "bytes_value", bytes(range(256))),
             ]
             trace["connection_policy"] = "Fresh WS per malformed input; recovery uses the same WS."
             queries = []

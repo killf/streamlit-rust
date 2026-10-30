@@ -589,4 +589,13 @@ WidgetRegistry 增加私有 input_error，和每轮可恢复的 registration_err
 
 widgets.rs 复用 input_error 生命周期，仅在已登记、上一轮禁用的普通 Select 上分类：三类 repeated 数组不需解析；JSON 用现有 serde_json 解析一次，根 Array/Object 生成对应 Python 类型名错误，其他根值维持原处理。没有增加参数来源、依赖、公共接口或新错误策略；JSON 输入的解析成本随其长度增长，未测性能收益。Bytes/Trigger 补入现有注册阶段 scalar_error，和早期持久错误区分。单元对五种容器×两种输入顺序验证生命周期，并将标量覆盖扩大到 bytes/trigger。
 
-原先的完整八例及单会话持续失败仍严格复验，新十六例真实 WS 按全部 48 轮/230 投影对照，异常 path/类型/文字/标志继续严格比较。参考采集器复用通用 repeated.data 写入；Rust 测试解码明确只支持本例所用的空 bytes，不为测试新增 base64 依赖或生产辅助模块。Python 离线门复核 16 个 session_id、输入 oneof、全状态/callback、异常阶段及三项新增一致改写的错误 wire。JSON 语法错误映射、非空 bytes 的协议验证、启用/creation 控件和真实 UI 仍开放，不将所测十六例宣称为任意输入兼容。
+原先的完整八例及单会话持续失败仍严格复验，新十六例真实 WS 按全部 48 轮/230 投影对照，异常 path/类型/文字/标志继续严格比较。参考采集器复用通用 repeated.data 写入；十六例参考只包含空 bytes；下节扩大到非空字节，测试重放已支持固定捕获的标准 Base64，未新增依赖或生产辅助模块。Python 离线门复核 16 个 session_id、输入 oneof、全状态/callback、异常阶段及三项新增一致改写的错误 wire。JSON 语法错误映射、启用/creation 控件和真实 UI 仍开放；非空 bytes 的协议验证见下节，不将有限输入例集宣称为任意输入兼容。
+
+
+### Nonempty bytes replay and exact payload evidence (2026-10-30)
+
+既有生产错误分类已按 BytesValue 处理所有字节载荷，但上批测试重放器只接受空 bytes，不能作为非空字节已验收的证据。本批不改 Rust 生产逻辑：仅在原 collector 后追加普通 x、单引号/NUL/反斜杠/CR/LF、bytes(range(256)) 三例，新 disabled-types-bytes 原始参考保留十九个独立会话/57 轮、39 状态、18 TypeError，共 272 交错投影。旧三份参考不改写。新增三例均在 Plain 后注册失败，错误文字为 expected bytes, str found，Live callback 已发生，下一轮同 WS 恢复。
+
+现有 Rust 测试模块增加私有 reference_bytes，把捕获中 protobuf JSON 的标准 Base64 还原成 BytesValue；检查 alphabet、padding 位置/长度及尾位，逐字节保留非 UTF-8、NUL 和控制字符。该函数只属于维护者测试，既不是生产解码器，也未新增依赖/公共接口/数据格式。单元包含标准向量、非法编码与固定参考中的完整 0..255 序列；原先“仅空 bytes”的测试限制删除。全 57 轮/272 投影实际 WS 重放继续检查异常位置、文字、标志、回调与恢复，原八例/十六例/持续失败差分保留。
+
+Python 门从原始 PB 校验全部四份 bytes 输入（含空串），另把 0..255 改成反向字节序并同步 raw/summary，确认门禁拒绝；这样相同 TypeError 不能掩盖字节内容损坏。初版篡改定位误匹配较早异常帧，已修正为只修改目标客户端请求，未改真实参考。仅扩大测试证据，不扩展运行时错误策略；JSON 语法错误、其他 oneof/参数组合、启用/creation 控件及真实错误 UI 仍开放。

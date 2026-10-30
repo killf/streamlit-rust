@@ -226,8 +226,26 @@ and recover on the next request. Rust strictly replays the whole new capture,
 including exception paths, while retaining the older eight-case and poisoned
 session regressions. Container units cover both incoming widget orders.
 
-The test replay accepts only this fixture's empty bytes; no base64 dependency or
-production decoder was added. Python gates check raw PB binding, sessions,
+That sixteen-case fixture contains only empty bytes. The following update adds
+nonempty payloads without a production decoder or a new dependency. Python gates check raw PB binding, sessions,
 request oneofs, state/callback ledgers and distinct list/dict/bytes errors. JSON
 syntax errors, nonempty bytes, enabled/creation controls, arbitrary further
 combinations and real error UI remain unverified.
+
+
+## Nonempty bytes follow-up (2026-10-30)
+
+`disabled-types-bytes/trace.json` retains nineteen isolated three-run cases,
+including the prior sixteen and three nonempty bytes submissions: x, quote/NUL/
+backslash/CR/LF, and bytes(range(256)). It contains 57 finishes, 39 snapshots,
+18 TypeErrors and 272 widget/URL/exception/state events. All earlier captures
+remain unchanged. New bytes cases fail at registration after Plain and the Live
+callback, then recover on the same WS with both callbacks preserved.
+
+A private Rust test helper now decodes the frozen protobuf JSON's standard
+Base64, including non-UTF-8 bytes and control characters, without production
+code or dependency changes. Unit vectors check padding/alphabet rejection and
+the exact 0..255 payload; the actual WS differential replays all 57 runs.
+Python binds every raw PB to its summary and asserts exact bytes. A coherent
+reverse-byte-order mutation must fail even though the exception text is unchanged.
+JSON syntax errors, other inputs/parameter combinations and real UI remain open.

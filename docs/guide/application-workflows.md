@@ -130,7 +130,7 @@ fn show_selection(st: &Streamlit, batch: &RecordBatch) -> Result<(), DataError> 
 
 禁用控件：已测 text_input、selectbox 和 checkbox 的正确类型提交不会替换当前禁用控件的返回值，代码赋值与有效 URL 初始化仍可生效，同批正常控件继续处理。callback 使用上一轮登记的 disabled 状态，因此从启用切换到禁用时，callback 先执行，注册再恢复输入前值；从禁用切换到启用时接受新值但不回调。
 
-异常输入的处理取决于发生阶段，不能统一理解为同连接下一轮一定恢复。已测 bool/int/double/trigger/空 bytes 误提交给禁用 selectbox 时，在注册阶段呈现对应 TypeError，保留已执行的正常控件 callback，下一轮可恢复。三种数组与 JSON list/dict 则在 callback 和应用入口之前失败，后续请求仍失败，新会话保持独立；JSON null/string 及普通文本、checkbox 的所测错误类型被忽略。十六例/48 轮的原生 WS 对照与原单会话持续失败记录见[错误类型参考与边界](../../tests/reference/reference-browser/queryparams/README.md)。这只覆盖固定输入的服务端行为；JSON 语法错误、非空 bytes、启用/creation 控件和真实浏览器错误界面仍开放，Python 栈帧不由 Rust 伪造。
+异常输入的处理取决于发生阶段，不能统一理解为同连接下一轮一定恢复。已测 bool/int/double/trigger/bytes（含空和非空值）误提交给禁用 selectbox 时，在注册阶段呈现对应 TypeError，保留已执行的正常控件 callback，下一轮可恢复。三种数组与 JSON list/dict 则在 callback 和应用入口之前失败，后续请求仍失败，新会话保持独立；JSON null/string 及普通文本、checkbox 的所测错误类型被忽略。十九例/57 轮的原生 WS 对照与原单会话持续失败记录见[错误类型参考与边界](../../tests/reference/reference-browser/queryparams/README.md)。这只覆盖固定输入的服务端行为；JSON 语法错误、启用/creation 控件和真实浏览器错误界面仍开放，Python 栈帧不由 Rust 伪造。
 
 同一次运行的首个 `rerun` 或 `stop` 信号决定该轮结束方式，后续信号不会覆盖它；普通服务端重跑保留本轮 `query_params.set` 写入。重跑会丢弃旧轮尚未发送的 Delta，已经发送的输出和 URL 消息保留；不能依赖同步代码在 `rerun` 前的临时输出一定到达浏览器。绑定控件延续本次交互的前端/代码状态，不重复执行 callback；在控件注册前中断不会提前移除旧控件，正常结束后仍会清理未渲染控件。两条边界均有真实 WebSocket 回归，切页清空与目标页重跑的组合也有验证。详情参见矩阵 `st.rerun`、`st.stop`、`st.query_params`、`st.session_state` 和官方[会话状态](https://docs.streamlit.io/develop/api-reference/caching-and-state/st.session_state)。
 
