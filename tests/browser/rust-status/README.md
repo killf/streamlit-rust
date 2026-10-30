@@ -85,3 +85,20 @@ Warn/error buffers were empty in the measured window, tabs/services/listeners
 were cleaned up, and original WS/helper/failed records remain unchanged. This
 batch changes no production code and does not verify parameter updates, callback
 behavior, invalid-icon combinations or arbitrary themes/viewports.
+
+
+## Alert validation boundary (2026-10-30)
+
+normalization/errors-before and normalization/errors retain all twenty inputs
+across four formats: 80 receipts each, with 12 and 20 emitted Alerts respectively.
+Python normalization/errors has 16 Alerts. Rejected calls emit no Alert and do
+not consume a delta slot; caught errors are followed by valid recovery calls.
+Icon-before-width, categorized error text and spinner acceptance now align for
+68/80 complete calls, compared with 20/80 before. The remaining 12 differences
+are cases 3/15 (unknown Material names) and 19 (quoted-width repr), four formats
+each. Every case remains in the gate; this is explicitly partial compatibility.
+
+Receipts classify the actual error by icon/width, not by a claimed equivalent
+Python exception class or error_id. No new browser, uncaught-error, callback or
+full icon-catalog proof is made. Catalog data/generation alternatives await the
+user's choice in .codex/architecture.md; no production catalog is added.

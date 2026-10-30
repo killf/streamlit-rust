@@ -1,5 +1,56 @@
 use ::streamlit::*;
 
+fn status_error_contract(st: &Streamlit) -> Result<(), Box<dyn std::error::Error>> {
+    let cases: Vec<serde_json::Value> = serde_json::from_str(
+        r#"[
+  {"icon": "🔥💡", "width": 0},
+  {"icon": "👩‍x", "width": "bogus"},
+  {"icon": "bad", "width": -1},
+  {"icon": " :material/not_a_real_icon: ", "width": "bogus"},
+  {"icon": ":material/Thumb_UP:", "width": 0},
+  {"icon": ":material/thumb_up", "width": 0},
+  {"icon": ":smile:", "width": 0},
+  {"icon": "http://example.invalid/icon.png", "width": 0},
+  {"icon": " spinner ", "width": 240},
+  {"icon": "", "width": 0},
+  {"icon": "🧊", "width": "bogus"},
+  {"icon": "  ", "width": "content"},
+  {"icon": "🧊", "width": 1},
+  {"icon": "spinner", "width": 1},
+  {"icon": ":material/thumb_up:", "width": 1},
+  {"icon": ":material/not_a_real_icon:", "width": 1},
+  {"icon": "not-an-icon", "width": 1},
+  {"icon": ":+1:", "width": 1},
+  {"icon": "https://example.invalid/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", "width": 1},
+  {"icon": "🧊", "width": "'quoted"}
+]"#,
+    )?;
+    st.json(serde_json::json!({"error_cases": cases}));
+    for (index, kwargs) in cases.iter().enumerate() {
+        for kind in ["info", "success", "warning", "error"] {
+            let mut options = StatusOptions::new("error boundary").icon(kwargs["icon"].as_str().ok_or("missing error icon")?);
+            if let Some(width) = kwargs["width"].as_str() {
+                options = options.width(width);
+            } else {
+                options = options.width(i32::try_from(kwargs["width"].as_i64().ok_or("missing error width")?)?);
+            }
+            let result = match kind {
+                "info" => st.info(options),
+                "success" => st.success(options),
+                "warning" => st.warning(options),
+                "error" => st.error(options),
+                _ => return Err("unknown alert kind".into()),
+            };
+            let result = match result {
+                Ok(()) => serde_json::json!({"index": index, "kind": kind, "returned": true}),
+                Err(error) => serde_json::json!({"index": index, "kind": kind, "category": match &error { StatusError::InvalidWidth(_) => "width", StatusError::InvalidIcon(_) => "icon" }, "message": error.to_string()}),
+            };
+            st.json(result);
+        }
+    }
+    Ok(())
+}
+
 fn status_normalization(st: &Streamlit) -> Result<(), Box<dyn std::error::Error>> {
     let inputs: serde_json::Value = serde_json::from_str(
         r#"{
@@ -76,6 +127,13 @@ fn status_page(st: &Streamlit) -> Result<(), StatusError> {
 
 #[main(host = "127.0.0.1", port = 8502)]
 async fn main(st: &Streamlit) {
+    if st.query_params().get("case").as_deref() == Some("error-contract") {
+        if let Err(error) = status_error_contract(st) {
+            st.exception(ExceptionOptions::new("StatusDiagnosticError", error.to_string()));
+        }
+        return;
+    }
+
     if st.query_params().get("case").as_deref() == Some("normalization") {
         if let Err(error) = status_normalization(st) {
             st.exception(ExceptionOptions::new("StatusDiagnosticError", error.to_string()));

@@ -144,7 +144,7 @@ impl StatusOptions {
         }
     }
 
-    /// Set an empty icon, a Material shortcode, or one Unicode emoji sequence.
+    /// Set an empty icon, spinner, a Material shortcode, or one Unicode emoji sequence.
     /// Surrounding whitespace is removed first. The sequence itself is
     /// preserved; the library's Unicode repertoire
     /// is not a claim of complete acceptance parity with Python 1.66.1.
@@ -195,7 +195,7 @@ impl From<String> for StatusWidth {
 pub enum StatusError {
     #[error("Invalid width value: {0}. Width must be either a positive integer (pixels) or 'stretch'.")]
     InvalidWidth(String),
-    #[error("The value \"{0}\" is not a valid emoji. Please use a single emoji.")]
+    #[error("{}", crate::elements::status::invalid_icon_message(.0))]
     InvalidIcon(String),
 }
 
@@ -1751,13 +1751,13 @@ impl Default for SkeletonOptions {
 
 fn create_status<C: AppendChild>(this: &C, options: StatusOptions, format: crate::proto::alert::Format) -> Result<(), StatusError> {
     use crate::proto::streamlit::width_config::WidthSpec;
+    let (body, icon) = status_content(&options.body, options.icon.as_deref())?;
     let width_spec = match options.width {
         StatusWidth::Keyword(value) if value == "stretch" => WidthSpec::UseStretch(true),
         StatusWidth::Pixels(value) if value > 0 => WidthSpec::PixelWidth(value as u32),
         StatusWidth::Keyword(value) => return Err(StatusError::InvalidWidth(format!("'{value}'"))),
         StatusWidth::Pixels(value) => return Err(StatusError::InvalidWidth(value.to_string())),
     };
-    let (body, icon) = status_content(&options.body, options.icon.as_deref())?;
     let element = AlertStatusElement::new(crate::proto::Alert {
         body,
         format: format as i32,

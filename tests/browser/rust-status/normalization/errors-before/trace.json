@@ -1,0 +1,3770 @@
+{
+  "schema_version": 1,
+  "runtime": "rust",
+  "reference_version": "1.66.1",
+  "captured_at_utc": "2026-10-30T09:25:53.781088+00:00",
+  "scenario": "alert-errors",
+  "scope": "Alert normalization/validation over one native WS; no browser/UI claim.",
+  "server_command": null,
+  "server_cleanup": "caller-owned",
+  "url": "http://127.0.0.1:8502",
+  "frames": [
+    {
+      "direction": "client->server",
+      "bytes": 23,
+      "base64": "WhUKE2Nhc2U9ZXJyb3ItY29udHJhY3Q=",
+      "message": {
+        "rerun_script": {
+          "query_string": "case=error-contract"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 219,
+      "base64": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkOWU4YmE4YWMtMTg0MC00ZWU5LWE4OGEtZDYzMzdlMzIzMDQ0EiQwMDMxMjU1ZC1iYmY1LTQ4YmEtYTQ2MS04ZmY0OWFhZGU4ZjcaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl",
+      "message": {
+        "metadata": {
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "new_session": {
+          "initialize": {
+            "user_info": {},
+            "environment_info": {
+              "streamlit_version": "1.66.1"
+            },
+            "session_status": {},
+            "session_id": "9e8ba8ac-1840-4ee9-a88a-d6337e323044"
+          },
+          "script_run_id": "0031255d-bbf5-48ba-a461-8ff49aade8f7",
+          "name": "Streamlit Rust",
+          "config": {
+            "show_error_links": "SHOW_ERROR_LINKS_FALSE"
+          },
+          "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 28,
+      "base64": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ==",
+      "message": {
+        "hash": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 1035,
+      "base64": "CiA3MjU4NWZlMWJlYzhiNjFhZjJkYzE5MDQzYzI0MTUwORImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2Uqvgcauwf6AbIHCq0HeyJlcnJvcl9jYXNlcyI6IFt7Imljb24iOiAiXHVkODNkXHVkZDI1XHVkODNkXHVkY2ExIiwgIndpZHRoIjogMH0sIHsiaWNvbiI6ICJcdWQ4M2RcdWRjNjlcdTIwMGR4IiwgIndpZHRoIjogImJvZ3VzIn0sIHsiaWNvbiI6ICJiYWQiLCAid2lkdGgiOiAtMX0sIHsiaWNvbiI6ICIgOm1hdGVyaWFsL25vdF9hX3JlYWxfaWNvbjogIiwgIndpZHRoIjogImJvZ3VzIn0sIHsiaWNvbiI6ICI6bWF0ZXJpYWwvVGh1bWJfVVA6IiwgIndpZHRoIjogMH0sIHsiaWNvbiI6ICI6bWF0ZXJpYWwvdGh1bWJfdXAiLCAid2lkdGgiOiAwfSwgeyJpY29uIjogIjpzbWlsZToiLCAid2lkdGgiOiAwfSwgeyJpY29uIjogImh0dHA6Ly9leGFtcGxlLmludmFsaWQvaWNvbi5wbmciLCAid2lkdGgiOiAwfSwgeyJpY29uIjogIiBzcGlubmVyICIsICJ3aWR0aCI6IDI0MH0sIHsiaWNvbiI6ICIiLCAid2lkdGgiOiAwfSwgeyJpY29uIjogIlx1ZDgzZVx1ZGRjYSIsICJ3aWR0aCI6ICJib2d1cyJ9LCB7Imljb24iOiAiICAiLCAid2lkdGgiOiAiY29udGVudCJ9LCB7Imljb24iOiAiXHVkODNlXHVkZGNhIiwgIndpZHRoIjogMX0sIHsiaWNvbiI6ICJzcGlubmVyIiwgIndpZHRoIjogMX0sIHsiaWNvbiI6ICI6bWF0ZXJpYWwvdGh1bWJfdXA6IiwgIndpZHRoIjogMX0sIHsiaWNvbiI6ICI6bWF0ZXJpYWwvbm90X2FfcmVhbF9pY29uOiIsICJ3aWR0aCI6IDF9LCB7Imljb24iOiAibm90LWFuLWljb24iLCAid2lkdGgiOiAxfSwgeyJpY29uIjogIjorMToiLCAid2lkdGgiOiAxfSwgeyJpY29uIjogImh0dHBzOi8vZXhhbXBsZS5pbnZhbGlkL3h4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4IiwgIndpZHRoIjogMX0sIHsiaWNvbiI6ICJcdWQ4M2VcdWRkY2EiLCAid2lkdGgiOiAiJ3F1b3RlZCJ9XX0QAdIDAggB",
+      "message": {
+        "hash": "72585fe1bec8b61af2dc19043c241509",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"error_cases\": [{\"icon\": \"\\ud83d\\udd25\\ud83d\\udca1\", \"width\": 0}, {\"icon\": \"\\ud83d\\udc69\\u200dx\", \"width\": \"bogus\"}, {\"icon\": \"bad\", \"width\": -1}, {\"icon\": \" :material/not_a_real_icon: \", \"width\": \"bogus\"}, {\"icon\": \":material/Thumb_UP:\", \"width\": 0}, {\"icon\": \":material/thumb_up\", \"width\": 0}, {\"icon\": \":smile:\", \"width\": 0}, {\"icon\": \"http://example.invalid/icon.png\", \"width\": 0}, {\"icon\": \" spinner \", \"width\": 240}, {\"icon\": \"\", \"width\": 0}, {\"icon\": \"\\ud83e\\uddca\", \"width\": \"bogus\"}, {\"icon\": \"  \", \"width\": \"content\"}, {\"icon\": \"\\ud83e\\uddca\", \"width\": 1}, {\"icon\": \"spinner\", \"width\": 1}, {\"icon\": \":material/thumb_up:\", \"width\": 1}, {\"icon\": \":material/not_a_real_icon:\", \"width\": 1}, {\"icon\": \"not-an-icon\", \"width\": 1}, {\"icon\": \":+1:\", \"width\": 1}, {\"icon\": \"https://example.invalid/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\", \"width\": 1}, {\"icon\": \"\\ud83e\\uddca\", \"width\": \"'quoted\"}]}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 244,
+      "base64": "CiBjYjIwYTViZWZkNWQ0YzE4ZDgwM2QyMDFlNzEzZDIzZBImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqpwEapAH6AZsBCpYBeyJpbmRleCI6IDAsICJraW5kIjogImluZm8iLCAiY2F0ZWdvcnkiOiAid2lkdGgiLCAibWVzc2FnZSI6ICJJbnZhbGlkIHdpZHRoIHZhbHVlOiAwLiBXaWR0aCBtdXN0IGJlIGVpdGhlciBhIHBvc2l0aXZlIGludGVnZXIgKHBpeGVscykgb3IgJ3N0cmV0Y2gnLiJ9EAHSAwIIAQ==",
+      "message": {
+        "hash": "cb20a5befd5d4c18d803d201e713d23d",
+        "metadata": {
+          "delta_path": [
+            0,
+            1
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 0, \"kind\": \"info\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 247,
+      "base64": "CiAwYmUzMzkzZjNiM2ZjYzRmNWJlM2I2OGFiYmUyOTY0MhImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqqgEapwH6AZ4BCpkBeyJpbmRleCI6IDAsICJraW5kIjogInN1Y2Nlc3MiLCAiY2F0ZWdvcnkiOiAid2lkdGgiLCAibWVzc2FnZSI6ICJJbnZhbGlkIHdpZHRoIHZhbHVlOiAwLiBXaWR0aCBtdXN0IGJlIGVpdGhlciBhIHBvc2l0aXZlIGludGVnZXIgKHBpeGVscykgb3IgJ3N0cmV0Y2gnLiJ9EAHSAwIIAQ==",
+      "message": {
+        "hash": "0be3393f3b3fcc4f5be3b68abbe29642",
+        "metadata": {
+          "delta_path": [
+            0,
+            2
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 0, \"kind\": \"success\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 247,
+      "base64": "CiA2NjAwOTg0ZWIwYWMzMTA4ZGJkMTQ2MDM4OWU0NTlhYhImEgIAAyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqqgEapwH6AZ4BCpkBeyJpbmRleCI6IDAsICJraW5kIjogIndhcm5pbmciLCAiY2F0ZWdvcnkiOiAid2lkdGgiLCAibWVzc2FnZSI6ICJJbnZhbGlkIHdpZHRoIHZhbHVlOiAwLiBXaWR0aCBtdXN0IGJlIGVpdGhlciBhIHBvc2l0aXZlIGludGVnZXIgKHBpeGVscykgb3IgJ3N0cmV0Y2gnLiJ9EAHSAwIIAQ==",
+      "message": {
+        "hash": "6600984eb0ac3108dbd1460389e459ab",
+        "metadata": {
+          "delta_path": [
+            0,
+            3
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 0, \"kind\": \"warning\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 245,
+      "base64": "CiA4MTM0NTIwMWQ4ZTQ1MTljYmRiMmMxZjBjZmRjMWYxOBImEgIABCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqqAEapQH6AZwBCpcBeyJpbmRleCI6IDAsICJraW5kIjogImVycm9yIiwgImNhdGVnb3J5IjogIndpZHRoIiwgIm1lc3NhZ2UiOiAiSW52YWxpZCB3aWR0aCB2YWx1ZTogMC4gV2lkdGggbXVzdCBiZSBlaXRoZXIgYSBwb3NpdGl2ZSBpbnRlZ2VyIChwaXhlbHMpIG9yICdzdHJldGNoJy4ifRAB0gMCCAE=",
+      "message": {
+        "hash": "81345201d8e4519cbdb2c1f0cfdc1f18",
+        "metadata": {
+          "delta_path": [
+            0,
+            4
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 0, \"kind\": \"error\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 250,
+      "base64": "CiBhMDI3YmVmZTM3MTJmODJkOGRhYjkyMDg4ZjdkNmJjZBImEgIABSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqrQEaqgH6AaEBCpwBeyJpbmRleCI6IDEsICJraW5kIjogImluZm8iLCAiY2F0ZWdvcnkiOiAid2lkdGgiLCAibWVzc2FnZSI6ICJJbnZhbGlkIHdpZHRoIHZhbHVlOiAnYm9ndXMnLiBXaWR0aCBtdXN0IGJlIGVpdGhlciBhIHBvc2l0aXZlIGludGVnZXIgKHBpeGVscykgb3IgJ3N0cmV0Y2gnLiJ9EAHSAwIIAQ==",
+      "message": {
+        "hash": "a027befe3712f82d8dab92088f7d6bcd",
+        "metadata": {
+          "delta_path": [
+            0,
+            5
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 1, \"kind\": \"info\", \"category\": \"width\", \"message\": \"Invalid width value: 'bogus'. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 253,
+      "base64": "CiBmOTA4NzFiNjM2ODg1MGU5ZTVmMjViZDFjM2QzOWUwYhImEgIABiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqsAEarQH6AaQBCp8BeyJpbmRleCI6IDEsICJraW5kIjogInN1Y2Nlc3MiLCAiY2F0ZWdvcnkiOiAid2lkdGgiLCAibWVzc2FnZSI6ICJJbnZhbGlkIHdpZHRoIHZhbHVlOiAnYm9ndXMnLiBXaWR0aCBtdXN0IGJlIGVpdGhlciBhIHBvc2l0aXZlIGludGVnZXIgKHBpeGVscykgb3IgJ3N0cmV0Y2gnLiJ9EAHSAwIIAQ==",
+      "message": {
+        "hash": "f90871b6368850e9e5f25bd1c3d39e0b",
+        "metadata": {
+          "delta_path": [
+            0,
+            6
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 1, \"kind\": \"success\", \"category\": \"width\", \"message\": \"Invalid width value: 'bogus'. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 253,
+      "base64": "CiA3M2UyNzllYmRjNmIwOWM2ZWU4OWEwNDEwM2JjNDBiNBImEgIAByIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqsAEarQH6AaQBCp8BeyJpbmRleCI6IDEsICJraW5kIjogIndhcm5pbmciLCAiY2F0ZWdvcnkiOiAid2lkdGgiLCAibWVzc2FnZSI6ICJJbnZhbGlkIHdpZHRoIHZhbHVlOiAnYm9ndXMnLiBXaWR0aCBtdXN0IGJlIGVpdGhlciBhIHBvc2l0aXZlIGludGVnZXIgKHBpeGVscykgb3IgJ3N0cmV0Y2gnLiJ9EAHSAwIIAQ==",
+      "message": {
+        "hash": "73e279ebdc6b09c6ee89a04103bc40b4",
+        "metadata": {
+          "delta_path": [
+            0,
+            7
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 1, \"kind\": \"warning\", \"category\": \"width\", \"message\": \"Invalid width value: 'bogus'. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 251,
+      "base64": "CiBjYjY4M2EzMjE5NDIwYWZjMDk0M2FmZmMzMDYwYjIwMBImEgIACCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqrgEaqwH6AaIBCp0BeyJpbmRleCI6IDEsICJraW5kIjogImVycm9yIiwgImNhdGVnb3J5IjogIndpZHRoIiwgIm1lc3NhZ2UiOiAiSW52YWxpZCB3aWR0aCB2YWx1ZTogJ2JvZ3VzJy4gV2lkdGggbXVzdCBiZSBlaXRoZXIgYSBwb3NpdGl2ZSBpbnRlZ2VyIChwaXhlbHMpIG9yICdzdHJldGNoJy4ifRAB0gMCCAE=",
+      "message": {
+        "hash": "cb683a3219420afc0943affc3060b200",
+        "metadata": {
+          "delta_path": [
+            0,
+            8
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 1, \"kind\": \"error\", \"category\": \"width\", \"message\": \"Invalid width value: 'bogus'. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 245,
+      "base64": "CiA2YzZmNmY1YTY0YzFhZjYxN2I2ODExNDdkNzQ2Zjk1OBImEgIACSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqqAEapQH6AZwBCpcBeyJpbmRleCI6IDIsICJraW5kIjogImluZm8iLCAiY2F0ZWdvcnkiOiAid2lkdGgiLCAibWVzc2FnZSI6ICJJbnZhbGlkIHdpZHRoIHZhbHVlOiAtMS4gV2lkdGggbXVzdCBiZSBlaXRoZXIgYSBwb3NpdGl2ZSBpbnRlZ2VyIChwaXhlbHMpIG9yICdzdHJldGNoJy4ifRAB0gMCCAE=",
+      "message": {
+        "hash": "6c6f6f5a64c1af617b681147d746f958",
+        "metadata": {
+          "delta_path": [
+            0,
+            9
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 2, \"kind\": \"info\", \"category\": \"width\", \"message\": \"Invalid width value: -1. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 248,
+      "base64": "CiA5ZWViNWU3NzcwNjJjMTZhM2FlM2U3NWE1MjZlMTBlZBImEgIACiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqqwEaqAH6AZ8BCpoBeyJpbmRleCI6IDIsICJraW5kIjogInN1Y2Nlc3MiLCAiY2F0ZWdvcnkiOiAid2lkdGgiLCAibWVzc2FnZSI6ICJJbnZhbGlkIHdpZHRoIHZhbHVlOiAtMS4gV2lkdGggbXVzdCBiZSBlaXRoZXIgYSBwb3NpdGl2ZSBpbnRlZ2VyIChwaXhlbHMpIG9yICdzdHJldGNoJy4ifRAB0gMCCAE=",
+      "message": {
+        "hash": "9eeb5e777062c16a3ae3e75a526e10ed",
+        "metadata": {
+          "delta_path": [
+            0,
+            10
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 2, \"kind\": \"success\", \"category\": \"width\", \"message\": \"Invalid width value: -1. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 248,
+      "base64": "CiA5N2ZjZGU1OGFmNGFlMTNkZTc2N2FjZjU1OTFkYzFmNBImEgIACyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqqwEaqAH6AZ8BCpoBeyJpbmRleCI6IDIsICJraW5kIjogIndhcm5pbmciLCAiY2F0ZWdvcnkiOiAid2lkdGgiLCAibWVzc2FnZSI6ICJJbnZhbGlkIHdpZHRoIHZhbHVlOiAtMS4gV2lkdGggbXVzdCBiZSBlaXRoZXIgYSBwb3NpdGl2ZSBpbnRlZ2VyIChwaXhlbHMpIG9yICdzdHJldGNoJy4ifRAB0gMCCAE=",
+      "message": {
+        "hash": "97fcde58af4ae13de767acf5591dc1f4",
+        "metadata": {
+          "delta_path": [
+            0,
+            11
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 2, \"kind\": \"warning\", \"category\": \"width\", \"message\": \"Invalid width value: -1. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 246,
+      "base64": "CiA4OGY0MDA3YTlmYTBhMDY5Y2U0OGZjYTM5YTI5ODRhNxImEgIADCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqqQEapgH6AZ0BCpgBeyJpbmRleCI6IDIsICJraW5kIjogImVycm9yIiwgImNhdGVnb3J5IjogIndpZHRoIiwgIm1lc3NhZ2UiOiAiSW52YWxpZCB3aWR0aCB2YWx1ZTogLTEuIFdpZHRoIG11c3QgYmUgZWl0aGVyIGEgcG9zaXRpdmUgaW50ZWdlciAocGl4ZWxzKSBvciAnc3RyZXRjaCcuIn0QAdIDAggB",
+      "message": {
+        "hash": "88f4007a9fa0a069ce48fca39a2984a7",
+        "metadata": {
+          "delta_path": [
+            0,
+            12
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 2, \"kind\": \"error\", \"category\": \"width\", \"message\": \"Invalid width value: -1. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 250,
+      "base64": "CiAyNmVhOTI3NDAxZTRhOTJkZWMwN2Q5ZWEwNDlmYTQ4OBImEgIADSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqrQEaqgH6AaEBCpwBeyJpbmRleCI6IDMsICJraW5kIjogImluZm8iLCAiY2F0ZWdvcnkiOiAid2lkdGgiLCAibWVzc2FnZSI6ICJJbnZhbGlkIHdpZHRoIHZhbHVlOiAnYm9ndXMnLiBXaWR0aCBtdXN0IGJlIGVpdGhlciBhIHBvc2l0aXZlIGludGVnZXIgKHBpeGVscykgb3IgJ3N0cmV0Y2gnLiJ9EAHSAwIIAQ==",
+      "message": {
+        "hash": "26ea927401e4a92dec07d9ea049fa488",
+        "metadata": {
+          "delta_path": [
+            0,
+            13
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 3, \"kind\": \"info\", \"category\": \"width\", \"message\": \"Invalid width value: 'bogus'. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 253,
+      "base64": "CiA1MDA3MmNlYTU2MzQ4NmM2NzQzNGNlYmUyNmUyZWYyNBImEgIADiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqsAEarQH6AaQBCp8BeyJpbmRleCI6IDMsICJraW5kIjogInN1Y2Nlc3MiLCAiY2F0ZWdvcnkiOiAid2lkdGgiLCAibWVzc2FnZSI6ICJJbnZhbGlkIHdpZHRoIHZhbHVlOiAnYm9ndXMnLiBXaWR0aCBtdXN0IGJlIGVpdGhlciBhIHBvc2l0aXZlIGludGVnZXIgKHBpeGVscykgb3IgJ3N0cmV0Y2gnLiJ9EAHSAwIIAQ==",
+      "message": {
+        "hash": "50072cea563486c67434cebe26e2ef24",
+        "metadata": {
+          "delta_path": [
+            0,
+            14
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 3, \"kind\": \"success\", \"category\": \"width\", \"message\": \"Invalid width value: 'bogus'. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 253,
+      "base64": "CiAyZjIxMzZiMDZiMjdmYmYyYTIzN2EzNzY0MzYzZTgzZhImEgIADyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqsAEarQH6AaQBCp8BeyJpbmRleCI6IDMsICJraW5kIjogIndhcm5pbmciLCAiY2F0ZWdvcnkiOiAid2lkdGgiLCAibWVzc2FnZSI6ICJJbnZhbGlkIHdpZHRoIHZhbHVlOiAnYm9ndXMnLiBXaWR0aCBtdXN0IGJlIGVpdGhlciBhIHBvc2l0aXZlIGludGVnZXIgKHBpeGVscykgb3IgJ3N0cmV0Y2gnLiJ9EAHSAwIIAQ==",
+      "message": {
+        "hash": "2f2136b06b27fbf2a237a3764363e83f",
+        "metadata": {
+          "delta_path": [
+            0,
+            15
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 3, \"kind\": \"warning\", \"category\": \"width\", \"message\": \"Invalid width value: 'bogus'. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 251,
+      "base64": "CiAyNDUxOTZmMDFjM2VhNGVjMDk2OWQ2ZTZkZTFlYzVmZhImEgIAECIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqrgEaqwH6AaIBCp0BeyJpbmRleCI6IDMsICJraW5kIjogImVycm9yIiwgImNhdGVnb3J5IjogIndpZHRoIiwgIm1lc3NhZ2UiOiAiSW52YWxpZCB3aWR0aCB2YWx1ZTogJ2JvZ3VzJy4gV2lkdGggbXVzdCBiZSBlaXRoZXIgYSBwb3NpdGl2ZSBpbnRlZ2VyIChwaXhlbHMpIG9yICdzdHJldGNoJy4ifRAB0gMCCAE=",
+      "message": {
+        "hash": "245196f01c3ea4ec0969d6e6de1ec5ff",
+        "metadata": {
+          "delta_path": [
+            0,
+            16
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 3, \"kind\": \"error\", \"category\": \"width\", \"message\": \"Invalid width value: 'bogus'. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 244,
+      "base64": "CiAyMWYwZjg1NjllNjU4ZjE0NDc0NDNhZjUxNzBiYmVjMRImEgIAESIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqpwEapAH6AZsBCpYBeyJpbmRleCI6IDQsICJraW5kIjogImluZm8iLCAiY2F0ZWdvcnkiOiAid2lkdGgiLCAibWVzc2FnZSI6ICJJbnZhbGlkIHdpZHRoIHZhbHVlOiAwLiBXaWR0aCBtdXN0IGJlIGVpdGhlciBhIHBvc2l0aXZlIGludGVnZXIgKHBpeGVscykgb3IgJ3N0cmV0Y2gnLiJ9EAHSAwIIAQ==",
+      "message": {
+        "hash": "21f0f8569e658f1447443af5170bbec1",
+        "metadata": {
+          "delta_path": [
+            0,
+            17
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 4, \"kind\": \"info\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 247,
+      "base64": "CiBiOTEwZTFlMWQwYWQ3NmFlMWE3MWZhMjlhZDg5NTgyMhImEgIAEiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqqgEapwH6AZ4BCpkBeyJpbmRleCI6IDQsICJraW5kIjogInN1Y2Nlc3MiLCAiY2F0ZWdvcnkiOiAid2lkdGgiLCAibWVzc2FnZSI6ICJJbnZhbGlkIHdpZHRoIHZhbHVlOiAwLiBXaWR0aCBtdXN0IGJlIGVpdGhlciBhIHBvc2l0aXZlIGludGVnZXIgKHBpeGVscykgb3IgJ3N0cmV0Y2gnLiJ9EAHSAwIIAQ==",
+      "message": {
+        "hash": "b910e1e1d0ad76ae1a71fa29ad895822",
+        "metadata": {
+          "delta_path": [
+            0,
+            18
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 4, \"kind\": \"success\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 247,
+      "base64": "CiBmOTdmNzQ0NzIwOWZmNzYxMTgyYzM4NmVhOGI3ZWNlMRImEgIAEyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqqgEapwH6AZ4BCpkBeyJpbmRleCI6IDQsICJraW5kIjogIndhcm5pbmciLCAiY2F0ZWdvcnkiOiAid2lkdGgiLCAibWVzc2FnZSI6ICJJbnZhbGlkIHdpZHRoIHZhbHVlOiAwLiBXaWR0aCBtdXN0IGJlIGVpdGhlciBhIHBvc2l0aXZlIGludGVnZXIgKHBpeGVscykgb3IgJ3N0cmV0Y2gnLiJ9EAHSAwIIAQ==",
+      "message": {
+        "hash": "f97f7447209ff761182c386ea8b7ece1",
+        "metadata": {
+          "delta_path": [
+            0,
+            19
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 4, \"kind\": \"warning\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 245,
+      "base64": "CiAyZjIxNWYzMDg0YzJlZmMxYjhkNDBiOWFkY2I0ZWNiZhImEgIAFCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqqAEapQH6AZwBCpcBeyJpbmRleCI6IDQsICJraW5kIjogImVycm9yIiwgImNhdGVnb3J5IjogIndpZHRoIiwgIm1lc3NhZ2UiOiAiSW52YWxpZCB3aWR0aCB2YWx1ZTogMC4gV2lkdGggbXVzdCBiZSBlaXRoZXIgYSBwb3NpdGl2ZSBpbnRlZ2VyIChwaXhlbHMpIG9yICdzdHJldGNoJy4ifRAB0gMCCAE=",
+      "message": {
+        "hash": "2f215f3084c2efc1b8d40b9adcb4ecbf",
+        "metadata": {
+          "delta_path": [
+            0,
+            20
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 4, \"kind\": \"error\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 244,
+      "base64": "CiA0OTg3ZmE0MThjNDVkNGQyMGQyZTc3MDZiMjNmNzNhOBImEgIAFSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqpwEapAH6AZsBCpYBeyJpbmRleCI6IDUsICJraW5kIjogImluZm8iLCAiY2F0ZWdvcnkiOiAid2lkdGgiLCAibWVzc2FnZSI6ICJJbnZhbGlkIHdpZHRoIHZhbHVlOiAwLiBXaWR0aCBtdXN0IGJlIGVpdGhlciBhIHBvc2l0aXZlIGludGVnZXIgKHBpeGVscykgb3IgJ3N0cmV0Y2gnLiJ9EAHSAwIIAQ==",
+      "message": {
+        "hash": "4987fa418c45d4d20d2e7706b23f73a8",
+        "metadata": {
+          "delta_path": [
+            0,
+            21
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 5, \"kind\": \"info\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 247,
+      "base64": "CiA2NWRmMTg5YzExMTIwNmI1ZDg1ODk2ZjViYjY5Zjc2ZhImEgIAFiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqqgEapwH6AZ4BCpkBeyJpbmRleCI6IDUsICJraW5kIjogInN1Y2Nlc3MiLCAiY2F0ZWdvcnkiOiAid2lkdGgiLCAibWVzc2FnZSI6ICJJbnZhbGlkIHdpZHRoIHZhbHVlOiAwLiBXaWR0aCBtdXN0IGJlIGVpdGhlciBhIHBvc2l0aXZlIGludGVnZXIgKHBpeGVscykgb3IgJ3N0cmV0Y2gnLiJ9EAHSAwIIAQ==",
+      "message": {
+        "hash": "65df189c111206b5d85896f5bb69f76f",
+        "metadata": {
+          "delta_path": [
+            0,
+            22
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 5, \"kind\": \"success\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 247,
+      "base64": "CiBiOWY2NzY3Yzg0YWI0ZWQ5ODQ4YzA1ZTM0NzEzOTY5MxImEgIAFyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqqgEapwH6AZ4BCpkBeyJpbmRleCI6IDUsICJraW5kIjogIndhcm5pbmciLCAiY2F0ZWdvcnkiOiAid2lkdGgiLCAibWVzc2FnZSI6ICJJbnZhbGlkIHdpZHRoIHZhbHVlOiAwLiBXaWR0aCBtdXN0IGJlIGVpdGhlciBhIHBvc2l0aXZlIGludGVnZXIgKHBpeGVscykgb3IgJ3N0cmV0Y2gnLiJ9EAHSAwIIAQ==",
+      "message": {
+        "hash": "b9f6767c84ab4ed9848c05e347139693",
+        "metadata": {
+          "delta_path": [
+            0,
+            23
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 5, \"kind\": \"warning\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 245,
+      "base64": "CiA4ZDFjNjcwOGM3MTdmMzQzZDc3MDc5MTUxYTMyOThkZRImEgIAGCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqqAEapQH6AZwBCpcBeyJpbmRleCI6IDUsICJraW5kIjogImVycm9yIiwgImNhdGVnb3J5IjogIndpZHRoIiwgIm1lc3NhZ2UiOiAiSW52YWxpZCB3aWR0aCB2YWx1ZTogMC4gV2lkdGggbXVzdCBiZSBlaXRoZXIgYSBwb3NpdGl2ZSBpbnRlZ2VyIChwaXhlbHMpIG9yICdzdHJldGNoJy4ifRAB0gMCCAE=",
+      "message": {
+        "hash": "8d1c6708c717f343d77079151a3298de",
+        "metadata": {
+          "delta_path": [
+            0,
+            24
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 5, \"kind\": \"error\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 244,
+      "base64": "CiBiNWQ1ZTY4YzhhMmMyMjEyN2JkYmYzNzc2ZjMxN2UzNxImEgIAGSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqpwEapAH6AZsBCpYBeyJpbmRleCI6IDYsICJraW5kIjogImluZm8iLCAiY2F0ZWdvcnkiOiAid2lkdGgiLCAibWVzc2FnZSI6ICJJbnZhbGlkIHdpZHRoIHZhbHVlOiAwLiBXaWR0aCBtdXN0IGJlIGVpdGhlciBhIHBvc2l0aXZlIGludGVnZXIgKHBpeGVscykgb3IgJ3N0cmV0Y2gnLiJ9EAHSAwIIAQ==",
+      "message": {
+        "hash": "b5d5e68c8a2c22127bdbf3776f317e37",
+        "metadata": {
+          "delta_path": [
+            0,
+            25
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 6, \"kind\": \"info\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 247,
+      "base64": "CiBiZGQ4MjAwNTljODBlNDY2YTIzODQwMDM5NGM1MTY5MRImEgIAGiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqqgEapwH6AZ4BCpkBeyJpbmRleCI6IDYsICJraW5kIjogInN1Y2Nlc3MiLCAiY2F0ZWdvcnkiOiAid2lkdGgiLCAibWVzc2FnZSI6ICJJbnZhbGlkIHdpZHRoIHZhbHVlOiAwLiBXaWR0aCBtdXN0IGJlIGVpdGhlciBhIHBvc2l0aXZlIGludGVnZXIgKHBpeGVscykgb3IgJ3N0cmV0Y2gnLiJ9EAHSAwIIAQ==",
+      "message": {
+        "hash": "bdd820059c80e466a238400394c51691",
+        "metadata": {
+          "delta_path": [
+            0,
+            26
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 6, \"kind\": \"success\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 247,
+      "base64": "CiA2MTZhMzUxZTFiYzE0OWZhYjA2MTY0MTgyYWQxN2MxNxImEgIAGyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqqgEapwH6AZ4BCpkBeyJpbmRleCI6IDYsICJraW5kIjogIndhcm5pbmciLCAiY2F0ZWdvcnkiOiAid2lkdGgiLCAibWVzc2FnZSI6ICJJbnZhbGlkIHdpZHRoIHZhbHVlOiAwLiBXaWR0aCBtdXN0IGJlIGVpdGhlciBhIHBvc2l0aXZlIGludGVnZXIgKHBpeGVscykgb3IgJ3N0cmV0Y2gnLiJ9EAHSAwIIAQ==",
+      "message": {
+        "hash": "616a351e1bc149fab06164182ad17c17",
+        "metadata": {
+          "delta_path": [
+            0,
+            27
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 6, \"kind\": \"warning\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 245,
+      "base64": "CiA4MWM4NjU1MjcxMzBlZWUzY2M0ZmU4ZTZkMDE5MjJmORImEgIAHCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqqAEapQH6AZwBCpcBeyJpbmRleCI6IDYsICJraW5kIjogImVycm9yIiwgImNhdGVnb3J5IjogIndpZHRoIiwgIm1lc3NhZ2UiOiAiSW52YWxpZCB3aWR0aCB2YWx1ZTogMC4gV2lkdGggbXVzdCBiZSBlaXRoZXIgYSBwb3NpdGl2ZSBpbnRlZ2VyIChwaXhlbHMpIG9yICdzdHJldGNoJy4ifRAB0gMCCAE=",
+      "message": {
+        "hash": "81c865527130eee3cc4fe8e6d01922f9",
+        "metadata": {
+          "delta_path": [
+            0,
+            28
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 6, \"kind\": \"error\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 244,
+      "base64": "CiA5NmJmYzYyOTIyZTM2MTFmOGI4M2NhMjg1Nzg2ZDdkNxImEgIAHSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqpwEapAH6AZsBCpYBeyJpbmRleCI6IDcsICJraW5kIjogImluZm8iLCAiY2F0ZWdvcnkiOiAid2lkdGgiLCAibWVzc2FnZSI6ICJJbnZhbGlkIHdpZHRoIHZhbHVlOiAwLiBXaWR0aCBtdXN0IGJlIGVpdGhlciBhIHBvc2l0aXZlIGludGVnZXIgKHBpeGVscykgb3IgJ3N0cmV0Y2gnLiJ9EAHSAwIIAQ==",
+      "message": {
+        "hash": "96bfc62922e3611f8b83ca285786d7d7",
+        "metadata": {
+          "delta_path": [
+            0,
+            29
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 7, \"kind\": \"info\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 247,
+      "base64": "CiA1NzkyMDEyMGExNzQ4YTMzMTRlNzIyZDg3MDBhYzhjOBImEgIAHiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqqgEapwH6AZ4BCpkBeyJpbmRleCI6IDcsICJraW5kIjogInN1Y2Nlc3MiLCAiY2F0ZWdvcnkiOiAid2lkdGgiLCAibWVzc2FnZSI6ICJJbnZhbGlkIHdpZHRoIHZhbHVlOiAwLiBXaWR0aCBtdXN0IGJlIGVpdGhlciBhIHBvc2l0aXZlIGludGVnZXIgKHBpeGVscykgb3IgJ3N0cmV0Y2gnLiJ9EAHSAwIIAQ==",
+      "message": {
+        "hash": "57920120a1748a3314e722d8700ac8c8",
+        "metadata": {
+          "delta_path": [
+            0,
+            30
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 7, \"kind\": \"success\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 247,
+      "base64": "CiBlMTY0ZTJjYzMzMjA5NmYwNWU3Njc4YjY5YmJlNGE4MxImEgIAHyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqqgEapwH6AZ4BCpkBeyJpbmRleCI6IDcsICJraW5kIjogIndhcm5pbmciLCAiY2F0ZWdvcnkiOiAid2lkdGgiLCAibWVzc2FnZSI6ICJJbnZhbGlkIHdpZHRoIHZhbHVlOiAwLiBXaWR0aCBtdXN0IGJlIGVpdGhlciBhIHBvc2l0aXZlIGludGVnZXIgKHBpeGVscykgb3IgJ3N0cmV0Y2gnLiJ9EAHSAwIIAQ==",
+      "message": {
+        "hash": "e164e2cc332096f05e7678b69bbe4a83",
+        "metadata": {
+          "delta_path": [
+            0,
+            31
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 7, \"kind\": \"warning\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 245,
+      "base64": "CiA5ZWY0NzlkYTEwZmQyYjUwYWUxMzVjZWU2M2MyODZiMBImEgIAICIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqqAEapQH6AZwBCpcBeyJpbmRleCI6IDcsICJraW5kIjogImVycm9yIiwgImNhdGVnb3J5IjogIndpZHRoIiwgIm1lc3NhZ2UiOiAiSW52YWxpZCB3aWR0aCB2YWx1ZTogMC4gV2lkdGggbXVzdCBiZSBlaXRoZXIgYSBwb3NpdGl2ZSBpbnRlZ2VyIChwaXhlbHMpIG9yICdzdHJldGNoJy4ifRAB0gMCCAE=",
+      "message": {
+        "hash": "9ef479da10fd2b50ae135cee63c286b0",
+        "metadata": {
+          "delta_path": [
+            0,
+            32
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 7, \"kind\": \"error\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 227,
+      "base64": "CiBjYzVmMmViZDZiZDY2MjNkOGZmMjJhZDRiOGQxNjczMxImEgIAISIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqlgEakwH6AYoBCoUBeyJpbmRleCI6IDgsICJraW5kIjogImluZm8iLCAiY2F0ZWdvcnkiOiAiaWNvbiIsICJtZXNzYWdlIjogIlRoZSB2YWx1ZSBcInNwaW5uZXJcIiBpcyBub3QgYSB2YWxpZCBlbW9qaS4gUGxlYXNlIHVzZSBhIHNpbmdsZSBlbW9qaS4ifRAB0gMCCAE=",
+      "message": {
+        "hash": "cc5f2ebd6bd6623d8ff22ad4b8d16733",
+        "metadata": {
+          "delta_path": [
+            0,
+            33
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 8, \"kind\": \"info\", \"category\": \"icon\", \"message\": \"The value \\\"spinner\\\" is not a valid emoji. Please use a single emoji.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 230,
+      "base64": "CiA1YjhkNzQ3ZjIxZDBlMDNlZmNlMDU4MzJmNmMxMWNhMxImEgIAIiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqmQEalgH6AY0BCogBeyJpbmRleCI6IDgsICJraW5kIjogInN1Y2Nlc3MiLCAiY2F0ZWdvcnkiOiAiaWNvbiIsICJtZXNzYWdlIjogIlRoZSB2YWx1ZSBcInNwaW5uZXJcIiBpcyBub3QgYSB2YWxpZCBlbW9qaS4gUGxlYXNlIHVzZSBhIHNpbmdsZSBlbW9qaS4ifRAB0gMCCAE=",
+      "message": {
+        "hash": "5b8d747f21d0e03efce05832f6c11ca3",
+        "metadata": {
+          "delta_path": [
+            0,
+            34
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 8, \"kind\": \"success\", \"category\": \"icon\", \"message\": \"The value \\\"spinner\\\" is not a valid emoji. Please use a single emoji.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 230,
+      "base64": "CiA0NDQ5Mzc2NWJlM2NlNzc1MjZjYTc1ODY1YTAzY2ZiNRImEgIAIyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqmQEalgH6AY0BCogBeyJpbmRleCI6IDgsICJraW5kIjogIndhcm5pbmciLCAiY2F0ZWdvcnkiOiAiaWNvbiIsICJtZXNzYWdlIjogIlRoZSB2YWx1ZSBcInNwaW5uZXJcIiBpcyBub3QgYSB2YWxpZCBlbW9qaS4gUGxlYXNlIHVzZSBhIHNpbmdsZSBlbW9qaS4ifRAB0gMCCAE=",
+      "message": {
+        "hash": "44493765be3ce77526ca75865a03cfb5",
+        "metadata": {
+          "delta_path": [
+            0,
+            35
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 8, \"kind\": \"warning\", \"category\": \"icon\", \"message\": \"The value \\\"spinner\\\" is not a valid emoji. Please use a single emoji.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 228,
+      "base64": "CiAxZWVhMzNkNDA5ZTM4YTg0M2QzNTA0NTRjODM0YzU5MxImEgIAJCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqlwEalAH6AYsBCoYBeyJpbmRleCI6IDgsICJraW5kIjogImVycm9yIiwgImNhdGVnb3J5IjogImljb24iLCAibWVzc2FnZSI6ICJUaGUgdmFsdWUgXCJzcGlubmVyXCIgaXMgbm90IGEgdmFsaWQgZW1vamkuIFBsZWFzZSB1c2UgYSBzaW5nbGUgZW1vamkuIn0QAdIDAggB",
+      "message": {
+        "hash": "1eea33d409e38a843d350454c834c593",
+        "metadata": {
+          "delta_path": [
+            0,
+            36
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 8, \"kind\": \"error\", \"category\": \"icon\", \"message\": \"The value \\\"spinner\\\" is not a valid emoji. Please use a single emoji.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 244,
+      "base64": "CiA0Y2VmMDA0Mzg0YjY5MTc3YThjMDYyMGVhZjVlMTIzNxImEgIAJSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqpwEapAH6AZsBCpYBeyJpbmRleCI6IDksICJraW5kIjogImluZm8iLCAiY2F0ZWdvcnkiOiAid2lkdGgiLCAibWVzc2FnZSI6ICJJbnZhbGlkIHdpZHRoIHZhbHVlOiAwLiBXaWR0aCBtdXN0IGJlIGVpdGhlciBhIHBvc2l0aXZlIGludGVnZXIgKHBpeGVscykgb3IgJ3N0cmV0Y2gnLiJ9EAHSAwIIAQ==",
+      "message": {
+        "hash": "4cef004384b69177a8c0620eaf5e1237",
+        "metadata": {
+          "delta_path": [
+            0,
+            37
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 9, \"kind\": \"info\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 247,
+      "base64": "CiAyNjVjYThmMDliNDc1YTk3MzlhMGIxZDYwYTgwYzg1NxImEgIAJiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqqgEapwH6AZ4BCpkBeyJpbmRleCI6IDksICJraW5kIjogInN1Y2Nlc3MiLCAiY2F0ZWdvcnkiOiAid2lkdGgiLCAibWVzc2FnZSI6ICJJbnZhbGlkIHdpZHRoIHZhbHVlOiAwLiBXaWR0aCBtdXN0IGJlIGVpdGhlciBhIHBvc2l0aXZlIGludGVnZXIgKHBpeGVscykgb3IgJ3N0cmV0Y2gnLiJ9EAHSAwIIAQ==",
+      "message": {
+        "hash": "265ca8f09b475a9739a0b1d60a80c857",
+        "metadata": {
+          "delta_path": [
+            0,
+            38
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 9, \"kind\": \"success\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 247,
+      "base64": "CiA1YzI2ZTJiZTExYTIzYTAwN2NiYzhmZTUxYTVkNDhmYhImEgIAJyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqqgEapwH6AZ4BCpkBeyJpbmRleCI6IDksICJraW5kIjogIndhcm5pbmciLCAiY2F0ZWdvcnkiOiAid2lkdGgiLCAibWVzc2FnZSI6ICJJbnZhbGlkIHdpZHRoIHZhbHVlOiAwLiBXaWR0aCBtdXN0IGJlIGVpdGhlciBhIHBvc2l0aXZlIGludGVnZXIgKHBpeGVscykgb3IgJ3N0cmV0Y2gnLiJ9EAHSAwIIAQ==",
+      "message": {
+        "hash": "5c26e2be11a23a007cbc8fe51a5d48fb",
+        "metadata": {
+          "delta_path": [
+            0,
+            39
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 9, \"kind\": \"warning\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 245,
+      "base64": "CiAzMDYzMWU2NGNhMjk2OTgyNzRhNjQwNWZiOTZkMTU2ZhImEgIAKCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqqAEapQH6AZwBCpcBeyJpbmRleCI6IDksICJraW5kIjogImVycm9yIiwgImNhdGVnb3J5IjogIndpZHRoIiwgIm1lc3NhZ2UiOiAiSW52YWxpZCB3aWR0aCB2YWx1ZTogMC4gV2lkdGggbXVzdCBiZSBlaXRoZXIgYSBwb3NpdGl2ZSBpbnRlZ2VyIChwaXhlbHMpIG9yICdzdHJldGNoJy4ifRAB0gMCCAE=",
+      "message": {
+        "hash": "30631e64ca29698274a6405fb96d156f",
+        "metadata": {
+          "delta_path": [
+            0,
+            40
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 9, \"kind\": \"error\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 251,
+      "base64": "CiA5NzQwMTc3ZmFhMmU0MDNkMGFlYTY2ZjhhMDllMTA3YxImEgIAKSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqrgEaqwH6AaIBCp0BeyJpbmRleCI6IDEwLCAia2luZCI6ICJpbmZvIiwgImNhdGVnb3J5IjogIndpZHRoIiwgIm1lc3NhZ2UiOiAiSW52YWxpZCB3aWR0aCB2YWx1ZTogJ2JvZ3VzJy4gV2lkdGggbXVzdCBiZSBlaXRoZXIgYSBwb3NpdGl2ZSBpbnRlZ2VyIChwaXhlbHMpIG9yICdzdHJldGNoJy4ifRAB0gMCCAE=",
+      "message": {
+        "hash": "9740177faa2e403d0aea66f8a09e107c",
+        "metadata": {
+          "delta_path": [
+            0,
+            41
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 10, \"kind\": \"info\", \"category\": \"width\", \"message\": \"Invalid width value: 'bogus'. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 254,
+      "base64": "CiBiZDllZWQ5MmU0N2IxNWQ4NzRiMjlmMzhjYWQ5MTgwZRImEgIAKiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqsQEargH6AaUBCqABeyJpbmRleCI6IDEwLCAia2luZCI6ICJzdWNjZXNzIiwgImNhdGVnb3J5IjogIndpZHRoIiwgIm1lc3NhZ2UiOiAiSW52YWxpZCB3aWR0aCB2YWx1ZTogJ2JvZ3VzJy4gV2lkdGggbXVzdCBiZSBlaXRoZXIgYSBwb3NpdGl2ZSBpbnRlZ2VyIChwaXhlbHMpIG9yICdzdHJldGNoJy4ifRAB0gMCCAE=",
+      "message": {
+        "hash": "bd9eed92e47b15d874b29f38cad9180e",
+        "metadata": {
+          "delta_path": [
+            0,
+            42
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 10, \"kind\": \"success\", \"category\": \"width\", \"message\": \"Invalid width value: 'bogus'. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 254,
+      "base64": "CiA4OTgwMWVhZTlkMWNmN2I2OTM1YzU5ZTc4NTZkMjJhORImEgIAKyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqsQEargH6AaUBCqABeyJpbmRleCI6IDEwLCAia2luZCI6ICJ3YXJuaW5nIiwgImNhdGVnb3J5IjogIndpZHRoIiwgIm1lc3NhZ2UiOiAiSW52YWxpZCB3aWR0aCB2YWx1ZTogJ2JvZ3VzJy4gV2lkdGggbXVzdCBiZSBlaXRoZXIgYSBwb3NpdGl2ZSBpbnRlZ2VyIChwaXhlbHMpIG9yICdzdHJldGNoJy4ifRAB0gMCCAE=",
+      "message": {
+        "hash": "89801eae9d1cf7b6935c59e7856d22a9",
+        "metadata": {
+          "delta_path": [
+            0,
+            43
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 10, \"kind\": \"warning\", \"category\": \"width\", \"message\": \"Invalid width value: 'bogus'. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 252,
+      "base64": "CiAwNmE3YTEyODIzNzg5MGZkZjYxODRmZGNlY2I5N2Q0YhImEgIALCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqrwEarAH6AaMBCp4BeyJpbmRleCI6IDEwLCAia2luZCI6ICJlcnJvciIsICJjYXRlZ29yeSI6ICJ3aWR0aCIsICJtZXNzYWdlIjogIkludmFsaWQgd2lkdGggdmFsdWU6ICdib2d1cycuIFdpZHRoIG11c3QgYmUgZWl0aGVyIGEgcG9zaXRpdmUgaW50ZWdlciAocGl4ZWxzKSBvciAnc3RyZXRjaCcuIn0QAdIDAggB",
+      "message": {
+        "hash": "06a7a128237890fdf6184fdcecb97d4b",
+        "metadata": {
+          "delta_path": [
+            0,
+            44
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 10, \"kind\": \"error\", \"category\": \"width\", \"message\": \"Invalid width value: 'bogus'. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 253,
+      "base64": "CiBmYzM3Y2FiNzBjZmI1MGNiMWM1NzI5MDBlMTMzYjliMhImEgIALSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqsAEarQH6AaQBCp8BeyJpbmRleCI6IDExLCAia2luZCI6ICJpbmZvIiwgImNhdGVnb3J5IjogIndpZHRoIiwgIm1lc3NhZ2UiOiAiSW52YWxpZCB3aWR0aCB2YWx1ZTogJ2NvbnRlbnQnLiBXaWR0aCBtdXN0IGJlIGVpdGhlciBhIHBvc2l0aXZlIGludGVnZXIgKHBpeGVscykgb3IgJ3N0cmV0Y2gnLiJ9EAHSAwIIAQ==",
+      "message": {
+        "hash": "fc37cab70cfb50cb1c572900e133b9b2",
+        "metadata": {
+          "delta_path": [
+            0,
+            45
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 11, \"kind\": \"info\", \"category\": \"width\", \"message\": \"Invalid width value: 'content'. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 256,
+      "base64": "CiBlODU5NWI2MzEzZTFhOTY0MjMxMjk1OGU1ZDQ5NDg1ZBImEgIALiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqswEasAH6AacBCqIBeyJpbmRleCI6IDExLCAia2luZCI6ICJzdWNjZXNzIiwgImNhdGVnb3J5IjogIndpZHRoIiwgIm1lc3NhZ2UiOiAiSW52YWxpZCB3aWR0aCB2YWx1ZTogJ2NvbnRlbnQnLiBXaWR0aCBtdXN0IGJlIGVpdGhlciBhIHBvc2l0aXZlIGludGVnZXIgKHBpeGVscykgb3IgJ3N0cmV0Y2gnLiJ9EAHSAwIIAQ==",
+      "message": {
+        "hash": "e8595b6313e1a9642312958e5d49485d",
+        "metadata": {
+          "delta_path": [
+            0,
+            46
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 11, \"kind\": \"success\", \"category\": \"width\", \"message\": \"Invalid width value: 'content'. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 256,
+      "base64": "CiA2ZDkwNmRkNWFlZDIxY2UxYzMxZGNmMmYzMmY1OWU0ZBImEgIALyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqswEasAH6AacBCqIBeyJpbmRleCI6IDExLCAia2luZCI6ICJ3YXJuaW5nIiwgImNhdGVnb3J5IjogIndpZHRoIiwgIm1lc3NhZ2UiOiAiSW52YWxpZCB3aWR0aCB2YWx1ZTogJ2NvbnRlbnQnLiBXaWR0aCBtdXN0IGJlIGVpdGhlciBhIHBvc2l0aXZlIGludGVnZXIgKHBpeGVscykgb3IgJ3N0cmV0Y2gnLiJ9EAHSAwIIAQ==",
+      "message": {
+        "hash": "6d906dd5aed21ce1c31dcf2f32f59e4d",
+        "metadata": {
+          "delta_path": [
+            0,
+            47
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 11, \"kind\": \"warning\", \"category\": \"width\", \"message\": \"Invalid width value: 'content'. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 254,
+      "base64": "CiA0YTAyY2RlY2FkYmJhZTRiZjM2ZTE5NTJmYzhkNDZlMBImEgIAMCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqsQEargH6AaUBCqABeyJpbmRleCI6IDExLCAia2luZCI6ICJlcnJvciIsICJjYXRlZ29yeSI6ICJ3aWR0aCIsICJtZXNzYWdlIjogIkludmFsaWQgd2lkdGggdmFsdWU6ICdjb250ZW50Jy4gV2lkdGggbXVzdCBiZSBlaXRoZXIgYSBwb3NpdGl2ZSBpbnRlZ2VyIChwaXhlbHMpIG9yICdzdHJldGNoJy4ifRAB0gMCCAE=",
+      "message": {
+        "hash": "4a02cdecadbbae4bf36e1952fc8d46e0",
+        "metadata": {
+          "delta_path": [
+            0,
+            48
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 11, \"kind\": \"error\", \"category\": \"width\", \"message\": \"Invalid width value: 'content'. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 109,
+      "base64": "CiBiM2RiZmU3NWI1YmRlNjc5ZTZhYjE0NzUyOTA0MmVmZRImEgIAMSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqIRof8gEcCg5lcnJvciBib3VuZGFyeRADGgTwn6eKIgIYAQ==",
+      "message": {
+        "hash": "b3dbfe75b5bde679e6ab147529042efe",
+        "metadata": {
+          "delta_path": [
+            0,
+            49
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": "error boundary",
+              "format": "INFO",
+              "icon": "🧊",
+              "width_config": {
+                "pixel_width": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 137,
+      "base64": "CiAzNDcyZWZiNmEwYTk0NTNkN2I5ZjM2ZDFmNDVkMzJhZhImEgIAMiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqPRo7+gEzCi97ImluZGV4IjogMTIsICJraW5kIjogImluZm8iLCAicmV0dXJuZWQiOiB0cnVlfRAB0gMCCAE=",
+      "message": {
+        "hash": "3472efb6a0a9453d7b9f36d1f45d32af",
+        "metadata": {
+          "delta_path": [
+            0,
+            50
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 12, \"kind\": \"info\", \"returned\": true}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 109,
+      "base64": "CiBjZjYzMmMxOTQyNGQ4YTI4ZDgwNjgxNGNjODA0OGFjMRImEgIAMyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqIRof8gEcCg5lcnJvciBib3VuZGFyeRAEGgTwn6eKIgIYAQ==",
+      "message": {
+        "hash": "cf632c19424d8a28d806814cc8048ac1",
+        "metadata": {
+          "delta_path": [
+            0,
+            51
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": "error boundary",
+              "format": "SUCCESS",
+              "icon": "🧊",
+              "width_config": {
+                "pixel_width": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 140,
+      "base64": "CiBiNmYxMGE0MzViZjViMzVjOTAxM2UxNzI0YjMwMjA3YhImEgIANCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqQBo++gE2CjJ7ImluZGV4IjogMTIsICJraW5kIjogInN1Y2Nlc3MiLCAicmV0dXJuZWQiOiB0cnVlfRAB0gMCCAE=",
+      "message": {
+        "hash": "b6f10a435bf5b35c9013e1724b30207b",
+        "metadata": {
+          "delta_path": [
+            0,
+            52
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 12, \"kind\": \"success\", \"returned\": true}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 109,
+      "base64": "CiA2YTdjM2UwMDg3NWVjYmM5YzdlZGY2MDhlMDBmYjczZRImEgIANSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqIRof8gEcCg5lcnJvciBib3VuZGFyeRACGgTwn6eKIgIYAQ==",
+      "message": {
+        "hash": "6a7c3e00875ecbc9c7edf608e00fb73e",
+        "metadata": {
+          "delta_path": [
+            0,
+            53
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": "error boundary",
+              "format": "WARNING",
+              "icon": "🧊",
+              "width_config": {
+                "pixel_width": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 140,
+      "base64": "CiA2ODI4YTEyMTc3MGMyN2IxOWEyMGI0MWZhOTAyNThkMhImEgIANiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqQBo++gE2CjJ7ImluZGV4IjogMTIsICJraW5kIjogIndhcm5pbmciLCAicmV0dXJuZWQiOiB0cnVlfRAB0gMCCAE=",
+      "message": {
+        "hash": "6828a121770c27b19a20b41fa90258d2",
+        "metadata": {
+          "delta_path": [
+            0,
+            54
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 12, \"kind\": \"warning\", \"returned\": true}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 109,
+      "base64": "CiA1ZjdmZGNjZGM0YTU1YjY2NWQxMWU1MDliYTM1OWQ0NRImEgIANyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqIRof8gEcCg5lcnJvciBib3VuZGFyeRABGgTwn6eKIgIYAQ==",
+      "message": {
+        "hash": "5f7fdccdc4a55b665d11e509ba359d45",
+        "metadata": {
+          "delta_path": [
+            0,
+            55
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": "error boundary",
+              "format": "ERROR",
+              "icon": "🧊",
+              "width_config": {
+                "pixel_width": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 138,
+      "base64": "CiAyMTk3MjVkY2FiYTIyZmZhZDA4ODBiMjc2NzJkOGY2NRImEgIAOCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqPho8+gE0CjB7ImluZGV4IjogMTIsICJraW5kIjogImVycm9yIiwgInJldHVybmVkIjogdHJ1ZX0QAdIDAggB",
+      "message": {
+        "hash": "219725dcaba22ffad0880b27672d8f65",
+        "metadata": {
+          "delta_path": [
+            0,
+            56
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 12, \"kind\": \"error\", \"returned\": true}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 228,
+      "base64": "CiAyOTZjZTUwMWNjNzAxZGRjMzhjNjc3MjIxNjJlOGI3ZRImEgIAOSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqlwEalAH6AYsBCoYBeyJpbmRleCI6IDEzLCAia2luZCI6ICJpbmZvIiwgImNhdGVnb3J5IjogImljb24iLCAibWVzc2FnZSI6ICJUaGUgdmFsdWUgXCJzcGlubmVyXCIgaXMgbm90IGEgdmFsaWQgZW1vamkuIFBsZWFzZSB1c2UgYSBzaW5nbGUgZW1vamkuIn0QAdIDAggB",
+      "message": {
+        "hash": "296ce501cc701ddc38c67722162e8b7e",
+        "metadata": {
+          "delta_path": [
+            0,
+            57
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 13, \"kind\": \"info\", \"category\": \"icon\", \"message\": \"The value \\\"spinner\\\" is not a valid emoji. Please use a single emoji.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 231,
+      "base64": "CiBlYjk2NGE1MThlODdmYzllN2ZhZmExNjRmNDc5ODUxNhImEgIAOiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqmgEalwH6AY4BCokBeyJpbmRleCI6IDEzLCAia2luZCI6ICJzdWNjZXNzIiwgImNhdGVnb3J5IjogImljb24iLCAibWVzc2FnZSI6ICJUaGUgdmFsdWUgXCJzcGlubmVyXCIgaXMgbm90IGEgdmFsaWQgZW1vamkuIFBsZWFzZSB1c2UgYSBzaW5nbGUgZW1vamkuIn0QAdIDAggB",
+      "message": {
+        "hash": "eb964a518e87fc9e7fafa164f4798516",
+        "metadata": {
+          "delta_path": [
+            0,
+            58
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 13, \"kind\": \"success\", \"category\": \"icon\", \"message\": \"The value \\\"spinner\\\" is not a valid emoji. Please use a single emoji.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 231,
+      "base64": "CiA0MmY3YTNkNGU5MjUxMDdlMDRjYzQxMWFlMWZkNjIyYRImEgIAOyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqmgEalwH6AY4BCokBeyJpbmRleCI6IDEzLCAia2luZCI6ICJ3YXJuaW5nIiwgImNhdGVnb3J5IjogImljb24iLCAibWVzc2FnZSI6ICJUaGUgdmFsdWUgXCJzcGlubmVyXCIgaXMgbm90IGEgdmFsaWQgZW1vamkuIFBsZWFzZSB1c2UgYSBzaW5nbGUgZW1vamkuIn0QAdIDAggB",
+      "message": {
+        "hash": "42f7a3d4e925107e04cc411ae1fd622a",
+        "metadata": {
+          "delta_path": [
+            0,
+            59
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 13, \"kind\": \"warning\", \"category\": \"icon\", \"message\": \"The value \\\"spinner\\\" is not a valid emoji. Please use a single emoji.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 229,
+      "base64": "CiBmYjJkMzkyNWYwMmU4MDQ4MzRiOTdlYjUzOGQ1ZDg4MBImEgIAPCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqmAEalQH6AYwBCocBeyJpbmRleCI6IDEzLCAia2luZCI6ICJlcnJvciIsICJjYXRlZ29yeSI6ICJpY29uIiwgIm1lc3NhZ2UiOiAiVGhlIHZhbHVlIFwic3Bpbm5lclwiIGlzIG5vdCBhIHZhbGlkIGVtb2ppLiBQbGVhc2UgdXNlIGEgc2luZ2xlIGVtb2ppLiJ9EAHSAwIIAQ==",
+      "message": {
+        "hash": "fb2d3925f02e804834b97eb538d5d880",
+        "metadata": {
+          "delta_path": [
+            0,
+            60
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 13, \"kind\": \"error\", \"category\": \"icon\", \"message\": \"The value \\\"spinner\\\" is not a valid emoji. Please use a single emoji.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 124,
+      "base64": "CiA1MDE0NjhhY2U3YjMxYTk3NzU4YjNiMWYwMzNlMGQwMRImEgIAPSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqMBou8gErCg5lcnJvciBib3VuZGFyeRADGhM6bWF0ZXJpYWwvdGh1bWJfdXA6IgIYAQ==",
+      "message": {
+        "hash": "501468ace7b31a97758b3b1f033e0d01",
+        "metadata": {
+          "delta_path": [
+            0,
+            61
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": "error boundary",
+              "format": "INFO",
+              "icon": ":material/thumb_up:",
+              "width_config": {
+                "pixel_width": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 137,
+      "base64": "CiA1MDMwNzJmYTM0NmZiYTQwMDZkZGMyMTM1MDU3MGIxNBImEgIAPiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqPRo7+gEzCi97ImluZGV4IjogMTQsICJraW5kIjogImluZm8iLCAicmV0dXJuZWQiOiB0cnVlfRAB0gMCCAE=",
+      "message": {
+        "hash": "503072fa346fba4006ddc21350570b14",
+        "metadata": {
+          "delta_path": [
+            0,
+            62
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 14, \"kind\": \"info\", \"returned\": true}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 124,
+      "base64": "CiAzZjAyM2Y1ZDNmNTg0YTU1ZWNlMjQ0N2FiYzllNjlhYhImEgIAPyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqMBou8gErCg5lcnJvciBib3VuZGFyeRAEGhM6bWF0ZXJpYWwvdGh1bWJfdXA6IgIYAQ==",
+      "message": {
+        "hash": "3f023f5d3f584a55ece2447abc9e69ab",
+        "metadata": {
+          "delta_path": [
+            0,
+            63
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": "error boundary",
+              "format": "SUCCESS",
+              "icon": ":material/thumb_up:",
+              "width_config": {
+                "pixel_width": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 140,
+      "base64": "CiAxMWYxMjM3MGI4ZTg2ZWMwNzAzOTA4ZmE4ZDc1MTNiORImEgIAQCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqQBo++gE2CjJ7ImluZGV4IjogMTQsICJraW5kIjogInN1Y2Nlc3MiLCAicmV0dXJuZWQiOiB0cnVlfRAB0gMCCAE=",
+      "message": {
+        "hash": "11f12370b8e86ec0703908fa8d7513b9",
+        "metadata": {
+          "delta_path": [
+            0,
+            64
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 14, \"kind\": \"success\", \"returned\": true}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 124,
+      "base64": "CiA0MmRhODE2NTg4MWE1YTNmMDgxN2U5ZWFkZTJlOWM0ZBImEgIAQSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqMBou8gErCg5lcnJvciBib3VuZGFyeRACGhM6bWF0ZXJpYWwvdGh1bWJfdXA6IgIYAQ==",
+      "message": {
+        "hash": "42da8165881a5a3f0817e9eade2e9c4d",
+        "metadata": {
+          "delta_path": [
+            0,
+            65
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": "error boundary",
+              "format": "WARNING",
+              "icon": ":material/thumb_up:",
+              "width_config": {
+                "pixel_width": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 140,
+      "base64": "CiBhZjEwNGMzM2IzMDdkYzU2NWQxYTY0Mjk2ZmMxN2FlYhImEgIAQiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqQBo++gE2CjJ7ImluZGV4IjogMTQsICJraW5kIjogIndhcm5pbmciLCAicmV0dXJuZWQiOiB0cnVlfRAB0gMCCAE=",
+      "message": {
+        "hash": "af104c33b307dc565d1a64296fc17aeb",
+        "metadata": {
+          "delta_path": [
+            0,
+            66
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 14, \"kind\": \"warning\", \"returned\": true}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 124,
+      "base64": "CiA2YzYwZDFmYTU3NGMxYjVkZTVhZWVmOGYxMGIyNjUyORImEgIAQyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqMBou8gErCg5lcnJvciBib3VuZGFyeRABGhM6bWF0ZXJpYWwvdGh1bWJfdXA6IgIYAQ==",
+      "message": {
+        "hash": "6c60d1fa574c1b5de5aeef8f10b26529",
+        "metadata": {
+          "delta_path": [
+            0,
+            67
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": "error boundary",
+              "format": "ERROR",
+              "icon": ":material/thumb_up:",
+              "width_config": {
+                "pixel_width": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 138,
+      "base64": "CiA5ZTI5NDVmNDZiMjRiNDA0MmYwYzQzNTk4ZTIwYTliNhImEgIARCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqPho8+gE0CjB7ImluZGV4IjogMTQsICJraW5kIjogImVycm9yIiwgInJldHVybmVkIjogdHJ1ZX0QAdIDAggB",
+      "message": {
+        "hash": "9e2945f46b24b4042f0c43598e20a9b6",
+        "metadata": {
+          "delta_path": [
+            0,
+            68
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 14, \"kind\": \"error\", \"returned\": true}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 131,
+      "base64": "CiBjNWZlOWI0YjgxNjU0ZDJhNDJmNjA5NzE1NTExODkyMxImEgIARSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqNxo18gEyCg5lcnJvciBib3VuZGFyeRADGho6bWF0ZXJpYWwvbm90X2FfcmVhbF9pY29uOiICGAE=",
+      "message": {
+        "hash": "c5fe9b4b81654d2a42f6097155118923",
+        "metadata": {
+          "delta_path": [
+            0,
+            69
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": "error boundary",
+              "format": "INFO",
+              "icon": ":material/not_a_real_icon:",
+              "width_config": {
+                "pixel_width": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 137,
+      "base64": "CiBkOTQyMjU4NDNjM2FlZGQzZWExMDVlZDMxODI5YzY4OBImEgIARiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqPRo7+gEzCi97ImluZGV4IjogMTUsICJraW5kIjogImluZm8iLCAicmV0dXJuZWQiOiB0cnVlfRAB0gMCCAE=",
+      "message": {
+        "hash": "d94225843c3aedd3ea105ed31829c688",
+        "metadata": {
+          "delta_path": [
+            0,
+            70
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 15, \"kind\": \"info\", \"returned\": true}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 131,
+      "base64": "CiBiNjc3ZmU2ZjMwMDFjZTNhYTAxMjI2YWUwMDRiZjM3NhImEgIARyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqNxo18gEyCg5lcnJvciBib3VuZGFyeRAEGho6bWF0ZXJpYWwvbm90X2FfcmVhbF9pY29uOiICGAE=",
+      "message": {
+        "hash": "b677fe6f3001ce3aa01226ae004bf376",
+        "metadata": {
+          "delta_path": [
+            0,
+            71
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": "error boundary",
+              "format": "SUCCESS",
+              "icon": ":material/not_a_real_icon:",
+              "width_config": {
+                "pixel_width": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 140,
+      "base64": "CiAxMTFjNjA5ZTRhOGZmMzllNWRmZTNiNjVlOGFkNmZjYxImEgIASCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqQBo++gE2CjJ7ImluZGV4IjogMTUsICJraW5kIjogInN1Y2Nlc3MiLCAicmV0dXJuZWQiOiB0cnVlfRAB0gMCCAE=",
+      "message": {
+        "hash": "111c609e4a8ff39e5dfe3b65e8ad6fcc",
+        "metadata": {
+          "delta_path": [
+            0,
+            72
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 15, \"kind\": \"success\", \"returned\": true}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 131,
+      "base64": "CiAxZWExMGUzOTc1ZGU0NmFhMjU5OGQ0OGZjNGFhYzA5NBImEgIASSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqNxo18gEyCg5lcnJvciBib3VuZGFyeRACGho6bWF0ZXJpYWwvbm90X2FfcmVhbF9pY29uOiICGAE=",
+      "message": {
+        "hash": "1ea10e3975de46aa2598d48fc4aac094",
+        "metadata": {
+          "delta_path": [
+            0,
+            73
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": "error boundary",
+              "format": "WARNING",
+              "icon": ":material/not_a_real_icon:",
+              "width_config": {
+                "pixel_width": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 140,
+      "base64": "CiBlN2Q4ZmY2OWI1M2QwMTE2NmI2NTI1NWY1ODRmZWFiYRImEgIASiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqQBo++gE2CjJ7ImluZGV4IjogMTUsICJraW5kIjogIndhcm5pbmciLCAicmV0dXJuZWQiOiB0cnVlfRAB0gMCCAE=",
+      "message": {
+        "hash": "e7d8ff69b53d01166b65255f584feaba",
+        "metadata": {
+          "delta_path": [
+            0,
+            74
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 15, \"kind\": \"warning\", \"returned\": true}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 131,
+      "base64": "CiBkYTBlODEzODMxZTNmMDJjZmQzM2ZhZDQ2NjZjNzI2MBImEgIASyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqNxo18gEyCg5lcnJvciBib3VuZGFyeRABGho6bWF0ZXJpYWwvbm90X2FfcmVhbF9pY29uOiICGAE=",
+      "message": {
+        "hash": "da0e813831e3f02cfd33fad4666c7260",
+        "metadata": {
+          "delta_path": [
+            0,
+            75
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": "error boundary",
+              "format": "ERROR",
+              "icon": ":material/not_a_real_icon:",
+              "width_config": {
+                "pixel_width": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 138,
+      "base64": "CiA3M2MwNzE0NTAzNjVjOTZlNzczZTM0ODNhMmIyMjQ1YRImEgIATCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqPho8+gE0CjB7ImluZGV4IjogMTUsICJraW5kIjogImVycm9yIiwgInJldHVybmVkIjogdHJ1ZX0QAdIDAggB",
+      "message": {
+        "hash": "73c071450365c96e773e3483a2b2245a",
+        "metadata": {
+          "delta_path": [
+            0,
+            76
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 15, \"kind\": \"error\", \"returned\": true}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 232,
+      "base64": "CiAyMmJlM2Q0YmU0ZWU5M2FhNzI3NjBlMGMwOTI0NWQ1MBImEgIATSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqmwEamAH6AY8BCooBeyJpbmRleCI6IDE2LCAia2luZCI6ICJpbmZvIiwgImNhdGVnb3J5IjogImljb24iLCAibWVzc2FnZSI6ICJUaGUgdmFsdWUgXCJub3QtYW4taWNvblwiIGlzIG5vdCBhIHZhbGlkIGVtb2ppLiBQbGVhc2UgdXNlIGEgc2luZ2xlIGVtb2ppLiJ9EAHSAwIIAQ==",
+      "message": {
+        "hash": "22be3d4be4ee93aa72760e0c09245d50",
+        "metadata": {
+          "delta_path": [
+            0,
+            77
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 16, \"kind\": \"info\", \"category\": \"icon\", \"message\": \"The value \\\"not-an-icon\\\" is not a valid emoji. Please use a single emoji.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 235,
+      "base64": "CiA0OTlkZWQyZjhmZWI0YWYwNzhlOGQ4ZjViMTc2NTc3ZBImEgIATiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqngEamwH6AZIBCo0BeyJpbmRleCI6IDE2LCAia2luZCI6ICJzdWNjZXNzIiwgImNhdGVnb3J5IjogImljb24iLCAibWVzc2FnZSI6ICJUaGUgdmFsdWUgXCJub3QtYW4taWNvblwiIGlzIG5vdCBhIHZhbGlkIGVtb2ppLiBQbGVhc2UgdXNlIGEgc2luZ2xlIGVtb2ppLiJ9EAHSAwIIAQ==",
+      "message": {
+        "hash": "499ded2f8feb4af078e8d8f5b176577d",
+        "metadata": {
+          "delta_path": [
+            0,
+            78
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 16, \"kind\": \"success\", \"category\": \"icon\", \"message\": \"The value \\\"not-an-icon\\\" is not a valid emoji. Please use a single emoji.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 235,
+      "base64": "CiBmMmIxM2YxODZhNmQ5ZDA2YWI3MDQ4MDg1MTJkOGY0YhImEgIATyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqngEamwH6AZIBCo0BeyJpbmRleCI6IDE2LCAia2luZCI6ICJ3YXJuaW5nIiwgImNhdGVnb3J5IjogImljb24iLCAibWVzc2FnZSI6ICJUaGUgdmFsdWUgXCJub3QtYW4taWNvblwiIGlzIG5vdCBhIHZhbGlkIGVtb2ppLiBQbGVhc2UgdXNlIGEgc2luZ2xlIGVtb2ppLiJ9EAHSAwIIAQ==",
+      "message": {
+        "hash": "f2b13f186a6d9d06ab704808512d8f4b",
+        "metadata": {
+          "delta_path": [
+            0,
+            79
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 16, \"kind\": \"warning\", \"category\": \"icon\", \"message\": \"The value \\\"not-an-icon\\\" is not a valid emoji. Please use a single emoji.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 233,
+      "base64": "CiBjYjUyYjNkYTM5YjE4MTY2MjI5ZjljMDFjMGY0MWIxZhImEgIAUCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqnAEamQH6AZABCosBeyJpbmRleCI6IDE2LCAia2luZCI6ICJlcnJvciIsICJjYXRlZ29yeSI6ICJpY29uIiwgIm1lc3NhZ2UiOiAiVGhlIHZhbHVlIFwibm90LWFuLWljb25cIiBpcyBub3QgYSB2YWxpZCBlbW9qaS4gUGxlYXNlIHVzZSBhIHNpbmdsZSBlbW9qaS4ifRAB0gMCCAE=",
+      "message": {
+        "hash": "cb52b3da39b18166229f9c01c0f41b1f",
+        "metadata": {
+          "delta_path": [
+            0,
+            80
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 16, \"kind\": \"error\", \"category\": \"icon\", \"message\": \"The value \\\"not-an-icon\\\" is not a valid emoji. Please use a single emoji.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 225,
+      "base64": "CiAxN2VkOWFmN2IxZjQzOGM0NDI1MTc4NWMwODcyNDlmNRImEgIAUSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqlAEakQH6AYgBCoMBeyJpbmRleCI6IDE3LCAia2luZCI6ICJpbmZvIiwgImNhdGVnb3J5IjogImljb24iLCAibWVzc2FnZSI6ICJUaGUgdmFsdWUgXCI6KzE6XCIgaXMgbm90IGEgdmFsaWQgZW1vamkuIFBsZWFzZSB1c2UgYSBzaW5nbGUgZW1vamkuIn0QAdIDAggB",
+      "message": {
+        "hash": "17ed9af7b1f438c44251785c087249f5",
+        "metadata": {
+          "delta_path": [
+            0,
+            81
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 17, \"kind\": \"info\", \"category\": \"icon\", \"message\": \"The value \\\":+1:\\\" is not a valid emoji. Please use a single emoji.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 228,
+      "base64": "CiA4Nzc3ZGZhZjk2YTI2YjI0Nzk3OWY0MjBkMDFmYjkyZBImEgIAUiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqlwEalAH6AYsBCoYBeyJpbmRleCI6IDE3LCAia2luZCI6ICJzdWNjZXNzIiwgImNhdGVnb3J5IjogImljb24iLCAibWVzc2FnZSI6ICJUaGUgdmFsdWUgXCI6KzE6XCIgaXMgbm90IGEgdmFsaWQgZW1vamkuIFBsZWFzZSB1c2UgYSBzaW5nbGUgZW1vamkuIn0QAdIDAggB",
+      "message": {
+        "hash": "8777dfaf96a26b247979f420d01fb92d",
+        "metadata": {
+          "delta_path": [
+            0,
+            82
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 17, \"kind\": \"success\", \"category\": \"icon\", \"message\": \"The value \\\":+1:\\\" is not a valid emoji. Please use a single emoji.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 228,
+      "base64": "CiA4MWVkNWZjZTVmNTMxY2Y1YWZmZWM3ZmQ4OWNlMDE5MRImEgIAUyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqlwEalAH6AYsBCoYBeyJpbmRleCI6IDE3LCAia2luZCI6ICJ3YXJuaW5nIiwgImNhdGVnb3J5IjogImljb24iLCAibWVzc2FnZSI6ICJUaGUgdmFsdWUgXCI6KzE6XCIgaXMgbm90IGEgdmFsaWQgZW1vamkuIFBsZWFzZSB1c2UgYSBzaW5nbGUgZW1vamkuIn0QAdIDAggB",
+      "message": {
+        "hash": "81ed5fce5f531cf5affec7fd89ce0191",
+        "metadata": {
+          "delta_path": [
+            0,
+            83
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 17, \"kind\": \"warning\", \"category\": \"icon\", \"message\": \"The value \\\":+1:\\\" is not a valid emoji. Please use a single emoji.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 226,
+      "base64": "CiA5NThmZDRkYWEyMzMyMzkyYjQxMDNkMTViYjYzMmU1MRImEgIAVCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqlQEakgH6AYkBCoQBeyJpbmRleCI6IDE3LCAia2luZCI6ICJlcnJvciIsICJjYXRlZ29yeSI6ICJpY29uIiwgIm1lc3NhZ2UiOiAiVGhlIHZhbHVlIFwiOisxOlwiIGlzIG5vdCBhIHZhbGlkIGVtb2ppLiBQbGVhc2UgdXNlIGEgc2luZ2xlIGVtb2ppLiJ9EAHSAwIIAQ==",
+      "message": {
+        "hash": "958fd4daa2332392b4103d15bb632e51",
+        "metadata": {
+          "delta_path": [
+            0,
+            84
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 17, \"kind\": \"error\", \"category\": \"icon\", \"message\": \"The value \\\":+1:\\\" is not a valid emoji. Please use a single emoji.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 325,
+      "base64": "CiBkNmZlNzdkMWM3ODZkZDIyNWIxNmVkZGIzMWYyNTY1ZhImEgIAVSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2Uq+AEa9QH6AewBCucBeyJpbmRleCI6IDE4LCAia2luZCI6ICJpbmZvIiwgImNhdGVnb3J5IjogImljb24iLCAibWVzc2FnZSI6ICJUaGUgdmFsdWUgXCJodHRwczovL2V4YW1wbGUuaW52YWxpZC94eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eFwiIGlzIG5vdCBhIHZhbGlkIGVtb2ppLiBQbGVhc2UgdXNlIGEgc2luZ2xlIGVtb2ppLiJ9EAHSAwIIAQ==",
+      "message": {
+        "hash": "d6fe77d1c786dd225b16eddb31f2565f",
+        "metadata": {
+          "delta_path": [
+            0,
+            85
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 18, \"kind\": \"info\", \"category\": \"icon\", \"message\": \"The value \\\"https://example.invalid/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\" is not a valid emoji. Please use a single emoji.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 328,
+      "base64": "CiBjMWZmY2Y1MzYxYzI1ZDg0M2QxMTYyZTA1NGE2YjNhMBImEgIAViIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2Uq+wEa+AH6Ae8BCuoBeyJpbmRleCI6IDE4LCAia2luZCI6ICJzdWNjZXNzIiwgImNhdGVnb3J5IjogImljb24iLCAibWVzc2FnZSI6ICJUaGUgdmFsdWUgXCJodHRwczovL2V4YW1wbGUuaW52YWxpZC94eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eFwiIGlzIG5vdCBhIHZhbGlkIGVtb2ppLiBQbGVhc2UgdXNlIGEgc2luZ2xlIGVtb2ppLiJ9EAHSAwIIAQ==",
+      "message": {
+        "hash": "c1ffcf5361c25d843d1162e054a6b3a0",
+        "metadata": {
+          "delta_path": [
+            0,
+            86
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 18, \"kind\": \"success\", \"category\": \"icon\", \"message\": \"The value \\\"https://example.invalid/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\" is not a valid emoji. Please use a single emoji.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 328,
+      "base64": "CiA0OGJhZTdiNjczOWI1NmIxZTBhZWZmZTgzMzM0ZTRiMxImEgIAVyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2Uq+wEa+AH6Ae8BCuoBeyJpbmRleCI6IDE4LCAia2luZCI6ICJ3YXJuaW5nIiwgImNhdGVnb3J5IjogImljb24iLCAibWVzc2FnZSI6ICJUaGUgdmFsdWUgXCJodHRwczovL2V4YW1wbGUuaW52YWxpZC94eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eFwiIGlzIG5vdCBhIHZhbGlkIGVtb2ppLiBQbGVhc2UgdXNlIGEgc2luZ2xlIGVtb2ppLiJ9EAHSAwIIAQ==",
+      "message": {
+        "hash": "48bae7b6739b56b1e0aeffe83334e4b3",
+        "metadata": {
+          "delta_path": [
+            0,
+            87
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 18, \"kind\": \"warning\", \"category\": \"icon\", \"message\": \"The value \\\"https://example.invalid/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\" is not a valid emoji. Please use a single emoji.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 326,
+      "base64": "CiBjOWY4NGY1MmI1MDRiMWM5MTNlN2E4MzFlNWUwZTUyORImEgIAWCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2Uq+QEa9gH6Ae0BCugBeyJpbmRleCI6IDE4LCAia2luZCI6ICJlcnJvciIsICJjYXRlZ29yeSI6ICJpY29uIiwgIm1lc3NhZ2UiOiAiVGhlIHZhbHVlIFwiaHR0cHM6Ly9leGFtcGxlLmludmFsaWQveHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHhcIiBpcyBub3QgYSB2YWxpZCBlbW9qaS4gUGxlYXNlIHVzZSBhIHNpbmdsZSBlbW9qaS4ifRAB0gMCCAE=",
+      "message": {
+        "hash": "c9f84f52b504b1c913e7a831e5e0e529",
+        "metadata": {
+          "delta_path": [
+            0,
+            88
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 18, \"kind\": \"error\", \"category\": \"icon\", \"message\": \"The value \\\"https://example.invalid/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\" is not a valid emoji. Please use a single emoji.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 253,
+      "base64": "CiA2YzViMGNiMjU3NjBiMGQ0N2Q0NDBjZTE1NmYyY2NjZBImEgIAWSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqsAEarQH6AaQBCp8BeyJpbmRleCI6IDE5LCAia2luZCI6ICJpbmZvIiwgImNhdGVnb3J5IjogIndpZHRoIiwgIm1lc3NhZ2UiOiAiSW52YWxpZCB3aWR0aCB2YWx1ZTogJydxdW90ZWQnLiBXaWR0aCBtdXN0IGJlIGVpdGhlciBhIHBvc2l0aXZlIGludGVnZXIgKHBpeGVscykgb3IgJ3N0cmV0Y2gnLiJ9EAHSAwIIAQ==",
+      "message": {
+        "hash": "6c5b0cb25760b0d47d440ce156f2cccd",
+        "metadata": {
+          "delta_path": [
+            0,
+            89
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 19, \"kind\": \"info\", \"category\": \"width\", \"message\": \"Invalid width value: ''quoted'. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 256,
+      "base64": "CiAzYjJhM2QyM2Y3MDUwYmEzNDA5YWRkY2UwYjQxNmE2MBImEgIAWiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqswEasAH6AacBCqIBeyJpbmRleCI6IDE5LCAia2luZCI6ICJzdWNjZXNzIiwgImNhdGVnb3J5IjogIndpZHRoIiwgIm1lc3NhZ2UiOiAiSW52YWxpZCB3aWR0aCB2YWx1ZTogJydxdW90ZWQnLiBXaWR0aCBtdXN0IGJlIGVpdGhlciBhIHBvc2l0aXZlIGludGVnZXIgKHBpeGVscykgb3IgJ3N0cmV0Y2gnLiJ9EAHSAwIIAQ==",
+      "message": {
+        "hash": "3b2a3d23f7050ba3409addce0b416a60",
+        "metadata": {
+          "delta_path": [
+            0,
+            90
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 19, \"kind\": \"success\", \"category\": \"width\", \"message\": \"Invalid width value: ''quoted'. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 256,
+      "base64": "CiA5N2Q2OTQ5ZWQ3MjE0MDJhYzc4NTcxNGEwYTU0NDAxZBImEgIAWyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqswEasAH6AacBCqIBeyJpbmRleCI6IDE5LCAia2luZCI6ICJ3YXJuaW5nIiwgImNhdGVnb3J5IjogIndpZHRoIiwgIm1lc3NhZ2UiOiAiSW52YWxpZCB3aWR0aCB2YWx1ZTogJydxdW90ZWQnLiBXaWR0aCBtdXN0IGJlIGVpdGhlciBhIHBvc2l0aXZlIGludGVnZXIgKHBpeGVscykgb3IgJ3N0cmV0Y2gnLiJ9EAHSAwIIAQ==",
+      "message": {
+        "hash": "97d6949ed721402ac785714a0a54401d",
+        "metadata": {
+          "delta_path": [
+            0,
+            91
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 19, \"kind\": \"warning\", \"category\": \"width\", \"message\": \"Invalid width value: ''quoted'. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 254,
+      "base64": "CiA4NTNhMjRiOTM4YjNkNDE5MGEwZTUzNmVlOTFmMjU0NxImEgIAXCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqsQEargH6AaUBCqABeyJpbmRleCI6IDE5LCAia2luZCI6ICJlcnJvciIsICJjYXRlZ29yeSI6ICJ3aWR0aCIsICJtZXNzYWdlIjogIkludmFsaWQgd2lkdGggdmFsdWU6ICcncXVvdGVkJy4gV2lkdGggbXVzdCBiZSBlaXRoZXIgYSBwb3NpdGl2ZSBpbnRlZ2VyIChwaXhlbHMpIG9yICdzdHJldGNoJy4ifRAB0gMCCAE=",
+      "message": {
+        "hash": "853a24b938b3d4190a0e536ee91f2547",
+        "metadata": {
+          "delta_path": [
+            0,
+            92
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 19, \"kind\": \"error\", \"category\": \"width\", \"message\": \"Invalid width value: ''quoted'. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 19,
+      "base64": "Cg9zY3JpcHRfZmluaXNoZWQwAA==",
+      "message": {
+        "hash": "script_finished",
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    }
+  ],
+  "elements": [
+    {
+      "index": 0,
+      "kind": "json",
+      "fields": {
+        "body": "{\"error_cases\": [{\"icon\": \"\\ud83d\\udd25\\ud83d\\udca1\", \"width\": 0}, {\"icon\": \"\\ud83d\\udc69\\u200dx\", \"width\": \"bogus\"}, {\"icon\": \"bad\", \"width\": -1}, {\"icon\": \" :material/not_a_real_icon: \", \"width\": \"bogus\"}, {\"icon\": \":material/Thumb_UP:\", \"width\": 0}, {\"icon\": \":material/thumb_up\", \"width\": 0}, {\"icon\": \":smile:\", \"width\": 0}, {\"icon\": \"http://example.invalid/icon.png\", \"width\": 0}, {\"icon\": \" spinner \", \"width\": 240}, {\"icon\": \"\", \"width\": 0}, {\"icon\": \"\\ud83e\\uddca\", \"width\": \"bogus\"}, {\"icon\": \"  \", \"width\": \"content\"}, {\"icon\": \"\\ud83e\\uddca\", \"width\": 1}, {\"icon\": \"spinner\", \"width\": 1}, {\"icon\": \":material/thumb_up:\", \"width\": 1}, {\"icon\": \":material/not_a_real_icon:\", \"width\": 1}, {\"icon\": \"not-an-icon\", \"width\": 1}, {\"icon\": \":+1:\", \"width\": 1}, {\"icon\": \"https://example.invalid/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\", \"width\": 1}, {\"icon\": \"\\ud83e\\uddca\", \"width\": \"'quoted\"}]}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        0
+      ]
+    },
+    {
+      "index": 1,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 0, \"kind\": \"info\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        1
+      ]
+    },
+    {
+      "index": 2,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 0, \"kind\": \"success\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        2
+      ]
+    },
+    {
+      "index": 3,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 0, \"kind\": \"warning\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        3
+      ]
+    },
+    {
+      "index": 4,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 0, \"kind\": \"error\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        4
+      ]
+    },
+    {
+      "index": 5,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 1, \"kind\": \"info\", \"category\": \"width\", \"message\": \"Invalid width value: 'bogus'. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        5
+      ]
+    },
+    {
+      "index": 6,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 1, \"kind\": \"success\", \"category\": \"width\", \"message\": \"Invalid width value: 'bogus'. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        6
+      ]
+    },
+    {
+      "index": 7,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 1, \"kind\": \"warning\", \"category\": \"width\", \"message\": \"Invalid width value: 'bogus'. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        7
+      ]
+    },
+    {
+      "index": 8,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 1, \"kind\": \"error\", \"category\": \"width\", \"message\": \"Invalid width value: 'bogus'. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        8
+      ]
+    },
+    {
+      "index": 9,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 2, \"kind\": \"info\", \"category\": \"width\", \"message\": \"Invalid width value: -1. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        9
+      ]
+    },
+    {
+      "index": 10,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 2, \"kind\": \"success\", \"category\": \"width\", \"message\": \"Invalid width value: -1. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        10
+      ]
+    },
+    {
+      "index": 11,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 2, \"kind\": \"warning\", \"category\": \"width\", \"message\": \"Invalid width value: -1. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        11
+      ]
+    },
+    {
+      "index": 12,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 2, \"kind\": \"error\", \"category\": \"width\", \"message\": \"Invalid width value: -1. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        12
+      ]
+    },
+    {
+      "index": 13,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 3, \"kind\": \"info\", \"category\": \"width\", \"message\": \"Invalid width value: 'bogus'. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        13
+      ]
+    },
+    {
+      "index": 14,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 3, \"kind\": \"success\", \"category\": \"width\", \"message\": \"Invalid width value: 'bogus'. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        14
+      ]
+    },
+    {
+      "index": 15,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 3, \"kind\": \"warning\", \"category\": \"width\", \"message\": \"Invalid width value: 'bogus'. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        15
+      ]
+    },
+    {
+      "index": 16,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 3, \"kind\": \"error\", \"category\": \"width\", \"message\": \"Invalid width value: 'bogus'. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        16
+      ]
+    },
+    {
+      "index": 17,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 4, \"kind\": \"info\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        17
+      ]
+    },
+    {
+      "index": 18,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 4, \"kind\": \"success\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        18
+      ]
+    },
+    {
+      "index": 19,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 4, \"kind\": \"warning\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        19
+      ]
+    },
+    {
+      "index": 20,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 4, \"kind\": \"error\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        20
+      ]
+    },
+    {
+      "index": 21,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 5, \"kind\": \"info\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        21
+      ]
+    },
+    {
+      "index": 22,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 5, \"kind\": \"success\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        22
+      ]
+    },
+    {
+      "index": 23,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 5, \"kind\": \"warning\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        23
+      ]
+    },
+    {
+      "index": 24,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 5, \"kind\": \"error\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        24
+      ]
+    },
+    {
+      "index": 25,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 6, \"kind\": \"info\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        25
+      ]
+    },
+    {
+      "index": 26,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 6, \"kind\": \"success\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        26
+      ]
+    },
+    {
+      "index": 27,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 6, \"kind\": \"warning\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        27
+      ]
+    },
+    {
+      "index": 28,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 6, \"kind\": \"error\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        28
+      ]
+    },
+    {
+      "index": 29,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 7, \"kind\": \"info\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        29
+      ]
+    },
+    {
+      "index": 30,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 7, \"kind\": \"success\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        30
+      ]
+    },
+    {
+      "index": 31,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 7, \"kind\": \"warning\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        31
+      ]
+    },
+    {
+      "index": 32,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 7, \"kind\": \"error\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        32
+      ]
+    },
+    {
+      "index": 33,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 8, \"kind\": \"info\", \"category\": \"icon\", \"message\": \"The value \\\"spinner\\\" is not a valid emoji. Please use a single emoji.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        33
+      ]
+    },
+    {
+      "index": 34,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 8, \"kind\": \"success\", \"category\": \"icon\", \"message\": \"The value \\\"spinner\\\" is not a valid emoji. Please use a single emoji.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        34
+      ]
+    },
+    {
+      "index": 35,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 8, \"kind\": \"warning\", \"category\": \"icon\", \"message\": \"The value \\\"spinner\\\" is not a valid emoji. Please use a single emoji.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        35
+      ]
+    },
+    {
+      "index": 36,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 8, \"kind\": \"error\", \"category\": \"icon\", \"message\": \"The value \\\"spinner\\\" is not a valid emoji. Please use a single emoji.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        36
+      ]
+    },
+    {
+      "index": 37,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 9, \"kind\": \"info\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        37
+      ]
+    },
+    {
+      "index": 38,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 9, \"kind\": \"success\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        38
+      ]
+    },
+    {
+      "index": 39,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 9, \"kind\": \"warning\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        39
+      ]
+    },
+    {
+      "index": 40,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 9, \"kind\": \"error\", \"category\": \"width\", \"message\": \"Invalid width value: 0. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        40
+      ]
+    },
+    {
+      "index": 41,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 10, \"kind\": \"info\", \"category\": \"width\", \"message\": \"Invalid width value: 'bogus'. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        41
+      ]
+    },
+    {
+      "index": 42,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 10, \"kind\": \"success\", \"category\": \"width\", \"message\": \"Invalid width value: 'bogus'. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        42
+      ]
+    },
+    {
+      "index": 43,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 10, \"kind\": \"warning\", \"category\": \"width\", \"message\": \"Invalid width value: 'bogus'. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        43
+      ]
+    },
+    {
+      "index": 44,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 10, \"kind\": \"error\", \"category\": \"width\", \"message\": \"Invalid width value: 'bogus'. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        44
+      ]
+    },
+    {
+      "index": 45,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 11, \"kind\": \"info\", \"category\": \"width\", \"message\": \"Invalid width value: 'content'. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        45
+      ]
+    },
+    {
+      "index": 46,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 11, \"kind\": \"success\", \"category\": \"width\", \"message\": \"Invalid width value: 'content'. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        46
+      ]
+    },
+    {
+      "index": 47,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 11, \"kind\": \"warning\", \"category\": \"width\", \"message\": \"Invalid width value: 'content'. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        47
+      ]
+    },
+    {
+      "index": 48,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 11, \"kind\": \"error\", \"category\": \"width\", \"message\": \"Invalid width value: 'content'. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        48
+      ]
+    },
+    {
+      "index": 49,
+      "kind": "alert",
+      "fields": {
+        "body": "error boundary",
+        "format": "INFO",
+        "icon": "🧊",
+        "width_config": {
+          "pixel_width": 1
+        }
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        49
+      ]
+    },
+    {
+      "index": 50,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 12, \"kind\": \"info\", \"returned\": true}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        50
+      ]
+    },
+    {
+      "index": 51,
+      "kind": "alert",
+      "fields": {
+        "body": "error boundary",
+        "format": "SUCCESS",
+        "icon": "🧊",
+        "width_config": {
+          "pixel_width": 1
+        }
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        51
+      ]
+    },
+    {
+      "index": 52,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 12, \"kind\": \"success\", \"returned\": true}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        52
+      ]
+    },
+    {
+      "index": 53,
+      "kind": "alert",
+      "fields": {
+        "body": "error boundary",
+        "format": "WARNING",
+        "icon": "🧊",
+        "width_config": {
+          "pixel_width": 1
+        }
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        53
+      ]
+    },
+    {
+      "index": 54,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 12, \"kind\": \"warning\", \"returned\": true}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        54
+      ]
+    },
+    {
+      "index": 55,
+      "kind": "alert",
+      "fields": {
+        "body": "error boundary",
+        "format": "ERROR",
+        "icon": "🧊",
+        "width_config": {
+          "pixel_width": 1
+        }
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        55
+      ]
+    },
+    {
+      "index": 56,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 12, \"kind\": \"error\", \"returned\": true}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        56
+      ]
+    },
+    {
+      "index": 57,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 13, \"kind\": \"info\", \"category\": \"icon\", \"message\": \"The value \\\"spinner\\\" is not a valid emoji. Please use a single emoji.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        57
+      ]
+    },
+    {
+      "index": 58,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 13, \"kind\": \"success\", \"category\": \"icon\", \"message\": \"The value \\\"spinner\\\" is not a valid emoji. Please use a single emoji.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        58
+      ]
+    },
+    {
+      "index": 59,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 13, \"kind\": \"warning\", \"category\": \"icon\", \"message\": \"The value \\\"spinner\\\" is not a valid emoji. Please use a single emoji.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        59
+      ]
+    },
+    {
+      "index": 60,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 13, \"kind\": \"error\", \"category\": \"icon\", \"message\": \"The value \\\"spinner\\\" is not a valid emoji. Please use a single emoji.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        60
+      ]
+    },
+    {
+      "index": 61,
+      "kind": "alert",
+      "fields": {
+        "body": "error boundary",
+        "format": "INFO",
+        "icon": ":material/thumb_up:",
+        "width_config": {
+          "pixel_width": 1
+        }
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        61
+      ]
+    },
+    {
+      "index": 62,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 14, \"kind\": \"info\", \"returned\": true}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        62
+      ]
+    },
+    {
+      "index": 63,
+      "kind": "alert",
+      "fields": {
+        "body": "error boundary",
+        "format": "SUCCESS",
+        "icon": ":material/thumb_up:",
+        "width_config": {
+          "pixel_width": 1
+        }
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        63
+      ]
+    },
+    {
+      "index": 64,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 14, \"kind\": \"success\", \"returned\": true}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        64
+      ]
+    },
+    {
+      "index": 65,
+      "kind": "alert",
+      "fields": {
+        "body": "error boundary",
+        "format": "WARNING",
+        "icon": ":material/thumb_up:",
+        "width_config": {
+          "pixel_width": 1
+        }
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        65
+      ]
+    },
+    {
+      "index": 66,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 14, \"kind\": \"warning\", \"returned\": true}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        66
+      ]
+    },
+    {
+      "index": 67,
+      "kind": "alert",
+      "fields": {
+        "body": "error boundary",
+        "format": "ERROR",
+        "icon": ":material/thumb_up:",
+        "width_config": {
+          "pixel_width": 1
+        }
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        67
+      ]
+    },
+    {
+      "index": 68,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 14, \"kind\": \"error\", \"returned\": true}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        68
+      ]
+    },
+    {
+      "index": 69,
+      "kind": "alert",
+      "fields": {
+        "body": "error boundary",
+        "format": "INFO",
+        "icon": ":material/not_a_real_icon:",
+        "width_config": {
+          "pixel_width": 1
+        }
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        69
+      ]
+    },
+    {
+      "index": 70,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 15, \"kind\": \"info\", \"returned\": true}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        70
+      ]
+    },
+    {
+      "index": 71,
+      "kind": "alert",
+      "fields": {
+        "body": "error boundary",
+        "format": "SUCCESS",
+        "icon": ":material/not_a_real_icon:",
+        "width_config": {
+          "pixel_width": 1
+        }
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        71
+      ]
+    },
+    {
+      "index": 72,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 15, \"kind\": \"success\", \"returned\": true}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        72
+      ]
+    },
+    {
+      "index": 73,
+      "kind": "alert",
+      "fields": {
+        "body": "error boundary",
+        "format": "WARNING",
+        "icon": ":material/not_a_real_icon:",
+        "width_config": {
+          "pixel_width": 1
+        }
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        73
+      ]
+    },
+    {
+      "index": 74,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 15, \"kind\": \"warning\", \"returned\": true}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        74
+      ]
+    },
+    {
+      "index": 75,
+      "kind": "alert",
+      "fields": {
+        "body": "error boundary",
+        "format": "ERROR",
+        "icon": ":material/not_a_real_icon:",
+        "width_config": {
+          "pixel_width": 1
+        }
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        75
+      ]
+    },
+    {
+      "index": 76,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 15, \"kind\": \"error\", \"returned\": true}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        76
+      ]
+    },
+    {
+      "index": 77,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 16, \"kind\": \"info\", \"category\": \"icon\", \"message\": \"The value \\\"not-an-icon\\\" is not a valid emoji. Please use a single emoji.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        77
+      ]
+    },
+    {
+      "index": 78,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 16, \"kind\": \"success\", \"category\": \"icon\", \"message\": \"The value \\\"not-an-icon\\\" is not a valid emoji. Please use a single emoji.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        78
+      ]
+    },
+    {
+      "index": 79,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 16, \"kind\": \"warning\", \"category\": \"icon\", \"message\": \"The value \\\"not-an-icon\\\" is not a valid emoji. Please use a single emoji.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        79
+      ]
+    },
+    {
+      "index": 80,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 16, \"kind\": \"error\", \"category\": \"icon\", \"message\": \"The value \\\"not-an-icon\\\" is not a valid emoji. Please use a single emoji.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        80
+      ]
+    },
+    {
+      "index": 81,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 17, \"kind\": \"info\", \"category\": \"icon\", \"message\": \"The value \\\":+1:\\\" is not a valid emoji. Please use a single emoji.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        81
+      ]
+    },
+    {
+      "index": 82,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 17, \"kind\": \"success\", \"category\": \"icon\", \"message\": \"The value \\\":+1:\\\" is not a valid emoji. Please use a single emoji.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        82
+      ]
+    },
+    {
+      "index": 83,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 17, \"kind\": \"warning\", \"category\": \"icon\", \"message\": \"The value \\\":+1:\\\" is not a valid emoji. Please use a single emoji.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        83
+      ]
+    },
+    {
+      "index": 84,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 17, \"kind\": \"error\", \"category\": \"icon\", \"message\": \"The value \\\":+1:\\\" is not a valid emoji. Please use a single emoji.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        84
+      ]
+    },
+    {
+      "index": 85,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 18, \"kind\": \"info\", \"category\": \"icon\", \"message\": \"The value \\\"https://example.invalid/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\" is not a valid emoji. Please use a single emoji.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        85
+      ]
+    },
+    {
+      "index": 86,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 18, \"kind\": \"success\", \"category\": \"icon\", \"message\": \"The value \\\"https://example.invalid/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\" is not a valid emoji. Please use a single emoji.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        86
+      ]
+    },
+    {
+      "index": 87,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 18, \"kind\": \"warning\", \"category\": \"icon\", \"message\": \"The value \\\"https://example.invalid/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\" is not a valid emoji. Please use a single emoji.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        87
+      ]
+    },
+    {
+      "index": 88,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 18, \"kind\": \"error\", \"category\": \"icon\", \"message\": \"The value \\\"https://example.invalid/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\" is not a valid emoji. Please use a single emoji.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        88
+      ]
+    },
+    {
+      "index": 89,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 19, \"kind\": \"info\", \"category\": \"width\", \"message\": \"Invalid width value: ''quoted'. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        89
+      ]
+    },
+    {
+      "index": 90,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 19, \"kind\": \"success\", \"category\": \"width\", \"message\": \"Invalid width value: ''quoted'. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        90
+      ]
+    },
+    {
+      "index": 91,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 19, \"kind\": \"warning\", \"category\": \"width\", \"message\": \"Invalid width value: ''quoted'. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        91
+      ]
+    },
+    {
+      "index": 92,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 19, \"kind\": \"error\", \"category\": \"width\", \"message\": \"Invalid width value: ''quoted'. Width must be either a positive integer (pixels) or 'stretch'.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        92
+      ]
+    }
+  ],
+  "finishes": [
+    0
+  ],
+  "health": {
+    "status": 200,
+    "body": "ok"
+  },
+  "cleanup": {
+    "websocket_closed": true
+  },
+  "successful": true
+}

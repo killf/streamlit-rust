@@ -253,3 +253,6 @@ JSON 深度/宽度已补 18 组固定原生参考（9 成功、9 拒绝）；Jso
 
 
 2026-10-30 四类 Alert 已补真实 Chrome：48 个提示的文字/标题格式、图标、颜色、ARIA role 与 240/704px 布局匹配。真实 PageDown/End/Home 验证滚动和恢复，六张 JPEG 与八个原始观察保留实际视口变化、坐标和控制字符显示。未改生产代码，其他视口/主题、非法参数、callback 和参数更新身份仍开放，完整 Goal 与 130 partial 不变。
+
+
+2026-10-30 Alert 错误边界推进：保留公开 Result/错误变体，修正 icon-before-width、分类错误文字及 spinner。二十输入乘四格式的完整 WS 语料修前有 60 处不同，修后剩 12 处（未知 Material 的两类行为、带引号宽度 repr），68/80 对齐；未缩小语料或完整兼容分母。Material 冻结目录的三案已写 architecture.md，新增生产文件/生成流程待选；宽度 repr 可独立推进。130 partial、M3/M5/M7 与完整 Goal 保持开放。

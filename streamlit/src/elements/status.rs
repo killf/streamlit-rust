@@ -22,12 +22,40 @@ fn emoji_len(value: &str) -> Option<usize> {
     is_single_emoji(cluster).then_some(cluster.len())
 }
 
+pub(crate) fn invalid_icon_message(value: &str) -> String {
+    const HINT: &str = "Please use a single emoji or a Material icon shortcode like `:material\u{200b}/thumb_up:`.";
+    let shortcode = value.strip_prefix(':').and_then(|rest| rest.strip_suffix(':'));
+
+    // 1. Material 错误优先于普通 shortcode；保留参考的零宽空格与标点差别。
+    if value.to_ascii_lowercase().starts_with(":material") {
+        let parsed = !value.contains('\n') && shortcode.and_then(|rest| rest.rsplit_once('/')).is_some_and(|(pack, name)| !pack.is_empty() && !name.is_empty());
+        let shown = value.replace('/', "\u{200b}/");
+        let punctuation = if parsed { "." } else { "" };
+        return format!("The value `\"{shown}\"` is not a valid Material icon. Please use a Material icon shortcode like **`:material\u{200b}/thumb_up:`**{punctuation}");
+    }
+    if shortcode.is_some_and(|name| !name.is_empty() && name.bytes().all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'_' | b'+' | b'-'))) {
+        return format!("The value \"{value}\" is not a valid icon. Emoji shortcodes are not supported. {HINT}");
+    }
+
+    // 2. URL 形状只生成错误，不读取图片；长度按 Unicode 码点截取。
+    if value.contains("://") || value.get(..5).is_some_and(|prefix| prefix.eq_ignore_ascii_case("data:")) || value.starts_with("//") {
+        let shown = if value.chars().count() > 60 { format!("{}…", value.chars().take(60).collect::<String>()) } else { value.to_owned() };
+        return format!("The value \"{shown}\" looks like a URL. Images are not supported for `icon`. {HINT} To follow support for image icons, see https://github.com/streamlit/streamlit/issues/9770.");
+    }
+
+    // 3. ASCII 普通名称与非 ASCII emoji 使用各自的既有错误文字。
+    if value.is_ascii() {
+        return format!("The value \"{value}\" is not a valid icon. {HINT}");
+    }
+    format!("The value \"{value}\" is not a valid emoji. Please use a single emoji.")
+}
+
 pub(crate) fn status_content(body: &str, icon: Option<&str>) -> Result<(String, String), crate::api::StatusError> {
     // 1. 先清理正文；显式图标即使清理后为空，也抑制自动提取。
     let body = crate::utils::clean_text(body);
     if let Some(icon) = icon {
         let icon = icon.trim_matches(crate::utils::python_whitespace);
-        if icon.is_empty() || material_icon_len(icon) == Some(icon.len()) || is_single_emoji(icon) {
+        if icon.is_empty() || icon == "spinner" || material_icon_len(icon) == Some(icon.len()) || is_single_emoji(icon) {
             return Ok((body, icon.to_string()));
         }
         return Err(crate::api::StatusError::InvalidIcon(icon.to_string()));
@@ -79,6 +107,64 @@ mod tests {
     use crate::proto::alert::Format;
     use crate::proto::streamlit::{WidthConfig, width_config::WidthSpec};
     use prost::Message;
+
+    #[test]
+    fn icon_error_display_matches_reference_without_changing_variant_payload() -> anyhow::Result<()> {
+        let reference: serde_json::Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/status/normalization/errors/trace.json"))?;
+        let elements = reference["elements"].as_array().ok_or_else(|| anyhow::anyhow!("missing error reference elements"))?;
+        let inputs: serde_json::Value = serde_json::from_str(elements[0]["fields"]["body"].as_str().ok_or_else(|| anyhow::anyhow!("missing error inputs"))?)?;
+        let mut checked = 0;
+        for element in &elements[1..] {
+            if element["kind"] != "json" {
+                continue;
+            }
+            let report: serde_json::Value = serde_json::from_str(element["fields"]["body"].as_str().ok_or_else(|| anyhow::anyhow!("missing error report"))?)?;
+            if report["category"] != "icon" || report["kind"] != "info" {
+                continue;
+            }
+            let index = report["index"].as_u64().ok_or_else(|| anyhow::anyhow!("missing report index"))? as usize;
+            let value = inputs["error_cases"][index]["icon"].as_str().ok_or_else(|| anyhow::anyhow!("missing icon input"))?.trim_matches(crate::utils::python_whitespace);
+            let error = crate::StatusError::InvalidIcon(value.to_owned());
+            assert_eq!(error.to_string(), report["message"].as_str().ok_or_else(|| anyhow::anyhow!("missing icon error message"))?);
+            assert!(matches!(error, crate::StatusError::InvalidIcon(payload) if payload == value));
+            checked += 1;
+        }
+        assert_eq!(checked, 12);
+        Ok(())
+    }
+
+    #[test]
+    fn icon_validation_precedes_width_and_spinner_recovers_at_the_same_path() -> anyhow::Result<()> {
+        let st = Streamlit::new();
+        let (sender, mut receiver) = tokio::sync::mpsc::unbounded_channel();
+        let mut context = RenderContext::with_sender("alert-error-priority".into(), sender);
+        context.delta_path = vec![0, 0];
+        st.app.lock().set_render_context(context);
+
+        for format in [Format::Info, Format::Success, Format::Warning, Format::Error] {
+            let options = StatusOptions::new("both invalid").icon("🔥💡").width(0);
+            let result = match format {
+                Format::Info => st.info(options),
+                Format::Success => st.success(options),
+                Format::Warning => st.warning(options),
+                Format::Error => st.error(options),
+                Format::Unused => unreachable!(),
+            };
+            assert!(matches!(result, Err(crate::StatusError::InvalidIcon(value)) if value == "🔥💡"));
+        }
+        assert!(matches!(st.info(StatusOptions::new("bad width").icon(" ").width(0)), Err(crate::StatusError::InvalidWidth(value)) if value == "0"));
+        assert!(receiver.try_recv().is_err(), "rejected calls do not consume a delta slot");
+        st.success(StatusOptions::new("recovered").icon(" spinner ").width(240))?;
+        let message = receiver.try_recv()?;
+        assert_eq!(message.metadata.as_ref().ok_or_else(|| anyhow::anyhow!("missing recovery path"))?.delta_path, [0, 0]);
+        let Some(forward_msg::Type::Delta(delta)) = message.r#type else { anyhow::bail!("missing recovery delta") };
+        let Some(delta::Type::NewElement(element)) = delta.r#type else { anyhow::bail!("missing recovery element") };
+        let Some(element::Type::Alert(alert)) = element.r#type else { anyhow::bail!("missing recovery alert") };
+        assert_eq!(alert.icon, "spinner");
+        assert_eq!(alert.format, Format::Success as i32);
+        assert!(receiver.try_recv().is_err());
+        Ok(())
+    }
 
     #[test]
     fn normalization_precedes_icon_detection_and_keeps_explicit_empty_icon() -> anyhow::Result<()> {

@@ -26,6 +26,46 @@ from __future__ import annotations
 
 import streamlit as st
 
+def run_error_contract():
+    from streamlit.errors import StreamlitInvalidWidthError
+    cases = [
+        {'icon': '🔥💡', 'width': 0},
+        {'icon': '👩\u200dx', 'width': 'bogus'},
+        {'icon': 'bad', 'width': -1},
+        {'icon': ' :material/not_a_real_icon: ', 'width': 'bogus'},
+        {'icon': ':material/Thumb_UP:', 'width': 0},
+        {'icon': ':material/thumb_up', 'width': 0},
+        {'icon': ':smile:', 'width': 0},
+        {'icon': 'http://example.invalid/icon.png', 'width': 0},
+        {'icon': ' spinner ', 'width': 240},
+        {'icon': '', 'width': 0},
+        {'icon': '🧊', 'width': 'bogus'},
+        {'icon': '  ', 'width': 'content'},
+        {'icon': '🧊', 'width': 1},
+        {'icon': 'spinner', 'width': 1},
+        {'icon': ':material/thumb_up:', 'width': 1},
+        {'icon': ':material/not_a_real_icon:', 'width': 1},
+        {'icon': 'not-an-icon', 'width': 1},
+        {'icon': ':+1:', 'width': 1},
+        {'icon': 'https://example.invalid/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', 'width': 1},
+        {'icon': '🧊', 'width': "'quoted"},
+    ]
+    st.json({"error_cases": cases})
+    for index, kwargs in enumerate(cases):
+        for kind in ("info", "success", "warning", "error"):
+            try:
+                getattr(st, kind)("error boundary", **kwargs)
+                result = {"index": index, "kind": kind, "returned": True}
+            except Exception as error:
+                result = {"index": index, "kind": kind, "category": "width" if isinstance(error, StreamlitInvalidWidthError) else "icon", "message": str(error)}
+            st.json(result)
+
+
+if st.query_params.get("case") == "error-contract":
+    run_error_contract()
+    st.stop()
+
+
 def run_normalization():
     cases = [
         {'body': '\n    alpha\n      beta\n', 'kwargs': {'title': '\n  Title\n    detail\n'}},

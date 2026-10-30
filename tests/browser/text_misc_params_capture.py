@@ -24,7 +24,7 @@ from websockets.sync.client import connect
 ROOT = Path(__file__).resolve().parents[2]
 parser = argparse.ArgumentParser(description='Collect the text/misc-parameter reference once; never overwrite.')
 parser.add_argument('--out', type=Path, required=True)
-parser.add_argument('--scenario', choices=('parameters', 'identity', 'layouts', 'layout-widths', 'normalization', 'dividers', 'divider-errors', 'badge-content', 'alert-normalization'), default='parameters')
+parser.add_argument('--scenario', choices=('parameters', 'identity', 'layouts', 'layout-widths', 'normalization', 'dividers', 'divider-errors', 'badge-content', 'alert-normalization', 'alert-errors'), default='parameters')
 parser.add_argument('--url', help='caller-owned Rust server URL (comparison capture)')
 args = parser.parse_args()
 OUT = args.out.resolve()
@@ -40,12 +40,12 @@ else:
         listener.bind(('127.0.0.1', 0))
         PORT = listener.getsockname()[1]
     URL = f'http://127.0.0.1:{PORT}'
-    COMMAND = [sys.executable, '-B', '-m', 'streamlit', 'run', str(ROOT / ('tests/reference/status_app.py' if args.scenario == 'alert-normalization' else 'tests/reference/text_misc_params_app.py')),
+    COMMAND = [sys.executable, '-B', '-m', 'streamlit', 'run', str(ROOT / ('tests/reference/status_app.py' if args.scenario in ('alert-normalization', 'alert-errors') else 'tests/reference/text_misc_params_app.py')),
                '--server.address=127.0.0.1', f'--server.port={PORT}', '--server.headless=true',
                '--server.fileWatcherType=none', '--browser.gatherUsageStats=false']
 TRACE = {'schema_version': 1, 'runtime': 'rust' if args.url else 'python', 'reference_version': '1.66.1',
          'captured_at_utc': datetime.now(timezone.utc).isoformat(), 'scenario': args.scenario,
-         'scope': 'Alert normalization over one native WS; no browser/UI claim.' if args.scenario == 'alert-normalization' else 'Element wire of text/latex/help/divider parameter edges over one native WS; no browser/UI claim.',
+         'scope': 'Alert normalization/validation over one native WS; no browser/UI claim.' if args.scenario in ('alert-normalization', 'alert-errors') else 'Element wire of text/latex/help/divider parameter edges over one native WS; no browser/UI claim.',
          'server_command': COMMAND, 'server_cleanup': 'caller-owned' if COMMAND is None else 'collector-owned',
          'url': URL, 'frames': [], 'elements': [], 'finishes': []}
 SERVER = WS = None
@@ -79,7 +79,9 @@ try:
                  open_timeout=10, close_timeout=5, max_size=None, legacy=True)
     request = BackMsg()
     request.rerun_script.SetInParent()
-    if args.scenario == "alert-normalization":
+    if args.scenario == "alert-errors":
+        request.rerun_script.query_string = "case=error-contract"
+    elif args.scenario == "alert-normalization":
         request.rerun_script.query_string = "case=normalization"
     elif args.scenario == "divider-errors":
         request.rerun_script.query_string = "case=divider-errors&phase=zero"

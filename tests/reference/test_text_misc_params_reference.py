@@ -1094,3 +1094,100 @@ def test_alert_browser_gate_rejects_wrong_observations(mutation):
         capture["screenshots"][0]["sha256"] = "0" * 64
     with pytest.raises(AssertionError):
         assert_alert_normalization_browser(capture, STATUS_PYTHON / "normalization/ui")
+
+
+def alert_error_calls(capture):
+    """Decode every attempted call, including known incompatible outputs."""
+    assert_capture(capture)
+    elements = full_elements(capture)
+    for index, (path, _) in enumerate(elements):
+        assert path == [0, index]
+    _, report = elements[0]
+    assert set(report) == {"json", "width_config"}
+    cases = json.loads(report["json"]["body"])["error_cases"]
+    assert len(cases) == 20
+    calls, pending = [], []
+    for _, element in elements[1:]:
+        if "alert" in element:
+            assert not pending
+            pending.append(element)
+            continue
+        assert set(element) == {"json", "width_config"}
+        assert element["width_config"] == {"use_stretch": True}
+        receipt = json.loads(element["json"]["body"])
+        index, kind = divmod(len(calls), 4)
+        assert (receipt["index"], receipt["kind"]) == (index, ("info", "success", "warning", "error")[kind])
+        if "returned" in receipt:
+            assert receipt == {"index": index, "kind": receipt["kind"], "returned": True}
+            assert len(pending) == 1
+            assert pending[0] == {"alert": {"body": "error boundary", "format": ("INFO", "SUCCESS", "WARNING", "ERROR")[kind],
+                                           "icon": cases[index]["icon"].strip(),
+                                           "width_config": {"pixel_width": cases[index]["width"]}}}
+        else:
+            assert not pending
+            assert set(receipt) == {"index", "kind", "category", "message"}
+            assert receipt["category"] in ("icon", "width") and receipt["message"]
+        calls.append((receipt, pending))
+        pending = []
+    assert not pending and len(calls) == 80
+    return cases, calls
+
+
+def assert_alert_error_parity(capture, reference):
+    cases, actual = alert_error_calls(capture)
+    expected_cases, expected = alert_error_calls(reference)
+    assert cases == expected_cases
+    assert actual == expected
+
+
+def test_alert_error_priority_recovery_and_explicit_remaining_differences():
+    reference = read(STATUS_PYTHON / "normalization/errors/trace.json")
+    before = read(STATUS_RUST / "normalization/errors-before/trace.json")
+    fixed = read(STATUS_RUST / "normalization/errors/trace.json")
+    for capture, runtime, count in ((reference, "python", 97), (before, "rust", 93), (fixed, "rust", 101)):
+        assert capture["runtime"] == runtime and capture["reference_version"] == "1.66.1"
+        assert capture["scenario"] == "alert-errors" and capture["successful"]
+        assert "producer_error" not in capture and len(capture["elements"]) == count
+    assert reference["cleanup"] == {"websocket_closed": True, "server_stopped": True}
+    cases, expected = alert_error_calls(reference)
+    assert [index for index in range(20) if expected[index * 4][0].get("returned")] == [8, 12, 13, 14]
+    for capture, differing_cases in ((before, [0, 1, 2, 3, 4, 5, 6, 7, 8, 13, 15, 16, 17, 18, 19]), (fixed, [3, 15, 19])):
+        actual_cases, actual = alert_error_calls(capture)
+        assert actual_cases == cases
+        assert [i for i, (left, right) in enumerate(zip(actual, expected)) if left != right] == [index * 4 + kind for index in differing_cases for kind in range(4)]
+        with pytest.raises(AssertionError):
+            assert_alert_error_parity(capture, reference)
+    # The full corpus stays visible: 68 matches do not imply complete validation.
+    assert sum(left == right for left, right in zip(alert_error_calls(fixed)[1], expected)) == 68
+
+
+@pytest.mark.parametrize("mutation", ["priority", "message", "spinner", "width-placement", "receipt-order"])
+def test_alert_error_gate_rejects_coherent_wrong_wire(mutation):
+    reference = read(STATUS_PYTHON / "normalization/errors/trace.json")
+    capture = read(STATUS_PYTHON / "normalization/errors/trace.json")
+    slot = 33 if mutation in ("spinner", "width-placement") else 1
+    frame = next(frame for frame in capture["frames"] if frame["message"].get("metadata", {}).get("delta_path") == [0, slot])
+    message = ForwardMsg()
+    message.ParseFromString(base64.b64decode(frame["base64"]))
+    element = message.delta.new_element
+    kind = element.WhichOneof("type")
+    if mutation == "spinner":
+        element.alert.icon = ""
+    elif mutation == "width-placement":
+        element.width_config.CopyFrom(element.alert.width_config)
+        element.alert.ClearField("width_config")
+    else:
+        receipt = json.loads(element.json.body)
+        if mutation == "priority":
+            receipt["category"] = "width"
+        elif mutation == "message":
+            receipt["message"] = "wrong icon message"
+        else:
+            receipt["index"] = 1
+        element.json.body = json.dumps(receipt)
+    data = message.SerializeToString()
+    frame.update(base64=base64.b64encode(data).decode(), bytes=len(data), message=MessageToDict(message, preserving_proto_field_name=True))
+    capture["elements"][slot]["fields"] = MessageToDict(getattr(element, kind), preserving_proto_field_name=True)
+    assert_capture(capture)
+    with pytest.raises(AssertionError):
+        assert_alert_error_parity(capture, reference)

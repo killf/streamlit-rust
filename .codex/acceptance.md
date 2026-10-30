@@ -735,3 +735,12 @@ architecture 的 Pending unified NewElement identity decision 写出静态/原�
 截图采用已支持的 tab CDP Page.captureScreenshot，激活准确任务 tab、把指针移离控件后直接保存，六图无超时；逐张校验字节数、SHA-256、JPEG 解码及 800×1000 剪裁尺寸。九项错误观察 guard 覆盖正文、标题、图标、ARIA role、颜色、宽度、空标题、滚动及图片。相关 Python/矩阵/文档共 133 项通过（target/alert-normalization-ui-final-gates.log），text/misc 门 81 项；逐文件复查 diff。
 
 本批未改生产、示例或 API，未重复 Rust 库/工作区；上批 253 项仍带两项既有队列排除，不称本轮新结果。所测 warn/error 缓冲为空；两个任务 tab 明确关闭、两个自有 server session 终止，8502/18502 无监听。除首次加载外未请求参数切换或额外 rerun，但本批没有完整 WS 请求账本，不能推断任意环境的总运行次数。其他主题/视口、非法参数、callback/参数更新身份仍开放，矩阵保持 130 partial，完整目标继续。colconfig_params 独立改动保留，按授权仅提交推送工作分支，不合并或发布。
+
+
+### Alert validation boundary, partial corpus (2026-10-30)
+
+二十组参数乘四格式的原生 WS 保留输入报告及每次真实调用后的 receipt。Python 97 Elements/16 Alert；Rust 修前 93/12、修后 101/20，原始三份均未覆盖改写。分类错误文字、icon-before-width 和 strip 后 spinner 修正，使完整调用匹配从 20/80 变为 68/80。十二处剩余差异明确为 case 3/15 未知 Material 成员判断/首错与 case 19 带引号宽度 repr，各四格式；不硬编码拒绝测试字符串，不把已知失败排除出语料。拒绝调用无 Alert/路径消耗，显式捕获后的后续有效调用恢复；不宣称未捕获异常、callback、Python 异常类/error_id 或新 UI 已兼容。
+
+源码逐文件复查，Rustfmt 与全目标 Clippy -Dwarnings 通过；Clippy 保留工具链已有 MSVC 链接器提示。status 单元 12 项通过，既有 text-elements/Alert 真 WS 集成 11 项通过，工作区总计 255 项通过、两项既有更广队列差异测试排除（target/alert-errors-unit.log、alert-errors-integration.log、alert-errors-clippy.log、alert-errors-workspace.log）。新冻结数据门按原始 protobuf 解码绑定 summary，校验八十调用的顺序、完整 Alert/receipt 和连续路径；五项一致改写的错误 wire guard 覆盖首错类别、错误文字、spinner、宽度位置和回执顺序。相关 text/misc、矩阵、文档共 139 项通过（target/alert-errors-final-gates.log）；没有为文档修改重复整套 Rust 测试。
+
+Python 原 PID 51364 已不存在，原端口 51056 与 Rust 8502 无监听，Rust 采集进程已终止。本批无浏览器 task。新增目录接入三案位于 architecture.md，生产目录/生成器尚未添加；带引号 repr 可独立继续。四个条目的证据/限制和生成清单已同步，130 partial 与完整目标保持；colconfig_params 独立改动保留，提交/推送只到当前工作分支。

@@ -520,3 +520,18 @@ Python badge 只转义标签 [ 与 ]；不对标签执行 clean_text，不清理
 每端四观察（initial/middle/bottom/restored）与三 JPEG；PageDown/End/Home 为真实键盘输入，内容/尺寸/文档相对位置不变，底部 top=max=2900，Home 恢复 0。Python 初始视口 2560×1305，随后为 2560×1249，Rust 为 2560×1249，故初始 scroll max 2844→2900；原值全部保留，没有强设视口或修改浏览器设置。比较只给 y 加实际 scrollTop、以首提示 x 为原点，不声称全屏像素相同。
 
 截图用已支持 tab CDP Page.captureScreenshot，并激活准确的任务 tab、把指针移离报告控件；本批无截图超时。两端所测 warn/error 缓冲为空。U+001C 在 emoji 后按参考保留，画面可出现控制/缺字方块，不把兼容输出描述成一般控制字符清洗。初始加载后没有请求额外 rerun 或参数切换，本批没有完整 WS 请求计数账本；不改生产/示例、错误契约或统一身份。
+
+
+### Alert validation and Material catalog decision (2026-10-30)
+
+既有四种 Alert 已返回 Result<(), StatusError>，本批保持两个公开错误变体及其原始字符串 payload，在现有 status.rs 内按锁定 SDK 生成分类错误文字；icon 校验移到 width 之前，空白规范化后的 spinner 合法。错误调用不发送 Delta、不占路径，调用方显式捕获后可继续输出；没有改 Entry/宏或未捕获异常流程。
+
+新增 errors 原始公共 WS 参考保留二十组输入乘四格式的八十次调用，每次实际调用后立即输出 receipt。Python 为 97 Elements（16 Alert），Rust 修前 93（12 Alert）、修后 101（20 Alert）。首错顺序、emoji/shortcode/URL 错误文字及 spinner 修正后，68/80 调用完整对齐；仍有 12 处差异：case 3 的未知 Material + 非法宽度首错、case 15 的未知 Material 误接受、case 19 的带单引号宽度 repr，各四格式。完整语料和失败前缀保留，门禁验证剩余差异而不宣称整组兼容。receipt 的 category 是跨语言参数分类，不代表 Python 异常类或 error_id 已映射；本批没有新 UI/callback 证明。
+
+Material 根因是 material_icon_len 只检查名称形状。锁定本地 Streamlit 1.66.1 的 ALL_MATERIAL_ICONS 实测 4301 个名称；排序紧凑 JSON 为 66,312 字节，SHA-256 c25664fa2f6d931bf5a4f59ae09d3bce2d8c152c88ff400aea6dd610d971fd9e（这是规范数据编码的 hash，不是 SDK 源文件 hash）。需要目录成员判断，不能按 not_a_real_icon 字面值打补丁。依 AGENTS.md 第 2 条，新增生产数据文件/生成流程先由用户选择：
+
+1. 推荐：冻结生成的排序 Rust 数组。拟新增 streamlit/src/material_icon_names.rs，仅存名称与来源/许可头；新增 tools/export_material_icons.py，开发时从锁定 SDK 导出，检查基线版本、排序唯一性并记录计数/hash，不能静默升级。lib.rs 加私有模块，status.rs 对名称 binary_search；运行和普通构建不需要 Python、新依赖或额外构建步骤。生成工具只生成数据，业务校验留在 status.rs。
+2. 冻结 JSON 数据，现有 streamlit/build.rs 在构建时校验并生成 OUT_DIR 数组。拟新增 streamlit/material_icon_names.json 与同一导出工具；build.rs 增加数据验证/生成，Cargo.toml 增加 serde_json build-dependency。坏数据直接令构建失败，运行仍二分查找；原始数据易审阅，但增加构建职责与依赖边。
+3. 暂缓目录接入，继续保留 Material 差异和完整目标未完成状态。不会将暂缓记为接受差异。
+
+前两案不改变公共 StatusError/方法签名；本项只接入 Alert，不自动改变其他尚待错误契约的公共方法。4301 项排序查找最多约 13 次名称比较，尚无运行性能实测。验收包括导出再现/来源版本与 hash、全部已知名称和未知/大小写/自动提取边界、首错和无 Delta/恢复、离线构建及真实 WS，再验证真实 UI 错误与恢复。生产目录/生成器尚未创建。case 19 的 Python 字符串 repr 可独立继续处理，不受本次目录选案阻塞；其他既有待决事项保持。
