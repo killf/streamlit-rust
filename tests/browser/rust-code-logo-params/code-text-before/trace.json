@@ -1,0 +1,1288 @@
+{
+  "schema_version": 1,
+  "runtime": "rust",
+  "reference_version": "1.66.1",
+  "captured_at_utc": "2026-10-30T05:17:46.739251+00:00",
+  "scenario": "code-text",
+  "scope": "Element wire of code/skeleton/logo parameter edges over one native WS; no browser/UI claim.",
+  "server_command": null,
+  "server_cleanup": "caller-owned",
+  "url": "http://127.0.0.1:8607",
+  "frames": [
+    {
+      "direction": "client->server",
+      "bytes": 18,
+      "base64": "WhAKDmNhc2U9Y29kZS10ZXh0",
+      "message": {
+        "rerun_script": {
+          "query_string": "case=code-text"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 219,
+      "base64": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkYjU1ZjVkNGYtYWE2My00MzYwLThjMTctZWYyN2NiMTY1MmYxEiRkMTU2NzI1MC1kOWUwLTRjMjgtOGZkNi03MWIxMTJiMzk4OWYaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl",
+      "message": {
+        "metadata": {
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "new_session": {
+          "initialize": {
+            "user_info": {},
+            "environment_info": {
+              "streamlit_version": "1.66.1"
+            },
+            "session_status": {},
+            "session_id": "b55f5d4f-aa63-4360-8c17-ef27cb1652f1"
+          },
+          "script_run_id": "d1567250-d9e0-4c28-8fd6-71b112b3989f",
+          "name": "Streamlit Rust",
+          "config": {
+            "show_error_links": "SHOW_ERROR_LINKS_FALSE"
+          },
+          "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 28,
+      "base64": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ==",
+      "message": {
+        "hash": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 3586,
+      "base64": "CiBhMmRjODViY2VjMGUyMDMzMGM2Y2M3YmQ4NTczNmVmYhImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqtRsashv6AakbCqQbeyJjb2RlX2Nhc2VzIjogW3siYm9keSI6ICIiLCAibGFuZ3VhZ2UiOiAicHl0aG9uIiwgImxpbmVfbnVtYmVycyI6IGZhbHNlLCAid3JhcF9saW5lcyI6IHRydWUsICJ3aWR0aCI6ICJzdHJldGNoIiwgImhlaWdodCI6ICJjb250ZW50In0sIHsiYm9keSI6ICIiLCAibGFuZ3VhZ2UiOiAiIiwgImxpbmVfbnVtYmVycyI6IHRydWUsICJ3cmFwX2xpbmVzIjogZmFsc2UsICJ3aWR0aCI6ICJjb250ZW50IiwgImhlaWdodCI6ICJjb250ZW50In0sIHsiYm9keSI6ICJcbiIsICJsYW5ndWFnZSI6ICJSdVN0IiwgImxpbmVfbnVtYmVycyI6IGZhbHNlLCAid3JhcF9saW5lcyI6IGZhbHNlLCAid2lkdGgiOiAyNDAsICJoZWlnaHQiOiAiY29udGVudCJ9LCB7ImJvZHkiOiAiXG4iLCAibGFuZ3VhZ2UiOiAibWFkZS11cCIsICJsaW5lX251bWJlcnMiOiB0cnVlLCAid3JhcF9saW5lcyI6IHRydWUsICJ3aWR0aCI6ICJzdHJldGNoIiwgImhlaWdodCI6ICJzdHJldGNoIn0sIHsiYm9keSI6ICJcblxuIiwgImxhbmd1YWdlIjogIiAiLCAibGluZV9udW1iZXJzIjogZmFsc2UsICJ3cmFwX2xpbmVzIjogZmFsc2UsICJ3aWR0aCI6ICJjb250ZW50IiwgImhlaWdodCI6ICJzdHJldGNoIn0sIHsiYm9keSI6ICJcblxuIiwgImxhbmd1YWdlIjogInB5dGhvbiIsICJsaW5lX251bWJlcnMiOiB0cnVlLCAid3JhcF9saW5lcyI6IGZhbHNlLCAid2lkdGgiOiAyNDAsICJoZWlnaHQiOiAic3RyZXRjaCJ9LCB7ImJvZHkiOiAiXG5cblxuIiwgImxhbmd1YWdlIjogIiIsICJsaW5lX251bWJlcnMiOiBmYWxzZSwgIndyYXBfbGluZXMiOiB0cnVlLCAid2lkdGgiOiAic3RyZXRjaCIsICJoZWlnaHQiOiAxMjB9LCB7ImJvZHkiOiAiXG5cblxuIiwgImxhbmd1YWdlIjogIlJ1U3QiLCAibGluZV9udW1iZXJzIjogdHJ1ZSwgIndyYXBfbGluZXMiOiBmYWxzZSwgIndpZHRoIjogImNvbnRlbnQiLCAiaGVpZ2h0IjogMTIwfSwgeyJib2R5IjogIlxucHJpbnQoJ2hpJylcbiIsICJsYW5ndWFnZSI6ICJtYWRlLXVwIiwgImxpbmVfbnVtYmVycyI6IGZhbHNlLCAid3JhcF9saW5lcyI6IGZhbHNlLCAid2lkdGgiOiAyNDAsICJoZWlnaHQiOiAxMjB9LCB7ImJvZHkiOiAiXG5wcmludCgnaGknKVxuIiwgImxhbmd1YWdlIjogIiAiLCAibGluZV9udW1iZXJzIjogdHJ1ZSwgIndyYXBfbGluZXMiOiB0cnVlLCAid2lkdGgiOiAic3RyZXRjaCIsICJoZWlnaHQiOiAiY29udGVudCJ9LCB7ImJvZHkiOiAiXG5cbiAgaW5kZW50ZWRcblxuIiwgImxhbmd1YWdlIjogInB5dGhvbiIsICJsaW5lX251bWJlcnMiOiBmYWxzZSwgIndyYXBfbGluZXMiOiBmYWxzZSwgIndpZHRoIjogImNvbnRlbnQiLCAiaGVpZ2h0IjogImNvbnRlbnQifSwgeyJib2R5IjogIlxuXG4gIGluZGVudGVkXG5cbiIsICJsYW5ndWFnZSI6ICIiLCAibGluZV9udW1iZXJzIjogdHJ1ZSwgIndyYXBfbGluZXMiOiBmYWxzZSwgIndpZHRoIjogMjQwLCAiaGVpZ2h0IjogImNvbnRlbnQifSwgeyJib2R5IjogIiAgbGVhZGluZ1xuICAgIG5lc3RlZCAgXG4iLCAibGFuZ3VhZ2UiOiAiUnVTdCIsICJsaW5lX251bWJlcnMiOiBmYWxzZSwgIndyYXBfbGluZXMiOiB0cnVlLCAid2lkdGgiOiAic3RyZXRjaCIsICJoZWlnaHQiOiAic3RyZXRjaCJ9LCB7ImJvZHkiOiAiICBsZWFkaW5nXG4gICAgbmVzdGVkICBcbiIsICJsYW5ndWFnZSI6ICJtYWRlLXVwIiwgImxpbmVfbnVtYmVycyI6IHRydWUsICJ3cmFwX2xpbmVzIjogZmFsc2UsICJ3aWR0aCI6ICJjb250ZW50IiwgImhlaWdodCI6ICJzdHJldGNoIn0sIHsiYm9keSI6ICJcclxud2luZG93c1xyXG4iLCAibGFuZ3VhZ2UiOiAiICIsICJsaW5lX251bWJlcnMiOiBmYWxzZSwgIndyYXBfbGluZXMiOiBmYWxzZSwgIndpZHRoIjogMjQwLCAiaGVpZ2h0IjogInN0cmV0Y2gifSwgeyJib2R5IjogIlxyXG53aW5kb3dzXHJcbiIsICJsYW5ndWFnZSI6ICJweXRob24iLCAibGluZV9udW1iZXJzIjogdHJ1ZSwgIndyYXBfbGluZXMiOiB0cnVlLCAid2lkdGgiOiAic3RyZXRjaCIsICJoZWlnaHQiOiAxMjB9LCB7ImJvZHkiOiAiXHJyZXR1cm5cciIsICJsYW5ndWFnZSI6ICIiLCAibGluZV9udW1iZXJzIjogZmFsc2UsICJ3cmFwX2xpbmVzIjogZmFsc2UsICJ3aWR0aCI6ICJjb250ZW50IiwgImhlaWdodCI6IDEyMH0sIHsiYm9keSI6ICJccnJldHVyblxyIiwgImxhbmd1YWdlIjogIlJ1U3QiLCAibGluZV9udW1iZXJzIjogdHJ1ZSwgIndyYXBfbGluZXMiOiBmYWxzZSwgIndpZHRoIjogMjQwLCAiaGVpZ2h0IjogMTIwfSwgeyJib2R5IjogIlxuIHNwYWNlZCBcclxuIiwgImxhbmd1YWdlIjogIm1hZGUtdXAiLCAibGluZV9udW1iZXJzIjogZmFsc2UsICJ3cmFwX2xpbmVzIjogdHJ1ZSwgIndpZHRoIjogInN0cmV0Y2giLCAiaGVpZ2h0IjogImNvbnRlbnQifSwgeyJib2R5IjogIlxuIHNwYWNlZCBcclxuIiwgImxhbmd1YWdlIjogIiAiLCAibGluZV9udW1iZXJzIjogdHJ1ZSwgIndyYXBfbGluZXMiOiBmYWxzZSwgIndpZHRoIjogImNvbnRlbnQiLCAiaGVpZ2h0IjogImNvbnRlbnQifSwgeyJib2R5IjogIlx0YWxwaGFcblx0XHRiZXRhXG4iLCAibGFuZ3VhZ2UiOiAicHl0aG9uIiwgImxpbmVfbnVtYmVycyI6IGZhbHNlLCAid3JhcF9saW5lcyI6IGZhbHNlLCAid2lkdGgiOiAyNDAsICJoZWlnaHQiOiAiY29udGVudCJ9LCB7ImJvZHkiOiAiXHRhbHBoYVxuXHRcdGJldGFcbiIsICJsYW5ndWFnZSI6ICIiLCAibGluZV9udW1iZXJzIjogdHJ1ZSwgIndyYXBfbGluZXMiOiB0cnVlLCAid2lkdGgiOiAic3RyZXRjaCIsICJoZWlnaHQiOiAic3RyZXRjaCJ9LCB7ImJvZHkiOiAiXHUwMDg1bGluZVx1MjAyOGVuZFx1MjAyOSIsICJsYW5ndWFnZSI6ICJSdVN0IiwgImxpbmVfbnVtYmVycyI6IGZhbHNlLCAid3JhcF9saW5lcyI6IGZhbHNlLCAid2lkdGgiOiAiY29udGVudCIsICJoZWlnaHQiOiAic3RyZXRjaCJ9LCB7ImJvZHkiOiAiXHUwMDg1bGluZVx1MjAyOGVuZFx1MjAyOSIsICJsYW5ndWFnZSI6ICJtYWRlLXVwIiwgImxpbmVfbnVtYmVycyI6IHRydWUsICJ3cmFwX2xpbmVzIjogZmFsc2UsICJ3aWR0aCI6IDI0MCwgImhlaWdodCI6ICJzdHJldGNoIn0sIHsiYm9keSI6ICJVbmljb2RlIFx1ZDgzZVx1ZGQxNiBcdTRlMmRcdTY1ODdcbiIsICJsYW5ndWFnZSI6ICIgIiwgImxpbmVfbnVtYmVycyI6IGZhbHNlLCAid3JhcF9saW5lcyI6IHRydWUsICJ3aWR0aCI6ICJzdHJldGNoIiwgImhlaWdodCI6IDEyMH0sIHsiYm9keSI6ICJVbmljb2RlIFx1ZDgzZVx1ZGQxNiBcdTRlMmRcdTY1ODdcbiIsICJsYW5ndWFnZSI6ICJweXRob24iLCAibGluZV9udW1iZXJzIjogdHJ1ZSwgIndyYXBfbGluZXMiOiBmYWxzZSwgIndpZHRoIjogImNvbnRlbnQiLCAiaGVpZ2h0IjogMTIwfSwgeyJib2R5IjogIlxucGxhaW4gTm9uZSBsYW5ndWFnZVxuIiwgImxhbmd1YWdlIjogbnVsbCwgImxpbmVfbnVtYmVycyI6IHRydWUsICJ3cmFwX2xpbmVzIjogdHJ1ZSwgIndpZHRoIjogImNvbnRlbnQiLCAiaGVpZ2h0IjogMTIwfV19EAHSAwIIAQ==",
+      "message": {
+        "hash": "a2dc85bcec0e20330c6cc7bd85736efb",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"code_cases\": [{\"body\": \"\", \"language\": \"python\", \"line_numbers\": false, \"wrap_lines\": true, \"width\": \"stretch\", \"height\": \"content\"}, {\"body\": \"\", \"language\": \"\", \"line_numbers\": true, \"wrap_lines\": false, \"width\": \"content\", \"height\": \"content\"}, {\"body\": \"\\n\", \"language\": \"RuSt\", \"line_numbers\": false, \"wrap_lines\": false, \"width\": 240, \"height\": \"content\"}, {\"body\": \"\\n\", \"language\": \"made-up\", \"line_numbers\": true, \"wrap_lines\": true, \"width\": \"stretch\", \"height\": \"stretch\"}, {\"body\": \"\\n\\n\", \"language\": \" \", \"line_numbers\": false, \"wrap_lines\": false, \"width\": \"content\", \"height\": \"stretch\"}, {\"body\": \"\\n\\n\", \"language\": \"python\", \"line_numbers\": true, \"wrap_lines\": false, \"width\": 240, \"height\": \"stretch\"}, {\"body\": \"\\n\\n\\n\", \"language\": \"\", \"line_numbers\": false, \"wrap_lines\": true, \"width\": \"stretch\", \"height\": 120}, {\"body\": \"\\n\\n\\n\", \"language\": \"RuSt\", \"line_numbers\": true, \"wrap_lines\": false, \"width\": \"content\", \"height\": 120}, {\"body\": \"\\nprint('hi')\\n\", \"language\": \"made-up\", \"line_numbers\": false, \"wrap_lines\": false, \"width\": 240, \"height\": 120}, {\"body\": \"\\nprint('hi')\\n\", \"language\": \" \", \"line_numbers\": true, \"wrap_lines\": true, \"width\": \"stretch\", \"height\": \"content\"}, {\"body\": \"\\n\\n  indented\\n\\n\", \"language\": \"python\", \"line_numbers\": false, \"wrap_lines\": false, \"width\": \"content\", \"height\": \"content\"}, {\"body\": \"\\n\\n  indented\\n\\n\", \"language\": \"\", \"line_numbers\": true, \"wrap_lines\": false, \"width\": 240, \"height\": \"content\"}, {\"body\": \"  leading\\n    nested  \\n\", \"language\": \"RuSt\", \"line_numbers\": false, \"wrap_lines\": true, \"width\": \"stretch\", \"height\": \"stretch\"}, {\"body\": \"  leading\\n    nested  \\n\", \"language\": \"made-up\", \"line_numbers\": true, \"wrap_lines\": false, \"width\": \"content\", \"height\": \"stretch\"}, {\"body\": \"\\r\\nwindows\\r\\n\", \"language\": \" \", \"line_numbers\": false, \"wrap_lines\": false, \"width\": 240, \"height\": \"stretch\"}, {\"body\": \"\\r\\nwindows\\r\\n\", \"language\": \"python\", \"line_numbers\": true, \"wrap_lines\": true, \"width\": \"stretch\", \"height\": 120}, {\"body\": \"\\rreturn\\r\", \"language\": \"\", \"line_numbers\": false, \"wrap_lines\": false, \"width\": \"content\", \"height\": 120}, {\"body\": \"\\rreturn\\r\", \"language\": \"RuSt\", \"line_numbers\": true, \"wrap_lines\": false, \"width\": 240, \"height\": 120}, {\"body\": \"\\n spaced \\r\\n\", \"language\": \"made-up\", \"line_numbers\": false, \"wrap_lines\": true, \"width\": \"stretch\", \"height\": \"content\"}, {\"body\": \"\\n spaced \\r\\n\", \"language\": \" \", \"line_numbers\": true, \"wrap_lines\": false, \"width\": \"content\", \"height\": \"content\"}, {\"body\": \"\\talpha\\n\\t\\tbeta\\n\", \"language\": \"python\", \"line_numbers\": false, \"wrap_lines\": false, \"width\": 240, \"height\": \"content\"}, {\"body\": \"\\talpha\\n\\t\\tbeta\\n\", \"language\": \"\", \"line_numbers\": true, \"wrap_lines\": true, \"width\": \"stretch\", \"height\": \"stretch\"}, {\"body\": \"\\u0085line\\u2028end\\u2029\", \"language\": \"RuSt\", \"line_numbers\": false, \"wrap_lines\": false, \"width\": \"content\", \"height\": \"stretch\"}, {\"body\": \"\\u0085line\\u2028end\\u2029\", \"language\": \"made-up\", \"line_numbers\": true, \"wrap_lines\": false, \"width\": 240, \"height\": \"stretch\"}, {\"body\": \"Unicode \\ud83e\\udd16 \\u4e2d\\u6587\\n\", \"language\": \" \", \"line_numbers\": false, \"wrap_lines\": true, \"width\": \"stretch\", \"height\": 120}, {\"body\": \"Unicode \\ud83e\\udd16 \\u4e2d\\u6587\\n\", \"language\": \"python\", \"line_numbers\": true, \"wrap_lines\": false, \"width\": \"content\", \"height\": 120}, {\"body\": \"\\nplain None language\\n\", \"language\": null, \"line_numbers\": true, \"wrap_lines\": true, \"width\": \"content\", \"height\": 120}]}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 101,
+      "base64": "CiA2NTg0ZGQ3YzU1YmFmNmY3YTExMzVkZTFlOTc2ZDliMhImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqGRoXggMKEgZweXRob24gAcoDAhAB0gMCCAE=",
+      "message": {
+        "hash": "6584dd7c55baf6f7a1135de1e976d9b2",
+        "metadata": {
+          "delta_path": [
+            0,
+            1
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "code": {
+              "language": "python",
+              "wrap_lines": true
+            },
+            "height_config": {
+              "use_content": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 93,
+      "base64": "CiA1ODlkYjZjNzdlYTUzN2VlYmZlN2ZhYjZhZWY0Yjg4ZhImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqERoPggMCGAHKAwIQAdIDAhAB",
+      "message": {
+        "hash": "589db6c77ea537eebfe7fab6aef4b88f",
+        "metadata": {
+          "delta_path": [
+            0,
+            2
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "code": {
+              "show_line_numbers": true
+            },
+            "height_config": {
+              "use_content": true
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 101,
+      "base64": "CiBkNzJmMjRlNDdmMzk2Y2E5MTA4YWExZWIxY2RkN2M4NBImEgIAAyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqGRoXggMJCgEKEgRSdVN0ygMCEAHSAwMY8AE=",
+      "message": {
+        "hash": "d72f24e47f396ca9108aa1eb1cdd7c84",
+        "metadata": {
+          "delta_path": [
+            0,
+            3
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "code": {
+              "code_text": "\n",
+              "language": "RuSt"
+            },
+            "height_config": {
+              "use_content": true
+            },
+            "width_config": {
+              "pixel_width": 240
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 107,
+      "base64": "CiA4MmFhMjVjNDkzNmJlOTBkNDdhZmJiYzRlM2QzODQ5ZBImEgIABCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqHxodggMQCgEKEgdtYWRlLXVwGAEgAcoDAggB0gMCCAE=",
+      "message": {
+        "hash": "82aa25c4936be90d47afbbc4e3d3849d",
+        "metadata": {
+          "delta_path": [
+            0,
+            4
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "code": {
+              "code_text": "\n",
+              "language": "made-up",
+              "show_line_numbers": true,
+              "wrap_lines": true
+            },
+            "height_config": {
+              "use_stretch": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 98,
+      "base64": "CiAyMmQwZTQyYTUzOWYzYWMzZTJmMjViMzA0ZjYxMTY1YRImEgIABSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqFhoUggMHCgIKChIBIMoDAggB0gMCEAE=",
+      "message": {
+        "hash": "22d0e42a539f3ac3e2f25b304f61165a",
+        "metadata": {
+          "delta_path": [
+            0,
+            5
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "code": {
+              "code_text": "\n\n",
+              "language": " "
+            },
+            "height_config": {
+              "use_stretch": true
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 106,
+      "base64": "CiAyOGIwNDY0YWMwNzgxY2YxODdlMzllNGE1NDVlNzcyMRImEgIABiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqHhocggMOCgIKChIGcHl0aG9uGAHKAwIIAdIDAxjwAQ==",
+      "message": {
+        "hash": "28b0464ac0781cf187e39e4a545e7721",
+        "metadata": {
+          "delta_path": [
+            0,
+            6
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "code": {
+              "code_text": "\n\n",
+              "language": "python",
+              "show_line_numbers": true
+            },
+            "height_config": {
+              "use_stretch": true
+            },
+            "width_config": {
+              "pixel_width": 240
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 98,
+      "base64": "CiBjNWUwNWI1ZGU2YjY3N2FlMDdkNTdlYTMzNGIyNDE2OBImEgIAByIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqFhoUggMHCgMKCgogAcoDAhh40gMCCAE=",
+      "message": {
+        "hash": "c5e05b5de6b677ae07d57ea334b24168",
+        "metadata": {
+          "delta_path": [
+            0,
+            7
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "code": {
+              "code_text": "\n\n\n",
+              "wrap_lines": true
+            },
+            "height_config": {
+              "pixel_height": 120
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 104,
+      "base64": "CiBlNzI2ZTQ2MGM5MmE1MTVjMzQ1ZGMwNjk5NmQ5OGE4ZBImEgIACCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqHBoaggMNCgMKCgoSBFJ1U3QYAcoDAhh40gMCEAE=",
+      "message": {
+        "hash": "e726e460c92a515c345dc06996d98a8d",
+        "metadata": {
+          "delta_path": [
+            0,
+            8
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "code": {
+              "code_text": "\n\n\n",
+              "language": "RuSt",
+              "show_line_numbers": true
+            },
+            "height_config": {
+              "pixel_height": 120
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 116,
+      "base64": "CiBkNDU5YWU2NTRhY2M1MDRmY2NkOGYzZDY3ZmZhNzQyYRImEgIACSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqKBomggMYCg0KcHJpbnQoJ2hpJykKEgdtYWRlLXVwygMCGHjSAwMY8AE=",
+      "message": {
+        "hash": "d459ae654acc504fccd8f3d67ffa742a",
+        "metadata": {
+          "delta_path": [
+            0,
+            9
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "code": {
+              "code_text": "\nprint('hi')\n",
+              "language": "made-up"
+            },
+            "height_config": {
+              "pixel_height": 120
+            },
+            "width_config": {
+              "pixel_width": 240
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 113,
+      "base64": "CiAxMjUyZGNlNmI3ODIwNWQ5YjMwNDhmNDkwOTUwMWY2YxImEgIACiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqJRojggMWCg0KcHJpbnQoJ2hpJykKEgEgGAEgAcoDAhAB0gMCCAE=",
+      "message": {
+        "hash": "1252dce6b78205d9b3048f4909501f6c",
+        "metadata": {
+          "delta_path": [
+            0,
+            10
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "code": {
+              "code_text": "\nprint('hi')\n",
+              "language": " ",
+              "show_line_numbers": true,
+              "wrap_lines": true
+            },
+            "height_config": {
+              "use_content": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 115,
+      "base64": "CiAxOGE3NDE0N2Y1NTJmMjIxYTQ0YjM2ZjFlZDc2NjhiNxImEgIACyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqJxolggMYCg4KCiAgaW5kZW50ZWQKChIGcHl0aG9uygMCEAHSAwIQAQ==",
+      "message": {
+        "hash": "18a74147f552f221a44b36f1ed7668b7",
+        "metadata": {
+          "delta_path": [
+            0,
+            11
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "code": {
+              "code_text": "\n\n  indented\n\n",
+              "language": "python"
+            },
+            "height_config": {
+              "use_content": true
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 110,
+      "base64": "CiBiNDVkYzY2YzQ0MWM0NGI5MDFkMWI1M2ViYWY1Yjg1NRImEgIADCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqIhogggMSCg4KCiAgaW5kZW50ZWQKChgBygMCEAHSAwMY8AE=",
+      "message": {
+        "hash": "b45dc66c441c44b901d1b53ebaf5b855",
+        "metadata": {
+          "delta_path": [
+            0,
+            12
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "code": {
+              "code_text": "\n\n  indented\n\n",
+              "show_line_numbers": true
+            },
+            "height_config": {
+              "use_content": true
+            },
+            "width_config": {
+              "pixel_width": 240
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 124,
+      "base64": "CiBkNGJmMDU0NmMwMDFlMTUzNjVjN2Y2NjNjZDBmMTA0MxImEgIADSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqMBouggMhChcgIGxlYWRpbmcKICAgIG5lc3RlZCAgChIEUnVTdCABygMCCAHSAwIIAQ==",
+      "message": {
+        "hash": "d4bf0546c001e15365c7f663cd0f1043",
+        "metadata": {
+          "delta_path": [
+            0,
+            13
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "code": {
+              "code_text": "  leading\n    nested  \n",
+              "language": "RuSt",
+              "wrap_lines": true
+            },
+            "height_config": {
+              "use_stretch": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 127,
+      "base64": "CiAwMzM5NTE3MjJmMTgyYTUxMzc1YzJjZTFiMTQwYjFiZBImEgIADiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqMxoxggMkChcgIGxlYWRpbmcKICAgIG5lc3RlZCAgChIHbWFkZS11cBgBygMCCAHSAwIQAQ==",
+      "message": {
+        "hash": "033951722f182a51375c2ce1b140b1bd",
+        "metadata": {
+          "delta_path": [
+            0,
+            14
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "code": {
+              "code_text": "  leading\n    nested  \n",
+              "language": "made-up",
+              "show_line_numbers": true
+            },
+            "height_config": {
+              "use_stretch": true
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 108,
+      "base64": "CiBhYjVlOTRhZTk2ZTMyYmVkYmY2OTllNDRjMDA3NTBhNBImEgIADyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqIBoeggMQCgsNCndpbmRvd3MNChIBIMoDAggB0gMDGPAB",
+      "message": {
+        "hash": "ab5e94ae96e32bedbf699e44c00750a4",
+        "metadata": {
+          "delta_path": [
+            0,
+            15
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "code": {
+              "code_text": "\r\nwindows\r\n",
+              "language": " "
+            },
+            "height_config": {
+              "use_stretch": true
+            },
+            "width_config": {
+              "pixel_width": 240
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 116,
+      "base64": "CiAzM2I0MzZiNTg0OTkxY2Y3ZDEwMTc1OTQxNTY5OTAwNRImEgIAECIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqKBomggMZCgsNCndpbmRvd3MNChIGcHl0aG9uGAEgAcoDAhh40gMCCAE=",
+      "message": {
+        "hash": "33b436b584991cf7d101759415699005",
+        "metadata": {
+          "delta_path": [
+            0,
+            16
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "code": {
+              "code_text": "\r\nwindows\r\n",
+              "language": "python",
+              "show_line_numbers": true,
+              "wrap_lines": true
+            },
+            "height_config": {
+              "pixel_height": 120
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 101,
+      "base64": "CiBlMjZkYWRiMDZjMjIxMWIxYWZkNGY0OGYzYzNhNjUyZhImEgIAESIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqGRoXggMKCggNcmV0dXJuDcoDAhh40gMCEAE=",
+      "message": {
+        "hash": "e26dadb06c2211b1afd4f48f3c3a652f",
+        "metadata": {
+          "delta_path": [
+            0,
+            17
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "code": {
+              "code_text": "\rreturn\r"
+            },
+            "height_config": {
+              "pixel_height": 120
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 110,
+      "base64": "CiA2YzNjMzc0ODUwN2QzMWQ5ZTVmMTlkMjA0M2I4YzRhNRImEgIAEiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqIhogggMSCggNcmV0dXJuDRIEUnVTdBgBygMCGHjSAwMY8AE=",
+      "message": {
+        "hash": "6c3c3748507d31d9e5f19d2043b8c4a5",
+        "metadata": {
+          "delta_path": [
+            0,
+            18
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "code": {
+              "code_text": "\rreturn\r",
+              "language": "RuSt",
+              "show_line_numbers": true
+            },
+            "height_config": {
+              "pixel_height": 120
+            },
+            "width_config": {
+              "pixel_width": 240
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 115,
+      "base64": "CiA3ZTU0YTI3NzE4ZjgwMjRhOWM3MzVhNDFmNzQ3OTE0OBImEgIAEyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqJxolggMYCgsKIHNwYWNlZCANChIHbWFkZS11cCABygMCEAHSAwIIAQ==",
+      "message": {
+        "hash": "7e54a27718f8024a9c735a41f7479148",
+        "metadata": {
+          "delta_path": [
+            0,
+            19
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "code": {
+              "code_text": "\n spaced \r\n",
+              "language": "made-up",
+              "wrap_lines": true
+            },
+            "height_config": {
+              "use_content": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 109,
+      "base64": "CiAwNzJjY2ZjOGJlMDkxOGE0ZDUwMjk4YTljOTAxMTdiZBImEgIAFCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqIRofggMSCgsKIHNwYWNlZCANChIBIBgBygMCEAHSAwIQAQ==",
+      "message": {
+        "hash": "072ccfc8be0918a4d50298a9c90117bd",
+        "metadata": {
+          "delta_path": [
+            0,
+            20
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "code": {
+              "code_text": "\n spaced \r\n",
+              "language": " ",
+              "show_line_numbers": true
+            },
+            "height_config": {
+              "use_content": true
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 116,
+      "base64": "CiA4NGVmMWJlZDhiZDI5Zjk1Yzg1MWE1ZDcxMWUzNDRhMRImEgIAFSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqKBomggMYCg4JYWxwaGEKCQliZXRhChIGcHl0aG9uygMCEAHSAwMY8AE=",
+      "message": {
+        "hash": "84ef1bed8bd29f95c851a5d711e344a1",
+        "metadata": {
+          "delta_path": [
+            0,
+            21
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "code": {
+              "code_text": "\talpha\n\t\tbeta\n",
+              "language": "python"
+            },
+            "height_config": {
+              "use_content": true
+            },
+            "width_config": {
+              "pixel_width": 240
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 111,
+      "base64": "CiA4YzU4N2ViNjUxNzQ0NGVkNTE4NTU5NjI3ZmY3NzI4YRImEgIAFiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqIxohggMUCg4JYWxwaGEKCQliZXRhChgBIAHKAwIIAdIDAggB",
+      "message": {
+        "hash": "8c587eb6517444ed518559627ff7728a",
+        "metadata": {
+          "delta_path": [
+            0,
+            22
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "code": {
+              "code_text": "\talpha\n\t\tbeta\n",
+              "show_line_numbers": true,
+              "wrap_lines": true
+            },
+            "height_config": {
+              "use_stretch": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 114,
+      "base64": "CiA5NGVmNzYxZjlhZGE4NmZlYjYyMThmNzVhMTk4Zjk0ZBImEgIAFyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqJhokggMXCg/ChWxpbmXigKhlbmTigKkSBFJ1U3TKAwIIAdIDAhAB",
+      "message": {
+        "hash": "94ef761f9ada86feb6218f75a198f94d",
+        "metadata": {
+          "delta_path": [
+            0,
+            23
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "code": {
+              "code_text": "line end ",
+              "language": "RuSt"
+            },
+            "height_config": {
+              "use_stretch": true
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 120,
+      "base64": "CiA2ZWQwZDU0ZTUzMDUxOGFiYjA3ZWJiOTlhNTE3NDgwYRImEgIAGCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqLBoqggMcCg/ChWxpbmXigKhlbmTigKkSB21hZGUtdXAYAcoDAggB0gMDGPAB",
+      "message": {
+        "hash": "6ed0d54e530518abb07ebb99a517480a",
+        "metadata": {
+          "delta_path": [
+            0,
+            24
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "code": {
+              "code_text": "line end ",
+              "language": "made-up",
+              "show_line_numbers": true
+            },
+            "height_config": {
+              "use_stretch": true
+            },
+            "width_config": {
+              "pixel_width": 240
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 118,
+      "base64": "CiBhNzhjMDE4YTBkNTY0ZjVjZjY5YTgwZTkwMmY0ZmMzNRImEgIAGSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqKhooggMbChRVbmljb2RlIPCfpJYg5Lit5paHChIBICABygMCGHjSAwIIAQ==",
+      "message": {
+        "hash": "a78c018a0d564f5cf69a80e902f4fc35",
+        "metadata": {
+          "delta_path": [
+            0,
+            25
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "code": {
+              "code_text": "Unicode 🤖 中文\n",
+              "language": " ",
+              "wrap_lines": true
+            },
+            "height_config": {
+              "pixel_height": 120
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 123,
+      "base64": "CiBiNGE2ZDRhYWQwMmU3ZjUyZWY3YTc5ODU4M2Y1MDAxNBImEgIAGiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqLxotggMgChRVbmljb2RlIPCfpJYg5Lit5paHChIGcHl0aG9uGAHKAwIYeNIDAhAB",
+      "message": {
+        "hash": "b4a6d4aad02e7f52ef7a798583f50014",
+        "metadata": {
+          "delta_path": [
+            0,
+            26
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "code": {
+              "code_text": "Unicode 🤖 中文\n",
+              "language": "python",
+              "show_line_numbers": true
+            },
+            "height_config": {
+              "pixel_height": 120
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 118,
+      "base64": "CiAwYjg3M2FkZjk1MGFmODdiNmRiZTc3NzM0ZDU3ODcxZBImEgIAGyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqKhooggMbChUKcGxhaW4gTm9uZSBsYW5ndWFnZQoYASABygMCGHjSAwIQAQ==",
+      "message": {
+        "hash": "0b873adf950af87b6dbe77734d57871d",
+        "metadata": {
+          "delta_path": [
+            0,
+            27
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "code": {
+              "code_text": "\nplain None language\n",
+              "show_line_numbers": true,
+              "wrap_lines": true
+            },
+            "height_config": {
+              "pixel_height": 120
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 19,
+      "base64": "Cg9zY3JpcHRfZmluaXNoZWQwAA==",
+      "message": {
+        "hash": "script_finished",
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    }
+  ],
+  "elements": [
+    {
+      "index": 0,
+      "kind": "json",
+      "fields": {
+        "body": "{\"code_cases\": [{\"body\": \"\", \"language\": \"python\", \"line_numbers\": false, \"wrap_lines\": true, \"width\": \"stretch\", \"height\": \"content\"}, {\"body\": \"\", \"language\": \"\", \"line_numbers\": true, \"wrap_lines\": false, \"width\": \"content\", \"height\": \"content\"}, {\"body\": \"\\n\", \"language\": \"RuSt\", \"line_numbers\": false, \"wrap_lines\": false, \"width\": 240, \"height\": \"content\"}, {\"body\": \"\\n\", \"language\": \"made-up\", \"line_numbers\": true, \"wrap_lines\": true, \"width\": \"stretch\", \"height\": \"stretch\"}, {\"body\": \"\\n\\n\", \"language\": \" \", \"line_numbers\": false, \"wrap_lines\": false, \"width\": \"content\", \"height\": \"stretch\"}, {\"body\": \"\\n\\n\", \"language\": \"python\", \"line_numbers\": true, \"wrap_lines\": false, \"width\": 240, \"height\": \"stretch\"}, {\"body\": \"\\n\\n\\n\", \"language\": \"\", \"line_numbers\": false, \"wrap_lines\": true, \"width\": \"stretch\", \"height\": 120}, {\"body\": \"\\n\\n\\n\", \"language\": \"RuSt\", \"line_numbers\": true, \"wrap_lines\": false, \"width\": \"content\", \"height\": 120}, {\"body\": \"\\nprint('hi')\\n\", \"language\": \"made-up\", \"line_numbers\": false, \"wrap_lines\": false, \"width\": 240, \"height\": 120}, {\"body\": \"\\nprint('hi')\\n\", \"language\": \" \", \"line_numbers\": true, \"wrap_lines\": true, \"width\": \"stretch\", \"height\": \"content\"}, {\"body\": \"\\n\\n  indented\\n\\n\", \"language\": \"python\", \"line_numbers\": false, \"wrap_lines\": false, \"width\": \"content\", \"height\": \"content\"}, {\"body\": \"\\n\\n  indented\\n\\n\", \"language\": \"\", \"line_numbers\": true, \"wrap_lines\": false, \"width\": 240, \"height\": \"content\"}, {\"body\": \"  leading\\n    nested  \\n\", \"language\": \"RuSt\", \"line_numbers\": false, \"wrap_lines\": true, \"width\": \"stretch\", \"height\": \"stretch\"}, {\"body\": \"  leading\\n    nested  \\n\", \"language\": \"made-up\", \"line_numbers\": true, \"wrap_lines\": false, \"width\": \"content\", \"height\": \"stretch\"}, {\"body\": \"\\r\\nwindows\\r\\n\", \"language\": \" \", \"line_numbers\": false, \"wrap_lines\": false, \"width\": 240, \"height\": \"stretch\"}, {\"body\": \"\\r\\nwindows\\r\\n\", \"language\": \"python\", \"line_numbers\": true, \"wrap_lines\": true, \"width\": \"stretch\", \"height\": 120}, {\"body\": \"\\rreturn\\r\", \"language\": \"\", \"line_numbers\": false, \"wrap_lines\": false, \"width\": \"content\", \"height\": 120}, {\"body\": \"\\rreturn\\r\", \"language\": \"RuSt\", \"line_numbers\": true, \"wrap_lines\": false, \"width\": 240, \"height\": 120}, {\"body\": \"\\n spaced \\r\\n\", \"language\": \"made-up\", \"line_numbers\": false, \"wrap_lines\": true, \"width\": \"stretch\", \"height\": \"content\"}, {\"body\": \"\\n spaced \\r\\n\", \"language\": \" \", \"line_numbers\": true, \"wrap_lines\": false, \"width\": \"content\", \"height\": \"content\"}, {\"body\": \"\\talpha\\n\\t\\tbeta\\n\", \"language\": \"python\", \"line_numbers\": false, \"wrap_lines\": false, \"width\": 240, \"height\": \"content\"}, {\"body\": \"\\talpha\\n\\t\\tbeta\\n\", \"language\": \"\", \"line_numbers\": true, \"wrap_lines\": true, \"width\": \"stretch\", \"height\": \"stretch\"}, {\"body\": \"\\u0085line\\u2028end\\u2029\", \"language\": \"RuSt\", \"line_numbers\": false, \"wrap_lines\": false, \"width\": \"content\", \"height\": \"stretch\"}, {\"body\": \"\\u0085line\\u2028end\\u2029\", \"language\": \"made-up\", \"line_numbers\": true, \"wrap_lines\": false, \"width\": 240, \"height\": \"stretch\"}, {\"body\": \"Unicode \\ud83e\\udd16 \\u4e2d\\u6587\\n\", \"language\": \" \", \"line_numbers\": false, \"wrap_lines\": true, \"width\": \"stretch\", \"height\": 120}, {\"body\": \"Unicode \\ud83e\\udd16 \\u4e2d\\u6587\\n\", \"language\": \"python\", \"line_numbers\": true, \"wrap_lines\": false, \"width\": \"content\", \"height\": 120}, {\"body\": \"\\nplain None language\\n\", \"language\": null, \"line_numbers\": true, \"wrap_lines\": true, \"width\": \"content\", \"height\": 120}]}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        0
+      ]
+    },
+    {
+      "index": 1,
+      "kind": "code",
+      "fields": {
+        "language": "python",
+        "wrap_lines": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        1
+      ]
+    },
+    {
+      "index": 2,
+      "kind": "code",
+      "fields": {
+        "show_line_numbers": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        2
+      ]
+    },
+    {
+      "index": 3,
+      "kind": "code",
+      "fields": {
+        "code_text": "\n",
+        "language": "RuSt"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        3
+      ]
+    },
+    {
+      "index": 4,
+      "kind": "code",
+      "fields": {
+        "code_text": "\n",
+        "language": "made-up",
+        "show_line_numbers": true,
+        "wrap_lines": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        4
+      ]
+    },
+    {
+      "index": 5,
+      "kind": "code",
+      "fields": {
+        "code_text": "\n\n",
+        "language": " "
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        5
+      ]
+    },
+    {
+      "index": 6,
+      "kind": "code",
+      "fields": {
+        "code_text": "\n\n",
+        "language": "python",
+        "show_line_numbers": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        6
+      ]
+    },
+    {
+      "index": 7,
+      "kind": "code",
+      "fields": {
+        "code_text": "\n\n\n",
+        "wrap_lines": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        7
+      ]
+    },
+    {
+      "index": 8,
+      "kind": "code",
+      "fields": {
+        "code_text": "\n\n\n",
+        "language": "RuSt",
+        "show_line_numbers": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        8
+      ]
+    },
+    {
+      "index": 9,
+      "kind": "code",
+      "fields": {
+        "code_text": "\nprint('hi')\n",
+        "language": "made-up"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        9
+      ]
+    },
+    {
+      "index": 10,
+      "kind": "code",
+      "fields": {
+        "code_text": "\nprint('hi')\n",
+        "language": " ",
+        "show_line_numbers": true,
+        "wrap_lines": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        10
+      ]
+    },
+    {
+      "index": 11,
+      "kind": "code",
+      "fields": {
+        "code_text": "\n\n  indented\n\n",
+        "language": "python"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        11
+      ]
+    },
+    {
+      "index": 12,
+      "kind": "code",
+      "fields": {
+        "code_text": "\n\n  indented\n\n",
+        "show_line_numbers": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        12
+      ]
+    },
+    {
+      "index": 13,
+      "kind": "code",
+      "fields": {
+        "code_text": "  leading\n    nested  \n",
+        "language": "RuSt",
+        "wrap_lines": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        13
+      ]
+    },
+    {
+      "index": 14,
+      "kind": "code",
+      "fields": {
+        "code_text": "  leading\n    nested  \n",
+        "language": "made-up",
+        "show_line_numbers": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        14
+      ]
+    },
+    {
+      "index": 15,
+      "kind": "code",
+      "fields": {
+        "code_text": "\r\nwindows\r\n",
+        "language": " "
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        15
+      ]
+    },
+    {
+      "index": 16,
+      "kind": "code",
+      "fields": {
+        "code_text": "\r\nwindows\r\n",
+        "language": "python",
+        "show_line_numbers": true,
+        "wrap_lines": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        16
+      ]
+    },
+    {
+      "index": 17,
+      "kind": "code",
+      "fields": {
+        "code_text": "\rreturn\r"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        17
+      ]
+    },
+    {
+      "index": 18,
+      "kind": "code",
+      "fields": {
+        "code_text": "\rreturn\r",
+        "language": "RuSt",
+        "show_line_numbers": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        18
+      ]
+    },
+    {
+      "index": 19,
+      "kind": "code",
+      "fields": {
+        "code_text": "\n spaced \r\n",
+        "language": "made-up",
+        "wrap_lines": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        19
+      ]
+    },
+    {
+      "index": 20,
+      "kind": "code",
+      "fields": {
+        "code_text": "\n spaced \r\n",
+        "language": " ",
+        "show_line_numbers": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        20
+      ]
+    },
+    {
+      "index": 21,
+      "kind": "code",
+      "fields": {
+        "code_text": "\talpha\n\t\tbeta\n",
+        "language": "python"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        21
+      ]
+    },
+    {
+      "index": 22,
+      "kind": "code",
+      "fields": {
+        "code_text": "\talpha\n\t\tbeta\n",
+        "show_line_numbers": true,
+        "wrap_lines": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        22
+      ]
+    },
+    {
+      "index": 23,
+      "kind": "code",
+      "fields": {
+        "code_text": "line end ",
+        "language": "RuSt"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        23
+      ]
+    },
+    {
+      "index": 24,
+      "kind": "code",
+      "fields": {
+        "code_text": "line end ",
+        "language": "made-up",
+        "show_line_numbers": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        24
+      ]
+    },
+    {
+      "index": 25,
+      "kind": "code",
+      "fields": {
+        "code_text": "Unicode 🤖 中文\n",
+        "language": " ",
+        "wrap_lines": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        25
+      ]
+    },
+    {
+      "index": 26,
+      "kind": "code",
+      "fields": {
+        "code_text": "Unicode 🤖 中文\n",
+        "language": "python",
+        "show_line_numbers": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        26
+      ]
+    },
+    {
+      "index": 27,
+      "kind": "code",
+      "fields": {
+        "code_text": "\nplain None language\n",
+        "show_line_numbers": true,
+        "wrap_lines": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        27
+      ]
+    }
+  ],
+  "finishes": [
+    0
+  ],
+  "health": {
+    "status": 200,
+    "body": "ok"
+  },
+  "cleanup": {
+    "websocket_closed": true
+  },
+  "successful": true
+}

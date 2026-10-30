@@ -370,3 +370,8 @@ Rust serialization-before/trace.json 是另一组原生诊断，不是同输入�
 3. 暂缓内部流程，继续其他兼容项；这些差异仍属未完成，不接受为长期兼容限制。
 
 此选择只决定保留可表达输入的内部流程，不自动改变自定义 Serialize 失败的公共传播策略，也不自动实现 Python 专用类型 repr、循环检测或 invalid-key fallback。新参考明确这些仍需处理，不缩减完整目标。此前 JsonOptions 返回 Result 的公共接口以及发送队列保留表仍分别待决。预计修改 pywire.rs/api.rs、既有 JSON 示例与单元/生产 WS/证据门；验证先代码、单元、集成，再检查字符串原样传递、16 个有限值、三种非有限值、嵌套与映射顺序/重复键。Rust 无法表达的 Python 类型不伪造通过。
+
+
+### Independent existing code element correction
+
+2026-10-30 在三个待决流程之外核对既有 st.code/CodeOptions：Python 只各去掉一次边界 LF，空语言改为 plaintext；Rust 原实现两处均不同。27 场景原始参考与修前/修后记录保留，修正只在 elements/code.rs 的构造中直接调整现有 String 和空语言；没有公共签名/依赖变化，不复用 markdown 的 dedent/strip。宽高/开关既有映射在九种有效组合保持原样，None 语言用 Rust 空字符串表达已有纯文本效果。完整元素/路径/尺寸的生产 WS 差分和八项一致原始帧语义 guard 通过；无效尺寸、非字符串转换、语法高亮和浏览器布局继续待验。

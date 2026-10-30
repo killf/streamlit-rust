@@ -34,3 +34,28 @@ length and direction. New Logo cases compare the entire payload, rather than
 the original four-field logo tuple. Source hashes are not acceptance gates.
 Owned reference processes/sockets were closed. Local/byte images, invalid
 strings/links, full emoji-catalogue equality and browser behavior remain open.
+
+
+## Code text, languages and valid layout parameters (2026-10-30)
+
+[code-text/trace.json](code-text/trace.json) uses `--scenario code-text` in the
+existing fixture/collector: 27 code calls and a JSON input report (28 elements).
+Thirteen text inputs cover empty/single/multiple LFs, indentation and spaces,
+CRLF/CR, tabs, non-ASCII whitespace and Unicode. The cases rotate arbitrary,
+case-sensitive, empty and single-space language tags, line_numbers, wrap_lines
+and all nine stretch/content/positive-pixel width/height pairs. The final case
+uses language=None, which the Rust replay represents with an empty string;
+this is an existing API equivalent for plaintext, not a new Option parameter.
+
+The pinned runtime removes exactly one leading LF and one trailing LF, without
+dedent/strip or CR normalization. Empty/None language becomes plaintext;
+nonempty strings including a space pass through unchanged. Original Rust
+code-text-before records 23 differing code payloads; the fixed code-text run
+matches complete Elements, paths and dimension configurations. Both artifacts
+remain. Eight semantic guards keep raw protobuf and summaries consistent but
+reject incorrect LF/CR removal, language normalization, layouts and flags.
+
+This is native WS evidence. Invalid dimensions, non-string body conversion,
+full highlighting language support, syntax rendering, scrolling and responsive
+browser layouts remain open. Correct captures were not rewritten. Collector-
+owned Python and caller-owned Rust services/connections were closed afterward.

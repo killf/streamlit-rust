@@ -15,7 +15,17 @@ pub(crate) struct CodeElement {
 }
 
 impl CodeElement {
-    pub fn new(code_text: String, language: String) -> Self {
+    pub fn new(mut code_text: String, language: String) -> Self {
+        // Python 只各去掉一个边界 LF，不清理缩进、空格、CR 或其他 Unicode 空白。
+        if code_text.starts_with('\n') {
+            code_text.remove(0);
+        }
+        if code_text.ends_with('\n') {
+            code_text.truncate(code_text.len() - 1);
+        }
+
+        let language = if language.is_empty() { "plaintext".to_string() } else { language };
+
         Self {
             code_text,
             language,
@@ -80,5 +90,38 @@ impl Element for CodeElement {
         }
 
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::CodeElement;
+
+    #[test]
+    fn code_preserves_whitespace_except_single_boundary_lfs() {
+        let cases = [
+            ("", ""),
+            ("\n", ""),
+            ("\n\n", ""),
+            ("\n\n\n", "\n"),
+            ("\n x\n", " x"),
+            ("\n\n x\n\n", "\n x\n"),
+            ("\r\nx\r\n", "\r\nx\r"),
+            ("\n x \r\n", " x \r"),
+            ("\talpha\n\t\tbeta\n", "\talpha\n\t\tbeta"),
+            ("\u{85}line\u{2028}end\u{2029}", "\u{85}line\u{2028}end\u{2029}"),
+        ];
+        for (input, expected) in cases {
+            let element = CodeElement::new(input.to_owned(), "python".into());
+            assert_eq!(element.code_text, expected, "input {input:?}");
+        }
+    }
+
+    #[test]
+    fn code_empty_language_is_plaintext_and_other_tags_are_verbatim() {
+        for (input, expected) in [("", "plaintext"), (" ", " "), ("RuSt", "RuSt"), ("made-up", "made-up")] {
+            let element = CodeElement::new("body".into(), input.to_owned());
+            assert_eq!(element.language, expected);
+        }
     }
 }

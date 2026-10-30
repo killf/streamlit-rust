@@ -585,3 +585,14 @@ Logo 自动字符串分类使用现有 emoji 数据表识别完整序列，覆�
 示例代码检查 cargo clippy -p streamlit --example json_badge_params --offline --locked -- -D warnings、构建及 rustfmt edition 2024 检查通过，保留既有 MSVC linker stdout 告警；日志 target/json-serialization-example-clippy.log 与 target/json-serialization-example-build.log。JSON 门 32 项通过，最终相关 Python 参数/原始证据/矩阵/文档门 149 项通过（target/json-serialization-final-gates.log）。本批无库代码修改，未重复上一批已验证单元/工作区回归；上一批 235 项通过仍带两个已知队列排除项，不能报告本次全工作区全绿。
 
 Python 采集器关闭 WS 并停止自有服务，Rust 自有服务 session 终止，8604 无监听；未运行本批浏览器 UI。内部文本序列化器/值树/暂缓三项流程取舍已请求用户决定，并在 architecture 中写清拟改文件、影响和验证；尚未收到答复，未实施新序列化流程、公共接口或依赖。JsonOptions 与发送队列两项既有取舍仍待决。矩阵 130 项 partial 和完整目标继续开放，colconfig_params 独立工作区改动不进入本批阶段提交。
+
+
+### Code string boundaries, language and valid dimensions (2026-10-30)
+
+既有 code_logo_params fixture/example/collector 新增 code-text 场景，Python 1.66.1 参考为 27 个代码调用及一份输入报告（28 元素）。13 类字符串覆盖空/单/多 LF、缩进、空格、CRLF/CR、制表符、Unicode 空白和中文/emoji；轮换任意/大小写/空/单空格语言、行号与自动换行，覆盖 stretch/content/正像素宽高的全部九种组合。Python language=None 的最终调用在 Rust 中用现有空字符串入口表达纯文本效果，不新增 Option 接口。
+
+修前 code-text-before 原始记录保留 23 个代码元素载荷差异；宽高、其他字段和路径经原始帧对照原本已一致。CodeElement 现直接修改现有 String，各去掉一次开头/结尾 LF，保留其他字符，并把空语言规范化为 plaintext。没有改变公共接口、依赖或布局映射。修后 code-text 捕获的全部 28 个完整 Element、路径与尺寸配置匹配参考；生产 WS 测试独立读取固定输入与原始消息投影作全载荷比较。八项 guard 同时修改原始 protobuf 与摘要，通用帧检查通过后，语义门仍拒绝 LF/CR、语言、尺寸与开关破坏。正确和失败捕获均未覆盖或改写；证据目录沿用 -text 并为 Rust 该目录允许 CR-at-eol，保留采集字节。
+
+按代码、单元、集成顺序检查：全工作区/全目标 Clippy -D warnings、Rustfmt edition 2024 通过；代码元素单元 2 项、文本/JSON 生产 WS 集成 4 项通过（target/code-text-clippy.log、target/code-text-unit.log、target/code-text-integration.log）。工作区明确排除既有 navigation_pages_switch_and_session_state_match_the_measured_wire 与 rerun_queue_messages_match_frozen_reference 后 238 项通过（库 231、ledger 1、宏 2、rustdoc 4；target/code-text-workspace-remaining.log），不是完整工作区全绿。相关 Python 参数/原始帧/矩阵/文档门 159 项通过（target/code-text-final-gates.log）。既有 MSVC linker stdout 告警保留；已逐文件检查 Rust 和脚本 diff。
+
+采集器停止自有 Python 服务，两个自有 Rust 服务 session 均终止，8607 无监听。未执行本批浏览器语法高亮、滚动或响应式布局验收；非字符串 body 转换和无效尺寸错误等仍开放，st.code 与总矩阵仍 partial（共 130 项）。inventory 仅如实补出原缺少明确差距的一项，未通过改分母关闭能力。序列化、JsonOptions 和发送队列待决流程均未扩大实施。已有 colconfig_params 文件、Cargo 与索引改动保留，不纳入本批阶段提交和推送。

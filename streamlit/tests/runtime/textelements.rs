@@ -187,6 +187,141 @@ async fn finite_json_numbers_match_python_wire() -> TestResult {
     Ok(())
 }
 
+const CODE_TEXT_REFERENCE: &str = include_str!("../../../tests/reference/reference-browser/code-logo-params/code-text/trace.json");
+
+fn code_text_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        let result: TestResult = (|| {
+            let reference: serde_json::Value = serde_json::from_str(CODE_TEXT_REFERENCE)?;
+            let inputs: serde_json::Value = serde_json::from_str(reference["elements"][0]["fields"]["body"].as_str().ok_or("missing code input report")?)?;
+            st.json(inputs.clone());
+            for case in inputs["code_cases"].as_array().ok_or("missing code cases")? {
+                let width = match case["width"].as_str() {
+                    Some("stretch") => crate::ElementWidth::Stretch,
+                    Some("content") => crate::ElementWidth::Content,
+                    None => crate::ElementWidth::Value(i32::try_from(case["width"].as_i64().ok_or("missing code width")?)?),
+                    _ => return Err("unknown code width".into()),
+                };
+                let height = match case["height"].as_str() {
+                    Some("stretch") => crate::ElementHeight::Stretch,
+                    Some("content") => crate::ElementHeight::Content,
+                    None => crate::ElementHeight::Value(i32::try_from(case["height"].as_i64().ok_or("missing code height")?)?),
+                    _ => return Err("unknown code height".into()),
+                };
+                st.code_options(
+                    crate::CodeOptions::new(case["body"].as_str().ok_or("missing code body")?, case["language"].as_str().unwrap_or_default())
+                        .line_numbers(case["line_numbers"].as_bool().ok_or("missing line_numbers")?)
+                        .wrap_lines(case["wrap_lines"].as_bool().ok_or("missing wrap_lines")?)
+                        .width(width)
+                        .height(height),
+                );
+            }
+            Ok(())
+        })();
+        assert!(result.is_ok(), "code fixture failed: {result:?}");
+    })
+}
+
+#[actix_web::test]
+async fn code_text_language_and_layout_match_frozen_reference() -> TestResult {
+    // 1. 公共 builder 经生产服务器发出代码及布局，输入报告与输出期望分开读取。
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
+    let server = HttpServer::new(move || App::new().app_data(web::Data::new(StreamlitServer::new(code_text_entry, "127.0.0.1".into(), 0))).configure(configure_routes))
+        .workers(1)
+        .listen(listener)?
+        .run();
+    let handle = server.handle();
+    let task = actix_web::rt::spawn(server);
+    let mut stream = sessions::connect(address, None).await;
+    send_binary(
+        &mut stream,
+        &BackMsg {
+            r#type: Some(back_msg::Type::RerunScript(ClientState::default())),
+        }
+        .encode_to_vec(),
+    )
+    .await;
+    let mut observed = Vec::new();
+    let finish = loop {
+        let message = receive(&mut stream).await;
+        let path = message.metadata.as_ref().map(|metadata| metadata.delta_path.clone()).unwrap_or_default();
+        match message.r#type {
+            Some(forward_msg::Type::Delta(delta)) => {
+                let Some(delta::Type::NewElement(element)) = delta.r#type else { panic!("unexpected code delta") };
+                observed.push((path, element));
+            }
+            Some(forward_msg::Type::ScriptFinished(status)) => break status,
+            _ => {}
+        }
+    };
+    drop(stream);
+    handle.stop(false).await;
+    task.await??;
+
+    // 2. 参考消息投影由 Python 门绑定原始 protobuf；比较完整 Element 与路径。
+    let reference: serde_json::Value = serde_json::from_str(CODE_TEXT_REFERENCE)?;
+    let mut expected = Vec::new();
+    for frame in reference["frames"].as_array().ok_or("missing code reference frames")? {
+        let message = &frame["message"];
+        let Some(delta) = message.get("delta") else { continue };
+        let element = &delta["new_element"];
+        let kind = if let Some(code) = element.get("code") {
+            element::Type::Code(proto::Code {
+                code_text: code["code_text"].as_str().unwrap_or_default().into(),
+                language: code["language"].as_str().ok_or("missing reference code language")?.into(),
+                show_line_numbers: code["show_line_numbers"].as_bool().unwrap_or(false),
+                wrap_lines: code["wrap_lines"].as_bool().unwrap_or(false),
+            })
+        } else {
+            let json = element.get("json").ok_or("unexpected code reference element")?;
+            element::Type::Json(proto::Json {
+                body: json["body"].as_str().ok_or("missing report body")?.into(),
+                expanded: true,
+                max_expand_depth: None,
+            })
+        };
+        let width = &element["width_config"];
+        let width_spec = if let Some(pixels) = width["pixel_width"].as_u64() {
+            proto::streamlit::width_config::WidthSpec::PixelWidth(u32::try_from(pixels)?)
+        } else if width["use_content"] == true {
+            proto::streamlit::width_config::WidthSpec::UseContent(true)
+        } else if width["use_stretch"] == true {
+            proto::streamlit::width_config::WidthSpec::UseStretch(true)
+        } else {
+            return Err("missing reference width".into());
+        };
+        let height_config = if let Some(height) = element.get("height_config") {
+            let height_spec = if let Some(pixels) = height["pixel_height"].as_u64() {
+                proto::streamlit::height_config::HeightSpec::PixelHeight(u32::try_from(pixels)?)
+            } else if height["use_content"] == true {
+                proto::streamlit::height_config::HeightSpec::UseContent(true)
+            } else if height["use_stretch"] == true {
+                proto::streamlit::height_config::HeightSpec::UseStretch(true)
+            } else {
+                return Err("missing reference height".into());
+            };
+            Some(proto::streamlit::HeightConfig { height_spec: Some(height_spec) })
+        } else {
+            None
+        };
+        let path: Vec<u32> = serde_json::from_value(message["metadata"]["delta_path"].clone())?;
+        expected.push((
+            path,
+            proto::Element {
+                r#type: Some(kind),
+                width_config: Some(proto::streamlit::WidthConfig { width_spec: Some(width_spec) }),
+                height_config,
+                ..Default::default()
+            },
+        ));
+    }
+    assert_eq!(finish, 0);
+    assert_eq!(expected.len(), 28);
+    assert_eq!(observed, expected);
+    Ok(())
+}
+
 fn textelements_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
     Box::pin(async move {
         // Mirrors tests/reference/textelements_app.py.

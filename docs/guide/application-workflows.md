@@ -263,7 +263,9 @@ metric 的字符串 delta 遵循 1.66.1 字符串语义，不能按浮点数解�
 
 **文本族参数**（[text-misc-params 参考](../../tests/reference/reference-browser/text-misc-params/README.md)，5/5 一致）：`st.text` 显式 `wrap true`；`st.latex` 发 **LATEX 类型** markdown 且 wrap 缺省（本批修正原 NATIVE+wrap true）；`st.help` 需显式 `doc_string/type/name/value` 四字段（Python 的 type 是 callable 种类如 "method"、value 是完整签名——Rust 无内省，设计如此）；`st.divider` 为 DIVIDER 类型且 **wrap 缺省**（同步修正）。caption/code 的 wrap 语义沿用各自既有链。
 
-**code/skeleton/logo 参数**（[code-logo-params 参考](../../tests/reference/reference-browser/code-logo-params/README.md)，3/3 + logo 帧一致、零实现改动确认）：`st.code` 的 `language` 任意标签原样透传、`line_numbers(true)` → `show_line_numbers`；`st.skeleton` 默认空消息；`st.logo("🧊")` emoji 判型 EMOJI、**缺省 size "medium"**、走顶层 `logo` ForwardMsg（非 delta）。wrap_lines/height、URL logo、icon_image/link 未纳入。
+**code/skeleton/logo 参数**（[code-logo-params 参考](../../tests/reference/reference-browser/code-logo-params/README.md)，3/3 + logo 帧一致、零实现改动确认）：`st.code` 的 `language` 任意标签原样透传、`line_numbers(true)` → `show_line_numbers`；`st.skeleton` 默认空消息；`st.logo("🧊")` emoji 判型 EMOJI、**缺省 size "medium"**、走顶层 `logo` ForwardMsg（非 delta）。原始轨迹未纳入 wrap_lines/height 或更广 Logo 参数；后续 Logo 扩展见参考 README。
+
+`st.code` 的另一次 27 场景原生 WS 对照已覆盖边界换行、空/任意语言标签、行号/自动换行及九种宽高组合。它只各移除一次开头和结尾的 `\n`，保留缩进、空格、制表符、`\r` 和其他 Unicode 空白；空语言字符串改发 `plaintext`，空格语言标签原样保留。既有 `CodeOptions` 支持这批 stretch/content/正像素尺寸；Python `language=None` 的纯文本效果用 Rust 空字符串表达，不意味着新增了 Option 参数。该范围不覆盖非字符串转换、无效尺寸错误、实际语法高亮或浏览器滚动/响应布局。
 
 **selectbox/checkbox/pills 参数**（[select-pills-params 参考](../../tests/reference/reference-browser/select-pills-params/README.md)，5/5 一致、零实现改动确认）：`SelectboxOptions` 的 `index(None)`（不发 default）+ `placeholder`/`help`；`CheckboxOptions` 的 `value/disabled/help`；pills 的 `selection_mode(Multi)` → `MULTI_SELECT`、默认标签以**索引**上 wire、选项为 content 对象。format_func、option icons、query binding 未纳入。
 

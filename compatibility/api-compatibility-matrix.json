@@ -4642,12 +4642,19 @@
           "tests/reference/reference-browser/code-logo-params/trace.json",
           "tests/reference/reference-browser/code-logo-params/README.md",
           "tests/browser/rust-code-logo-params/trace.json"
-        ]
+        ],
+        "code_text_reference": "tests/reference/reference-browser/code-logo-params/code-text/trace.json",
+        "code_text_rust_before": "tests/browser/rust-code-logo-params/code-text-before/trace.json",
+        "code_text_rust": "tests/browser/rust-code-logo-params/code-text/trace.json",
+        "code_text_unit": "streamlit/src/elements/code.rs",
+        "code_text_runtime": "streamlit/tests/runtime/textelements.rs",
+        "code_text_guards": "tests/reference/test_code_logo_params_reference.py"
       },
-      "rust_plan": "Render the code element (body, language, line numbers) on the measured wire.",
-      "compatibility_scope": "The 2026-10-25 journey-elements-v1 chain drives one official-frontend page on both runtimes with a real Chrome (load plus typed-and-applied form stage); both published replays assert 11/11/11 with identical normalized wire streams and DOM fingerprints. Covers body + default python language on the elements page; line_numbers/wrap/height unobserved.",
+      "rust_plan": "Render the code element through the existing CodeOptions surface. Remove at most one boundary LF at each end, retain all other whitespace, and normalize an empty language string to plaintext. Existing line_numbers/wrap_lines and stretch/content/positive-pixel width/height mappings remain in use.",
+      "compatibility_scope": "The 2026-10-25 journey-elements-v1 chain drives one official-frontend page on both runtimes with a real Chrome (load plus typed-and-applied form stage); both published replays assert 11/11/11 with identical normalized wire streams and DOM fingerprints. Covers body + default python language on the elements page; that original browser journey did not exercise line_numbers/wrap/height. A separate 2026-10-30 native-WS slice compares 27 string/language/layout calls plus an input report, including all nine measured width/height combinations; it does not establish their browser rendering.",
       "limitations": [
-        "Language tags and line numbers are now measured (2026-10-29, frozen code-logo-params): an arbitrary language string passes through verbatim (no whitelist) and line_numbers rides as show_line_numbers — field-identical cross-runtime with zero implementation change."
+        "Language tags and line numbers are now measured (2026-10-29, frozen code-logo-params): an arbitrary language string passes through verbatim (no whitelist) and line_numbers rides as show_line_numbers — field-identical cross-runtime with zero implementation change.",
+        "A 27-call native-WS code-text slice (2026-10-30) measures empty/single/multiple boundary LFs, indentation, CRLF/CR, tabs, Unicode whitespace/text, empty/arbitrary/case-sensitive language tags, line_numbers/wrap_lines and all nine stretch/content/positive-pixel width/height pairs. Before-fix artifacts retain 23 code payload mismatches; the fixed 28-element run matches full elements and paths. Eight coherent-protobuf semantic guards reject incorrect newline/CR/language/layout/flag payloads. Python language=None is replayed via the existing Rust empty-string argument to obtain plaintext, not a new Option API. Non-string body conversion, invalid dimension errors, complete language catalogues, syntax highlighting and scrolling/responsive browser behavior remain unverified or incomplete; st.code stays partial."
       ]
     },
     {

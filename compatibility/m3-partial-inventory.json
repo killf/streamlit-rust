@@ -7,8 +7,8 @@
     "by_bucket": {
       "needs-external-source-or-environment": 12,
       "rust-extension-or-headless-bound": 2,
-      "unmeasured-parameters": 83,
-      "no-explicit-gap-stated": 44
+      "unmeasured-parameters": 84,
+      "no-explicit-gap-stated": 43
     }
   },
   "entries": [
@@ -248,10 +248,11 @@
       "feature_id": "st.code",
       "category": "PAGE ELEMENTS/Text elements",
       "buckets": [
-        "no-explicit-gap-stated"
+        "unmeasured-parameters"
       ],
       "limitations": [
-        "Language tags and line numbers are now measured (2026-10-29, frozen code-logo-params): an arbitrary language string passes through verbatim (no whitelist) and line_numbers rides as show_line_numbers — field-identical cross-runtime with zero implementation change."
+        "Language tags and line numbers are now measured (2026-10-29, frozen code-logo-params): an arbitrary language string passes through verbatim (no whitelist) and line_numbers rides as show_line_numbers — field-identical cross-runtime with zero implementation change.",
+        "A 27-call native-WS code-text slice (2026-10-30) measures empty/single/multiple boundary LFs, indentation, CRLF/CR, tabs, Unicode whitespace/text, empty/arbitrary/case-sensitive language tags, line_numbers/wrap_lines and all nine stretch/content/positive-pixel width/height pairs. Before-fix artifacts retain 23 code payload mismatches; the fixed 28-element run matches full elements and paths. Eight coherent-protobuf semantic guards reject incorrect newline/CR/language/layout/flag payloads. Python language=None is replayed via the existing Rust empty-string argument to obtain plaintext, not a new Option API. Non-string body conversion, invalid dimension errors, complete language catalogues, syntax highlighting and scrolling/responsive browser behavior remain unverified or incomplete; st.code stays partial."
       ]
     },
     {
