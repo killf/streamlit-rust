@@ -753,3 +753,12 @@ Python 原 PID 51364 已不存在，原端口 51056 与 Rust 8502 无监听，Ru
 源码逐文件复查，Rustfmt、全目标 Clippy -Dwarnings 通过（已有 MSVC linker 提示保留）。status 单元 13 项通过，其中新测试对照十条 Python 公共错误；工作区 256 项通过、两项既有更广队列测试排除。target/alert-width-unit.log、alert-width-clippy.log、alert-width-workspace.log 保留结果；未重复同一批通过的集成。完整冻结协议门解码 protobuf 并检查全部调用/路径/receipt，新六项 coherent wrong-wire guards 对旧引号/反斜杠/控制字符输出拒绝。相关 text/misc、矩阵、文档共 146 项通过（target/alert-width-final-gates.log）。
 
 Python 原 PID 67700 不存在，54437/8502 无监听；两次自有 Rust 服务均已终止，本轮没有浏览器 task。只读字符探针在 target，Python Unicode 16.0.0 的非 ASCII 不可打印 scalar 数据统计为 737 闭区间，接入生产表/导出流程的三案记录于 architecture.md，尚未创建；与 Material 目录选择独立。四条矩阵证据/限制和生成清单同步，130 partial 和完整目标保持。colconfig_params 独立改动未修改、未纳入提交；仅提交推送工作分支。
+
+
+### Bytes repr and dataset-name boundary (2026-10-30)
+
+锁定 Streamlit 1.66.1 util.calc_hash(str(value)) / Python 3.14.7 对照证明 bytes 含单引号、不含双引号时使用双引号。旧 pywire.rs 的固定单引号和一条既有单元预期均错误；独立提取 HEAD 原函数的 Rust 探针对单引号字节真实失败（target/bytes-repr-before.log，退出 101），未改生产源码来制造失败。新实现选择定界符后只转义该定界符，保留字节转义与既有哈希算法；纠正旧预期，并以五个短字节串及 bytes(range(256)) 的实测 Python 哈希覆盖边界。三份冻结 chart IPC 均含双引号，本批没有新公共 UI 故障/修复证明，也未重新采集或修改它们。
+
+Rustfmt、全目标 Clippy -Dwarnings 通过（已有 MSVC 链接器提示保留）；pywire 单元 6 项、图表集成/几何回归 5 项、原生 bar/data-view 集成 3 项通过，分别记录于 target/bytes-repr-unit.log、bytes-repr-integration.log、bytes-repr-native-bar.log。后两组包含真实 WS，同时保留纯序列化/几何测试的证据层级；不能把全部八项称为独立 WS 测试。Python charts/chartlibs 合同 30 项通过（target/bytes-repr-python.log）。按本次相关范围验证，未重复整个工作区或浏览器流程。
+
+未新增生产文件/依赖/公共接口，未修改 Material/Unicode 数据、JSON/统一身份和更广 rerun 等待决项。矩阵状态未改变，130 partial 和完整目标仍开放；colconfig_params 独立改动保留，提交推送仅到既有工作分支。

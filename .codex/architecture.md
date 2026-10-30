@@ -552,3 +552,10 @@ Material 根因是 material_icon_len 只检查名称形状。锁定本地 Stream
 3. 暂缓字符数据接入，保留全部 Unicode 差异及完整目标未完成状态，继续其他已授权部分。
 
 前两案保持 StatusError 形状和 Alert-only 调用范围；不顺带改 py_bytes_repr 或 JSON/hash 序列化。验收须比较所有 Unicode scalar 的 printability，再验证引用、ASCII/Unicode 转义位数、已有组合字符不误转义、完整宽度错误语料、无 Delta/恢复、离线构建和真实 UI。Material 目录与本项为两个独立数据决定，不把选择一项当成另一项的授权。
+
+
+### Python bytes quote choice in dataset naming (2026-10-30)
+
+pywire.rs 的 py_bytes_repr 旧实现固定单引号，且既有测试误把含单引号、无双引号的 bytes 也预期为单引号。锁定 Python 3.14.7 的 str(bytes) 在该条件下选择双引号，Streamlit 1.66.1 util.calc_hash(str(data_bytes)) 因而产生不同数据集名。直接抽取 HEAD 旧函数的独立 Rust 探针对 b"'" 断言失败，保留 target/bytes-repr-before.log；这不是公共图表 UI 故障复现。三份冻结 chart IPC 均含双引号，不受此次边界影响。
+
+只改既有 pywire.rs：选好定界符后仅转义该定界符，保留其余字节规则和 BLAKE2b。修正旧错误测试，增加空串/两类引号和六个实际 Python 哈希对照，其中一组为 bytes(range(256))。不新增接口、文件、依赖或生成流程，不改 Unicode 字符串 repr/JSON、哈希算法或其他待决方案。现有调用为原生 line/area/scatter/bar 的 chart_dataset；不能把 helper 修复写成全部图表功能已兼容。

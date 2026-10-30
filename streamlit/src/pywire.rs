@@ -175,13 +175,19 @@ fn write_string(out: &mut String, text: &str) {
     out.push('"');
 }
 
-/// The `str()` of a Python bytes object: `b'...'` with `\\xHH` escapes.
+/// The `str()` of a Python bytes object, including quote choice and escapes.
 pub fn py_bytes_repr(bytes: &[u8]) -> String {
+    let quote = if bytes.contains(&b'\'') && !bytes.contains(&b'"') { b'"' } else { b'\'' };
     let mut out = String::with_capacity(bytes.len() + 3);
-    out.push_str("b'");
+    out.push('b');
+    out.push(quote as char);
+
     for &byte in bytes {
         match byte {
-            b'\'' => out.push_str("\\'"),
+            byte if byte == quote => {
+                out.push('\\');
+                out.push(byte as char);
+            }
             b'\\' => out.push_str("\\\\"),
             b'\n' => out.push_str("\\n"),
             b'\r' => out.push_str("\\r"),
@@ -190,7 +196,7 @@ pub fn py_bytes_repr(bytes: &[u8]) -> String {
             byte => out.push_str(&format!("\\x{byte:02x}")),
         }
     }
-    out.push('\'');
+    out.push(quote as char);
     out
 }
 
@@ -269,8 +275,28 @@ mod tests {
 
     #[test]
     fn py_bytes_repr_matches_the_python_str_of_bytes() {
-        assert_eq!(py_bytes_repr(b"ab'\\\n"), "b'ab\\'\\\\\\n'");
+        assert_eq!(py_bytes_repr(b"ab'\\\n"), "b\"ab'\\\\\\n\"");
+        assert_eq!(py_bytes_repr(b"'"), "b\"'\"");
+        assert_eq!(py_bytes_repr(b"'\""), "b'\\'\"'");
+        assert_eq!(py_bytes_repr(b""), "b''");
         assert_eq!(py_bytes_repr(&[0x00, 0xff, 0x7f]), "b'\\x00\\xff\\x7f'");
         assert_eq!(py_bytes_repr(b"\""), "b'\"'");
+    }
+
+    #[test]
+    fn dataset_names_match_pinned_python_bytes_quote_boundaries() {
+        // Streamlit 1.66.1 util.calc_hash(str(value)), measured on Python 3.14.7.
+        for (bytes, expected) in [
+            (b"ab'\\\n".as_slice(), "dfa93934951223a310d22cd0bec01d51"),
+            (b"'".as_slice(), "9b5ea8324851f095607a2fa8e354070b"),
+            (b"\"".as_slice(), "fcb48794ef62cd5e23c2e9814f50aa12"),
+            (b"'\"".as_slice(), "8e942df30898fce0be2c54e2ec28e163"),
+            (b"".as_slice(), "ea39b6c46602e403f1e1ac9ea46bb887"),
+        ] {
+            assert_eq!(dataset_name(bytes), expected);
+        }
+
+        let all_bytes: Vec<u8> = (0..=255).collect();
+        assert_eq!(dataset_name(&all_bytes), "a3a49018251303851b5b71c4df9a75b6");
     }
 }
