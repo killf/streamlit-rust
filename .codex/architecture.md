@@ -569,6 +569,15 @@ pywire.rs 的 py_bytes_repr 旧实现固定单引号，且既有测试误把含�
 
 完整参考覆盖 selectbox 的 bool/int/double/string-array/JSON，以及 Plain/Text 的 bool 和 Check 的 string。前三种错误后恢复，JSON/其他控件的所测错误类型被忽略；数组在控件输出前出现 unhashable RepeatedScalarContainer，下一轮仍失败。保留真实来源栈，未假定相同栈长度或伪造 Rust Python 文件路径。原始 protobuf、请求类型、异常文字/位置、所有状态/callback 回执均保留；旧冻结记录没有重写。
 
-Rust 本批严格差分仅覆盖完整参考中前三个标量用例的九轮、42 个控件/异常/状态交错投影；明确截取前缀而非声称八种输入全部已实现。新增回归先在旧代码真实失败，修后通过。数组的早期错误与持续状态，以及 JSON/其他控件的 Rust 差分和真实 UI 仍待实现/验证，不把 Python 捕获冒充 Rust 对齐。后续按已确认方案 1 处理数组错误发生阶段和会话生命周期；无需扩大为新的公共错误 API。
+Rust 现已重放完整八种输入的 24 轮/130 个控件、URL、异常和状态交错投影，以及单会话持续失败的 17 轮/40 投影；原来的九轮标量前缀限制已移除。数组错误在应用入口前输出并持续到后续请求，JSON/Plain/Text/Check 的所测忽略行为及独立新会话也已对照。异常类型、文字、标志和 delta_path 严格比较；Python 来源栈保留而不伪造。真实 UI、任意其他 wire 类型/参数组合和所有 protobuf 字段并未因此验收，不把所测八种输入等同于全部 malformed-input 兼容。
 
 collector 用 ExitStack 管理重连的全部 WS，失败时也关闭；改动后的真实再采集只写 target/disabled-types-confirmation，复验相同八组语义/清理，不替换冻结数据。所有动作局限本地 synthetic 输入，不涉及外部账号/共享数据库。
+
+
+### Before-entry array errors and continued session failure (2026-10-30)
+
+本批按已选 Python 行为方案补数组阶段差异，没有新增用户策略。锁定 SDK 的 on_script_will_rerun 先压缩旧状态、应用新状态、计算变化，再分派 callback；selectbox 的 RepeatedScalarContainer 不能作为字典键，变化计算失败时尚未执行 callback，后续请求则在旧状态压缩时再次失败。既有数组参考和独立会话记录直接复用，无新增采集或改写。
+
+WidgetRegistry 增加私有 input_error，和每轮可恢复的 registration_error 区分生命周期：首次已登记禁用 select 收到 string-array 时保存固定参考 TypeError，保留已接收的普通输入值但取消尚未分派的 callback；后续 begin_widgets 在应用新输入前返回，finish_widgets 保留未运行到的记录。handler 在创建正常渲染上下文后、callback/应用入口之前输出异常，仍发送正常结束帧。新会话的注册器没有该错误，八个独立会话互不污染。没有设置永久全局错误、重启进程或改已有公共接口、依赖、队列保留规则。
+
+单元覆盖正常输入在数组前/后两种顺序、callback 抑制、首轮正常输入已接收、后续新输入不生效与新状态隔离。完整真 WS 回归替换原标量前缀，并增加原单会话持续失败差分；控件/URL/状态序列及异常 path、类型、文字、两个标志均严格相同。只对固定参考环境和所测八组输入作结论，未测启用 select、accept_new_options、任意 JSON 对象/数组及其他数组 oneof 的错误阶段，仍在完整目标内。

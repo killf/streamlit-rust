@@ -293,6 +293,12 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
                         widget_state::Value::IntValue(value.as_str().ok_or("missing int64 wire string")?.parse()?)
                     } else if let Some(value) = state["double_value"].as_f64() {
                         widget_state::Value::DoubleValue(value)
+                    } else if let Some(value) = state["json_value"].as_str() {
+                        widget_state::Value::JsonValue(value.into())
+                    } else if let Some(value) = state["string_array_value"]["data"].as_array() {
+                        widget_state::Value::StringArrayValue(crate::proto::StringArray {
+                            data: value.iter().map(|item| item.as_str().map(str::to_owned).ok_or("missing string array item")).collect::<Result<_, _>>()?,
+                        })
                     } else {
                         widget_state::Value::StringValue(state["string_value"].as_str().ok_or("missing widget text")?.into())
                     }),
@@ -315,7 +321,9 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
 
         // 2. 按真实到达顺序保留 URL 写入和应用状态。
         let finish = loop {
-            match receive(&mut stream).await.r#type {
+            let message = receive(&mut stream).await;
+            let path = message.metadata.map(|metadata| metadata.delta_path).unwrap_or_default();
+            match message.r#type {
                 Some(forward_msg::Type::PageConfigChanged(config)) if reference["scenario"] == "rerun-queue" => observed.push(serde_json::json!({"config": config.title})),
                 Some(forward_msg::Type::PageInfoChanged(info)) => observed.push(serde_json::json!({"url": info.query_string})),
                 Some(forward_msg::Type::Delta(delta)) => {
@@ -324,7 +332,7 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
                             Some(element::Type::Toast(toast)) if reference["scenario"] == "rerun-queue" => observed.push(serde_json::json!({"toast": {"body": toast.body, "icon": toast.icon, "duration": toast.duration}})),
                             Some(element::Type::Markdown(text)) if reference["scenario"] == "rerun-queue" => observed.push(serde_json::json!({"markdown": text.body})),
                             Some(element::Type::Balloons(balloons)) if reference["scenario"] == "rerun-queue" => observed.push(serde_json::json!({"balloons": balloons.show})),
-                            Some(element::Type::Exception(error)) => observed.push(serde_json::json!({"exception": {"type": error.r#type, "message": error.message,
+                            Some(element::Type::Exception(error)) => observed.push(serde_json::json!({"path": path, "exception": {"type": error.r#type, "message": error.message,
                                 "message_is_markdown": error.message_is_markdown, "is_streamlit_exception": error.is_streamlit_exception}})),
                             Some(element::Type::Json(json)) => observed.push(serde_json::json!({"snapshot": serde_json::from_str::<serde_json::Value>(&json.body)?})),
                             Some(element::Type::Selectbox(widget)) => {
@@ -408,7 +416,7 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
             }
         }
         if let Some(error) = message["delta"]["new_element"].get("exception") {
-            expected.push(serde_json::json!({"exception": {"type": error["type"], "message": error["message"],
+            expected.push(serde_json::json!({"path": message["metadata"]["delta_path"], "exception": {"type": error["type"], "message": error["message"],
                 "message_is_markdown": error["message_is_markdown"].as_bool().unwrap_or(false), "is_streamlit_exception": error["is_streamlit_exception"].as_bool().unwrap_or(false)}}));
         }
         if reference["scenario"] == "rerun-queue" {
@@ -471,14 +479,13 @@ async fn disabled_malformed_input_keeps_callbacks_error_and_recovery() -> TestRe
 }
 
 #[actix_web::test]
-async fn disabled_numeric_wire_types_preserve_callback_and_recovery() -> TestResult {
-    let mut reference: serde_json::Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/queryparams/disabled-types-isolated/trace.json"))?;
-    let frames = reference["frames"].as_array_mut().ok_or("missing disabled type frames")?;
-    // Only the first three independent cases (bool/int/double) belong to this
-    // numeric regression. The full frozen corpus keeps array/JSON/other controls.
-    let end = frames.iter().enumerate().filter(|(_, frame)| frame["direction"] == "client->server").nth(9).ok_or("missing fourth isolated case")?.0;
-    frames.truncate(end);
-    assert_queryparams_reference(queryparams_disabled_entry, &serde_json::to_string(&reference)?, 42).await
+async fn disabled_wire_types_include_array_failure_and_independent_recovery() -> TestResult {
+    assert_queryparams_reference(queryparams_disabled_entry, include_str!("../../../tests/reference/reference-browser/queryparams/disabled-types-isolated/trace.json"), 130).await
+}
+
+#[actix_web::test]
+async fn disabled_array_error_persists_on_later_requests_in_the_same_session() -> TestResult {
+    assert_queryparams_reference(queryparams_disabled_entry, include_str!("../../../tests/reference/reference-browser/queryparams/disabled-types/trace.json"), 40).await
 }
 
 #[actix_web::test]

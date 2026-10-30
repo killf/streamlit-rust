@@ -593,6 +593,10 @@ pub(crate) struct WidgetRegistry {
 
     /// Registration failure stops rendering without pruning unseen widgets.
     registration_error: Option<RegistrationError>,
+
+    /// Deserialization failed before callback dispatch. The invalid state
+    /// persists across requests, as in the pinned Python session.
+    input_error: Option<String>,
 }
 
 #[derive(Clone)]
@@ -669,13 +673,19 @@ impl SessionState {
     }
 
     pub(crate) fn begin_widgets(&self, incoming: Vec<WidgetState>) -> Vec<WidgetCallback> {
+        // 1. 初始化本轮；持续的解码错误在接收新输入前中止。
         let mut registry = self.widgets.lock();
         registry.active = true;
         registry.seen.clear();
         registry.keys.clear();
+        registry.registration_error = None;
+        if registry.input_error.is_some() {
+            return Vec::new();
+        }
+
         registry.pending.clear();
         registry.received.clear();
-        registry.registration_error = None;
+
         let mut values = self.values.lock();
         for record in registry.records.values_mut() {
             record.before_input = None;
@@ -689,8 +699,7 @@ impl SessionState {
             }
         }
         let mut callbacks = Vec::new();
-        // Enabled widgets retain whole-batch validation. Previously disabled
-        // inputs are resolved lazily at registration, after enabled callbacks.
+        // 2. 正常控件仍先验证整批输入；禁用控件延迟到注册时处理。
         if incoming.iter().any(|widget| {
             registry
                 .records
@@ -699,11 +708,16 @@ impl SessionState {
         }) {
             return callbacks;
         }
+
+        // 3. 应用输入并收集 callback，完成全部变化判断后再交给调用方执行。
         for widget in incoming {
             if !registry.received.insert(widget.id.clone()) {
                 continue;
             }
             if registry.records.get(&widget.id).is_none_or(|record| record.disabled) {
+                if registry.records.get(&widget.id).is_some_and(|record| record.disabled && matches!(record.codec, Codec::Select(_))) && matches!(widget.value, Some(widget_state::Value::StringArrayValue(_))) {
+                    registry.input_error = Some("cannot use 'google._upb._message.RepeatedScalarContainer' as a dict key (unhashable type: 'google._upb._message.RepeatedScalarContainer')".into());
+                }
                 // Applied at registration, like the reference's lazy
                 // widget-state application.
                 registry.pending.push(widget);
@@ -721,7 +735,17 @@ impl SessionState {
                 callbacks.push(callback.clone());
             }
         }
+
+        if registry.input_error.is_some() {
+            // 4. 数组值使 Python 的变化判断失败，本轮 callback 尚未分派。
+            callbacks.clear();
+        }
+
         callbacks
+    }
+
+    pub(crate) fn widget_input_error(&self) -> Option<String> {
+        self.widgets.lock().input_error.clone()
     }
 
     /// An internal rerun has no fresh frontend batch or callback dispatch.
@@ -927,7 +951,7 @@ impl SessionState {
         let mut registry = self.widgets.lock();
         let mut values = self.values.lock();
         let rerun = self.run_control() == Some(crate::session::RunControl::Rerun);
-        let preserve_unseen = rerun || registry.registration_error.is_some();
+        let preserve_unseen = rerun || registry.registration_error.is_some() || registry.input_error.is_some();
         let seen = registry.seen.clone();
         let live_keys = registry.keys.clone();
         let live_bound: HashSet<String> = registry.records.iter().filter(|(id, record)| seen.contains(*id) && record.query_bound).filter_map(|(_, record)| record.key.clone()).collect();
@@ -976,6 +1000,76 @@ impl SessionState {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn array_input_failure_suppresses_callbacks_and_blocks_later_input() -> anyhow::Result<()> {
+        for reverse_input_order in [false, true] {
+            let state = SessionState::default();
+            let mut ids = Vec::new();
+            for (kind, key, disabled, codec, default) in [
+                ("selectbox", "bound", true, Codec::Select(vec![("x".into(), Value::String("x".into()))]), Value::from(0)),
+                ("text_input", "live", false, Codec::Text { max_chars: None }, Value::String("ready".into())),
+            ] {
+                let (id, _, _) = state.register_widget(
+                    WidgetSpec {
+                        kind,
+                        key: Some(key),
+                        disabled,
+                        query: None,
+                        identity: "stable",
+                        default,
+                        codec,
+                        callback: Some(Arc::new(|_| {})),
+                    },
+                    |value| Ok(value.clone()),
+                )?;
+                ids.push(id);
+            }
+            state.finish_widgets();
+
+            // 1. 全部变化判断完成前不分派 callback，即使正常输入在数组之前。
+            let mut incoming = vec![
+                WidgetState {
+                    id: ids[0].clone(),
+                    value: Some(widget_state::Value::StringArrayValue(crate::proto::StringArray { data: vec!["x".into()] })),
+                },
+                WidgetState {
+                    id: ids[1].clone(),
+                    value: Some(widget_state::Value::StringValue("one".into())),
+                },
+            ];
+            if reverse_input_order {
+                incoming.reverse();
+            }
+            assert!(state.begin_widgets(incoming).is_empty());
+            let error = state.widget_input_error().ok_or_else(|| anyhow::anyhow!("missing array input error"))?;
+            assert_eq!(error, "cannot use 'google._upb._message.RepeatedScalarContainer' as a dict key (unhashable type: 'google._upb._message.RepeatedScalarContainer')");
+            assert_eq!(state.get::<String>("live")?.as_deref(), Some("one"));
+            state.finish_widgets();
+
+            // 2. 下一轮在状态压缩阶段失败，新输入和 callback 都未应用。
+            assert!(
+                state
+                    .begin_widgets(vec![
+                        WidgetState {
+                            id: ids[0].clone(),
+                            value: Some(widget_state::Value::StringValue("x".into()))
+                        },
+                        WidgetState {
+                            id: ids[1].clone(),
+                            value: Some(widget_state::Value::StringValue("two".into()))
+                        },
+                    ])
+                    .is_empty()
+            );
+            assert_eq!(state.widget_input_error().as_deref(), Some(error.as_str()));
+            assert_eq!(state.get::<String>("live")?.as_deref(), Some("one"));
+            state.finish_widgets();
+        }
+
+        assert!(SessionState::default().widget_input_error().is_none());
+        Ok(())
+    }
 
     #[test]
     fn internal_rerun_preserves_unseen_inputs_and_same_run_assignments() -> Result<(), WidgetError> {

@@ -2,7 +2,7 @@ use crate::elements::common::RenderContext;
 use crate::error::StreamlitError;
 use crate::proto::{WidgetState, back_msg::Type, *};
 use crate::session::SessionLease;
-use crate::{Streamlit, StreamlitServer};
+use crate::{Streamlit, StreamlitApi, StreamlitServer};
 use actix_ws::{MessageStream, Session};
 use futures_util::StreamExt;
 use prost::Message;
@@ -73,10 +73,15 @@ async fn do_rerun_script(session: &mut Session, lease: &SessionLease, server: &S
         let state = lease.state.clone();
         // 使用 tokio::select! 并发执行用户代码和消息发送
         let entry_future = async {
-            for callback in callbacks {
-                callback(&st);
+            if let Some(message) = state.widget_input_error() {
+                st.exception(crate::ExceptionOptions::new("TypeError", message));
+            } else {
+                for callback in callbacks {
+                    callback(&st);
+                }
+                server.entry.call(&st).await;
             }
-            server.entry.call(&st).await;
+
             state.finish_widgets();
             crate::query_params::flush_query_update(&mut st.app.lock());
             // 执行完毕后发送 script_finished。测量到的 1.66.1 wire：

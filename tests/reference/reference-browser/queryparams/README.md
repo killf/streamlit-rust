@@ -199,8 +199,13 @@ selectbox input, bool Plain/Text input and string Check input are ignored in
 these measured Python cases. Raw protobuf, real Python stack frames and failed
 attempts are retained; stack lengths differ between early/later errors.
 
-Rust currently replays only the first three numeric cases (nine runs, 42 widget/
-exception/state events). Array persistence, JSON/other controls' Rust differential
-and real browser error UI remain open. The collector owns all reconnect sockets
-with ExitStack; its updated cleanup was rechecked in an ignored target capture.
-No claim of complete malformed-input compatibility is made.
+Rust now replays all eight cases: 24 runs/130 widget, URL, exception and state
+events, plus the original 17-run/40-event single-session sequence. Array errors
+precede callbacks and application entry; subsequent requests still fail, while
+fresh sessions remain independent. The measured JSON/Plain/Text/Check ignore
+behavior also matches. Exception delta_path, type, message and flags are strict;
+Python source stacks are preserved without claiming equivalent Rust stack paths.
+The collector owns reconnect sockets with ExitStack. No new capture was needed
+for this runtime fix. Real browser error UI, enabled/creation selectbox variants,
+other oneofs and arbitrary JSON shapes remain open; this does not claim complete
+malformed-input compatibility.

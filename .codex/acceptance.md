@@ -773,3 +773,14 @@ Rustfmt、全目标 Clippy -Dwarnings 通过（已有 MSVC 链接器提示保留
 Rust 新回归仅重放完整参考前三种标量用例的九轮/42 个控件-异常-状态投影，先真实红（target/disabled-numeric-before.log），生产修正后绿；不声称完整八类或 protobuf 所有字段已对齐。复用单元按 bool/int/double 参数化，14 个 widgets 单元通过；queryparams 相关 14 集成通过，既有队列差异未计入通过。全工作区 258 项通过、仅两项既有更广队列测试排除；全目标 Clippy -Dwarnings 与 Rustfmt 通过。日志为 target/disabled-numeric-unit.log、disabled-numeric-integration.log、disabled-numeric-workspace.log、disabled-numeric-clippy.log。相关 Python/query/矩阵/文档 93 项通过（target/disabled-types-final-gates.log）。
 
 collector 重连通过 ExitStack 持有全部 WS；改动后另在 target/disabled-types-confirmation 实际复采并用完整门禁核验八组语义/清理，未替换冻结数据。自有端口 53202/64563/58706 均无监听，采集进程已 wait 终止，无浏览器 task。数组早期异常/持续失败、JSON/其他控件 Rust 差分和真实 UI 继续开放，四条矩阵限制/证据和清单同步，130 partial 与完整目标保持。colconfig_params 独立改动保留，提交推送只到工作分支。
+
+
+### Disabled array errors before entry and across requests (2026-10-30)
+
+复用既有两份 Python 原始参考，未重采/改写。完整回归不再截取标量前缀：八个独立会话合计 24 轮/130 个控件、URL、异常与状态投影，原单会话合计 17 轮/40 投影；两份均由 Rust 真实 WS 严格对照。数组错误在应用入口/所有 callback 前输出，后续新输入未应用且再次失败；独立新会话正常。JSON selectbox、Plain/Text bool 和 Check string 的所测忽略行为也已完成 Rust 差分。新 helper 比较异常 delta_path、类型、文字、两个标志；不伪造 Python 来源栈，也不把投影相同说成完整 protobuf/UI 验收。
+
+WidgetRegistry 私有 input_error 区分持续的输入解码失败与可恢复的注册失败；handler 提前呈现异常并跳过 callback/entry，正常结束帧保留。输入类型、持久状态均按已确认 Python 方案，不新增公共接口、依赖或队列策略。新单元验证正常包在数组前/后两种顺序、首轮正常输入已接收而 callback 未分派、后续新输入被阻止和新状态无错误。
+
+原完整回归先因事件计数常量写成 126 而失败；核对原始参考为 130（含八次 URL 写入）后重新运行，确认在旧生产代码上真实差分失败，保留 target/disabled-array-before-confirmed.log。一次误在旧编译会话仍运行时尝试重复启动，因日志占用未启动第二进程；随后继续等待原会话完成，未据观察超时重启。修后 widgets 单元 15 项、queryparams 集成 15 项通过。加入异常位置严格比较后，全目标 Clippy -Dwarnings、Rustfmt 及工作区 260 项通过，另排除原有两项更广队列测试，没有新增排除。日志为 target/disabled-array-unit.log、disabled-array-integration.log、disabled-array-clippy.log、disabled-array-workspace.log。相关 Python/query/矩阵/文档 93 项通过（target/disabled-array-final-gates.log）。
+
+本轮未启动独立采集服务/浏览器；回归使用自有临时监听并自行关闭。现有参考 README 只改目标段落，保留其他行尾字节。四条矩阵当前限制与清单已同步，130 partial 和完整目标保持；真实错误 UI、启用/creation select 及其他 JSON/oneof 组合继续开放。colconfig_params 独立修改未纳入提交，只提交推送工作分支。
