@@ -2,6 +2,14 @@
 import streamlit as st
 
 
+def run_code_identity():
+    st.title("Code identity controls")
+    alternate = st.checkbox("Alternate code", key="code-alternate")
+    body, language = ("left", "right_python") if alternate else ("left_right", "python")
+    st.code(body, language=language, height=120, width=360)
+    st.caption(f"body={body}; language={language}")
+
+
 def run_code_live():
     st.title("Code layout controls")
     tall = st.checkbox("Tall code", key="code-tall")
@@ -42,6 +50,10 @@ def run_logo_strings():
     for case in cases:
         st.logo(**case)
 
+
+if st.query_params.get("case") == "code-identity":
+    run_code_identity()
+    st.stop()
 
 if st.query_params.get("case") == "code-live":
     run_code_live()

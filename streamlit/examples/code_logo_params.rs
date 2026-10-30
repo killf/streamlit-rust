@@ -4,6 +4,16 @@
 use ::streamlit::*;
 use streamlit::StreamlitApi;
 
+fn render_code_identity(st: &Streamlit) -> Result<(), Box<dyn std::error::Error>> {
+    st.title("Code identity controls");
+    let alternate = st.checkbox(CheckboxOptions::new("Alternate code").key("code-alternate"))?;
+
+    let (body, language) = if alternate { ("left", "right_python") } else { ("left_right", "python") };
+    st.code_options(CodeOptions::new(body, language).height(120).width(360));
+    st.caption(format!("body={body}; language={language}"));
+    Ok(())
+}
+
 fn render_code_live(st: &Streamlit) -> Result<(), Box<dyn std::error::Error>> {
     st.title("Code layout controls");
     let tall = st.checkbox(CheckboxOptions::new("Tall code").key("code-tall"))?;
@@ -74,6 +84,9 @@ fn render_code_text(st: &Streamlit) -> Result<(), Box<dyn std::error::Error>> {
 }
 
 fn render(st: &Streamlit) -> Result<(), Box<dyn std::error::Error>> {
+    if st.query_params().get("case").as_deref() == Some("code-identity") {
+        return render_code_identity(st);
+    }
     if st.query_params().get("case").as_deref() == Some("code-live") {
         return render_code_live(st);
     }

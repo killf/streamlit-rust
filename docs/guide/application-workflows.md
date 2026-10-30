@@ -269,6 +269,8 @@ metric 的字符串 delta 遵循 1.66.1 字符串语义，不能按浮点数解�
 
 另有 `code_logo_params` 的 `?case=code-live` 场景，经真实 Chrome 验证固定 360 像素宽、120/240 像素高度的往返、自动换行/行号开关及代码区上下滚动。该场景修复了高度载荷虽改变、前端却按相同 hash 复用旧元素的问题；现有代码元素身份已包含高度。Python 代码的 20 行高亮和十次有序控件观察已有对照，其他语言、尺寸/主题/响应式、复制按钮和错误边界仍未完成。
 
+`?case=code-identity` 另有正文/语言切换的真实浏览器对照：代码元素身份现在保留字段边界，避免 `left_right`/`python` 与 `left`/`right_python` 因拼接歧义而错误复用旧正文。该陌生语言标签仅验证原样传递与纯文本回退，不代表完整高亮支持。
+
 **selectbox/checkbox/pills 参数**（[select-pills-params 参考](../../tests/reference/reference-browser/select-pills-params/README.md)，5/5 一致、零实现改动确认）：`SelectboxOptions` 的 `index(None)`（不发 default）+ `placeholder`/`help`；`CheckboxOptions` 的 `value/disabled/help`；pills 的 `selection_mode(Multi)` → `MULTI_SELECT`、默认标签以**索引**上 wire、选项为 content 对象。format_func、option icons、query binding 未纳入。
 
 ## 运行配置面（显式旋钮）

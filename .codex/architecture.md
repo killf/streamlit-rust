@@ -382,3 +382,10 @@ Rust serialization-before/trace.json 是另一组原生诊断，不是同输入�
 2026-10-30 实际 Chrome 控件操作复现：Rust 状态 caption 已为 240，但代码区域仍为 120；Python 同操作立即为 240。新三请求原生 WS 参考证明两边高度载荷均为 120→240→120，Rust 修前三个 hash 相同、Python 为 A→B→A。虽然 delta_base_with_path 仍设置 cacheable=false，捆绑前端 www/static/js/index.Dlja0TUX.js 的 applyDelta 在 function to(e,t,n) 判断 e.elementHash===t 时选择旧 s.element，而不是新 o。该树复用与消息缓存标记独立，故完整帧仍会保留旧高度。
 
 最小修复只把 self.height 加入 code.rs 的既有 hash 输入，不启用缓存、不改变发送流程、公共接口或依赖。单元和真实同连接 WS 验证高度往返的内容身份关系；修后实际浏览器十个控件状态与 Python 几何/文本/高亮/行号/自动换行一致，真实内层滚动可移动并恢复到顶。保存 Python 13 与 Rust 14 个观察及修前三个失败截图，保留滚动动画的中间值，不伪造逐帧偏移一致。特殊语言、其他宽高/主题/响应式、clipboard、非字符串和无效尺寸继续开放；此前三个待决流程不变。
+
+
+### Unambiguous code identity field boundaries
+
+2026-10-30 后续实际复现正文 left_right / language python 与正文 left / language right_python 的手工下划线拼接相同。Python 原始三轮为 A/B/A，Rust 修前三轮为 A/A/A；真实 Chrome 勾选 Alternate code 后 caption 已显示新正文，但代码区仍显示 left_right 和旧语言，证明高度字段补齐不等于字段编码已无歧义。
+
+只在 code.rs 的既有 hash 调用中把七个现有字段放入 Debug 元组，保留字符串边界与转义、类型/字段顺序、height 和原 MD5 算法；没有新模块、公共接口、依赖或缓存流程。单元反例含下划线、引号、Unicode；同连接生产 WS 与三阶段真实 Chrome 均验证正文/语言切换与恢复，原始载荷保持原样。没有据此推断其他元素的手工 hash 完整或宣称任意语言标签都有语法高亮。九张正确/失败 JPEG 和原始帧保留，首次截图超时只重取同页截图，未重放控件操作。

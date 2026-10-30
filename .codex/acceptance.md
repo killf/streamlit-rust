@@ -609,3 +609,14 @@ Python 采集器关闭 WS 并停止自有服务，Rust 自有服务 session 终�
 按代码→单元→集成顺序：全目标 Clippy -D warnings、格式检查通过；代码元素单元 3 项、文本/JSON 生产 WS 集成 5 项通过（target/code-height-clippy.log、target/code-height-unit.log、target/code-height-integration.log）。工作区仍明确排除 navigation_pages_switch_and_session_state_match_the_measured_wire 与 rerun_queue_messages_match_frozen_reference，240 项通过（库 233、ledger 1、宏 2、rustdoc 4；target/code-height-workspace-remaining.log），不能称全工作区全绿。最终相关 Python 门 174 项通过（target/code-height-final-gates.log），已有 MSVC linker stdout 告警保留。逐文件复查 Rust/采集器/fixture diff，最后仅补语义空行和说明。
 
 范围只覆盖当前视口/主题、固定宽度和这段 Python 代码；其他语言、尺寸/主题/响应布局、复制按钮、非字符串和无效尺寸继续开放，矩阵仍 130 项 partial，完整目标不关闭。三个既有流程选择未越过用户决定；用户已有 colconfig_params 文件/Cargo/索引改动保持独立，阶段提交仅含本批实现与证据。
+
+
+### Code body/language field-boundary identity fix (2026-10-30)
+
+同一代码元素的 left_right/python 与 left/right_python 在旧下划线拼接下得到相同身份。新三轮原生参考、修前和修后记录各 12 元素、三次成功 finish，载荷均正确，hash 从修前 A/A/A 改为 A/B/A。真实 Chrome checkbox 操作复现修前 caption 已改而代码正文/语言仍为旧值；三个失败状态及 JPEG 保留。修后新 tab 的 initial→alternate→restored 三状态与 Python 正文、语言 class、caption、checkbox 和尺寸一致，固定布局 360×120；未知标签只证明该样本的原样传递/纯文本回退，不证明一般语法支持。
+
+最小修正只把 code.rs 七个现有身份字段编码为带字符串边界/转义的 Debug 元组，继续用原 MD5 算法、既有字段和传输；无新文件模块、依赖、公共接口或缓存流程。单元覆盖下划线、引号、Unicode 反例；真实同连接 WS 覆盖切换与恢复，原高度往返回归仍通过。Python/修前/修后共九张 JPEG 的字节/哈希/解码/裁剪尺寸和原始 protobuf 均检查；七项损坏观察 guard 被拒绝，正确 UI 规则会拒绝保留的旧正文失败。Python 初次截图请求超时发生于任何控件输入之前，仅重新观察同一 tab 并重取截图，未重放按钮/任务，collection_notes 保留这一过程。
+
+代码→单元→集成顺序检查：全目标 Clippy -D warnings、格式检查通过；代码元素单元 4 项、文本/JSON 生产 WS 6 项通过（target/code-identity-clippy.log、target/code-identity-unit.log、target/code-identity-integration.log）。工作区明确排除两项既有队列差异后共 242 项通过（库 235、ledger 1、宏 2、rustdoc 4；target/code-identity-workspace-remaining.log）；不是全工作区全绿。相关 Python 门 185 项通过（target/code-identity-final-gates.log），保留已有 MSVC linker stdout 告警；逐文件复查 Rust、fixture 和采集器 diff。
+
+两个成功浏览器 tab 在已测窗口读到的 warn/error 缓冲为空。全部三个任务 tab、两个 Rust server session、自有 Python server 和采集器连接已关闭，8607/18607 无监听。其他元素的身份逻辑、更多代码输入/布局/高亮/错误条件仍开放，矩阵仍 130 项 partial，三个待决流程未扩大实施。colconfig_params 独立改动保持未提交；本批按现有授权做工作分支提交/推送，不合并或发布。

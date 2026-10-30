@@ -105,3 +105,32 @@ window. All task-created tabs and owned services/connections were closed;
 8607/18607 had no listener afterward. This does not close full highlighting
 language support, other sizes/themes/responsive layouts, clipboard interaction,
 non-string body conversion, invalid dimensions or the complete code capability.
+
+
+## Code body/language identity boundaries (2026-10-30)
+
+The existing `?case=code-identity` scene alternates body/language pairs
+`left_right`/`python` and `left`/`right_python` with a real checkbox. The old
+underscore-joined identity string was equal for those distinct pairs. The
+[identity-rerun reference](identity-rerun/trace.json), using the collector's
+matching scenario, retains three requests, 12 element projections and A/B/A
+code hashes. Rust before/fixed packets both carry the correct fields, but the
+hash relationship changes from A/A/A to A/B/A after escaping field boundaries.
+The MD5 algorithm and existing public CodeOptions API remain unchanged.
+
+[identity-ui/trace.json](identity-ui/trace.json) is actual Chrome Browser Use,
+with initial→alternate→restored states and three context JPEGs. Rust's original
+three-stage failure and three JPEGs remain in identity-ui-before: alternate
+caption changed, but the code text/language stayed old. A new fixed tab matches
+all three Python visible text, language classes, checkbox states and geometry.
+The nine images, raw protobuf, retained failure and seven observation-corruption
+guards are checked. The unfamiliar right_python label demonstrates accepted
+pass-through/plain-text fallback in this sample, not a supported language
+catalogue. Python's initial screenshot request timed out before any control
+action; the same tab was re-observed unchanged and only the screenshot retried,
+as retained in collection_notes. No control operation or task was replayed.
+
+The two successful tabs' captured warn/error buffers were empty. All task tabs
+and owned services were closed; 8607/18607 had no listeners after cleanup.
+This does not close invalid dimensions, other elements' identity logic,
+non-string conversion, clipboard actions or wider code UI/configurations.

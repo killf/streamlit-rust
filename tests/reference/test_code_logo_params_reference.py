@@ -392,3 +392,92 @@ def test_code_live_browser_gate_rejects_broken_or_incomplete_observations(mutati
         capture["steps"][1]["checkboxes"][0]["checked"] = False
     with pytest.raises(AssertionError):
         assert_code_ui(capture, PYTHON / "ui", "python")
+
+
+def test_code_identity_wire_preserves_fields_and_separates_the_hash():
+    captures = [read(PYTHON / "identity-rerun/trace.json"), read(RUST / "identity-rerun-before/trace.json"), read(RUST / "identity-rerun/trace.json")]
+    expected = [("left_right", "python"), ("left", "right_python"), ("left_right", "python")]
+    for index, capture in enumerate(captures):
+        assert_capture(capture, expected_finishes=(0, 0, 0))
+        assert capture["runtime"] == ("python" if index == 0 else "rust") and capture["scenario"] == "code-identity"
+        assert capture["successful"] and "producer_error" not in capture
+        messages = list(frames(capture))
+        codes = [message for message in messages if isinstance(message, ForwardMsg) and message.WhichOneof("type") == "delta"
+                 and message.delta.new_element.WhichOneof("type") == "code"]
+        assert len(capture["elements"]) == 12 and len(codes) == 3
+        assert [(message.delta.new_element.code.code_text, message.delta.new_element.code.language) for message in codes] == expected
+        assert all(list(message.metadata.delta_path) == [0, 2] for message in codes)
+        assert all(message.delta.new_element.height_config.pixel_height == 120 and message.delta.new_element.width_config.pixel_width == 360 for message in codes)
+        hashes = [message.hash for message in codes]
+        assert all(hashes) and hashes[0] == hashes[2]
+        assert (hashes[0] == hashes[1]) == (index == 1)
+        requests = [message.rerun_script for message in messages if isinstance(message, BackMsg)]
+        assert len(requests) == 3 and all(request.query_string == "case=code-identity" for request in requests)
+        assert not requests[0].widget_states.widgets
+        assert [request.widget_states.widgets[0].bool_value for request in requests[1:]] == [True, False]
+        assert all(len(request.widget_states.widgets) == 1 for request in requests[1:])
+        assert capture["cleanup"]["websocket_closed"] is True
+    assert captures[0]["server_cleanup"] == "collector-owned" and captures[0]["cleanup"]["server_stopped"] is True
+    assert comparable(captures[0]) == comparable(captures[1]) == comparable(captures[2])
+
+
+def assert_identity_ui_steps(capture):
+    assert [step["stage"] for step in capture["steps"]] == ["initial", "alternate", "restored"]
+    for step, (body, language, checked) in zip(capture["steps"], [("left_right", "python", False), ("left", "right_python", True), ("left_right", "python", False)]):
+        assert step["title"] == "Code identity controls" and step["dom"]
+        assert step["caption"] == f"body={body}; language={language}" and step["checked"] == checked
+        assert step["text"] == body, "code body must follow the selected fields"
+        assert step["language_class"] == "language-" + language
+        assert step["width"] == 360 and step["height"] == 120
+        assert body in step["html"] and step["language_class"] in step["html"]
+
+
+def assert_identity_ui(capture, folder, runtime):
+    assert capture["runtime"] == runtime and capture["reference_version"] == "1.66.1"
+    assert capture["successful"] and capture["capture_method"].startswith("Browser Use Chrome extension")
+    assert capture["cleanup"] == {"browser_tabs_closed": True, "server_stopped": True, "listener_absent": True}
+    port = 18607 if runtime == "python" else 8607
+    assert all(step["url"] == f"http://127.0.0.1:{port}/?case=code-identity" for step in capture["steps"])
+    assert_identity_ui_steps(capture)
+    assert capture["console"] == []
+    assert_code_ui_screenshots(capture, folder)
+
+
+@pytest.mark.parametrize("runtime,folder", [("python", PYTHON / "identity-ui"), ("rust", RUST / "identity-ui")])
+def test_code_identity_browser_switches_both_text_and_language(runtime, folder):
+    assert_identity_ui(read(folder / "trace.json"), folder, runtime)
+
+
+def test_code_identity_browser_failure_and_fixed_semantics_are_preserved():
+    before = read(RUST / "identity-ui-before/trace.json")
+    assert before["successful"] is False
+    assert before["failure_observation"] == {"stage": "alternate", "expected_text": "left", "actual_text": "left_right",
+                                            "expected_language": "language-right_python", "actual_language": "language-python"}
+    assert_code_ui_screenshots(before, RUST / "identity-ui-before")
+    with pytest.raises(AssertionError, match="body"):
+        assert_identity_ui_steps(before)
+    python, rust = [read(folder / "trace.json") for folder in (PYTHON / "identity-ui", RUST / "identity-ui")]
+    keys = ["title", "caption", "checked", "text", "language_class", "width", "height"]
+    assert [{key: step[key] for key in keys} for step in python["steps"]] == [{key: step[key] for key in keys} for step in rust["steps"]]
+
+
+@pytest.mark.parametrize("mutation", ["body", "language", "caption", "checkbox", "dimension", "missing", "screenshot"])
+def test_code_identity_ui_gate_rejects_stale_or_corrupt_evidence(mutation):
+    capture = read(PYTHON / "identity-ui/trace.json")
+    step = capture["steps"][1]
+    if mutation == "body":
+        step["text"] = "left_right"
+    elif mutation == "language":
+        step["language_class"] = "language-python"
+    elif mutation == "caption":
+        step["caption"] = "fabricated"
+    elif mutation == "checkbox":
+        step["checked"] = False
+    elif mutation == "dimension":
+        step["width"] = 1
+    elif mutation == "missing":
+        capture["steps"].pop()
+    else:
+        capture["screenshots"][0]["sha256"] = "0" * 64
+    with pytest.raises(AssertionError):
+        assert_identity_ui(capture, PYTHON / "identity-ui", "python")

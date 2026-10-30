@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "runtime": "rust",
+  "reference_version": "1.66.1",
+  "capture_method": "Browser Use Chrome extension, real checkbox reruns",
+  "steps": [
+    {
+      "stage": "initial",
+      "captured_at_utc": "2026-10-30T06:02:57.755Z",
+      "dom": "- link \"Skip to main content\":\n  - /url: \"#stMain\"\n- banner:\n  - button \"Deploy\":\n    - generic: Deploy\n  - button \"Main menu\":\n- main:\n  - heading \"Code identity controls\" [level=1]:\n    - text: Code identity controls\n    - link \"Link to heading\":\n      - /url: \"#code-identity-controls\"\n  - checkbox \"Alternate code\"\n  - paragraph: Alternate code\n  - code: left_right\n  - paragraph: body=left_right; language=python",
+      "screenshot": "initial.jpg",
+      "caption": "body=left_right; language=python",
+      "checked": false,
+      "clip": {
+        "height": 352,
+        "width": 752,
+        "x": 904,
+        "y": 72
+      },
+      "height": 120,
+      "html": "<div class=\"stCode st-emotion-cache-1nieyi9 ej556a84\" data-testid=\"stCode\" tabindex=\"0\"><pre class=\"st-emotion-cache-1q3xlwv ej556a82\"><div style=\"background-color: transparent;\"><code class=\"language-python\" style=\"white-space: pre;\"><span>left_right</span></code></div></pre><div class=\"st-emotion-cache-1s3zrln ej556a83\"><div class=\"st-emotion-cache-vr7txb ej556a85\"><div data-testid=\"stElementToolbarButton\"><span data-testid=\"stTooltipHoverTarget\" class=\"stTooltipHoverTarget\" style=\"display: flex; flex-direction: row; justify-content: flex-end; width: auto;\"><button kind=\"elementToolbar\" data-testid=\"stBaseButton-elementToolbar\" aria-label=\"Copy to clipboard\" class=\"st-emotion-cache-1990p89 e1w3uk7w20\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\" focusable=\"false\" fill=\"currentColor\" xmlns=\"http://www.w3.org/2000/svg\" data-testid=\"stElementToolbarButtonIcon\" class=\"e1fmktau1 st-emotion-cache-gt2nlt ex0cdmw0\"><path fill=\"none\" d=\"M0 0h24v24H0V0z\"></path><path d=\"M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z\"></path></svg></button></span></div></div></div></div>",
+      "language_class": "language-python",
+      "text": "left_right",
+      "title": "Code identity controls",
+      "url": "http://127.0.0.1:8607/?case=code-identity",
+      "width": 360
+    },
+    {
+      "stage": "alternate",
+      "captured_at_utc": "2026-10-30T06:02:58.763Z",
+      "dom": "- link \"Skip to main content\":\n  - /url: \"#stMain\"\n- banner:\n  - button \"Deploy\":\n    - generic: Deploy\n  - button \"Main menu\":\n- main:\n  - heading \"Code identity controls\" [level=1]:\n    - text: Code identity controls\n    - link \"Link to heading\":\n      - /url: \"#code-identity-controls\"\n  - checkbox \"Alternate code\" [checked] [active]\n  - paragraph: Alternate code\n  - code: left_right\n  - paragraph: body=left; language=right_python",
+      "screenshot": "alternate.jpg",
+      "caption": "body=left; language=right_python",
+      "checked": true,
+      "clip": {
+        "height": 352,
+        "width": 752,
+        "x": 904,
+        "y": 72
+      },
+      "height": 120,
+      "html": "<div class=\"stCode st-emotion-cache-1nieyi9 ej556a84\" data-testid=\"stCode\" tabindex=\"0\"><pre class=\"st-emotion-cache-1q3xlwv ej556a82\"><div style=\"background-color: transparent;\"><code class=\"language-python\" style=\"white-space: pre;\"><span>left_right</span></code></div></pre><div class=\"st-emotion-cache-1s3zrln ej556a83\"><div class=\"st-emotion-cache-vr7txb ej556a85\"><div data-testid=\"stElementToolbarButton\"><span data-testid=\"stTooltipHoverTarget\" class=\"stTooltipHoverTarget\" style=\"display: flex; flex-direction: row; justify-content: flex-end; width: auto;\"><button kind=\"elementToolbar\" data-testid=\"stBaseButton-elementToolbar\" aria-label=\"Copy to clipboard\" class=\"st-emotion-cache-1990p89 e1w3uk7w20\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\" focusable=\"false\" fill=\"currentColor\" xmlns=\"http://www.w3.org/2000/svg\" data-testid=\"stElementToolbarButtonIcon\" class=\"e1fmktau1 st-emotion-cache-gt2nlt ex0cdmw0\"><path fill=\"none\" d=\"M0 0h24v24H0V0z\"></path><path d=\"M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z\"></path></svg></button></span></div></div></div></div>",
+      "language_class": "language-python",
+      "text": "left_right",
+      "title": "Code identity controls",
+      "url": "http://127.0.0.1:8607/?case=code-identity",
+      "width": 360
+    },
+    {
+      "stage": "restored",
+      "captured_at_utc": "2026-10-30T06:03:02.835Z",
+      "dom": "- link \"Skip to main content\":\n  - /url: \"#stMain\"\n- banner:\n  - button \"Deploy\":\n    - generic: Deploy\n  - button \"Main menu\":\n- main:\n  - heading \"Code identity controls\" [level=1]:\n    - text: Code identity controls\n    - link \"Link to heading\":\n      - /url: \"#code-identity-controls\"\n  - checkbox \"Alternate code\" [active]\n  - paragraph: Alternate code\n  - code: left_right\n  - paragraph: body=left_right; language=python",
+      "screenshot": "restored.jpg",
+      "caption": "body=left_right; language=python",
+      "checked": false,
+      "clip": {
+        "height": 352,
+        "width": 752,
+        "x": 904,
+        "y": 72
+      },
+      "height": 120,
+      "html": "<div class=\"stCode st-emotion-cache-1nieyi9 ej556a84\" data-testid=\"stCode\" tabindex=\"0\"><pre class=\"st-emotion-cache-1q3xlwv ej556a82\"><div style=\"background-color: transparent;\"><code class=\"language-python\" style=\"white-space: pre;\"><span>left_right</span></code></div></pre><div class=\"st-emotion-cache-1s3zrln ej556a83\"><div class=\"st-emotion-cache-vr7txb ej556a85\"><div data-testid=\"stElementToolbarButton\"><span data-testid=\"stTooltipHoverTarget\" class=\"stTooltipHoverTarget\" style=\"display: flex; flex-direction: row; justify-content: flex-end; width: auto;\"><button kind=\"elementToolbar\" data-testid=\"stBaseButton-elementToolbar\" aria-label=\"Copy to clipboard\" class=\"st-emotion-cache-1990p89 e1w3uk7w20\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\" focusable=\"false\" fill=\"currentColor\" xmlns=\"http://www.w3.org/2000/svg\" data-testid=\"stElementToolbarButtonIcon\" class=\"e1fmktau1 st-emotion-cache-gt2nlt ex0cdmw0\"><path fill=\"none\" d=\"M0 0h24v24H0V0z\"></path><path d=\"M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z\"></path></svg></button></span></div></div></div></div>",
+      "language_class": "language-python",
+      "text": "left_right",
+      "title": "Code identity controls",
+      "url": "http://127.0.0.1:8607/?case=code-identity",
+      "width": 360
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "initial.jpg",
+      "bytes": 13844,
+      "sha256": "2a6f5370a3377e31c11c9b93f72f5fb5aea59c85187ba4da64c93eb7194d193b"
+    },
+    {
+      "file": "alternate.jpg",
+      "bytes": 13983,
+      "sha256": "5654bb8d4b7df0f30643990f46fb29764d9e38b4a1312487f2ee0b54e04e8e56"
+    },
+    {
+      "file": "restored.jpg",
+      "bytes": 13858,
+      "sha256": "a50e1738dffcb9b48a7b34d37c0ce768e86a16d0556b9f73a8d017a8567da9ac"
+    }
+  ],
+  "cleanup": {
+    "browser_tabs_closed": true,
+    "server_stopped": true
+  },
+  "console": [],
+  "successful": false,
+  "failure_observation": {
+    "stage": "alternate",
+    "expected_text": "left",
+    "actual_text": "left_right",
+    "expected_language": "language-right_python",
+    "actual_language": "language-python"
+  }
+}

@@ -52,3 +52,22 @@ or dependency changed. Other languages, dimensions/themes/responsive layouts,
 clipboard actions, non-string conversion and invalid sizes stay open. A separate
 metadata-error capture is documented in the Python README and excluded from
 accepted cross-runtime evidence.
+
+
+## Body/language boundary collision (2026-10-30)
+
+[identity-rerun-before/trace.json](identity-rerun-before/trace.json) retains
+correct but distinct body/language payloads sharing one hash. The old string
+format joined left_right/python and left/right_python identically. The actual
+[identity-ui-before/trace.json](identity-ui-before/trace.json) preserves three
+states and JPEGs where the alternate caption updates but displayed code stays
+left_right. Hash input now uses an escaped tuple of the existing fields.
+
+[identity-rerun/trace.json](identity-rerun/trace.json) has the expected A/B/A
+identity relationship. [identity-ui/trace.json](identity-ui/trace.json) is a fresh
+real Chrome three-stage run matching Python text/language/geometry and checkbox
+state, with three context JPEGs. Both positive and failed captures remain;
+image integrity, raw packets and seven corruption guards are verified. Unknown
+language pass-through/fallback is measured only for this label. No public
+interface, dependency, hash algorithm or cache setting changed. Owned services,
+connections and tabs were closed; broader code compatibility stays open.

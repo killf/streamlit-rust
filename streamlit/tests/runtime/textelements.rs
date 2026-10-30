@@ -390,6 +390,69 @@ async fn code_height_changes_on_one_connection_invalidate_the_element_hash() -> 
     Ok(())
 }
 
+fn code_identity_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        let alternate = st.query_params().get("alternate").as_deref() == Some("true");
+        let (body, language) = if alternate { ("left", "right_python") } else { ("left_right", "python") };
+        st.code_options(crate::CodeOptions::new(body, language).height(120).width(360));
+    })
+}
+
+#[actix_web::test]
+async fn code_body_language_changes_do_not_share_a_hash_on_one_connection() -> TestResult {
+    // 1. 真实同连接保持路径和布局，只在曾经拼接相同的正文/语言组合间往返。
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
+    let server = HttpServer::new(move || App::new().app_data(web::Data::new(StreamlitServer::new(code_identity_entry, "127.0.0.1".into(), 0))).configure(configure_routes))
+        .workers(1)
+        .listen(listener)?
+        .run();
+    let handle = server.handle();
+    let task = actix_web::rt::spawn(server);
+    let mut stream = sessions::connect(address, None).await;
+    let mut hashes = Vec::new();
+    for alternate in [false, true, false] {
+        send_binary(
+            &mut stream,
+            &BackMsg {
+                r#type: Some(back_msg::Type::RerunScript(ClientState {
+                    query_string: format!("alternate={alternate}"),
+                    ..Default::default()
+                })),
+            }
+            .encode_to_vec(),
+        )
+        .await;
+        let mut outputs = Vec::new();
+        let finish = loop {
+            let message = receive(&mut stream).await;
+            if let Some(forward_msg::Type::ScriptFinished(status)) = message.r#type {
+                break status;
+            }
+            if let Some(forward_msg::Type::Delta(delta)) = message.r#type {
+                assert_eq!(message.metadata.ok_or("missing identity path")?.delta_path, [0, 0]);
+                let Some(delta::Type::NewElement(element)) = delta.r#type else { panic!("unexpected identity delta") };
+                let Some(element::Type::Code(code)) = element.r#type else { panic!("unexpected identity element") };
+                let expected = if alternate { ("left", "right_python") } else { ("left_right", "python") };
+                assert_eq!((code.code_text.as_str(), code.language.as_str()), expected);
+                outputs.push(message.hash);
+            }
+        };
+        assert_eq!(finish, 0);
+        assert_eq!(outputs.len(), 1);
+        hashes.push(outputs.pop().ok_or("missing identity output")?);
+    }
+    drop(stream);
+    handle.stop(false).await;
+    task.await??;
+
+    // 2. 正文/语言不同必须替换旧元素，恢复相同输入则恢复原身份。
+    assert!(!hashes[0].is_empty());
+    assert_ne!(hashes[0], hashes[1]);
+    assert_eq!(hashes[0], hashes[2]);
+    Ok(())
+}
+
 fn textelements_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
     Box::pin(async move {
         // Mirrors tests/reference/textelements_app.py.

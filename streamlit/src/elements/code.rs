@@ -61,7 +61,9 @@ impl CodeElement {
 impl Element for CodeElement {
     fn render(&self, context: &mut RenderContext) -> Result<(), StreamlitError> {
         // 官方前端按 hash 复用整个 Element，即使 cacheable=false，高度也必须参与身份。
-        let element_hash = hash(format!("code_{}_{}_{}_{}_{:?}_{:?}_{:?}", self.code_text, self.language, self.show_line_numbers, self.wrap_lines, self.width, self.height, self.text_alignment).as_str());
+        // Debug 元组为字符串字段保留边界和转义，避免正文/语言中的下划线产生相同输入。
+        let identity = (&self.code_text, &self.language, self.show_line_numbers, self.wrap_lines, &self.width, &self.height, &self.text_alignment);
+        let element_hash = hash(&format!("code_{identity:?}"));
         let mut msg = delta_base_with_path(context.delta_path.clone(), context.active_script_hash.clone(), element_hash);
 
         let width_config: Option<WidthConfig> = self.width.clone().map(Into::into);
@@ -141,6 +143,25 @@ mod tests {
         assert!(!hashes[0].is_empty());
         assert_ne!(hashes[0], hashes[1], "height-only changes must replace the previous frontend element");
         assert_eq!(hashes[0], hashes[2], "restoring the same code/layout restores its hash");
+        Ok(())
+    }
+
+    #[test]
+    fn code_body_and_language_boundaries_cannot_alias() -> Result<(), Box<dyn std::error::Error>> {
+        let cases = [("left_right", "python", "left", "right_python"), ("a_\"b", "c", "a", "\"b_c"), ("🤖_工具", "python", "🤖", "工具_python")];
+        for (body, language, other_body, other_language) in cases {
+            let mut hashes = Vec::new();
+            for (text, tag) in [(body, language), (other_body, other_language), (body, language)] {
+                let (sender, _receiver) = tokio::sync::mpsc::unbounded_channel();
+                let mut context = RenderContext::with_sender("code-identity".into(), sender);
+                context.delta_path = vec![0, 0];
+                CodeElement::new(text.into(), tag.into()).render(&mut context)?;
+                hashes.push(context.stream.pop().ok_or("missing code identity message")?.hash);
+            }
+
+            assert_ne!(hashes[0], hashes[1], "distinct body/language fields must not alias");
+            assert_eq!(hashes[0], hashes[2]);
+        }
         Ok(())
     }
 }
