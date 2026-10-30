@@ -574,3 +574,14 @@ Logo 自动字符串分类使用现有 emoji 数据表识别完整序列，覆�
 按代码、单元、集成顺序验证：workspace/all-targets clippy -D warnings 通过（target/json-numbers-clippy.log）；pywire 单元 5 项通过（target/json-numbers-unit.log）；文本/JSON 生产 WS 集成 3 项通过（target/json-numbers-integration.log）。现有运行共享编码的工作区回归在明确排除两项已知队列差异后 235 项通过（库 228、ledger 1、宏 2、rustdoc 4；target/json-numbers-workspace-remaining.log），并非完整工作区全绿。相关 Python 原始帧/字段/路径/宽度/矩阵/文档门 140 项通过（target/json-numbers-gates.log）。保留既有 MSVC linker stdout 告警；本轮 rustfmt 已按项目 edition 2024 运行，并逐文件检查改动。
 
 采集器停止自有 Python 服务，两次自有 Rust 服务 session 均终止，8604 无监听。没有浏览器数值渲染验收、公共接口或依赖变更；非有限值在 to_value 前的信息保留方案需另行确定，自定义序列化失败、任意精度/舍入、更广数字和其他未测能力仍开放。矩阵仍 130 项 partial；用户已有 colconfig_params 改动保持独立，不纳入本批提交。此批将按已授权工作分支提交并推送，不合并或发布。
+
+
+### JSON mapping keys, serialization warnings and failure recovery references (2026-10-30)
+
+扩展现有 JSON fixture/collector，未修改生产序列化流程。Python serialization/trace.json 固定 17 组输入：13 成功、4 捕获异常、5 条 warning，加报告与 repr 次数共 37 个元素。门逐帧解码绑定摘要，核对完整有序 body、JSON/alert 宽度、路径、结束标志和 cleanup。重复文本键必须逐字保留，不经普通 dict 合并；七项损坏 guard 同时修改原始 protobuf 和相应摘要，通用帧校验仍通过后，语义门拒绝重复键折叠、非有限键改变、warning 格式、递归 skipkeys、错误类型、恢复值和重试次数错误。保留正确原始记录不改写。
+
+现有 Rust JSON 示例增加独立 serialization 诊断，必然错误的自定义 Serialize 和 None-key BTreeMap 前后均发标记。生产原生 WS serialization-before/trace.json 仅五个报告/标记元素、finish=0，没有两份失败输入的 JSON，也无 alert/exception。它证明当前静默丢弃并继续，不是与 17 个 Python 输入同场景比较，不接受该差异。固定失败证据门不会要求将来的运行实现保留错误行为。未把 Python 专用 repr、集合一般顺序或循环引用映射伪称为 Rust 已支持。
+
+示例代码检查 cargo clippy -p streamlit --example json_badge_params --offline --locked -- -D warnings、构建及 rustfmt edition 2024 检查通过，保留既有 MSVC linker stdout 告警；日志 target/json-serialization-example-clippy.log 与 target/json-serialization-example-build.log。JSON 门 32 项通过，最终相关 Python 参数/原始证据/矩阵/文档门 149 项通过（target/json-serialization-final-gates.log）。本批无库代码修改，未重复上一批已验证单元/工作区回归；上一批 235 项通过仍带两个已知队列排除项，不能报告本次全工作区全绿。
+
+Python 采集器关闭 WS 并停止自有服务，Rust 自有服务 session 终止，8604 无监听；未运行本批浏览器 UI。内部文本序列化器/值树/暂缓三项流程取舍已请求用户决定，并在 architecture 中写清拟改文件、影响和验证；尚未收到答复，未实施新序列化流程、公共接口或依赖。JsonOptions 与发送队列两项既有取舍仍待决。矩阵 130 项 partial 和完整目标继续开放，colconfig_params 独立工作区改动不进入本批阶段提交。

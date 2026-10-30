@@ -76,7 +76,31 @@ fn render_numbers(st: &Streamlit) -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
+struct JsonSerializationFailure;
+
+impl serde::Serialize for JsonSerializationFailure {
+    fn serialize<S: serde::Serializer>(&self, _serializer: S) -> Result<S::Ok, S::Error> {
+        Err(serde::ser::Error::custom("synthetic Serde failure"))
+    }
+}
+
+fn render_serialization(st: &Streamlit) {
+    st.json(serde_json::json!({"rust_diagnostics": ["none-map-key", "custom-serde-error"]}));
+
+    st.json(serde_json::json!({"stage": "before-none-key"}));
+    st.json(std::collections::BTreeMap::from([(None, "nil"), (Some(2), "two")]));
+    st.json(serde_json::json!({"stage": "after-none-key"}));
+
+    st.json(serde_json::json!({"stage": "before-serde-error"}));
+    st.json(JsonSerializationFailure);
+    st.json(serde_json::json!({"stage": "after-serde-error"}));
+}
+
 fn render(st: &Streamlit) -> Result<(), Box<dyn std::error::Error>> {
+    if st.query_params().get("case").as_deref() == Some("serialization") {
+        render_serialization(st);
+        return Ok(());
+    }
     if st.query_params().get("case").as_deref() == Some("numbers") {
         return render_numbers(st);
     }

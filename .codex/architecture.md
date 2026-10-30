@@ -355,3 +355,18 @@ console buffer 各有八条同文 react-json-view scalar 错误日志，属于�
 2026-10-30 同一 JSON fixture/example/collector 增加 numbers 场景：19 个 f64 文本输入分别调用 st.json(value) 与 st.json([value])，连输入报告共 39 个输出。旧 Rust 的八组有限值在指数正号、两位补零和 1e-5 记法上不同；pywire 现有数字写入统一处理普通/compact/pairs 路径，整数保持原样，无新公共接口或依赖。固定原始参考与修复前、后记录分别保留；16 个有限值的 33 个报告/输出载荷已匹配。
 
 三组非有限值（NaN、Infinity、-Infinity）在 Python JSON body 中原样发出，Rust 的 serde_json::to_value 在 pywire 之前已把它们变成 null，现有 Value 编码无法还原。两种调用形态的六个差异继续记录为未完成。处理需要在转 Value 前保留浮点信息的内部序列化设计；不得使用特殊字符串哨兵或把 null 当作兼容结果。该设计与已待决的 JsonOptions 深度/宽度接口相互独立，当前未擅自引入自定义 Serializer、类型模型或依赖。自定义序列化失败、任意精度/舍入与更广数值/浏览器组合仍开放。
+
+
+### Pending lossless JSON serialization flow decision (2026-10-30)
+
+原生证据已扩展：Python serialization/trace.json 有 17 组输入、13 成功/4 捕获异常、5 条 warning，共 37 个元素。None/bool/float/非有限映射键转为文本，规范化后相同的键仍按原始顺序重复保留，不能经普通字符串键 Map 合并。tuple/complex 键先 warning 再递归 skipkeys；自定义 repr 的 TypeError 导致 warning 和第二次调用，ValueError 不重试；循环引用为 ValueError，调用方捕获后可恢复。sets、bytes 和稳定自定义 repr 只证明这一组 Python 输入，不宣称一般集合顺序或 Rust 类型映射。
+
+Rust serialization-before/trace.json 是另一组原生诊断，不是同输入跨语言比较：BTreeMap<Option<i32>, &str> 中 None 键和必然返回错误的自定义 Serialize 均没有输出，也没有 alert/exception；前后四个 JSON 标记和输入报告全部出现，finish=0。这证明当前 API 静默丢弃错误输出并继续；不把五元素诊断当作兼容通过。生产流程未在此批修改。
+
+已提交用户选择（AGENTS.md 第 2 条的流程取舍），尚待回复：
+
+1. 推荐在既有 pywire.rs 中实现内部 Serde 文本序列化器，在 api.rs 的 JSON 路径调用；直接生成文本并复用 ASCII 字符串与有限数字写入，保留 f64 非有限值、整数、映射原始次序/重复文本键，避免先转 serde_json::Value 的损失。无新文件、依赖或公共接口。不能以字符串哨兵编码 NaN。
+2. 在相同文件中使用内部值树，保存浮点、映射原始键和序列，再生成 Python 风格文本；阶段与调试直观，但多一层类型与分配，映射必须使用条目序列保留重复键。
+3. 暂缓内部流程，继续其他兼容项；这些差异仍属未完成，不接受为长期兼容限制。
+
+此选择只决定保留可表达输入的内部流程，不自动改变自定义 Serialize 失败的公共传播策略，也不自动实现 Python 专用类型 repr、循环检测或 invalid-key fallback。新参考明确这些仍需处理，不缩减完整目标。此前 JsonOptions 返回 Result 的公共接口以及发送队列保留表仍分别待决。预计修改 pywire.rs/api.rs、既有 JSON 示例与单元/生产 WS/证据门；验证先代码、单元、集成，再检查字符串原样传递、16 个有限值、三种非有限值、嵌套与映射顺序/重复键。Rust 无法表达的 Python 类型不伪造通过。

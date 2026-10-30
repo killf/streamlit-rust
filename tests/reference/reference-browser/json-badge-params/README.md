@@ -140,3 +140,40 @@ is recorded failure evidence, not accepted compatibility. A different internal
 serialization flow needs a separate design decision; custom serialization
 failures, arbitrary precision/rounding, wider numeric input sets, numeric UI,
 integer expansion/width and the wider JSON scope remain open.
+
+
+## Mapping keys, fallback, errors and recovery (2026-10-30; reference only)
+
+[serialization/trace.json](serialization/trace.json), collected with the same
+fixture/collector and `--scenario serialization`, retains 17 cases: 13 accepted
+outputs, four caught failures, five warnings, input/result reports and repr
+call counts (37 elements). Complete raw protobuf, field projections, element
+paths, warning order/format/width, JSON stretch width and finish=0 are checked.
+The collector closed its owned connection and stopped its Python process.
+
+Primitive/float/nonfinite mapping keys become text. The colliding keys 1/"1"
+and None/"null" both remain, in original order, in the body text; ordinary
+json.loads would merge them, so the gate compares the exact raw body. Invalid
+tuple/complex keys produce a warning then are skipped recursively; even a map
+with only invalid keys can render an empty object. A fixed integer set becomes
+a list (this is not a guarantee of arbitrary set order), bytes use Python repr,
+and the custom object has a deliberately stable repr without a memory address.
+
+A repr TypeError first generates a warning, then fails on the retry: the final
+counter records two calls. Repr ValueError fails with one call and no warning.
+Circular list/dict values fail with ValueError. Reports preserve exact exception
+names/messages; they are caught by the fixture and are not framework exception
+UI or Python stack equivalence. The final recovery JSON proves continued use.
+
+Seven negative guards modify both raw protobuf and its matching summary so
+generic decoding still passes, but semantic validation rejects folded duplicate
+keys, changed nonfinite keys, warning format, nested skipkeys, error type,
+recovery state and retry count. No correct capture is rewritten.
+
+The Rust serialization-before capture separately diagnoses a None-key map and
+a synthetic Serialize failure, with five before/after/report markers and no
+alert/exception for either rejected output. These two diagnostic inputs differ
+from the 17 Python cases and are not claimed as a matching cross-runtime run.
+Lossless text serializer versus internal typed-tree design awaits user choice;
+warning/error propagation, Python-specific type conversion and wider scope
+remain open. This does not close JSON or change its compatibility denominator.

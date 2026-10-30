@@ -29,6 +29,57 @@ def run_numbers():
         st.json([value])
 
 
+def run_serialization():
+    repr_calls = {"type_error": 0, "value_error": 0}
+
+    class StableRepr:
+        def __repr__(self):
+            return "StableRepr(value=7)"
+
+    class TypeFailure:
+        def __repr__(self):
+            repr_calls["type_error"] += 1
+            raise TypeError("synthetic repr type failure")
+
+    class ValueFailure:
+        def __repr__(self):
+            repr_calls["value_error"] += 1
+            raise ValueError("synthetic repr value failure")
+
+    circular_list = []
+    circular_list.append(circular_list)
+    circular_dict = {}
+    circular_dict["self"] = circular_dict
+    cases = [
+        ("primitive-values", {"plain": 1, "false": False, "nil": None}),
+        ("primitive-keys", {None: "nil", False: "no", 2: "two"}),
+        ("float-keys", {1.5: "fraction", -0.0: "negative-zero", 1e16: "large", 1e-5: "small"}),
+        ("nonfinite-keys", {float("nan"): "nan", float("inf"): "positive", float("-inf"): "negative"}),
+        ("key-text-collisions", {1: "integer", "1": "string", None: "none", "null": "string-null"}),
+        ("tuple-key", {("x",): "drop", "kept": 1}),
+        ("nested-tuple-key", {"outer": {("x",): "drop", "kept": 1}}),
+        ("complex-key", {1 + 2j: "drop", "kept": 2}),
+        ("all-invalid-keys", {(1,): "drop", 1 + 2j: "drop"}),
+        ("set-value", {"set": {1, 2}}),
+        ("bytes-value", {"bytes": b"hi\n\xff"}),
+        ("stable-object", {"object": StableRepr()}),
+        ("repr-type-error", {"value": TypeFailure()}),
+        ("repr-value-error", {"value": ValueFailure()}),
+        ("circular-list", circular_list),
+        ("circular-dict", circular_dict),
+        ("recovery", {"recovered": True}),
+    ]
+    st.json({"serialization_cases": [label for label, _ in cases]})
+    for index, (label, value) in enumerate(cases):
+        try:
+            st.json(value)
+        except Exception as error:
+            st.json({"index": index, "label": label, "ok": False, "error_type": type(error).__name__, "message": str(error)})
+        else:
+            st.json({"index": index, "label": label, "ok": True})
+    st.json({"repr_calls": repr_calls})
+
+
 def run_expansion():
     cases = [
         {"label": "default", "kwargs": {}},
@@ -59,6 +110,10 @@ def run_expansion():
         else:
             st.json({"index": index, "label": case["label"], "ok": True})
 
+
+if st.query_params.get("case") == "serialization":
+    run_serialization()
+    st.stop()
 
 if st.query_params.get("case") == "numbers":
     run_numbers()

@@ -23,7 +23,7 @@ from websockets.sync.client import connect
 ROOT = Path(__file__).resolve().parents[2]
 parser = argparse.ArgumentParser(description='Collect the json/badge/feedback reference once; never overwrite.')
 parser.add_argument('--out', type=Path, required=True)
-parser.add_argument('--scenario', choices=('parameters', 'strings', 'expansion', 'numbers'), default='parameters')
+parser.add_argument('--scenario', choices=('parameters', 'strings', 'expansion', 'numbers', 'serialization'), default='parameters')
 parser.add_argument('--url', help='caller-owned Rust server URL (comparison capture)')
 args = parser.parse_args()
 OUT = args.out.resolve()

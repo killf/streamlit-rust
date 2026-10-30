@@ -47,3 +47,22 @@ serialization compatibility claim. Shared py_dumps/compact/pairs unit tests,
 finite production WS tests and raw-frame evidence gates cover the correction.
 Nonfinite preservation requires a separate internal serialization decision;
 public JSON expansion/width and rerun policy choices remain pending.
+
+
+## Existing serialization failures (2026-10-30; diagnostic evidence)
+
+[serialization-before/trace.json](serialization-before/trace.json) uses the
+existing example at `?case=serialization`: an input report plus before/after
+markers around a BTreeMap with a None key and a custom Serialize implementation
+that returns a synthetic error. Only those five JSON elements appear; there
+is no JSON for the rejected inputs and no alert or exception, with finish=0.
+This records current silent omission and continuation; it does not accept that
+behavior or gate the future runtime to retain it. The test checks the frozen
+failure artifact rather than requiring the running implementation to fail.
+
+This Rust diagnostic intentionally has different inputs from the 17-case
+[Python serialization reference](../../reference/reference-browser/json-badge-params/serialization/trace.json).
+There is no field-for-field compatibility claim for the two sequences. The
+collector closed its owned WS connection, and the caller stopped the Rust
+service afterward. No browser observation is claimed. Internal serialization
+flow and public error propagation remain explicit open decisions.

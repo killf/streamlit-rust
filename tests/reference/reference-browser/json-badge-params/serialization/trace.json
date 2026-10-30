@@ -1,0 +1,1566 @@
+{
+  "schema_version": 1,
+  "runtime": "python",
+  "reference_version": "1.66.1",
+  "captured_at_utc": "2026-10-30T05:07:40.101217+00:00",
+  "scenario": "serialization",
+  "scope": "Element wire of json/badge/feedback parameter edges over one native WS; no browser/UI claim.",
+  "server_command": [
+    "C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Scripts\\python.exe",
+    "-B",
+    "-m",
+    "streamlit",
+    "run",
+    "C:\\Users\\killf\\github\\streamlit-rust\\tests\\reference\\json_badge_params_app.py",
+    "--server.address=127.0.0.1",
+    "--server.port=64276",
+    "--server.headless=true",
+    "--server.fileWatcherType=none",
+    "--browser.gatherUsageStats=false"
+  ],
+  "server_cleanup": "collector-owned",
+  "url": "http://127.0.0.1:64276",
+  "frames": [
+    {
+      "direction": "client->server",
+      "bytes": 22,
+      "base64": "WhQKEmNhc2U9c2VyaWFsaXphdGlvbg==",
+      "message": {
+        "rerun_script": {
+          "query_string": "case=serialization"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 431,
+      "base64": "IqwDCq0BCl4KJDc5MDk1MDBjLWU1OWEtNTJlNy05ZjUzLWQzZGUwYzZhN2RmNCokNzkwOTUwMGMtZTU5YS01MmU3LTlmNTMtZDNkZTBjNmE3ZGY0MhBuby1tYWNoaW5lLWlkLXY0GiEKBjEuNjYuMRIOMy4xNC43LmZpbmFsLjAaB3dpbmRvd3MiAhABMiQ0MmNlNTg4ZC01MGYxLTQ5YTktYjEzMC03NGY5YTk3NTFjNDQSJDE1Yjk1OTEyLTY4ZGQtNDUzYi05YWM5LWRhMWRmMmNlNTEyMhoVanNvbl9iYWRnZV9wYXJhbXNfYXBwIk1DOlxVc2Vyc1xraWxsZlxnaXRodWJcc3RyZWFtbGl0LXJ1c3RcdGVzdHNccmVmZXJlbmNlXGpzb25fYmFkZ2VfcGFyYW1zX2FwcC5weTIGGAIoAUgBQiIKIGFkZTFhZTVhNmYzMDI0MjJjY2IxYTIyNjUzNjM2OWQ2SiBhZGUxYWU1YTZmMzAyNDIyY2NiMWEyMjY1MzYzNjlkNlogYWRlMWFlNWE2ZjMwMjQyMmNjYjFhMjI2NTM2MzY5ZDY=",
+      "message": {
+        "new_session": {
+          "initialize": {
+            "user_info": {
+              "installation_id": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v3": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v4": "no-machine-id-v4"
+            },
+            "environment_info": {
+              "streamlit_version": "1.66.1",
+              "python_version": "3.14.7.final.0",
+              "server_os": "windows"
+            },
+            "session_status": {
+              "script_is_running": true
+            },
+            "session_id": "42ce588d-50f1-49a9-b130-74f9a9751c44"
+          },
+          "script_run_id": "15b95912-68dd-453b-9ac9-da1df2ce5122",
+          "name": "json_badge_params_app",
+          "main_script_path": "C:\\Users\\killf\\github\\streamlit-rust\\tests\\reference\\json_badge_params_app.py",
+          "config": {
+            "max_cached_message_age": 2,
+            "allow_run_on_save": true,
+            "show_error_links": "SHOW_ERROR_LINKS_AUTO"
+          },
+          "app_pages": [
+            {
+              "page_script_hash": "ade1ae5a6f302422ccb1a226536369d6"
+            }
+          ],
+          "page_script_hash": "ade1ae5a6f302422ccb1a226536369d6",
+          "main_script_hash": "ade1ae5a6f302422ccb1a226536369d6"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 4,
+      "base64": "SgIQAQ==",
+      "message": {
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 410,
+      "base64": "CiAwZDg4MmJhMDJmZWM2ZmZiMTA5NmQzNWRmNzJhYjc3ORImEgIAACIgYWRlMWFlNWE2ZjMwMjQyMmNjYjFhMjI2NTM2MzY5ZDYqzQIaygL6AcECCrwCeyJzZXJpYWxpemF0aW9uX2Nhc2VzIjogWyJwcmltaXRpdmUtdmFsdWVzIiwgInByaW1pdGl2ZS1rZXlzIiwgImZsb2F0LWtleXMiLCAibm9uZmluaXRlLWtleXMiLCAia2V5LXRleHQtY29sbGlzaW9ucyIsICJ0dXBsZS1rZXkiLCAibmVzdGVkLXR1cGxlLWtleSIsICJjb21wbGV4LWtleSIsICJhbGwtaW52YWxpZC1rZXlzIiwgInNldC12YWx1ZSIsICJieXRlcy12YWx1ZSIsICJzdGFibGUtb2JqZWN0IiwgInJlcHItdHlwZS1lcnJvciIsICJyZXByLXZhbHVlLWVycm9yIiwgImNpcmN1bGFyLWxpc3QiLCAiY2lyY3VsYXItZGljdCIsICJyZWNvdmVyeSJdfRAB0gMCCAE=",
+      "message": {
+        "hash": "0d882ba02fec6ffb1096d35df72ab779",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "ade1ae5a6f302422ccb1a226536369d6"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"serialization_cases\": [\"primitive-values\", \"primitive-keys\", \"float-keys\", \"nonfinite-keys\", \"key-text-collisions\", \"tuple-key\", \"nested-tuple-key\", \"complex-key\", \"all-invalid-keys\", \"set-value\", \"bytes-value\", \"stable-object\", \"repr-type-error\", \"repr-value-error\", \"circular-list\", \"circular-dict\", \"recovery\"]}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 131,
+      "base64": "CiAyOTNlYTZlMDU4YTg5MDAzYTZhOWVjZWJhODA0MjgwMRImEgIAASIgYWRlMWFlNWE2ZjMwMjQyMmNjYjFhMjI2NTM2MzY5ZDYqNxo1+gEtCil7InBsYWluIjogMSwgImZhbHNlIjogZmFsc2UsICJuaWwiOiBudWxsfRAB0gMCCAE=",
+      "message": {
+        "hash": "293ea6e058a89003a6a9eceba8042801",
+        "metadata": {
+          "delta_path": [
+            0,
+            1
+          ],
+          "active_script_hash": "ade1ae5a6f302422ccb1a226536369d6"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"plain\": 1, \"false\": false, \"nil\": null}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 143,
+      "base64": "CiA2NDNkOGQ2ZmI0ODU4MGU4NjY2MzZjYzU0NzI0ODNlNRImEgIAAiIgYWRlMWFlNWE2ZjMwMjQyMmNjYjFhMjI2NTM2MzY5ZDYqQxpB+gE5CjV7ImluZGV4IjogMCwgImxhYmVsIjogInByaW1pdGl2ZS12YWx1ZXMiLCAib2siOiB0cnVlfRAB0gMCCAE=",
+      "message": {
+        "hash": "643d8d6fb48580e866636cc5472483e5",
+        "metadata": {
+          "delta_path": [
+            0,
+            2
+          ],
+          "active_script_hash": "ade1ae5a6f302422ccb1a226536369d6"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 0, \"label\": \"primitive-values\", \"ok\": true}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 132,
+      "base64": "CiAzOGFlZTRlODcwMDA0MGFhY2Y5YjhiYzVlMDhlMDRkYhImEgIAAyIgYWRlMWFlNWE2ZjMwMjQyMmNjYjFhMjI2NTM2MzY5ZDYqOBo2+gEuCip7Im51bGwiOiAibmlsIiwgImZhbHNlIjogIm5vIiwgIjIiOiAidHdvIn0QAdIDAggB",
+      "message": {
+        "hash": "38aee4e8700040aacf9b8bc5e08e04db",
+        "metadata": {
+          "delta_path": [
+            0,
+            3
+          ],
+          "active_script_hash": "ade1ae5a6f302422ccb1a226536369d6"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"null\": \"nil\", \"false\": \"no\", \"2\": \"two\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 141,
+      "base64": "CiA0Nzc3YjRlMzBkNzRmYzkyZTI2MWQyNDg5ZWI4OWJiMhImEgIABCIgYWRlMWFlNWE2ZjMwMjQyMmNjYjFhMjI2NTM2MzY5ZDYqQRo/+gE3CjN7ImluZGV4IjogMSwgImxhYmVsIjogInByaW1pdGl2ZS1rZXlzIiwgIm9rIjogdHJ1ZX0QAdIDAggB",
+      "message": {
+        "hash": "4777b4e30d74fc92e261d2489eb89bb2",
+        "metadata": {
+          "delta_path": [
+            0,
+            4
+          ],
+          "active_script_hash": "ade1ae5a6f302422ccb1a226536369d6"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 1, \"label\": \"primitive-keys\", \"ok\": true}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 170,
+      "base64": "CiBjMTcwOGYzNDVjYTAyNTYyNjk5NmUwNTI4NGYzMjRkORImEgIABSIgYWRlMWFlNWE2ZjMwMjQyMmNjYjFhMjI2NTM2MzY5ZDYqXhpc+gFUClB7IjEuNSI6ICJmcmFjdGlvbiIsICItMC4wIjogIm5lZ2F0aXZlLXplcm8iLCAiMWUrMTYiOiAibGFyZ2UiLCAiMWUtMDUiOiAic21hbGwifRAB0gMCCAE=",
+      "message": {
+        "hash": "c1708f345ca025626996e05284f324d9",
+        "metadata": {
+          "delta_path": [
+            0,
+            5
+          ],
+          "active_script_hash": "ade1ae5a6f302422ccb1a226536369d6"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"1.5\": \"fraction\", \"-0.0\": \"negative-zero\", \"1e+16\": \"large\", \"1e-05\": \"small\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 137,
+      "base64": "CiBiM2Q5Mjg2NmNmMWU3YjhkYjZlNTU0NTcyZTAxOGE4YxImEgIABiIgYWRlMWFlNWE2ZjMwMjQyMmNjYjFhMjI2NTM2MzY5ZDYqPRo7+gEzCi97ImluZGV4IjogMiwgImxhYmVsIjogImZsb2F0LWtleXMiLCAib2siOiB0cnVlfRAB0gMCCAE=",
+      "message": {
+        "hash": "b3d92866cf1e7b8db6e554572e018a8c",
+        "metadata": {
+          "delta_path": [
+            0,
+            6
+          ],
+          "active_script_hash": "ade1ae5a6f302422ccb1a226536369d6"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 2, \"label\": \"float-keys\", \"ok\": true}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 153,
+      "base64": "CiBmZTc2MzdmM2Q1MTUwNDcyZDg4NmMwMWUxMGJkNmEzMRImEgIAByIgYWRlMWFlNWE2ZjMwMjQyMmNjYjFhMjI2NTM2MzY5ZDYqTRpL+gFDCj97Ik5hTiI6ICJuYW4iLCAiSW5maW5pdHkiOiAicG9zaXRpdmUiLCAiLUluZmluaXR5IjogIm5lZ2F0aXZlIn0QAdIDAggB",
+      "message": {
+        "hash": "fe7637f3d5150472d886c01e10bd6a31",
+        "metadata": {
+          "delta_path": [
+            0,
+            7
+          ],
+          "active_script_hash": "ade1ae5a6f302422ccb1a226536369d6"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"NaN\": \"nan\", \"Infinity\": \"positive\", \"-Infinity\": \"negative\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 141,
+      "base64": "CiBkNjM1YzYxYjE1ZTA2NDc4MGViNTQ4ZWExZmMxOGViYRImEgIACCIgYWRlMWFlNWE2ZjMwMjQyMmNjYjFhMjI2NTM2MzY5ZDYqQRo/+gE3CjN7ImluZGV4IjogMywgImxhYmVsIjogIm5vbmZpbml0ZS1rZXlzIiwgIm9rIjogdHJ1ZX0QAdIDAggB",
+      "message": {
+        "hash": "d635c61b15e064780eb548ea1fc18eba",
+        "metadata": {
+          "delta_path": [
+            0,
+            8
+          ],
+          "active_script_hash": "ade1ae5a6f302422ccb1a226536369d6"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 3, \"label\": \"nonfinite-keys\", \"ok\": true}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 160,
+      "base64": "CiA4ZGRiYTk4Y2NmZDA1MTEwNzVhZmJhMzYzY2RhZjg0ZBImEgIACSIgYWRlMWFlNWE2ZjMwMjQyMmNjYjFhMjI2NTM2MzY5ZDYqVBpS+gFKCkZ7IjEiOiAiaW50ZWdlciIsICIxIjogInN0cmluZyIsICJudWxsIjogIm5vbmUiLCAibnVsbCI6ICJzdHJpbmctbnVsbCJ9EAHSAwIIAQ==",
+      "message": {
+        "hash": "8ddba98ccfd0511075afba363cdaf84d",
+        "metadata": {
+          "delta_path": [
+            0,
+            9
+          ],
+          "active_script_hash": "ade1ae5a6f302422ccb1a226536369d6"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"1\": \"integer\", \"1\": \"string\", \"null\": \"none\", \"null\": \"string-null\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 146,
+      "base64": "CiBhYThmNmM1OGY1ODRlZjdlZmYxMGQyNGViM2JkMDYxORImEgIACiIgYWRlMWFlNWE2ZjMwMjQyMmNjYjFhMjI2NTM2MzY5ZDYqRhpE+gE8Cjh7ImluZGV4IjogNCwgImxhYmVsIjogImtleS10ZXh0LWNvbGxpc2lvbnMiLCAib2siOiB0cnVlfRAB0gMCCAE=",
+      "message": {
+        "hash": "aa8f6c58f584ef7eff10d24eb3bd0619",
+        "metadata": {
+          "delta_path": [
+            0,
+            10
+          ],
+          "active_script_hash": "ade1ae5a6f302422ccb1a226536369d6"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 4, \"label\": \"key-text-collisions\", \"ok\": true}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 260,
+      "base64": "CiBlZTUyYzk1ZTY3MDA1NDExYWRkZDdjYWIyNmI2YWQ4OBImEgIACyIgYWRlMWFlNWE2ZjMwMjQyMmNjYjFhMjI2NTM2MzY5ZDYqtwEatAHyAbABCqcBV2FybmluZzogdGhpcyBkYXRhIHN0cnVjdHVyZSB3YXMgbm90IGZ1bGx5IHNlcmlhbGl6YWJsZSBhcyBKU09OIGR1ZSB0byBvbmUgb3IgbW9yZSB1bmV4cGVjdGVkIGtleXMuICAoRXJyb3Igd2FzOiBrZXlzIG11c3QgYmUgc3RyLCBpbnQsIGZsb2F0LCBib29sIG9yIE5vbmUsIG5vdCB0dXBsZSkQAiICCAE=",
+      "message": {
+        "hash": "ee52c95e67005411addd7cab26b6ad88",
+        "metadata": {
+          "delta_path": [
+            0,
+            11
+          ],
+          "active_script_hash": "ade1ae5a6f302422ccb1a226536369d6"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": "Warning: this data structure was not fully serializable as JSON due to one or more unexpected keys.  (Error was: keys must be str, int, float, bool or None, not tuple)",
+              "format": "WARNING",
+              "width_config": {
+                "use_stretch": true
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 101,
+      "base64": "CiAyMTM5YjQ1YTc3ODllZGUyNzAxNjdiNjRhM2E3ZTBkNhImEgIADCIgYWRlMWFlNWE2ZjMwMjQyMmNjYjFhMjI2NTM2MzY5ZDYqGRoX+gEPCgt7ImtlcHQiOiAxfRAB0gMCCAE=",
+      "message": {
+        "hash": "2139b45a7789ede270167b64a3a7e0d6",
+        "metadata": {
+          "delta_path": [
+            0,
+            12
+          ],
+          "active_script_hash": "ade1ae5a6f302422ccb1a226536369d6"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"kept\": 1}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 136,
+      "base64": "CiAwOTM0ZWMzOTVmNWViZDA2NTlkYzExZmUyYmJhYzM4YxImEgIADSIgYWRlMWFlNWE2ZjMwMjQyMmNjYjFhMjI2NTM2MzY5ZDYqPBo6+gEyCi57ImluZGV4IjogNSwgImxhYmVsIjogInR1cGxlLWtleSIsICJvayI6IHRydWV9EAHSAwIIAQ==",
+      "message": {
+        "hash": "0934ec395f5ebd0659dc11fe2bbac38c",
+        "metadata": {
+          "delta_path": [
+            0,
+            13
+          ],
+          "active_script_hash": "ade1ae5a6f302422ccb1a226536369d6"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 5, \"label\": \"tuple-key\", \"ok\": true}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 260,
+      "base64": "CiBlZTUyYzk1ZTY3MDA1NDExYWRkZDdjYWIyNmI2YWQ4OBImEgIADiIgYWRlMWFlNWE2ZjMwMjQyMmNjYjFhMjI2NTM2MzY5ZDYqtwEatAHyAbABCqcBV2FybmluZzogdGhpcyBkYXRhIHN0cnVjdHVyZSB3YXMgbm90IGZ1bGx5IHNlcmlhbGl6YWJsZSBhcyBKU09OIGR1ZSB0byBvbmUgb3IgbW9yZSB1bmV4cGVjdGVkIGtleXMuICAoRXJyb3Igd2FzOiBrZXlzIG11c3QgYmUgc3RyLCBpbnQsIGZsb2F0LCBib29sIG9yIE5vbmUsIG5vdCB0dXBsZSkQAiICCAE=",
+      "message": {
+        "hash": "ee52c95e67005411addd7cab26b6ad88",
+        "metadata": {
+          "delta_path": [
+            0,
+            14
+          ],
+          "active_script_hash": "ade1ae5a6f302422ccb1a226536369d6"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": "Warning: this data structure was not fully serializable as JSON due to one or more unexpected keys.  (Error was: keys must be str, int, float, bool or None, not tuple)",
+              "format": "WARNING",
+              "width_config": {
+                "use_stretch": true
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 112,
+      "base64": "CiAwOWJhMzczMDlkMDJjNDk0YTkwYmNjY2FiYTA3NzZlMBImEgIADyIgYWRlMWFlNWE2ZjMwMjQyMmNjYjFhMjI2NTM2MzY5ZDYqJBoi+gEaChZ7Im91dGVyIjogeyJrZXB0IjogMX19EAHSAwIIAQ==",
+      "message": {
+        "hash": "09ba37309d02c494a90bcccaba0776e0",
+        "metadata": {
+          "delta_path": [
+            0,
+            15
+          ],
+          "active_script_hash": "ade1ae5a6f302422ccb1a226536369d6"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"outer\": {\"kept\": 1}}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 143,
+      "base64": "CiAwMzE4MjA1NjFmYzM2YzhmOThiYWNmNTU1MWQxNjBhYRImEgIAECIgYWRlMWFlNWE2ZjMwMjQyMmNjYjFhMjI2NTM2MzY5ZDYqQxpB+gE5CjV7ImluZGV4IjogNiwgImxhYmVsIjogIm5lc3RlZC10dXBsZS1rZXkiLCAib2siOiB0cnVlfRAB0gMCCAE=",
+      "message": {
+        "hash": "031820561fc36c8f98bacf5551d160aa",
+        "metadata": {
+          "delta_path": [
+            0,
+            16
+          ],
+          "active_script_hash": "ade1ae5a6f302422ccb1a226536369d6"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 6, \"label\": \"nested-tuple-key\", \"ok\": true}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 262,
+      "base64": "CiAxN2YyNTA0NzI2MDdiOTBjMTRmN2IxYjA0NWU0YTY3YRImEgIAESIgYWRlMWFlNWE2ZjMwMjQyMmNjYjFhMjI2NTM2MzY5ZDYquQEatgHyAbIBCqkBV2FybmluZzogdGhpcyBkYXRhIHN0cnVjdHVyZSB3YXMgbm90IGZ1bGx5IHNlcmlhbGl6YWJsZSBhcyBKU09OIGR1ZSB0byBvbmUgb3IgbW9yZSB1bmV4cGVjdGVkIGtleXMuICAoRXJyb3Igd2FzOiBrZXlzIG11c3QgYmUgc3RyLCBpbnQsIGZsb2F0LCBib29sIG9yIE5vbmUsIG5vdCBjb21wbGV4KRACIgIIAQ==",
+      "message": {
+        "hash": "17f250472607b90c14f7b1b045e4a67a",
+        "metadata": {
+          "delta_path": [
+            0,
+            17
+          ],
+          "active_script_hash": "ade1ae5a6f302422ccb1a226536369d6"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": "Warning: this data structure was not fully serializable as JSON due to one or more unexpected keys.  (Error was: keys must be str, int, float, bool or None, not complex)",
+              "format": "WARNING",
+              "width_config": {
+                "use_stretch": true
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 101,
+      "base64": "CiA2MDIzMTY5ZTgxMGNhNTAyMTU1MDk5YzRjMzZmZDdiNBImEgIAEiIgYWRlMWFlNWE2ZjMwMjQyMmNjYjFhMjI2NTM2MzY5ZDYqGRoX+gEPCgt7ImtlcHQiOiAyfRAB0gMCCAE=",
+      "message": {
+        "hash": "6023169e810ca502155099c4c36fd7b4",
+        "metadata": {
+          "delta_path": [
+            0,
+            18
+          ],
+          "active_script_hash": "ade1ae5a6f302422ccb1a226536369d6"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"kept\": 2}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 138,
+      "base64": "CiAxZDE5M2JhZDkzMGU4M2IxZWIzMTVmMDExYjM1Y2FjNxImEgIAEyIgYWRlMWFlNWE2ZjMwMjQyMmNjYjFhMjI2NTM2MzY5ZDYqPho8+gE0CjB7ImluZGV4IjogNywgImxhYmVsIjogImNvbXBsZXgta2V5IiwgIm9rIjogdHJ1ZX0QAdIDAggB",
+      "message": {
+        "hash": "1d193bad930e83b1eb315f011b35cac7",
+        "metadata": {
+          "delta_path": [
+            0,
+            19
+          ],
+          "active_script_hash": "ade1ae5a6f302422ccb1a226536369d6"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 7, \"label\": \"complex-key\", \"ok\": true}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 260,
+      "base64": "CiBlZTUyYzk1ZTY3MDA1NDExYWRkZDdjYWIyNmI2YWQ4OBImEgIAFCIgYWRlMWFlNWE2ZjMwMjQyMmNjYjFhMjI2NTM2MzY5ZDYqtwEatAHyAbABCqcBV2FybmluZzogdGhpcyBkYXRhIHN0cnVjdHVyZSB3YXMgbm90IGZ1bGx5IHNlcmlhbGl6YWJsZSBhcyBKU09OIGR1ZSB0byBvbmUgb3IgbW9yZSB1bmV4cGVjdGVkIGtleXMuICAoRXJyb3Igd2FzOiBrZXlzIG11c3QgYmUgc3RyLCBpbnQsIGZsb2F0LCBib29sIG9yIE5vbmUsIG5vdCB0dXBsZSkQAiICCAE=",
+      "message": {
+        "hash": "ee52c95e67005411addd7cab26b6ad88",
+        "metadata": {
+          "delta_path": [
+            0,
+            20
+          ],
+          "active_script_hash": "ade1ae5a6f302422ccb1a226536369d6"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": "Warning: this data structure was not fully serializable as JSON due to one or more unexpected keys.  (Error was: keys must be str, int, float, bool or None, not tuple)",
+              "format": "WARNING",
+              "width_config": {
+                "use_stretch": true
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 92,
+      "base64": "CiBmZWNlOTAwMjZiZDI0YTI3NmM0MTk5NTA1MGY1ODIwYRImEgIAFSIgYWRlMWFlNWE2ZjMwMjQyMmNjYjFhMjI2NTM2MzY5ZDYqEBoO+gEGCgJ7fRAB0gMCCAE=",
+      "message": {
+        "hash": "fece90026bd24a276c41995050f5820a",
+        "metadata": {
+          "delta_path": [
+            0,
+            21
+          ],
+          "active_script_hash": "ade1ae5a6f302422ccb1a226536369d6"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 143,
+      "base64": "CiBhN2EwYzE5ZTRhZTNjNTQ5YWZkZmI3ZWIyOGUyOGFlORImEgIAFiIgYWRlMWFlNWE2ZjMwMjQyMmNjYjFhMjI2NTM2MzY5ZDYqQxpB+gE5CjV7ImluZGV4IjogOCwgImxhYmVsIjogImFsbC1pbnZhbGlkLWtleXMiLCAib2siOiB0cnVlfRAB0gMCCAE=",
+      "message": {
+        "hash": "a7a0c19e4ae3c549afdfb7eb28e28ae9",
+        "metadata": {
+          "delta_path": [
+            0,
+            22
+          ],
+          "active_script_hash": "ade1ae5a6f302422ccb1a226536369d6"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 8, \"label\": \"all-invalid-keys\", \"ok\": true}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 105,
+      "base64": "CiA4YmQ1MWViZTU4Y2U0MWQ3NjRmNDc4MjlkZjI3OGU2MhImEgIAFyIgYWRlMWFlNWE2ZjMwMjQyMmNjYjFhMjI2NTM2MzY5ZDYqHRob+gETCg97InNldCI6IFsxLCAyXX0QAdIDAggB",
+      "message": {
+        "hash": "8bd51ebe58ce41d764f47829df278e62",
+        "metadata": {
+          "delta_path": [
+            0,
+            23
+          ],
+          "active_script_hash": "ade1ae5a6f302422ccb1a226536369d6"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"set\": [1, 2]}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 136,
+      "base64": "CiAwNGQ3MWE4Zjk0NmFiMTVjNjhhNDAxNmJhODQ3NGFiYRImEgIAGCIgYWRlMWFlNWE2ZjMwMjQyMmNjYjFhMjI2NTM2MzY5ZDYqPBo6+gEyCi57ImluZGV4IjogOSwgImxhYmVsIjogInNldC12YWx1ZSIsICJvayI6IHRydWV9EAHSAwIIAQ==",
+      "message": {
+        "hash": "04d71a8f946ab15c68a4016ba8474aba",
+        "metadata": {
+          "delta_path": [
+            0,
+            24
+          ],
+          "active_script_hash": "ade1ae5a6f302422ccb1a226536369d6"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 9, \"label\": \"set-value\", \"ok\": true}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 116,
+      "base64": "CiA0NjJjN2FjZTg3Y2E1OTliZGYxNzUyNGEwYjA1ZmM4MhImEgIAGSIgYWRlMWFlNWE2ZjMwMjQyMmNjYjFhMjI2NTM2MzY5ZDYqKBom+gEeChp7ImJ5dGVzIjogImInaGlcXG5cXHhmZicifRAB0gMCCAE=",
+      "message": {
+        "hash": "462c7ace87ca599bdf17524a0b05fc82",
+        "metadata": {
+          "delta_path": [
+            0,
+            25
+          ],
+          "active_script_hash": "ade1ae5a6f302422ccb1a226536369d6"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"bytes\": \"b'hi\\\\n\\\\xff'\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 139,
+      "base64": "CiA2Yjg0MTM1N2FmYjc5YTIyNDY1ZmY0MmZiMmQ4OGM0YhImEgIAGiIgYWRlMWFlNWE2ZjMwMjQyMmNjYjFhMjI2NTM2MzY5ZDYqPxo9+gE1CjF7ImluZGV4IjogMTAsICJsYWJlbCI6ICJieXRlcy12YWx1ZSIsICJvayI6IHRydWV9EAHSAwIIAQ==",
+      "message": {
+        "hash": "6b841357afb79a22465ff42fb2d88c4b",
+        "metadata": {
+          "delta_path": [
+            0,
+            26
+          ],
+          "active_script_hash": "ade1ae5a6f302422ccb1a226536369d6"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 10, \"label\": \"bytes-value\", \"ok\": true}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 123,
+      "base64": "CiBmZmY5YWM0MTYyMjVhMzA0MzgxOTA5ZDViYjU0YzNmNhImEgIAGyIgYWRlMWFlNWE2ZjMwMjQyMmNjYjFhMjI2NTM2MzY5ZDYqLxot+gElCiF7Im9iamVjdCI6ICJTdGFibGVSZXByKHZhbHVlPTcpIn0QAdIDAggB",
+      "message": {
+        "hash": "fff9ac416225a304381909d5bb54c3f6",
+        "metadata": {
+          "delta_path": [
+            0,
+            27
+          ],
+          "active_script_hash": "ade1ae5a6f302422ccb1a226536369d6"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"object\": \"StableRepr(value=7)\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 141,
+      "base64": "CiA1NWM3ZmQ1NDYyZDliOGI2MjhkYTRiZWYxN2UzNWNkNxImEgIAHCIgYWRlMWFlNWE2ZjMwMjQyMmNjYjFhMjI2NTM2MzY5ZDYqQRo/+gE3CjN7ImluZGV4IjogMTEsICJsYWJlbCI6ICJzdGFibGUtb2JqZWN0IiwgIm9rIjogdHJ1ZX0QAdIDAggB",
+      "message": {
+        "hash": "55c7fd5462d9b8b628da4bef17e35cd7",
+        "metadata": {
+          "delta_path": [
+            0,
+            28
+          ],
+          "active_script_hash": "ade1ae5a6f302422ccb1a226536369d6"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 11, \"label\": \"stable-object\", \"ok\": true}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 234,
+      "base64": "CiA4YTgxOTlhNjRhYjE2Y2UyNDM5ZWQ4YmViNmY3MDEwYRImEgIAHSIgYWRlMWFlNWE2ZjMwMjQyMmNjYjFhMjI2NTM2MzY5ZDYqnQEamgHyAZYBCo0BV2FybmluZzogdGhpcyBkYXRhIHN0cnVjdHVyZSB3YXMgbm90IGZ1bGx5IHNlcmlhbGl6YWJsZSBhcyBKU09OIGR1ZSB0byBvbmUgb3IgbW9yZSB1bmV4cGVjdGVkIGtleXMuICAoRXJyb3Igd2FzOiBzeW50aGV0aWMgcmVwciB0eXBlIGZhaWx1cmUpEAIiAggB",
+      "message": {
+        "hash": "8a8199a64ab16ce2439ed8beb6f7010a",
+        "metadata": {
+          "delta_path": [
+            0,
+            29
+          ],
+          "active_script_hash": "ade1ae5a6f302422ccb1a226536369d6"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": "Warning: this data structure was not fully serializable as JSON due to one or more unexpected keys.  (Error was: synthetic repr type failure)",
+              "format": "WARNING",
+              "width_config": {
+                "use_stretch": true
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 215,
+      "base64": "CiA0ODIyNzljYWNmOGQwYjFkYThjMDNjN2Q1YTQ3ZGY2ZRImEgIAHiIgYWRlMWFlNWE2ZjMwMjQyMmNjYjFhMjI2NTM2MzY5ZDYqigEahwH6AX8Ke3siaW5kZXgiOiAxMiwgImxhYmVsIjogInJlcHItdHlwZS1lcnJvciIsICJvayI6IGZhbHNlLCAiZXJyb3JfdHlwZSI6ICJUeXBlRXJyb3IiLCAibWVzc2FnZSI6ICJzeW50aGV0aWMgcmVwciB0eXBlIGZhaWx1cmUifRAB0gMCCAE=",
+      "message": {
+        "hash": "482279cacf8d0b1da8c03c7d5a47df6e",
+        "metadata": {
+          "delta_path": [
+            0,
+            30
+          ],
+          "active_script_hash": "ade1ae5a6f302422ccb1a226536369d6"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 12, \"label\": \"repr-type-error\", \"ok\": false, \"error_type\": \"TypeError\", \"message\": \"synthetic repr type failure\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 219,
+      "base64": "CiA1OTZhMjQ1ZjMyNTgyMzMyNmYwNDgyYThkNDg1Njg0NxImEgIAHyIgYWRlMWFlNWE2ZjMwMjQyMmNjYjFhMjI2NTM2MzY5ZDYqjgEaiwH6AYIBCn57ImluZGV4IjogMTMsICJsYWJlbCI6ICJyZXByLXZhbHVlLWVycm9yIiwgIm9rIjogZmFsc2UsICJlcnJvcl90eXBlIjogIlZhbHVlRXJyb3IiLCAibWVzc2FnZSI6ICJzeW50aGV0aWMgcmVwciB2YWx1ZSBmYWlsdXJlIn0QAdIDAggB",
+      "message": {
+        "hash": "596a245f325823326f0482a8d4856847",
+        "metadata": {
+          "delta_path": [
+            0,
+            31
+          ],
+          "active_script_hash": "ade1ae5a6f302422ccb1a226536369d6"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 13, \"label\": \"repr-value-error\", \"ok\": false, \"error_type\": \"ValueError\", \"message\": \"synthetic repr value failure\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 214,
+      "base64": "CiA0YzYyMTE4MTk3YjllNmI1ZmU3NGIxOWJlN2JjYjFlNRImEgIAICIgYWRlMWFlNWE2ZjMwMjQyMmNjYjFhMjI2NTM2MzY5ZDYqiQEahgH6AX4KensiaW5kZXgiOiAxNCwgImxhYmVsIjogImNpcmN1bGFyLWxpc3QiLCAib2siOiBmYWxzZSwgImVycm9yX3R5cGUiOiAiVmFsdWVFcnJvciIsICJtZXNzYWdlIjogIkNpcmN1bGFyIHJlZmVyZW5jZSBkZXRlY3RlZCJ9EAHSAwIIAQ==",
+      "message": {
+        "hash": "4c62118197b9e6b5fe74b19be7bcb1e5",
+        "metadata": {
+          "delta_path": [
+            0,
+            32
+          ],
+          "active_script_hash": "ade1ae5a6f302422ccb1a226536369d6"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 14, \"label\": \"circular-list\", \"ok\": false, \"error_type\": \"ValueError\", \"message\": \"Circular reference detected\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 214,
+      "base64": "CiBjNzBjYWI4MmU3YjBmOTNjYTA2NTIxMTMwYjYzZmM1ZRImEgIAISIgYWRlMWFlNWE2ZjMwMjQyMmNjYjFhMjI2NTM2MzY5ZDYqiQEahgH6AX4KensiaW5kZXgiOiAxNSwgImxhYmVsIjogImNpcmN1bGFyLWRpY3QiLCAib2siOiBmYWxzZSwgImVycm9yX3R5cGUiOiAiVmFsdWVFcnJvciIsICJtZXNzYWdlIjogIkNpcmN1bGFyIHJlZmVyZW5jZSBkZXRlY3RlZCJ9EAHSAwIIAQ==",
+      "message": {
+        "hash": "c70cab82e7b0f93ca06521130b63fc5e",
+        "metadata": {
+          "delta_path": [
+            0,
+            33
+          ],
+          "active_script_hash": "ade1ae5a6f302422ccb1a226536369d6"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 15, \"label\": \"circular-dict\", \"ok\": false, \"error_type\": \"ValueError\", \"message\": \"Circular reference detected\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 109,
+      "base64": "CiBmYjJjMGQ5ZDYzNDU0MjdhMzFmN2RhODNlMjkxYTVjOBImEgIAIiIgYWRlMWFlNWE2ZjMwMjQyMmNjYjFhMjI2NTM2MzY5ZDYqIRof+gEXChN7InJlY292ZXJlZCI6IHRydWV9EAHSAwIIAQ==",
+      "message": {
+        "hash": "fb2c0d9d6345427a31f7da83e291a5c8",
+        "metadata": {
+          "delta_path": [
+            0,
+            34
+          ],
+          "active_script_hash": "ade1ae5a6f302422ccb1a226536369d6"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"recovered\": true}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 136,
+      "base64": "CiBlOWY5YzhkNDMxOGZlYWNlNWMwOGU0NzVhODJiNmM0NRImEgIAIyIgYWRlMWFlNWE2ZjMwMjQyMmNjYjFhMjI2NTM2MzY5ZDYqPBo6+gEyCi57ImluZGV4IjogMTYsICJsYWJlbCI6ICJyZWNvdmVyeSIsICJvayI6IHRydWV9EAHSAwIIAQ==",
+      "message": {
+        "hash": "e9f9c8d4318feace5c08e475a82b6c45",
+        "metadata": {
+          "delta_path": [
+            0,
+            35
+          ],
+          "active_script_hash": "ade1ae5a6f302422ccb1a226536369d6"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"index\": 16, \"label\": \"recovery\", \"ok\": true}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 141,
+      "base64": "CiBlYmNhYTI1ODdlOGRiYWZiODdjNWY2NTkxZGVkZjVmNRImEgIAJCIgYWRlMWFlNWE2ZjMwMjQyMmNjYjFhMjI2NTM2MzY5ZDYqQRo/+gE3CjN7InJlcHJfY2FsbHMiOiB7InR5cGVfZXJyb3IiOiAyLCAidmFsdWVfZXJyb3IiOiAxfX0QAdIDAggB",
+      "message": {
+        "hash": "ebcaa2587e8dbafb87c5f6591dedf5f5",
+        "metadata": {
+          "delta_path": [
+            0,
+            36
+          ],
+          "active_script_hash": "ade1ae5a6f302422ccb1a226536369d6"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"repr_calls\": {\"type_error\": 2, \"value_error\": 1}}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "MAA=",
+      "message": {
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    }
+  ],
+  "elements": [
+    {
+      "index": 0,
+      "kind": "json",
+      "fields": {
+        "body": "{\"serialization_cases\": [\"primitive-values\", \"primitive-keys\", \"float-keys\", \"nonfinite-keys\", \"key-text-collisions\", \"tuple-key\", \"nested-tuple-key\", \"complex-key\", \"all-invalid-keys\", \"set-value\", \"bytes-value\", \"stable-object\", \"repr-type-error\", \"repr-value-error\", \"circular-list\", \"circular-dict\", \"recovery\"]}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        0
+      ]
+    },
+    {
+      "index": 1,
+      "kind": "json",
+      "fields": {
+        "body": "{\"plain\": 1, \"false\": false, \"nil\": null}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        1
+      ]
+    },
+    {
+      "index": 2,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 0, \"label\": \"primitive-values\", \"ok\": true}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        2
+      ]
+    },
+    {
+      "index": 3,
+      "kind": "json",
+      "fields": {
+        "body": "{\"null\": \"nil\", \"false\": \"no\", \"2\": \"two\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        3
+      ]
+    },
+    {
+      "index": 4,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 1, \"label\": \"primitive-keys\", \"ok\": true}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        4
+      ]
+    },
+    {
+      "index": 5,
+      "kind": "json",
+      "fields": {
+        "body": "{\"1.5\": \"fraction\", \"-0.0\": \"negative-zero\", \"1e+16\": \"large\", \"1e-05\": \"small\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        5
+      ]
+    },
+    {
+      "index": 6,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 2, \"label\": \"float-keys\", \"ok\": true}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        6
+      ]
+    },
+    {
+      "index": 7,
+      "kind": "json",
+      "fields": {
+        "body": "{\"NaN\": \"nan\", \"Infinity\": \"positive\", \"-Infinity\": \"negative\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        7
+      ]
+    },
+    {
+      "index": 8,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 3, \"label\": \"nonfinite-keys\", \"ok\": true}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        8
+      ]
+    },
+    {
+      "index": 9,
+      "kind": "json",
+      "fields": {
+        "body": "{\"1\": \"integer\", \"1\": \"string\", \"null\": \"none\", \"null\": \"string-null\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        9
+      ]
+    },
+    {
+      "index": 10,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 4, \"label\": \"key-text-collisions\", \"ok\": true}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        10
+      ]
+    },
+    {
+      "index": 11,
+      "kind": "alert",
+      "fields": {
+        "body": "Warning: this data structure was not fully serializable as JSON due to one or more unexpected keys.  (Error was: keys must be str, int, float, bool or None, not tuple)",
+        "format": "WARNING",
+        "width_config": {
+          "use_stretch": true
+        }
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        11
+      ]
+    },
+    {
+      "index": 12,
+      "kind": "json",
+      "fields": {
+        "body": "{\"kept\": 1}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        12
+      ]
+    },
+    {
+      "index": 13,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 5, \"label\": \"tuple-key\", \"ok\": true}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        13
+      ]
+    },
+    {
+      "index": 14,
+      "kind": "alert",
+      "fields": {
+        "body": "Warning: this data structure was not fully serializable as JSON due to one or more unexpected keys.  (Error was: keys must be str, int, float, bool or None, not tuple)",
+        "format": "WARNING",
+        "width_config": {
+          "use_stretch": true
+        }
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        14
+      ]
+    },
+    {
+      "index": 15,
+      "kind": "json",
+      "fields": {
+        "body": "{\"outer\": {\"kept\": 1}}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        15
+      ]
+    },
+    {
+      "index": 16,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 6, \"label\": \"nested-tuple-key\", \"ok\": true}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        16
+      ]
+    },
+    {
+      "index": 17,
+      "kind": "alert",
+      "fields": {
+        "body": "Warning: this data structure was not fully serializable as JSON due to one or more unexpected keys.  (Error was: keys must be str, int, float, bool or None, not complex)",
+        "format": "WARNING",
+        "width_config": {
+          "use_stretch": true
+        }
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        17
+      ]
+    },
+    {
+      "index": 18,
+      "kind": "json",
+      "fields": {
+        "body": "{\"kept\": 2}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        18
+      ]
+    },
+    {
+      "index": 19,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 7, \"label\": \"complex-key\", \"ok\": true}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        19
+      ]
+    },
+    {
+      "index": 20,
+      "kind": "alert",
+      "fields": {
+        "body": "Warning: this data structure was not fully serializable as JSON due to one or more unexpected keys.  (Error was: keys must be str, int, float, bool or None, not tuple)",
+        "format": "WARNING",
+        "width_config": {
+          "use_stretch": true
+        }
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        20
+      ]
+    },
+    {
+      "index": 21,
+      "kind": "json",
+      "fields": {
+        "body": "{}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        21
+      ]
+    },
+    {
+      "index": 22,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 8, \"label\": \"all-invalid-keys\", \"ok\": true}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        22
+      ]
+    },
+    {
+      "index": 23,
+      "kind": "json",
+      "fields": {
+        "body": "{\"set\": [1, 2]}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        23
+      ]
+    },
+    {
+      "index": 24,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 9, \"label\": \"set-value\", \"ok\": true}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        24
+      ]
+    },
+    {
+      "index": 25,
+      "kind": "json",
+      "fields": {
+        "body": "{\"bytes\": \"b'hi\\\\n\\\\xff'\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        25
+      ]
+    },
+    {
+      "index": 26,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 10, \"label\": \"bytes-value\", \"ok\": true}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        26
+      ]
+    },
+    {
+      "index": 27,
+      "kind": "json",
+      "fields": {
+        "body": "{\"object\": \"StableRepr(value=7)\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        27
+      ]
+    },
+    {
+      "index": 28,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 11, \"label\": \"stable-object\", \"ok\": true}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        28
+      ]
+    },
+    {
+      "index": 29,
+      "kind": "alert",
+      "fields": {
+        "body": "Warning: this data structure was not fully serializable as JSON due to one or more unexpected keys.  (Error was: synthetic repr type failure)",
+        "format": "WARNING",
+        "width_config": {
+          "use_stretch": true
+        }
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        29
+      ]
+    },
+    {
+      "index": 30,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 12, \"label\": \"repr-type-error\", \"ok\": false, \"error_type\": \"TypeError\", \"message\": \"synthetic repr type failure\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        30
+      ]
+    },
+    {
+      "index": 31,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 13, \"label\": \"repr-value-error\", \"ok\": false, \"error_type\": \"ValueError\", \"message\": \"synthetic repr value failure\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        31
+      ]
+    },
+    {
+      "index": 32,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 14, \"label\": \"circular-list\", \"ok\": false, \"error_type\": \"ValueError\", \"message\": \"Circular reference detected\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        32
+      ]
+    },
+    {
+      "index": 33,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 15, \"label\": \"circular-dict\", \"ok\": false, \"error_type\": \"ValueError\", \"message\": \"Circular reference detected\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        33
+      ]
+    },
+    {
+      "index": 34,
+      "kind": "json",
+      "fields": {
+        "body": "{\"recovered\": true}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        34
+      ]
+    },
+    {
+      "index": 35,
+      "kind": "json",
+      "fields": {
+        "body": "{\"index\": 16, \"label\": \"recovery\", \"ok\": true}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        35
+      ]
+    },
+    {
+      "index": 36,
+      "kind": "json",
+      "fields": {
+        "body": "{\"repr_calls\": {\"type_error\": 2, \"value_error\": 1}}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        36
+      ]
+    }
+  ],
+  "finishes": [
+    0
+  ],
+  "server_pid": 17972,
+  "health": {
+    "status": 200,
+    "body": "ok"
+  },
+  "cleanup": {
+    "websocket_closed": true,
+    "server_stopped": true
+  },
+  "successful": true
+}

@@ -314,3 +314,105 @@ def test_numeric_reference_and_finite_rust_payloads():
     # This retained artifact records the unresolved nonfinite loss, not a compatibility pass for those values.
     assert [index for index, (left, right) in enumerate(zip(expected, actual)) if left != right] == list(range(33, 39))
     assert [element["fields"]["body"] for element in after["elements"][33:]] == ["null", "[null]", "null", "[null]", "null", "[null]"]
+
+
+SERIALIZATION_LABELS = ["primitive-values", "primitive-keys", "float-keys", "nonfinite-keys", "key-text-collisions", "tuple-key", "nested-tuple-key", "complex-key", "all-invalid-keys", "set-value", "bytes-value", "stable-object", "repr-type-error", "repr-value-error", "circular-list", "circular-dict", "recovery"]
+
+
+def assert_serialization_reference(capture):
+    assert_capture(capture)
+    assert capture["runtime"] == "python" and capture["reference_version"] == "1.66.1"
+    assert capture["scenario"] == "serialization" and capture["successful"] and "producer_error" not in capture
+    assert capture["server_cleanup"] == "collector-owned"
+    assert capture["cleanup"] == {"websocket_closed": True, "server_stopped": True}
+    outputs = {
+        0: '{"plain": 1, "false": false, "nil": null}',
+        1: '{"null": "nil", "false": "no", "2": "two"}',
+        2: '{"1.5": "fraction", "-0.0": "negative-zero", "1e+16": "large", "1e-05": "small"}',
+        3: '{"NaN": "nan", "Infinity": "positive", "-Infinity": "negative"}',
+        4: '{"1": "integer", "1": "string", "null": "none", "null": "string-null"}',
+        5: '{"kept": 1}', 6: '{"outer": {"kept": 1}}', 7: '{"kept": 2}', 8: '{}',
+        9: '{"set": [1, 2]}',
+        10: json.dumps({"bytes": "b'hi\\n\\xff'"}),
+        11: '{"object": "StableRepr(value=7)"}',
+        16: '{"recovered": true}',
+    }
+    errors = {12: ("TypeError", "synthetic repr type failure"), 13: ("ValueError", "synthetic repr value failure"),
+              14: ("ValueError", "Circular reference detected"), 15: ("ValueError", "Circular reference detected")}
+    bad_key = "keys must be str, int, float, bool or None, not "
+    warnings = {5: bad_key + "tuple", 6: bad_key + "tuple", 7: bad_key + "complex", 8: bad_key + "tuple", 12: errors[12][1]}
+    expected = []
+
+    def add_json(body):
+        expected.append(("json", {"body": body, "expanded": True}))
+
+    add_json(json.dumps({"serialization_cases": SERIALIZATION_LABELS}))
+    for index, label in enumerate(SERIALIZATION_LABELS):
+        if index in warnings:
+            body = "Warning: this data structure was not fully serializable as JSON due to one or more unexpected keys.  (Error was: " + warnings[index] + ")"
+            expected.append(("alert", {"body": body, "format": "WARNING", "width_config": {"use_stretch": True}}))
+        if index in outputs:
+            add_json(outputs[index])
+        report = {"index": index, "label": label, "ok": index not in errors}
+        if index in errors:
+            report.update(error_type=errors[index][0], message=errors[index][1])
+        add_json(json.dumps(report))
+    add_json('{"repr_calls": {"type_error": 2, "value_error": 1}}')
+    assert len(expected) == len(capture["elements"]) == 37
+    assert [(element["kind"], element["fields"]) for element in capture["elements"]] == expected
+    assert [element["delta_path"] for element in capture["elements"]] == [[0, index] for index in range(37)]
+    for message in frames(capture):
+        if isinstance(message, ForwardMsg) and message.WhichOneof("type") == "delta":
+            element = message.delta.new_element
+            if element.WhichOneof("type") == "json":
+                assert MessageToDict(element.width_config, preserving_proto_field_name=True) == {"use_stretch": True}
+
+
+def test_mapping_serialization_warning_error_and_recovery_reference():
+    assert_serialization_reference(read(PYTHON / "serialization/trace.json"))
+
+
+@pytest.mark.parametrize("mutation,index", [("duplicate-keys", 9), ("nonfinite-keys", 7), ("warning", 11),
+                                          ("skipkeys", 15), ("error-type", 30), ("recovery", 34), ("repr-calls", 36)])
+def test_serialization_gate_rejects_coherent_but_wrong_payloads(mutation, index):
+    capture = read(PYTHON / "serialization/trace.json")
+    frame = next(frame for frame in capture["frames"] if frame["message"].get("metadata", {}).get("delta_path") == [0, index])
+    message = ForwardMsg()
+    message.ParseFromString(base64.b64decode(frame["base64"], validate=True))
+    element = message.delta.new_element
+    if mutation == "warning":
+        element.alert.format = 0
+    elif mutation == "duplicate-keys":
+        element.json.body = json.dumps(json.loads(element.json.body))
+    elif mutation == "nonfinite-keys":
+        element.json.body = '{"null": "nan", "Infinity": "positive", "-Infinity": "negative"}'
+    elif mutation == "skipkeys":
+        element.json.body = '{"outer": {"kept": 1, "fabricated": "drop"}}'
+    elif mutation == "error-type":
+        element.json.body = element.json.body.replace('"TypeError"', '"ValueError"')
+    elif mutation == "recovery":
+        element.json.body = '{"recovered": false}'
+    else:
+        element.json.body = '{"repr_calls": {"type_error": 1, "value_error": 1}}'
+    raw = message.SerializeToString()
+    frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(message, preserving_proto_field_name=True))
+    kind = element.WhichOneof("type")
+    capture["elements"][index]["fields"] = MessageToDict(getattr(element, kind), preserving_proto_field_name=True)
+    assert_capture(capture)  # The raw frame and summary agree; the semantic contract must still reject it.
+    with pytest.raises(AssertionError):
+        assert_serialization_reference(capture)
+
+
+def test_rust_serialization_before_records_silent_omission_and_continuation():
+    capture = read(RUST / "serialization-before/trace.json")
+    assert_capture(capture)
+    assert capture["runtime"] == "rust" and capture["scenario"] == "serialization"
+    assert capture["successful"] and "producer_error" not in capture
+    assert capture["server_cleanup"] == "caller-owned" and capture["cleanup"]["websocket_closed"] is True
+    # This is diagnostic failure evidence, not a Rust compatibility expectation for the pending serializer.
+    expected = [{"rust_diagnostics": ["none-map-key", "custom-serde-error"]}] + [
+        {"stage": stage} for stage in ("before-none-key", "after-none-key", "before-serde-error", "after-serde-error")]
+    assert len(capture["elements"]) == 5
+    assert [element["kind"] for element in capture["elements"]] == ["json"] * 5
+    assert [element["delta_path"] for element in capture["elements"]] == [[0, index] for index in range(5)]
+    assert [element["fields"] for element in capture["elements"]] == [{"body": json.dumps(value), "expanded": True} for value in expected]
