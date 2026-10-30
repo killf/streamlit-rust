@@ -453,6 +453,125 @@ async fn code_body_language_changes_do_not_share_a_hash_on_one_connection() -> T
     Ok(())
 }
 
+const ALERT_NORMALIZATION_REFERENCE: &str = include_str!("../../../tests/reference/reference-browser/status/normalization/trace.json");
+
+fn alert_normalization_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        let result: TestResult = (|| {
+            let reference: serde_json::Value = serde_json::from_str(ALERT_NORMALIZATION_REFERENCE)?;
+            let inputs: serde_json::Value = serde_json::from_str(reference["elements"][0]["fields"]["body"].as_str().ok_or("missing alert inputs")?)?;
+            st.json(inputs.clone());
+            let mut results = Vec::new();
+            for (index, case) in inputs["alert_cases"].as_array().ok_or("missing alert cases")?.iter().enumerate() {
+                for kind in ["info", "success", "warning", "error"] {
+                    let kwargs = &case["kwargs"];
+                    let mut options = crate::StatusOptions::new(case["body"].as_str().ok_or("missing alert body")?);
+                    if let Some(icon) = kwargs["icon"].as_str() {
+                        options = options.icon(icon);
+                    }
+                    if let Some(title) = kwargs["title"].as_str() {
+                        options = options.title(title);
+                    }
+                    if kwargs["width"] == 240 {
+                        options = options.width(240);
+                    }
+                    match kind {
+                        "info" => st.info(options),
+                        "success" => st.success(options),
+                        "warning" => st.warning(options),
+                        "error" => st.error(options),
+                        _ => return Err("unknown alert kind".into()),
+                    }?;
+                    results.push(serde_json::json!({"index": index, "kind": kind, "returned": true}));
+                }
+            }
+            st.json(serde_json::json!({"results": results}));
+            Ok(())
+        })();
+        assert!(result.is_ok(), "alert normalization fixture failed: {result:?}");
+    })
+}
+
+#[actix_web::test]
+async fn alert_normalization_matches_all_four_formats_on_the_wire() -> TestResult {
+    // 1. 十二组公共输入覆盖四种提示格式，并验证显式空图标抑制自动提取。
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
+    let server = HttpServer::new(move || App::new().app_data(web::Data::new(StreamlitServer::new(alert_normalization_entry, "127.0.0.1".into(), 0))).configure(configure_routes))
+        .workers(1)
+        .listen(listener)?
+        .run();
+    let handle = server.handle();
+    let task = actix_web::rt::spawn(server);
+    let mut stream = sessions::connect(address, None).await;
+    send_binary(
+        &mut stream,
+        &BackMsg {
+            r#type: Some(back_msg::Type::RerunScript(ClientState::default())),
+        }
+        .encode_to_vec(),
+    )
+    .await;
+    let mut observed = Vec::new();
+    let finish = loop {
+        let message = receive(&mut stream).await;
+        let path = message.metadata.as_ref().map(|metadata| metadata.delta_path.clone()).unwrap_or_default();
+        match message.r#type {
+            Some(forward_msg::Type::Delta(delta)) => {
+                let Some(delta::Type::NewElement(element)) = delta.r#type else { panic!("unexpected alert delta") };
+                observed.push((path, element));
+            }
+            Some(forward_msg::Type::ScriptFinished(status)) => break status,
+            _ => {}
+        }
+    };
+    drop(stream);
+    handle.stop(false).await;
+    task.await??;
+
+    // 2. Alert 的宽度在其内部；完整 Element 对照防止误放成外层布局。
+    let reference: serde_json::Value = serde_json::from_str(ALERT_NORMALIZATION_REFERENCE)?;
+    let mut expected = Vec::new();
+    for frame in reference["frames"].as_array().ok_or("missing alert frames")? {
+        let message = &frame["message"];
+        let Some(delta) = message.get("delta") else { continue };
+        let value = &delta["new_element"];
+        let mut element = proto::Element::default();
+        element.r#type = Some(if let Some(fields) = value.get("alert") {
+            use proto::streamlit::width_config::WidthSpec;
+            let width = &fields["width_config"];
+            let spec = if width["use_stretch"] == true {
+                WidthSpec::UseStretch(true)
+            } else {
+                assert_eq!(width["pixel_width"], 240);
+                WidthSpec::PixelWidth(240)
+            };
+            element::Type::Alert(proto::Alert {
+                body: fields["body"].as_str().unwrap_or_default().into(),
+                icon: fields["icon"].as_str().unwrap_or_default().into(),
+                title: fields["title"].as_str().unwrap_or_default().into(),
+                format: proto::alert::Format::from_str_name(fields["format"].as_str().ok_or("missing alert format")?).ok_or("unknown alert format")? as i32,
+                width_config: Some(proto::streamlit::WidthConfig { width_spec: Some(spec) }),
+            })
+        } else {
+            let fields = value.get("json").ok_or("unexpected alert reference kind")?;
+            element.width_config = Some(proto::streamlit::WidthConfig {
+                width_spec: Some(proto::streamlit::width_config::WidthSpec::UseStretch(true)),
+            });
+            element::Type::Json(proto::Json {
+                body: fields["body"].as_str().ok_or("missing alert report")?.into(),
+                expanded: true,
+                max_expand_depth: None,
+            })
+        });
+        expected.push((serde_json::from_value::<Vec<u32>>(message["metadata"]["delta_path"].clone())?, element));
+    }
+    assert_eq!(finish, 0);
+    assert_eq!(expected.len(), 50);
+    assert_eq!(observed, expected);
+    Ok(())
+}
+
 const BADGE_CONTENT_REFERENCE: &str = include_str!("../../../tests/reference/reference-browser/text-misc-params/badge-content/trace.json");
 
 fn badge_content_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {

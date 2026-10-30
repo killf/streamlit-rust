@@ -4231,14 +4231,21 @@
         "python_leading_invalid": "tests/reference/reference-browser/status/trace-status-leading.json",
         "python_compound_icons": "tests/reference/reference-browser/status/trace-status-icon-composite.json",
         "rust_wire_observation": "tests/browser/rust-status/trace-status.json",
-        "official_frontend_browser_e2e": "tests/browser/rust-status/trace-status.json"
+        "official_frontend_browser_e2e": "tests/browser/rust-status/trace-status.json",
+        "alert_normalization_reference": "tests/reference/reference-browser/status/normalization/trace.json",
+        "alert_separator_helper_oracle": "tests/reference/reference-browser/status/normalization/icon-separators.json",
+        "alert_normalization_rust_before": "tests/browser/rust-status/normalization-before/trace.json",
+        "alert_normalization_rust_attempt": "tests/browser/rust-status/normalization-attempt/trace.json",
+        "alert_normalization_rust": "tests/browser/rust-status/normalization/trace.json",
+        "alert_normalization_guards": "tests/reference/test_text_misc_params_reference.py"
       },
       "rust_plan": "Emit official ERROR Alert through the native status element with measured body, icon, title and width semantics; return StatusError for measured invalid parameters.",
       "compatibility_scope": "ERROR cases within the frozen status capture: four-style defaults and measured icon/width/title/leading-icon/compound-emoji behavior. Sixteen Python-comparable alerts across the four APIs each have a unique match among seventeen Rust alerts; this aggregate is not sixteen independent cases per API. Invalid-parameter semantics are additionally checked against the captured Python cases in Rust element tests.",
       "limitations": [
         "Only captured cases and tested boundaries are covered; no whole-Unicode, arbitrary emoji or complete parameter-space compatibility claim.",
         "Default stretched width follows page layout: Rust centered and Python wide pages differ; only the fixed 240px case asserts equal absolute width.",
-        "Finite oracle comparisons and official-frontend observations do not establish full API supported status."
+        "Finite oracle comparisons and official-frontend observations do not establish full API supported status.",
+        "2026-10-30 alert normalization: 12 inputs across info/success/warning/error (48 successful public calls plus two JSON reports, 50 complete Elements/paths) match Python 1.66.1. Body is cleaned before leading-icon detection and title is cleaned independently; explicit valid/blank icons trim Python boundary whitespace and explicit blank suppresses extraction. Material separators use Python whitespace; emoji separators consume only ASCII space/underscore/hyphen. Original Rust returned 16 invalid-icon errors and emitted 34 Elements; a retained first attempt over-trimmed U+001C in four alerts. A separate 16-case direct Python helper oracle covers separator families and is not mislabeled as WS/browser evidence. No new browser/UI, full icon-catalog/error-order or arbitrary non-string compatibility claim; public signatures, error types and hash policy are unchanged."
       ]
     },
     {
@@ -4286,14 +4293,21 @@
         "python_leading_invalid": "tests/reference/reference-browser/status/trace-status-leading.json",
         "python_compound_icons": "tests/reference/reference-browser/status/trace-status-icon-composite.json",
         "rust_wire_observation": "tests/browser/rust-status/trace-status.json",
-        "official_frontend_browser_e2e": "tests/browser/rust-status/trace-status.json"
+        "official_frontend_browser_e2e": "tests/browser/rust-status/trace-status.json",
+        "alert_normalization_reference": "tests/reference/reference-browser/status/normalization/trace.json",
+        "alert_separator_helper_oracle": "tests/reference/reference-browser/status/normalization/icon-separators.json",
+        "alert_normalization_rust_before": "tests/browser/rust-status/normalization-before/trace.json",
+        "alert_normalization_rust_attempt": "tests/browser/rust-status/normalization-attempt/trace.json",
+        "alert_normalization_rust": "tests/browser/rust-status/normalization/trace.json",
+        "alert_normalization_guards": "tests/reference/test_text_misc_params_reference.py"
       },
       "rust_plan": "Emit official INFO Alert through the native status element with measured body, icon, title and width semantics; return StatusError for measured invalid parameters.",
       "compatibility_scope": "INFO cases within the frozen status capture: four-style defaults and measured icon/width/title/leading-icon/compound-emoji behavior. Sixteen Python-comparable alerts across the four APIs each have a unique match among seventeen Rust alerts; this aggregate is not sixteen independent cases per API. Invalid-parameter semantics are additionally checked against the captured Python cases in Rust element tests.",
       "limitations": [
         "Only captured cases and tested boundaries are covered; no whole-Unicode, arbitrary emoji or complete parameter-space compatibility claim.",
         "Default stretched width follows page layout: Rust centered and Python wide pages differ; only the fixed 240px case asserts equal absolute width.",
-        "Finite oracle comparisons and official-frontend observations do not establish full API supported status."
+        "Finite oracle comparisons and official-frontend observations do not establish full API supported status.",
+        "2026-10-30 alert normalization: 12 inputs across info/success/warning/error (48 successful public calls plus two JSON reports, 50 complete Elements/paths) match Python 1.66.1. Body is cleaned before leading-icon detection and title is cleaned independently; explicit valid/blank icons trim Python boundary whitespace and explicit blank suppresses extraction. Material separators use Python whitespace; emoji separators consume only ASCII space/underscore/hyphen. Original Rust returned 16 invalid-icon errors and emitted 34 Elements; a retained first attempt over-trimmed U+001C in four alerts. A separate 16-case direct Python helper oracle covers separator families and is not mislabeled as WS/browser evidence. No new browser/UI, full icon-catalog/error-order or arbitrary non-string compatibility claim; public signatures, error types and hash policy are unchanged."
       ]
     },
     {
@@ -4474,14 +4488,21 @@
         "python_leading_invalid": "tests/reference/reference-browser/status/trace-status-leading.json",
         "python_compound_icons": "tests/reference/reference-browser/status/trace-status-icon-composite.json",
         "rust_wire_observation": "tests/browser/rust-status/trace-status.json",
-        "official_frontend_browser_e2e": "tests/browser/rust-status/trace-status.json"
+        "official_frontend_browser_e2e": "tests/browser/rust-status/trace-status.json",
+        "alert_normalization_reference": "tests/reference/reference-browser/status/normalization/trace.json",
+        "alert_separator_helper_oracle": "tests/reference/reference-browser/status/normalization/icon-separators.json",
+        "alert_normalization_rust_before": "tests/browser/rust-status/normalization-before/trace.json",
+        "alert_normalization_rust_attempt": "tests/browser/rust-status/normalization-attempt/trace.json",
+        "alert_normalization_rust": "tests/browser/rust-status/normalization/trace.json",
+        "alert_normalization_guards": "tests/reference/test_text_misc_params_reference.py"
       },
       "rust_plan": "Emit official SUCCESS Alert through the native status element with measured body, icon, title and width semantics; return StatusError for measured invalid parameters.",
       "compatibility_scope": "SUCCESS cases within the frozen status capture: four-style defaults and measured icon/width/title/leading-icon/compound-emoji behavior. Sixteen Python-comparable alerts across the four APIs each have a unique match among seventeen Rust alerts; this aggregate is not sixteen independent cases per API. Invalid-parameter semantics are additionally checked against the captured Python cases in Rust element tests.",
       "limitations": [
         "Only captured cases and tested boundaries are covered; no whole-Unicode, arbitrary emoji or complete parameter-space compatibility claim.",
         "Default stretched width follows page layout: Rust centered and Python wide pages differ; only the fixed 240px case asserts equal absolute width.",
-        "Finite oracle comparisons and official-frontend observations do not establish full API supported status."
+        "Finite oracle comparisons and official-frontend observations do not establish full API supported status.",
+        "2026-10-30 alert normalization: 12 inputs across info/success/warning/error (48 successful public calls plus two JSON reports, 50 complete Elements/paths) match Python 1.66.1. Body is cleaned before leading-icon detection and title is cleaned independently; explicit valid/blank icons trim Python boundary whitespace and explicit blank suppresses extraction. Material separators use Python whitespace; emoji separators consume only ASCII space/underscore/hyphen. Original Rust returned 16 invalid-icon errors and emitted 34 Elements; a retained first attempt over-trimmed U+001C in four alerts. A separate 16-case direct Python helper oracle covers separator families and is not mislabeled as WS/browser evidence. No new browser/UI, full icon-catalog/error-order or arbitrary non-string compatibility claim; public signatures, error types and hash policy are unchanged."
       ]
     },
     {
@@ -4553,14 +4574,21 @@
         "python_leading_invalid": "tests/reference/reference-browser/status/trace-status-leading.json",
         "python_compound_icons": "tests/reference/reference-browser/status/trace-status-icon-composite.json",
         "rust_wire_observation": "tests/browser/rust-status/trace-status.json",
-        "official_frontend_browser_e2e": "tests/browser/rust-status/trace-status.json"
+        "official_frontend_browser_e2e": "tests/browser/rust-status/trace-status.json",
+        "alert_normalization_reference": "tests/reference/reference-browser/status/normalization/trace.json",
+        "alert_separator_helper_oracle": "tests/reference/reference-browser/status/normalization/icon-separators.json",
+        "alert_normalization_rust_before": "tests/browser/rust-status/normalization-before/trace.json",
+        "alert_normalization_rust_attempt": "tests/browser/rust-status/normalization-attempt/trace.json",
+        "alert_normalization_rust": "tests/browser/rust-status/normalization/trace.json",
+        "alert_normalization_guards": "tests/reference/test_text_misc_params_reference.py"
       },
       "rust_plan": "Emit official WARNING Alert through the native status element with measured body, icon, title and width semantics; return StatusError for measured invalid parameters.",
       "compatibility_scope": "WARNING cases within the frozen status capture: four-style defaults and measured icon/width/title/leading-icon/compound-emoji behavior. Sixteen Python-comparable alerts across the four APIs each have a unique match among seventeen Rust alerts; this aggregate is not sixteen independent cases per API. Invalid-parameter semantics are additionally checked against the captured Python cases in Rust element tests.",
       "limitations": [
         "Only captured cases and tested boundaries are covered; no whole-Unicode, arbitrary emoji or complete parameter-space compatibility claim.",
         "Default stretched width follows page layout: Rust centered and Python wide pages differ; only the fixed 240px case asserts equal absolute width.",
-        "Finite oracle comparisons and official-frontend observations do not establish full API supported status."
+        "Finite oracle comparisons and official-frontend observations do not establish full API supported status.",
+        "2026-10-30 alert normalization: 12 inputs across info/success/warning/error (48 successful public calls plus two JSON reports, 50 complete Elements/paths) match Python 1.66.1. Body is cleaned before leading-icon detection and title is cleaned independently; explicit valid/blank icons trim Python boundary whitespace and explicit blank suppresses extraction. Material separators use Python whitespace; emoji separators consume only ASCII space/underscore/hyphen. Original Rust returned 16 invalid-icon errors and emitted 34 Elements; a retained first attempt over-trimmed U+001C in four alerts. A separate 16-case direct Python helper oracle covers separator families and is not mislabeled as WS/browser evidence. No new browser/UI, full icon-catalog/error-order or arbitrary non-string compatibility claim; public signatures, error types and hash policy are unchanged."
       ]
     },
     {

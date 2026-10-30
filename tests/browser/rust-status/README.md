@@ -39,3 +39,26 @@ Regenerate:
 ~~~powershell
 python tests/reference/capture_browser_trace.py --scenario status --url http://127.0.0.1:8502/ --target rust --binary target/status-demo/status-emoji.exe --out <temporary-path>
 ~~~
+
+
+## Alert normalization (2026-10-30)
+
+The existing status example/fixture support ?case=normalization. The shared
+text_misc_params_capture.py --scenario alert-normalization selects status_app.py
+for Python and can compare --url http://127.0.0.1:8502 for Rust. Twelve inputs
+across all four alert formats emit 48 alerts and two JSON reports (50 complete
+Elements). Python status/normalization and Rust normalization match in full,
+including inner Alert width and absent outer layout config.
+
+normalization-before retains 34 Elements / 16 erroneously rejected valid icon
+calls. normalization-attempt retains the first fix's four U+001C over-trims.
+Final body/title clean_text and explicit icon strip are distinct from auto
+extraction: Material swallows Python whitespace, emoji only space/underscore/
+hyphen. The separately frozen icon-separators.json is a direct private Python
+helper oracle with 16 cases, not public WS or browser proof. Seven coherent
+wrong-wire guards check body/icon/title, explicit blank icon, separators, width
+placement and returned-call report. Original captures remain untouched.
+
+No new browser/UI, full emoji/material-catalog, invalid-argument ordering or
+non-string claim is made. Public signatures/error types/hash policy are kept;
+macro/Entry and other pending decisions are not implemented here.

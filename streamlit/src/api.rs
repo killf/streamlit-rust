@@ -145,7 +145,8 @@ impl StatusOptions {
     }
 
     /// Set an empty icon, a Material shortcode, or one Unicode emoji sequence.
-    /// The sequence is preserved verbatim; the library's Unicode repertoire
+    /// Surrounding whitespace is removed first. The sequence itself is
+    /// preserved; the library's Unicode repertoire
     /// is not a claim of complete acceptance parity with Python 1.66.1.
     pub fn icon(mut self, icon: impl Into<String>) -> Self {
         self.icon = Some(icon.into());
@@ -1762,7 +1763,7 @@ fn create_status<C: AppendChild>(this: &C, options: StatusOptions, format: crate
         format: format as i32,
         icon,
         width_config: Some(crate::proto::streamlit::WidthConfig { width_spec: Some(width_spec) }),
-        title: options.title.unwrap_or_default(),
+        title: options.title.map(|title| crate::utils::clean_text(&title)).unwrap_or_default(),
     });
     this.push(Rc::new(RefCell::new(element)));
     Ok(())

@@ -713,3 +713,14 @@ architecture 的 Pending unified NewElement identity decision 写出静态/原�
 
 
 截图逐图复核补充：原 Python markdown-help.jpg 与 initial.jpg 字节相同、没有 tooltip，明确排除为 tooltip 图像证据，原文件不改。另开独立 Python 会话补证，普通 screenshot 的两张尝试图也不作 tooltip 证明；DOM 观察保留。第二个独立 tab 在确认 role/name/opacity=1 后，通过受支持的 tab CDP Page.captureScreenshot 直接取得并目视确认正确 tooltip 图 markdown-help-cdp.jpg。markdown-help-confirmation.json 记录这三个观察、三张图的用途/哈希/尺寸和独立清理。原序列每端八观察/四 JPEG 不变，新增 Python 补证后合计 19 个观察、11 张 JPEG；不把缺失或过渡图伪称正确。追加两个 Python task tab 与服务均清理，结束无监听。
+
+
+### Alert normalization and separator rules validation (2026-10-30)
+
+在既有 status_app.py/status.rs 添加 normalization 诊断场景，现有 text_misc_params_capture.py 的 alert-normalization 路由选择该 app，其他场景不变。12 组输入乘 info/success/warning/error 共 48 调用，加输入/返回报告共 50 Element；修后完整 Element/路径与 Python 1.66.1 逐项一致。正文先 clean_text 再提取图标，title 单独 clean_text；显式图标按 Python whitespace strip，空白变空串仍抑制自动提取。Alert 宽度仍放在 Alert 内，外层 Element 不新增布局字段。
+
+修前错误基线共 34 元素：16 个带边界空白的有效图标被误拒绝，其余正文/title 未规范化。第一次实现把 emoji 后分隔当普通空白，四个格式的 U+001C 被多删；50 元素的 normalization-attempt 和 target/alert-normalization-integration-attempt.log 保留，Python 参考未改。真实结果与固定源码确认 emoji 仅吞空格/下划线/连字符，而 Material 吞 Python whitespace；最终分成两个清楚分支。另保存 16 输入的直接 Python helper oracle，对 Tab/LF/CR/NBSP/Unicode 空白/C0 和两类分隔符做单位验证；该文件明确不属于公共 WS/浏览器证据。
+
+按代码→单元→集成顺序，全目标 Clippy -D warnings、Rustfmt 检查通过，status 单元十项和文本/JSON/Alert WS 集成十一项通过（target/alert-normalization-clippy.log、alert-normalization-unit.log、alert-normalization-integration.log）。工作区共 253 项通过（库 246、ledger 1、宏 2、rustdoc 4；target/alert-normalization-workspace.log），明确排除已有 navigation_pages_switch_and_session_state_match_the_measured_wire、rerun_queue_messages_match_frozen_reference 两项，不称完整工作区全绿。原始帧/报告绑定、七项一致错误线 guard、helper oracle 边界及矩阵/文档门 123 项通过（target/alert-normalization-final-gates.log）。已有 MSVC linker stdout 告警保留。
+
+没有新模块/依赖/公共签名/错误类型，未改宏/Entry、StatusContainer 或统一 hash；使用既有正文清理函数。逐文件复查生产、示例、fixture、采集器、gate diff；示例构建通过，四个定点 .gitattributes 规则保留新原始记录行尾。三个 Rust server session 均终止，Python collector 自有服务/连接关闭，结束无相关监听。新浏览器/UI、图标全集、非法参数组合与非字符串仍开放；矩阵保持 130 partial，其他待决选择及完整 Goal 不缩减。用户 colconfig_params 修改不纳入阶段提交，只按授权提交推送工作分支，不合并或发布。

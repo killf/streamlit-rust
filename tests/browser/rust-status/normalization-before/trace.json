@@ -1,0 +1,1545 @@
+{
+  "schema_version": 1,
+  "runtime": "rust",
+  "reference_version": "1.66.1",
+  "captured_at_utc": "2026-10-30T08:46:00.987854+00:00",
+  "scenario": "alert-normalization",
+  "scope": "Alert normalization over one native WS; no browser/UI claim.",
+  "server_command": null,
+  "server_cleanup": "caller-owned",
+  "url": "http://127.0.0.1:8502",
+  "frames": [
+    {
+      "direction": "client->server",
+      "bytes": 22,
+      "base64": "WhQKEmNhc2U9bm9ybWFsaXphdGlvbg==",
+      "message": {
+        "rerun_script": {
+          "query_string": "case=normalization"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 219,
+      "base64": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkMDVlNTEwNTQtYTY3Yi00MTg0LTkzNmMtYThjODY5ZDVhMzBmEiQ4YTYzOWQwYi0yZTJhLTQ3NWItOTI2MC02MDIwYzA4NmVmYzUaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl",
+      "message": {
+        "metadata": {
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "new_session": {
+          "initialize": {
+            "user_info": {},
+            "environment_info": {
+              "streamlit_version": "1.66.1"
+            },
+            "session_status": {},
+            "session_id": "05e51054-a67b-4184-936c-a8c869d5a30f"
+          },
+          "script_run_id": "8a639d0b-2e2a-475b-9260-6020c086efc5",
+          "name": "Streamlit Rust",
+          "config": {
+            "show_error_links": "SHOW_ERROR_LINKS_FALSE"
+          },
+          "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 28,
+      "base64": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ==",
+      "message": {
+        "hash": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 1078,
+      "base64": "CiBkOGUwZjEzMTRjMzI2NWEyODU3N2MwNGY0NDljMGJkNxImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2Uq6Qca5gf6Ad0HCtgHeyJhbGVydF9jYXNlcyI6IFt7ImJvZHkiOiAiXG4gICAgYWxwaGFcbiAgICAgIGJldGFcbiIsICJrd2FyZ3MiOiB7InRpdGxlIjogIlxuICBUaXRsZVxuICAgIGRldGFpbFxuIn19LCB7ImJvZHkiOiAiXG4gICAgXHVkODNkXHVkY2ExIGFscGhhXG4gICAgICBiZXRhXG4iLCAia3dhcmdzIjogeyJ3aWR0aCI6IDI0MH19LCB7ImJvZHkiOiAiXG4gICAgOm1hdGVyaWFsL3RodW1iX3VwOiBhbHBoYVxuICAgICAgYmV0YVxuIiwgImt3YXJncyI6IHsidGl0bGUiOiAiXHRUaXRsZVxuICAgIGRldGFpbCJ9fSwgeyJib2R5IjogIiBcdFx1ZDgzZFx1ZGNhMSBrZWVwIFxuIiwgImt3YXJncyI6IHsiaWNvbiI6ICIiLCAid2lkdGgiOiAyNDB9fSwgeyJib2R5IjogIiBcdFx1ZDgzZFx1ZGNhMSBrZWVwIFxuIiwgImt3YXJncyI6IHsiaWNvbiI6ICIgXHRcbiJ9fSwgeyJib2R5IjogIiAgYm9keVxyXG4gICAgbmV4dCAgIiwgImt3YXJncyI6IHsiaWNvbiI6ICIgXHVkODNlXHVkZGNhICIsICJ3aWR0aCI6IDI0MH19LCB7ImJvZHkiOiAiIFx1MDAxY2JvZHlcdTAwMWYgIiwgImt3YXJncyI6IHsiaWNvbiI6ICJcdTAwMWNcdWQ4M2RcdWRjNjlcdTIwMGRcdWQ4M2RcdWRjYmJcdTAwMWYiLCAidGl0bGUiOiAiXHUwMDFjVGl0bGVcdTAwMWYifX0sIHsiYm9keSI6ICJcdTIwMDNhbHBoYVxuXHUyMDAzYmV0YSIsICJrd2FyZ3MiOiB7IndpZHRoIjogMjQwfX0sIHsiYm9keSI6ICJcdWQ4M2RcdWRjYTFcdTAwMWNhZnRlciIsICJrd2FyZ3MiOiB7fX0sIHsiYm9keSI6ICIgXHRcbiAiLCAia3dhcmdzIjogeyJ0aXRsZSI6ICIgXHRcbiAiLCAid2lkdGgiOiAyNDB9fSwgeyJib2R5IjogInBsYWluIFt4XSAqKmJvbGQqKiIsICJrd2FyZ3MiOiB7Imljb24iOiAiIDptYXRlcmlhbC93YXJuaW5nOiAifX0sIHsiYm9keSI6ICJcdGZpcnN0XG4gICAgc2Vjb25kIiwgImt3YXJncyI6IHsidGl0bGUiOiAiXG4gICAgKipUaXRsZSoqXG4iLCAid2lkdGgiOiAyNDB9fV19EAHSAwIIAQ==",
+      "message": {
+        "hash": "d8e0f1314c3265a28577c04f449c0bd7",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"alert_cases\": [{\"body\": \"\\n    alpha\\n      beta\\n\", \"kwargs\": {\"title\": \"\\n  Title\\n    detail\\n\"}}, {\"body\": \"\\n    \\ud83d\\udca1 alpha\\n      beta\\n\", \"kwargs\": {\"width\": 240}}, {\"body\": \"\\n    :material/thumb_up: alpha\\n      beta\\n\", \"kwargs\": {\"title\": \"\\tTitle\\n    detail\"}}, {\"body\": \" \\t\\ud83d\\udca1 keep \\n\", \"kwargs\": {\"icon\": \"\", \"width\": 240}}, {\"body\": \" \\t\\ud83d\\udca1 keep \\n\", \"kwargs\": {\"icon\": \" \\t\\n\"}}, {\"body\": \"  body\\r\\n    next  \", \"kwargs\": {\"icon\": \" \\ud83e\\uddca \", \"width\": 240}}, {\"body\": \" \\u001cbody\\u001f \", \"kwargs\": {\"icon\": \"\\u001c\\ud83d\\udc69\\u200d\\ud83d\\udcbb\\u001f\", \"title\": \"\\u001cTitle\\u001f\"}}, {\"body\": \"\\u2003alpha\\n\\u2003beta\", \"kwargs\": {\"width\": 240}}, {\"body\": \"\\ud83d\\udca1\\u001cafter\", \"kwargs\": {}}, {\"body\": \" \\t\\n \", \"kwargs\": {\"title\": \" \\t\\n \", \"width\": 240}}, {\"body\": \"plain [x] **bold**\", \"kwargs\": {\"icon\": \" :material/warning: \"}}, {\"body\": \"\\tfirst\\n    second\", \"kwargs\": {\"title\": \"\\n    **Title**\\n\", \"width\": 240}}]}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 133,
+      "base64": "CiA2OWExNjEwMmRjMGQyYWVhMDdjZGJiNzA0YjNlZmIwMBImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqORo38gE0ChYKICAgIGFscGhhCiAgICAgIGJldGEKEAMiAggBKhQKICBUaXRsZQogICAgZGV0YWlsCg==",
+      "message": {
+        "hash": "69a16102dc0d2aea07cdbb704b3efb00",
+        "metadata": {
+          "delta_path": [
+            0,
+            1
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": "\n    alpha\n      beta\n",
+              "format": "INFO",
+              "width_config": {
+                "use_stretch": true
+              },
+              "title": "\n  Title\n    detail\n"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 133,
+      "base64": "CiA0MjkxYTZhOTg0YmY3OTMzYjkwOTZmYTgwZmRjNTA3ZhImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqORo38gE0ChYKICAgIGFscGhhCiAgICAgIGJldGEKEAQiAggBKhQKICBUaXRsZQogICAgZGV0YWlsCg==",
+      "message": {
+        "hash": "4291a6a984bf7933b9096fa80fdc507f",
+        "metadata": {
+          "delta_path": [
+            0,
+            2
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": "\n    alpha\n      beta\n",
+              "format": "SUCCESS",
+              "width_config": {
+                "use_stretch": true
+              },
+              "title": "\n  Title\n    detail\n"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 133,
+      "base64": "CiA5OGE0MzQyMTEyMjYzM2Q0ZTYyYWQzOWZmZmVjMTMxYhImEgIAAyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqORo38gE0ChYKICAgIGFscGhhCiAgICAgIGJldGEKEAIiAggBKhQKICBUaXRsZQogICAgZGV0YWlsCg==",
+      "message": {
+        "hash": "98a43421122633d4e62ad39fffec131b",
+        "metadata": {
+          "delta_path": [
+            0,
+            3
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": "\n    alpha\n      beta\n",
+              "format": "WARNING",
+              "width_config": {
+                "use_stretch": true
+              },
+              "title": "\n  Title\n    detail\n"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 133,
+      "base64": "CiBiZjA3ZTNiOWU1YzU1ZTk0MTIzZmZhNTNhZWE2MTAwMxImEgIABCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqORo38gE0ChYKICAgIGFscGhhCiAgICAgIGJldGEKEAEiAggBKhQKICBUaXRsZQogICAgZGV0YWlsCg==",
+      "message": {
+        "hash": "bf07e3b9e5c55e94123ffa53aea61003",
+        "metadata": {
+          "delta_path": [
+            0,
+            4
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": "\n    alpha\n      beta\n",
+              "format": "ERROR",
+              "width_config": {
+                "use_stretch": true
+              },
+              "title": "\n  Title\n    detail\n"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 117,
+      "base64": "CiBjNTQ4NDAzMTZlZTRlNTRlZDJmNDAyOGQyNTA1YTY1NBImEgIABSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqKRon8gEkChsKICAgIPCfkqEgYWxwaGEKICAgICAgYmV0YQoQAyIDGPAB",
+      "message": {
+        "hash": "c54840316ee4e54ed2f4028d2505a654",
+        "metadata": {
+          "delta_path": [
+            0,
+            5
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": "\n    💡 alpha\n      beta\n",
+              "format": "INFO",
+              "width_config": {
+                "pixel_width": 240
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 117,
+      "base64": "CiAxMTUyNzYwODUwMzEyZDdmMGZiMmZhMmExZDcyMzk5MxImEgIABiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqKRon8gEkChsKICAgIPCfkqEgYWxwaGEKICAgICAgYmV0YQoQBCIDGPAB",
+      "message": {
+        "hash": "1152760850312d7f0fb2fa2a1d723993",
+        "metadata": {
+          "delta_path": [
+            0,
+            6
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": "\n    💡 alpha\n      beta\n",
+              "format": "SUCCESS",
+              "width_config": {
+                "pixel_width": 240
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 117,
+      "base64": "CiBkMWQ3YjU0NjdiOGM1Njc4ZGUwNDY4N2I0N2Q3NzRlOBImEgIAByIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqKRon8gEkChsKICAgIPCfkqEgYWxwaGEKICAgICAgYmV0YQoQAiIDGPAB",
+      "message": {
+        "hash": "d1d7b5467b8c5678de04687b47d774e8",
+        "metadata": {
+          "delta_path": [
+            0,
+            7
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": "\n    💡 alpha\n      beta\n",
+              "format": "WARNING",
+              "width_config": {
+                "pixel_width": 240
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 117,
+      "base64": "CiBmZjgyNjg4ZGM5ZDViZWViY2Y5NWIxMjhmZjVhYzQ0MhImEgIACCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqKRon8gEkChsKICAgIPCfkqEgYWxwaGEKICAgICAgYmV0YQoQASIDGPAB",
+      "message": {
+        "hash": "ff82688dc9d5beebcf95b128ff5ac442",
+        "metadata": {
+          "delta_path": [
+            0,
+            8
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": "\n    💡 alpha\n      beta\n",
+              "format": "ERROR",
+              "width_config": {
+                "pixel_width": 240
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 150,
+      "base64": "CiA5NGI0MGI4ODMyMzBkNzcyYzg3ZGQ2MWNjZjBhYmU5NxImEgIACSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqShpI8gFFCioKICAgIDptYXRlcmlhbC90aHVtYl91cDogYWxwaGEKICAgICAgYmV0YQoQAyICCAEqEQlUaXRsZQogICAgZGV0YWls",
+      "message": {
+        "hash": "94b40b883230d772c87dd61ccf0abe97",
+        "metadata": {
+          "delta_path": [
+            0,
+            9
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": "\n    :material/thumb_up: alpha\n      beta\n",
+              "format": "INFO",
+              "width_config": {
+                "use_stretch": true
+              },
+              "title": "\tTitle\n    detail"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 150,
+      "base64": "CiBiMTIxYTc5Y2UyMTNiZDhjZjQ2MDQ3Y2JjNWJhNzQ2YxImEgIACiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqShpI8gFFCioKICAgIDptYXRlcmlhbC90aHVtYl91cDogYWxwaGEKICAgICAgYmV0YQoQBCICCAEqEQlUaXRsZQogICAgZGV0YWls",
+      "message": {
+        "hash": "b121a79ce213bd8cf46047cbc5ba746c",
+        "metadata": {
+          "delta_path": [
+            0,
+            10
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": "\n    :material/thumb_up: alpha\n      beta\n",
+              "format": "SUCCESS",
+              "width_config": {
+                "use_stretch": true
+              },
+              "title": "\tTitle\n    detail"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 150,
+      "base64": "CiAxNTM2ZDJmN2JmMTU0ZDhiYmExYTc3MjBmZWI3ZDQ5NhImEgIACyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqShpI8gFFCioKICAgIDptYXRlcmlhbC90aHVtYl91cDogYWxwaGEKICAgICAgYmV0YQoQAiICCAEqEQlUaXRsZQogICAgZGV0YWls",
+      "message": {
+        "hash": "1536d2f7bf154d8bba1a7720feb7d496",
+        "metadata": {
+          "delta_path": [
+            0,
+            11
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": "\n    :material/thumb_up: alpha\n      beta\n",
+              "format": "WARNING",
+              "width_config": {
+                "use_stretch": true
+              },
+              "title": "\tTitle\n    detail"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 150,
+      "base64": "CiA4OTc4MTM5YzMxZGQ2OGJhZjViYTY3N2E2NzU5YjBkYhImEgIADCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqShpI8gFFCioKICAgIDptYXRlcmlhbC90aHVtYl91cDogYWxwaGEKICAgICAgYmV0YQoQASICCAEqEQlUaXRsZQogICAgZGV0YWls",
+      "message": {
+        "hash": "8978139c31dd68baf5ba677a6759b0db",
+        "metadata": {
+          "delta_path": [
+            0,
+            12
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": "\n    :material/thumb_up: alpha\n      beta\n",
+              "format": "ERROR",
+              "width_config": {
+                "use_stretch": true
+              },
+              "title": "\tTitle\n    detail"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 103,
+      "base64": "CiAyMGUxYzc1NmY1YmVkYWRjNDNjYmI3NzA0Y2ZjMGVjOBImEgIADSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqGxoZ8gEWCg0gCfCfkqEga2VlcCAKEAMiAxjwAQ==",
+      "message": {
+        "hash": "20e1c756f5bedadc43cbb7704cfc0ec8",
+        "metadata": {
+          "delta_path": [
+            0,
+            13
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": " \t💡 keep \n",
+              "format": "INFO",
+              "width_config": {
+                "pixel_width": 240
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 103,
+      "base64": "CiAwN2ZlNDE5NTkxNGZkYTk3YzljNmJiMThmMzk2NDZmYhImEgIADiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqGxoZ8gEWCg0gCfCfkqEga2VlcCAKEAQiAxjwAQ==",
+      "message": {
+        "hash": "07fe4195914fda97c9c6bb18f39646fb",
+        "metadata": {
+          "delta_path": [
+            0,
+            14
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": " \t💡 keep \n",
+              "format": "SUCCESS",
+              "width_config": {
+                "pixel_width": 240
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 103,
+      "base64": "CiA0ZWZlMTkyOTBkY2E1OTgxZjMyYjhmZGExNzIyYTFjZBImEgIADyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqGxoZ8gEWCg0gCfCfkqEga2VlcCAKEAIiAxjwAQ==",
+      "message": {
+        "hash": "4efe19290dca5981f32b8fda1722a1cd",
+        "metadata": {
+          "delta_path": [
+            0,
+            15
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": " \t💡 keep \n",
+              "format": "WARNING",
+              "width_config": {
+                "pixel_width": 240
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 103,
+      "base64": "CiAwZGMxYjU1NGU3YjA0ZDRjMmY2NTMwYTY0OTgwZDIyYRImEgIAECIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqGxoZ8gEWCg0gCfCfkqEga2VlcCAKEAEiAxjwAQ==",
+      "message": {
+        "hash": "0dc1b554e7b04d4c2f6530a64980d22a",
+        "metadata": {
+          "delta_path": [
+            0,
+            16
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": " \t💡 keep \n",
+              "format": "ERROR",
+              "width_config": {
+                "pixel_width": 240
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 106,
+      "base64": "CiA0NjJiYjBjZjYyNWU1Yjg5NDk2YzQ0NWNlMmI4NmJkYhImEgIAESIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqHhoc8gEZChDigINhbHBoYQrigINiZXRhEAMiAxjwAQ==",
+      "message": {
+        "hash": "462bb0cf625e5b89496c445ce2b86bdb",
+        "metadata": {
+          "delta_path": [
+            0,
+            17
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": " alpha\n beta",
+              "format": "INFO",
+              "width_config": {
+                "pixel_width": 240
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 106,
+      "base64": "CiAwODVkMmY3YzVlZjk1NTRkYzBiMDFlMTFiMDI1Y2I0ORImEgIAEiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqHhoc8gEZChDigINhbHBoYQrigINiZXRhEAQiAxjwAQ==",
+      "message": {
+        "hash": "085d2f7c5ef9554dc0b01e11b025cb49",
+        "metadata": {
+          "delta_path": [
+            0,
+            18
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": " alpha\n beta",
+              "format": "SUCCESS",
+              "width_config": {
+                "pixel_width": 240
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 106,
+      "base64": "CiAzYjZjN2E5MWRjMWJjMjM1NjdjNWJkZjQ2MDgxMDk3NBImEgIAEyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqHhoc8gEZChDigINhbHBoYQrigINiZXRhEAIiAxjwAQ==",
+      "message": {
+        "hash": "3b6c7a91dc1bc23567c5bdf460810974",
+        "metadata": {
+          "delta_path": [
+            0,
+            19
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": " alpha\n beta",
+              "format": "WARNING",
+              "width_config": {
+                "pixel_width": 240
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 106,
+      "base64": "CiBmOTVlZGRkNjJlMzMyMjdjNDk4MTczYjAwMzUzMzdiYxImEgIAFCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqHhoc8gEZChDigINhbHBoYQrigINiZXRhEAEiAxjwAQ==",
+      "message": {
+        "hash": "f95eddd62e33227c498173b0035337bc",
+        "metadata": {
+          "delta_path": [
+            0,
+            20
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": " alpha\n beta",
+              "format": "ERROR",
+              "width_config": {
+                "pixel_width": 240
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 101,
+      "base64": "CiAxZDc0YTIwNjEzNjUyMTVkOTEwYmUwMDI1Y2I0M2MzZRImEgIAFSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqGRoX8gEUCgYcYWZ0ZXIQAxoE8J+SoSICCAE=",
+      "message": {
+        "hash": "1d74a2061365215d910be0025cb43c3e",
+        "metadata": {
+          "delta_path": [
+            0,
+            21
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": "\u001cafter",
+              "format": "INFO",
+              "icon": "💡",
+              "width_config": {
+                "use_stretch": true
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 101,
+      "base64": "CiBkNTZiOWU0MjJlMjVkYzU5ZjUxYTA3MDRlMGYzOWNlZBImEgIAFiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqGRoX8gEUCgYcYWZ0ZXIQBBoE8J+SoSICCAE=",
+      "message": {
+        "hash": "d56b9e422e25dc59f51a0704e0f39ced",
+        "metadata": {
+          "delta_path": [
+            0,
+            22
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": "\u001cafter",
+              "format": "SUCCESS",
+              "icon": "💡",
+              "width_config": {
+                "use_stretch": true
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 101,
+      "base64": "CiBlNDU3MjFiNjMyOTRiZDdkMjY5ZDg0ZWNjN2IyMmNiZBImEgIAFyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqGRoX8gEUCgYcYWZ0ZXIQAhoE8J+SoSICCAE=",
+      "message": {
+        "hash": "e45721b63294bd7d269d84ecc7b22cbd",
+        "metadata": {
+          "delta_path": [
+            0,
+            23
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": "\u001cafter",
+              "format": "WARNING",
+              "icon": "💡",
+              "width_config": {
+                "use_stretch": true
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 101,
+      "base64": "CiA0MTRkMWUxYzAyMGNlMWFkOTNjNDFhZGZkMmNhNGI4MxImEgIAGCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqGRoX8gEUCgYcYWZ0ZXIQARoE8J+SoSICCAE=",
+      "message": {
+        "hash": "414d1e1c020ce1ad93c41adfd2ca4b83",
+        "metadata": {
+          "delta_path": [
+            0,
+            24
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": "\u001cafter",
+              "format": "ERROR",
+              "icon": "💡",
+              "width_config": {
+                "use_stretch": true
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 100,
+      "base64": "CiA1ZTA2ZDBlNTQ5YmM0MGI1YWJkNGViNWRlMGRkOTllNBImEgIAGSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqGBoW8gETCgQgCQogEAMiAxjwASoEIAkKIA==",
+      "message": {
+        "hash": "5e06d0e549bc40b5abd4eb5de0dd99e4",
+        "metadata": {
+          "delta_path": [
+            0,
+            25
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": " \t\n ",
+              "format": "INFO",
+              "width_config": {
+                "pixel_width": 240
+              },
+              "title": " \t\n "
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 100,
+      "base64": "CiA5OTUzNzI0MzljMDdhM2JmNTBlZTcwNjA3OTNiOTUyYhImEgIAGiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqGBoW8gETCgQgCQogEAQiAxjwASoEIAkKIA==",
+      "message": {
+        "hash": "995372439c07a3bf50ee7060793b952b",
+        "metadata": {
+          "delta_path": [
+            0,
+            26
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": " \t\n ",
+              "format": "SUCCESS",
+              "width_config": {
+                "pixel_width": 240
+              },
+              "title": " \t\n "
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 100,
+      "base64": "CiAxZWNkMTY1YTgzYTY4ZDQzMTNiMmM4MTVhZDk0NjAyMhImEgIAGyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqGBoW8gETCgQgCQogEAIiAxjwASoEIAkKIA==",
+      "message": {
+        "hash": "1ecd165a83a68d4313b2c815ad946022",
+        "metadata": {
+          "delta_path": [
+            0,
+            27
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": " \t\n ",
+              "format": "WARNING",
+              "width_config": {
+                "pixel_width": 240
+              },
+              "title": " \t\n "
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 100,
+      "base64": "CiBiZWUyNjMzYjU0NWQ4YzI0ZjEwYmIxMzYzZjFiYWZlZRImEgIAHCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqGBoW8gETCgQgCQogEAEiAxjwASoEIAkKIA==",
+      "message": {
+        "hash": "bee2633b545d8c24f10bb1363f1bafee",
+        "metadata": {
+          "delta_path": [
+            0,
+            28
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": " \t\n ",
+              "format": "ERROR",
+              "width_config": {
+                "pixel_width": 240
+              },
+              "title": " \t\n "
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 124,
+      "base64": "CiA3YTRlZDY4ZDZlZDNlMmQ5ZTRlOTRlMmRjZDM4MGJlZRImEgIAHSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqMBou8gErChEJZmlyc3QKICAgIHNlY29uZBADIgMY8AEqDwogICAgKipUaXRsZSoqCg==",
+      "message": {
+        "hash": "7a4ed68d6ed3e2d9e4e94e2dcd380bee",
+        "metadata": {
+          "delta_path": [
+            0,
+            29
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": "\tfirst\n    second",
+              "format": "INFO",
+              "width_config": {
+                "pixel_width": 240
+              },
+              "title": "\n    **Title**\n"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 124,
+      "base64": "CiAxNzM0OWU2OTA3ZTFhZDYzOWFlYmFiNDkyZjBlZGYxMhImEgIAHiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqMBou8gErChEJZmlyc3QKICAgIHNlY29uZBAEIgMY8AEqDwogICAgKipUaXRsZSoqCg==",
+      "message": {
+        "hash": "17349e6907e1ad639aebab492f0edf12",
+        "metadata": {
+          "delta_path": [
+            0,
+            30
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": "\tfirst\n    second",
+              "format": "SUCCESS",
+              "width_config": {
+                "pixel_width": 240
+              },
+              "title": "\n    **Title**\n"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 124,
+      "base64": "CiBjMzg5NDJlYzM4MGM4NTU3MTNiNzU4MzM4YjBlZjMxMhImEgIAHyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqMBou8gErChEJZmlyc3QKICAgIHNlY29uZBACIgMY8AEqDwogICAgKipUaXRsZSoqCg==",
+      "message": {
+        "hash": "c38942ec380c855713b758338b0ef312",
+        "metadata": {
+          "delta_path": [
+            0,
+            31
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": "\tfirst\n    second",
+              "format": "WARNING",
+              "width_config": {
+                "pixel_width": 240
+              },
+              "title": "\n    **Title**\n"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 124,
+      "base64": "CiAwODEzZjBmYjUzYjY2N2ViZGU1NmVkYmE1MTQxODcxMxImEgIAICIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqMBou8gErChEJZmlyc3QKICAgIHNlY29uZBABIgMY8AEqDwogICAgKipUaXRsZSoqCg==",
+      "message": {
+        "hash": "0813f0fb53b667ebde56edba51418713",
+        "metadata": {
+          "delta_path": [
+            0,
+            32
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "alert": {
+              "body": "\tfirst\n    second",
+              "format": "ERROR",
+              "width_config": {
+                "pixel_width": 240
+              },
+              "title": "\n    **Title**\n"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 3755,
+      "base64": "CiA0ODMxN2U0YTk2MjZlZjQ1NWI0OWZlOTI0NWY2ZTdhYhImEgIAISIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2Uq3hwa2xz6AdIcCs0ceyJyZXN1bHRzIjogW3siaW5kZXgiOiAwLCAia2luZCI6ICJpbmZvIiwgInJldHVybmVkIjogdHJ1ZX0sIHsiaW5kZXgiOiAwLCAia2luZCI6ICJzdWNjZXNzIiwgInJldHVybmVkIjogdHJ1ZX0sIHsiaW5kZXgiOiAwLCAia2luZCI6ICJ3YXJuaW5nIiwgInJldHVybmVkIjogdHJ1ZX0sIHsiaW5kZXgiOiAwLCAia2luZCI6ICJlcnJvciIsICJyZXR1cm5lZCI6IHRydWV9LCB7ImluZGV4IjogMSwgImtpbmQiOiAiaW5mbyIsICJyZXR1cm5lZCI6IHRydWV9LCB7ImluZGV4IjogMSwgImtpbmQiOiAic3VjY2VzcyIsICJyZXR1cm5lZCI6IHRydWV9LCB7ImluZGV4IjogMSwgImtpbmQiOiAid2FybmluZyIsICJyZXR1cm5lZCI6IHRydWV9LCB7ImluZGV4IjogMSwgImtpbmQiOiAiZXJyb3IiLCAicmV0dXJuZWQiOiB0cnVlfSwgeyJpbmRleCI6IDIsICJraW5kIjogImluZm8iLCAicmV0dXJuZWQiOiB0cnVlfSwgeyJpbmRleCI6IDIsICJraW5kIjogInN1Y2Nlc3MiLCAicmV0dXJuZWQiOiB0cnVlfSwgeyJpbmRleCI6IDIsICJraW5kIjogIndhcm5pbmciLCAicmV0dXJuZWQiOiB0cnVlfSwgeyJpbmRleCI6IDIsICJraW5kIjogImVycm9yIiwgInJldHVybmVkIjogdHJ1ZX0sIHsiaW5kZXgiOiAzLCAia2luZCI6ICJpbmZvIiwgInJldHVybmVkIjogdHJ1ZX0sIHsiaW5kZXgiOiAzLCAia2luZCI6ICJzdWNjZXNzIiwgInJldHVybmVkIjogdHJ1ZX0sIHsiaW5kZXgiOiAzLCAia2luZCI6ICJ3YXJuaW5nIiwgInJldHVybmVkIjogdHJ1ZX0sIHsiaW5kZXgiOiAzLCAia2luZCI6ICJlcnJvciIsICJyZXR1cm5lZCI6IHRydWV9LCB7ImluZGV4IjogNCwgImtpbmQiOiAiaW5mbyIsICJlcnJvciI6ICJUaGUgdmFsdWUgXCIgXHRcblwiIGlzIG5vdCBhIHZhbGlkIGVtb2ppLiBQbGVhc2UgdXNlIGEgc2luZ2xlIGVtb2ppLiJ9LCB7ImluZGV4IjogNCwgImtpbmQiOiAic3VjY2VzcyIsICJlcnJvciI6ICJUaGUgdmFsdWUgXCIgXHRcblwiIGlzIG5vdCBhIHZhbGlkIGVtb2ppLiBQbGVhc2UgdXNlIGEgc2luZ2xlIGVtb2ppLiJ9LCB7ImluZGV4IjogNCwgImtpbmQiOiAid2FybmluZyIsICJlcnJvciI6ICJUaGUgdmFsdWUgXCIgXHRcblwiIGlzIG5vdCBhIHZhbGlkIGVtb2ppLiBQbGVhc2UgdXNlIGEgc2luZ2xlIGVtb2ppLiJ9LCB7ImluZGV4IjogNCwgImtpbmQiOiAiZXJyb3IiLCAiZXJyb3IiOiAiVGhlIHZhbHVlIFwiIFx0XG5cIiBpcyBub3QgYSB2YWxpZCBlbW9qaS4gUGxlYXNlIHVzZSBhIHNpbmdsZSBlbW9qaS4ifSwgeyJpbmRleCI6IDUsICJraW5kIjogImluZm8iLCAiZXJyb3IiOiAiVGhlIHZhbHVlIFwiIFx1ZDgzZVx1ZGRjYSBcIiBpcyBub3QgYSB2YWxpZCBlbW9qaS4gUGxlYXNlIHVzZSBhIHNpbmdsZSBlbW9qaS4ifSwgeyJpbmRleCI6IDUsICJraW5kIjogInN1Y2Nlc3MiLCAiZXJyb3IiOiAiVGhlIHZhbHVlIFwiIFx1ZDgzZVx1ZGRjYSBcIiBpcyBub3QgYSB2YWxpZCBlbW9qaS4gUGxlYXNlIHVzZSBhIHNpbmdsZSBlbW9qaS4ifSwgeyJpbmRleCI6IDUsICJraW5kIjogIndhcm5pbmciLCAiZXJyb3IiOiAiVGhlIHZhbHVlIFwiIFx1ZDgzZVx1ZGRjYSBcIiBpcyBub3QgYSB2YWxpZCBlbW9qaS4gUGxlYXNlIHVzZSBhIHNpbmdsZSBlbW9qaS4ifSwgeyJpbmRleCI6IDUsICJraW5kIjogImVycm9yIiwgImVycm9yIjogIlRoZSB2YWx1ZSBcIiBcdWQ4M2VcdWRkY2EgXCIgaXMgbm90IGEgdmFsaWQgZW1vamkuIFBsZWFzZSB1c2UgYSBzaW5nbGUgZW1vamkuIn0sIHsiaW5kZXgiOiA2LCAia2luZCI6ICJpbmZvIiwgImVycm9yIjogIlRoZSB2YWx1ZSBcIlx1MDAxY1x1ZDgzZFx1ZGM2OVx1MjAwZFx1ZDgzZFx1ZGNiYlx1MDAxZlwiIGlzIG5vdCBhIHZhbGlkIGVtb2ppLiBQbGVhc2UgdXNlIGEgc2luZ2xlIGVtb2ppLiJ9LCB7ImluZGV4IjogNiwgImtpbmQiOiAic3VjY2VzcyIsICJlcnJvciI6ICJUaGUgdmFsdWUgXCJcdTAwMWNcdWQ4M2RcdWRjNjlcdTIwMGRcdWQ4M2RcdWRjYmJcdTAwMWZcIiBpcyBub3QgYSB2YWxpZCBlbW9qaS4gUGxlYXNlIHVzZSBhIHNpbmdsZSBlbW9qaS4ifSwgeyJpbmRleCI6IDYsICJraW5kIjogIndhcm5pbmciLCAiZXJyb3IiOiAiVGhlIHZhbHVlIFwiXHUwMDFjXHVkODNkXHVkYzY5XHUyMDBkXHVkODNkXHVkY2JiXHUwMDFmXCIgaXMgbm90IGEgdmFsaWQgZW1vamkuIFBsZWFzZSB1c2UgYSBzaW5nbGUgZW1vamkuIn0sIHsiaW5kZXgiOiA2LCAia2luZCI6ICJlcnJvciIsICJlcnJvciI6ICJUaGUgdmFsdWUgXCJcdTAwMWNcdWQ4M2RcdWRjNjlcdTIwMGRcdWQ4M2RcdWRjYmJcdTAwMWZcIiBpcyBub3QgYSB2YWxpZCBlbW9qaS4gUGxlYXNlIHVzZSBhIHNpbmdsZSBlbW9qaS4ifSwgeyJpbmRleCI6IDcsICJraW5kIjogImluZm8iLCAicmV0dXJuZWQiOiB0cnVlfSwgeyJpbmRleCI6IDcsICJraW5kIjogInN1Y2Nlc3MiLCAicmV0dXJuZWQiOiB0cnVlfSwgeyJpbmRleCI6IDcsICJraW5kIjogIndhcm5pbmciLCAicmV0dXJuZWQiOiB0cnVlfSwgeyJpbmRleCI6IDcsICJraW5kIjogImVycm9yIiwgInJldHVybmVkIjogdHJ1ZX0sIHsiaW5kZXgiOiA4LCAia2luZCI6ICJpbmZvIiwgInJldHVybmVkIjogdHJ1ZX0sIHsiaW5kZXgiOiA4LCAia2luZCI6ICJzdWNjZXNzIiwgInJldHVybmVkIjogdHJ1ZX0sIHsiaW5kZXgiOiA4LCAia2luZCI6ICJ3YXJuaW5nIiwgInJldHVybmVkIjogdHJ1ZX0sIHsiaW5kZXgiOiA4LCAia2luZCI6ICJlcnJvciIsICJyZXR1cm5lZCI6IHRydWV9LCB7ImluZGV4IjogOSwgImtpbmQiOiAiaW5mbyIsICJyZXR1cm5lZCI6IHRydWV9LCB7ImluZGV4IjogOSwgImtpbmQiOiAic3VjY2VzcyIsICJyZXR1cm5lZCI6IHRydWV9LCB7ImluZGV4IjogOSwgImtpbmQiOiAid2FybmluZyIsICJyZXR1cm5lZCI6IHRydWV9LCB7ImluZGV4IjogOSwgImtpbmQiOiAiZXJyb3IiLCAicmV0dXJuZWQiOiB0cnVlfSwgeyJpbmRleCI6IDEwLCAia2luZCI6ICJpbmZvIiwgImVycm9yIjogIlRoZSB2YWx1ZSBcIiA6bWF0ZXJpYWwvd2FybmluZzogXCIgaXMgbm90IGEgdmFsaWQgZW1vamkuIFBsZWFzZSB1c2UgYSBzaW5nbGUgZW1vamkuIn0sIHsiaW5kZXgiOiAxMCwgImtpbmQiOiAic3VjY2VzcyIsICJlcnJvciI6ICJUaGUgdmFsdWUgXCIgOm1hdGVyaWFsL3dhcm5pbmc6IFwiIGlzIG5vdCBhIHZhbGlkIGVtb2ppLiBQbGVhc2UgdXNlIGEgc2luZ2xlIGVtb2ppLiJ9LCB7ImluZGV4IjogMTAsICJraW5kIjogIndhcm5pbmciLCAiZXJyb3IiOiAiVGhlIHZhbHVlIFwiIDptYXRlcmlhbC93YXJuaW5nOiBcIiBpcyBub3QgYSB2YWxpZCBlbW9qaS4gUGxlYXNlIHVzZSBhIHNpbmdsZSBlbW9qaS4ifSwgeyJpbmRleCI6IDEwLCAia2luZCI6ICJlcnJvciIsICJlcnJvciI6ICJUaGUgdmFsdWUgXCIgOm1hdGVyaWFsL3dhcm5pbmc6IFwiIGlzIG5vdCBhIHZhbGlkIGVtb2ppLiBQbGVhc2UgdXNlIGEgc2luZ2xlIGVtb2ppLiJ9LCB7ImluZGV4IjogMTEsICJraW5kIjogImluZm8iLCAicmV0dXJuZWQiOiB0cnVlfSwgeyJpbmRleCI6IDExLCAia2luZCI6ICJzdWNjZXNzIiwgInJldHVybmVkIjogdHJ1ZX0sIHsiaW5kZXgiOiAxMSwgImtpbmQiOiAid2FybmluZyIsICJyZXR1cm5lZCI6IHRydWV9LCB7ImluZGV4IjogMTEsICJraW5kIjogImVycm9yIiwgInJldHVybmVkIjogdHJ1ZX1dfRAB0gMCCAE=",
+      "message": {
+        "hash": "48317e4a9626ef455b49fe9245f6e7ab",
+        "metadata": {
+          "delta_path": [
+            0,
+            33
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"results\": [{\"index\": 0, \"kind\": \"info\", \"returned\": true}, {\"index\": 0, \"kind\": \"success\", \"returned\": true}, {\"index\": 0, \"kind\": \"warning\", \"returned\": true}, {\"index\": 0, \"kind\": \"error\", \"returned\": true}, {\"index\": 1, \"kind\": \"info\", \"returned\": true}, {\"index\": 1, \"kind\": \"success\", \"returned\": true}, {\"index\": 1, \"kind\": \"warning\", \"returned\": true}, {\"index\": 1, \"kind\": \"error\", \"returned\": true}, {\"index\": 2, \"kind\": \"info\", \"returned\": true}, {\"index\": 2, \"kind\": \"success\", \"returned\": true}, {\"index\": 2, \"kind\": \"warning\", \"returned\": true}, {\"index\": 2, \"kind\": \"error\", \"returned\": true}, {\"index\": 3, \"kind\": \"info\", \"returned\": true}, {\"index\": 3, \"kind\": \"success\", \"returned\": true}, {\"index\": 3, \"kind\": \"warning\", \"returned\": true}, {\"index\": 3, \"kind\": \"error\", \"returned\": true}, {\"index\": 4, \"kind\": \"info\", \"error\": \"The value \\\" \\t\\n\\\" is not a valid emoji. Please use a single emoji.\"}, {\"index\": 4, \"kind\": \"success\", \"error\": \"The value \\\" \\t\\n\\\" is not a valid emoji. Please use a single emoji.\"}, {\"index\": 4, \"kind\": \"warning\", \"error\": \"The value \\\" \\t\\n\\\" is not a valid emoji. Please use a single emoji.\"}, {\"index\": 4, \"kind\": \"error\", \"error\": \"The value \\\" \\t\\n\\\" is not a valid emoji. Please use a single emoji.\"}, {\"index\": 5, \"kind\": \"info\", \"error\": \"The value \\\" \\ud83e\\uddca \\\" is not a valid emoji. Please use a single emoji.\"}, {\"index\": 5, \"kind\": \"success\", \"error\": \"The value \\\" \\ud83e\\uddca \\\" is not a valid emoji. Please use a single emoji.\"}, {\"index\": 5, \"kind\": \"warning\", \"error\": \"The value \\\" \\ud83e\\uddca \\\" is not a valid emoji. Please use a single emoji.\"}, {\"index\": 5, \"kind\": \"error\", \"error\": \"The value \\\" \\ud83e\\uddca \\\" is not a valid emoji. Please use a single emoji.\"}, {\"index\": 6, \"kind\": \"info\", \"error\": \"The value \\\"\\u001c\\ud83d\\udc69\\u200d\\ud83d\\udcbb\\u001f\\\" is not a valid emoji. Please use a single emoji.\"}, {\"index\": 6, \"kind\": \"success\", \"error\": \"The value \\\"\\u001c\\ud83d\\udc69\\u200d\\ud83d\\udcbb\\u001f\\\" is not a valid emoji. Please use a single emoji.\"}, {\"index\": 6, \"kind\": \"warning\", \"error\": \"The value \\\"\\u001c\\ud83d\\udc69\\u200d\\ud83d\\udcbb\\u001f\\\" is not a valid emoji. Please use a single emoji.\"}, {\"index\": 6, \"kind\": \"error\", \"error\": \"The value \\\"\\u001c\\ud83d\\udc69\\u200d\\ud83d\\udcbb\\u001f\\\" is not a valid emoji. Please use a single emoji.\"}, {\"index\": 7, \"kind\": \"info\", \"returned\": true}, {\"index\": 7, \"kind\": \"success\", \"returned\": true}, {\"index\": 7, \"kind\": \"warning\", \"returned\": true}, {\"index\": 7, \"kind\": \"error\", \"returned\": true}, {\"index\": 8, \"kind\": \"info\", \"returned\": true}, {\"index\": 8, \"kind\": \"success\", \"returned\": true}, {\"index\": 8, \"kind\": \"warning\", \"returned\": true}, {\"index\": 8, \"kind\": \"error\", \"returned\": true}, {\"index\": 9, \"kind\": \"info\", \"returned\": true}, {\"index\": 9, \"kind\": \"success\", \"returned\": true}, {\"index\": 9, \"kind\": \"warning\", \"returned\": true}, {\"index\": 9, \"kind\": \"error\", \"returned\": true}, {\"index\": 10, \"kind\": \"info\", \"error\": \"The value \\\" :material/warning: \\\" is not a valid emoji. Please use a single emoji.\"}, {\"index\": 10, \"kind\": \"success\", \"error\": \"The value \\\" :material/warning: \\\" is not a valid emoji. Please use a single emoji.\"}, {\"index\": 10, \"kind\": \"warning\", \"error\": \"The value \\\" :material/warning: \\\" is not a valid emoji. Please use a single emoji.\"}, {\"index\": 10, \"kind\": \"error\", \"error\": \"The value \\\" :material/warning: \\\" is not a valid emoji. Please use a single emoji.\"}, {\"index\": 11, \"kind\": \"info\", \"returned\": true}, {\"index\": 11, \"kind\": \"success\", \"returned\": true}, {\"index\": 11, \"kind\": \"warning\", \"returned\": true}, {\"index\": 11, \"kind\": \"error\", \"returned\": true}]}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 19,
+      "base64": "Cg9zY3JpcHRfZmluaXNoZWQwAA==",
+      "message": {
+        "hash": "script_finished",
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    }
+  ],
+  "elements": [
+    {
+      "index": 0,
+      "kind": "json",
+      "fields": {
+        "body": "{\"alert_cases\": [{\"body\": \"\\n    alpha\\n      beta\\n\", \"kwargs\": {\"title\": \"\\n  Title\\n    detail\\n\"}}, {\"body\": \"\\n    \\ud83d\\udca1 alpha\\n      beta\\n\", \"kwargs\": {\"width\": 240}}, {\"body\": \"\\n    :material/thumb_up: alpha\\n      beta\\n\", \"kwargs\": {\"title\": \"\\tTitle\\n    detail\"}}, {\"body\": \" \\t\\ud83d\\udca1 keep \\n\", \"kwargs\": {\"icon\": \"\", \"width\": 240}}, {\"body\": \" \\t\\ud83d\\udca1 keep \\n\", \"kwargs\": {\"icon\": \" \\t\\n\"}}, {\"body\": \"  body\\r\\n    next  \", \"kwargs\": {\"icon\": \" \\ud83e\\uddca \", \"width\": 240}}, {\"body\": \" \\u001cbody\\u001f \", \"kwargs\": {\"icon\": \"\\u001c\\ud83d\\udc69\\u200d\\ud83d\\udcbb\\u001f\", \"title\": \"\\u001cTitle\\u001f\"}}, {\"body\": \"\\u2003alpha\\n\\u2003beta\", \"kwargs\": {\"width\": 240}}, {\"body\": \"\\ud83d\\udca1\\u001cafter\", \"kwargs\": {}}, {\"body\": \" \\t\\n \", \"kwargs\": {\"title\": \" \\t\\n \", \"width\": 240}}, {\"body\": \"plain [x] **bold**\", \"kwargs\": {\"icon\": \" :material/warning: \"}}, {\"body\": \"\\tfirst\\n    second\", \"kwargs\": {\"title\": \"\\n    **Title**\\n\", \"width\": 240}}]}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        0
+      ]
+    },
+    {
+      "index": 1,
+      "kind": "alert",
+      "fields": {
+        "body": "\n    alpha\n      beta\n",
+        "format": "INFO",
+        "width_config": {
+          "use_stretch": true
+        },
+        "title": "\n  Title\n    detail\n"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        1
+      ]
+    },
+    {
+      "index": 2,
+      "kind": "alert",
+      "fields": {
+        "body": "\n    alpha\n      beta\n",
+        "format": "SUCCESS",
+        "width_config": {
+          "use_stretch": true
+        },
+        "title": "\n  Title\n    detail\n"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        2
+      ]
+    },
+    {
+      "index": 3,
+      "kind": "alert",
+      "fields": {
+        "body": "\n    alpha\n      beta\n",
+        "format": "WARNING",
+        "width_config": {
+          "use_stretch": true
+        },
+        "title": "\n  Title\n    detail\n"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        3
+      ]
+    },
+    {
+      "index": 4,
+      "kind": "alert",
+      "fields": {
+        "body": "\n    alpha\n      beta\n",
+        "format": "ERROR",
+        "width_config": {
+          "use_stretch": true
+        },
+        "title": "\n  Title\n    detail\n"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        4
+      ]
+    },
+    {
+      "index": 5,
+      "kind": "alert",
+      "fields": {
+        "body": "\n    💡 alpha\n      beta\n",
+        "format": "INFO",
+        "width_config": {
+          "pixel_width": 240
+        }
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        5
+      ]
+    },
+    {
+      "index": 6,
+      "kind": "alert",
+      "fields": {
+        "body": "\n    💡 alpha\n      beta\n",
+        "format": "SUCCESS",
+        "width_config": {
+          "pixel_width": 240
+        }
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        6
+      ]
+    },
+    {
+      "index": 7,
+      "kind": "alert",
+      "fields": {
+        "body": "\n    💡 alpha\n      beta\n",
+        "format": "WARNING",
+        "width_config": {
+          "pixel_width": 240
+        }
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        7
+      ]
+    },
+    {
+      "index": 8,
+      "kind": "alert",
+      "fields": {
+        "body": "\n    💡 alpha\n      beta\n",
+        "format": "ERROR",
+        "width_config": {
+          "pixel_width": 240
+        }
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        8
+      ]
+    },
+    {
+      "index": 9,
+      "kind": "alert",
+      "fields": {
+        "body": "\n    :material/thumb_up: alpha\n      beta\n",
+        "format": "INFO",
+        "width_config": {
+          "use_stretch": true
+        },
+        "title": "\tTitle\n    detail"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        9
+      ]
+    },
+    {
+      "index": 10,
+      "kind": "alert",
+      "fields": {
+        "body": "\n    :material/thumb_up: alpha\n      beta\n",
+        "format": "SUCCESS",
+        "width_config": {
+          "use_stretch": true
+        },
+        "title": "\tTitle\n    detail"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        10
+      ]
+    },
+    {
+      "index": 11,
+      "kind": "alert",
+      "fields": {
+        "body": "\n    :material/thumb_up: alpha\n      beta\n",
+        "format": "WARNING",
+        "width_config": {
+          "use_stretch": true
+        },
+        "title": "\tTitle\n    detail"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        11
+      ]
+    },
+    {
+      "index": 12,
+      "kind": "alert",
+      "fields": {
+        "body": "\n    :material/thumb_up: alpha\n      beta\n",
+        "format": "ERROR",
+        "width_config": {
+          "use_stretch": true
+        },
+        "title": "\tTitle\n    detail"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        12
+      ]
+    },
+    {
+      "index": 13,
+      "kind": "alert",
+      "fields": {
+        "body": " \t💡 keep \n",
+        "format": "INFO",
+        "width_config": {
+          "pixel_width": 240
+        }
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        13
+      ]
+    },
+    {
+      "index": 14,
+      "kind": "alert",
+      "fields": {
+        "body": " \t💡 keep \n",
+        "format": "SUCCESS",
+        "width_config": {
+          "pixel_width": 240
+        }
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        14
+      ]
+    },
+    {
+      "index": 15,
+      "kind": "alert",
+      "fields": {
+        "body": " \t💡 keep \n",
+        "format": "WARNING",
+        "width_config": {
+          "pixel_width": 240
+        }
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        15
+      ]
+    },
+    {
+      "index": 16,
+      "kind": "alert",
+      "fields": {
+        "body": " \t💡 keep \n",
+        "format": "ERROR",
+        "width_config": {
+          "pixel_width": 240
+        }
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        16
+      ]
+    },
+    {
+      "index": 17,
+      "kind": "alert",
+      "fields": {
+        "body": " alpha\n beta",
+        "format": "INFO",
+        "width_config": {
+          "pixel_width": 240
+        }
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        17
+      ]
+    },
+    {
+      "index": 18,
+      "kind": "alert",
+      "fields": {
+        "body": " alpha\n beta",
+        "format": "SUCCESS",
+        "width_config": {
+          "pixel_width": 240
+        }
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        18
+      ]
+    },
+    {
+      "index": 19,
+      "kind": "alert",
+      "fields": {
+        "body": " alpha\n beta",
+        "format": "WARNING",
+        "width_config": {
+          "pixel_width": 240
+        }
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        19
+      ]
+    },
+    {
+      "index": 20,
+      "kind": "alert",
+      "fields": {
+        "body": " alpha\n beta",
+        "format": "ERROR",
+        "width_config": {
+          "pixel_width": 240
+        }
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        20
+      ]
+    },
+    {
+      "index": 21,
+      "kind": "alert",
+      "fields": {
+        "body": "\u001cafter",
+        "format": "INFO",
+        "icon": "💡",
+        "width_config": {
+          "use_stretch": true
+        }
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        21
+      ]
+    },
+    {
+      "index": 22,
+      "kind": "alert",
+      "fields": {
+        "body": "\u001cafter",
+        "format": "SUCCESS",
+        "icon": "💡",
+        "width_config": {
+          "use_stretch": true
+        }
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        22
+      ]
+    },
+    {
+      "index": 23,
+      "kind": "alert",
+      "fields": {
+        "body": "\u001cafter",
+        "format": "WARNING",
+        "icon": "💡",
+        "width_config": {
+          "use_stretch": true
+        }
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        23
+      ]
+    },
+    {
+      "index": 24,
+      "kind": "alert",
+      "fields": {
+        "body": "\u001cafter",
+        "format": "ERROR",
+        "icon": "💡",
+        "width_config": {
+          "use_stretch": true
+        }
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        24
+      ]
+    },
+    {
+      "index": 25,
+      "kind": "alert",
+      "fields": {
+        "body": " \t\n ",
+        "format": "INFO",
+        "width_config": {
+          "pixel_width": 240
+        },
+        "title": " \t\n "
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        25
+      ]
+    },
+    {
+      "index": 26,
+      "kind": "alert",
+      "fields": {
+        "body": " \t\n ",
+        "format": "SUCCESS",
+        "width_config": {
+          "pixel_width": 240
+        },
+        "title": " \t\n "
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        26
+      ]
+    },
+    {
+      "index": 27,
+      "kind": "alert",
+      "fields": {
+        "body": " \t\n ",
+        "format": "WARNING",
+        "width_config": {
+          "pixel_width": 240
+        },
+        "title": " \t\n "
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        27
+      ]
+    },
+    {
+      "index": 28,
+      "kind": "alert",
+      "fields": {
+        "body": " \t\n ",
+        "format": "ERROR",
+        "width_config": {
+          "pixel_width": 240
+        },
+        "title": " \t\n "
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        28
+      ]
+    },
+    {
+      "index": 29,
+      "kind": "alert",
+      "fields": {
+        "body": "\tfirst\n    second",
+        "format": "INFO",
+        "width_config": {
+          "pixel_width": 240
+        },
+        "title": "\n    **Title**\n"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        29
+      ]
+    },
+    {
+      "index": 30,
+      "kind": "alert",
+      "fields": {
+        "body": "\tfirst\n    second",
+        "format": "SUCCESS",
+        "width_config": {
+          "pixel_width": 240
+        },
+        "title": "\n    **Title**\n"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        30
+      ]
+    },
+    {
+      "index": 31,
+      "kind": "alert",
+      "fields": {
+        "body": "\tfirst\n    second",
+        "format": "WARNING",
+        "width_config": {
+          "pixel_width": 240
+        },
+        "title": "\n    **Title**\n"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        31
+      ]
+    },
+    {
+      "index": 32,
+      "kind": "alert",
+      "fields": {
+        "body": "\tfirst\n    second",
+        "format": "ERROR",
+        "width_config": {
+          "pixel_width": 240
+        },
+        "title": "\n    **Title**\n"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        32
+      ]
+    },
+    {
+      "index": 33,
+      "kind": "json",
+      "fields": {
+        "body": "{\"results\": [{\"index\": 0, \"kind\": \"info\", \"returned\": true}, {\"index\": 0, \"kind\": \"success\", \"returned\": true}, {\"index\": 0, \"kind\": \"warning\", \"returned\": true}, {\"index\": 0, \"kind\": \"error\", \"returned\": true}, {\"index\": 1, \"kind\": \"info\", \"returned\": true}, {\"index\": 1, \"kind\": \"success\", \"returned\": true}, {\"index\": 1, \"kind\": \"warning\", \"returned\": true}, {\"index\": 1, \"kind\": \"error\", \"returned\": true}, {\"index\": 2, \"kind\": \"info\", \"returned\": true}, {\"index\": 2, \"kind\": \"success\", \"returned\": true}, {\"index\": 2, \"kind\": \"warning\", \"returned\": true}, {\"index\": 2, \"kind\": \"error\", \"returned\": true}, {\"index\": 3, \"kind\": \"info\", \"returned\": true}, {\"index\": 3, \"kind\": \"success\", \"returned\": true}, {\"index\": 3, \"kind\": \"warning\", \"returned\": true}, {\"index\": 3, \"kind\": \"error\", \"returned\": true}, {\"index\": 4, \"kind\": \"info\", \"error\": \"The value \\\" \\t\\n\\\" is not a valid emoji. Please use a single emoji.\"}, {\"index\": 4, \"kind\": \"success\", \"error\": \"The value \\\" \\t\\n\\\" is not a valid emoji. Please use a single emoji.\"}, {\"index\": 4, \"kind\": \"warning\", \"error\": \"The value \\\" \\t\\n\\\" is not a valid emoji. Please use a single emoji.\"}, {\"index\": 4, \"kind\": \"error\", \"error\": \"The value \\\" \\t\\n\\\" is not a valid emoji. Please use a single emoji.\"}, {\"index\": 5, \"kind\": \"info\", \"error\": \"The value \\\" \\ud83e\\uddca \\\" is not a valid emoji. Please use a single emoji.\"}, {\"index\": 5, \"kind\": \"success\", \"error\": \"The value \\\" \\ud83e\\uddca \\\" is not a valid emoji. Please use a single emoji.\"}, {\"index\": 5, \"kind\": \"warning\", \"error\": \"The value \\\" \\ud83e\\uddca \\\" is not a valid emoji. Please use a single emoji.\"}, {\"index\": 5, \"kind\": \"error\", \"error\": \"The value \\\" \\ud83e\\uddca \\\" is not a valid emoji. Please use a single emoji.\"}, {\"index\": 6, \"kind\": \"info\", \"error\": \"The value \\\"\\u001c\\ud83d\\udc69\\u200d\\ud83d\\udcbb\\u001f\\\" is not a valid emoji. Please use a single emoji.\"}, {\"index\": 6, \"kind\": \"success\", \"error\": \"The value \\\"\\u001c\\ud83d\\udc69\\u200d\\ud83d\\udcbb\\u001f\\\" is not a valid emoji. Please use a single emoji.\"}, {\"index\": 6, \"kind\": \"warning\", \"error\": \"The value \\\"\\u001c\\ud83d\\udc69\\u200d\\ud83d\\udcbb\\u001f\\\" is not a valid emoji. Please use a single emoji.\"}, {\"index\": 6, \"kind\": \"error\", \"error\": \"The value \\\"\\u001c\\ud83d\\udc69\\u200d\\ud83d\\udcbb\\u001f\\\" is not a valid emoji. Please use a single emoji.\"}, {\"index\": 7, \"kind\": \"info\", \"returned\": true}, {\"index\": 7, \"kind\": \"success\", \"returned\": true}, {\"index\": 7, \"kind\": \"warning\", \"returned\": true}, {\"index\": 7, \"kind\": \"error\", \"returned\": true}, {\"index\": 8, \"kind\": \"info\", \"returned\": true}, {\"index\": 8, \"kind\": \"success\", \"returned\": true}, {\"index\": 8, \"kind\": \"warning\", \"returned\": true}, {\"index\": 8, \"kind\": \"error\", \"returned\": true}, {\"index\": 9, \"kind\": \"info\", \"returned\": true}, {\"index\": 9, \"kind\": \"success\", \"returned\": true}, {\"index\": 9, \"kind\": \"warning\", \"returned\": true}, {\"index\": 9, \"kind\": \"error\", \"returned\": true}, {\"index\": 10, \"kind\": \"info\", \"error\": \"The value \\\" :material/warning: \\\" is not a valid emoji. Please use a single emoji.\"}, {\"index\": 10, \"kind\": \"success\", \"error\": \"The value \\\" :material/warning: \\\" is not a valid emoji. Please use a single emoji.\"}, {\"index\": 10, \"kind\": \"warning\", \"error\": \"The value \\\" :material/warning: \\\" is not a valid emoji. Please use a single emoji.\"}, {\"index\": 10, \"kind\": \"error\", \"error\": \"The value \\\" :material/warning: \\\" is not a valid emoji. Please use a single emoji.\"}, {\"index\": 11, \"kind\": \"info\", \"returned\": true}, {\"index\": 11, \"kind\": \"success\", \"returned\": true}, {\"index\": 11, \"kind\": \"warning\", \"returned\": true}, {\"index\": 11, \"kind\": \"error\", \"returned\": true}]}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        33
+      ]
+    }
+  ],
+  "finishes": [
+    0
+  ],
+  "health": {
+    "status": 200,
+    "body": "ok"
+  },
+  "cleanup": {
+    "websocket_closed": true
+  },
+  "successful": true
+}

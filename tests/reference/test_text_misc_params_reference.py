@@ -886,3 +886,119 @@ def test_badge_browser_gate_rejects_wrong_observations(mutation):
         capture["screenshots"][0]["sha256"] = "0" * 64
     with pytest.raises(AssertionError):
         assert_badge_content_browser(capture, PYTHON / "badge-content-ui")
+
+
+
+STATUS_PYTHON = PYTHON.parent / "status"
+STATUS_RUST = RUST.parent / "rust-status"
+ALERT_INPUTS = [
+    {"body": "\n    alpha\n      beta\n", "kwargs": {"title": "\n  Title\n    detail\n"}},
+    {"body": "\n    💡 alpha\n      beta\n", "kwargs": {"width": 240}},
+    {"body": "\n    :material/thumb_up: alpha\n      beta\n", "kwargs": {"title": "\tTitle\n    detail"}},
+    {"body": " \t💡 keep \n", "kwargs": {"icon": "", "width": 240}},
+    {"body": " \t💡 keep \n", "kwargs": {"icon": " \t\n"}},
+    {"body": "  body\r\n    next  ", "kwargs": {"icon": " 🧊 ", "width": 240}},
+    {"body": " \u001cbody\u001f ", "kwargs": {"icon": "\u001c👩‍💻\u001f", "title": "\u001cTitle\u001f"}},
+    {"body": "\u2003alpha\n\u2003beta", "kwargs": {"width": 240}},
+    {"body": "💡\u001cafter", "kwargs": {}},
+    {"body": " \t\n ", "kwargs": {"title": " \t\n ", "width": 240}},
+    {"body": "plain [x] **bold**", "kwargs": {"icon": " :material/warning: "}},
+    {"body": "\tfirst\n    second", "kwargs": {"title": "\n    **Title**\n", "width": 240}},
+]
+
+
+def assert_alert_normalization(capture):
+    assert_capture(capture)
+    outputs = full_elements(capture)
+    assert len(outputs) == 50
+    for slot in (0, 49):
+        assert outputs[slot][0] == [0, slot]
+        report = outputs[slot][1]
+        assert set(report) == {"json", "width_config"}
+        assert report["json"]["expanded"] and report["width_config"] == {"use_stretch": True}
+    assert json.loads(outputs[0][1]["json"]["body"]) == {"alert_cases": ALERT_INPUTS}
+    bodies = ["alpha\n  beta", "alpha\n  beta", "alpha\n  beta", "💡 keep", "💡 keep", "body\r\n  next", "body", "alpha\n\u2003beta", "\u001cafter", "", "plain [x] **bold**", "first\n    second"]
+    icons = ["", "💡", ":material/thumb_up:", "", "", "🧊", "👩‍💻", "", "💡", "", ":material/warning:", ""]
+    titles = ["Title\n  detail", "", "Title\n    detail", "", "", "", "Title", "", "", "", "", "**Title**"]
+    kinds = ("info", "success", "warning", "error")
+    results = []
+    for index in range(12):
+        for offset, kind in enumerate(kinds):
+            fields = {"format": kind.upper(), "width_config": {"pixel_width": 240} if index % 2 else {"use_stretch": True}}
+            for field, value in (("body", bodies[index]), ("icon", icons[index]), ("title", titles[index])):
+                if value:
+                    fields[field] = value
+            slot = 1 + index * 4 + offset
+            assert outputs[slot] == ([0, slot], {"alert": fields}), (index, kind)
+            results.append({"index": index, "kind": kind, "returned": True})
+    assert json.loads(outputs[49][1]["json"]["body"]) == {"results": results}
+
+
+def test_alert_normalization_reference_and_two_retained_rust_failures():
+    python = read(STATUS_PYTHON / "normalization/trace.json")
+    rust = read(STATUS_RUST / "normalization/trace.json")
+    before = read(STATUS_RUST / "normalization-before/trace.json")
+    attempt = read(STATUS_RUST / "normalization-attempt/trace.json")
+    for runtime, capture in (("python", python), ("rust", rust), ("rust", before), ("rust", attempt)):
+        assert_capture(capture)
+        assert capture["runtime"] == runtime and capture["reference_version"] == "1.66.1"
+        assert capture["scenario"] == "alert-normalization" and capture["successful"]
+        assert "producer_error" not in capture
+    assert python["cleanup"] == {"websocket_closed": True, "server_stopped": True}
+    assert_alert_normalization(python)
+    assert_alert_normalization(rust)
+    assert full_elements(python) == full_elements(rust)
+    assert len(before["elements"]) == 34
+    results = json.loads(before["elements"][-1]["fields"]["body"])["results"]
+    assert len(results) == 48 and sum(item.get("returned", False) for item in results) == 32
+    assert {(item["index"], item["kind"]) for item in results if "error" in item} == {(index, kind) for index in (4, 5, 6, 10) for kind in ("info", "success", "warning", "error")}
+    assert [i for i, (a, b) in enumerate(zip(full_elements(python), full_elements(attempt))) if a != b] == [33, 34, 35, 36]
+    for failed in (before, attempt):
+        with pytest.raises(AssertionError):
+            assert_alert_normalization(failed)
+
+
+def test_direct_python_alert_separator_oracle_is_distinct_from_ws_evidence():
+    oracle = read(STATUS_PYTHON / "normalization/icon-separators.json")
+    assert oracle["reference_version"] == "1.66.1" and oracle["python_version"].startswith("3.14.7")
+    assert "not a public WS or browser capture" in oracle["scope"]
+    expected = []
+    for prefix in ("💡", ":material/thumb_up:"):
+        for separator in (" ", "_ -__ ", "\t", "\n", "\r", "\u00a0", "\u2003", "\u001c"):
+            remainder = separator if (prefix == "💡" and separator not in (" ", "_ -__ ")) or (prefix != "💡" and separator == "_ -__ ") else ""
+            expected.append({"input": prefix + separator + "after", "body": remainder + "after", "icon": prefix})
+    assert oracle["cases"] == expected
+
+
+@pytest.mark.parametrize("mutation", ["body", "icon", "title", "empty-icon", "separator", "width-placement", "result"])
+def test_alert_normalization_gate_rejects_coherent_wrong_wire(mutation):
+    capture = read(STATUS_PYTHON / "normalization/trace.json")
+    slot = {"body": 1, "icon": 21, "title": 1, "empty-icon": 17, "separator": 33, "width-placement": 1, "result": 49}[mutation]
+    frame = next(frame for frame in capture["frames"] if frame["message"].get("metadata", {}).get("delta_path") == [0, slot])
+    message = ForwardMsg()
+    message.ParseFromString(base64.b64decode(frame["base64"]))
+    element = message.delta.new_element
+    kind = element.WhichOneof("type")
+    if mutation == "body":
+        element.alert.body = "\n    alpha\n      beta\n"
+    elif mutation == "icon":
+        element.alert.icon = " 🧊 "
+    elif mutation == "title":
+        element.alert.title = "\n  Title\n    detail\n"
+    elif mutation == "empty-icon":
+        element.alert.icon, element.alert.body = "💡", "keep"
+    elif mutation == "separator":
+        element.alert.body = "after"
+    elif mutation == "width-placement":
+        element.width_config.CopyFrom(element.alert.width_config)
+        element.alert.ClearField("width_config")
+    else:
+        report = json.loads(element.json.body)
+        report["results"][0]["returned"] = False
+        element.json.body = json.dumps(report)
+    data = message.SerializeToString()
+    frame.update(base64=base64.b64encode(data).decode(), bytes=len(data), message=MessageToDict(message, preserving_proto_field_name=True))
+    capture["elements"][slot]["fields"] = MessageToDict(getattr(element, kind), preserving_proto_field_name=True)
+    assert_capture(capture)
+    with pytest.raises(AssertionError):
+        assert_alert_normalization(capture)

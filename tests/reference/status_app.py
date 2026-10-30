@@ -26,6 +26,35 @@ from __future__ import annotations
 
 import streamlit as st
 
+def run_normalization():
+    cases = [
+        {'body': '\n    alpha\n      beta\n', 'kwargs': {'title': '\n  Title\n    detail\n'}},
+        {'body': '\n    💡 alpha\n      beta\n', 'kwargs': {'width': 240}},
+        {'body': '\n    :material/thumb_up: alpha\n      beta\n', 'kwargs': {'title': '\tTitle\n    detail'}},
+        {'body': ' \t💡 keep \n', 'kwargs': {'icon': '', 'width': 240}},
+        {'body': ' \t💡 keep \n', 'kwargs': {'icon': ' \t\n'}},
+        {'body': '  body\r\n    next  ', 'kwargs': {'icon': ' 🧊 ', 'width': 240}},
+        {'body': ' \x1cbody\x1f ', 'kwargs': {'icon': '\x1c👩\u200d💻\x1f', 'title': '\x1cTitle\x1f'}},
+        {'body': '\u2003alpha\n\u2003beta', 'kwargs': {'width': 240}},
+        {'body': '💡\x1cafter', 'kwargs': {}},
+        {'body': ' \t\n ', 'kwargs': {'title': ' \t\n ', 'width': 240}},
+        {'body': 'plain [x] **bold**', 'kwargs': {'icon': ' :material/warning: '}},
+        {'body': '\tfirst\n    second', 'kwargs': {'title': '\n    **Title**\n', 'width': 240}},
+    ]
+    st.json({"alert_cases": cases})
+    results = []
+    for index, case in enumerate(cases):
+        for kind in ("info", "success", "warning", "error"):
+            getattr(st, kind)(case["body"], **case["kwargs"])
+            results.append({"index": index, "kind": kind, "returned": True})
+    st.json({"results": results})
+
+
+if st.query_params.get("case") == "normalization":
+    run_normalization()
+    st.stop()
+
+
 st.set_page_config(page_title="streamlit-rust status reference", layout="wide")
 
 CASE = st.query_params.get("case", "defaults")

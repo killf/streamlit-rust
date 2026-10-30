@@ -23,16 +23,25 @@ fn emoji_len(value: &str) -> Option<usize> {
 }
 
 pub(crate) fn status_content(body: &str, icon: Option<&str>) -> Result<(String, String), crate::api::StatusError> {
+    // 1. 先清理正文；显式图标即使清理后为空，也抑制自动提取。
+    let body = crate::utils::clean_text(body);
     if let Some(icon) = icon {
+        let icon = icon.trim_matches(crate::utils::python_whitespace);
         if icon.is_empty() || material_icon_len(icon) == Some(icon.len()) || is_single_emoji(icon) {
-            return Ok((body.to_string(), icon.to_string()));
+            return Ok((body, icon.to_string()));
         }
         return Err(crate::api::StatusError::InvalidIcon(icon.to_string()));
     }
-    if let Some(end) = material_icon_len(body).or_else(|| emoji_len(body)) {
-        return Ok((body[end..].trim_start().to_string(), body[..end].to_string()));
+    // 2. Material 图标后按 Python 空白规则移除分隔符。
+    if let Some(end) = material_icon_len(&body) {
+        return Ok((body[end..].trim_start_matches(crate::utils::python_whitespace).to_string(), body[..end].to_string()));
     }
-    Ok((body.to_string(), String::new()))
+
+    // 3. Emoji 只吞掉空格、下划线和连字符，不吞 Tab/LF 或 Unicode 空白。
+    if let Some(end) = emoji_len(&body) {
+        return Ok((body[end..].trim_start_matches([' ', '_', '-']).to_string(), body[..end].to_string()));
+    }
+    Ok((body, String::new()))
 }
 
 pub(crate) struct StatusElement {
@@ -70,6 +79,44 @@ mod tests {
     use crate::proto::alert::Format;
     use crate::proto::streamlit::{WidthConfig, width_config::WidthSpec};
     use prost::Message;
+
+    #[test]
+    fn normalization_precedes_icon_detection_and_keeps_explicit_empty_icon() -> anyhow::Result<()> {
+        for (body, icon, expected_body, expected_icon) in [
+            ("\n    💡 alpha\n      beta\n", None, "alpha\n  beta", "💡"),
+            ("\n    :material/thumb_up: alpha\n      beta\n", None, "alpha\n  beta", ":material/thumb_up:"),
+            (" \t💡 keep \n", Some(" \t\n"), "💡 keep", ""),
+            ("  body\r\n    next  ", Some(" 🧊 "), "body\r\n  next", "🧊"),
+            (" \u{1c}body\u{1f} ", Some("\u{1c}👩‍💻\u{1f}"), "body", "👩‍💻"),
+            ("💡\u{1c}after", None, "\u{1c}after", "💡"),
+            ("💡_ -__ after", None, "after", "💡"),
+            ("💡\tafter", None, "\tafter", "💡"),
+            ("💡\nafter", None, "\nafter", "💡"),
+            ("💡\u{a0}after", None, "\u{a0}after", "💡"),
+            (":material/thumb_up:\u{1c}after", None, "after", ":material/thumb_up:"),
+            (":material/thumb_up:__-after", None, "__-after", ":material/thumb_up:"),
+        ] {
+            assert_eq!(status_content(body, icon)?, (expected_body.into(), expected_icon.into()));
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn leading_separator_rules_match_direct_python_oracle() -> anyhow::Result<()> {
+        let reference: serde_json::Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/status/normalization/icon-separators.json"))?;
+        let cases = reference["cases"].as_array().ok_or_else(|| anyhow::anyhow!("missing separator cases"))?;
+        assert_eq!(cases.len(), 16);
+        for case in cases {
+            assert_eq!(
+                status_content(case["input"].as_str().ok_or_else(|| anyhow::anyhow!("missing separator input"))?, None)?,
+                (
+                    case["body"].as_str().ok_or_else(|| anyhow::anyhow!("missing separator body"))?.into(),
+                    case["icon"].as_str().ok_or_else(|| anyhow::anyhow!("missing separator icon"))?.into()
+                )
+            );
+        }
+        Ok(())
+    }
 
     // Expected values come from the real Python 1.66.1 browser capture, not
     // generated Rust output. This file deliberately exercises only measured cases.

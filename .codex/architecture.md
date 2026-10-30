@@ -502,3 +502,12 @@ Python badge 只转义标签 [ 与 ]；不对标签执行 clean_text，不清理
 
 
 截图逐图复核补充：原 Python markdown-help.jpg 与 initial.jpg 字节相同、没有 tooltip，明确排除为 tooltip 图像证据，原文件不改。另开独立 Python 会话补证，普通 screenshot 的两张尝试图也不作 tooltip 证明；DOM 观察保留。第二个独立 tab 在确认 role/name/opacity=1 后，通过受支持的 tab CDP Page.captureScreenshot 直接取得并目视确认正确 tooltip 图 markdown-help-cdp.jpg。markdown-help-confirmation.json 记录这三个观察、三张图的用途/哈希/尺寸和独立清理。原序列每端八观察/四 JPEG 不变，新增 Python 补证后合计 19 个观察、11 张 JPEG；不把缺失或过渡图伪称正确。追加两个 Python task tab 与服务均清理，结束无监听。
+
+
+### Alert body/title/icon normalization (2026-10-30)
+
+固定 Python 对四种 Alert 的正文和 title 使用 clean_text，正文先清理再做开头图标提取；显式 icon（含清理后空串）抑制自动提取，并先按 Python whitespace strip。Rust 旧路径直接透传正文/title，16 个有效带边界空白图标调用被误拒绝。在 status_content 使用已有 clean_text/空白判定，api.rs 的 Alert title 同样清理，无新依赖、外部接口或错误类型，不改 StatusContainer 或统一身份流程。
+
+第一次实现错误地把 emoji 后分隔符按普通空白移除，真实 WS 发现 U+001C 被多删，四个格式各一处不同。normalization-attempt 的 50 原始 Element 与失败日志保留，未改 Python 参考。源码和直接 helper 实测确认两套规则不同：Material 的正则吞 Python whitespace；emoji 只吞 ASCII 空格/下划线/连字符，保留 Tab/LF/CR/NBSP/Unicode 空白/C0。最终拆开这两条明确分支，另保留 16 输入的固定 Python helper oracle（仅内部函数结果，不冒称公共 WS 或浏览器）。
+
+复用 status_app.py 与 status.rs 增加 normalization 场景，既有 text_misc_params_capture.py 只为 alert-normalization 路由到这份既有 app；其他场景行为不变。十二组输入乘四格式共 48 调用，含两份 JSON 报告共 50 完整 Element/路径对齐。修前为 34 元素、16 个有效输入错误，所有材料保留；四个新证据目录用定点 .gitattributes -text 保留原始行尾。没有改宏/Entry、错误顺序或图标库全集；新的 UI、非字符串和非法参数组合继续开放。
