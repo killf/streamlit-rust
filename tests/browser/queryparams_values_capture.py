@@ -116,6 +116,10 @@ try:
                 ("bound", "double_value", 1.5), ("bound", "string_array_value", ["x"]),
                 ("bound", "json_value", "true"), ("plain", "bool_value", True),
                 ("text", "bool_value", True), ("check", "string_value", "invalid"),
+                ("bound", "json_value", '["x"]'), ("bound", "json_value", '{"x": 1}'),
+                ("bound", "json_value", 'null'), ("bound", "json_value", '"x"'),
+                ("bound", "int_array_value", [1]), ("bound", "double_array_value", [1.5]),
+                ("bound", "bytes_value", b""), ("bound", "trigger_value", True),
             ]
             trace["connection_policy"] = "Fresh WS per malformed input; recovery uses the same WS."
             queries = []
@@ -177,8 +181,8 @@ try:
                     key, field, value = malformed[index // 3]
                     widget = request.rerun_script.widget_states.widgets.add()
                     widget.id = widget_ids[key]
-                    if field == "string_array_value":
-                        widget.string_array_value.data.extend(value)
+                    if field.endswith("_array_value"):
+                        getattr(widget, field).data.extend(value)
                     else:
                         setattr(widget, field, value)
                 live = request.rerun_script.widget_states.widgets.add()

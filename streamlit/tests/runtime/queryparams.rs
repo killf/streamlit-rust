@@ -289,6 +289,8 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
                     id: widget_ids.get(key).cloned().ok_or("missing live widget id")?,
                     value: Some(if let Some(value) = state["bool_value"].as_bool() {
                         widget_state::Value::BoolValue(value)
+                    } else if let Some(value) = state["trigger_value"].as_bool() {
+                        widget_state::Value::TriggerValue(value)
                     } else if let Some(value) = state.get("int_value") {
                         widget_state::Value::IntValue(value.as_str().ok_or("missing int64 wire string")?.parse()?)
                     } else if let Some(value) = state["double_value"].as_f64() {
@@ -299,6 +301,19 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
                         widget_state::Value::StringArrayValue(crate::proto::StringArray {
                             data: value.iter().map(|item| item.as_str().map(str::to_owned).ok_or("missing string array item")).collect::<Result<_, _>>()?,
                         })
+                    } else if let Some(value) = state["int_array_value"]["data"].as_array() {
+                        widget_state::Value::IntArrayValue(crate::proto::SInt64Array {
+                            data: value.iter().map(|item| item.as_str().ok_or("missing int64 array string")?.parse().map_err(|_| "invalid int64 array string")).collect::<Result<_, _>>()?,
+                        })
+                    } else if let Some(value) = state["double_array_value"]["data"].as_array() {
+                        widget_state::Value::DoubleArrayValue(crate::proto::DoubleArray {
+                            data: value.iter().map(|item| item.as_f64().ok_or("missing double array value")).collect::<Result<_, _>>()?,
+                        })
+                    } else if let Some(value) = state["bytes_value"].as_str() {
+                        if !value.is_empty() {
+                            return Err("this reference fixture only submits empty bytes".into());
+                        }
+                        widget_state::Value::BytesValue(Vec::new())
                     } else {
                         widget_state::Value::StringValue(state["string_value"].as_str().ok_or("missing widget text")?.into())
                     }),
@@ -486,6 +501,11 @@ async fn disabled_wire_types_include_array_failure_and_independent_recovery() ->
 #[actix_web::test]
 async fn disabled_array_error_persists_on_later_requests_in_the_same_session() -> TestResult {
     assert_queryparams_reference(queryparams_disabled_entry, include_str!("../../../tests/reference/reference-browser/queryparams/disabled-types/trace.json"), 40).await
+}
+
+#[actix_web::test]
+async fn disabled_json_arrays_bytes_and_trigger_match_the_complete_reference() -> TestResult {
+    assert_queryparams_reference(queryparams_disabled_entry, include_str!("../../../tests/reference/reference-browser/queryparams/disabled-types-more/trace.json"), 230).await
 }
 
 #[actix_web::test]

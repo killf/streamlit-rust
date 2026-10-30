@@ -784,3 +784,14 @@ WidgetRegistry 私有 input_error 区分持续的输入解码失败与可恢复�
 原完整回归先因事件计数常量写成 126 而失败；核对原始参考为 130（含八次 URL 写入）后重新运行，确认在旧生产代码上真实差分失败，保留 target/disabled-array-before-confirmed.log。一次误在旧编译会话仍运行时尝试重复启动，因日志占用未启动第二进程；随后继续等待原会话完成，未据观察超时重启。修后 widgets 单元 15 项、queryparams 集成 15 项通过。加入异常位置严格比较后，全目标 Clippy -Dwarnings、Rustfmt 及工作区 260 项通过，另排除原有两项更广队列测试，没有新增排除。日志为 target/disabled-array-unit.log、disabled-array-integration.log、disabled-array-clippy.log、disabled-array-workspace.log。相关 Python/query/矩阵/文档 93 项通过（target/disabled-array-final-gates.log）。
 
 本轮未启动独立采集服务/浏览器；回归使用自有临时监听并自行关闭。现有参考 README 只改目标段落，保留其他行尾字节。四条矩阵当前限制与清单已同步，130 partial 和完整目标保持；真实错误 UI、启用/creation select 及其他 JSON/oneof 组合继续开放。colconfig_params 独立修改未纳入提交，只提交推送工作分支。
+
+
+### Additional JSON/repeated/scalar disabled inputs (2026-10-30)
+
+在旧八例后增加 JSON list/dict/null/string、整数/浮点数组、空 bytes 和 trigger，使用既有 collector 与参考 app；新 disabled-types-more 原始记录为十六个独立 WS 会话/48 轮、33 状态、15 TypeError、230 个控件-URL-异常-状态投影。旧两份捕获不重写。JSON list/dict 与三类 repeated 数组产生各自 unhashable TypeError，入口前失败且后续持续；JSON null/string 所测输入被忽略。空 bytes/trigger 在 Plain 后注册失败，保留 Live callback 并恢复。新完整原生 Rust WS 回归先在旧实现真实失败（target/disabled-types-more-before.log），修后全 48 轮/230 投影对齐，异常 path/类型/文字/标志严格比较。
+
+widgets.rs 只扩展既有 input_error/scalar_error 分类，JSON 使用已有 serde_json，不新增生产文件、依赖或公开接口。单元将容器覆盖扩大为五类×两种输入顺序，标量增加 bytes/trigger；widgets 单元 15 项、queryparams 集成 16 项、全目标 Clippy -Dwarnings 与格式检查通过。工作区 261 项通过，另排除原有两项更广队列差异，没有新增排除。结果在 target/disabled-types-more-unit.log、disabled-types-more-integration.log、disabled-types-more-clippy.log、disabled-types-more-workspace.log。
+
+Python 门扩展检查 16 个会话/48 轮的原始 protobuf 与 summary、输入 oneof、全部状态/callback、精确异常阶段与三项新增一致改写的 list/dict/bytes 错误 guard。相关 query/矩阵/文档 97 项通过（target/disabled-types-more-final-gates.log）。实际采集已退出并 wait，自有端口 55321 无监听，本批无浏览器 task。四条矩阵证据/限制和生成清单同步，130 partial 与完整目标保持。
+
+Rust 重放明确只接受本例的空 bytes；不为测试引入 base64 依赖或把非空 bytes 写成已测。JSON 语法错误映射、更多形状/参数、启用/creation 控件和真实错误 UI 仍开放。Material/Unicode 等待选项保持，colconfig_params 独立修改未纳入提交，仅提交推送既有工作分支。

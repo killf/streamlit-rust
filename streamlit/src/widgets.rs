@@ -715,8 +715,19 @@ impl SessionState {
                 continue;
             }
             if registry.records.get(&widget.id).is_none_or(|record| record.disabled) {
-                if registry.records.get(&widget.id).is_some_and(|record| record.disabled && matches!(record.codec, Codec::Select(_))) && matches!(widget.value, Some(widget_state::Value::StringArrayValue(_))) {
-                    registry.input_error = Some("cannot use 'google._upb._message.RepeatedScalarContainer' as a dict key (unhashable type: 'google._upb._message.RepeatedScalarContainer')".into());
+                if registry.records.get(&widget.id).is_some_and(|record| record.disabled && matches!(record.codec, Codec::Select(_))) {
+                    let unhashable_type = match widget.value.as_ref() {
+                        Some(widget_state::Value::StringArrayValue(_) | widget_state::Value::IntArrayValue(_) | widget_state::Value::DoubleArrayValue(_)) => Some("google._upb._message.RepeatedScalarContainer"),
+                        Some(widget_state::Value::JsonValue(value)) => match serde_json::from_str::<Value>(value) {
+                            Ok(Value::Array(_)) => Some("list"),
+                            Ok(Value::Object(_)) => Some("dict"),
+                            _ => None,
+                        },
+                        _ => None,
+                    };
+                    if let Some(kind) = unhashable_type {
+                        registry.input_error = Some(format!("cannot use '{kind}' as a dict key (unhashable type: '{kind}')"));
+                    }
                 }
                 // Applied at registration, like the reference's lazy
                 // widget-state application.
@@ -788,8 +799,9 @@ impl SessionState {
         // 产生各自的 Python TypeError，此时其他控件 callback 已执行。
         let scalar_error = if registry.records.get(&id).is_some_and(|record| record.disabled) && matches!(codec, Codec::Select(_)) {
             registry.pending.iter().find(|state| state.id == id).and_then(|state| match state.value {
-                Some(widget_state::Value::BoolValue(_) | widget_state::Value::IntValue(_)) => Some("'str' object cannot be interpreted as an integer"),
+                Some(widget_state::Value::BoolValue(_) | widget_state::Value::IntValue(_) | widget_state::Value::TriggerValue(_)) => Some("'str' object cannot be interpreted as an integer"),
                 Some(widget_state::Value::DoubleValue(_)) => Some("must be real number, not str"),
+                Some(widget_state::Value::BytesValue(_)) => Some("expected bytes, str found"),
                 _ => None,
             })
         } else {
@@ -1003,68 +1015,74 @@ mod tests {
 
     #[test]
     fn array_input_failure_suppresses_callbacks_and_blocks_later_input() -> anyhow::Result<()> {
-        for reverse_input_order in [false, true] {
-            let state = SessionState::default();
-            let mut ids = Vec::new();
-            for (kind, key, disabled, codec, default) in [
-                ("selectbox", "bound", true, Codec::Select(vec![("x".into(), Value::String("x".into()))]), Value::from(0)),
-                ("text_input", "live", false, Codec::Text { max_chars: None }, Value::String("ready".into())),
-            ] {
-                let (id, _, _) = state.register_widget(
-                    WidgetSpec {
-                        kind,
-                        key: Some(key),
-                        disabled,
-                        query: None,
-                        identity: "stable",
-                        default,
-                        codec,
-                        callback: Some(Arc::new(|_| {})),
+        let repeated = "cannot use 'google._upb._message.RepeatedScalarContainer' as a dict key (unhashable type: 'google._upb._message.RepeatedScalarContainer')";
+        for (wire, expected_error) in [
+            (widget_state::Value::StringArrayValue(crate::proto::StringArray { data: vec!["x".into()] }), repeated),
+            (widget_state::Value::IntArrayValue(crate::proto::SInt64Array { data: vec![1] }), repeated),
+            (widget_state::Value::DoubleArrayValue(crate::proto::DoubleArray { data: vec![1.5] }), repeated),
+            (widget_state::Value::JsonValue(r#"["x"]"#.into()), "cannot use 'list' as a dict key (unhashable type: 'list')"),
+            (widget_state::Value::JsonValue(r#"{"x": 1}"#.into()), "cannot use 'dict' as a dict key (unhashable type: 'dict')"),
+        ] {
+            for reverse_input_order in [false, true] {
+                let state = SessionState::default();
+                let mut ids = Vec::new();
+                for (kind, key, disabled, codec, default) in [
+                    ("selectbox", "bound", true, Codec::Select(vec![("x".into(), Value::String("x".into()))]), Value::from(0)),
+                    ("text_input", "live", false, Codec::Text { max_chars: None }, Value::String("ready".into())),
+                ] {
+                    let (id, _, _) = state.register_widget(
+                        WidgetSpec {
+                            kind,
+                            key: Some(key),
+                            disabled,
+                            query: None,
+                            identity: "stable",
+                            default,
+                            codec,
+                            callback: Some(Arc::new(|_| {})),
+                        },
+                        |value| Ok(value.clone()),
+                    )?;
+                    ids.push(id);
+                }
+                state.finish_widgets();
+
+                // 1. 全部变化判断完成前不分派 callback，即使正常输入在数组之前。
+                let mut incoming = vec![
+                    WidgetState { id: ids[0].clone(), value: Some(wire.clone()) },
+                    WidgetState {
+                        id: ids[1].clone(),
+                        value: Some(widget_state::Value::StringValue("one".into())),
                     },
-                    |value| Ok(value.clone()),
-                )?;
-                ids.push(id);
-            }
-            state.finish_widgets();
+                ];
+                if reverse_input_order {
+                    incoming.reverse();
+                }
+                assert!(state.begin_widgets(incoming).is_empty());
+                let error = state.widget_input_error().ok_or_else(|| anyhow::anyhow!("missing array input error"))?;
+                assert_eq!(error, expected_error);
+                assert_eq!(state.get::<String>("live")?.as_deref(), Some("one"));
+                state.finish_widgets();
 
-            // 1. 全部变化判断完成前不分派 callback，即使正常输入在数组之前。
-            let mut incoming = vec![
-                WidgetState {
-                    id: ids[0].clone(),
-                    value: Some(widget_state::Value::StringArrayValue(crate::proto::StringArray { data: vec!["x".into()] })),
-                },
-                WidgetState {
-                    id: ids[1].clone(),
-                    value: Some(widget_state::Value::StringValue("one".into())),
-                },
-            ];
-            if reverse_input_order {
-                incoming.reverse();
+                // 2. 下一轮在状态压缩阶段失败，新输入和 callback 都未应用。
+                assert!(
+                    state
+                        .begin_widgets(vec![
+                            WidgetState {
+                                id: ids[0].clone(),
+                                value: Some(widget_state::Value::StringValue("x".into()))
+                            },
+                            WidgetState {
+                                id: ids[1].clone(),
+                                value: Some(widget_state::Value::StringValue("two".into()))
+                            },
+                        ])
+                        .is_empty()
+                );
+                assert_eq!(state.widget_input_error().as_deref(), Some(error.as_str()));
+                assert_eq!(state.get::<String>("live")?.as_deref(), Some("one"));
+                state.finish_widgets();
             }
-            assert!(state.begin_widgets(incoming).is_empty());
-            let error = state.widget_input_error().ok_or_else(|| anyhow::anyhow!("missing array input error"))?;
-            assert_eq!(error, "cannot use 'google._upb._message.RepeatedScalarContainer' as a dict key (unhashable type: 'google._upb._message.RepeatedScalarContainer')");
-            assert_eq!(state.get::<String>("live")?.as_deref(), Some("one"));
-            state.finish_widgets();
-
-            // 2. 下一轮在状态压缩阶段失败，新输入和 callback 都未应用。
-            assert!(
-                state
-                    .begin_widgets(vec![
-                        WidgetState {
-                            id: ids[0].clone(),
-                            value: Some(widget_state::Value::StringValue("x".into()))
-                        },
-                        WidgetState {
-                            id: ids[1].clone(),
-                            value: Some(widget_state::Value::StringValue("two".into()))
-                        },
-                    ])
-                    .is_empty()
-            );
-            assert_eq!(state.widget_input_error().as_deref(), Some(error.as_str()));
-            assert_eq!(state.get::<String>("live")?.as_deref(), Some("one"));
-            state.finish_widgets();
         }
 
         assert!(SessionState::default().widget_input_error().is_none());
@@ -1195,6 +1213,8 @@ mod tests {
             (widget_state::Value::BoolValue(true), "'str' object cannot be interpreted as an integer"),
             (widget_state::Value::IntValue(1), "'str' object cannot be interpreted as an integer"),
             (widget_state::Value::DoubleValue(1.5), "must be real number, not str"),
+            (widget_state::Value::BytesValue(Vec::new()), "expected bytes, str found"),
+            (widget_state::Value::TriggerValue(true), "'str' object cannot be interpreted as an integer"),
         ] {
             let state = SessionState::default();
             let select = || {

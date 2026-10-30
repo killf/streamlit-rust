@@ -580,4 +580,13 @@ collector 用 ExitStack 管理重连的全部 WS，失败时也关闭；改动�
 
 WidgetRegistry 增加私有 input_error，和每轮可恢复的 registration_error 区分生命周期：首次已登记禁用 select 收到 string-array 时保存固定参考 TypeError，保留已接收的普通输入值但取消尚未分派的 callback；后续 begin_widgets 在应用新输入前返回，finish_widgets 保留未运行到的记录。handler 在创建正常渲染上下文后、callback/应用入口之前输出异常，仍发送正常结束帧。新会话的注册器没有该错误，八个独立会话互不污染。没有设置永久全局错误、重启进程或改已有公共接口、依赖、队列保留规则。
 
-单元覆盖正常输入在数组前/后两种顺序、callback 抑制、首轮正常输入已接收、后续新输入不生效与新状态隔离。完整真 WS 回归替换原标量前缀，并增加原单会话持续失败差分；控件/URL/状态序列及异常 path、类型、文字、两个标志均严格相同。只对固定参考环境和所测八组输入作结论，未测启用 select、accept_new_options、任意 JSON 对象/数组及其他数组 oneof 的错误阶段，仍在完整目标内。
+单元覆盖正常输入在数组前/后两种顺序、callback 抑制、首轮正常输入已接收、后续新输入不生效与新状态隔离。完整真 WS 回归替换原标量前缀，并增加原单会话持续失败差分；控件/URL/状态序列及异常 path、类型、文字、两个标志均严格相同。只对固定参考环境和所测八组输入作结论，启用 select、accept_new_options、其他 JSON 形状/语法错误以及其他 oneof 组合的错误阶段仍未验收；下节追加本次实测的 JSON list/dict、整数/浮点数组与空 bytes/trigger，完整目标不缩小。
+
+
+### Additional JSON containers, arrays and scalar wire types (2026-10-30)
+
+扩展既有 disabled-types 诊断场景，前八组输入保留，再追加 JSON list/dict/null/string、int-array/double-array、空 bytes 和 trigger。新 disabled-types-more/trace.json 为十六个独立 WS 会话各 load→malformed→同会话 recovery，共 48 轮、33 JSON 状态、15 TypeError，含 URL 写入的交错投影为 230；旧捕获没有重写。JSON list/dict 分别报 unhashable list/dict；三种 repeated 数组报固定 Python upb 容器错误，均发生于入口/callback 前且后续继续失败。JSON null/string 本次被忽略。空 bytes 为 expected bytes, str found，trigger 为 integer TypeError，均在 Plain 后、Live callback 已发生，下一轮恢复。
+
+widgets.rs 复用 input_error 生命周期，仅在已登记、上一轮禁用的普通 Select 上分类：三类 repeated 数组不需解析；JSON 用现有 serde_json 解析一次，根 Array/Object 生成对应 Python 类型名错误，其他根值维持原处理。没有增加参数来源、依赖、公共接口或新错误策略；JSON 输入的解析成本随其长度增长，未测性能收益。Bytes/Trigger 补入现有注册阶段 scalar_error，和早期持久错误区分。单元对五种容器×两种输入顺序验证生命周期，并将标量覆盖扩大到 bytes/trigger。
+
+原先的完整八例及单会话持续失败仍严格复验，新十六例真实 WS 按全部 48 轮/230 投影对照，异常 path/类型/文字/标志继续严格比较。参考采集器复用通用 repeated.data 写入；Rust 测试解码明确只支持本例所用的空 bytes，不为测试新增 base64 依赖或生产辅助模块。Python 离线门复核 16 个 session_id、输入 oneof、全状态/callback、异常阶段及三项新增一致改写的错误 wire。JSON 语法错误映射、非空 bytes 的协议验证、启用/creation 控件和真实 UI 仍开放，不将所测十六例宣称为任意输入兼容。

@@ -209,3 +209,25 @@ The collector owns reconnect sockets with ExitStack. No new capture was needed
 for this runtime fix. Real browser error UI, enabled/creation selectbox variants,
 other oneofs and arbitrary JSON shapes remain open; this does not claim complete
 malformed-input compatibility.
+
+
+## Sixteen-case follow-up (2026-10-30)
+
+`disabled-types-more/trace.json` keeps the original eight cases and adds JSON
+list/dict/null/string, int/double arrays, empty bytes and trigger. Sixteen fresh
+WS sessions run three steps each: 48 finishes, 33 state snapshots, 15 TypeErrors
+and 230 widget/URL/exception/state events. Both older captures remain unchanged.
+
+JSON list/dict and the three repeated-array wire types fail before callbacks
+and application entry, and fail again on the following request. JSON null/string
+are ignored in these measured cases. Empty bytes produces `expected bytes, str
+found`; trigger produces the integer TypeError. Both preserve the Live callback
+and recover on the next request. Rust strictly replays the whole new capture,
+including exception paths, while retaining the older eight-case and poisoned
+session regressions. Container units cover both incoming widget orders.
+
+The test replay accepts only this fixture's empty bytes; no base64 dependency or
+production decoder was added. Python gates check raw PB binding, sessions,
+request oneofs, state/callback ledgers and distinct list/dict/bytes errors. JSON
+syntax errors, nonempty bytes, enabled/creation controls, arbitrary further
+combinations and real error UI remain unverified.
