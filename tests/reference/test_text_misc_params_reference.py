@@ -765,3 +765,124 @@ def test_badge_content_gate_rejects_coherent_wrong_wire(mutation):
     assert_capture(capture)
     with pytest.raises(AssertionError):
         assert_badge_content_payloads(capture)
+
+
+
+def assert_badge_content_browser(capture, folder):
+    assert capture["successful"] and capture["reference_version"] == "1.66.1"
+    assert capture["capture_method"].startswith("Browser Use Chrome extension")
+    assert capture["cleanup"] == {"browser_tabs_closed": True, "server_stopped": True, "listener_absent": True}
+    steps = capture["observations"]
+    stages = ["initial", "badge-help", "material-label-help", "markdown-help", "caption-help", "title-help", "header-help", "subheader-help"]
+    assert [step["stage"] for step in steps] == stages
+    expected_texts = ["plain", "🧊 [ready]", "x] [other", r"check \[ready\]", "🧊 nested [[x]]", "bold", "🧊 code", "", "check padded", "🧊 first second", "中文 [🧊]", "🧊 line1 [line2]"]
+    colors = [("rgb(61, 157, 243)", "rgba(61, 157, 243, 0.2)"), ("rgb(92, 228, 136)", "rgba(61, 213, 109, 0.2)"), ("rgb(255, 189, 69)", "rgba(255, 135, 0, 0.2)")]
+    port = 18606 if capture["runtime"] == "python" else 8606
+    targets = [1, 4, 13, 14, 15, 16, 17]
+    for index, step in enumerate(steps):
+        assert step["url"] == f"http://127.0.0.1:{port}/?case=badge-content"
+        assert step["dom"] and step["console"] == []
+        page = step["page"]
+        assert page["exceptions"] == [] and page["main_scroll"] == 0
+        assert page["viewport"]["width"] == 2560 and page["viewport"]["dpr"] == 1
+        elements, badges = page["elements"], page["visible_badges"]
+        assert len(elements) == len(badges) == 18 and elements[0]["text"] == "{...}"
+        assert badges[0] == []
+        for slot, text in enumerate(expected_texts, 1):
+            assert [badge["text"] for badge in badges[slot]] == ([text] if text else [])
+            for badge in badges[slot]:
+                assert (badge["color"], badge["background"]) == colors[(slot - 1) % 3]
+        assert elements[8]["text"] == "", "empty label is not a visible badge"
+        assert badges[6][0]["strong"] == ["bold"] and badges[7][0]["code"] == ["code"]
+        assert any(image["label"] == "check icon" for image in elements[4]["images"])
+        for slot in range(13, 18):
+            assert badges[slot] == [] and elements[slot]["help_buttons"] == 1
+        for slot, tag in ((15, "H1"), (16, "H2"), (17, "H3")):
+            assert elements[slot]["headings"] == [{"id": "help-control", "tag": tag, "text": "Help control"}]
+        if index == 0:
+            assert page["tooltips"] == page["tooltip_details"] == []
+        else:
+            expected = "Tip [0] detail" if index == 1 else "Tip [3] detail" if index == 2 else "Common help detail"
+            paragraph = "Tip [0]\ndetail" if index == 1 else "Tip [3]\ndetail" if index == 2 else "Common help\ndetail"
+            assert page["tooltips"] == [expected]
+            assert page["tooltip_details"] == [{"text": expected, "paragraphs": [paragraph], "strong": [] if index < 3 else ["help"]}]
+            assert '- tooltip "' + expected + '"' in step["dom"]
+            action = step["action"]
+            assert action["kind"] == "CDP Input.dispatchMouseEvent mouseMoved" and action["element_index"] == targets[index - 1]
+            target = elements[action["element_index"]]["rect"]
+            assert target["x"] <= action["x"] <= target["x"] + target["width"]
+            assert target["y"] <= action["y"] <= target["y"] + target["height"]
+    assert len(capture["screenshots"]) == 4
+    assert {item["file"] for item in capture["screenshots"]} == {"initial.jpg", "badge-help.jpg", "markdown-help.jpg", "subheader-help.jpg"}
+    for item in capture["screenshots"]:
+        assert Path(item["file"]).name == item["file"]
+        data = (folder / item["file"]).read_bytes()
+        assert len(data) == item["bytes"] and hashlib.sha256(data).hexdigest() == item["sha256"]
+        with Image.open(folder / item["file"]) as image:
+            image.load()
+            assert image.format == "JPEG" and image.size == (item["clip"]["width"], item["clip"]["height"]) == (800, 1000)
+
+
+def test_actual_browser_badges_and_all_measured_help_entrypoints_match():
+    folders = (PYTHON / "badge-content-ui", RUST / "badge-content-ui")
+    python, rust = [read(folder / "trace.json") for folder in folders]
+    assert python["runtime"] == "python" and rust["runtime"] == "rust"
+    for capture, folder in zip((python, rust), folders):
+        assert_badge_content_browser(capture, folder)
+    for left, right in zip(python["observations"], rust["observations"]):
+        def relative_elements(step):
+            origin = step["page"]["elements"][0]["rect"]["x"]
+            return [dict(element, rect=dict(element["rect"], x=element["rect"]["x"] - origin)) for element in step["page"]["elements"]]
+        assert relative_elements(left) == relative_elements(right)
+        assert left["page"]["visible_badges"] == right["page"]["visible_badges"]
+        assert left["page"]["tooltip_details"] == right["page"]["tooltip_details"]
+
+    # DOM 可见不保证后取的截图仍含 tooltip：保留原图并独立补证。
+    original_images = {item["file"]: item for item in python["screenshots"]}
+    assert original_images["markdown-help.jpg"]["sha256"] == original_images["initial.jpg"]["sha256"]
+    confirmation = read(folders[0] / "markdown-help-confirmation.json")
+    assert confirmation["successful"] and confirmation["runtime"] == "python"
+    assert confirmation["cleanup"] == {"browser_tabs_closed": True, "server_stopped": True, "listener_absent": True}
+    assert confirmation["original_screenshot_review"] == {"file": "markdown-help.jpg", "identical_to": "initial.jpg", "used_for_tooltip_evidence": False}
+    assert confirmation["tooltip_css"] == {"opacity": "1", "text": "Common help detail"}
+    assert confirmation["observation"]["page"]["tooltip_details"] == rust["observations"][3]["page"]["tooltip_details"]
+    assert confirmation["observation"]["action"]["element_index"] == 13
+    assert len(confirmation["attempt_observations"]) == 2
+    assert len(confirmation["screenshots"]) == 3
+    used = [item for item in confirmation["screenshots"] if item["used_for_tooltip_evidence"]]
+    assert len(used) == 1 and used[0]["file"] == "markdown-help-cdp.jpg"
+    assert used[0]["method"] == "CDP Page.captureScreenshot"
+    assert used[0]["sha256"] != original_images["initial.jpg"]["sha256"]
+    for item in confirmation["screenshots"]:
+        assert Path(item["file"]).name == item["file"]
+        data = (folders[0] / item["file"]).read_bytes()
+        assert len(data) == item["bytes"] and hashlib.sha256(data).hexdigest() == item["sha256"]
+        with Image.open(folders[0] / item["file"]) as image:
+            image.load()
+            assert image.format == "JPEG" and image.size == (800, 1000)
+
+
+@pytest.mark.parametrize("mutation", ["label", "color", "bold", "code", "empty", "tooltip", "help-format", "action", "image"])
+def test_badge_browser_gate_rejects_wrong_observations(mutation):
+    capture = read(PYTHON / "badge-content-ui/trace.json")
+    page = capture["observations"][0]["page"]
+    if mutation == "label":
+        page["visible_badges"][2][0]["text"] = "[ready"
+    elif mutation == "color":
+        page["visible_badges"][1][0]["color"] = "red"
+    elif mutation == "bold":
+        page["visible_badges"][6][0]["strong"] = []
+    elif mutation == "code":
+        page["visible_badges"][7][0]["code"] = []
+    elif mutation == "empty":
+        page["visible_badges"][8] = [dict(page["visible_badges"][1][0])]
+    elif mutation == "tooltip":
+        capture["observations"][1]["page"]["tooltips"] = ["stale"]
+    elif mutation == "help-format":
+        capture["observations"][3]["page"]["tooltip_details"][0]["strong"] = []
+    elif mutation == "action":
+        capture["observations"][1]["action"]["element_index"] = 2
+    else:
+        capture["screenshots"][0]["sha256"] = "0" * 64
+    with pytest.raises(AssertionError):
+        assert_badge_content_browser(capture, PYTHON / "badge-content-ui")

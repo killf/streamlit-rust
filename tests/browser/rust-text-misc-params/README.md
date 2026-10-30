@@ -140,3 +140,37 @@ and heading help errors. Public APIs/hash expressions are unchanged; normalized
 label/icon fields naturally affect existing hashes. Help identity omissions,
 invalid icon error handling, non-string conversion and new tooltip/UI or
 attribute-update verification remain open. Older UI/wire captures are kept.
+
+
+## Actual badge/tooltips in Chrome (2026-10-30)
+
+badge-content-ui/trace.json retains eight observations and four JPEGs per
+runtime. The input report was collapsed once, then seven real mouse-hover
+targets were checked: plain badge, Material/backslash Help, markdown, caption,
+and h1/h2/h3 help. Read-only DOM observations retain actual tooltip names,
+paragraph text and strong formatting; help is rendered as bold in the common
+controls. All 12 labels match visible text/colors and bold/code semantics.
+
+Hidden zero-size measurement spans are kept in the raw badge list, while
+visible_badges separately filters positive-size visible spans. An empty label
+has no visible badge. Directive-like x] :red-badge[other renders x] [other on
+both runtimes; this is observed parser behavior, not a general escaping claim.
+
+Four screenshot timeouts returned no bytes; existing files were checked and
+only missing screenshots retried. No collapse or hover was replayed during
+recovery. Explicitly activating the owned tabs preceded the final successful
+captures. Collection notes retain the initial Python hover probe/dismissal.
+Nine guards reject wrong label/color/format/empty state, tooltip/action or image
+observations. Warn/error buffers were empty in the measured window; task tabs,
+services and listeners were cleaned up. No production change or parameter
+rerun is included, and dynamic help identity remains a separate open problem.
+
+
+Image audit: Python markdown-help.jpg is byte-identical to initial.jpg and
+contains no tooltip. It is retained and excluded from tooltip image proof.
+The separate markdown-help-confirmation.json preserves two unused normal
+screenshot attempts, then a visually checked markdown-help-cdp.jpg captured
+through supported tab CDP Page.captureScreenshot with visible DOM/opacity=1.
+No old image/capture was overwritten. This adds three Python observations and
+three JPEGs (19 observations / 11 JPEGs overall); all hashes, decoded dimensions
+and evidence-use flags are checked. Extra owned tabs/services were closed.

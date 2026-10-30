@@ -697,3 +697,19 @@ architecture 的 Pending unified NewElement identity decision 写出静态/原�
 按代码→单元→集成顺序，全目标 Clippy -D warnings、Rustfmt 检查通过；utils 两项（新 help 边界与旧正文）、公共 badge 单元一项、文本/JSON WS 十项通过（target/badge-content-clippy.log、badge-content-dedent-unit.log、badge-content-unit.log、badge-content-integration.log）。工作区 250 项通过（库 243、ledger 1、宏 2、rustdoc 4；target/badge-content-workspace.log），明确排除已有 navigation_pages_switch_and_session_state_match_the_measured_wire、rerun_queue_messages_match_frozen_reference 两项，不称完整工作区全绿。完整协议绑定、七项一致错误线 guard 与相关矩阵/文档门 104 项通过（target/badge-content-final-gates.log）。已有 MSVC linker stdout 告警保留。
 
 原始修前与正确记录未改，逐文件复查 Rust、fixture、采集器和 gate diff；示例构建通过。两个 Rust server session 均终止，参考采集器自有 Python 服务/连接关闭，8606/18606 无监听。本批没有新浏览器操作，上一批 layout-ui 不作为本场景证据。矩阵仍 130 partial，未推进待决错误契约/身份/公开对齐/JSON/队列策略，colconfig_params 独立改动保持；按授权只提交推送工作分支，不合并或发布。
+
+
+### Actual Chrome badge content and tooltip validation (2026-10-30)
+
+复用已提交的 badge-content 双端示例，真实 Chrome 每端各折叠一次输入报告，核对 12 标签的可见文本、颜色、粗体/code、18 容器及相对几何；结果一致。保留隐藏零尺寸测量副本，另以 positive-size visible_badges 区分实际显示；空标签没有可见 badge。类似指令标签的 x] [other 显示、零尺寸嵌套 span 和 Material/已有反斜杠标签旁的 Help 按钮按实测保留，不编造一般转义安全保证。
+
+随后每端真实悬停七个入口：普通 badge、Material/反斜杠 badge Help、Markdown、caption、title/header/subheader。通过受支持的 tab CDP Input.dispatchMouseEvent mouseMoved 在刚读取的 DOM 坐标中心移动指针，等待实际 tooltip 可见，保存 role/name、DOM、paragraph textContent 和 strong。Tip [0]/Tip [3] detail 及 Common help detail 两端相同，common help 中 help 实际加粗；七入口均通过，每端共八观察和四张 JPEG。除首次页面加载外未请求参数切换或额外 rerun；本批没有完整 WS 请求计数账本，不能据此宣称任意环境都只运行一次。
+
+四次截图在返回字节前超时（Python initial/Markdown/subheader，Rust Markdown），逐次核对已保存文件，只补缺图，没有重放折叠或悬停；最终对准确任务 tab 调用 Page.bringToFront 后重新观察并成功截图。Python 初步 hover 探针在保留 initial 前已移出，collection_notes 记录过程。八张 JPEG 的字节数、SHA-256、解码与 800×1000 剪裁尺寸验证；所测 warn/error 缓冲为空，不能推广到未观察窗口。
+
+九项错误观察 guard 覆盖标签、颜色、粗体/code、空标签、tooltip、帮助格式、实际动作目标及图片；相关 Python/矩阵/文档门共 114 项通过（target/badge-content-ui-final-gates.log），其中 text/misc 62 项。逐文件复查证据门与文档 diff。本批未改生产/示例/宏/Entry，未重复 Rust 库/工作区；上一生产批次的 250 项记录仍带两项队列排除，不冒称本轮新结果。两任务 tab 明确关闭，两个自有 server session 均终止，8606/18606 无监听。
+
+本批只证明固定输入初次创建后的 badge/tooltip 显示；没有帮助 A/B 参数切换，旧 help hash 遗漏与统一身份仍未修复，错误契约等其他选择保持待决。原始 WS、旧失败和上一 UI 记录未改，矩阵仍 130 partial，完整目标继续。colconfig_params 独立改动不纳入本批，按授权仅提交推送工作分支，不合并或发布。
+
+
+截图逐图复核补充：原 Python markdown-help.jpg 与 initial.jpg 字节相同、没有 tooltip，明确排除为 tooltip 图像证据，原文件不改。另开独立 Python 会话补证，普通 screenshot 的两张尝试图也不作 tooltip 证明；DOM 观察保留。第二个独立 tab 在确认 role/name/opacity=1 后，通过受支持的 tab CDP Page.captureScreenshot 直接取得并目视确认正确 tooltip 图 markdown-help-cdp.jpg。markdown-help-confirmation.json 记录这三个观察、三张图的用途/哈希/尺寸和独立清理。原序列每端八观察/四 JPEG 不变，新增 Python 补证后合计 19 个观察、11 张 JPEG；不把缺失或过渡图伪称正确。追加两个 Python task tab 与服务均清理，结束无监听。

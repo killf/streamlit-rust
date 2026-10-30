@@ -488,3 +488,17 @@ Python badge 只转义标签 [ 与 ]；不对标签执行 clean_text，不清理
 在现有 utils/mod.rs 将 dedent_text 与 clean_text 分开，共用 python_whitespace；clean_text 仍为 dedent 后 strip，既有正文语义不变。badge 在构造时只转义方括号、icon setter 去边界空白；badge/Markdown/caption/Heading 的 help setter 只 dedent。没有新模块、依赖或外部公共接口。手工 hash 表达式未改，但储存标签/图标规范化自然改变其既有输入；help 遗漏与统一身份决定仍开放，不能声称帮助动态更新已修复。
 
 原始参考与修前/修后各 18 完整 Element（输入报告、12 badge、五类文本 help 对照）；修前 17 内容载荷不同，修后全字段/路径一致。覆盖嵌套/已有反斜杠的括号、类似指令的标签、空标签、边界空白/换行、粗体/code、中文/emoji、图标边界控制字符与 content/stretch/240 宽度。当前是创建协议验证，没有新增 tooltip/UI 或属性更新证明，无效 icon 错误继续依赖待决错误契约。
+
+
+### Actual badge content and tooltip UI follow-up (2026-10-30)
+
+复用 badge-content 页面，在真实 Chrome 各折叠一次输入 JSON 后核对 12 个标签的文字、颜色、粗体/code 和元素尺寸，双端一致。空标签没有可见 badge；DOM 包含零尺寸测量副本，分别保存全部 spans 与 positive-size visible_badges，不将副本计为实际显示。类似指令的标签在两端显示 x] [other，保留其零尺寸嵌套 badge；已有反斜杠/Material 标签使用旁边 Help 按钮，不把这些测量当成一般安全转义保证。
+
+每端七个真实悬停入口（普通 badge、Material/反斜杠 badge 的 Help、Markdown、caption、三级标题）以当前 DOM 几何中心发送 CDP Input.dispatchMouseEvent mouseMoved，等待实际 tooltip 可见后保存 DOM/文本/粗体/paragraph；不是读取隐藏 React 状态。文字 Tip [0]/Tip [3] detail 和 Common help detail 相同，Common help 的 help 实际为 strong，段落 textContent 保留软换行。每端八个观察/四张 JPEG，相对元素几何匹配，保留原始视口和坐标，不声称全屏像素一致。
+
+四次截图调用在返回图像前超时（Python initial、Python Markdown、Rust Markdown、Python subheader）；逐次检查已写文件，只补缺失截图，未重放折叠或悬停。最后一组补取前对准确的任务 tab 调用 Page.bringToFront，再观察 tooltip 后成功截图。初步 Python badge hover 已观察并移出，再开始保留的 initial→七入口序列，过程在 collection_notes 中说明。所测 warn/error 缓冲为空，清理已验证。
+
+本批不改生产/示例代码；除首次加载外，没有请求参数切换或额外 rerun。这是初次创建后的 tooltip 显示验证，help A/B hash 遗漏与统一身份决定仍开放，不能以 hover 成功关闭动态属性更新问题。
+
+
+截图逐图复核补充：原 Python markdown-help.jpg 与 initial.jpg 字节相同、没有 tooltip，明确排除为 tooltip 图像证据，原文件不改。另开独立 Python 会话补证，普通 screenshot 的两张尝试图也不作 tooltip 证明；DOM 观察保留。第二个独立 tab 在确认 role/name/opacity=1 后，通过受支持的 tab CDP Page.captureScreenshot 直接取得并目视确认正确 tooltip 图 markdown-help-cdp.jpg。markdown-help-confirmation.json 记录这三个观察、三张图的用途/哈希/尺寸和独立清理。原序列每端八观察/四 JPEG 不变，新增 Python 补证后合计 19 个观察、11 张 JPEG；不把缺失或过渡图伪称正确。追加两个 Python task tab 与服务均清理，结束无监听。
