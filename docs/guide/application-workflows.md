@@ -120,19 +120,21 @@ fn show_selection(st: &Streamlit, batch: &RecordBatch) -> Result<(), DataError> 
 
 普通服务端重跑应保留本轮查询参数写入；`switch_page` 切换页面时清空普通查询参数，目标页面后续的新写入再随普通重跑保留。两条路径使用不同的状态边界，不能用旧浏览器请求覆盖目标页的新状态。
 
-查询参数已验证行为：重复键由 `get` 返回末值，`get_all` 保留全部值；`to_vec` 也取末值，空列表键返回空字符串。URL 写入保留键的插入顺序，更新已有键不移动位置；删除和清空后可继续写入。本切片覆盖未绑定参数；保留键规则见下文，widget 绑定限制仍待完成。
+查询参数已验证行为：重复键由 `get` 返回末值，`get_all` 保留全部值；`to_vec` 也取末值，空列表键返回空字符串。URL 写入保留键的插入顺序，更新已有键不移动位置；删除和清空后可继续写入。本段说明未绑定参数；保留键、已验证的绑定限制及 URL 初始化分别见下文。
 
 已验证的保留键规则：`embed`、`embed_options` 不区分大小写，不能通过应用查询参数接口读取、写入或删除，`clear` 保留其原始 URL 值。空字符串键是普通键，可以写入、读取和删除；`st_embed` 也属于普通键。本批不改变请求上下文的嵌入判定或 widget 绑定设计。
 
-本批已验证的服务端绑定生命周期：现有 `text_input` 和 selectbox 的 `bind(TextBind::QueryParams)` 使用显式 key 注册绑定；同名参数不能由应用直接 set/remove，存在已绑定 URL 参数时不能 clear。绑定键大小写敏感。条件隐藏控件后，该轮仍受保护，运行结束删除失效控件对应的 URL 参数，下一轮可重新手工写入。仅从新 URL 初始化值、跨页恢复及完整浏览器往返继续开放，不把本批服务端追踪视为完整绑定兼容。
+本批已验证的服务端绑定生命周期：现有 `text_input` 和 selectbox 的 `bind(TextBind::QueryParams)` 使用显式 key 注册绑定；同名参数不能由应用直接 set/remove，存在已绑定 URL 参数时不能 clear。绑定键大小写敏感。条件隐藏控件后，该轮仍受保护，运行结束删除失效控件对应的 URL 参数，下一轮可重新手工写入。URL 初始化另有下一段的原生 WS 验证；跨页绑定恢复与完整浏览器往返继续开放，不把服务端追踪视为完整绑定兼容。
 
 本批原生 WS 已验证的 URL 初始化：首轮或没有前端值的重跑可从 URL 初始化，前端提交优先于普通 URL，后续代码赋值优先；历史导航则由 URL（包括缺失参数时的默认值）决定。无效选项和默认值不保留在 URL，文本空值与可清空选择框按参考规则处理。控件返回值、URL 校正和发送给前端的 value/set_value 标志一起验收；尚不声明浏览器历史操作已完成。
 
-禁用控件：已测 text_input、selectbox 和 checkbox 的正确类型提交不会替换当前禁用控件的返回值，代码赋值与有效 URL 初始化仍可生效，同批正常控件继续处理。callback 使用上一轮登记的 disabled 状态，因此从启用切换到禁用时，callback 先执行，注册再恢复输入前值；从禁用切换到启用时接受新值但不回调。固定错误类型提交在禁用 selectbox 注册处产生 TypeError，保留此前正常控件的 callback，并允许同连接下一轮恢复。该原生 WS 证据不覆盖全部错误类型、所有控件或浏览器错误界面，Python 栈帧不由 Rust 伪造。
+禁用控件：已测 text_input、selectbox 和 checkbox 的正确类型提交不会替换当前禁用控件的返回值，代码赋值与有效 URL 初始化仍可生效，同批正常控件继续处理。callback 使用上一轮登记的 disabled 状态，因此从启用切换到禁用时，callback 先执行，注册再恢复输入前值；从禁用切换到启用时接受新值但不回调。
+
+异常输入的处理取决于发生阶段，不能统一理解为同连接下一轮一定恢复。已测 bool/int/double/trigger/空 bytes 误提交给禁用 selectbox 时，在注册阶段呈现对应 TypeError，保留已执行的正常控件 callback，下一轮可恢复。三种数组与 JSON list/dict 则在 callback 和应用入口之前失败，后续请求仍失败，新会话保持独立；JSON null/string 及普通文本、checkbox 的所测错误类型被忽略。十六例/48 轮的原生 WS 对照与原单会话持续失败记录见[错误类型参考与边界](../../tests/reference/reference-browser/queryparams/README.md)。这只覆盖固定输入的服务端行为；JSON 语法错误、非空 bytes、启用/creation 控件和真实浏览器错误界面仍开放，Python 栈帧不由 Rust 伪造。
 
 同一次运行的首个 `rerun` 或 `stop` 信号决定该轮结束方式，后续信号不会覆盖它；普通服务端重跑保留本轮 `query_params.set` 写入。重跑会丢弃旧轮尚未发送的 Delta，已经发送的输出和 URL 消息保留；不能依赖同步代码在 `rerun` 前的临时输出一定到达浏览器。绑定控件延续本次交互的前端/代码状态，不重复执行 callback；在控件注册前中断不会提前移除旧控件，正常结束后仍会清理未渲染控件。两条边界均有真实 WebSocket 回归，切页清空与目标页重跑的组合也有验证。详情参见矩阵 `st.rerun`、`st.stop`、`st.query_params`、`st.session_state` 和官方[会话状态](https://docs.streamlit.io/develop/api-reference/caching-and-state/st.session_state)。
 
-当前 Rust 调用发出运行控制信号，并抑制后续 Streamlit 元素和状态写入；它不会自动跳出任意 Rust 辅助函数或取消普通 Rust 计算。调用后应显式返回，例如在下文的 `Result` 辅助函数中使用 `st.stop(); return Ok(());`；`st.rerun()` 同样处理。多层调用的自动控制流传播仍需单独接口设计。
+当前 Rust 调用发出运行控制信号，并抑制后续 Streamlit 元素和状态写入；它不会自动跳出任意 Rust 辅助函数或取消普通 Rust 计算。注册阶段由框架呈现的控件异常也使用这一停止边界，不能据此推断普通 Rust 副作用已中止；入口前的输入解码异常则直接跳过本轮 callback 和应用入口。显式使用 `st.stop()` 或 `st.rerun()` 时应及时返回，例如在下文的 `Result` 辅助函数中使用 `st.stop(); return Ok(());`；`st.rerun()` 同样处理。控件框架异常和多层调用的完整自动控制流传播仍需单独接口设计。
 
 可失败的控件调用应传播错误，并在应用入口统一处理，例如 [quickstart](../../streamlit/examples/quickstart.rs) 中的实际模式：
 

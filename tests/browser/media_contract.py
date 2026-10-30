@@ -705,8 +705,8 @@ def media_checks(*, observation=None):
 
             image = Image.open(_io.BytesIO(_base64.b64decode(png_records[0]["body"]["data_b64"]))).convert("RGBA")
             _need(list(image.size) == MEDIA_PNG_SIZE, f"the served PNG decodes to {image.size}, not the measured {MEDIA_PNG_SIZE}")
-            rows = [list(image.getdata())[row * image.size[0]:(row + 1) * image.size[0]] for row in range(image.size[1])]
-            pixels = [[[int(channel) for channel in pixel] for pixel in row] for row in rows]
+            bitmap = image.load()
+            pixels = [[[int(channel) for channel in bitmap[column, row]] for column in range(image.size[0])] for row in range(image.size[1])]
             _need(pixels == MEDIA_PNG_PIXELS, "the decoded PNG pixels differ from the measured gradient")
         mark("png_pixels")
 

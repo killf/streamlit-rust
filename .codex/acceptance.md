@@ -795,3 +795,14 @@ widgets.rs 只扩展既有 input_error/scalar_error 分类，JSON 使用已有 s
 Python 门扩展检查 16 个会话/48 轮的原始 protobuf 与 summary、输入 oneof、全部状态/callback、精确异常阶段与三项新增一致改写的 list/dict/bytes 错误 guard。相关 query/矩阵/文档 97 项通过（target/disabled-types-more-final-gates.log）。实际采集已退出并 wait，自有端口 55321 无监听，本批无浏览器 task。四条矩阵证据/限制和生成清单同步，130 partial 与完整目标保持。
 
 Rust 重放明确只接受本例的空 bytes；不为测试引入 base64 依赖或把非空 bytes 写成已测。JSON 语法错误映射、更多形状/参数、启用/creation 控件和真实错误 UI 仍开放。Material/Unicode 等待选项保持，colconfig_params 独立修改未纳入提交，仅提交推送既有工作分支。
+
+
+### Complete frozen-reference audit and media warning maintenance (2026-10-30)
+
+当前工作区（保留已有 colconfig_params 改动）完整运行 tests/reference：首次 1781 项通过、96 条 Pillow getdata 弃用告警，日志 target/full-reference-current.log，原运行会话 43948 已确认正常结束。告警集中在既有 media_contract.py 的逐行全图 getdata 列表构造。只改成一次 Image.load 获取 PixelAccess，再按原行列顺序读取 RGBA；MEDIA_PNG_SIZE、MEDIA_PNG_PIXELS、十个合同判据和既有篡改检查保持不变。复用现有像素 API，没有修改依赖/最低版本声明，也没有屏蔽告警。
+
+媒体合同在 -W error::DeprecationWarning 下 25 项通过，含无法解码的 PNG、错误像素、尺寸/字节/状态/截图等拒绝用例（target/media-pixel-access-gates.log）。修正后完整 pytest tests/reference -q -W error::DeprecationWarning 为 1781 项全部通过、没有告警（target/full-reference-final.log），运行会话 57855 正常退出。未改 Rust 生产代码，没有为本次 Python/文档维护重复 Rust 或浏览器验证；不把前批 Rust 261 项记成本轮新结果，也不以本次约两分钟时长作性能收益结论。
+
+应用指南纠正 URL 初始化仍未完成的过时说法，并将禁用控件的异常分成已执行 callback 后可恢复的注册错误、callback/入口前持续失败的输入错误。保留框架停止标志不自动中断普通 Rust 计算/副作用的限制，不声称完整原生控制流传播已等价。只改已有说明并链接现有真实证据，没有新增接口或行为规则。guide 中已有 colconfig_params 索引段落保持原样，并从本批暂存中排除；其他 colconfig 文件也不纳入。
+
+完整冻结检查证明当前既有合同回归通过，不代替新真实 UI、外部环境或全 API 验收。130 partial、M3/M5/M7 与所有待决项保持，完整 Goal 继续；仅按授权提交推送当前工作分支。
