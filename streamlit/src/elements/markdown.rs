@@ -53,7 +53,7 @@ impl MarkdownElement {
     }
 
     pub fn help(mut self, value: String) -> Self {
-        self.help = Some(value);
+        self.help = Some(crate::utils::dedent_text(&value));
         self
     }
 

@@ -4,6 +4,7 @@ use crate::error::StreamlitError;
 use crate::proto::streamlit::{TextAlignmentConfig, WidthConfig};
 use crate::proto::{Delta, delta, delta_base_with_path, element, forward_msg};
 use crate::utils::hash::hash;
+use crate::utils::{dedent_text, python_whitespace};
 
 pub(crate) struct BadgeElement {
     label: String,
@@ -17,7 +18,8 @@ pub(crate) struct BadgeElement {
 impl BadgeElement {
     pub fn new(label: String) -> BadgeElement {
         BadgeElement {
-            label,
+            // 标签只转义指令边界；不清理原始空白或其他 Markdown。
+            label: label.replace('[', "\\[").replace(']', "\\]"),
             color: "blue".to_string(),
             icon: String::new(),
             help: None,
@@ -32,14 +34,15 @@ impl BadgeElement {
     }
 
     pub fn icon(mut self, icon: String) -> Self {
-        self.icon = icon;
+        self.icon = icon.trim_matches(python_whitespace).to_owned();
         self
     }
 
     pub fn help(mut self, help: String) -> Self {
-        self.help = Some(help);
+        self.help = Some(dedent_text(&help));
         self
     }
+
     pub fn width(mut self, width: ElementWidth) -> Self {
         self.width = Some(width);
         self

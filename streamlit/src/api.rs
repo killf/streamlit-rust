@@ -2574,6 +2574,31 @@ mod quality_tests {
     }
 
     #[test]
+    fn badge_label_escape_and_icon_trim_preserve_label_whitespace() -> anyhow::Result<()> {
+        let st = Streamlit::new();
+        let (sender, mut receiver) = tokio::sync::mpsc::unbounded_channel();
+        let mut context = crate::elements::common::RenderContext::with_sender("badge-content-unit".into(), sender);
+        context.delta_path = vec![0, 0];
+        st.app.lock().set_render_context(context);
+
+        for (label, icon) in [(" [ready] ", "\u{1c}🧊\u{1f}"), (r"\[x\]", ""), ("\n  first\n    second\n", "\t \n")] {
+            st.badge(BadgeOptions::new(label).icon(icon).help("\n    Tip\n      detail\n"));
+        }
+        let mut bodies = Vec::new();
+        while let Ok(message) = receiver.try_recv() {
+            let Some(crate::proto::forward_msg::Type::Delta(delta)) = message.r#type else { anyhow::bail!("expected badge delta") };
+            let Some(crate::proto::delta::Type::NewElement(element)) = delta.r#type else { anyhow::bail!("expected badge element") };
+            let Some(crate::proto::element::Type::Markdown(markdown)) = element.r#type else { anyhow::bail!("expected badge markdown") };
+            assert_eq!(markdown.help, "\nTip\n  detail\n");
+            assert_eq!(markdown.wrap, None);
+            assert_eq!(element.text_alignment_config, None);
+            bodies.push(markdown.body);
+        }
+        assert_eq!(bodies, [r":blue-badge[🧊  \[ready\] ]", r":blue-badge[\\[x\\]]", ":blue-badge[\n  first\n    second\n]"]);
+        Ok(())
+    }
+
+    #[test]
     fn public_text_width_and_alignment_presence_match_reference() -> anyhow::Result<()> {
         // 1. 公共调用区分默认与显式宽度，caption、badge、divider 作为默认值对照。
         let st = Streamlit::new();

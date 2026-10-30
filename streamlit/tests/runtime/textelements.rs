@@ -453,6 +453,145 @@ async fn code_body_language_changes_do_not_share_a_hash_on_one_connection() -> T
     Ok(())
 }
 
+const BADGE_CONTENT_REFERENCE: &str = include_str!("../../../tests/reference/reference-browser/text-misc-params/badge-content/trace.json");
+
+fn badge_content_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        let result: TestResult = (|| {
+            let reference: serde_json::Value = serde_json::from_str(BADGE_CONTENT_REFERENCE)?;
+            let inputs: serde_json::Value = serde_json::from_str(reference["elements"][0]["fields"]["body"].as_str().ok_or("missing badge inputs")?)?;
+            st.json(inputs.clone());
+            for case in inputs["badge_cases"].as_array().ok_or("missing badge cases")? {
+                let kwargs = &case["kwargs"];
+                let mut options = crate::BadgeOptions::new(case["label"].as_str().ok_or("missing badge label")?)
+                    .color(kwargs["color"].as_str().ok_or("missing badge color")?)
+                    .help(kwargs["help"].as_str().ok_or("missing badge help")?);
+                if let Some(icon) = kwargs["icon"].as_str() {
+                    options = options.icon(icon);
+                }
+                if kwargs["width"] == "stretch" {
+                    options = options.width(crate::ElementWidth::Stretch);
+                } else if kwargs["width"] == 240 {
+                    options = options.width(240);
+                }
+                st.badge(options);
+            }
+            let help = inputs["common_help"].as_str().ok_or("missing common help")?;
+            st.markdown(crate::MarkdownOptions::new("Help control".to_owned()).help(help));
+            st.caption(crate::CaptionOptions::new("Help control").help(help));
+            st.title(crate::HeaderOptions::new("Help control").help(help));
+            st.header(crate::HeaderOptions::new("Help control").help(help));
+            st.sub_header(crate::HeaderOptions::new("Help control").help(help));
+            Ok(())
+        })();
+        assert!(result.is_ok(), "badge content fixture failed: {result:?}");
+    })
+}
+
+#[actix_web::test]
+async fn badge_content_and_text_help_match_complete_reference() -> TestResult {
+    // 1. 公共调用通过真实 WS，标签、图标和帮助分别按各自语义处理。
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
+    let server = HttpServer::new(move || App::new().app_data(web::Data::new(StreamlitServer::new(badge_content_entry, "127.0.0.1".into(), 0))).configure(configure_routes))
+        .workers(1)
+        .listen(listener)?
+        .run();
+    let handle = server.handle();
+    let task = actix_web::rt::spawn(server);
+    let mut stream = sessions::connect(address, None).await;
+    send_binary(
+        &mut stream,
+        &BackMsg {
+            r#type: Some(back_msg::Type::RerunScript(ClientState::default())),
+        }
+        .encode_to_vec(),
+    )
+    .await;
+    let mut observed = Vec::new();
+    let finish = loop {
+        let message = receive(&mut stream).await;
+        let path = message.metadata.as_ref().map(|metadata| metadata.delta_path.clone()).unwrap_or_default();
+        match message.r#type {
+            Some(forward_msg::Type::Delta(delta)) => {
+                let Some(delta::Type::NewElement(element)) = delta.r#type else { panic!("unexpected badge delta") };
+                observed.push((path, element));
+            }
+            Some(forward_msg::Type::ScriptFinished(status)) => break status,
+            _ => {}
+        }
+    };
+    drop(stream);
+    handle.stop(false).await;
+    task.await??;
+
+    // 2. 完整参考比较包含 help 首尾 LF 和现有宽度/对齐/wrap 的存在性。
+    let reference: serde_json::Value = serde_json::from_str(BADGE_CONTENT_REFERENCE)?;
+    let mut expected = Vec::new();
+    for frame in reference["frames"].as_array().ok_or("missing badge frames")? {
+        let message = &frame["message"];
+        let Some(delta) = message.get("delta") else { continue };
+        let value = &delta["new_element"];
+        let kind = if let Some(fields) = value.get("json") {
+            element::Type::Json(proto::Json {
+                body: fields["body"].as_str().ok_or("missing badge report")?.into(),
+                expanded: true,
+                max_expand_depth: None,
+            })
+        } else if let Some(fields) = value.get("heading") {
+            element::Type::Heading(proto::Heading {
+                body: fields["body"].as_str().ok_or("missing heading body")?.into(),
+                tag: fields["tag"].as_str().ok_or("missing heading tag")?.into(),
+                help: fields["help"].as_str().ok_or("missing heading help")?.into(),
+                wrap: fields["wrap"].as_bool(),
+                ..Default::default()
+            })
+        } else {
+            let fields = value.get("markdown").ok_or("unexpected badge kind")?;
+            element::Type::Markdown(proto::Markdown {
+                body: fields["body"].as_str().ok_or("missing badge markdown")?.into(),
+                help: fields["help"].as_str().ok_or("missing markdown help")?.into(),
+                element_type: match fields["element_type"].as_str() {
+                    Some("NATIVE") => 1,
+                    Some("CAPTION") => 2,
+                    _ => return Err("unexpected badge markdown type".into()),
+                },
+                wrap: fields["wrap"].as_bool(),
+                ..Default::default()
+            })
+        };
+        let width_config = value.get("width_config").map(|width| {
+            use proto::streamlit::width_config::WidthSpec;
+            let spec = if width["use_stretch"] == true {
+                WidthSpec::UseStretch(true)
+            } else if width["use_content"] == true {
+                WidthSpec::UseContent(true)
+            } else {
+                assert_eq!(width["pixel_width"], 240);
+                WidthSpec::PixelWidth(240)
+            };
+            proto::streamlit::WidthConfig { width_spec: Some(spec) }
+        });
+        let text_alignment_config = value.get("text_alignment_config").map(|alignment| {
+            assert_eq!(alignment["alignment"], "LEFT");
+            proto::streamlit::TextAlignmentConfig { alignment: 1 }
+        });
+        expected.push((
+            serde_json::from_value::<Vec<u32>>(message["metadata"]["delta_path"].clone())?,
+            proto::Element {
+                r#type: Some(kind),
+                width_config,
+                text_alignment_config,
+                ..Default::default()
+            },
+        ));
+    }
+    assert_eq!(finish, 0);
+    assert_eq!(expected.len(), 18);
+    assert_eq!(observed, expected);
+    Ok(())
+}
+
 fn divider_layout_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
     Box::pin(async move {
         st.json(serde_json::json!({"divider_widths": ["default", "stretch", 1, 240, 2147483647]}));

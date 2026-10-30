@@ -140,3 +140,21 @@ top screenshot timed out; only that screenshot was retried on the same tab.
 No input or navigation was replayed. Six guards reject wrong width/text/tag,
 scroll, console or image observations. This batch changes no production code;
 invalid-width/identity/API decisions and other themes/viewports remain open.
+
+
+## Badge labels/icons and text help (2026-10-30)
+
+--scenario badge-content / ?case=badge-content emits 18 complete Elements:
+the input report, 12 badges and five Markdown/caption/heading help controls.
+Python badge-content is frozen; Rust badge-content-before retains all 17
+content mismatches, while fixed badge-content matches whole Elements/paths.
+Labels only escape brackets; original backslashes, blank/padded/multiline
+labels and Markdown remain. Valid/blank icons trim Python boundary whitespace,
+including U+001C/U+001F. Help dedents but retains leading/trailing LF.
+
+Seven coherent wrong-wire guards reject bracket/backslash mistakes, label
+stripping, untrimmed icon, untouched help indent, stripped help boundaries
+and heading help errors. Public APIs/hash expressions are unchanged; normalized
+label/icon fields naturally affect existing hashes. Help identity omissions,
+invalid icon error handling, non-string conversion and new tooltip/UI or
+attribute-update verification remain open. Older UI/wire captures are kept.

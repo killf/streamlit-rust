@@ -1,0 +1,841 @@
+{
+  "schema_version": 1,
+  "runtime": "rust",
+  "reference_version": "1.66.1",
+  "captured_at_utc": "2026-10-30T08:12:21.983118+00:00",
+  "scenario": "badge-content",
+  "scope": "Element wire of text/latex/help/divider parameter edges over one native WS; no browser/UI claim.",
+  "server_command": null,
+  "server_cleanup": "caller-owned",
+  "url": "http://127.0.0.1:8606",
+  "frames": [
+    {
+      "direction": "client->server",
+      "bytes": 22,
+      "base64": "WhQKEmNhc2U9YmFkZ2UtY29udGVudA==",
+      "message": {
+        "rerun_script": {
+          "query_string": "case=badge-content"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 219,
+      "base64": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkNmYwMGY5ODctMjA3Ny00NjVhLTg2MzYtNDZiOTZhMTBmYTlkEiRlMTAwMWU2OC1lMmY0LTRiNDUtOTdmMi1iZGQ0NDU5YzYxYTQaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl",
+      "message": {
+        "metadata": {
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "new_session": {
+          "initialize": {
+            "user_info": {},
+            "environment_info": {
+              "streamlit_version": "1.66.1"
+            },
+            "session_status": {},
+            "session_id": "6f00f987-2077-465a-8636-46b96a10fa9d"
+          },
+          "script_run_id": "e1001e68-e2f4-4b45-97f2-bdd4459c61a4",
+          "name": "Streamlit Rust",
+          "config": {
+            "show_error_links": "SHOW_ERROR_LINKS_FALSE"
+          },
+          "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 28,
+      "base64": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ==",
+      "message": {
+        "hash": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 1725,
+      "base64": "CiBkMTc0MzFjYjI3MzAzMWUwOGEwZmRiOGRjM2VkOGU5MRImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2Uq8Awa7Qz6AeQMCt8MeyJiYWRnZV9jYXNlcyI6IFt7ImxhYmVsIjogInBsYWluIiwgImt3YXJncyI6IHsiaGVscCI6ICJcbiAgICBUaXAgWzBdXG4gICAgICBkZXRhaWxcbiIsICJjb2xvciI6ICJibHVlIn19LCB7ImxhYmVsIjogIltyZWFkeV0iLCAia3dhcmdzIjogeyJoZWxwIjogIlxuICAgIFRpcCBbMV1cbiAgICAgIGRldGFpbFxuIiwgImNvbG9yIjogImdyZWVuIiwgImljb24iOiAiIFx1ZDgzZVx1ZGRjYSAiLCAid2lkdGgiOiAic3RyZXRjaCJ9fSwgeyJsYWJlbCI6ICJ4XSA6cmVkLWJhZGdlW290aGVyIiwgImt3YXJncyI6IHsiaGVscCI6ICJcbiAgICBUaXAgWzJdXG4gICAgICBkZXRhaWxcbiIsICJjb2xvciI6ICJvcmFuZ2UiLCAiaWNvbiI6ICJcdCBcbiIsICJ3aWR0aCI6IDI0MH19LCB7ImxhYmVsIjogIlxcW3JlYWR5XFxdIiwgImt3YXJncyI6IHsiaGVscCI6ICJcbiAgICBUaXAgWzNdXG4gICAgICBkZXRhaWxcbiIsICJjb2xvciI6ICJibHVlIiwgImljb24iOiAiIDptYXRlcmlhbC9jaGVjazogIn19LCB7ImxhYmVsIjogIm5lc3RlZCBbW3hdXSIsICJrd2FyZ3MiOiB7ImhlbHAiOiAiXG4gICAgVGlwIFs0XVxuICAgICAgZGV0YWlsXG4iLCAiY29sb3IiOiAiZ3JlZW4iLCAiaWNvbiI6ICJcdTAwMWNcdWQ4M2VcdWRkY2FcdTAwMWYiLCAid2lkdGgiOiAic3RyZXRjaCJ9fSwgeyJsYWJlbCI6ICIqKmJvbGQqKiIsICJrd2FyZ3MiOiB7ImhlbHAiOiAiXG4gICAgVGlwIFs1XVxuICAgICAgZGV0YWlsXG4iLCAiY29sb3IiOiAib3JhbmdlIiwgIndpZHRoIjogMjQwfX0sIHsibGFiZWwiOiAiYGNvZGVgIiwgImt3YXJncyI6IHsiaGVscCI6ICJcbiAgICBUaXAgWzZdXG4gICAgICBkZXRhaWxcbiIsICJjb2xvciI6ICJibHVlIiwgImljb24iOiAiIFx1ZDgzZVx1ZGRjYSAifX0sIHsibGFiZWwiOiAiIiwgImt3YXJncyI6IHsiaGVscCI6ICJcbiAgICBUaXAgWzddXG4gICAgICBkZXRhaWxcbiIsICJjb2xvciI6ICJncmVlbiIsICJpY29uIjogIlx0IFxuIiwgIndpZHRoIjogInN0cmV0Y2gifX0sIHsibGFiZWwiOiAiICBwYWRkZWQgICIsICJrd2FyZ3MiOiB7ImhlbHAiOiAiXG4gICAgVGlwIFs4XVxuICAgICAgZGV0YWlsXG4iLCAiY29sb3IiOiAib3JhbmdlIiwgImljb24iOiAiIDptYXRlcmlhbC9jaGVjazogIiwgIndpZHRoIjogMjQwfX0sIHsibGFiZWwiOiAiXG4gIGZpcnN0XG4gICAgc2Vjb25kXG4iLCAia3dhcmdzIjogeyJoZWxwIjogIlxuICAgIFRpcCBbOV1cbiAgICAgIGRldGFpbFxuIiwgImNvbG9yIjogImJsdWUiLCAiaWNvbiI6ICJcdTAwMWNcdWQ4M2VcdWRkY2FcdTAwMWYifX0sIHsibGFiZWwiOiAiXHU0ZTJkXHU2NTg3IFtcdWQ4M2VcdWRkY2FdIiwgImt3YXJncyI6IHsiaGVscCI6ICJcbiAgICBUaXAgWzEwXVxuICAgICAgZGV0YWlsXG4iLCAiY29sb3IiOiAiZ3JlZW4iLCAid2lkdGgiOiAic3RyZXRjaCJ9fSwgeyJsYWJlbCI6ICJsaW5lMVxyXG5bbGluZTJdIiwgImt3YXJncyI6IHsiaGVscCI6ICJcbiAgICBUaXAgWzExXVxuICAgICAgZGV0YWlsXG4iLCAiY29sb3IiOiAib3JhbmdlIiwgImljb24iOiAiIFx1ZDgzZVx1ZGRjYSAiLCAid2lkdGgiOiAyNDB9fV0sICJjb21tb25faGVscCI6ICJcbiAgICBDb21tb24gKipoZWxwKipcbiAgICAgIGRldGFpbFxuIn0QAdIDAggB",
+      "message": {
+        "hash": "d17431cb273031e08a0fdb8dc3ed8e91",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"badge_cases\": [{\"label\": \"plain\", \"kwargs\": {\"help\": \"\\n    Tip [0]\\n      detail\\n\", \"color\": \"blue\"}}, {\"label\": \"[ready]\", \"kwargs\": {\"help\": \"\\n    Tip [1]\\n      detail\\n\", \"color\": \"green\", \"icon\": \" \\ud83e\\uddca \", \"width\": \"stretch\"}}, {\"label\": \"x] :red-badge[other\", \"kwargs\": {\"help\": \"\\n    Tip [2]\\n      detail\\n\", \"color\": \"orange\", \"icon\": \"\\t \\n\", \"width\": 240}}, {\"label\": \"\\\\[ready\\\\]\", \"kwargs\": {\"help\": \"\\n    Tip [3]\\n      detail\\n\", \"color\": \"blue\", \"icon\": \" :material/check: \"}}, {\"label\": \"nested [[x]]\", \"kwargs\": {\"help\": \"\\n    Tip [4]\\n      detail\\n\", \"color\": \"green\", \"icon\": \"\\u001c\\ud83e\\uddca\\u001f\", \"width\": \"stretch\"}}, {\"label\": \"**bold**\", \"kwargs\": {\"help\": \"\\n    Tip [5]\\n      detail\\n\", \"color\": \"orange\", \"width\": 240}}, {\"label\": \"`code`\", \"kwargs\": {\"help\": \"\\n    Tip [6]\\n      detail\\n\", \"color\": \"blue\", \"icon\": \" \\ud83e\\uddca \"}}, {\"label\": \"\", \"kwargs\": {\"help\": \"\\n    Tip [7]\\n      detail\\n\", \"color\": \"green\", \"icon\": \"\\t \\n\", \"width\": \"stretch\"}}, {\"label\": \"  padded  \", \"kwargs\": {\"help\": \"\\n    Tip [8]\\n      detail\\n\", \"color\": \"orange\", \"icon\": \" :material/check: \", \"width\": 240}}, {\"label\": \"\\n  first\\n    second\\n\", \"kwargs\": {\"help\": \"\\n    Tip [9]\\n      detail\\n\", \"color\": \"blue\", \"icon\": \"\\u001c\\ud83e\\uddca\\u001f\"}}, {\"label\": \"\\u4e2d\\u6587 [\\ud83e\\uddca]\", \"kwargs\": {\"help\": \"\\n    Tip [10]\\n      detail\\n\", \"color\": \"green\", \"width\": \"stretch\"}}, {\"label\": \"line1\\r\\n[line2]\", \"kwargs\": {\"help\": \"\\n    Tip [11]\\n      detail\\n\", \"color\": \"orange\", \"icon\": \" \\ud83e\\uddca \", \"width\": 240}}], \"common_help\": \"\\n    Common **help**\\n      detail\\n\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 136,
+      "base64": "CiBjZmRhNzgwY2E4OTJiYzhhNzM3NGM0Zjk4YWRlYTg3NBImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqPBo66gEyChI6Ymx1ZS1iYWRnZVtwbGFpbl0gASoaCiAgICBUaXAgWzBdCiAgICAgIGRldGFpbArSAwIQAQ==",
+      "message": {
+        "hash": "cfda780ca892bc8a7374c4f98adea874",
+        "metadata": {
+          "delta_path": [
+            0,
+            1
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": ":blue-badge[plain]",
+              "element_type": "NATIVE",
+              "help": "\n    Tip [0]\n      detail\n"
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 146,
+      "base64": "CiBhMWEyNDY1NThiZTVlYzJmZTRhNmQxMjBmZTJhOThhYhImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqRhpE6gE8Chw6Z3JlZW4tYmFkZ2VbIPCfp4ogIFtyZWFkeV1dIAEqGgogICAgVGlwIFsxXQogICAgICBkZXRhaWwK0gMCCAE=",
+      "message": {
+        "hash": "a1a246558be5ec2fe4a6d120fe2a98ab",
+        "metadata": {
+          "delta_path": [
+            0,
+            2
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": ":green-badge[ 🧊  [ready]]",
+              "element_type": "NATIVE",
+              "help": "\n    Tip [1]\n      detail\n"
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 157,
+      "base64": "CiA2YTA2NTM2NzhmNjUwYTYwOGU0N2JmMDM2M2RiMDhmZhImEgIAAyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqURpP6gFGCiY6b3JhbmdlLWJhZGdlWwkgCiB4XSA6cmVkLWJhZGdlW290aGVyXSABKhoKICAgIFRpcCBbMl0KICAgICAgZGV0YWlsCtIDAxjwAQ==",
+      "message": {
+        "hash": "6a0653678f650a608e47bf0363db08ff",
+        "metadata": {
+          "delta_path": [
+            0,
+            3
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": ":orange-badge[\t \n x] :red-badge[other]",
+              "element_type": "NATIVE",
+              "help": "\n    Tip [2]\n      detail\n"
+            },
+            "width_config": {
+              "pixel_width": 240
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 159,
+      "base64": "CiBlNjQyZmJlODY1ZGU0NTAzN2NlNjViZTY5MTQxZTk2ZRImEgIABCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqUxpR6gFJCik6Ymx1ZS1iYWRnZVsgOm1hdGVyaWFsL2NoZWNrOiAgXFtyZWFkeVxdXSABKhoKICAgIFRpcCBbM10KICAgICAgZGV0YWlsCtIDAhAB",
+      "message": {
+        "hash": "e642fbe865de45037ce65be69141e96e",
+        "metadata": {
+          "delta_path": [
+            0,
+            4
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": ":blue-badge[ :material/check:  \\[ready\\]]",
+              "element_type": "NATIVE",
+              "help": "\n    Tip [3]\n      detail\n"
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 151,
+      "base64": "CiA1NTE4OTJmNTM0M2JhYThiOTZjMzVhMDRmMmFmZjY0MxImEgIABSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqSxpJ6gFBCiE6Z3JlZW4tYmFkZ2VbHPCfp4ofIG5lc3RlZCBbW3hdXV0gASoaCiAgICBUaXAgWzRdCiAgICAgIGRldGFpbArSAwIIAQ==",
+      "message": {
+        "hash": "551892f5343baa8b96c35a04f2aff643",
+        "metadata": {
+          "delta_path": [
+            0,
+            5
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": ":green-badge[\u001c🧊\u001f nested [[x]]]",
+              "element_type": "NATIVE",
+              "help": "\n    Tip [4]\n      detail\n"
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 142,
+      "base64": "CiBhMjkwZjZkMjVjYTViNDc5YTdmNWUxMzMxMmEwNGE5ZRImEgIABiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqQhpA6gE3Chc6b3JhbmdlLWJhZGdlWyoqYm9sZCoqXSABKhoKICAgIFRpcCBbNV0KICAgICAgZGV0YWlsCtIDAxjwAQ==",
+      "message": {
+        "hash": "a290f6d25ca5b479a7f5e13312a04a9e",
+        "metadata": {
+          "delta_path": [
+            0,
+            6
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": ":orange-badge[**bold**]",
+              "element_type": "NATIVE",
+              "help": "\n    Tip [5]\n      detail\n"
+            },
+            "width_config": {
+              "pixel_width": 240
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 144,
+      "base64": "CiA0ZDhlYTcxZDYzYTcyOTVhOTU1NDI4YWY2Y2I0ZDlkNhImEgIAByIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqRBpC6gE6Cho6Ymx1ZS1iYWRnZVsg8J+niiAgYGNvZGVgXSABKhoKICAgIFRpcCBbNl0KICAgICAgZGV0YWlsCtIDAhAB",
+      "message": {
+        "hash": "4d8ea71d63a7295a955428af6cb4d9d6",
+        "metadata": {
+          "delta_path": [
+            0,
+            7
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": ":blue-badge[ 🧊  `code`]",
+              "element_type": "NATIVE",
+              "help": "\n    Tip [6]\n      detail\n"
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 136,
+      "base64": "CiBkYTFkOWQ2NTVlZGE2MGJkZmE4NmMzODhmNWMzM2U3NBImEgIACCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqPBo66gEyChI6Z3JlZW4tYmFkZ2VbCSAKIF0gASoaCiAgICBUaXAgWzddCiAgICAgIGRldGFpbArSAwIIAQ==",
+      "message": {
+        "hash": "da1d9d655eda60bdfa86c388f5c33e74",
+        "metadata": {
+          "delta_path": [
+            0,
+            8
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": ":green-badge[\t \n ]",
+              "element_type": "NATIVE",
+              "help": "\n    Tip [7]\n      detail\n"
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 163,
+      "base64": "CiA3ZTg3ZmU4Yzc4YTAyMWNjYjhiNjVlN2I2YzBmZTNhNRImEgIACSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqVxpV6gFMCiw6b3JhbmdlLWJhZGdlWyA6bWF0ZXJpYWwvY2hlY2s6ICAgIHBhZGRlZCAgXSABKhoKICAgIFRpcCBbOF0KICAgICAgZGV0YWlsCtIDAxjwAQ==",
+      "message": {
+        "hash": "7e87fe8c78a021ccb8b65e7b6c0fe3a5",
+        "metadata": {
+          "delta_path": [
+            0,
+            9
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": ":orange-badge[ :material/check:    padded  ]",
+              "element_type": "NATIVE",
+              "help": "\n    Tip [8]\n      detail\n"
+            },
+            "width_config": {
+              "pixel_width": 240
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 158,
+      "base64": "CiAyYTg3YzA5OTE4ZTRiZTJlZWY4OGU1ZTJjZTEwMmVjZBImEgIACiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqUhpQ6gFICig6Ymx1ZS1iYWRnZVsc8J+nih8gCiAgZmlyc3QKICAgIHNlY29uZApdIAEqGgogICAgVGlwIFs5XQogICAgICBkZXRhaWwK0gMCEAE=",
+      "message": {
+        "hash": "2a87c09918e4be2eef88e5e2ce102ecd",
+        "metadata": {
+          "delta_path": [
+            0,
+            10
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": ":blue-badge[\u001c🧊\u001f \n  first\n    second\n]",
+              "element_type": "NATIVE",
+              "help": "\n    Tip [9]\n      detail\n"
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 146,
+      "base64": "CiA2YzBkMzFlOWZmNDczZDY0N2I1MGM0NjY1MjJhNzlhZBImEgIACyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqRhpE6gE8Chs6Z3JlZW4tYmFkZ2Vb5Lit5paHIFvwn6eKXV0gASobCiAgICBUaXAgWzEwXQogICAgICBkZXRhaWwK0gMCCAE=",
+      "message": {
+        "hash": "6c0d31e9ff473d647b50c466522a79ad",
+        "metadata": {
+          "delta_path": [
+            0,
+            11
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": ":green-badge[中文 [🧊]]",
+              "element_type": "NATIVE",
+              "help": "\n    Tip [10]\n      detail\n"
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 156,
+      "base64": "CiAxNWRlZWY0NjUxZDFlNGNiZWE4OGNiZTg4YWRhMjk0MBImEgIADCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqUBpO6gFFCiQ6b3JhbmdlLWJhZGdlWyDwn6eKICBsaW5lMQ0KW2xpbmUyXV0gASobCiAgICBUaXAgWzExXQogICAgICBkZXRhaWwK0gMDGPAB",
+      "message": {
+        "hash": "15deef4651d1e4cbea88cbe88ada2940",
+        "metadata": {
+          "delta_path": [
+            0,
+            12
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": ":orange-badge[ 🧊  line1\r\n[line2]]",
+              "element_type": "NATIVE",
+              "help": "\n    Tip [11]\n      detail\n"
+            },
+            "width_config": {
+              "pixel_width": 240
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 140,
+      "base64": "CiBiZmU0MDJiYzlmODhlZWM5MjgzMjY0M2RhZDQ3YzNhZhImEgIADSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqQBo+6gE2CgxIZWxwIGNvbnRyb2wgASoiCiAgICBDb21tb24gKipoZWxwKioKICAgICAgZGV0YWlsCkAB6gMCCAE=",
+      "message": {
+        "hash": "bfe402bc9f88eec92832643dad47c3af",
+        "metadata": {
+          "delta_path": [
+            0,
+            13
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "Help control",
+              "element_type": "NATIVE",
+              "help": "\n    Common **help**\n      detail\n",
+              "wrap": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 145,
+      "base64": "CiA5MjQ1NmIyNmUxMDQ1MjFmZTUzMzgwY2EwNjhkMGI3MBImEgIADiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqRRpD6gE2CgxIZWxwIGNvbnRyb2wgAioiCiAgICBDb21tb24gKipoZWxwKioKICAgICAgZGV0YWlsCkAB0gMCCAHqAwIIAQ==",
+      "message": {
+        "hash": "92456b26e104521fe53380ca068d0b70",
+        "metadata": {
+          "delta_path": [
+            0,
+            14
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "Help control",
+              "element_type": "CAPTION",
+              "help": "\n    Common **help**\n      detail\n",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 147,
+      "base64": "CiBlMjlhNTczNDAyYzc1N2NlZWE2YmZmZmRmY2FhNzE4YxImEgIADyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqRxpF+gI4CgJoMRoMSGVscCBjb250cm9sIiIKICAgIENvbW1vbiAqKmhlbHAqKgogICAgICBkZXRhaWwKOAHSAwIIAeoDAggB",
+      "message": {
+        "hash": "e29a573402c757ceea6bfffdfcaa718c",
+        "metadata": {
+          "delta_path": [
+            0,
+            15
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h1",
+              "body": "Help control",
+              "help": "\n    Common **help**\n      detail\n",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 147,
+      "base64": "CiA4OWJkYzEzYWIzNGRlMDg0YzRjODkxMmRlZTg4ODk0OBImEgIAECIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqRxpF+gI4CgJoMhoMSGVscCBjb250cm9sIiIKICAgIENvbW1vbiAqKmhlbHAqKgogICAgICBkZXRhaWwKOAHSAwIIAeoDAggB",
+      "message": {
+        "hash": "89bdc13ab34de084c4c8912dee888948",
+        "metadata": {
+          "delta_path": [
+            0,
+            16
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h2",
+              "body": "Help control",
+              "help": "\n    Common **help**\n      detail\n",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 147,
+      "base64": "CiA2YzQ0OTM3M2Q0Yjg4ZmMyOWE2ZDc5MGEyZTA4OWNjYxImEgIAESIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqRxpF+gI4CgJoMxoMSGVscCBjb250cm9sIiIKICAgIENvbW1vbiAqKmhlbHAqKgogICAgICBkZXRhaWwKOAHSAwIIAeoDAggB",
+      "message": {
+        "hash": "6c449373d4b88fc29a6d790a2e089ccc",
+        "metadata": {
+          "delta_path": [
+            0,
+            17
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h3",
+              "body": "Help control",
+              "help": "\n    Common **help**\n      detail\n",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 19,
+      "base64": "Cg9zY3JpcHRfZmluaXNoZWQwAA==",
+      "message": {
+        "hash": "script_finished",
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    }
+  ],
+  "elements": [
+    {
+      "index": 0,
+      "kind": "json",
+      "fields": {
+        "body": "{\"badge_cases\": [{\"label\": \"plain\", \"kwargs\": {\"help\": \"\\n    Tip [0]\\n      detail\\n\", \"color\": \"blue\"}}, {\"label\": \"[ready]\", \"kwargs\": {\"help\": \"\\n    Tip [1]\\n      detail\\n\", \"color\": \"green\", \"icon\": \" \\ud83e\\uddca \", \"width\": \"stretch\"}}, {\"label\": \"x] :red-badge[other\", \"kwargs\": {\"help\": \"\\n    Tip [2]\\n      detail\\n\", \"color\": \"orange\", \"icon\": \"\\t \\n\", \"width\": 240}}, {\"label\": \"\\\\[ready\\\\]\", \"kwargs\": {\"help\": \"\\n    Tip [3]\\n      detail\\n\", \"color\": \"blue\", \"icon\": \" :material/check: \"}}, {\"label\": \"nested [[x]]\", \"kwargs\": {\"help\": \"\\n    Tip [4]\\n      detail\\n\", \"color\": \"green\", \"icon\": \"\\u001c\\ud83e\\uddca\\u001f\", \"width\": \"stretch\"}}, {\"label\": \"**bold**\", \"kwargs\": {\"help\": \"\\n    Tip [5]\\n      detail\\n\", \"color\": \"orange\", \"width\": 240}}, {\"label\": \"`code`\", \"kwargs\": {\"help\": \"\\n    Tip [6]\\n      detail\\n\", \"color\": \"blue\", \"icon\": \" \\ud83e\\uddca \"}}, {\"label\": \"\", \"kwargs\": {\"help\": \"\\n    Tip [7]\\n      detail\\n\", \"color\": \"green\", \"icon\": \"\\t \\n\", \"width\": \"stretch\"}}, {\"label\": \"  padded  \", \"kwargs\": {\"help\": \"\\n    Tip [8]\\n      detail\\n\", \"color\": \"orange\", \"icon\": \" :material/check: \", \"width\": 240}}, {\"label\": \"\\n  first\\n    second\\n\", \"kwargs\": {\"help\": \"\\n    Tip [9]\\n      detail\\n\", \"color\": \"blue\", \"icon\": \"\\u001c\\ud83e\\uddca\\u001f\"}}, {\"label\": \"\\u4e2d\\u6587 [\\ud83e\\uddca]\", \"kwargs\": {\"help\": \"\\n    Tip [10]\\n      detail\\n\", \"color\": \"green\", \"width\": \"stretch\"}}, {\"label\": \"line1\\r\\n[line2]\", \"kwargs\": {\"help\": \"\\n    Tip [11]\\n      detail\\n\", \"color\": \"orange\", \"icon\": \" \\ud83e\\uddca \", \"width\": 240}}], \"common_help\": \"\\n    Common **help**\\n      detail\\n\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        0
+      ]
+    },
+    {
+      "index": 1,
+      "kind": "markdown",
+      "fields": {
+        "body": ":blue-badge[plain]",
+        "element_type": "NATIVE",
+        "help": "\n    Tip [0]\n      detail\n"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        1
+      ]
+    },
+    {
+      "index": 2,
+      "kind": "markdown",
+      "fields": {
+        "body": ":green-badge[ 🧊  [ready]]",
+        "element_type": "NATIVE",
+        "help": "\n    Tip [1]\n      detail\n"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        2
+      ]
+    },
+    {
+      "index": 3,
+      "kind": "markdown",
+      "fields": {
+        "body": ":orange-badge[\t \n x] :red-badge[other]",
+        "element_type": "NATIVE",
+        "help": "\n    Tip [2]\n      detail\n"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        3
+      ]
+    },
+    {
+      "index": 4,
+      "kind": "markdown",
+      "fields": {
+        "body": ":blue-badge[ :material/check:  \\[ready\\]]",
+        "element_type": "NATIVE",
+        "help": "\n    Tip [3]\n      detail\n"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        4
+      ]
+    },
+    {
+      "index": 5,
+      "kind": "markdown",
+      "fields": {
+        "body": ":green-badge[\u001c🧊\u001f nested [[x]]]",
+        "element_type": "NATIVE",
+        "help": "\n    Tip [4]\n      detail\n"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        5
+      ]
+    },
+    {
+      "index": 6,
+      "kind": "markdown",
+      "fields": {
+        "body": ":orange-badge[**bold**]",
+        "element_type": "NATIVE",
+        "help": "\n    Tip [5]\n      detail\n"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        6
+      ]
+    },
+    {
+      "index": 7,
+      "kind": "markdown",
+      "fields": {
+        "body": ":blue-badge[ 🧊  `code`]",
+        "element_type": "NATIVE",
+        "help": "\n    Tip [6]\n      detail\n"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        7
+      ]
+    },
+    {
+      "index": 8,
+      "kind": "markdown",
+      "fields": {
+        "body": ":green-badge[\t \n ]",
+        "element_type": "NATIVE",
+        "help": "\n    Tip [7]\n      detail\n"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        8
+      ]
+    },
+    {
+      "index": 9,
+      "kind": "markdown",
+      "fields": {
+        "body": ":orange-badge[ :material/check:    padded  ]",
+        "element_type": "NATIVE",
+        "help": "\n    Tip [8]\n      detail\n"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        9
+      ]
+    },
+    {
+      "index": 10,
+      "kind": "markdown",
+      "fields": {
+        "body": ":blue-badge[\u001c🧊\u001f \n  first\n    second\n]",
+        "element_type": "NATIVE",
+        "help": "\n    Tip [9]\n      detail\n"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        10
+      ]
+    },
+    {
+      "index": 11,
+      "kind": "markdown",
+      "fields": {
+        "body": ":green-badge[中文 [🧊]]",
+        "element_type": "NATIVE",
+        "help": "\n    Tip [10]\n      detail\n"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        11
+      ]
+    },
+    {
+      "index": 12,
+      "kind": "markdown",
+      "fields": {
+        "body": ":orange-badge[ 🧊  line1\r\n[line2]]",
+        "element_type": "NATIVE",
+        "help": "\n    Tip [11]\n      detail\n"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        12
+      ]
+    },
+    {
+      "index": 13,
+      "kind": "markdown",
+      "fields": {
+        "body": "Help control",
+        "element_type": "NATIVE",
+        "help": "\n    Common **help**\n      detail\n",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        13
+      ]
+    },
+    {
+      "index": 14,
+      "kind": "markdown",
+      "fields": {
+        "body": "Help control",
+        "element_type": "CAPTION",
+        "help": "\n    Common **help**\n      detail\n",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        14
+      ]
+    },
+    {
+      "index": 15,
+      "kind": "heading",
+      "fields": {
+        "tag": "h1",
+        "body": "Help control",
+        "help": "\n    Common **help**\n      detail\n",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        15
+      ]
+    },
+    {
+      "index": 16,
+      "kind": "heading",
+      "fields": {
+        "tag": "h2",
+        "body": "Help control",
+        "help": "\n    Common **help**\n      detail\n",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        16
+      ]
+    },
+    {
+      "index": 17,
+      "kind": "heading",
+      "fields": {
+        "tag": "h3",
+        "body": "Help control",
+        "help": "\n    Common **help**\n      detail\n",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        17
+      ]
+    }
+  ],
+  "finishes": [
+    0
+  ],
+  "health": {
+    "status": 200,
+    "body": "ok"
+  },
+  "cleanup": {
+    "websocket_closed": true
+  },
+  "successful": true
+}

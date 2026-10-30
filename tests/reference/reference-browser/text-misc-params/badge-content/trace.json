@@ -1,0 +1,866 @@
+{
+  "schema_version": 1,
+  "runtime": "python",
+  "reference_version": "1.66.1",
+  "captured_at_utc": "2026-10-30T08:12:04.010096+00:00",
+  "scenario": "badge-content",
+  "scope": "Element wire of text/latex/help/divider parameter edges over one native WS; no browser/UI claim.",
+  "server_command": [
+    "C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Scripts\\python.exe",
+    "-B",
+    "-m",
+    "streamlit",
+    "run",
+    "C:\\Users\\killf\\github\\streamlit-rust\\tests\\reference\\text_misc_params_app.py",
+    "--server.address=127.0.0.1",
+    "--server.port=55126",
+    "--server.headless=true",
+    "--server.fileWatcherType=none",
+    "--browser.gatherUsageStats=false"
+  ],
+  "server_cleanup": "collector-owned",
+  "url": "http://127.0.0.1:55126",
+  "frames": [
+    {
+      "direction": "client->server",
+      "bytes": 22,
+      "base64": "WhQKEmNhc2U9YmFkZ2UtY29udGVudA==",
+      "message": {
+        "rerun_script": {
+          "query_string": "case=badge-content"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 429,
+      "base64": "IqoDCq0BCl4KJDc5MDk1MDBjLWU1OWEtNTJlNy05ZjUzLWQzZGUwYzZhN2RmNCokNzkwOTUwMGMtZTU5YS01MmU3LTlmNTMtZDNkZTBjNmE3ZGY0MhBuby1tYWNoaW5lLWlkLXY0GiEKBjEuNjYuMRIOMy4xNC43LmZpbmFsLjAaB3dpbmRvd3MiAhABMiQ5MjBiMzMzOS1iZWM5LTQxZWQtYTc4My05YjAyY2IzNjRiMWQSJDc4OTA5MjhiLTFiMTUtNGRiYy1hNTQxLTQ2Mzg0NGQ3NjUxMhoUdGV4dF9taXNjX3BhcmFtc19hcHAiTEM6XFVzZXJzXGtpbGxmXGdpdGh1YlxzdHJlYW1saXQtcnVzdFx0ZXN0c1xyZWZlcmVuY2VcdGV4dF9taXNjX3BhcmFtc19hcHAucHkyBhgCKAFIAUIiCiA0ZjAzNmZhNzNkZDAwNzNlMmQwNjNlZWI5YTI4MDE4OUogNGYwMzZmYTczZGQwMDczZTJkMDYzZWViOWEyODAxODlaIDRmMDM2ZmE3M2RkMDA3M2UyZDA2M2VlYjlhMjgwMTg5",
+      "message": {
+        "new_session": {
+          "initialize": {
+            "user_info": {
+              "installation_id": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v3": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v4": "no-machine-id-v4"
+            },
+            "environment_info": {
+              "streamlit_version": "1.66.1",
+              "python_version": "3.14.7.final.0",
+              "server_os": "windows"
+            },
+            "session_status": {
+              "script_is_running": true
+            },
+            "session_id": "920b3339-bec9-41ed-a783-9b02cb364b1d"
+          },
+          "script_run_id": "7890928b-1b15-4dbc-a541-463844d76512",
+          "name": "text_misc_params_app",
+          "main_script_path": "C:\\Users\\killf\\github\\streamlit-rust\\tests\\reference\\text_misc_params_app.py",
+          "config": {
+            "max_cached_message_age": 2,
+            "allow_run_on_save": true,
+            "show_error_links": "SHOW_ERROR_LINKS_AUTO"
+          },
+          "app_pages": [
+            {
+              "page_script_hash": "4f036fa73dd0073e2d063eeb9a280189"
+            }
+          ],
+          "page_script_hash": "4f036fa73dd0073e2d063eeb9a280189",
+          "main_script_hash": "4f036fa73dd0073e2d063eeb9a280189"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 4,
+      "base64": "SgIQAQ==",
+      "message": {
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 1725,
+      "base64": "CiA0MzFjMzhlMGM4NTc2M2I5ZTUyZjBiYWJhYzFhYzc2NBImEgIAACIgNGYwMzZmYTczZGQwMDczZTJkMDYzZWViOWEyODAxODkq8Awa7Qz6AeQMCt8MeyJiYWRnZV9jYXNlcyI6IFt7ImxhYmVsIjogInBsYWluIiwgImt3YXJncyI6IHsiaGVscCI6ICJcbiAgICBUaXAgWzBdXG4gICAgICBkZXRhaWxcbiIsICJjb2xvciI6ICJibHVlIn19LCB7ImxhYmVsIjogIltyZWFkeV0iLCAia3dhcmdzIjogeyJoZWxwIjogIlxuICAgIFRpcCBbMV1cbiAgICAgIGRldGFpbFxuIiwgImNvbG9yIjogImdyZWVuIiwgImljb24iOiAiIFx1ZDgzZVx1ZGRjYSAiLCAid2lkdGgiOiAic3RyZXRjaCJ9fSwgeyJsYWJlbCI6ICJ4XSA6cmVkLWJhZGdlW290aGVyIiwgImt3YXJncyI6IHsiaGVscCI6ICJcbiAgICBUaXAgWzJdXG4gICAgICBkZXRhaWxcbiIsICJjb2xvciI6ICJvcmFuZ2UiLCAiaWNvbiI6ICJcdCBcbiIsICJ3aWR0aCI6IDI0MH19LCB7ImxhYmVsIjogIlxcW3JlYWR5XFxdIiwgImt3YXJncyI6IHsiaGVscCI6ICJcbiAgICBUaXAgWzNdXG4gICAgICBkZXRhaWxcbiIsICJjb2xvciI6ICJibHVlIiwgImljb24iOiAiIDptYXRlcmlhbC9jaGVjazogIn19LCB7ImxhYmVsIjogIm5lc3RlZCBbW3hdXSIsICJrd2FyZ3MiOiB7ImhlbHAiOiAiXG4gICAgVGlwIFs0XVxuICAgICAgZGV0YWlsXG4iLCAiY29sb3IiOiAiZ3JlZW4iLCAiaWNvbiI6ICJcdTAwMWNcdWQ4M2VcdWRkY2FcdTAwMWYiLCAid2lkdGgiOiAic3RyZXRjaCJ9fSwgeyJsYWJlbCI6ICIqKmJvbGQqKiIsICJrd2FyZ3MiOiB7ImhlbHAiOiAiXG4gICAgVGlwIFs1XVxuICAgICAgZGV0YWlsXG4iLCAiY29sb3IiOiAib3JhbmdlIiwgIndpZHRoIjogMjQwfX0sIHsibGFiZWwiOiAiYGNvZGVgIiwgImt3YXJncyI6IHsiaGVscCI6ICJcbiAgICBUaXAgWzZdXG4gICAgICBkZXRhaWxcbiIsICJjb2xvciI6ICJibHVlIiwgImljb24iOiAiIFx1ZDgzZVx1ZGRjYSAifX0sIHsibGFiZWwiOiAiIiwgImt3YXJncyI6IHsiaGVscCI6ICJcbiAgICBUaXAgWzddXG4gICAgICBkZXRhaWxcbiIsICJjb2xvciI6ICJncmVlbiIsICJpY29uIjogIlx0IFxuIiwgIndpZHRoIjogInN0cmV0Y2gifX0sIHsibGFiZWwiOiAiICBwYWRkZWQgICIsICJrd2FyZ3MiOiB7ImhlbHAiOiAiXG4gICAgVGlwIFs4XVxuICAgICAgZGV0YWlsXG4iLCAiY29sb3IiOiAib3JhbmdlIiwgImljb24iOiAiIDptYXRlcmlhbC9jaGVjazogIiwgIndpZHRoIjogMjQwfX0sIHsibGFiZWwiOiAiXG4gIGZpcnN0XG4gICAgc2Vjb25kXG4iLCAia3dhcmdzIjogeyJoZWxwIjogIlxuICAgIFRpcCBbOV1cbiAgICAgIGRldGFpbFxuIiwgImNvbG9yIjogImJsdWUiLCAiaWNvbiI6ICJcdTAwMWNcdWQ4M2VcdWRkY2FcdTAwMWYifX0sIHsibGFiZWwiOiAiXHU0ZTJkXHU2NTg3IFtcdWQ4M2VcdWRkY2FdIiwgImt3YXJncyI6IHsiaGVscCI6ICJcbiAgICBUaXAgWzEwXVxuICAgICAgZGV0YWlsXG4iLCAiY29sb3IiOiAiZ3JlZW4iLCAid2lkdGgiOiAic3RyZXRjaCJ9fSwgeyJsYWJlbCI6ICJsaW5lMVxyXG5bbGluZTJdIiwgImt3YXJncyI6IHsiaGVscCI6ICJcbiAgICBUaXAgWzExXVxuICAgICAgZGV0YWlsXG4iLCAiY29sb3IiOiAib3JhbmdlIiwgImljb24iOiAiIFx1ZDgzZVx1ZGRjYSAiLCAid2lkdGgiOiAyNDB9fV0sICJjb21tb25faGVscCI6ICJcbiAgICBDb21tb24gKipoZWxwKipcbiAgICAgIGRldGFpbFxuIn0QAdIDAggB",
+      "message": {
+        "hash": "431c38e0c85763b9e52f0babac1ac764",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "4f036fa73dd0073e2d063eeb9a280189"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"badge_cases\": [{\"label\": \"plain\", \"kwargs\": {\"help\": \"\\n    Tip [0]\\n      detail\\n\", \"color\": \"blue\"}}, {\"label\": \"[ready]\", \"kwargs\": {\"help\": \"\\n    Tip [1]\\n      detail\\n\", \"color\": \"green\", \"icon\": \" \\ud83e\\uddca \", \"width\": \"stretch\"}}, {\"label\": \"x] :red-badge[other\", \"kwargs\": {\"help\": \"\\n    Tip [2]\\n      detail\\n\", \"color\": \"orange\", \"icon\": \"\\t \\n\", \"width\": 240}}, {\"label\": \"\\\\[ready\\\\]\", \"kwargs\": {\"help\": \"\\n    Tip [3]\\n      detail\\n\", \"color\": \"blue\", \"icon\": \" :material/check: \"}}, {\"label\": \"nested [[x]]\", \"kwargs\": {\"help\": \"\\n    Tip [4]\\n      detail\\n\", \"color\": \"green\", \"icon\": \"\\u001c\\ud83e\\uddca\\u001f\", \"width\": \"stretch\"}}, {\"label\": \"**bold**\", \"kwargs\": {\"help\": \"\\n    Tip [5]\\n      detail\\n\", \"color\": \"orange\", \"width\": 240}}, {\"label\": \"`code`\", \"kwargs\": {\"help\": \"\\n    Tip [6]\\n      detail\\n\", \"color\": \"blue\", \"icon\": \" \\ud83e\\uddca \"}}, {\"label\": \"\", \"kwargs\": {\"help\": \"\\n    Tip [7]\\n      detail\\n\", \"color\": \"green\", \"icon\": \"\\t \\n\", \"width\": \"stretch\"}}, {\"label\": \"  padded  \", \"kwargs\": {\"help\": \"\\n    Tip [8]\\n      detail\\n\", \"color\": \"orange\", \"icon\": \" :material/check: \", \"width\": 240}}, {\"label\": \"\\n  first\\n    second\\n\", \"kwargs\": {\"help\": \"\\n    Tip [9]\\n      detail\\n\", \"color\": \"blue\", \"icon\": \"\\u001c\\ud83e\\uddca\\u001f\"}}, {\"label\": \"\\u4e2d\\u6587 [\\ud83e\\uddca]\", \"kwargs\": {\"help\": \"\\n    Tip [10]\\n      detail\\n\", \"color\": \"green\", \"width\": \"stretch\"}}, {\"label\": \"line1\\r\\n[line2]\", \"kwargs\": {\"help\": \"\\n    Tip [11]\\n      detail\\n\", \"color\": \"orange\", \"icon\": \" \\ud83e\\uddca \", \"width\": 240}}], \"common_help\": \"\\n    Common **help**\\n      detail\\n\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 128,
+      "base64": "CiA1ZjhhMzA3ZTRlODBjMzMyOThjM2Q1NTQ3ZWIwYzY5YRImEgIAASIgNGYwMzZmYTczZGQwMDczZTJkMDYzZWViOWEyODAxODkqNBoy6gEqChI6Ymx1ZS1iYWRnZVtwbGFpbl0gASoSClRpcCBbMF0KICBkZXRhaWwK0gMCEAE=",
+      "message": {
+        "hash": "5f8a307e4e80c33298c3d5547eb0c69a",
+        "metadata": {
+          "delta_path": [
+            0,
+            1
+          ],
+          "active_script_hash": "4f036fa73dd0073e2d063eeb9a280189"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": ":blue-badge[plain]",
+              "element_type": "NATIVE",
+              "help": "\nTip [0]\n  detail\n"
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 138,
+      "base64": "CiA2N2FmMTJhN2QxZWJlZjkyNTk2OWYyM2FmZDFlOWZiOBImEgIAAiIgNGYwMzZmYTczZGQwMDczZTJkMDYzZWViOWEyODAxODkqPho86gE0Chw6Z3JlZW4tYmFkZ2Vb8J+niiBcW3JlYWR5XF1dIAEqEgpUaXAgWzFdCiAgZGV0YWlsCtIDAggB",
+      "message": {
+        "hash": "67af12a7d1ebef925969f23afd1e9fb8",
+        "metadata": {
+          "delta_path": [
+            0,
+            2
+          ],
+          "active_script_hash": "4f036fa73dd0073e2d063eeb9a280189"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": ":green-badge[🧊 \\[ready\\]]",
+              "element_type": "NATIVE",
+              "help": "\nTip [1]\n  detail\n"
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 147,
+      "base64": "CiAzMjRiNTUyMDU5ODAyMjRjYjE4ODlhNTZiM2M0ZWZmMBImEgIAAyIgNGYwMzZmYTczZGQwMDczZTJkMDYzZWViOWEyODAxODkqRxpF6gE8CiQ6b3JhbmdlLWJhZGdlW3hcXSA6cmVkLWJhZGdlXFtvdGhlcl0gASoSClRpcCBbMl0KICBkZXRhaWwK0gMDGPAB",
+      "message": {
+        "hash": "324b55205980224cb1889a56b3c4eff0",
+        "metadata": {
+          "delta_path": [
+            0,
+            3
+          ],
+          "active_script_hash": "4f036fa73dd0073e2d063eeb9a280189"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": ":orange-badge[x\\] :red-badge\\[other]",
+              "element_type": "NATIVE",
+              "help": "\nTip [2]\n  detail\n"
+            },
+            "width_config": {
+              "pixel_width": 240
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 151,
+      "base64": "CiBhODc4Y2Y2Zjc0YzM2OTQ3YWIwNmM2ZWY0NTJlMmU5MhImEgIABCIgNGYwMzZmYTczZGQwMDczZTJkMDYzZWViOWEyODAxODkqSxpJ6gFBCik6Ymx1ZS1iYWRnZVs6bWF0ZXJpYWwvY2hlY2s6IFxcW3JlYWR5XFxdXSABKhIKVGlwIFszXQogIGRldGFpbArSAwIQAQ==",
+      "message": {
+        "hash": "a878cf6f74c36947ab06c6ef452e2e92",
+        "metadata": {
+          "delta_path": [
+            0,
+            4
+          ],
+          "active_script_hash": "4f036fa73dd0073e2d063eeb9a280189"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": ":blue-badge[:material/check: \\\\[ready\\\\]]",
+              "element_type": "NATIVE",
+              "help": "\nTip [3]\n  detail\n"
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 145,
+      "base64": "CiA3MGI0ZjgxNjAwMTI3OTVmMzUxZjQyYWU5ODY4N2UzYxImEgIABSIgNGYwMzZmYTczZGQwMDczZTJkMDYzZWViOWEyODAxODkqRRpD6gE7CiM6Z3JlZW4tYmFkZ2Vb8J+niiBuZXN0ZWQgXFtcW3hcXVxdXSABKhIKVGlwIFs0XQogIGRldGFpbArSAwIIAQ==",
+      "message": {
+        "hash": "70b4f8160012795f351f42ae98687e3c",
+        "metadata": {
+          "delta_path": [
+            0,
+            5
+          ],
+          "active_script_hash": "4f036fa73dd0073e2d063eeb9a280189"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": ":green-badge[🧊 nested \\[\\[x\\]\\]]",
+              "element_type": "NATIVE",
+              "help": "\nTip [4]\n  detail\n"
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 134,
+      "base64": "CiBiYWQwMzYyYjQyNzJmODJmZTA3NTdlNmMyZmI3ZmVmZhImEgIABiIgNGYwMzZmYTczZGQwMDczZTJkMDYzZWViOWEyODAxODkqOho46gEvChc6b3JhbmdlLWJhZGdlWyoqYm9sZCoqXSABKhIKVGlwIFs1XQogIGRldGFpbArSAwMY8AE=",
+      "message": {
+        "hash": "bad0362b4272f82fe0757e6c2fb7feff",
+        "metadata": {
+          "delta_path": [
+            0,
+            6
+          ],
+          "active_script_hash": "4f036fa73dd0073e2d063eeb9a280189"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": ":orange-badge[**bold**]",
+              "element_type": "NATIVE",
+              "help": "\nTip [5]\n  detail\n"
+            },
+            "width_config": {
+              "pixel_width": 240
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 134,
+      "base64": "CiBkMDFkZDliODQzZWUyNTU4NDkyMWY0YjViZmU5OWU5NRImEgIAByIgNGYwMzZmYTczZGQwMDczZTJkMDYzZWViOWEyODAxODkqOho46gEwChg6Ymx1ZS1iYWRnZVvwn6eKIGBjb2RlYF0gASoSClRpcCBbNl0KICBkZXRhaWwK0gMCEAE=",
+      "message": {
+        "hash": "d01dd9b843ee25584921f4b5bfe99e95",
+        "metadata": {
+          "delta_path": [
+            0,
+            7
+          ],
+          "active_script_hash": "4f036fa73dd0073e2d063eeb9a280189"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": ":blue-badge[🧊 `code`]",
+              "element_type": "NATIVE",
+              "help": "\nTip [6]\n  detail\n"
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 124,
+      "base64": "CiBmZmNlZGI4OGQ0NDA3ZDYwMWUwNTNmNjYwYzQxZmYxMRImEgIACCIgNGYwMzZmYTczZGQwMDczZTJkMDYzZWViOWEyODAxODkqMBou6gEmCg46Z3JlZW4tYmFkZ2VbXSABKhIKVGlwIFs3XQogIGRldGFpbArSAwIIAQ==",
+      "message": {
+        "hash": "ffcedb88d4407d601e053f660c41ff11",
+        "metadata": {
+          "delta_path": [
+            0,
+            8
+          ],
+          "active_script_hash": "4f036fa73dd0073e2d063eeb9a280189"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": ":green-badge[]",
+              "element_type": "NATIVE",
+              "help": "\nTip [7]\n  detail\n"
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 153,
+      "base64": "CiA0OTQ0YTM3ZWNjNGU3MmQzMDZhMTUwODA1YmQyMTg4NBImEgIACSIgNGYwMzZmYTczZGQwMDczZTJkMDYzZWViOWEyODAxODkqTRpL6gFCCio6b3JhbmdlLWJhZGdlWzptYXRlcmlhbC9jaGVjazogICBwYWRkZWQgIF0gASoSClRpcCBbOF0KICBkZXRhaWwK0gMDGPAB",
+      "message": {
+        "hash": "4944a37ecc4e72d306a150805bd21884",
+        "metadata": {
+          "delta_path": [
+            0,
+            9
+          ],
+          "active_script_hash": "4f036fa73dd0073e2d063eeb9a280189"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": ":orange-badge[:material/check:   padded  ]",
+              "element_type": "NATIVE",
+              "help": "\nTip [8]\n  detail\n"
+            },
+            "width_config": {
+              "pixel_width": 240
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 148,
+      "base64": "CiA4YTk4NjQ3MTI1MDViYjgwZTVhY2M2YTIxZTA4ZmVjNhImEgIACiIgNGYwMzZmYTczZGQwMDczZTJkMDYzZWViOWEyODAxODkqSBpG6gE+CiY6Ymx1ZS1iYWRnZVvwn6eKIAogIGZpcnN0CiAgICBzZWNvbmQKXSABKhIKVGlwIFs5XQogIGRldGFpbArSAwIQAQ==",
+      "message": {
+        "hash": "8a9864712505bb80e5acc6a21e08fec6",
+        "metadata": {
+          "delta_path": [
+            0,
+            10
+          ],
+          "active_script_hash": "4f036fa73dd0073e2d063eeb9a280189"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": ":blue-badge[🧊 \n  first\n    second\n]",
+              "element_type": "NATIVE",
+              "help": "\nTip [9]\n  detail\n"
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 140,
+      "base64": "CiA0ODM4YjE4NjQxZmMyMzMwOWYyMGU1NjQ0Y2IwM2ZmMRImEgIACyIgNGYwMzZmYTczZGQwMDczZTJkMDYzZWViOWEyODAxODkqQBo+6gE2Ch06Z3JlZW4tYmFkZ2Vb5Lit5paHIFxb8J+nilxdXSABKhMKVGlwIFsxMF0KICBkZXRhaWwK0gMCCAE=",
+      "message": {
+        "hash": "4838b18641fc23309f20e5644cb03ff1",
+        "metadata": {
+          "delta_path": [
+            0,
+            11
+          ],
+          "active_script_hash": "4f036fa73dd0073e2d063eeb9a280189"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": ":green-badge[中文 \\[🧊\\]]",
+              "element_type": "NATIVE",
+              "help": "\nTip [10]\n  detail\n"
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 148,
+      "base64": "CiBiMTMyZTRhYzk5ODAxOTcxOTYwZTIwNDc1YjJmYTQ1MRImEgIADCIgNGYwMzZmYTczZGQwMDczZTJkMDYzZWViOWEyODAxODkqSBpG6gE9CiQ6b3JhbmdlLWJhZGdlW/Cfp4ogbGluZTENClxbbGluZTJcXV0gASoTClRpcCBbMTFdCiAgZGV0YWlsCtIDAxjwAQ==",
+      "message": {
+        "hash": "b132e4ac99801971960e20475b2fa451",
+        "metadata": {
+          "delta_path": [
+            0,
+            12
+          ],
+          "active_script_hash": "4f036fa73dd0073e2d063eeb9a280189"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": ":orange-badge[🧊 line1\r\n\\[line2\\]]",
+              "element_type": "NATIVE",
+              "help": "\nTip [11]\n  detail\n"
+            },
+            "width_config": {
+              "pixel_width": 240
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 132,
+      "base64": "CiAxNmQ1NmIyZDM4Yzc5YjY5ZjMyMzM0NjQwZmUyY2FhZRImEgIADSIgNGYwMzZmYTczZGQwMDczZTJkMDYzZWViOWEyODAxODkqOBo26gEuCgxIZWxwIGNvbnRyb2wgASoaCkNvbW1vbiAqKmhlbHAqKgogIGRldGFpbApAAeoDAggB",
+      "message": {
+        "hash": "16d56b2d38c79b69f32334640fe2caae",
+        "metadata": {
+          "delta_path": [
+            0,
+            13
+          ],
+          "active_script_hash": "4f036fa73dd0073e2d063eeb9a280189"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "Help control",
+              "element_type": "NATIVE",
+              "help": "\nCommon **help**\n  detail\n",
+              "wrap": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 137,
+      "base64": "CiA2MjYyMjYwNDk3MTMxOGQxYTM0YjNmZDU1MmYxZjk3YRImEgIADiIgNGYwMzZmYTczZGQwMDczZTJkMDYzZWViOWEyODAxODkqPRo76gEuCgxIZWxwIGNvbnRyb2wgAioaCkNvbW1vbiAqKmhlbHAqKgogIGRldGFpbApAAdIDAggB6gMCCAE=",
+      "message": {
+        "hash": "62622604971318d1a34b3fd552f1f97a",
+        "metadata": {
+          "delta_path": [
+            0,
+            14
+          ],
+          "active_script_hash": "4f036fa73dd0073e2d063eeb9a280189"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "Help control",
+              "element_type": "CAPTION",
+              "help": "\nCommon **help**\n  detail\n",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 139,
+      "base64": "CiAxMThhMDhjMjkxZDFkNDJmN2EyZTZkMzAzMWM2YWFkYRImEgIADyIgNGYwMzZmYTczZGQwMDczZTJkMDYzZWViOWEyODAxODkqPxo9+gIwCgJoMRoMSGVscCBjb250cm9sIhoKQ29tbW9uICoqaGVscCoqCiAgZGV0YWlsCjgB0gMCCAHqAwIIAQ==",
+      "message": {
+        "hash": "118a08c291d1d42f7a2e6d3031c6aada",
+        "metadata": {
+          "delta_path": [
+            0,
+            15
+          ],
+          "active_script_hash": "4f036fa73dd0073e2d063eeb9a280189"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h1",
+              "body": "Help control",
+              "help": "\nCommon **help**\n  detail\n",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 139,
+      "base64": "CiA1NmFkYzY4ZTUyOWUzMmNiMzM3OGYxZjdhMDEzNTY0YhImEgIAECIgNGYwMzZmYTczZGQwMDczZTJkMDYzZWViOWEyODAxODkqPxo9+gIwCgJoMhoMSGVscCBjb250cm9sIhoKQ29tbW9uICoqaGVscCoqCiAgZGV0YWlsCjgB0gMCCAHqAwIIAQ==",
+      "message": {
+        "hash": "56adc68e529e32cb3378f1f7a013564b",
+        "metadata": {
+          "delta_path": [
+            0,
+            16
+          ],
+          "active_script_hash": "4f036fa73dd0073e2d063eeb9a280189"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h2",
+              "body": "Help control",
+              "help": "\nCommon **help**\n  detail\n",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 139,
+      "base64": "CiBiZjQwMjQ4MzM5NGIwYzBlMTk4MmVmMDhhMTY1MzFkMRImEgIAESIgNGYwMzZmYTczZGQwMDczZTJkMDYzZWViOWEyODAxODkqPxo9+gIwCgJoMxoMSGVscCBjb250cm9sIhoKQ29tbW9uICoqaGVscCoqCiAgZGV0YWlsCjgB0gMCCAHqAwIIAQ==",
+      "message": {
+        "hash": "bf402483394b0c0e1982ef08a16531d1",
+        "metadata": {
+          "delta_path": [
+            0,
+            17
+          ],
+          "active_script_hash": "4f036fa73dd0073e2d063eeb9a280189"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h3",
+              "body": "Help control",
+              "help": "\nCommon **help**\n  detail\n",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "MAA=",
+      "message": {
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    }
+  ],
+  "elements": [
+    {
+      "index": 0,
+      "kind": "json",
+      "fields": {
+        "body": "{\"badge_cases\": [{\"label\": \"plain\", \"kwargs\": {\"help\": \"\\n    Tip [0]\\n      detail\\n\", \"color\": \"blue\"}}, {\"label\": \"[ready]\", \"kwargs\": {\"help\": \"\\n    Tip [1]\\n      detail\\n\", \"color\": \"green\", \"icon\": \" \\ud83e\\uddca \", \"width\": \"stretch\"}}, {\"label\": \"x] :red-badge[other\", \"kwargs\": {\"help\": \"\\n    Tip [2]\\n      detail\\n\", \"color\": \"orange\", \"icon\": \"\\t \\n\", \"width\": 240}}, {\"label\": \"\\\\[ready\\\\]\", \"kwargs\": {\"help\": \"\\n    Tip [3]\\n      detail\\n\", \"color\": \"blue\", \"icon\": \" :material/check: \"}}, {\"label\": \"nested [[x]]\", \"kwargs\": {\"help\": \"\\n    Tip [4]\\n      detail\\n\", \"color\": \"green\", \"icon\": \"\\u001c\\ud83e\\uddca\\u001f\", \"width\": \"stretch\"}}, {\"label\": \"**bold**\", \"kwargs\": {\"help\": \"\\n    Tip [5]\\n      detail\\n\", \"color\": \"orange\", \"width\": 240}}, {\"label\": \"`code`\", \"kwargs\": {\"help\": \"\\n    Tip [6]\\n      detail\\n\", \"color\": \"blue\", \"icon\": \" \\ud83e\\uddca \"}}, {\"label\": \"\", \"kwargs\": {\"help\": \"\\n    Tip [7]\\n      detail\\n\", \"color\": \"green\", \"icon\": \"\\t \\n\", \"width\": \"stretch\"}}, {\"label\": \"  padded  \", \"kwargs\": {\"help\": \"\\n    Tip [8]\\n      detail\\n\", \"color\": \"orange\", \"icon\": \" :material/check: \", \"width\": 240}}, {\"label\": \"\\n  first\\n    second\\n\", \"kwargs\": {\"help\": \"\\n    Tip [9]\\n      detail\\n\", \"color\": \"blue\", \"icon\": \"\\u001c\\ud83e\\uddca\\u001f\"}}, {\"label\": \"\\u4e2d\\u6587 [\\ud83e\\uddca]\", \"kwargs\": {\"help\": \"\\n    Tip [10]\\n      detail\\n\", \"color\": \"green\", \"width\": \"stretch\"}}, {\"label\": \"line1\\r\\n[line2]\", \"kwargs\": {\"help\": \"\\n    Tip [11]\\n      detail\\n\", \"color\": \"orange\", \"icon\": \" \\ud83e\\uddca \", \"width\": 240}}], \"common_help\": \"\\n    Common **help**\\n      detail\\n\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        0
+      ]
+    },
+    {
+      "index": 1,
+      "kind": "markdown",
+      "fields": {
+        "body": ":blue-badge[plain]",
+        "element_type": "NATIVE",
+        "help": "\nTip [0]\n  detail\n"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        1
+      ]
+    },
+    {
+      "index": 2,
+      "kind": "markdown",
+      "fields": {
+        "body": ":green-badge[🧊 \\[ready\\]]",
+        "element_type": "NATIVE",
+        "help": "\nTip [1]\n  detail\n"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        2
+      ]
+    },
+    {
+      "index": 3,
+      "kind": "markdown",
+      "fields": {
+        "body": ":orange-badge[x\\] :red-badge\\[other]",
+        "element_type": "NATIVE",
+        "help": "\nTip [2]\n  detail\n"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        3
+      ]
+    },
+    {
+      "index": 4,
+      "kind": "markdown",
+      "fields": {
+        "body": ":blue-badge[:material/check: \\\\[ready\\\\]]",
+        "element_type": "NATIVE",
+        "help": "\nTip [3]\n  detail\n"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        4
+      ]
+    },
+    {
+      "index": 5,
+      "kind": "markdown",
+      "fields": {
+        "body": ":green-badge[🧊 nested \\[\\[x\\]\\]]",
+        "element_type": "NATIVE",
+        "help": "\nTip [4]\n  detail\n"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        5
+      ]
+    },
+    {
+      "index": 6,
+      "kind": "markdown",
+      "fields": {
+        "body": ":orange-badge[**bold**]",
+        "element_type": "NATIVE",
+        "help": "\nTip [5]\n  detail\n"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        6
+      ]
+    },
+    {
+      "index": 7,
+      "kind": "markdown",
+      "fields": {
+        "body": ":blue-badge[🧊 `code`]",
+        "element_type": "NATIVE",
+        "help": "\nTip [6]\n  detail\n"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        7
+      ]
+    },
+    {
+      "index": 8,
+      "kind": "markdown",
+      "fields": {
+        "body": ":green-badge[]",
+        "element_type": "NATIVE",
+        "help": "\nTip [7]\n  detail\n"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        8
+      ]
+    },
+    {
+      "index": 9,
+      "kind": "markdown",
+      "fields": {
+        "body": ":orange-badge[:material/check:   padded  ]",
+        "element_type": "NATIVE",
+        "help": "\nTip [8]\n  detail\n"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        9
+      ]
+    },
+    {
+      "index": 10,
+      "kind": "markdown",
+      "fields": {
+        "body": ":blue-badge[🧊 \n  first\n    second\n]",
+        "element_type": "NATIVE",
+        "help": "\nTip [9]\n  detail\n"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        10
+      ]
+    },
+    {
+      "index": 11,
+      "kind": "markdown",
+      "fields": {
+        "body": ":green-badge[中文 \\[🧊\\]]",
+        "element_type": "NATIVE",
+        "help": "\nTip [10]\n  detail\n"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        11
+      ]
+    },
+    {
+      "index": 12,
+      "kind": "markdown",
+      "fields": {
+        "body": ":orange-badge[🧊 line1\r\n\\[line2\\]]",
+        "element_type": "NATIVE",
+        "help": "\nTip [11]\n  detail\n"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        12
+      ]
+    },
+    {
+      "index": 13,
+      "kind": "markdown",
+      "fields": {
+        "body": "Help control",
+        "element_type": "NATIVE",
+        "help": "\nCommon **help**\n  detail\n",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        13
+      ]
+    },
+    {
+      "index": 14,
+      "kind": "markdown",
+      "fields": {
+        "body": "Help control",
+        "element_type": "CAPTION",
+        "help": "\nCommon **help**\n  detail\n",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        14
+      ]
+    },
+    {
+      "index": 15,
+      "kind": "heading",
+      "fields": {
+        "tag": "h1",
+        "body": "Help control",
+        "help": "\nCommon **help**\n  detail\n",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        15
+      ]
+    },
+    {
+      "index": 16,
+      "kind": "heading",
+      "fields": {
+        "tag": "h2",
+        "body": "Help control",
+        "help": "\nCommon **help**\n  detail\n",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        16
+      ]
+    },
+    {
+      "index": 17,
+      "kind": "heading",
+      "fields": {
+        "tag": "h3",
+        "body": "Help control",
+        "help": "\nCommon **help**\n  detail\n",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        17
+      ]
+    }
+  ],
+  "finishes": [
+    0
+  ],
+  "server_pid": 67836,
+  "health": {
+    "status": 200,
+    "body": "ok"
+  },
+  "cleanup": {
+    "websocket_closed": true,
+    "server_stopped": true
+  },
+  "successful": true
+}

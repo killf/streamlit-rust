@@ -686,3 +686,14 @@ architecture 的 Pending unified NewElement identity decision 写出静态/原�
 本批只新增浏览器证据、强化现有 gate 并更新矩阵/文档，没有修改生产代码或示例。六项损坏观察 guard 拒绝错误宽度、纯文本、标题 tag、滚动、告警和图像哈希；相关 Python/矩阵/文档共 96 项通过（target/text-layout-ui-final-gates.log），其中 text/misc 门 44 项。未重复 Rust 库/工作区；此前 247 项属于上一生产批次且带两项队列排除，不作为本轮新结果。所有原始 WS 和旧失败材料保持，矩阵仍 130 partial。
 
 两个任务 tab 明确关闭，Python/Rust 自有 server session 均收到 Ctrl-C 并终止，结束时 8606/18606 无监听。其他视口/主题、一般渲染组合、未捕获错误 UI、统一身份和其余接口/流程决定继续开放。用户 colconfig_params 改动不纳入阶段提交；按既有授权提交推送工作分支，不合并或发布，完整目标继续。
+
+
+### Badge content and text-help creation validation (2026-10-30)
+
+新增既有 text_misc_params 的 badge-content 场景：12 个 badge 字符串输入、五种文本 help 对照与输入报告，原始 Python/修前/修后各 18 Element/一次成功 finish。修前 17 个内容 Element 不同；修后完整 Element 与 delta_path 全部匹配 Python。badge 只转义 [ 和 ]，不 strip 标签或删除既有反斜杠/换行/Markdown；有效/空白 icon 按 Python whitespace trim（含 U+001C/U+001F）。badge、Markdown/caption、三级标题的 help 仅 dedent，保留首尾 LF。content/stretch/240 宽度、wrap 与 alignment 存在性同时校验。
+
+在现有 utils/mod.rs 提取 dedent_text 和共用空白判定，原 clean_text 继续 dedent 后 strip，既有正文回归保持。无新模块/依赖/外部公共接口，手工 hash 表达式和统一流程未改；标签/icon 储存值的规范化自然影响现有输入，但 help 仍遗漏于相关手工 hash，本批不能称动态帮助刷新已修复。无效 icon、非字符串、tooltip/浏览器显示尚未验收，完整目标继续。
+
+按代码→单元→集成顺序，全目标 Clippy -D warnings、Rustfmt 检查通过；utils 两项（新 help 边界与旧正文）、公共 badge 单元一项、文本/JSON WS 十项通过（target/badge-content-clippy.log、badge-content-dedent-unit.log、badge-content-unit.log、badge-content-integration.log）。工作区 250 项通过（库 243、ledger 1、宏 2、rustdoc 4；target/badge-content-workspace.log），明确排除已有 navigation_pages_switch_and_session_state_match_the_measured_wire、rerun_queue_messages_match_frozen_reference 两项，不称完整工作区全绿。完整协议绑定、七项一致错误线 guard 与相关矩阵/文档门 104 项通过（target/badge-content-final-gates.log）。已有 MSVC linker stdout 告警保留。
+
+原始修前与正确记录未改，逐文件复查 Rust、fixture、采集器和 gate diff；示例构建通过。两个 Rust server session 均终止，参考采集器自有 Python 服务/连接关闭，8606/18606 无监听。本批没有新浏览器操作，上一批 layout-ui 不作为本场景证据。矩阵仍 130 partial，未推进待决错误契约/身份/公开对齐/JSON/队列策略，colconfig_params 独立改动保持；按授权只提交推送工作分支，不合并或发布。

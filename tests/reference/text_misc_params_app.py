@@ -2,6 +2,34 @@
 import streamlit as st
 
 
+def run_badge_content():
+    cases = [
+        {'label': 'plain', 'kwargs': {'help': '\n    Tip [0]\n      detail\n', 'color': 'blue'}},
+        {'label': '[ready]', 'kwargs': {'help': '\n    Tip [1]\n      detail\n', 'color': 'green', 'icon': ' 🧊 ', 'width': 'stretch'}},
+        {'label': 'x] :red-badge[other', 'kwargs': {'help': '\n    Tip [2]\n      detail\n', 'color': 'orange', 'icon': '\t \n', 'width': 240}},
+        {'label': '\\[ready\\]', 'kwargs': {'help': '\n    Tip [3]\n      detail\n', 'color': 'blue', 'icon': ' :material/check: '}},
+        {'label': 'nested [[x]]', 'kwargs': {'help': '\n    Tip [4]\n      detail\n', 'color': 'green', 'icon': '\x1c🧊\x1f', 'width': 'stretch'}},
+        {'label': '**bold**', 'kwargs': {'help': '\n    Tip [5]\n      detail\n', 'color': 'orange', 'width': 240}},
+        {'label': '`code`', 'kwargs': {'help': '\n    Tip [6]\n      detail\n', 'color': 'blue', 'icon': ' 🧊 '}},
+        {'label': '', 'kwargs': {'help': '\n    Tip [7]\n      detail\n', 'color': 'green', 'icon': '\t \n', 'width': 'stretch'}},
+        {'label': '  padded  ', 'kwargs': {'help': '\n    Tip [8]\n      detail\n', 'color': 'orange', 'icon': ' :material/check: ', 'width': 240}},
+        {'label': '\n  first\n    second\n', 'kwargs': {'help': '\n    Tip [9]\n      detail\n', 'color': 'blue', 'icon': '\x1c🧊\x1f'}},
+        {'label': '中文 [🧊]', 'kwargs': {'help': '\n    Tip [10]\n      detail\n', 'color': 'green', 'width': 'stretch'}},
+        {'label': 'line1\r\n[line2]', 'kwargs': {'help': '\n    Tip [11]\n      detail\n', 'color': 'orange', 'icon': ' 🧊 ', 'width': 240}},
+    ]
+    common_help = '\n    Common **help**\n      detail\n'
+    st.json({"badge_cases": cases, "common_help": common_help})
+    for case in cases:
+        st.badge(case["label"], **case["kwargs"])
+    for kind in ("markdown", "caption", "title", "header", "subheader"):
+        getattr(st, kind)("Help control", help=common_help)
+
+
+if st.query_params.get("case") == "badge-content":
+    run_badge_content()
+    st.stop()
+
+
 def run_divider_errors():
     phase = st.query_params.get("phase", "zero")
     runs = st.session_state.get("divider_error_runs", 0) + 1

@@ -672,3 +672,96 @@ def test_layout_browser_gate_rejects_wrong_observations(mutation):
         capture["screenshots"][0]["sha256"] = "0" * 64
     with pytest.raises(AssertionError):
         assert_text_layout_browser(capture, PYTHON / "layout-ui")
+
+
+
+BADGE_RAW_LABELS = ["plain", "[ready]", "x] :red-badge[other", r"\[ready\]", "nested [[x]]", "**bold**", "`code`", "", "  padded  ", "\n  first\n    second\n", "中文 [🧊]", "line1\r\n[line2]"]
+BADGE_ESCAPED_LABELS = ["plain", r"\[ready\]", r"x\] :red-badge\[other", r"\\[ready\\]", r"nested \[\[x\]\]", "**bold**", "`code`", "", "  padded  ", "\n  first\n    second\n", r"中文 \[🧊\]", "line1\r\n\\[line2\\]"]
+
+
+def assert_badge_content_payloads(capture):
+    assert_capture(capture)
+    outputs = full_elements(capture)
+    assert len(outputs) == 18
+    report = outputs[0][1]
+    assert outputs[0][0] == [0, 0] and set(report) == {"json", "width_config"}
+    assert report["json"]["expanded"] and report["width_config"] == {"use_stretch": True}
+    inputs = json.loads(report["json"]["body"])
+    assert [case["label"] for case in inputs["badge_cases"]] == BADGE_RAW_LABELS
+    assert inputs["common_help"] == "\n    Common **help**\n      detail\n"
+    icons = (None, " 🧊 ", "\t \n", " :material/check: ", "\u001c🧊\u001f")
+    normalized_icons = ("", "🧊", "", ":material/check:", "🧊")
+    for index, label in enumerate(BADGE_ESCAPED_LABELS):
+        kwargs = {"help": f"\n    Tip [{index}]\n      detail\n", "color": ("blue", "green", "orange")[index % 3]}
+        if icons[index % 5] is not None:
+            kwargs["icon"] = icons[index % 5]
+        if index % 3:
+            kwargs["width"] = "stretch" if index % 3 == 1 else 240
+        assert inputs["badge_cases"][index]["kwargs"] == kwargs
+        icon = normalized_icons[index % 5]
+        expected = {
+            "markdown": {"body": f":{kwargs['color']}-badge[" + (icon + " " if icon else "") + label + "]", "element_type": "NATIVE", "help": f"\nTip [{index}]\n  detail\n"},
+            "width_config": ({"use_content": True}, {"use_stretch": True}, {"pixel_width": 240})[index % 3],
+        }
+        assert outputs[index + 1] == ([0, index + 1], expected), index
+    for slot, kind in enumerate(("markdown", "caption", "h1", "h2", "h3"), 13):
+        fields = {"body": "Help control", "help": "\nCommon **help**\n  detail\n", "wrap": True}
+        if kind in ("markdown", "caption"):
+            fields["element_type"] = "NATIVE" if kind == "markdown" else "CAPTION"
+            expected = {"markdown": fields}
+        else:
+            fields["tag"] = kind
+            expected = {"heading": fields}
+        if kind != "markdown":
+            expected["width_config"] = {"use_stretch": True}
+        expected["text_alignment_config"] = {"alignment": "LEFT"}
+        assert outputs[slot] == ([0, slot], expected)
+
+
+def test_badge_label_icon_help_complete_reference_and_before_capture():
+    python = read(PYTHON / "badge-content/trace.json")
+    rust = read(RUST / "badge-content/trace.json")
+    before = read(RUST / "badge-content-before/trace.json")
+    for runtime, capture in (("python", python), ("rust", rust), ("rust", before)):
+        assert_capture(capture)
+        assert capture["runtime"] == runtime and capture["reference_version"] == "1.66.1"
+        assert capture["scenario"] == "badge-content" and capture["successful"]
+        assert "producer_error" not in capture
+    assert python["cleanup"] == {"websocket_closed": True, "server_stopped": True}
+    assert_badge_content_payloads(python)
+    assert_badge_content_payloads(rust)
+    assert full_elements(python) == full_elements(rust)
+    assert [i for i, (a, b) in enumerate(zip(full_elements(python), full_elements(before))) if a != b] == list(range(1, 18))
+    with pytest.raises(AssertionError):
+        assert_badge_content_payloads(before)
+
+
+@pytest.mark.parametrize("mutation", ["bracket", "backslash", "raw-label", "icon", "help-indent", "help-strip", "heading-help"])
+def test_badge_content_gate_rejects_coherent_wrong_wire(mutation):
+    capture = read(PYTHON / "badge-content/trace.json")
+    slot = {"bracket": 2, "backslash": 4, "raw-label": 10, "icon": 5, "help-indent": 1, "help-strip": 1, "heading-help": 15}[mutation]
+    frame = next(frame for frame in capture["frames"] if frame["message"].get("metadata", {}).get("delta_path") == [0, slot])
+    message = ForwardMsg()
+    message.ParseFromString(base64.b64decode(frame["base64"]))
+    element = message.delta.new_element
+    kind = element.WhichOneof("type")
+    if mutation == "bracket":
+        element.markdown.body = ":green-badge[🧊 [ready]]"
+    elif mutation == "backslash":
+        element.markdown.body = r":blue-badge[:material/check: \[ready\]]"
+    elif mutation == "raw-label":
+        element.markdown.body = ":blue-badge[🧊 first\n  second]"
+    elif mutation == "icon":
+        element.markdown.body = ":green-badge[\u001c🧊\u001f nested \\[\\[x\\]\\]]"
+    elif mutation == "help-indent":
+        element.markdown.help = "\n    Tip [0]\n      detail\n"
+    elif mutation == "help-strip":
+        element.markdown.help = element.markdown.help.strip()
+    else:
+        element.heading.help = "\n    Common **help**\n      detail\n"
+    data = message.SerializeToString()
+    frame.update(base64=base64.b64encode(data).decode(), bytes=len(data), message=MessageToDict(message, preserving_proto_field_name=True))
+    capture["elements"][slot]["fields"] = MessageToDict(getattr(element, kind), preserving_proto_field_name=True)
+    assert_capture(capture)
+    with pytest.raises(AssertionError):
+        assert_badge_content_payloads(capture)

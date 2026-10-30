@@ -4,6 +4,51 @@
 use ::streamlit::*;
 use streamlit::StreamlitApi;
 
+fn render_badge_content(st: &Streamlit) -> Result<(), Box<dyn std::error::Error>> {
+    let inputs: serde_json::Value = serde_json::from_str(
+        r#"{
+  "badge_cases": [
+    {"label": "plain", "kwargs": {"help": "\n    Tip [0]\n      detail\n", "color": "blue"}},
+    {"label": "[ready]", "kwargs": {"help": "\n    Tip [1]\n      detail\n", "color": "green", "icon": " 🧊 ", "width": "stretch"}},
+    {"label": "x] :red-badge[other", "kwargs": {"help": "\n    Tip [2]\n      detail\n", "color": "orange", "icon": "\t \n", "width": 240}},
+    {"label": "\\[ready\\]", "kwargs": {"help": "\n    Tip [3]\n      detail\n", "color": "blue", "icon": " :material/check: "}},
+    {"label": "nested [[x]]", "kwargs": {"help": "\n    Tip [4]\n      detail\n", "color": "green", "icon": "\u001c🧊\u001f", "width": "stretch"}},
+    {"label": "**bold**", "kwargs": {"help": "\n    Tip [5]\n      detail\n", "color": "orange", "width": 240}},
+    {"label": "`code`", "kwargs": {"help": "\n    Tip [6]\n      detail\n", "color": "blue", "icon": " 🧊 "}},
+    {"label": "", "kwargs": {"help": "\n    Tip [7]\n      detail\n", "color": "green", "icon": "\t \n", "width": "stretch"}},
+    {"label": "  padded  ", "kwargs": {"help": "\n    Tip [8]\n      detail\n", "color": "orange", "icon": " :material/check: ", "width": 240}},
+    {"label": "\n  first\n    second\n", "kwargs": {"help": "\n    Tip [9]\n      detail\n", "color": "blue", "icon": "\u001c🧊\u001f"}},
+    {"label": "中文 [🧊]", "kwargs": {"help": "\n    Tip [10]\n      detail\n", "color": "green", "width": "stretch"}},
+    {"label": "line1\r\n[line2]", "kwargs": {"help": "\n    Tip [11]\n      detail\n", "color": "orange", "icon": " 🧊 ", "width": 240}}
+  ],
+  "common_help": "\n    Common **help**\n      detail\n"
+}"#,
+    )?;
+    st.json(inputs.clone());
+    for case in inputs["badge_cases"].as_array().ok_or("missing badge cases")? {
+        let kwargs = &case["kwargs"];
+        let mut options = BadgeOptions::new(case["label"].as_str().ok_or("missing badge label")?)
+            .color(kwargs["color"].as_str().ok_or("missing badge color")?)
+            .help(kwargs["help"].as_str().ok_or("missing badge help")?);
+        if let Some(icon) = kwargs["icon"].as_str() {
+            options = options.icon(icon);
+        }
+        if kwargs["width"] == "stretch" {
+            options = options.width(ElementWidth::Stretch);
+        } else if kwargs["width"] == 240 {
+            options = options.width(240);
+        }
+        st.badge(options);
+    }
+    let help = inputs["common_help"].as_str().ok_or("missing common help")?;
+    st.markdown(MarkdownOptions::new("Help control".to_owned()).help(help));
+    st.caption(CaptionOptions::new("Help control").help(help));
+    st.title(HeaderOptions::new("Help control").help(help));
+    st.header(HeaderOptions::new("Help control").help(help));
+    st.sub_header(HeaderOptions::new("Help control").help(help));
+    Ok(())
+}
+
 fn render_divider_errors(st: &Streamlit) -> Result<(), Box<dyn std::error::Error>> {
     let phase = st.query_params().get("phase").unwrap_or_else(|| "zero".into());
     let runs = st.session_state().get::<i64>("divider_error_runs")?.unwrap_or(0) + 1;
@@ -177,6 +222,13 @@ fn render_identity(st: &Streamlit) -> Result<(), Box<dyn std::error::Error>> {
 }
 
 fn render(st: &Streamlit) {
+    if st.query_params().get("case").as_deref() == Some("badge-content") {
+        if let Err(error) = render_badge_content(st) {
+            st.write(format!("Badge diagnostic error: {error}"));
+        }
+        return;
+    }
+
     if st.query_params().get("case").as_deref() == Some("divider-errors") {
         if let Err(error) = render_divider_errors(st) {
             st.write(format!("Divider diagnostic error: {error}"));

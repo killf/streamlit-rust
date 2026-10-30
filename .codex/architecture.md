@@ -479,3 +479,12 @@ Python 1.66.1 divider 直接生成 MarkdownProto，只有 body 与 DIVIDER 类�
 原始视口分别 2560×1305/2560×1249，DPR=1；main clientWidth 的 2550/2560 差别对应横向原点 923/928。记录全部原值，只在内容比较中以首元素 x 为原点、底部 y 加实际 scrollTop；不宣称全屏像素相同。End 的最初 readback 在动画中（1111/158），最终分别到 max=6216/6272，Home 均到 0；没有重发 End。两端规范化页面各六条相同 KaTeX Unicode 告警，不隐藏、不当作一般 Unicode 数学支持已完成。Rust 首屏截图一次超时，只重取同 tab 截图，没有重放导航或键盘。
 
 八张 JPEG 与每端四个 DOM/几何/console 观察保留于 layout-ui。原始 WS 参考和旧失败未改；本批没有改生产代码、公共 API、错误流程、hash、宏或 Entry。其他视口/主题、错误 UI 与统一身份仍开放。
+
+
+### Badge label/icon and text-help normalization (2026-10-30)
+
+Python badge 只转义标签 [ 与 ]；不对标签执行 clean_text，不清理反斜杠、空白或其他 Markdown。图标先按 Python strip 处理（本批仅验证有效 emoji、Material shortcode 和空白图标，不实现无效图标错误）。to_help_str 与正文不同，只 dedent，不 strip，因此帮助首尾 LF 必须保留。Rust 原先这三处都直接透传。
+
+在现有 utils/mod.rs 将 dedent_text 与 clean_text 分开，共用 python_whitespace；clean_text 仍为 dedent 后 strip，既有正文语义不变。badge 在构造时只转义方括号、icon setter 去边界空白；badge/Markdown/caption/Heading 的 help setter 只 dedent。没有新模块、依赖或外部公共接口。手工 hash 表达式未改，但储存标签/图标规范化自然改变其既有输入；help 遗漏与统一身份决定仍开放，不能声称帮助动态更新已修复。
+
+原始参考与修前/修后各 18 完整 Element（输入报告、12 badge、五类文本 help 对照）；修前 17 内容载荷不同，修后全字段/路径一致。覆盖嵌套/已有反斜杠的括号、类似指令的标签、空标签、边界空白/换行、粗体/code、中文/emoji、图标边界控制字符与 content/stretch/240 宽度。当前是创建协议验证，没有新增 tooltip/UI 或属性更新证明，无效 icon 错误继续依赖待决错误契约。

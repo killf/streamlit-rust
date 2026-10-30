@@ -24,7 +24,7 @@ from websockets.sync.client import connect
 ROOT = Path(__file__).resolve().parents[2]
 parser = argparse.ArgumentParser(description='Collect the text/misc-parameter reference once; never overwrite.')
 parser.add_argument('--out', type=Path, required=True)
-parser.add_argument('--scenario', choices=('parameters', 'identity', 'layouts', 'layout-widths', 'normalization', 'dividers', 'divider-errors'), default='parameters')
+parser.add_argument('--scenario', choices=('parameters', 'identity', 'layouts', 'layout-widths', 'normalization', 'dividers', 'divider-errors', 'badge-content'), default='parameters')
 parser.add_argument('--url', help='caller-owned Rust server URL (comparison capture)')
 args = parser.parse_args()
 OUT = args.out.resolve()

@@ -31,7 +31,7 @@ impl HeadingElement {
     }
 
     pub fn help(mut self, value: String) -> Self {
-        self.help = value;
+        self.help = crate::utils::dedent_text(&value);
         self
     }
 
