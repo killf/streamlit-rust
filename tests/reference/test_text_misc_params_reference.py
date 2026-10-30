@@ -1105,7 +1105,7 @@ def alert_error_calls(capture):
     _, report = elements[0]
     assert set(report) == {"json", "width_config"}
     cases = json.loads(report["json"]["body"])["error_cases"]
-    assert len(cases) == 20
+    assert len(cases) in (20, 38)
     calls, pending = [], []
     for _, element in elements[1:]:
         if "alert" in element:
@@ -1129,7 +1129,7 @@ def alert_error_calls(capture):
             assert receipt["category"] in ("icon", "width") and receipt["message"]
         calls.append((receipt, pending))
         pending = []
-    assert not pending and len(calls) == 80
+    assert not pending and len(calls) == len(cases) * 4
     return cases, calls
 
 
@@ -1150,6 +1150,7 @@ def test_alert_error_priority_recovery_and_explicit_remaining_differences():
         assert "producer_error" not in capture and len(capture["elements"]) == count
     assert reference["cleanup"] == {"websocket_closed": True, "server_stopped": True}
     cases, expected = alert_error_calls(reference)
+    assert len(cases) == 20
     assert [index for index in range(20) if expected[index * 4][0].get("returned")] == [8, 12, 13, 14]
     for capture, differing_cases in ((before, [0, 1, 2, 3, 4, 5, 6, 7, 8, 13, 15, 16, 17, 18, 19]), (fixed, [3, 15, 19])):
         actual_cases, actual = alert_error_calls(capture)
@@ -1188,6 +1189,62 @@ def test_alert_error_gate_rejects_coherent_wrong_wire(mutation):
     data = message.SerializeToString()
     frame.update(base64=base64.b64encode(data).decode(), bytes=len(data), message=MessageToDict(message, preserving_proto_field_name=True))
     capture["elements"][slot]["fields"] = MessageToDict(getattr(element, kind), preserving_proto_field_name=True)
+    assert_capture(capture)
+    with pytest.raises(AssertionError):
+        assert_alert_error_parity(capture, reference)
+
+
+def test_width_repr_escaping_and_unicode_gaps_retain_the_complete_corpus():
+    reference = read(STATUS_PYTHON / "normalization/width-repr/trace.json")
+    before = read(STATUS_RUST / "normalization/width-repr-before/trace.json")
+    fixed = read(STATUS_RUST / "normalization/width-repr/trace.json")
+    cases, expected = alert_error_calls(reference)
+    assert len(cases) == 38 and len(reference["elements"]) == 169
+    assert reference["runtime"] == "python" and reference["reference_version"] == "1.66.1"
+    assert reference["cleanup"] == {"websocket_closed": True, "server_stopped": True}
+    assert cases[20:] == [{"icon": "🧊", "width": width} for width in (
+        "plain", "'quoted", '"quoted', "'both\"", "slash\\end", "line\nnext", "\t\r\0", "\x1f\x7f",
+        "中文🧊", "e\u0301", "\u00a0", "\u2003", "\u200d", "\ue000", "\u0378", "\U000e0000", "\u2028", "\u0085",
+    )]
+    assert [i for i in range(38) if expected[i * 4][0].get("returned")] == [8, 12, 13, 14]
+    for capture, differing_cases in ((before, [3, 15, 19, 21, 23, 24, 25, 26, 27, *range(30, 38)]),
+                                     (fixed, [3, 15, *range(30, 38)])):
+        assert capture["runtime"] == "rust" and capture["successful"]
+        assert capture["reference_version"] == "1.66.1" and capture["scenario"] == "alert-errors"
+        assert "producer_error" not in capture and len(capture["elements"]) == 173
+        actual_cases, actual = alert_error_calls(capture)
+        assert cases == actual_cases
+        assert [i for i, (a, b) in enumerate(zip(expected, actual)) if a != b] == [index * 4 + kind for index in differing_cases for kind in range(4)]
+        with pytest.raises(AssertionError):
+            assert_alert_error_parity(capture, reference)
+    # Existing 20-case corpus now has only the eight Material differences.
+    actual = alert_error_calls(fixed)[1]
+    assert sum(a == b for a, b in zip(expected[:80], actual[:80])) == 72
+    assert sum(a == b for a, b in zip(expected, actual)) == 112
+
+
+@pytest.mark.parametrize("index", [21, 23, 24, 25, 26, 27])
+def test_width_repr_gate_rejects_coherent_unescaped_error(index):
+    reference = read(STATUS_PYTHON / "normalization/width-repr/trace.json")
+    capture = read(STATUS_PYTHON / "normalization/width-repr/trace.json")
+    inputs = json.loads(capture["elements"][0]["fields"]["body"])["error_cases"]
+    for slot, item in enumerate(capture["elements"]):
+        if item["kind"] != "json":
+            continue
+        receipt = json.loads(item["fields"]["body"])
+        if receipt.get("index") != index or receipt.get("kind") != "info":
+            continue
+        receipt["message"] = "Invalid width value: '" + inputs[index]["width"] + "'. Width must be either a positive integer (pixels) or 'stretch'."
+        frame = next(frame for frame in capture["frames"] if frame["message"].get("metadata", {}).get("delta_path") == [0, slot])
+        message = ForwardMsg()
+        message.ParseFromString(base64.b64decode(frame["base64"]))
+        message.delta.new_element.json.body = json.dumps(receipt)
+        data = message.SerializeToString()
+        frame.update(base64=base64.b64encode(data).decode(), bytes=len(data), message=MessageToDict(message, preserving_proto_field_name=True))
+        item["fields"] = MessageToDict(message.delta.new_element.json, preserving_proto_field_name=True)
+        break
+    else:
+        pytest.fail("missing width receipt")
     assert_capture(capture)
     with pytest.raises(AssertionError):
         assert_alert_error_parity(capture, reference)

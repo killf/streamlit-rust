@@ -744,3 +744,12 @@ architecture 的 Pending unified NewElement identity decision 写出静态/原�
 源码逐文件复查，Rustfmt 与全目标 Clippy -Dwarnings 通过；Clippy 保留工具链已有 MSVC 链接器提示。status 单元 12 项通过，既有 text-elements/Alert 真 WS 集成 11 项通过，工作区总计 255 项通过、两项既有更广队列差异测试排除（target/alert-errors-unit.log、alert-errors-integration.log、alert-errors-clippy.log、alert-errors-workspace.log）。新冻结数据门按原始 protobuf 解码绑定 summary，校验八十调用的顺序、完整 Alert/receipt 和连续路径；五项一致改写的错误 wire guard 覆盖首错类别、错误文字、spinner、宽度位置和回执顺序。相关 text/misc、矩阵、文档共 139 项通过（target/alert-errors-final-gates.log）；没有为文档修改重复整套 Rust 测试。
 
 Python 原 PID 51364 已不存在，原端口 51056 与 Rust 8502 无监听，Rust 采集进程已终止。本批无浏览器 task。新增目录接入三案位于 architecture.md，生产目录/生成器尚未添加；带引号 repr 可独立继续。四个条目的证据/限制和生成清单已同步，130 partial 与完整目标保持；colconfig_params 独立改动保留，提交/推送只到当前工作分支。
+
+
+### Width error repr follow-up (2026-10-30)
+
+现有 Alert width 错误改用 status.rs 内部 width_error_value，按 Python 选择引号、转义定界符/反斜杠、LF/CR/Tab 与其他 ASCII 控制字符。公开方法和 StatusError 形状未变，未新增生产数据/依赖/模块。原二十输入前缀现在 72/80 对齐，原始捕获不重写。扩展十八个输入后完整公共 WS 为 38 输入/152 调用：Python 169 Elements/16 Alert；Rust 修前和修后 173/20；完整匹配由 84/152 增至 112/152。剩余 Material cases 3/15 与 Unicode cases 30..37 共 40 处差异明确保留。中文、emoji 和组合重音匹配；Unicode 空白/格式/私用/未分配的 printability 尚未完成，不用 Rust Debug 伪装通用 Python repr。
+
+源码逐文件复查，Rustfmt、全目标 Clippy -Dwarnings 通过（已有 MSVC linker 提示保留）。status 单元 13 项通过，其中新测试对照十条 Python 公共错误；工作区 256 项通过、两项既有更广队列测试排除。target/alert-width-unit.log、alert-width-clippy.log、alert-width-workspace.log 保留结果；未重复同一批通过的集成。完整冻结协议门解码 protobuf 并检查全部调用/路径/receipt，新六项 coherent wrong-wire guards 对旧引号/反斜杠/控制字符输出拒绝。相关 text/misc、矩阵、文档共 146 项通过（target/alert-width-final-gates.log）。
+
+Python 原 PID 67700 不存在，54437/8502 无监听；两次自有 Rust 服务均已终止，本轮没有浏览器 task。只读字符探针在 target，Python Unicode 16.0.0 的非 ASCII 不可打印 scalar 数据统计为 737 闭区间，接入生产表/导出流程的三案记录于 architecture.md，尚未创建；与 Material 目录选择独立。四条矩阵证据/限制和生成清单同步，130 partial 和完整目标保持。colconfig_params 独立改动未修改、未纳入提交；仅提交推送工作分支。

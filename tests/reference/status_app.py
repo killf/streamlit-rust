@@ -50,6 +50,10 @@ def run_error_contract():
         {'icon': 'https://example.invalid/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', 'width': 1},
         {'icon': '🧊', 'width': "'quoted"},
     ]
+    cases.extend({'icon': '🧊', 'width': width} for width in (
+        'plain', "'quoted", '"quoted', "'both\"", 'slash\\end', 'line\nnext', '\t\r\0', '\x1f\x7f',
+        '中文🧊', 'e\u0301', '\u00a0', '\u2003', '\u200d', '\ue000', '\u0378', '\U000e0000', '\u2028', '\u0085',
+    ))
     st.json({"error_cases": cases})
     for index, kwargs in enumerate(cases):
         for kind in ("info", "success", "warning", "error"):

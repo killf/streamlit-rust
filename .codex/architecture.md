@@ -534,4 +534,21 @@ Material 根因是 material_icon_len 只检查名称形状。锁定本地 Stream
 2. 冻结 JSON 数据，现有 streamlit/build.rs 在构建时校验并生成 OUT_DIR 数组。拟新增 streamlit/material_icon_names.json 与同一导出工具；build.rs 增加数据验证/生成，Cargo.toml 增加 serde_json build-dependency。坏数据直接令构建失败，运行仍二分查找；原始数据易审阅，但增加构建职责与依赖边。
 3. 暂缓目录接入，继续保留 Material 差异和完整目标未完成状态。不会将暂缓记为接受差异。
 
-前两案不改变公共 StatusError/方法签名；本项只接入 Alert，不自动改变其他尚待错误契约的公共方法。4301 项排序查找最多约 13 次名称比较，尚无运行性能实测。验收包括导出再现/来源版本与 hash、全部已知名称和未知/大小写/自动提取边界、首错和无 Delta/恢复、离线构建及真实 WS，再验证真实 UI 错误与恢复。生产目录/生成器尚未创建。case 19 的 Python 字符串 repr 可独立继续处理，不受本次目录选案阻塞；其他既有待决事项保持。
+前两案不改变公共 StatusError/方法签名；本项只接入 Alert，不自动改变其他尚待错误契约的公共方法。4301 项排序查找最多约 13 次名称比较，尚无运行性能实测。验收包括导出再现/来源版本与 hash、全部已知名称和未知/大小写/自动提取边界、首错和无 Delta/恢复、离线构建及真实 WS，再验证真实 UI 错误与恢复。生产目录/生成器尚未创建。case 19 的引号选择已由下节 width repr 修正；Unicode 不可打印字符边界仍开放，其他既有待决事项保持。
+
+
+### Width repr quoting, escapes and Unicode data decision (2026-10-30)
+
+现有 width 错误仅在值外加单引号，会漏掉 Python repr 的引号选择和转义。status.rs 的 width_error_value 现在按包含单/双引号情况选择定界符，转义定界符和反斜杠；LF/CR/Tab 用命名转义，其余 ASCII 控制字符含 NUL/DEL 用两位小写 x 转义。api.rs 仍通过既有 StatusError::InvalidWidth 返回所呈现的值，没有新增公共接口/文件/依赖。非 ASCII 字符保持原行为，明确未完成 Python Unicode printability，不把本次帮助函数当作完整通用 Python repr。
+
+复用既有示例/参考 app 与 collector，将十八个宽度输入追加到原二十输入后，新三份 width-repr 捕获各保留 152 调用：Python 169 Elements/16 Alert，Rust 修前/修后均 173/20。原始二十案例全部保留不重写；新语料修前 68 处不同，修后 40 处不同。原有 case 19 已修，原二十输入现在 72/80 对齐；完整新语料 112/152 对齐。剩余为 Material cases 3/15 和 Unicode cases 30..37，各四格式。中文/emoji/组合重音保持字面值；NBSP、Unicode 空白/格式/私用/未分配等不可打印字符仍与 Python 不同。六个按旧方式呈现值的 coherent wrong-wire guards 确保引号和转义错误会失败，未把剩余案例从语料删除。
+
+只读探针比较当前 Rust 1.98.1 Debug 和 Python 3.14.7/Unicode 16.0.0，证明直接套用 Rust Debug 不等价：Rust 会转义组合标记，其 Unicode 版本也不同。非 ASCII、排除不可由 Rust char 表示的 surrogate 后，Python isprintable=false 可压缩为 737 个闭区间；规范紧凑 JSON 10,126 字节，SHA-256 e8d25bd4fb4c3934e7577c067156072a081b4fdaa278b3179133deb6445cfdbf。探针文件只在忽略的 target，尚无生产数据/生成器；这是范围统计和差异证据，不是完整 repr 验收。
+
+补全需要冻结 Python 字符数据，新增文件/生成流程依 AGENTS.md 第 2 条待选：
+
+1. 推荐：新增私有 streamlit/src/unicode_printability.rs，冻结这 737 个排序不相交区间；新增 tools/export_unicode_printability.py，从固定 Python/Unicode 版本生成、检查计数/hash，保留来源/许可；lib.rs 注册私有模块，status.rs 查区间后以 x/u/U 的两/四/八位小写 hex 转义。普通构建/运行无 Python 或新增依赖，字符查询至多约十次区间比较；未声称有实测性能收益。
+2. 冻结 streamlit/unicode_printability.json，以现有 build.rs 校验、生成 OUT_DIR 数组；增加导出工具和 serde_json build-dependency。原始数据更便于审阅，但增加构建职责；数据不合法直接构建失败，不能静默当作 printable。
+3. 暂缓字符数据接入，保留全部 Unicode 差异及完整目标未完成状态，继续其他已授权部分。
+
+前两案保持 StatusError 形状和 Alert-only 调用范围；不顺带改 py_bytes_repr 或 JSON/hash 序列化。验收须比较所有 Unicode scalar 的 printability，再验证引用、ASCII/Unicode 转义位数、已有组合字符不误转义、完整宽度错误语料、无 Delta/恢复、离线构建和真实 UI。Material 目录与本项为两个独立数据决定，不把选择一项当成另一项的授权。

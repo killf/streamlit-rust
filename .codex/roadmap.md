@@ -256,3 +256,6 @@ JSON 深度/宽度已补 18 组固定原生参考（9 成功、9 拒绝）；Jso
 
 
 2026-10-30 Alert 错误边界推进：保留公开 Result/错误变体，修正 icon-before-width、分类错误文字及 spinner。二十输入乘四格式的完整 WS 语料修前有 60 处不同，修后剩 12 处（未知 Material 的两类行为、带引号宽度 repr），68/80 对齐；未缩小语料或完整兼容分母。Material 冻结目录的三案已写 architecture.md，新增生产文件/生成流程待选；宽度 repr 可独立推进。130 partial、M3/M5/M7 与完整 Goal 保持开放。
+
+
+2026-10-30 Width repr 继续推进：引号选择、反斜杠和 ASCII 控制字符转义已修正，原二十输入达到 72/80 对齐。扩展后完整 38 输入/152 调用匹配 112 次，仍有 Material 8 次及 Unicode 不可打印字符 32 次差异；全部保留。直接套 Rust Debug 经实测不等价，冻结 Python Unicode 16 数据的方案已列入 architecture.md，新增数据/生成流程待选。完整 Goal 和 130 partial 保持开放。

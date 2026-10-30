@@ -102,3 +102,20 @@ Receipts classify the actual error by icon/width, not by a claimed equivalent
 Python exception class or error_id. No new browser, uncaught-error, callback or
 full icon-catalog proof is made. Catalog data/generation alternatives await the
 user's choice in .codex/architecture.md; no production catalog is added.
+
+
+## Width repr follow-up (2026-10-30)
+
+normalization/width-repr-before and width-repr retain the original twenty inputs
+plus eighteen width strings, all four formats: 152 calls, 173 Elements/20 Alerts
+each; Python width-repr has 169 Elements/16 Alerts. Quoting, backslashes and
+ASCII controls now match, as do Chinese/emoji/combining accents. In the original
+twenty-input prefix, 72/80 calls align; for the complete expanded corpus,
+112/152 align versus 84/152 before. The remaining 40 are Material cases 3/15
+and Unicode printability cases 30..37, four formats each. These are recorded
+failures, not accepted differences or filtered cases. Six coherent old-style
+error mutations fail the gate. No new browser or full Unicode repr claim.
+
+Rust Debug differs in combining-mark escaping and Unicode version; a production
+Unicode table/exporter has not been added. Its three design options are in
+.codex/architecture.md, independent of the pending Material catalog decision.

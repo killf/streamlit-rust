@@ -1755,7 +1755,7 @@ fn create_status<C: AppendChild>(this: &C, options: StatusOptions, format: crate
     let width_spec = match options.width {
         StatusWidth::Keyword(value) if value == "stretch" => WidthSpec::UseStretch(true),
         StatusWidth::Pixels(value) if value > 0 => WidthSpec::PixelWidth(value as u32),
-        StatusWidth::Keyword(value) => return Err(StatusError::InvalidWidth(format!("'{value}'"))),
+        StatusWidth::Keyword(value) => return Err(StatusError::InvalidWidth(crate::elements::status::width_error_value(&value))),
         StatusWidth::Pixels(value) => return Err(StatusError::InvalidWidth(value.to_string())),
     };
     let element = AlertStatusElement::new(crate::proto::Alert {

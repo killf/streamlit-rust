@@ -1,7 +1,7 @@
 use ::streamlit::*;
 
 fn status_error_contract(st: &Streamlit) -> Result<(), Box<dyn std::error::Error>> {
-    let cases: Vec<serde_json::Value> = serde_json::from_str(
+    let mut cases: Vec<serde_json::Value> = serde_json::from_str(
         r#"[
   {"icon": "🔥💡", "width": 0},
   {"icon": "👩‍x", "width": "bogus"},
@@ -25,6 +25,29 @@ fn status_error_contract(st: &Streamlit) -> Result<(), Box<dyn std::error::Error
   {"icon": "🧊", "width": "'quoted"}
 ]"#,
     )?;
+    for width in [
+        "plain",
+        "'quoted",
+        "\"quoted",
+        "'both\"",
+        "slash\\end",
+        "line\nnext",
+        "\t\r\0",
+        "\u{1f}\u{7f}",
+        "中文🧊",
+        "e\u{301}",
+        "\u{a0}",
+        "\u{2003}",
+        "\u{200d}",
+        "\u{e000}",
+        "\u{378}",
+        "\u{e0000}",
+        "\u{2028}",
+        "\u{85}",
+    ] {
+        cases.push(serde_json::json!({"icon": "🧊", "width": width}));
+    }
+
     st.json(serde_json::json!({"error_cases": cases}));
     for (index, kwargs) in cases.iter().enumerate() {
         for kind in ["info", "success", "warning", "error"] {
