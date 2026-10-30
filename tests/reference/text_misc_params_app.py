@@ -1,6 +1,33 @@
 """Emit text-family and misc element creation-wire parameter variants."""
 import streamlit as st
 
+
+def run_normalization():
+    cases = [
+        "\n    alpha\n      beta\n    gamma\n",
+        "\talpha\n    beta",
+        " \talpha\n \tbeta",
+        "  alpha\n \tbeta",
+        "  alpha\n \t \n    beta",
+        "\n  alpha\r\n    beta\r\n",
+        "  alpha\r    beta",
+        "\u2003alpha\n\u2003beta",
+        "\u001calpha\u001f",
+        "  alpha\n\u00a0\n    beta",
+        " \t\n\t  ",
+        "\n  中文\n    🧊\n",
+    ]
+    st.json({'normalization_cases': cases})
+    for body in cases:
+        for kind in ('markdown', 'caption', 'text', 'title', 'header', 'subheader', 'latex'):
+            getattr(st, kind)(body)
+
+
+if st.query_params.get("case") == "normalization":
+    run_normalization()
+    st.stop()
+
+
 def run_layouts():
     cases = [
         {'kind': 'markdown', 'body': 'Markdown default', 'kwargs': {}},

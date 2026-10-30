@@ -2,6 +2,7 @@ use crate::elements::common::{Element, ElementWidth, RenderContext, TextAlignmen
 use crate::error::StreamlitError;
 use crate::proto::streamlit::{TextAlignmentConfig, WidthConfig};
 use crate::proto::{Delta, delta, delta_base_with_path, element, forward_msg};
+use crate::utils::clean_text;
 use crate::utils::hash::hash;
 
 pub(crate) struct HeadingElement {
@@ -19,7 +20,7 @@ impl HeadingElement {
     pub fn new(tag: String, body: String) -> HeadingElement {
         Self {
             tag,
-            body,
+            body: clean_text(&body),
             anchor: String::new(),
             help: String::new(),
             divider: String::new(),

@@ -453,6 +453,130 @@ async fn code_body_language_changes_do_not_share_a_hash_on_one_connection() -> T
     Ok(())
 }
 
+const TEXT_NORMALIZATION_REFERENCE: &str = include_str!("../../../tests/reference/reference-browser/text-misc-params/normalization-valid/trace.json");
+
+fn text_normalization_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        let result: TestResult = (|| {
+            let reference: serde_json::Value = serde_json::from_str(TEXT_NORMALIZATION_REFERENCE)?;
+            let inputs: serde_json::Value = serde_json::from_str(reference["elements"][0]["fields"]["body"].as_str().ok_or("missing normalization inputs")?)?;
+            st.json(inputs.clone());
+            for value in inputs["normalization_cases"].as_array().ok_or("missing normalization cases")? {
+                let body = value.as_str().ok_or("normalization input must be a string")?;
+                st.markdown(body.to_owned());
+                st.caption(body);
+                st.text(body);
+                st.title(body);
+                st.header(body);
+                st.sub_header(body);
+                st.latex(body);
+            }
+            Ok(())
+        })();
+        assert!(result.is_ok(), "normalization fixture failed: {result:?}");
+    })
+}
+
+#[actix_web::test]
+async fn text_normalization_matches_complete_reference_elements() -> TestResult {
+    // 1. 七类公共调用通过真实 WS，覆盖混合缩进、CRLF 与 Unicode 空白。
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
+    let server = HttpServer::new(move || App::new().app_data(web::Data::new(StreamlitServer::new(text_normalization_entry, "127.0.0.1".into(), 0))).configure(configure_routes))
+        .workers(1)
+        .listen(listener)?
+        .run();
+    let handle = server.handle();
+    let task = actix_web::rt::spawn(server);
+    let mut stream = sessions::connect(address, None).await;
+    send_binary(
+        &mut stream,
+        &BackMsg {
+            r#type: Some(back_msg::Type::RerunScript(ClientState::default())),
+        }
+        .encode_to_vec(),
+    )
+    .await;
+    let mut observed = Vec::new();
+    let finish = loop {
+        let message = receive(&mut stream).await;
+        let path = message.metadata.as_ref().map(|metadata| metadata.delta_path.clone()).unwrap_or_default();
+        match message.r#type {
+            Some(forward_msg::Type::Delta(delta)) => {
+                let Some(delta::Type::NewElement(element)) = delta.r#type else { panic!("unexpected normalization delta") };
+                observed.push((path, element));
+            }
+            Some(forward_msg::Type::ScriptFinished(status)) => break status,
+            _ => {}
+        }
+    };
+    drop(stream);
+    handle.stop(false).await;
+    task.await??;
+
+    // 2. 比较完整 Element，避免只看 body 掩盖 LaTeX 的宽度和对齐缺省差异。
+    let reference: serde_json::Value = serde_json::from_str(TEXT_NORMALIZATION_REFERENCE)?;
+    let mut expected = Vec::new();
+    for frame in reference["frames"].as_array().ok_or("missing normalization frames")? {
+        let message = &frame["message"];
+        let Some(delta) = message.get("delta") else { continue };
+        let value = &delta["new_element"];
+        let mut element = proto::Element::default();
+        element.r#type = Some(if let Some(fields) = value.get("json") {
+            element::Type::Json(proto::Json {
+                body: fields["body"].as_str().ok_or("missing input report")?.into(),
+                expanded: true,
+                max_expand_depth: None,
+            })
+        } else if let Some(fields) = value.get("markdown") {
+            element::Type::Markdown(proto::Markdown {
+                body: fields["body"].as_str().unwrap_or_default().into(),
+                element_type: match fields["element_type"].as_str() {
+                    Some("NATIVE") => 1,
+                    Some("CAPTION") => 2,
+                    Some("LATEX") => 4,
+                    _ => return Err("unknown markdown type".into()),
+                },
+                wrap: fields["wrap"].as_bool(),
+                ..Default::default()
+            })
+        } else if let Some(fields) = value.get("text") {
+            element::Type::Text(proto::Text {
+                body: fields["body"].as_str().unwrap_or_default().into(),
+                wrap: fields["wrap"].as_bool(),
+                ..Default::default()
+            })
+        } else {
+            let fields = value.get("heading").ok_or("unexpected normalization kind")?;
+            element::Type::Heading(proto::Heading {
+                body: fields["body"].as_str().unwrap_or_default().into(),
+                tag: fields["tag"].as_str().ok_or("missing heading tag")?.into(),
+                wrap: fields["wrap"].as_bool(),
+                ..Default::default()
+            })
+        });
+        if let Some(width) = value.get("width_config") {
+            use proto::streamlit::width_config::WidthSpec;
+            let spec = if width["use_stretch"] == true {
+                WidthSpec::UseStretch(true)
+            } else {
+                assert_eq!(width["use_content"], true);
+                WidthSpec::UseContent(true)
+            };
+            element.width_config = Some(proto::streamlit::WidthConfig { width_spec: Some(spec) });
+        }
+        if let Some(alignment) = value.get("text_alignment_config") {
+            assert_eq!(alignment["alignment"], "LEFT");
+            element.text_alignment_config = Some(proto::streamlit::TextAlignmentConfig { alignment: 1 });
+        }
+        expected.push((serde_json::from_value::<Vec<u32>>(message["metadata"]["delta_path"].clone())?, element));
+    }
+    assert_eq!(finish, 0);
+    assert_eq!(expected.len(), 85);
+    assert_eq!(observed, expected);
+    Ok(())
+}
+
 const TEXT_LAYOUT_REFERENCE: &str = include_str!("../../../tests/reference/reference-browser/text-misc-params/layout-widths/trace.json");
 
 fn text_layout_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {

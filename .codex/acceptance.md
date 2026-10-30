@@ -642,3 +642,14 @@ architecture 的 Pending unified NewElement identity decision 写出静态/原�
 按代码→单元→集成验证：全目标 Clippy -D warnings、Rustfmt 检查通过；公共 API 单元 1 项、文本/JSON WS 集成 7 项通过（target/text-layout-clippy.log、text-layout-unit.log、text-layout-integration.log）。工作区 244 项通过（库 237、ledger 1、宏 2、rustdoc 4），明确排除既有 navigation_pages_switch_and_session_state_match_the_measured_wire、rerun_queue_messages_match_frozen_reference 两项队列差异（target/text-layout-workspace-remaining.log），不称全工作区全绿。原始协议/摘要绑定、完整载荷语义与四项一致错误线 guard、矩阵和文档共 73 项通过（target/text-layout-final-gates.log）。已有 MSVC linker stdout 告警保留。
 
 逐文件复查 diff，示例构建通过；采集连接/自有服务已关闭，结束时 8606/18606 均无监听。矩阵仍 130 partial，完整目标继续；用户 colconfig_params 文件、Cargo 与索引修改保持独立，未纳入阶段提交。按现有授权只提交推送工作分支，不合并或发布。
+
+
+### Text normalization and LaTeX layout validation (2026-10-30)
+
+真实修前/修后原生 WS 以 12 个字符串输入分别调用 markdown、caption、text、title、header、subheader、latex，加输入报告共 85 Element。修前 72 个完整载荷不同；修后全部完整 Element/路径与 Streamlit 1.66.1 / Python 3.14.7 参考一致。覆盖空格/Tab 共同前缀（不能按最小缩进长度裁切）、Unicode 全空白行、Python strip 的 U+001C–001F、内部 CRLF/CR、空输入及中文/emoji。LaTeX 在加 $$ 前清理公式，默认 width stretch 且 alignment 缺省，均以完整载荷验收。
+
+只在现有 utils/mod.rs 放置 crate 私有清理函数并由既有生产者共用，未新增模块、依赖或公共接口。保留原始 Python normalization 的 fixture 错误：JSON surrogate 转义直接写成 Python 字面量导致最后 Unicode 案例 UnicodeEncodeError（79 元素，含异常）；successful 只是采集器传输标志，证据门明确检查异常而不当成正确语义。修正输入后另存 normalization-valid；没有编辑、删除或覆盖首份失败。Rust before 与 fixed 各 85 元素保留。
+
+按代码→单元→集成顺序，全目标 Clippy -D warnings 与 Rustfmt 检查通过；12 输入语义边界的清理单元 1 项、文本/JSON WS 集成 8 项通过（target/text-normalization-clippy.log、text-normalization-unit.log、text-normalization-integration.log）。工作区共 246 项通过（库 239、ledger 1、宏 2、rustdoc 4；target/text-normalization-workspace.log），仍明确排除 navigation_pages_switch_and_session_state_match_the_measured_wire、rerun_queue_messages_match_frozen_reference 两项既有队列差异，不称完整工作区全绿。协议/摘要绑定、完整语义、五项一致错误线 guard 加矩阵/文档门共 79 项通过（target/text-normalization-final-gates.log）。已有 MSVC linker stdout 告警保留。
+
+逐文件复查 diff，示例构建通过；两个 Rust server session 均终止，采集器拥有的 Python 服务/连接关闭，8606/18606 无监听。没有新的浏览器渲染/非字符串转换证明，未关闭未测参数或等待选择的统一身份、TextAlignment、JSON、队列策略；矩阵仍 130 partial，完整目标继续。colconfig_params 独立改动保留，按授权只提交推送工作分支，不合并或发布。

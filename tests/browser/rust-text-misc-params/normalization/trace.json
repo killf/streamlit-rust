@@ -1,0 +1,3686 @@
+{
+  "schema_version": 1,
+  "runtime": "rust",
+  "reference_version": "1.66.1",
+  "captured_at_utc": "2026-10-30T07:35:17.733868+00:00",
+  "scenario": "normalization",
+  "scope": "Element wire of text/latex/help/divider parameter edges over one native WS; no browser/UI claim.",
+  "server_command": null,
+  "server_cleanup": "caller-owned",
+  "url": "http://127.0.0.1:8606",
+  "frames": [
+    {
+      "direction": "client->server",
+      "bytes": 22,
+      "base64": "WhQKEmNhc2U9bm9ybWFsaXphdGlvbg==",
+      "message": {
+        "rerun_script": {
+          "query_string": "case=normalization"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 219,
+      "base64": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkNDMwMTU5ZGEtOTAyZi00ODVjLTlkZjEtOThkYmY0ODYzZDhiEiQ5ZmM2ZWNmOS01NWY4LTQxZjMtOTg1Zi05ZWRmZTg5MDQ4YzEaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl",
+      "message": {
+        "metadata": {
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "new_session": {
+          "initialize": {
+            "user_info": {},
+            "environment_info": {
+              "streamlit_version": "1.66.1"
+            },
+            "session_status": {},
+            "session_id": "430159da-902f-485c-9df1-98dbf4863d8b"
+          },
+          "script_run_id": "9fc6ecf9-55f8-41f3-985f-9edfe89048c1",
+          "name": "Streamlit Rust",
+          "config": {
+            "show_error_links": "SHOW_ERROR_LINKS_FALSE"
+          },
+          "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 28,
+      "base64": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ==",
+      "message": {
+        "hash": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 428,
+      "base64": "CiAzYTQzOGJmMjlmYzQ5NWQ4MDc4NGIwY2Y5MWJjMjNmNRImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2Uq3wIa3AL6AdMCCs4CeyJub3JtYWxpemF0aW9uX2Nhc2VzIjogWyJcbiAgICBhbHBoYVxuICAgICAgYmV0YVxuICAgIGdhbW1hXG4iLCAiXHRhbHBoYVxuICAgIGJldGEiLCAiIFx0YWxwaGFcbiBcdGJldGEiLCAiICBhbHBoYVxuIFx0YmV0YSIsICIgIGFscGhhXG4gXHQgXG4gICAgYmV0YSIsICJcbiAgYWxwaGFcclxuICAgIGJldGFcclxuIiwgIiAgYWxwaGFcciAgICBiZXRhIiwgIlx1MjAwM2FscGhhXG5cdTIwMDNiZXRhIiwgIlx1MDAxY2FscGhhXHUwMDFmIiwgIiAgYWxwaGFcblx1MDBhMFxuICAgIGJldGEiLCAiIFx0XG5cdCAgIiwgIlxuICBcdTRlMmRcdTY1ODdcbiAgICBcdWQ4M2VcdWRkY2FcbiJdfRAB0gMCCAE=",
+      "message": {
+        "hash": "3a438bf29fc495d80784b0cf91bc23f5",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"normalization_cases\": [\"\\n    alpha\\n      beta\\n    gamma\\n\", \"\\talpha\\n    beta\", \" \\talpha\\n \\tbeta\", \"  alpha\\n \\tbeta\", \"  alpha\\n \\t \\n    beta\", \"\\n  alpha\\r\\n    beta\\r\\n\", \"  alpha\\r    beta\", \"\\u2003alpha\\n\\u2003beta\", \"\\u001calpha\\u001f\", \"  alpha\\n\\u00a0\\n    beta\", \" \\t\\n\\t  \", \"\\n  \\u4e2d\\u6587\\n    \\ud83e\\uddca\\n\"]}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 110,
+      "base64": "CiBkZTEwOWNlMjQ5ZWE1ZGNmNDNlOTQzNTFiYTNlNTM0NxImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqIhog6gEYChJhbHBoYQogIGJldGEKZ2FtbWEgAUAB6gMCCAE=",
+      "message": {
+        "hash": "de109ce249ea5dcf43e94351ba3e5347",
+        "metadata": {
+          "delta_path": [
+            0,
+            1
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "alpha\n  beta\ngamma",
+              "element_type": "NATIVE",
+              "wrap": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 115,
+      "base64": "CiAwZWQwNjE1NzFmNWM5MmI3YjI1ZGQxYThkZWM4YjRkMBImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqJxol6gEYChJhbHBoYQogIGJldGEKZ2FtbWEgAkAB0gMCCAHqAwIIAQ==",
+      "message": {
+        "hash": "0ed061571f5c92b7b25dd1a8dec8b4d0",
+        "metadata": {
+          "delta_path": [
+            0,
+            2
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "alpha\n  beta\ngamma",
+              "element_type": "CAPTION",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 112,
+      "base64": "CiBmMGU0NmVmODQ5ZWY4YzRjZjRhNTk1MWVkODJmNmJhZBImEgIAAyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqJBoiChYKEmFscGhhCiAgYmV0YQpnYW1tYRgB0gMCEAHqAwIIAQ==",
+      "message": {
+        "hash": "f0e46ef849ef8c4cf4a5951ed82f6bad",
+        "metadata": {
+          "delta_path": [
+            0,
+            3
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "alpha\n  beta\ngamma",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 117,
+      "base64": "CiAzODhlODMwYzcwYTI3ZTM4ZmU0ZjUyYWNmMTMyOWM5OBImEgIABCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqKRon+gIaCgJoMRoSYWxwaGEKICBiZXRhCmdhbW1hOAHSAwIIAeoDAggB",
+      "message": {
+        "hash": "388e830c70a27e38fe4f52acf1329c98",
+        "metadata": {
+          "delta_path": [
+            0,
+            4
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h1",
+              "body": "alpha\n  beta\ngamma",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 117,
+      "base64": "CiA5MmY5NTYyZDgxMDIwNWRkNzVjYTA5YjUzMDI1MDBkMxImEgIABSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqKRon+gIaCgJoMhoSYWxwaGEKICBiZXRhCmdhbW1hOAHSAwIIAeoDAggB",
+      "message": {
+        "hash": "92f9562d810205dd75ca09b5302500d3",
+        "metadata": {
+          "delta_path": [
+            0,
+            5
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h2",
+              "body": "alpha\n  beta\ngamma",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 117,
+      "base64": "CiBmNWRiYWI1NDkzNTEyMDYwODc3NmJjNmRkNjEzOGE2OBImEgIABiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqKRon+gIaCgJoMxoSYWxwaGEKICBiZXRhCmdhbW1hOAHSAwIIAeoDAggB",
+      "message": {
+        "hash": "f5dbab54935120608776bc6dd6138a68",
+        "metadata": {
+          "delta_path": [
+            0,
+            6
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h3",
+              "body": "alpha\n  beta\ngamma",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 114,
+      "base64": "CiAyZmI3ZmQzNmYyZjkzYjgwMzUzNmNkYzVmYzg0MTVjNBImEgIAByIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqJhok6gEcChgkJAphbHBoYQogIGJldGEKZ2FtbWEKJCQgBNIDAggB",
+      "message": {
+        "hash": "2fb7fd36f2f93b803536cdc5fc8415c4",
+        "metadata": {
+          "delta_path": [
+            0,
+            7
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "$$\nalpha\n  beta\ngamma\n$$",
+              "element_type": "LATEX"
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 106,
+      "base64": "CiBkOWQ3MzlmNzE5YzgyNWY0NmVkNGU4YWUyYmRkOGIxOBImEgIACCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqHhoc6gEUCg5hbHBoYQogICAgYmV0YSABQAHqAwIIAQ==",
+      "message": {
+        "hash": "d9d739f719c825f46ed4e8ae2bdd8b18",
+        "metadata": {
+          "delta_path": [
+            0,
+            8
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "alpha\n    beta",
+              "element_type": "NATIVE",
+              "wrap": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 111,
+      "base64": "CiBhYzc5NDVhODk1M2Q0ZDBjZDUyYTMxODkzOWQ3MzcwZBImEgIACSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqIxoh6gEUCg5hbHBoYQogICAgYmV0YSACQAHSAwIIAeoDAggB",
+      "message": {
+        "hash": "ac7945a8953d4d0cd52a318939d7370d",
+        "metadata": {
+          "delta_path": [
+            0,
+            9
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "alpha\n    beta",
+              "element_type": "CAPTION",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 108,
+      "base64": "CiAxZTY0NDkwMTAyNmZlYzg3ZDdkNDg1ZDg3ODJiOTZkORImEgIACiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqIBoeChIKDmFscGhhCiAgICBiZXRhGAHSAwIQAeoDAggB",
+      "message": {
+        "hash": "1e644901026fec87d7d485d8782b96d9",
+        "metadata": {
+          "delta_path": [
+            0,
+            10
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "alpha\n    beta",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 113,
+      "base64": "CiA3MTBmZDUwOWNlZDc4MGYxNDM5YjUyMGM2OTViZDBkMBImEgIACyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqJRoj+gIWCgJoMRoOYWxwaGEKICAgIGJldGE4AdIDAggB6gMCCAE=",
+      "message": {
+        "hash": "710fd509ced780f1439b520c695bd0d0",
+        "metadata": {
+          "delta_path": [
+            0,
+            11
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h1",
+              "body": "alpha\n    beta",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 113,
+      "base64": "CiBlODM1ZjcyOWU2ZjQ0ZDM4MzRkZDM1Y2ZiNTZmZGIzMhImEgIADCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqJRoj+gIWCgJoMhoOYWxwaGEKICAgIGJldGE4AdIDAggB6gMCCAE=",
+      "message": {
+        "hash": "e835f729e6f44d3834dd35cfb56fdb32",
+        "metadata": {
+          "delta_path": [
+            0,
+            12
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h2",
+              "body": "alpha\n    beta",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 113,
+      "base64": "CiBmNzA2MmU3Mzk2MmU4MjRmMThjMzBkYmQxZmM2NjA5ORImEgIADSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqJRoj+gIWCgJoMxoOYWxwaGEKICAgIGJldGE4AdIDAggB6gMCCAE=",
+      "message": {
+        "hash": "f7062e73962e824f18c30dbd1fc66099",
+        "metadata": {
+          "delta_path": [
+            0,
+            13
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h3",
+              "body": "alpha\n    beta",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 110,
+      "base64": "CiAxYTY5OWVhMzBkM2E0YjAyYjI0MjA5MTAwMjVhYmEyOBImEgIADiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqIhog6gEYChQkJAphbHBoYQogICAgYmV0YQokJCAE0gMCCAE=",
+      "message": {
+        "hash": "1a699ea30d3a4b02b2420910025aba28",
+        "metadata": {
+          "delta_path": [
+            0,
+            14
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "$$\nalpha\n    beta\n$$",
+              "element_type": "LATEX"
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 102,
+      "base64": "CiA4ZmI4NWI5YWExNWMyYjMyMzE3NjcyNzFmODY2YzJhNxImEgIADyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqGhoY6gEQCgphbHBoYQpiZXRhIAFAAeoDAggB",
+      "message": {
+        "hash": "8fb85b9aa15c2b3231767271f866c2a7",
+        "metadata": {
+          "delta_path": [
+            0,
+            15
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "alpha\nbeta",
+              "element_type": "NATIVE",
+              "wrap": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 107,
+      "base64": "CiA0OGYyNzA5MjVmOTk3NTY4MzMwNzViZWMyYTQwYmViZBImEgIAECIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqHxod6gEQCgphbHBoYQpiZXRhIAJAAdIDAggB6gMCCAE=",
+      "message": {
+        "hash": "48f270925f99756833075bec2a40bebd",
+        "metadata": {
+          "delta_path": [
+            0,
+            16
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "alpha\nbeta",
+              "element_type": "CAPTION",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 104,
+      "base64": "CiA4ZDUyM2U2YWY3MmNkODVlMTA0OWRhOTIwN2EwMGY4YxImEgIAESIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqHBoaCg4KCmFscGhhCmJldGEYAdIDAhAB6gMCCAE=",
+      "message": {
+        "hash": "8d523e6af72cd85e1049da9207a00f8c",
+        "metadata": {
+          "delta_path": [
+            0,
+            17
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "alpha\nbeta",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 109,
+      "base64": "CiA0Y2NjZjgxZjBiMjYyY2E1NmQyMzBlZDBkZWZjMGQ4NxImEgIAEiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqIRof+gISCgJoMRoKYWxwaGEKYmV0YTgB0gMCCAHqAwIIAQ==",
+      "message": {
+        "hash": "4cccf81f0b262ca56d230ed0defc0d87",
+        "metadata": {
+          "delta_path": [
+            0,
+            18
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h1",
+              "body": "alpha\nbeta",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 109,
+      "base64": "CiBkNjQ1OTBlNDg3MDY4ZDkwNjdkMWYwMjRhMGNmNmQzYRImEgIAEyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqIRof+gISCgJoMhoKYWxwaGEKYmV0YTgB0gMCCAHqAwIIAQ==",
+      "message": {
+        "hash": "d64590e487068d9067d1f024a0cf6d3a",
+        "metadata": {
+          "delta_path": [
+            0,
+            19
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h2",
+              "body": "alpha\nbeta",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 109,
+      "base64": "CiBkNDlmZGY2M2YyMzQyNmQ5YzI4N2MyMjM0ZTAzZjgwNxImEgIAFCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqIRof+gISCgJoMxoKYWxwaGEKYmV0YTgB0gMCCAHqAwIIAQ==",
+      "message": {
+        "hash": "d49fdf63f23426d9c287c2234e03f807",
+        "metadata": {
+          "delta_path": [
+            0,
+            20
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h3",
+              "body": "alpha\nbeta",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 106,
+      "base64": "CiAzYWI3MGFjMzZlNTczZGI3NjYzYzRlMGE5Y2RjZGE2YRImEgIAFSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqHhoc6gEUChAkJAphbHBoYQpiZXRhCiQkIATSAwIIAQ==",
+      "message": {
+        "hash": "3ab70ac36e573db7663c4e0a9cdcda6a",
+        "metadata": {
+          "delta_path": [
+            0,
+            21
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "$$\nalpha\nbeta\n$$",
+              "element_type": "LATEX"
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 103,
+      "base64": "CiBlZGEzYTg5NWI0ZTQ0ZGJlZmViZGY0YzgwZDk2MjJmNBImEgIAFiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqGxoZ6gERCgthbHBoYQoJYmV0YSABQAHqAwIIAQ==",
+      "message": {
+        "hash": "eda3a895b4e44dbefebdf4c80d9622f4",
+        "metadata": {
+          "delta_path": [
+            0,
+            22
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "alpha\n\tbeta",
+              "element_type": "NATIVE",
+              "wrap": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 108,
+      "base64": "CiA3ZTI3YTRiZTc1MTg4N2U5ZWU0NzExNmYzNTlmZmNjZRImEgIAFyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqIBoe6gERCgthbHBoYQoJYmV0YSACQAHSAwIIAeoDAggB",
+      "message": {
+        "hash": "7e27a4be751887e9ee47116f359ffcce",
+        "metadata": {
+          "delta_path": [
+            0,
+            23
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "alpha\n\tbeta",
+              "element_type": "CAPTION",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 105,
+      "base64": "CiA2MDBmMGU3Mzg5YjBjZjViZDAwYWU1NzVhMmMzNzUxYhImEgIAGCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqHRobCg8KC2FscGhhCgliZXRhGAHSAwIQAeoDAggB",
+      "message": {
+        "hash": "600f0e7389b0cf5bd00ae575a2c3751b",
+        "metadata": {
+          "delta_path": [
+            0,
+            24
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "alpha\n\tbeta",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 110,
+      "base64": "CiBhNjhmMDM1YzNkMjhlZTBjYTllYzNjMDkxYTU5OTczYRImEgIAGSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqIhog+gITCgJoMRoLYWxwaGEKCWJldGE4AdIDAggB6gMCCAE=",
+      "message": {
+        "hash": "a68f035c3d28ee0ca9ec3c091a59973a",
+        "metadata": {
+          "delta_path": [
+            0,
+            25
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h1",
+              "body": "alpha\n\tbeta",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 110,
+      "base64": "CiBmMGQ0OGUwNDI4ODFlMWY3YTY4OGI0OTBhYzZjMjA5ZBImEgIAGiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqIhog+gITCgJoMhoLYWxwaGEKCWJldGE4AdIDAggB6gMCCAE=",
+      "message": {
+        "hash": "f0d48e042881e1f7a688b490ac6c209d",
+        "metadata": {
+          "delta_path": [
+            0,
+            26
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h2",
+              "body": "alpha\n\tbeta",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 110,
+      "base64": "CiAwNDJjNzczMTRlZGM2N2U3NzNkZjM3YmJmMWVhZjRhMRImEgIAGyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqIhog+gITCgJoMxoLYWxwaGEKCWJldGE4AdIDAggB6gMCCAE=",
+      "message": {
+        "hash": "042c77314edc67e773df37bbf1eaf4a1",
+        "metadata": {
+          "delta_path": [
+            0,
+            27
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h3",
+              "body": "alpha\n\tbeta",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 107,
+      "base64": "CiA0ZmI1NzgxMTA1MzI3ZDZiN2I0OWVlYmE0MWU0YjljNBImEgIAHCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqHxod6gEVChEkJAphbHBoYQoJYmV0YQokJCAE0gMCCAE=",
+      "message": {
+        "hash": "4fb5781105327d6b7b49eeba41e4b9c4",
+        "metadata": {
+          "delta_path": [
+            0,
+            28
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "$$\nalpha\n\tbeta\n$$",
+              "element_type": "LATEX"
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 105,
+      "base64": "CiA2Yzk2MjVlMzljM2YzNmEwN2JjN2VkZWY3NmRhMzkxYxImEgIAHSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqHRob6gETCg1hbHBoYQoKICBiZXRhIAFAAeoDAggB",
+      "message": {
+        "hash": "6c9625e39c3f36a07bc7edef76da391c",
+        "metadata": {
+          "delta_path": [
+            0,
+            29
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "alpha\n\n  beta",
+              "element_type": "NATIVE",
+              "wrap": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 110,
+      "base64": "CiAzODE4ZjhlYjc5ODU2NjVjOGUxOGUwZmIzNjBmM2EwMRImEgIAHiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqIhog6gETCg1hbHBoYQoKICBiZXRhIAJAAdIDAggB6gMCCAE=",
+      "message": {
+        "hash": "3818f8eb7985665c8e18e0fb360f3a01",
+        "metadata": {
+          "delta_path": [
+            0,
+            30
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "alpha\n\n  beta",
+              "element_type": "CAPTION",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 107,
+      "base64": "CiA1YmEzMTc2MjYzYTRhNDViYmY3ZDAwNzkyNjNlMjBiNBImEgIAHyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqHxodChEKDWFscGhhCgogIGJldGEYAdIDAhAB6gMCCAE=",
+      "message": {
+        "hash": "5ba3176263a4a45bbf7d0079263e20b4",
+        "metadata": {
+          "delta_path": [
+            0,
+            31
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "alpha\n\n  beta",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 112,
+      "base64": "CiA1MTAzYzY3YzVlNGIxZWZjNzkzMTE3MzhmNzJkZDJmMBImEgIAICIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqJBoi+gIVCgJoMRoNYWxwaGEKCiAgYmV0YTgB0gMCCAHqAwIIAQ==",
+      "message": {
+        "hash": "5103c67c5e4b1efc79311738f72dd2f0",
+        "metadata": {
+          "delta_path": [
+            0,
+            32
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h1",
+              "body": "alpha\n\n  beta",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 112,
+      "base64": "CiBmMmQ4YTg2ZTk4NzM1ZDhlOWZkMzM1YzYzYWNhZDhjZRImEgIAISIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqJBoi+gIVCgJoMhoNYWxwaGEKCiAgYmV0YTgB0gMCCAHqAwIIAQ==",
+      "message": {
+        "hash": "f2d8a86e98735d8e9fd335c63acad8ce",
+        "metadata": {
+          "delta_path": [
+            0,
+            33
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h2",
+              "body": "alpha\n\n  beta",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 112,
+      "base64": "CiBkNWNjZDU3NzhlMGIyMDNhNWU5MjFkNDkwYTMwMTY4YhImEgIAIiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqJBoi+gIVCgJoMxoNYWxwaGEKCiAgYmV0YTgB0gMCCAHqAwIIAQ==",
+      "message": {
+        "hash": "d5ccd5778e0b203a5e921d490a30168b",
+        "metadata": {
+          "delta_path": [
+            0,
+            34
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h3",
+              "body": "alpha\n\n  beta",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 109,
+      "base64": "CiA3OGZhODU1ODg3Y2EyMDlkNjQ2MWY0MjQ1MTdlNWZlYhImEgIAIyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqIRof6gEXChMkJAphbHBoYQoKICBiZXRhCiQkIATSAwIIAQ==",
+      "message": {
+        "hash": "78fa855887ca209d6461f424517e5feb",
+        "metadata": {
+          "delta_path": [
+            0,
+            35
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "$$\nalpha\n\n  beta\n$$",
+              "element_type": "LATEX"
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 105,
+      "base64": "CiAzNDZhNGM4NWQ2YWQ3YWQyNzZiZmNmNjlkYjkyNGE3MBImEgIAJCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqHRob6gETCg1hbHBoYQ0KICBiZXRhIAFAAeoDAggB",
+      "message": {
+        "hash": "346a4c85d6ad7ad276bfcf69db924a70",
+        "metadata": {
+          "delta_path": [
+            0,
+            36
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "alpha\r\n  beta",
+              "element_type": "NATIVE",
+              "wrap": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 110,
+      "base64": "CiBiNWFlMTU0YzA3YjI4MzU2MmEzZGIwNzc0NTMyODUzYxImEgIAJSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqIhog6gETCg1hbHBoYQ0KICBiZXRhIAJAAdIDAggB6gMCCAE=",
+      "message": {
+        "hash": "b5ae154c07b283562a3db0774532853c",
+        "metadata": {
+          "delta_path": [
+            0,
+            37
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "alpha\r\n  beta",
+              "element_type": "CAPTION",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 107,
+      "base64": "CiBiNDk1ZGMxODVhNTkxZTA2MDU3MGYyYmYwMDdiZmY5NRImEgIAJiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqHxodChEKDWFscGhhDQogIGJldGEYAdIDAhAB6gMCCAE=",
+      "message": {
+        "hash": "b495dc185a591e060570f2bf007bff95",
+        "metadata": {
+          "delta_path": [
+            0,
+            38
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "alpha\r\n  beta",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 112,
+      "base64": "CiBhNzU4NjljOGRlNTEyMzg3NGFiMzE4YTNkYmE3YmY5NRImEgIAJyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqJBoi+gIVCgJoMRoNYWxwaGENCiAgYmV0YTgB0gMCCAHqAwIIAQ==",
+      "message": {
+        "hash": "a75869c8de5123874ab318a3dba7bf95",
+        "metadata": {
+          "delta_path": [
+            0,
+            39
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h1",
+              "body": "alpha\r\n  beta",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 112,
+      "base64": "CiAzZTk2MmU5NWRjYjZjMTk0MWEyZjU3Y2EzOGI3NTg5ORImEgIAKCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqJBoi+gIVCgJoMhoNYWxwaGENCiAgYmV0YTgB0gMCCAHqAwIIAQ==",
+      "message": {
+        "hash": "3e962e95dcb6c1941a2f57ca38b75899",
+        "metadata": {
+          "delta_path": [
+            0,
+            40
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h2",
+              "body": "alpha\r\n  beta",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 112,
+      "base64": "CiAxNjQ1ODE1NmQ0ZDkzOTQ1Y2VkYTFlODBjYzZmMTYxMhImEgIAKSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqJBoi+gIVCgJoMxoNYWxwaGENCiAgYmV0YTgB0gMCCAHqAwIIAQ==",
+      "message": {
+        "hash": "16458156d4d93945ceda1e80cc6f1612",
+        "metadata": {
+          "delta_path": [
+            0,
+            41
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h3",
+              "body": "alpha\r\n  beta",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 109,
+      "base64": "CiA2OGNmMmNiMGJmNGZmOThmZWI1YWFjN2RiMzE1ODRjYRImEgIAKiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqIRof6gEXChMkJAphbHBoYQ0KICBiZXRhCiQkIATSAwIIAQ==",
+      "message": {
+        "hash": "68cf2cb0bf4ff98feb5aac7db31584ca",
+        "metadata": {
+          "delta_path": [
+            0,
+            42
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "$$\nalpha\r\n  beta\n$$",
+              "element_type": "LATEX"
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 106,
+      "base64": "CiA1YWViYzNlMWEwNjI5NzI3ZGE2MGIxOGE2ZGY3ODhkYRImEgIAKyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqHhoc6gEUCg5hbHBoYQ0gICAgYmV0YSABQAHqAwIIAQ==",
+      "message": {
+        "hash": "5aebc3e1a0629727da60b18a6df788da",
+        "metadata": {
+          "delta_path": [
+            0,
+            43
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "alpha\r    beta",
+              "element_type": "NATIVE",
+              "wrap": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 111,
+      "base64": "CiA5YjFkMzRiODBlMjQ2OTIxNzBiYzczZDI3NTQ5MmEwNxImEgIALCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqIxoh6gEUCg5hbHBoYQ0gICAgYmV0YSACQAHSAwIIAeoDAggB",
+      "message": {
+        "hash": "9b1d34b80e24692170bc73d275492a07",
+        "metadata": {
+          "delta_path": [
+            0,
+            44
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "alpha\r    beta",
+              "element_type": "CAPTION",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 108,
+      "base64": "CiA1N2Y4OWUzOWZjMTU3OWQ4YTNhZTdkOThjNGMyNjdkMBImEgIALSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqIBoeChIKDmFscGhhDSAgICBiZXRhGAHSAwIQAeoDAggB",
+      "message": {
+        "hash": "57f89e39fc1579d8a3ae7d98c4c267d0",
+        "metadata": {
+          "delta_path": [
+            0,
+            45
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "alpha\r    beta",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 113,
+      "base64": "CiA2MzIwOGQwYzYzNGMwMDEzYmMzYmVmM2E4N2IxMjBjOBImEgIALiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqJRoj+gIWCgJoMRoOYWxwaGENICAgIGJldGE4AdIDAggB6gMCCAE=",
+      "message": {
+        "hash": "63208d0c634c0013bc3bef3a87b120c8",
+        "metadata": {
+          "delta_path": [
+            0,
+            46
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h1",
+              "body": "alpha\r    beta",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 113,
+      "base64": "CiA4Yzk4ZTYxMmQzMTliYTFiNGY5MzBjM2IwYzU4ODg4YhImEgIALyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqJRoj+gIWCgJoMhoOYWxwaGENICAgIGJldGE4AdIDAggB6gMCCAE=",
+      "message": {
+        "hash": "8c98e612d319ba1b4f930c3b0c58888b",
+        "metadata": {
+          "delta_path": [
+            0,
+            47
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h2",
+              "body": "alpha\r    beta",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 113,
+      "base64": "CiBlM2RlODdjYjM3NjFjYTA4NDQ2NzVmMzU2Y2I1ZTE4NBImEgIAMCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqJRoj+gIWCgJoMxoOYWxwaGENICAgIGJldGE4AdIDAggB6gMCCAE=",
+      "message": {
+        "hash": "e3de87cb3761ca0844675f356cb5e184",
+        "metadata": {
+          "delta_path": [
+            0,
+            48
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h3",
+              "body": "alpha\r    beta",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 110,
+      "base64": "CiA1NzIyMDNmNWJiZTkzMWFiYTBhNDEzZGZmMzkxMzU4NRImEgIAMSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqIhog6gEYChQkJAphbHBoYQ0gICAgYmV0YQokJCAE0gMCCAE=",
+      "message": {
+        "hash": "572203f5bbe931aba0a413dff3913585",
+        "metadata": {
+          "delta_path": [
+            0,
+            49
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "$$\nalpha\r    beta\n$$",
+              "element_type": "LATEX"
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 105,
+      "base64": "CiAwOTI3ODIxNDJiODFkYjc1NmU1OGMwYTRhZTA3ZDM3MhImEgIAMiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqHRob6gETCg1hbHBoYQrigINiZXRhIAFAAeoDAggB",
+      "message": {
+        "hash": "092782142b81db756e58c0a4ae07d372",
+        "metadata": {
+          "delta_path": [
+            0,
+            50
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "alpha\n beta",
+              "element_type": "NATIVE",
+              "wrap": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 110,
+      "base64": "CiAzYzVmMThkMzQ2OTkyMjUyOWI1YzZhMDBmMDgzNTFkZBImEgIAMyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqIhog6gETCg1hbHBoYQrigINiZXRhIAJAAdIDAggB6gMCCAE=",
+      "message": {
+        "hash": "3c5f18d3469922529b5c6a00f08351dd",
+        "metadata": {
+          "delta_path": [
+            0,
+            51
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "alpha\n beta",
+              "element_type": "CAPTION",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 107,
+      "base64": "CiBhYjBjZjcxYjRlOTA2Mjc4NzJiYjczNzkzYjZiYWZlYhImEgIANCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqHxodChEKDWFscGhhCuKAg2JldGEYAdIDAhAB6gMCCAE=",
+      "message": {
+        "hash": "ab0cf71b4e90627872bb73793b6bafeb",
+        "metadata": {
+          "delta_path": [
+            0,
+            52
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "alpha\n beta",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 112,
+      "base64": "CiBkZWYwMTI1ZjUyZjM5YzkyMjdhMDk4ODlmZTI2NWZmYRImEgIANSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqJBoi+gIVCgJoMRoNYWxwaGEK4oCDYmV0YTgB0gMCCAHqAwIIAQ==",
+      "message": {
+        "hash": "def0125f52f39c9227a09889fe265ffa",
+        "metadata": {
+          "delta_path": [
+            0,
+            53
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h1",
+              "body": "alpha\n beta",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 112,
+      "base64": "CiBmZmY5ZTRmOTI0NmM5YjRmODk3MWMxNGM0Yjc0ZGFkMRImEgIANiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqJBoi+gIVCgJoMhoNYWxwaGEK4oCDYmV0YTgB0gMCCAHqAwIIAQ==",
+      "message": {
+        "hash": "fff9e4f9246c9b4f8971c14c4b74dad1",
+        "metadata": {
+          "delta_path": [
+            0,
+            54
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h2",
+              "body": "alpha\n beta",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 112,
+      "base64": "CiA5ZWM4YmRmNzM3ZTcwZjgzMWIyNWE2MzE5MDAzMjUzYhImEgIANyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqJBoi+gIVCgJoMxoNYWxwaGEK4oCDYmV0YTgB0gMCCAHqAwIIAQ==",
+      "message": {
+        "hash": "9ec8bdf737e70f831b25a6319003253b",
+        "metadata": {
+          "delta_path": [
+            0,
+            55
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h3",
+              "body": "alpha\n beta",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 109,
+      "base64": "CiA0NTkzZjBlNjMwMmQ4MmUyNGJhOWY2MWNiZTBmZTdmMRImEgIAOCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqIRof6gEXChMkJAphbHBoYQrigINiZXRhCiQkIATSAwIIAQ==",
+      "message": {
+        "hash": "4593f0e6302d82e24ba9f61cbe0fe7f1",
+        "metadata": {
+          "delta_path": [
+            0,
+            56
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "$$\nalpha\n beta\n$$",
+              "element_type": "LATEX"
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 97,
+      "base64": "CiAxYTQ0ODEwMjA3MzUzNGRhYmJkOWQwNTRkZDAwYWRiMBImEgIAOSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqFRoT6gELCgVhbHBoYSABQAHqAwIIAQ==",
+      "message": {
+        "hash": "1a448102073534dabbd9d054dd00adb0",
+        "metadata": {
+          "delta_path": [
+            0,
+            57
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "alpha",
+              "element_type": "NATIVE",
+              "wrap": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 102,
+      "base64": "CiAxODFjOWY3Nzc5MjZmZWY2NWUxNGQwNWY3NjBhZjU2ORImEgIAOiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqGhoY6gELCgVhbHBoYSACQAHSAwIIAeoDAggB",
+      "message": {
+        "hash": "181c9f777926fef65e14d05f760af569",
+        "metadata": {
+          "delta_path": [
+            0,
+            58
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "alpha",
+              "element_type": "CAPTION",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 99,
+      "base64": "CiBmYmU4NWRmNDQwODBjZGFkODVmMGEwNDk3ODI1N2ViMBImEgIAOyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqFxoVCgkKBWFscGhhGAHSAwIQAeoDAggB",
+      "message": {
+        "hash": "fbe85df44080cdad85f0a04978257eb0",
+        "metadata": {
+          "delta_path": [
+            0,
+            59
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "alpha",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 104,
+      "base64": "CiAxZWIzNDU3ZGU3ZWJjOTlmM2I1YWVkYzZjOTM1Y2ExNhImEgIAPCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqHBoa+gINCgJoMRoFYWxwaGE4AdIDAggB6gMCCAE=",
+      "message": {
+        "hash": "1eb3457de7ebc99f3b5aedc6c935ca16",
+        "metadata": {
+          "delta_path": [
+            0,
+            60
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h1",
+              "body": "alpha",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 104,
+      "base64": "CiBkNWY2MzNmNzA4NTRlNWY4MWY0NjJiZTRjOGE2NzFlYRImEgIAPSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqHBoa+gINCgJoMhoFYWxwaGE4AdIDAggB6gMCCAE=",
+      "message": {
+        "hash": "d5f633f70854e5f81f462be4c8a671ea",
+        "metadata": {
+          "delta_path": [
+            0,
+            61
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h2",
+              "body": "alpha",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 104,
+      "base64": "CiAwYTgyZTY0MTRjM2VkYzZjN2FlNDJhZWFhZjk0NzA2NRImEgIAPiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqHBoa+gINCgJoMxoFYWxwaGE4AdIDAggB6gMCCAE=",
+      "message": {
+        "hash": "0a82e6414c3edc6c7ae42aeaaf947065",
+        "metadata": {
+          "delta_path": [
+            0,
+            62
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h3",
+              "body": "alpha",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 101,
+      "base64": "CiAyNjVhN2YxYmRhODQ4ZjMyZWQxYjFmZDMzODM0ZjYxNRImEgIAPyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqGRoX6gEPCgskJAphbHBoYQokJCAE0gMCCAE=",
+      "message": {
+        "hash": "265a7f1bda848f32ed1b1fd33834f615",
+        "metadata": {
+          "delta_path": [
+            0,
+            63
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "$$\nalpha\n$$",
+              "element_type": "LATEX"
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 105,
+      "base64": "CiA2Yzk2MjVlMzljM2YzNmEwN2JjN2VkZWY3NmRhMzkxYxImEgIAQCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqHRob6gETCg1hbHBoYQoKICBiZXRhIAFAAeoDAggB",
+      "message": {
+        "hash": "6c9625e39c3f36a07bc7edef76da391c",
+        "metadata": {
+          "delta_path": [
+            0,
+            64
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "alpha\n\n  beta",
+              "element_type": "NATIVE",
+              "wrap": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 110,
+      "base64": "CiAzODE4ZjhlYjc5ODU2NjVjOGUxOGUwZmIzNjBmM2EwMRImEgIAQSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqIhog6gETCg1hbHBoYQoKICBiZXRhIAJAAdIDAggB6gMCCAE=",
+      "message": {
+        "hash": "3818f8eb7985665c8e18e0fb360f3a01",
+        "metadata": {
+          "delta_path": [
+            0,
+            65
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "alpha\n\n  beta",
+              "element_type": "CAPTION",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 107,
+      "base64": "CiA1YmEzMTc2MjYzYTRhNDViYmY3ZDAwNzkyNjNlMjBiNBImEgIAQiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqHxodChEKDWFscGhhCgogIGJldGEYAdIDAhAB6gMCCAE=",
+      "message": {
+        "hash": "5ba3176263a4a45bbf7d0079263e20b4",
+        "metadata": {
+          "delta_path": [
+            0,
+            66
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "alpha\n\n  beta",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 112,
+      "base64": "CiA1MTAzYzY3YzVlNGIxZWZjNzkzMTE3MzhmNzJkZDJmMBImEgIAQyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqJBoi+gIVCgJoMRoNYWxwaGEKCiAgYmV0YTgB0gMCCAHqAwIIAQ==",
+      "message": {
+        "hash": "5103c67c5e4b1efc79311738f72dd2f0",
+        "metadata": {
+          "delta_path": [
+            0,
+            67
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h1",
+              "body": "alpha\n\n  beta",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 112,
+      "base64": "CiBmMmQ4YTg2ZTk4NzM1ZDhlOWZkMzM1YzYzYWNhZDhjZRImEgIARCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqJBoi+gIVCgJoMhoNYWxwaGEKCiAgYmV0YTgB0gMCCAHqAwIIAQ==",
+      "message": {
+        "hash": "f2d8a86e98735d8e9fd335c63acad8ce",
+        "metadata": {
+          "delta_path": [
+            0,
+            68
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h2",
+              "body": "alpha\n\n  beta",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 112,
+      "base64": "CiBkNWNjZDU3NzhlMGIyMDNhNWU5MjFkNDkwYTMwMTY4YhImEgIARSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqJBoi+gIVCgJoMxoNYWxwaGEKCiAgYmV0YTgB0gMCCAHqAwIIAQ==",
+      "message": {
+        "hash": "d5ccd5778e0b203a5e921d490a30168b",
+        "metadata": {
+          "delta_path": [
+            0,
+            69
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h3",
+              "body": "alpha\n\n  beta",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 109,
+      "base64": "CiA3OGZhODU1ODg3Y2EyMDlkNjQ2MWY0MjQ1MTdlNWZlYhImEgIARiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqIRof6gEXChMkJAphbHBoYQoKICBiZXRhCiQkIATSAwIIAQ==",
+      "message": {
+        "hash": "78fa855887ca209d6461f424517e5feb",
+        "metadata": {
+          "delta_path": [
+            0,
+            70
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "$$\nalpha\n\n  beta\n$$",
+              "element_type": "LATEX"
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 90,
+      "base64": "CiA0NGMwZDhmMTQyOGM2MTQyN2JkZjdjMTBjZjQzOWUwZRImEgIARyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqDhoM6gEEIAFAAeoDAggB",
+      "message": {
+        "hash": "44c0d8f1428c61427bdf7c10cf439e0e",
+        "metadata": {
+          "delta_path": [
+            0,
+            71
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "element_type": "NATIVE",
+              "wrap": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 95,
+      "base64": "CiAwZmZhZjFhZTI3MzhhMGY1YmM4YmQyZGU3Y2I4OWY5ZRImEgIASCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqExoR6gEEIAJAAdIDAggB6gMCCAE=",
+      "message": {
+        "hash": "0ffaf1ae2738a0f5bc8bd2de7cb89f9e",
+        "metadata": {
+          "delta_path": [
+            0,
+            72
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "element_type": "CAPTION",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 92,
+      "base64": "CiBlMGZlYWY0ZThjOTA2YWM2YWVkNTE1ZjBjMjcyY2I5NRImEgIASSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqEBoOCgIYAdIDAhAB6gMCCAE=",
+      "message": {
+        "hash": "e0feaf4e8c906ac6aed515f0c272cb95",
+        "metadata": {
+          "delta_path": [
+            0,
+            73
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 97,
+      "base64": "CiA0OWNmZTM5OWJjM2UwMzFmMjBmYTUwOGE2NmJhYzNjMBImEgIASiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqFRoT+gIGCgJoMTgB0gMCCAHqAwIIAQ==",
+      "message": {
+        "hash": "49cfe399bc3e031f20fa508a66bac3c0",
+        "metadata": {
+          "delta_path": [
+            0,
+            74
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h1",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 97,
+      "base64": "CiA3MWQyM2FjNjJlOWM3MmRlYzU2ZWVhMDI5NTdlMDE2MhImEgIASyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqFRoT+gIGCgJoMjgB0gMCCAHqAwIIAQ==",
+      "message": {
+        "hash": "71d23ac62e9c72dec56eea02957e0162",
+        "metadata": {
+          "delta_path": [
+            0,
+            75
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h2",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 97,
+      "base64": "CiA5Y2FkMGFjMjdmODE2YzFmYjNlZWJkYTZjODg1OWU0MRImEgIATCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqFRoT+gIGCgJoMzgB0gMCCAHqAwIIAQ==",
+      "message": {
+        "hash": "9cad0ac27f816c1fb3eebda6c8859e41",
+        "metadata": {
+          "delta_path": [
+            0,
+            76
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h3",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 96,
+      "base64": "CiAyMWNiNjdjYzU4ZDFmZGViZGRjZTViNDk0OGZkOTE4NRImEgIATSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqFBoS6gEKCgYkJAoKJCQgBNIDAggB",
+      "message": {
+        "hash": "21cb67cc58d1fdebddce5b4948fd9185",
+        "metadata": {
+          "delta_path": [
+            0,
+            77
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "$$\n\n$$",
+              "element_type": "LATEX"
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 105,
+      "base64": "CiA4NTcwMGMwOTg3ZjQ4MzI3YTA2NzZkM2YxNGQ3ODkyMxImEgIATiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqHRob6gETCg3kuK3mlocKICDwn6eKIAFAAeoDAggB",
+      "message": {
+        "hash": "85700c0987f48327a0676d3f14d78923",
+        "metadata": {
+          "delta_path": [
+            0,
+            78
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "中文\n  🧊",
+              "element_type": "NATIVE",
+              "wrap": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 110,
+      "base64": "CiBjOTRkNDA4NWM3YWZkNGMxNjM3ZDhhNDE2ODc3YjMxMhImEgIATyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqIhog6gETCg3kuK3mlocKICDwn6eKIAJAAdIDAggB6gMCCAE=",
+      "message": {
+        "hash": "c94d4085c7afd4c1637d8a416877b312",
+        "metadata": {
+          "delta_path": [
+            0,
+            79
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "中文\n  🧊",
+              "element_type": "CAPTION",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 107,
+      "base64": "CiA4NTk1Y2ZmNzg3ZTg1YmE5NzQ1MGI2ZjdjMGNhNGUxNxImEgIAUCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqHxodChEKDeS4reaWhwogIPCfp4oYAdIDAhAB6gMCCAE=",
+      "message": {
+        "hash": "8595cff787e85ba97450b6f7c0ca4e17",
+        "metadata": {
+          "delta_path": [
+            0,
+            80
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "中文\n  🧊",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 112,
+      "base64": "CiBhMmNiYmNiOTA2YWZlYTJiYTY4ZTkyMjBjMWE3MmViYRImEgIAUSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqJBoi+gIVCgJoMRoN5Lit5paHCiAg8J+nijgB0gMCCAHqAwIIAQ==",
+      "message": {
+        "hash": "a2cbbcb906afea2ba68e9220c1a72eba",
+        "metadata": {
+          "delta_path": [
+            0,
+            81
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h1",
+              "body": "中文\n  🧊",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 112,
+      "base64": "CiAyZDUwZjkwNDMyYTAyMWI0OGYwMDY1NTM4OGYzM2RmYRImEgIAUiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqJBoi+gIVCgJoMhoN5Lit5paHCiAg8J+nijgB0gMCCAHqAwIIAQ==",
+      "message": {
+        "hash": "2d50f90432a021b48f00655388f33dfa",
+        "metadata": {
+          "delta_path": [
+            0,
+            82
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h2",
+              "body": "中文\n  🧊",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 112,
+      "base64": "CiAyMTYxOWQ5YjIyNWM4MWVjY2ZmZTQ3MjAwNTliMmIyNRImEgIAUyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqJBoi+gIVCgJoMxoN5Lit5paHCiAg8J+nijgB0gMCCAHqAwIIAQ==",
+      "message": {
+        "hash": "21619d9b225c81eccffe4720059b2b25",
+        "metadata": {
+          "delta_path": [
+            0,
+            83
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h3",
+              "body": "中文\n  🧊",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 109,
+      "base64": "CiA1ZmU5ZGFiMjQ4Y2VmYjU1OTRhY2YzZTZkMjUxNTJkZhImEgIAVCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqIRof6gEXChMkJArkuK3mlocKICDwn6eKCiQkIATSAwIIAQ==",
+      "message": {
+        "hash": "5fe9dab248cefb5594acf3e6d25152df",
+        "metadata": {
+          "delta_path": [
+            0,
+            84
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "$$\n中文\n  🧊\n$$",
+              "element_type": "LATEX"
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 19,
+      "base64": "Cg9zY3JpcHRfZmluaXNoZWQwAA==",
+      "message": {
+        "hash": "script_finished",
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    }
+  ],
+  "elements": [
+    {
+      "index": 0,
+      "kind": "json",
+      "fields": {
+        "body": "{\"normalization_cases\": [\"\\n    alpha\\n      beta\\n    gamma\\n\", \"\\talpha\\n    beta\", \" \\talpha\\n \\tbeta\", \"  alpha\\n \\tbeta\", \"  alpha\\n \\t \\n    beta\", \"\\n  alpha\\r\\n    beta\\r\\n\", \"  alpha\\r    beta\", \"\\u2003alpha\\n\\u2003beta\", \"\\u001calpha\\u001f\", \"  alpha\\n\\u00a0\\n    beta\", \" \\t\\n\\t  \", \"\\n  \\u4e2d\\u6587\\n    \\ud83e\\uddca\\n\"]}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        0
+      ]
+    },
+    {
+      "index": 1,
+      "kind": "markdown",
+      "fields": {
+        "body": "alpha\n  beta\ngamma",
+        "element_type": "NATIVE",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        1
+      ]
+    },
+    {
+      "index": 2,
+      "kind": "markdown",
+      "fields": {
+        "body": "alpha\n  beta\ngamma",
+        "element_type": "CAPTION",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        2
+      ]
+    },
+    {
+      "index": 3,
+      "kind": "text",
+      "fields": {
+        "body": "alpha\n  beta\ngamma",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        3
+      ]
+    },
+    {
+      "index": 4,
+      "kind": "heading",
+      "fields": {
+        "tag": "h1",
+        "body": "alpha\n  beta\ngamma",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        4
+      ]
+    },
+    {
+      "index": 5,
+      "kind": "heading",
+      "fields": {
+        "tag": "h2",
+        "body": "alpha\n  beta\ngamma",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        5
+      ]
+    },
+    {
+      "index": 6,
+      "kind": "heading",
+      "fields": {
+        "tag": "h3",
+        "body": "alpha\n  beta\ngamma",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        6
+      ]
+    },
+    {
+      "index": 7,
+      "kind": "markdown",
+      "fields": {
+        "body": "$$\nalpha\n  beta\ngamma\n$$",
+        "element_type": "LATEX"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        7
+      ]
+    },
+    {
+      "index": 8,
+      "kind": "markdown",
+      "fields": {
+        "body": "alpha\n    beta",
+        "element_type": "NATIVE",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        8
+      ]
+    },
+    {
+      "index": 9,
+      "kind": "markdown",
+      "fields": {
+        "body": "alpha\n    beta",
+        "element_type": "CAPTION",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        9
+      ]
+    },
+    {
+      "index": 10,
+      "kind": "text",
+      "fields": {
+        "body": "alpha\n    beta",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        10
+      ]
+    },
+    {
+      "index": 11,
+      "kind": "heading",
+      "fields": {
+        "tag": "h1",
+        "body": "alpha\n    beta",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        11
+      ]
+    },
+    {
+      "index": 12,
+      "kind": "heading",
+      "fields": {
+        "tag": "h2",
+        "body": "alpha\n    beta",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        12
+      ]
+    },
+    {
+      "index": 13,
+      "kind": "heading",
+      "fields": {
+        "tag": "h3",
+        "body": "alpha\n    beta",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        13
+      ]
+    },
+    {
+      "index": 14,
+      "kind": "markdown",
+      "fields": {
+        "body": "$$\nalpha\n    beta\n$$",
+        "element_type": "LATEX"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        14
+      ]
+    },
+    {
+      "index": 15,
+      "kind": "markdown",
+      "fields": {
+        "body": "alpha\nbeta",
+        "element_type": "NATIVE",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        15
+      ]
+    },
+    {
+      "index": 16,
+      "kind": "markdown",
+      "fields": {
+        "body": "alpha\nbeta",
+        "element_type": "CAPTION",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        16
+      ]
+    },
+    {
+      "index": 17,
+      "kind": "text",
+      "fields": {
+        "body": "alpha\nbeta",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        17
+      ]
+    },
+    {
+      "index": 18,
+      "kind": "heading",
+      "fields": {
+        "tag": "h1",
+        "body": "alpha\nbeta",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        18
+      ]
+    },
+    {
+      "index": 19,
+      "kind": "heading",
+      "fields": {
+        "tag": "h2",
+        "body": "alpha\nbeta",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        19
+      ]
+    },
+    {
+      "index": 20,
+      "kind": "heading",
+      "fields": {
+        "tag": "h3",
+        "body": "alpha\nbeta",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        20
+      ]
+    },
+    {
+      "index": 21,
+      "kind": "markdown",
+      "fields": {
+        "body": "$$\nalpha\nbeta\n$$",
+        "element_type": "LATEX"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        21
+      ]
+    },
+    {
+      "index": 22,
+      "kind": "markdown",
+      "fields": {
+        "body": "alpha\n\tbeta",
+        "element_type": "NATIVE",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        22
+      ]
+    },
+    {
+      "index": 23,
+      "kind": "markdown",
+      "fields": {
+        "body": "alpha\n\tbeta",
+        "element_type": "CAPTION",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        23
+      ]
+    },
+    {
+      "index": 24,
+      "kind": "text",
+      "fields": {
+        "body": "alpha\n\tbeta",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        24
+      ]
+    },
+    {
+      "index": 25,
+      "kind": "heading",
+      "fields": {
+        "tag": "h1",
+        "body": "alpha\n\tbeta",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        25
+      ]
+    },
+    {
+      "index": 26,
+      "kind": "heading",
+      "fields": {
+        "tag": "h2",
+        "body": "alpha\n\tbeta",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        26
+      ]
+    },
+    {
+      "index": 27,
+      "kind": "heading",
+      "fields": {
+        "tag": "h3",
+        "body": "alpha\n\tbeta",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        27
+      ]
+    },
+    {
+      "index": 28,
+      "kind": "markdown",
+      "fields": {
+        "body": "$$\nalpha\n\tbeta\n$$",
+        "element_type": "LATEX"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        28
+      ]
+    },
+    {
+      "index": 29,
+      "kind": "markdown",
+      "fields": {
+        "body": "alpha\n\n  beta",
+        "element_type": "NATIVE",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        29
+      ]
+    },
+    {
+      "index": 30,
+      "kind": "markdown",
+      "fields": {
+        "body": "alpha\n\n  beta",
+        "element_type": "CAPTION",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        30
+      ]
+    },
+    {
+      "index": 31,
+      "kind": "text",
+      "fields": {
+        "body": "alpha\n\n  beta",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        31
+      ]
+    },
+    {
+      "index": 32,
+      "kind": "heading",
+      "fields": {
+        "tag": "h1",
+        "body": "alpha\n\n  beta",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        32
+      ]
+    },
+    {
+      "index": 33,
+      "kind": "heading",
+      "fields": {
+        "tag": "h2",
+        "body": "alpha\n\n  beta",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        33
+      ]
+    },
+    {
+      "index": 34,
+      "kind": "heading",
+      "fields": {
+        "tag": "h3",
+        "body": "alpha\n\n  beta",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        34
+      ]
+    },
+    {
+      "index": 35,
+      "kind": "markdown",
+      "fields": {
+        "body": "$$\nalpha\n\n  beta\n$$",
+        "element_type": "LATEX"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        35
+      ]
+    },
+    {
+      "index": 36,
+      "kind": "markdown",
+      "fields": {
+        "body": "alpha\r\n  beta",
+        "element_type": "NATIVE",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        36
+      ]
+    },
+    {
+      "index": 37,
+      "kind": "markdown",
+      "fields": {
+        "body": "alpha\r\n  beta",
+        "element_type": "CAPTION",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        37
+      ]
+    },
+    {
+      "index": 38,
+      "kind": "text",
+      "fields": {
+        "body": "alpha\r\n  beta",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        38
+      ]
+    },
+    {
+      "index": 39,
+      "kind": "heading",
+      "fields": {
+        "tag": "h1",
+        "body": "alpha\r\n  beta",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        39
+      ]
+    },
+    {
+      "index": 40,
+      "kind": "heading",
+      "fields": {
+        "tag": "h2",
+        "body": "alpha\r\n  beta",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        40
+      ]
+    },
+    {
+      "index": 41,
+      "kind": "heading",
+      "fields": {
+        "tag": "h3",
+        "body": "alpha\r\n  beta",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        41
+      ]
+    },
+    {
+      "index": 42,
+      "kind": "markdown",
+      "fields": {
+        "body": "$$\nalpha\r\n  beta\n$$",
+        "element_type": "LATEX"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        42
+      ]
+    },
+    {
+      "index": 43,
+      "kind": "markdown",
+      "fields": {
+        "body": "alpha\r    beta",
+        "element_type": "NATIVE",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        43
+      ]
+    },
+    {
+      "index": 44,
+      "kind": "markdown",
+      "fields": {
+        "body": "alpha\r    beta",
+        "element_type": "CAPTION",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        44
+      ]
+    },
+    {
+      "index": 45,
+      "kind": "text",
+      "fields": {
+        "body": "alpha\r    beta",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        45
+      ]
+    },
+    {
+      "index": 46,
+      "kind": "heading",
+      "fields": {
+        "tag": "h1",
+        "body": "alpha\r    beta",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        46
+      ]
+    },
+    {
+      "index": 47,
+      "kind": "heading",
+      "fields": {
+        "tag": "h2",
+        "body": "alpha\r    beta",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        47
+      ]
+    },
+    {
+      "index": 48,
+      "kind": "heading",
+      "fields": {
+        "tag": "h3",
+        "body": "alpha\r    beta",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        48
+      ]
+    },
+    {
+      "index": 49,
+      "kind": "markdown",
+      "fields": {
+        "body": "$$\nalpha\r    beta\n$$",
+        "element_type": "LATEX"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        49
+      ]
+    },
+    {
+      "index": 50,
+      "kind": "markdown",
+      "fields": {
+        "body": "alpha\n beta",
+        "element_type": "NATIVE",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        50
+      ]
+    },
+    {
+      "index": 51,
+      "kind": "markdown",
+      "fields": {
+        "body": "alpha\n beta",
+        "element_type": "CAPTION",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        51
+      ]
+    },
+    {
+      "index": 52,
+      "kind": "text",
+      "fields": {
+        "body": "alpha\n beta",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        52
+      ]
+    },
+    {
+      "index": 53,
+      "kind": "heading",
+      "fields": {
+        "tag": "h1",
+        "body": "alpha\n beta",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        53
+      ]
+    },
+    {
+      "index": 54,
+      "kind": "heading",
+      "fields": {
+        "tag": "h2",
+        "body": "alpha\n beta",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        54
+      ]
+    },
+    {
+      "index": 55,
+      "kind": "heading",
+      "fields": {
+        "tag": "h3",
+        "body": "alpha\n beta",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        55
+      ]
+    },
+    {
+      "index": 56,
+      "kind": "markdown",
+      "fields": {
+        "body": "$$\nalpha\n beta\n$$",
+        "element_type": "LATEX"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        56
+      ]
+    },
+    {
+      "index": 57,
+      "kind": "markdown",
+      "fields": {
+        "body": "alpha",
+        "element_type": "NATIVE",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        57
+      ]
+    },
+    {
+      "index": 58,
+      "kind": "markdown",
+      "fields": {
+        "body": "alpha",
+        "element_type": "CAPTION",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        58
+      ]
+    },
+    {
+      "index": 59,
+      "kind": "text",
+      "fields": {
+        "body": "alpha",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        59
+      ]
+    },
+    {
+      "index": 60,
+      "kind": "heading",
+      "fields": {
+        "tag": "h1",
+        "body": "alpha",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        60
+      ]
+    },
+    {
+      "index": 61,
+      "kind": "heading",
+      "fields": {
+        "tag": "h2",
+        "body": "alpha",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        61
+      ]
+    },
+    {
+      "index": 62,
+      "kind": "heading",
+      "fields": {
+        "tag": "h3",
+        "body": "alpha",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        62
+      ]
+    },
+    {
+      "index": 63,
+      "kind": "markdown",
+      "fields": {
+        "body": "$$\nalpha\n$$",
+        "element_type": "LATEX"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        63
+      ]
+    },
+    {
+      "index": 64,
+      "kind": "markdown",
+      "fields": {
+        "body": "alpha\n\n  beta",
+        "element_type": "NATIVE",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        64
+      ]
+    },
+    {
+      "index": 65,
+      "kind": "markdown",
+      "fields": {
+        "body": "alpha\n\n  beta",
+        "element_type": "CAPTION",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        65
+      ]
+    },
+    {
+      "index": 66,
+      "kind": "text",
+      "fields": {
+        "body": "alpha\n\n  beta",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        66
+      ]
+    },
+    {
+      "index": 67,
+      "kind": "heading",
+      "fields": {
+        "tag": "h1",
+        "body": "alpha\n\n  beta",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        67
+      ]
+    },
+    {
+      "index": 68,
+      "kind": "heading",
+      "fields": {
+        "tag": "h2",
+        "body": "alpha\n\n  beta",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        68
+      ]
+    },
+    {
+      "index": 69,
+      "kind": "heading",
+      "fields": {
+        "tag": "h3",
+        "body": "alpha\n\n  beta",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        69
+      ]
+    },
+    {
+      "index": 70,
+      "kind": "markdown",
+      "fields": {
+        "body": "$$\nalpha\n\n  beta\n$$",
+        "element_type": "LATEX"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        70
+      ]
+    },
+    {
+      "index": 71,
+      "kind": "markdown",
+      "fields": {
+        "element_type": "NATIVE",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        71
+      ]
+    },
+    {
+      "index": 72,
+      "kind": "markdown",
+      "fields": {
+        "element_type": "CAPTION",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        72
+      ]
+    },
+    {
+      "index": 73,
+      "kind": "text",
+      "fields": {
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        73
+      ]
+    },
+    {
+      "index": 74,
+      "kind": "heading",
+      "fields": {
+        "tag": "h1",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        74
+      ]
+    },
+    {
+      "index": 75,
+      "kind": "heading",
+      "fields": {
+        "tag": "h2",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        75
+      ]
+    },
+    {
+      "index": 76,
+      "kind": "heading",
+      "fields": {
+        "tag": "h3",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        76
+      ]
+    },
+    {
+      "index": 77,
+      "kind": "markdown",
+      "fields": {
+        "body": "$$\n\n$$",
+        "element_type": "LATEX"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        77
+      ]
+    },
+    {
+      "index": 78,
+      "kind": "markdown",
+      "fields": {
+        "body": "中文\n  🧊",
+        "element_type": "NATIVE",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        78
+      ]
+    },
+    {
+      "index": 79,
+      "kind": "markdown",
+      "fields": {
+        "body": "中文\n  🧊",
+        "element_type": "CAPTION",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        79
+      ]
+    },
+    {
+      "index": 80,
+      "kind": "text",
+      "fields": {
+        "body": "中文\n  🧊",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        80
+      ]
+    },
+    {
+      "index": 81,
+      "kind": "heading",
+      "fields": {
+        "tag": "h1",
+        "body": "中文\n  🧊",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        81
+      ]
+    },
+    {
+      "index": 82,
+      "kind": "heading",
+      "fields": {
+        "tag": "h2",
+        "body": "中文\n  🧊",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        82
+      ]
+    },
+    {
+      "index": 83,
+      "kind": "heading",
+      "fields": {
+        "tag": "h3",
+        "body": "中文\n  🧊",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        83
+      ]
+    },
+    {
+      "index": 84,
+      "kind": "markdown",
+      "fields": {
+        "body": "$$\n中文\n  🧊\n$$",
+        "element_type": "LATEX"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        84
+      ]
+    }
+  ],
+  "finishes": [
+    0
+  ],
+  "health": {
+    "status": 200,
+    "body": "ok"
+  },
+  "cleanup": {
+    "websocket_closed": true
+  },
+  "successful": true
+}

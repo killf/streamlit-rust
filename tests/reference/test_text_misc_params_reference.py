@@ -310,3 +310,102 @@ def test_identity_ui_gate_rejects_wrong_observations(mutation):
     with pytest.raises(AssertionError):
         assert_identity_ui_steps(capture)
         assert_identity_images(capture, PYTHON / "identity-ui")
+
+
+NORMALIZATION_INPUTS = [
+    "\n    alpha\n      beta\n    gamma\n", "\talpha\n    beta", " \talpha\n \tbeta", "  alpha\n \tbeta",
+    "  alpha\n \t \n    beta", "\n  alpha\r\n    beta\r\n", "  alpha\r    beta", "\u2003alpha\n\u2003beta",
+    "\u001calpha\u001f", "  alpha\n\u00a0\n    beta", " \t\n\t  ", "\n  中文\n    🧊\n",
+]
+
+NORMALIZED_TEXT = [
+    "alpha\n  beta\ngamma", "alpha\n    beta", "alpha\nbeta", "alpha\n\tbeta",
+    "alpha\n\n  beta", "alpha\r\n  beta", "alpha\r    beta", "alpha\n\u2003beta",
+    "alpha", "alpha\n\n  beta", "", "中文\n  🧊",
+]
+
+
+def assert_normalized_payloads(capture):
+    assert_capture(capture)
+    payloads = full_elements(capture)
+    assert len(payloads) == 85
+    report = payloads[0][1]
+    assert payloads[0][0] == [0, 0] and set(report) == {"json", "width_config"}
+    assert report["width_config"] == {"use_stretch": True}
+    assert report["json"]["expanded"] is True
+    assert json.loads(report["json"]["body"])["normalization_cases"] == NORMALIZATION_INPUTS
+    for index, body in enumerate(NORMALIZED_TEXT):
+        for offset, kind in enumerate(("markdown", "caption", "text", "title", "header", "subheader", "latex")):
+            slot = 1 + index * 7 + offset
+            path, observed = payloads[slot]
+            fields = {"body": body} if body else {}
+            if kind in ("markdown", "caption", "latex"):
+                fields["element_type"] = {"markdown": "NATIVE", "caption": "CAPTION", "latex": "LATEX"}[kind]
+                if kind == "latex":
+                    fields["body"] = "$$\n" + body + "\n$$"
+                else:
+                    fields["wrap"] = True
+                expected = {"markdown": fields}
+            elif kind == "text":
+                fields["wrap"] = True
+                expected = {"text": fields}
+            else:
+                fields.update(tag={"title": "h1", "header": "h2", "subheader": "h3"}[kind], wrap=True)
+                expected = {"heading": fields}
+            if kind != "markdown":
+                expected["width_config"] = {"use_content" if kind == "text" else "use_stretch": True}
+            if kind != "latex":
+                expected["text_alignment_config"] = {"alignment": "LEFT"}
+            assert path == [0, slot]
+            assert observed == expected, (index, kind)
+
+
+def test_text_normalization_complete_wire_and_retained_failures():
+    python = read(PYTHON / "normalization-valid/trace.json")
+    rust = read(RUST / "normalization/trace.json")
+    before = read(RUST / "normalization-before/trace.json")
+    for runtime, capture in (("python", python), ("rust", rust), ("rust", before)):
+        assert_capture(capture)
+        assert capture["runtime"] == runtime and capture["reference_version"] == "1.66.1"
+        assert capture["scenario"] == "normalization" and capture["successful"]
+        assert "producer_error" not in capture
+    assert python["cleanup"] == {"websocket_closed": True, "server_stopped": True}
+    assert_normalized_payloads(python)
+    assert_normalized_payloads(rust)
+    assert full_elements(rust) == full_elements(python)
+    with pytest.raises(AssertionError):
+        assert_normalized_payloads(before)
+    assert len(full_elements(before)) == 85
+    assert sum(a != b for a, b in zip(full_elements(python), full_elements(before))) == 72
+    malformed = read(PYTHON / "normalization/trace.json")
+    assert_capture(malformed)
+    assert len(malformed["elements"]) == 79
+    assert malformed["elements"][-1]["kind"] == "exception"
+    assert malformed["elements"][-1]["fields"]["type"] == "UnicodeEncodeError"
+    assert malformed["cleanup"] == {"websocket_closed": True, "server_stopped": True}
+
+
+@pytest.mark.parametrize("mutation", ["mixed-indent", "crlf", "unicode", "latex-width", "latex-alignment"])
+def test_normalization_gate_rejects_coherent_wrong_wire(mutation):
+    capture = read(PYTHON / "normalization-valid/trace.json")
+    slot = {"mixed-indent": 8, "crlf": 36, "unicode": 50, "latex-width": 7, "latex-alignment": 7}[mutation]
+    frame = next(frame for frame in capture["frames"] if frame["message"].get("metadata", {}).get("delta_path") == [0, slot])
+    message = ForwardMsg()
+    message.ParseFromString(base64.b64decode(frame["base64"]))
+    element = message.delta.new_element
+    if mutation == "mixed-indent":
+        element.markdown.body = "alpha\n   beta"
+    elif mutation == "crlf":
+        element.markdown.body = element.markdown.body.replace("\r\n", "\n")
+    elif mutation == "unicode":
+        element.markdown.body = "alpha\nbeta"
+    elif mutation == "latex-width":
+        element.ClearField("width_config")
+    else:
+        element.text_alignment_config.alignment = 1
+    data = message.SerializeToString()
+    frame.update(base64=base64.b64encode(data).decode(), bytes=len(data), message=MessageToDict(message, preserving_proto_field_name=True))
+    capture["elements"][slot]["fields"] = MessageToDict(element.markdown, preserving_proto_field_name=True)
+    assert_capture(capture)
+    with pytest.raises(AssertionError):
+        assert_normalized_payloads(capture)

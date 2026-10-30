@@ -1942,7 +1942,10 @@ impl<C: AppendChild> StreamlitApi for C {
     fn latex(&self, formula: impl Into<String>) {
         // Measured (text-misc-params): the reference emits the display
         // formula as LATEX-typed markdown with wrap LEFT UNSET.
-        let element = MarkdownElement::new(format!("$$\n{}\n$$", formula.into())).element_type(MarkdownElementType::Latex).wrap(None);
+        let element = MarkdownElement::new(format!("$$\n{}\n$$", crate::utils::clean_text(&formula.into())))
+            .element_type(MarkdownElementType::Latex)
+            .wrap(None)
+            .width(ElementWidth::Stretch);
         self.push(Rc::new(RefCell::new(element)));
     }
 

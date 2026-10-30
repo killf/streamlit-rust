@@ -432,3 +432,12 @@ MarkdownOptions 的私有 width 改为 Option，默认省略 width_config，显�
 3. 暂缓外部非默认对齐，保留完整 Python 参考和未完成缺口。
 
 按 AGENTS.md 第 2 条，新增公共导出/方法需要用户决定。本批未修改 lib.rs；统一身份、JSON 与更广队列策略继续分别等待决定。
+
+
+### Shared text normalization on the pinned reference (2026-10-30)
+
+固定环境 Streamlit 1.66.1 / Python 3.14.7 的 clean_text 调用 textwrap.dedent(str(body)).strip()。该版本 dedent 按 LF 分行，将 Unicode 全空白行清为空行，只从非空白行计算空格/Tab 的共同前缀，保留正文 CR。Rust 旧 Markdown 按最小字节数去缩进并用 lines() 改写 CRLF；text 和标题未清理，LaTeX 未在添加 $$ 前清理公式。
+
+复用现有 utils/mod.rs 的 crate 私有 clean_text，Markdown/caption、text、三级标题与 LaTeX 共用。Unicode strip 补 U+001C–001F 与 Rust White_Space 的差别，缩进仅识别 ASCII 空格/Tab。未新增模块/依赖或公共接口，未改生产身份或队列策略。完整载荷比较另确认 LaTeX 宽度应 stretch、alignment 应省略，按该类型修正；未借此修改其他 Markdown 类型的默认配置。
+
+12 输入乘七类调用，加输入报告共 85 Element；修前 72 个完整载荷不同，修后完整 Element 和路径匹配。原始首份 Python normalization 因 fixture 把 surrogate JSON 转义当成 Python 字面量，在最后 Unicode 场景抛 UnicodeEncodeError；保留 79 元素/异常/正常 finish 原记录。采集器 successful 表示传输完成，不能代替语义验收。修正 fixture 后另存 normalization-valid，不覆盖失败；Rust before 和 fixed 各 85 元素。浏览器排版、非字符串转换和未测参数仍开放。

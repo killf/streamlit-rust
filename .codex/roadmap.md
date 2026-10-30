@@ -229,3 +229,6 @@ JSON 深度/宽度已补 18 组固定原生参考（9 成功、9 拒绝）；Jso
 
 
 2026-10-30 文本布局默认值：Markdown 默认/auto 省略 width_config，badge 默认省略 alignment；caption stretch 保持。完整 Python 17 场景与 Rust 可表达 13 场景分别保留，后者 14 个完整 Element/路径对齐；既有 identity 场景八处布局偏差消除。非默认 TextAlignment 外部导出等待选择，四个目标 hash 仍不变，未声称 UI 修复；全部兼容目标及 130 partial 分母保持。
+
+
+2026-10-30 文本规范化切片：七类公共调用的 12 输入共 85 个完整 Element/路径与固定 Python 3.14.7 参考匹配，修复混合缩进、Unicode 空白、CRLF 及 LaTeX 先清理后包裹；LaTeX 默认宽度/对齐存在性同步纠正。72 个修前偏差与首次 fixture UnicodeEncodeError 保留，UI/非字符串和其他参数未据此关闭，130 partial 及完整目标不变。

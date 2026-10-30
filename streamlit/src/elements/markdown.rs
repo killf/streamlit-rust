@@ -2,6 +2,7 @@ use crate::elements::common::*;
 use crate::error::StreamlitError;
 use crate::proto::streamlit::{TextAlignmentConfig, WidthConfig};
 use crate::proto::{Delta, delta, delta_base_with_path, element, forward_msg};
+use crate::utils::clean_text;
 use crate::utils::hash::hash;
 
 #[repr(i32)]
@@ -25,15 +26,6 @@ pub(crate) struct MarkdownElement {
     text_alignment: Option<TextAlignment>,
     unterminated_parsing: bool,
     wrap: Option<bool>,
-}
-
-/// The reference's clean_text: dedent the common leading whitespace, then
-/// strip.
-fn clean_text(body: &str) -> String {
-    let lines: Vec<&str> = body.lines().collect();
-    let margin = lines.iter().filter(|line| !line.trim().is_empty()).map(|line| line.len() - line.trim_start().len()).min().unwrap_or(0);
-    let dedented: Vec<String> = lines.iter().map(|line| line.get(margin..).unwrap_or("").to_string()).collect();
-    dedented.join("\n").trim().to_string()
 }
 
 impl MarkdownElement {
@@ -96,9 +88,12 @@ impl Element for MarkdownElement {
         let mut msg = delta_base_with_path(context.delta_path.clone(), context.active_script_hash.clone(), element_hash);
 
         let width_config: Option<WidthConfig> = self.width.clone().map(Into::into);
-        // The reference defaults text_alignment to left, and the config is
-        // always present on the wire.
-        let text_alignment_config: Option<TextAlignmentConfig> = Some(self.text_alignment.clone().map(Into::into).unwrap_or_else(|| TextAlignment::Left.into()));
+        // LaTeX 参考不发送对齐配置；其余既有路径保留默认 LEFT。
+        let text_alignment_config: Option<TextAlignmentConfig> = if matches!(self.element_type, MarkdownElementType::Latex) {
+            None
+        } else {
+            Some(self.text_alignment.clone().map(Into::into).unwrap_or_else(|| TextAlignment::Left.into()))
+        };
 
         msg.r#type = Some(forward_msg::Type::Delta(Delta {
             fragment_id: String::new(),

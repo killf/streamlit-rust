@@ -46,3 +46,24 @@ an external crate; full Rust layouts explicitly diagnoses that gap. Root enum
 export versus convenience methods awaits user decision in .codex/architecture.md.
 The full 17-case reference is not replaced by the supported subset. Raw-frame,
 summary, path, layout semantics and coherent wrong-wire guards are checked.
+
+
+## Text normalization (2026-10-30)
+
+Use --scenario normalization or ?case=normalization. normalization-valid is
+correct Python evidence: 12 string inputs across markdown/caption/text/three
+heading levels/latex plus the input JSON report, 85 complete Elements. Python
+3.14.7 dedent removes common ASCII space/tab prefixes, clears Unicode blank
+lines and retains interior CRLF. Rust normalization-before retains 72 differing
+payloads; Rust normalization matches all 85 full Elements and delta paths.
+LaTeX cleans the formula before display delimiters; width is stretch and its
+alignment config is absent. Unit and real WS tests check production behavior.
+
+The first Python normalization trace is retained as fixture-error evidence:
+a JSON surrogate pair was mistakenly pasted into a Python literal and caused
+UnicodeEncodeError in the last case (79 elements, including the exception).
+Its successful flag only records transport completion. The corrected fixture
+uses a Unicode scalar, and normalization-valid is a new capture, not an edited
+replacement. Five coherent wrong-wire guards reject mixed-indent, CRLF,
+Unicode stripping and LaTeX width/alignment damage. No new browser/UI or
+non-string conversion claim is made; other compatibility gaps remain open.

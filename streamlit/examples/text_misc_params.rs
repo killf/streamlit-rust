@@ -4,6 +4,36 @@
 use ::streamlit::*;
 use streamlit::StreamlitApi;
 
+fn render_normalization(st: &Streamlit) -> Result<(), Box<dyn std::error::Error>> {
+    let cases: Vec<String> = serde_json::from_str(
+        r#"[
+  "\n    alpha\n      beta\n    gamma\n",
+  "\talpha\n    beta",
+  " \talpha\n \tbeta",
+  "  alpha\n \tbeta",
+  "  alpha\n \t \n    beta",
+  "\n  alpha\r\n    beta\r\n",
+  "  alpha\r    beta",
+  "\u2003alpha\n\u2003beta",
+  "\u001calpha\u001f",
+  "  alpha\n\u00a0\n    beta",
+  " \t\n\t  ",
+  "\n  中文\n    🧊\n"
+]"#,
+    )?;
+    st.json(serde_json::json!({"normalization_cases": cases}));
+    for body in cases {
+        st.markdown(body.clone());
+        st.caption(body.clone());
+        st.text(body.clone());
+        st.title(body.clone());
+        st.header(body.clone());
+        st.sub_header(body.clone());
+        st.latex(body);
+    }
+    Ok(())
+}
+
 fn render_layouts(st: &Streamlit) -> Result<(), Box<dyn std::error::Error>> {
     let mut cases: Vec<serde_json::Value> = serde_json::from_str(
         r#"[
@@ -110,6 +140,13 @@ fn render_identity(st: &Streamlit) -> Result<(), Box<dyn std::error::Error>> {
 }
 
 fn render(st: &Streamlit) {
+    if st.query_params().get("case").as_deref() == Some("normalization") {
+        if let Err(error) = render_normalization(st) {
+            st.write(format!("Normalization error: {error}"));
+        }
+        return;
+    }
+
     if st.query_params().get("case").as_deref() == Some("layouts") {
         if let Err(error) = render_layouts(st) {
             st.write(format!("Layout error: {error}"));

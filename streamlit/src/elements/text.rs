@@ -8,6 +8,7 @@
 use crate::elements::common::*;
 use crate::error::StreamlitError;
 use crate::proto::{Delta, Empty, Html, IFrame, Snow, Text, delta, delta_base_with_path, element, forward_msg, i_frame};
+use crate::utils::clean_text;
 use crate::utils::hash::hash;
 
 pub(crate) struct TextElement {
@@ -18,7 +19,11 @@ pub(crate) struct TextElement {
 
 impl TextElement {
     pub fn new(body: String) -> Self {
-        Self { body, width: None, text_alignment: None }
+        Self {
+            body: clean_text(&body),
+            width: None,
+            text_alignment: None,
+        }
     }
 
     pub fn width(mut self, width: ElementWidth) -> Self {
