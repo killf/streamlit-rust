@@ -470,3 +470,12 @@ Python 1.66.1 divider 直接生成 MarkdownProto，只有 body 与 DIVIDER 类�
 验收按代码→单元→集成：非正输入不能占用 delta_path，完整错误类型/消息与 caller match；? 后输出及状态写入都不发生；显式捕获后正值、四轮原始协议/会话状态/恢复、默认与像素布局不回退；宏 unit 与 Result 外部消费者编译，旧 unit entry 不受影响；真实 UI 验证未捕获错误与恢复。再跑相关 Python/矩阵/文档及工作区，保留既有两项队列差异。统一身份、TextAlignment、JSON 和更广 rerun 保留策略不在本项内。
 
 按 AGENTS.md 第 2 条，公共接口和错误执行流程由用户决定。本批仅改诊断示例/fixture/采集器/证据门，未实施任何生产错误处理或宏/Entry 变更。
+
+
+### Actual browser text layout follow-up (2026-10-30)
+
+不依赖待决接口的真实 Chrome 验证补齐：复用现有 dividers 与 normalization 示例，两端各四个观察（divider、规范化页首、真实 End 到底部、Home 返回）。九个 divider/对照和 85 个规范化元素的内容、标题 tag/anchor、子组件结构、宽高及相对位置一致。普通 text 的 12 份 innerText 与规范化参考逐项相同，包含 CRLF/CR；标题中的单独 CR 会呈现软换行 alpha\nbeta，不应按首行猜测。默认/显式 stretch 与超大 divider 均 704px，传入 1px 实际被官方前端最小尺寸限制成 16px，240px 保留。没有为迎合参数名改写实测几何。
+
+原始视口分别 2560×1305/2560×1249，DPR=1；main clientWidth 的 2550/2560 差别对应横向原点 923/928。记录全部原值，只在内容比较中以首元素 x 为原点、底部 y 加实际 scrollTop；不宣称全屏像素相同。End 的最初 readback 在动画中（1111/158），最终分别到 max=6216/6272，Home 均到 0；没有重发 End。两端规范化页面各六条相同 KaTeX Unicode 告警，不隐藏、不当作一般 Unicode 数学支持已完成。Rust 首屏截图一次超时，只重取同 tab 截图，没有重放导航或键盘。
+
+八张 JPEG 与每端四个 DOM/几何/console 观察保留于 layout-ui。原始 WS 参考和旧失败未改；本批没有改生产代码、公共 API、错误流程、hash、宏或 Entry。其他视口/主题、错误 UI 与统一身份仍开放。

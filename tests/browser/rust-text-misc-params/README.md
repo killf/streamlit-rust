@@ -99,3 +99,26 @@ reject message/type/caught-result/recovery-counter corruption. This is retained
 failure evidence. Production validation/error handling is unchanged. Options
 in .codex/architecture.md cover Result-returning calls versus validated options,
 plus the actual fallible entry/macro dependency; user choice is pending.
+
+
+## Actual Chrome layout follow-up (2026-10-30)
+
+layout-ui/trace.json contains four Browser Use observations per runtime:
+dividers, normalization top, real End-to-bottom and Home-to-top. Nine divider
+and 85 normalization containers match in text, heading/child structure,
+width/height and relative positions. Eight JPEGs across both runtimes retain
+full divider context and normalization top/bottom. Plain-text CRLF/CR and
+Unicode/empty cases are checked; a standalone CR yields a heading soft break.
+
+Raw viewport heights (1305/1249 at width 2560) and x origins (923/928) are kept.
+Only content comparisons subtract the first container x and add bottom scroll;
+there is no identical-full-screen-pixel claim. Both render requested 1px at
+16px, 240px at 240px, and huge divider width at the 704px parent. End animation
+intermediates were observed; final scroll tops equal max and Home restores 0.
+
+Six matching KaTeX Unicode warnings are retained on both runtimes. No app
+exception occurred, but the console is not described as clean. Rust's first
+top screenshot timed out; only that screenshot was retried on the same tab.
+No input or navigation was replayed. Six guards reject wrong width/text/tag,
+scroll, console or image observations. This batch changes no production code;
+invalid-width/identity/API decisions and other themes/viewports remain open.

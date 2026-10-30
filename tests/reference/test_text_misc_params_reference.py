@@ -572,3 +572,103 @@ def test_divider_error_flow_gate_rejects_coherent_wrong_wire(mutation):
     assert_capture(capture, expected_finishes=(0, 0, 0, 0))
     with pytest.raises(AssertionError):
         assert_python_divider_error_flow(capture)
+
+
+
+def assert_text_layout_browser(capture, folder):
+    assert capture["successful"] and capture["reference_version"] == "1.66.1"
+    assert capture["capture_method"].startswith("Browser Use Chrome extension")
+    assert capture["cleanup"] == {"browser_tabs_closed": True, "server_stopped": True, "listener_absent": True}
+    observations = capture["observations"]
+    assert [step["scene"] for step in observations] == ["dividers", "normalization", "normalization-bottom", "normalization-restored"]
+    port = 18606 if capture["runtime"] == "python" else 8606
+    # Raw viewport heights and x origins are retained; content geometry is compared separately.
+    for step in observations:
+        case = "dividers" if step["scene"] == "dividers" else "normalization"
+        assert step["url"] == f"http://127.0.0.1:{port}/?case={case}"
+        assert step["page"]["exceptions"] == [] and step["dom"]
+        assert step["page"]["viewport"]["width"] == 2560 and step["page"]["viewport"]["dpr"] == 1
+    dividers = observations[0]["page"]["elements"]
+    assert len(dividers) == 9 and observations[0]["console"] == []
+    assert [element["rect"]["width"] for element in dividers] == [704, 704, 704, 16, 240, 704, 704, 704, 704]
+    for slot in range(1, 8):
+        assert dividers[slot]["text"] == ""
+        assert dividers[slot]["separators"] == [{"height": 1, "width": dividers[slot]["rect"]["width"]}]
+    assert dividers[8]["text"] == "𝑥\nx"
+    assert dividers[8]["separators"] == []
+    top = observations[1]["page"]["elements"]
+    assert len(top) == 85
+    assert [top[3 + index * 7]["text"] for index in range(12)] == NORMALIZED_TEXT
+    # 单独 CR 在标题内产生软换行，不能假设所有标题只含正文首行。
+    heading_texts = ["alpha"] * 6 + ["alpha\nbeta"] + ["alpha"] * 3 + ["", "中文"]
+    for index, heading_text in enumerate(heading_texts):
+        assert top[1 + index * 7]["children"] == ["stMarkdown", "stMarkdownContainer"]
+        assert top[2 + index * 7]["children"] == ["stMarkdown", "stCaptionContainer"]
+        assert top[3 + index * 7]["children"] == ["stText"]
+        for offset, tag in ((4, "H1"), (5, "H2"), (6, "H3")):
+            heading = top[offset + index * 7]["headings"]
+            assert len(heading) == 1 and heading[0]["tag"] == tag
+            assert heading[0]["text"] == heading_text
+    assert top[84]["text"] == "中文🧊\n中文🧊"
+    for step in observations[1:]:
+        assert len(step["console"]) == 6 and all(log["level"] == "warn" for log in step["console"])
+        assert [log["message"] for log in step["console"]] == [log["message"] for log in observations[1]["console"]]
+    assert "unknownSymbol" in observations[1]["console"][0]["message"]
+    assert "unicodeTextInMathMode" in observations[1]["console"][2]["message"]
+    assert capture["scroll"]["bottom"]["top"] == capture["scroll"]["bottom"]["max"] > 0
+    assert capture["scroll"]["restored"]["top"] == capture["scroll"]["restored_layout"]["scrollTop"] == 0
+    for stage, scroll in ((2, capture["scroll"]["bottom"]["top"]), (3, 0)):
+        assert len(observations[stage]["page"]["elements"]) == 85
+        for original, moved in zip(top, observations[stage]["page"]["elements"]):
+            assert original["text"] == moved["text"]
+            assert original["rect"]["y"] == moved["rect"]["y"] + scroll
+            assert original["rect"]["width"] == moved["rect"]["width"]
+            assert original["rect"]["height"] == moved["rect"]["height"]
+    assert len(capture["screenshots"]) == 4
+    assert {item["file"] for item in capture["screenshots"]} == {"dividers.jpg", "dividers-context.jpg", "normalization-top.jpg", "normalization-bottom.jpg"}
+    for item in capture["screenshots"]:
+        assert Path(item["file"]).name == item["file"]
+        data = (folder / item["file"]).read_bytes()
+        assert len(data) == item["bytes"] and hashlib.sha256(data).hexdigest() == item["sha256"]
+        with Image.open(folder / item["file"]) as image:
+            image.load()
+            assert image.format == "JPEG"
+            size = (item["clip"]["width"], item["clip"]["height"]) if item["clip"] else (2560, observations[0]["page"]["viewport"]["height"])
+            assert image.size == size
+
+
+def comparable_layout_browser_elements(capture, stage):
+    elements = capture["observations"][stage]["page"]["elements"]
+    origin = elements[0]["rect"]["x"]
+    scroll = capture["scroll"]["bottom"]["top"] if stage == 2 else 0
+    return [dict(element, rect=dict(element["rect"], x=element["rect"]["x"] - origin, y=element["rect"]["y"] + scroll)) for element in elements]
+
+
+def test_actual_browser_text_layout_and_scroll_match_reference():
+    folders = (PYTHON / "layout-ui", RUST / "layout-ui")
+    python, rust = [read(folder / "trace.json") for folder in folders]
+    for capture, folder in zip((python, rust), folders):
+        assert_text_layout_browser(capture, folder)
+    assert python["runtime"] == "python" and rust["runtime"] == "rust"
+    for stage in range(4):
+        assert comparable_layout_browser_elements(python, stage) == comparable_layout_browser_elements(rust, stage)
+    assert [log["message"] for log in python["observations"][1]["console"]] == [log["message"] for log in rust["observations"][1]["console"]]
+
+
+@pytest.mark.parametrize("mutation", ["width", "text", "heading", "scroll", "console", "image"])
+def test_layout_browser_gate_rejects_wrong_observations(mutation):
+    capture = read(PYTHON / "layout-ui/trace.json")
+    if mutation == "width":
+        capture["observations"][0]["page"]["elements"][4]["rect"]["width"] = 241
+    elif mutation == "text":
+        capture["observations"][1]["page"]["elements"][3]["text"] = "alpha beta gamma"
+    elif mutation == "heading":
+        capture["observations"][1]["page"]["elements"][4]["headings"][0]["tag"] = "H2"
+    elif mutation == "scroll":
+        capture["scroll"]["bottom"]["top"] -= 1
+    elif mutation == "console":
+        capture["observations"][1]["console"].pop()
+    else:
+        capture["screenshots"][0]["sha256"] = "0" * 64
+    with pytest.raises(AssertionError):
+        assert_text_layout_browser(capture, PYTHON / "layout-ui")

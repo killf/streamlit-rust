@@ -673,3 +673,16 @@ architecture 的 Pending unified NewElement identity decision 写出静态/原�
 源码调查确认只返回 render Err 会被 App::push 日志吞掉，而仅阻止后续输出不能保证用户代码中止；Entry Future<Output=()> 和 main 宏丢弃返回类型也是落地可捕获错误的真实依赖。architecture 的 Divider invalid-width error contract awaiting decision 提供 Result-returning calls（推荐）、受校验配置构造、暂缓三个选项，列出公共接口、Entry/宏、WS 异常边界、迁移文件及后续状态写入/真实 UI 验收。按 AGENTS.md 第 2 条等待用户选择，未实施这些生产变更；完整目标与 130 partial 不变，其他待决流程未推进。
 
 逐文件复查诊断 diff，两份正确/失败原始记录未修改；Rust server session 终止、采集器自有 Python 服务与连接关闭，8606/18606 无监听。本批未运行浏览器；colconfig_params 独立改动保留，只按已授权工作分支提交推送，不合并或发布。
+
+
+### Real Chrome text layout and scrolling validation (2026-10-30)
+
+使用 computer-use/Browser Use Chrome extension 操作既有 dividers、normalization 双端页面，每端四个实际观察：divider、规范化页首、End 到底部、Home 回页首。九个 divider/对照和 85 个规范化元素逐项比较内容、Markdown/caption/text 子组件、36 个标题 tag/id、元素宽高及相对位置；均匹配。12 个普通 text innerText 精确符合规范化参考（含 CRLF、CR、Unicode 与空输入），末尾中文/emoji 实际可见，LaTeX 呈现的文字保留原值。请求 1px 的 divider 两端均被前端限制为 16px，240 保持，超大宽度限制为父容器 704，未为符合参数名伪造像素。
+
+每端视口宽 2560、DPR=1，高度分别 1305/1249；main clientWidth 2550/2560 导致 x 原点 923/928 的变化。全部原值保留，内容比较只减首元素 x、给底部 y 加实际 scrollTop，不称全屏像素一致。End 最初读数仍在动画中（1111/158），后续最终分别为 max=6216/6272；Home 均恢复 0，宽高/内容/相对位置不变。没有重发滚动输入。保留八张 JPEG（每端 divider 全视口/上下文、规范化首/末屏），字节、SHA-256、解码格式和剪裁尺寸逐张检查。
+
+两端规范化页各六条相同 KaTeX Unicode warning，原始 message/timestamp/URL 保留；没有 stException，但不称控制台干净或一般 Unicode 数学支持通过。Rust 首屏截图第一次超时，已核对 Python 图成功写入而 Rust 图缺失，只重取同 tab 的 Rust 图，未重放导航/按键。初版证据门错误假定标题都取正文首行，实测单独 CR 产生 alpha\nbeta 的标题软换行；已按保留 DOM 修正规则，未改原始观察。
+
+本批只新增浏览器证据、强化现有 gate 并更新矩阵/文档，没有修改生产代码或示例。六项损坏观察 guard 拒绝错误宽度、纯文本、标题 tag、滚动、告警和图像哈希；相关 Python/矩阵/文档共 96 项通过（target/text-layout-ui-final-gates.log），其中 text/misc 门 44 项。未重复 Rust 库/工作区；此前 247 项属于上一生产批次且带两项队列排除，不作为本轮新结果。所有原始 WS 和旧失败材料保持，矩阵仍 130 partial。
+
+两个任务 tab 明确关闭，Python/Rust 自有 server session 均收到 Ctrl-C 并终止，结束时 8606/18606 无监听。其他视口/主题、一般渲染组合、未捕获错误 UI、统一身份和其余接口/流程决定继续开放。用户 colconfig_params 改动不纳入阶段提交；按既有授权提交推送工作分支，不合并或发布，完整目标继续。
