@@ -579,6 +579,8 @@ fn button_column_widgets(host: &impl AppendChild, configs: &crate::column_config
         let (id, _click, _set) = host
             .register_widget_parity(
                 crate::widgets::WidgetSpec {
+                    disabled: false,
+                    query: None,
                     kind: "dataframe_button",
                     key: key.as_deref(),
                     identity: "",
@@ -1180,6 +1182,8 @@ impl<C: AppendChild> DataApi for C {
             let (widget_id, value, set_value) = self
                 .register_widget_parity(
                     crate::widgets::WidgetSpec {
+                        disabled: false,
+                        query: None,
                         kind: "dataframe",
                         key: options.key.as_deref(),
                         identity: &identity,
@@ -1247,6 +1251,8 @@ impl<C: AppendChild> DataApi for C {
         } else {
             self.register_widget_parity(
                 crate::widgets::WidgetSpec {
+                    disabled: false,
+                    query: None,
                     kind: "data_editor",
                     key: options.key.as_deref(),
                     identity: "",

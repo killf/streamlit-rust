@@ -203,11 +203,43 @@ async fn navigation_pages_switch_and_session_state_match_the_measured_wire() -> 
                 other => panic!("unexpected lifecycle response: {other:?}"),
             }
         }
-        assert_eq!(
-            timeline_run3.join(" | "),
-            format!("new_session:{main_hash} | navigation:{main_hash} | markdown:page=main hits=2[0, 0] | button:Switch[0, 1] | page_info: | finished:2 | new_session:{two_hash} | navigation:{two_hash} | markdown:page=two[0, 0] | finished:0"),
-            "switch_page ends the run early and the server runs the target page with no browser request"
-        );
+        // 原始同步 WS 记录与旧浏览器调度窗口分别保留，不从 Rust 构造期望。
+        let reference: serde_json::Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/queryparams/navigation-rerun/trace.json"))?;
+        let mut request_count = 0;
+        let mut expected = Vec::new();
+        for frame in reference["frames"].as_array().ok_or("missing navigation reference frames")? {
+            let message = &frame["message"];
+            if message.get("rerun_script").is_some() {
+                request_count += 1;
+            }
+            if request_count != 2 {
+                continue;
+            }
+            if let Some(session) = message.get("new_session") {
+                expected.push(format!("new_session:{}", session["page_script_hash"].as_str().ok_or("missing page hash")?));
+            }
+            if let Some(nav) = message.get("navigation") {
+                expected.push(format!("navigation:{}", nav["page_script_hash"].as_str().ok_or("missing navigation hash")?));
+            }
+            if let Some(info) = message.get("page_info_changed") {
+                expected.push(format!("page_info:{}", info["query_string"].as_str().unwrap_or("")));
+            }
+            if let Some(markdown) = message["delta"]["new_element"].get("markdown") {
+                let path: Vec<u32> = serde_json::from_value(message["metadata"]["delta_path"].clone())?;
+                expected.push(format!("markdown:{}{path:?}", markdown["body"].as_str().ok_or("missing markdown")?));
+            }
+            if let Some(status) = message.get("script_finished") {
+                let status = match status.as_str() {
+                    Some("FINISHED_EARLY_FOR_RERUN") => 2,
+                    Some("FINISHED_SUCCESSFULLY") => 0,
+                    other => panic!("unexpected reference finish: {other:?}"),
+                };
+                expected.push(format!("finished:{status}"));
+            }
+        }
+        assert_eq!(request_count, 2);
+        assert_eq!(expected.len(), 7);
+        assert_eq!(timeline_run3, expected, "switch_page queue behavior follows the synchronous native reference");
     }
 
     drop(stream);

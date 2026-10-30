@@ -160,6 +160,8 @@ pub(crate) fn mount_component(host: &impl crate::api::AppendChild, component: &C
 
     let (id, state, _set) = host.register_widget_parity(
         crate::widgets::WidgetSpec {
+            disabled: false,
+            query: None,
             kind: "bidi_component",
             key,
             identity: "",
@@ -174,6 +176,8 @@ pub(crate) fn mount_component(host: &impl crate::api::AppendChild, component: &C
     let aggregator_id = format!("$$STREAMLIT_INTERNAL_KEY_{id}__events");
     let (_, fired, _aggregator_set) = host.register_widget_with_id_parity(
         crate::widgets::WidgetSpec {
+            disabled: false,
+            query: None,
             kind: "bidi_component_trigger",
             key: None,
             identity: "",

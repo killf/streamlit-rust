@@ -1,6 +1,6 @@
 # Roadmap
 
-本文记录已确认的长期目标、阶段依赖和当前停止位置。用户于 2026-10-27 确认建立长期 Goal 并从 M0 持续执行，随后更新授权为及时提交、推送已验收批次；允许本地实现、验证和按需组队，不发布或部署。主分支更新仍经 PR/MR；创建 PR/MR 和合并分别核对本轮授权。
+本文记录已确认的长期目标、阶段依赖和当前停止位置。2026-10-29 用户选择完整兼容优先路线并要求执行：先校准剩余范围，再完成 M3、M5 与 M7，停止于本地可审查、可分发成果。本轮执行包括本地代码、文档和相关验证；2026-10-30 用户追加“实现这个目标，记得定期提交并推送代码”，已授权当前工作分支的阶段提交和推送。PR/MR、合并、发布和部署仍需另行授权。默认单代理，新增并行或独立审查安排先确认。
 
 功能证据仍由[兼容性矩阵](../compatibility/api-compatibility-matrix.json)维护，原有应用旅程由[journey 清单](../tests/journeys/journeys.json)维护。这里不另建逐项通过记录；验收要求见 [acceptance](acceptance.md)，能力边界见 [compatibility](compatibility.md)。
 
@@ -13,6 +13,20 @@
 最终完成要求覆盖功能、行为、用户体验、架构与资源生命周期、Rust API 易用性、测试可信度、性能报告、文档、工程检查、独立 Review 和本地分发。关键行为、公共接口、依赖、架构取舍或验收变化提交用户决定；普通实现细节自主处理。上游版本升级作为后续独立决定，不移动本目标的基线。
 
 ## Current focus
+
+2026-10-29 本轮首先校准剩余能力和证据。未验证参数、外部来源、真实提供方及系统选择器等条件受限项继续开放，不通过接受已知限制、修改统计口径或缩小适用范围关闭长期目标。先前等待的“将外部/headless 项定为已确认限制”不再是推荐执行路径。历史已验收批次继续保留；本轮验证以当前环境与实际输出为准，历史 `target/` 日志不视为当前可用证据。
+
+本轮已校正八项能力的过时描述并加强原始帧证据门；metric 字符串 delta 切片真实复现 30/36 差异，修复后 36/36 原生 WS 字段一致，旧失败与固定参考均保留。M3/M5/M7 继续开放；下一步继续参数链证据核对和剩余功能，不能把本切片的 WS 结果当成全前端或全部 metric 选项验收。
+
+查询参数值与写入顺序切片已补真实 WS 参考：八阶段状态与七次 URL 写入验证重复键末值、全部值顺序、空列表存在性、替换/追加、删除/清空/恢复。修复取首值、字母排序及空列表删除失败；原浏览器链继续保留，保留键/绑定规则及当前浏览器 URL 往返仍开放。
+
+查询参数保留键切片进一步补齐大小写无关的 embed/embed_options 隐藏、拒绝修改/删除且不发 URL、公开 clear 保留原值，以及空键/st_embed 普通键行为（九份 JSON、四次 URL 写入）。原始运行重置逻辑未改；绑定规则、错误 UI 和当前浏览器行为继续开放。
+
+绑定生命周期切片已通过四轮真实 WS 对照（18 份 JSON、5 次 URL）：selectbox 与侧栏 text_input 注册后拒绝直接修改，条件隐藏仍保护到运行结束，统一清理失效 URL，下一轮解除保护。追踪复用 WidgetRegistry，无新公共接口；活跃轮显式同时提供 URL 与 widget states，不证明仅 URL 初始化、重挂载/跨页恢复或浏览器往返，M3 继续开放。
+
+URL 初始化后续切片补八轮原生 WS：四类控件的 URL-only 值、前端/代码优先级、无效/默认/空值校正与历史导航恢复；32 次 value/set_value、8 份状态和 9 次 URL 顺序对照通过。重挂载/跨页、禁用/伪造输入、callback、绑定服务端重跑及真实浏览器操作继续待验，M3/M5/M7 不关闭。
+
+同批补两轮独立 seed-code 参考，确认有效 URL 初始化/历史值覆盖错误类型代码状态；修复不应解析的旧值抢先报错。最终工作区 219 项与相关 Python 门 82 项通过；此结果只关闭已列输入边界，不把 130 项 partial 或长期目标改为完成。
 
 **长期 M2、M6、M4 均已于 2026-10-28 关闭（各有保留证据与关闭记录）；M5 已交付稳定性三场景批次（保持开放），M3 参数面多切片收敛中；M7 全量验收已启动（首个跨能力组合差分 + 文档核验门 + 独立 Review 有保留通过并补齐阻塞项）。** M0 起点为 `99b1ed8e4b35737c9495764fb70269271a10bada`，开始时工作区干净。已建立官方文档能力与缺口清单、复核不适用项并刷新 Rust/Python 验证及性能基线；这不代表全功能或所有参数、教程 FAQ 的验收结束。已校验的 wheel 仅固定参考环境，不能代替官方用户文档的功能范围。
 
@@ -113,9 +127,9 @@ M6 已于 2026-10-28 关闭：除包验证外，退出条件『干净环境可�
 
 ## Team and integration
 
-峰值最多四个代理，包含主代理。主代理负责关键路径、共享接口、唯一共享文件写入和最终验收；独立能力按需并行，紧密耦合逻辑归同一代理。参考测量先于兼容实现，稳定交付交给只读 Reviewer 审查。
+本轮默认单代理，负责关键路径、接口和最终验收。需要并行或独立只读 Reviewer 时，先确认具体分工；最终 M7 的独立审查要求仍保留。参考测量先于兼容实现，紧密耦合逻辑由同一执行者负责。
 
-模型池沿用已批准配置：复杂核心和参考协议使用 Sol/high，普通实现 Sol/medium 或 high，界面和文档 Terra/medium，明确检索 Luna/medium，独立 Reviewer Sol/high。主代理模型由客户端控制，无法核验时报告，不宣称配置已生效。不使用固定满编团队，也不允许子代理继续委派。
+主代理模型由客户端控制，不宣称历史模型池或并发配置在本轮生效。后续团队安排只使用届时明确批准且实际可用的配置。
 
 ## Historical P0 terminal goal
 
@@ -162,3 +176,35 @@ Compatibility is only established by black-box evidence against the pinned refer
 - Milestone close runs the quality pass: the clippy/fmt gates, an example build, a documentation accuracy check of everything the milestone touched, and a cleanup sweep for retired code, tests and docs.
 - Milestone close distills process lessons into [lessons](lessons.md) and prunes entries that no longer change how we work; recurring friction is promoted to a lesson the moment it is paid for twice.
 - Each milestone close updates this file's focus pointer and commits together with its evidence.
+
+### Disabled input and callback compatibility slice
+
+2026-10-30 用户选择保留 Python 错误、已执行 callback 和后续恢复。两份不可覆盖的 1.66.1 原生 WS 记录位于 `tests/reference/reference-browser/queryparams/disabled-valid/trace.json` 与 `disabled/trace.json`，各九轮。前者 58 个交错事件（44 个控件同步投影、9 份状态、5 次 URL）；后者 52 个（40 个投影、8 份状态、3 次 URL、1 个 TypeError）。错误轮只有 Plain 发出后 selectbox 报错，同批 Live callback 已发生，下一轮仍能回调并恢复。
+
+WidgetSpec/Record 内部保存 disabled，callback 按上一轮元数据处理，当前禁用注册恢复输入前值；代码赋值和 URL 优先级保留。已测 bool oneof 提交给禁用普通 selectbox 时延迟到注册呈现 TypeError，并保留未渲染控件，避免错误轮清理破坏下一轮恢复。无新增公共接口或依赖。错误比较覆盖类型、消息、出现位置与标志；Python 来源栈帧单独保留，Rust 不伪造。其他错误类型/控件、跨页、绑定服务端重跑和真实浏览器错误界面继续开放，M3/M5/M7 未关闭。
+
+本切片最终工作区 223 项、相关 Python/矩阵/文档门 103 项通过；详细验收与局限见 acceptance 的 Disabled widget inputs 条目。下一步继续补齐绑定控件服务端重跑、跨页与真实浏览器行为，不将 native WS 等同于完整 UI 验收。
+
+
+绑定控件服务端重跑切片新增五请求十轮的固定原生 WS 参考（47 个交错事件），复现旧轮多发 Delta、未渲染控件过早清理、前端优先级丢失、代码同步标志丢失及静默 URL 折叠影响内层初值。用户已选仅丢弃未发送 Delta 的发送流程；修复继续保持流式和已发送帧。真实浏览器、callback 内 rerun、fragment 和跨页组合仍待补证，长期目标不缩减。
+
+
+发送队列扩展发现未发送 Navigation/PageConfig 也需清理、toast Delta 必须保留。新增原生参考和 red 回归保留；完整保留表的流程选择已请求用户决定，当前仅获准的 Delta-only 实现未擅自扩展。工作区首次本批回归为库 219 通过、1 导航失败，不能报告全绿；控件单元 14、查询核心差分及执行测试已有通过。后续消息参考与测试加入后需重新完成代码/单元/集成/工作区验证。长期目标继续开放。
+
+
+队列扩展待选择期间，独立头像/JSON 切片补 28 组固定字符串输入与 57 个 WS 投影：默认名字、预设别名、emoji、图片 URI 编码已对照；并修复非 BMP JSON 转义与 JSON 默认展开。无新增接口/依赖。完整浏览器图片显示、图片加载与异常、JSON 整数展开深度等继续开放；“没有 depth= 参数”不代表没有 expanded=int 能力，旧说明已校正。整体目标和队列待决项未缩减。
+
+头像/JSON 切片：57 个 WS 投影一致；相关单元/集成和 Python 门通过。工作区其余 229 项通过，明确排除两个待选择队列规则的 red 回归，不能称完整工作区全绿；详见 acceptance。队列流程未在本批越过用户待决项。
+
+
+JSON 字符串切片补 36 个固定原生 WS 元素，修复顶层字符串重复编码，保留非字符串序列化；JSON 旧参考比较也补原始 protobuf 绑定与七项损坏 guard。字段、路径与展开标志已对照；前端错误 UI、整数展开深度、自定义序列化失败及队列待决项仍未关闭。
+
+JSON 字符串切片最终 36 个 WS 元素一致；工作区其余 231 项通过（精确排除两个队列待决回归），相关 Python/矩阵/文档门 118 项通过。完整浏览器/整数深度/错误与剩余参数仍开放，队列扩展选择未被后续独立工作替代。
+
+
+JSON 已补真实 Chrome 证据：每端 22 个状态覆盖 15 种字符串显示和两个实际折叠/展开/折叠往返，语义投影全部一致，截图/DOM/console 原样保留。示例先做完整 36 元素原生 WS 预检。该结果只补已测 UI 子能力，不等于全部 JSON、所有浏览器或长期目标完成；队列待决与 M3/M5/M7 保持开放。
+
+本次 JSON Chrome 补证：示例 Clippy/构建、36 原生 Element 预检与 22 对浏览器状态通过；相关 Python/矩阵/文档门 129 项通过，服务与标签页已关闭。控制台真实上游错误日志保留，不宣称零错误或完整 JSON/全部旅程通过。
+
+
+JSON 深度/宽度已补 18 组固定原生参考（9 成功、9 拒绝）；JsonOptions/json_options 等三种公共接口方案等待用户决定，尚未实施。独立 logo 切片复现并修复 9/18 双图载荷差异，字符数启发式改为复用现有 Unicode emoji 数据。两项不改变队列待决状态，也不关闭完整 JSON/logo 或长期目标。

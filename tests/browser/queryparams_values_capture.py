@@ -1,0 +1,201 @@
+"""Capture query parameter values/mutations once over a real native WS.
+
+Uses only synthetic URL values. Retains raw protobuf and never overwrites an
+existing capture; no DOM or browser-interaction claim.
+"""
+import argparse
+import base64
+from datetime import datetime, timezone
+import importlib.metadata
+import json
+from pathlib import Path
+import socket
+import subprocess
+import sys
+import time
+import urllib.request
+
+from google.protobuf.json_format import MessageToDict
+from streamlit.proto.BackMsg_pb2 import BackMsg
+from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
+from websockets.sync.client import connect
+
+ROOT = Path(__file__).resolve().parents[2]
+QUERY = "z=last&tag=first&tag=second&a=first&blank=&encoded=%E4%B8%AD%E6%96%87+text"
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument("--out", type=Path, required=True)
+parser.add_argument("--scenario", choices=("values", "reserved", "binding", "seed", "seed-code", "disabled", "disabled-valid", "rerun", "navigation-rerun", "rerun-messages", "rerun-queue"), default="values")
+args = parser.parse_args()
+if args.scenario == "reserved":
+    QUERY = "case=reserved&embed=true&EMBED_OPTIONS=light_theme&st_embed=ordinary&=empty-key-value"
+elif args.scenario == "binding":
+    QUERY = "case=binding&phase=load"
+elif args.scenario == "seed":
+    QUERY = "case=seed&phase=initial&bound=y&text=hello&optional=y&creation=new"
+elif args.scenario == "seed-code":
+    QUERY = "case=seed&phase=bad-initial&bound=y&text=hello&optional=y&creation=new"
+if args.scenario in ("disabled", "disabled-valid"):
+    QUERY = "case=disabled&phase=load&bound=y&text=url"
+if args.scenario == "rerun":
+    QUERY = "case=rerun&phase=load&bound=y&text=url"
+if args.scenario == "rerun-queue":
+    QUERY = "case=queue&phase=warm"
+if args.scenario == "rerun-messages":
+    QUERY = "case=rerun&phase=messages&bound=y&text=url"
+if args.scenario == "navigation-rerun":
+    QUERY = "probe=load"
+assert importlib.metadata.version("streamlit") == "1.66.1"
+args.out.mkdir(parents=True, exist_ok=True)
+trace_path = args.out / "trace.json"
+assert not trace_path.exists(), "retain the original capture"
+with socket.socket() as listener:
+    listener.bind(("127.0.0.1", 0))
+    port = listener.getsockname()[1]
+url = f"http://127.0.0.1:{port}"
+fixture = "navigation_app.py" if args.scenario == "navigation-rerun" else "queryparams_values_app.py"
+command = [sys.executable, "-B", "-m", "streamlit", "run", str(ROOT / "tests/reference" / fixture),
+           "--server.address=127.0.0.1", f"--server.port={port}", "--server.headless=true",
+           "--server.fileWatcherType=none", "--browser.gatherUsageStats=false"]
+trace = {"schema_version": 1, "runtime": "python", "reference_version": "1.66.1",
+         "captured_at_utc": datetime.now(timezone.utc).isoformat(), "query_string": QUERY,
+         "scenario": args.scenario,
+         "server_command": command, "scope": "Native WS query multimap and mutation behavior; no browser claim.",
+         "frames": [], "cleanup": {}}
+server = None
+
+
+def record(direction, raw, message):
+    trace["frames"].append({"direction": direction, "bytes": len(raw),
+                            "base64": base64.b64encode(raw).decode(),
+                            "message": MessageToDict(message, preserving_proto_field_name=True)})
+
+
+try:
+    with (args.out / "server.log").open("w", encoding="utf-8") as log:
+        server = subprocess.Popen(command, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT,
+                                  creationflags=subprocess.CREATE_NO_WINDOW)
+    deadline = time.monotonic() + 25
+    while True:
+        try:
+            with urllib.request.urlopen(url + "/_stcore/health", timeout=1) as response:
+                assert response.status == 200
+            break
+        except OSError:
+            if time.monotonic() >= deadline or server.poll() is not None:
+                raise RuntimeError("reference server unavailable")
+            time.sleep(0.1)
+    with connect(url.replace("http", "ws") + "/_stcore/stream", origin=url, subprotocols=["streamlit"],
+                 proxy=None, open_timeout=10, close_timeout=5, max_size=None, legacy=True) as ws:
+        queries = [QUERY]
+        if args.scenario == "binding":
+            queries = ["case=binding&phase=load", "case=binding&phase=active&bound=y&text=hello",
+                       "case=binding&phase=hidden&bound=y&text=hello&BOUND=case-sensitive",
+                       "case=binding&phase=released&BOUND=case-sensitive"]
+        if args.scenario == "seed":
+            queries = [QUERY,
+                       "case=seed&phase=frontend&bound=y&text=ignored&optional=y&creation=url",
+                       "case=seed&phase=again&bound=y&text=fresh&optional=y&creation=another",
+                       "case=seed&phase=invalid&bound=unknown&text=base&optional=unknown&creation=x",
+                       "case=seed&phase=empty&bound=&text=&optional=&creation=",
+                       "case=seed&phase=assign&bound=y&text=url&optional=y&creation=url",
+                       "case=seed&phase=history&bound=y&text=url-history&optional=y&creation=history",
+                       "case=seed&phase=history-missing"]
+        if args.scenario == "seed-code":
+            queries = [QUERY, "case=seed&phase=bad-history&bound=y&text=code-history&optional=y&creation=new-history"]
+        if args.scenario in ("disabled", "disabled-valid"):
+            queries = [f"case=disabled&phase={phase}" + suffix for phase, suffix in [
+                ("load", "&bound=y&text=url"), ("forge", "&bound=y&text=url"),
+                ("invalid-url" if args.scenario == "disabled-valid" else "malformed", "&bound=unknown&text=base"), ("code", ""),
+                ("hidden", "&bound=y&text=url"), ("remount", "&bound=y&text=url"),
+                ("enabled", "&bound=y&text=url"), ("interactive", "&bound=y&text=url"),
+                ("redisable", "&bound=unknown&text=base")]]
+        if args.scenario == "rerun":
+            queries = [QUERY, "case=rerun&phase=frontend&bound=y&text=ignored",
+                       "case=rerun&phase=early&bound=y&text=fresh",
+                       "case=rerun&phase=assign&bound=y&text=url", "case=rerun&phase=history"]
+        if args.scenario == "navigation-rerun":
+            queries = [QUERY, "probe=switch"]
+        if args.scenario == "rerun-queue":
+            queries = [QUERY, "case=queue&phase=queue"]
+        widget_ids = {}
+        main_page_hash = None
+        for index, query in enumerate(queries):
+            request = BackMsg()
+            request.rerun_script.query_string = query
+            if args.scenario == "binding" and index == 1:
+                for key, value in (("bound", "y"), ("text", "hello")):
+                    widget = request.rerun_script.widget_states.widgets.add()
+                    widget.id = widget_ids[key]
+                    widget.string_value = value
+            if args.scenario == "seed":
+                request.rerun_script.is_history_navigation = index >= 6
+                if index in (1, 6):
+                    for key, value in (("bound", "x"), ("text", "edited"), ("optional", "x"), ("creation", "typed")):
+                        widget = request.rerun_script.widget_states.widgets.add()
+                        widget.id = widget_ids[key]
+                        widget.string_value = value
+            if args.scenario == "seed-code":
+                request.rerun_script.is_history_navigation = index == 1
+            if args.scenario in ("disabled", "disabled-valid") and index > 0:
+                phase = query.split("phase=")[1].split("&")[0]
+                updates = {"plain": "forged", "bound": "x", "text": "forged", "check": True, "live": ["ready", "one", "two", "three", "four", "five", "six", "seven", "eight"][index]}
+                if phase == "malformed":
+                    updates.update(plain=True, bound=True, text=True, check="invalid")
+                if phase in ("hidden", "remount"):
+                    updates = {"plain": "forged-remount", "live": updates["live"]}
+                if phase in ("enabled", "interactive"):
+                    updates.update(plain="edited" if index == 6 else "edited2", bound="x" if index == 6 else "y", text="edited" if index == 6 else "edited2", check=index == 7)
+                if phase in ("code", "redisable"):
+                    updates["check"] = False
+                for key, value in updates.items():
+                    widget = request.rerun_script.widget_states.widgets.add()
+                    widget.id = widget_ids[key]
+                    if isinstance(value, bool):
+                        widget.bool_value = value
+                    else:
+                        widget.string_value = value
+            if args.scenario == "rerun":
+                request.rerun_script.is_history_navigation = index == 4
+                if index == 1:
+                    for key, value in (("bound", "x"), ("text", "edited")):
+                        widget = request.rerun_script.widget_states.widgets.add()
+                        widget.id = widget_ids[key]
+                        widget.string_value = value
+            if args.scenario == "navigation-rerun" and index == 1:
+                assert main_page_hash
+                request.rerun_script.page_script_hash = main_page_hash
+                widget = request.rerun_script.widget_states.widgets.add()
+                widget.id = widget_ids["None"]
+                widget.trigger_value = True
+            raw = request.SerializeToString()
+            record("client->server", raw, request)
+            ws.send(raw)
+            while True:
+                raw = ws.recv(timeout=20)
+                message = ForwardMsg()
+                message.ParseFromString(raw)
+                record("server->client", raw, message)
+                if message.WhichOneof("type") == "navigation" and main_page_hash is None:
+                    main_page_hash = message.navigation.page_script_hash
+                if message.WhichOneof("type") == "delta" and message.delta.WhichOneof("type") == "new_element":
+                    element = message.delta.new_element
+                    if element.WhichOneof("type") in ("selectbox", "text_input", "checkbox", "button"):
+                        widget = getattr(element, element.WhichOneof("type"))
+                        key = getattr(widget, "query_param_key", "") or widget.id.rsplit("-", 1)[-1]
+                        widget_ids[key] = widget.id
+                if message.WhichOneof("type") == "script_finished":
+                    if args.scenario in ("rerun", "navigation-rerun", "rerun-messages", "rerun-queue") and message.script_finished == 2:
+                        continue
+                    assert message.script_finished == 0
+                    break
+    trace["cleanup"]["websocket_closed"] = True
+    trace["successful"] = True
+except Exception as error:
+    trace["producer_error"] = f"{type(error).__name__}: {error}"
+    raise
+finally:
+    if server is not None:
+        server.terminate()
+        server.wait(timeout=10)
+        trace["cleanup"]["server_stopped"] = server.poll() is not None
+    trace_path.write_text(json.dumps(trace, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

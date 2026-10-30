@@ -7,7 +7,7 @@ use actix_ws::{MessageStream, Session};
 use futures_util::StreamExt;
 use prost::Message;
 
-async fn do_rerun_script(session: &mut Session, lease: &SessionLease, server: &StreamlitServer, widget_states: Vec<WidgetState>, query_string: String, page_hash: String) -> Result<(), StreamlitError> {
+async fn do_rerun_script(session: &mut Session, lease: &SessionLease, server: &StreamlitServer, widget_states: Vec<WidgetState>, query_string: String, page_hash: String, history_navigation: bool) -> Result<(), StreamlitError> {
     // Serialise runs even if a replacement connection arrives while its
     // predecessor is finishing.
     let _run = lease.run.lock().await;
@@ -27,11 +27,21 @@ async fn do_rerun_script(session: &mut Session, lease: &SessionLease, server: &S
     let mut incoming_page = if page_hash.is_empty() { None } else { Some(page_hash) };
     loop {
         let started = std::time::Instant::now();
-        let callbacks = lease.state.begin_widgets(incoming.take().unwrap_or_default());
+        // 1. 新请求应用前端输入；服务端内层重跑延续状态，不重复回调。
+        let callbacks = if let Some(incoming) = incoming.take() {
+            lease.state.begin_widgets(incoming)
+        } else {
+            lease.state.continue_widgets();
+            Vec::new()
+        };
         lease.state.reset_run_control();
-        // 只有新浏览器请求提供 URL 初值；服务端重跑保留本轮写入。
+        // 2. 服务端重跑取最近一次公布的 URL，静默默认值折叠不替换该快照。
         if let Some(query_string) = incoming_query_string.take() {
-            lease.state.query_params.lock().load(&query_string);
+            let mut query = lease.state.query_params.lock();
+            query.load(&query_string);
+            query.history_navigation = history_navigation;
+        } else {
+            lease.state.query_params.lock().begin_internal_run();
         }
         lease.state.navigation.lock().incoming_page_hash = incoming_page.clone();
         let st = Streamlit::with_session_state(lease.state.clone());
@@ -68,6 +78,7 @@ async fn do_rerun_script(session: &mut Session, lease: &SessionLease, server: &S
             }
             server.entry.call(&st).await;
             state.finish_widgets();
+            crate::query_params::flush_query_update(&mut st.app.lock());
             // 执行完毕后发送 script_finished。测量到的 1.66.1 wire：
             // st.rerun() 中止的 run 以 FINISHED_EARLY_FOR_RERUN 结束，
             // st.stop() 与正常结束都以 FINISHED_SUCCESSFULLY 结束。
@@ -89,6 +100,11 @@ async fn do_rerun_script(session: &mut Session, lease: &SessionLease, server: &S
             let mut count = 0;
             let mut bytes_sent = 0;
             while let Some(msg) = rx.recv().await {
+                // rerun 丢弃仍在队列中的旧轮 Delta；已发送帧与 URL 消息保留。
+                if lease.state.run_control() == Some(crate::session::RunControl::Rerun) && matches!(msg.r#type, Some(forward_msg::Type::Delta(_))) {
+                    continue;
+                }
+
                 let payload = msg.encode_to_vec();
                 let bytes = payload.len();
                 log::debug!("Sending ForwardMsg frame={} kind={:?} bytes={}", count, msg.r#type.as_ref().map(std::mem::discriminant), bytes);
@@ -146,7 +162,7 @@ async fn handle_back_message(session: &mut Session, lease: &SessionLease, back_m
                 // reference shows.
                 lease.state.set_context_info(client_state.context_info);
                 let widget_states = client_state.widget_states.map(|ws| ws.widgets).unwrap_or_default();
-                do_rerun_script(session, lease, server, widget_states, client_state.query_string, client_state.page_script_hash).await?;
+                do_rerun_script(session, lease, server, widget_states, client_state.query_string, client_state.page_script_hash, client_state.is_history_navigation).await?;
             }
             Type::AppHeartbeat(_) => {
                 let reply = ForwardMsg {

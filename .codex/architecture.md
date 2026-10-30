@@ -30,6 +30,18 @@ The present module boundaries are appropriate for this stage: `api.rs` defines t
 
 先补使用说明，再只修改 session.rs 的既有单元模块与 tests/runtime/sessions.rs；复用真实 WS 工具和已有接管暂停回归，无新依赖/公共接口。新增 WS 测试用自有服务器，成功、错误或 panic 后均先停止并等待自有 handle，再报告；清理测试观察对象所有权，不从 Weak 释放推断 RSS 下降、全局媒体回收或长时无泄漏。实际 72 次运行、32 个保留计数以及 128 个到期会话均通过，对运行中接管另复验既有暂停回归；未发现需修改生产逻辑的证据。相关格式/全目标 Clippy 和 13 项单元/真实 WS 检查已过；没有重采 Python 或将上一版本全量结果冒称本批全量验收。
 
+## Query-bound widget tracking — current implementation
+
+查询绑定复用现有 `WidgetRegistry::Record` 生命周期，不另建第二套控件登记：text_input/selectbox 注册后更新内部绑定标记，参数名沿用显式 widget key。公共查询参数 set/remove 依据登记拒绝手动写入；clear 只在 URL 中实际存在绑定参数时拒绝。参数名大小写敏感，保留嵌入键不能用作绑定目标。
+
+同身份取消绑定时移除对应 URL；条件隐藏则保留保护到 `finish_widgets`。结束清理先计算仍存活的绑定，避免旧身份清理同名新控件，再释放控件/值锁后移除失效参数。查询存储仅保留待发送标记，注册边界或 WS 结束路径汇总发一次 `page_info_changed`，位于结束帧之前。普通手工写入仍立即发送。没有新增公共接口或依赖。
+
+四轮真实原生 WS 参考保留于 `tests/reference/reference-browser/queryparams/binding/trace.json`，Rust 比较 18 份 JSON 与 5 次 URL 的完整顺序；活跃轮同时提供 URL 和 widget states。内部单元另验证显式取消绑定。仅 URL 初始化、重挂载/跨页恢复、动态绑定组合、表单/缓存交互和真实浏览器同步继续开放，不能据此关闭完整绑定能力。
+
+后续 URL 初始化切片将可选策略放入现有内部 `WidgetSpec`（clearable/disabled），只有已支持绑定的 text_input/selectbox 启用，其余登记显式为 None；公共 API 与依赖不变。查询存储保留用户代码执行前的 URL 快照，历史导航标志随 ClientState 输入；服务端自发重跑刷新快照并撤销历史标志。注册时结合本轮前端输入、代码写入和旧记录决定是否采用 URL，校正无效/默认参数，复用已有发送边界发 URL。程序赋值与默认折叠同步查询存储，结果同时驱动返回值与前端 set_value。
+
+八轮固定原生 WS 参考 `queryparams/seed/trace.json` 已覆盖 URL-only 初值、前端/代码优先级及历史导航存在/缺失参数，连同控件同步标志逐项比较；此前四轮捕获本身仍不证明这些能力。禁用控件与伪造输入组合、callback、绑定控件的服务端重跑、重挂载/跨页及浏览器操作继续开放。
+
 ## Dataframe selection and data updates — proposal
 
 执行取舍：用户于 2026-10-27 最新澄清无需保持旧 Rust API 的向后兼容；Python 1.66.1 的功能和行为目标不变。本阶段按此前单入口方案推进 dataframe 选择，随后接通详情与编辑；不增加兼容入口或扩展 trait。数据追加的独立 Rust 扩展尚未批准。
@@ -278,3 +290,61 @@ Required acceptance matrix: **12/12 scenarios**, all named invalid-path variants
 | S12 | No candidate (including debug CWD without the repository markers) fails clearly; no health/WS endpoint is reachable from that failed startup. |
 
 Implementation uses `streamlit/src/server.rs` and the existing-runtime static-assets test module, with existing crates and official bytes as read-only inputs. The [user guide](../docs/guide/README.md#run-an-installed-executable-from-any-directory) documents sidecar/configuration and precedence; the root README remains a short usage/contribution entry. Any new browser observation records its own binary/source/config and selected static-root provenance; it cannot relabel an earlier captured binary as this build.
+
+### Disabled input and callback compatibility slice
+
+2026-10-30 用户选择保留 Python 错误、已执行 callback 和后续恢复。两份不可覆盖的 1.66.1 原生 WS 记录位于 `tests/reference/reference-browser/queryparams/disabled-valid/trace.json` 与 `disabled/trace.json`，各九轮。前者 58 个交错事件（44 个控件同步投影、9 份状态、5 次 URL）；后者 52 个（40 个投影、8 份状态、3 次 URL、1 个 TypeError）。错误轮只有 Plain 发出后 selectbox 报错，同批 Live callback 已发生，下一轮仍能回调并恢复。
+
+WidgetSpec/Record 内部保存 disabled，callback 按上一轮元数据处理，当前禁用注册恢复输入前值；代码赋值和 URL 优先级保留。已测 bool oneof 提交给禁用普通 selectbox 时延迟到注册呈现 TypeError，并保留未渲染控件，避免错误轮清理破坏下一轮恢复。无新增公共接口或依赖。错误比较覆盖类型、消息、出现位置与标志；Python 来源栈帧单独保留，Rust 不伪造。其他错误类型/控件、跨页、绑定服务端重跑和真实浏览器错误界面继续开放，M3/M5/M7 未关闭。
+
+
+### Bound controls across server-started reruns
+
+2026-10-30 `queryparams/rerun/trace.json` 以五次原生 WS 客户端请求产生十轮执行，固定 47 个 URL/控件同步/JSON/finish 事件。新前端请求才调用 begin_widgets，内部重跑用 continue_widgets 延续 received、pending 和本交互代码赋值，且不再次安排 callback；记录和绑定在 rerun 边界不作为 stale 删除，正常结束仍清理。代码赋值的同步标记保留到交互正常结束，不在首次注册时提前移除。内部 URL 从最近收到/公布的 query string 重建，区别于 store 中未广播的默认值折叠；history 标志在内部重跑复位。
+
+用户确认发送流程方案 1：发送任务遇到已触发 rerun 的旧轮 Delta 时丢弃仍在队列中的消息，已经发送的帧与 PageInfoChanged 保留；继续流式发送，不整轮缓存。旧自写同步 prefix 断言按新原始参考纠正，不改冻结参考；另外用真实 WS + executor yield 验证已发送 prefix 保留、随后排队 Delta 丢弃。旧浏览器记录保留其实际调度窗口，不因本批协议对照宣称当前 UI 全部通过。callback 内 rerun、fragment、跨页和其他发送时序仍开放。
+
+
+### Additional queue evidence awaiting policy decision
+
+新增三份独立原始记录，旧参考未改：`queryparams/navigation-rerun/trace.json` 使用既有 navigation_app（两请求三轮），显示旧轮未发送 Navigation 也被清理；`rerun-messages/trace.json` 保留冷调用中已经发出的 PageConfig/普通 Delta 前缀，不能用于断言所有前缀必然丢弃；`rerun-queue/trace.json` 先预热，再验证未发送 PageConfig、Markdown、balloons 被清理，但 toast、PageInfoChanged 和结束帧保留。三份均逐帧解码通过，生产发送流程仍仅实现已确认的 Delta-only 方案，因此尚有已知 Navigation/toast/config 差异，不能报告本批完整通过。
+
+待用户决定的推荐扩展只改 `streamlit/src/websocket/handler.rs` 队列保留判断：保留 NewSession、ScriptFinished、SessionStatusChanged、ParentMessage、PageInfoChanged，以及 NewElement Toast；其他未发送消息在完整 rerun 时清理。此保留表与锁定版本 forward_msg_queue.py 的生命周期清理规则一致。已发送帧和继续流式发送保持已确认行为，fragment 不在此完整 rerun 规则的验证范围。将以新原始记录、已发送帧回归、全目标 Clippy、控件单元、查询/执行/导航集成及工作区回归验证。AGENTS.md 第 2 条要求流程取舍由用户决定，已提出三个有区别的选项，尚未收到本次扩展答复；不把此前 Delta-only 选择当作扩大消息类型的授权。
+
+
+### Independent string avatar and JSON serialization slice
+
+2026-10-30 队列扩展决策仍待回复，独立处理聊天头像现有字符串接口。`chat-metric-params/string-avatars/trace.json` 固定 28 组输入、57 个输出投影，修复默认 name 的预设大小写与 human/ai 别名、普通名字空 avatar、emoji 名字 EMOJI、六组图片 URI 的 IMAGE 分类；URI 原样透传，不请求图片。复用既有 emojis 依赖，无新增公共接口或文件加载流程。完整本地图片/异常/emoji catalogue/宽度与浏览器行为仍开放。
+
+同一 WS 输入报告揭示 pywire 非 BMP 字符被错误输出为五位 \u 转义，现改用 char.encode_utf16 逐码元生成 JSON 转义，覆盖普通/compact/pairs 的键和值及 U+10000/U+10FFFF 边界。还按固定报告和官方文档把 st.json 默认 expanded 改为 true，显式 json_expanded(false) 保留。旧 JSON 说明的“depth 参数不存在”只针对 depth= 关键字，不能排除 expanded=int 支持；已校正文案，Rust 整数展开深度仍是未完成能力。队列保留规则未在本批扩展，两个已知队列差异继续留存。
+
+
+### JSON string passthrough and evidence binding
+
+2026-10-30 独立 `json-badge-params/strings/trace.json` 固定 15 个字符串的展开/折叠输出与五种结构化对照，加输入报告共 36 个 JSON 元素。锁定 runtime 原样保留顶层字符串，包括空串、实际空白/换行、Unicode、错误文本与多文档文本，不在服务端补引号或校验。Rust 既有 json_expanded 在 serde Value::String 分支直接传递，其他值继续 py_dumps；json 复用 json_expanded(body, true)，无新增接口、依赖或格式化流程。公共调用单元覆盖 &str/String/Value::String 与嵌套对象；真实 WS 比较完整 Json 载荷、路径和 stretch 标志。前端解析错误 UI、整数展开深度与自定义序列化失败仍开放。
+
+同时修复参考证据门的真实缺口：test_json_badge_params_reference 原先虽然定义了 protobuf 解码生成器，主比较却只读取未绑定摘要；现在原 Python/Rust 与新字符串参考都逐帧验证 base64/长度/方向/解码消息，并核对元素摘要与 finish。七项损坏输入 guard 与原正确参考并存；没有修改旧行为期望或添加源 SHA 门。README 对 collapsed default 与 depth= 的旧表述已明确校正，不改原始帧。
+
+
+### Real Chrome JSON string UI evidence
+
+2026-10-30 复用 JSON 示例/参考 fixture，新增可选 sample=0..14 的单例场景与 collapsed=true 初始折叠；无 sample 的 36 元素场景及默认六元素场景保留。Rust 示例的完整 36 元素原生 WS 预检通过后，使用 Browser Use 的实际 Chrome 标签页读取 DOM/HTML、截图并真实点击根展开箭头。每端 22 个状态（15 显示＋两个三阶段折叠往返＋Unicode 复核）的主文本、警告、JSON 文本/图标/键/行数全部一致。数据和九张 JPEG/端分别留在 json-badge-params/ui，不伪装成 headless/native WS 浏览器证据。
+
+console buffer 各有八条同文 react-json-view scalar 错误日志，属于实际保留观察；不得报告零 console 错误或精确归因到每个导航窗口。Python 在已完成观察并关闭标签页后的 Ctrl-C 阶段出现 Windows Proactor ConnectionResetError，单独记录为关闭过程现象；两服务 session 均终止且本轮端口无监听。离线门验证阶段/URL/可见内容/图片字节与差分，七项损坏 guard 失败；门本身不启动浏览器。整数深度、嵌套/宽度/主题等仍开放，发送规则未越过待决选择。
+
+
+### Pending JSON depth/width public interface decision
+
+固定参考 `json-badge-params/expansion/trace.json` 包含 18 组参数、9 成功/9 拒绝（28 个 JSON 元素含输入/结果报告）。bool False 的 expanded 缺省且无 max_expand_depth；int 0 的 expanded=true 且 max_expand_depth=0，不能合并两种状态。1/2/3、-1 和 int32 最大值都按整数原样发出；超 int32、float/string expanded 拒绝。宽度 stretch 和正像素成功，0/负数/content/其他字符串/float/None 拒绝；上游 bool True 宽度被编码成 1 像素。异常报告仅证明捕获的服务器行为，不证明完整错误 UI。
+
+2026-10-30 已请求用户从三种公共接口方案选择，尚未收到此项答复；未增加以下公共代码：
+
+1. 推荐新增 `JsonOptions<T>` 与 `json_options(options) -> Result<(), WidgetError>`，保留现有 json/json_expanded 签名。示例：`st.json_options(JsonOptions::new(body).expanded(2).width(ElementWidth::Value(240)))?`。新增 `JsonExpansion::{Expanded, Collapsed, Depth(i32)}`，From<bool>/From<i32> 供 builder 接收布尔和深度；一字段表达互斥状态。默认 Expanded/Stretch，整数沿用捕获的 int32 语义（含 -1），宽度只允许 Stretch 或正 Value，Content/非正值返回既有 InvalidValue，复用现有错误与宽度类型。
+2. 新增 `json_with(body, expansion, width)` 三参数方法与扩展状态枚举，保留旧方法，不引入 Options builder；调用短，但可选参数后续扩展需调整参数列表。
+3. 先泛化 json_expanded 第二参数为 bool/深度枚举，保留旧布尔调用；宽度入口后续再决定。此方案只分阶段实现，不缩小长期范围。
+
+方案 1 的拟改文件为 api.rs（类型/方法/兼容入口）、elements/text.rs（已有 JsonElement 的深度与宽度字段）以及既有 JSON 示例/单元/WS/参考/浏览器证据和说明。验证需覆盖原 bool/字符串 API 不回归、9 种已测成功配置和 Rust 可表达的无效宽度、None 与 Some(0) 的字段差异、深度/宽度真实前端展示；Rust 静态类型不能传入的 float/string expanded 不伪造为已测运行时异常。序列化失败等既有缺口继续单列，不因该接口选择自动关闭。没有新文件/依赖或生产发布计划。
+
+### Logo automatic emoji-sequence typing slice
+
+`code-logo-params/logo-strings/trace.json` 固定 18 个双图 Logo：12 个普通/VS/ZWJ/家庭/国旗/keycap/肤色序列、两个 Material 图标和四个 URL/data/static URI，轮换 small/medium/large 及 link。修前 9/18 完整载荷不同，原因是自动 From<&str> 用非 ASCII 且字符数<=2 的启发式；改为复用已锁定 emojis::get，From<String> 仍复用该转换。主图与 icon_image 的全部六字段和 Logo 元数据形态通过真实 WS 对照，无新增公共接口或依赖。无效图片/Material 字符串、本地/bytes 加载、完整 emoji catalogue、侧栏显示与链接操作等继续开放。

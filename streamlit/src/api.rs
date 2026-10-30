@@ -70,7 +70,14 @@ pub(crate) trait AppendChild {
                 let value = resolve(&default)?;
                 Ok((String::new(), value, false))
             }
-            Err(other) => Err(other),
+            Err(other) => {
+                if let Some(message) = state.take_registration_error() {
+                    self.push(Rc::new(RefCell::new(crate::elements::exception::AppException::new("TypeError".into(), message, Vec::new()))));
+                    state.set_run_control(crate::session::RunControl::Stop);
+                    return Ok((String::new(), resolve(&default)?, false));
+                }
+                Err(other)
+            }
         }
     }
 
@@ -88,7 +95,14 @@ pub(crate) trait AppendChild {
                 let value = resolve(&default)?;
                 Ok((String::new(), value, false))
             }
-            Err(other) => Err(other),
+            Err(other) => {
+                if let Some(message) = state.take_registration_error() {
+                    self.push(Rc::new(RefCell::new(crate::elements::exception::AppException::new("TypeError".into(), message, Vec::new()))));
+                    state.set_run_control(crate::session::RunControl::Stop);
+                    return Ok((String::new(), resolve(&default)?, false));
+                }
+                Err(other)
+            }
         }
     }
 }

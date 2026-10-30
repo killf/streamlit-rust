@@ -7,7 +7,7 @@ This criterion judges the observation the committed collector
 
 * exactly one page_info_changed{query_string} per run, between the running
   status and the first delta, merged with the browser-reported URL state
-  and serialized as alphabetically sorted k=v pairs;
+  and serialized in key insertion order with repeated values;
 * the creation-mode selectbox carries acceptNewOptions true plus the
   measured filter mode and keeps a freshly typed value as its string state;
   the bound selectbox carries queryParamKey with acceptNewOptions false;

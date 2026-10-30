@@ -1,13 +1,475 @@
 //! Query-params regressions against the measured Python 1.66.1 wire (see
 //! .codex/compatibility.md, Query params): writes stream one
 //! page_info_changed{query_string} at the call point merged with the
-//! browser-reported URL state (alphabetically sorted k=v pairs), the
+//! browser-reported URL state (key insertion order and repeated values), the
 //! creation-mode selectbox carries acceptNewOptions plus the filter mode and
 //! keeps a freshly typed label as its string state, and a bound selectbox
 //! carries queryParamKey.
 use super::*;
 use crate::InputWidgets;
 use crate::proto::{PageInfo, forward_msg};
+
+fn queryparams_values_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        let snapshot = |stage: &str| {
+            let query = st.query_params();
+            st.json(serde_json::json!({"stage": stage, "value": query.get("tag"), "all": query.get_all("tag"), "pairs": query.to_vec(), "empty": query.get("empty")}));
+        };
+        let result: Result<(), crate::WidgetError> = (|| {
+            snapshot("load");
+            st.query_params().set_all("tag", ["replacement", "tail"])?;
+            snapshot("replace");
+            st.query_params().set("new", "中文 + text")?;
+            snapshot("append");
+            st.query_params().set_all("empty", std::iter::empty::<&str>())?;
+            snapshot("empty-list");
+            st.query_params().remove("empty")?;
+            snapshot("remove-empty");
+            st.query_params().remove("tag")?;
+            snapshot("remove-tag");
+            st.query_params().clear()?;
+            snapshot("clear");
+            st.query_params().set_all("tag", ["again", "last"])?;
+            snapshot("restore");
+            Ok(())
+        })();
+        if let Err(error) = result {
+            st.write(format!("query-value-error: {error}"));
+        }
+    })
+}
+
+fn queryparams_reserved_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        let snapshot = |stage: &str| {
+            let query = st.query_params();
+            st.json(serde_json::json!({"stage": stage, "embed": query.get("embed"), "options": query.get_all("EMBED_OPTIONS"),
+                "ordinary": query.get("st_embed"), "empty_key": query.get(""), "pairs": query.to_vec()}));
+        };
+        let result: Result<(), crate::WidgetError> = (|| {
+            // 1. 读取保留键，并检查被拒绝操作不改变状态。
+            snapshot("reserved-load");
+            for key in ["embed", "EmBeD_OpTiOnS"] {
+                let rejected = st.query_params().set(key, "changed").is_err();
+                st.json(serde_json::json!({"operation": format!("set:{key}"), "rejected": rejected}));
+            }
+            let rejected = st.query_params().remove("embed").is_err();
+            st.json(serde_json::json!({"operation": "remove:embed", "rejected": rejected}));
+            snapshot("after-rejections");
+
+            // 2. 空键正常往返，公开清空保留嵌入参数，随后可再写普通键。
+            st.query_params().set("", "updated empty key")?;
+            snapshot("empty-key-set");
+            st.query_params().remove("")?;
+            snapshot("empty-key-remove");
+            st.query_params().clear()?;
+            snapshot("reserved-clear");
+            st.query_params().set("restored", "ok")?;
+            snapshot("reserved-restore");
+            Ok(())
+        })();
+        if let Err(error) = result {
+            st.write(format!("query-reserved-error: {error}"));
+        }
+    })
+}
+
+fn queryparams_binding_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        let query = st.query_params();
+        let phase = query.get("phase").unwrap_or_default();
+        let result: Result<(), crate::WidgetError> = (|| {
+            if matches!(phase.as_str(), "load" | "active") {
+                let selected = st.selectbox(crate::SelectboxOptions::new("Bound", ["x", "y"]).key("bound").bind(crate::TextBind::QueryParams))?;
+                let text = st.sidebar().text_input(crate::TextInputOptions::new("Text").key("text").bind(crate::TextBind::QueryParams))?;
+                st.json(serde_json::json!({"phase": phase, "selected": selected, "text": text}));
+            }
+            if matches!(phase.as_str(), "load" | "active" | "hidden") {
+                for key in ["bound", "text"] {
+                    let rejected = query.set(key, "manual").is_err();
+                    st.json(serde_json::json!({"operation": format!("set:{key}"), "rejected": rejected}));
+                }
+                let rejected = query.remove("bound").is_err();
+                st.json(serde_json::json!({"operation": "remove:bound", "rejected": rejected}));
+                let rejected = query.clear().is_err();
+                st.json(serde_json::json!({"operation": "clear", "rejected": rejected}));
+                if phase == "active" {
+                    query.set("BOUND", "case-sensitive")?;
+                }
+            } else {
+                query.set("bound", "manual")?;
+                query.clear()?;
+            }
+            st.json(serde_json::json!({"phase": phase, "pairs": query.to_vec()}));
+            Ok(())
+        })();
+        if let Err(error) = result {
+            st.write(format!("query-binding-error: {error}"));
+        }
+    })
+}
+
+fn queryparams_seed_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        let phase = st.query_params().get("phase").unwrap_or_default();
+        let result: TestResult = (|| {
+            // 1. 代码赋值在控件创建前发生，用于验证 URL/前端/代码的优先级。
+            if matches!(phase.as_str(), "bad-initial" | "bad-history") {
+                st.session_state().set("bound", 99)?;
+                st.session_state().set("text", 99)?;
+            } else if matches!(phase.as_str(), "assign" | "history" | "history-missing") {
+                st.session_state().set("bound", "x")?;
+                st.session_state().set("text", "code")?;
+            }
+            let bound = st.selectbox(crate::SelectboxOptions::new("Bound", ["x", "y"]).key("bound").bind(crate::TextBind::QueryParams))?;
+            let text = st.text_input(crate::TextInputOptions::new("Text").value("base").key("text").bind(crate::TextBind::QueryParams))?;
+            let optional = st.selectbox(crate::SelectboxOptions::new("Optional", ["x", "y"]).index(None).key("optional").bind(crate::TextBind::QueryParams))?;
+            let creation = st.selectbox_creation(crate::SelectboxCreationOptions::new("Creation", ["x", "y"]).key("creation").bind(crate::TextBind::QueryParams))?;
+            st.json(serde_json::json!({"phase": phase, "bound": bound, "text": text, "optional": optional, "creation": creation, "pairs": st.query_params().to_vec()}));
+            Ok(())
+        })();
+        if let Err(error) = result {
+            st.write(format!("query-seed-error: {error}"));
+        }
+    })
+}
+
+fn record_disabled_callback(st: &Streamlit, key: &str) {
+    let result: TestResult = (|| {
+        let state = st.session_state();
+        let mut calls = state.get::<Vec<String>>("callbacks")?.unwrap_or_default();
+        calls.push(key.into());
+        state.set("callbacks", calls)?;
+        Ok(())
+    })();
+    assert!(result.is_ok(), "callback fixture failed: {result:?}");
+}
+
+fn queryparams_disabled_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        let phase = st.query_params().get("phase").unwrap_or_default();
+        let disabled = !matches!(phase.as_str(), "enabled" | "interactive");
+        let result: TestResult = (|| {
+            // 1. 应用可以修改禁用控件值；前端同批提交不应覆盖代码赋值。
+            if phase == "code" {
+                st.session_state().set("plain", "code")?;
+                st.session_state().set("bound", "x")?;
+                st.session_state().set("text", "code")?;
+                st.session_state().set("check", true)?;
+            }
+            let plain = if phase == "hidden" {
+                None
+            } else {
+                st.text_input(crate::TextInputOptions::new("Plain").value("safe").key("plain").disabled(disabled).on_change(|st| record_disabled_callback(st, "plain")))?
+            };
+            let bound = st.selectbox(
+                crate::SelectboxOptions::new("Bound", ["x", "y"])
+                    .key("bound")
+                    .disabled(disabled)
+                    .bind(crate::TextBind::QueryParams)
+                    .on_change(|st| record_disabled_callback(st, "bound")),
+            )?;
+            let text = st.text_input(
+                crate::TextInputOptions::new("Text")
+                    .value("base")
+                    .key("text")
+                    .disabled(disabled)
+                    .bind(crate::TextBind::QueryParams)
+                    .on_change(|st| record_disabled_callback(st, "text")),
+            )?;
+            let check = st.checkbox(crate::CheckboxOptions::new("Check").key("check").disabled(disabled).on_change(|st| record_disabled_callback(st, "check")))?;
+            let live = st.text_input(crate::TextInputOptions::new("Live").value("ready").key("live").on_change(|st| record_disabled_callback(st, "live")))?;
+            st.json(serde_json::json!({"phase": phase, "plain": plain, "bound": bound, "text": text, "check": check,
+                "live": live, "callbacks": st.session_state().get::<Vec<String>>("callbacks")?.unwrap_or_default(), "pairs": st.query_params().to_vec()}));
+            Ok(())
+        })();
+        if let Err(error) = result {
+            st.write(format!("query-disabled-error: {error}"));
+        }
+    })
+}
+
+fn bound_queryparams_rerun_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        let result: TestResult = (|| {
+            let state = st.session_state();
+            let phase = st.query_params().get("phase").unwrap_or_default();
+            let counter_key = format!("passes_{phase}");
+            let iteration = state.get::<u32>(&counter_key)?.unwrap_or(0);
+            state.set(counter_key, iteration + 1)?;
+            let report = |stage: &str| -> TestResult {
+                st.json(serde_json::json!({"phase": phase, "iteration": iteration, "stage": stage,
+                    "bound": state.get::<String>("bound")?, "text": state.get::<String>("text")?,
+                    "callbacks": state.get::<Vec<String>>("callbacks")?.unwrap_or_default(), "pairs": st.query_params().to_vec()}));
+                Ok(())
+            };
+
+            // 1. 中断前的 URL 写入必须保留，旧控件不能因此提前清理。
+            st.query_params().set("marker", format!("{phase}-{iteration}"))?;
+            report("before")?;
+            if phase == "early" && iteration == 0 {
+                st.rerun();
+                return Ok(());
+            }
+            if matches!(phase.as_str(), "assign" | "history") && iteration == 0 {
+                state.set("bound", if phase == "assign" { "x" } else { "y" })?;
+                state.set("text", "code")?;
+            }
+            st.selectbox(crate::SelectboxOptions::new("Bound", ["x", "y"]).key("bound").bind(crate::TextBind::QueryParams).on_change(|st| record_disabled_callback(st, "bound")))?;
+            st.text_input(crate::TextInputOptions::new("Text").value("base").key("text").bind(crate::TextBind::QueryParams).on_change(|st| record_disabled_callback(st, "text")))?;
+            report("values")?;
+
+            // 2. 仅首次调用服务端重跑，后续执行不重放前端 callback。
+            if iteration == 0 {
+                st.rerun();
+                return Ok(());
+            }
+            report("complete")?;
+            Ok(())
+        })();
+        assert!(result.is_ok(), "rerun fixture failed: {result:?}");
+    })
+}
+
+fn queryparams_queue_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        let result: TestResult = (|| {
+            let phase = st.query_params().get("phase").unwrap_or_default();
+            let state = st.session_state();
+            let iteration = if phase == "queue" { state.get::<u32>("queue_iteration")?.unwrap_or(0) } else { 0 };
+            if iteration == 0 {
+                st.set_page_config(crate::PageConfigOptions::new().page_title("Queued config"));
+                st.toast("Queued toast");
+                st.markdown("queued content");
+                st.balloons();
+            }
+            if phase == "queue" && iteration == 0 {
+                state.set("queue_iteration", 1)?;
+                st.query_params().set("marker", "retained")?;
+                st.rerun();
+                return Ok(());
+            }
+            st.json(serde_json::json!({"phase": phase, "iteration": iteration}));
+            Ok(())
+        })();
+        assert!(result.is_ok(), "queue fixture failed: {result:?}");
+    })
+}
+
+async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>>, capture: &str, expected_count: usize) -> TestResult {
+    // 1. 使用固定参考输入启动独立服务及真实 WS。
+    let reference: serde_json::Value = serde_json::from_str(capture)?;
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
+    let server = HttpServer::new(move || App::new().app_data(web::Data::new(StreamlitServer::new(entry, "127.0.0.1".into(), 0))).configure(configure_routes))
+        .workers(1)
+        .listen(listener)?
+        .run();
+    let handle = server.handle();
+    let task = actix_web::rt::spawn(server);
+    let mut stream = sessions::connect(address, None).await;
+    let mut widget_ids = std::collections::HashMap::new();
+    let mut observed = Vec::new();
+    for frame in reference["frames"].as_array().ok_or("missing frames")? {
+        let Some(request) = frame["message"].get("rerun_script") else { continue };
+        let mut widgets = Vec::new();
+        if let Some(states) = request["widget_states"]["widgets"].as_array() {
+            for state in states {
+                let reference_id = state["id"].as_str().ok_or("missing reference widget id")?;
+                let key = ["bound", "text", "optional", "creation", "plain", "check", "live"]
+                    .into_iter()
+                    .find(|key| reference_id.ends_with(&format!("-{key}")))
+                    .ok_or("unknown reference binding")?;
+                widgets.push(WidgetState {
+                    id: widget_ids.get(key).cloned().ok_or("missing live widget id")?,
+                    value: Some(if let Some(value) = state["bool_value"].as_bool() {
+                        widget_state::Value::BoolValue(value)
+                    } else {
+                        widget_state::Value::StringValue(state["string_value"].as_str().ok_or("missing widget text")?.into())
+                    }),
+                });
+            }
+        }
+        send_binary(
+            &mut stream,
+            &BackMsg {
+                r#type: Some(back_msg::Type::RerunScript(ClientState {
+                    query_string: request["query_string"].as_str().ok_or("missing reference query")?.into(),
+                    is_history_navigation: request["is_history_navigation"].as_bool().unwrap_or(false),
+                    widget_states: Some(WidgetStates { widgets }),
+                    ..Default::default()
+                })),
+            }
+            .encode_to_vec(),
+        )
+        .await;
+
+        // 2. 按真实到达顺序保留 URL 写入和应用状态。
+        let finish = loop {
+            match receive(&mut stream).await.r#type {
+                Some(forward_msg::Type::PageConfigChanged(config)) if reference["scenario"] == "rerun-queue" => observed.push(serde_json::json!({"config": config.title})),
+                Some(forward_msg::Type::PageInfoChanged(info)) => observed.push(serde_json::json!({"url": info.query_string})),
+                Some(forward_msg::Type::Delta(delta)) => {
+                    if let Some(delta::Type::NewElement(element)) = delta.r#type {
+                        match element.r#type {
+                            Some(element::Type::Toast(toast)) if reference["scenario"] == "rerun-queue" => observed.push(serde_json::json!({"toast": {"body": toast.body, "icon": toast.icon, "duration": toast.duration}})),
+                            Some(element::Type::Markdown(text)) if reference["scenario"] == "rerun-queue" => observed.push(serde_json::json!({"markdown": text.body})),
+                            Some(element::Type::Balloons(balloons)) if reference["scenario"] == "rerun-queue" => observed.push(serde_json::json!({"balloons": balloons.show})),
+                            Some(element::Type::Exception(error)) => observed.push(serde_json::json!({"exception": {"type": error.r#type, "message": error.message,
+                                "message_is_markdown": error.message_is_markdown, "is_streamlit_exception": error.is_streamlit_exception}})),
+                            Some(element::Type::Json(json)) => observed.push(serde_json::json!({"snapshot": serde_json::from_str::<serde_json::Value>(&json.body)?})),
+                            Some(element::Type::Selectbox(widget)) => {
+                                let key = widget.query_param_key.unwrap_or_else(|| widget.id.rsplit('-').next().unwrap_or("").into());
+                                if matches!(reference["scenario"].as_str(), Some("disabled-valid" | "disabled")) {
+                                    observed.push(serde_json::json!({"widget": key, "disabled": widget.disabled, "set": widget.set_value, "value": widget.raw_value}));
+                                }
+                                if matches!(reference["scenario"].as_str(), Some("seed" | "seed-code" | "rerun")) {
+                                    observed.push(serde_json::json!({"widget": key, "set": widget.set_value, "value": widget.raw_value}));
+                                }
+                                widget_ids.insert(key, widget.id);
+                            }
+                            Some(element::Type::TextInput(widget)) => {
+                                let key = widget.query_param_key.unwrap_or_else(|| widget.id.rsplit('-').next().unwrap_or("").into());
+                                if matches!(reference["scenario"].as_str(), Some("disabled-valid" | "disabled")) {
+                                    observed.push(serde_json::json!({"widget": key, "disabled": widget.disabled, "set": widget.set_value, "value": widget.value}));
+                                }
+                                if matches!(reference["scenario"].as_str(), Some("seed" | "seed-code" | "rerun")) {
+                                    observed.push(serde_json::json!({"widget": key, "set": widget.set_value, "value": widget.value}));
+                                }
+                                widget_ids.insert(key, widget.id);
+                            }
+                            Some(element::Type::Checkbox(widget)) if matches!(reference["scenario"].as_str(), Some("disabled-valid" | "disabled")) => {
+                                let key = widget.id.rsplit('-').next().unwrap_or("").to_string();
+                                observed.push(serde_json::json!({"widget": key, "disabled": widget.disabled, "set": widget.set_value, "value": widget.value}));
+                                widget_ids.insert(key, widget.id);
+                            }
+                            _ => {}
+                        }
+                    }
+                }
+                Some(forward_msg::Type::ScriptFinished(status)) if matches!(reference["scenario"].as_str(), Some("rerun" | "rerun-queue")) => {
+                    observed.push(serde_json::json!({"finish": status}));
+                    if status != 2 {
+                        break status;
+                    }
+                }
+                Some(forward_msg::Type::ScriptFinished(status)) => break status,
+                _ => {}
+            }
+        };
+        assert_eq!(finish, 0);
+    }
+    drop(stream);
+    handle.stop(false).await;
+    task.await??;
+
+    // 3. 自有服务停止后，对照参考的全部交错事件。
+    let mut expected = Vec::new();
+    for frame in reference["frames"].as_array().ok_or("missing reference frames")? {
+        let message = &frame["message"];
+        if matches!(reference["scenario"].as_str(), Some("rerun" | "rerun-queue"))
+            && let Some(status) = message.get("script_finished")
+        {
+            let status = match status.as_str() {
+                Some("FINISHED_EARLY_FOR_RERUN") => 2,
+                Some("FINISHED_SUCCESSFULLY") => 0,
+                other => panic!("unexpected reference finish: {other:?}"),
+            };
+            expected.push(serde_json::json!({"finish": status}));
+        }
+        if let Some(info) = message.get("page_info_changed") {
+            expected.push(serde_json::json!({"url": info["query_string"].as_str().unwrap_or("")}));
+        }
+        if matches!(reference["scenario"].as_str(), Some("seed" | "seed-code" | "rerun")) {
+            let element = &message["delta"]["new_element"];
+            for (kind, field) in [("selectbox", "raw_value"), ("text_input", "value")] {
+                if let Some(widget) = element.get(kind) {
+                    expected.push(serde_json::json!({"widget": widget["query_param_key"], "set": widget["set_value"].as_bool().unwrap_or(false), "value": widget[field]}));
+                }
+            }
+        }
+        if matches!(reference["scenario"].as_str(), Some("disabled-valid" | "disabled")) {
+            let element = &message["delta"]["new_element"];
+            for (kind, field) in [("selectbox", "raw_value"), ("text_input", "value"), ("checkbox", "value")] {
+                if let Some(widget) = element.get(kind) {
+                    let key = widget["id"].as_str().ok_or("missing widget id")?.rsplit('-').next().ok_or("missing widget key")?;
+                    let value = if kind == "checkbox" { serde_json::Value::Bool(widget[field].as_bool().unwrap_or(false)) } else { widget[field].clone() };
+                    expected.push(serde_json::json!({"widget": key, "disabled": widget["disabled"].as_bool().unwrap_or(false), "set": widget["set_value"].as_bool().unwrap_or(false), "value": value}));
+                }
+            }
+        }
+        if let Some(error) = message["delta"]["new_element"].get("exception") {
+            expected.push(serde_json::json!({"exception": {"type": error["type"], "message": error["message"],
+                "message_is_markdown": error["message_is_markdown"].as_bool().unwrap_or(false), "is_streamlit_exception": error["is_streamlit_exception"].as_bool().unwrap_or(false)}}));
+        }
+        if reference["scenario"] == "rerun-queue" {
+            if let Some(config) = message.get("page_config_changed") {
+                expected.push(serde_json::json!({"config": config["title"]}));
+            }
+            let element = &message["delta"]["new_element"];
+            if let Some(toast) = element.get("toast") {
+                expected.push(serde_json::json!({"toast": {"body": toast["body"], "icon": toast["icon"].as_str().unwrap_or(""), "duration": toast["duration"]}}));
+            }
+            if let Some(markdown) = element.get("markdown") {
+                expected.push(serde_json::json!({"markdown": markdown["body"]}));
+            }
+            if let Some(balloons) = element.get("balloons") {
+                expected.push(serde_json::json!({"balloons": balloons["show"]}));
+            }
+        }
+        if let Some(body) = message["delta"]["new_element"]["json"]["body"].as_str() {
+            expected.push(serde_json::json!({"snapshot": serde_json::from_str::<serde_json::Value>(body)?}));
+        }
+    }
+    assert_eq!(expected.len(), expected_count, "reference must retain every snapshot and URL write");
+    assert_eq!(observed, expected);
+    Ok(())
+}
+
+#[actix_web::test]
+async fn query_param_values_and_mutations_match_frozen_reference() -> TestResult {
+    assert_queryparams_reference(queryparams_values_entry, include_str!("../../../tests/reference/reference-browser/queryparams/values/trace.json"), 15).await
+}
+
+#[actix_web::test]
+async fn query_param_reserved_and_empty_keys_match_frozen_reference() -> TestResult {
+    assert_queryparams_reference(queryparams_reserved_entry, include_str!("../../../tests/reference/reference-browser/queryparams/reserved/trace.json"), 13).await
+}
+
+#[actix_web::test]
+async fn query_param_binding_lifecycle_matches_frozen_reference() -> TestResult {
+    assert_queryparams_reference(queryparams_binding_entry, include_str!("../../../tests/reference/reference-browser/queryparams/binding/trace.json"), 23).await
+}
+
+#[actix_web::test]
+async fn query_param_url_seeding_matches_frozen_reference() -> TestResult {
+    assert_queryparams_reference(queryparams_seed_entry, include_str!("../../../tests/reference/reference-browser/queryparams/seed/trace.json"), 49).await
+}
+
+#[actix_web::test]
+async fn query_param_url_seeds_discard_invalid_code_values() -> TestResult {
+    assert_queryparams_reference(queryparams_seed_entry, include_str!("../../../tests/reference/reference-browser/queryparams/seed-code/trace.json"), 10).await
+}
+
+#[actix_web::test]
+async fn disabled_widget_inputs_and_callbacks_match_frozen_reference() -> TestResult {
+    assert_queryparams_reference(queryparams_disabled_entry, include_str!("../../../tests/reference/reference-browser/queryparams/disabled-valid/trace.json"), 58).await
+}
+
+#[actix_web::test]
+async fn disabled_malformed_input_keeps_callbacks_error_and_recovery() -> TestResult {
+    assert_queryparams_reference(queryparams_disabled_entry, include_str!("../../../tests/reference/reference-browser/queryparams/disabled/trace.json"), 52).await
+}
+
+#[actix_web::test]
+async fn bound_widget_server_reruns_match_frozen_reference() -> TestResult {
+    assert_queryparams_reference(bound_queryparams_rerun_entry, include_str!("../../../tests/reference/reference-browser/queryparams/rerun/trace.json"), 47).await
+}
+
+#[actix_web::test]
+async fn rerun_queue_messages_match_frozen_reference() -> TestResult {
+    assert_queryparams_reference(queryparams_queue_entry, include_str!("../../../tests/reference/reference-browser/queryparams/rerun-queue/trace.json"), 11).await
+}
 
 fn queryparams_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
     Box::pin(async move {
@@ -143,7 +605,6 @@ async fn page_switch_clears_previous_query_but_target_rerun_keeps_new_writes() -
             "query:",
             "finish:2",
             "session:d681734f8c454b90df4d5feea7487445",
-            "target=[]",
             "query:target=1",
             "finish:2",
             "session:d681734f8c454b90df4d5feea7487445",
@@ -199,7 +660,7 @@ async fn query_params_write_survives_server_started_rerun() -> TestResult {
 
     assert_eq!(
         (runs, &finish_statuses, &markdowns),
-        (2, &vec![2, 0], &vec!["run=1;ready=missing".to_string(), "run=2;ready=1".to_string()]),
+        (2, &vec![2, 0], &vec!["run=2;ready=1".to_string()]),
         "one BackMsg must produce two runs; the server-started run must retain the query write"
     );
     Ok(())
@@ -290,7 +751,7 @@ async fn query_params_and_selectbox_upgrades_match_the_measured_wire() -> TestRe
             }
         }
         assert!(finished);
-        // One merged, alphabetically sorted query string per write, like the
+        // One merged query string in insertion order per write, like the
         // measured page_info_changed.
         assert_eq!(page_info.ok_or("query params write must stream page_info_changed")?.query_string, expected_url, "run {query_string:?}");
         assert_eq!(selects.len(), 2);
@@ -317,6 +778,22 @@ async fn query_params_and_selectbox_upgrades_match_the_measured_wire() -> TestRe
 }
 
 #[test]
+fn query_param_reserved_visibility_keeps_wire_values_and_empty_keys() {
+    let mut store = crate::query_params::QueryParamStore::default();
+    store.load("embed=true&EMBED_OPTIONS=light_theme&st_embed=ordinary&=empty-key");
+    assert_eq!(store.get("embed"), None);
+    assert_eq!(store.get("EMBED_OPTIONS"), None);
+    assert!(store.get_all("EMBED_OPTIONS").is_empty());
+    assert_eq!(store.get("st_embed"), Some("ordinary"));
+    assert_eq!(store.get(""), Some("empty-key"));
+    store.set("", vec!["updated empty key".into()]);
+    assert_eq!(store.serialize(), "embed=true&EMBED_OPTIONS=light_theme&st_embed=ordinary&=updated+empty+key");
+    assert!(store.remove(""));
+    store.clear();
+    assert_eq!(store.serialize(), "", "internal run/page reset still clears the complete store");
+}
+
+#[test]
 fn query_param_store_round_trips_and_serializes_like_the_reference() {
     let mut store = crate::query_params::QueryParamStore::default();
     store.load("bound=y&mode=demo");
@@ -324,11 +801,15 @@ fn query_param_store_round_trips_and_serializes_like_the_reference() {
     store.set("mode", vec!["demo".into()]);
     assert_eq!(store.serialize(), "bound=y&mode=demo", "an equal write keeps the merged state");
     store.set("alpha", vec!["one".into(), "two".into()]);
-    assert_eq!(store.serialize(), "alpha=one&alpha=two&bound=y&mode=demo");
+    assert_eq!(store.serialize(), "bound=y&mode=demo&alpha=one&alpha=two");
     assert_eq!(store.get("mode"), Some("demo"));
+    assert_eq!(store.get("alpha"), Some("two"));
     assert_eq!(store.get_all("alpha"), &["one".to_string(), "two".to_string()]);
     assert!(store.remove("bound"));
-    assert_eq!(store.serialize(), "alpha=one&alpha=two&mode=demo");
+    assert_eq!(store.serialize(), "mode=demo&alpha=one&alpha=two");
+    store.set("empty", vec![]);
+    assert_eq!(store.get("empty"), Some(""));
+    assert!(store.remove("empty"), "an empty-list key still exists");
     store.load("q=%E4%B8%AD%E6%96%87+text");
     assert_eq!(store.get("q"), Some("\u{4e2d}\u{6587} text"));
     assert_eq!(store.serialize(), "q=%E4%B8%AD%E6%96%87+text", "non-ascii round-trips percent-encoded like urlencode");

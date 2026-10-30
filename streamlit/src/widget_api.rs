@@ -2000,6 +2000,8 @@ impl Form<'_> {
         let identity = serde_json::to_string(&(self.parent_form_id(), identity))?;
         let (id, value, _) = self.register_widget_parity(
             WidgetSpec {
+                disabled: options.disabled,
+                query: None,
                 kind: "form_submit_button",
                 key: options.key.as_deref(),
                 identity: &identity,
@@ -2129,6 +2131,8 @@ impl<C: AppendChild> InputWidgets for C {
         let uploads = self.get_app().lock().session_state.uploads.clone();
         let (id, files, _) = self.register_widget_parity(
             WidgetSpec {
+                disabled: c.disabled,
+                query: None,
                 kind: "file_uploader",
                 key: c.key.as_deref(),
                 identity: &identity,
@@ -2170,6 +2174,8 @@ impl<C: AppendChild> InputWidgets for C {
         let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { options.value.to_string() });
         let (id, value, set_value) = self.register_widget_parity(
             WidgetSpec {
+                disabled: c.disabled,
+                query: None,
                 kind: "checkbox",
                 key: c.key.as_deref(),
                 identity: &identity,
@@ -2218,6 +2224,9 @@ impl<C: AppendChild> InputWidgets for C {
         if options.bind == TextBind::QueryParams && c.key.is_none() {
             return Err(WidgetError::InvalidValue("text_input query binding requires a key".into()));
         }
+        if options.bind == TextBind::QueryParams && c.key.as_deref().is_some_and(crate::query_params::is_embed_key) {
+            return Err(WidgetError::InvalidValue("cannot bind a reserved embedding query parameter".into()));
+        }
         if options.bind == TextBind::QueryParams && options.input_type == TextInputType::Password {
             return Err(WidgetError::InvalidValue("text_input query binding cannot use a password input".into()));
         }
@@ -2254,6 +2263,8 @@ impl<C: AppendChild> InputWidgets for C {
         );
         let (id, value, set_value) = self.register_widget_parity(
             WidgetSpec {
+                disabled: c.disabled,
+                query: (options.bind == TextBind::QueryParams).then_some(crate::widgets::QueryBinding { clearable: true }),
                 kind: "text_input",
                 key: c.key.as_deref(),
                 identity: &identity,
@@ -2263,6 +2274,10 @@ impl<C: AppendChild> InputWidgets for C {
             },
             |value| Ok(value.as_str().map(str::to_owned)),
         )?;
+        let app = self.get_app();
+        let state = app.lock().session_state.clone();
+        state.set_query_binding(&id, options.bind == TextBind::QueryParams);
+        crate::query_params::flush_query_update(&mut app.lock());
         let (validate_regex, validate_message) = match options.validation {
             TextValidation::Inherit => {
                 let (regex, message) = options.input_type.default_validation();
@@ -2328,6 +2343,8 @@ impl<C: AppendChild> InputWidgets for C {
         let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { format!("{:?}:{:?}", options.options, options.index) });
         let (id, selected, set_value) = self.register_widget_parity(
             WidgetSpec {
+                disabled: c.disabled,
+                query: None,
                 kind: "radio",
                 key: c.key.as_deref(),
                 identity: &identity,
@@ -2384,6 +2401,8 @@ impl<C: AppendChild> InputWidgets for C {
         let codec = Codec::MultiSelect(options.labels.iter().cloned().zip(native.iter().cloned()).collect());
         let (id, selected, set_value) = self.register_widget_parity(
             WidgetSpec {
+                disabled: c.disabled,
+                query: None,
                 kind: "multiselect",
                 key: c.key.as_deref(),
                 identity: &identity,
@@ -2457,6 +2476,8 @@ impl<C: AppendChild> InputWidgets for C {
         let identity = c.identity_in_form(&form_id, &if c.key.is_some() { constraints } else { format!("{constraints}:{default}") });
         let (id, result, set_value) = self.register_widget_parity(
             WidgetSpec {
+                disabled: c.disabled,
+                query: None,
                 kind: "number_input",
                 key: c.key.as_deref(),
                 identity: &identity,
@@ -2507,6 +2528,8 @@ impl<C: AppendChild> InputWidgets for C {
         let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { format!("{:?}:{:?}", options.value, options.max_chars) });
         let (id, result, set_value) = self.register_widget_parity(
             WidgetSpec {
+                disabled: c.disabled,
+                query: None,
                 kind: "text_area",
                 key: c.key.as_deref(),
                 identity: &identity,
@@ -2594,6 +2617,8 @@ impl<C: AppendChild> InputWidgets for C {
         let identity = c.identity_in_form(&form_id, &if c.key.is_some() { constraints } else { format!("{constraints}:{default}:{:?}", options.format) });
         let (id, result, set_value) = self.register_widget_parity(
             WidgetSpec {
+                disabled: c.disabled,
+                query: None,
                 kind: "slider",
                 key: c.key.as_deref(),
                 identity: &identity,
@@ -2642,6 +2667,8 @@ impl<C: AppendChild> InputWidgets for C {
         };
         let (id, value, _) = self.register_widget_parity(
             WidgetSpec {
+                disabled: options.disabled,
+                query: None,
                 kind: "button",
                 key: options.key.as_deref(),
                 identity: &identity,
@@ -2670,6 +2697,8 @@ impl<C: AppendChild> InputWidgets for C {
         let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { options.value.to_string() });
         let (id, value, set_value) = self.register_widget_parity(
             WidgetSpec {
+                disabled: c.disabled,
+                query: None,
                 kind: "toggle",
                 key: c.key.as_deref(),
                 identity: &identity,
@@ -2713,6 +2742,8 @@ impl<C: AppendChild> InputWidgets for C {
         let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { format!("{:?}:{}", options.kind, options.default.unwrap_or(0)) });
         let (id, value, set_value) = self.register_widget_parity(
             WidgetSpec {
+                disabled: c.disabled,
+                query: None,
                 kind: "feedback",
                 key: c.key.as_deref(),
                 identity: &identity,
@@ -2767,6 +2798,8 @@ impl<C: AppendChild> InputWidgets for C {
         let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { format!("{}:{}:{:?}", options.num_pages, options.default, options.max_visible_pages) });
         let (id, value, set_value) = self.register_widget_parity(
             WidgetSpec {
+                disabled: c.disabled,
+                query: None,
                 kind: "pagination",
                 key: c.key.as_deref(),
                 identity: &identity,
@@ -2812,6 +2845,8 @@ impl<C: AppendChild> InputWidgets for C {
         let identity = c.identity_in_form("", &if c.key.is_some() { String::new() } else { format!("{:?}:{}:{:?}", options.options, options.r#type, options.icon) });
         let (id, value, _) = self.register_widget_parity(
             WidgetSpec {
+                disabled: c.disabled,
+                query: None,
                 kind: "menu_button",
                 key: c.key.as_deref(),
                 identity: &identity,
@@ -2865,6 +2900,8 @@ impl<C: AppendChild> InputWidgets for C {
             };
             let (id, value, _) = self.register_widget_parity(
                 WidgetSpec {
+                    disabled: c.disabled,
+                    query: None,
                     kind: "link_button",
                     key: c.key.as_deref(),
                     identity: &identity,
@@ -2912,6 +2949,8 @@ impl<C: AppendChild> InputWidgets for C {
         };
         let (id, value, _) = self.register_widget_parity(
             WidgetSpec {
+                disabled: c.disabled,
+                query: None,
                 kind: "download_button",
                 key: c.key.as_deref(),
                 identity: &identity,
@@ -2991,6 +3030,8 @@ impl<C: AppendChild> InputWidgets for C {
         );
         let (id, selected, set_value) = self.register_widget_parity(
             WidgetSpec {
+                disabled: c.disabled,
+                query: None,
                 kind: "date_input",
                 key: c.key.as_deref(),
                 identity: &identity,
@@ -3055,6 +3096,8 @@ impl<C: AppendChild> InputWidgets for C {
         let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { format!("{:?}:{}:{}", options.value.map(wire), options.step, options.format) });
         let (id, value, set_value) = self.register_widget_parity(
             WidgetSpec {
+                disabled: c.disabled,
+                query: None,
                 kind: "time_input",
                 key: c.key.as_deref(),
                 identity: &identity,
@@ -3129,6 +3172,8 @@ impl<C: AppendChild> InputWidgets for C {
         let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { format!("{:?}:{}:{}", options.value.map(wire), options.step, options.format) });
         let (id, value, set_value) = self.register_widget_parity(
             WidgetSpec {
+                disabled: c.disabled,
+                query: None,
                 kind: "datetime_input",
                 key: c.key.as_deref(),
                 identity: &identity,
@@ -3186,6 +3231,8 @@ impl<C: AppendChild> InputWidgets for C {
         let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { options.value.clone() });
         let (id, value, set_value) = self.register_widget_parity(
             WidgetSpec {
+                disabled: c.disabled,
+                query: None,
                 kind: "color_picker",
                 key: c.key.as_deref(),
                 identity: &identity,
@@ -3248,6 +3295,8 @@ impl<C: AppendChild> InputWidgets for C {
         let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { format!("{:?}:{:?}", options.options, options.default) });
         let (id, selected, set_value) = self.register_widget_parity(
             WidgetSpec {
+                disabled: c.disabled,
+                query: None,
                 kind: "select_slider",
                 key: c.key.as_deref(),
                 identity: &identity,
@@ -3317,6 +3366,8 @@ impl<C: AppendChild> InputWidgets for C {
         let resolve_store = uploads.clone();
         let (id, file, _) = self.register_widget_parity(
             WidgetSpec {
+                disabled: c.disabled,
+                query: None,
                 kind: "audio_input",
                 key: c.key.as_deref(),
                 identity: &identity,
@@ -3357,6 +3408,8 @@ impl<C: AppendChild> InputWidgets for C {
         let resolve_store = uploads.clone();
         let (id, file, _) = self.register_widget_parity(
             WidgetSpec {
+                disabled: c.disabled,
+                query: None,
                 kind: "camera_input",
                 key: c.key.as_deref(),
                 identity: &identity,
@@ -3395,6 +3448,8 @@ impl<C: AppendChild> InputWidgets for C {
         let identity = if options.key.is_some() { String::new() } else { options.placeholder.clone() };
         let (id, value, _) = self.register_widget_parity(
             WidgetSpec {
+                disabled: false,
+                query: None,
                 kind: "chat_input",
                 key: options.key.as_deref(),
                 identity: &identity,
@@ -3440,6 +3495,9 @@ fn emit_selectbox<C: AppendChild, T: Clone + Serialize>(this: &C, options: Selec
     if options.bind == TextBind::QueryParams && c.key.is_none() {
         return Err(WidgetError::InvalidValue("selectbox query binding requires a key".into()));
     }
+    if options.bind == TextBind::QueryParams && c.key.as_deref().is_some_and(crate::query_params::is_embed_key) {
+        return Err(WidgetError::InvalidValue("cannot bind a reserved embedding query parameter".into()));
+    }
     let native: Vec<Value> = options.options.iter().map(serde_json::to_value).collect::<Result<_, _>>()?;
     let default = options.index.filter(|index| *index < native.len()).map(Value::from).unwrap_or(Value::Null);
     // Creation mode joins the widget identity, like the reference's
@@ -3451,6 +3509,8 @@ fn emit_selectbox<C: AppendChild, T: Clone + Serialize>(this: &C, options: Selec
     let values = options.options.clone();
     let (id, selected, set_value) = this.register_widget_parity(
         WidgetSpec {
+            disabled: c.disabled,
+            query: (options.bind == TextBind::QueryParams).then_some(crate::widgets::QueryBinding { clearable: options.index.is_none() }),
             kind: "selectbox",
             key: c.key.as_deref(),
             identity: &identity,
@@ -3472,6 +3532,10 @@ fn emit_selectbox<C: AppendChild, T: Clone + Serialize>(this: &C, options: Selec
             }
         },
     )?;
+    let app = this.get_app();
+    let state = app.lock().session_state.clone();
+    state.set_query_binding(&id, options.bind == TextBind::QueryParams);
+    crate::query_params::flush_query_update(&mut app.lock());
     let result = selected.clone();
     let empty = options.options.is_empty();
     let raw_label = |selected: &Option<T>| -> Option<String> {
@@ -3543,6 +3607,8 @@ fn emit_button_group<C: AppendChild>(this: &C, options: ButtonGroupOptions, styl
     );
     let (id, selected, set_value) = this.register_widget_parity(
         WidgetSpec {
+            disabled: c.disabled,
+            query: None,
             kind: if style == proto::button_group::Style::Pills { "pills" } else { "segmented_control" },
             key: c.key.as_deref(),
             identity: &identity,

@@ -7,8 +7,8 @@
     "by_bucket": {
       "needs-external-source-or-environment": 12,
       "rust-extension-or-headless-bound": 2,
-      "unmeasured-parameters": 80,
-      "no-explicit-gap-stated": 47
+      "unmeasured-parameters": 83,
+      "no-explicit-gap-stated": 44
     }
   },
   "entries": [
@@ -223,9 +223,10 @@
         "unmeasured-parameters"
       ],
       "limitations": [
-        "The emoji-string avatar is now measured (2026-10-29, frozen chat-metric-params) riding avatar_type EMOJI alongside the measured ICON shortcodes — a real Rust divergence (emoji was tagged ICON) found and fixed by the differential. Coverage otherwise is the two measured avatar forms (the name default and a material shortcode, both ICON type) and one Enter commit; image/URL avatars, emoji-type avatars, accept_file/accept_audio submissions, max_chars, disabled, on_change callbacks, submit_mode and programmatic set_value remain unobserved.",
+        "The emoji-string avatar is now measured (2026-10-29, frozen chat-metric-params) riding avatar_type EMOJI alongside the measured ICON shortcodes — a real Rust divergence (emoji was tagged ICON) found and fixed by the differential. The original name-default subset and material-shortcode ICON avatars are measured. A separate 28-case native-WS capture now covers preset/case aliases, ordinary and emoji default names, explicit preset/emoji/material values and six HTTP(S)/data/static URI IMAGE encodings. Image loading and browser display remain unobserved. Input submission options and one-shot return state belong to st.chat_input, not this output container.",
         "The chat input is a one-shot trigger: the value returns on the run it triggered and resets to None after, like the reference's trigger semantics (the registry resets it with the button triggers).",
-        "fixture SHA256 e85271b6a4bd78e4eb28a128d307f2bf8dd3eb7450afe230c161274fedfbe0d2; example SHA256 7e0f5afb36cd35a915ff6f9e546357afd960c9975edb2a4319c4ad008f77b240; chat block source SHA256 4029d37bd1f5b1b85f93bd15cf7485b93d33f8f5549ad42715bc9c5f40c42eac."
+        "fixture SHA256 e85271b6a4bd78e4eb28a128d307f2bf8dd3eb7450afe230c161274fedfbe0d2; example SHA256 7e0f5afb36cd35a915ff6f9e546357afd960c9975edb2a4319c4ad008f77b240; chat block source SHA256 4029d37bd1f5b1b85f93bd15cf7485b93d33f8f5549ad42715bc9c5f40c42eac.",
+        "The string-avatar extension compares 57 ordered block/child/input-report projections, including paths, allow_empty, width, Unicode preservation and JSON default expansion. It does not prove local/byte image loading, malformed-avatar errors, full emoji-catalogue equality, all URI parsing boundaries, spinner avatars, width options or actual browser display. These remain in the complete-compatibility scope."
       ]
     },
     {
@@ -239,7 +240,8 @@
         "Rust Result<_, WidgetError> is not the complete Python exception-rendering UI; complete invalid-input UI equivalence is unverified.",
         "Core callback/key behavior and sampled parameters only: not all on_change modes, argument combinations or parameter-change/reset semantics.",
         "The disabled Python reference operated selectbox and checkbox only; slider disabled parameters were observed, but no disabled-slider click is claimed.",
-        "Frozen Rust widgets SHA256 4062f4c57bd52d54fcea72293910dd797093f7e61a7eb6490bd12df2978d909a; Python numeric SHA256 a782e87707f1ae055ee99a8bb16653e1208729cb42c4a4939675de6aff669cc7; widget_api source SHA256 c4ca692118cd4485282c31757483fd2f72e099894394e51e5f5f6e54f6b7f3b8."
+        "Frozen Rust widgets SHA256 4062f4c57bd52d54fcea72293910dd797093f7e61a7eb6490bd12df2978d909a; Python numeric SHA256 a782e87707f1ae055ee99a8bb16653e1208729cb42c4a4939675de6aff669cc7; widget_api source SHA256 c4ca692118cd4485282c31757483fd2f72e099894394e51e5f5f6e54f6b7f3b8.",
+        "Two nine-run native-WS captures compare disabled text/select/checkbox inputs, prior-disabled callback policy, code/URL priority, hide/remount, transitions, and same-connection TypeError recovery (58 valid and 52 error-branch events). The measured bool oneof on a previously disabled ordinary selectbox raises after the enabled Live callback; unseen records survive that failed run. Error type/message/order/flags match; Python source stack frames are runtime-specific. Other malformed types/widgets, cross-page behavior and current browser error UI remain open. This does not close full disabled or callback compatibility."
       ]
     },
     {
@@ -868,7 +870,7 @@
         "unmeasured-parameters"
       ],
       "limitations": [
-        "The list overload is now measured (2026-10-29, frozen button-image-params): multiple RGBA images ride one imgs element with per-image captions and an element-level width, identical pixels sharing one content address — the new st.images API matches field-for-field. In-memory RGBA input only: URL/path/PIL-image inputs, use_container_width, multiple images and output sizing are unobserved.",
+        "The list overload is now measured (2026-10-29, frozen button-image-params): multiple RGBA images ride one imgs element with per-image captions and an element-level width, identical pixels sharing one content address — the new st.images API matches field-for-field. In-memory RGBA input only: URL/path/PIL-image inputs and use_container_width remain unobserved; the measured list width does not establish other output-sizing combinations.",
         "The PNG encoder differs from PIL's (stored deflate), so PNG bytes and their address differ per side; pixels are identical and only the response shape compares.",
         "Rust-native RGBA validation uses checked dimension arithmetic, rejects unrepresentable byte lengths and leaves the image slot untouched. The low-level PNG encoder still requires a valid input; these controls are not new browser or Python image-type evidence."
       ]
@@ -892,9 +894,13 @@
         "unmeasured-parameters"
       ],
       "limitations": [
-        "Coverage is the measured defaults of each element on one page; json max_expand_depth and non-expanded default, status error state and non-label updates, space via tuple/height-only forms, nested bottom interplay and repeated empty overwrites remain unobserved.",
-        "The expanded semantics are now measured (2026-10-29, frozen json-badge-params): expanded=True rides explicitly and the collapsed default omits the field entirely; the pinned 1.66.1 API has NO depth parameter (passing it raises TypeError, measured). st.json serializes with the reference's json.dumps defaults (\", \"/\": \" separators, construction order); the value's serde_json rendering feeds it, so exotic float formats may differ from Python's repr.",
-        "fixture SHA256 6ff9cca00a26fa36b0e89d45bef7596bf1ec4e47dd6d1de87291fe2d8904fee6; example SHA256 876779e3a6e1d2c3a8ad85d79eb135177ae1f51973ec701d9784c2ecc47d324c; display element sources SHA256 b298701264c9e5d6a9a3075d3f5689f57f06a983a8987f30e3d75ceb98af84d6 + 6d71d2173ab767496efacc498a35ae6d5ecfcb6980758becea0ee2f3277eb7f8."
+        "Coverage includes the default display and the expanded/collapsed creation fields below. Nested disclosure beyond the measured single-level object/array round trips and exotic numeric serialization remain unobserved. Other display elements have their own matrix rows; they are not gaps in st.json.",
+        "The expanded semantics are now measured (2026-10-29, frozen json-badge-params): explicit expanded=True rides explicitly and expanded=False omits the field entirely. The default True is additionally fixed by the string-avatar report. The unsupported depth= keyword must not be confused with documented expanded=int depth; the latter exists in the pinned runtime and is not implemented in the Rust bool-only surface. st.json serializes with the reference's json.dumps defaults (\", \"/\": \" separators, construction order); the value's serde_json rendering feeds it, so exotic float formats may differ from Python's repr.",
+        "fixture SHA256 6ff9cca00a26fa36b0e89d45bef7596bf1ec4e47dd6d1de87291fe2d8904fee6; example SHA256 876779e3a6e1d2c3a8ad85d79eb135177ae1f51973ec701d9784c2ecc47d324c; display element sources SHA256 b298701264c9e5d6a9a3075d3f5689f57f06a983a8987f30e3d75ceb98af84d6 + 6d71d2173ab767496efacc498a35ae6d5ecfcb6980758becea0ee2f3277eb7f8.",
+        "The string-avatar report exposed non-BMP JSON corruption and the wrong collapsed default; the shared encoder now emits UTF-16 surrogate pairs, with unit coverage for BMP/non-BMP sequences, JSON keys/values and U+10000/U+10FFFF, plus a real WS Unicode report. Integer expanded depth, width variants, nested browser disclosure beyond the measured root cycles, exotic numeric/custom-serialization inputs and further string boundaries remain unverified or incomplete; this does not close st.json.",
+        "A separate 36-element native-WS capture proves passthrough of 15 top-level strings with default/false expansion (including Unicode, whitespace, empty/malformed and multi-document text), plus five structured controls. Borrowed/owned Rust strings and Value::String retain raw body; nested strings remain serialized. The old Python/Rust evidence summaries are now bound to raw protobuf with seven corruption guards. These are server-wire results only; frontend invalid-JSON rendering beyond the 15-string Chrome sample, integer depth, custom serialization failures and exotic numeric values remain open.",
+        "Live Chrome Browser Use evidence retains 22 observations per runtime: 15 string renderings, two real object/array collapse-expand-collapse cycles and final Unicode verification. Main text, parse alerts, JSON text/icons/keys/rows match, with nine JPEGs per runtime and offline corruption guards. Upstream scalar ERROR objects and eight identical console-buffer error messages were retained, not hidden or reported as zero errors. The 36-element full example native preflight also matches. Integer depth, deeper disclosure, widths/themes/responsive configurations, wider inputs and fresh automated-browser CI remain incomplete; this does not close st.json or pending rerun-queue differences.",
+        "A separate pinned native-WS reference measures 18 expansion/width calls: 9 accepted and 9 rejected, with 28 JSON outputs/reports. False vs int depth zero are distinct; -1/int32 max survive, overflow and wrong expanded types fail; stretch/positive pixel widths pass (including upstream True->1), invalid widths fail. JsonOptions/json_options versus direct-method alternatives await a user public-interface choice; these reference-only results do not mean Rust supports depth/width or matches error UI."
       ]
     },
     {
@@ -943,7 +949,8 @@
       "limitations": [
         "Coverage is the journey-display2-v1 chain: the pinned fixture's presentation leftovers (an emoji logo, st.help over a builtin, a skeleton placeholder and st.pdf's no-component exception) across the load stage.",
         "The emoji logo frame is now measured end to end (2026-10-29, frozen code-logo-params): EMOJI typing, the medium DEFAULT size, and the top-level logo ForwardMsg (not a delta) — frame-identical cross-runtime with zero implementation change. The emoji small-size load shape was otherwise observed, including the metadata stamp whose absence blanks the page (the frontend's logo handler dereferences activeScriptHash); URL/material-icon images, links, icon_image and the collapsed-sidebar swap remain unobserved.",
-        "fixture SHA256 510eec70e4841262091df7cd674010f86aa3dadc8d6c89747f149b22997805cc; example SHA256 e24913670e6fe46c58556fa3bf58fcb396432e617e4e0a5059c58c907ba8b05a."
+        "fixture SHA256 510eec70e4841262091df7cd674010f86aa3dadc8d6c89747f149b22997805cc; example SHA256 e24913670e6fe46c58556fa3bf58fcb396432e617e4e0a5059c58c907ba8b05a.",
+        "Eighteen complete native-WS Logo payloads now compare both image fields/types, small/medium/large, optional links and metadata shape. Complex ZWJ/family/rainbow/keycap/skin-tone sequences were misclassified by the old <=2-character heuristic (9/18 payload mismatches); automatic borrowed/owned string conversion now uses the existing Unicode emoji dependency. URL/data/static strings are encoding evidence only. Full emoji-catalogue equality, actual image loading, invalid strings/links, all parameters and sidebar/browser behavior remain open; st.logo remains partial."
       ]
     },
     {
@@ -996,7 +1003,7 @@
         "unmeasured-parameters"
       ],
       "limitations": [
-        "The full delta rule set is now measured (2026-10-29, frozen chat-metric-params): no-delta and zero-delta are NONE+GRAY (two real Rust divergences — RED color and DOWN direction — fixed by the differential), off/gray keeps the direction, negative normal is DOWN+RED with the proto zero-values omitted on the wire. Coverage otherwise is the measured normal-positive and inverse-negative pair (UP/GREEN and DOWN/GREEN); no-delta, zero, non-numeric-delta, off/gray and the numeric formatting/chart fields are unobserved.",
+        "The measured normal/inverse/off cases include no delta, numeric zero, positive and negative values, and 36 string delta cases (2026-10-29, frozen chat-metric-params/string-delta). String deltas are dedented without trimming newlines: only literal \"0\" is neutral, other strings point up unless they start with a minus sign. The retained Rust baseline mismatched 30/36 cases; the fixed capture matches all 36. Explicit color names, delta-arrow overrides and numeric formatting/chart fields remain unobserved. These native-WS captures do not establish browser rendering of every case.",
         "media store source SHA256 82200de623c3c193dad38ad1d858d025b5a806a6a98f5764b1957f5113598055; elements source SHA256 72499c716daf0c6b8b074134026ca356d06a06b2ba8db68f1421a79f0cd072f7; route source SHA256 1cd9d5e90bece87881dfc8ce7cd497d52962cea8822cf9e6fdefcfecfd5bbc68; fixture SHA256 6079286f3d84cb2478a35ec38532b007b188c5c7cfed5c528e271dce08e4046e; example SHA256 f80ac67a3d30312042ebf4aaaf15e0807cf73191b7bfb93b34dfaab2dbf86f26."
       ]
     },
@@ -1022,7 +1029,8 @@
         "Coverage is function pages (title/icon/url_path/default/hidden) under st.navigation with the default sidebar position; pages/ directory apps, page sections, position top or hidden, expanded/visible_items, external URLs, st.page_link, Path-based Page sources and on_change interplay remain unobserved.",
         "The initial NewSession page_script_hash is each runtime's own main script hash (the documented custom-hash divergence); the page hashes themselves are the measured BLAKE2b/16 url-path formula on both runtimes.",
         "A browser-reported widget state for a widget the previous run did not render (for example a button on another page) applies lazily at registration like the reference; on_change callbacks of such late applications do not run (unobserved on the reference wire).",
-        "navigation source SHA256 7ed32635180b1f2dbcafa5023f566c5764980a6fb4327126ef5d5d41240a62c1; fixture SHA256 ec3eed1425f88a1bc25c1bde7c8884eb953bca1658344a4b15e5b66b28701bb4; example SHA256 abe2e4b7651ff54073b3bbfdd610a7747574ea12c64662ec118d440143ec0554."
+        "navigation source SHA256 7ed32635180b1f2dbcafa5023f566c5764980a6fb4327126ef5d5d41240a62c1; fixture SHA256 ec3eed1425f88a1bc25c1bde7c8884eb953bca1658344a4b15e5b66b28701bb4; example SHA256 abe2e4b7651ff54073b3bbfdd610a7747574ea12c64662ec118d440143ec0554.",
+        "Additional frozen native-WS evidence shows queued Navigation and PageConfig are cleared on rerun, while toast deltas survive; a separate cold-call capture preserves its already-sent prefix. Current Rust Delta-only filtering still retains old Navigation/config and drops queued toast, with red differential tests retained. Expanding to the pinned lifecycle/toast retain list awaits a new user flow decision; the earlier authorization covered only Delta filtering. These are known open differences, not accepted limitations or passed browser coverage."
       ]
     },
     {
@@ -1118,7 +1126,7 @@
         "unmeasured-parameters"
       ],
       "limitations": [
-        "The text label is now measured riding the creation message (2026-10-29, frozen chat-metric-params, new progress_options builder). The float overload is python-only (0.0..=1.0, out-of-range raises the framework exception measured in the same trace); the Rust API stays integer-only and does not claim float parity. Coverage otherwise is the measured 0..=100 integer value pair; text, float values and mid-run timing beyond the same-tick window are unobserved.",
+        "The text label is now measured riding the creation message (2026-10-29, frozen chat-metric-params, new progress_options builder). The float overload is python-only (0.0..=1.0, out-of-range raises the framework exception measured in the same trace); the Rust API stays integer-only and does not claim float parity. Coverage includes the measured integer endpoints and text label. Valid float inputs and mid-run timing beyond the same-tick window remain unobserved; the integer-only Rust interface does not establish float-input behavior.",
         "A deferred element placed before later non-deferred elements streams after them at run end; the measured page has progress last.",
         "media store source SHA256 82200de623c3c193dad38ad1d858d025b5a806a6a98f5764b1957f5113598055; elements source SHA256 72499c716daf0c6b8b074134026ca356d06a06b2ba8db68f1421a79f0cd072f7; route source SHA256 1cd9d5e90bece87881dfc8ce7cd497d52962cea8822cf9e6fdefcfecfd5bbc68; fixture SHA256 6079286f3d84cb2478a35ec38532b007b188c5c7cfed5c528e271dce08e4046e; example SHA256 f80ac67a3d30312042ebf4aaaf15e0807cf73191b7bfb93b34dfaab2dbf86f26."
       ]
@@ -1142,9 +1150,14 @@
         "unmeasured-parameters"
       ],
       "limitations": [
-        "Coverage is one measured creation-mode selectbox with the contains filter, one bind='query-params' selectbox and one server-side param write; prefix/none filter modes, multiselect/radio query binding, persisted URL-driven defaults on a fresh load, query_params clear/remove round trips and on_change interplay remain unobserved.",
+        "The original browser chain covers one creation-mode contains-filter selectbox, one query-bound selectbox and server-side writes. The 2026-10-29 native-WS extension covers repeated-key last-value reads, get_all order, single-value pairs, empty-list keys, replacement/appending, deletion, clear and restore, with eight snapshots interleaved with seven exact URL writes. Rust now preserves key insertion order and repeated value order rather than alphabetically sorting URL keys. Browser URL clear/remove round trips, prefix/none filters, multiselect/radio query binding, browser-persisted URL defaults, on_change interplay, Remount/page restoration, dynamic bind toggles and broader binding combinations remain unverified. Reserved embed/embed_options case-insensitive visibility, write/delete rejection without URL mutation, preservation on public clear and ordinary empty-string/st_embed keys are additionally covered by the 2026-10-29 reserved native-WS reference (nine JSON reports plus four exact URL writes). Error presence and unchanged state are compared; Python exception text/UI and browser embed behavior are not claimed.",
         "Widget ids are judged modulo the $$ID digest segment; the id formula itself is the existing widget-identity mechanism.",
-        "widget_api source SHA256 898a4535bea3fa6d295c3e445b1d917389bf55dd5acfbdddaa371df01f0605a1; fixture SHA256 11b02cd33aa010da01b9480de33d7e3a9dfb388ede98b28269c4663a819a10f7; example SHA256 49f05c691d12461ae10b35b1d11297a95422baa1e530c3d5e11bd191281dc263."
+        "widget_api source SHA256 898a4535bea3fa6d295c3e445b1d917389bf55dd5acfbdddaa371df01f0605a1; fixture SHA256 11b02cd33aa010da01b9480de33d7e3a9dfb388ede98b28269c4663a819a10f7; example SHA256 49f05c691d12461ae10b35b1d11297a95422baa1e530c3d5e11bd191281dc263.",
+        "The four-run native-WS binding lifecycle reference (2026-10-29) measures selectbox plus sidebar text_input registration, absent-parameter clear, case-sensitive mutation guards, protection through a hidden-widget run, one run-end URL cleanup and successful manual writes on the next run. The active run explicitly supplies both URL and widget states; it does not establish URL-only initialization or browser URL synchronization.",
+        "The separate eight-run native-WS URL-seeding reference (2026-10-29) covers selectbox, text_input, clearable selection and creation-mode selection; initial URL-only values, frontend/code priority, invalid/default/empty URL correction, and history navigation with present/missing parameters. Rust compares 32 widget value/set_value projections, eight application snapshots and nine ordered URL messages. Disabled/forged input combinations, callback ordering, bound server-started reruns, remount/page restoration and actual browser navigation remain unverified.",
+        "A separate two-run seed-code reference verifies that valid URL initialization and history values override incompatible same-run integer session values for the bound string/select widgets. Rust also checks the frontend set_value projections; it must not parse state already superseded by the selected URL source.",
+        "Two nine-run native-WS captures compare disabled text/select/checkbox inputs, prior-disabled callback policy, code/URL priority, hide/remount, transitions, and same-connection TypeError recovery (58 valid and 52 error-branch events). The measured bool oneof on a previously disabled ordinary selectbox raises after the enabled Live callback; unseen records survive that failed run. Error type/message/order/flags match; Python source stack frames are runtime-specific. Other malformed types/widgets, cross-page behavior and current browser error UI remain open. This does not close full disabled or callback compatibility.",
+        "Five native-WS client requests produce ten runs, compared as 47 ordered URL/widget/report/finish events. Internal reruns preserve unseen records, frontend/code priority and exactly-once callbacks; the last announced URL is distinct from silent default collapse. User selected discarding only queued unsent Delta messages; a separate Rust WS yield test preserves an already-sent delta while dropping the remaining queue. Frozen references are unchanged. This is not current browser validation; callback-requested reruns, fragments, cross-page and broader scheduling combinations remain unverified."
       ]
     },
     {
@@ -1163,12 +1176,14 @@
       "feature_id": "st.rerun",
       "category": "APPLICATION LOGIC/Execution flow",
       "buckets": [
-        "no-explicit-gap-stated"
+        "unmeasured-parameters"
       ],
       "limitations": [
         "An unguarded rerun loops forever exactly as upstream; no depth cap is imposed.",
         "Same-tick upstream message coalescing is not replicated: elements written just before st.rerun() stream live (matching the upstream slow case).",
-        "st.quit does not exist in 1.66.1 and is not offered."
+        "st.quit does not exist in 1.66.1 and is not offered.",
+        "Five native-WS client requests produce ten runs, compared as 47 ordered URL/widget/report/finish events. Internal reruns preserve unseen records, frontend/code priority and exactly-once callbacks; the last announced URL is distinct from silent default collapse. User selected discarding only queued unsent Delta messages; a separate Rust WS yield test preserves an already-sent delta while dropping the remaining queue. Frozen references are unchanged. This is not current browser validation; callback-requested reruns, fragments, cross-page and broader scheduling combinations remain unverified.",
+        "Additional frozen native-WS evidence shows queued Navigation and PageConfig are cleared on rerun, while toast deltas survive; a separate cold-call capture preserves its already-sent prefix. Current Rust Delta-only filtering still retains old Navigation/config and drops queued toast, with red differential tests retained. Expanding to the pinned lifecycle/toast retain list awaits a new user flow decision; the earlier authorization covered only Delta filtering. These are known open differences, not accepted limitations or passed browser coverage."
       ]
     },
     {
@@ -1219,19 +1234,22 @@
         "Core callback/key behavior and sampled parameters only: not all on_change modes, argument combinations or parameter-change/reset semantics.",
         "The disabled Python reference operated selectbox and checkbox only; slider disabled parameters were observed, but no disabled-slider click is claimed.",
         "Frozen Rust widgets SHA256 4062f4c57bd52d54fcea72293910dd797093f7e61a7eb6490bd12df2978d909a; Python numeric SHA256 a782e87707f1ae055ee99a8bb16653e1208729cb42c4a4939675de6aff669cc7; widget_api source SHA256 c4ca692118cd4485282c31757483fd2f72e099894394e51e5f5f6e54f6b7f3b8.",
-        "Creation-mode coverage is the string overload (a typed value keeps its label); typed non-string creation values and every filter_mode beyond contains/fuzzy remain unobserved."
+        "Creation-mode coverage is the string overload (a typed value keeps its label); typed non-string creation values and every filter_mode beyond contains/fuzzy remain unobserved.",
+        "Two nine-run native-WS captures compare disabled text/select/checkbox inputs, prior-disabled callback policy, code/URL priority, hide/remount, transitions, and same-connection TypeError recovery (58 valid and 52 error-branch events). The measured bool oneof on a previously disabled ordinary selectbox raises after the enabled Live callback; unseen records survive that failed run. Error type/message/order/flags match; Python source stack frames are runtime-specific. Other malformed types/widgets, cross-page behavior and current browser error UI remain open. This does not close full disabled or callback compatibility.",
+        "Five native-WS client requests produce ten runs, compared as 47 ordered URL/widget/report/finish events. Internal reruns preserve unseen records, frontend/code priority and exactly-once callbacks; the last announced URL is distinct from silent default collapse. User selected discarding only queued unsent Delta messages; a separate Rust WS yield test preserves an already-sent delta while dropping the remaining queue. Frozen references are unchanged. This is not current browser validation; callback-requested reruns, fragments, cross-page and broader scheduling combinations remain unverified."
       ]
     },
     {
       "feature_id": "st.session_state",
       "category": "APPLICATION LOGIC/Caching and state",
       "buckets": [
-        "no-explicit-gap-stated"
+        "unmeasured-parameters"
       ],
       "limitations": [
         "Typed JSON manual application state only; no widget-key binding or cancellation compatibility.",
         "Python disconnected-session TTL and complete old-socket fate have not been differentially verified; local lifecycle tests do not establish upstream parity.",
-        "The Python opaque/known-ID probe is reference evidence only, not a claim of full Rust session-ID or security-handshake compatibility."
+        "The Python opaque/known-ID probe is reference evidence only, not a claim of full Rust session-ID or security-handshake compatibility.",
+        "Five native-WS client requests produce ten runs, compared as 47 ordered URL/widget/report/finish events. Internal reruns preserve unseen records, frontend/code priority and exactly-once callbacks; the last announced URL is distinct from silent default collapse. User selected discarding only queued unsent Delta messages; a separate Rust WS yield test preserves an already-sent delta while dropping the remaining queue. Frozen references are unchanged. This is not current browser validation; callback-requested reruns, fragments, cross-page and broader scheduling combinations remain unverified."
       ]
     },
     {
@@ -1243,7 +1261,8 @@
       "limitations": [
         "Coverage is one measured full call plus the duplicate-call probe; page_icon as image URL/emoji/Image, the hide flags and clear_about_md menu behavior, initial_sidebar_width, the LOCKED sidebar state and a centered-layout control page remain unobserved.",
         "The document title/favicon/wide class are applied by the official frontend from the streamed config; favicon bytes are fetched from Google Fonts by the frontend and are not served by this runtime.",
-        "api.rs source SHA256 9e7de9d408cce55cb91f6ec9a1dd8fbb0ce710cb4c0e5c0ae091840395e8cc98; fixture SHA256 f1c88b3fe94bcdedf785b11aeabff387ae13ba6dc7ebc76811c5bac05da28cb2; example SHA256 bbcd65516b3ba329ed2092eb4ec8628f93508d6a0a3e513663e0351fc43dff28."
+        "api.rs source SHA256 9e7de9d408cce55cb91f6ec9a1dd8fbb0ce710cb4c0e5c0ae091840395e8cc98; fixture SHA256 f1c88b3fe94bcdedf785b11aeabff387ae13ba6dc7ebc76811c5bac05da28cb2; example SHA256 bbcd65516b3ba329ed2092eb4ec8628f93508d6a0a3e513663e0351fc43dff28.",
+        "Additional frozen native-WS evidence shows queued Navigation and PageConfig are cleared on rerun, while toast deltas survive; a separate cold-call capture preserves its already-sent prefix. Current Rust Delta-only filtering still retains old Navigation/config and drops queued toast, with red differential tests retained. Expanding to the pinned lifecycle/toast retain list awaits a new user flow decision; the earlier authorization covered only Delta filtering. These are known open differences, not accepted limitations or passed browser coverage."
       ]
     },
     {
@@ -1380,7 +1399,8 @@
         "Coverage is function pages (title/icon/url_path/default/hidden) under st.navigation with the default sidebar position; pages/ directory apps, page sections, position top or hidden, expanded/visible_items, external URLs, st.page_link, Path-based Page sources and on_change interplay remain unobserved.",
         "The initial NewSession page_script_hash is each runtime's own main script hash (the documented custom-hash divergence); the page hashes themselves are the measured BLAKE2b/16 url-path formula on both runtimes.",
         "A browser-reported widget state for a widget the previous run did not render (for example a button on another page) applies lazily at registration like the reference; on_change callbacks of such late applications do not run (unobserved on the reference wire).",
-        "navigation source SHA256 7ed32635180b1f2dbcafa5023f566c5764980a6fb4327126ef5d5d41240a62c1; fixture SHA256 ec3eed1425f88a1bc25c1bde7c8884eb953bca1658344a4b15e5b66b28701bb4; example SHA256 abe2e4b7651ff54073b3bbfdd610a7747574ea12c64662ec118d440143ec0554."
+        "navigation source SHA256 7ed32635180b1f2dbcafa5023f566c5764980a6fb4327126ef5d5d41240a62c1; fixture SHA256 ec3eed1425f88a1bc25c1bde7c8884eb953bca1658344a4b15e5b66b28701bb4; example SHA256 abe2e4b7651ff54073b3bbfdd610a7747574ea12c64662ec118d440143ec0554.",
+        "Additional frozen native-WS evidence shows queued Navigation and PageConfig are cleared on rerun, while toast deltas survive; a separate cold-call capture preserves its already-sent prefix. Current Rust Delta-only filtering still retains old Navigation/config and drops queued toast, with red differential tests retained. Expanding to the pinned lifecycle/toast retain list awaits a new user flow decision; the earlier authorization covered only Delta filtering. These are known open differences, not accepted limitations or passed browser coverage."
       ]
     },
     {
@@ -1428,7 +1448,7 @@
       ],
       "limitations": [
         "The 2026-10-25 review pixel-diff found the text_area control box renders 9px shorter on the native side although the widget protos are byte-identical across runtimes — a frontend autosize/timing artifact outside the wire (compensated content is pixel-identical); recorded as a known boundary, not a wire defect.",
-        "max_chars, placeholder (message fields) and pixel height (element config) are now measured on the creation wire (2026-10-28, frozen widget-params), field-identical cross-runtime; ; max_chars truncation, placeholder, height and on_change callbacks remain unobserved.",
+        "max_chars, placeholder (message fields) and pixel height (element config) are now measured on the creation wire (2026-10-28, frozen widget-params), field-identical cross-runtime. Interactive max_chars truncation, placeholder rendering, height behavior and on_change callbacks remain unobserved.",
         "Rust Result<_, WidgetError> is not the complete Python exception-rendering UI; invalid-input UI equivalence is unverified.",
         "widget_api source SHA256 9e9df5fc32ce482cbc1fbe2c53bc6ec47ed3d26c1f1bdb797dd44db9b86bbd68; fixture SHA256 cb884ee2a6487585d63d9254cc353e42704cbd9b9f832732cd0e0a35d27da5bf; example SHA256 1052058ec8ed7d354853e611ecbf8e0986a369093794e80467e5d6448acfc309."
       ]
@@ -1437,9 +1457,12 @@
       "feature_id": "st.text_input",
       "category": "PAGE ELEMENTS/Input widgets",
       "buckets": [
-        "no-explicit-gap-stated"
+        "unmeasured-parameters"
       ],
-      "limitations": []
+      "limitations": [
+        "Two nine-run native-WS captures compare disabled text/select/checkbox inputs, prior-disabled callback policy, code/URL priority, hide/remount, transitions, and same-connection TypeError recovery (58 valid and 52 error-branch events). The measured bool oneof on a previously disabled ordinary selectbox raises after the enabled Live callback; unseen records survive that failed run. Error type/message/order/flags match; Python source stack frames are runtime-specific. Other malformed types/widgets, cross-page behavior and current browser error UI remain open. This does not close full disabled or callback compatibility.",
+        "Five native-WS client requests produce ten runs, compared as 47 ordered URL/widget/report/finish events. Internal reruns preserve unseen records, frontend/code priority and exactly-once callbacks; the last announced URL is distinct from silent default collapse. User selected discarding only queued unsent Delta messages; a separate Rust WS yield test preserves an already-sent delta while dropping the remaining queue. Frozen references are unchanged. This is not current browser validation; callback-requested reruns, fragments, cross-page and broader scheduling combinations remain unverified."
+      ]
     },
     {
       "feature_id": "st.time_input",
@@ -1468,8 +1491,9 @@
         "unmeasured-parameters"
       ],
       "limitations": [
-        "Coverage is one measured toast with an icon; custom durations, zero-duration toasts and toasts issued from inside containers are unobserved (the path is always [2, 0]). Durations are now measured (2026-10-28, frozen layout-params): short=4, long=10, and a positive integer passes through verbatim (1500). Custom durations from inside containers and zero/negative rejection follow the same validation as the reference.",
-        "elements source SHA256 3b2bead1a55244c008f3e05bb980bf0008780e26d0f33fc4683dd0a14d73d98e; fixture SHA256 386f744f39f90874bab6b31a2c1b1593a3657de6c6eebd83e9b1a40a3994aba1; example SHA256 2f9c2b678e865d2c283c8c2856e80a8d837a9a92647abeca12bb39ba17950f04."
+        "Coverage is one measured toast with an icon; zero-duration toasts and toasts issued from inside containers remain unobserved (the path is always [2, 0]). Durations are now measured (2026-10-28, frozen layout-params): short=4, long=10, and a positive integer passes through verbatim (1500). Custom durations from inside containers and zero/negative rejection follow the same validation as the reference.",
+        "elements source SHA256 3b2bead1a55244c008f3e05bb980bf0008780e26d0f33fc4683dd0a14d73d98e; fixture SHA256 386f744f39f90874bab6b31a2c1b1593a3657de6c6eebd83e9b1a40a3994aba1; example SHA256 2f9c2b678e865d2c283c8c2856e80a8d837a9a92647abeca12bb39ba17950f04.",
+        "Additional frozen native-WS evidence shows queued Navigation and PageConfig are cleared on rerun, while toast deltas survive; a separate cold-call capture preserves its already-sent prefix. Current Rust Delta-only filtering still retains old Navigation/config and drops queued toast, with red differential tests retained. Expanding to the pinned lifecycle/toast retain list awaits a new user flow decision; the earlier authorization covered only Delta filtering. These are known open differences, not accepted limitations or passed browser coverage."
       ]
     },
     {
@@ -1517,7 +1541,7 @@
         "unmeasured-parameters"
       ],
       "limitations": [
-        "Coverage is the measured default call with in-memory mp4 bytes; start/end, loop, autoplay, muted and text subtitles are now measured end to end (2026-10-28, frozen media-params): VTT text resolves to .vtt media tracks, invalid text renders the measured StreamlitAPIException element, and the SRT conversion follows the reference rules (unmeasured path). URL inputs are now measured (2026-10-28, frozen media-more): a direct URL rides the wire unchanged bypassing the media store, and SRT subtitle text converts to a VTT track per the reference rules (the Rust validator bug that rejected valid SRT was found and fixed by the differential). YouTube/iframe inputs need a real external source and remain unmeasured, as do alt and mime types beyond the measured map.observed.",
+        "Coverage is the measured default call with in-memory mp4 bytes; start/end, loop, autoplay, muted and text subtitles are now measured end to end (2026-10-28, frozen media-params): VTT text resolves to .vtt media tracks, invalid text renders the measured StreamlitAPIException element, with SRT conversion additionally measured by the media-more chain below. URL inputs are now measured (2026-10-28, frozen media-more): a direct URL rides the wire unchanged bypassing the media store, and SRT subtitle text converts to a VTT track per the reference rules (the Rust validator bug that rejected valid SRT was found and fixed by the differential). YouTube/iframe inputs need a real external source and remain unmeasured, as do alt and mime types beyond the measured map.",
         "Committed video sample SHA256 dcda48c8cec73a32406a184d635c41a324107f0f51a0cb0fe1124cc0791a19a6; data integrity is retained without source identity gates.",
         "Added Range subset: 27 actual public-call WS/HTTP inputs across CSV, empty download and the committed MP4, including three video requests. Rust matches frozen status/URL/range/length/type/disposition/accept-ranges and original bytes, with 206 suffixes and 416 invalid or unsatisfiable single/multi requests. This does not establish browser seeking, HEAD, If-Range/CORS, duplicate or all numeric/header forms, or full media lifecycle."
       ]

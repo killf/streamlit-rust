@@ -179,11 +179,13 @@ impl Streamlit {
         }
     }
 
-    /// Rerun the script immediately, mirroring `st.rerun()`.    ///
+    /// Rerun the script immediately, mirroring `st.rerun()`.
+    ///
     /// The current run aborts at this point — the measured 1.66.1 wire finishes
     /// it with `FINISHED_EARLY_FOR_RERUN` and the server starts the next run
-    /// without any browser request. Elements and session-state writes after
-    /// this call have no effect in the current run. Guard the call so it fires
+    /// without any browser request. Unsent deltas of the interrupted run are
+    /// discarded; deltas already sent and URL messages are retained.
+    /// Elements and session-state writes after this call have no effect in the current run. Guard the call so it fires
     /// exactly once (for example with a session-state flag): an unguarded
     /// `rerun` reruns forever, exactly as upstream does.
     pub fn rerun(&self) {

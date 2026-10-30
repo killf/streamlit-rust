@@ -17,6 +17,24 @@ fn rerun_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
     })
 }
 
+fn streamed_rerun_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        let state = st.session_state();
+        let initialized = state.get::<bool>("initialized");
+        assert!(initialized.is_ok(), "fixture state must be boolean: {initialized:?}");
+        if matches!(initialized, Ok(None)) {
+            assert!(state.set("initialized", true).is_ok());
+            st.markdown("flushed-before-rerun");
+            // 交还执行权，发送任务先消费当前队列，再触发 rerun。
+            tokio::task::yield_now().await;
+            st.markdown("queued-before-rerun");
+            st.rerun();
+        } else {
+            st.markdown("complete");
+        }
+    })
+}
+
 fn stop_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
     Box::pin(async move {
         let stopped = st.session_state().get::<bool>("stopped");
@@ -168,13 +186,31 @@ async fn st_rerun_finishes_early_and_the_server_starts_the_next_run_without_a_ba
     let mut run_ids = std::collections::HashSet::new();
     let first = receive_run(&mut stream, &mut session_id, &mut run_ids).await?;
     assert_eq!(first.finish_statuses, [2], "the aborted run finishes FINISHED_EARLY_FOR_RERUN");
-    assert_eq!(first.markdowns, ["runs-marker"], "elements streamed before st.rerun stay; later ones are suppressed");
+    assert!(first.markdowns.is_empty(), "synchronous unsent deltas are discarded when rerun interrupts the run");
     let second = receive_run(&mut stream, &mut session_id, &mut run_ids).await?;
     assert_eq!(second.finish_statuses, [0]);
     assert_eq!(second.markdowns, ["runs-marker", "epilogue"], "the rerun re-executes with persisted state and renders the epilogue");
     drop(stream);
     handle.stop(false).await;
     task.await??;
+    Ok(())
+}
+
+#[actix_web::test]
+async fn rerun_keeps_already_sent_delta_and_discards_the_remaining_queue() -> TestResult {
+    let (_address, handle, task, mut stream) = start_server(streamed_rerun_entry).await?;
+    send_binary(&mut stream, &rerun_request()).await;
+    let mut session_id = String::new();
+    let mut run_ids = std::collections::HashSet::new();
+    let first = receive_run(&mut stream, &mut session_id, &mut run_ids).await?;
+    let second = receive_run(&mut stream, &mut session_id, &mut run_ids).await?;
+    drop(stream);
+    handle.stop(false).await;
+    task.await??;
+    assert_eq!(first.markdowns, ["flushed-before-rerun"]);
+    assert_eq!(first.finish_statuses, [2]);
+    assert_eq!(second.markdowns, ["complete"]);
+    assert_eq!(second.finish_statuses, [0]);
     Ok(())
 }
 

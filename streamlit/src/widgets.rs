@@ -207,6 +207,26 @@ pub(crate) enum Codec {
 }
 
 impl Codec {
+    fn query_value(&self, text: &str, clearable: bool) -> Option<Value> {
+        if text.is_empty() {
+            if !clearable {
+                return None;
+            }
+            if matches!(self, Self::Select(_) | Self::SelectCreation(_)) {
+                return Some(Value::Null);
+            }
+        }
+        self.decode(&widget_state::Value::StringValue(text.into())).filter(|value| self.valid(value))
+    }
+
+    fn query_text(&self, value: &Value) -> Option<String> {
+        match self {
+            Self::Text { .. } => value.as_str().map(str::to_owned),
+            Self::Select(options) | Self::SelectCreation(options) => value.as_u64().and_then(|index| options.get(index as usize)).map(|(label, _)| label.clone()).or_else(|| value.as_str().map(str::to_owned)),
+            _ => None,
+        }
+    }
+
     fn dataframe_selection_shape(value: &Value) -> bool {
         value.as_object().and_then(|state| state.get("selection")).is_some_and(Value::is_object)
     }
@@ -544,6 +564,16 @@ struct Record {
     value: Value,
     codec: Codec,
     callback: Option<WidgetCallback>,
+
+    /// Query binding follows this record's lifetime, including hidden widgets
+    /// until run-end cleanup. The parameter name is the explicit widget key.
+    query_bound: bool,
+
+    /// Previous render policy used when accepting the next frontend batch.
+    disabled: bool,
+
+    /// Value before this run's input, restored if registration now disables it.
+    before_input: Option<Value>,
 }
 
 #[derive(Clone, Default)]
@@ -553,14 +583,38 @@ pub(crate) struct WidgetRegistry {
     keys: HashSet<String>,
     active: bool,
     dirty_keys: HashSet<String>,
-    /// Incoming widget states whose widget is not registered yet this run;
+    /// Incoming states for unknown or previously disabled widgets;
     /// the reference applies the browser's state at widget creation, so
     /// these land when the widget registers (for example after another
     /// page left it unrendered).
     pending: Vec<crate::proto::WidgetState>,
+    /// Submitted IDs determine frontend/URL priority independently of decoding.
+    received: HashSet<String>,
+
+    /// Registration failure stops rendering without pruning unseen widgets.
+    registration_error: Option<RegistrationError>,
+}
+
+#[derive(Clone)]
+struct RegistrationError {
+    message: String,
+    rendered: bool,
+}
+
+/// Registration-time URL policy for the existing bound text/select controls.
+#[derive(Clone, Copy)]
+pub(crate) struct QueryBinding {
+    /// An empty URL value can represent this widget's empty state.
+    pub(crate) clearable: bool,
 }
 
 pub(crate) struct WidgetSpec<'a> {
+    /// Disabled state of this run; callbacks use the previous record.
+    pub(crate) disabled: bool,
+
+    /// Only the supported URL-bound text/select emitters opt into seeding.
+    pub(crate) query: Option<QueryBinding>,
+
     pub(crate) kind: &'a str,
     pub(crate) key: Option<&'a str>,
     pub(crate) identity: &'a str,
@@ -570,6 +624,14 @@ pub(crate) struct WidgetSpec<'a> {
 }
 
 impl WidgetRegistry {
+    pub(crate) fn query_bound(&self, key: &str) -> bool {
+        self.records.values().any(|record| record.query_bound && record.key.as_deref() == Some(key))
+    }
+
+    pub(crate) fn bound_query_keys(&self) -> Vec<String> {
+        self.records.values().filter(|record| record.query_bound).filter_map(|record| record.key.clone()).collect()
+    }
+
     pub(crate) fn mark_write(&mut self, key: &str) {
         self.dirty_keys.insert(key.into());
     }
@@ -612,8 +674,11 @@ impl SessionState {
         registry.seen.clear();
         registry.keys.clear();
         registry.pending.clear();
+        registry.received.clear();
+        registry.registration_error = None;
         let mut values = self.values.lock();
         for record in registry.records.values_mut() {
+            record.before_input = None;
             // Trigger widgets are one-shot: buttons reset to false, the chat
             // input to its empty (null) value, the menu button to null.
             if let Some(reset) = one_shot_reset(&record.codec) {
@@ -624,22 +689,21 @@ impl SessionState {
             }
         }
         let mut callbacks = Vec::new();
-        let mut received = HashSet::new();
-        // Validate the whole recognized batch before applying any field or
-        // scheduling a callback. Invalid text must never reach submit code.
+        // Enabled widgets retain whole-batch validation. Previously disabled
+        // inputs are resolved lazily at registration, after enabled callbacks.
         if incoming.iter().any(|widget| {
             registry
                 .records
                 .get(&widget.id)
-                .is_some_and(|record| widget.value.as_ref().and_then(|wire| record.codec.decode(wire)).is_none_or(|value| !record.codec.valid(&value)))
+                .is_some_and(|record| !record.disabled && widget.value.as_ref().and_then(|wire| record.codec.decode(wire)).is_none_or(|value| !record.codec.valid(&value)))
         }) {
             return callbacks;
         }
         for widget in incoming {
-            if !received.insert(widget.id.clone()) {
+            if !registry.received.insert(widget.id.clone()) {
                 continue;
             }
-            if !registry.records.contains_key(&widget.id) {
+            if registry.records.get(&widget.id).is_none_or(|record| record.disabled) {
                 // Applied at registration, like the reference's lazy
                 // widget-state application.
                 registry.pending.push(widget);
@@ -647,6 +711,7 @@ impl SessionState {
             }
             let Some(record) = registry.records.get_mut(&widget.id) else { continue };
             let Some(value) = widget.value.as_ref().and_then(|wire| record.codec.decode(wire)) else { continue };
+            record.before_input = Some(record.value.clone());
             let changed = record.value != value;
             record.value = value.clone();
             if let Some(key) = &record.key {
@@ -657,6 +722,15 @@ impl SessionState {
             }
         }
         callbacks
+    }
+
+    /// An internal rerun has no fresh frontend batch or callback dispatch.
+    pub(crate) fn continue_widgets(&self) {
+        let mut registry = self.widgets.lock();
+        registry.active = true;
+        registry.seen.clear();
+        registry.keys.clear();
+        registry.registration_error = None;
     }
 
     pub(crate) fn register_widget<T>(&self, spec: WidgetSpec<'_>, resolve: impl Fn(&Value) -> Result<T, WidgetError>) -> Result<(String, T, bool), WidgetError> {
@@ -671,6 +745,8 @@ impl SessionState {
     /// whose id the frontend recomputes from the state widget's id.
     pub(crate) fn register_widget_with_id<T>(&self, spec: WidgetSpec<'_>, id: &str, resolve: impl Fn(&Value) -> Result<T, WidgetError>) -> Result<(String, T, bool), WidgetError> {
         let WidgetSpec {
+            disabled,
+            query,
             kind,
             key,
             identity: _,
@@ -680,6 +756,18 @@ impl SessionState {
         } = spec;
         let id = id.to_owned();
         let mut registry = self.widgets.lock();
+        if registry.registration_error.is_some() {
+            return Ok((String::new(), resolve(&default)?, false));
+        }
+
+        // Python serializes the lazily decoded disabled select before URL seeding.
+        // A bool packet therefore raises after unrelated callbacks have run.
+        if registry.records.get(&id).is_some_and(|record| record.disabled) && matches!(codec, Codec::Select(_)) && registry.pending.iter().any(|state| state.id == id && matches!(state.value, Some(widget_state::Value::BoolValue(_)))) {
+            let message = "'str' object cannot be interpreted as an integer".to_owned();
+            registry.registration_error = Some(RegistrationError { message: message.clone(), rendered: false });
+            return Err(WidgetError::InvalidValue(message));
+        }
+
         if let Some(key) = key
             && registry.keys.contains(key)
         {
@@ -689,6 +777,31 @@ impl SessionState {
             return Err(WidgetError::DuplicateId(id));
         }
         let mut values = self.values.lock();
+        // 1. URL 初值、前端提交和代码赋值在注册时统一决定，不覆盖其他控件。
+        let query_default = query.map(|_| default.clone());
+        let had_record = registry.records.contains_key(&id);
+        let code_assigned = key.is_some_and(|key| registry.dirty_keys.contains(key));
+        let query_seed = if let (Some(binding), Some(key)) = (query, key) {
+            let mut params = self.query_params.lock();
+            let history = params.history_navigation;
+            let can_seed = history || ((!registry.received.contains(&id) || disabled) && (!had_record || !code_assigned));
+            if can_seed {
+                let parsed = params.initial_value(key).and_then(|text| codec.query_value(text, binding.clearable));
+                match parsed {
+                    Some(value) if value != default => Some(value),
+                    _ => {
+                        if params.initial_value(key).is_some() {
+                            params.remove_binding(key);
+                        }
+                        history.then(|| default.clone())
+                    }
+                }
+            } else {
+                None
+            }
+        } else {
+            None
+        };
         if matches!(codec, Codec::Trigger | Codec::Files { .. } | Codec::ChatInput | Codec::StringTrigger(_) | Codec::ButtonColumn) && key.is_some_and(|key| values.contains_key(key)) && !registry.records.contains_key(&id) {
             return Err(WidgetError::InvalidValue("button, chat input, menu button and uploader state cannot be preseeded".into()));
         }
@@ -703,22 +816,30 @@ impl SessionState {
             .iter()
             .position(|state| state.id == id)
             .map(|position| registry.pending.remove(position))
+            .filter(|_| !disabled)
             .and_then(|state| state.value.as_ref().and_then(|wire| codec.decode(wire)))
             .filter(|applied| codec.valid(applied));
-        let base_value = if changed_identity {
-            default
-        } else if one_shot_reset(&codec).is_some() {
-            registry.records.get(&id).map(|record| record.value.clone()).unwrap_or(default)
+        let url_resolved = query_seed.is_some();
+        let value = if let Some(value) = query_seed {
+            value
         } else {
-            if let Some(key) = key
-                && let Some(native) = values.get(key)
-            {
-                codec.read_session_value(native, if registry.dirty_keys.contains(key) { None } else { registry.records.get(&id) })?
-            } else {
+            let base_value = if disabled && registry.received.contains(&id) && !code_assigned {
+                registry.records.get(&id).map(|record| record.before_input.as_ref().unwrap_or(&record.value).clone()).unwrap_or(default)
+            } else if changed_identity {
+                default
+            } else if one_shot_reset(&codec).is_some() {
                 registry.records.get(&id).map(|record| record.value.clone()).unwrap_or(default)
-            }
+            } else {
+                if let Some(key) = key
+                    && let Some(native) = values.get(key)
+                {
+                    codec.read_session_value(native, if registry.dirty_keys.contains(key) { None } else { registry.records.get(&id) })?
+                } else {
+                    registry.records.get(&id).map(|record| record.value.clone()).unwrap_or(default)
+                }
+            };
+            pending_value.unwrap_or(base_value)
         };
-        let value = pending_value.unwrap_or(base_value);
         if !codec.valid(&value) {
             return Err(WidgetError::InvalidValue(format!("value does not match {kind}")));
         }
@@ -726,14 +847,33 @@ impl SessionState {
         // record or value. Resolvers here only convert built-in scalar/index
         // types; user callbacks and option cloning never run under these locks.
         let resolved = resolve(&value)?;
-        let set_value = key.is_some_and(|key| registry.dirty_keys.contains(key));
+        let set_value = url_resolved || code_assigned || (disabled && registry.received.contains(&id));
+        // 2. 默认值折叠不重复广播前端已经清空的 URL；代码改值则显式同步。
+        if query.is_some()
+            && let Some(key) = key
+        {
+            let mut params = self.query_params.lock();
+            if query_default.as_ref() == Some(&value) {
+                if code_assigned && !url_resolved && had_record {
+                    params.remove_binding(key);
+                } else {
+                    params.remove(key);
+                }
+            } else if code_assigned
+                && !url_resolved
+                && had_record
+                && let Some(text) = codec.query_text(&value)
+            {
+                params.set_binding_value(key, text);
+            }
+        }
         if let Some(key) = key {
             values.insert(key.into(), codec.session_value(&value));
             registry.keys.insert(key.into());
-            registry.dirty_keys.remove(key);
         }
         registry.seen.insert(id.clone());
         registry.active = true;
+        let query_bound = registry.records.get(&id).is_some_and(|record| record.query_bound);
         registry.records.insert(
             id.clone(),
             Record {
@@ -741,18 +881,59 @@ impl SessionState {
                 value: value.clone(),
                 codec,
                 callback,
+                query_bound,
+
+                disabled,
+                before_input: None,
             },
         );
         Ok((id, resolved, set_value))
     }
 
+    pub(crate) fn take_registration_error(&self) -> Option<String> {
+        let mut registry = self.widgets.lock();
+        let error = registry.registration_error.as_mut()?;
+        if error.rendered {
+            return None;
+        }
+        error.rendered = true;
+        Some(error.message.clone())
+    }
+
+    pub(crate) fn set_query_binding(&self, id: &str, bound: bool) {
+        let removed_key = {
+            let mut registry = self.widgets.lock();
+            let Some(record) = registry.records.get_mut(id) else { return };
+            let removed_key = (record.query_bound && !bound).then(|| record.key.clone()).flatten();
+            record.query_bound = bound;
+            removed_key
+        };
+        if let Some(key) = removed_key {
+            self.query_params.lock().remove_binding(&key);
+        }
+    }
+
     pub(crate) fn finish_widgets(&self) {
+        // 1. 快照本轮仍存活的键与绑定，避免旧身份删除新控件的 URL。
         let mut registry = self.widgets.lock();
         let mut values = self.values.lock();
+        let rerun = self.run_control() == Some(crate::session::RunControl::Rerun);
+        let preserve_unseen = rerun || registry.registration_error.is_some();
         let seen = registry.seen.clone();
         let live_keys = registry.keys.clone();
+        let live_bound: HashSet<String> = registry.records.iter().filter(|(id, record)| seen.contains(*id) && record.query_bound).filter_map(|(_, record)| record.key.clone()).collect();
+        let mut removed_bindings = Vec::new();
+
+        // 2. 删除失效记录，重置一次性触发状态。
         registry.records.retain(|id, record| {
-            if !seen.contains(id) {
+            record.before_input = None;
+            if !preserve_unseen && !seen.contains(id) {
+                if record.query_bound
+                    && let Some(key) = &record.key
+                    && !live_bound.contains(key)
+                {
+                    removed_bindings.push(key.clone());
+                }
                 if let Some(key) = &record.key
                     && !live_keys.contains(key)
                 {
@@ -769,13 +950,300 @@ impl SessionState {
             true
         });
         registry.active = false;
-        registry.dirty_keys.clear();
+        if !rerun {
+            registry.dirty_keys.clear();
+        }
+
+        // 3. 释放控件锁后清理失效 URL，由调用方在结束帧前统一发送。
+        drop(values);
+        drop(registry);
+        let mut query = self.query_params.lock();
+        for key in removed_bindings {
+            query.remove_binding(&key);
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn internal_rerun_preserves_unseen_inputs_and_same_run_assignments() -> Result<(), WidgetError> {
+        let state = SessionState::default();
+        let register = |key| {
+            state.register_widget(
+                WidgetSpec {
+                    disabled: false,
+                    query: None,
+                    kind: "text_input",
+                    key: Some(key),
+                    identity: "stable",
+                    default: Value::String("base".into()),
+                    codec: Codec::Text { max_chars: None },
+                    callback: Some(Arc::new(|_| {})),
+                },
+                |value| Ok(value.clone()),
+            )
+        };
+        let (id, _, _) = register("text")?;
+        state.finish_widgets();
+        assert_eq!(
+            state
+                .begin_widgets(vec![WidgetState {
+                    id,
+                    value: Some(widget_state::Value::StringValue("edited".into()))
+                }])
+                .len(),
+            1
+        );
+        state.set_run_control(crate::session::RunControl::Rerun);
+        state.finish_widgets();
+        state.reset_run_control();
+        state.continue_widgets();
+
+        // 1. 未运行到的控件及前端优先级跨内层重跑保留。
+        assert_eq!(state.get::<String>("text")?, Some("edited".into()));
+        assert_eq!(register("text")?.1, Value::String("edited".into()));
+        state.set("assigned", "code")?;
+        assert!(register("assigned")?.2);
+        state.set_run_control(crate::session::RunControl::Rerun);
+        state.finish_widgets();
+        state.reset_run_control();
+        state.continue_widgets();
+
+        // 2. 同一次交互的代码赋值持续同步；正常结束才清理未渲染控件。
+        assert!(register("assigned")?.2);
+        state.finish_widgets();
+        assert_eq!(state.get::<String>("text")?, None);
+        state.begin_widgets(vec![]);
+        assert!(!register("assigned")?.2);
+        Ok(())
+    }
+
+    #[test]
+    fn internal_query_rerun_uses_announced_url_instead_of_silent_collapse() -> Result<(), WidgetError> {
+        let st = Streamlit::new();
+        let state = st.session_state();
+        state.query_params.lock().load("bound=y&text=url");
+        state.query_params.lock().remove("bound");
+        state.query_params.lock().begin_internal_run();
+        assert_eq!(st.query_params().get("bound").as_deref(), Some("y"));
+
+        state.query_params.lock().remove("bound");
+        st.query_params().set("marker", "announced")?;
+        state.query_params.lock().begin_internal_run();
+        assert_eq!(st.query_params().get("bound"), None);
+        assert_eq!(st.query_params().get("marker").as_deref(), Some("announced"));
+        Ok(())
+    }
+
+    #[test]
+    fn disabled_transitions_use_prior_callback_policy_and_restore_value() -> Result<(), WidgetError> {
+        let state = SessionState::default();
+        let callback: WidgetCallback = Arc::new(|_| {});
+        let register = |disabled| {
+            state.register_widget(
+                WidgetSpec {
+                    disabled,
+                    query: None,
+                    kind: "checkbox",
+                    key: Some("check"),
+                    identity: "stable",
+                    default: Value::Bool(false),
+                    codec: Codec::Bool,
+                    callback: Some(callback.clone()),
+                },
+                |value| Ok(value.clone()),
+            )
+        };
+        let (id, _, _) = register(true)?;
+        state.finish_widgets();
+        let packet = || {
+            vec![WidgetState {
+                id: id.clone(),
+                value: Some(widget_state::Value::BoolValue(true)),
+            }]
+        };
+
+        // 1. 上轮禁用不回调；本轮启用仍接受合法输入。
+        assert!(state.begin_widgets(packet()).is_empty());
+        assert_eq!(register(false)?.1, Value::Bool(true));
+        state.finish_widgets();
+        let callbacks = state.begin_widgets(vec![WidgetState {
+            id: id.clone(),
+            value: Some(widget_state::Value::BoolValue(false)),
+        }]);
+        assert_eq!(callbacks.len(), 1);
+
+        // 2. 本轮禁用恢复输入前值，但保留已经安排的回调。
+        let (_, value, set) = register(true)?;
+        assert_eq!(value, Value::Bool(true));
+        assert!(set);
+        state.finish_widgets();
+        assert!(state.begin_widgets(packet()).is_empty());
+        assert_eq!(register(true)?.1, Value::Bool(true));
+        Ok(())
+    }
+
+    #[test]
+    fn disabled_select_type_error_preserves_other_callback_and_unseen_records() -> Result<(), WidgetError> {
+        let state = SessionState::default();
+        let select = || {
+            state.register_widget(
+                WidgetSpec {
+                    disabled: true,
+                    query: None,
+                    kind: "selectbox",
+                    key: Some("bound"),
+                    identity: "stable",
+                    default: Value::from(0),
+                    codec: Codec::Select(vec![("x".into(), Value::String("x".into()))]),
+                    callback: Some(Arc::new(|_| {})),
+                },
+                |value| Ok(value.clone()),
+            )
+        };
+        let live = || {
+            state.register_widget(
+                WidgetSpec {
+                    disabled: false,
+                    query: None,
+                    kind: "text_input",
+                    key: Some("live"),
+                    identity: "stable",
+                    default: Value::String("ready".into()),
+                    codec: Codec::Text { max_chars: None },
+                    callback: Some(Arc::new(|_| {})),
+                },
+                |value| Ok(value.clone()),
+            )
+        };
+        let (select_id, _, _) = select()?;
+        let (live_id, _, _) = live()?;
+        state.finish_widgets();
+
+        // 1. 错误禁用包不拒绝正常输入与回调，错误延迟到注册处。
+        let callbacks = state.begin_widgets(vec![
+            WidgetState {
+                id: select_id,
+                value: Some(widget_state::Value::BoolValue(true)),
+            },
+            WidgetState {
+                id: live_id.clone(),
+                value: Some(widget_state::Value::StringValue("one".into())),
+            },
+        ]);
+        assert_eq!(callbacks.len(), 1);
+        assert!(select().is_err());
+        assert_eq!(state.take_registration_error().as_deref(), Some("'str' object cannot be interpreted as an integer"));
+        assert!(state.take_registration_error().is_none());
+        state.finish_widgets();
+
+        // 2. 未运行到的正常控件仍存活，下一轮继续回调并恢复渲染。
+        assert_eq!(
+            state
+                .begin_widgets(vec![WidgetState {
+                    id: live_id,
+                    value: Some(widget_state::Value::StringValue("two".into()))
+                }])
+                .len(),
+            1
+        );
+        assert_eq!(select()?.1, Value::from(0));
+        assert_eq!(live()?.1, Value::String("two".into()));
+        state.finish_widgets();
+        Ok(())
+    }
+
+    #[test]
+    fn query_seed_codecs_keep_clearability_and_option_labels() {
+        let text = Codec::Text { max_chars: None };
+        assert_eq!(text.query_value("", true), Some(Value::String(String::new())));
+        let options = vec![("x".into(), Value::String("x".into())), ("y".into(), Value::String("y".into()))];
+        let select = Codec::Select(options.clone());
+        assert_eq!(select.query_value("y", false), Some(Value::from(1)));
+        assert_eq!(select.query_value("unknown", false), None);
+        assert_eq!(select.query_value("", false), None);
+        assert_eq!(select.query_value("", true), Some(Value::Null));
+        assert_eq!(select.query_text(&Value::from(1)), Some("y".into()));
+        let creation = Codec::SelectCreation(options);
+        assert_eq!(creation.query_value("new", false), Some(Value::String("new".into())));
+        assert_eq!(creation.query_text(&Value::String("new".into())), Some("new".into()));
+    }
+
+    #[test]
+    fn query_seed_does_not_parse_discarded_invalid_session_values() -> Result<(), WidgetError> {
+        for history in [false, true] {
+            let state = SessionState::default();
+            let spec = |query| WidgetSpec {
+                disabled: false,
+                query,
+                kind: "selectbox",
+                key: Some("bound"),
+                identity: "query-bound-select",
+                default: Value::from(0),
+                codec: Codec::Select(vec![("x".into(), Value::String("x".into())), ("y".into(), Value::String("y".into()))]),
+                callback: None,
+            };
+            if history {
+                state.register_widget(spec(None), |value| Ok(value.clone()))?;
+                state.finish_widgets();
+                state.begin_widgets(vec![]);
+            }
+            state.query_params.lock().load("bound=y");
+            state.query_params.lock().history_navigation = history;
+            state.set("bound", 99)?;
+            let (_, value, changed) = state.register_widget(spec(Some(QueryBinding { clearable: false })), |value| Ok(value.clone()))?;
+            assert_eq!(value, Value::from(1));
+            assert!(changed);
+            assert_eq!(state.get::<String>("bound")?, Some("y".into()));
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn query_binding_is_retained_until_widget_cleanup_or_explicit_unbind() -> Result<(), WidgetError> {
+        for unbind in [false, true] {
+            let state = SessionState::default();
+            state.query_params.lock().load("bound=hello&other=kept");
+            let register = || {
+                state.register_widget(
+                    WidgetSpec {
+                        disabled: false,
+                        query: None,
+                        kind: "text_input",
+                        key: Some("bound"),
+                        identity: "bound-text",
+                        default: Value::String(String::new()),
+                        codec: Codec::Text { max_chars: None },
+                        callback: None,
+                    },
+                    |value| Ok(value.clone()),
+                )
+            };
+
+            // 1. 正常运行结束保留绑定；下一轮开始仍保护尚未移除的控件。
+            let (id, _, _) = register()?;
+            state.set_query_binding(&id, true);
+            state.finish_widgets();
+            state.begin_widgets(vec![]);
+            assert!(state.widgets.lock().query_bound("bound"));
+            assert!(!state.widgets.lock().query_bound("BOUND"));
+
+            // 2. 显式去掉绑定立即清理；条件隐藏则等到运行结束才清理。
+            if unbind {
+                let (same_id, _, _) = register()?;
+                assert_eq!(same_id, id);
+                state.set_query_binding(&same_id, false);
+                assert_eq!(state.query_params.lock().serialize(), "other=kept");
+            }
+            state.finish_widgets();
+            assert!(!state.widgets.lock().query_bound("bound"));
+            assert_eq!(state.query_params.lock().serialize(), "other=kept");
+        }
+        Ok(())
+    }
 
     const DATAFRAME_SELECTION_REFERENCE: &str = include_str!("../../tests/reference/reference-browser/dataframe-selection/selection-input-output.json");
 
@@ -821,6 +1289,8 @@ mod tests {
         state.begin_widgets(vec![]);
         let (selection_id, _, _) = state.register_widget(
             WidgetSpec {
+                disabled: false,
+                query: None,
                 kind: "dataframe",
                 key: Some("selection"),
                 identity: "batch-validation",
@@ -832,6 +1302,8 @@ mod tests {
         )?;
         let (button_id, _, _) = state.register_widget(
             WidgetSpec {
+                disabled: false,
+                query: None,
                 kind: "button",
                 key: Some("action"),
                 identity: "batch-validation",
@@ -902,6 +1374,8 @@ mod tests {
         let state = SessionState::default();
         let callback: WidgetCallback = Arc::new(|_| {});
         let spec = || WidgetSpec {
+            disabled: false,
+            query: None,
             kind: "dataframe",
             key: Some("selection"),
             identity: "single-combo",
@@ -980,6 +1454,8 @@ mod tests {
             );
             let (_, raw, _) = state.register_widget_with_id(
                 WidgetSpec {
+                    disabled: false,
+                    query: None,
                     kind: "dataframe",
                     key: Some("selection"),
                     identity: "shrink",
@@ -1029,6 +1505,8 @@ mod tests {
         let callback: WidgetCallback = Arc::new(|_| panic!("invalid input must not schedule a callback"));
         let (id, _, _) = state.register_widget(
             WidgetSpec {
+                disabled: false,
+                query: None,
                 kind: "slider",
                 key: Some("range"),
                 identity: "range",

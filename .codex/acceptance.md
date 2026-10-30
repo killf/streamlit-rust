@@ -20,11 +20,63 @@ The 1.66.1 runtime migration adds Rust regressions in `streamlit/tests/runtime/m
 
 长期 M0 只建立盘点和基线，不要求尚未实现的能力提前通过，也不把环境失败归为产品缺陷。长期 Goal 只有在上述完成条件及确认的停止位置全部满足后才能结束；代码完成、历史记录或局部 PASS 不能代替整体验收。
 
-本地隔离开发环境、现有固定参考依赖和构建缓存已经获执行授权；不读取真实密钥或敏感配置。用户已进一步授权及时提交、推送验收后的批次；主分支更新经 PR/MR 门禁。PR/MR 创建、合并、发布、部署及生产/数据库外部写入分别核对授权，不从提交推送授权推断。
+本地隔离开发环境、现有固定参考依赖和构建缓存用于执行与验证；不读取真实密钥或敏感配置。2026-10-29 本轮停止于本地可审查、可分发成果；提交、推送、PR/MR 创建、合并、发布、部署及生产/数据库外部写入分别核对本轮授权，不沿用历史批次的提交推送授权。完整兼容路线不默认接受未验证能力为限制，环境受阻项保留开放。
 
 对应能力先写面向使用者的用法和行为文档，再实现；文档中的当前能力与规划接口分开标注。关键公共接口或行为规则确认后实施，普通实现细节自主处理。
 
 用户最新澄清无需保持旧 Rust API 的向后兼容；Python Streamlit 1.66.1 的功能和行为目标继续保持。清理无关、过时的文档、图片、测试和代码，持续保持实现整洁；有效冻结数据仍用于回归，不因年代较早而视为无关。
+
+## Current full-compatibility calibration (2026-10-29)
+
+本轮按完整兼容路线接续，M3/M5/M7 保持开放。当前矩阵为 182 条目（130 implemented/partial、52 not_applicable）；生成清单的分桶为 80 项未测参数、12 项外部来源/环境、2 项 Rust 扩展/headless 边界和 47 项无显式缺口描述。同一条目可属于多个桶，分桶不能相加为能力总数，也不构成功能完成率。八项能力的过时或串入其他能力的 limitations 已校正，并同步生成清单；所有实现/兼容状态与原始轨迹保持不变。
+
+chat/metric/progress 证据门真实复现旧检查缺口：在内存中删除 Python/Rust 捕获的全部原始帧，原两项检查仍通过。修复后逐帧解码 protobuf，核对字节长度、已存解码结果、元素字段、块尺寸、路径和成功结束状态；16 个双端篡改案例验证脱离原始帧的摘要会被拒绝。该修复加强冻结证据可信度，不是新增界面操作或当前 Rust 运行证明；同类其他参数链尚待审查。
+
+本轮恢复 `target/pyref-venv` 中既有 requirements 固定的参考环境，实测版本为 Streamlit 1.66.1、pytest 8.4.2、PyArrow 26.0.0，`pip check` 无依赖冲突。Python 语法检查通过；矩阵/清单进度门、文档门及 chat-metric/json-badge/button-image/widget/media-more/layout 参数回归共 80 项通过。首次执行为 78 通过、2 失败，均为已有 colconfig_params 工作的示例/参考目录索引缺失；补齐索引后相关 80 项通过，未改其示例代码或捕获。全参考套件、当前程序真实前端和最终独立 Review 尚未在本轮执行。
+
+### Metric string delta slice
+
+后续字符串切片在原参考 app 与 Rust 示例中各加入 12 种文本 × normal/inverse/off：空串、字面零、0.0/0%、负零、普通/负号文本、NaN、缩进、多行和空白行。Python 1.66.1 实际 WS 参考保存为 `tests/reference/reference-browser/chat-metric-params/string-delta/trace.json`；修前 Rust `string-delta-before/trace.json` 在 36 项中有 30 项方向/颜色或文本不同。旧失败与原较小批次轨迹均保留，未重写冻结结果。
+
+`MetricElement` 不再解析 f64，而对字符串去公共缩进、只将原始空值与字面 `"0"` 视作中性，再按首字符负号决定方向；显示使用同一去缩进文本，换行保留。没有新增公共接口或依赖。修后 Rust `tests/browser/rust-chat-metric-params/string-delta/trace.json` 与参考的 36 项字段全部一致，两个自有 Rust 服务及参考采集服务均已停止。Python 门同时解码三份捕获并断言 30 项旧差异与 36 项修复结果。
+
+本批按代码→单元→集成顺序验证：所改 Rust 文件 rustfmt 检查、工作区全目标 Clippy（`-D warnings`）通过；去缩进单元回归、8 项真实 HTTP/WS 媒体回归通过；重新构建示例并采集真实修后 WS 后，相关 Python 门共 81 项通过。MSVC 保留既有 linker stdout 告警，未禁用 lint。`cargo test --workspace --offline --locked` 最终通过 210 项（库 203、journey ledger 1、宏 2、rustdoc 4），未包含另行运行全部示例测试；本切片不证明浏览器渲染、显式颜色/delta_arrow/数值格式与图表字段，也不关闭 M3。
+
+### Query parameter value and mutation slice
+
+新增固定 Python 1.66.1 参考 app 与一次性原生 WS 采集器，原始请求/响应保存在 `tests/reference/reference-browser/queryparams/values/trace.json`，不覆盖旧浏览器轨迹。合成 URL 含重复键、空值和中文编码；应用依次读取、替换、追加、设置空列表、删除空列表键、删除普通键、清空、恢复。八个 JSON 状态与七次 `page_info_changed` 保留实际交错顺序，参考进程和连接均由采集器关闭。Python 门逐帧核对 base64、长度、protobuf 解码结果及关键状态，不从 Rust 构造期望。
+
+Rust 真实 WS 修前回归已失败（本地 `target/query-values-red.log`）：重复键取首值、URL 字母排序，且空列表键被当作缺失，应用在第四个状态后报错。修复仅改变现有 store 的末值读取、空列表存在性和插入顺序序列化，并同步 `to_vec` 的末值行为；公共签名与依赖不变，既有排序断言按新增实际参考校正。修后八个状态、七次 URL 写入及成功结束全部与参考一致；原重跑、切页及绑定 selectbox 回归仍通过。
+
+按代码→单元→集成验证：所改 Rust 文件 rustfmt、全目标 Clippy（`-D warnings`）通过；store 单元回归后运行查询参数模块 5 项，再执行 `cargo test --workspace --offline --locked` 共 211 项通过（库 204、ledger 1、宏 2、rustdoc 4；日志 `target/query-values-workspace.log`）。查询参数参考门、矩阵/清单及文档门共 78 项通过。MSVC 既有 linker stdout 告警仍保留。全参考套件、全部示例测试和当前浏览器 URL 往返未在本批执行；保留/空键、嵌入参数及 widget-bound mutation 规则尚待后续验证，矩阵仍为 partial，M3/M5/M7 不关闭。
+
+### Query parameter reserved and empty keys
+
+同一固定参考 app/采集器增加 `--scenario reserved`，不重写旧数据；新原始帧位于 `tests/reference/reference-browser/queryparams/reserved/trace.json`。合成输入含大小写混合的 embed/embed_options、普通 st_embed 和空字符串键。九份 JSON 报告及四次 URL 写入记录应用读取隐藏、保留键 set/remove 拒绝且不发 URL、不改变状态，空键正常往返，公开 clear 保留原始保留键名称/值，以及清空后恢复写入。Python 门逐帧解码并检查场景完整性；只比较拒绝状态，不宣称 Python 异常类、文本或错误界面等价。
+
+修前真实 Rust WS 回归失败，日志保留在本地 `target/query-reserved-red.log`：保留值可读、修改/删除被接受并写 URL，空键被拒绝。修复现有 store 的应用可见读取、set_all 保留键校验、to_vec 过滤与公开 clear 保留规则，移除空键限制。内部完整清空方法保持原行为；没有新增公共接口或依赖。两个场景复用同一真实 WS 对照过程，不复制测试服务。
+
+依次完成格式/全目标 Clippy、store 单元、真实 WS 与工作区回归；`cargo test --workspace --offline --locked` 共 213 项通过（库 206、ledger 1、宏 2、rustdoc 4），本地日志 `target/query-reserved-workspace.log`。相关 Python 参数参考、矩阵及文档门 79 项通过。原参考服务已由采集器停止，测试服务在对照前关闭；MSVC 既有 linker stdout 告警保留。最终只补了说明注释，未改变已测行为。当前浏览器嵌入/URL 往返、包含保留键的页面切换、widget 绑定及完整错误 UI 未在本批验收；M3/M5/M7 与长期目标继续开放。
+
+### Query-bound widget registration and cleanup
+
+四轮固定 Python 1.66.1 原生 WS 参考保留于 `tests/reference/reference-browser/queryparams/binding/trace.json`：首轮注册默认控件并验证无绑定 URL 时 clear 可成功；活跃轮同时提供 URL 与真实 widget states；第三轮条件隐藏控件但运行内仍拒绝直接改写，结束时合并删除失效绑定 URL；第四轮允许手工写入。18 份 JSON 与 5 次 URL 写入按完整顺序对照，包含 selectbox、侧栏 text_input、大小写敏感键和拒绝后的状态保持。
+
+Rust 修前真实 WS 失败保留在本地 `target/query-binding-red.log`。实现复用 WidgetRegistry 记录，不新增第二套登记：注册后追踪绑定、公共 set/remove/clear 防止越过控件写入、失效记录结束清理 URL，并在 script_finished 前统一发送。内部单元另验证同身份取消绑定与条件隐藏两种清理时机；保留键绑定有 Rust 参数防御，完整参考错误 UI 不在本批。
+
+采集器最初将单轮默认 `query_string` 头带入了多轮捕获；已按首个原始 BackMsg 修正，旧值保留为 `original_query_string_header` 并记录 correction 说明，frames/时间/观察结果未改。后续 collector 按场景正确记录头部，Rust 与 Python 回归均以全部原始 BackMsg 序列作为四轮输入；未重新采集正确行为或改写期望转绿。
+
+按代码→单元→集成顺序完成：格式与全目标 Clippy（`-D warnings`）通过，绑定清理单元与查询参数模块 8 项通过；`cargo test --workspace --offline --locked` 共 215 项通过（库 208、ledger 1、宏 2、rustdoc 4），日志 `target/query-binding-workspace.log`；相关 Python/矩阵/文档门 80 项通过。测试服务和参考采集服务均关闭；保留既有 MSVC linker stdout 告警。最终仅追加说明和分段空行，行为未变。仅 URL 初始化、动态 bind 切换的参考/界面、重挂载/跨页恢复、表单/缓存组合及真实浏览器同步仍未完成，M3/M5/M7 与长期 Goal 保持开放。
+
+### Query-bound URL initialization and history
+
+新增 `queryparams/seed/trace.json` 八轮固定原生 WS 参考，覆盖普通 selectbox、文本、可清空选择与创建模式选择：URL-only 初始化、前端值优先、再次 URL-only 请求、无效/默认/空值校正、后续代码赋值、历史导航有值/缺值。Rust 对照 32 次控件 value/raw_value 与 set_value 投影、8 份应用状态及 9 次 URL 写入的完整顺序；不把空 URL 的普通重跑（可保留旧值）与历史缺参（恢复默认）合并。修前失败日志在本地 `target/query-seed-red.log`。
+
+实现通过内部 WidgetSpec 的可选 QueryBinding 策略进入已有注册路径；text_input/selectbox 启用，其余登记只机械补 None，公开 API/依赖不变。查询存储保存运行前 URL 快照并承接 ClientState 历史标志，服务端新轮刷新快照并清除历史标志；登记时决定 URL、前端与代码优先级，校正默认/非法参数，同步程序写入及前端 set_value。已有绑定追踪和发送边界继续复用。
+
+逐文件复查又复现一个本批问题：URL 已选定后仍先解析被丢弃的错误类型旧状态。单独 `queryparams/seed-code/trace.json` 两轮参考（8 次控件同步投影、2 份状态）确认首轮与历史 URL 均应覆盖代码写入的整数状态；保留 `target/query-seed-code-red.log`，修复为按选中的来源惰性解析，避免丢弃状态抢先报错，并移除 URL 值的多余克隆。原八轮数据未重采或重写。
+
+代码检查后完成两项 codec/优先级单元、查询参数模块 10 项真实/原生回归；`cargo test --workspace --offline --locked` 最终共 219 项通过（库 212、ledger 1、宏 2、rustdoc 4），日志 `target/query-seed-workspace-final.log`。相关 Python 参考/矩阵/文档门 82 项通过，Clippy 全目标 `-D warnings`、所改 Rust 格式和 diff 检查通过；最终只补字段说明和文档。保留既有 MSVC linker stdout 告警。参考及测试服务关闭，未提交或发布。仅比较已列协议/返回字段；禁用/伪造包组合、callback、绑定服务端重跑、跨页/重挂载、动态组合和真实浏览器历史仍未验收，完整参考套件及所有示例测试未在本批重跑，长期目标保持开放。
 
 ## Current M0 baseline (2026-10-27)
 
@@ -447,3 +499,69 @@ These 21 obligations replace the removed interface-diff metadata file. They are 
 | W09 | protobuf Element oneof names | the Rust proto must use the same oneof member names and numbers so the official frontend renders the elements | Python browser trace `tests/reference/reference-browser/closed-loop/trace.json#/frames` |
 | W10 | protobuf WidgetState value encoding | the Rust server must decode each widget kind from the same field and must keep widget ids stable across reruns | Python browser trace `tests/reference/reference-browser/closed-loop/trace.json#/frames` |
 | W11 | WebSocket reconnect handshake /_stcore/stream | on a socket-only reconnect, recover the retained session identified by the opaque third subprotocol entry; a page refresh uses a fresh two-entry handshake and new session. Unknown UUID and non-UUID IDs must start a new server-selected session, as measured by the reference probe. Rust two-worker HTTP/WS regressions cover these lookups and stale-owner Drop protection. The session core, controlled-await ownership boundary, and final Rust browser subset have independently passed review: retained same-ID recovery with a subsequent increment, fresh-ID reset, and two-tab isolation. Original-socket fate and upstream expiry policy remain separate gaps; this is partial evidence, not full takeover or security-handshake compatibility. | Python [reconnect handshakes](../tests/reference/reference-browser/reconnect/trace-reconnect.json#/websocket_handshakes) record the first connection closing and the second using a third subprotocol entry with the same session ID; [post-reconnect observations](../tests/reference/reference-browser/reconnect/trace-reconnect.json#/steps) show Pulses 2 retained, then 2→3 with a successful server response on the new connection. Python [refresh handshakes](../tests/reference/reference-browser/refresh/trace-refresh.json#/websocket_handshakes) are the separate fresh-load reference; [Rust S1 observations](../tests/browser/rust-counter-s1/trace-counter.json#/steps) record the measured Rust subset. |
+
+
+### Disabled widget inputs, callback order and malformed recovery (2026-10-30)
+
+用户明确选择错误类型提交时保留 Python 错误、已发生 callback 和下一轮恢复，不采用整批拒绝或静默忽略。固定 Python 1.66.1 app 与原生 WS collector 新增 `disabled-valid`/`disabled` 两个独立九轮场景，保留原始 base64、protobuf、时间和服务日志；没有覆盖旧参考。正确类型分支覆盖普通/绑定 text_input、selectbox、checkbox、Live 正常输入、代码赋值、无效 URL、条件隐藏/重挂载和双向 disabled 切换。错误分支提交 bool oneof 给禁用 selectbox：Plain 已发出，Live callback 已执行，注册处 TypeError，缺少本轮其余控件和报告，成功结束后同连接恢复。修前正确类型回归已失败，保留本地 `target/query-disabled-red.log`。
+
+Rust 内部 WidgetSpec/Record 记录 disabled 与输入前值，callback 取上一轮策略，当前禁用注册恢复值；已测 bool/select 错误延迟到注册呈现一次 TypeError，错误轮保留未渲染记录及已发生的 callback。普通启用控件的既有整批验证策略未宣称全面 Python 兼容。无新增公共接口或依赖；两个场景分别按顺序比较 58 与 52 个控件/URL/状态/异常事件。异常比较包括类型、消息、顺序和标志，Python 的来源栈帧保留为参考，Rust 不伪造栈路径；完整错误 UI 尚未验收。
+
+最终按代码→单元→集成验证：格式/全目标 Clippy（`-D warnings`）通过；控件单元 12 项、查询参数真实 WS 回归 12 项通过。`cargo test --workspace --offline --locked` 共 223 项通过（库 216、ledger 1、宏 2、rustdoc 4），日志 `target/query-disabled-workspace-final.log`；相关 Python 参数/metric 参考、矩阵与文档门 103 项通过，日志 `target/query-disabled-gates.log`。逐文件复查本批 Rust diff，保留既有 MSVC linker stdout 告警。参考采集器和测试自有服务关闭。最后仅补充字段注释、语义空行与验收文字，未改变通过验证的行为；未重复执行全部 Python 参考套件、全部示例测试或真实浏览器操作。矩阵仍 130 项 partial，其他错误类型/控件、跨页、绑定服务端重跑与浏览器错误界面继续开放，M3/M5/M7 和长期 Goal 不关闭；无提交、推送或发布。
+
+
+### Bound server rerun evidence and pending queue expansion (2026-10-30)
+
+五个原生 WS 请求各引起一轮早结束与一轮成功结束，`queryparams/rerun/trace.json` 固定 47 个事件（12 URL、15 JSON、10 控件同步投影、10 finish）。修前 `target/query-rerun-red.log` 失败；状态修复后该差分通过，控件单元 14、当时查询集成 13 和执行集成 6 项通过，代码 Clippy 通过，相关 Python/矩阵/文档门当时 104 项通过。修复延续内部重跑的前端/代码优先级、未渲染控件与绑定，并从最近公布 URL 重建状态。新增真实 Rust WS yield 回归确认已发 Delta 保留、后来排队 Delta 丢弃。普通 rerun 仍不重放 callback。
+
+工作区随后发现导航回归失败（库 219 通过、1 失败，日志 `target/query-rerun-workspace.log`），因此本批未达到工作区全绿。独立使用既有导航 fixture 捕获 `navigation-rerun/trace.json`，证实旧轮未发送 Navigation 也被 Python 清理；进一步捕获冷调用 `rerun-messages` 与预热 `rerun-queue`，保留两个真实发送窗口。后者明确保留 toast、URL 和生命周期帧，清理未发 PageConfig/普通 Delta；当前获准的 Delta-only Rust 逻辑会误丢 toast、误留 config，真实差分 red 日志 `target/query-rerun-queue-red.log` 保留。原始数据未改写转绿。三份新增数据与此前查询参考的逐帧 Python 门共 36 项通过（`target/query-rerun-additional-python-final.log`）。
+
+需要用户进一步决定：按锁定版本完整生命周期/toast 保留表扩展（推荐）、仅针对 Navigation/toast 最小扩展，或保留当前已知差异；该问题已通过 async 提出，目前尚未收到此次扩展选择。不是重复询问旧 Delta-only 方案，而是新发现消息类型与例外。推荐实现只需修改 handler 队列判断，测试已经具备具体原始期望，执行后须重新完成 Clippy、单元、相关集成与工作区回归；在决定前不擅自扩大发送规则、不报告本批完成或暂停整个 Goal。已有用户修改保留，无提交/推送/发布，M3/M5/M7 和完整兼容目标开放。
+
+
+### String avatar aliases/URI typing and Unicode JSON (2026-10-30)
+
+在发送队列扩展尚待用户选择期间，独立处理既有 ChatMessageOptions 字符串接口。官方 chat_message 文档（当前标注 1.66.0）定义默认头像、emoji 和图像输入；锁定 Python 1.66.1 的独立原生 WS 记录 `chat-metric-params/string-avatars/trace.json` 含 28 组输入：15 个无显式头像的名字与 13 个显式字符串。保留一次输入 JSON、28 个聊天 block 和 28 个子文本，旧 trace 均未改。修前真实 Rust WS 失败保留在 `target/chat-avatar-red.log`。
+
+修复默认 name 大小写预设与 human/ai 别名、普通名字空 ICON avatar、emoji 名字 EMOJI，以及 HTTP(S)/PNG-SVG data URI/静态 URI 的 IMAGE 类型与字符串原样保留。现有 emojis 依赖复用，没有新增公共接口、依赖或图片加载流程。Rust 回放固定输入报告作为用例数据，输出期望独立取原始 block/element 帧；57 个有序投影比较 name/avatar/type、allow_empty/stretch、完整路径、子文本、输入 JSON 内容与默认 expanded。URI 仅编码验证，不宣称远程图片已加载、静态文件已提供或浏览器显示通过。
+
+该回归进一步真实复现非 BMP JSON 编码损坏，日志 `target/chat-avatar-integration.log` 保留：pywire 将一个 Unicode 标量写成五位转义，解码后变成其他字符。改用 encode_utf16 逐码元输出，单元覆盖普通/compact/pairs 的 JSON 值、对象键、emoji/ZWJ/VS 及 U+10000、U+10FFFF 边界，并校验 JSON 解析恢复。固定报告还确认默认 expanded=True，现修正 st.json 默认值，显式 json_expanded(false) 不变。原 JSON 深度说明已校正：独立 depth= 关键字不受支持，但官方文档和锁定 runtime 的 expanded=int 确实存在；Rust 整数深度仍未实现，不能据旧关键字报错宣布不适用。
+
+验证顺序为代码/全目标 Clippy（-D warnings）、序列化 4 项与头像 1 项单元，再聊天真实 WS 2 项（包含 57 个投影）通过。`cargo test --workspace --offline --locked -- --skip server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire --skip server::tests::queryparams::rerun_queue_messages_match_frozen_reference` 通过 229 项（库 222、ledger 1、宏 2、rustdoc 4），日志 `target/chat-avatar-workspace-remaining.log`。仅显式排除两个发送规则待决的已知 red 回归，不是完整工作区全绿，也不接受这两项差异为最终目标；相关 Python/参数/矩阵/文档门 110 项通过（`target/chat-avatar-gates.log`）。逐文件复查本批 Rust diff，rustfmt/diff 检查通过，既有 MSVC linker stdout 告警保留。
+
+最终仅更新说明与字段断言，无行为再改。参考及测试自有进程/连接均已关闭，没有重新执行完整 Python 参考套件、全部示例测试或浏览器显示。图片字节/本地文件与异常、完整 emoji catalogue、头像宽度、JSON 整数深度/宽度/字符串输入和浏览器交互继续开放；矩阵 130 项 partial 不变，队列扩展待决、M3/M5/M7 和完整兼容 Goal 保持开放。无提交、推送或发布。
+
+
+### JSON top-level strings and raw evidence guards (2026-10-30)
+
+`json-badge-params/strings/trace.json` 是复用既有 app/collector 的独立固定 1.66.1 原生 WS 捕获：一次输入报告、15 种字符串各默认/显式折叠两次，以及对象、数组、null、布尔与整数五种结构化对照，共 36 个 Json 元素。字符串覆盖对象/数组/标量文本、实际空白换行、引号、空串、Unicode、错误/多文档文本，以及字符串 NaN/Infinity（不是原生 float）。即使已测文本不能解析成单一 JSON，服务端仍原样发送并成功结束；不把此结果当作前端解析或错误 UI 通过。旧参考未修改。
+
+真实 Rust WS 修前失败保留于 `target/json-string-red.log`。现有 json_expanded 只在 serde Value::String 分支直接传递文本，非字符串仍 py_dumps，嵌套字符串仍转义；json 直接复用 json_expanded(body, true)，没有新增公共签名、依赖或预解析流程。公共 API 单元经真实消息通道覆盖 &str、String、Value::String 和嵌套对象；WS 对照完整 Json 载荷（body/expanded/max_expand_depth）、完整路径及 stretch 标志，36 项一致。旧公开 rustdoc 的 collapsed 默认描述一并校正。
+
+同时加强 JSON 原始证据门：原 test_json_badge_params_reference 定义解码生成器但主比较未绑定原始帧，现在原 Python/Rust 与新记录均核对方向、base64 长度、protobuf 解码消息、元素摘要及结束状态；七个摘要/原始消息损坏 guard 均拒绝异常输入，正确历史数据继续通过。README 仅纠正显式 False 被误写成默认和 depth= 与 expanded=int 的混淆，并记录说明；没有修改正确原始帧或源 SHA 验收口径。
+
+按代码→单元→集成验证：全目标 Clippy（-D warnings）通过；公共接口单元 1 项、文本真实 WS 2 项通过。工作区命令沿用精确排除两个待决队列回归的范围，`cargo test --workspace --offline --locked -- --skip server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire --skip server::tests::queryparams::rerun_queue_messages_match_frozen_reference` 共 231 项通过（库 224、ledger 1、宏 2、rustdoc 4；`target/json-string-workspace-remaining.log`）。这不是完整工作区全绿，已知 Navigation/toast/config 队列差异未擅自接受或修复。相关 Python 参数/矩阵/文档门 118 项通过（`target/json-string-gates.log`）。逐文件检查 Rust diff；最终仅补步骤注释、整理 Python import 与验收说明，行为未变，格式/diff 检查通过；保留既有 MSVC linker stdout 告警。
+
+参考与测试自有进程/连接关闭，已有用户修改保留，无提交/推送/发布。本批未运行全 Python 参考套件、全部示例测试或实际浏览器。JSON 前端解析/展开/错误 UI、整数展开深度、宽度、自定义序列化失败和特殊原生数值等继续开放，矩阵仍 130 项 partial，M3/M5/M7 与完整兼容 Goal 不关闭。
+
+
+### Live Chrome JSON string rendering and disclosure (2026-10-30)
+
+本批独立于仍待决的发送队列流程。复用既有 json_badge_params 示例和 Python fixture：增加 `?case=strings&sample=0..14` 单例路径，`collapsed=true` 选择初始折叠；没有 sample 的完整字符串场景和普通默认六元素场景保留。示例经 `cargo clippy -p streamlit --example json_badge_params --offline --locked -- -D warnings` 与构建通过（`target/json-ui-clippy.log`、`target/json-ui-build.log`）；再以原采集器 --scenario strings --url 模式保留 `tests/browser/rust-json-badge-params/strings/trace.json`，全部 36 个原生 WS Element 载荷与路径和固定 Python 参考一致。
+
+随后通过 Browser Use 的真实 Chrome 扩展标签页操作官方前端，未用 native WS 冒充浏览器：两端各留 22 个有序观察（15 个字符串默认显示、对象/数组各 initial-collapse→实际点击 expand→实际点击 collapse 三阶段、最终 Unicode 复核）。主内容文本、解析警告、JSON 文本、展开图标、键与子行数全部一致。空串、错误和多文档文本在已测窗口显示 Json Parse Error；合法标量及字符串 NaN/Infinity 在上游组件中显示 ERROR 对象，这一真实行为原样保留。每端九张 JPEG 及字节数/SHA256、完整 DOM/组件 HTML、URL 与阶段信息分存于 `tests/reference/reference-browser/json-badge-params/ui` 和 `tests/browser/rust-json-badge-params/ui`。`collapsed` 字段是初始请求选项，点击后的实际状态由图标/文本/行数证明。
+
+最终观察时读取的 console buffer 各保留八条同文 `react-json-view error: src property must be a valid json object`；不能报告零 console 错误，也不按每个导航窗口强行归因。两个任务创建标签页关闭后，经受控 Ctrl-C 终止自有服务；Python 在关闭阶段出现 Windows Proactor pipe ConnectionResetError，已单独记入 cleanup，不作为观察过程的应用错误。工具确认两个服务 session 终止，8604/18604 无监听。未读取其他用户标签页或改变浏览器设置。
+
+离线门核对两个 22 阶段序列、精确本地 URL、可见 JSON/警告/图标/键/行数、全部 JPEG 的真实解码/尺寸/长度/哈希、两端语义差分和示例 36 个完整原生载荷；七项损坏 guard 拒绝缺阶段、错 URL、伪造文本/图标、图片哈希、警告及 Unicode 破坏。相关 Python 参数/矩阵/文档门 129 项通过（`target/json-ui-gates.log`）。这些门复核保存的浏览器数据，本身不会重新启动 Chrome；采集是本次实际 Browser Use 编排，未新增独立 CI 浏览器驱动。当前库代码未改，未无故重复已通过的库单元/工作区回归；该既有回归的两个待决队列排除项仍明确开放。本批逐文件复查示例 Rust diff，格式/diff 检查通过，既有 MSVC linker stdout 告警保留。
+
+只补齐所列字符串和两个根级 disclosure 往返；整数展开深度、更深嵌套、其他宽度/主题/响应布局、更广输入/序列化失败及全量自动浏览器验证仍未完成。矩阵仍 130 项 partial，M3/M5/M7 与完整兼容 Goal 保持开放，队列扩展未越过用户决策；无提交、推送、合并或发布。
+
+
+### Logo strings, JSON depth references, and branch checkpoint (2026-10-30)
+
+Logo 自动字符串分类使用现有 emoji 数据表识别完整序列，覆盖 ZWJ、旗帜、肤色、键帽与 variation selector，保留 Material 与 URI 分类。固定 Python 参考的 18 组 Logo 六字段和元数据经生产 WebSocket 对照；修复前 9 组不一致，修复后通过。JSON expanded/width 新参考覆盖 18 组输入，9 接受、9 拒绝；保留 False 与整数 0 的深度字段差异、int32 边界和宽度错误。这部分仅为参考，未擅自新增公共接口，JsonOptions 设计仍待用户选择。
+
+当前验证：Logo 单元 1 项、display2 生产 WS 2 项通过；workspace/all-targets clippy -D warnings 通过，保留既有 MSVC linker stdout 告警。工作区测试在明确排除 navigation_pages_switch_and_session_state_match_the_measured_wire 与 rerun_queue_messages_match_frozen_reference 两项已知队列差异后共 233 项通过（库 226、ledger 1、宏 2、rustdoc 4），日志 target/logo-strings-workspace-remaining.log。相关 Python 原始帧、损坏 guard、矩阵与文档门共 139 项通过（target/logo-depth-gates.log）。这不是完整工作区全绿；Navigation/config/toast 的更广队列策略仍待用户决定，当前仅实施已批准的未发送 Delta 丢弃。
+
+用户已授权定期提交并推送。显示行为与证据单独提交，查询状态和两项已知差异以明确 WIP 的工作分支检查点保存；不视为合并或发布验收。独立 colconfig_params 示例、采集器、捕获目录以及 Cargo/索引改动保留在工作区，不纳入本次提交。矩阵仍 130 项 partial，完整兼容目标继续开放。

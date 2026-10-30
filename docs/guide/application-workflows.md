@@ -120,7 +120,17 @@ fn show_selection(st: &Streamlit, batch: &RecordBatch) -> Result<(), DataError> 
 
 普通服务端重跑应保留本轮查询参数写入；`switch_page` 切换页面时清空普通查询参数，目标页面后续的新写入再随普通重跑保留。两条路径使用不同的状态边界，不能用旧浏览器请求覆盖目标页的新状态。
 
-同一次运行的首个 `rerun` 或 `stop` 信号决定该轮结束方式，后续信号不会覆盖它；普通服务端重跑保留本轮 `query_params.set` 写入。两条边界均有真实 WebSocket 回归，切页清空与目标页重跑的组合也有验证。详情参见矩阵 `st.rerun`、`st.stop`、`st.query_params`、`st.session_state` 和官方[会话状态](https://docs.streamlit.io/develop/api-reference/caching-and-state/st.session_state)。
+查询参数已验证行为：重复键由 `get` 返回末值，`get_all` 保留全部值；`to_vec` 也取末值，空列表键返回空字符串。URL 写入保留键的插入顺序，更新已有键不移动位置；删除和清空后可继续写入。本切片覆盖未绑定参数；保留键规则见下文，widget 绑定限制仍待完成。
+
+已验证的保留键规则：`embed`、`embed_options` 不区分大小写，不能通过应用查询参数接口读取、写入或删除，`clear` 保留其原始 URL 值。空字符串键是普通键，可以写入、读取和删除；`st_embed` 也属于普通键。本批不改变请求上下文的嵌入判定或 widget 绑定设计。
+
+本批已验证的服务端绑定生命周期：现有 `text_input` 和 selectbox 的 `bind(TextBind::QueryParams)` 使用显式 key 注册绑定；同名参数不能由应用直接 set/remove，存在已绑定 URL 参数时不能 clear。绑定键大小写敏感。条件隐藏控件后，该轮仍受保护，运行结束删除失效控件对应的 URL 参数，下一轮可重新手工写入。仅从新 URL 初始化值、跨页恢复及完整浏览器往返继续开放，不把本批服务端追踪视为完整绑定兼容。
+
+本批原生 WS 已验证的 URL 初始化：首轮或没有前端值的重跑可从 URL 初始化，前端提交优先于普通 URL，后续代码赋值优先；历史导航则由 URL（包括缺失参数时的默认值）决定。无效选项和默认值不保留在 URL，文本空值与可清空选择框按参考规则处理。控件返回值、URL 校正和发送给前端的 value/set_value 标志一起验收；尚不声明浏览器历史操作已完成。
+
+禁用控件：已测 text_input、selectbox 和 checkbox 的正确类型提交不会替换当前禁用控件的返回值，代码赋值与有效 URL 初始化仍可生效，同批正常控件继续处理。callback 使用上一轮登记的 disabled 状态，因此从启用切换到禁用时，callback 先执行，注册再恢复输入前值；从禁用切换到启用时接受新值但不回调。固定错误类型提交在禁用 selectbox 注册处产生 TypeError，保留此前正常控件的 callback，并允许同连接下一轮恢复。该原生 WS 证据不覆盖全部错误类型、所有控件或浏览器错误界面，Python 栈帧不由 Rust 伪造。
+
+同一次运行的首个 `rerun` 或 `stop` 信号决定该轮结束方式，后续信号不会覆盖它；普通服务端重跑保留本轮 `query_params.set` 写入。重跑会丢弃旧轮尚未发送的 Delta，已经发送的输出和 URL 消息保留；不能依赖同步代码在 `rerun` 前的临时输出一定到达浏览器。绑定控件延续本次交互的前端/代码状态，不重复执行 callback；在控件注册前中断不会提前移除旧控件，正常结束后仍会清理未渲染控件。两条边界均有真实 WebSocket 回归，切页清空与目标页重跑的组合也有验证。详情参见矩阵 `st.rerun`、`st.stop`、`st.query_params`、`st.session_state` 和官方[会话状态](https://docs.streamlit.io/develop/api-reference/caching-and-state/st.session_state)。
 
 当前 Rust 调用发出运行控制信号，并抑制后续 Streamlit 元素和状态写入；它不会自动跳出任意 Rust 辅助函数或取消普通 Rust 计算。调用后应显式返回，例如在下文的 `Result` 辅助函数中使用 `st.stop(); return Ok(());`；`st.rerun()` 同样处理。多层调用的自动控制流传播仍需单独接口设计。
 
@@ -239,7 +249,11 @@ Rust 已采纳方案 A：显示转换保留真实行数并合成虚拟 RangeInde
 
 **按钮/图片创建参数**（[button-image-params 参考](../../tests/reference/reference-browser/button-image-params/README.md)，6/6 一致）：`ButtonOptions` 的 `r#type("primary")/icon/disabled` 透传；`download_button` 的 **URL 扩展名规则**——显式 file_name 取其扩展、均缺省时按内容推断（裸字节 → `.bin`），消息内只带 url；新增 `st.images(ImageListOptions)` 支持多图列表（captions 逐条、width 元素级、同像素共享内容寻址 URL）。URL/path 图输入与点击交互流未纳入。
 
-**chat/metric/progress 参数**（[chat-metric-params 参考](../../tests/reference/reference-browser/chat-metric-params/README.md)，8/8 一致）：chat 的 emoji 字符串 avatar → `EMOJI` 类型（material 短码为 ICON）；**metric 全规则**——无 delta 与 delta=0 均 NONE+GRAY、`delta_color("off")` 保留方向但灰、负 delta normal 为 DOWN+RED（注意 proto 零值 DOWN/RED 在 JSON 里被省略）；`progress_options(n).text("…")` 标签随消息同行。progress 的 float overload（0..1，越界框架异常）为 **Python-only**，Rust 仅整数 0..=100 面。
+**chat/metric/progress 参数**（[chat-metric-params 参考](../../tests/reference/reference-browser/chat-metric-params/README.md)，8/8 一致）：chat 的 emoji 字符串 avatar → `EMOJI` 类型（material 短码为 ICON）；**metric 已测 delta 情况**——无 delta 与 delta=0 均 NONE+GRAY、`delta_color("off")` 保留方向但灰、负 delta normal 为 DOWN+RED（注意 proto 零值 DOWN/RED 在 JSON 里被省略）；`progress_options(n).text("…")` 标签随消息同行。progress 的 float overload（0..1，越界框架异常）为 **Python-only**，Rust 仅整数 0..=100 面。
+
+聊天头像的默认 name 为预设时按大小写及 human/ai 别名映射到 user/assistant；普通名字发送空 ICON 头像，由前端显示字母，emoji 名字发送 EMOJI。已有 `.avatar(...)` 接口可把 HTTP(S)、data URI、`/app/static/` 字符串原样编码为 IMAGE，固定 28 组输入已有原生 WS 对照；图片实际获取与显示、本地图片和无效输入的异常仍未验收。`st.json(...)` 默认展开，显式折叠用 `json_expanded(body, false)`；顶层字符串视为已有 JSON 文本原样传递（不会自动解析、验证或补引号），其他值才序列化，嵌套字符串仍按 JSON 转义；非 BMP 字符通过 UTF-16 代理对序列化。Python 的 `expanded=int` 深度属于尚未接入 Rust 的能力，不能与不存在的 `depth=` 关键字混同。 JSON 字符串的 15 种默认显示与对象/数组折叠往返另有[真实 Chrome 对照](../../tests/reference/reference-browser/json-badge-params/ui/trace.json)（每端 22 状态）；示例 `json_badge_params` 的 `?case=strings&sample=11` 展示 Unicode 场景。该范围不覆盖整数深度、其他宽度或所有嵌套组合。
+
+metric 的字符串 delta 遵循 1.66.1 字符串语义，不能按浮点数解析。空值与字面字符串 `"0"` 不显示方向，`"0%"` 等其他字符串向上，`"-0"` 等负号开头字符串向下；公共缩进先按参考规则移除并保留其他文本。该批 36 场景已通过原生 WS 对照，尚不声明真实界面操作已完成。
 
 **slider/multiselect 参数**（[slider-multi-params 参考](../../tests/reference/reference-browser/slider-multi-params/README.md)，4/4 一致、零实现改动确认）：datetime 滑杆的显式 `timedelta` 步长以**微秒**上 wire（30 分钟 → 1.8e9），value/min/max 为 epoch 微秒浮点、格式 `YYYY-MM-DD`；date 滑杆缺省步长为一天（8.64e10）；multiselect 的 `default_indices([...])` 以**选项索引**上 wire。时间值 datetime 滑杆、midnight 缺省步长与搜索过滤交互未纳入。
 

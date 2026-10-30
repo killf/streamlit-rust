@@ -386,3 +386,9 @@ def test_m3_partial_inventory_matches_the_matrix():
     listed = sorted(entry["feature_id"] for entry in inventory["entries"])
     assert partial == listed, "regenerate with tools/export_m3_inventory.py after matrix edits"
     assert inventory["summary"]["total_partial"] == len(partial)
+    limitations = {entry["feature_id"]: entry.get("limitations", []) for entry in matrix["entries"]}
+    for entry in inventory["entries"]:
+        assert entry["limitations"] == limitations[entry["feature_id"]], entry["feature_id"]
+    from collections import Counter
+    buckets = Counter(bucket for entry in inventory["entries"] for bucket in entry["buckets"])
+    assert inventory["summary"]["by_bucket"] == dict(buckets)
