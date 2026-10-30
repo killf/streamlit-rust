@@ -2,6 +2,24 @@
 import streamlit as st
 
 
+def run_dividers():
+    widths = ["default", "stretch", 1, 240, 2147483647]
+    st.json({"divider_widths": widths})
+    for width in widths:
+        if width == "default":
+            st.divider()
+        else:
+            st.divider(width=width)
+    st.markdown("---")
+    st.caption("---")
+    st.latex("x")
+
+
+if st.query_params.get("case") == "dividers":
+    run_dividers()
+    st.stop()
+
+
 def run_normalization():
     cases = [
         "\n    alpha\n      beta\n    gamma\n",

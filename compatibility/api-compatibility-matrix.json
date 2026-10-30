@@ -4732,12 +4732,17 @@
           "tests/reference/reference-browser/text-misc-params/trace.json",
           "tests/reference/reference-browser/text-misc-params/README.md",
           "tests/browser/rust-text-misc-params/trace.json"
-        ]
+        ],
+        "divider_layout_reference": "tests/reference/reference-browser/text-misc-params/dividers/trace.json",
+        "divider_layout_rust_before": "tests/browser/rust-text-misc-params/dividers-before/trace.json",
+        "divider_layout_rust": "tests/browser/rust-text-misc-params/dividers/trace.json",
+        "divider_layout_guards": "tests/reference/test_text_misc_params_reference.py"
       },
       "rust_plan": "Render the divider element with the measured defaults.",
       "compatibility_scope": "The 2026-10-25 journey-elements-v1 chain drives one official-frontend page on both runtimes with a real Chrome (load plus typed-and-applied form stage); both published replays assert 11/11/11 with identical normalized wire streams and DOM fingerprints. Covers the measured bare divider ('---' markdown) on the elements page.",
       "limitations": [
-        "The default divider is now measured (2026-10-29, frozen text-misc-params) as DIVIDER-typed markdown with wrap left unset — fixing a real Rust divergence (wrap true); MarkdownElement::wrap is now Option to distinguish explicit false from omission."
+        "The default divider is now measured (2026-10-29, frozen text-misc-params) as DIVIDER-typed markdown with wrap left unset — fixing a real Rust divergence (wrap true); MarkdownElement::wrap is now Option to distinguish explicit false from omission.",
+        "2026-10-30 full-Element divider layout: default, explicit stretch, 1/240/i32::MAX pixels plus Markdown/caption/LaTeX controls match Python 1.66.1 (nine Elements including the input report). The five before divider Elements incorrectly carried LEFT alignment; the fix omits alignment while preserving width, DIVIDER type and absent wrap. Raw before frames are retained. Invalid/nonpositive widths and values outside the Rust i32 API, browser geometry and full identity behavior remain unverified; no public signature/error-flow or identity-policy change is included."
       ]
     },
     {

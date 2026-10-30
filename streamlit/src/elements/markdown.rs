@@ -88,8 +88,8 @@ impl Element for MarkdownElement {
         let mut msg = delta_base_with_path(context.delta_path.clone(), context.active_script_hash.clone(), element_hash);
 
         let width_config: Option<WidthConfig> = self.width.clone().map(Into::into);
-        // LaTeX 参考不发送对齐配置；其余既有路径保留默认 LEFT。
-        let text_alignment_config: Option<TextAlignmentConfig> = if matches!(self.element_type, MarkdownElementType::Latex) {
+        // LaTeX 与 divider 直接生成 MarkdownProto，不发送对齐配置。
+        let text_alignment_config: Option<TextAlignmentConfig> = if matches!(self.element_type, MarkdownElementType::Latex | MarkdownElementType::Divider) {
             None
         } else {
             Some(self.text_alignment.clone().map(Into::into).unwrap_or_else(|| TextAlignment::Left.into()))

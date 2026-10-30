@@ -453,6 +453,108 @@ async fn code_body_language_changes_do_not_share_a_hash_on_one_connection() -> T
     Ok(())
 }
 
+fn divider_layout_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        st.json(serde_json::json!({"divider_widths": ["default", "stretch", 1, 240, 2147483647]}));
+        st.divider();
+        st.divider_options(crate::DividerOptions::Stretch);
+        for width in [1, 240, i32::MAX] {
+            st.divider_options(width);
+        }
+        st.markdown("---".to_owned());
+        st.caption("---");
+        st.latex("x");
+    })
+}
+
+#[actix_web::test]
+async fn divider_layout_preserves_width_and_omits_alignment() -> TestResult {
+    // 1. 真实公共调用验证默认/显式 stretch、正像素和 i32 上界。
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
+    let server = HttpServer::new(move || App::new().app_data(web::Data::new(StreamlitServer::new(divider_layout_entry, "127.0.0.1".into(), 0))).configure(configure_routes))
+        .workers(1)
+        .listen(listener)?
+        .run();
+    let handle = server.handle();
+    let task = actix_web::rt::spawn(server);
+    let mut stream = sessions::connect(address, None).await;
+    send_binary(
+        &mut stream,
+        &BackMsg {
+            r#type: Some(back_msg::Type::RerunScript(ClientState::default())),
+        }
+        .encode_to_vec(),
+    )
+    .await;
+    let mut observed = Vec::new();
+    let finish = loop {
+        let message = receive(&mut stream).await;
+        let path = message.metadata.as_ref().map(|metadata| metadata.delta_path.clone()).unwrap_or_default();
+        match message.r#type {
+            Some(forward_msg::Type::Delta(delta)) => {
+                let Some(delta::Type::NewElement(element)) = delta.r#type else { panic!("unexpected divider delta") };
+                observed.push((path, element));
+            }
+            Some(forward_msg::Type::ScriptFinished(status)) => break status,
+            _ => {}
+        }
+    };
+    drop(stream);
+    handle.stop(false).await;
+    task.await??;
+
+    // 2. 完整 Element 对照包含三类 Markdown 对照，不能一律清除 alignment。
+    use proto::streamlit::width_config::WidthSpec;
+    let widths = [
+        Some(WidthSpec::UseStretch(true)),
+        Some(WidthSpec::UseStretch(true)),
+        Some(WidthSpec::UseStretch(true)),
+        Some(WidthSpec::PixelWidth(1)),
+        Some(WidthSpec::PixelWidth(240)),
+        Some(WidthSpec::PixelWidth(i32::MAX as u32)),
+        None,
+        Some(WidthSpec::UseStretch(true)),
+        Some(WidthSpec::UseStretch(true)),
+    ];
+    let reference: serde_json::Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/text-misc-params/dividers/trace.json"))?;
+    let report = reference["elements"][0]["fields"]["body"].as_str().ok_or("missing divider inputs")?;
+    let mut expected = Vec::new();
+    for (index, width_spec) in widths.into_iter().enumerate() {
+        let kind = if index == 0 {
+            element::Type::Json(proto::Json {
+                body: report.into(),
+                expanded: true,
+                max_expand_depth: None,
+            })
+        } else {
+            element::Type::Markdown(proto::Markdown {
+                body: if index == 8 { "$$\nx\n$$" } else { "---" }.into(),
+                element_type: match index {
+                    6 => 1,
+                    7 => 2,
+                    8 => 4,
+                    _ => 5,
+                },
+                wrap: if matches!(index, 6 | 7) { Some(true) } else { None },
+                ..Default::default()
+            })
+        };
+        expected.push((
+            vec![0, u32::try_from(index)?],
+            proto::Element {
+                r#type: Some(kind),
+                width_config: width_spec.map(|spec| proto::streamlit::WidthConfig { width_spec: Some(spec) }),
+                text_alignment_config: if matches!(index, 6 | 7) { Some(proto::streamlit::TextAlignmentConfig { alignment: 1 }) } else { None },
+                ..Default::default()
+            },
+        ));
+    }
+    assert_eq!(finish, 0);
+    assert_eq!(observed, expected);
+    Ok(())
+}
+
 const TEXT_NORMALIZATION_REFERENCE: &str = include_str!("../../../tests/reference/reference-browser/text-misc-params/normalization-valid/trace.json");
 
 fn text_normalization_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {

@@ -409,3 +409,70 @@ def test_normalization_gate_rejects_coherent_wrong_wire(mutation):
     assert_capture(capture)
     with pytest.raises(AssertionError):
         assert_normalized_payloads(capture)
+
+
+
+def assert_divider_payloads(capture):
+    assert_capture(capture)
+    payloads = full_elements(capture)
+    assert len(payloads) == 9 and payloads[0][0] == [0, 0]
+    report = payloads[0][1]
+    assert set(report) == {"json", "width_config"}
+    assert report["width_config"] == {"use_stretch": True}
+    assert report["json"]["expanded"] is True
+    assert json.loads(report["json"]["body"]) == {"divider_widths": ["default", "stretch", 1, 240, 2147483647]}
+    for slot, (path, actual) in enumerate(payloads[1:], 1):
+        markdown = {"body": "---", "element_type": "DIVIDER"}
+        expected = {"markdown": markdown, "width_config": {"use_stretch": True}}
+        if slot in (3, 4, 5):
+            expected["width_config"] = {"pixel_width": {3: 1, 4: 240, 5: 2147483647}[slot]}
+        elif slot in (6, 7):
+            markdown.update(element_type="NATIVE" if slot == 6 else "CAPTION", wrap=True)
+            expected["text_alignment_config"] = {"alignment": "LEFT"}
+            if slot == 6:
+                del expected["width_config"]
+        elif slot == 8:
+            markdown.update(body="$$\nx\n$$", element_type="LATEX")
+        assert path == [0, slot] and actual == expected, slot
+
+
+def test_divider_complete_layouts_and_retained_before_difference():
+    python = read(PYTHON / "dividers/trace.json")
+    rust = read(RUST / "dividers/trace.json")
+    before = read(RUST / "dividers-before/trace.json")
+    for runtime, capture in (("python", python), ("rust", rust), ("rust", before)):
+        assert_capture(capture)
+        assert capture["runtime"] == runtime and capture["reference_version"] == "1.66.1"
+        assert capture["scenario"] == "dividers" and capture["successful"]
+        assert "producer_error" not in capture
+    assert python["cleanup"] == {"websocket_closed": True, "server_stopped": True}
+    assert_divider_payloads(python)
+    assert_divider_payloads(rust)
+    assert full_elements(python) == full_elements(rust)
+    assert [i for i, (a, b) in enumerate(zip(full_elements(python), full_elements(before))) if a != b] == [1, 2, 3, 4, 5]
+    with pytest.raises(AssertionError):
+        assert_divider_payloads(before)
+
+
+@pytest.mark.parametrize("mutation", ["alignment", "wrap", "pixel-width", "markdown-control"])
+def test_divider_gate_rejects_coherent_wrong_wire(mutation):
+    capture = read(PYTHON / "dividers/trace.json")
+    slot = 6 if mutation == "markdown-control" else 4
+    frame = next(frame for frame in capture["frames"] if frame["message"].get("metadata", {}).get("delta_path") == [0, slot])
+    message = ForwardMsg()
+    message.ParseFromString(base64.b64decode(frame["base64"]))
+    element = message.delta.new_element
+    if mutation == "alignment":
+        element.text_alignment_config.alignment = 1
+    elif mutation == "wrap":
+        element.markdown.wrap = False
+    elif mutation == "pixel-width":
+        element.width_config.pixel_width = 1
+    else:
+        element.ClearField("text_alignment_config")
+    data = message.SerializeToString()
+    frame.update(base64=base64.b64encode(data).decode(), bytes=len(data), message=MessageToDict(message, preserving_proto_field_name=True))
+    capture["elements"][slot]["fields"] = MessageToDict(element.markdown, preserving_proto_field_name=True)
+    assert_capture(capture)
+    with pytest.raises(AssertionError):
+        assert_divider_payloads(capture)

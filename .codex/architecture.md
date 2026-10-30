@@ -441,3 +441,13 @@ MarkdownOptions 的私有 width 改为 Option，默认省略 width_config，显�
 复用现有 utils/mod.rs 的 crate 私有 clean_text，Markdown/caption、text、三级标题与 LaTeX 共用。Unicode strip 补 U+001C–001F 与 Rust White_Space 的差别，缩进仅识别 ASCII 空格/Tab。未新增模块/依赖或公共接口，未改生产身份或队列策略。完整载荷比较另确认 LaTeX 宽度应 stretch、alignment 应省略，按该类型修正；未借此修改其他 Markdown 类型的默认配置。
 
 12 输入乘七类调用，加输入报告共 85 Element；修前 72 个完整载荷不同，修后完整 Element 和路径匹配。原始首份 Python normalization 因 fixture 把 surrogate JSON 转义当成 Python 字面量，在最后 Unicode 场景抛 UnicodeEncodeError；保留 79 元素/异常/正常 finish 原记录。采集器 successful 表示传输完成，不能代替语义验收。修正 fixture 后另存 normalization-valid，不覆盖失败；Rust before 和 fixed 各 85 元素。浏览器排版、非字符串转换和未测参数仍开放。
+
+
+### Divider alignment presence correction (2026-10-30)
+
+Python 1.66.1 divider 直接生成 MarkdownProto，只有 body 与 DIVIDER 类型，布局带宽度但不带 alignment。Rust 复用 MarkdownElement 时仍填 LEFT；本批仅把 Divider 加入既有 LaTeX 的 alignment 省略分支，不修改 Native/Caption 或生产 hash。公共 API 单元扩入 divider 对照；真实 WS 测默认/显式 stretch、1/240/i32::MAX，另有 Markdown/caption/LaTeX 对照，九个完整 Element/路径与参考一致，修前五个 alignment 偏差保留。
+
+无新公共接口、模块或依赖。非正宽度和超出 i32 参数范围不在本批验收中，不能将有效值对照当成输入错误兼容；浏览器几何与完整元素身份仍未完成。其余待决接口/流程不变。
+
+
+本批还见到静态输入校验风险：divider_options 的 Width(i32) 直接进入 ElementWidth::Value，common.rs 将它 as u32；零/负值没有在该路径检查。尚未做异常/恢复的双端动态对照，不将其当作有效宽度验收的一部分，也不把“未验证”写成没有问题。错误传播形态需要结合既有调用契约另行确认。

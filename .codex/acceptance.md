@@ -653,3 +653,12 @@ architecture 的 Pending unified NewElement identity decision 写出静态/原�
 按代码→单元→集成顺序，全目标 Clippy -D warnings 与 Rustfmt 检查通过；12 输入语义边界的清理单元 1 项、文本/JSON WS 集成 8 项通过（target/text-normalization-clippy.log、text-normalization-unit.log、text-normalization-integration.log）。工作区共 246 项通过（库 239、ledger 1、宏 2、rustdoc 4；target/text-normalization-workspace.log），仍明确排除 navigation_pages_switch_and_session_state_match_the_measured_wire、rerun_queue_messages_match_frozen_reference 两项既有队列差异，不称完整工作区全绿。协议/摘要绑定、完整语义、五项一致错误线 guard 加矩阵/文档门共 79 项通过（target/text-normalization-final-gates.log）。已有 MSVC linker stdout 告警保留。
 
 逐文件复查 diff，示例构建通过；两个 Rust server session 均终止，采集器拥有的 Python 服务/连接关闭，8606/18606 无监听。没有新的浏览器渲染/非字符串转换证明，未关闭未测参数或等待选择的统一身份、TextAlignment、JSON、队列策略；矩阵仍 130 partial，完整目标继续。colconfig_params 独立改动保留，按授权只提交推送工作分支，不合并或发布。
+
+
+### Divider alignment presence validation (2026-10-30)
+
+固定 Python 1.66.1 与 Rust 原生 WS 的 dividers 场景各九个完整 Element：输入报告、默认/显式 stretch、1/240/i32::MAX 像素 divider，及普通 Markdown/caption/LaTeX 对照。修前五个 divider 多发 LEFT alignment，修后所有 Element/路径匹配参考，保留 DIVIDER 类型与 wrap 缺省。生产只在既有对齐判断加入 Divider，不改公共签名、依赖、hash 或队列；Native/Caption 保留 LEFT，LaTeX 继续省略。
+
+公共 API 单元扩入 divider，并按实际覆盖更名为 public_text_width_and_alignment_presence_match_reference；一项通过。按代码→单元→集成顺序，全目标 Clippy -D warnings、Rustfmt 检查与文本/JSON WS 九项通过（target/divider-layout-clippy.log、divider-layout-unit.log、divider-layout-integration.log）。工作区 247 项通过（库 240、ledger 1、宏 2、rustdoc 4；target/divider-layout-workspace.log），明确排除已有 navigation_pages_switch_and_session_state_match_the_measured_wire、rerun_queue_messages_match_frozen_reference 两项队列差异，不称完整工作区全绿。原始帧/摘要/完整布局语义、四项一致错误线 guard 与矩阵/文档门 84 项通过（target/divider-layout-final-gates.log），已有 MSVC linker stdout 告警保留。
+
+修前原始帧未改，逐文件检查 Rust、fixture、采集器与 gate diff。两个 Rust server session 均终止，Python collector 拥有的服务/连接关闭，8606/18606 无监听。未新增浏览器几何验证；静态 Width(i32) 到 u32 未校验风险已记录，但异常/恢复行为尚待动态参考及错误流程决定，不能用有效值关闭该缺口。统一身份和其他接口/流程选择保持待决，矩阵仍 130 partial，完整目标继续。colconfig_params 独立改动不纳入本批；只按授权提交推送工作分支，不合并或发布。

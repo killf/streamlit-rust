@@ -7,8 +7,8 @@
     "by_bucket": {
       "needs-external-source-or-environment": 12,
       "rust-extension-or-headless-bound": 2,
-      "unmeasured-parameters": 90,
-      "no-explicit-gap-stated": 37
+      "unmeasured-parameters": 91,
+      "no-explicit-gap-stated": 36
     }
   },
   "entries": [
@@ -677,10 +677,11 @@
       "feature_id": "st.divider",
       "category": "PAGE ELEMENTS/Text elements",
       "buckets": [
-        "no-explicit-gap-stated"
+        "unmeasured-parameters"
       ],
       "limitations": [
-        "The default divider is now measured (2026-10-29, frozen text-misc-params) as DIVIDER-typed markdown with wrap left unset — fixing a real Rust divergence (wrap true); MarkdownElement::wrap is now Option to distinguish explicit false from omission."
+        "The default divider is now measured (2026-10-29, frozen text-misc-params) as DIVIDER-typed markdown with wrap left unset — fixing a real Rust divergence (wrap true); MarkdownElement::wrap is now Option to distinguish explicit false from omission.",
+        "2026-10-30 full-Element divider layout: default, explicit stretch, 1/240/i32::MAX pixels plus Markdown/caption/LaTeX controls match Python 1.66.1 (nine Elements including the input report). The five before divider Elements incorrectly carried LEFT alignment; the fix omits alignment while preserving width, DIVIDER type and absent wrap. Raw before frames are retained. Invalid/nonpositive widths and values outside the Rust i32 API, browser geometry and full identity behavior remain unverified; no public signature/error-flow or identity-policy change is included."
       ]
     },
     {

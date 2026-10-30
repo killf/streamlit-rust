@@ -67,3 +67,17 @@ uses a Unicode scalar, and normalization-valid is a new capture, not an edited
 replacement. Five coherent wrong-wire guards reject mixed-indent, CRLF,
 Unicode stripping and LaTeX width/alignment damage. No new browser/UI or
 non-string conversion claim is made; other compatibility gaps remain open.
+
+
+## Divider complete layout (2026-10-30)
+
+--scenario dividers / ?case=dividers records nine complete Elements: the
+input report, default/explicit stretch and 1/240/i32::MAX-pixel dividers,
+plus Markdown, caption and LaTeX controls. Python dividers/trace.json omits
+alignment and wrap for DIVIDER. Rust dividers-before retains the five wrong
+LEFT configs; fixed dividers matches all nine full Elements and paths.
+The controls ensure Native/Caption retain LEFT and LaTeX remains without it.
+Four coherent wrong-wire guards reject alignment, explicit-false wrap,
+pixel-width and control-alignment corruption after decoding raw protobuf.
+Invalid/nonpositive sizes, values outside Rust i32 and browser geometry are
+not verified here. Old captures are unchanged; this is not an identity fix.

@@ -2574,8 +2574,8 @@ mod quality_tests {
     }
 
     #[test]
-    fn public_markdown_width_presence_and_badge_alignment_match_reference() -> anyhow::Result<()> {
-        // 1. 公共调用区分默认与显式宽度，caption 和 badge 作为默认值对照。
+    fn public_text_width_and_alignment_presence_match_reference() -> anyhow::Result<()> {
+        // 1. 公共调用区分默认与显式宽度，caption、badge、divider 作为默认值对照。
         let st = Streamlit::new();
         let (sender, mut receiver) = tokio::sync::mpsc::unbounded_channel();
         let mut context = crate::elements::common::RenderContext::with_sender("layout-unit".into(), sender);
@@ -2588,6 +2588,7 @@ mod quality_tests {
         st.markdown(MarkdownOptions::new("pixels".into()).width(240));
         st.caption("caption");
         st.badge("badge");
+        st.divider();
 
         // 2. 实际通道载荷验证配置存在性。
         let mut elements = Vec::new();
@@ -2596,7 +2597,7 @@ mod quality_tests {
             let Some(crate::proto::delta::Type::NewElement(element)) = delta.r#type else { anyhow::bail!("expected layout element") };
             elements.push(element);
         }
-        assert_eq!(elements.len(), 6);
+        assert_eq!(elements.len(), 7);
         use crate::proto::streamlit::width_config::WidthSpec;
         let widths = elements.iter().map(|element| element.width_config.as_ref().and_then(|width| width.width_spec)).collect::<Vec<_>>();
         assert_eq!(
@@ -2607,11 +2608,12 @@ mod quality_tests {
                 Some(WidthSpec::UseContent(true)),
                 Some(WidthSpec::PixelWidth(240)),
                 Some(WidthSpec::UseStretch(true)),
-                Some(WidthSpec::UseContent(true))
+                Some(WidthSpec::UseContent(true)),
+                Some(WidthSpec::UseStretch(true))
             ]
         );
         assert!(elements[..5].iter().all(|element| element.text_alignment_config.is_some()));
-        assert!(elements[5].text_alignment_config.is_none());
+        assert!(elements[5..].iter().all(|element| element.text_alignment_config.is_none()));
         Ok(())
     }
 

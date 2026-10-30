@@ -4,6 +4,18 @@
 use ::streamlit::*;
 use streamlit::StreamlitApi;
 
+fn render_dividers(st: &Streamlit) {
+    st.json(serde_json::json!({"divider_widths": ["default", "stretch", 1, 240, 2147483647]}));
+    st.divider();
+    st.divider_options(DividerOptions::Stretch);
+    for width in [1, 240, i32::MAX] {
+        st.divider_options(width);
+    }
+    st.markdown("---".to_owned());
+    st.caption("---");
+    st.latex("x");
+}
+
 fn render_normalization(st: &Streamlit) -> Result<(), Box<dyn std::error::Error>> {
     let cases: Vec<String> = serde_json::from_str(
         r#"[
@@ -140,6 +152,11 @@ fn render_identity(st: &Streamlit) -> Result<(), Box<dyn std::error::Error>> {
 }
 
 fn render(st: &Streamlit) {
+    if st.query_params().get("case").as_deref() == Some("dividers") {
+        render_dividers(st);
+        return;
+    }
+
     if st.query_params().get("case").as_deref() == Some("normalization") {
         if let Err(error) = render_normalization(st) {
             st.write(format!("Normalization error: {error}"));
