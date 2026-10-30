@@ -2,6 +2,31 @@
 import streamlit as st
 
 
+def run_divider_errors():
+    phase = st.query_params.get("phase", "zero")
+    runs = st.session_state.get("divider_error_runs", 0) + 1
+    st.session_state["divider_error_runs"] = runs
+    st.json({"phase": phase, "runs": runs, "stage": "before"})
+    if phase == "caught":
+        results = []
+        for width in (0, -1, -2147483648, 1):
+            try:
+                st.divider(width=width)
+                results.append({"width": width, "returned": True})
+            except Exception as error:
+                results.append({"width": width, "type": type(error).__name__, "message": str(error)})
+        st.json({"caught_results": results})
+    else:
+        width = {"zero": 0, "negative": -1, "recovered": 240}[phase]
+        st.divider(width=width)
+    st.json({"phase": phase, "runs": runs, "stage": "after"})
+
+
+if st.query_params.get("case") == "divider-errors":
+    run_divider_errors()
+    st.stop()
+
+
 def run_dividers():
     widths = ["default", "stretch", 1, 240, 2147483647]
     st.json({"divider_widths": widths})

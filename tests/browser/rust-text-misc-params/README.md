@@ -81,3 +81,21 @@ Four coherent wrong-wire guards reject alignment, explicit-false wrap,
 pixel-width and control-alignment corruption after decoding raw protobuf.
 Invalid/nonpositive sizes, values outside Rust i32 and browser geometry are
 not verified here. Old captures are unchanged; this is not an identity fix.
+
+
+## Divider error/recovery contract (2026-10-30; decision pending)
+
+--scenario divider-errors drives zero -> negative -> caught -> recovered on
+one WS/session. Python divider-errors has 11 Elements: two uncaught errors
+with no after output, three caught invalid widths followed by valid width=1,
+and a successful width=240 recovery; runs are 1/2/3/4. Rust divider-errors-before
+has 16 Elements, emits 0/4294967295/2147483648 widths, returns normally and
+continues after the invalid calls. Both have four successful transport finishes;
+that does not prove semantic parity. Recovery alone matches in full.
+
+The gate binds all raw frames, requests, stable session ids, paths, ordered
+error/continuation/state results and recovery. Four coherent wrong-wire guards
+reject message/type/caught-result/recovery-counter corruption. This is retained
+failure evidence. Production validation/error handling is unchanged. Options
+in .codex/architecture.md cover Result-returning calls versus validated options,
+plus the actual fallible entry/macro dependency; user choice is pending.

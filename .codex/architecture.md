@@ -451,3 +451,22 @@ Python 1.66.1 divider 直接生成 MarkdownProto，只有 body 与 DIVIDER 类�
 
 
 本批还见到静态输入校验风险：divider_options 的 Width(i32) 直接进入 ElementWidth::Value，common.rs 将它 as u32；零/负值没有在该路径检查。尚未做异常/恢复的双端动态对照，不将其当作有效宽度验收的一部分，也不把“未验证”写成没有问题。错误传播形态需要结合既有调用契约另行确认。
+
+
+### Divider invalid-width error contract awaiting decision (2026-10-30)
+
+本批将静态风险复现为同连接四请求原始记录。Python zero、negative 两轮各发 before JSON + StreamlitInvalidWidthError，后续 after 不执行；caught 轮显式捕获 0/-1/i32::MIN 后继续渲染 width=1，再发三条错误和成功项的报告及 after；recovered 轮 width=240 正常。四轮 session id 不变、runs=1/2/3/4、finishes=[0,0,0,0]，共 11 Element。Rust 同一请求序列共 16 Element，没有错误，仍执行 after；像素值为 0、4294967295、2147483648。最后恢复轮的三个完整 Element 与 Python 一致，不能因此称前三轮兼容。
+
+生产诊断：api.rs divider/divider_options 都返回 ()，DividerOptions::Width(i32) 无校验，common.rs 用 as u32。只在 render 返回 Err 不够：App::push 当前只记日志，不向调用方传播，外部也无法捕获；仅发 exception 并屏蔽后续输出同样不够，调用后的 session_state 写入仍会执行。server.rs Entry 只接 Future<Output=()>；main 宏生成用户函数时未保留返回类型。完整错误/捕获/恢复需要用户选择公开调用契约，不能伪装成局部 cast 修复。
+
+供用户决定的三项方案：
+
+1. **推荐：divider/divider_options 返回 Result<(), StreamlitError>。** 增加可检查的 InvalidWidth(i32) 错误，非正宽度在 push 之前返回 Err；调用方通过 match 捕获或 ? 传播。正值及 stretch 布局不变。新增显式 fallible entry 支持（保留既有 unit entry）：Entry 的结果分支、StreamlitServer::new_fallible，以及 main 宏保留/支持 Result<(), StreamlitError> 返回。WS 运行边界把未捕获 InvalidWidth 映射为现有 AppException 的 StreamlitInvalidWidthError（markdown/framework flags、stretch width），不假造 Python 栈路径；正常结束清理和下一轮恢复按参考验证。? 已真实退出用户函数，不能只屏蔽输出。需迁移现有 divider 调用，属于明确公共返回值变化。
+2. **构造时验证 DividerOptions。** 将其改成字段私有的配置类型，提供 stretch 与 TryFrom<i32>（替换 From<i32>）；只有验证通过的配置可传入保持 () 返回的 divider_options，默认 divider 保持 ()。调用方用 DividerOptions::try_from(width)? 或 match 在构造处处理错误。仍接入上述 fallible entry/宏/WS 边界以支持未捕获错误 UI 和真实中止，但调用端迁移为显式配置构造。没有新的独立宽度类型/模块；公共 enum 形态和隐式 i32 调用会变化。
+3. **暂缓本项。** 保留错误参考、Rust 失败和未完成缺口，继续其他已授权能力。不是接受差异或关闭完整目标。
+
+方案 1 拟改：streamlit/src/api.rs（两方法签名/校验）；error.rs（明确错误变体）；server.rs（显式 fallible entry/构造器）；websocket/handler.rs（运行边界现有异常元素映射）；streamlit-macros/src/lib.rs（保留返回签名并选择对应 entry）；现有 basic.rs、elements.rs、text_misc_params.rs 与 runtime/textelements.rs 调用点、guide 和相关现有测试。复用 exception.rs，只有现有接口不足时再说明，不新增重复错误模块。方案 2 同样需要后四类错误边界文件，api.rs 的变化改为受校验配置。lib.rs 若需新增导出，应包含在选择后的具体接口中复核。
+
+验收按代码→单元→集成：非正输入不能占用 delta_path，完整错误类型/消息与 caller match；? 后输出及状态写入都不发生；显式捕获后正值、四轮原始协议/会话状态/恢复、默认与像素布局不回退；宏 unit 与 Result 外部消费者编译，旧 unit entry 不受影响；真实 UI 验证未捕获错误与恢复。再跑相关 Python/矩阵/文档及工作区，保留既有两项队列差异。统一身份、TextAlignment、JSON 和更广 rerun 保留策略不在本项内。
+
+按 AGENTS.md 第 2 条，公共接口和错误执行流程由用户决定。本批仅改诊断示例/fixture/采集器/证据门，未实施任何生产错误处理或宏/Entry 变更。

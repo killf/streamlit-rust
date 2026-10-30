@@ -476,3 +476,99 @@ def test_divider_gate_rejects_coherent_wrong_wire(mutation):
     assert_capture(capture)
     with pytest.raises(AssertionError):
         assert_divider_payloads(capture)
+
+
+
+def divider_error_rounds(capture):
+    assert_capture(capture, expected_finishes=(0, 0, 0, 0))
+    requests, sessions, rounds, current = [], [], [], []
+    for message in frames(capture):
+        if isinstance(message, BackMsg):
+            assert message.WhichOneof("type") == "rerun_script"
+            requests.append(message.rerun_script.query_string)
+        elif message.WhichOneof("type") == "new_session":
+            sessions.append(message.new_session.initialize.session_id)
+        elif message.WhichOneof("type") == "delta":
+            current.append((list(message.metadata.delta_path), MessageToDict(message.delta.new_element, preserving_proto_field_name=True)))
+        elif message.WhichOneof("type") == "script_finished":
+            rounds.append(current)
+            current = []
+    assert not current and len(rounds) == len(sessions) == 4
+    assert all(sessions) and len(set(sessions)) == 1
+    assert requests == ["case=divider-errors&phase=" + phase for phase in ("zero", "negative", "caught", "recovered")]
+    for index, (phase, outputs) in enumerate(zip(("zero", "negative", "caught", "recovered"), rounds), 1):
+        assert outputs[0][0] == [0, 0]
+        assert json.loads(outputs[0][1]["json"]["body"]) == {"phase": phase, "runs": index, "stage": "before"}
+        assert [path for path, _ in outputs] == [[0, slot] for slot in range(len(outputs))]
+    return rounds
+
+
+def assert_python_divider_error_flow(capture):
+    rounds = divider_error_rounds(capture)
+    assert [len(outputs) for outputs in rounds] == [2, 2, 4, 3]
+    for width, outputs in zip((0, -1), rounds[:2]):
+        assert set(outputs[1][1]) == {"exception"}
+        error = outputs[1][1]["exception"]
+        assert error["type"] == "streamlit.errors.StreamlitInvalidWidthError"
+        assert error["message"] == f"Invalid width value: {width}. Width must be either a positive integer (pixels) or 'stretch'."
+        assert error["message_is_markdown"] and error["is_streamlit_exception"]
+        assert error["width_config"] == {"use_stretch": True} and error["stack_trace"]
+    caught = rounds[2]
+    assert caught[1][1] == {"markdown": {"body": "---", "element_type": "DIVIDER"}, "width_config": {"pixel_width": 1}}
+    results = json.loads(caught[2][1]["json"]["body"])["caught_results"]
+    assert results == [
+        {"width": width, "type": "StreamlitInvalidWidthError", "message": f"Invalid width value: {width}. Width must be either a positive integer (pixels) or 'stretch'."}
+        for width in (0, -1, -2147483648)
+    ] + [{"width": 1, "returned": True}]
+    for index, phase in ((2, "caught"), (3, "recovered")):
+        assert json.loads(rounds[index][-1][1]["json"]["body"]) == {"phase": phase, "runs": index + 1, "stage": "after"}
+    assert rounds[3][1][1] == {"markdown": {"body": "---", "element_type": "DIVIDER"}, "width_config": {"pixel_width": 240}}
+
+
+def test_divider_error_and_recovery_reference_retains_actual_rust_failure():
+    python = read(PYTHON / "divider-errors/trace.json")
+    rust = read(RUST / "divider-errors-before/trace.json")
+    for runtime, capture in (("python", python), ("rust", rust)):
+        assert capture["runtime"] == runtime and capture["reference_version"] == "1.66.1"
+        assert capture["scenario"] == "divider-errors" and capture["successful"]
+        assert "producer_error" not in capture
+    assert python["cleanup"] == {"websocket_closed": True, "server_stopped": True}
+    assert_python_divider_error_flow(python)
+    rounds = divider_error_rounds(rust)
+    assert [len(outputs) for outputs in rounds] == [3, 3, 7, 3]
+    assert rounds[0][1][1]["width_config"] == {"pixel_width": 0}
+    assert rounds[1][1][1]["width_config"] == {"pixel_width": 4294967295}
+    assert [output[1]["width_config"]["pixel_width"] for output in rounds[2][1:5]] == [0, 4294967295, 2147483648, 1]
+    assert json.loads(rounds[2][5][1]["json"]["body"])["caught_results"] == [{"width": width, "returned": True} for width in (0, -1, -2147483648, 1)]
+    assert rounds[3] == divider_error_rounds(python)[3]
+    with pytest.raises(AssertionError):
+        assert_python_divider_error_flow(rust)
+
+
+@pytest.mark.parametrize("mutation", ["error-message", "error-kind", "caught-result", "recovery-counter"])
+def test_divider_error_flow_gate_rejects_coherent_wrong_wire(mutation):
+    capture = read(PYTHON / "divider-errors/trace.json")
+    messages = [frame for frame in capture["frames"] if "delta" in frame["message"]]
+    slot = {"error-message": 1, "error-kind": 1, "caught-result": 6, "recovery-counter": 10}[mutation]
+    frame = messages[slot]
+    message = ForwardMsg()
+    message.ParseFromString(base64.b64decode(frame["base64"]))
+    element = message.delta.new_element
+    kind = element.WhichOneof("type")
+    if mutation == "error-message":
+        element.exception.message = "invalid"
+    elif mutation == "error-kind":
+        element.exception.type = "ValueError"
+    else:
+        report = json.loads(element.json.body)
+        if mutation == "caught-result":
+            report["caught_results"][0] = {"width": 0, "returned": True}
+        else:
+            report["runs"] = 1
+        element.json.body = json.dumps(report)
+    data = message.SerializeToString()
+    frame.update(base64=base64.b64encode(data).decode(), bytes=len(data), message=MessageToDict(message, preserving_proto_field_name=True))
+    capture["elements"][slot]["fields"] = MessageToDict(getattr(element, kind), preserving_proto_field_name=True)
+    assert_capture(capture, expected_finishes=(0, 0, 0, 0))
+    with pytest.raises(AssertionError):
+        assert_python_divider_error_flow(capture)

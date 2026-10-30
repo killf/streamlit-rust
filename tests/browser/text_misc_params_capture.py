@@ -24,7 +24,7 @@ from websockets.sync.client import connect
 ROOT = Path(__file__).resolve().parents[2]
 parser = argparse.ArgumentParser(description='Collect the text/misc-parameter reference once; never overwrite.')
 parser.add_argument('--out', type=Path, required=True)
-parser.add_argument('--scenario', choices=('parameters', 'identity', 'layouts', 'layout-widths', 'normalization', 'dividers'), default='parameters')
+parser.add_argument('--scenario', choices=('parameters', 'identity', 'layouts', 'layout-widths', 'normalization', 'dividers', 'divider-errors'), default='parameters')
 parser.add_argument('--url', help='caller-owned Rust server URL (comparison capture)')
 args = parser.parse_args()
 OUT = args.out.resolve()
@@ -79,7 +79,9 @@ try:
                  open_timeout=10, close_timeout=5, max_size=None, legacy=True)
     request = BackMsg()
     request.rerun_script.SetInParent()
-    if args.scenario == "layout-widths":
+    if args.scenario == "divider-errors":
+        request.rerun_script.query_string = "case=divider-errors&phase=zero"
+    elif args.scenario == "layout-widths":
         request.rerun_script.query_string = "case=layouts&only_widths=true"
     elif args.scenario != "parameters":
         request.rerun_script.query_string = f"case={args.scenario}"
@@ -96,6 +98,16 @@ try:
         kind = message.WhichOneof('type')
         if kind == 'script_finished':
             TRACE['finishes'].append(message.script_finished)
+            if args.scenario == 'divider-errors':
+                if len(TRACE['finishes']) == 4:
+                    break
+                phase = ['zero', 'negative', 'caught', 'recovered'][len(TRACE['finishes'])]
+                request = BackMsg()
+                request.rerun_script.query_string = f'case=divider-errors&phase={phase}'
+                raw = request.SerializeToString()
+                record('client->server', raw, request)
+                WS.send(raw)
+                continue
             if args.scenario != 'identity' or len(TRACE['finishes']) == 3:
                 break
             assert checkbox_id

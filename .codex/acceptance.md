@@ -662,3 +662,14 @@ architecture 的 Pending unified NewElement identity decision 写出静态/原�
 公共 API 单元扩入 divider，并按实际覆盖更名为 public_text_width_and_alignment_presence_match_reference；一项通过。按代码→单元→集成顺序，全目标 Clippy -D warnings、Rustfmt 检查与文本/JSON WS 九项通过（target/divider-layout-clippy.log、divider-layout-unit.log、divider-layout-integration.log）。工作区 247 项通过（库 240、ledger 1、宏 2、rustdoc 4；target/divider-layout-workspace.log），明确排除已有 navigation_pages_switch_and_session_state_match_the_measured_wire、rerun_queue_messages_match_frozen_reference 两项队列差异，不称完整工作区全绿。原始帧/摘要/完整布局语义、四项一致错误线 guard 与矩阵/文档门 84 项通过（target/divider-layout-final-gates.log），已有 MSVC linker stdout 告警保留。
 
 修前原始帧未改，逐文件检查 Rust、fixture、采集器与 gate diff。两个 Rust server session 均终止，Python collector 拥有的服务/连接关闭，8606/18606 无监听。未新增浏览器几何验证；静态 Width(i32) 到 u32 未校验风险已记录，但异常/恢复行为尚待动态参考及错误流程决定，不能用有效值关闭该缺口。统一身份和其他接口/流程选择保持待决，矩阵仍 130 partial，完整目标继续。colconfig_params 独立改动不纳入本批；只按授权提交推送工作分支，不合并或发布。
+
+
+### Divider invalid-width diagnosis and pending error API (2026-10-30)
+
+本批未改库/宏/生产错误流程。复用现有 text_misc_params fixture、示例和采集器，以同一 WS/session 四轮 zero→negative→caught→recovered 采集双端。Python 11 元素：0/-1 的未捕获 StreamlitInvalidWidthError 阻止 after 输出，显式捕获 0/-1/i32::MIN 后可渲染 1 并输出三条精确错误消息，下一轮 240 正常。Rust 16 元素：所有调用返回 () 并继续 after，原始宽度为 0/4294967295/2147483648/1；四轮 session id 恒定、runs=1/2/3/4、finish 均 0，最后恢复轮三个完整 Element 与 Python 一致。仅恢复一致不代表错误语义通过；调用后的状态写入没有单独探针，不据此声称已完成该项验收。
+
+原始帧逐条绑定 base64/长度/解码/摘要，另绑定四个请求 query、同会话、分轮 delta_path、异常类型/完整消息/flags、捕获结果、后续输出和恢复计数；四项一致错误线 guard 被正确拒绝。相关 Python/矩阵/文档门 89 项通过（target/divider-errors-final-gates.log）。示例 Clippy -D warnings、构建、Rustfmt 检查通过（target/divider-errors-example-clippy.log、divider-errors-example-build.log）；保留已有 MSVC linker stdout 告警。因没有生产库修改，本批未重复库/工作区测试，上一批 247 项记录仍带两项已知队列排除，不能称本批新跑全库或错误修复完成。
+
+源码调查确认只返回 render Err 会被 App::push 日志吞掉，而仅阻止后续输出不能保证用户代码中止；Entry Future<Output=()> 和 main 宏丢弃返回类型也是落地可捕获错误的真实依赖。architecture 的 Divider invalid-width error contract awaiting decision 提供 Result-returning calls（推荐）、受校验配置构造、暂缓三个选项，列出公共接口、Entry/宏、WS 异常边界、迁移文件及后续状态写入/真实 UI 验收。按 AGENTS.md 第 2 条等待用户选择，未实施这些生产变更；完整目标与 130 partial 不变，其他待决流程未推进。
+
+逐文件复查诊断 diff，两份正确/失败原始记录未修改；Rust server session 终止、采集器自有 Python 服务与连接关闭，8606/18606 无监听。本批未运行浏览器；colconfig_params 独立改动保留，只按已授权工作分支提交推送，不合并或发布。

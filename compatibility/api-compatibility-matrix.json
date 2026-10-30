@@ -4736,13 +4736,16 @@
         "divider_layout_reference": "tests/reference/reference-browser/text-misc-params/dividers/trace.json",
         "divider_layout_rust_before": "tests/browser/rust-text-misc-params/dividers-before/trace.json",
         "divider_layout_rust": "tests/browser/rust-text-misc-params/dividers/trace.json",
-        "divider_layout_guards": "tests/reference/test_text_misc_params_reference.py"
+        "divider_layout_guards": "tests/reference/test_text_misc_params_reference.py",
+        "divider_error_reference": "tests/reference/reference-browser/text-misc-params/divider-errors/trace.json",
+        "divider_error_rust_before": "tests/browser/rust-text-misc-params/divider-errors-before/trace.json"
       },
       "rust_plan": "Render the divider element with the measured defaults.",
       "compatibility_scope": "The 2026-10-25 journey-elements-v1 chain drives one official-frontend page on both runtimes with a real Chrome (load plus typed-and-applied form stage); both published replays assert 11/11/11 with identical normalized wire streams and DOM fingerprints. Covers the measured bare divider ('---' markdown) on the elements page.",
       "limitations": [
         "The default divider is now measured (2026-10-29, frozen text-misc-params) as DIVIDER-typed markdown with wrap left unset — fixing a real Rust divergence (wrap true); MarkdownElement::wrap is now Option to distinguish explicit false from omission.",
-        "2026-10-30 full-Element divider layout: default, explicit stretch, 1/240/i32::MAX pixels plus Markdown/caption/LaTeX controls match Python 1.66.1 (nine Elements including the input report). The five before divider Elements incorrectly carried LEFT alignment; the fix omits alignment while preserving width, DIVIDER type and absent wrap. Raw before frames are retained. Invalid/nonpositive widths and values outside the Rust i32 API, browser geometry and full identity behavior remain unverified; no public signature/error-flow or identity-policy change is included."
+        "2026-10-30 full-Element divider layout: default, explicit stretch, 1/240/i32::MAX pixels plus Markdown/caption/LaTeX controls match Python 1.66.1 (nine Elements including the input report). The five before divider Elements incorrectly carried LEFT alignment; the fix omits alignment while preserving width, DIVIDER type and absent wrap. Raw before frames are retained. Invalid/nonpositive widths and values outside the Rust i32 API, browser geometry and full identity behavior remain unverified; no public signature/error-flow or identity-policy change is included.",
+        "2026-10-30 invalid-width reproduction: on one session, Python zero/negative uncaught errors suppress later code, caught 0/-1/i32::MIN errors allow width=1, and a later width=240 run recovers (11 Elements, four successful finishes, runs 1/2/3/4). Rust emits 0/4294967295/2147483648 pixel widths and continues after calls (16 Elements). Recovery parity does not fix the prior errors. The unit-return API and entry/macro boundary cannot propagate catchable errors; Result-returning divider calls versus validated configuration construction awaits user decision. No production error handling has been changed."
       ]
     },
     {

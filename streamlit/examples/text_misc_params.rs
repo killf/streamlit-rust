@@ -4,6 +4,31 @@
 use ::streamlit::*;
 use streamlit::StreamlitApi;
 
+fn render_divider_errors(st: &Streamlit) -> Result<(), Box<dyn std::error::Error>> {
+    let phase = st.query_params().get("phase").unwrap_or_else(|| "zero".into());
+    let runs = st.session_state().get::<i64>("divider_error_runs")?.unwrap_or(0) + 1;
+    st.session_state().set("divider_error_runs", runs)?;
+    st.json(serde_json::json!({"phase": phase, "runs": runs, "stage": "before"}));
+    if phase == "caught" {
+        let mut results = Vec::new();
+        for width in [0, -1, i32::MIN, 1] {
+            st.divider_options(width);
+            results.push(serde_json::json!({"width": width, "returned": true}));
+        }
+        st.json(serde_json::json!({"caught_results": results}));
+    } else {
+        let width = match phase.as_str() {
+            "zero" => 0,
+            "negative" => -1,
+            "recovered" => 240,
+            _ => return Err("unknown divider error phase".into()),
+        };
+        st.divider_options(width);
+    }
+    st.json(serde_json::json!({"phase": phase, "runs": runs, "stage": "after"}));
+    Ok(())
+}
+
 fn render_dividers(st: &Streamlit) {
     st.json(serde_json::json!({"divider_widths": ["default", "stretch", 1, 240, 2147483647]}));
     st.divider();
@@ -152,6 +177,13 @@ fn render_identity(st: &Streamlit) -> Result<(), Box<dyn std::error::Error>> {
 }
 
 fn render(st: &Streamlit) {
+    if st.query_params().get("case").as_deref() == Some("divider-errors") {
+        if let Err(error) = render_divider_errors(st) {
+            st.write(format!("Divider diagnostic error: {error}"));
+        }
+        return;
+    }
+
     if st.query_params().get("case").as_deref() == Some("dividers") {
         render_dividers(st);
         return;

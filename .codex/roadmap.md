@@ -235,3 +235,6 @@ JSON 深度/宽度已补 18 组固定原生参考（9 成功、9 拒绝）；Jso
 
 
 2026-10-30 divider 完整布局切片：只省略 Divider 错发的 LEFT alignment，五种有效宽度及 Markdown/caption/LaTeX 对照共九个完整 Element/路径匹配 Python。保留修前五处偏差；无效宽度、浏览器几何和统一身份继续开放，130 partial 与长期目标不变。
+
+
+2026-10-30 divider 无效宽度已从静态风险转为真实四轮失败：Python 未捕获/显式捕获/同连接恢复共 11 元素，Rust 16 元素、负数转大 u32 且继续 after。正确和错误原始记录/语义门保留。architecture 提出 Result 返回与验证配置两种完整错误契约，以及暂缓选项，包含 Entry/宏的实际依赖与验收；等待用户选择，生产代码未改，完整目标及 130 partial 保持。
