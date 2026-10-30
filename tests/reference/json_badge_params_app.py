@@ -20,6 +20,15 @@ def run_strings():
         st.json(value)
 
 
+def run_numbers():
+    texts = ['0.0', '-0.0', '1.0', '1e-4', '1e-5', '1e-6', '1e-7', '1e15', '1e16', '1e20', '1e21', '1.23e-7', '1.2345678901234567', '5e-324', '2.2250738585072014e-308', '1.7976931348623157e308', 'NaN', 'Infinity', '-Infinity']
+    st.json({"number_cases": texts})
+    for text in texts:
+        value = float(text)
+        st.json(value)
+        st.json([value])
+
+
 def run_expansion():
     cases = [
         {"label": "default", "kwargs": {}},
@@ -51,6 +60,10 @@ def run_expansion():
             st.json({"index": index, "label": case["label"], "ok": True})
 
 
+if st.query_params.get("case") == "numbers":
+    run_numbers()
+    st.stop()
+
 if st.query_params.get("case") == "expansion":
     run_expansion()
     st.stop()
@@ -62,7 +75,7 @@ if st.query_params.get("case") == "strings":
 st.title("Json badge feedback edges")
 
 # st.json: explicit expanded/collapsed values. The separate depth= keyword
-# is not accepted; integer expanded depth is a different, unmeasured path.
+# is not accepted; integer expanded depth has its own reference scenario.
 st.json({"outer": {"inner": [1, 2]}}, expanded=True)
 st.json({"deep": {"a": {"b": {"c": 1}}}}, expanded=False)
 

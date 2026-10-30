@@ -45,7 +45,41 @@ fn render_strings(st: &Streamlit) -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
+fn render_numbers(st: &Streamlit) -> Result<(), Box<dyn std::error::Error>> {
+    let texts = [
+        "0.0",
+        "-0.0",
+        "1.0",
+        "1e-4",
+        "1e-5",
+        "1e-6",
+        "1e-7",
+        "1e15",
+        "1e16",
+        "1e20",
+        "1e21",
+        "1.23e-7",
+        "1.2345678901234567",
+        "5e-324",
+        "2.2250738585072014e-308",
+        "1.7976931348623157e308",
+        "NaN",
+        "Infinity",
+        "-Infinity",
+    ];
+    st.json(serde_json::json!({"number_cases": texts}));
+    for text in texts {
+        let value: f64 = text.parse()?;
+        st.json(value);
+        st.json([value]);
+    }
+    Ok(())
+}
+
 fn render(st: &Streamlit) -> Result<(), Box<dyn std::error::Error>> {
+    if st.query_params().get("case").as_deref() == Some("numbers") {
+        return render_numbers(st);
+    }
     if st.query_params().get("case").as_deref() == Some("strings") {
         return render_strings(st);
     }

@@ -101,6 +101,92 @@ async fn json_strings_are_passthrough_while_structured_values_are_serialized() -
     Ok(())
 }
 
+const JSON_NUMBER_REFERENCE: &str = include_str!("../../../tests/reference/reference-browser/json-badge-params/numbers/trace.json");
+
+fn json_numbers_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        let result: TestResult = (|| {
+            let reference: serde_json::Value = serde_json::from_str(JSON_NUMBER_REFERENCE)?;
+            let inputs: serde_json::Value = serde_json::from_str(reference["elements"][0]["fields"]["body"].as_str().ok_or("missing number inputs")?)?;
+            st.json(inputs.clone());
+            for text in inputs["number_cases"].as_array().ok_or("missing number cases")? {
+                let value: f64 = text.as_str().ok_or("number text required")?.parse()?;
+                if value.is_finite() {
+                    st.json(value);
+                    st.json([value]);
+                }
+            }
+            Ok(())
+        })();
+        assert!(result.is_ok(), "JSON numeric fixture failed: {result:?}");
+    })
+}
+
+#[actix_web::test]
+async fn finite_json_numbers_match_python_wire() -> TestResult {
+    // 1. 真实服务器验证标量及嵌套有限数值；非有限值的已知差异仍独立开放。
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
+    let server = HttpServer::new(move || App::new().app_data(web::Data::new(StreamlitServer::new(json_numbers_entry, "127.0.0.1".into(), 0))).configure(configure_routes))
+        .workers(1)
+        .listen(listener)?
+        .run();
+    let handle = server.handle();
+    let task = actix_web::rt::spawn(server);
+    let mut stream = sessions::connect(address, None).await;
+    send_binary(
+        &mut stream,
+        &BackMsg {
+            r#type: Some(back_msg::Type::RerunScript(ClientState::default())),
+        }
+        .encode_to_vec(),
+    )
+    .await;
+    let mut observed = Vec::new();
+    let finish = loop {
+        let message = receive(&mut stream).await;
+        let path = message.metadata.as_ref().map(|metadata| metadata.delta_path.clone()).unwrap_or_default();
+        match message.r#type {
+            Some(forward_msg::Type::Delta(delta)) => {
+                let Some(delta::Type::NewElement(element)) = delta.r#type else { panic!("unexpected numeric delta") };
+                let Some(element::Type::Json(json)) = element.r#type else { panic!("unexpected numeric element") };
+                let stretch = matches!(element.width_config.and_then(|config| config.width_spec), Some(proto::streamlit::width_config::WidthSpec::UseStretch(true)));
+                observed.push((path, json, stretch));
+            }
+            Some(forward_msg::Type::ScriptFinished(status)) => break status,
+            _ => {}
+        }
+    };
+    drop(stream);
+    handle.stop(false).await;
+    task.await??;
+
+    // 2. Python 门已把消息投影绑定到原始帧；比较 33 个元素的路径、深度 presence 和宽度。
+    let reference: serde_json::Value = serde_json::from_str(JSON_NUMBER_REFERENCE)?;
+    let mut expected = Vec::new();
+    for frame in reference["frames"].as_array().ok_or("missing numeric frames")? {
+        if frame["direction"] != "server->client" {
+            continue;
+        }
+        let message = &frame["message"];
+        let Some(delta) = message.get("delta") else { continue };
+        let element = &delta["new_element"];
+        let json = element.get("json").ok_or("unexpected numeric reference element")?;
+        let path: Vec<u32> = serde_json::from_value(message["metadata"]["delta_path"].clone())?;
+        let wire = proto::Json {
+            body: json["body"].as_str().ok_or("missing number body")?.into(),
+            expanded: json["expanded"].as_bool().unwrap_or(false),
+            max_expand_depth: json["max_expand_depth"].as_i64().map(i32::try_from).transpose()?,
+        };
+        expected.push((path, wire, element["width_config"]["use_stretch"].as_bool().unwrap_or(false)));
+    }
+    assert_eq!(expected.len(), 39, "19 scalar/array pairs and the input report");
+    assert_eq!(finish, 0);
+    assert_eq!(observed.len(), 33, "16 finite scalar/array pairs and the input report");
+    assert_eq!(observed, expected[..33]);
+    Ok(())
+}
+
 fn textelements_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
     Box::pin(async move {
         // Mirrors tests/reference/textelements_app.py.

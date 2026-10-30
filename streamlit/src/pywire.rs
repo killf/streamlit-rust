@@ -29,7 +29,7 @@ fn write_value_compact(out: &mut String, value: &Value) {
         Value::Null => out.push_str("null"),
         Value::Bool(true) => out.push_str("true"),
         Value::Bool(false) => out.push_str("false"),
-        Value::Number(number) => out.push_str(&number.to_string()),
+        Value::Number(number) => write_number(out, number),
         Value::String(text) => write_string(out, text),
         Value::Array(items) => {
             out.push('[');
@@ -63,7 +63,7 @@ fn write_value(out: &mut String, value: &Value) {
         Value::Null => out.push_str("null"),
         Value::Bool(true) => out.push_str("true"),
         Value::Bool(false) => out.push_str("false"),
-        Value::Number(number) => out.push_str(&number.to_string()),
+        Value::Number(number) => write_number(out, number),
         Value::String(text) => write_string(out, text),
         Value::Array(items) => {
             out.push('[');
@@ -104,6 +104,51 @@ pub fn py_dumps_pairs(pairs: &[(&str, Value)]) -> String {
     }
     out.push('}');
     out
+}
+
+fn write_number(out: &mut String, number: &serde_json::Number) {
+    let text = number.to_string();
+    if !number.is_f64() {
+        out.push_str(&text);
+        return;
+    }
+
+    // 1. Python 指数带显式正号，绝对值小于十时补齐两位。
+    if let Some((mantissa, exponent)) = text.split_once('e') {
+        out.push_str(mantissa);
+        out.push('e');
+        let digits = if let Some(digits) = exponent.strip_prefix('-') {
+            out.push('-');
+            digits
+        } else {
+            out.push('+');
+            exponent.strip_prefix('+').unwrap_or(exponent)
+        };
+        if digits.len() == 1 {
+            out.push('0');
+        }
+        out.push_str(digits);
+        return;
+    }
+
+    // 2. Python 从 1e-5 开始用指数，serde 的最短小数形式仍可能是 0.00001。
+    let unsigned = text.strip_prefix('-').unwrap_or(&text);
+    if let Some(fraction) = unsigned.strip_prefix("0.")
+        && let Some(first) = fraction.bytes().position(|digit| digit != b'0').filter(|first| *first >= 4)
+    {
+        if text.starts_with('-') {
+            out.push('-');
+        }
+        out.push(char::from(fraction.as_bytes()[first]));
+        let rest = &fraction[first + 1..];
+        if !rest.is_empty() {
+            out.push('.');
+            out.push_str(rest);
+        }
+        out.push_str(&format!("e-{:02}", first + 1));
+        return;
+    }
+    out.push_str(&text);
 }
 
 fn write_string(out: &mut String, text: &str) {
@@ -167,6 +212,36 @@ mod tests {
         assert_eq!(py_dumps(&serde_json::json!("\u{2705}")), r#""\u2705""#);
         assert_eq!(py_dumps(&serde_json::json!(0.7)), "0.7");
         assert_eq!(py_dumps(&serde_json::json!(-74.0)), "-74.0");
+    }
+
+    #[test]
+    fn finite_json_numbers_follow_python_exponent_formatting() -> Result<(), serde_json::Error> {
+        let cases = [
+            ("0.0", "0.0"),
+            ("-0.0", "-0.0"),
+            ("1.0", "1.0"),
+            ("0.0001", "0.0001"),
+            ("0.00001", "1e-05"),
+            ("-0.0000123", "-1.23e-05"),
+            ("1e-6", "1e-06"),
+            ("-1e-7", "-1e-07"),
+            ("1e15", "1000000000000000.0"),
+            ("1e16", "1e+16"),
+            ("-1e20", "-1e+20"),
+            ("1.23e-7", "1.23e-07"),
+            ("5e-324", "5e-324"),
+            ("2.2250738585072014e-308", "2.2250738585072014e-308"),
+            ("1.7976931348623157e308", "1.7976931348623157e+308"),
+        ];
+        for (input, expected) in cases {
+            let value: Value = serde_json::from_str(input)?;
+            assert_eq!(py_dumps(&value), expected, "input {input}");
+            assert_eq!(py_dumps_compact(&value), expected, "compact input {input}");
+            assert_eq!(py_dumps_pairs(&[("value", value)]), format!("{{\"value\": {expected}}}"), "pairs input {input}");
+        }
+        let integers: Value = serde_json::from_str("[0, -1, 10000000000000000, 18446744073709551615]")?;
+        assert_eq!(py_dumps(&integers), "[0, -1, 10000000000000000, 18446744073709551615]");
+        Ok(())
     }
 
     #[test]

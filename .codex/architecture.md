@@ -348,3 +348,10 @@ console buffer 各有八条同文 react-json-view scalar 错误日志，属于�
 ### Logo automatic emoji-sequence typing slice
 
 `code-logo-params/logo-strings/trace.json` 固定 18 个双图 Logo：12 个普通/VS/ZWJ/家庭/国旗/keycap/肤色序列、两个 Material 图标和四个 URL/data/static URI，轮换 small/medium/large 及 link。修前 9/18 完整载荷不同，原因是自动 From<&str> 用非 ASCII 且字符数<=2 的启发式；改为复用已锁定 emojis::get，From<String> 仍复用该转换。主图与 icon_image 的全部六字段和 Logo 元数据形态通过真实 WS 对照，无新增公共接口或依赖。无效图片/Material 字符串、本地/bytes 加载、完整 emoji catalogue、侧栏显示与链接操作等继续开放。
+
+
+### JSON numeric encoding and remaining nonfinite data loss
+
+2026-10-30 同一 JSON fixture/example/collector 增加 numbers 场景：19 个 f64 文本输入分别调用 st.json(value) 与 st.json([value])，连输入报告共 39 个输出。旧 Rust 的八组有限值在指数正号、两位补零和 1e-5 记法上不同；pywire 现有数字写入统一处理普通/compact/pairs 路径，整数保持原样，无新公共接口或依赖。固定原始参考与修复前、后记录分别保留；16 个有限值的 33 个报告/输出载荷已匹配。
+
+三组非有限值（NaN、Infinity、-Infinity）在 Python JSON body 中原样发出，Rust 的 serde_json::to_value 在 pywire 之前已把它们变成 null，现有 Value 编码无法还原。两种调用形态的六个差异继续记录为未完成。处理需要在转 Value 前保留浮点信息的内部序列化设计；不得使用特殊字符串哨兵或把 null 当作兼容结果。该设计与已待决的 JsonOptions 深度/宽度接口相互独立，当前未擅自引入自定义 Serializer、类型模型或依赖。自定义序列化失败、任意精度/舍入与更广数值/浏览器组合仍开放。

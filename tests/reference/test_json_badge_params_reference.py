@@ -280,3 +280,37 @@ def test_json_integer_depth_width_and_rejection_reference():
     assert failures["depth-overflow"]["error_type"] == "ValueError" and failures["depth-overflow"]["message"] == "Value out of range: 2147483648"
     assert all(failures[label]["error_type"] == "StreamlitInvalidParameterTypeError" for label in ("depth-float", "depth-text"))
     assert all(report["error_type"] == "StreamlitInvalidWidthError" for label, report in failures.items() if label.startswith("width-"))
+
+
+NUMBER_TEXTS = ["0.0", "-0.0", "1.0", "1e-4", "1e-5", "1e-6", "1e-7", "1e15", "1e16", "1e20", "1e21", "1.23e-7", "1.2345678901234567", "5e-324", "2.2250738585072014e-308", "1.7976931348623157e308", "NaN", "Infinity", "-Infinity"]
+NUMBER_BODIES = ["0.0", "-0.0", "1.0", "0.0001", "1e-05", "1e-06", "1e-07", "1000000000000000.0", "1e+16", "1e+20", "1e+21", "1.23e-07", "1.2345678901234567", "5e-324", "2.2250738585072014e-308", "1.7976931348623157e+308", "NaN", "Infinity", "-Infinity"]
+
+
+def test_numeric_reference_and_finite_rust_payloads():
+    captures = [read(PYTHON / "numbers/trace.json"), read(RUST / "numbers-before/trace.json"), read(RUST / "numbers/trace.json")]
+    for capture in captures:
+        assert_capture(capture)
+        assert capture["scenario"] == "numbers" and capture["successful"] and "producer_error" not in capture
+        assert len(capture["elements"]) == 39
+        inputs = json.loads(capture["elements"][0]["fields"]["body"])
+        assert inputs == {"number_cases": NUMBER_TEXTS}
+        for index, element in enumerate(capture["elements"]):
+            assert element["kind"] == "json" and element["delta_path"] == [0, index]
+            assert element["fields"].get("expanded") is True
+            assert "max_expand_depth" not in element["fields"]
+        raw_elements = [message.delta.new_element for message in frames(capture)
+                        if isinstance(message, ForwardMsg) and message.WhichOneof("type") == "delta"]
+        assert all(element.HasField("width_config") and element.width_config.WhichOneof("width_spec") == "use_stretch"
+                   and element.width_config.use_stretch for element in raw_elements)
+    reference, before, after = captures
+    assert reference["runtime"] == "python" and reference["reference_version"] == "1.66.1"
+    assert reference["server_cleanup"] == "collector-owned" and reference["cleanup"]["server_stopped"] is True
+    assert before["runtime"] == after["runtime"] == "rust"
+    assert before["server_cleanup"] == after["server_cleanup"] == "caller-owned"
+    assert [element["fields"]["body"] for element in reference["elements"][1:]] == [body for value in NUMBER_BODIES for body in (value, f"[{value}]")]
+    expected, old, actual = [comparable(capture) for capture in captures]
+    assert [index for index, (left, right) in enumerate(zip(expected[:33], old[:33])) if left != right] == [9, 10, 11, 12, 13, 14, 17, 18, 19, 20, 21, 22, 23, 24, 31, 32]
+    assert actual[:33] == expected[:33], "all 16 finite scalar/array pairs and the report must match"
+    # This retained artifact records the unresolved nonfinite loss, not a compatibility pass for those values.
+    assert [index for index, (left, right) in enumerate(zip(expected, actual)) if left != right] == list(range(33, 39))
+    assert [element["fields"]["body"] for element in after["elements"][33:]] == ["null", "[null]", "null", "[null]", "null", "[null]"]

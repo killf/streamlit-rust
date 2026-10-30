@@ -565,3 +565,12 @@ Logo 自动字符串分类使用现有 emoji 数据表识别完整序列，覆�
 当前验证：Logo 单元 1 项、display2 生产 WS 2 项通过；workspace/all-targets clippy -D warnings 通过，保留既有 MSVC linker stdout 告警。工作区测试在明确排除 navigation_pages_switch_and_session_state_match_the_measured_wire 与 rerun_queue_messages_match_frozen_reference 两项已知队列差异后共 233 项通过（库 226、ledger 1、宏 2、rustdoc 4），日志 target/logo-strings-workspace-remaining.log。相关 Python 原始帧、损坏 guard、矩阵与文档门共 139 项通过（target/logo-depth-gates.log）。这不是完整工作区全绿；Navigation/config/toast 的更广队列策略仍待用户决定，当前仅实施已批准的未发送 Delta 丢弃。
 
 用户已授权定期提交并推送。显示行为与证据单独提交，查询状态和两项已知差异以明确 WIP 的工作分支检查点保存；不视为合并或发布验收。独立 colconfig_params 示例、采集器、捕获目录以及 Cargo/索引改动保留在工作区，不纳入本次提交。矩阵仍 130 项 partial，完整兼容目标继续开放。
+
+
+### Finite JSON numeric notation and nonfinite evidence (2026-10-30)
+
+在现有 JSON 示例、fixture 和采集器加入 numbers 场景。固定 Python Streamlit 1.66.1 原生 WS 记录位于 json-badge-params/numbers/trace.json（19 个文本输入，每个标量/数组输出，加报告共 39 个元素）；Rust numbers-before 保留修复前 8 组有限值和 3 组非有限值差异。共享 pywire 的普通、compact、pairs 数字写入修正指数符号、两位补零和 1e-5 的记法，整数不变。Rust numbers 新记录的前 33 个报告/有限值完整载荷、路径、伸展宽度与参考一致；NaN、Infinity、-Infinity 的六个 null 差异仍保留，不视为完整兼容。
+
+按代码、单元、集成顺序验证：workspace/all-targets clippy -D warnings 通过（target/json-numbers-clippy.log）；pywire 单元 5 项通过（target/json-numbers-unit.log）；文本/JSON 生产 WS 集成 3 项通过（target/json-numbers-integration.log）。现有运行共享编码的工作区回归在明确排除两项已知队列差异后 235 项通过（库 228、ledger 1、宏 2、rustdoc 4；target/json-numbers-workspace-remaining.log），并非完整工作区全绿。相关 Python 原始帧/字段/路径/宽度/矩阵/文档门 140 项通过（target/json-numbers-gates.log）。保留既有 MSVC linker stdout 告警；本轮 rustfmt 已按项目 edition 2024 运行，并逐文件检查改动。
+
+采集器停止自有 Python 服务，两次自有 Rust 服务 session 均终止，8604 无监听。没有浏览器数值渲染验收、公共接口或依赖变更；非有限值在 to_value 前的信息保留方案需另行确定，自定义序列化失败、任意精度/舍入、更广数字和其他未测能力仍开放。矩阵仍 130 项 partial；用户已有 colconfig_params 改动保持独立，不纳入本批提交。此批将按已授权工作分支提交并推送，不合并或发布。

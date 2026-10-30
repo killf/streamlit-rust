@@ -116,3 +116,27 @@ Rust's current bool-only API cannot express integer depth or width here.
 Three concrete interface choices have been submitted to the user, with the
 recommended JsonOptions/json_options described in .codex/architecture.md.
 No new JSON public interface has been implemented before that decision.
+
+
+## Numeric serialization (2026-10-30; partial)
+
+[numbers/trace.json](numbers/trace.json) is the existing collector's new
+`--scenario numbers`, with 19 f64 input texts, each rendered as a scalar and
+one-element array, plus an input report (39 JSON elements). It measures signed
+zero, notation thresholds, mantissas, smallest subnormal, minimum positive
+normal, largest finite double, NaN and both infinities over native WebSocket.
+The collector stopped its owned Python process. No browser claim is made.
+
+The retained Rust numbers-before capture differs on eight finite inputs
+(16 element bodies) and three nonfinite inputs (six bodies). After the shared
+encoder correction, all 16 finite inputs match Python, including `1e-05`,
+`1e+16` and `1.7976931348623157e+308`, while integer formatting stays unchanged.
+Production WS tests compare 33 finite/report elements with paths, full JSON
+fields and stretch width; the offline gate decodes every raw protobuf frame.
+
+NaN/Infinity/-Infinity still produce null in Rust's current to_value pipeline;
+both scalar and array differences remain visible in the fixed capture. This
+is recorded failure evidence, not accepted compatibility. A different internal
+serialization flow needs a separate design decision; custom serialization
+failures, arbitrary precision/rounding, wider numeric input sets, numeric UI,
+integer expansion/width and the wider JSON scope remain open.

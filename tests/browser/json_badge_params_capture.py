@@ -23,7 +23,7 @@ from websockets.sync.client import connect
 ROOT = Path(__file__).resolve().parents[2]
 parser = argparse.ArgumentParser(description='Collect the json/badge/feedback reference once; never overwrite.')
 parser.add_argument('--out', type=Path, required=True)
-parser.add_argument('--scenario', choices=('parameters', 'strings', 'expansion'), default='parameters')
+parser.add_argument('--scenario', choices=('parameters', 'strings', 'expansion', 'numbers'), default='parameters')
 parser.add_argument('--url', help='caller-owned Rust server URL (comparison capture)')
 args = parser.parse_args()
 OUT = args.out.resolve()
@@ -79,10 +79,8 @@ try:
                  open_timeout=10, close_timeout=5, max_size=None, legacy=True)
     request = BackMsg()
     request.rerun_script.SetInParent()
-    if args.scenario == "strings":
-        request.rerun_script.query_string = "case=strings"
-    elif args.scenario == "expansion":
-        request.rerun_script.query_string = "case=expansion"
+    if args.scenario != "parameters":
+        request.rerun_script.query_string = f"case={args.scenario}"
     raw = request.SerializeToString()
     record('client->server', raw, request)
     WS.send(raw)

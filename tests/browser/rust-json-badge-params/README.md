@@ -28,3 +28,22 @@ for the Unicode scene; sample values 0..14 select the retained input strings,
 and `&collapsed=true` chooses initial collapse. The runtime/schema APIs did
 not change. Both owned servers and both task-created tabs were closed after
 collection. The queue-policy decision remains separate and pending.
+
+
+## Numeric wire before and after (2026-10-30)
+
+[numbers-before/trace.json](numbers-before/trace.json) retains the original
+8/16 finite input mismatches plus three nonfinite mismatches against the
+[Python numeric reference](../../reference/reference-browser/json-badge-params/numbers/trace.json).
+[numbers/trace.json](numbers/trace.json) retains the fresh fixed run: all 16
+finite scalar/array pairs and the input report match (33 elements), while
+NaN and both infinities still become null in six elements. Both full captures
+have 39 elements; neither capture was overwritten to hide the differences.
+Use `?case=numbers` in the existing example to reproduce the input set.
+
+The collector used caller-owned Rust services, each stopped after collection.
+These are native WS observations; no numeric browser rendering or complete
+serialization compatibility claim. Shared py_dumps/compact/pairs unit tests,
+finite production WS tests and raw-frame evidence gates cover the correction.
+Nonfinite preservation requires a separate internal serialization decision;
+public JSON expansion/width and rerun policy choices remain pending.
