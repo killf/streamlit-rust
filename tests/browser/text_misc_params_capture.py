@@ -24,6 +24,7 @@ from websockets.sync.client import connect
 ROOT = Path(__file__).resolve().parents[2]
 parser = argparse.ArgumentParser(description='Collect the text/misc-parameter reference once; never overwrite.')
 parser.add_argument('--out', type=Path, required=True)
+parser.add_argument('--scenario', choices=('parameters', 'identity'), default='parameters')
 parser.add_argument('--url', help='caller-owned Rust server URL (comparison capture)')
 args = parser.parse_args()
 OUT = args.out.resolve()
@@ -43,7 +44,7 @@ else:
                '--server.address=127.0.0.1', f'--server.port={PORT}', '--server.headless=true',
                '--server.fileWatcherType=none', '--browser.gatherUsageStats=false']
 TRACE = {'schema_version': 1, 'runtime': 'rust' if args.url else 'python', 'reference_version': '1.66.1',
-         'captured_at_utc': datetime.now(timezone.utc).isoformat(),
+         'captured_at_utc': datetime.now(timezone.utc).isoformat(), 'scenario': args.scenario,
          'scope': 'Element wire of text/latex/help/divider parameter edges over one native WS; no browser/UI claim.',
          'server_command': COMMAND, 'server_cleanup': 'caller-owned' if COMMAND is None else 'collector-owned',
          'url': URL, 'frames': [], 'elements': [], 'finishes': []}
@@ -78,10 +79,13 @@ try:
                  open_timeout=10, close_timeout=5, max_size=None, legacy=True)
     request = BackMsg()
     request.rerun_script.SetInParent()
+    if args.scenario == "identity":
+        request.rerun_script.query_string = "case=identity"
     raw = request.SerializeToString()
     record('client->server', raw, request)
     WS.send(raw)
     index = 0
+    checkbox_id = None
     while True:
         raw = WS.recv(timeout=20)
         message = ForwardMsg()
@@ -90,7 +94,16 @@ try:
         kind = message.WhichOneof('type')
         if kind == 'script_finished':
             TRACE['finishes'].append(message.script_finished)
-            break
+            if args.scenario != 'identity' or len(TRACE['finishes']) == 3:
+                break
+            assert checkbox_id
+            request = BackMsg()
+            request.rerun_script.query_string = 'case=identity'
+            request.rerun_script.widget_states.widgets.add(id=checkbox_id, bool_value=len(TRACE['finishes']) == 1)
+            raw = request.SerializeToString()
+            record('client->server', raw, request)
+            WS.send(raw)
+            continue
         if kind != 'delta':
             continue
         delta_kind = message.delta.WhichOneof('type')
@@ -112,6 +125,8 @@ try:
             element = message.delta.new_element
             element_kind = element.WhichOneof('type')
             if element_kind is not None:
+                if args.scenario == 'identity' and element_kind == 'checkbox':
+                    checkbox_id = element.checkbox.id
                 view = getattr(element, element_kind)
                 fields = MessageToDict(view, preserving_proto_field_name=True)
                 url = getattr(view, 'url', '') if hasattr(view, 'url') else ''

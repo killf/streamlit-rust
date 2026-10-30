@@ -7,8 +7,8 @@
     "by_bucket": {
       "needs-external-source-or-environment": 12,
       "rust-extension-or-headless-bound": 2,
-      "unmeasured-parameters": 84,
-      "no-explicit-gap-stated": 43
+      "unmeasured-parameters": 89,
+      "no-explicit-gap-stated": 38
     }
   },
   "entries": [
@@ -109,10 +109,11 @@
       "feature_id": "st.badge",
       "category": "PAGE ELEMENTS/Text elements",
       "buckets": [
-        "no-explicit-gap-stated"
+        "unmeasured-parameters"
       ],
       "limitations": [
-        "The color/icon markdown forms are now measured (2026-10-29, frozen json-badge-params) with the badge markdown wrap field LEFT UNSET — fixing a real Rust divergence (Some(true), and the intermediate Some(false) is not equal to omission either)."
+        "The color/icon markdown forms are now measured (2026-10-29, frozen json-badge-params) with the badge markdown wrap field LEFT UNSET — fixing a real Rust divergence (Some(true), and the intermediate Some(false) is not equal to omission either).",
+        "2026-10-30 multi-element identity investigation: Help changes are measured in raw frames while the hash remains unchanged; no badge tooltip interaction was performed. Full Element alignment presence also differs from Python. The three-request reference retains 24 elements and five changing targets with Python A/B/A versus Rust A/A/A hashes. Inner field projections match after widget-id normalization, but eight full-Element layout-presence differences (Markdown default width, badge alignment) remain open; this is not full payload parity. Two actual Chrome three-stage captures and six JPEGs preserve the failure. Central complete-payload hashing versus per-producer full hashing versus field-tuple repair awaits a user workflow decision; no production identity fix has been applied for this batch."
       ]
     },
     {
@@ -152,12 +153,13 @@
       "feature_id": "st.button",
       "category": "PAGE ELEMENTS/Input widgets",
       "buckets": [
-        "no-explicit-gap-stated"
+        "unmeasured-parameters"
       ],
       "limitations": [
         "No automated Python-versus-Rust API/wire differential result is claimed; runtime test source and the two recorded browser observations support only this finite scope.",
         "Disabled, primary type, and icon are now measured on the creation wire (2026-10-29, frozen button-image-params), field-identical cross-runtime. Callbacks, duplicate keys, form submission, persistent session state, reconnect and security handshake are outside this verified scope.",
-        "Frozen Rust trace has inherited Python-only kind/scope metadata; its Rust NewSession, heading and URL identify the actual Rust run, as explained in .codex/compatibility.md."
+        "Frozen Rust trace has inherited Python-only kind/scope metadata; its Rust NewSession, heading and URL identify the actual Rust run, as explained in .codex/compatibility.md.",
+        "2026-10-30 multi-element identity investigation: With an explicit stable key/id, disabled/help/icon change in the raw payload while the hash stays unchanged; actual Chrome leaves the Action button enabled when Python disables it. The button was not clicked. The three-request reference retains 24 elements and five changing targets with Python A/B/A versus Rust A/A/A hashes. Inner field projections match after widget-id normalization, but eight full-Element layout-presence differences (Markdown default width, badge alignment) remain open; this is not full payload parity. Two actual Chrome three-stage captures and six JPEGs preserve the failure. Central complete-payload hashing versus per-producer full hashing versus field-tuple repair awaits a user workflow decision; no production identity fix has been applied for this batch."
       ]
     },
     {
@@ -200,9 +202,11 @@
       "feature_id": "st.caption",
       "category": "PAGE ELEMENTS/Text elements",
       "buckets": [
-        "no-explicit-gap-stated"
+        "unmeasured-parameters"
       ],
-      "limitations": []
+      "limitations": [
+        "2026-10-30 multi-element identity investigation: Conditional Markdown-to-caption output changes element_type with equal text, but its hash stays unchanged and actual Chrome retains normal Markdown styling. The three-request reference retains 24 elements and five changing targets with Python A/B/A versus Rust A/A/A hashes. Inner field projections match after widget-id normalization, but eight full-Element layout-presence differences (Markdown default width, badge alignment) remain open; this is not full payload parity. Two actual Chrome three-stage captures and six JPEGs preserve the failure. Central complete-payload hashing versus per-producer full hashing versus field-tuple repair awaits a user workflow decision; no production identity fix has been applied for this batch."
+      ]
     },
     {
       "feature_id": "st.chat_input",
@@ -823,9 +827,11 @@
       "feature_id": "st.header",
       "category": "PAGE ELEMENTS/Text elements",
       "buckets": [
-        "no-explicit-gap-stated"
+        "unmeasured-parameters"
       ],
-      "limitations": []
+      "limitations": [
+        "2026-10-30 multi-element identity investigation: The h2 anchor/help/divider payload changes but the hash stays unchanged; actual Chrome retains the old anchor and blue divider. hide_anchor is an additional static omission only. The three-request reference retains 24 elements and five changing targets with Python A/B/A versus Rust A/A/A hashes. Inner field projections match after widget-id normalization, but eight full-Element layout-presence differences (Markdown default width, badge alignment) remain open; this is not full payload parity. Two actual Chrome three-stage captures and six JPEGs preserve the failure. Central complete-payload hashing versus per-producer full hashing versus field-tuple repair awaits a user workflow decision; no production identity fix has been applied for this batch."
+      ]
     },
     {
       "feature_id": "st.help",
@@ -973,9 +979,11 @@
       "feature_id": "st.markdown",
       "category": "PAGE ELEMENTS/Text elements",
       "buckets": [
-        "no-explicit-gap-stated"
+        "unmeasured-parameters"
       ],
-      "limitations": []
+      "limitations": [
+        "2026-10-30 multi-element identity investigation: Help changes are measured in raw frames; no tooltip hover was claimed. The nested markdown element_type also changes for the conditional caption, but Rust retains the old style. The three-request reference retains 24 elements and five changing targets with Python A/B/A versus Rust A/A/A hashes. Inner field projections match after widget-id normalization, but eight full-Element layout-presence differences (Markdown default width, badge alignment) remain open; this is not full payload parity. Two actual Chrome three-stage captures and six JPEGs preserve the failure. Central complete-payload hashing versus per-producer full hashing versus field-tuple repair awaits a user workflow decision; no production identity fix has been applied for this batch."
+      ]
     },
     {
       "feature_id": "st.menu_button",

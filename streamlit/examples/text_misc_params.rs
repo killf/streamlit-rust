@@ -4,7 +4,38 @@
 use ::streamlit::*;
 use streamlit::StreamlitApi;
 
+fn render_identity(st: &Streamlit) -> Result<(), Box<dyn std::error::Error>> {
+    st.title("Element identity controls");
+    let alternate = st.checkbox(CheckboxOptions::new("Alternate attributes").key("identity-alternate"))?;
+
+    let help = if alternate { "help B" } else { "help A" };
+    st.header(
+        HeaderOptions::new("Stable heading")
+            .anchor(if alternate { "anchor-b".to_owned() } else { "anchor-a".to_owned() })
+            .help(help)
+            .divider(if alternate { "red".to_owned() } else { "blue".to_owned() }),
+    );
+    st.markdown(MarkdownOptions::new("Stable markdown".into()).help(help));
+    st.badge(BadgeOptions::new("Stable badge").help(help));
+
+    if alternate {
+        st.caption("Same style text");
+    } else {
+        st.markdown("Same style text");
+    }
+
+    st.button(ButtonOptions::new("Action").key("identity-action").disabled(alternate).help(help).icon(if alternate { "✅" } else { "🧊" }).width(ElementWidth::Content));
+    st.caption(format!("alternate={alternate}"));
+    Ok(())
+}
+
 fn render(st: &Streamlit) {
+    if st.query_params().get("case").as_deref() == Some("identity") {
+        if let Err(error) = render_identity(st) {
+            st.write(format!("Element identity error: {error}"));
+        }
+        return;
+    }
     st.title("Text misc parameter edges");
     st.text("plain body");
     st.latex(r"\int_0^1 x^2 dx");

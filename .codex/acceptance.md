@@ -620,3 +620,14 @@ Python 采集器关闭 WS 并停止自有服务，Rust 自有服务 session 终�
 代码→单元→集成顺序检查：全目标 Clippy -D warnings、格式检查通过；代码元素单元 4 项、文本/JSON 生产 WS 6 项通过（target/code-identity-clippy.log、target/code-identity-unit.log、target/code-identity-integration.log）。工作区明确排除两项既有队列差异后共 242 项通过（库 235、ledger 1、宏 2、rustdoc 4；target/code-identity-workspace-remaining.log）；不是全工作区全绿。相关 Python 门 185 项通过（target/code-identity-final-gates.log），保留已有 MSVC linker stdout 告警；逐文件复查 Rust、fixture 和采集器 diff。
 
 两个成功浏览器 tab 在已测窗口读到的 warn/error 缓冲为空。全部三个任务 tab、两个 Rust server session、自有 Python server 和采集器连接已关闭，8607/18607 无监听。其他元素的身份逻辑、更多代码输入/布局/高亮/错误条件仍开放，矩阵仍 130 项 partial，三个待决流程未扩大实施。colconfig_params 独立改动保持未提交；本批按现有授权做工作分支提交/推送，不合并或发布。
+
+
+### Cross-element identity investigation and pending workflow (2026-10-30)
+
+本批仅修改既有 text_misc_params 示例/fixture/采集器和证据门，不改生产身份计算。三轮原生 Python 参考与 Rust identity-before 各 24 元素/三次成功 finish：h2 属性、Markdown help、badge help、Markdown→caption 类型、显式 key 按钮 disabled/help/icon 五个变化目标在 Python 为 A/B/A，在 Rust 均为 A/A/A。内部业务字段投影匹配，但完整 Element 仍有八个另行记录的布局存在性差异（Markdown 默认 width、badge alignment）；这些差异不当作已通过或被接受。
+
+真实 Browser Use Chrome 各保留 initial→alternate→restored 三个观察、三张 context JPEG。Rust 切换后标题 anchor/divider、caption 样式和 Action 按钮启用状态均滞留，状态 caption 与 checkbox 已切换；Python 同步更新。Rust UI capture 标记 successful=false，正向语义门拒绝旧值；没有点击本应禁用的按钮或声称做过 help hover。两个标签页在所测窗口读到的 warn/error 缓冲为空；两个任务 tab、WS 与自有服务已关闭，8606/18606 无监听。正确/失败截图字节、哈希、解码和裁剪尺寸均验证，五项 UI 损坏 guard 被拒绝。
+
+原来 text/misc 门只读摘要、未执行已有原始帧解码生成器，现补实际逐帧 base64/方向/长度/协议/摘要/结束标志绑定，旧正确五元素数据未修改，六项线/摘要损坏 guard 被拒绝。相关新增参考门及矩阵/文档共 67 项通过（target/element-identity-final-gates.log）；示例 Clippy -D warnings、构建与 Rustfmt 检查通过（target/element-identity-example-clippy.log、target/element-identity-example-build.log），保留既有 MSVC linker stdout 告警。无库代码修改，本批未无故重复库单元/工作区；旧 242 项记录带两项队列排除，不能称本批库全绿或本批故障已修复。
+
+architecture 的 Pending unified NewElement identity decision 写出静态/原生/可见故障分层、三种实际选项、推荐唯一终结点、15 个拟改生产文件、现有 map 与编码成本、sender/recording/stream 一致性、cache replay 与真实 UI 验收范围。按用户 AGENTS.md 第 2 条等待流程选择，尚未实施新阶段；公开 proto 的 HashMap 类型、widget/图表 ID、URL、缓存键和另三个待决流程保持未动。矩阵仍 130 项 partial；inventory 如实补出五项先前未明示的缺口，不调整功能分母。用户 colconfig_params 文件/Cargo/索引改动未纳入本批阶段提交。

@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "runtime": "python",
+  "reference_version": "1.66.1",
+  "capture_method": "Browser Use Chrome extension, actual attribute reruns",
+  "steps": [
+    {
+      "stage": "initial",
+      "dom": "- link \"Skip to main content\":\n  - /url: \"#stMain\"\n- banner:\n  - button \"Deploy\":\n    - generic: Deploy\n  - button \"Main menu\":\n- main:\n  - heading \"Element identity controls\" [level=1]:\n    - text: Element identity controls\n    - link \"Link to heading\":\n      - /url: \"#element-identity-controls\"\n  - checkbox \"Alternate attributes\"\n  - paragraph: Alternate attributes\n  - heading \"Stable heading\" [level=2]:\n    - text: Stable heading\n    - button \"Help\":\n    - link \"Link to heading\":\n      - /url: \"#anchor-a\"\n  - separator\n  - paragraph:\n    - text: Stable markdown\n    - button \"Help\":\n  - paragraph:\n    - generic: Stable badge\n  - paragraph: Same style text\n  - button \"Action\":\n    - generic: 🧊\n    - paragraph: Action\n  - paragraph: alternate=false",
+      "button_enabled": true,
+      "anchor": "anchor-a",
+      "anchor_href": "#anchor-a",
+      "checked": false,
+      "clip": {
+        "height": 482,
+        "width": 752,
+        "x": 904,
+        "y": 72
+      },
+      "divider": "#0068c9",
+      "heading_html": "<div class=\"stHeading\" data-testid=\"stHeading\"><div data-testid=\"stMarkdownContainer\" class=\"st-emotion-cache-s4bvyn e12uj6qz0\"><div data-testid=\"stHeadingWithActionElements\" class=\"st-emotion-cache-1f0mrx3 e12uj6qz2\"><h2 id=\"anchor-a\" aria-labelledby=\":r2:\"><span id=\":r2:\" data-heading-text=\"\" class=\"st-emotion-cache-0 e12uj6qz3\">Stable heading</span><span data-testid=\"stHeaderActionElements\" class=\"st-emotion-cache-1i6bcf7 e12uj6qz4\"><label class=\"st-emotion-cache-nrov36 e1o1x6gp3\"><span class=\"stTooltipIcon st-emotion-cache-6ilgh7 e1o1x6gp1\" data-testid=\"stTooltipIcon\"><span data-testid=\"stTooltipHoverTarget\" class=\"stTooltipHoverTarget\" style=\"display: flex; flex-direction: row; justify-content: flex-end; width: auto;\"><button type=\"button\" aria-label=\"Help\" class=\"st-emotion-cache-tom24i e1o1x6gp0\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"icon\" aria-hidden=\"true\" focusable=\"false\"><circle cx=\"12\" cy=\"12\" r=\"10\"></circle><path d=\"M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3\"></path><line x1=\"12\" y1=\"17\" x2=\"12.01\" y2=\"17\"></line></svg></button></span></span></label><a href=\"#anchor-a\" aria-label=\"Link to heading\" class=\"st-emotion-cache-1kxutg5 e12uj6qz1\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3\"></path><line x1=\"8\" y1=\"12\" x2=\"16\" y2=\"12\"></line></svg></a></span></h2></div></div><hr data-testid=\"stHeadingDivider\" color=\"#0068c9\" class=\"st-emotion-cache-itrj79 e12uj6qz6\"></div>",
+      "main_text": "Element identity controls\n\nAlternate attributes\n\nStable heading\n\nStable markdown \n\nStable badge\n\nSame style text\n\n🧊\n\nAction\n\nalternate=false",
+      "status": "alternate=false",
+      "style_is_caption": false,
+      "title": "Element identity controls",
+      "url": "http://127.0.0.1:18606/?case=identity"
+    },
+    {
+      "stage": "alternate",
+      "dom": "- link \"Skip to main content\":\n  - /url: \"#stMain\"\n- banner:\n  - button \"Deploy\":\n    - generic: Deploy\n  - button \"Main menu\":\n- main:\n  - heading \"Element identity controls\" [level=1]:\n    - text: Element identity controls\n    - link \"Link to heading\":\n      - /url: \"#element-identity-controls\"\n  - checkbox \"Alternate attributes\" [checked] [active]\n  - paragraph: Alternate attributes\n  - heading \"Stable heading\" [level=2]:\n    - text: Stable heading\n    - button \"Help\":\n    - link \"Link to heading\":\n      - /url: \"#anchor-b\"\n  - separator\n  - paragraph:\n    - text: Stable markdown\n    - button \"Help\":\n  - paragraph:\n    - generic: Stable badge\n  - paragraph: Same style text\n  - button \"Action\" [disabled]:\n    - generic: ✅\n    - paragraph: Action\n  - paragraph: alternate=true",
+      "button_enabled": false,
+      "anchor": "anchor-b",
+      "anchor_href": "#anchor-b",
+      "checked": true,
+      "clip": {
+        "height": 478,
+        "width": 752,
+        "x": 904,
+        "y": 72
+      },
+      "divider": "#ff2b2b",
+      "heading_html": "<div class=\"stHeading\" data-testid=\"stHeading\"><div data-testid=\"stMarkdownContainer\" class=\"st-emotion-cache-s4bvyn e12uj6qz0\"><div data-testid=\"stHeadingWithActionElements\" class=\"st-emotion-cache-1f0mrx3 e12uj6qz2\"><h2 id=\"anchor-b\" aria-labelledby=\":r2:\"><span id=\":r2:\" data-heading-text=\"\" class=\"st-emotion-cache-0 e12uj6qz3\">Stable heading</span><span data-testid=\"stHeaderActionElements\" class=\"st-emotion-cache-1i6bcf7 e12uj6qz4\"><label class=\"st-emotion-cache-nrov36 e1o1x6gp3\"><span class=\"stTooltipIcon st-emotion-cache-6ilgh7 e1o1x6gp1\" data-testid=\"stTooltipIcon\"><span data-testid=\"stTooltipHoverTarget\" class=\"stTooltipHoverTarget\" style=\"display: flex; flex-direction: row; justify-content: flex-end; width: auto;\"><button type=\"button\" aria-label=\"Help\" class=\"st-emotion-cache-tom24i e1o1x6gp0\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"icon\" aria-hidden=\"true\" focusable=\"false\"><circle cx=\"12\" cy=\"12\" r=\"10\"></circle><path d=\"M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3\"></path><line x1=\"12\" y1=\"17\" x2=\"12.01\" y2=\"17\"></line></svg></button></span></span></label><a href=\"#anchor-b\" aria-label=\"Link to heading\" class=\"st-emotion-cache-1kxutg5 e12uj6qz1\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3\"></path><line x1=\"8\" y1=\"12\" x2=\"16\" y2=\"12\"></line></svg></a></span></h2></div></div><hr data-testid=\"stHeadingDivider\" color=\"#ff2b2b\" class=\"st-emotion-cache-my7dmm e12uj6qz6\"></div>",
+      "main_text": "Element identity controls\n\nAlternate attributes\n\nStable heading\n\nStable markdown \n\nStable badge\n\nSame style text\n\n✅\n\nAction\n\nalternate=true",
+      "status": "alternate=true",
+      "style_is_caption": true,
+      "title": "Element identity controls",
+      "url": "http://127.0.0.1:18606/?case=identity"
+    },
+    {
+      "stage": "restored",
+      "dom": "- link \"Skip to main content\":\n  - /url: \"#stMain\"\n- banner:\n  - button \"Deploy\":\n    - generic: Deploy\n  - button \"Main menu\":\n- main:\n  - heading \"Element identity controls\" [level=1]:\n    - text: Element identity controls\n    - link \"Link to heading\":\n      - /url: \"#element-identity-controls\"\n  - checkbox \"Alternate attributes\" [active]\n  - paragraph: Alternate attributes\n  - heading \"Stable heading\" [level=2]:\n    - text: Stable heading\n    - button \"Help\":\n    - link \"Link to heading\":\n      - /url: \"#anchor-a\"\n  - separator\n  - paragraph:\n    - text: Stable markdown\n    - button \"Help\":\n  - paragraph:\n    - generic: Stable badge\n  - paragraph: Same style text\n  - button \"Action\":\n    - generic: 🧊\n    - paragraph: Action\n  - paragraph: alternate=false",
+      "button_enabled": true,
+      "anchor": "anchor-a",
+      "anchor_href": "#anchor-a",
+      "checked": false,
+      "clip": {
+        "height": 482,
+        "width": 752,
+        "x": 904,
+        "y": 72
+      },
+      "divider": "#0068c9",
+      "heading_html": "<div class=\"stHeading\" data-testid=\"stHeading\"><div data-testid=\"stMarkdownContainer\" class=\"st-emotion-cache-s4bvyn e12uj6qz0\"><div data-testid=\"stHeadingWithActionElements\" class=\"st-emotion-cache-1f0mrx3 e12uj6qz2\"><h2 id=\"anchor-a\" aria-labelledby=\":r2:\"><span id=\":r2:\" data-heading-text=\"\" class=\"st-emotion-cache-0 e12uj6qz3\">Stable heading</span><span data-testid=\"stHeaderActionElements\" class=\"st-emotion-cache-1i6bcf7 e12uj6qz4\"><label class=\"st-emotion-cache-nrov36 e1o1x6gp3\"><span class=\"stTooltipIcon st-emotion-cache-6ilgh7 e1o1x6gp1\" data-testid=\"stTooltipIcon\"><span data-testid=\"stTooltipHoverTarget\" class=\"stTooltipHoverTarget\" style=\"display: flex; flex-direction: row; justify-content: flex-end; width: auto;\"><button type=\"button\" aria-label=\"Help\" class=\"st-emotion-cache-tom24i e1o1x6gp0\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"icon\" aria-hidden=\"true\" focusable=\"false\"><circle cx=\"12\" cy=\"12\" r=\"10\"></circle><path d=\"M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3\"></path><line x1=\"12\" y1=\"17\" x2=\"12.01\" y2=\"17\"></line></svg></button></span></span></label><a href=\"#anchor-a\" aria-label=\"Link to heading\" class=\"st-emotion-cache-1kxutg5 e12uj6qz1\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3\"></path><line x1=\"8\" y1=\"12\" x2=\"16\" y2=\"12\"></line></svg></a></span></h2></div></div><hr data-testid=\"stHeadingDivider\" color=\"#0068c9\" class=\"st-emotion-cache-itrj79 e12uj6qz6\"></div>",
+      "main_text": "Element identity controls\n\nAlternate attributes\n\nStable heading\n\nStable markdown \n\nStable badge\n\nSame style text\n\n🧊\n\nAction\n\nalternate=false",
+      "status": "alternate=false",
+      "style_is_caption": false,
+      "title": "Element identity controls",
+      "url": "http://127.0.0.1:18606/?case=identity"
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "initial.jpg",
+      "bytes": 22951,
+      "sha256": "ccfc35ffc8b70fe8c69e7532b9dbead301cdf0da5b8881dd01483a86c77d9898"
+    },
+    {
+      "file": "alternate.jpg",
+      "bytes": 22114,
+      "sha256": "903318159053cd987ec1a1b486be0cfbc1f04fc246ecc7ba1403d9352eafe016"
+    },
+    {
+      "file": "restored.jpg",
+      "bytes": 22957,
+      "sha256": "40ba6a8bc0969b000c34df7be014c2eca042463363cb0df8d385808216af73f3"
+    }
+  ],
+  "cleanup": {
+    "browser_tabs_closed": true,
+    "server_stopped": true,
+    "listener_absent": true
+  },
+  "console": [],
+  "successful": true
+}

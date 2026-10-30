@@ -389,3 +389,33 @@ Rust serialization-before/trace.json 是另一组原生诊断，不是同输入�
 2026-10-30 后续实际复现正文 left_right / language python 与正文 left / language right_python 的手工下划线拼接相同。Python 原始三轮为 A/B/A，Rust 修前三轮为 A/A/A；真实 Chrome 勾选 Alternate code 后 caption 已显示新正文，但代码区仍显示 left_right 和旧语言，证明高度字段补齐不等于字段编码已无歧义。
 
 只在 code.rs 的既有 hash 调用中把七个现有字段放入 Debug 元组，保留字符串边界与转义、类型/字段顺序、height 和原 MD5 算法；没有新模块、公共接口、依赖或缓存流程。单元反例含下划线、引号、Unicode；同连接生产 WS 与三阶段真实 Chrome 均验证正文/语言切换与恢复，原始载荷保持原样。没有据此推断其他元素的手工 hash 完整或宣称任意语言标签都有语法高亮。九张正确/失败 JPEG 和原始帧保留，首次截图超时只重取同页截图，未重放控件操作。
+
+
+### Pending unified NewElement identity decision (2026-10-30)
+
+现状已超出代码元素：`text-misc-params/identity/trace.json` 固定三次请求、24 元素，五个目标的载荷变化均为 A→B→A 身份；Rust `identity-before/trace.json` 的元素内部业务字段投影匹配，但五个 hash 全为 A/A/A。完整 Element 另有八个未完成的布局字段差异（Markdown 默认 width 存在性、badge text_alignment_config），原始帧保留，不把它们归为已修复或已接受；该差距与身份统一分别验收。真实 Chrome 进一步证明标题 anchor/divider、Markdown→caption 样式和按钮 disabled 保留旧值；没有点击本应禁用的 Action。两端三观察及六张 JPEG 保留，Rust capture 明确 successful=false。help 字段变化有原始帧证据，本批未操作 tooltip，不把它伪称为已完成 hover 验证。
+
+| 生产者 | 未进入当前手工 hash 的字段 | 当前证据强度 |
+| --- | --- | --- |
+| markdown.rs | help、element_type | 原始载荷变化与 hash 不变；caption 样式实际滞留 |
+| title.rs | anchor、help、divider、hide_anchor | 前三字段原始帧；anchor/divider 实际滞留，hide_anchor 仅静态 |
+| badge.rs | help | 原始帧与 hash 不变，未做 tooltip 交互 |
+| button.rs | disabled、help、icon 等 | 显式 key 下 id 不变；原始字段变化且可见按钮仍启用 |
+| text.rs HelpElement | type_name、name、value | 静态遗漏，尚无本批动态 UI 证明 |
+| components.rs | data_json、width、height、组件内容 | 静态遗漏，尚无本批动态 UI 证明 |
+
+AddBlock 的 chat/expander 等虽也有手工 hash，不因静态字段遗漏就称为本批 UI 故障：已检查捆绑前端 applyDelta，旧 Element 复用判断只在 newElement 分支。新方案限定 Delta::NewElement，AddBlock/newTransient 与生命周期消息不变。
+
+供用户决定的三项方案（均以完整行为修复为目标）：
+
+1. **推荐：RenderContext::push 统一完成 NewElement 身份。** 在发送/recording/stream 三份拷贝之前，对完整 `proto::Element` 实际 protobuf 编码字节计算现有 MD5；不含 ForwardMsg metadata、delta_path、active_script_hash。统一入口保证新增字段自然参与身份。只改消息 `.hash`，widget id、图表 dataset/element id、URL、缓存键及数据 payload 不变，cacheable 继续 false，流式逐消息发送不整轮缓冲。同步删除各生产者重复的手工 hash 拼接/计算，避免双重开销；保留 AddBlock/newTransient 等既有处理。
+2. **生产者显式使用完整 Element hash。** 各 render 在 Element 构造后调用同一个内部计算函数；避免自动发送前修改消息，但需每个生产者主动接通，今后新入口漏接仍可能复发。完成范围同样包括全部已接通 NewElement 生产者，不只修当前样本。
+3. **逐项补齐现有字段元组。** 在各生产者穷核所有当前可变载荷字段，补全并保留转义/边界测试；不新增统一阶段，局部流程变化小，但需要持续维护两份字段清单。源码静态缺口和实际 UI 回归仍须验收，不接受已知差异作为结束条件。
+
+方案 1 拟改生产文件共 15 个：`streamlit/src/elements/common.rs`（唯一身份终结点）；`streamlit/src/api.rs`（echo 直接生产的 NewElement 去掉重复 hash）；`streamlit/src/elements/` 下 `badge.rs`、`button.rs`、`charts.rs`、`code.rs`、`components.rs`、`data.rs`、`exception.rs`、`input.rs`、`markdown.rs`、`media.rs`、`status.rs`、`text.rs`、`title.rs`（只清理 NewElement 的手工身份；ChartElement 的私有 hash_input 和仅服务于该字段的工厂参数一并清理）。`proto.rs` 的 metadata/构造签名保持原样，不新增业务模块、依赖或公共接口。cache replay 当前也经过 context.push，需在 metadata 改锚后保持同 Element 编码的身份；录制与发送必须拿到同一个最终 hash。
+
+稳定性与成本边界：这里以实际 Element 编码字节定义内容身份，不承诺跨运行时摘要字面值相等。已查到两类 map 字段（MixedData.arrow_blobs、Dataframe.button_click_widgets），Rust 公开 proto 类型仍保留 HashMap，不偷偷改成 BTreeMap。map 编码顺序可能带来冗余身份变化，需要在多列按钮映射/组件与缓存回放中验证状态、选择和滚动保持，并报告哈希/编码开销；若出现实际状态回退，解决后再验收，不能用接受差异关闭。大 Arrow 载荷需实测额外编码/分配，移除旧 hash 重复计算并保留逐消息 streaming。没有先假定性能阈值或引入全局 canonicalizer/新依赖。
+
+验证顺序与停止位置：先全目标 Clippy/格式；单位覆盖完整 Element 的已测字段变化、相同字节/恢复输入、仅 metadata/路径变化、非 NewElement 不变、sender/recording/stream 一致与 one-shot；再真实同连接 WS、cache replay、组件/数据/控件集成，重跑代码高度/字段边界及当前五元素参考。实际 Chrome 必须把标题属性、caption 样式和按钮 disabled 修到 Python 行为，并补本批未做的 help 交互；旧失败材料继续保留，不能靠改冻结参考通过。最后相关 Python/矩阵/文档门、工作区回归与代表性大载荷测量，现有两个队列差异仍单独标明；其他三个待决流程不在此授权内。保持单代理，已授权的工作分支阶段提交/推送继续，合并/发布不包含。
+
+按用户提供的 AGENTS.md 第 2 条，本项是影响所有 NewElement 的发送前流程取舍，等待用户明确选择；尚未修改任何生产身份计算，当前只完成调查、参考、诊断场景和证据门。
