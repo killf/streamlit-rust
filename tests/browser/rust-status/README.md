@@ -62,3 +62,26 @@ placement and returned-call report. Original captures remain untouched.
 No new browser/UI, full emoji/material-catalog, invalid-argument ordering or
 non-string claim is made. Public signatures/error types/hash policy are kept;
 macro/Entry and other pending decisions are not implemented here.
+
+
+## Real Chrome normalization UI (2026-10-30)
+
+normalization/ui/trace.json and the matching Python directory retain four
+Browser Use observations per runtime (initial/middle/bottom/restored) and
+three JPEGs each. After collapsing only the two JSON report views, all 48
+alerts match text/paragraphs, title/strong, emoji or Material icon/font, four
+foreground/background colors, ARIA roles and 240/704px sizes. PageDown, End
+and Home were real keyboard actions; bottom reaches max and Home restores 0.
+
+Raw viewport heights, x/y and scroll offsets remain in the captures. Python
+initial height 1305 becomes 1249, changing max from 2844 to 2900; Rust is 1249.
+Comparisons use document-relative geometry, not identical viewport pixels.
+Screenshots use supported tab CDP after owned-tab activation; there was no
+capture timeout. Six JPEG hashes/decoded dimensions and nine wrong-observation
+guards are checked. U+001C can render as a control/missing glyph on both sides,
+matching the reference rather than claiming general character sanitization.
+
+Warn/error buffers were empty in the measured window, tabs/services/listeners
+were cleaned up, and original WS/helper/failed records remain unchanged. This
+batch changes no production code and does not verify parameter updates, callback
+behavior, invalid-icon combinations or arbitrary themes/viewports.

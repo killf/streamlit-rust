@@ -511,3 +511,12 @@ Python badge 只转义标签 [ 与 ]；不对标签执行 clean_text，不清理
 第一次实现错误地把 emoji 后分隔符按普通空白移除，真实 WS 发现 U+001C 被多删，四个格式各一处不同。normalization-attempt 的 50 原始 Element 与失败日志保留，未改 Python 参考。源码和直接 helper 实测确认两套规则不同：Material 的正则吞 Python whitespace；emoji 只吞 ASCII 空格/下划线/连字符，保留 Tab/LF/CR/NBSP/Unicode 空白/C0。最终拆开这两条明确分支，另保留 16 输入的固定 Python helper oracle（仅内部函数结果，不冒称公共 WS 或浏览器）。
 
 复用 status_app.py 与 status.rs 增加 normalization 场景，既有 text_misc_params_capture.py 只为 alert-normalization 路由到这份既有 app；其他场景行为不变。十二组输入乘四格式共 48 调用，含两份 JSON 报告共 50 完整 Element/路径对齐。修前为 34 元素、16 个有效输入错误，所有材料保留；四个新证据目录用定点 .gitattributes -text 保留原始行尾。没有改宏/Entry、错误顺序或图标库全集；新的 UI、非字符串和非法参数组合继续开放。
+
+
+### Actual Chrome alert normalization follow-up (2026-10-30)
+
+复用已提交的 status normalization 页面，真实 Chrome 双端折叠输入与返回报告各一次，保留 48 个提示的正文/paragraph、title/strong、emoji/Material 图标及字体、四种前景背景色、ARIA role 和元素几何。默认 stretch 为 704px，固定宽度为 240px，info/success role=status、warning/error role=alert；空正文/title 和显式空图标语义均保持。三段截图包含四种提示、开头图标、显式抑制提取、ZWJ、空内容及 Markdown/标题对照；DOM 全量和所拍视口分开描述，不称每个元素都有独立截图。
+
+每端四观察（initial/middle/bottom/restored）与三 JPEG；PageDown/End/Home 为真实键盘输入，内容/尺寸/文档相对位置不变，底部 top=max=2900，Home 恢复 0。Python 初始视口 2560×1305，随后为 2560×1249，Rust 为 2560×1249，故初始 scroll max 2844→2900；原值全部保留，没有强设视口或修改浏览器设置。比较只给 y 加实际 scrollTop、以首提示 x 为原点，不声称全屏像素相同。
+
+截图用已支持 tab CDP Page.captureScreenshot，并激活准确的任务 tab、把指针移离报告控件；本批无截图超时。两端所测 warn/error 缓冲为空。U+001C 在 emoji 后按参考保留，画面可出现控制/缺字方块，不把兼容输出描述成一般控制字符清洗。初始加载后没有请求额外 rerun 或参数切换，本批没有完整 WS 请求计数账本；不改生产/示例、错误契约或统一身份。

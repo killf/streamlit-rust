@@ -1002,3 +1002,95 @@ def test_alert_normalization_gate_rejects_coherent_wrong_wire(mutation):
     assert_capture(capture)
     with pytest.raises(AssertionError):
         assert_alert_normalization(capture)
+
+
+
+def assert_alert_normalization_browser(capture, folder):
+    assert capture["successful"] and capture["reference_version"] == "1.66.1"
+    assert capture["capture_method"].startswith("Browser Use Chrome extension")
+    assert capture["cleanup"] == {"browser_tabs_closed": True, "server_stopped": True, "listener_absent": True}
+    steps = capture["observations"]
+    assert [step["stage"] for step in steps] == ["initial", "middle", "bottom", "restored"]
+    port = 18502 if capture["runtime"] == "python" else 8502
+    bodies = ["alpha beta", "alpha beta", "alpha beta", "💡 keep", "💡 keep", "body next", "body", "alpha \u2003beta", "\u001cafter", "", "plain [x] bold", "first second"]
+    paragraphs = [["alpha\nbeta"], ["alpha\nbeta"], ["alpha\nbeta"], ["💡 keep"], ["💡 keep"], ["body\r\nnext"], ["body"], ["alpha\n\u2003beta"], ["\u001cafter"], [], ["plain [x] bold"], ["first\nsecond"]]
+    icons = [None, "💡", "thumb_up", None, None, "🧊", "👩‍💻", None, "💡", None, "warning", None]
+    titles = ["Title detail", None, "Title detail", None, None, None, "Title", None, None, None, None, "Title"]
+    formats = ("Info", "Success", "Warning", "Error")
+    colors = [("rgb(61, 157, 243)", "rgba(61, 157, 243, 0.2)"), ("rgb(92, 228, 136)", "rgba(61, 213, 109, 0.2)"), ("rgb(255, 255, 194)", "rgba(255, 255, 18, 0.2)"), ("rgb(255, 108, 108)", "rgba(255, 108, 108, 0.2)")]
+    for step in steps:
+        assert step["url"] == f"http://127.0.0.1:{port}/?case=normalization"
+        assert step["dom"] and step["console"] == []
+        page = step["page"]
+        assert page["exceptions"] == [] and page["reports"] == ["{...}", "{...}"]
+        assert page["viewport"]["width"] == 2560 and page["viewport"]["dpr"] == 1
+        assert len(page["alerts"]) == 48
+        for index, alert in enumerate(page["alerts"]):
+            case, kind = divmod(index, 4)
+            assert alert["index"] == index and alert["format"] == "stAlertContent" + formats[kind]
+            assert alert["role"] == ("status" if kind < 2 else "alert")
+            assert (alert["color"], alert["background"]) == colors[kind]
+            assert alert["rect"]["width"] == (240 if case % 2 else 704)
+            assert alert["body"] == [{"text": bodies[case], "paragraphs": paragraphs[case], "strong": ["bold"] if case == 10 else [], "code": []}]
+            assert alert["title"] == (None if titles[case] is None else {"text": titles[case], "strong": ["Title"] if case == 11 else []})
+            if icons[case] is None:
+                assert alert["icon"] is None
+            else:
+                assert alert["icon"]["text"] == icons[case] and alert["icon"]["label"] is None
+                assert ("Material Symbols Rounded" in alert["icon"]["font"]) == (case in (2, 10))
+    assert steps[0]["page"]["scroll"]["top"] == steps[3]["page"]["scroll"]["top"] == 0
+    assert 0 < steps[1]["page"]["scroll"]["top"] < steps[1]["page"]["scroll"]["max"]
+    assert steps[2]["page"]["scroll"]["top"] == steps[2]["page"]["scroll"]["max"] > 0
+    for step in steps[1:]:
+        for original, moved in zip(steps[0]["page"]["alerts"], step["page"]["alerts"]):
+            assert original["rect"]["y"] == moved["rect"]["y"] + step["page"]["scroll"]["top"]
+            assert original["rect"]["height"] == moved["rect"]["height"]
+    assert len(capture["screenshots"]) == 3
+    assert {item["file"] for item in capture["screenshots"]} == {"top.jpg", "middle.jpg", "bottom.jpg"}
+    for item in capture["screenshots"]:
+        assert Path(item["file"]).name == item["file"]
+        data = (folder / item["file"]).read_bytes()
+        assert len(data) == item["bytes"] and hashlib.sha256(data).hexdigest() == item["sha256"]
+        with Image.open(folder / item["file"]) as image:
+            image.load()
+            assert image.format == "JPEG" and image.size == (item["clip"]["width"], item["clip"]["height"]) == (800, 1000)
+
+
+def test_actual_browser_alert_formats_content_and_scrolling_match_reference():
+    folders = (STATUS_PYTHON / "normalization/ui", STATUS_RUST / "normalization/ui")
+    python, rust = [read(folder / "trace.json") for folder in folders]
+    assert python["runtime"] == "python" and rust["runtime"] == "rust"
+    for capture, folder in zip((python, rust), folders):
+        assert_alert_normalization_browser(capture, folder)
+    for left, right in zip(python["observations"], rust["observations"]):
+        def comparable(step):
+            origin = step["page"]["alerts"][0]["rect"]["x"]
+            scroll = step["page"]["scroll"]["top"]
+            return [dict(alert, rect=dict(alert["rect"], x=alert["rect"]["x"] - origin, y=alert["rect"]["y"] + scroll)) for alert in step["page"]["alerts"]]
+        assert comparable(left) == comparable(right)
+
+
+@pytest.mark.parametrize("mutation", ["body", "title", "icon", "role", "color", "width", "empty", "scroll", "image"])
+def test_alert_browser_gate_rejects_wrong_observations(mutation):
+    capture = read(STATUS_PYTHON / "normalization/ui/trace.json")
+    alerts = capture["observations"][0]["page"]["alerts"]
+    if mutation == "body":
+        alerts[32]["body"][0]["text"] = "after"
+    elif mutation == "title":
+        alerts[44]["title"]["strong"] = []
+    elif mutation == "icon":
+        alerts[16]["icon"] = dict(alerts[4]["icon"])
+    elif mutation == "role":
+        alerts[0]["role"] = "alert"
+    elif mutation == "color":
+        alerts[2]["color"] = "red"
+    elif mutation == "width":
+        alerts[4]["rect"]["width"] = 704
+    elif mutation == "empty":
+        alerts[36]["title"] = {"text": " ", "strong": []}
+    elif mutation == "scroll":
+        capture["observations"][2]["page"]["scroll"]["top"] -= 1
+    else:
+        capture["screenshots"][0]["sha256"] = "0" * 64
+    with pytest.raises(AssertionError):
+        assert_alert_normalization_browser(capture, STATUS_PYTHON / "normalization/ui")

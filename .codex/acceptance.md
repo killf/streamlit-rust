@@ -724,3 +724,14 @@ architecture 的 Pending unified NewElement identity decision 写出静态/原�
 按代码→单元→集成顺序，全目标 Clippy -D warnings、Rustfmt 检查通过，status 单元十项和文本/JSON/Alert WS 集成十一项通过（target/alert-normalization-clippy.log、alert-normalization-unit.log、alert-normalization-integration.log）。工作区共 253 项通过（库 246、ledger 1、宏 2、rustdoc 4；target/alert-normalization-workspace.log），明确排除已有 navigation_pages_switch_and_session_state_match_the_measured_wire、rerun_queue_messages_match_frozen_reference 两项，不称完整工作区全绿。原始帧/报告绑定、七项一致错误线 guard、helper oracle 边界及矩阵/文档门 123 项通过（target/alert-normalization-final-gates.log）。已有 MSVC linker stdout 告警保留。
 
 没有新模块/依赖/公共签名/错误类型，未改宏/Entry、StatusContainer 或统一 hash；使用既有正文清理函数。逐文件复查生产、示例、fixture、采集器、gate diff；示例构建通过，四个定点 .gitattributes 规则保留新原始记录行尾。三个 Rust server session 均终止，Python collector 自有服务/连接关闭，结束无相关监听。新浏览器/UI、图标全集、非法参数组合与非字符串仍开放；矩阵保持 130 partial，其他待决选择及完整 Goal 不缩减。用户 colconfig_params 修改不纳入阶段提交，只按授权提交推送工作分支，不合并或发布。
+
+
+### Actual Chrome alert normalization UI validation (2026-10-30)
+
+复用已提交 status normalization 场景，真实 Chrome 两端各折叠输入/返回 JSON 报告一次，再做 PageDown、End、Home。每端四个完整 DOM/几何/console 观察和三张 JPEG；48 条提示逐项核对正文/paragraph（含 CRLF 与 U+001C）、title/strong、emoji/Material 图标与字体、前景/背景色、ARIA role 和几何，均匹配。info/success 为 status，warning/error 为 alert；宽度为 240 或默认父容器 704，空正文/title 不变，显式空图标不自动提取。截图保留首/中/末视口，目视确认四种颜色、标题、图标、Markdown、空内容；不称每条提示都有独立图片。
+
+真实滚动的中段 top=1092，底部 top=max=2900，Home 回到 0；全程内容/尺寸和文档相对位置保持。Python 初始视口 2560×1305，随后 2560×1249，Rust 为 2560×1249；初始 Python max=2844 变为 2900，原值保留，未强设视口或改浏览器设置。比较只加实际 scrollTop 并以首提示 x 为原点，不宣称全屏像素一致。emoji 后 U+001C 按参考保留，屏幕可出现控制/缺字方块，不把兼容输出描述为控制字符清洗。
+
+截图采用已支持的 tab CDP Page.captureScreenshot，激活准确任务 tab、把指针移离控件后直接保存，六图无超时；逐张校验字节数、SHA-256、JPEG 解码及 800×1000 剪裁尺寸。九项错误观察 guard 覆盖正文、标题、图标、ARIA role、颜色、宽度、空标题、滚动及图片。相关 Python/矩阵/文档共 133 项通过（target/alert-normalization-ui-final-gates.log），text/misc 门 81 项；逐文件复查 diff。
+
+本批未改生产、示例或 API，未重复 Rust 库/工作区；上批 253 项仍带两项既有队列排除，不称本轮新结果。所测 warn/error 缓冲为空；两个任务 tab 明确关闭、两个自有 server session 终止，8502/18502 无监听。除首次加载外未请求参数切换或额外 rerun，但本批没有完整 WS 请求账本，不能推断任意环境的总运行次数。其他主题/视口、非法参数、callback/参数更新身份仍开放，矩阵保持 130 partial，完整目标继续。colconfig_params 独立改动保留，按授权仅提交推送工作分支，不合并或发布。
