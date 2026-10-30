@@ -375,3 +375,10 @@ Rust serialization-before/trace.json 是另一组原生诊断，不是同输入�
 ### Independent existing code element correction
 
 2026-10-30 在三个待决流程之外核对既有 st.code/CodeOptions：Python 只各去掉一次边界 LF，空语言改为 plaintext；Rust 原实现两处均不同。27 场景原始参考与修前/修后记录保留，修正只在 elements/code.rs 的构造中直接调整现有 String 和空语言；没有公共签名/依赖变化，不复用 markdown 的 dedent/strip。宽高/开关既有映射在九种有效组合保持原样，None 语言用 Rust 空字符串表达已有纯文本效果。完整元素/路径/尺寸的生产 WS 差分和八项一致原始帧语义 guard 通过；无效尺寸、非字符串转换、语法高亮和浏览器布局继续待验。
+
+
+### Code height participates in frontend element identity
+
+2026-10-30 实际 Chrome 控件操作复现：Rust 状态 caption 已为 240，但代码区域仍为 120；Python 同操作立即为 240。新三请求原生 WS 参考证明两边高度载荷均为 120→240→120，Rust 修前三个 hash 相同、Python 为 A→B→A。虽然 delta_base_with_path 仍设置 cacheable=false，捆绑前端 www/static/js/index.Dlja0TUX.js 的 applyDelta 在 function to(e,t,n) 判断 e.elementHash===t 时选择旧 s.element，而不是新 o。该树复用与消息缓存标记独立，故完整帧仍会保留旧高度。
+
+最小修复只把 self.height 加入 code.rs 的既有 hash 输入，不启用缓存、不改变发送流程、公共接口或依赖。单元和真实同连接 WS 验证高度往返的内容身份关系；修后实际浏览器十个控件状态与 Python 几何/文本/高亮/行号/自动换行一致，真实内层滚动可移动并恢复到顶。保存 Python 13 与 Rust 14 个观察及修前三个失败截图，保留滚动动画的中间值，不伪造逐帧偏移一致。特殊语言、其他宽高/主题/响应式、clipboard、非字符串和无效尺寸继续开放；此前三个待决流程不变。

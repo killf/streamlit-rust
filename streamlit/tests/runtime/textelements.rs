@@ -322,6 +322,74 @@ async fn code_text_language_and_layout_match_frozen_reference() -> TestResult {
     Ok(())
 }
 
+fn code_height_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        let result: TestResult = (|| {
+            let height: i32 = st.query_params().get("code_height").ok_or("missing test height")?.parse()?;
+            st.code_options(crate::CodeOptions::new("print('same body')", "python").height(height).width(360));
+            Ok(())
+        })();
+        assert!(result.is_ok(), "code-height fixture failed: {result:?}");
+    })
+}
+
+#[actix_web::test]
+async fn code_height_changes_on_one_connection_invalidate_the_element_hash() -> TestResult {
+    // 1. 同一连接、同一路径及相同代码，只让高度往返变化。
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
+    let server = HttpServer::new(move || App::new().app_data(web::Data::new(StreamlitServer::new(code_height_entry, "127.0.0.1".into(), 0))).configure(configure_routes))
+        .workers(1)
+        .listen(listener)?
+        .run();
+    let handle = server.handle();
+    let task = actix_web::rt::spawn(server);
+    let mut stream = sessions::connect(address, None).await;
+    let mut hashes = Vec::new();
+    for height in [120, 240, 120] {
+        send_binary(
+            &mut stream,
+            &BackMsg {
+                r#type: Some(back_msg::Type::RerunScript(ClientState {
+                    query_string: format!("code_height={height}"),
+                    ..Default::default()
+                })),
+            }
+            .encode_to_vec(),
+        )
+        .await;
+        let mut codes = Vec::new();
+        let finish = loop {
+            let message = receive(&mut stream).await;
+            if let Some(forward_msg::Type::ScriptFinished(status)) = message.r#type {
+                break status;
+            }
+            if let Some(forward_msg::Type::Delta(delta)) = message.r#type {
+                let metadata = message.metadata.ok_or("missing code metadata")?;
+                assert_eq!(metadata.delta_path, [0, 0]);
+                assert!(!metadata.cacheable, "full messages still require correct element identity");
+                let Some(delta::Type::NewElement(element)) = delta.r#type else { panic!("unexpected code-height delta") };
+                let Some(element::Type::Code(code)) = element.r#type else { panic!("unexpected code-height element") };
+                assert_eq!(code.code_text, "print('same body')");
+                assert_eq!(element.height_config.and_then(|value| value.height_spec), Some(proto::streamlit::height_config::HeightSpec::PixelHeight(u32::try_from(height)?)));
+                codes.push(message.hash);
+            }
+        };
+        assert_eq!(finish, 0);
+        assert_eq!(codes.len(), 1);
+        hashes.push(codes.pop().ok_or("missing code-height output")?);
+    }
+    drop(stream);
+    handle.stop(false).await;
+    task.await??;
+
+    // 2. Python 参考的 A→B→A 内容身份关系，保证前端不复用旧高度。
+    assert!(!hashes[0].is_empty());
+    assert_ne!(hashes[0], hashes[1]);
+    assert_eq!(hashes[0], hashes[2]);
+    Ok(())
+}
+
 fn textelements_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
     Box::pin(async move {
         // Mirrors tests/reference/textelements_app.py.

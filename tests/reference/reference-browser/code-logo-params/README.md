@@ -59,3 +59,49 @@ This is native WS evidence. Invalid dimensions, non-string body conversion,
 full highlighting language support, syntax rendering, scrolling and responsive
 browser layouts remain open. Correct captures were not rewritten. Collector-
 owned Python and caller-owned Rust services/connections were closed afterward.
+
+
+## Height reruns and actual Chrome code controls (2026-10-30)
+
+The existing fixture/example add `?case=code-live`: three checkboxes control
+120/240-pixel height, wrapping and line numbers around one fixed 20-line Python
+code sample (360-pixel width). `--scenario code-live` in the existing native WS
+collector sends three requests on one connection, with height 120→240→120.
+[height-rerun/trace.json](height-rerun/trace.json) retains the correct Python
+reference (18 elements, three successful finishes). The matching before/fixed
+Rust payloads already have the right heights; only their hash relationship
+changes from A/A/A to A/B/A. Hash strings need not equal across runtimes.
+
+The actual Chrome Browser Use capture [ui/trace.json](ui/trace.json) has 13
+observations and six context JPEGs. Ten control states exercise both directions
+of height, wrap and line-number changes, then an actual wheel scroll moves the
+inner code area down and back up. An intermediate upward-scroll observation
+is retained before settled zero. The fixed Rust capture has 14 observations
+and seven JPEGs because its first downward-wheel observation was still zero;
+a later observation proves movement. These animation snapshots are not claimed
+as exact cross-runtime offsets. Ten settled control states match in geometry,
+text/tokens, numbers and wrapping, and both sequences restore scrollTop=0.
+
+The initial Rust browser failure remains in ui-before (ten control observations,
+three JPEGs): Tall and all-enabled claim 240 in the state caption but measure
+120 in the code area. The bundled frontend's applyDelta/elementHash helper
+reuses the previous Element for equal hashes independently of cacheable.
+Including height in the existing code hash fixes the visible update; no cache
+feature, public API or dependency was introduced. Positive UI gates reject the
+saved failed height, verify image bytes/hash/decoding/dimensions, and exercise
+nine observation-corruption guards. Gates replay retained artifacts; collection
+was a real Browser Use session, not a new browser CI driver.
+
+A collection mistake is retained in
+[height-rerun-metadata-before/trace.json](height-rerun-metadata-before/trace.json):
+I used the collector's Rust-only `--url` mode against the caller-owned Python
+port, so runtime metadata says rust even though those frames came from Python.
+It is rejected by the Python-reference gate and is not Rust or accepted Python
+evidence. The correct reference was collected anew using its owned Python mode;
+no packet bytes or incorrect runtime fields were edited to conceal the mistake.
+
+Successful-tab captured warn/error buffers are empty for this observation
+window. All task-created tabs and owned services/connections were closed;
+8607/18607 had no listener afterward. This does not close full highlighting
+language support, other sizes/themes/responsive layouts, clipboard interaction,
+non-string body conversion, invalid dimensions or the complete code capability.

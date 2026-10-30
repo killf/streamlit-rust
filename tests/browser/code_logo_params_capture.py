@@ -23,7 +23,7 @@ from websockets.sync.client import connect
 ROOT = Path(__file__).resolve().parents[2]
 parser = argparse.ArgumentParser(description='Collect the code/skeleton/logo reference once; never overwrite.')
 parser.add_argument('--out', type=Path, required=True)
-parser.add_argument('--scenario', choices=('parameters', 'logo-strings', 'code-text'), default='parameters')
+parser.add_argument('--scenario', choices=('parameters', 'logo-strings', 'code-text', 'code-live'), default='parameters')
 parser.add_argument('--url', help='caller-owned Rust server URL (comparison capture)')
 args = parser.parse_args()
 OUT = args.out.resolve()
@@ -85,6 +85,7 @@ try:
     record('client->server', raw, request)
     WS.send(raw)
     index = 0
+    live_widgets = {}
     while True:
         raw = WS.recv(timeout=20)
         message = ForwardMsg()
@@ -93,7 +94,18 @@ try:
         kind = message.WhichOneof('type')
         if kind == 'script_finished':
             TRACE['finishes'].append(message.script_finished)
-            break
+            if args.scenario != 'code-live' or len(TRACE['finishes']) == 3:
+                break
+            assert set(live_widgets) == {'Tall code', 'Wrap code', 'Show line numbers'}
+            request = BackMsg()
+            request.rerun_script.query_string = 'case=code-live'
+            for label, widget_id in live_widgets.items():
+                request.rerun_script.widget_states.widgets.add(id=widget_id,
+                    bool_value=label == 'Tall code' and len(TRACE['finishes']) == 1)
+            raw = request.SerializeToString()
+            record('client->server', raw, request)
+            WS.send(raw)
+            continue
         if kind != 'delta':
             continue
         delta_kind = message.delta.WhichOneof('type')
@@ -115,6 +127,8 @@ try:
             element = message.delta.new_element
             element_kind = element.WhichOneof('type')
             if element_kind is not None:
+                if args.scenario == 'code-live' and element_kind == 'checkbox':
+                    live_widgets[element.checkbox.label] = element.checkbox.id
                 view = getattr(element, element_kind)
                 fields = MessageToDict(view, preserving_proto_field_name=True)
                 url = getattr(view, 'url', '') if hasattr(view, 'url') else ''

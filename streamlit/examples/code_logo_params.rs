@@ -4,6 +4,22 @@
 use ::streamlit::*;
 use streamlit::StreamlitApi;
 
+fn render_code_live(st: &Streamlit) -> Result<(), Box<dyn std::error::Error>> {
+    st.title("Code layout controls");
+    let tall = st.checkbox(CheckboxOptions::new("Tall code").key("code-tall"))?;
+    let wrap = st.checkbox(CheckboxOptions::new("Wrap code").key("code-wrap"))?;
+    let lines = st.checkbox(CheckboxOptions::new("Show line numbers").key("code-lines"))?;
+
+    let body = format!(
+        "\n{}\n",
+        (1..=20).map(|index| format!("print(\"line {index:02} — 🤖 012345678901234567890123456789012345678901234567890123456789\")")).collect::<Vec<_>>().join("\n")
+    );
+    let height = if tall { 240 } else { 120 };
+    st.code_options(CodeOptions::new(body, "python").line_numbers(lines).wrap_lines(wrap).height(height).width(360));
+    st.caption(format!("height={height}; wrap={wrap}; lines={lines}"));
+    Ok(())
+}
+
 fn render_code_text(st: &Streamlit) -> Result<(), Box<dyn std::error::Error>> {
     let bodies = [
         "",
@@ -58,6 +74,9 @@ fn render_code_text(st: &Streamlit) -> Result<(), Box<dyn std::error::Error>> {
 }
 
 fn render(st: &Streamlit) -> Result<(), Box<dyn std::error::Error>> {
+    if st.query_params().get("case").as_deref() == Some("code-live") {
+        return render_code_live(st);
+    }
     if st.query_params().get("case").as_deref() == Some("code-text") {
         return render_code_text(st);
     }

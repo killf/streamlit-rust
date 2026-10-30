@@ -24,3 +24,31 @@ wrapping and nine dimension combinations. Both owned Rust service sessions
 were stopped after collection; captures remain native WS observations, not
 browser screenshots or proof of highlighting/scrolling behavior.
 Invalid dimensions, non-string conversion and remaining code UI stay open.
+
+
+## Real height-update bug and Chrome verification (2026-10-30)
+
+[height-rerun-before/trace.json](height-rerun-before/trace.json) preserves three
+correct-height frames (120→240→120) sharing one hash. [ui-before/trace.json](ui-before/trace.json)
+retains ten actual Chrome control observations and three JPEGs, including Tall
+and all-enabled stuck at visible 120 while the caption says 240. Equal hash
+causes the bundled frontend to reuse the old Element even with cacheable=false.
+
+The minimal fix adds height to the existing CodeElement hash. The fixed
+[height-rerun/trace.json](height-rerun/trace.json) now has A/B/A hashes and the same
+full code payloads as Python. Unit and same-connection production WS regression
+cover that relationship. [ui/trace.json](ui/trace.json) records a fresh actual
+Chrome tab, with ten matching height/wrap/line-number states and inner scrolling.
+There are 14 observations and seven context JPEGs, including the initial zero
+scroll observation, later successful movement, and settled restoration to zero.
+Python has 13 observations/six JPEGs; the animation observations are retained
+rather than normalized into false exact scroll parity. Positive UI semantics,
+all saved images, the original failure and nine corruption guards are checked.
+
+Use `?case=code-live` in the existing example. This window's captured console
+warn/error buffer was empty; task tabs, sockets and owned servers were closed,
+and 8607/18607 had no listeners afterward. No general cache, public interface
+or dependency changed. Other languages, dimensions/themes/responsive layouts,
+clipboard actions, non-string conversion and invalid sizes stay open. A separate
+metadata-error capture is documented in the Python README and excluded from
+accepted cross-runtime evidence.

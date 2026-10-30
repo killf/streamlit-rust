@@ -2,9 +2,11 @@
 import base64
 import copy
 import json
+import hashlib
 from pathlib import Path
 
 import pytest
+from PIL import Image
 
 from google.protobuf.json_format import MessageToDict
 from streamlit.proto.BackMsg_pb2 import BackMsg
@@ -29,7 +31,7 @@ def frames(capture):
         yield message
 
 
-def assert_capture(capture):
+def assert_capture(capture, expected_finishes=(0,)):
     elements, finishes = [], []
     for message in frames(capture):
         if not isinstance(message, ForwardMsg):
@@ -48,7 +50,7 @@ def assert_capture(capture):
                          "fields": MessageToDict(view, preserving_proto_field_name=True),
                          "url": getattr(view, "url", ""), "delta_path": list(message.metadata.delta_path)})
     assert elements and elements == capture["elements"]
-    assert finishes == capture["finishes"] == [0]
+    assert finishes == capture["finishes"] == list(expected_finishes)
 
 
 def comparable(capture):
@@ -229,3 +231,164 @@ def test_code_text_rust_before_and_fixed_wire():
                 key: value for key, value in old["code"].items() if key not in ("code_text", "language")}
     assert after["elements"] == python["elements"]
     assert views[0] == views[2], "complete payloads including width and height must match"
+
+
+def assert_height_capture(capture, runtime, before=False):
+    assert_capture(capture, expected_finishes=(0, 0, 0))
+    assert capture["runtime"] == runtime and capture["reference_version"] == "1.66.1"
+    assert capture["scenario"] == "code-live" and capture["successful"] and "producer_error" not in capture
+    messages = list(frames(capture))
+    requests = [message.rerun_script for message in messages if isinstance(message, BackMsg)]
+    assert len(requests) == 3 and all(request.query_string == "case=code-live" for request in requests)
+    assert not requests[0].widget_states.widgets
+    ids = {message.delta.new_element.checkbox.label: message.delta.new_element.checkbox.id for message in messages
+           if isinstance(message, ForwardMsg) and message.WhichOneof("type") == "delta"
+           and message.delta.new_element.WhichOneof("type") == "checkbox"}
+    assert set(ids) == {"Tall code", "Wrap code", "Show line numbers"}
+    for index, request in enumerate(requests[1:], 1):
+        assert {widget.id: widget.bool_value for widget in request.widget_states.widgets} == {
+            widget_id: label == "Tall code" and index == 1 for label, widget_id in ids.items()}
+    codes = [message for message in messages if isinstance(message, ForwardMsg) and message.WhichOneof("type") == "delta"
+             and message.delta.new_element.WhichOneof("type") == "code"]
+    assert len(capture["elements"]) == 18 and len(codes) == 3
+    assert [message.delta.new_element.height_config.pixel_height for message in codes] == [120, 240, 120]
+    assert all(list(message.metadata.delta_path) == [0, 4] for message in codes)
+    hashes = [message.hash for message in codes]
+    assert all(hashes) and hashes[0] == hashes[2]
+    assert (hashes[0] == hashes[1]) == before
+    assert capture["cleanup"]["websocket_closed"] is True
+    return codes
+
+
+def test_height_rerun_wire_changes_hash_with_layout_and_preserves_failure():
+    python = read(PYTHON / "height-rerun/trace.json")
+    before = read(RUST / "height-rerun-before/trace.json")
+    after = read(RUST / "height-rerun/trace.json")
+    reference = assert_height_capture(python, "python")
+    assert python["server_cleanup"] == "collector-owned" and python["cleanup"]["server_stopped"] is True
+    assert_height_capture(before, "rust", before=True)
+    actual = assert_height_capture(after, "rust")
+    assert comparable(python) == comparable(before) == comparable(after)
+    assert [list(element["delta_path"]) for element in python["elements"]] == [list(element["delta_path"]) for element in after["elements"]]
+    assert [MessageToDict(message.delta.new_element, preserving_proto_field_name=True) for message in reference] == [
+        MessageToDict(message.delta.new_element, preserving_proto_field_name=True) for message in actual]
+    assert all(not message.metadata.cacheable for message in actual)
+
+
+def test_python_url_runtime_metadata_mistake_is_retained_and_rejected():
+    capture = read(PYTHON / "height-rerun-metadata-before/trace.json")
+    assert_capture(capture, expected_finishes=(0, 0, 0))
+    assert capture["url"] == "http://127.0.0.1:18607" and capture["runtime"] == "rust"
+    assert capture["server_command"] is None and capture["server_cleanup"] == "caller-owned"
+    with pytest.raises(AssertionError):
+        assert_height_capture(capture, "python")
+
+
+CODE_UI_STATES = [
+    ("initial", 120, False, False), ("tall", 240, False, False), ("short", 120, False, False),
+    ("wrap", 120, True, False), ("numbered", 120, True, True), ("all-enabled", 240, True, True),
+    ("nowrap", 240, False, True), ("unnumbered", 240, False, False), ("wrap-restored", 240, True, False),
+    ("renumbered", 240, True, True),
+]
+
+
+def assert_code_ui_controls(capture):
+    assert [step["stage"] for step in capture["steps"][:10]] == [state[0] for state in CODE_UI_STATES]
+    strings = [f'"line {index:02d} — 🤖 012345678901234567890123456789012345678901234567890123456789"' for index in range(1, 21)]
+    for step, (_, height, wrap, lines) in zip(capture["steps"][:10], CODE_UI_STATES):
+        assert step["title"] == "Code layout controls" and step["dom"]
+        assert step["caption"] == f"height={height}; wrap={str(wrap).lower()}; lines={str(lines).lower()}"
+        assert step["checkboxes"] == [{"label": label, "checked": checked} for label, checked in [
+            ("Tall code", height == 240), ("Wrap code", wrap), ("Show line numbers", lines)]]
+        code = step["code"]
+        assert code["height"] == height, "code height did not follow the rendered control state"
+        assert code["width"] == 360 and code["whiteSpace"] == ("pre-wrap" if wrap else "pre")
+        assert code["keywords"] == ["print"] * 20 and code["strings"] == strings
+        assert [number["text"] for number in code["numbers"]] == ([str(index) for index in range(1, 21)] if lines else [])
+        assert code["scrollTop"] == 0 and code["scrollHeight"] > code["clientHeight"] > 0
+        assert code["overflowY"] == code["overflowX"] == "auto"
+        assert code["html"].count('token token keyword') == 20
+        assert 'language-python' in code["html"] and 'line 20' in code["text"]
+
+
+def assert_code_ui_screenshots(capture, folder):
+    named = {step["screenshot"]: step for step in capture["steps"] if step.get("screenshot")}
+    assert named and len(named) == len(capture["screenshots"])
+    assert {item["file"] for item in capture["screenshots"]} == set(named)
+    for item in capture["screenshots"]:
+        filename = item["file"]
+        assert Path(filename).name == filename and Path(filename).suffix in (".jpg", ".png")
+        path = folder / filename
+        raw = path.read_bytes()
+        assert len(raw) == item["bytes"] and hashlib.sha256(raw).hexdigest() == item["sha256"]
+        with Image.open(path) as image:
+            image.load()
+            clip = named[filename]["clip"]
+            assert image.size == (clip["width"], clip["height"]) and min(image.size) > 100
+
+
+def assert_code_ui(capture, folder, runtime):
+    assert capture["runtime"] == runtime and capture["reference_version"] == "1.66.1"
+    assert capture["successful"] and capture["capture_method"].startswith("Browser Use Chrome extension")
+    assert capture["cleanup"] == {"browser_tabs_closed": True, "server_stopped": True, "listener_absent": True}
+    assert_code_ui_controls(capture)
+    port = 18607 if runtime == "python" else 8607
+    assert all(step["url"] == f"http://127.0.0.1:{port}/?case=code-live" for step in capture["steps"])
+    tail = [step["stage"] for step in capture["steps"][10:]]
+    assert tail == (["scroll-down", "scroll-up", "scroll-up-settled"] if runtime == "python" else [
+        "scroll-down", "scroll-down-settled", "scroll-up", "scroll-up-settled"])
+    downward = [step["code"]["scrollTop"] for step in capture["steps"][10:] if step["stage"].startswith("scroll-down")]
+    assert max(downward) > 0, "the actual inner scroll must move"
+    assert capture["steps"][-1]["code"]["scrollTop"] == 0, "upward scrolling must restore the top"
+    for step in capture["steps"][10:]:
+        code = step["code"]
+        assert code["height"] == 240 and code["width"] == 360 and code["whiteSpace"] == "pre-wrap"
+        assert 0 <= code["scrollTop"] <= code["scrollHeight"] - code["clientHeight"]
+    assert capture["console"] == []  # Only this tab's captured warn/error buffer, not an all-time zero-error claim.
+    assert_code_ui_screenshots(capture, folder)
+
+
+@pytest.mark.parametrize("runtime,folder", [("python", PYTHON / "ui"), ("rust", RUST / "ui")])
+def test_code_live_browser_controls_scroll_and_images(runtime, folder):
+    assert_code_ui(read(folder / "trace.json"), folder, runtime)
+
+
+def test_code_live_browser_before_fix_is_retained_as_failure():
+    capture = read(RUST / "ui-before/trace.json")
+    assert capture["successful"] is False and len(capture["steps"]) == 10
+    assert capture["failure_observations"] == [{"stage": stage, "expected_height": 240, "observed_height": 120} for stage in ("tall", "all-enabled")]
+    assert capture["cleanup"] == {"browser_tabs_closed": True, "server_stopped": True}
+    assert_code_ui_screenshots(capture, RUST / "ui-before")
+    with pytest.raises(AssertionError, match="height"):
+        assert_code_ui_controls(capture)
+
+
+def test_code_live_browser_semantics_match_across_runtimes():
+    python, rust = [read(folder / "trace.json") for folder in (PYTHON / "ui", RUST / "ui")]
+    keys = ["width", "height", "clientWidth", "clientHeight", "scrollWidth", "scrollHeight", "whiteSpace", "overflowX", "overflowY", "keywords", "strings", "numbers", "text"]
+    for left, right in zip(python["steps"][:10], rust["steps"][:10]):
+        assert left["checkboxes"] == right["checkboxes"] and left["caption"] == right["caption"]
+        assert {key: left["code"][key] for key in keys} == {key: right["code"][key] for key in keys}
+
+
+@pytest.mark.parametrize("mutation", ["height", "width", "wrap", "line-numbers", "body", "scroll", "missing", "screenshot", "checkbox"])
+def test_code_live_browser_gate_rejects_broken_or_incomplete_observations(mutation):
+    capture = read(PYTHON / "ui/trace.json")
+    if mutation in ("height", "width"):
+        capture["steps"][1]["code"][mutation] = 120 if mutation == "height" else 1200
+    elif mutation == "wrap":
+        capture["steps"][3]["code"]["whiteSpace"] = "pre"
+    elif mutation == "line-numbers":
+        capture["steps"][4]["code"]["numbers"] = []
+    elif mutation == "body":
+        capture["steps"][0]["code"]["strings"][0] = '"fabricated"'
+    elif mutation == "scroll":
+        capture["steps"][-1]["code"]["scrollTop"] = 10
+    elif mutation == "missing":
+        capture["steps"].pop()
+    elif mutation == "screenshot":
+        capture["screenshots"][0]["sha256"] = "0" * 64
+    else:
+        capture["steps"][1]["checkboxes"][0]["checked"] = False
+    with pytest.raises(AssertionError):
+        assert_code_ui(capture, PYTHON / "ui", "python")

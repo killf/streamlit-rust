@@ -265,7 +265,9 @@ metric 的字符串 delta 遵循 1.66.1 字符串语义，不能按浮点数解�
 
 **code/skeleton/logo 参数**（[code-logo-params 参考](../../tests/reference/reference-browser/code-logo-params/README.md)，3/3 + logo 帧一致、零实现改动确认）：`st.code` 的 `language` 任意标签原样透传、`line_numbers(true)` → `show_line_numbers`；`st.skeleton` 默认空消息；`st.logo("🧊")` emoji 判型 EMOJI、**缺省 size "medium"**、走顶层 `logo` ForwardMsg（非 delta）。原始轨迹未纳入 wrap_lines/height 或更广 Logo 参数；后续 Logo 扩展见参考 README。
 
-`st.code` 的另一次 27 场景原生 WS 对照已覆盖边界换行、空/任意语言标签、行号/自动换行及九种宽高组合。它只各移除一次开头和结尾的 `\n`，保留缩进、空格、制表符、`\r` 和其他 Unicode 空白；空语言字符串改发 `plaintext`，空格语言标签原样保留。既有 `CodeOptions` 支持这批 stretch/content/正像素尺寸；Python `language=None` 的纯文本效果用 Rust 空字符串表达，不意味着新增了 Option 参数。该范围不覆盖非字符串转换、无效尺寸错误、实际语法高亮或浏览器滚动/响应布局。
+`st.code` 的另一次 27 场景原生 WS 对照已覆盖边界换行、空/任意语言标签、行号/自动换行及九种宽高组合。它只各移除一次开头和结尾的 `\n`，保留缩进、空格、制表符、`\r` 和其他 Unicode 空白；空语言字符串改发 `plaintext`，空格语言标签原样保留。既有 `CodeOptions` 支持这批 stretch/content/正像素尺寸；Python `language=None` 的纯文本效果用 Rust 空字符串表达，不意味着新增了 Option 参数。该原生 WS 范围不覆盖非字符串转换、无效尺寸错误或完整浏览器表现。
+
+另有 `code_logo_params` 的 `?case=code-live` 场景，经真实 Chrome 验证固定 360 像素宽、120/240 像素高度的往返、自动换行/行号开关及代码区上下滚动。该场景修复了高度载荷虽改变、前端却按相同 hash 复用旧元素的问题；现有代码元素身份已包含高度。Python 代码的 20 行高亮和十次有序控件观察已有对照，其他语言、尺寸/主题/响应式、复制按钮和错误边界仍未完成。
 
 **selectbox/checkbox/pills 参数**（[select-pills-params 参考](../../tests/reference/reference-browser/select-pills-params/README.md)，5/5 一致、零实现改动确认）：`SelectboxOptions` 的 `index(None)`（不发 default）+ `placeholder`/`help`；`CheckboxOptions` 的 `value/disabled/help`；pills 的 `selection_mode(Multi)` → `MULTI_SELECT`、默认标签以**索引**上 wire、选项为 content 对象。format_func、option icons、query binding 未纳入。
 

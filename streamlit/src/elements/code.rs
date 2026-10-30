@@ -60,7 +60,8 @@ impl CodeElement {
 
 impl Element for CodeElement {
     fn render(&self, context: &mut RenderContext) -> Result<(), StreamlitError> {
-        let element_hash = hash(format!("code_{}_{}_{}_{}_{:?}_{:?}", self.code_text, self.language, self.show_line_numbers, self.wrap_lines, self.width, self.text_alignment).as_str());
+        // 官方前端按 hash 复用整个 Element，即使 cacheable=false，高度也必须参与身份。
+        let element_hash = hash(format!("code_{}_{}_{}_{}_{:?}_{:?}_{:?}", self.code_text, self.language, self.show_line_numbers, self.wrap_lines, self.width, self.height, self.text_alignment).as_str());
         let mut msg = delta_base_with_path(context.delta_path.clone(), context.active_script_hash.clone(), element_hash);
 
         let width_config: Option<WidthConfig> = self.width.clone().map(Into::into);
@@ -95,7 +96,7 @@ impl Element for CodeElement {
 
 #[cfg(test)]
 mod tests {
-    use super::CodeElement;
+    use super::{CodeElement, Element, ElementHeight, RenderContext};
 
     #[test]
     fn code_preserves_whitespace_except_single_boundary_lfs() {
@@ -123,5 +124,23 @@ mod tests {
             let element = CodeElement::new("body".into(), input.to_owned());
             assert_eq!(element.language, expected);
         }
+    }
+
+    #[test]
+    fn height_changes_invalidate_code_element_hash() -> Result<(), Box<dyn std::error::Error>> {
+        let mut hashes = Vec::new();
+        for height in [120, 240, 120] {
+            let (sender, _receiver) = tokio::sync::mpsc::unbounded_channel();
+            let mut context = RenderContext::with_sender("code-height".into(), sender);
+            context.delta_path = vec![0, 0];
+            CodeElement::new("print('same body')".into(), "python".into()).height(ElementHeight::Value(height)).render(&mut context)?;
+            assert_eq!(context.stream.len(), 1);
+            hashes.push(context.stream.pop().ok_or("missing code message")?.hash);
+        }
+
+        assert!(!hashes[0].is_empty());
+        assert_ne!(hashes[0], hashes[1], "height-only changes must replace the previous frontend element");
+        assert_eq!(hashes[0], hashes[2], "restoring the same code/layout restores its hash");
+        Ok(())
     }
 }

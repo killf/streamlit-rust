@@ -2,6 +2,16 @@
 import streamlit as st
 
 
+def run_code_live():
+    st.title("Code layout controls")
+    tall = st.checkbox("Tall code", key="code-tall")
+    wrap = st.checkbox("Wrap code", key="code-wrap")
+    lines = st.checkbox("Show line numbers", key="code-lines")
+    body = "\n" + "\n".join(f'print("line {index:02d} — 🤖 012345678901234567890123456789012345678901234567890123456789")' for index in range(1, 21)) + "\n"
+    st.code(body, language="python", line_numbers=lines, wrap_lines=wrap, height=240 if tall else 120, width=360)
+    st.caption(f"height={240 if tall else 120}; wrap={str(wrap).lower()}; lines={str(lines).lower()}")
+
+
 def run_code_text():
     bodies = ["", "\n", "\n\n", "\n\n\n", "\nprint('hi')\n", "\n\n  indented\n\n", "  leading\n    nested  \n", "\r\nwindows\r\n", "\rreturn\r", "\n spaced \r\n", "\talpha\n\t\tbeta\n", "\u0085line\u2028end\u2029", "Unicode 🤖 中文\n"]
     languages = ["python", "", "RuSt", "made-up", " "]
@@ -32,6 +42,10 @@ def run_logo_strings():
     for case in cases:
         st.logo(**case)
 
+
+if st.query_params.get("case") == "code-live":
+    run_code_live()
+    st.stop()
 
 if st.query_params.get("case") == "code-text":
     run_code_text()

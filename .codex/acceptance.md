@@ -596,3 +596,16 @@ Python 采集器关闭 WS 并停止自有服务，Rust 自有服务 session 终�
 按代码、单元、集成顺序检查：全工作区/全目标 Clippy -D warnings、Rustfmt edition 2024 通过；代码元素单元 2 项、文本/JSON 生产 WS 集成 4 项通过（target/code-text-clippy.log、target/code-text-unit.log、target/code-text-integration.log）。工作区明确排除既有 navigation_pages_switch_and_session_state_match_the_measured_wire 与 rerun_queue_messages_match_frozen_reference 后 238 项通过（库 231、ledger 1、宏 2、rustdoc 4；target/code-text-workspace-remaining.log），不是完整工作区全绿。相关 Python 参数/原始帧/矩阵/文档门 159 项通过（target/code-text-final-gates.log）。既有 MSVC linker stdout 告警保留；已逐文件检查 Rust 和脚本 diff。
 
 采集器停止自有 Python 服务，两个自有 Rust 服务 session 均终止，8607 无监听。未执行本批浏览器语法高亮、滚动或响应式布局验收；非字符串 body 转换和无效尺寸错误等仍开放，st.code 与总矩阵仍 partial（共 130 项）。inventory 仅如实补出原缺少明确差距的一项，未通过改分母关闭能力。序列化、JsonOptions 和发送队列待决流程均未扩大实施。已有 colconfig_params 文件、Cargo 与索引改动保留，不纳入本批阶段提交和推送。
+
+
+### Actual code-height reruns and frontend identity fix (2026-10-30)
+
+既有 code_logo_params fixture/example 添加 code-live 场景：三个 checkbox 控制固定 360 像素宽的 20 行 Python 代码的 120/240 高度、自动换行及行号。实际 Browser Use Chrome 复现 Rust Tall/all-enabled caption 已为 240、代码区域仍为 120；修前十个控件观察及三张 JPEG 保留在 rust-code-logo-params/ui-before。原生三请求参考与修前记录均证明高度载荷为 120→240→120（18 元素、三次成功 finish），但 Rust hash 为 A/A/A，Python 为 A/B/A。捆绑前端 applyDelta 按 elementHash 复用旧 Element，与 cacheable=false 独立，故不能用完整帧已发送推断布局已更新。
+
+最小改动只把 height 加入 CodeElement 既有 hash。单位测试和同连接生产 WS 验证 A/B/A，修后原生完整 code 载荷和所有元素摘要（排除运行时 widget id）匹配参考；没有启用消息缓存、改发送流程或新增公共接口/依赖。修后新建真实浏览器 tab 重新完整操作：十次有序控件观察与 Python 的 caption、checkbox、几何、滚动区尺寸、文本/高亮 token、行号及 white-space 一致，真实滚轮可在代码区下滚并回到零。Python 留 13、Rust 留 14 个观察（后者下滚第一次尚为零，多留一份稳定观察），不把动画中间偏移声称逐帧一致；正确两端各六/七张 JPEG，加修前三张共 16 张，均验证字节/哈希/真实解码/裁剪尺寸。九项损坏观察 guard 被拒绝，正向 UI 门也明确拒绝原高度失败；这些门只重放保存材料，不伪装为自动启动 Chrome 的 CI 驱动。
+
+一次采集方式错误保留在 height-rerun-metadata-before：我误用约定为 Rust 的 --url 模式连接自有 Python 服务，导致 runtime 元数据误标。正确原始包与错误字段未覆盖修改，门会拒绝将其当 Python 参考；随后使用采集器自有 Python 模式生成正确新参考。独立失败记录不计入已通过跨运行时证据。两个成功标签页本次读取的 warn/error 缓冲为空，非全时段零错误断言。全部三个任务 tab 和自有 WS 关闭，先后两个 Rust server session 与 Python session 均终止，8607/18607 无监听；本轮关闭未观察到上一 JSON 批的 Proactor 异常。
+
+按代码→单元→集成顺序：全目标 Clippy -D warnings、格式检查通过；代码元素单元 3 项、文本/JSON 生产 WS 集成 5 项通过（target/code-height-clippy.log、target/code-height-unit.log、target/code-height-integration.log）。工作区仍明确排除 navigation_pages_switch_and_session_state_match_the_measured_wire 与 rerun_queue_messages_match_frozen_reference，240 项通过（库 233、ledger 1、宏 2、rustdoc 4；target/code-height-workspace-remaining.log），不能称全工作区全绿。最终相关 Python 门 174 项通过（target/code-height-final-gates.log），已有 MSVC linker stdout 告警保留。逐文件复查 Rust/采集器/fixture diff，最后仅补语义空行和说明。
+
+范围只覆盖当前视口/主题、固定宽度和这段 Python 代码；其他语言、尺寸/主题/响应布局、复制按钮、非字符串和无效尺寸继续开放，矩阵仍 130 项 partial，完整目标不关闭。三个既有流程选择未越过用户决定；用户已有 colconfig_params 文件/Cargo/索引改动保持独立，阶段提交仅含本批实现与证据。
