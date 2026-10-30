@@ -5,6 +5,7 @@ existing capture; no DOM or browser-interaction claim.
 """
 import argparse
 import base64
+from contextlib import ExitStack
 from datetime import datetime, timezone
 import importlib.metadata
 import json
@@ -24,7 +25,7 @@ ROOT = Path(__file__).resolve().parents[2]
 QUERY = "z=last&tag=first&tag=second&a=first&blank=&encoded=%E4%B8%AD%E6%96%87+text"
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("--out", type=Path, required=True)
-parser.add_argument("--scenario", choices=("values", "reserved", "binding", "seed", "seed-code", "disabled", "disabled-valid", "rerun", "navigation-rerun", "rerun-messages", "rerun-queue"), default="values")
+parser.add_argument("--scenario", choices=("values", "reserved", "binding", "seed", "seed-code", "disabled", "disabled-valid", "disabled-types", "rerun", "navigation-rerun", "rerun-messages", "rerun-queue"), default="values")
 args = parser.parse_args()
 if args.scenario == "reserved":
     QUERY = "case=reserved&embed=true&EMBED_OPTIONS=light_theme&st_embed=ordinary&=empty-key-value"
@@ -34,7 +35,7 @@ elif args.scenario == "seed":
     QUERY = "case=seed&phase=initial&bound=y&text=hello&optional=y&creation=new"
 elif args.scenario == "seed-code":
     QUERY = "case=seed&phase=bad-initial&bound=y&text=hello&optional=y&creation=new"
-if args.scenario in ("disabled", "disabled-valid"):
+if args.scenario in ("disabled", "disabled-valid", "disabled-types"):
     QUERY = "case=disabled&phase=load&bound=y&text=url"
 if args.scenario == "rerun":
     QUERY = "case=rerun&phase=load&bound=y&text=url"
@@ -84,7 +85,7 @@ try:
             if time.monotonic() >= deadline or server.poll() is not None:
                 raise RuntimeError("reference server unavailable")
             time.sleep(0.1)
-    with connect(url.replace("http", "ws") + "/_stcore/stream", origin=url, subprotocols=["streamlit"],
+    with ExitStack() as sockets, connect(url.replace("http", "ws") + "/_stcore/stream", origin=url, subprotocols=["streamlit"],
                  proxy=None, open_timeout=10, close_timeout=5, max_size=None, legacy=True) as ws:
         queries = [QUERY]
         if args.scenario == "binding":
@@ -109,6 +110,18 @@ try:
                 ("hidden", "&bound=y&text=url"), ("remount", "&bound=y&text=url"),
                 ("enabled", "&bound=y&text=url"), ("interactive", "&bound=y&text=url"),
                 ("redisable", "&bound=unknown&text=base")]]
+        if args.scenario == "disabled-types":
+            malformed = [
+                ("bound", "bool_value", True), ("bound", "int_value", 1),
+                ("bound", "double_value", 1.5), ("bound", "string_array_value", ["x"]),
+                ("bound", "json_value", "true"), ("plain", "bool_value", True),
+                ("text", "bool_value", True), ("check", "string_value", "invalid"),
+            ]
+            trace["connection_policy"] = "Fresh WS per malformed input; recovery uses the same WS."
+            queries = []
+            for number in range(len(malformed)):
+                queries.extend((QUERY, f"case=disabled&phase=malformed-{number}&bound=unknown&text=base",
+                                f"case=disabled&phase=recovery-{number}&bound=y&text=url"))
         if args.scenario == "rerun":
             queries = [QUERY, "case=rerun&phase=frontend&bound=y&text=ignored",
                        "case=rerun&phase=early&bound=y&text=fresh",
@@ -120,6 +133,11 @@ try:
         widget_ids = {}
         main_page_hash = None
         for index, query in enumerate(queries):
+            if args.scenario == "disabled-types" and index > 0 and index % 3 == 0:
+                ws.close()
+                ws = sockets.enter_context(connect(url.replace("http", "ws") + "/_stcore/stream", origin=url, subprotocols=["streamlit"],
+                                                   proxy=None, open_timeout=10, close_timeout=5, max_size=None, legacy=True))
+                widget_ids.clear()
             request = BackMsg()
             request.rerun_script.query_string = query
             if args.scenario == "binding" and index == 1:
@@ -154,6 +172,18 @@ try:
                         widget.bool_value = value
                     else:
                         widget.string_value = value
+            if args.scenario == "disabled-types" and index % 3:
+                if index % 3 == 1:
+                    key, field, value = malformed[index // 3]
+                    widget = request.rerun_script.widget_states.widgets.add()
+                    widget.id = widget_ids[key]
+                    if field == "string_array_value":
+                        widget.string_array_value.data.extend(value)
+                    else:
+                        setattr(widget, field, value)
+                live = request.rerun_script.widget_states.widgets.add()
+                live.id = widget_ids["live"]
+                live.string_value = f"step-{index}"
             if args.scenario == "rerun":
                 request.rerun_script.is_history_navigation = index == 4
                 if index == 1:
@@ -188,6 +218,7 @@ try:
                         continue
                     assert message.script_finished == 0
                     break
+        ws.close()
     trace["cleanup"]["websocket_closed"] = True
     trace["successful"] = True
 except Exception as error:

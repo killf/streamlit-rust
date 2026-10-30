@@ -760,10 +760,19 @@ impl SessionState {
             return Ok((String::new(), resolve(&default)?, false));
         }
 
-        // Python serializes the lazily decoded disabled select before URL seeding.
-        // A bool packet therefore raises after unrelated callbacks have run.
-        if registry.records.get(&id).is_some_and(|record| record.disabled) && matches!(codec, Codec::Select(_)) && registry.pending.iter().any(|state| state.id == id && matches!(state.value, Some(widget_state::Value::BoolValue(_)))) {
-            let message = "'str' object cannot be interpreted as an integer".to_owned();
+        // 禁用 select 的标量包在 URL 初始化前重新序列化；不同 wire 类型
+        // 产生各自的 Python TypeError，此时其他控件 callback 已执行。
+        let scalar_error = if registry.records.get(&id).is_some_and(|record| record.disabled) && matches!(codec, Codec::Select(_)) {
+            registry.pending.iter().find(|state| state.id == id).and_then(|state| match state.value {
+                Some(widget_state::Value::BoolValue(_) | widget_state::Value::IntValue(_)) => Some("'str' object cannot be interpreted as an integer"),
+                Some(widget_state::Value::DoubleValue(_)) => Some("must be real number, not str"),
+                _ => None,
+            })
+        } else {
+            None
+        };
+        if let Some(message) = scalar_error {
+            let message = message.to_owned();
             registry.registration_error = Some(RegistrationError { message: message.clone(), rendered: false });
             return Err(WidgetError::InvalidValue(message));
         }
@@ -1088,71 +1097,75 @@ mod tests {
 
     #[test]
     fn disabled_select_type_error_preserves_other_callback_and_unseen_records() -> Result<(), WidgetError> {
-        let state = SessionState::default();
-        let select = || {
-            state.register_widget(
-                WidgetSpec {
-                    disabled: true,
-                    query: None,
-                    kind: "selectbox",
-                    key: Some("bound"),
-                    identity: "stable",
-                    default: Value::from(0),
-                    codec: Codec::Select(vec![("x".into(), Value::String("x".into()))]),
-                    callback: Some(Arc::new(|_| {})),
-                },
-                |value| Ok(value.clone()),
-            )
-        };
-        let live = || {
-            state.register_widget(
-                WidgetSpec {
-                    disabled: false,
-                    query: None,
-                    kind: "text_input",
-                    key: Some("live"),
-                    identity: "stable",
-                    default: Value::String("ready".into()),
-                    codec: Codec::Text { max_chars: None },
-                    callback: Some(Arc::new(|_| {})),
-                },
-                |value| Ok(value.clone()),
-            )
-        };
-        let (select_id, _, _) = select()?;
-        let (live_id, _, _) = live()?;
-        state.finish_widgets();
+        for (wire, expected_error) in [
+            (widget_state::Value::BoolValue(true), "'str' object cannot be interpreted as an integer"),
+            (widget_state::Value::IntValue(1), "'str' object cannot be interpreted as an integer"),
+            (widget_state::Value::DoubleValue(1.5), "must be real number, not str"),
+        ] {
+            let state = SessionState::default();
+            let select = || {
+                state.register_widget(
+                    WidgetSpec {
+                        disabled: true,
+                        query: None,
+                        kind: "selectbox",
+                        key: Some("bound"),
+                        identity: "stable",
+                        default: Value::from(0),
+                        codec: Codec::Select(vec![("x".into(), Value::String("x".into()))]),
+                        callback: Some(Arc::new(|_| {})),
+                    },
+                    |value| Ok(value.clone()),
+                )
+            };
+            let live = || {
+                state.register_widget(
+                    WidgetSpec {
+                        disabled: false,
+                        query: None,
+                        kind: "text_input",
+                        key: Some("live"),
+                        identity: "stable",
+                        default: Value::String("ready".into()),
+                        codec: Codec::Text { max_chars: None },
+                        callback: Some(Arc::new(|_| {})),
+                    },
+                    |value| Ok(value.clone()),
+                )
+            };
+            let (select_id, _, _) = select()?;
+            let (live_id, _, _) = live()?;
+            state.finish_widgets();
 
-        // 1. 错误禁用包不拒绝正常输入与回调，错误延迟到注册处。
-        let callbacks = state.begin_widgets(vec![
-            WidgetState {
-                id: select_id,
-                value: Some(widget_state::Value::BoolValue(true)),
-            },
-            WidgetState {
-                id: live_id.clone(),
-                value: Some(widget_state::Value::StringValue("one".into())),
-            },
-        ]);
-        assert_eq!(callbacks.len(), 1);
-        assert!(select().is_err());
-        assert_eq!(state.take_registration_error().as_deref(), Some("'str' object cannot be interpreted as an integer"));
-        assert!(state.take_registration_error().is_none());
-        state.finish_widgets();
+            // 1. 错误禁用包不拒绝正常输入与回调，错误延迟到注册处。
+            let callbacks = state.begin_widgets(vec![
+                WidgetState { id: select_id, value: Some(wire) },
+                WidgetState {
+                    id: live_id.clone(),
+                    value: Some(widget_state::Value::StringValue("one".into())),
+                },
+            ]);
+            assert_eq!(callbacks.len(), 1);
+            assert!(select().is_err());
+            assert_eq!(state.take_registration_error().as_deref(), Some(expected_error));
+            assert!(state.take_registration_error().is_none());
+            state.finish_widgets();
 
-        // 2. 未运行到的正常控件仍存活，下一轮继续回调并恢复渲染。
-        assert_eq!(
-            state
-                .begin_widgets(vec![WidgetState {
-                    id: live_id,
-                    value: Some(widget_state::Value::StringValue("two".into()))
-                }])
-                .len(),
-            1
-        );
-        assert_eq!(select()?.1, Value::from(0));
-        assert_eq!(live()?.1, Value::String("two".into()));
-        state.finish_widgets();
+            // 2. 未运行到的正常控件仍存活，下一轮继续回调并恢复渲染。
+            assert_eq!(
+                state
+                    .begin_widgets(vec![WidgetState {
+                        id: live_id,
+                        value: Some(widget_state::Value::StringValue("two".into()))
+                    }])
+                    .len(),
+                1
+            );
+            assert_eq!(select()?.1, Value::from(0));
+            assert_eq!(live()?.1, Value::String("two".into()));
+            state.finish_widgets();
+        }
+
         Ok(())
     }
 

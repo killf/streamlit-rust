@@ -295,7 +295,7 @@ Implementation uses `streamlit/src/server.rs` and the existing-runtime static-as
 
 2026-10-30 用户选择保留 Python 错误、已执行 callback 和后续恢复。两份不可覆盖的 1.66.1 原生 WS 记录位于 `tests/reference/reference-browser/queryparams/disabled-valid/trace.json` 与 `disabled/trace.json`，各九轮。前者 58 个交错事件（44 个控件同步投影、9 份状态、5 次 URL）；后者 52 个（40 个投影、8 份状态、3 次 URL、1 个 TypeError）。错误轮只有 Plain 发出后 selectbox 报错，同批 Live callback 已发生，下一轮仍能回调并恢复。
 
-WidgetSpec/Record 内部保存 disabled，callback 按上一轮元数据处理，当前禁用注册恢复输入前值；代码赋值和 URL 优先级保留。已测 bool oneof 提交给禁用普通 selectbox 时延迟到注册呈现 TypeError，并保留未渲染控件，避免错误轮清理破坏下一轮恢复。无新增公共接口或依赖。错误比较覆盖类型、消息、出现位置与标志；Python 来源栈帧单独保留，Rust 不伪造。其他错误类型/控件、跨页、绑定服务端重跑和真实浏览器错误界面继续开放，M3/M5/M7 未关闭。
+WidgetSpec/Record 内部保存 disabled，callback 按上一轮元数据处理，当前禁用注册恢复输入前值；代码赋值和 URL 优先级保留。已测 bool/int/double oneof 提交给禁用普通 selectbox 时延迟到注册呈现对应 TypeError，并保留未渲染控件，避免错误轮清理破坏下一轮恢复。无新增公共接口或依赖。错误比较覆盖类型、消息、出现位置与标志；Python 来源栈帧单独保留，Rust 不伪造。其他错误类型/控件、跨页、绑定服务端重跑和真实浏览器错误界面继续开放，M3/M5/M7 未关闭。
 
 
 ### Bound controls across server-started reruns
@@ -559,3 +559,16 @@ Material 根因是 material_icon_len 只检查名称形状。锁定本地 Stream
 pywire.rs 的 py_bytes_repr 旧实现固定单引号，且既有测试误把含单引号、无双引号的 bytes 也预期为单引号。锁定 Python 3.14.7 的 str(bytes) 在该条件下选择双引号，Streamlit 1.66.1 util.calc_hash(str(data_bytes)) 因而产生不同数据集名。直接抽取 HEAD 旧函数的独立 Rust 探针对 b"'" 断言失败，保留 target/bytes-repr-before.log；这不是公共图表 UI 故障复现。三份冻结 chart IPC 均含双引号，不受此次边界影响。
 
 只改既有 pywire.rs：选好定界符后仅转义该定界符，保留其余字节规则和 BLAKE2b。修正旧错误测试，增加空串/两类引号和六个实际 Python 哈希对照，其中一组为 bytes(range(256))。不新增接口、文件、依赖或生成流程，不改 Unicode 字符串 repr/JSON、哈希算法或其他待决方案。现有调用为原生 line/area/scatter/bar 的 chart_dataset；不能把 helper 修复写成全部图表功能已兼容。
+
+
+### Disabled malformed scalar types and persistent array reference (2026-10-30)
+
+沿用用户已选方案 1（复现 Python 错误、已发生 callback 与后续恢复），没有把新错误类型一律忽略或整批拒绝。旧运行时仅识别禁用 selectbox 收到 bool；本批在现有注册路径补 int/double：bool/int 的消息为 'str' object cannot be interpreted as an integer，double 为 must be real number, not str。发生在 Plain 发出之后、绑定 URL 初始化之前，Live callback 已执行；错误轮不删未渲染记录，下一轮恢复并继续 callback。无新公共接口、模块、依赖或参数策略。
+
+复用既有参考页面，collector 新增内部诊断场景 disabled-types。首次单会话序列保留于 disabled-types/trace.json：17 轮中数组错误污染后续轮次，13 个 TypeError、4 个 JSON。该记录说明会话持续失败，不能用其后半段推断其他输入类型。修正采集方法后 disabled-types-isolated/trace.json 为八个独立 WS 会话，每个 load→malformed→同会话 recovery，共 24 轮、19 个 JSON、5 个 TypeError。不能把逐轮 NewSession 帧数 24 当作独立会话数；八组 session_id 各自在三轮内保持。
+
+完整参考覆盖 selectbox 的 bool/int/double/string-array/JSON，以及 Plain/Text 的 bool 和 Check 的 string。前三种错误后恢复，JSON/其他控件的所测错误类型被忽略；数组在控件输出前出现 unhashable RepeatedScalarContainer，下一轮仍失败。保留真实来源栈，未假定相同栈长度或伪造 Rust Python 文件路径。原始 protobuf、请求类型、异常文字/位置、所有状态/callback 回执均保留；旧冻结记录没有重写。
+
+Rust 本批严格差分仅覆盖完整参考中前三个标量用例的九轮、42 个控件/异常/状态交错投影；明确截取前缀而非声称八种输入全部已实现。新增回归先在旧代码真实失败，修后通过。数组的早期错误与持续状态，以及 JSON/其他控件的 Rust 差分和真实 UI 仍待实现/验证，不把 Python 捕获冒充 Rust 对齐。后续按已确认方案 1 处理数组错误发生阶段和会话生命周期；无需扩大为新的公共错误 API。
+
+collector 用 ExitStack 管理重连的全部 WS，失败时也关闭；改动后的真实再采集只写 target/disabled-types-confirmation，复验相同八组语义/清理，不替换冻结数据。所有动作局限本地 synthetic 输入，不涉及外部账号/共享数据库。

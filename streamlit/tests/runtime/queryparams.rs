@@ -272,6 +272,11 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
     let mut observed = Vec::new();
     for frame in reference["frames"].as_array().ok_or("missing frames")? {
         let Some(request) = frame["message"].get("rerun_script") else { continue };
+        if reference["scenario"] == "disabled-types" && request["query_string"].as_str().is_some_and(|query| query.contains("phase=load&")) && !widget_ids.is_empty() {
+            drop(stream);
+            stream = sessions::connect(address, None).await;
+            widget_ids.clear();
+        }
         let mut widgets = Vec::new();
         if let Some(states) = request["widget_states"]["widgets"].as_array() {
             for state in states {
@@ -284,6 +289,10 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
                     id: widget_ids.get(key).cloned().ok_or("missing live widget id")?,
                     value: Some(if let Some(value) = state["bool_value"].as_bool() {
                         widget_state::Value::BoolValue(value)
+                    } else if let Some(value) = state.get("int_value") {
+                        widget_state::Value::IntValue(value.as_str().ok_or("missing int64 wire string")?.parse()?)
+                    } else if let Some(value) = state["double_value"].as_f64() {
+                        widget_state::Value::DoubleValue(value)
                     } else {
                         widget_state::Value::StringValue(state["string_value"].as_str().ok_or("missing widget text")?.into())
                     }),
@@ -320,7 +329,7 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
                             Some(element::Type::Json(json)) => observed.push(serde_json::json!({"snapshot": serde_json::from_str::<serde_json::Value>(&json.body)?})),
                             Some(element::Type::Selectbox(widget)) => {
                                 let key = widget.query_param_key.unwrap_or_else(|| widget.id.rsplit('-').next().unwrap_or("").into());
-                                if matches!(reference["scenario"].as_str(), Some("disabled-valid" | "disabled")) {
+                                if matches!(reference["scenario"].as_str(), Some("disabled-valid" | "disabled" | "disabled-types")) {
                                     observed.push(serde_json::json!({"widget": key, "disabled": widget.disabled, "set": widget.set_value, "value": widget.raw_value}));
                                 }
                                 if matches!(reference["scenario"].as_str(), Some("seed" | "seed-code" | "rerun")) {
@@ -330,7 +339,7 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
                             }
                             Some(element::Type::TextInput(widget)) => {
                                 let key = widget.query_param_key.unwrap_or_else(|| widget.id.rsplit('-').next().unwrap_or("").into());
-                                if matches!(reference["scenario"].as_str(), Some("disabled-valid" | "disabled")) {
+                                if matches!(reference["scenario"].as_str(), Some("disabled-valid" | "disabled" | "disabled-types")) {
                                     observed.push(serde_json::json!({"widget": key, "disabled": widget.disabled, "set": widget.set_value, "value": widget.value}));
                                 }
                                 if matches!(reference["scenario"].as_str(), Some("seed" | "seed-code" | "rerun")) {
@@ -338,7 +347,7 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
                                 }
                                 widget_ids.insert(key, widget.id);
                             }
-                            Some(element::Type::Checkbox(widget)) if matches!(reference["scenario"].as_str(), Some("disabled-valid" | "disabled")) => {
+                            Some(element::Type::Checkbox(widget)) if matches!(reference["scenario"].as_str(), Some("disabled-valid" | "disabled" | "disabled-types")) => {
                                 let key = widget.id.rsplit('-').next().unwrap_or("").to_string();
                                 observed.push(serde_json::json!({"widget": key, "disabled": widget.disabled, "set": widget.set_value, "value": widget.value}));
                                 widget_ids.insert(key, widget.id);
@@ -388,7 +397,7 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
                 }
             }
         }
-        if matches!(reference["scenario"].as_str(), Some("disabled-valid" | "disabled")) {
+        if matches!(reference["scenario"].as_str(), Some("disabled-valid" | "disabled" | "disabled-types")) {
             let element = &message["delta"]["new_element"];
             for (kind, field) in [("selectbox", "raw_value"), ("text_input", "value"), ("checkbox", "value")] {
                 if let Some(widget) = element.get(kind) {
@@ -459,6 +468,17 @@ async fn disabled_widget_inputs_and_callbacks_match_frozen_reference() -> TestRe
 #[actix_web::test]
 async fn disabled_malformed_input_keeps_callbacks_error_and_recovery() -> TestResult {
     assert_queryparams_reference(queryparams_disabled_entry, include_str!("../../../tests/reference/reference-browser/queryparams/disabled/trace.json"), 52).await
+}
+
+#[actix_web::test]
+async fn disabled_numeric_wire_types_preserve_callback_and_recovery() -> TestResult {
+    let mut reference: serde_json::Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/queryparams/disabled-types-isolated/trace.json"))?;
+    let frames = reference["frames"].as_array_mut().ok_or("missing disabled type frames")?;
+    // Only the first three independent cases (bool/int/double) belong to this
+    // numeric regression. The full frozen corpus keeps array/JSON/other controls.
+    let end = frames.iter().enumerate().filter(|(_, frame)| frame["direction"] == "client->server").nth(9).ok_or("missing fourth isolated case")?.0;
+    frames.truncate(end);
+    assert_queryparams_reference(queryparams_disabled_entry, &serde_json::to_string(&reference)?, 42).await
 }
 
 #[actix_web::test]

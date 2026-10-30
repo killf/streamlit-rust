@@ -26,17 +26,20 @@ from queryparams_contract import (  # noqa: E402
 PNG_BYTES = b"\x89PNG\r\n\x1a\n" + b"not-a-real-image-but-magic-and-hash-are-checked"
 
 
-def read_query_param_capture(scenario):
+def read_query_param_capture(scenario, capture=None):
     import base64
     from google.protobuf.json_format import MessageToDict
     from streamlit.proto.BackMsg_pb2 import BackMsg
     from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
 
-    capture = json.loads((HERE / f"reference-browser/queryparams/{scenario}/trace.json").read_text(encoding="utf-8-sig"))
+    if capture is None:
+        capture = json.loads((HERE / f"reference-browser/queryparams/{scenario}/trace.json").read_text(encoding="utf-8-sig"))
     assert capture["runtime"] == "python" and capture["reference_version"] == "1.66.1"
     assert capture["successful"] and "producer_error" not in capture
     assert capture["cleanup"] == {"websocket_closed": True, "server_stopped": True}
     snapshots, urls, finishes, requests, histories, errors = [], [], [], [], [], []
+    sessions, error_phases, input_types = [], [], []
+    slot = 0
     for frame in capture["frames"]:
         assert frame["direction"] in ("client->server", "server->client")
         raw = base64.b64decode(frame["base64"], validate=True)
@@ -47,23 +50,73 @@ def read_query_param_capture(scenario):
         if isinstance(message, BackMsg):
             requests.append(message.rerun_script.query_string)
             histories.append(message.rerun_script.is_history_navigation)
+            slot = 0
+            if scenario == "disabled-types-isolated" and len(requests) % 3 == 2:
+                widgets = message.rerun_script.widget_states.widgets
+                input_types.append((widgets[0].id.rsplit("-", 1)[-1], widgets[0].WhichOneof("value")))
+                assert len(widgets) == 2 and widgets[1].id.endswith("-live")
+        elif message.WhichOneof("type") == "new_session":
+            sessions.append(message.new_session.initialize.session_id)
         elif message.WhichOneof("type") == "script_finished":
             finishes.append(message.script_finished)
         elif message.WhichOneof("type") == "page_info_changed":
             urls.append(message.page_info_changed.query_string)
         elif message.WhichOneof("type") == "delta" and message.delta.WhichOneof("type") == "new_element":
             element = message.delta.new_element
+            if scenario.startswith("disabled-types"):
+                assert list(message.metadata.delta_path) == [0, slot]
+                slot += 1
             if element.WhichOneof("type") == "exception":
-                assert scenario == "disabled", "reference must not contain an unexpected exception"
                 errors.append(element.exception)
                 assert element.exception.type == "TypeError"
-                assert element.exception.message == "'str' object cannot be interpreted as an integer"
+                phase = requests[-1].split("phase=")[1].split("&")[0]
+                error_phases.append(phase)
+                if scenario.startswith("disabled-types"):
+                    number = int(phase.rsplit("-", 1)[1])
+                    expected = {0: "'str' object cannot be interpreted as an integer", 1: "'str' object cannot be interpreted as an integer",
+                                2: "must be real number, not str"}.get(number)
+                    if scenario == "disabled-types-isolated":
+                        assert number in (0, 1, 2, 3) and (phase.startswith("malformed-") or number == 3)
+                    if expected is None:
+                        expected = "cannot use 'google._upb._message.RepeatedScalarContainer' as a dict key (unhashable type: 'google._upb._message.RepeatedScalarContainer')"
+                    assert element.exception.message == expected
+                    assert list(message.metadata.delta_path) == [0, 1 if number < 3 else 0]
+                else:
+                    assert scenario == "disabled", "reference must not contain an unexpected exception"
+                    assert element.exception.message == "'str' object cannot be interpreted as an integer"
                 assert not element.exception.message_is_markdown and not element.exception.is_streamlit_exception
-                assert len(element.exception.stack_trace) == 2
+                if scenario.startswith("disabled-types"):
+                    assert element.exception.stack_trace
+                else:
+                    assert len(element.exception.stack_trace) == 2
             if element.WhichOneof("type") == "json":
                 snapshots.append(json.loads(element.json.body))
-    assert len(errors) == (1 if scenario == "disabled" else 0)
-    if scenario == "navigation-rerun":
+    expected_errors = {"disabled": 1, "disabled-types": 13, "disabled-types-isolated": 5}.get(scenario, 0)
+    assert len(errors) == expected_errors
+    if scenario == "disabled-types-isolated":
+        assert len(set(sessions)) == 8 and len(sessions) == 24
+        assert all(len(set(sessions[index:index + 3])) == 1 for index in range(0, 24, 3))
+        assert histories == [False] * 24 and finishes == [0] * 24
+        assert [query.split("phase=")[1].split("&")[0] for query in requests] == [phase for number in range(8) for phase in ("load", f"malformed-{number}", f"recovery-{number}")]
+        assert input_types == [("bound", kind) for kind in ("bool_value", "int_value", "double_value", "string_array_value", "json_value")] + [("plain", "bool_value"), ("text", "bool_value"), ("check", "string_value")]
+        assert error_phases == ["malformed-0", "malformed-1", "malformed-2", "malformed-3", "recovery-3"]
+        assert len(snapshots) == 19
+        for report in snapshots:
+            phase = report["phase"]
+            assert [report[key] for key in ("plain", "bound", "text", "check")] == ["safe", "y", "url", False]
+            if phase == "load":
+                assert report["callbacks"] == [] and report["live"] == "ready"
+            else:
+                number = int(phase.rsplit("-", 1)[1])
+                recovery = phase.startswith("recovery-")
+                assert report["callbacks"] == ["live"] * (2 if recovery else 1)
+                assert report["live"] == f"step-{number * 3 + (2 if recovery else 1)}"
+    elif scenario == "disabled-types":
+        assert len(set(sessions)) == 1 and len(sessions) == 17
+        assert len(snapshots) == 4 and histories == [False] * 17 and finishes == [0] * 17
+        assert error_phases[:4] == ["malformed-0", "malformed-1", "malformed-2", "malformed-3"]
+        assert error_phases[4:] == ["recovery-3", *[phase for number in range(4, 8) for phase in (f"malformed-{number}", f"recovery-{number}")]]
+    elif scenario == "navigation-rerun":
         assert requests == ["probe=load", "probe=switch"] and histories == [False, False]
         assert finishes == [0, 2, 0]
     elif scenario == "rerun-queue":
@@ -470,3 +523,41 @@ def test_source_fingerprints_do_not_gate_functional_evidence(tmp_path):
         observed["source"] = source
         outcome = queryparams_result(observation=observed)
         assert outcome["ok"], outcome["failures"]
+
+
+@pytest.mark.parametrize("scenario", ["disabled-types", "disabled-types-isolated"])
+def test_disabled_type_oracles_keep_recovery_and_persistent_array_errors(scenario):
+    read_query_param_capture(scenario)
+
+
+@pytest.mark.parametrize("mutation", ["exception", "position", "callback"])
+def test_disabled_type_gate_rejects_coherent_wrong_wire(mutation):
+    import base64
+    from google.protobuf.json_format import MessageToDict
+    from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
+
+    capture = json.loads((HERE / "reference-browser/queryparams/disabled-types-isolated/trace.json").read_text(encoding="utf-8-sig"))
+    phase = ""
+    for frame in capture["frames"]:
+        if frame["direction"] == "client->server":
+            phase = frame["message"]["rerun_script"]["query_string"].split("phase=")[1].split("&")[0]
+            continue
+        element = frame["message"].get("delta", {}).get("new_element", {})
+        if (mutation in ("exception", "position") and phase == "malformed-2" and "exception" in element) or (mutation == "callback" and phase == "recovery-1" and "json" in element):
+            message = ForwardMsg()
+            message.ParseFromString(base64.b64decode(frame["base64"]))
+            if mutation == "exception":
+                message.delta.new_element.exception.message = "'str' object cannot be interpreted as an integer"
+            elif mutation == "position":
+                message.metadata.delta_path[-1] = 0
+            else:
+                report = json.loads(message.delta.new_element.json.body)
+                report["callbacks"] = ["live"]
+                message.delta.new_element.json.body = json.dumps(report)
+            raw = message.SerializeToString()
+            frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(message, preserving_proto_field_name=True))
+            break
+    else:
+        pytest.fail("missing disabled type mutation target")
+    with pytest.raises(AssertionError):
+        read_query_param_capture("disabled-types-isolated", capture)

@@ -180,3 +180,27 @@ compatibility claims. The user has been asked whether to expand to the pinned
 upstream lifecycle/toast retain list, make a smaller extension, or keep the
 known differences. That new decision is pending; the previous choice covered
 only Delta discard. All owned reference servers and sockets were closed.
+
+
+## Additional disabled wire types (2026-10-30)
+
+`disabled-types/trace.json` retains the first single-session attempt: 17 runs,
+13 TypeErrors and four snapshots. An array-shaped selectbox value poisons later
+runs; later input types in that session cannot be judged independently.
+`disabled-types-isolated/trace.json` therefore uses eight fresh WS sessions,
+three runs each (load, malformed, recovery on the same WS). It has 24 finishes,
+19 snapshots and five TypeErrors; 24 NewSession messages are run lifecycle,
+not 24 independent sessions. Session IDs bind each three-run group.
+
+Selectbox bool/int fail after Plain with the integer TypeError; double has the
+real-number TypeError. Live callbacks already ran and recovery snapshots retain
+two callbacks. The array fails at path [0,0] and still fails on recovery. JSON
+selectbox input, bool Plain/Text input and string Check input are ignored in
+these measured Python cases. Raw protobuf, real Python stack frames and failed
+attempts are retained; stack lengths differ between early/later errors.
+
+Rust currently replays only the first three numeric cases (nine runs, 42 widget/
+exception/state events). Array persistence, JSON/other controls' Rust differential
+and real browser error UI remain open. The collector owns all reconnect sockets
+with ExitStack; its updated cleanup was rechecked in an ignored target capture.
+No claim of complete malformed-input compatibility is made.

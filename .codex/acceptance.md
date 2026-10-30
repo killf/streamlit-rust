@@ -762,3 +762,14 @@ Python 原 PID 67700 不存在，54437/8502 无监听；两次自有 Rust 服务
 Rustfmt、全目标 Clippy -Dwarnings 通过（已有 MSVC 链接器提示保留）；pywire 单元 6 项、图表集成/几何回归 5 项、原生 bar/data-view 集成 3 项通过，分别记录于 target/bytes-repr-unit.log、bytes-repr-integration.log、bytes-repr-native-bar.log。后两组包含真实 WS，同时保留纯序列化/几何测试的证据层级；不能把全部八项称为独立 WS 测试。Python charts/chartlibs 合同 30 项通过（target/bytes-repr-python.log）。按本次相关范围验证，未重复整个工作区或浏览器流程。
 
 未新增生产文件/依赖/公共接口，未修改 Material/Unicode 数据、JSON/统一身份和更广 rerun 等待决项。矩阵状态未改变，130 partial 和完整目标仍开放；colconfig_params 独立改动保留，提交推送仅到既有工作分支。
+
+
+### Disabled malformed numeric types (2026-10-30)
+
+按用户已选 Python 错误/callback/恢复方案继续：在既有注册错误路径补 int/double，bool/int 用 integer TypeError，double 用 real-number TypeError。Live callback 已发生，异常后保留未渲染控件，下一轮恢复。无新公共接口/依赖/模块；数组的早期错误与会话持续状态尚未实现，不将所有错误输入一律忽略或整批拒绝。
+
+参考首次单会话 disabled-types 原始记录保留 17 轮、13 异常、4 状态；数组污染后续输入，不能据此评判后半段其他类型。disabled-types-isolated 用八个独立 WS 会话各 load→malformed→同会话 recovery，合计 24 轮、19 状态、5 异常；原始请求/回复逐帧解码绑定 summary。明确验证 JSON select/Plain/Text/Check 的所测错误输入在 Python 被忽略、数组当轮及恢复轮仍异常。真实来源栈长度不同，门禁原先沿用旧的固定两帧假设而失败，已纠正为保留实际栈并校验非空，未改参考来转绿。三个 coherent wrong-wire guards 验证 double 错误文字、异常位置、恢复 callback 账本。
+
+Rust 新回归仅重放完整参考前三种标量用例的九轮/42 个控件-异常-状态投影，先真实红（target/disabled-numeric-before.log），生产修正后绿；不声称完整八类或 protobuf 所有字段已对齐。复用单元按 bool/int/double 参数化，14 个 widgets 单元通过；queryparams 相关 14 集成通过，既有队列差异未计入通过。全工作区 258 项通过、仅两项既有更广队列测试排除；全目标 Clippy -Dwarnings 与 Rustfmt 通过。日志为 target/disabled-numeric-unit.log、disabled-numeric-integration.log、disabled-numeric-workspace.log、disabled-numeric-clippy.log。相关 Python/query/矩阵/文档 93 项通过（target/disabled-types-final-gates.log）。
+
+collector 重连通过 ExitStack 持有全部 WS；改动后另在 target/disabled-types-confirmation 实际复采并用完整门禁核验八组语义/清理，未替换冻结数据。自有端口 53202/64563/58706 均无监听，采集进程已 wait 终止，无浏览器 task。数组早期异常/持续失败、JSON/其他控件 Rust 差分和真实 UI 继续开放，四条矩阵限制/证据和清单同步，130 partial 与完整目标保持。colconfig_params 独立改动保留，提交推送只到工作分支。
