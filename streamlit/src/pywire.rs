@@ -118,7 +118,11 @@ fn write_string(out: &mut String, text: &str) {
             '\u{8}' => out.push_str("\\b"),
             '\u{c}' => out.push_str("\\f"),
             character if (character as u32) < 0x20 || (character as u32) > 0x7e => {
-                out.push_str(&format!("\\u{:04x}", character as u32));
+                // JSON 的 ASCII 转义按 UTF-16 码元输出，非 BMP 字符必须使用代理对。
+                let mut units = [0; 2];
+                for unit in character.encode_utf16(&mut units) {
+                    out.push_str(&format!("\\u{unit:04x}"));
+                }
             }
             character => out.push(character),
         }
@@ -163,6 +167,24 @@ mod tests {
         assert_eq!(py_dumps(&serde_json::json!("\u{2705}")), r#""\u2705""#);
         assert_eq!(py_dumps(&serde_json::json!(0.7)), "0.7");
         assert_eq!(py_dumps(&serde_json::json!(-74.0)), "-74.0");
+    }
+
+    #[test]
+    fn non_bmp_json_values_and_keys_use_surrogate_pairs() -> Result<(), serde_json::Error> {
+        let text = "🤖👩‍💻🛠️\u{10000}\u{10ffff}";
+        let expected = r#""\ud83e\udd16\ud83d\udc69\u200d\ud83d\udcbb\ud83d\udee0\ufe0f\ud800\udc00\udbff\udfff""#;
+        let encoded = py_dumps(&Value::String(text.into()));
+        assert_eq!(encoded, expected, "Python json.dumps ensure_ascii reference");
+        assert_eq!(serde_json::from_str::<String>(&encoded)?, text);
+
+        let value = serde_json::json!({"🤖": [text]});
+        let compact = py_dumps_compact(&value);
+        assert_eq!(compact, format!(r#"{{"\ud83e\udd16":[{expected}]}}"#));
+        assert_eq!(serde_json::from_str::<Value>(&compact)?, value);
+        let pairs = py_dumps_pairs(&[("🤖", Value::String(text.into()))]);
+        assert_eq!(pairs, format!(r#"{{"\ud83e\udd16": {expected}}}"#));
+        assert_eq!(serde_json::from_str::<Value>(&pairs)?, serde_json::json!({"🤖": text}));
+        Ok(())
     }
 
     #[test]

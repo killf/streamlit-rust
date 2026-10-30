@@ -11,6 +11,112 @@ use crate::StreamlitApi;
 use crate::proto::element;
 use crate::proto::forward_msg;
 
+const LOGO_STRING_REFERENCE: &str = include_str!("../../../tests/reference/reference-browser/code-logo-params/logo-strings/trace.json");
+
+fn logo_strings_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        let result: TestResult = (|| {
+            let reference: serde_json::Value = serde_json::from_str(LOGO_STRING_REFERENCE)?;
+            let body = reference["elements"][0]["fields"]["body"].as_str().ok_or("missing logo input report")?;
+            let inputs: serde_json::Value = serde_json::from_str(body)?;
+            st.json(inputs.clone());
+            for (index, case) in inputs["logo_cases"].as_array().ok_or("missing logo cases")?.iter().enumerate() {
+                let image = case["image"].as_str().ok_or("missing logo image")?;
+                let mut options = if index % 2 == 0 { crate::LogoOptions::new(image) } else { crate::LogoOptions::new(image.to_owned()) };
+                options = options.icon_image(case["icon_image"].as_str().ok_or("missing logo icon")?.to_owned());
+                options = match case["size"].as_str() {
+                    Some("small") => options.small(),
+                    Some("large") => options.large(),
+                    Some("medium") => options,
+                    _ => return Err("unknown logo size".into()),
+                };
+                if let Some(link) = case["link"].as_str() {
+                    options = options.link(link);
+                }
+                st.logo(options);
+            }
+            Ok(())
+        })();
+        assert!(result.is_ok(), "logo fixture failed: {result:?}");
+    })
+}
+
+#[actix_web::test]
+async fn logo_unicode_strings_and_icon_images_match_frozen_reference() -> TestResult {
+    // 1. 固定报告只提供输入，真实 WS 保留每个 Logo 的载荷与元数据形态。
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
+    let server = HttpServer::new(move || App::new().app_data(web::Data::new(StreamlitServer::new(logo_strings_entry, "127.0.0.1".into(), 0))).configure(configure_routes))
+        .workers(1)
+        .listen(listener)?
+        .run();
+    let handle = server.handle();
+    let task = actix_web::rt::spawn(server);
+    let mut stream = sessions::connect(address, None).await;
+    send_binary(
+        &mut stream,
+        &BackMsg {
+            r#type: Some(back_msg::Type::RerunScript(ClientState {
+                query_string: "case=logo-strings".into(),
+                ..Default::default()
+            })),
+        }
+        .encode_to_vec(),
+    )
+    .await;
+    let mut observed = Vec::new();
+    let mut metadata = Vec::new();
+    let mut reports = Vec::new();
+    let mut unexpected = 0;
+    let finish = loop {
+        let message = receive(&mut stream).await;
+        match message.r#type {
+            Some(forward_msg::Type::Logo(logo)) => {
+                observed.push(logo);
+                metadata.push(message.metadata.map(|metadata| (!metadata.active_script_hash.is_empty(), metadata.delta_path)).unwrap_or_default());
+            }
+            Some(forward_msg::Type::Delta(delta)) => {
+                if let Some(delta::Type::NewElement(element)) = delta.r#type
+                    && let Some(element::Type::Json(json)) = element.r#type
+                {
+                    reports.push(json.body);
+                } else {
+                    unexpected += 1;
+                }
+            }
+            Some(forward_msg::Type::ScriptFinished(status)) => break status,
+            _ => {}
+        }
+    };
+    drop(stream);
+    handle.stop(false).await;
+    task.await??;
+
+    // 2. 完整 Logo 期望取自原始帧，IMAGE 缺省与空 link 按 protobuf 语义解释。
+    let reference: serde_json::Value = serde_json::from_str(LOGO_STRING_REFERENCE)?;
+    let mut expected = Vec::new();
+    for frame in reference["frames"].as_array().ok_or("missing logo frames")? {
+        let Some(logo) = frame["message"].get("logo") else { continue };
+        let kind = |field: &str| -> TestResult<i32> { Ok(crate::proto::logo::ImageType::from_str_name(logo[field].as_str().unwrap_or("IMAGE")).ok_or("unknown reference logo kind")? as i32) };
+        expected.push(crate::proto::Logo {
+            image: logo["image"].as_str().unwrap_or("").into(),
+            link: logo["link"].as_str().unwrap_or("").into(),
+            icon_image: logo["icon_image"].as_str().unwrap_or("").into(),
+            size: logo["size"].as_str().unwrap_or("").into(),
+            image_type: kind("image_type")?,
+            icon_image_type: kind("icon_image_type")?,
+        });
+    }
+    assert_eq!(finish, 0);
+    assert_eq!(unexpected, 0);
+    assert_eq!(reports, [reference["elements"][0]["fields"]["body"].as_str().ok_or("missing reference report")?]);
+    assert_eq!(expected.len(), 18);
+    assert!(metadata.iter().all(|(hash_present, path)| *hash_present && path.is_empty()));
+    let mismatches = observed.iter().zip(&expected).filter(|(actual, expected)| actual != expected).count();
+    assert_eq!(observed, expected, "{mismatches}/18 Logo payloads differ");
+    Ok(())
+}
+
 fn display2_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
     Box::pin(async move {
         // Mirrors tests/reference/display2_app.py.

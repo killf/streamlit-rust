@@ -8,6 +8,49 @@ use super::*;
 use crate::InputWidgets;
 use crate::{DeltaColor, MetricOptions, RgbaImage};
 
+fn metric_string_delta_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        for (mode, color) in [("normal", DeltaColor::Normal), ("inverse", DeltaColor::Inverse), ("off", DeltaColor::Off)] {
+            for (index, delta) in ["", "0", "0.0", "0%", "-0", "up", "-down", "NaN", " 0", "  -down", "\n  up\n  next\n", " \t\n"].into_iter().enumerate() {
+                st.metric(MetricOptions::new(format!("{mode}:{index}"), "1").delta(delta).delta_color(color));
+            }
+        }
+    })
+}
+
+#[actix_web::test]
+async fn metric_string_deltas_match_frozen_reference() -> TestResult {
+    let (_, handle, task, mut stream) = start_media_server(metric_string_delta_entry).await?;
+    let mut session_id = String::new();
+    let result = run_once(&mut stream, &mut session_id).await;
+    drop(stream);
+    handle.stop(false).await;
+    task.await??;
+    let wires = result?;
+
+    let reference: serde_json::Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/chat-metric-params/string-delta/trace.json"))?;
+    let expected: Vec<_> = reference["elements"]
+        .as_array()
+        .ok_or("missing reference elements")?
+        .iter()
+        .filter(|element| element["kind"] == "metric" && element["fields"]["label"].as_str().is_some_and(|label| label.contains(':')))
+        .map(|element| &element["fields"])
+        .collect();
+    assert_eq!(wires.elements.len(), 36);
+    assert_eq!(expected.len(), wires.elements.len());
+    for (element, expected) in wires.elements.iter().zip(expected) {
+        let Some(element::Type::Metric(actual)) = element.r#type.as_ref() else {
+            return Err("expected metric element".into());
+        };
+        assert_eq!(actual.label, expected["label"].as_str().ok_or("missing reference label")?);
+        assert_eq!(actual.body, expected["body"].as_str().ok_or("missing reference body")?);
+        assert_eq!(actual.delta, expected["delta"].as_str().unwrap_or(""), "{}", actual.label);
+        assert_eq!(crate::proto::metric::MetricDirection::try_from(actual.direction)?.as_str_name(), expected["direction"].as_str().unwrap_or("DOWN"), "{}", actual.label);
+        assert_eq!(crate::proto::metric::MetricColor::try_from(actual.color)?.as_str_name(), expected["color"].as_str().unwrap_or("RED"), "{}", actual.label);
+    }
+    Ok(())
+}
+
 /// The WAV fixture tests/reference/media_app.py synthesizes: half a second
 /// of 440 Hz mono PCM16 at 22050 Hz with the Python wave module's RIFF layout.
 fn wav_bytes() -> Vec<u8> {

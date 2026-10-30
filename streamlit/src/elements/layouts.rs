@@ -339,8 +339,8 @@ pub(crate) struct ExpanderElement {
 }
 
 /// The st.chat_message container: a chat_message block (name, avatar,
-/// ICON avatar type, allowEmpty, stretch width) with children at
-/// [slot, k] (the measured 1.66.1 shape; the avatar defaults to the name).
+/// typed avatar, allowEmpty, stretch width) with children at
+/// [slot, k] (the measured 1.66.1 shape).
 pub(crate) struct ChatMessageElement {
     name: String,
     avatar: String,
@@ -349,7 +349,8 @@ pub(crate) struct ChatMessageElement {
 }
 
 /// Options for `st.chat_message`: the speaker name and an optional avatar
-/// (a material shortcode or emoji; defaults to the name).
+/// (a preset, material shortcode, emoji or image URI). Without an explicit
+/// avatar, preset/emoji names choose that avatar; other names use a letter icon.
 pub struct ChatMessageOptions {
     pub(crate) name: String,
     pub(crate) avatar: Option<String>,
@@ -380,15 +381,32 @@ impl From<String> for ChatMessageOptions {
 
 impl ChatMessageElement {
     pub fn new(options: ChatMessageOptions) -> Self {
-        // Measured typing (chat.py + frozen chat-metric-params): the name
-        // default and material shortcodes are ICON; a bare emoji string is
-        // EMOJI. Image/URL avatars stay unimplemented.
-        let avatar_type = match &options.avatar {
-            None => crate::proto::block::chat_message::AvatarType::Icon,
-            Some(avatar) if avatar.starts_with(":material/") => crate::proto::block::chat_message::AvatarType::Icon,
-            Some(_) => crate::proto::block::chat_message::AvatarType::Emoji,
+        // 1. 默认头像只继承预设或 emoji 名字，普通名字由前端生成字母图标。
+        let avatar = options.avatar.or_else(|| {
+            let name = options.name.to_lowercase();
+            (matches!(name.as_str(), "user" | "human" | "assistant" | "ai") || emojis::get(&name).is_some()).then_some(name)
+        });
+
+        // 2. 映射预设别名，URI 原样传递给前端，不在服务端请求图片。
+        let image_uri = avatar.as_deref().is_some_and(|value| {
+            value.starts_with("/app/static/")
+                || value.split_once(':').is_some_and(|(scheme, rest)| {
+                    if scheme.eq_ignore_ascii_case("data") {
+                        return !rest.is_empty();
+                    }
+                    (scheme.eq_ignore_ascii_case("http") || scheme.eq_ignore_ascii_case("https")) && rest.strip_prefix("//").is_some_and(|authority| !authority.split(['/', '?', '#']).next().unwrap_or("").is_empty())
+                })
+        });
+        use crate::proto::block::chat_message::AvatarType;
+        let (avatar, avatar_type) = match avatar.as_deref() {
+            None => (String::new(), AvatarType::Icon),
+            Some("user" | "human") => ("user".into(), AvatarType::Icon),
+            Some("assistant" | "ai") => ("assistant".into(), AvatarType::Icon),
+            Some(value) if value.starts_with(":material/") => (value.into(), AvatarType::Icon),
+            Some(value) if image_uri => (value.into(), AvatarType::Image),
+            // Local image loading and invalid-string exceptions remain separate gaps.
+            Some(value) => (value.into(), AvatarType::Emoji),
         };
-        let avatar = options.avatar.unwrap_or_else(|| options.name.clone());
         Self {
             name: options.name,
             avatar,
@@ -1278,5 +1296,38 @@ impl AppendChild for Sidebar<'_> {
 
     fn next_child_path(&self) -> Vec<u32> {
         vec![1, self.children.get()]
+    }
+}
+
+#[cfg(test)]
+mod chat_message_tests {
+    use super::*;
+    use crate::proto::block::chat_message::AvatarType;
+
+    #[test]
+    fn chat_avatar_defaults_presets_and_image_uris_keep_name_and_value() {
+        let cases = [
+            ("AI", None, "assistant", AvatarType::Icon),
+            ("HuMaN", None, "user", AvatarType::Icon),
+            ("Helper", None, "", AvatarType::Icon),
+            ("文字", None, "", AvatarType::Icon),
+            ("👩‍💻", None, "👩‍💻", AvatarType::Emoji),
+            ("🛠", None, "🛠", AvatarType::Emoji),
+            ("Helper", Some("human"), "user", AvatarType::Icon),
+            ("Helper", Some("ai"), "assistant", AvatarType::Icon),
+            ("Helper", Some("HTTPS://example.invalid/avatar.png"), "HTTPS://example.invalid/avatar.png", AvatarType::Image),
+            ("Helper", Some("data:image/svg+xml;base64,PHN2Zy8+"), "data:image/svg+xml;base64,PHN2Zy8+", AvatarType::Image),
+            ("Helper", Some("/app/static/avatar.png"), "/app/static/avatar.png", AvatarType::Image),
+        ];
+        for (name, avatar, expected_avatar, expected_type) in cases {
+            let mut options = ChatMessageOptions::new(name);
+            if let Some(avatar) = avatar {
+                options = options.avatar(avatar);
+            }
+            let message = ChatMessageElement::new(options);
+            assert_eq!(message.name, name);
+            assert_eq!(message.avatar, expected_avatar);
+            assert_eq!(message.avatar_type, expected_type);
+        }
     }
 }

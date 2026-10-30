@@ -1,8 +1,7 @@
-"""One owned protocol capture of audio/video parameter variants (python/rust).
+"""Capture code/skeleton/logo parameters over one owned native WS.
 
-A native WebSocket against the pinned 1.66.1 server (or a caller-owned Rust
-server): the six element emissions are recorded frame by frame and the
-audio/video element fields summarized per case; never overwrites a trace.
+Retains raw ForwardMsg (including Logo) and element summaries without overwriting.
+No browser rendering claim.
 """
 import argparse
 import base64
@@ -24,6 +23,7 @@ from websockets.sync.client import connect
 ROOT = Path(__file__).resolve().parents[2]
 parser = argparse.ArgumentParser(description='Collect the code/skeleton/logo reference once; never overwrite.')
 parser.add_argument('--out', type=Path, required=True)
+parser.add_argument('--scenario', choices=('parameters', 'logo-strings'), default='parameters')
 parser.add_argument('--url', help='caller-owned Rust server URL (comparison capture)')
 args = parser.parse_args()
 OUT = args.out.resolve()
@@ -44,6 +44,7 @@ else:
                '--server.fileWatcherType=none', '--browser.gatherUsageStats=false']
 TRACE = {'schema_version': 1, 'runtime': 'rust' if args.url else 'python', 'reference_version': '1.66.1',
          'captured_at_utc': datetime.now(timezone.utc).isoformat(),
+         'scenario': args.scenario,
          'scope': 'Element wire of code/skeleton/logo parameter edges over one native WS; no browser/UI claim.',
          'server_command': COMMAND, 'server_cleanup': 'caller-owned' if COMMAND is None else 'collector-owned',
          'url': URL, 'frames': [], 'elements': [], 'finishes': []}
@@ -78,6 +79,8 @@ try:
                  open_timeout=10, close_timeout=5, max_size=None, legacy=True)
     request = BackMsg()
     request.rerun_script.SetInParent()
+    if args.scenario == "logo-strings":
+        request.rerun_script.query_string = "case=logo-strings"
     raw = request.SerializeToString()
     record('client->server', raw, request)
     WS.send(raw)

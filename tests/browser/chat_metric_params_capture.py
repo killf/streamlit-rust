@@ -24,6 +24,7 @@ from websockets.sync.client import connect
 ROOT = Path(__file__).resolve().parents[2]
 parser = argparse.ArgumentParser(description='Collect the chat/metric/progress reference once; never overwrite.')
 parser.add_argument('--out', type=Path, required=True)
+parser.add_argument('--scenario', choices=('parameters', 'avatars'), default='parameters')
 parser.add_argument('--url', help='caller-owned Rust server URL (comparison capture)')
 args = parser.parse_args()
 OUT = args.out.resolve()
@@ -44,6 +45,7 @@ else:
                '--server.fileWatcherType=none', '--browser.gatherUsageStats=false']
 TRACE = {'schema_version': 1, 'runtime': 'rust' if args.url else 'python', 'reference_version': '1.66.1',
          'captured_at_utc': datetime.now(timezone.utc).isoformat(),
+         'scenario': args.scenario,
          'scope': 'Element wire of chat/metric/progress parameter edges over one native WS; no browser/UI claim.',
          'server_command': COMMAND, 'server_cleanup': 'caller-owned' if COMMAND is None else 'collector-owned',
          'url': URL, 'frames': [], 'elements': [], 'finishes': []}
@@ -78,6 +80,8 @@ try:
                  open_timeout=10, close_timeout=5, max_size=None, legacy=True)
     request = BackMsg()
     request.rerun_script.SetInParent()
+    if args.scenario == "avatars":
+        request.rerun_script.query_string = "case=avatars"
     raw = request.SerializeToString()
     record('client->server', raw, request)
     WS.send(raw)

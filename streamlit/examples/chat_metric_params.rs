@@ -12,6 +12,13 @@ fn render(st: &Streamlit) -> Result<(), Box<dyn std::error::Error>> {
     st.metric(MetricOptions::new("Zero delta", "5").delta("0"));
     st.metric(MetricOptions::new("Gray", "7").delta("3").delta_color(DeltaColor::Off));
     st.metric(MetricOptions::new("Negative", "9").delta("-2"));
+
+    for (mode, color) in [("normal", DeltaColor::Normal), ("inverse", DeltaColor::Inverse), ("off", DeltaColor::Off)] {
+        for (index, delta) in ["", "0", "0.0", "0%", "-0", "up", "-down", "NaN", " 0", "  -down", "\n  up\n  next\n", " \t\n"].into_iter().enumerate() {
+            st.metric(MetricOptions::new(format!("{mode}:{index}"), "1").delta(delta).delta_color(color));
+        }
+    }
+
     st.progress_options(ProgressOptions::new(50).text("Halfway there"))?;
     Ok(())
 }

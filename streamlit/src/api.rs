@@ -1086,6 +1086,8 @@ pub use crate::elements::media::DeltaColor;
 
 /// Metric options. The plain `(label, value)` call renders without a delta;
 /// `.delta("2 °F")` derives the measured direction and color from the sign.
+/// String deltas are dedented, then only the literal `"0"` is neutral:
+/// `"0.0"` points up and `"-0"` points down, matching the pinned reference.
 pub struct MetricOptions {
     label: String,
     value: String,
@@ -1451,18 +1453,19 @@ pub trait StreamlitApi {
     /// that slot.
     fn empty(&self) -> &EmptyHandle<'_>;
 
-    /// A JSON viewer, like `st.json(body)`: the body is the Python
-    /// `json.dumps` rendering of the value, collapsed by default.
+    /// A JSON viewer, like `st.json(body)`, fully expanded by default.
+    /// String bodies are already-serialized JSON and pass through unchanged;
+    /// other values use the reference's `json.dumps` representation.
     fn json<T: serde::Serialize>(&self, body: T);
 
-    /// The expanded form, like `st.json(body, expanded=True)`.
+    /// Select initial expansion, like `st.json(body, expanded=True/False)`.
     fn json_expanded<T: serde::Serialize>(&self, body: T, expanded: bool);
 
     /// A square spacer, like `st.space(pixels)`.
     fn space(&self, size: u32);
 
     /// A chat message container, like `with st.chat_message("user")`: the
-    /// avatar defaults to the name.
+    /// avatar follows preset/emoji names; other names use a letter icon.
     fn chat_message<T: Into<ChatMessageOptions>>(&self, options: T) -> &ChatMessage<'_> {
         self.chat_message_options(options.into())
     }
@@ -1640,7 +1643,7 @@ impl From<&str> for LogoImage {
     fn from(value: &str) -> Self {
         if value.starts_with(":material/") && value.ends_with(':') {
             Self::Icon(value.to_string())
-        } else if !value.is_ascii() && value.chars().count() <= 2 {
+        } else if emojis::get(value).is_some() {
             Self::Emoji(value.to_string())
         } else {
             Self::Url(value.to_string())
@@ -2238,14 +2241,16 @@ impl<C: AppendChild> StreamlitApi for C {
     }
 
     fn json<T: serde::Serialize>(&self, body: T) {
-        if let Ok(value) = serde_json::to_value(&body) {
-            self.push(Rc::new(RefCell::new(JsonElement::new(crate::pywire::py_dumps(&value), false))));
-        }
+        self.json_expanded(body, true);
     }
 
     fn json_expanded<T: serde::Serialize>(&self, body: T, expanded: bool) {
         if let Ok(value) = serde_json::to_value(&body) {
-            self.push(Rc::new(RefCell::new(JsonElement::new(crate::pywire::py_dumps(&value), expanded))));
+            let body = match value {
+                serde_json::Value::String(text) => text,
+                value => crate::pywire::py_dumps(&value),
+            };
+            self.push(Rc::new(RefCell::new(JsonElement::new(body, expanded))));
         }
     }
 
@@ -2503,6 +2508,54 @@ impl<C: AppendChild> StreamlitApi for C {
 #[cfg(test)]
 mod quality_tests {
     use super::*;
+
+    #[test]
+    fn logo_string_conversions_recognize_complete_emoji_sequences() {
+        for value in ["🧊", "🛠️", "🛠", "👩‍💻", "👨‍👩‍👧‍👦", "🏳️‍🌈", "🇨🇳", "1️⃣", "👍🏽", "👩🏽‍💻"] {
+            assert_eq!(LogoImage::from(value), LogoImage::Emoji(value.into()));
+            assert_eq!(LogoImage::from(value.to_owned()), LogoImage::Emoji(value.into()));
+        }
+        assert_eq!(LogoImage::from(":material/home:"), LogoImage::Icon(":material/home:".into()));
+        for value in ["https://example.invalid/logo.png", "data:image/png;base64,AA==", "/app/static/logo.png"] {
+            assert_eq!(LogoImage::from(value), LogoImage::Url(value.into()));
+            assert_eq!(LogoImage::from(value.to_owned()), LogoImage::Url(value.into()));
+        }
+    }
+
+    #[test]
+    fn json_public_calls_preserve_string_bodies_and_serialize_nested_strings() -> anyhow::Result<()> {
+        // 1. 通过公共 API 写入三类顶层字符串和嵌套字符串对照。
+        let st = Streamlit::new();
+        let (sender, mut receiver) = tokio::sync::mpsc::unbounded_channel();
+        let mut context = crate::elements::common::RenderContext::with_sender("json-unit".into(), sender);
+        context.delta_path = vec![0, 0];
+        st.app.lock().set_render_context(context);
+        let text = "\n{\"emoji\": \"🤖\"}\t";
+
+        st.json(text);
+        st.json_expanded(text.to_owned(), false);
+        st.json(serde_json::Value::String(text.into()));
+        let nested = serde_json::json!({"nested": text});
+        st.json(&nested);
+
+        // 2. 从实际消息通道读取载荷，检查原文、展开标志和嵌套转义。
+        let mut observed = Vec::new();
+        while let Ok(message) = receiver.try_recv() {
+            let Some(crate::proto::forward_msg::Type::Delta(delta)) = message.r#type else { anyhow::bail!("expected JSON delta") };
+            let Some(crate::proto::delta::Type::NewElement(element)) = delta.r#type else { anyhow::bail!("expected JSON element") };
+            let Some(crate::proto::element::Type::Json(json)) = element.r#type else { anyhow::bail!("expected JSON payload") };
+            observed.push(json);
+        }
+        assert_eq!(observed.len(), 4);
+        for (json, expanded) in observed[..3].iter().zip([true, false, true]) {
+            assert_eq!(json.body, text);
+            assert_eq!(json.expanded, expanded);
+            assert_eq!(json.max_expand_depth, None);
+        }
+        assert_eq!(serde_json::from_str::<serde_json::Value>(&observed[3].body)?, nested);
+        assert!(observed[3].expanded);
+        Ok(())
+    }
 
     #[tokio::test]
     async fn joined_futures_share_one_task_local_streamlit_state() -> anyhow::Result<()> {

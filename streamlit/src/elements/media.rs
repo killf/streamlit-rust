@@ -359,6 +359,25 @@ pub(crate) struct MetricElement {
     delta_color: DeltaColor,
 }
 
+/// Python textwrap.dedent preserves trailing/newline text and treats tabs
+/// and spaces as distinct indentation; whitespace-only lines become empty.
+fn metric_delta_text(delta: &str) -> String {
+    let lines: Vec<&str> = delta.split('\n').map(|line| if line.bytes().all(|byte| matches!(byte, b' ' | b'\t')) { "" } else { line }).collect();
+    let mut margin: Option<&str> = None;
+    for line in lines.iter().filter(|line| !line.is_empty()) {
+        let indent = &line[..line.len() - line.trim_start_matches([' ', '\t']).len()];
+        margin = Some(match margin {
+            None => indent,
+            Some(previous) => {
+                let common = previous.bytes().zip(indent.bytes()).take_while(|(left, right)| left == right).count();
+                &previous[..common]
+            }
+        });
+    }
+    let margin = margin.unwrap_or("");
+    lines.iter().map(|line| line.strip_prefix(margin).unwrap_or(line)).collect::<Vec<_>>().join("\n")
+}
+
 impl MetricElement {
     pub fn new(label: String, body: String, delta: Option<String>, delta_color: DeltaColor) -> Self {
         Self { label, body, delta, delta_color }
@@ -367,32 +386,26 @@ impl MetricElement {
 
 impl Element for MetricElement {
     fn render(&self, context: &mut RenderContext) -> Result<(), StreamlitError> {
-        // The frozen chat-metric-params reference pins the full rule set: no
-        // delta and a zero delta are NONE + GRAY; otherwise the direction
-        // follows the first number word's sign ("2 °F" UP, "-3 mph" DOWN)
-        // and only a real delta takes the delta_color mapping.
-        let number = self
-            .delta
-            .as_deref()
-            .filter(|delta| !delta.is_empty())
-            .and_then(|delta| delta.split_whitespace().next())
-            .and_then(|token| token.replace(',', "").parse::<f64>().ok());
-        let (direction, color) = match number {
-            None => (metric::MetricDirection::None, metric::MetricColor::Gray),
-            Some(0.0) => (metric::MetricDirection::None, metric::MetricColor::Gray),
-            Some(value) => {
-                let positive = value > 0.0;
+        // 1. 字符串先去公共缩进；只有原始空值或字面 "0" 是中性。
+        let delta = self.delta.as_deref().map(metric_delta_text).unwrap_or_default();
+        let (direction, color) = match self.delta.as_deref() {
+            None | Some("") => (metric::MetricDirection::None, metric::MetricColor::Gray),
+            Some(_) if delta == "0" => (metric::MetricDirection::None, metric::MetricColor::Gray),
+            Some(_) => {
+                let positive = !delta.starts_with('-');
                 (if positive { metric::MetricDirection::Up } else { metric::MetricDirection::Down }, self.delta_color.wire(positive))
             }
         };
-        let element_hash = hash(format!("metric_{}_{}_{}_{:?}_{:?}", self.label, self.body, self.delta.as_deref().unwrap_or(""), self.delta_color, direction).as_str());
+
+        // 2. 显示文本与方向使用同一去缩进结果，保留普通文本和单位。
+        let element_hash = hash(format!("metric_{}_{}_{}_{:?}_{:?}", self.label, self.body, delta, self.delta_color, direction).as_str());
         push_element(
             context,
             element_hash,
             element::Type::Metric(crate::proto::Metric {
                 label: self.label.clone(),
                 body: self.body.clone(),
-                delta: self.delta.clone().unwrap_or_default(),
+                delta,
                 direction: direction as i32,
                 color: color as i32,
                 label_visibility: Some(crate::proto::LabelVisibility::default()),
@@ -493,4 +506,20 @@ fn srt_to_vtt(text: &str) -> Option<Vec<u8>> {
         }
     }
     Some(out.into_bytes())
+}
+
+#[cfg(test)]
+mod metric_tests {
+    use super::metric_delta_text;
+
+    #[test]
+    fn delta_text_matches_frozen_whitespace_cases() -> Result<(), Box<dyn std::error::Error>> {
+        let reference: serde_json::Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/chat-metric-params/string-delta/trace.json"))?;
+        let elements = reference["elements"].as_array().ok_or("missing reference elements")?;
+        for (label, input) in [("normal:8", " 0"), ("normal:9", "  -down"), ("normal:10", "\n  up\n  next\n"), ("normal:11", " \t\n")] {
+            let expected = elements.iter().find(|element| element["fields"]["label"] == label).ok_or("missing reference case")?;
+            assert_eq!(metric_delta_text(input), expected["fields"]["delta"].as_str().ok_or("missing reference delta")?, "{label}");
+        }
+        Ok(())
+    }
 }
