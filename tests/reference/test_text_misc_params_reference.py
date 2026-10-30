@@ -55,6 +55,108 @@ def comparable(capture):
     return [(element["kind"], {key: value for key, value in element["fields"].items() if key != "id"}) for element in capture["elements"]]
 
 
+def full_elements(capture):
+    result = []
+    for message in frames(capture):
+        if not isinstance(message, ForwardMsg) or message.WhichOneof("type") != "delta":
+            continue
+        element = MessageToDict(message.delta.new_element, preserving_proto_field_name=True)
+        for kind in ("button", "checkbox"):
+            if kind in element:
+                element[kind].pop("id", None)
+        result.append((list(message.metadata.delta_path), element))
+    return result
+
+
+def assert_layout_rules(capture):
+    assert_capture(capture)
+    payloads = full_elements(capture)
+    report = payloads[0][1]
+    assert set(report) == {"json", "width_config"}
+    assert report["width_config"] == {"use_stretch": True}
+    assert report["json"]["expanded"] is True
+    cases = json.loads(report["json"]["body"])["layout_cases"]
+    assert len(payloads) == len(cases) + 1
+    for index, (case, (path, actual)) in enumerate(zip(cases, payloads[1:]), 1):
+        kind, kwargs = case["kind"], case["kwargs"]
+        body = case["body"]
+        markdown = {"body": body, "element_type": "CAPTION" if kind == "caption" else "NATIVE"}
+        expected = {"markdown": markdown}
+        if kind == "badge":
+            markdown["body"] = ":blue-badge[" + (kwargs["icon"] + " " if "icon" in kwargs else "") + body + "]"
+        else:
+            markdown["wrap"] = True
+            expected["text_alignment_config"] = {"alignment": kwargs.get("text_alignment", "left").upper()}
+        if "help" in kwargs:
+            markdown["help"] = kwargs["help"]
+        width = kwargs.get("width", {"markdown": "auto", "caption": "stretch", "badge": "content"}[kind])
+        if width != "auto":
+            expected["width_config"] = {"pixel_width": width} if isinstance(width, int) else {"use_" + width: True}
+        assert path == [0, index]
+        assert actual == expected, case
+    return cases
+
+
+def test_text_layout_reference_and_complete_supported_width_payloads():
+    full = read(PYTHON / "layouts/trace.json")
+    subset = read(PYTHON / "layout-widths/trace.json")
+    for capture in (full, subset):
+        assert capture["runtime"] == "python" and capture["reference_version"] == "1.66.1"
+        assert capture["successful"] and "producer_error" not in capture
+        assert capture["cleanup"] == {"websocket_closed": True, "server_stopped": True}
+    cases = assert_layout_rules(full)
+    assert len(cases) == 17
+    supported = assert_layout_rules(subset)
+    assert len(supported) == 13
+    assert supported == [case for case in cases if "text_alignment" not in case["kwargs"]]
+    fixed = read(RUST / "layout-widths/trace.json")
+    before = read(RUST / "layout-widths-before/trace.json")
+    for capture in (before, fixed):
+        assert_capture(capture)
+        assert capture["runtime"] == "rust" and capture["scenario"] == "layout-widths"
+        assert capture["successful"] and "producer_error" not in capture
+        assert capture["server_cleanup"] == "caller-owned"
+    assert_layout_rules(fixed)
+    assert full_elements(fixed) == full_elements(subset)
+    assert [i for i, (a, b) in enumerate(zip(full_elements(subset), full_elements(before))) if a != b] == [1, 2, 6, 10, 11, 12, 13]
+
+
+def test_identity_layout_correction_does_not_claim_identity_repair():
+    reference = read(PYTHON / "identity/trace.json")
+    fixed = read(RUST / "identity-layouts/trace.json")
+    for capture in (reference, fixed):
+        assert_capture(capture, expected_finishes=(0, 0, 0))
+    assert len(full_elements(fixed)) == 24
+    assert full_elements(fixed) == full_elements(reference)
+    deltas = [message for message in frames(fixed) if isinstance(message, ForwardMsg) and message.WhichOneof("type") == "delta"]
+    for slot in (2, 3, 4, 6):
+        outputs = [message for message in deltas if list(message.metadata.delta_path) == [0, slot]]
+        assert len(outputs) == 3 and len({message.hash for message in outputs}) == 1
+        assert outputs[0].delta.new_element != outputs[1].delta.new_element
+
+
+@pytest.mark.parametrize("field", ["default-width", "explicit-width", "badge-alignment", "caption-width"])
+def test_layout_gate_rejects_coherent_wrong_wire(field):
+    capture = read(PYTHON / "layout-widths/trace.json")
+    target = {"default-width": 1, "explicit-width": 3, "badge-alignment": 10, "caption-width": 7}[field]
+    frame = next(frame for frame in capture["frames"] if frame["message"].get("metadata", {}).get("delta_path") == [0, target])
+    message = ForwardMsg()
+    message.ParseFromString(base64.b64decode(frame["base64"]))
+    element = message.delta.new_element
+    if field == "default-width":
+        element.width_config.use_stretch = True
+    elif field in ("explicit-width", "caption-width"):
+        element.ClearField("width_config")
+    else:
+        element.text_alignment_config.alignment = 1
+    data = message.SerializeToString()
+    frame.update(base64=base64.b64encode(data).decode(), bytes=len(data), message=MessageToDict(message, preserving_proto_field_name=True))
+    # Outer layout fields do not appear in the collector's inner summary.
+    assert_capture(capture)
+    with pytest.raises(AssertionError):
+        assert_layout_rules(capture)
+
+
 def test_python_reference_rules():
     raw = read(PYTHON / "trace.json")
     assert_capture(raw)

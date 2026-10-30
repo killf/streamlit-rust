@@ -24,7 +24,7 @@ from websockets.sync.client import connect
 ROOT = Path(__file__).resolve().parents[2]
 parser = argparse.ArgumentParser(description='Collect the text/misc-parameter reference once; never overwrite.')
 parser.add_argument('--out', type=Path, required=True)
-parser.add_argument('--scenario', choices=('parameters', 'identity'), default='parameters')
+parser.add_argument('--scenario', choices=('parameters', 'identity', 'layouts', 'layout-widths'), default='parameters')
 parser.add_argument('--url', help='caller-owned Rust server URL (comparison capture)')
 args = parser.parse_args()
 OUT = args.out.resolve()
@@ -79,8 +79,10 @@ try:
                  open_timeout=10, close_timeout=5, max_size=None, legacy=True)
     request = BackMsg()
     request.rerun_script.SetInParent()
-    if args.scenario == "identity":
-        request.rerun_script.query_string = "case=identity"
+    if args.scenario == "layout-widths":
+        request.rerun_script.query_string = "case=layouts&only_widths=true"
+    elif args.scenario != "parameters":
+        request.rerun_script.query_string = f"case={args.scenario}"
     raw = request.SerializeToString()
     record('client->server', raw, request)
     WS.send(raw)

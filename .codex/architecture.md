@@ -419,3 +419,16 @@ AddBlock 的 chat/expander 等虽也有手工 hash，不因静态字段遗漏就
 验证顺序与停止位置：先全目标 Clippy/格式；单位覆盖完整 Element 的已测字段变化、相同字节/恢复输入、仅 metadata/路径变化、非 NewElement 不变、sender/recording/stream 一致与 one-shot；再真实同连接 WS、cache replay、组件/数据/控件集成，重跑代码高度/字段边界及当前五元素参考。实际 Chrome 必须把标题属性、caption 样式和按钮 disabled 修到 Python 行为，并补本批未做的 help 交互；旧失败材料继续保留，不能靠改冻结参考通过。最后相关 Python/矩阵/文档门、工作区回归与代表性大载荷测量，现有两个队列差异仍单独标明；其他三个待决流程不在此授权内。保持单代理，已授权的工作分支阶段提交/推送继续，合并/发布不包含。
 
 按用户提供的 AGENTS.md 第 2 条，本项是影响所有 NewElement 的发送前流程取舍，等待用户明确选择；尚未修改任何生产身份计算，当前只完成调查、参考、诊断场景和证据门。
+
+
+### Text layout defaults and pending alignment export (2026-10-30)
+
+MarkdownOptions 的私有 width 改为 Option，默认省略 width_config，显式 stretch/content/像素保持既有 builder；caption 默认 stretch 不变。badge 默认省略 text_alignment_config，wrap 仍未设置。公共方法签名、依赖和身份流程未改。完整 Python 17 场景参考保留；当前外部 Rust API 可表达的 13 场景单独记录为 layout-widths（含报告共 14 Element），修前七处不同，修后完整载荷和路径匹配。identity-layouts 的 24 个 Element 也匹配 Python（仅归一化运行时控件 id），纠正历史记录的八处布局差异；四个目标仍为 A/A/A 身份。旧失败帧与 UI 记录未改，本批没有重新运行浏览器。
+
+外部示例编译暴露 TextAlignment 位于私有 elements 模块，根模块未导出，调用方无法命名 Center/Right/Justify。完整 layouts 示例明确报错，only_widths=true 执行不含 text_alignment 参数的 13 场景，不把子集当成完整布局验收。已提出以下选项，尚未收到用户选择：
+
+1. 推荐：在 streamlit/src/lib.rs 根部重新导出既有 TextAlignment，保留四个枚举变体和现有 builder；外部示例使用该类型，验证全部 17 场景。
+2. 增加 left/center/right/justify 便利 builder，外部不直接命名类型；涉及 api.rs 公共方法扩展，并验证外部编译与 17 场景。
+3. 暂缓外部非默认对齐，保留完整 Python 参考和未完成缺口。
+
+按 AGENTS.md 第 2 条，新增公共导出/方法需要用户决定。本批未修改 lib.rs；统一身份、JSON 与更广队列策略继续分别等待决定。

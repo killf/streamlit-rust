@@ -25,3 +25,24 @@ repair awaits user choice; the shared scope is in .codex/architecture.md.
 All owned connections/tabs/services closed and 8606/18606 had no listeners.
 The original five-element creation capture remains unchanged. Remaining UI,
 layout and identity behavior stays partial.
+
+
+## Layout presence correction (2026-10-30)
+
+The Python layouts/trace.json retains all 17 cases, including nondefault
+alignment. layout-widths/trace.json contains the 13 cases expressible through
+the existing external Rust API plus their JSON report (14 full Elements).
+Use --scenario layout-widths, or ?case=layouts&only_widths=true. Markdown's
+default/auto width is absent; explicit stretch/content/pixels are present.
+Caption defaults to stretch; badge defaults to content with no alignment.
+The Rust layout-widths-before capture retains seven full-payload differences;
+the fixed layout-widths capture matches all 14 full Elements and paths.
+
+Rust identity-layouts matches 24 complete Elements after widget-id normalization,
+removing the eight historical layout differences. Four target hashes still
+remain A/A/A. No new browser run or general identity fix is claimed. Old failed
+wire/UI captures are unchanged. TextAlignment cannot currently be named from
+an external crate; full Rust layouts explicitly diagnoses that gap. Root enum
+export versus convenience methods awaits user decision in .codex/architecture.md.
+The full 17-case reference is not replaced by the supported subset. Raw-frame,
+summary, path, layout semantics and coherent wrong-wire guards are checked.

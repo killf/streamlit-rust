@@ -4,6 +4,86 @@
 use ::streamlit::*;
 use streamlit::StreamlitApi;
 
+fn render_layouts(st: &Streamlit) -> Result<(), Box<dyn std::error::Error>> {
+    let mut cases: Vec<serde_json::Value> = serde_json::from_str(
+        r#"[
+  {"kind": "markdown", "body": "Markdown default", "kwargs": {}},
+  {"kind": "markdown", "body": "Markdown auto", "kwargs": {"width": "auto"}},
+  {"kind": "markdown", "body": "Markdown stretch", "kwargs": {"width": "stretch"}},
+  {"kind": "markdown", "body": "Markdown content", "kwargs": {"width": "content"}},
+  {"kind": "markdown", "body": "Markdown pixels", "kwargs": {"width": 240}},
+  {"kind": "markdown", "body": "Markdown help", "kwargs": {"help": "layout help"}},
+  {"kind": "markdown", "body": "Markdown center", "kwargs": {"text_alignment": "center"}},
+  {"kind": "markdown", "body": "Markdown right", "kwargs": {"text_alignment": "right", "width": "stretch"}},
+  {"kind": "markdown", "body": "Markdown justify", "kwargs": {"text_alignment": "justify", "width": 240}},
+  {"kind": "caption", "body": "Caption default", "kwargs": {}},
+  {"kind": "caption", "body": "Caption content", "kwargs": {"width": "content"}},
+  {"kind": "caption", "body": "Caption pixels", "kwargs": {"width": 240}},
+  {"kind": "caption", "body": "Caption right help", "kwargs": {"text_alignment": "right", "help": "caption help"}},
+  {"kind": "badge", "body": "Badge default", "kwargs": {}},
+  {"kind": "badge", "body": "Badge stretch", "kwargs": {"width": "stretch"}},
+  {"kind": "badge", "body": "Badge pixels", "kwargs": {"width": 240}},
+  {"kind": "badge", "body": "Badge help icon", "kwargs": {"help": "badge help", "icon": "🧊"}}
+]"#,
+    )?;
+    if st.query_params().get("only_widths").as_deref() == Some("true") {
+        cases.retain(|case| case["kwargs"].get("text_alignment").is_none());
+    }
+    st.json(serde_json::json!({"layout_cases": cases}));
+    for case in cases {
+        let body = case["body"].as_str().ok_or("missing layout body")?;
+        let kwargs = &case["kwargs"];
+        let width = match kwargs.get("width") {
+            None => None,
+            Some(value) if value == "auto" => None,
+            Some(value) if value == "stretch" => Some(ElementWidth::Stretch),
+            Some(value) if value == "content" => Some(ElementWidth::Content),
+            Some(value) => Some(ElementWidth::Value(i32::try_from(value.as_i64().ok_or("invalid layout width")?)?)),
+        };
+        if kwargs.get("text_alignment").is_some() {
+            return Err("non-default TextAlignment is not exported by the current Rust API".into());
+        }
+        let help = kwargs["help"].as_str();
+        match case["kind"].as_str() {
+            Some("markdown") => {
+                let mut options = MarkdownOptions::new(body.to_owned());
+                if let Some(width) = width {
+                    options = options.width(width);
+                }
+                if let Some(help) = help {
+                    options = options.help(help);
+                }
+                st.markdown(options);
+            }
+            Some("caption") => {
+                let mut options = CaptionOptions::new(body);
+                if let Some(width) = width {
+                    options = options.width(width);
+                }
+                if let Some(help) = help {
+                    options = options.help(help);
+                }
+                st.caption(options);
+            }
+            Some("badge") => {
+                let mut options = BadgeOptions::new(body);
+                if let Some(width) = width {
+                    options = options.width(width);
+                }
+                if let Some(help) = help {
+                    options = options.help(help);
+                }
+                if let Some(icon) = kwargs["icon"].as_str() {
+                    options = options.icon(icon);
+                }
+                st.badge(options);
+            }
+            _ => return Err("invalid layout kind".into()),
+        }
+    }
+    Ok(())
+}
+
 fn render_identity(st: &Streamlit) -> Result<(), Box<dyn std::error::Error>> {
     st.title("Element identity controls");
     let alternate = st.checkbox(CheckboxOptions::new("Alternate attributes").key("identity-alternate"))?;
@@ -30,6 +110,12 @@ fn render_identity(st: &Streamlit) -> Result<(), Box<dyn std::error::Error>> {
 }
 
 fn render(st: &Streamlit) {
+    if st.query_params().get("case").as_deref() == Some("layouts") {
+        if let Err(error) = render_layouts(st) {
+            st.write(format!("Layout error: {error}"));
+        }
+        return;
+    }
     if st.query_params().get("case").as_deref() == Some("identity") {
         if let Err(error) = render_identity(st) {
             st.write(format!("Element identity error: {error}"));

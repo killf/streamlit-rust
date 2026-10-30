@@ -296,7 +296,7 @@ pub struct MarkdownOptions {
     body: String,
     unsafe_allow_html: bool,
     help: Option<String>,
-    width: ElementWidth,
+    width: Option<ElementWidth>,
     text_alignment: TextAlignment,
 }
 
@@ -306,7 +306,7 @@ impl MarkdownOptions {
             body,
             unsafe_allow_html: false,
             help: None,
-            width: ElementWidth::Stretch,
+            width: None,
             text_alignment: TextAlignment::Left,
         }
     }
@@ -321,7 +321,7 @@ impl MarkdownOptions {
         self
     }
     pub fn width<T: Into<ElementWidth>>(mut self, width: T) -> Self {
-        self.width = width.into();
+        self.width = Some(width.into());
         self
     }
     pub fn text_alignment<T: Into<TextAlignment>>(mut self, alignment: T) -> Self {
@@ -2135,11 +2135,10 @@ impl<C: AppendChild> StreamlitApi for C {
     fn markdown<T: Into<MarkdownOptions>>(&self, body: T) {
         let body = body.into();
 
-        let element = MarkdownElement::new(body.body)
-            .unsafe_allow_html(body.unsafe_allow_html)
-            .help(body.help.unwrap_or_default())
-            .width(body.width)
-            .text_alignment(body.text_alignment);
+        let mut element = MarkdownElement::new(body.body).unsafe_allow_html(body.unsafe_allow_html).help(body.help.unwrap_or_default()).text_alignment(body.text_alignment);
+        if let Some(width) = body.width {
+            element = element.width(width);
+        }
 
         self.push(Rc::new(RefCell::new(element)));
     }
@@ -2568,6 +2567,48 @@ mod quality_tests {
         }
         assert_eq!(serde_json::from_str::<serde_json::Value>(&observed[3].body)?, nested);
         assert!(observed[3].expanded);
+        Ok(())
+    }
+
+    #[test]
+    fn public_markdown_width_presence_and_badge_alignment_match_reference() -> anyhow::Result<()> {
+        // 1. 公共调用区分默认与显式宽度，caption 和 badge 作为默认值对照。
+        let st = Streamlit::new();
+        let (sender, mut receiver) = tokio::sync::mpsc::unbounded_channel();
+        let mut context = crate::elements::common::RenderContext::with_sender("layout-unit".into(), sender);
+        context.delta_path = vec![0, 0];
+        st.app.lock().set_render_context(context);
+
+        st.markdown("default");
+        st.markdown(MarkdownOptions::new("stretch".into()).width(ElementWidth::Stretch));
+        st.markdown(MarkdownOptions::new("content".into()).width(ElementWidth::Content));
+        st.markdown(MarkdownOptions::new("pixels".into()).width(240));
+        st.caption("caption");
+        st.badge("badge");
+
+        // 2. 实际通道载荷验证配置存在性。
+        let mut elements = Vec::new();
+        while let Ok(message) = receiver.try_recv() {
+            let Some(crate::proto::forward_msg::Type::Delta(delta)) = message.r#type else { anyhow::bail!("expected layout delta") };
+            let Some(crate::proto::delta::Type::NewElement(element)) = delta.r#type else { anyhow::bail!("expected layout element") };
+            elements.push(element);
+        }
+        assert_eq!(elements.len(), 6);
+        use crate::proto::streamlit::width_config::WidthSpec;
+        let widths = elements.iter().map(|element| element.width_config.as_ref().and_then(|width| width.width_spec)).collect::<Vec<_>>();
+        assert_eq!(
+            widths,
+            [
+                None,
+                Some(WidthSpec::UseStretch(true)),
+                Some(WidthSpec::UseContent(true)),
+                Some(WidthSpec::PixelWidth(240)),
+                Some(WidthSpec::UseStretch(true)),
+                Some(WidthSpec::UseContent(true))
+            ]
+        );
+        assert!(elements[..5].iter().all(|element| element.text_alignment_config.is_some()));
+        assert!(elements[5].text_alignment_config.is_none());
         Ok(())
     }
 

@@ -52,11 +52,8 @@ impl Element for BadgeElement {
         let mut msg = delta_base_with_path(context.delta_path.clone(), context.active_script_hash.clone(), element_hash);
 
         let width_config: Option<WidthConfig> = self.width.clone().map(Into::into);
-        // The badge rides the markdown element, so the reference's markdown
-        // defaults apply: always-present LEFT alignment. Measured on the
-        // frozen json-badge-params trace, the reference leaves wrap UNSET on
-        // badge markdown (omitted = false).
-        let text_alignment_config: Option<TextAlignmentConfig> = Some(self.text_alignment.clone().map(Into::into).unwrap_or_else(|| TextAlignment::Left.into()));
+        // Badge 直接生成 MarkdownProto，参考默认不发送对齐配置，wrap 也保持未设置。
+        let text_alignment_config: Option<TextAlignmentConfig> = self.text_alignment.clone().map(Into::into);
 
         msg.r#type = Some(forward_msg::Type::Delta(Delta {
             fragment_id: String::new(),

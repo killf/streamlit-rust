@@ -226,3 +226,6 @@ JSON 深度/宽度已补 18 组固定原生参考（9 成功、9 拒绝）；Jso
 
 
 2026-10-30 跨元素身份调查证实同类缺口不仅在 code：三轮 24 元素参考的五个变化目标在 Rust 仍为 A/A/A，真实 Chrome 保留旧标题锚点/分隔线、caption 样式和按钮启用状态。六张 JPEG、正确/失败原始记录与更强证据门已保留。另发现八个完整 Element 布局存在性差异，保持未完成。architecture 中已形成统一 NewElement 身份、生产者完整 hash、逐项元组三种实际流程选项及文件/验收范围；生产 hash 尚未改变，待用户决定后实施。其余三个既有待决流程和完整 Goal 不变。
+
+
+2026-10-30 文本布局默认值：Markdown 默认/auto 省略 width_config，badge 默认省略 alignment；caption stretch 保持。完整 Python 17 场景与 Rust 可表达 13 场景分别保留，后者 14 个完整 Element/路径对齐；既有 identity 场景八处布局偏差消除。非默认 TextAlignment 外部导出等待选择，四个目标 hash 仍不变，未声称 UI 修复；全部兼容目标及 130 partial 分母保持。

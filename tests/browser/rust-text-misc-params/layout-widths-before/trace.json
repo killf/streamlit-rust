@@ -1,0 +1,690 @@
+{
+  "schema_version": 1,
+  "runtime": "rust",
+  "reference_version": "1.66.1",
+  "captured_at_utc": "2026-10-30T07:15:21.192573+00:00",
+  "scenario": "layout-widths",
+  "scope": "Element wire of text/latex/help/divider parameter edges over one native WS; no browser/UI claim.",
+  "server_command": null,
+  "server_cleanup": "caller-owned",
+  "url": "http://127.0.0.1:8606",
+  "frames": [
+    {
+      "direction": "client->server",
+      "bytes": 33,
+      "base64": "Wh8KHWNhc2U9bGF5b3V0cyZvbmx5X3dpZHRocz10cnVl",
+      "message": {
+        "rerun_script": {
+          "query_string": "case=layouts&only_widths=true"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 219,
+      "base64": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkODM2ZjJiMDktODYzNC00Y2UwLWI1ZjktYTIzZTg2MzBhYjdmEiRkMDFlOTJmNy1lM2I0LTRmN2MtYjlkNi0wZGVmZWYzZDM4MzMaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl",
+      "message": {
+        "metadata": {
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "new_session": {
+          "initialize": {
+            "user_info": {},
+            "environment_info": {
+              "streamlit_version": "1.66.1"
+            },
+            "session_status": {},
+            "session_id": "836f2b09-8634-4ce0-b5f9-a23e8630ab7f"
+          },
+          "script_run_id": "d01e92f7-e3b4-4f7c-b9d6-0defef3d3833",
+          "name": "Streamlit Rust",
+          "config": {
+            "show_error_links": "SHOW_ERROR_LINKS_FALSE"
+          },
+          "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 28,
+      "base64": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ==",
+      "message": {
+        "hash": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 1095,
+      "base64": "CiAxY2JkM2Q5YjBmMDZjYzJmOWE5YTQ3ODUwODJkMDdiZBImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2Uq+gca9wf6Ae4HCukHeyJsYXlvdXRfY2FzZXMiOiBbeyJraW5kIjogIm1hcmtkb3duIiwgImJvZHkiOiAiTWFya2Rvd24gZGVmYXVsdCIsICJrd2FyZ3MiOiB7fX0sIHsia2luZCI6ICJtYXJrZG93biIsICJib2R5IjogIk1hcmtkb3duIGF1dG8iLCAia3dhcmdzIjogeyJ3aWR0aCI6ICJhdXRvIn19LCB7ImtpbmQiOiAibWFya2Rvd24iLCAiYm9keSI6ICJNYXJrZG93biBzdHJldGNoIiwgImt3YXJncyI6IHsid2lkdGgiOiAic3RyZXRjaCJ9fSwgeyJraW5kIjogIm1hcmtkb3duIiwgImJvZHkiOiAiTWFya2Rvd24gY29udGVudCIsICJrd2FyZ3MiOiB7IndpZHRoIjogImNvbnRlbnQifX0sIHsia2luZCI6ICJtYXJrZG93biIsICJib2R5IjogIk1hcmtkb3duIHBpeGVscyIsICJrd2FyZ3MiOiB7IndpZHRoIjogMjQwfX0sIHsia2luZCI6ICJtYXJrZG93biIsICJib2R5IjogIk1hcmtkb3duIGhlbHAiLCAia3dhcmdzIjogeyJoZWxwIjogImxheW91dCBoZWxwIn19LCB7ImtpbmQiOiAiY2FwdGlvbiIsICJib2R5IjogIkNhcHRpb24gZGVmYXVsdCIsICJrd2FyZ3MiOiB7fX0sIHsia2luZCI6ICJjYXB0aW9uIiwgImJvZHkiOiAiQ2FwdGlvbiBjb250ZW50IiwgImt3YXJncyI6IHsid2lkdGgiOiAiY29udGVudCJ9fSwgeyJraW5kIjogImNhcHRpb24iLCAiYm9keSI6ICJDYXB0aW9uIHBpeGVscyIsICJrd2FyZ3MiOiB7IndpZHRoIjogMjQwfX0sIHsia2luZCI6ICJiYWRnZSIsICJib2R5IjogIkJhZGdlIGRlZmF1bHQiLCAia3dhcmdzIjoge319LCB7ImtpbmQiOiAiYmFkZ2UiLCAiYm9keSI6ICJCYWRnZSBzdHJldGNoIiwgImt3YXJncyI6IHsid2lkdGgiOiAic3RyZXRjaCJ9fSwgeyJraW5kIjogImJhZGdlIiwgImJvZHkiOiAiQmFkZ2UgcGl4ZWxzIiwgImt3YXJncyI6IHsid2lkdGgiOiAyNDB9fSwgeyJraW5kIjogImJhZGdlIiwgImJvZHkiOiAiQmFkZ2UgaGVscCBpY29uIiwgImt3YXJncyI6IHsiaGVscCI6ICJiYWRnZSBoZWxwIiwgImljb24iOiAiXHVkODNlXHVkZGNhIn19XX0QAdIDAggB",
+      "message": {
+        "hash": "1cbd3d9b0f06cc2f9a9a4785082d07bd",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"layout_cases\": [{\"kind\": \"markdown\", \"body\": \"Markdown default\", \"kwargs\": {}}, {\"kind\": \"markdown\", \"body\": \"Markdown auto\", \"kwargs\": {\"width\": \"auto\"}}, {\"kind\": \"markdown\", \"body\": \"Markdown stretch\", \"kwargs\": {\"width\": \"stretch\"}}, {\"kind\": \"markdown\", \"body\": \"Markdown content\", \"kwargs\": {\"width\": \"content\"}}, {\"kind\": \"markdown\", \"body\": \"Markdown pixels\", \"kwargs\": {\"width\": 240}}, {\"kind\": \"markdown\", \"body\": \"Markdown help\", \"kwargs\": {\"help\": \"layout help\"}}, {\"kind\": \"caption\", \"body\": \"Caption default\", \"kwargs\": {}}, {\"kind\": \"caption\", \"body\": \"Caption content\", \"kwargs\": {\"width\": \"content\"}}, {\"kind\": \"caption\", \"body\": \"Caption pixels\", \"kwargs\": {\"width\": 240}}, {\"kind\": \"badge\", \"body\": \"Badge default\", \"kwargs\": {}}, {\"kind\": \"badge\", \"body\": \"Badge stretch\", \"kwargs\": {\"width\": \"stretch\"}}, {\"kind\": \"badge\", \"body\": \"Badge pixels\", \"kwargs\": {\"width\": 240}}, {\"kind\": \"badge\", \"body\": \"Badge help icon\", \"kwargs\": {\"help\": \"badge help\", \"icon\": \"\\ud83e\\uddca\"}}]}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 113,
+      "base64": "CiAxZGM4YzY2NmJjZDA2NmM0NDc4ZDliN2RjYzA3YzkyOBImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqJRoj6gEWChBNYXJrZG93biBkZWZhdWx0IAFAAdIDAggB6gMCCAE=",
+      "message": {
+        "hash": "1dc8c666bcd066c4478d9b7dcc07c928",
+        "metadata": {
+          "delta_path": [
+            0,
+            1
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "Markdown default",
+              "element_type": "NATIVE",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 110,
+      "base64": "CiBlMGMwMTAxZGU0NDEzN2JjNDY1MzU0MDI3MTcwZWEyZRImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqIhog6gETCg1NYXJrZG93biBhdXRvIAFAAdIDAggB6gMCCAE=",
+      "message": {
+        "hash": "e0c0101de44137bc465354027170ea2e",
+        "metadata": {
+          "delta_path": [
+            0,
+            2
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "Markdown auto",
+              "element_type": "NATIVE",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 113,
+      "base64": "CiA0ZmE1N2YwMTQyYmIwYjVkNjIzOWIwOTk0YWE5MmQ3ZRImEgIAAyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqJRoj6gEWChBNYXJrZG93biBzdHJldGNoIAFAAdIDAggB6gMCCAE=",
+      "message": {
+        "hash": "4fa57f0142bb0b5d6239b0994aa92d7e",
+        "metadata": {
+          "delta_path": [
+            0,
+            3
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "Markdown stretch",
+              "element_type": "NATIVE",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 113,
+      "base64": "CiBiMDBkMWRhZmJjY2E1OTQzMTkyZmZjOGM2MWZiNWJmZhImEgIABCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqJRoj6gEWChBNYXJrZG93biBjb250ZW50IAFAAdIDAhAB6gMCCAE=",
+      "message": {
+        "hash": "b00d1dafbcca5943192ffc8c61fb5bff",
+        "metadata": {
+          "delta_path": [
+            0,
+            4
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "Markdown content",
+              "element_type": "NATIVE",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 113,
+      "base64": "CiA4MjJhODQ1NjNmNDEzOTlkZTcxZjQxYzFiMzU1YzM1ZBImEgIABSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqJRoj6gEVCg9NYXJrZG93biBwaXhlbHMgAUAB0gMDGPAB6gMCCAE=",
+      "message": {
+        "hash": "822a84563f41399de71f41c1b355c35d",
+        "metadata": {
+          "delta_path": [
+            0,
+            5
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "Markdown pixels",
+              "element_type": "NATIVE",
+              "wrap": true
+            },
+            "width_config": {
+              "pixel_width": 240
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 123,
+      "base64": "CiA3ZGNkOWUwNzAxNzA1Njc0OGRmZDJiODAwZThjOWE2NxImEgIABiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqLxot6gEgCg1NYXJrZG93biBoZWxwIAEqC2xheW91dCBoZWxwQAHSAwIIAeoDAggB",
+      "message": {
+        "hash": "7dcd9e07017056748dfd2b800e8c9a67",
+        "metadata": {
+          "delta_path": [
+            0,
+            6
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "Markdown help",
+              "element_type": "NATIVE",
+              "help": "layout help",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 112,
+      "base64": "CiAxZjFmMmE3NDUyOTNjMmRmMTExZDAwNWM0ZTdiNDFjMRImEgIAByIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqJBoi6gEVCg9DYXB0aW9uIGRlZmF1bHQgAkAB0gMCCAHqAwIIAQ==",
+      "message": {
+        "hash": "1f1f2a745293c2df111d005c4e7b41c1",
+        "metadata": {
+          "delta_path": [
+            0,
+            7
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "Caption default",
+              "element_type": "CAPTION",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 112,
+      "base64": "CiAwOTA0NDQyYTI0YTE5OWUwOTQwNjE4MzZjMTZjNzYwOBImEgIACCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqJBoi6gEVCg9DYXB0aW9uIGNvbnRlbnQgAkAB0gMCEAHqAwIIAQ==",
+      "message": {
+        "hash": "0904442a24a199e094061836c16c7608",
+        "metadata": {
+          "delta_path": [
+            0,
+            8
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "Caption content",
+              "element_type": "CAPTION",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 112,
+      "base64": "CiBkYzJkZjEzODE3MzVlOTU3ZTc1YWUyZGJhYzEzMzU1MhImEgIACSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqJBoi6gEUCg5DYXB0aW9uIHBpeGVscyACQAHSAwMY8AHqAwIIAQ==",
+      "message": {
+        "hash": "dc2df1381735e957e75ae2dbac133552",
+        "metadata": {
+          "delta_path": [
+            0,
+            9
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "Caption pixels",
+              "element_type": "CAPTION",
+              "wrap": true
+            },
+            "width_config": {
+              "pixel_width": 240
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 121,
+      "base64": "CiAxMzQ3MjgzNDM5MDU0YjViYzc2ZDc3N2VmNmE4ZjNjNxImEgIACiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqLRor6gEeCho6Ymx1ZS1iYWRnZVtCYWRnZSBkZWZhdWx0XSAB0gMCEAHqAwIIAQ==",
+      "message": {
+        "hash": "1347283439054b5bc76d777ef6a8f3c7",
+        "metadata": {
+          "delta_path": [
+            0,
+            10
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": ":blue-badge[Badge default]",
+              "element_type": "NATIVE"
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 121,
+      "base64": "CiA5OTkwOGRkNjRjNTFmMTc1MWEwMzhhMTljNzQzMDI3MxImEgIACyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqLRor6gEeCho6Ymx1ZS1iYWRnZVtCYWRnZSBzdHJldGNoXSAB0gMCCAHqAwIIAQ==",
+      "message": {
+        "hash": "99908dd64c51f1751a038a19c7430273",
+        "metadata": {
+          "delta_path": [
+            0,
+            11
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": ":blue-badge[Badge stretch]",
+              "element_type": "NATIVE"
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 121,
+      "base64": "CiA3MzI5M2JiNTFhMDEzMWY3ZjAwZGMwNTg3MTRjOTc4NBImEgIADCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqLRor6gEdChk6Ymx1ZS1iYWRnZVtCYWRnZSBwaXhlbHNdIAHSAwMY8AHqAwIIAQ==",
+      "message": {
+        "hash": "73293bb51a0131f7f00dc058714c9784",
+        "metadata": {
+          "delta_path": [
+            0,
+            12
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": ":blue-badge[Badge pixels]",
+              "element_type": "NATIVE"
+            },
+            "width_config": {
+              "pixel_width": 240
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 140,
+      "base64": "CiA0ZWNlOGRjM2RmZTdkMGI1YjYwY2Q5Yzk3Y2E2ODAxNRImEgIADSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqQBo+6gExCiE6Ymx1ZS1iYWRnZVvwn6eKIEJhZGdlIGhlbHAgaWNvbl0gASoKYmFkZ2UgaGVscNIDAhAB6gMCCAE=",
+      "message": {
+        "hash": "4ece8dc3dfe7d0b5b60cd9c97ca68015",
+        "metadata": {
+          "delta_path": [
+            0,
+            13
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": ":blue-badge[🧊 Badge help icon]",
+              "element_type": "NATIVE",
+              "help": "badge help"
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 19,
+      "base64": "Cg9zY3JpcHRfZmluaXNoZWQwAA==",
+      "message": {
+        "hash": "script_finished",
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    }
+  ],
+  "elements": [
+    {
+      "index": 0,
+      "kind": "json",
+      "fields": {
+        "body": "{\"layout_cases\": [{\"kind\": \"markdown\", \"body\": \"Markdown default\", \"kwargs\": {}}, {\"kind\": \"markdown\", \"body\": \"Markdown auto\", \"kwargs\": {\"width\": \"auto\"}}, {\"kind\": \"markdown\", \"body\": \"Markdown stretch\", \"kwargs\": {\"width\": \"stretch\"}}, {\"kind\": \"markdown\", \"body\": \"Markdown content\", \"kwargs\": {\"width\": \"content\"}}, {\"kind\": \"markdown\", \"body\": \"Markdown pixels\", \"kwargs\": {\"width\": 240}}, {\"kind\": \"markdown\", \"body\": \"Markdown help\", \"kwargs\": {\"help\": \"layout help\"}}, {\"kind\": \"caption\", \"body\": \"Caption default\", \"kwargs\": {}}, {\"kind\": \"caption\", \"body\": \"Caption content\", \"kwargs\": {\"width\": \"content\"}}, {\"kind\": \"caption\", \"body\": \"Caption pixels\", \"kwargs\": {\"width\": 240}}, {\"kind\": \"badge\", \"body\": \"Badge default\", \"kwargs\": {}}, {\"kind\": \"badge\", \"body\": \"Badge stretch\", \"kwargs\": {\"width\": \"stretch\"}}, {\"kind\": \"badge\", \"body\": \"Badge pixels\", \"kwargs\": {\"width\": 240}}, {\"kind\": \"badge\", \"body\": \"Badge help icon\", \"kwargs\": {\"help\": \"badge help\", \"icon\": \"\\ud83e\\uddca\"}}]}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        0
+      ]
+    },
+    {
+      "index": 1,
+      "kind": "markdown",
+      "fields": {
+        "body": "Markdown default",
+        "element_type": "NATIVE",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        1
+      ]
+    },
+    {
+      "index": 2,
+      "kind": "markdown",
+      "fields": {
+        "body": "Markdown auto",
+        "element_type": "NATIVE",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        2
+      ]
+    },
+    {
+      "index": 3,
+      "kind": "markdown",
+      "fields": {
+        "body": "Markdown stretch",
+        "element_type": "NATIVE",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        3
+      ]
+    },
+    {
+      "index": 4,
+      "kind": "markdown",
+      "fields": {
+        "body": "Markdown content",
+        "element_type": "NATIVE",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        4
+      ]
+    },
+    {
+      "index": 5,
+      "kind": "markdown",
+      "fields": {
+        "body": "Markdown pixels",
+        "element_type": "NATIVE",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        5
+      ]
+    },
+    {
+      "index": 6,
+      "kind": "markdown",
+      "fields": {
+        "body": "Markdown help",
+        "element_type": "NATIVE",
+        "help": "layout help",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        6
+      ]
+    },
+    {
+      "index": 7,
+      "kind": "markdown",
+      "fields": {
+        "body": "Caption default",
+        "element_type": "CAPTION",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        7
+      ]
+    },
+    {
+      "index": 8,
+      "kind": "markdown",
+      "fields": {
+        "body": "Caption content",
+        "element_type": "CAPTION",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        8
+      ]
+    },
+    {
+      "index": 9,
+      "kind": "markdown",
+      "fields": {
+        "body": "Caption pixels",
+        "element_type": "CAPTION",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        9
+      ]
+    },
+    {
+      "index": 10,
+      "kind": "markdown",
+      "fields": {
+        "body": ":blue-badge[Badge default]",
+        "element_type": "NATIVE"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        10
+      ]
+    },
+    {
+      "index": 11,
+      "kind": "markdown",
+      "fields": {
+        "body": ":blue-badge[Badge stretch]",
+        "element_type": "NATIVE"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        11
+      ]
+    },
+    {
+      "index": 12,
+      "kind": "markdown",
+      "fields": {
+        "body": ":blue-badge[Badge pixels]",
+        "element_type": "NATIVE"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        12
+      ]
+    },
+    {
+      "index": 13,
+      "kind": "markdown",
+      "fields": {
+        "body": ":blue-badge[🧊 Badge help icon]",
+        "element_type": "NATIVE",
+        "help": "badge help"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        13
+      ]
+    }
+  ],
+  "finishes": [
+    0
+  ],
+  "health": {
+    "status": 200,
+    "body": "ok"
+  },
+  "cleanup": {
+    "websocket_closed": true
+  },
+  "successful": true
+}

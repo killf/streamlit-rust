@@ -453,6 +453,167 @@ async fn code_body_language_changes_do_not_share_a_hash_on_one_connection() -> T
     Ok(())
 }
 
+const TEXT_LAYOUT_REFERENCE: &str = include_str!("../../../tests/reference/reference-browser/text-misc-params/layout-widths/trace.json");
+
+fn text_layout_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        let result: TestResult = (|| {
+            let reference: serde_json::Value = serde_json::from_str(TEXT_LAYOUT_REFERENCE)?;
+            let inputs: serde_json::Value = serde_json::from_str(reference["elements"][0]["fields"]["body"].as_str().ok_or("missing layout report")?)?;
+            st.json(inputs.clone());
+            for case in inputs["layout_cases"].as_array().ok_or("missing layout cases")? {
+                let body = case["body"].as_str().ok_or("missing layout body")?;
+                let kwargs = &case["kwargs"];
+                assert!(kwargs.get("text_alignment").is_none(), "non-default public alignment is a separate open API decision");
+                let width = match kwargs.get("width") {
+                    None => None,
+                    Some(value) if value == "auto" => None,
+                    Some(value) if value == "stretch" => Some(crate::ElementWidth::Stretch),
+                    Some(value) if value == "content" => Some(crate::ElementWidth::Content),
+                    Some(value) => Some(crate::ElementWidth::Value(i32::try_from(value.as_i64().ok_or("invalid width")?)?)),
+                };
+                let help = kwargs["help"].as_str();
+                match case["kind"].as_str() {
+                    Some("markdown") => {
+                        let mut options = crate::MarkdownOptions::new(body.to_owned());
+                        if let Some(width) = width {
+                            options = options.width(width);
+                        }
+                        if let Some(help) = help {
+                            options = options.help(help);
+                        }
+                        st.markdown(options);
+                    }
+                    Some("caption") => {
+                        let mut options = crate::CaptionOptions::new(body);
+                        if let Some(width) = width {
+                            options = options.width(width);
+                        }
+                        if let Some(help) = help {
+                            options = options.help(help);
+                        }
+                        st.caption(options);
+                    }
+                    Some("badge") => {
+                        let mut options = crate::BadgeOptions::new(body);
+                        if let Some(width) = width {
+                            options = options.width(width);
+                        }
+                        if let Some(help) = help {
+                            options = options.help(help);
+                        }
+                        if let Some(icon) = kwargs["icon"].as_str() {
+                            options = options.icon(icon);
+                        }
+                        st.badge(options);
+                    }
+                    _ => return Err("unknown layout kind".into()),
+                }
+            }
+            Ok(())
+        })();
+        assert!(result.is_ok(), "text layout fixture failed: {result:?}");
+    })
+}
+
+#[actix_web::test]
+async fn text_layout_width_and_alignment_presence_match_reference() -> TestResult {
+    // 1. 公共接口经真实服务器验证默认与显式宽度，未导出的非默认对齐仍单列开放。
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
+    let server = HttpServer::new(move || App::new().app_data(web::Data::new(StreamlitServer::new(text_layout_entry, "127.0.0.1".into(), 0))).configure(configure_routes))
+        .workers(1)
+        .listen(listener)?
+        .run();
+    let handle = server.handle();
+    let task = actix_web::rt::spawn(server);
+    let mut stream = sessions::connect(address, None).await;
+    send_binary(
+        &mut stream,
+        &BackMsg {
+            r#type: Some(back_msg::Type::RerunScript(ClientState::default())),
+        }
+        .encode_to_vec(),
+    )
+    .await;
+    let mut observed = Vec::new();
+    let finish = loop {
+        let message = receive(&mut stream).await;
+        let path = message.metadata.as_ref().map(|metadata| metadata.delta_path.clone()).unwrap_or_default();
+        match message.r#type {
+            Some(forward_msg::Type::Delta(delta)) => {
+                let Some(delta::Type::NewElement(element)) = delta.r#type else { panic!("unexpected layout delta") };
+                observed.push((path, element));
+            }
+            Some(forward_msg::Type::ScriptFinished(status)) => break status,
+            _ => {}
+        }
+    };
+    drop(stream);
+    handle.stop(false).await;
+    task.await??;
+
+    // 2. 原始参考消息由 Python 门解码绑定，完整 Element 比较包含配置存在性。
+    let reference: serde_json::Value = serde_json::from_str(TEXT_LAYOUT_REFERENCE)?;
+    let mut expected = Vec::new();
+    for frame in reference["frames"].as_array().ok_or("missing layout frames")? {
+        let message = &frame["message"];
+        let Some(delta) = message.get("delta") else { continue };
+        let element = &delta["new_element"];
+        let kind = if let Some(markdown) = element.get("markdown") {
+            element::Type::Markdown(proto::Markdown {
+                body: markdown["body"].as_str().ok_or("missing layout markdown")?.into(),
+                element_type: match markdown["element_type"].as_str() {
+                    Some("NATIVE") => 1,
+                    Some("CAPTION") => 2,
+                    _ => return Err("unknown markdown type".into()),
+                },
+                wrap: markdown["wrap"].as_bool(),
+                help: markdown["help"].as_str().unwrap_or_default().into(),
+                ..Default::default()
+            })
+        } else {
+            let json = element.get("json").ok_or("unexpected layout reference kind")?;
+            element::Type::Json(proto::Json {
+                body: json["body"].as_str().ok_or("missing layout input JSON")?.into(),
+                expanded: true,
+                max_expand_depth: None,
+            })
+        };
+        let width_config = if let Some(width) = element.get("width_config") {
+            let width_spec = if width["use_stretch"] == true {
+                proto::streamlit::width_config::WidthSpec::UseStretch(true)
+            } else if width["use_content"] == true {
+                proto::streamlit::width_config::WidthSpec::UseContent(true)
+            } else {
+                proto::streamlit::width_config::WidthSpec::PixelWidth(u32::try_from(width["pixel_width"].as_u64().ok_or("invalid reference width")?)?)
+            };
+            Some(proto::streamlit::WidthConfig { width_spec: Some(width_spec) })
+        } else {
+            None
+        };
+        let text_alignment_config = if let Some(alignment) = element.get("text_alignment_config") {
+            assert_eq!(alignment["alignment"], "LEFT");
+            Some(proto::streamlit::TextAlignmentConfig { alignment: 1 })
+        } else {
+            None
+        };
+        expected.push((
+            serde_json::from_value::<Vec<u32>>(message["metadata"]["delta_path"].clone())?,
+            proto::Element {
+                r#type: Some(kind),
+                width_config,
+                text_alignment_config,
+                ..Default::default()
+            },
+        ));
+    }
+    assert_eq!(finish, 0);
+    assert_eq!(expected.len(), 14);
+    assert_eq!(observed, expected);
+    Ok(())
+}
+
 fn textelements_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
     Box::pin(async move {
         // Mirrors tests/reference/textelements_app.py.

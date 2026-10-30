@@ -631,3 +631,14 @@ Python 采集器关闭 WS 并停止自有服务，Rust 自有服务 session 终�
 原来 text/misc 门只读摘要、未执行已有原始帧解码生成器，现补实际逐帧 base64/方向/长度/协议/摘要/结束标志绑定，旧正确五元素数据未修改，六项线/摘要损坏 guard 被拒绝。相关新增参考门及矩阵/文档共 67 项通过（target/element-identity-final-gates.log）；示例 Clippy -D warnings、构建与 Rustfmt 检查通过（target/element-identity-example-clippy.log、target/element-identity-example-build.log），保留既有 MSVC linker stdout 告警。无库代码修改，本批未无故重复库单元/工作区；旧 242 项记录带两项队列排除，不能称本批库全绿或本批故障已修复。
 
 architecture 的 Pending unified NewElement identity decision 写出静态/原生/可见故障分层、三种实际选项、推荐唯一终结点、15 个拟改生产文件、现有 map 与编码成本、sender/recording/stream 一致性、cache replay 与真实 UI 验收范围。按用户 AGENTS.md 第 2 条等待流程选择，尚未实施新阶段；公开 proto 的 HashMap 类型、widget/图表 ID、URL、缓存键和另三个待决流程保持未动。矩阵仍 130 项 partial；inventory 如实补出五项先前未明示的缺口，不调整功能分母。用户 colconfig_params 文件/Cargo/索引改动未纳入本批阶段提交。
+
+
+### Text layout defaults and presence correction (2026-10-30)
+
+修正 MarkdownOptions 私有宽度默认值：默认/auto 省略 width_config，显式 stretch/content/像素保持；caption 默认 stretch 不变。badge 默认不发送 text_alignment_config。没有公共签名、依赖、发送或身份流程变更。完整 Python layouts 17 场景参考保留；非默认 TextAlignment 位于私有模块，外部示例无法命名该类型，公共导出/便利方法取舍等待用户选择。Rust 完整 layouts 明确诊断此缺口，only_widths=true 单独验证现有接口可表达的 13 场景，不缩减完整分母。
+
+新原始 Python/Rust layout-widths 各 14 个完整 Element（含输入报告），修前七处宽度/对齐存在性偏差保留，修后路径和完整 Element 一致。新 identity-layouts 24 个完整 Element 与既有 Python identity 一致（仅归一化运行时 widget id），此前八处布局偏差消除；四个目标仍 A/A/A hash，统一身份选择未实施。本批没有新的浏览器/UI 验证，旧失败记录未修改，不能声称标题或按钮的可见滞留已修复。
+
+按代码→单元→集成验证：全目标 Clippy -D warnings、Rustfmt 检查通过；公共 API 单元 1 项、文本/JSON WS 集成 7 项通过（target/text-layout-clippy.log、text-layout-unit.log、text-layout-integration.log）。工作区 244 项通过（库 237、ledger 1、宏 2、rustdoc 4），明确排除既有 navigation_pages_switch_and_session_state_match_the_measured_wire、rerun_queue_messages_match_frozen_reference 两项队列差异（target/text-layout-workspace-remaining.log），不称全工作区全绿。原始协议/摘要绑定、完整载荷语义与四项一致错误线 guard、矩阵和文档共 73 项通过（target/text-layout-final-gates.log）。已有 MSVC linker stdout 告警保留。
+
+逐文件复查 diff，示例构建通过；采集连接/自有服务已关闭，结束时 8606/18606 均无监听。矩阵仍 130 partial，完整目标继续；用户 colconfig_params 文件、Cargo 与索引修改保持独立，未纳入阶段提交。按现有授权只提交推送工作分支，不合并或发布。
