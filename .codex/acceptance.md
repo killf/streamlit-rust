@@ -2016,3 +2016,41 @@ trace 没有覆盖。SDK 临时服务由 collector 正常退出，不把缺少 c
 stdout warning 保留。日志为 target/temporal-unkeyed-wire-{build,clippy,reference}.log。
 本批未改库生产代码或 Rust 单元，未重复工作区回归；上一批 303 项与两项排除
 仍为上一批快照，不作为本批新跑的结果。用户 colconfig_params 文件保持独立。
+
+### datetime 边界精度的接受性修复（2026-10-31）
+
+SDK 公共 AppTest 十一组调查后，冻结 temporal-params/precision 原生参考及
+Rust 修前 before/trace.json、修后 trace.json。SDK/修后 Rust 同一轮各 13 帧/
+9 元素：八个成功 datetime 控件及十一案报告；修前 Rust 8 帧/4 元素只接受三组。
+五个额外拒绝分别为秒/微秒边界归一化后相等、同分钟反序、空默认同分钟反序
+及 min-only；全部修后接受。另三组跨分钟的默认值上下越界、min>max 仍拒绝，
+后续调用继续成功。所有案例采用独立 key，没有借此验证同 key 错误后重试。
+
+公开 Rust 单元先在第一组错误拒绝，修后覆盖四组成功（含 None）及三组拒绝。
+生产仅在 datetime_input 内将显式 min/max 去掉秒/亚秒后比较；默认值原有分钟
+精度、默认十年窗口、step、身份规则、codec/注册/状态/hash/队列均不变。
+指南先补分钟精度规则，相关红绿/构建日志为 target/datetime-precision-{red,
+green,before-build,build}.log；collector save 显式使用 LF，避免新 JSON 的 CRLF
+被仓库 -text 规则保留后触发 whitespace 检查。
+
+门禁绑定 raw PB/summary/elements、唯一请求/完成/running/SDK 版本、全部案名/
+接受性/返回值与具体错误、八个独立 ID、默认值/空默认/分钟边界/step/format/
+布局/策略与同步标志。八个成功控件的完整 Element 仅规范化 ID 后一致；JSON
+报告中的错误类型/文案不相等，分别按 SDK 与 Rust 原值保护。修后 Rust 明确
+semantic_match=false、precision_acceptance_match=true，这些差异继续开放，
+不能报告整份协议或错误行为已经完全匹配。五类同步改动 raw/summary/元素的
+反例覆盖默认精度、错误边界、空默认、误拒绝合法值和放过真实非法值。
+
+三份源文件采集时 SHA 保留；修前生产基线 62c8837，修后源码 dirty，另保留
+各自 widget_api 与二进制 SHA。SDK collector 退出；Rust 修前 29992、修后
+67072 均核对完整路径后停止，原 exec 会话终止，50510/8600 读回无监听。
+没有浏览器操作，动态边界/URL/页面/回调/错误恢复/全部时间精度仍未完成，
+M3/M5/M7、130 partial、统一 hash 与共享状态选型继续开放。
+
+最终工作区 304 项通过（297 库 + 1 ledger + 2 宏 + 4 rustdoc），保留原
+navigation_pages_switch_and_session_state_match_the_measured_wire 与
+rerun_queue_messages_match_frozen_reference 两项排除；相关 query/widget/
+temporal/matrix/docs 参考门 311 项通过（temporal 29 项）。工作区/all-target
+Clippy、编辑 Rust 的 rustfmt、diff --check 通过，既有 MSVC linker stdout
+warning 保留。日志为 target/datetime-precision-{workspace,reference,clippy}.log。
+用户 colconfig_params 改动保持隔离，未合并、发布或部署。

@@ -404,3 +404,127 @@ def test_unkeyed_temporal_gate_rejects_wrong_wire(mutation):
     capture["elements"] = [{"kind": kind, "fields": fields, "delta_path": path} for kind, fields, path in emitted]
     with pytest.raises(AssertionError):
         check_unkeyed_temporal_wire(capture)
+
+
+PRECISION_CASES = ("minute-floor", "reversed-seconds", "reversed-micros", "previous-minute", "next-minute", "reversed-minutes",
+                   "empty-reversed-seconds", "fraction-boundary-wide", "no-bounds", "max-only", "min-only")
+PRECISION_ERRORS = {
+    "previous-minute": ("StreamlitValueAboveMaxError", "The `value` 2024-03-15 12:30:00 is greater than the `max_value` 2024-03-15 12:29:00."),
+    "next-minute": ("StreamlitValueBelowMinError", "The `value` 2024-03-15 12:30:00 is less than the `min_value` 2024-03-15 12:31:00."),
+    "reversed-minutes": ("StreamlitInvalidMinMaxError", "The `min_value`, set to 2024-03-15 12:31:00, cannot be greater than the `max_value`, set to 2024-03-15 12:30:00."),
+}
+
+
+def check_datetime_precision(capture):
+    assert capture["reference_version"] == "1.66.1" and capture["successful"] and "producer_error" not in capture
+    if capture["runtime"] == "rust":
+        assert capture.get("precision_acceptance_match") is True and capture["semantic_match"] is False
+    assert capture["cleanup"]["websocket_closed"] and capture["finishes"] == [0]
+    assert capture["cleanup"]["server_stopped" if capture["runtime"] == "python" else "caller_server_stopped"]
+    messages = list(frames(capture))
+    assert [message.WhichOneof("type") for message in messages] == ["rerun_script", "new_session", "session_status_changed"] + ["delta"] * 9 + ["script_finished"]
+    assert messages[2].session_status_changed.script_is_running
+    assert messages[1].new_session.initialize.environment_info.streamlit_version == "1.66.1"
+    request = messages[0].rerun_script
+    assert request.query_string == "probe=precision" and not request.widget_states.widgets and not request.is_history_navigation
+    runs, emitted = identity_runs(capture)
+    assert len(runs) == 1 and len(emitted) == 9
+    assert emitted == [(entry["kind"], entry["fields"], entry["delta_path"]) for entry in capture["elements"]]
+    entries = runs[0]["entries"]
+    accepted = [name for name in PRECISION_CASES if name not in PRECISION_ERRORS]
+    assert [entry[0] for entry in entries] == ["date_time_input"] * 8 + ["json"]
+    assert [entry[3] for entry in entries] == [[0, index] for index in range(9)]
+    reports = json.loads(entries[-1][1].body)
+    assert [report["case"] for report in reports] == list(PRECISION_CASES)
+    for report in reports:
+        name = report["case"]
+        if name in PRECISION_ERRORS:
+            error_type, error = PRECISION_ERRORS[name]
+            if capture["runtime"] == "rust":
+                error_type = "InvalidValue"
+                error = "invalid widget value: datetime_input " + ("min is after max" if name == "reversed-minutes" else "value is outside min/max")
+            assert report == {"case": name, "accepted": False, "error_type": error_type, "error": error}
+        else:
+            assert report == {"case": name, "accepted": True, "value": None if name == "empty-reversed-seconds" else "2024-03-15T12:30"}
+    ids = []
+    for name, (_, widget, element, _) in zip(accepted, entries[:-1], strict=True):
+        assert widget.label == name and widget.id.endswith("-" + name)
+        ids.append(widget.id)
+        assert list(widget.default) == ([] if name == "empty-reversed-seconds" else ["2024-03-15T12:30"])
+        expected_min = "2014-03-15T00:00" if name in ("no-bounds", "max-only") else "2024-03-15T12:29" if name == "fraction-boundary-wide" else "2024-03-15T12:30"
+        expected_max = "2034-03-15T23:59" if name in ("no-bounds", "min-only") else "2024-03-15T12:30"
+        assert (widget.min, widget.max) == (expected_min, expected_max)
+        assert widget.step == 900 and widget.format == "YYYY/MM/DD" and not widget.is_range
+        assert not widget.value and not widget.set_value and not element.HasField("has_one_shot_effect")
+        assert not widget.disabled and not widget.help and not widget.form_id and not widget.ignore_rerun and widget.label_visibility.value == 0
+        assert MessageToDict(element.width_config, preserving_proto_field_name=True) == {"use_stretch": True}
+    assert len(set(ids)) == 8
+
+
+@pytest.mark.parametrize("root", (PYTHON, RUST), ids=("python", "rust"))
+def test_datetime_precision_acceptance_and_rejections(root):
+    check_datetime_precision(read(root / "precision/trace.json"))
+
+
+def test_datetime_precision_accepted_elements_match_field_for_field():
+    captures = [read(root / "precision/trace.json") for root in (PYTHON, RUST)]
+    assert captures[0]["producer_sources_sha256"] == captures[1]["producer_sources_sha256"]
+    normalized = []
+    for capture in captures:
+        check_datetime_precision(capture)
+        runs, _ = identity_runs(capture)
+        widgets = []
+        for kind, _, element, _ in runs[0]["entries"][:-1]:
+            fields = MessageToDict(element, preserving_proto_field_name=True)
+            fields[kind].pop("id")
+            widgets.append(fields)
+        normalized.append(widgets)
+    assert normalized[0] == normalized[1]
+
+
+def test_datetime_precision_before_preserves_five_false_rejections():
+    capture = read(RUST / "precision/before/trace.json")
+    assert capture["successful"] and capture["semantic_match"] is False
+    assert len(capture["frames"]) == 8 and len(capture["elements"]) == 4 and capture["finishes"] == [0]
+    runs, _ = identity_runs(capture)
+    reports = json.loads(runs[0]["entries"][-1][1].body)
+    assert [report["case"] for report in reports if report["accepted"]] == ["fraction-boundary-wide", "no-bounds", "max-only"]
+    assert [entry[1].label for entry in runs[0]["entries"][:-1]] == ["fraction-boundary-wide", "no-bounds", "max-only"]
+    with pytest.raises(AssertionError):
+        check_datetime_precision(capture)
+
+
+@pytest.mark.parametrize("mutation", ("default-seconds", "wrong-bound", "empty-default", "false-rejection", "invalid-accepted"))
+def test_datetime_precision_gate_rejects_wrong_wire(mutation):
+    capture = read(PYTHON / "precision/trace.json")
+    for frame in capture["frames"]:
+        if frame["direction"] != "server->client":
+            continue
+        message = ForwardMsg()
+        message.ParseFromString(base64.b64decode(frame["base64"]))
+        if message.WhichOneof("type") != "delta" or message.delta.WhichOneof("type") != "new_element":
+            continue
+        element = message.delta.new_element
+        kind = element.WhichOneof("type")
+        if kind == "date_time_input" and element.date_time_input.label == ("empty-reversed-seconds" if mutation == "empty-default" else "minute-floor"):
+            if mutation == "wrong-bound":
+                element.date_time_input.min = "2024-03-15T12:31"
+            elif mutation in ("default-seconds", "empty-default"):
+                element.date_time_input.default[:] = ["2024-03-15T12:30:45"]
+            else:
+                continue
+        elif kind == "json" and mutation in ("false-rejection", "invalid-accepted"):
+            reports = json.loads(element.json.body)
+            if mutation == "false-rejection":
+                reports[0] = {"case": "minute-floor", "accepted": False, "error_type": "InvalidValue", "error": "unexpected rejection"}
+            else:
+                reports[3] = {"case": "previous-minute", "accepted": True, "value": "2024-03-15T12:30"}
+            element.json.body = json.dumps(reports)
+        else:
+            continue
+        raw = message.SerializeToString()
+        frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(message, preserving_proto_field_name=True))
+    _, emitted = identity_runs(capture)
+    capture["elements"] = [{"kind": kind, "fields": fields, "delta_path": path} for kind, fields, path in emitted]
+    with pytest.raises(AssertionError):
+        check_datetime_precision(capture)

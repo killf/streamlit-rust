@@ -582,6 +582,8 @@ For keyed pickers, changing `TimeInputOptions.step`, `DateTimeInputOptions.step`
 
 Without a key, changing a picker's width starts a new widget and resets its value. A datetime picker's effective min/max bounds also participate in its identity, even when the old selection remains within them. Changing only a time picker's `24h`/`12h` presentation preserves its value with or without a key. These transitions are also checked through same-connection native WebSocket reruns; browser interactions remain unverified for this dynamic flow.
 
+Datetime pickers use minute precision for the default and both bounds: seconds and fractional seconds are discarded before checking their order or whether the default fits. Bounds within the same minute may therefore be equal even when their original seconds are reversed. Different-minute bounds and defaults are still validated. This normalization does not change a time picker's step-dependent precision.
+
 ## Presentation leftovers
 
 ```rust

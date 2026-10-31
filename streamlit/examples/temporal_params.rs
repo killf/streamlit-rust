@@ -6,6 +6,47 @@ use streamlit::StreamlitApi;
 
 fn render(st: &Streamlit) -> Result<(), WidgetError> {
     let probe = st.query_params().get("probe");
+    if probe.as_deref() == Some("precision") {
+        use chrono::NaiveDateTime;
+
+        // 1. 固定完整原始精度，分别测试同分钟边界、真正越界、空值与省略边界。
+        let cases = [
+            ("minute-floor", Some("12:30:45.123456"), Some("12:30:50.999999"), Some("12:30:59.1")),
+            ("reversed-seconds", Some("12:30:30"), Some("12:30:59"), Some("12:30:01")),
+            ("reversed-micros", Some("12:30:00.5"), Some("12:30:00.9"), Some("12:30:00.1")),
+            ("previous-minute", Some("12:30:00"), Some("12:29:00"), Some("12:29:59.999999")),
+            ("next-minute", Some("12:30:59"), Some("12:31:00"), Some("12:32:00")),
+            ("reversed-minutes", Some("12:30:00"), Some("12:31:00"), Some("12:30:59")),
+            ("empty-reversed-seconds", None, Some("12:30:59"), Some("12:30:01")),
+            ("fraction-boundary-wide", Some("12:30:00"), Some("12:29:59.9"), Some("12:30:00.1")),
+            ("no-bounds", Some("12:30:45.999999"), None, None),
+            ("max-only", Some("12:30:45.123456"), None, Some("12:30:01")),
+            ("min-only", Some("12:30:45.123456"), Some("12:30:59"), None),
+        ];
+        let parse = |text: &str| NaiveDateTime::parse_from_str(&format!("2024-03-15T{text}"), "%Y-%m-%dT%H:%M:%S%.f").expect("fixture datetime");
+        let mut reports = Vec::new();
+
+        // 2. 每案采用独立 key，原样保留拒绝原因，并继续处理后续合法调用。
+        for (name, value, min, max) in cases {
+            let mut options = DateTimeInputOptions::new(name).key(name);
+            options = if let Some(value) = value { options.value(parse(value)) } else { options.value_none() };
+            if let Some(min) = min {
+                options = options.min(parse(min));
+            }
+            if let Some(max) = max {
+                options = options.max(parse(max));
+            }
+
+            match st.datetime_input(options) {
+                Ok(value) => reports.push(serde_json::json!({"case": name, "accepted": true, "value": value.map(|value| value.format("%Y-%m-%dT%H:%M").to_string())})),
+                Err(error) => reports.push(serde_json::json!({"case": name, "accepted": false, "error_type": "InvalidValue", "error": error.to_string()})),
+            }
+        }
+
+        st.json(reports);
+        return Ok(());
+    }
+
     if matches!(probe.as_deref(), Some("identity" | "unkeyed")) {
         use chrono::{NaiveDate, NaiveTime};
 

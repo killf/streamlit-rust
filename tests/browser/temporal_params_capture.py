@@ -27,6 +27,7 @@ parser.add_argument('--out', type=Path, required=True)
 mode = parser.add_mutually_exclusive_group()
 mode.add_argument('--identity', action='store_true', help='eleven keyed time/datetime/date state and constraint transitions')
 mode.add_argument('--unkeyed', action='store_true', help='eight unkeyed presentation, width and datetime bounds transitions')
+mode.add_argument('--precision', action='store_true', help='eleven datetime value/bounds minute-precision acceptance cases')
 parser.add_argument('--url', help='caller-owned Rust server URL (comparison capture)')
 args = parser.parse_args()
 OUT = args.out.resolve()
@@ -54,11 +55,13 @@ TRACE['producer_sources_sha256'] = {path: hashlib.sha256((ROOT / path).read_byte
     'streamlit/examples/temporal_params.rs', 'tests/reference/temporal_params_app.py', 'tests/browser/temporal_params_capture.py')}
 if args.identity or args.unkeyed:
     TRACE['scope'] = ('Eight unkeyed presentation/width/bounds runs' if args.unkeyed else 'Eleven keyed constraint/retention runs') + ' over one native WS; no browser/UI claim.'
+if args.precision:
+    TRACE['scope'] = 'Eleven datetime value/bounds precision acceptance cases over one native WS run; no browser/UI claim.'
 SERVER = WS = None
 
 
 def save():
-    (OUT / 'trace.json').write_text(json.dumps(TRACE, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+    (OUT / 'trace.json').write_text(json.dumps(TRACE, ensure_ascii=False, indent=2) + '\n', encoding='utf-8', newline='\n')
 
 
 def record(direction, raw, message):
@@ -90,6 +93,8 @@ try:
     for phase in phases:
         request = BackMsg()
         request.rerun_script.SetInParent()
+        if args.precision:
+            request.rerun_script.query_string = "probe=precision"
         if args.identity or args.unkeyed:
             request.rerun_script.query_string = "probe=" + ("unkeyed" if args.unkeyed else "identity") + "&phase=" + phase
             if phase in ("edit", "edit-step", "edit-format", "edit-bounds"):

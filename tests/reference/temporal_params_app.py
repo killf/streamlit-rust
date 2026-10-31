@@ -3,7 +3,30 @@ import datetime
 
 import streamlit as st
 
-if st.query_params.get("probe") in ("identity", "unkeyed"):
+if st.query_params.get("probe") == "precision":
+    cases = [
+        ("minute-floor", "12:30:45.123456", "12:30:50.999999", "12:30:59.1"),
+        ("reversed-seconds", "12:30:30", "12:30:59", "12:30:01"),
+        ("reversed-micros", "12:30:00.5", "12:30:00.9", "12:30:00.1"),
+        ("previous-minute", "12:30:00", "12:29:00", "12:29:59.999999"),
+        ("next-minute", "12:30:59", "12:31:00", "12:32:00"),
+        ("reversed-minutes", "12:30:00", "12:31:00", "12:30:59"),
+        ("empty-reversed-seconds", None, "12:30:59", "12:30:01"),
+        ("fraction-boundary-wide", "12:30:00", "12:29:59.9", "12:30:00.1"),
+        ("no-bounds", "12:30:45.999999", None, None),
+        ("max-only", "12:30:45.123456", None, "12:30:01"),
+        ("min-only", "12:30:45.123456", "12:30:59", None),
+    ]
+    parse = lambda value: datetime.datetime.fromisoformat("2024-03-15T" + value) if value is not None else None
+    reports = []
+    for name, value, low, high in cases:
+        try:
+            result = st.datetime_input(name, value=parse(value), min_value=parse(low), max_value=parse(high), key=name)
+            reports.append({"case": name, "accepted": True, "value": None if result is None else result.isoformat(timespec="minutes")})
+        except Exception as error:
+            reports.append({"case": name, "accepted": False, "error_type": type(error).__name__, "error": str(error)})
+    st.json(reports)
+elif st.query_params.get("probe") in ("identity", "unkeyed"):
     unkeyed = st.query_params["probe"] == "unkeyed"
     phase = st.query_params.get("phase", "load")
     phases = (("load", "edit", "format", "width", "restore", "edit-bounds", "bounds", "observe") if unkeyed else

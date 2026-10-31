@@ -3207,7 +3207,7 @@ impl<C: AppendChild> InputWidgets for C {
     }
 
     fn datetime_input(&self, options: impl Into<DateTimeInputOptions>) -> Result<Option<chrono::NaiveDateTime>, WidgetError> {
-        use chrono::{Datelike, NaiveDate, NaiveDateTime};
+        use chrono::{Datelike, NaiveDate, NaiveDateTime, Timelike};
         let options = options.into();
         let c = options.common;
         let form_id = form_scope(self, c.callback.is_some())?;
@@ -3227,8 +3227,11 @@ impl<C: AppendChild> InputWidgets for C {
         let base_date = options.value.map(|moment| moment.date()).unwrap_or_else(|| chrono::Local::now().date_naive());
         let midnight = chrono::NaiveTime::from_hms_opt(0, 0, 0).expect("midnight");
         let end_of_day = chrono::NaiveTime::from_hms_opt(23, 59, 0).expect("23:59");
-        let min = options.min.unwrap_or_else(|| ten_years(base_date, false).and_time(midnight));
-        let max = options.max.unwrap_or_else(|| ten_years(base_date, true).and_time(end_of_day));
+        // 默认值已按分钟归一化，边界也须先去掉秒/亚秒，再做顺序和范围检查。
+        let minute = |value: NaiveDateTime| value.date().and_hms_opt(value.hour(), value.minute(), 0).expect("valid hour and minute");
+        let min = options.min.map(minute).unwrap_or_else(|| ten_years(base_date, false).and_time(midnight));
+        let max = options.max.map(minute).unwrap_or_else(|| ten_years(base_date, true).and_time(end_of_day));
+
         if min > max {
             return Err(WidgetError::InvalidValue("datetime_input min is after max".into()));
         }
@@ -4908,6 +4911,41 @@ mod tests {
             assert!(wire.try_recv().is_ok(), "the first valid form is still rendered");
         }
         assert!(wire.try_recv().is_err(), "failed form calls must not append their partial children");
+    }
+
+    #[test]
+    fn datetime_bounds_use_minute_precision_before_validation() -> anyhow::Result<()> {
+        use chrono::NaiveDateTime;
+
+        let parse = |text: &str| NaiveDateTime::parse_from_str(&format!("2024-03-15T{text}"), "%Y-%m-%dT%H:%M:%S%.f").expect("fixture datetime");
+        let expected = parse("12:30:00");
+        let state = SessionState::default();
+        state.begin_widgets(vec![]);
+        let (st, mut wire) = app(&state);
+
+        // 1. 原始边界同分钟且秒/微秒倒序时，先归一化再比较；空默认值也适用。
+        for (name, min, max, empty) in [
+            ("minute-floor", "12:30:50.999999", "12:30:59.1", false),
+            ("reversed-seconds", "12:30:59", "12:30:01", false),
+            ("reversed-micros", "12:30:00.9", "12:30:00.1", false),
+            ("empty-reversed-seconds", "12:30:59", "12:30:01", true),
+        ] {
+            let options = DateTimeInputOptions::new(name).key(name).min(parse(min)).max(parse(max));
+            let options = if empty { options.value_none() } else { options.value(parse("12:30:45.123456")) };
+            assert_eq!(st.datetime_input(options)?, if empty { None } else { Some(expected) }, "{name}");
+            let element::Type::DateTimeInput(widget) = input(&mut wire)? else { panic!() };
+            assert_eq!(widget.min, "2024-03-15T12:30");
+            assert_eq!(widget.max, "2024-03-15T12:30");
+            assert_eq!(widget.default, if empty { Vec::<String>::new() } else { vec!["2024-03-15T12:30".into()] });
+        }
+
+        // 2. 跨分钟的上下越界和反序仍被拒绝，失败调用不产生元素。
+        for (name, min, max) in [("previous-minute", "12:29:00", "12:29:59.999999"), ("next-minute", "12:31:00", "12:32:00"), ("reversed-minutes", "12:31:00", "12:30:59")] {
+            assert!(st.datetime_input(DateTimeInputOptions::new(name).key(name).value(expected).min(parse(min)).max(parse(max))).is_err(), "{name}");
+        }
+        assert!(wire.try_recv().is_err());
+
+        Ok(())
     }
 
     #[test]

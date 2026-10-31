@@ -1382,3 +1382,19 @@ SDK/Rust 各 71 原始帧/32 有序元素，状态/ID 关系与此前 AppTest �
 控件 ID 与 JSON 正文后完整 Element 字段相同。旧 keyed/default 模式经重新
 采集检查十一轮约束与默认五元素未变。本批仅修改采集/示例/门禁与文档，不改
 生产实现；hash/共享状态与格式错误流程继续开放。
+
+### datetime 边界的分钟归一化（2026-10-31）
+
+SDK 先将 value/min/max 都去掉秒/微秒，再校验 min<=max 和默认值是否在范围内。
+Rust 的 value builder 已按分钟归一化，min/max 原来只在发送协议时去掉秒，
+校验仍用原始精度：同分钟 min=12:30:59、max=12:30:01 会错误拒绝，非空默认
+12:30 也会被 12:30:50.999999 的原始 min 错误拦截。本次只在 datetime_input
+的现有边界求值处归一化显式 min/max，再执行既有校验和身份计算。不改公共
+builder、time_input、codec、注册、共享状态、hash、queue 或错误文案。
+
+precision 既有示例/fixture 探针含十一独立 key 案例：八组合法（含 None 默认、
+同分钟反序秒/微秒、单侧/省略边界），三组真正跨分钟的越界/反序仍拒绝。
+先保留修前 8 帧/4 元素（只接受三组），修后与 SDK 各 13 帧/9 元素，八个成功
+Element 规范化 ID 后逐字段一致。三类拒绝的类型/文案仍有差异，修后 capture
+明确 semantic_match=false、precision_acceptance_match=true，不将局部接受性
+修复写成完整错误兼容。失败前身份占用/错误 UI 和其他动态/输入组合仍开放。

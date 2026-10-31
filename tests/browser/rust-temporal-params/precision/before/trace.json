@@ -1,0 +1,302 @@
+{
+  "schema_version": 1,
+  "runtime": "rust",
+  "reference_version": "1.66.1",
+  "captured_at_utc": "2026-10-31T15:43:35.445250+00:00",
+  "scope": "Eleven datetime value/bounds precision acceptance cases over one native WS run; no browser/UI claim.",
+  "server_command": null,
+  "server_cleanup": "caller-owned",
+  "url": "http://127.0.0.1:8600",
+  "frames": [
+    {
+      "direction": "client->server",
+      "bytes": 19,
+      "base64": "WhEKD3Byb2JlPXByZWNpc2lvbg==",
+      "message": {
+        "rerun_script": {
+          "query_string": "probe=precision"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 219,
+      "base64": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkOWVjZmIxY2EtNGI1Zi00NjViLTlmMjEtYmZjYmU0ZjRjY2M2EiQ4YWJmM2JiZi01MjJhLTQ5OGUtODZjOC1lZGU1MGQyNTgyZmYaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl",
+      "message": {
+        "metadata": {
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "new_session": {
+          "initialize": {
+            "user_info": {},
+            "environment_info": {
+              "streamlit_version": "1.66.1"
+            },
+            "session_status": {},
+            "session_id": "9ecfb1ca-4b5f-465b-9f21-bfcbe4f4ccc6"
+          },
+          "script_run_id": "8abf3bbf-522a-498e-86c8-ede50d2582ff",
+          "name": "Streamlit Rust",
+          "config": {
+            "show_error_links": "SHOW_ERROR_LINKS_FALSE"
+          },
+          "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 28,
+      "base64": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ==",
+      "message": {
+        "hash": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 246,
+      "base64": "CiA0MjI1MjVlMzUzNTUxN2FlMTZmZWUzYjY4Yzk0NDBjZBImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqqQEapgHyA50BCjwkJElELTNiOGUzOWY0MmZiMDdlZmQ1YWRlN2NjOTUwNzI4MGEzLWZyYWN0aW9uLWJvdW5kYXJ5LXdpZGUSFmZyYWN0aW9uLWJvdW5kYXJ5LXdpZGUaEDIwMjQtMDMtMTVUMTI6MzAiEDIwMjQtMDMtMTVUMTI6MjkqEDIwMjQtMDMtMTVUMTI6MzBaAGIKWVlZWS9NTS9ERGiEB9IDAggB",
+      "message": {
+        "hash": "422525e3535517ae16fee3b68c9440cd",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "width_config": {
+              "use_stretch": true
+            },
+            "date_time_input": {
+              "id": "$$ID-3b8e39f42fb07efd5ade7cc9507280a3-fraction-boundary-wide",
+              "label": "fraction-boundary-wide",
+              "default": [
+                "2024-03-15T12:30"
+              ],
+              "min": "2024-03-15T12:29",
+              "max": "2024-03-15T12:30",
+              "label_visibility": {},
+              "format": "YYYY/MM/DD",
+              "step": "900"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 220,
+      "base64": "CiA4ZDViNGM0ZDY0MTU5OGRjMWNmNDJkYjc3M2FhOWU5ZBImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqjwEajAHyA4MBCi8kJElELTdlMzFmYWY2NGNhY2Y5ZjI3NjA1Zjc1YzJhYjRiYzUyLW5vLWJvdW5kcxIJbm8tYm91bmRzGhAyMDI0LTAzLTE1VDEyOjMwIhAyMDE0LTAzLTE1VDAwOjAwKhAyMDM0LTAzLTE1VDIzOjU5WgBiCllZWVkvTU0vRERohAfSAwIIAQ==",
+      "message": {
+        "hash": "8d5b4c4d641598dc1cf42db773aa9e9d",
+        "metadata": {
+          "delta_path": [
+            0,
+            1
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "width_config": {
+              "use_stretch": true
+            },
+            "date_time_input": {
+              "id": "$$ID-7e31faf64cacf9f27605f75c2ab4bc52-no-bounds",
+              "label": "no-bounds",
+              "default": [
+                "2024-03-15T12:30"
+              ],
+              "min": "2014-03-15T00:00",
+              "max": "2034-03-15T23:59",
+              "label_visibility": {},
+              "format": "YYYY/MM/DD",
+              "step": "900"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 218,
+      "base64": "CiAwNDVhZjMxYTI1M2QwNDY0ZGMxNmE3YTZiMWY5NGQyNRImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqjQEaigHyA4EBCi4kJElELWUwNjg1YjI4OTA0MjU5YTQ0ZWZlZjg1MzI1YzFiMDY4LW1heC1vbmx5EghtYXgtb25seRoQMjAyNC0wMy0xNVQxMjozMCIQMjAxNC0wMy0xNVQwMDowMCoQMjAyNC0wMy0xNVQxMjozMFoAYgpZWVlZL01NL0REaIQH0gMCCAE=",
+      "message": {
+        "hash": "045af31a253d0464dc16a7a6b1f94d25",
+        "metadata": {
+          "delta_path": [
+            0,
+            2
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "width_config": {
+              "use_stretch": true
+            },
+            "date_time_input": {
+              "id": "$$ID-e0685b28904259a44efef85325c1b068-max-only",
+              "label": "max-only",
+              "default": [
+                "2024-03-15T12:30"
+              ],
+              "min": "2014-03-15T00:00",
+              "max": "2024-03-15T12:30",
+              "label_visibility": {},
+              "format": "YYYY/MM/DD",
+              "step": "900"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 1495,
+      "base64": "CiAxNTQ3NDM1NTQ2MDk1MjFhM2NiNjE2MTUxYTZkMDcxNxImEgIAAyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2Uqigsahwv6Af4KCvkKW3siY2FzZSI6ICJtaW51dGUtZmxvb3IiLCAiYWNjZXB0ZWQiOiBmYWxzZSwgImVycm9yX3R5cGUiOiAiSW52YWxpZFZhbHVlIiwgImVycm9yIjogImludmFsaWQgd2lkZ2V0IHZhbHVlOiBkYXRldGltZV9pbnB1dCB2YWx1ZSBpcyBvdXRzaWRlIG1pbi9tYXgifSwgeyJjYXNlIjogInJldmVyc2VkLXNlY29uZHMiLCAiYWNjZXB0ZWQiOiBmYWxzZSwgImVycm9yX3R5cGUiOiAiSW52YWxpZFZhbHVlIiwgImVycm9yIjogImludmFsaWQgd2lkZ2V0IHZhbHVlOiBkYXRldGltZV9pbnB1dCBtaW4gaXMgYWZ0ZXIgbWF4In0sIHsiY2FzZSI6ICJyZXZlcnNlZC1taWNyb3MiLCAiYWNjZXB0ZWQiOiBmYWxzZSwgImVycm9yX3R5cGUiOiAiSW52YWxpZFZhbHVlIiwgImVycm9yIjogImludmFsaWQgd2lkZ2V0IHZhbHVlOiBkYXRldGltZV9pbnB1dCBtaW4gaXMgYWZ0ZXIgbWF4In0sIHsiY2FzZSI6ICJwcmV2aW91cy1taW51dGUiLCAiYWNjZXB0ZWQiOiBmYWxzZSwgImVycm9yX3R5cGUiOiAiSW52YWxpZFZhbHVlIiwgImVycm9yIjogImludmFsaWQgd2lkZ2V0IHZhbHVlOiBkYXRldGltZV9pbnB1dCB2YWx1ZSBpcyBvdXRzaWRlIG1pbi9tYXgifSwgeyJjYXNlIjogIm5leHQtbWludXRlIiwgImFjY2VwdGVkIjogZmFsc2UsICJlcnJvcl90eXBlIjogIkludmFsaWRWYWx1ZSIsICJlcnJvciI6ICJpbnZhbGlkIHdpZGdldCB2YWx1ZTogZGF0ZXRpbWVfaW5wdXQgdmFsdWUgaXMgb3V0c2lkZSBtaW4vbWF4In0sIHsiY2FzZSI6ICJyZXZlcnNlZC1taW51dGVzIiwgImFjY2VwdGVkIjogZmFsc2UsICJlcnJvcl90eXBlIjogIkludmFsaWRWYWx1ZSIsICJlcnJvciI6ICJpbnZhbGlkIHdpZGdldCB2YWx1ZTogZGF0ZXRpbWVfaW5wdXQgbWluIGlzIGFmdGVyIG1heCJ9LCB7ImNhc2UiOiAiZW1wdHktcmV2ZXJzZWQtc2Vjb25kcyIsICJhY2NlcHRlZCI6IGZhbHNlLCAiZXJyb3JfdHlwZSI6ICJJbnZhbGlkVmFsdWUiLCAiZXJyb3IiOiAiaW52YWxpZCB3aWRnZXQgdmFsdWU6IGRhdGV0aW1lX2lucHV0IG1pbiBpcyBhZnRlciBtYXgifSwgeyJjYXNlIjogImZyYWN0aW9uLWJvdW5kYXJ5LXdpZGUiLCAiYWNjZXB0ZWQiOiB0cnVlLCAidmFsdWUiOiAiMjAyNC0wMy0xNVQxMjozMCJ9LCB7ImNhc2UiOiAibm8tYm91bmRzIiwgImFjY2VwdGVkIjogdHJ1ZSwgInZhbHVlIjogIjIwMjQtMDMtMTVUMTI6MzAifSwgeyJjYXNlIjogIm1heC1vbmx5IiwgImFjY2VwdGVkIjogdHJ1ZSwgInZhbHVlIjogIjIwMjQtMDMtMTVUMTI6MzAifSwgeyJjYXNlIjogIm1pbi1vbmx5IiwgImFjY2VwdGVkIjogZmFsc2UsICJlcnJvcl90eXBlIjogIkludmFsaWRWYWx1ZSIsICJlcnJvciI6ICJpbnZhbGlkIHdpZGdldCB2YWx1ZTogZGF0ZXRpbWVfaW5wdXQgdmFsdWUgaXMgb3V0c2lkZSBtaW4vbWF4In1dEAHSAwIIAQ==",
+      "message": {
+        "hash": "154743554609521a3cb616151a6d0717",
+        "metadata": {
+          "delta_path": [
+            0,
+            3
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "[{\"case\": \"minute-floor\", \"accepted\": false, \"error_type\": \"InvalidValue\", \"error\": \"invalid widget value: datetime_input value is outside min/max\"}, {\"case\": \"reversed-seconds\", \"accepted\": false, \"error_type\": \"InvalidValue\", \"error\": \"invalid widget value: datetime_input min is after max\"}, {\"case\": \"reversed-micros\", \"accepted\": false, \"error_type\": \"InvalidValue\", \"error\": \"invalid widget value: datetime_input min is after max\"}, {\"case\": \"previous-minute\", \"accepted\": false, \"error_type\": \"InvalidValue\", \"error\": \"invalid widget value: datetime_input value is outside min/max\"}, {\"case\": \"next-minute\", \"accepted\": false, \"error_type\": \"InvalidValue\", \"error\": \"invalid widget value: datetime_input value is outside min/max\"}, {\"case\": \"reversed-minutes\", \"accepted\": false, \"error_type\": \"InvalidValue\", \"error\": \"invalid widget value: datetime_input min is after max\"}, {\"case\": \"empty-reversed-seconds\", \"accepted\": false, \"error_type\": \"InvalidValue\", \"error\": \"invalid widget value: datetime_input min is after max\"}, {\"case\": \"fraction-boundary-wide\", \"accepted\": true, \"value\": \"2024-03-15T12:30\"}, {\"case\": \"no-bounds\", \"accepted\": true, \"value\": \"2024-03-15T12:30\"}, {\"case\": \"max-only\", \"accepted\": true, \"value\": \"2024-03-15T12:30\"}, {\"case\": \"min-only\", \"accepted\": false, \"error_type\": \"InvalidValue\", \"error\": \"invalid widget value: datetime_input value is outside min/max\"}]",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 19,
+      "base64": "Cg9zY3JpcHRfZmluaXNoZWQwAA==",
+      "message": {
+        "hash": "script_finished",
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    }
+  ],
+  "elements": [
+    {
+      "index": 0,
+      "kind": "date_time_input",
+      "fields": {
+        "id": "$$ID-3b8e39f42fb07efd5ade7cc9507280a3-fraction-boundary-wide",
+        "label": "fraction-boundary-wide",
+        "default": [
+          "2024-03-15T12:30"
+        ],
+        "min": "2024-03-15T12:29",
+        "max": "2024-03-15T12:30",
+        "label_visibility": {},
+        "format": "YYYY/MM/DD",
+        "step": "900"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        0
+      ]
+    },
+    {
+      "index": 1,
+      "kind": "date_time_input",
+      "fields": {
+        "id": "$$ID-7e31faf64cacf9f27605f75c2ab4bc52-no-bounds",
+        "label": "no-bounds",
+        "default": [
+          "2024-03-15T12:30"
+        ],
+        "min": "2014-03-15T00:00",
+        "max": "2034-03-15T23:59",
+        "label_visibility": {},
+        "format": "YYYY/MM/DD",
+        "step": "900"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        1
+      ]
+    },
+    {
+      "index": 2,
+      "kind": "date_time_input",
+      "fields": {
+        "id": "$$ID-e0685b28904259a44efef85325c1b068-max-only",
+        "label": "max-only",
+        "default": [
+          "2024-03-15T12:30"
+        ],
+        "min": "2014-03-15T00:00",
+        "max": "2024-03-15T12:30",
+        "label_visibility": {},
+        "format": "YYYY/MM/DD",
+        "step": "900"
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        2
+      ]
+    },
+    {
+      "index": 3,
+      "kind": "json",
+      "fields": {
+        "body": "[{\"case\": \"minute-floor\", \"accepted\": false, \"error_type\": \"InvalidValue\", \"error\": \"invalid widget value: datetime_input value is outside min/max\"}, {\"case\": \"reversed-seconds\", \"accepted\": false, \"error_type\": \"InvalidValue\", \"error\": \"invalid widget value: datetime_input min is after max\"}, {\"case\": \"reversed-micros\", \"accepted\": false, \"error_type\": \"InvalidValue\", \"error\": \"invalid widget value: datetime_input min is after max\"}, {\"case\": \"previous-minute\", \"accepted\": false, \"error_type\": \"InvalidValue\", \"error\": \"invalid widget value: datetime_input value is outside min/max\"}, {\"case\": \"next-minute\", \"accepted\": false, \"error_type\": \"InvalidValue\", \"error\": \"invalid widget value: datetime_input value is outside min/max\"}, {\"case\": \"reversed-minutes\", \"accepted\": false, \"error_type\": \"InvalidValue\", \"error\": \"invalid widget value: datetime_input min is after max\"}, {\"case\": \"empty-reversed-seconds\", \"accepted\": false, \"error_type\": \"InvalidValue\", \"error\": \"invalid widget value: datetime_input min is after max\"}, {\"case\": \"fraction-boundary-wide\", \"accepted\": true, \"value\": \"2024-03-15T12:30\"}, {\"case\": \"no-bounds\", \"accepted\": true, \"value\": \"2024-03-15T12:30\"}, {\"case\": \"max-only\", \"accepted\": true, \"value\": \"2024-03-15T12:30\"}, {\"case\": \"min-only\", \"accepted\": false, \"error_type\": \"InvalidValue\", \"error\": \"invalid widget value: datetime_input value is outside min/max\"}]",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        3
+      ]
+    }
+  ],
+  "finishes": [
+    0
+  ],
+  "producer_sources_sha256": {
+    "streamlit/examples/temporal_params.rs": "67a9926d271ab35d7e75cc4fb608414c7eafb5fe3b851d761cd78ef0b3239389",
+    "tests/reference/temporal_params_app.py": "ed9f87e5a9330c693b524277d84e1c4255562488adc9a5572a5c586e5fd34f44",
+    "tests/browser/temporal_params_capture.py": "7002e195c491e8a3bd836c671f47f2f1332060465592122ce89665e8b3c48e8a"
+  },
+  "health": {
+    "status": 200,
+    "body": "ok"
+  },
+  "cleanup": {
+    "websocket_closed": true,
+    "caller_server_stopped": true
+  },
+  "successful": true,
+  "production_base_commit": "62c8837ac18ae736f91669e6d8feea96063195dd",
+  "production_source_dirty": false,
+  "widget_api_sha256": "1fe1454e065d8b867d2d2f4768fc61c90c49c745aba0446d741065dc56c47a2e",
+  "binary_sha256": "27381790501432a1a14cef20770a37b95686c341e4e5001b86eede1511878453",
+  "semantic_match": false,
+  "caller_server_process": {
+    "pid": 29992,
+    "executable_path": "C:/Users/killf/github/streamlit-rust/target/debug/examples/temporal_params.exe",
+    "path_verified_before_stop": true
+  }
+}
