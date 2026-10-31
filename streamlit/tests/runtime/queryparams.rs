@@ -99,6 +99,8 @@ fn text_length_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
             let phase = query.get("phase");
             if phase.as_deref() == Some("assign") {
                 st.session_state().set("cjk_note", "code長🧊extra")?;
+            } else if phase.as_deref() == Some("assign-none") {
+                st.session_state().set("cjk_note", Option::<String>::None)?;
             }
 
             // 2. 两种控件使用相同上限、默认值和 callback。
@@ -401,7 +403,8 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
         let Some(request) = frame["message"].get("rerun_script") else { continue };
         if !widget_ids.is_empty()
             && ((reference["scenario"] == "disabled-types" && request["query_string"].as_str().is_some_and(|query| query.contains("phase=load&")))
-                || (matches!(reference["scenario"].as_str(), Some("text-length" | "text-reset" | "text-source" | "text-bound" | "text-bound-peer" | "text-repeat")) && request["query_string"].as_str().is_some_and(|query| query.ends_with("phase=load"))))
+                || (matches!(reference["scenario"].as_str(), Some("text-length" | "text-reset" | "text-source" | "text-bound" | "text-bound-peer" | "text-repeat" | "text-empty"))
+                    && request["query_string"].as_str().is_some_and(|query| query.ends_with("phase=load"))))
         {
             drop(stream);
             stream = sessions::connect(address, None).await;
@@ -495,13 +498,13 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
                                 if matches!(reference["scenario"].as_str(), Some("seed" | "seed-code" | "rerun")) {
                                     observed.push(serde_json::json!({"widget": key, "set": widget.set_value, "value": widget.value}));
                                 }
-                                if matches!(reference["scenario"].as_str(), Some("text-length" | "text-reset" | "text-source" | "text-bound" | "text-bound-peer" | "text-repeat")) {
+                                if matches!(reference["scenario"].as_str(), Some("text-length" | "text-reset" | "text-source" | "text-bound" | "text-bound-peer" | "text-repeat" | "text-empty")) {
                                     observed.push(serde_json::json!({"widget": key, "kind": "text_input", "set": widget.set_value, "value": widget.value, "default": widget.default, "max_chars": widget.max_chars}));
                                     observed_identities.push(widget.id.clone());
                                 }
                                 widget_ids.insert(key, widget.id);
                             }
-                            Some(element::Type::TextArea(widget)) if matches!(reference["scenario"].as_str(), Some("text-length" | "text-reset" | "text-source" | "text-bound" | "text-bound-peer" | "text-repeat")) => {
+                            Some(element::Type::TextArea(widget)) if matches!(reference["scenario"].as_str(), Some("text-length" | "text-reset" | "text-source" | "text-bound" | "text-bound-peer" | "text-repeat" | "text-empty")) => {
                                 let key = widget.id.rsplit('-').next().ok_or("missing text area key")?.to_owned();
                                 observed.push(serde_json::json!({"widget": key, "kind": "text_area", "set": widget.set_value, "value": widget.value, "default": widget.default, "max_chars": widget.max_chars}));
                                 observed_identities.push(widget.id.clone());
@@ -550,7 +553,7 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
         if let Some(info) = message.get("page_info_changed") {
             expected.push(serde_json::json!({"url": info["query_string"].as_str().unwrap_or("")}));
         }
-        if matches!(reference["scenario"].as_str(), Some("text-length" | "text-reset" | "text-source" | "text-bound" | "text-bound-peer" | "text-repeat")) {
+        if matches!(reference["scenario"].as_str(), Some("text-length" | "text-reset" | "text-source" | "text-bound" | "text-bound-peer" | "text-repeat" | "text-empty")) {
             for kind in ["text_input", "text_area"] {
                 if let Some(widget) = message["delta"]["new_element"].get(kind) {
                     let key = widget["id"].as_str().and_then(|id| id.rsplit('-').next()).ok_or("missing reference text key")?;
@@ -602,7 +605,7 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
     }
     assert_eq!(expected.len(), expected_count, "reference must retain every snapshot and URL write");
     assert_eq!(observed, expected);
-    if matches!(reference["scenario"].as_str(), Some("text-reset" | "text-source" | "text-bound" | "text-bound-peer" | "text-repeat")) {
+    if matches!(reference["scenario"].as_str(), Some("text-reset" | "text-source" | "text-bound" | "text-bound-peer" | "text-repeat" | "text-empty")) {
         // 比较身份的相等关系，不把 Python 与 Rust 的摘要字面量强行等同。
         assert_eq!(observed_identities.len(), expected_identities.len());
         for (old_index, old_id) in expected_identities.iter().enumerate() {
@@ -667,6 +670,11 @@ async fn bound_text_history_keeps_unbound_peer_callback() -> TestResult {
 #[actix_web::test]
 async fn bound_text_repeat_values_remain_until_last_value_requires_correction() -> TestResult {
     assert_queryparams_reference(text_length_entry, include_str!("../../../tests/reference/reference-browser/queryparams/text-repeat/trace.json"), 7).await
+}
+
+#[actix_web::test]
+async fn bound_text_none_assignments_empty_values_and_history_match_reference() -> TestResult {
+    assert_queryparams_reference(text_length_entry, include_str!("../../../tests/reference/reference-browser/queryparams/text-empty/trace.json"), 23).await
 }
 
 #[actix_web::test]

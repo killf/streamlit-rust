@@ -826,3 +826,24 @@ Two raw repeated pairs with last value ok emit no URL message; an overlong last
 value LONGEST emits one correction to LONGE. State/sync and identity agree across
 all seven projections, with no frontend input or callback. No production flow,
 public API, pending decision or queue retention rule changes in this batch.
+
+
+### Effective text defaults when native state is null (2026-10-31)
+
+The pinned SDK text emitters compute identity from raw caller options, then
+replace the effective default with None if the keyed current state is None.
+This happens before serde construction/registration. Ten native bound-input
+runs prove three URL removals and a later null history default. The initial
+serializer-only inference was disproved by these raw frames: None is not
+serialized as the literal query string None in these calls.
+
+Both existing Rust text emitters now keep a separate wire_default, clearing it
+only when the current key exists with JSON null. Registration's truncated
+fallback and proto default derive from this effective value, while identity
+continues to use original options. Existing query default collapsing then
+removes the parameter; no registry/serializer/history flow was changed. A unit
+covers both public controls' null/retained/null-to-string path and identity.
+The new native bound-input capture checks all 23 ordered projections, including
+empty versus literal None, callbacks and history. Area binding and the other
+pending API/queue/parser choices remain pending; no additional public API,
+module or dependency was introduced. Browser coverage and full goal stay open.

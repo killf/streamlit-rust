@@ -2232,9 +2232,16 @@ impl<C: AppendChild> InputWidgets for C {
         }
         let width_config = c.width(false)?;
 
-        // 默认值经反序列化截断；下方 wire 的 default 仍使用原始文本。
-        let default = options
-            .value
+        // 显式空状态覆盖本轮默认值；身份仍使用调用方提供的原始选项。
+        let mut wire_default = options.value.clone();
+        if let Some(key) = c.key.as_deref()
+            && self.get_app().lock().session_state.get::<Value>(key)?.is_some_and(|value| value.is_null())
+        {
+            wire_default = None;
+        }
+
+        // 默认值经反序列化截断；wire 保留有效默认值的原始文本。
+        let default = wire_default
             .as_ref()
             .map_or(Value::Null, |value| Value::String(options.max_chars.map_or_else(|| value.clone(), |limit| value.chars().take(limit).collect())));
 
@@ -2298,7 +2305,7 @@ impl<C: AppendChild> InputWidgets for C {
             r#type: Some(element::Type::TextInput(proto::TextInput {
                 id,
                 label: c.label,
-                default: options.value,
+                default: wire_default,
                 r#type: options.input_type.wire() as i32,
                 max_chars: options.max_chars.unwrap_or_default() as u32,
                 help: c.help,
@@ -2531,9 +2538,16 @@ impl<C: AppendChild> InputWidgets for C {
         let form_id = form_scope(self, c.callback.is_some())?;
         let width_config = c.width(false)?;
 
-        // 默认值经反序列化截断；下方 wire 的 default 仍使用原始文本。
-        let default = options
-            .value
+        // 显式空状态覆盖本轮默认值；身份仍使用调用方提供的原始选项。
+        let mut wire_default = options.value.clone();
+        if let Some(key) = c.key.as_deref()
+            && self.get_app().lock().session_state.get::<Value>(key)?.is_some_and(|value| value.is_null())
+        {
+            wire_default = None;
+        }
+
+        // 默认值经反序列化截断；wire 保留有效默认值的原始文本。
+        let default = wire_default
             .as_ref()
             .map_or(Value::Null, |value| Value::String(options.max_chars.map_or_else(|| value.clone(), |limit| value.chars().take(limit).collect())));
 
@@ -2567,7 +2581,7 @@ impl<C: AppendChild> InputWidgets for C {
                 id,
                 label: c.label,
                 form_id,
-                default: options.value.clone(),
+                default: wire_default,
                 max_chars: options.max_chars.unwrap_or_default() as u32,
                 value: if set_value { result.clone() } else { None },
                 set_value,
@@ -4105,6 +4119,41 @@ mod tests {
             assert!(!set);
             assert!(wire_value.is_none());
             state.finish_widgets();
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn null_text_state_changes_effective_default_without_changing_identity() -> anyhow::Result<()> {
+        for area in [false, true] {
+            let state = SessionState::default();
+            let mut identities = Vec::new();
+            for phase in 0..3 {
+                state.begin_widgets(vec![]);
+                if phase == 0 {
+                    state.set("bound", Option::<String>::None)?;
+                } else if phase == 2 {
+                    state.set("bound", "restored")?;
+                }
+
+                let (st, mut wire) = app(&state);
+                let value = if area {
+                    st.text_area(TextAreaOptions::new("Bound", "abcdef🧊").key("bound").max_chars(5))?
+                } else {
+                    st.text_input(TextInputOptions::new("Bound").value("abcdef🧊").key("bound").max_chars(5))?
+                };
+                assert_eq!(value.as_deref(), (phase == 2).then_some("restored"));
+                let (id, default, synchronized) = match input(&mut wire)? {
+                    element::Type::TextInput(widget) => (widget.id, widget.default, widget.set_value),
+                    element::Type::TextArea(widget) => (widget.id, widget.default, widget.set_value),
+                    other => anyhow::bail!("expected text widget, got {other:?}"),
+                };
+                identities.push(id);
+                assert_eq!(default.as_deref(), (phase == 2).then_some("abcdef🧊"));
+                assert_eq!(synchronized, phase != 1);
+                state.finish_widgets();
+            }
+            assert!(identities.iter().all(|id| id == &identities[0]));
         }
         Ok(())
     }

@@ -180,7 +180,7 @@ def read_query_param_capture(scenario, capture=None):
                     byte_payloads.append(widgets[0].bytes_value)
         elif message.WhichOneof("type") == "new_session":
             sessions.append(message.new_session.initialize.session_id)
-            if scenario in ("disabled-json", "encoding", "text-length", "text-reset", "text-source", "text-bound", "text-bound-peer", "text-repeat"):
+            if scenario in ("disabled-json", "encoding", "text-length", "text-reset", "text-source", "text-bound", "text-bound-peer", "text-repeat", "text-empty"):
                 environment = message.new_session.initialize.environment_info
                 assert environment.streamlit_version == "1.66.1" and environment.python_version == "3.14.7.final.0"
         elif message.WhichOneof("type") == "script_finished":
@@ -361,6 +361,30 @@ def read_query_param_capture(scenario, capture=None):
             identities = length_ids[number * 10:(number + 1) * 10]
             assert [identities.index(identity) for identity in identities] == [0, 0, 2, 3, 3, 0, 2, 2, 0, 0]
         assert set(length_ids[:10]).isdisjoint(length_ids[10:])
+    elif scenario == "text-empty":
+        prefix = "case=form-max-chars-cjk&probe=length&kind=input&bind=on&limit=5&default=long&phase="
+        phases = ("load", "assign-none", "assign-none", "url-only", "empty-url", "frontend", "assign-none", "history-missing", "history-empty", "recover")
+        tails = ("seed", "seed", "None", "None", "", "", "abcde", None, "", "ok")
+        assert requests == [prefix + phase + ("&cjk_note=" + value if value is not None else "") for phase, value in zip(phases, tails, strict=True)]
+        assert histories == [False] * 7 + [True, True, False]
+        assert finishes == [0] * 10 and len(sessions) == 10 and len(set(sessions)) == 1
+        values = ("seed", None, None, "None", "", "abcde", None, None, "", "")
+        assert snapshots == [{"phase": phase, "value": value, "state": value, "callbacks": [] if number < 5 else ["abcde"]}
+                             for number, (phase, value) in enumerate(zip(phases, values, strict=True))]
+        assert urls == [prefix + "assign-none"] * 3
+        widgets = [frame["message"]["delta"]["new_element"]["text_input"] for frame in capture["frames"]
+                   if "text_input" in frame["message"].get("delta", {}).get("new_element", {})]
+        assert len(widgets) == 10 and len({widget["id"] for widget in widgets}) == 1
+        for number, widget in enumerate(widgets):
+            assert widget.get("default") == (None if number in (1, 2, 3, 6, 7, 8) else "abcdef🧊")
+            assert widget["max_chars"] == 5 and widget["query_param_key"] == "cjk_note"
+            assert widget.get("set_value", False) == (number not in (5, 9))
+            assert widget.get("value") == (values[number] if number not in (5, 9) else None)
+        submitted = (None, None, None, None, None, "abcdef🧊", None, "staleTEXT", "staleTEXT", "")
+        clients = [frame["message"]["rerun_script"] for frame in capture["frames"] if frame["direction"] == "client->server"]
+        for client, value in zip(clients, submitted, strict=True):
+            inputs = client.get("widget_states", {}).get("widgets", [])
+            assert inputs == ([] if value is None else [{"id": widgets[0]["id"], "string_value": value}])
     elif scenario == "text-repeat":
         prefix = "case=form-max-chars-cjk&probe=length&kind=input&bind=on&limit=5&default=long&phase="
         assert requests == [prefix + "load&cjk_note=first&cjk_note=ok", prefix + "repeat-unchanged&cjk_note=again&cjk_note=ok",
@@ -539,6 +563,51 @@ def test_bound_text_reference_corrects_urls_and_preserves_only_unbound_history_c
     single = read_bound_text_capture(False)
     peer = read_bound_text_capture(True)
     assert single == [{key: value for key, value in report.items() if key not in ("live", "peer_callbacks")} for report in peer]
+
+
+def test_bound_text_none_empty_and_history_reference():
+    read_query_param_capture("text-empty")
+
+
+@pytest.mark.parametrize("mutation", ["default", "missing-clear", "literal-none", "history-value"])
+def test_bound_text_none_empty_gate_rejects_coherent_wrong_wire(mutation):
+    import base64
+    from google.protobuf.json_format import MessageToDict
+    from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
+
+    capture = json.loads((HERE / "reference-browser/queryparams/text-empty/trace.json").read_text(encoding="utf-8"))
+    if mutation == "missing-clear":
+        position = next(index for index, frame in enumerate(capture["frames"]) if "page_info_changed" in frame["message"])
+        del capture["frames"][position]
+    else:
+        run = -1
+        target = {"default": 1, "literal-none": 3, "history-value": 7}[mutation]
+        for frame in capture["frames"]:
+            if frame["direction"] == "client->server":
+                run += 1
+                continue
+            if run != target:
+                continue
+            message = ForwardMsg()
+            message.ParseFromString(base64.b64decode(frame["base64"]))
+            element = message.delta.new_element
+            if element.WhichOneof("type") == "text_input":
+                if mutation == "default":
+                    element.text_input.default = "abcdef🧊"
+                elif mutation == "literal-none":
+                    element.text_input.ClearField("value")
+                else:
+                    element.text_input.value = "abcde"
+            elif element.WhichOneof("type") == "json" and mutation != "default":
+                report = json.loads(element.json.body)
+                report["value"] = report["state"] = None if mutation == "literal-none" else "abcde"
+                element.json.body = json.dumps(report)
+            else:
+                continue
+            raw = message.SerializeToString()
+            frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(message, preserving_proto_field_name=True))
+    with pytest.raises(AssertionError):
+        read_query_param_capture("text-empty", capture)
 
 
 def test_bound_text_repeat_reference_preserves_raw_pairs_until_correction():

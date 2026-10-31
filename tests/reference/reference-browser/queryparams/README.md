@@ -552,3 +552,35 @@ pairs and a first-value selection in both state report and widget wire value.
 The socket/server closed and port 62304 was read back free. This verifies the
 absence of automatic URL rewriting in these two unchanged cases, not arbitrary
 query grammar, a probe of internal get_all state or browser history/IME.
+
+
+## Null state, empty strings and bound history (2026-10-31)
+
+`text-empty/trace.json` retains ten native runs/132 raw frames/23 ordered
+widget-state-URL projections in one session. Existing probe/collector options
+add assign-none under the opt-in length probe; earlier captures remain intact.
+Assigning None clears the query parameter on all three measured assignments.
+It does not write the literal string "None". Before registration, the SDK sets
+the effective default to None whenever that key's current native state is None,
+even if the call supplied a nonempty default. Identity still uses raw options.
+
+This also controls a later missing-parameter history restoration: it returns
+None in this sequence. A URL containing the literal None remains a string;
+an explicit empty URL value becomes an empty string. Those values stay distinct
+from absent optional proto fields. Frontend input is truncated to abcde and
+produces the single callback; the later identical empty input produces none.
+History's stale inputs are present in raw requests but omitted from callbacks.
+The default field returns to the original supplied text after state is a string.
+
+Rust previously kept the nonempty default, omitted three URL removals and
+restored abcde on missing history. The existing text_input/text_area emitters
+now derive their wire/registration default from current null state while using
+the original options for identity. The public unit covers both controls' null
+preseed, retention, explicit string restoration and stable ID; this new native
+query-binding comparison covers text_input only. TextArea binding stays pending.
+No public API, module or dependency was added, and no null-to-string serializer
+change was needed. Raw PB/summary, exact input IDs/flags/values, all ordered
+projections and four coherent mutations guard default omission, URL removal,
+literal None and history restoration. Owned socket/server closed and port
+50499 was read back free. This is native protocol/API evidence, not a new
+browser/IME result or every null/default/identity/source combination.

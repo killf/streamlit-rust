@@ -1135,3 +1135,48 @@ browser navigation/IME. Matrix evidence and derived inventory preserve all 130
 partial entries; M3/M5/M7 and the complete goal remain open. Public TextArea
 binding and the other pending decisions are unchanged. Existing colconfig_params
 changes are excluded from this batch's commit/push.
+
+
+### Null text state effective-default correction (2026-10-31)
+
+Ten native bound-input runs on one session retain 132 original frames and all
+23 ordered widget/state/URL projections in text-empty/trace.json. Three explicit
+None assignments remove the parameter; a following missing-parameter history
+request restores None in this sequence. The literal URL None is a string, and
+an empty URL is an empty string. Frontend Unicode input truncates to abcde and
+produces the only callback; stale history inputs and a later unchanged empty
+input do not add callbacks. Optional default/value fields, original raw default,
+limit, binding key, history flags, IDs and identity equality relations are gated.
+
+The pinned SDK changes the effective default when current keyed native state
+is None, after computing identity from the original options. This disproved the
+initial serializer-only inference. Rust's text_input/text_area now follow that
+existing-source behavior; no query serializer/registry/history flow changed.
+The public unit covers both controls' null preseed, retained null, explicit
+full string restore and stable ID. The new native binding comparison is only
+text_input; TextAreaOptions.bind remains pending. No public API/module/dependency
+was added. Existing normal forms behavior and earlier frozen captures remain.
+
+The public unit and complete native comparison both failed before correction
+(target/text-empty-unit-before.log, text-empty-before.log). The first draft
+integration count was corrected from 22 to the measured 23 before recording the
+production mismatch; no reference was changed to hide a discrepancy. Code/all-
+targets Clippy -D warnings and Rustfmt passed, then the public unit and all 27
+related query-module checks passed, excluding the existing queue comparison
+(target/text-empty-clippy.log, text-empty-unit.log, text-empty-integration.log).
+Full Rust workspace passed 278: library 271, ledger 1, macros 2, rustdoc 4.
+Only the two existing navigation_pages_switch_and_session_state_match_the_measured_wire
+and rerun_queue_messages_match_frozen_reference were skipped; this is not full
+workspace green (target/text-empty-workspace.log). MSVC linker stdout warning
+remains. Related query/matrix/docs Python gates passed 142 with deprecations as
+errors (target/text-empty-final-gates.log); four coherent mutations reject wrong
+default presence, missing URL clearing, literal-None coercion and history value.
+
+Full frozen-reference Python suite passed 1826 with DeprecationWarning as error
+(target/text-empty-reference.log).
+
+Owned socket/server cleanup is recorded; port 50499 was read back free. Matrix
+and derived inventory retain 130 partial entries, M3/M5/M7 and the complete goal.
+This is native API/WS evidence, not fresh browser/IME, native area binding or all
+null/default/identity/source combinations. Existing colconfig_params changes
+are excluded from this batch's commit/push.

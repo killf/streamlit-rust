@@ -266,3 +266,13 @@ first,ok and again,ok select ok without rewriting the URL; first,LONGEST selects
 LONGE and emits exactly one correction. No frontend input/callback, stable
 identity and original binding fields are verified; existing Rust behavior matches.
 This extends native evidence, not browser navigation/IME or arbitrary query syntax.
+
+
+2026-10-31 [null text effective defaults](../tests/reference/reference-browser/queryparams/text-empty/trace.json)
+adds ten native text_input runs/132 original frames/23 ordered projections.
+Current keyed None changes the effective default to None while identity still
+uses raw options. Assignments clear the binding and missing history restores
+None in this sequence; empty and literal None strings remain distinct. Both
+existing text emitters are corrected, with an additional two-control public
+unit; the new native binding capture is text_input only. No serializer/public
+API expansion or new browser claim is made.
