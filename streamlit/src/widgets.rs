@@ -217,7 +217,7 @@ pub(crate) enum Codec {
         /// 仅显式提供边界时，在登记阶段校验已有原生值。
         reset_native: bool,
 
-        /// 单日期前端解析失败或越界时恢复的声明默认；范围模式仍按原规则解码。
+        /// 前端解析失败/越界时的声明默认，也用于登记后的原生边界重置。
         default: Value,
     },
     /// time_input: "HH:MM" for whole-minute steps, "HH:MM:SS" otherwise.
@@ -384,22 +384,24 @@ impl Codec {
                 Err(_) => Value::Array(vec![Value::String(text.clone())]),
             }),
             (Self::DateInput { range, min, max, default, .. }, widget_state::Value::StringArrayValue(array)) => {
-                if *range {
-                    let dates: Option<Vec<Value>> = array.data.iter().map(|text| chrono::NaiveDate::parse_from_str(text, "%Y-%m-%d").ok().map(|_| Value::String(text.clone()))).collect();
-                    let dates = dates?;
-                    (dates.len() == 2).then(|| Value::Array(dates))
-                } else {
-                    // 先检查全部日期，再返回首项；任何非法或越界尾项也会回默认。
-                    let dates: Option<Vec<_>> = array
-                        .data
-                        .iter()
-                        .map(|text| chrono::NaiveDate::parse_from_str(text, "%Y-%m-%d").or_else(|_| chrono::NaiveDate::parse_from_str(text, "%Y/%m/%d")).ok())
-                        .collect();
-                    match dates {
-                        Some(dates) if dates.iter().all(|date| date >= min && date <= max) => Some(dates.first().map_or(Value::Null, |date| Value::String(date.format("%Y-%m-%d").to_string()))),
-
-                        _ => Some(default.clone()),
+                // 1. 先检查全部日期；任意非法/越界条目都恢复上轮登记默认。
+                let dates: Option<Vec<_>> = array
+                    .data
+                    .iter()
+                    .map(|text| chrono::NaiveDate::parse_from_str(text, "%Y-%m-%d").or_else(|_| chrono::NaiveDate::parse_from_str(text, "%Y/%m/%d")).ok())
+                    .collect();
+                match dates {
+                    Some(dates) if dates.iter().all(|date| date >= min && date <= max) => {
+                        let iso = |date: &chrono::NaiveDate| Value::String(date.format("%Y-%m-%d").to_string());
+                        // 2. 保持现有返回模型：范围仍需两项，单值取首项；空单值是 None。
+                        if *range {
+                            (dates.len() == 2).then(|| Value::Array(dates.iter().map(iso).collect()))
+                        } else {
+                            Some(dates.first().map_or(Value::Null, iso))
+                        }
                     }
+
+                    _ => Some(default.clone()),
                 }
             }
             (Self::TimeInput { step }, widget_state::Value::StringValue(text)) => {
@@ -887,7 +889,7 @@ impl SessionState {
         // Text codec 也供 data_editor 使用；文本缺省解码仅限这两类输入控件。
         let empty_input = (matches!(
             codec,
-            Codec::Select(_) | Codec::SelectCreation(_) | Codec::Radio(_) | Codec::Feedback { .. } | Codec::NumberInput { .. } | Codec::TimeInput { .. } | Codec::DateTimeInput { .. } | Codec::DateInput { range: false, .. }
+            Codec::Select(_) | Codec::SelectCreation(_) | Codec::Radio(_) | Codec::Feedback { .. } | Codec::NumberInput { .. } | Codec::TimeInput { .. } | Codec::DateTimeInput { .. } | Codec::DateInput { .. }
         ) || (matches!(kind, "text_input" | "text_area") && matches!(codec, Codec::Text { .. })))
         .then(|| default.clone());
         let mut registry = self.widgets.lock();

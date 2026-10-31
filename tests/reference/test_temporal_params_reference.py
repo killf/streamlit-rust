@@ -13,6 +13,65 @@ PYTHON = Path(__file__).parent / "reference-browser/temporal-params"
 RUST = Path(__file__).parents[1] / "browser/rust-temporal-params"
 
 
+@pytest.mark.parametrize("raw,expected", (
+    (None, ['2025-03-15','2025-03-20']), (['2025/05/01','2025/05/10'], ['2025-05-01','2025-05-10']),
+    (['bad','2025-05-10'], ['2025-03-15','2025-03-20']), (['2025-05-01','bad'], ['2025-03-15','2025-03-20']),
+    (['2024-12-31','2025-05-10'], ['2025-03-15','2025-03-20']), (['2025-05-01','2026-01-01'], ['2025-03-15','2025-03-20']),
+    (['2025-01-01','2025-12-31'], ['2025-01-01','2025-12-31']), (['2025-05-01','2025-05-01'], ['2025-05-01','2025-05-01']),
+    (['2025-05-10','2025-05-01'], ['2025-05-10','2025-05-01']), (['2025-05-01','2025/05/10'], ['2025-05-01','2025-05-10']),
+    (['bad'], ['2025-03-15','2025-03-20']), (['2025-05-01','bad','2025-05-10'], ['2025-03-15','2025-03-20'])))
+def test_sdk_range_date_frontend_normalization_precedes_callbacks(raw, expected):
+    import importlib.metadata
+    from streamlit.proto.WidgetStates_pb2 import WidgetStates
+    from streamlit.testing.v1 import AppTest
+
+    assert importlib.metadata.version('streamlit') == '1.66.1'
+    app = AppTest.from_string('''
+import streamlit as st
+from datetime import date
+if 'calls' not in st.session_state:st.session_state.calls=[]
+def wire(value):return [v.isoformat() for v in value]
+def changed(source):st.session_state.calls.append([source,wire(st.session_state.selected_range),st.session_state.peer])
+value=(date(2025,6,10),date(2025,6,20)) if st.session_state.get('defaults',False) else (date(2025,3,15),date(2025,3,20))
+v=st.date_input('Range',value=value,min_value=date(2025,1,1),max_value=date(2025,12,31),key='selected_range',on_change=changed,args=('range',))
+st.checkbox('Peer',key='peer',on_change=changed,args=('peer',))
+st.json([wire(v),wire(st.session_state.selected_range),st.session_state.calls])
+''').run()
+    assert not app.exception
+    identity, peer_id = app.date_input[0].id, app.checkbox[0].id
+    incoming = WidgetStates();incoming.widgets.add(id=identity).string_array_value.data[:] = ['2025-04-10','2025-04-20'];incoming.widgets.add(id=peer_id).bool_value = True
+    app._run(incoming)
+    assert not app.exception
+    assert json.loads(app.json[0].value)[2] == [['range',['2025-04-10','2025-04-20'],True],['peer',['2025-04-10','2025-04-20'],True]]
+    incoming = WidgetStates();widget = incoming.widgets.add(id=identity)
+    if raw is not None:widget.string_array_value.SetInParent();widget.string_array_value.data[:] = raw
+    incoming.widgets.add(id=peer_id).bool_value = False
+    app.session_state['defaults'] = True
+    app._run(incoming)
+    assert not app.exception
+    report = json.loads(app.json[0].value)
+    assert report[:2] == [expected, expected] and report[2][2:] == [['range',expected,False],['peer',expected,False]]
+    assert app.date_input[0].id == identity and list(app.date_input[0].proto.default) == ['2025-06-10','2025-06-20'] and not app.date_input[0].proto.set_value
+    incoming = WidgetStates();incoming.widgets.add(id=identity)
+    app._run(incoming)
+    assert not app.exception and json.loads(app.json[0].value)[:2] == [['2025-06-10','2025-06-20']]*2
+
+
+@pytest.mark.parametrize("raw", ([], ['2025-01-15'], ['2025-01-15','2025-02-15','2025-03-15']))
+def test_sdk_range_serde_variable_lengths_remain_an_open_rust_boundary(raw):
+    """SDK-only shape evidence; Rust's public model choice is still pending."""
+    import importlib.metadata
+    from datetime import date
+    from streamlit.elements.widgets.time_widgets import DateInputSerde, _DateInputValues
+
+    assert importlib.metadata.version('streamlit') == '1.66.1'
+    serde = DateInputSerde(_DateInputValues.from_raw_values(value=(date(2025,3,15),date(2025,3,20)),
+        min_value=date(2025,1,1),max_value=date(2025,12,31)))
+    value = serde.deserialize(raw)
+    assert type(value) is tuple and [item.isoformat() for item in value] == raw
+    assert serde.serialize(value) == raw
+
+
 @pytest.mark.parametrize("range_mode", (False, True))
 def test_sdk_date_native_bound_resets_after_callbacks_and_preserves_implicit_values(range_mode):
     """Full native dates only; no None/partial-range compatibility claim."""

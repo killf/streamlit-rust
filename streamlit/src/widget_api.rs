@@ -4988,6 +4988,115 @@ mod tests {
     }
 
     #[test]
+    fn complete_date_range_input_falls_back_and_normalizes_before_callbacks() -> anyhow::Result<()> {
+        use chrono::NaiveDate;
+
+        let parse = |text: &str| NaiveDate::parse_from_str(text, "%Y-%m-%d").expect("fixture date");
+        let changed = |source: &'static str| {
+            move |st: &Streamlit| {
+                let state = st.session_state();
+                let mut calls = state.get::<Vec<Value>>("range_calls").expect("calls").unwrap_or_default();
+                calls.push(serde_json::json!([source, state.get::<Value>("range").expect("range"), state.get::<bool>("peer").expect("peer")]));
+                state.set("range_calls", calls).expect("callback write");
+            }
+        };
+        for (raw, expected) in [
+            (None, ["2025-03-15", "2025-03-20"]),
+            (Some(vec!["2025/05/01", "2025/05/10"]), ["2025-05-01", "2025-05-10"]),
+            (Some(vec!["bad", "2025-05-10"]), ["2025-03-15", "2025-03-20"]),
+            (Some(vec!["2025-05-01", "bad"]), ["2025-03-15", "2025-03-20"]),
+            (Some(vec!["2024-12-31", "2025-05-10"]), ["2025-03-15", "2025-03-20"]),
+            (Some(vec!["2025-05-01", "2026-01-01"]), ["2025-03-15", "2025-03-20"]),
+            (Some(vec!["2025-01-01", "2025-12-31"]), ["2025-01-01", "2025-12-31"]),
+            (Some(vec!["2025-05-01", "2025-05-01"]), ["2025-05-01", "2025-05-01"]),
+            (Some(vec!["2025-05-10", "2025-05-01"]), ["2025-05-10", "2025-05-01"]),
+            (Some(vec!["2025-05-01", "2025/05/10"]), ["2025-05-01", "2025-05-10"]),
+            (Some(vec!["bad"]), ["2025-03-15", "2025-03-20"]),
+            (Some(vec!["2025-05-01", "bad", "2025-05-10"]), ["2025-03-15", "2025-03-20"]),
+        ] {
+            let state = SessionState::default();
+            state.begin_widgets(vec![]);
+            let options = |changed_default: bool| {
+                DateInputOptions::new("Range")
+                    .key("range")
+                    .value_range(parse(if changed_default { "2025-06-10" } else { "2025-03-15" }), parse(if changed_default { "2025-06-20" } else { "2025-03-20" }))
+                    .min(parse("2025-01-01"))
+                    .max(parse("2025-12-31"))
+                    .on_change(changed("range"))
+            };
+            let (st, mut wire) = app(&state);
+            st.date_input(options(false))?;
+            st.checkbox(CheckboxOptions::new("Peer").key("peer").on_change(changed("peer")))?;
+            let element::Type::DateInput(range) = input(&mut wire)? else { panic!() };
+            let element::Type::Checkbox(peer) = input(&mut wire)? else { panic!() };
+            state.finish_widgets();
+            let edit = |raw: Option<Vec<&str>>| WidgetState {
+                id: range.id.clone(),
+                value: raw.map(|values| {
+                    widget_state::Value::StringArrayValue(proto::StringArray {
+                        data: values.into_iter().map(str::to_owned).collect(),
+                    })
+                }),
+            };
+
+            // 1. 先提交非默认范围，确保回退不是整批输入被忽略。
+            let callbacks = state.begin_widgets(vec![
+                edit(Some(vec!["2025-04-10", "2025-04-20"])),
+                WidgetState {
+                    id: peer.id.clone(),
+                    value: Some(widget_state::Value::BoolValue(true)),
+                },
+            ]);
+            assert_eq!(callbacks.len(), 2);
+            let (st, mut wire) = app(&state);
+            for callback in callbacks {
+                callback(&st);
+            }
+            st.date_input(options(false))?;
+            st.checkbox(CheckboxOptions::new("Peer").key("peer").on_change(changed("peer")))?;
+            input(&mut wire)?;
+            input(&mut wire)?;
+            state.finish_widgets();
+
+            // 2. 整组解析和范围检查在 callback 前完成，合法反向/相等端点保持原序。
+            let callbacks = state.begin_widgets(vec![
+                edit(raw),
+                WidgetState {
+                    id: peer.id.clone(),
+                    value: Some(widget_state::Value::BoolValue(false)),
+                },
+            ]);
+            assert_eq!(callbacks.len(), 2, "{expected:?}");
+            let (st, mut wire) = app(&state);
+            for callback in callbacks {
+                callback(&st);
+            }
+            let calls = state.get::<Vec<Value>>("range_calls")?.expect("calls");
+            assert_eq!(&calls[2..], &[serde_json::json!(["range", expected, false]), serde_json::json!(["peer", expected, false])]);
+            assert_eq!(st.date_input(options(true))?, DateSelection::Range(parse(expected[0]), parse(expected[1])));
+            st.checkbox(CheckboxOptions::new("Peer").key("peer").on_change(changed("peer")))?;
+            let element::Type::DateInput(widget) = input(&mut wire)? else { panic!() };
+            assert_eq!(widget.id, range.id);
+            assert_eq!(widget.default, ["2025-06-10", "2025-06-20"]);
+            assert!(!widget.set_value && widget.value.is_empty());
+            input(&mut wire)?;
+            state.finish_widgets();
+
+            // 3. 默认更新只影响下一轮缺省反序列化。
+            let callbacks = state.begin_widgets(vec![edit(None)]);
+            assert_eq!(callbacks.len(), 1);
+            let (st, _) = app(&state);
+            for callback in callbacks {
+                callback(&st);
+            }
+            assert_eq!(st.date_input(options(true))?, DateSelection::Range(parse("2025-06-10"), parse("2025-06-20")));
+            state.finish_widgets();
+        }
+
+        Ok(())
+    }
+
+    #[test]
     fn date_native_bounds_reset_single_and_complete_range_after_callbacks() -> anyhow::Result<()> {
         use chrono::NaiveDate;
 

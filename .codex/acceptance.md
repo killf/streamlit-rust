@@ -2698,3 +2698,19 @@ joint 轮在旧宽边界下提交单值 4/25、范围 4/25..5/25、peer=false，
 按代码检查、公开单元、相关运行时协议与原生采集顺序完成验证；编辑 Rust 格式和逐文件 diff、全工作区/all-target Clippy 通过，既有 MSVC linker stdout warning 保留。最终工作区 338 项通过（331 库、1 ledger、2 宏、4 rustdoc），仍仅排除原 server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire 与 server::tests::queryparams::rerun_queue_messages_match_frozen_reference，不称全绿。参数参考模块 443 项，相关八模块共 802 项通过；日志 target/date-bounds-{red,green,sdk,clippy,build,final-unit,pickers,sdk-ws,rust-ws,server,gate,recheck,recheck-server,workspace,python,docs}.log。
 
 指南仅追加显式边界重置/回调顺序，保留原 CRLF 字节前缀。矩阵仅补 st.date_input 证据和 limitation，生成 inventory 仍 130 partial。本批无浏览器证据；None/空/部分范围模型待选，范围前端 malformed/legacy/越界、模式或原生类型不匹配、浏览器动态边界、禁用/ignore、URL/表单/跨页和其他组合继续开放，不把正常完整值推广为全部日期行为已兼容。用户 colconfig 与其他现有修改独立保留，无 PR、合并、发布或部署；M3/M5/M7 与完整 Goal 未关闭。
+
+## Current complete date range frontend normalization (2026-11-01)
+
+继续现有返回模型能表达的范围输入，对照锁定 SDK 1.66.1 DateInputSerde 及真实 st.date_input AppTest。范围 ID-only 使用上轮登记默认；ISO/legacy 可混合，先解析整个列表并检查全部边界，任一非法/越界条目恢复完整默认。全部合法的双端点保留输入顺序，允许相等和反向提交值，不擅自排序。这里指前端提交，构造默认范围的既有起点<=终点校验仍保留。
+
+widgets.rs 删除单值/范围重复解析，共用现有单日期 ISO/legacy 与整组回退逻辑；范围分支在解析成功且全部在边界内后仍要求两项，将范围纳入既有缺省默认缓存。默认字段注释同步说明前端回退和原生重置职责。无新公开接口、依赖、模块或文件，登记后的显式边界重置规则不变，wrong oneof 仍拒绝。
+
+公开 API 单元先真实失败于范围 ID-only 使日期和 peer 的两个 callback 均为 0，target/date-range-red.log 保留；修后十二案通过：缺省、legacy、非法首项/末项、首项低于 min/末项高于 max、包含两端边界、相等/反向端点、ISO/legacy 混合、单项非法列表和含非法项的三项列表。后两类 SDK 会返回完整默认双端点，现有模型能表达，所以一并修复。每案先把范围改成非默认 4/10..4/20，再提交原始数组/缺省和 peer=false，两个 callback 均看到整批归一化值且顺序为 range/peer；将声明默认改为 6/10..6/20 后当前值不覆盖，wire default 更新且无额外 set_value，下一轮 ID-only 才使用新默认。
+
+十二组 SDK AppTest 从原始 WidgetStates 经内部 _run 验证相同的返回/原生范围、callback 完整同伴值、稳定 ID/default/no-sync 与下一轮默认更新；不是原生 WS 或浏览器捕获。另三组 SDK-only direct serde 原样证明合法 0/1/3 日期输入可产生对应长度 tuple，序列化后仍为原列表。Rust runtime codec guards 继续明确拒绝合法空/单项/三项范围，防止当前模型偷偷截断或回默认。该边界仍等待此前公开模型三个选项的决定，不宣称已兼容。
+
+按代码检查→新公开单元→既有 pickers 两项→真实原生复验顺序完成验证。当前重建 widget_params 二进制分别重跑旧 date-bounds 十三轮（116 帧/52 Element）和 date-single 十六轮（127 帧/48 Element），结果 target/date-range-{date-bounds,date-single}-recheck/trace.json 与冻结 SDK 的完整 Element 仅规范化 ID/JSON 后一致，既有六条/二十二条 callback 仍匹配。它们不覆盖本批新增 legacy/非法范围路径，不当作新增边界的原生差分。旧参考和上批浏览器截图不改，本批没有新 WS 冻结文件或浏览器采集。
+
+编辑 Rust 的格式、逐文件 diff 和全工作区/all-target Clippy 通过，既有 MSVC linker stdout warning 保留。最终工作区 339 项通过（332 库、1 ledger、2 宏、4 rustdoc），仍只排除原 server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire 与 server::tests::queryparams::rerun_queue_messages_match_frozen_reference，不称全绿。相关八模块共 817 项通过，包含 SDK-only 未实现形状证据；参数参考模块 443 项未增加，temporal 参考模块新增十五项至 97 项。日志 target/date-range-{red,green,sdk,clippy,pickers,build,server,date-bounds,date-single,workspace,python,docs}.log。
+
+当前源码/二进制 SHA 与两份重放 metadata 一致；自持 Rust Popen 在 finally terminate/wait，8599 已核实无监听，未启动新的 SDK 服务。指南仅追加完整范围默认回退，原 CRLF 字节前缀保留；矩阵与生成 inventory 仍 130 partial。新增范围 malformed/legacy 的原生 WS/浏览器、合法空/部分/多端点公开模型、模式与类型不匹配、禁用/ignore、URL/表单/跨页及其他组合仍开放。用户 colconfig 与其他现有修改独立保留，无 PR、合并、发布或部署；M3/M5/M7 与完整 Goal 未关闭。

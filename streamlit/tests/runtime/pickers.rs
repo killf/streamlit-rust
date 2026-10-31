@@ -169,6 +169,8 @@ async fn date_and_time_codecs_decode_the_measured_wire() -> TestResult {
     assert_eq!(single.decode(&wire(&[])), Some(serde_json::Value::Null), "empty remains None, not default fallback");
     assert!(single.decode(&WireValue::StringValue("2025-01-15".into())).is_none(), "wrong oneof remains rejected");
     assert!(range.decode(&wire(&["2025-01-15"])).is_none(), "a range needs exactly two dates");
+    assert!(range.decode(&wire(&[])).is_none(), "empty ranges await the public return model decision");
+    assert!(range.decode(&wire(&["2025-01-15", "2025-02-15", "2025-03-15"])).is_none(), "valid multi-endpoint ranges await the public return model decision");
     assert_eq!(range.decode(&wire(&["2025-01-15", "2025-02-15"])).ok_or("range date codec must decode two valid dates")?, serde_json::json!(["2025-01-15", "2025-02-15"]));
 
     let coarse = Codec::TimeInput { step: 900 };
