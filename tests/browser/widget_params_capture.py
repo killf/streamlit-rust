@@ -35,6 +35,7 @@ parser.add_argument('--select-policy', action='store_true', help='keyed selectbo
 parser.add_argument('--select-unkeyed', action='store_true', help='unkeyed variant of --select-policy, including placeholder/filter changes')
 parser.add_argument('--radio-identity', action='store_true', help='keyed/unkeyed radio width, horizontal and raw captions identity')
 parser.add_argument('--radio-empty', action='store_true', help='empty options/None-state variant of --radio-identity')
+parser.add_argument('--group-state', action='store_true', help='button-group dynamic options and invalid native-state filtering')
 parser.add_argument('--group-policy', action='store_true', help='button-group required policy and keyed selection-mode identity')
 parser.add_argument('--group-width', action='store_true', help='keyed/unkeyed pills and segmented-control width identity')
 parser.add_argument('--radio-duplicates', action='store_true', help='duplicate radio options, peer changes and callback batch ordering')
@@ -50,7 +51,7 @@ parser.add_argument('--resume-after-stop', action='store_true', help='append nor
 parser.add_argument('--stop-lifecycle', action='store_true', help='button and URL-bound text around early stop and normal cleanup')
 parser.add_argument('--url', help='caller-owned Rust server URL (comparison capture)')
 args = parser.parse_args()
-assert sum((args.integer_bounds, args.number_sequence, args.number_unkeyed, args.stop_lifecycle, args.number_permissive, args.form_identity, args.color, args.color_unkeyed, args.bool_width, args.select_policy, args.radio_identity, args.select_empty, args.multi_empty, args.multi_limits, args.format_collisions, args.radio_duplicates, args.group_width, args.group_policy)) <= 1
+assert sum((args.integer_bounds, args.number_sequence, args.number_unkeyed, args.stop_lifecycle, args.number_permissive, args.form_identity, args.color, args.color_unkeyed, args.bool_width, args.select_policy, args.radio_identity, args.select_empty, args.multi_empty, args.multi_limits, args.format_collisions, args.radio_duplicates, args.group_width, args.group_policy, args.group_state)) <= 1
 assert not args.number_float or args.number_sequence
 assert not args.select_unkeyed or args.select_policy
 assert not args.radio_empty or args.radio_identity
@@ -77,7 +78,7 @@ TRACE = {'schema_version': 1, 'runtime': 'rust' if args.url else 'python', 'refe
          'scope': 'Element wire of widget creation-parameter edges over one native WS; no browser/UI claim.',
          'server_command': COMMAND, 'server_cleanup': 'caller-owned' if COMMAND is None else 'collector-owned',
          'url': URL, 'frames': [], 'elements': [], 'finishes': []}
-if args.color or args.color_unkeyed or args.bool_width or args.select_policy or args.radio_identity or args.select_empty or args.multi_empty or args.multi_limits or args.format_collisions or args.radio_duplicates or args.group_width or args.group_policy:
+if args.color or args.color_unkeyed or args.bool_width or args.select_policy or args.radio_identity or args.select_empty or args.multi_empty or args.multi_limits or args.format_collisions or args.radio_duplicates or args.group_width or args.group_policy or args.group_state:
     TRACE['scope'] = 'Color defaults/widths and fifteen callback/state reruns on one native WS; no browser/UI claim.'
     TRACE['producer_sources_sha256'] = {path: hashlib.sha256((ROOT / path).read_bytes()).hexdigest() for path in (
         'streamlit/examples/widget_params.rs', 'tests/reference/widget_params_app.py', 'tests/browser/widget_params_capture.py')}
@@ -107,6 +108,8 @@ if args.group_width:
     TRACE['scope'] = 'Seven keyed/unkeyed pills and segmented-control width runs on one native WS; no browser/UI claim.'
 if args.group_policy:
     TRACE['scope'] = 'Ten pills/segmented-control required-policy and selection-mode runs on one native WS; no browser/UI claim.'
+if args.group_state:
+    TRACE['scope'] = 'Ten keyed pills/segmented-control dynamic option and native-state runs on one native WS; no browser/UI claim.'
 SERVER = WS = None
 
 
@@ -197,6 +200,8 @@ try:
         steps = [(phase, phase in ('edit', 'width-edit', 'restore-edit')) for phase in ('load', 'edit', 'width', 'width-edit', 'restore', 'restore-edit', 'observe')]
     if args.group_policy:
         steps = [(phase, phase in ('edit', 'required-edit', 'multi-edit', 'restore-edit')) for phase in ('load', 'edit', 'required', 'required-edit', 'optional', 'multi', 'multi-edit', 'restore', 'restore-edit', 'observe')]
+    if args.group_state:
+        steps = [(phase, phase in ('edit', 'recover')) for phase in ('load', 'edit', 'subset', 'empty', 'return', 'assign', 'observe', 'clear', 'recover', 'observe-final')]
     group_ids = {}
     empty_select_ids = {}
     lifecycle_bound, lifecycle_ids = "url", {}
@@ -204,6 +209,13 @@ try:
     color_id = None
     for step_index, (phase, submitted) in enumerate(steps):
         request = BackMsg()
+        if args.group_state:
+            request.rerun_script.query_string = 'probe=group-state&phase=' + phase
+            if submitted:
+                for position, label in enumerate(('Single pills', 'Multi pills', 'Single segments', 'Multi segments')):
+                    widget = request.rerun_script.widget_states.widgets.add()
+                    widget.id = group_ids[label]
+                    widget.string_array_value.data.extend(['Alpha'] if position % 2 == 0 else ['Beta', 'Alpha', 'Beta'] if phase == 'edit' else ['Alpha', 'Beta'])
         if args.group_policy:
             request.rerun_script.query_string = 'probe=group-policy&phase=' + phase
             if submitted:
@@ -373,7 +385,7 @@ try:
                         bool_ids[view.label] = view.id
                     if args.select_policy and element_kind in ('selectbox', 'multiselect'):
                         select_ids[element_kind] = view.id
-                    if (args.group_width or args.group_policy) and element_kind == 'button_group':
+                    if (args.group_width or args.group_policy or args.group_state) and element_kind == 'button_group':
                         group_ids[view.label] = view.id
                     if (args.radio_identity or args.radio_duplicates) and element_kind == 'radio':
                         radio_ids[view.label] = view.id

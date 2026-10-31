@@ -228,10 +228,12 @@ async fn button_group_decodes_single_and_multi_selections() {
     let single = Codec::ButtonGroup {
         options: vec![("low".into(), serde_json::json!("low")), ("high".into(), serde_json::json!("high"))],
         multi: false,
+        filter_invalid: true,
     };
     let multi = Codec::ButtonGroup {
         options: vec![("alpha".into(), serde_json::json!("alpha")), ("beta".into(), serde_json::json!("beta"))],
         multi: true,
+        filter_invalid: true,
     };
     let wire = |labels: &[&str]| {
         WireValue::StringArrayValue(proto::StringArray {

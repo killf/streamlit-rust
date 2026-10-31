@@ -2701,6 +2701,144 @@ def test_button_group_policy_gate_rejects_coherent_wrong_wire(mutation):
         check_group_policy(capture)
 
 
+GROUP_STATE_PHASES = ("load", "edit", "subset", "empty", "return", "assign", "observe", "clear", "recover", "observe-final")
+GROUP_STATE_LABELS = ("Single pills", "Multi pills", "Single segments", "Multi segments")
+GROUP_STATE_VALUES = [
+    [single, multiple, single, multiple] for single, multiple in (
+        ("Beta", ["Beta"]), ("Alpha", ["Beta", "Alpha", "Beta"]), ("Beta", ["Beta", "Beta"]),
+        (None, []), (None, []), ("Beta", ["Beta", "Beta", "Alpha"]), ("Beta", ["Beta", "Beta", "Alpha"]),
+        (None, []), ("Alpha", ["Alpha", "Beta"]), ("Alpha", ["Alpha", "Beta"]))
+]
+
+
+def check_group_state(capture):
+    assert capture["successful"] and "producer_error" not in capture and capture["reference_version"] == "1.66.1"
+    assert capture["runtime"] in ("python", "rust") and capture["finishes"] == [0] * 10
+    assert capture["cleanup"]["websocket_closed"] and capture["cleanup"]["server_stopped" if capture["runtime"] == "python" else "caller_server_stopped"]
+    assert len(capture["frames"]) == 99 and len(capture["elements"]) == 50
+    runs = color_runs(capture, ("button_group", "json"))
+    normalized, sessions, run_ids, identities, previous = [], set(), set(), [{}, {}, {}, {}], None
+    for index, (phase, run) in enumerate(zip(GROUP_STATE_PHASES, runs, strict=True)):
+        request = run["request"]
+        assert request.query_string == "probe=group-state&phase=" + phase and not request.is_history_navigation
+        assert len(run["sessions"]) == 1 and run["finishes"] == [0]
+        session = run["sessions"][0]
+        assert session.initialize.environment_info.streamlit_version == "1.66.1"
+        sessions.add(session.initialize.session_id)
+        run_ids.add(session.script_run_id)
+        assert [entry[0] for entry in run["entries"]] == ["button_group"] * 4 + ["json"]
+        choices = [] if phase == "empty" else ["Beta"] if phase == "subset" else ["Alpha", "Beta"]
+        sync = phase in ("subset", "empty", "assign", "clear")
+        current = []
+        for position, (_, widget, element) in enumerate(run["entries"][:4]):
+            assert widget.label == GROUP_STATE_LABELS[position]
+            multi = position % 2 == 1
+            assert [option.content for option in widget.options] == choices
+            assert widget.style == (1 if position < 2 else 0) and widget.click_mode == int(multi)
+            assert list(widget.default) == ([] if not choices else [0] if phase == "subset" else [1])
+            assert not widget.disabled and not widget.required and not widget.ignore_rerun
+            assert not widget.form_id and not widget.HasField("help") and widget.label_visibility.value == 0
+            assert widget.set_value == sync and element.HasField("has_one_shot_effect") == sync and element.has_one_shot_effect == sync
+            value = GROUP_STATE_VALUES[index][position]
+            assert list(widget.raw_values) == ([] if not sync or value is None else value if multi else [value])
+            assert element.width_config.use_content
+            identity_class = False
+            assert widget.id == identities[position].setdefault(identity_class, widget.id)
+            current.append(widget.id)
+        assert len(set(current)) == 4
+        incoming = request.widget_states.widgets
+        if phase in ("edit", "recover"):
+            assert len(incoming) == 4 and [widget.id for widget in incoming] == previous
+            for position, widget in enumerate(incoming):
+                assert widget.WhichOneof("value") == "string_array_value"
+                assert list(widget.string_array_value.data) == (["Alpha"] if position % 2 == 0 else ["Beta", "Alpha", "Beta"] if phase == "edit" else ["Alpha", "Beta"])
+        else:
+            assert not incoming
+        values = GROUP_STATE_VALUES[index]
+        assert json.loads(run["entries"][-1][1].body) == {"phase": phase, "values": values, "native": values}
+        assert [entry["delta_path"] for entry in capture["elements"][index * 5:index * 5 + 5]] == [[0, i] for i in range(5)]
+        fields = []
+        for kind, _, element in run["entries"]:
+            view = MessageToDict(element, preserving_proto_field_name=True)
+            if kind == "json":
+                view[kind]["body"] = json.loads(view[kind]["body"])
+            else:
+                view[kind].pop("id")
+            fields.append(view)
+        normalized.append(fields)
+        previous = current
+    assert [len(set(identity.values())) for identity in identities] == [1, 1, 1, 1]
+    assert len(sessions) == 1 and len(run_ids) == 10
+    return normalized
+
+
+
+@pytest.mark.parametrize("root", (PYTHON, RUST), ids=("python", "rust"))
+def test_button_group_native_filter_reset_and_sync(root):
+    check_group_state(read(root / "group-state/trace.json"))
+
+
+def test_button_group_state_complete_elements_match_reference():
+    captures = [read(root / "group-state/trace.json") for root in (PYTHON, RUST)]
+    assert captures[0]["producer_sources_sha256"] == captures[1]["producer_sources_sha256"] and captures[1]["semantic_match"] is True
+    assert check_group_state(captures[0]) == check_group_state(captures[1])
+
+
+def test_button_group_state_before_raises_and_loses_duplicate_values():
+    capture = read(RUST / "group-state/before/trace.json")
+    assert capture["successful"] and capture["semantic_match"] is False and capture["finishes"] == [0] * 10
+    assert len(capture["frames"]) == 91 and len(capture["elements"]) == 42
+    runs = color_runs(capture, ("button_group", "json", "markdown"))
+    for index in (2, 5):
+        assert runs[index]["entries"][-1][0] == "markdown" and "session value is absent from options" in runs[index]["entries"][-1][1].body
+    assert json.loads(runs[6]["entries"][-1][1].body)["values"] == ["Beta", ["Beta"], "Beta", ["Beta"]]
+    with pytest.raises(AssertionError):
+        check_group_state(capture)
+
+
+@pytest.mark.parametrize("mutation", ("return", "duplicates", "native", "raw-values", "missing-sync", "empty-sync", "stale-input", "wire-default"))
+def test_button_group_state_gate_rejects_coherent_wrong_wire(mutation):
+    capture = read(PYTHON / "group-state/trace.json")
+    target = {"return": 2, "duplicates": 6, "native": 5, "raw-values": 5, "missing-sync": 2, "empty-sync": 3, "stale-input": 8, "wire-default": 2}[mutation]
+    run = -1
+    for frame in capture["frames"]:
+        client = frame["direction"] == "client->server"
+        if client:
+            run += 1
+        if run != target:
+            continue
+        message = BackMsg() if client else ForwardMsg()
+        message.ParseFromString(base64.b64decode(frame["base64"]))
+        if client and mutation == "stale-input":
+            message.rerun_script.widget_states.widgets[0].id = "$$ID-stale-group-state"
+        elif not client and message.WhichOneof("type") == "delta":
+            element = message.delta.new_element
+            kind = element.WhichOneof("type")
+            if kind == "button_group" and element.button_group.label == "Multi pills" and mutation == "raw-values":
+                element.button_group.raw_values[:] = ["Alpha", "Beta", "Beta"]
+            elif kind == "button_group" and element.button_group.label == "Single pills" and mutation in ("missing-sync", "empty-sync"):
+                element.button_group.set_value = False
+                element.ClearField("has_one_shot_effect")
+            elif kind == "button_group" and element.button_group.label == "Single pills" and mutation == "wire-default":
+                element.button_group.default[:] = [1]
+            elif kind == "json" and mutation in ("return", "duplicates", "native"):
+                report = json.loads(element.json.body)
+                if mutation == "return": report["values"][0] = "Alpha"
+                elif mutation == "duplicates": report["values"][1] = ["Beta", "Alpha"]
+                else: report["native"][1] = ["Gone", "Beta", "Beta", "Alpha"]
+                element.json.body = json.dumps(report)
+            else:
+                continue
+        else:
+            continue
+        raw = message.SerializeToString()
+        frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(message, preserving_proto_field_name=True))
+    capture["elements"] = [{"kind": m.delta.new_element.WhichOneof("type"), "fields": MessageToDict(getattr(m.delta.new_element, m.delta.new_element.WhichOneof("type")), preserving_proto_field_name=True),
+                            "delta_path": list(m.metadata.delta_path)} for m in frames(capture) if isinstance(m, ForwardMsg) and m.WhichOneof("type") == "delta"]
+    with pytest.raises(AssertionError):
+        check_group_state(capture)
+
+
 def comparable(capture):
     out = []
     for element in capture["elements"]:

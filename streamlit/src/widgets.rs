@@ -177,6 +177,9 @@ pub(crate) enum Codec {
     ButtonGroup {
         options: Vec<(String, Value)>,
         multi: bool,
+
+        /// Pills/segmented controls filter stale strings; select-slider endpoints retain strict validation.
+        filter_invalid: bool,
     },
     /// The menu button's one-shot string trigger: the selected option's
     /// label, resetting to None after the run like button triggers.
@@ -299,7 +302,7 @@ impl Codec {
                 let num_pages = *num_pages as u64;
                 (*value >= 1 && *value as u64 <= num_pages).then(|| (*value as u64).into())
             }
-            (Self::ButtonGroup { options, multi }, widget_state::Value::StringArrayValue(array)) => {
+            (Self::ButtonGroup { options, multi, .. }, widget_state::Value::StringArrayValue(array)) => {
                 let indices: Option<Vec<Value>> = array.data.iter().map(|label| options.iter().position(|(text, _)| text == label).map(Value::from)).collect();
                 let indices = indices?;
                 if *multi {
@@ -413,7 +416,7 @@ impl Codec {
             Self::ChatInput => value.is_null() || value.is_string(),
             Self::Feedback { count } => value.is_null() || value.as_u64().is_some_and(|index| index < *count as u64),
             Self::Pagination { num_pages } => value.as_u64().is_some_and(|page| (1..=*num_pages as u64).contains(&page)),
-            Self::ButtonGroup { options, multi } => {
+            Self::ButtonGroup { options, multi, .. } => {
                 let within = |index: &Value| index.as_u64().is_some_and(|index| index < options.len() as u64);
                 if *multi { value.as_array().is_some_and(|indices| indices.iter().all(within)) } else { value.is_null() || within(value) }
             }
@@ -492,13 +495,13 @@ impl Codec {
                     .map(|indices| indices.iter().filter_map(|index| index.as_u64().and_then(|i| options.get(i as usize)).map(|(_, native)| native.clone())).collect())
                     .unwrap_or_default(),
             ),
-            Self::ButtonGroup { options, multi } if *multi => Value::Array(
+            Self::ButtonGroup { options, multi, .. } if *multi => Value::Array(
                 value
                     .as_array()
                     .map(|indices| indices.iter().filter_map(|index| index.as_u64().and_then(|i| options.get(i as usize)).map(|(_, native)| native.clone())).collect())
                     .unwrap_or_default(),
             ),
-            Self::ButtonGroup { options, multi } => {
+            Self::ButtonGroup { options, multi, .. } => {
                 debug_assert!(!*multi);
                 value.as_u64().and_then(|index| options.get(index as usize)).map(|(_, native)| native.clone()).unwrap_or(Value::Null)
             }
@@ -553,15 +556,18 @@ impl Codec {
             }
             return Ok(Value::Array(indices));
         }
-        if let Self::ButtonGroup { options, multi } = self {
+        if let Self::ButtonGroup { options, multi, filter_invalid } = self {
             if *multi {
                 let Some(items) = native.as_array() else {
                     return Err(WidgetError::InvalidValue("multi-select session value must be an array".into()));
                 };
                 let mut indices = Vec::with_capacity(items.len());
                 for item in items {
-                    let index = options.iter().position(|(_, value)| value == item).ok_or_else(|| WidgetError::InvalidValue("session value is absent from options".into()))?;
-                    indices.push(Value::from(index));
+                    if let Some(index) = options.iter().position(|(_, value)| value == item) {
+                        indices.push(Value::from(index));
+                    } else if !filter_invalid || !item.is_string() {
+                        return Err(WidgetError::InvalidValue("session value is absent from options".into()));
+                    }
                 }
                 return Ok(Value::Array(indices));
             }
@@ -934,7 +940,7 @@ impl SessionState {
 
         // 数字控件的范围重置保留本轮默认值，不改变其他 codec 的错误路径。
         let number_default = matches!(codec, Codec::NumberInput { .. }).then(|| default.clone());
-        let selection_default = matches!(codec, Codec::Radio(_) | Codec::Select(_)).then(|| default.clone());
+        let selection_default = matches!(codec, Codec::Radio(_) | Codec::Select(_) | Codec::ButtonGroup { multi: false, filter_invalid: true, .. }).then(|| default.clone());
         let mut selection_reset = false;
         let url_resolved = query_seed.is_some();
         let value = if let Some(value) = query_seed {
@@ -956,6 +962,8 @@ impl SessionState {
 
                         (Codec::Select(options), native, Some(default)) if !native.is_null() && !options.iter().any(|(label, value)| value == native || native.as_str() == Some(label)) => Some(default),
 
+                        (Codec::ButtonGroup { options, multi: false, filter_invalid: true }, Value::String(label), Some(default)) if !options.iter().any(|(text, _)| text == label) => Some(default),
+
                         _ => None,
                     };
                     if let Some(default) = reset_default {
@@ -964,7 +972,7 @@ impl SessionState {
                     } else {
                         let value = codec.read_session_value(native, if registry.dirty_keys.contains(key) { None } else { registry.records.get(&id) })?;
                         // 多选逐项移除失效原生值，并将过滤后的标签同步给前端。
-                        if matches!(codec, Codec::MultiSelect(_)) && codec.session_value(&value) != *native {
+                        if matches!(codec, Codec::MultiSelect(_) | Codec::ButtonGroup { multi: true, filter_invalid: true, .. }) && codec.session_value(&value) != *native {
                             selection_reset = true;
                         }
                         value

@@ -6,6 +6,45 @@ use ::streamlit::*;
 use streamlit::StreamlitApi;
 
 fn render(st: &Streamlit) -> Result<(), WidgetError> {
+    if st.query_params().get("probe").as_deref() == Some("group-state") {
+        let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
+        let state = st.session_state();
+        let labels = ["Single pills", "Multi pills", "Single segments", "Multi segments"];
+        for (position, label) in labels.iter().enumerate() {
+            if phase == "assign" {
+                let value = if position % 2 == 0 { serde_json::json!("Gone") } else { serde_json::json!(["Gone", "Beta", "Beta", "Alpha"]) };
+                state.set(*label, value)?;
+            } else if phase == "clear" {
+                state.set(*label, if position % 2 == 0 { serde_json::Value::Null } else { serde_json::json!([]) })?;
+            }
+        }
+        let choices = if phase == "empty" {
+            vec![]
+        } else if phase == "subset" {
+            vec!["Beta"]
+        } else {
+            vec!["Alpha", "Beta"]
+        };
+        let mut values = Vec::new();
+        for (position, label) in labels.iter().enumerate() {
+            let mut options = ButtonGroupOptions::new(*label, choices.clone()).key(*label);
+            if position % 2 == 1 {
+                options = options.selection_mode(SelectionMode::Multi);
+            }
+            if !choices.is_empty() {
+                options = options.default(["Beta"]);
+            }
+            let value = if position < 2 { st.pills(options)? } else { st.segmented_control(options)? };
+            values.push(match value {
+                ButtonGroupValue::Single(value) => serde_json::json!(value),
+                ButtonGroupValue::Multi(value) => serde_json::json!(value),
+            });
+        }
+        let native = labels.map(|label| state.get::<serde_json::Value>(label).expect("native"));
+        st.json(serde_json::json!({"phase": phase, "values": values, "native": native}));
+        return Ok(());
+    }
+
     if st.query_params().get("probe").as_deref() == Some("group-policy") {
         let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
         let options = |label, keyed| {

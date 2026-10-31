@@ -3423,6 +3423,7 @@ impl<C: AppendChild> InputWidgets for C {
                 codec: Codec::ButtonGroup {
                     options: options.options.iter().cloned().zip(native).collect(),
                     multi: range,
+                    filter_invalid: false,
                 },
                 callback: c.callback,
             },
@@ -3743,6 +3744,7 @@ fn emit_button_group<C: AppendChild>(this: &C, options: ButtonGroupOptions, styl
             codec: Codec::ButtonGroup {
                 options: options.options.iter().cloned().zip(native).collect(),
                 multi,
+                filter_invalid: true,
             },
             callback: c.callback,
         },
@@ -4959,6 +4961,124 @@ mod tests {
             assert!(wire.try_recv().is_ok(), "the first valid form is still rendered");
         }
         assert!(wire.try_recv().is_err(), "failed form calls must not append their partial children");
+    }
+
+    #[test]
+    fn button_group_invalid_native_values_reset_or_filter_and_sync_without_reappearing() -> anyhow::Result<()> {
+        let state = SessionState::default();
+        let labels = ["Single pills", "Multi pills", "Single segments", "Multi segments"];
+        let mut ids = Vec::<String>::new();
+        for (round, phase) in ["load", "edit", "subset", "empty", "return", "assign", "observe", "clear", "recover", "observe-final"].iter().enumerate() {
+            // 1. 前端输入与代码原生状态分别进入现有来源选择流程。
+            let incoming = if [1, 8].contains(&round) {
+                ids.iter()
+                    .enumerate()
+                    .map(|(position, id)| WidgetState {
+                        id: id.clone(),
+                        value: Some(widget_state::Value::StringArrayValue(proto::StringArray {
+                            data: if position % 2 == 0 {
+                                vec!["Alpha".into()]
+                            } else if round == 1 {
+                                vec!["Beta".into(), "Alpha".into(), "Beta".into()]
+                            } else {
+                                vec!["Alpha".into(), "Beta".into()]
+                            },
+                        })),
+                    })
+                    .collect()
+            } else {
+                Vec::new()
+            };
+            assert!(state.begin_widgets(incoming).is_empty());
+            let (st, mut wire) = app(&state);
+            let choices = if round == 3 {
+                vec![]
+            } else if round == 2 {
+                vec!["Beta"]
+            } else {
+                vec!["Alpha", "Beta"]
+            };
+            let mut current = Vec::new();
+            for (position, label) in labels.iter().enumerate() {
+                let multi = position % 2 == 1;
+                if round == 5 {
+                    state.set(*label, if multi { serde_json::json!(["Gone", "Beta", "Beta", "Alpha"]) } else { serde_json::json!("Gone") })?;
+                } else if round == 7 {
+                    state.set(*label, if multi { serde_json::json!([]) } else { Value::Null })?;
+                }
+                let mut options = ButtonGroupOptions::new(*label, choices.clone()).key(*label);
+                if multi {
+                    options = options.selection_mode(SelectionMode::Multi);
+                }
+                if !choices.is_empty() {
+                    options = options.default(["Beta"]);
+                }
+                let selected = if position < 2 { st.pills(options)? } else { st.segmented_control(options)? };
+                let expected = if multi {
+                    serde_json::json!(match round {
+                        0 => vec!["Beta"],
+                        1 => vec!["Beta", "Alpha", "Beta"],
+                        2 => vec!["Beta", "Beta"],
+                        3 | 4 | 7 => vec![],
+                        5 | 6 => vec!["Beta", "Beta", "Alpha"],
+                        _ => vec!["Alpha", "Beta"],
+                    })
+                } else {
+                    serde_json::json!(match round {
+                        1 | 8 | 9 => Some("Alpha"),
+                        3 | 4 | 7 => None,
+                        _ => Some("Beta"),
+                    })
+                };
+                let returned = match selected {
+                    ButtonGroupValue::Single(value) => serde_json::json!(value),
+                    ButtonGroupValue::Multi(value) => serde_json::json!(value),
+                };
+                assert_eq!(returned, expected, "{phase}: {label}");
+                assert_eq!(state.get::<Value>(label)?, Some(expected.clone()), "{phase}: native {label}");
+
+                // 2. 仅重置、过滤和代码赋值同步；后续观察不重复广播。
+                let element::Type::ButtonGroup(widget) = input(&mut wire)? else { panic!() };
+                let sync = [2, 3, 5, 7].contains(&round);
+                assert_eq!(widget.set_value, sync, "{phase}: {label}");
+                let raw = if !sync || expected.is_null() {
+                    vec![]
+                } else if multi {
+                    expected.as_array().expect("multi result").iter().map(|value| value.as_str().expect("native label").to_owned()).collect()
+                } else {
+                    vec![expected.as_str().expect("single result").to_owned()]
+                };
+                assert_eq!(widget.raw_values, raw);
+                assert_eq!(
+                    widget.default,
+                    if round == 3 {
+                        vec![]
+                    } else if round == 2 {
+                        vec![0]
+                    } else {
+                        vec![1]
+                    }
+                );
+                if round > 0 {
+                    assert_eq!(widget.id, ids[position]);
+                }
+                current.push(widget.id);
+            }
+            ids = current;
+            state.finish_widgets();
+        }
+
+        // 3. 共享 codec 的区间滑块仍拒绝失效端点，不过滤成不足两个端点。
+        let slider_state = SessionState::default();
+        slider_state.set("strict_range", serde_json::json!(["Gone", "Beta"]))?;
+        let (st, mut wire) = app(&slider_state);
+        assert!(matches!(
+            st.select_slider(SelectSliderOptions::new("Strict range", ["Alpha", "Beta"]).default(["Alpha", "Beta"]).key("strict_range")),
+            Err(WidgetError::InvalidValue(_))
+        ));
+        assert!(wire.try_recv().is_err());
+
+        Ok(())
     }
 
     #[test]

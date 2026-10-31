@@ -1,7 +1,23 @@
 """Emit widget creation-wire parameter variants for the M3 differential."""
 import streamlit as st
 
-if st.query_params.get("probe") == "group-policy":
+if st.query_params.get("probe") == "group-state":
+    phase = st.query_params.get("phase", "load")
+    labels = ["Single pills", "Multi pills", "Single segments", "Multi segments"]
+    for position, label in enumerate(labels):
+        if phase == "assign":
+            st.session_state[label] = "Gone" if position % 2 == 0 else ["Gone", "Beta", "Beta", "Alpha"]
+        elif phase == "clear":
+            st.session_state[label] = None if position % 2 == 0 else []
+    choices = [] if phase == "empty" else ["Beta"] if phase == "subset" else ["Alpha", "Beta"]
+    values = []
+    for position, label in enumerate(labels):
+        multi = position % 2 == 1
+        widget = st.pills if position < 2 else st.segmented_control
+        values.append(widget(label, choices, key=label, selection_mode="multi" if multi else "single",
+                             default=(["Beta"] if multi else "Beta") if choices else ([] if multi else None)))
+    st.json({"phase": phase, "values": values, "native": [st.session_state[label] for label in labels]})
+elif st.query_params.get("probe") == "group-policy":
     phase = st.query_params.get("phase", "load")
     mode = "multi" if phase in ("multi", "multi-edit") else "single"
     required = phase in ("required", "required-edit")

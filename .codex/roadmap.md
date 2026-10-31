@@ -14,6 +14,8 @@
 
 ## Current focus
 
+2026-11-01 pills/segmented_control 原生字符串状态切片：单选失效值回默认，多选逐项过滤并保留顺序/重复项，空选项与代码赋值同步。双样式单多选四控件共十轮、99 帧、50 完整 Element 与 SDK 匹配；旧模式/宽度复验通过。私有 codec 标志隔离 select_slider 的严格端点校验，详见[验收](acceptance.md#current-button-group-filtered-native-state-validation-2026-11-01)。异类型状态、callback、浏览器及绑定/表单/跨页继续开放，不改待决方案或完整目标。
+
 2026-11-01 pills/segmented_control required/模式身份切片：required 开关不再误重建无 key 控件；keyed 身份补入单多选模式，切换时从空默认开始，避免复用旧类型报错。双样式/有无 key 共十轮、99 帧、50 完整 Element 与 SDK 匹配，旧宽度七轮复验通过。详见[验收](acceptance.md#current-button-group-required-and-mode-identity-validation-2026-11-01)；浏览器必选交互、default/代码赋值、callback/绑定/跨页等继续开放，不改变待决方案或完整目标。
 
 2026-11-01 pills/segmented_control 宽度身份切片：无 key 控件的私有身份参数补入 width，有 key 保持。七轮、69 帧、35 完整 Element 与 SDK 匹配，改宽度/恢复后无 key 选择重置且不复活已清理值；有 key 保留。同二进制重放 radio 回调与格式化选择，详见[验收](acceptance.md#current-button-group-width-identity-validation-2026-11-01)。其他 style/mode 配对、参数/错误/callback/浏览器组合仍开放，不改变待决公共 API、hash 或共享状态方案。

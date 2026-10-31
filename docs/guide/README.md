@@ -688,3 +688,5 @@ radio 的重复选项若返回相同原生值，不因内部索引变化触发 o
 pills 与 segmented_control 无 key 时改变宽度会重建控件并清空选择；有 key 时保留。已验证单选 pills、多选 segmented_control 的七轮原生差分，其余组合继续开放。
 
 pills 与 segmented_control 的 required 开关保留身份和选择；单选/多选模式切换会重建控件，即使设置 key。十轮原生差分验证切回旧模式不复活旧值；浏览器必选/取消选择行为仍待验证。
+
+pills 与 segmented_control 的失效单选字符串回退当前默认值，多选逐项移除失效字符串并保留顺序和重复项；空选项会同步清空，恢复选项保持空选择。十轮原生差分已验证，异类型状态和浏览器组合仍待补证。
