@@ -14,6 +14,8 @@
 
 ## Current focus
 
+2026-11-01 选择控件真实 Chrome 切片：两端各 15 画面/四文档/九运行/72 原始帧，prefix/fuzzy 列表、新标签提交与空串/单空格占位编辑框一致；30 原始图片已检查，视口高度差异保留。见[验收](acceptance.md#current-selection-browser-filtering-and-placeholder-validation-2026-11-01)；同文档动态参数、初始空选择及其余 UI 仍开放，本批无生产改动。
+
 2026-11-01 无 key 选择身份切片：补宽度、占位/过滤的私有身份参数与显式空占位归一化；17 轮/135 帧/51 完整 Element 与锁定 SDK 一致，修前失败保留，原九轮 keyed 合同用同一二进制复验。详见[验收](acceptance.md#current-unkeyed-selection-identity-validation-2026-11-01)；浏览器过滤/占位显示及其余组合继续开放。
 
 2026-11-01 选择策略身份切片：有 key 的 selectbox 创建模式与 multiselect 选择上限已纳入各自私有身份；九轮原生 WS 中重建、旧状态清理、宽度保持和新字符串返回与锁定 SDK 一致，修前失败保留。详见[验收](acceptance.md#current-selection-policy-identity-validation-2026-11-01)；无 key 动态上限、错误与真实浏览器等组合未据此验收。

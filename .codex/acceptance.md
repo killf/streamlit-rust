@@ -2238,3 +2238,17 @@ Rust 修前忽略无 key 的宽度、占位文字和过滤模式，width 轮错�
 同一修后 Rust 二进制另执行原九个 keyed 场景（71 帧/27 Element），继续与原冻结 SDK 逐字段一致，本地证据 target/select-unkeyed-keyed-recheck/trace.json；未重写旧参考。SDK 服务由采集器关闭，Rust 修前 PID 62280、修后 8988 均核验精确可执行路径后停止，55660/8599 无监听。按代码检查→单元→原生 WS→工作区验证：编辑 Rust 的 rustfmt、全工作区/all-target Clippy 通过，工作区 310 项通过（303 库、1 ledger、2 宏、4 rustdoc），仍精确排除原 navigation_pages_switch_and_session_state_match_the_measured_wire 与 rerun_queue_messages_match_frozen_reference 两项待决回归，不能称完整工作区全绿。既有 MSVC linker stdout warning 保留；日志索引 target/select-unkeyed-{red,green,clippy,build,workspace,reference}.log。
 
 真实浏览器的过滤/占位显示、本批以外的默认/空值/无效参数、错误顺序、回调/绑定/表单/跨页组合仍未验收；select_slider、统一 hash、共享状态、队列扩展与多小时浸泡的决定继续等待。用户 colconfig_params 修改保持独立，未合并、发布或部署；M3/M5/M7 和长期 Goal 仍开放。
+
+## Current selection browser filtering and placeholder validation (2026-11-01)
+
+本批仅补真实 Chrome 证据、离线门与文档，不改生产 Rust 或示例。源版本为 9da119b014a0b94e1081cf8cf194bb58d9e2d880。使用 computer-use 的浏览器接口，经真实 combobox/option 定位操作，不注入控件状态；只读 DOM 与 CDP Network 原始 WS 事件一并保存。
+
+两端各四个独立加载的文档、15 个画面、九轮完整运行、四个 WS 连接和 72 个二进制帧。prefix 输入 ha 只显示 Add: ha，输入 Be 显示 Add: Be/Beta；点击 Beta 和 Add: Novel 后实际返回 Beta/Novel。fuzzy 输入 ha 显示 Add: ha、Alpha、Charlie，点击 Charlie 后返回 Charlie。空串与单空格占位的两个文档在清空编辑文本后均显示空白、保留 Alpha 后端选择，之后点击 Beta 返回 Beta。六个草稿画面均无 WS 提交；清空编辑文本不等于提交 None。
+
+原始证据：[Python UI](../tests/reference/reference-browser/widget-params/select-policy-unkeyed/ui/trace.json)、[Rust UI](../tests/browser/rust-widget-params/select-policy-unkeyed/ui/trace.json)。30 份 JPEG 均实际检查并保留原字节，逐图绑定 SHA256、尺寸及字节数；SDK 可视高度 780、Rust 724、宽度均 1463、DPR 1.75，保留实际差异，不宣称整页像素一致。源码 SHA256 绑定 widget_api 与两份示例，Rust 另记录二进制 SHA256。四个文档分别加载，不能替代前批同连接动态身份验证。
+
+证据门验证 76 个事件（含四个连接事件）的顺序、tab/requestId、Base64/protobuf、九次运行及四组独立会话；每轮完整 Element 仅归一化不透明 ID 与 JSON 文本后逐字段一致。逐画面检查 DOM 过滤列表、编辑值/占位、后端可见报告、事件区间和图片完整性；空白编辑区另查文本亮像素范围，防止旧的有字画面即使同步更新 SHA256 仍冒充空白。七类负例覆盖草稿多发、错误过滤列表、错误占位、错误输入、协议与 DOM 同时错误返回、图片 SHA256 和同步更新 SHA256 的旧图替换，均必须被拒绝。
+
+widget 参数模块 149 项、相关 query/widget/temporal/pickers/matrix/docs 门 400 项通过，日志 target/select-ui-{widget-reference,reference}.log。生产 Rust/示例未变，因此本批未重复工作区 Rust、Clippy 或构建；前批 310 项只保留为对应版本证据。st.selectbox 矩阵边界与机器清单同步，仍为 130 partial。SDK PID 60536（venv launcher 68544）、Rust PID 9344 已按自有命令/可执行路径核验后停止，8624/8599 无监听。自有标签页 1754832072/1754832076 已关闭；先禁用 CDP Network 观测再关页，没有观测到 close 帧，不宣称已捕获 WS 关闭事件。采集时返回的 warn/error 日志为空。
+
+本批只覆盖创建模式的 prefix/fuzzy 列表、选项提交和有既定选择时的空白编辑框。初始无选择占位、默认上下文提示、其他过滤/语言/设备/浏览器、真实多选变更、动态参数的同文档 UI、回调/表单/错误与其余组合继续开放。统一 hash、共享状态、发送队列扩展、select_slider 与多小时浸泡决定不变；用户 colconfig_params 修改保持独立，未合并、发布或部署，M3/M5/M7 与长期 Goal 未关闭。

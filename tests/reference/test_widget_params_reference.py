@@ -850,6 +850,166 @@ def test_unkeyed_selection_gate_rejects_coherent_wrong_wire(mutation):
         check_select_policy(capture, unkeyed=True)
 
 
+SELECT_UI_NAMES = ("01-prefix-load", "02-prefix-ha", "03-prefix-Be", "04-prefix-Beta-commit", "05-prefix-Novel-draft", "06-prefix-Novel-commit",
+                   "07-fuzzy-load", "08-fuzzy-ha", "09-fuzzy-Charlie-commit", "10-empty-load", "11-empty-blank-editor", "12-empty-Beta-commit",
+                   "13-space-load", "14-space-blank-editor", "15-space-Beta-commit")
+SELECT_UI_INPUTS = ("Alpha", "ha", "Be", "Beta", "Novel", "Novel", "Alpha", "ha", "Charlie", "Alpha", "", "Beta", "Alpha", "", "Beta")
+SELECT_UI_RETURNED = ("Alpha", "Alpha", "Alpha", "Beta", "Beta", "Novel", "Alpha", "Alpha", "Charlie", "Alpha", "Alpha", "Beta", "Alpha", "Alpha", "Beta")
+SELECT_UI_DRAFTS = (1, 2, 4, 7, 10, 13)
+
+
+def check_selection_ui(capture, folder):
+    import hashlib
+    from PIL import Image
+
+    assert capture["successful"] and capture["collection_complete"] and capture["semantic_match"] and capture["reference_version"] == "1.66.1"
+    assert capture["runtime"] in ("python", "rust")
+    assert capture["visual_review"]["all_stage_images_inspected"] and capture["visual_review"]["phase_alignment"]
+    cleanup = capture["cleanup"]
+    assert cleanup["network_disabled"] and cleanup["tab_closed"] and cleanup["server_stopped"] and not cleanup["close_event_observed"]
+    assert cleanup["ports_without_listeners"] == [8599, 8624]
+    assert capture["console"] == []
+    port, height = (8624, 780) if capture["runtime"] == "python" else (8599, 724)
+    assert [s["name"] for s in capture["stages"]] == list(SELECT_UI_NAMES)
+    events = capture["events"]
+    assert len(events) == 76
+    sockets, sequence, current_socket = [], 0, None
+    messages = {}
+    for index, event in enumerate(events):
+        assert event["sequence"] > sequence and event["source"]["tabId"] == int(capture["tab_id"])
+        sequence = event["sequence"]
+        if event["method"] == "Network.webSocketCreated":
+            assert event["params"]["url"] == f"ws://127.0.0.1:{port}/_stcore/stream"
+            current_socket = event["params"]["requestId"]
+            assert current_socket not in sockets
+            sockets.append(current_socket)
+            continue
+        assert event["method"] in ("Network.webSocketFrameSent", "Network.webSocketFrameReceived")
+        assert event["params"]["requestId"] == current_socket and event["params"]["response"]["opcode"] == 2
+        message = BackMsg() if event["method"].endswith("Sent") else ForwardMsg()
+        message.ParseFromString(base64.b64decode(event["params"]["response"]["payloadData"], validate=True))
+        messages[index] = message
+    assert len(sockets) == 4 and len(messages) == 72
+    boundary, normalized, session_groups, run_ids, widget_ids = 0, [], [], set(), None
+    for index, stage in enumerate(capture["stages"]):
+        phase = "filter" if index < 6 else "filter-return" if index < 9 else "empty-placeholder" if index < 12 else "space-placeholder"
+        case = "prefix" if index < 6 else "fuzzy" if index < 9 else "empty" if index < 12 else "space"
+        assert stage["case"] == case and stage["action_and_capture_calls_separate"]
+        start, end = stage["event_range"]
+        assert start == boundary
+        assert end - start == (0 if index in SELECT_UI_DRAFTS else 9 if index in (0, 6, 9, 12) else 8)
+        boundary = end
+        dom = stage["dom"]
+        assert dom["url"] == f"http://127.0.0.1:{port}/?probe=select-policy-unkeyed&phase={phase}"
+        assert dom["viewport"] == {"width": 1463, "height": height, "dpr": 1.75}
+        assert dom["inputs"] == [{"label": "Choice", "labelledby": None, "value": SELECT_UI_INPUTS[index], "placeholder": "Pick one" if index < 9 else " ", "expanded": "true" if index in SELECT_UI_DRAFTS else "false"},
+                                 {"label": "Choices", "labelledby": None, "value": "", "placeholder": "", "expanded": "false"}]
+        expected_options = {1: [("Add: ha", False)], 2: [("Add: Be", False), ("Beta", False)], 4: [("Add: Novel", False)],
+                            7: [("Add: ha", False), ("Alpha", True), ("Charlie", False)], 10: [("Alpha", True), ("Beta", False), ("Charlie", False)],
+                            13: [("Alpha", True), ("Beta", False), ("Charlie", False)]}.get(index, [])
+        assert dom["options"] == [{"text": text, "selected": str(selected).lower()} for text, selected in expected_options]
+        body = re.sub(r"\s+", "", dom["body"])
+        assert f'"phase":"{phase}"' in body and f'"values":[0:"{SELECT_UI_RETURNED[index]}"1:[0:"Alpha"]]' in body
+        picture = stage["screenshot"]
+        data = (folder / picture["file"]).read_bytes()
+        assert picture["file"] == SELECT_UI_NAMES[index] + ".jpg"
+        assert len(data) == picture["bytes"] and hashlib.sha256(data).hexdigest() == picture["sha256"]
+        with Image.open(folder / picture["file"]) as image:
+            assert image.format == picture["format"] == "JPEG" and list(image.size) == picture["dimensions"] == [1463, height]
+            rgb = image.convert("RGB")
+            bright = sum(min(rgb.getpixel((x, y))) > 110 for y in range(134, 155) for x in range(388, 451))
+            assert bright < 30 if index in (10, 13) else bright > 40
+        batch = [messages[i] for i in range(start, end) if i in messages]
+        if index in SELECT_UI_DRAFTS:
+            assert not batch
+            continue
+        assert [m.WhichOneof("type") for m in batch] == ["rerun_script", "new_session", "session_status_changed", "delta", "delta", "delta", "script_finished", "session_status_changed"]
+        request, session = batch[0].rerun_script, batch[1].new_session
+        assert request.query_string == f"probe=select-policy-unkeyed&phase={phase}"
+        assert session.initialize.environment_info.streamlit_version == "1.66.1"
+        run_ids.add(session.script_run_id)
+        assert batch[2].session_status_changed.script_is_running and batch[6].script_finished == 0 and not batch[7].session_status_changed.script_is_running
+        elements = [m.delta.new_element for m in batch[3:6]]
+        assert [m.delta.WhichOneof("type") for m in batch[3:6]] == ["new_element"] * 3
+        assert [list(m.metadata.delta_path) for m in batch[3:6]] == [[0, 0], [0, 1], [0, 2]]
+        assert [e.WhichOneof("type") for e in elements] == ["selectbox", "multiselect", "json"]
+        current_ids = [elements[0].selectbox.id, elements[1].multiselect.id]
+        if index in (0, 6, 9, 12):
+            assert not request.widget_states.widgets
+            session_groups.append([session.initialize.session_id])
+        else:
+            assert current_ids == widget_ids
+            session_groups[-1].append(session.initialize.session_id)
+            incoming = request.widget_states.widgets
+            assert len(incoming) == 2 and [w.id for w in incoming] == widget_ids
+            assert incoming[0].WhichOneof("value") == "string_value" and incoming[0].string_value == SELECT_UI_RETURNED[index]
+            assert incoming[1].WhichOneof("value") == "string_array_value" and list(incoming[1].string_array_value.data) == ["Alpha"]
+        widget_ids = current_ids
+        assert json.loads(elements[2].json.body) == {"phase": phase, "values": [SELECT_UI_RETURNED[index], ["Alpha"]]}
+        fields = [MessageToDict(e, preserving_proto_field_name=True) for e in elements]
+        fields[0]["selectbox"].pop("id")
+        fields[1]["multiselect"].pop("id")
+        fields[2]["json"]["body"] = json.loads(fields[2]["json"]["body"])
+        normalized.append(fields)
+    assert boundary == len(events) and len(run_ids) == 9
+    assert [len(g) for g in session_groups] == [3, 2, 2, 2]
+    assert all(len(set(g)) == 1 for g in session_groups) and len({g[0] for g in session_groups}) == 4
+    return normalized
+
+
+@pytest.mark.parametrize("root", (PYTHON, RUST), ids=("python", "rust"))
+def test_selection_ui_filters_new_values_and_blank_editors(root):
+    folder = root / "select-policy-unkeyed/ui"
+    check_selection_ui(read(folder / "trace.json"), folder)
+
+
+def test_selection_ui_complete_elements_match_reference():
+    folders = [root / "select-policy-unkeyed/ui" for root in (PYTHON, RUST)]
+    captures = [read(folder / "trace.json") for folder in folders]
+    assert captures[0]["producer_sources_sha256"] == captures[1]["producer_sources_sha256"]
+    assert check_selection_ui(captures[0], folders[0]) == check_selection_ui(captures[1], folders[1])
+
+
+@pytest.mark.parametrize("mutation", ("draft-send", "filter-options", "placeholder", "input", "returned-value", "screenshot", "old-image"))
+def test_selection_ui_gate_rejects_wrong_events_or_picture(mutation, tmp_path):
+    import hashlib
+
+    folder = PYTHON / "select-policy-unkeyed/ui"
+    capture = read(folder / "trace.json")
+    if mutation == "draft-send":
+        capture["stages"][1]["event_range"][1] += 1
+    elif mutation == "filter-options":
+        capture["stages"][7]["dom"]["options"] = [{"text": "Add: ha", "selected": "false"}]
+    elif mutation == "placeholder":
+        capture["stages"][10]["dom"]["inputs"][0]["placeholder"] = "Pick one"
+    elif mutation == "screenshot":
+        capture["stages"][10]["screenshot"]["sha256"] = "wrong"
+    elif mutation == "old-image":
+        for stage in capture["stages"]:
+            (tmp_path / stage["screenshot"]["file"]).write_bytes((folder / stage["screenshot"]["file"]).read_bytes())
+        data = (folder / capture["stages"][0]["screenshot"]["file"]).read_bytes()
+        target = capture["stages"][10]["screenshot"]
+        (tmp_path / target["file"]).write_bytes(data)
+        target.update(bytes=len(data), sha256=hashlib.sha256(data).hexdigest())
+        folder = tmp_path
+    else:
+        for event in capture["events"][slice(*capture["stages"][3]["event_range"])]:
+            message = BackMsg() if event["method"].endswith("Sent") else ForwardMsg()
+            message.ParseFromString(base64.b64decode(event["params"]["response"]["payloadData"]))
+            if mutation == "input" and isinstance(message, BackMsg):
+                message.rerun_script.widget_states.widgets[0].string_value = "wrong"
+            elif mutation == "returned-value" and message.WhichOneof("type") == "delta" and message.delta.new_element.WhichOneof("type") == "json":
+                report = json.loads(message.delta.new_element.json.body)
+                report["values"][0] = "wrong"
+                message.delta.new_element.json.body = json.dumps(report)
+                capture["stages"][3]["dom"]["body"] = capture["stages"][3]["dom"]["body"].replace('0:"Beta"', '0:"wrong"')
+            else:
+                continue
+            event["params"]["response"]["payloadData"] = base64.b64encode(message.SerializeToString()).decode()
+    with pytest.raises(AssertionError):
+        check_selection_ui(capture, folder)
+
+
 def comparable(capture):
     out = []
     for element in capture["elements"]:
