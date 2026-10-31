@@ -3241,6 +3241,198 @@ def test_feedback_empty_gate_rejects_coherent_wrong_wire(mutation):
         check_feedback_empty(capture)
 
 
+FEEDBACK_UI_STAGES = ("01-load", "02-primary-five", "03-primary-clear", "04-peer-satisfied", "05-peer-clear", "06-primary-two")
+FEEDBACK_UI_VALUES = ((2, None), (4, None), (None, None), (None, 3), (None, None), (1, None))
+FEEDBACK_UI_CALLS = [["primary", 4, None], ["primary", None, None], ["peer", None, 3], ["peer", None, None], ["primary", 1, None]]
+FEEDBACK_UI_REPORTS = (
+    '{"phase":"load""values":[0:21:NULL]"calls":[]}',
+    '{"phase":"load""values":[0:41:NULL]"calls":[0:[0:"primary"1:42:NULL]]}',
+    '{"phase":"load""values":[0:NULL1:NULL]"calls":[0:[0:"primary"1:42:NULL]1:[0:"primary"1:NULL2:NULL]]}',
+    '{"phase":"load""values":[0:NULL1:3]"calls":[0:[0:"primary"1:42:NULL]1:[0:"primary"1:NULL2:NULL]2:[0:"peer"1:NULL2:3]]}',
+    '{"phase":"load""values":[0:NULL1:NULL]"calls":[0:[0:"primary"1:42:NULL]1:[0:"primary"1:NULL2:NULL]2:[0:"peer"1:NULL2:3]3:[0:"peer"1:NULL2:NULL]]}',
+    '{"phase":"load""values":[0:11:NULL]"calls":[0:[0:"primary"1:42:NULL]1:[0:"primary"1:NULL2:NULL]2:[0:"peer"1:NULL2:3]3:[0:"peer"1:NULL2:NULL]4:[0:"primary"1:12:NULL]]}',
+)
+
+
+def check_feedback_ui(capture, folder):
+    import hashlib
+    from io import BytesIO
+    from PIL import Image
+
+    assert capture["collection_complete"] and capture["reference_version"] == "1.66.1" and not capture["console"]
+    assert capture["runtime"] in ("python", "rust")
+    assert capture["cleanup"]["owned_tab_closed"] and capture["cleanup"]["owned_servers_stopped"]
+    assert capture["cleanup"]["ports_without_listeners"] == [56480, 8599]
+    assert capture["visual_review"]["all_stage_images_inspected"] and capture["visual_review"]["phase_alignment"]
+    prefix = 0 if capture["runtime"] == "python" else 2
+    assert capture["coverage"] == {"covered_connection_frames": 48, "covered_connection_events": 49, "pre_reload_orphan_frames": prefix,
+                                   "starts_at_intentional_reload": True, "network_disabled_before_tab_close": True}
+    events = capture["events"]
+    assert len(events) == 49 + prefix and events[prefix]["method"] == "Network.webSocketCreated"
+    created = events[prefix]
+    ws_id = created["params"]["requestId"]
+    assert created["params"]["url"] == capture["url"].split("/?")[0].replace("http:", "ws:") + "/_stcore/stream"
+    if prefix:
+        assert [e["method"] for e in events[:prefix]] == ["Network.webSocketFrameSent", "Network.webSocketFrameReceived"]
+        assert events[0]["params"]["requestId"] == events[1]["params"]["requestId"] != ws_id
+    messages, sequence = {}, -1
+    for index, event in enumerate(events):
+        assert event["sequence"] > sequence and event["source"]["tabId"] == int(capture["tab_id"])
+        sequence = event["sequence"]
+        if index == prefix:
+            continue
+        assert event["method"] in ("Network.webSocketFrameSent", "Network.webSocketFrameReceived")
+        assert event["params"]["response"]["opcode"] == 2
+        message = BackMsg() if event["method"].endswith("Sent") else ForwardMsg()
+        message.ParseFromString(base64.b64decode(event["params"]["response"]["payloadData"], validate=True))
+        if index < prefix:
+            assert message.WhichOneof("type") == ("rerun_script" if index == 0 else "new_session")
+        else:
+            assert event["params"]["requestId"] == ws_id
+            messages[index] = message
+    assert len(messages) == 48
+    assert [stage["name"] for stage in capture["stages"]] == list(FEEDBACK_UI_STAGES)
+    normalized, sessions, run_ids, ids, boundary = [], set(), set(), None, 0
+    for index, stage in enumerate(capture["stages"]):
+        assert stage["action_and_capture_calls_separate"] and stage["event_end"] == prefix + 9 + index * 8
+        assert stage["cursor"] >= events[stage["event_end"] - 1]["sequence"]
+        dom = stage["dom"]
+        assert dom["viewport"] == {"width": 1463, "height": 780, "dpr": 1.75} and not dom["exceptions"]
+        assert dom["reports"] == [FEEDBACK_UI_REPORTS[index]]
+        expected_groups = []
+        for position, value in enumerate(FEEDBACK_UI_VALUES[index]):
+            labels = [f"{i} out of 5 stars" for i in range(1, 6)] if position == 0 else ["Very dissatisfied", "Dissatisfied", "Neutral", "Satisfied", "Very satisfied"]
+            expected_groups.append({"label": "Feedback rating", "buttons": [
+                {"label": label, "checked": value == i, "disabled": False,
+                 "testid": "stFeedbackButtonActive" if value is not None and (i <= value if position == 0 else i == value) else "stFeedbackButton"}
+                for i, label in enumerate(labels)]})
+        assert dom["groups"] == expected_groups
+        picture = stage["screenshot"]
+        assert picture["file"] == FEEDBACK_UI_STAGES[index] + ".jpg"
+        data = (folder / picture["file"]).read_bytes()
+        assert len(data) == picture["bytes"] and hashlib.sha256(data).hexdigest() == picture["sha256"]
+        with Image.open(BytesIO(data)) as img:
+            assert img.format == picture["format"] == "JPEG" and img.size == (picture["width"], picture["height"]) == (1463, 780)
+            rgb = img.convert("RGB")
+            centers = (391, 417, 443, 469, 495) if index < 2 else (386, 412, 438, 464, 490)
+            for star, center in enumerate(centers):
+                yellow = sum(1 for x in range(center - 8, center + 9) for y in range(100, 117)
+                             if (lambda color: color[0] > 170 and color[1] > 120 and color[2] < 100)(rgb.getpixel((x, y))))
+                selected = FEEDBACK_UI_VALUES[index][0]
+                assert yellow > 30 if selected is not None and star <= selected else yellow < 5
+        batch = [messages[i] for i in range(boundary, stage["event_end"]) if i in messages]
+        boundary = stage["event_end"]
+        assert [m.WhichOneof("type") for m in batch] == ["rerun_script", "new_session", "session_status_changed", "delta", "delta", "delta", "script_finished", "session_status_changed"]
+        request, session = batch[0].rerun_script, batch[1].new_session
+        assert request.query_string == "probe=feedback-empty" and not request.is_history_navigation
+        assert session.initialize.environment_info.streamlit_version == "1.66.1"
+        sessions.add(session.initialize.session_id)
+        run_ids.add(session.script_run_id)
+        assert batch[2].session_status_changed.script_is_running and batch[6].script_finished == 0 and not batch[7].session_status_changed.script_is_running
+        elements = [m.delta.new_element for m in batch[3:6]]
+        assert [m.delta.WhichOneof("type") for m in batch[3:6]] == ["new_element"] * 3
+        assert [list(m.metadata.delta_path) for m in batch[3:6]] == [[0, 0], [0, 1], [0, 2]]
+        assert [e.WhichOneof("type") for e in elements] == ["feedback", "feedback", "json"]
+        current = []
+        for position, element in enumerate(elements[:2]):
+            widget = element.feedback
+            assert widget.type == (2 if position == 0 else 1) and element.width_config.use_content
+            assert widget.HasField("default") == (position == 0) and widget.default == (2 if position == 0 else 0)
+            assert not widget.disabled and not widget.form_id and not widget.ignore_rerun and not widget.set_value
+            assert not widget.HasField("value") and not element.HasField("has_one_shot_effect")
+            current.append(widget.id)
+        assert len(set(current)) == 2
+        if ids is None:
+            ids = current
+        else:
+            assert current == ids
+        incoming = request.widget_states.widgets
+        if index == 0:
+            assert not incoming
+        else:
+            assert len(incoming) == 2 and [w.id for w in incoming] == ids
+            assert [w.WhichOneof("value") for w in incoming] == ["string_value"] * 2
+            assert [w.string_value for w in incoming] == ["" if value is None else str(value) for value in FEEDBACK_UI_VALUES[index]]
+        assert json.loads(elements[2].json.body) == {"phase": "load", "values": list(FEEDBACK_UI_VALUES[index]), "calls": FEEDBACK_UI_CALLS[:index]}
+        fields = [MessageToDict(element, preserving_proto_field_name=True) for element in elements]
+        for field in fields[:2]:
+            field["feedback"].pop("id")
+        fields[2]["json"]["body"] = json.loads(fields[2]["json"]["body"])
+        normalized.append(fields)
+    assert boundary == len(events) and len(sessions) == 1 and len(run_ids) == 6
+    return normalized
+
+
+@pytest.mark.parametrize("root", (PYTHON, RUST), ids=("python", "rust"))
+def test_feedback_browser_clear_and_peer_callbacks(root):
+    folder = root / "feedback-empty/ui"
+    capture = read(folder / "trace.json")
+    assert capture["successful"] and capture["semantic_match"]
+    check_feedback_ui(capture, folder)
+
+
+def test_feedback_browser_complete_elements_match_reference():
+    captures = [read(root / "feedback-empty/ui/trace.json") for root in (PYTHON, RUST)]
+    assert captures[0]["producer_sources_sha256"] == captures[1]["producer_sources_sha256"]
+    assert check_feedback_ui(captures[0], PYTHON / "feedback-empty/ui") == check_feedback_ui(captures[1], RUST / "feedback-empty/ui")
+
+
+@pytest.mark.parametrize("mutation", ("clear-oneof", "callback", "default", "stale-input", "checked", "screenshot", "old-image", "coverage"))
+def test_feedback_browser_gate_rejects_damage(mutation):
+    import hashlib
+
+    folder = PYTHON / "feedback-empty/ui"
+    capture = read(folder / "trace.json")
+    if mutation == "checked":
+        capture["stages"][2]["dom"]["groups"][0]["buttons"][2]["checked"] = True
+    elif mutation == "screenshot":
+        capture["stages"][1]["screenshot"]["sha256"] = "wrong"
+    elif mutation == "old-image":
+        data = (folder / "03-primary-clear.jpg").read_bytes()
+        capture["stages"][1]["screenshot"].update(bytes=len(data), sha256=hashlib.sha256(data).hexdigest())
+        from unittest.mock import patch
+        original = Path.read_bytes
+        def substituted(path):
+            return data if path == folder / "02-primary-five.jpg" else original(path)
+        with patch.object(Path, "read_bytes", substituted):
+            with pytest.raises(AssertionError):
+                check_feedback_ui(capture, folder)
+        return
+    elif mutation == "coverage":
+        capture["coverage"]["covered_connection_frames"] = 47
+    else:
+        run = -1
+        for event in capture["events"]:
+            client = event["method"] == "Network.webSocketFrameSent"
+            if event["method"] not in ("Network.webSocketFrameSent", "Network.webSocketFrameReceived"):
+                continue
+            message = BackMsg() if client else ForwardMsg()
+            message.ParseFromString(base64.b64decode(event["params"]["response"]["payloadData"]))
+            if client:
+                run += 1
+                if mutation == "clear-oneof" and run == 2:
+                    message.rerun_script.widget_states.widgets[0].ClearField("string_value")
+                elif mutation == "stale-input" and run == 3:
+                    message.rerun_script.widget_states.widgets[1].id = "$$ID-stale-browser-feedback"
+                else:
+                    continue
+            elif message.WhichOneof("type") == "delta":
+                element = message.delta.new_element
+                if mutation == "default" and run == 0 and element.WhichOneof("type") == "feedback":
+                    element.feedback.default = 1
+                elif mutation == "callback" and run == 3 and element.WhichOneof("type") == "json":
+                    report = json.loads(element.json.body)
+                    report["calls"][-1][0] = "primary"
+                    element.json.body = json.dumps(report)
+                else:
+                    continue
+            else:
+                continue
+            event["params"]["response"]["payloadData"] = base64.b64encode(message.SerializeToString()).decode()
+    with pytest.raises(AssertionError):
+        check_feedback_ui(capture, folder)
+
+
 def comparable(capture):
     out = []
     for element in capture["elements"]:

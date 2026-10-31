@@ -2504,3 +2504,21 @@ producer 三份源码、widget_api/widgets 与二进制 SHA 已核对当前产�
 仅更新 st.feedback 矩阵和生成清单，仍 130 partial；真实清空 UI、禁用/错误输入、ignore、表单/跨页及其他 callback 组合继续开放。用户 colconfig_params 修改独立保留；待决共享状态/hash/公共接口方案不变，未创建 PR、合并、发布或部署，M3/M5/M7 与长期 Goal 未关闭。
 
 编辑 Rust 的 rustfmt、全工作区/all-target Clippy、新增公开 API 单元通过；最终工作区 330 项通过（323 库、1 ledger、2 宏、4 rustdoc），仍仅排除原 navigation_pages_switch_and_session_state_match_the_measured_wire 与 rerun_queue_messages_match_frozen_reference，不称完整工作区全绿。参数参考模块 339 项，相关 query/widget/temporal/pickers/matrix/docs/buttons/inputs 八模块共 645 项通过；文档/矩阵收尾门 52 项通过。既有 MSVC linker stdout warning 保留；日志 target/feedback-empty-{red,green,clippy,build,workspace,python}.log。
+
+## Current feedback browser clearing and callback validation (2026-11-01)
+
+使用 computer-use 技能，在真实 Chrome 依次驱动锁定 SDK 1.66.1 与当前 Rust：初始 stars 默认三颗（原生 2）/faces 未选→点第五颗星→再点第五颗清空→同伴 Satisfied→再点 Satisfied 清空→主控件两颗星。两端各六画面/六运行、48 覆盖二进制帧、18 完整 Element；值依次 [2,None]/[4,None]/[None,None]/[None,3]/[None,None]/[1,None]，五条 callback 依次 primary 4/None、primary None/None、peer None/3、peer None/None、primary 1/None，DOM checked/active、可见 JSON 与完整规范化协议一致。
+
+[SDK 浏览器记录](../tests/reference/reference-browser/widget-params/feedback-empty/ui/trace.json)、[Rust 浏览器记录](../tests/browser/rust-widget-params/feedback-empty/ui/trace.json)包含十二张原始 JPEG，均已逐张查看；实际 1463×780、DPR=1.75，文件未编辑。星级填充、重复点击后清空、faces 满意/清空、评分和回调显示一致；后几轮 JSON 回调列表超出视口，完整列表由 DOM 和原始协议核对，不宣称截图展示全部回调或整页像素一致。
+
+实际浏览器每次交互均携带两个当前 widget ID 和显式 string_value，未选/清空为 ""；本次未产生 ID-only 包，因此不能将上轮原生 ID-only 失败宣称为这段真实浏览器交互的修前失败。原生十轮协议边界证据独立保留。本批无生产 Rust/fixture 修改，仅补真实用户交互及证据门。
+
+采集从启用 Network 后有意 reload 开始；SDK 保存 49 事件（1 created+48 帧）。Rust 保存 51 事件：开头旧连接的 rerun_script/new_session 两帧因初次导航与刷新交叠而被捕获，原样保留并单列为覆盖外前缀；其后的新连接同为 49 事件/48 帧。两条旧帧不能并入新连接计数或直接删去。两端采集均在关闭 tab 前 disable Network，未声明观察到 close 帧。
+
+严格门重解码全部原始事件，检查序列/来源 tab/连接/两条旧前缀、逐阶段事件边界与八帧顺序、session/run/path、实际 ID/oneof/空字符串、声明默认 2/None、type/width/无额外同步、完整有序 callback，以及 DOM 十按钮语义和选中/激活样式。图片 SHA/字节/格式/尺寸严格核对，五个星位的黄色像素门区分 3/5/0/0/0/2 颗填充，可拒绝旧清空图替换五星图后同步改哈希。faces 像素未单独建立选择门，不将 hover 变白当作选择证据。
+
+两份正例、完整字段比较及八类负例共十一项新增测试通过；负例包括清空 oneof 被省略、错误回调、错误声明默认、过期输入、错误 checked、图片哈希、旧图/新哈希、错误覆盖计数。参数参考模块 350 项，相关 query/widget/temporal/pickers/matrix/docs/buttons/inputs 八模块共 656 项通过；日志 target/feedback-ui-python.log。无生产修改，本批未重跑 Rust 工作区或 Clippy，不将上一轮 330 项结果冒充本批运行。
+
+源码与二进制 SHA 已核对 a7f4fe0 当前已提交内容；SDK/Rust 自建服务 PID 53600/33816 经自持 Popen 句柄 terminate/wait 结束，协调进程真实退出 0，56480/8599 无监听；两个自建标签均已关闭，console warn/error 均为空。截图与采集动作分开执行，避免动作后旧帧被当作新画面。指南 README 原 CRLF 字节前缀保持，仅追加说明。
+
+仅 st.feedback 矩阵与生成清单更新，仍 130 partial；动态默认/图标/宽度 UI、代码赋值 UI、禁用/ignore、表单/跨页及其他 callback 组合继续开放。用户 colconfig_params 修改独立保留，未创建 PR、合并、发布或部署；M3/M5/M7 与长期 Goal 未关闭。

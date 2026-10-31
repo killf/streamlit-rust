@@ -1,0 +1,1416 @@
+{
+  "schema_version": 1,
+  "runtime": "python",
+  "reference_version": "1.66.1",
+  "source_commit": "a7f4fe081ebb56cb202207dbf51c1927c5a6723b",
+  "producer_sources_sha256": {
+    "streamlit/examples/widget_params.rs": "24a334b6cfb349594cb527ad054d5872eae25c7942f6fb73275991068ac14b83",
+    "tests/reference/widget_params_app.py": "e2e07961ddeb9419c86478c775a1039c262fe5dd3f2cb02c14f1df33074fe333"
+  },
+  "url": "http://127.0.0.1:56480/?probe=feedback-empty",
+  "tab_id": "1754832104",
+  "scope": "Real Chrome feedback scoring, repeated-click clearing and peer callbacks; no full feedback compatibility claim.",
+  "events": [
+    {
+      "sequence": 377,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketCreated",
+      "params": {
+        "initiator": {
+          "stack": {
+            "callFrames": [
+              {
+                "columnNumber": 2166,
+                "functionName": "connectToWebSocket",
+                "lineNumber": 28,
+                "scriptId": "29",
+                "url": "http://127.0.0.1:56480/static/js/index.Dlja0TUX.js"
+              }
+            ]
+          },
+          "type": "script"
+        },
+        "requestId": "73660.314",
+        "url": "ws://127.0.0.1:56480/_stcore/stream"
+      }
+    },
+    {
+      "sequence": 382,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameSent",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": true,
+          "opcode": 2,
+          "payloadData": "WlkKFHByb2JlPWZlZWRiYWNrLWVtcHR5EgBCPwoNQXNpYS9TaGFuZ2hhaRCg/P////////8BGgJ6aCIXaHR0cDovLzEyNy4wLjAuMTo1NjQ4MC8oADIEZGFyaw=="
+        },
+        "timestamp": 156866.069722
+      }
+    },
+    {
+      "sequence": 389,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "IqQDCq0BCl4KJDc5MDk1MDBjLWU1OWEtNTJlNy05ZjUzLWQzZGUwYzZhN2RmNCokNzkwOTUwMGMtZTU5YS01MmU3LTlmNTMtZDNkZTBjNmE3ZGY0MhBuby1tYWNoaW5lLWlkLXY0GiEKBjEuNjYuMRIOMy4xNC43LmZpbmFsLjAaB3dpbmRvd3MiAhABMiQwODk1YTY5ZS1iZWU5LTQyZDAtYWQzOS0xNjBhYjc2YjMwZmQSJDhiZjE4NDNjLTUzOTUtNGFkZi04MjJjLWU1ODRiYTlmNGY2NhoRd2lkZ2V0X3BhcmFtc19hcHAiSUM6XFVzZXJzXGtpbGxmXGdpdGh1YlxzdHJlYW1saXQtcnVzdFx0ZXN0c1xyZWZlcmVuY2Vcd2lkZ2V0X3BhcmFtc19hcHAucHkyBhgCKAFIAUIiCiBmODIxZTRjY2E4ZTBiNDM4MTNiN2RkYWQ5ODJlZThiNEogZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjRaIGY4MjFlNGNjYThlMGI0MzgxM2I3ZGRhZDk4MmVlOGI0"
+        },
+        "timestamp": 156866.075372
+      }
+    },
+    {
+      "sequence": 390,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "SgIQAQ=="
+        },
+        "timestamp": 156866.082512
+      }
+    },
+    {
+      "sequence": 396,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiBjZmM4Mjg0ZTJmOGI3MDVhM2E2ZGNiODUyNTgwMjI4MhImEgIAACIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqRhpE0gMCEAH6AzwKNiQkSUQtZWZjZjhkYzA1ODg1M2M4ZjYxM2Y4Y2VmNzRhYWQ0NjMtZmVlZGJhY2tfcHJpbWFyeRACGAI="
+        },
+        "timestamp": 156866.168019
+      }
+    },
+    {
+      "sequence": 397,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiA3YjI4ZDE4MWNkMzYyZWQxNDE4MGQ4OWZlZGRlNWQxYRImEgIAASIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqQRo/0gMCEAH6AzcKMyQkSUQtZjJjOWMwYWNkMDBmMjFjZWJkYmQzODAyNzNhYmJjYjYtZmVlZGJhY2tfcGVlchAB"
+        },
+        "timestamp": 156866.168443
+      }
+    },
+    {
+      "sequence": 408,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiA1ZGU5M2NmMDk3NWY5ZTNhNzhiYmE3YzRiMjkyZjgwOBImEgIAAiIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqQRo/+gE3CjN7InBoYXNlIjogImxvYWQiLCAidmFsdWVzIjogWzIsIG51bGxdLCAiY2FsbHMiOiBbXX0QAdIDAggB"
+        },
+        "timestamp": 156866.172742
+      }
+    },
+    {
+      "sequence": 409,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "MAA="
+        },
+        "timestamp": 156866.172963
+      }
+    },
+    {
+      "sequence": 410,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "SgA="
+        },
+        "timestamp": 156866.173066
+      }
+    },
+    {
+      "sequence": 444,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameSent",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": true,
+          "opcode": 2,
+          "payloadData": "WvEBChRwcm9iZT1mZWVkYmFjay1lbXB0eRJ2CjsKNiQkSUQtZWZjZjhkYzA1ODg1M2M4ZjYxM2Y4Y2VmNzRhYWQ0NjMtZmVlZGJhY2tfcHJpbWFyeTIBNAo3CjMkJElELWYyYzljMGFjZDAwZjIxY2ViZGJkMzgwMjczYWJiY2I2LWZlZWRiYWNrX3BlZXIyABogZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjRCPwoNQXNpYS9TaGFuZ2hhaRCg/P////////8BGgJ6aCIXaHR0cDovLzEyNy4wLjAuMTo1NjQ4MC8oADIEZGFyaw=="
+        },
+        "timestamp": 156932.62511
+      }
+    },
+    {
+      "sequence": 445,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "IqQDCq0BCl4KJDc5MDk1MDBjLWU1OWEtNTJlNy05ZjUzLWQzZGUwYzZhN2RmNCokNzkwOTUwMGMtZTU5YS01MmU3LTlmNTMtZDNkZTBjNmE3ZGY0MhBuby1tYWNoaW5lLWlkLXY0GiEKBjEuNjYuMRIOMy4xNC43LmZpbmFsLjAaB3dpbmRvd3MiAhABMiQwODk1YTY5ZS1iZWU5LTQyZDAtYWQzOS0xNjBhYjc2YjMwZmQSJDI1ZGZjYTRkLTRiOTEtNGExMC1hODhlLTMzOGNjOTI0MmZiNxoRd2lkZ2V0X3BhcmFtc19hcHAiSUM6XFVzZXJzXGtpbGxmXGdpdGh1YlxzdHJlYW1saXQtcnVzdFx0ZXN0c1xyZWZlcmVuY2Vcd2lkZ2V0X3BhcmFtc19hcHAucHkyBhgCKAFIAUIiCiBmODIxZTRjY2E4ZTBiNDM4MTNiN2RkYWQ5ODJlZThiNEogZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjRaIGY4MjFlNGNjYThlMGI0MzgxM2I3ZGRhZDk4MmVlOGI0"
+        },
+        "timestamp": 156932.647113
+      }
+    },
+    {
+      "sequence": 446,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "SgIQAQ=="
+        },
+        "timestamp": 156932.650556
+      }
+    },
+    {
+      "sequence": 447,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiBjZmM4Mjg0ZTJmOGI3MDVhM2E2ZGNiODUyNTgwMjI4MhImEgIAACIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqRhpE0gMCEAH6AzwKNiQkSUQtZWZjZjhkYzA1ODg1M2M4ZjYxM2Y4Y2VmNzRhYWQ0NjMtZmVlZGJhY2tfcHJpbWFyeRACGAI="
+        },
+        "timestamp": 156932.650752
+      }
+    },
+    {
+      "sequence": 448,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiA3YjI4ZDE4MWNkMzYyZWQxNDE4MGQ4OWZlZGRlNWQxYRImEgIAASIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqQRo/0gMCEAH6AzcKMyQkSUQtZjJjOWMwYWNkMDBmMjFjZWJkYmQzODAyNzNhYmJjYjYtZmVlZGJhY2tfcGVlchAB"
+        },
+        "timestamp": 156932.650984
+      }
+    },
+    {
+      "sequence": 449,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiBkYjYyMTVmZjhhYjk2NjJmYTQyMzM5ZDViMTBmNGZmYxImEgIAAiIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqVRpT+gFLCkd7InBoYXNlIjogImxvYWQiLCAidmFsdWVzIjogWzQsIG51bGxdLCAiY2FsbHMiOiBbWyJwcmltYXJ5IiwgNCwgbnVsbF1dfRAB0gMCCAE="
+        },
+        "timestamp": 156932.651169
+      }
+    },
+    {
+      "sequence": 450,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "MAA="
+        },
+        "timestamp": 156932.651281
+      }
+    },
+    {
+      "sequence": 451,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "SgA="
+        },
+        "timestamp": 156932.651398
+      }
+    },
+    {
+      "sequence": 452,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameSent",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": true,
+          "opcode": 2,
+          "payloadData": "WvABChRwcm9iZT1mZWVkYmFjay1lbXB0eRJ1CjoKNiQkSUQtZWZjZjhkYzA1ODg1M2M4ZjYxM2Y4Y2VmNzRhYWQ0NjMtZmVlZGJhY2tfcHJpbWFyeTIACjcKMyQkSUQtZjJjOWMwYWNkMDBmMjFjZWJkYmQzODAyNzNhYmJjYjYtZmVlZGJhY2tfcGVlcjIAGiBmODIxZTRjY2E4ZTBiNDM4MTNiN2RkYWQ5ODJlZThiNEI/Cg1Bc2lhL1NoYW5naGFpEKD8/////////wEaAnpoIhdodHRwOi8vMTI3LjAuMC4xOjU2NDgwLygAMgRkYXJr"
+        },
+        "timestamp": 156947.4967
+      }
+    },
+    {
+      "sequence": 453,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "IqQDCq0BCl4KJDc5MDk1MDBjLWU1OWEtNTJlNy05ZjUzLWQzZGUwYzZhN2RmNCokNzkwOTUwMGMtZTU5YS01MmU3LTlmNTMtZDNkZTBjNmE3ZGY0MhBuby1tYWNoaW5lLWlkLXY0GiEKBjEuNjYuMRIOMy4xNC43LmZpbmFsLjAaB3dpbmRvd3MiAhABMiQwODk1YTY5ZS1iZWU5LTQyZDAtYWQzOS0xNjBhYjc2YjMwZmQSJDJlYTI4OGU0LTE5YWUtNGY5Yi1hNjQ0LWQ2ZjcxZjAxNzFhMRoRd2lkZ2V0X3BhcmFtc19hcHAiSUM6XFVzZXJzXGtpbGxmXGdpdGh1YlxzdHJlYW1saXQtcnVzdFx0ZXN0c1xyZWZlcmVuY2Vcd2lkZ2V0X3BhcmFtc19hcHAucHkyBhgCKAFIAUIiCiBmODIxZTRjY2E4ZTBiNDM4MTNiN2RkYWQ5ODJlZThiNEogZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjRaIGY4MjFlNGNjYThlMGI0MzgxM2I3ZGRhZDk4MmVlOGI0"
+        },
+        "timestamp": 156947.498714
+      }
+    },
+    {
+      "sequence": 454,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "SgIQAQ=="
+        },
+        "timestamp": 156947.500167
+      }
+    },
+    {
+      "sequence": 455,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiBjZmM4Mjg0ZTJmOGI3MDVhM2E2ZGNiODUyNTgwMjI4MhImEgIAACIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqRhpE0gMCEAH6AzwKNiQkSUQtZWZjZjhkYzA1ODg1M2M4ZjYxM2Y4Y2VmNzRhYWQ0NjMtZmVlZGJhY2tfcHJpbWFyeRACGAI="
+        },
+        "timestamp": 156947.520434
+      }
+    },
+    {
+      "sequence": 456,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiA3YjI4ZDE4MWNkMzYyZWQxNDE4MGQ4OWZlZGRlNWQxYRImEgIAASIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqQRo/0gMCEAH6AzcKMyQkSUQtZjJjOWMwYWNkMDBmMjFjZWJkYmQzODAyNzNhYmJjYjYtZmVlZGJhY2tfcGVlchAB"
+        },
+        "timestamp": 156947.520719
+      }
+    },
+    {
+      "sequence": 457,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiBiOGY4NjQzNTZhZGUyNDIxMjExMDQ4ZWI0M2Y5OWUwZRImEgIAAiIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqcRpv+gFnCmN7InBoYXNlIjogImxvYWQiLCAidmFsdWVzIjogW251bGwsIG51bGxdLCAiY2FsbHMiOiBbWyJwcmltYXJ5IiwgNCwgbnVsbF0sIFsicHJpbWFyeSIsIG51bGwsIG51bGxdXX0QAdIDAggB"
+        },
+        "timestamp": 156947.522716
+      }
+    },
+    {
+      "sequence": 458,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "MAA="
+        },
+        "timestamp": 156947.523045
+      }
+    },
+    {
+      "sequence": 459,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "SgA="
+        },
+        "timestamp": 156947.523128
+      }
+    },
+    {
+      "sequence": 460,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameSent",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": true,
+          "opcode": 2,
+          "payloadData": "WvEBChRwcm9iZT1mZWVkYmFjay1lbXB0eRJ2CjoKNiQkSUQtZWZjZjhkYzA1ODg1M2M4ZjYxM2Y4Y2VmNzRhYWQ0NjMtZmVlZGJhY2tfcHJpbWFyeTIACjgKMyQkSUQtZjJjOWMwYWNkMDBmMjFjZWJkYmQzODAyNzNhYmJjYjYtZmVlZGJhY2tfcGVlcjIBMxogZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjRCPwoNQXNpYS9TaGFuZ2hhaRCg/P////////8BGgJ6aCIXaHR0cDovLzEyNy4wLjAuMTo1NjQ4MC8oADIEZGFyaw=="
+        },
+        "timestamp": 156973.242331
+      }
+    },
+    {
+      "sequence": 461,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "IqQDCq0BCl4KJDc5MDk1MDBjLWU1OWEtNTJlNy05ZjUzLWQzZGUwYzZhN2RmNCokNzkwOTUwMGMtZTU5YS01MmU3LTlmNTMtZDNkZTBjNmE3ZGY0MhBuby1tYWNoaW5lLWlkLXY0GiEKBjEuNjYuMRIOMy4xNC43LmZpbmFsLjAaB3dpbmRvd3MiAhABMiQwODk1YTY5ZS1iZWU5LTQyZDAtYWQzOS0xNjBhYjc2YjMwZmQSJDJmYTUxOTdlLTAwZTktNDIyNy04NDkyLTk2NDBmZTkyOGViYxoRd2lkZ2V0X3BhcmFtc19hcHAiSUM6XFVzZXJzXGtpbGxmXGdpdGh1YlxzdHJlYW1saXQtcnVzdFx0ZXN0c1xyZWZlcmVuY2Vcd2lkZ2V0X3BhcmFtc19hcHAucHkyBhgCKAFIAUIiCiBmODIxZTRjY2E4ZTBiNDM4MTNiN2RkYWQ5ODJlZThiNEogZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjRaIGY4MjFlNGNjYThlMGI0MzgxM2I3ZGRhZDk4MmVlOGI0"
+        },
+        "timestamp": 156973.244289
+      }
+    },
+    {
+      "sequence": 462,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "SgIQAQ=="
+        },
+        "timestamp": 156973.246433
+      }
+    },
+    {
+      "sequence": 463,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiBjZmM4Mjg0ZTJmOGI3MDVhM2E2ZGNiODUyNTgwMjI4MhImEgIAACIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqRhpE0gMCEAH6AzwKNiQkSUQtZWZjZjhkYzA1ODg1M2M4ZjYxM2Y4Y2VmNzRhYWQ0NjMtZmVlZGJhY2tfcHJpbWFyeRACGAI="
+        },
+        "timestamp": 156973.267368
+      }
+    },
+    {
+      "sequence": 464,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiA3YjI4ZDE4MWNkMzYyZWQxNDE4MGQ4OWZlZGRlNWQxYRImEgIAASIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqQRo/0gMCEAH6AzcKMyQkSUQtZjJjOWMwYWNkMDBmMjFjZWJkYmQzODAyNzNhYmJjYjYtZmVlZGJhY2tfcGVlchAB"
+        },
+        "timestamp": 156973.267676
+      }
+    },
+    {
+      "sequence": 465,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiBhMmMxZTcyYjk2NTQ5MzRjYTdhZWFjM2E4NTNlYzBjYhImEgIAAiIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqgQEaf/oBdwpzeyJwaGFzZSI6ICJsb2FkIiwgInZhbHVlcyI6IFtudWxsLCAzXSwgImNhbGxzIjogW1sicHJpbWFyeSIsIDQsIG51bGxdLCBbInByaW1hcnkiLCBudWxsLCBudWxsXSwgWyJwZWVyIiwgbnVsbCwgM11dfRAB0gMCCAE="
+        },
+        "timestamp": 156973.269462
+      }
+    },
+    {
+      "sequence": 466,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "MAA="
+        },
+        "timestamp": 156973.269679
+      }
+    },
+    {
+      "sequence": 467,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "SgA="
+        },
+        "timestamp": 156973.269797
+      }
+    },
+    {
+      "sequence": 468,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameSent",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": true,
+          "opcode": 2,
+          "payloadData": "WvABChRwcm9iZT1mZWVkYmFjay1lbXB0eRJ1CjoKNiQkSUQtZWZjZjhkYzA1ODg1M2M4ZjYxM2Y4Y2VmNzRhYWQ0NjMtZmVlZGJhY2tfcHJpbWFyeTIACjcKMyQkSUQtZjJjOWMwYWNkMDBmMjFjZWJkYmQzODAyNzNhYmJjYjYtZmVlZGJhY2tfcGVlcjIAGiBmODIxZTRjY2E4ZTBiNDM4MTNiN2RkYWQ5ODJlZThiNEI/Cg1Bc2lhL1NoYW5naGFpEKD8/////////wEaAnpoIhdodHRwOi8vMTI3LjAuMC4xOjU2NDgwLygAMgRkYXJr"
+        },
+        "timestamp": 156998.443064
+      }
+    },
+    {
+      "sequence": 469,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "IqQDCq0BCl4KJDc5MDk1MDBjLWU1OWEtNTJlNy05ZjUzLWQzZGUwYzZhN2RmNCokNzkwOTUwMGMtZTU5YS01MmU3LTlmNTMtZDNkZTBjNmE3ZGY0MhBuby1tYWNoaW5lLWlkLXY0GiEKBjEuNjYuMRIOMy4xNC43LmZpbmFsLjAaB3dpbmRvd3MiAhABMiQwODk1YTY5ZS1iZWU5LTQyZDAtYWQzOS0xNjBhYjc2YjMwZmQSJGVlODU0ZGJhLWExYmEtNGIwYy04OGY0LTFjOTIzYzhjMTRlMRoRd2lkZ2V0X3BhcmFtc19hcHAiSUM6XFVzZXJzXGtpbGxmXGdpdGh1YlxzdHJlYW1saXQtcnVzdFx0ZXN0c1xyZWZlcmVuY2Vcd2lkZ2V0X3BhcmFtc19hcHAucHkyBhgCKAFIAUIiCiBmODIxZTRjY2E4ZTBiNDM4MTNiN2RkYWQ5ODJlZThiNEogZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjRaIGY4MjFlNGNjYThlMGI0MzgxM2I3ZGRhZDk4MmVlOGI0"
+        },
+        "timestamp": 156998.445285
+      }
+    },
+    {
+      "sequence": 470,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "SgIQAQ=="
+        },
+        "timestamp": 156998.447125
+      }
+    },
+    {
+      "sequence": 471,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiBjZmM4Mjg0ZTJmOGI3MDVhM2E2ZGNiODUyNTgwMjI4MhImEgIAACIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqRhpE0gMCEAH6AzwKNiQkSUQtZWZjZjhkYzA1ODg1M2M4ZjYxM2Y4Y2VmNzRhYWQ0NjMtZmVlZGJhY2tfcHJpbWFyeRACGAI="
+        },
+        "timestamp": 156998.465546
+      }
+    },
+    {
+      "sequence": 472,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiA3YjI4ZDE4MWNkMzYyZWQxNDE4MGQ4OWZlZGRlNWQxYRImEgIAASIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqQRo/0gMCEAH6AzcKMyQkSUQtZjJjOWMwYWNkMDBmMjFjZWJkYmQzODAyNzNhYmJjYjYtZmVlZGJhY2tfcGVlchAB"
+        },
+        "timestamp": 156998.465798
+      }
+    },
+    {
+      "sequence": 473,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiA1NzRiNzhkNTk2YzVkZWViNWFlMTYyMjU5ZmQ1NDExYRImEgIAAiIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqnQEamgH6AZEBCowBeyJwaGFzZSI6ICJsb2FkIiwgInZhbHVlcyI6IFtudWxsLCBudWxsXSwgImNhbGxzIjogW1sicHJpbWFyeSIsIDQsIG51bGxdLCBbInByaW1hcnkiLCBudWxsLCBudWxsXSwgWyJwZWVyIiwgbnVsbCwgM10sIFsicGVlciIsIG51bGwsIG51bGxdXX0QAdIDAggB"
+        },
+        "timestamp": 156998.467068
+      }
+    },
+    {
+      "sequence": 474,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "MAA="
+        },
+        "timestamp": 156998.467251
+      }
+    },
+    {
+      "sequence": 475,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "SgA="
+        },
+        "timestamp": 156998.467378
+      }
+    },
+    {
+      "sequence": 476,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameSent",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": true,
+          "opcode": 2,
+          "payloadData": "WvEBChRwcm9iZT1mZWVkYmFjay1lbXB0eRJ2CjsKNiQkSUQtZWZjZjhkYzA1ODg1M2M4ZjYxM2Y4Y2VmNzRhYWQ0NjMtZmVlZGJhY2tfcHJpbWFyeTIBMQo3CjMkJElELWYyYzljMGFjZDAwZjIxY2ViZGJkMzgwMjczYWJiY2I2LWZlZWRiYWNrX3BlZXIyABogZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjRCPwoNQXNpYS9TaGFuZ2hhaRCg/P////////8BGgJ6aCIXaHR0cDovLzEyNy4wLjAuMTo1NjQ4MC8oADIEZGFyaw=="
+        },
+        "timestamp": 157013.661211
+      }
+    },
+    {
+      "sequence": 477,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "IqQDCq0BCl4KJDc5MDk1MDBjLWU1OWEtNTJlNy05ZjUzLWQzZGUwYzZhN2RmNCokNzkwOTUwMGMtZTU5YS01MmU3LTlmNTMtZDNkZTBjNmE3ZGY0MhBuby1tYWNoaW5lLWlkLXY0GiEKBjEuNjYuMRIOMy4xNC43LmZpbmFsLjAaB3dpbmRvd3MiAhABMiQwODk1YTY5ZS1iZWU5LTQyZDAtYWQzOS0xNjBhYjc2YjMwZmQSJDFjYTEwMGEzLTUxZWEtNGI0OS05YmI0LTZjMDc2MDVhZDIwMRoRd2lkZ2V0X3BhcmFtc19hcHAiSUM6XFVzZXJzXGtpbGxmXGdpdGh1YlxzdHJlYW1saXQtcnVzdFx0ZXN0c1xyZWZlcmVuY2Vcd2lkZ2V0X3BhcmFtc19hcHAucHkyBhgCKAFIAUIiCiBmODIxZTRjY2E4ZTBiNDM4MTNiN2RkYWQ5ODJlZThiNEogZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjRaIGY4MjFlNGNjYThlMGI0MzgxM2I3ZGRhZDk4MmVlOGI0"
+        },
+        "timestamp": 157013.663486
+      }
+    },
+    {
+      "sequence": 478,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "SgIQAQ=="
+        },
+        "timestamp": 157013.665273
+      }
+    },
+    {
+      "sequence": 479,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiBjZmM4Mjg0ZTJmOGI3MDVhM2E2ZGNiODUyNTgwMjI4MhImEgIAACIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqRhpE0gMCEAH6AzwKNiQkSUQtZWZjZjhkYzA1ODg1M2M4ZjYxM2Y4Y2VmNzRhYWQ0NjMtZmVlZGJhY2tfcHJpbWFyeRACGAI="
+        },
+        "timestamp": 157013.685979
+      }
+    },
+    {
+      "sequence": 480,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiA3YjI4ZDE4MWNkMzYyZWQxNDE4MGQ4OWZlZGRlNWQxYRImEgIAASIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqQRo/0gMCEAH6AzcKMyQkSUQtZjJjOWMwYWNkMDBmMjFjZWJkYmQzODAyNzNhYmJjYjYtZmVlZGJhY2tfcGVlchAB"
+        },
+        "timestamp": 157013.686295
+      }
+    },
+    {
+      "sequence": 481,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiBlY2M4YjU4MjcyNWZkY2RhNjQ0MjcyMTY5MDJiNDZjNBImEgIAAiIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqsAEarQH6AaQBCp8BeyJwaGFzZSI6ICJsb2FkIiwgInZhbHVlcyI6IFsxLCBudWxsXSwgImNhbGxzIjogW1sicHJpbWFyeSIsIDQsIG51bGxdLCBbInByaW1hcnkiLCBudWxsLCBudWxsXSwgWyJwZWVyIiwgbnVsbCwgM10sIFsicGVlciIsIG51bGwsIG51bGxdLCBbInByaW1hcnkiLCAxLCBudWxsXV19EAHSAwIIAQ=="
+        },
+        "timestamp": 157013.687895
+      }
+    },
+    {
+      "sequence": 482,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "MAA="
+        },
+        "timestamp": 157013.688053
+      }
+    },
+    {
+      "sequence": 483,
+      "source": {
+        "tabId": 1754832104
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "73660.314",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "SgA="
+        },
+        "timestamp": 157013.688147
+      }
+    }
+  ],
+  "stages": [
+    {
+      "name": "01-load",
+      "dom": {
+        "exceptions": [],
+        "groups": [
+          {
+            "buttons": [
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "1 out of 5 stars",
+                "testid": "stFeedbackButtonActive"
+              },
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "2 out of 5 stars",
+                "testid": "stFeedbackButtonActive"
+              },
+              {
+                "checked": true,
+                "disabled": false,
+                "label": "3 out of 5 stars",
+                "testid": "stFeedbackButtonActive"
+              },
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "4 out of 5 stars",
+                "testid": "stFeedbackButton"
+              },
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "5 out of 5 stars",
+                "testid": "stFeedbackButton"
+              }
+            ],
+            "label": "Feedback rating"
+          },
+          {
+            "buttons": [
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "Very dissatisfied",
+                "testid": "stFeedbackButton"
+              },
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "Dissatisfied",
+                "testid": "stFeedbackButton"
+              },
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "Neutral",
+                "testid": "stFeedbackButton"
+              },
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "Satisfied",
+                "testid": "stFeedbackButton"
+              },
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "Very satisfied",
+                "testid": "stFeedbackButton"
+              }
+            ],
+            "label": "Feedback rating"
+          }
+        ],
+        "reports": [
+          "{\"phase\":\"load\"\"values\":[0:21:NULL]\"calls\":[]}"
+        ],
+        "viewport": {
+          "dpr": 1.75,
+          "height": 780,
+          "width": 1463
+        }
+      },
+      "event_end": 9,
+      "cursor": 443,
+      "action_and_capture_calls_separate": true,
+      "screenshot": {
+        "file": "01-load.jpg",
+        "bytes": 14624,
+        "sha256": "d64e1a879a4063ae2566ec7e53abbea06ff13f2172083b5c3fc7a2aac4fd0909",
+        "format": "JPEG",
+        "width": 1463,
+        "height": 780
+      }
+    },
+    {
+      "name": "02-primary-five",
+      "dom": {
+        "exceptions": [],
+        "groups": [
+          {
+            "buttons": [
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "1 out of 5 stars",
+                "testid": "stFeedbackButtonActive"
+              },
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "2 out of 5 stars",
+                "testid": "stFeedbackButtonActive"
+              },
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "3 out of 5 stars",
+                "testid": "stFeedbackButtonActive"
+              },
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "4 out of 5 stars",
+                "testid": "stFeedbackButtonActive"
+              },
+              {
+                "checked": true,
+                "disabled": false,
+                "label": "5 out of 5 stars",
+                "testid": "stFeedbackButtonActive"
+              }
+            ],
+            "label": "Feedback rating"
+          },
+          {
+            "buttons": [
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "Very dissatisfied",
+                "testid": "stFeedbackButton"
+              },
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "Dissatisfied",
+                "testid": "stFeedbackButton"
+              },
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "Neutral",
+                "testid": "stFeedbackButton"
+              },
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "Satisfied",
+                "testid": "stFeedbackButton"
+              },
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "Very satisfied",
+                "testid": "stFeedbackButton"
+              }
+            ],
+            "label": "Feedback rating"
+          }
+        ],
+        "reports": [
+          "{\"phase\":\"load\"\"values\":[0:41:NULL]\"calls\":[0:[0:\"primary\"1:42:NULL]]}"
+        ],
+        "viewport": {
+          "dpr": 1.75,
+          "height": 780,
+          "width": 1463
+        }
+      },
+      "event_end": 17,
+      "cursor": 451,
+      "action_and_capture_calls_separate": true,
+      "screenshot": {
+        "file": "02-primary-five.jpg",
+        "bytes": 17479,
+        "sha256": "4e103142b3154123877549c6874ca2bc28bd0bd9ea1d8b2cd6c9ca5c1c254eb7",
+        "format": "JPEG",
+        "width": 1463,
+        "height": 780
+      }
+    },
+    {
+      "name": "03-primary-clear",
+      "dom": {
+        "exceptions": [],
+        "groups": [
+          {
+            "buttons": [
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "1 out of 5 stars",
+                "testid": "stFeedbackButton"
+              },
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "2 out of 5 stars",
+                "testid": "stFeedbackButton"
+              },
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "3 out of 5 stars",
+                "testid": "stFeedbackButton"
+              },
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "4 out of 5 stars",
+                "testid": "stFeedbackButton"
+              },
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "5 out of 5 stars",
+                "testid": "stFeedbackButton"
+              }
+            ],
+            "label": "Feedback rating"
+          },
+          {
+            "buttons": [
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "Very dissatisfied",
+                "testid": "stFeedbackButton"
+              },
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "Dissatisfied",
+                "testid": "stFeedbackButton"
+              },
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "Neutral",
+                "testid": "stFeedbackButton"
+              },
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "Satisfied",
+                "testid": "stFeedbackButton"
+              },
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "Very satisfied",
+                "testid": "stFeedbackButton"
+              }
+            ],
+            "label": "Feedback rating"
+          }
+        ],
+        "reports": [
+          "{\"phase\":\"load\"\"values\":[0:NULL1:NULL]\"calls\":[0:[0:\"primary\"1:42:NULL]1:[0:\"primary\"1:NULL2:NULL]]}"
+        ],
+        "viewport": {
+          "dpr": 1.75,
+          "height": 780,
+          "width": 1463
+        }
+      },
+      "event_end": 25,
+      "cursor": 459,
+      "action_and_capture_calls_separate": true,
+      "screenshot": {
+        "file": "03-primary-clear.jpg",
+        "bytes": 22451,
+        "sha256": "261acfb3f60aa0269fdac62cbab90b091e27382bd390791f060d6849faa578ba",
+        "format": "JPEG",
+        "width": 1463,
+        "height": 780
+      }
+    },
+    {
+      "name": "04-peer-satisfied",
+      "dom": {
+        "exceptions": [],
+        "groups": [
+          {
+            "buttons": [
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "1 out of 5 stars",
+                "testid": "stFeedbackButton"
+              },
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "2 out of 5 stars",
+                "testid": "stFeedbackButton"
+              },
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "3 out of 5 stars",
+                "testid": "stFeedbackButton"
+              },
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "4 out of 5 stars",
+                "testid": "stFeedbackButton"
+              },
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "5 out of 5 stars",
+                "testid": "stFeedbackButton"
+              }
+            ],
+            "label": "Feedback rating"
+          },
+          {
+            "buttons": [
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "Very dissatisfied",
+                "testid": "stFeedbackButton"
+              },
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "Dissatisfied",
+                "testid": "stFeedbackButton"
+              },
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "Neutral",
+                "testid": "stFeedbackButton"
+              },
+              {
+                "checked": true,
+                "disabled": false,
+                "label": "Satisfied",
+                "testid": "stFeedbackButtonActive"
+              },
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "Very satisfied",
+                "testid": "stFeedbackButton"
+              }
+            ],
+            "label": "Feedback rating"
+          }
+        ],
+        "reports": [
+          "{\"phase\":\"load\"\"values\":[0:NULL1:3]\"calls\":[0:[0:\"primary\"1:42:NULL]1:[0:\"primary\"1:NULL2:NULL]2:[0:\"peer\"1:NULL2:3]]}"
+        ],
+        "viewport": {
+          "dpr": 1.75,
+          "height": 780,
+          "width": 1463
+        }
+      },
+      "event_end": 33,
+      "cursor": 467,
+      "action_and_capture_calls_separate": true,
+      "screenshot": {
+        "file": "04-peer-satisfied.jpg",
+        "bytes": 24161,
+        "sha256": "a43549792872fc6f29a69a301dbfb45ca38fb50d7ce91034a623da873da5f273",
+        "format": "JPEG",
+        "width": 1463,
+        "height": 780
+      }
+    },
+    {
+      "name": "05-peer-clear",
+      "dom": {
+        "exceptions": [],
+        "groups": [
+          {
+            "buttons": [
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "1 out of 5 stars",
+                "testid": "stFeedbackButton"
+              },
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "2 out of 5 stars",
+                "testid": "stFeedbackButton"
+              },
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "3 out of 5 stars",
+                "testid": "stFeedbackButton"
+              },
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "4 out of 5 stars",
+                "testid": "stFeedbackButton"
+              },
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "5 out of 5 stars",
+                "testid": "stFeedbackButton"
+              }
+            ],
+            "label": "Feedback rating"
+          },
+          {
+            "buttons": [
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "Very dissatisfied",
+                "testid": "stFeedbackButton"
+              },
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "Dissatisfied",
+                "testid": "stFeedbackButton"
+              },
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "Neutral",
+                "testid": "stFeedbackButton"
+              },
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "Satisfied",
+                "testid": "stFeedbackButton"
+              },
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "Very satisfied",
+                "testid": "stFeedbackButton"
+              }
+            ],
+            "label": "Feedback rating"
+          }
+        ],
+        "reports": [
+          "{\"phase\":\"load\"\"values\":[0:NULL1:NULL]\"calls\":[0:[0:\"primary\"1:42:NULL]1:[0:\"primary\"1:NULL2:NULL]2:[0:\"peer\"1:NULL2:3]3:[0:\"peer\"1:NULL2:NULL]]}"
+        ],
+        "viewport": {
+          "dpr": 1.75,
+          "height": 780,
+          "width": 1463
+        }
+      },
+      "event_end": 41,
+      "cursor": 475,
+      "action_and_capture_calls_separate": true,
+      "screenshot": {
+        "file": "05-peer-clear.jpg",
+        "bytes": 24443,
+        "sha256": "cb1deb49de41f170e48e86f07922b4eb0a491ba2427647fd35c8fbfb6cfee616",
+        "format": "JPEG",
+        "width": 1463,
+        "height": 780
+      }
+    },
+    {
+      "name": "06-primary-two",
+      "dom": {
+        "exceptions": [],
+        "groups": [
+          {
+            "buttons": [
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "1 out of 5 stars",
+                "testid": "stFeedbackButtonActive"
+              },
+              {
+                "checked": true,
+                "disabled": false,
+                "label": "2 out of 5 stars",
+                "testid": "stFeedbackButtonActive"
+              },
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "3 out of 5 stars",
+                "testid": "stFeedbackButton"
+              },
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "4 out of 5 stars",
+                "testid": "stFeedbackButton"
+              },
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "5 out of 5 stars",
+                "testid": "stFeedbackButton"
+              }
+            ],
+            "label": "Feedback rating"
+          },
+          {
+            "buttons": [
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "Very dissatisfied",
+                "testid": "stFeedbackButton"
+              },
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "Dissatisfied",
+                "testid": "stFeedbackButton"
+              },
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "Neutral",
+                "testid": "stFeedbackButton"
+              },
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "Satisfied",
+                "testid": "stFeedbackButton"
+              },
+              {
+                "checked": false,
+                "disabled": false,
+                "label": "Very satisfied",
+                "testid": "stFeedbackButton"
+              }
+            ],
+            "label": "Feedback rating"
+          }
+        ],
+        "reports": [
+          "{\"phase\":\"load\"\"values\":[0:11:NULL]\"calls\":[0:[0:\"primary\"1:42:NULL]1:[0:\"primary\"1:NULL2:NULL]2:[0:\"peer\"1:NULL2:3]3:[0:\"peer\"1:NULL2:NULL]4:[0:\"primary\"1:12:NULL]]}"
+        ],
+        "viewport": {
+          "dpr": 1.75,
+          "height": 780,
+          "width": 1463
+        }
+      },
+      "event_end": 49,
+      "cursor": 485,
+      "action_and_capture_calls_separate": true,
+      "screenshot": {
+        "file": "06-primary-two.jpg",
+        "bytes": 24175,
+        "sha256": "f4363bf3acdcaaf24eefb5e52c75caba6163930d1cc682c98a1ea81356d16f5e",
+        "format": "JPEG",
+        "width": 1463,
+        "height": 780
+      }
+    }
+  ],
+  "collection_complete": true,
+  "console": [],
+  "cleanup": {
+    "owned_tab_closed": true,
+    "owned_servers_stopped": true,
+    "ports_without_listeners": [
+      56480,
+      8599
+    ]
+  },
+  "visual_review": {
+    "all_stage_images_inspected": true,
+    "phase_alignment": true,
+    "whole_page_pixel_equivalence_claim": false
+  },
+  "coverage": {
+    "covered_connection_frames": 48,
+    "covered_connection_events": 49,
+    "pre_reload_orphan_frames": 0,
+    "starts_at_intentional_reload": true,
+    "network_disabled_before_tab_close": true
+  },
+  "successful": true,
+  "semantic_match": true
+}
