@@ -6,6 +6,38 @@ use ::streamlit::*;
 use streamlit::StreamlitApi;
 
 fn render(st: &Streamlit) -> Result<(), WidgetError> {
+    if st.query_params().get("probe").as_deref() == Some("group-width") {
+        let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
+        let options = |label, keyed, multi| {
+            let mut options = ButtonGroupOptions::new(label, ["Alpha", "Beta"]);
+            if keyed {
+                options = options.key(label);
+            }
+            if multi {
+                options = options.selection_mode(SelectionMode::Multi);
+            }
+            if phase == "width" || phase == "width-edit" {
+                options = options.width(300);
+            }
+            options
+        };
+        let values = [
+            st.pills(options("Plain pills", false, false))?,
+            st.pills(options("Keyed pills", true, false))?,
+            st.segmented_control(options("Plain segments", false, true))?,
+            st.segmented_control(options("Keyed segments", true, true))?,
+        ];
+        let values: Vec<serde_json::Value> = values
+            .into_iter()
+            .map(|value| match value {
+                ButtonGroupValue::Single(value) => serde_json::json!(value),
+                ButtonGroupValue::Multi(value) => serde_json::json!(value),
+            })
+            .collect();
+        st.json(serde_json::json!({"phase": phase, "values": values}));
+        return Ok(());
+    }
+
     if st.query_params().get("probe").as_deref() == Some("radio-duplicates") {
         let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
         let changed = |source: &'static str| {

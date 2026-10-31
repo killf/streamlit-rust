@@ -2406,3 +2406,17 @@ SDK-only AppTest 新保留一项边界：旧标签重新序列化提交、option
 编辑 Rust 的 rustfmt、全工作区/all-target Clippy、新增 API 单元通过。最终工作区 324 项通过（317 库、1 ledger、2 宏、4 rustdoc），仍仅排除原 navigation_pages_switch_and_session_state_match_the_measured_wire 与 rerun_queue_messages_match_frozen_reference，不称完整工作区全绿。参数参考模块现为 267 项，相关 query/widget/temporal/pickers/matrix/docs 共 518 项通过；既有 MSVC linker stdout warning 保留。日志 target/radio-duplicates-{red,green,clippy,build,workspace,python}.log。
 
 仅 st.radio 矩阵与生成清单更新，仍 130 partial；浏览器重复选项交互、任意原生类型、绑定/表单/跨页/晚到输入及其他 callback 组合继续开放。用户再次确认 rerun 仅丢弃未发送旧轮 Delta，保留 URL/已发送帧，既有已选方案不扩展到其他队列、hash 或共享状态取舍。用户 colconfig_params 修改独立保留；M3/M5/M7 与长期目标未关闭，未创建 PR、合并、发布或部署。
+
+## Current button-group width identity validation (2026-11-01)
+
+锁定 Python Streamlit 1.66.1 的公开 AppTest 初探确认无 key pills/segmented_control 宽度参与身份；随后七轮同连接原生 WS 同时驱动无 key/keyed 单选 pills 与无 key/keyed 多选 segmented_control。初始空选择→提交 Beta→content 改 300px→再次 Beta→恢复 content→再次 Beta→无输入观察。两次宽度转换均只重置无 key 控件；有 key 始终保留 Beta。恢复已被清理的原身份不会复活旧值。
+
+[SDK](../tests/reference/reference-browser/widget-params/group-width/trace.json)、[Rust 修前](../tests/browser/rust-widget-params/group-width/before/trace.json)、[Rust 最终](../tests/browser/rust-widget-params/group-width/trace.json)各 7 轮、69 原始帧、35 完整 Element。修前正常结束但 width/restore 仍返回全部 Beta，semantic_match=false；公开 API 单元真实失败于 width: Plain pills（Some(Beta) 而非 None）。生产只在 emit_button_group 的无 key 私有身份 extra 补入 c.width，其他参数、状态来源、输入解码、回调和清理流程未改，无新公共接口、依赖或模块。
+
+完整 Element 仅归一化不透明 ID/JSON 文本后逐字段一致。严格门验证四控件实际旧 ID/string_array_value、两类无 key 身份与各一类 keyed 身份、300px/content、single/multi click_mode、PILLS/SEGMENTED_CONTROL style、default/required/help/disabled/ignore_rerun、无额外同步及 session/run/path。八类同步改写原始帧与汇总的负例必须失败：无 key 未变身份、有 key 错变身份、宽度保留旧值、恢复复活旧值、错误像素宽度、过期输入 ID、错误输入 oneof、额外 set_value/raw_values/one-shot。
+
+同一最终二进制重放旧 radio-duplicates（7 轮/55 帧/21 Element）与 format-collisions（10 轮/89 帧/40 Element），完整规范化字段继续匹配，结果 target/group-width-{radio,format}-recheck/trace.json。producer 三份源码、widget_api/widgets 和二进制 SHA 已核对当前产物；修前核心源码 SHA 与前一 HEAD cc39b7a 相同。SDK 自建服务已停止，Rust 自持 Popen 句柄 terminate/wait 已结束，52352/8599 无监听。
+
+无新浏览器采集；相反 style/mode 配对、default/required/mode 变化、错误、callback、绑定/表单/跨页/晚到输入继续开放。只更新 st.pills/st.segmented_control 两行矩阵，生成清单仍 130 partial；清单分类从 no-explicit-gap-stated 转为 unmeasured-parameters 是明确记录尚未验证组合，并未关闭能力。用户 colconfig_params 修改独立保留，未创建 PR、合并、发布或部署；M3/M5/M7 与长期 Goal 继续开放。
+
+编辑 Rust 的 rustfmt、全工作区/all-target Clippy、新增公开 API 单元通过；最终工作区 325 项通过（318 库、1 ledger、2 宏、4 rustdoc），仍仅排除原 navigation_pages_switch_and_session_state_match_the_measured_wire 与 rerun_queue_messages_match_frozen_reference，不称完整工作区全绿。参数参考模块 279 项、相关 query/widget/temporal/pickers/matrix/docs 共 530 项通过；文档/矩阵收尾门 52 项通过。既有 MSVC linker stdout warning 保留；日志 target/group-width-{red,green,clippy,build,workspace,python}.log。

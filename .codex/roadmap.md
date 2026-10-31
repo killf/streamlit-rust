@@ -14,6 +14,8 @@
 
 ## Current focus
 
+2026-11-01 pills/segmented_control 宽度身份切片：无 key 控件的私有身份参数补入 width，有 key 保持。七轮、69 帧、35 完整 Element 与 SDK 匹配，改宽度/恢复后无 key 选择重置且不复活已清理值；有 key 保留。同二进制重放 radio 回调与格式化选择，详见[验收](acceptance.md#current-button-group-width-identity-validation-2026-11-01)。其他 style/mode 配对、参数/错误/callback/浏览器组合仍开放，不改变待决公共 API、hash 或共享状态方案。
+
 2026-11-01 格式化同名标签切片：修正普通 selectbox 前端标签取末项，保留 multiselect 取首项规则；无 key 同身份重排时按仍存在的旧原生值重映射，重复原生选项仅改变内部索引不再误触发 callback。十轮/89 帧/40 完整 Element 与 SDK 一致，旧空状态/身份场景复验通过，见[验收](acceptance.md#current-formatted-selection-collision-validation-2026-11-01)。SDK-only 旧值已不在新 options 中的保留问题单列，需另行泛型状态设计，未据此关闭格式化或长期目标。
 
 2026-11-01 radio 初始 None 浏览器切片：实测同样存在 ID-only 空同伴导致整批输入丢失；已将 radio 接入既有有效默认解码，公开 API 验证 callback 收集/读取与默认回退。两端各五画面/五运行/40 帧/15 完整 Element 一致，见[验收](acceptance.md#current-radio-empty-browser-and-id-only-input-validation-2026-11-01)；动态参数、界面清空及其余组合继续开放。

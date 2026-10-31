@@ -3736,7 +3736,7 @@ fn emit_button_group<C: AppendChild>(this: &C, options: ButtonGroupOptions, styl
         &if c.key.is_some() {
             String::new()
         } else {
-            format!("{:?}:{:?}:{}:{:?}", options.options, default_indices, multi, options.required)
+            format!("{:?}:{:?}:{}:{:?}:{:?}", options.options, default_indices, multi, options.required, c.width)
         },
     );
     let (id, selected, set_value) = this.register_widget_parity(
@@ -4966,6 +4966,67 @@ mod tests {
             assert!(wire.try_recv().is_ok(), "the first valid form is still rendered");
         }
         assert!(wire.try_recv().is_err(), "failed form calls must not append their partial children");
+    }
+
+    #[test]
+    fn button_group_width_resets_only_unkeyed_selections_without_reviving_cleaned_values() -> anyhow::Result<()> {
+        let state = SessionState::default();
+        let mut ids = Vec::<String>::new();
+        let mut initial = Vec::new();
+        for (round, phase) in ["load", "edit", "width", "width-edit", "restore", "restore-edit", "observe"].iter().enumerate() {
+            // 1. 使用上一轮真实身份提交；无输入轮检验宽度重建及清理。
+            let incoming = if [1, 3, 5].contains(&round) {
+                ids.iter()
+                    .map(|id| WidgetState {
+                        id: id.clone(),
+                        value: Some(widget_state::Value::StringArrayValue(proto::StringArray { data: vec!["Beta".into()] })),
+                    })
+                    .collect()
+            } else {
+                Vec::new()
+            };
+            assert!(state.begin_widgets(incoming).is_empty());
+            let (st, mut wire) = app(&state);
+            let wide = round == 2 || round == 3;
+            let mut current = Vec::new();
+            for (position, label) in ["Plain pills", "Keyed pills", "Plain segments", "Keyed segments"].iter().enumerate() {
+                let keyed = position % 2 == 1;
+                let multi = position >= 2;
+                let mut options = ButtonGroupOptions::new(*label, ["Alpha", "Beta"]);
+                if keyed {
+                    options = options.key(*label);
+                }
+                if multi {
+                    options = options.selection_mode(SelectionMode::Multi);
+                }
+                if wide {
+                    options = options.width(300);
+                }
+                let selected = if multi { st.segmented_control(options)? } else { st.pills(options)? };
+                let empty = round == 0 || (!keyed && [2, 4].contains(&round));
+                let expected = if multi {
+                    ButtonGroupValue::Multi(if empty { vec![] } else { vec!["Beta".into()] })
+                } else {
+                    ButtonGroupValue::Single((!empty).then(|| "Beta".into()))
+                };
+                assert_eq!(selected, expected, "{phase}: {label}");
+
+                // 2. 有 key 始终保持身份；无 key 恢复原身份也不能复活已清理值。
+                let element::Type::ButtonGroup(widget) = input(&mut wire)? else { panic!() };
+                assert!(!widget.set_value && widget.raw_values.is_empty() && widget.default.is_empty());
+                if round > 0 {
+                    assert_eq!(widget.id == initial[position], keyed || !wide, "{phase}: {label}");
+                }
+                current.push(widget.id);
+            }
+            if round == 0 {
+                initial = current.clone();
+            }
+            ids = current;
+            state.finish_widgets();
+        }
+
+        Ok(())
     }
 
     #[test]

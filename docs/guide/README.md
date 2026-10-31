@@ -684,3 +684,5 @@ A radio with `.index(None)` can remain unselected while another radio changes. T
 When different options have identical formatted labels, a submitted selectbox label resolves to the last matching option; multiselect resolves each label to the first matching option and keeps duplicates. Reordering options with unchanged labels preserves native selections that still occur in the new list. For ordinary selectbox/multiselect, duplicate positions do not trigger on_change when the native selection stays equal. Retaining an old generic value absent from all current options remains partial; browser interaction with duplicate labels and other formatter combinations are not yet fully verified.
 
 radio 的重复选项若返回相同原生值，不因内部索引变化触发 on_change；同批控件的回调读取整批新值。七轮原生差分已验证，浏览器及其他 callback 组合仍待补证。
+
+pills 与 segmented_control 无 key 时改变宽度会重建控件并清空选择；有 key 时保留。已验证单选 pills、多选 segmented_control 的七轮原生差分，其余组合继续开放。

@@ -1,7 +1,15 @@
 """Emit widget creation-wire parameter variants for the M3 differential."""
 import streamlit as st
 
-if st.query_params.get("probe") == "radio-duplicates":
+if st.query_params.get("probe") == "group-width":
+    phase = st.query_params.get("phase", "load")
+    width = 300 if phase in ("width", "width-edit") else "content"
+    values = [st.pills("Plain pills", ["Alpha", "Beta"], width=width),
+              st.pills("Keyed pills", ["Alpha", "Beta"], key="Keyed pills", width=width),
+              st.segmented_control("Plain segments", ["Alpha", "Beta"], selection_mode="multi", width=width),
+              st.segmented_control("Keyed segments", ["Alpha", "Beta"], selection_mode="multi", key="Keyed segments", width=width)]
+    st.json({"phase": phase, "values": values})
+elif st.query_params.get("probe") == "radio-duplicates":
     phase = st.query_params.get("phase", "load")
     if "radio_duplicate_calls" not in st.session_state:
         st.session_state.radio_duplicate_calls = []

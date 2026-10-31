@@ -2447,6 +2447,132 @@ def test_radio_duplicate_gate_rejects_coherent_wrong_wire(mutation):
         check_radio_duplicates(capture)
 
 
+GROUP_WIDTH_PHASES = ("load", "edit", "width", "width-edit", "restore", "restore-edit", "observe")
+GROUP_WIDTH_LABELS = ("Plain pills", "Keyed pills", "Plain segments", "Keyed segments")
+
+
+def check_group_width(capture):
+    assert capture["successful"] and "producer_error" not in capture and capture["reference_version"] == "1.66.1"
+    assert capture["runtime"] in ("python", "rust") and capture["finishes"] == [0] * 7
+    assert capture["cleanup"]["websocket_closed"] and capture["cleanup"]["server_stopped" if capture["runtime"] == "python" else "caller_server_stopped"]
+    assert len(capture["frames"]) == 69 and len(capture["elements"]) == 35
+    runs = color_runs(capture, ("button_group", "json"))
+    normalized, sessions, run_ids, identities, previous = [], set(), set(), [{}, {}, {}, {}], None
+    for index, (phase, run) in enumerate(zip(GROUP_WIDTH_PHASES, runs, strict=True)):
+        request = run["request"]
+        assert request.query_string == "probe=group-width&phase=" + phase and not request.is_history_navigation
+        assert len(run["sessions"]) == 1 and run["finishes"] == [0]
+        session = run["sessions"][0]
+        assert session.initialize.environment_info.streamlit_version == "1.66.1"
+        sessions.add(session.initialize.session_id)
+        run_ids.add(session.script_run_id)
+        assert [entry[0] for entry in run["entries"]] == ["button_group"] * 4 + ["json"]
+        wide = phase in ("width", "width-edit")
+        current = []
+        for position, (_, widget, element) in enumerate(run["entries"][:4]):
+            assert widget.label == GROUP_WIDTH_LABELS[position]
+            assert [option.content for option in widget.options] == ["Alpha", "Beta"]
+            assert widget.style == (1 if position < 2 else 0) and widget.click_mode == (0 if position < 2 else 1)
+            assert not widget.default and not widget.disabled and not widget.required and not widget.ignore_rerun
+            assert not widget.form_id and not widget.HasField("help") and widget.label_visibility.value == 0
+            assert not widget.set_value and not widget.raw_values and not element.HasField("has_one_shot_effect")
+            assert element.width_config.WhichOneof("width_spec") == ("pixel_width" if wide else "use_content")
+            assert element.width_config.pixel_width == 300 if wide else element.width_config.use_content
+            identity_class = wide if position % 2 == 0 else False
+            assert widget.id == identities[position].setdefault(identity_class, widget.id)
+            current.append(widget.id)
+        assert len(set(current)) == 4
+        incoming = request.widget_states.widgets
+        if phase in ("edit", "width-edit", "restore-edit"):
+            assert len(incoming) == 4 and [widget.id for widget in incoming] == previous
+            assert all(widget.WhichOneof("value") == "string_array_value" and list(widget.string_array_value.data) == ["Beta"] for widget in incoming)
+        else:
+            assert not incoming
+        values = [None, None, [], []] if index == 0 else [None, "Beta", [], ["Beta"]] if phase in ("width", "restore") else ["Beta", "Beta", ["Beta"], ["Beta"]]
+        assert json.loads(run["entries"][-1][1].body) == {"phase": phase, "values": values}
+        assert [entry["delta_path"] for entry in capture["elements"][index * 5:index * 5 + 5]] == [[0, i] for i in range(5)]
+        fields = []
+        for kind, _, element in run["entries"]:
+            view = MessageToDict(element, preserving_proto_field_name=True)
+            if kind == "json":
+                view[kind]["body"] = json.loads(view[kind]["body"])
+            else:
+                view[kind].pop("id")
+            fields.append(view)
+        normalized.append(fields)
+        previous = current
+    assert [len(set(identity.values())) for identity in identities] == [2, 1, 2, 1]
+    assert len(sessions) == 1 and len(run_ids) == 7
+    return normalized
+
+
+@pytest.mark.parametrize("root", (PYTHON, RUST), ids=("python", "rust"))
+def test_button_group_width_identity_and_state_cleanup(root):
+    check_group_width(read(root / "group-width/trace.json"))
+
+
+def test_button_group_width_complete_elements_match_reference():
+    captures = [read(root / "group-width/trace.json") for root in (PYTHON, RUST)]
+    assert captures[0]["producer_sources_sha256"] == captures[1]["producer_sources_sha256"] and captures[1]["semantic_match"] is True
+    assert check_group_width(captures[0]) == check_group_width(captures[1])
+
+
+def test_button_group_width_before_incorrectly_keeps_unkeyed_values():
+    capture = read(RUST / "group-width/before/trace.json")
+    assert capture["successful"] and capture["semantic_match"] is False
+    runs = color_runs(capture, ("button_group", "json"))
+    assert json.loads(runs[2]["entries"][-1][1].body)["values"] == ["Beta", "Beta", ["Beta"], ["Beta"]]
+    with pytest.raises(AssertionError):
+        check_group_width(capture)
+
+
+@pytest.mark.parametrize("mutation", ("unkeyed-id", "keyed-id", "retained", "revived", "width", "input-id", "input-type", "sync"))
+def test_button_group_width_gate_rejects_coherent_wrong_wire(mutation):
+    capture = read(PYTHON / "group-width/trace.json")
+    initial_id = capture["elements"][0]["fields"]["id"]
+    target = {"unkeyed-id": 2, "keyed-id": 2, "retained": 2, "revived": 4, "width": 2, "input-id": 3, "input-type": 1, "sync": 3}[mutation]
+    run = -1
+    for frame in capture["frames"]:
+        client = frame["direction"] == "client->server"
+        if client:
+            run += 1
+        if run != target:
+            continue
+        message = BackMsg() if client else ForwardMsg()
+        message.ParseFromString(base64.b64decode(frame["base64"]))
+        if client and mutation == "input-id":
+            message.rerun_script.widget_states.widgets[0].id = initial_id
+        elif client and mutation == "input-type":
+            message.rerun_script.widget_states.widgets[0].string_value = "Beta"
+        elif not client and message.WhichOneof("type") == "delta":
+            element = message.delta.new_element
+            kind = element.WhichOneof("type")
+            if kind == "button_group" and element.button_group.label == "Plain pills" and mutation == "unkeyed-id":
+                element.button_group.id = initial_id
+            elif kind == "button_group" and element.button_group.label == "Keyed pills" and mutation == "keyed-id":
+                element.button_group.id = "$$ID-wrong-keyed-group"
+            elif kind == "button_group" and element.button_group.label == "Plain pills" and mutation == "width":
+                element.width_config.pixel_width = 301
+            elif kind == "button_group" and element.button_group.label == "Plain pills" and mutation == "sync":
+                element.button_group.set_value = True
+                element.button_group.raw_values.append("Beta")
+                element.has_one_shot_effect = True
+            elif kind == "json" and mutation in ("retained", "revived"):
+                report = json.loads(element.json.body)
+                report["values"][0] = "Beta"
+                element.json.body = json.dumps(report)
+            else:
+                continue
+        else:
+            continue
+        raw = message.SerializeToString()
+        frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(message, preserving_proto_field_name=True))
+    capture["elements"] = [{"kind": m.delta.new_element.WhichOneof("type"), "fields": MessageToDict(getattr(m.delta.new_element, m.delta.new_element.WhichOneof("type")), preserving_proto_field_name=True),
+                            "delta_path": list(m.metadata.delta_path)} for m in frames(capture) if isinstance(m, ForwardMsg) and m.WhichOneof("type") == "delta"]
+    with pytest.raises(AssertionError):
+        check_group_width(capture)
+
+
 def comparable(capture):
     out = []
     for element in capture["elements"]:
