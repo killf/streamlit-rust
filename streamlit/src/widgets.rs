@@ -269,7 +269,7 @@ impl Codec {
                 Some(Value::String(if valid_color_hex(&normalized) { normalized } else { default.clone() }))
             }
 
-            (Self::Select(options), widget_state::Value::StringValue(label)) => options.iter().position(|(text, _)| text == label).map(Value::from),
+            (Self::Select(options), widget_state::Value::StringValue(label)) => options.iter().rposition(|(text, _)| text == label).map(Value::from),
             (Self::SelectCreation(options), widget_state::Value::StringValue(label)) => Some(match options.iter().position(|(text, _)| text == label) {
                 Some(index) => Value::from(index),
                 // A freshly typed value keeps its label as the native value.
@@ -784,7 +784,13 @@ impl SessionState {
             let Some(record) = registry.records.get_mut(&widget.id) else { continue };
             let Some(value) = record.codec.decode_state(&widget, record.empty_input.as_ref()) else { continue };
             record.before_input = Some(record.value.clone());
-            let changed = record.value != value;
+            // 仅在有 callback 时比较原生返回值，重复选项的索引可不同。
+            let changed = record.callback.is_some()
+                && if matches!(&record.codec, Codec::Select(_) | Codec::MultiSelect(_)) {
+                    record.codec.session_value(&record.value) != record.codec.session_value(&value)
+                } else {
+                    record.value != value
+                };
             record.value = value.clone();
             if let Some(key) = &record.key {
                 values.insert(key.clone(), record.codec.session_value(&value));
@@ -962,6 +968,17 @@ impl SessionState {
                             selection_reset = true;
                         }
                         value
+                    }
+                } else if key.is_none()
+                    && let Codec::Select(options) = &codec
+                    && let Some(record) = registry.records.get(&id)
+                {
+                    // 标签保持身份时，仍存在的旧原生值按本轮选项顺序重映射。
+                    let native = record.codec.session_value(&record.value);
+                    if native.is_null() || options.iter().any(|(_, value)| value == &native) {
+                        codec.read_session_value(&native, Some(record))?
+                    } else {
+                        record.value.clone()
                     }
                 } else {
                     registry.records.get(&id).map(|record| record.value.clone()).unwrap_or(default)

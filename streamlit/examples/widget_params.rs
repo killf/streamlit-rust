@@ -6,6 +6,21 @@ use ::streamlit::*;
 use streamlit::StreamlitApi;
 
 fn render(st: &Streamlit) -> Result<(), WidgetError> {
+    if st.query_params().get("probe").as_deref() == Some("format-collisions") {
+        let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
+        if phase == "assign" {
+            st.session_state().set("choice", 2_i64)?;
+            st.session_state().set("choices", vec![2_i64])?;
+        }
+        let values = if matches!(phase.as_str(), "reorder" | "reorder-edit" | "assign" | "observe") { vec![2_i64, 1, 3] } else { vec![1_i64, 2, 3] };
+        let format = |value: &i64| if *value == 3 { "Other".into() } else { "Same".into() };
+        let plain = st.selectbox(SelectboxOptions::new("Choice", values.clone()).format_func(format))?;
+        let keyed = st.selectbox(SelectboxOptions::new("Keyed choice", values.clone()).format_func(format).key("choice"))?;
+        let multiple = st.multiselect(MultiselectOptions::new("Choices", values).format_func(format).default_indices([1]).key("choices"))?;
+        st.json(serde_json::json!({"phase": phase, "values": [plain, keyed, multiple]}));
+        return Ok(());
+    }
+
     if st.query_params().get("probe").as_deref() == Some("multi-limits") {
         let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
         if matches!(phase.as_str(), "repair" | "repair-final") {

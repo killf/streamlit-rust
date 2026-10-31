@@ -2123,6 +2123,207 @@ def test_radio_none_ui_gate_rejects_wrong_input_return_or_picture(mutation, tmp_
         check_radio_none_ui(capture, folder)
 
 
+FORMAT_COLLISION_PHASES = ("load", "edit", "other", "repeat", "reorder", "reorder-edit", "assign", "observe", "restore", "restore-edit")
+FORMAT_COLLISION_VALUES = ((1, 1, [2]), (2, 2, [1]), (3, 3, [3]), (2, 2, [1, 1]), (2, 2, [1, 1]), (1, 1, [2, 2]), (1, 2, [2]), (1, 2, [2]), (1, 2, [2]), (2, 2, [1]))
+
+
+def check_format_collisions(capture):
+    assert capture["successful"] and "producer_error" not in capture and capture["reference_version"] == "1.66.1"
+    assert capture["runtime"] in ("python", "rust") and capture["finishes"] == [0] * 10
+    assert capture["cleanup"]["websocket_closed"] and capture["cleanup"]["server_stopped" if capture["runtime"] == "python" else "caller_server_stopped"]
+    assert len(capture["frames"]) == 89 and len(capture["elements"]) == 40
+    runs = color_runs(capture, ("selectbox", "multiselect", "json"))
+    normalized, sessions, run_ids, ids = [], set(), set(), None
+    for index, (phase, run) in enumerate(zip(FORMAT_COLLISION_PHASES, runs, strict=True)):
+        request = run["request"]
+        assert request.query_string == "probe=format-collisions&phase=" + phase and not request.is_history_navigation
+        assert len(run["sessions"]) == 1 and run["finishes"] == [0]
+        session = run["sessions"][0]
+        assert session.initialize.environment_info.streamlit_version == "1.66.1"
+        sessions.add(session.initialize.session_id)
+        run_ids.add(session.script_run_id)
+        assert [e[0] for e in run["entries"]] == ["selectbox", "selectbox", "multiselect", "json"]
+        current = []
+        for position, (kind, widget, element) in enumerate(run["entries"][:3]):
+            assert widget.label == ("Choice", "Keyed choice", "Choices")[position]
+            assert list(widget.options) == ["Same", "Same", "Other"] and not widget.disabled
+            assert not widget.form_id and not widget.help and not widget.ignore_rerun
+            assert widget.label_visibility.value == 0 and element.width_config.use_stretch
+            assert widget.HasField("accept_new_options") and not widget.accept_new_options and widget.filter_mode == 0
+            sync = phase == "assign" and position > 0
+            assert widget.set_value == sync and element.HasField("has_one_shot_effect") == sync and element.has_one_shot_effect == sync
+            if kind == "selectbox":
+                assert widget.HasField("default") and widget.default == 0
+                assert widget.HasField("raw_value") == sync and widget.raw_value == ("Same" if sync else "")
+            else:
+                assert list(widget.default) == [1] and widget.max_selections == 0 and widget.select_all == 1000
+                assert list(widget.raw_values) == (["Same"] if sync else [])
+            current.append(widget.id)
+        if ids is None:
+            ids = current
+            assert len(set(ids)) == 3
+        else:
+            assert current == ids
+        submitted = phase in ("edit", "other", "repeat", "reorder-edit", "restore-edit")
+        incoming = request.widget_states.widgets
+        if submitted:
+            assert len(incoming) == 3 and [w.id for w in incoming] == ids
+            text = "Other" if phase == "other" else "Same"
+            assert [w.WhichOneof("value") for w in incoming] == ["string_value", "string_value", "string_array_value"]
+            assert [w.string_value for w in incoming[:2]] == [text, text]
+            assert list(incoming[2].string_array_value.data) == [text] * (2 if phase in ("repeat", "reorder-edit") else 1)
+        else:
+            assert not incoming
+        plain, keyed, multiple = FORMAT_COLLISION_VALUES[index]
+        report = json.loads(run["entries"][-1][1].body)
+        assert report == {"phase": phase, "values": [plain, keyed, multiple]}
+        assert all(type(value) is int for value in report["values"][:2] + report["values"][2])
+        assert [e["delta_path"] for e in capture["elements"][index * 4:index * 4 + 4]] == [[0, i] for i in range(4)]
+        fields = []
+        for kind, _, element in run["entries"]:
+            view = MessageToDict(element, preserving_proto_field_name=True)
+            if kind == "json":
+                view[kind]["body"] = json.loads(view[kind]["body"])
+            else:
+                view[kind].pop("id")
+            fields.append(view)
+        normalized.append(fields)
+    assert len(sessions) == 1 and len(run_ids) == 10
+    return normalized
+
+
+@pytest.mark.parametrize("root", (PYTHON, RUST), ids=("python", "rust"))
+def test_formatted_collision_native_state_and_remapping(root):
+    check_format_collisions(read(root / "format-collisions/trace.json"))
+
+
+def test_formatted_collision_complete_elements_match_reference():
+    captures = [read(root / "format-collisions/trace.json") for root in (PYTHON, RUST)]
+    assert captures[0]["producer_sources_sha256"] == captures[1]["producer_sources_sha256"] and captures[1]["semantic_match"] is True
+    assert check_format_collisions(captures[0]) == check_format_collisions(captures[1])
+
+
+def test_formatted_collision_before_selects_first_instead_of_last():
+    capture = read(RUST / "format-collisions/before/trace.json")
+    assert capture["successful"] and capture["finishes"] == [0] * 10 and capture["semantic_match"] is False
+    assert len(capture["frames"]) == 89 and len(capture["elements"]) == 40
+    runs = color_runs(capture, ("selectbox", "multiselect", "json"))
+    assert json.loads(runs[1]["entries"][-1][1].body) == {"phase": "edit", "values": [1, 1, [1]]}
+    with pytest.raises(AssertionError):
+        check_format_collisions(capture)
+
+
+def test_sdk_formatted_collisions_keep_different_single_and_multi_rules():
+    import importlib.metadata
+    from streamlit.testing.v1 import AppTest
+
+    assert importlib.metadata.version("streamlit") == "1.66.1"
+    app = AppTest.from_string('''
+import streamlit as st
+if 'calls' not in st.session_state: st.session_state.calls=[]
+def changed(): st.session_state.calls.append(st.session_state.single)
+formatter=lambda value:'Other' if value==3 else 'Same'
+s=st.selectbox('S',[1,2,3],key='single',format_func=formatter,on_change=changed)
+m=st.multiselect('M',[1,2,3],default=[2],key='multiple',format_func=formatter)
+st.json([s,m,st.session_state.calls])
+''').run()
+    assert not app.exception and json.loads(app.json[0].value) == [1, [2], []]
+    app.selectbox[0].set_value(1)
+    app.multiselect[0].set_value([2])
+    app.run()
+    assert not app.exception and json.loads(app.json[0].value) == [2, [1], [2]]
+    app.selectbox[0].set_value(2)
+    app.multiselect[0].set_value([2, 2])
+    app.run()
+    assert not app.exception and json.loads(app.json[0].value) == [2, [1, 1], [2]]
+
+
+def test_sdk_duplicate_native_options_do_not_create_spurious_callbacks():
+    import importlib.metadata
+    from streamlit.testing.v1 import AppTest
+
+    assert importlib.metadata.version("streamlit") == "1.66.1"
+    app = AppTest.from_string('''
+import streamlit as st
+if 'calls' not in st.session_state:st.session_state.calls=[]
+def changed():st.session_state.calls.append([st.session_state.s,st.session_state.m])
+f=lambda value:'Other' if value==3 else 'Same'
+s=st.selectbox('S',[1,1,3],key='s',format_func=f,on_change=changed)
+m=st.multiselect('M',[1,1,3],default=[1],key='m',format_func=f,on_change=changed)
+st.json([s,m,st.session_state.calls])
+''').run()
+    expected = []
+    for value in (1, 3, 1):
+        app.selectbox[0].set_value(value)
+        app.multiselect[0].set_value([value])
+        app.run()
+        if value == 3 or expected:
+            expected.extend([[value, [value]], [value, [value]]])
+        assert not app.exception and json.loads(app.json[0].value) == [value, [value], expected]
+
+
+@pytest.mark.parametrize("keyed", (False, True))
+def test_sdk_unchanged_labels_can_retain_native_values_outside_new_options(keyed):
+    """SDK-only typed-state retention boundary; no Rust/native-WS parity claim."""
+    import importlib.metadata
+    from streamlit.testing.v1 import AppTest
+
+    assert importlib.metadata.version("streamlit") == "1.66.1"
+    script = ('import streamlit as st\n'
+              'options=[4,5,3] if st.session_state.get("change",False) else [1,2,3]\n'
+              'v=st.selectbox("S",options,key=' + repr("s" if keyed else None) + ',format_func=lambda value:"Other" if value==3 else "Same")\n'
+              'st.json([v,options])')
+    app = AppTest.from_string(script).run()
+    assert not app.exception and json.loads(app.json[0].value) == [1, [1, 2, 3]]
+    app.session_state["change"] = True
+    app.run()
+    assert not app.exception and json.loads(app.json[0].value) == [2, [4, 5, 3]]
+
+
+@pytest.mark.parametrize("mutation", ("single-return", "multi-return", "unkeyed-reorder", "raw-value", "sync-flag", "stale-input", "identity", "numeric-type"))
+def test_formatted_collision_gate_rejects_coherent_wrong_wire(mutation):
+    capture = read(PYTHON / "format-collisions/trace.json")
+    target = {"single-return": 1, "multi-return": 1, "unkeyed-reorder": 4, "raw-value": 6, "sync-flag": 6, "stale-input": 5, "identity": 4, "numeric-type": 0}[mutation]
+    run = -1
+    for frame in capture["frames"]:
+        client = frame["direction"] == "client->server"
+        if client:
+            run += 1
+        if run != target:
+            continue
+        message = BackMsg() if client else ForwardMsg()
+        message.ParseFromString(base64.b64decode(frame["base64"]))
+        if client and mutation == "stale-input":
+            message.rerun_script.widget_states.widgets[0].id = "$$ID-stale-formatted"
+        elif not client and message.WhichOneof("type") == "delta":
+            element = message.delta.new_element
+            kind = element.WhichOneof("type")
+            if kind == "selectbox" and element.selectbox.label == "Keyed choice" and mutation == "raw-value":
+                element.selectbox.raw_value = "Other"
+            elif kind == "selectbox" and element.selectbox.label == "Keyed choice" and mutation == "sync-flag":
+                element.selectbox.set_value = False
+                element.ClearField("has_one_shot_effect")
+            elif kind == "selectbox" and element.selectbox.label == "Choice" and mutation == "identity":
+                element.selectbox.id = "$$ID-wrong-formatted-None"
+            elif kind == "json" and mutation in ("single-return", "multi-return", "unkeyed-reorder", "numeric-type"):
+                report = json.loads(element.json.body)
+                if mutation == "single-return": report["values"][1] = 1
+                elif mutation == "multi-return": report["values"][2] = [2]
+                elif mutation == "unkeyed-reorder": report["values"][0] = 1
+                else: report["values"][0] = 1.0
+                element.json.body = json.dumps(report)
+            else:
+                continue
+        else:
+            continue
+        raw = message.SerializeToString()
+        frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(message, preserving_proto_field_name=True))
+    capture["elements"] = [{"kind": m.delta.new_element.WhichOneof("type"), "fields": MessageToDict(getattr(m.delta.new_element, m.delta.new_element.WhichOneof("type")), preserving_proto_field_name=True),
+                            "delta_path": list(m.metadata.delta_path)} for m in frames(capture) if isinstance(m, ForwardMsg) and m.WhichOneof("type") == "delta"]
+    with pytest.raises(AssertionError):
+        check_format_collisions(capture)
+
+
 def comparable(capture):
     out = []
     for element in capture["elements"]:

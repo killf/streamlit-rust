@@ -1,7 +1,18 @@
 """Emit widget creation-wire parameter variants for the M3 differential."""
 import streamlit as st
 
-if st.query_params.get("probe") == "multi-limits":
+if st.query_params.get("probe") == "format-collisions":
+    phase = st.query_params.get("phase", "load")
+    if phase == "assign":
+        st.session_state["choice"] = 2
+        st.session_state["choices"] = [2]
+    values = [2, 1, 3] if phase in ("reorder", "reorder-edit", "assign", "observe") else [1, 2, 3]
+    formatter = lambda value: "Other" if value == 3 else "Same"
+    plain = st.selectbox("Choice", values, format_func=formatter)
+    keyed = st.selectbox("Keyed choice", values, format_func=formatter, key="choice")
+    multiple = st.multiselect("Choices", values, default=[values[1]], format_func=formatter, key="choices")
+    st.json({"phase": phase, "values": [plain, keyed, multiple]})
+elif st.query_params.get("probe") == "multi-limits":
     phase = st.query_params.get("phase", "load")
     if phase in ("repair", "repair-final"):
         st.session_state["limited"] = [2]

@@ -2372,3 +2372,23 @@ widgets.rs 新增私有完整状态解码，Record 仅为普通/创建 selectbox
 采集从启用 Network 后的有意 reload 开始，初始监测前流量与停用采集后的关闭帧不在范围内；不宣称观察到 WS close 帧。三个自建 tab 已关闭；SDK/修前 Rust 子进程 PID 12304/54304、修后 PID 43856 经自持句柄 terminate/wait 结束，53391/8599 核实无监听；console error/warn 均为空。两端 fixture、Rust 源码与二进制 SHA 已核对，基线为 2d05dc6，修后注明已修改工作区，基线提交不冒充含新修复。
 
 本批不验证空选项 UI、代码引起的界面清空、动态参数、非字符串选项、表单/绑定/跨页/晚到输入及其余 callback 组合。仅 st.radio 矩阵与机器清单更新，仍为 130 partial；待决的 multiselect 超限登记、共享状态、hash 和其他公共接口方案保持。用户 colconfig_params 修改独立保留，未合并、发布或部署，M3/M5/M7 与长期 Goal 未关闭。
+
+## Current formatted selection collision validation (2026-11-01)
+
+锁定 SDK 1.66.1 的公开 AppTest 初探后，十轮原生 WS 同时覆盖无 key/keyed 整数 selectbox 与 keyed 整数 multiselect。选项 [1,2,3] 显示为 Same/Same/Other 时，前端提交 Same，selectbox 返回末个匹配值 2，multiselect 返回首个匹配值 1 并保留重复。选项重排为 [2,1,3]、标签与身份不变时，旧原生值保持；新 Same 提交改为单选 1、多选 2。代码赋原生 2 与 [2] 保留值并同步 Same 标签，恢复顺序后再提交按恢复后的规则解析。
+
+[SDK](../tests/reference/reference-browser/widget-params/format-collisions/trace.json)、[Rust 修前](../tests/browser/rust-widget-params/format-collisions/before/trace.json)、[Rust 最终](../tests/browser/rust-widget-params/format-collisions/trace.json)每份均 10 轮/89 原始帧/40 Element。修前正常结束仍错误返回 [1,1,[1]]，不能把脚本结束视为兼容成功。公开 API 回归首先发现 edit 的 callback 未收集；只修标签查找后又真实发现 reorder 的无 key 返回值 1 而非 2，两次失败分别保留在 red/remap-red 日志，均已修复。
+
+widgets.rs 普通 Codec::Select 的前端标签查找改取末项，创建模式和 multiselect 原有查找不改；无 key 且身份相同时，旧原生值仍存在于当前 options 的场景复用现有 read_session_value 重映射，未改变状态来源或优先级。旧原生值已不在当前选项中的保留问题继续开放，未把现有索引回退当成完整保留方案。无新增公共 API、依赖或状态层。
+
+收尾另测重复原生选项 [1,1,3]：SDK 原生值不变时不触发 callback，Rust 原来仅比较索引，回归真实复现多触发两次。已仅对普通 selectbox/multiselect 按序列化原生返回值比较，并在没有 callback 时跳过该比较；其他 codec 保留原比较规则，输入应用与 callback 执行顺序不变。Rust 公共 API 单元核对重复索引不触发、改为 3/返回 1 才触发，以及回调读取整批已更新的两个选择；SDK-only AppTest 保留同一原生值序列。十轮主回归另核对 callback 读取 2/3/2/1；WS 示例无 callback，不据此宣称真实浏览器 callback 全链。
+
+最终完整 Element 仅归一化不透明 ID/JSON 文本后逐字段一致。严格门验证三个控件的 oneof/实际 ID、三控件身份各一类、单选与多选相反的同名规则、重排与代码原生值、default、set_value/raw_value(s)、一次性标志、返回值的 integer 类型、会话/轮次/路径。八类同步改写原始帧与汇总的负例必须失败：单选取首项、多选取末项、无 key 重排错值、同步标签、缺失同步、过期输入、错误身份、数值相等但变成 1.0。
+
+增加 callback 保护后重新构建并重新采集最终代码；先前成功捕获保留于 target/format-collisions-before-callback-guard/trace.json，未用中间产物冒充最终证据。同一最终二进制另重放旧十四轮 select-empty、十七轮 select-policy-unkeyed，125 帧/56 Element、135 帧/51 Element 继续与冻结参考完整字段一致；结果 target/format-collisions-final-{empty,unkeyed}-recheck/trace.json，旧参考未改。三份 producer 源文件、widget_api/widgets 和二进制 SHA 已核对当前产物；修前核心源哈希另与本批前 HEAD 核对。
+
+SDK-only AppTest 新保留一项边界：旧标签重新序列化提交、options 从 [1,2,3] 换成 [4,5,3] 而展示标签不变时，SDK 的 keyed/unkeyed 调用可返回已不在新列表中的整数 2。Option<T> 本身可以表达该 i64 值，但当前 Rust 实现只克隆当前选项，缺少旧泛型值保留机制，需单独的状态/API 设计；该替换场景没有 Rust/原生 WS 兼容结论。不能将旧值保留问题混同为已完成的“旧值仍存在时重排”。
+
+代码 rustfmt、全工作区/all-target Clippy、两项新增公开 API 单元通过；最终工作区 323 项通过（316 库、1 ledger、2 宏、4 rustdoc），仍仅排除原 navigation_pages_switch_and_session_state_match_the_measured_wire 与 rerun_queue_messages_match_frozen_reference，不能称完整工作区全绿。参数参考模块 255 项、相关 query/widget/temporal/pickers/matrix/docs 门 506 项通过，含 SDK-only 观察，并非全部跨运行时验收。既有 MSVC linker stdout warning 保留；日志 target/format-collisions-{red,remap-red,callback-red,green,callback-green,clippy,build,workspace,reference}.log。SDK 服务由采集器停止，Rust 最终进程 PID 55048 通过自持句柄 terminate/wait 结束，59339/8599 核实无监听。
+
+本批无真实浏览器新采集；同名菜单交互、任意 formatter/比较语义、列表外旧泛型值、URL/表单/跨页/晚到输入和其余 callback 组合继续开放。仅 st.selectbox/st.multiselect 矩阵及机器清单更新，仍为 130 partial；其他待决方案、用户 colconfig_params 修改独立保留。未合并、发布或部署，M3/M5/M7 与长期 Goal 未关闭。

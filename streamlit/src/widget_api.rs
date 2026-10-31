@@ -4969,6 +4969,165 @@ mod tests {
     }
 
     #[test]
+    fn selection_callbacks_compare_native_values_for_duplicate_options() -> anyhow::Result<()> {
+        let changed = |st: &Streamlit| {
+            let state = st.session_state();
+            let mut calls = state.get::<Vec<Value>>("duplicate_calls").expect("calls").unwrap_or_default();
+            calls.push(serde_json::json!([state.get::<i64>("single").expect("single"), state.get::<Vec<i64>>("multiple").expect("multiple")]));
+            state.set("duplicate_calls", calls).expect("callback write");
+        };
+        let state = SessionState::default();
+        let mut ids = Vec::<String>::new();
+        let counts = [0, 0, 2, 2];
+        for (index, native) in [1_i64, 1, 3, 1].iter().enumerate() {
+            // 1. 重复原生值的索引改变不触发 callback，实际值改变才触发。
+            let text = if *native == 3 { "Other" } else { "Same" };
+            let incoming = if index == 0 {
+                Vec::new()
+            } else {
+                ids.iter()
+                    .enumerate()
+                    .map(|(position, id)| WidgetState {
+                        id: id.clone(),
+                        value: Some(if position == 0 {
+                            widget_state::Value::StringValue(text.into())
+                        } else {
+                            widget_state::Value::StringArrayValue(proto::StringArray { data: vec![text.into()] })
+                        }),
+                    })
+                    .collect()
+            };
+            let callbacks = state.begin_widgets(incoming);
+            assert_eq!(callbacks.len(), counts[index], "run {index}");
+            let (st, mut wire) = app(&state);
+            for callback in callbacks {
+                callback(&st);
+            }
+            let mut expected = if index >= 2 { vec![serde_json::json!([3, [3]]); 2] } else { Vec::new() };
+            if index == 3 {
+                expected.extend(vec![serde_json::json!([1, [1]]); 2]);
+            }
+            assert_eq!(state.get::<Vec<Value>>("duplicate_calls")?.unwrap_or_default(), expected);
+
+            // 2. callback 在渲染前读取整批已更新的两个原生选择。
+            let format = |value: &i64| if *value == 3 { "Other".into() } else { "Same".into() };
+            assert_eq!(st.selectbox(SelectboxOptions::new("Single", vec![1_i64, 1, 3]).format_func(format).key("single").on_change(changed))?, Some(*native));
+            assert_eq!(
+                st.multiselect(MultiselectOptions::new("Multiple", vec![1_i64, 1, 3]).format_func(format).default_indices([1]).key("multiple").on_change(changed))?,
+                vec![*native]
+            );
+            ids = (0..2)
+                .map(|_| match input(&mut wire).expect("selection element") {
+                    element::Type::Selectbox(widget) => widget.id,
+
+                    element::Type::Multiselect(widget) => widget.id,
+
+                    _ => panic!(),
+                })
+                .collect();
+            state.finish_widgets();
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn formatted_label_collisions_keep_distinct_single_and_multi_mapping_rules() -> anyhow::Result<()> {
+        let changed = |st: &Streamlit| {
+            let state = st.session_state();
+            let mut calls = state.get::<Vec<i64>>("format_calls").expect("calls").unwrap_or_default();
+            calls.push(state.get::<i64>("choice").expect("native selection").expect("registered selection"));
+            state.set("format_calls", calls).expect("callback write");
+        };
+        let phases = ["load", "edit", "other", "repeat", "reorder", "reorder-edit", "assign", "observe", "restore", "restore-edit"];
+        let singles = [[1, 1], [2, 2], [3, 3], [2, 2], [2, 2], [1, 1], [1, 2], [1, 2], [1, 2], [2, 2]];
+        let multiples: [&[i64]; 10] = [&[2], &[1], &[3], &[1, 1], &[1, 1], &[2, 2], &[2], &[2], &[2], &[1]];
+        let callback_counts = [0, 1, 1, 1, 0, 1, 0, 0, 0, 0];
+        let state = SessionState::default();
+        let mut ids = Vec::<String>::new();
+        for (index, phase) in phases.iter().enumerate() {
+            // 1. 前端只提交格式化标签，重复标签的单选取末项、多选取首项。
+            let submitted = matches!(*phase, "edit" | "other" | "repeat" | "reorder-edit" | "restore-edit");
+            let text = if *phase == "other" { "Other" } else { "Same" };
+            let incoming = if submitted {
+                ids.iter()
+                    .enumerate()
+                    .map(|(position, id)| WidgetState {
+                        id: id.clone(),
+                        value: Some(if position == 2 {
+                            widget_state::Value::StringArrayValue(proto::StringArray {
+                                data: vec![text.into(); if matches!(*phase, "repeat" | "reorder-edit") { 2 } else { 1 }],
+                            })
+                        } else {
+                            widget_state::Value::StringValue(text.into())
+                        }),
+                    })
+                    .collect()
+            } else {
+                Vec::new()
+            };
+            let callbacks = state.begin_widgets(incoming);
+            assert_eq!(callbacks.len(), callback_counts[index], "{phase}");
+            let (st, mut wire) = app(&state);
+            for callback in callbacks {
+                callback(&st);
+            }
+            let calls = [2_i64, 3, 2, 1];
+            let count = callback_counts[..=index].iter().sum::<usize>();
+            assert_eq!(state.get::<Vec<i64>>("format_calls")?.unwrap_or_default(), calls[..count]);
+            if *phase == "assign" {
+                state.set("choice", 2_i64)?;
+                state.set("choices", vec![2_i64])?;
+            }
+            let values = if matches!(*phase, "reorder" | "reorder-edit" | "assign" | "observe") { vec![2_i64, 1, 3] } else { vec![1_i64, 2, 3] };
+            let format = |value: &i64| if *value == 3 { "Other".into() } else { "Same".into() };
+            let plain = st.selectbox(SelectboxOptions::new("Choice", values.clone()).format_func(format))?;
+            let keyed = st.selectbox(SelectboxOptions::new("Keyed choice", values.clone()).format_func(format).key("choice").on_change(changed))?;
+            let multiple = st.multiselect(MultiselectOptions::new("Choices", values).format_func(format).default_indices([1]).key("choices"))?;
+            assert_eq!([plain, keyed], singles[index].map(Some), "{phase}");
+            assert_eq!(multiple, multiples[index], "{phase}");
+
+            // 2. 相同展示标签保持身份，重排保留原生值；代码赋值同步原标签。
+            let mut current = Vec::new();
+            for (position, _) in ["Choice", "Keyed choice", "Choices"].iter().enumerate() {
+                let Some(forward_msg::Type::Delta(proto::Delta {
+                    r#type: Some(delta::Type::NewElement(element)), ..
+                })) = wire.try_recv()?.r#type
+                else {
+                    panic!()
+                };
+                let sync = *phase == "assign" && position > 0;
+                assert_eq!(element.has_one_shot_effect, sync.then_some(true));
+                let id = match element.r#type {
+                    Some(element::Type::Selectbox(widget)) => {
+                        assert_eq!(widget.default, Some(0));
+                        assert_eq!(widget.set_value, sync);
+                        assert_eq!(widget.raw_value.as_deref(), sync.then_some("Same"));
+                        widget.id
+                    }
+
+                    Some(element::Type::Multiselect(widget)) => {
+                        assert_eq!(widget.default, vec![1]);
+                        assert_eq!(widget.set_value, sync);
+                        assert_eq!(widget.raw_values, if sync { vec!["Same"] } else { Vec::new() });
+                        widget.id
+                    }
+
+                    _ => panic!(),
+                };
+                if index > 0 {
+                    assert_eq!(id, ids[position], "{phase}");
+                }
+                current.push(id);
+            }
+            ids = current;
+            state.finish_widgets();
+        }
+
+        Ok(())
+    }
+
+    #[test]
     fn radio_id_only_empty_peers_preserve_selections_and_callback_admission() -> anyhow::Result<()> {
         let changed = |st: &Streamlit| {
             let state = st.session_state();
