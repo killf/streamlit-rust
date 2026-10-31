@@ -26,6 +26,17 @@ from queryparams_contract import (  # noqa: E402
 PNG_BYTES = b"\x89PNG\r\n\x1a\n" + b"not-a-real-image-but-magic-and-hash-are-checked"
 
 
+TEXT_LENGTH_PHASES = ("load", "ascii", "unicode", "same-prefix", "joiner", "empty", "assign", "retain", "recover")
+TEXT_LENGTH_INPUTS = {"ascii": "abcdef🧊", "unicode": "中文🧊e\u0301TAIL", "same-prefix": "中文🧊e\u0301OTHER",
+                      "joiner": "👨\u200d👩\u200d👧\u200d👦!", "empty": "", "recover": "line1\nline2🧊"}
+TEXT_LENGTH_VALUES = (
+    ("abcde", "abcde", "中文🧊e\u0301", "中文🧊e\u0301", "👨\u200d👩\u200d👧", "", "code長🧊extra", "code長🧊extra", "line1"),
+    ("", "", "", "", "", "", "code長🧊extra", "code長🧊extra", ""),
+    ("abcdef🧊", "abcdef🧊", "中文🧊e\u0301TAIL", "中文🧊e\u0301OTHER", "👨\u200d👩\u200d👧\u200d👦!", "", "code長🧊extra", "code長🧊extra", "line1\nline2🧊"),
+    (None, "abcde", "中文🧊e\u0301", "中文🧊e\u0301", "👨\u200d👩\u200d👧", "", "code長🧊extra", "code長🧊extra", "line1"),
+)
+
+
 QUERY_ENCODING_CASES = (('tag=%+1&%+f=key&keep=ok', ['% 1'], [['tag', '% 1'], ['% f', 'key'], ['keep', 'ok']]),
  ('tag=%+0&tag=%+9&tag=%+A&tag=%+F&tag=%+a&tag=%+f', ['% 0', '% 9', '% A', '% F', '% a', '% f'], [['tag', '% f']]),
  ('tag=%1&tag=%&tag=%%&tag=%GG&tag=%1G&tag=%G1&tag=%-1&tag=%+G',
@@ -107,6 +118,7 @@ def read_query_param_capture(scenario, capture=None):
     assert capture["cleanup"] == {"websocket_closed": True, "server_stopped": True}
     snapshots, urls, finishes, requests, histories, errors = [], [], [], [], [], []
     sessions, error_phases, input_types, byte_payloads, json_payloads = [], [], [], [], []
+    length_inputs, length_widgets = [], []
     slot = 0
     for frame in capture["frames"]:
         assert frame["direction"] in ("client->server", "server->client")
@@ -119,6 +131,13 @@ def read_query_param_capture(scenario, capture=None):
             requests.append(message.rerun_script.query_string)
             histories.append(message.rerun_script.is_history_navigation)
             slot = 0
+            if scenario == "text-length":
+                widgets = message.rerun_script.widget_states.widgets
+                phase = requests[-1].rsplit("phase=", 1)[-1]
+                assert len(widgets) == (1 if phase in TEXT_LENGTH_INPUTS else 0)
+                if widgets:
+                    assert widgets[0].id.endswith("-cjk_note") and widgets[0].WhichOneof("value") == "string_value"
+                    length_inputs.append((phase, widgets[0].string_value))
             if scenario == "disabled-json" and len(requests) % 3 == 2:
                 widgets = message.rerun_script.widget_states.widgets
                 assert len(widgets) == 2 and widgets[0].id.endswith("-bound") and widgets[1].id.endswith("-live")
@@ -132,7 +151,7 @@ def read_query_param_capture(scenario, capture=None):
                     byte_payloads.append(widgets[0].bytes_value)
         elif message.WhichOneof("type") == "new_session":
             sessions.append(message.new_session.initialize.session_id)
-            if scenario in ("disabled-json", "encoding"):
+            if scenario in ("disabled-json", "encoding", "text-length"):
                 environment = message.new_session.initialize.environment_info
                 assert environment.streamlit_version == "1.66.1" and environment.python_version == "3.14.7.final.0"
         elif message.WhichOneof("type") == "script_finished":
@@ -141,6 +160,11 @@ def read_query_param_capture(scenario, capture=None):
             urls.append(message.page_info_changed.query_string)
         elif message.WhichOneof("type") == "delta" and message.delta.WhichOneof("type") == "new_element":
             element = message.delta.new_element
+            if scenario == "text-length" and element.WhichOneof("type") in ("text_input", "text_area"):
+                kind = element.WhichOneof("type")
+                widget = getattr(element, kind)
+                length_widgets.append((kind, widget.default if widget.HasField("default") else None, widget.max_chars,
+                                       widget.set_value, widget.value if widget.HasField("value") else None))
             if scenario.startswith("disabled-types") or scenario in ("disabled-json", "encoding"):
                 assert list(message.metadata.delta_path) == [0, slot]
                 slot += 1
@@ -253,6 +277,24 @@ def read_query_param_capture(scenario, capture=None):
         assert histories == [False] * 9 and finishes == [0] * 9
         assert [query.split("phase=")[1].split("&")[0] for query in requests] == [
             "load", "forge", "malformed" if scenario == "disabled" else "invalid-url", "code", "hidden", "remount", "enabled", "interactive", "redisable"]
+    elif scenario == "text-length":
+        configurations = [(kind, limit, default) for kind in ("input", "area") for limit, default in (("5", "long"), ("0", "long"), ("none", "long"), ("5", "none"))]
+        assert requests == [f"case=form-max-chars-cjk&probe=length&kind={kind}&limit={limit}&default={default}&phase={phase}"
+                            for kind, limit, default in configurations for phase in TEXT_LENGTH_PHASES]
+        assert histories == [False] * 72 and finishes == [0] * 72 and urls == []
+        assert len(sessions) == 72 and len(set(sessions)) == 8
+        assert all(len(set(sessions[index:index + 9])) == 1 for index in range(0, 72, 9))
+        assert len(snapshots) == 72 and len(length_widgets) == 72
+        assert length_inputs == list(TEXT_LENGTH_INPUTS.items()) * 8
+        for number, (kind, limit, default) in enumerate(configurations):
+            calls = []
+            values = TEXT_LENGTH_VALUES[number % 4]
+            for stage, (phase, value) in enumerate(zip(TEXT_LENGTH_PHASES, values, strict=True)):
+                if phase in TEXT_LENGTH_INPUTS and value != values[stage - 1]:
+                    calls.append(value)
+                assert snapshots[number * 9 + stage] == {"phase": phase, "value": value, "state": value, "callbacks": calls}
+                assert length_widgets[number * 9 + stage] == ("text_input" if kind == "input" else "text_area",
+                    None if default == "none" else "abcdef🧊", 5 if limit == "5" else 0, phase == "assign", "code長🧊extra" if phase == "assign" else None)
     elif scenario == "encoding":
         assert requests == [case[0] for case in QUERY_ENCODING_CASES]
         assert histories == [False] * 16 and finishes == [0] * 16
@@ -316,6 +358,53 @@ def test_query_param_encoding_oracle_keeps_exact_values_and_writes():
         expected += [urlencode(parameters, doseq=True), "", "tag=again&tag=last"]
         assert urls[number * 7:(number + 1) * 7] == expected
     assert urls[0] == "tag=replacement&tag=tail&%25+f=key&keep=ok"
+
+
+def test_text_length_reference_separates_wire_defaults_and_native_assignments():
+    snapshots, urls = read_query_param_capture("text-length")
+    assert not urls
+    assert snapshots[3]["callbacks"] == snapshots[2]["callbacks"]
+    assert snapshots[6]["value"] == snapshots[7]["value"] == "code長🧊extra"
+    assert snapshots[9]["value"] == "" and snapshots[18]["value"] == "abcdef🧊" and snapshots[27]["value"] is None
+
+
+@pytest.mark.parametrize("mutation", ["unicode", "callback", "code-assignment", "widget-sync"])
+def test_text_length_gate_rejects_coherent_wrong_wire(mutation):
+    import base64
+    from google.protobuf.json_format import MessageToDict
+    from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
+
+    capture = json.loads((HERE / "reference-browser/queryparams/text-length/trace.json").read_text(encoding="utf-8"))
+    phase = None
+    for frame in capture["frames"]:
+        if frame["direction"] == "client->server":
+            phase = frame["message"]["rerun_script"]["query_string"].rsplit("phase=", 1)[-1]
+            continue
+        if phase != {"unicode": "unicode", "callback": "same-prefix", "code-assignment": "assign", "widget-sync": "assign"}[mutation]:
+            continue
+        message = ForwardMsg()
+        message.ParseFromString(base64.b64decode(frame["base64"]))
+        element = message.delta.new_element
+        if mutation == "widget-sync":
+            if element.WhichOneof("type") != "text_input":
+                continue
+            element.text_input.set_value = False
+        else:
+            if element.WhichOneof("type") != "json":
+                continue
+            report = json.loads(element.json.body)
+            if mutation == "callback":
+                report["callbacks"].append(report["value"])
+            else:
+                report["value"] = report["state"] = "中文" if mutation == "unicode" else "code長"
+            element.json.body = json.dumps(report)
+        raw = message.SerializeToString()
+        frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(message, preserving_proto_field_name=True))
+        break
+    else:
+        pytest.fail("missing text-length mutation target")
+    with pytest.raises(AssertionError):
+        read_query_param_capture("text-length", capture)
 
 
 @pytest.mark.parametrize("mutation", ["percent-value", "percent-key", "utf8-replacement", "input"])

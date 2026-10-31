@@ -216,3 +216,14 @@ The pinned-reference capture also covers the specialized `Default`, `Password`, 
 | None/empty, clear, Enter policies, disabled or multiple submits | Python reference and Rust unit/protocol subsets; Rust browser comparison remains partial. |
 | Text types, validation, live, required, max_chars and presentation fields | Measured Python reference and Rust field/unit tests; Rust browser comparison remains partial. |
 | Container/column layouts and submit callbacks | Rust render/HTTP/WS tests and Python reference; Rust browser comparison remains partial. |
+
+
+2026-10-31 native text-limit follow-up: [72-run reference](../tests/reference/reference-browser/queryparams/text-length/trace.json)
+and the real Rust WS replay distinguish default/frontend deserialization from
+application assignments. text_input and text_area truncate the former by Unicode
+code points, preserve explicit native assignments, and dispatch callbacks only
+for changed deserialized values. Zero, no limit and None are distinct. Original
+wire defaults/limits and explicit synchronization are checked, with a separate
+form unit for batch application before the submit callback. This adds native
+state/protocol evidence, not browser typing/IME, query-bound length combinations,
+dynamic limit identity changes or complete form/widget parity.

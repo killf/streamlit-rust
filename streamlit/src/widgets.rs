@@ -241,7 +241,7 @@ impl Codec {
         match (self, wire) {
             (Self::Trigger, widget_state::Value::TriggerValue(value)) => Some((*value).into()),
             (Self::Bool, widget_state::Value::BoolValue(value)) => Some((*value).into()),
-            (Self::Text { .. }, widget_state::Value::StringValue(value)) => Some(Value::String(value.clone())),
+            (Self::Text { max_chars }, widget_state::Value::StringValue(value)) => Some(Value::String(max_chars.map_or_else(|| value.clone(), |limit| value.chars().take(limit).collect()))),
             (Self::Select(options), widget_state::Value::StringValue(label)) => options.iter().position(|(text, _)| text == label).map(Value::from),
             (Self::SelectCreation(options), widget_state::Value::StringValue(label)) => Some(match options.iter().position(|(text, _)| text == label) {
                 Some(index) => Value::from(index),
@@ -411,7 +411,10 @@ impl Codec {
                 let iso = |text: &str| chrono::NaiveDateTime::parse_from_str(text, "%Y-%m-%dT%H:%M").is_ok();
                 value.is_null() || value.as_str().is_some_and(iso)
             }
-            Self::Text { max_chars } => value.is_null() || value.as_str().is_some_and(|text| max_chars.is_none_or(|limit| text.chars().count() <= limit)),
+
+            // 长度只限制反序列化输入，已由应用赋值的原生字符串不截断。
+            Self::Text { .. } => value.is_null() || value.is_string(),
+
             Self::Select(options) => value.is_null() || value.as_u64().is_some_and(|index| index < options.len() as u64),
             Self::SelectCreation(options) => value.is_null() || value.is_string() || value.as_u64().is_some_and(|index| index < options.len() as u64),
             Self::Radio(options) => value.is_null() || value.as_u64().is_some_and(|index| index < options.len() as u64),
@@ -1297,6 +1300,22 @@ mod tests {
         let creation = Codec::SelectCreation(options);
         assert_eq!(creation.query_value("new", false), Some(Value::String("new".into())));
         assert_eq!(creation.query_text(&Value::String("new".into())), Some("new".into()));
+    }
+
+    #[test]
+    fn text_decoding_truncates_codepoints_but_native_values_keep_their_length() {
+        let text = Codec::Text { max_chars: Some(5) };
+        assert_eq!(text.decode(&widget_state::Value::StringValue("中文🧊e\u{301}TAIL".into())), Some(Value::String("中文🧊e\u{301}".into())));
+        assert_eq!(text.decode(&widget_state::Value::StringValue("👨\u{200d}👩\u{200d}👧\u{200d}👦!".into())), Some(Value::String("👨\u{200d}👩\u{200d}👧".into())));
+        assert!(text.valid(&Value::String("code長🧊extra".into())));
+        assert!(text.valid(&Value::Null));
+        assert!(!text.valid(&Value::from(5)));
+
+        let zero = Codec::Text { max_chars: Some(0) };
+        assert_eq!(zero.decode(&widget_state::Value::StringValue("text".into())), Some(Value::String(String::new())));
+
+        let unlimited = Codec::Text { max_chars: None };
+        assert_eq!(unlimited.decode(&widget_state::Value::StringValue("中文🧊e\u{301}TAIL".into())), Some(Value::String("中文🧊e\u{301}TAIL".into())));
     }
 
     #[test]

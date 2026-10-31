@@ -366,3 +366,49 @@ events match after it. This is native protocol/API evidence, with no new DOM,
 screenshot, browser-normalization or general input-grammar claim. The existing
 browser history records were reused, not recaptured for this decoder fix.
 The reference socket/server were closed and its port 49353 was read back free.
+
+
+## Text lengths, callbacks and value sources (2026-10-31)
+
+`text-length/trace.json` reuses the query-selected forms reference, with the
+existing form-max-chars-cjk handler's new probe=length branch. Without that flag
+the original case is unchanged. The existing native collector accepts
+`--scenario text-length`; it creates one fresh WS per kind/limit/default and
+never overwrites an old capture. Its source is development-only.
+
+Eight sessions x nine requests cover text_input/text_area with max_chars=5,
+max_chars=0, no limit, and a None default. Each records load, ASCII, Unicode,
+same-prefix/different-suffix, ZWJ sequence, empty input, application assignment,
+retention without input and later input recovery. There are 72 snapshots and
+72 widget synchronization projections; 928 original frames and decoded summaries
+are retained. Every NewSession records and checks Python 1.66.1/3.14.7.final.0.
+
+Both widgets slice defaults and incoming string values by Python Unicode code
+points before comparing changes/dispatching callbacks. Thus a five-code-point
+Chinese/emoji/combining-mark prefix is retained; changing only its discarded
+suffix does not cause another callback. A ZWJ sequence can be split by that
+limit; this is not grapheme counting. Zero deserializes to an empty string,
+whereas None means no limit and a None default stays None until input arrives.
+The wire still carries the original untruncated default and the configured
+max_chars. Code assignment to code長🧊extra is not truncated, sends an explicit
+value synchronization, and remains on the next request; later frontend input
+is deserialized and truncated again. Callback logs contain the deserialized
+value, not the discarded suffix.
+
+The Rust codec now truncates while decoding string input, validates the native
+text type separately, and normalizes only the two widgets' default values.
+Public APIs and all other codec policies stay as before. The old form unit's
+oversized-string batch rejection expectation is corrected to acceptance with
+truncated text, checkbox/submit updates and a submit callback observing that
+value. This form unit does not turn the above outside-form native capture into
+complete form/browser coverage.
+
+Python gates bind raw PB to summaries, exact request strings/inputs, eight
+session identities, all state/callback values and raw widget fields. Four
+coherent wrong-wire mutations (Unicode truncation, extra callback, truncated
+code assignment and missing widget synchronization) must fail. Rust replay
+compares every ordered kind/default/max_chars/set_value/value plus snapshot.
+The collector closed all sockets and its server; port 54262 was read back free.
+Browser typing/IME/UTF-16 limits, query-bound lengths, dynamic max_chars reset,
+other invalid oneofs and complete field/UI parity remain open. Earlier browser
+and protocol records were retained, not rewritten or silently upgraded.

@@ -5,6 +5,7 @@
 //! creation-mode selectbox carries acceptNewOptions plus the filter mode and
 //! keeps a freshly typed label as its string state, and a bound selectbox
 //! carries queryParamKey.
+//! The text-limit probe reuses the same real-WS replay for state and widget sync.
 use super::*;
 use crate::InputWidgets;
 use crate::proto::{PageInfo, forward_msg};
@@ -70,6 +71,65 @@ fn queryparams_reserved_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()>
         })();
         if let Err(error) = result {
             st.write(format!("query-reserved-error: {error}"));
+        }
+    })
+}
+
+fn record_text_length_callback(st: &Streamlit) {
+    let result: TestResult = (|| {
+        let state = st.session_state();
+        let mut calls = state.get::<Vec<String>>("length_callbacks")?.unwrap_or_default();
+        calls.push(state.get::<String>("cjk_note")?.ok_or("missing callback text")?);
+        state.set("length_callbacks", calls)?;
+        Ok(())
+    })();
+    assert!(result.is_ok(), "text length callback failed: {result:?}");
+}
+
+fn text_length_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        let result: TestResult = (|| {
+            // 1. 读取参考配置；代码赋值与前端反序列化走不同来源。
+            let query = st.query_params();
+            let limit = match query.get("limit").as_deref() {
+                Some("none") => None,
+                Some(value) => Some(value.parse::<usize>()?),
+                None => Some(5),
+            };
+            let phase = query.get("phase");
+            if phase.as_deref() == Some("assign") {
+                st.session_state().set("cjk_note", "code長🧊extra")?;
+            }
+
+            // 2. 两种控件使用相同上限、默认值和 callback。
+            let value = if query.get("kind").as_deref() == Some("area") {
+                let mut options = crate::TextAreaOptions::new("中文", "abcdef🧊").key("cjk_note").on_change(record_text_length_callback);
+                if query.get("default").as_deref() == Some("none") {
+                    options = options.value_none();
+                }
+                if let Some(limit) = limit {
+                    options = options.max_chars(limit);
+                }
+                st.text_area(options)?
+            } else {
+                let mut options = crate::TextInputOptions::new("中文").value("abcdef🧊").key("cjk_note").on_change(record_text_length_callback);
+                if query.get("default").as_deref() == Some("none") {
+                    options = options.value_none();
+                }
+                if let Some(limit) = limit {
+                    options = options.max_chars(limit);
+                }
+                st.text_input(options)?
+            };
+
+            // 3. 记录返回值、原生状态和实际 callback 看到的值。
+            let state = st.session_state();
+            st.json(serde_json::json!({"phase": phase, "value": value, "state": state.get::<Option<String>>("cjk_note")?,
+                "callbacks": state.get::<Vec<String>>("length_callbacks")?.unwrap_or_default()}));
+            Ok(())
+        })();
+        if let Err(error) = result {
+            st.write(format!("text-length-error: {error}"));
         }
     })
 }
@@ -329,7 +389,10 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
     let mut observed = Vec::new();
     for frame in reference["frames"].as_array().ok_or("missing frames")? {
         let Some(request) = frame["message"].get("rerun_script") else { continue };
-        if reference["scenario"] == "disabled-types" && request["query_string"].as_str().is_some_and(|query| query.contains("phase=load&")) && !widget_ids.is_empty() {
+        if !widget_ids.is_empty()
+            && ((reference["scenario"] == "disabled-types" && request["query_string"].as_str().is_some_and(|query| query.contains("phase=load&")))
+                || (reference["scenario"] == "text-length" && request["query_string"].as_str().is_some_and(|query| query.ends_with("phase=load"))))
+        {
             drop(stream);
             stream = sessions::connect(address, None).await;
             widget_ids.clear();
@@ -338,7 +401,7 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
         if let Some(states) = request["widget_states"]["widgets"].as_array() {
             for state in states {
                 let reference_id = state["id"].as_str().ok_or("missing reference widget id")?;
-                let key = ["bound", "text", "optional", "creation", "plain", "check", "live"]
+                let key = ["bound", "text", "optional", "creation", "plain", "check", "live", "cjk_note"]
                     .into_iter()
                     .find(|key| reference_id.ends_with(&format!("-{key}")))
                     .ok_or("unknown reference binding")?;
@@ -422,6 +485,14 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
                                 if matches!(reference["scenario"].as_str(), Some("seed" | "seed-code" | "rerun")) {
                                     observed.push(serde_json::json!({"widget": key, "set": widget.set_value, "value": widget.value}));
                                 }
+                                if reference["scenario"] == "text-length" {
+                                    observed.push(serde_json::json!({"widget": key, "kind": "text_input", "set": widget.set_value, "value": widget.value, "default": widget.default, "max_chars": widget.max_chars}));
+                                }
+                                widget_ids.insert(key, widget.id);
+                            }
+                            Some(element::Type::TextArea(widget)) if reference["scenario"] == "text-length" => {
+                                let key = widget.id.rsplit('-').next().ok_or("missing text area key")?.to_owned();
+                                observed.push(serde_json::json!({"widget": key, "kind": "text_area", "set": widget.set_value, "value": widget.value, "default": widget.default, "max_chars": widget.max_chars}));
                                 widget_ids.insert(key, widget.id);
                             }
                             Some(element::Type::Checkbox(widget)) if matches!(reference["scenario"].as_str(), Some("disabled-valid" | "disabled" | "disabled-types")) => {
@@ -465,6 +536,14 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
         }
         if let Some(info) = message.get("page_info_changed") {
             expected.push(serde_json::json!({"url": info["query_string"].as_str().unwrap_or("")}));
+        }
+        if reference["scenario"] == "text-length" {
+            for kind in ["text_input", "text_area"] {
+                if let Some(widget) = message["delta"]["new_element"].get(kind) {
+                    expected
+                        .push(serde_json::json!({"widget": "cjk_note", "kind": kind, "set": widget["set_value"].as_bool().unwrap_or(false), "value": widget["value"], "default": widget["default"], "max_chars": widget["max_chars"].as_u64().unwrap_or(0)}));
+                }
+            }
         }
         if matches!(reference["scenario"].as_str(), Some("seed" | "seed-code" | "rerun")) {
             let element = &message["delta"]["new_element"];
@@ -535,6 +614,11 @@ fn query_percent_escapes_require_two_hex_digits() {
 #[actix_web::test]
 async fn query_param_encoding_matches_frozen_reference() -> TestResult {
     assert_queryparams_reference(queryparams_values_entry, include_str!("../../../tests/reference/reference-browser/queryparams/encoding/trace.json"), 240).await
+}
+
+#[actix_web::test]
+async fn text_lengths_match_frozen_defaults_callbacks_and_code_assignments() -> TestResult {
+    assert_queryparams_reference(text_length_entry, include_str!("../../../tests/reference/reference-browser/queryparams/text-length/trace.json"), 144).await
 }
 
 #[actix_web::test]

@@ -906,3 +906,54 @@ query grammar, other bound controls and full compatibility remain open, as do
 the pending JSON parser/public-interface/broader queue decisions. Matrix evidence
 was expanded without status upgrade; inventory remains 130 partial. Existing
 colconfig_params work remains outside this batch's commit.
+
+
+### 2026-10-31 text-limit deserialization correction
+
+Fixed Codec::Text rejecting overlong submitted strings/defaults instead of the
+locked Python truncation. Incoming/default text now slices by Unicode code
+points, while explicit native assignments remain intact. The original wire
+default/max_chars are preserved. No public API/dependency/module additions;
+other codecs and existing broader batch/queue policies were not changed.
+
+The opt-in probe in the existing forms reference produces eight fresh sessions,
+72 runs, 928 original frames and 144 ordered widget/state projections. text_input
+and text_area each cover limit 5, zero, no limit and a None default; nine phases
+include ASCII, CJK/astral/combining/ZWJ, retained-prefix equality, empty input,
+code assignment, no-input retention and later recovery. All 144 Rust projections
+match. Callback logs use truncated values, suppress discarded-suffix changes,
+and preserve untruncated code state until another frontend submission.
+Kind/default/max_chars/set_value/value are checked alongside native snapshots.
+Python gates bind raw PB to summaries, versions/IDs/exact input and static
+literal values; four coherent wrong-wire guards are rejected. The producer
+closed all sockets/server; port 54262 was read back free. Reference is
+queryparams/text-length/trace.json; old records were retained unchanged.
+
+The revised form unit first failed with zero callbacks against the old production
+code (target/text-length-unit-before.log). The pre-fix WS replay could not obtain
+the first widget ID after its overlong default failed, so the second request
+stopped with missing live widget id (target/text-length-ws-before.log); this is
+not a completed 72-run pre-fix differential. An interim revised-unit assertion
+rebuilt the same key outside its original form and changed identity; that mixed
+path was removed. The final unit checks the applied batch, then executes the
+submit callback and verifies its observed truncated text.
+
+Code/all-targets Clippy -D warnings and Rustfmt passed. Codec Unicode/source
+unit and corrected form-submit unit passed (target/text-length-codec-unit.log,
+text-length-form-unit.log). Full workspace passed 267: library 260, ledger 1,
+macros 2, rustdoc 4, explicitly excluding only the existing
+navigation_pages_switch_and_session_state_match_the_measured_wire and
+rerun_queue_messages_match_frozen_reference. This is not full workspace green
+(target/text-length-workspace.log). After strengthening raw widget-field
+comparison, 21 query-related checks passed: 17 real WS, four pure units
+(target/text-length-query-regressions.log). No semantic production change was
+made after the workspace run. The existing MSVC linker stdout warning remains.
+
+Full frozen reference: 1803 passed with DeprecationWarning as error
+(target/text-length-full-reference.log). The subsequent related query/matrix/docs
+check passed 119, including final documentation/evidence paths
+(target/text-length-final-gates.log). No new browser UI/IME/UTF-16,
+query-bound length, changing-limit identity or invalid-limit definition claim.
+M3/M5/M7, all 130 partial entries and the full goal remain open; pending JSON/API/
+queue choices are unchanged. Existing colconfig_params work is kept out of this
+batch's commit and push.

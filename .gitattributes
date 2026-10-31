@@ -20,7 +20,7 @@
 /tests/browser/numeric_capture.py -text
 
 # Preserve existing checkout bytes for forms scripts and historical evidence.
-/tests/reference/forms_app.py -text
+/tests/reference/forms_app.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 /tests/browser/forms_capture.py -text
 /tests/reference/reference-browser/forms/README.md -text
 /tests/reference/reference-browser/forms-batch2/README.md -text

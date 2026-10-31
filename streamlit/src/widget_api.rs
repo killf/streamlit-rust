@@ -2231,7 +2231,13 @@ impl<C: AppendChild> InputWidgets for C {
             return Err(WidgetError::InvalidValue("text_input query binding cannot use a password input".into()));
         }
         let width_config = c.width(false)?;
-        let default = options.value.clone().map_or_else(|| Value::Null, Value::String);
+
+        // 默认值经反序列化截断；下方 wire 的 default 仍使用原始文本。
+        let default = options
+            .value
+            .as_ref()
+            .map_or(Value::Null, |value| Value::String(options.max_chars.map_or_else(|| value.clone(), |limit| value.chars().take(limit).collect())));
+
         let validation_regex = match &options.validation {
             TextValidation::Inherit => options.input_type.default_validation().0.map(String::from),
             TextValidation::Off => Some(String::new()),
@@ -2524,7 +2530,13 @@ impl<C: AppendChild> InputWidgets for C {
         let c = options.common;
         let form_id = form_scope(self, c.callback.is_some())?;
         let width_config = c.width(false)?;
-        let default = options.value.clone().map(Value::String).unwrap_or(Value::Null);
+
+        // 默认值经反序列化截断；下方 wire 的 default 仍使用原始文本。
+        let default = options
+            .value
+            .as_ref()
+            .map_or(Value::Null, |value| Value::String(options.max_chars.map_or_else(|| value.clone(), |limit| value.chars().take(limit).collect())));
+
         let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { format!("{:?}:{:?}", options.value, options.max_chars) });
         let (id, result, set_value) = self.register_widget_parity(
             WidgetSpec {
@@ -3957,14 +3969,17 @@ mod tests {
     }
 
     #[test]
-    fn forms_invalid_batch_is_rejected_before_values_and_submit_callback() -> anyhow::Result<()> {
+    fn forms_overlong_text_is_truncated_before_submit_callback() -> anyhow::Result<()> {
         let state = SessionState::default();
         state.begin_widgets(vec![]);
         let (st, mut wire) = app(&state);
         st.form("bounded", |form| {
             form.text_input(TextInputOptions::new("Bounded").key("bounded").max_chars(5))?;
             form.checkbox(CheckboxOptions::new("Agree").key("agree"))?;
-            form.form_submit_button(FormSubmitButtonOptions::new("Apply").key("apply").on_click(|_| panic!("invalid batch reached callback")))
+            form.form_submit_button(FormSubmitButtonOptions::new("Apply").key("apply").on_click(|st| {
+                assert!(matches!(st.session_state().get::<String>("bounded"), Ok(Some(value)) if value == "TOOLO"));
+                st.write("submit callback");
+            }))
         })?;
         form_block(&mut wire)?;
         let element::Type::TextInput(text) = input(&mut wire)? else { panic!() };
@@ -3985,12 +4000,15 @@ mod tests {
                 value: Some(widget_state::Value::StringValue("TOOLONG".into())),
             },
         ]);
-        assert!(callbacks.is_empty());
-        assert_eq!(state.get::<String>("bounded")?.as_deref(), Some(""));
-        assert_eq!(state.get::<bool>("agree")?, Some(false));
-        assert_eq!(state.get::<bool>("apply")?, Some(false));
-        let (st, _) = app(&state);
-        assert_eq!(st.text_input(TextInputOptions::new("Bounded").key("bounded").max_chars(5))?, Some(String::new()));
+        assert_eq!(callbacks.len(), 1);
+        assert_eq!(state.get::<String>("bounded")?.as_deref(), Some("TOOLO"));
+        assert_eq!(state.get::<bool>("agree")?, Some(true));
+        assert_eq!(state.get::<bool>("apply")?, Some(true));
+        let (st, mut wire) = app(&state);
+        for callback in callbacks {
+            callback(&st);
+        }
+        assert!(matches!(input(&mut wire)?, element::Type::Markdown(markdown) if markdown.body == "submit callback"));
 
         Ok(())
     }

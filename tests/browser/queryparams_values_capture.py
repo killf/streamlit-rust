@@ -25,7 +25,7 @@ ROOT = Path(__file__).resolve().parents[2]
 QUERY = "z=last&tag=first&tag=second&a=first&blank=&encoded=%E4%B8%AD%E6%96%87+text"
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("--out", type=Path, required=True)
-parser.add_argument("--scenario", choices=("values", "encoding", "reserved", "binding", "seed", "seed-code", "disabled", "disabled-valid", "disabled-types", "disabled-json", "rerun", "navigation-rerun", "rerun-messages", "rerun-queue"), default="values")
+parser.add_argument("--scenario", choices=("values", "encoding", "text-length", "reserved", "binding", "seed", "seed-code", "disabled", "disabled-valid", "disabled-types", "disabled-json", "rerun", "navigation-rerun", "rerun-messages", "rerun-queue"), default="values")
 args = parser.parse_args()
 if args.scenario == "reserved":
     QUERY = "case=reserved&embed=true&EMBED_OPTIONS=light_theme&st_embed=ordinary&=empty-key-value"
@@ -54,6 +54,8 @@ with socket.socket() as listener:
     port = listener.getsockname()[1]
 url = f"http://127.0.0.1:{port}"
 fixture = "navigation_app.py" if args.scenario == "navigation-rerun" else "queryparams_values_app.py"
+if args.scenario == "text-length":
+    fixture = "forms_app.py"
 command = [sys.executable, "-B", "-m", "streamlit", "run", str(ROOT / "tests/reference" / fixture),
            "--server.address=127.0.0.1", f"--server.port={port}", "--server.headless=true",
            "--server.fileWatcherType=none", "--browser.gatherUsageStats=false"]
@@ -88,6 +90,14 @@ try:
     with ExitStack() as sockets, connect(url.replace("http", "ws") + "/_stcore/stream", origin=url, subprotocols=["streamlit"],
                  proxy=None, open_timeout=10, close_timeout=5, max_size=None, legacy=True) as ws:
         queries = [QUERY]
+        if args.scenario == "text-length":
+            trace["connection_policy"] = "Fresh WS per widget kind/limit/default; nine requests share each WS."
+            phases = ("load", "ascii", "unicode", "same-prefix", "joiner", "empty", "assign", "retain", "recover")
+            text_inputs = {"ascii": "abcdef🧊", "unicode": "中文🧊e\u0301TAIL", "same-prefix": "中文🧊e\u0301OTHER",
+                           "joiner": "👨\u200d👩\u200d👧\u200d👦!", "empty": "", "recover": "line1\nline2🧊"}
+            queries = [f"case=form-max-chars-cjk&probe=length&kind={kind}&limit={limit}&default={default}&phase={phase}"
+                       for kind in ("input", "area") for limit, default in (("5", "long"), ("0", "long"), ("none", "long"), ("5", "none")) for phase in phases]
+            trace["query_string"] = queries[0]
         if args.scenario == "encoding":
             queries = [
                 "tag=%+1&%+f=key&keep=ok",
@@ -168,13 +178,17 @@ try:
         widget_ids = {}
         main_page_hash = None
         for index, query in enumerate(queries):
-            if args.scenario in ("disabled-types", "disabled-json") and index > 0 and index % 3 == 0:
+            if index > 0 and ((args.scenario in ("disabled-types", "disabled-json") and index % 3 == 0) or (args.scenario == "text-length" and index % 9 == 0)):
                 ws.close()
                 ws = sockets.enter_context(connect(url.replace("http", "ws") + "/_stcore/stream", origin=url, subprotocols=["streamlit"],
                                                    proxy=None, open_timeout=10, close_timeout=5, max_size=None, legacy=True))
                 widget_ids.clear()
             request = BackMsg()
             request.rerun_script.query_string = query
+            if args.scenario == "text-length" and phases[index % 9] in text_inputs:
+                widget = request.rerun_script.widget_states.widgets.add()
+                widget.id = widget_ids["cjk_note"]
+                widget.string_value = text_inputs[phases[index % 9]]
             if args.scenario == "binding" and index == 1:
                 for key, value in (("bound", "y"), ("text", "hello")):
                     widget = request.rerun_script.widget_states.widgets.add()
@@ -244,7 +258,7 @@ try:
                     main_page_hash = message.navigation.page_script_hash
                 if message.WhichOneof("type") == "delta" and message.delta.WhichOneof("type") == "new_element":
                     element = message.delta.new_element
-                    if element.WhichOneof("type") in ("selectbox", "text_input", "checkbox", "button"):
+                    if element.WhichOneof("type") in ("selectbox", "text_input", "text_area", "checkbox", "button"):
                         widget = getattr(element, element.WhichOneof("type"))
                         key = getattr(widget, "query_param_key", "") or widget.id.rsplit("-", 1)[-1]
                         widget_ids[key] = widget.id

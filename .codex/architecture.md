@@ -665,3 +665,36 @@ guards bind its meaning. Browser normalization/display and arbitrary syntax
 remain outside this new evidence; earlier history UI records are unchanged.
 The pending JSON scanner, public API and broader rerun queue choices are not
 resolved by this private decoder correction. Full goal and 130 partial remain.
+
+
+### Text limits apply during deserialization, not native assignment (2026-10-31)
+
+The locked SDK TextInputSerde/TextAreaSerde slices default/incoming strings by
+Unicode code points. Existing Rust Codec::Text instead rejected overlong values
+and could reject an otherwise valid batch before callbacks. Native code-assigned
+strings are already deserialized values and must remain untruncated. The new
+reference confirms these are distinct sources, including the next no-input run.
+
+The existing forms_app form-max-chars-cjk handler has an opt-in probe=length
+branch; its original branch is unchanged. Existing native capture/replay handles
+eight kind/limit/default sessions and nine requests each. Both text_input and
+text_area cover limits 5/0/None, long/None defaults, CJK/astral/combining/ZWJ input,
+unchanged retained prefixes, empty input, code assignment, retention and recovery.
+Seventy-two snapshots and widget fields provide 144 ordered projections. Python
+raw PB/version/input/default/max_chars/set_value/value and callback state are
+bound by literal expectations and four coherent mutation guards.
+
+The production correction stays within widgets.rs and widget_api.rs: string
+wire decoding slices if configured; native type validation accepts text/null
+without applying a length cap again; both widget constructors truncate their
+native defaults while preserving the original wire default. No new module,
+public API, dependency, queue policy or general invalid-batch policy. The form
+unit now asserts truncated text plus same-batch checkbox/submit state and a
+submit callback seeing that text. A mixed-form-identity assertion was removed
+from the revised unit; it did not measure this same-form batch behavior.
+
+Dynamic max_chars identity changes, query-bound length combinations, invalid
+numeric limit definitions, browser typing/IME/UTF-16 and complete form/widget
+parity remain open. These protocol probes do not upgrade the old browser claim.
+The pending JSON parser, public error/API and broader rerun decisions remain
+pending; inventory stays 130 partial and the full goal is not closed.

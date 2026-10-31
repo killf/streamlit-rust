@@ -301,7 +301,24 @@ def case_form_j05_continuous() -> None:
 
 def case_form_max_chars_cjk() -> None:
     st.subheader("A text input with a character limit")
-    cjk = st.text_input("中文", key="cjk_note", max_chars=5)
+    probe = st.query_params.get("probe") == "length"
+    if probe:
+        limit = st.query_params.get("limit", "5")
+        limit = None if limit == "none" else int(limit)
+        default = None if st.query_params.get("default") == "none" else "abcdef🧊"
+        phase = st.query_params.get("phase")
+        if phase == "assign":
+            st.session_state["cjk_note"] = "code長🧊extra"
+
+        def changed():
+            st.session_state["length_callbacks"] = st.session_state.get("length_callbacks", []) + [st.session_state["cjk_note"]]
+
+        widget = st.text_area if st.query_params.get("kind") == "area" else st.text_input
+        cjk = widget("中文", key="cjk_note", value=default, max_chars=limit, on_change=changed)
+        st.json({"phase": phase, "value": cjk, "state": st.session_state["cjk_note"],
+                 "callbacks": st.session_state.get("length_callbacks", [])})
+    else:
+        cjk = st.text_input("中文", key="cjk_note", max_chars=5)
     length = len(cjk) if isinstance(cjk, str) else 0
     render([f"Main saw: cjk={cjk!r}", f"Length: {length}"])
 

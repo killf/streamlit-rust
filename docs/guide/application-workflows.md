@@ -247,6 +247,8 @@ Rust 已采纳方案 A：显示转换保留真实行数并合成虚拟 RangeInde
 
 **控件创建参数边界**（[widget-params 参考](../../tests/reference/reference-browser/widget-params/README.md)，8/8 字段一致）：`number_input` float 路径实测——`format "%0.2f"`、默认步长 0.01、无界时携带 f64 哨兵（±1.797e308）、整型为 `"%d"` 且无界时不带 min/max 旗标；`RadioOptions` 的 `index(None)`（不发 default）与 `horizontal(true).captions([...])`；`TextAreaOptions` 的 `max_chars/placeholder`（消息内）与 `height(pixels)`（元素级配置）；`MultiselectOptions::max_selections`。on_change 回调、format_func 往返与交互期行为未纳入本切片。
 
+**文本长度**：`TextInputOptions::max_chars(n)` 和 `TextAreaOptions::max_chars(n)` 对默认值和前端提交按 Unicode 码点截断；仅截掉的后缀变化不会再次触发 callback。`0` 表示截为空，不设上限则保留全文，`None` 默认值与空字符串仍有区别。应用通过会话状态赋的字符串保留原长，后续前端提交才再次截断。[72 轮原生参考](../../tests/reference/reference-browser/queryparams/README.md)已对照返回值、状态、callback 及控件同步；本批未扩大浏览器输入/IME、查询绑定长度或动态上限重置的验收范围。
+
 **时间/滑块创建参数**（[temporal-params 参考](../../tests/reference/reference-browser/temporal-params/README.md)，5/5 一致、零实现改动确认）：`date_input` 的显式 min/max 透传 ISO、**未给边界时为 value ±10 年窗**、自定义 `format` 原样上 wire；`select_slider` 双端点默认 → `SELECT_SLIDER` 类型 + 选项索引端点（min=0 省略）；`time_input` 的 `step` 以字符串上 wire、`format "24h"`。range date_input 与交互期日历提交未纳入。
 
 **按钮/图片创建参数**（[button-image-params 参考](../../tests/reference/reference-browser/button-image-params/README.md)，6/6 一致）：`ButtonOptions` 的 `r#type("primary")/icon/disabled` 透传；`download_button` 的 **URL 扩展名规则**——显式 file_name 取其扩展、均缺省时按内容推断（裸字节 → `.bin`），消息内只带 url；新增 `st.images(ImageListOptions)` 支持多图列表（captions 逐条、width 元素级、同像素共享内容寻址 URL）。URL/path 图输入与点击交互流未纳入。
