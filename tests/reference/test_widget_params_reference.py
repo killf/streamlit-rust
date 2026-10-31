@@ -393,6 +393,133 @@ def frames(capture):
         yield message
 
 
+COLOR_UNKEYED_PHASES = ("load", "edit", "explicit", "explicit-edit", "width-zero", "width-edit", "width-neg", "width-one", "width39", "width40", "width41", "width41-edit", "width40-return", "implicit-return", "observe")
+COLOR_UNKEYED_GROUPS = (0, 0, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 2, 0, 0)
+COLOR_UNKEYED_VALUES = ("#000000", "#a1b2c3", "#000000", "#112233", "#000000", "#445566", "#445566", "#445566", "#445566", "#445566", "#000000", "#778899", "#000000", "#000000", "#000000")
+COLOR_UNKEYED_WIDTHS = (None, None, None, None, 40, 40, 40, 40, 40, 40, 41, 41, 40, None, None)
+
+
+def check_color_unkeyed(capture):
+    assert capture["successful"] and "producer_error" not in capture and capture["reference_version"] == "1.66.1"
+    assert len(capture["frames"]) == 104 and len(capture["elements"]) == 30 and capture["finishes"] == [0] * 15
+    assert capture["cleanup"]["websocket_closed"] and capture["cleanup"]["server_stopped" if capture["runtime"] == "python" else "caller_server_stopped"]
+    kinds = []
+    for message in frames(capture):
+        kind = message.WhichOneof("type")
+        kinds.append((kind, message.session_status_changed.script_is_running) if kind == "session_status_changed" else kind)
+    expected = []
+    for index in range(15):
+        expected += ["rerun_script"] + ([("session_status_changed", False)] if index else [])
+        expected += ["new_session", ("session_status_changed", True), "delta", "delta", "script_finished"]
+    assert kinds == expected
+    runs = color_runs(capture)
+    assert len(runs) == 15
+    ids, sessions, run_ids, normalized = [], set(), set(), []
+    for index, (run, phase, value, width) in enumerate(zip(runs, COLOR_UNKEYED_PHASES, COLOR_UNKEYED_VALUES, COLOR_UNKEYED_WIDTHS, strict=True)):
+        request = run["request"]
+        assert request.query_string == "probe=color-unkeyed&phase=" + phase and not request.is_history_navigation
+        assert len(run["sessions"]) == 1 and run["finishes"] == [0]
+        session = run["sessions"][0]
+        assert session.initialize.environment_info.streamlit_version == "1.66.1"
+        sessions.add(session.initialize.session_id)
+        run_ids.add(session.script_run_id)
+        assert [entry[0] for entry in run["entries"]] == ["color_picker", "json"]
+        widget, element = run["entries"][0][1:]
+        assert widget.id and widget.label == "Unkeyed accent" and widget.default == "#000000"
+        assert not widget.value and not widget.set_value and not element.HasField("has_one_shot_effect")
+        assert not widget.disabled and not widget.form_id and not widget.help and not widget.ignore_rerun and widget.label_visibility.value == 0
+        assert MessageToDict(element.width_config, preserving_proto_field_name=True) == ({"use_content": True} if width is None else {"pixel_width": width})
+        for earlier in range(index):
+            assert (widget.id == ids[earlier]) == (COLOR_UNKEYED_GROUPS[index] == COLOR_UNKEYED_GROUPS[earlier]), (phase, earlier)
+        ids.append(widget.id)
+        assert json.loads(run["entries"][1][1].body) == {"phase": phase, "value": value}
+        for position in range(2):
+            assert capture["elements"][index * 2 + position]["delta_path"] == [0, position]
+        incoming = request.widget_states.widgets
+        if phase in ("edit", "explicit-edit", "width-edit", "width41-edit"):
+            assert len(incoming) == 1 and incoming[0].id == ids[index - 1] and incoming[0].WhichOneof("value") == "string_value" and incoming[0].string_value == value
+        else:
+            assert not incoming
+        normalized_run = []
+        for kind, _, element in run["entries"]:
+            fields = MessageToDict(element, preserving_proto_field_name=True)
+            if kind == "color_picker":
+                fields[kind].pop("id")
+            else:
+                fields[kind]["body"] = json.loads(fields[kind]["body"])
+            normalized_run.append(fields)
+        normalized.append(normalized_run)
+    assert len(set(ids)) == 4 and len(sessions) == 1 and len(run_ids) == 15
+    return normalized
+
+
+@pytest.mark.parametrize("root", (PYTHON, RUST), ids=("python", "rust"))
+def test_unkeyed_color_raw_default_width_and_cleanup(root):
+    check_color_unkeyed(read(root / "color-unkeyed/trace.json"))
+
+
+def test_unkeyed_color_complete_elements_match_reference():
+    captures = [read(root / "color-unkeyed/trace.json") for root in (PYTHON, RUST)]
+    assert captures[0]["producer_sources_sha256"] == captures[1]["producer_sources_sha256"]
+    assert check_color_unkeyed(captures[0]) == check_color_unkeyed(captures[1])
+
+
+def test_unkeyed_color_before_keeps_single_identity_and_old_values():
+    capture = read(RUST / "color-unkeyed/before/trace.json")
+    assert capture["successful"] and capture["semantic_match"] is False
+    runs = color_runs(capture)
+    assert len(runs) == 15 and len(capture["frames"]) == 104 and len(capture["elements"]) == 30
+    assert len({run["entries"][0][1].id for run in runs}) == 1
+    assert json.loads(runs[2]["entries"][1][1].body)["value"] == "#a1b2c3"
+    assert json.loads(runs[-1]["entries"][1][1].body)["value"] == "#778899"
+    with pytest.raises(AssertionError):
+        check_color_unkeyed(capture)
+
+
+@pytest.mark.parametrize("mutation", ("explicit-id", "raw-width-id", "revived-value", "wire-width", "stale-input"))
+def test_unkeyed_color_gate_rejects_wrong_wire(mutation):
+    capture = read(PYTHON / "color-unkeyed/trace.json")
+    source = color_runs(capture)
+    target = {"explicit-id": 2, "raw-width-id": 6, "revived-value": 12, "wire-width": 8, "stale-input": 5}[mutation]
+    run = -1
+    for frame in capture["frames"]:
+        client = frame["direction"] == "client->server"
+        if client:
+            run += 1
+        if run != target:
+            continue
+        message = BackMsg() if client else ForwardMsg()
+        message.ParseFromString(base64.b64decode(frame["base64"]))
+        if mutation == "stale-input" and client:
+            message.rerun_script.widget_states.widgets[0].id = source[3]["entries"][0][1].id
+        elif not client and message.WhichOneof("type") == "delta" and message.delta.WhichOneof("type") == "new_element":
+            element = message.delta.new_element
+            kind = element.WhichOneof("type")
+            if kind == "color_picker" and mutation in ("explicit-id", "raw-width-id"):
+                element.color_picker.id = source[0]["entries"][0][1].id if mutation == "explicit-id" else "wrong-raw-width-identity"
+            elif kind == "color_picker" and mutation == "wire-width":
+                element.width_config.pixel_width = 39
+            elif kind == "json" and mutation == "revived-value":
+                report = json.loads(element.json.body)
+                report["value"] = "#445566"
+                element.json.body = json.dumps(report)
+            else:
+                continue
+        else:
+            continue
+        raw = message.SerializeToString()
+        frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(message, preserving_proto_field_name=True))
+    emitted = []
+    for message in frames(capture):
+        if isinstance(message, ForwardMsg) and message.WhichOneof("type") == "delta":
+            element = message.delta.new_element
+            kind = element.WhichOneof("type")
+            emitted.append({"kind": kind, "fields": MessageToDict(getattr(element, kind), preserving_proto_field_name=True), "delta_path": list(message.metadata.delta_path)})
+    capture["elements"] = emitted
+    with pytest.raises(AssertionError):
+        check_color_unkeyed(capture)
+
+
 def comparable(capture):
     out = []
     for element in capture["elements"]:

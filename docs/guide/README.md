@@ -588,6 +588,8 @@ Color picker defaults use `#RGB` or `#RRGGBB`, preserving letter case; unprefixe
 
 In the measured Chrome popover flow, typing previews the color without rerunning. Escape, clicking the swatch, or clicking outside commits the last valid color; the frontend expands shorthand and sends lowercase six-digit hex. Closing an invalid draft resends the previous valid color and reruns, without calling `on_change` when the value is unchanged. This popup filtering differs from directly submitting an invalid widget-state string to the backend.
 
+Without a key, omitting a color default and explicitly setting `#000000` are distinct configurations, even though both initially display black. The effective width also participates in identity: integer widths clamped to 40 share an identity; changing to 41 resets the value. Restoring a configuration after normal widget cleanup does not revive its old selection. Use a key to preserve state across these changes.
+
 ## Presentation leftovers
 
 ```rust

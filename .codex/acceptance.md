@@ -2137,3 +2137,44 @@ M3/M5/M7、130 partial、统一 hash 和共享状态选型不关闭。
 生产/示例/采集器修改，没有重新运行 Rust 工作区或 Clippy；上批 306 项与两项
 排除及 Clippy 结果仍为上批快照。用户 colconfig_params 改动保持独立，未合并、
 发布或部署。
+
+### 无 key 颜色控件的原始默认值与宽度身份（2026-11-01）
+
+冻结 widget-params/color-unkeyed SDK、Rust before/trace.json 与修后 trace.json，
+均十五次普通结束、104 原始帧、30 有序元素。SDK ID 等价类为 0/0/1/1/2/2/2/
+2/2/2/3/3/2/0/0：省略默认值与显式 #000000 分开；默认 content 与 40px 分开；
+0/-5/1/39/40 的原始宽度归一化后相同；41px 新身份。四批输入依次 #a1b2c3、
+#112233、#445566、#778899，恢复被正常清理的 40px/省略配置后返回 #000000，
+不复活旧颜色。修前同帧数/同默认字段但全部一个 ID，explicit 仍 #a1b2c3、
+最后错误保持 #778899，失败证据保留。没有用帧数或省略字节差异替代值/ID 验证。
+
+公开 Rust 十五轮单元先在 explicit 轮 #a1b2c3 对 #000000 失败，修后全部返回值
+和任意两轮 ID 相同/不同关系通过。仅 ColorPickerOptions 私有 value 保留 Option
+及无 key extra 加原始 value/有效 width；实际默认仍黑色，有 key 分支、codec、
+输入接收/回调/清理、hash、队列和共享状态不变。指南先说明参数身份，再实现。
+红绿和构建日志为 target/color-unkeyed-{red,green,before-build,build}.log。
+
+门禁检查 raw PB/summary/元素、所有帧和 running 顺序、15 个唯一 run/单一
+session/完成、原始 query/history/四批字符串及上一轮 ID、全部 ID 等价关系、
+返回值、黑色默认和真实布局/策略/同步标志。30 个完整 Color/JSON Element
+仅规范化控件 ID 与 JSON 正文后逐字段一致。五类反例保护省略/显式身份、
+错误使用原始宽度重建、旧值复活、未提升的宽度、过期输入 ID。无 key 不构造
+虚假 native key 投影；正常结束路径与 stop/错误保留状态不能混用。
+
+当前二进制另重跑既有带 key 颜色十六轮（122 帧/43 元素），接受性、默认回退、
+八条 callback、代码字符串赋值和观察契约通过，输出在 target/color-unkeyed-keyed-recheck/。
+未改写旧成功参考，也未重新采集浏览器；旧 UI 证据仍绑定 c36f646 的原快照。
+三份采集源 SHA 保留，基线 340b9df，另有生产源及二进制 SHA。采集后仅增加
+ColorPickerOptions 私有字段的一行职责注释；修后 trace 保留采集时源码 SHA，
+并保存去掉该注释即可重建原 SHA 的说明和补注释后的 SHA，不冒充同一字节源码。
+SDK collector 已退出；Rust 57480/44424 按完整路径核对后停止，原 exec 会话终止，
+51969/8599 读回无监听。动态浏览器、错误/stop/回调/绑定/表单/跨页等组合及
+M3/M5/M7、130 partial、统一 hash 和共享状态选型继续开放。
+
+最终工作区 307 项通过（300 库 + 1 ledger + 2 宏 + 4 rustdoc），保留原
+navigation_pages_switch_and_session_state_match_the_measured_wire 与
+rerun_queue_messages_match_frozen_reference 两项排除；相关 query/widget/
+temporal/pickers/matrix/docs 参考门 361 项通过（widget 参数模块 110 项）。
+工作区/all-target Clippy、编辑 Rust 的 rustfmt、diff --check 通过，既有 MSVC
+linker stdout warning 保留。日志为 target/color-unkeyed-{workspace,reference,clippy}.log。
+用户 colconfig_params 改动保持独立，未合并、发布或部署。

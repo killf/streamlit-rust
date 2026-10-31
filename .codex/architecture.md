@@ -1429,3 +1429,18 @@ wrong-oneof、disabled、URL/表单/页面、非字符串代码值、无 key 身
 DOM 草稿、色块、回显与完整成功 Element（规范化 ID/JSON 对象顺序）一致。
 这是 enabled 普通弹窗路径，不替代上批伪造非法字符串的默认回退验证，也不
 关闭创建错误、绑定/禁用/表单/页面等边界。本批无生产代码修改。
+
+### 无 key 颜色控件的原始默认值和有效宽度（2026-11-01）
+
+SDK ColorPicker identity 使用回退黑色之前的原始 value（省略为 None）及最小
+40px 归一化之后的 width。Rust 原来在 builder 即填黑色且无 key extra 只含
+value，导致省略/显式黑色合并、宽度变化不重建。本次 ColorPickerOptions 私有
+value 改为 `Option<String>`；公开 new/value 不变。渲染时用黑色作为实际默认，
+无 key extra 序列化原始 Option 和已归一化 c.width；有 key extra 仍为空。
+不修改公共 API、颜色 codec、输入/回调/清理规则、hash、队列或共享状态模型。
+
+十五轮 probe=color-unkeyed 分离省略→显式、content→40→41、四次 typed edits、
+0/-5/1/39/40 的等价宽度和已清理配置恢复。SDK/修后原生各 104 帧/30 元素，
+四类 ID 与返回值逐轮匹配，完整 Element 规范化 ID/JSON 后一致；修前帧数相同
+但只有一个 ID，最后错误保留 #778899。普通结束恢复旧 ID 不复活旧选择。该
+切片没有公开 native key 投影，也不声称动态浏览器/绑定/表单/跨页或错误已匹配。

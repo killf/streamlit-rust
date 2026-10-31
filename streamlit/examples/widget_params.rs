@@ -6,6 +6,34 @@ use ::streamlit::*;
 use streamlit::StreamlitApi;
 
 fn render(st: &Streamlit) -> Result<(), WidgetError> {
+    if st.query_params().get("probe").as_deref() == Some("color-unkeyed") {
+        // 1. 区分原始省略值与显式黑色，保持 label/help 和其他选项不变。
+        let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
+        let implicit = matches!(phase.as_str(), "load" | "edit" | "implicit-return" | "observe");
+        let mut options = ColorPickerOptions::new("Unkeyed accent");
+        if !implicit {
+            options = options.value("#000000");
+        }
+
+        // 2. 只改变原始宽度，验证归一化后的等价类及普通结束后的回收。
+        let width = match phase.as_str() {
+            "width-zero" | "width-edit" => Some(0),
+            "width-neg" => Some(-5),
+            "width-one" => Some(1),
+            "width39" => Some(39),
+            "width40" | "width40-return" => Some(40),
+            "width41" | "width41-edit" => Some(41),
+            _ => None,
+        };
+        if let Some(width) = width {
+            options = options.width(width);
+        }
+
+        let value = st.color_picker(options)?;
+        st.json(serde_json::json!({"phase": phase, "value": value}));
+        return Ok(());
+    }
+
     if st.query_params().get("probe").as_deref() == Some("color") {
         let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
 

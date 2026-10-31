@@ -1296,17 +1296,15 @@ impl From<String> for DateTimeInputOptions {
 /// "#RGB" or "#RRGGBB" strings like the reference.
 pub struct ColorPickerOptions {
     common: InputOptions,
-    value: String,
+    /// 保留省略参数以区分无 key 身份；实际默认黑色在渲染时补齐。
+    value: Option<String>,
 }
 impl ColorPickerOptions {
     pub fn new(label: impl Into<String>) -> Self {
-        Self {
-            common: InputOptions::new(label),
-            value: "#000000".to_string(),
-        }
+        Self { common: InputOptions::new(label), value: None }
     }
     pub fn value(mut self, value: impl Into<String>) -> Self {
-        self.value = value.into();
+        self.value = Some(value.into());
         self
     }
     common_builders!();
@@ -3304,10 +3302,11 @@ impl<C: AppendChild> InputWidgets for C {
         }
 
         let width_config = c.width(true)?;
-        if !crate::widgets::valid_color_hex(&options.value) {
+        let default = options.value.as_deref().unwrap_or("#000000");
+        if !crate::widgets::valid_color_hex(default) {
             return Err(WidgetError::InvalidValue("color_picker expects a #RGB or #RRGGBB value".into()));
         }
-        let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { options.value.clone() });
+        let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { serde_json::to_string(&(&options.value, c.width))? });
         let (id, value, set_value) = self.register_widget_parity(
             WidgetSpec {
                 disabled: c.disabled,
@@ -3315,8 +3314,8 @@ impl<C: AppendChild> InputWidgets for C {
                 kind: "color_picker",
                 key: c.key.as_deref(),
                 identity: &identity,
-                default: Value::String(options.value.clone()),
-                codec: Codec::Color { default: options.value.clone() },
+                default: Value::String(default.into()),
+                codec: Codec::Color { default: default.into() },
                 callback: c.callback,
             },
             |value| value.as_str().map(str::to_owned).ok_or_else(|| WidgetError::InvalidValue("color_picker expects a string".into())),
@@ -3327,7 +3326,7 @@ impl<C: AppendChild> InputWidgets for C {
             r#type: Some(element::Type::ColorPicker(proto::ColorPicker {
                 id,
                 label: c.label,
-                default: options.value,
+                default: default.into(),
                 help: c.help,
                 form_id,
                 value: if set_value { value.clone() } else { String::new() },
@@ -4908,6 +4907,78 @@ mod tests {
             assert!(wire.try_recv().is_ok(), "the first valid form is still rendered");
         }
         assert!(wire.try_recv().is_err(), "failed form calls must not append their partial children");
+    }
+
+    #[test]
+    fn unkeyed_color_preserves_raw_default_and_effective_width_identity() -> anyhow::Result<()> {
+        let phases = [
+            "load",
+            "edit",
+            "explicit",
+            "explicit-edit",
+            "width-zero",
+            "width-edit",
+            "width-neg",
+            "width-one",
+            "width39",
+            "width40",
+            "width41",
+            "width41-edit",
+            "width40-return",
+            "implicit-return",
+            "observe",
+        ];
+        let groups = [0, 0, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 2, 0, 0];
+        let expected = [
+            "#000000", "#a1b2c3", "#000000", "#112233", "#000000", "#445566", "#445566", "#445566", "#445566", "#445566", "#000000", "#778899", "#000000", "#000000", "#000000",
+        ];
+        let state = SessionState::default();
+        let mut ids: Vec<String> = Vec::new();
+
+        for (index, phase) in phases.iter().enumerate() {
+            // 1. 仅编辑轮提交上一轮实际 ID；所有轮都正常结束并执行控件清理。
+            let incoming = if matches!(*phase, "edit" | "explicit-edit" | "width-edit" | "width41-edit") {
+                vec![WidgetState {
+                    id: ids[index - 1].clone(),
+                    value: Some(widget_state::Value::StringValue(expected[index].into())),
+                }]
+            } else {
+                Vec::new()
+            };
+            assert!(state.begin_widgets(incoming).is_empty());
+            let (st, mut wire) = app(&state);
+            let mut options = ColorPickerOptions::new("Unkeyed accent");
+            if (2..=12).contains(&index) {
+                options = options.value("#000000");
+            }
+
+            // 2. 原始宽度不同但归一化均为 40 时保留；41 和省略宽度分别重建。
+            let width = match *phase {
+                "width-zero" | "width-edit" => Some(0),
+                "width-neg" => Some(-5),
+                "width-one" => Some(1),
+                "width39" => Some(39),
+                "width40" | "width40-return" => Some(40),
+                "width41" | "width41-edit" => Some(41),
+                _ => None,
+            };
+            if let Some(width) = width {
+                options = options.width(width);
+            }
+
+            assert_eq!(st.color_picker(options)?, expected[index], "{phase}");
+            let element::Type::ColorPicker(widget) = input(&mut wire)? else { panic!() };
+            assert_eq!(widget.default, "#000000");
+            assert!(!widget.set_value);
+            for earlier in 0..index {
+                assert_eq!(widget.id == ids[earlier], groups[index] == groups[earlier], "{phase}: earlier {earlier}");
+            }
+            ids.push(widget.id);
+            assert!(wire.try_recv().is_err());
+            state.finish_widgets();
+        }
+
+        Ok(())
     }
 
     #[test]
