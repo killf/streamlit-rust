@@ -1,7 +1,30 @@
 """Emit widget creation-wire parameter variants for the M3 differential."""
 import streamlit as st
 
-if st.query_params.get("probe") == "multi-empty":
+if st.query_params.get("probe") == "multi-limits":
+    phase = st.query_params.get("phase", "load")
+    if phase in ("repair", "repair-final"):
+        st.session_state["limited"] = [2]
+    elif phase == "partial":
+        st.session_state["limited"] = [99, 2, 99]
+    cases = []
+    if phase == "load":
+        cases.extend([
+            ("Repeat", [2, 2], None), ("Repeat long", [2, 2, 2, 2], None),
+            ("Repeat capped", [2, 2], 2), ("Default over", [1, 2], 1),
+            ("Zero", [], 0), ("Outside", [4], None),
+        ])
+    cases.append(("State", [2], 2))
+    for label, defaults, limit in cases:
+        try:
+            value = st.multiselect(label, [1, 2, 3], default=defaults, max_selections=limit,
+                                   key="limited" if label == "State" else None)
+            report = {"case": label, "phase": phase, "accepted": True, "value": value}
+        except Exception as error:
+            report = {"case": label, "phase": phase, "accepted": False,
+                      "error_type": type(error).__name__, "error": str(error)}
+        st.json(report)
+elif st.query_params.get("probe") == "multi-empty":
     phase = st.query_params.get("phase", "load")
     if phase == "assign-partial":
         st.session_state["choice"] = ["Missing", "Beta", "Missing", "Charlie"]

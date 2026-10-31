@@ -1,0 +1,1752 @@
+{
+  "schema_version": 1,
+  "runtime": "python",
+  "reference_version": "1.66.1",
+  "captured_at_utc": "2026-10-31T19:36:11.695205+00:00",
+  "scope": "Eight multiselect duplicate-default/count-error/recovery runs on one native WS; error representations are runtime-specific, no browser/UI claim.",
+  "server_command": [
+    "C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Scripts\\python.exe",
+    "-B",
+    "-m",
+    "streamlit",
+    "run",
+    "C:\\Users\\killf\\github\\streamlit-rust\\tests\\reference\\widget_params_app.py",
+    "--server.address=127.0.0.1",
+    "--server.port=59558",
+    "--server.headless=true",
+    "--server.fileWatcherType=none",
+    "--browser.gatherUsageStats=false"
+  ],
+  "server_cleanup": "collector-owned",
+  "url": "http://127.0.0.1:59558",
+  "frames": [
+    {
+      "direction": "client->server",
+      "bytes": 33,
+      "base64": "Wh8KHXByb2JlPW11bHRpLWxpbWl0cyZwaGFzZT1sb2Fk",
+      "message": {
+        "rerun_script": {
+          "query_string": "probe=multi-limits&phase=load"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 423,
+      "base64": "IqQDCq0BCl4KJDc5MDk1MDBjLWU1OWEtNTJlNy05ZjUzLWQzZGUwYzZhN2RmNCokNzkwOTUwMGMtZTU5YS01MmU3LTlmNTMtZDNkZTBjNmE3ZGY0MhBuby1tYWNoaW5lLWlkLXY0GiEKBjEuNjYuMRIOMy4xNC43LmZpbmFsLjAaB3dpbmRvd3MiAhABMiQ1MTVhNGQxZS05MDQ2LTQzMjQtOTI5NS1jMDg1YjE2ODhiMmYSJDhlNmIzYWJjLTc3MWYtNDYwNS1hZDIzLWRhNDkyNGU4ZGNmNhoRd2lkZ2V0X3BhcmFtc19hcHAiSUM6XFVzZXJzXGtpbGxmXGdpdGh1YlxzdHJlYW1saXQtcnVzdFx0ZXN0c1xyZWZlcmVuY2Vcd2lkZ2V0X3BhcmFtc19hcHAucHkyBhgCKAFIAUIiCiBmODIxZTRjY2E4ZTBiNDM4MTNiN2RkYWQ5ODJlZThiNEogZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjRaIGY4MjFlNGNjYThlMGI0MzgxM2I3ZGRhZDk4MmVlOGI0",
+      "message": {
+        "new_session": {
+          "initialize": {
+            "user_info": {
+              "installation_id": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v3": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v4": "no-machine-id-v4"
+            },
+            "environment_info": {
+              "streamlit_version": "1.66.1",
+              "python_version": "3.14.7.final.0",
+              "server_os": "windows"
+            },
+            "session_status": {
+              "script_is_running": true
+            },
+            "session_id": "515a4d1e-9046-4324-9295-c085b1688b2f"
+          },
+          "script_run_id": "8e6b3abc-771f-4605-ad23-da4924e8dcf6",
+          "name": "widget_params_app",
+          "main_script_path": "C:\\Users\\killf\\github\\streamlit-rust\\tests\\reference\\widget_params_app.py",
+          "config": {
+            "max_cached_message_age": 2,
+            "allow_run_on_save": true,
+            "show_error_links": "SHOW_ERROR_LINKS_AUTO"
+          },
+          "app_pages": [
+            {
+              "page_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4"
+            }
+          ],
+          "page_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4",
+          "main_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 4,
+      "base64": "SgIQAQ==",
+      "message": {
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 159,
+      "base64": "CiBiNmNiOTM1NTViNDUyMjUwMGNiMzRkNjM3MDcxNjQ2NBImEgIAACIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqUxpR4gFJCiokJElELTk3OTI3OTAwYTQ2NjAzZDM4ZWFkZTI5NGMzY2QzYTBkLU5vbmUSBlJlcGVhdBoCAQEiATEiATIiATNSAGgAkAHoB9IDAggB",
+      "message": {
+        "hash": "b6cb93555b4522500cb34d6370716464",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4"
+        },
+        "delta": {
+          "new_element": {
+            "multiselect": {
+              "id": "$$ID-97927900a46603d38eade294c3cd3a0d-None",
+              "label": "Repeat",
+              "default": [
+                1,
+                1
+              ],
+              "options": [
+                "1",
+                "2",
+                "3"
+              ],
+              "label_visibility": {},
+              "accept_new_options": false,
+              "select_all": 1000
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 160,
+      "base64": "CiBhM2U1OTc2OTgzNzc3MmY5NjJmZWJiMzBjZTU1ZGE2ZhImEgIAASIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqVBpS+gFKCkZ7ImNhc2UiOiAiUmVwZWF0IiwgInBoYXNlIjogImxvYWQiLCAiYWNjZXB0ZWQiOiB0cnVlLCAidmFsdWUiOiBbMiwgMl19EAHSAwIIAQ==",
+      "message": {
+        "hash": "a3e59769837772f962febb30ce55da6f",
+        "metadata": {
+          "delta_path": [
+            0,
+            1
+          ],
+          "active_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"case\": \"Repeat\", \"phase\": \"load\", \"accepted\": true, \"value\": [2, 2]}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 166,
+      "base64": "CiBlZWUyMDNlNDc4YTBjZTUzMjY0OTQ1ZDdjODcxZWE4ZRImEgIAAiIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqWhpY4gFQCiokJElELTE0ODU5MWMxZmY2OWEzNjM5MWIwZWZmZmZmZWYxMDdkLU5vbmUSC1JlcGVhdCBsb25nGgQBAQEBIgExIgEyIgEzUgBoAJAB6AfSAwIIAQ==",
+      "message": {
+        "hash": "eee203e478a0ce53264945d7c871ea8e",
+        "metadata": {
+          "delta_path": [
+            0,
+            2
+          ],
+          "active_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4"
+        },
+        "delta": {
+          "new_element": {
+            "multiselect": {
+              "id": "$$ID-148591c1ff69a36391b0efffffef107d-None",
+              "label": "Repeat long",
+              "default": [
+                1,
+                1,
+                1,
+                1
+              ],
+              "options": [
+                "1",
+                "2",
+                "3"
+              ],
+              "label_visibility": {},
+              "accept_new_options": false,
+              "select_all": 1000
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 171,
+      "base64": "CiAwNWM1NzBlODE5ZmM4NTJiNTFiOGRmMTVjMzVkZGQ0NBImEgIAAyIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqXxpd+gFVClF7ImNhc2UiOiAiUmVwZWF0IGxvbmciLCAicGhhc2UiOiAibG9hZCIsICJhY2NlcHRlZCI6IHRydWUsICJ2YWx1ZSI6IFsyLCAyLCAyLCAyXX0QAdIDAggB",
+      "message": {
+        "hash": "05c570e819fc852b51b8df15c35ddd44",
+        "metadata": {
+          "delta_path": [
+            0,
+            3
+          ],
+          "active_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"case\": \"Repeat long\", \"phase\": \"load\", \"accepted\": true, \"value\": [2, 2, 2, 2]}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 168,
+      "base64": "CiAzMDJmMjlkNTliZGZmM2NiN2Y3YjUxNjY3ZGE1YjI5ZRImEgIABCIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqXBpa4gFSCiokJElELTc4ZTQyZTBkNzAyYjBlOThlZTZmMDUyYmI2MmFlMWFjLU5vbmUSDVJlcGVhdCBjYXBwZWQaAgEBIgExIgEyIgEzUgBYAmgAkAHoB9IDAggB",
+      "message": {
+        "hash": "302f29d59bdff3cb7f7b51667da5b29e",
+        "metadata": {
+          "delta_path": [
+            0,
+            4
+          ],
+          "active_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4"
+        },
+        "delta": {
+          "new_element": {
+            "multiselect": {
+              "id": "$$ID-78e42e0d702b0e98ee6f052bb62ae1ac-None",
+              "label": "Repeat capped",
+              "default": [
+                1,
+                1
+              ],
+              "options": [
+                "1",
+                "2",
+                "3"
+              ],
+              "label_visibility": {},
+              "max_selections": 2,
+              "accept_new_options": false,
+              "select_all": 1000
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 167,
+      "base64": "CiA0OTU1MmQyMThlZWNlZjUyNThkNTFjMDNmZjBlYzU5ZhImEgIABSIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqWxpZ+gFRCk17ImNhc2UiOiAiUmVwZWF0IGNhcHBlZCIsICJwaGFzZSI6ICJsb2FkIiwgImFjY2VwdGVkIjogdHJ1ZSwgInZhbHVlIjogWzIsIDJdfRAB0gMCCAE=",
+      "message": {
+        "hash": "49552d218eecef5258d51c03ff0ec59f",
+        "metadata": {
+          "delta_path": [
+            0,
+            5
+          ],
+          "active_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"case\": \"Repeat capped\", \"phase\": \"load\", \"accepted\": true, \"value\": [2, 2]}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 533,
+      "base64": "CiBmNTVjYmRiMDA5M2FlZGRiMmQwY2VkMzlhOTY1MDk4ORImEgIABiIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqyAMaxQP6AbwDCrcDeyJjYXNlIjogIkRlZmF1bHQgb3ZlciIsICJwaGFzZSI6ICJsb2FkIiwgImFjY2VwdGVkIjogZmFsc2UsICJlcnJvcl90eXBlIjogIlN0cmVhbWxpdFNlbGVjdGlvbkNvdW50RXhjZWVkc01heEVycm9yIiwgImVycm9yIjogIk11bHRpc2VsZWN0IGhhcyAyIG9wdGlvbnMgc2VsZWN0ZWQgYnV0IGBtYXhfc2VsZWN0aW9uc2AgaXMgc2V0IHRvIDEuIFRoaXMgaGFwcGVuZWQgYmVjYXVzZSB5b3UgZWl0aGVyIGdhdmUgdG9vIG1hbnkgb3B0aW9ucyB0byBgZGVmYXVsdGAgb3IgeW91IG1hbmlwdWxhdGVkIHRoZSB3aWRnZXQncyBzdGF0ZSB0aHJvdWdoIGBzdC5zZXNzaW9uX3N0YXRlYC4gTm90ZSB0aGF0IHRoZSBsYXR0ZXIgY2FuIGhhcHBlbiBiZWZvcmUgdGhlIGxpbmUgaW5kaWNhdGVkIGluIHRoZSB0cmFjZWJhY2suIFBsZWFzZSBzZWxlY3QgYXQgbW9zdCAxIG9wdGlvbi4ifRAB0gMCCAE=",
+      "message": {
+        "hash": "f55cbdb0093aeddb2d0ced39a9650989",
+        "metadata": {
+          "delta_path": [
+            0,
+            6
+          ],
+          "active_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"case\": \"Default over\", \"phase\": \"load\", \"accepted\": false, \"error_type\": \"StreamlitSelectionCountExceedsMaxError\", \"error\": \"Multiselect has 2 options selected but `max_selections` is set to 1. This happened because you either gave too many options to `default` or you manipulated the widget's state through `st.session_state`. Note that the latter can happen before the line indicated in the traceback. Please select at most 1 option.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 315,
+      "base64": "CiBhNzNhNjA0NDIyM2QyMWY0OTFjNDMyNTQ1ZmZjZmFhYhImEgIAByIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQq7gEa6wH6AeIBCt0BeyJjYXNlIjogIlplcm8iLCAicGhhc2UiOiAibG9hZCIsICJhY2NlcHRlZCI6IGZhbHNlLCAiZXJyb3JfdHlwZSI6ICJTdHJlYW1saXRWYWx1ZUVycm9yIiwgImVycm9yIjogIkludmFsaWQgYG1heF9zZWxlY3Rpb25zYCB2YWx1ZS4gU3VwcG9ydGVkIHZhbHVlczogYSBwb3NpdGl2ZSBpbnRlZ2VyLiBUbyBkaXNhYmxlIGBzdC5tdWx0aXNlbGVjdGAsIHVzZSBgZGlzYWJsZWQ9VHJ1ZWAuIn0QAdIDAggB",
+      "message": {
+        "hash": "a73a6044223d21f491c432545ffcfaab",
+        "metadata": {
+          "delta_path": [
+            0,
+            7
+          ],
+          "active_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"case\": \"Zero\", \"phase\": \"load\", \"accepted\": false, \"error_type\": \"StreamlitValueError\", \"error\": \"Invalid `max_selections` value. Supported values: a positive integer. To disable `st.multiselect`, use `disabled=True`.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 332,
+      "base64": "CiBkYTNmZWEzZGFiNjdlYjcyNWIzZDEwYjg4OGMwYjczNhImEgIACCIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQq/wEa/AH6AfMBCu4BeyJjYXNlIjogIk91dHNpZGUiLCAicGhhc2UiOiAibG9hZCIsICJhY2NlcHRlZCI6IGZhbHNlLCAiZXJyb3JfdHlwZSI6ICJTdHJlYW1saXREZWZhdWx0Tm90SW5PcHRpb25zRXJyb3IiLCAiZXJyb3IiOiAiVGhlIGRlZmF1bHQgdmFsdWUgJzQnIGlzIG5vdCBwYXJ0IG9mIHRoZSBvcHRpb25zLiBQbGVhc2UgbWFrZSBzdXJlIHRoYXQgZXZlcnkgZGVmYXVsdCB2YWx1ZSBhbHNvIGV4aXN0cyBpbiB0aGUgb3B0aW9ucy4ifRAB0gMCCAE=",
+      "message": {
+        "hash": "da3fea3dab67eb725b3d10b888c0b736",
+        "metadata": {
+          "delta_path": [
+            0,
+            8
+          ],
+          "active_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"case\": \"Outside\", \"phase\": \"load\", \"accepted\": false, \"error_type\": \"StreamlitDefaultNotInOptionsError\", \"error\": \"The default value '4' is not part of the options. Please make sure that every default value also exists in the options.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 162,
+      "base64": "CiBmMWY0OTNlMDkzMjNmMTk2MWRlZTJlMzIyYWExNDRjNBImEgIACSIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqVhpU4gFMCi0kJElELTdlZjY2NTQ5MjNhN2FhMzM4Y2Q0YjExNmM2ZmI1NmNhLWxpbWl0ZWQSBVN0YXRlGgEBIgExIgEyIgEzUgBYAmgAkAHoB9IDAggB",
+      "message": {
+        "hash": "f1f493e09323f1961dee2e322aa144c4",
+        "metadata": {
+          "delta_path": [
+            0,
+            9
+          ],
+          "active_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4"
+        },
+        "delta": {
+          "new_element": {
+            "multiselect": {
+              "id": "$$ID-7ef6654923a7aa338cd4b116c6fb56ca-limited",
+              "label": "State",
+              "default": [
+                1
+              ],
+              "options": [
+                "1",
+                "2",
+                "3"
+              ],
+              "label_visibility": {},
+              "max_selections": 2,
+              "accept_new_options": false,
+              "select_all": 1000
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 156,
+      "base64": "CiBkZjg5ZjEzYzA2MjRlNDU1YzljMDlkNWJlZGM4MTMyYxImEgIACiIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqUBpO+gFGCkJ7ImNhc2UiOiAiU3RhdGUiLCAicGhhc2UiOiAibG9hZCIsICJhY2NlcHRlZCI6IHRydWUsICJ2YWx1ZSI6IFsyXX0QAdIDAggB",
+      "message": {
+        "hash": "df89f13c0624e455c9c09d5bedc8132c",
+        "metadata": {
+          "delta_path": [
+            0,
+            10
+          ],
+          "active_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"case\": \"State\", \"phase\": \"load\", \"accepted\": true, \"value\": [2]}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "MAA=",
+      "message": {
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    },
+    {
+      "direction": "client->server",
+      "bytes": 95,
+      "base64": "Wl0KHXByb2JlPW11bHRpLWxpbWl0cyZwaGFzZT1vdmVyEjwKOgotJCRJRC03ZWY2NjU0OTIzYTdhYTMzOGNkNGIxMTZjNmZiNTZjYS1saW1pdGVkSgkKATEKATIKATM=",
+      "message": {
+        "rerun_script": {
+          "query_string": "probe=multi-limits&phase=over",
+          "widget_states": {
+            "widgets": [
+              {
+                "id": "$$ID-7ef6654923a7aa338cd4b116c6fb56ca-limited",
+                "string_array_value": {
+                  "data": [
+                    "1",
+                    "2",
+                    "3"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "SgA=",
+      "message": {
+        "session_status_changed": {}
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 423,
+      "base64": "IqQDCq0BCl4KJDc5MDk1MDBjLWU1OWEtNTJlNy05ZjUzLWQzZGUwYzZhN2RmNCokNzkwOTUwMGMtZTU5YS01MmU3LTlmNTMtZDNkZTBjNmE3ZGY0MhBuby1tYWNoaW5lLWlkLXY0GiEKBjEuNjYuMRIOMy4xNC43LmZpbmFsLjAaB3dpbmRvd3MiAhABMiQ1MTVhNGQxZS05MDQ2LTQzMjQtOTI5NS1jMDg1YjE2ODhiMmYSJDYzNDIzNWQxLTNkY2YtNDhlNS1hOGE0LWVkYjI4NTEwZGUxYxoRd2lkZ2V0X3BhcmFtc19hcHAiSUM6XFVzZXJzXGtpbGxmXGdpdGh1YlxzdHJlYW1saXQtcnVzdFx0ZXN0c1xyZWZlcmVuY2Vcd2lkZ2V0X3BhcmFtc19hcHAucHkyBhgCKAFIAUIiCiBmODIxZTRjY2E4ZTBiNDM4MTNiN2RkYWQ5ODJlZThiNEogZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjRaIGY4MjFlNGNjYThlMGI0MzgxM2I3ZGRhZDk4MmVlOGI0",
+      "message": {
+        "new_session": {
+          "initialize": {
+            "user_info": {
+              "installation_id": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v3": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v4": "no-machine-id-v4"
+            },
+            "environment_info": {
+              "streamlit_version": "1.66.1",
+              "python_version": "3.14.7.final.0",
+              "server_os": "windows"
+            },
+            "session_status": {
+              "script_is_running": true
+            },
+            "session_id": "515a4d1e-9046-4324-9295-c085b1688b2f"
+          },
+          "script_run_id": "634235d1-3dcf-48e5-a8a4-edb28510de1c",
+          "name": "widget_params_app",
+          "main_script_path": "C:\\Users\\killf\\github\\streamlit-rust\\tests\\reference\\widget_params_app.py",
+          "config": {
+            "max_cached_message_age": 2,
+            "allow_run_on_save": true,
+            "show_error_links": "SHOW_ERROR_LINKS_AUTO"
+          },
+          "app_pages": [
+            {
+              "page_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4"
+            }
+          ],
+          "page_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4",
+          "main_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 4,
+      "base64": "SgIQAQ==",
+      "message": {
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 527,
+      "base64": "CiA5NDcwMDljMjZhMDFmMTk4ODY3OTY5YmFiMzgyMTQ2YRImEgIAACIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqwgMavwP6AbYDCrEDeyJjYXNlIjogIlN0YXRlIiwgInBoYXNlIjogIm92ZXIiLCAiYWNjZXB0ZWQiOiBmYWxzZSwgImVycm9yX3R5cGUiOiAiU3RyZWFtbGl0U2VsZWN0aW9uQ291bnRFeGNlZWRzTWF4RXJyb3IiLCAiZXJyb3IiOiAiTXVsdGlzZWxlY3QgaGFzIDMgb3B0aW9ucyBzZWxlY3RlZCBidXQgYG1heF9zZWxlY3Rpb25zYCBpcyBzZXQgdG8gMi4gVGhpcyBoYXBwZW5lZCBiZWNhdXNlIHlvdSBlaXRoZXIgZ2F2ZSB0b28gbWFueSBvcHRpb25zIHRvIGBkZWZhdWx0YCBvciB5b3UgbWFuaXB1bGF0ZWQgdGhlIHdpZGdldCdzIHN0YXRlIHRocm91Z2ggYHN0LnNlc3Npb25fc3RhdGVgLiBOb3RlIHRoYXQgdGhlIGxhdHRlciBjYW4gaGFwcGVuIGJlZm9yZSB0aGUgbGluZSBpbmRpY2F0ZWQgaW4gdGhlIHRyYWNlYmFjay4gUGxlYXNlIHNlbGVjdCBhdCBtb3N0IDIgb3B0aW9ucy4ifRAB0gMCCAE=",
+      "message": {
+        "hash": "947009c26a01f198867969bab382146a",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"case\": \"State\", \"phase\": \"over\", \"accepted\": false, \"error_type\": \"StreamlitSelectionCountExceedsMaxError\", \"error\": \"Multiselect has 3 options selected but `max_selections` is set to 2. This happened because you either gave too many options to `default` or you manipulated the widget's state through `st.session_state`. Note that the latter can happen before the line indicated in the traceback. Please select at most 2 options.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "MAA=",
+      "message": {
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    },
+    {
+      "direction": "client->server",
+      "bytes": 36,
+      "base64": "WiIKIHByb2JlPW11bHRpLWxpbWl0cyZwaGFzZT1vYnNlcnZl",
+      "message": {
+        "rerun_script": {
+          "query_string": "probe=multi-limits&phase=observe"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "SgA=",
+      "message": {
+        "session_status_changed": {}
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 423,
+      "base64": "IqQDCq0BCl4KJDc5MDk1MDBjLWU1OWEtNTJlNy05ZjUzLWQzZGUwYzZhN2RmNCokNzkwOTUwMGMtZTU5YS01MmU3LTlmNTMtZDNkZTBjNmE3ZGY0MhBuby1tYWNoaW5lLWlkLXY0GiEKBjEuNjYuMRIOMy4xNC43LmZpbmFsLjAaB3dpbmRvd3MiAhABMiQ1MTVhNGQxZS05MDQ2LTQzMjQtOTI5NS1jMDg1YjE2ODhiMmYSJDhlMzUwOGMyLTVhMWItNDE4Yi1hZTQxLTU4ZGY2ZmM1NTczYxoRd2lkZ2V0X3BhcmFtc19hcHAiSUM6XFVzZXJzXGtpbGxmXGdpdGh1YlxzdHJlYW1saXQtcnVzdFx0ZXN0c1xyZWZlcmVuY2Vcd2lkZ2V0X3BhcmFtc19hcHAucHkyBhgCKAFIAUIiCiBmODIxZTRjY2E4ZTBiNDM4MTNiN2RkYWQ5ODJlZThiNEogZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjRaIGY4MjFlNGNjYThlMGI0MzgxM2I3ZGRhZDk4MmVlOGI0",
+      "message": {
+        "new_session": {
+          "initialize": {
+            "user_info": {
+              "installation_id": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v3": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v4": "no-machine-id-v4"
+            },
+            "environment_info": {
+              "streamlit_version": "1.66.1",
+              "python_version": "3.14.7.final.0",
+              "server_os": "windows"
+            },
+            "session_status": {
+              "script_is_running": true
+            },
+            "session_id": "515a4d1e-9046-4324-9295-c085b1688b2f"
+          },
+          "script_run_id": "8e3508c2-5a1b-418b-ae41-58df6fc5573c",
+          "name": "widget_params_app",
+          "main_script_path": "C:\\Users\\killf\\github\\streamlit-rust\\tests\\reference\\widget_params_app.py",
+          "config": {
+            "max_cached_message_age": 2,
+            "allow_run_on_save": true,
+            "show_error_links": "SHOW_ERROR_LINKS_AUTO"
+          },
+          "app_pages": [
+            {
+              "page_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4"
+            }
+          ],
+          "page_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4",
+          "main_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 4,
+      "base64": "SgIQAQ==",
+      "message": {
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 530,
+      "base64": "CiA3MWFiNDdkOGIyOWRjZWEzNzVjZDY2NzljYWJlNmYwNxImEgIAACIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqxQMawgP6AbkDCrQDeyJjYXNlIjogIlN0YXRlIiwgInBoYXNlIjogIm9ic2VydmUiLCAiYWNjZXB0ZWQiOiBmYWxzZSwgImVycm9yX3R5cGUiOiAiU3RyZWFtbGl0U2VsZWN0aW9uQ291bnRFeGNlZWRzTWF4RXJyb3IiLCAiZXJyb3IiOiAiTXVsdGlzZWxlY3QgaGFzIDMgb3B0aW9ucyBzZWxlY3RlZCBidXQgYG1heF9zZWxlY3Rpb25zYCBpcyBzZXQgdG8gMi4gVGhpcyBoYXBwZW5lZCBiZWNhdXNlIHlvdSBlaXRoZXIgZ2F2ZSB0b28gbWFueSBvcHRpb25zIHRvIGBkZWZhdWx0YCBvciB5b3UgbWFuaXB1bGF0ZWQgdGhlIHdpZGdldCdzIHN0YXRlIHRocm91Z2ggYHN0LnNlc3Npb25fc3RhdGVgLiBOb3RlIHRoYXQgdGhlIGxhdHRlciBjYW4gaGFwcGVuIGJlZm9yZSB0aGUgbGluZSBpbmRpY2F0ZWQgaW4gdGhlIHRyYWNlYmFjay4gUGxlYXNlIHNlbGVjdCBhdCBtb3N0IDIgb3B0aW9ucy4ifRAB0gMCCAE=",
+      "message": {
+        "hash": "71ab47d8b29dcea375cd6679cabe6f07",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"case\": \"State\", \"phase\": \"observe\", \"accepted\": false, \"error_type\": \"StreamlitSelectionCountExceedsMaxError\", \"error\": \"Multiselect has 3 options selected but `max_selections` is set to 2. This happened because you either gave too many options to `default` or you manipulated the widget's state through `st.session_state`. Note that the latter can happen before the line indicated in the traceback. Please select at most 2 options.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "MAA=",
+      "message": {
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    },
+    {
+      "direction": "client->server",
+      "bytes": 35,
+      "base64": "WiEKH3Byb2JlPW11bHRpLWxpbWl0cyZwaGFzZT1yZXBhaXI=",
+      "message": {
+        "rerun_script": {
+          "query_string": "probe=multi-limits&phase=repair"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "SgA=",
+      "message": {
+        "session_status_changed": {}
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 423,
+      "base64": "IqQDCq0BCl4KJDc5MDk1MDBjLWU1OWEtNTJlNy05ZjUzLWQzZGUwYzZhN2RmNCokNzkwOTUwMGMtZTU5YS01MmU3LTlmNTMtZDNkZTBjNmE3ZGY0MhBuby1tYWNoaW5lLWlkLXY0GiEKBjEuNjYuMRIOMy4xNC43LmZpbmFsLjAaB3dpbmRvd3MiAhABMiQ1MTVhNGQxZS05MDQ2LTQzMjQtOTI5NS1jMDg1YjE2ODhiMmYSJDFmYjM5MGUwLWMzYzItNDkzZS04MmIzLTI3NTUzNmVkNmU1NBoRd2lkZ2V0X3BhcmFtc19hcHAiSUM6XFVzZXJzXGtpbGxmXGdpdGh1YlxzdHJlYW1saXQtcnVzdFx0ZXN0c1xyZWZlcmVuY2Vcd2lkZ2V0X3BhcmFtc19hcHAucHkyBhgCKAFIAUIiCiBmODIxZTRjY2E4ZTBiNDM4MTNiN2RkYWQ5ODJlZThiNEogZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjRaIGY4MjFlNGNjYThlMGI0MzgxM2I3ZGRhZDk4MmVlOGI0",
+      "message": {
+        "new_session": {
+          "initialize": {
+            "user_info": {
+              "installation_id": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v3": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v4": "no-machine-id-v4"
+            },
+            "environment_info": {
+              "streamlit_version": "1.66.1",
+              "python_version": "3.14.7.final.0",
+              "server_os": "windows"
+            },
+            "session_status": {
+              "script_is_running": true
+            },
+            "session_id": "515a4d1e-9046-4324-9295-c085b1688b2f"
+          },
+          "script_run_id": "1fb390e0-c3c2-493e-82b3-275536ed6e54",
+          "name": "widget_params_app",
+          "main_script_path": "C:\\Users\\killf\\github\\streamlit-rust\\tests\\reference\\widget_params_app.py",
+          "config": {
+            "max_cached_message_age": 2,
+            "allow_run_on_save": true,
+            "show_error_links": "SHOW_ERROR_LINKS_AUTO"
+          },
+          "app_pages": [
+            {
+              "page_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4"
+            }
+          ],
+          "page_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4",
+          "main_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 4,
+      "base64": "SgIQAQ==",
+      "message": {
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 170,
+      "base64": "CiAzZDY1ZTM3OWNjOGIwYzJlMzAxZDk4OTM0ZGVkMWM1MhImEgIAACIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqXhpc4gFRCi0kJElELTdlZjY2NTQ5MjNhN2FhMzM4Y2Q0YjExNmM2ZmI1NmNhLWxpbWl0ZWQSBVN0YXRlGgEBIgExIgEyIgEzQAFSAFgCaAByATKQAegH0gMCCAGIBAE=",
+      "message": {
+        "hash": "3d65e379cc8b0c2e301d98934ded1c52",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4"
+        },
+        "delta": {
+          "new_element": {
+            "multiselect": {
+              "id": "$$ID-7ef6654923a7aa338cd4b116c6fb56ca-limited",
+              "label": "State",
+              "default": [
+                1
+              ],
+              "options": [
+                "1",
+                "2",
+                "3"
+              ],
+              "set_value": true,
+              "label_visibility": {},
+              "max_selections": 2,
+              "accept_new_options": false,
+              "raw_values": [
+                "2"
+              ],
+              "select_all": 1000
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "has_one_shot_effect": true
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 158,
+      "base64": "CiBlZTU0Yjc1MzI0MWE2OTIzZDc1NThiMWQzNjMxOGE5NxImEgIAASIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqUhpQ+gFICkR7ImNhc2UiOiAiU3RhdGUiLCAicGhhc2UiOiAicmVwYWlyIiwgImFjY2VwdGVkIjogdHJ1ZSwgInZhbHVlIjogWzJdfRAB0gMCCAE=",
+      "message": {
+        "hash": "ee54b753241a6923d7558b1d36318a97",
+        "metadata": {
+          "delta_path": [
+            0,
+            1
+          ],
+          "active_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"case\": \"State\", \"phase\": \"repair\", \"accepted\": true, \"value\": [2]}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "MAA=",
+      "message": {
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    },
+    {
+      "direction": "client->server",
+      "bytes": 43,
+      "base64": "WikKJ3Byb2JlPW11bHRpLWxpbWl0cyZwaGFzZT1yZXBhaXItb2JzZXJ2ZQ==",
+      "message": {
+        "rerun_script": {
+          "query_string": "probe=multi-limits&phase=repair-observe"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "SgA=",
+      "message": {
+        "session_status_changed": {}
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 423,
+      "base64": "IqQDCq0BCl4KJDc5MDk1MDBjLWU1OWEtNTJlNy05ZjUzLWQzZGUwYzZhN2RmNCokNzkwOTUwMGMtZTU5YS01MmU3LTlmNTMtZDNkZTBjNmE3ZGY0MhBuby1tYWNoaW5lLWlkLXY0GiEKBjEuNjYuMRIOMy4xNC43LmZpbmFsLjAaB3dpbmRvd3MiAhABMiQ1MTVhNGQxZS05MDQ2LTQzMjQtOTI5NS1jMDg1YjE2ODhiMmYSJDg2NjZmN2RmLTcwNTEtNGU1OS1iYTQwLTE0ZTNmMWU3MDk2MRoRd2lkZ2V0X3BhcmFtc19hcHAiSUM6XFVzZXJzXGtpbGxmXGdpdGh1YlxzdHJlYW1saXQtcnVzdFx0ZXN0c1xyZWZlcmVuY2Vcd2lkZ2V0X3BhcmFtc19hcHAucHkyBhgCKAFIAUIiCiBmODIxZTRjY2E4ZTBiNDM4MTNiN2RkYWQ5ODJlZThiNEogZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjRaIGY4MjFlNGNjYThlMGI0MzgxM2I3ZGRhZDk4MmVlOGI0",
+      "message": {
+        "new_session": {
+          "initialize": {
+            "user_info": {
+              "installation_id": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v3": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v4": "no-machine-id-v4"
+            },
+            "environment_info": {
+              "streamlit_version": "1.66.1",
+              "python_version": "3.14.7.final.0",
+              "server_os": "windows"
+            },
+            "session_status": {
+              "script_is_running": true
+            },
+            "session_id": "515a4d1e-9046-4324-9295-c085b1688b2f"
+          },
+          "script_run_id": "8666f7df-7051-4e59-ba40-14e3f1e70961",
+          "name": "widget_params_app",
+          "main_script_path": "C:\\Users\\killf\\github\\streamlit-rust\\tests\\reference\\widget_params_app.py",
+          "config": {
+            "max_cached_message_age": 2,
+            "allow_run_on_save": true,
+            "show_error_links": "SHOW_ERROR_LINKS_AUTO"
+          },
+          "app_pages": [
+            {
+              "page_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4"
+            }
+          ],
+          "page_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4",
+          "main_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 4,
+      "base64": "SgIQAQ==",
+      "message": {
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 162,
+      "base64": "CiBmMWY0OTNlMDkzMjNmMTk2MWRlZTJlMzIyYWExNDRjNBImEgIAACIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqVhpU4gFMCi0kJElELTdlZjY2NTQ5MjNhN2FhMzM4Y2Q0YjExNmM2ZmI1NmNhLWxpbWl0ZWQSBVN0YXRlGgEBIgExIgEyIgEzUgBYAmgAkAHoB9IDAggB",
+      "message": {
+        "hash": "f1f493e09323f1961dee2e322aa144c4",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4"
+        },
+        "delta": {
+          "new_element": {
+            "multiselect": {
+              "id": "$$ID-7ef6654923a7aa338cd4b116c6fb56ca-limited",
+              "label": "State",
+              "default": [
+                1
+              ],
+              "options": [
+                "1",
+                "2",
+                "3"
+              ],
+              "label_visibility": {},
+              "max_selections": 2,
+              "accept_new_options": false,
+              "select_all": 1000
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 166,
+      "base64": "CiAzODNjZGIwNWVlNmUxZjA2ZTg3NjFmYTc4YTk2MjQyYhImEgIAASIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqWhpY+gFQCkx7ImNhc2UiOiAiU3RhdGUiLCAicGhhc2UiOiAicmVwYWlyLW9ic2VydmUiLCAiYWNjZXB0ZWQiOiB0cnVlLCAidmFsdWUiOiBbMl19EAHSAwIIAQ==",
+      "message": {
+        "hash": "383cdb05ee6e1f06e8761fa78a96242b",
+        "metadata": {
+          "delta_path": [
+            0,
+            1
+          ],
+          "active_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"case\": \"State\", \"phase\": \"repair-observe\", \"accepted\": true, \"value\": [2]}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "MAA=",
+      "message": {
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    },
+    {
+      "direction": "client->server",
+      "bytes": 98,
+      "base64": "WmAKI3Byb2JlPW11bHRpLWxpbWl0cyZwaGFzZT1lZGl0LWxpbWl0EjkKNwotJCRJRC03ZWY2NjU0OTIzYTdhYTMzOGNkNGIxMTZjNmZiNTZjYS1saW1pdGVkSgYKATEKATM=",
+      "message": {
+        "rerun_script": {
+          "query_string": "probe=multi-limits&phase=edit-limit",
+          "widget_states": {
+            "widgets": [
+              {
+                "id": "$$ID-7ef6654923a7aa338cd4b116c6fb56ca-limited",
+                "string_array_value": {
+                  "data": [
+                    "1",
+                    "3"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "SgA=",
+      "message": {
+        "session_status_changed": {}
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 423,
+      "base64": "IqQDCq0BCl4KJDc5MDk1MDBjLWU1OWEtNTJlNy05ZjUzLWQzZGUwYzZhN2RmNCokNzkwOTUwMGMtZTU5YS01MmU3LTlmNTMtZDNkZTBjNmE3ZGY0MhBuby1tYWNoaW5lLWlkLXY0GiEKBjEuNjYuMRIOMy4xNC43LmZpbmFsLjAaB3dpbmRvd3MiAhABMiQ1MTVhNGQxZS05MDQ2LTQzMjQtOTI5NS1jMDg1YjE2ODhiMmYSJGI0MTAzZWE2LWU4NzAtNGFmZS1iMjRhLWRiOWQ3MjIyYmFhZRoRd2lkZ2V0X3BhcmFtc19hcHAiSUM6XFVzZXJzXGtpbGxmXGdpdGh1YlxzdHJlYW1saXQtcnVzdFx0ZXN0c1xyZWZlcmVuY2Vcd2lkZ2V0X3BhcmFtc19hcHAucHkyBhgCKAFIAUIiCiBmODIxZTRjY2E4ZTBiNDM4MTNiN2RkYWQ5ODJlZThiNEogZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjRaIGY4MjFlNGNjYThlMGI0MzgxM2I3ZGRhZDk4MmVlOGI0",
+      "message": {
+        "new_session": {
+          "initialize": {
+            "user_info": {
+              "installation_id": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v3": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v4": "no-machine-id-v4"
+            },
+            "environment_info": {
+              "streamlit_version": "1.66.1",
+              "python_version": "3.14.7.final.0",
+              "server_os": "windows"
+            },
+            "session_status": {
+              "script_is_running": true
+            },
+            "session_id": "515a4d1e-9046-4324-9295-c085b1688b2f"
+          },
+          "script_run_id": "b4103ea6-e870-4afe-b24a-db9d7222baae",
+          "name": "widget_params_app",
+          "main_script_path": "C:\\Users\\killf\\github\\streamlit-rust\\tests\\reference\\widget_params_app.py",
+          "config": {
+            "max_cached_message_age": 2,
+            "allow_run_on_save": true,
+            "show_error_links": "SHOW_ERROR_LINKS_AUTO"
+          },
+          "app_pages": [
+            {
+              "page_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4"
+            }
+          ],
+          "page_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4",
+          "main_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 4,
+      "base64": "SgIQAQ==",
+      "message": {
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 162,
+      "base64": "CiBmMWY0OTNlMDkzMjNmMTk2MWRlZTJlMzIyYWExNDRjNBImEgIAACIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqVhpU4gFMCi0kJElELTdlZjY2NTQ5MjNhN2FhMzM4Y2Q0YjExNmM2ZmI1NmNhLWxpbWl0ZWQSBVN0YXRlGgEBIgExIgEyIgEzUgBYAmgAkAHoB9IDAggB",
+      "message": {
+        "hash": "f1f493e09323f1961dee2e322aa144c4",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4"
+        },
+        "delta": {
+          "new_element": {
+            "multiselect": {
+              "id": "$$ID-7ef6654923a7aa338cd4b116c6fb56ca-limited",
+              "label": "State",
+              "default": [
+                1
+              ],
+              "options": [
+                "1",
+                "2",
+                "3"
+              ],
+              "label_visibility": {},
+              "max_selections": 2,
+              "accept_new_options": false,
+              "select_all": 1000
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 165,
+      "base64": "CiA3ODQxYmU1NzVlNzE3ZTQxZjAzZTNlODFhNzI3ZTRkMhImEgIAASIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqWRpX+gFPCkt7ImNhc2UiOiAiU3RhdGUiLCAicGhhc2UiOiAiZWRpdC1saW1pdCIsICJhY2NlcHRlZCI6IHRydWUsICJ2YWx1ZSI6IFsxLCAzXX0QAdIDAggB",
+      "message": {
+        "hash": "7841be575e717e41f03e3e81a727e4d2",
+        "metadata": {
+          "delta_path": [
+            0,
+            1
+          ],
+          "active_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"case\": \"State\", \"phase\": \"edit-limit\", \"accepted\": true, \"value\": [1, 3]}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "MAA=",
+      "message": {
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    },
+    {
+      "direction": "client->server",
+      "bytes": 36,
+      "base64": "WiIKIHByb2JlPW11bHRpLWxpbWl0cyZwaGFzZT1wYXJ0aWFs",
+      "message": {
+        "rerun_script": {
+          "query_string": "probe=multi-limits&phase=partial"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "SgA=",
+      "message": {
+        "session_status_changed": {}
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 423,
+      "base64": "IqQDCq0BCl4KJDc5MDk1MDBjLWU1OWEtNTJlNy05ZjUzLWQzZGUwYzZhN2RmNCokNzkwOTUwMGMtZTU5YS01MmU3LTlmNTMtZDNkZTBjNmE3ZGY0MhBuby1tYWNoaW5lLWlkLXY0GiEKBjEuNjYuMRIOMy4xNC43LmZpbmFsLjAaB3dpbmRvd3MiAhABMiQ1MTVhNGQxZS05MDQ2LTQzMjQtOTI5NS1jMDg1YjE2ODhiMmYSJDVmZmNhNmMwLWZhNmMtNDQzYS1hYjg2LWU0MDYxNDFjMmE2NxoRd2lkZ2V0X3BhcmFtc19hcHAiSUM6XFVzZXJzXGtpbGxmXGdpdGh1YlxzdHJlYW1saXQtcnVzdFx0ZXN0c1xyZWZlcmVuY2Vcd2lkZ2V0X3BhcmFtc19hcHAucHkyBhgCKAFIAUIiCiBmODIxZTRjY2E4ZTBiNDM4MTNiN2RkYWQ5ODJlZThiNEogZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjRaIGY4MjFlNGNjYThlMGI0MzgxM2I3ZGRhZDk4MmVlOGI0",
+      "message": {
+        "new_session": {
+          "initialize": {
+            "user_info": {
+              "installation_id": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v3": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v4": "no-machine-id-v4"
+            },
+            "environment_info": {
+              "streamlit_version": "1.66.1",
+              "python_version": "3.14.7.final.0",
+              "server_os": "windows"
+            },
+            "session_status": {
+              "script_is_running": true
+            },
+            "session_id": "515a4d1e-9046-4324-9295-c085b1688b2f"
+          },
+          "script_run_id": "5ffca6c0-fa6c-443a-ab86-e406141c2a67",
+          "name": "widget_params_app",
+          "main_script_path": "C:\\Users\\killf\\github\\streamlit-rust\\tests\\reference\\widget_params_app.py",
+          "config": {
+            "max_cached_message_age": 2,
+            "allow_run_on_save": true,
+            "show_error_links": "SHOW_ERROR_LINKS_AUTO"
+          },
+          "app_pages": [
+            {
+              "page_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4"
+            }
+          ],
+          "page_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4",
+          "main_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 4,
+      "base64": "SgIQAQ==",
+      "message": {
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 530,
+      "base64": "CiA1YTlhYWZmNTEyMWRlNzBlYmQ4ZGQ1OTYxN2U4OWNhMhImEgIAACIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqxQMawgP6AbkDCrQDeyJjYXNlIjogIlN0YXRlIiwgInBoYXNlIjogInBhcnRpYWwiLCAiYWNjZXB0ZWQiOiBmYWxzZSwgImVycm9yX3R5cGUiOiAiU3RyZWFtbGl0U2VsZWN0aW9uQ291bnRFeGNlZWRzTWF4RXJyb3IiLCAiZXJyb3IiOiAiTXVsdGlzZWxlY3QgaGFzIDMgb3B0aW9ucyBzZWxlY3RlZCBidXQgYG1heF9zZWxlY3Rpb25zYCBpcyBzZXQgdG8gMi4gVGhpcyBoYXBwZW5lZCBiZWNhdXNlIHlvdSBlaXRoZXIgZ2F2ZSB0b28gbWFueSBvcHRpb25zIHRvIGBkZWZhdWx0YCBvciB5b3UgbWFuaXB1bGF0ZWQgdGhlIHdpZGdldCdzIHN0YXRlIHRocm91Z2ggYHN0LnNlc3Npb25fc3RhdGVgLiBOb3RlIHRoYXQgdGhlIGxhdHRlciBjYW4gaGFwcGVuIGJlZm9yZSB0aGUgbGluZSBpbmRpY2F0ZWQgaW4gdGhlIHRyYWNlYmFjay4gUGxlYXNlIHNlbGVjdCBhdCBtb3N0IDIgb3B0aW9ucy4ifRAB0gMCCAE=",
+      "message": {
+        "hash": "5a9aaff5121de70ebd8dd59617e89ca2",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"case\": \"State\", \"phase\": \"partial\", \"accepted\": false, \"error_type\": \"StreamlitSelectionCountExceedsMaxError\", \"error\": \"Multiselect has 3 options selected but `max_selections` is set to 2. This happened because you either gave too many options to `default` or you manipulated the widget's state through `st.session_state`. Note that the latter can happen before the line indicated in the traceback. Please select at most 2 options.\"}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "MAA=",
+      "message": {
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    },
+    {
+      "direction": "client->server",
+      "bytes": 41,
+      "base64": "WicKJXByb2JlPW11bHRpLWxpbWl0cyZwaGFzZT1yZXBhaXItZmluYWw=",
+      "message": {
+        "rerun_script": {
+          "query_string": "probe=multi-limits&phase=repair-final"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "SgA=",
+      "message": {
+        "session_status_changed": {}
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 423,
+      "base64": "IqQDCq0BCl4KJDc5MDk1MDBjLWU1OWEtNTJlNy05ZjUzLWQzZGUwYzZhN2RmNCokNzkwOTUwMGMtZTU5YS01MmU3LTlmNTMtZDNkZTBjNmE3ZGY0MhBuby1tYWNoaW5lLWlkLXY0GiEKBjEuNjYuMRIOMy4xNC43LmZpbmFsLjAaB3dpbmRvd3MiAhABMiQ1MTVhNGQxZS05MDQ2LTQzMjQtOTI5NS1jMDg1YjE2ODhiMmYSJDRhZGY2NDlmLWU5MDEtNDEwYS1hZDk3LTgzOTg2NmZiMWM3MhoRd2lkZ2V0X3BhcmFtc19hcHAiSUM6XFVzZXJzXGtpbGxmXGdpdGh1YlxzdHJlYW1saXQtcnVzdFx0ZXN0c1xyZWZlcmVuY2Vcd2lkZ2V0X3BhcmFtc19hcHAucHkyBhgCKAFIAUIiCiBmODIxZTRjY2E4ZTBiNDM4MTNiN2RkYWQ5ODJlZThiNEogZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjRaIGY4MjFlNGNjYThlMGI0MzgxM2I3ZGRhZDk4MmVlOGI0",
+      "message": {
+        "new_session": {
+          "initialize": {
+            "user_info": {
+              "installation_id": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v3": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v4": "no-machine-id-v4"
+            },
+            "environment_info": {
+              "streamlit_version": "1.66.1",
+              "python_version": "3.14.7.final.0",
+              "server_os": "windows"
+            },
+            "session_status": {
+              "script_is_running": true
+            },
+            "session_id": "515a4d1e-9046-4324-9295-c085b1688b2f"
+          },
+          "script_run_id": "4adf649f-e901-410a-ad97-839866fb1c72",
+          "name": "widget_params_app",
+          "main_script_path": "C:\\Users\\killf\\github\\streamlit-rust\\tests\\reference\\widget_params_app.py",
+          "config": {
+            "max_cached_message_age": 2,
+            "allow_run_on_save": true,
+            "show_error_links": "SHOW_ERROR_LINKS_AUTO"
+          },
+          "app_pages": [
+            {
+              "page_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4"
+            }
+          ],
+          "page_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4",
+          "main_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 4,
+      "base64": "SgIQAQ==",
+      "message": {
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 170,
+      "base64": "CiAzZDY1ZTM3OWNjOGIwYzJlMzAxZDk4OTM0ZGVkMWM1MhImEgIAACIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqXhpc4gFRCi0kJElELTdlZjY2NTQ5MjNhN2FhMzM4Y2Q0YjExNmM2ZmI1NmNhLWxpbWl0ZWQSBVN0YXRlGgEBIgExIgEyIgEzQAFSAFgCaAByATKQAegH0gMCCAGIBAE=",
+      "message": {
+        "hash": "3d65e379cc8b0c2e301d98934ded1c52",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4"
+        },
+        "delta": {
+          "new_element": {
+            "multiselect": {
+              "id": "$$ID-7ef6654923a7aa338cd4b116c6fb56ca-limited",
+              "label": "State",
+              "default": [
+                1
+              ],
+              "options": [
+                "1",
+                "2",
+                "3"
+              ],
+              "set_value": true,
+              "label_visibility": {},
+              "max_selections": 2,
+              "accept_new_options": false,
+              "raw_values": [
+                "2"
+              ],
+              "select_all": 1000
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "has_one_shot_effect": true
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 164,
+      "base64": "CiA4YzgwODZjZmZmNzI0YWQxYjA1MDUzM2ExNTZiNTEwNhImEgIAASIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqWBpW+gFOCkp7ImNhc2UiOiAiU3RhdGUiLCAicGhhc2UiOiAicmVwYWlyLWZpbmFsIiwgImFjY2VwdGVkIjogdHJ1ZSwgInZhbHVlIjogWzJdfRAB0gMCCAE=",
+      "message": {
+        "hash": "8c8086cfff724ad1b050533a156b5106",
+        "metadata": {
+          "delta_path": [
+            0,
+            1
+          ],
+          "active_script_hash": "f821e4cca8e0b43813b7ddad982ee8b4"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"case\": \"State\", \"phase\": \"repair-final\", \"accepted\": true, \"value\": [2]}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "MAA=",
+      "message": {
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    }
+  ],
+  "elements": [
+    {
+      "index": 0,
+      "kind": "multiselect",
+      "fields": {
+        "id": "$$ID-97927900a46603d38eade294c3cd3a0d-None",
+        "label": "Repeat",
+        "default": [
+          1,
+          1
+        ],
+        "options": [
+          "1",
+          "2",
+          "3"
+        ],
+        "label_visibility": {},
+        "accept_new_options": false,
+        "select_all": 1000
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        0
+      ]
+    },
+    {
+      "index": 1,
+      "kind": "json",
+      "fields": {
+        "body": "{\"case\": \"Repeat\", \"phase\": \"load\", \"accepted\": true, \"value\": [2, 2]}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        1
+      ]
+    },
+    {
+      "index": 2,
+      "kind": "multiselect",
+      "fields": {
+        "id": "$$ID-148591c1ff69a36391b0efffffef107d-None",
+        "label": "Repeat long",
+        "default": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "options": [
+          "1",
+          "2",
+          "3"
+        ],
+        "label_visibility": {},
+        "accept_new_options": false,
+        "select_all": 1000
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        2
+      ]
+    },
+    {
+      "index": 3,
+      "kind": "json",
+      "fields": {
+        "body": "{\"case\": \"Repeat long\", \"phase\": \"load\", \"accepted\": true, \"value\": [2, 2, 2, 2]}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        3
+      ]
+    },
+    {
+      "index": 4,
+      "kind": "multiselect",
+      "fields": {
+        "id": "$$ID-78e42e0d702b0e98ee6f052bb62ae1ac-None",
+        "label": "Repeat capped",
+        "default": [
+          1,
+          1
+        ],
+        "options": [
+          "1",
+          "2",
+          "3"
+        ],
+        "label_visibility": {},
+        "max_selections": 2,
+        "accept_new_options": false,
+        "select_all": 1000
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        4
+      ]
+    },
+    {
+      "index": 5,
+      "kind": "json",
+      "fields": {
+        "body": "{\"case\": \"Repeat capped\", \"phase\": \"load\", \"accepted\": true, \"value\": [2, 2]}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        5
+      ]
+    },
+    {
+      "index": 6,
+      "kind": "json",
+      "fields": {
+        "body": "{\"case\": \"Default over\", \"phase\": \"load\", \"accepted\": false, \"error_type\": \"StreamlitSelectionCountExceedsMaxError\", \"error\": \"Multiselect has 2 options selected but `max_selections` is set to 1. This happened because you either gave too many options to `default` or you manipulated the widget's state through `st.session_state`. Note that the latter can happen before the line indicated in the traceback. Please select at most 1 option.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        6
+      ]
+    },
+    {
+      "index": 7,
+      "kind": "json",
+      "fields": {
+        "body": "{\"case\": \"Zero\", \"phase\": \"load\", \"accepted\": false, \"error_type\": \"StreamlitValueError\", \"error\": \"Invalid `max_selections` value. Supported values: a positive integer. To disable `st.multiselect`, use `disabled=True`.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        7
+      ]
+    },
+    {
+      "index": 8,
+      "kind": "json",
+      "fields": {
+        "body": "{\"case\": \"Outside\", \"phase\": \"load\", \"accepted\": false, \"error_type\": \"StreamlitDefaultNotInOptionsError\", \"error\": \"The default value '4' is not part of the options. Please make sure that every default value also exists in the options.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        8
+      ]
+    },
+    {
+      "index": 9,
+      "kind": "multiselect",
+      "fields": {
+        "id": "$$ID-7ef6654923a7aa338cd4b116c6fb56ca-limited",
+        "label": "State",
+        "default": [
+          1
+        ],
+        "options": [
+          "1",
+          "2",
+          "3"
+        ],
+        "label_visibility": {},
+        "max_selections": 2,
+        "accept_new_options": false,
+        "select_all": 1000
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        9
+      ]
+    },
+    {
+      "index": 10,
+      "kind": "json",
+      "fields": {
+        "body": "{\"case\": \"State\", \"phase\": \"load\", \"accepted\": true, \"value\": [2]}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        10
+      ]
+    },
+    {
+      "index": 0,
+      "kind": "json",
+      "fields": {
+        "body": "{\"case\": \"State\", \"phase\": \"over\", \"accepted\": false, \"error_type\": \"StreamlitSelectionCountExceedsMaxError\", \"error\": \"Multiselect has 3 options selected but `max_selections` is set to 2. This happened because you either gave too many options to `default` or you manipulated the widget's state through `st.session_state`. Note that the latter can happen before the line indicated in the traceback. Please select at most 2 options.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        0
+      ]
+    },
+    {
+      "index": 0,
+      "kind": "json",
+      "fields": {
+        "body": "{\"case\": \"State\", \"phase\": \"observe\", \"accepted\": false, \"error_type\": \"StreamlitSelectionCountExceedsMaxError\", \"error\": \"Multiselect has 3 options selected but `max_selections` is set to 2. This happened because you either gave too many options to `default` or you manipulated the widget's state through `st.session_state`. Note that the latter can happen before the line indicated in the traceback. Please select at most 2 options.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        0
+      ]
+    },
+    {
+      "index": 0,
+      "kind": "multiselect",
+      "fields": {
+        "id": "$$ID-7ef6654923a7aa338cd4b116c6fb56ca-limited",
+        "label": "State",
+        "default": [
+          1
+        ],
+        "options": [
+          "1",
+          "2",
+          "3"
+        ],
+        "set_value": true,
+        "label_visibility": {},
+        "max_selections": 2,
+        "accept_new_options": false,
+        "raw_values": [
+          "2"
+        ],
+        "select_all": 1000
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        0
+      ]
+    },
+    {
+      "index": 1,
+      "kind": "json",
+      "fields": {
+        "body": "{\"case\": \"State\", \"phase\": \"repair\", \"accepted\": true, \"value\": [2]}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        1
+      ]
+    },
+    {
+      "index": 0,
+      "kind": "multiselect",
+      "fields": {
+        "id": "$$ID-7ef6654923a7aa338cd4b116c6fb56ca-limited",
+        "label": "State",
+        "default": [
+          1
+        ],
+        "options": [
+          "1",
+          "2",
+          "3"
+        ],
+        "label_visibility": {},
+        "max_selections": 2,
+        "accept_new_options": false,
+        "select_all": 1000
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        0
+      ]
+    },
+    {
+      "index": 1,
+      "kind": "json",
+      "fields": {
+        "body": "{\"case\": \"State\", \"phase\": \"repair-observe\", \"accepted\": true, \"value\": [2]}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        1
+      ]
+    },
+    {
+      "index": 0,
+      "kind": "multiselect",
+      "fields": {
+        "id": "$$ID-7ef6654923a7aa338cd4b116c6fb56ca-limited",
+        "label": "State",
+        "default": [
+          1
+        ],
+        "options": [
+          "1",
+          "2",
+          "3"
+        ],
+        "label_visibility": {},
+        "max_selections": 2,
+        "accept_new_options": false,
+        "select_all": 1000
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        0
+      ]
+    },
+    {
+      "index": 1,
+      "kind": "json",
+      "fields": {
+        "body": "{\"case\": \"State\", \"phase\": \"edit-limit\", \"accepted\": true, \"value\": [1, 3]}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        1
+      ]
+    },
+    {
+      "index": 0,
+      "kind": "json",
+      "fields": {
+        "body": "{\"case\": \"State\", \"phase\": \"partial\", \"accepted\": false, \"error_type\": \"StreamlitSelectionCountExceedsMaxError\", \"error\": \"Multiselect has 3 options selected but `max_selections` is set to 2. This happened because you either gave too many options to `default` or you manipulated the widget's state through `st.session_state`. Note that the latter can happen before the line indicated in the traceback. Please select at most 2 options.\"}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        0
+      ]
+    },
+    {
+      "index": 0,
+      "kind": "multiselect",
+      "fields": {
+        "id": "$$ID-7ef6654923a7aa338cd4b116c6fb56ca-limited",
+        "label": "State",
+        "default": [
+          1
+        ],
+        "options": [
+          "1",
+          "2",
+          "3"
+        ],
+        "set_value": true,
+        "label_visibility": {},
+        "max_selections": 2,
+        "accept_new_options": false,
+        "raw_values": [
+          "2"
+        ],
+        "select_all": 1000
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        0
+      ]
+    },
+    {
+      "index": 1,
+      "kind": "json",
+      "fields": {
+        "body": "{\"case\": \"State\", \"phase\": \"repair-final\", \"accepted\": true, \"value\": [2]}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        1
+      ]
+    }
+  ],
+  "finishes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "producer_sources_sha256": {
+    "streamlit/examples/widget_params.rs": "887e51b9f675196875369bd174217f23c571903e226d02ee9728e6a954022e0e",
+    "tests/reference/widget_params_app.py": "5f3519c5e05947d4c45c334e636a2bbd31cf97116d54e58345ec289c299e16b4",
+    "tests/browser/widget_params_capture.py": "b79f0c56744cf70bd68847b6748a375e2fc1a6ed7b7146a429e1a4d8bf000053"
+  },
+  "server_pid": 60112,
+  "health": {
+    "status": 200,
+    "body": "ok"
+  },
+  "cleanup": {
+    "websocket_closed": true,
+    "server_stopped": true
+  },
+  "successful": true
+}

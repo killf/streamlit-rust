@@ -1566,6 +1566,180 @@ def test_multiselect_empty_gate_rejects_coherent_wrong_wire(mutation):
         check_multi_empty(capture)
 
 
+MULTI_LIMIT_PHASES = ("load", "over", "observe", "repair", "repair-observe", "edit-limit", "partial", "repair-final")
+
+
+def multi_limit_count_message(count, limit):
+    return (f"Multiselect has {count} options selected but `max_selections` is set to {limit}. "
+            "This happened because you either gave too many options to `default` or you manipulated the widget's state through `st.session_state`. "
+            "Note that the latter can happen before the line indicated in the traceback. "
+            f"Please select at most {limit} option{'s' if limit != 1 else ''}.")
+
+
+def multi_limit_reports(capture):
+    runs = color_runs(capture, ("multiselect", "json"))
+    reports = []
+    for phase, run in zip(MULTI_LIMIT_PHASES, runs, strict=True):
+        assert run["request"].query_string == "probe=multi-limits&phase=" + phase
+        assert not run["request"].is_history_navigation and run["finishes"] == [0]
+        reports.append({json.loads(widget.body)["case"]: json.loads(widget.body) for kind, widget, _ in run["entries"] if kind == "json"})
+        for report in reports[-1].values():
+            if report["accepted"]:
+                assert all(type(value) is int for value in report["value"])
+    return runs, reports
+
+
+def check_multi_limits_sdk(capture):
+    assert capture["runtime"] == "python" and capture["reference_version"] == "1.66.1" and capture["successful"]
+    assert "producer_error" not in capture and capture["finishes"] == [0] * 8
+    assert capture["cleanup"] == {"websocket_closed": True, "server_stopped": True}
+    assert len(capture["frames"]) == 61 and len(capture["elements"]) == 22
+    runs, reports = multi_limit_reports(capture)
+    load = reports[0]
+    assert list(load) == ["Repeat", "Repeat long", "Repeat capped", "Default over", "Zero", "Outside", "State"]
+    for label, values in (("Repeat", [2, 2]), ("Repeat long", [2, 2, 2, 2]), ("Repeat capped", [2, 2]), ("State", [2])):
+        assert load[label] == {"case": label, "phase": "load", "accepted": True, "value": values}
+    errors = {
+        "Default over": ("StreamlitSelectionCountExceedsMaxError", multi_limit_count_message(2, 1)),
+        "Zero": ("StreamlitValueError", "Invalid `max_selections` value. Supported values: a positive integer. To disable `st.multiselect`, use `disabled=True`."),
+        "Outside": ("StreamlitDefaultNotInOptionsError", "The default value '4' is not part of the options. Please make sure that every default value also exists in the options."),
+    }
+    for label, (kind, message) in errors.items():
+        assert load[label] == {"case": label, "phase": "load", "accepted": False, "error_type": kind, "error": message}
+    widgets = [w for kind, w, _ in runs[0]["entries"] if kind == "multiselect"]
+    assert [w.label for w in widgets] == ["Repeat", "Repeat long", "Repeat capped", "State"]
+    assert [list(w.default) for w in widgets] == [[1, 1], [1, 1, 1, 1], [1, 1], [1]]
+    assert [w.max_selections for w in widgets] == [0, 0, 2, 2]
+    state_id = widgets[-1].id
+    sessions, run_ids = set(), set()
+    for index, (phase, run) in enumerate(zip(MULTI_LIMIT_PHASES, runs, strict=True)):
+        assert len(run["sessions"]) == 1
+        session = run["sessions"][0]
+        assert session.initialize.environment_info.streamlit_version == "1.66.1"
+        sessions.add(session.initialize.session_id)
+        run_ids.add(session.script_run_id)
+        incoming = run["request"].widget_states.widgets
+        if phase in ("over", "edit-limit"):
+            assert len(incoming) == 1 and incoming[0].id == state_id and incoming[0].WhichOneof("value") == "string_array_value"
+            assert list(incoming[0].string_array_value.data) == (["1", "2", "3"] if phase == "over" else ["1", "3"])
+        else:
+            assert not incoming
+        failed = phase in ("over", "observe", "partial")
+        if index:
+            assert list(reports[index]) == ["State"]
+            assert [kind for kind, _, _ in run["entries"]] == (["json"] if failed else ["multiselect", "json"])
+            if failed:
+                assert reports[index]["State"] == {"case": "State", "phase": phase, "accepted": False,
+                    "error_type": "StreamlitSelectionCountExceedsMaxError", "error": multi_limit_count_message(3, 2)}
+            else:
+                assert reports[index]["State"] == {"case": "State", "phase": phase, "accepted": True, "value": [1, 3] if phase == "edit-limit" else [2]}
+        for kind, widget, element in run["entries"]:
+            if kind != "multiselect":
+                continue
+            assert list(widget.options) == ["1", "2", "3"] and not widget.disabled
+            assert widget.select_all == 1000 and widget.HasField("accept_new_options") and not widget.accept_new_options
+            assert widget.label_visibility.value == 0 and element.width_config.use_stretch
+            sync = phase in ("repair", "repair-final")
+            assert widget.set_value == sync and list(widget.raw_values) == (["2"] if sync else [])
+            assert element.HasField("has_one_shot_effect") == sync and element.has_one_shot_effect == sync
+            if widget.label == "State":
+                assert widget.id == state_id and list(widget.default) == [1] and widget.max_selections == 2
+    offset = 0
+    for run in runs:
+        count = len(run["entries"])
+        assert [e["delta_path"] for e in capture["elements"][offset:offset + count]] == [[0, i] for i in range(count)]
+        offset += count
+    assert len(sessions) == 1 and len(run_ids) == 8
+
+
+def test_multiselect_limit_sdk_errors_and_recovery():
+    check_multi_limits_sdk(read(PYTHON / "multi-limits/trace.json"))
+
+
+def test_multiselect_duplicate_defaults_and_zero_limit_fixed_subset():
+    sdk, rust = [read(root / "multi-limits/trace.json") for root in (PYTHON, RUST)]
+    check_multi_limits_sdk(sdk)
+    assert rust["successful"] and rust["cleanup"] == {"websocket_closed": True, "caller_server_stopped": True}
+    assert rust["producer_sources_sha256"] == sdk["producer_sources_sha256"]
+    runs, reports = multi_limit_reports(rust)
+    assert len(rust["frames"]) == 65 and len(rust["elements"]) == 26
+    assert rust["semantic_match"] is False, "count-error flow is still pending"
+    sdk_runs, sdk_reports = multi_limit_reports(sdk)
+    for label in ("Repeat", "Repeat long", "Repeat capped"):
+        assert reports[0][label] == sdk_reports[0][label]
+        fields = []
+        for current in (sdk_runs, runs):
+            element = next(e for kind, w, e in current[0]["entries"] if kind == "multiselect" and w.label == label)
+            view = MessageToDict(element, preserving_proto_field_name=True)
+            view["multiselect"].pop("id")
+            fields.append(view)
+        assert fields[0] == fields[1]
+    for label, message in (("Zero", "multiselect max_selections must be positive"), ("Outside", "multiselect defaults must be indices inside options")):
+        assert reports[0][label] == {"case": label, "phase": "load", "accepted": False, "error_type": "InvalidValue", "error": "invalid widget value: " + message}
+        assert not any(kind == "multiselect" and w.label == label for kind, w, _ in runs[0]["entries"])
+    # Preserve the actual remaining discrepancy, rather than relabeling this as full parity.
+    assert reports[0]["Default over"]["accepted"] is True
+    assert all(reports[i]["State"]["accepted"] is True for i in (1, 2, 6))
+    with pytest.raises(AssertionError):
+        check_multi_limits_sdk(rust)
+
+
+def test_multiselect_limit_before_rejects_duplicates_and_accepts_zero():
+    capture = read(RUST / "multi-limits/before/trace.json")
+    assert capture["successful"] and capture["finishes"] == [0] * 8 and capture["semantic_match"] is False
+    assert len(capture["frames"]) == 63 and len(capture["elements"]) == 24
+    runs, reports = multi_limit_reports(capture)
+    assert all(reports[0][label]["accepted"] is False for label in ("Repeat", "Repeat long", "Repeat capped"))
+    assert reports[0]["Zero"]["accepted"] is True
+    assert any(kind == "multiselect" and w.label == "Zero" for kind, w, _ in runs[0]["entries"])
+
+
+@pytest.mark.parametrize("mutation", ("default-repeat", "returned-repeat", "zero-accepted", "input-id", "repair-sync", "count-after-filter", "persistent-error"))
+def test_multiselect_limit_reference_rejects_coherent_wrong_evidence(mutation):
+    capture = read(PYTHON / "multi-limits/trace.json")
+    target = {"default-repeat": 0, "returned-repeat": 0, "zero-accepted": 0, "input-id": 1, "repair-sync": 3, "count-after-filter": 6, "persistent-error": 2}[mutation]
+    run = -1
+    for frame in capture["frames"]:
+        client = frame["direction"] == "client->server"
+        if client:
+            run += 1
+        if run != target:
+            continue
+        message = BackMsg() if client else ForwardMsg()
+        message.ParseFromString(base64.b64decode(frame["base64"]))
+        if client and mutation == "input-id":
+            message.rerun_script.widget_states.widgets[0].id = "$$ID-stale-limited"
+        elif not client and message.WhichOneof("type") == "delta":
+            element = message.delta.new_element
+            kind = element.WhichOneof("type")
+            if kind == "multiselect" and mutation == "default-repeat" and element.multiselect.label == "Repeat":
+                element.multiselect.default[:] = [1]
+            elif kind == "multiselect" and mutation == "repair-sync":
+                element.multiselect.set_value = False
+                element.ClearField("has_one_shot_effect")
+            elif kind == "json":
+                report = json.loads(element.json.body)
+                if mutation == "returned-repeat" and report["case"] == "Repeat":
+                    report["value"] = [2]
+                elif mutation == "zero-accepted" and report["case"] == "Zero":
+                    report = {"case": "Zero", "phase": "load", "accepted": True, "value": []}
+                elif mutation in ("count-after-filter", "persistent-error") and report["case"] == "State":
+                    report = {"case": "State", "phase": MULTI_LIMIT_PHASES[target], "accepted": True, "value": [2]}
+                else:
+                    continue
+                element.json.body = json.dumps(report)
+            else:
+                continue
+        else:
+            continue
+        raw = message.SerializeToString()
+        frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(message, preserving_proto_field_name=True))
+    capture["elements"] = [{"kind": m.delta.new_element.WhichOneof("type"), "fields": MessageToDict(getattr(m.delta.new_element, m.delta.new_element.WhichOneof("type")), preserving_proto_field_name=True),
+                            "delta_path": list(m.metadata.delta_path)} for m in frames(capture) if isinstance(m, ForwardMsg) and m.WhichOneof("type") == "delta"]
+    with pytest.raises(AssertionError):
+        check_multi_limits_sdk(capture)
+
+
 def comparable(capture):
     out = []
     for element in capture["elements"]:

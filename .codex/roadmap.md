@@ -14,6 +14,8 @@
 
 ## Current focus
 
+2026-11-01 multiselect 默认/上限切片：已修正重复默认索引和零上限拒绝；八轮参考保留超限默认/输入/代码状态及恢复证据，Rust 仍有数量错误差异，未宣称整批一致。详见[登记流程提案](architecture.md#multiselect-count-validation-and-failed-registration-retention--proposal-2026-11-01)及[验收](acceptance.md#current-multiselect-duplicate-defaults-and-zero-limit-validation-2026-11-01)；数量错误后保留登记需用户决定，其他已批准工作继续。
+
 2026-11-01 multiselect 原生状态切片：逐项过滤失效值、保留有效顺序和重复项，修正同步标签与空列表 disabled；十二轮/107 帧/48 完整 Element 与 SDK 一致，见[验收](acceptance.md#current-multiselect-filtered-native-state-validation-2026-11-01)。SDK-only None 错误和异类型标签返回单列，公共返回建模、真实浏览器及其余组合仍开放。
 
 2026-11-01 selectbox 空状态切片：普通字符串/整数控件的空选项、原生 None、失效值和同步字段已修正，14 轮/125 帧/56 完整 Element 与 SDK 一致，旧创建策略和 radio 空状态复验通过。见[验收](acceptance.md#current-selectbox-empty-and-typed-native-state-validation-2026-11-01)；SDK-only 动态异类型返回已单列为公共 API 待建模边界，未更改 Rust 返回类型，浏览器及其他组合仍开放。

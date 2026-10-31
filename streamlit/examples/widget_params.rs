@@ -6,6 +6,43 @@ use ::streamlit::*;
 use streamlit::StreamlitApi;
 
 fn render(st: &Streamlit) -> Result<(), WidgetError> {
+    if st.query_params().get("probe").as_deref() == Some("multi-limits") {
+        let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
+        if matches!(phase.as_str(), "repair" | "repair-final") {
+            st.session_state().set("limited", vec![2_i64])?;
+        } else if phase == "partial" {
+            st.session_state().set("limited", vec![99_i64, 2, 99])?;
+        }
+        let mut cases = Vec::new();
+        if phase == "load" {
+            cases.extend([
+                ("Repeat", vec![1, 1], None),
+                ("Repeat long", vec![1, 1, 1, 1], None),
+                ("Repeat capped", vec![1, 1], Some(2)),
+                ("Default over", vec![0, 1], Some(1)),
+                ("Zero", Vec::new(), Some(0)),
+                ("Outside", vec![3], None),
+            ]);
+        }
+        cases.push(("State", vec![1], Some(2)));
+        for (label, defaults, limit) in cases {
+            let mut options = MultiselectOptions::new(label, vec![1_i64, 2, 3]).default_indices(defaults);
+            if label == "State" {
+                options = options.key("limited");
+            }
+            if let Some(limit) = limit {
+                options = options.max_selections(limit);
+            }
+            let report = match st.multiselect(options) {
+                Ok(value) => serde_json::json!({"case": label, "phase": phase, "accepted": true, "value": value}),
+
+                Err(error) => serde_json::json!({"case": label, "phase": phase, "accepted": false, "error_type": "InvalidValue", "error": error.to_string()}),
+            };
+            st.json(report);
+        }
+        return Ok(());
+    }
+
     if st.query_params().get("probe").as_deref() == Some("multi-empty") {
         let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
         if phase == "assign-partial" {

@@ -2433,8 +2433,11 @@ impl<C: AppendChild> InputWidgets for C {
         let c = options.common;
         let form_id = form_scope(self, c.callback.is_some())?;
         let width_config = c.width(false)?;
-        if options.default.iter().any(|index| *index >= options.options.len()) || options.default.len() > options.options.len() || options.default.iter().collect::<std::collections::HashSet<_>>().len() != options.default.len() {
-            return Err(WidgetError::InvalidValue("multiselect defaults must be distinct indices inside options".into()));
+        if options.default.iter().any(|index| *index >= options.options.len()) {
+            return Err(WidgetError::InvalidValue("multiselect defaults must be indices inside options".into()));
+        }
+        if options.max_selections == Some(0) {
+            return Err(WidgetError::InvalidValue("multiselect max_selections must be positive".into()));
         }
         let native: Vec<Value> = options.options.iter().map(serde_json::to_value).collect::<Result<_, _>>()?;
         let default = Value::Array(options.default.iter().map(|index| Value::from(*index)).collect::<Vec<_>>());
@@ -4963,6 +4966,40 @@ mod tests {
             assert!(wire.try_recv().is_ok(), "the first valid form is still rendered");
         }
         assert!(wire.try_recv().is_err(), "failed form calls must not append their partial children");
+    }
+
+    #[test]
+    fn multiselect_defaults_keep_repeated_indices_and_reject_zero_limit() -> anyhow::Result<()> {
+        for (defaults, limit) in [(vec![1, 1], None), (vec![1, 1, 1, 1], None), (vec![1, 1], Some(2))] {
+            let state = SessionState::default();
+            state.begin_widgets(Vec::new());
+            let (st, mut wire) = app(&state);
+            let mut options = MultiselectOptions::new("Repeated", vec![1_i64, 2, 3]).default_indices(defaults.clone());
+            if let Some(limit) = limit {
+                options = options.max_selections(limit);
+            }
+            assert_eq!(st.multiselect(options)?, vec![2_i64; defaults.len()]);
+            let element::Type::Multiselect(widget) = input(&mut wire)? else { panic!() };
+            assert_eq!(widget.default, vec![1_i32; defaults.len()]);
+            assert_eq!(widget.max_selections, limit.unwrap_or(0) as i32);
+            assert!(!widget.set_value);
+        }
+
+        for defaults in [Vec::new(), vec![1]] {
+            let state = SessionState::default();
+            state.begin_widgets(Vec::new());
+            let (st, mut wire) = app(&state);
+            assert!(matches!(st.multiselect(MultiselectOptions::new("Zero", vec![1_i64, 2, 3]).default_indices(defaults).max_selections(0)), Err(WidgetError::InvalidValue(_))));
+            assert!(wire.try_recv().is_err());
+        }
+
+        let state = SessionState::default();
+        state.begin_widgets(Vec::new());
+        let (st, mut wire) = app(&state);
+        assert!(matches!(st.multiselect(MultiselectOptions::new("Outside", vec![1_i64, 2, 3]).default_indices([3])), Err(WidgetError::InvalidValue(_))));
+        assert!(wire.try_recv().is_err());
+
+        Ok(())
     }
 
     #[test]

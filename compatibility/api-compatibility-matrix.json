@@ -3321,6 +3321,13 @@
           "tests/browser/rust-widget-params/multi-empty/before/trace.json",
           "tests/browser/rust-widget-params/multi-empty/trace.json",
           "tests/reference/test_widget_params_reference.py"
+        ],
+        "defaults_limits_reference": [
+          "tests/reference/reference-browser/widget-params/multi-limits/trace.json",
+          "tests/browser/rust-widget-params/multi-limits/before/trace.json",
+          "tests/browser/rust-widget-params/multi-limits/trace.json",
+          "tests/reference/test_widget_params_reference.py",
+          ".codex/architecture.md"
         ]
       },
       "rust_plan": "MultiselectOptions<T> with (label, options) tuples and .default_indices(iter), format_func labels; returns Vec<T> by cloning the selected native options; the wire carries [i32] defaults, accept_new_options=false, select_all=1000 and a string_array_value state of the selected texts.",
@@ -3332,7 +3339,8 @@
         "Keyed selection-policy identity is measured on one native WS (2026-11-01, select-policy): nine normal-completion runs per runtime, 71 raw frames and 27 complete Elements. Selectbox creation-mode changes and multiselect max_selections None/2/3 reset state; fixed width retains keyed state, a new string label is accepted, and restored old identities do not revive cleaned values. Real browser, invalid/over-limit errors, callbacks and further option combinations remain open; the later select-policy-unkeyed slice measures unkeyed limits.",
         "Unkeyed identity is measured on one native WS (2026-11-01, select-policy-unkeyed): seventeen normal-completion runs per runtime, 135 raw frames and 51 complete Elements, covering mode/limit/width changes, cleanup before restoring old identities, selectbox placeholder/filter changes, and empty-string/single-space placeholder equivalence. The current Rust binary also replays the earlier nine keyed runs unchanged. Real browser filtering/placeholder rendering, errors and remaining parameter combinations are still unverified.",
         "Empty/subset/native-state sequence (2026-11-01, multi-empty): twelve normal runs, 107 raw frames and 48 complete Elements per runtime, with an unkeyed string selector and keyed string/integer selectors. Invalid native items are filtered individually, preserving valid order and duplicates; synchronized raw labels, optional one-shot flags, empty disabled=false, cleanup and restoration match. Real browser empty UI, nonempty defaults, limits, callbacks/forms/pages and late inputs remain open.",
-        "SDK-only public AppTest boundaries (2026-11-01): native None raises a persistent non-iterable error until repaired to an array. Integer options assigned [\"2\", 2, 99] temporarily return [\"2\", 2] and synchronize duplicate label strings; the next AppTest submission returns [2, 2]. Rust Vec<T> cannot express that dynamic mixed return for T=i64, so matching label strings of another native type retain an explicit error rather than being silently filtered. Public API representation remains undecided; no native-WS/Rust error-rendering or dynamic-return parity is claimed."
+        "SDK-only public AppTest boundaries (2026-11-01): native None raises a persistent non-iterable error until repaired to an array. Integer options assigned [\"2\", 2, 99] temporarily return [\"2\", 2] and synchronize duplicate label strings; the next AppTest submission returns [2, 2]. Rust Vec<T> cannot express that dynamic mixed return for T=i64, so matching label strings of another native type retain an explicit error rather than being silently filtered. Public API representation remains undecided; no native-WS/Rust error-rendering or dynamic-return parity is claimed.",
+        "Duplicate defaults/zero limit (2026-11-01, multi-limits): pinned SDK accepts repeated defaults including four copies with only three options; max_selections=0 and out-of-range defaults reject. Rust now matches those measured acceptance/wire/return cases. The eight-run SDK trace is 61 frames/22 Elements; Rust before is 63/24 and current is 65/26 with semantic_match=false. Default/state over-limit errors, persistent registered errors and counting before invalid-item filtering still differ; the proposed registration-flow exception awaits user approval. Runtime-specific error types/text are checked separately, not claimed identical. No browser exception UI, callback or arbitrary limit/type parity claim."
       ]
     },
     {

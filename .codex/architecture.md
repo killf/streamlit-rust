@@ -1444,3 +1444,17 @@ value 改为 `Option<String>`；公开 new/value 不变。渲染时用黑色作�
 四类 ID 与返回值逐轮匹配，完整 Element 规范化 ID/JSON 后一致；修前帧数相同
 但只有一个 ID，最后错误保留 #778899。普通结束恢复旧 ID 不复活旧选择。该
 切片没有公开 native key 投影，也不声称动态浏览器/绑定/表单/跨页或错误已匹配。
+
+### Multiselect count validation and failed registration retention — proposal (2026-11-01)
+
+需求来自锁定 SDK 1.66.1 的公开 AppTest 和八轮原生 WS：默认重复项保留；max_selections=0 在注册前拒绝；超限默认、前端或代码状态在选项过滤前按原始数量报错。超限轮不发送该控件，但已经登记的身份/原生状态保留，下一轮继续报错，显式代码赋合法数组后恢复。捕获见 tests/reference/reference-browser/widget-params/multi-limits/trace.json；现有 Rust 修前见 tests/browser/rust-widget-params/multi-limits/before/trace.json。这里的异常由应用捕获成 JSON，未测默认异常 UI。
+
+现状：widgets.rs 的 register_widget_with_id 在所有可失败转换成功后才写 key/record/seen；finish_widgets 删除未见控件。仅在 resolver 中新增数量错误会让下一轮丢失旧状态；仅在过滤后检查数量会错误接受 [99, 2, 99]（上限 2）。不能通过整批拒绝、回调前拒绝或静默过滤超限输入实现完整参考语义。
+
+拟改 streamlit/src/widgets.rs：MultiSelect 私有 codec 携带现有 max_selections；不在 decode/valid 的整批输入门限制数量，以保持现有 callback 顺序。在状态来源选定后，保留胜出原生数组的过滤前数量与超限原值；正常登记身份/record/seen 后，仅对此类数量错误保留原生数组并返回 InvalidValue，不写该控件 Delta。该例外不能设置现有 registration_error，因为它会阻断应用捕获错误后的其他控件。其他 codec、错误和原子转换顺序保持不变，不引入新的公共接口、状态层或队列策略。
+
+streamlit/src/widget_api.rs 的独立修正已完成：重复默认索引合法，只拒绝越界；max_selections=0 注册前拒绝。待批准部分为由拟议私有登记路径处理数量错误，Rust Vec<T> 返回类型不变。复用该文件单元、现有 widget_params 两端示例、采集器、reference 测试、指南与矩阵，不新增依赖或模块。
+
+验证：SDK 八轮原始帧比较重复默认、默认/前端/代码超限、持续错误、修复与重复上限；另以公开 API 验证应用捕获错误后可渲染其他控件，及改变 max_selections 的身份重置不使用旧状态数量。检查 callback 在错误前已执行、下一轮不重放。Rust 错误类型/文字与 SDK 的差异明确列出，不将异常 UI 或所有组合视为完成。按格式/Clippy、单元、原生 WS、相关参考与工作区验证，保留当前两项无关排除。
+
+停止位置：重复默认和零上限的局部修正已独立实现并验证；上述“数量错误后仍完成登记并保留原生状态”的流程例外尚待用户决定。依据用户 AGENTS.md 第 2 条对新增流程和关键取舍的要求，未把完整兼容方向自动当作该登记例外的批准。

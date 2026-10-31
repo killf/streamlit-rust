@@ -2318,3 +2318,21 @@ SDK-only AppTest 另记录两项公共边界：原生 None 报 non-iterable 错�
 编辑 Rust 的 rustfmt、全工作区/all-target Clippy、两项相关公共 API 单元通过；最终工作区 316 项通过（309 库、1 ledger、2 宏、4 rustdoc），仍仅排除原 navigation_pages_switch_and_session_state_match_the_measured_wire 与 rerun_queue_messages_match_frozen_reference，不能称完整工作区全绿。相关 query/widget/temporal/pickers/matrix/docs 门 450 项通过，其中包含 SDK-only 观察，并非全部跨运行时验收。既有 MSVC linker stdout warning 保留；日志 target/multi-empty-{red,green,clippy,build,workspace,reference}.log。
 
 SDK 服务由采集器停止，Rust 服务通过持有的自建进程句柄 terminate/wait 结束；62455/8599 无监听。本批未采真实浏览器；非空默认、动态异类型返回、任意原生类型、上限/错误/回调/绑定/表单/跨页/晚到输入组合继续开放。仅 st.multiselect 矩阵与机器清单更新，仍为 130 partial；用户 colconfig_params 修改独立保留，未合并、发布或部署，M3/M5/M7 与长期 Goal 未关闭。
+
+## Current multiselect duplicate defaults and zero limit validation (2026-11-01)
+
+SDK 1.66.1 的公开 AppTest 和八轮原生 WS 确认：重复默认值合法，三个选项可默认四次同一选项；max_selections=0 拒绝，越界默认拒绝；默认/前端/代码状态的数量超限在过滤失效项前检查，错误后保留登记状态，后续仍错误，显式合法数组恢复。应用在探针内捕获错误并报告 JSON，因此这里不验收默认异常 UI。
+
+[Python 参考](../tests/reference/reference-browser/widget-params/multi-limits/trace.json)为 8 轮/61 帧/22 Element；[Rust 修前](../tests/browser/rust-widget-params/multi-limits/before/trace.json)为 63 帧/24 Element，错误拒绝三个重复默认案例，却接受零上限。公开 API 回归先真实报 defaults must be distinct indices inside options。独立修正仅在 widget_api.rs：允许重复默认索引、保留越界拒绝，注册前拒绝零上限；无公共 API、codec 或登记/清理流程变动。
+
+[当前 Rust 捕获](../tests/browser/rust-widget-params/multi-limits/trace.json)为 65 帧/26 Element，semantic_match=false 明确保留，不是整批兼容成功。三项重复默认的完整 Element 和返回值已与 SDK 对照；零上限、越界默认均不发送控件，运行时各自的错误类型/文字分别严格验证。默认超限及三个状态超限轮仍错误接受，数量错误/持续登记/过滤前计数继续开放。测试不将这些现有差异改写为已兼容，SDK 参考门仍要求真正的错误与恢复。
+
+严格门验证八轮顺序、实际输入 ID/string_array_value、重复默认/返回、最大值、同步标签/一次性标志、轮次/会话和路径；七类同步改写原始帧及汇总的负例必须失败：默认去重、返回去重、零上限接受、错误输入 ID、缺失修复同步、过滤后才计数、丢失持续错误。参数参考模块 209 项、相关 query/widget/temporal/pickers/matrix/docs 门 460 项通过；其中包含 SDK-only 和差异保留观察，不等于 460 项全部 Rust/SDK 一致。
+
+当前二进制另重放原十二轮 multi-empty 与九轮选择策略，107 帧/48 Element、71 帧/27 Element 仍逐字段一致，本地结果 target/multi-limits-{empty,policy}-recheck/trace.json。源文件、采集器、widget_api/widgets 和二进制 SHA256 均核对当前文件；未改旧成功参考。SDK 服务由采集器停止，Rust 子进程通过自持句柄 terminate/wait 结束，59558/8599 无监听。
+
+编辑 Rust 的 rustfmt、全工作区/all-target Clippy、三项相关 multiselect 单元通过，最终工作区 317 项通过（310 库、1 ledger、2 宏、4 rustdoc），仍仅排除原 navigation_pages_switch_and_session_state_match_the_measured_wire 与 rerun_queue_messages_match_frozen_reference；不能称完整工作区全绿。既有 MSVC linker stdout warning 保留。日志 target/multi-limits-{red,green,clippy,build,workspace,reference}.log。
+
+数量错误后仍保留控件登记，会改变现有 fallible conversion 完成后才登记的流程；已在 [architecture](architecture.md#multiselect-count-validation-and-failed-registration-retention--proposal-2026-11-01) 写明胜出状态原始计数、保留原值、仅此错误的登记例外与验证计划，并依据用户 AGENTS.md 第 2 条提问。该流程尚未获批，未用通用 registration_error 阻断后续控件，未调整既有共享状态、队列、hash 或公共返回类型决策。
+
+真实浏览器、默认异常界面、数量错误 callback 顺序、动态异类型返回、任意默认/上限范围和其他组合仍未完成。仅 st.multiselect 矩阵与机器清单更新，仍为 130 partial；用户 colconfig_params 修改独立保留。未合并、发布或部署，M3/M5/M7 与长期 Goal 保持开放。
