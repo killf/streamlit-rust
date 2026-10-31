@@ -1221,3 +1221,50 @@ entries and M3/M5/M7/full goal remain open. Native protocol/API proof does not
 claim browser enforcement/remount, unkeyed identity equivalence, generic hash
 repair or every query/callback/source combination. Existing colconfig_params
 changes are excluded from this batch's commit/push; pending choices stay pending.
+
+
+### Unkeyed text policy identity correction (2026-10-31)
+
+Twelve native runs/155 raw frames/36 ordered widget-policy-return projections
+in text-unkeyed prove KEEP🧊 survives disabled, callback removal, hidden label,
+ignore-rerun and collapsed label changes under the same identity. Width/help
+controls reset to abcde; restoring an old ID does not resurrect its old input.
+Only the two frontend edits add callback markers. The opt-in probe has no user
+key: state=null is deliberate, has_key=false is checked, and the report does
+not pretend to expose unkeyed internal state through a key lookup.
+
+Rust excludes disabled/callback/ignore/visibility from only its unkeyed text
+identity tuple. Width/help and content/constraints remain; keyed identity,
+emitted policy fields and generic Element hashing do not change. The public
+unit applies frontend input then exercises policy transitions and stable IDs.
+No new public API/module/dependency was added. Existing keyed probes retain
+their prior behavior; old raw captures remain intact.
+
+The first replay hit the adapter's explicit-key-only mapping, not a production
+comparison (target/text-unkeyed-adapter-before.log). The helper now maps the
+unkeyed -None suffix only in this scenario. Replaying the prior four identity
+terms then produced a genuine observed/expected mismatch; the corrected tuple
+was restored and the same comparison passed (target/text-unkeyed-before.log).
+No reference was altered to hide either failure. Code/all-targets Clippy
+-D warnings and Rustfmt passed, followed by the public unit and all 29 related
+query-module checks, excluding its existing queue comparison (text-unkeyed-
+clippy.log, text-unkeyed-unit.log, text-unkeyed-integration.log under target/).
+151 related query/matrix/docs Python gates passed with DeprecationWarning as
+error (target/text-unkeyed-final-gates.log). Four coherent wrong-wire mutations
+reject disabled/callback resets, a lost ignore flag and wrong width retention.
+Exact input IDs/history, versions/session, raw PB/summary, defaults/limits/sync,
+policy/visibility/width/help, callbacks/returns and all pairwise ID equality
+relations are checked. This batch did not rerun the full Python reference suite.
+
+Full Rust workspace passed 282: library 275, ledger 1, macros 2, rustdoc 4.
+Only the two existing navigation_pages_switch_and_session_state_match_the_measured_wire
+and rerun_queue_messages_match_frozen_reference were skipped; this is not full
+workspace green (target/text-unkeyed-workspace.log). The existing MSVC linker
+stdout warning remains.
+
+Owned socket/server closed; port 49687 was read back free. Matrix/inventory retain
+130 partial entries and M3/M5/M7/full goal remain open. This is native API/WS
+proof, not browser disabled/visibility/buffering/remount, every omitted-versus-
+empty option distinction, unkeyed form/sidebar identity or forged-input proof.
+Pending API/hash/queue/parser choices stay pending; existing colconfig_params
+changes are excluded from this batch's commit/push.

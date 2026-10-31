@@ -26,7 +26,7 @@ ROOT = Path(__file__).resolve().parents[2]
 QUERY = "z=last&tag=first&tag=second&a=first&blank=&encoded=%E4%B8%AD%E6%96%87+text"
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("--out", type=Path, required=True)
-parser.add_argument("--scenario", choices=("values", "encoding", "text-length", "text-reset", "text-source", "text-bound", "text-bound-peer", "text-repeat", "text-empty", "text-validation", "reserved", "binding", "seed", "seed-code", "disabled", "disabled-valid", "disabled-types", "disabled-json", "rerun", "navigation-rerun", "rerun-messages", "rerun-queue"), default="values")
+parser.add_argument("--scenario", choices=("values", "encoding", "text-length", "text-reset", "text-source", "text-bound", "text-bound-peer", "text-repeat", "text-empty", "text-validation", "text-unkeyed", "reserved", "binding", "seed", "seed-code", "disabled", "disabled-valid", "disabled-types", "disabled-json", "rerun", "navigation-rerun", "rerun-messages", "rerun-queue"), default="values")
 args = parser.parse_args()
 if args.scenario == "reserved":
     QUERY = "case=reserved&embed=true&EMBED_OPTIONS=light_theme&st_embed=ordinary&=empty-key-value"
@@ -55,7 +55,7 @@ with socket.socket() as listener:
     port = listener.getsockname()[1]
 url = f"http://127.0.0.1:{port}"
 fixture = "navigation_app.py" if args.scenario == "navigation-rerun" else "queryparams_values_app.py"
-if args.scenario in ("text-length", "text-reset", "text-source", "text-bound", "text-bound-peer", "text-repeat", "text-empty", "text-validation"):
+if args.scenario in ("text-length", "text-reset", "text-source", "text-bound", "text-bound-peer", "text-repeat", "text-empty", "text-validation", "text-unkeyed"):
     fixture = "forms_app.py"
 command = [sys.executable, "-B", "-m", "streamlit", "run", str(ROOT / "tests/reference" / fixture),
            "--server.address=127.0.0.1", f"--server.port={port}", "--server.headless=true",
@@ -107,6 +107,14 @@ try:
             text_inputs = {"edit": "é🧊zUPPER", "edit-short": "XYZtail", "same-none": "retained🧊text", "edit-five": "END🧊ok"}
             queries = [f"case=form-max-chars-cjk&probe=length&kind={kind}&limit={limit}&default={default}&phase={phase}"
                        for kind in ("input", "area") for limit, default, phase in steps]
+            trace["query_string"] = queries[0]
+        if args.scenario == "text-unkeyed":
+            trace["connection_policy"] = "One WS for unkeyed text policy changes, width/help identity controls."
+            policies = ("normal", "normal", "disabled", "none", "hidden", "ignore", "collapsed", "normal", "normal", "normal", "normal", "normal")
+            phases = ("load", "edit", "disabled", "none", "hidden", "ignore", "collapsed", "width", "edit-wide", "help", "restore-help", "restore-width")
+            queries = [f"case=form-max-chars-cjk&probe=length&kind=input&limit=5&default=long&unkeyed=on&policy={policy}"
+                       + ("&pixels=320" if 7 <= number <= 10 else "") + ("&help=new" if number == 9 else "") + f"&phase={phase}"
+                       for number, (policy, phase) in enumerate(zip(policies, phases, strict=True))]
             trace["query_string"] = queries[0]
         if args.scenario == "text-validation":
             trace["connection_policy"] = "One WS for keyed text type, raw validation and message changes."
@@ -242,6 +250,10 @@ try:
                 widget = request.rerun_script.widget_states.widgets.add()
                 widget.id = widget_ids["cjk_note"]
                 widget.string_value = text_inputs[phase]
+            if args.scenario == "text-unkeyed" and index in (1, 8):
+                widget = request.rerun_script.widget_states.widgets.add()
+                widget.id = widget_ids["None"]
+                widget.string_value = "KEEP🧊tail" if index == 1 else "EDIT🧊tail"
             if args.scenario == "text-validation" and validation_steps[index][3] is not None:
                 widget = request.rerun_script.widget_states.widgets.add()
                 widget.id = widget_ids["cjk_note"]

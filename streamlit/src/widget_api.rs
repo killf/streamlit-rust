@@ -2267,11 +2267,7 @@ impl<C: AppendChild> InputWidgets for C {
                     &validation_regex,
                     &options.live,
                     &options.bind,
-                    c.disabled,
                     c.width,
-                    c.ignore_rerun,
-                    format!("{:?}", c.visibility),
-                    c.callback.is_some(),
                 ))?
             },
         );
@@ -4121,6 +4117,39 @@ mod tests {
             assert!(wire_value.is_none());
             state.finish_widgets();
         }
+        Ok(())
+    }
+
+    #[test]
+    fn unkeyed_text_policy_changes_preserve_frontend_input_and_identity() -> anyhow::Result<()> {
+        let state = SessionState::default();
+        let mut identities: Vec<String> = Vec::new();
+        for phase in 0..6 {
+            let incoming = if phase == 1 {
+                vec![WidgetState {
+                    id: identities[0].clone(),
+                    value: Some(widget_state::Value::StringValue("preserved".into())),
+                }]
+            } else {
+                Vec::new()
+            };
+            state.begin_widgets(incoming);
+            let mut options = TextInputOptions::new("Plain").value("base").disabled(phase == 2);
+            if phase == 3 {
+                options = options.on_change(|_| panic!("no new input"));
+            } else if phase == 4 {
+                options = options.ignore_rerun(true);
+            } else if phase == 5 {
+                options = options.label_visibility(LabelVisibility::Hidden);
+            }
+
+            let (st, mut wire) = app(&state);
+            assert_eq!(st.text_input(options)?.as_deref(), Some(if phase == 0 { "base" } else { "preserved" }));
+            let element::Type::TextInput(widget) = input(&mut wire)? else { anyhow::bail!("expected text input") };
+            identities.push(widget.id);
+            state.finish_widgets();
+        }
+        assert!(identities.iter().all(|id| id == &identities[0]));
         Ok(())
     }
 

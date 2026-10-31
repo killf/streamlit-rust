@@ -610,3 +610,29 @@ coherent wrong-wire mutations reject type reset, message reset and a lost regex.
 The owned socket/server closed and port 63974 was read back free. This is native
 protocol/API evidence, not actual browser regex enforcement/remount, unkeyed
 identity parity, callback-side writes or the generic element hash proposal.
+
+
+## Unkeyed text policies and identity controls (2026-10-31)
+
+`text-unkeyed/trace.json` retains twelve native runs/155 raw frames/36 ordered
+widget-policy-return projections. The opt-in length probe omits the explicit
+key and logs callback markers. Its state field is deliberately null and has_key
+is false: the report does not claim to read an unkeyed value through user state.
+KEEP🧊 survives disabled, callback removal, hidden label, ignore-rerun and
+collapsed label changes under the same identity. Width 320 and help=new each
+change identity and reset to abcde. Restoring the old help/width identity does
+not revive previous input. The two frontend edits alone add callback markers.
+
+Rust previously hashed disabled/callback/ignore/visibility policy into unkeyed
+text identity. Those four fields are now excluded; width, help and the existing
+content/constraint fields remain. Keyed identity and emitted policy fields are
+unchanged. A public unit covers frontend retention across these policy changes.
+The complete native replay checks all ID equivalence relations, returned values,
+callbacks, original defaults/limits, sync fields, policy flags, visibility,
+width and help. PB/summary, runtime/session and exact input IDs/history are gated.
+Four coherent mutations reject disabled/callback reset, a lost ignore flag and
+incorrect width retention. Socket/server closed and port 49687 was read back
+free. No browser visibility/disabled/buffering/remount conclusion is drawn;
+unkeyed defaults/explicit empty option distinctions, all identity fields,
+form/sidebar context and forged disabled inputs are not covered by this batch.
+No public API, dependency or generic Element hash change was introduced.

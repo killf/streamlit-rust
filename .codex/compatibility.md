@@ -286,3 +286,12 @@ Rust now hashes raw optional validation, leaving emitted regex/message unchanged
 Two frontend callbacks, resets, retained values, field presence and identity
 equivalence are checked. Browser enforcement/remount and generic identity remain
 open; no new API or dependency was introduced.
+
+
+2026-10-31 [unkeyed text policy identity](../tests/reference/reference-browser/queryparams/text-unkeyed/trace.json)
+adds twelve native runs/155 frames/36 ordered widget-policy-return projections.
+Disabled/callback/ignore/visibility changes retain input and identity; width/help
+changes reset. Rust excludes four policy terms from its unkeyed identity tuple.
+Returns, callback markers, flags, fields and ID equivalence match. The report
+has no explicit user key and does not expose unkeyed internal state. Browser
+behavior and broader identity combinations remain open, with no new public API.

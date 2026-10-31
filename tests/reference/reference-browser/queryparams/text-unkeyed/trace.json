@@ -1,0 +1,3549 @@
+{
+  "schema_version": 1,
+  "runtime": "python",
+  "reference_version": "1.66.1",
+  "captured_at_utc": "2026-10-31T07:39:00.155716+00:00",
+  "query_string": "case=form-max-chars-cjk&probe=length&kind=input&limit=5&default=long&unkeyed=on&policy=normal&phase=load",
+  "scenario": "text-unkeyed",
+  "server_command": [
+    "C:\\Users\\killf\\github\\streamlit-rust\\target\\pyref-venv\\Scripts\\python.exe",
+    "-B",
+    "-m",
+    "streamlit",
+    "run",
+    "C:\\Users\\killf\\github\\streamlit-rust\\tests\\reference\\forms_app.py",
+    "--server.address=127.0.0.1",
+    "--server.port=49687",
+    "--server.headless=true",
+    "--server.fileWatcherType=none",
+    "--browser.gatherUsageStats=false"
+  ],
+  "scope": "Native WS query multimap and mutation behavior; no browser claim.",
+  "frames": [
+    {
+      "direction": "client->server",
+      "bytes": 108,
+      "base64": "WmoKaGNhc2U9Zm9ybS1tYXgtY2hhcnMtY2prJnByb2JlPWxlbmd0aCZraW5kPWlucHV0JmxpbWl0PTUmZGVmYXVsdD1sb25nJnVua2V5ZWQ9b24mcG9saWN5PW5vcm1hbCZwaGFzZT1sb2Fk",
+      "message": {
+        "rerun_script": {
+          "query_string": "case=form-max-chars-cjk&probe=length&kind=input&limit=5&default=long&unkeyed=on&policy=normal&phase=load"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 407,
+      "base64": "IpQDCq0BCl4KJDc5MDk1MDBjLWU1OWEtNTJlNy05ZjUzLWQzZGUwYzZhN2RmNCokNzkwOTUwMGMtZTU5YS01MmU3LTlmNTMtZDNkZTBjNmE3ZGY0MhBuby1tYWNoaW5lLWlkLXY0GiEKBjEuNjYuMRIOMy4xNC43LmZpbmFsLjAaB3dpbmRvd3MiAhABMiQwN2IzZjg4MS1iMzgwLTRmZTItODZlMy03OTY2Zjg3NDllMzcSJDhlMzc1NmFlLWJhMGMtNDk5NC04N2NhLWRjZTgzMDI5MTE0ORoJZm9ybXNfYXBwIkFDOlxVc2Vyc1xraWxsZlxnaXRodWJcc3RyZWFtbGl0LXJ1c3RcdGVzdHNccmVmZXJlbmNlXGZvcm1zX2FwcC5weTIGGAIoAUgBQiIKIGViMDE0NTc4NjdmZWJhMWVjY2NlZmY1OWFjMzBmMDRmSiBlYjAxNDU3ODY3ZmViYTFlY2NjZWZmNTlhYzMwZjA0ZlogZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGY=",
+      "message": {
+        "new_session": {
+          "initialize": {
+            "user_info": {
+              "installation_id": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v3": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v4": "no-machine-id-v4"
+            },
+            "environment_info": {
+              "streamlit_version": "1.66.1",
+              "python_version": "3.14.7.final.0",
+              "server_os": "windows"
+            },
+            "session_status": {
+              "script_is_running": true
+            },
+            "session_id": "07b3f881-b380-4fe2-86e3-7966f8749e37"
+          },
+          "script_run_id": "8e3756ae-ba0c-4994-87ca-dce830291149",
+          "name": "forms_app",
+          "main_script_path": "C:\\Users\\killf\\github\\streamlit-rust\\tests\\reference\\forms_app.py",
+          "config": {
+            "max_cached_message_age": 2,
+            "allow_run_on_save": true,
+            "show_error_links": "SHOW_ERROR_LINKS_AUTO"
+          },
+          "app_pages": [
+            {
+              "page_script_hash": "eb01457867feba1eccceff59ac30f04f"
+            }
+          ],
+          "page_script_hash": "eb01457867feba1eccceff59ac30f04f",
+          "main_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 4,
+      "base64": "SgIQAQ==",
+      "message": {
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 106,
+      "base64": "CiA4Yzg5ZjcyODExMzZiMGIxNjExMzI4Y2YyOTM5Y2I2YhIiIiBlYjAxNDU3ODY3ZmViYTFlY2NjZWZmNTlhYzMwZjA0ZmoiCh5zdHJlYW1saXQtcnVzdCBmb3JtcyByZWZlcmVuY2UgAw==",
+      "message": {
+        "hash": "8c89f7281136b0b1611328cf2939cb6b",
+        "metadata": {
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "page_config_changed": {
+          "title": "streamlit-rust forms reference",
+          "initial_sidebar_state": "SIDEBAR_UNSET"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 134,
+      "base64": "CiBjMTI5NjAyYjE4NDYxMjgyNDQwOGFiY2Q0OWIyY2M1MxImEgIAACIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqOho4+gIrCgJoMxojQSB0ZXh0IGlucHV0IHdpdGggYSBjaGFyYWN0ZXIgbGltaXQ4AdIDAggB6gMCCAE=",
+      "message": {
+        "hash": "c129602b184612824408abcd49b2cc53",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h3",
+              "body": "A text input with a character limit",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 154,
+      "base64": "CiBhNTNmY2ZjMmVlNjkzNTQwODBmYjIyZTMzY2E0NjhkNxImEgIAASIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqThpMwgFECiokJElELTVlNjZhZTVlOGU5ZjIxNTQzMzg3YjI1NTk4Y2Q5Yjg4LU5vbmUSBuS4reaWhxoKYWJjZGVm8J+niigFagDSAwIIAQ==",
+      "message": {
+        "hash": "a53fcfc2ee69354080fb22e33ca468d7",
+        "metadata": {
+          "delta_path": [
+            0,
+            1
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text_input": {
+              "id": "$$ID-5e66ae5e8e9f21543387b25598cd9b88-None",
+              "label": "中文",
+              "default": "abcdef🧊",
+              "max_chars": 5,
+              "label_visibility": {}
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 175,
+      "base64": "CiBlNWNkYTYwOGY5ZTU2YWMxM2M3MmYxZjkzMGRkMDU2MhImEgIAAiIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqYxph+gFZClV7InBoYXNlIjogImxvYWQiLCAidmFsdWUiOiAiYWJjZGUiLCAic3RhdGUiOiBudWxsLCAiY2FsbGJhY2tzIjogW10sICJoYXNfa2V5IjogZmFsc2V9EAHSAwIIAQ==",
+      "message": {
+        "hash": "e5cda608f9e56ac13c72f1f930dd0562",
+        "metadata": {
+          "delta_path": [
+            0,
+            2
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"phase\": \"load\", \"value\": \"abcde\", \"state\": null, \"callbacks\": [], \"has_key\": false}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 108,
+      "base64": "CiBhMWFjZDA3OWU0MTJlZGJlM2Y3MjcwMjJlZGJmYmJjZRImEgIAAyIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqIBoeChIKDlNjcmlwdCBydW5zOiAxGAHSAwIQAeoDAggB",
+      "message": {
+        "hash": "a1acd079e412edbe3f727022edbfbbce",
+        "metadata": {
+          "delta_path": [
+            0,
+            3
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Script runs: 1",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 118,
+      "base64": "CiBjOTQzMTJiZjVjM2IwYTI2MWI2ZjYyOGQ4NGE5ZWRmNRImEgIABCIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqKhooChwKGENhc2U6IGZvcm0tbWF4LWNoYXJzLWNqaxgB0gMCEAHqAwIIAQ==",
+      "message": {
+        "hash": "c94312bf5c3b0a261b6f628d84a9edf5",
+        "metadata": {
+          "delta_path": [
+            0,
+            4
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Case: form-max-chars-cjk",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 115,
+      "base64": "CiBkMzU1MTQ4OGU3YmI1NDQxODJmYTZjODZjMzQ2ZmMwORImEgIABSIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqJxolChkKFU1haW4gc2F3OiBjams9J2FiY2RlJxgB0gMCEAHqAwIIAQ==",
+      "message": {
+        "hash": "d3551488e7bb544182fa6c86c346fc09",
+        "metadata": {
+          "delta_path": [
+            0,
+            5
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Main saw: cjk='abcde'",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 103,
+      "base64": "CiBhNjdiNzQ4YmUxNWI5OTZhYzU0Zjg4N2M2YWZiOTRlYxImEgIABiIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqGxoZCg0KCUxlbmd0aDogNRgB0gMCEAHqAwIIAQ==",
+      "message": {
+        "hash": "a67b748be15b996ac54f887c6afb94ec",
+        "metadata": {
+          "delta_path": [
+            0,
+            6
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Length: 5",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "MAA=",
+      "message": {
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    },
+    {
+      "direction": "client->server",
+      "bytes": 171,
+      "base64": "WqgBCmhjYXNlPWZvcm0tbWF4LWNoYXJzLWNqayZwcm9iZT1sZW5ndGgma2luZD1pbnB1dCZsaW1pdD01JmRlZmF1bHQ9bG9uZyZ1bmtleWVkPW9uJnBvbGljeT1ub3JtYWwmcGhhc2U9ZWRpdBI8CjoKKiQkSUQtNWU2NmFlNWU4ZTlmMjE1NDMzODdiMjU1OThjZDliODgtTm9uZTIMS0VFUPCfp4p0YWls",
+      "message": {
+        "rerun_script": {
+          "query_string": "case=form-max-chars-cjk&probe=length&kind=input&limit=5&default=long&unkeyed=on&policy=normal&phase=edit",
+          "widget_states": {
+            "widgets": [
+              {
+                "id": "$$ID-5e66ae5e8e9f21543387b25598cd9b88-None",
+                "string_value": "KEEP🧊tail"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "SgA=",
+      "message": {
+        "session_status_changed": {}
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 407,
+      "base64": "IpQDCq0BCl4KJDc5MDk1MDBjLWU1OWEtNTJlNy05ZjUzLWQzZGUwYzZhN2RmNCokNzkwOTUwMGMtZTU5YS01MmU3LTlmNTMtZDNkZTBjNmE3ZGY0MhBuby1tYWNoaW5lLWlkLXY0GiEKBjEuNjYuMRIOMy4xNC43LmZpbmFsLjAaB3dpbmRvd3MiAhABMiQwN2IzZjg4MS1iMzgwLTRmZTItODZlMy03OTY2Zjg3NDllMzcSJDViMTllZjVmLTAwOTAtNDU2OS1hNDRjLWUzMzNhYmZlMDNiZRoJZm9ybXNfYXBwIkFDOlxVc2Vyc1xraWxsZlxnaXRodWJcc3RyZWFtbGl0LXJ1c3RcdGVzdHNccmVmZXJlbmNlXGZvcm1zX2FwcC5weTIGGAIoAUgBQiIKIGViMDE0NTc4NjdmZWJhMWVjY2NlZmY1OWFjMzBmMDRmSiBlYjAxNDU3ODY3ZmViYTFlY2NjZWZmNTlhYzMwZjA0ZlogZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGY=",
+      "message": {
+        "new_session": {
+          "initialize": {
+            "user_info": {
+              "installation_id": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v3": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v4": "no-machine-id-v4"
+            },
+            "environment_info": {
+              "streamlit_version": "1.66.1",
+              "python_version": "3.14.7.final.0",
+              "server_os": "windows"
+            },
+            "session_status": {
+              "script_is_running": true
+            },
+            "session_id": "07b3f881-b380-4fe2-86e3-7966f8749e37"
+          },
+          "script_run_id": "5b19ef5f-0090-4569-a44c-e333abfe03be",
+          "name": "forms_app",
+          "main_script_path": "C:\\Users\\killf\\github\\streamlit-rust\\tests\\reference\\forms_app.py",
+          "config": {
+            "max_cached_message_age": 2,
+            "allow_run_on_save": true,
+            "show_error_links": "SHOW_ERROR_LINKS_AUTO"
+          },
+          "app_pages": [
+            {
+              "page_script_hash": "eb01457867feba1eccceff59ac30f04f"
+            }
+          ],
+          "page_script_hash": "eb01457867feba1eccceff59ac30f04f",
+          "main_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 4,
+      "base64": "SgIQAQ==",
+      "message": {
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 106,
+      "base64": "CiA4Yzg5ZjcyODExMzZiMGIxNjExMzI4Y2YyOTM5Y2I2YhIiIiBlYjAxNDU3ODY3ZmViYTFlY2NjZWZmNTlhYzMwZjA0ZmoiCh5zdHJlYW1saXQtcnVzdCBmb3JtcyByZWZlcmVuY2UgAw==",
+      "message": {
+        "hash": "8c89f7281136b0b1611328cf2939cb6b",
+        "metadata": {
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "page_config_changed": {
+          "title": "streamlit-rust forms reference",
+          "initial_sidebar_state": "SIDEBAR_UNSET"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 134,
+      "base64": "CiBjMTI5NjAyYjE4NDYxMjgyNDQwOGFiY2Q0OWIyY2M1MxImEgIAACIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqOho4+gIrCgJoMxojQSB0ZXh0IGlucHV0IHdpdGggYSBjaGFyYWN0ZXIgbGltaXQ4AdIDAggB6gMCCAE=",
+      "message": {
+        "hash": "c129602b184612824408abcd49b2cc53",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h3",
+              "body": "A text input with a character limit",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 154,
+      "base64": "CiBhNTNmY2ZjMmVlNjkzNTQwODBmYjIyZTMzY2E0NjhkNxImEgIAASIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqThpMwgFECiokJElELTVlNjZhZTVlOGU5ZjIxNTQzMzg3YjI1NTk4Y2Q5Yjg4LU5vbmUSBuS4reaWhxoKYWJjZGVm8J+niigFagDSAwIIAQ==",
+      "message": {
+        "hash": "a53fcfc2ee69354080fb22e33ca468d7",
+        "metadata": {
+          "delta_path": [
+            0,
+            1
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text_input": {
+              "id": "$$ID-5e66ae5e8e9f21543387b25598cd9b88-None",
+              "label": "中文",
+              "default": "abcdef🧊",
+              "max_chars": 5,
+              "label_visibility": {}
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 195,
+      "base64": "CiAyZDg0ODU1ZTUxZTNhMTRlYTVkMjZlOWE1OWVhNzU2NBImEgIAAiIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqdxp1+gFtCml7InBoYXNlIjogImVkaXQiLCAidmFsdWUiOiAiS0VFUFx1ZDgzZVx1ZGRjYSIsICJzdGF0ZSI6IG51bGwsICJjYWxsYmFja3MiOiBbImNoYW5nZWQiXSwgImhhc19rZXkiOiBmYWxzZX0QAdIDAggB",
+      "message": {
+        "hash": "2d84855e51e3a14ea5d26e9a59ea7564",
+        "metadata": {
+          "delta_path": [
+            0,
+            2
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"phase\": \"edit\", \"value\": \"KEEP\\ud83e\\uddca\", \"state\": null, \"callbacks\": [\"changed\"], \"has_key\": false}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 108,
+      "base64": "CiA3ZWY2NDIyZmI4YThkOWI1ZWQ4ZDZkMDYxNjRkMWQwNhImEgIAAyIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqIBoeChIKDlNjcmlwdCBydW5zOiAyGAHSAwIQAeoDAggB",
+      "message": {
+        "hash": "7ef6422fb8a8d9b5ed8d6d06164d1d06",
+        "metadata": {
+          "delta_path": [
+            0,
+            3
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Script runs: 2",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 118,
+      "base64": "CiBjOTQzMTJiZjVjM2IwYTI2MWI2ZjYyOGQ4NGE5ZWRmNRImEgIABCIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqKhooChwKGENhc2U6IGZvcm0tbWF4LWNoYXJzLWNqaxgB0gMCEAHqAwIIAQ==",
+      "message": {
+        "hash": "c94312bf5c3b0a261b6f628d84a9edf5",
+        "metadata": {
+          "delta_path": [
+            0,
+            4
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Case: form-max-chars-cjk",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 118,
+      "base64": "CiA3OGEwY2E3YTFhZDRiMDRmMzI2MjFlZjRmNTYzMzNiORImEgIABSIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqKhooChwKGE1haW4gc2F3OiBjams9J0tFRVDwn6eKJxgB0gMCEAHqAwIIAQ==",
+      "message": {
+        "hash": "78a0ca7a1ad4b04f32621ef4f56333b9",
+        "metadata": {
+          "delta_path": [
+            0,
+            5
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Main saw: cjk='KEEP🧊'",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 103,
+      "base64": "CiBhNjdiNzQ4YmUxNWI5OTZhYzU0Zjg4N2M2YWZiOTRlYxImEgIABiIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqGxoZCg0KCUxlbmd0aDogNRgB0gMCEAHqAwIIAQ==",
+      "message": {
+        "hash": "a67b748be15b996ac54f887c6afb94ec",
+        "metadata": {
+          "delta_path": [
+            0,
+            6
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Length: 5",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "MAA=",
+      "message": {
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    },
+    {
+      "direction": "client->server",
+      "bytes": 114,
+      "base64": "WnAKbmNhc2U9Zm9ybS1tYXgtY2hhcnMtY2prJnByb2JlPWxlbmd0aCZraW5kPWlucHV0JmxpbWl0PTUmZGVmYXVsdD1sb25nJnVua2V5ZWQ9b24mcG9saWN5PWRpc2FibGVkJnBoYXNlPWRpc2FibGVk",
+      "message": {
+        "rerun_script": {
+          "query_string": "case=form-max-chars-cjk&probe=length&kind=input&limit=5&default=long&unkeyed=on&policy=disabled&phase=disabled"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "SgA=",
+      "message": {
+        "session_status_changed": {}
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 407,
+      "base64": "IpQDCq0BCl4KJDc5MDk1MDBjLWU1OWEtNTJlNy05ZjUzLWQzZGUwYzZhN2RmNCokNzkwOTUwMGMtZTU5YS01MmU3LTlmNTMtZDNkZTBjNmE3ZGY0MhBuby1tYWNoaW5lLWlkLXY0GiEKBjEuNjYuMRIOMy4xNC43LmZpbmFsLjAaB3dpbmRvd3MiAhABMiQwN2IzZjg4MS1iMzgwLTRmZTItODZlMy03OTY2Zjg3NDllMzcSJDhiNzhmZTcyLTYzYTAtNGNiMC04NjVhLThjYWM2ZThhZTgwZBoJZm9ybXNfYXBwIkFDOlxVc2Vyc1xraWxsZlxnaXRodWJcc3RyZWFtbGl0LXJ1c3RcdGVzdHNccmVmZXJlbmNlXGZvcm1zX2FwcC5weTIGGAIoAUgBQiIKIGViMDE0NTc4NjdmZWJhMWVjY2NlZmY1OWFjMzBmMDRmSiBlYjAxNDU3ODY3ZmViYTFlY2NjZWZmNTlhYzMwZjA0ZlogZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGY=",
+      "message": {
+        "new_session": {
+          "initialize": {
+            "user_info": {
+              "installation_id": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v3": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v4": "no-machine-id-v4"
+            },
+            "environment_info": {
+              "streamlit_version": "1.66.1",
+              "python_version": "3.14.7.final.0",
+              "server_os": "windows"
+            },
+            "session_status": {
+              "script_is_running": true
+            },
+            "session_id": "07b3f881-b380-4fe2-86e3-7966f8749e37"
+          },
+          "script_run_id": "8b78fe72-63a0-4cb0-865a-8cac6e8ae80d",
+          "name": "forms_app",
+          "main_script_path": "C:\\Users\\killf\\github\\streamlit-rust\\tests\\reference\\forms_app.py",
+          "config": {
+            "max_cached_message_age": 2,
+            "allow_run_on_save": true,
+            "show_error_links": "SHOW_ERROR_LINKS_AUTO"
+          },
+          "app_pages": [
+            {
+              "page_script_hash": "eb01457867feba1eccceff59ac30f04f"
+            }
+          ],
+          "page_script_hash": "eb01457867feba1eccceff59ac30f04f",
+          "main_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 4,
+      "base64": "SgIQAQ==",
+      "message": {
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 106,
+      "base64": "CiA4Yzg5ZjcyODExMzZiMGIxNjExMzI4Y2YyOTM5Y2I2YhIiIiBlYjAxNDU3ODY3ZmViYTFlY2NjZWZmNTlhYzMwZjA0ZmoiCh5zdHJlYW1saXQtcnVzdCBmb3JtcyByZWZlcmVuY2UgAw==",
+      "message": {
+        "hash": "8c89f7281136b0b1611328cf2939cb6b",
+        "metadata": {
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "page_config_changed": {
+          "title": "streamlit-rust forms reference",
+          "initial_sidebar_state": "SIDEBAR_UNSET"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 134,
+      "base64": "CiBjMTI5NjAyYjE4NDYxMjgyNDQwOGFiY2Q0OWIyY2M1MxImEgIAACIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqOho4+gIrCgJoMxojQSB0ZXh0IGlucHV0IHdpdGggYSBjaGFyYWN0ZXIgbGltaXQ4AdIDAggB6gMCCAE=",
+      "message": {
+        "hash": "c129602b184612824408abcd49b2cc53",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h3",
+              "body": "A text input with a character limit",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 156,
+      "base64": "CiA0MzcyYTI5YTA5MzRkMTI2N2E2MmJmNTM1ZmE3N2NmMBImEgIAASIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqUBpOwgFGCiokJElELTVlNjZhZTVlOGU5ZjIxNTQzMzg3YjI1NTk4Y2Q5Yjg4LU5vbmUSBuS4reaWhxoKYWJjZGVm8J+niigFYAFqANIDAggB",
+      "message": {
+        "hash": "4372a29a0934d1267a62bf535fa77cf0",
+        "metadata": {
+          "delta_path": [
+            0,
+            1
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text_input": {
+              "id": "$$ID-5e66ae5e8e9f21543387b25598cd9b88-None",
+              "label": "中文",
+              "default": "abcdef🧊",
+              "max_chars": 5,
+              "disabled": true,
+              "label_visibility": {}
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 199,
+      "base64": "CiBiNzAxN2NkNjViYWQ3MTQ4YjM4Njc2Nzc4YmZlMzExZRImEgIAAiIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqexp5+gFxCm17InBoYXNlIjogImRpc2FibGVkIiwgInZhbHVlIjogIktFRVBcdWQ4M2VcdWRkY2EiLCAic3RhdGUiOiBudWxsLCAiY2FsbGJhY2tzIjogWyJjaGFuZ2VkIl0sICJoYXNfa2V5IjogZmFsc2V9EAHSAwIIAQ==",
+      "message": {
+        "hash": "b7017cd65bad7148b38676778bfe311e",
+        "metadata": {
+          "delta_path": [
+            0,
+            2
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"phase\": \"disabled\", \"value\": \"KEEP\\ud83e\\uddca\", \"state\": null, \"callbacks\": [\"changed\"], \"has_key\": false}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 108,
+      "base64": "CiBhMGU5N2Y1MThjZjhmODg2NTRlNDEzYTg2NjIwN2FkYxImEgIAAyIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqIBoeChIKDlNjcmlwdCBydW5zOiAzGAHSAwIQAeoDAggB",
+      "message": {
+        "hash": "a0e97f518cf8f88654e413a866207adc",
+        "metadata": {
+          "delta_path": [
+            0,
+            3
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Script runs: 3",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 118,
+      "base64": "CiBjOTQzMTJiZjVjM2IwYTI2MWI2ZjYyOGQ4NGE5ZWRmNRImEgIABCIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqKhooChwKGENhc2U6IGZvcm0tbWF4LWNoYXJzLWNqaxgB0gMCEAHqAwIIAQ==",
+      "message": {
+        "hash": "c94312bf5c3b0a261b6f628d84a9edf5",
+        "metadata": {
+          "delta_path": [
+            0,
+            4
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Case: form-max-chars-cjk",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 118,
+      "base64": "CiA3OGEwY2E3YTFhZDRiMDRmMzI2MjFlZjRmNTYzMzNiORImEgIABSIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqKhooChwKGE1haW4gc2F3OiBjams9J0tFRVDwn6eKJxgB0gMCEAHqAwIIAQ==",
+      "message": {
+        "hash": "78a0ca7a1ad4b04f32621ef4f56333b9",
+        "metadata": {
+          "delta_path": [
+            0,
+            5
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Main saw: cjk='KEEP🧊'",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 103,
+      "base64": "CiBhNjdiNzQ4YmUxNWI5OTZhYzU0Zjg4N2M2YWZiOTRlYxImEgIABiIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqGxoZCg0KCUxlbmd0aDogNRgB0gMCEAHqAwIIAQ==",
+      "message": {
+        "hash": "a67b748be15b996ac54f887c6afb94ec",
+        "metadata": {
+          "delta_path": [
+            0,
+            6
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Length: 5",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "MAA=",
+      "message": {
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    },
+    {
+      "direction": "client->server",
+      "bytes": 106,
+      "base64": "WmgKZmNhc2U9Zm9ybS1tYXgtY2hhcnMtY2prJnByb2JlPWxlbmd0aCZraW5kPWlucHV0JmxpbWl0PTUmZGVmYXVsdD1sb25nJnVua2V5ZWQ9b24mcG9saWN5PW5vbmUmcGhhc2U9bm9uZQ==",
+      "message": {
+        "rerun_script": {
+          "query_string": "case=form-max-chars-cjk&probe=length&kind=input&limit=5&default=long&unkeyed=on&policy=none&phase=none"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "SgA=",
+      "message": {
+        "session_status_changed": {}
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 407,
+      "base64": "IpQDCq0BCl4KJDc5MDk1MDBjLWU1OWEtNTJlNy05ZjUzLWQzZGUwYzZhN2RmNCokNzkwOTUwMGMtZTU5YS01MmU3LTlmNTMtZDNkZTBjNmE3ZGY0MhBuby1tYWNoaW5lLWlkLXY0GiEKBjEuNjYuMRIOMy4xNC43LmZpbmFsLjAaB3dpbmRvd3MiAhABMiQwN2IzZjg4MS1iMzgwLTRmZTItODZlMy03OTY2Zjg3NDllMzcSJDFmNmNhNjJjLWFkMGEtNDkyZS1iZDgwLWUzNzkyNGRiMWRjZBoJZm9ybXNfYXBwIkFDOlxVc2Vyc1xraWxsZlxnaXRodWJcc3RyZWFtbGl0LXJ1c3RcdGVzdHNccmVmZXJlbmNlXGZvcm1zX2FwcC5weTIGGAIoAUgBQiIKIGViMDE0NTc4NjdmZWJhMWVjY2NlZmY1OWFjMzBmMDRmSiBlYjAxNDU3ODY3ZmViYTFlY2NjZWZmNTlhYzMwZjA0ZlogZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGY=",
+      "message": {
+        "new_session": {
+          "initialize": {
+            "user_info": {
+              "installation_id": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v3": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v4": "no-machine-id-v4"
+            },
+            "environment_info": {
+              "streamlit_version": "1.66.1",
+              "python_version": "3.14.7.final.0",
+              "server_os": "windows"
+            },
+            "session_status": {
+              "script_is_running": true
+            },
+            "session_id": "07b3f881-b380-4fe2-86e3-7966f8749e37"
+          },
+          "script_run_id": "1f6ca62c-ad0a-492e-bd80-e37924db1dcd",
+          "name": "forms_app",
+          "main_script_path": "C:\\Users\\killf\\github\\streamlit-rust\\tests\\reference\\forms_app.py",
+          "config": {
+            "max_cached_message_age": 2,
+            "allow_run_on_save": true,
+            "show_error_links": "SHOW_ERROR_LINKS_AUTO"
+          },
+          "app_pages": [
+            {
+              "page_script_hash": "eb01457867feba1eccceff59ac30f04f"
+            }
+          ],
+          "page_script_hash": "eb01457867feba1eccceff59ac30f04f",
+          "main_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 4,
+      "base64": "SgIQAQ==",
+      "message": {
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 106,
+      "base64": "CiA4Yzg5ZjcyODExMzZiMGIxNjExMzI4Y2YyOTM5Y2I2YhIiIiBlYjAxNDU3ODY3ZmViYTFlY2NjZWZmNTlhYzMwZjA0ZmoiCh5zdHJlYW1saXQtcnVzdCBmb3JtcyByZWZlcmVuY2UgAw==",
+      "message": {
+        "hash": "8c89f7281136b0b1611328cf2939cb6b",
+        "metadata": {
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "page_config_changed": {
+          "title": "streamlit-rust forms reference",
+          "initial_sidebar_state": "SIDEBAR_UNSET"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 134,
+      "base64": "CiBjMTI5NjAyYjE4NDYxMjgyNDQwOGFiY2Q0OWIyY2M1MxImEgIAACIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqOho4+gIrCgJoMxojQSB0ZXh0IGlucHV0IHdpdGggYSBjaGFyYWN0ZXIgbGltaXQ4AdIDAggB6gMCCAE=",
+      "message": {
+        "hash": "c129602b184612824408abcd49b2cc53",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h3",
+              "body": "A text input with a character limit",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 154,
+      "base64": "CiBhNTNmY2ZjMmVlNjkzNTQwODBmYjIyZTMzY2E0NjhkNxImEgIAASIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqThpMwgFECiokJElELTVlNjZhZTVlOGU5ZjIxNTQzMzg3YjI1NTk4Y2Q5Yjg4LU5vbmUSBuS4reaWhxoKYWJjZGVm8J+niigFagDSAwIIAQ==",
+      "message": {
+        "hash": "a53fcfc2ee69354080fb22e33ca468d7",
+        "metadata": {
+          "delta_path": [
+            0,
+            1
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text_input": {
+              "id": "$$ID-5e66ae5e8e9f21543387b25598cd9b88-None",
+              "label": "中文",
+              "default": "abcdef🧊",
+              "max_chars": 5,
+              "label_visibility": {}
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 195,
+      "base64": "CiBlNmFhNGNhNjIwZDFiZWIxNDZiNzc0MGYzOTY0MGMzYxImEgIAAiIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqdxp1+gFtCml7InBoYXNlIjogIm5vbmUiLCAidmFsdWUiOiAiS0VFUFx1ZDgzZVx1ZGRjYSIsICJzdGF0ZSI6IG51bGwsICJjYWxsYmFja3MiOiBbImNoYW5nZWQiXSwgImhhc19rZXkiOiBmYWxzZX0QAdIDAggB",
+      "message": {
+        "hash": "e6aa4ca620d1beb146b7740f39640c3c",
+        "metadata": {
+          "delta_path": [
+            0,
+            2
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"phase\": \"none\", \"value\": \"KEEP\\ud83e\\uddca\", \"state\": null, \"callbacks\": [\"changed\"], \"has_key\": false}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 108,
+      "base64": "CiAzZGM1ZWRlNTYzMGU1YWMyZjhlZWE0MDQwNjQwOGNkNxImEgIAAyIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqIBoeChIKDlNjcmlwdCBydW5zOiA0GAHSAwIQAeoDAggB",
+      "message": {
+        "hash": "3dc5ede5630e5ac2f8eea40406408cd7",
+        "metadata": {
+          "delta_path": [
+            0,
+            3
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Script runs: 4",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 118,
+      "base64": "CiBjOTQzMTJiZjVjM2IwYTI2MWI2ZjYyOGQ4NGE5ZWRmNRImEgIABCIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqKhooChwKGENhc2U6IGZvcm0tbWF4LWNoYXJzLWNqaxgB0gMCEAHqAwIIAQ==",
+      "message": {
+        "hash": "c94312bf5c3b0a261b6f628d84a9edf5",
+        "metadata": {
+          "delta_path": [
+            0,
+            4
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Case: form-max-chars-cjk",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 118,
+      "base64": "CiA3OGEwY2E3YTFhZDRiMDRmMzI2MjFlZjRmNTYzMzNiORImEgIABSIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqKhooChwKGE1haW4gc2F3OiBjams9J0tFRVDwn6eKJxgB0gMCEAHqAwIIAQ==",
+      "message": {
+        "hash": "78a0ca7a1ad4b04f32621ef4f56333b9",
+        "metadata": {
+          "delta_path": [
+            0,
+            5
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Main saw: cjk='KEEP🧊'",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 103,
+      "base64": "CiBhNjdiNzQ4YmUxNWI5OTZhYzU0Zjg4N2M2YWZiOTRlYxImEgIABiIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqGxoZCg0KCUxlbmd0aDogNRgB0gMCEAHqAwIIAQ==",
+      "message": {
+        "hash": "a67b748be15b996ac54f887c6afb94ec",
+        "metadata": {
+          "delta_path": [
+            0,
+            6
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Length: 5",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "MAA=",
+      "message": {
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    },
+    {
+      "direction": "client->server",
+      "bytes": 110,
+      "base64": "WmwKamNhc2U9Zm9ybS1tYXgtY2hhcnMtY2prJnByb2JlPWxlbmd0aCZraW5kPWlucHV0JmxpbWl0PTUmZGVmYXVsdD1sb25nJnVua2V5ZWQ9b24mcG9saWN5PWhpZGRlbiZwaGFzZT1oaWRkZW4=",
+      "message": {
+        "rerun_script": {
+          "query_string": "case=form-max-chars-cjk&probe=length&kind=input&limit=5&default=long&unkeyed=on&policy=hidden&phase=hidden"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "SgA=",
+      "message": {
+        "session_status_changed": {}
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 407,
+      "base64": "IpQDCq0BCl4KJDc5MDk1MDBjLWU1OWEtNTJlNy05ZjUzLWQzZGUwYzZhN2RmNCokNzkwOTUwMGMtZTU5YS01MmU3LTlmNTMtZDNkZTBjNmE3ZGY0MhBuby1tYWNoaW5lLWlkLXY0GiEKBjEuNjYuMRIOMy4xNC43LmZpbmFsLjAaB3dpbmRvd3MiAhABMiQwN2IzZjg4MS1iMzgwLTRmZTItODZlMy03OTY2Zjg3NDllMzcSJGJiZGE3N2M4LWI0OTktNDlmYy04YmFiLTViZTVhNjM2NGNiYhoJZm9ybXNfYXBwIkFDOlxVc2Vyc1xraWxsZlxnaXRodWJcc3RyZWFtbGl0LXJ1c3RcdGVzdHNccmVmZXJlbmNlXGZvcm1zX2FwcC5weTIGGAIoAUgBQiIKIGViMDE0NTc4NjdmZWJhMWVjY2NlZmY1OWFjMzBmMDRmSiBlYjAxNDU3ODY3ZmViYTFlY2NjZWZmNTlhYzMwZjA0ZlogZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGY=",
+      "message": {
+        "new_session": {
+          "initialize": {
+            "user_info": {
+              "installation_id": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v3": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v4": "no-machine-id-v4"
+            },
+            "environment_info": {
+              "streamlit_version": "1.66.1",
+              "python_version": "3.14.7.final.0",
+              "server_os": "windows"
+            },
+            "session_status": {
+              "script_is_running": true
+            },
+            "session_id": "07b3f881-b380-4fe2-86e3-7966f8749e37"
+          },
+          "script_run_id": "bbda77c8-b499-49fc-8bab-5be5a6364cbb",
+          "name": "forms_app",
+          "main_script_path": "C:\\Users\\killf\\github\\streamlit-rust\\tests\\reference\\forms_app.py",
+          "config": {
+            "max_cached_message_age": 2,
+            "allow_run_on_save": true,
+            "show_error_links": "SHOW_ERROR_LINKS_AUTO"
+          },
+          "app_pages": [
+            {
+              "page_script_hash": "eb01457867feba1eccceff59ac30f04f"
+            }
+          ],
+          "page_script_hash": "eb01457867feba1eccceff59ac30f04f",
+          "main_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 4,
+      "base64": "SgIQAQ==",
+      "message": {
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 106,
+      "base64": "CiA4Yzg5ZjcyODExMzZiMGIxNjExMzI4Y2YyOTM5Y2I2YhIiIiBlYjAxNDU3ODY3ZmViYTFlY2NjZWZmNTlhYzMwZjA0ZmoiCh5zdHJlYW1saXQtcnVzdCBmb3JtcyByZWZlcmVuY2UgAw==",
+      "message": {
+        "hash": "8c89f7281136b0b1611328cf2939cb6b",
+        "metadata": {
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "page_config_changed": {
+          "title": "streamlit-rust forms reference",
+          "initial_sidebar_state": "SIDEBAR_UNSET"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 134,
+      "base64": "CiBjMTI5NjAyYjE4NDYxMjgyNDQwOGFiY2Q0OWIyY2M1MxImEgIAACIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqOho4+gIrCgJoMxojQSB0ZXh0IGlucHV0IHdpdGggYSBjaGFyYWN0ZXIgbGltaXQ4AdIDAggB6gMCCAE=",
+      "message": {
+        "hash": "c129602b184612824408abcd49b2cc53",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h3",
+              "body": "A text input with a character limit",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 156,
+      "base64": "CiA0M2RmMGMyZWFkM2FiNGJhNTBjZWUyZjE2NjhhMTdjMBImEgIAASIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqUBpOwgFGCiokJElELTVlNjZhZTVlOGU5ZjIxNTQzMzg3YjI1NTk4Y2Q5Yjg4LU5vbmUSBuS4reaWhxoKYWJjZGVm8J+niigFagIIAdIDAggB",
+      "message": {
+        "hash": "43df0c2ead3ab4ba50cee2f1668a17c0",
+        "metadata": {
+          "delta_path": [
+            0,
+            1
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text_input": {
+              "id": "$$ID-5e66ae5e8e9f21543387b25598cd9b88-None",
+              "label": "中文",
+              "default": "abcdef🧊",
+              "max_chars": 5,
+              "label_visibility": {
+                "value": "HIDDEN"
+              }
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 197,
+      "base64": "CiBmYWYyOWQ1MTY1ODZhYjBjZmZlMTg4MjY2ZTQwMTY2NxImEgIAAiIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqeRp3+gFvCmt7InBoYXNlIjogImhpZGRlbiIsICJ2YWx1ZSI6ICJLRUVQXHVkODNlXHVkZGNhIiwgInN0YXRlIjogbnVsbCwgImNhbGxiYWNrcyI6IFsiY2hhbmdlZCJdLCAiaGFzX2tleSI6IGZhbHNlfRAB0gMCCAE=",
+      "message": {
+        "hash": "faf29d516586ab0cffe188266e401667",
+        "metadata": {
+          "delta_path": [
+            0,
+            2
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"phase\": \"hidden\", \"value\": \"KEEP\\ud83e\\uddca\", \"state\": null, \"callbacks\": [\"changed\"], \"has_key\": false}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 108,
+      "base64": "CiA5NGY4NDkxODU3M2ZkOWE2NWM5ODI4MjUxYjc2MTdkMRImEgIAAyIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqIBoeChIKDlNjcmlwdCBydW5zOiA1GAHSAwIQAeoDAggB",
+      "message": {
+        "hash": "94f84918573fd9a65c9828251b7617d1",
+        "metadata": {
+          "delta_path": [
+            0,
+            3
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Script runs: 5",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 118,
+      "base64": "CiBjOTQzMTJiZjVjM2IwYTI2MWI2ZjYyOGQ4NGE5ZWRmNRImEgIABCIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqKhooChwKGENhc2U6IGZvcm0tbWF4LWNoYXJzLWNqaxgB0gMCEAHqAwIIAQ==",
+      "message": {
+        "hash": "c94312bf5c3b0a261b6f628d84a9edf5",
+        "metadata": {
+          "delta_path": [
+            0,
+            4
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Case: form-max-chars-cjk",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 118,
+      "base64": "CiA3OGEwY2E3YTFhZDRiMDRmMzI2MjFlZjRmNTYzMzNiORImEgIABSIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqKhooChwKGE1haW4gc2F3OiBjams9J0tFRVDwn6eKJxgB0gMCEAHqAwIIAQ==",
+      "message": {
+        "hash": "78a0ca7a1ad4b04f32621ef4f56333b9",
+        "metadata": {
+          "delta_path": [
+            0,
+            5
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Main saw: cjk='KEEP🧊'",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 103,
+      "base64": "CiBhNjdiNzQ4YmUxNWI5OTZhYzU0Zjg4N2M2YWZiOTRlYxImEgIABiIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqGxoZCg0KCUxlbmd0aDogNRgB0gMCEAHqAwIIAQ==",
+      "message": {
+        "hash": "a67b748be15b996ac54f887c6afb94ec",
+        "metadata": {
+          "delta_path": [
+            0,
+            6
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Length: 5",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "MAA=",
+      "message": {
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    },
+    {
+      "direction": "client->server",
+      "bytes": 110,
+      "base64": "WmwKamNhc2U9Zm9ybS1tYXgtY2hhcnMtY2prJnByb2JlPWxlbmd0aCZraW5kPWlucHV0JmxpbWl0PTUmZGVmYXVsdD1sb25nJnVua2V5ZWQ9b24mcG9saWN5PWlnbm9yZSZwaGFzZT1pZ25vcmU=",
+      "message": {
+        "rerun_script": {
+          "query_string": "case=form-max-chars-cjk&probe=length&kind=input&limit=5&default=long&unkeyed=on&policy=ignore&phase=ignore"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "SgA=",
+      "message": {
+        "session_status_changed": {}
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 407,
+      "base64": "IpQDCq0BCl4KJDc5MDk1MDBjLWU1OWEtNTJlNy05ZjUzLWQzZGUwYzZhN2RmNCokNzkwOTUwMGMtZTU5YS01MmU3LTlmNTMtZDNkZTBjNmE3ZGY0MhBuby1tYWNoaW5lLWlkLXY0GiEKBjEuNjYuMRIOMy4xNC43LmZpbmFsLjAaB3dpbmRvd3MiAhABMiQwN2IzZjg4MS1iMzgwLTRmZTItODZlMy03OTY2Zjg3NDllMzcSJGNmMzc4Yzc4LTk2MmUtNGE4NS05Y2FmLWJmYmY1ZjBkYzBlMRoJZm9ybXNfYXBwIkFDOlxVc2Vyc1xraWxsZlxnaXRodWJcc3RyZWFtbGl0LXJ1c3RcdGVzdHNccmVmZXJlbmNlXGZvcm1zX2FwcC5weTIGGAIoAUgBQiIKIGViMDE0NTc4NjdmZWJhMWVjY2NlZmY1OWFjMzBmMDRmSiBlYjAxNDU3ODY3ZmViYTFlY2NjZWZmNTlhYzMwZjA0ZlogZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGY=",
+      "message": {
+        "new_session": {
+          "initialize": {
+            "user_info": {
+              "installation_id": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v3": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v4": "no-machine-id-v4"
+            },
+            "environment_info": {
+              "streamlit_version": "1.66.1",
+              "python_version": "3.14.7.final.0",
+              "server_os": "windows"
+            },
+            "session_status": {
+              "script_is_running": true
+            },
+            "session_id": "07b3f881-b380-4fe2-86e3-7966f8749e37"
+          },
+          "script_run_id": "cf378c78-962e-4a85-9caf-bfbf5f0dc0e1",
+          "name": "forms_app",
+          "main_script_path": "C:\\Users\\killf\\github\\streamlit-rust\\tests\\reference\\forms_app.py",
+          "config": {
+            "max_cached_message_age": 2,
+            "allow_run_on_save": true,
+            "show_error_links": "SHOW_ERROR_LINKS_AUTO"
+          },
+          "app_pages": [
+            {
+              "page_script_hash": "eb01457867feba1eccceff59ac30f04f"
+            }
+          ],
+          "page_script_hash": "eb01457867feba1eccceff59ac30f04f",
+          "main_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 4,
+      "base64": "SgIQAQ==",
+      "message": {
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 106,
+      "base64": "CiA4Yzg5ZjcyODExMzZiMGIxNjExMzI4Y2YyOTM5Y2I2YhIiIiBlYjAxNDU3ODY3ZmViYTFlY2NjZWZmNTlhYzMwZjA0ZmoiCh5zdHJlYW1saXQtcnVzdCBmb3JtcyByZWZlcmVuY2UgAw==",
+      "message": {
+        "hash": "8c89f7281136b0b1611328cf2939cb6b",
+        "metadata": {
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "page_config_changed": {
+          "title": "streamlit-rust forms reference",
+          "initial_sidebar_state": "SIDEBAR_UNSET"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 134,
+      "base64": "CiBjMTI5NjAyYjE4NDYxMjgyNDQwOGFiY2Q0OWIyY2M1MxImEgIAACIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqOho4+gIrCgJoMxojQSB0ZXh0IGlucHV0IHdpdGggYSBjaGFyYWN0ZXIgbGltaXQ4AdIDAggB6gMCCAE=",
+      "message": {
+        "hash": "c129602b184612824408abcd49b2cc53",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h3",
+              "body": "A text input with a character limit",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 157,
+      "base64": "CiAzNzU1NTk1MWViMjI0N2UyNDU1M2M4MzM3ODhjNWQzMRImEgIAASIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqURpPwgFHCiokJElELTVlNjZhZTVlOGU5ZjIxNTQzMzg3YjI1NTk4Y2Q5Yjg4LU5vbmUSBuS4reaWhxoKYWJjZGVm8J+niigFagCQAQHSAwIIAQ==",
+      "message": {
+        "hash": "37555951eb2247e24553c833788c5d31",
+        "metadata": {
+          "delta_path": [
+            0,
+            1
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text_input": {
+              "id": "$$ID-5e66ae5e8e9f21543387b25598cd9b88-None",
+              "label": "中文",
+              "default": "abcdef🧊",
+              "max_chars": 5,
+              "label_visibility": {},
+              "ignore_rerun": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 197,
+      "base64": "CiBiOTk2YTQ0M2Q2NzZiZjM5YWU5MTliZDJhYzIyNjRiORImEgIAAiIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqeRp3+gFvCmt7InBoYXNlIjogImlnbm9yZSIsICJ2YWx1ZSI6ICJLRUVQXHVkODNlXHVkZGNhIiwgInN0YXRlIjogbnVsbCwgImNhbGxiYWNrcyI6IFsiY2hhbmdlZCJdLCAiaGFzX2tleSI6IGZhbHNlfRAB0gMCCAE=",
+      "message": {
+        "hash": "b996a443d676bf39ae919bd2ac2264b9",
+        "metadata": {
+          "delta_path": [
+            0,
+            2
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"phase\": \"ignore\", \"value\": \"KEEP\\ud83e\\uddca\", \"state\": null, \"callbacks\": [\"changed\"], \"has_key\": false}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 108,
+      "base64": "CiAzNzNlMTJjNGJiOTc4MGRkMmQ2ZDJjZTBlMTVhMDRiZBImEgIAAyIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqIBoeChIKDlNjcmlwdCBydW5zOiA2GAHSAwIQAeoDAggB",
+      "message": {
+        "hash": "373e12c4bb9780dd2d6d2ce0e15a04bd",
+        "metadata": {
+          "delta_path": [
+            0,
+            3
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Script runs: 6",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 118,
+      "base64": "CiBjOTQzMTJiZjVjM2IwYTI2MWI2ZjYyOGQ4NGE5ZWRmNRImEgIABCIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqKhooChwKGENhc2U6IGZvcm0tbWF4LWNoYXJzLWNqaxgB0gMCEAHqAwIIAQ==",
+      "message": {
+        "hash": "c94312bf5c3b0a261b6f628d84a9edf5",
+        "metadata": {
+          "delta_path": [
+            0,
+            4
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Case: form-max-chars-cjk",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 118,
+      "base64": "CiA3OGEwY2E3YTFhZDRiMDRmMzI2MjFlZjRmNTYzMzNiORImEgIABSIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqKhooChwKGE1haW4gc2F3OiBjams9J0tFRVDwn6eKJxgB0gMCEAHqAwIIAQ==",
+      "message": {
+        "hash": "78a0ca7a1ad4b04f32621ef4f56333b9",
+        "metadata": {
+          "delta_path": [
+            0,
+            5
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Main saw: cjk='KEEP🧊'",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 103,
+      "base64": "CiBhNjdiNzQ4YmUxNWI5OTZhYzU0Zjg4N2M2YWZiOTRlYxImEgIABiIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqGxoZCg0KCUxlbmd0aDogNRgB0gMCEAHqAwIIAQ==",
+      "message": {
+        "hash": "a67b748be15b996ac54f887c6afb94ec",
+        "metadata": {
+          "delta_path": [
+            0,
+            6
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Length: 5",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "MAA=",
+      "message": {
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    },
+    {
+      "direction": "client->server",
+      "bytes": 116,
+      "base64": "WnIKcGNhc2U9Zm9ybS1tYXgtY2hhcnMtY2prJnByb2JlPWxlbmd0aCZraW5kPWlucHV0JmxpbWl0PTUmZGVmYXVsdD1sb25nJnVua2V5ZWQ9b24mcG9saWN5PWNvbGxhcHNlZCZwaGFzZT1jb2xsYXBzZWQ=",
+      "message": {
+        "rerun_script": {
+          "query_string": "case=form-max-chars-cjk&probe=length&kind=input&limit=5&default=long&unkeyed=on&policy=collapsed&phase=collapsed"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "SgA=",
+      "message": {
+        "session_status_changed": {}
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 407,
+      "base64": "IpQDCq0BCl4KJDc5MDk1MDBjLWU1OWEtNTJlNy05ZjUzLWQzZGUwYzZhN2RmNCokNzkwOTUwMGMtZTU5YS01MmU3LTlmNTMtZDNkZTBjNmE3ZGY0MhBuby1tYWNoaW5lLWlkLXY0GiEKBjEuNjYuMRIOMy4xNC43LmZpbmFsLjAaB3dpbmRvd3MiAhABMiQwN2IzZjg4MS1iMzgwLTRmZTItODZlMy03OTY2Zjg3NDllMzcSJDgwNmU5MTFjLTY0ODEtNDZhMy05ZDhmLTRiZDc0ZjA3YjU2MBoJZm9ybXNfYXBwIkFDOlxVc2Vyc1xraWxsZlxnaXRodWJcc3RyZWFtbGl0LXJ1c3RcdGVzdHNccmVmZXJlbmNlXGZvcm1zX2FwcC5weTIGGAIoAUgBQiIKIGViMDE0NTc4NjdmZWJhMWVjY2NlZmY1OWFjMzBmMDRmSiBlYjAxNDU3ODY3ZmViYTFlY2NjZWZmNTlhYzMwZjA0ZlogZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGY=",
+      "message": {
+        "new_session": {
+          "initialize": {
+            "user_info": {
+              "installation_id": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v3": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v4": "no-machine-id-v4"
+            },
+            "environment_info": {
+              "streamlit_version": "1.66.1",
+              "python_version": "3.14.7.final.0",
+              "server_os": "windows"
+            },
+            "session_status": {
+              "script_is_running": true
+            },
+            "session_id": "07b3f881-b380-4fe2-86e3-7966f8749e37"
+          },
+          "script_run_id": "806e911c-6481-46a3-9d8f-4bd74f07b560",
+          "name": "forms_app",
+          "main_script_path": "C:\\Users\\killf\\github\\streamlit-rust\\tests\\reference\\forms_app.py",
+          "config": {
+            "max_cached_message_age": 2,
+            "allow_run_on_save": true,
+            "show_error_links": "SHOW_ERROR_LINKS_AUTO"
+          },
+          "app_pages": [
+            {
+              "page_script_hash": "eb01457867feba1eccceff59ac30f04f"
+            }
+          ],
+          "page_script_hash": "eb01457867feba1eccceff59ac30f04f",
+          "main_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 4,
+      "base64": "SgIQAQ==",
+      "message": {
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 106,
+      "base64": "CiA4Yzg5ZjcyODExMzZiMGIxNjExMzI4Y2YyOTM5Y2I2YhIiIiBlYjAxNDU3ODY3ZmViYTFlY2NjZWZmNTlhYzMwZjA0ZmoiCh5zdHJlYW1saXQtcnVzdCBmb3JtcyByZWZlcmVuY2UgAw==",
+      "message": {
+        "hash": "8c89f7281136b0b1611328cf2939cb6b",
+        "metadata": {
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "page_config_changed": {
+          "title": "streamlit-rust forms reference",
+          "initial_sidebar_state": "SIDEBAR_UNSET"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 134,
+      "base64": "CiBjMTI5NjAyYjE4NDYxMjgyNDQwOGFiY2Q0OWIyY2M1MxImEgIAACIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqOho4+gIrCgJoMxojQSB0ZXh0IGlucHV0IHdpdGggYSBjaGFyYWN0ZXIgbGltaXQ4AdIDAggB6gMCCAE=",
+      "message": {
+        "hash": "c129602b184612824408abcd49b2cc53",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h3",
+              "body": "A text input with a character limit",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 156,
+      "base64": "CiAxNDY1ZTRjYWVmZjhiZTVjOWNmMjk1ZTJiZDVmMmNhYhImEgIAASIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqUBpOwgFGCiokJElELTVlNjZhZTVlOGU5ZjIxNTQzMzg3YjI1NTk4Y2Q5Yjg4LU5vbmUSBuS4reaWhxoKYWJjZGVm8J+niigFagIIAtIDAggB",
+      "message": {
+        "hash": "1465e4caeff8be5c9cf295e2bd5f2cab",
+        "metadata": {
+          "delta_path": [
+            0,
+            1
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text_input": {
+              "id": "$$ID-5e66ae5e8e9f21543387b25598cd9b88-None",
+              "label": "中文",
+              "default": "abcdef🧊",
+              "max_chars": 5,
+              "label_visibility": {
+                "value": "COLLAPSED"
+              }
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 200,
+      "base64": "CiBmMzNlZjBmM2QwYjBjMjZiY2NlNjk0Yjc3MmQ2MTA5MRImEgIAAiIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqfBp6+gFyCm57InBoYXNlIjogImNvbGxhcHNlZCIsICJ2YWx1ZSI6ICJLRUVQXHVkODNlXHVkZGNhIiwgInN0YXRlIjogbnVsbCwgImNhbGxiYWNrcyI6IFsiY2hhbmdlZCJdLCAiaGFzX2tleSI6IGZhbHNlfRAB0gMCCAE=",
+      "message": {
+        "hash": "f33ef0f3d0b0c26bcce694b772d61091",
+        "metadata": {
+          "delta_path": [
+            0,
+            2
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"phase\": \"collapsed\", \"value\": \"KEEP\\ud83e\\uddca\", \"state\": null, \"callbacks\": [\"changed\"], \"has_key\": false}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 108,
+      "base64": "CiBmNjIxN2NkMjU1N2QxZDY2YTU5NWZkZTMzNWViZGI2MBImEgIAAyIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqIBoeChIKDlNjcmlwdCBydW5zOiA3GAHSAwIQAeoDAggB",
+      "message": {
+        "hash": "f6217cd2557d1d66a595fde335ebdb60",
+        "metadata": {
+          "delta_path": [
+            0,
+            3
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Script runs: 7",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 118,
+      "base64": "CiBjOTQzMTJiZjVjM2IwYTI2MWI2ZjYyOGQ4NGE5ZWRmNRImEgIABCIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqKhooChwKGENhc2U6IGZvcm0tbWF4LWNoYXJzLWNqaxgB0gMCEAHqAwIIAQ==",
+      "message": {
+        "hash": "c94312bf5c3b0a261b6f628d84a9edf5",
+        "metadata": {
+          "delta_path": [
+            0,
+            4
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Case: form-max-chars-cjk",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 118,
+      "base64": "CiA3OGEwY2E3YTFhZDRiMDRmMzI2MjFlZjRmNTYzMzNiORImEgIABSIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqKhooChwKGE1haW4gc2F3OiBjams9J0tFRVDwn6eKJxgB0gMCEAHqAwIIAQ==",
+      "message": {
+        "hash": "78a0ca7a1ad4b04f32621ef4f56333b9",
+        "metadata": {
+          "delta_path": [
+            0,
+            5
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Main saw: cjk='KEEP🧊'",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 103,
+      "base64": "CiBhNjdiNzQ4YmUxNWI5OTZhYzU0Zjg4N2M2YWZiOTRlYxImEgIABiIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqGxoZCg0KCUxlbmd0aDogNRgB0gMCEAHqAwIIAQ==",
+      "message": {
+        "hash": "a67b748be15b996ac54f887c6afb94ec",
+        "metadata": {
+          "delta_path": [
+            0,
+            6
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Length: 5",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "MAA=",
+      "message": {
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    },
+    {
+      "direction": "client->server",
+      "bytes": 120,
+      "base64": "WnYKdGNhc2U9Zm9ybS1tYXgtY2hhcnMtY2prJnByb2JlPWxlbmd0aCZraW5kPWlucHV0JmxpbWl0PTUmZGVmYXVsdD1sb25nJnVua2V5ZWQ9b24mcG9saWN5PW5vcm1hbCZwaXhlbHM9MzIwJnBoYXNlPXdpZHRo",
+      "message": {
+        "rerun_script": {
+          "query_string": "case=form-max-chars-cjk&probe=length&kind=input&limit=5&default=long&unkeyed=on&policy=normal&pixels=320&phase=width"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "SgA=",
+      "message": {
+        "session_status_changed": {}
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 407,
+      "base64": "IpQDCq0BCl4KJDc5MDk1MDBjLWU1OWEtNTJlNy05ZjUzLWQzZGUwYzZhN2RmNCokNzkwOTUwMGMtZTU5YS01MmU3LTlmNTMtZDNkZTBjNmE3ZGY0MhBuby1tYWNoaW5lLWlkLXY0GiEKBjEuNjYuMRIOMy4xNC43LmZpbmFsLjAaB3dpbmRvd3MiAhABMiQwN2IzZjg4MS1iMzgwLTRmZTItODZlMy03OTY2Zjg3NDllMzcSJDY0NTA2ZWFkLWQ2MzgtNDdjOS05YzZkLTVkY2JlNzZkZWE1MRoJZm9ybXNfYXBwIkFDOlxVc2Vyc1xraWxsZlxnaXRodWJcc3RyZWFtbGl0LXJ1c3RcdGVzdHNccmVmZXJlbmNlXGZvcm1zX2FwcC5weTIGGAIoAUgBQiIKIGViMDE0NTc4NjdmZWJhMWVjY2NlZmY1OWFjMzBmMDRmSiBlYjAxNDU3ODY3ZmViYTFlY2NjZWZmNTlhYzMwZjA0ZlogZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGY=",
+      "message": {
+        "new_session": {
+          "initialize": {
+            "user_info": {
+              "installation_id": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v3": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v4": "no-machine-id-v4"
+            },
+            "environment_info": {
+              "streamlit_version": "1.66.1",
+              "python_version": "3.14.7.final.0",
+              "server_os": "windows"
+            },
+            "session_status": {
+              "script_is_running": true
+            },
+            "session_id": "07b3f881-b380-4fe2-86e3-7966f8749e37"
+          },
+          "script_run_id": "64506ead-d638-47c9-9c6d-5dcbe76dea51",
+          "name": "forms_app",
+          "main_script_path": "C:\\Users\\killf\\github\\streamlit-rust\\tests\\reference\\forms_app.py",
+          "config": {
+            "max_cached_message_age": 2,
+            "allow_run_on_save": true,
+            "show_error_links": "SHOW_ERROR_LINKS_AUTO"
+          },
+          "app_pages": [
+            {
+              "page_script_hash": "eb01457867feba1eccceff59ac30f04f"
+            }
+          ],
+          "page_script_hash": "eb01457867feba1eccceff59ac30f04f",
+          "main_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 4,
+      "base64": "SgIQAQ==",
+      "message": {
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 106,
+      "base64": "CiA4Yzg5ZjcyODExMzZiMGIxNjExMzI4Y2YyOTM5Y2I2YhIiIiBlYjAxNDU3ODY3ZmViYTFlY2NjZWZmNTlhYzMwZjA0ZmoiCh5zdHJlYW1saXQtcnVzdCBmb3JtcyByZWZlcmVuY2UgAw==",
+      "message": {
+        "hash": "8c89f7281136b0b1611328cf2939cb6b",
+        "metadata": {
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "page_config_changed": {
+          "title": "streamlit-rust forms reference",
+          "initial_sidebar_state": "SIDEBAR_UNSET"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 134,
+      "base64": "CiBjMTI5NjAyYjE4NDYxMjgyNDQwOGFiY2Q0OWIyY2M1MxImEgIAACIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqOho4+gIrCgJoMxojQSB0ZXh0IGlucHV0IHdpdGggYSBjaGFyYWN0ZXIgbGltaXQ4AdIDAggB6gMCCAE=",
+      "message": {
+        "hash": "c129602b184612824408abcd49b2cc53",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h3",
+              "body": "A text input with a character limit",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 155,
+      "base64": "CiAwZmFmMWI5OTI1OWIzNTc3NWU5YmQ1Zjc5YzRiYTEwNxImEgIAASIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqTxpNwgFECiokJElELTZjZjNiYWFiNzE5ZGQzNjlmM2ViMDM0YTMyY2YxYTU3LU5vbmUSBuS4reaWhxoKYWJjZGVm8J+niigFagDSAwMYwAI=",
+      "message": {
+        "hash": "0faf1b99259b35775e9bd5f79c4ba107",
+        "metadata": {
+          "delta_path": [
+            0,
+            1
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text_input": {
+              "id": "$$ID-6cf3baab719dd369f3eb034a32cf1a57-None",
+              "label": "中文",
+              "default": "abcdef🧊",
+              "max_chars": 5,
+              "label_visibility": {}
+            },
+            "width_config": {
+              "pixel_width": 320
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 185,
+      "base64": "CiBmNjA2M2NmM2JiMDlhODBlMGYyY2I1MDZmOWNiYzY5ZRImEgIAAiIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqbRpr+gFjCl97InBoYXNlIjogIndpZHRoIiwgInZhbHVlIjogImFiY2RlIiwgInN0YXRlIjogbnVsbCwgImNhbGxiYWNrcyI6IFsiY2hhbmdlZCJdLCAiaGFzX2tleSI6IGZhbHNlfRAB0gMCCAE=",
+      "message": {
+        "hash": "f6063cf3bb09a80e0f2cb506f9cbc69e",
+        "metadata": {
+          "delta_path": [
+            0,
+            2
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"phase\": \"width\", \"value\": \"abcde\", \"state\": null, \"callbacks\": [\"changed\"], \"has_key\": false}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 108,
+      "base64": "CiA1MDZjOWI1MmIwYWU4NDg2YjU1NGEwMzZkZmNjY2FjYhImEgIAAyIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqIBoeChIKDlNjcmlwdCBydW5zOiA4GAHSAwIQAeoDAggB",
+      "message": {
+        "hash": "506c9b52b0ae8486b554a036dfcccacb",
+        "metadata": {
+          "delta_path": [
+            0,
+            3
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Script runs: 8",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 118,
+      "base64": "CiBjOTQzMTJiZjVjM2IwYTI2MWI2ZjYyOGQ4NGE5ZWRmNRImEgIABCIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqKhooChwKGENhc2U6IGZvcm0tbWF4LWNoYXJzLWNqaxgB0gMCEAHqAwIIAQ==",
+      "message": {
+        "hash": "c94312bf5c3b0a261b6f628d84a9edf5",
+        "metadata": {
+          "delta_path": [
+            0,
+            4
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Case: form-max-chars-cjk",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 115,
+      "base64": "CiBkMzU1MTQ4OGU3YmI1NDQxODJmYTZjODZjMzQ2ZmMwORImEgIABSIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqJxolChkKFU1haW4gc2F3OiBjams9J2FiY2RlJxgB0gMCEAHqAwIIAQ==",
+      "message": {
+        "hash": "d3551488e7bb544182fa6c86c346fc09",
+        "metadata": {
+          "delta_path": [
+            0,
+            5
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Main saw: cjk='abcde'",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 103,
+      "base64": "CiBhNjdiNzQ4YmUxNWI5OTZhYzU0Zjg4N2M2YWZiOTRlYxImEgIABiIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqGxoZCg0KCUxlbmd0aDogNRgB0gMCEAHqAwIIAQ==",
+      "message": {
+        "hash": "a67b748be15b996ac54f887c6afb94ec",
+        "metadata": {
+          "delta_path": [
+            0,
+            6
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Length: 5",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "MAA=",
+      "message": {
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    },
+    {
+      "direction": "client->server",
+      "bytes": 187,
+      "base64": "WrgBCnhjYXNlPWZvcm0tbWF4LWNoYXJzLWNqayZwcm9iZT1sZW5ndGgma2luZD1pbnB1dCZsaW1pdD01JmRlZmF1bHQ9bG9uZyZ1bmtleWVkPW9uJnBvbGljeT1ub3JtYWwmcGl4ZWxzPTMyMCZwaGFzZT1lZGl0LXdpZGUSPAo6CiokJElELTZjZjNiYWFiNzE5ZGQzNjlmM2ViMDM0YTMyY2YxYTU3LU5vbmUyDEVESVTwn6eKdGFpbA==",
+      "message": {
+        "rerun_script": {
+          "query_string": "case=form-max-chars-cjk&probe=length&kind=input&limit=5&default=long&unkeyed=on&policy=normal&pixels=320&phase=edit-wide",
+          "widget_states": {
+            "widgets": [
+              {
+                "id": "$$ID-6cf3baab719dd369f3eb034a32cf1a57-None",
+                "string_value": "EDIT🧊tail"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "SgA=",
+      "message": {
+        "session_status_changed": {}
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 407,
+      "base64": "IpQDCq0BCl4KJDc5MDk1MDBjLWU1OWEtNTJlNy05ZjUzLWQzZGUwYzZhN2RmNCokNzkwOTUwMGMtZTU5YS01MmU3LTlmNTMtZDNkZTBjNmE3ZGY0MhBuby1tYWNoaW5lLWlkLXY0GiEKBjEuNjYuMRIOMy4xNC43LmZpbmFsLjAaB3dpbmRvd3MiAhABMiQwN2IzZjg4MS1iMzgwLTRmZTItODZlMy03OTY2Zjg3NDllMzcSJDE0MTRlNjVkLTY5ZDctNDQzMS04ZDI2LThlODQ3ZjE0YWRjNRoJZm9ybXNfYXBwIkFDOlxVc2Vyc1xraWxsZlxnaXRodWJcc3RyZWFtbGl0LXJ1c3RcdGVzdHNccmVmZXJlbmNlXGZvcm1zX2FwcC5weTIGGAIoAUgBQiIKIGViMDE0NTc4NjdmZWJhMWVjY2NlZmY1OWFjMzBmMDRmSiBlYjAxNDU3ODY3ZmViYTFlY2NjZWZmNTlhYzMwZjA0ZlogZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGY=",
+      "message": {
+        "new_session": {
+          "initialize": {
+            "user_info": {
+              "installation_id": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v3": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v4": "no-machine-id-v4"
+            },
+            "environment_info": {
+              "streamlit_version": "1.66.1",
+              "python_version": "3.14.7.final.0",
+              "server_os": "windows"
+            },
+            "session_status": {
+              "script_is_running": true
+            },
+            "session_id": "07b3f881-b380-4fe2-86e3-7966f8749e37"
+          },
+          "script_run_id": "1414e65d-69d7-4431-8d26-8e847f14adc5",
+          "name": "forms_app",
+          "main_script_path": "C:\\Users\\killf\\github\\streamlit-rust\\tests\\reference\\forms_app.py",
+          "config": {
+            "max_cached_message_age": 2,
+            "allow_run_on_save": true,
+            "show_error_links": "SHOW_ERROR_LINKS_AUTO"
+          },
+          "app_pages": [
+            {
+              "page_script_hash": "eb01457867feba1eccceff59ac30f04f"
+            }
+          ],
+          "page_script_hash": "eb01457867feba1eccceff59ac30f04f",
+          "main_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 4,
+      "base64": "SgIQAQ==",
+      "message": {
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 106,
+      "base64": "CiA4Yzg5ZjcyODExMzZiMGIxNjExMzI4Y2YyOTM5Y2I2YhIiIiBlYjAxNDU3ODY3ZmViYTFlY2NjZWZmNTlhYzMwZjA0ZmoiCh5zdHJlYW1saXQtcnVzdCBmb3JtcyByZWZlcmVuY2UgAw==",
+      "message": {
+        "hash": "8c89f7281136b0b1611328cf2939cb6b",
+        "metadata": {
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "page_config_changed": {
+          "title": "streamlit-rust forms reference",
+          "initial_sidebar_state": "SIDEBAR_UNSET"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 134,
+      "base64": "CiBjMTI5NjAyYjE4NDYxMjgyNDQwOGFiY2Q0OWIyY2M1MxImEgIAACIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqOho4+gIrCgJoMxojQSB0ZXh0IGlucHV0IHdpdGggYSBjaGFyYWN0ZXIgbGltaXQ4AdIDAggB6gMCCAE=",
+      "message": {
+        "hash": "c129602b184612824408abcd49b2cc53",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h3",
+              "body": "A text input with a character limit",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 155,
+      "base64": "CiAwZmFmMWI5OTI1OWIzNTc3NWU5YmQ1Zjc5YzRiYTEwNxImEgIAASIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqTxpNwgFECiokJElELTZjZjNiYWFiNzE5ZGQzNjlmM2ViMDM0YTMyY2YxYTU3LU5vbmUSBuS4reaWhxoKYWJjZGVm8J+niigFagDSAwMYwAI=",
+      "message": {
+        "hash": "0faf1b99259b35775e9bd5f79c4ba107",
+        "metadata": {
+          "delta_path": [
+            0,
+            1
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text_input": {
+              "id": "$$ID-6cf3baab719dd369f3eb034a32cf1a57-None",
+              "label": "中文",
+              "default": "abcdef🧊",
+              "max_chars": 5,
+              "label_visibility": {}
+            },
+            "width_config": {
+              "pixel_width": 320
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 213,
+      "base64": "CiA4MDBlZDIzOTNlZDhlNzc0ODYyYzk1YjBjNDgwYWRkZRImEgIAAiIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqiAEahQH6AX0KeXsicGhhc2UiOiAiZWRpdC13aWRlIiwgInZhbHVlIjogIkVESVRcdWQ4M2VcdWRkY2EiLCAic3RhdGUiOiBudWxsLCAiY2FsbGJhY2tzIjogWyJjaGFuZ2VkIiwgImNoYW5nZWQiXSwgImhhc19rZXkiOiBmYWxzZX0QAdIDAggB",
+      "message": {
+        "hash": "800ed2393ed8e774862c95b0c480adde",
+        "metadata": {
+          "delta_path": [
+            0,
+            2
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"phase\": \"edit-wide\", \"value\": \"EDIT\\ud83e\\uddca\", \"state\": null, \"callbacks\": [\"changed\", \"changed\"], \"has_key\": false}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 108,
+      "base64": "CiA0Y2U0MDhkOTViZDAzMDJlNjNjMGE5MDRkNzhkNjFiNBImEgIAAyIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqIBoeChIKDlNjcmlwdCBydW5zOiA5GAHSAwIQAeoDAggB",
+      "message": {
+        "hash": "4ce408d95bd0302e63c0a904d78d61b4",
+        "metadata": {
+          "delta_path": [
+            0,
+            3
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Script runs: 9",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 118,
+      "base64": "CiBjOTQzMTJiZjVjM2IwYTI2MWI2ZjYyOGQ4NGE5ZWRmNRImEgIABCIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqKhooChwKGENhc2U6IGZvcm0tbWF4LWNoYXJzLWNqaxgB0gMCEAHqAwIIAQ==",
+      "message": {
+        "hash": "c94312bf5c3b0a261b6f628d84a9edf5",
+        "metadata": {
+          "delta_path": [
+            0,
+            4
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Case: form-max-chars-cjk",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 118,
+      "base64": "CiA1OWYyNmIxNjg3MTJkYjVlM2M1YTAwODE2NWViOTQ4MxImEgIABSIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqKhooChwKGE1haW4gc2F3OiBjams9J0VESVTwn6eKJxgB0gMCEAHqAwIIAQ==",
+      "message": {
+        "hash": "59f26b168712db5e3c5a008165eb9483",
+        "metadata": {
+          "delta_path": [
+            0,
+            5
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Main saw: cjk='EDIT🧊'",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 103,
+      "base64": "CiBhNjdiNzQ4YmUxNWI5OTZhYzU0Zjg4N2M2YWZiOTRlYxImEgIABiIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqGxoZCg0KCUxlbmd0aDogNRgB0gMCEAHqAwIIAQ==",
+      "message": {
+        "hash": "a67b748be15b996ac54f887c6afb94ec",
+        "metadata": {
+          "delta_path": [
+            0,
+            6
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Length: 5",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "MAA=",
+      "message": {
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    },
+    {
+      "direction": "client->server",
+      "bytes": 128,
+      "base64": "Wn4KfGNhc2U9Zm9ybS1tYXgtY2hhcnMtY2prJnByb2JlPWxlbmd0aCZraW5kPWlucHV0JmxpbWl0PTUmZGVmYXVsdD1sb25nJnVua2V5ZWQ9b24mcG9saWN5PW5vcm1hbCZwaXhlbHM9MzIwJmhlbHA9bmV3JnBoYXNlPWhlbHA=",
+      "message": {
+        "rerun_script": {
+          "query_string": "case=form-max-chars-cjk&probe=length&kind=input&limit=5&default=long&unkeyed=on&policy=normal&pixels=320&help=new&phase=help"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "SgA=",
+      "message": {
+        "session_status_changed": {}
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 407,
+      "base64": "IpQDCq0BCl4KJDc5MDk1MDBjLWU1OWEtNTJlNy05ZjUzLWQzZGUwYzZhN2RmNCokNzkwOTUwMGMtZTU5YS01MmU3LTlmNTMtZDNkZTBjNmE3ZGY0MhBuby1tYWNoaW5lLWlkLXY0GiEKBjEuNjYuMRIOMy4xNC43LmZpbmFsLjAaB3dpbmRvd3MiAhABMiQwN2IzZjg4MS1iMzgwLTRmZTItODZlMy03OTY2Zjg3NDllMzcSJDZlMzc5Y2NjLTI0NWItNDBmOC1hZTRhLWNiYzZmMTQwZDRjYxoJZm9ybXNfYXBwIkFDOlxVc2Vyc1xraWxsZlxnaXRodWJcc3RyZWFtbGl0LXJ1c3RcdGVzdHNccmVmZXJlbmNlXGZvcm1zX2FwcC5weTIGGAIoAUgBQiIKIGViMDE0NTc4NjdmZWJhMWVjY2NlZmY1OWFjMzBmMDRmSiBlYjAxNDU3ODY3ZmViYTFlY2NjZWZmNTlhYzMwZjA0ZlogZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGY=",
+      "message": {
+        "new_session": {
+          "initialize": {
+            "user_info": {
+              "installation_id": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v3": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v4": "no-machine-id-v4"
+            },
+            "environment_info": {
+              "streamlit_version": "1.66.1",
+              "python_version": "3.14.7.final.0",
+              "server_os": "windows"
+            },
+            "session_status": {
+              "script_is_running": true
+            },
+            "session_id": "07b3f881-b380-4fe2-86e3-7966f8749e37"
+          },
+          "script_run_id": "6e379ccc-245b-40f8-ae4a-cbc6f140d4cc",
+          "name": "forms_app",
+          "main_script_path": "C:\\Users\\killf\\github\\streamlit-rust\\tests\\reference\\forms_app.py",
+          "config": {
+            "max_cached_message_age": 2,
+            "allow_run_on_save": true,
+            "show_error_links": "SHOW_ERROR_LINKS_AUTO"
+          },
+          "app_pages": [
+            {
+              "page_script_hash": "eb01457867feba1eccceff59ac30f04f"
+            }
+          ],
+          "page_script_hash": "eb01457867feba1eccceff59ac30f04f",
+          "main_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 4,
+      "base64": "SgIQAQ==",
+      "message": {
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 106,
+      "base64": "CiA4Yzg5ZjcyODExMzZiMGIxNjExMzI4Y2YyOTM5Y2I2YhIiIiBlYjAxNDU3ODY3ZmViYTFlY2NjZWZmNTlhYzMwZjA0ZmoiCh5zdHJlYW1saXQtcnVzdCBmb3JtcyByZWZlcmVuY2UgAw==",
+      "message": {
+        "hash": "8c89f7281136b0b1611328cf2939cb6b",
+        "metadata": {
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "page_config_changed": {
+          "title": "streamlit-rust forms reference",
+          "initial_sidebar_state": "SIDEBAR_UNSET"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 134,
+      "base64": "CiBjMTI5NjAyYjE4NDYxMjgyNDQwOGFiY2Q0OWIyY2M1MxImEgIAACIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqOho4+gIrCgJoMxojQSB0ZXh0IGlucHV0IHdpdGggYSBjaGFyYWN0ZXIgbGltaXQ4AdIDAggB6gMCCAE=",
+      "message": {
+        "hash": "c129602b184612824408abcd49b2cc53",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h3",
+              "body": "A text input with a character limit",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 160,
+      "base64": "CiAyMDM3OTZkMzViNTQ4OWJkYWY0Y2VlMDA3NTBiNGI2MRImEgIAASIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqVBpSwgFJCiokJElELWFhMDk5MThjNDFkOTM5YWY4NDc2NDc5ZjdhY2UzMDQyLU5vbmUSBuS4reaWhxoKYWJjZGVm8J+niigFMgNuZXdqANIDAxjAAg==",
+      "message": {
+        "hash": "203796d35b5489bdaf4cee00750b4b61",
+        "metadata": {
+          "delta_path": [
+            0,
+            1
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text_input": {
+              "id": "$$ID-aa09918c41d939af8476479f7ace3042-None",
+              "label": "中文",
+              "default": "abcdef🧊",
+              "max_chars": 5,
+              "help": "new",
+              "label_visibility": {}
+            },
+            "width_config": {
+              "pixel_width": 320
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 195,
+      "base64": "CiAwY2I5OTIwYWFjMjNjYzlmZmQ1OTliMzk1OWJiNTc2MxImEgIAAiIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqdxp1+gFtCml7InBoYXNlIjogImhlbHAiLCAidmFsdWUiOiAiYWJjZGUiLCAic3RhdGUiOiBudWxsLCAiY2FsbGJhY2tzIjogWyJjaGFuZ2VkIiwgImNoYW5nZWQiXSwgImhhc19rZXkiOiBmYWxzZX0QAdIDAggB",
+      "message": {
+        "hash": "0cb9920aac23cc9ffd599b3959bb5763",
+        "metadata": {
+          "delta_path": [
+            0,
+            2
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"phase\": \"help\", \"value\": \"abcde\", \"state\": null, \"callbacks\": [\"changed\", \"changed\"], \"has_key\": false}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 109,
+      "base64": "CiAyMzg4NWRjOWJjNjA3ZmY2Y2ExMjZmNmJiZDIyNTU2NxImEgIAAyIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqIRofChMKD1NjcmlwdCBydW5zOiAxMBgB0gMCEAHqAwIIAQ==",
+      "message": {
+        "hash": "23885dc9bc607ff6ca126f6bbd225567",
+        "metadata": {
+          "delta_path": [
+            0,
+            3
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Script runs: 10",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 118,
+      "base64": "CiBjOTQzMTJiZjVjM2IwYTI2MWI2ZjYyOGQ4NGE5ZWRmNRImEgIABCIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqKhooChwKGENhc2U6IGZvcm0tbWF4LWNoYXJzLWNqaxgB0gMCEAHqAwIIAQ==",
+      "message": {
+        "hash": "c94312bf5c3b0a261b6f628d84a9edf5",
+        "metadata": {
+          "delta_path": [
+            0,
+            4
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Case: form-max-chars-cjk",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 115,
+      "base64": "CiBkMzU1MTQ4OGU3YmI1NDQxODJmYTZjODZjMzQ2ZmMwORImEgIABSIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqJxolChkKFU1haW4gc2F3OiBjams9J2FiY2RlJxgB0gMCEAHqAwIIAQ==",
+      "message": {
+        "hash": "d3551488e7bb544182fa6c86c346fc09",
+        "metadata": {
+          "delta_path": [
+            0,
+            5
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Main saw: cjk='abcde'",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 103,
+      "base64": "CiBhNjdiNzQ4YmUxNWI5OTZhYzU0Zjg4N2M2YWZiOTRlYxImEgIABiIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqGxoZCg0KCUxlbmd0aDogNRgB0gMCEAHqAwIIAQ==",
+      "message": {
+        "hash": "a67b748be15b996ac54f887c6afb94ec",
+        "metadata": {
+          "delta_path": [
+            0,
+            6
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Length: 5",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "MAA=",
+      "message": {
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    },
+    {
+      "direction": "client->server",
+      "bytes": 127,
+      "base64": "Wn0Ke2Nhc2U9Zm9ybS1tYXgtY2hhcnMtY2prJnByb2JlPWxlbmd0aCZraW5kPWlucHV0JmxpbWl0PTUmZGVmYXVsdD1sb25nJnVua2V5ZWQ9b24mcG9saWN5PW5vcm1hbCZwaXhlbHM9MzIwJnBoYXNlPXJlc3RvcmUtaGVscA==",
+      "message": {
+        "rerun_script": {
+          "query_string": "case=form-max-chars-cjk&probe=length&kind=input&limit=5&default=long&unkeyed=on&policy=normal&pixels=320&phase=restore-help"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "SgA=",
+      "message": {
+        "session_status_changed": {}
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 407,
+      "base64": "IpQDCq0BCl4KJDc5MDk1MDBjLWU1OWEtNTJlNy05ZjUzLWQzZGUwYzZhN2RmNCokNzkwOTUwMGMtZTU5YS01MmU3LTlmNTMtZDNkZTBjNmE3ZGY0MhBuby1tYWNoaW5lLWlkLXY0GiEKBjEuNjYuMRIOMy4xNC43LmZpbmFsLjAaB3dpbmRvd3MiAhABMiQwN2IzZjg4MS1iMzgwLTRmZTItODZlMy03OTY2Zjg3NDllMzcSJDM1Yjc4Yjg3LWUyMmItNGJlMi1iMDBjLWEyNTgxYzVlODhlMxoJZm9ybXNfYXBwIkFDOlxVc2Vyc1xraWxsZlxnaXRodWJcc3RyZWFtbGl0LXJ1c3RcdGVzdHNccmVmZXJlbmNlXGZvcm1zX2FwcC5weTIGGAIoAUgBQiIKIGViMDE0NTc4NjdmZWJhMWVjY2NlZmY1OWFjMzBmMDRmSiBlYjAxNDU3ODY3ZmViYTFlY2NjZWZmNTlhYzMwZjA0ZlogZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGY=",
+      "message": {
+        "new_session": {
+          "initialize": {
+            "user_info": {
+              "installation_id": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v3": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v4": "no-machine-id-v4"
+            },
+            "environment_info": {
+              "streamlit_version": "1.66.1",
+              "python_version": "3.14.7.final.0",
+              "server_os": "windows"
+            },
+            "session_status": {
+              "script_is_running": true
+            },
+            "session_id": "07b3f881-b380-4fe2-86e3-7966f8749e37"
+          },
+          "script_run_id": "35b78b87-e22b-4be2-b00c-a2581c5e88e3",
+          "name": "forms_app",
+          "main_script_path": "C:\\Users\\killf\\github\\streamlit-rust\\tests\\reference\\forms_app.py",
+          "config": {
+            "max_cached_message_age": 2,
+            "allow_run_on_save": true,
+            "show_error_links": "SHOW_ERROR_LINKS_AUTO"
+          },
+          "app_pages": [
+            {
+              "page_script_hash": "eb01457867feba1eccceff59ac30f04f"
+            }
+          ],
+          "page_script_hash": "eb01457867feba1eccceff59ac30f04f",
+          "main_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 4,
+      "base64": "SgIQAQ==",
+      "message": {
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 106,
+      "base64": "CiA4Yzg5ZjcyODExMzZiMGIxNjExMzI4Y2YyOTM5Y2I2YhIiIiBlYjAxNDU3ODY3ZmViYTFlY2NjZWZmNTlhYzMwZjA0ZmoiCh5zdHJlYW1saXQtcnVzdCBmb3JtcyByZWZlcmVuY2UgAw==",
+      "message": {
+        "hash": "8c89f7281136b0b1611328cf2939cb6b",
+        "metadata": {
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "page_config_changed": {
+          "title": "streamlit-rust forms reference",
+          "initial_sidebar_state": "SIDEBAR_UNSET"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 134,
+      "base64": "CiBjMTI5NjAyYjE4NDYxMjgyNDQwOGFiY2Q0OWIyY2M1MxImEgIAACIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqOho4+gIrCgJoMxojQSB0ZXh0IGlucHV0IHdpdGggYSBjaGFyYWN0ZXIgbGltaXQ4AdIDAggB6gMCCAE=",
+      "message": {
+        "hash": "c129602b184612824408abcd49b2cc53",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h3",
+              "body": "A text input with a character limit",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 155,
+      "base64": "CiAwZmFmMWI5OTI1OWIzNTc3NWU5YmQ1Zjc5YzRiYTEwNxImEgIAASIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqTxpNwgFECiokJElELTZjZjNiYWFiNzE5ZGQzNjlmM2ViMDM0YTMyY2YxYTU3LU5vbmUSBuS4reaWhxoKYWJjZGVm8J+niigFagDSAwMYwAI=",
+      "message": {
+        "hash": "0faf1b99259b35775e9bd5f79c4ba107",
+        "metadata": {
+          "delta_path": [
+            0,
+            1
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text_input": {
+              "id": "$$ID-6cf3baab719dd369f3eb034a32cf1a57-None",
+              "label": "中文",
+              "default": "abcdef🧊",
+              "max_chars": 5,
+              "label_visibility": {}
+            },
+            "width_config": {
+              "pixel_width": 320
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 203,
+      "base64": "CiA4Y2E4NDlhNjY2YjA1YzgwMDliNGU0OTlhYjExNzYyZhImEgIAAiIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqfxp9+gF1CnF7InBoYXNlIjogInJlc3RvcmUtaGVscCIsICJ2YWx1ZSI6ICJhYmNkZSIsICJzdGF0ZSI6IG51bGwsICJjYWxsYmFja3MiOiBbImNoYW5nZWQiLCAiY2hhbmdlZCJdLCAiaGFzX2tleSI6IGZhbHNlfRAB0gMCCAE=",
+      "message": {
+        "hash": "8ca849a666b05c8009b4e499ab11762f",
+        "metadata": {
+          "delta_path": [
+            0,
+            2
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"phase\": \"restore-help\", \"value\": \"abcde\", \"state\": null, \"callbacks\": [\"changed\", \"changed\"], \"has_key\": false}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 109,
+      "base64": "CiBmNTMzZDE0NGFhMjUyNTE5OWQxYjFiYWY5ZDIzYTNhMxImEgIAAyIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqIRofChMKD1NjcmlwdCBydW5zOiAxMRgB0gMCEAHqAwIIAQ==",
+      "message": {
+        "hash": "f533d144aa2525199d1b1baf9d23a3a3",
+        "metadata": {
+          "delta_path": [
+            0,
+            3
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Script runs: 11",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 118,
+      "base64": "CiBjOTQzMTJiZjVjM2IwYTI2MWI2ZjYyOGQ4NGE5ZWRmNRImEgIABCIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqKhooChwKGENhc2U6IGZvcm0tbWF4LWNoYXJzLWNqaxgB0gMCEAHqAwIIAQ==",
+      "message": {
+        "hash": "c94312bf5c3b0a261b6f628d84a9edf5",
+        "metadata": {
+          "delta_path": [
+            0,
+            4
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Case: form-max-chars-cjk",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 115,
+      "base64": "CiBkMzU1MTQ4OGU3YmI1NDQxODJmYTZjODZjMzQ2ZmMwORImEgIABSIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqJxolChkKFU1haW4gc2F3OiBjams9J2FiY2RlJxgB0gMCEAHqAwIIAQ==",
+      "message": {
+        "hash": "d3551488e7bb544182fa6c86c346fc09",
+        "metadata": {
+          "delta_path": [
+            0,
+            5
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Main saw: cjk='abcde'",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 103,
+      "base64": "CiBhNjdiNzQ4YmUxNWI5OTZhYzU0Zjg4N2M2YWZiOTRlYxImEgIABiIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqGxoZCg0KCUxlbmd0aDogNRgB0gMCEAHqAwIIAQ==",
+      "message": {
+        "hash": "a67b748be15b996ac54f887c6afb94ec",
+        "metadata": {
+          "delta_path": [
+            0,
+            6
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Length: 5",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "MAA=",
+      "message": {
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    },
+    {
+      "direction": "client->server",
+      "bytes": 117,
+      "base64": "WnMKcWNhc2U9Zm9ybS1tYXgtY2hhcnMtY2prJnByb2JlPWxlbmd0aCZraW5kPWlucHV0JmxpbWl0PTUmZGVmYXVsdD1sb25nJnVua2V5ZWQ9b24mcG9saWN5PW5vcm1hbCZwaGFzZT1yZXN0b3JlLXdpZHRo",
+      "message": {
+        "rerun_script": {
+          "query_string": "case=form-max-chars-cjk&probe=length&kind=input&limit=5&default=long&unkeyed=on&policy=normal&phase=restore-width"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "SgA=",
+      "message": {
+        "session_status_changed": {}
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 407,
+      "base64": "IpQDCq0BCl4KJDc5MDk1MDBjLWU1OWEtNTJlNy05ZjUzLWQzZGUwYzZhN2RmNCokNzkwOTUwMGMtZTU5YS01MmU3LTlmNTMtZDNkZTBjNmE3ZGY0MhBuby1tYWNoaW5lLWlkLXY0GiEKBjEuNjYuMRIOMy4xNC43LmZpbmFsLjAaB3dpbmRvd3MiAhABMiQwN2IzZjg4MS1iMzgwLTRmZTItODZlMy03OTY2Zjg3NDllMzcSJDNlNDExN2ZmLTIxN2QtNGRkNy1iZTZmLWFjZWM0ZmFlNTQ2YRoJZm9ybXNfYXBwIkFDOlxVc2Vyc1xraWxsZlxnaXRodWJcc3RyZWFtbGl0LXJ1c3RcdGVzdHNccmVmZXJlbmNlXGZvcm1zX2FwcC5weTIGGAIoAUgBQiIKIGViMDE0NTc4NjdmZWJhMWVjY2NlZmY1OWFjMzBmMDRmSiBlYjAxNDU3ODY3ZmViYTFlY2NjZWZmNTlhYzMwZjA0ZlogZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGY=",
+      "message": {
+        "new_session": {
+          "initialize": {
+            "user_info": {
+              "installation_id": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v3": "7909500c-e59a-52e7-9f53-d3de0c6a7df4",
+              "installation_id_v4": "no-machine-id-v4"
+            },
+            "environment_info": {
+              "streamlit_version": "1.66.1",
+              "python_version": "3.14.7.final.0",
+              "server_os": "windows"
+            },
+            "session_status": {
+              "script_is_running": true
+            },
+            "session_id": "07b3f881-b380-4fe2-86e3-7966f8749e37"
+          },
+          "script_run_id": "3e4117ff-217d-4dd7-be6f-acec4fae546a",
+          "name": "forms_app",
+          "main_script_path": "C:\\Users\\killf\\github\\streamlit-rust\\tests\\reference\\forms_app.py",
+          "config": {
+            "max_cached_message_age": 2,
+            "allow_run_on_save": true,
+            "show_error_links": "SHOW_ERROR_LINKS_AUTO"
+          },
+          "app_pages": [
+            {
+              "page_script_hash": "eb01457867feba1eccceff59ac30f04f"
+            }
+          ],
+          "page_script_hash": "eb01457867feba1eccceff59ac30f04f",
+          "main_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 4,
+      "base64": "SgIQAQ==",
+      "message": {
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 106,
+      "base64": "CiA4Yzg5ZjcyODExMzZiMGIxNjExMzI4Y2YyOTM5Y2I2YhIiIiBlYjAxNDU3ODY3ZmViYTFlY2NjZWZmNTlhYzMwZjA0ZmoiCh5zdHJlYW1saXQtcnVzdCBmb3JtcyByZWZlcmVuY2UgAw==",
+      "message": {
+        "hash": "8c89f7281136b0b1611328cf2939cb6b",
+        "metadata": {
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "page_config_changed": {
+          "title": "streamlit-rust forms reference",
+          "initial_sidebar_state": "SIDEBAR_UNSET"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 134,
+      "base64": "CiBjMTI5NjAyYjE4NDYxMjgyNDQwOGFiY2Q0OWIyY2M1MxImEgIAACIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqOho4+gIrCgJoMxojQSB0ZXh0IGlucHV0IHdpdGggYSBjaGFyYWN0ZXIgbGltaXQ4AdIDAggB6gMCCAE=",
+      "message": {
+        "hash": "c129602b184612824408abcd49b2cc53",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "heading": {
+              "tag": "h3",
+              "body": "A text input with a character limit",
+              "wrap": true
+            },
+            "width_config": {
+              "use_stretch": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 154,
+      "base64": "CiBhNTNmY2ZjMmVlNjkzNTQwODBmYjIyZTMzY2E0NjhkNxImEgIAASIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqThpMwgFECiokJElELTVlNjZhZTVlOGU5ZjIxNTQzMzg3YjI1NTk4Y2Q5Yjg4LU5vbmUSBuS4reaWhxoKYWJjZGVm8J+niigFagDSAwIIAQ==",
+      "message": {
+        "hash": "a53fcfc2ee69354080fb22e33ca468d7",
+        "metadata": {
+          "delta_path": [
+            0,
+            1
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text_input": {
+              "id": "$$ID-5e66ae5e8e9f21543387b25598cd9b88-None",
+              "label": "中文",
+              "default": "abcdef🧊",
+              "max_chars": 5,
+              "label_visibility": {}
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 205,
+      "base64": "CiBlZDFmYzZhMzUzMjhmZTE5ZDI0MzhlY2Q5NmQ1NWU3NhImEgIAAiIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqgAEafvoBdgpyeyJwaGFzZSI6ICJyZXN0b3JlLXdpZHRoIiwgInZhbHVlIjogImFiY2RlIiwgInN0YXRlIjogbnVsbCwgImNhbGxiYWNrcyI6IFsiY2hhbmdlZCIsICJjaGFuZ2VkIl0sICJoYXNfa2V5IjogZmFsc2V9EAHSAwIIAQ==",
+      "message": {
+        "hash": "ed1fc6a35328fe19d2438ecd96d55e76",
+        "metadata": {
+          "delta_path": [
+            0,
+            2
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"phase\": \"restore-width\", \"value\": \"abcde\", \"state\": null, \"callbacks\": [\"changed\", \"changed\"], \"has_key\": false}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 109,
+      "base64": "CiBkMDE2MDFkN2JlZDcyNmI2NWUzMjgyZjM0ZGZjMjI5YhImEgIAAyIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqIRofChMKD1NjcmlwdCBydW5zOiAxMhgB0gMCEAHqAwIIAQ==",
+      "message": {
+        "hash": "d01601d7bed726b65e3282f34dfc229b",
+        "metadata": {
+          "delta_path": [
+            0,
+            3
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Script runs: 12",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 118,
+      "base64": "CiBjOTQzMTJiZjVjM2IwYTI2MWI2ZjYyOGQ4NGE5ZWRmNRImEgIABCIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqKhooChwKGENhc2U6IGZvcm0tbWF4LWNoYXJzLWNqaxgB0gMCEAHqAwIIAQ==",
+      "message": {
+        "hash": "c94312bf5c3b0a261b6f628d84a9edf5",
+        "metadata": {
+          "delta_path": [
+            0,
+            4
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Case: form-max-chars-cjk",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 115,
+      "base64": "CiBkMzU1MTQ4OGU3YmI1NDQxODJmYTZjODZjMzQ2ZmMwORImEgIABSIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqJxolChkKFU1haW4gc2F3OiBjams9J2FiY2RlJxgB0gMCEAHqAwIIAQ==",
+      "message": {
+        "hash": "d3551488e7bb544182fa6c86c346fc09",
+        "metadata": {
+          "delta_path": [
+            0,
+            5
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Main saw: cjk='abcde'",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 103,
+      "base64": "CiBhNjdiNzQ4YmUxNWI5OTZhYzU0Zjg4N2M2YWZiOTRlYxImEgIABiIgZWIwMTQ1Nzg2N2ZlYmExZWNjY2VmZjU5YWMzMGYwNGYqGxoZCg0KCUxlbmd0aDogNRgB0gMCEAHqAwIIAQ==",
+      "message": {
+        "hash": "a67b748be15b996ac54f887c6afb94ec",
+        "metadata": {
+          "delta_path": [
+            0,
+            6
+          ],
+          "active_script_hash": "eb01457867feba1eccceff59ac30f04f"
+        },
+        "delta": {
+          "new_element": {
+            "text": {
+              "body": "Length: 5",
+              "wrap": true
+            },
+            "width_config": {
+              "use_content": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 2,
+      "base64": "MAA=",
+      "message": {
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    }
+  ],
+  "cleanup": {
+    "websocket_closed": true,
+    "server_stopped": true
+  },
+  "connection_policy": "One WS for unkeyed text policy changes, width/help identity controls.",
+  "successful": true
+}

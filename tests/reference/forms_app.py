@@ -312,8 +312,12 @@ def case_form_max_chars_cjk() -> None:
         elif phase == "assign-none":
             st.session_state["cjk_note"] = None
 
+        unkeyed = st.query_params.get("unkeyed") == "on"
+        policy = st.query_params.get("policy", "normal")
+
         def changed():
-            st.session_state["length_callbacks"] = st.session_state.get("length_callbacks", []) + [st.session_state["cjk_note"]]
+            value = "changed" if unkeyed else st.session_state["cjk_note"]
+            st.session_state["length_callbacks"] = st.session_state.get("length_callbacks", []) + [value]
 
         widget = st.text_area if st.query_params.get("kind") == "area" else st.text_input
         validation = st.query_params.get("validation", "inherit")
@@ -324,10 +328,18 @@ def case_form_max_chars_cjk() -> None:
                 text_options["validate"] = ""
             elif validation in ("pattern-a", "pattern-b"):
                 text_options["validate"] = ("^A+$", "First message" if validation == "pattern-a" else "Second message")
-        cjk = widget("中文", key="cjk_note", value=default, max_chars=limit, on_change=changed,
+        if unkeyed:
+            text_options.update(disabled=policy == "disabled",
+                                label_visibility=policy if policy in ("hidden", "collapsed") else "visible",
+                                width=int(st.query_params["pixels"]) if "pixels" in st.query_params else "stretch",
+                                help=st.query_params.get("help", ""))
+        callback = "ignore" if policy == "ignore" else None if policy == "none" else changed
+        cjk = widget("中文", key=None if unkeyed else "cjk_note", value=default, max_chars=limit, on_change=callback,
                      bind="query-params" if st.query_params.get("bind") == "on" else None, **text_options)
-        report = {"phase": phase, "value": cjk, "state": st.session_state["cjk_note"],
+        report = {"phase": phase, "value": cjk, "state": None if unkeyed else st.session_state["cjk_note"],
                   "callbacks": st.session_state.get("length_callbacks", [])}
+        if unkeyed:
+            report["has_key"] = "cjk_note" in st.session_state
         if st.query_params.get("peer") == "on":
             def peer_changed():
                 st.session_state["length_peer_callbacks"] = st.session_state.get("length_peer_callbacks", []) + [st.session_state["live"]]

@@ -862,3 +862,20 @@ Fourteen native runs/181 frames/42 ordered projections preserve type/message
 transitions, reset on explicit regex change, and guard identity equivalence,
 callbacks and field presence. Browser enforcement/remount, unkeyed equivalence
 and all callback/query/source combinations remain outside this evidence.
+
+
+### Unkeyed text policy does not define widget identity (2026-10-31)
+
+The pinned text_input identity call omits disabled, callback/on_change mode and
+label_visibility. Existing Rust unkeyed identity included disabled, callback
+presence, ignore_rerun and visibility, so ordinary policy changes reset input.
+Only those four terms are removed from the existing text_input tuple. Width and
+help still change unkeyed identity; the keyed branch, emitted policy fields,
+generic Element hash, query and input admission flows remain unchanged.
+Twelve native runs/155 raw frames/36 ordered projections prove retention across
+policy changes, width/help resets, old-ID non-resurrection and two callbacks.
+The probe deliberately has no user key and reports null for user-key state;
+return values and has_key=false, not an invented internal-state read, are gated.
+Browser behavior, default-versus-empty option distinctions and broader unkeyed
+form/sidebar/field combinations stay open. Pending public API/hash/queue/parser
+choices are unchanged; no new module/dependency/public method was introduced.
