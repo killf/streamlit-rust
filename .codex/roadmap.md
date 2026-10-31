@@ -14,6 +14,8 @@
 
 ## Current focus
 
+2026-11-01 单日期真实 Chrome 补证：两端各十一阶段/五轮/40 二进制帧/15 Element，日历翻月无请求、选择提交、键盘分段形成草稿且 Tab/Enter 不提交、日历确认后提交及 peer 切换均匹配；四条 callback 与 22 张原始 JPEG 保留。八类损坏门拒绝错误时序/值/同步和重算哈希的初始图复用；当前视口高度差原样记录，不宣称全屏像素或动画一致。见[验收](acceptance.md#current-single-date-actual-chrome-validation-2026-11-01)。无生产修改，日期 None/部分范围模型及更广边界继续开放，完整目标不变。
+
 2026-11-01 单日期前端归一化：显式默认值下 ID-only/非法/越界回上轮默认，支持 legacy，先校验全部条目再返回首项；SDK/Rust 十六轮各 127 帧/48 完整 Element 和 22 条有序 callback 匹配。公开单元先红后绿、SDK AppTest 十案与八类损坏门通过。日期 None/部分范围的公共返回模型已提供三个选项，未选前不实施；范围解码保留。另复现 rerun 既有 red 仍是待决 toast/config 例外，不是已选 Delta-only 未实现。见[验收](acceptance.md#current-single-date-frontend-normalization-2026-11-01)，完整目标保持开放。
 
 2026-11-01 datetime 边界重置原生补证：十四轮 SDK/Rust 各 125 帧、56 完整 Element，joint 轮 callback 先读提交的 17:00/新 peer，登记后才重置返回和 keyed state；九条有序 callback 与一次性同步匹配。代码赋值、隐式边界保留、None 重置/恢复及无输入观察均有原生证据，十类负例被拒绝；当前两端旧十八轮也继续匹配。见[验收](acceptance.md#current-datetime-native-bound-reset-evidence-2026-11-01)。本批无生产修改；浏览器与其他组合、M3/M5/M7 和完整目标继续开放。

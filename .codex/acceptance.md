@@ -2660,3 +2660,21 @@ widgets.rs 现有 DateInput codec 保存 min/max/声明默认，仅单日期分�
 编辑 Rust 已按语义留空并逐文件复查 diff；格式、全工作区/all-target Clippy、新增公共单元及既有 pickers 两项通过。最终工作区 337 项通过（330 库、1 ledger、2 宏、4 rustdoc），仍只排除原 navigation_pages_switch_and_session_state_match_the_measured_wire 与 rerun_queue_messages_match_frozen_reference，不称全绿。参数参考模块现 421 项，相关八模块共 778 项通过；既有 MSVC linker stdout warning 保留。日志 target/date-single-{red,green,final-unit,pickers,sdk,clippy,build,sdk-ws,rust-ws,server,gate,workspace,python,docs}.log。
 
 采集器三份 producer、生产 widgets/widget_api 与二进制 SHA 均已核对当前产物；SDK 自建服务和 Rust 自持 Popen 均 terminate/wait，58258/8599 无监听。指南仅追加单日期语义，保留原 CRLF 字节前缀。矩阵仅补 st.date_input 证据及 limitation，生成 inventory 仍 130 partial。没有本批浏览器证明；None/空及部分范围模型待选，范围解码、隐式 today 默认/状态、代码赋值/动态边界、错误类型/文案、禁用/ignore、URL、表单/跨页等仍开放。用户 colconfig 与其他现有修改独立保留，无 PR、合并、发布或部署；M3/M5/M7 与完整 Goal 未关闭。
+
+## Current single date actual Chrome validation (2026-11-01)
+
+使用 computer-use 技能和真实 Chrome 复用现有 --date-single 示例，不改生产或 fixture 源码。保存 [SDK](../tests/reference/reference-browser/widget-params/date-single/ui/trace.json) 与 [Rust](../tests/browser/rust-widget-params/date-single/ui/trace.json) 各十一阶段、五轮真实 rerun、40 覆盖二进制帧、15 完整 Element 和四条 callback。Network 观察在首次 HTTP 页面之后启用，有意 reload 开始覆盖；两端均无旧连接前缀，41 个事件为一次 created 加 40 帧。没有原生注入，没有将旧 malformed/ID-only 捕获冒充正常 UI。
+
+步骤：01-load 显示 2025/03/15、Peer=false；02-calendar-open 打开三月；03-calendar-next 翻四月，无请求；04-calendar-commit 选择 4/20 触发 day callback；05-peer 点击标签改 true，触发 peer callback；06-keyboard-draft 在 day 分段按 ArrowUp，分段与 hidden date 都显示 4/21，但 JSON/后端仍为 4/20 且无请求；07-keyboard-tab 与 08-keyboard-enter 均未提交；09-calendar-reopen 打开日历，无请求；10-draft-calendar-commit 点击已选择的 4/21 才产生 day callback；11-peer-restore 再改 false，触发 peer callback。四条来源、值和同伴状态依次 [day,4/20,false]、[peer,4/20,true]、[day,4/21,true]、[peer,4/21,false]。
+
+SDK 一次 checkbox.check() 自动化动作报告失败；随即用新 AX 和 checked 属性确认仍 false、没有发送请求，再点击可见 Peer 标签成功。此尝试记录在 SDK trace.attempts，不当作产品失败或悄悄重试为成功。Rust 直接使用已验证的标签操作。22 张原始 JPEG 均逐张查看，包括 SDK 04 在混合动作工具报错后从保存文件单独查看；不裁剪、不重绘证明图。截图保留键盘焦点/浮层绘制，部分分段草稿截图显示日历绘制，而同一阶段的 DOM dialog 快照为空，原样保留，不据此宣称弹层动画稳定或逐帧等价。关键输入草稿/后端旧值均可直接核对。
+
+SDK 原始视口 1463x780、Rust 1463x724，DPR 均 1.75，未设置 viewport override；高度差和随 JSON 变长出现的滚动条保留，不宣称全屏像素相同。每张图片校验原始字节数、SHA256、JPEG 类型和真实尺寸；日期字段区域变化另阻止把初始 03/15 图片重算哈希后当作最终 04/21。此像素门是初始图复用检测，不等于通用日期文字 OCR。
+
+严格门从每阶段 CDP 原始 events 重解析 protobuf，确认 pages/events 双份投影一致、cursor/sequence/真实 tab 和单连接 requestId、五组完整 message/status/path 次序、同一 session/五 run、实际旧 ID/string_array/bool oneof、context 中的 zh/Asia-Shanghai/dark/当前 origin、日期 default/min/max/format/布局/策略/sync、全部返回及 keyed state 和回调。DOM 同时核对年月日分段、hidden date、checkbox 与可见 JSON，明确区分草稿和已提交值。完整 Element 只规范化控件 ID 与 JSON body，逐字段相等后才将 Rust semantic_match 写 true。
+
+新增十一项至参数模块 432 项。八类负例拒绝草稿 DOM 复用后端旧值、把 peer 请求挪到键盘阶段、发送旧日期、callback 旧值、额外 set_value/one-shot、过期输入 ID、损坏截图哈希、初始图重算哈希后复用为最终图；涉及协议的负例同步改写 raw payload 和 pages/events，避免只测汇总不一致。相关八模块共 789 项通过，日志 target/date-single-ui-{gate,python,docs}.log；本批没有 Rust 源码变动，不重复 Clippy 或完整 Cargo 测试，上批 337 项及两项既有排除是上批证据，不称本批重跑。
+
+生产 widgets/widget_api、两端 fixture 与运行二进制 SHA 均和采集 metadata/当前文件一致；原始 source_commit=40b0b37 标识启动时基线。两标签已关；Network 在关 tab 前关闭，不宣称捕获 close 帧。自持 Python/Rust Popen 在 coordinator 的 finally 中 terminate/wait，执行句柄正常退出，57820/8599 无监听。目标日志 target/date-single-ui-{sdk,rust}-server.log；target/date-single-ui-stop 是本次唯一停止标记，未复用旧服务。
+
+仅 st.date_input 矩阵及生成 inventory 补真实 UI 证据，仍 130 partial；指南追加草稿与日历提交的区别并保留原 CRLF 前缀。None/空及部分范围公开模型仍待用户选择，日历边界/错误、动态边界 UI、禁用/ignore、URL/表单/跨页、其他主题/语言/视口和更广组合仍开放。用户 colconfig 与其他现有修改独立保留，无 PR、合并、发布或部署；M3/M5/M7 与完整 Goal 未关闭。
