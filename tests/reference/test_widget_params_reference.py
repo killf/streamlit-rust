@@ -3715,6 +3715,138 @@ def test_number_empty_gate_rejects_coherent_wrong_wire(mutation):
         check_number_empty(capture)
 
 
+DATETIME_BOUNDS_PHASES = ("load", "edit", "narrow", "observe", "widen", "joint", "assign", "implicit", "implicit-observe", "explicit-none", "none-observe", "recover", "reset", "final")
+DATETIME_BOUNDS_VALUES = (["2025-03-15T12:30", None, False], ["2025-03-15T17:00", "2025-03-15T17:00", True],
+                          ["2025-03-15T12:30", None, True], ["2025-03-15T12:30", None, True], ["2025-03-15T12:30", None, True],
+                          ["2025-03-15T12:30", None, False], ["2025-03-15T12:30", None, False],
+                          ["2050-03-15T19:00", "2050-03-15T19:00", False], ["2050-03-15T19:00", "2050-03-15T19:00", False],
+                          [None, None, False], [None, None, False], ["2025-03-15T15:47", "2025-03-15T15:47", True],
+                          ["2025-03-15T12:30", "2025-03-15T12:30", True], ["2025-03-15T12:30", "2025-03-15T12:30", True])
+DATETIME_BOUNDS_COUNTS = (0, 3, 3, 3, 3, 6, 6, 6, 6, 6, 6, 9, 9, 9)
+DATETIME_BOUNDS_CALLS = [[source, moment, moment, peer] for moment, peer in (("2025-03-15T17:00", True), ("2025-03-15T17:00", False), ("2025-03-15T15:47", True)) for source in ("moment", "optional", "peer")]
+
+
+def check_datetime_bounds(capture):
+    assert capture["successful"] and "producer_error" not in capture and capture["reference_version"] == "1.66.1"
+    assert capture["runtime"] in ("python", "rust") and capture["finishes"] == [0] * 14
+    assert capture["cleanup"]["websocket_closed"] and capture["cleanup"]["server_stopped" if capture["runtime"] == "python" else "caller_server_stopped"]
+    assert len(capture["frames"]) == 125 and len(capture["elements"]) == 56
+    runs = color_runs(capture, ("date_time_input", "checkbox", "json"))
+    normalized, sessions, run_ids, ids = [], set(), set(), None
+    for index, (phase, run) in enumerate(zip(DATETIME_BOUNDS_PHASES, runs, strict=True)):
+        request = run["request"]
+        assert request.query_string == "probe=datetime-bounds&phase=" + phase and not request.is_history_navigation
+        assert len(run["sessions"]) == 1 and run["finishes"] == [0]
+        session = run["sessions"][0]
+        assert session.initialize.environment_info.streamlit_version == "1.66.1"
+        sessions.add(session.initialize.session_id)
+        run_ids.add(session.script_run_id)
+        assert [entry[0] for entry in run["entries"]] == ["date_time_input", "date_time_input", "checkbox", "json"]
+        current = []
+        for position, (kind, widget, element) in enumerate(run["entries"][:3]):
+            assert widget.label == ("Moment", "Optional", "Peer")[position]
+            assert widget.id.endswith("-datetime_empty_" + ("moment", "optional", "peer")[position])
+            assert not widget.disabled and not widget.ignore_rerun and not widget.form_id and not widget.help
+            assert widget.label_visibility.value == 0
+            sync = kind == "date_time_input" and index in (2, 5, 6, 7, 9, 12)
+            assert widget.set_value is sync and element.has_one_shot_effect is sync and element.HasField("has_one_shot_effect") is sync
+            if kind == "checkbox":
+                assert not widget.default and not widget.value and element.width_config.use_content
+            else:
+                assert element.width_config.use_stretch and not widget.is_range and not widget.query_param_key
+                assert widget.step == 900 and widget.format == "YYYY/MM/DD"
+                if index in (7, 8):
+                    assert (widget.min, widget.max) == ("2015-03-15T00:00", "2035-03-15T23:59")
+                else:
+                    hour = "15" if index >= 12 else "16" if index in (2, 3, 5, 6, 9, 10, 11) else "18"
+                    assert (widget.min, widget.max) == ("2025-03-15T08:00", "2025-03-15T" + hour + ":00")
+                default = None if index in (9, 10) or (position == 1 and index < 7) else "2025-03-15T12:30"
+                assert list(widget.default) == ([] if default is None else [default])
+                value = DATETIME_BOUNDS_VALUES[index][position]
+                assert list(widget.value) == ([] if not sync or value is None else [value])
+            current.append(widget.id)
+        assert len(set(current)) == 3
+        if ids is None:
+            ids = current
+        else:
+            assert current == ids
+        incoming = request.widget_states.widgets
+        if index in (1, 5, 11):
+            assert len(incoming) == 3 and [widget.id for widget in incoming] == ids
+            value = "2025-03-15T15:47" if index == 11 else "2025-03-15T17:00"
+            for widget in incoming[:2]:
+                assert widget.WhichOneof("value") == "string_array_value" and list(widget.string_array_value.data) == [value]
+            assert incoming[2].WhichOneof("value") == "bool_value" and incoming[2].bool_value is (index != 5)
+        else:
+            assert not incoming
+        report = json.loads(run["entries"][-1][1].body)
+        values = DATETIME_BOUNDS_VALUES[index]
+        assert report == {"phase": phase, "values": values, "native": values, "calls": DATETIME_BOUNDS_CALLS[:DATETIME_BOUNDS_COUNTS[index]]}
+        for projected in (report["values"], report["native"]):
+            assert all(value is None or type(value) is str for value in projected[:2]) and type(projected[2]) is bool
+        assert [entry["delta_path"] for entry in capture["elements"][index * 4:index * 4 + 4]] == [[0, i] for i in range(4)]
+        fields = []
+        for kind, _, element in run["entries"]:
+            view = MessageToDict(element, preserving_proto_field_name=True)
+            if kind == "json": view[kind]["body"] = json.loads(view[kind]["body"])
+            else: view[kind].pop("id")
+            fields.append(view)
+        normalized.append(fields)
+    assert len(sessions) == 1 and len(run_ids) == 14
+    return normalized
+
+
+@pytest.mark.parametrize("root", (PYTHON, RUST), ids=("python", "rust"))
+def test_datetime_bounds_native_reset_callbacks_and_observation(root):
+    check_datetime_bounds(read(root / "datetime-bounds/trace.json"))
+
+
+def test_datetime_bounds_complete_elements_match_reference():
+    captures = [read(root / "datetime-bounds/trace.json") for root in (PYTHON, RUST)]
+    assert captures[0]["producer_sources_sha256"] == captures[1]["producer_sources_sha256"] and captures[1]["semantic_match"] is True
+    assert check_datetime_bounds(captures[0]) == check_datetime_bounds(captures[1])
+
+
+@pytest.mark.parametrize("mutation", ("joint-callback-reset", "native-not-reset", "missing-sync", "repeat-sync", "implicit-reset", "null-sync", "null-default", "stale-id", "callback-order", "wrong-bound"))
+def test_datetime_bounds_gate_rejects_coherent_wrong_wire(mutation):
+    capture = read(PYTHON / "datetime-bounds/trace.json")
+    target = {"joint-callback-reset": 5, "native-not-reset": 2, "missing-sync": 2, "repeat-sync": 3, "implicit-reset": 7, "null-sync": 9, "null-default": 10, "stale-id": 5, "callback-order": 5, "wrong-bound": 12}[mutation]
+    run = -1
+    for frame in capture["frames"]:
+        client = frame["direction"] == "client->server"
+        if client: run += 1
+        if run != target: continue
+        message = BackMsg() if client else ForwardMsg()
+        message.ParseFromString(base64.b64decode(frame["base64"]))
+        if client and mutation == "stale-id":
+            message.rerun_script.widget_states.widgets[0].id = "$$ID-stale-datetime_empty_moment"
+        elif not client and message.WhichOneof("type") == "delta":
+            element = message.delta.new_element
+            kind = element.WhichOneof("type")
+            if kind == "date_time_input" and element.date_time_input.label == "Moment" and mutation in ("missing-sync", "repeat-sync", "null-sync", "null-default", "wrong-bound"):
+                widget = element.date_time_input
+                if mutation in ("missing-sync", "null-sync"):
+                    widget.set_value = False; widget.ClearField("value"); element.ClearField("has_one_shot_effect")
+                elif mutation == "repeat-sync":
+                    widget.set_value = True; widget.value[:] = ["2025-03-15T12:30"]; element.has_one_shot_effect = True
+                elif mutation == "null-default": widget.default[:] = ["2025-03-15T12:30"]
+                else: widget.max = "2025-03-15T16:00"
+            elif kind == "json" and mutation in ("joint-callback-reset", "native-not-reset", "implicit-reset", "callback-order"):
+                report = json.loads(element.json.body)
+                if mutation == "joint-callback-reset": report["calls"][-3][1] = "2025-03-15T12:30"
+                elif mutation == "native-not-reset": report["native"][0] = "2025-03-15T17:00"
+                elif mutation == "implicit-reset": report["native"][0] = report["values"][0] = "2025-03-15T12:30"
+                else: report["calls"][-3:] = report["calls"][-3:][::-1]
+                element.json.body = json.dumps(report)
+            else: continue
+        else: continue
+        raw = message.SerializeToString()
+        frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(message, preserving_proto_field_name=True))
+    capture["elements"] = [{"kind": m.delta.new_element.WhichOneof("type"), "fields": MessageToDict(getattr(m.delta.new_element, m.delta.new_element.WhichOneof("type")), preserving_proto_field_name=True),
+                            "delta_path": list(m.metadata.delta_path)} for m in frames(capture) if isinstance(m, ForwardMsg) and m.WhichOneof("type") == "delta"]
+    with pytest.raises(AssertionError): check_datetime_bounds(capture)
+
+
 DATETIME_EMPTY_PHASES = ("load", "edit", "missing", "legacy", "invalid", "below", "above", "minimum", "maximum", "surplus", "empty", "defaults", "fallback", "bad-first", "seconds", "recover", "observe", "reset")
 DATETIME_EMPTY_INPUTS = (None, (["2025-03-15T14:35"], True), (None, False), (["2025/03/15, 15:47"], True), (["bad"], False),
                          (["2025-03-15T07:59"], True), (["2025-03-15T18:01"], False), (["2025-03-15T08:00"], True),

@@ -2626,3 +2626,19 @@ Rust 私有 DateTimeInput codec 增加 reset_default: Option<Value>，仅显式�
 最终工作区 336 项通过（329 库、1 ledger、2 宏、4 rustdoc），仍仅排除原 server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire 与 server::tests::queryparams::rerun_queue_messages_match_frozen_reference，不称完整工作区全绿。文档/矩阵收尾门 52 项通过。
 
 Rust 格式检查、逐文件 diff 复查及全工作区/all-target Clippy 通过，既有 MSVC linker stdout warning 保留；日志 target/datetime-bounds-{red,green,final-green,sdk,python,clippy,build,native,server,workspace,docs}.log。仅做相关实现和验证，用户 colconfig 及其他现有修改独立保留，无 PR、合并、发布或部署。新重置的原生 WS/浏览器、同轮前端输入伴随新边界、错误原生类型/文案、禁用/ignore、URL、表单/跨页和其他状态组合继续开放，M3/M5/M7 与完整 Goal 未关闭。
+
+## Current datetime native bound reset evidence (2026-11-01)
+
+为前批显式边界重置补原生 WebSocket 验收。复用 widget_params 两端 datetime 分支、采集器和参数校验模块，新增 --datetime-bounds 模式，不改生产 widgets/widget_api。冻结 [SDK](../tests/reference/reference-browser/widget-params/datetime-bounds/trace.json) 与 [Rust](../tests/browser/rust-widget-params/datetime-bounds/trace.json) 各十四轮、125 原始帧、56 完整 Element；首次捕获直接一致，没有覆盖失败结果。旧 --datetime-empty 输出保持原样。
+
+顺序为 load/edit/narrow/observe/widen/joint/assign/implicit/implicit-observe/explicit-none/none-observe/recover/reset/final。Moment 默认 12:30、Optional 默认 None，同伴 checkbox。先在 08:00..18:00 下输入两个 17:00，再无输入收窄 max=16:00，分别回 12:30/None 并发送一次同步；观察不再同步，放宽也不复活旧值。joint 轮提交同样的 17:00 和 peer=false，同时脚本把 max 收窄到 16:00：三个 callback 先依注册顺序读到整批 [17:00,17:00,false]，登记后返回和 keyed state 才变为 [12:30,None,false]，带 value/set_value/one-shot。不能把回调值错误改成已经重置的值。
+
+代码为两个 key 赋 19:00 同样重置；省略边界后代码赋 2050-03-15T19:00，虽超出推导的 2015..2035 窗口仍保留并同步，无输入观察继续保留且不重发。随后恢复显式边界且两个声明默认均为 None，两个 key 一起重置为空，value 数组虽空也必须 set_value/one-shot=true；新声明 12:30 的观察轮仍尊重原生 None、default 空且无同步。恢复有效 15:47 后重新登记 12:30 默认；再收窄 max=15:00 时两个控件均回 12:30 并同步，下一轮不重复。
+
+累计 callback 计数 0/3/3/3/3/6/6/6/6/6/6/9/9/9，全部九条的来源、顺序、完整同伴新值严格匹配，范围重置本身不产生 callback。报告同时记录返回值和 keyed native state，逐轮一致。严格门从 base64 重解析 protobuf，核对长度/message/元素汇总、实际旧 ID 和 string_array/bool 输入、14 个 run/同一 session、稳定三 ID、min/max/default/value/set_value/one-shot 存在性、format/step/宽度/策略、路径、finish 和原生类型。完整 Element 仅规范化不透明 ID 和 JSON 文本后逐字段相等，semantic_match 只在此门成功后写 true。
+
+十类同步改写原始字节、message 和元素汇总的负例必须失败：joint callback 错读重置值、native 未重置、缺同步、观察重复同步、隐式边界错误重置、空 value 缺同步、原生 None 错发声明默认、过期输入 ID、回调倒序、错误边界。新增十三项至参数模块 410 项，相关八模块 757 项通过。编辑 Rust 示例格式检查、逐文件 diff 与全工作区/all-target Clippy 通过；既有 MSVC linker stdout warning 保留。无生产/库测试变动，不重复完整工作区测试，上批 336 项和两项既有排除仍是上批证据。
+
+同批用当前 SDK fixture 与同一 Rust 二进制各重跑旧十八轮 --datetime-empty，target/datetime-reset-ws-old-{sdk,rust}/trace.json 保留各 161 帧/72 Element，规范化完整字段同时匹配旧冻结 SDK，避免共享 fixture 分支回归。三份 producer、生产 widgets/widget_api 和二进制 SHA 已核对当前产物；SDK 自有服务与两次 Rust 自持 Popen 均 terminate/wait，50179/51806/8599 核实无监听。日志 target/datetime-reset-ws-{build,sdk,rust,server,gate,python,clippy,old-sdk,old-rust,old-server,docs}.log。
+
+仅 st.datetime_input 矩阵及生成 inventory 增补证据，仍 130 partial。本批无浏览器证据；单侧边界的原生 WS、错误类型/文案、禁用/ignore、URL、表单/跨页和其他状态组合继续开放，不把双侧/当前组合推广为全部行为已验收。用户 colconfig 及其他现有修改独立保留，无 PR、合并、发布或部署；M3/M5/M7 与完整 Goal 未关闭。

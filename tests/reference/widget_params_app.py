@@ -1,8 +1,9 @@
 """Emit widget creation-wire parameter variants for the M3 differential."""
 import streamlit as st
 
-if st.query_params.get("probe") == "datetime-empty":
+if st.query_params.get("probe") in ("datetime-empty", "datetime-bounds"):
     from datetime import datetime
+    bounds_probe = st.query_params.get("probe") == "datetime-bounds"
     phase = st.query_params.get("phase", "load")
     if "datetime_empty_calls" not in st.session_state:
         st.session_state.datetime_empty_calls = []
@@ -10,13 +11,24 @@ if st.query_params.get("probe") == "datetime-empty":
         return None if value is None else value.strftime("%Y-%m-%dT%H:%M")
     def changed(source):
         st.session_state.datetime_empty_calls.append([source, clock(st.session_state.datetime_empty_moment), clock(st.session_state.datetime_empty_optional), st.session_state.datetime_empty_peer])
-    changed_default = phase in ("defaults", "fallback", "bad-first", "seconds", "recover", "observe", "reset")
+    changed_default = not bounds_probe and phase in ("defaults", "fallback", "bad-first", "seconds", "recover", "observe", "reset")
     value = datetime(2025, 3, 15, 16, 20) if changed_default else datetime(2025, 3, 15, 12, 30)
-    kwargs = dict(min_value=datetime(2025, 3, 15, 8), max_value=datetime(2025, 3, 15, 18))
-    moment = st.datetime_input("Moment", value=value, key="datetime_empty_moment", on_change=changed, args=("moment",), **kwargs)
-    optional = st.datetime_input("Optional", value=value if changed_default else None, key="datetime_empty_optional", on_change=changed, args=("optional",), **kwargs)
+    if bounds_probe and phase in ("assign", "implicit"):
+        assigned = datetime(2025, 3, 15, 19) if phase == "assign" else datetime(2050, 3, 15, 19)
+        st.session_state.datetime_empty_moment = assigned
+        st.session_state.datetime_empty_optional = assigned
+    hour = 15 if bounds_probe and phase in ("reset", "final") else 16 if bounds_probe and phase in ("narrow", "observe", "joint", "assign", "explicit-none", "none-observe", "recover") else 18
+    kwargs = {} if bounds_probe and phase in ("implicit", "implicit-observe") else dict(min_value=datetime(2025, 3, 15, 8), max_value=datetime(2025, 3, 15, hour))
+    moment = st.datetime_input("Moment", value=None if bounds_probe and phase == "explicit-none" else value, key="datetime_empty_moment", on_change=changed, args=("moment",), **kwargs)
+    optional_default = value if changed_default else None
+    if bounds_probe and phase in ("implicit", "implicit-observe", "none-observe", "recover", "reset", "final"):
+        optional_default = datetime(2025, 3, 15, 12, 30)
+    optional = st.datetime_input("Optional", value=optional_default, key="datetime_empty_optional", on_change=changed, args=("optional",), **kwargs)
     peer = st.checkbox("Peer", key="datetime_empty_peer", on_change=changed, args=("peer",))
-    st.json({"phase": phase, "values": [clock(moment), clock(optional), peer], "calls": st.session_state.datetime_empty_calls})
+    report = {"phase": phase, "values": [clock(moment), clock(optional), peer], "calls": st.session_state.datetime_empty_calls}
+    if bounds_probe:
+        report["native"] = [clock(st.session_state.datetime_empty_moment), clock(st.session_state.datetime_empty_optional), st.session_state.datetime_empty_peer]
+    st.json(report)
 elif st.query_params.get("probe") == "time-empty":
     from datetime import time
     phase = st.query_params.get("phase", "load")

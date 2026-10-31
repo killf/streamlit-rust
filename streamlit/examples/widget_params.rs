@@ -6,7 +6,8 @@ use ::streamlit::*;
 use streamlit::StreamlitApi;
 
 fn render(st: &Streamlit) -> Result<(), WidgetError> {
-    if st.query_params().get("probe").as_deref() == Some("datetime-empty") {
+    if matches!(st.query_params().get("probe").as_deref(), Some("datetime-empty" | "datetime-bounds")) {
+        let bounds_probe = st.query_params().get("probe").as_deref() == Some("datetime-bounds");
         let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
         let changed = |source: &'static str| {
             move |st: &Streamlit| {
@@ -22,17 +23,50 @@ fn render(st: &Streamlit) -> Result<(), WidgetError> {
             }
         };
         let parse = |text: &str| chrono::NaiveDateTime::parse_from_str(text, "%Y-%m-%dT%H:%M").expect("fixture datetime");
-        let changed_default = ["defaults", "fallback", "bad-first", "seconds", "recover", "observe", "reset"].contains(&phase.as_str());
-        let options = |label: &str, key: &str| DateTimeInputOptions::new(label).key(key).min(parse("2025-03-15T08:00")).max(parse("2025-03-15T18:00"));
-        let moment = st.datetime_input(options("Moment", "datetime_empty_moment").value(parse(if changed_default { "2025-03-15T16:20" } else { "2025-03-15T12:30" })).on_change(changed("moment")))?;
+        let changed_default = !bounds_probe && ["defaults", "fallback", "bad-first", "seconds", "recover", "observe", "reset"].contains(&phase.as_str());
+        if bounds_probe && matches!(phase.as_str(), "assign" | "implicit") {
+            let assigned = if phase == "assign" { "2025-03-15T19:00" } else { "2050-03-15T19:00" };
+            st.session_state().set("datetime_empty_moment", assigned)?;
+            st.session_state().set("datetime_empty_optional", assigned)?;
+        }
+        let options = |label: &str, key: &str| {
+            let options = DateTimeInputOptions::new(label).key(key);
+            if bounds_probe && matches!(phase.as_str(), "implicit" | "implicit-observe") {
+                return options;
+            }
+            let max = if bounds_probe && matches!(phase.as_str(), "reset" | "final") {
+                "2025-03-15T15:00"
+            } else if bounds_probe && matches!(phase.as_str(), "narrow" | "observe" | "joint" | "assign" | "explicit-none" | "none-observe" | "recover") {
+                "2025-03-15T16:00"
+            } else {
+                "2025-03-15T18:00"
+            };
+            options.min(parse("2025-03-15T08:00")).max(parse(max))
+        };
+        let mut moment = options("Moment", "datetime_empty_moment").value(parse(if changed_default { "2025-03-15T16:20" } else { "2025-03-15T12:30" })).on_change(changed("moment"));
+        if bounds_probe && phase == "explicit-none" {
+            moment = moment.value_none();
+        }
+        let moment = st.datetime_input(moment)?;
         let mut optional = options("Optional", "datetime_empty_optional").value_none().on_change(changed("optional"));
         if changed_default {
             optional = optional.value(parse("2025-03-15T16:20"));
         }
+        if bounds_probe && matches!(phase.as_str(), "implicit" | "implicit-observe" | "none-observe" | "recover" | "reset" | "final") {
+            optional = optional.value(parse("2025-03-15T12:30"));
+        }
         let optional = st.datetime_input(optional)?;
         let peer = st.checkbox(CheckboxOptions::new("Peer").key("datetime_empty_peer").on_change(changed("peer")))?;
         let calls = st.session_state().get::<Vec<serde_json::Value>>("datetime_empty_calls")?.unwrap_or_default();
-        st.json(serde_json::json!({"phase": phase, "values": [moment.map(|value| value.format("%Y-%m-%dT%H:%M").to_string()), optional.map(|value| value.format("%Y-%m-%dT%H:%M").to_string()), serde_json::json!(peer)], "calls": calls}));
+        let mut report = serde_json::json!({"phase": phase, "values": [moment.map(|value| value.format("%Y-%m-%dT%H:%M").to_string()), optional.map(|value| value.format("%Y-%m-%dT%H:%M").to_string()), serde_json::json!(peer)], "calls": calls});
+        if bounds_probe {
+            report["native"] = serde_json::json!([
+                st.session_state().get::<serde_json::Value>("datetime_empty_moment")?,
+                st.session_state().get::<serde_json::Value>("datetime_empty_optional")?,
+                st.session_state().get::<bool>("datetime_empty_peer")?
+            ]);
+        }
+        st.json(report);
         return Ok(());
     }
 
