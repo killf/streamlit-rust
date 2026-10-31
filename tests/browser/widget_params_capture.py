@@ -32,6 +32,7 @@ parser.add_argument('--color', action='store_true', help='color defaults, widths
 parser.add_argument('--color-unkeyed', action='store_true', help='unkeyed color raw-default and effective-width identity')
 parser.add_argument('--bool-width', action='store_true', help='keyed/unkeyed checkbox and toggle width identity')
 parser.add_argument('--select-policy', action='store_true', help='keyed selectbox creation and multiselect limit identity')
+parser.add_argument('--select-unkeyed', action='store_true', help='unkeyed variant of --select-policy, including placeholder/filter changes')
 parser.add_argument('--number-permissive', action='store_true', help='equal bounds and nonpositive finite steps, plus rejected range controls')
 parser.add_argument('--number-float', action='store_true', help='float variant of the keyed number sequence')
 parser.add_argument('--number-unkeyed', action='store_true', help='unkeyed number identity across option changes')
@@ -42,6 +43,7 @@ parser.add_argument('--url', help='caller-owned Rust server URL (comparison capt
 args = parser.parse_args()
 assert sum((args.integer_bounds, args.number_sequence, args.number_unkeyed, args.stop_lifecycle, args.number_permissive, args.form_identity, args.color, args.color_unkeyed, args.bool_width, args.select_policy)) <= 1
 assert not args.number_float or args.number_sequence
+assert not args.select_unkeyed or args.select_policy
 assert not args.stop_after_run or args.number_unkeyed
 assert not args.resume_after_stop or args.stop_after_run
 OUT = args.out.resolve()
@@ -75,6 +77,8 @@ if args.bool_width:
     TRACE['scope'] = 'Seven keyed/unkeyed checkbox and toggle width/state runs on one native WS; no browser/UI claim.'
 if args.select_policy:
     TRACE['scope'] = 'Nine keyed selectbox creation/multiselect limit identity runs on one native WS; no browser/UI claim.'
+if args.select_unkeyed:
+    TRACE['scope'] = 'Seventeen unkeyed selection mode/limit/width/placeholder/filter runs on one native WS; no browser/UI claim.'
 SERVER = WS = None
 
 
@@ -138,6 +142,10 @@ try:
     if args.select_policy:
         steps = [(phase, phase in ('edit', 'mode-edit', 'limit-edit'))
                  for phase in ('load', 'edit', 'mode', 'mode-edit', 'width', 'limit', 'limit-edit', 'restore', 'observe')]
+        if args.select_unkeyed:
+            steps = [(phase, phase.endswith('edit')) for phase in (
+                'load', 'edit', 'mode', 'mode-edit', 'width', 'limit', 'limit-edit', 'placeholder', 'placeholder-edit',
+                'filter', 'filter-edit', 'filter-return', 'empty-placeholder', 'empty-edit', 'space-placeholder', 'restore', 'observe')]
     select_ids = {}
     lifecycle_bound, lifecycle_ids = "url", {}
     number_id = None
@@ -145,14 +153,14 @@ try:
     for step_index, (phase, submitted) in enumerate(steps):
         request = BackMsg()
         if args.select_policy:
-            request.rerun_script.query_string = "probe=select-policy&phase=" + phase
+            request.rerun_script.query_string = "probe=" + ("select-policy-unkeyed" if args.select_unkeyed else "select-policy") + "&phase=" + phase
             if submitted:
                 widget = request.rerun_script.widget_states.widgets.add()
                 widget.id = select_ids['selectbox']
                 widget.string_value = 'Novel' if phase == 'mode-edit' else 'Beta'
                 widget = request.rerun_script.widget_states.widgets.add()
                 widget.id = select_ids['multiselect']
-                widget.string_array_value.data.extend(['Beta', 'Charlie'] if phase == 'mode-edit' else ['Charlie'] if phase == 'limit-edit' else ['Beta'])
+                widget.string_array_value.data.extend(['Beta', 'Charlie'] if phase == 'mode-edit' else ['Beta'] if phase == 'edit' else ['Charlie'])
         if args.bool_width:
             request.rerun_script.query_string = "probe=bool-width&phase=" + phase
             if submitted is not None:

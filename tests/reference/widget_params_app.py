@@ -1,13 +1,16 @@
 """Emit widget creation-wire parameter variants for the M3 differential."""
 import streamlit as st
 
-if st.query_params.get("probe") == "select-policy":
+if st.query_params.get("probe") in ("select-policy", "select-policy-unkeyed"):
+    unkeyed = st.query_params.get("probe") == "select-policy-unkeyed"
     phase = st.query_params.get("phase", "load")
     creation = phase not in ("load", "edit", "restore", "observe")
-    limit = 3 if phase in ("limit", "limit-edit") else 2 if creation else None
+    limit = (2 if phase in ("mode", "mode-edit", "width") else 3) if creation else None
     options = {"width": 320} if phase == "width" else {}
-    selected = st.selectbox("Choice", ["Alpha", "Beta", "Charlie"], key="choice", accept_new_options=creation, **options)
-    selections = st.multiselect("Choices", ["Alpha", "Beta", "Charlie"], default=["Alpha"], key="choices", max_selections=limit, **options)
+    placeholder = "Pick one" if phase.startswith(("placeholder", "filter")) else "" if phase.startswith("empty") else " " if phase == "space-placeholder" else None
+    selected = st.selectbox("Choice", ["Alpha", "Beta", "Charlie"], key=None if unkeyed else "choice", accept_new_options=creation,
+                            placeholder=placeholder, filter_mode="prefix" if phase in ("filter", "filter-edit") else "fuzzy", **options)
+    selections = st.multiselect("Choices", ["Alpha", "Beta", "Charlie"], default=["Alpha"], key=None if unkeyed else "choices", max_selections=limit, **options)
     st.json({"phase": phase, "values": [selected, selections]})
 elif st.query_params.get("probe") == "bool-width":
     phase = st.query_params.get("phase", "load")

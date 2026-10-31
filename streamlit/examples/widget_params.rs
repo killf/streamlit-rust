@@ -6,22 +6,40 @@ use ::streamlit::*;
 use streamlit::StreamlitApi;
 
 fn render(st: &Streamlit) -> Result<(), WidgetError> {
-    if st.query_params().get("probe").as_deref() == Some("select-policy") {
+    if matches!(st.query_params().get("probe").as_deref(), Some("select-policy" | "select-policy-unkeyed")) {
+        let unkeyed = st.query_params().get("probe").as_deref() == Some("select-policy-unkeyed");
         let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
         let creation = !matches!(phase.as_str(), "load" | "edit" | "restore" | "observe");
-        let mut multiple = MultiselectOptions::new("Choices", ["Alpha", "Beta", "Charlie"]).default_indices([0]).key("choices");
+        let mut multiple = MultiselectOptions::new("Choices", ["Alpha", "Beta", "Charlie"]).default_indices([0]);
+        if !unkeyed {
+            multiple = multiple.key("choices");
+        }
         if creation {
-            multiple = multiple.max_selections(if matches!(phase.as_str(), "limit" | "limit-edit") { 3 } else { 2 });
+            multiple = multiple.max_selections(if matches!(phase.as_str(), "mode" | "mode-edit" | "width") { 2 } else { 3 });
         }
 
         let selected = if creation {
-            let mut options = SelectboxCreationOptions::new("Choice", ["Alpha", "Beta", "Charlie"]).key("choice");
+            let mut options = SelectboxCreationOptions::new("Choice", ["Alpha", "Beta", "Charlie"]);
+            if !unkeyed {
+                options = options.key("choice");
+            }
+            if phase.starts_with("placeholder") || phase.starts_with("filter") {
+                options = options.placeholder("Pick one");
+            } else if phase.starts_with("empty") {
+                options = options.placeholder("");
+            } else if phase == "space-placeholder" {
+                options = options.placeholder(" ");
+            }
+            if matches!(phase.as_str(), "filter" | "filter-edit") {
+                options = options.filter_mode(SelectFilterMode::Prefix);
+            }
             if phase == "width" {
                 options = options.width(320);
             }
             st.selectbox_creation(options)?
         } else {
-            st.selectbox(SelectboxOptions::new("Choice", ["Alpha", "Beta", "Charlie"]).key("choice"))?.map(str::to_string)
+            let options = SelectboxOptions::new("Choice", ["Alpha", "Beta", "Charlie"]);
+            st.selectbox(if unkeyed { options } else { options.key("choice") })?.map(str::to_string)
         };
         if phase == "width" {
             multiple = multiple.width(320);

@@ -2224,3 +2224,17 @@ linker stdout warning 保留。日志为 target/color-unkeyed-{workspace,referen
 编辑 Rust 的 rustfmt、全工作区/all-target Clippy 通过；按代码检查、单元、原生 WS、工作区顺序验证。工作区共 309 项通过（302 库、1 ledger、2 宏、4 rustdoc），仍精确排除原 navigation_pages_switch_and_session_state_match_the_measured_wire 与 rerun_queue_messages_match_frozen_reference 两项待决回归，不能称完整工作区全绿。既有 MSVC linker stdout warning 保留；日志索引 target/select-policy-{red,green,clippy,build,workspace,reference}.log。
 
 本批未重采真实浏览器，未验证全部回调/绑定/表单/跨页组合；select_slider、统一 hash、共享状态、发送队列扩展与多小时浸泡的待决定状态保持。用户 colconfig_params 修改独立保留；未合并、发布或部署，M3/M5/M7 与长期 Goal 继续开放。
+
+## Current unkeyed selection identity validation (2026-11-01)
+
+本节补充上一批有 key 验收，关闭其“无 key 动态上限待测”的已列场景，不扩大为全部参数兼容。锁定 SDK 1.66.1 的公开 API 经一条原生 WS 完成 17 轮：创建模式、max_selections None/2/3、默认/320 像素宽度、占位文字与 fuzzy/prefix 过滤模式变化；每轮正常结束清理。selectbox 身份六类、multiselect 四类；恢复旧参数不能复活旧选择，空串占位和单空格共享身份，empty-edit 后从空串切为单空格仍返回 Beta。
+
+Rust 修前忽略无 key 的宽度、占位文字和过滤模式，width 轮错误保留 Novel 与 Beta/Charlie；单元回归真实失败。另有显式空占位被错误编码为默认空串。生产改动仅为 multiselect 的 unkeyed extra 补宽度，selectbox 的 unkeyed extra 结构化编码标签、默认索引、创建模式、有效占位、过滤模式及宽度；显式空占位先归一化为单空格再用于身份和协议。keyed 身份白名单、codec、callback/禁用/绑定/清理/发送流程不变，无新公共 API 或依赖。
+
+复用已有示例的 probe=select-policy-unkeyed 分支，以及采集器 --select-policy --select-unkeyed；旧 keyed 分支仍保留。固定原始证据为 [Python](../tests/reference/reference-browser/widget-params/select-policy-unkeyed/trace.json)、[Rust 修前](../tests/browser/rust-widget-params/select-policy-unkeyed/before/trace.json)、[Rust 修后](../tests/browser/rust-widget-params/select-policy-unkeyed/trace.json)，每端 17 轮、135 原始 WS 帧、51 完整 Element；仅归一化不透明 ID 和 JSON 文本格式后逐字段一致。示例/采集器 SHA256 双端相同，Rust 另保存 widget_api 与二进制 SHA256。旧失败保留各两类/三类身份及空占位错误，未覆盖为成功。
+
+参考门复用严格原始 protobuf/汇总解析，验证身份等价类、输入标签/oneof/前轮 ID、宽度、占位、过滤枚举、选择上限、返回值和会话/完成状态。七类同步篡改原始帧与汇总的负例必须失败：宽度身份、占位身份、过滤身份、空格身份、旧值复活、协议占位和过期输入。widget 参数模块 139 项、相关 query/widget/temporal/pickers/matrix/docs 门 390 项通过。两项矩阵证据/边界及机器清单已同步，130 partial 与桶计数保持。
+
+同一修后 Rust 二进制另执行原九个 keyed 场景（71 帧/27 Element），继续与原冻结 SDK 逐字段一致，本地证据 target/select-unkeyed-keyed-recheck/trace.json；未重写旧参考。SDK 服务由采集器关闭，Rust 修前 PID 62280、修后 8988 均核验精确可执行路径后停止，55660/8599 无监听。按代码检查→单元→原生 WS→工作区验证：编辑 Rust 的 rustfmt、全工作区/all-target Clippy 通过，工作区 310 项通过（303 库、1 ledger、2 宏、4 rustdoc），仍精确排除原 navigation_pages_switch_and_session_state_match_the_measured_wire 与 rerun_queue_messages_match_frozen_reference 两项待决回归，不能称完整工作区全绿。既有 MSVC linker stdout warning 保留；日志索引 target/select-unkeyed-{red,green,clippy,build,workspace,reference}.log。
+
+真实浏览器的过滤/占位显示、本批以外的默认/空值/无效参数、错误顺序、回调/绑定/表单/跨页组合仍未验收；select_slider、统一 hash、共享状态、队列扩展与多小时浸泡的决定继续等待。用户 colconfig_params 修改保持独立，未合并、发布或部署；M3/M5/M7 和长期 Goal 仍开放。

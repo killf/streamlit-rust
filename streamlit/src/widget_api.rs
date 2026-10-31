@@ -2426,7 +2426,7 @@ impl<C: AppendChild> InputWidgets for C {
             &if c.key.is_some() {
                 serde_json::to_string(&options.max_selections)?
             } else {
-                serde_json::to_string(&(&options.labels, &options.default, options.max_selections))?
+                serde_json::to_string(&(&options.labels, &options.default, options.max_selections, c.width))?
             },
         );
         let codec = Codec::MultiSelect(options.labels.iter().cloned().zip(native.iter().cloned()).collect());
@@ -3580,11 +3580,20 @@ fn emit_selectbox<C: AppendChild, T: Clone + Serialize>(this: &C, options: Selec
     if options.bind == TextBind::QueryParams && c.key.as_deref().is_some_and(crate::query_params::is_embed_key) {
         return Err(WidgetError::InvalidValue("cannot bind a reserved embedding query parameter".into()));
     }
+    // 显式空占位用单空格区分；None 保留前端的上下文默认提示。
+    let placeholder = options.placeholder.map(|value| if value.is_empty() { " ".into() } else { value });
     let native: Vec<Value> = options.options.iter().map(serde_json::to_value).collect::<Result<_, _>>()?;
     let default = options.index.filter(|index| *index < native.len()).map(Value::from).unwrap_or(Value::Null);
     // Creation mode joins the widget identity, like the reference's
     // key_as_main_identity("accept_new_options").
-    let identity = c.identity_in_form(&form_id, &if c.key.is_some() { creation.to_string() } else { format!("{:?}:{:?}:{}", options.labels, options.index, creation) });
+    let identity = c.identity_in_form(
+        &form_id,
+        &if c.key.is_some() {
+            creation.to_string()
+        } else {
+            serde_json::to_string(&(&options.labels, options.index, creation, &placeholder, options.filter_mode.map(|mode| mode.wire()), c.width))?
+        },
+    );
     let pairs = options.labels.iter().cloned().zip(native.iter().cloned()).collect();
     let codec = if creation { Codec::SelectCreation(pairs) } else { Codec::Select(pairs) };
     let labels = options.labels.clone();
@@ -3644,7 +3653,7 @@ fn emit_selectbox<C: AppendChild, T: Clone + Serialize>(this: &C, options: Selec
             set_value,
             disabled: c.disabled || (empty && !creation),
             label_visibility: c.visibility.wire(),
-            placeholder: options.placeholder.unwrap_or_default(),
+            placeholder: placeholder.unwrap_or_default(),
             accept_new_options: Some(creation),
             query_param_key: (options.bind == TextBind::QueryParams).then(|| c.key.clone()).flatten(),
             filter_mode: options.filter_mode.map(|mode| mode.wire()).unwrap_or(crate::proto::streamlit::SelectWidgetFilterMode::FilterModeFuzzy as i32),
@@ -4914,6 +4923,118 @@ mod tests {
             assert!(wire.try_recv().is_ok(), "the first valid form is still rendered");
         }
         assert!(wire.try_recv().is_err(), "failed form calls must not append their partial children");
+    }
+
+    #[test]
+    fn unkeyed_selection_display_changes_reset_and_normalize_placeholder() -> anyhow::Result<()> {
+        let state = SessionState::default();
+        let mut ids: Vec<Vec<String>> = Vec::new();
+        let groups = [[0, 0, 1, 1, 2, 1, 1, 3, 3, 4, 4, 3, 5, 5, 5, 0, 0], [0, 0, 1, 1, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0]];
+        let phases = [
+            "load",
+            "edit",
+            "mode",
+            "mode-edit",
+            "width",
+            "limit",
+            "limit-edit",
+            "placeholder",
+            "placeholder-edit",
+            "filter",
+            "filter-edit",
+            "filter-return",
+            "empty-placeholder",
+            "empty-edit",
+            "space-placeholder",
+            "restore",
+            "observe",
+        ];
+
+        for (index, phase) in phases.iter().enumerate() {
+            // 1. 所有编辑都提交上一轮真实身份和标签，不伪造内部索引。
+            let incoming = if phase.ends_with("edit") {
+                let labels = if *phase == "mode-edit" {
+                    vec!["Beta".into(), "Charlie".into()]
+                } else {
+                    vec![if *phase == "edit" { "Beta" } else { "Charlie" }.into()]
+                };
+                vec![
+                    WidgetState {
+                        id: ids[index - 1][0].clone(),
+                        value: Some(widget_state::Value::StringValue(if *phase == "mode-edit" { "Novel" } else { "Beta" }.into())),
+                    },
+                    WidgetState {
+                        id: ids[index - 1][1].clone(),
+                        value: Some(widget_state::Value::StringArrayValue(proto::StringArray { data: labels })),
+                    },
+                ]
+            } else {
+                Vec::new()
+            };
+            assert!(state.begin_widgets(incoming).is_empty());
+            let (st, mut wire) = app(&state);
+            let creation = !matches!(*phase, "load" | "edit" | "restore" | "observe");
+            let mut multiple = MultiselectOptions::new("Choices", ["Alpha", "Beta", "Charlie"]).default_indices([0]);
+            if creation {
+                multiple = multiple.max_selections(if matches!(*phase, "mode" | "mode-edit" | "width") { 2 } else { 3 });
+            }
+
+            // 2. 宽度、占位文字、过滤模式改变身份；空串和单空格使用同一有效占位值。
+            let selected = if creation {
+                let mut options = SelectboxCreationOptions::new("Choice", ["Alpha", "Beta", "Charlie"]);
+                if phase.starts_with("placeholder") || phase.starts_with("filter") {
+                    options = options.placeholder("Pick one");
+                } else if phase.starts_with("empty") {
+                    options = options.placeholder("");
+                } else if *phase == "space-placeholder" {
+                    options = options.placeholder(" ");
+                }
+                if matches!(*phase, "filter" | "filter-edit") {
+                    options = options.filter_mode(SelectFilterMode::Prefix);
+                }
+                st.selectbox_creation(if *phase == "width" { options.width(320) } else { options })?
+            } else {
+                st.selectbox(SelectboxOptions::new("Choice", ["Alpha", "Beta", "Charlie"]))?.map(str::to_string)
+            };
+            let selections = st.multiselect(if *phase == "width" { multiple.width(320) } else { multiple })?;
+            let single = if *phase == "mode-edit" {
+                "Novel"
+            } else if phase.ends_with("edit") || *phase == "space-placeholder" {
+                "Beta"
+            } else {
+                "Alpha"
+            };
+            let multi = if *phase == "mode-edit" {
+                vec!["Beta", "Charlie"]
+            } else if *phase == "edit" {
+                vec!["Beta"]
+            } else if (6..=14).contains(&index) {
+                vec!["Charlie"]
+            } else {
+                vec!["Alpha"]
+            };
+            assert_eq!((selected.as_deref(), selections), (Some(single), multi), "{phase}");
+            let element::Type::Selectbox(single) = input(&mut wire)? else { panic!() };
+            let element::Type::Multiselect(multi) = input(&mut wire)? else { panic!() };
+            let placeholder = if phase.starts_with("empty") || *phase == "space-placeholder" {
+                " "
+            } else if phase.starts_with("placeholder") || phase.starts_with("filter") {
+                "Pick one"
+            } else {
+                ""
+            };
+            assert_eq!(single.placeholder, placeholder, "{phase}");
+            let current = vec![single.id, multi.id];
+            for (position, id) in current.iter().enumerate() {
+                for earlier in 0..index {
+                    assert_eq!(*id == ids[earlier][position], groups[position][index] == groups[position][earlier], "{phase}: {position}/{earlier}");
+                }
+            }
+            ids.push(current);
+            state.finish_widgets();
+        }
+
+        Ok(())
     }
 
     #[test]

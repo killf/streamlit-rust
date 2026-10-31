@@ -14,6 +14,8 @@
 
 ## Current focus
 
+2026-11-01 无 key 选择身份切片：补宽度、占位/过滤的私有身份参数与显式空占位归一化；17 轮/135 帧/51 完整 Element 与锁定 SDK 一致，修前失败保留，原九轮 keyed 合同用同一二进制复验。详见[验收](acceptance.md#current-unkeyed-selection-identity-validation-2026-11-01)；浏览器过滤/占位显示及其余组合继续开放。
+
 2026-11-01 选择策略身份切片：有 key 的 selectbox 创建模式与 multiselect 选择上限已纳入各自私有身份；九轮原生 WS 中重建、旧状态清理、宽度保持和新字符串返回与锁定 SDK 一致，修前失败保留。详见[验收](acceptance.md#current-selection-policy-identity-validation-2026-11-01)；无 key 动态上限、错误与真实浏览器等组合未据此验收。
 
 2026-11-01 checkbox/toggle 宽度身份切片：公开 SDK 与原生 WS 证明无 key 改宽度重建并清理旧状态、有 key 保留；Rust 两处私有身份参数已修正，七轮/69 帧/35 个完整 Element 双端一致，修前失败保留。范围与验证见[验收](acceptance.md#current-checkboxtoggle-width-identity-validation-2026-11-01)；真实浏览器和其余组合未据此关闭。

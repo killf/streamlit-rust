@@ -650,17 +650,28 @@ SELECT_VALUES = (("Alpha", ["Alpha"]), ("Beta", ["Beta"]), ("Alpha", ["Alpha"]),
                  ("Novel", ["Beta", "Charlie"]), ("Novel", ["Alpha"]), ("Beta", ["Charlie"]), ("Alpha", ["Alpha"]), ("Alpha", ["Alpha"]))
 
 
-def check_select_policy(capture):
+SELECT_UNKEYED_PHASES = ("load", "edit", "mode", "mode-edit", "width", "limit", "limit-edit", "placeholder", "placeholder-edit",
+                         "filter", "filter-edit", "filter-return", "empty-placeholder", "empty-edit", "space-placeholder", "restore", "observe")
+SELECT_UNKEYED_VALUES = (("Alpha", ["Alpha"]), ("Beta", ["Beta"]), ("Alpha", ["Alpha"]), ("Novel", ["Beta", "Charlie"]),
+                         ("Alpha", ["Alpha"]), ("Alpha", ["Alpha"]), ("Beta", ["Charlie"]), ("Alpha", ["Charlie"]),
+                         ("Beta", ["Charlie"]), ("Alpha", ["Charlie"]), ("Beta", ["Charlie"]), ("Alpha", ["Charlie"]),
+                         ("Alpha", ["Charlie"]), ("Beta", ["Charlie"]), ("Beta", ["Charlie"]), ("Alpha", ["Alpha"]), ("Alpha", ["Alpha"]))
+SELECT_UNKEYED_GROUPS = ((0, 0, 1, 1, 2, 1, 1, 3, 3, 4, 4, 3, 5, 5, 5, 0, 0), (0, 0, 1, 1, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0))
+
+
+def check_select_policy(capture, *, unkeyed=False):
+    phases = SELECT_UNKEYED_PHASES if unkeyed else SELECT_PHASES
+    expected_values = SELECT_UNKEYED_VALUES if unkeyed else SELECT_VALUES
+    groups = SELECT_UNKEYED_GROUPS if unkeyed else ((0, 0, 1, 1, 1, 1, 1, 0, 0), (0, 0, 1, 1, 1, 2, 2, 0, 0))
     assert capture["successful"] and "producer_error" not in capture and capture["reference_version"] == "1.66.1"
-    assert capture["cleanup"]["websocket_closed"] and capture["finishes"] == [0] * 9
+    assert capture["cleanup"]["websocket_closed"] and capture["finishes"] == [0] * len(phases)
     assert capture["cleanup"]["server_stopped" if capture["runtime"] == "python" else "caller_server_stopped"]
-    assert len(capture["frames"]) == 71 and len(capture["elements"]) == 27
+    assert len(capture["frames"]) == len(phases) * 8 - 1 and len(capture["elements"]) == len(phases) * 3
     runs = color_runs(capture, ("selectbox", "multiselect", "json"))
-    groups = ((0, 0, 1, 1, 1, 1, 1, 0, 0), (0, 0, 1, 1, 1, 2, 2, 0, 0))
     history, normalized, sessions, run_ids = [], [], set(), set()
-    for index, (phase, run) in enumerate(zip(SELECT_PHASES, runs, strict=True)):
+    for index, (phase, run) in enumerate(zip(phases, runs, strict=True)):
         request = run["request"]
-        assert request.query_string == "probe=select-policy&phase=" + phase and not request.is_history_navigation
+        assert request.query_string == "probe=" + ("select-policy-unkeyed" if unkeyed else "select-policy") + "&phase=" + phase and not request.is_history_navigation
         assert len(run["sessions"]) == 1 and run["finishes"] == [0]
         session = run["sessions"][0]
         assert session.initialize.environment_info.streamlit_version == "1.66.1"
@@ -672,7 +683,9 @@ def check_select_policy(capture):
         assert single.label == "Choice" and multiple.label == "Choices"
         assert single.accept_new_options == creation and not multiple.accept_new_options
         assert single.default == 0 and list(multiple.default) == [0]
-        assert multiple.max_selections == (3 if phase in ("limit", "limit-edit") else 2 if creation else 0)
+        assert multiple.max_selections == ((2 if phase in ("mode", "mode-edit", "width") else 3) if creation else 0)
+        assert single.placeholder == ("Pick one" if phase.startswith(("placeholder", "filter")) else " " if phase.startswith("empty") or phase == "space-placeholder" else "")
+        assert single.filter_mode == (2 if phase in ("filter", "filter-edit") else 0)
         ids = []
         for position, (_, widget, element) in enumerate(run["entries"][:2]):
             assert widget.id and list(widget.options) == ["Alpha", "Beta", "Charlie"]
@@ -683,13 +696,13 @@ def check_select_policy(capture):
                 assert (widget.id == history[earlier][position]) == (groups[position][index] == groups[position][earlier]), (phase, position, earlier)
             ids.append(widget.id)
         history.append(ids)
-        assert json.loads(run["entries"][2][1].body) == {"phase": phase, "values": list(SELECT_VALUES[index])}
+        assert json.loads(run["entries"][2][1].body) == {"phase": phase, "values": list(expected_values[index])}
         assert [capture["elements"][index * 3 + i]["delta_path"] for i in range(3)] == [[0, i] for i in range(3)]
         incoming = request.widget_states.widgets
-        if phase in ("edit", "mode-edit", "limit-edit"):
+        if phase.endswith("edit"):
             assert len(incoming) == 2 and [w.id for w in incoming] == history[index - 1]
-            assert incoming[0].WhichOneof("value") == "string_value" and incoming[0].string_value == SELECT_VALUES[index][0]
-            assert incoming[1].WhichOneof("value") == "string_array_value" and list(incoming[1].string_array_value.data) == SELECT_VALUES[index][1]
+            assert incoming[0].WhichOneof("value") == "string_value" and incoming[0].string_value == expected_values[index][0]
+            assert incoming[1].WhichOneof("value") == "string_array_value" and list(incoming[1].string_array_value.data) == expected_values[index][1]
         else:
             assert not incoming
         normalized_run = []
@@ -701,8 +714,8 @@ def check_select_policy(capture):
                 fields[kind]["body"] = json.loads(fields[kind]["body"])
             normalized_run.append(fields)
         normalized.append(normalized_run)
-    assert len(sessions) == 1 and len(run_ids) == 9
-    assert [len({ids[i] for ids in history}) for i in range(2)] == [2, 3]
+    assert len(sessions) == 1 and len(run_ids) == len(phases)
+    assert [len({ids[i] for ids in history}) for i in range(2)] == ([6, 4] if unkeyed else [2, 3])
     return normalized
 
 
@@ -770,6 +783,71 @@ def test_select_policy_gate_rejects_coherent_wrong_wire(mutation):
                             "delta_path": list(m.metadata.delta_path)} for m in frames(capture) if isinstance(m, ForwardMsg) and m.WhichOneof("type") == "delta"]
     with pytest.raises(AssertionError):
         check_select_policy(capture)
+
+
+@pytest.mark.parametrize("root", (PYTHON, RUST), ids=("python", "rust"))
+def test_unkeyed_selection_display_and_limit_identity(root):
+    check_select_policy(read(root / "select-policy-unkeyed/trace.json"), unkeyed=True)
+
+
+def test_unkeyed_selection_complete_elements_match_reference():
+    captures = [read(root / "select-policy-unkeyed/trace.json") for root in (PYTHON, RUST)]
+    assert captures[0]["producer_sources_sha256"] == captures[1]["producer_sources_sha256"]
+    assert captures[1]["semantic_match"] is True
+    assert check_select_policy(captures[0], unkeyed=True) == check_select_policy(captures[1], unkeyed=True)
+
+
+def test_unkeyed_selection_before_keeps_values_and_omits_empty_placeholder():
+    capture = read(RUST / "select-policy-unkeyed/before/trace.json")
+    assert capture["successful"] and capture["finishes"] == [0] * 17 and "producer_error" not in capture
+    assert len(capture["frames"]) == 135 and len(capture["elements"]) == 51
+    assert capture["semantic_match"] is False and capture["cleanup"] == {"websocket_closed": True, "caller_server_stopped": True}
+    runs = color_runs(capture, ("selectbox", "multiselect", "json"))
+    assert [len({r["entries"][i][1].id for r in runs}) for i in range(2)] == [2, 3]
+    assert json.loads(runs[4]["entries"][2][1].body)["values"] == ["Novel", ["Beta", "Charlie"]]
+    assert runs[12]["entries"][0][1].placeholder == ""
+    with pytest.raises(AssertionError):
+        check_select_policy(capture, unkeyed=True)
+
+
+@pytest.mark.parametrize("mutation", ("width-id", "placeholder-id", "filter-id", "space-id", "revived-value", "wire-placeholder", "stale-input"))
+def test_unkeyed_selection_gate_rejects_coherent_wrong_wire(mutation):
+    capture = read(PYTHON / "select-policy-unkeyed/trace.json")
+    source = color_runs(capture, ("selectbox", "multiselect", "json"))
+    target = {"width-id": 4, "placeholder-id": 7, "filter-id": 9, "space-id": 14, "revived-value": 11, "wire-placeholder": 12, "stale-input": 13}[mutation]
+    run = -1
+    for frame in capture["frames"]:
+        client = frame["direction"] == "client->server"
+        if client:
+            run += 1
+        if run != target:
+            continue
+        message = BackMsg() if client else ForwardMsg()
+        message.ParseFromString(base64.b64decode(frame["base64"]))
+        if client and mutation == "stale-input":
+            message.rerun_script.widget_states.widgets[0].id = source[9]["entries"][0][1].id
+        elif not client and message.WhichOneof("type") == "delta":
+            element = message.delta.new_element
+            kind = element.WhichOneof("type")
+            if kind == "selectbox" and mutation in ("width-id", "placeholder-id", "filter-id", "space-id"):
+                earlier = {"width-id": 2, "placeholder-id": 6, "filter-id": 8, "space-id": 11}[mutation]
+                element.selectbox.id = source[earlier]["entries"][0][1].id
+            elif kind == "selectbox" and mutation == "wire-placeholder":
+                element.selectbox.placeholder = ""
+            elif kind == "json" and mutation == "revived-value":
+                report = json.loads(element.json.body)
+                report["values"][0] = "Beta"
+                element.json.body = json.dumps(report)
+            else:
+                continue
+        else:
+            continue
+        raw = message.SerializeToString()
+        frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(message, preserving_proto_field_name=True))
+    capture["elements"] = [{"kind": m.delta.new_element.WhichOneof("type"), "fields": MessageToDict(getattr(m.delta.new_element, m.delta.new_element.WhichOneof("type")), preserving_proto_field_name=True),
+                            "delta_path": list(m.metadata.delta_path)} for m in frames(capture) if isinstance(m, ForwardMsg) and m.WhichOneof("type") == "delta"]
+    with pytest.raises(AssertionError):
+        check_select_policy(capture, unkeyed=True)
 
 
 def comparable(capture):
