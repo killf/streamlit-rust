@@ -1,7 +1,41 @@
 """Emit widget creation-wire parameter variants for the M3 differential."""
 import streamlit as st
 
-if st.query_params.get("probe") == "form-identity":
+if st.query_params.get("probe") == "color":
+    phase = st.query_params.get("phase", "load")
+    if phase == "defaults":
+        reports = []
+        for name, value in [
+            ("short-upper", "#ABC"), ("short-lower", "#abc"), ("long-mixed", "#aBcDeF"), ("black", "#000000"),
+            ("missing-hash", "ABCDEF"), ("short-unprefixed", "abc"), ("alpha", "#12345678"), ("bad-digit", "#12G"),
+            ("too-short", "#12"), ("leading-space", " #123"), ("trailing-space", "#123 "), ("lf", "#ABC\n"),
+            ("crlf", "#ABC\r\n"), ("double-lf", "#ABC\n\n"), ("empty", ""), ("plain-default", None),
+        ]:
+            try:
+                value = st.color_picker(name, value=value, key=name)
+                reports.append({"case": name, "accepted": True, "value": value})
+            except Exception as error:
+                reports.append({"case": name, "accepted": False, "error_type": type(error).__name__, "error": str(error)})
+        for width in (-5, 0, 1, 39, 40, 41):
+            name = "width-" + str(width)
+            value = st.color_picker(name, "#123456", key=name, width=width)
+            reports.append({"case": name, "accepted": True, "value": value})
+        st.json(reports)
+    else:
+        if phase == "assign":
+            st.session_state.accent = "#135"
+        if phase == "native-invalid":
+            st.session_state.accent = "nothex"
+
+        def color_changed():
+            st.session_state.setdefault("color_calls", []).append(st.session_state.accent)
+
+        alternate = phase in ("default-change", "changed-invalid", "width", "assign", "native-invalid", "observe", "recover")
+        value = st.color_picker("Accent", "#FED" if alternate else "#123456", key="accent", on_change=color_changed,
+                                width=-5 if phase == "width" else "content")
+        st.json({"phase": phase, "accepted": True, "value": value, "native": st.session_state.accent,
+                 "events": st.session_state.get("color_calls", [])})
+elif st.query_params.get("probe") == "form-identity":
     if st.query_params.get("ui") == "on":
         phase = st.selectbox("Location", ("root", "form-a", "form-b"), key="identity_location")
     else:

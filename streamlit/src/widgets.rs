@@ -23,6 +23,12 @@ pub(crate) const TIME_ANCHOR_MICROS: i64 = 946_684_800_000_000;
 /// One temporal day/step in microseconds, as measured on the reference.
 pub(crate) const DAY_MICROS: i64 = 86_400_000_000;
 
+/// SDK 颜色默认值要求 #RGB/#RRGGBB；其正则 $ 还接受一个末尾 LF。
+pub(crate) fn valid_color_hex(value: &str) -> bool {
+    let value = value.strip_suffix('\n').unwrap_or(value);
+    value.strip_prefix('#').is_some_and(|digits| matches!(digits.len(), 3 | 6) && digits.bytes().all(|byte| byte.is_ascii_hexdigit()))
+}
+
 pub(crate) fn date_micros(date: NaiveDate) -> i64 {
     date.and_hms_opt(0, 0, 0).expect("midnight is valid for every date").and_utc().timestamp_micros()
 }
@@ -114,6 +120,12 @@ pub(crate) enum Codec {
     Text {
         max_chars: Option<usize>,
     },
+
+    /// 前端颜色字符串在 callback 前补 #；空/非法字符串恢复注册时的默认值。
+    Color {
+        default: String,
+    },
+
     Select(Vec<(String, Value)>),
     /// Creation-mode selectbox: a known label decodes to its index, an
     /// unknown label passes through as its string (accept_new_options).
@@ -242,6 +254,12 @@ impl Codec {
             (Self::Trigger, widget_state::Value::TriggerValue(value)) => Some((*value).into()),
             (Self::Bool, widget_state::Value::BoolValue(value)) => Some((*value).into()),
             (Self::Text { max_chars }, widget_state::Value::StringValue(value)) => Some(Value::String(max_chars.map_or_else(|| value.clone(), |limit| value.chars().take(limit).collect()))),
+
+            (Self::Color { default }, widget_state::Value::StringValue(value)) => {
+                let normalized = if value.starts_with('#') { value.clone() } else { format!("#{value}") };
+                Some(Value::String(if valid_color_hex(&normalized) { normalized } else { default.clone() }))
+            }
+
             (Self::Select(options), widget_state::Value::StringValue(label)) => options.iter().position(|(text, _)| text == label).map(Value::from),
             (Self::SelectCreation(options), widget_state::Value::StringValue(label)) => Some(match options.iter().position(|(text, _)| text == label) {
                 Some(index) => Value::from(index),
@@ -414,6 +432,9 @@ impl Codec {
 
             // 长度只限制反序列化输入，已由应用赋值的原生字符串不截断。
             Self::Text { .. } => value.is_null() || value.is_string(),
+
+            // 代码赋值的字符串不走前端颜色校验，与 SDK 的原生状态路径一致。
+            Self::Color { .. } => value.is_string(),
 
             Self::Select(options) => value.is_null() || value.as_u64().is_some_and(|index| index < options.len() as u64),
             Self::SelectCreation(options) => value.is_null() || value.is_string() || value.as_u64().is_some_and(|index| index < options.len() as u64),

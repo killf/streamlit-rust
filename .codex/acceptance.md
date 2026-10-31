@@ -2054,3 +2054,47 @@ temporal/matrix/docs 参考门 311 项通过（temporal 29 项）。工作区/al
 Clippy、编辑 Rust 的 rustfmt、diff --check 通过，既有 MSVC linker stdout
 warning 保留。日志为 target/datetime-precision-{workspace,reference,clippy}.log。
 用户 colconfig_params 改动保持隔离，未合并、发布或部署。
+
+### 颜色创建值、前端解码与 callback（2026-11-01）
+
+冻结 widget-params/color 的 SDK 与 Rust 修前 before、修后 trace：各完整十六轮
+同连接，SDK/修后 122 原始帧/43 有序元素，修前 106/27。首轮 16 个默认值案
+（6 接受、10 拒绝）及 -5/0/1/39/40/41 六宽度案；SDK 三/六位 hex 必须带 #，
+ASCII 大小写和单个尾随 LF 原样保留，其余非法格式拒绝。六种整数宽度全部
+接受且小于 40 提升到 40。无默认的普通调用返回 #000000，不据此验证无 key 身份。
+
+随后十五轮依次 load/short/short-hash/long/invalid/empty/lower/invalid-after-edit/
+default-change/changed-invalid/width/assign/native-invalid/observe/recover。输入省略
+`#` 被补前缀，非法/空串恢复注册默认并按实际值变化回调，默认更改不覆盖当前
+选择但影响下一批非法输入。代码赋值 #135/nothex 分别同步前端，未触发 callback；
+无前端输入观察保持 nothex，恢复输入变 #123abc。八个 callback 值完整有序，
+修前第一条为错误的 abc，修后为 #abc；返回值、native 和事件日志均实际比对。
+
+公开 Rust 两项单元先失败（拒绝 #ABC、callback 读 abc），修后覆盖默认校验/
+宽度、前端解码与默认变更/回调、代码字符串同步及后续保持。生产只改颜色
+codec/入口校验和最小宽度；不改通用注册、其他 Text、身份/hash/queue/共享状态。
+指南先说明使用规则，再实现。相关日志为 target/color-{red,green,before-build,build}.log。
+
+门禁绑定 PB 原始长度/summary/元素、完整帧/running 次序、16 次唯一 run 和同一
+session/成功结束、全部输入字符串/ID、22 案结果和实际拒绝消息、所有默认值/
+宽度/布局/策略/同步标志、稳定的 accent ID、十五轮返回/native/八次 callback。
+27 个成功 ColorPicker Element 只规范化 ID 后逐字段一致；创建错误类型/文案
+分别保护，修后明确 semantic_match=false、color_flow_match=true，不将此当完整
+错误兼容。五类同步修改 raw/summary/元素的反例保护 # 归一化、默认回退、回调、
+最小宽度及代码赋值的同步/一次性标志。
+
+首个 SDK collector 因 ID 记录误放 block 分支而在第三请求前中断，已修正；
+失败 trace/server.log 原样移动至 target/color-collector-incomplete.json 和
+target/color-collector-incomplete-server.log，不属于本次冻结正参考。SDK 完整重新采集一次，未覆盖旧成功
+参考。三份采集源码 SHA 保留；Rust 基线 6fa5203，另有生产文件与二进制 SHA。
+SDK 服务由 collector 退出；Rust 修前 68980、修后 58888 按完整路径核对后停止，
+原 exec 会话终止，54320/8599 读回无监听。未操作浏览器；错误身份预占、其他
+oneof/禁用/URL/表单/跨页/无 key/非字符串代码态继续开放，完整目标及 130 partial 不关闭。
+
+最终工作区 306 项通过（299 库 + 1 ledger + 2 宏 + 4 rustdoc），保留原
+navigation_pages_switch_and_session_state_match_the_measured_wire 与
+rerun_queue_messages_match_frozen_reference 两项排除；相关 query/widget/
+temporal/pickers/matrix/docs 参考门 343 项通过（widget 参数模块 92 项）。
+工作区/all-target Clippy、编辑 Rust 的 rustfmt、diff --check 通过，既有 MSVC
+linker stdout warning 保留。日志为 target/color-{workspace,reference,clippy}.log。
+用户 colconfig_params 改动保持独立，未合并、发布或部署。

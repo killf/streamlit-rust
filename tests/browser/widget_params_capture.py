@@ -7,6 +7,7 @@ import argparse
 import base64
 from datetime import datetime, timezone
 import importlib.metadata
+import hashlib
 import json
 from pathlib import Path
 from urllib.parse import parse_qs, urlencode
@@ -27,6 +28,7 @@ parser.add_argument('--out', type=Path, required=True)
 parser.add_argument('--integer-bounds', action='store_true', help='opt-in unbounded and one-sided integer wire probe')
 parser.add_argument('--number-sequence', action='store_true', help='keyed number dynamic bounds over one WS')
 parser.add_argument('--form-identity', action='store_true', help='keyed/unkeyed inputs moving between forms and root')
+parser.add_argument('--color', action='store_true', help='color defaults, widths and callback/state sequence')
 parser.add_argument('--number-permissive', action='store_true', help='equal bounds and nonpositive finite steps, plus rejected range controls')
 parser.add_argument('--number-float', action='store_true', help='float variant of the keyed number sequence')
 parser.add_argument('--number-unkeyed', action='store_true', help='unkeyed number identity across option changes')
@@ -35,7 +37,7 @@ parser.add_argument('--resume-after-stop', action='store_true', help='append nor
 parser.add_argument('--stop-lifecycle', action='store_true', help='button and URL-bound text around early stop and normal cleanup')
 parser.add_argument('--url', help='caller-owned Rust server URL (comparison capture)')
 args = parser.parse_args()
-assert sum((args.integer_bounds, args.number_sequence, args.number_unkeyed, args.stop_lifecycle, args.number_permissive, args.form_identity)) <= 1
+assert sum((args.integer_bounds, args.number_sequence, args.number_unkeyed, args.stop_lifecycle, args.number_permissive, args.form_identity, args.color)) <= 1
 assert not args.number_float or args.number_sequence
 assert not args.stop_after_run or args.number_unkeyed
 assert not args.resume_after_stop or args.stop_after_run
@@ -60,11 +62,15 @@ TRACE = {'schema_version': 1, 'runtime': 'rust' if args.url else 'python', 'refe
          'scope': 'Element wire of widget creation-parameter edges over one native WS; no browser/UI claim.',
          'server_command': COMMAND, 'server_cleanup': 'caller-owned' if COMMAND is None else 'collector-owned',
          'url': URL, 'frames': [], 'elements': [], 'finishes': []}
+if args.color:
+    TRACE['scope'] = 'Color defaults/widths and fifteen callback/state reruns on one native WS; no browser/UI claim.'
+    TRACE['producer_sources_sha256'] = {path: hashlib.sha256((ROOT / path).read_bytes()).hexdigest() for path in (
+        'streamlit/examples/widget_params.rs', 'tests/reference/widget_params_app.py', 'tests/browser/widget_params_capture.py')}
 SERVER = WS = None
 
 
 def save():
-    (OUT / 'trace.json').write_text(json.dumps(TRACE, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+    (OUT / 'trace.json').write_text(json.dumps(TRACE, ensure_ascii=False, indent=2) + '\n', encoding='utf-8', newline='\n')
 
 
 def record(direction, raw, message):
@@ -105,11 +111,23 @@ try:
         steps = [(phase, None) for phase in ("load", "submit", "peek", "resume", "hide", "after-hide", "restore", "after-restore")]
     if args.form_identity:
         steps = [(phase, None) for phase in ("load", "edit", "form-a", "form-b", "form-edit", "root-return", "form-a-return")]
+    if args.color:
+        steps = [("defaults", None), ("load", None), ("short", "abc"), ("short-hash", "#AbC"), ("long", "00ffAA"),
+                 ("invalid", "#12"), ("empty", ""), ("lower", "#abcdef"), ("invalid-after-edit", "oops"),
+                 ("default-change", None), ("changed-invalid", "!"), ("width", None), ("assign", None),
+                 ("native-invalid", None), ("observe", None), ("recover", "123abc")]
     form_identity_ids = {}
     lifecycle_bound, lifecycle_ids = "url", {}
     number_id = None
+    color_id = None
     for step_index, (phase, submitted) in enumerate(steps):
         request = BackMsg()
+        if args.color:
+            request.rerun_script.query_string = "probe=color&phase=" + phase
+            if submitted is not None:
+                widget = request.rerun_script.widget_states.widgets.add()
+                widget.id = color_id
+                widget.string_value = submitted
         if args.number_sequence or args.number_unkeyed:
             request.rerun_script.query_string = "probe=" + ("number-unkeyed" if args.number_unkeyed else "number-float" if args.number_float else "number-sequence") + "&phase=" + phase
             if args.stop_after_run and step_index < 21:
@@ -191,6 +209,8 @@ try:
                 if element_kind is not None:
                     view = getattr(element, element_kind)
                     fields = MessageToDict(view, preserving_proto_field_name=True)
+                    if args.color and element_kind == 'color_picker' and view.label == 'Accent':
+                        color_id = view.id
                     if args.stop_lifecycle and element_kind in ('button', 'text_input'):
                         lifecycle_ids[view.id.rsplit('-', 1)[-1]] = view.id
                     if args.form_identity and element_kind in ('number_input', 'text_input', 'button'):

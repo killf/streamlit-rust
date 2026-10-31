@@ -14,6 +14,203 @@ from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
 PYTHON = Path(__file__).parent / "reference-browser/widget-params"
 RUST = Path(__file__).parents[1] / "browser/rust-widget-params"
 
+COLOR_DEFAULTS = (
+    ("short-upper", "#ABC"), ("short-lower", "#abc"), ("long-mixed", "#aBcDeF"), ("black", "#000000"),
+    ("missing-hash", "ABCDEF"), ("short-unprefixed", "abc"), ("alpha", "#12345678"), ("bad-digit", "#12G"),
+    ("too-short", "#12"), ("leading-space", " #123"), ("trailing-space", "#123 "), ("lf", "#ABC\n"),
+    ("crlf", "#ABC\r\n"), ("double-lf", "#ABC\n\n"), ("empty", ""), ("plain-default", None),
+)
+COLOR_STEPS = (("load", None), ("short", "abc"), ("short-hash", "#AbC"), ("long", "00ffAA"), ("invalid", "#12"), ("empty", ""),
+               ("lower", "#abcdef"), ("invalid-after-edit", "oops"), ("default-change", None), ("changed-invalid", "!"), ("width", None),
+               ("assign", None), ("native-invalid", None), ("observe", None), ("recover", "123abc"))
+COLOR_VALUES = ("#123456", "#abc", "#AbC", "#00ffAA", "#123456", "#123456", "#abcdef", "#123456", "#123456", "#FED", "#FED", "#135", "nothex", "nothex", "#123abc")
+COLOR_EVENTS = ("#abc", "#AbC", "#00ffAA", "#123456", "#abcdef", "#123456", "#FED", "#123abc")
+COLOR_EVENT_COUNTS = (0, 1, 2, 3, 4, 4, 5, 6, 6, 7, 7, 7, 7, 7, 8)
+
+
+def color_runs(capture):
+    runs, emitted = [], []
+    for message in frames(capture):
+        kind = message.WhichOneof("type")
+        if isinstance(message, BackMsg):
+            assert kind == "rerun_script"
+            runs.append({"request": message.rerun_script, "sessions": [], "finishes": [], "entries": []})
+        elif kind == "new_session":
+            runs[-1]["sessions"].append(message.new_session)
+        elif kind == "script_finished":
+            runs[-1]["finishes"].append(message.script_finished)
+        elif kind == "delta":
+            assert message.delta.WhichOneof("type") == "new_element"
+            element = message.delta.new_element
+            entry_kind = element.WhichOneof("type")
+            assert entry_kind in ("color_picker", "json")
+            view = getattr(element, entry_kind)
+            emitted.append((entry_kind, MessageToDict(view, preserving_proto_field_name=True), list(message.metadata.delta_path)))
+            runs[-1]["entries"].append((entry_kind, view, element))
+    assert emitted == [(entry["kind"], entry["fields"], entry["delta_path"]) for entry in capture["elements"]]
+    return runs
+
+
+def check_color_capture(capture):
+    assert capture["successful"] and "producer_error" not in capture and capture["reference_version"] == "1.66.1"
+    if capture["runtime"] == "rust":
+        assert capture.get("color_flow_match") is True and capture["semantic_match"] is False
+    assert capture["cleanup"]["websocket_closed"] and capture["finishes"] == [0] * 16
+    assert capture["cleanup"]["server_stopped" if capture["runtime"] == "python" else "caller_server_stopped"]
+    assert len(capture["frames"]) == 122 and len(capture["elements"]) == 43
+    kinds = []
+    for message in frames(capture):
+        kind = message.WhichOneof("type")
+        kinds.append((kind, message.session_status_changed.script_is_running) if kind == "session_status_changed" else kind)
+    expected_kinds = []
+    for index in range(16):
+        expected_kinds += ["rerun_script"] + ([("session_status_changed", False)] if index else [])
+        expected_kinds += ["new_session", ("session_status_changed", True)] + ["delta"] * (13 if index == 0 else 2) + ["script_finished"]
+    assert kinds == expected_kinds
+    runs = color_runs(capture)
+    assert len(runs) == 16
+    assert runs[0]["request"].query_string == "probe=color&phase=defaults" and not runs[0]["request"].widget_states.widgets
+    accepted = {"short-upper", "short-lower", "long-mixed", "black", "lf", "plain-default"}
+    defaults = json.loads(runs[0]["entries"][-1][1].body)
+    assert len(defaults) == 22
+    widgets = []
+    for report, (name, value) in zip(defaults[:16], COLOR_DEFAULTS, strict=True):
+        if name in accepted:
+            expected = value if value is not None else "#000000"
+            assert report == {"case": name, "accepted": True, "value": expected}
+            widgets.append((name, expected, None))
+        else:
+            error_type, error = "StreamlitAPIException", f"'{value}' is not a valid hex code for colors. Valid ones are like '#00FFAA' or '#000'."
+            if capture["runtime"] == "rust":
+                error_type, error = "InvalidValue", "invalid widget value: color_picker expects a #RGB or #RRGGBB value"
+            assert report == {"case": name, "accepted": False, "error_type": error_type, "error": error}
+    for report, width in zip(defaults[16:], (-5, 0, 1, 39, 40, 41), strict=True):
+        name = "width-" + str(width)
+        assert report == {"case": name, "accepted": True, "value": "#123456"}
+        widgets.append((name, "#123456", max(40, width)))
+    assert [entry[0] for entry in runs[0]["entries"]] == ["color_picker"] * 12 + ["json"]
+    sessions, run_ids, creation_ids = set(), set(), set()
+    for run in runs:
+        assert len(run["sessions"]) == 1 and run["finishes"] == [0]
+        session = run["sessions"][0]
+        assert session.initialize.environment_info.streamlit_version == "1.66.1"
+        sessions.add(session.initialize.session_id)
+        run_ids.add(session.script_run_id)
+        assert not run["request"].is_history_navigation
+    for (name, default, width), (_, widget, element) in zip(widgets, runs[0]["entries"][:-1], strict=True):
+        assert widget.label == name and widget.id.endswith("-" + name) and widget.default == default
+        creation_ids.add(widget.id)
+        assert not widget.value and not widget.set_value and not element.HasField("has_one_shot_effect")
+        assert MessageToDict(element.width_config, preserving_proto_field_name=True) == ({"use_content": True} if width is None else {"pixel_width": width})
+    accent_id = runs[1]["entries"][0][1].id
+    assert len(creation_ids) == 12 and accent_id not in creation_ids
+    for index, (run, (phase, submitted), value, count) in enumerate(zip(runs[1:], COLOR_STEPS, COLOR_VALUES, COLOR_EVENT_COUNTS, strict=True)):
+        request = run["request"]
+        assert request.query_string == "probe=color&phase=" + phase
+        assert [entry[0] for entry in run["entries"]] == ["color_picker", "json"]
+        widget, element = run["entries"][0][1:]
+        assert widget.id == accent_id and widget.label == "Accent"
+        assert widget.default == ("#FED" if index >= 8 else "#123456")
+        sync = phase in ("assign", "native-invalid")
+        assert widget.set_value == sync and widget.value == (value if sync else "")
+        assert element.HasField("has_one_shot_effect") == sync and (not sync or element.has_one_shot_effect)
+        assert MessageToDict(element.width_config, preserving_proto_field_name=True) == ({"pixel_width": 40} if phase == "width" else {"use_content": True})
+        assert json.loads(run["entries"][1][1].body) == {"phase": phase, "accepted": True, "value": value, "native": value, "events": list(COLOR_EVENTS[:count])}
+        incoming = request.widget_states.widgets
+        if submitted is None:
+            assert not incoming
+        else:
+            assert len(incoming) == 1 and incoming[0].id == accent_id and incoming[0].WhichOneof("value") == "string_value" and incoming[0].string_value == submitted
+    assert len(sessions) == 1 and len(run_ids) == 16
+    emitted_index = 0
+    for run in runs:
+        for index, (kind, widget, element) in enumerate(run["entries"]):
+            assert capture["elements"][emitted_index]["delta_path"] == [0, index]
+            emitted_index += 1
+            if kind == "color_picker":
+                assert not widget.disabled and not widget.help and not widget.form_id and not widget.ignore_rerun and widget.label_visibility.value == 0
+
+
+@pytest.mark.parametrize("root", (PYTHON, RUST), ids=("python", "rust"))
+def test_color_defaults_inputs_callbacks_and_code_state(root):
+    check_color_capture(read(root / "color/trace.json"))
+
+
+def test_color_full_widget_elements_match_reference():
+    captures = [read(root / "color/trace.json") for root in (PYTHON, RUST)]
+    assert captures[0]["producer_sources_sha256"] == captures[1]["producer_sources_sha256"]
+    normalized = []
+    for capture in captures:
+        check_color_capture(capture)
+        widgets = []
+        for run in color_runs(capture):
+            for kind, _, element in run["entries"]:
+                if kind == "color_picker":
+                    fields = MessageToDict(element, preserving_proto_field_name=True)
+                    fields[kind].pop("id")
+                    widgets.append(fields)
+        normalized.append(widgets)
+    assert normalized[0] == normalized[1]
+
+
+def test_color_before_keeps_wrong_callback_and_default_admission():
+    capture = read(RUST / "color/before/trace.json")
+    assert capture["successful"] and len(capture["frames"]) == 106 and len(capture["elements"]) == 27 and capture["finishes"] == [0] * 16
+    runs = color_runs(capture)
+    defaults = json.loads(runs[0]["entries"][-1][1].body)
+    assert not defaults[0]["accepted"] and defaults[4]["accepted"] and defaults[4]["value"] == "ABCDEF"
+    report = json.loads(runs[2]["entries"][-1][1].body)
+    assert report["phase"] == "short" and not report["accepted"] and report["native"] == "abc" and report["events"] == ["abc"]
+    with pytest.raises(AssertionError):
+        check_color_capture(capture)
+
+
+@pytest.mark.parametrize("mutation", ("short-normalization", "invalid-fallback", "callback", "width", "code-sync"))
+def test_color_gate_rejects_wrong_wire(mutation):
+    capture = read(PYTHON / "color/trace.json")
+    run = -1
+    target = {"short-normalization": 2, "invalid-fallback": 5, "callback": 2, "width": 0, "code-sync": 12}[mutation]
+    for frame in capture["frames"]:
+        if frame["direction"] == "client->server":
+            run += 1
+            continue
+        if run != target:
+            continue
+        message = ForwardMsg()
+        message.ParseFromString(base64.b64decode(frame["base64"]))
+        if message.WhichOneof("type") != "delta" or message.delta.WhichOneof("type") != "new_element":
+            continue
+        element = message.delta.new_element
+        kind = element.WhichOneof("type")
+        if kind == "json" and mutation in ("short-normalization", "invalid-fallback", "callback"):
+            report = json.loads(element.json.body)
+            if mutation == "callback":
+                report["events"] = []
+            else:
+                report["value"] = report["native"] = "abc" if mutation == "short-normalization" else "#00ffAA"
+                report["events"][-1] = report["value"]
+            element.json.body = json.dumps(report)
+        elif kind == "color_picker" and mutation == "width" and element.color_picker.label == "width-39":
+            element.width_config.pixel_width = 39
+        elif kind == "color_picker" and mutation == "code-sync":
+            element.color_picker.set_value = False
+            element.color_picker.value = ""
+            element.ClearField("has_one_shot_effect")
+        else:
+            continue
+        raw = message.SerializeToString()
+        frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(message, preserving_proto_field_name=True))
+    color_runs_raw = []
+    # Rebuild only the decoded summary, keeping the mutated original protobufs.
+    for message in frames(capture):
+        if isinstance(message, ForwardMsg) and message.WhichOneof("type") == "delta":
+            element = message.delta.new_element
+            kind = element.WhichOneof("type")
+            color_runs_raw.append({"kind": kind, "fields": MessageToDict(getattr(element, kind), preserving_proto_field_name=True), "delta_path": list(message.metadata.delta_path)})
+    capture["elements"] = color_runs_raw
+    with pytest.raises(AssertionError):
+        check_color_capture(capture)
+
 
 def read(path):
     return json.loads(path.read_text(encoding="utf-8-sig"))

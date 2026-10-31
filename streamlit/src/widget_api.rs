@@ -1293,7 +1293,7 @@ impl From<String> for DateTimeInputOptions {
 }
 
 /// Color picker options. The plain call starts at black; values are
-/// "#RRGGBB" strings like the reference.
+/// "#RGB" or "#RRGGBB" strings like the reference.
 pub struct ColorPickerOptions {
     common: InputOptions,
     value: String,
@@ -3297,15 +3297,15 @@ impl<C: AppendChild> InputWidgets for C {
 
     fn color_picker(&self, options: impl Into<ColorPickerOptions>) -> Result<String, WidgetError> {
         let options = options.into();
-        let c = options.common;
+        let mut c = options.common;
         let form_id = form_scope(self, c.callback.is_some())?;
+        if let Some(width) = c.width {
+            c.width = Some(width.max(40));
+        }
+
         let width_config = c.width(true)?;
-        let valid_hex = |value: &str| {
-            let digits = value.strip_prefix('#').unwrap_or(value);
-            digits.len() == 6 && digits.bytes().all(|byte| byte.is_ascii_hexdigit())
-        };
-        if !valid_hex(&options.value) {
-            return Err(WidgetError::InvalidValue("color_picker expects a #RRGGBB value".into()));
+        if !crate::widgets::valid_color_hex(&options.value) {
+            return Err(WidgetError::InvalidValue("color_picker expects a #RGB or #RRGGBB value".into()));
         }
         let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { options.value.clone() });
         let (id, value, set_value) = self.register_widget_parity(
@@ -3316,13 +3316,10 @@ impl<C: AppendChild> InputWidgets for C {
                 key: c.key.as_deref(),
                 identity: &identity,
                 default: Value::String(options.value.clone()),
-                codec: Codec::Text { max_chars: None },
+                codec: Codec::Color { default: options.value.clone() },
                 callback: c.callback,
             },
-            |value| {
-                let text = value.as_str().ok_or_else(|| WidgetError::InvalidValue("color_picker expects a string".into()))?;
-                valid_hex(text).then(|| text.to_string()).ok_or_else(|| WidgetError::InvalidValue("color_picker expects a #RRGGBB value".into()))
-            },
+            |value| value.as_str().map(str::to_owned).ok_or_else(|| WidgetError::InvalidValue("color_picker expects a string".into())),
         )?;
         self.push(Rc::new(RefCell::new(InputElement(proto::Element {
             width_config,
@@ -4911,6 +4908,93 @@ mod tests {
             assert!(wire.try_recv().is_ok(), "the first valid form is still rendered");
         }
         assert!(wire.try_recv().is_err(), "failed form calls must not append their partial children");
+    }
+
+    #[test]
+    fn color_picker_defaults_and_minimum_width_match_reference() -> anyhow::Result<()> {
+        let state = SessionState::default();
+        state.begin_widgets(vec![]);
+        let (st, mut wire) = app(&state);
+
+        for value in ["#ABC", "#abc", "#aBcDeF", "#ABC\n"] {
+            assert_eq!(st.color_picker(ColorPickerOptions::new(value).value(value).key(value))?, value);
+            let element::Type::ColorPicker(widget) = input(&mut wire)? else { panic!() };
+            assert_eq!(widget.default, value);
+        }
+        for value in ["ABCDEF", "abc", "#12345678", "#12G", "#12", " #123", "#123 ", "#ABC\r\n", "#ABC\n\n", ""] {
+            assert!(st.color_picker(ColorPickerOptions::new(value).value(value).key(value)).is_err());
+        }
+
+        for width in [-5, 0, 1, 39, 40, 41] {
+            let key = format!("width-{width}");
+            assert_eq!(st.color_picker(ColorPickerOptions::new(&key).key(&key).value("#123456").width(width))?, "#123456");
+            let Some(forward_msg::Type::Delta(proto::Delta {
+                r#type: Some(delta::Type::NewElement(element)), ..
+            })) = wire.try_recv()?.r#type
+            else {
+                panic!()
+            };
+            assert!(matches!(element.width_config.and_then(|config| config.width_spec), Some(proto::streamlit::width_config::WidthSpec::PixelWidth(pixels)) if pixels == width.max(40) as u32));
+        }
+        assert!(wire.try_recv().is_err());
+
+        Ok(())
+    }
+
+    #[test]
+    fn color_picker_normalizes_input_before_callbacks_and_preserves_code_writes() -> anyhow::Result<()> {
+        let changed = |st: &Streamlit| {
+            let state = st.session_state();
+            let mut calls = state.get::<Vec<String>>("color_calls").expect("calls").unwrap_or_default();
+            calls.push(state.get::<String>("accent").expect("native color").expect("registered color"));
+            state.set("color_calls", calls).expect("callback write");
+        };
+        let state = SessionState::default();
+        state.begin_widgets(vec![]);
+        let (st, mut wire) = app(&state);
+        st.color_picker(ColorPickerOptions::new("Accent").value("#123456").key("accent").on_change(changed))?;
+        let element::Type::ColorPicker(widget) = input(&mut wire)? else { panic!() };
+        state.finish_widgets();
+        let mut previous = "#123456";
+        let mut calls = Vec::new();
+
+        // 1. 输入在主函数前归一化；空/非法值用上一轮已注册的默认值参与变化判断。
+        for (raw, expected, default) in [("abc", "#abc", "#123456"), ("#12", "#123456", "#123456"), ("", "#123456", "#123456"), ("#abcdef", "#abcdef", "#FED"), ("bad-value", "#FED", "#FED")] {
+            let callbacks = state.begin_widgets(vec![WidgetState {
+                id: widget.id.clone(),
+                value: Some(widget_state::Value::StringValue(raw.into())),
+            }]);
+            let (st, mut wire) = app(&state);
+            for callback in callbacks {
+                callback(&st);
+            }
+            if previous != expected {
+                calls.push(expected.to_string());
+            }
+            assert_eq!(state.get::<String>("accent")?.as_deref(), Some(expected));
+            assert_eq!(state.get::<Vec<String>>("color_calls")?.unwrap_or_default(), calls);
+            assert_eq!(st.color_picker(ColorPickerOptions::new("Accent").value(default).key("accent").on_change(changed))?, expected);
+            let element::Type::ColorPicker(current) = input(&mut wire)? else { panic!() };
+            assert_eq!(current.id, widget.id);
+            assert!(!current.set_value);
+            previous = expected;
+            state.finish_widgets();
+        }
+
+        // 2. 代码字符串不走前端解码；同样的原生字符串在下一轮没有输入时保持。
+        state.begin_widgets(vec![]);
+        state.set("accent", "nothex")?;
+        let (st, mut wire) = app(&state);
+        assert_eq!(st.color_picker(ColorPickerOptions::new("Accent").value("#FED").key("accent").on_change(changed))?, "nothex");
+        let element::Type::ColorPicker(current) = input(&mut wire)? else { panic!() };
+        assert!(current.set_value);
+        assert_eq!(current.value, "nothex");
+        state.finish_widgets();
+        assert!(state.begin_widgets(vec![]).is_empty());
+        let (st, _) = app(&state);
+        assert_eq!(st.color_picker(ColorPickerOptions::new("Accent").value("#FED").key("accent").on_change(changed))?, "nothex");
+
+        Ok(())
     }
 
     #[test]

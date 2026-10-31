@@ -6,6 +6,80 @@ use ::streamlit::*;
 use streamlit::StreamlitApi;
 
 fn render(st: &Streamlit) -> Result<(), WidgetError> {
+    if st.query_params().get("probe").as_deref() == Some("color") {
+        let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
+
+        // 1. 创建参数使用独立 key，记录合法/非法默认值及最小宽度，不中止后续案例。
+        if phase == "defaults" {
+            let mut reports = Vec::new();
+            for (name, value) in [
+                ("short-upper", Some("#ABC")),
+                ("short-lower", Some("#abc")),
+                ("long-mixed", Some("#aBcDeF")),
+                ("black", Some("#000000")),
+                ("missing-hash", Some("ABCDEF")),
+                ("short-unprefixed", Some("abc")),
+                ("alpha", Some("#12345678")),
+                ("bad-digit", Some("#12G")),
+                ("too-short", Some("#12")),
+                ("leading-space", Some(" #123")),
+                ("trailing-space", Some("#123 ")),
+                ("lf", Some("#ABC\n")),
+                ("crlf", Some("#ABC\r\n")),
+                ("double-lf", Some("#ABC\n\n")),
+                ("empty", Some("")),
+                ("plain-default", None),
+            ] {
+                let options = ColorPickerOptions::new(name).key(name);
+                let options = if let Some(value) = value { options.value(value) } else { options };
+                reports.push(match st.color_picker(options) {
+                    Ok(value) => serde_json::json!({"case": name, "accepted": true, "value": value}),
+                    Err(error) => serde_json::json!({"case": name, "accepted": false, "error_type": "InvalidValue", "error": error.to_string()}),
+                });
+            }
+
+            for width in [-5, 0, 1, 39, 40, 41] {
+                let name = format!("width-{width}");
+                reports.push(match st.color_picker(ColorPickerOptions::new(&name).key(&name).value("#123456").width(width)) {
+                    Ok(value) => serde_json::json!({"case": name, "accepted": true, "value": value}),
+                    Err(error) => serde_json::json!({"case": name, "accepted": false, "error_type": "InvalidValue", "error": error.to_string()}),
+                });
+            }
+
+            st.json(reports);
+            return Ok(());
+        }
+
+        // 2. 分别观察前端输入、默认值变化和代码赋值；callback 在主函数之前记录原生值。
+        let state = st.session_state();
+        if phase == "assign" {
+            state.set("accent", "#135")?;
+        }
+        if phase == "native-invalid" {
+            state.set("accent", "nothex")?;
+        }
+        let alternate = matches!(phase.as_str(), "default-change" | "changed-invalid" | "width" | "assign" | "native-invalid" | "observe" | "recover");
+        let mut options = ColorPickerOptions::new("Accent").key("accent").value(if alternate { "#FED" } else { "#123456" }).on_change(|st| {
+            let state = st.session_state();
+            let mut events = state.get::<Vec<String>>("color_calls").expect("callback events").unwrap_or_default();
+            events.push(state.get::<String>("accent").expect("callback color").expect("registered color"));
+            state.set("color_calls", events).expect("callback write");
+        });
+        if phase == "width" {
+            options = options.width(-5);
+        }
+
+        let mut report = match st.color_picker(options) {
+            Ok(value) => serde_json::json!({"accepted": true, "value": value}),
+            Err(error) => serde_json::json!({"accepted": false, "error_type": "InvalidValue", "error": error.to_string()}),
+        };
+        report["phase"] = phase.into();
+        report["native"] = serde_json::to_value(state.get::<String>("accent")?)?;
+        report["events"] = serde_json::to_value(state.get::<Vec<String>>("color_calls")?.unwrap_or_default())?;
+        st.json(report);
+        return Ok(());
+    }
+
     if st.query_params().get("probe").as_deref() == Some("form-identity") {
         fn draw<C: InputWidgets>(parent: &C, phase: &str) -> Result<(i64, Option<String>, i64), WidgetError> {
             let number = parent.number_input(NumberInputOptions::new(format!("Number {phase}"), 4_i64).key("number").help(phase))?;

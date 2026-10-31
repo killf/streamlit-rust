@@ -1398,3 +1398,25 @@ precision 既有示例/fixture 探针含十一独立 key 案例：八组合法�
 Element 规范化 ID 后逐字段一致。三类拒绝的类型/文案仍有差异，修后 capture
 明确 semantic_match=false、precision_acceptance_match=true，不将局部接受性
 修复写成完整错误兼容。失败前身份占用/错误 UI 和其他动态/输入组合仍开放。
+
+### 颜色值的创建校验与输入解码（2026-11-01）
+
+SDK 创建默认值要求带 # 的三位/六位 ASCII hex，保留大小写；正则还接受单个
+尾随 LF，但拒绝 CRLF/双 LF。原 Rust 只接受六位且错误允许无 #。SDK 对提交
+字符串先补 #，无效/空串恢复该记录默认值，再判断变化和执行 callback；原 Rust
+用普通 Text codec，callback 先读到 abc，注册解析才报错并可能清理状态。
+
+现有 widgets.rs 增加私有 Color{default} codec 和共用 hex 检查：只对 string_value
+执行前端归一化/默认回退，沿用原有 begin_widgets/late-pending 解码入口和回调
+顺序；不增加通用注册钩子、不改其他 Text 控件。color_picker 默认值仍在公开
+调用入口严格校验，resolve 只转换字符串，代码写入的任意字符串按 SDK 保留。
+记录每轮更新 codec，默认值改变后下一批无效输入使用新默认。整数 width 在
+既有宽度转换前提升至 40，默认 content 不变；没有修改身份规则或公共 builder。
+
+SDK/Rust 同 WS 十六轮各 122 帧/43 元素（22 创建报告、十五轮值/原生值/回调
+日志），27 个成功颜色控件的完整 Element 规范化 ID 后一致。修前 106 帧/27
+元素及两项失败单元保留。代码写 nothex 后无输入观察保持原字符串，AppTest
+自动回传会导致再次解码，不混用这两种输入口径。创建拒绝类型/文案和失败前
+身份占用仍不同，修后 metadata 保持 semantic_match=false，color_flow_match=true。
+wrong-oneof、disabled、URL/表单/页面、非字符串代码值、无 key 身份及浏览器
+提交仍开放；统一 hash 和共享状态方案不受本次控件专用 codec 影响。
