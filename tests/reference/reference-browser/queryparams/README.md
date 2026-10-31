@@ -701,3 +701,33 @@ Original PB/summary, exact input IDs/history, sessions/versions and ordered
 emission/report absence are checked. Socket/server closed and port 60687 was
 read back free. Content/stretch height builders, mixed-invalid parameters,
 all lock/duplicate error text parity and browser behavior remain open.
+
+
+## Area width/height error priority and late registration (2026-10-31)
+
+`text-area-size/trace.json` retains eight sessions/24 runs/298 raw frames and
+42 ordered widget/report API projections. Width/height pairs are (i32::MIN,0),
+(-1,122),(0,0),(0,122),(1,0),(320,-1),(1,1),(i32::MAX,i32::MAX), each preceded by
+320x122 load and followed by same-size recovery. Invalid width takes priority
+over invalid height. Valid width with invalid height reports height; the final
+two positive controls emit exact dimensions, including 1x1.
+
+All submitted inputs truncate to EDITE and callbacks run before layout checks.
+Invalid calls still register the key: SDK caught writes/retries fail, and next
+run retains EDITE. The old Rust width check happened before registration, used
+a generic width message and allowed the caught write to overwrite state. Only
+text_area now checks width after registration, before height, using its existing
+InvalidValue payload. Callback ownership moves through take without an extra
+Arc clone. Other widget width policies and public signatures are unchanged.
+
+The public unit checks actual Rust error payload/priority, no emission, state
+write lock and recovery. Native Rust comparison uses the existing API projection
+rules: exact payload, returned/state/callback values, write-lock boolean and
+width/height/widget fields. Caught duplicate-key and exception-class/text UI
+parity remain open; the complete original Python errors are independently gated.
+Six coherent mutations per source capture reject early state/registration loss,
+wrong type/priority/message, lost recovery and positive-control rejection.
+Raw PB/summary, exact requests/input IDs/history, sessions/versions, ordered
+emission absence and identity equivalence are checked. The owned socket/server
+closed and port 63502 was read back free. This does not prove browser minimum
+sizes, all mixed invalid parameters, content/string sizes or other widget types.

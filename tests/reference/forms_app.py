@@ -334,6 +334,8 @@ def case_form_max_chars_cjk() -> None:
                                 width=int(st.query_params["pixels"]) if "pixels" in st.query_params else "stretch",
                                 help=st.query_params.get("help", ""))
         if st.query_params.get("kind") == "area":
+            if "pixels" in st.query_params:
+                text_options["width"] = int(st.query_params["pixels"])
             if "height" in st.query_params:
                 text_options["height"] = int(st.query_params["height"])
             if "placeholder" in st.query_params:

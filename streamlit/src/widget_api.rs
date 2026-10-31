@@ -2531,9 +2531,8 @@ impl<C: AppendChild> InputWidgets for C {
 
     fn text_area(&self, options: impl Into<TextAreaOptions>) -> Result<Option<String>, WidgetError> {
         let options = options.into();
-        let c = options.common;
+        let mut c = options.common;
         let form_id = form_scope(self, c.callback.is_some())?;
-        let width_config = c.width(false)?;
 
         // 显式空状态覆盖本轮默认值；身份仍使用调用方提供的原始选项。
         let mut wire_default = options.value.clone();
@@ -2566,7 +2565,7 @@ impl<C: AppendChild> InputWidgets for C {
                 identity: &identity,
                 default: default.clone(),
                 codec: Codec::Text { max_chars: options.max_chars },
-                callback: c.callback,
+                callback: c.callback.take(),
             },
             |value| {
                 if value.is_null() {
@@ -2575,6 +2574,14 @@ impl<C: AppendChild> InputWidgets for C {
                 value.as_str().map(|text| Some(text.to_string())).ok_or_else(|| WidgetError::InvalidValue("text area expects text".into()))
             },
         )?;
+
+        // 布局错误在注册后返回；宽度先于高度，已处理的状态与 callback 保留。
+        if let Some(width) = c.width
+            && width <= 0
+        {
+            return Err(WidgetError::InvalidValue(format!("Invalid width value: {width}. Width must be either a positive integer (pixels) or 'stretch'.")));
+        }
+        let width_config = c.width(false)?;
 
         // 自动高度随标签布局变化，但不代替上面参与身份的原始高度选项。
         let height = options.height.unwrap_or(if matches!(c.visibility, LabelVisibility::Collapsed) { 94 } else { 122 });
@@ -4129,6 +4136,41 @@ mod tests {
             assert_eq!(value.as_deref(), Some("code長🧊extra"));
             assert!(!set);
             assert!(wire_value.is_none());
+            state.finish_widgets();
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn area_width_error_keeps_registration_and_precedes_height() -> anyhow::Result<()> {
+        for width in [i32::MIN, -1, 0] {
+            let state = SessionState::default();
+            state.begin_widgets(vec![]);
+            let (st, mut wire) = app(&state);
+            st.text_area(TextAreaOptions::new("Area", "base").key("area").max_chars(5).width(320).height(122))?;
+            let element::Type::TextArea(widget) = input(&mut wire)? else { anyhow::bail!("expected text area") };
+            state.finish_widgets();
+
+            state.begin_widgets(vec![WidgetState {
+                id: widget.id,
+                value: Some(widget_state::Value::StringValue("EDITEDtail".into())),
+            }]);
+            let (st, mut wire) = app(&state);
+            let error = st
+                .text_area(TextAreaOptions::new("Area", "base").key("area").max_chars(5).width(width).height(0))
+                .err()
+                .ok_or_else(|| anyhow::anyhow!("nonpositive width must fail"))?;
+            let WidgetError::InvalidValue(message) = error else { anyhow::bail!("expected existing invalid-value variant") };
+            assert_eq!(message, format!("Invalid width value: {width}. Width must be either a positive integer (pixels) or 'stretch'."));
+            assert!(wire.try_recv().is_err());
+            assert_eq!(state.get::<String>("area")?.as_deref(), Some("EDITE"));
+            assert!(state.set("area", "blocked").is_err());
+            state.finish_widgets();
+
+            state.begin_widgets(vec![]);
+            let (st, mut wire) = app(&state);
+            assert_eq!(st.text_area(TextAreaOptions::new("Area", "base").key("area").max_chars(5).width(320).height(122))?.as_deref(), Some("EDITE"));
+            assert!(matches!(input(&mut wire)?, element::Type::TextArea(_)));
             state.finish_widgets();
         }
         Ok(())

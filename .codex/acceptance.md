@@ -1369,3 +1369,51 @@ mixed-invalid parameters, all lock/duplicate error text parity, browser behavior
 and pending API/hash/queue/parser choices stay open. Matrix/inventory retain
 130 partial entries and M3/M5/M7/full goal. Existing colconfig_params changes
 remain outside this batch's commit/push.
+
+
+### Area width registration stage and width-before-height priority (2026-10-31)
+
+text-area-size adds eight native sessions/24 runs/298 original frames/42 ordered
+widget/report API projections, retaining the earlier height-only capture. Width/
+height pairs include negative/minimal/zero width with invalid height, valid
+width with zero/negative height, and 1x1/max-i32 positive controls. SDK errors
+follow registration, width before height; EDITE input/callback, write locks and
+next-run state are retained. Source raw classes/text, including caught duplicate
+errors, remain exact. Rust parity continues the documented narrow projection:
+height/width payload text and write-lock rejection, not fabricated SDK exception
+classes/lock text or caught-duplicate parity.
+
+The prior Rust width helper ran before registration, produced 'width must be
+positive', and allowed the caught write to change state. Public unit and native
+comparison both failed before correction (target/text-area-size-before.log).
+Only text_area now checks width after registration ahead of height, returning
+its existing InvalidValue payload. The shared width helper and other widget
+producers remain unchanged; callback ownership uses take rather than cloning.
+No public enum/method/module/dependency or generic Entry change was introduced.
+
+All-targets Clippy -D warnings and Rustfmt passed, then the public unit and all
+32 related query-module checks passed, excluding its existing queue test
+(text-area-size-clippy.log, text-area-size-unit.log, text-area-size-integration.log
+under target/). The unit checks actual Rust variant/payload and width-first
+priority, no invalid element, state/write locks and next-run recovery. Native
+comparison checks all 42 API projections and within-runtime identity relations.
+172 related query/matrix/docs Python checks passed with DeprecationWarning as
+error (target/text-area-size-final-gates.log). Shared height/size gates reject
+six coherent mutations per capture, including height-preempts-width type,
+early registration/state loss, wrong message, lost recovery and positive-height
+control rejection. Original PB/summary, exact requests/inputs/IDs/history,
+version/session groups, emission absence/order and complete dimensions are bound.
+No full Python reference suite was rerun in this batch.
+
+Full Rust workspace passed 288: library 281, ledger 1, macros 2, rustdoc 4.
+Only the two existing navigation_pages_switch_and_session_state_match_the_measured_wire
+and rerun_queue_messages_match_frozen_reference were skipped; this is not full
+workspace green (target/text-area-size-workspace.log). Existing MSVC linker
+stdout warning remains.
+
+Owned socket/server closed; port 63502 was read back free. Caught duplicate-key
+and unhandled exception UI remain in the existing pending error-entry design;
+no passing width check closes those differences. Browser dimensions, all mixed
+invalid parameters, content/string sizes and other widget producers remain open.
+Matrix/inventory retain 130 partial entries and M3/M5/M7/full goal. Existing
+colconfig_params modifications are excluded from this batch's commit/push.

@@ -26,7 +26,7 @@ ROOT = Path(__file__).resolve().parents[2]
 QUERY = "z=last&tag=first&tag=second&a=first&blank=&encoded=%E4%B8%AD%E6%96%87+text"
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("--out", type=Path, required=True)
-parser.add_argument("--scenario", choices=("values", "encoding", "text-length", "text-reset", "text-source", "text-bound", "text-bound-peer", "text-repeat", "text-empty", "text-validation", "text-unkeyed", "text-unkeyed-area", "text-area-height", "reserved", "binding", "seed", "seed-code", "disabled", "disabled-valid", "disabled-types", "disabled-json", "rerun", "navigation-rerun", "rerun-messages", "rerun-queue"), default="values")
+parser.add_argument("--scenario", choices=("values", "encoding", "text-length", "text-reset", "text-source", "text-bound", "text-bound-peer", "text-repeat", "text-empty", "text-validation", "text-unkeyed", "text-unkeyed-area", "text-area-height", "text-area-size", "reserved", "binding", "seed", "seed-code", "disabled", "disabled-valid", "disabled-types", "disabled-json", "rerun", "navigation-rerun", "rerun-messages", "rerun-queue"), default="values")
 args = parser.parse_args()
 if args.scenario == "reserved":
     QUERY = "case=reserved&embed=true&EMBED_OPTIONS=light_theme&st_embed=ordinary&=empty-key-value"
@@ -55,7 +55,7 @@ with socket.socket() as listener:
     port = listener.getsockname()[1]
 url = f"http://127.0.0.1:{port}"
 fixture = "navigation_app.py" if args.scenario == "navigation-rerun" else "queryparams_values_app.py"
-if args.scenario in ("text-length", "text-reset", "text-source", "text-bound", "text-bound-peer", "text-repeat", "text-empty", "text-validation", "text-unkeyed", "text-unkeyed-area", "text-area-height"):
+if args.scenario in ("text-length", "text-reset", "text-source", "text-bound", "text-bound-peer", "text-repeat", "text-empty", "text-validation", "text-unkeyed", "text-unkeyed-area", "text-area-height", "text-area-size"):
     fixture = "forms_app.py"
 command = [sys.executable, "-B", "-m", "streamlit", "run", str(ROOT / "tests/reference" / fixture),
            "--server.address=127.0.0.1", f"--server.port={port}", "--server.headless=true",
@@ -107,6 +107,12 @@ try:
             text_inputs = {"edit": "é🧊zUPPER", "edit-short": "XYZtail", "same-none": "retained🧊text", "edit-five": "END🧊ok"}
             queries = [f"case=form-max-chars-cjk&probe=length&kind={kind}&limit={limit}&default={default}&phase={phase}"
                        for kind in ("input", "area") for limit, default, phase in steps]
+            trace["query_string"] = queries[0]
+        if args.scenario == "text-area-size":
+            trace["connection_policy"] = "Fresh WS per width/height pair; load, submit and recovery share each WS."
+            sizes = ((-2147483648, 0), (-1, 122), (0, 0), (0, 122), (1, 0), (320, -1), (1, 1), (2147483647, 2147483647))
+            queries = [f"case=form-max-chars-cjk&probe=length&kind=area&limit=5&default=long&height_errors=on&pixels={width if phase == 'submit' else 320}&height={height if phase == 'submit' else 122}&phase={phase}"
+                       for width, height in sizes for phase in ("load", "submit", "recover")]
             trace["query_string"] = queries[0]
         if args.scenario == "text-area-height":
             trace["connection_policy"] = "Fresh WS per integer height; load, submitted height and recovery share each WS."
@@ -253,7 +259,7 @@ try:
         for index, query in enumerate(queries):
             if index > 0 and ((args.scenario in ("disabled-types", "disabled-json") and index % 3 == 0) or (args.scenario == "text-length" and index % 9 == 0)
                               or (args.scenario == "text-reset" and index % 12 == 0) or (args.scenario == "text-source" and index % 10 == 0)
-                              or (args.scenario == "text-area-height" and index % 3 == 0)):
+                              or (args.scenario in ("text-area-height", "text-area-size") and index % 3 == 0)):
                 ws.close()
                 ws = sockets.enter_context(connect(url.replace("http", "ws") + "/_stcore/stream", origin=url, subprotocols=["streamlit"],
                                                    proxy=None, open_timeout=10, close_timeout=5, max_size=None, legacy=True))
@@ -261,7 +267,7 @@ try:
             request = BackMsg()
             request.rerun_script.query_string = query
             phase = query.rsplit("phase=", 1)[-1]
-            if args.scenario == "text-area-height" and index % 3 == 1:
+            if args.scenario in ("text-area-height", "text-area-size") and index % 3 == 1:
                 widget = request.rerun_script.widget_states.widgets.add()
                 widget.id = widget_ids["cjk_note"]
                 widget.string_value = "EDITEDtail"

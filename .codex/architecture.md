@@ -933,3 +933,21 @@ Python exception type/text parity is not claimed for the API projections.
 Invalid/content/string heights, mixed-invalid width/height and broader browser
 behavior remain open. Generic identity, JSON/queue and public builder choices
 are unchanged; the full goal retains these unmet requirements.
+
+
+### Area width checks follow registration and precede height (2026-10-31)
+
+Eight native sessions/24 runs/298 frames prove width <= 0 is rejected after
+registration, before height. Existing Rust called InputOptions.width before
+registration, allowing the caught state write to replace EDITE and breaking
+recovery; its payload was generic. Move only area's width validation after
+register_widget_parity and ahead of height validation, returning exact SDK
+width payload through existing InvalidValue. Keep the shared width helper and
+other widgets unchanged. Move callback ownership with Option::take so the
+remaining common options can be borrowed without cloning the Arc.
+The reference includes simultaneous invalid width/height, height-only errors,
+1x1 and maximal i32 positive controls; keyed identity and registered state are
+preserved. Public API and generic Entry/hash/queue behavior do not change.
+Use the existing narrow API projections for errors/lock booleans; retain complete
+Python error types/text and the caught-duplicate/exception UI gap explicitly.
+All mixed-invalid parameters, other widgets and browser sizes remain open.

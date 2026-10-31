@@ -180,7 +180,7 @@ def read_query_param_capture(scenario, capture=None):
                     byte_payloads.append(widgets[0].bytes_value)
         elif message.WhichOneof("type") == "new_session":
             sessions.append(message.new_session.initialize.session_id)
-            if scenario in ("disabled-json", "encoding", "text-length", "text-reset", "text-source", "text-bound", "text-bound-peer", "text-repeat", "text-empty", "text-validation", "text-unkeyed", "text-unkeyed-area", "text-area-height"):
+            if scenario in ("disabled-json", "encoding", "text-length", "text-reset", "text-source", "text-bound", "text-bound-peer", "text-repeat", "text-empty", "text-validation", "text-unkeyed", "text-unkeyed-area", "text-area-height", "text-area-size"):
                 environment = message.new_session.initialize.environment_info
                 assert environment.streamlit_version == "1.66.1" and environment.python_version == "3.14.7.final.0"
         elif message.WhichOneof("type") == "script_finished":
@@ -361,13 +361,17 @@ def read_query_param_capture(scenario, capture=None):
             identities = length_ids[number * 10:(number + 1) * 10]
             assert [identities.index(identity) for identity in identities] == [0, 0, 2, 3, 3, 0, 2, 2, 0, 0]
         assert set(length_ids[:10]).isdisjoint(length_ids[10:])
-    elif scenario == "text-area-height":
-        heights = (-2147483648, -1, 0, 1, 67, 68, 94, 96, 2147483647)
+    elif scenario in ("text-area-height", "text-area-size"):
+        size_probe = scenario == "text-area-size"
+        sizes = ((-2147483648, 0), (-1, 122), (0, 0), (0, 122), (1, 0), (320, -1), (1, 1), (2147483647, 2147483647)) if size_probe else tuple(
+            (None, height) for height in (-2147483648, -1, 0, 1, 67, 68, 94, 96, 2147483647))
         phases = ("load", "submit", "recover")
-        prefix = "case=form-max-chars-cjk&probe=length&kind=area&limit=5&default=long&height_errors=on&height="
-        assert requests == [prefix + str(height if phase == "submit" else 122) + "&phase=" + phase for height in heights for phase in phases]
-        assert histories == [False] * 27 and finishes == [0] * 27 and len(sessions) == 27 and len(set(sessions)) == 9
-        assert [sessions.index(session) for session in sessions] == [number // 3 * 3 for number in range(27)]
+        prefix = "case=form-max-chars-cjk&probe=length&kind=area&limit=5&default=long&height_errors=on&"
+        assert requests == [prefix + (f"pixels={width if phase == 'submit' else 320}&" if size_probe else "")
+                            + f"height={height if phase == 'submit' else 122}&phase={phase}" for width, height in sizes for phase in phases]
+        count = len(sizes) * 3
+        assert histories == [False] * count and finishes == [0] * count and len(sessions) == count and len(set(sessions)) == len(sizes)
+        assert [sessions.index(session) for session in sessions] == [number // 3 * 3 for number in range(count)]
         assert not urls and not errors
         locked = {"type": "StreamlitWidgetAlreadyInstantiatedError", "message": (
             "`st.session_state['cjk_note']` cannot be modified after the widget with that key is instantiated. "
@@ -379,18 +383,22 @@ def read_query_param_capture(scenario, capture=None):
             "There are multiple elements with the same `key='cjk_note'`. To fix this, "
             "please make sure that the `key` argument is unique for each element you create.")}
         expected = []
-        widget_heights = []
-        for height in heights:
+        widget_layouts = []
+        for width, height in sizes:
             for phase in phases:
-                invalid = phase == "submit" and height <= 0
+                invalid_width = width is not None and width <= 0
+                invalid = phase == "submit" and (invalid_width or height <= 0)
+                dimension = "width" if invalid_width else "height"
+                bad = width if invalid_width else height
+                allowed = "a positive integer (pixels) or 'stretch'" if invalid_width else "a positive integer (pixels), 'stretch', or 'content'"
                 value = "abcde" if phase == "load" else "EDITE"
                 expected.append({"phase": phase, "value": None if invalid else value, "state": value,
                                  "callbacks": [] if phase == "load" else ["EDITE"],
-                                 "error": {"type": "StreamlitInvalidHeightError", "message": (
-                                     f"Invalid height value: {height}. Height must be either a positive integer (pixels), 'stretch', or 'content'.")} if invalid else None,
+                                 "error": {"type": "StreamlitInvalidWidthError" if invalid_width else "StreamlitInvalidHeightError", "message": (
+                                     f"Invalid {dimension} value: {bad}. {dimension.title()} must be either {allowed}.")} if invalid else None,
                                  "locked": locked if invalid else None, "duplicate": duplicate if invalid else None})
                 if not invalid:
-                    widget_heights.append(height if phase == "submit" else 122)
+                    widget_layouts.append((width if phase == "submit" else 320 if size_probe else None, height if phase == "submit" else 122))
         assert snapshots == expected
         run = -1
         ordered = []
@@ -403,21 +411,23 @@ def read_query_param_capture(scenario, capture=None):
             if "json" in element:
                 ordered.append((run, "report"))
         expected_order = []
-        for number in range(27):
-            if not (number % 3 == 1 and heights[number // 3] <= 0):
+        for number in range(count):
+            width, height = sizes[number // 3]
+            if not (number % 3 == 1 and ((width is not None and width <= 0) or height <= 0)):
                 expected_order.append((number, "widget"))
             expected_order.append((number, "report"))
-        assert len(ordered) == 51 and ordered == expected_order
+        assert len(ordered) == (42 if size_probe else 51) and ordered == expected_order
         elements = [frame["message"]["delta"]["new_element"] for frame in capture["frames"]
                     if "text_area" in frame["message"].get("delta", {}).get("new_element", {})]
-        assert len(elements) == 24 and [element["height_config"]["pixel_height"] for element in elements] == widget_heights
+        assert len(elements) == (18 if size_probe else 24)
+        assert [(element["width_config"].get("pixel_width"), element["height_config"]["pixel_height"]) for element in elements] == widget_layouts
         ids = [element["text_area"]["id"] for element in elements]
         assert len(set(ids)) == 1 and ids[0].endswith("-cjk_note")
-        for element in elements:
+        for element, (width, _) in zip(elements, widget_layouts, strict=True):
             widget = element["text_area"]
             assert widget["default"] == "abcdef🧊" and widget["max_chars"] == 5
             assert not widget.get("set_value", False) and "value" not in widget
-            assert element["width_config"] == {"use_stretch": True}
+            assert element["width_config"] == ({"pixel_width": width} if width is not None else {"use_stretch": True})
         clients = [frame["message"]["rerun_script"] for frame in capture["frames"] if frame["direction"] == "client->server"]
         for number, client in enumerate(clients):
             assert client.get("widget_states", {}).get("widgets", []) == ([{"id": ids[0], "string_value": "EDITEDtail"}] if number % 3 == 1 else [])
@@ -708,18 +718,20 @@ def test_bound_text_reference_corrects_urls_and_preserves_only_unbound_history_c
     assert single == [{key: value for key, value in report.items() if key not in ("live", "peer_callbacks")} for report in peer]
 
 
-def test_area_height_reference_preserves_registration_errors_and_recovery():
-    read_query_param_capture("text-area-height")
+@pytest.mark.parametrize("scenario", ["text-area-height", "text-area-size"])
+def test_area_height_reference_preserves_registration_errors_and_recovery(scenario):
+    read_query_param_capture(scenario)
 
 
+@pytest.mark.parametrize("scenario", ["text-area-height", "text-area-size"])
 @pytest.mark.parametrize("mutation", ["early-state", "early-release", "error-type", "error-message", "recovery", "positive-rejected"])
-def test_area_height_gate_rejects_coherent_wrong_wire(mutation):
+def test_area_height_gate_rejects_coherent_wrong_wire(scenario, mutation):
     import base64
     from google.protobuf.json_format import MessageToDict
     from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
 
-    capture = json.loads((HERE / "reference-browser/queryparams/text-area-height/trace.json").read_text(encoding="utf-8"))
-    target = 2 if mutation == "recovery" else 10 if mutation == "positive-rejected" else 1
+    capture = json.loads((HERE / f"reference-browser/queryparams/{scenario}/trace.json").read_text(encoding="utf-8"))
+    target = 2 if mutation == "recovery" else (19 if scenario == "text-area-size" else 10) if mutation == "positive-rejected" else 1
     run = -1
     remove = []
     for position, frame in enumerate(capture["frames"]):
@@ -741,7 +753,7 @@ def test_area_height_gate_rejects_coherent_wrong_wire(mutation):
         elif mutation == "early-release":
             report.update(locked=None, duplicate=None)
         elif mutation == "error-type":
-            report["error"]["type"] = "StreamlitAPIException"
+            report["error"]["type"] = "StreamlitInvalidHeightError" if scenario == "text-area-size" else "StreamlitAPIException"
         elif mutation == "error-message":
             report["error"]["message"] = report["error"]["message"].replace("-2147483648", "-1")
         elif mutation == "recovery":
@@ -754,7 +766,7 @@ def test_area_height_gate_rejects_coherent_wrong_wire(mutation):
     for position in reversed(remove):
         del capture["frames"][position]
     with pytest.raises(AssertionError):
-        read_query_param_capture("text-area-height", capture)
+        read_query_param_capture(scenario, capture)
 
 
 @pytest.mark.parametrize("scenario", ["text-unkeyed", "text-unkeyed-area"])

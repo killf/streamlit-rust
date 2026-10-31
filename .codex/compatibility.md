@@ -315,3 +315,12 @@ height payload and lock rejection, not fabricated Python class/lock text.
 Caught duplicate-key parity remains open because the current Rust wrapper
 intercepts it and stops the run; raw Python duplicate errors remain fully gated.
 Unhandled error UI, string/content heights and browser behavior are not closed.
+
+
+2026-10-31 [area width/height errors](../tests/reference/reference-browser/queryparams/text-area-size/trace.json)
+adds eight sessions/24 native runs/298 frames/42 ordered API projections. Width
+errors now follow registration and precede height errors in Rust, preserving
+EDITE callback/state, write locks and recovery. Exact 1x1/max-i32 controls remain
+accepted. Existing Result/InvalidValue and shared width helper are retained.
+Source SDK errors stay fully gated; API projection does not close caught-
+duplicate/exception UI parity, every mixed parameter or browser behavior.
