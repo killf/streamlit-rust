@@ -35,6 +35,7 @@ parser.add_argument('--select-policy', action='store_true', help='keyed selectbo
 parser.add_argument('--select-unkeyed', action='store_true', help='unkeyed variant of --select-policy, including placeholder/filter changes')
 parser.add_argument('--radio-identity', action='store_true', help='keyed/unkeyed radio width, horizontal and raw captions identity')
 parser.add_argument('--radio-empty', action='store_true', help='empty options/None-state variant of --radio-identity')
+parser.add_argument('--time-empty', action='store_true', help='time ID-only, invalid/legacy formats and effective-default callbacks')
 parser.add_argument('--number-empty', action='store_true', help='numeric ID-only defaults, range/nonfinite fallback and peer callbacks')
 parser.add_argument('--text-empty', action='store_true', help='text input/area ID-only defaults, Unicode truncation and peer callbacks')
 parser.add_argument('--feedback-empty', action='store_true', help='feedback ID-only defaults, explicit clearing and callback ordering')
@@ -56,7 +57,7 @@ parser.add_argument('--resume-after-stop', action='store_true', help='append nor
 parser.add_argument('--stop-lifecycle', action='store_true', help='button and URL-bound text around early stop and normal cleanup')
 parser.add_argument('--url', help='caller-owned Rust server URL (comparison capture)')
 args = parser.parse_args()
-assert sum((args.integer_bounds, args.number_sequence, args.number_unkeyed, args.stop_lifecycle, args.number_permissive, args.form_identity, args.color, args.color_unkeyed, args.bool_width, args.select_policy, args.radio_identity, args.select_empty, args.multi_empty, args.multi_limits, args.format_collisions, args.radio_duplicates, args.group_width, args.group_policy, args.group_state, args.group_defaults, args.feedback_identity, args.feedback_empty, args.text_empty, args.number_empty)) <= 1
+assert sum((args.integer_bounds, args.number_sequence, args.number_unkeyed, args.stop_lifecycle, args.number_permissive, args.form_identity, args.color, args.color_unkeyed, args.bool_width, args.select_policy, args.radio_identity, args.select_empty, args.multi_empty, args.multi_limits, args.format_collisions, args.radio_duplicates, args.group_width, args.group_policy, args.group_state, args.group_defaults, args.feedback_identity, args.feedback_empty, args.text_empty, args.number_empty, args.time_empty)) <= 1
 assert not args.number_float or args.number_sequence
 assert not args.select_unkeyed or args.select_policy
 assert not args.radio_empty or args.radio_identity
@@ -83,7 +84,7 @@ TRACE = {'schema_version': 1, 'runtime': 'rust' if args.url else 'python', 'refe
          'scope': 'Element wire of widget creation-parameter edges over one native WS; no browser/UI claim.',
          'server_command': COMMAND, 'server_cleanup': 'caller-owned' if COMMAND is None else 'collector-owned',
          'url': URL, 'frames': [], 'elements': [], 'finishes': []}
-if args.color or args.color_unkeyed or args.bool_width or args.select_policy or args.radio_identity or args.select_empty or args.multi_empty or args.multi_limits or args.format_collisions or args.radio_duplicates or args.group_width or args.group_policy or args.group_state or args.group_defaults or args.feedback_identity or args.feedback_empty or args.text_empty or args.number_empty:
+if args.color or args.color_unkeyed or args.bool_width or args.select_policy or args.radio_identity or args.select_empty or args.multi_empty or args.multi_limits or args.format_collisions or args.radio_duplicates or args.group_width or args.group_policy or args.group_state or args.group_defaults or args.feedback_identity or args.feedback_empty or args.text_empty or args.number_empty or args.time_empty:
     TRACE['scope'] = 'Color defaults/widths and fifteen callback/state reruns on one native WS; no browser/UI claim.'
     TRACE['producer_sources_sha256'] = {path: hashlib.sha256((ROOT / path).read_bytes()).hexdigest() for path in (
         'streamlit/examples/widget_params.rs', 'tests/reference/widget_params_app.py', 'tests/browser/widget_params_capture.py')}
@@ -125,6 +126,8 @@ if args.text_empty:
     TRACE['scope'] = 'Eight text input/area ID-only default, Unicode and peer callback runs on one native WS; no browser/UI claim.'
 if args.number_empty:
     TRACE['scope'] = 'Eleven numeric ID-only, bounded/nonfinite and implicit-limit callback runs on one native WS; no browser/UI claim.'
+if args.time_empty:
+    TRACE['scope'] = 'Twelve time ID-only, invalid/legacy-format, leap-second and effective-default callback runs on one native WS; no browser/UI claim.'
 SERVER = WS = None
 
 
@@ -227,6 +230,9 @@ try:
         steps = [(phase, values) for phase, values in (('load', None), ('edit', ('EDIT🙂X', None, True)), ('area', (None, '第一\n行🙂XQ', True)), ('clear', ('', '', False)), ('default', None), ('fallback', (None, None, True)), ('observe', None), ('recover', ('OK', '恢复\n🙂', False)))]
     if args.number_empty:
         steps = [(phase, values) for phase, values in (('load', None), ('edit', (7, None, True)), ('float', (None, 3.5, True)), ('bounds', (99, -99.0, False)), ('default', None), ('fallback', (None, None, True)), ('limits', (None, float('nan'), False)), ('unbounded', None), ('high', (2**63-1, float('inf'), True)), ('recover', (0, -5.0, False)), ('observe', None))]
+    if args.time_empty:
+        steps = [(phase, values) for phase, values in (('load', None), ('edit', ('13:45', None, True)), ('seconds', (None, '08:09:10', True)), ('formats', ('14:15:59', '09:10', False)), ('invalid', ('not-a-time', '25:99:88', True)), ('empty', ('', '', False)), ('defaults', None), ('fallback', (None, None, True)), ('leap', ('23:59:60', '23:59:60', False)), ('recover', ('01:02:03', '04:05:06', True)), ('observe', None), ('reset', (None, None, False)))]
+    time_empty_ids = {}
     number_empty_ids = {}
     text_empty_ids = {}
     feedback_ids = {}
@@ -237,6 +243,16 @@ try:
     color_id = None
     for step_index, (phase, submitted) in enumerate(steps):
         request = BackMsg()
+        if args.time_empty:
+            request.rerun_script.query_string = 'probe=time-empty&phase=' + phase
+            if submitted is not None:
+                for label, value in zip(('Minute', 'Seconds', 'Peer'), submitted, strict=True):
+                    widget = request.rerun_script.widget_states.widgets.add()
+                    widget.id = time_empty_ids[label]
+                    if label == 'Peer':
+                        widget.bool_value = value
+                    elif value is not None:
+                        widget.string_value = value
         if args.number_empty:
             request.rerun_script.query_string = 'probe=number-empty&phase=' + phase
             if submitted is not None:
@@ -458,6 +474,8 @@ try:
                         bool_ids[view.label] = view.id
                     if args.select_policy and element_kind in ('selectbox', 'multiselect'):
                         select_ids[element_kind] = view.id
+                    if args.time_empty and element_kind in ('time_input', 'checkbox'):
+                        time_empty_ids[view.label] = view.id
                     if args.number_empty and element_kind in ('number_input', 'checkbox'):
                         number_empty_ids[view.label] = view.id
                     if args.text_empty and element_kind in ('text_input', 'text_area', 'checkbox'):

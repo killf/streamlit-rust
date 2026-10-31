@@ -2558,3 +2558,23 @@ producer 三份源码、widget_api/widgets 与二进制 SHA 均已核对当前�
 编辑 Rust 的 rustfmt、全工作区/all-target Clippy、新增公开 API 单元通过；最终工作区 332 项通过（325 库、1 ledger、2 宏、4 rustdoc），仍仅排除原 navigation_pages_switch_and_session_state_match_the_measured_wire 与 rerun_queue_messages_match_frozen_reference，不称完整工作区全绿。参数参考模块 374 项，相关 query/widget/temporal/pickers/matrix/docs/buttons/inputs 八模块共 680 项通过；既有 MSVC linker stdout warning 保留，日志 target/number-empty-{red,green,clippy,build,workspace,python}.log。
 
 仅 st.number_input 矩阵及生成清单更新，仍 130 partial；错误 oneof、nullable Rust 返回、代码赋值边界、禁用输入、浏览器、表单/跨页及其他组合继续开放。用户 colconfig_params 修改独立保留；待决共享状态/hash/公共接口方案不变，未创建 PR、合并、发布或部署，M3/M5/M7 与长期 Goal 未关闭。
+
+## Current time missing invalid and callback validation (2026-11-01)
+
+初查 date_input/time_input 后，先推进已有公开接口能表达且取得完整参考的 time_input 行为。锁定 SDK 1.66.1 的 TimeInputSerde：缺省、空串和无效时间回有效默认；同时接受 HH:MM/HH:MM:SS，分钟 step 去秒，秒级 step 补齐或保留秒，不强制对齐 step 网格。已有 keyed 原生 None 会覆盖后来声明的默认；恢复有效值后，新声明默认才重新登记。Rust 原来缺省/另一格式/无效串整批拒绝，空串反而直接清空，且原生 None 时错误发送声明默认。
+
+[SDK](../tests/reference/reference-browser/widget-params/time-empty/trace.json)、[Rust 修前](../tests/browser/rust-widget-params/time-empty/before/trace.json)、[Rust 最终](../tests/browser/rust-widget-params/time-empty/trace.json)各十二轮、107 原始帧、48 完整 Element。Minute 默认 12:30/step=900、Seconds 默认 None/step=1，同伴 checkbox；交错有效输入、双格式、无效/空串、声明默认改 16:20/06:07:08、ID-only、闰秒、恢复 01:02:03/04:05:06、观察、再次 ID-only。修后累计 callback 为 0/2/4/7/10/11/11/13/14/17/17/20；修前最终仅一次 callback，后半段均错误保留 [None,None,false]。相同帧数和正常 script_finished 不能证明兼容。
+
+widgets.rs 接入 TimeInput 有效默认缓存；私有 decode 接受两种时间格式并按 step 规范字符串，无效/空串产生回默认标记，由 decode_state 使用上轮有效默认。chrono 可解析 23:59:60 为闰秒，而 Python 不允许该时间，因此拒绝 nanosecond>=1_000_000_000 的解析结果再回默认。错误 oneof 未扩展，数字/文本/其他 codec 的解码规则不改。widget_api.rs 仅在 TimeInput 构造有效默认与 wire default 时尊重 keyed 原生 None，原始调用参数仍参与既有身份规则，无新公共接口、模块或依赖。
+
+公开 API 单元先真实失败于 run 1 回调 0 而非 2，修后完整十二轮通过；callback 读取整批归一化后时间与 checkbox，None/空串不制造错误回调，观察不重放，普通前端回默认不额外同步。01:02:03 在分钟 step=900 下得到 01:02，而非被强制吸附到十五分钟。既有 pickers 单元错误断言 whole-minute 只能收 HH:MM，已依据 SDK 双格式参考改为正常接受后去秒；其空串说明也修正为默认回退标记，不再将私有中间 Null 等同实际清空。
+
+完整 Element 仅归一化不透明 ID/JSON 文本后逐字段一致。严格门核对三稳定 ID、实际旧 ID/缺省/string/bool oneof、原始无效与闰秒负载、有效默认存在性、step/format/width/策略/无额外同步、session/run/path、string/None/bool 返回类型与二十条有序回调。八类同时改写 raw 与汇总的负例必须失败：缺省变字符串、分钟未去秒、秒格式未补零、闰秒误接受、None 时发送新声明默认、回调读旧 peer、回调倒序、缺省使用旧默认。
+
+同批重建 temporal_params 示例，重放旧 keyed-identity 十一轮（98 帧/44 Element）与 unkeyed-identity 八轮（71 帧/32 Element），完整规范化 Element 均继续匹配 SDK，结果 target/time-empty-{keyed,unkeyed}-recheck/trace.json；旧冻结参考不改。主 widget_params 与 temporal_params 两个二进制 SHA、producer 三份源码及 widget_api/widgets SHA 已核对当前产物；修前核心源码 SHA 与前一 HEAD 27fc671 一致。
+
+SDK 自建服务与两组 Rust 自持 Popen 句柄均已停止，53394/8599/8600 无监听。无本批浏览器采集，ID-only/无效时间/闰秒均为原生协议注入，不推定正常 UI 生成同样包。日期范围的部分值、date/datetime 的缺省和无效解析并未在本批修复或关闭。
+
+编辑 Rust 的 rustfmt、全工作区/all-target Clippy、新增公开 API 单元通过；最终工作区 333 项通过（326 库、1 ledger、2 宏、4 rustdoc），仍仅排除原 navigation_pages_switch_and_session_state_match_the_measured_wire 与 rerun_queue_messages_match_frozen_reference，不称完整工作区全绿。参数参考模块 386 项，相关 query/widget/temporal/pickers/matrix/docs/buttons/inputs 八模块共 692 项通过；既有 MSVC linker stdout warning 保留，日志 target/time-empty-{red,green,clippy,build,temporal-build,workspace,python}.log。
+
+仅 st.time_input 矩阵与生成清单更新，仍 130 partial；错误 oneof、禁用/ignore、真实浏览器、查询绑定、表单/跨页和其他组合继续开放。用户 colconfig_params 修改独立保留；待决共享状态/hash/公共接口方案不变，未创建 PR、合并、发布或部署，M3/M5/M7 与长期 Goal 未关闭。

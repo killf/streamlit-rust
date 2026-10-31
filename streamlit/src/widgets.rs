@@ -260,6 +260,11 @@ impl Codec {
             None => empty_input.cloned(),
         }?;
 
+        // 时间的空串/无效串不是强制清空，而是恢复上轮 serde 的有效默认。
+        if matches!(self, Self::TimeInput { .. }) && value.is_null() {
+            return empty_input.cloned();
+        }
+
         // 数字前端输入先按上轮显式/隐式边界回默认，callback 只读取归一化后的值。
         if let Self::NumberInput { min, max, integer } = self {
             let lower = min.unwrap_or(if *integer { -JS_SAFE_INTEGER } else { f64::MIN });
@@ -377,10 +382,11 @@ impl Codec {
             }
             (Self::TimeInput { step }, widget_state::Value::StringValue(text)) => {
                 let format = if step % 60 != 0 { "%H:%M:%S" } else { "%H:%M" };
-                if text.is_empty() {
-                    return Some(Value::Null);
-                }
-                chrono::NaiveTime::parse_from_str(text, format).ok().map(|_| Value::String(text.clone()))
+                let parsed = chrono::NaiveTime::parse_from_str(text, "%H:%M:%S")
+                    .or_else(|_| chrono::NaiveTime::parse_from_str(text, "%H:%M"))
+                    .ok()
+                    .filter(|time| chrono::Timelike::nanosecond(time) < 1_000_000_000);
+                Some(parsed.map_or(Value::Null, |time| Value::String(time.format(format).to_string())))
             }
             (Self::DateTimeInput, widget_state::Value::StringArrayValue(array)) => {
                 // One entry, minute precision; an empty array is the cleared
@@ -629,7 +635,7 @@ struct Record {
     /// Value before this run's input, restored if registration now disables it.
     before_input: Option<Value>,
 
-    /// Effective defaults for supported ID-only text/choice/feedback/number inputs and numeric fallback.
+    /// Effective defaults for supported ID-only widgets and numeric/time fallback.
     /// Other codecs retain the existing missing-value rejection.
     empty_input: Option<Value>,
 }
@@ -861,8 +867,9 @@ impl SessionState {
         } = spec;
         let id = id.to_owned();
         // Text codec 也供 data_editor 使用；本次仅扩展两类文本控件的缺省解码。
-        let empty_input = (matches!(codec, Codec::Select(_) | Codec::SelectCreation(_) | Codec::Radio(_) | Codec::Feedback { .. } | Codec::NumberInput { .. }) || (matches!(kind, "text_input" | "text_area") && matches!(codec, Codec::Text { .. })))
-            .then(|| default.clone());
+        let empty_input = (matches!(codec, Codec::Select(_) | Codec::SelectCreation(_) | Codec::Radio(_) | Codec::Feedback { .. } | Codec::NumberInput { .. } | Codec::TimeInput { .. })
+            || (matches!(kind, "text_input" | "text_area") && matches!(codec, Codec::Text { .. })))
+        .then(|| default.clone());
         let mut registry = self.widgets.lock();
         if registry.registration_error.is_some() {
             return Ok((String::new(), resolve(&default)?, false));

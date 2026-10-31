@@ -158,12 +158,12 @@ async fn date_and_time_codecs_decode_the_measured_wire() -> TestResult {
     let coarse = Codec::TimeInput { step: 900 };
     let fine = Codec::TimeInput { step: 1 };
     assert_eq!(coarse.decode(&WireValue::StringValue("14:30".into())).ok_or("coarse time codec must decode HH:MM")?, serde_json::json!("14:30"));
-    assert!(coarse.decode(&WireValue::StringValue("14:30:45".into())).is_none(), "whole-minute steps carry HH:MM only");
+    assert_eq!(coarse.decode(&WireValue::StringValue("14:30:45".into())).ok_or("coarse time accepts seconds and normalizes to minutes")?, serde_json::json!("14:30"));
     assert_eq!(fine.decode(&WireValue::StringValue("14:30:45".into())).ok_or("fine time codec must decode HH:MM:SS")?, serde_json::json!("14:30:45"));
     assert_eq!(
-        coarse.decode(&WireValue::StringValue(String::new())).ok_or("cleared time must decode to JSON null")?,
+        coarse.decode(&WireValue::StringValue(String::new())).ok_or("empty time produces a default-fallback marker")?,
         serde_json::Value::Null,
-        "the empty string is the cleared time"
+        "the registered effective default decides the value of an empty string"
     );
     Ok(())
 }

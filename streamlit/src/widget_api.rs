@@ -3203,7 +3203,13 @@ impl<C: AppendChild> InputWidgets for C {
         }
         let wire_format = if options.step % 60 != 0 { "%H:%M:%S" } else { "%H:%M" };
         let wire = |time: NaiveTime| time.format(wire_format).to_string();
-        let default = options.value.map(|time| Value::String(wire(time))).unwrap_or(Value::Null);
+        let mut wire_default = options.value;
+        if let Some(key) = c.key.as_deref()
+            && self.get_app().lock().session_state.get::<Value>(key)?.is_some_and(|value| value.is_null())
+        {
+            wire_default = None;
+        }
+        let default = wire_default.map(|time| Value::String(wire(time))).unwrap_or(Value::Null);
         let identity = c.identity_in_form(&form_id, &if c.key.is_some() { options.step.to_string() } else { serde_json::to_string(&(options.value.map(wire), options.step, c.width))? });
         let (id, value, set_value) = self.register_widget_parity(
             WidgetSpec {
@@ -3231,7 +3237,7 @@ impl<C: AppendChild> InputWidgets for C {
             r#type: Some(element::Type::TimeInput(proto::TimeInput {
                 id,
                 label: c.label,
-                default: options.value.map(wire),
+                default: wire_default.map(wire),
                 help: c.help,
                 form_id,
                 value: set_value.then_some(value.map(wire)).flatten(),
@@ -4961,6 +4967,130 @@ mod tests {
             assert!(wire.try_recv().is_ok(), "the first valid form is still rendered");
         }
         assert!(wire.try_recv().is_err(), "failed form calls must not append their partial children");
+    }
+
+    #[test]
+    fn time_missing_invalid_and_legacy_inputs_use_effective_defaults_before_callbacks() -> anyhow::Result<()> {
+        let changed = |source: &'static str| {
+            move |st: &Streamlit| {
+                let state = st.session_state();
+                let mut calls = state.get::<Vec<Value>>("time_empty_calls").expect("calls").unwrap_or_default();
+                calls.push(serde_json::json!([
+                    source,
+                    state.get::<Value>("time_empty_minute").expect("minute"),
+                    state.get::<Value>("time_empty_seconds").expect("seconds"),
+                    state.get::<bool>("time_empty_peer").expect("peer")
+                ]));
+                state.set("time_empty_calls", calls).expect("callback write");
+            }
+        };
+        let inputs = [
+            None,
+            Some((Some("13:45"), None, true)),
+            Some((None, Some("08:09:10"), true)),
+            Some((Some("14:15:59"), Some("09:10"), false)),
+            Some((Some("not-a-time"), Some("25:99:88"), true)),
+            Some((Some(""), Some(""), false)),
+            None,
+            Some((None, None, true)),
+            Some((Some("23:59:60"), Some("23:59:60"), false)),
+            Some((Some("01:02:03"), Some("04:05:06"), true)),
+            None,
+            Some((None, None, false)),
+        ];
+        let values = [
+            ("12:30", None, false),
+            ("13:45", None, true),
+            ("12:30", Some("08:09:10"), true),
+            ("14:15", Some("09:10:00"), false),
+            ("12:30", None, true),
+            ("12:30", None, false),
+            ("12:30", None, false),
+            ("16:20", None, true),
+            ("16:20", None, false),
+            ("01:02", Some("04:05:06"), true),
+            ("01:02", Some("04:05:06"), true),
+            ("16:20", Some("06:07:08"), false),
+        ];
+        let counts = [0, 2, 2, 3, 3, 1, 0, 2, 1, 3, 0, 3];
+        let state = SessionState::default();
+        let mut ids = Vec::<String>::new();
+        let mut expected_calls = Vec::new();
+        for (round, submitted) in inputs.into_iter().enumerate() {
+            // 1. 缺省和无效包先回有效默认，分钟/秒两格式在 callback 前归一化。
+            let incoming = submitted.map_or_else(Vec::new, |(minute, seconds, peer)| {
+                vec![
+                    WidgetState {
+                        id: ids[0].clone(),
+                        value: minute.map(|text| widget_state::Value::StringValue(text.into())),
+                    },
+                    WidgetState {
+                        id: ids[1].clone(),
+                        value: seconds.map(|text| widget_state::Value::StringValue(text.into())),
+                    },
+                    WidgetState {
+                        id: ids[2].clone(),
+                        value: Some(widget_state::Value::BoolValue(peer)),
+                    },
+                ]
+            });
+            let callbacks = state.begin_widgets(incoming);
+            assert_eq!(callbacks.len(), counts[round], "run {round}");
+            let (st, mut wire) = app(&state);
+            for callback in callbacks {
+                callback(&st);
+            }
+            let (minute, seconds, peer) = values[round];
+            let sources: &[&str] = match round {
+                1 | 7 => &["minute", "peer"],
+                2 => &["minute", "seconds"],
+                3 | 4 | 9 | 11 => &["minute", "seconds", "peer"],
+                5 | 8 => &["peer"],
+                _ => &[],
+            };
+            expected_calls.extend(sources.iter().map(|source| serde_json::json!([source, minute, seconds, peer])));
+            assert_eq!(state.get::<Vec<Value>>("time_empty_calls")?.unwrap_or_default(), expected_calls, "run {round}");
+            let minute_default = if round >= 6 { "16:20" } else { "12:30" };
+            let minute_options = TimeInputOptions::new("Minute")
+                .value(chrono::NaiveTime::parse_from_str(minute_default, "%H:%M")?)
+                .step(900)
+                .key("time_empty_minute")
+                .on_change(changed("minute"));
+            let mut seconds_options = TimeInputOptions::new("Seconds").value_none().step(1).key("time_empty_seconds").on_change(changed("seconds"));
+            if round >= 6 {
+                seconds_options = seconds_options.value(chrono::NaiveTime::from_hms_opt(6, 7, 8).expect("seconds"));
+            }
+            assert_eq!(st.time_input(minute_options)?.map(|time| time.format("%H:%M").to_string()).as_deref(), Some(minute));
+            assert_eq!(st.time_input(seconds_options)?.map(|time| time.format("%H:%M:%S").to_string()).as_deref(), seconds);
+            assert_eq!(st.checkbox(CheckboxOptions::new("Peer").key("time_empty_peer").on_change(changed("peer")))?, peer);
+
+            // 2. 原生 None 压过后来声明的默认；恢复有效值后重新登记新默认，不强制对齐步长。
+            let mut current = Vec::new();
+            for position in 0..2 {
+                let element::Type::TimeInput(widget) = input(&mut wire)? else { panic!() };
+                let default = if position == 0 {
+                    Some(minute_default)
+                } else if round >= 9 {
+                    Some("06:07:08")
+                } else {
+                    None
+                };
+                assert_eq!(widget.default.as_deref(), default, "run {round}: {position}");
+                assert_eq!(widget.step, if position == 0 { 900 } else { 1 });
+                assert!(!widget.set_value && widget.value.is_none());
+                current.push(widget.id);
+            }
+            let element::Type::Checkbox(widget) = input(&mut wire)? else { panic!() };
+            assert!(!widget.default && !widget.set_value);
+            current.push(widget.id);
+            if round > 0 {
+                assert_eq!(current, ids);
+            }
+            ids = current;
+            state.finish_widgets();
+        }
+
+        Ok(())
     }
 
     #[test]

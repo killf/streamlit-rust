@@ -6,6 +6,37 @@ use ::streamlit::*;
 use streamlit::StreamlitApi;
 
 fn render(st: &Streamlit) -> Result<(), WidgetError> {
+    if st.query_params().get("probe").as_deref() == Some("time-empty") {
+        let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
+        let changed = |source: &'static str| {
+            move |st: &Streamlit| {
+                let state = st.session_state();
+                let mut calls = state.get::<Vec<serde_json::Value>>("time_empty_calls").expect("calls").unwrap_or_default();
+                calls.push(serde_json::json!([
+                    source,
+                    state.get::<serde_json::Value>("time_empty_minute").expect("minute"),
+                    state.get::<serde_json::Value>("time_empty_seconds").expect("seconds"),
+                    state.get::<bool>("time_empty_peer").expect("peer")
+                ]));
+                state.set("time_empty_calls", calls).expect("callback write");
+            }
+        };
+        let changed_default = ["defaults", "fallback", "leap", "recover", "observe", "reset"].contains(&phase.as_str());
+        let minute = chrono::NaiveTime::from_hms_opt(if changed_default { 16 } else { 12 }, if changed_default { 20 } else { 30 }, 0).expect("minute");
+        let minute = st.time_input(TimeInputOptions::new("Minute").value(minute).step(900).key("time_empty_minute").on_change(changed("minute")))?;
+        let mut options = TimeInputOptions::new("Seconds").value_none().step(1).key("time_empty_seconds").on_change(changed("seconds"));
+        if changed_default {
+            options = options.value(chrono::NaiveTime::from_hms_opt(6, 7, 8).expect("seconds"));
+        }
+        let seconds = st.time_input(options)?;
+        let peer = st.checkbox(CheckboxOptions::new("Peer").key("time_empty_peer").on_change(changed("peer")))?;
+        let calls = st.session_state().get::<Vec<serde_json::Value>>("time_empty_calls")?.unwrap_or_default();
+        st.json(
+            serde_json::json!({"phase": phase, "values": [serde_json::json!(minute.map(|value| value.format("%H:%M").to_string())), serde_json::json!(seconds.map(|value| value.format("%H:%M:%S").to_string())), serde_json::json!(peer)], "calls": calls}),
+        );
+        return Ok(());
+    }
+
     if st.query_params().get("probe").as_deref() == Some("number-empty") {
         let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
         let changed = |source: &'static str| {

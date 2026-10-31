@@ -3715,6 +3715,140 @@ def test_number_empty_gate_rejects_coherent_wrong_wire(mutation):
         check_number_empty(capture)
 
 
+TIME_EMPTY_PHASES = ("load", "edit", "seconds", "formats", "invalid", "empty", "defaults", "fallback", "leap", "recover", "observe", "reset")
+TIME_EMPTY_VALUES = (("12:30", None, False), ("13:45", None, True), ("12:30", "08:09:10", True), ("14:15", "09:10:00", False), ("12:30", None, True), ("12:30", None, False), ("12:30", None, False), ("16:20", None, True), ("16:20", None, False), ("01:02", "04:05:06", True), ("01:02", "04:05:06", True), ("16:20", "06:07:08", False))
+TIME_EMPTY_INPUTS = (None, ("13:45", None, True), (None, "08:09:10", True), ("14:15:59", "09:10", False), ("not-a-time", "25:99:88", True), ("", "", False), None, (None, None, True), ("23:59:60", "23:59:60", False), ("01:02:03", "04:05:06", True), None, (None, None, False))
+TIME_EMPTY_COUNTS = (0, 2, 4, 7, 10, 11, 11, 13, 14, 17, 17, 20)
+TIME_EMPTY_CALLS = [[source, *TIME_EMPTY_VALUES[index]] for index, sources in (
+    (1, ("minute", "peer")), (2, ("minute", "seconds")), (3, ("minute", "seconds", "peer")), (4, ("minute", "seconds", "peer")),
+    (5, ("peer",)), (7, ("minute", "peer")), (8, ("peer",)), (9, ("minute", "seconds", "peer")), (11, ("minute", "seconds", "peer"))) for source in sources]
+
+
+def check_time_empty(capture):
+    assert capture["successful"] and "producer_error" not in capture and capture["reference_version"] == "1.66.1"
+    assert capture["runtime"] in ("python", "rust") and capture["finishes"] == [0] * 12
+    assert capture["cleanup"]["websocket_closed"] and capture["cleanup"]["server_stopped" if capture["runtime"] == "python" else "caller_server_stopped"]
+    assert len(capture["frames"]) == 107 and len(capture["elements"]) == 48
+    runs = color_runs(capture, ("time_input", "checkbox", "json"))
+    normalized, sessions, run_ids, ids = [], set(), set(), None
+    for index, (phase, run) in enumerate(zip(TIME_EMPTY_PHASES, runs, strict=True)):
+        request = run["request"]
+        assert request.query_string == "probe=time-empty&phase=" + phase and not request.is_history_navigation
+        assert len(run["sessions"]) == 1 and run["finishes"] == [0]
+        session = run["sessions"][0]
+        assert session.initialize.environment_info.streamlit_version == "1.66.1"
+        sessions.add(session.initialize.session_id)
+        run_ids.add(session.script_run_id)
+        assert [entry[0] for entry in run["entries"]] == ["time_input", "time_input", "checkbox", "json"]
+        current = []
+        for position, (kind, widget, element) in enumerate(run["entries"][:3]):
+            assert widget.label == ("Minute", "Seconds", "Peer")[position]
+            assert not widget.disabled and not widget.ignore_rerun and not widget.form_id and not widget.help
+            assert widget.label_visibility.value == 0 and not widget.set_value and not element.HasField("has_one_shot_effect")
+            if kind == "checkbox":
+                assert not widget.default and not widget.value and element.width_config.use_content
+            else:
+                assert element.width_config.use_stretch and not widget.HasField("value")
+                assert widget.step == (900 if position == 0 else 1) and widget.format == "24h"
+                default = ("16:20" if index >= 6 else "12:30") if position == 0 else "06:07:08" if index >= 9 else None
+                assert widget.HasField("default") == (default is not None) and widget.default == (default or "")
+            current.append(widget.id)
+        assert len(set(current)) == 3
+        if ids is None:
+            ids = current
+        else:
+            assert current == ids
+        incoming = request.widget_states.widgets
+        submitted = TIME_EMPTY_INPUTS[index]
+        if submitted is not None:
+            assert len(incoming) == 3 and [widget.id for widget in incoming] == ids
+            for position, (widget, value) in enumerate(zip(incoming, submitted, strict=True)):
+                assert widget.WhichOneof("value") == ("bool_value" if position == 2 else None if value is None else "string_value")
+                assert widget.bool_value == value if position == 2 else widget.string_value == (value or "")
+        else:
+            assert not incoming
+        report = json.loads(run["entries"][-1][1].body)
+        assert report == {"phase": phase, "values": list(TIME_EMPTY_VALUES[index]), "calls": TIME_EMPTY_CALLS[:TIME_EMPTY_COUNTS[index]]}
+        assert all(value is None or type(value) is str for value in report["values"][:2]) and type(report["values"][2]) is bool
+        assert [entry["delta_path"] for entry in capture["elements"][index * 4:index * 4 + 4]] == [[0, i] for i in range(4)]
+        fields = []
+        for kind, _, element in run["entries"]:
+            view = MessageToDict(element, preserving_proto_field_name=True)
+            if kind == "json":
+                view[kind]["body"] = json.loads(view[kind]["body"])
+            else:
+                view[kind].pop("id")
+            fields.append(view)
+        normalized.append(fields)
+    assert len(sessions) == 1 and len(run_ids) == 12
+    return normalized
+
+
+@pytest.mark.parametrize("root", (PYTHON, RUST), ids=("python", "rust"))
+def test_time_missing_invalid_legacy_and_effective_defaults(root):
+    check_time_empty(read(root / "time-empty/trace.json"))
+
+
+def test_time_empty_complete_elements_match_reference():
+    captures = [read(root / "time-empty/trace.json") for root in (PYTHON, RUST)]
+    assert captures[0]["producer_sources_sha256"] == captures[1]["producer_sources_sha256"] and captures[1]["semantic_match"] is True
+    assert check_time_empty(captures[0]) == check_time_empty(captures[1])
+
+
+def test_time_empty_before_discards_inputs_and_clears_instead_of_default():
+    capture = read(RUST / "time-empty/before/trace.json")
+    assert capture["successful"] and capture["semantic_match"] is False and capture["finishes"] == [0] * 12
+    assert len(capture["frames"]) == 107 and len(capture["elements"]) == 48
+    runs = color_runs(capture, ("time_input", "checkbox", "json"))
+    for index in (1, 2, 3, 4):
+        assert json.loads(runs[index]["entries"][-1][1].body) == {"phase": TIME_EMPTY_PHASES[index], "values": ["12:30", None, False], "calls": []}
+    assert json.loads(runs[5]["entries"][-1][1].body)["values"] == [None, None, False]
+    assert len(json.loads(runs[11]["entries"][-1][1].body)["calls"]) == 1
+    with pytest.raises(AssertionError):
+        check_time_empty(capture)
+
+
+@pytest.mark.parametrize("mutation", ("input-oneof", "minute-seconds", "legacy-seconds", "leap", "null-default", "callback-batch", "callback-order", "default-cache"))
+def test_time_empty_gate_rejects_coherent_wrong_wire(mutation):
+    capture = read(PYTHON / "time-empty/trace.json")
+    target = {"input-oneof": 7, "minute-seconds": 3, "legacy-seconds": 3, "leap": 8, "null-default": 6, "callback-batch": 1, "callback-order": 3, "default-cache": 7}[mutation]
+    run = -1
+    for frame in capture["frames"]:
+        client = frame["direction"] == "client->server"
+        if client:
+            run += 1
+        if run != target:
+            continue
+        message = BackMsg() if client else ForwardMsg()
+        message.ParseFromString(base64.b64decode(frame["base64"]))
+        if client and mutation == "input-oneof":
+            message.rerun_script.widget_states.widgets[0].string_value = "bad"
+        elif not client and message.WhichOneof("type") == "delta":
+            element = message.delta.new_element
+            kind = element.WhichOneof("type")
+            if kind == "time_input" and element.time_input.label == "Seconds" and mutation == "null-default":
+                element.time_input.default = "06:07:08"
+            elif kind == "json" and mutation in ("minute-seconds", "legacy-seconds", "leap", "callback-batch", "callback-order", "default-cache"):
+                report = json.loads(element.json.body)
+                if mutation == "minute-seconds": report["values"][0] = "14:15:59"
+                elif mutation == "legacy-seconds": report["values"][1] = "09:10"
+                elif mutation == "leap": report["values"][0] = "23:59"
+                elif mutation == "callback-batch": report["calls"][0][3] = False
+                elif mutation == "callback-order": report["calls"][-3:] = report["calls"][-3:][::-1]
+                else: report["values"][0] = "12:30"
+                element.json.body = json.dumps(report)
+            else:
+                continue
+        else:
+            continue
+        raw = message.SerializeToString()
+        frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(message, preserving_proto_field_name=True))
+    capture["elements"] = [{"kind": m.delta.new_element.WhichOneof("type"), "fields": MessageToDict(getattr(m.delta.new_element, m.delta.new_element.WhichOneof("type")), preserving_proto_field_name=True),
+                            "delta_path": list(m.metadata.delta_path)} for m in frames(capture) if isinstance(m, ForwardMsg) and m.WhichOneof("type") == "delta"]
+    with pytest.raises(AssertionError):
+        check_time_empty(capture)
+
+
 def comparable(capture):
     out = []
     for element in capture["elements"]:

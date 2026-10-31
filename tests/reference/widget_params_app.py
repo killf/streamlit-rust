@@ -1,7 +1,21 @@
 """Emit widget creation-wire parameter variants for the M3 differential."""
 import streamlit as st
 
-if st.query_params.get("probe") == "number-empty":
+if st.query_params.get("probe") == "time-empty":
+    from datetime import time
+    phase = st.query_params.get("phase", "load")
+    if "time_empty_calls" not in st.session_state:
+        st.session_state.time_empty_calls = []
+    def clock(value, seconds=False):
+        return None if value is None else value.strftime("%H:%M:%S" if seconds else "%H:%M")
+    def changed(source):
+        st.session_state.time_empty_calls.append([source, clock(st.session_state.time_empty_minute), clock(st.session_state.time_empty_seconds, True), st.session_state.time_empty_peer])
+    changed_default = phase in ("defaults", "fallback", "leap", "recover", "observe", "reset")
+    minute = st.time_input("Minute", value=time(16, 20) if changed_default else time(12, 30), step=900, key="time_empty_minute", on_change=changed, args=("minute",))
+    seconds = st.time_input("Seconds", value=time(6, 7, 8) if changed_default else None, step=1, key="time_empty_seconds", on_change=changed, args=("seconds",))
+    peer = st.checkbox("Peer", key="time_empty_peer", on_change=changed, args=("peer",))
+    st.json({"phase": phase, "values": [clock(minute), clock(seconds, True), peer], "calls": st.session_state.time_empty_calls})
+elif st.query_params.get("probe") == "number-empty":
     phase = st.query_params.get("phase", "load")
     if "number_empty_calls" not in st.session_state:
         st.session_state.number_empty_calls = []
