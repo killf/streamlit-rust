@@ -2596,3 +2596,17 @@ tests/reference/test_temporal_params_reference.py 新增 SDK serde 24 案和 App
 最终工作区 334 项通过（327 库、1 ledger、2 宏、4 rustdoc），仍仅排除原 server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire 与 server::tests::queryparams::rerun_queue_messages_match_frozen_reference，不称完整工作区全绿。文档/矩阵收尾门 52 项通过。日志 target/datetime-fallback-{red,green,sdk,clippy,clippy-final,workspace,python,docs}.log；本批没有启动额外采集服务。
 
 新增边界的原生 WS/浏览器、代码赋值后的动态边界重置、错误类型/文案、禁用/ignore、查询绑定、表单/跨页及其他状态组合仍未验收；矩阵和生成清单不提升状态，130 partial、M3/M5/M7 与完整 Goal 保持开放。未创建 PR、合并、发布或部署。
+
+## Current datetime native fallback evidence (2026-11-01)
+
+为前一批 datetime 修复补原生 WebSocket 验收。复用 widget_params 两端示例与参数校验模块，新增 --datetime-empty 采集模式；生产 widgets/widget_api 未改。两项冻结结果为 [SDK](../tests/reference/reference-browser/widget-params/datetime-empty/trace.json) 与 [Rust](../tests/browser/rust-widget-params/datetime-empty/trace.json)，各十八轮、161 原始帧、72 完整 Element，首次采集直接匹配，无失败捕获被覆盖。
+
+同连接顺序为 load/edit/missing/legacy/invalid/below/above/minimum/maximum/surplus/empty/defaults/fallback/bad-first/seconds/recover/observe/reset。Moment 初始默认 12:30、Optional 默认 None，固定 2025-03-15 08:00..18:00，另有 checkbox 同伴。分别验证 ID-only、空数组、无法解析首项、越界和含秒字符串回有效默认，合法首项忽略无效尾项、非法首项不看合法尾项，legacy 规范为 ISO、包含边界且不吸附 900 秒步长。声明默认改为 16:20 时当前值保留；已有原生 None 的 wire default 继续为空，恢复合法值后才重新登记声明默认。
+
+累计 callback 计数为 0/3/6/9/12/13/14/17/20/23/26/26/28/29/30/33/33/36，按 moment/optional/peer 注册顺序逐条比对；每条均看到整批归一化新值。观察轮不重放，常规前端回退无额外 set_value/one-shot。完整 Element 仅规范化不透明控件 ID 和 JSON 文本后逐字段匹配，semantic_match 只在严格门成功后写为 true。
+
+严格门从原始 base64 重解析 protobuf，核对原始字节数/message JSON/元素汇总、18 个 run/同一 session、三稳定旧 ID、string_array/bool/缺省 oneof、实际输入列表（包含空数组存在性）、min/max/default/step/format/布局/策略/sync、路径及全部返回值类型/36 条有序回调。八类负例同时改写原始包、字节数、message 与元素汇总后必须被拒绝：错误 oneof、空数组改 ID-only、越界误接受、legacy 未归一化、None 错发新默认、callback 读旧 peer、callback 逆序、缺省回旧默认。
+
+参数参考模块增加 11 项至 397；相关八模块 739 项通过。编辑 Rust 示例已按语义留空、逐 diff 检查，格式、cargo build 示例与全工作区/all-target Clippy 通过；既有 MSVC linker stdout warning 保留。本批未改生产/库测试，不重复完整工作区测试；上批 334 项及两项排除是上一批证据，不称本批重跑。日志 target/datetime-ws-{build,sdk,rust,server,gate,python,clippy,docs}.log。
+
+采集器三份 producer、Rust widgets/widget_api 及实际示例二进制 SHA 与当前产物逐一核实。SDK 自有服务和 Rust 自持 Popen 均 terminate/wait 完成，SDK 动态端口与 8599 无监听；本批无浏览器采集。矩阵仅补 st.datetime_input 证据与边界，生成 inventory 仍 130 partial；修正旧兼容记录把空数组等同强制清空的文字。真实浏览器、代码赋值后的动态边界重置、错误 oneof/类型/文案、禁用/ignore、查询绑定、表单/跨页及其他组合仍开放，M3/M5/M7 和完整目标未关闭。用户既有 colconfig 修改独立保留，无 PR、合并、发布或部署。

@@ -6,6 +6,36 @@ use ::streamlit::*;
 use streamlit::StreamlitApi;
 
 fn render(st: &Streamlit) -> Result<(), WidgetError> {
+    if st.query_params().get("probe").as_deref() == Some("datetime-empty") {
+        let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
+        let changed = |source: &'static str| {
+            move |st: &Streamlit| {
+                let state = st.session_state();
+                let mut calls = state.get::<Vec<serde_json::Value>>("datetime_empty_calls").expect("calls").unwrap_or_default();
+                calls.push(serde_json::json!([
+                    source,
+                    state.get::<serde_json::Value>("datetime_empty_moment").expect("moment"),
+                    state.get::<serde_json::Value>("datetime_empty_optional").expect("optional"),
+                    state.get::<bool>("datetime_empty_peer").expect("peer")
+                ]));
+                state.set("datetime_empty_calls", calls).expect("callback write");
+            }
+        };
+        let parse = |text: &str| chrono::NaiveDateTime::parse_from_str(text, "%Y-%m-%dT%H:%M").expect("fixture datetime");
+        let changed_default = ["defaults", "fallback", "bad-first", "seconds", "recover", "observe", "reset"].contains(&phase.as_str());
+        let options = |label: &str, key: &str| DateTimeInputOptions::new(label).key(key).min(parse("2025-03-15T08:00")).max(parse("2025-03-15T18:00"));
+        let moment = st.datetime_input(options("Moment", "datetime_empty_moment").value(parse(if changed_default { "2025-03-15T16:20" } else { "2025-03-15T12:30" })).on_change(changed("moment")))?;
+        let mut optional = options("Optional", "datetime_empty_optional").value_none().on_change(changed("optional"));
+        if changed_default {
+            optional = optional.value(parse("2025-03-15T16:20"));
+        }
+        let optional = st.datetime_input(optional)?;
+        let peer = st.checkbox(CheckboxOptions::new("Peer").key("datetime_empty_peer").on_change(changed("peer")))?;
+        let calls = st.session_state().get::<Vec<serde_json::Value>>("datetime_empty_calls")?.unwrap_or_default();
+        st.json(serde_json::json!({"phase": phase, "values": [moment.map(|value| value.format("%Y-%m-%dT%H:%M").to_string()), optional.map(|value| value.format("%Y-%m-%dT%H:%M").to_string()), serde_json::json!(peer)], "calls": calls}));
+        return Ok(());
+    }
+
     if st.query_params().get("probe").as_deref() == Some("time-empty") {
         let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
         let changed = |source: &'static str| {

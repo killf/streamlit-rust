@@ -3715,6 +3715,146 @@ def test_number_empty_gate_rejects_coherent_wrong_wire(mutation):
         check_number_empty(capture)
 
 
+DATETIME_EMPTY_PHASES = ("load", "edit", "missing", "legacy", "invalid", "below", "above", "minimum", "maximum", "surplus", "empty", "defaults", "fallback", "bad-first", "seconds", "recover", "observe", "reset")
+DATETIME_EMPTY_INPUTS = (None, (["2025-03-15T14:35"], True), (None, False), (["2025/03/15, 15:47"], True), (["bad"], False),
+                         (["2025-03-15T07:59"], True), (["2025-03-15T18:01"], False), (["2025-03-15T08:00"], True),
+                         (["2025-03-15T18:00"], False), (["2025-03-15T15:47", "bad"], True), ([], False), None,
+                         (None, True), (["bad", "2025-03-15T15:47"], False), (["2025-03-15T15:47:00"], True),
+                         (["2025-03-15T15:47"], False), None, (None, True))
+DATETIME_EMPTY_VALUES = (("12:30", None, False), ("14:35", "14:35", True), ("12:30", None, False), ("15:47", "15:47", True),
+                         ("12:30", None, False), ("12:30", None, True), ("12:30", None, False), ("08:00", "08:00", True),
+                         ("18:00", "18:00", False), ("15:47", "15:47", True), ("12:30", None, False), ("12:30", None, False),
+                         ("16:20", None, True), ("16:20", None, False), ("16:20", None, True), ("15:47", "15:47", False),
+                         ("15:47", "15:47", False), ("16:20", "16:20", True))
+DATETIME_EMPTY_VALUES = tuple([None if clock is None else "2025-03-15T" + clock for clock in values[:2]] + [values[2]] for values in DATETIME_EMPTY_VALUES)
+DATETIME_EMPTY_COUNTS = (0, 3, 6, 9, 12, 13, 14, 17, 20, 23, 26, 26, 28, 29, 30, 33, 33, 36)
+DATETIME_EMPTY_CALLS = [[source, *DATETIME_EMPTY_VALUES[index]] for index, sources in (
+    (1, ("moment", "optional", "peer")), (2, ("moment", "optional", "peer")), (3, ("moment", "optional", "peer")),
+    (4, ("moment", "optional", "peer")), (5, ("peer",)), (6, ("peer",)), (7, ("moment", "optional", "peer")),
+    (8, ("moment", "optional", "peer")), (9, ("moment", "optional", "peer")), (10, ("moment", "optional", "peer")),
+    (12, ("moment", "peer")), (13, ("peer",)), (14, ("peer",)), (15, ("moment", "optional", "peer")),
+    (17, ("moment", "optional", "peer"))) for source in sources]
+
+
+def check_datetime_empty(capture):
+    assert capture["successful"] and "producer_error" not in capture and capture["reference_version"] == "1.66.1"
+    assert capture["runtime"] in ("python", "rust") and capture["finishes"] == [0] * 18
+    assert capture["cleanup"]["websocket_closed"] and capture["cleanup"]["server_stopped" if capture["runtime"] == "python" else "caller_server_stopped"]
+    assert len(capture["frames"]) == 161 and len(capture["elements"]) == 72
+    runs = color_runs(capture, ("date_time_input", "checkbox", "json"))
+    normalized, sessions, run_ids, ids = [], set(), set(), None
+    for index, (phase, run) in enumerate(zip(DATETIME_EMPTY_PHASES, runs, strict=True)):
+        request = run["request"]
+        assert request.query_string == "probe=datetime-empty&phase=" + phase and not request.is_history_navigation
+        assert len(run["sessions"]) == 1 and run["finishes"] == [0]
+        session = run["sessions"][0]
+        assert session.initialize.environment_info.streamlit_version == "1.66.1"
+        sessions.add(session.initialize.session_id)
+        run_ids.add(session.script_run_id)
+        assert [entry[0] for entry in run["entries"]] == ["date_time_input", "date_time_input", "checkbox", "json"]
+        current = []
+        for position, (kind, widget, element) in enumerate(run["entries"][:3]):
+            assert widget.label == ("Moment", "Optional", "Peer")[position]
+            assert widget.id.endswith("-datetime_empty_" + ("moment", "optional", "peer")[position])
+            assert not widget.disabled and not widget.ignore_rerun and not widget.form_id and not widget.help
+            assert widget.label_visibility.value == 0 and not widget.set_value and not element.HasField("has_one_shot_effect")
+            if kind == "checkbox":
+                assert not widget.default and not widget.value and element.width_config.use_content
+            else:
+                assert element.width_config.use_stretch and not widget.value and not widget.is_range and not widget.query_param_key
+                assert widget.step == 900 and widget.format == "YYYY/MM/DD"
+                assert (widget.min, widget.max) == ("2025-03-15T08:00", "2025-03-15T18:00")
+                default = ("2025-03-15T16:20" if index >= 11 else "2025-03-15T12:30") if position == 0 else "2025-03-15T16:20" if index >= 15 else None
+                assert list(widget.default) == ([] if default is None else [default])
+            current.append(widget.id)
+        assert len(set(current)) == 3
+        if ids is None:
+            ids = current
+        else:
+            assert current == ids
+        incoming = request.widget_states.widgets
+        submitted = DATETIME_EMPTY_INPUTS[index]
+        if submitted is None:
+            assert not incoming
+        else:
+            assert len(incoming) == 3 and [widget.id for widget in incoming] == ids
+            values, peer = submitted
+            for position, widget in enumerate(incoming):
+                assert widget.WhichOneof("value") == ("bool_value" if position == 2 else None if values is None else "string_array_value")
+                if position == 2:
+                    assert widget.bool_value is peer
+                else:
+                    assert list(widget.string_array_value.data) == (values or [])
+        report = json.loads(run["entries"][-1][1].body)
+        assert report == {"phase": phase, "values": DATETIME_EMPTY_VALUES[index], "calls": DATETIME_EMPTY_CALLS[:DATETIME_EMPTY_COUNTS[index]]}
+        assert all(value is None or type(value) is str for value in report["values"][:2]) and type(report["values"][2]) is bool
+        assert [entry["delta_path"] for entry in capture["elements"][index * 4:index * 4 + 4]] == [[0, i] for i in range(4)]
+        fields = []
+        for kind, _, element in run["entries"]:
+            view = MessageToDict(element, preserving_proto_field_name=True)
+            if kind == "json":
+                view[kind]["body"] = json.loads(view[kind]["body"])
+            else:
+                view[kind].pop("id")
+            fields.append(view)
+        normalized.append(fields)
+    assert len(sessions) == 1 and len(run_ids) == 18
+    return normalized
+
+
+@pytest.mark.parametrize("root", (PYTHON, RUST), ids=("python", "rust"))
+def test_datetime_native_defaults_bounds_and_callback_recovery(root):
+    check_datetime_empty(read(root / "datetime-empty/trace.json"))
+
+
+def test_datetime_empty_complete_elements_match_reference():
+    captures = [read(root / "datetime-empty/trace.json") for root in (PYTHON, RUST)]
+    assert captures[0]["producer_sources_sha256"] == captures[1]["producer_sources_sha256"] and captures[1]["semantic_match"] is True
+    assert check_datetime_empty(captures[0]) == check_datetime_empty(captures[1])
+
+
+@pytest.mark.parametrize("mutation", ("input-oneof", "empty-id-only", "out-of-bounds", "legacy", "null-default", "callback-batch", "callback-order", "default-cache"))
+def test_datetime_empty_gate_rejects_coherent_wrong_wire(mutation):
+    capture = read(PYTHON / "datetime-empty/trace.json")
+    target = {"input-oneof": 12, "empty-id-only": 10, "out-of-bounds": 5, "legacy": 3, "null-default": 11, "callback-batch": 1, "callback-order": 3, "default-cache": 12}[mutation]
+    run = -1
+    for frame in capture["frames"]:
+        client = frame["direction"] == "client->server"
+        if client:
+            run += 1
+        if run != target:
+            continue
+        message = BackMsg() if client else ForwardMsg()
+        message.ParseFromString(base64.b64decode(frame["base64"]))
+        if client and mutation in ("input-oneof", "empty-id-only"):
+            widget = message.rerun_script.widget_states.widgets[0]
+            if mutation == "input-oneof": widget.string_value = "bad"
+            else: widget.ClearField("string_array_value")
+        elif not client and message.WhichOneof("type") == "delta":
+            element = message.delta.new_element
+            kind = element.WhichOneof("type")
+            if kind == "date_time_input" and element.date_time_input.label == "Optional" and mutation == "null-default":
+                element.date_time_input.default[:] = ["2025-03-15T16:20"]
+            elif kind == "json" and mutation in ("out-of-bounds", "legacy", "callback-batch", "callback-order", "default-cache"):
+                report = json.loads(element.json.body)
+                if mutation == "out-of-bounds": report["values"][0] = "2025-03-15T07:59"
+                elif mutation == "legacy": report["values"][0] = "2025/03/15, 15:47"
+                elif mutation == "callback-batch": report["calls"][0][3] = False
+                elif mutation == "callback-order": report["calls"][-3:] = report["calls"][-3:][::-1]
+                else: report["values"][0] = "2025-03-15T12:30"
+                element.json.body = json.dumps(report)
+            else:
+                continue
+        else:
+            continue
+        raw = message.SerializeToString()
+        frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(message, preserving_proto_field_name=True))
+    capture["elements"] = [{"kind": m.delta.new_element.WhichOneof("type"), "fields": MessageToDict(getattr(m.delta.new_element, m.delta.new_element.WhichOneof("type")), preserving_proto_field_name=True),
+                            "delta_path": list(m.metadata.delta_path)} for m in frames(capture) if isinstance(m, ForwardMsg) and m.WhichOneof("type") == "delta"]
+    with pytest.raises(AssertionError):
+        check_datetime_empty(capture)
+
+
 TIME_EMPTY_PHASES = ("load", "edit", "seconds", "formats", "invalid", "empty", "defaults", "fallback", "leap", "recover", "observe", "reset")
 TIME_EMPTY_VALUES = (("12:30", None, False), ("13:45", None, True), ("12:30", "08:09:10", True), ("14:15", "09:10:00", False), ("12:30", None, True), ("12:30", None, False), ("12:30", None, False), ("16:20", None, True), ("16:20", None, False), ("01:02", "04:05:06", True), ("01:02", "04:05:06", True), ("16:20", "06:07:08", False))
 TIME_EMPTY_INPUTS = (None, ("13:45", None, True), (None, "08:09:10", True), ("14:15:59", "09:10", False), ("not-a-time", "25:99:88", True), ("", "", False), None, (None, None, True), ("23:59:60", "23:59:60", False), ("01:02:03", "04:05:06", True), None, (None, None, False))
