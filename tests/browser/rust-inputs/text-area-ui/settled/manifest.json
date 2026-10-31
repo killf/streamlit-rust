@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "runtime": "rust",
+  "capture_date": "2026-10-31",
+  "workspace_head": "3219f3eaeaae6609d8b317db16b5078444edd6a1",
+  "sdk_version": "1.66.1",
+  "python_version": "3.14.7",
+  "browser": "Chrome extension browser 3, task tab 1754831922",
+  "method": "Existing paired inputs examples; controlled warm reload followed by fill/Tab, visible sms label click, clear/Tab, restore/Tab. CDP Network raw WS events read with cursor pagination; no external CDP connection. No viewport override.",
+  "sources": {
+    "streamlit/examples/inputs.rs": "c2d7f95f5fa9885eeecff50596437c8f5153de4e7a91acb37da7e01cdd649d7c",
+    "streamlit/src/widget_api.rs": "b17e59e976774a60e627aac3f0eb0f83356dea125b8e5e364963f452e2ef112f",
+    "target/debug/examples/inputs.exe": "4aaa716b552c129fbdc49f81240c9963d087cc95a8e4f6876e813282252219b1"
+  },
+  "capture_source_sha256": "e4c13beb888bbdc022cb6222a55a8037809a5462c5d6ac1956438b616e6503da",
+  "stages": 5,
+  "websocket_events": 65,
+  "visual_review": "All five screenshots individually inspected; values and echo agree with before/after DOM. Actual encoding JPEG, inherited .png filenames retained with original bytes and hashes.",
+  "geometry": "1463x724 CSS viewport, DPR 1.75; textarea 92px, outer stTextArea 121.14286px; wire nominal height 122. Both runtimes match for this fixture.",
+  "cleanup": "Owned test tab closed; exact owned Rust PID 68540 and SDK PID 59760 stopped after executable/command-line verification; ports 8508 and 8618 read back without listeners.",
+  "limitations": [
+    "Warm reload and ordinary same-page reruns only; no browser remount/history/IME, collapsed label, dynamic options or invalid-size error UI.",
+    "Console warning/error buffer returned empty; no claim of unlimited console coverage.",
+    "No production changes; full compatibility goal remains open."
+  ]
+}

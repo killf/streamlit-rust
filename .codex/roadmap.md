@@ -322,3 +322,28 @@ JSON 深度/宽度已补 18 组固定原生参考（9 成功、9 拒绝）；Jso
 
 
 2026-10-31 绑定 text_input 宽度错误阶段已修正：宽度校验放到注册、绑定元数据和 URL flush 之后，以既有 InvalidValue 返回，不撤销此前查询更新；callback 用 take 转移，无新公开接口/模块/依赖。五会话/20轮/254原始帧/39 API投影先红后绿，已截断输入/callback、五次 LONGU 修正、写锁及恢复保留；冷绑定单元另验证错误前已锁住 state/query、已发URL但无控件元素。Clippy/格式、单元及33项查询回归通过；工作区290项通过但仍排除原有两项队列差异，相关Python/矩阵/文档179项通过，本批未重跑完整Python参考。SDK原始异常文字受独立门保护，RustAPI投影不伪造类名/锁错误文字；重复key捕获/异常UI、浏览器及其他参数组合仍开放，130 partial 与完整目标保持，按授权阶段提交推送。
+
+
+### Real text-area UI comparison (2026-10-31)
+
+Existing inputs examples were exercised through the actual Chrome UI against
+SDK 1.66.1 and a fresh Rust inputs build at 3219f3e. Each side retained five
+runs/65 raw WebSocket events: controlled warm reload, multiline Unicode edit
+committed on blur, sms peer rerun retaining text, empty submission, restoration.
+Frozen evidence: tests/reference/reference-browser/inputs/text-area-ui/settled
+and tests/browser/rust-inputs/text-area-ui/settled. Their manifests retain source,
+binary and collector hashes, runtime provenance, visual review and cleanup.
+At the same 1463x724/DPR 1.75 viewport both render a 92px textarea inside a
+121.14286px stTextArea, with nominal wire height 122. All ten actual screenshots
+were inspected with matching before/after DOM and echoes. The returned image
+bytes are JPEG despite inherited .png filenames; preserve bytes and gate decoded
+format/dimensions plus SHA256. The earlier background SDK attempt is explicitly
+unsuccessful and retained separately; it does not count as accepted evidence.
+Existing test_inputs_contract.py checks raw protobuf types, input values,
+identity/session continuity, five successful completions, cursor coverage,
+rendered values/geometry and screenshots; seven evidence-damage cases fail.
+No production/API/dependency changes. Browser remount/history/IME, collapsed or
+dynamic options and invalid-size/error UI remain open. This scoped result does
+not erase the older capture's 9px boundary or establish all frontend parity.
+Owned tab/servers closed; ports 8508/8618 read back free. All 130 partial rows,
+M3/M5/M7 and the full goal remain open; unrelated colconfig_params work excluded.

@@ -1463,3 +1463,30 @@ retain 130 partial entries and M3/M5/M7/full goal. Browser URL/size behavior,
 other invalid parameter combinations and producers, caught duplicate and
 unhandled error UI remain open. Existing colconfig_params modifications are
 excluded from this batch's commit/push.
+
+
+### Real text-area UI comparison (2026-10-31)
+
+Existing inputs examples were exercised through the actual Chrome UI against
+SDK 1.66.1 and a fresh Rust inputs build at 3219f3e. Each side retained five
+runs/65 raw WebSocket events: controlled warm reload, multiline Unicode edit
+committed on blur, sms peer rerun retaining text, empty submission, restoration.
+Frozen evidence: tests/reference/reference-browser/inputs/text-area-ui/settled
+and tests/browser/rust-inputs/text-area-ui/settled. Their manifests retain source,
+binary and collector hashes, runtime provenance, visual review and cleanup.
+At the same 1463x724/DPR 1.75 viewport both render a 92px textarea inside a
+121.14286px stTextArea, with nominal wire height 122. All ten actual screenshots
+were inspected with matching before/after DOM and echoes. The returned image
+bytes are JPEG despite inherited .png filenames; preserve bytes and gate decoded
+format/dimensions plus SHA256. The earlier background SDK attempt is explicitly
+unsuccessful and retained separately; it does not count as accepted evidence.
+Existing test_inputs_contract.py checks raw protobuf types, input values,
+identity/session continuity, five successful completions, cursor coverage,
+rendered values/geometry and screenshots; seven evidence-damage cases fail.
+No production/API/dependency changes. Browser remount/history/IME, collapsed or
+dynamic options and invalid-size/error UI remain open. This scoped result does
+not erase the older capture's 9px boundary or establish all frontend parity.
+Owned tab/servers closed; ports 8508/8618 read back free. All 130 partial rows,
+M3/M5/M7 and the full goal remain open; unrelated colconfig_params work excluded.
+
+Validation for this batch: fresh offline/locked inputs example build passed; 83 focused Python input/matrix/documentation checks passed with deprecation warnings as errors. No production Rust changes and no repeat full Rust workspace run.

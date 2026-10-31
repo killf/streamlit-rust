@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "runtime": "python",
+  "capture_date": "2026-10-31",
+  "workspace_head": "3219f3eaeaae6609d8b317db16b5078444edd6a1",
+  "sdk_version": "1.66.1",
+  "python_version": "3.14.7",
+  "browser": "Chrome extension browser 3, task tab 1754831922",
+  "method": "Existing paired inputs examples; controlled warm reload followed by fill/Tab, visible sms label click, clear/Tab, restore/Tab. CDP Network raw WS events read with cursor pagination; no external CDP connection. No viewport override.",
+  "sources": {
+    "tests/reference/inputs_app.py": "cb884ee2a6487585d63d9254cc353e42704cbd9b9f832732cd0e0a35d27da5bf"
+  },
+  "capture_source_sha256": "2c7b8e4790ddd2ab43f49a8f188c739f07c85947bcacf909308abfed58521eb4",
+  "stages": 5,
+  "websocket_events": 65,
+  "visual_review": "All five screenshots individually inspected; values and echo agree with before/after DOM. Actual encoding JPEG, inherited .png filenames retained with original bytes and hashes.",
+  "geometry": "1463x724 CSS viewport, DPR 1.75; textarea 92px, outer stTextArea 121.14286px; wire nominal height 122. Both runtimes match for this fixture.",
+  "cleanup": "Owned test tab closed; exact owned Rust PID 68540 and SDK PID 59760 stopped after executable/command-line verification; ports 8508 and 8618 read back without listeners.",
+  "limitations": [
+    "Warm reload and ordinary same-page reruns only; no browser remount/history/IME, collapsed label, dynamic options or invalid-size error UI.",
+    "Console warning/error buffer returned empty; no claim of unlimited console coverage.",
+    "No production changes; full compatibility goal remains open."
+  ],
+  "excluded_attempt": "../attempt.json records unsuccessful background capture; initial bytes and settled follow-up screenshot retained. An additional warm reload preceded final collection after helper output binding was corrected; exclusive writes prevented overwriting originals."
+}

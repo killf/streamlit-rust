@@ -450,3 +450,6 @@ async fn main(st: &Streamlit) {
 - **widgets**（`http://127.0.0.1:见源码/`）：the widget parity page。
 - **writestream**（`http://127.0.0.1:8527/`）：write_stream。
 - **zero_columns**（`http://127.0.0.1:8580/`）：zero-column tables。
+
+
+2026-10-31 文本区域实际浏览器补验：复用 inputs 成对示例，在相同视口下分别完成初始、多行 Unicode 输入、sms 重跑保留、清空和恢复五轮；每端 65 个原始 WebSocket 事件，默认控件尺寸及回显一致。冻结原始帧、DOM、截图和来源见 `tests/reference/reference-browser/inputs/text-area-ui/settled/` 与 `tests/browser/rust-inputs/text-area-ui/settled/`，由 `tests/reference/test_inputs_contract.py` 检查。只覆盖这条普通重跑路径；collapsed、动态属性、历史/重挂载/IME 和错误 UI 仍待验证，完整兼容目标保持开放。
