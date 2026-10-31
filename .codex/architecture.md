@@ -1150,6 +1150,80 @@ URL 更新都要保留。现有公开 get/set/remove、控件 builder 和 protob
 `QueryParamStore.pending_update: bool` 只在 flush 时序列化最终 entries，无法还原
 同一调用内两次不同的 URL。冷启动参考已证明不能直接去掉 had_record 限制。
 
+#### 补充来源边界探测（SDK AppTest，2026-10-31）
+
+在同一固定 Python 1.66.1 环境完成七组二十四轮 AppTest 执行，所有轮次无应用
+exception。此处观察应用体输出和脚本结束清理后的状态，不是原始 WS、真实浏览器
+或 Rust 对照证据；原 116 对 109 的失败结论保持不变。这里每次请求都清空查询
+参数后只设置 mode/bound，并显式提交空 WidgetStates，不模拟前端提交或 history。
+
+| 独立会话的步骤 | 应用返回值顺序 | 关键清理后状态 |
+|---|---|---|
+| 非绑定：seed→show→hide→show | SEED→SEED→null→DEFAULT | hide 体内仍可读 SEED，轮末 note 已删除。 |
+| 绑定：seed→show→hide→show | SEED→SEED→null→SEED | hide 轮末保留 SEED；重建后查询参数为 note=SEED。 |
+| 非绑定：seed→delete-before→show | SEED→DEFAULT→DEFAULT | 注册前删除所有可读状态后，控件重建默认值。 |
+| 非绑定：seed→delete-after→show | SEED→SEED→DEFAULT | 删除轮的控件返回 SEED，但体内和轮末 note 均已不存在。 |
+| 绑定：seed→delete-before→show | SEED→DEFAULT→DEFAULT | 无 note URL 时同样重建默认值。 |
+| 绑定：seed→delete-after→show | SEED→SEED→DEFAULT | 注册后删除不因绑定自动恢复用户态。 |
+| seed 绑定→show 非绑定→hide 非绑定→show 绑定 | SEED→SEED→null→DEFAULT | 取消绑定后隐藏，轮末不再保留 SEED。 |
+
+这说明不能把“曾由代码写入”无条件变成永久用户值；普通控件的预赋值来源也受
+控件清理约束。绑定保留资格必须随取消绑定更新。显式 remove 还必须清除所有
+可读层和 key/ID 定位，不能只删除当前混合 values 后继续从 Record.value 读回。
+以上是 SDK 行为约束，不代表现有 Rust 已通过这些场景；尤其 remove 的返回值、
+不存在 key 的错误映射及带 URL/前端输入的删除，仍须单独测量。
+
+探测中发现 AppTest 公共 .run() 会先收集旧树控件值；注册后删除使它在收集时
+因缺失旧控件 ID 抛 KeyError，应用重跑尚未开始。因此本次统一调用内部
+`app._run(widget_state=WidgetStates())`，明确输入为空，避免把测试工具失败误认
+为应用恢复行为。这条内部入口的结果不能替代后续真实 WS 来源/消息顺序回归。
+探测未启动 HTTP 服务，没有新增依赖或修改生产文件。
+
+复现核心如下；每组新建一个 AppTest，各轮按表设置 mode/bound；每轮断言
+`not app.exception`，分别记录 `json.loads(app.json[0].value)`、
+`app.session_state.to_dict()`、`dict(app.query_params)`：
+
+```python
+import json
+from streamlit.proto.WidgetStates_pb2 import WidgetStates
+from streamlit.testing.v1 import AppTest
+
+source = '''import streamlit as st
+mode = st.query_params.get("mode", "show")
+if mode == "seed":
+    st.session_state["note"] = "SEED"
+if mode == "delete-before" and "note" in st.session_state:
+    del st.session_state["note"]
+value = None
+if mode != "hide":
+    value = st.text_input("Note", "DEFAULT", key="note",
+        bind="query-params" if st.query_params.get("bound") == "on" else None)
+if mode == "delete-after" and "note" in st.session_state:
+    del st.session_state["note"]
+st.json({"value": value, "state": st.session_state.get("note"),
+         "present": "note" in st.session_state})
+'''
+app = AppTest.from_string(source)
+for mode in ("seed", "show", "hide", "show"):
+    app.query_params.clear()
+    app.query_params["mode"] = mode
+    # 绑定组每轮再设 app.query_params["bound"] = "on"。
+    app._run(widget_state=WidgetStates())
+    assert not app.exception
+    print(json.loads(app.json[0].value), app.session_state.to_dict())
+```
+
+本地完整探测脚本/结果/工具诊断分别保存在 target/state-origin-apptest.py、
+target/state-origin-apptest.json、target/state-origin-apptest.stderr.log；这些是
+未纳入版本控制的调查产物。完整脚本 SHA256 为
+`679106ae851d1bfacb360f3b4cb49eb592309500442f593f608ae0253afcf486`。
+固定环境中 session_state.py SHA256 为
+`b532f343962efc0bea58f70047d14787e6588eac15d50b167d7427b6590406c9`，
+AppTest 入口 app_test.py SHA256 为
+`972beece09dd2c2c5f42b829f1c0addea1f507adead9d42121abad3c28205ee9`。
+后续选型后仍须把这些来源边界落实到冻结 WS 参考及 Rust 回归，不能据此提前
+关闭 session_state、query_params 或绑定取消的兼容项。
+
 #### 三个实现选项（均以完整兼容为目标）
 
 | 选项 | 状态职责与改动 | 成本与取舍 |
