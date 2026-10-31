@@ -655,6 +655,12 @@ impl WidgetRegistry {
 }
 
 impl SessionState {
+    /// 历史导航跳过已注册绑定控件的旧输入，未知与未绑定输入继续保留。
+    pub(crate) fn omit_query_bound_inputs(&self, incoming: &mut Vec<WidgetState>) {
+        let registry = self.widgets.lock();
+        incoming.retain(|widget| !registry.records.get(&widget.id).is_some_and(|record| record.query_bound));
+    }
+
     pub(crate) fn form_checkpoint(&self) -> (WidgetRegistry, HashMap<String, Value>) {
         let registry = self.widgets.lock();
         (registry.clone(), self.values.lock().clone())
@@ -836,7 +842,15 @@ impl SessionState {
             if can_seed {
                 let parsed = params.initial_value(key).and_then(|text| codec.query_value(text, binding.clearable));
                 match parsed {
-                    Some(value) if value != default => Some(value),
+                    Some(value) if value != default => {
+                        if let Some(text) = codec.query_text(&value)
+                            && params.initial_value(key) != Some(text.as_str())
+                        {
+                            params.set_binding_value(key, text);
+                        }
+
+                        Some(value)
+                    }
                     _ => {
                         if params.initial_value(key).is_some() {
                             params.remove_binding(key);

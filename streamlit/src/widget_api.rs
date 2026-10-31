@@ -4110,6 +4110,65 @@ mod tests {
     }
 
     #[test]
+    fn bound_text_limit_corrects_changed_urls_without_collapsing_unchanged_repeats() -> anyhow::Result<()> {
+        let state = SessionState::default();
+        state.query_params.lock().load("bound=abcdef&other=kept");
+        state.begin_widgets(vec![]);
+        let (st, _) = app(&state);
+        assert_eq!(st.text_input(TextInputOptions::new("Bound").value("base").key("bound").max_chars(3).bind(TextBind::QueryParams))?.as_deref(), Some("abc"));
+        assert_eq!(state.query_params.lock().serialize(), "bound=abc&other=kept");
+        state.finish_widgets();
+
+        // 已经规范化的末值不需要重写，重复键及其顺序继续保留。
+        state.query_params.lock().load("bound=abc&bound=abc&other=kept");
+        state.begin_widgets(vec![]);
+        let (st, _) = app(&state);
+        assert_eq!(st.text_input(TextInputOptions::new("Bound").value("base").key("bound").max_chars(3).bind(TextBind::QueryParams))?.as_deref(), Some("abc"));
+        assert_eq!(state.query_params.lock().serialize(), "bound=abc&bound=abc&other=kept");
+        state.finish_widgets();
+        Ok(())
+    }
+
+    #[test]
+    fn history_input_omission_keeps_unbound_and_unknown_inputs() -> anyhow::Result<()> {
+        let state = SessionState::default();
+        state.begin_widgets(vec![]);
+        let (st, mut wire) = app(&state);
+        st.text_input(TextInputOptions::new("Bound").value("base").key("bound").bind(TextBind::QueryParams).on_change(|_| panic!("history bound callback")))?;
+        st.text_input(TextInputOptions::new("Live").value("ready").key("live").on_change(|st| st.write("live callback")))?;
+        let element::Type::TextInput(bound) = input(&mut wire)? else { anyhow::bail!("expected bound input") };
+        let element::Type::TextInput(live) = input(&mut wire)? else { anyhow::bail!("expected live input") };
+        state.finish_widgets();
+
+        let mut incoming = vec![
+            WidgetState {
+                id: bound.id,
+                value: Some(widget_state::Value::StringValue("old history value".into())),
+            },
+            WidgetState {
+                id: live.id.clone(),
+                value: Some(widget_state::Value::StringValue("next".into())),
+            },
+            WidgetState {
+                id: "unknown".into(),
+                value: Some(widget_state::Value::StringValue("pending".into())),
+            },
+        ];
+        state.omit_query_bound_inputs(&mut incoming);
+        assert_eq!(incoming.iter().map(|widget| widget.id.as_str()).collect::<Vec<_>>(), [live.id.as_str(), "unknown"]);
+        let callbacks = state.begin_widgets(incoming);
+        assert_eq!(state.get::<String>("bound")?.as_deref(), Some("base"));
+        assert_eq!(state.get::<String>("live")?.as_deref(), Some("next"));
+        assert_eq!(callbacks.len(), 1);
+        let (st, mut wire) = app(&state);
+        for callback in callbacks {
+            callback(&st);
+        }
+        assert!(matches!(input(&mut wire)?, element::Type::Markdown(markdown) if markdown.body == "live callback"));
+        Ok(())
+    }
+
+    #[test]
     fn text_input_none_and_empty_are_distinct_wire_and_native_values() -> anyhow::Result<()> {
         let state = SessionState::default();
         state.begin_widgets(vec![]);

@@ -487,3 +487,48 @@ and missing synchronization. Sockets/server closed and port 57186 read back
 free. Existing captures remain unchanged. This is native protocol/API evidence,
 not every widget kind, orphan historical-ID input, query-bound length/source,
 callback-side assignment, rerun/fragment or browser remount/IME coverage.
+
+
+## Bound text length correction and history input omission (2026-10-31)
+
+`text-bound/trace.json` retains the first single-control reference (12 runs,
+162 frames, 31 projected events). `text-bound-peer/trace.json` adds an unbound
+Live control (12 runs, 174 frames, 43 events) under an opt-in peer=on probe flag.
+Both use the existing forms probe and native collector (--scenario text-bound
+or text-bound-peer), in separate owned sessions without overwriting data.
+
+URL-seeded strings are deserialized/truncated and automatically corrected on
+initial load, URL-only change and history. A default-equivalent result clears
+the parameter but keeps the prior value on an ordinary run. A repeated key with
+an overlong last value becomes one corrected value. Code assignment wins on a
+normal request, history URL wins over code, and missing history parameters restore
+the default. Empty/short values and a following frontend edit recover normally.
+Each capture records seven URL writes; all source/sync/callback values are fixed.
+
+History bound inputs (OTHERtail and staleTEXT) are present in the raw client
+requests but do not update state or dispatch callbacks before URL restoration.
+The SDK omits already-bound widget IDs before applying those incoming states.
+Rust now filters the same known bindings before begin_widgets, without moving
+URL loading or ordinary callback execution. The optional unbound peer receives
+peer-4/peer-6/peer-7 and all three callbacks; filtering must not swallow them.
+A separate unit also keeps unknown IDs. Old persistent decoding errors are not
+cleared by this correction.
+
+When a selected non-default URL value differs after decoding, the existing
+pending binding update now stores its serialized form and flushes before the
+widget emission. Unchanged values are not rewritten; a focused Rust unit guards
+already-normalized repeated keys. The captured repeated-key case specifically
+covers truncation, not an exhaustive repeated-key grammar. Initial/default
+folding, widget synchronization and all 74 ordered projections match. Every
+original PB is bound to its summary, runtime versions/IDs/flags and exact client
+requests; field/source expectations and four coherent wrong-wire mutations guard
+URL correction, history callback/value and lost peer update. Original default,
+max_chars and query_param_key fields are checked separately from returned state.
+
+The prior Rust unit returned abc but left bound=abcdef in the URL store, and
+the first complete WS comparison failed. Both failures are retained in target/.
+The collector closed sockets/servers; ports 58105/51632 were read back free.
+These are native protocol/flag tests, not new browser navigation/IME validation,
+all malformed history types, arbitrary binding removal or every query grammar.
+TextAreaOptions lacks a public bind entry; its small proposal awaits approval
+in architecture.md. No public area builder was added by this batch.

@@ -28,7 +28,11 @@ async fn do_rerun_script(session: &mut Session, lease: &SessionLease, server: &S
     loop {
         let started = std::time::Instant::now();
         // 1. 新请求应用前端输入；服务端内层重跑延续状态，不重复回调。
-        let callbacks = if let Some(incoming) = incoming.take() {
+        let callbacks = if let Some(mut incoming) = incoming.take() {
+            if history_navigation {
+                lease.state.omit_query_bound_inputs(&mut incoming);
+            }
+
             lease.state.begin_widgets(incoming)
         } else {
             lease.state.continue_widgets();

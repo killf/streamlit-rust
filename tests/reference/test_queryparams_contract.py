@@ -48,6 +48,14 @@ TEXT_SOURCE_STEPS = (("5", "load", None), ("5", "edit", "OLDstate🧊"), ("3", "
 TEXT_SOURCE_VALUES = ("abcde", "OLDst", "abc", "code長🧊extra", "code長🧊extra", "abcde", "code長🧊extra", "AFT", "code長🧊extra", "code長🧊extra")
 TEXT_SOURCE_CALLBACKS = (None, "OLDst", "ABCDE", "xyz", None, "", "newva", "AFT", None, None)
 
+TEXT_BOUND_STEPS = (("load", "中文🧊e\u0301TAIL", None, False), ("url-only", "UVWXYZ", None, False),
+                    ("same-default", "abcdefTAIL", None, False), ("frontend", "URLlonger", "EDITED", False),
+                    ("history", "HISTORY🧊", "OTHERtail", True), ("assign", "NATIVEURL", None, False),
+                    ("assign", "HISTORYTOO", None, True), ("history-missing", None, "staleTEXT", True),
+                    ("empty-url", "", None, False), ("short", "ok", None, False),
+                    ("repeat", ["ABCDExyz", "中文🧊e\u0301TAIL"], None, False), ("recover", "ok", "recover🧊", False))
+TEXT_BOUND_VALUES = ("中文🧊e\u0301", "UVWXY", "UVWXY", "EDITE", "HISTO", "code長🧊extra", "HISTO", "abcde", "", "ok", "中文🧊e\u0301", "recov")
+
 
 QUERY_ENCODING_CASES = (('tag=%+1&%+f=key&keep=ok', ['% 1'], [['tag', '% 1'], ['% f', 'key'], ['keep', 'ok']]),
  ('tag=%+0&tag=%+9&tag=%+A&tag=%+F&tag=%+a&tag=%+f', ['% 0', '% 9', '% A', '% F', '% a', '% f'], [['tag', '% f']]),
@@ -170,7 +178,7 @@ def read_query_param_capture(scenario, capture=None):
                     byte_payloads.append(widgets[0].bytes_value)
         elif message.WhichOneof("type") == "new_session":
             sessions.append(message.new_session.initialize.session_id)
-            if scenario in ("disabled-json", "encoding", "text-length", "text-reset", "text-source"):
+            if scenario in ("disabled-json", "encoding", "text-length", "text-reset", "text-source", "text-bound", "text-bound-peer"):
                 environment = message.new_session.initialize.environment_info
                 assert environment.streamlit_version == "1.66.1" and environment.python_version == "3.14.7.final.0"
         elif message.WhichOneof("type") == "script_finished":
@@ -351,6 +359,9 @@ def read_query_param_capture(scenario, capture=None):
             identities = length_ids[number * 10:(number + 1) * 10]
             assert [identities.index(identity) for identity in identities] == [0, 0, 2, 3, 3, 0, 2, 2, 0, 0]
         assert set(length_ids[:10]).isdisjoint(length_ids[10:])
+    elif scenario in ("text-bound", "text-bound-peer"):
+        assert len(requests) == 12 and requests[0] == capture["query_string"]
+        assert finishes == [0] * 12 and len(sessions) == 12 and len(set(sessions)) == 1
     elif scenario == "encoding":
         assert requests == [case[0] for case in QUERY_ENCODING_CASES]
         assert histories == [False] * 16 and finishes == [0] * 16
@@ -435,6 +446,124 @@ def test_text_source_reference_keeps_previous_codec_callback_then_native_assignm
     assert snapshots[2]["value"] == "abc" and snapshots[2]["callbacks"][-1] == "ABCDE"
     assert snapshots[3]["value"] == snapshots[4]["value"] == "code長🧊extra"
     assert snapshots[5]["callbacks"][-1] == ""
+
+
+def read_bound_text_capture(peer, capture=None):
+    from urllib.parse import urlencode
+
+    # 1. 原始 PB/摘要和生命周期先由已有读取器绑定。
+    scenario = "text-bound-peer" if peer else "text-bound"
+    if capture is None:
+        capture = json.loads((HERE / f"reference-browser/queryparams/{scenario}/trace.json").read_text(encoding="utf-8"))
+    assert capture["scenario"] == scenario
+    snapshots, urls = read_query_param_capture(scenario, capture)
+    runs = []
+    for frame in capture["frames"]:
+        message = frame["message"]
+        if "rerun_script" in message:
+            runs.append({"request": message["rerun_script"], "events": []})
+        if "page_info_changed" in message:
+            runs[-1]["events"].append(("url", message["page_info_changed"]["query_string"]))
+        element = message.get("delta", {}).get("new_element", {})
+        if "text_input" in element:
+            runs[-1]["events"].append(("widget", element["text_input"]))
+        if "json" in element:
+            runs[-1]["events"].append(("state", json.loads(element["json"]["body"])))
+    assert len(runs) == 12 and len(snapshots) == 12
+    first_widgets = [value for kind, value in runs[0]["events"] if kind == "widget"]
+    ids = {widget["id"].rsplit("-", 1)[-1]: widget["id"] for widget in first_widgets}
+    assert set(ids) == ({"cjk_note", "live"} if peer else {"cjk_note"})
+    corrections = {0: TEXT_BOUND_VALUES[0], 1: "UVWXY", 2: None, 4: "HISTO", 5: "code長🧊extra", 6: "HISTO", 10: TEXT_BOUND_VALUES[10]}
+    expected_urls, calls, peer_calls, live = [], [], [], "ready"
+
+    # 2. 固定输入、来源优先级、URL 修正时机和两个控件各自的同步字段。
+    for index, ((phase, url_value, incoming, history), value) in enumerate(zip(TEXT_BOUND_STEPS, TEXT_BOUND_VALUES, strict=True)):
+        prefix = "case=form-max-chars-cjk&probe=length&kind=input&bind=on&limit=5&default=long" + ("&peer=on" if peer else "") + f"&phase={phase}"
+        request = runs[index]["request"]
+        assert request["query_string"] == prefix + ("&" + urlencode({"cjk_note": url_value}, doseq=True) if url_value is not None else "")
+        assert request.get("is_history_navigation", False) == history
+        expected_input = [] if incoming is None else [{"id": ids["cjk_note"], "string_value": incoming}]
+        if peer and history:
+            live = f"peer-{index}"
+            peer_calls.append(live)
+            expected_input.append({"id": ids["live"], "string_value": live})
+        assert request.get("widget_states", {}).get("widgets", []) == expected_input
+        if index == 3:
+            calls.append("EDITE")
+        if index == 11:
+            calls.append("recov")
+        report = {"phase": phase, "value": value, "state": value, "callbacks": calls.copy()}
+        if peer:
+            report.update(live=live, peer_callbacks=peer_calls.copy())
+        expected = []
+        if index in corrections:
+            corrected = corrections[index]
+            corrected_url = prefix + ("&" + urlencode({"cjk_note": corrected}) if corrected is not None else "")
+            expected.append(("url", corrected_url))
+            expected_urls.append(corrected_url)
+        set_value = index not in (2, 3, 11)
+        widgets = [value for kind, value in runs[index]["events"] if kind == "widget"]
+        assert len(widgets) == (2 if peer else 1)
+        for slot, widget in enumerate(widgets):
+            key = "cjk_note" if slot == 0 else "live"
+            assert widget["id"] == ids[key]
+            assert widget.get("default") == ("abcdef🧊" if slot == 0 else "ready")
+            assert widget.get("max_chars", 0) == (5 if slot == 0 else 0)
+            assert widget.get("query_param_key") == ("cjk_note" if slot == 0 else None)
+            assert widget.get("set_value", False) == (set_value if slot == 0 else False)
+            assert widget.get("value") == (value if slot == 0 and set_value else None)
+            expected.append(("widget", widget))
+        expected.append(("state", report))
+        assert runs[index]["events"] == expected
+    assert urls == expected_urls and len(urls) == 7
+    return snapshots
+
+
+def test_bound_text_reference_corrects_urls_and_preserves_only_unbound_history_callbacks():
+    single = read_bound_text_capture(False)
+    peer = read_bound_text_capture(True)
+    assert single == [{key: value for key, value in report.items() if key not in ("live", "peer_callbacks")} for report in peer]
+
+
+@pytest.mark.parametrize("mutation", ["url", "history-callback", "history-value", "peer-lost"])
+def test_bound_text_gate_rejects_coherent_wrong_wire(mutation):
+    import base64
+    from google.protobuf.json_format import MessageToDict
+    from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
+
+    capture = json.loads((HERE / "reference-browser/queryparams/text-bound-peer/trace.json").read_text(encoding="utf-8"))
+    run, changed = -1, False
+    for frame in capture["frames"]:
+        if frame["direction"] == "client->server":
+            run += 1
+            continue
+        if run != (0 if mutation == "url" else 4):
+            continue
+        message = ForwardMsg()
+        message.ParseFromString(base64.b64decode(frame["base64"]))
+        element = message.delta.new_element
+        if mutation == "url" and message.WhichOneof("type") == "page_info_changed":
+            message.page_info_changed.query_string += "TAIL"
+        elif mutation == "history-value" and element.WhichOneof("type") == "text_input" and element.text_input.query_param_key == "cjk_note":
+            element.text_input.value = "OTHER"
+        elif mutation != "url" and element.WhichOneof("type") == "json":
+            report = json.loads(element.json.body)
+            if mutation == "history-callback":
+                report["callbacks"].append("OTHER")
+            elif mutation == "history-value":
+                report["value"] = report["state"] = "OTHER"
+            else:
+                report["live"] = "ready"
+                report["peer_callbacks"] = []
+            element.json.body = json.dumps(report)
+        else:
+            continue
+        raw = message.SerializeToString()
+        frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(message, preserving_proto_field_name=True))
+        changed = True
+    assert changed
+    with pytest.raises(AssertionError):
+        read_bound_text_capture(True, capture)
 
 
 @pytest.mark.parametrize("mutation", ["callback-source", "assigned-value", "retention", "sync"])

@@ -314,9 +314,17 @@ def case_form_max_chars_cjk() -> None:
             st.session_state["length_callbacks"] = st.session_state.get("length_callbacks", []) + [st.session_state["cjk_note"]]
 
         widget = st.text_area if st.query_params.get("kind") == "area" else st.text_input
-        cjk = widget("中文", key="cjk_note", value=default, max_chars=limit, on_change=changed)
-        st.json({"phase": phase, "value": cjk, "state": st.session_state["cjk_note"],
-                 "callbacks": st.session_state.get("length_callbacks", [])})
+        cjk = widget("中文", key="cjk_note", value=default, max_chars=limit, on_change=changed,
+                     bind="query-params" if st.query_params.get("bind") == "on" else None)
+        report = {"phase": phase, "value": cjk, "state": st.session_state["cjk_note"],
+                  "callbacks": st.session_state.get("length_callbacks", [])}
+        if st.query_params.get("peer") == "on":
+            def peer_changed():
+                st.session_state["length_peer_callbacks"] = st.session_state.get("length_peer_callbacks", []) + [st.session_state["live"]]
+
+            report["live"] = st.text_input("Live", value="ready", key="live", on_change=peer_changed)
+            report["peer_callbacks"] = st.session_state.get("length_peer_callbacks", [])
+        st.json(report)
     else:
         cjk = st.text_input("中文", key="cjk_note", max_chars=5)
     length = len(cjk) if isinstance(cjk, str) else 0

@@ -247,3 +247,14 @@ new default still applies. This corrects the existing registration fallback,
 not native type/constraint validation. Other widget kinds, callback-side writes,
 orphan IDs, query-binding/fragment combinations and current browser remount/IME
 remain outside this new evidence.
+
+
+2026-10-31 bound text-input follow-up: [single](../tests/reference/reference-browser/queryparams/text-bound/trace.json)
+and [unbound peer](../tests/reference/reference-browser/queryparams/text-bound-peer/trace.json)
+retain 24 native runs/74 ordered projections. URL truncation now corrects the
+bound query value, and history ignores known bound input before callbacks while
+preserving unbound/unknown inputs. Ordinary frontend/code, history URL-over-code,
+missing/empty and recovery semantics are measured. This does not extend browser
+navigation/IME or all malformed history types. text_area query binding is an SDK/
+protocol capability currently missing its Rust public builder; the proposal in
+architecture.md is pending user confirmation and has not been implemented.

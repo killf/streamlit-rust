@@ -1053,3 +1053,56 @@ callback-side writes, query binding/fragment/rerun or current browser remount/IM
 Three matrix entries gain evidence without status upgrade; inventory remains
 130 partial. M3/M5/M7 and the full goal stay open, pending architecture choices
 are unchanged. Existing colconfig_params work is kept outside this commit/push.
+
+
+### 2026-10-31 text-input URL truncation and bound history callbacks
+
+Corrected selected query-seed serialization through the existing pending URL
+update, plus omission of prior registered query-bound widget states before
+history input application/callback collection. Existing private widget metadata
+is used; unbound and unknown inputs retain their original order. No URL-loading
+or normal callback reorder, public API, module/dependency or queue change.
+TextAreaOptions.bind is a separate proposal, not an implemented method.
+
+The existing forms probe gains opt-in binding/peer parameters without changing
+old cases. Single-control text-bound reference has 12 runs/162 original frames/
+31 ordered projections; text-bound-peer has 12 runs/174 frames/43 projections.
+All 74 projections and identity relations match Rust. Each capture records seven
+URL writes; URL-only and history truncation, default-equivalent clearing with
+ordinary retained state, frontend/native/history priority, missing/empty values,
+repeated truncated values and recovery match. History-bound string submissions
+do not produce callbacks, while all three unbound peer callbacks remain.
+The unchanged-repeat guarantee also has a focused Rust unit; that precise
+unchanged-repeat case is not claimed as a new native SDK capture.
+
+Pre-fix public unit read abc but kept bound=abcdef in the store; pre-fix real WS
+comparison failed. Logs target/text-bound-unit-before.log and text-bound-before.log
+retain those failures. The latter used the original combined test name before
+splitting single/peer tests. After correction, code/all-targets Clippy -D warnings,
+Rustfmt, URL/store unit, history-admission unit and both real-WS comparisons passed
+(text-bound-clippy.log, text-bound-url-unit.log, text-bound-history-unit.log,
+text-bound-integration.log under target/). Full workspace passed 275: library
+268, ledger 1, macros 2, rustdoc 4. Only the two existing
+navigation_pages_switch_and_session_state_match_the_measured_wire and
+rerun_queue_messages_match_frozen_reference were excluded. This is not full
+workspace green (target/text-bound-workspace.log); existing MSVC linker stdout
+warning remains.
+
+134 related query/matrix/docs checks passed with DeprecationWarning as error
+(target/text-bound-final-gates.log). Raw PB/summary, SDK versions/session groups,
+requests/IDs/history flags, exact ordered URLs, original binding/default/limit/
+sync fields, state/peer values and callbacks are checked. Four coherent mutations
+reject wrong URL correction, an old bound callback/value and lost peer state.
+Old captures were not rewritten; new references are queryparams/text-bound and
+text-bound-peer. Servers/sockets closed and ports 58105/51632 were read back free.
+The prior full reference suite result is not presented as current full validation.
+
+The TextAreaOptions.bind public-method proposal was prepared with the engineering
+change design skill in architecture.md. User confirmation is required by the
+user's AGENTS.md 2, not an extra skill approval rule; the async question remains
+pending and no method was implemented. Native text_input work continued under
+the existing full-compatibility scope. Matrix adds scoped evidence/gap notes;
+130 partial, M3/M5/M7 and the full goal remain open. No browser navigation/IME,
+all malformed history types, multiple binding removal or generic JSON/queue/
+identity completion is claimed. Existing colconfig_params changes stay outside
+this batch's commit/push.

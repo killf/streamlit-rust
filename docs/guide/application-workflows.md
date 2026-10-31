@@ -247,7 +247,9 @@ Rust 已采纳方案 A：显示转换保留真实行数并合成虚拟 RangeInde
 
 **控件创建参数边界**（[widget-params 参考](../../tests/reference/reference-browser/widget-params/README.md)，8/8 字段一致）：`number_input` float 路径实测——`format "%0.2f"`、默认步长 0.01、无界时携带 f64 哨兵（±1.797e308）、整型为 `"%d"` 且无界时不带 min/max 旗标；`RadioOptions` 的 `index(None)`（不发 default）与 `horizontal(true).captions([...])`；`TextAreaOptions` 的 `max_chars/placeholder`（消息内）与 `height(pixels)`（元素级配置）；`MultiselectOptions::max_selections`。on_change 回调、format_func 往返与交互期行为未纳入本切片。
 
-**文本长度**：`TextInputOptions::max_chars(n)` 和 `TextAreaOptions::max_chars(n)` 对默认值和前端提交按 Unicode 码点截断；仅截掉的后缀变化不会再次触发 callback。`0` 表示截为空，不设上限则保留全文，`None` 默认值与空字符串仍有区别。应用通过会话状态赋的字符串保留原长，后续前端提交才再次截断。[72 轮原生参考](../../tests/reference/reference-browser/queryparams/README.md)已对照返回值、状态、callback 及控件同步；同 key 的控件在 `max_chars` 改变且本轮未显式写入会话状态时重置为新默认值，回到旧上限也不会恢复旧输入；同上限仅改默认值则保留当前值，已按 24 轮原生参考核验。另有 20 轮参考确认：旧控件输入先按上一轮上限触发 callback，随后执行本轮代码赋值；代码赋值不会因同轮上限变化被新默认值覆盖。本批未扩大浏览器输入/IME、查询绑定长度或动态上限重挂载的验收范围。
+**文本长度**：`TextInputOptions::max_chars(n)` 和 `TextAreaOptions::max_chars(n)` 对默认值和前端提交按 Unicode 码点截断；仅截掉的后缀变化不会再次触发 callback。`0` 表示截为空，不设上限则保留全文，`None` 默认值与空字符串仍有区别。应用通过会话状态赋的字符串保留原长，后续前端提交才再次截断。[72 轮原生参考](../../tests/reference/reference-browser/queryparams/README.md)已对照返回值、状态、callback 及控件同步；同 key 的控件在 `max_chars` 改变且本轮未显式写入会话状态时重置为新默认值，回到旧上限也不会恢复旧输入；同上限仅改默认值则保留当前值，已按 24 轮原生参考核验。另有 20 轮参考确认：旧控件输入先按上一轮上限触发 callback，随后执行本轮代码赋值；代码赋值不会因同轮上限变化被新默认值覆盖。浏览器输入/IME与动态上限重挂载仍未验收，查询绑定的原生结果见下一段。
+
+**绑定文本与历史导航**：现有 `TextInputOptions::bind(TextBind::QueryParams)` 对超长 URL 值截断后会修正 URL；历史请求先忽略已注册绑定控件携带的旧输入和 callback，未绑定控件的输入仍正常处理。[两组原生参考](../../tests/reference/reference-browser/queryparams/README.md)覆盖普通前端/代码优先级、history 的 URL 优先级及缺省恢复；这不是新增浏览器操作验收。`text_area` 的公开绑定入口仍待确认，当前不能使用对应 builder。
 
 **时间/滑块创建参数**（[temporal-params 参考](../../tests/reference/reference-browser/temporal-params/README.md)，5/5 一致、零实现改动确认）：`date_input` 的显式 min/max 透传 ISO、**未给边界时为 value ±10 年窗**、自定义 `format` 原样上 wire；`select_slider` 双端点默认 → `SELECT_SLIDER` 类型 + 选项索引端点（min=0 省略）；`time_input` 的 `step` 以字符串上 wire、`format "24h"`。range date_input 与交互期日历提交未纳入。
 

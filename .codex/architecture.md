@@ -755,3 +755,66 @@ other widget/native type, unregistered historical-ID input, callback-side writes
 query-bound source/length combinations, fragment/rerun or browser remount/IME.
 Those and existing pending generic identity/JSON/API/queue decisions remain open.
 The full goal and 130 partial denominator remain unchanged.
+
+
+### 待确认：TextAreaOptions 复用现有 TextBind 接口（2026-10-31）
+
+需求：补齐锁定 Python 1.66.1 text_area 的 query-params 绑定。当前 SDK
+text_area 已传递 bind 到 register_widget，TextArea.proto 已有 query_param_key；
+Rust TextAreaOptions 尚无 bind，text_area 注册固定 query=None，调用方无法表达。
+既有 TextInputOptions.bind(TextBind) 和共享 QueryBinding 已提供所需状态流程。
+
+建议只在 TextAreaOptions 新增 `.bind(TextBind)`，默认 TextBind::None，复用
+已有枚举，不另建 AreaBind 或通用配置层。示例：
+`TextAreaOptions::new("备注", "base").key("note").bind(TextBind::QueryParams)`。
+绑定需要显式普通 key，沿用 TextInput 的缺 key/保留 embedding key 拒绝规则。
+注册设置 QueryBinding{clearable:true}，用现有 Text codec 和状态来源规则；
+沿用 set_query_binding/flush_query_update，发出已有 query_param_key 字段。
+已有不绑定的调用保持不绑定；不新增依赖、模块、配置或后台服务。
+
+生产拟改 streamlit/src/widget_api.rs：Options 字段/默认值/公开 builder，
+以及 text_area 中的既有绑定校验、WidgetSpec/query 注册和协议字段。测试复用
+同文件 API 单元、streamlit/tests/runtime/queryparams.rs 及现有 forms/native
+参考；指南、矩阵和验收按实际结果同步。不会借此扩展其他控件的绑定接口、
+persist_state、无损 JSON、通用 NewElement 身份或发送队列方案。
+
+确认后验证：默认/缺 key/保留 key、初始 URL/默认值折叠、前端/代码/history
+优先级、长度截断后的 URL 修正、取消绑定及普通重跑；对照锁定 SDK 的真实
+WS 原始消息/状态，再验证格式、Clippy、相关 Python 与工作区。浏览器 UI
+仍须独立实测，协议成功不代替该验收。本节是开工前方案，尚未新增方法或
+生产绑定流程。依用户 AGENTS.md 第 2 条，新增公共接口需确认；这不是技能
+新增的审批要求。现有 text_input 的长度/URL 修正继续独立验证。
+
+
+### Bound text URL correction and history input omission (2026-10-31)
+
+The existing text_input query-binding path returned truncated values without
+correcting the URL; the SDK auto-corrects a selected deserialized value when its
+serialization differs from the parsed URL value. Existing registration now uses
+codec.query_text and the pending binding update only for that difference, then
+the existing flush publishes it before the widget. Default folding keeps its
+existing branch. Unchanged repeated values are not collapsed merely by seeding.
+
+History input admission is also corrected: prior registered query-bound IDs are
+omitted before begin_widgets applies input/collects callbacks. The private
+SessionState filter reads existing record.query_bound metadata, retains unknown
+and unbound inputs in order, and is called only for a fresh history request.
+URL loading, ordinary callback execution, internal rerun and queue behavior are
+not reordered. The old disabled/malformed-input rules are otherwise unchanged.
+
+Two unchanged-output probe modes are retained independently: text-bound (12 runs,
+162 frames/31 events) and opt-in unbound peer (12 runs,174 frames/43 events).
+They measure URL truncation/default folding, frontend/native/history priority,
+missing/empty/default/repeated values, recovery, and three peer callbacks on
+history requests despite omitted bound inputs. Typed peer callback sharing stays
+in the existing test helper. Native API, exact input/flag/ID/URL/field/state and
+identity relations are checked; four coherent mutations reject wrong correction,
+bound history callback/value and swallowed peer state. Units protect unchanged
+repeats and retained unbound/unknown admission.
+
+No public method/module/dependency was added. The separate TextAreaOptions.bind
+proposal above remains pending under AGENTS.md 2 and no production area binding
+was implemented. Current results are native WS, not fresh browser/IME, arbitrary
+bad history oneofs, all binding removal or cross-page/fragment coverage. Generic
+identity, JSON/public API and broader queue decisions remain pending; full goal
+and the 130 partial inventory remain open.
