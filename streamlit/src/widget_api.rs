@@ -2363,7 +2363,15 @@ impl<C: AppendChild> InputWidgets for C {
         if !options.options.is_empty() && options.index.is_some_and(|index| index >= options.options.len()) {
             return Err(WidgetError::InvalidValue("radio index is outside options".into()));
         }
-        let default = options.index.map(Value::from).unwrap_or(Value::Null);
+        // 原始 index 参与身份，已有空状态只调整本轮协议默认值。
+        let wire_index = if let Some(key) = c.key.as_deref()
+            && self.get_app().lock().session_state.get::<Value>(key)?.is_some_and(|value| value.is_null())
+        {
+            None
+        } else {
+            options.index
+        };
+        let default = if options.options.is_empty() { Value::Null } else { wire_index.map(Value::from).unwrap_or(Value::Null) };
         let identity = c.identity_in_form(
             &form_id,
             &if c.key.is_some() {
@@ -2403,12 +2411,14 @@ impl<C: AppendChild> InputWidgets for C {
                 id,
                 label: c.label,
                 form_id,
-                default: options.index.map(|index| index as i32),
+                default: wire_index.map(|index| index as i32),
                 options: options.options.clone(),
                 horizontal: options.horizontal,
                 captions: options.captions.unwrap_or_default(),
                 help: c.help,
-                disabled: c.disabled || options.options.is_empty(),
+                disabled: c.disabled,
+                raw_value: if set_value { selected } else { None },
+                set_value,
                 label_visibility: c.visibility.wire(),
                 ignore_rerun: c.ignore_rerun,
                 ..Default::default()
@@ -4930,6 +4940,100 @@ mod tests {
             assert!(wire.try_recv().is_ok(), "the first valid form is still rendered");
         }
         assert!(wire.try_recv().is_err(), "failed form calls must not append their partial children");
+    }
+
+    #[test]
+    fn radio_empty_options_and_native_none_reset_sync_match_reference() -> anyhow::Result<()> {
+        let state = SessionState::default();
+        let mut ids: Vec<Vec<String>> = Vec::new();
+        let groups = [0, 0, 1, 1, 2, 0, 3, 3, 3, 0, 0, 0, 0, 0];
+        let phases = [
+            "load",
+            "edit",
+            "empty",
+            "empty-observe",
+            "empty-none",
+            "restore",
+            "none",
+            "none-edit",
+            "none-observe",
+            "restore-index",
+            "assign-none",
+            "observe",
+            "assign-missing",
+            "missing-observe",
+        ];
+        let expected = [
+            (Some("Alpha"), Some("Alpha")),
+            (Some("Beta"), Some("Beta")),
+            (None, None),
+            (None, None),
+            (None, None),
+            (Some("Alpha"), None),
+            (None, None),
+            (Some("Beta"), Some("Beta")),
+            (Some("Beta"), Some("Beta")),
+            (Some("Alpha"), Some("Beta")),
+            (Some("Alpha"), None),
+            (Some("Alpha"), None),
+            (Some("Alpha"), Some("Alpha")),
+            (Some("Alpha"), Some("Alpha")),
+        ];
+
+        for (index, phase) in phases.iter().enumerate() {
+            // 1. 输入先应用，再执行本轮代码赋值；空选项和 index=None 分别保留原始身份。
+            let incoming = if matches!(*phase, "edit" | "none-edit") {
+                ids[index - 1]
+                    .iter()
+                    .map(|id| WidgetState {
+                        id: id.clone(),
+                        value: Some(widget_state::Value::StringValue("Beta".into())),
+                    })
+                    .collect()
+            } else {
+                Vec::new()
+            };
+            assert!(state.begin_widgets(incoming).is_empty());
+            if *phase == "assign-none" {
+                state.set("choice", Value::Null)?;
+            } else if *phase == "assign-missing" {
+                state.set("choice", "Missing")?;
+            }
+            let (st, mut wire) = app(&state);
+            let labels = if phase.starts_with("empty") { Vec::new() } else { vec!["Alpha", "Beta", "Charlie"] };
+            let raw_none = matches!(*phase, "none" | "none-edit" | "none-observe" | "empty-none");
+            let default = (!raw_none).then_some(0);
+            let values = [st.radio(RadioOptions::new("Choice", labels.clone()).index(default))?, st.radio(RadioOptions::new("Keyed choice", labels).index(default).key("choice"))?];
+            assert_eq!((values[0].as_deref(), values[1].as_deref()), expected[index], "{phase}");
+
+            // 2. 核对 None、失效旧值和代码赋值的默认索引、同步标志及实际同步标签。
+            let mut current = Vec::new();
+            for (position, label) in ["Choice", "Keyed choice"].iter().enumerate() {
+                let Some(forward_msg::Type::Delta(proto::Delta {
+                    r#type: Some(delta::Type::NewElement(element)), ..
+                })) = wire.try_recv()?.r#type
+                else {
+                    panic!()
+                };
+                let sync = position == 1 && matches!(*phase, "empty" | "assign-none" | "assign-missing");
+                assert_eq!(element.has_one_shot_effect, sync.then_some(true), "{phase}");
+                let Some(element::Type::Radio(widget)) = element.r#type else { panic!() };
+                assert_eq!(widget.label, *label);
+                let wire_none = raw_none || position == 1 && matches!(*phase, "empty-observe" | "restore" | "assign-none" | "observe");
+                assert_eq!(widget.default, (!wire_none).then_some(0), "{phase}: {position}");
+                assert_eq!(widget.set_value, sync, "{phase}");
+                assert_eq!(widget.raw_value.as_deref(), (sync && *phase == "assign-missing").then_some("Alpha"));
+                assert!(!widget.disabled);
+                for earlier in 0..index {
+                    assert_eq!(widget.id == ids[earlier][position], position == 1 || groups[index] == groups[earlier], "{phase}: {position}/{earlier}");
+                }
+                current.push(widget.id);
+            }
+            ids.push(current);
+            state.finish_widgets();
+        }
+
+        Ok(())
     }
 
     #[test]

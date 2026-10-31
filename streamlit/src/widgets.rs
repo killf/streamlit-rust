@@ -910,6 +910,8 @@ impl SessionState {
 
         // 数字控件的范围重置保留本轮默认值，不改变其他 codec 的错误路径。
         let number_default = matches!(codec, Codec::NumberInput { .. }).then(|| default.clone());
+        let radio_default = matches!(codec, Codec::Radio(_)).then(|| default.clone());
+        let mut radio_reset = false;
         let url_resolved = query_seed.is_some();
         let value = if let Some(value) = query_seed {
             value
@@ -924,7 +926,15 @@ impl SessionState {
                 if let Some(key) = key
                     && let Some(native) = values.get(key)
                 {
-                    codec.read_session_value(native, if registry.dirty_keys.contains(key) { None } else { registry.records.get(&id) })?
+                    // radio 的旧字符串不在新选项中时恢复本轮默认值；其他类型仍沿用原错误路径。
+                    if let (Codec::Radio(options), Value::String(label), Some(default)) = (&codec, native, &radio_default)
+                        && !options.contains(label)
+                    {
+                        radio_reset = true;
+                        default.clone()
+                    } else {
+                        codec.read_session_value(native, if registry.dirty_keys.contains(key) { None } else { registry.records.get(&id) })?
+                    }
                 } else {
                     registry.records.get(&id).map(|record| record.value.clone()).unwrap_or(default)
                 }
@@ -951,7 +961,7 @@ impl SessionState {
         // types; user callbacks and option cloning never run under these locks.
         let resolved = resolve(&value)?;
         let restored_value = restored_default.as_ref().is_some_and(|default| &value != default);
-        let set_value = restored_value || range_reset || url_resolved || code_assigned || (disabled && registry.received.contains(&id));
+        let set_value = restored_value || range_reset || radio_reset || url_resolved || code_assigned || (disabled && registry.received.contains(&id));
         // 2. 默认值折叠不重复广播前端已经清空的 URL；代码改值则显式同步。
         if query.is_some()
             && let Some(key) = key

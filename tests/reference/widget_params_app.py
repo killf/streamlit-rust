@@ -1,7 +1,17 @@
 """Emit widget creation-wire parameter variants for the M3 differential."""
 import streamlit as st
 
-if st.query_params.get("probe") == "radio-identity":
+if st.query_params.get("probe") == "radio-empty":
+    phase = st.query_params.get("phase", "load")
+    if phase == "assign-none":
+        st.session_state["choice"] = None
+    elif phase == "assign-missing":
+        st.session_state["choice"] = "Missing"
+    labels = [] if phase.startswith("empty") else ["Alpha", "Beta", "Charlie"]
+    index = None if phase in ("none", "none-edit", "none-observe", "empty-none") else 0
+    values = [st.radio("Choice", labels, index=index), st.radio("Keyed choice", labels, index=index, key="choice")]
+    st.json({"phase": phase, "values": values})
+elif st.query_params.get("probe") == "radio-identity":
     phase = st.query_params.get("phase", "load")
     options = {}
     if phase in ("width", "width-edit"):

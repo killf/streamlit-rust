@@ -2266,3 +2266,19 @@ widget 参数模块 149 项、相关 query/widget/temporal/pickers/matrix/docs �
 按代码检查→单元→原生 WS→工作区验证；编辑 Rust 的 rustfmt 与全工作区/all-target Clippy 通过，工作区 311 项通过（304 库、1 ledger、2 宏、4 rustdoc）。仍精确排除原 navigation_pages_switch_and_session_state_match_the_measured_wire 与 rerun_queue_messages_match_frozen_reference 两项待决回归，不能称完整工作区全绿。既有 MSVC linker stdout warning 保留；日志索引 target/radio-identity-{red,green,clippy,build,workspace,reference}.log。SDK 服务由采集器停止，Rust 修前 PID 68324、修后 47668 按精确可执行路径核验后停止，57917/8599 无监听。
 
 本批未重采真实浏览器；动态 index=None、caption 实际显示与格式、空选项/无效类型/错误顺序、回调/绑定/表单/跨页及其他组合继续开放。仅更新 st.radio 矩阵和机器清单，仍为 130 partial；统一 hash、共享状态、队列扩展、select_slider 与多小时浸泡的待决定状态保持。用户 colconfig_params 修改独立保留，未合并、发布或部署；M3/M5/M7 与长期 Goal 未关闭。
+
+## Current radio empty and None state validation (2026-11-01)
+
+锁定 SDK 1.66.1 的公开 AppTest 初探后，十四轮原生 WS 确认：空选项返回 None，不强制写 disabled；有 key 的旧标签失效时清空并同步，后续恢复选项仍保留 None。index=None 与前端选择可以往返；代码赋 None 时省略协议 default，身份仍取原始 index；代码赋列表外字符串 Missing 时恢复有效默认 Alpha，并将原生状态和前端同步。普通结束清理后恢复无 key 的旧身份从默认值开始。
+
+Rust 修前在空选项轮出现错误，另遗漏显式空状态的协议 default 处理，以及 Radio 的 set_value/raw_value；修前原始证据为 14 个成功完成的脚本轮次、106 帧/37 Element，其中 empty/empty-observe 显示应用外层捕获的错误消息，不能视为功能成功。新增公开 API 单元回归真实报 value does not match radio；中间修复又由回归发现只有外层一次性标志、没有 Radio.set_value 的遗漏，均已修复。
+
+widget_api.rs 的 radio 现在区分原始 index 与本轮 wire_index；空选项使用 Null 作为注册默认，已有 keyed None 省略线上的 default；发送 Radio.set_value/raw_value，并保留无选项时原 disabled。widgets.rs 仅在 Codec::Radio 的原生字符串不在新选项时，恢复本轮有效默认并标记同步；其他原生类型继续原错误路径，原有优先级、回调分派与状态来源结构未改。无公共 API/依赖变动，不选择待决的共享状态来源或发送队列方案。
+
+固定证据为 [Python](../tests/reference/reference-browser/widget-params/radio-empty/trace.json)、[Rust 修前](../tests/browser/rust-widget-params/radio-empty/before/trace.json)、[Rust 修后](../tests/browser/rust-widget-params/radio-empty/trace.json)。修后每端 14 轮/111 原始 WS 帧/42 完整 Element，仅归一化不透明 ID 和 JSON 文本后逐字段一致，包括可选 default 的有无、disabled、set_value、raw_value 与 has_one_shot_effect。无 key 身份四类，有 key 一类；输入均使用前轮实际 ID/string_value。源码 SHA256 绑定两份示例与采集器，Rust 另存 widget_api、widgets 及二进制 SHA256。
+
+参考门验证返回值、身份、同步和完成/清理，七类同步改写原始帧与汇总的负例必须失败：空选项强制禁用、错误 wire default、缺失同步标志、错误同步标签、恢复旧值、过期输入 ID 与错误无 key 身份。参数模块 171 项、相关 query/widget/temporal/pickers/matrix/docs 门 422 项通过。同一二进制另重放原十二个展示参数场景，95 帧/36 Element 继续与冻结参考一致，本地结果 target/radio-empty-identity-recheck/trace.json；未重写旧成功参考。
+
+代码检查→单元→原生 WS→工作区顺序验证；编辑 Rust 的 rustfmt、全工作区/all-target Clippy 通过，工作区 312 项通过（305 库、1 ledger、2 宏、4 rustdoc）。仍精确排除原 navigation_pages_switch_and_session_state_match_the_measured_wire 与 rerun_queue_messages_match_frozen_reference 两项待决回归，不能称完整工作区全绿。既有 MSVC linker stdout warning 保留；日志索引 target/radio-empty-{red,green,clippy,build,workspace,reference}.log。SDK 服务由采集器停止，Rust 修前 PID 57192、修后 54516 按精确可执行路径核验后停止，50880/8599 无监听。
+
+本批未采真实浏览器空状态/清空界面，非字符串原生状态、晚到输入与代码赋值竞争、回调/URL/表单/跨页、其他默认和错误类型仍待测。st.radio 矩阵和机器清单同步，仍为 130 partial；其他待决方案保持，用户 colconfig_params 改动独立保留，未合并、发布或部署。M3/M5/M7 与长期 Goal 继续开放。

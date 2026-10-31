@@ -1014,16 +1014,24 @@ RADIO_PHASES = ("load", "edit", "width", "width-edit", "horizontal", "horizontal
 RADIO_GROUPS = (0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 0, 0)
 
 
-def check_radio_identity(capture):
+RADIO_EMPTY_PHASES = ("load", "edit", "empty", "empty-observe", "empty-none", "restore", "none", "none-edit", "none-observe", "restore-index", "assign-none", "observe", "assign-missing", "missing-observe")
+RADIO_EMPTY_GROUPS = (0, 0, 1, 1, 2, 0, 3, 3, 3, 0, 0, 0, 0, 0)
+RADIO_EMPTY_VALUES = (("Alpha", "Alpha"), ("Beta", "Beta"), (None, None), (None, None), (None, None), ("Alpha", None), (None, None),
+                      ("Beta", "Beta"), ("Beta", "Beta"), ("Alpha", "Beta"), ("Alpha", None), ("Alpha", None), ("Alpha", "Alpha"), ("Alpha", "Alpha"))
+
+
+def check_radio_identity(capture, *, empty=False):
+    phases = RADIO_EMPTY_PHASES if empty else RADIO_PHASES
+    groups = RADIO_EMPTY_GROUPS if empty else RADIO_GROUPS
     assert capture["successful"] and "producer_error" not in capture and capture["reference_version"] == "1.66.1"
-    assert capture["runtime"] in ("python", "rust") and capture["finishes"] == [0] * 12
+    assert capture["runtime"] in ("python", "rust") and capture["finishes"] == [0] * len(phases)
     assert capture["cleanup"]["websocket_closed"] and capture["cleanup"]["server_stopped" if capture["runtime"] == "python" else "caller_server_stopped"]
-    assert len(capture["frames"]) == 95 and len(capture["elements"]) == 36
+    assert len(capture["frames"]) == len(phases) * 8 - 1 and len(capture["elements"]) == len(phases) * 3
     runs = color_runs(capture, ("radio", "json"))
     history, normalized, sessions, run_ids = [], [], set(), set()
-    for index, (phase, run) in enumerate(zip(RADIO_PHASES, runs, strict=True)):
+    for index, (phase, run) in enumerate(zip(phases, runs, strict=True)):
         request = run["request"]
-        assert request.query_string == "probe=radio-identity&phase=" + phase and not request.is_history_navigation
+        assert request.query_string == "probe=" + ("radio-empty" if empty else "radio-identity") + "&phase=" + phase and not request.is_history_navigation
         assert len(run["sessions"]) == 1 and run["finishes"] == [0]
         session = run["sessions"][0]
         assert session.initialize.environment_info.streamlit_version == "1.66.1"
@@ -1033,17 +1041,22 @@ def check_radio_identity(capture):
         ids = []
         for position, (_, widget, element) in enumerate(run["entries"][:2]):
             assert widget.label == ("Choice" if position == 0 else "Keyed choice") and widget.id
-            assert widget.HasField("default") and widget.default == 0 and list(widget.options) == ["Alpha", "Beta", "Charlie"]
+            wire_none = empty and (phase in ("none", "none-edit", "none-observe", "empty-none") or position == 1 and phase in ("empty-observe", "restore", "assign-none", "observe"))
+            assert widget.HasField("default") == (not wire_none) and widget.default == 0
+            assert list(widget.options) == ([] if empty and phase.startswith("empty") else ["Alpha", "Beta", "Charlie"])
             assert widget.horizontal == (phase in ("horizontal", "horizontal-edit"))
             assert list(widget.captions) == (["First", "Second", "Third"] if phase in ("captions", "captions-edit") else [])
-            assert not widget.set_value and not widget.disabled and not widget.form_id and not widget.help and not widget.ignore_rerun
-            assert widget.label_visibility.value == 0 and not element.HasField("has_one_shot_effect")
+            sync = empty and position == 1 and phase in ("empty", "assign-none", "assign-missing")
+            assert widget.set_value == sync and not widget.disabled and not widget.form_id and not widget.help and not widget.ignore_rerun
+            assert widget.label_visibility.value == 0 and element.HasField("has_one_shot_effect") == sync and element.has_one_shot_effect == sync
+            assert widget.HasField("raw_value") == (sync and phase == "assign-missing") and widget.raw_value == ("Alpha" if sync and phase == "assign-missing" else "")
             assert MessageToDict(element.width_config, preserving_proto_field_name=True) == ({"pixel_width": 320} if phase in ("width", "width-edit") else {"use_content": True})
             for earlier in range(index):
-                assert (widget.id == history[earlier][position]) == (position == 1 or RADIO_GROUPS[index] == RADIO_GROUPS[earlier]), (phase, position, earlier)
+                assert (widget.id == history[earlier][position]) == (position == 1 or groups[index] == groups[earlier]), (phase, position, earlier)
             ids.append(widget.id)
         history.append(ids)
-        assert json.loads(run["entries"][2][1].body) == {"phase": phase, "values": ["Beta" if phase.endswith("edit") else "Alpha", "Beta" if index else "Alpha"]}
+        values = list(RADIO_EMPTY_VALUES[index]) if empty else ["Beta" if phase.endswith("edit") else "Alpha", "Beta" if index else "Alpha"]
+        assert json.loads(run["entries"][2][1].body) == {"phase": phase, "values": values}
         assert [capture["elements"][index * 3 + i]["delta_path"] for i in range(3)] == [[0, i] for i in range(3)]
         incoming = request.widget_states.widgets
         if phase.endswith("edit"):
@@ -1060,8 +1073,8 @@ def check_radio_identity(capture):
                 fields[kind]["body"] = json.loads(fields[kind]["body"])
             normalized_run.append(fields)
         normalized.append(normalized_run)
-    assert len(sessions) == 1 and len(run_ids) == 12
-    assert [len({ids[i] for ids in history}) for i in range(2)] == [5, 1]
+    assert len(sessions) == 1 and len(run_ids) == len(phases)
+    assert [len({ids[i] for ids in history}) for i in range(2)] == ([4, 1] if empty else [5, 1])
     return normalized
 
 
@@ -1128,6 +1141,76 @@ def test_radio_gate_rejects_coherent_wrong_wire(mutation):
                             "delta_path": list(m.metadata.delta_path)} for m in frames(capture) if isinstance(m, ForwardMsg) and m.WhichOneof("type") == "delta"]
     with pytest.raises(AssertionError):
         check_radio_identity(capture)
+
+
+@pytest.mark.parametrize("root", (PYTHON, RUST), ids=("python", "rust"))
+def test_radio_empty_none_and_native_state(root):
+    check_radio_identity(read(root / "radio-empty/trace.json"), empty=True)
+
+
+def test_radio_empty_complete_elements_match_reference():
+    captures = [read(root / "radio-empty/trace.json") for root in (PYTHON, RUST)]
+    assert captures[0]["producer_sources_sha256"] == captures[1]["producer_sources_sha256"] and captures[1]["semantic_match"] is True
+    assert check_radio_identity(captures[0], empty=True) == check_radio_identity(captures[1], empty=True)
+
+
+def test_radio_empty_before_errors_and_misses_sync():
+    capture = read(RUST / "radio-empty/before/trace.json")
+    assert capture["successful"] and "producer_error" not in capture and capture["finishes"] == [0] * 14
+    assert len(capture["frames"]) == 106 and len(capture["elements"]) == 37 and capture["semantic_match"] is False
+    assert capture["cleanup"] == {"websocket_closed": True, "caller_server_stopped": True}
+    runs = color_runs(capture, ("radio", "json", "markdown"))
+    assert [e[0] for e in runs[2]["entries"]] == ["markdown"]
+    assert "value does not match radio" in runs[2]["entries"][0][1].body
+    assert runs[10]["entries"][1][1].HasField("default") and not runs[10]["entries"][1][1].set_value
+    with pytest.raises(AssertionError):
+        check_radio_identity(capture, empty=True)
+
+
+@pytest.mark.parametrize("mutation", ("disabled-empty", "wire-default", "sync-flag", "raw-value", "restored-value", "stale-input", "unkeyed-id"))
+def test_radio_empty_gate_rejects_coherent_wrong_wire(mutation):
+    capture = read(PYTHON / "radio-empty/trace.json")
+    source = color_runs(capture, ("radio", "json"))
+    target = {"disabled-empty": 2, "wire-default": 3, "sync-flag": 2, "raw-value": 12, "restored-value": 5, "stale-input": 7, "unkeyed-id": 4}[mutation]
+    run = -1
+    for frame in capture["frames"]:
+        client = frame["direction"] == "client->server"
+        if client:
+            run += 1
+        if run != target:
+            continue
+        message = BackMsg() if client else ForwardMsg()
+        message.ParseFromString(base64.b64decode(frame["base64"]))
+        if client and mutation == "stale-input":
+            message.rerun_script.widget_states.widgets[0].id = source[0]["entries"][0][1].id
+        elif not client and message.WhichOneof("type") == "delta":
+            element = message.delta.new_element
+            kind = element.WhichOneof("type")
+            if kind == "radio" and mutation == "disabled-empty":
+                element.radio.disabled = True
+            elif kind == "radio" and element.radio.label == "Keyed choice" and mutation == "wire-default":
+                element.radio.default = 0
+            elif kind == "radio" and element.radio.label == "Keyed choice" and mutation == "sync-flag":
+                element.radio.set_value = False
+                element.ClearField("has_one_shot_effect")
+            elif kind == "radio" and element.radio.label == "Keyed choice" and mutation == "raw-value":
+                element.radio.raw_value = "Missing"
+            elif kind == "radio" and element.radio.label == "Choice" and mutation == "unkeyed-id":
+                element.radio.id = source[2]["entries"][0][1].id
+            elif kind == "json" and mutation == "restored-value":
+                report = json.loads(element.json.body)
+                report["values"][1] = "Alpha"
+                element.json.body = json.dumps(report)
+            else:
+                continue
+        else:
+            continue
+        raw = message.SerializeToString()
+        frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(message, preserving_proto_field_name=True))
+    capture["elements"] = [{"kind": m.delta.new_element.WhichOneof("type"), "fields": MessageToDict(getattr(m.delta.new_element, m.delta.new_element.WhichOneof("type")), preserving_proto_field_name=True),
+                            "delta_path": list(m.metadata.delta_path)} for m in frames(capture) if isinstance(m, ForwardMsg) and m.WhichOneof("type") == "delta"]
+    with pytest.raises(AssertionError):
+        check_radio_identity(capture, empty=True)
 
 
 def comparable(capture):

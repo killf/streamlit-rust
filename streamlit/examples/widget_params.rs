@@ -6,6 +6,21 @@ use ::streamlit::*;
 use streamlit::StreamlitApi;
 
 fn render(st: &Streamlit) -> Result<(), WidgetError> {
+    if st.query_params().get("probe").as_deref() == Some("radio-empty") {
+        let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
+        if phase == "assign-none" {
+            st.session_state().set("choice", serde_json::Value::Null)?;
+        } else if phase == "assign-missing" {
+            st.session_state().set("choice", "Missing")?;
+        }
+
+        let labels = if phase.starts_with("empty") { Vec::new() } else { vec!["Alpha", "Beta", "Charlie"] };
+        let index = if matches!(phase.as_str(), "none" | "none-edit" | "none-observe" | "empty-none") { None } else { Some(0) };
+        let values = [st.radio(RadioOptions::new("Choice", labels.clone()).index(index))?, st.radio(RadioOptions::new("Keyed choice", labels).index(index).key("choice"))?];
+        st.json(serde_json::json!({"phase": phase, "values": values}));
+        return Ok(());
+    }
+
     if st.query_params().get("probe").as_deref() == Some("radio-identity") {
         let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
         let mut plain = RadioOptions::new("Choice", ["Alpha", "Beta", "Charlie"]);
