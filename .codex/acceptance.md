@@ -340,6 +340,8 @@ M3 列参数切片。冻结 Python 参考 `tests/reference/reference-browser/col
 
 ## Current stability scenarios validation (2026-10-28)
 
+2026-11-01 更正：本节历史 `PrivateUsage` 数值来自错位的 Windows 结构，实际读取峰值提交内存，不能视为当前私有内存或据此推断增量/增长趋势；工作集字段不受影响。原始快照与更正后的六相重测保留于 `stability.json`，见[采样器更正](#current-m5-memory-counter-correction-2026-11-01)。下面原记录保留为历史证据。
+
 M5 稳定性批次：三个此前未测场景的可复现回归与测量（`streamlit/tests/runtime/stability.rs` + `tools/measure_stability.py` + [tests/performance/stability.json](../tests/performance/stability.json)，各 3 试次）：
 
 - **大数据/容量**：同一 WS 会话单轮渲染 100k 行 + 50k×4 列两表与 200k 点图表数据集（帧 >1MiB，回归自带 ≤64MiB 大帧读取器），解码行数逐表断言，第二轮 rerun 复现。测量：整测试进程峰值私有内存 52 MiB（含夹具），两轮墙钟 ~2.4s——观测值非阈值。
@@ -415,6 +417,8 @@ M3 可测面切片（文本族簇）。冻结 Python 参考 `tests/reference/ref
 M3 可测面切片（code/skeleton/logo 簇）。冻结 Python 参考 `tests/reference/reference-browser/code-logo-params/`（3 元素 + logo ForwardMsg）与 Rust 对照 **3/3 元素 + logo 帧逐字一致——零实现改动**：`st.code` 的任意 language 标签透传（无白名单）与 `line_numbers→show_line_numbers`；`st.skeleton` 默认空消息；`st.logo` emoji 判型 EMOJI、**缺省 size "medium"**、顶层 logo 字段承载（非 delta，元数据仅 activeScriptHash）。矩阵 st.code/st.skeleton 两条目原无 limitations 首获测量记录、st.logo 在既有 emoji 链上叠加端到端确认；清单再生成。边界：code wrap_lines/height、URL/路径 logo、icon_image/link 未纳入。
 
 ## Current M5 throughput/capacity/sustained validation (2026-10-29)
+
+2026-11-01 更正：本节历史“峰值私有内存”使用了误标的峰值提交内存字段；不能将其作为当前私有内存测量引用。原始数值保留，正确结构与当前六相重测见[采样器更正](#current-m5-memory-counter-correction-2026-11-01)。本次不重解释历史吞吐或正确性结果为当前版本结果。
 
 M5 三场景批次（`tools/measure_stability.py` 扩至六相，[tests/performance/stability.json](../tests/performance/stability.json) 各 3 试次冻结）：
 
@@ -2178,3 +2182,15 @@ temporal/pickers/matrix/docs 参考门 361 项通过（widget 参数模块 110 �
 工作区/all-target Clippy、编辑 Rust 的 rustfmt、diff --check 通过，既有 MSVC
 linker stdout warning 保留。日志为 target/color-unkeyed-{workspace,reference,clippy}.log。
 用户 colconfig_params 改动保持独立，未合并、发布或部署。
+
+## Current M5 memory counter correction (2026-11-01)
+
+`tools/measure_stability.py` 的 Windows 结构重复了 `QuotaPeakPagedPoolUsage`，漏掉一个 SIZE_T 槽位；本机声明大小为 72 字节，`PrivateUsage` 偏移为 64，实际对应 `PeakPagefileUsage`。依据 [Microsoft PROCESS_MEMORY_COUNTERS_EX](https://learn.microsoft.com/en-us/windows/win32/api/psapi/ns-psapi-process_memory_counters_ex) 补全字段后为 80 字节、偏移 72。`tools/measure_media_storage.py` 的声明原本正确，本批未改。
+
+红→绿验证在自有 Python 进程内调用真实 Windows API：提交并释放 64 MiB。旧字段在释放后仍为 77,828,096 字节，而当时正确的 PrivateUsage 已回落至 10,588,160；修正后的采样器读数为 12,869,632 → 80,113,664 → 12,869,632，峰值提交仍停在 80,113,664。结构大小、偏移、字段唯一性和分配/释放变化均已断言；它验证采样字段，不是 Rust 泄漏测试。
+
+当前生产源码的库测试二进制构建确认通过；Python 语法检查与上述 Windows API 验证通过后，运行现有六个真实 WS 场景，各三次，共 18 次全部通过：大载荷两轮、300 次 rerun/11 次触发、慢读者隔离、200 轮 256 行表吞吐、64→128 会话容量，以及五秒有界持续窗口。重测大载荷观测私有内存峰值为 42.66–46.12 MiB；吞吐约 1,269–1,305 rerun/s；五秒窗口 19,131–19,783 轮，触发计数均精确。这些是单机 debug 测试观测，不与旧版本或不同环境比较，不宣称性能改进或 SLO。
+
+[stability.json](../tests/performance/stability.json) 当前结果记录测试二进制、采样器与夹具 SHA256，以及生产源码提交 `37ce42200a46b7dd35e104cd5362d8bb194da8ee`；`sampler_validation` 保存红/绿实测，`superseded_snapshot.snapshot` 完整保留旧 JSON。旧 `max_observed_private_bytes` 必须按误标的峰值提交内存解释，不能反推出旧当前私有内存；原 WorkingSetSize 的偏移未变。本次不修改生产 Rust、公共接口、依赖或场景负载。
+
+相关 docs/matrix 门 52 项通过。日志位于 `target/stability-counters-{red,green,build,measure,reference}.log`，18 份原始试次日志位于 `target/stability-counters-measurement/`；冻结 JSON 保存测量值和红/绿结果，未提交这些本地日志。本批未重复不受影响的全工作区测试或浏览器采集；多小时浸泡、真实网络抖动与长期回收仍未验收，M3/M5/M7 与长期 Goal 保持开放。`select_slider` 三项行为修复、队列扩展、统一 hash 与共享状态方案继续等待各自决定。

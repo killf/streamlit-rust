@@ -1,6 +1,7 @@
 """Observe the M5 stability fixtures; no Cargo/compiler memory in the sample."""
 import ctypes
 from ctypes import wintypes
+import hashlib
 import json
 from pathlib import Path
 import platform
@@ -26,11 +27,13 @@ out.parent.mkdir(parents=True, exist_ok=True)
 
 
 class Counters(ctypes.Structure):
+    # PROCESS_MEMORY_COUNTERS_EX: each SIZE_T must keep its native offset.
+    # https://learn.microsoft.com/en-us/windows/win32/api/psapi/ns-psapi-process_memory_counters_ex
     _fields_ = [("cb", wintypes.DWORD), ("PageFaultCount", wintypes.DWORD)] + [
         (name, ctypes.c_size_t) for name in [
             "PeakWorkingSetSize", "WorkingSetSize", "QuotaPeakPagedPoolUsage",
-            "QuotaPeakPagedPoolUsage", "QuotaNonPagedPoolUsage", "PagefileUsage",
-            "PeakPagefileUsage", "PrivateUsage"]]
+            "QuotaPagedPoolUsage", "QuotaPeakNonPagedPoolUsage", "QuotaNonPagedPoolUsage",
+            "PagefileUsage", "PeakPagefileUsage", "PrivateUsage"]]
 
 
 query = ctypes.WinDLL("psapi", use_last_error=True).GetProcessMemoryInfo
@@ -77,6 +80,14 @@ result = {
     "measured_at_utc": time.strftime("%Y-%m-%dT%H:%M:%S+00:00", time.gmtime()),
     "environment": {"os": platform.platform(), "rustc": subprocess.run(["rustc", "--version"], capture_output=True, text=True).stdout.strip()},
     "binary": str(binary),
+    "binary_sha256": hashlib.sha256(binary.read_bytes()).hexdigest(),
+    "sampler": {
+        "sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+        "fixture_sha256": hashlib.sha256((Path(__file__).resolve().parents[1] / "streamlit/tests/runtime/stability.rs").read_bytes()).hexdigest(),
+        "api": "GetProcessMemoryInfo/PROCESS_MEMORY_COUNTERS_EX",
+        "structure_bytes": ctypes.sizeof(Counters),
+        "private_usage_offset": Counters.PrivateUsage.offset,
+    },
     "phases": phases,
     "scope": ("Whole isolated test process per fixture: one WS session rendering 100k/50k-row tables plus a "
               "200k-point chart (large_payloads); 300 reruns with 11 widget triggers on one session "

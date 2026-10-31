@@ -1,19 +1,27 @@
 {
   "schema_version": 1,
-  "measured_at_utc": "2026-10-28T18:42:03+00:00",
+  "measured_at_utc": "2026-10-31T17:26:54+00:00",
   "environment": {
     "os": "Windows-11-10.0.26300-SP0",
     "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)"
   },
   "binary": "C:\\Users\\killf\\github\\streamlit-rust\\target\\debug\\deps\\streamlit-38c7a00d3d51f06f.exe",
+  "binary_sha256": "69fe4b281f12fd6c07304dad79d9cbe50f72f756c6f5f0b7c7107f609095c01d",
+  "sampler": {
+    "sha256": "2b886c1e3343f13035922f6ae690b91f49f235e27d43cc0a3cefb82290486447",
+    "fixture_sha256": "d1e4f7678ce87b9e6ed95649d0ac5d6a3504d7f65eb500bc7242b0ce4ade51e9",
+    "api": "GetProcessMemoryInfo/PROCESS_MEMORY_COUNTERS_EX",
+    "structure_bytes": 80,
+    "private_usage_offset": 72
+  },
   "phases": {
     "large_payloads": [
       {
         "exit_code": 0,
-        "wall_seconds": 3.737121300000581,
-        "samples": 687,
-        "max_observed_private_bytes": 54947840,
-        "max_observed_working_set_bytes": 55881728,
+        "wall_seconds": 2.085280799976317,
+        "samples": 388,
+        "max_observed_private_bytes": 48365568,
+        "max_observed_working_set_bytes": 55685120,
         "measurement": {
           "scenario": "large_payloads",
           "runs": 2,
@@ -22,16 +30,16 @@
             50000
           ],
           "chart_points": 200000,
-          "total_wall_seconds": 3.6724468
+          "total_wall_seconds": 2.0403887
         },
         "log": "stability-large_payloads-1.log"
       },
       {
         "exit_code": 0,
-        "wall_seconds": 3.825317399998312,
-        "samples": 707,
-        "max_observed_private_bytes": 54898688,
-        "max_observed_working_set_bytes": 55848960,
+        "wall_seconds": 2.065987700014375,
+        "samples": 383,
+        "max_observed_private_bytes": 44728320,
+        "max_observed_working_set_bytes": 54878208,
         "measurement": {
           "scenario": "large_payloads",
           "runs": 2,
@@ -40,16 +48,16 @@
             50000
           ],
           "chart_points": 200000,
-          "total_wall_seconds": 3.7730937
+          "total_wall_seconds": 2.0330359
         },
         "log": "stability-large_payloads-2.log"
       },
       {
         "exit_code": 0,
-        "wall_seconds": 3.7749771000017063,
-        "samples": 696,
-        "max_observed_private_bytes": 54616064,
-        "max_observed_working_set_bytes": 55779328,
+        "wall_seconds": 1.8978776999865659,
+        "samples": 347,
+        "max_observed_private_bytes": 45633536,
+        "max_observed_working_set_bytes": 54935552,
         "measurement": {
           "scenario": "large_payloads",
           "runs": 2,
@@ -58,7 +66,7 @@
             50000
           ],
           "chart_points": 200000,
-          "total_wall_seconds": 3.7218518
+          "total_wall_seconds": 1.864411
         },
         "log": "stability-large_payloads-3.log"
       }
@@ -66,46 +74,46 @@
     "long_session_churn": [
       {
         "exit_code": 0,
-        "wall_seconds": 0.21545419999893056,
-        "samples": 34,
-        "max_observed_private_bytes": 2310144,
-        "max_observed_working_set_bytes": 16179200,
+        "wall_seconds": 0.11517000000458211,
+        "samples": 19,
+        "max_observed_private_bytes": 2125824,
+        "max_observed_working_set_bytes": 15024128,
         "measurement": {
           "scenario": "long_session_churn",
           "reruns": 300,
           "bump_triggers": 11,
           "final_rounds": 11,
-          "total_wall_seconds": 0.137837
+          "total_wall_seconds": 0.0819185
         },
         "log": "stability-long_session_churn-1.log"
       },
       {
         "exit_code": 0,
-        "wall_seconds": 0.2008101999963401,
-        "samples": 33,
-        "max_observed_private_bytes": 2265088,
-        "max_observed_working_set_bytes": 16285696,
+        "wall_seconds": 0.10389030000078492,
+        "samples": 17,
+        "max_observed_private_bytes": 2125824,
+        "max_observed_working_set_bytes": 15028224,
         "measurement": {
           "scenario": "long_session_churn",
           "reruns": 300,
           "bump_triggers": 11,
           "final_rounds": 11,
-          "total_wall_seconds": 0.1451567
+          "total_wall_seconds": 0.0726617
         },
         "log": "stability-long_session_churn-2.log"
       },
       {
         "exit_code": 0,
-        "wall_seconds": 0.2218875999969896,
-        "samples": 35,
-        "max_observed_private_bytes": 2310144,
-        "max_observed_working_set_bytes": 15994880,
+        "wall_seconds": 0.11795970000093803,
+        "samples": 20,
+        "max_observed_private_bytes": 1904640,
+        "max_observed_working_set_bytes": 15110144,
         "measurement": {
           "scenario": "long_session_churn",
           "reruns": 300,
           "bump_triggers": 11,
           "final_rounds": 11,
-          "total_wall_seconds": 0.1534995
+          "total_wall_seconds": 0.0879633
         },
         "log": "stability-long_session_churn-3.log"
       }
@@ -113,42 +121,42 @@
     "slow_reader_isolation": [
       {
         "exit_code": 0,
-        "wall_seconds": 0.06429409999691416,
-        "samples": 8,
-        "max_observed_private_bytes": 2301952,
-        "max_observed_working_set_bytes": 15917056,
+        "wall_seconds": 0.04185539999161847,
+        "samples": 5,
+        "max_observed_private_bytes": 2121728,
+        "max_observed_working_set_bytes": 15142912,
         "measurement": {
           "scenario": "slow_reader_isolation",
           "fast_session_runs": 20,
-          "fast_session_seconds": 0.0078224,
+          "fast_session_seconds": 0.0057652,
           "slow_session_finished": true
         },
         "log": "stability-slow_reader_isolation-1.log"
       },
       {
         "exit_code": 0,
-        "wall_seconds": 0.06159279999701539,
-        "samples": 8,
-        "max_observed_private_bytes": 2310144,
-        "max_observed_working_set_bytes": 15921152,
+        "wall_seconds": 0.0384018000040669,
+        "samples": 5,
+        "max_observed_private_bytes": 1884160,
+        "max_observed_working_set_bytes": 15470592,
         "measurement": {
           "scenario": "slow_reader_isolation",
           "fast_session_runs": 20,
-          "fast_session_seconds": 0.0108795,
+          "fast_session_seconds": 0.006206,
           "slow_session_finished": true
         },
         "log": "stability-slow_reader_isolation-2.log"
       },
       {
         "exit_code": 0,
-        "wall_seconds": 0.06573239999852376,
-        "samples": 9,
-        "max_observed_private_bytes": 2318336,
-        "max_observed_working_set_bytes": 16478208,
+        "wall_seconds": 0.038675199990393594,
+        "samples": 5,
+        "max_observed_private_bytes": 2170880,
+        "max_observed_working_set_bytes": 15314944,
         "measurement": {
           "scenario": "slow_reader_isolation",
           "fast_session_runs": 20,
-          "fast_session_seconds": 0.0123689,
+          "fast_session_seconds": 0.0074268,
           "slow_session_finished": true
         },
         "log": "stability-slow_reader_isolation-3.log"
@@ -157,49 +165,49 @@
     "throughput_reruns": [
       {
         "exit_code": 0,
-        "wall_seconds": 0.34323269999731565,
-        "samples": 60,
-        "max_observed_private_bytes": 2985984,
-        "max_observed_working_set_bytes": 17829888,
+        "wall_seconds": 0.1962731000094209,
+        "samples": 34,
+        "max_observed_private_bytes": 2945024,
+        "max_observed_working_set_bytes": 16977920,
         "measurement": {
           "scenario": "throughput_reruns",
           "runs": 200,
           "rows_per_run": 256,
           "emitted_arrow_bytes": 1051200,
-          "total_wall_seconds": 0.2855504,
-          "runs_per_second": 700.4017504440548
+          "total_wall_seconds": 0.1576091,
+          "runs_per_second": 1268.9622616968184
         },
         "log": "stability-throughput_reruns-1.log"
       },
       {
         "exit_code": 0,
-        "wall_seconds": 0.3365147000004072,
-        "samples": 59,
-        "max_observed_private_bytes": 3026944,
-        "max_observed_working_set_bytes": 18096128,
+        "wall_seconds": 0.19258820000686683,
+        "samples": 34,
+        "max_observed_private_bytes": 2756608,
+        "max_observed_working_set_bytes": 16908288,
         "measurement": {
           "scenario": "throughput_reruns",
           "runs": 200,
           "rows_per_run": 256,
           "emitted_arrow_bytes": 1051200,
-          "total_wall_seconds": 0.2826743,
-          "runs_per_second": 707.5280632162174
+          "total_wall_seconds": 0.1573722,
+          "runs_per_second": 1270.872492091996
         },
         "log": "stability-throughput_reruns-2.log"
       },
       {
         "exit_code": 0,
-        "wall_seconds": 0.33374280000134604,
-        "samples": 58,
-        "max_observed_private_bytes": 2912256,
-        "max_observed_working_set_bytes": 18083840,
+        "wall_seconds": 0.1851600999943912,
+        "samples": 33,
+        "max_observed_private_bytes": 2850816,
+        "max_observed_working_set_bytes": 16949248,
         "measurement": {
           "scenario": "throughput_reruns",
           "runs": 200,
           "rows_per_run": 256,
           "emitted_arrow_bytes": 1051200,
-          "total_wall_seconds": 0.2783595,
-          "runs_per_second": 718.4953270860165
+          "total_wall_seconds": 0.1532364,
+          "runs_per_second": 1305.1729223604837
         },
         "log": "stability-throughput_reruns-3.log"
       }
@@ -207,10 +215,10 @@
     "capacity_ramp": [
       {
         "exit_code": 0,
-        "wall_seconds": 0.4786314000011771,
-        "samples": 84,
-        "max_observed_private_bytes": 8511488,
-        "max_observed_working_set_bytes": 22712320,
+        "wall_seconds": 0.2857062999974005,
+        "samples": 51,
+        "max_observed_private_bytes": 8044544,
+        "max_observed_working_set_bytes": 21757952,
         "measurement": {
           "scenario": "capacity_ramp",
           "stages": [
@@ -218,16 +226,16 @@
             128
           ],
           "stages_all_correct": true,
-          "total_wall_seconds": 0.4253323
+          "total_wall_seconds": 0.2538558
         },
         "log": "stability-capacity_ramp-1.log"
       },
       {
         "exit_code": 0,
-        "wall_seconds": 0.422159499998088,
-        "samples": 74,
-        "max_observed_private_bytes": 8179712,
-        "max_observed_working_set_bytes": 22532096,
+        "wall_seconds": 0.24303230000077747,
+        "samples": 43,
+        "max_observed_private_bytes": 8114176,
+        "max_observed_working_set_bytes": 21811200,
         "measurement": {
           "scenario": "capacity_ramp",
           "stages": [
@@ -235,16 +243,16 @@
             128
           ],
           "stages_all_correct": true,
-          "total_wall_seconds": 0.3768701
+          "total_wall_seconds": 0.2150242
         },
         "log": "stability-capacity_ramp-2.log"
       },
       {
         "exit_code": 0,
-        "wall_seconds": 0.42307819999405183,
-        "samples": 74,
-        "max_observed_private_bytes": 8404992,
-        "max_observed_working_set_bytes": 22749184,
+        "wall_seconds": 0.23496869998052716,
+        "samples": 42,
+        "max_observed_private_bytes": 8085504,
+        "max_observed_working_set_bytes": 21671936,
         "measurement": {
           "scenario": "capacity_ramp",
           "stages": [
@@ -252,7 +260,7 @@
             128
           ],
           "stages_all_correct": true,
-          "total_wall_seconds": 0.381816
+          "total_wall_seconds": 0.2058033
         },
         "log": "stability-capacity_ramp-3.log"
       }
@@ -260,51 +268,51 @@
     "sustained_window": [
       {
         "exit_code": 0,
-        "wall_seconds": 5.065529100000276,
-        "samples": 928,
-        "max_observed_private_bytes": 2265088,
-        "max_observed_working_set_bytes": 16457728,
+        "wall_seconds": 5.037221899983706,
+        "samples": 947,
+        "max_observed_private_bytes": 2224128,
+        "max_observed_working_set_bytes": 15716352,
         "measurement": {
           "scenario": "sustained_window",
           "window_seconds": 5,
-          "runs": 9672,
-          "bumps": 193,
-          "final_rounds": 193,
-          "runs_per_second": 1934.174127145432,
+          "runs": 19131,
+          "bumps": 382,
+          "final_rounds": 382,
+          "runs_per_second": 3826.0908033684723,
           "note": "a bounded sustained window, not a multi-hour soak"
         },
         "log": "stability-sustained_window-1.log"
       },
       {
         "exit_code": 0,
-        "wall_seconds": 5.074849699994957,
-        "samples": 930,
-        "max_observed_private_bytes": 2248704,
-        "max_observed_working_set_bytes": 16097280,
+        "wall_seconds": 5.03388819997781,
+        "samples": 945,
+        "max_observed_private_bytes": 2244608,
+        "max_observed_working_set_bytes": 15847424,
         "measurement": {
           "scenario": "sustained_window",
           "window_seconds": 5,
-          "runs": 9796,
-          "bumps": 195,
-          "final_rounds": 195,
-          "runs_per_second": 1959.128805259217,
+          "runs": 19780,
+          "bumps": 395,
+          "final_rounds": 395,
+          "runs_per_second": 3955.802368113689,
           "note": "a bounded sustained window, not a multi-hour soak"
         },
         "log": "stability-sustained_window-2.log"
       },
       {
         "exit_code": 0,
-        "wall_seconds": 5.060066999998526,
-        "samples": 926,
-        "max_observed_private_bytes": 2260992,
-        "max_observed_working_set_bytes": 16347136,
+        "wall_seconds": 5.035588700004155,
+        "samples": 947,
+        "max_observed_private_bytes": 2220032,
+        "max_observed_working_set_bytes": 15351808,
         "measurement": {
           "scenario": "sustained_window",
           "window_seconds": 5,
-          "runs": 9272,
-          "bumps": 185,
-          "final_rounds": 185,
-          "runs_per_second": 1854.2816597444753,
+          "runs": 19783,
+          "bumps": 395,
+          "final_rounds": 395,
+          "runs_per_second": 3956.392605899599,
           "note": "a bounded sustained window, not a multi-hour soak"
         },
         "log": "stability-sustained_window-3.log"
@@ -312,5 +320,377 @@
     ]
   },
   "scope": "Whole isolated test process per fixture: one WS session rendering 100k/50k-row tables plus a 200k-point chart (large_payloads); 300 reruns with 11 widget triggers on one session (long_session_churn); a parked reader mid-stream while a second session runs 20 full-speed reruns (slow_reader_isolation); 200 sustained reruns of a 256-row table measuring the run rate and emitted bytes (throughput_reruns); 64-then-128 concurrent sessions each completing a run (capacity_ramp); and a bounded 5-second sustained-churn window with exact state (sustained_window \u2014 NOT a multi-hour soak). Correctness assertions are in-test; memory/timing here are observations, not thresholds or SLOs.",
-  "memory_scope": "Whole test binary process sampled every 5ms; includes fixture setup and test harness. Observed maxima can miss brief peaks; cross-machine comparison is not claimed."
+  "memory_scope": "Whole test binary process sampled every 5ms; includes fixture setup and test harness. Observed maxima can miss brief peaks; cross-machine comparison is not claimed.",
+  "runtime_source_commit": "37ce42200a46b7dd35e104cd5362d8bb194da8ee",
+  "measurement_command": "target/pyref-venv/Scripts/python.exe tools/measure_stability.py target/debug/deps/streamlit-38c7a00d3d51f06f.exe target/stability-counters-measurement/stability.json",
+  "sampler_validation": {
+    "red": {
+      "declared_size": 72,
+      "correct_size": 80,
+      "declared_private_offset": 64,
+      "correct_private_offset": 72,
+      "samples": [
+        {
+          "stage": "before",
+          "declared_private": 10588160,
+          "actual_private": 10588160,
+          "actual_peak_commit": 10588160
+        },
+        {
+          "stage": "allocated-64MiB",
+          "declared_private": 77828096,
+          "actual_private": 77828096,
+          "actual_peak_commit": 77828096
+        },
+        {
+          "stage": "released",
+          "declared_private": 77828096,
+          "actual_private": 10588160,
+          "actual_peak_commit": 77828096
+        }
+      ]
+    },
+    "green": {
+      "structure_bytes": 80,
+      "private_usage_offset": 72,
+      "samples": [
+        {
+          "stage": "before",
+          "private_bytes": 12869632,
+          "peak_commit_bytes": 12869632
+        },
+        {
+          "stage": "allocated-64MiB",
+          "private_bytes": 80113664,
+          "peak_commit_bytes": 80113664
+        },
+        {
+          "stage": "released",
+          "private_bytes": 12869632,
+          "peak_commit_bytes": 80113664
+        }
+      ],
+      "passed": true
+    },
+    "scope": "Owned current process: allocate/commit and release 64 MiB with VirtualAlloc/VirtualFree. The corrected PrivateUsage falls after release; PeakPagefileUsage stays at its peak. Not a Rust runtime or leak test."
+  },
+  "superseded_snapshot": {
+    "reason": "The old sampler declared a 72-byte PROCESS_MEMORY_COUNTERS_EX with a duplicate QuotaPeakPagedPoolUsage and a missing field slot. Its PrivateUsage at offset 64 was actually PeakPagefileUsage; max_observed_private_bytes must be interpreted as observed peak commit, not observed private bytes. WorkingSetSize at offset 16 was unaffected. Keep the original measurements below; no old private-memory values can be recovered from them.",
+    "snapshot": {
+      "schema_version": 1,
+      "measured_at_utc": "2026-10-28T18:42:03+00:00",
+      "environment": {
+        "os": "Windows-11-10.0.26300-SP0",
+        "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)"
+      },
+      "binary": "C:\\Users\\killf\\github\\streamlit-rust\\target\\debug\\deps\\streamlit-38c7a00d3d51f06f.exe",
+      "phases": {
+        "large_payloads": [
+          {
+            "exit_code": 0,
+            "wall_seconds": 3.737121300000581,
+            "samples": 687,
+            "max_observed_private_bytes": 54947840,
+            "max_observed_working_set_bytes": 55881728,
+            "measurement": {
+              "scenario": "large_payloads",
+              "runs": 2,
+              "rows_per_run": [
+                100000,
+                50000
+              ],
+              "chart_points": 200000,
+              "total_wall_seconds": 3.6724468
+            },
+            "log": "stability-large_payloads-1.log"
+          },
+          {
+            "exit_code": 0,
+            "wall_seconds": 3.825317399998312,
+            "samples": 707,
+            "max_observed_private_bytes": 54898688,
+            "max_observed_working_set_bytes": 55848960,
+            "measurement": {
+              "scenario": "large_payloads",
+              "runs": 2,
+              "rows_per_run": [
+                100000,
+                50000
+              ],
+              "chart_points": 200000,
+              "total_wall_seconds": 3.7730937
+            },
+            "log": "stability-large_payloads-2.log"
+          },
+          {
+            "exit_code": 0,
+            "wall_seconds": 3.7749771000017063,
+            "samples": 696,
+            "max_observed_private_bytes": 54616064,
+            "max_observed_working_set_bytes": 55779328,
+            "measurement": {
+              "scenario": "large_payloads",
+              "runs": 2,
+              "rows_per_run": [
+                100000,
+                50000
+              ],
+              "chart_points": 200000,
+              "total_wall_seconds": 3.7218518
+            },
+            "log": "stability-large_payloads-3.log"
+          }
+        ],
+        "long_session_churn": [
+          {
+            "exit_code": 0,
+            "wall_seconds": 0.21545419999893056,
+            "samples": 34,
+            "max_observed_private_bytes": 2310144,
+            "max_observed_working_set_bytes": 16179200,
+            "measurement": {
+              "scenario": "long_session_churn",
+              "reruns": 300,
+              "bump_triggers": 11,
+              "final_rounds": 11,
+              "total_wall_seconds": 0.137837
+            },
+            "log": "stability-long_session_churn-1.log"
+          },
+          {
+            "exit_code": 0,
+            "wall_seconds": 0.2008101999963401,
+            "samples": 33,
+            "max_observed_private_bytes": 2265088,
+            "max_observed_working_set_bytes": 16285696,
+            "measurement": {
+              "scenario": "long_session_churn",
+              "reruns": 300,
+              "bump_triggers": 11,
+              "final_rounds": 11,
+              "total_wall_seconds": 0.1451567
+            },
+            "log": "stability-long_session_churn-2.log"
+          },
+          {
+            "exit_code": 0,
+            "wall_seconds": 0.2218875999969896,
+            "samples": 35,
+            "max_observed_private_bytes": 2310144,
+            "max_observed_working_set_bytes": 15994880,
+            "measurement": {
+              "scenario": "long_session_churn",
+              "reruns": 300,
+              "bump_triggers": 11,
+              "final_rounds": 11,
+              "total_wall_seconds": 0.1534995
+            },
+            "log": "stability-long_session_churn-3.log"
+          }
+        ],
+        "slow_reader_isolation": [
+          {
+            "exit_code": 0,
+            "wall_seconds": 0.06429409999691416,
+            "samples": 8,
+            "max_observed_private_bytes": 2301952,
+            "max_observed_working_set_bytes": 15917056,
+            "measurement": {
+              "scenario": "slow_reader_isolation",
+              "fast_session_runs": 20,
+              "fast_session_seconds": 0.0078224,
+              "slow_session_finished": true
+            },
+            "log": "stability-slow_reader_isolation-1.log"
+          },
+          {
+            "exit_code": 0,
+            "wall_seconds": 0.06159279999701539,
+            "samples": 8,
+            "max_observed_private_bytes": 2310144,
+            "max_observed_working_set_bytes": 15921152,
+            "measurement": {
+              "scenario": "slow_reader_isolation",
+              "fast_session_runs": 20,
+              "fast_session_seconds": 0.0108795,
+              "slow_session_finished": true
+            },
+            "log": "stability-slow_reader_isolation-2.log"
+          },
+          {
+            "exit_code": 0,
+            "wall_seconds": 0.06573239999852376,
+            "samples": 9,
+            "max_observed_private_bytes": 2318336,
+            "max_observed_working_set_bytes": 16478208,
+            "measurement": {
+              "scenario": "slow_reader_isolation",
+              "fast_session_runs": 20,
+              "fast_session_seconds": 0.0123689,
+              "slow_session_finished": true
+            },
+            "log": "stability-slow_reader_isolation-3.log"
+          }
+        ],
+        "throughput_reruns": [
+          {
+            "exit_code": 0,
+            "wall_seconds": 0.34323269999731565,
+            "samples": 60,
+            "max_observed_private_bytes": 2985984,
+            "max_observed_working_set_bytes": 17829888,
+            "measurement": {
+              "scenario": "throughput_reruns",
+              "runs": 200,
+              "rows_per_run": 256,
+              "emitted_arrow_bytes": 1051200,
+              "total_wall_seconds": 0.2855504,
+              "runs_per_second": 700.4017504440548
+            },
+            "log": "stability-throughput_reruns-1.log"
+          },
+          {
+            "exit_code": 0,
+            "wall_seconds": 0.3365147000004072,
+            "samples": 59,
+            "max_observed_private_bytes": 3026944,
+            "max_observed_working_set_bytes": 18096128,
+            "measurement": {
+              "scenario": "throughput_reruns",
+              "runs": 200,
+              "rows_per_run": 256,
+              "emitted_arrow_bytes": 1051200,
+              "total_wall_seconds": 0.2826743,
+              "runs_per_second": 707.5280632162174
+            },
+            "log": "stability-throughput_reruns-2.log"
+          },
+          {
+            "exit_code": 0,
+            "wall_seconds": 0.33374280000134604,
+            "samples": 58,
+            "max_observed_private_bytes": 2912256,
+            "max_observed_working_set_bytes": 18083840,
+            "measurement": {
+              "scenario": "throughput_reruns",
+              "runs": 200,
+              "rows_per_run": 256,
+              "emitted_arrow_bytes": 1051200,
+              "total_wall_seconds": 0.2783595,
+              "runs_per_second": 718.4953270860165
+            },
+            "log": "stability-throughput_reruns-3.log"
+          }
+        ],
+        "capacity_ramp": [
+          {
+            "exit_code": 0,
+            "wall_seconds": 0.4786314000011771,
+            "samples": 84,
+            "max_observed_private_bytes": 8511488,
+            "max_observed_working_set_bytes": 22712320,
+            "measurement": {
+              "scenario": "capacity_ramp",
+              "stages": [
+                64,
+                128
+              ],
+              "stages_all_correct": true,
+              "total_wall_seconds": 0.4253323
+            },
+            "log": "stability-capacity_ramp-1.log"
+          },
+          {
+            "exit_code": 0,
+            "wall_seconds": 0.422159499998088,
+            "samples": 74,
+            "max_observed_private_bytes": 8179712,
+            "max_observed_working_set_bytes": 22532096,
+            "measurement": {
+              "scenario": "capacity_ramp",
+              "stages": [
+                64,
+                128
+              ],
+              "stages_all_correct": true,
+              "total_wall_seconds": 0.3768701
+            },
+            "log": "stability-capacity_ramp-2.log"
+          },
+          {
+            "exit_code": 0,
+            "wall_seconds": 0.42307819999405183,
+            "samples": 74,
+            "max_observed_private_bytes": 8404992,
+            "max_observed_working_set_bytes": 22749184,
+            "measurement": {
+              "scenario": "capacity_ramp",
+              "stages": [
+                64,
+                128
+              ],
+              "stages_all_correct": true,
+              "total_wall_seconds": 0.381816
+            },
+            "log": "stability-capacity_ramp-3.log"
+          }
+        ],
+        "sustained_window": [
+          {
+            "exit_code": 0,
+            "wall_seconds": 5.065529100000276,
+            "samples": 928,
+            "max_observed_private_bytes": 2265088,
+            "max_observed_working_set_bytes": 16457728,
+            "measurement": {
+              "scenario": "sustained_window",
+              "window_seconds": 5,
+              "runs": 9672,
+              "bumps": 193,
+              "final_rounds": 193,
+              "runs_per_second": 1934.174127145432,
+              "note": "a bounded sustained window, not a multi-hour soak"
+            },
+            "log": "stability-sustained_window-1.log"
+          },
+          {
+            "exit_code": 0,
+            "wall_seconds": 5.074849699994957,
+            "samples": 930,
+            "max_observed_private_bytes": 2248704,
+            "max_observed_working_set_bytes": 16097280,
+            "measurement": {
+              "scenario": "sustained_window",
+              "window_seconds": 5,
+              "runs": 9796,
+              "bumps": 195,
+              "final_rounds": 195,
+              "runs_per_second": 1959.128805259217,
+              "note": "a bounded sustained window, not a multi-hour soak"
+            },
+            "log": "stability-sustained_window-2.log"
+          },
+          {
+            "exit_code": 0,
+            "wall_seconds": 5.060066999998526,
+            "samples": 926,
+            "max_observed_private_bytes": 2260992,
+            "max_observed_working_set_bytes": 16347136,
+            "measurement": {
+              "scenario": "sustained_window",
+              "window_seconds": 5,
+              "runs": 9272,
+              "bumps": 185,
+              "final_rounds": 185,
+              "runs_per_second": 1854.2816597444753,
+              "note": "a bounded sustained window, not a multi-hour soak"
+            },
+            "log": "stability-sustained_window-3.log"
+          }
+        ]
+      },
+      "scope": "Whole isolated test process per fixture: one WS session rendering 100k/50k-row tables plus a 200k-point chart (large_payloads); 300 reruns with 11 widget triggers on one session (long_session_churn); a parked reader mid-stream while a second session runs 20 full-speed reruns (slow_reader_isolation); 200 sustained reruns of a 256-row table measuring the run rate and emitted bytes (throughput_reruns); 64-then-128 concurrent sessions each completing a run (capacity_ramp); and a bounded 5-second sustained-churn window with exact state (sustained_window \u2014 NOT a multi-hour soak). Correctness assertions are in-test; memory/timing here are observations, not thresholds or SLOs.",
+      "memory_scope": "Whole test binary process sampled every 5ms; includes fixture setup and test harness. Observed maxima can miss brief peaks; cross-machine comparison is not claimed."
+    }
+  }
 }

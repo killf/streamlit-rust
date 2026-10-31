@@ -52,6 +52,8 @@ CSV 工作台 A 已交付主流程 20 阶段、筛选 13 阶段与来源替换 1
 
 缓存种类共用键表导致的实际返回值错误已独立修复：data/resource 同名同参各自保留结果、资源引用和录制输出；四组公开参考只采一次并冻结，Rust 真实 WS 复验各自重放。仍维持会话级缓存与现有总清空接口，未扩大为完整 Python 全局/会话选项、TTL 或分类别清空兼容；详见[参考及局限](../tests/reference/reference-browser/cache-kind-isolation/README.md)。
 
+M5 采样器更正（2026-11-01）：修正 Windows 内存结构漏项导致 `PrivateUsage` 误读峰值提交内存；分配/释放 64 MiB 的红→绿实测确认当前私有内存会回落，六场景各三次重测全部通过。`stability.json` 的当前结果绑定二进制、采样器与夹具 SHA256，原始旧快照完整保留并注明字段误标；本次不据此宣称性能提升或无泄漏，详见[验收](acceptance.md#current-m5-memory-counter-correction-2026-11-01)。多小时浸泡仍未测。
+
 M5 三场景批次（2026-10-29）：吞吐（~509 rerun/s、字节/行数逐轮正确）、容量上限（128 并发两级全对）、5 秒有界持续窗口（~9.5k 轮精确状态）冻结于 stability.json 六相测量（[验收](acceptance.md#current-m5-throughput/capacity/sustained-validation-2026-10-29)）；**多小时浸泡仍未测，M5 保持未完成**。
 
 M5 稳定性批次（2026-10-28）：大数据（100k/50k 行 + 200k 点图表）、长时运行（300 轮 rerun 精确状态）与慢连接（parked reader 不阻塞他 会话）三场景落地可复现回归与 3 试次测量（[验收](acceptance.md#current-stability-scenarios-validation-2026-10-28)）；吞吐/容量上限/多小时运行未测，M5 保持未完成。
