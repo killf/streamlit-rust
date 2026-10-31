@@ -2491,7 +2491,7 @@ impl<C: AppendChild> InputWidgets for C {
         }
         let default = options.value.to_value();
         let constraints = format!("{}:{}:{}:{}", min.unwrap_or_default(), max.unwrap_or_default(), options.step, T::INTEGER);
-        let identity = c.identity_in_form(&form_id, &if c.key.is_some() { constraints } else { format!("{constraints}:{default}") });
+        let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { format!("{constraints}:{default}") });
         let (id, result, set_value) = self.register_widget_parity(
             WidgetSpec {
                 disabled: c.disabled,
@@ -4440,6 +4440,74 @@ mod tests {
             callback(&st);
         }
         assert!(matches!(input(&mut wire)?, element::Type::Markdown(markdown) if markdown.body == "live callback"));
+        Ok(())
+    }
+
+    #[test]
+    fn number_range_reset_preserves_float_values_and_type_errors() -> anyhow::Result<()> {
+        let state = SessionState::default();
+        state.begin_widgets(vec![]);
+        let (st, mut wire) = app(&state);
+        st.number_input(NumberInputOptions::new("Float", 9.5_f64).key("float"))?;
+        let element::Type::NumberInput(initial) = input(&mut wire)? else { panic!() };
+        state.finish_widgets();
+
+        state.begin_widgets(vec![]);
+        let (st, mut wire) = app(&state);
+        assert_eq!(st.number_input(NumberInputOptions::new("Float", 4.25_f64).key("float").max(6.0))?, 4.25);
+        let element::Type::NumberInput(reset) = input(&mut wire)? else { panic!() };
+        assert_eq!(reset.id, initial.id);
+        assert!(reset.set_value);
+        assert_eq!(reset.value, Some(4.25));
+        assert_eq!(state.get::<f64>("float")?, Some(4.25));
+        state.finish_widgets();
+
+        state.begin_widgets(vec![]);
+        state.set("float", "wrong type")?;
+        let (st, _) = app(&state);
+        assert!(st.number_input(NumberInputOptions::new("Float", 4.25_f64).key("float").max(6.0)).is_err());
+        state.set("integer", 1.5_f64)?;
+        assert!(st.number_input(NumberInputOptions::new("Integer", 0_i64).key("integer").max(1)).is_err());
+        Ok(())
+    }
+
+    #[test]
+    fn keyed_number_keeps_identity_and_resets_only_outside_new_bounds() -> anyhow::Result<()> {
+        let state = SessionState::default();
+        state.begin_widgets(vec![]);
+        let (st, mut wire) = app(&state);
+        st.number_input(NumberInputOptions::new("Number", 4_i64).key("number"))?;
+        let element::Type::NumberInput(initial) = input(&mut wire)? else { panic!() };
+        state.finish_widgets();
+
+        state.begin_widgets(vec![WidgetState {
+            id: initial.id.clone(),
+            value: Some(widget_state::Value::IntValue(7)),
+        }]);
+        let (st, mut wire) = app(&state);
+        assert_eq!(st.number_input(NumberInputOptions::new("Number", 4_i64).key("number").max(10))?, 7);
+        let element::Type::NumberInput(grown) = input(&mut wire)? else { panic!() };
+        assert_eq!(grown.id, initial.id);
+        assert!(!grown.set_value);
+        state.finish_widgets();
+
+        state.begin_widgets(vec![]);
+        let (st, mut wire) = app(&state);
+        assert_eq!(st.number_input(NumberInputOptions::new("Number", 4_i64).key("number").max(6))?, 4);
+        let element::Type::NumberInput(narrow) = input(&mut wire)? else { panic!() };
+        assert_eq!(narrow.id, initial.id);
+        assert_eq!(narrow.value, Some(4.0));
+        assert!(narrow.set_value);
+        assert_eq!(state.get::<i64>("number")?, Some(4));
+        assert!(state.set("number", 5_i64).is_err());
+        state.finish_widgets();
+
+        state.begin_widgets(vec![]);
+        let (st, mut wire) = app(&state);
+        assert_eq!(st.number_input(NumberInputOptions::new("Number", 5_i64).key("number").step(2.0))?, 4);
+        let element::Type::NumberInput(restored) = input(&mut wire)? else { panic!() };
+        assert_eq!(restored.id, initial.id);
+        assert!(!restored.set_value);
         Ok(())
     }
 

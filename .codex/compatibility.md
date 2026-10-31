@@ -415,3 +415,10 @@ client validation UI, empty-number options, submitted out-of-range behavior,
 callbacks or dynamic-bound state correction. These remain open with the full
 goal and all 130 partial rows. Pending area binding/API/queue/parser decisions
 and unrelated colconfig_params changes are unchanged and excluded from staging.
+
+
+2026-10-31 keyed number_input 动态范围：12 轮原生 SDK/Rust 对照保留同一 ID，
+有效值随范围/step/default/disabled 变化保留，超出新显式范围时重置到本轮默认值、
+同步前端和 native state，不额外执行 callback。原始 PB/摘要/元素及四类篡改门见
+widget-params/number-sequence，验证细节见 acceptance。同一 key 跨数值类型、
+无 key 身份、错误输入及实际浏览器动态属性仍开放，通用 hash 待选项未变。

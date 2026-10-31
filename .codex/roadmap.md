@@ -404,3 +404,9 @@ client validation UI, empty-number options, submitted out-of-range behavior,
 callbacks or dynamic-bound state correction. These remain open with the full
 goal and all 130 partial rows. Pending area binding/API/queue/parser decisions
 and unrelated colconfig_params changes are unchanged and excluded from staging.
+
+
+2026-10-31 keyed number_input 身份与动态范围修正已完成本地原生验证：12 轮/83
+帧/24 元素对照，293 项 Rust（保留原两项排除），不将默认值变化当作用户输入。
+下一阶段仍需无 key 身份、动态浏览器属性和其他类型/错误路径验证；完整目标及
+130 partial 不关闭。TextAreaOptions.bind 和其他既有待选取舍保持待决。

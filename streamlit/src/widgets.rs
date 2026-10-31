@@ -881,6 +881,9 @@ impl SessionState {
             .filter(|_| !disabled)
             .and_then(|state| state.value.as_ref().and_then(|wire| codec.decode(wire)))
             .filter(|applied| codec.valid(applied));
+
+        // 数字控件的范围重置保留本轮默认值，不改变其他 codec 的错误路径。
+        let number_default = matches!(codec, Codec::NumberInput { .. }).then(|| default.clone());
         let url_resolved = query_seed.is_some();
         let value = if let Some(value) = query_seed {
             value
@@ -902,6 +905,18 @@ impl SessionState {
             };
             pending_value.unwrap_or(base_value)
         };
+        let (value, range_reset) = match (&codec, number_default) {
+            (Codec::NumberInput { min, max, integer }, Some(default))
+                if value
+                    .as_f64()
+                    .is_some_and(|number| number.is_finite() && (!*integer || value.as_i64().is_some()) && (min.is_some_and(|low| number < low) || max.is_some_and(|high| number > high))) =>
+            {
+                (default, true)
+            }
+
+            _ => (value, false),
+        };
+
         if !codec.valid(&value) {
             return Err(WidgetError::InvalidValue(format!("value does not match {kind}")));
         }
@@ -909,7 +924,7 @@ impl SessionState {
         // record or value. Resolvers here only convert built-in scalar/index
         // types; user callbacks and option cloning never run under these locks.
         let resolved = resolve(&value)?;
-        let set_value = url_resolved || code_assigned || (disabled && registry.received.contains(&id));
+        let set_value = range_reset || url_resolved || code_assigned || (disabled && registry.received.contains(&id));
         // 2. 默认值折叠不重复广播前端已经清空的 URL；代码改值则显式同步。
         if query.is_some()
             && let Some(key) = key

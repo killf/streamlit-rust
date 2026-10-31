@@ -1549,3 +1549,30 @@ goal and all 130 partial rows. Pending area binding/API/queue/parser decisions
 and unrelated colconfig_params changes are unchanged and excluded from staging.
 
 This batch also passed 59 focused Python widget-reference/matrix/documentation checks with deprecations treated as errors; the complete Python suite was not repeated after the existing 1872-test snapshot.
+
+
+### Keyed number dynamic-bound reference (2026-10-31)
+
+Existing widget_params fixtures/collector add opt-in number-sequence. Both SDK
+and Rust native traces retain 12 same-WS runs/83 raw frames/24 ordered elements:
+load, submit 7, explicit min zero, narrow max, grow, changed default, submit 1,
+raise min, step, disabled, recover, native assignment. Exact input IDs/types,
+phase/query/history, bounds/default/flags/step, state/callbacks, identity/session
+continuity, successful finishes and reset value/set_value are gated from raw PB,
+summary and element equality. Four coherent mutations reject wrong identity,
+sync, callback and reset value/report. A public Rust unit failed before the
+change (valid retained 7 became 4), then passed identity/state/locks/recovery.
+A separate Rust-only unit checks float reset and noncoercion of wrong types;
+it is not additional native SDK float-sequence evidence.
+
+Clippy/all-target and formatting passed; workspace passed 293 tests (library
+286, ledger 1, macros 2, rustdoc 4), excluding only the existing navigation_pages_switch_and_session_state_match_the_measured_wire and rerun_queue_messages_match_frozen_reference.
+Thus full workspace green is not claimed. Existing MSVC linker stdout warning
+remains; logs are target/number-sequence-{red,green,clippy,build,workspace}.log.
+Owned SDK socket/server closed; Rust PID 20008 verified by executable path then
+stopped; ports 59513/8599 read back free. No production browser evidence, full
+float differential, key type changes, malformed input or all dynamic options
+claim. Pending NewElement hash/API/queue/parser decisions, 130 partial entries
+and M3/M5/M7/full goal remain open; colconfig_params work remains excluded.
+
+Focused widget-reference/matrix/documentation validation passed 65 Python tests with deprecations as errors; the full Python suite was not repeated in this batch.

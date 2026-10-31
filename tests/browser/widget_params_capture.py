@@ -1,6 +1,6 @@
 """Capture widget creation parameters over one owned native WebSocket.
 
-Supports the original creation cases and opt-in integer-boundary cases against
+Supports original creation, integer boundaries and keyed dynamic-number runs against
 the pinned SDK or a caller-owned Rust server; never overwrites a trace.
 """
 import argparse
@@ -24,8 +24,10 @@ ROOT = Path(__file__).resolve().parents[2]
 parser = argparse.ArgumentParser(description='Collect the widget-parameter reference once; never overwrite.')
 parser.add_argument('--out', type=Path, required=True)
 parser.add_argument('--integer-bounds', action='store_true', help='opt-in unbounded and one-sided integer wire probe')
+parser.add_argument('--number-sequence', action='store_true', help='keyed number dynamic bounds over one WS')
 parser.add_argument('--url', help='caller-owned Rust server URL (comparison capture)')
 args = parser.parse_args()
+assert not (args.integer_bounds and args.number_sequence)
 OUT = args.out.resolve()
 OUT.mkdir(parents=True, exist_ok=True)
 assert not (OUT / 'trace.json').exists(), 'one capture, retain first result'
@@ -76,50 +78,64 @@ try:
             time.sleep(0.1)
     WS = connect(URL.replace('http', 'ws') + '/_stcore/stream', origin=URL, subprotocols=['streamlit'], proxy=None,
                  open_timeout=10, close_timeout=5, max_size=None, legacy=True)
-    request = BackMsg()
-    request.rerun_script.SetInParent()
-    if args.integer_bounds:
-        request.rerun_script.query_string = "probe=integer-bounds"
-    raw = request.SerializeToString()
-    record('client->server', raw, request)
-    WS.send(raw)
-    index = 0
-    while True:
-        raw = WS.recv(timeout=20)
-        message = ForwardMsg()
-        message.ParseFromString(raw)
-        record('server->client', raw, message)
-        kind = message.WhichOneof('type')
-        if kind == 'script_finished':
-            TRACE['finishes'].append(message.script_finished)
-            break
-        if kind != 'delta':
-            continue
-        delta_kind = message.delta.WhichOneof('type')
-        if delta_kind == 'add_block':
-            block = message.delta.add_block
-            allowed = block.WhichOneof('type')
-            if allowed is not None:
-                view = getattr(block, allowed)
-                fields = MessageToDict(view, preserving_proto_field_name=True)
-                block_level = {}
-                if block.HasField('width_config'):
-                    block_level['width_config'] = MessageToDict(block.width_config, preserving_proto_field_name=True)
-                if block.HasField('height_config'):
-                    block_level['height_config'] = MessageToDict(block.height_config, preserving_proto_field_name=True)
-                TRACE['elements'].append({'index': index, 'kind': f'add_block:{allowed}', 'fields': fields, 'block': block_level,
-                                          'url': None, 'delta_path': list(message.metadata.delta_path)})
-                index += 1
-        elif delta_kind == 'new_element':
-            element = message.delta.new_element
-            element_kind = element.WhichOneof('type')
-            if element_kind is not None:
-                view = getattr(element, element_kind)
-                fields = MessageToDict(view, preserving_proto_field_name=True)
-                url = getattr(view, 'url', '') if hasattr(view, 'url') else ''
-                TRACE['elements'].append({'index': index, 'kind': element_kind, 'fields': fields,
-                                          'url': url, 'delta_path': list(message.metadata.delta_path)})
-                index += 1
+    steps = [("load", None), ("edit", 7), ("zero-min", None), ("narrow-max", None), ("grow", None),
+             ("default", None), ("edit-low", 1), ("raise-min", None), ("step", None),
+             ("disabled", None), ("recover", None), ("assign", None)] if args.number_sequence else [("load", None)]
+    number_id = None
+    for phase, submitted in steps:
+        request = BackMsg()
+        if args.number_sequence:
+            request.rerun_script.query_string = "probe=number-sequence&phase=" + phase
+            if submitted is not None:
+                assert number_id is not None
+                widget = request.rerun_script.widget_states.widgets.add()
+                widget.id = number_id
+                widget.int_value = submitted
+        request.rerun_script.SetInParent()
+        if args.integer_bounds:
+            request.rerun_script.query_string = "probe=integer-bounds"
+        raw = request.SerializeToString()
+        record('client->server', raw, request)
+        WS.send(raw)
+        index = 0
+        while True:
+            raw = WS.recv(timeout=20)
+            message = ForwardMsg()
+            message.ParseFromString(raw)
+            record('server->client', raw, message)
+            kind = message.WhichOneof('type')
+            if kind == 'script_finished':
+                TRACE['finishes'].append(message.script_finished)
+                break
+            if kind != 'delta':
+                continue
+            delta_kind = message.delta.WhichOneof('type')
+            if delta_kind == 'add_block':
+                block = message.delta.add_block
+                allowed = block.WhichOneof('type')
+                if allowed is not None:
+                    view = getattr(block, allowed)
+                    fields = MessageToDict(view, preserving_proto_field_name=True)
+                    block_level = {}
+                    if block.HasField('width_config'):
+                        block_level['width_config'] = MessageToDict(block.width_config, preserving_proto_field_name=True)
+                    if block.HasField('height_config'):
+                        block_level['height_config'] = MessageToDict(block.height_config, preserving_proto_field_name=True)
+                    TRACE['elements'].append({'index': index, 'kind': f'add_block:{allowed}', 'fields': fields, 'block': block_level,
+                                              'url': None, 'delta_path': list(message.metadata.delta_path)})
+                    index += 1
+            elif delta_kind == 'new_element':
+                element = message.delta.new_element
+                element_kind = element.WhichOneof('type')
+                if element_kind is not None:
+                    view = getattr(element, element_kind)
+                    fields = MessageToDict(view, preserving_proto_field_name=True)
+                    if element_kind == 'number_input':
+                        number_id = view.id
+                    url = getattr(view, 'url', '') if hasattr(view, 'url') else ''
+                    TRACE['elements'].append({'index': index, 'kind': element_kind, 'fields': fields,
+                                              'url': url, 'delta_path': list(message.metadata.delta_path)})
+                    index += 1
     WS.close()
     TRACE['cleanup'] = {'websocket_closed': True}
     TRACE['successful'] = True

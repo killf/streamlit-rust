@@ -6,6 +6,41 @@ use ::streamlit::*;
 use streamlit::StreamlitApi;
 
 fn render(st: &Streamlit) -> Result<(), WidgetError> {
+    if st.query_params().get("probe").as_deref() == Some("number-sequence") {
+        let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
+        let state = st.session_state();
+        if phase == "assign" {
+            state.set("number", 8_i64)?;
+        }
+
+        let mut options = NumberInputOptions::new("Dynamic", if phase == "default" { 5_i64 } else { 4 })
+            .key("number")
+            .step(if phase == "step" { 2.0 } else { 1.0 })
+            .disabled(phase == "disabled")
+            .on_change(|st| {
+                let state = st.session_state();
+                let value = state.get::<i64>("number").expect("number state").expect("registered number");
+                let mut calls = state.get::<Vec<i64>>("number_calls").expect("callback state").unwrap_or_default();
+                calls.push(value);
+                state.set("number_calls", calls).expect("callback write");
+            });
+        if phase == "raise-min" {
+            options = options.min(3);
+        } else if !matches!(phase.as_str(), "load" | "edit") {
+            options = options.min(0);
+        }
+        if phase == "narrow-max" {
+            options = options.max(6);
+        } else if !matches!(phase.as_str(), "load" | "edit" | "zero-min") {
+            options = options.max(10);
+        }
+
+        let value = st.number_input(options)?;
+        st.json(serde_json::json!({"phase": phase, "value": value, "state": state.get::<i64>("number")?,
+            "callbacks": state.get::<Vec<i64>>("number_calls")?.unwrap_or_default()}));
+        return Ok(());
+    }
+
     st.title("Widget parameter edges");
     st.number_input(("Float free", 1.5_f64))?;
     st.number_input(NumberInputOptions::<f64>::new("Float bounded", 2.5).min(0.25).max(9.75).step(0.25))?;

@@ -456,3 +456,6 @@ async fn main(st: &Streamlit) {
 
 
 2026-10-31 整数 number_input 未指定的边界现按 SDK 发送 JavaScript 安全整数上下限，显式 min/max 标志保持原语义。现有 widget_params 示例可通过 `?probe=integer-bounds` 查看七种整数配置；对应 Python/Rust 原生协议参考位于各自 `widget-params/integer-bounds/trace.json`。这次覆盖创建协议，不代表浏览器步进、错误提示或动态范围状态已全部验收。
+
+
+2026-10-31 带 key 的 number_input 调整范围、step 或默认值时保留有效旧值；超出新显式范围时回到本轮默认值，并同步状态。现有 widget_params 的 `?probe=number-sequence&phase=load` 为动态配置探针；成对冻结参考记录 12 轮原生行为，尚不代表浏览器动态属性或所有错误输入已验收。

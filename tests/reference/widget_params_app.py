@@ -1,6 +1,23 @@
 """Emit widget creation-wire parameter variants for the M3 differential."""
 import streamlit as st
 
+if st.query_params.get("probe") == "number-sequence":
+    phase = st.query_params.get("phase", "load")
+    if phase == "assign":
+        st.session_state["number"] = 8
+
+    def changed():
+        st.session_state["number_calls"] = st.session_state.get("number_calls", []) + [st.session_state["number"]]
+
+    low = 3 if phase == "raise-min" else 0 if phase != "load" and phase != "edit" else None
+    high = 6 if phase == "narrow-max" else 10 if phase not in ("load", "edit", "zero-min") else None
+    value = st.number_input("Dynamic", value=5 if phase == "default" else 4, min_value=low, max_value=high,
+                            step=2 if phase == "step" else 1, key="number", on_change=changed,
+                            disabled=phase == "disabled")
+    st.json({"phase": phase, "value": value, "state": st.session_state["number"],
+             "callbacks": st.session_state.get("number_calls", [])})
+    st.stop()
+
 st.title("Widget parameter edges")
 
 # number_input: the float path (FLOAT enum, unset format) plus min/max/step.

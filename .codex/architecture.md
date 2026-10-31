@@ -1051,3 +1051,16 @@ client validation UI, empty-number options, submitted out-of-range behavior,
 callbacks or dynamic-bound state correction. These remain open with the full
 goal and all 130 partial rows. Pending area binding/API/queue/parser decisions
 and unrelated colconfig_params changes are unchanged and excluded from staging.
+
+
+### Keyed number identity and dynamic range correction (2026-10-31)
+
+Pinned SDK uses key as number_input identity: min/max/step/default changes retain
+that identity, then an already-deserialized value outside new explicit bounds
+resets to the current default. Existing keyed Rust identity now has empty extra
+constraints. Unkeyed identity is unchanged. register_widget_with_id retains a
+number-only default copy and replaces a finite, correctly typed out-of-range
+number before resolve/commit; set_value includes this correction. Invalid types
+and other codecs keep their existing failure path. No public API/dependency or
+generic element-hash/queue change. See acceptance for the twelve-run evidence;
+actual browser dynamic-prop behavior and remaining unkeyed identity are open.
