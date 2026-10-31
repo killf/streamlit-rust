@@ -1,0 +1,2013 @@
+{
+  "schema_version": 1,
+  "runtime": "rust",
+  "reference_version": "1.66.1",
+  "captured_at": "2026-10-31",
+  "browser": "Chrome via computer-use tab API",
+  "source": "streamlit/examples/queryparams.rs",
+  "scope": "Real replacement/document navigation plus same-document history. This is not complete query binding or protobuf compatibility.",
+  "reference_environment_readback": {
+    "timing": "post-capture",
+    "streamlit": "1.66.1",
+    "python": "3.14.7"
+  },
+  "scenarios": {
+    "replacement-and-document": {
+      "observations": [
+        {
+          "label": "initial",
+          "time": "2026-10-31T05:14:00.135Z",
+          "url": "http://127.0.0.1:8515/?mode=demo",
+          "dom": "- link \"Skip to main content\":\n  - /url: \"#stMain\"\n- banner:\n  - button \"Deploy\":\n    - generic: Deploy\n  - button \"Main menu\":\n- main:\n  - paragraph: Pick\n  - combobox \"Pick\": a\n  - button \"Open\":\n  - paragraph: pick=a\n  - paragraph: Bound\n  - combobox \"Bound\": x\n  - button \"Open\":\n  - paragraph: bound=x",
+          "eventCursor": 468
+        },
+        {
+          "label": "pick-c",
+          "time": "2026-10-31T05:14:00.250Z",
+          "url": "http://127.0.0.1:8515/?mode=demo",
+          "dom": "- log:\n  - generic: 1 option available.\n- log\n- link \"Skip to main content\":\n  - /url: \"#stMain\"\n- banner:\n  - button \"Deploy\":\n    - generic: Deploy\n  - button \"Main menu\":\n- main:\n  - paragraph: Pick\n  - combobox \"Pick\" [active]: c\n  - button \"Open\":\n  - paragraph: pick=c\n  - paragraph: Bound\n  - combobox \"Bound\": x\n  - button \"Open\":\n  - paragraph: bound=x",
+          "eventCursor": 478
+        },
+        {
+          "label": "bound-y",
+          "time": "2026-10-31T05:14:07.947Z",
+          "url": "http://127.0.0.1:8515/?bound=y&mode=demo",
+          "dom": "- log:\n  - generic: 2 options available.\n- log\n- link \"Skip to main content\":\n  - /url: \"#stMain\"\n- banner:\n  - button \"Deploy\":\n    - generic: Deploy\n  - button \"Main menu\":\n- main:\n  - paragraph: Pick\n  - combobox \"Pick\": c\n  - button \"Open\":\n  - paragraph: pick=c\n  - paragraph: Bound\n  - combobox \"Bound\" [active]: \"y\"\n  - button \"Open\":\n  - paragraph: bound=y",
+          "eventCursor": 500
+        },
+        {
+          "label": "bound-x",
+          "time": "2026-10-31T05:14:17.692Z",
+          "url": "http://127.0.0.1:8515/?mode=demo",
+          "dom": "- log\n- log\n- link \"Skip to main content\":\n  - /url: \"#stMain\"\n- banner:\n  - button \"Deploy\":\n    - generic: Deploy\n  - button \"Main menu\":\n- main:\n  - paragraph: Pick\n  - combobox \"Pick\": c\n  - button \"Open\":\n  - paragraph: pick=c\n  - paragraph: Bound\n  - combobox \"Bound\" [active]: x\n  - button \"Open\":\n  - paragraph: bound=x",
+          "eventCursor": 522
+        },
+        {
+          "label": "back-blank",
+          "time": "2026-10-31T05:14:17.732Z",
+          "url": "about:blank",
+          "dom": "",
+          "eventCursor": null
+        },
+        {
+          "label": "forward-return",
+          "time": "2026-10-31T05:14:18.029Z",
+          "url": "http://127.0.0.1:8515/?mode=demo",
+          "dom": "- link \"Skip to main content\":\n  - /url: \"#stMain\"\n- banner:\n  - button \"Deploy\":\n    - generic: Deploy\n  - button \"Main menu\":\n- main:\n  - paragraph: Pick\n  - combobox \"Pick\": a\n  - button \"Open\":\n  - paragraph: pick=a\n  - paragraph: Bound\n  - combobox \"Bound\": x\n  - button \"Open\":\n  - paragraph: bound=x",
+          "eventCursor": 983
+        },
+        {
+          "label": "navigate-y",
+          "time": "2026-10-31T05:15:00.031Z",
+          "url": "http://127.0.0.1:8515/?mode=demo&bound=y",
+          "dom": "- link \"Skip to main content\":\n  - /url: \"#stMain\"\n- banner:\n  - button \"Deploy\":\n    - generic: Deploy\n  - button \"Main menu\":\n- main:\n  - paragraph: Pick\n  - combobox \"Pick\": a\n  - button \"Open\":\n  - paragraph: pick=a\n  - paragraph: Bound\n  - combobox \"Bound\": \"y\"\n  - button \"Open\":\n  - paragraph: bound=y",
+          "eventCursor": 1432
+        },
+        {
+          "label": "back-x-document",
+          "time": "2026-10-31T05:15:00.784Z",
+          "url": "http://127.0.0.1:8515/?mode=demo",
+          "dom": "- link \"Skip to main content\":\n  - /url: \"#stMain\"\n- banner:\n  - button \"Deploy\":\n    - generic: Deploy\n  - button \"Main menu\":\n- main:\n  - paragraph: Pick\n  - combobox \"Pick\": a\n  - button \"Open\":\n  - paragraph: pick=a\n  - paragraph: Bound\n  - combobox \"Bound\": x\n  - button \"Open\":\n  - paragraph: bound=x",
+          "eventCursor": 1463
+        },
+        {
+          "label": "forward-y-document",
+          "time": "2026-10-31T05:15:01.534Z",
+          "url": "http://127.0.0.1:8515/?mode=demo&bound=y",
+          "dom": "- link \"Skip to main content\":\n  - /url: \"#stMain\"\n- banner:\n  - button \"Deploy\":\n    - generic: Deploy\n  - button \"Main menu\":\n- main:\n  - paragraph: Pick\n  - combobox \"Pick\": a\n  - button \"Open\":\n  - paragraph: pick=a\n  - paragraph: Bound\n  - combobox \"Bound\": \"y\"\n  - button \"Open\":\n  - paragraph: bound=y",
+          "eventCursor": 1496
+        },
+        {
+          "label": "final",
+          "time": "2026-10-31T05:15:48.618Z",
+          "url": "http://127.0.0.1:8515/?mode=demo&bound=y",
+          "dom": "- link \"Skip to main content\":\n  - /url: \"#stMain\"\n- banner:\n  - button \"Deploy\":\n    - generic: Deploy\n  - button \"Main menu\":\n- main:\n  - paragraph: Pick\n  - combobox \"Pick\": a\n  - button \"Open\":\n  - paragraph: pick=a\n  - paragraph: Bound\n  - combobox \"Bound\": \"y\"\n  - button \"Open\":\n  - paragraph: bound=y",
+          "eventCursor": 1497
+        }
+      ],
+      "events": [
+        {
+          "sequence": 354,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameSent",
+          "params": {
+            "requestId": "15744.324",
+            "response": {
+              "mask": true,
+              "opcode": 2,
+              "payloadData": "Wk0KCW1vZGU9ZGVtbxIAQj4KDUFzaWEvU2hhbmdoYWkQoPz/////////ARoCemgiFmh0dHA6Ly8xMjcuMC4wLjE6ODUxNS8oADIEZGFyaw=="
+            },
+            "timestamp": 97264.567441
+          }
+        },
+        {
+          "sequence": 358,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.324",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkMjIxYTlkYTctODQxZi00ODVhLTg5MTItODVmMWRmMTliYWNlEiRhNTk0YmJhYy01NTMwLTRkZWYtOWUwMi1lODRmZjAwYjc3NDkaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl"
+            },
+            "timestamp": 97264.571044
+          }
+        },
+        {
+          "sequence": 362,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.324",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ=="
+            },
+            "timestamp": 97264.579218
+          }
+        },
+        {
+          "sequence": 363,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.324",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "ChFwYWdlX2luZm9fY2hhbmdlZGILCgltb2RlPWRlbW8="
+            },
+            "timestamp": 97264.57946
+          }
+        },
+        {
+          "sequence": 364,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.324",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "CiA5OGUwMzFhN2IzYzNmMjZiZmVkY2NkYTE3NjlkMTQ1YRImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqShpIygFACiokJElELTJkZmQwOGFkMTAxZGRlYTFhNTIyOTEyOGYzMGY0OGJkLU5vbmUSBFBpY2sYACIBYSIBYlIAYAF4AdIDAggB"
+            },
+            "timestamp": 97264.579651
+          }
+        },
+        {
+          "sequence": 365,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.324",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "CiBjYTkwMzA3ZWQxZjFjZmMzYTM4NjY2MjFlNjY4YWU5YRImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqFhoU6gEMCgZwaWNrPWEgAUAB6gMCCAE="
+            },
+            "timestamp": 97264.579826
+          }
+        },
+        {
+          "sequence": 366,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.324",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "CiA1MGFjYzIzYTBlMmMzNDA3OTU3YTJlY2QwZDI0YjVkNBImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqURpPygFHCiskJElELWFkOTU5MTlkN2M4ZGQ0ZWNkY2U5ZjE5ZjEwMGM4YTg0LWJvdW5kEgVCb3VuZBgAIgF4IgF5UgBgAHIFYm91bmTSAwIIAQ=="
+            },
+            "timestamp": 97264.579917
+          }
+        },
+        {
+          "sequence": 367,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.324",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "CiAzNDRmMWMyNGYzMzBiNTczOTIyZjk1YmJhNzM0ZDhkMBImEgIAAyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqFxoV6gENCgdib3VuZD14IAFAAeoDAggB"
+            },
+            "timestamp": 97264.579985
+          }
+        },
+        {
+          "sequence": 368,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.324",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "Cg9zY3JpcHRfZmluaXNoZWQwAA=="
+            },
+            "timestamp": 97264.58004
+          }
+        },
+        {
+          "sequence": 369,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.324",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgA="
+            },
+            "timestamp": 97264.580126
+          }
+        },
+        {
+          "sequence": 469,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameSent",
+          "params": {
+            "requestId": "15744.324",
+            "response": {
+              "mask": true,
+              "opcode": 2,
+              "payloadData": "WtIBCgltb2RlPWRlbW8SYwovCiokJElELTJkZmQwOGFkMTAxZGRlYTFhNTIyOTEyOGYzMGY0OGJkLU5vbmUyAWMKMAorJCRJRC1hZDk1OTE5ZDdjOGRkNGVjZGNlOWYxOWYxMDBjOGE4NC1ib3VuZDIBeBogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VCPgoNQXNpYS9TaGFuZ2hhaRCg/P////////8BGgJ6aCIWaHR0cDovLzEyNy4wLjAuMTo4NTE1LygAMgRkYXJr"
+            },
+            "timestamp": 97273.487686
+          }
+        },
+        {
+          "sequence": 470,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.324",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkMjIxYTlkYTctODQxZi00ODVhLTg5MTItODVmMWRmMTliYWNlEiQ1YzIwNTRiYy1hOTkxLTQyZmUtOTgyMy1mZmZlMjIzMWVjZTcaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl"
+            },
+            "timestamp": 97273.488949
+          }
+        },
+        {
+          "sequence": 471,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.324",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ=="
+            },
+            "timestamp": 97273.489271
+          }
+        },
+        {
+          "sequence": 472,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.324",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "ChFwYWdlX2luZm9fY2hhbmdlZGILCgltb2RlPWRlbW8="
+            },
+            "timestamp": 97273.49173
+          }
+        },
+        {
+          "sequence": 473,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.324",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "CiA5OGUwMzFhN2IzYzNmMjZiZmVkY2NkYTE3NjlkMTQ1YRImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqShpIygFACiokJElELTJkZmQwOGFkMTAxZGRlYTFhNTIyOTEyOGYzMGY0OGJkLU5vbmUSBFBpY2sYACIBYSIBYlIAYAF4AdIDAggB"
+            },
+            "timestamp": 97273.491899
+          }
+        },
+        {
+          "sequence": 474,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.324",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "CiAxYWUwYjUzOThiMjliNzQ5MTM0ZjIwMDI2MGI3NGQxNRImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqFhoU6gEMCgZwaWNrPWMgAUAB6gMCCAE="
+            },
+            "timestamp": 97273.492027
+          }
+        },
+        {
+          "sequence": 475,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.324",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "CiA1MGFjYzIzYTBlMmMzNDA3OTU3YTJlY2QwZDI0YjVkNBImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqURpPygFHCiskJElELWFkOTU5MTlkN2M4ZGQ0ZWNkY2U5ZjE5ZjEwMGM4YTg0LWJvdW5kEgVCb3VuZBgAIgF4IgF5UgBgAHIFYm91bmTSAwIIAQ=="
+            },
+            "timestamp": 97273.492104
+          }
+        },
+        {
+          "sequence": 476,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.324",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "CiAzNDRmMWMyNGYzMzBiNTczOTIyZjk1YmJhNzM0ZDhkMBImEgIAAyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqFxoV6gENCgdib3VuZD14IAFAAeoDAggB"
+            },
+            "timestamp": 97273.492174
+          }
+        },
+        {
+          "sequence": 477,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.324",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "Cg9zY3JpcHRfZmluaXNoZWQwAA=="
+            },
+            "timestamp": 97273.492227
+          }
+        },
+        {
+          "sequence": 478,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.324",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgA="
+            },
+            "timestamp": 97273.492295
+          }
+        },
+        {
+          "sequence": 482,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameSent",
+          "params": {
+            "requestId": "15744.324",
+            "response": {
+              "mask": true,
+              "opcode": 2,
+              "payloadData": "WtoBChFib3VuZD15Jm1vZGU9ZGVtbxJjCi8KKiQkSUQtMmRmZDA4YWQxMDFkZGVhMWE1MjI5MTI4ZjMwZjQ4YmQtTm9uZTIBYwowCiskJElELWFkOTU5MTlkN2M4ZGQ0ZWNkY2U5ZjE5ZjEwMGM4YTg0LWJvdW5kMgF5GiBkNDFkOGNkOThmMDBiMjA0ZTk4MDA5OThlY2Y4NDI3ZUI+Cg1Bc2lhL1NoYW5naGFpEKD8/////////wEaAnpoIhZodHRwOi8vMTI3LjAuMC4xOjg1MTUvKAAyBGRhcms="
+            },
+            "timestamp": 97281.093197
+          }
+        },
+        {
+          "sequence": 484,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.324",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkMjIxYTlkYTctODQxZi00ODVhLTg5MTItODVmMWRmMTliYWNlEiQ1NTdjZjIyNy04ZWIyLTQ4ZGItYjYwYi1hMTUwZDRmOTMzZGUaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl"
+            },
+            "timestamp": 97281.09494
+          }
+        },
+        {
+          "sequence": 486,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.324",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ=="
+            },
+            "timestamp": 97281.097087
+          }
+        },
+        {
+          "sequence": 487,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.324",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "ChFwYWdlX2luZm9fY2hhbmdlZGITChFib3VuZD15Jm1vZGU9ZGVtbw=="
+            },
+            "timestamp": 97281.097205
+          }
+        },
+        {
+          "sequence": 488,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.324",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "CiA5OGUwMzFhN2IzYzNmMjZiZmVkY2NkYTE3NjlkMTQ1YRImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqShpIygFACiokJElELTJkZmQwOGFkMTAxZGRlYTFhNTIyOTEyOGYzMGY0OGJkLU5vbmUSBFBpY2sYACIBYSIBYlIAYAF4AdIDAggB"
+            },
+            "timestamp": 97281.097379
+          }
+        },
+        {
+          "sequence": 490,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.324",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "CiAxYWUwYjUzOThiMjliNzQ5MTM0ZjIwMDI2MGI3NGQxNRImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqFhoU6gEMCgZwaWNrPWMgAUAB6gMCCAE="
+            },
+            "timestamp": 97281.097605
+          }
+        },
+        {
+          "sequence": 491,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.324",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "CiA1MGFjYzIzYTBlMmMzNDA3OTU3YTJlY2QwZDI0YjVkNBImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqURpPygFHCiskJElELWFkOTU5MTlkN2M4ZGQ0ZWNkY2U5ZjE5ZjEwMGM4YTg0LWJvdW5kEgVCb3VuZBgAIgF4IgF5UgBgAHIFYm91bmTSAwIIAQ=="
+            },
+            "timestamp": 97281.097733
+          }
+        },
+        {
+          "sequence": 492,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.324",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "CiBmNGVjNWFlN2U0OTc5MjE2ZjYzNTZmMjdlNTYzZTI3OBImEgIAAyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqFxoV6gENCgdib3VuZD15IAFAAeoDAggB"
+            },
+            "timestamp": 97281.097837
+          }
+        },
+        {
+          "sequence": 493,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.324",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "Cg9zY3JpcHRfZmluaXNoZWQwAA=="
+            },
+            "timestamp": 97281.097955
+          }
+        },
+        {
+          "sequence": 494,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.324",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgA="
+            },
+            "timestamp": 97281.09808
+          }
+        },
+        {
+          "sequence": 504,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameSent",
+          "params": {
+            "requestId": "15744.324",
+            "response": {
+              "mask": true,
+              "opcode": 2,
+              "payloadData": "WtIBCgltb2RlPWRlbW8SYwovCiokJElELTJkZmQwOGFkMTAxZGRlYTFhNTIyOTEyOGYzMGY0OGJkLU5vbmUyAWMKMAorJCRJRC1hZDk1OTE5ZDdjOGRkNGVjZGNlOWYxOWYxMDBjOGE4NC1ib3VuZDIBeBogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VCPgoNQXNpYS9TaGFuZ2hhaRCg/P////////8BGgJ6aCIWaHR0cDovLzEyNy4wLjAuMTo4NTE1LygAMgRkYXJr"
+            },
+            "timestamp": 97290.833858
+          }
+        },
+        {
+          "sequence": 506,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.324",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkMjIxYTlkYTctODQxZi00ODVhLTg5MTItODVmMWRmMTliYWNlEiQyYjE4OGQ4NC05MzMxLTQ5ZDktODI4OC1mNDBjZGVhNThjY2MaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl"
+            },
+            "timestamp": 97290.835445
+          }
+        },
+        {
+          "sequence": 508,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.324",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ=="
+            },
+            "timestamp": 97290.837455
+          }
+        },
+        {
+          "sequence": 509,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.324",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "ChFwYWdlX2luZm9fY2hhbmdlZGILCgltb2RlPWRlbW8="
+            },
+            "timestamp": 97290.837636
+          }
+        },
+        {
+          "sequence": 510,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.324",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "CiA5OGUwMzFhN2IzYzNmMjZiZmVkY2NkYTE3NjlkMTQ1YRImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqShpIygFACiokJElELTJkZmQwOGFkMTAxZGRlYTFhNTIyOTEyOGYzMGY0OGJkLU5vbmUSBFBpY2sYACIBYSIBYlIAYAF4AdIDAggB"
+            },
+            "timestamp": 97290.837801
+          }
+        },
+        {
+          "sequence": 511,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.324",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "CiAxYWUwYjUzOThiMjliNzQ5MTM0ZjIwMDI2MGI3NGQxNRImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqFhoU6gEMCgZwaWNrPWMgAUAB6gMCCAE="
+            },
+            "timestamp": 97290.837926
+          }
+        },
+        {
+          "sequence": 512,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.324",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "CiA1MGFjYzIzYTBlMmMzNDA3OTU3YTJlY2QwZDI0YjVkNBImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqURpPygFHCiskJElELWFkOTU5MTlkN2M4ZGQ0ZWNkY2U5ZjE5ZjEwMGM4YTg0LWJvdW5kEgVCb3VuZBgAIgF4IgF5UgBgAHIFYm91bmTSAwIIAQ=="
+            },
+            "timestamp": 97290.838003
+          }
+        },
+        {
+          "sequence": 513,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.324",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "CiAzNDRmMWMyNGYzMzBiNTczOTIyZjk1YmJhNzM0ZDhkMBImEgIAAyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqFxoV6gENCgdib3VuZD14IAFAAeoDAggB"
+            },
+            "timestamp": 97290.838055
+          }
+        },
+        {
+          "sequence": 514,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.324",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "Cg9zY3JpcHRfZmluaXNoZWQwAA=="
+            },
+            "timestamp": 97290.838098
+          }
+        },
+        {
+          "sequence": 515,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.324",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgA="
+            },
+            "timestamp": 97290.838155
+          }
+        },
+        {
+          "sequence": 876,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameSent",
+          "params": {
+            "requestId": "15744.504",
+            "response": {
+              "mask": true,
+              "opcode": 2,
+              "payloadData": "Wk0KCW1vZGU9ZGVtbxIAQj4KDUFzaWEvU2hhbmdoYWkQoPz/////////ARoCemgiFmh0dHA6Ly8xMjcuMC4wLjE6ODUxNS8oADIEZGFyaw=="
+            },
+            "timestamp": 97291.149254
+          }
+        },
+        {
+          "sequence": 877,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.504",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkYzQ0OTZkZjYtMThkZC00MWM1LWEzMjctOTEyNjFkNjI2ZDJjEiRiYjQzYTNlZi01MmJiLTRmMTUtODIxNC1iNzFlNDZmOWFkOGYaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl"
+            },
+            "timestamp": 97291.152961
+          }
+        },
+        {
+          "sequence": 881,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.504",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ=="
+            },
+            "timestamp": 97291.162494
+          }
+        },
+        {
+          "sequence": 882,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.504",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "ChFwYWdlX2luZm9fY2hhbmdlZGILCgltb2RlPWRlbW8="
+            },
+            "timestamp": 97291.162666
+          }
+        },
+        {
+          "sequence": 883,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.504",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "CiA5OGUwMzFhN2IzYzNmMjZiZmVkY2NkYTE3NjlkMTQ1YRImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqShpIygFACiokJElELTJkZmQwOGFkMTAxZGRlYTFhNTIyOTEyOGYzMGY0OGJkLU5vbmUSBFBpY2sYACIBYSIBYlIAYAF4AdIDAggB"
+            },
+            "timestamp": 97291.162868
+          }
+        },
+        {
+          "sequence": 884,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.504",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "CiBjYTkwMzA3ZWQxZjFjZmMzYTM4NjY2MjFlNjY4YWU5YRImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqFhoU6gEMCgZwaWNrPWEgAUAB6gMCCAE="
+            },
+            "timestamp": 97291.163043
+          }
+        },
+        {
+          "sequence": 885,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.504",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "CiA1MGFjYzIzYTBlMmMzNDA3OTU3YTJlY2QwZDI0YjVkNBImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqURpPygFHCiskJElELWFkOTU5MTlkN2M4ZGQ0ZWNkY2U5ZjE5ZjEwMGM4YTg0LWJvdW5kEgVCb3VuZBgAIgF4IgF5UgBgAHIFYm91bmTSAwIIAQ=="
+            },
+            "timestamp": 97291.163145
+          }
+        },
+        {
+          "sequence": 886,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.504",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "CiAzNDRmMWMyNGYzMzBiNTczOTIyZjk1YmJhNzM0ZDhkMBImEgIAAyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqFxoV6gENCgdib3VuZD14IAFAAeoDAggB"
+            },
+            "timestamp": 97291.163215
+          }
+        },
+        {
+          "sequence": 887,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.504",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "Cg9zY3JpcHRfZmluaXNoZWQwAA=="
+            },
+            "timestamp": 97291.163271
+          }
+        },
+        {
+          "sequence": 888,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.504",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgA="
+            },
+            "timestamp": 97291.163352
+          }
+        },
+        {
+          "sequence": 1321,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameSent",
+          "params": {
+            "requestId": "15744.675",
+            "response": {
+              "mask": true,
+              "opcode": 2,
+              "payloadData": "WlUKEW1vZGU9ZGVtbyZib3VuZD15EgBCPgoNQXNpYS9TaGFuZ2hhaRCg/P////////8BGgJ6aCIWaHR0cDovLzEyNy4wLjAuMTo4NTE1LygAMgRkYXJr"
+            },
+            "timestamp": 97333.216144
+          }
+        },
+        {
+          "sequence": 1323,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.675",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkYTM5ZjcyNjMtOTA5Zi00NzVmLWE2ODctMTgxYWVjNGMxMzA4EiRkNWYzYjMyNC00ZjY3LTRiMDItYmQ5My05MzMxYjU5NGFhMTgaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl"
+            },
+            "timestamp": 97333.221592
+          }
+        },
+        {
+          "sequence": 1330,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.675",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ=="
+            },
+            "timestamp": 97333.229608
+          }
+        },
+        {
+          "sequence": 1331,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.675",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "ChFwYWdlX2luZm9fY2hhbmdlZGITChFtb2RlPWRlbW8mYm91bmQ9eQ=="
+            },
+            "timestamp": 97333.229747
+          }
+        },
+        {
+          "sequence": 1332,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.675",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "CiA5OGUwMzFhN2IzYzNmMjZiZmVkY2NkYTE3NjlkMTQ1YRImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqShpIygFACiokJElELTJkZmQwOGFkMTAxZGRlYTFhNTIyOTEyOGYzMGY0OGJkLU5vbmUSBFBpY2sYACIBYSIBYlIAYAF4AdIDAggB"
+            },
+            "timestamp": 97333.229902
+          }
+        },
+        {
+          "sequence": 1333,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.675",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "CiBjYTkwMzA3ZWQxZjFjZmMzYTM4NjY2MjFlNjY4YWU5YRImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqFhoU6gEMCgZwaWNrPWEgAUAB6gMCCAE="
+            },
+            "timestamp": 97333.230123
+          }
+        },
+        {
+          "sequence": 1334,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.675",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "CiA5MjNkYzQ3YTY2OWQzNDVhMTVmYWVjYmNmOGZlNjQxYRImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqWRpXygFMCiskJElELWFkOTU5MTlkN2M4ZGQ0ZWNkY2U5ZjE5ZjEwMGM4YTg0LWJvdW5kEgVCb3VuZBgAIgF4IgF5QAFSAGAAagF5cgVib3VuZNIDAggBiAQB"
+            },
+            "timestamp": 97333.23025
+          }
+        },
+        {
+          "sequence": 1335,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.675",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "CiBmNGVjNWFlN2U0OTc5MjE2ZjYzNTZmMjdlNTYzZTI3OBImEgIAAyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqFxoV6gENCgdib3VuZD15IAFAAeoDAggB"
+            },
+            "timestamp": 97333.230445
+          }
+        },
+        {
+          "sequence": 1336,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.675",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "Cg9zY3JpcHRfZmluaXNoZWQwAA=="
+            },
+            "timestamp": 97333.23051
+          }
+        },
+        {
+          "sequence": 1337,
+          "source": {
+            "tabId": 1754831902
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "15744.675",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgA="
+            },
+            "timestamp": 97333.230639
+          }
+        }
+      ],
+      "notes": [
+        "CDP event buffer truncated"
+      ],
+      "cursor": 1497,
+      "logs": [
+        {
+          "level": "error",
+          "message": "Client Error: WebSocket onerror",
+          "timestamp": "2026-10-31T05:15:00.065Z",
+          "url": "http://127.0.0.1:8515/static/js/index.Dlja0TUX.js"
+        },
+        {
+          "level": "error",
+          "message": "Client Error: WebSocket onerror",
+          "timestamp": "2026-10-31T05:15:00.813Z",
+          "url": "http://127.0.0.1:8515/static/js/index.Dlja0TUX.js"
+        }
+      ],
+      "finalDom": {
+        "comboboxes": [
+          {
+            "disabled": false,
+            "name": "Pick",
+            "value": "a"
+          },
+          {
+            "disabled": false,
+            "name": "Bound",
+            "value": "y"
+          }
+        ],
+        "exceptions": [],
+        "markdowns": [
+          "pick=a",
+          "bound=y"
+        ],
+        "title": "Streamlit",
+        "url": "http://127.0.0.1:8515/?mode=demo&bound=y",
+        "viewport": {
+          "devicePixelRatio": 1.75,
+          "height": 724,
+          "width": 1463
+        }
+      }
+    },
+    "same-document": {
+      "observations": [
+        {
+          "label": "initial",
+          "time": "2026-10-31T05:18:06.755Z",
+          "url": "http://127.0.0.1:8515/?bound=y&mode=demo",
+          "dom": "- link \"Skip to main content\":\n  - /url: \"#stMain\"\n- banner:\n  - button \"Deploy\":\n    - generic: Deploy\n  - button \"Main menu\":\n- main:\n  - paragraph: Pick\n  - combobox \"Pick\": a\n  - button \"Open\":\n  - paragraph: pick=a\n  - paragraph: Bound\n  - combobox \"Bound\": \"y\"\n  - button \"Open\":\n  - paragraph: bound=y",
+          "eventCursor": 467
+        },
+        {
+          "label": "pick-c",
+          "time": "2026-10-31T05:18:06.990Z",
+          "url": "http://127.0.0.1:8515/?bound=y&mode=demo",
+          "dom": "- log:\n  - generic: 1 option available.\n  - generic: 2 options available.\n- log\n- link \"Skip to main content\":\n  - /url: \"#stMain\"\n- banner:\n  - button \"Deploy\":\n    - generic: Deploy\n  - button \"Main menu\":\n- main:\n  - paragraph: Pick\n  - combobox \"Pick\" [active]: c\n  - button \"Open\":\n  - paragraph: pick=c\n  - paragraph: Bound\n  - combobox \"Bound\": \"y\"\n  - button \"Open\":\n  - paragraph: bound=y",
+          "eventCursor": 477
+        },
+        {
+          "label": "bound-x",
+          "time": "2026-10-31T05:18:15.979Z",
+          "url": "http://127.0.0.1:8515/?mode=demo",
+          "dom": "- log\n- log\n- link \"Skip to main content\":\n  - /url: \"#stMain\"\n- banner:\n  - button \"Deploy\":\n    - generic: Deploy\n  - button \"Main menu\":\n- main:\n  - paragraph: Pick\n  - combobox \"Pick\": c\n  - button \"Open\":\n  - paragraph: pick=c\n  - paragraph: Bound\n  - combobox \"Bound\" [active]: x\n  - button \"Open\":\n  - paragraph: bound=x",
+          "eventCursor": 495
+        },
+        {
+          "label": "back-y",
+          "time": "2026-10-31T05:18:16.050Z",
+          "url": "http://127.0.0.1:8515/?bound=y&mode=demo",
+          "dom": "- log\n- log\n- link \"Skip to main content\":\n  - /url: \"#stMain\"\n- banner:\n  - button \"Deploy\":\n    - generic: Deploy\n  - button \"Main menu\":\n- main:\n  - paragraph: Pick\n  - combobox \"Pick\": c\n  - button \"Open\":\n  - paragraph: pick=c\n  - paragraph: Bound\n  - combobox \"Bound\" [active]: \"y\"\n  - button \"Open\":\n  - paragraph: bound=y",
+          "eventCursor": 516
+        },
+        {
+          "label": "forward-x",
+          "time": "2026-10-31T05:18:16.737Z",
+          "url": "http://127.0.0.1:8515/?mode=demo",
+          "dom": "- log\n- log\n- link \"Skip to main content\":\n  - /url: \"#stMain\"\n- banner:\n  - button \"Deploy\":\n    - generic: Deploy\n  - button \"Main menu\":\n- main:\n  - paragraph: Pick\n  - combobox \"Pick\": c\n  - button \"Open\":\n  - paragraph: pick=c\n  - paragraph: Bound\n  - combobox \"Bound\" [active]: x\n  - button \"Open\":\n  - paragraph: bound=x",
+          "eventCursor": 534
+        }
+      ],
+      "events": [
+        {
+          "sequence": 357,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameSent",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": true,
+              "opcode": 2,
+              "payloadData": "WksKB2JvdW5kPXkSAEI+Cg1Bc2lhL1NoYW5naGFpEKD8/////////wEaAnpoIhZodHRwOi8vMTI3LjAuMC4xOjg1MTUvKAAyBGRhcms="
+            },
+            "timestamp": 97519.949229
+          }
+        },
+        {
+          "sequence": 358,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkYTBjNTk3MzMtMWE4OC00MDU3LTkyNTYtYjY3M2UwODFhNzFiEiRkODJkOTc1NS1jMGE4LTQ2MzItYjVkYi04YzI2NTFlOGQ2NTAaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl"
+            },
+            "timestamp": 97519.951055
+          }
+        },
+        {
+          "sequence": 362,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ=="
+            },
+            "timestamp": 97519.957265
+          }
+        },
+        {
+          "sequence": 364,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "ChFwYWdlX2luZm9fY2hhbmdlZGITChFib3VuZD15Jm1vZGU9ZGVtbw=="
+            },
+            "timestamp": 97519.957409
+          }
+        },
+        {
+          "sequence": 367,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "CiA5OGUwMzFhN2IzYzNmMjZiZmVkY2NkYTE3NjlkMTQ1YRImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqShpIygFACiokJElELTJkZmQwOGFkMTAxZGRlYTFhNTIyOTEyOGYzMGY0OGJkLU5vbmUSBFBpY2sYACIBYSIBYlIAYAF4AdIDAggB"
+            },
+            "timestamp": 97519.957831
+          }
+        },
+        {
+          "sequence": 368,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "CiBjYTkwMzA3ZWQxZjFjZmMzYTM4NjY2MjFlNjY4YWU5YRImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqFhoU6gEMCgZwaWNrPWEgAUAB6gMCCAE="
+            },
+            "timestamp": 97519.958227
+          }
+        },
+        {
+          "sequence": 369,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "CiA5MjNkYzQ3YTY2OWQzNDVhMTVmYWVjYmNmOGZlNjQxYRImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqWRpXygFMCiskJElELWFkOTU5MTlkN2M4ZGQ0ZWNkY2U5ZjE5ZjEwMGM4YTg0LWJvdW5kEgVCb3VuZBgAIgF4IgF5QAFSAGAAagF5cgVib3VuZNIDAggBiAQB"
+            },
+            "timestamp": 97519.958637
+          }
+        },
+        {
+          "sequence": 370,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "CiBmNGVjNWFlN2U0OTc5MjE2ZjYzNTZmMjdlNTYzZTI3OBImEgIAAyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqFxoV6gENCgdib3VuZD15IAFAAeoDAggB"
+            },
+            "timestamp": 97519.958884
+          }
+        },
+        {
+          "sequence": 371,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "Cg9zY3JpcHRfZmluaXNoZWQwAA=="
+            },
+            "timestamp": 97519.958996
+          }
+        },
+        {
+          "sequence": 372,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgA="
+            },
+            "timestamp": 97519.959117
+          }
+        },
+        {
+          "sequence": 468,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameSent",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": true,
+              "opcode": 2,
+              "payloadData": "WtoBChFib3VuZD15Jm1vZGU9ZGVtbxJjCi8KKiQkSUQtMmRmZDA4YWQxMDFkZGVhMWE1MjI5MTI4ZjMwZjQ4YmQtTm9uZTIBYwowCiskJElELWFkOTU5MTlkN2M4ZGQ0ZWNkY2U5ZjE5ZjEwMGM4YTg0LWJvdW5kMgF5GiBkNDFkOGNkOThmMDBiMjA0ZTk4MDA5OThlY2Y4NDI3ZUI+Cg1Bc2lhL1NoYW5naGFpEKD8/////////wEaAnpoIhZodHRwOi8vMTI3LjAuMC4xOjg1MTUvKAAyBGRhcms="
+            },
+            "timestamp": 97520.174271
+          }
+        },
+        {
+          "sequence": 469,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkYTBjNTk3MzMtMWE4OC00MDU3LTkyNTYtYjY3M2UwODFhNzFiEiQ5ZDI1MjZjMi0wNzIyLTRhN2EtYTNiNy0yOWZhNDJhMjU5ZGEaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl"
+            },
+            "timestamp": 97520.175525
+          }
+        },
+        {
+          "sequence": 470,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ=="
+            },
+            "timestamp": 97520.175869
+          }
+        },
+        {
+          "sequence": 471,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "ChFwYWdlX2luZm9fY2hhbmdlZGITChFib3VuZD15Jm1vZGU9ZGVtbw=="
+            },
+            "timestamp": 97520.178217
+          }
+        },
+        {
+          "sequence": 472,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "CiA5OGUwMzFhN2IzYzNmMjZiZmVkY2NkYTE3NjlkMTQ1YRImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqShpIygFACiokJElELTJkZmQwOGFkMTAxZGRlYTFhNTIyOTEyOGYzMGY0OGJkLU5vbmUSBFBpY2sYACIBYSIBYlIAYAF4AdIDAggB"
+            },
+            "timestamp": 97520.178351
+          }
+        },
+        {
+          "sequence": 473,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "CiAxYWUwYjUzOThiMjliNzQ5MTM0ZjIwMDI2MGI3NGQxNRImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqFhoU6gEMCgZwaWNrPWMgAUAB6gMCCAE="
+            },
+            "timestamp": 97520.178466
+          }
+        },
+        {
+          "sequence": 474,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "CiA1MGFjYzIzYTBlMmMzNDA3OTU3YTJlY2QwZDI0YjVkNBImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqURpPygFHCiskJElELWFkOTU5MTlkN2M4ZGQ0ZWNkY2U5ZjE5ZjEwMGM4YTg0LWJvdW5kEgVCb3VuZBgAIgF4IgF5UgBgAHIFYm91bmTSAwIIAQ=="
+            },
+            "timestamp": 97520.178554
+          }
+        },
+        {
+          "sequence": 475,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "CiBmNGVjNWFlN2U0OTc5MjE2ZjYzNTZmMjdlNTYzZTI3OBImEgIAAyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqFxoV6gENCgdib3VuZD15IAFAAeoDAggB"
+            },
+            "timestamp": 97520.178671
+          }
+        },
+        {
+          "sequence": 476,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "Cg9zY3JpcHRfZmluaXNoZWQwAA=="
+            },
+            "timestamp": 97520.178772
+          }
+        },
+        {
+          "sequence": 477,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgA="
+            },
+            "timestamp": 97520.17888
+          }
+        },
+        {
+          "sequence": 481,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameSent",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": true,
+              "opcode": 2,
+              "payloadData": "WtIBCgltb2RlPWRlbW8SYwovCiokJElELTJkZmQwOGFkMTAxZGRlYTFhNTIyOTEyOGYzMGY0OGJkLU5vbmUyAWMKMAorJCRJRC1hZDk1OTE5ZDdjOGRkNGVjZGNlOWYxOWYxMDBjOGE4NC1ib3VuZDIBeBogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VCPgoNQXNpYS9TaGFuZ2hhaRCg/P////////8BGgJ6aCIWaHR0cDovLzEyNy4wLjAuMTo4NTE1LygAMgRkYXJr"
+            },
+            "timestamp": 97529.128971
+          }
+        },
+        {
+          "sequence": 483,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkYTBjNTk3MzMtMWE4OC00MDU3LTkyNTYtYjY3M2UwODFhNzFiEiRiOTY3MjA0My1mMDAxLTRhNmItOGZjNC1kNjcyN2EzYzczM2UaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl"
+            },
+            "timestamp": 97529.130309
+          }
+        },
+        {
+          "sequence": 484,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ=="
+            },
+            "timestamp": 97529.131699
+          }
+        },
+        {
+          "sequence": 485,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "ChFwYWdlX2luZm9fY2hhbmdlZGILCgltb2RlPWRlbW8="
+            },
+            "timestamp": 97529.131817
+          }
+        },
+        {
+          "sequence": 486,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "CiA5OGUwMzFhN2IzYzNmMjZiZmVkY2NkYTE3NjlkMTQ1YRImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqShpIygFACiokJElELTJkZmQwOGFkMTAxZGRlYTFhNTIyOTEyOGYzMGY0OGJkLU5vbmUSBFBpY2sYACIBYSIBYlIAYAF4AdIDAggB"
+            },
+            "timestamp": 97529.131964
+          }
+        },
+        {
+          "sequence": 487,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "CiAxYWUwYjUzOThiMjliNzQ5MTM0ZjIwMDI2MGI3NGQxNRImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqFhoU6gEMCgZwaWNrPWMgAUAB6gMCCAE="
+            },
+            "timestamp": 97529.13207
+          }
+        },
+        {
+          "sequence": 488,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "CiA1MGFjYzIzYTBlMmMzNDA3OTU3YTJlY2QwZDI0YjVkNBImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqURpPygFHCiskJElELWFkOTU5MTlkN2M4ZGQ0ZWNkY2U5ZjE5ZjEwMGM4YTg0LWJvdW5kEgVCb3VuZBgAIgF4IgF5UgBgAHIFYm91bmTSAwIIAQ=="
+            },
+            "timestamp": 97529.132135
+          }
+        },
+        {
+          "sequence": 489,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "CiAzNDRmMWMyNGYzMzBiNTczOTIyZjk1YmJhNzM0ZDhkMBImEgIAAyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqFxoV6gENCgdib3VuZD14IAFAAeoDAggB"
+            },
+            "timestamp": 97529.132193
+          }
+        },
+        {
+          "sequence": 490,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "Cg9zY3JpcHRfZmluaXNoZWQwAA=="
+            },
+            "timestamp": 97529.132259
+          }
+        },
+        {
+          "sequence": 491,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgA="
+            },
+            "timestamp": 97529.132308
+          }
+        },
+        {
+          "sequence": 500,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameSent",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": true,
+              "opcode": 2,
+              "payloadData": "WtIBCgdib3VuZD15EmMKLwoqJCRJRC0yZGZkMDhhZDEwMWRkZWExYTUyMjkxMjhmMzBmNDhiZC1Ob25lMgFjCjAKKyQkSUQtYWQ5NTkxOWQ3YzhkZDRlY2RjZTlmMTlmMTAwYzhhODQtYm91bmQyAXgaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlQj4KDUFzaWEvU2hhbmdoYWkQoPz/////////ARoCemgiFmh0dHA6Ly8xMjcuMC4wLjE6ODUxNS8oADIEZGFya0gB"
+            },
+            "timestamp": 97529.264418
+          }
+        },
+        {
+          "sequence": 501,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkYTBjNTk3MzMtMWE4OC00MDU3LTkyNTYtYjY3M2UwODFhNzFiEiRhMmE1NDk4MS0xMGM1LTRjNWEtOGZhYS1kY2Q4MTE5NDM3OTkaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl"
+            },
+            "timestamp": 97529.266131
+          }
+        },
+        {
+          "sequence": 502,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ=="
+            },
+            "timestamp": 97529.26746
+          }
+        },
+        {
+          "sequence": 504,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "ChFwYWdlX2luZm9fY2hhbmdlZGITChFib3VuZD15Jm1vZGU9ZGVtbw=="
+            },
+            "timestamp": 97529.267575
+          }
+        },
+        {
+          "sequence": 507,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "CiA5OGUwMzFhN2IzYzNmMjZiZmVkY2NkYTE3NjlkMTQ1YRImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqShpIygFACiokJElELTJkZmQwOGFkMTAxZGRlYTFhNTIyOTEyOGYzMGY0OGJkLU5vbmUSBFBpY2sYACIBYSIBYlIAYAF4AdIDAggB"
+            },
+            "timestamp": 97529.267807
+          }
+        },
+        {
+          "sequence": 508,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "CiAxYWUwYjUzOThiMjliNzQ5MTM0ZjIwMDI2MGI3NGQxNRImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqFhoU6gEMCgZwaWNrPWMgAUAB6gMCCAE="
+            },
+            "timestamp": 97529.26795
+          }
+        },
+        {
+          "sequence": 509,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "CiA5MjNkYzQ3YTY2OWQzNDVhMTVmYWVjYmNmOGZlNjQxYRImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqWRpXygFMCiskJElELWFkOTU5MTlkN2M4ZGQ0ZWNkY2U5ZjE5ZjEwMGM4YTg0LWJvdW5kEgVCb3VuZBgAIgF4IgF5QAFSAGAAagF5cgVib3VuZNIDAggBiAQB"
+            },
+            "timestamp": 97529.268064
+          }
+        },
+        {
+          "sequence": 510,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "CiBmNGVjNWFlN2U0OTc5MjE2ZjYzNTZmMjdlNTYzZTI3OBImEgIAAyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqFxoV6gENCgdib3VuZD15IAFAAeoDAggB"
+            },
+            "timestamp": 97529.268184
+          }
+        },
+        {
+          "sequence": 511,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "Cg9zY3JpcHRfZmluaXNoZWQwAA=="
+            },
+            "timestamp": 97529.268251
+          }
+        },
+        {
+          "sequence": 512,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgA="
+            },
+            "timestamp": 97529.268305
+          }
+        },
+        {
+          "sequence": 521,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameSent",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": true,
+              "opcode": 2,
+              "payloadData": "WtQBCgltb2RlPWRlbW8SYwovCiokJElELTJkZmQwOGFkMTAxZGRlYTFhNTIyOTEyOGYzMGY0OGJkLU5vbmUyAWMKMAorJCRJRC1hZDk1OTE5ZDdjOGRkNGVjZGNlOWYxOWYxMDBjOGE4NC1ib3VuZDIBeRogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VCPgoNQXNpYS9TaGFuZ2hhaRCg/P////////8BGgJ6aCIWaHR0cDovLzEyNy4wLjAuMTo4NTE1LygAMgRkYXJrSAE="
+            },
+            "timestamp": 97529.955711
+          }
+        },
+        {
+          "sequence": 522,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkYTBjNTk3MzMtMWE4OC00MDU3LTkyNTYtYjY3M2UwODFhNzFiEiQ3OThkNWM2MS0yZGIwLTRjODMtOGVkNy04NDdjMTExYTBhMWIaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl"
+            },
+            "timestamp": 97529.958221
+          }
+        },
+        {
+          "sequence": 523,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ=="
+            },
+            "timestamp": 97529.959758
+          }
+        },
+        {
+          "sequence": 524,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "ChFwYWdlX2luZm9fY2hhbmdlZGILCgltb2RlPWRlbW8="
+            },
+            "timestamp": 97529.959883
+          }
+        },
+        {
+          "sequence": 525,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "CiA5OGUwMzFhN2IzYzNmMjZiZmVkY2NkYTE3NjlkMTQ1YRImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqShpIygFACiokJElELTJkZmQwOGFkMTAxZGRlYTFhNTIyOTEyOGYzMGY0OGJkLU5vbmUSBFBpY2sYACIBYSIBYlIAYAF4AdIDAggB"
+            },
+            "timestamp": 97529.960001
+          }
+        },
+        {
+          "sequence": 526,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "CiAxYWUwYjUzOThiMjliNzQ5MTM0ZjIwMDI2MGI3NGQxNRImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqFhoU6gEMCgZwaWNrPWMgAUAB6gMCCAE="
+            },
+            "timestamp": 97529.960097
+          }
+        },
+        {
+          "sequence": 527,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "CiAyY2FlODUxZGExNzVkYWJhYjUyZmM1MWE5NmQzOGNlMBImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqWRpXygFMCiskJElELWFkOTU5MTlkN2M4ZGQ0ZWNkY2U5ZjE5ZjEwMGM4YTg0LWJvdW5kEgVCb3VuZBgAIgF4IgF5QAFSAGAAagF4cgVib3VuZNIDAggBiAQB"
+            },
+            "timestamp": 97529.96016
+          }
+        },
+        {
+          "sequence": 528,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "CiAzNDRmMWMyNGYzMzBiNTczOTIyZjk1YmJhNzM0ZDhkMBImEgIAAyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqFxoV6gENCgdib3VuZD14IAFAAeoDAggB"
+            },
+            "timestamp": 97529.960234
+          }
+        },
+        {
+          "sequence": 529,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "Cg9zY3JpcHRfZmluaXNoZWQwAA=="
+            },
+            "timestamp": 97529.960293
+          }
+        },
+        {
+          "sequence": 530,
+          "source": {
+            "tabId": 1754831910
+          },
+          "method": "Network.webSocketFrameReceived",
+          "params": {
+            "requestId": "74072.323",
+            "response": {
+              "mask": false,
+              "opcode": 2,
+              "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgA="
+            },
+            "timestamp": 97529.960345
+          }
+        }
+      ],
+      "notes": [
+        "Preparation document ?mode=demo was loaded before Network recording. Actual recorded journey starts at ?bound=y; server adds mode=demo and creates a same-document history entry."
+      ],
+      "cursor": 534,
+      "logs": [],
+      "finalDom": {
+        "comboboxes": [
+          {
+            "disabled": false,
+            "name": "Pick",
+            "value": "c"
+          },
+          {
+            "disabled": false,
+            "name": "Bound",
+            "value": "x"
+          }
+        ],
+        "exceptions": [],
+        "markdowns": [
+          "pick=c",
+          "bound=x"
+        ],
+        "url": "http://127.0.0.1:8515/?mode=demo",
+        "viewport": {
+          "devicePixelRatio": 1.75,
+          "height": 724,
+          "width": 1463
+        }
+      }
+    }
+  },
+  "screenshots": [
+    {
+      "file": "forward-return.jpg",
+      "sha256": "82e47e24096078aa2ec84a1bdee2c67820446b69efbe5ced1aa005efe21d8d7f",
+      "bytes": 33475,
+      "size": [
+        2561,
+        1267
+      ]
+    },
+    {
+      "file": "forward-y.jpg",
+      "sha256": "4be5a5c7d51a6d476a9dd0a6e6ca682c0d3894f295ff6b3520ebd8f7b157a0cb",
+      "bytes": 33569,
+      "size": [
+        2561,
+        1267
+      ]
+    },
+    {
+      "file": "history-back-y.jpg",
+      "sha256": "baa89834313e95539a114ab8adabe293e267a15251301ad5790eff534df7923d",
+      "bytes": 35910,
+      "size": [
+        2561,
+        1267
+      ]
+    },
+    {
+      "file": "history-forward-x.jpg",
+      "sha256": "41b5a4273b320cb6d6864f31a7b8c540fb4d3176c60a03a43492d04d25982fbb",
+      "bytes": 34913,
+      "size": [
+        2561,
+        1267
+      ]
+    }
+  ],
+  "cleanup": {
+    "owned_tabs_closed": true,
+    "owned_servers_stopped": true,
+    "ports_free": [
+      8515,
+      18515
+    ]
+  }
+}

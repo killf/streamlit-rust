@@ -618,3 +618,30 @@ Python 门从原始 PB 校验全部四份 bytes 输入（含空串），另把 0
 前两案还需在 widgets.rs 将私有 input_error 从消息字符串改为含 kind/message 的内部类型，让 handler 按冻结类型呈现；维持已有会话级错误与回调边界。生产改动仅为新私有模块、lib.rs、widgets.rs 和 websocket/handler.rs，不增加依赖、公共接口、配置或 Python 运行时。现有普通类型的错误文字/生命周期和 Delta-only 队列策略不变，JSON 公开接口、无损序列化、Material/Unicode 选案不在本项里。
 
 确认后先补扫描单元，再复用 streamlit/tests/runtime/queryparams.rs 的既有真实 WS 重放助手对全部 72 轮/252 投影严格差分，覆盖完整类型/消息/位置、特殊值接受、无提前 callback 和下一轮持续失败；原十九例/十六例/八例及字节精确重放继续通过。再跑相关 Python/矩阵/文档、全目标 Clippy 与工作区，最后补真实 UI。深嵌套、大整数限制与其他状态清理组合需另取参考，不凭空新增阈值，也不把这 24 例通过当作完整 JSON/全部 API 验收。M3/M5/M7 和 130 partial 继续开放。
+
+
+### Real Chrome query binding history (2026-10-31)
+
+Reused queryparams.rs/queryparams_app.py unchanged. Starting with mode=demo
+only exercises binding replaceState: Back reaches the owned blank page and
+Forward reloads defaults. The separate document-history observations retain
+Connecting/disabled UI, WebSocket onerror messages and CDP buffer-eviction notes;
+70 Python/60 Rust retained frames are not a complete navigation-request ledger.
+
+Starting instead at ?bound=y lets the existing server write add mode=demo and
+create a same-document history entry. Each runtime then records five complete
+runs/50 raw WS frames: initial, Pick=c, Bound=x, Back, Forward. Actual request
+history flags are false/false/false/true/true. Back URL y beats submitted old x;
+Forward absent bound restores default x despite submitted old y. Pick=c and the
+session ID persist; both responses explicitly synchronize the bound widget.
+The two same-document records have no buffer eviction or console warnings.
+
+Evidence: reference-browser/queryparams/history-ui and rust-queryparams/history-ui,
+each with both raw journeys, DOM cursors/logs, four JPEGs and cleanup readback.
+The existing queryparams contract test decodes raw protobuf, checks lifecycle,
+paths, widget inputs/synchronization, URLs and output, binds same-document runs
+to DOM cursors and validates all eight JPEGs. Five wrong-evidence mutations are
+rejected. This is a measured selectbox history slice, not general callback,
+fragment, multipage, other bound controls or reload-persistence acceptance.
+No production/example/API/dependency change; pending JSON parser and broader
+queue decisions remain pending. 130 partial and the full goal remain open.

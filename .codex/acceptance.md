@@ -830,3 +830,37 @@ Python 从原始 PB 检查四份 bytes 载荷的精确内容，并一致改写 0
 按 engineering-change-design 整理既有 architecture.md 三案：根类型语法扫描（推荐）、现有 IgnoredAny 词法/错误适配、暂缓。涉及新增 python_json.rs 和私有错误 kind/message 传递，依用户提供的 AGENTS.md 第 2 条先待选择，生产文件/流程未实施，行为方向仍沿用此前选定的 Python 完整兼容。四条矩阵仅补参考/限制、未升级状态，清单保持 130 partial；M3/M5/M7 与完整 Goal 继续开放。
 
 采集进程已 terminate/wait，原端口 64996 清理另核验，本轮无浏览器 task。colconfig_params 独立改动保留，仅提交推送当前工作分支的参考、门禁和方案，不合并或发布。
+
+
+### 2026-10-31 query binding: real browser history evidence
+
+Python 1.66.1/3.14.7 reference and current Rust example were operated through the
+computer-use Chrome tab API, using actual Back/Forward. No injected history or
+synthetic client flags. Both same-document journeys have five runs/50 raw frames,
+one session ID, no eviction or console warnings: URL y wins over submitted old
+widget x on Back; absent bound restores default x over old y on Forward; Pick=c
+persists. Flags false/false/false/true/true and explicit set_value/raw_value were
+verified from original PB. Visible URL and markdown match each run's DOM cursor.
+
+The first, distinct journey intentionally remains in evidence: binding edits
+replaced the current entry, Back reached about:blank, Forward reloaded Pick=a,
+and direct URL document history restored x/y. Python Connecting/disabled UI and
+one/two Python/Rust WebSocket onerror messages are preserved. CDP eviction flags
+mean its 70/60 retained frames (seven/six complete executions) do not prove all
+navigation/reconnection requests were observed. An unavailable history-inspection
+command and a rejected CDP read on blank were not bypassed. The second journey
+created its entry through the existing server-side mode write and had no such
+eviction. Original records were not rewritten to make the first assumption pass.
+
+Eight JPEGs and both raw/DOM/log records are in
+`tests/reference/reference-browser/queryparams/history-ui/` and
+`tests/browser/rust-queryparams/history-ui/`. Current reference versions are
+checked in raw NewSession frames; separate interpreter readback is post-capture.
+109 related query/matrix/docs checks passed with DeprecationWarning as error
+(`target/query-history-ui-final-gates.log`), including five wrong-evidence guards.
+No production code changed, so no new broad Rust/full-reference claim is made;
+the existing example built offline/locked before actual browser verification.
+All four owned tabs across the two batches and both batches of servers were
+closed; ports 8515/18515 and owned PIDs were read back absent. General history,
+callback, multipage and other bound-widget behavior remain unverified; existing
+queue/API/parser decisions and the 130 partial denominator remain unchanged.

@@ -280,3 +280,6 @@ JSON 深度/宽度已补 18 组固定原生参考（9 成功、9 拒绝）；Jso
 
 
 2026-10-31 JSON 语法与接受边界参考已冻结：24 会话/72 轮、34 状态、38 异常、252 交错投影。17 个语法错误输入表现为入口前且持续的 json.decoder.JSONDecodeError；五种特殊标量被接受，另外两种含非有限数的容器转为 TypeError。库层对比显示 serde_json 1.0.145 拒绝 Python 接受的七种解码输入，不能直接拿其错误替代 Python。私有扫描/现有 IgnoredAny 适配/暂缓三案见 architecture.md，新增生产模块待用户选择；本轮未实施 Rust 解析或声称服务端差分通过，完整目标保持。
+
+
+2026-10-31 查询绑定新增真实 Chrome 同页历史证据：复用既有示例，无生产改动；每端五轮/50 原始帧，实际 Back/Forward 标志为 true，URL 优先于旧控件值、缺省键恢复 x，普通 Pick=c 与会话身份保留。另保留最初 replaceState/跨文档流程及其 about:blank、重连告警、Connecting UI 和 CDP 淘汰限制，不据其 70/60 帧宣称请求全覆盖。八张 JPEG、原始帧/DOM 绑定及五项错误证据拒绝门已验证，相关 Python/矩阵/文档 109 项通过。通用历史、callback、跨页及其他绑定仍开放，130 partial、M3/M5/M7 与完整 Goal 不变，继续阶段提交推送。

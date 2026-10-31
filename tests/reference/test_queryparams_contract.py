@@ -682,3 +682,181 @@ def test_disabled_type_gate_rejects_coherent_wrong_wire(mutation):
         pytest.fail("missing disabled type mutation target")
     with pytest.raises(AssertionError):
         read_query_param_capture(scenario, capture)
+
+
+def read_browser_history_capture(runtime, capture=None):
+    import base64
+    import re
+    from urllib.parse import urlsplit
+    from PIL import Image
+    from streamlit.proto.BackMsg_pb2 import BackMsg
+    from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
+    from streamlit.proto.SelectWidgetFilterMode_pb2 import FILTER_MODE_CONTAINS
+
+    # 1. 读取原始记录；运行时、清理和截图均使用本次采集的数据。
+    directory = (HERE / "reference-browser/queryparams/history-ui" if runtime == "python"
+                 else HERE.parent / "browser/rust-queryparams/history-ui")
+    if capture is None:
+        capture = json.loads((directory / "trace.json").read_text(encoding="utf-8"))
+    assert capture["runtime"] == runtime and capture["reference_version"] == "1.66.1"
+    assert capture["cleanup"] == {"owned_tabs_closed": True, "owned_servers_stopped": True, "ports_free": [8515, 18515]}
+    assert set(capture["scenarios"]) == {"replacement-and-document", "same-document"}
+
+    # 2. 解码原始帧，分别验证页面重载和同页历史的状态、URL 与 DOM。
+    projections = {}
+    for name, scenario in capture["scenarios"].items():
+        events = scenario["events"]
+        sequences = [event["sequence"] for event in events]
+        assert sequences == sorted(set(sequences))
+        if name == "same-document":
+            assert not any("truncated" in note for note in scenario["notes"])
+        else:
+            # 跨文档记录有缓冲淘汰，只校验保留下来的完整执行，不推断全部请求数。
+            assert "CDP event buffer truncated" in scenario["notes"]
+        runs = []
+        for event in events:
+            assert event["method"] in ("Network.webSocketFrameSent", "Network.webSocketFrameReceived")
+            response = event["params"]["response"]
+            assert response["opcode"] == 2
+            message = BackMsg() if event["method"].endswith("Sent") else ForwardMsg()
+            message.ParseFromString(base64.b64decode(response["payloadData"], validate=True))
+            if isinstance(message, BackMsg):
+                assert message.WhichOneof("type") == "rerun_script"
+                runs.append({"request": message.rerun_script, "messages": [], "sequences": [event["sequence"]]})
+            else:
+                assert runs
+                runs[-1]["messages"].append(message)
+                runs[-1]["sequences"].append(event["sequence"])
+
+        same_document = name == "same-document"
+        requests = (["bound=y", "bound=y&mode=demo", "mode=demo", "bound=y", "mode=demo"] if same_document else
+                    ["mode=demo", "mode=demo", "bound=y&mode=demo", "mode=demo", "mode=demo", "mode=demo&bound=y"]
+                    + (["mode=demo&bound=y"] if runtime == "python" else []))
+        assert [run["request"].query_string for run in runs] == requests
+        assert [run["request"].is_history_navigation for run in runs] == ([False, False, False, True, True] if same_document else [False] * len(runs))
+        expected_text = ([("a", "y"), ("c", "y"), ("c", "x"), ("c", "y"), ("c", "x")] if same_document else
+                         [("a", "x"), ("c", "x"), ("c", "y"), ("c", "x"), ("a", "x"), ("a", "y")]
+                         + ([("a", "y")] if runtime == "python" else []))
+        sessions, projection = [], []
+        for number, (run, (pick, bound)) in enumerate(zip(runs, expected_text, strict=True)):
+            messages = run["messages"]
+            assert [message.WhichOneof("type") for message in messages] == [
+                "new_session", "session_status_changed", "page_info_changed", "delta", "delta", "delta", "delta", "script_finished", "session_status_changed"]
+            sessions.append(messages[0].new_session.initialize.session_id)
+            if runtime == "python":
+                environment = messages[0].new_session.initialize.environment_info
+                assert environment.streamlit_version == "1.66.1" and environment.python_version == "3.14.7.final.0"
+            assert messages[1].session_status_changed.script_is_running
+            assert not messages[-1].session_status_changed.script_is_running
+            assert messages[-2].script_finished == 0
+            assert messages[2].page_info_changed.query_string == ("bound=y&mode=demo" if same_document and bound == "y" else
+                                                                "mode=demo&bound=y" if not same_document and number >= 5 else
+                                                                "bound=y&mode=demo" if bound == "y" else "mode=demo")
+            deltas = messages[3:7]
+            assert [list(message.metadata.delta_path) for message in deltas] == [[0, index] for index in range(4)]
+            elements = [message.delta.new_element for message in deltas]
+            assert [element.WhichOneof("type") for element in elements] == ["selectbox", "markdown", "selectbox", "markdown"]
+            assert [elements[1].markdown.body, elements[3].markdown.body] == [f"pick={pick}", f"bound={bound}"]
+            assert elements[0].selectbox.label == "Pick" and list(elements[0].selectbox.options) == ["a", "b"]
+            assert elements[0].selectbox.accept_new_options
+            assert elements[0].selectbox.filter_mode == FILTER_MODE_CONTAINS
+            assert elements[2].selectbox.label == "Bound" and list(elements[2].selectbox.options) == ["x", "y"]
+            assert elements[2].selectbox.query_param_key == "bound" and not elements[2].selectbox.accept_new_options
+            if same_document:
+                assert elements[2].selectbox.set_value == (number in (0, 3, 4))
+                assert elements[2].selectbox.raw_value == (bound if number in (0, 3, 4) else "")
+                widgets = run["request"].widget_states.widgets
+                assert len(widgets) == (0 if number == 0 else 2)
+                if widgets:
+                    assert [widget.WhichOneof("value") for widget in widgets] == ["string_value", "string_value"]
+                    assert [widget.string_value for widget in widgets] == ["c", ["y", "x", "x", "y"][number - 1]]
+                    assert [widget.id for widget in widgets] == [elements[0].selectbox.id, elements[2].selectbox.id]
+            projection.append((run["request"].query_string, run["request"].is_history_navigation, pick, bound))
+        assert sessions[0] and len(set(sessions[:4])) == 1
+        if same_document:
+            assert len(set(sessions)) == 1 and not scenario["logs"]
+            stages = [("initial", "bound=y&mode=demo", "a", "y"), ("pick-c", "bound=y&mode=demo", "c", "y"),
+                      ("bound-x", "mode=demo", "c", "x"), ("back-y", "bound=y&mode=demo", "c", "y"), ("forward-x", "mode=demo", "c", "x")]
+            assert [item["label"] for item in scenario["observations"]] == [stage[0] for stage in stages]
+        else:
+            assert len(set(sessions)) == len(runs) - 3
+            stages = [("initial", "mode=demo", "a", "x"), ("pick-c", "mode=demo", "c", "x"),
+                      ("bound-y", "bound=y&mode=demo", "c", "y"), ("bound-x", "mode=demo", "c", "x"),
+                      ("forward-return", "mode=demo", "a", "x"), ("navigate-y", "mode=demo&bound=y", "a", "y"),
+                      ("back-x-document", "mode=demo", "a", "x"), ("forward-y-document", "mode=demo&bound=y", "a", "y")]
+            blank = next(item for item in scenario["observations"] if item["label"] == "back-blank")
+            assert blank["url"] == "about:blank" and blank["dom"] == "" and blank["eventCursor"] is None
+            assert scenario["logs"] and all(log["message"] == "Client Error: WebSocket onerror" for log in scenario["logs"])
+        for label, query, pick, bound in stages:
+            observation = next(item for item in scenario["observations"] if item["label"] == label)
+            assert urlsplit(observation["url"]).query == query
+            assert f"paragraph: pick={pick}" in observation["dom"] and f"paragraph: bound={bound}" in observation["dom"]
+            for control, expected in (("Pick", pick), ("Bound", bound)):
+                selected = re.search(rf'^  - combobox "{control}"(?: \[[^\]]+\])*: "?([^"\n]+)"?$', observation["dom"], re.MULTILINE)
+                assert selected and selected.group(1) == expected
+            assert "stException" not in observation["dom"]
+        if same_document:
+            previous = -1
+            for observation, run in zip(scenario["observations"], runs, strict=True):
+                assert previous < min(run["sequences"]) <= max(run["sequences"]) <= observation["eventCursor"]
+                previous = observation["eventCursor"]
+        final = scenario["finalDom"]
+        expected_final = ["pick=c", "bound=x"] if same_document else ["pick=a", "bound=y"]
+        assert final["markdowns"] == expected_final
+        assert [(control["name"], control["value"]) for control in final["comboboxes"]] == [("Pick", "c" if same_document else "a"), ("Bound", "x" if same_document else "y")]
+        assert not final["exceptions"] and not any(control["disabled"] for control in final["comboboxes"])
+        projections[name] = projection
+
+    # 3. 截图必须存在且可解码，不能只信 manifest 中的摘要。
+    assert {shot["file"] for shot in capture["screenshots"]} == {"forward-return.jpg", "forward-y.jpg", "history-back-y.jpg", "history-forward-x.jpg"}
+    for shot in capture["screenshots"]:
+        image_path = directory / shot["file"]
+        raw = image_path.read_bytes()
+        assert len(raw) == shot["bytes"] and hashlib.sha256(raw).hexdigest() == shot["sha256"]
+        with Image.open(image_path) as image:
+            assert image.format == "JPEG" and list(image.size) == shot["size"] and min(image.size) > 700
+            image.verify()
+    return projections
+
+
+def test_real_browser_query_history_matches_reference():
+    python = read_browser_history_capture("python")
+    rust = read_browser_history_capture("rust")
+    assert rust["same-document"] == python["same-document"]
+    assert rust["replacement-and-document"] == python["replacement-and-document"][:6]
+
+
+@pytest.mark.parametrize("mutation", ["history-flag", "retained-pick", "dom-bound", "url", "screenshot"])
+def test_browser_history_gate_rejects_wrong_evidence(mutation):
+    import base64
+    from streamlit.proto.BackMsg_pb2 import BackMsg
+    from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
+
+    capture = json.loads((HERE / "reference-browser/queryparams/history-ui/trace.json").read_text(encoding="utf-8"))
+    scenario = capture["scenarios"]["same-document"]
+    if mutation in ("history-flag", "retained-pick"):
+        run = -1
+        for event in scenario["events"]:
+            message = BackMsg() if event["method"].endswith("Sent") else ForwardMsg()
+            message.ParseFromString(base64.b64decode(event["params"]["response"]["payloadData"]))
+            if isinstance(message, BackMsg):
+                run += 1
+            if run == 3 and mutation == "history-flag" and isinstance(message, BackMsg):
+                message.rerun_script.is_history_navigation = False
+            elif run == 3 and mutation == "retained-pick" and isinstance(message, ForwardMsg) and message.delta.new_element.markdown.body == "pick=c":
+                message.delta.new_element.markdown.body = "pick=a"
+                scenario["observations"][3]["dom"] = scenario["observations"][3]["dom"].replace("pick=c", "pick=a")
+            else:
+                continue
+            event["params"]["response"]["payloadData"] = base64.b64encode(message.SerializeToString()).decode()
+            break
+        else:
+            pytest.fail("missing browser history mutation target")
+    elif mutation == "dom-bound":
+        scenario["observations"][3]["dom"] = scenario["observations"][3]["dom"].replace('combobox "Bound" [active]: "y"', 'combobox "Bound" [active]: x')
+    elif mutation == "url":
+        scenario["observations"][3]["url"] = "http://127.0.0.1:18515/?mode=demo"
+    else:
+        capture["screenshots"][0]["sha256"] = "0" * 64
+    with pytest.raises(AssertionError):
+        read_browser_history_capture("python", capture)

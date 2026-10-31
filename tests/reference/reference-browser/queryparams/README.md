@@ -278,3 +278,55 @@ inputs. That is library evidence, not Rust service WS parity.
 The current Rust flow does not implement the new JSONDecodeError path. The
 private scanner/IgnoredAny-adaptation/defer alternatives await a choice in
 .codex/architecture.md; no production parser or dependency was added.
+
+
+## Real Chrome history: replacement and same-document navigation (2026-10-31)
+
+`history-ui/trace.json` and `tests/browser/rust-queryparams/history-ui/trace.json`
+reuse the existing queryparams Python app/Rust example without code changes.
+All UI actions used the computer-use browser API, including actual Back/Forward;
+no synthetic history state, frontend injection or native-WS history flags.
+Each trace retains raw CDP payloads, DOM snapshots/cursors, console logs and four
+JPEGs. Reference versions are checked against the original NewSession frames;
+the additional environment readback is explicitly post-capture.
+
+The first journey started at `?mode=demo`, created Pick=c, selected Bound=y and
+then x. Binding edits replace the current URL, so Back reached about:blank rather
+than y. Forward reloaded with Pick=a/Bound=x. A direct document navigation to
+`?mode=demo&bound=y`, Back and Forward showed the appropriate URL-seeded values.
+These records preserve a Python Connecting/disabled intermediate snapshot and
+one/two Python/Rust WebSocket onerror messages. CDP also reported buffer eviction
+in both document journeys. Their 70/60 retained frames form seven/six complete
+runs, but are not an exhaustive ledger of navigation requests or reconnections.
+The unavailable history-inspection command and origin denial on about:blank are
+recorded as observation limitations; neither was bypassed.
+
+The second journey starts at `?bound=y`. The app writes mode=demo, creating a
+same-document history entry. Create Pick=c, select Bound=x, Back, then Forward:
+
+| Stage | URL query after the run | Pick | Bound | Request history flag |
+| --- | --- | --- | --- | --- |
+| initial | bound=y&mode=demo | a | y | false |
+| pick-c | bound=y&mode=demo | c | y | false |
+| bound-x | mode=demo | c | x | false |
+| back-y | bound=y&mode=demo | c | y | true |
+| forward-x | mode=demo | c | x | true |
+
+Each side has exactly five complete runs/50 frames, one session ID, no buffer
+eviction and no console warnings/errors. On Back the request still submits old
+widget x, and on Forward old widget y: the URL wins, including absent-key default
+restoration. Both navigation responses set the bound widget value explicitly.
+Ordinary Pick=c persists throughout. The gate decodes every retained PB, asserts
+message order/paths, inputs, URL writes, widget synchronization and output values,
+then binds each same-document run to its observed DOM cursor. It verifies all
+eight JPEGs and rejects five mutations, including wrong raw history flags and
+coherently changed raw output/DOM. Reproduce with the same app, two fresh tabs,
+local ports 18515/8515, and the two starting URLs above; prepare the tab/enable
+Network recording before the recorded initial navigation. A preparation document
+is explicitly outside the same-document capture.
+
+This verifies one query-bound selectbox and one unbound creation-mode selectbox.
+It does not close callback, fragment, multipage, other binding controls, reload
+persistence or general browser-history compatibility. All owned tabs and servers
+were closed; ports were read back free. No production API, queue policy or pending
+JSON parser decision changed.
