@@ -17,6 +17,8 @@ if st.query_params.get("probe") == "number-unkeyed":
                             help="hint" if phase == "help" else "", disabled=phase == "disabled",
                             label_visibility="hidden" if phase == "hidden" else "visible", on_change=callback)
     st.json({"phase": phase, "value": value, "callbacks": st.session_state.get("unkeyed_calls", [])})
+    if st.query_params.get("stop") == "on":
+        st.stop()
 
 elif st.query_params.get("probe") == "number-sequence":
     phase = st.query_params.get("phase", "load")

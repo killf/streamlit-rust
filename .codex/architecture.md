@@ -1078,3 +1078,15 @@ revived old IDs' values. Preserve that raw capture as an explicitly excluded
 normal-rerun attempt. The fixture now ends naturally through if/elif/else;
 new normal captures, not altered historical bytes, define this fix's behavior.
 SDK stop cleanup and Rust stop parity remain separately open under st.stop.
+
+
+### Explicit stop skips end-of-run widget cleanup (2026-10-31)
+
+finish_widgets now treats RunControl::Stop as preserving unseen records/keys and
+query bindings, and skips one-shot reset for that stopped finish. It still ends
+registry activity; begin_widgets resets triggers on the next real input, and a
+later normal completion cleans stale records/bindings. Rerun and normal-finish
+rules, public APIs, error-entry mapping and queue retention are unchanged.
+Existing widget_params opt-ins exercise explicit stop and later normal resume;
+see acceptance for pre-fix raw failure and same-WS recovery. Broader stop/error,
+fragment/navigation and actual browser lifecycle combinations remain open.

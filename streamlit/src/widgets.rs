@@ -995,7 +995,9 @@ impl SessionState {
         let mut registry = self.widgets.lock();
         let mut values = self.values.lock();
         let rerun = self.run_control() == Some(crate::session::RunControl::Rerun);
-        let preserve_unseen = rerun || registry.registration_error.is_some() || registry.input_error.is_some();
+        let stopped = self.run_control() == Some(crate::session::RunControl::Stop);
+        let preserve_unseen = rerun || stopped || registry.registration_error.is_some() || registry.input_error.is_some();
+
         let seen = registry.seen.clone();
         let live_keys = registry.keys.clone();
         let live_bound: HashSet<String> = registry.records.iter().filter(|(id, record)| seen.contains(*id) && record.query_bound).filter_map(|(_, record)| record.key.clone()).collect();
@@ -1018,7 +1020,8 @@ impl SessionState {
                 }
                 return false;
             }
-            if let Some(reset) = one_shot_reset(&record.codec) {
+            // stop 跳过轮末触发器重置；下一次真实输入开始时仍正常重置。
+            if !stopped && let Some(reset) = one_shot_reset(&record.codec) {
                 record.value = reset.clone();
                 if let Some(key) = &record.key {
                     values.insert(key.clone(), reset);
@@ -1118,6 +1121,70 @@ mod tests {
         }
 
         assert!(SessionState::default().widget_input_error().is_none());
+        Ok(())
+    }
+
+    #[test]
+    fn stop_defers_stale_and_trigger_cleanup_until_the_next_run() -> Result<(), WidgetError> {
+        let state = SessionState::default();
+        state.query_params.lock().load("bound=url");
+        state.begin_widgets(vec![]);
+        let mut ids = Vec::new();
+
+        for (kind, key, codec, default, query) in [
+            ("text_input", Some("bound"), Codec::Text { max_chars: None }, Value::from("base"), Some(QueryBinding { clearable: true })),
+            ("button", Some("trigger"), Codec::Trigger, Value::from(false), None),
+            ("number_input", None, Codec::NumberInput { min: None, max: None, integer: true }, Value::from(7), None),
+        ] {
+            ids.push(
+                state
+                    .register_widget(
+                        WidgetSpec {
+                            disabled: false,
+                            query,
+                            kind,
+                            key,
+                            identity: kind,
+                            default,
+                            codec,
+                            callback: None,
+                        },
+                        |value| Ok(value.clone()),
+                    )?
+                    .0,
+            );
+        }
+        // 公共控件 API 在注册后单独标记查询绑定。
+        state.set_query_binding(&ids[0], true);
+        state.finish_widgets();
+
+        state.begin_widgets(vec![
+            WidgetState {
+                id: ids[0].clone(),
+                value: Some(widget_state::Value::StringValue("edited".into())),
+            },
+            WidgetState {
+                id: ids[1].clone(),
+                value: Some(widget_state::Value::TriggerValue(true)),
+            },
+        ]);
+        state.set_run_control(crate::session::RunControl::Stop);
+        state.finish_widgets();
+
+        assert_eq!(state.get::<String>("bound")?.as_deref(), Some("edited"));
+        assert_eq!(state.get::<bool>("trigger")?, Some(true));
+        assert!(ids.iter().all(|id| state.widgets.lock().records.contains_key(id)));
+        assert_eq!(state.query_params.lock().get("bound"), Some("url"));
+
+        state.reset_run_control();
+        state.begin_widgets(vec![]);
+        assert_eq!(state.get::<bool>("trigger")?, Some(false));
+        assert_eq!(state.get::<String>("bound")?.as_deref(), Some("edited"));
+        state.finish_widgets();
+
+        assert_eq!(state.get::<String>("bound")?, None);
+        assert!(state.widgets.lock().records.is_empty());
+        assert_eq!(state.query_params.lock().get("bound"), None);
         Ok(())
     }
 

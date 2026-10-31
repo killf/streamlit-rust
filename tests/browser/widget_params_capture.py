@@ -26,9 +26,13 @@ parser.add_argument('--out', type=Path, required=True)
 parser.add_argument('--integer-bounds', action='store_true', help='opt-in unbounded and one-sided integer wire probe')
 parser.add_argument('--number-sequence', action='store_true', help='keyed number dynamic bounds over one WS')
 parser.add_argument('--number-unkeyed', action='store_true', help='unkeyed number identity across option changes')
+parser.add_argument('--stop-after-run', action='store_true', help='stop after each unkeyed probe report')
+parser.add_argument('--resume-after-stop', action='store_true', help='append normal completion and old-ID restoration after stopped runs')
 parser.add_argument('--url', help='caller-owned Rust server URL (comparison capture)')
 args = parser.parse_args()
 assert sum((args.integer_bounds, args.number_sequence, args.number_unkeyed)) <= 1
+assert not args.stop_after_run or args.number_unkeyed
+assert not args.resume_after_stop or args.stop_after_run
 OUT = args.out.resolve()
 OUT.mkdir(parents=True, exist_ok=True)
 assert not (OUT / 'trace.json').exists(), 'one capture, retain first result'
@@ -87,11 +91,15 @@ try:
                  ("explicit-step", None), ("explicit-edit", 9), ("restore-step", None), ("minzero", None), ("min-edit", 8),
                  ("restore-min", None), ("width", None), ("width-edit", 6), ("help", None), ("restore", None),
                  ("default", None), ("step2", None), ("maxzero", None), ("negative-edit", -7), ("maxnone", None)]
+    if args.resume_after_stop:
+        steps += [("normal-resume", None), ("explicit-step", None)]
     number_id = None
-    for phase, submitted in steps:
+    for step_index, (phase, submitted) in enumerate(steps):
         request = BackMsg()
         if args.number_sequence or args.number_unkeyed:
             request.rerun_script.query_string = "probe=" + ("number-unkeyed" if args.number_unkeyed else "number-sequence") + "&phase=" + phase
+            if args.stop_after_run and step_index < 21:
+                request.rerun_script.query_string += "&stop=on"
             if submitted is not None:
                 assert number_id is not None
                 widget = request.rerun_script.widget_states.widgets.add()

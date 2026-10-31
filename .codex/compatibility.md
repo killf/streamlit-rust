@@ -429,3 +429,10 @@ widget-params/number-sequence，验证细节见 acceptance。同一 key 跨数�
 每端 21 轮普通结束参考证明配置变化及已清理旧 ID 的恢复，另补每端 keyed 12
 轮自然结束回归。首份 st.stop 探针的不同清理语义单独保留，不能冒充普通结束；
 浏览器动态属性、其他类型/错误组合及 Rust stop 清理对齐仍待验证。
+
+
+2026-10-31 st.stop 清理切片：stop 结束保留未注册控件及绑定、不做轮末 trigger
+重置；下一次输入仍重置 trigger，后续正常结束仍清理 stale 状态。21 轮 stop
+及 23 轮 stop→正常结束原生对照通过，修前丢值轨迹保留。URL/trigger 另有 Rust
+生命周期单元保护；实际浏览器、绑定/按钮原生 stop 组合及更广错误/页面生命周期
+尚未完整验证，因此 st.stop 和完整目标仍为 partial/open。

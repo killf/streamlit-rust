@@ -1608,3 +1608,38 @@ props/IME/remount, full float/type/error or stop-cleanup parity claim; 130 parti
 and M3/M5/M7/full goal stay open. Unrelated colconfig_params work is excluded.
 
 Focused widget-reference/matrix/documentation checks passed 74 Python tests with deprecation warnings treated as errors. Full Python suite was not repeated; inventory remains 130 partial with the newly explicit stop boundary moving one entry from no-explicit-gap to unmeasured parameters.
+
+
+### Stop widget cleanup correction (2026-10-31)
+
+Fresh SDK/Rust explicit-stop captures each retain 21 runs/146 frames/42 ordered
+widget-report elements. Three restored IDs retain 7 through stopped finishes;
+pre-fix Rust stopped-before/trace.json lost them as 4 and is permanently gated
+as an expected failed comparison. Both runtimes' additional stopped-resume
+captures retain 23 runs/160 frames/46 elements: after 21 stops, normal-resume
+still sees 7, normal completion removes stale identities, and explicit-step
+restores its default 4. Exact request stop flags, IDs/identity relations,
+inputs/returns/callbacks, fields/layout, sessions/completions and raw PB/summary/
+element equality are checked. Three coherent mutations reject lost stopped
+values, extra callbacks and revived state after a normal completion.
+
+A Rust lifecycle unit first failed lost state, then passed preservation of
+unseen keyed/unkeyed records and URL binding plus trigger=true at stopped finish;
+next begin resets trigger=false, and normal finish removes stale keys/URL. The
+unit setup explicitly calls the same post-registration binding marker as public
+controls. This is a Rust guard, not a fresh native/browser bound-URL or button
+stop journey. Existing stopped/normal references remain unchanged.
+
+All-target Clippy and formatting passed. Workspace rerun passed 296 (library
+289, ledger 1, macros 2, rustdoc 4), excluding only the two existing navigation_pages_switch_and_session_state_match_the_measured_wire and rerun_queue_messages_match_frozen_reference.
+The first workspace build overlapped the owned running example, causing Windows
+LNK1104; stop-cleanup-workspace-locked.log preserves that failure, and retry
+succeeded after process shutdown. Existing MSVC linker stdout warning remains.
+Other logs: target/stop-cleanup-{red,green,clippy,before-build,build,workspace}.log.
+Owned Rust PIDs 24284/47392 were path-verified then stopped; SDK collector closed
+its servers/sockets; ports 8599/54872/65442 were read back free. Broader stop,
+error/fragment/navigation and browser lifecycle remain open. No public API,
+dependency or queue policy change; full goal/130 partial and pending decisions
+remain open, and unrelated colconfig_params edits are excluded.
+
+Focused widget-reference/matrix/documentation checks passed 82 Python tests with deprecations as errors; full Python suite was not repeated in this batch.

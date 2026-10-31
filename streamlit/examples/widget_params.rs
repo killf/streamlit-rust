@@ -50,6 +50,9 @@ fn render(st: &Streamlit) -> Result<(), WidgetError> {
         let value = st.number_input(options)?;
         st.json(serde_json::json!({"phase": phase, "value": value,
             "callbacks": st.session_state().get::<Vec<String>>("unkeyed_calls")?.unwrap_or_default()}));
+        if st.query_params().get("stop").as_deref() == Some("on") {
+            st.stop();
+        }
         return Ok(());
     }
 

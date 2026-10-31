@@ -417,3 +417,9 @@ and unrelated colconfig_params changes are unchanged and excluded from staging.
 st.stop 跳过普通 stale-widget 清理的独立边界，原始错误口径采集已保留并禁止
 作为普通结束证据。后续继续浏览器属性、其他数值组合与 stop 生命周期验证，
 不关闭完整目标或 130 partial，不擅改公共接口及待选 hash/queue 方案。
+
+
+2026-10-31 st.stop 轮末控件清理已按 SDK 修正，21/23 轮成对原生对照先红后绿，
+296 项 Rust 通过但保留原两项排除。Stop 后正常完成的回收也有验证，不以永久
+保留替代兼容；后续继续绑定/触发器的原生浏览器组合及错误/页面生命周期验证。
+完整目标、130 partial 及既有接口/hash/queue/parser 取舍保持开放。

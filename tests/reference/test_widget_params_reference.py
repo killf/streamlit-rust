@@ -291,13 +291,19 @@ UNKEYED_VALUES = (4, 7, 7, 7, 7, 7, 4, 9, 4, 4, 8, 4, 4, 6, 4, 4, 5, 4, -4, -7, 
 UNKEYED_IDENTITIES = (0, 0, 0, 0, 0, 0, 1, 1, 0, 2, 2, 0, 3, 3, 4, 0, 5, 6, 7, 7, 8)
 
 
-def check_unkeyed_number(capture):
+def check_unkeyed_number(capture, *, stopped=False, resumed=False):
     runs = number_runs(capture)
-    assert len(runs) == 21 and capture["finishes"] == [0] * 21
+    assert not resumed or stopped
+    phases = UNKEYED_PHASES + (("normal-resume", "explicit-step") if resumed else ())
+    values = UNKEYED_VALUES + ((7, 4) if resumed else ())
+    identities = UNKEYED_IDENTITIES + ((0, 1) if resumed else ())
+    assert len(runs) == len(phases) and capture["finishes"] == [0] * len(phases)
     ids, sessions, run_ids, calls = [], set(), set(), []
     submitted = {1: 7, 7: 9, 10: 8, 13: 6, 19: -7}
-    for index, (run, phase, value) in enumerate(zip(runs, UNKEYED_PHASES, UNKEYED_VALUES, strict=True)):
-        assert run["request"].query_string == "probe=number-unkeyed&phase=" + phase
+    for index, (run, phase, value) in enumerate(zip(runs, phases, values, strict=True)):
+        assert run["request"].query_string == "probe=number-unkeyed&phase=" + phase + ("&stop=on" if stopped and index < 21 else "")
+        if stopped and index in (8, 11, 15):
+            value = 7
         assert not run["request"].is_history_navigation
         assert len(run["sessions"]) == 1 and run["finishes"] == [0]
         session = run["sessions"][0]
@@ -327,10 +333,10 @@ def check_unkeyed_number(capture):
         assert not widget.set_value and not widget.HasField("value")
         assert run["layouts"] == ([{"pixel_width": 360}] if phase in ("width", "width-edit") else [{"use_stretch": True}])
         assert run["reports"] == [{"phase": phase, "value": value, "callbacks": calls.copy()}]
-    assert len(sessions) == 1 and len(run_ids) == 21
-    for i in range(21):
-        for j in range(21):
-            assert (ids[i] == ids[j]) == (UNKEYED_IDENTITIES[i] == UNKEYED_IDENTITIES[j])
+    assert len(sessions) == 1 and len(run_ids) == len(phases)
+    for i in range(len(phases)):
+        for j in range(len(phases)):
+            assert (ids[i] == ids[j]) == (identities[i] == identities[j])
 
 
 @pytest.mark.parametrize("root", (PYTHON, RUST), ids=("python", "rust"))
@@ -386,3 +392,56 @@ def test_unkeyed_number_gate_rejects_coherent_wrong_wire(mutation):
 @pytest.mark.parametrize("root", (PYTHON, RUST), ids=("python", "rust"))
 def test_keyed_number_natural_completion_preserves_existing_results(root):
     assert check_number_sequence(read(root / "number-sequence/normal/trace.json")) == check_number_sequence(read(PYTHON / "number-sequence/trace.json"))
+
+
+@pytest.mark.parametrize("root", (PYTHON, RUST), ids=("python", "rust"))
+def test_explicit_stop_preserves_unseen_number_identities(root):
+    check_unkeyed_number(read(root / "number-unkeyed/stopped/trace.json"), stopped=True)
+
+
+@pytest.mark.parametrize("mutation", ("lost-value", "callback", "after-normal"))
+def test_stopped_number_gate_rejects_wrong_restoration(mutation):
+    resumed = mutation == "after-normal"
+    capture = read(PYTHON / ("number-unkeyed/stopped-resume/trace.json" if resumed else "number-unkeyed/stopped/trace.json"))
+    run = -1
+    for frame in capture["frames"]:
+        if frame["direction"] == "client->server":
+            run += 1
+            continue
+        if run != (22 if resumed else 8):
+            continue
+        msg = ForwardMsg()
+        msg.ParseFromString(base64.b64decode(frame["base64"]))
+        if msg.delta.new_element.WhichOneof("type") != "json":
+            continue
+        report = json.loads(msg.delta.new_element.json.body)
+        if mutation == "after-normal":
+            report["value"] = 9
+        elif mutation == "lost-value":
+            report["value"] = 4
+        else:
+            report["callbacks"].append("changed")
+        msg.delta.new_element.json.body = json.dumps(report)
+        raw = msg.SerializeToString()
+        frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(msg, preserving_proto_field_name=True))
+    capture["elements"] = []
+    for msg in frames(capture):
+        if msg.WhichOneof("type") == "delta":
+            element = msg.delta.new_element
+            kind = element.WhichOneof("type")
+            capture["elements"].append({"kind": kind, "fields": MessageToDict(getattr(element, kind), preserving_proto_field_name=True)})
+    with pytest.raises(AssertionError):
+        check_unkeyed_number(capture, stopped=True, resumed=resumed)
+
+
+@pytest.mark.parametrize("root", (PYTHON, RUST), ids=("python", "rust"))
+def test_normal_completion_after_stop_cleans_old_identities(root):
+    check_unkeyed_number(read(root / "number-unkeyed/stopped-resume/trace.json"), stopped=True, resumed=True)
+
+
+def test_pre_fix_stop_capture_reproduces_lost_values():
+    capture = read(RUST / "number-unkeyed/stopped-before/trace.json")
+    reports = [json.loads(e["fields"]["body"]) for e in capture["elements"] if e["kind"] == "json"]
+    assert [reports[i]["value"] for i in (8, 11, 15)] == [4, 4, 4]
+    with pytest.raises(AssertionError):
+        check_unkeyed_number(capture, stopped=True)
