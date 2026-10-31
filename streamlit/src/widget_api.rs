@@ -3288,7 +3288,13 @@ impl<C: AppendChild> InputWidgets for C {
         {
             return Err(WidgetError::InvalidValue("datetime_input value is outside min/max".into()));
         }
-        let default = options.value.map(|moment| Value::String(wire(moment))).unwrap_or(Value::Null);
+        let mut wire_default = options.value;
+        if let Some(key) = c.key.as_deref()
+            && self.get_app().lock().session_state.get::<Value>(key)?.is_some_and(|value| value.is_null())
+        {
+            wire_default = None;
+        }
+        let default = wire_default.map(|moment| Value::String(wire(moment))).unwrap_or(Value::Null);
         let identity = c.identity_in_form(
             &form_id,
             &if c.key.is_some() {
@@ -3305,7 +3311,7 @@ impl<C: AppendChild> InputWidgets for C {
                 key: c.key.as_deref(),
                 identity: &identity,
                 default,
-                codec: Codec::DateTimeInput,
+                codec: Codec::DateTimeInput { min, max },
                 callback: c.callback,
             },
             |value| {
@@ -3323,7 +3329,7 @@ impl<C: AppendChild> InputWidgets for C {
             r#type: Some(element::Type::DateTimeInput(proto::DateTimeInput {
                 id,
                 label: c.label,
-                default: options.value.map(|moment| vec![wire(moment)]).unwrap_or_default(),
+                default: wire_default.map(|moment| vec![wire(moment)]).unwrap_or_default(),
                 min: wire(min),
                 max: wire(max),
                 help: c.help,
@@ -4967,6 +4973,122 @@ mod tests {
             assert!(wire.try_recv().is_ok(), "the first valid form is still rendered");
         }
         assert!(wire.try_recv().is_err(), "failed form calls must not append their partial children");
+    }
+
+    #[test]
+    fn datetime_frontend_fallback_precedes_callbacks_and_uses_registered_defaults() -> anyhow::Result<()> {
+        use chrono::NaiveDateTime;
+
+        let parse = |text: &str| NaiveDateTime::parse_from_str(text, "%Y-%m-%dT%H:%M").expect("fixture datetime");
+        let default = "2025-03-15T12:30";
+        let next_default = "2025-03-15T16:20";
+        let min = "2025-03-15T08:00";
+        let max = "2025-03-15T18:00";
+        let changed = |st: &Streamlit| {
+            let state = st.session_state();
+            let mut calls = state.get::<Vec<Value>>("datetime_calls").expect("calls").unwrap_or_default();
+            calls.push(serde_json::json!([
+                state.get::<Value>("moment").expect("moment"),
+                state.get::<Value>("optional").expect("optional"),
+                state.get::<bool>("peer").expect("peer")
+            ]));
+            state.set("datetime_calls", calls).expect("callback write");
+        };
+        let cases = [
+            ("missing", None, None),
+            ("empty", Some(vec![]), None),
+            ("invalid", Some(vec!["not-a-datetime"]), None),
+            ("invalid-first", Some(vec!["bad", "2025-03-15T15:47"]), None),
+            ("below", Some(vec!["2025-03-15T07:59"]), None),
+            ("above", Some(vec!["2025-03-15T18:01"]), None),
+            ("seconds", Some(vec!["2025-03-15T15:47:00"]), None),
+            ("minimum", Some(vec![min]), Some(min)),
+            ("maximum", Some(vec![max]), Some(max)),
+            ("iso", Some(vec!["2025-03-15T15:47"]), Some("2025-03-15T15:47")),
+            ("legacy", Some(vec!["2025/03/15, 15:47"]), Some("2025-03-15T15:47")),
+            ("surplus", Some(vec!["2025-03-15T15:47", "bad"]), Some("2025-03-15T15:47")),
+        ];
+
+        for (name, raw, parsed) in cases {
+            let state = SessionState::default();
+            state.begin_widgets(vec![]);
+            let (st, mut wire) = app(&state);
+            let options = |label: &str, key: &str| DateTimeInputOptions::new(label).key(key).min(parse(min)).max(parse(max)).on_change(changed);
+            st.datetime_input(options("Moment", "moment").value(parse(default)))?;
+            st.datetime_input(options("Optional", "optional").value_none())?;
+            st.checkbox(CheckboxOptions::new("Peer").key("peer").on_change(changed))?;
+            let element::Type::DateTimeInput(moment) = input(&mut wire)? else { panic!() };
+            let element::Type::DateTimeInput(optional) = input(&mut wire)? else { panic!() };
+            let element::Type::Checkbox(peer) = input(&mut wire)? else { panic!() };
+            state.finish_widgets();
+
+            // 1. 先把两个控件都改为非默认值，避免回退和未处理输入得到相同结果。
+            let edit = |id: &str, values: Option<Vec<&str>>| WidgetState {
+                id: id.to_owned(),
+                value: values.map(|values| {
+                    widget_state::Value::StringArrayValue(proto::StringArray {
+                        data: values.into_iter().map(str::to_owned).collect(),
+                    })
+                }),
+            };
+            let callbacks = state.begin_widgets(vec![edit(&moment.id, Some(vec!["2025-03-15T14:35"])), edit(&optional.id, Some(vec!["2025-03-15T14:35"]))]);
+            assert_eq!(callbacks.len(), 2, "{name}: initial edit");
+            let (st, mut wire) = app(&state);
+            for callback in callbacks {
+                callback(&st);
+            }
+            st.datetime_input(options("Moment", "moment").value(parse(default)))?;
+            st.datetime_input(options("Optional", "optional").value_none())?;
+            st.checkbox(CheckboxOptions::new("Peer").key("peer").on_change(changed))?;
+            for _ in 0..3 {
+                input(&mut wire)?;
+            }
+            state.finish_widgets();
+
+            // 2. 同批 callback 读取完整的新值；空/无效/越界都使用上一轮有效默认。
+            let callbacks = state.begin_widgets(vec![
+                edit(&moment.id, raw.clone()),
+                edit(&optional.id, raw),
+                WidgetState {
+                    id: peer.id.clone(),
+                    value: Some(widget_state::Value::BoolValue(true)),
+                },
+            ]);
+            assert_eq!(callbacks.len(), 3, "{name}: fallback callbacks");
+            let (st, mut wire) = app(&state);
+            for callback in callbacks {
+                callback(&st);
+            }
+            let expected = parsed.unwrap_or(default);
+            let calls = state.get::<Vec<Value>>("datetime_calls")?.expect("callback records");
+            assert_eq!(&calls[2..], vec![serde_json::json!([expected, parsed, true]); 3], "{name}: batch state");
+            assert_eq!(st.datetime_input(options("Moment", "moment").value(parse(next_default)))?, Some(parse(expected)), "{name}");
+            assert_eq!(st.datetime_input(options("Optional", "optional").value(parse(next_default)))?, parsed.map(parse), "{name}");
+            st.checkbox(CheckboxOptions::new("Peer").key("peer").on_change(changed))?;
+            for (id, wire_default) in [(&moment.id, Some(next_default)), (&optional.id, parsed.map(|_| next_default))] {
+                let element::Type::DateTimeInput(widget) = input(&mut wire)? else { panic!() };
+                assert_eq!(&widget.id, id, "{name}");
+                assert_eq!(widget.default, wire_default.into_iter().map(str::to_owned).collect::<Vec<_>>(), "{name}");
+                assert!(!widget.set_value && widget.value.is_empty());
+            }
+            input(&mut wire)?;
+            state.finish_widgets();
+
+            // 3. 下一轮 ID-only 用新登记的默认；原生 None 继续压过声明默认。
+            let callbacks = state.begin_widgets(vec![edit(&moment.id, None), edit(&optional.id, None)]);
+            let (st, mut wire) = app(&state);
+            for callback in callbacks {
+                callback(&st);
+            }
+            assert_eq!(st.datetime_input(options("Moment", "moment").value(parse(next_default)))?, Some(parse(next_default)), "{name}");
+            assert_eq!(st.datetime_input(options("Optional", "optional").value(parse(next_default)))?, parsed.map(|_| parse(next_default)), "{name}");
+            for _ in 0..2 {
+                input(&mut wire)?;
+            }
+            state.finish_widgets();
+        }
+
+        Ok(())
     }
 
     #[test]

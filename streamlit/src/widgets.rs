@@ -218,7 +218,10 @@ pub(crate) enum Codec {
     },
     /// datetime_input: ISO "YYYY-MM-DDTHH:MM" strings (the reference also
     /// accepts the legacy "YYYY/MM/DD, HH:MM" spelling on input).
-    DateTimeInput,
+    DateTimeInput {
+        min: chrono::NaiveDateTime,
+        max: chrono::NaiveDateTime,
+    },
 }
 
 impl Codec {
@@ -260,8 +263,8 @@ impl Codec {
             None => empty_input.cloned(),
         }?;
 
-        // 时间的空串/无效串不是强制清空，而是恢复上轮 serde 的有效默认。
-        if matches!(self, Self::TimeInput { .. }) && value.is_null() {
+        // 时间的空/无效/越界输入不是强制清空，而是恢复上轮 serde 的有效默认。
+        if matches!(self, Self::TimeInput { .. } | Self::DateTimeInput { .. }) && value.is_null() {
             return empty_input.cloned();
         }
 
@@ -388,19 +391,15 @@ impl Codec {
                     .filter(|time| chrono::Timelike::nanosecond(time) < 1_000_000_000);
                 Some(parsed.map_or(Value::Null, |time| Value::String(time.format(format).to_string())))
             }
-            (Self::DateTimeInput, widget_state::Value::StringArrayValue(array)) => {
-                // One entry, minute precision; an empty array is the cleared
-                // picker. The ISO spelling is canonical; the legacy
-                // "YYYY/MM/DD, HH:MM" form is accepted and re-normalized.
-                let parse = |text: &str| {
+            (Self::DateTimeInput { min, max }, widget_state::Value::StringArrayValue(array)) => {
+                // 只解析首项；空、无效和越界产生回默认标记，不把私有 Null 当成清空。
+                let parsed = array.data.first().and_then(|text| {
                     chrono::NaiveDateTime::parse_from_str(text, "%Y-%m-%dT%H:%M")
                         .or_else(|_| chrono::NaiveDateTime::parse_from_str(text, "%Y/%m/%d, %H:%M"))
-                        .map(|moment| moment.format("%Y-%m-%dT%H:%M").to_string())
-                };
-                match array.data.first() {
-                    None => Some(Value::Null),
-                    Some(text) => parse(text).ok().map(Value::String),
-                }
+                        .ok()
+                        .filter(|moment| moment >= min && moment <= max)
+                });
+                Some(parsed.map_or(Value::Null, |moment| Value::String(moment.format("%Y-%m-%dT%H:%M").to_string())))
             }
             (Codec::Slider { count, integer, .. }, widget_state::Value::DoubleArrayValue(array)) if array.data.len() == *count => {
                 let values: Vec<Value> = array.data.iter().map(|value| if *integer { Value::from(*value as i64) } else { Value::from(*value) }).collect();
@@ -454,7 +453,7 @@ impl Codec {
                 let format = if step % 60 != 0 { "%H:%M:%S" } else { "%H:%M" };
                 value.is_null() || value.as_str().is_some_and(|text| chrono::NaiveTime::parse_from_str(text, format).is_ok())
             }
-            Self::DateTimeInput => {
+            Self::DateTimeInput { .. } => {
                 let iso = |text: &str| chrono::NaiveDateTime::parse_from_str(text, "%Y-%m-%dT%H:%M").is_ok();
                 value.is_null() || value.as_str().is_some_and(iso)
             }
@@ -866,9 +865,11 @@ impl SessionState {
             callback,
         } = spec;
         let id = id.to_owned();
-        // Text codec 也供 data_editor 使用；本次仅扩展两类文本控件的缺省解码。
-        let empty_input = (matches!(codec, Codec::Select(_) | Codec::SelectCreation(_) | Codec::Radio(_) | Codec::Feedback { .. } | Codec::NumberInput { .. } | Codec::TimeInput { .. })
-            || (matches!(kind, "text_input" | "text_area") && matches!(codec, Codec::Text { .. })))
+        // Text codec 也供 data_editor 使用；文本缺省解码仅限这两类输入控件。
+        let empty_input = (matches!(
+            codec,
+            Codec::Select(_) | Codec::SelectCreation(_) | Codec::Radio(_) | Codec::Feedback { .. } | Codec::NumberInput { .. } | Codec::TimeInput { .. } | Codec::DateTimeInput { .. }
+        ) || (matches!(kind, "text_input" | "text_area") && matches!(codec, Codec::Text { .. })))
         .then(|| default.clone());
         let mut registry = self.widgets.lock();
         if registry.registration_error.is_some() {

@@ -2578,3 +2578,21 @@ SDK 自建服务与两组 Rust 自持 Popen 句柄均已停止，53394/8599/8600
 编辑 Rust 的 rustfmt、全工作区/all-target Clippy、新增公开 API 单元通过；最终工作区 333 项通过（326 库、1 ledger、2 宏、4 rustdoc），仍仅排除原 navigation_pages_switch_and_session_state_match_the_measured_wire 与 rerun_queue_messages_match_frozen_reference，不称完整工作区全绿。参数参考模块 386 项，相关 query/widget/temporal/pickers/matrix/docs/buttons/inputs 八模块共 692 项通过；既有 MSVC linker stdout warning 保留，日志 target/time-empty-{red,green,clippy,build,temporal-build,workspace,python}.log。
 
 仅 st.time_input 矩阵与生成清单更新，仍 130 partial；错误 oneof、禁用/ignore、真实浏览器、查询绑定、表单/跨页和其他组合继续开放。用户 colconfig_params 修改独立保留；待决共享状态/hash/公共接口方案不变，未创建 PR、合并、发布或部署，M3/M5/M7 与长期 Goal 未关闭。
+
+## Current datetime frontend fallback validation (2026-11-01)
+
+继续已有正确类型输入工作。锁定 SDK 1.66.1 的 DateTimeInputSerde：缺省、空数组、首项无法解析及前端越界输入回上轮有效默认；只读取数组首项，接受 ISO/legacy 分钟格式，包含边界，不强制吸附 step。已有 keyed 原生 None 压过后来声明的默认。此行为可由现有 Option<NaiveDateTime> 表达，不涉及新增公共接口、依赖、模块或文件。
+
+widgets.rs 的私有 DateTimeInput codec 增加上轮有效 min/max，在前端 decode 时归一化并产生默认回退标记；接入已有 empty_input 缓存及 decode_state 回退。代码赋值的 valid 检查保持原有解析规则，未把新的前端边界检查套用到原生代码赋值。widget_api.rs 使用 keyed 原生 None 构造有效 serde/default，原始 options.value 仍参与既有身份规则。修正既有 runtime 单元将空数组等同清空、将无效字符串直接拒绝的错误断言；错误 oneof 继续拒绝。
+
+公开 API 单元先失败于 ID-only 整批回调为 0 而非 3（target/datetime-fallback-red.log），修后覆盖十二案：缺省、空数组、无效、无效首项加有效尾项、下越界、上越界、含秒、两端边界、ISO、legacy、有效首项加无效尾项。每案先把 populated/None 默认的两个 datetime 都改成非默认值，随后与 checkbox 同批提交；三个 callback 均读到归一化后的完整新值。再将声明默认改成 16:20，核对当前返回值不被覆盖、None 的 proto default 为空、无额外 set_value；下一轮 ID-only 使用新登记的有效默认。Rust 四项相关 datetime 单元/原有运行时协议测试通过。
+
+tests/reference/test_temporal_params_reference.py 新增 SDK serde 24 案和 AppTest 12 案。AppTest 使用真实公开 st.datetime_input 调用与 WidgetStates protobuf 注入，检查相同的三回调值、新旧有效默认、稳定 ID 及无额外同步；直接使用 SDK 的 _run 入口，不称公开测试接口。SDK 36 案通过，相关八模块共 728 项通过。此批未新增冻结捕获文件，AppTest/直接 serde 证据不等于原生 WS 或真实浏览器差分，既有冻结捕获未被改写。
+
+用户再次选定错误类型提交复现 Python 错误、已发生的 callback 和后续恢复，以及 rerun 仅丢弃未发送旧轮 Delta、保留 URL/已发送帧。本批不改发送流程，也不把这两项已选取舍扩展到其他共享状态/hash 架构；当前计划保留其实施和验证边界。
+
+新增 Rust 测试中的两处 unwrap 首次被 Clippy 拒绝，已改成说明固定 fixture 的 expect 后通过全工作区/all-target Clippy，日志保留 target/datetime-fallback-clippy.log 和 -clippy-final.log；既有 MSVC linker stdout warning 保留。编辑 Rust 格式检查及逐文件 diff 复查完成。生产代码只改 datetime 前端回退；用户 colconfig_params 修改独立保留。
+
+最终工作区 334 项通过（327 库、1 ledger、2 宏、4 rustdoc），仍仅排除原 server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire 与 server::tests::queryparams::rerun_queue_messages_match_frozen_reference，不称完整工作区全绿。文档/矩阵收尾门 52 项通过。日志 target/datetime-fallback-{red,green,sdk,clippy,clippy-final,workspace,python,docs}.log；本批没有启动额外采集服务。
+
+新增边界的原生 WS/浏览器、代码赋值后的动态边界重置、错误类型/文案、禁用/ignore、查询绑定、表单/跨页及其他状态组合仍未验收；矩阵和生成清单不提升状态，130 partial、M3/M5/M7 与完整 Goal 保持开放。未创建 PR、合并、发布或部署。

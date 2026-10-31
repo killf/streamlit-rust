@@ -14,6 +14,8 @@
 
 ## Current focus
 
+2026-11-01 datetime_input 缺省/解析实现：前端缺省、空数组、无效和越界输入在 callback 前回上一轮有效默认；有 key 的原生 None 压过后来声明默认。SDK serde 24 案、AppTest 原始协议注入 12 案和 Rust 公开 API 单元匹配；这些新增边界尚未补原生 WS/浏览器差分，代码赋值后的边界重置也继续开放。见[验收](acceptance.md#current-datetime-frontend-fallback-validation-2026-11-01)。不改变已选 rerun 策略、待决架构或完整目标。
+
 2026-11-01 time_input 缺省/解析切片：ID-only、空串/无效串回有效默认，双格式按 step 归一化并拒绝闰秒；有 key 时已有 None 压过新声明默认。十二轮、107 帧、48 完整 Element 与 SDK 匹配，二十次有序 callback；旧 temporal keyed/unkeyed 原生复验通过。见[验收](acceptance.md#current-time-missing-invalid-and-callback-validation-2026-11-01)；date/datetime、浏览器、错误 oneof、绑定/表单/跨页等继续开放，未改变完整目标或待决方案。
 
 2026-11-01 number_input 缺省/范围归一化切片：缓存有效默认并在 callback 前处理 ID-only、越界、NaN/Infinity 和隐式整数安全范围，避免整批丢弃。十一轮、98 帧、44 完整 Element 与 SDK 一致，十四次有序回调读取归一化新值；旧整数/浮点动态边界与文本缺省场景同二进制复验。见[验收](acceptance.md#current-numeric-missing-range-and-callback-validation-2026-11-01)；None 返回建模、错误 oneof、代码赋值和浏览器等继续开放，不改变完整目标或待决方案。

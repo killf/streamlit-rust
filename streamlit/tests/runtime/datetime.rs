@@ -108,7 +108,10 @@ async fn datetime_input_matches_the_measured_wire() -> TestResult {
 async fn datetime_codec_decodes_the_measured_wire() {
     use crate::widgets::Codec;
 
-    let codec = Codec::DateTimeInput;
+    let codec = Codec::DateTimeInput {
+        min: chrono::NaiveDateTime::parse_from_str("2025-03-15T08:00", "%Y-%m-%dT%H:%M").expect("fixture minimum"),
+        max: chrono::NaiveDateTime::parse_from_str("2025-03-15T18:00", "%Y-%m-%dT%H:%M").expect("fixture maximum"),
+    };
     let wire = |labels: &[&str]| {
         WireValue::StringArrayValue(proto::StringArray {
             data: labels.iter().map(|label| label.to_string()).collect(),
@@ -117,6 +120,8 @@ async fn datetime_codec_decodes_the_measured_wire() {
     assert_eq!(codec.decode(&wire(&["2025-03-15T14:30"])), Some(serde_json::json!("2025-03-15T14:30")));
     // The legacy spelling is accepted and re-normalized to ISO.
     assert_eq!(codec.decode(&wire(&["2025/03/15, 14:30"])), Some(serde_json::json!("2025-03-15T14:30")));
-    assert_eq!(codec.decode(&wire(&[])), Some(serde_json::Value::Null), "the empty array is the cleared picker");
-    assert!(codec.decode(&wire(&["not-a-datetime"])).is_none(), "a malformed datetime is rejected fail-closed");
+    for values in [&[][..], &["not-a-datetime"], &["2025-03-15T07:59"], &["2025-03-15T18:01"]] {
+        assert_eq!(codec.decode(&wire(values)), Some(serde_json::Value::Null), "empty, invalid and out-of-bounds arrays mark fallback to the registered default");
+    }
+    assert!(codec.decode(&WireValue::StringValue("2025-03-15T14:30".into())).is_none(), "wrong oneof remains rejected");
 }

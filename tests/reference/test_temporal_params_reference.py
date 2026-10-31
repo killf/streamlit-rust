@@ -13,6 +13,94 @@ PYTHON = Path(__file__).parent / "reference-browser/temporal-params"
 RUST = Path(__file__).parents[1] / "browser/rust-temporal-params"
 
 
+DATETIME_INPUT_CASES = (
+    (None, None), ([], None), (["not-a-datetime"], None),
+    (["bad", "2025-03-15T15:47"], None),
+    (["2025-03-15T07:59"], None), (["2025-03-15T18:01"], None),
+    (["2025-03-15T15:47:00"], None),
+    (["2025-03-15T08:00"], "2025-03-15T08:00"),
+    (["2025-03-15T18:00"], "2025-03-15T18:00"),
+    (["2025-03-15T15:47"], "2025-03-15T15:47"),
+    (["2025/03/15, 15:47"], "2025-03-15T15:47"),
+    (["2025-03-15T15:47", "bad"], "2025-03-15T15:47"),
+)
+
+
+@pytest.mark.parametrize("default", (None, "2025-03-15T12:30"))
+@pytest.mark.parametrize("raw,expected", DATETIME_INPUT_CASES)
+def test_sdk_datetime_serde_falls_back_to_effective_default(default, raw, expected):
+    """SDK serde evidence only; these inputs are not a browser capture."""
+    from datetime import datetime
+    from streamlit.elements.widgets.time_widgets import DateTimeInputSerde
+
+    parse = lambda text: datetime.strptime(text, "%Y-%m-%dT%H:%M")
+    serde = DateTimeInputSerde(None if default is None else parse(default),
+                              parse("2025-03-15T08:00"), parse("2025-03-15T18:00"))
+    result = expected if expected is not None else default
+    assert serde.deserialize(raw) == (None if result is None else parse(result))
+    assert serde.serialize(serde.deserialize(raw)) == ([] if result is None else [result])
+
+
+@pytest.mark.parametrize("raw,expected", DATETIME_INPUT_CASES)
+def test_sdk_datetime_raw_input_callbacks_and_registered_defaults(raw, expected):
+    """AppTest with injected protobuf; not native WS or normal browser input."""
+    import importlib.metadata
+    from datetime import datetime
+    from streamlit.proto.WidgetStates_pb2 import WidgetStates
+    from streamlit.testing.v1 import AppTest
+
+    assert importlib.metadata.version("streamlit") == "1.66.1"
+    app = AppTest.from_string('''
+import streamlit as st
+from datetime import datetime
+parse=lambda value:datetime.strptime(value,'%Y-%m-%dT%H:%M')
+if 'calls' not in st.session_state:st.session_state.calls=[]
+def changed():
+    def wire(value):return None if value is None else value.strftime('%Y-%m-%dT%H:%M')
+    st.session_state.calls.append([wire(st.session_state.moment),wire(st.session_state.optional),st.session_state.peer])
+next_default=st.session_state.get('next_default',False)
+value=parse('2025-03-15T16:20' if next_default else '2025-03-15T12:30')
+kwargs=dict(min_value=parse('2025-03-15T08:00'),max_value=parse('2025-03-15T18:00'),on_change=changed)
+st.datetime_input('Moment',value=value,key='moment',**kwargs)
+st.datetime_input('Optional',value=value if next_default else None,key='optional',**kwargs)
+st.checkbox('Peer',key='peer',on_change=changed)
+st.json(st.session_state.calls)
+''').run()
+    parse = lambda text: datetime.strptime(text, "%Y-%m-%dT%H:%M")
+    assert not app.exception
+    ids = [widget.id for widget in app.datetime_input]
+    peer_id = app.checkbox[0].id
+    for widget in app.datetime_input:
+        widget.set_value(parse("2025-03-15T14:35"))
+    app.run()
+    assert not app.exception
+    assert json.loads(app.json[0].value) == [["2025-03-15T14:35", "2025-03-15T14:35", False]] * 2
+
+    incoming = WidgetStates()
+    for widget_id in ids:
+        widget = incoming.widgets.add(id=widget_id)
+        if raw is not None:
+            widget.string_array_value.SetInParent()
+            widget.string_array_value.data[:] = raw
+    incoming.widgets.add(id=peer_id).bool_value = True
+    app.session_state["next_default"] = True
+    app._run(incoming)
+    assert not app.exception
+    assert json.loads(app.json[0].value)[2:] == [[expected or "2025-03-15T12:30", expected, True]] * 3
+    assert [widget.id for widget in app.datetime_input] == ids
+    assert [list(widget.proto.default) for widget in app.datetime_input] == [
+        ["2025-03-15T16:20"], [] if expected is None else ["2025-03-15T16:20"]]
+    assert all(not widget.proto.set_value for widget in app.datetime_input)
+
+    incoming = WidgetStates()
+    for widget_id in ids:
+        incoming.widgets.add(id=widget_id)
+    app._run(incoming)
+    assert not app.exception
+    assert [widget.value for widget in app.datetime_input] == [
+        parse("2025-03-15T16:20"), None if expected is None else parse("2025-03-15T16:20")]
+
+
 def read(path):
     return json.loads(path.read_text(encoding="utf-8-sig"))
 
