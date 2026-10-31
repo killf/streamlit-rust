@@ -897,3 +897,39 @@ unit separately covers automatic versus explicit 122, same-ID collapsed 94 and
 old-ID reset. Native values/fields/ID relations are checked, not browser pixels.
 Invalid/content heights, area binding and broader context/empty option cases
 remain open; no new public API/module/dependency or queue change is introduced.
+
+
+### Nonpositive area height uses the existing Result contract (2026-10-31)
+
+Nine native sessions/27 runs/339 frames prove height <= 0 is rejected after
+registration, not before input/callback processing. The truncated EDITE state
+and callback persist, same-key writes/retry fail in the caught run, and the next
+valid run retains EDITE. Positive 1/67/68 and larger controls remain accepted;
+no UI minimum is imposed as a backend constraint. The prior Rust emitter casts
+i32 directly to u32 and does not reject these nonpositive values.
+
+The existing text_area Result<Option<String>, WidgetError> and InvalidValue
+payload suffice for this correction. Under the authorized SDK compatibility
+scope, check effective height after register_widget_parity and before push,
+returning the fixed SDK height message in that existing variant. Keep the
+registered state/callback/key occupancy; do not roll back or move validation to
+the option builder. No public enum/method/module/dependency or Entry change is
+needed. This follows the engineering-change-design investigation; it does not
+add a separate approval requirement for an already-authorized local fix.
+
+The public unit checks the actual Rust variant/payload and caller semantics.
+The native comparison uses 51 API projections; expected Python error objects
+are projected to height payload text and the write-lock rejection boolean.
+The duplicate field is not part of Rust parity: AppendChild::register_widget_parity
+currently catches DuplicateKey, emits a framework exception, sets Stop and
+returns a default. Python permits a caught duplicate retry to continue. This
+newly exposed shared-flow difference is retained in the existing pending
+error-entry proposal; changing that takeover is not hidden in the height fix.
+No Rust error is relabeled as a Python class or given a fabricated lock message.
+Exact Python classes/text remain separately gated in the untouched raw capture.
+The InvalidValue Display prefix and other Rust error texts are not redefined;
+unhandled error UI/typed Entry remains in the existing pending proposal. Full
+Python exception type/text parity is not claimed for the API projections.
+Invalid/content/string heights, mixed-invalid width/height and broader browser
+behavior remain open. Generic identity, JSON/queue and public builder choices
+are unchanged; the full goal retains these unmet requirements.

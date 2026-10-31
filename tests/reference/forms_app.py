@@ -339,10 +339,30 @@ def case_form_max_chars_cjk() -> None:
             if "placeholder" in st.query_params:
                 text_options["placeholder"] = st.query_params["placeholder"]
         callback = "ignore" if policy == "ignore" else None if policy == "none" else changed
-        cjk = widget("中文", key=None if unkeyed else "cjk_note", value=default, max_chars=limit, on_change=callback,
-                     bind="query-params" if st.query_params.get("bind") == "on" else None, **text_options)
+        height_error_probe = st.query_params.get("height_errors") == "on"
+        error = None
+        try:
+            cjk = widget("中文", key=None if unkeyed else "cjk_note", value=default, max_chars=limit, on_change=callback,
+                         bind="query-params" if st.query_params.get("bind") == "on" else None, **text_options)
+        except Exception as exc:
+            if not height_error_probe:
+                raise
+            error = {"type": type(exc).__name__, "message": str(exc)}
+            cjk = None
         report = {"phase": phase, "value": cjk, "state": None if unkeyed else st.session_state["cjk_note"],
                   "callbacks": st.session_state.get("length_callbacks", [])}
+        if height_error_probe:
+            report.update(error=error, locked=None, duplicate=None)
+            if error is not None:
+                try:
+                    st.session_state["cjk_note"] = "attempted-write"
+                except Exception as exc:
+                    report["locked"] = {"type": type(exc).__name__, "message": str(exc)}
+                try:
+                    widget("中文", key="cjk_note", value=default, max_chars=limit, height=122, on_change=changed)
+                except Exception as exc:
+                    report["duplicate"] = {"type": type(exc).__name__, "message": str(exc)}
+                report["state"] = st.session_state["cjk_note"]
         if unkeyed:
             report["has_key"] = "cjk_note" in st.session_state
         if st.query_params.get("peer") == "on":

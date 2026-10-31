@@ -2578,6 +2578,10 @@ impl<C: AppendChild> InputWidgets for C {
 
         // 自动高度随标签布局变化，但不代替上面参与身份的原始高度选项。
         let height = options.height.unwrap_or(if matches!(c.visibility, LabelVisibility::Collapsed) { 94 } else { 122 });
+        if height <= 0 {
+            return Err(WidgetError::InvalidValue(format!("Invalid height value: {height}. Height must be either a positive integer (pixels), 'stretch', or 'content'.")));
+        }
+
         self.push(Rc::new(RefCell::new(InputElement(proto::Element {
             width_config,
             height_config: Some(crate::proto::streamlit::HeightConfig {
@@ -4125,6 +4129,41 @@ mod tests {
             assert_eq!(value.as_deref(), Some("code長🧊extra"));
             assert!(!set);
             assert!(wire_value.is_none());
+            state.finish_widgets();
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn area_height_error_keeps_registration_and_caller_recovery() -> anyhow::Result<()> {
+        for height in [i32::MIN, -1, 0] {
+            let state = SessionState::default();
+            state.begin_widgets(vec![]);
+            let (st, mut wire) = app(&state);
+            st.text_area(TextAreaOptions::new("Area", "base").key("area").max_chars(5).height(122))?;
+            let element::Type::TextArea(widget) = input(&mut wire)? else { anyhow::bail!("expected text area") };
+            state.finish_widgets();
+
+            state.begin_widgets(vec![WidgetState {
+                id: widget.id,
+                value: Some(widget_state::Value::StringValue("EDITEDtail".into())),
+            }]);
+            let (st, mut wire) = app(&state);
+            let error = st
+                .text_area(TextAreaOptions::new("Area", "base").key("area").max_chars(5).height(height))
+                .err()
+                .ok_or_else(|| anyhow::anyhow!("nonpositive height must fail"))?;
+            let WidgetError::InvalidValue(message) = error else { anyhow::bail!("expected existing invalid-value variant") };
+            assert_eq!(message, format!("Invalid height value: {height}. Height must be either a positive integer (pixels), 'stretch', or 'content'."));
+            assert!(wire.try_recv().is_err(), "failed height must not emit an element");
+            assert_eq!(state.get::<String>("area")?.as_deref(), Some("EDITE"));
+            assert!(state.set("area", "blocked").is_err());
+            state.finish_widgets();
+
+            state.begin_widgets(vec![]);
+            let (st, mut wire) = app(&state);
+            assert_eq!(st.text_area(TextAreaOptions::new("Area", "base").key("area").max_chars(5).height(122))?.as_deref(), Some("EDITE"));
+            assert!(matches!(input(&mut wire)?, element::Type::TextArea(_)));
             state.finish_widgets();
         }
         Ok(())

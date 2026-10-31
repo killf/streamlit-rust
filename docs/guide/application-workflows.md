@@ -255,6 +255,8 @@ Rust 已采纳方案 A：显示转换保留真实行数并合成虚拟 RangeInde
 
 **多行文本布局**：`TextAreaOptions` 未设置高度时发送 122 像素，标签 collapsed 时为 94；显式正像素 `height(pixels)` 保留指定值。无 key 时，宽度、高度、placeholder 或 help 变化会重置输入；自动高度和显式 `height(122)` 的身份不同。二十一轮原生参考和公共单元已核验这些协议/身份边界，浏览器像素与重挂载尚未验收。
 
+**多行文本高度错误**：`height(0)` 或负数通过现有 `Result` 返回 `WidgetError::InvalidValue`。校验发生在控件注册后，已处理的输入和 callback 保留；显式捕获高度错误后，同轮同 key 的状态写入仍被拒绝，下一轮有效调用恢复。Python 可显式捕获同 key 重建错误后继续，而当前 Rust 会接管整轮，这项差异仍开放。SDK 原生协议接受 1、67、68 等正像素值，不能把界面最小高度当作后端拒绝阈值。该批只验证可捕获错误与状态恢复，未捕获异常的界面转换仍待入口方案确认。
+
 **绑定文本与历史导航**：现有 `TextInputOptions::bind(TextBind::QueryParams)` 对超长 URL 值截断后会修正 URL；历史请求先忽略已注册绑定控件携带的旧输入和 callback，未绑定控件的输入仍正常处理。[两组原生参考](../../tests/reference/reference-browser/queryparams/README.md)覆盖普通前端/代码优先级、history 的 URL 优先级及缺省恢复；这不是新增浏览器操作验收。应用将当前文本状态设为 `None` 时，该轮有效默认值也为 `None`，绑定参数随默认值折叠而清除；后续缺参数的历史恢复使用这个有效默认值。它与空字符串、URL 字面字符串 `"None"` 不同，已按十轮原生参考核验。`text_area` 的公开绑定入口仍待确认，当前不能使用对应 builder。
 
 **时间/滑块创建参数**（[temporal-params 参考](../../tests/reference/reference-browser/temporal-params/README.md)，5/5 一致、零实现改动确认）：`date_input` 的显式 min/max 透传 ISO、**未给边界时为 value ±10 年窗**、自定义 `format` 原样上 wire；`select_slider` 双端点默认 → `SELECT_SLIDER` 类型 + 选项索引端点（min=0 省略）；`time_input` 的 `step` 以字符串上 wire、`format "24h"`。range date_input 与交互期日历提交未纳入。

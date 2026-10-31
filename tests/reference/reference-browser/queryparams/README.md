@@ -665,3 +665,39 @@ lost ignore flag. Socket/server closed and port 56722 was read back free. No
 new public method/module/dependency or generic hash rule was introduced. Native
 protocol/API proof does not establish browser pixel/remount/buffering behavior,
 invalid/content heights, area binding or every omitted/empty option distinction.
+
+
+## Text area nonpositive-height registration stage (2026-10-31)
+
+`text-area-height/trace.json` freezes nine sessions/27 runs/339 raw frames and
+51 ordered widget/report projections. Each integer (-2147483648,-1,0,1,67,68,
+94,96,2147483647) gets load 122, submitted height and recovery 122 on one WS.
+The frontend submits EDITEDtail; the existing codec truncates to EDITE and
+invokes its callback before application code calls text_area.
+
+Nonpositive height raises StreamlitInvalidHeightError after registration, emits
+no area element, and leaves native state EDITE. A caught attempt to write that
+same key raises StreamlitWidgetAlreadyInstantiatedError; a same-key valid retry
+raises StreamlitDuplicateElementKey. Both exact Python texts/types are frozen.
+Next-run recovery still returns EDITE. All positive integer controls, including
+1/67/68, are accepted on the native wire; the documentation's UI minimum is not
+a backend rejection threshold. There are 24 area emissions with one keyed ID.
+No visual height/clamping conclusion follows from these protocol controls.
+
+The current Rust public API already returns Result and has InvalidValue. The
+height fix uses that existing payload after registration and before push; it
+does not introduce a new error variant. The public unit checks the actual Rust
+variant/payload, no emission, state/write locks and recovery.
+The native Rust replay compares 51 API projections: height payload text and
+the write-lock rejection boolean, plus callback/state/return/height fields.
+Caught duplicate-key parity is not compared: current Rust intercepts that error,
+renders its exception and stops the run, unlike the caught Python retry. This
+independent difference remains open in the existing error-entry design. Python exception class and lock/duplicate messages stay in the frozen
+source and are validated separately; replay does not manufacture them as Rust
+errors. Unhandled exception UI/Entry conversion remains a separate open item.
+Six coherent mutations reject early state release, lost registration, wrong
+height type/message, lost recovery and rejection of a positive-height control.
+Original PB/summary, exact input IDs/history, sessions/versions and ordered
+emission/report absence are checked. Socket/server closed and port 60687 was
+read back free. Content/stretch height builders, mixed-invalid parameters,
+all lock/duplicate error text parity and browser behavior remain open.

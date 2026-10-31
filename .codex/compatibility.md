@@ -304,3 +304,14 @@ input; four frontend callbacks and identity restoration match. Automatic height
 is now sent as 122, or 94 for collapsed labels. Identity uses raw height; a public
 unit distinguishes automatic None from explicit 122 with the same pixel payload.
 No new API or browser pixel/remount/invalid-height conclusion is introduced.
+
+
+2026-10-31 [area height errors](../tests/reference/reference-browser/queryparams/text-area-height/trace.json)
+freezes nine sessions/27 native runs/339 frames/51 ordered API projections.
+Nonpositive height errors follow input/callback and registration; Rust now
+returns existing InvalidValue before emission and retains state/write locks
+and recovery. Native positive 1/67/68 remain accepted. Rust parity compares
+height payload and lock rejection, not fabricated Python class/lock text.
+Caught duplicate-key parity remains open because the current Rust wrapper
+intercepts it and stops the run; raw Python duplicate errors remain fully gated.
+Unhandled error UI, string/content heights and browser behavior are not closed.

@@ -1316,3 +1316,56 @@ remount/buffering, invalid/content heights, area binding, context and all
 omitted/empty option distinctions are not proven by this native batch. Pending
 API/hash/queue/parser choices stay pending; existing colconfig_params changes
 are excluded from this batch's commit/push.
+
+
+### Nonpositive area height, caller-visible error and registration stage (2026-10-31)
+
+Nine independent native sessions/27 runs/339 raw frames retain all 51 ordered
+widget/report projections in text-area-height. Inputs truncate to EDITE and
+callbacks run before height validation. -2147483648/-1/0 raise the exact SDK
+StreamlitInvalidHeightError after registration without an area emission; caught
+state writes/retries have exact frozen Python errors, and next-run recovery
+retains EDITE. Positive 1/67/68/94/96/i32::MAX controls emit accepted pixel heights.
+This is not a browser minimum-height/clamping result.
+
+Rust now checks height after registration and before push, returning its existing
+WidgetError::InvalidValue with exact SDK height payload. No public enum/method/
+module/dependency or generic Entry conversion was introduced. The actual Rust
+Display prefix is retained. Public unit and real-WS comparison failed before
+correction (target/text-area-height-before.log). All-targets Clippy -D warnings
+and Rustfmt, then the public unit and all 31 related query-module checks passed,
+excluding its existing queue comparison (text-area-height-clippy.log,
+text-area-height-unit.log and text-area-height-integration.log under target/).
+The public unit checks the existing Rust variant/payload, no failed emission,
+updated state, write lock and later recovery. Native API comparison projects
+Python height errors to payload text and lock errors to a rejection boolean;
+raw source exceptions are not relabeled as Rust classes. All input/session/ID/
+flag/field and within-runtime identity relations are checked.
+
+Verification exposed a separate existing duplicate-key difference: the wrapper
+register_widget_parity emits an exception, sets Stop and returns a default,
+whereas Python can catch the duplicate and continue. The first post-fix unit
+asserting a returned DuplicateKey failed (target/text-area-height-duplicate-gap.log).
+The height correction does not change that shared takeover. Public duplicate
+retry is excluded from Rust parity, explicitly removed from only the expected
+API projection; the untouched Python capture and its gate still require exact
+duplicate type/message and same-run registration occupancy. This difference
+remains open in the existing error-entry design; passing height checks do not
+close caught-duplicate or unhandled exception UI compatibility.
+
+Full Rust workspace passed 286: library 279, ledger 1, macros 2, rustdoc 4.
+Only the two existing navigation_pages_switch_and_session_state_match_the_measured_wire
+and rerun_queue_messages_match_frozen_reference were skipped; this is not full
+workspace green (target/text-area-height-workspace.log). Existing MSVC linker
+stdout warning remains. 165 related query/matrix/docs Python checks passed with
+DeprecationWarning as error (target/text-area-height-final-gates.log).
+
+The reference gate rejects six coherent wrong-wire mutations: early state/
+callback loss, released registration, wrong error type/message, lost recovery
+and rejection of positive height. Original PB/summary and all 51 source event
+positions are bound. Socket/server closed and port 60687 was read back free.
+No full Python reference suite was rerun in this batch. Content/stretch builders,
+mixed-invalid parameters, all lock/duplicate error text parity, browser behavior
+and pending API/hash/queue/parser choices stay open. Matrix/inventory retain
+130 partial entries and M3/M5/M7/full goal. Existing colconfig_params changes
+remain outside this batch's commit/push.
