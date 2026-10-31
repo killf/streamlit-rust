@@ -2208,3 +2208,19 @@ linker stdout warning 保留。日志为 target/color-unkeyed-{workspace,referen
 按代码检查→单元→原生 WS→工作区顺序验证，编辑 Rust 的 rustfmt 与全工作区/all-target Clippy 通过；工作区共 308 项通过（301 库、1 ledger、2 宏、4 rustdoc），仍明确排除原 navigation_pages_switch_and_session_state_match_the_measured_wire 和 rerun_queue_messages_match_frozen_reference 两项待决回归，不能称完整工作区全绿。既有 MSVC linker stdout warning 保留。日志索引 target/bool-width-{red,green,clippy,build,workspace,reference}.log。
 
 本批没有重采真实浏览器；默认/固定宽度以外的表示、无效宽度错误顺序、callback/禁用/表单/跨页等组合继续开放。select_slider、统一 hash、共享状态和发送队列扩展选择未被本批代替；M3/M5/M7 与长期 Goal 仍未完成。用户 colconfig_params 修改保持独立，未合并、发布或部署。
+
+## Current selection policy identity validation (2026-11-01)
+
+锁定 SDK 1.66.1 的原生 WS 九轮参考确认：有 key 的 selectbox 切换 accept_new_options 会重建身份并恢复默认 Alpha；有 key 的 multiselect 切换 max_selections None/2/3 也会重建。相同模式下的 320 像素宽度保持两控件身份和值；创建模式接受并返回列表外字符串 Novel。正常结束清理后恢复原模式/上限，不复活旧 Beta/Charlie。Rust 修前两控件各只有一种身份，mode 轮均返回旧 Beta；公开 API 单元回归真实失败。修后身份分别两类/三类，值与参考一致。
+
+生产修正限于私有身份参数：emit_selectbox 的 keyed extra 包含 creation；multiselect 的 keyed extra 包含 max_selections，unkeyed extra 也将上限与标签/默认索引结构化编码。无新增公共接口或依赖，未改 codec、注册/回调/URL/清理、共享状态、发送队列或选择上限校验。本批动态参考直接验证有 key 的路径，无 key 上限切换和无效/超限输入仍待验证。
+
+现有 Rust/Python widget_params 示例增加显式 probe=select-policy 分支，采集器增加互斥 --select-policy。固定证据为 [Python](../tests/reference/reference-browser/widget-params/select-policy/trace.json)、[Rust 修前](../tests/browser/rust-widget-params/select-policy/before/trace.json)、[Rust 修后](../tests/browser/rust-widget-params/select-policy/trace.json)。每端九轮/71 原始帧/27 完整 Element；仅归一化不透明 ID 和 JSON 文本格式后字段一致。采集器绑定两份示例与自身 SHA256，Rust 另存 widget_api 与二进制 SHA256。原始输入使用前轮实际 ID，单选 string_value、多选 string_array_value，后者保持选择顺序。
+
+公开 AppTest 在尝试提交 Novel 时，于自身测试树序列化阶段抛出 list.index ValueError；这不是应用错误或已验收的失败规则。该失败日志只留在 target/select-policy-sdk.log，未混入成功证据；原生 WS 随后独立完成全部九轮。SDK 自有服务由采集器关闭；Rust 修前 PID 68520、修后 30112 均校验可执行路径后停止，51319/8599 无监听。
+
+参考门核对原始 protobuf/汇总、宽度、创建模式/上限、默认值、输入 ID/oneof、会话/轮次与返回值；五类同步篡改原始帧和汇总的负例必须失败：模式身份、上限身份、旧值复活、协议上限、过期输入 ID。widget 参数模块 128 项、相关 query/widget/temporal/pickers/matrix/docs 门 379 项通过。矩阵仅更新 st.selectbox/st.multiselect 并重导清单；130 partial 与各桶计数保持，未扩大为完整参数、错误或浏览器兼容。
+
+编辑 Rust 的 rustfmt、全工作区/all-target Clippy 通过；按代码检查、单元、原生 WS、工作区顺序验证。工作区共 309 项通过（302 库、1 ledger、2 宏、4 rustdoc），仍精确排除原 navigation_pages_switch_and_session_state_match_the_measured_wire 与 rerun_queue_messages_match_frozen_reference 两项待决回归，不能称完整工作区全绿。既有 MSVC linker stdout warning 保留；日志索引 target/select-policy-{red,green,clippy,build,workspace,reference}.log。
+
+本批未重采真实浏览器，未验证全部回调/绑定/表单/跨页组合；select_slider、统一 hash、共享状态、发送队列扩展与多小时浸泡的待决定状态保持。用户 colconfig_params 修改独立保留；未合并、发布或部署，M3/M5/M7 与长期 Goal 继续开放。

@@ -1,7 +1,15 @@
 """Emit widget creation-wire parameter variants for the M3 differential."""
 import streamlit as st
 
-if st.query_params.get("probe") == "bool-width":
+if st.query_params.get("probe") == "select-policy":
+    phase = st.query_params.get("phase", "load")
+    creation = phase not in ("load", "edit", "restore", "observe")
+    limit = 3 if phase in ("limit", "limit-edit") else 2 if creation else None
+    options = {"width": 320} if phase == "width" else {}
+    selected = st.selectbox("Choice", ["Alpha", "Beta", "Charlie"], key="choice", accept_new_options=creation, **options)
+    selections = st.multiselect("Choices", ["Alpha", "Beta", "Charlie"], default=["Alpha"], key="choices", max_selections=limit, **options)
+    st.json({"phase": phase, "values": [selected, selections]})
+elif st.query_params.get("probe") == "bool-width":
     phase = st.query_params.get("phase", "load")
     options = {"width": 320} if phase in ("width", "width-edit") else {}
     values = [st.checkbox("Unkeyed check", **options), st.toggle("Unkeyed toggle", **options),

@@ -645,6 +645,133 @@ def test_bool_width_gate_rejects_coherent_wrong_wire(mutation):
         check_bool_width(capture)
 
 
+SELECT_PHASES = ("load", "edit", "mode", "mode-edit", "width", "limit", "limit-edit", "restore", "observe")
+SELECT_VALUES = (("Alpha", ["Alpha"]), ("Beta", ["Beta"]), ("Alpha", ["Alpha"]), ("Novel", ["Beta", "Charlie"]),
+                 ("Novel", ["Beta", "Charlie"]), ("Novel", ["Alpha"]), ("Beta", ["Charlie"]), ("Alpha", ["Alpha"]), ("Alpha", ["Alpha"]))
+
+
+def check_select_policy(capture):
+    assert capture["successful"] and "producer_error" not in capture and capture["reference_version"] == "1.66.1"
+    assert capture["cleanup"]["websocket_closed"] and capture["finishes"] == [0] * 9
+    assert capture["cleanup"]["server_stopped" if capture["runtime"] == "python" else "caller_server_stopped"]
+    assert len(capture["frames"]) == 71 and len(capture["elements"]) == 27
+    runs = color_runs(capture, ("selectbox", "multiselect", "json"))
+    groups = ((0, 0, 1, 1, 1, 1, 1, 0, 0), (0, 0, 1, 1, 1, 2, 2, 0, 0))
+    history, normalized, sessions, run_ids = [], [], set(), set()
+    for index, (phase, run) in enumerate(zip(SELECT_PHASES, runs, strict=True)):
+        request = run["request"]
+        assert request.query_string == "probe=select-policy&phase=" + phase and not request.is_history_navigation
+        assert len(run["sessions"]) == 1 and run["finishes"] == [0]
+        session = run["sessions"][0]
+        assert session.initialize.environment_info.streamlit_version == "1.66.1"
+        sessions.add(session.initialize.session_id)
+        run_ids.add(session.script_run_id)
+        assert [entry[0] for entry in run["entries"]] == ["selectbox", "multiselect", "json"]
+        creation = phase not in ("load", "edit", "restore", "observe")
+        single, multiple = (entry[1] for entry in run["entries"][:2])
+        assert single.label == "Choice" and multiple.label == "Choices"
+        assert single.accept_new_options == creation and not multiple.accept_new_options
+        assert single.default == 0 and list(multiple.default) == [0]
+        assert multiple.max_selections == (3 if phase in ("limit", "limit-edit") else 2 if creation else 0)
+        ids = []
+        for position, (_, widget, element) in enumerate(run["entries"][:2]):
+            assert widget.id and list(widget.options) == ["Alpha", "Beta", "Charlie"]
+            assert not widget.set_value and not widget.disabled and not widget.form_id and not widget.help and not widget.ignore_rerun
+            assert widget.label_visibility.value == 0 and not element.HasField("has_one_shot_effect")
+            assert MessageToDict(element.width_config, preserving_proto_field_name=True) == ({"pixel_width": 320} if phase == "width" else {"use_stretch": True})
+            for earlier in range(index):
+                assert (widget.id == history[earlier][position]) == (groups[position][index] == groups[position][earlier]), (phase, position, earlier)
+            ids.append(widget.id)
+        history.append(ids)
+        assert json.loads(run["entries"][2][1].body) == {"phase": phase, "values": list(SELECT_VALUES[index])}
+        assert [capture["elements"][index * 3 + i]["delta_path"] for i in range(3)] == [[0, i] for i in range(3)]
+        incoming = request.widget_states.widgets
+        if phase in ("edit", "mode-edit", "limit-edit"):
+            assert len(incoming) == 2 and [w.id for w in incoming] == history[index - 1]
+            assert incoming[0].WhichOneof("value") == "string_value" and incoming[0].string_value == SELECT_VALUES[index][0]
+            assert incoming[1].WhichOneof("value") == "string_array_value" and list(incoming[1].string_array_value.data) == SELECT_VALUES[index][1]
+        else:
+            assert not incoming
+        normalized_run = []
+        for kind, _, element in run["entries"]:
+            fields = MessageToDict(element, preserving_proto_field_name=True)
+            if kind != "json":
+                fields[kind].pop("id")
+            else:
+                fields[kind]["body"] = json.loads(fields[kind]["body"])
+            normalized_run.append(fields)
+        normalized.append(normalized_run)
+    assert len(sessions) == 1 and len(run_ids) == 9
+    assert [len({ids[i] for ids in history}) for i in range(2)] == [2, 3]
+    return normalized
+
+
+@pytest.mark.parametrize("root", (PYTHON, RUST), ids=("python", "rust"))
+def test_keyed_selection_creation_and_limit_identity(root):
+    check_select_policy(read(root / "select-policy/trace.json"))
+
+
+def test_select_policy_complete_elements_match_reference():
+    captures = [read(root / "select-policy/trace.json") for root in (PYTHON, RUST)]
+    assert captures[0]["producer_sources_sha256"] == captures[1]["producer_sources_sha256"]
+    assert captures[1]["semantic_match"] is True
+    assert check_select_policy(captures[0]) == check_select_policy(captures[1])
+
+
+def test_select_policy_before_keeps_one_identity_and_old_values():
+    capture = read(RUST / "select-policy/before/trace.json")
+    assert capture["successful"] and "producer_error" not in capture and capture["finishes"] == [0] * 9
+    assert len(capture["frames"]) == 71 and len(capture["elements"]) == 27
+    assert capture["cleanup"] == {"websocket_closed": True, "caller_server_stopped": True}
+    runs = color_runs(capture, ("selectbox", "multiselect", "json"))
+    assert capture["semantic_match"] is False
+    assert [len({r["entries"][i][1].id for r in runs}) for i in range(2)] == [1, 1]
+    assert json.loads(runs[2]["entries"][2][1].body)["values"] == ["Beta", ["Beta"]]
+    with pytest.raises(AssertionError):
+        check_select_policy(capture)
+
+
+@pytest.mark.parametrize("mutation", ("mode-id", "limit-id", "restore-value", "max-count", "stale-input"))
+def test_select_policy_gate_rejects_coherent_wrong_wire(mutation):
+    capture = read(PYTHON / "select-policy/trace.json")
+    source = color_runs(capture, ("selectbox", "multiselect", "json"))
+    target = {"mode-id": 2, "limit-id": 5, "restore-value": 7, "max-count": 5, "stale-input": 6}[mutation]
+    run = -1
+    for frame in capture["frames"]:
+        client = frame["direction"] == "client->server"
+        if client:
+            run += 1
+        if run != target:
+            continue
+        message = BackMsg() if client else ForwardMsg()
+        message.ParseFromString(base64.b64decode(frame["base64"]))
+        if client and mutation == "stale-input":
+            message.rerun_script.widget_states.widgets[1].id = source[0]["entries"][1][1].id
+        elif not client and message.WhichOneof("type") == "delta":
+            element = message.delta.new_element
+            kind = element.WhichOneof("type")
+            if kind == "selectbox" and mutation == "mode-id":
+                element.selectbox.id = source[0]["entries"][0][1].id
+            elif kind == "multiselect" and mutation == "limit-id":
+                element.multiselect.id = source[2]["entries"][1][1].id
+            elif kind == "multiselect" and mutation == "max-count":
+                element.multiselect.max_selections = 2
+            elif kind == "json" and mutation == "restore-value":
+                report = json.loads(element.json.body)
+                report["values"] = ["Beta", ["Charlie"]]
+                element.json.body = json.dumps(report)
+            else:
+                continue
+        else:
+            continue
+        raw = message.SerializeToString()
+        frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(message, preserving_proto_field_name=True))
+    capture["elements"] = [{"kind": m.delta.new_element.WhichOneof("type"), "fields": MessageToDict(getattr(m.delta.new_element, m.delta.new_element.WhichOneof("type")), preserving_proto_field_name=True),
+                            "delta_path": list(m.metadata.delta_path)} for m in frames(capture) if isinstance(m, ForwardMsg) and m.WhichOneof("type") == "delta"]
+    with pytest.raises(AssertionError):
+        check_select_policy(capture)
+
+
 def comparable(capture):
     out = []
     for element in capture["elements"]:

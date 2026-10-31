@@ -6,6 +6,32 @@ use ::streamlit::*;
 use streamlit::StreamlitApi;
 
 fn render(st: &Streamlit) -> Result<(), WidgetError> {
+    if st.query_params().get("probe").as_deref() == Some("select-policy") {
+        let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
+        let creation = !matches!(phase.as_str(), "load" | "edit" | "restore" | "observe");
+        let mut multiple = MultiselectOptions::new("Choices", ["Alpha", "Beta", "Charlie"]).default_indices([0]).key("choices");
+        if creation {
+            multiple = multiple.max_selections(if matches!(phase.as_str(), "limit" | "limit-edit") { 3 } else { 2 });
+        }
+
+        let selected = if creation {
+            let mut options = SelectboxCreationOptions::new("Choice", ["Alpha", "Beta", "Charlie"]).key("choice");
+            if phase == "width" {
+                options = options.width(320);
+            }
+            st.selectbox_creation(options)?
+        } else {
+            st.selectbox(SelectboxOptions::new("Choice", ["Alpha", "Beta", "Charlie"]).key("choice"))?.map(str::to_string)
+        };
+        if phase == "width" {
+            multiple = multiple.width(320);
+        }
+
+        let selections = st.multiselect(multiple)?;
+        st.json(serde_json::json!({"phase": phase, "values": [selected, selections]}));
+        return Ok(());
+    }
+
     if st.query_params().get("probe").as_deref() == Some("bool-width") {
         let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
         let mut check = CheckboxOptions::new("Unkeyed check");

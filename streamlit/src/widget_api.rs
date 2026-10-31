@@ -2421,7 +2421,14 @@ impl<C: AppendChild> InputWidgets for C {
         }
         let native: Vec<Value> = options.options.iter().map(serde_json::to_value).collect::<Result<_, _>>()?;
         let default = Value::Array(options.default.iter().map(|index| Value::from(*index)).collect::<Vec<_>>());
-        let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { format!("{:?}:{:?}", options.labels, options.default) });
+        let identity = c.identity_in_form(
+            &form_id,
+            &if c.key.is_some() {
+                serde_json::to_string(&options.max_selections)?
+            } else {
+                serde_json::to_string(&(&options.labels, &options.default, options.max_selections))?
+            },
+        );
         let codec = Codec::MultiSelect(options.labels.iter().cloned().zip(native.iter().cloned()).collect());
         let (id, selected, set_value) = self.register_widget_parity(
             WidgetSpec {
@@ -3577,7 +3584,7 @@ fn emit_selectbox<C: AppendChild, T: Clone + Serialize>(this: &C, options: Selec
     let default = options.index.filter(|index| *index < native.len()).map(Value::from).unwrap_or(Value::Null);
     // Creation mode joins the widget identity, like the reference's
     // key_as_main_identity("accept_new_options").
-    let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { format!("{:?}:{:?}:{}", options.labels, options.index, creation) });
+    let identity = c.identity_in_form(&form_id, &if c.key.is_some() { creation.to_string() } else { format!("{:?}:{:?}:{}", options.labels, options.index, creation) });
     let pairs = options.labels.iter().cloned().zip(native.iter().cloned()).collect();
     let codec = if creation { Codec::SelectCreation(pairs) } else { Codec::Select(pairs) };
     let labels = options.labels.clone();
@@ -4907,6 +4914,73 @@ mod tests {
             assert!(wire.try_recv().is_ok(), "the first valid form is still rendered");
         }
         assert!(wire.try_recv().is_err(), "failed form calls must not append their partial children");
+    }
+
+    #[test]
+    fn keyed_selection_policy_changes_reset_the_measured_state() -> anyhow::Result<()> {
+        let state = SessionState::default();
+        let mut ids: Vec<Vec<String>> = Vec::new();
+        let groups = [[0, 0, 1, 1, 1, 1, 1, 0, 0], [0, 0, 1, 1, 1, 2, 2, 0, 0]];
+
+        for (index, phase) in ["load", "edit", "mode", "mode-edit", "width", "limit", "limit-edit", "restore", "observe"].iter().enumerate() {
+            // 1. 使用上一轮实际 ID，包含创建模式的新标签和多选标签数组。
+            let incoming = if matches!(*phase, "edit" | "mode-edit" | "limit-edit") {
+                vec![
+                    WidgetState {
+                        id: ids[index - 1][0].clone(),
+                        value: Some(widget_state::Value::StringValue(if *phase == "mode-edit" { "Novel" } else { "Beta" }.into())),
+                    },
+                    WidgetState {
+                        id: ids[index - 1][1].clone(),
+                        value: Some(widget_state::Value::StringArrayValue(proto::StringArray {
+                            data: if *phase == "mode-edit" {
+                                vec!["Beta".into(), "Charlie".into()]
+                            } else {
+                                vec![if *phase == "limit-edit" { "Charlie" } else { "Beta" }.into()]
+                            },
+                        })),
+                    },
+                ]
+            } else {
+                Vec::new()
+            };
+            assert!(state.begin_widgets(incoming).is_empty());
+            let (st, mut wire) = app(&state);
+            let creation = !matches!(*phase, "load" | "edit" | "restore" | "observe");
+            let mut multiple = MultiselectOptions::new("Choices", ["Alpha", "Beta", "Charlie"]).default_indices([0]).key("choices");
+            if creation {
+                multiple = multiple.max_selections(if matches!(*phase, "limit" | "limit-edit") { 3 } else { 2 });
+            }
+
+            // 2. 只有创建模式/选择上限改变身份；显式 key 的宽度变化保持。
+            let selected = if creation {
+                let options = SelectboxCreationOptions::new("Choice", ["Alpha", "Beta", "Charlie"]).key("choice");
+                st.selectbox_creation(if *phase == "width" { options.width(320) } else { options })?
+            } else {
+                st.selectbox(SelectboxOptions::new("Choice", ["Alpha", "Beta", "Charlie"]).key("choice"))?.map(str::to_string)
+            };
+            let selections = st.multiselect(if *phase == "width" { multiple.width(320) } else { multiple })?;
+            let expected = match *phase {
+                "edit" => ("Beta", vec!["Beta"]),
+                "mode-edit" | "width" => ("Novel", vec!["Beta", "Charlie"]),
+                "limit" => ("Novel", vec!["Alpha"]),
+                "limit-edit" => ("Beta", vec!["Charlie"]),
+                _ => ("Alpha", vec!["Alpha"]),
+            };
+            assert_eq!((selected.as_deref(), selections), (Some(expected.0), expected.1), "{phase}");
+            let element::Type::Selectbox(single) = input(&mut wire)? else { panic!() };
+            let element::Type::Multiselect(multi) = input(&mut wire)? else { panic!() };
+            let current = vec![single.id, multi.id];
+            for (position, id) in current.iter().enumerate() {
+                for earlier in 0..index {
+                    assert_eq!(*id == ids[earlier][position], groups[position][index] == groups[position][earlier], "{phase}: {position}/{earlier}");
+                }
+            }
+            ids.push(current);
+            state.finish_widgets();
+        }
+
+        Ok(())
     }
 
     #[test]

@@ -14,6 +14,8 @@
 
 ## Current focus
 
+2026-11-01 选择策略身份切片：有 key 的 selectbox 创建模式与 multiselect 选择上限已纳入各自私有身份；九轮原生 WS 中重建、旧状态清理、宽度保持和新字符串返回与锁定 SDK 一致，修前失败保留。详见[验收](acceptance.md#current-selection-policy-identity-validation-2026-11-01)；无 key 动态上限、错误与真实浏览器等组合未据此验收。
+
 2026-11-01 checkbox/toggle 宽度身份切片：公开 SDK 与原生 WS 证明无 key 改宽度重建并清理旧状态、有 key 保留；Rust 两处私有身份参数已修正，七轮/69 帧/35 个完整 Element 双端一致，修前失败保留。范围与验证见[验收](acceptance.md#current-checkboxtoggle-width-identity-validation-2026-11-01)；真实浏览器和其余组合未据此关闭。
 
 2026-10-29 本轮首先校准剩余能力和证据。未验证参数、外部来源、真实提供方及系统选择器等条件受限项继续开放，不通过接受已知限制、修改统计口径或缩小适用范围关闭长期目标。先前等待的“将外部/headless 项定为已确认限制”不再是推荐执行路径。历史已验收批次继续保留；本轮验证以当前环境与实际输出为准，历史 `target/` 日志不视为当前可用证据。
