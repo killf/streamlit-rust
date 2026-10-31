@@ -6,6 +6,32 @@ use ::streamlit::*;
 use streamlit::StreamlitApi;
 
 fn render(st: &Streamlit) -> Result<(), WidgetError> {
+    if st.query_params().get("probe").as_deref() == Some("feedback-identity") {
+        let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
+        let kind = match phase.as_str() {
+            "faces" | "faces-edit" => FeedbackKind::Faces,
+            "thumbs" | "thumbs-edit" => FeedbackKind::Thumbs,
+            _ => FeedbackKind::Stars,
+        };
+        let options = |keyed| {
+            let mut options = FeedbackOptions::new(kind);
+            if keyed {
+                options = options.key("feedback_choice");
+            }
+            if ["zero", "zero-edit", "width", "width-edit"].contains(&phase.as_str()) {
+                options = options.default(0);
+            }
+            if phase == "width" || phase == "width-edit" {
+                options = options.width(300);
+            }
+            options
+        };
+        let values = [st.feedback(options(false))?, st.feedback(options(true))?];
+        let native = st.session_state().get::<serde_json::Value>("feedback_choice")?;
+        st.json(serde_json::json!({"phase": phase, "values": values, "native": native}));
+        return Ok(());
+    }
+
     if st.query_params().get("probe").as_deref() == Some("group-defaults") {
         let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
         let choices = if phase == "empty" { vec![] } else { vec!["Alpha", "Beta"] };

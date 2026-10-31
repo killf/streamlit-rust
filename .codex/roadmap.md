@@ -14,6 +14,8 @@
 
 ## Current focus
 
+2026-11-01 feedback 动态身份切片：无 key 保留原始 None/0 默认值和 width，有 key 仍让图标类型参与身份。十二轮、95 帧、36 完整 Element 与 SDK 匹配，覆盖默认/宽度保留或重置、stars/faces/thumbs 切换及清理后恢复；修前错误选择和越界拒绝保留。见[验收](acceptance.md#current-feedback-dynamic-identity-validation-2026-11-01)；浏览器清空、callback/禁用/错误输入/代码赋值/表单/跨页继续开放，不缩减完整目标。
+
 2026-11-01 pills/segmented_control 多选重复默认值切片：仅移除默认项总数不得超过选项数的错误限制，保留逐项存在性与单选数量校验。八轮、79 帧、40 完整 Element 与 SDK 匹配，默认变化/空选项/恢复及有无 key 状态分别验证；修前首轮拒绝导致采集器缺 ID 中断的五帧前缀保留。见[验收](acceptance.md#current-button-group-duplicate-default-validation-2026-11-01)；浏览器、callback、错误 UI 等仍开放，不缩减完整目标。
 
 2026-11-01 pills/segmented_control 原生字符串状态切片：单选失效值回默认，多选逐项过滤并保留顺序/重复项，空选项与代码赋值同步。双样式单多选四控件共十轮、99 帧、50 完整 Element 与 SDK 匹配；旧模式/宽度复验通过。私有 codec 标志隔离 select_slider 的严格端点校验，详见[验收](acceptance.md#current-button-group-filtered-native-state-validation-2026-11-01)。异类型状态、callback、浏览器及绑定/表单/跨页继续开放，不改待决方案或完整目标。

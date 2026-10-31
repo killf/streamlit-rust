@@ -1,7 +1,15 @@
 """Emit widget creation-wire parameter variants for the M3 differential."""
 import streamlit as st
 
-if st.query_params.get("probe") == "group-defaults":
+if st.query_params.get("probe") == "feedback-identity":
+    phase = st.query_params.get("phase", "load")
+    kind = "faces" if phase in ("faces", "faces-edit") else "thumbs" if phase in ("thumbs", "thumbs-edit") else "stars"
+    default = 0 if phase in ("zero", "zero-edit", "width", "width-edit") else None
+    width = 300 if phase in ("width", "width-edit") else "content"
+    values = [st.feedback(kind, default=default, width=width),
+              st.feedback(kind, default=default, width=width, key="feedback_choice")]
+    st.json({"phase": phase, "values": values, "native": st.session_state.feedback_choice})
+elif st.query_params.get("probe") == "group-defaults":
     phase = st.query_params.get("phase", "load")
     choices = [] if phase == "empty" else ["Alpha", "Beta"]
     defaults = [] if phase == "empty" else ["Alpha"] * 3 if phase in ("default", "default-edit") else ["Beta", "Beta", "Alpha", "Beta"]

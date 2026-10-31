@@ -2978,6 +2978,137 @@ def test_button_group_defaults_gate_rejects_coherent_wrong_wire(mutation):
         check_group_defaults(capture)
 
 
+FEEDBACK_PHASES = ("load", "edit", "zero", "zero-edit", "width", "width-edit", "faces", "faces-edit", "thumbs", "thumbs-edit", "restore", "observe")
+FEEDBACK_VALUES = ((None, None), (4, 4), (0, 4), (3, 3), (0, 3), (2, 2), (None, None), (4, 4), (None, None), (1, 1), (None, None), (None, None))
+
+
+def check_feedback_identity(capture):
+    assert capture["successful"] and "producer_error" not in capture and capture["reference_version"] == "1.66.1"
+    assert capture["runtime"] in ("python", "rust") and capture["finishes"] == [0] * 12
+    assert capture["cleanup"]["websocket_closed"] and capture["cleanup"]["server_stopped" if capture["runtime"] == "python" else "caller_server_stopped"]
+    assert len(capture["frames"]) == 95 and len(capture["elements"]) == 36
+    runs = color_runs(capture, ("feedback", "json"))
+    normalized, sessions, run_ids, identities, previous = [], set(), set(), [{}, {}], None
+    for index, (phase, run) in enumerate(zip(FEEDBACK_PHASES, runs, strict=True)):
+        request = run["request"]
+        assert request.query_string == "probe=feedback-identity&phase=" + phase and not request.is_history_navigation
+        assert len(run["sessions"]) == 1 and run["finishes"] == [0]
+        session = run["sessions"][0]
+        assert session.initialize.environment_info.streamlit_version == "1.66.1"
+        sessions.add(session.initialize.session_id)
+        run_ids.add(session.script_run_id)
+        assert [entry[0] for entry in run["entries"]] == ["feedback", "feedback", "json"]
+        kind = 1 if phase.startswith("faces") else 0 if phase.startswith("thumbs") else 2
+        default = phase in ("zero", "zero-edit", "width", "width-edit")
+        wide = phase in ("width", "width-edit")
+        current = []
+        for position, (_, widget, element) in enumerate(run["entries"][:2]):
+            assert widget.type == kind and widget.HasField("default") == default and widget.default == 0
+            assert not widget.disabled and not widget.ignore_rerun and not widget.form_id
+            assert not widget.set_value and not widget.HasField("value") and not element.HasField("has_one_shot_effect")
+            assert element.width_config.WhichOneof("width_spec") == ("pixel_width" if wide else "use_content")
+            assert element.width_config.pixel_width == 300 if wide else element.width_config.use_content
+            identity_class = (kind, default, wide) if position == 0 else kind
+            assert widget.id == identities[position].setdefault(identity_class, widget.id)
+            current.append(widget.id)
+        assert len(set(current)) == 2
+        incoming = request.widget_states.widgets
+        if phase in ("edit", "zero-edit", "width-edit", "faces-edit", "thumbs-edit"):
+            assert len(incoming) == 2 and [widget.id for widget in incoming] == previous
+            assert all(widget.WhichOneof("value") == "string_value" and widget.string_value == str(FEEDBACK_VALUES[index][0]) for widget in incoming)
+        else:
+            assert not incoming
+        report = json.loads(run["entries"][-1][1].body)
+        assert report == {"phase": phase, "values": list(FEEDBACK_VALUES[index]), "native": FEEDBACK_VALUES[index][1]}
+        assert all(value is None or type(value) is int for value in report["values"] + [report["native"]])
+        assert [entry["delta_path"] for entry in capture["elements"][index * 3:index * 3 + 3]] == [[0, i] for i in range(3)]
+        fields = []
+        for kind, _, element in run["entries"]:
+            view = MessageToDict(element, preserving_proto_field_name=True)
+            if kind == "json":
+                view[kind]["body"] = json.loads(view[kind]["body"])
+            else:
+                view[kind].pop("id")
+            fields.append(view)
+        normalized.append(fields)
+        previous = current
+    assert [len(set(identity.values())) for identity in identities] == [5, 3]
+    assert len(sessions) == 1 and len(run_ids) == 12
+    return normalized
+
+
+@pytest.mark.parametrize("root", (PYTHON, RUST), ids=("python", "rust"))
+def test_feedback_dynamic_identity_and_state_cleanup(root):
+    check_feedback_identity(read(root / "feedback-identity/trace.json"))
+
+
+def test_feedback_complete_elements_match_reference():
+    captures = [read(root / "feedback-identity/trace.json") for root in (PYTHON, RUST)]
+    assert captures[0]["producer_sources_sha256"] == captures[1]["producer_sources_sha256"] and captures[1]["semantic_match"] is True
+    assert check_feedback_identity(captures[0]) == check_feedback_identity(captures[1])
+
+
+def test_feedback_before_keeps_values_and_raises_after_type_change():
+    capture = read(RUST / "feedback-identity/before/trace.json")
+    assert capture["successful"] and capture["semantic_match"] is False and capture["finishes"] == [0] * 12
+    assert len(capture["frames"]) == 94 and len(capture["elements"]) == 35
+    runs = color_runs(capture, ("feedback", "json", "markdown"))
+    for index, values in ((2, [4, 4]), (4, [3, 3]), (6, [None, 2]), (10, [None, 1])):
+        assert json.loads(runs[index]["entries"][-1][1].body)["values"] == values
+    assert runs[8]["entries"][-1][0] == "markdown" and "value does not match feedback" in runs[8]["entries"][-1][1].body
+    with pytest.raises(AssertionError):
+        check_feedback_identity(capture)
+
+
+@pytest.mark.parametrize("mutation", ("raw-default", "width-id", "keyed-kind", "return", "revived", "sync", "stale-input", "numeric-type"))
+def test_feedback_identity_gate_rejects_coherent_wrong_wire(mutation):
+    capture = read(PYTHON / "feedback-identity/trace.json")
+    plain_zero_id = capture["elements"][6]["fields"]["id"]
+    keyed_stars_id = capture["elements"][1]["fields"]["id"]
+    target = {"raw-default": 0, "width-id": 4, "keyed-kind": 6, "return": 2, "revived": 10, "sync": 3, "stale-input": 7, "numeric-type": 3}[mutation]
+    run = -1
+    for frame in capture["frames"]:
+        client = frame["direction"] == "client->server"
+        if client:
+            run += 1
+        if run != target:
+            continue
+        message = BackMsg() if client else ForwardMsg()
+        message.ParseFromString(base64.b64decode(frame["base64"]))
+        if client and mutation == "stale-input":
+            message.rerun_script.widget_states.widgets[1].id = keyed_stars_id
+        elif not client and message.WhichOneof("type") == "delta":
+            element = message.delta.new_element
+            kind = element.WhichOneof("type")
+            position = list(message.metadata.delta_path)[-1]
+            if kind == "feedback" and position == 0 and mutation == "raw-default":
+                element.feedback.default = 0
+            elif kind == "feedback" and position == 0 and mutation == "width-id":
+                element.feedback.id = plain_zero_id
+            elif kind == "feedback" and position == 1 and mutation == "keyed-kind":
+                element.feedback.id = keyed_stars_id
+            elif kind == "feedback" and position == 0 and mutation == "sync":
+                element.feedback.set_value = True
+                element.feedback.value = 3
+                element.has_one_shot_effect = True
+            elif kind == "json" and mutation in ("return", "revived", "numeric-type"):
+                report = json.loads(element.json.body)
+                if mutation == "return": report["values"][0] = 4
+                elif mutation == "revived": report["values"][1] = 1
+                else: report["values"][0] = 3.0
+                element.json.body = json.dumps(report)
+            else:
+                continue
+        else:
+            continue
+        raw = message.SerializeToString()
+        frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(message, preserving_proto_field_name=True))
+    capture["elements"] = [{"kind": m.delta.new_element.WhichOneof("type"), "fields": MessageToDict(getattr(m.delta.new_element, m.delta.new_element.WhichOneof("type")), preserving_proto_field_name=True),
+                            "delta_path": list(m.metadata.delta_path)} for m in frames(capture) if isinstance(m, ForwardMsg) and m.WhichOneof("type") == "delta"]
+    with pytest.raises(AssertionError):
+        check_feedback_identity(capture)
+
+
 def comparable(capture):
     out = []
     for element in capture["elements"]:

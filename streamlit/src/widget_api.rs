@@ -2849,7 +2849,7 @@ impl<C: AppendChild> InputWidgets for C {
         if options.default.is_some_and(|default| default as usize >= count) {
             return Err(WidgetError::InvalidValue("feedback default is outside the style's icons".into()));
         }
-        let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { format!("{:?}:{}", options.kind, options.default.unwrap_or(0)) });
+        let identity = c.identity_in_form(&form_id, &if c.key.is_some() { format!("{:?}", options.kind) } else { format!("{:?}:{:?}:{:?}", options.kind, options.default, c.width) });
         let (id, value, set_value) = self.register_widget_parity(
             WidgetSpec {
                 disabled: c.disabled,
@@ -4961,6 +4961,90 @@ mod tests {
             assert!(wire.try_recv().is_ok(), "the first valid form is still rendered");
         }
         assert!(wire.try_recv().is_err(), "failed form calls must not append their partial children");
+    }
+
+    #[test]
+    fn feedback_identity_tracks_raw_default_width_and_keyed_icon_type() -> anyhow::Result<()> {
+        let state = SessionState::default();
+        let mut ids = Vec::<String>::new();
+        let mut identities = [std::collections::HashMap::new(), std::collections::HashMap::new()];
+        let phases = ["load", "edit", "zero", "zero-edit", "width", "width-edit", "faces", "faces-edit", "thumbs", "thumbs-edit", "restore", "observe"];
+        let expected = [
+            [None, None],
+            [Some(4), Some(4)],
+            [Some(0), Some(4)],
+            [Some(3), Some(3)],
+            [Some(0), Some(3)],
+            [Some(2), Some(2)],
+            [None, None],
+            [Some(4), Some(4)],
+            [None, None],
+            [Some(1), Some(1)],
+            [None, None],
+            [None, None],
+        ];
+        for (round, phase) in phases.iter().enumerate() {
+            // 1. 以实际旧 ID 提交；无输入轮分离默认值、宽度和图标类型的身份规则。
+            let submitted = match round {
+                1 | 7 => Some(4),
+                3 => Some(3),
+                5 => Some(2),
+                9 => Some(1),
+                _ => None,
+            };
+            let incoming = submitted.map_or_else(Vec::new, |value| {
+                ids.iter()
+                    .map(|id| WidgetState {
+                        id: id.clone(),
+                        value: Some(widget_state::Value::StringValue(value.to_string())),
+                    })
+                    .collect()
+            });
+            assert!(state.begin_widgets(incoming).is_empty());
+            let (st, mut wire) = app(&state);
+            let kind = match round {
+                6 | 7 => FeedbackKind::Faces,
+                8 | 9 => FeedbackKind::Thumbs,
+                _ => FeedbackKind::Stars,
+            };
+            let default = [2, 3, 4, 5].contains(&round);
+            let wide = round == 4 || round == 5;
+            let mut current = Vec::new();
+            for position in 0..2 {
+                let mut options = FeedbackOptions::new(kind);
+                if position == 1 {
+                    options = options.key("feedback_choice");
+                }
+                if default {
+                    options = options.default(0);
+                }
+                if wide {
+                    options = options.width(300);
+                }
+                assert_eq!(st.feedback(options)?, expected[round][position], "{phase}: {position}");
+                let element::Type::Feedback(widget) = input(&mut wire)? else { panic!() };
+                assert_eq!(widget.r#type, kind.wire() as i32);
+                assert_eq!(widget.default, default.then_some(0));
+                assert!(!widget.set_value && widget.value.is_none());
+
+                // 2. 清理后恢复旧配置，只复用身份，不能复活旧选中值。
+                let class = match round {
+                    6 | 7 => 3,
+                    8 | 9 => 4,
+                    _ if position == 0 && wide => 2,
+                    _ if position == 0 && default => 1,
+                    _ => 0,
+                };
+                assert_eq!(identities[position].entry(class).or_insert_with(|| widget.id.clone()), &widget.id);
+                current.push(widget.id);
+            }
+            assert_eq!(state.get::<Value>("feedback_choice")?, Some(serde_json::json!(expected[round][1])));
+            ids = current;
+            state.finish_widgets();
+        }
+        assert_eq!(identities.iter().map(|items| items.values().collect::<std::collections::HashSet<_>>().len()).collect::<Vec<_>>(), [5, 3]);
+
+        Ok(())
     }
 
     #[test]

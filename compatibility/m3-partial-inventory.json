@@ -7,8 +7,8 @@
     "by_bucket": {
       "needs-external-source-or-environment": 12,
       "rust-extension-or-headless-bound": 2,
-      "unmeasured-parameters": 95,
-      "no-explicit-gap-stated": 32
+      "unmeasured-parameters": 96,
+      "no-explicit-gap-stated": 31
     }
   },
   "entries": [
@@ -803,12 +803,13 @@
       "feature_id": "st.feedback",
       "category": "PAGE ELEMENTS/Input widgets",
       "buckets": [
-        "no-explicit-gap-stated"
+        "unmeasured-parameters"
       ],
       "limitations": [
         "The disabled flag on the creation wire is now measured (2026-10-29, frozen json-badge-params), and the positional argument is confirmed as the options preset (options= keyword conflicts, measured TypeError). Coverage otherwise is the journey-buttons-v1 chain: the pinned fixture's widget set (two toggles, stars+thumbs feedback, single/multi pills, one segmented control, a 10-page pagination, one menu button, one text download, one keyed link button, one external page link) across the load and five committed interactions (toggle flip, single pill pick, page-2 click, third star, CSV menu pick).",
-        "default selections, disabled, on_change and the ignore mode were not observed; faces was not rendered (its style enum is implemented and unit-checked, not browser-observed).",
-        "fixture SHA256 301325fef04f99504bd2577edbeed14991e0b2335170cae7a0d4d99807f1530d; example SHA256 79817da724ca2b6d57f9615b955d9acc6219d30ce7a357026b605c426a705f4d."
+        "Disabled interaction, on_change and ignore mode remain unobserved. The later feedback-identity sequence measures native default selections, default changes and the faces style; browser default changes/clearing and faces rendering remain unobserved.",
+        "fixture SHA256 301325fef04f99504bd2577edbeed14991e0b2335170cae7a0d4d99807f1530d; example SHA256 79817da724ca2b6d57f9615b955d9acc6219d30ce7a357026b605c426a705f4d.",
+        "Dynamic feedback identity (2026-11-01, feedback-identity): twelve native WebSocket runs, 95 raw frames and 36 complete Elements per SDK/Rust. Unkeyed None versus explicit default 0 and content versus 300px width have distinct identities; keyed peers retain selection across those changes. Switching stars/faces/thumbs resets both keyed and unkeyed controls. Restoring a cleaned stars identity starts at None instead of reviving an old score. Five unkeyed and three keyed identity classes, native integer/None values, declared default presence, input string_value IDs and complete normalized Elements match. Before-fix 94 frames/35 Elements retain wrong selections and the caught thumbs out-of-range error. Eight coherent damage cases are rejected. No new browser evidence; clearing interactions, callbacks, disabled/malformed input, code assignment, forms/pages and remaining combinations stay open."
       ]
     },
     {
