@@ -1373,3 +1373,12 @@ datetime 补归一化后的实际 min/max 与 width。保留 label/help/form 等
 尾随 LF，拒绝 CRLF。Rust 尚缺格式校验，失败前身份占用顺序也未对齐；本批
 不提前加入简单白名单而掩盖该差异。调查输出在 target/temporal-format-sdk.json，
 这是本地调查记录，不是 WS/浏览器冻结参考，格式错误完整实现继续开放。
+
+后续原生补证复用 temporal_params 现有 fixture/example：probe=unkeyed 固定
+label/help、默认值和 step，只切换 time format、三控件宽度、datetime 边界；
+不设置 key。--unkeyed collector 通过上一轮实际 ID 提交 typed edits，单 WS
+普通完成八轮。无 key 无公开 native key，报告 native=[]，不伪造会话值投影。
+SDK/Rust 各 71 原始帧/32 有序元素，状态/ID 关系与此前 AppTest 一致；规范化
+控件 ID 与 JSON 正文后完整 Element 字段相同。旧 keyed/default 模式经重新
+采集检查十一轮约束与默认五元素未变。本批仅修改采集/示例/门禁与文档，不改
+生产实现；hash/共享状态与格式错误流程继续开放。

@@ -1982,3 +1982,37 @@ temporal/matrix/docs 参考门 293 项通过。工作区/all-target Clippy、单
 rustfmt 与 diff --check 通过，既有 MSVC linker stdout warning 保留。日志为
 target/temporal-unkeyed-{workspace,reference,clippy}.log。用户 colconfig_params
 改动保持独立，没有启动服务或浏览器，没有合并/发布/部署。
+
+### 无 key 时间控件的同连接原生补证（2026-10-31）
+
+新增 reference-browser/temporal-params/unkeyed-identity/trace.json 与对应
+rust-temporal-params/unkeyed-identity/trace.json；每端普通完成八轮、71 原始帧、
+32 有序 Element。原 WS 请求携带上一轮实际 ID，两个编辑批次分别提交 string
+clock 与 string_array datetime/date；load/edit/format/width/restore/edit-bounds/
+bounds/observe 的返回值、ID 等价类 2/3/2 与此前公开后端参考一致。无 key 时
+native=[] 只说明本探针没有公开 key 投影，不能视作控件会话值读取验证。
+
+门禁验证原始 PB 长度/summary、全部帧种类与 running 状态顺序、八次唯一
+run/同一 session、完成和请求历史标记、全部输入类型/值/上一轮 ID、元素次序/
+路径、ID 关系、返回值、默认值/format/step/min/max/width/策略/value 同步标志。
+另规范化两端运行时 ID 和 JSON 正文，完整 Element 逐字段一致。六类反例同步
+修改 raw/summary/元素，分别保护 time-format 身份、date-width 身份、datetime
+边界身份、保留值、过期输入 ID 和布局。这里不把 hash 字节视为已经统一。
+
+producer_sources_sha256 保留采集时三份源文件哈希；Rust 生产基线为 797936c，
+生产源码无变更，另保留 widget_api 与实际二进制哈希及核对过的进程路径。
+collector 自行关闭 SDK 服务/WS；Rust 按 71356 的完整路径停止，原 exec 会话
+已终止，51098/8600 读回无监听。随后为共享 fixture 重新检查 SDK/Rust 的
+keyed 十一轮及默认五元素模式，输出位于 target/temporal-unkeyed-wire-recheck/；
+53796 同路径 Rust 服务也已停止，第二 exec 会话终止、8600 无监听。参考旧
+trace 没有覆盖。SDK 临时服务由 collector 正常退出，不把缺少 close 帧当完成证据。
+
+本批不改生产 API/身份/状态/hash/队列，仅增加采集、示例探针和回归证据；
+未执行浏览器，亚秒/None/范围/错误/回调/URL/跨页组合继续开放，不能关闭
+完整 temporal 能力、M3/M5/M7 或 130 partial。
+
+最终相关 query/widget/temporal/matrix/docs 参考门 302 项通过（temporal 单模块
+20 项）；示例构建、定向 Clippy、rustfmt 和 diff --check 通过，既有 MSVC linker
+stdout warning 保留。日志为 target/temporal-unkeyed-wire-{build,clippy,reference}.log。
+本批未改库生产代码或 Rust 单元，未重复工作区回归；上一批 303 项与两项排除
+仍为上一批快照，不作为本批新跑的结果。用户 colconfig_params 文件保持独立。

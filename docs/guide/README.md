@@ -580,7 +580,7 @@ Date inputs carry the ten-year min/max window the reference derives from the val
 
 For keyed pickers, changing `TimeInputOptions.step`, `DateTimeInputOptions.step` or its date `format`, or `DateInputOptions.format` starts a new widget and resets to the supplied default. Changing only a time picker's `24h`/`12h` presentation keeps its value. Valid selections also survive changes to defaults, layout, disabled state and date bounds in the measured keyed flow.
 
-Without a key, changing a picker's width starts a new widget and resets its value. A datetime picker's effective min/max bounds also participate in its identity, even when the old selection remains within them. Changing only a time picker's `24h`/`12h` presentation preserves its value with or without a key. These transitions are checked through backend calls; browser interactions remain unverified for this dynamic flow.
+Without a key, changing a picker's width starts a new widget and resets its value. A datetime picker's effective min/max bounds also participate in its identity, even when the old selection remains within them. Changing only a time picker's `24h`/`12h` presentation preserves its value with or without a key. These transitions are also checked through same-connection native WebSocket reruns; browser interactions remain unverified for this dynamic flow.
 
 ## Presentation leftovers
 

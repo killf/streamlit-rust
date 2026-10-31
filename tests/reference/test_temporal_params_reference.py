@@ -264,3 +264,143 @@ st.json([clock.isoformat(), moment.isoformat(), date.isoformat()])
                 assert (widget.id == ids[position][earlier]) == (groups[position][index] == groups[position][earlier]), (phase, position, earlier)
             ids[position].append(widget.id)
     assert [len(set(widget_ids)) for widget_ids in ids] == [2, 3, 2]
+
+
+UNKEYED_PHASES = ("load", "edit", "format", "width", "restore", "edit-bounds", "bounds", "observe")
+UNKEYED_VALUES = (
+    ("12:30", "2024-03-15T12:30", "2024-03-15"),
+    ("13:45", "2024-06-01T13:45", "2024-06-01"),
+    ("13:45", "2024-06-01T13:45", "2024-06-01"),
+    ("12:30", "2024-03-15T12:30", "2024-03-15"),
+    ("12:30", "2024-03-15T12:30", "2024-03-15"),
+    ("13:45", "2024-06-01T13:45", "2024-06-01"),
+    ("13:45", "2024-03-15T12:30", "2024-06-01"),
+    ("13:45", "2024-03-15T12:30", "2024-06-01"),
+)
+
+
+def check_unkeyed_temporal_wire(capture):
+    assert capture["reference_version"] == "1.66.1" and capture["successful"] and "producer_error" not in capture
+    assert len(capture["frames"]) == 71 and capture["finishes"] == [0] * 8
+    assert capture["cleanup"]["websocket_closed"]
+    assert capture["cleanup"]["server_stopped" if capture["runtime"] == "python" else "caller_server_stopped"]
+    kinds = []
+    for message in frames(capture):
+        kind = message.WhichOneof("type")
+        kinds.append((kind, message.session_status_changed.script_is_running) if kind == "session_status_changed" else kind)
+    expected_kinds = []
+    for index in range(8):
+        expected_kinds += ["rerun_script"] + ([("session_status_changed", False)] if index else [])
+        expected_kinds += ["new_session", ("session_status_changed", True)] + ["delta"] * 4 + ["script_finished"]
+    assert kinds == expected_kinds
+    runs, emitted = identity_runs(capture)
+    assert len(runs) == 8 and len(emitted) == 32
+    assert emitted == [(entry["kind"], entry["fields"], entry["delta_path"]) for entry in capture["elements"]]
+    groups = ((0, 0, 0, 1, 0, 0, 0, 0), (0, 0, 0, 1, 0, 0, 2, 0), (0, 0, 0, 1, 0, 0, 0, 0))
+    ids, sessions, run_ids = ([], [], []), set(), set()
+    for index, (run, phase, values) in enumerate(zip(runs, UNKEYED_PHASES, UNKEYED_VALUES, strict=True)):
+        request = run["request"]
+        assert request.query_string == "probe=unkeyed&phase=" + phase and not request.is_history_navigation
+        assert len(run["sessions"]) == 1 and run["finishes"] == [0]
+        session = run["sessions"][0]
+        assert session.initialize.environment_info.streamlit_version == "1.66.1"
+        sessions.add(session.initialize.session_id)
+        run_ids.add(session.script_run_id)
+        assert [entry[0] for entry in run["entries"]] == ["time_input", "date_time_input", "date_input", "json"]
+        assert [entry[3] for entry in run["entries"]] == [[0, position] for position in range(4)]
+        for position, label in enumerate(("Clock", "Moment", "Date")):
+            _, widget, element, _ = run["entries"][position]
+            assert widget.id and widget.label == label and not widget.help and not widget.form_id
+            assert not widget.disabled and widget.label_visibility.value == 0 and not widget.ignore_rerun
+            assert not widget.set_value and not element.HasField("has_one_shot_effect")
+            assert MessageToDict(element.width_config, preserving_proto_field_name=True) == ({"pixel_width": 360} if phase == "width" else {"use_stretch": True})
+            for earlier in range(index):
+                assert (widget.id == ids[position][earlier]) == (groups[position][index] == groups[position][earlier]), (phase, position, earlier)
+            ids[position].append(widget.id)
+        clock, moment, date = [entry[1] for entry in run["entries"][:3]]
+        assert len({clock.id, moment.id, date.id}) == 3
+        assert clock.HasField("default") and clock.default == "12:30" and not clock.HasField("value")
+        assert clock.format == ("12h" if phase == "format" else "24h") and clock.step == moment.step == 900
+        assert list(moment.default) == ["2024-03-15T12:30"] and list(date.default) == ["2024-03-15"]
+        assert not moment.value and not date.value and not date.is_range and not moment.is_range
+        assert moment.format == date.format == "YYYY/MM/DD"
+        assert (date.min, date.max) == ("2014-03-15", "2034-03-15")
+        assert (moment.min, moment.max) == (("2024-01-01T00:00", "2024-12-31T23:59") if phase == "bounds" else ("2014-03-15T00:00", "2034-03-15T23:59"))
+        assert json.loads(run["entries"][3][1].body) == {"phase": phase, "values": list(values), "native": []}
+        incoming = request.widget_states.widgets
+        if phase in ("edit", "edit-bounds"):
+            assert len(incoming) == 3
+            assert [(widget.id, widget.WhichOneof("value")) for widget in incoming] == [
+                (ids[0][index - 1], "string_value"), (ids[1][index - 1], "string_array_value"), (ids[2][index - 1], "string_array_value")]
+            assert incoming[0].string_value == values[0]
+            assert list(incoming[1].string_array_value.data) == [values[1]] and list(incoming[2].string_array_value.data) == [values[2]]
+        else:
+            assert not incoming
+    assert len(sessions) == 1 and len(run_ids) == 8
+    assert [len(set(widget_ids)) for widget_ids in ids] == [2, 3, 2]
+
+
+@pytest.mark.parametrize("root", (PYTHON, RUST), ids=("python", "rust"))
+def test_unkeyed_temporal_native_sequence(root):
+    check_unkeyed_temporal_wire(read(root / "unkeyed-identity/trace.json"))
+
+
+def test_unkeyed_temporal_elements_match_field_for_field():
+    left = read(PYTHON / "unkeyed-identity/trace.json")
+    right = read(RUST / "unkeyed-identity/trace.json")
+    assert left["producer_sources_sha256"] == right["producer_sources_sha256"]
+    for capture in (left, right):
+        check_unkeyed_temporal_wire(capture)
+    sdk_runs, _ = identity_runs(left)
+    rust_runs, _ = identity_runs(right)
+    for sdk, rust in zip(sdk_runs, rust_runs, strict=True):
+        for sdk_entry, rust_entry in zip(sdk["entries"], rust["entries"], strict=True):
+            elements = []
+            for kind, _, element, _ in (sdk_entry, rust_entry):
+                fields = MessageToDict(element, preserving_proto_field_name=True)
+                if kind == "json":
+                    fields[kind]["body"] = json.loads(fields[kind]["body"])
+                else:
+                    fields[kind].pop("id")
+                elements.append(fields)
+            assert elements[0] == elements[1]
+
+
+@pytest.mark.parametrize("mutation", ("time-format-id", "date-width-id", "datetime-bounds-id", "retained-value", "stale-input-id", "width"))
+def test_unkeyed_temporal_gate_rejects_wrong_wire(mutation):
+    capture = read(PYTHON / "unkeyed-identity/trace.json")
+    source_runs, _ = identity_runs(capture)
+    target = {"time-format-id": 2, "date-width-id": 3, "datetime-bounds-id": 6, "retained-value": 2, "stale-input-id": 5, "width": 3}[mutation]
+    run = -1
+    for frame in capture["frames"]:
+        client = frame["direction"] == "client->server"
+        if client:
+            run += 1
+        if run != target:
+            continue
+        message = BackMsg() if client else ForwardMsg()
+        message.ParseFromString(base64.b64decode(frame["base64"]))
+        if mutation == "stale-input-id" and client:
+            message.rerun_script.widget_states.widgets[0].id = source_runs[3]["entries"][0][1].id
+        elif not client and message.WhichOneof("type") == "delta" and message.delta.WhichOneof("type") == "new_element":
+            element = message.delta.new_element
+            kind = element.WhichOneof("type")
+            position = {"time-format-id": 0, "date-width-id": 2, "datetime-bounds-id": 1}.get(mutation)
+            if position is not None and kind == ("time_input", "date_time_input", "date_input")[position]:
+                getattr(element, kind).id = "wrong-format-identity" if mutation == "time-format-id" else source_runs[0]["entries"][position][1].id
+            elif mutation == "retained-value" and kind == "json":
+                report = json.loads(element.json.body)
+                report["values"][0] = "12:30"
+                element.json.body = json.dumps(report)
+            elif mutation == "width" and kind == "date_input":
+                element.width_config.pixel_width = 361
+            else:
+                continue
+        else:
+            continue
+        raw = message.SerializeToString()
+        frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(message, preserving_proto_field_name=True))
+    _, emitted = identity_runs(capture)
+    capture["elements"] = [{"kind": kind, "fields": fields, "delta_path": path} for kind, fields, path in emitted]
+    with pytest.raises(AssertionError):
+        check_unkeyed_temporal_wire(capture)
