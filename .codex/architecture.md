@@ -1116,3 +1116,109 @@ key preserved after widget cleanup remains the separately verified prior path.
 Only existing fixture/collector/replay gates are extended: assign-default plus
 text-cold, with independent sessions and no new runtime API/module/dependency.
 Backend protocol observations do not establish the browser's final address.
+
+
+### 共享会话状态来源与有序 URL 通知方案（待选型，2026-10-31）
+
+#### 需求和当前停止位置
+
+保持 Streamlit 1.66.1 的来源优先级和消息顺序：首次代码赋值、曾隐藏的用户
+key、活跃控件值、前端输入和 history 必须可区分。同一控件调用中的每次可见
+URL 更新都要保留。现有公开 get/set/remove、控件 builder 和 protobuf 接口不扩展。
+本批完成复现、冻结参考和方案；共享状态及 URL 待发送结构尚未修改，待用户选型。
+
+#### 已复现的现状
+
+[SDK 参考](../tests/reference/reference-browser/queryparams/text-restore/trace.json)
+有十二会话、四十八轮、584 原始帧、116 有序投影（36 控件、48 状态、32 URL）。
+每会话依次载入 SEED、正常隐藏、恢复/代码赋值/history、再次观察，URL 分为
+缺失、长文本、默认值和空串。history 携带旧 ID 的合法字符串输入，仍不运行 callback。
+[Rust 当前投影](../tests/browser/rust-queryparams/text-restore/observed-before.json)
+来自真实 WS 重放：109 投影、25 URL；这是派生投影，未保留 Rust 原始 PB，不是浏览器证据。
+
+两个可独立核对的差异：
+
+- 隐藏后同轮赋值 code長🧊extra，普通重跑 URL=URLTOOLONG：SDK 返回完整代码值，
+  Rust 返回 URLTO；空 URL 下 SDK 仍返回代码值，Rust 返回空串。
+- 默认 URL 折叠后恢复 SEED，SDK 先发删除参数的 URL，再发携带 SEED 的 URL。
+  Rust 仅发最后值。再次缺失 URL 的普通重跑中，SDK 还根据保留用户 key 同步
+  URL/value/set_value，Rust 已失去该来源标记。
+
+`SessionState.values` 同时承担普通用户值和控件原生投影；`Record.value` 又保存
+控件值。清理后只剩值，不能恢复独立用户 key 的来源、旧身份和当前写入关系。
+`had_record` 只能表示 live 记录，不能代表 SDK 的旧用户 key/旧 widget-id 状态。
+`QueryParamStore.pending_update: bool` 只在 flush 时序列化最终 entries，无法还原
+同一调用内两次不同的 URL。冷启动参考已证明不能直接去掉 had_record 限制。
+
+#### 三个实现选项（均以完整兼容为目标）
+
+| 选项 | 状态职责与改动 | 成本与取舍 |
+|---|---|---|
+| **1．复用现有存储，增加当轮写入层（推荐）** | values 明确保存普通/保留用户态，Record.value 保存控件态；增量写入层保存当轮代码赋值，派生 key→widget-id 索引负责定位和保留身份。get 统一按当前写入、控件态、用户态解析；按注册/隐藏/重跑边界转存。 | 不逐轮深复制整个状态；会修改 get/set/remove 及控件生命周期，需要一次补齐来源规则。 |
+| 2．保留混合 values，补来源及旧用户值快照 | 保持现有读取视图，在记录和用户键旁保存来源、旧用户值、身份和当前写入关系；在所有写入/清理分支维护。 | 常用读取路径改动较小；额外元数据和同步分支较多，须验证不形成第二套相互漂移的真值。 |
+| 3．按 SDK 三层结构直接组织 | 明确旧状态、当轮应用写入、新控件状态，逐轮 compact，替换现有混合写入逻辑。 | 与 SDK 调用链最接近；替换范围最大，逐轮遍历/复制成本必须实测。 |
+
+选项 1 的实现边界：
+
+- 用户态保存独立的旧用户 key，控件输入不直接覆盖它。当前写入层保存本轮
+  set 的值；控件态沿用已有 codec 和 Record.value。身份索引是派生数据，
+  需要受真实 key/记录生命周期约束，不无限保留所有历史 ID。
+- 普通 get 的解析顺序为当前代码写入→当前控件值→用户态，内置 codec 转换
+  后再进行调用方反序列化。Widget 注册先选择 URL/输入/代码/保留态的实际赢家，
+  再解析该来源；history 仍先剔除旧绑定输入，不能让被丢弃的错误类型抢先失败。
+- 新旧用户 key、显式 remove、首次注册、隐藏恢复、重新绑定和跨内层 rerun 的
+  compact 时点要有参考支撑。先补普通非绑定预赋值、删除、绑定取消、改身份、
+  同轮输入+代码赋值及内层 rerun 参考；不能仅为这 48 轮加特例。
+- Form checkpoint/rollback 同时处理控件态、当轮写入和派生索引，保留既有
+  “不回滚无关应用写入”的合同；保留当前锁顺序，序列化/反序列化及用户 callback
+  不进入状态锁内执行。
+
+三个选项均需把 pending_update 改为按操作记录的 URL 快照队列。在
+remove_binding/set_binding_value 的实际变化点保存已序列化 URL，flush 按 FIFO
+逐条发出。静默折叠仍保持静默，不无故重复相同状态。队列在已有 API/轮末边界
+消费，保持流式发送；已确认的 rerun 只丢弃未发送 Delta 规则不变，其他消息的
+既有待选规则不在本方案里扩张。
+
+#### 拟改文件和验证
+
+| 文件 | 职责 |
+|---|---|
+| streamlit/src/session.rs | get/set/remove 的写入层与来源解析、序列化边界。 |
+| streamlit/src/widgets.rs | key/ID 索引、输入与回调、注册来源选择、普通/stop/rerun 清理、form checkpoint。 |
+| streamlit/src/query_params.rs | 待发送 URL 从单个布尔标志变为有序快照队列，保持 initial 和最后公告 URL 的不同职责。 |
+| streamlit/tests/runtime/queryparams.rs | 将下述失败重放转为正式不忽略回归，覆盖完整 116 投影和新增来源参考。 |
+| 现有参考采集器、SDK fixtures、Python gates 及 .codex/矩阵 | 补来源组合、对照/篡改门、实际验收和剩余范围。 |
+
+选型后先补额外来源参考，再用真实 WS/公开接口回归落实存储结构。必须先红后绿，
+不能把 116 改成 109，也不能只比较最后 URL。既有冷启动 60 投影、stop 的 21/23
+轮、按钮绑定八轮、禁用错误/callback/history 参考都要保留。然后格式/Clippy、
+相关单元、WS 集成、工作区（明确原两项已知排除）、完整 Python 参考；最后另做
+浏览器 URL 和控件恢复验证。性能沿用已有稳定性/容量场景比较吞吐、延迟与内存；
+不新增未经确认的指标门槛。
+
+选项 1 的预期额外空间主要为当轮写入键和派生索引，按实际写入/记录规模增长；
+清理本就遍历记录，计划不增加逐轮全部值深复制。URL 快照按消息数×URL 长度增长，
+额外两条通知的序列化/发送是兼容要求。上述为设计分析，尚无新模型性能实测。
+会话过期后的存储释放和旧弱引用检查也须重跑。本方案只改进程内状态和消息处理。
+
+复现入口：在现有 queryparams.rs 测试模块临时加入以下测试，并沿用工程的 PROTOC
+配置运行 `cargo test -p streamlit --lib exploratory_hidden_binding_restore_reference --offline --locked`。
+当前原生实现失败；诊断日志为 target/text-restore-before.log。调查用函数/打印
+已从常驻源文件移除，没有添加 ignore 或把当前失败伪装成通过。
+
+```rust
+#[actix_web::test]
+async fn exploratory_hidden_binding_restore_reference() -> TestResult {
+    assert_queryparams_reference(
+        text_length_entry,
+        include_str!("../../../tests/reference/reference-browser/queryparams/text-restore/trace.json"),
+        116,
+    ).await
+}
+```
+
+#### 待用户选择
+
+请选 1、2 或 3；推荐不视为已确认。需要决定的是共享状态表示和实现路径，
+原有完整兼容目标及未验证范围保持不变。依据用户提供的 AGENTS.md 第 2 条，
+共享存储和流程的关键取舍先确认；本批提交推送沿用现有授权。

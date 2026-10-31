@@ -192,7 +192,7 @@ def read_query_param_capture(scenario, capture=None):
                     byte_payloads.append(widgets[0].bytes_value)
         elif message.WhichOneof("type") == "new_session":
             sessions.append(message.new_session.initialize.session_id)
-            if scenario in ("disabled-json", "encoding", "text-length", "text-reset", "text-source", "text-bound", "text-bound-peer", "text-bound-area", "text-cold", "text-repeat", "text-empty", "text-validation", "text-unkeyed", "text-unkeyed-area", "text-area-height", "text-area-size", "text-input-width"):
+            if scenario in ("disabled-json", "encoding", "text-length", "text-reset", "text-source", "text-bound", "text-bound-peer", "text-bound-area", "text-cold", "text-restore", "text-repeat", "text-empty", "text-validation", "text-unkeyed", "text-unkeyed-area", "text-area-height", "text-area-size", "text-input-width"):
                 environment = message.new_session.initialize.environment_info
                 assert environment.streamlit_version == "1.66.1" and environment.python_version == "3.14.7.final.0"
         elif message.WhichOneof("type") == "script_finished":
@@ -614,6 +614,11 @@ def read_query_param_capture(scenario, capture=None):
         for widget, value in zip(widgets, ("ok", "ok", "LONGE"), strict=True):
             assert widget["default"] == "abcdef🧊" and widget["max_chars"] == 5 and widget["query_param_key"] == "cjk_note"
             assert widget["set_value"] and widget["value"] == value
+    elif scenario == "text-restore":
+        assert len(requests) == len(snapshots) == len(sessions) == 48
+        assert finishes == [0] * 48 and len(urls) == 32
+        assert len(set(sessions)) == 12
+        assert all(len(set(sessions[i:i + 4])) == 1 for i in range(0, 48, 4))
     elif scenario == "text-cold":
         assert len(requests) == len(snapshots) == len(sessions) == 24
         assert finishes == [0] * 24 and len(urls) == 12
@@ -2027,3 +2032,152 @@ def test_cold_text_gate_rejects_coherent_wrong_wire(mutation):
     assert changed
     with pytest.raises(AssertionError):
         read_cold_text_capture(capture)
+
+
+def read_restored_text_capture(capture=None):
+    from urllib.parse import urlencode
+
+    if capture is None:
+        capture = json.loads((HERE / "reference-browser/queryparams/text-restore/trace.json").read_text(encoding="utf-8"))
+    assert capture["scenario"] == "text-restore"
+    # 1. 原始消息、会话及协议版本由公共读取器校验。
+    snapshots, urls = read_query_param_capture("text-restore", capture)
+    runs = []
+    for frame in capture["frames"]:
+        message = frame["message"]
+        if "rerun_script" in message:
+            runs.append({"request": message["rerun_script"], "events": [], "layouts": []})
+        if "page_info_changed" in message:
+            runs[-1]["events"].append(("url", message["page_info_changed"]["query_string"]))
+        element = message.get("delta", {}).get("new_element", {})
+        if "text_input" in element:
+            runs[-1]["events"].append(("widget", element["text_input"]))
+            runs[-1]["layouts"].append((element["width_config"], element.get("has_one_shot_effect", False)))
+        if "json" in element:
+            runs[-1]["events"].append(("report", json.loads(element["json"]["body"])))
+    assert len(runs) == 48
+    identity = next(data["id"] for kind, data in runs[0]["events"] if kind == "widget")
+    expected_urls = []
+    # 2. 固定旧用户键、当前赋值和 history 三类来源的不同优先级。
+    for i, run in enumerate(runs):
+        action, slot, step = i // 16, (i // 4) % 4, i % 4
+        source = (None, "URLTOOLONG", "abcdefTAIL", "")[slot]
+        phase = "load" if step == 0 else "hidden" if step == 1 else ("restore" if action == 0 else "assign") if step == 2 else "observe"
+        prefix = f"case=form-max-chars-cjk&probe=length&kind=input&bind=on&limit=5&default=long&phase={phase}"
+        if step == 1:
+            prefix += "&hide=on"
+        incoming_url = "SEED" if step < 2 else source
+        request = run["request"]
+        assert request["query_string"] == prefix + ("&" + urlencode({"cjk_note": incoming_url}) if incoming_url is not None else "")
+        history = action == 2 and step == 2
+        assert request.get("is_history_navigation", False) == history
+        assert request.get("widget_states", {}).get("widgets", []) == ([{"id": identity, "string_value": "IGNOREDtail"}] if history else [])
+        if step < 2:
+            state = "SEED"
+        elif action == 1 and step == 2:
+            state = "code長🧊extra"
+        elif slot == 1:
+            state = "URLTO"
+        elif slot == 3:
+            state = ""
+        else:
+            state = ("SEED", "code長🧊extra", "abcde")[action]
+        report = {"phase": phase, "value": None if step == 1 else state, "state": state, "callbacks": []}
+        # 3. 保留删除默认 URL 再恢复旧值的两个独立消息，禁止只比较最终 URL。
+        corrected = []
+        if step == 1:
+            corrected = [None]
+        elif step >= 2:
+            if action == 1 and step == 2:
+                corrected = ["code長🧊extra"]
+            elif slot == 1:
+                corrected = ["URLTO"]
+            elif slot == 2:
+                corrected = [None] if action == 2 else [None, state]
+            elif slot == 0 and action != 2:
+                corrected = [state]
+        updates = [prefix + ("&" + urlencode({"cjk_note": value}) if value is not None else "") for value in corrected]
+        expected_urls.extend(updates)
+        if step == 1:
+            expected = [("report", report), *[("url", value) for value in updates]]
+            assert run["layouts"] == []
+        else:
+            sync = not (action == 2 and step == 3 and slot in (0, 2))
+            widget = {"id": identity, "label": "中文", "default": "abcdef🧊", "max_chars": 5, "label_visibility": {}, "query_param_key": "cjk_note"}
+            if sync:
+                widget.update(value=state, set_value=True)
+            expected = [*[("url", value) for value in updates], ("widget", widget), ("report", report)]
+            assert run["layouts"] == [({"use_stretch": True}, sync)]
+        assert run["events"] == expected
+        assert snapshots[i] == report
+    assert urls == expected_urls
+
+
+def test_restored_bound_text_retains_user_origin_and_both_url_transitions():
+    read_restored_text_capture()
+
+
+def test_derived_native_restore_capture_records_the_pre_design_mismatch():
+    capture = json.loads((HERE.parent / "browser/rust-queryparams/text-restore/observed-before.json").read_text(encoding="utf-8"))
+    assert capture["runtime"] == "rust" and capture["matched"] is False
+    assert capture["scope"].startswith("Derived API projections")
+    events = capture["events"]
+    reports = [event["snapshot"] for event in events if "snapshot" in event]
+    assert len(events) == 109 and len(reports) == 48
+    assert sum("url" in event for event in events) == 25
+    assert reports[22]["value"] == "URLTO" and reports[30]["value"] == ""
+
+
+@pytest.mark.parametrize("mutation", ("origin", "assignment", "history", "coalesced", "hidden", "callback"))
+def test_restored_text_gate_rejects_coherent_wrong_wire(mutation):
+    import base64
+    from urllib.parse import urlencode
+    from google.protobuf.json_format import MessageToDict
+    from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
+
+    capture = json.loads((HERE / "reference-browser/queryparams/text-restore/trace.json").read_text(encoding="utf-8"))
+    target = {"origin": 3, "assignment": 22, "history": 34, "coalesced": 10, "hidden": 1, "callback": 34}[mutation]
+    run, changed, dropped = -1, False, []
+    for i, frame in enumerate(capture["frames"]):
+        if frame["direction"] == "client->server":
+            run += 1
+            continue
+        if run != target:
+            continue
+        msg = ForwardMsg()
+        msg.ParseFromString(base64.b64decode(frame["base64"]))
+        kind = msg.WhichOneof("type")
+        element = msg.delta.new_element
+        if kind == "page_info_changed" and mutation in ("origin", "coalesced"):
+            if mutation == "origin" or not dropped:
+                dropped.append(i)
+                changed = True
+            continue
+        if kind == "page_info_changed" and mutation == "assignment":
+            msg.page_info_changed.query_string = msg.page_info_changed.query_string.split("&cjk_note=", 1)[0] + "&" + urlencode({"cjk_note": "URLTO"})
+        elif element.WhichOneof("type") == "text_input" and mutation in ("origin", "assignment", "history"):
+            if mutation == "origin":
+                element.text_input.set_value = False
+                element.text_input.ClearField("value")
+                element.has_one_shot_effect = False
+            else:
+                element.text_input.value = "URLTO" if mutation == "assignment" else "code長🧊extra"
+        elif element.WhichOneof("type") == "json" and mutation in ("assignment", "history", "hidden", "callback"):
+            report = json.loads(element.json.body)
+            if mutation == "callback":
+                report["callbacks"].append("IGNOREDtail")
+            elif mutation == "hidden":
+                report["state"] = None
+            else:
+                report["value"] = report["state"] = "URLTO" if mutation == "assignment" else "code長🧊extra"
+            element.json.body = json.dumps(report)
+        else:
+            continue
+        raw = msg.SerializeToString()
+        frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(msg, preserving_proto_field_name=True))
+        changed = True
+    for i in reversed(dropped):
+        capture["frames"].pop(i)
+    assert changed
+    with pytest.raises(AssertionError):
+        read_restored_text_capture(capture)

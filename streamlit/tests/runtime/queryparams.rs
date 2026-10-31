@@ -105,6 +105,13 @@ fn text_length_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
                 st.session_state().set("cjk_note", Option::<String>::None)?;
             }
 
+            if query.get("hide").as_deref() == Some("on") {
+                let state = st.session_state();
+                st.json(serde_json::json!({"phase": phase, "value": serde_json::Value::Null, "state": state.get::<serde_json::Value>("cjk_note")?,
+                    "callbacks": state.get::<Vec<String>>("length_callbacks")?.unwrap_or_default()}));
+                return Ok(());
+            }
+
             let height_probe = query.get("height_errors").as_deref() == Some("on");
             let mut height_error = None;
 
@@ -485,6 +492,7 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
         let Some(request) = frame["message"].get("rerun_script") else { continue };
         if !widget_ids.is_empty()
             && ((reference["scenario"] == "disabled-types" && request["query_string"].as_str().is_some_and(|query| query.contains("phase=load&")))
+                || (reference["scenario"] == "text-restore" && request["query_string"].as_str().is_some_and(|query| query.contains("&phase=load&")))
                 || (reference["scenario"] == "text-cold" && request["query_string"].as_str().is_some_and(|query| query.contains("&phase=assign")))
                 || (matches!(
                     reference["scenario"].as_str(),
@@ -494,6 +502,7 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
                             | "text-source"
                             | "text-bound"
                             | "text-cold"
+                            | "text-restore"
                             | "text-bound-peer"
                             | "text-repeat"
                             | "text-empty"
@@ -611,6 +620,7 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
                                             | "text-source"
                                             | "text-bound"
                                             | "text-cold"
+                                            | "text-restore"
                                             | "text-bound-peer"
                                             | "text-repeat"
                                             | "text-empty"
@@ -657,6 +667,7 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
                                             | "text-source"
                                             | "text-bound"
                                             | "text-cold"
+                                            | "text-restore"
                                             | "text-bound-peer"
                                             | "text-repeat"
                                             | "text-empty"
@@ -752,6 +763,7 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
                     | "text-source"
                     | "text-bound"
                     | "text-cold"
+                    | "text-restore"
                     | "text-bound-peer"
                     | "text-repeat"
                     | "text-empty"
@@ -852,7 +864,22 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
     assert_eq!(observed, expected);
     if matches!(
         reference["scenario"].as_str(),
-        Some("text-reset" | "text-source" | "text-bound" | "text-cold" | "text-bound-peer" | "text-repeat" | "text-empty" | "text-validation" | "text-unkeyed" | "text-unkeyed-area" | "text-area-height" | "text-area-size" | "text-input-width")
+        Some(
+            "text-reset"
+                | "text-source"
+                | "text-bound"
+                | "text-cold"
+                | "text-restore"
+                | "text-bound-peer"
+                | "text-repeat"
+                | "text-empty"
+                | "text-validation"
+                | "text-unkeyed"
+                | "text-unkeyed-area"
+                | "text-area-height"
+                | "text-area-size"
+                | "text-input-width"
+        )
     ) {
         // 比较身份的相等关系，不把 Python 与 Rust 的摘要字面量强行等同。
         assert_eq!(observed_identities.len(), expected_identities.len());

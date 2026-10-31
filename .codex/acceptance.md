@@ -1722,3 +1722,40 @@ partial and M3/M5/M7/full goal. Existing pending choices and colconfig_params
 work are unchanged and excluded from staging.
 
 Related query/widget-reference/matrix/documentation validation passed 229 Python tests with deprecations as errors; after comment/control-flow cleanup, the focused cold guards also passed. The full Python suite was not repeated.
+
+
+### Hidden/remounted binding investigation — known mismatch (2026-10-31)
+
+text-restore/trace.json retains twelve independent sessions, 48 runs/584 raw
+SDK frames and 116 ordered projections: 36 widgets, 48 reports and 32 URLs.
+Each session loads SEED, hides normally, restores/assigns/uses history, then
+observes again. Four URL sources (missing, long, default-folding, empty) combine
+with three actions. History carries the old ID's valid string and invokes no
+callback. Raw PB/summary/version/session, exact inputs/flags, values/defaults/
+sync/layout/one-shot, identity and all URL transitions are gated; six coherent
+origin/assignment/history/coalescing/hidden-state/callback mutations fail.
+
+Actual Rust WS replay at production base 0a803a9 failed: 109 projections, 25 URLs;
+assignment after hide chose URLTO or empty where SDK chose code長🧊extra, and
+intermediate/repeated URL writes were missing. Derived projections are retained
+under tests/browser/rust-queryparams/text-restore/observed-before.json; no raw
+Rust PB or browser capture is claimed. The exploratory test and diagnostic
+printing were removed after the run; no new ignore or passing-native assertion
+was introduced. The architecture proposal gives the exact test snippet/command
+to reproduce 116-vs-109, and target/text-restore-before.log retains the failure.
+This new scenario is not part of a claimed passing Rust compatibility suite.
+
+Production remains unchanged. The shared-state representation and URL snapshot
+queue are pending the user's architecture choice; SDK gates passing means the
+oracle is protected, not that Rust matches. Existing source/callback/history,
+public API/queue/parser decisions and 130 partial/full goal remain open. SDK
+server/socket closed and port 54687 read back free. Other checks and their exact
+scope are recorded after final verification; unrelated colconfig_params work
+remains excluded from this batch.
+
+Final evidence checks: 237 related Python reference/widget/matrix/documentation
+tests passed with deprecations as errors; all-target Clippy/format checks passed
+with the existing MSVC linker stdout warning. The existing Rust query group
+passed 35, retaining its pre-existing queue exclusion; full workspace/Python
+suites were not repeated. These results do not include a passing text-restore
+replay: that new live comparison remains the confirmed 109-vs-116 failure.

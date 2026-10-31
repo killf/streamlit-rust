@@ -314,6 +314,11 @@ def case_form_max_chars_cjk() -> None:
         elif phase == "assign-none":
             st.session_state["cjk_note"] = None
 
+        if st.query_params.get("hide") == "on":
+            st.json({"phase": phase, "value": None, "state": st.session_state.get("cjk_note"),
+                     "callbacks": st.session_state.get("length_callbacks", [])})
+            return
+
         unkeyed = st.query_params.get("unkeyed") == "on"
         policy = st.query_params.get("policy", "normal")
 
