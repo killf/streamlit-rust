@@ -192,7 +192,7 @@ def read_query_param_capture(scenario, capture=None):
                     byte_payloads.append(widgets[0].bytes_value)
         elif message.WhichOneof("type") == "new_session":
             sessions.append(message.new_session.initialize.session_id)
-            if scenario in ("disabled-json", "encoding", "text-length", "text-reset", "text-source", "text-bound", "text-bound-peer", "text-repeat", "text-empty", "text-validation", "text-unkeyed", "text-unkeyed-area", "text-area-height", "text-area-size", "text-input-width"):
+            if scenario in ("disabled-json", "encoding", "text-length", "text-reset", "text-source", "text-bound", "text-bound-peer", "text-bound-area", "text-repeat", "text-empty", "text-validation", "text-unkeyed", "text-unkeyed-area", "text-area-height", "text-area-size", "text-input-width"):
                 environment = message.new_session.initialize.environment_info
                 assert environment.streamlit_version == "1.66.1" and environment.python_version == "3.14.7.final.0"
         elif message.WhichOneof("type") == "script_finished":
@@ -614,7 +614,7 @@ def read_query_param_capture(scenario, capture=None):
         for widget, value in zip(widgets, ("ok", "ok", "LONGE"), strict=True):
             assert widget["default"] == "abcdef🧊" and widget["max_chars"] == 5 and widget["query_param_key"] == "cjk_note"
             assert widget["set_value"] and widget["value"] == value
-    elif scenario in ("text-bound", "text-bound-peer"):
+    elif scenario in ("text-bound", "text-bound-peer", "text-bound-area"):
         assert len(requests) == 12 and requests[0] == capture["query_string"]
         assert finishes == [0] * 12 and len(sessions) == 12 and len(set(sessions)) == 1
     elif scenario == "encoding":
@@ -703,11 +703,13 @@ def test_text_source_reference_keeps_previous_codec_callback_then_native_assignm
     assert snapshots[5]["callbacks"][-1] == ""
 
 
-def read_bound_text_capture(peer, capture=None):
+def read_bound_text_capture(peer, capture=None, *, area=False):
     from urllib.parse import urlencode
 
     # 1. 原始 PB/摘要和生命周期先由已有读取器绑定。
-    scenario = "text-bound-peer" if peer else "text-bound"
+    assert not (peer and area)
+    scenario = "text-bound-area" if area else ("text-bound-peer" if peer else "text-bound")
+    widget_kind = "text_area" if area else "text_input"
     if capture is None:
         capture = json.loads((HERE / f"reference-browser/queryparams/{scenario}/trace.json").read_text(encoding="utf-8"))
     assert capture["scenario"] == scenario
@@ -720,8 +722,11 @@ def read_bound_text_capture(peer, capture=None):
         if "page_info_changed" in message:
             runs[-1]["events"].append(("url", message["page_info_changed"]["query_string"]))
         element = message.get("delta", {}).get("new_element", {})
-        if "text_input" in element:
-            runs[-1]["events"].append(("widget", element["text_input"]))
+        if widget_kind in element:
+            runs[-1]["events"].append(("widget", element[widget_kind]))
+            if area:
+                assert element["height_config"] == {"pixel_height": 122}
+                assert element["width_config"] == {"use_stretch": True}
         if "json" in element:
             runs[-1]["events"].append(("state", json.loads(element["json"]["body"])))
     assert len(runs) == 12 and len(snapshots) == 12
@@ -733,7 +738,7 @@ def read_bound_text_capture(peer, capture=None):
 
     # 2. 固定输入、来源优先级、URL 修正时机和两个控件各自的同步字段。
     for index, ((phase, url_value, incoming, history), value) in enumerate(zip(TEXT_BOUND_STEPS, TEXT_BOUND_VALUES, strict=True)):
-        prefix = "case=form-max-chars-cjk&probe=length&kind=input&bind=on&limit=5&default=long" + ("&peer=on" if peer else "") + f"&phase={phase}"
+        prefix = f"case=form-max-chars-cjk&probe=length&kind={'area' if area else 'input'}&bind=on&limit=5&default=long" + ("&peer=on" if peer else "") + f"&phase={phase}"
         request = runs[index]["request"]
         assert request["query_string"] == prefix + ("&" + urlencode({"cjk_note": url_value}, doseq=True) if url_value is not None else "")
         assert request.get("is_history_navigation", False) == history
@@ -1848,3 +1853,47 @@ def test_browser_history_gate_rejects_wrong_evidence(mutation):
         capture["screenshots"][0]["sha256"] = "0" * 64
     with pytest.raises(AssertionError):
         read_browser_history_capture("python", capture)
+
+
+def test_bound_area_reference_freezes_url_state_and_history_priority():
+    assert read_bound_text_capture(False, area=True) == read_bound_text_capture(False)
+
+
+@pytest.mark.parametrize("mutation", ["url", "history", "callback", "height"])
+def test_bound_area_gate_rejects_coherent_wrong_wire(mutation):
+    import base64
+    from google.protobuf.json_format import MessageToDict
+    from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
+
+    capture = json.loads((HERE / "reference-browser/queryparams/text-bound-area/trace.json").read_text(encoding="utf-8"))
+    run, changed = -1, False
+    for frame in capture["frames"]:
+        if frame["direction"] == "client->server":
+            run += 1
+            continue
+        if run != 4:
+            continue
+        message = ForwardMsg()
+        message.ParseFromString(base64.b64decode(frame["base64"]))
+        element = message.delta.new_element
+        if mutation == "url" and message.WhichOneof("type") == "page_info_changed":
+            message.page_info_changed.query_string += "TAIL"
+        elif mutation == "history" and element.WhichOneof("type") == "text_area":
+            element.text_area.value = "OTHER"
+        elif mutation == "height" and element.WhichOneof("type") == "text_area":
+            element.height_config.pixel_height = 94
+        elif mutation in ("history", "callback") and element.WhichOneof("type") == "json":
+            report = json.loads(element.json.body)
+            if mutation == "history":
+                report["value"] = report["state"] = "OTHER"
+            else:
+                report["callbacks"].append("OTHER")
+            element.json.body = json.dumps(report)
+        else:
+            continue
+        raw = message.SerializeToString()
+        frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(message, preserving_proto_field_name=True))
+        changed = True
+    assert changed
+    with pytest.raises(AssertionError):
+        read_bound_text_capture(False, capture, area=True)

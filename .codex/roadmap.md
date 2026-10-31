@@ -347,3 +347,26 @@ dynamic options and invalid-size/error UI remain open. This scoped result does
 not erase the older capture's 9px boundary or establish all frontend parity.
 Owned tab/servers closed; ports 8508/8618 read back free. All 130 partial rows,
 M3/M5/M7 and the full goal remain open; unrelated colconfig_params work excluded.
+
+
+### Text-area binding oracle prepared; interface still pending (2026-10-31)
+
+The existing forms fixture already accepts SDK text_area bind="query-params".
+Add only text-bound-area to the existing native collector, reusing the twelve
+bound-text steps with kind=area. The frozen reference retains 162 raw frames,
+12 same-WS runs, 12 widget/state pairs and seven ordered URL corrections.
+The existing bound-text gate now selects the widget kind explicitly and checks
+all input/history flags, exact URL order, state/callbacks/default/value/set_value,
+identity stability and area layout (nominal 122px/stretch). Four coherent raw
+protobuf/summary mutations reject wrong URL, history value/report, callback and
+height. Source SDK results agree with text_input for these twelve steps; this
+is no Rust implementation or browser proof. Existing fixture and old captures
+are unchanged; TextAreaOptions.bind(TextBind) remains a proposal awaiting the
+user's public-interface choice. No production Rust/API/dependency changes.
+
+Before this reference addition, full Python reference regression at c02ac89
+passed 1872 tests with deprecations as errors (target/reference-current-full.log).
+After addition, 184 focused query/matrix/documentation tests passed. The full
+suite was not rerun after this five-test addition. The owned SDK server/socket
+closed and port 54510 was read back free. Matrix stays 130 partial and the full
+goal stays open. Unrelated colconfig_params changes remain excluded.
