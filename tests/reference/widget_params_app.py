@@ -1,7 +1,16 @@
 """Emit widget creation-wire parameter variants for the M3 differential."""
 import streamlit as st
 
-if st.query_params.get("probe") == "format-collisions":
+if st.query_params.get("probe") == "radio-duplicates":
+    phase = st.query_params.get("phase", "load")
+    if "radio_duplicate_calls" not in st.session_state:
+        st.session_state.radio_duplicate_calls = []
+    def changed(source):
+        st.session_state.radio_duplicate_calls.append([source, st.session_state.choice, st.session_state.peer])
+    choice = st.radio("Choice", ["Same", "Same", "Other"], index=1, key="choice", on_change=changed, args=("choice",))
+    peer = st.radio("Peer", ["Idle", "Ready"], key="peer", on_change=changed, args=("peer",))
+    st.json({"phase": phase, "values": [choice, peer], "calls": st.session_state.radio_duplicate_calls})
+elif st.query_params.get("probe") == "format-collisions":
     phase = st.query_params.get("phase", "load")
     if phase == "assign":
         st.session_state["choice"] = 2

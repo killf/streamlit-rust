@@ -786,7 +786,7 @@ impl SessionState {
             record.before_input = Some(record.value.clone());
             // 仅在有 callback 时比较原生返回值，重复选项的索引可不同。
             let changed = record.callback.is_some()
-                && if matches!(&record.codec, Codec::Select(_) | Codec::MultiSelect(_)) {
+                && if matches!(&record.codec, Codec::Select(_) | Codec::MultiSelect(_) | Codec::Radio(_)) {
                     record.codec.session_value(&record.value) != record.codec.session_value(&value)
                 } else {
                     record.value != value

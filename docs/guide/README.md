@@ -682,3 +682,5 @@ Use `.index(None)` when a selectbox should start with no selection. The measured
 A radio with `.index(None)` can remain unselected while another radio changes. The measured Chrome journey covers keyed and unkeyed string groups without requiring every group to be initialized first. Code-driven browser clearing, dynamic option changes and further callback/form/page combinations remain partial.
 
 When different options have identical formatted labels, a submitted selectbox label resolves to the last matching option; multiselect resolves each label to the first matching option and keeps duplicates. Reordering options with unchanged labels preserves native selections that still occur in the new list. For ordinary selectbox/multiselect, duplicate positions do not trigger on_change when the native selection stays equal. Retaining an old generic value absent from all current options remains partial; browser interaction with duplicate labels and other formatter combinations are not yet fully verified.
+
+radio 的重复选项若返回相同原生值，不因内部索引变化触发 on_change；同批控件的回调读取整批新值。七轮原生差分已验证，浏览器及其他 callback 组合仍待补证。

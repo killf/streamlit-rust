@@ -2324,6 +2324,129 @@ def test_formatted_collision_gate_rejects_coherent_wrong_wire(mutation):
         check_format_collisions(capture)
 
 
+RADIO_DUPLICATE_PHASES = ("load", "same", "other", "back", "peer", "both", "observe")
+RADIO_DUPLICATE_VALUES = (("Same", "Idle"), ("Same", "Idle"), ("Other", "Idle"), ("Same", "Idle"), ("Same", "Ready"), ("Other", "Idle"), ("Other", "Idle"))
+RADIO_DUPLICATE_COUNTS = (0, 0, 1, 2, 3, 5, 5)
+RADIO_DUPLICATE_CALLS = [["choice", "Other", "Idle"], ["choice", "Same", "Idle"], ["peer", "Same", "Ready"], ["choice", "Other", "Idle"], ["peer", "Other", "Idle"]]
+
+
+def check_radio_duplicates(capture):
+    assert capture["successful"] and "producer_error" not in capture and capture["reference_version"] == "1.66.1"
+    assert capture["runtime"] in ("python", "rust") and capture["finishes"] == [0] * 7
+    assert capture["cleanup"]["websocket_closed"] and capture["cleanup"]["server_stopped" if capture["runtime"] == "python" else "caller_server_stopped"]
+    assert len(capture["frames"]) == 55 and len(capture["elements"]) == 21
+    runs = color_runs(capture, ("radio", "json"))
+    normalized, sessions, run_ids, ids = [], set(), set(), None
+    for index, (phase, run) in enumerate(zip(RADIO_DUPLICATE_PHASES, runs, strict=True)):
+        request = run["request"]
+        assert request.query_string == "probe=radio-duplicates&phase=" + phase and not request.is_history_navigation
+        assert len(run["sessions"]) == 1 and run["finishes"] == [0]
+        session = run["sessions"][0]
+        assert session.initialize.environment_info.streamlit_version == "1.66.1"
+        sessions.add(session.initialize.session_id)
+        run_ids.add(session.script_run_id)
+        assert [entry[0] for entry in run["entries"]] == ["radio", "radio", "json"]
+        current = []
+        for position, (_, widget, element) in enumerate(run["entries"][:2]):
+            assert widget.label == ("Choice", "Peer")[position]
+            assert list(widget.options) == (["Same", "Same", "Other"], ["Idle", "Ready"])[position]
+            assert widget.HasField("default") and widget.default == (1, 0)[position]
+            assert not widget.disabled and not widget.horizontal and not widget.captions
+            assert not widget.form_id and not widget.help and not widget.ignore_rerun
+            assert widget.label_visibility.value == 0 and element.width_config.use_content
+            assert not widget.set_value and not widget.HasField("raw_value") and not element.HasField("has_one_shot_effect")
+            current.append(widget.id)
+        if ids is None:
+            ids = current
+            assert len(set(ids)) == 2
+        else:
+            assert current == ids
+        incoming = request.widget_states.widgets
+        if phase not in ("load", "observe"):
+            assert len(incoming) == 2 and [widget.id for widget in incoming] == ids
+            assert all(widget.WhichOneof("value") == "string_value" for widget in incoming)
+            assert [widget.string_value for widget in incoming] == list(RADIO_DUPLICATE_VALUES[index])
+        else:
+            assert not incoming
+        assert json.loads(run["entries"][-1][1].body) == {"phase": phase, "values": list(RADIO_DUPLICATE_VALUES[index]), "calls": RADIO_DUPLICATE_CALLS[:RADIO_DUPLICATE_COUNTS[index]]}
+        assert [entry["delta_path"] for entry in capture["elements"][index * 3:index * 3 + 3]] == [[0, i] for i in range(3)]
+        fields = []
+        for kind, _, element in run["entries"]:
+            view = MessageToDict(element, preserving_proto_field_name=True)
+            if kind == "json":
+                view[kind]["body"] = json.loads(view[kind]["body"])
+            else:
+                view[kind].pop("id")
+            fields.append(view)
+        normalized.append(fields)
+    assert len(sessions) == 1 and len(run_ids) == 7
+    return normalized
+
+
+@pytest.mark.parametrize("root", (PYTHON, RUST), ids=("python", "rust"))
+def test_radio_duplicate_native_callback_sequence(root):
+    check_radio_duplicates(read(root / "radio-duplicates/trace.json"))
+
+
+def test_radio_duplicate_complete_elements_match_reference():
+    captures = [read(root / "radio-duplicates/trace.json") for root in (PYTHON, RUST)]
+    assert captures[0]["producer_sources_sha256"] == captures[1]["producer_sources_sha256"] and captures[1]["semantic_match"] is True
+    assert check_radio_duplicates(captures[0]) == check_radio_duplicates(captures[1])
+
+
+def test_radio_duplicate_before_fires_on_equal_native_value():
+    capture = read(RUST / "radio-duplicates/before/trace.json")
+    assert capture["successful"] and capture["semantic_match"] is False
+    runs = color_runs(capture, ("radio", "json"))
+    assert json.loads(runs[1]["entries"][-1][1].body)["calls"] == [["choice", "Same", "Idle"]]
+    with pytest.raises(AssertionError):
+        check_radio_duplicates(capture)
+
+
+@pytest.mark.parametrize("mutation", ("spurious-same", "callback-value", "batch-peer", "order", "replayed", "input-id", "wire-default", "sync-flag"))
+def test_radio_duplicate_gate_rejects_coherent_wrong_wire(mutation):
+    capture = read(PYTHON / "radio-duplicates/trace.json")
+    target = {"spurious-same": 1, "callback-value": 2, "batch-peer": 5, "order": 5, "replayed": 6, "input-id": 2, "wire-default": 1, "sync-flag": 3}[mutation]
+    run = -1
+    for frame in capture["frames"]:
+        client = frame["direction"] == "client->server"
+        if client:
+            run += 1
+        if run != target:
+            continue
+        message = BackMsg() if client else ForwardMsg()
+        message.ParseFromString(base64.b64decode(frame["base64"]))
+        if client and mutation == "input-id":
+            message.rerun_script.widget_states.widgets[0].id = "$$ID-stale-radio"
+        elif not client and message.WhichOneof("type") == "delta":
+            element = message.delta.new_element
+            kind = element.WhichOneof("type")
+            if kind == "radio" and element.radio.label == "Choice" and mutation == "wire-default":
+                element.radio.default = 0
+            elif kind == "radio" and element.radio.label == "Choice" and mutation == "sync-flag":
+                element.radio.set_value = True
+                element.radio.raw_value = "Same"
+                element.has_one_shot_effect = True
+            elif kind == "json" and mutation in ("spurious-same", "callback-value", "batch-peer", "order", "replayed"):
+                report = json.loads(element.json.body)
+                if mutation == "spurious-same": report["calls"].append(["choice", "Same", "Idle"])
+                elif mutation == "callback-value": report["calls"][0][1] = "Same"
+                elif mutation == "batch-peer": report["calls"][-1][2] = "Ready"
+                elif mutation == "order": report["calls"][-2:] = report["calls"][-2:][::-1]
+                else: report["calls"].append(report["calls"][-1])
+                element.json.body = json.dumps(report)
+            else:
+                continue
+        else:
+            continue
+        raw = message.SerializeToString()
+        frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(message, preserving_proto_field_name=True))
+    capture["elements"] = [{"kind": m.delta.new_element.WhichOneof("type"), "fields": MessageToDict(getattr(m.delta.new_element, m.delta.new_element.WhichOneof("type")), preserving_proto_field_name=True),
+                            "delta_path": list(m.metadata.delta_path)} for m in frames(capture) if isinstance(m, ForwardMsg) and m.WhichOneof("type") == "delta"]
+    with pytest.raises(AssertionError):
+        check_radio_duplicates(capture)
+
+
 def comparable(capture):
     out = []
     for element in capture["elements"]:

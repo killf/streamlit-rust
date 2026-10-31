@@ -2392,3 +2392,17 @@ SDK-only AppTest 新保留一项边界：旧标签重新序列化提交、option
 代码 rustfmt、全工作区/all-target Clippy、两项新增公开 API 单元通过；最终工作区 323 项通过（316 库、1 ledger、2 宏、4 rustdoc），仍仅排除原 navigation_pages_switch_and_session_state_match_the_measured_wire 与 rerun_queue_messages_match_frozen_reference，不能称完整工作区全绿。参数参考模块 255 项、相关 query/widget/temporal/pickers/matrix/docs 门 506 项通过，含 SDK-only 观察，并非全部跨运行时验收。既有 MSVC linker stdout warning 保留；日志 target/format-collisions-{red,remap-red,callback-red,green,callback-green,clippy,build,workspace,reference}.log。SDK 服务由采集器停止，Rust 最终进程 PID 55048 通过自持句柄 terminate/wait 结束，59339/8599 核实无监听。
 
 本批无真实浏览器新采集；同名菜单交互、任意 formatter/比较语义、列表外旧泛型值、URL/表单/跨页/晚到输入和其余 callback 组合继续开放。仅 st.selectbox/st.multiselect 矩阵及机器清单更新，仍为 130 partial；其他待决方案、用户 colconfig_params 修改独立保留。未合并、发布或部署，M3/M5/M7 与长期 Goal 未关闭。
+
+## Current radio duplicate-native callback validation (2026-11-01)
+
+锁定 Python Streamlit 1.66.1 后，真实原生 WS 七轮覆盖 Choice=[Same,Same,Other]（声明 index=1）及 Peer=[Idle,Ready]。初始 Same 再提交 Same 时内部索引可从 1 到 0，原生字符串不变，不应触发 callback。随后 Other、返回 Same、单独 Peer、同时改变两个控件及无输入观察，累计回调次数为 0/0/1/2/3/5/5；同批两次回调均读取 Other/Idle，按 choice→peer 顺序执行，观察轮不重放。
+
+[SDK](../tests/reference/reference-browser/widget-params/radio-duplicates/trace.json)、[Rust 修前](../tests/browser/rust-widget-params/radio-duplicates/before/trace.json)、[Rust 最终](../tests/browser/rust-widget-params/radio-duplicates/trace.json)各 7 轮、55 原始帧、21 Element。修前正常结束但 same 轮多出 [choice,Same,Idle]，semantic_match=false；公开 API 单元先真实失败（run 1 回调 1 次而非 0），修后通过。生产仅将现有 callback 原生值比较扩展到 Codec::Radio；无 callback 时仍跳过比较，输入应用和回调执行顺序不变，无新增公共 API、模块或依赖。
+
+完整 Element 仅归一化不透明 ID 与 JSON 文本后逐字段匹配。严格门核对实际旧 ID/string_value、两控件稳定身份、声明默认值 1/0、无额外 set_value/raw_value/one-shot、会话/轮次/路径、逐轮返回与完整有序回调列表。八类同步修改原始帧和汇总的负例必须失败：相同值误回调、错误回调值、同批读取旧 Peer、回调颠倒、观察轮重放、过期输入 ID、错误协议默认值、额外同步。Python/Rust fixture 仅用于回调记录的初始化方式不同，不据此宣称全部原生 session_state 映射一致。
+
+同一最终二进制重放既有十四轮 radio-empty（111 帧/42 Element）和十轮格式化选择（89 帧/40 Element），继续与各自冻结参考完整字段一致，结果在 target/radio-duplicates-{empty,format}-recheck/trace.json。producer 三份源码、widget_api/widgets、二进制 SHA 均已核对；修前核心源码 SHA 与前一 HEAD 9fba22c 匹配。SDK 自建服务和 Rust 自持 Popen 句柄均已停止，61874/8599 无监听。无新浏览器采集。
+
+编辑 Rust 的 rustfmt、全工作区/all-target Clippy、新增 API 单元通过。最终工作区 324 项通过（317 库、1 ledger、2 宏、4 rustdoc），仍仅排除原 navigation_pages_switch_and_session_state_match_the_measured_wire 与 rerun_queue_messages_match_frozen_reference，不称完整工作区全绿。参数参考模块现为 267 项，相关 query/widget/temporal/pickers/matrix/docs 共 518 项通过；既有 MSVC linker stdout warning 保留。日志 target/radio-duplicates-{red,green,clippy,build,workspace,python}.log。
+
+仅 st.radio 矩阵与生成清单更新，仍 130 partial；浏览器重复选项交互、任意原生类型、绑定/表单/跨页/晚到输入及其他 callback 组合继续开放。用户再次确认 rerun 仅丢弃未发送旧轮 Delta，保留 URL/已发送帧，既有已选方案不扩展到其他队列、hash 或共享状态取舍。用户 colconfig_params 修改独立保留；M3/M5/M7 与长期目标未关闭，未创建 PR、合并、发布或部署。

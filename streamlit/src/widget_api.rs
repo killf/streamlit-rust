@@ -4969,6 +4969,70 @@ mod tests {
     }
 
     #[test]
+    fn radio_duplicate_values_do_not_trigger_callbacks_and_peers_read_the_whole_batch() -> anyhow::Result<()> {
+        let changed = |source: &'static str| {
+            move |st: &Streamlit| {
+                let state = st.session_state();
+                let mut calls = state.get::<Vec<Value>>("radio_duplicate_calls").expect("calls").unwrap_or_default();
+                calls.push(serde_json::json!([source, state.get::<String>("choice").expect("choice"), state.get::<String>("peer").expect("peer")]));
+                state.set("radio_duplicate_calls", calls).expect("callback write");
+            }
+        };
+        let values = [("Same", "Idle"), ("Same", "Idle"), ("Other", "Idle"), ("Same", "Idle"), ("Same", "Ready"), ("Other", "Idle"), ("Other", "Idle")];
+        let counts = [0, 0, 1, 1, 1, 2, 0];
+        let all_calls = [
+            serde_json::json!(["choice", "Other", "Idle"]),
+            serde_json::json!(["choice", "Same", "Idle"]),
+            serde_json::json!(["peer", "Same", "Ready"]),
+            serde_json::json!(["choice", "Other", "Idle"]),
+            serde_json::json!(["peer", "Other", "Idle"]),
+        ];
+        let state = SessionState::default();
+        let mut ids = Vec::<String>::new();
+        for (index, (choice, peer)) in values.iter().enumerate() {
+            // 1. 相同原生值不回调；同时改变两个控件时，回调读取整批新值。
+            let incoming = if index == 0 || index == 6 {
+                Vec::new()
+            } else {
+                ids.iter()
+                    .zip([choice, peer])
+                    .map(|(id, value)| WidgetState {
+                        id: id.clone(),
+                        value: Some(widget_state::Value::StringValue((*value).into())),
+                    })
+                    .collect()
+            };
+            let callbacks = state.begin_widgets(incoming);
+            assert_eq!(callbacks.len(), counts[index], "run {index}");
+            let (st, mut wire) = app(&state);
+            for callback in callbacks {
+                callback(&st);
+            }
+            let count = counts[..=index].iter().sum::<usize>();
+            assert_eq!(state.get::<Vec<Value>>("radio_duplicate_calls")?.unwrap_or_default(), all_calls[..count]);
+            assert_eq!(st.radio(RadioOptions::new("Choice", ["Same", "Same", "Other"]).index(Some(1)).key("choice").on_change(changed("choice")))?.as_deref(), Some(*choice));
+            assert_eq!(st.radio(RadioOptions::new("Peer", ["Idle", "Ready"]).key("peer").on_change(changed("peer")))?.as_deref(), Some(*peer));
+
+            // 2. 协议保留声明默认值和身份，正常输入不产生额外同步。
+            let mut current = Vec::new();
+            for (position, default) in [1, 0].iter().enumerate() {
+                let element::Type::Radio(widget) = input(&mut wire)? else { panic!() };
+                assert_eq!(widget.default, Some(*default));
+                assert!(!widget.set_value);
+                assert_eq!(widget.raw_value, None);
+                if index > 0 {
+                    assert_eq!(widget.id, ids[position]);
+                }
+                current.push(widget.id);
+            }
+            ids = current;
+            state.finish_widgets();
+        }
+
+        Ok(())
+    }
+
+    #[test]
     fn selection_callbacks_compare_native_values_for_duplicate_options() -> anyhow::Result<()> {
         let changed = |st: &Streamlit| {
             let state = st.session_state();

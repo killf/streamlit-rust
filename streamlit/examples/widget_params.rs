@@ -6,6 +6,23 @@ use ::streamlit::*;
 use streamlit::StreamlitApi;
 
 fn render(st: &Streamlit) -> Result<(), WidgetError> {
+    if st.query_params().get("probe").as_deref() == Some("radio-duplicates") {
+        let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
+        let changed = |source: &'static str| {
+            move |st: &Streamlit| {
+                let state = st.session_state();
+                let mut calls = state.get::<Vec<serde_json::Value>>("radio_duplicate_calls").expect("calls").unwrap_or_default();
+                calls.push(serde_json::json!([source, state.get::<String>("choice").expect("choice"), state.get::<String>("peer").expect("peer")]));
+                state.set("radio_duplicate_calls", calls).expect("callback write");
+            }
+        };
+        let choice = st.radio(RadioOptions::new("Choice", ["Same", "Same", "Other"]).index(Some(1)).key("choice").on_change(changed("choice")))?;
+        let peer = st.radio(RadioOptions::new("Peer", ["Idle", "Ready"]).key("peer").on_change(changed("peer")))?;
+        let calls = st.session_state().get::<Vec<serde_json::Value>>("radio_duplicate_calls")?.unwrap_or_default();
+        st.json(serde_json::json!({"phase": phase, "values": [choice, peer], "calls": calls}));
+        return Ok(());
+    }
+
     if st.query_params().get("probe").as_deref() == Some("format-collisions") {
         let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
         if phase == "assign" {
