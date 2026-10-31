@@ -14,6 +14,8 @@
 
 ## Current focus
 
+2026-11-01 selectbox 初始空选择/清空浏览器切片：真实 Chrome 发现 ID-only 空选择被当成解码失败，导致整批输入丢失；已修复普通/创建模式按注册有效默认解码，并保留修前证据。两端各十画面/七运行/63 帧/28 完整 Element 一致，见[验收](acceptance.md#current-selectbox-empty-browser-and-id-only-input-validation-2026-11-01)。空选项 UI、其他控件和组合继续开放，未选择待决的超限登记流程。
+
 2026-11-01 multiselect 默认/上限切片：已修正重复默认索引和零上限拒绝；八轮参考保留超限默认/输入/代码状态及恢复证据，Rust 仍有数量错误差异，未宣称整批一致。详见[登记流程提案](architecture.md#multiselect-count-validation-and-failed-registration-retention--proposal-2026-11-01)及[验收](acceptance.md#current-multiselect-duplicate-defaults-and-zero-limit-validation-2026-11-01)；数量错误后保留登记需用户决定，其他已批准工作继续。
 
 2026-11-01 multiselect 原生状态切片：逐项过滤失效值、保留有效顺序和重复项，修正同步标签与空列表 disabled；十二轮/107 帧/48 完整 Element 与 SDK 一致，见[验收](acceptance.md#current-multiselect-filtered-native-state-validation-2026-11-01)。SDK-only None 错误和异类型标签返回单列，公共返回建模、真实浏览器及其余组合仍开放。

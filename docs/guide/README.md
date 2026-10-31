@@ -676,3 +676,5 @@ An empty `selectbox` returns `None`; a keyed empty selection remains empty when 
 Multiselect removes native selections absent from the current options while retaining valid order and duplicates. Empty options keep the explicit disabled setting. Reset/code-assigned values synchronize label arrays to the frontend. Native null remains invalid; mixed native/display-label return types need a separate API decision and are not supported by typed Vec<T>.
 
 Multiselect default indices may repeat: `.default_indices([1, 1])` returns the repeated option twice, and the number of repeats may exceed the option count. Every index must be in range. `.max_selections(0)` is rejected. Server-side over-limit error handling and recovery remain partial pending the registration-flow decision.
+
+Use `.index(None)` when a selectbox should start with no selection. The measured Chrome journey selects and explicitly clears keyed string/integer and unkeyed string controls while preserving the other controls. Initial None and clear-button returns now match the SDK; empty-option-list UI and callback/form/page combinations remain partial.

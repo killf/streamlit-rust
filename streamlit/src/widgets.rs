@@ -249,6 +249,15 @@ impl Codec {
         value.as_object().is_some_and(|click| click.get("row").is_some_and(Value::is_u64) && click.get("label").is_some_and(Value::is_string))
     }
 
+    fn decode_state(&self, state: &WidgetState, empty_input: Option<&Value>) -> Option<Value> {
+        match state.value.as_ref() {
+            Some(wire) => self.decode(wire),
+
+            // 选择控件的 ID-only 包按上一轮 serde 的有效默认值反序列化。
+            None => empty_input.cloned(),
+        }
+    }
+
     pub(crate) fn decode(&self, wire: &widget_state::Value) -> Option<Value> {
         match (self, wire) {
             (Self::Trigger, widget_state::Value::TriggerValue(value)) => Some((*value).into()),
@@ -602,6 +611,10 @@ struct Record {
 
     /// Value before this run's input, restored if registration now disables it.
     before_input: Option<Value>,
+
+    /// ID-only selectbox payloads deserialize using the registered effective default.
+    /// Other codecs retain the existing missing-value rejection.
+    empty_input: Option<Value>,
 }
 
 #[derive(Clone, Default)]
@@ -738,7 +751,7 @@ impl SessionState {
             registry
                 .records
                 .get(&widget.id)
-                .is_some_and(|record| !record.disabled && widget.value.as_ref().and_then(|wire| record.codec.decode(wire)).is_none_or(|value| !record.codec.valid(&value)))
+                .is_some_and(|record| !record.disabled && record.codec.decode_state(widget, record.empty_input.as_ref()).is_none_or(|value| !record.codec.valid(&value)))
         }) {
             return callbacks;
         }
@@ -769,7 +782,7 @@ impl SessionState {
                 continue;
             }
             let Some(record) = registry.records.get_mut(&widget.id) else { continue };
-            let Some(value) = widget.value.as_ref().and_then(|wire| record.codec.decode(wire)) else { continue };
+            let Some(value) = record.codec.decode_state(&widget, record.empty_input.as_ref()) else { continue };
             record.before_input = Some(record.value.clone());
             let changed = record.value != value;
             record.value = value.clone();
@@ -824,6 +837,7 @@ impl SessionState {
             callback,
         } = spec;
         let id = id.to_owned();
+        let empty_input = matches!(codec, Codec::Select(_) | Codec::SelectCreation(_)).then(|| default.clone());
         let mut registry = self.widgets.lock();
         if registry.registration_error.is_some() {
             return Ok((String::new(), resolve(&default)?, false));
@@ -909,7 +923,7 @@ impl SessionState {
             .position(|state| state.id == id)
             .map(|position| registry.pending.remove(position))
             .filter(|_| !disabled)
-            .and_then(|state| state.value.as_ref().and_then(|wire| codec.decode(wire)))
+            .and_then(|state| codec.decode_state(&state, empty_input.as_ref()))
             .filter(|applied| codec.valid(applied));
 
         // 数字控件的范围重置保留本轮默认值，不改变其他 codec 的错误路径。
@@ -1012,6 +1026,7 @@ impl SessionState {
 
                 disabled,
                 before_input: None,
+                empty_input,
             },
         );
         Ok((id, resolved, set_value))

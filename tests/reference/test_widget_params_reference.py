@@ -1740,6 +1740,196 @@ def test_multiselect_limit_reference_rejects_coherent_wrong_evidence(mutation):
         check_multi_limits_sdk(capture)
 
 
+EMPTY_SELECT_UI_NAMES = ("01-none-load", "02-keyed-options", "03-keyed-Beta", "04-number-options", "05-number-2", "06-plain-options", "07-plain-Alpha", "08-plain-clear", "09-keyed-clear", "10-number-clear")
+EMPTY_SELECT_UI_VALUES = ((None, None, None), (None, "Beta", None), (None, "Beta", 2), ("Alpha", "Beta", 2), (None, "Beta", 2), (None, None, 2), (None, None, None))
+EMPTY_SELECT_UI_STAGE_RUN = (0, 0, 1, 1, 2, 2, 3, 4, 5, 6)
+
+
+def check_empty_select_ui(capture, folder, *, before=False):
+    import hashlib
+    from PIL import Image
+
+    assert capture["runtime"] in ("python", "rust") and capture["reference_version"] == "1.66.1"
+    assert capture["successful"] and capture["complete"] and capture["semantic_match"] == (not before)
+    assert capture["cleanup"] == {"tab_closed": True, "network_capture_disabled": True, "server_stopped": True}
+    assert capture["console"] == [] and capture["visual_review"]["original_jpegs_inspected"] == 10
+    assert len(capture["producer_sources_sha256"]) == 2 and all(re.fullmatch(r"[0-9a-f]{64}", h) for h in capture["producer_sources_sha256"].values())
+    events = capture["events"]
+    assert len(events) == 64 and events[0]["method"] == "Network.webSocketCreated"
+    assert events[0]["params"]["url"] == capture["url"].split("/?")[0].replace("http:", "ws:") + "/_stcore/stream"
+    ws_id = events[0]["params"]["requestId"]
+    messages, sequence = {}, -1
+    for index, event in enumerate(events):
+        assert event["sequence"] > sequence and event["source"]["tabId"] == int(capture["tab_id"])
+        sequence = event["sequence"]
+        if index == 0:
+            continue
+        assert event["method"] in ("Network.webSocketFrameSent", "Network.webSocketFrameReceived")
+        assert event["params"]["requestId"] == ws_id and event["params"]["response"]["opcode"] == 2
+        message = BackMsg() if event["method"].endswith("Sent") else ForwardMsg()
+        message.ParseFromString(base64.b64decode(event["params"]["response"]["payloadData"], validate=True))
+        messages[index] = message
+    assert len(messages) == 63
+    stages = capture["snapshots"]
+    assert [s["name"] for s in stages] == list(EMPTY_SELECT_UI_NAMES)
+    normalized, sessions, run_ids, widget_ids, boundary = [], set(), set(), None, 0
+    for index, stage in enumerate(stages):
+        start, end = stage["event_range"]
+        assert start == boundary and end - start == (10 if index == 0 else 0 if index in (1, 3, 5) else 9)
+        boundary = end
+        run = EMPTY_SELECT_UI_STAGE_RUN[index]
+        expected = EMPTY_SELECT_UI_VALUES[run]
+        returned = ((None, None, None) if run < 3 else ("Alpha", "Beta", 2)) if before else expected
+        dom = stage["dom"]
+        height = 724 if before else 780
+        assert dom["viewport"] == {"width": 1463, "height": height, "dpr": 1.75}
+        assert dom["inputs"] == [{"label": label, "value": "" if value is None else str(value), "disabled": False, "placeholder": "Choose an option"}
+                                   for label, value in zip(("Choice", "Keyed choice", "Number"), expected, strict=True)]
+        assert dom["options"] == (["1", "2", "3"] if index == 3 else ["Alpha", "Beta", "Charlie"] if index in (1, 5) else [])
+        assert sum(button["label"] == "Clear value" for button in dom["buttons"]) == sum(value is not None for value in expected)
+        compact = re.sub(r"\s+", "", dom["body"])
+        result_text = "".join(f"{i}:" + ("NULL" if value is None else json.dumps(value)) for i, value in enumerate(returned))
+        assert '"phase":"none"' in compact and '"values":[' + result_text + ']' in compact
+        assert stage["action_and_capture_calls_separate"] and stage["screenshot"] == stage["name"] + ".jpg"
+        data = (folder / stage["screenshot"]).read_bytes()
+        assert len(data) == stage["screenshot_bytes"] and hashlib.sha256(data).hexdigest() == stage["screenshot_sha256"]
+        with Image.open(folder / stage["screenshot"]) as image:
+            assert image.format == stage["screenshot_format"] == "JPEG" and list(image.size) == stage["screenshot_dimensions"] == [1463, height]
+            if index not in (1, 3, 5):
+                rgb = image.convert("RGB")
+                bright = sum(min(rgb.getpixel((x, y))) > 110 for x in range(388, 551) for y in range(302, 322))
+                assert bright > 200 if expected[2] is None else bright < 80
+        batch = [messages[i] for i in range(start, end) if i in messages]
+        if index in (1, 3, 5):
+            assert not batch
+            continue
+        assert [m.WhichOneof("type") for m in batch] == ["rerun_script", "new_session", "session_status_changed"] + ["delta"] * 4 + ["script_finished", "session_status_changed"]
+        request, session = batch[0].rerun_script, batch[1].new_session
+        assert request.query_string == "probe=select-empty&phase=none" and not request.is_history_navigation
+        assert session.initialize.environment_info.streamlit_version == "1.66.1"
+        sessions.add(session.initialize.session_id)
+        run_ids.add(session.script_run_id)
+        assert batch[2].session_status_changed.script_is_running and batch[7].script_finished == 0 and not batch[8].session_status_changed.script_is_running
+        elements = [m.delta.new_element for m in batch[3:7]]
+        assert [m.delta.WhichOneof("type") for m in batch[3:7]] == ["new_element"] * 4
+        assert [list(m.metadata.delta_path) for m in batch[3:7]] == [[0, i] for i in range(4)]
+        assert [e.WhichOneof("type") for e in elements] == ["selectbox"] * 3 + ["json"]
+        ids = [e.selectbox.id for e in elements[:3]]
+        if run == 0:
+            assert not request.widget_states.widgets and len(set(ids)) == 3
+            widget_ids = ids
+        else:
+            incoming = request.widget_states.widgets
+            assert ids == widget_ids and len(incoming) == 3 and [w.id for w in incoming] == ids
+            for widget, value in zip(incoming, expected, strict=True):
+                assert widget.WhichOneof("value") == (None if value is None else "string_value")
+                if value is not None:
+                    assert widget.string_value == str(value)
+        for position, element in enumerate(elements[:3]):
+            widget = element.selectbox
+            assert widget.label == ("Choice", "Keyed choice", "Number")[position]
+            assert list(widget.options) == (["1", "2", "3"] if position == 2 else ["Alpha", "Beta", "Charlie"])
+            assert not widget.HasField("default") and not widget.disabled and not widget.set_value and not widget.HasField("raw_value")
+            assert not element.HasField("has_one_shot_effect") and element.width_config.use_stretch
+        report = json.loads(elements[-1].json.body)
+        assert report == {"phase": "none", "values": list(returned)}
+        assert type(report["values"][2]) in (int, type(None))
+        fields = [MessageToDict(element, preserving_proto_field_name=True) for element in elements]
+        for field in fields[:3]:
+            field["selectbox"].pop("id")
+        fields[-1]["json"]["body"] = report
+        normalized.append(fields)
+    assert boundary == len(events) and len(normalized) == 7 and len(sessions) == 1 and len(run_ids) == 7
+    return normalized
+
+
+@pytest.mark.parametrize("root", (PYTHON, RUST), ids=("python", "rust"))
+def test_selectbox_empty_ui_real_selection_and_clear(root):
+    folder = root / "select-empty/ui"
+    check_empty_select_ui(read(folder / "trace.json"), folder)
+
+
+def test_selectbox_empty_ui_complete_elements_match_reference():
+    folders = [root / "select-empty/ui" for root in (PYTHON, RUST)]
+    captures = [read(folder / "trace.json") for folder in folders]
+    assert captures[0]["producer_sources_sha256"] == captures[1]["producer_sources_sha256"]
+    assert check_empty_select_ui(captures[0], folders[0]) == check_empty_select_ui(captures[1], folders[1])
+
+
+def test_selectbox_empty_ui_before_loses_input_and_keeps_stale_backend_values():
+    folder = RUST / "select-empty/ui/before"
+    capture = read(folder / "trace.json")
+    before = check_empty_select_ui(capture, folder, before=True)
+    sdk_folder = PYTHON / "select-empty/ui"
+    assert before != check_empty_select_ui(read(sdk_folder / "trace.json"), sdk_folder)
+    with pytest.raises(AssertionError):
+        check_empty_select_ui(capture, folder)
+
+
+@pytest.mark.parametrize("creation", (False, True))
+@pytest.mark.parametrize("default", (None, 0))
+def test_sdk_selectbox_id_only_payload_uses_registered_default(creation, default):
+    import importlib.metadata
+    from streamlit.testing.v1 import AppTest
+
+    assert importlib.metadata.version("streamlit") == "1.66.1"
+    app = AppTest.from_string('import streamlit as st\nv=st.selectbox("Choice",["Alpha","Beta"],key="choice",index=' + repr(default) + ',accept_new_options=' + repr(creation) + ')\nst.json([v])').run()
+    app.selectbox[0].set_value("Beta")
+    app.run()
+    assert not app.exception and json.loads(app.json[0].value) == ["Beta"]
+    app.selectbox[0].set_value(None)
+    app.run()
+    assert not app.exception and json.loads(app.json[0].value) == ([None] if default is None else ["Alpha"])
+
+
+@pytest.mark.parametrize("mutation", ("menu-send", "empty-oneof", "return-type", "clear-revert", "wire-default", "screenshot", "old-image", "options"))
+def test_selectbox_empty_ui_gate_rejects_wrong_wire_or_picture(mutation, tmp_path):
+    import hashlib
+
+    folder = PYTHON / "select-empty/ui"
+    capture = read(folder / "trace.json")
+    if mutation == "menu-send":
+        capture["snapshots"][1]["event_range"][1] += 1
+    elif mutation == "options":
+        capture["snapshots"][1]["dom"]["options"] = ["Beta"]
+    elif mutation == "screenshot":
+        capture["snapshots"][-1]["screenshot_sha256"] = "wrong"
+    elif mutation == "old-image":
+        for stage in capture["snapshots"]:
+            (tmp_path / stage["screenshot"]).write_bytes((folder / stage["screenshot"]).read_bytes())
+        data = (folder / capture["snapshots"][4]["screenshot"]).read_bytes()
+        stage = capture["snapshots"][-1]
+        (tmp_path / stage["screenshot"]).write_bytes(data)
+        stage.update(screenshot_bytes=len(data), screenshot_sha256=hashlib.sha256(data).hexdigest())
+        folder = tmp_path
+    else:
+        stage = capture["snapshots"][4 if mutation == "return-type" else 9 if mutation == "clear-revert" else 2]
+        for event in capture["events"][slice(*stage["event_range"])]:
+            if event["method"] not in ("Network.webSocketFrameSent", "Network.webSocketFrameReceived"):
+                continue
+            message = BackMsg() if event["method"].endswith("Sent") else ForwardMsg()
+            message.ParseFromString(base64.b64decode(event["params"]["response"]["payloadData"]))
+            if mutation == "empty-oneof" and isinstance(message, BackMsg):
+                message.rerun_script.widget_states.widgets[0].bool_value = False
+            elif message.WhichOneof("type") == "delta":
+                element = message.delta.new_element
+                if mutation == "wire-default" and element.WhichOneof("type") == "selectbox":
+                    element.selectbox.default = 0
+                elif mutation in ("return-type", "clear-revert") and element.WhichOneof("type") == "json":
+                    report = json.loads(element.json.body)
+                    report["values"][2] = 2.0 if mutation == "return-type" else 2
+                    element.json.body = json.dumps(report)
+                    if mutation == "clear-revert":
+                        stage["dom"]["body"] = stage["dom"]["body"].replace("2:NULL", "2:2")
+                else:
+                    continue
+            else:
+                continue
+            event["params"]["response"]["payloadData"] = base64.b64encode(message.SerializeToString()).decode()
+    with pytest.raises(AssertionError):
+        check_empty_select_ui(capture, folder)
+
+
 def comparable(capture):
     out = []
     for element in capture["elements"]:

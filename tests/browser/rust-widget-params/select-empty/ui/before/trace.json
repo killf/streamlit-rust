@@ -1,0 +1,1832 @@
+{
+  "schema_version": 1,
+  "runtime": "rust",
+  "reference_version": "1.66.1",
+  "scope": "Real Chrome initial None, selections and explicit clear; native binary WS and original screenshots. No dynamic parameter or full UI coverage claim.",
+  "source_commit": "8240b190dc17f3ed838f5617479c04fff5430ec1",
+  "producer_sources_sha256": {
+    "streamlit/examples/widget_params.rs": "887e51b9f675196875369bd174217f23c571903e226d02ee9728e6a954022e0e",
+    "tests/reference/widget_params_app.py": "5f3519c5e05947d4c45c334e636a2bbd31cf97116d54e58345ec289c299e16b4"
+  },
+  "binary_sha256": "935ba7e062ad142fbb33c47f6ce353888453e4008dbaa3092cb70bb5b3d9186a",
+  "events": [
+    {
+      "sequence": 381,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketCreated",
+      "params": {
+        "initiator": {
+          "stack": {
+            "callFrames": [
+              {
+                "columnNumber": 2166,
+                "functionName": "connectToWebSocket",
+                "lineNumber": 28,
+                "scriptId": "6",
+                "url": "http://127.0.0.1:8599/static/js/index.Dlja0TUX.js"
+              }
+            ]
+          },
+          "type": "script"
+        },
+        "requestId": "20004.329",
+        "url": "ws://127.0.0.1:8599/_stcore/stream"
+      }
+    },
+    {
+      "sequence": 388,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameSent",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": true,
+          "opcode": 2,
+          "payloadData": "WmEKHXByb2JlPXNlbGVjdC1lbXB0eSZwaGFzZT1ub25lEgBCPgoNQXNpYS9TaGFuZ2hhaRCg/P////////8BGgJ6aCIWaHR0cDovLzEyNy4wLjAuMTo4NTk5LygAMgRkYXJr"
+        },
+        "timestamp": 149824.291401
+      }
+    },
+    {
+      "sequence": 389,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkYzA0YTUxYjYtZTQyMS00MjNjLWE3MmMtNzc1ZmJmNWZmYTkxEiRjOTdjZjMwOS1lMjgxLTQ4MjAtYjhlOS0xZWQzZDJlYmY2MzgaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl"
+        },
+        "timestamp": 149824.294669
+      }
+    },
+    {
+      "sequence": 390,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ=="
+        },
+        "timestamp": 149824.302782
+      }
+    },
+    {
+      "sequence": 391,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiA5NzNlYTlmNWQ2NzFiNzNjMDMxODA3YWEzN2FhNmIwMhImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqWBpWygFOCiokJElELTUzNDI2MmRhYTBmNjQ5OTY0Zjk5NzUwMTMxODdjODU4LU5vbmUSBkNob2ljZSIFQWxwaGEiBEJldGEiB0NoYXJsaWVSAGAA0gMCCAE="
+        },
+        "timestamp": 149824.303023
+      }
+    },
+    {
+      "sequence": 392,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiA0MTdkNjcyM2IxZDM1OWJiZTZiNjY2MzVmMjgyNzhhZRImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqYBpeygFWCiwkJElELWU2OWNjMWViMTBjOGU3YWE0YmE2MjQ5MmNlZDZkNDYxLWNob2ljZRIMS2V5ZWQgY2hvaWNlIgVBbHBoYSIEQmV0YSIHQ2hhcmxpZVIAYADSAwIIAQ=="
+        },
+        "timestamp": 149824.303215
+      }
+    },
+    {
+      "sequence": 393,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiAyMDQyNmMzMTFlMDg5YTQ3YmE1Y2U3MTYyNTUyOWZjORImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqTRpLygFDCiwkJElELTkxMWViZDkzMWQ1N2YxMGY2ODMwYmYyNjhmMzRkM2ExLW51bWJlchIGTnVtYmVyIgExIgEyIgEzUgBgANIDAggB"
+        },
+        "timestamp": 149824.303314
+      }
+    },
+    {
+      "sequence": 394,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiA3OTZjYmQzZTc3ZDc1MWM3YTA1MjQ1M2YxOTA1MGYxZhImEgIAAyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqPRo7+gEzCi97InBoYXNlIjogIm5vbmUiLCAidmFsdWVzIjogW251bGwsIG51bGwsIG51bGxdfRAB0gMCCAE="
+        },
+        "timestamp": 149824.303378
+      }
+    },
+    {
+      "sequence": 395,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "Cg9zY3JpcHRfZmluaXNoZWQwAA=="
+        },
+        "timestamp": 149824.303482
+      }
+    },
+    {
+      "sequence": 396,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgA="
+        },
+        "timestamp": 149824.303562
+      }
+    },
+    {
+      "sequence": 526,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameSent",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": true,
+          "opcode": 2,
+          "payloadData": "WpgCCh1wcm9iZT1zZWxlY3QtZW1wdHkmcGhhc2U9bm9uZRKUAQosCiokJElELTUzNDI2MmRhYTBmNjQ5OTY0Zjk5NzUwMTMxODdjODU4LU5vbmUKNAosJCRJRC1lNjljYzFlYjEwYzhlN2FhNGJhNjI0OTJjZWQ2ZDQ2MS1jaG9pY2UyBEJldGEKLgosJCRJRC05MTFlYmQ5MzFkNTdmMTBmNjgzMGJmMjY4ZjM0ZDNhMS1udW1iZXIaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlQj4KDUFzaWEvU2hhbmdoYWkQoPz/////////ARoCemgiFmh0dHA6Ly8xMjcuMC4wLjE6ODU5OS8oADIEZGFyaw=="
+        },
+        "timestamp": 149840.591427
+      }
+    },
+    {
+      "sequence": 527,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkYzA0YTUxYjYtZTQyMS00MjNjLWE3MmMtNzc1ZmJmNWZmYTkxEiQ4ZmNhYzIxOS1mM2ZmLTRmZjYtYmI0Yi1lMDE2YjhhM2ZiNzYaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl"
+        },
+        "timestamp": 149840.592698
+      }
+    },
+    {
+      "sequence": 528,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ=="
+        },
+        "timestamp": 149840.593088
+      }
+    },
+    {
+      "sequence": 529,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiA5NzNlYTlmNWQ2NzFiNzNjMDMxODA3YWEzN2FhNmIwMhImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqWBpWygFOCiokJElELTUzNDI2MmRhYTBmNjQ5OTY0Zjk5NzUwMTMxODdjODU4LU5vbmUSBkNob2ljZSIFQWxwaGEiBEJldGEiB0NoYXJsaWVSAGAA0gMCCAE="
+        },
+        "timestamp": 149840.595752
+      }
+    },
+    {
+      "sequence": 530,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiA0MTdkNjcyM2IxZDM1OWJiZTZiNjY2MzVmMjgyNzhhZRImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqYBpeygFWCiwkJElELWU2OWNjMWViMTBjOGU3YWE0YmE2MjQ5MmNlZDZkNDYxLWNob2ljZRIMS2V5ZWQgY2hvaWNlIgVBbHBoYSIEQmV0YSIHQ2hhcmxpZVIAYADSAwIIAQ=="
+        },
+        "timestamp": 149840.595971
+      }
+    },
+    {
+      "sequence": 531,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiAyMDQyNmMzMTFlMDg5YTQ3YmE1Y2U3MTYyNTUyOWZjORImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqTRpLygFDCiwkJElELTkxMWViZDkzMWQ1N2YxMGY2ODMwYmYyNjhmMzRkM2ExLW51bWJlchIGTnVtYmVyIgExIgEyIgEzUgBgANIDAggB"
+        },
+        "timestamp": 149840.596113
+      }
+    },
+    {
+      "sequence": 532,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiA3OTZjYmQzZTc3ZDc1MWM3YTA1MjQ1M2YxOTA1MGYxZhImEgIAAyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqPRo7+gEzCi97InBoYXNlIjogIm5vbmUiLCAidmFsdWVzIjogW251bGwsIG51bGwsIG51bGxdfRAB0gMCCAE="
+        },
+        "timestamp": 149840.596207
+      }
+    },
+    {
+      "sequence": 533,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "Cg9zY3JpcHRfZmluaXNoZWQwAA=="
+        },
+        "timestamp": 149840.596314
+      }
+    },
+    {
+      "sequence": 534,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgA="
+        },
+        "timestamp": 149840.596411
+      }
+    },
+    {
+      "sequence": 537,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameSent",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": true,
+          "opcode": 2,
+          "payloadData": "WpsCCh1wcm9iZT1zZWxlY3QtZW1wdHkmcGhhc2U9bm9uZRKXAQosCiokJElELTUzNDI2MmRhYTBmNjQ5OTY0Zjk5NzUwMTMxODdjODU4LU5vbmUKNAosJCRJRC1lNjljYzFlYjEwYzhlN2FhNGJhNjI0OTJjZWQ2ZDQ2MS1jaG9pY2UyBEJldGEKMQosJCRJRC05MTFlYmQ5MzFkNTdmMTBmNjgzMGJmMjY4ZjM0ZDNhMS1udW1iZXIyATIaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlQj4KDUFzaWEvU2hhbmdoYWkQoPz/////////ARoCemgiFmh0dHA6Ly8xMjcuMC4wLjE6ODU5OS8oADIEZGFyaw=="
+        },
+        "timestamp": 149912.922316
+      }
+    },
+    {
+      "sequence": 538,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkYzA0YTUxYjYtZTQyMS00MjNjLWE3MmMtNzc1ZmJmNWZmYTkxEiQxMGQxYjYyZC1lOGJhLTQ1ODEtOGVmYy0yZThmOGRlOTA2OGUaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl"
+        },
+        "timestamp": 149912.927663
+      }
+    },
+    {
+      "sequence": 539,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ=="
+        },
+        "timestamp": 149912.930004
+      }
+    },
+    {
+      "sequence": 540,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiA5NzNlYTlmNWQ2NzFiNzNjMDMxODA3YWEzN2FhNmIwMhImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqWBpWygFOCiokJElELTUzNDI2MmRhYTBmNjQ5OTY0Zjk5NzUwMTMxODdjODU4LU5vbmUSBkNob2ljZSIFQWxwaGEiBEJldGEiB0NoYXJsaWVSAGAA0gMCCAE="
+        },
+        "timestamp": 149912.930136
+      }
+    },
+    {
+      "sequence": 541,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiA0MTdkNjcyM2IxZDM1OWJiZTZiNjY2MzVmMjgyNzhhZRImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqYBpeygFWCiwkJElELWU2OWNjMWViMTBjOGU3YWE0YmE2MjQ5MmNlZDZkNDYxLWNob2ljZRIMS2V5ZWQgY2hvaWNlIgVBbHBoYSIEQmV0YSIHQ2hhcmxpZVIAYADSAwIIAQ=="
+        },
+        "timestamp": 149912.930279
+      }
+    },
+    {
+      "sequence": 542,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiAyMDQyNmMzMTFlMDg5YTQ3YmE1Y2U3MTYyNTUyOWZjORImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqTRpLygFDCiwkJElELTkxMWViZDkzMWQ1N2YxMGY2ODMwYmYyNjhmMzRkM2ExLW51bWJlchIGTnVtYmVyIgExIgEyIgEzUgBgANIDAggB"
+        },
+        "timestamp": 149912.930398
+      }
+    },
+    {
+      "sequence": 543,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiA3OTZjYmQzZTc3ZDc1MWM3YTA1MjQ1M2YxOTA1MGYxZhImEgIAAyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqPRo7+gEzCi97InBoYXNlIjogIm5vbmUiLCAidmFsdWVzIjogW251bGwsIG51bGwsIG51bGxdfRAB0gMCCAE="
+        },
+        "timestamp": 149912.930525
+      }
+    },
+    {
+      "sequence": 544,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "Cg9zY3JpcHRfZmluaXNoZWQwAA=="
+        },
+        "timestamp": 149912.930617
+      }
+    },
+    {
+      "sequence": 545,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgA="
+        },
+        "timestamp": 149912.930783
+      }
+    },
+    {
+      "sequence": 549,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameSent",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": true,
+          "opcode": 2,
+          "payloadData": "WqICCh1wcm9iZT1zZWxlY3QtZW1wdHkmcGhhc2U9bm9uZRKeAQozCiokJElELTUzNDI2MmRhYTBmNjQ5OTY0Zjk5NzUwMTMxODdjODU4LU5vbmUyBUFscGhhCjQKLCQkSUQtZTY5Y2MxZWIxMGM4ZTdhYTRiYTYyNDkyY2VkNmQ0NjEtY2hvaWNlMgRCZXRhCjEKLCQkSUQtOTExZWJkOTMxZDU3ZjEwZjY4MzBiZjI2OGYzNGQzYTEtbnVtYmVyMgEyGiBkNDFkOGNkOThmMDBiMjA0ZTk4MDA5OThlY2Y4NDI3ZUI+Cg1Bc2lhL1NoYW5naGFpEKD8/////////wEaAnpoIhZodHRwOi8vMTI3LjAuMC4xOjg1OTkvKAAyBGRhcms="
+        },
+        "timestamp": 149930.630124
+      }
+    },
+    {
+      "sequence": 550,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkYzA0YTUxYjYtZTQyMS00MjNjLWE3MmMtNzc1ZmJmNWZmYTkxEiRhZmI5NGRhOC1mZGVhLTRiMzktODA5Yi0wN2U4OWI2Y2NhYTIaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl"
+        },
+        "timestamp": 149930.631583
+      }
+    },
+    {
+      "sequence": 551,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ=="
+        },
+        "timestamp": 149930.631989
+      }
+    },
+    {
+      "sequence": 552,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiA5NzNlYTlmNWQ2NzFiNzNjMDMxODA3YWEzN2FhNmIwMhImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqWBpWygFOCiokJElELTUzNDI2MmRhYTBmNjQ5OTY0Zjk5NzUwMTMxODdjODU4LU5vbmUSBkNob2ljZSIFQWxwaGEiBEJldGEiB0NoYXJsaWVSAGAA0gMCCAE="
+        },
+        "timestamp": 149930.63396
+      }
+    },
+    {
+      "sequence": 553,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiA0MTdkNjcyM2IxZDM1OWJiZTZiNjY2MzVmMjgyNzhhZRImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqYBpeygFWCiwkJElELWU2OWNjMWViMTBjOGU3YWE0YmE2MjQ5MmNlZDZkNDYxLWNob2ljZRIMS2V5ZWQgY2hvaWNlIgVBbHBoYSIEQmV0YSIHQ2hhcmxpZVIAYADSAwIIAQ=="
+        },
+        "timestamp": 149930.634128
+      }
+    },
+    {
+      "sequence": 554,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiAyMDQyNmMzMTFlMDg5YTQ3YmE1Y2U3MTYyNTUyOWZjORImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqTRpLygFDCiwkJElELTkxMWViZDkzMWQ1N2YxMGY2ODMwYmYyNjhmMzRkM2ExLW51bWJlchIGTnVtYmVyIgExIgEyIgEzUgBgANIDAggB"
+        },
+        "timestamp": 149930.63422
+      }
+    },
+    {
+      "sequence": 555,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiBmYWY4NGE0Nzc1Y2M2ZTg5MmYzMWM1MGZkNzU1ODQxMhImEgIAAyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqPxo9+gE1CjF7InBoYXNlIjogIm5vbmUiLCAidmFsdWVzIjogWyJBbHBoYSIsICJCZXRhIiwgMl19EAHSAwIIAQ=="
+        },
+        "timestamp": 149930.634337
+      }
+    },
+    {
+      "sequence": 556,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "Cg9zY3JpcHRfZmluaXNoZWQwAA=="
+        },
+        "timestamp": 149930.634465
+      }
+    },
+    {
+      "sequence": 557,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgA="
+        },
+        "timestamp": 149930.634588
+      }
+    },
+    {
+      "sequence": 558,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameSent",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": true,
+          "opcode": 2,
+          "payloadData": "WpsCCh1wcm9iZT1zZWxlY3QtZW1wdHkmcGhhc2U9bm9uZRKXAQosCiokJElELTUzNDI2MmRhYTBmNjQ5OTY0Zjk5NzUwMTMxODdjODU4LU5vbmUKNAosJCRJRC1lNjljYzFlYjEwYzhlN2FhNGJhNjI0OTJjZWQ2ZDQ2MS1jaG9pY2UyBEJldGEKMQosJCRJRC05MTFlYmQ5MzFkNTdmMTBmNjgzMGJmMjY4ZjM0ZDNhMS1udW1iZXIyATIaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlQj4KDUFzaWEvU2hhbmdoYWkQoPz/////////ARoCemgiFmh0dHA6Ly8xMjcuMC4wLjE6ODU5OS8oADIEZGFyaw=="
+        },
+        "timestamp": 149943.446327
+      }
+    },
+    {
+      "sequence": 559,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkYzA0YTUxYjYtZTQyMS00MjNjLWE3MmMtNzc1ZmJmNWZmYTkxEiQ3NTFhOWM3Zi04ZjczLTQzMTQtODE4NC01M2U1NDQ3Y2NkZTIaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl"
+        },
+        "timestamp": 149943.447654
+      }
+    },
+    {
+      "sequence": 560,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ=="
+        },
+        "timestamp": 149943.448015
+      }
+    },
+    {
+      "sequence": 561,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiA5NzNlYTlmNWQ2NzFiNzNjMDMxODA3YWEzN2FhNmIwMhImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqWBpWygFOCiokJElELTUzNDI2MmRhYTBmNjQ5OTY0Zjk5NzUwMTMxODdjODU4LU5vbmUSBkNob2ljZSIFQWxwaGEiBEJldGEiB0NoYXJsaWVSAGAA0gMCCAE="
+        },
+        "timestamp": 149943.449859
+      }
+    },
+    {
+      "sequence": 562,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiA0MTdkNjcyM2IxZDM1OWJiZTZiNjY2MzVmMjgyNzhhZRImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqYBpeygFWCiwkJElELWU2OWNjMWViMTBjOGU3YWE0YmE2MjQ5MmNlZDZkNDYxLWNob2ljZRIMS2V5ZWQgY2hvaWNlIgVBbHBoYSIEQmV0YSIHQ2hhcmxpZVIAYADSAwIIAQ=="
+        },
+        "timestamp": 149943.449975
+      }
+    },
+    {
+      "sequence": 563,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiAyMDQyNmMzMTFlMDg5YTQ3YmE1Y2U3MTYyNTUyOWZjORImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqTRpLygFDCiwkJElELTkxMWViZDkzMWQ1N2YxMGY2ODMwYmYyNjhmMzRkM2ExLW51bWJlchIGTnVtYmVyIgExIgEyIgEzUgBgANIDAggB"
+        },
+        "timestamp": 149943.450022
+      }
+    },
+    {
+      "sequence": 564,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiBmYWY4NGE0Nzc1Y2M2ZTg5MmYzMWM1MGZkNzU1ODQxMhImEgIAAyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqPxo9+gE1CjF7InBoYXNlIjogIm5vbmUiLCAidmFsdWVzIjogWyJBbHBoYSIsICJCZXRhIiwgMl19EAHSAwIIAQ=="
+        },
+        "timestamp": 149943.450109
+      }
+    },
+    {
+      "sequence": 565,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "Cg9zY3JpcHRfZmluaXNoZWQwAA=="
+        },
+        "timestamp": 149943.450149
+      }
+    },
+    {
+      "sequence": 566,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgA="
+        },
+        "timestamp": 149943.450196
+      }
+    },
+    {
+      "sequence": 567,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameSent",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": true,
+          "opcode": 2,
+          "payloadData": "WpUCCh1wcm9iZT1zZWxlY3QtZW1wdHkmcGhhc2U9bm9uZRKRAQosCiokJElELTUzNDI2MmRhYTBmNjQ5OTY0Zjk5NzUwMTMxODdjODU4LU5vbmUKLgosJCRJRC1lNjljYzFlYjEwYzhlN2FhNGJhNjI0OTJjZWQ2ZDQ2MS1jaG9pY2UKMQosJCRJRC05MTFlYmQ5MzFkNTdmMTBmNjgzMGJmMjY4ZjM0ZDNhMS1udW1iZXIyATIaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlQj4KDUFzaWEvU2hhbmdoYWkQoPz/////////ARoCemgiFmh0dHA6Ly8xMjcuMC4wLjE6ODU5OS8oADIEZGFyaw=="
+        },
+        "timestamp": 149952.011458
+      }
+    },
+    {
+      "sequence": 568,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkYzA0YTUxYjYtZTQyMS00MjNjLWE3MmMtNzc1ZmJmNWZmYTkxEiRiYjlhN2YxNy00MTQ0LTRiZTUtOWJhYS1iN2M3ODMzNTQwNTQaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl"
+        },
+        "timestamp": 149952.012802
+      }
+    },
+    {
+      "sequence": 569,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ=="
+        },
+        "timestamp": 149952.013063
+      }
+    },
+    {
+      "sequence": 570,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiA5NzNlYTlmNWQ2NzFiNzNjMDMxODA3YWEzN2FhNmIwMhImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqWBpWygFOCiokJElELTUzNDI2MmRhYTBmNjQ5OTY0Zjk5NzUwMTMxODdjODU4LU5vbmUSBkNob2ljZSIFQWxwaGEiBEJldGEiB0NoYXJsaWVSAGAA0gMCCAE="
+        },
+        "timestamp": 149952.01609
+      }
+    },
+    {
+      "sequence": 571,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiA0MTdkNjcyM2IxZDM1OWJiZTZiNjY2MzVmMjgyNzhhZRImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqYBpeygFWCiwkJElELWU2OWNjMWViMTBjOGU3YWE0YmE2MjQ5MmNlZDZkNDYxLWNob2ljZRIMS2V5ZWQgY2hvaWNlIgVBbHBoYSIEQmV0YSIHQ2hhcmxpZVIAYADSAwIIAQ=="
+        },
+        "timestamp": 149952.016245
+      }
+    },
+    {
+      "sequence": 572,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiAyMDQyNmMzMTFlMDg5YTQ3YmE1Y2U3MTYyNTUyOWZjORImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqTRpLygFDCiwkJElELTkxMWViZDkzMWQ1N2YxMGY2ODMwYmYyNjhmMzRkM2ExLW51bWJlchIGTnVtYmVyIgExIgEyIgEzUgBgANIDAggB"
+        },
+        "timestamp": 149952.01634
+      }
+    },
+    {
+      "sequence": 573,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiBmYWY4NGE0Nzc1Y2M2ZTg5MmYzMWM1MGZkNzU1ODQxMhImEgIAAyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqPxo9+gE1CjF7InBoYXNlIjogIm5vbmUiLCAidmFsdWVzIjogWyJBbHBoYSIsICJCZXRhIiwgMl19EAHSAwIIAQ=="
+        },
+        "timestamp": 149952.016432
+      }
+    },
+    {
+      "sequence": 574,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "Cg9zY3JpcHRfZmluaXNoZWQwAA=="
+        },
+        "timestamp": 149952.016534
+      }
+    },
+    {
+      "sequence": 575,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgA="
+        },
+        "timestamp": 149952.016641
+      }
+    },
+    {
+      "sequence": 576,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameSent",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": true,
+          "opcode": 2,
+          "payloadData": "WpICCh1wcm9iZT1zZWxlY3QtZW1wdHkmcGhhc2U9bm9uZRKOAQosCiokJElELTUzNDI2MmRhYTBmNjQ5OTY0Zjk5NzUwMTMxODdjODU4LU5vbmUKLgosJCRJRC1lNjljYzFlYjEwYzhlN2FhNGJhNjI0OTJjZWQ2ZDQ2MS1jaG9pY2UKLgosJCRJRC05MTFlYmQ5MzFkNTdmMTBmNjgzMGJmMjY4ZjM0ZDNhMS1udW1iZXIaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlQj4KDUFzaWEvU2hhbmdoYWkQoPz/////////ARoCemgiFmh0dHA6Ly8xMjcuMC4wLjE6ODU5OS8oADIEZGFyaw=="
+        },
+        "timestamp": 149962.867071
+      }
+    },
+    {
+      "sequence": 577,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkYzA0YTUxYjYtZTQyMS00MjNjLWE3MmMtNzc1ZmJmNWZmYTkxEiRhYmFkNGMxYS0yMmVjLTQ5MzYtOTI3MS1iODRmYjU1M2U3YzUaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl"
+        },
+        "timestamp": 149962.868542
+      }
+    },
+    {
+      "sequence": 578,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ=="
+        },
+        "timestamp": 149962.868914
+      }
+    },
+    {
+      "sequence": 579,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiA5NzNlYTlmNWQ2NzFiNzNjMDMxODA3YWEzN2FhNmIwMhImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqWBpWygFOCiokJElELTUzNDI2MmRhYTBmNjQ5OTY0Zjk5NzUwMTMxODdjODU4LU5vbmUSBkNob2ljZSIFQWxwaGEiBEJldGEiB0NoYXJsaWVSAGAA0gMCCAE="
+        },
+        "timestamp": 149962.871431
+      }
+    },
+    {
+      "sequence": 580,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiA0MTdkNjcyM2IxZDM1OWJiZTZiNjY2MzVmMjgyNzhhZRImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqYBpeygFWCiwkJElELWU2OWNjMWViMTBjOGU3YWE0YmE2MjQ5MmNlZDZkNDYxLWNob2ljZRIMS2V5ZWQgY2hvaWNlIgVBbHBoYSIEQmV0YSIHQ2hhcmxpZVIAYADSAwIIAQ=="
+        },
+        "timestamp": 149962.871628
+      }
+    },
+    {
+      "sequence": 581,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiAyMDQyNmMzMTFlMDg5YTQ3YmE1Y2U3MTYyNTUyOWZjORImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqTRpLygFDCiwkJElELTkxMWViZDkzMWQ1N2YxMGY2ODMwYmYyNjhmMzRkM2ExLW51bWJlchIGTnVtYmVyIgExIgEyIgEzUgBgANIDAggB"
+        },
+        "timestamp": 149962.871744
+      }
+    },
+    {
+      "sequence": 582,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "CiBmYWY4NGE0Nzc1Y2M2ZTg5MmYzMWM1MGZkNzU1ODQxMhImEgIAAyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqPxo9+gE1CjF7InBoYXNlIjogIm5vbmUiLCAidmFsdWVzIjogWyJBbHBoYSIsICJCZXRhIiwgMl19EAHSAwIIAQ=="
+        },
+        "timestamp": 149962.871841
+      }
+    },
+    {
+      "sequence": 583,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "Cg9zY3JpcHRfZmluaXNoZWQwAA=="
+        },
+        "timestamp": 149962.871908
+      }
+    },
+    {
+      "sequence": 584,
+      "source": {
+        "tabId": 1754832084
+      },
+      "method": "Network.webSocketFrameReceived",
+      "params": {
+        "requestId": "20004.329",
+        "response": {
+          "mask": false,
+          "opcode": 2,
+          "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgA="
+        },
+        "timestamp": 149962.871974
+      }
+    }
+  ],
+  "snapshots": [
+    {
+      "name": "01-none-load",
+      "screenshot": "01-none-load.jpg",
+      "screenshot_sha256": "66052a80f0a6b8e0328b9de39b0129f73848c39e1c4f7cd1a7d5346f88fba1d6",
+      "ax": "Browser tab: 1754832084, Title: \"Streamlit\", URL: \"http://127.0.0.1:8599/?probe=select-empty&phase=none\".\nThere has been no change in the accessibility tree.\nThe focused UI element is 1 AXWebArea Streamlit, URL: 127.0.0.1:8599/?probe=select-empty&phase=none",
+      "dom": {
+        "body": "Skip to main content\nDeploy\n\nChoice\n\nKeyed choice\n\nNumber\n\n{\n\"phase\":\"none\"\n\"values\":[\n0:NULL\n1:NULL\n2:NULL\n]\n}",
+        "buttons": [
+          {
+            "label": null,
+            "text": "Deploy"
+          },
+          {
+            "label": "Main menu",
+            "text": ""
+          },
+          {
+            "label": "Open",
+            "text": ""
+          },
+          {
+            "label": "Open",
+            "text": ""
+          },
+          {
+            "label": "Open",
+            "text": ""
+          }
+        ],
+        "inputs": [
+          {
+            "disabled": false,
+            "label": "Choice",
+            "placeholder": "Choose an option",
+            "value": ""
+          },
+          {
+            "disabled": false,
+            "label": "Keyed choice",
+            "placeholder": "Choose an option",
+            "value": ""
+          },
+          {
+            "disabled": false,
+            "label": "Number",
+            "placeholder": "Choose an option",
+            "value": ""
+          }
+        ],
+        "options": [],
+        "viewport": {
+          "dpr": 1.75,
+          "height": 724,
+          "width": 1463
+        }
+      },
+      "event_range": [
+        0,
+        10
+      ],
+      "screenshot_bytes": 19028,
+      "action_and_capture_calls_separate": true,
+      "screenshot_dimensions": [
+        1463,
+        724
+      ],
+      "screenshot_format": "JPEG"
+    },
+    {
+      "name": "02-keyed-options",
+      "screenshot": "02-keyed-options.jpg",
+      "screenshot_sha256": "fa63ca9d95f38e79e467a018c56ecd141b1f6773d9c98cde0b3f69505c6b50f7",
+      "ax": "Browser tab: 1754832084, Title: \"Streamlit\", URL: \"http://127.0.0.1:8599/?probe=select-empty&phase=none\".\n1 AXWebArea Streamlit, URL: 127.0.0.1:8599/?probe=select-empty&phase=none\n\t2 container\n\t\t4 combo box (expanded, settable) Description: Keyed choice, ID: react-aria4164325896-:rk:, Secondary Actions: Collapse\n\t\t5 list Keyed choice Open, ID: react-aria4164325896-:rh:\n\t\t\t6 Value: Alpha, ID: react-aria4164325896-:rh:-option-0\n\t\t\t7 Value: Beta, ID: react-aria4164325896-:rh:-option-1\n\t\t\t8 Value: Charlie, ID: react-aria4164325896-:rh:-option-2\n\t\t9 button Description: Dismiss, ID: react-aria4164325896-:r1p:\n\nThe focused UI element is 4 combo box (expanded, settable) Description: Keyed choice, ID: react-aria4164325896-:rk:, Secondary Actions: Collapse",
+      "dom": {
+        "body": "Skip to main content\nDeploy\n\nChoice\n\nKeyed choice\n\nNumber\n\n{\n\"phase\":\"none\"\n\"values\":[\n0:NULL\n1:NULL\n2:NULL\n]\n}\nAlpha\nBeta\nCharlie",
+        "buttons": [
+          {
+            "label": null,
+            "text": "Deploy"
+          },
+          {
+            "label": "Main menu",
+            "text": ""
+          },
+          {
+            "label": "Open",
+            "text": ""
+          },
+          {
+            "label": "Open",
+            "text": ""
+          },
+          {
+            "label": "Open",
+            "text": ""
+          },
+          {
+            "label": "Dismiss",
+            "text": ""
+          }
+        ],
+        "inputs": [
+          {
+            "disabled": false,
+            "label": "Choice",
+            "placeholder": "Choose an option",
+            "value": ""
+          },
+          {
+            "disabled": false,
+            "label": "Keyed choice",
+            "placeholder": "Choose an option",
+            "value": ""
+          },
+          {
+            "disabled": false,
+            "label": "Number",
+            "placeholder": "Choose an option",
+            "value": ""
+          }
+        ],
+        "options": [
+          "Alpha",
+          "Beta",
+          "Charlie"
+        ],
+        "viewport": {
+          "dpr": 1.75,
+          "height": 724,
+          "width": 1463
+        }
+      },
+      "event_range": [
+        10,
+        10
+      ],
+      "screenshot_bytes": 20959,
+      "action_and_capture_calls_separate": true,
+      "screenshot_dimensions": [
+        1463,
+        724
+      ],
+      "screenshot_format": "JPEG"
+    },
+    {
+      "name": "03-keyed-Beta",
+      "screenshot": "03-keyed-Beta.jpg",
+      "screenshot_sha256": "cee521efbfb330d4982cbc30a19dcf4b43c310eaf6a6d1a5cd99d090a864fb8b",
+      "ax": "Browser tab: 1754832084, Title: \"Streamlit\", URL: \"http://127.0.0.1:8599/?probe=select-empty&phase=none\".\nThere has been no change in the accessibility tree.\nThe focused UI element is 13 combo box (collapsed, settable) Description: Keyed choice, Value: Beta, ID: react-aria4164325896-:rk:, Secondary Actions: Expand",
+      "dom": {
+        "body": "Skip to main content\nDeploy\n\nChoice\n\nKeyed choice\n\nNumber\n\n{\n\"phase\":\"none\"\n\"values\":[\n0:NULL\n1:NULL\n2:NULL\n]\n}",
+        "buttons": [
+          {
+            "label": null,
+            "text": "Deploy"
+          },
+          {
+            "label": "Main menu",
+            "text": ""
+          },
+          {
+            "label": "Open",
+            "text": ""
+          },
+          {
+            "label": "Clear value",
+            "text": ""
+          },
+          {
+            "label": "Open",
+            "text": ""
+          },
+          {
+            "label": "Open",
+            "text": ""
+          }
+        ],
+        "inputs": [
+          {
+            "disabled": false,
+            "label": "Choice",
+            "placeholder": "Choose an option",
+            "value": ""
+          },
+          {
+            "disabled": false,
+            "label": "Keyed choice",
+            "placeholder": "Choose an option",
+            "value": "Beta"
+          },
+          {
+            "disabled": false,
+            "label": "Number",
+            "placeholder": "Choose an option",
+            "value": ""
+          }
+        ],
+        "options": [],
+        "viewport": {
+          "dpr": 1.75,
+          "height": 724,
+          "width": 1463
+        }
+      },
+      "event_range": [
+        10,
+        19
+      ],
+      "screenshot_bytes": 20773,
+      "action_and_capture_calls_separate": true,
+      "screenshot_dimensions": [
+        1463,
+        724
+      ],
+      "screenshot_format": "JPEG"
+    },
+    {
+      "name": "04-number-options",
+      "screenshot": "04-number-options.jpg",
+      "screenshot_sha256": "20fb76a8add3752f95b536d9b527013d2d35bc18f7582742be31acbb279b908c",
+      "ax": "Browser tab: 1754832084, Title: \"Streamlit\", URL: \"http://127.0.0.1:8599/?probe=select-empty&phase=none\".\n1 AXWebArea Streamlit, URL: 127.0.0.1:8599/?probe=select-empty&phase=none\n\t2 container\n\t\t4 combo box (expanded, settable) Description: Number, ID: react-aria4164325896-:r12:, Secondary Actions: Collapse\n\t\t5 list Number Open, ID: react-aria4164325896-:rv:\n\t\t\t6 Value: 1, ID: react-aria4164325896-:rv:-option-0\n\t\t\t7 Value: 2, ID: react-aria4164325896-:rv:-option-1\n\t\t\t8 Value: 3, ID: react-aria4164325896-:rv:-option-2\n\t\t9 button Description: Dismiss, ID: react-aria4164325896-:r2a:\n\nThe focused UI element is 4 combo box (expanded, settable) Description: Number, ID: react-aria4164325896-:r12:, Secondary Actions: Collapse",
+      "dom": {
+        "body": "Skip to main content\nDeploy\n\nChoice\n\nKeyed choice\n\nNumber\n\n{\n\"phase\":\"none\"\n\"values\":[\n0:NULL\n1:NULL\n2:NULL\n]\n}\n1\n2\n3",
+        "buttons": [
+          {
+            "label": null,
+            "text": "Deploy"
+          },
+          {
+            "label": "Main menu",
+            "text": ""
+          },
+          {
+            "label": "Open",
+            "text": ""
+          },
+          {
+            "label": "Clear value",
+            "text": ""
+          },
+          {
+            "label": "Open",
+            "text": ""
+          },
+          {
+            "label": "Open",
+            "text": ""
+          },
+          {
+            "label": "Dismiss",
+            "text": ""
+          }
+        ],
+        "inputs": [
+          {
+            "disabled": false,
+            "label": "Choice",
+            "placeholder": "Choose an option",
+            "value": ""
+          },
+          {
+            "disabled": false,
+            "label": "Keyed choice",
+            "placeholder": "Choose an option",
+            "value": "Beta"
+          },
+          {
+            "disabled": false,
+            "label": "Number",
+            "placeholder": "Choose an option",
+            "value": ""
+          }
+        ],
+        "options": [
+          "1",
+          "2",
+          "3"
+        ],
+        "viewport": {
+          "dpr": 1.75,
+          "height": 724,
+          "width": 1463
+        }
+      },
+      "event_range": [
+        19,
+        19
+      ],
+      "screenshot_bytes": 18713,
+      "action_and_capture_calls_separate": true,
+      "screenshot_dimensions": [
+        1463,
+        724
+      ],
+      "screenshot_format": "JPEG"
+    },
+    {
+      "name": "05-number-2",
+      "screenshot": "05-number-2.jpg",
+      "screenshot_sha256": "988cd1ac046ea5c4b9671dc135dabafb6f740b8e0b080cba5b56e2ed510bcd1c",
+      "ax": "Browser tab: 1754832084, Title: \"Streamlit\", URL: \"http://127.0.0.1:8599/?probe=select-empty&phase=none\".\nThere has been no change in the accessibility tree.\nThe focused UI element is 17 combo box (collapsed, settable) Description: Number, Value: 2, ID: react-aria4164325896-:r12:, Secondary Actions: Expand",
+      "dom": {
+        "body": "Skip to main content\nDeploy\n\nChoice\n\nKeyed choice\n\nNumber\n\n{\n\"phase\":\"none\"\n\"values\":[\n0:NULL\n1:NULL\n2:NULL\n]\n}",
+        "buttons": [
+          {
+            "label": null,
+            "text": "Deploy"
+          },
+          {
+            "label": "Main menu",
+            "text": ""
+          },
+          {
+            "label": "Open",
+            "text": ""
+          },
+          {
+            "label": "Clear value",
+            "text": ""
+          },
+          {
+            "label": "Open",
+            "text": ""
+          },
+          {
+            "label": "Clear value",
+            "text": ""
+          },
+          {
+            "label": "Open",
+            "text": ""
+          }
+        ],
+        "inputs": [
+          {
+            "disabled": false,
+            "label": "Choice",
+            "placeholder": "Choose an option",
+            "value": ""
+          },
+          {
+            "disabled": false,
+            "label": "Keyed choice",
+            "placeholder": "Choose an option",
+            "value": "Beta"
+          },
+          {
+            "disabled": false,
+            "label": "Number",
+            "placeholder": "Choose an option",
+            "value": "2"
+          }
+        ],
+        "options": [],
+        "viewport": {
+          "dpr": 1.75,
+          "height": 724,
+          "width": 1463
+        }
+      },
+      "event_range": [
+        19,
+        28
+      ],
+      "screenshot_bytes": 19842,
+      "action_and_capture_calls_separate": true,
+      "screenshot_dimensions": [
+        1463,
+        724
+      ],
+      "screenshot_format": "JPEG"
+    },
+    {
+      "name": "06-plain-options",
+      "screenshot": "06-plain-options.jpg",
+      "screenshot_sha256": "fb48e556f059ec618e6f2a85682a3c4c7ac336cfaad0e820f7453b9fab4eda4b",
+      "ax": "Browser tab: 1754832084, Title: \"Streamlit\", URL: \"http://127.0.0.1:8599/?probe=select-empty&phase=none\".\n1 AXWebArea Streamlit, URL: 127.0.0.1:8599/?probe=select-empty&phase=none\n\t2 container\n\t\t3 text 3 options available.\n\t\t4 combo box (expanded, settable) Description: Choice, ID: react-aria4164325896-:r6:, Secondary Actions: Collapse\n\t\t5 list Choice Open, ID: react-aria4164325896-:r3:\n\t\t\t6 Value: Alpha, ID: react-aria4164325896-:r3:-option-0\n\t\t\t7 Value: Beta, ID: react-aria4164325896-:r3:-option-1\n\t\t\t8 Value: Charlie, ID: react-aria4164325896-:r3:-option-2\n\t\t9 button Description: Dismiss, ID: react-aria4164325896-:r2r:\n\nThe focused UI element is 4 combo box (expanded, settable) Description: Choice, ID: react-aria4164325896-:r6:, Secondary Actions: Collapse",
+      "dom": {
+        "body": "3 options available.\nSkip to main content\nDeploy\n\nChoice\n\nKeyed choice\n\nNumber\n\n{\n\"phase\":\"none\"\n\"values\":[\n0:NULL\n1:NULL\n2:NULL\n]\n}\nAlpha\nBeta\nCharlie",
+        "buttons": [
+          {
+            "label": null,
+            "text": "Deploy"
+          },
+          {
+            "label": "Main menu",
+            "text": ""
+          },
+          {
+            "label": "Open",
+            "text": ""
+          },
+          {
+            "label": "Clear value",
+            "text": ""
+          },
+          {
+            "label": "Open",
+            "text": ""
+          },
+          {
+            "label": "Clear value",
+            "text": ""
+          },
+          {
+            "label": "Open",
+            "text": ""
+          },
+          {
+            "label": "Dismiss",
+            "text": ""
+          }
+        ],
+        "inputs": [
+          {
+            "disabled": false,
+            "label": "Choice",
+            "placeholder": "Choose an option",
+            "value": ""
+          },
+          {
+            "disabled": false,
+            "label": "Keyed choice",
+            "placeholder": "Choose an option",
+            "value": "Beta"
+          },
+          {
+            "disabled": false,
+            "label": "Number",
+            "placeholder": "Choose an option",
+            "value": "2"
+          }
+        ],
+        "options": [
+          "Alpha",
+          "Beta",
+          "Charlie"
+        ],
+        "viewport": {
+          "dpr": 1.75,
+          "height": 724,
+          "width": 1463
+        }
+      },
+      "event_range": [
+        28,
+        28
+      ],
+      "screenshot_bytes": 19450,
+      "action_and_capture_calls_separate": true,
+      "screenshot_dimensions": [
+        1463,
+        724
+      ],
+      "screenshot_format": "JPEG"
+    },
+    {
+      "name": "07-plain-Alpha",
+      "screenshot": "07-plain-Alpha.jpg",
+      "screenshot_sha256": "d5ac3706e8000f68a461140786190af33e751359a6c06be08193caa67f0a9793",
+      "ax": "Browser tab: 1754832084, Title: \"Streamlit\", URL: \"http://127.0.0.1:8599/?probe=select-empty&phase=none\".\nThere has been no change in the accessibility tree.\nThe focused UI element is 10 combo box (collapsed, settable) Description: Choice, Value: Alpha, ID: react-aria4164325896-:r6:, Secondary Actions: Expand",
+      "dom": {
+        "body": "Skip to main content\nDeploy\n\nChoice\n\nKeyed choice\n\nNumber\n\n{\n\"phase\":\"none\"\n\"values\":[\n0:\"Alpha\"\n1:\"Beta\"\n2:2\n]\n}",
+        "buttons": [
+          {
+            "label": null,
+            "text": "Deploy"
+          },
+          {
+            "label": "Main menu",
+            "text": ""
+          },
+          {
+            "label": "Clear value",
+            "text": ""
+          },
+          {
+            "label": "Open",
+            "text": ""
+          },
+          {
+            "label": "Clear value",
+            "text": ""
+          },
+          {
+            "label": "Open",
+            "text": ""
+          },
+          {
+            "label": "Clear value",
+            "text": ""
+          },
+          {
+            "label": "Open",
+            "text": ""
+          }
+        ],
+        "inputs": [
+          {
+            "disabled": false,
+            "label": "Choice",
+            "placeholder": "Choose an option",
+            "value": "Alpha"
+          },
+          {
+            "disabled": false,
+            "label": "Keyed choice",
+            "placeholder": "Choose an option",
+            "value": "Beta"
+          },
+          {
+            "disabled": false,
+            "label": "Number",
+            "placeholder": "Choose an option",
+            "value": "2"
+          }
+        ],
+        "options": [],
+        "viewport": {
+          "dpr": 1.75,
+          "height": 724,
+          "width": 1463
+        }
+      },
+      "event_range": [
+        28,
+        37
+      ],
+      "screenshot_bytes": 17856,
+      "action_and_capture_calls_separate": true,
+      "screenshot_dimensions": [
+        1463,
+        724
+      ],
+      "screenshot_format": "JPEG"
+    },
+    {
+      "name": "08-plain-clear",
+      "screenshot": "08-plain-clear.jpg",
+      "screenshot_sha256": "14f95c7d00c8eaa7d2410b9ab456243ff4c07f838a8a343cef61afc35fb389a0",
+      "ax": "Browser tab: 1754832084, Title: \"Streamlit\", URL: \"http://127.0.0.1:8599/?probe=select-empty&phase=none\".\nThere has been no change in the accessibility tree.\nThe focused UI element is 1 AXWebArea Streamlit, URL: 127.0.0.1:8599/?probe=select-empty&phase=none",
+      "dom": {
+        "body": "Skip to main content\nDeploy\n\nChoice\n\nKeyed choice\n\nNumber\n\n{\n\"phase\":\"none\"\n\"values\":[\n0:\"Alpha\"\n1:\"Beta\"\n2:2\n]\n}",
+        "buttons": [
+          {
+            "label": null,
+            "text": "Deploy"
+          },
+          {
+            "label": "Main menu",
+            "text": ""
+          },
+          {
+            "label": "Open",
+            "text": ""
+          },
+          {
+            "label": "Clear value",
+            "text": ""
+          },
+          {
+            "label": "Open",
+            "text": ""
+          },
+          {
+            "label": "Clear value",
+            "text": ""
+          },
+          {
+            "label": "Open",
+            "text": ""
+          }
+        ],
+        "inputs": [
+          {
+            "disabled": false,
+            "label": "Choice",
+            "placeholder": "Choose an option",
+            "value": ""
+          },
+          {
+            "disabled": false,
+            "label": "Keyed choice",
+            "placeholder": "Choose an option",
+            "value": "Beta"
+          },
+          {
+            "disabled": false,
+            "label": "Number",
+            "placeholder": "Choose an option",
+            "value": "2"
+          }
+        ],
+        "options": [],
+        "viewport": {
+          "dpr": 1.75,
+          "height": 724,
+          "width": 1463
+        }
+      },
+      "event_range": [
+        37,
+        46
+      ],
+      "screenshot_bytes": 19365,
+      "action_and_capture_calls_separate": true,
+      "screenshot_dimensions": [
+        1463,
+        724
+      ],
+      "screenshot_format": "JPEG"
+    },
+    {
+      "name": "09-keyed-clear",
+      "screenshot": "09-keyed-clear.jpg",
+      "screenshot_sha256": "97c1a4b5e53b87d007042cfd1dafa413e080bf9e86687e884e3e52709c4d4785",
+      "ax": "Browser tab: 1754832084, Title: \"Streamlit\", URL: \"http://127.0.0.1:8599/?probe=select-empty&phase=none\".\nThere has been no change in the accessibility tree.\nThe focused UI element is 1 AXWebArea Streamlit, URL: 127.0.0.1:8599/?probe=select-empty&phase=none",
+      "dom": {
+        "body": "Skip to main content\nDeploy\n\nChoice\n\nKeyed choice\n\nNumber\n\n{\n\"phase\":\"none\"\n\"values\":[\n0:\"Alpha\"\n1:\"Beta\"\n2:2\n]\n}",
+        "buttons": [
+          {
+            "label": null,
+            "text": "Deploy"
+          },
+          {
+            "label": "Main menu",
+            "text": ""
+          },
+          {
+            "label": "Open",
+            "text": ""
+          },
+          {
+            "label": "Open",
+            "text": ""
+          },
+          {
+            "label": "Clear value",
+            "text": ""
+          },
+          {
+            "label": "Open",
+            "text": ""
+          }
+        ],
+        "inputs": [
+          {
+            "disabled": false,
+            "label": "Choice",
+            "placeholder": "Choose an option",
+            "value": ""
+          },
+          {
+            "disabled": false,
+            "label": "Keyed choice",
+            "placeholder": "Choose an option",
+            "value": ""
+          },
+          {
+            "disabled": false,
+            "label": "Number",
+            "placeholder": "Choose an option",
+            "value": "2"
+          }
+        ],
+        "options": [],
+        "viewport": {
+          "dpr": 1.75,
+          "height": 724,
+          "width": 1463
+        }
+      },
+      "event_range": [
+        46,
+        55
+      ],
+      "screenshot_bytes": 20632,
+      "action_and_capture_calls_separate": true,
+      "screenshot_dimensions": [
+        1463,
+        724
+      ],
+      "screenshot_format": "JPEG"
+    },
+    {
+      "name": "10-number-clear",
+      "screenshot": "10-number-clear.jpg",
+      "screenshot_sha256": "e54ad024513e0c53d401565bff3a2933e7b2ec3b2515bbd14ec4758c131e98d2",
+      "ax": "Browser tab: 1754832084, Title: \"Streamlit\", URL: \"http://127.0.0.1:8599/?probe=select-empty&phase=none\".\nThere has been no change in the accessibility tree.\nThe focused UI element is 1 AXWebArea Streamlit, URL: 127.0.0.1:8599/?probe=select-empty&phase=none",
+      "dom": {
+        "body": "Skip to main content\nDeploy\n\nChoice\n\nKeyed choice\n\nNumber\n\n{\n\"phase\":\"none\"\n\"values\":[\n0:\"Alpha\"\n1:\"Beta\"\n2:2\n]\n}",
+        "buttons": [
+          {
+            "label": null,
+            "text": "Deploy"
+          },
+          {
+            "label": "Main menu",
+            "text": ""
+          },
+          {
+            "label": "Open",
+            "text": ""
+          },
+          {
+            "label": "Open",
+            "text": ""
+          },
+          {
+            "label": "Open",
+            "text": ""
+          }
+        ],
+        "inputs": [
+          {
+            "disabled": false,
+            "label": "Choice",
+            "placeholder": "Choose an option",
+            "value": ""
+          },
+          {
+            "disabled": false,
+            "label": "Keyed choice",
+            "placeholder": "Choose an option",
+            "value": ""
+          },
+          {
+            "disabled": false,
+            "label": "Number",
+            "placeholder": "Choose an option",
+            "value": ""
+          }
+        ],
+        "options": [],
+        "viewport": {
+          "dpr": 1.75,
+          "height": 724,
+          "width": 1463
+        }
+      },
+      "event_range": [
+        55,
+        64
+      ],
+      "screenshot_bytes": 20429,
+      "action_and_capture_calls_separate": true,
+      "screenshot_dimensions": [
+        1463,
+        724
+      ],
+      "screenshot_format": "JPEG"
+    }
+  ],
+  "successful": true,
+  "console": [],
+  "complete": true,
+  "semantic_match": false,
+  "capture_context_sources_sha256": {
+    "streamlit/examples/widget_params.rs": "887e51b9f675196875369bd174217f23c571903e226d02ee9728e6a954022e0e",
+    "tests/reference/widget_params_app.py": "5f3519c5e05947d4c45c334e636a2bbd31cf97116d54e58345ec289c299e16b4",
+    "streamlit/src/widget_api.rs": "28d0278e216f107e7591d720c285d27a278683ae70e0f60e265b3d79293b9dd5",
+    "streamlit/src/widgets.rs": "0b90d2d7b20e53954650bb2cbedf6e7c686a0733d5c52868221f6c6e0074b74d"
+  },
+  "rust_sources_sha256": {
+    "streamlit/src/widget_api.rs": "28d0278e216f107e7591d720c285d27a278683ae70e0f60e265b3d79293b9dd5",
+    "streamlit/src/widgets.rs": "0b90d2d7b20e53954650bb2cbedf6e7c686a0733d5c52868221f6c6e0074b74d"
+  },
+  "tab_id": "1754832084",
+  "url": "http://127.0.0.1:8599/?probe=select-empty&phase=none",
+  "browser": {
+    "name": "Chrome",
+    "id": "3"
+  },
+  "finalized_at_utc": "2026-10-31T20:00:06.266692+00:00",
+  "cleanup": {
+    "tab_closed": true,
+    "network_capture_disabled": true,
+    "server_stopped": true
+  },
+  "visual_review": {
+    "original_jpegs_inspected": 10,
+    "scope": "All original screenshots inspected during capture; no full-page pixel equality claim."
+  },
+  "capture_boundary_note": "The tab was opened before Network.enable. An intentional reload starts this recorded connection and seven-run journey. Initial pre-monitor page traffic and close frames after Network.disable are outside the capture."
+}

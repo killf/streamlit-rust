@@ -4969,6 +4969,92 @@ mod tests {
     }
 
     #[test]
+    fn selectbox_id_only_empty_states_preserve_the_complete_input_batch() -> anyhow::Result<()> {
+        let state = SessionState::default();
+        let expected = [
+            (None, None, None),
+            (None, Some("Beta"), None),
+            (None, Some("Beta"), Some(2)),
+            (Some("Alpha"), Some("Beta"), Some(2)),
+            (None, Some("Beta"), Some(2)),
+            (None, None, Some(2)),
+            (None, None, None),
+        ];
+        let mut ids = Vec::<String>::new();
+        for (index, values) in expected.iter().enumerate() {
+            // 1. 真浏览器提交所有控件，空选择只有 ID，没有 value oneof。
+            let labels = [values.0, values.1, values.2.map(|_| "2")];
+            let incoming = if index == 0 {
+                Vec::new()
+            } else {
+                ids.iter()
+                    .zip(labels)
+                    .map(|(id, label)| WidgetState {
+                        id: id.clone(),
+                        value: label.map(|label| widget_state::Value::StringValue(label.into())),
+                    })
+                    .collect()
+            };
+            assert!(state.begin_widgets(incoming).is_empty());
+            let (st, mut wire) = app(&state);
+            let plain = st.selectbox(SelectboxOptions::new("Choice", ["Alpha", "Beta", "Charlie"]).index(None))?;
+            let keyed = st.selectbox(SelectboxOptions::new("Keyed choice", ["Alpha", "Beta", "Charlie"]).index(None).key("choice"))?;
+            let number = st.selectbox(SelectboxOptions::new("Number", [1_i64, 2, 3]).index(None).key("number"))?;
+            assert_eq!((plain, keyed, number), *values, "run {index}");
+
+            // 2. 空状态保留原生 None 和同一身份，不广播额外同步。
+            let mut current = Vec::new();
+            for (position, _) in labels.iter().enumerate() {
+                let element::Type::Selectbox(widget) = input(&mut wire)? else { panic!() };
+                assert_eq!(widget.default, None);
+                assert!(!widget.set_value);
+                if index > 0 {
+                    assert_eq!(widget.id, ids[position]);
+                }
+                current.push(widget.id);
+            }
+            ids = current;
+            state.finish_widgets();
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn selectbox_id_only_payload_uses_the_registered_default_for_each_mode() -> anyhow::Result<()> {
+        for creation in [false, true] {
+            for default in [None, Some(0)] {
+                let state = SessionState::default();
+                let mut id = None::<String>;
+                for index in 0..3 {
+                    let incoming = id
+                        .as_ref()
+                        .map(|id| {
+                            vec![WidgetState {
+                                id: id.clone(),
+                                value: (index == 1).then(|| widget_state::Value::StringValue("Beta".into())),
+                            }]
+                        })
+                        .unwrap_or_default();
+                    state.begin_widgets(incoming);
+                    let (st, mut wire) = app(&state);
+                    let value = if creation {
+                        st.selectbox_creation(SelectboxCreationOptions::new("Choice", ["Alpha", "Beta"]).index(default).key("choice"))?
+                    } else {
+                        st.selectbox(SelectboxOptions::new("Choice", ["Alpha", "Beta"]).index(default).key("choice"))?.map(str::to_owned)
+                    };
+                    assert_eq!(value.as_deref(), if index == 1 { Some("Beta") } else { default.map(|_| "Alpha") });
+                    let element::Type::Selectbox(widget) = input(&mut wire)? else { panic!() };
+                    id = Some(widget.id);
+                    state.finish_widgets();
+                }
+            }
+        }
+
+        Ok(())
+    }
+
+    #[test]
     fn multiselect_defaults_keep_repeated_indices_and_reject_zero_limit() -> anyhow::Result<()> {
         for (defaults, limit) in [(vec![1, 1], None), (vec![1, 1, 1, 1], None), (vec![1, 1], Some(2))] {
             let state = SessionState::default();

@@ -2336,3 +2336,21 @@ SDK 1.66.1 的公开 AppTest 和八轮原生 WS 确认：重复默认值合法�
 数量错误后仍保留控件登记，会改变现有 fallible conversion 完成后才登记的流程；已在 [architecture](architecture.md#multiselect-count-validation-and-failed-registration-retention--proposal-2026-11-01) 写明胜出状态原始计数、保留原值、仅此错误的登记例外与验证计划，并依据用户 AGENTS.md 第 2 条提问。该流程尚未获批，未用通用 registration_error 阻断后续控件，未调整既有共享状态、队列、hash 或公共返回类型决策。
 
 真实浏览器、默认异常界面、数量错误 callback 顺序、动态异类型返回、任意默认/上限范围和其他组合仍未完成。仅 st.multiselect 矩阵与机器清单更新，仍为 130 partial；用户 colconfig_params 修改独立保留。未合并、发布或部署，M3/M5/M7 与长期 Goal 保持开放。
+
+## Current selectbox empty browser and ID-only input validation (2026-11-01)
+
+本批使用现有 select-empty/phase=none 示例，三个普通控件均 index=None：无 key 字符串、有 key 字符串、有 key 整数。真实 Chrome 依次记录初始空选择、三个选项菜单、选择 Beta/2/Alpha 和逐个点击 Clear value；每端十画面、七次正常完成运行，打开菜单不发输入，提交/清空各触发一次重跑。后端依次返回 [None,None,None]、[None,Beta,None]、[None,Beta,2]、[Alpha,Beta,2]、[None,Beta,2]、[None,None,2]、[None,None,None]，整数保持原生 integer。
+
+浏览器真实暴露原生脚本未覆盖的问题：前端提交所有控件，空选择是仅含 ID、没有 value oneof 的 WidgetState；Rust 的旧整批校验将该有效载荷视为错误。修前前两次选择后端仍全空，三项全部选中后才接受；随后三次清空均错误保留 [Alpha,Beta,2]。修前十张原始图片及完整帧保存在 [before](../tests/browser/rust-widget-params/select-empty/ui/before/trace.json)，不能把前端已显示选择视为后端生效。
+
+widgets.rs 新增私有完整状态解码，Record 仅为普通/创建 selectbox 保存本次注册有效默认值；下一轮 ID-only 包用上轮缓存值，晚到首次注册包用本轮默认值。整批校验、实际应用、已有 pending 路径共用该解释；其他 codec 的缺失载荷继续拒绝，原显式 value 解码规则不变。不是一律将 ID-only 变 Null：公开 SDK AppTest 与 Rust API 单元分别确认普通/创建模式 index=None 清空为 None、index=0 清空回 Alpha。两项新公开 API 单元先真实失败后通过；生产无公共接口、依赖、队列、状态来源优先级或失败登记流程变更。
+
+[Python](../tests/reference/reference-browser/widget-params/select-empty/ui/trace.json)与[修后 Rust](../tests/browser/rust-widget-params/select-empty/ui/trace.json)各记录一个 WS 连接、七个稳定同会话运行、63 原始二进制帧和 28 完整 Element；仅归一化不透明 ID/JSON 文本后逐字段一致。每份 64 个 CDP 事件，三个菜单阶段无事件，首次 10 事件、其余提交/清空阶段各 9 事件。输入逐控件核对真实 ID 及 value oneof 有无，返回类型、default 省略、同步标志、路径、完成与 running 状态均核对。
+
+三份采集共 30 张原始 JPEG 已逐张查看；SDK 和修后为 1463×780、修前为 1463×724，DPR=1.75，实际尺寸均保留，不宣称整页像素相同。输入框/占位、菜单项、清空按钮数、后端 DOM 与截图 SHA256/尺寸校验；数值输入框文字区域的亮像素门区分数字 2 与空占位，可拒绝换入旧图后同步更新 SHA 的伪造。八类负例必须失败：菜单阶段有发送、错误空载荷 oneof、整数变成 2.0、清空恢复旧值、错误协议 default、图片哈希、旧图片替换、错误选项列表。
+
+原始页面先打开，启用 Network 采集后有意 reload，证据从这次记录连接开始；初始监测前流量和 Network.disable 后的关闭帧不在覆盖内，不宣称观察到了 WS close 帧。三个自建 tab 均已关闭，SDK/修前 Rust 子进程 PID 47984/59116、修后 Rust PID 10736 通过持有句柄 terminate/wait 结束；53858/8599 核实无监听。console error/warn 均为空。捕获保存基线 8240b19、两端示例源 SHA、Rust 核心源 SHA 与二进制 SHA；修后注明基于该提交的已修改工作区，并已核对实际产物哈希，未把基线提交冒充包含新修复。
+
+编辑 Rust 的 rustfmt、全工作区/all-target Clippy、两项 ID-only 单元通过；最终工作区 319 项通过（312 库、1 ledger、2 宏、4 rustdoc），仍仅排除原 navigation_pages_switch_and_session_state_match_the_measured_wire 与 rerun_queue_messages_match_frozen_reference，不能称完整工作区全绿。参数参考模块 225 项、相关 query/widget/temporal/pickers/matrix/docs 门 476 项通过，包含 SDK-only 默认反序列化观察，不等于全部跨运行时 UI 验收。既有 MSVC linker stdout warning 保留；日志 target/select-empty-ui-{red,green,clippy,build,workspace,reference}.log。
+
+本批只验证非空选项列表下的初始 None/选择/明确清空；空选项列表 UI、创建模式浏览器、radio 等其他控件、动态参数、callback/绑定/表单/跨页/晚到输入和动态异类型返回继续开放。仅 st.selectbox 矩阵和机器清单更新，仍为 130 partial；待决的 multiselect 数量错误登记例外及其他方案未获本批代替。用户 colconfig_params 修改独立保留，未合并、发布或部署，M3/M5/M7 与长期 Goal 未关闭。
