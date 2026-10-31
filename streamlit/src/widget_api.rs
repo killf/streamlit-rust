@@ -627,7 +627,7 @@ impl SelectboxCreationOptions {
         let options: Vec<String> = options.into_iter().map(Into::into).collect();
         Self {
             common: InputOptions::new(label),
-            index: (!options.is_empty()).then_some(0),
+            index: Some(0),
             filter_mode: Some(SelectFilterMode::Fuzzy),
             options,
             placeholder: None,
@@ -3599,8 +3599,15 @@ fn emit_selectbox<C: AppendChild, T: Clone + Serialize>(this: &C, options: Selec
     }
     // 显式空占位用单空格区分；None 保留前端的上下文默认提示。
     let placeholder = options.placeholder.map(|value| if value.is_empty() { " ".into() } else { value });
+    let wire_index = if let Some(key) = c.key.as_deref()
+        && this.get_app().lock().session_state.get::<Value>(key)?.is_some_and(|value| value.is_null())
+    {
+        None
+    } else {
+        options.index
+    };
     let native: Vec<Value> = options.options.iter().map(serde_json::to_value).collect::<Result<_, _>>()?;
-    let default = options.index.filter(|index| *index < native.len()).map(Value::from).unwrap_or(Value::Null);
+    let default = wire_index.filter(|index| *index < native.len()).map(Value::from).unwrap_or(Value::Null);
     // Creation mode joins the widget identity, like the reference's
     // key_as_main_identity("accept_new_options").
     let identity = c.identity_in_form(
@@ -3618,7 +3625,7 @@ fn emit_selectbox<C: AppendChild, T: Clone + Serialize>(this: &C, options: Selec
     let (id, selected, set_value) = this.register_widget_parity(
         WidgetSpec {
             disabled: c.disabled,
-            query: (options.bind == TextBind::QueryParams).then_some(crate::widgets::QueryBinding { clearable: options.index.is_none() }),
+            query: (options.bind == TextBind::QueryParams).then_some(crate::widgets::QueryBinding { clearable: wire_index.is_none() }),
             kind: "selectbox",
             key: c.key.as_deref(),
             identity: &identity,
@@ -3645,7 +3652,6 @@ fn emit_selectbox<C: AppendChild, T: Clone + Serialize>(this: &C, options: Selec
     state.set_query_binding(&id, options.bind == TextBind::QueryParams);
     crate::query_params::flush_query_update(&mut app.lock());
     let result = selected.clone();
-    let empty = options.options.is_empty();
     let raw_label = |selected: &Option<T>| -> Option<String> {
         let value = selected.as_ref()?;
         let json = serde_json::to_value(value).ok()?;
@@ -3663,12 +3669,12 @@ fn emit_selectbox<C: AppendChild, T: Clone + Serialize>(this: &C, options: Selec
             id,
             label: c.label,
             form_id,
-            default: if empty { None } else { options.index.map(|i| i as i32) },
+            default: wire_index.map(|i| i as i32),
             options: options.labels.clone(),
             help: c.help,
             raw_value: if set_value { raw_label(&selected) } else { None },
             set_value,
-            disabled: c.disabled || (empty && !creation),
+            disabled: c.disabled,
             label_visibility: c.visibility.wire(),
             placeholder: placeholder.unwrap_or_default(),
             accept_new_options: Some(creation),
@@ -4943,6 +4949,125 @@ mod tests {
     }
 
     #[test]
+    fn selectbox_empty_constructors_keep_the_implicit_zero_index() -> anyhow::Result<()> {
+        let state = SessionState::default();
+        state.begin_widgets(Vec::new());
+        let (st, mut wire) = app(&state);
+        assert_eq!(st.selectbox(SelectboxOptions::new("Normal", Vec::<String>::new()))?, None);
+        assert_eq!(st.selectbox_creation(SelectboxCreationOptions::new("Creation", Vec::<String>::new()))?, None);
+        for creation in [false, true] {
+            let element::Type::Selectbox(widget) = input(&mut wire)? else { panic!() };
+            assert_eq!(widget.default, Some(0));
+            assert_eq!(widget.accept_new_options, Some(creation));
+            assert!(!widget.disabled);
+        }
+        state.finish_widgets();
+
+        Ok(())
+    }
+
+    #[test]
+    fn selectbox_empty_and_native_none_preserve_string_and_integer_types() -> anyhow::Result<()> {
+        let state = SessionState::default();
+        let mut ids: Vec<Vec<String>> = Vec::new();
+        let groups = [0, 0, 1, 1, 2, 0, 3, 3, 3, 0, 0, 0, 0, 0];
+        let phases = [
+            "load",
+            "edit",
+            "empty",
+            "empty-observe",
+            "empty-none",
+            "restore",
+            "none",
+            "none-edit",
+            "none-observe",
+            "restore-index",
+            "assign-none",
+            "observe",
+            "assign-missing",
+            "missing-observe",
+        ];
+        let expected = [
+            (Some("Alpha"), Some("Alpha"), Some(1)),
+            (Some("Beta"), Some("Beta"), Some(2)),
+            (None, None, None),
+            (None, None, None),
+            (None, None, None),
+            (Some("Alpha"), None, None),
+            (None, None, None),
+            (Some("Beta"), Some("Beta"), Some(2)),
+            (Some("Beta"), Some("Beta"), Some(2)),
+            (Some("Alpha"), Some("Beta"), Some(2)),
+            (Some("Alpha"), None, None),
+            (Some("Alpha"), None, None),
+            (Some("Alpha"), Some("Alpha"), Some(1)),
+            (Some("Alpha"), Some("Alpha"), Some(1)),
+        ];
+
+        for (index, phase) in phases.iter().enumerate() {
+            // 1. 前端提交始终是标签；代码赋值保留字符串/整数的原生类型。
+            let incoming = if matches!(*phase, "edit" | "none-edit") {
+                ids[index - 1]
+                    .iter()
+                    .enumerate()
+                    .map(|(position, id)| WidgetState {
+                        id: id.clone(),
+                        value: Some(widget_state::Value::StringValue(if position == 2 { "2" } else { "Beta" }.into())),
+                    })
+                    .collect()
+            } else {
+                Vec::new()
+            };
+            assert!(state.begin_widgets(incoming).is_empty());
+            if *phase == "assign-none" {
+                state.set("choice", Value::Null)?;
+                state.set("number", Value::Null)?;
+            } else if *phase == "assign-missing" {
+                state.set("choice", "Missing")?;
+                state.set("number", 99_i64)?;
+            }
+            let (st, mut wire) = app(&state);
+            let labels = if phase.starts_with("empty") { Vec::new() } else { vec!["Alpha", "Beta", "Charlie"] };
+            let numbers = if phase.starts_with("empty") { Vec::new() } else { vec![1_i64, 2, 3] };
+            let raw_none = matches!(*phase, "none" | "none-edit" | "none-observe" | "empty-none");
+            let default = (!raw_none).then_some(0);
+            let plain = st.selectbox(SelectboxOptions::new("Choice", labels.clone()).index(default))?;
+            let keyed = st.selectbox(SelectboxOptions::new("Keyed choice", labels).index(default).key("choice"))?;
+            let number = st.selectbox(SelectboxOptions::new("Number", numbers).index(default).key("number"))?;
+            assert_eq!((plain, keyed, number), expected[index], "{phase}");
+
+            // 2. 空选项不改 disabled；同步默认、标签和一次性标志均按有效空状态写入。
+            let mut current = Vec::new();
+            for (position, label) in ["Choice", "Keyed choice", "Number"].iter().enumerate() {
+                let Some(forward_msg::Type::Delta(proto::Delta {
+                    r#type: Some(delta::Type::NewElement(element)), ..
+                })) = wire.try_recv()?.r#type
+                else {
+                    panic!()
+                };
+                let sync = position > 0 && matches!(*phase, "empty" | "assign-none" | "assign-missing");
+                assert_eq!(element.has_one_shot_effect, sync.then_some(true), "{phase}");
+                let Some(element::Type::Selectbox(widget)) = element.r#type else { panic!() };
+                assert_eq!(widget.label, *label);
+                let wire_none = raw_none || position > 0 && matches!(*phase, "empty-observe" | "restore" | "assign-none" | "observe");
+                assert_eq!(widget.default, (!wire_none).then_some(0), "{phase}: {position}");
+                assert_eq!(widget.set_value, sync);
+                let expected_raw = if sync && *phase == "assign-missing" { Some(if position == 2 { "1" } else { "Alpha" }) } else { None };
+                assert_eq!(widget.raw_value.as_deref(), expected_raw);
+                assert!(!widget.disabled);
+                for earlier in 0..index {
+                    assert_eq!(widget.id == ids[earlier][position], position > 0 || groups[index] == groups[earlier], "{phase}: {position}/{earlier}");
+                }
+                current.push(widget.id);
+            }
+            ids.push(current);
+            state.finish_widgets();
+        }
+
+        Ok(())
+    }
+
+    #[test]
     fn radio_empty_options_and_native_none_reset_sync_match_reference() -> anyhow::Result<()> {
         let state = SessionState::default();
         let mut ids: Vec<Vec<String>> = Vec::new();
@@ -5782,8 +5907,8 @@ mod tests {
         assert_eq!((slider.data_type, slider.default), (1, vec![0.2, 0.8]));
         assert_eq!(st.selectbox(SelectboxOptions::new("Empty", Vec::<String>::new()))?, None);
         let element::Type::Selectbox(empty) = input(&mut wire)? else { panic!() };
-        assert!(empty.disabled);
-        assert_eq!(empty.default, None);
+        assert!(!empty.disabled);
+        assert_eq!(empty.default, Some(0));
         assert!(matches!(st.selectbox(SelectboxOptions::new("Empty", Vec::<String>::new())), Err(WidgetError::DuplicateId(_))));
         assert!(st.slider(SliderOptions::new("Reversed", (8_i32, 2))).is_err());
         assert!(st.slider(SliderOptions::new("Infinite", 0.0).max(f64::INFINITY)).is_err());

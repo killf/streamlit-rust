@@ -6,6 +6,26 @@ use ::streamlit::*;
 use streamlit::StreamlitApi;
 
 fn render(st: &Streamlit) -> Result<(), WidgetError> {
+    if st.query_params().get("probe").as_deref() == Some("select-empty") {
+        let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
+        if phase == "assign-none" {
+            st.session_state().set("choice", serde_json::Value::Null)?;
+            st.session_state().set("number", serde_json::Value::Null)?;
+        } else if phase == "assign-missing" {
+            st.session_state().set("choice", "Missing")?;
+            st.session_state().set("number", 99_i64)?;
+        }
+
+        let labels = if phase.starts_with("empty") { Vec::new() } else { vec!["Alpha", "Beta", "Charlie"] };
+        let numbers = if phase.starts_with("empty") { Vec::new() } else { vec![1_i64, 2, 3] };
+        let index = if matches!(phase.as_str(), "none" | "none-edit" | "none-observe" | "empty-none") { None } else { Some(0) };
+        let plain = st.selectbox(SelectboxOptions::new("Choice", labels.clone()).index(index))?;
+        let keyed = st.selectbox(SelectboxOptions::new("Keyed choice", labels).index(index).key("choice"))?;
+        let number = st.selectbox(SelectboxOptions::new("Number", numbers).index(index).key("number"))?;
+        st.json(serde_json::json!({"phase": phase, "values": [plain, keyed, number]}));
+        return Ok(());
+    }
+
     if st.query_params().get("probe").as_deref() == Some("radio-empty") {
         let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
         if phase == "assign-none" {

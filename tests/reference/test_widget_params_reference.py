@@ -1213,6 +1213,175 @@ def test_radio_empty_gate_rejects_coherent_wrong_wire(mutation):
         check_radio_identity(capture, empty=True)
 
 
+def test_sdk_empty_selectbox_constructor_defaults():
+    import importlib.metadata
+    from streamlit.testing.v1 import AppTest
+
+    assert importlib.metadata.version("streamlit") == "1.66.1"
+    app = AppTest.from_string('''
+import streamlit as st
+a = st.selectbox("Normal", [])
+b = st.selectbox("Creation", [], accept_new_options=True)
+st.json([a, b])
+''').run()
+    assert not app.exception and json.loads(app.json[0].value) == [None, None]
+    for creation, widget in zip((False, True), app.selectbox, strict=True):
+        assert widget.proto.HasField("default") and widget.proto.default == 0
+        assert widget.proto.accept_new_options == creation and not widget.proto.disabled
+
+
+def test_sdk_integer_options_can_temporarily_return_label_strings():
+    """SDK-only boundary: no Rust/native-WS parity claim for dynamic return types."""
+    import importlib.metadata
+    from streamlit.testing.v1 import AppTest
+
+    assert importlib.metadata.version("streamlit") == "1.66.1"
+    app = AppTest.from_string('''
+import streamlit as st
+if st.session_state.get("assign", False):
+    st.session_state["number"] = "2"
+value = st.selectbox("Number", [1, 2, 3], key="number")
+st.json([value])
+''').run()
+    assert not app.exception and type(json.loads(app.json[0].value)[0]) is int
+    app.session_state["assign"] = True
+    app.run()
+    assert not app.exception and json.loads(app.json[0].value) == ["2"]
+    assert app.selectbox[0].proto.set_value and app.selectbox[0].proto.raw_value == "2"
+    app.session_state["assign"] = False
+    app.run()
+    assert not app.exception and json.loads(app.json[0].value) == [2] and type(json.loads(app.json[0].value)[0]) is int
+
+
+def check_select_empty(capture):
+    assert capture["successful"] and "producer_error" not in capture and capture["reference_version"] == "1.66.1"
+    assert capture["runtime"] in ("python", "rust") and capture["finishes"] == [0] * 14
+    assert capture["cleanup"]["websocket_closed"] and capture["cleanup"]["server_stopped" if capture["runtime"] == "python" else "caller_server_stopped"]
+    assert len(capture["frames"]) == 125 and len(capture["elements"]) == 56
+    runs = color_runs(capture, ("selectbox", "json"))
+    history, normalized, sessions, run_ids = [], [], set(), set()
+    for index, (phase, run) in enumerate(zip(RADIO_EMPTY_PHASES, runs, strict=True)):
+        request = run["request"]
+        assert request.query_string == "probe=select-empty&phase=" + phase and not request.is_history_navigation
+        assert len(run["sessions"]) == 1 and run["finishes"] == [0]
+        session = run["sessions"][0]
+        assert session.initialize.environment_info.streamlit_version == "1.66.1"
+        sessions.add(session.initialize.session_id)
+        run_ids.add(session.script_run_id)
+        assert [e[0] for e in run["entries"]] == ["selectbox"] * 3 + ["json"]
+        ids = []
+        for position, (_, widget, element) in enumerate(run["entries"][:3]):
+            assert widget.label == ("Choice", "Keyed choice", "Number")[position] and widget.id
+            wire_none = phase in ("none", "none-edit", "none-observe", "empty-none") or position > 0 and phase in ("empty-observe", "restore", "assign-none", "observe")
+            assert widget.HasField("default") == (not wire_none) and widget.default == 0
+            assert list(widget.options) == ([] if phase.startswith("empty") else ["1", "2", "3"] if position == 2 else ["Alpha", "Beta", "Charlie"])
+            sync = position > 0 and phase in ("empty", "assign-none", "assign-missing")
+            assert widget.set_value == sync and not widget.disabled and not widget.form_id and not widget.help and not widget.ignore_rerun
+            assert not widget.accept_new_options and widget.filter_mode == 0 and not widget.query_param_key
+            assert widget.label_visibility.value == 0 and element.HasField("has_one_shot_effect") == sync and element.has_one_shot_effect == sync
+            raw = ("1" if position == 2 else "Alpha") if sync and phase == "assign-missing" else None
+            assert widget.HasField("raw_value") == (raw is not None) and widget.raw_value == (raw or "")
+            assert element.width_config.use_stretch
+            for earlier in range(index):
+                assert (widget.id == history[earlier][position]) == (position > 0 or RADIO_EMPTY_GROUPS[index] == RADIO_EMPTY_GROUPS[earlier]), (phase, position, earlier)
+            ids.append(widget.id)
+        history.append(ids)
+        plain, keyed = RADIO_EMPTY_VALUES[index]
+        report = json.loads(run["entries"][3][1].body)
+        assert report == {"phase": phase, "values": [plain, keyed, {"Alpha": 1, "Beta": 2, None: None}[keyed]]}
+        assert type(report["values"][2]) in (int, type(None)), "integer selections must not become bool, float or string"
+        assert [capture["elements"][index * 4 + i]["delta_path"] for i in range(4)] == [[0, i] for i in range(4)]
+        incoming = request.widget_states.widgets
+        if phase in ("edit", "none-edit"):
+            assert len(incoming) == 3 and [w.id for w in incoming] == history[index - 1]
+            assert all(w.WhichOneof("value") == "string_value" for w in incoming)
+            assert [w.string_value for w in incoming] == ["Beta", "Beta", "2"]
+        else:
+            assert not incoming
+        normalized_run = []
+        for kind, _, element in run["entries"]:
+            fields = MessageToDict(element, preserving_proto_field_name=True)
+            if kind == "selectbox":
+                fields[kind].pop("id")
+            else:
+                fields[kind]["body"] = json.loads(fields[kind]["body"])
+            normalized_run.append(fields)
+        normalized.append(normalized_run)
+    assert len(sessions) == 1 and len(run_ids) == 14
+    assert [len({ids[i] for ids in history}) for i in range(3)] == [4, 1, 1]
+    return normalized
+
+
+@pytest.mark.parametrize("root", (PYTHON, RUST), ids=("python", "rust"))
+def test_selectbox_empty_and_native_none(root):
+    check_select_empty(read(root / "select-empty/trace.json"))
+
+
+def test_selectbox_empty_complete_elements_match_reference():
+    captures = [read(root / "select-empty/trace.json") for root in (PYTHON, RUST)]
+    assert captures[0]["producer_sources_sha256"] == captures[1]["producer_sources_sha256"] and captures[1]["semantic_match"] is True
+    assert check_select_empty(captures[0]) == check_select_empty(captures[1])
+
+
+def test_selectbox_empty_before_errors_and_forces_empty_disabled():
+    capture = read(RUST / "select-empty/before/trace.json")
+    assert capture["successful"] and "producer_error" not in capture and capture["finishes"] == [0] * 14
+    assert len(capture["frames"]) == 121 and len(capture["elements"]) == 52 and capture["semantic_match"] is False
+    assert capture["cleanup"] == {"websocket_closed": True, "caller_server_stopped": True}
+    runs = color_runs(capture, ("selectbox", "json", "markdown"))
+    assert [e[0] for e in runs[2]["entries"]] == ["selectbox", "markdown"]
+    assert runs[2]["entries"][0][1].disabled and not runs[2]["entries"][0][1].HasField("default")
+    assert "session value is absent from selectbox options" in runs[2]["entries"][1][1].body
+    with pytest.raises(AssertionError):
+        check_select_empty(capture)
+
+
+@pytest.mark.parametrize("mutation", ("disabled-empty", "wire-default", "sync-flag", "raw-value", "restored-value", "stale-input", "unkeyed-id", "numeric-type"))
+def test_selectbox_empty_gate_rejects_coherent_wrong_wire(mutation):
+    capture = read(PYTHON / "select-empty/trace.json")
+    source = color_runs(capture, ("selectbox", "json"))
+    target = {"disabled-empty": 2, "wire-default": 3, "sync-flag": 2, "raw-value": 12, "restored-value": 5, "stale-input": 7, "unkeyed-id": 4, "numeric-type": 0}[mutation]
+    run = -1
+    for frame in capture["frames"]:
+        client = frame["direction"] == "client->server"
+        if client:
+            run += 1
+        if run != target:
+            continue
+        message = BackMsg() if client else ForwardMsg()
+        message.ParseFromString(base64.b64decode(frame["base64"]))
+        if client and mutation == "stale-input":
+            message.rerun_script.widget_states.widgets[0].id = source[0]["entries"][0][1].id
+        elif not client and message.WhichOneof("type") == "delta":
+            element = message.delta.new_element
+            kind = element.WhichOneof("type")
+            if kind == "selectbox" and mutation == "disabled-empty":
+                element.selectbox.disabled = True
+            elif kind == "selectbox" and element.selectbox.label == "Keyed choice" and mutation == "wire-default":
+                element.selectbox.default = 0
+            elif kind == "selectbox" and element.selectbox.label == "Keyed choice" and mutation == "sync-flag":
+                element.selectbox.set_value = False
+                element.ClearField("has_one_shot_effect")
+            elif kind == "selectbox" and element.selectbox.label == "Number" and mutation == "raw-value":
+                element.selectbox.raw_value = "99"
+            elif kind == "selectbox" and element.selectbox.label == "Choice" and mutation == "unkeyed-id":
+                element.selectbox.id = source[2]["entries"][0][1].id
+            elif kind == "json" and mutation in ("restored-value", "numeric-type"):
+                report = json.loads(element.json.body)
+                report["values"][2] = 1 if mutation == "restored-value" else 1.0
+                element.json.body = json.dumps(report)
+            else:
+                continue
+        else:
+            continue
+        raw = message.SerializeToString()
+        frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(message, preserving_proto_field_name=True))
+    capture["elements"] = [{"kind": m.delta.new_element.WhichOneof("type"), "fields": MessageToDict(getattr(m.delta.new_element, m.delta.new_element.WhichOneof("type")), preserving_proto_field_name=True),
+                            "delta_path": list(m.metadata.delta_path)} for m in frames(capture) if isinstance(m, ForwardMsg) and m.WhichOneof("type") == "delta"]
+    with pytest.raises(AssertionError):
+        check_select_empty(capture)
+
+
 def comparable(capture):
     out = []
     for element in capture["elements"]:

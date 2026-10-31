@@ -2282,3 +2282,21 @@ widget_api.rs 的 radio 现在区分原始 index 与本轮 wire_index；空选�
 代码检查→单元→原生 WS→工作区顺序验证；编辑 Rust 的 rustfmt、全工作区/all-target Clippy 通过，工作区 312 项通过（305 库、1 ledger、2 宏、4 rustdoc）。仍精确排除原 navigation_pages_switch_and_session_state_match_the_measured_wire 与 rerun_queue_messages_match_frozen_reference 两项待决回归，不能称完整工作区全绿。既有 MSVC linker stdout warning 保留；日志索引 target/radio-empty-{red,green,clippy,build,workspace,reference}.log。SDK 服务由采集器停止，Rust 修前 PID 57192、修后 54516 按精确可执行路径核验后停止，50880/8599 无监听。
 
 本批未采真实浏览器空状态/清空界面，非字符串原生状态、晚到输入与代码赋值竞争、回调/URL/表单/跨页、其他默认和错误类型仍待测。st.radio 矩阵和机器清单同步，仍为 130 partial；其他待决方案保持，用户 colconfig_params 改动独立保留，未合并、发布或部署。M3/M5/M7 与长期 Goal 继续开放。
+
+## Current selectbox empty and typed native state validation (2026-11-01)
+
+锁定 SDK 1.66.1 的十四轮原生 WS 参考覆盖三个普通 selectbox：无 key 字符串、有 key 字符串和有 key 整数。空选项返回 None，协议不强制 disabled、原始 index=0 仍保留 default=0；已有 keyed None 省略协议默认索引，恢复选项后保持 None。index=None 与前端标签提交可往返；代码赋 None 同步清空，失效 Missing/99 恢复 Alpha/1 并同步标签。整数返回保持 JSON integer，不允许布尔、浮点或字符串代替。
+
+Rust 修前在空选项轮报 session value is absent from selectbox options，且强制 disabled、删去默认索引；原始修前为 14 个完成轮次、121 帧/52 Element，存在外层捕获的错误 Markdown，不能视为功能成功。公开 API 单元回归真实失败；修后 14 轮/125 原始帧/56 完整 Element 仅归一化不透明 ID 与 JSON 文本后逐字段一致，包括 default 有无、set_value/raw_value、外层一次性标志与原生数值类型。
+
+widget_api.rs 区分原始 index 与有效 wire_index；已有原生 None 只影响默认值/clearable，不进入身份；空列表保留原始默认索引和显式 disabled，创建模式构造器默认也保留 Some(0)。widgets.rs 将已有 radio 重置分支扩至普通 Codec::Select，失效原生值恢复有效默认；已匹配展示标签的字符串不被静默改成默认值，创建模式不进入该重置分支。公共接口、原有数据类型与 URL/输入优先级结构不变；原生 None 与绑定等新组合尚未专门验收。
+
+固定证据：[Python](../tests/reference/reference-browser/widget-params/select-empty/trace.json)、[Rust 修前](../tests/browser/rust-widget-params/select-empty/before/trace.json)、[Rust 修后](../tests/browser/rust-widget-params/select-empty/trace.json)。严格门验证前轮 ID/string_value、可选默认、返回值与类型、同步字段、身份和会话/完成状态；八类同步改写原始帧与汇总的负例必须失败：空列表禁用、错误默认、缺失同步、错误标签、恢复旧值、过期输入、错误身份，以及数值相等但类型为 float 的 1.0。另有 SDK AppTest 和 Rust 单元分别验证正常/创建模式空构造器省略 index 时的默认零值。
+
+同一修后 Rust 二进制重放旧九轮创建策略与十四轮 radio-empty，分别 71 帧/27 Element、111 帧/42 Element，继续与冻结参考逐字段一致；本地结果 target/select-empty-{policy,radio}-recheck/trace.json，旧参考未改。SDK 服务由采集器停止；Rust 修前 PID 52160、修后 61796 经精确可执行路径核验后停止，50182/8599 无监听。
+
+完整回归最初发现旧 numeric_ranges_empty_selection_and_constraint_reset 仍要求 empty.disabled=true、default=None，与新 SDK 原生参考和构造器实测相反；已据此更新为 false/Some(0)，未移除断言或新增排除。该两条测试断言在采集后修改，原 widget_api_sha256 保留，widget_api_sha256_after_test_update 与 post_capture_source_note 明确新哈希及精确反向重建方法，已验证能还原原哈希；生产源码未因此改变；随后完整测试重新构建的本地二进制哈希不同，原 binary_sha256 仍标识采集二进制，另以 binary_sha256_after_test_rebuild 记录重建产物，不宣称两者字节相同。代码检查/单元/集成验证完成：编辑 Rust 的 rustfmt、全工作区/all-target Clippy、empty_ 筛选 18 项单元通过，工作区 314 项通过（307 库、1 ledger、2 宏、4 rustdoc），保留原两项队列待决排除，不能称完整工作区全绿。相关 query/widget/temporal/pickers/matrix/docs 门 436 项通过，参数模块 185 项；其中包含 SDK-only 观察，不等于 436 项全部跨运行时验收。既有 MSVC linker stdout warning 保留，日志索引 target/select-empty-{red,green,clippy,build,workspace,reference}.log。
+
+新发现的公共类型边界已以 SDK-only AppTest 用例保留：整数选项 key 被代码赋展示标签字符串 "2" 时，SDK 暂时返回字符串 "2" 并同步 raw_value，AppTest 下一次序列化提交后又返回整数 2。该用例用数组报告保留类型，避免 st.json 直接解析数字字符串掩盖真实返回值；最初观测用例已据此修正。现有 Rust Option<T> 在 T=i64 时无法表达临时字符串返回，需要另行公共 API 建模/决策；本批未改变返回类型，也没有该边界的原生 WS、Rust 或浏览器兼容结论。
+
+本批未重采真实浏览器；动态异类型返回、任意原生类型、原生空状态与绑定/回调/表单/跨页/晚到输入组合继续开放。仅 st.selectbox 矩阵和机器清单更新，仍为 130 partial；其他待决方案及用户 colconfig_params 修改保持，未合并、发布或部署。M3/M5/M7 与长期 Goal 未关闭。
