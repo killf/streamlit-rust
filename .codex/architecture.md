@@ -818,3 +818,11 @@ was implemented. Current results are native WS, not fresh browser/IME, arbitrary
 bad history oneofs, all binding removal or cross-page/fragment coverage. Generic
 identity, JSON/public API and broader queue decisions remain pending; full goal
 and the 130 partial inventory remain open.
+
+
+2026-10-31 unchanged-repeat follow-up: an independent three-run native capture
+now verifies the existing no-rewrite branch, previously guarded by a Rust unit.
+Two raw repeated pairs with last value ok emit no URL message; an overlong last
+value LONGEST emits one correction to LONGE. State/sync and identity agree across
+all seven projections, with no frontend input or callback. No production flow,
+public API, pending decision or queue retention rule changes in this batch.

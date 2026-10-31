@@ -532,3 +532,23 @@ These are native protocol/flag tests, not new browser navigation/IME validation,
 all malformed history types, arbitrary binding removal or every query grammar.
 TextAreaOptions lacks a public bind entry; its small proposal awaits approval
 in architecture.md. No public area builder was added by this batch.
+
+
+## Unchanged repeated bound text values (2026-10-31)
+
+`text-repeat/trace.json` adds three native runs on one session, 39 raw frames
+and seven ordered widget/state/URL projections. The existing forms probe and
+collector (`--scenario text-repeat`) are reused; earlier captures are retained.
+Requests contain no frontend widget input. Both `first,ok` and `again,ok` query
+pairs return/state-sync `ok`, keep the same widget identity and emit no URL
+update. The third request, `first,LONGEST`, returns/state-syncs `LONGE` and emits
+exactly one URL correction containing a single bound value. No callback runs.
+
+The existing production behavior already matches; this batch adds evidence
+and regression coverage. Original PB/summary, version/session, exact requests,
+absence of widget input, defaults/limits/binding/sync and ordered projections
+are checked. Coherent mutations reject an unnecessary rewrite of unchanged
+pairs and a first-value selection in both state report and widget wire value.
+The socket/server closed and port 62304 was read back free. This verifies the
+absence of automatic URL rewriting in these two unchanged cases, not arbitrary
+query grammar, a probe of internal get_all state or browser history/IME.

@@ -151,6 +151,8 @@ def read_query_param_capture(scenario, capture=None):
             requests.append(message.rerun_script.query_string)
             histories.append(message.rerun_script.is_history_navigation)
             slot = 0
+            if scenario == "text-repeat":
+                assert not message.rerun_script.widget_states.widgets
             if scenario in ("text-length", "text-reset", "text-source"):
                 widgets = message.rerun_script.widget_states.widgets
                 phase = requests[-1].rsplit("phase=", 1)[-1]
@@ -178,7 +180,7 @@ def read_query_param_capture(scenario, capture=None):
                     byte_payloads.append(widgets[0].bytes_value)
         elif message.WhichOneof("type") == "new_session":
             sessions.append(message.new_session.initialize.session_id)
-            if scenario in ("disabled-json", "encoding", "text-length", "text-reset", "text-source", "text-bound", "text-bound-peer"):
+            if scenario in ("disabled-json", "encoding", "text-length", "text-reset", "text-source", "text-bound", "text-bound-peer", "text-repeat"):
                 environment = message.new_session.initialize.environment_info
                 assert environment.streamlit_version == "1.66.1" and environment.python_version == "3.14.7.final.0"
         elif message.WhichOneof("type") == "script_finished":
@@ -359,6 +361,20 @@ def read_query_param_capture(scenario, capture=None):
             identities = length_ids[number * 10:(number + 1) * 10]
             assert [identities.index(identity) for identity in identities] == [0, 0, 2, 3, 3, 0, 2, 2, 0, 0]
         assert set(length_ids[:10]).isdisjoint(length_ids[10:])
+    elif scenario == "text-repeat":
+        prefix = "case=form-max-chars-cjk&probe=length&kind=input&bind=on&limit=5&default=long&phase="
+        assert requests == [prefix + "load&cjk_note=first&cjk_note=ok", prefix + "repeat-unchanged&cjk_note=again&cjk_note=ok",
+                            prefix + "repeat-truncated&cjk_note=first&cjk_note=LONGEST"]
+        assert histories == [False] * 3 and finishes == [0] * 3 and len(sessions) == 3 and len(set(sessions)) == 1
+        assert snapshots == [{"phase": phase, "value": value, "state": value, "callbacks": []}
+                             for phase, value in (("load", "ok"), ("repeat-unchanged", "ok"), ("repeat-truncated", "LONGE"))]
+        assert urls == [prefix + "repeat-truncated&cjk_note=LONGE"]
+        widgets = [frame["message"]["delta"]["new_element"]["text_input"] for frame in capture["frames"]
+                   if "text_input" in frame["message"].get("delta", {}).get("new_element", {})]
+        assert len(widgets) == 3 and len({widget["id"] for widget in widgets}) == 1
+        for widget, value in zip(widgets, ("ok", "ok", "LONGE"), strict=True):
+            assert widget["default"] == "abcdef🧊" and widget["max_chars"] == 5 and widget["query_param_key"] == "cjk_note"
+            assert widget["set_value"] and widget["value"] == value
     elif scenario in ("text-bound", "text-bound-peer"):
         assert len(requests) == 12 and requests[0] == capture["query_string"]
         assert finishes == [0] * 12 and len(sessions) == 12 and len(set(sessions)) == 1
@@ -523,6 +539,52 @@ def test_bound_text_reference_corrects_urls_and_preserves_only_unbound_history_c
     single = read_bound_text_capture(False)
     peer = read_bound_text_capture(True)
     assert single == [{key: value for key, value in report.items() if key not in ("live", "peer_callbacks")} for report in peer]
+
+
+def test_bound_text_repeat_reference_preserves_raw_pairs_until_correction():
+    read_query_param_capture("text-repeat")
+
+
+@pytest.mark.parametrize("mutation", ["rewrite-unchanged", "first-value"])
+def test_bound_text_repeat_gate_rejects_coherent_wrong_wire(mutation):
+    import base64
+    from google.protobuf.json_format import MessageToDict
+    from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
+
+    capture = json.loads((HERE / "reference-browser/queryparams/text-repeat/trace.json").read_text(encoding="utf-8"))
+    if mutation == "rewrite-unchanged":
+        extra = copy.deepcopy(next(frame for frame in capture["frames"] if "page_info_changed" in frame["message"]))
+        message = ForwardMsg()
+        message.ParseFromString(base64.b64decode(extra["base64"]))
+        message.page_info_changed.query_string = message.page_info_changed.query_string.replace("repeat-truncated", "repeat-unchanged").replace("LONGE", "ok")
+        raw = message.SerializeToString()
+        extra.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(message, preserving_proto_field_name=True))
+        client = next(index for index, frame in enumerate(capture["frames"]) if frame["message"].get("rerun_script", {}).get("query_string", "").endswith("cjk_note=again&cjk_note=ok"))
+        position = next(index for index, frame in enumerate(capture["frames"]) if index > client and "text_input" in frame["message"].get("delta", {}).get("new_element", {}))
+        capture["frames"].insert(position, extra)
+    else:
+        run = -1
+        for frame in capture["frames"]:
+            if frame["direction"] == "client->server":
+                run += 1
+                continue
+            if run != 1:
+                continue
+            message = ForwardMsg()
+            message.ParseFromString(base64.b64decode(frame["base64"]))
+            element = message.delta.new_element
+            if element.WhichOneof("type") == "text_input":
+                element.text_input.value = "again"
+            elif element.WhichOneof("type") == "json":
+                report = json.loads(element.json.body)
+                report["value"] = report["state"] = "again"
+                element.json.body = json.dumps(report)
+            else:
+                continue
+            raw = message.SerializeToString()
+            frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(message, preserving_proto_field_name=True))
+    with pytest.raises(AssertionError):
+        read_query_param_capture("text-repeat", capture)
 
 
 @pytest.mark.parametrize("mutation", ["url", "history-callback", "history-value", "peer-lost"])

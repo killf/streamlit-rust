@@ -258,3 +258,11 @@ missing/empty and recovery semantics are measured. This does not extend browser
 navigation/IME or all malformed history types. text_area query binding is an SDK/
 protocol capability currently missing its Rust public builder; the proposal in
 architecture.md is pending user confirmation and has not been implemented.
+
+
+2026-10-31 [unchanged repeated text binding](../tests/reference/reference-browser/queryparams/text-repeat/trace.json)
+adds three native runs/39 raw frames/seven ordered projections. Repeated pairs
+first,ok and again,ok select ok without rewriting the URL; first,LONGEST selects
+LONGE and emits exactly one correction. No frontend input/callback, stable
+identity and original binding fields are verified; existing Rust behavior matches.
+This extends native evidence, not browser navigation/IME or arbitrary query syntax.

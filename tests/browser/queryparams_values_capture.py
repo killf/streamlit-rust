@@ -26,7 +26,7 @@ ROOT = Path(__file__).resolve().parents[2]
 QUERY = "z=last&tag=first&tag=second&a=first&blank=&encoded=%E4%B8%AD%E6%96%87+text"
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("--out", type=Path, required=True)
-parser.add_argument("--scenario", choices=("values", "encoding", "text-length", "text-reset", "text-source", "text-bound", "text-bound-peer", "reserved", "binding", "seed", "seed-code", "disabled", "disabled-valid", "disabled-types", "disabled-json", "rerun", "navigation-rerun", "rerun-messages", "rerun-queue"), default="values")
+parser.add_argument("--scenario", choices=("values", "encoding", "text-length", "text-reset", "text-source", "text-bound", "text-bound-peer", "text-repeat", "reserved", "binding", "seed", "seed-code", "disabled", "disabled-valid", "disabled-types", "disabled-json", "rerun", "navigation-rerun", "rerun-messages", "rerun-queue"), default="values")
 args = parser.parse_args()
 if args.scenario == "reserved":
     QUERY = "case=reserved&embed=true&EMBED_OPTIONS=light_theme&st_embed=ordinary&=empty-key-value"
@@ -55,7 +55,7 @@ with socket.socket() as listener:
     port = listener.getsockname()[1]
 url = f"http://127.0.0.1:{port}"
 fixture = "navigation_app.py" if args.scenario == "navigation-rerun" else "queryparams_values_app.py"
-if args.scenario in ("text-length", "text-reset", "text-source", "text-bound", "text-bound-peer"):
+if args.scenario in ("text-length", "text-reset", "text-source", "text-bound", "text-bound-peer", "text-repeat"):
     fixture = "forms_app.py"
 command = [sys.executable, "-B", "-m", "streamlit", "run", str(ROOT / "tests/reference" / fixture),
            "--server.address=127.0.0.1", f"--server.port={port}", "--server.headless=true",
@@ -116,7 +116,7 @@ try:
             queries = [f"case=form-max-chars-cjk&probe=length&kind={kind}&limit={limit}&default=long&phase={phase}"
                        for kind in ("input", "area") for limit, phase, _ in source_steps]
             trace["query_string"] = queries[0]
-        if args.scenario in ("text-bound", "text-bound-peer"):
+        if args.scenario in ("text-bound", "text-bound-peer", "text-repeat"):
             trace["connection_policy"] = "One WS for bound text input URL/frontend/native/history length cases."
             bound_steps = (("load", "中文🧊e\u0301TAIL", None, False), ("url-only", "UVWXYZ", None, False),
                            ("same-default", "abcdefTAIL", None, False), ("frontend", "URLlonger", "EDITED", False),
@@ -124,6 +124,9 @@ try:
                            ("assign", "HISTORYTOO", None, True), ("history-missing", None, "staleTEXT", True),
                            ("empty-url", "", None, False), ("short", "ok", None, False),
                            ("repeat", ["ABCDExyz", "中文🧊e\u0301TAIL"], None, False), ("recover", "ok", "recover🧊", False))
+            if args.scenario == "text-repeat":
+                bound_steps = (("load", ["first", "ok"], None, False), ("repeat-unchanged", ["again", "ok"], None, False),
+                               ("repeat-truncated", ["first", "LONGEST"], None, False))
             queries = [f"case=form-max-chars-cjk&probe=length&kind=input&bind=on&limit=5&default=long"
                        + ("&peer=on" if args.scenario == "text-bound-peer" else "") + f"&phase={phase}"
                        + ("&" + urlencode({"cjk_note": value}, doseq=True) if value is not None else "") for phase, value, _, _ in bound_steps]
@@ -225,7 +228,7 @@ try:
                 widget = request.rerun_script.widget_states.widgets.add()
                 widget.id = widget_ids["cjk_note"]
                 widget.string_value = source_steps[index % 10][2]
-            if args.scenario in ("text-bound", "text-bound-peer"):
+            if args.scenario in ("text-bound", "text-bound-peer", "text-repeat"):
                 request.rerun_script.is_history_navigation = bound_steps[index][3]
                 if bound_steps[index][2] is not None:
                     widget = request.rerun_script.widget_states.widgets.add()

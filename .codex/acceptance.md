@@ -1072,8 +1072,8 @@ URL writes; URL-only and history truncation, default-equivalent clearing with
 ordinary retained state, frontend/native/history priority, missing/empty values,
 repeated truncated values and recovery match. History-bound string submissions
 do not produce callbacks, while all three unbound peer callbacks remain.
-The unchanged-repeat guarantee also has a focused Rust unit; that precise
-unchanged-repeat case is not claimed as a new native SDK capture.
+The unchanged-repeat guarantee also has a focused Rust unit; the follow-up
+native capture below now verifies that precise case independently.
 
 Pre-fix public unit read abc but kept bound=abcdef in the store; pre-fix real WS
 comparison failed. Logs target/text-bound-unit-before.log and text-bound-before.log
@@ -1106,3 +1106,32 @@ the existing full-compatibility scope. Matrix adds scoped evidence/gap notes;
 all malformed history types, multiple binding removal or generic JSON/queue/
 identity completion is claimed. Existing colconfig_params changes stay outside
 this batch's commit/push.
+
+
+### Unchanged repeated bound text native follow-up (2026-10-31)
+
+The independently retained text-repeat/trace.json has three runs, 39 raw frames
+and seven ordered widget/state/URL projections in one session. first,ok and
+again,ok select ok without any URL write; first,LONGEST selects LONGE and emits
+one correction to a single value. No frontend widget input or callback occurs;
+identity, default abcdef🧊, limit 5 and query key cjk_note stay fixed.
+Existing production code already matches; only the collector, frozen evidence,
+contract checks and real-WS regression were extended. Earlier captures remain.
+
+The focused public URL/store unit passed, then 26 related query-module checks
+passed, excluding only the existing rerun_queue_messages_match_frozen_reference
+in that module (target/text-repeat-integration.log). This includes the new
+seven-event comparison. All-targets Clippy -D warnings and Rustfmt passed;
+the existing MSVC linker stdout warning remains (target/text-repeat-clippy.log).
+137 query/matrix/docs Python checks passed with DeprecationWarning as error
+(target/text-repeat-final-gates.log). Two coherent wrong-wire mutations reject
+rewriting unchanged pairs and selecting the first value in both report and wire.
+The full workspace/reference suites were not rerun for this test-only change;
+the prior 275/1803 results are not represented as current full-suite validation.
+
+Socket/server cleanup is recorded and port 62304 was read back free. This is
+native API/WS evidence, not internal get_all state, arbitrary query syntax or
+browser navigation/IME. Matrix evidence and derived inventory preserve all 130
+partial entries; M3/M5/M7 and the complete goal remain open. Public TextArea
+binding and the other pending decisions are unchanged. Existing colconfig_params
+changes are excluded from this batch's commit/push.
