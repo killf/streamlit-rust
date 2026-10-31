@@ -33,6 +33,7 @@ parser.add_argument('--color-unkeyed', action='store_true', help='unkeyed color 
 parser.add_argument('--bool-width', action='store_true', help='keyed/unkeyed checkbox and toggle width identity')
 parser.add_argument('--select-policy', action='store_true', help='keyed selectbox creation and multiselect limit identity')
 parser.add_argument('--select-unkeyed', action='store_true', help='unkeyed variant of --select-policy, including placeholder/filter changes')
+parser.add_argument('--radio-identity', action='store_true', help='keyed/unkeyed radio width, horizontal and raw captions identity')
 parser.add_argument('--number-permissive', action='store_true', help='equal bounds and nonpositive finite steps, plus rejected range controls')
 parser.add_argument('--number-float', action='store_true', help='float variant of the keyed number sequence')
 parser.add_argument('--number-unkeyed', action='store_true', help='unkeyed number identity across option changes')
@@ -41,7 +42,7 @@ parser.add_argument('--resume-after-stop', action='store_true', help='append nor
 parser.add_argument('--stop-lifecycle', action='store_true', help='button and URL-bound text around early stop and normal cleanup')
 parser.add_argument('--url', help='caller-owned Rust server URL (comparison capture)')
 args = parser.parse_args()
-assert sum((args.integer_bounds, args.number_sequence, args.number_unkeyed, args.stop_lifecycle, args.number_permissive, args.form_identity, args.color, args.color_unkeyed, args.bool_width, args.select_policy)) <= 1
+assert sum((args.integer_bounds, args.number_sequence, args.number_unkeyed, args.stop_lifecycle, args.number_permissive, args.form_identity, args.color, args.color_unkeyed, args.bool_width, args.select_policy, args.radio_identity)) <= 1
 assert not args.number_float or args.number_sequence
 assert not args.select_unkeyed or args.select_policy
 assert not args.stop_after_run or args.number_unkeyed
@@ -67,7 +68,7 @@ TRACE = {'schema_version': 1, 'runtime': 'rust' if args.url else 'python', 'refe
          'scope': 'Element wire of widget creation-parameter edges over one native WS; no browser/UI claim.',
          'server_command': COMMAND, 'server_cleanup': 'caller-owned' if COMMAND is None else 'collector-owned',
          'url': URL, 'frames': [], 'elements': [], 'finishes': []}
-if args.color or args.color_unkeyed or args.bool_width or args.select_policy:
+if args.color or args.color_unkeyed or args.bool_width or args.select_policy or args.radio_identity:
     TRACE['scope'] = 'Color defaults/widths and fifteen callback/state reruns on one native WS; no browser/UI claim.'
     TRACE['producer_sources_sha256'] = {path: hashlib.sha256((ROOT / path).read_bytes()).hexdigest() for path in (
         'streamlit/examples/widget_params.rs', 'tests/reference/widget_params_app.py', 'tests/browser/widget_params_capture.py')}
@@ -79,6 +80,8 @@ if args.select_policy:
     TRACE['scope'] = 'Nine keyed selectbox creation/multiselect limit identity runs on one native WS; no browser/UI claim.'
 if args.select_unkeyed:
     TRACE['scope'] = 'Seventeen unkeyed selection mode/limit/width/placeholder/filter runs on one native WS; no browser/UI claim.'
+if args.radio_identity:
+    TRACE['scope'] = 'Twelve keyed/unkeyed radio width/horizontal/raw-caption identity runs on one native WS; no browser/UI claim.'
 SERVER = WS = None
 
 
@@ -147,11 +150,22 @@ try:
                 'load', 'edit', 'mode', 'mode-edit', 'width', 'limit', 'limit-edit', 'placeholder', 'placeholder-edit',
                 'filter', 'filter-edit', 'filter-return', 'empty-placeholder', 'empty-edit', 'space-placeholder', 'restore', 'observe')]
     select_ids = {}
+    if args.radio_identity:
+        steps = [(phase, phase.endswith('edit')) for phase in ('load', 'edit', 'width', 'width-edit', 'horizontal', 'horizontal-edit',
+                 'captions', 'captions-edit', 'empty', 'empty-edit', 'restore', 'observe')]
+    radio_ids = {}
     lifecycle_bound, lifecycle_ids = "url", {}
     number_id = None
     color_id = None
     for step_index, (phase, submitted) in enumerate(steps):
         request = BackMsg()
+        if args.radio_identity:
+            request.rerun_script.query_string = 'probe=radio-identity&phase=' + phase
+            if submitted:
+                for label in ('Choice', 'Keyed choice'):
+                    widget = request.rerun_script.widget_states.widgets.add()
+                    widget.id = radio_ids[label]
+                    widget.string_value = 'Beta'
         if args.select_policy:
             request.rerun_script.query_string = "probe=" + ("select-policy-unkeyed" if args.select_unkeyed else "select-policy") + "&phase=" + phase
             if submitted:
@@ -262,6 +276,8 @@ try:
                         bool_ids[view.label] = view.id
                     if args.select_policy and element_kind in ('selectbox', 'multiselect'):
                         select_ids[element_kind] = view.id
+                    if args.radio_identity and element_kind == 'radio':
+                        radio_ids[view.label] = view.id
                     if args.stop_lifecycle and element_kind in ('button', 'text_input'):
                         lifecycle_ids[view.id.rsplit('-', 1)[-1]] = view.id
                     if args.form_identity and element_kind in ('number_input', 'text_input', 'button'):

@@ -3501,12 +3501,18 @@
           "tests/reference/reference-browser/widget-params/README.md",
           "tests/browser/rust-widget-params/trace.json",
           "streamlit/tests/runtime/widgets.rs"
+        ],
+        "display_identity_reference": [
+          "tests/reference/reference-browser/widget-params/radio-identity/trace.json",
+          "tests/browser/rust-widget-params/radio-identity/before/trace.json",
+          "tests/browser/rust-widget-params/radio-identity/trace.json",
+          "tests/reference/test_widget_params_reference.py"
         ]
       },
       "rust_plan": "RadioOptions with (label, options) tuples defaulting to index 0, .index(Option<usize>); returns the selected option text (None for no default); the wire carries the default index and a string_value state of the selected text.",
-      "compatibility_scope": "The journey-inputs-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were both driven by a real Chrome (option click, real popover-free pick) across the five measured stages; the published replays assert 11/11/11 each — identical first-render wire (default index 0, options list), string_value state snapshots and DOM label/checked/options projections.",
+      "compatibility_scope": "The journey-inputs-v1 chain: the pinned Python 1.66.1 fixture and the Rust example were both driven by a real Chrome (option click, real popover-free pick) across the five measured stages; the published replays assert 11/11/11 each — matching captured Radio fields at first render (default index 0, options list), string_value state snapshots and DOM label/checked/options projections. Outer Element width is established by the later twelve-run radio-identity sequence, which also measures keyed/unkeyed width/horizontal/raw-caption identity and cleanup.",
       "limitations": [
-        "index=None (no default emitted), horizontal, and captions are now measured on the creation wire (2026-10-28, frozen widget-params), field-identical cross-runtime; ; index=None, horizontal/captions formatting and on_change callbacks remain unobserved.",
+        "The historical widget-params creation projection measured index=None, horizontal and captions inside Radio; it did not establish outer Element width parity. The 2026-11-01 radio-identity sequence measures content/fixed width, horizontal and raw None/empty/nonempty caption identity: twelve normal-completion runs, 95 raw frames and 36 complete Elements per runtime. Unkeyed identity has five classes, keyed identity one; restoring cleaned identities starts from defaults. Dynamic index=None, rendered caption formatting, callbacks, invalid inputs and other combinations remain unobserved.",
         "Rust Result<_, WidgetError> is not the complete Python exception-rendering UI; invalid-index UI equivalence is unverified.",
         "widget_api source SHA256 9e9df5fc32ce482cbc1fbe2c53bc6ec47ed3d26c1f1bdb797dd44db9b86bbd68; fixture SHA256 cb884ee2a6487585d63d9254cc353e42704cbd9b9f832732cd0e0a35d27da5bf; example SHA256 1052058ec8ed7d354853e611ecbf8e0986a369093794e80467e5d6448acfc309."
       ]

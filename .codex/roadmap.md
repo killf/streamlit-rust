@@ -14,6 +14,8 @@
 
 ## Current focus
 
+2026-11-01 radio 展示身份切片：修正默认 content 宽度及无 key 的宽度/横排/原始 captions 身份，省略与显式空 captions 区分；12 轮/95 帧/36 完整 Element 与锁定 SDK 一致，修前失败保留。见[验收](acceptance.md#current-radio-display-identity-validation-2026-11-01)；真实浏览器、动态 index=None 和其余组合继续开放。
+
 2026-11-01 选择控件真实 Chrome 切片：两端各 15 画面/四文档/九运行/72 原始帧，prefix/fuzzy 列表、新标签提交与空串/单空格占位编辑框一致；30 原始图片已检查，视口高度差异保留。见[验收](acceptance.md#current-selection-browser-filtering-and-placeholder-validation-2026-11-01)；同文档动态参数、初始空选择及其余 UI 仍开放，本批无生产改动。
 
 2026-11-01 无 key 选择身份切片：补宽度、占位/过滤的私有身份参数与显式空占位归一化；17 轮/135 帧/51 完整 Element 与锁定 SDK 一致，修前失败保留，原九轮 keyed 合同用同一二进制复验。详见[验收](acceptance.md#current-unkeyed-selection-identity-validation-2026-11-01)；浏览器过滤/占位显示及其余组合继续开放。

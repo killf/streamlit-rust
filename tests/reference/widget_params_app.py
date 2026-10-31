@@ -1,7 +1,21 @@
 """Emit widget creation-wire parameter variants for the M3 differential."""
 import streamlit as st
 
-if st.query_params.get("probe") in ("select-policy", "select-policy-unkeyed"):
+if st.query_params.get("probe") == "radio-identity":
+    phase = st.query_params.get("phase", "load")
+    options = {}
+    if phase in ("width", "width-edit"):
+        options["width"] = 320
+    if phase in ("horizontal", "horizontal-edit"):
+        options["horizontal"] = True
+    if phase in ("captions", "captions-edit"):
+        options["captions"] = ["First", "Second", "Third"]
+    if phase in ("empty", "empty-edit"):
+        options["captions"] = []
+    values = [st.radio("Choice", ["Alpha", "Beta", "Charlie"], **options),
+              st.radio("Keyed choice", ["Alpha", "Beta", "Charlie"], key="choice", **options)]
+    st.json({"phase": phase, "values": values})
+elif st.query_params.get("probe") in ("select-policy", "select-policy-unkeyed"):
     unkeyed = st.query_params.get("probe") == "select-policy-unkeyed"
     phase = st.query_params.get("phase", "load")
     creation = phase not in ("load", "edit", "restore", "observe")

@@ -1010,6 +1010,126 @@ def test_selection_ui_gate_rejects_wrong_events_or_picture(mutation, tmp_path):
         check_selection_ui(capture, folder)
 
 
+RADIO_PHASES = ("load", "edit", "width", "width-edit", "horizontal", "horizontal-edit", "captions", "captions-edit", "empty", "empty-edit", "restore", "observe")
+RADIO_GROUPS = (0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 0, 0)
+
+
+def check_radio_identity(capture):
+    assert capture["successful"] and "producer_error" not in capture and capture["reference_version"] == "1.66.1"
+    assert capture["runtime"] in ("python", "rust") and capture["finishes"] == [0] * 12
+    assert capture["cleanup"]["websocket_closed"] and capture["cleanup"]["server_stopped" if capture["runtime"] == "python" else "caller_server_stopped"]
+    assert len(capture["frames"]) == 95 and len(capture["elements"]) == 36
+    runs = color_runs(capture, ("radio", "json"))
+    history, normalized, sessions, run_ids = [], [], set(), set()
+    for index, (phase, run) in enumerate(zip(RADIO_PHASES, runs, strict=True)):
+        request = run["request"]
+        assert request.query_string == "probe=radio-identity&phase=" + phase and not request.is_history_navigation
+        assert len(run["sessions"]) == 1 and run["finishes"] == [0]
+        session = run["sessions"][0]
+        assert session.initialize.environment_info.streamlit_version == "1.66.1"
+        sessions.add(session.initialize.session_id)
+        run_ids.add(session.script_run_id)
+        assert [e[0] for e in run["entries"]] == ["radio", "radio", "json"]
+        ids = []
+        for position, (_, widget, element) in enumerate(run["entries"][:2]):
+            assert widget.label == ("Choice" if position == 0 else "Keyed choice") and widget.id
+            assert widget.HasField("default") and widget.default == 0 and list(widget.options) == ["Alpha", "Beta", "Charlie"]
+            assert widget.horizontal == (phase in ("horizontal", "horizontal-edit"))
+            assert list(widget.captions) == (["First", "Second", "Third"] if phase in ("captions", "captions-edit") else [])
+            assert not widget.set_value and not widget.disabled and not widget.form_id and not widget.help and not widget.ignore_rerun
+            assert widget.label_visibility.value == 0 and not element.HasField("has_one_shot_effect")
+            assert MessageToDict(element.width_config, preserving_proto_field_name=True) == ({"pixel_width": 320} if phase in ("width", "width-edit") else {"use_content": True})
+            for earlier in range(index):
+                assert (widget.id == history[earlier][position]) == (position == 1 or RADIO_GROUPS[index] == RADIO_GROUPS[earlier]), (phase, position, earlier)
+            ids.append(widget.id)
+        history.append(ids)
+        assert json.loads(run["entries"][2][1].body) == {"phase": phase, "values": ["Beta" if phase.endswith("edit") else "Alpha", "Beta" if index else "Alpha"]}
+        assert [capture["elements"][index * 3 + i]["delta_path"] for i in range(3)] == [[0, i] for i in range(3)]
+        incoming = request.widget_states.widgets
+        if phase.endswith("edit"):
+            assert len(incoming) == 2 and [w.id for w in incoming] == history[index - 1]
+            assert all(w.WhichOneof("value") == "string_value" and w.string_value == "Beta" for w in incoming)
+        else:
+            assert not incoming
+        normalized_run = []
+        for kind, _, element in run["entries"]:
+            fields = MessageToDict(element, preserving_proto_field_name=True)
+            if kind == "radio":
+                fields[kind].pop("id")
+            else:
+                fields[kind]["body"] = json.loads(fields[kind]["body"])
+            normalized_run.append(fields)
+        normalized.append(normalized_run)
+    assert len(sessions) == 1 and len(run_ids) == 12
+    assert [len({ids[i] for ids in history}) for i in range(2)] == [5, 1]
+    return normalized
+
+
+@pytest.mark.parametrize("root", (PYTHON, RUST), ids=("python", "rust"))
+def test_radio_display_identity_and_default_width(root):
+    check_radio_identity(read(root / "radio-identity/trace.json"))
+
+
+def test_radio_complete_elements_match_reference():
+    captures = [read(root / "radio-identity/trace.json") for root in (PYTHON, RUST)]
+    assert captures[0]["producer_sources_sha256"] == captures[1]["producer_sources_sha256"] and captures[1]["semantic_match"] is True
+    assert check_radio_identity(captures[0]) == check_radio_identity(captures[1])
+
+
+def test_radio_before_keeps_old_values_and_stretch_default():
+    capture = read(RUST / "radio-identity/before/trace.json")
+    assert capture["successful"] and "producer_error" not in capture and capture["finishes"] == [0] * 12
+    assert len(capture["frames"]) == 95 and len(capture["elements"]) == 36 and capture["semantic_match"] is False
+    assert capture["cleanup"] == {"websocket_closed": True, "caller_server_stopped": True}
+    runs = color_runs(capture, ("radio", "json"))
+    assert [len({r["entries"][i][1].id for r in runs}) for i in range(2)] == [1, 1]
+    assert runs[0]["entries"][0][2].width_config.use_stretch
+    assert json.loads(runs[2]["entries"][2][1].body)["values"] == ["Beta", "Beta"]
+    with pytest.raises(AssertionError):
+        check_radio_identity(capture)
+
+
+@pytest.mark.parametrize("mutation", ("default-width", "horizontal-id", "captions-id", "empty-id", "revived-value", "keyed-id", "stale-input"))
+def test_radio_gate_rejects_coherent_wrong_wire(mutation):
+    capture = read(PYTHON / "radio-identity/trace.json")
+    source = color_runs(capture, ("radio", "json"))
+    target = {"default-width": 0, "horizontal-id": 4, "captions-id": 6, "empty-id": 8, "revived-value": 10, "keyed-id": 4, "stale-input": 9}[mutation]
+    run = -1
+    for frame in capture["frames"]:
+        client = frame["direction"] == "client->server"
+        if client:
+            run += 1
+        if run != target:
+            continue
+        message = BackMsg() if client else ForwardMsg()
+        message.ParseFromString(base64.b64decode(frame["base64"]))
+        if client and mutation == "stale-input":
+            message.rerun_script.widget_states.widgets[0].id = source[6]["entries"][0][1].id
+        elif not client and message.WhichOneof("type") == "delta":
+            element = message.delta.new_element
+            kind = element.WhichOneof("type")
+            if kind == "radio" and mutation == "default-width":
+                element.width_config.use_stretch = True
+            elif kind == "radio" and element.radio.label == "Choice" and mutation in ("horizontal-id", "captions-id", "empty-id"):
+                element.radio.id = source[0]["entries"][0][1].id
+            elif kind == "radio" and element.radio.label == "Keyed choice" and mutation == "keyed-id":
+                element.radio.id = "wrong-keyed-identity"
+            elif kind == "json" and mutation == "revived-value":
+                report = json.loads(element.json.body)
+                report["values"][0] = "Beta"
+                element.json.body = json.dumps(report)
+            else:
+                continue
+        else:
+            continue
+        raw = message.SerializeToString()
+        frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(message, preserving_proto_field_name=True))
+    capture["elements"] = [{"kind": m.delta.new_element.WhichOneof("type"), "fields": MessageToDict(getattr(m.delta.new_element, m.delta.new_element.WhichOneof("type")), preserving_proto_field_name=True),
+                            "delta_path": list(m.metadata.delta_path)} for m in frames(capture) if isinstance(m, ForwardMsg) and m.WhichOneof("type") == "delta"]
+    with pytest.raises(AssertionError):
+        check_radio_identity(capture)
+
+
 def comparable(capture):
     out = []
     for element in capture["elements"]:

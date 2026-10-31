@@ -97,7 +97,7 @@ macro_rules! common_builders {
             self.common.disabled = disabled;
             self
         }
-        /// A positive pixel width. Default: content for checkbox, stretch otherwise.
+        /// A positive pixel width. Omit it to use the widget's default width.
         pub fn width(mut self, pixels: i32) -> Self {
             self.common.width = Some(pixels);
             self
@@ -679,7 +679,7 @@ pub struct RadioOptions {
     options: Vec<String>,
     index: Option<usize>,
     horizontal: bool,
-    captions: Vec<String>,
+    captions: Option<Vec<String>>,
 }
 impl RadioOptions {
     pub fn new(label: impl Into<String>, options: impl IntoIterator<Item = impl ToString>) -> Self {
@@ -688,7 +688,7 @@ impl RadioOptions {
             options: options.into_iter().map(|option| option.to_string()).collect(),
             index: Some(0),
             horizontal: false,
-            captions: Vec::new(),
+            captions: None,
         }
     }
     pub fn index(mut self, index: Option<usize>) -> Self {
@@ -702,7 +702,7 @@ impl RadioOptions {
     }
     /// Per-option caption lines shown under the options.
     pub fn captions(mut self, captions: impl IntoIterator<Item = impl Into<String>>) -> Self {
-        self.captions = captions.into_iter().map(Into::into).collect();
+        self.captions = Some(captions.into_iter().map(Into::into).collect());
         self
     }
     common_builders!();
@@ -2359,12 +2359,19 @@ impl<C: AppendChild> InputWidgets for C {
         let options = options.into();
         let c = options.common;
         let form_id = form_scope(self, c.callback.is_some())?;
-        let width_config = c.width(false)?;
+        let width_config = c.width(true)?;
         if !options.options.is_empty() && options.index.is_some_and(|index| index >= options.options.len()) {
             return Err(WidgetError::InvalidValue("radio index is outside options".into()));
         }
         let default = options.index.map(Value::from).unwrap_or(Value::Null);
-        let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { format!("{:?}:{:?}", options.options, options.index) });
+        let identity = c.identity_in_form(
+            &form_id,
+            &if c.key.is_some() {
+                String::new()
+            } else {
+                serde_json::to_string(&(&options.options, options.index, options.horizontal, &options.captions, c.width))?
+            },
+        );
         let (id, selected, set_value) = self.register_widget_parity(
             WidgetSpec {
                 disabled: c.disabled,
@@ -2399,7 +2406,7 @@ impl<C: AppendChild> InputWidgets for C {
                 default: options.index.map(|index| index as i32),
                 options: options.options.clone(),
                 horizontal: options.horizontal,
-                captions: options.captions.clone(),
+                captions: options.captions.unwrap_or_default(),
                 help: c.help,
                 disabled: c.disabled || options.options.is_empty(),
                 label_visibility: c.visibility.wire(),
@@ -4923,6 +4930,88 @@ mod tests {
             assert!(wire.try_recv().is_ok(), "the first valid form is still rendered");
         }
         assert!(wire.try_recv().is_err(), "failed form calls must not append their partial children");
+    }
+
+    #[test]
+    fn radio_display_identity_and_default_content_width_match_reference() -> anyhow::Result<()> {
+        let state = SessionState::default();
+        let mut ids: Vec<Vec<String>> = Vec::new();
+        let groups = [0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 0, 0];
+
+        for (index, phase) in ["load", "edit", "width", "width-edit", "horizontal", "horizontal-edit", "captions", "captions-edit", "empty", "empty-edit", "restore", "observe"]
+            .iter()
+            .enumerate()
+        {
+            // 1. 编辑轮只提交上一轮真实 ID，每轮正常结束以清理旧身份。
+            let incoming = if phase.ends_with("edit") {
+                ids[index - 1]
+                    .iter()
+                    .map(|id| WidgetState {
+                        id: id.clone(),
+                        value: Some(widget_state::Value::StringValue("Beta".into())),
+                    })
+                    .collect()
+            } else {
+                Vec::new()
+            };
+            assert!(state.begin_widgets(incoming).is_empty());
+            let (st, mut wire) = app(&state);
+            let mut plain = RadioOptions::new("Choice", ["Alpha", "Beta", "Charlie"]);
+            let mut keyed = RadioOptions::new("Keyed choice", ["Alpha", "Beta", "Charlie"]).key("choice");
+            match *phase {
+                "width" | "width-edit" => {
+                    plain = plain.width(320);
+                    keyed = keyed.width(320);
+                }
+
+                "horizontal" | "horizontal-edit" => {
+                    plain = plain.horizontal(true);
+                    keyed = keyed.horizontal(true);
+                }
+
+                "captions" | "captions-edit" => {
+                    plain = plain.captions(["First", "Second", "Third"]);
+                    keyed = keyed.captions(["First", "Second", "Third"]);
+                }
+
+                "empty" | "empty-edit" => {
+                    plain = plain.captions(Vec::<String>::new());
+                    keyed = keyed.captions(Vec::<String>::new());
+                }
+
+                _ => {}
+            }
+
+            // 2. 无 key 展示参数重建；显式空 captions 与省略不同，keyed 始终保持。
+            let unkeyed = if phase.ends_with("edit") { "Beta" } else { "Alpha" };
+            let values = [st.radio(plain)?, st.radio(keyed)?];
+            assert_eq!(values.each_ref().map(|v| v.as_deref()), [Some(unkeyed), Some(if index == 0 { "Alpha" } else { "Beta" })], "{phase}");
+            let mut current = Vec::new();
+            for (position, label) in ["Choice", "Keyed choice"].iter().enumerate() {
+                let Some(forward_msg::Type::Delta(proto::Delta {
+                    r#type: Some(delta::Type::NewElement(element)), ..
+                })) = wire.try_recv()?.r#type
+                else {
+                    panic!()
+                };
+                let expected = if matches!(*phase, "width" | "width-edit") {
+                    proto::streamlit::width_config::WidthSpec::PixelWidth(320)
+                } else {
+                    proto::streamlit::width_config::WidthSpec::UseContent(true)
+                };
+                assert_eq!(element.width_config.and_then(|c| c.width_spec), Some(expected), "{phase}");
+                let Some(element::Type::Radio(widget)) = element.r#type else { panic!() };
+                assert_eq!(widget.label, *label);
+                for earlier in 0..index {
+                    assert_eq!(widget.id == ids[earlier][position], position == 1 || groups[index] == groups[earlier], "{phase}: {position}/{earlier}");
+                }
+                current.push(widget.id);
+            }
+            ids.push(current);
+            state.finish_widgets();
+        }
+
+        Ok(())
     }
 
     #[test]

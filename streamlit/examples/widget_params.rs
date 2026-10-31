@@ -6,6 +6,39 @@ use ::streamlit::*;
 use streamlit::StreamlitApi;
 
 fn render(st: &Streamlit) -> Result<(), WidgetError> {
+    if st.query_params().get("probe").as_deref() == Some("radio-identity") {
+        let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
+        let mut plain = RadioOptions::new("Choice", ["Alpha", "Beta", "Charlie"]);
+        let mut keyed = RadioOptions::new("Keyed choice", ["Alpha", "Beta", "Charlie"]).key("choice");
+        match phase.as_str() {
+            "width" | "width-edit" => {
+                plain = plain.width(320);
+                keyed = keyed.width(320);
+            }
+
+            "horizontal" | "horizontal-edit" => {
+                plain = plain.horizontal(true);
+                keyed = keyed.horizontal(true);
+            }
+
+            "captions" | "captions-edit" => {
+                plain = plain.captions(["First", "Second", "Third"]);
+                keyed = keyed.captions(["First", "Second", "Third"]);
+            }
+
+            "empty" | "empty-edit" => {
+                plain = plain.captions(Vec::<String>::new());
+                keyed = keyed.captions(Vec::<String>::new());
+            }
+
+            _ => {}
+        }
+
+        let values = [st.radio(plain)?, st.radio(keyed)?];
+        st.json(serde_json::json!({"phase": phase, "values": values}));
+        return Ok(());
+    }
+
     if matches!(st.query_params().get("probe").as_deref(), Some("select-policy" | "select-policy-unkeyed")) {
         let unkeyed = st.query_params().get("probe").as_deref() == Some("select-policy-unkeyed");
         let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());

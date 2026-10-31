@@ -2252,3 +2252,17 @@ Rust 修前忽略无 key 的宽度、占位文字和过滤模式，width 轮错�
 widget 参数模块 149 项、相关 query/widget/temporal/pickers/matrix/docs 门 400 项通过，日志 target/select-ui-{widget-reference,reference}.log。生产 Rust/示例未变，因此本批未重复工作区 Rust、Clippy 或构建；前批 310 项只保留为对应版本证据。st.selectbox 矩阵边界与机器清单同步，仍为 130 partial。SDK PID 60536（venv launcher 68544）、Rust PID 9344 已按自有命令/可执行路径核验后停止，8624/8599 无监听。自有标签页 1754832072/1754832076 已关闭；先禁用 CDP Network 观测再关页，没有观测到 close 帧，不宣称已捕获 WS 关闭事件。采集时返回的 warn/error 日志为空。
 
 本批只覆盖创建模式的 prefix/fuzzy 列表、选项提交和有既定选择时的空白编辑框。初始无选择占位、默认上下文提示、其他过滤/语言/设备/浏览器、真实多选变更、动态参数的同文档 UI、回调/表单/错误与其余组合继续开放。统一 hash、共享状态、发送队列扩展、select_slider 与多小时浸泡决定不变；用户 colconfig_params 修改保持独立，未合并、发布或部署，M3/M5/M7 与长期 Goal 未关闭。
+
+## Current radio display identity validation (2026-11-01)
+
+锁定 SDK 1.66.1 的公开 AppTest 与原生 WS 十二轮均确认：无 key 的 radio 在默认/320 像素宽度、横排和说明文字变化时重建身份；省略 captions 与显式空列表也分别成类。有 key 的对照组保持身份和值；正常结束清理后恢复原参数不复活旧选择。另确认默认 Element 宽度应为 content，修前错误为 stretch。旧创建参考只比较 Radio 内部字段，不能据此推断外层宽度一致；矩阵已校正此证据边界。
+
+生产修正限于 widget_api.rs：radio 默认使用内容宽度；私有 captions 保存 Option 以区分省略/显式空列表，协议写入时转为空列表；unkeyed extra 结构化编码选项、默认索引、横排、原始 captions 和宽度，keyed extra 仍为空。公共构造器、captions/width builder 形态不变，公共宽度说明改为使用各控件默认值；无新公共 API/依赖，未改 codec、回调/禁用/绑定/表单/清理或发送规则。文本输入/文本域审查确认已有宽度身份参数，本批未改。
+
+修前单元回归真实在 load 轮断言 UseStretch/UseContent 失败；新增例还验证无 key 五类身份、有 key 一类、返回值和恢复清理。固定证据为 [Python](../tests/reference/reference-browser/widget-params/radio-identity/trace.json)、[Rust 修前](../tests/browser/rust-widget-params/radio-identity/before/trace.json)、[Rust 修后](../tests/browser/rust-widget-params/radio-identity/trace.json)，每端 12 轮/95 原始 WS 帧/36 完整 Element。修前两控件各只有一类身份，width 轮保留旧 Beta；修后完整 Element（含外层宽度）仅归一化不透明 ID 和 JSON 文本后逐字段一致。采集器绑定示例/自身源码 SHA256，Rust 另存 widget_api 与二进制 SHA256。
+
+严格原始 protobuf/汇总门检查参数、身份等价类、上一轮输入 ID/string_value、返回值、会话/轮次、完成和清理。七类同步改写原始帧及汇总的负例必须失败：默认 stretch、错误横排身份、错误非空 captions 身份、混淆空/省略 captions、复活旧值、错误 keyed 身份与过期输入。widget 参数模块 160 项、相关 query/widget/temporal/pickers/matrix/docs 门 411 项通过。
+
+按代码检查→单元→原生 WS→工作区验证；编辑 Rust 的 rustfmt 与全工作区/all-target Clippy 通过，工作区 311 项通过（304 库、1 ledger、2 宏、4 rustdoc）。仍精确排除原 navigation_pages_switch_and_session_state_match_the_measured_wire 与 rerun_queue_messages_match_frozen_reference 两项待决回归，不能称完整工作区全绿。既有 MSVC linker stdout warning 保留；日志索引 target/radio-identity-{red,green,clippy,build,workspace,reference}.log。SDK 服务由采集器停止，Rust 修前 PID 68324、修后 47668 按精确可执行路径核验后停止，57917/8599 无监听。
+
+本批未重采真实浏览器；动态 index=None、caption 实际显示与格式、空选项/无效类型/错误顺序、回调/绑定/表单/跨页及其他组合继续开放。仅更新 st.radio 矩阵和机器清单，仍为 130 partial；统一 hash、共享状态、队列扩展、select_slider 与多小时浸泡的待决定状态保持。用户 colconfig_params 修改独立保留，未合并、发布或部署；M3/M5/M7 与长期 Goal 未关闭。
