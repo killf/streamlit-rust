@@ -2642,3 +2642,21 @@ Rust 格式检查、逐文件 diff 复查及全工作区/all-target Clippy 通�
 同批用当前 SDK fixture 与同一 Rust 二进制各重跑旧十八轮 --datetime-empty，target/datetime-reset-ws-old-{sdk,rust}/trace.json 保留各 161 帧/72 Element，规范化完整字段同时匹配旧冻结 SDK，避免共享 fixture 分支回归。三份 producer、生产 widgets/widget_api 和二进制 SHA 已核对当前产物；SDK 自有服务与两次 Rust 自持 Popen 均 terminate/wait，50179/51806/8599 核实无监听。日志 target/datetime-reset-ws-{build,sdk,rust,server,gate,python,clippy,old-sdk,old-rust,old-server,docs}.log。
 
 仅 st.datetime_input 矩阵及生成 inventory 增补证据，仍 130 partial。本批无浏览器证据；单侧边界的原生 WS、错误类型/文案、禁用/ignore、URL、表单/跨页和其他状态组合继续开放，不把双侧/当前组合推广为全部行为已验收。用户 colconfig 及其他现有修改独立保留，无 PR、合并、发布或部署；M3/M5/M7 与完整 Goal 未关闭。
+
+## Current single date frontend normalization (2026-11-01)
+
+先复验已排除 rerun_queue_messages_match_frozen_reference，target/rerun-queue-current-red.log 仍真实失败：旧轮 Rust 保留 config、丢弃 toast，SDK 则保留 toast、丢弃 config，其他 URL/finish 等投影一致。已选的未发送 Delta 丢弃/已发送 Delta 与 URL 保留已实现且有既有回归；这次失败属于 2026-10-30 已提出、尚待用户选择的消息类型扩展。未擅自扩大 handler 规则，也未将该 red 删除或改绿。
+
+继续独立的 date_input 单日期行为。锁定 SDK 1.66.1 DateInputSerde 与 AppTest 确认：ID-only、非法字符串和任一越界条目回默认；ISO/legacy 全列表先解析并检查 min/max，再返回首项。非法或越界尾项也会使整组回默认，全部合法的额外日期则只返回首项。空数组不同于缺省，SDK 返回 None；现有 DateSelection 不能表达，依 AGENTS.md 第 2 条向用户提供 Single(Option)/Range(Vec)、保留旧变体另补变体、另增单值/范围接口三个实际选项，尚未收到选择，不实施公开模型变更。
+
+widgets.rs 现有 DateInput codec 保存 min/max/声明默认，仅单日期分支接受 legacy、规范成 ISO 并整组解析/范围验证后回默认；将单日期纳入已有 ID-only 默认缓存。范围分支保留原来 ISO/恰好两项的解码规则，wrong oneof 继续拒绝；空数组仍解为 Null，不伪装成回默认。widget_api.rs 仅把已有默认/边界传给私有 codec，公开 API 未改。既有 pickers codec 单元的非法日期 fail-closed 断言按 SDK 证据修正为回默认，并继续保护空数组与错误 oneof、范围部分值的现状。
+
+公开 API 单元先真实失败于缺省提交两个 callback 为 0，修后十案覆盖缺省、非法、legacy、ISO、合法尾项、非法尾项、首项越界、尾项越界、包含两端边界。每案先编辑到非默认值，再同批输入日期和 checkbox，两个 callback 依登记顺序读到整批新值。声明默认改为 06-10 时当前值保留、wire default 更新且无额外 set_value；下一轮 ID-only 才使用新登记默认。对应 SDK AppTest 十案从原始 WidgetStates 注入得到相同状态/回调/默认，明确使用内部 _run，不称正常浏览器输入。
+
+[SDK](../tests/reference/reference-browser/widget-params/date-single/trace.json) 与 [Rust](../tests/browser/rust-widget-params/date-single/trace.json) 各十六轮、127 原始帧、48 完整 Element，首次采集直接匹配，未覆盖失败捕获。顺序 load/edit/missing/legacy/surplus/bad-tail/bad-first/below/above-tail/minimum/maximum/defaults/fallback/observe/recover/invalid；固定 2025-01-01..12-31、默认 03-15，后改 06-10。累计 callback 0/2/4/6/7/9/10/11/12/14/16/16/18/18/20/22，完整二十二条来源/顺序/同伴新值与原生状态逐轮匹配。观察轮不重放，回默认不额外同步。
+
+严格门从原始 base64 重解析 protobuf，核对原始长度/message/元素汇总、16 个 run/同一 session、两个稳定 ID、实际旧 ID/缺省/string_array/bool oneof、全部原始列表、路径及 default/min/max/format/布局/策略/value/set_value/one-shot 与完整返回值和 keyed state。完整 Element 只规范化不透明 ID/JSON 文本后逐字段相等；semantic_match 在严格门成功后才写 true。八类同步破坏原始字节和汇总的负例均拒绝：错误 oneof、legacy 未归一化、忽略非法尾项、忽略越界尾项、回旧默认、callback 读旧 peer、callback 倒序、错变 range 模式。
+
+编辑 Rust 已按语义留空并逐文件复查 diff；格式、全工作区/all-target Clippy、新增公共单元及既有 pickers 两项通过。最终工作区 337 项通过（330 库、1 ledger、2 宏、4 rustdoc），仍只排除原 navigation_pages_switch_and_session_state_match_the_measured_wire 与 rerun_queue_messages_match_frozen_reference，不称全绿。参数参考模块现 421 项，相关八模块共 778 项通过；既有 MSVC linker stdout warning 保留。日志 target/date-single-{red,green,final-unit,pickers,sdk,clippy,build,sdk-ws,rust-ws,server,gate,workspace,python,docs}.log。
+
+采集器三份 producer、生产 widgets/widget_api 与二进制 SHA 均已核对当前产物；SDK 自建服务和 Rust 自持 Popen 均 terminate/wait，58258/8599 无监听。指南仅追加单日期语义，保留原 CRLF 字节前缀。矩阵仅补 st.date_input 证据及 limitation，生成 inventory 仍 130 partial。没有本批浏览器证明；None/空及部分范围模型待选，范围解码、隐式 today 默认/状态、代码赋值/动态边界、错误类型/文案、禁用/ignore、URL、表单/跨页等仍开放。用户 colconfig 与其他现有修改独立保留，无 PR、合并、发布或部署；M3/M5/M7 与完整 Goal 未关闭。

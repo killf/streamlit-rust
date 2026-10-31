@@ -6,6 +6,31 @@ use ::streamlit::*;
 use streamlit::StreamlitApi;
 
 fn render(st: &Streamlit) -> Result<(), WidgetError> {
+    if st.query_params().get("probe").as_deref() == Some("date-single") {
+        let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
+        let changed = |source: &'static str| {
+            move |st: &Streamlit| {
+                let state = st.session_state();
+                let mut calls = state.get::<Vec<serde_json::Value>>("date_single_calls").expect("calls").unwrap_or_default();
+                calls.push(serde_json::json!([source, state.get::<serde_json::Value>("date_single_day").expect("day"), state.get::<bool>("date_single_peer").expect("peer")]));
+                state.set("date_single_calls", calls).expect("callback write");
+            }
+        };
+
+        // 1. 默认变化只影响后续前端反序列化；两个显式边界始终保持固定。
+        let parse = |text: &str| chrono::NaiveDate::parse_from_str(text, "%Y-%m-%d").expect("fixture date");
+        let default = if ["defaults", "fallback", "observe", "recover", "invalid"].contains(&phase.as_str()) { "2025-06-10" } else { "2025-03-15" };
+        let DateSelection::Single(day) = st.date_input(DateInputOptions::new("Day").value(parse(default)).min(parse("2025-01-01")).max(parse("2025-12-31")).key("date_single_day").on_change(changed("day")))? else {
+            return Err(WidgetError::InvalidValue("single-date fixture returned a range".into()));
+        };
+        let peer = st.checkbox(CheckboxOptions::new("Peer").key("date_single_peer").on_change(changed("peer")))?;
+
+        // 2. 同时记录返回值、原生状态和 callback，区分回退与整批输入被忽略。
+        let calls = st.session_state().get::<Vec<serde_json::Value>>("date_single_calls")?.unwrap_or_default();
+        st.json(serde_json::json!({"phase": phase, "values": [serde_json::json!(day.format("%Y-%m-%d").to_string()), serde_json::json!(peer)], "native": [st.session_state().get::<serde_json::Value>("date_single_day")?, st.session_state().get::<serde_json::Value>("date_single_peer")?], "calls": calls}));
+        return Ok(());
+    }
+
     if matches!(st.query_params().get("probe").as_deref(), Some("datetime-empty" | "datetime-bounds")) {
         let bounds_probe = st.query_params().get("probe").as_deref() == Some("datetime-bounds");
         let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());

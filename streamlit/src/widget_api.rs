@@ -3146,8 +3146,8 @@ impl<C: AppendChild> InputWidgets for C {
                 kind: "date_input",
                 key: c.key.as_deref(),
                 identity: &identity,
-                default,
-                codec: Codec::DateInput { range },
+                default: default.clone(),
+                codec: Codec::DateInput { range, min, max, default },
                 callback: c.callback,
             },
             |value| {
@@ -4978,6 +4978,106 @@ mod tests {
             assert!(wire.try_recv().is_ok(), "the first valid form is still rendered");
         }
         assert!(wire.try_recv().is_err(), "failed form calls must not append their partial children");
+    }
+
+    #[test]
+    fn single_date_inputs_normalize_and_fall_back_before_callbacks() -> anyhow::Result<()> {
+        use chrono::NaiveDate;
+
+        let parse = |text: &str| NaiveDate::parse_from_str(text, "%Y-%m-%d").expect("fixture date");
+        let changed = |source: &'static str| {
+            move |st: &Streamlit| {
+                let state = st.session_state();
+                let mut calls = state.get::<Vec<Value>>("date_calls").expect("calls").unwrap_or_default();
+                calls.push(serde_json::json!([source, state.get::<Value>("day").expect("day"), state.get::<bool>("peer").expect("peer")]));
+                state.set("date_calls", calls).expect("callback write");
+            }
+        };
+        for (raw, expected) in [
+            (None, "2025-03-15"),
+            (Some(vec!["bad"]), "2025-03-15"),
+            (Some(vec!["2025/05/07"]), "2025-05-07"),
+            (Some(vec!["2025-05-07"]), "2025-05-07"),
+            (Some(vec!["2025-05-07", "2025-06-08"]), "2025-05-07"),
+            (Some(vec!["2025-05-07", "bad"]), "2025-03-15"),
+            (Some(vec!["2026-01-01"]), "2025-03-15"),
+            (Some(vec!["2025-05-07", "2026-01-01"]), "2025-03-15"),
+            (Some(vec!["2025-01-01"]), "2025-01-01"),
+            (Some(vec!["2025-12-31"]), "2025-12-31"),
+        ] {
+            let state = SessionState::default();
+            state.begin_widgets(vec![]);
+            let options = |default: &str| DateInputOptions::new("Day").value(parse(default)).min(parse("2025-01-01")).max(parse("2025-12-31")).key("day").on_change(changed("day"));
+            let (st, mut wire) = app(&state);
+            st.date_input(options("2025-03-15"))?;
+            st.checkbox(CheckboxOptions::new("Peer").key("peer").on_change(changed("peer")))?;
+            let element::Type::DateInput(day) = input(&mut wire)? else { panic!() };
+            let element::Type::Checkbox(peer) = input(&mut wire)? else { panic!() };
+            state.finish_widgets();
+            let edit = |raw: Option<Vec<&str>>| WidgetState {
+                id: day.id.clone(),
+                value: raw.map(|raw| {
+                    widget_state::Value::StringArrayValue(proto::StringArray {
+                        data: raw.into_iter().map(str::to_owned).collect(),
+                    })
+                }),
+            };
+
+            // 1. 先编辑为非默认值，随后测试的回退不能等同未处理输入。
+            let callbacks = state.begin_widgets(vec![
+                edit(Some(vec!["2025-04-20"])),
+                WidgetState {
+                    id: peer.id.clone(),
+                    value: Some(widget_state::Value::BoolValue(true)),
+                },
+            ]);
+            assert_eq!(callbacks.len(), 2);
+            let (st, mut wire) = app(&state);
+            for callback in callbacks {
+                callback(&st);
+            }
+            st.date_input(options("2025-03-15"))?;
+            st.checkbox(CheckboxOptions::new("Peer").key("peer").on_change(changed("peer")))?;
+            input(&mut wire)?;
+            input(&mut wire)?;
+            state.finish_widgets();
+
+            // 2. 整个列表先解析/检查范围，再返回首项；callback 读取整批归一化结果。
+            let callbacks = state.begin_widgets(vec![
+                edit(raw),
+                WidgetState {
+                    id: peer.id.clone(),
+                    value: Some(widget_state::Value::BoolValue(false)),
+                },
+            ]);
+            assert_eq!(callbacks.len(), 2, "{expected}");
+            let (st, mut wire) = app(&state);
+            for callback in callbacks {
+                callback(&st);
+            }
+            let calls = state.get::<Vec<Value>>("date_calls")?.expect("calls");
+            assert_eq!(&calls[2..], &[serde_json::json!(["day", expected, false]), serde_json::json!(["peer", expected, false])]);
+            assert_eq!(st.date_input(options("2025-06-10"))?, DateSelection::Single(parse(expected)));
+            st.checkbox(CheckboxOptions::new("Peer").key("peer").on_change(changed("peer")))?;
+            let element::Type::DateInput(widget) = input(&mut wire)? else { panic!() };
+            assert_eq!(widget.id, day.id);
+            assert_eq!(widget.default, ["2025-06-10"]);
+            assert!(!widget.set_value && widget.value.is_empty());
+            input(&mut wire)?;
+            state.finish_widgets();
+
+            // 3. 新登记默认只供下一轮 ID-only 使用，不覆盖当前原生值。
+            let callbacks = state.begin_widgets(vec![edit(None)]);
+            assert_eq!(callbacks.len(), 1);
+            let (st, _) = app(&state);
+            for callback in callbacks {
+                callback(&st);
+            }
+            assert_eq!(st.date_input(options("2025-06-10"))?, DateSelection::Single(parse("2025-06-10")));
+            state.finish_widgets();
+        }
+
+        Ok(())
     }
 
     #[test]

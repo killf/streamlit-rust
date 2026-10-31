@@ -1,7 +1,18 @@
 """Emit widget creation-wire parameter variants for the M3 differential."""
 import streamlit as st
 
-if st.query_params.get("probe") in ("datetime-empty", "datetime-bounds"):
+if st.query_params.get("probe") == "date-single":
+    from datetime import date
+    phase = st.query_params.get("phase", "load")
+    if "date_single_calls" not in st.session_state:
+        st.session_state.date_single_calls = []
+    def changed(source):
+        st.session_state.date_single_calls.append([source, st.session_state.date_single_day.isoformat(), st.session_state.date_single_peer])
+    default = date(2025, 6, 10) if phase in ("defaults", "fallback", "observe", "recover", "invalid") else date(2025, 3, 15)
+    day = st.date_input("Day", value=default, min_value=date(2025, 1, 1), max_value=date(2025, 12, 31), key="date_single_day", on_change=changed, args=("day",))
+    peer = st.checkbox("Peer", key="date_single_peer", on_change=changed, args=("peer",))
+    st.json({"phase": phase, "values": [day.isoformat(), peer], "native": [st.session_state.date_single_day.isoformat(), st.session_state.date_single_peer], "calls": st.session_state.date_single_calls})
+elif st.query_params.get("probe") in ("datetime-empty", "datetime-bounds"):
     from datetime import datetime
     bounds_probe = st.query_params.get("probe") == "datetime-bounds"
     phase = st.query_params.get("phase", "load")

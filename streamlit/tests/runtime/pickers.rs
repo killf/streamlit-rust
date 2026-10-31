@@ -142,8 +142,20 @@ async fn picker_inputs_match_the_measured_wire() -> TestResult {
 async fn date_and_time_codecs_decode_the_measured_wire() -> TestResult {
     use crate::widgets::Codec;
 
-    let single = Codec::DateInput { range: false };
-    let range = Codec::DateInput { range: true };
+    let min = chrono::NaiveDate::from_ymd_opt(2025, 1, 1).expect("fixture min");
+    let max = chrono::NaiveDate::from_ymd_opt(2025, 12, 31).expect("fixture max");
+    let single = Codec::DateInput {
+        range: false,
+        min,
+        max,
+        default: serde_json::json!("2025-01-15"),
+    };
+    let range = Codec::DateInput {
+        range: true,
+        min,
+        max,
+        default: serde_json::json!(["2025-01-15", "2025-02-15"]),
+    };
     let wire = |labels: &[&str]| {
         WireValue::StringArrayValue(proto::StringArray {
             data: labels.iter().map(|label| label.to_string()).collect(),
@@ -151,7 +163,9 @@ async fn date_and_time_codecs_decode_the_measured_wire() -> TestResult {
     };
 
     assert_eq!(single.decode(&wire(&["2025-01-15"])).ok_or("single date codec must decode valid ISO date")?, serde_json::json!("2025-01-15"));
-    assert!(single.decode(&wire(&["not-a-date"])).is_none(), "a malformed ISO date is rejected fail-closed");
+    assert_eq!(single.decode(&wire(&["not-a-date"])), Some(serde_json::json!("2025-01-15")), "an invalid single-date array restores the registered default");
+    assert_eq!(single.decode(&wire(&[])), Some(serde_json::Value::Null), "empty remains None, not default fallback");
+    assert!(single.decode(&WireValue::StringValue("2025-01-15".into())).is_none(), "wrong oneof remains rejected");
     assert!(range.decode(&wire(&["2025-01-15"])).is_none(), "a range needs exactly two dates");
     assert_eq!(range.decode(&wire(&["2025-01-15", "2025-02-15"])).ok_or("range date codec must decode two valid dates")?, serde_json::json!(["2025-01-15", "2025-02-15"]));
 

@@ -13,6 +13,51 @@ PYTHON = Path(__file__).parent / "reference-browser/temporal-params"
 RUST = Path(__file__).parents[1] / "browser/rust-temporal-params"
 
 
+@pytest.mark.parametrize("raw,expected", ((None, "2025-03-15"), (["bad"], "2025-03-15"), (["2025/05/07"], "2025-05-07"),
+    (["2025-05-07"], "2025-05-07"), (["2025-05-07", "2025-06-08"], "2025-05-07"), (["2025-05-07", "bad"], "2025-03-15"),
+    (["2026-01-01"], "2025-03-15"), (["2025-05-07", "2026-01-01"], "2025-03-15"), (["2025-01-01"], "2025-01-01"), (["2025-12-31"], "2025-12-31")))
+def test_sdk_single_date_normalizes_full_list_and_uses_registered_defaults(raw, expected):
+    """Raw AppTest input, no normal-browser packet claim."""
+    import importlib.metadata
+    from streamlit.proto.WidgetStates_pb2 import WidgetStates
+    from streamlit.testing.v1 import AppTest
+
+    assert importlib.metadata.version("streamlit") == "1.66.1"
+    app = AppTest.from_string('''
+import streamlit as st
+from datetime import date
+if 'calls' not in st.session_state:st.session_state.calls=[]
+def changed(source):st.session_state.calls.append([source,st.session_state.day.isoformat(),st.session_state.peer])
+v=st.date_input('Day',value=date(2025,6,10) if st.session_state.get('defaults',False) else date(2025,3,15),min_value=date(2025,1,1),max_value=date(2025,12,31),key='day',on_change=changed,args=('day',))
+st.checkbox('Peer',key='peer',on_change=changed,args=('peer',))
+st.json([v.isoformat(),st.session_state.day.isoformat(),st.session_state.calls])
+''').run()
+    assert not app.exception
+    identity, peer_id = app.date_input[0].id, app.checkbox[0].id
+    incoming = WidgetStates()
+    incoming.widgets.add(id=identity).string_array_value.data[:] = ['2025-04-20']
+    incoming.widgets.add(id=peer_id).bool_value = True
+    app._run(incoming)
+    assert not app.exception
+    assert json.loads(app.json[0].value) == ['2025-04-20', '2025-04-20', [['day','2025-04-20',True],['peer','2025-04-20',True]]]
+    incoming = WidgetStates()
+    widget = incoming.widgets.add(id=identity)
+    if raw is not None:
+        widget.string_array_value.SetInParent();widget.string_array_value.data[:] = raw
+    incoming.widgets.add(id=peer_id).bool_value = False
+    app.session_state['defaults'] = True
+    app._run(incoming)
+    assert not app.exception
+    report = json.loads(app.json[0].value)
+    assert report[:2] == [expected, expected]
+    assert report[2][2:] == [['day',expected,False],['peer',expected,False]]
+    assert app.date_input[0].id == identity and list(app.date_input[0].proto.default) == ['2025-06-10']
+    assert not app.date_input[0].proto.set_value
+    incoming = WidgetStates();incoming.widgets.add(id=identity)
+    app._run(incoming)
+    assert not app.exception and json.loads(app.json[0].value)[:2] == ['2025-06-10'] * 2
+
+
 @pytest.mark.parametrize("minimum,assigned,expected", ((True, "07:59", "12:30"), (True, "08:00", "08:00"),
                                                        (False, "16:01", "12:30"), (False, "16:00", "16:00")))
 def test_sdk_datetime_one_sided_native_bounds_are_inclusive(minimum, assigned, expected):

@@ -211,6 +211,11 @@ pub(crate) enum Codec {
     /// for a range; the value stays a string and the emitter parses it.
     DateInput {
         range: bool,
+        min: chrono::NaiveDate,
+        max: chrono::NaiveDate,
+
+        /// 单日期前端解析失败或越界时恢复的声明默认；范围模式仍按原规则解码。
+        default: Value,
     },
     /// time_input: "HH:MM" for whole-minute steps, "HH:MM:SS" otherwise.
     TimeInput {
@@ -375,15 +380,23 @@ impl Codec {
                 // payload as its raw string, list-normalized.
                 Err(_) => Value::Array(vec![Value::String(text.clone())]),
             }),
-            (Self::DateInput { range }, widget_state::Value::StringArrayValue(array)) => {
-                let dates: Option<Vec<Value>> = array.data.iter().map(|text| chrono::NaiveDate::parse_from_str(text, "%Y-%m-%d").ok().map(|_| Value::String(text.clone()))).collect();
-                let dates = dates?;
+            (Self::DateInput { range, min, max, default }, widget_state::Value::StringArrayValue(array)) => {
                 if *range {
+                    let dates: Option<Vec<Value>> = array.data.iter().map(|text| chrono::NaiveDate::parse_from_str(text, "%Y-%m-%d").ok().map(|_| Value::String(text.clone()))).collect();
+                    let dates = dates?;
                     (dates.len() == 2).then(|| Value::Array(dates))
-                } else if dates.len() <= 1 {
-                    Some(dates.into_iter().next().unwrap_or(Value::Null))
                 } else {
-                    None
+                    // 先检查全部日期，再返回首项；任何非法或越界尾项也会回默认。
+                    let dates: Option<Vec<_>> = array
+                        .data
+                        .iter()
+                        .map(|text| chrono::NaiveDate::parse_from_str(text, "%Y-%m-%d").or_else(|_| chrono::NaiveDate::parse_from_str(text, "%Y/%m/%d")).ok())
+                        .collect();
+                    match dates {
+                        Some(dates) if dates.iter().all(|date| date >= min && date <= max) => Some(dates.first().map_or(Value::Null, |date| Value::String(date.format("%Y-%m-%d").to_string()))),
+
+                        _ => Some(default.clone()),
+                    }
                 }
             }
             (Self::TimeInput { step }, widget_state::Value::StringValue(text)) => {
@@ -444,7 +457,7 @@ impl Codec {
             Self::DataframeSelection { .. } => Self::dataframe_selection_shape(value),
             Self::JsonValue { .. } => true,
             Self::JsonTrigger => value.is_null() || value.is_array(),
-            Self::DateInput { range } => {
+            Self::DateInput { range, .. } => {
                 let iso = |item: &Value| item.as_str().is_some_and(|text| chrono::NaiveDate::parse_from_str(text, "%Y-%m-%d").is_ok());
                 if *range {
                     value.as_array().is_some_and(|dates| dates.len() == 2 && dates.iter().all(iso))
@@ -871,7 +884,7 @@ impl SessionState {
         // Text codec 也供 data_editor 使用；文本缺省解码仅限这两类输入控件。
         let empty_input = (matches!(
             codec,
-            Codec::Select(_) | Codec::SelectCreation(_) | Codec::Radio(_) | Codec::Feedback { .. } | Codec::NumberInput { .. } | Codec::TimeInput { .. } | Codec::DateTimeInput { .. }
+            Codec::Select(_) | Codec::SelectCreation(_) | Codec::Radio(_) | Codec::Feedback { .. } | Codec::NumberInput { .. } | Codec::TimeInput { .. } | Codec::DateTimeInput { .. } | Codec::DateInput { range: false, .. }
         ) || (matches!(kind, "text_input" | "text_area") && matches!(codec, Codec::Text { .. })))
         .then(|| default.clone());
         let mut registry = self.widgets.lock();

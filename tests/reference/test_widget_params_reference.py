@@ -3715,6 +3715,117 @@ def test_number_empty_gate_rejects_coherent_wrong_wire(mutation):
         check_number_empty(capture)
 
 
+DATE_SINGLE_PHASES = ("load", "edit", "missing", "legacy", "surplus", "bad-tail", "bad-first", "below", "above-tail", "minimum", "maximum", "defaults", "fallback", "observe", "recover", "invalid")
+DATE_SINGLE_INPUTS = (None, (["2025-04-20"], True), (None, False), (["2025/05/07"], True), (["2025-05-07", "2025-06-08"], False),
+    (["2025-05-07", "bad"], True), (["bad", "2025-05-07"], False), (["2024-12-31"], True), (["2025-05-07", "2026-01-01"], False),
+    (["2025-01-01"], True), (["2025-12-31"], False), None, (None, True), None, (["2025-07-15"], False), (["bad"], True))
+DATE_SINGLE_VALUES = (["2025-03-15", False], ["2025-04-20", True], ["2025-03-15", False], ["2025-05-07", True], ["2025-05-07", False],
+    ["2025-03-15", True], ["2025-03-15", False], ["2025-03-15", True], ["2025-03-15", False], ["2025-01-01", True], ["2025-12-31", False],
+    ["2025-12-31", False], ["2025-06-10", True], ["2025-06-10", True], ["2025-07-15", False], ["2025-06-10", True])
+DATE_SINGLE_COUNTS = (0, 2, 4, 6, 7, 9, 10, 11, 12, 14, 16, 16, 18, 18, 20, 22)
+DATE_SINGLE_CALLS = [[source, *DATE_SINGLE_VALUES[index]] for index, sources in (
+    (1, ("day", "peer")), (2, ("day", "peer")), (3, ("day", "peer")), (4, ("peer",)), (5, ("day", "peer")),
+    (6, ("peer",)), (7, ("peer",)), (8, ("peer",)), (9, ("day", "peer")), (10, ("day", "peer")),
+    (12, ("day", "peer")), (14, ("day", "peer")), (15, ("day", "peer"))) for source in sources]
+
+
+def check_date_single(capture):
+    assert capture["successful"] and "producer_error" not in capture and capture["reference_version"] == "1.66.1"
+    assert capture["runtime"] in ("python", "rust") and capture["finishes"] == [0] * 16
+    assert capture["cleanup"]["websocket_closed"] and capture["cleanup"]["server_stopped" if capture["runtime"] == "python" else "caller_server_stopped"]
+    assert len(capture["frames"]) == 127 and len(capture["elements"]) == 48
+    runs = color_runs(capture, ("date_input", "checkbox", "json"))
+    normalized, sessions, run_ids, ids = [], set(), set(), None
+    for index, (phase, run) in enumerate(zip(DATE_SINGLE_PHASES, runs, strict=True)):
+        request = run["request"]
+        assert request.query_string == "probe=date-single&phase=" + phase and not request.is_history_navigation
+        assert len(run["sessions"]) == 1 and run["finishes"] == [0]
+        session = run["sessions"][0]
+        assert session.initialize.environment_info.streamlit_version == "1.66.1"
+        sessions.add(session.initialize.session_id);run_ids.add(session.script_run_id)
+        assert [entry[0] for entry in run["entries"]] == ["date_input", "checkbox", "json"]
+        current = []
+        for position, (kind, widget, element) in enumerate(run["entries"][:2]):
+            assert widget.label == ("Day", "Peer")[position] and widget.id.endswith("-date_single_" + ("day", "peer")[position])
+            assert not widget.disabled and not widget.ignore_rerun and not widget.form_id and not widget.help
+            assert widget.label_visibility.value == 0 and not widget.set_value and not element.HasField("has_one_shot_effect")
+            if kind == "checkbox":
+                assert not widget.default and not widget.value and element.width_config.use_content
+            else:
+                assert element.width_config.use_stretch and not widget.value and not widget.is_range and not widget.query_param_key
+                assert widget.format == "YYYY/MM/DD" and (widget.min, widget.max) == ("2025-01-01", "2025-12-31")
+                assert list(widget.default) == ["2025-06-10" if index >= 11 else "2025-03-15"]
+            current.append(widget.id)
+        assert len(set(current)) == 2
+        if ids is None: ids = current
+        else: assert current == ids
+        incoming = request.widget_states.widgets
+        submitted = DATE_SINGLE_INPUTS[index]
+        if submitted is None:
+            assert not incoming
+        else:
+            values, peer = submitted
+            assert len(incoming) == 2 and [widget.id for widget in incoming] == ids
+            assert incoming[0].WhichOneof("value") == (None if values is None else "string_array_value")
+            assert list(incoming[0].string_array_value.data) == (values or [])
+            assert incoming[1].WhichOneof("value") == "bool_value" and incoming[1].bool_value is peer
+        report = json.loads(run["entries"][-1][1].body)
+        values = DATE_SINGLE_VALUES[index]
+        assert report == {"phase": phase, "values": values, "native": values, "calls": DATE_SINGLE_CALLS[:DATE_SINGLE_COUNTS[index]]}
+        for projection in (report["values"], report["native"]): assert type(projection[0]) is str and type(projection[1]) is bool
+        assert [entry["delta_path"] for entry in capture["elements"][index * 3:index * 3 + 3]] == [[0, i] for i in range(3)]
+        fields = []
+        for kind, _, element in run["entries"]:
+            view = MessageToDict(element, preserving_proto_field_name=True)
+            if kind == "json": view[kind]["body"] = json.loads(view[kind]["body"])
+            else: view[kind].pop("id")
+            fields.append(view)
+        normalized.append(fields)
+    assert len(sessions) == 1 and len(run_ids) == 16
+    return normalized
+
+
+@pytest.mark.parametrize("root", (PYTHON, RUST), ids=("python", "rust"))
+def test_single_date_native_defaults_legacy_lists_and_callbacks(root):
+    check_date_single(read(root / "date-single/trace.json"))
+
+
+def test_date_single_complete_elements_match_reference():
+    captures = [read(root / "date-single/trace.json") for root in (PYTHON, RUST)]
+    assert captures[0]["producer_sources_sha256"] == captures[1]["producer_sources_sha256"] and captures[1]["semantic_match"] is True
+    assert check_date_single(captures[0]) == check_date_single(captures[1])
+
+
+@pytest.mark.parametrize("mutation", ("wrong-oneof", "legacy", "tail-ignored", "bounds-ignored", "default-cache", "callback-peer", "callback-order", "range-mode"))
+def test_date_single_gate_rejects_coherent_wrong_wire(mutation):
+    capture = read(PYTHON / "date-single/trace.json")
+    target = {"wrong-oneof": 12, "legacy": 3, "tail-ignored": 5, "bounds-ignored": 8, "default-cache": 12, "callback-peer": 1, "callback-order": 3, "range-mode": 0}[mutation]
+    run = -1
+    for frame in capture["frames"]:
+        client = frame["direction"] == "client->server"
+        if client: run += 1
+        if run != target: continue
+        message = BackMsg() if client else ForwardMsg();message.ParseFromString(base64.b64decode(frame["base64"]))
+        if client and mutation == "wrong-oneof": message.rerun_script.widget_states.widgets[0].string_value = "2025-06-10"
+        elif not client and message.WhichOneof("type") == "delta":
+            element = message.delta.new_element;kind = element.WhichOneof("type")
+            if kind == "date_input" and mutation == "range-mode": element.date_input.is_range = True
+            elif kind == "json" and mutation in ("legacy", "tail-ignored", "bounds-ignored", "default-cache", "callback-peer", "callback-order"):
+                report = json.loads(element.json.body)
+                if mutation == "legacy": report["values"][0] = report["native"][0] = "2025/05/07"
+                elif mutation in ("tail-ignored", "bounds-ignored"): report["values"][0] = report["native"][0] = "2025-05-07"
+                elif mutation == "default-cache": report["values"][0] = report["native"][0] = "2025-03-15"
+                elif mutation == "callback-peer": report["calls"][0][2] = False
+                else: report["calls"][-2:] = report["calls"][-2:][::-1]
+                element.json.body = json.dumps(report)
+            else: continue
+        else: continue
+        raw = message.SerializeToString();frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(message, preserving_proto_field_name=True))
+    capture["elements"] = [{"kind": m.delta.new_element.WhichOneof("type"), "fields": MessageToDict(getattr(m.delta.new_element, m.delta.new_element.WhichOneof("type")), preserving_proto_field_name=True),
+                            "delta_path": list(m.metadata.delta_path)} for m in frames(capture) if isinstance(m, ForwardMsg) and m.WhichOneof("type") == "delta"]
+    with pytest.raises(AssertionError): check_date_single(capture)
+
+
 DATETIME_BOUNDS_PHASES = ("load", "edit", "narrow", "observe", "widen", "joint", "assign", "implicit", "implicit-observe", "explicit-none", "none-observe", "recover", "reset", "final")
 DATETIME_BOUNDS_VALUES = (["2025-03-15T12:30", None, False], ["2025-03-15T17:00", "2025-03-15T17:00", True],
                           ["2025-03-15T12:30", None, True], ["2025-03-15T12:30", None, True], ["2025-03-15T12:30", None, True],
