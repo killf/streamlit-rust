@@ -1105,3 +1105,14 @@ public interface, dependency, persist_state API, queue or error-entry change.
 SDK SessionState._remove_stale_widgets/register_widget source supports the rule.
 The earlier stop-unit assumption that cleanup deletes bound native keys is
 corrected by the new paired lifecycle evidence; see acceptance for exact scope.
+
+
+### Cold bound-text assignment is not restored state (2026-10-31)
+
+New SDK evidence refutes the suspected had_record URL-publication gap: a fresh
+current-run native assignment without URL emits value/set_value but no backend
+page_info_changed. Keep the existing production guards. Restoration of a native
+key preserved after widget cleanup remains the separately verified prior path.
+Only existing fixture/collector/replay gates are extended: assign-default plus
+text-cold, with independent sessions and no new runtime API/module/dependency.
+Backend protocol observations do not establish the browser's final address.

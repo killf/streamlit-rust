@@ -1686,3 +1686,39 @@ public API/hash/queue/parser decisions and unrelated colconfig_params edits
 are unchanged and excluded from staging.
 
 Focused widget-reference/query-parameter/matrix/documentation validation passed 222 Python tests with deprecations as errors; full Python suite was not repeated in this batch.
+
+
+### Cold bound-text assignment reference (2026-10-31)
+
+text-cold/trace.json retains 12 independent sessions, each assignment then
+observation: 24 runs/312 raw frames/60 ordered projections (24 widgets, 24 state
+reports, twelve URLs). The three code inputs are full Unicode text, effective
+default abcde and None; each meets missing, valid-long, default-folding or empty
+URL. Inputs contain no widget state and callbacks remain empty. Native code
+text stays untruncated; selected URL text is truncated; empty and None differ.
+Fresh assignment without URL has no backend URL message. Default-folding URL
+is removed even when a nondefault code value remains. None changes the effective
+wire default until a non-null value wins; raw options still give stable identity.
+
+Python gates bind exact request/history flags, sessions/version, raw PB/summary,
+full widget/default/value/set_value/query-key/max_chars fields, layout/one-shot,
+ordered URL/widget/report events and callback/state values. Six coherent cases
+reject cold extra publication, native truncation, wrong precedence, None loss,
+wrong fold and late URL. Real Rust WS replay checks all sixty projections and
+pairwise identity relations. Initial replay lacked cold opt-ins in two widget
+projection branches; target/text-cold-adapter-before.log preserves that adapter
+failure, and final replay passes after the scoped test-helper correction.
+
+No production Rust changes: the suspected guard removal would have broken the
+frozen SDK behavior and was not made. The existing forms fixture's old bytes,
+including CRLF, are unchanged outside two opt-in assign-default lines. SDK
+collector closed its server/socket; port 57333 read back free. All-target Clippy
+and formatting passed (existing MSVC linker stdout warning remains). Native
+query module passed 35 tests, retaining only its existing rerun_queue_messages_match_frozen_reference exclusion. Navigation and the rest of the workspace were
+not rerun; the previous full Rust result remains a prior snapshot. Logs:
+target/text-cold-{replay,clippy,query-regression}.log. Browser URL/IME/remount,
+alternate bindings and broader source/error combinations remain open with 130
+partial and M3/M5/M7/full goal. Existing pending choices and colconfig_params
+work are unchanged and excluded from staging.
+
+Related query/widget-reference/matrix/documentation validation passed 229 Python tests with deprecations as errors; after comment/control-flow cleanup, the focused cold guards also passed. The full Python suite was not repeated.

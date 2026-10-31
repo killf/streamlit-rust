@@ -309,6 +309,8 @@ def case_form_max_chars_cjk() -> None:
         phase = st.query_params.get("phase")
         if phase == "assign":
             st.session_state["cjk_note"] = "code長🧊extra"
+        elif phase == "assign-default":
+            st.session_state["cjk_note"] = "abcde"
         elif phase == "assign-none":
             st.session_state["cjk_note"] = None
 

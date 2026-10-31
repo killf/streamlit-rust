@@ -99,6 +99,8 @@ fn text_length_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
             let phase = query.get("phase");
             if phase.as_deref() == Some("assign") {
                 st.session_state().set("cjk_note", "code長🧊extra")?;
+            } else if phase.as_deref() == Some("assign-default") {
+                st.session_state().set("cjk_note", "abcde")?;
             } else if phase.as_deref() == Some("assign-none") {
                 st.session_state().set("cjk_note", Option::<String>::None)?;
             }
@@ -483,10 +485,24 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
         let Some(request) = frame["message"].get("rerun_script") else { continue };
         if !widget_ids.is_empty()
             && ((reference["scenario"] == "disabled-types" && request["query_string"].as_str().is_some_and(|query| query.contains("phase=load&")))
+                || (reference["scenario"] == "text-cold" && request["query_string"].as_str().is_some_and(|query| query.contains("&phase=assign")))
                 || (matches!(
                     reference["scenario"].as_str(),
                     Some(
-                        "text-length" | "text-reset" | "text-source" | "text-bound" | "text-bound-peer" | "text-repeat" | "text-empty" | "text-validation" | "text-unkeyed" | "text-unkeyed-area" | "text-area-height" | "text-area-size" | "text-input-width"
+                        "text-length"
+                            | "text-reset"
+                            | "text-source"
+                            | "text-bound"
+                            | "text-cold"
+                            | "text-bound-peer"
+                            | "text-repeat"
+                            | "text-empty"
+                            | "text-validation"
+                            | "text-unkeyed"
+                            | "text-unkeyed-area"
+                            | "text-area-height"
+                            | "text-area-size"
+                            | "text-input-width"
                     )
                 ) && request["query_string"].as_str().is_some_and(|query| query.ends_with("phase=load"))))
         {
@@ -594,6 +610,7 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
                                             | "text-reset"
                                             | "text-source"
                                             | "text-bound"
+                                            | "text-cold"
                                             | "text-bound-peer"
                                             | "text-repeat"
                                             | "text-empty"
@@ -639,6 +656,7 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
                                             | "text-reset"
                                             | "text-source"
                                             | "text-bound"
+                                            | "text-cold"
                                             | "text-bound-peer"
                                             | "text-repeat"
                                             | "text-empty"
@@ -728,7 +746,22 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
         }
         if matches!(
             reference["scenario"].as_str(),
-            Some("text-length" | "text-reset" | "text-source" | "text-bound" | "text-bound-peer" | "text-repeat" | "text-empty" | "text-validation" | "text-unkeyed" | "text-unkeyed-area" | "text-area-height" | "text-area-size" | "text-input-width")
+            Some(
+                "text-length"
+                    | "text-reset"
+                    | "text-source"
+                    | "text-bound"
+                    | "text-cold"
+                    | "text-bound-peer"
+                    | "text-repeat"
+                    | "text-empty"
+                    | "text-validation"
+                    | "text-unkeyed"
+                    | "text-unkeyed-area"
+                    | "text-area-height"
+                    | "text-area-size"
+                    | "text-input-width"
+            )
         ) {
             for kind in ["text_input", "text_area"] {
                 if let Some(widget) = message["delta"]["new_element"].get(kind) {
@@ -819,7 +852,7 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
     assert_eq!(observed, expected);
     if matches!(
         reference["scenario"].as_str(),
-        Some("text-reset" | "text-source" | "text-bound" | "text-bound-peer" | "text-repeat" | "text-empty" | "text-validation" | "text-unkeyed" | "text-unkeyed-area" | "text-area-height" | "text-area-size" | "text-input-width")
+        Some("text-reset" | "text-source" | "text-bound" | "text-cold" | "text-bound-peer" | "text-repeat" | "text-empty" | "text-validation" | "text-unkeyed" | "text-unkeyed-area" | "text-area-height" | "text-area-size" | "text-input-width")
     ) {
         // 比较身份的相等关系，不把 Python 与 Rust 的摘要字面量强行等同。
         assert_eq!(observed_identities.len(), expected_identities.len());
@@ -1370,4 +1403,9 @@ fn stop_lifecycle_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>
 #[actix_web::test]
 async fn stopped_button_and_hidden_query_binding_match_frozen_reference() -> TestResult {
     assert_queryparams_reference(stop_lifecycle_entry, include_str!("../../../tests/reference/reference-browser/widget-params/stop-lifecycle/trace.json"), 14).await
+}
+
+#[actix_web::test]
+async fn cold_bound_text_assignments_match_frozen_reference() -> TestResult {
+    assert_queryparams_reference(text_length_entry, include_str!("../../../tests/reference/reference-browser/queryparams/text-cold/trace.json"), 60).await
 }

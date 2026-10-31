@@ -192,7 +192,7 @@ def read_query_param_capture(scenario, capture=None):
                     byte_payloads.append(widgets[0].bytes_value)
         elif message.WhichOneof("type") == "new_session":
             sessions.append(message.new_session.initialize.session_id)
-            if scenario in ("disabled-json", "encoding", "text-length", "text-reset", "text-source", "text-bound", "text-bound-peer", "text-bound-area", "text-repeat", "text-empty", "text-validation", "text-unkeyed", "text-unkeyed-area", "text-area-height", "text-area-size", "text-input-width"):
+            if scenario in ("disabled-json", "encoding", "text-length", "text-reset", "text-source", "text-bound", "text-bound-peer", "text-bound-area", "text-cold", "text-repeat", "text-empty", "text-validation", "text-unkeyed", "text-unkeyed-area", "text-area-height", "text-area-size", "text-input-width"):
                 environment = message.new_session.initialize.environment_info
                 assert environment.streamlit_version == "1.66.1" and environment.python_version == "3.14.7.final.0"
         elif message.WhichOneof("type") == "script_finished":
@@ -614,6 +614,11 @@ def read_query_param_capture(scenario, capture=None):
         for widget, value in zip(widgets, ("ok", "ok", "LONGE"), strict=True):
             assert widget["default"] == "abcdef🧊" and widget["max_chars"] == 5 and widget["query_param_key"] == "cjk_note"
             assert widget["set_value"] and widget["value"] == value
+    elif scenario == "text-cold":
+        assert len(requests) == len(snapshots) == len(sessions) == 24
+        assert finishes == [0] * 24 and len(urls) == 12
+        assert len(set(sessions)) == 12
+        assert all(sessions[i] == sessions[i + 1] for i in range(0, 24, 2))
     elif scenario in ("text-bound", "text-bound-peer", "text-bound-area"):
         assert len(requests) == 12 and requests[0] == capture["query_string"]
         assert finishes == [0] * 12 and len(sessions) == 12 and len(set(sessions)) == 1
@@ -1897,3 +1902,128 @@ def test_bound_area_gate_rejects_coherent_wrong_wire(mutation):
     assert changed
     with pytest.raises(AssertionError):
         read_bound_text_capture(False, capture, area=True)
+
+
+def read_cold_text_capture(capture=None):
+    from urllib.parse import urlencode
+
+    if capture is None:
+        capture = json.loads((HERE / "reference-browser/queryparams/text-cold/trace.json").read_text(encoding="utf-8"))
+    assert capture["scenario"] == "text-cold"
+    # 1. 绑定原始 PB、摘要和独立会话，再收集实际发送顺序。
+    snapshots, urls = read_query_param_capture("text-cold", capture)
+    runs = []
+    for frame in capture["frames"]:
+        message = frame["message"]
+        if "rerun_script" in message:
+            runs.append({"request": message["rerun_script"], "events": [], "layouts": []})
+        if "page_info_changed" in message:
+            runs[-1]["events"].append(("url", message["page_info_changed"]["query_string"]))
+        element = message.get("delta", {}).get("new_element", {})
+        if "text_input" in element:
+            runs[-1]["events"].append(("widget", element["text_input"]))
+            runs[-1]["layouts"].append((element["width_config"], element.get("has_one_shot_effect", False)))
+        if "json" in element:
+            runs[-1]["events"].append(("report", json.loads(element["json"]["body"])))
+    assert len(runs) == 24
+    expected_urls, identity = [], None
+    # 2. 固定代码/URL 来源选择、None、默认值以及同步字段。
+    for i, run in enumerate(runs):
+        assigned = ("assign", "assign-default", "assign-none")[i // 8]
+        native = ("code長🧊extra", "abcde", None)[i // 8]
+        slot, first = (i // 2) % 4, i % 2 == 0
+        phase = assigned if first else "observe"
+        source = (None, "URLTOOLONG", "abcdefTAIL", "")[slot]
+        prefix = f"case=form-max-chars-cjk&probe=length&kind=input&bind=on&limit=5&default=long&phase={phase}"
+        assert run["request"]["query_string"] == prefix + ("&" + urlencode({"cjk_note": source}) if source is not None else "")
+        assert not run["request"].get("is_history_navigation", False)
+        assert run["request"].get("widget_states", {}).get("widgets", []) == []
+        if slot == 0:
+            value = native
+        elif slot == 1:
+            value = "URLTO"
+        elif slot == 2:
+            value = native if native is not None else "abcde"
+        else:
+            value = ""
+        sync = first or slot in (1, 3)
+        widgets = [data for kind, data in run["events"] if kind == "widget"]
+        assert len(widgets) == 1
+        identity = identity or widgets[0]["id"]
+        widget = {"id": identity, "label": "中文", "max_chars": 5, "label_visibility": {}, "query_param_key": "cjk_note"}
+        if not ((assigned == "assign-none" and first) or value is None):
+            widget["default"] = "abcdef🧊"
+        if sync:
+            widget["set_value"] = True
+            if value is not None:
+                widget["value"] = value
+        report = {"phase": phase, "value": value, "state": value, "callbacks": []}
+        # 3. URL 更正必须先于控件；冷启动赋值本身不额外广播。
+        expected = []
+        if slot in (1, 2):
+            corrected = "URLTO" if slot == 1 else "abcde" if native is None and first else None
+            url = prefix + ("&" + urlencode({"cjk_note": corrected}) if corrected is not None else "")
+            expected.append(("url", url))
+            expected_urls.append(url)
+        expected += [("widget", widget), ("report", report)]
+        assert run["events"] == expected
+        assert run["layouts"] == [({"use_stretch": True}, sync)]
+        assert snapshots[i] == report
+    assert urls == expected_urls
+
+
+def test_cold_bound_text_preserves_assignment_and_url_precedence():
+    read_cold_text_capture()
+
+
+@pytest.mark.parametrize("mutation", ("cold-publish", "truncate", "priority", "null", "fold", "late"))
+def test_cold_text_gate_rejects_coherent_wrong_wire(mutation):
+    import base64
+    from urllib.parse import urlencode
+    from google.protobuf.json_format import MessageToDict
+    from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
+
+    capture = json.loads((HERE / "reference-browser/queryparams/text-cold/trace.json").read_text(encoding="utf-8"))
+    target_runs = {"cold-publish": (0,), "truncate": (0, 1), "priority": (2, 3), "null": (16, 17), "fold": (4, 5), "late": (2,)}[mutation]
+    run, changed = -1, False
+    for i, frame in enumerate(capture["frames"]):
+        if frame["direction"] == "client->server":
+            run += 1
+            continue
+        if run not in target_runs:
+            continue
+        message = ForwardMsg()
+        message.ParseFromString(base64.b64decode(frame["base64"]))
+        kind = message.WhichOneof("type")
+        element = message.delta.new_element
+        if mutation == "cold-publish" and element.WhichOneof("type") == "text_input":
+            extra = ForwardMsg()
+            extra.page_info_changed.query_string = "case=form-max-chars-cjk&probe=length&kind=input&bind=on&limit=5&default=long&phase=assign&" + urlencode({"cjk_note": "code長🧊extra"})
+            raw = extra.SerializeToString()
+            capture["frames"].insert(i, {"direction": "server->client", "base64": base64.b64encode(raw).decode(), "bytes": len(raw), "message": MessageToDict(extra, preserving_proto_field_name=True)})
+            changed = True
+            break
+        if mutation == "late" and kind == "page_info_changed":
+            capture["frames"][i], capture["frames"][i + 1] = capture["frames"][i + 1], frame
+            changed = True
+            break
+        if mutation in ("priority", "fold") and kind == "page_info_changed":
+            prefix = message.page_info_changed.query_string.split("&cjk_note=", 1)[0]
+            message.page_info_changed.query_string = prefix + "&" + urlencode({"cjk_note": "code長🧊extra" if mutation == "priority" else "abcde"})
+        elif mutation in ("truncate", "priority", "null") and element.WhichOneof("type") == "text_input":
+            if mutation == "null":
+                element.text_input.default = "abcdef🧊"
+            if element.text_input.set_value:
+                element.text_input.value = {"truncate": "code長", "priority": "code長🧊extra", "null": ""}[mutation]
+        elif mutation in ("truncate", "priority", "null") and element.WhichOneof("type") == "json":
+            report = json.loads(element.json.body)
+            report["value"] = report["state"] = {"truncate": "code長", "priority": "code長🧊extra", "null": ""}[mutation]
+            element.json.body = json.dumps(report)
+        else:
+            continue
+        raw = message.SerializeToString()
+        frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(message, preserving_proto_field_name=True))
+        changed = True
+    assert changed
+    with pytest.raises(AssertionError):
+        read_cold_text_capture(capture)

@@ -468,3 +468,6 @@ async fn main(st: &Streamlit) {
 
 
 2026-10-31 查询绑定控件在普通隐藏后保留 native key 的值，同时删除失效 URL；再次显示时先修复 URL，再同步控件值。普通非绑定控件仍按原规则清理。widget_params 的 `?probe=stop-lifecycle&phase=load&bound=url` 对应八轮 stop、按钮和绑定状态的原生参考及 WS 回归，尚不代表所有浏览器/页面/错误组合已验收。
+
+
+2026-10-31 首次绑定赋值的后端协议已补十二会话、二十四轮参考：代码字符串、默认值和 None 与缺失/有效/默认/空 URL 组合保持 SDK 行为。冷启动代码赋值无 URL 时不额外发送后端 URL 消息；实际浏览器最终地址仍需单独验证。生产逻辑未改，冻结参考和回放见 queryparams/text-cold。
