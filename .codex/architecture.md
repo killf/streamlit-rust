@@ -698,3 +698,30 @@ numeric limit definitions, browser typing/IME/UTF-16 and complete form/widget
 parity remain open. These protocol probes do not upgrade the old browser claim.
 The pending JSON parser, public error/API and broader rerun decisions remain
 pending; inventory stays 130 partial and the full goal is not closed.
+
+
+### Keyed text_area includes max_chars in its existing identity (2026-10-31)
+
+The locked SDK explicitly keeps max_chars in keyed text_area identity. Rust
+text_input already did so, but text_area replaced every keyed extra with an
+empty string. Changing the limit retained the old ID and typed value. The
+production correction serializes only max_chars into the existing keyed extra;
+unkeyed identity, generic NewElement hash, public APIs/dependencies and default
+truncation are unchanged. Merely changing the default still preserves identity.
+
+The existing forms probe is reused unchanged. The native collector's text-reset
+scenario records two independent kinds, 24 runs/310 frames/48 ordered widget and
+state projections. The 5 -> 3 -> 5 -> 0 -> None -> 5 sequence checks four ID
+classes per kind, reset without callback, retention on a default-only None
+change, and reinitialization rather than resurrection when returning to an old
+ID. Rust compares all within-runtime identity equality relations in addition
+to fields/state; it does not equate opaque Python/Rust digest strings.
+
+Static request/value/identity expectations, raw PB-to-summary binding and four
+coherent mutations protect the reference. A mutation collapses all area IDs
+and rewrites client references without corrupting protobuf or other values.
+Native source/code-assignment changes simultaneous with the limit, stale old-ID
+submissions, unkeyed controls, browser remount/IME and full field/identity/UI
+compatibility remain unverified. This scoped widget registration correction
+is distinct from the pending generic element-identity decision. Full goal,
+M3/M5/M7 and 130 partial entries remain open.

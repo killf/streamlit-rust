@@ -227,3 +227,13 @@ wire defaults/limits and explicit synchronization are checked, with a separate
 form unit for batch application before the submit callback. This adds native
 state/protocol evidence, not browser typing/IME, query-bound length combinations,
 dynamic limit identity changes or complete form/widget parity.
+
+
+2026-10-31 changing-limit native follow-up: [24-run reference](../tests/reference/reference-browser/queryparams/text-reset/trace.json)
+checks that keyed text_input/text_area reset when max_chars changes, preserve a
+same-limit default-only change, and reinitialize on return to an older ID.
+Keyed text_area now includes the limit in its existing widget identity. This
+supersedes the previous native dynamic-limit gap for the measured sequence;
+browser remounts, simultaneous code writes/limit changes, stale-ID submissions
+and unkeyed controls remain outside this evidence. General NewElement identity
+is unchanged and its pending decision is not resolved by this correction.

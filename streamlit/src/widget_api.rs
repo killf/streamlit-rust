@@ -2537,7 +2537,8 @@ impl<C: AppendChild> InputWidgets for C {
             .as_ref()
             .map_or(Value::Null, |value| Value::String(options.max_chars.map_or_else(|| value.clone(), |limit| value.chars().take(limit).collect())));
 
-        let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { format!("{:?}:{:?}", options.value, options.max_chars) });
+        // 显式 key 仍按上限变化重置；默认值变化不改变 keyed 控件身份。
+        let identity = c.identity_in_form(&form_id, &if c.key.is_some() { serde_json::to_string(&options.max_chars)? } else { format!("{:?}:{:?}", options.value, options.max_chars) });
         let (id, result, set_value) = self.register_widget_parity(
             WidgetSpec {
                 disabled: c.disabled,
@@ -4010,6 +4011,53 @@ mod tests {
         }
         assert!(matches!(input(&mut wire)?, element::Type::Markdown(markdown) if markdown.body == "submit callback"));
 
+        Ok(())
+    }
+
+    #[test]
+    fn keyed_text_area_resets_for_limit_changes_but_keeps_default_only_edits() -> anyhow::Result<()> {
+        let state = SessionState::default();
+        let render = |limit, none| -> anyhow::Result<(String, Option<String>)> {
+            let (st, mut wire) = app(&state);
+            let mut options = TextAreaOptions::new("Area", "abcdef").key("area").max_chars(limit);
+            if none {
+                options = options.value_none();
+            }
+            let value = st.text_area(options)?;
+            let element::Type::TextArea(widget) = input(&mut wire)? else { anyhow::bail!("expected text area") };
+            Ok((widget.id, value))
+        };
+
+        // 1. 同一上限保留前端值和身份。
+        state.begin_widgets(vec![]);
+        let (first, value) = render(5, false)?;
+        assert_eq!(value.as_deref(), Some("abcde"));
+        state.finish_widgets();
+        state.begin_widgets(vec![WidgetState {
+            id: first.clone(),
+            value: Some(widget_state::Value::StringValue("edit!".into())),
+        }]);
+        let (same, value) = render(5, false)?;
+        assert_eq!(same, first);
+        assert_eq!(value.as_deref(), Some("edit!"));
+        state.finish_widgets();
+
+        // 2. 上限变化回到新默认值，仅改默认值不重置；回到旧上限也不复活旧输入。
+        state.begin_widgets(vec![]);
+        let (short, value) = render(3, false)?;
+        assert_ne!(short, first);
+        assert_eq!(value.as_deref(), Some("abc"));
+        state.finish_widgets();
+        state.begin_widgets(vec![]);
+        let (same, value) = render(3, true)?;
+        assert_eq!(same, short);
+        assert_eq!(value.as_deref(), Some("abc"));
+        state.finish_widgets();
+        state.begin_widgets(vec![]);
+        let (restored, value) = render(5, false)?;
+        assert_eq!(restored, first);
+        assert_eq!(value.as_deref(), Some("abcde"));
+        state.finish_widgets();
         Ok(())
     }
 

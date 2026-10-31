@@ -957,3 +957,51 @@ query-bound length, changing-limit identity or invalid-limit definition claim.
 M3/M5/M7, all 130 partial entries and the full goal remain open; pending JSON/API/
 queue choices are unchanged. Existing colconfig_params work is kept out of this
 batch's commit and push.
+
+
+### 2026-10-31 keyed text limit reset correction
+
+Keyed text_area previously ignored max_chars in its identity. The existing
+keyed text_input is the control; only text_area's keyed identity extra now
+serializes max_chars. No new API, dependency/module, default handling, unkeyed
+identity or general element hashing change. Source diff and semantic spacing
+were reviewed.
+
+Reused the existing forms probe without modifying it. New text-reset native
+reference has two sessions/24 runs/310 raw frames and 48 ordered widget/state
+projections. The limit sequence covers shrink/grow/zero/unlimited/return,
+actual typed strings and default-only None changes. Four IDs per kind are
+required even when zero/None share max_chars=0 wire encoding. Returning to an
+old ID yields its default, not the earlier input; no callback is dispatched
+solely by the reset. All native values/state/callbacks and widget fields match,
+and every pairwise identity equality relation matches the frozen reference.
+Opaque Python/Rust digest literals are not compared across runtimes.
+
+The new public-API unit first failed on unchanged identity; the complete 48-event
+WS replay also failed against current old production code before the fix.
+Both logs are retained as target/text-reset-unit-before.log and
+text-reset-ws-before.log. After correction, code/all-targets Clippy -D warnings,
+Rustfmt, focused unit and WS differential passed (text-reset-clippy.log,
+text-reset-unit.log, text-reset-integration.log under target/). Existing MSVC
+linker stdout warning remains. Full workspace passed 269: library 262, ledger 1,
+macros 2, rustdoc 4. Only the original
+navigation_pages_switch_and_session_state_match_the_measured_wire and
+rerun_queue_messages_match_frozen_reference were excluded; this is not full
+workspace green (target/text-reset-workspace.log).
+
+124 related query/matrix/docs checks passed with DeprecationWarning as error
+(target/text-reset-final-gates.log). Raw PB/summary, exact requests/input,
+versions/session grouping, static native state/callback/default/limit/sync fields
+and identity relations are checked. Four coherent mutations reject collapsed
+area IDs with matching client references, resurrected state, reset callbacks
+and default-only reset. The previous full 1803-reference run was not repeated;
+this batch claims its actual related checks only. Native capture sockets/server
+were closed and port 62136 read back free. Original reference files remain
+unchanged; new data is queryparams/text-reset/trace.json.
+
+Guide/matrix/inventory now distinguish measured native reset from unverified
+browser remount/IME, simultaneous code/limit changes, stale-ID submissions,
+unkeyed and arbitrary parameter combinations. No status upgrade: 130 partial,
+M3/M5/M7 and the full goal stay open. Generic element identity, JSON/public API
+and broader queue decisions remain pending. Existing colconfig_params work
+is preserved outside this batch's commit/push.

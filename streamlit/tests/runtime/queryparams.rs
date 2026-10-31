@@ -387,11 +387,12 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
     let mut stream = sessions::connect(address, None).await;
     let mut widget_ids = std::collections::HashMap::new();
     let mut observed = Vec::new();
+    let mut observed_identities = Vec::new();
     for frame in reference["frames"].as_array().ok_or("missing frames")? {
         let Some(request) = frame["message"].get("rerun_script") else { continue };
         if !widget_ids.is_empty()
             && ((reference["scenario"] == "disabled-types" && request["query_string"].as_str().is_some_and(|query| query.contains("phase=load&")))
-                || (reference["scenario"] == "text-length" && request["query_string"].as_str().is_some_and(|query| query.ends_with("phase=load"))))
+                || (matches!(reference["scenario"].as_str(), Some("text-length" | "text-reset")) && request["query_string"].as_str().is_some_and(|query| query.ends_with("phase=load"))))
         {
             drop(stream);
             stream = sessions::connect(address, None).await;
@@ -485,14 +486,16 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
                                 if matches!(reference["scenario"].as_str(), Some("seed" | "seed-code" | "rerun")) {
                                     observed.push(serde_json::json!({"widget": key, "set": widget.set_value, "value": widget.value}));
                                 }
-                                if reference["scenario"] == "text-length" {
+                                if matches!(reference["scenario"].as_str(), Some("text-length" | "text-reset")) {
                                     observed.push(serde_json::json!({"widget": key, "kind": "text_input", "set": widget.set_value, "value": widget.value, "default": widget.default, "max_chars": widget.max_chars}));
+                                    observed_identities.push(widget.id.clone());
                                 }
                                 widget_ids.insert(key, widget.id);
                             }
-                            Some(element::Type::TextArea(widget)) if reference["scenario"] == "text-length" => {
+                            Some(element::Type::TextArea(widget)) if matches!(reference["scenario"].as_str(), Some("text-length" | "text-reset")) => {
                                 let key = widget.id.rsplit('-').next().ok_or("missing text area key")?.to_owned();
                                 observed.push(serde_json::json!({"widget": key, "kind": "text_area", "set": widget.set_value, "value": widget.value, "default": widget.default, "max_chars": widget.max_chars}));
+                                observed_identities.push(widget.id.clone());
                                 widget_ids.insert(key, widget.id);
                             }
                             Some(element::Type::Checkbox(widget)) if matches!(reference["scenario"].as_str(), Some("disabled-valid" | "disabled" | "disabled-types")) => {
@@ -522,6 +525,7 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
 
     // 3. 自有服务停止后，对照参考的全部交错事件。
     let mut expected = Vec::new();
+    let mut expected_identities = Vec::new();
     for frame in reference["frames"].as_array().ok_or("missing reference frames")? {
         let message = &frame["message"];
         if matches!(reference["scenario"].as_str(), Some("rerun" | "rerun-queue"))
@@ -537,9 +541,10 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
         if let Some(info) = message.get("page_info_changed") {
             expected.push(serde_json::json!({"url": info["query_string"].as_str().unwrap_or("")}));
         }
-        if reference["scenario"] == "text-length" {
+        if matches!(reference["scenario"].as_str(), Some("text-length" | "text-reset")) {
             for kind in ["text_input", "text_area"] {
                 if let Some(widget) = message["delta"]["new_element"].get(kind) {
+                    expected_identities.push(widget["id"].as_str().ok_or("missing reference text identity")?.to_owned());
                     expected
                         .push(serde_json::json!({"widget": "cjk_note", "kind": kind, "set": widget["set_value"].as_bool().unwrap_or(false), "value": widget["value"], "default": widget["default"], "max_chars": widget["max_chars"].as_u64().unwrap_or(0)}));
                 }
@@ -588,6 +593,15 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
     }
     assert_eq!(expected.len(), expected_count, "reference must retain every snapshot and URL write");
     assert_eq!(observed, expected);
+    if reference["scenario"] == "text-reset" {
+        // 比较身份的相等关系，不把 Python 与 Rust 的摘要字面量强行等同。
+        assert_eq!(observed_identities.len(), expected_identities.len());
+        for (old_index, old_id) in expected_identities.iter().enumerate() {
+            for (new_index, new_id) in expected_identities.iter().enumerate() {
+                assert_eq!(observed_identities[old_index] == observed_identities[new_index], old_id == new_id, "identity relation {old_index}->{new_index}");
+            }
+        }
+    }
     Ok(())
 }
 
@@ -619,6 +633,11 @@ async fn query_param_encoding_matches_frozen_reference() -> TestResult {
 #[actix_web::test]
 async fn text_lengths_match_frozen_defaults_callbacks_and_code_assignments() -> TestResult {
     assert_queryparams_reference(text_length_entry, include_str!("../../../tests/reference/reference-browser/queryparams/text-length/trace.json"), 144).await
+}
+
+#[actix_web::test]
+async fn text_limit_changes_reset_values_and_preserve_default_only_identity() -> TestResult {
+    assert_queryparams_reference(text_length_entry, include_str!("../../../tests/reference/reference-browser/queryparams/text-reset/trace.json"), 48).await
 }
 
 #[actix_web::test]

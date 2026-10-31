@@ -412,3 +412,39 @@ The collector closed all sockets and its server; port 54262 was read back free.
 Browser typing/IME/UTF-16 limits, query-bound lengths, dynamic max_chars reset,
 other invalid oneofs and complete field/UI parity remain open. Earlier browser
 and protocol records were retained, not rewritten or silently upgraded.
+
+
+## Keyed text limits changing across runs (2026-10-31)
+
+`text-reset/trace.json` reuses the same forms probe without app changes; collect
+with the existing native collector's --scenario text-reset into a new directory.
+Two sessions (text_input control and text_area) have 12 runs each, 310 original
+frames and 48 ordered widget/state projections. Limits follow
+5 -> 3 -> 5 -> 0 -> None -> 5, with typed edits between transitions. A same-limit
+None-default change checks that a new default is ignored after initialization.
+
+Both widgets reset to the new deserialized default when the limit changes,
+without invoking on_change for the reset. Returning to limit 5 uses the earlier
+ID but gets abcde, not the old typed prefix. With no limit, retained🧊text remains
+when only the default changes to None. Four real edits per session produce four
+callbacks; resets preserve the callback log. Zero and no limit have distinct
+IDs although both omit the numeric max_chars field on the wire.
+
+Identity is checked as within-runtime equality relations: for each 12-run group,
+the original ID's first occurrence positions are
+0/0/2/2/0/5/6/6/6/6/0/0. Runtime-specific ID digest strings are not equated across
+Python and Rust. Full widget kind/default/limit/set_value/value and native
+return/state/callback projections are also compared. Every raw frame is bound
+to its decoded summary; exact request/typed strings, session/version metadata,
+static values and four coherent mutations guard the reference. One mutation
+collapses all area IDs and also rewrites client references, leaving valid PB and
+otherwise correct states; it must still fail the identity relation gate.
+
+The old Rust keyed text_area ignored max_chars and kept one ID/old state.
+Unit and complete 48-event real-WS regressions failed before the one-expression
+production correction. text_input, unkeyed area identity and generic element
+hashing were not changed. All owned sockets/server were closed and port 62136
+was read back free. This does not establish browser remount/IME, simultaneous
+native assignment and limit change, stale old-ID submission, other parameters
+or complete field/identity/UI parity. Prior captures and pending decisions are
+retained; no reference was rewritten to turn the old behavior green.

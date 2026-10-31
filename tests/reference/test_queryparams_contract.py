@@ -36,6 +36,12 @@ TEXT_LENGTH_VALUES = (
     (None, "abcde", "中文🧊e\u0301", "中文🧊e\u0301", "👨\u200d👩\u200d👧", "", "code長🧊extra", "code長🧊extra", "line1"),
 )
 
+TEXT_RESET_STEPS = (("5", "long", "load"), ("5", "long", "edit"), ("3", "long", "shrink"), ("3", "long", "edit-short"),
+                    ("5", "long", "grow"), ("0", "long", "zero"), ("none", "long", "unlimited"), ("none", "long", "same-none"),
+                    ("none", "long", "retain"), ("none", "none", "same-default"), ("5", "long", "return-five"), ("5", "long", "edit-five"))
+TEXT_RESET_INPUTS = {"edit": "é🧊zUPPER", "edit-short": "XYZtail", "same-none": "retained🧊text", "edit-five": "END🧊ok"}
+TEXT_RESET_VALUES = ("abcde", "é🧊zUP", "abc", "XYZ", "abcde", "", "abcdef🧊", "retained🧊text", "retained🧊text", "retained🧊text", "abcde", "END🧊o")
+
 
 QUERY_ENCODING_CASES = (('tag=%+1&%+f=key&keep=ok', ['% 1'], [['tag', '% 1'], ['% f', 'key'], ['keep', 'ok']]),
  ('tag=%+0&tag=%+9&tag=%+A&tag=%+F&tag=%+a&tag=%+f', ['% 0', '% 9', '% A', '% F', '% a', '% f'], [['tag', '% f']]),
@@ -118,7 +124,7 @@ def read_query_param_capture(scenario, capture=None):
     assert capture["cleanup"] == {"websocket_closed": True, "server_stopped": True}
     snapshots, urls, finishes, requests, histories, errors = [], [], [], [], [], []
     sessions, error_phases, input_types, byte_payloads, json_payloads = [], [], [], [], []
-    length_inputs, length_widgets = [], []
+    length_inputs, length_widgets, length_ids = [], [], []
     slot = 0
     for frame in capture["frames"]:
         assert frame["direction"] in ("client->server", "server->client")
@@ -131,10 +137,11 @@ def read_query_param_capture(scenario, capture=None):
             requests.append(message.rerun_script.query_string)
             histories.append(message.rerun_script.is_history_navigation)
             slot = 0
-            if scenario == "text-length":
+            if scenario in ("text-length", "text-reset"):
                 widgets = message.rerun_script.widget_states.widgets
                 phase = requests[-1].rsplit("phase=", 1)[-1]
-                assert len(widgets) == (1 if phase in TEXT_LENGTH_INPUTS else 0)
+                inputs = TEXT_LENGTH_INPUTS if scenario == "text-length" else TEXT_RESET_INPUTS
+                assert len(widgets) == (1 if phase in inputs else 0)
                 if widgets:
                     assert widgets[0].id.endswith("-cjk_note") and widgets[0].WhichOneof("value") == "string_value"
                     length_inputs.append((phase, widgets[0].string_value))
@@ -151,7 +158,7 @@ def read_query_param_capture(scenario, capture=None):
                     byte_payloads.append(widgets[0].bytes_value)
         elif message.WhichOneof("type") == "new_session":
             sessions.append(message.new_session.initialize.session_id)
-            if scenario in ("disabled-json", "encoding", "text-length"):
+            if scenario in ("disabled-json", "encoding", "text-length", "text-reset"):
                 environment = message.new_session.initialize.environment_info
                 assert environment.streamlit_version == "1.66.1" and environment.python_version == "3.14.7.final.0"
         elif message.WhichOneof("type") == "script_finished":
@@ -160,9 +167,10 @@ def read_query_param_capture(scenario, capture=None):
             urls.append(message.page_info_changed.query_string)
         elif message.WhichOneof("type") == "delta" and message.delta.WhichOneof("type") == "new_element":
             element = message.delta.new_element
-            if scenario == "text-length" and element.WhichOneof("type") in ("text_input", "text_area"):
+            if scenario in ("text-length", "text-reset") and element.WhichOneof("type") in ("text_input", "text_area"):
                 kind = element.WhichOneof("type")
                 widget = getattr(element, kind)
+                length_ids.append(widget.id)
                 length_widgets.append((kind, widget.default if widget.HasField("default") else None, widget.max_chars,
                                        widget.set_value, widget.value if widget.HasField("value") else None))
             if scenario.startswith("disabled-types") or scenario in ("disabled-json", "encoding"):
@@ -295,6 +303,24 @@ def read_query_param_capture(scenario, capture=None):
                 assert snapshots[number * 9 + stage] == {"phase": phase, "value": value, "state": value, "callbacks": calls}
                 assert length_widgets[number * 9 + stage] == ("text_input" if kind == "input" else "text_area",
                     None if default == "none" else "abcdef🧊", 5 if limit == "5" else 0, phase == "assign", "code長🧊extra" if phase == "assign" else None)
+    elif scenario == "text-reset":
+        assert requests == [f"case=form-max-chars-cjk&probe=length&kind={kind}&limit={limit}&default={default}&phase={phase}"
+                            for kind in ("input", "area") for limit, default, phase in TEXT_RESET_STEPS]
+        assert histories == [False] * 24 and finishes == [0] * 24 and urls == []
+        assert len(sessions) == 24 and len(set(sessions)) == 2
+        assert len(set(sessions[:12])) == len(set(sessions[12:])) == 1
+        assert len(snapshots) == len(length_widgets) == len(length_ids) == 24
+        assert length_inputs == list(TEXT_RESET_INPUTS.items()) * 2
+        for number, kind in enumerate(("text_input", "text_area")):
+            calls = []
+            for stage, ((limit, default, phase), value) in enumerate(zip(TEXT_RESET_STEPS, TEXT_RESET_VALUES, strict=True)):
+                if phase in TEXT_RESET_INPUTS:
+                    calls.append(value)
+                assert snapshots[number * 12 + stage] == {"phase": phase, "value": value, "state": value, "callbacks": calls}
+                assert length_widgets[number * 12 + stage] == (kind, None if default == "none" else "abcdef🧊", 0 if limit == "none" else int(limit), False, None)
+            identities = length_ids[number * 12:(number + 1) * 12]
+            assert [identities.index(identity) for identity in identities] == [0, 0, 2, 2, 0, 5, 6, 6, 6, 6, 0, 0]
+        assert set(length_ids[:12]).isdisjoint(length_ids[12:])
     elif scenario == "encoding":
         assert requests == [case[0] for case in QUERY_ENCODING_CASES]
         assert histories == [False] * 16 and finishes == [0] * 16
@@ -366,6 +392,55 @@ def test_text_length_reference_separates_wire_defaults_and_native_assignments():
     assert snapshots[3]["callbacks"] == snapshots[2]["callbacks"]
     assert snapshots[6]["value"] == snapshots[7]["value"] == "code長🧊extra"
     assert snapshots[9]["value"] == "" and snapshots[18]["value"] == "abcdef🧊" and snapshots[27]["value"] is None
+
+
+def test_text_reset_reference_preserves_keyed_identity_equivalence_and_state():
+    snapshots, urls = read_query_param_capture("text-reset")
+    assert not urls and snapshots[:12] == snapshots[12:]
+
+
+@pytest.mark.parametrize("mutation", ["identity", "stale-state", "callback", "default-only"])
+def test_text_reset_gate_rejects_coherent_wrong_wire(mutation):
+    import base64
+    from google.protobuf.json_format import MessageToDict
+    from streamlit.proto.BackMsg_pb2 import BackMsg
+    from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
+
+    capture = json.loads((HERE / "reference-browser/queryparams/text-reset/trace.json").read_text(encoding="utf-8"))
+    run, phase, changed = -1, None, False
+    for frame in capture["frames"]:
+        incoming = frame["direction"] == "client->server"
+        message = BackMsg() if incoming else ForwardMsg()
+        message.ParseFromString(base64.b64decode(frame["base64"]))
+        if incoming:
+            run += 1
+            phase = message.rerun_script.query_string.rsplit("phase=", 1)[-1]
+        if run < 12:
+            continue
+        if mutation == "identity":
+            if incoming and message.rerun_script.widget_states.widgets:
+                message.rerun_script.widget_states.widgets[0].id = "$$ID-collapsed-cjk_note"
+            elif not incoming and message.delta.new_element.WhichOneof("type") == "text_area":
+                message.delta.new_element.text_area.id = "$$ID-collapsed-cjk_note"
+            else:
+                continue
+        else:
+            if incoming or phase != ("same-default" if mutation == "default-only" else "grow") or message.delta.new_element.WhichOneof("type") != "json":
+                continue
+            report = json.loads(message.delta.new_element.json.body)
+            if mutation == "callback":
+                report["callbacks"].append(report["value"])
+            else:
+                report["value"] = report["state"] = None if mutation == "default-only" else "XYZ"
+            message.delta.new_element.json.body = json.dumps(report)
+        raw = message.SerializeToString()
+        frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(message, preserving_proto_field_name=True))
+        changed = True
+        if mutation != "identity":
+            break
+    assert changed, "missing text-reset mutation target"
+    with pytest.raises(AssertionError):
+        read_query_param_capture("text-reset", capture)
 
 
 @pytest.mark.parametrize("mutation", ["unicode", "callback", "code-assignment", "widget-sync"])
