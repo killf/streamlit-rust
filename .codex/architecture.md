@@ -1420,3 +1420,12 @@ SDK/Rust 同 WS 十六轮各 122 帧/43 元素（22 创建报告、十五轮值/
 身份占用仍不同，修后 metadata 保持 semantic_match=false，color_flow_match=true。
 wrong-oneof、disabled、URL/表单/页面、非字符串代码值、无 key 身份及浏览器
 提交仍开放；统一 hash 和共享状态方案不受本次控件专用 codec 影响。
+
+颜色后续 Chrome 补证区分 popup 过滤与后端解码：输入 abc 本地预览为 #aabbcc，
+无请求；Escape 关闭后实际发 #aabbcc，而非原三位字符串。输入 zzzzzz 不改变
+合法颜色，关闭仍重发 #aabbcc 并重跑，但没有额外 callback。再通过色块点击和
+外部标签点击提交 #00ffaa、#123456，callback 日志有序共三条。SDK/Rust 各九
+阶段/五轮/35 原始 WS 帧，18 张实际 JPEG 逐张检查；同一已记录 WS 内 ID 稳定，
+DOM 草稿、色块、回显与完整成功 Element（规范化 ID/JSON 对象顺序）一致。
+这是 enabled 普通弹窗路径，不替代上批伪造非法字符串的默认回退验证，也不
+关闭创建错误、绑定/禁用/表单/页面等边界。本批无生产代码修改。

@@ -584,7 +584,9 @@ Without a key, changing a picker's width starts a new widget and resets its valu
 
 Datetime pickers use minute precision for the default and both bounds: seconds and fractional seconds are discarded before checking their order or whether the default fits. Bounds within the same minute may therefore be equal even when their original seconds are reversed. Different-minute bounds and defaults are still validated. This normalization does not change a time picker's step-dependent precision.
 
-Color picker defaults use `#RGB` or `#RRGGBB`, preserving letter case; unprefixed defaults are rejected. Submitted color strings may omit `#`. Empty or invalid submitted strings fall back to the widget's default before callbacks run. Integer widths below 40 are raised to 40 pixels. Assigning a string through session state remains a separate code-write path and synchronizes that string to the frontend.
+Color picker defaults use `#RGB` or `#RRGGBB`, preserving letter case; unprefixed defaults are rejected. Incoming widget-state strings may omit `#`. Empty or invalid incoming strings fall back to the widget's default before callbacks run. Integer widths below 40 are raised to 40 pixels. Assigning a string through session state remains a separate code-write path and synchronizes that string to the frontend.
+
+In the measured Chrome popover flow, typing previews the color without rerunning. Escape, clicking the swatch, or clicking outside commits the last valid color; the frontend expands shorthand and sends lowercase six-digit hex. Closing an invalid draft resends the previous valid color and reruns, without calling `on_change` when the value is unchanged. This popup filtering differs from directly submitting an invalid widget-state string to the backend.
 
 ## Presentation leftovers
 

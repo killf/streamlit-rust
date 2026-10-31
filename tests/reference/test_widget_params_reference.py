@@ -216,6 +216,173 @@ def read(path):
     return json.loads(path.read_text(encoding="utf-8-sig"))
 
 
+COLOR_UI_STAGES = ("load", "short-draft", "short-commit", "invalid-draft", "invalid-close", "recover-draft", "recover-commit", "restore-draft", "restore-commit")
+COLOR_UI_VALUES = ("#123456", "#123456", "#aabbcc", "#aabbcc", "#aabbcc", "#aabbcc", "#00ffaa", "#00ffaa", "#123456")
+COLOR_UI_COUNTS = (0, 0, 1, 1, 1, 1, 2, 2, 3)
+COLOR_UI_DRAFTS = (None, "abc", None, "zzzzzz", None, "00ffAA", None, "123456", None)
+COLOR_UI_RGB = ((18, 52, 86), (170, 187, 204), (170, 187, 204), (170, 187, 204), (170, 187, 204), (0, 255, 170), (0, 255, 170), (18, 52, 86), (18, 52, 86))
+COLOR_UI_SCREEN_RGB = ((26, 51, 82), (174, 187, 203), (174, 187, 203), (174, 187, 203), (174, 187, 203), (116, 250, 177), (116, 250, 177), (26, 51, 82), (26, 51, 82))
+
+
+def color_ui_messages(capture):
+    events = capture["raw_browser_events"]
+    assert len(events) == 36
+    created = [event for event in events if event["method"] == "Network.webSocketCreated"]
+    assert len(created) == 1
+    port = 8624 if capture["runtime"] == "python" else 8599
+    assert created[0]["params"]["url"] == f"ws://127.0.0.1:{port}/_stcore/stream"
+    ws_id = created[0]["params"]["requestId"]
+    output, sequence = [], 0
+    for index, event in enumerate(events):
+        assert event["sequence"] > sequence
+        sequence = event["sequence"]
+        assert event["source"]["tabId"] == int(capture["tab_id"])
+        if event["method"] == "Network.webSocketCreated":
+            continue
+        assert event["method"] in ("Network.webSocketFrameSent", "Network.webSocketFrameReceived")
+        assert event["params"]["requestId"] == ws_id and event["params"]["response"]["opcode"] == 2
+        data = base64.b64decode(event["params"]["response"]["payloadData"], validate=True)
+        message = BackMsg() if event["method"].endswith("Sent") else ForwardMsg()
+        message.ParseFromString(data)
+        output.append((index, message))
+    assert len(output) == 35
+    return output
+
+
+def check_color_ui(capture, folder):
+    import hashlib
+    from PIL import Image
+
+    assert capture["successful"] and capture["collection_complete"] and capture["semantic_match"]
+    assert capture["reference_version"] == "1.66.1" and capture["runtime"] in ("python", "rust")
+    assert capture["visual_review"]["all_stage_images_inspected"] and capture["visual_review"]["phase_alignment"]
+    cleanup = capture["cleanup"]
+    assert cleanup["tab_closed"] and cleanup["owned_servers_stopped"] and cleanup["network_disabled_before_tab_close"]
+    assert cleanup["ports_without_listeners"] == [8599, 8624] and cleanup["websocket_close_event_observed"] is False
+    assert [stage["stage"] for stage in capture["stages"]] == list(COLOR_UI_STAGES)
+    messages = color_ui_messages(capture)
+    events = ("#aabbcc", "#00ffaa", "#123456")
+    sessions, run_ids, widget_ids, normalized = set(), set(), set(), []
+    boundary = 0
+    port = 8624 if capture["runtime"] == "python" else 8599
+    for index, stage in enumerate(capture["stages"]):
+        name, value, count, draft = COLOR_UI_STAGES[index], COLOR_UI_VALUES[index], COLOR_UI_COUNTS[index], COLOR_UI_DRAFTS[index]
+        assert stage["action_and_capture_calls_separate"] and stage["events_complete"]
+        assert stage["event_start"] == boundary
+        expected_events = 8 if index == 0 else 7 if draft is None else 0
+        assert stage["event_end"] - boundary == expected_events
+        boundary = stage["event_end"]
+        dom = stage["dom"]
+        assert not dom["exceptions"] and dom["url"] == f"http://127.0.0.1:{port}/?probe=color&phase=load"
+        assert dom["viewport"] == {"width": 1463, "height": 724, "dpr": 1.75}
+        assert dom["color_buttons"] == [{"disabled": False, "expanded": "true" if draft is not None else "false"}]
+        assert dom["inputs"] == ([] if draft is None else [{"type": "text", "value": draft, "placeholder": None, "label": None, "disabled": False}])
+        rgb = COLOR_UI_RGB[index]
+        assert dom["swatch"] == [{"style": None, "background": f"rgb({rgb[0]}, {rgb[1]}, {rgb[2]})"}]
+        fields = {"phase": '"load"', "accepted": "true", "value": json.dumps(value), "native": json.dumps(value),
+                  "events": "[" + "".join(f"{i}:{json.dumps(event)}" for i, event in enumerate(events[:count])) + "]"}
+        order = ("phase", "accepted", "value", "native", "events") if capture["runtime"] == "python" else ("accepted", "value", "phase", "native", "events")
+        assert len(dom["reports"]) == 1
+        assert re.sub(r"\s+", "", dom["reports"][0]) == "{" + "".join(f'"{key}":{fields[key]}' for key in order) + "}"
+        assert stage["screenshot"] == f"{index + 1:02}-{name}.jpg"
+        path, integrity = folder / stage["screenshot"], stage["screenshot_integrity"]
+        assert path.stat().st_size == integrity["bytes"] and hashlib.sha256(path.read_bytes()).hexdigest() == integrity["sha256"]
+        image = Image.open(path)
+        assert image.format == "JPEG" and integrity["format"] == "jpeg" and image.size == (1463, 724)
+        assert (integrity["width"], integrity["height"]) == image.size
+        assert image.convert("RGB").getpixel((400, 144)) == COLOR_UI_SCREEN_RGB[index]
+        batch = [message for position, message in messages if stage["event_start"] <= position < stage["event_end"]]
+        if draft is not None:
+            assert not batch
+            continue
+        assert [message.WhichOneof("type") for message in batch] == ["rerun_script", "new_session", "session_status_changed", "delta", "delta", "script_finished", "session_status_changed"]
+        assert batch[2].session_status_changed.script_is_running and not batch[6].session_status_changed.script_is_running and batch[5].script_finished == 0
+        session = batch[1].new_session
+        assert session.initialize.environment_info.streamlit_version == "1.66.1"
+        sessions.add(session.initialize.session_id)
+        run_ids.add(session.script_run_id)
+        assert batch[3].delta.WhichOneof("type") == batch[4].delta.WhichOneof("type") == "new_element"
+        element = batch[3].delta.new_element
+        assert element.WhichOneof("type") == "color_picker"
+        widget = element.color_picker
+        widget_ids.add(widget.id)
+        assert widget.label == "Accent" and widget.id.endswith("-accent") and widget.default == "#123456"
+        assert not widget.value and not widget.set_value and not element.HasField("has_one_shot_effect")
+        assert not widget.disabled and not widget.form_id and not widget.help and not widget.ignore_rerun and widget.label_visibility.value == 0
+        assert MessageToDict(element.width_config, preserving_proto_field_name=True) == {"use_content": True}
+        request = batch[0].rerun_script
+        assert request.query_string == "probe=color&phase=load" and not request.is_history_navigation
+        incoming = request.widget_states.widgets
+        assert len(incoming) == (0 if index == 0 else 1)
+        if incoming:
+            assert incoming[0].id == widget.id and incoming[0].WhichOneof("value") == "string_value" and incoming[0].string_value == value
+        report_element = batch[4].delta.new_element
+        assert report_element.WhichOneof("type") == "json"
+        report = json.loads(report_element.json.body)
+        assert report == {"phase": "load", "accepted": True, "value": value, "native": value, "events": list(events[:count])}
+        assert list(batch[3].metadata.delta_path) == [0, 0] and list(batch[4].metadata.delta_path) == [0, 1]
+        normalized_widget = MessageToDict(element, preserving_proto_field_name=True)
+        normalized_widget["color_picker"].pop("id")
+        normalized_report = MessageToDict(report_element, preserving_proto_field_name=True)
+        normalized_report["json"]["body"] = report
+        normalized.append((normalized_widget, normalized_report))
+    assert boundary == 36 and len(sessions) == 1 and len(run_ids) == 5 and len(widget_ids) == 1
+    return normalized
+
+
+@pytest.mark.parametrize("root", (PYTHON, RUST), ids=("python", "rust"))
+def test_color_ui_popover_commit_rejection_and_restore(root):
+    folder = root / "color/ui"
+    check_color_ui(read(folder / "trace.json"), folder)
+
+
+def test_color_ui_full_elements_match_reference():
+    captures = [read(root / "color/ui/trace.json") for root in (PYTHON, RUST)]
+    assert captures[0]["producer_sources_sha256"] == captures[1]["producer_sources_sha256"]
+    assert check_color_ui(captures[0], PYTHON / "color/ui") == check_color_ui(captures[1], RUST / "color/ui")
+
+
+@pytest.mark.parametrize("mutation", ("draft-send", "invalid-input", "callback", "swatch", "screenshot", "old-image"))
+def test_color_ui_gate_rejects_wrong_wire_or_picture(mutation, tmp_path):
+    import hashlib
+
+    capture = read(PYTHON / "color/ui/trace.json")
+    folder = PYTHON / "color/ui"
+    if mutation == "draft-send":
+        capture["stages"][1]["event_end"] = 15
+        capture["stages"][2]["event_start"] = 15
+    elif mutation == "swatch":
+        capture["stages"][5]["dom"]["swatch"][0]["background"] = "rgb(18, 52, 86)"
+    elif mutation == "screenshot":
+        capture["stages"][6]["screenshot_integrity"]["sha256"] = "wrong"
+    elif mutation == "old-image":
+        for stage in capture["stages"]:
+            (tmp_path / stage["screenshot"]).write_bytes((folder / stage["screenshot"]).read_bytes())
+        old = (folder / capture["stages"][0]["screenshot"]).read_bytes()
+        target = capture["stages"][1]
+        (tmp_path / target["screenshot"]).write_bytes(old)
+        target["screenshot_integrity"].update(sha256=hashlib.sha256(old).hexdigest(), bytes=len(old))
+        folder = tmp_path
+    else:
+        stage = capture["stages"][4]
+        for event in capture["raw_browser_events"][stage["event_start"]:stage["event_end"]]:
+            method = event["method"]
+            message = BackMsg() if method.endswith("Sent") else ForwardMsg()
+            message.ParseFromString(base64.b64decode(event["params"]["response"]["payloadData"]))
+            if mutation == "invalid-input" and isinstance(message, BackMsg):
+                message.rerun_script.widget_states.widgets[0].string_value = "zzzzzz"
+            elif mutation == "callback" and message.WhichOneof("type") == "delta" and message.delta.new_element.WhichOneof("type") == "json":
+                report = json.loads(message.delta.new_element.json.body)
+                report["events"].append("#aabbcc")
+                message.delta.new_element.json.body = json.dumps(report)
+                stage["dom"]["reports"][0] = stage["dom"]["reports"][0].replace('0:"#aabbcc"', '0:"#aabbcc"\n1:"#aabbcc"')
+            else:
+                continue
+            event["params"]["response"]["payloadData"] = base64.b64encode(message.SerializeToString()).decode()
+    with pytest.raises(AssertionError):
+        check_color_ui(capture, folder)
+
+
 def frames(capture):
     for frame in capture["frames"]:
         data = base64.b64decode(frame["base64"], validate=True)

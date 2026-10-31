@@ -2098,3 +2098,42 @@ temporal/pickers/matrix/docs 参考门 343 项通过（widget 参数模块 92 �
 工作区/all-target Clippy、编辑 Rust 的 rustfmt、diff --check 通过，既有 MSVC
 linker stdout warning 保留。日志为 target/color-{workspace,reference,clippy}.log。
 用户 colconfig_params 改动保持独立，未合并、发布或部署。
+
+### 颜色弹窗的真实 Chrome 提交与恢复（2026-11-01）
+
+复用 ?probe=color&phase=load，SDK 8624、Rust 8599；开启 Network 后受控 reload
+建立正式采集起点。两侧各九阶段 load/short-draft/short-commit/invalid-draft/
+invalid-close/recover-draft/recover-commit/restore-draft/restore-commit，五次完整
+后端运行、35 原始 WS 帧和一个 created 事件。冻结在 widget-params/color/ui/，
+原生十六轮参考未覆盖或改写。两侧 18 张 1463x724 JPEG 原始字节逐张核对，
+视口 1463x724/DPR 1.75；动作+AX 与后续截图/DOM 在不同 CUA 调用，避免错位旧图。
+
+弹窗 abc 草稿只更新可见色块，无 WS 帧；Escape 后前端扩展为小写 #aabbcc
+提交，返回/native 和 callback 一致。zzzzzz 草稿被前端过滤，Escape 仍重发
+#aabbcc 并完成新一轮，值相同不回调；不能写成“不发送/不重跑”。六位 00ffAA
+通过色块点击提交成 #00ffaa，123456 通过外部 Accent 标签点击提交成 #123456，
+最终有序 callback 为 #aabbcc/#00ffaa/#123456。前端过滤无效草稿与直接协议
+注入非法字符串回默认是两条不同路径，不能互相替代。
+
+新增门禁绑定全部 CDP 原始帧/序号/WS ID/页签、各阶段事件边界与无草稿发送、
+5 次输入/运行/完成/running 顺序、唯一 session/5 run/稳定控件 ID、实际提交的
+六位字符串、返回/native/回调、控件字段/布局/同步标志及可见 DOM。完整 Color
+和 JSON Element 仅规范化控件 ID 与 JSON 对象顺序后一致；fixture 的 JSON 属性
+插入顺序不同，不宣称整页逐像素相同。JPEG 的格式/尺寸/长度/SHA 和固定色块
+采样点均检查；采样以实际 SDK 截图 RGB 为参考，不假定它与 CSS RGB 数值相同。
+六类反例覆盖草稿提前发送、非法提交字符串、重复回调、预览色、SHA 和同步
+更新 SHA 后复用旧阶段图片。图片和 DOM/原始协议共同构成证据，非人工标志替代。
+
+代码基线 c36f646，采集前二进制及两生产源文件 SHA 与上一批实际原生捕获一致；
+本批生产源码干净。两侧采集源 SHA 保留。页签 1754832033/1754832037 已关闭，
+先禁用 Network 再关闭页签；没有 close 事件，所以只声明动作完成，不称已观察
+WS close 帧。SDK 58436 按已知 fixture/端口命令核对、Rust 62268 按完整路径核对
+后停止，原 exec 会话均终止，8624/8599 读回无监听。本批只改门禁/文档/证据，
+未操作权限/外部服务，创建错误/禁用/绑定/表单/页面/IME/拖动等组合继续开放。
+M3/M5/M7、130 partial、统一 hash 和共享状态选型不关闭。
+
+最终 query/widget/temporal/pickers/matrix/docs 相关参考门 352 项通过（widget 参数
+模块 101 项），diff --check 通过，日志为 target/color-ui-reference.log。本批没有
+生产/示例/采集器修改，没有重新运行 Rust 工作区或 Clippy；上批 306 项与两项
+排除及 Clippy 结果仍为上批快照。用户 colconfig_params 改动保持独立，未合并、
+发布或部署。
