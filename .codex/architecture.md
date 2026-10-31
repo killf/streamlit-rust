@@ -599,3 +599,22 @@ widgets.rs 复用 input_error 生命周期，仅在已登记、上一轮禁用�
 现有 Rust 测试模块增加私有 reference_bytes，把捕获中 protobuf JSON 的标准 Base64 还原成 BytesValue；检查 alphabet、padding 位置/长度及尾位，逐字节保留非 UTF-8、NUL 和控制字符。该函数只属于维护者测试，既不是生产解码器，也未新增依赖/公共接口/数据格式。单元包含标准向量、非法编码与固定参考中的完整 0..255 序列；原先“仅空 bytes”的测试限制删除。全 57 轮/272 投影实际 WS 重放继续检查异常位置、文字、标志、回调与恢复，原八例/十六例/持续失败差分保留。
 
 Python 门从原始 PB 校验全部四份 bytes 输入（含空串），另把 0..255 改成反向字节序并同步 raw/summary，确认门禁拒绝；这样相同 TypeError 不能掩盖字节内容损坏。初版篡改定位误匹配较早异常帧，已修正为只修改目标客户端请求，未改真实参考。仅扩大测试证据，不扩展运行时错误策略；JSON 语法错误、其他 oneof/参数组合、启用/creation 控件及真实错误 UI 仍开放。
+
+
+### JSON syntax and Python decoder acceptance: decision pending (2026-10-31)
+
+需求仍是用户已选的 Python 错误、callback 与后续会话行为；本项不是接受严格 JSON 规范替代 Python 默认解码。新增 disabled-json/trace.json 在既有 app/collector 上采集 24 个独立会话，各 load→输入→同会话 recovery，共 72 轮、34 JSON 状态、38 异常、252 个控件/URL/异常/状态投影。17 个语法错误各产生两次 json.decoder.JSONDecodeError，发生于入口/callback 前且下一轮仍失败。五个特殊标量被公开调用接受并忽略，Live 回调按一/二次保存；[NaN] 和含 Infinity 的对象经 JSON 解码后，各产生两次 list/dict TypeError。原始捕获未改写；每轮 NewSession 的环境字段记录 Streamlit 1.66.1 / Python 3.14.7.final.0，门禁逐轮核对。runtime.json 另补充采集后的本地解释器构建信息，明确区别于原始启动帧。
+
+错误文字和定位也有区别：Python 3.14 对尾随逗号使用 Illegal trailing comma before end of object/array，并定位到逗号；含 emoji 的多行例为 line 2 column 2 (char 7)，不能用 UTF-8 byte offset 10 替代。Python 输出完整类型名 json.decoder.JSONDecodeError，不能用现有固定 TypeError 代替。来源栈保留于参考，Rust 不伪造 Python 文件/调用栈。
+
+直接解码对比使用当前缓存的 serde_json 1.0.145 与本地 Python json：Python 接受七个解码输入（NaN、Infinity、-Infinity、孤立 surrogate 转义、1e9999、[NaN]、含 Infinity 的对象），serde_json 拒绝本次全部 24 例。普通语法错误的消息和位置也不同。补测现有 serde::de::IgnoredAny：它接受孤立 surrogate 和溢出指数两例，仍拒绝另外五个 Python 接受的非有限数相关输入。直接替换词法也不能随意使用：[1NaN] 原本报错，简单将 NaN 换成 0 加空白会变成合法 [10]，必须保留合法值位置和错误语义。探针与对比位于忽略的 target/disabled-json-syntax-probe.rs、disabled-json-rust-parser.jsonl、disabled-json-ignored-probe.rs、disabled-json-rust-ignored.jsonl、disabled-json-decoder-comparison.json；这些都是库层/直接解码证据，不是 Rust 服务端 WS 差分。现有 widgets.rs 的 JsonValue 分类将 serde_json 失败归到 None，input_error 又只存消息、handler 固定输出 TypeError；因此本轮没有宣称 Rust 已兼容这些新错误。
+
+为保持原生 Rust 和错误接受边界，需要选择新的私有解析流程。依用户提供的 AGENTS.md 第 2 条，新增生产文件/流程须先确认，以下仅为可审核方案，尚未实施：
+
+1. 推荐：只扫描 Python JSON 语法并返回根类型/错误。拟新增 streamlit/src/python_json.rs，在 lib.rs 注册私有模块；接口只需返回 scalar/list/dict 或已按参考格式化的语法错误，不生成完整值。扫描器接受上述 Python 特殊词法与孤立 surrogate 转义，不把数值强制装入 f64，也不把孤立 surrogate 转为 Rust UTF-8 字符；根 list/dict 继续走已有不可哈希错误。错误位置按原输入的 Unicode 码点计算 line/column/char。采用显式容器栈，内存随嵌套深度增长，完整输入只做线性扫描；这是设计成本说明，不是性能实测。
+2. 复用已有 serde::de::IgnoredAny 做基础校验，在私有 python_json.rs 增加词法和错误适配。它已接受上述孤立 surrogate/溢出指数，可复用现有基础解析；还需在字符串之外、合法值位置处理非有限数，并将语法错误及 Unicode 定位映射到 Python。适配需保留原始输入和规范化数据，逐个验证词法改写、部分数字、尾随逗号等反例；不能把 serde 报错直接改标题就视为兼容。相比独立扫描，复用更多现有代码，但同时维护词法改写与两套错误语义；不新增依赖，也不改接其他 JSON codec。
+3. 暂缓生产解析改动，保留本次参考和明确差异，继续其他已授权工作，不以暂缓关闭完整目标。
+
+前两案还需在 widgets.rs 将私有 input_error 从消息字符串改为含 kind/message 的内部类型，让 handler 按冻结类型呈现；维持已有会话级错误与回调边界。生产改动仅为新私有模块、lib.rs、widgets.rs 和 websocket/handler.rs，不增加依赖、公共接口、配置或 Python 运行时。现有普通类型的错误文字/生命周期和 Delta-only 队列策略不变，JSON 公开接口、无损序列化、Material/Unicode 选案不在本项里。
+
+确认后先补扫描单元，再复用 streamlit/tests/runtime/queryparams.rs 的既有真实 WS 重放助手对全部 72 轮/252 投影严格差分，覆盖完整类型/消息/位置、特殊值接受、无提前 callback 和下一轮持续失败；原十九例/十六例/八例及字节精确重放继续通过。再跑相关 Python/矩阵/文档、全目标 Clippy 与工作区，最后补真实 UI。深嵌套、大整数限制与其他状态清理组合需另取参考，不凭空新增阈值，也不把这 24 例通过当作完整 JSON/全部 API 验收。M3/M5/M7 和 130 partial 继续开放。

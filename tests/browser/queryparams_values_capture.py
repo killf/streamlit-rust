@@ -25,7 +25,7 @@ ROOT = Path(__file__).resolve().parents[2]
 QUERY = "z=last&tag=first&tag=second&a=first&blank=&encoded=%E4%B8%AD%E6%96%87+text"
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("--out", type=Path, required=True)
-parser.add_argument("--scenario", choices=("values", "reserved", "binding", "seed", "seed-code", "disabled", "disabled-valid", "disabled-types", "rerun", "navigation-rerun", "rerun-messages", "rerun-queue"), default="values")
+parser.add_argument("--scenario", choices=("values", "reserved", "binding", "seed", "seed-code", "disabled", "disabled-valid", "disabled-types", "disabled-json", "rerun", "navigation-rerun", "rerun-messages", "rerun-queue"), default="values")
 args = parser.parse_args()
 if args.scenario == "reserved":
     QUERY = "case=reserved&embed=true&EMBED_OPTIONS=light_theme&st_embed=ordinary&=empty-key-value"
@@ -35,7 +35,7 @@ elif args.scenario == "seed":
     QUERY = "case=seed&phase=initial&bound=y&text=hello&optional=y&creation=new"
 elif args.scenario == "seed-code":
     QUERY = "case=seed&phase=bad-initial&bound=y&text=hello&optional=y&creation=new"
-if args.scenario in ("disabled", "disabled-valid", "disabled-types"):
+if args.scenario in ("disabled", "disabled-valid", "disabled-types", "disabled-json"):
     QUERY = "case=disabled&phase=load&bound=y&text=url"
 if args.scenario == "rerun":
     QUERY = "case=rerun&phase=load&bound=y&text=url"
@@ -123,6 +123,15 @@ try:
                 ("bound", "bytes_value", b"x"), ("bound", "bytes_value", b"'\0\\\r\n"),
                 ("bound", "bytes_value", bytes(range(256))),
             ]
+        elif args.scenario == "disabled-json":
+            malformed = [("bound", "json_value", value) for value in (
+                "", "{", "[", '{"x":}', '{"x":1,}', "[1,]", '{"x" 1}',
+                r'["\q"]', '"a\nb"', '{"x":1} tail', "中文", '{"🧊":\n }',
+                r'["\uZZZZ"]', "true false", "01", "-", "1.",
+                "NaN", "Infinity", "-Infinity", r'"\ud800"', "1e9999",
+                "[NaN]", '{"x":Infinity}',
+            )]
+        if args.scenario in ("disabled-types", "disabled-json"):
             trace["connection_policy"] = "Fresh WS per malformed input; recovery uses the same WS."
             queries = []
             for number in range(len(malformed)):
@@ -139,7 +148,7 @@ try:
         widget_ids = {}
         main_page_hash = None
         for index, query in enumerate(queries):
-            if args.scenario == "disabled-types" and index > 0 and index % 3 == 0:
+            if args.scenario in ("disabled-types", "disabled-json") and index > 0 and index % 3 == 0:
                 ws.close()
                 ws = sockets.enter_context(connect(url.replace("http", "ws") + "/_stcore/stream", origin=url, subprotocols=["streamlit"],
                                                    proxy=None, open_timeout=10, close_timeout=5, max_size=None, legacy=True))
@@ -178,7 +187,7 @@ try:
                         widget.bool_value = value
                     else:
                         widget.string_value = value
-            if args.scenario == "disabled-types" and index % 3:
+            if args.scenario in ("disabled-types", "disabled-json") and index % 3:
                 if index % 3 == 1:
                     key, field, value = malformed[index // 3]
                     widget = request.rerun_script.widget_states.widgets.add()

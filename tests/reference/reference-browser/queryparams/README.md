@@ -249,3 +249,32 @@ the exact 0..255 payload; the actual WS differential replays all 57 runs.
 Python binds every raw PB to its summary and asserts exact bytes. A coherent
 reverse-byte-order mutation must fail even though the exception text is unchanged.
 JSON syntax errors, other inputs/parameter combinations and real UI remain open.
+
+
+## JSON syntax and decoder acceptance reference (2026-10-31)
+
+`disabled-json/trace.json` uses 24 isolated three-run sessions: 72 finishes,
+34 snapshots, 38 exceptions and 252 widget/URL/exception/state events. Seventeen
+malformed JSON strings produce `json.decoder.JSONDecodeError` before callbacks
+and entry, and fail again on the following request. Python accepts NaN,
+Infinity, -Infinity, a lone-surrogate escape and 1e9999 in these disabled inputs;
+the application ignores them and preserves Live callbacks/recovery. [NaN] and
+an object containing Infinity decode successfully, then fail as unhashable
+list/dict in both requests. This distinguishes JSON syntax from container errors.
+
+Exact messages include Python 3.14 trailing-comma wording and Unicode character
+positions: the multiline emoji example is line 2 column 2, char 7 (not UTF-8
+byte offset 10). `runtime.json` is explicitly post-capture interpreter readback:
+Streamlit 1.66.1, Python 3.14.7. Original NewSession environment fields also
+record the versions and are checked on every run. The trace remains unchanged.
+
+Python gates bind raw PB to summaries, exact input lexemes, 24 session IDs,
+all callbacks/snapshots and persistent failures. Coherent mutations of exception
+kind, Unicode offset and accepted NaN input must fail. A separate direct parser
+probe found Python accepts seven JSON decoder inputs whereas cached serde_json
+1.0.145 Value decoding rejects all 24. Its existing IgnoredAny decoding accepts
+the lone-surrogate/overflow cases, while still rejecting the other five special
+inputs. That is library evidence, not Rust service WS parity.
+The current Rust flow does not implement the new JSONDecodeError path. The
+private scanner/IgnoredAny-adaptation/defer alternatives await a choice in
+.codex/architecture.md; no production parser or dependency was added.

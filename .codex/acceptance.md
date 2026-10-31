@@ -817,3 +817,16 @@ Rust 重放明确只接受本例的空 bytes；不为测试引入 base64 依赖�
 Python 从原始 PB 检查四份 bytes 载荷的精确内容，并一致改写 0..255 为反向序列，要求门禁拒绝，即使错误文字相同。初版篡改循环误匹配较早异常帧，已修正只修改目标客户端请求，未改真实参考。相关 query/矩阵/文档在弃用告警视为错误下共 99 项通过（target/disabled-bytes-final-gates.log）。上轮完整 1781 项是保留结果，本轮按改动范围验证，没有把其记作含新增用例的当前完整计数。
 
 采集进程已 terminate/wait，自有端口 60865 无监听，本轮无浏览器 task。用户指南和参考说明已同步十九例及非空字节范围；四条矩阵证据/限制和生成清单同步，130 partial 与完整目标保持。JSON 语法错误、其他组合和真实错误 UI 仍开放，Material/Unicode 等待选事项不变；只提交推送工作分支，colconfig_params 文件及已有指南索引段落不纳入。
+
+
+### JSON syntax reference and private parser choice (2026-10-31)
+
+复用既有参考 app/collector 新增 disabled-json 场景，没有修改生产 Rust。新原始捕获为 24 个独立 WS 会话各三轮，共 72 轮、34 状态、38 异常、252 个控件-URL-异常-状态投影。17 个语法错误各在入口/callback 前产生两次 json.decoder.JSONDecodeError；五个特殊标量接受并忽略、Live callback/恢复正常；[NaN] 和含 Infinity 对象经过 JSON 解码后各产生两次 list/dict TypeError。NewSession 原始环境字段逐轮核对 Streamlit 1.66.1/Python 3.14.7.final.0，runtime.json 只补采集后的构建信息，不修改原 trace。
+
+冻结输入词法、完整类型/消息、codepoint 位置（多行 emoji 例 char 7）、全部请求/结束帧、会话隔离、callback 和持续错误。三个一致改写 guard 覆盖 TypeError 替换 JSONDecodeError、错用 byte offset 10、NaN 换成标准 null，均应拒绝。相关 Python/query/矩阵/文档在弃用告警视为错误下 103 项通过（target/disabled-json-final-gates.log），其中 query 51 项。没有新增 Rust 排除或调整已有原始记录。
+
+独立直接解析探针使用当前缓存的 serde_json 1.0.145（对应 .d 编译输入已核对版本）和 Python json：七个输入被 Python 解码接受，Value 解码拒绝本次全部 24 个；补测已有 IgnoredAny 接受其中孤立 surrogate/溢出指数两例，另外五例仍不接受，已纳入选案。探针/结果位于 target/disabled-json-syntax-probe.rs、disabled-json-rust-parser.jsonl、disabled-json-decoder-comparison.json。此结果不能冒充 Rust 服务端差分，也未在本轮重新跑 Rust 工作区；前批 263 项只是保留结果。代码检查显示现有 serde 失败分支为 None 且输入错误只有固定 TypeError，新的 JSONDecodeError 路径尚未实现。
+
+按 engineering-change-design 整理既有 architecture.md 三案：根类型语法扫描（推荐）、现有 IgnoredAny 词法/错误适配、暂缓。涉及新增 python_json.rs 和私有错误 kind/message 传递，依用户提供的 AGENTS.md 第 2 条先待选择，生产文件/流程未实施，行为方向仍沿用此前选定的 Python 完整兼容。四条矩阵仅补参考/限制、未升级状态，清单保持 130 partial；M3/M5/M7 与完整 Goal 继续开放。
+
+采集进程已 terminate/wait，原端口 64996 清理另核验，本轮无浏览器 task。colconfig_params 独立改动保留，仅提交推送当前工作分支的参考、门禁和方案，不合并或发布。

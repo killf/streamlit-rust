@@ -26,6 +26,52 @@ from queryparams_contract import (  # noqa: E402
 PNG_BYTES = b"\x89PNG\r\n\x1a\n" + b"not-a-real-image-but-magic-and-hash-are-checked"
 
 
+DISABLED_JSON_INPUTS = ('',
+ '{',
+ '[',
+ '{"x":}',
+ '{"x":1,}',
+ '[1,]',
+ '{"x" 1}',
+ '["\\q"]',
+ '"a\nb"',
+ '{"x":1} tail',
+ '中文',
+ '{"🧊":\n }',
+ '["\\uZZZZ"]',
+ 'true false',
+ '01',
+ '-',
+ '1.',
+ 'NaN',
+ 'Infinity',
+ '-Infinity',
+ '"\\ud800"',
+ '1e9999',
+ '[NaN]',
+ '{"x":Infinity}')
+
+DISABLED_JSON_ERRORS = {0: ('json.decoder.JSONDecodeError', 'Expecting value: line 1 column 1 (char 0)'),
+ 1: ('json.decoder.JSONDecodeError', 'Expecting property name enclosed in double quotes: line 1 column 2 (char 1)'),
+ 2: ('json.decoder.JSONDecodeError', 'Expecting value: line 1 column 2 (char 1)'),
+ 3: ('json.decoder.JSONDecodeError', 'Expecting value: line 1 column 6 (char 5)'),
+ 4: ('json.decoder.JSONDecodeError', 'Illegal trailing comma before end of object: line 1 column 7 (char 6)'),
+ 5: ('json.decoder.JSONDecodeError', 'Illegal trailing comma before end of array: line 1 column 3 (char 2)'),
+ 6: ('json.decoder.JSONDecodeError', "Expecting ':' delimiter: line 1 column 6 (char 5)"),
+ 7: ('json.decoder.JSONDecodeError', 'Invalid \\escape: line 1 column 3 (char 2)'),
+ 8: ('json.decoder.JSONDecodeError', 'Invalid control character at: line 1 column 3 (char 2)'),
+ 9: ('json.decoder.JSONDecodeError', 'Extra data: line 1 column 9 (char 8)'),
+ 10: ('json.decoder.JSONDecodeError', 'Expecting value: line 1 column 1 (char 0)'),
+ 11: ('json.decoder.JSONDecodeError', 'Expecting value: line 2 column 2 (char 7)'),
+ 12: ('json.decoder.JSONDecodeError', 'Invalid \\uXXXX escape: line 1 column 4 (char 3)'),
+ 13: ('json.decoder.JSONDecodeError', 'Extra data: line 1 column 6 (char 5)'),
+ 14: ('json.decoder.JSONDecodeError', 'Extra data: line 1 column 2 (char 1)'),
+ 15: ('json.decoder.JSONDecodeError', 'Expecting value: line 1 column 1 (char 0)'),
+ 16: ('json.decoder.JSONDecodeError', 'Extra data: line 1 column 2 (char 1)'),
+ 22: ('TypeError', "cannot use 'list' as a dict key (unhashable type: 'list')"),
+ 23: ('TypeError', "cannot use 'dict' as a dict key (unhashable type: 'dict')")}
+
+
 def read_query_param_capture(scenario, capture=None):
     import base64
     from google.protobuf.json_format import MessageToDict
@@ -38,7 +84,7 @@ def read_query_param_capture(scenario, capture=None):
     assert capture["successful"] and "producer_error" not in capture
     assert capture["cleanup"] == {"websocket_closed": True, "server_stopped": True}
     snapshots, urls, finishes, requests, histories, errors = [], [], [], [], [], []
-    sessions, error_phases, input_types, byte_payloads = [], [], [], []
+    sessions, error_phases, input_types, byte_payloads, json_payloads = [], [], [], [], []
     slot = 0
     for frame in capture["frames"]:
         assert frame["direction"] in ("client->server", "server->client")
@@ -51,6 +97,11 @@ def read_query_param_capture(scenario, capture=None):
             requests.append(message.rerun_script.query_string)
             histories.append(message.rerun_script.is_history_navigation)
             slot = 0
+            if scenario == "disabled-json" and len(requests) % 3 == 2:
+                widgets = message.rerun_script.widget_states.widgets
+                assert len(widgets) == 2 and widgets[0].id.endswith("-bound") and widgets[1].id.endswith("-live")
+                assert widgets[0].WhichOneof("value") == "json_value"
+                json_payloads.append(widgets[0].json_value)
             if scenario in ("disabled-types-isolated", "disabled-types-more", "disabled-types-bytes") and len(requests) % 3 == 2:
                 widgets = message.rerun_script.widget_states.widgets
                 input_types.append((widgets[0].id.rsplit("-", 1)[-1], widgets[0].WhichOneof("value")))
@@ -59,21 +110,29 @@ def read_query_param_capture(scenario, capture=None):
                     byte_payloads.append(widgets[0].bytes_value)
         elif message.WhichOneof("type") == "new_session":
             sessions.append(message.new_session.initialize.session_id)
+            if scenario == "disabled-json":
+                environment = message.new_session.initialize.environment_info
+                assert environment.streamlit_version == "1.66.1" and environment.python_version == "3.14.7.final.0"
         elif message.WhichOneof("type") == "script_finished":
             finishes.append(message.script_finished)
         elif message.WhichOneof("type") == "page_info_changed":
             urls.append(message.page_info_changed.query_string)
         elif message.WhichOneof("type") == "delta" and message.delta.WhichOneof("type") == "new_element":
             element = message.delta.new_element
-            if scenario.startswith("disabled-types"):
+            if scenario.startswith("disabled-types") or scenario == "disabled-json":
                 assert list(message.metadata.delta_path) == [0, slot]
                 slot += 1
             if element.WhichOneof("type") == "exception":
                 errors.append(element.exception)
-                assert element.exception.type == "TypeError"
                 phase = requests[-1].split("phase=")[1].split("&")[0]
                 error_phases.append(phase)
-                if scenario.startswith("disabled-types"):
+                if scenario == "disabled-json":
+                    number = int(phase.rsplit("-", 1)[1])
+                    expected_type, expected_message = DISABLED_JSON_ERRORS[number]
+                    assert element.exception.type == expected_type and element.exception.message == expected_message
+                    assert list(message.metadata.delta_path) == [0, 0]
+                elif scenario.startswith("disabled-types"):
+                    assert element.exception.type == "TypeError"
                     number = int(phase.rsplit("-", 1)[1])
                     expected = {0: "'str' object cannot be interpreted as an integer", 1: "'str' object cannot be interpreted as an integer",
                                 2: "must be real number, not str", 14: "expected bytes, str found",
@@ -88,17 +147,41 @@ def read_query_param_capture(scenario, capture=None):
                     assert list(message.metadata.delta_path) == [0, 1 if number in (0, 1, 2, 14, 15, 16, 17, 18) else 0]
                 else:
                     assert scenario == "disabled", "reference must not contain an unexpected exception"
+                    assert element.exception.type == "TypeError"
                     assert element.exception.message == "'str' object cannot be interpreted as an integer"
                 assert not element.exception.message_is_markdown and not element.exception.is_streamlit_exception
-                if scenario.startswith("disabled-types"):
+                if scenario.startswith("disabled-types") or scenario == "disabled-json":
                     assert element.exception.stack_trace
                 else:
                     assert len(element.exception.stack_trace) == 2
             if element.WhichOneof("type") == "json":
                 snapshots.append(json.loads(element.json.body))
-    expected_errors = {"disabled": 1, "disabled-types": 13, "disabled-types-isolated": 5, "disabled-types-more": 15, "disabled-types-bytes": 18}.get(scenario, 0)
+    expected_errors = {"disabled": 1, "disabled-types": 13, "disabled-types-isolated": 5, "disabled-types-more": 15, "disabled-types-bytes": 18, "disabled-json": 38}.get(scenario, 0)
     assert len(errors) == expected_errors
-    if scenario in ("disabled-types-isolated", "disabled-types-more", "disabled-types-bytes"):
+    if scenario == "disabled-json":
+        metadata = json.loads((HERE / "reference-browser/queryparams/disabled-json/runtime.json").read_text(encoding="utf-8-sig"))
+        assert metadata["streamlit_version"] == "1.66.1" and metadata["python_version"] == "3.14.7"
+        assert metadata["scope"].startswith("Post-capture")
+        assert len(set(sessions)) == 24 and len(sessions) == 72
+        assert all(len(set(sessions[index:index + 3])) == 1 for index in range(0, 72, 3))
+        assert histories == [False] * 72 and finishes == [0] * 72
+        assert json_payloads == list(DISABLED_JSON_INPUTS)
+        assert [query.split("phase=")[1].split("&")[0] for query in requests] == [phase for number in range(24) for phase in ("load", f"malformed-{number}", f"recovery-{number}")]
+        assert error_phases == [phase for number in DISABLED_JSON_ERRORS for phase in (f"malformed-{number}", f"recovery-{number}")]
+        assert len(snapshots) == 34
+        assert urls == [query for number in range(17, 22) for query in (f"case=disabled&phase=malformed-{number}&text=base", f"case=disabled&phase=malformed-{number}")]
+        for report in snapshots:
+            phase = report["phase"]
+            assert [report[key] for key in ("plain", "bound", "text", "check")] == ["safe", "y", "url", False]
+            if phase == "load":
+                assert report["callbacks"] == [] and report["live"] == "ready"
+            else:
+                number = int(phase.rsplit("-", 1)[1])
+                assert 17 <= number <= 21
+                recovery = phase.startswith("recovery-")
+                assert report["callbacks"] == ["live"] * (2 if recovery else 1)
+                assert report["live"] == f"step-{number * 3 + (2 if recovery else 1)}"
+    elif scenario in ("disabled-types-isolated", "disabled-types-more", "disabled-types-bytes"):
         case_count = {"disabled-types-isolated": 8, "disabled-types-more": 16, "disabled-types-bytes": 19}[scenario]
         assert len(set(sessions)) == case_count and len(sessions) == case_count * 3
         assert all(len(set(sessions[index:index + 3])) == 1 for index in range(0, case_count * 3, 3))
@@ -539,38 +622,52 @@ def test_source_fingerprints_do_not_gate_functional_evidence(tmp_path):
         assert outcome["ok"], outcome["failures"]
 
 
-@pytest.mark.parametrize("scenario", ["disabled-types", "disabled-types-isolated", "disabled-types-more", "disabled-types-bytes"])
+@pytest.mark.parametrize("scenario", ["disabled-types", "disabled-types-isolated", "disabled-types-more", "disabled-types-bytes", "disabled-json"])
 def test_disabled_type_oracles_keep_recovery_and_persistent_array_errors(scenario):
     read_query_param_capture(scenario)
 
 
-@pytest.mark.parametrize("mutation", ["exception", "position", "callback", "json-list", "json-dict", "bytes", "byte-value"])
+@pytest.mark.parametrize("mutation", ["exception", "position", "callback", "json-list", "json-dict", "bytes", "byte-value", "json-error-kind", "json-error-offset", "json-input"])
 def test_disabled_type_gate_rejects_coherent_wrong_wire(mutation):
     import base64
     from google.protobuf.json_format import MessageToDict
     from streamlit.proto.BackMsg_pb2 import BackMsg
     from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
 
-    scenario = "disabled-types-bytes" if mutation == "byte-value" else "disabled-types-more" if mutation in ("json-list", "json-dict", "bytes") else "disabled-types-isolated"
+    if mutation in ("json-error-kind", "json-error-offset", "json-input"):
+        scenario = "disabled-json"
+    elif mutation == "byte-value":
+        scenario = "disabled-types-bytes"
+    elif mutation in ("json-list", "json-dict", "bytes"):
+        scenario = "disabled-types-more"
+    else:
+        scenario = "disabled-types-isolated"
     capture = json.loads((HERE / f"reference-browser/queryparams/{scenario}/trace.json").read_text(encoding="utf-8-sig"))
     phase = ""
     for frame in capture["frames"]:
         if frame["direction"] == "client->server":
             phase = frame["message"]["rerun_script"]["query_string"].split("phase=")[1].split("&")[0]
-            if mutation == "byte-value" and phase == "malformed-18":
+            if (mutation == "byte-value" and phase == "malformed-18") or (mutation == "json-input" and phase == "malformed-17"):
                 message = BackMsg()
                 message.ParseFromString(base64.b64decode(frame["base64"]))
-                message.rerun_script.widget_states.widgets[0].bytes_value = bytes(reversed(range(256)))
+                if mutation == "byte-value":
+                    message.rerun_script.widget_states.widgets[0].bytes_value = bytes(reversed(range(256)))
+                else:
+                    message.rerun_script.widget_states.widgets[0].json_value = "null"
                 raw = message.SerializeToString()
                 frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(message, preserving_proto_field_name=True))
                 break
             continue
         element = frame["message"].get("delta", {}).get("new_element", {})
-        target_phase = {"json-list": "malformed-8", "json-dict": "malformed-9", "bytes": "malformed-14"}.get(mutation, "malformed-2")
-        if (mutation not in ("callback", "byte-value") and phase == target_phase and "exception" in element) or (mutation == "callback" and phase == "recovery-1" and "json" in element):
+        target_phase = {"json-list": "malformed-8", "json-dict": "malformed-9", "bytes": "malformed-14", "json-error-kind": "malformed-0", "json-error-offset": "malformed-11"}.get(mutation, "malformed-2")
+        if (mutation not in ("callback", "byte-value", "json-input") and phase == target_phase and "exception" in element) or (mutation == "callback" and phase == "recovery-1" and "json" in element):
             message = ForwardMsg()
             message.ParseFromString(base64.b64decode(frame["base64"]))
-            if mutation in ("exception", "json-list", "json-dict", "bytes"):
+            if mutation == "json-error-kind":
+                message.delta.new_element.exception.type = "TypeError"
+            elif mutation == "json-error-offset":
+                message.delta.new_element.exception.message = "Expecting value: line 2 column 2 (char 10)"
+            elif mutation in ("exception", "json-list", "json-dict", "bytes"):
                 message.delta.new_element.exception.message = "'str' object cannot be interpreted as an integer"
             elif mutation == "position":
                 message.metadata.delta_path[-1] = 0
