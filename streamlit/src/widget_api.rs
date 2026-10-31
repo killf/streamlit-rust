@@ -2177,7 +2177,7 @@ impl<C: AppendChild> InputWidgets for C {
         let c = options.common;
         let form_id = form_scope(self, c.callback.is_some())?;
         let width_config = c.width(true)?;
-        let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { options.value.to_string() });
+        let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { serde_json::to_string(&(options.value, c.width))? });
         let (id, value, set_value) = self.register_widget_parity(
             WidgetSpec {
                 disabled: c.disabled,
@@ -2760,7 +2760,7 @@ impl<C: AppendChild> InputWidgets for C {
         let c = options.common;
         let form_id = form_scope(self, c.callback.is_some())?;
         let width_config = c.width(true)?;
-        let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { options.value.to_string() });
+        let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { serde_json::to_string(&(options.value, c.width))? });
         let (id, value, set_value) = self.register_widget_parity(
             WidgetSpec {
                 disabled: c.disabled,
@@ -4907,6 +4907,60 @@ mod tests {
             assert!(wire.try_recv().is_ok(), "the first valid form is still rendered");
         }
         assert!(wire.try_recv().is_err(), "failed form calls must not append their partial children");
+    }
+
+    #[test]
+    fn bool_width_resets_unkeyed_widgets_and_preserves_keyed_state() -> anyhow::Result<()> {
+        let state = SessionState::default();
+        let mut history: Vec<Vec<String>> = Vec::new();
+        let groups = [0, 0, 1, 1, 0, 0, 0];
+
+        for (index, phase) in ["load", "edit", "width", "width-edit", "restore", "edit-restored", "observe"].iter().enumerate() {
+            // 1. 编辑只提交上一轮实际返回的 ID；每轮正常结束清理旧控件。
+            let incoming = if matches!(*phase, "edit" | "width-edit" | "edit-restored") {
+                history[index - 1]
+                    .iter()
+                    .map(|id| WidgetState {
+                        id: id.clone(),
+                        value: Some(widget_state::Value::BoolValue(true)),
+                    })
+                    .collect()
+            } else {
+                Vec::new()
+            };
+            assert!(state.begin_widgets(incoming).is_empty());
+            let (st, mut wire) = app(&state);
+            let mut check = CheckboxOptions::new("Unkeyed check");
+            let mut toggle = ToggleOptions::new("Unkeyed toggle");
+            let mut keyed_check = CheckboxOptions::new("Keyed check").key("keyed-check");
+            let mut keyed_toggle = ToggleOptions::new("Keyed toggle").key("keyed-toggle");
+            if matches!(*phase, "width" | "width-edit") {
+                check = check.width(320);
+                toggle = toggle.width(320);
+                keyed_check = keyed_check.width(320);
+                keyed_toggle = keyed_toggle.width(320);
+            }
+
+            // 2. 无 key 改宽度重建；恢复旧宽度也不能复活已回收状态。
+            let values = [st.checkbox(check)?, st.toggle(toggle)?, st.checkbox(keyed_check)?, st.toggle(keyed_toggle)?];
+            let unkeyed = !matches!(*phase, "load" | "width" | "restore");
+            assert_eq!(values, [unkeyed, unkeyed, index != 0, index != 0], "{phase}");
+            let mut ids = Vec::new();
+            for (position, label) in ["Unkeyed check", "Unkeyed toggle", "Keyed check", "Keyed toggle"].iter().enumerate() {
+                let element::Type::Checkbox(widget) = input(&mut wire)? else { panic!() };
+                assert_eq!(widget.label, *label);
+                assert!(!widget.default && !widget.set_value);
+                for earlier in 0..index {
+                    assert_eq!(widget.id == history[earlier][position], position >= 2 || groups[index] == groups[earlier], "{phase}: position {position}, earlier {earlier}");
+                }
+                ids.push(widget.id);
+            }
+            history.push(ids);
+            assert!(wire.try_recv().is_err());
+            state.finish_widgets();
+        }
+
+        Ok(())
     }
 
     #[test]

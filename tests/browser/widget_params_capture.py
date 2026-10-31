@@ -30,6 +30,7 @@ parser.add_argument('--number-sequence', action='store_true', help='keyed number
 parser.add_argument('--form-identity', action='store_true', help='keyed/unkeyed inputs moving between forms and root')
 parser.add_argument('--color', action='store_true', help='color defaults, widths and callback/state sequence')
 parser.add_argument('--color-unkeyed', action='store_true', help='unkeyed color raw-default and effective-width identity')
+parser.add_argument('--bool-width', action='store_true', help='keyed/unkeyed checkbox and toggle width identity')
 parser.add_argument('--number-permissive', action='store_true', help='equal bounds and nonpositive finite steps, plus rejected range controls')
 parser.add_argument('--number-float', action='store_true', help='float variant of the keyed number sequence')
 parser.add_argument('--number-unkeyed', action='store_true', help='unkeyed number identity across option changes')
@@ -38,7 +39,7 @@ parser.add_argument('--resume-after-stop', action='store_true', help='append nor
 parser.add_argument('--stop-lifecycle', action='store_true', help='button and URL-bound text around early stop and normal cleanup')
 parser.add_argument('--url', help='caller-owned Rust server URL (comparison capture)')
 args = parser.parse_args()
-assert sum((args.integer_bounds, args.number_sequence, args.number_unkeyed, args.stop_lifecycle, args.number_permissive, args.form_identity, args.color, args.color_unkeyed)) <= 1
+assert sum((args.integer_bounds, args.number_sequence, args.number_unkeyed, args.stop_lifecycle, args.number_permissive, args.form_identity, args.color, args.color_unkeyed, args.bool_width)) <= 1
 assert not args.number_float or args.number_sequence
 assert not args.stop_after_run or args.number_unkeyed
 assert not args.resume_after_stop or args.stop_after_run
@@ -63,12 +64,14 @@ TRACE = {'schema_version': 1, 'runtime': 'rust' if args.url else 'python', 'refe
          'scope': 'Element wire of widget creation-parameter edges over one native WS; no browser/UI claim.',
          'server_command': COMMAND, 'server_cleanup': 'caller-owned' if COMMAND is None else 'collector-owned',
          'url': URL, 'frames': [], 'elements': [], 'finishes': []}
-if args.color or args.color_unkeyed:
+if args.color or args.color_unkeyed or args.bool_width:
     TRACE['scope'] = 'Color defaults/widths and fifteen callback/state reruns on one native WS; no browser/UI claim.'
     TRACE['producer_sources_sha256'] = {path: hashlib.sha256((ROOT / path).read_bytes()).hexdigest() for path in (
         'streamlit/examples/widget_params.rs', 'tests/reference/widget_params_app.py', 'tests/browser/widget_params_capture.py')}
 if args.color_unkeyed:
     TRACE['scope'] = 'Fifteen unkeyed color raw-default/effective-width identity runs on one native WS; no browser/UI claim.'
+if args.bool_width:
+    TRACE['scope'] = 'Seven keyed/unkeyed checkbox and toggle width/state runs on one native WS; no browser/UI claim.'
 SERVER = WS = None
 
 
@@ -125,11 +128,23 @@ try:
                  ("width39", None), ("width40", None), ("width41", None), ("width41-edit", "#778899"),
                  ("width40-return", None), ("implicit-return", None), ("observe", None)]
     form_identity_ids = {}
+    if args.bool_width:
+        steps = [(phase, True if phase in ('edit', 'width-edit', 'edit-restored') else None)
+                 for phase in ('load', 'edit', 'width', 'width-edit', 'restore', 'edit-restored', 'observe')]
+    bool_ids = {}
     lifecycle_bound, lifecycle_ids = "url", {}
     number_id = None
     color_id = None
     for step_index, (phase, submitted) in enumerate(steps):
         request = BackMsg()
+        if args.bool_width:
+            request.rerun_script.query_string = "probe=bool-width&phase=" + phase
+            if submitted is not None:
+                assert len(bool_ids) == 4
+                for label in ('Unkeyed check', 'Unkeyed toggle', 'Keyed check', 'Keyed toggle'):
+                    widget = request.rerun_script.widget_states.widgets.add()
+                    widget.id = bool_ids[label]
+                    widget.bool_value = submitted
         if args.color or args.color_unkeyed:
             request.rerun_script.query_string = "probe=" + ("color-unkeyed" if args.color_unkeyed else "color") + "&phase=" + phase
             if submitted is not None:
@@ -219,6 +234,8 @@ try:
                     fields = MessageToDict(view, preserving_proto_field_name=True)
                     if (args.color or args.color_unkeyed) and element_kind == 'color_picker' and view.label == ('Unkeyed accent' if args.color_unkeyed else 'Accent'):
                         color_id = view.id
+                    if args.bool_width and element_kind == 'checkbox':
+                        bool_ids[view.label] = view.id
                     if args.stop_lifecycle and element_kind in ('button', 'text_input'):
                         lifecycle_ids[view.id.rsplit('-', 1)[-1]] = view.id
                     if args.form_identity and element_kind in ('number_input', 'text_input', 'button'):

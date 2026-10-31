@@ -28,7 +28,7 @@ COLOR_EVENTS = ("#abc", "#AbC", "#00ffAA", "#123456", "#abcdef", "#123456", "#FE
 COLOR_EVENT_COUNTS = (0, 1, 2, 3, 4, 4, 5, 6, 6, 7, 7, 7, 7, 7, 8)
 
 
-def color_runs(capture):
+def color_runs(capture, element_kinds=("color_picker", "json")):
     runs, emitted = [], []
     for message in frames(capture):
         kind = message.WhichOneof("type")
@@ -43,7 +43,7 @@ def color_runs(capture):
             assert message.delta.WhichOneof("type") == "new_element"
             element = message.delta.new_element
             entry_kind = element.WhichOneof("type")
-            assert entry_kind in ("color_picker", "json")
+            assert entry_kind in element_kinds
             view = getattr(element, entry_kind)
             emitted.append((entry_kind, MessageToDict(view, preserving_proto_field_name=True), list(message.metadata.delta_path)))
             runs[-1]["entries"].append((entry_kind, view, element))
@@ -518,6 +518,131 @@ def test_unkeyed_color_gate_rejects_wrong_wire(mutation):
     capture["elements"] = emitted
     with pytest.raises(AssertionError):
         check_color_unkeyed(capture)
+
+
+BOOL_PHASES = ("load", "edit", "width", "width-edit", "restore", "edit-restored", "observe")
+BOOL_LABELS = ("Unkeyed check", "Unkeyed toggle", "Keyed check", "Keyed toggle")
+
+
+def check_bool_width(capture):
+    assert capture["successful"] and "producer_error" not in capture and capture["reference_version"] == "1.66.1"
+    assert capture["cleanup"]["websocket_closed"] and capture["finishes"] == [0] * 7
+    assert capture["cleanup"]["server_stopped" if capture["runtime"] == "python" else "caller_server_stopped"]
+    assert len(capture["frames"]) == 69 and len(capture["elements"]) == 35
+    runs = color_runs(capture, ("checkbox", "json"))
+    assert len(runs) == 7
+    groups, history, normalized, sessions, run_ids = (0, 0, 1, 1, 0, 0, 0), [], [], set(), set()
+    for index, (phase, run) in enumerate(zip(BOOL_PHASES, runs, strict=True)):
+        request = run["request"]
+        assert request.query_string == "probe=bool-width&phase=" + phase and not request.is_history_navigation
+        assert len(run["sessions"]) == 1 and run["finishes"] == [0]
+        session = run["sessions"][0]
+        assert session.initialize.environment_info.streamlit_version == "1.66.1"
+        sessions.add(session.initialize.session_id)
+        run_ids.add(session.script_run_id)
+        assert [entry[0] for entry in run["entries"]] == ["checkbox"] * 4 + ["json"]
+        ids = []
+        for position, (_, widget, element) in enumerate(run["entries"][:4]):
+            assert widget.label == BOOL_LABELS[position] and widget.id and widget.type == position % 2
+            assert not widget.default and not widget.value and not widget.set_value
+            assert not widget.disabled and not widget.form_id and not widget.help and not widget.ignore_rerun
+            assert widget.label_visibility.value == 0 and not element.HasField("has_one_shot_effect")
+            assert MessageToDict(element.width_config, preserving_proto_field_name=True) == ({"pixel_width": 320} if phase in ("width", "width-edit") else {"use_content": True})
+            for earlier in range(index):
+                assert (widget.id == history[earlier][position]) == (position >= 2 or groups[index] == groups[earlier]), (phase, position, earlier)
+            ids.append(widget.id)
+        history.append(ids)
+        unkeyed = phase not in ("load", "width", "restore")
+        assert json.loads(run["entries"][4][1].body) == {"phase": phase, "values": [unkeyed, unkeyed, index != 0, index != 0]}
+        assert run["entries"][4][1].expanded
+        assert [capture["elements"][index * 5 + i]["delta_path"] for i in range(5)] == [[0, i] for i in range(5)]
+        incoming = request.widget_states.widgets
+        if phase in ("edit", "width-edit", "edit-restored"):
+            assert len(incoming) == 4
+            assert [w.id for w in incoming] == history[index - 1]
+            assert all(w.WhichOneof("value") == "bool_value" and w.bool_value for w in incoming)
+        else:
+            assert not incoming
+        normalized_run = []
+        for kind, _, element in run["entries"]:
+            fields = MessageToDict(element, preserving_proto_field_name=True)
+            if kind == "checkbox":
+                fields[kind].pop("id")
+            else:
+                fields[kind]["body"] = json.loads(fields[kind]["body"])
+            normalized_run.append(fields)
+        normalized.append(normalized_run)
+    assert len(sessions) == 1 and len(run_ids) == 7
+    assert [len({ids[i] for ids in history}) for i in range(4)] == [2, 2, 1, 1]
+    return normalized
+
+
+@pytest.mark.parametrize("root", (PYTHON, RUST), ids=("python", "rust"))
+def test_checkbox_toggle_width_and_cleanup(root):
+    check_bool_width(read(root / "bool-width/trace.json"))
+
+
+def test_bool_width_complete_elements_match_reference():
+    captures = [read(root / "bool-width/trace.json") for root in (PYTHON, RUST)]
+    assert captures[0]["producer_sources_sha256"] == captures[1]["producer_sources_sha256"]
+    assert captures[1]["semantic_match"] is True
+    assert check_bool_width(captures[0]) == check_bool_width(captures[1])
+
+
+def test_bool_width_before_keeps_old_unkeyed_state():
+    capture = read(RUST / "bool-width/before/trace.json")
+    runs = color_runs(capture, ("checkbox", "json"))
+    assert capture["semantic_match"] is False
+    assert json.loads(runs[2]["entries"][4][1].body)["values"] == [True] * 4
+    assert [len({r["entries"][i][1].id for r in runs}) for i in range(4)] == [1] * 4
+    with pytest.raises(AssertionError):
+        check_bool_width(capture)
+
+
+@pytest.mark.parametrize("mutation", ("unkeyed-id", "keyed-id", "revived-value", "wire-width", "stale-input"))
+def test_bool_width_gate_rejects_coherent_wrong_wire(mutation):
+    capture = read(PYTHON / "bool-width/trace.json")
+    source = color_runs(capture, ("checkbox", "json"))
+    target = 4 if mutation == "revived-value" else 3 if mutation == "stale-input" else 2
+    run = -1
+    for frame in capture["frames"]:
+        client = frame["direction"] == "client->server"
+        if client:
+            run += 1
+        if run != target:
+            continue
+        message = BackMsg() if client else ForwardMsg()
+        message.ParseFromString(base64.b64decode(frame["base64"]))
+        if client and mutation == "stale-input":
+            message.rerun_script.widget_states.widgets[0].id = source[0]["entries"][0][1].id
+        elif not client and message.WhichOneof("type") == "delta":
+            element = message.delta.new_element
+            kind = element.WhichOneof("type")
+            if kind == "checkbox" and mutation == "unkeyed-id" and element.checkbox.label == BOOL_LABELS[0]:
+                element.checkbox.id = source[0]["entries"][0][1].id
+            elif kind == "checkbox" and mutation == "keyed-id" and element.checkbox.label == BOOL_LABELS[2]:
+                element.checkbox.id = "wrong-keyed-identity"
+            elif kind == "checkbox" and mutation == "wire-width":
+                element.width_config.pixel_width = 321
+            elif kind == "json" and mutation == "revived-value":
+                report = json.loads(element.json.body)
+                report["values"] = [True] * 4
+                element.json.body = json.dumps(report)
+            else:
+                continue
+        else:
+            continue
+        raw = message.SerializeToString()
+        frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(message, preserving_proto_field_name=True))
+    emitted = []
+    for message in frames(capture):
+        if isinstance(message, ForwardMsg) and message.WhichOneof("type") == "delta":
+            element = message.delta.new_element
+            kind = element.WhichOneof("type")
+            emitted.append({"kind": kind, "fields": MessageToDict(getattr(element, kind), preserving_proto_field_name=True), "delta_path": list(message.metadata.delta_path)})
+    capture["elements"] = emitted
+    with pytest.raises(AssertionError):
+        check_bool_width(capture)
 
 
 def comparable(capture):

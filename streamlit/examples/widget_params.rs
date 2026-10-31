@@ -6,6 +6,24 @@ use ::streamlit::*;
 use streamlit::StreamlitApi;
 
 fn render(st: &Streamlit) -> Result<(), WidgetError> {
+    if st.query_params().get("probe").as_deref() == Some("bool-width") {
+        let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
+        let mut check = CheckboxOptions::new("Unkeyed check");
+        let mut toggle = ToggleOptions::new("Unkeyed toggle");
+        let mut keyed_check = CheckboxOptions::new("Keyed check").key("keyed-check");
+        let mut keyed_toggle = ToggleOptions::new("Keyed toggle").key("keyed-toggle");
+        if matches!(phase.as_str(), "width" | "width-edit") {
+            check = check.width(320);
+            toggle = toggle.width(320);
+            keyed_check = keyed_check.width(320);
+            keyed_toggle = keyed_toggle.width(320);
+        }
+
+        let values = [st.checkbox(check)?, st.toggle(toggle)?, st.checkbox(keyed_check)?, st.toggle(keyed_toggle)?];
+        st.json(serde_json::json!({"phase": phase, "values": values}));
+        return Ok(());
+    }
+
     if st.query_params().get("probe").as_deref() == Some("color-unkeyed") {
         // 1. 区分原始省略值与显式黑色，保持 label/help 和其他选项不变。
         let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());

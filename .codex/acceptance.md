@@ -2194,3 +2194,17 @@ linker stdout warning 保留。日志为 target/color-unkeyed-{workspace,referen
 [stability.json](../tests/performance/stability.json) 当前结果记录测试二进制、采样器与夹具 SHA256，以及生产源码提交 `37ce42200a46b7dd35e104cd5362d8bb194da8ee`；`sampler_validation` 保存红/绿实测，`superseded_snapshot.snapshot` 完整保留旧 JSON。旧 `max_observed_private_bytes` 必须按误标的峰值提交内存解释，不能反推出旧当前私有内存；原 WorkingSetSize 的偏移未变。本次不修改生产 Rust、公共接口、依赖或场景负载。
 
 相关 docs/matrix 门 52 项通过。日志位于 `target/stability-counters-{red,green,build,measure,reference}.log`，18 份原始试次日志位于 `target/stability-counters-measurement/`；冻结 JSON 保存测量值和红/绿结果，未提交这些本地日志。本批未重复不受影响的全工作区测试或浏览器采集；多小时浸泡、真实网络抖动与长期回收仍未验收，M3/M5/M7 与长期 Goal 保持开放。`select_slider` 三项行为修复、队列扩展、统一 hash 与共享状态方案继续等待各自决定。
+
+## Current checkbox/toggle width identity validation (2026-11-01)
+
+锁定 SDK 1.66.1 的公开 AppTest 与七轮原生 WS 均确认：无 key 的 checkbox/toggle 从默认内容宽度改为 320 像素时重建身份并恢复 false；普通结束清理后恢复原宽度，原身份虽再次出现，旧 true 不能复活。有 key 的两个对照控件在所有轮次保持身份和值。Rust 修前在 width 轮返回四个 true，新增公开 API 单元回归真实失败；修后返回 false/false/true/true。
+
+生产改动仅为 widget_api.rs 的 checkbox/toggle 两处私有身份 extra：无 key 使用布尔默认值与宽度的结构化序列化，有 key 仍为空。未修改共享 InputOptions、callback/禁用/URL/表单/注册清理或发送队列规则，无新增公共接口或依赖。现有 widget_params Rust/Python 示例增加显式 probe=bool-width 分支，采集器增加互斥 --bool-width；旧入口保持。
+
+不可覆盖参考位于 [Python trace](../tests/reference/reference-browser/widget-params/bool-width/trace.json)、[Rust 修前](../tests/browser/rust-widget-params/bool-width/before/trace.json)与[Rust 修后](../tests/browser/rust-widget-params/bool-width/trace.json)。每端七轮、69 份原始 WS 帧、35 个 Element；四个控件每轮均渲染，无 key 身份各两类，有 key 各一类。修后完整 Element 仅归一化不透明 ID 与 JSON 文本格式后逐字段一致；源码 SHA256 绑定两份示例和采集器。SDK 服务由采集器关闭；自有 Rust 修前 PID 29788、修后 63596 均按精确可执行路径核验后停止；50612/8599 无监听。
+
+参考门同时验证原始 protobuf 与汇总、输入 bool oneof/上一轮 ID、身份等价类、协议宽度与类型、正常完成/会话身份、返回值及清理；五类同步篡改原始帧与汇总的负例必须失败：错误无 key 身份、错误有 key 身份、复活旧值、错协议宽度与过期输入 ID。widget 参数模块 119 项通过；相关 query/widget/temporal/pickers/matrix/docs 门 370 项通过。两项矩阵条目及机器清单已更新，130 partial 保持，桶计数仍为外部 12、Rust/headless 2、未测参数 94、未声明缺口 33。
+
+按代码检查→单元→原生 WS→工作区顺序验证，编辑 Rust 的 rustfmt 与全工作区/all-target Clippy 通过；工作区共 308 项通过（301 库、1 ledger、2 宏、4 rustdoc），仍明确排除原 navigation_pages_switch_and_session_state_match_the_measured_wire 和 rerun_queue_messages_match_frozen_reference 两项待决回归，不能称完整工作区全绿。既有 MSVC linker stdout warning 保留。日志索引 target/bool-width-{red,green,clippy,build,workspace,reference}.log。
+
+本批没有重采真实浏览器；默认/固定宽度以外的表示、无效宽度错误顺序、callback/禁用/表单/跨页等组合继续开放。select_slider、统一 hash、共享状态和发送队列扩展选择未被本批代替；M3/M5/M7 与长期 Goal 仍未完成。用户 colconfig_params 修改保持独立，未合并、发布或部署。

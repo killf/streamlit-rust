@@ -1,7 +1,13 @@
 """Emit widget creation-wire parameter variants for the M3 differential."""
 import streamlit as st
 
-if st.query_params.get("probe") == "color-unkeyed":
+if st.query_params.get("probe") == "bool-width":
+    phase = st.query_params.get("phase", "load")
+    options = {"width": 320} if phase in ("width", "width-edit") else {}
+    values = [st.checkbox("Unkeyed check", **options), st.toggle("Unkeyed toggle", **options),
+              st.checkbox("Keyed check", key="keyed-check", **options), st.toggle("Keyed toggle", key="keyed-toggle", **options)]
+    st.json({"phase": phase, "values": values})
+elif st.query_params.get("probe") == "color-unkeyed":
     phase = st.query_params.get("phase", "load")
     implicit = phase in ("load", "edit", "implicit-return", "observe")
     options = {} if implicit else {"value": "#000000"}
