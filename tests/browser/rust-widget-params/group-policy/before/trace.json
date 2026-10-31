@@ -1,0 +1,3237 @@
+{
+  "schema_version": 1,
+  "runtime": "rust",
+  "reference_version": "1.66.1",
+  "captured_at_utc": "2026-10-31T21:14:42.944301+00:00",
+  "scope": "Ten pills/segmented-control required-policy and selection-mode runs on one native WS; no browser/UI claim.",
+  "server_command": null,
+  "server_cleanup": "caller-owned",
+  "url": "http://127.0.0.1:8599",
+  "frames": [
+    {
+      "direction": "client->server",
+      "bytes": 33,
+      "base64": "Wh8KHXByb2JlPWdyb3VwLXBvbGljeSZwaGFzZT1sb2Fk",
+      "message": {
+        "rerun_script": {
+          "query_string": "probe=group-policy&phase=load"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 219,
+      "base64": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkMGUyYzYzZmQtOTBjMS00NTdiLTg4OWYtMTMzMmZhYmVlNmMxEiRhNzUyM2JkMy1hNzU5LTQyNzMtYmIzNC04ZjNmMTZjZjBjMDAaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl",
+      "message": {
+        "metadata": {
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "new_session": {
+          "initialize": {
+            "user_info": {},
+            "environment_info": {
+              "streamlit_version": "1.66.1"
+            },
+            "session_status": {},
+            "session_id": "0e2c63fd-90c1-457b-889f-1332fabee6c1"
+          },
+          "script_run_id": "a7523bd3-a759-4273-bb34-8f3f16cf0c00",
+          "name": "Streamlit Rust",
+          "config": {
+            "show_error_links": "SHOW_ERROR_LINKS_FALSE"
+          },
+          "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 28,
+      "base64": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ==",
+      "message": {
+        "hash": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 164,
+      "base64": "CiAxMDU1YmJkYjE1MzBmNjA2ODU5YWNmNmE5ZjBlNWI4NhImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqWBpWugNOCiokJElELWU3ZGJiYWM4MjJhYTg3MDgzNmFhODcwNTUyZDU1MWYwLU5vbmUSBwoFQWxwaGESBgoEQmV0YVABWgtQbGFpbiBwaWxsc2IA0gMCEAE=",
+      "message": {
+        "hash": "1055bbdb1530f606859acf6a9f0e5b86",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "button_group": {
+              "id": "$$ID-e7dbbac822aa870836aa870552d551f0-None",
+              "options": [
+                {
+                  "content": "Alpha"
+                },
+                {
+                  "content": "Beta"
+                }
+              ],
+              "style": "PILLS",
+              "label": "Plain pills",
+              "label_visibility": {}
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 171,
+      "base64": "CiA1OTM0MTU2Y2FjOTc4YmZmYjhhYTA2ZGZiMjdlYWJlYhImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqXxpdugNVCjEkJElELTFmZjYyZDZkMzI2NmYxMWI2ZDRjYmJjZjYxMWQ0NTNkLUtleWVkIHBpbGxzEgcKBUFscGhhEgYKBEJldGFQAVoLS2V5ZWQgcGlsbHNiANIDAhAB",
+      "message": {
+        "hash": "5934156cac978bffb8aa06dfb27eabeb",
+        "metadata": {
+          "delta_path": [
+            0,
+            1
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "button_group": {
+              "id": "$$ID-1ff62d6d3266f11b6d4cbbcf611d453d-Keyed pills",
+              "options": [
+                {
+                  "content": "Alpha"
+                },
+                {
+                  "content": "Beta"
+                }
+              ],
+              "style": "PILLS",
+              "label": "Keyed pills",
+              "label_visibility": {}
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 165,
+      "base64": "CiA3ODg2MjJkYWM2YTNjNjVjNzVkN2FjODcxYjQzYjlhYhImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqWRpXugNPCiokJElELTVkYjBlYmE0Yjk1ODQyZGE0YmNlNzY3ZDY0Y2M0ZTE0LU5vbmUSBwoFQWxwaGESBgoEQmV0YVoOUGxhaW4gc2VnbWVudHNiANIDAhAB",
+      "message": {
+        "hash": "788622dac6a3c65c75d7ac871b43b9ab",
+        "metadata": {
+          "delta_path": [
+            0,
+            2
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "button_group": {
+              "id": "$$ID-5db0eba4b95842da4bce767d64cc4e14-None",
+              "options": [
+                {
+                  "content": "Alpha"
+                },
+                {
+                  "content": "Beta"
+                }
+              ],
+              "label": "Plain segments",
+              "label_visibility": {}
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 175,
+      "base64": "CiA1NTliZmJjZGMzMTZmMWY1YjQ5MDVhZWI5NzhiYjY5ZhImEgIAAyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqYxphugNZCjQkJElELTIwMThkN2MxMzUyZDg1YzI1MzhhNjg2ZjM2M2YyNTIxLUtleWVkIHNlZ21lbnRzEgcKBUFscGhhEgYKBEJldGFaDktleWVkIHNlZ21lbnRzYgDSAwIQAQ==",
+      "message": {
+        "hash": "559bfbcdc316f1f5b4905aeb978bb69f",
+        "metadata": {
+          "delta_path": [
+            0,
+            3
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "button_group": {
+              "id": "$$ID-2018d7c1352d85c2538a686f363f2521-Keyed segments",
+              "options": [
+                {
+                  "content": "Alpha"
+                },
+                {
+                  "content": "Beta"
+                }
+              ],
+              "label": "Keyed segments",
+              "label_visibility": {}
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 143,
+      "base64": "CiA1Nzc4MTBjZTRhOTljYjlhZWQwN2E4ZGUyMzM0NWQyMBImEgIABCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqQxpB+gE5CjV7InBoYXNlIjogImxvYWQiLCAidmFsdWVzIjogW251bGwsIG51bGwsIG51bGwsIG51bGxdfRAB0gMCCAE=",
+      "message": {
+        "hash": "577810ce4a99cb9aed07a8de23345d20",
+        "metadata": {
+          "delta_path": [
+            0,
+            4
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"phase\": \"load\", \"values\": [null, null, null, null]}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 19,
+      "base64": "Cg9zY3JpcHRfZmluaXNoZWQwAA==",
+      "message": {
+        "hash": "script_finished",
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    },
+    {
+      "direction": "client->server",
+      "bytes": 270,
+      "base64": "WosCCh1wcm9iZT1ncm91cC1wb2xpY3kmcGhhc2U9ZWRpdBLpAQo0CiokJElELWU3ZGJiYWM4MjJhYTg3MDgzNmFhODcwNTUyZDU1MWYwLU5vbmVKBgoEQmV0YQo7CjEkJElELTFmZjYyZDZkMzI2NmYxMWI2ZDRjYmJjZjYxMWQ0NTNkLUtleWVkIHBpbGxzSgYKBEJldGEKNAoqJCRJRC01ZGIwZWJhNGI5NTg0MmRhNGJjZTc2N2Q2NGNjNGUxNC1Ob25lSgYKBEJldGEKPgo0JCRJRC0yMDE4ZDdjMTM1MmQ4NWMyNTM4YTY4NmYzNjNmMjUyMS1LZXllZCBzZWdtZW50c0oGCgRCZXRh",
+      "message": {
+        "rerun_script": {
+          "query_string": "probe=group-policy&phase=edit",
+          "widget_states": {
+            "widgets": [
+              {
+                "id": "$$ID-e7dbbac822aa870836aa870552d551f0-None",
+                "string_array_value": {
+                  "data": [
+                    "Beta"
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-1ff62d6d3266f11b6d4cbbcf611d453d-Keyed pills",
+                "string_array_value": {
+                  "data": [
+                    "Beta"
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-5db0eba4b95842da4bce767d64cc4e14-None",
+                "string_array_value": {
+                  "data": [
+                    "Beta"
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-2018d7c1352d85c2538a686f363f2521-Keyed segments",
+                "string_array_value": {
+                  "data": [
+                    "Beta"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 26,
+      "base64": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgA=",
+      "message": {
+        "hash": "session_status_changed",
+        "session_status_changed": {}
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 219,
+      "base64": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkMGUyYzYzZmQtOTBjMS00NTdiLTg4OWYtMTMzMmZhYmVlNmMxEiQzNzc4OTcwZi04YWExLTRiMDYtYTMyNC0zYzI5NDM4NzgzYjEaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl",
+      "message": {
+        "metadata": {
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "new_session": {
+          "initialize": {
+            "user_info": {},
+            "environment_info": {
+              "streamlit_version": "1.66.1"
+            },
+            "session_status": {},
+            "session_id": "0e2c63fd-90c1-457b-889f-1332fabee6c1"
+          },
+          "script_run_id": "3778970f-8aa1-4b06-a324-3c29438783b1",
+          "name": "Streamlit Rust",
+          "config": {
+            "show_error_links": "SHOW_ERROR_LINKS_FALSE"
+          },
+          "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 28,
+      "base64": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ==",
+      "message": {
+        "hash": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 164,
+      "base64": "CiAxMDU1YmJkYjE1MzBmNjA2ODU5YWNmNmE5ZjBlNWI4NhImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqWBpWugNOCiokJElELWU3ZGJiYWM4MjJhYTg3MDgzNmFhODcwNTUyZDU1MWYwLU5vbmUSBwoFQWxwaGESBgoEQmV0YVABWgtQbGFpbiBwaWxsc2IA0gMCEAE=",
+      "message": {
+        "hash": "1055bbdb1530f606859acf6a9f0e5b86",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "button_group": {
+              "id": "$$ID-e7dbbac822aa870836aa870552d551f0-None",
+              "options": [
+                {
+                  "content": "Alpha"
+                },
+                {
+                  "content": "Beta"
+                }
+              ],
+              "style": "PILLS",
+              "label": "Plain pills",
+              "label_visibility": {}
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 171,
+      "base64": "CiA1OTM0MTU2Y2FjOTc4YmZmYjhhYTA2ZGZiMjdlYWJlYhImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqXxpdugNVCjEkJElELTFmZjYyZDZkMzI2NmYxMWI2ZDRjYmJjZjYxMWQ0NTNkLUtleWVkIHBpbGxzEgcKBUFscGhhEgYKBEJldGFQAVoLS2V5ZWQgcGlsbHNiANIDAhAB",
+      "message": {
+        "hash": "5934156cac978bffb8aa06dfb27eabeb",
+        "metadata": {
+          "delta_path": [
+            0,
+            1
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "button_group": {
+              "id": "$$ID-1ff62d6d3266f11b6d4cbbcf611d453d-Keyed pills",
+              "options": [
+                {
+                  "content": "Alpha"
+                },
+                {
+                  "content": "Beta"
+                }
+              ],
+              "style": "PILLS",
+              "label": "Keyed pills",
+              "label_visibility": {}
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 165,
+      "base64": "CiA3ODg2MjJkYWM2YTNjNjVjNzVkN2FjODcxYjQzYjlhYhImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqWRpXugNPCiokJElELTVkYjBlYmE0Yjk1ODQyZGE0YmNlNzY3ZDY0Y2M0ZTE0LU5vbmUSBwoFQWxwaGESBgoEQmV0YVoOUGxhaW4gc2VnbWVudHNiANIDAhAB",
+      "message": {
+        "hash": "788622dac6a3c65c75d7ac871b43b9ab",
+        "metadata": {
+          "delta_path": [
+            0,
+            2
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "button_group": {
+              "id": "$$ID-5db0eba4b95842da4bce767d64cc4e14-None",
+              "options": [
+                {
+                  "content": "Alpha"
+                },
+                {
+                  "content": "Beta"
+                }
+              ],
+              "label": "Plain segments",
+              "label_visibility": {}
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 175,
+      "base64": "CiA1NTliZmJjZGMzMTZmMWY1YjQ5MDVhZWI5NzhiYjY5ZhImEgIAAyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqYxphugNZCjQkJElELTIwMThkN2MxMzUyZDg1YzI1MzhhNjg2ZjM2M2YyNTIxLUtleWVkIHNlZ21lbnRzEgcKBUFscGhhEgYKBEJldGFaDktleWVkIHNlZ21lbnRzYgDSAwIQAQ==",
+      "message": {
+        "hash": "559bfbcdc316f1f5b4905aeb978bb69f",
+        "metadata": {
+          "delta_path": [
+            0,
+            3
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "button_group": {
+              "id": "$$ID-2018d7c1352d85c2538a686f363f2521-Keyed segments",
+              "options": [
+                {
+                  "content": "Alpha"
+                },
+                {
+                  "content": "Beta"
+                }
+              ],
+              "label": "Keyed segments",
+              "label_visibility": {}
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 151,
+      "base64": "CiA3ZTgzNjc3MjhhODM3OGJkNmIyMmZmYzE2ZDY0ZTIyNRImEgIABCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqSxpJ+gFBCj17InBoYXNlIjogImVkaXQiLCAidmFsdWVzIjogWyJCZXRhIiwgIkJldGEiLCAiQmV0YSIsICJCZXRhIl19EAHSAwIIAQ==",
+      "message": {
+        "hash": "7e8367728a8378bd6b22ffc16d64e225",
+        "metadata": {
+          "delta_path": [
+            0,
+            4
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"phase\": \"edit\", \"values\": [\"Beta\", \"Beta\", \"Beta\", \"Beta\"]}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 19,
+      "base64": "Cg9zY3JpcHRfZmluaXNoZWQwAA==",
+      "message": {
+        "hash": "script_finished",
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    },
+    {
+      "direction": "client->server",
+      "bytes": 37,
+      "base64": "WiMKIXByb2JlPWdyb3VwLXBvbGljeSZwaGFzZT1yZXF1aXJlZA==",
+      "message": {
+        "rerun_script": {
+          "query_string": "probe=group-policy&phase=required"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 26,
+      "base64": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgA=",
+      "message": {
+        "hash": "session_status_changed",
+        "session_status_changed": {}
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 219,
+      "base64": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkMGUyYzYzZmQtOTBjMS00NTdiLTg4OWYtMTMzMmZhYmVlNmMxEiRlMjZjYWYxMC1kMWJjLTQ5MWQtODliMC1mZDkyNDMyZmY3NzYaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl",
+      "message": {
+        "metadata": {
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "new_session": {
+          "initialize": {
+            "user_info": {},
+            "environment_info": {
+              "streamlit_version": "1.66.1"
+            },
+            "session_status": {},
+            "session_id": "0e2c63fd-90c1-457b-889f-1332fabee6c1"
+          },
+          "script_run_id": "e26caf10-d1bc-491d-89b0-fd92432ff776",
+          "name": "Streamlit Rust",
+          "config": {
+            "show_error_links": "SHOW_ERROR_LINKS_FALSE"
+          },
+          "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 28,
+      "base64": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ==",
+      "message": {
+        "hash": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 167,
+      "base64": "CiAzZTk1MTBjMjA3NDI3NGNlNDEyOWVkZmYyNDUxZDBhMRImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqWxpZugNRCiokJElELWNkOTcxM2FhNjE3NjgyOWY1NjY1YmU5NDhlMjFlYWFjLU5vbmUSBwoFQWxwaGESBgoEQmV0YVABWgtQbGFpbiBwaWxsc2IAgAEB0gMCEAE=",
+      "message": {
+        "hash": "3e9510c2074274ce4129edff2451d0a1",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "button_group": {
+              "id": "$$ID-cd9713aa6176829f5665be948e21eaac-None",
+              "options": [
+                {
+                  "content": "Alpha"
+                },
+                {
+                  "content": "Beta"
+                }
+              ],
+              "style": "PILLS",
+              "label": "Plain pills",
+              "label_visibility": {},
+              "required": true
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 174,
+      "base64": "CiA3MTc1NWZkMjZiNGQ5MzQxYjQxOTMyYmFmYmZlM2Y5MxImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqYhpgugNYCjEkJElELTFmZjYyZDZkMzI2NmYxMWI2ZDRjYmJjZjYxMWQ0NTNkLUtleWVkIHBpbGxzEgcKBUFscGhhEgYKBEJldGFQAVoLS2V5ZWQgcGlsbHNiAIABAdIDAhAB",
+      "message": {
+        "hash": "71755fd26b4d9341b41932bafbfe3f93",
+        "metadata": {
+          "delta_path": [
+            0,
+            1
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "button_group": {
+              "id": "$$ID-1ff62d6d3266f11b6d4cbbcf611d453d-Keyed pills",
+              "options": [
+                {
+                  "content": "Alpha"
+                },
+                {
+                  "content": "Beta"
+                }
+              ],
+              "style": "PILLS",
+              "label": "Keyed pills",
+              "label_visibility": {},
+              "required": true
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 168,
+      "base64": "CiBmZjAzMzEwMjBjZmM2NDVjOTM2ODZmMzk5MDRlY2Y0MRImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqXBpaugNSCiokJElELTU0NjE3YTRjZmNmNGI5YjU3MzFhMjYzYTBkZGRlNWU2LU5vbmUSBwoFQWxwaGESBgoEQmV0YVoOUGxhaW4gc2VnbWVudHNiAIABAdIDAhAB",
+      "message": {
+        "hash": "ff0331020cfc645c93686f39904ecf41",
+        "metadata": {
+          "delta_path": [
+            0,
+            2
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "button_group": {
+              "id": "$$ID-54617a4cfcf4b9b5731a263a0ddde5e6-None",
+              "options": [
+                {
+                  "content": "Alpha"
+                },
+                {
+                  "content": "Beta"
+                }
+              ],
+              "label": "Plain segments",
+              "label_visibility": {},
+              "required": true
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 178,
+      "base64": "CiA0MzlmNDdmYjE2ODFhODYwZTExYjM3YmQwZmU3NWRjYRImEgIAAyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqZhpkugNcCjQkJElELTIwMThkN2MxMzUyZDg1YzI1MzhhNjg2ZjM2M2YyNTIxLUtleWVkIHNlZ21lbnRzEgcKBUFscGhhEgYKBEJldGFaDktleWVkIHNlZ21lbnRzYgCAAQHSAwIQAQ==",
+      "message": {
+        "hash": "439f47fb1681a860e11b37bd0fe75dca",
+        "metadata": {
+          "delta_path": [
+            0,
+            3
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "button_group": {
+              "id": "$$ID-2018d7c1352d85c2538a686f363f2521-Keyed segments",
+              "options": [
+                {
+                  "content": "Alpha"
+                },
+                {
+                  "content": "Beta"
+                }
+              ],
+              "label": "Keyed segments",
+              "label_visibility": {},
+              "required": true
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 151,
+      "base64": "CiAxYTRmYzQ1ZDQzYjQ3NWEzMmQxZDdiYzg4YzAxMjY0ZRImEgIABCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqSxpJ+gFBCj17InBoYXNlIjogInJlcXVpcmVkIiwgInZhbHVlcyI6IFtudWxsLCAiQmV0YSIsIG51bGwsICJCZXRhIl19EAHSAwIIAQ==",
+      "message": {
+        "hash": "1a4fc45d43b475a32d1d7bc88c01264e",
+        "metadata": {
+          "delta_path": [
+            0,
+            4
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"phase\": \"required\", \"values\": [null, \"Beta\", null, \"Beta\"]}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 19,
+      "base64": "Cg9zY3JpcHRfZmluaXNoZWQwAA==",
+      "message": {
+        "hash": "script_finished",
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    },
+    {
+      "direction": "client->server",
+      "bytes": 283,
+      "base64": "WpgCCiZwcm9iZT1ncm91cC1wb2xpY3kmcGhhc2U9cmVxdWlyZWQtZWRpdBLtAQo1CiokJElELWNkOTcxM2FhNjE3NjgyOWY1NjY1YmU5NDhlMjFlYWFjLU5vbmVKBwoFQWxwaGEKPAoxJCRJRC0xZmY2MmQ2ZDMyNjZmMTFiNmQ0Y2JiY2Y2MTFkNDUzZC1LZXllZCBwaWxsc0oHCgVBbHBoYQo1CiokJElELTU0NjE3YTRjZmNmNGI5YjU3MzFhMjYzYTBkZGRlNWU2LU5vbmVKBwoFQWxwaGEKPwo0JCRJRC0yMDE4ZDdjMTM1MmQ4NWMyNTM4YTY4NmYzNjNmMjUyMS1LZXllZCBzZWdtZW50c0oHCgVBbHBoYQ==",
+      "message": {
+        "rerun_script": {
+          "query_string": "probe=group-policy&phase=required-edit",
+          "widget_states": {
+            "widgets": [
+              {
+                "id": "$$ID-cd9713aa6176829f5665be948e21eaac-None",
+                "string_array_value": {
+                  "data": [
+                    "Alpha"
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-1ff62d6d3266f11b6d4cbbcf611d453d-Keyed pills",
+                "string_array_value": {
+                  "data": [
+                    "Alpha"
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-54617a4cfcf4b9b5731a263a0ddde5e6-None",
+                "string_array_value": {
+                  "data": [
+                    "Alpha"
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-2018d7c1352d85c2538a686f363f2521-Keyed segments",
+                "string_array_value": {
+                  "data": [
+                    "Alpha"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 26,
+      "base64": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgA=",
+      "message": {
+        "hash": "session_status_changed",
+        "session_status_changed": {}
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 219,
+      "base64": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkMGUyYzYzZmQtOTBjMS00NTdiLTg4OWYtMTMzMmZhYmVlNmMxEiQ5Y2FlOThhNC0xNTE3LTRjZjMtYTIxYS1mNWI1OWVhMWJjNTMaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl",
+      "message": {
+        "metadata": {
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "new_session": {
+          "initialize": {
+            "user_info": {},
+            "environment_info": {
+              "streamlit_version": "1.66.1"
+            },
+            "session_status": {},
+            "session_id": "0e2c63fd-90c1-457b-889f-1332fabee6c1"
+          },
+          "script_run_id": "9cae98a4-1517-4cf3-a21a-f5b59ea1bc53",
+          "name": "Streamlit Rust",
+          "config": {
+            "show_error_links": "SHOW_ERROR_LINKS_FALSE"
+          },
+          "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 28,
+      "base64": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ==",
+      "message": {
+        "hash": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 167,
+      "base64": "CiAzZTk1MTBjMjA3NDI3NGNlNDEyOWVkZmYyNDUxZDBhMRImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqWxpZugNRCiokJElELWNkOTcxM2FhNjE3NjgyOWY1NjY1YmU5NDhlMjFlYWFjLU5vbmUSBwoFQWxwaGESBgoEQmV0YVABWgtQbGFpbiBwaWxsc2IAgAEB0gMCEAE=",
+      "message": {
+        "hash": "3e9510c2074274ce4129edff2451d0a1",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "button_group": {
+              "id": "$$ID-cd9713aa6176829f5665be948e21eaac-None",
+              "options": [
+                {
+                  "content": "Alpha"
+                },
+                {
+                  "content": "Beta"
+                }
+              ],
+              "style": "PILLS",
+              "label": "Plain pills",
+              "label_visibility": {},
+              "required": true
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 174,
+      "base64": "CiA3MTc1NWZkMjZiNGQ5MzQxYjQxOTMyYmFmYmZlM2Y5MxImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqYhpgugNYCjEkJElELTFmZjYyZDZkMzI2NmYxMWI2ZDRjYmJjZjYxMWQ0NTNkLUtleWVkIHBpbGxzEgcKBUFscGhhEgYKBEJldGFQAVoLS2V5ZWQgcGlsbHNiAIABAdIDAhAB",
+      "message": {
+        "hash": "71755fd26b4d9341b41932bafbfe3f93",
+        "metadata": {
+          "delta_path": [
+            0,
+            1
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "button_group": {
+              "id": "$$ID-1ff62d6d3266f11b6d4cbbcf611d453d-Keyed pills",
+              "options": [
+                {
+                  "content": "Alpha"
+                },
+                {
+                  "content": "Beta"
+                }
+              ],
+              "style": "PILLS",
+              "label": "Keyed pills",
+              "label_visibility": {},
+              "required": true
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 168,
+      "base64": "CiBmZjAzMzEwMjBjZmM2NDVjOTM2ODZmMzk5MDRlY2Y0MRImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqXBpaugNSCiokJElELTU0NjE3YTRjZmNmNGI5YjU3MzFhMjYzYTBkZGRlNWU2LU5vbmUSBwoFQWxwaGESBgoEQmV0YVoOUGxhaW4gc2VnbWVudHNiAIABAdIDAhAB",
+      "message": {
+        "hash": "ff0331020cfc645c93686f39904ecf41",
+        "metadata": {
+          "delta_path": [
+            0,
+            2
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "button_group": {
+              "id": "$$ID-54617a4cfcf4b9b5731a263a0ddde5e6-None",
+              "options": [
+                {
+                  "content": "Alpha"
+                },
+                {
+                  "content": "Beta"
+                }
+              ],
+              "label": "Plain segments",
+              "label_visibility": {},
+              "required": true
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 178,
+      "base64": "CiA0MzlmNDdmYjE2ODFhODYwZTExYjM3YmQwZmU3NWRjYRImEgIAAyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqZhpkugNcCjQkJElELTIwMThkN2MxMzUyZDg1YzI1MzhhNjg2ZjM2M2YyNTIxLUtleWVkIHNlZ21lbnRzEgcKBUFscGhhEgYKBEJldGFaDktleWVkIHNlZ21lbnRzYgCAAQHSAwIQAQ==",
+      "message": {
+        "hash": "439f47fb1681a860e11b37bd0fe75dca",
+        "metadata": {
+          "delta_path": [
+            0,
+            3
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "button_group": {
+              "id": "$$ID-2018d7c1352d85c2538a686f363f2521-Keyed segments",
+              "options": [
+                {
+                  "content": "Alpha"
+                },
+                {
+                  "content": "Beta"
+                }
+              ],
+              "label": "Keyed segments",
+              "label_visibility": {},
+              "required": true
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 164,
+      "base64": "CiBkZDM0ZjYyZmNiZDY4ZWYxNzRiOGJkY2Y3MjVhM2FjOBImEgIABCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqWBpW+gFOCkp7InBoYXNlIjogInJlcXVpcmVkLWVkaXQiLCAidmFsdWVzIjogWyJBbHBoYSIsICJBbHBoYSIsICJBbHBoYSIsICJBbHBoYSJdfRAB0gMCCAE=",
+      "message": {
+        "hash": "dd34f62fcbd68ef174b8bdcf725a3ac8",
+        "metadata": {
+          "delta_path": [
+            0,
+            4
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"phase\": \"required-edit\", \"values\": [\"Alpha\", \"Alpha\", \"Alpha\", \"Alpha\"]}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 19,
+      "base64": "Cg9zY3JpcHRfZmluaXNoZWQwAA==",
+      "message": {
+        "hash": "script_finished",
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    },
+    {
+      "direction": "client->server",
+      "bytes": 37,
+      "base64": "WiMKIXByb2JlPWdyb3VwLXBvbGljeSZwaGFzZT1vcHRpb25hbA==",
+      "message": {
+        "rerun_script": {
+          "query_string": "probe=group-policy&phase=optional"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 26,
+      "base64": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgA=",
+      "message": {
+        "hash": "session_status_changed",
+        "session_status_changed": {}
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 219,
+      "base64": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkMGUyYzYzZmQtOTBjMS00NTdiLTg4OWYtMTMzMmZhYmVlNmMxEiQ1NjBiNzJmOC0xNTlkLTQ0OWUtYWE4OC0wZWEzZmY0MGYyZGYaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl",
+      "message": {
+        "metadata": {
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "new_session": {
+          "initialize": {
+            "user_info": {},
+            "environment_info": {
+              "streamlit_version": "1.66.1"
+            },
+            "session_status": {},
+            "session_id": "0e2c63fd-90c1-457b-889f-1332fabee6c1"
+          },
+          "script_run_id": "560b72f8-159d-449e-aa88-0ea3ff40f2df",
+          "name": "Streamlit Rust",
+          "config": {
+            "show_error_links": "SHOW_ERROR_LINKS_FALSE"
+          },
+          "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 28,
+      "base64": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ==",
+      "message": {
+        "hash": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 164,
+      "base64": "CiAxMDU1YmJkYjE1MzBmNjA2ODU5YWNmNmE5ZjBlNWI4NhImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqWBpWugNOCiokJElELWU3ZGJiYWM4MjJhYTg3MDgzNmFhODcwNTUyZDU1MWYwLU5vbmUSBwoFQWxwaGESBgoEQmV0YVABWgtQbGFpbiBwaWxsc2IA0gMCEAE=",
+      "message": {
+        "hash": "1055bbdb1530f606859acf6a9f0e5b86",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "button_group": {
+              "id": "$$ID-e7dbbac822aa870836aa870552d551f0-None",
+              "options": [
+                {
+                  "content": "Alpha"
+                },
+                {
+                  "content": "Beta"
+                }
+              ],
+              "style": "PILLS",
+              "label": "Plain pills",
+              "label_visibility": {}
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 171,
+      "base64": "CiA1OTM0MTU2Y2FjOTc4YmZmYjhhYTA2ZGZiMjdlYWJlYhImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqXxpdugNVCjEkJElELTFmZjYyZDZkMzI2NmYxMWI2ZDRjYmJjZjYxMWQ0NTNkLUtleWVkIHBpbGxzEgcKBUFscGhhEgYKBEJldGFQAVoLS2V5ZWQgcGlsbHNiANIDAhAB",
+      "message": {
+        "hash": "5934156cac978bffb8aa06dfb27eabeb",
+        "metadata": {
+          "delta_path": [
+            0,
+            1
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "button_group": {
+              "id": "$$ID-1ff62d6d3266f11b6d4cbbcf611d453d-Keyed pills",
+              "options": [
+                {
+                  "content": "Alpha"
+                },
+                {
+                  "content": "Beta"
+                }
+              ],
+              "style": "PILLS",
+              "label": "Keyed pills",
+              "label_visibility": {}
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 165,
+      "base64": "CiA3ODg2MjJkYWM2YTNjNjVjNzVkN2FjODcxYjQzYjlhYhImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqWRpXugNPCiokJElELTVkYjBlYmE0Yjk1ODQyZGE0YmNlNzY3ZDY0Y2M0ZTE0LU5vbmUSBwoFQWxwaGESBgoEQmV0YVoOUGxhaW4gc2VnbWVudHNiANIDAhAB",
+      "message": {
+        "hash": "788622dac6a3c65c75d7ac871b43b9ab",
+        "metadata": {
+          "delta_path": [
+            0,
+            2
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "button_group": {
+              "id": "$$ID-5db0eba4b95842da4bce767d64cc4e14-None",
+              "options": [
+                {
+                  "content": "Alpha"
+                },
+                {
+                  "content": "Beta"
+                }
+              ],
+              "label": "Plain segments",
+              "label_visibility": {}
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 175,
+      "base64": "CiA1NTliZmJjZGMzMTZmMWY1YjQ5MDVhZWI5NzhiYjY5ZhImEgIAAyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqYxphugNZCjQkJElELTIwMThkN2MxMzUyZDg1YzI1MzhhNjg2ZjM2M2YyNTIxLUtleWVkIHNlZ21lbnRzEgcKBUFscGhhEgYKBEJldGFaDktleWVkIHNlZ21lbnRzYgDSAwIQAQ==",
+      "message": {
+        "hash": "559bfbcdc316f1f5b4905aeb978bb69f",
+        "metadata": {
+          "delta_path": [
+            0,
+            3
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "button_group": {
+              "id": "$$ID-2018d7c1352d85c2538a686f363f2521-Keyed segments",
+              "options": [
+                {
+                  "content": "Alpha"
+                },
+                {
+                  "content": "Beta"
+                }
+              ],
+              "label": "Keyed segments",
+              "label_visibility": {}
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 153,
+      "base64": "CiBjN2YzYTI0NDUxY2U2ZTIxMzQyZDcyZjEwM2JjYjBlYhImEgIABCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqTRpL+gFDCj97InBoYXNlIjogIm9wdGlvbmFsIiwgInZhbHVlcyI6IFtudWxsLCAiQWxwaGEiLCBudWxsLCAiQWxwaGEiXX0QAdIDAggB",
+      "message": {
+        "hash": "c7f3a24451ce6e21342d72f103bcb0eb",
+        "metadata": {
+          "delta_path": [
+            0,
+            4
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"phase\": \"optional\", \"values\": [null, \"Alpha\", null, \"Alpha\"]}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 19,
+      "base64": "Cg9zY3JpcHRfZmluaXNoZWQwAA==",
+      "message": {
+        "hash": "script_finished",
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    },
+    {
+      "direction": "client->server",
+      "bytes": 34,
+      "base64": "WiAKHnByb2JlPWdyb3VwLXBvbGljeSZwaGFzZT1tdWx0aQ==",
+      "message": {
+        "rerun_script": {
+          "query_string": "probe=group-policy&phase=multi"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 26,
+      "base64": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgA=",
+      "message": {
+        "hash": "session_status_changed",
+        "session_status_changed": {}
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 219,
+      "base64": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkMGUyYzYzZmQtOTBjMS00NTdiLTg4OWYtMTMzMmZhYmVlNmMxEiQ4ZWRhMWEwNy0yZWEwLTRiNzAtOGQyMS01ZTdlZDNlOGZmNmYaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl",
+      "message": {
+        "metadata": {
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "new_session": {
+          "initialize": {
+            "user_info": {},
+            "environment_info": {
+              "streamlit_version": "1.66.1"
+            },
+            "session_status": {},
+            "session_id": "0e2c63fd-90c1-457b-889f-1332fabee6c1"
+          },
+          "script_run_id": "8eda1a07-2ea0-4b70-8d21-5e7ed3e8ff6f",
+          "name": "Streamlit Rust",
+          "config": {
+            "show_error_links": "SHOW_ERROR_LINKS_FALSE"
+          },
+          "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 28,
+      "base64": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ==",
+      "message": {
+        "hash": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 166,
+      "base64": "CiA4Njk1NmE4OTg3NTBiMzg1NDgzNDY1Mjc1YTBiNDU0NhImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqWhpYugNQCiokJElELTEzZDcyM2UzNGMyMWYzZWQ5NzIwYzQwZGFkNTRjYTMzLU5vbmUSBwoFQWxwaGESBgoEQmV0YSgBUAFaC1BsYWluIHBpbGxzYgDSAwIQAQ==",
+      "message": {
+        "hash": "86956a898750b385483465275a0b4546",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "button_group": {
+              "id": "$$ID-13d723e34c21f3ed9720c40dad54ca33-None",
+              "options": [
+                {
+                  "content": "Alpha"
+                },
+                {
+                  "content": "Beta"
+                }
+              ],
+              "click_mode": "MULTI_SELECT",
+              "style": "PILLS",
+              "label": "Plain pills",
+              "label_visibility": {}
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 178,
+      "base64": "CiAxZTE2NDBjZWI4ZGFhYTg1ZWM3NTRlN2I4OGRmODQ5MRImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqZhpk6gFcClZXaWRnZXQgcGFyYW1zIGVycm9yOiBpbnZhbGlkIHdpZGdldCB2YWx1ZTogbXVsdGktc2VsZWN0IHNlc3Npb24gdmFsdWUgbXVzdCBiZSBhbiBhcnJheSABQAHqAwIIAQ==",
+      "message": {
+        "hash": "1e1640ceb8daaa85ec754e7b88df8491",
+        "metadata": {
+          "delta_path": [
+            0,
+            1
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "Widget params error: invalid widget value: multi-select session value must be an array",
+              "element_type": "NATIVE",
+              "wrap": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 19,
+      "base64": "Cg9zY3JpcHRfZmluaXNoZWQwAA==",
+      "message": {
+        "hash": "script_finished",
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    },
+    {
+      "direction": "client->server",
+      "bytes": 304,
+      "base64": "Wq0CCiNwcm9iZT1ncm91cC1wb2xpY3kmcGhhc2U9bXVsdGktZWRpdBKFAgo7CiokJElELTEzZDcyM2UzNGMyMWYzZWQ5NzIwYzQwZGFkNTRjYTMzLU5vbmVKDQoEQmV0YQoFQWxwaGEKQgoxJCRJRC0xZmY2MmQ2ZDMyNjZmMTFiNmQ0Y2JiY2Y2MTFkNDUzZC1LZXllZCBwaWxsc0oNCgRCZXRhCgVBbHBoYQo7CiokJElELTVkYjBlYmE0Yjk1ODQyZGE0YmNlNzY3ZDY0Y2M0ZTE0LU5vbmVKDQoEQmV0YQoFQWxwaGEKRQo0JCRJRC0yMDE4ZDdjMTM1MmQ4NWMyNTM4YTY4NmYzNjNmMjUyMS1LZXllZCBzZWdtZW50c0oNCgRCZXRhCgVBbHBoYQ==",
+      "message": {
+        "rerun_script": {
+          "query_string": "probe=group-policy&phase=multi-edit",
+          "widget_states": {
+            "widgets": [
+              {
+                "id": "$$ID-13d723e34c21f3ed9720c40dad54ca33-None",
+                "string_array_value": {
+                  "data": [
+                    "Beta",
+                    "Alpha"
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-1ff62d6d3266f11b6d4cbbcf611d453d-Keyed pills",
+                "string_array_value": {
+                  "data": [
+                    "Beta",
+                    "Alpha"
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-5db0eba4b95842da4bce767d64cc4e14-None",
+                "string_array_value": {
+                  "data": [
+                    "Beta",
+                    "Alpha"
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-2018d7c1352d85c2538a686f363f2521-Keyed segments",
+                "string_array_value": {
+                  "data": [
+                    "Beta",
+                    "Alpha"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 26,
+      "base64": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgA=",
+      "message": {
+        "hash": "session_status_changed",
+        "session_status_changed": {}
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 219,
+      "base64": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkMGUyYzYzZmQtOTBjMS00NTdiLTg4OWYtMTMzMmZhYmVlNmMxEiQ0MzJmNjg4Mi00NTY5LTQ5MzEtOWE2Zi04ZDM0ZDFkYTE2NjMaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl",
+      "message": {
+        "metadata": {
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "new_session": {
+          "initialize": {
+            "user_info": {},
+            "environment_info": {
+              "streamlit_version": "1.66.1"
+            },
+            "session_status": {},
+            "session_id": "0e2c63fd-90c1-457b-889f-1332fabee6c1"
+          },
+          "script_run_id": "432f6882-4569-4931-9a6f-8d34d1da1663",
+          "name": "Streamlit Rust",
+          "config": {
+            "show_error_links": "SHOW_ERROR_LINKS_FALSE"
+          },
+          "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 28,
+      "base64": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ==",
+      "message": {
+        "hash": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 166,
+      "base64": "CiA4Njk1NmE4OTg3NTBiMzg1NDgzNDY1Mjc1YTBiNDU0NhImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqWhpYugNQCiokJElELTEzZDcyM2UzNGMyMWYzZWQ5NzIwYzQwZGFkNTRjYTMzLU5vbmUSBwoFQWxwaGESBgoEQmV0YSgBUAFaC1BsYWluIHBpbGxzYgDSAwIQAQ==",
+      "message": {
+        "hash": "86956a898750b385483465275a0b4546",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "button_group": {
+              "id": "$$ID-13d723e34c21f3ed9720c40dad54ca33-None",
+              "options": [
+                {
+                  "content": "Alpha"
+                },
+                {
+                  "content": "Beta"
+                }
+              ],
+              "click_mode": "MULTI_SELECT",
+              "style": "PILLS",
+              "label": "Plain pills",
+              "label_visibility": {}
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 173,
+      "base64": "CiBlNzZjZGI2NzQ2ZGYxMThhYjEwZWFhYzExMzIwNzE4MhImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqYRpfugNXCjEkJElELTFmZjYyZDZkMzI2NmYxMWI2ZDRjYmJjZjYxMWQ0NTNkLUtleWVkIHBpbGxzEgcKBUFscGhhEgYKBEJldGEoAVABWgtLZXllZCBwaWxsc2IA0gMCEAE=",
+      "message": {
+        "hash": "e76cdb6746df118ab10eaac113207182",
+        "metadata": {
+          "delta_path": [
+            0,
+            1
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "button_group": {
+              "id": "$$ID-1ff62d6d3266f11b6d4cbbcf611d453d-Keyed pills",
+              "options": [
+                {
+                  "content": "Alpha"
+                },
+                {
+                  "content": "Beta"
+                }
+              ],
+              "click_mode": "MULTI_SELECT",
+              "style": "PILLS",
+              "label": "Keyed pills",
+              "label_visibility": {}
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 167,
+      "base64": "CiA4YzE1OTAxNTkzY2NkMjdlNDFjM2VkZDI4OTU1NmM1ZRImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqWxpZugNRCiokJElELWIyZWE4ZDYzMmE4ODg1ZWEzMzk0MjA0YzZhMmJmYjZhLU5vbmUSBwoFQWxwaGESBgoEQmV0YSgBWg5QbGFpbiBzZWdtZW50c2IA0gMCEAE=",
+      "message": {
+        "hash": "8c15901593ccd27e41c3edd289556c5e",
+        "metadata": {
+          "delta_path": [
+            0,
+            2
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "button_group": {
+              "id": "$$ID-b2ea8d632a8885ea3394204c6a2bfb6a-None",
+              "options": [
+                {
+                  "content": "Alpha"
+                },
+                {
+                  "content": "Beta"
+                }
+              ],
+              "click_mode": "MULTI_SELECT",
+              "label": "Plain segments",
+              "label_visibility": {}
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 177,
+      "base64": "CiBiMWI1YzMwZWI1MzE5YmJjMmQ1YmU4MDFjMzJiYmNmOBImEgIAAyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqZRpjugNbCjQkJElELTIwMThkN2MxMzUyZDg1YzI1MzhhNjg2ZjM2M2YyNTIxLUtleWVkIHNlZ21lbnRzEgcKBUFscGhhEgYKBEJldGEoAVoOS2V5ZWQgc2VnbWVudHNiANIDAhAB",
+      "message": {
+        "hash": "b1b5c30eb5319bbc2d5be801c32bbcf8",
+        "metadata": {
+          "delta_path": [
+            0,
+            3
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "button_group": {
+              "id": "$$ID-2018d7c1352d85c2538a686f363f2521-Keyed segments",
+              "options": [
+                {
+                  "content": "Alpha"
+                },
+                {
+                  "content": "Beta"
+                }
+              ],
+              "click_mode": "MULTI_SELECT",
+              "label": "Keyed segments",
+              "label_visibility": {}
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 186,
+      "base64": "CiA2NDFmZTNjYTkwNzQ3YjcwMDZiMGRmNDBkMmY1M2M2ZhImEgIABCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2Uqbhps+gFkCmB7InBoYXNlIjogIm11bHRpLWVkaXQiLCAidmFsdWVzIjogW1siQmV0YSIsICJBbHBoYSJdLCBbIkJldGEiLCAiQWxwaGEiXSwgW10sIFsiQmV0YSIsICJBbHBoYSJdXX0QAdIDAggB",
+      "message": {
+        "hash": "641fe3ca90747b7006b0df40d2f53c6f",
+        "metadata": {
+          "delta_path": [
+            0,
+            4
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"phase\": \"multi-edit\", \"values\": [[\"Beta\", \"Alpha\"], [\"Beta\", \"Alpha\"], [], [\"Beta\", \"Alpha\"]]}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 19,
+      "base64": "Cg9zY3JpcHRfZmluaXNoZWQwAA==",
+      "message": {
+        "hash": "script_finished",
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    },
+    {
+      "direction": "client->server",
+      "bytes": 36,
+      "base64": "WiIKIHByb2JlPWdyb3VwLXBvbGljeSZwaGFzZT1yZXN0b3Jl",
+      "message": {
+        "rerun_script": {
+          "query_string": "probe=group-policy&phase=restore"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 26,
+      "base64": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgA=",
+      "message": {
+        "hash": "session_status_changed",
+        "session_status_changed": {}
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 219,
+      "base64": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkMGUyYzYzZmQtOTBjMS00NTdiLTg4OWYtMTMzMmZhYmVlNmMxEiRiODRiMTg0My1mMzhkLTRmZTgtYTAwZC00N2RkOTdiNjMzY2YaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl",
+      "message": {
+        "metadata": {
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "new_session": {
+          "initialize": {
+            "user_info": {},
+            "environment_info": {
+              "streamlit_version": "1.66.1"
+            },
+            "session_status": {},
+            "session_id": "0e2c63fd-90c1-457b-889f-1332fabee6c1"
+          },
+          "script_run_id": "b84b1843-f38d-4fe8-a00d-47dd97b633cf",
+          "name": "Streamlit Rust",
+          "config": {
+            "show_error_links": "SHOW_ERROR_LINKS_FALSE"
+          },
+          "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 28,
+      "base64": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ==",
+      "message": {
+        "hash": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 164,
+      "base64": "CiAxMDU1YmJkYjE1MzBmNjA2ODU5YWNmNmE5ZjBlNWI4NhImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqWBpWugNOCiokJElELWU3ZGJiYWM4MjJhYTg3MDgzNmFhODcwNTUyZDU1MWYwLU5vbmUSBwoFQWxwaGESBgoEQmV0YVABWgtQbGFpbiBwaWxsc2IA0gMCEAE=",
+      "message": {
+        "hash": "1055bbdb1530f606859acf6a9f0e5b86",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "button_group": {
+              "id": "$$ID-e7dbbac822aa870836aa870552d551f0-None",
+              "options": [
+                {
+                  "content": "Alpha"
+                },
+                {
+                  "content": "Beta"
+                }
+              ],
+              "style": "PILLS",
+              "label": "Plain pills",
+              "label_visibility": {}
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 171,
+      "base64": "CiA0MDJlNTJiNTkwN2VjOTQwYTJkYjAzNjNiNzRkY2UxZBImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqXxpd6gFVCk9XaWRnZXQgcGFyYW1zIGVycm9yOiBpbnZhbGlkIHdpZGdldCB2YWx1ZTogc2Vzc2lvbiB2YWx1ZSBpcyBhYnNlbnQgZnJvbSBvcHRpb25zIAFAAeoDAggB",
+      "message": {
+        "hash": "402e52b5907ec940a2db0363b74dce1d",
+        "metadata": {
+          "delta_path": [
+            0,
+            1
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "Widget params error: invalid widget value: session value is absent from options",
+              "element_type": "NATIVE",
+              "wrap": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 19,
+      "base64": "Cg9zY3JpcHRfZmluaXNoZWQwAA==",
+      "message": {
+        "hash": "script_finished",
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    },
+    {
+      "direction": "client->server",
+      "bytes": 278,
+      "base64": "WpMCCiVwcm9iZT1ncm91cC1wb2xpY3kmcGhhc2U9cmVzdG9yZS1lZGl0EukBCjQKKiQkSUQtZTdkYmJhYzgyMmFhODcwODM2YWE4NzA1NTJkNTUxZjAtTm9uZUoGCgRCZXRhCjsKMSQkSUQtMWZmNjJkNmQzMjY2ZjExYjZkNGNiYmNmNjExZDQ1M2QtS2V5ZWQgcGlsbHNKBgoEQmV0YQo0CiokJElELWIyZWE4ZDYzMmE4ODg1ZWEzMzk0MjA0YzZhMmJmYjZhLU5vbmVKBgoEQmV0YQo+CjQkJElELTIwMThkN2MxMzUyZDg1YzI1MzhhNjg2ZjM2M2YyNTIxLUtleWVkIHNlZ21lbnRzSgYKBEJldGE=",
+      "message": {
+        "rerun_script": {
+          "query_string": "probe=group-policy&phase=restore-edit",
+          "widget_states": {
+            "widgets": [
+              {
+                "id": "$$ID-e7dbbac822aa870836aa870552d551f0-None",
+                "string_array_value": {
+                  "data": [
+                    "Beta"
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-1ff62d6d3266f11b6d4cbbcf611d453d-Keyed pills",
+                "string_array_value": {
+                  "data": [
+                    "Beta"
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-b2ea8d632a8885ea3394204c6a2bfb6a-None",
+                "string_array_value": {
+                  "data": [
+                    "Beta"
+                  ]
+                }
+              },
+              {
+                "id": "$$ID-2018d7c1352d85c2538a686f363f2521-Keyed segments",
+                "string_array_value": {
+                  "data": [
+                    "Beta"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 26,
+      "base64": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgA=",
+      "message": {
+        "hash": "session_status_changed",
+        "session_status_changed": {}
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 219,
+      "base64": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkMGUyYzYzZmQtOTBjMS00NTdiLTg4OWYtMTMzMmZhYmVlNmMxEiRjNGZmNTI3ZC0xNzM3LTRmZDMtYThiYi1kN2UxOTUyYzU4YWQaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl",
+      "message": {
+        "metadata": {
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "new_session": {
+          "initialize": {
+            "user_info": {},
+            "environment_info": {
+              "streamlit_version": "1.66.1"
+            },
+            "session_status": {},
+            "session_id": "0e2c63fd-90c1-457b-889f-1332fabee6c1"
+          },
+          "script_run_id": "c4ff527d-1737-4fd3-a8bb-d7e1952c58ad",
+          "name": "Streamlit Rust",
+          "config": {
+            "show_error_links": "SHOW_ERROR_LINKS_FALSE"
+          },
+          "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 28,
+      "base64": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ==",
+      "message": {
+        "hash": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 164,
+      "base64": "CiAxMDU1YmJkYjE1MzBmNjA2ODU5YWNmNmE5ZjBlNWI4NhImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqWBpWugNOCiokJElELWU3ZGJiYWM4MjJhYTg3MDgzNmFhODcwNTUyZDU1MWYwLU5vbmUSBwoFQWxwaGESBgoEQmV0YVABWgtQbGFpbiBwaWxsc2IA0gMCEAE=",
+      "message": {
+        "hash": "1055bbdb1530f606859acf6a9f0e5b86",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "button_group": {
+              "id": "$$ID-e7dbbac822aa870836aa870552d551f0-None",
+              "options": [
+                {
+                  "content": "Alpha"
+                },
+                {
+                  "content": "Beta"
+                }
+              ],
+              "style": "PILLS",
+              "label": "Plain pills",
+              "label_visibility": {}
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 171,
+      "base64": "CiA1OTM0MTU2Y2FjOTc4YmZmYjhhYTA2ZGZiMjdlYWJlYhImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqXxpdugNVCjEkJElELTFmZjYyZDZkMzI2NmYxMWI2ZDRjYmJjZjYxMWQ0NTNkLUtleWVkIHBpbGxzEgcKBUFscGhhEgYKBEJldGFQAVoLS2V5ZWQgcGlsbHNiANIDAhAB",
+      "message": {
+        "hash": "5934156cac978bffb8aa06dfb27eabeb",
+        "metadata": {
+          "delta_path": [
+            0,
+            1
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "button_group": {
+              "id": "$$ID-1ff62d6d3266f11b6d4cbbcf611d453d-Keyed pills",
+              "options": [
+                {
+                  "content": "Alpha"
+                },
+                {
+                  "content": "Beta"
+                }
+              ],
+              "style": "PILLS",
+              "label": "Keyed pills",
+              "label_visibility": {}
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 165,
+      "base64": "CiA3ODg2MjJkYWM2YTNjNjVjNzVkN2FjODcxYjQzYjlhYhImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqWRpXugNPCiokJElELTVkYjBlYmE0Yjk1ODQyZGE0YmNlNzY3ZDY0Y2M0ZTE0LU5vbmUSBwoFQWxwaGESBgoEQmV0YVoOUGxhaW4gc2VnbWVudHNiANIDAhAB",
+      "message": {
+        "hash": "788622dac6a3c65c75d7ac871b43b9ab",
+        "metadata": {
+          "delta_path": [
+            0,
+            2
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "button_group": {
+              "id": "$$ID-5db0eba4b95842da4bce767d64cc4e14-None",
+              "options": [
+                {
+                  "content": "Alpha"
+                },
+                {
+                  "content": "Beta"
+                }
+              ],
+              "label": "Plain segments",
+              "label_visibility": {}
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 175,
+      "base64": "CiA1NTliZmJjZGMzMTZmMWY1YjQ5MDVhZWI5NzhiYjY5ZhImEgIAAyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqYxphugNZCjQkJElELTIwMThkN2MxMzUyZDg1YzI1MzhhNjg2ZjM2M2YyNTIxLUtleWVkIHNlZ21lbnRzEgcKBUFscGhhEgYKBEJldGFaDktleWVkIHNlZ21lbnRzYgDSAwIQAQ==",
+      "message": {
+        "hash": "559bfbcdc316f1f5b4905aeb978bb69f",
+        "metadata": {
+          "delta_path": [
+            0,
+            3
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "button_group": {
+              "id": "$$ID-2018d7c1352d85c2538a686f363f2521-Keyed segments",
+              "options": [
+                {
+                  "content": "Alpha"
+                },
+                {
+                  "content": "Beta"
+                }
+              ],
+              "label": "Keyed segments",
+              "label_visibility": {}
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 157,
+      "base64": "CiBhOGZiYWVkODAzNWQwYTM2YWM2NTFlNzYzNjNmMTFmYRImEgIABCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqURpP+gFHCkN7InBoYXNlIjogInJlc3RvcmUtZWRpdCIsICJ2YWx1ZXMiOiBbIkJldGEiLCAiQmV0YSIsIG51bGwsICJCZXRhIl19EAHSAwIIAQ==",
+      "message": {
+        "hash": "a8fbaed8035d0a36ac651e76363f11fa",
+        "metadata": {
+          "delta_path": [
+            0,
+            4
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"phase\": \"restore-edit\", \"values\": [\"Beta\", \"Beta\", null, \"Beta\"]}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 19,
+      "base64": "Cg9zY3JpcHRfZmluaXNoZWQwAA==",
+      "message": {
+        "hash": "script_finished",
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    },
+    {
+      "direction": "client->server",
+      "bytes": 36,
+      "base64": "WiIKIHByb2JlPWdyb3VwLXBvbGljeSZwaGFzZT1vYnNlcnZl",
+      "message": {
+        "rerun_script": {
+          "query_string": "probe=group-policy&phase=observe"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 26,
+      "base64": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgA=",
+      "message": {
+        "hash": "session_status_changed",
+        "session_status_changed": {}
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 219,
+      "base64": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkMGUyYzYzZmQtOTBjMS00NTdiLTg4OWYtMTMzMmZhYmVlNmMxEiQ5MmIzMzJkMy0wZTRhLTQxZTQtOWQ1Yy03YTEyYmVmZjg1ZGQaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl",
+      "message": {
+        "metadata": {
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "new_session": {
+          "initialize": {
+            "user_info": {},
+            "environment_info": {
+              "streamlit_version": "1.66.1"
+            },
+            "session_status": {},
+            "session_id": "0e2c63fd-90c1-457b-889f-1332fabee6c1"
+          },
+          "script_run_id": "92b332d3-0e4a-41e4-9d5c-7a12beff85dd",
+          "name": "Streamlit Rust",
+          "config": {
+            "show_error_links": "SHOW_ERROR_LINKS_FALSE"
+          },
+          "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 28,
+      "base64": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ==",
+      "message": {
+        "hash": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 164,
+      "base64": "CiAxMDU1YmJkYjE1MzBmNjA2ODU5YWNmNmE5ZjBlNWI4NhImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqWBpWugNOCiokJElELWU3ZGJiYWM4MjJhYTg3MDgzNmFhODcwNTUyZDU1MWYwLU5vbmUSBwoFQWxwaGESBgoEQmV0YVABWgtQbGFpbiBwaWxsc2IA0gMCEAE=",
+      "message": {
+        "hash": "1055bbdb1530f606859acf6a9f0e5b86",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "button_group": {
+              "id": "$$ID-e7dbbac822aa870836aa870552d551f0-None",
+              "options": [
+                {
+                  "content": "Alpha"
+                },
+                {
+                  "content": "Beta"
+                }
+              ],
+              "style": "PILLS",
+              "label": "Plain pills",
+              "label_visibility": {}
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 171,
+      "base64": "CiA1OTM0MTU2Y2FjOTc4YmZmYjhhYTA2ZGZiMjdlYWJlYhImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqXxpdugNVCjEkJElELTFmZjYyZDZkMzI2NmYxMWI2ZDRjYmJjZjYxMWQ0NTNkLUtleWVkIHBpbGxzEgcKBUFscGhhEgYKBEJldGFQAVoLS2V5ZWQgcGlsbHNiANIDAhAB",
+      "message": {
+        "hash": "5934156cac978bffb8aa06dfb27eabeb",
+        "metadata": {
+          "delta_path": [
+            0,
+            1
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "button_group": {
+              "id": "$$ID-1ff62d6d3266f11b6d4cbbcf611d453d-Keyed pills",
+              "options": [
+                {
+                  "content": "Alpha"
+                },
+                {
+                  "content": "Beta"
+                }
+              ],
+              "style": "PILLS",
+              "label": "Keyed pills",
+              "label_visibility": {}
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 165,
+      "base64": "CiA3ODg2MjJkYWM2YTNjNjVjNzVkN2FjODcxYjQzYjlhYhImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqWRpXugNPCiokJElELTVkYjBlYmE0Yjk1ODQyZGE0YmNlNzY3ZDY0Y2M0ZTE0LU5vbmUSBwoFQWxwaGESBgoEQmV0YVoOUGxhaW4gc2VnbWVudHNiANIDAhAB",
+      "message": {
+        "hash": "788622dac6a3c65c75d7ac871b43b9ab",
+        "metadata": {
+          "delta_path": [
+            0,
+            2
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "button_group": {
+              "id": "$$ID-5db0eba4b95842da4bce767d64cc4e14-None",
+              "options": [
+                {
+                  "content": "Alpha"
+                },
+                {
+                  "content": "Beta"
+                }
+              ],
+              "label": "Plain segments",
+              "label_visibility": {}
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 175,
+      "base64": "CiA1NTliZmJjZGMzMTZmMWY1YjQ5MDVhZWI5NzhiYjY5ZhImEgIAAyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqYxphugNZCjQkJElELTIwMThkN2MxMzUyZDg1YzI1MzhhNjg2ZjM2M2YyNTIxLUtleWVkIHNlZ21lbnRzEgcKBUFscGhhEgYKBEJldGFaDktleWVkIHNlZ21lbnRzYgDSAwIQAQ==",
+      "message": {
+        "hash": "559bfbcdc316f1f5b4905aeb978bb69f",
+        "metadata": {
+          "delta_path": [
+            0,
+            3
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "button_group": {
+              "id": "$$ID-2018d7c1352d85c2538a686f363f2521-Keyed segments",
+              "options": [
+                {
+                  "content": "Alpha"
+                },
+                {
+                  "content": "Beta"
+                }
+              ],
+              "label": "Keyed segments",
+              "label_visibility": {}
+            },
+            "width_config": {
+              "use_content": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 152,
+      "base64": "CiAzMjA3ZmVlMTYxMWNkMmQzZDBiNzY1MmI5YmQ5YWQwORImEgIABCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqTBpK+gFCCj57InBoYXNlIjogIm9ic2VydmUiLCAidmFsdWVzIjogWyJCZXRhIiwgIkJldGEiLCBudWxsLCAiQmV0YSJdfRAB0gMCCAE=",
+      "message": {
+        "hash": "3207fee1611cd2d3d0b7652b9bd9ad09",
+        "metadata": {
+          "delta_path": [
+            0,
+            4
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "json": {
+              "body": "{\"phase\": \"observe\", \"values\": [\"Beta\", \"Beta\", null, \"Beta\"]}",
+              "expanded": true
+            },
+            "width_config": {
+              "use_stretch": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 19,
+      "base64": "Cg9zY3JpcHRfZmluaXNoZWQwAA==",
+      "message": {
+        "hash": "script_finished",
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    }
+  ],
+  "elements": [
+    {
+      "index": 0,
+      "kind": "button_group",
+      "fields": {
+        "id": "$$ID-e7dbbac822aa870836aa870552d551f0-None",
+        "options": [
+          {
+            "content": "Alpha"
+          },
+          {
+            "content": "Beta"
+          }
+        ],
+        "style": "PILLS",
+        "label": "Plain pills",
+        "label_visibility": {}
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        0
+      ]
+    },
+    {
+      "index": 1,
+      "kind": "button_group",
+      "fields": {
+        "id": "$$ID-1ff62d6d3266f11b6d4cbbcf611d453d-Keyed pills",
+        "options": [
+          {
+            "content": "Alpha"
+          },
+          {
+            "content": "Beta"
+          }
+        ],
+        "style": "PILLS",
+        "label": "Keyed pills",
+        "label_visibility": {}
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        1
+      ]
+    },
+    {
+      "index": 2,
+      "kind": "button_group",
+      "fields": {
+        "id": "$$ID-5db0eba4b95842da4bce767d64cc4e14-None",
+        "options": [
+          {
+            "content": "Alpha"
+          },
+          {
+            "content": "Beta"
+          }
+        ],
+        "label": "Plain segments",
+        "label_visibility": {}
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        2
+      ]
+    },
+    {
+      "index": 3,
+      "kind": "button_group",
+      "fields": {
+        "id": "$$ID-2018d7c1352d85c2538a686f363f2521-Keyed segments",
+        "options": [
+          {
+            "content": "Alpha"
+          },
+          {
+            "content": "Beta"
+          }
+        ],
+        "label": "Keyed segments",
+        "label_visibility": {}
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        3
+      ]
+    },
+    {
+      "index": 4,
+      "kind": "json",
+      "fields": {
+        "body": "{\"phase\": \"load\", \"values\": [null, null, null, null]}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        4
+      ]
+    },
+    {
+      "index": 0,
+      "kind": "button_group",
+      "fields": {
+        "id": "$$ID-e7dbbac822aa870836aa870552d551f0-None",
+        "options": [
+          {
+            "content": "Alpha"
+          },
+          {
+            "content": "Beta"
+          }
+        ],
+        "style": "PILLS",
+        "label": "Plain pills",
+        "label_visibility": {}
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        0
+      ]
+    },
+    {
+      "index": 1,
+      "kind": "button_group",
+      "fields": {
+        "id": "$$ID-1ff62d6d3266f11b6d4cbbcf611d453d-Keyed pills",
+        "options": [
+          {
+            "content": "Alpha"
+          },
+          {
+            "content": "Beta"
+          }
+        ],
+        "style": "PILLS",
+        "label": "Keyed pills",
+        "label_visibility": {}
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        1
+      ]
+    },
+    {
+      "index": 2,
+      "kind": "button_group",
+      "fields": {
+        "id": "$$ID-5db0eba4b95842da4bce767d64cc4e14-None",
+        "options": [
+          {
+            "content": "Alpha"
+          },
+          {
+            "content": "Beta"
+          }
+        ],
+        "label": "Plain segments",
+        "label_visibility": {}
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        2
+      ]
+    },
+    {
+      "index": 3,
+      "kind": "button_group",
+      "fields": {
+        "id": "$$ID-2018d7c1352d85c2538a686f363f2521-Keyed segments",
+        "options": [
+          {
+            "content": "Alpha"
+          },
+          {
+            "content": "Beta"
+          }
+        ],
+        "label": "Keyed segments",
+        "label_visibility": {}
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        3
+      ]
+    },
+    {
+      "index": 4,
+      "kind": "json",
+      "fields": {
+        "body": "{\"phase\": \"edit\", \"values\": [\"Beta\", \"Beta\", \"Beta\", \"Beta\"]}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        4
+      ]
+    },
+    {
+      "index": 0,
+      "kind": "button_group",
+      "fields": {
+        "id": "$$ID-cd9713aa6176829f5665be948e21eaac-None",
+        "options": [
+          {
+            "content": "Alpha"
+          },
+          {
+            "content": "Beta"
+          }
+        ],
+        "style": "PILLS",
+        "label": "Plain pills",
+        "label_visibility": {},
+        "required": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        0
+      ]
+    },
+    {
+      "index": 1,
+      "kind": "button_group",
+      "fields": {
+        "id": "$$ID-1ff62d6d3266f11b6d4cbbcf611d453d-Keyed pills",
+        "options": [
+          {
+            "content": "Alpha"
+          },
+          {
+            "content": "Beta"
+          }
+        ],
+        "style": "PILLS",
+        "label": "Keyed pills",
+        "label_visibility": {},
+        "required": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        1
+      ]
+    },
+    {
+      "index": 2,
+      "kind": "button_group",
+      "fields": {
+        "id": "$$ID-54617a4cfcf4b9b5731a263a0ddde5e6-None",
+        "options": [
+          {
+            "content": "Alpha"
+          },
+          {
+            "content": "Beta"
+          }
+        ],
+        "label": "Plain segments",
+        "label_visibility": {},
+        "required": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        2
+      ]
+    },
+    {
+      "index": 3,
+      "kind": "button_group",
+      "fields": {
+        "id": "$$ID-2018d7c1352d85c2538a686f363f2521-Keyed segments",
+        "options": [
+          {
+            "content": "Alpha"
+          },
+          {
+            "content": "Beta"
+          }
+        ],
+        "label": "Keyed segments",
+        "label_visibility": {},
+        "required": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        3
+      ]
+    },
+    {
+      "index": 4,
+      "kind": "json",
+      "fields": {
+        "body": "{\"phase\": \"required\", \"values\": [null, \"Beta\", null, \"Beta\"]}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        4
+      ]
+    },
+    {
+      "index": 0,
+      "kind": "button_group",
+      "fields": {
+        "id": "$$ID-cd9713aa6176829f5665be948e21eaac-None",
+        "options": [
+          {
+            "content": "Alpha"
+          },
+          {
+            "content": "Beta"
+          }
+        ],
+        "style": "PILLS",
+        "label": "Plain pills",
+        "label_visibility": {},
+        "required": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        0
+      ]
+    },
+    {
+      "index": 1,
+      "kind": "button_group",
+      "fields": {
+        "id": "$$ID-1ff62d6d3266f11b6d4cbbcf611d453d-Keyed pills",
+        "options": [
+          {
+            "content": "Alpha"
+          },
+          {
+            "content": "Beta"
+          }
+        ],
+        "style": "PILLS",
+        "label": "Keyed pills",
+        "label_visibility": {},
+        "required": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        1
+      ]
+    },
+    {
+      "index": 2,
+      "kind": "button_group",
+      "fields": {
+        "id": "$$ID-54617a4cfcf4b9b5731a263a0ddde5e6-None",
+        "options": [
+          {
+            "content": "Alpha"
+          },
+          {
+            "content": "Beta"
+          }
+        ],
+        "label": "Plain segments",
+        "label_visibility": {},
+        "required": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        2
+      ]
+    },
+    {
+      "index": 3,
+      "kind": "button_group",
+      "fields": {
+        "id": "$$ID-2018d7c1352d85c2538a686f363f2521-Keyed segments",
+        "options": [
+          {
+            "content": "Alpha"
+          },
+          {
+            "content": "Beta"
+          }
+        ],
+        "label": "Keyed segments",
+        "label_visibility": {},
+        "required": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        3
+      ]
+    },
+    {
+      "index": 4,
+      "kind": "json",
+      "fields": {
+        "body": "{\"phase\": \"required-edit\", \"values\": [\"Alpha\", \"Alpha\", \"Alpha\", \"Alpha\"]}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        4
+      ]
+    },
+    {
+      "index": 0,
+      "kind": "button_group",
+      "fields": {
+        "id": "$$ID-e7dbbac822aa870836aa870552d551f0-None",
+        "options": [
+          {
+            "content": "Alpha"
+          },
+          {
+            "content": "Beta"
+          }
+        ],
+        "style": "PILLS",
+        "label": "Plain pills",
+        "label_visibility": {}
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        0
+      ]
+    },
+    {
+      "index": 1,
+      "kind": "button_group",
+      "fields": {
+        "id": "$$ID-1ff62d6d3266f11b6d4cbbcf611d453d-Keyed pills",
+        "options": [
+          {
+            "content": "Alpha"
+          },
+          {
+            "content": "Beta"
+          }
+        ],
+        "style": "PILLS",
+        "label": "Keyed pills",
+        "label_visibility": {}
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        1
+      ]
+    },
+    {
+      "index": 2,
+      "kind": "button_group",
+      "fields": {
+        "id": "$$ID-5db0eba4b95842da4bce767d64cc4e14-None",
+        "options": [
+          {
+            "content": "Alpha"
+          },
+          {
+            "content": "Beta"
+          }
+        ],
+        "label": "Plain segments",
+        "label_visibility": {}
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        2
+      ]
+    },
+    {
+      "index": 3,
+      "kind": "button_group",
+      "fields": {
+        "id": "$$ID-2018d7c1352d85c2538a686f363f2521-Keyed segments",
+        "options": [
+          {
+            "content": "Alpha"
+          },
+          {
+            "content": "Beta"
+          }
+        ],
+        "label": "Keyed segments",
+        "label_visibility": {}
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        3
+      ]
+    },
+    {
+      "index": 4,
+      "kind": "json",
+      "fields": {
+        "body": "{\"phase\": \"optional\", \"values\": [null, \"Alpha\", null, \"Alpha\"]}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        4
+      ]
+    },
+    {
+      "index": 0,
+      "kind": "button_group",
+      "fields": {
+        "id": "$$ID-13d723e34c21f3ed9720c40dad54ca33-None",
+        "options": [
+          {
+            "content": "Alpha"
+          },
+          {
+            "content": "Beta"
+          }
+        ],
+        "click_mode": "MULTI_SELECT",
+        "style": "PILLS",
+        "label": "Plain pills",
+        "label_visibility": {}
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        0
+      ]
+    },
+    {
+      "index": 1,
+      "kind": "markdown",
+      "fields": {
+        "body": "Widget params error: invalid widget value: multi-select session value must be an array",
+        "element_type": "NATIVE",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        1
+      ]
+    },
+    {
+      "index": 0,
+      "kind": "button_group",
+      "fields": {
+        "id": "$$ID-13d723e34c21f3ed9720c40dad54ca33-None",
+        "options": [
+          {
+            "content": "Alpha"
+          },
+          {
+            "content": "Beta"
+          }
+        ],
+        "click_mode": "MULTI_SELECT",
+        "style": "PILLS",
+        "label": "Plain pills",
+        "label_visibility": {}
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        0
+      ]
+    },
+    {
+      "index": 1,
+      "kind": "button_group",
+      "fields": {
+        "id": "$$ID-1ff62d6d3266f11b6d4cbbcf611d453d-Keyed pills",
+        "options": [
+          {
+            "content": "Alpha"
+          },
+          {
+            "content": "Beta"
+          }
+        ],
+        "click_mode": "MULTI_SELECT",
+        "style": "PILLS",
+        "label": "Keyed pills",
+        "label_visibility": {}
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        1
+      ]
+    },
+    {
+      "index": 2,
+      "kind": "button_group",
+      "fields": {
+        "id": "$$ID-b2ea8d632a8885ea3394204c6a2bfb6a-None",
+        "options": [
+          {
+            "content": "Alpha"
+          },
+          {
+            "content": "Beta"
+          }
+        ],
+        "click_mode": "MULTI_SELECT",
+        "label": "Plain segments",
+        "label_visibility": {}
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        2
+      ]
+    },
+    {
+      "index": 3,
+      "kind": "button_group",
+      "fields": {
+        "id": "$$ID-2018d7c1352d85c2538a686f363f2521-Keyed segments",
+        "options": [
+          {
+            "content": "Alpha"
+          },
+          {
+            "content": "Beta"
+          }
+        ],
+        "click_mode": "MULTI_SELECT",
+        "label": "Keyed segments",
+        "label_visibility": {}
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        3
+      ]
+    },
+    {
+      "index": 4,
+      "kind": "json",
+      "fields": {
+        "body": "{\"phase\": \"multi-edit\", \"values\": [[\"Beta\", \"Alpha\"], [\"Beta\", \"Alpha\"], [], [\"Beta\", \"Alpha\"]]}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        4
+      ]
+    },
+    {
+      "index": 0,
+      "kind": "button_group",
+      "fields": {
+        "id": "$$ID-e7dbbac822aa870836aa870552d551f0-None",
+        "options": [
+          {
+            "content": "Alpha"
+          },
+          {
+            "content": "Beta"
+          }
+        ],
+        "style": "PILLS",
+        "label": "Plain pills",
+        "label_visibility": {}
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        0
+      ]
+    },
+    {
+      "index": 1,
+      "kind": "markdown",
+      "fields": {
+        "body": "Widget params error: invalid widget value: session value is absent from options",
+        "element_type": "NATIVE",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        1
+      ]
+    },
+    {
+      "index": 0,
+      "kind": "button_group",
+      "fields": {
+        "id": "$$ID-e7dbbac822aa870836aa870552d551f0-None",
+        "options": [
+          {
+            "content": "Alpha"
+          },
+          {
+            "content": "Beta"
+          }
+        ],
+        "style": "PILLS",
+        "label": "Plain pills",
+        "label_visibility": {}
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        0
+      ]
+    },
+    {
+      "index": 1,
+      "kind": "button_group",
+      "fields": {
+        "id": "$$ID-1ff62d6d3266f11b6d4cbbcf611d453d-Keyed pills",
+        "options": [
+          {
+            "content": "Alpha"
+          },
+          {
+            "content": "Beta"
+          }
+        ],
+        "style": "PILLS",
+        "label": "Keyed pills",
+        "label_visibility": {}
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        1
+      ]
+    },
+    {
+      "index": 2,
+      "kind": "button_group",
+      "fields": {
+        "id": "$$ID-5db0eba4b95842da4bce767d64cc4e14-None",
+        "options": [
+          {
+            "content": "Alpha"
+          },
+          {
+            "content": "Beta"
+          }
+        ],
+        "label": "Plain segments",
+        "label_visibility": {}
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        2
+      ]
+    },
+    {
+      "index": 3,
+      "kind": "button_group",
+      "fields": {
+        "id": "$$ID-2018d7c1352d85c2538a686f363f2521-Keyed segments",
+        "options": [
+          {
+            "content": "Alpha"
+          },
+          {
+            "content": "Beta"
+          }
+        ],
+        "label": "Keyed segments",
+        "label_visibility": {}
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        3
+      ]
+    },
+    {
+      "index": 4,
+      "kind": "json",
+      "fields": {
+        "body": "{\"phase\": \"restore-edit\", \"values\": [\"Beta\", \"Beta\", null, \"Beta\"]}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        4
+      ]
+    },
+    {
+      "index": 0,
+      "kind": "button_group",
+      "fields": {
+        "id": "$$ID-e7dbbac822aa870836aa870552d551f0-None",
+        "options": [
+          {
+            "content": "Alpha"
+          },
+          {
+            "content": "Beta"
+          }
+        ],
+        "style": "PILLS",
+        "label": "Plain pills",
+        "label_visibility": {}
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        0
+      ]
+    },
+    {
+      "index": 1,
+      "kind": "button_group",
+      "fields": {
+        "id": "$$ID-1ff62d6d3266f11b6d4cbbcf611d453d-Keyed pills",
+        "options": [
+          {
+            "content": "Alpha"
+          },
+          {
+            "content": "Beta"
+          }
+        ],
+        "style": "PILLS",
+        "label": "Keyed pills",
+        "label_visibility": {}
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        1
+      ]
+    },
+    {
+      "index": 2,
+      "kind": "button_group",
+      "fields": {
+        "id": "$$ID-5db0eba4b95842da4bce767d64cc4e14-None",
+        "options": [
+          {
+            "content": "Alpha"
+          },
+          {
+            "content": "Beta"
+          }
+        ],
+        "label": "Plain segments",
+        "label_visibility": {}
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        2
+      ]
+    },
+    {
+      "index": 3,
+      "kind": "button_group",
+      "fields": {
+        "id": "$$ID-2018d7c1352d85c2538a686f363f2521-Keyed segments",
+        "options": [
+          {
+            "content": "Alpha"
+          },
+          {
+            "content": "Beta"
+          }
+        ],
+        "label": "Keyed segments",
+        "label_visibility": {}
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        3
+      ]
+    },
+    {
+      "index": 4,
+      "kind": "json",
+      "fields": {
+        "body": "{\"phase\": \"observe\", \"values\": [\"Beta\", \"Beta\", null, \"Beta\"]}",
+        "expanded": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        4
+      ]
+    }
+  ],
+  "finishes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "producer_sources_sha256": {
+    "streamlit/examples/widget_params.rs": "ce0c21efa852ccfd00178cc01d2b2d94138aaa4677818be4fd981513af9b2954",
+    "tests/reference/widget_params_app.py": "a7e837cd9b0af5f9070319fb76286d1bba96a048af31250e35b86ed90e4336fd",
+    "tests/browser/widget_params_capture.py": "9cdc3707bb98088a85eabef32c5504566c7cd24b948c1a3bb4a96b55a4a10cc0"
+  },
+  "health": {
+    "status": 200,
+    "body": "ok"
+  },
+  "cleanup": {
+    "websocket_closed": true,
+    "caller_server_stopped": true
+  },
+  "successful": true,
+  "semantic_match": false,
+  "widgets_sha256": "a20bd035fb9675e693302ea1683473bdf347ce8ea118cbb886d883c24c33406f",
+  "widget_api_sha256": "a250ff6d766902583cb0f96ed38c3b764f454e69965363bf07fa3688cb3437b4",
+  "binary_sha256": "b02dea277cb6bc0fe2eeacdcb36fdb2ba04f1ab645652b0aaeec1d58a50c02fc"
+}

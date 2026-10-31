@@ -2420,3 +2420,19 @@ SDK-only AppTest 新保留一项边界：旧标签重新序列化提交、option
 无新浏览器采集；相反 style/mode 配对、default/required/mode 变化、错误、callback、绑定/表单/跨页/晚到输入继续开放。只更新 st.pills/st.segmented_control 两行矩阵，生成清单仍 130 partial；清单分类从 no-explicit-gap-stated 转为 unmeasured-parameters 是明确记录尚未验证组合，并未关闭能力。用户 colconfig_params 修改独立保留，未创建 PR、合并、发布或部署；M3/M5/M7 与长期 Goal 继续开放。
 
 编辑 Rust 的 rustfmt、全工作区/all-target Clippy、新增公开 API 单元通过；最终工作区 325 项通过（318 库、1 ledger、2 宏、4 rustdoc），仍仅排除原 navigation_pages_switch_and_session_state_match_the_measured_wire 与 rerun_queue_messages_match_frozen_reference，不称完整工作区全绿。参数参考模块 279 项、相关 query/widget/temporal/pickers/matrix/docs 共 530 项通过；文档/矩阵收尾门 52 项通过。既有 MSVC linker stdout warning 保留；日志 target/group-width-{red,green,clippy,build,workspace,python}.log。
+
+## Current button-group required and mode identity validation (2026-11-01)
+
+锁定 SDK 1.66.1 的公开 AppTest 观察后，十轮同连接原生 WS 覆盖 pills/segmented_control 两个样式，各含 keyed/无 key 对照。流程：初始单选空值→四控件 Beta→required=true 保留→改 Alpha→required=false 保留→改多选全部空数组→输入 [Beta,Alpha] 保序→恢复单选全部 None→输入 Beta→无输入观察。required 不参与身份，selection_mode 参与所有控件身份；恢复已清理模式不复活旧选择。
+
+[SDK](../tests/reference/reference-browser/widget-params/group-policy/trace.json)与[Rust 最终](../tests/browser/rust-widget-params/group-policy/trace.json)各 10 轮、99 原始帧、50 完整 Element；[Rust 修前](../tests/browser/rust-widget-params/group-policy/before/trace.json)10 轮、93 帧、44 Element，semantic_match=false。修前 required/optional 轮丢失无 key 选择，multi 轮 keyed 单值被当数组读取报错，restore 轮又因旧数组被当单值读取报错；应用捕获成 Markdown，script_finished=0 并不表示兼容成功，后续不完整恢复也原样保留。单元红复现失败于 required: Plain pills（None 而非 Beta）。
+
+生产只修 emit_button_group 身份 extra：有 key 时包含 multi，拒绝沿用旧模式身份；无 key 时移除 required，保留 options/default/multi/width。注册、状态来源、解码、回调、清理和公共返回类型不改，无新增公共接口、模块或依赖。这里的“模式变化重建”复用现有身份与清理机制，不引入新的错误保留流程或共享状态层。
+
+完整 Element 仅归一化不透明 ID/JSON 文本后逐字段一致。严格门核对四控件各两类身份、required 不变身份、单多选 click_mode、两种 style、四控件实际前轮 ID/string_array_value、多选顺序、content 宽度、声明默认/策略、无额外同步、session/run/path 和逐轮返回。八类同步改写 raw 与汇总的负例必须失败：required 错变身份、keyed 模式未变身份、策略变更丢值、模式变更留旧值、恢复复活旧值、错误 click_mode、输入逆序、额外同步。
+
+同一最终二进制重放旧 group-width 七轮（69 帧/35 Element），与冻结 SDK 完整规范化字段继续匹配，结果 target/group-policy-width-recheck/trace.json。producer 三份源码、widget_api/widgets 与二进制 SHA 已核对当前产物；修前核心源码 SHA 与前一 HEAD 5ee995b 相同。SDK 自建服务与 Rust 自持 Popen 句柄均已停止，52668/8599 无监听。
+
+无新浏览器采集；required 的真实不可取消选择交互、default/代码状态变化、错误、callback、绑定/表单/跨页/晚到输入继续开放。只更新 st.pills/st.segmented_control 两行矩阵，生成清单仍 130 partial；不据此关闭 M3/M5/M7 或长期 Goal。用户 colconfig_params 修改独立保留，未创建 PR、合并、发布或部署。
+
+编辑 Rust 的 rustfmt、全工作区/all-target Clippy、新增公开 API 单元通过；最终工作区 326 项通过（319 库、1 ledger、2 宏、4 rustdoc），仍仅排除原 navigation_pages_switch_and_session_state_match_the_measured_wire 与 rerun_queue_messages_match_frozen_reference，不称完整工作区全绿。参数参考模块 291 项，相关 query/widget/temporal/pickers/matrix/docs 共 542 项通过；文档/矩阵收尾门 52 项通过。既有 MSVC linker stdout warning 保留；日志 target/group-policy-{red,green,clippy,build,workspace,python}.log。

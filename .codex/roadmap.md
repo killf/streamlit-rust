@@ -14,6 +14,8 @@
 
 ## Current focus
 
+2026-11-01 pills/segmented_control required/模式身份切片：required 开关不再误重建无 key 控件；keyed 身份补入单多选模式，切换时从空默认开始，避免复用旧类型报错。双样式/有无 key 共十轮、99 帧、50 完整 Element 与 SDK 匹配，旧宽度七轮复验通过。详见[验收](acceptance.md#current-button-group-required-and-mode-identity-validation-2026-11-01)；浏览器必选交互、default/代码赋值、callback/绑定/跨页等继续开放，不改变待决方案或完整目标。
+
 2026-11-01 pills/segmented_control 宽度身份切片：无 key 控件的私有身份参数补入 width，有 key 保持。七轮、69 帧、35 完整 Element 与 SDK 匹配，改宽度/恢复后无 key 选择重置且不复活已清理值；有 key 保留。同二进制重放 radio 回调与格式化选择，详见[验收](acceptance.md#current-button-group-width-identity-validation-2026-11-01)。其他 style/mode 配对、参数/错误/callback/浏览器组合仍开放，不改变待决公共 API、hash 或共享状态方案。
 
 2026-11-01 格式化同名标签切片：修正普通 selectbox 前端标签取末项，保留 multiselect 取首项规则；无 key 同身份重排时按仍存在的旧原生值重映射，重复原生选项仅改变内部索引不再误触发 callback。十轮/89 帧/40 完整 Element 与 SDK 一致，旧空状态/身份场景复验通过，见[验收](acceptance.md#current-formatted-selection-collision-validation-2026-11-01)。SDK-only 旧值已不在新 options 中的保留问题单列，需另行泛型状态设计，未据此关闭格式化或长期目标。

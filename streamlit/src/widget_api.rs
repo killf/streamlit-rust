@@ -3731,14 +3731,7 @@ fn emit_button_group<C: AppendChild>(this: &C, options: ButtonGroupOptions, styl
     } else {
         default_indices.first().map(|index| Value::from(*index as u64)).unwrap_or(Value::Null)
     };
-    let identity = c.identity_in_form(
-        &form_id,
-        &if c.key.is_some() {
-            String::new()
-        } else {
-            format!("{:?}:{:?}:{}:{:?}:{:?}", options.options, default_indices, multi, options.required, c.width)
-        },
-    );
+    let identity = c.identity_in_form(&form_id, &if c.key.is_some() { multi.to_string() } else { format!("{:?}:{:?}:{}:{:?}", options.options, default_indices, multi, c.width) });
     let (id, selected, set_value) = this.register_widget_parity(
         WidgetSpec {
             disabled: c.disabled,
@@ -4966,6 +4959,80 @@ mod tests {
             assert!(wire.try_recv().is_ok(), "the first valid form is still rendered");
         }
         assert!(wire.try_recv().is_err(), "failed form calls must not append their partial children");
+    }
+
+    #[test]
+    fn button_group_required_retains_values_and_mode_changes_reset_even_with_keys() -> anyhow::Result<()> {
+        let state = SessionState::default();
+        let mut ids = Vec::<String>::new();
+        let mut single_ids = Vec::new();
+        let mut multi_ids = Vec::new();
+        for (round, phase) in ["load", "edit", "required", "required-edit", "optional", "multi", "multi-edit", "restore", "restore-edit", "observe"].iter().enumerate() {
+            // 1. 以真实前轮 ID 提交，保留多选顺序并分离策略变更与模式重建。
+            let labels = if round == 6 {
+                vec!["Beta".into(), "Alpha".into()]
+            } else if round == 3 {
+                vec!["Alpha".into()]
+            } else {
+                vec!["Beta".into()]
+            };
+            let incoming = if [1, 3, 6, 8].contains(&round) {
+                ids.iter()
+                    .map(|id| WidgetState {
+                        id: id.clone(),
+                        value: Some(widget_state::Value::StringArrayValue(proto::StringArray { data: labels.clone() })),
+                    })
+                    .collect()
+            } else {
+                Vec::new()
+            };
+            assert!(state.begin_widgets(incoming).is_empty());
+            let (st, mut wire) = app(&state);
+            let multi = round == 5 || round == 6;
+            let required = round == 2 || round == 3;
+            let mut current = Vec::new();
+            for (position, label) in ["Plain pills", "Keyed pills", "Plain segments", "Keyed segments"].iter().enumerate() {
+                let mut options = ButtonGroupOptions::new(*label, ["Alpha", "Beta"]).required(required);
+                if position % 2 == 1 {
+                    options = options.key(*label);
+                }
+                if multi {
+                    options = options.selection_mode(SelectionMode::Multi);
+                }
+                let selected = if position < 2 { st.pills(options)? } else { st.segmented_control(options)? };
+                let expected = match round {
+                    0 | 7 => ButtonGroupValue::Single(None),
+                    3 | 4 => ButtonGroupValue::Single(Some("Alpha".into())),
+                    5 => ButtonGroupValue::Multi(Vec::new()),
+                    6 => ButtonGroupValue::Multi(vec!["Beta".into(), "Alpha".into()]),
+                    _ => ButtonGroupValue::Single(Some("Beta".into())),
+                };
+                assert_eq!(selected, expected, "{phase}: {label}");
+
+                // 2. required 不参与身份；单多选分别有一类身份，恢复不复活旧值。
+                let element::Type::ButtonGroup(widget) = input(&mut wire)? else { panic!() };
+                assert_eq!(widget.required, required);
+                assert_eq!(widget.click_mode, i32::from(multi));
+                assert!(!widget.set_value && widget.raw_values.is_empty() && widget.default.is_empty());
+                if round > 0 {
+                    assert_eq!(widget.id == single_ids[position], !multi, "{phase}: {label}");
+                }
+                if round == 6 {
+                    assert_eq!(widget.id, multi_ids[position]);
+                }
+                current.push(widget.id);
+            }
+            if round == 0 {
+                single_ids = current.clone();
+            }
+            if round == 5 {
+                multi_ids = current.clone();
+            }
+            ids = current;
+            state.finish_widgets();
+        }
+
+        Ok(())
     }
 
     #[test]

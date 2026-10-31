@@ -6,6 +6,35 @@ use ::streamlit::*;
 use streamlit::StreamlitApi;
 
 fn render(st: &Streamlit) -> Result<(), WidgetError> {
+    if st.query_params().get("probe").as_deref() == Some("group-policy") {
+        let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
+        let options = |label, keyed| {
+            let mut options = ButtonGroupOptions::new(label, ["Alpha", "Beta"]);
+            if keyed {
+                options = options.key(label);
+            }
+            if phase == "multi" || phase == "multi-edit" {
+                options = options.selection_mode(SelectionMode::Multi);
+            }
+            options.required(phase == "required" || phase == "required-edit")
+        };
+        let values = [
+            st.pills(options("Plain pills", false))?,
+            st.pills(options("Keyed pills", true))?,
+            st.segmented_control(options("Plain segments", false))?,
+            st.segmented_control(options("Keyed segments", true))?,
+        ];
+        let values: Vec<serde_json::Value> = values
+            .into_iter()
+            .map(|value| match value {
+                ButtonGroupValue::Single(value) => serde_json::json!(value),
+                ButtonGroupValue::Multi(value) => serde_json::json!(value),
+            })
+            .collect();
+        st.json(serde_json::json!({"phase": phase, "values": values}));
+        return Ok(());
+    }
+
     if st.query_params().get("probe").as_deref() == Some("group-width") {
         let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
         let options = |label, keyed, multi| {
