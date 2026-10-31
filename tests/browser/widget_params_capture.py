@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 import importlib.metadata
 import json
 from pathlib import Path
+from urllib.parse import parse_qs, urlencode
 import socket
 import subprocess
 import sys
@@ -28,9 +29,10 @@ parser.add_argument('--number-sequence', action='store_true', help='keyed number
 parser.add_argument('--number-unkeyed', action='store_true', help='unkeyed number identity across option changes')
 parser.add_argument('--stop-after-run', action='store_true', help='stop after each unkeyed probe report')
 parser.add_argument('--resume-after-stop', action='store_true', help='append normal completion and old-ID restoration after stopped runs')
+parser.add_argument('--stop-lifecycle', action='store_true', help='button and URL-bound text around early stop and normal cleanup')
 parser.add_argument('--url', help='caller-owned Rust server URL (comparison capture)')
 args = parser.parse_args()
-assert sum((args.integer_bounds, args.number_sequence, args.number_unkeyed)) <= 1
+assert sum((args.integer_bounds, args.number_sequence, args.number_unkeyed, args.stop_lifecycle)) <= 1
 assert not args.stop_after_run or args.number_unkeyed
 assert not args.resume_after_stop or args.stop_after_run
 OUT = args.out.resolve()
@@ -93,6 +95,9 @@ try:
                  ("default", None), ("step2", None), ("maxzero", None), ("negative-edit", -7), ("maxnone", None)]
     if args.resume_after_stop:
         steps += [("normal-resume", None), ("explicit-step", None)]
+    if args.stop_lifecycle:
+        steps = [(phase, None) for phase in ("load", "submit", "peek", "resume", "hide", "after-hide", "restore", "after-restore")]
+    lifecycle_bound, lifecycle_ids = "url", {}
     number_id = None
     for step_index, (phase, submitted) in enumerate(steps):
         request = BackMsg()
@@ -105,6 +110,18 @@ try:
                 widget = request.rerun_script.widget_states.widgets.add()
                 widget.id = number_id
                 widget.int_value = submitted
+        if args.stop_lifecycle:
+            request.rerun_script.query_string = "probe=stop-lifecycle&phase=" + phase
+            if lifecycle_bound is not None:
+                request.rerun_script.query_string += "&" + urlencode({"bound": lifecycle_bound})
+            if phase == "submit":
+                for key, value in (("fire", True), ("plain", "edited"), ("bound", "changed")):
+                    widget = request.rerun_script.widget_states.widgets.add()
+                    widget.id = lifecycle_ids[key]
+                    if key == "fire":
+                        widget.trigger_value = value
+                    else:
+                        widget.string_value = value
         request.rerun_script.SetInParent()
         if args.integer_bounds:
             request.rerun_script.query_string = "probe=integer-bounds"
@@ -118,6 +135,8 @@ try:
             message.ParseFromString(raw)
             record('server->client', raw, message)
             kind = message.WhichOneof('type')
+            if args.stop_lifecycle and kind == 'page_info_changed':
+                lifecycle_bound = parse_qs(message.page_info_changed.query_string, keep_blank_values=True).get('bound', [None])[-1]
             if kind == 'script_finished':
                 TRACE['finishes'].append(message.script_finished)
                 break
@@ -144,6 +163,8 @@ try:
                 if element_kind is not None:
                     view = getattr(element, element_kind)
                     fields = MessageToDict(view, preserving_proto_field_name=True)
+                    if args.stop_lifecycle and element_kind in ('button', 'text_input'):
+                        lifecycle_ids[view.id.rsplit('-', 1)[-1]] = view.id
                     if element_kind == 'number_input':
                         number_id = view.id
                     url = getattr(view, 'url', '') if hasattr(view, 'url') else ''

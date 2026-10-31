@@ -445,3 +445,151 @@ def test_pre_fix_stop_capture_reproduces_lost_values():
     assert [reports[i]["value"] for i in (8, 11, 15)] == [4, 4, 4]
     with pytest.raises(AssertionError):
         check_unkeyed_number(capture, stopped=True)
+
+
+LIFECYCLE_PHASES = ("load", "submit", "peek", "resume", "hide", "after-hide", "restore", "after-restore")
+LIFECYCLE_CALLS = [{"key": "fire", "value": True}, {"key": "plain", "value": "edited"}, {"key": "bound", "value": "changed"}]
+
+
+def check_stop_lifecycle(capture):
+    assert capture["successful"] and "producer_error" not in capture
+    assert capture["cleanup"]["websocket_closed"]
+    if capture["runtime"] == "python":
+        assert capture["cleanup"]["server_stopped"]
+    runs, emitted, finishes = [], [], []
+    ids = {}
+    for msg in frames(capture):
+        kind = msg.WhichOneof("type")
+        if isinstance(msg, BackMsg):
+            assert kind == "rerun_script"
+            runs.append({"request": msg.rerun_script, "events": [], "sessions": []})
+        elif kind == "new_session":
+            runs[-1]["sessions"].append(msg.new_session)
+        elif kind == "script_finished":
+            finishes.append(msg.script_finished)
+        elif kind == "page_info_changed":
+            runs[-1]["events"].append(("url", msg.page_info_changed.query_string))
+        elif kind == "delta":
+            assert msg.delta.WhichOneof("type") == "new_element"
+            element = msg.delta.new_element
+            element_kind = element.WhichOneof("type")
+            assert element_kind in ("button", "text_input", "json")
+            widget = getattr(element, element_kind)
+            fields = MessageToDict(widget, preserving_proto_field_name=True)
+            emitted.append((element_kind, dict(fields)))
+            if element_kind == "json":
+                report = json.loads(widget.body)
+                if report["fire"] is not None:
+                    assert type(report["fire"]) is bool
+                if report["callbacks"]:
+                    assert report["callbacks"][0]["value"] is True
+                runs[-1]["events"].append(("report", report))
+            else:
+                key = widget.id.rsplit("-", 1)[-1]
+                assert key in ("fire", "plain", "bound")
+                if key in ids:
+                    assert widget.id == ids[key]
+                ids[key] = widget.id
+                fields.pop("id")
+                expected = {"label": "Fire", "type": "secondary"} if key == "fire" else {"label": key.title(), "default": "base", "label_visibility": {}}
+                if key == "bound":
+                    expected.update(value="url", set_value=True, query_param_key="bound")
+                assert fields == expected
+                assert element.has_one_shot_effect == (key == "bound")
+                assert MessageToDict(element.width_config, preserving_proto_field_name=True) == ({"use_content": True} if key == "fire" else {"use_stretch": True})
+                runs[-1]["events"].append(("widget", key))
+    assert emitted == [(e["kind"], e["fields"]) for e in capture["elements"]]
+    assert len(runs) == 8 and finishes == capture["finishes"] == [0] * 8
+    assert set(ids) == {"fire", "plain", "bound"} and len(set(ids.values())) == 3
+    sessions, run_ids = set(), set()
+    for index, (run, phase) in enumerate(zip(runs, LIFECYCLE_PHASES, strict=True)):
+        request = run["request"]
+        prefix = "probe=stop-lifecycle&phase=" + phase
+        present = index not in (5, 6)
+        assert request.query_string == prefix + ("&bound=url" if present else "")
+        assert not request.is_history_navigation
+        incoming = request.widget_states.widgets
+        if index == 1:
+            assert [w.id for w in incoming] == [ids[key] for key in ("fire", "plain", "bound")]
+            assert [w.WhichOneof("value") for w in incoming] == ["trigger_value", "string_value", "string_value"]
+            assert incoming[0].trigger_value and incoming[1].string_value == "edited" and incoming[2].string_value == "changed"
+        else:
+            assert not incoming
+        assert len(run["sessions"]) == 1
+        session = run["sessions"][0]
+        assert session.initialize.environment_info.streamlit_version == "1.66.1"
+        sessions.add(session.initialize.session_id)
+        run_ids.add(session.script_run_id)
+        pairs = [["probe", "stop-lifecycle"], ["phase", phase]] + ([["bound", "url"]] if present else [])
+        report = {"phase": phase, "stage": "before", "fire": (None, True, False, False, False, None, None, False)[index],
+                  "plain": (None, "edited", "edited", "edited", "edited", None, None, "base")[index],
+                  "bound": (None, "changed", "changed", "changed", "url", "url", "url", "url")[index],
+                  "callbacks": [] if index == 0 else LIFECYCLE_CALLS, "pairs": pairs, "returns": None}
+        expected = [("report", report)]
+        if index in (0, 3, 6):
+            expected += [("widget", "fire"), ("widget", "plain")]
+            if index == 6:
+                expected.append(("url", prefix + "&bound=url"))
+            expected.append(("widget", "bound"))
+            returns = {"fire": False, "plain": "edited" if index == 3 else "base", "bound": "url"}
+            expected.append(("report", {**report, **returns, "stage": "values", "pairs": [["probe", "stop-lifecycle"], ["phase", phase], ["bound", "url"]], "returns": returns}))
+        elif index in (4, 7):
+            expected.append(("url", prefix))
+        assert run["events"] == expected
+    assert len(sessions) == 1 and len(run_ids) == 8
+
+
+@pytest.mark.parametrize("root", (PYTHON, RUST), ids=("python", "rust"))
+def test_bound_values_and_button_lifecycle_across_stop_and_normal_cleanup(root):
+    check_stop_lifecycle(read(root / "stop-lifecycle/trace.json"))
+
+
+def test_pre_fix_binding_cleanup_capture_reproduces_lost_native_value():
+    capture = read(RUST / "stop-lifecycle-before/trace.json")
+    reports = [json.loads(e["fields"]["body"]) for e in capture["elements"] if e["kind"] == "json"]
+    assert next(r for r in reports if r["phase"] == "after-hide")["bound"] is None
+    with pytest.raises(AssertionError):
+        check_stop_lifecycle(capture)
+
+
+@pytest.mark.parametrize("mutation", ("native", "trigger", "callback", "url", "late-url"))
+def test_stop_lifecycle_gate_rejects_coherent_wrong_wire(mutation):
+    capture = read(PYTHON / "stop-lifecycle/trace.json")
+    run, changed = -1, False
+    for i, frame in enumerate(capture["frames"]):
+        if frame["direction"] == "client->server":
+            run += 1
+            continue
+        if run != {"native": 5, "trigger": 2, "callback": 2, "url": 6, "late-url": 6}[mutation]:
+            continue
+        msg = ForwardMsg()
+        msg.ParseFromString(base64.b64decode(frame["base64"]))
+        if mutation in ("url", "late-url") and msg.WhichOneof("type") == "page_info_changed":
+            if mutation == "late-url":
+                capture["frames"][i], capture["frames"][i + 1] = capture["frames"][i + 1], frame
+                changed = True
+                break
+            msg.page_info_changed.query_string += "&ignored=1"
+        elif mutation in ("native", "trigger", "callback") and msg.delta.new_element.WhichOneof("type") == "json":
+            report = json.loads(msg.delta.new_element.json.body)
+            if mutation == "native":
+                report["bound"] = None
+            elif mutation == "trigger":
+                report["fire"] = True
+            else:
+                report["callbacks"].pop()
+            msg.delta.new_element.json.body = json.dumps(report)
+        else:
+            continue
+        raw = msg.SerializeToString()
+        frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(msg, preserving_proto_field_name=True))
+        changed = True
+    assert changed
+    capture["elements"] = []
+    for msg in frames(capture):
+        if msg.WhichOneof("type") == "delta":
+            element = msg.delta.new_element
+            kind = element.WhichOneof("type")
+            capture["elements"].append({"kind": kind, "fields": MessageToDict(getattr(element, kind), preserving_proto_field_name=True)})
+    with pytest.raises(AssertionError):
+        check_stop_lifecycle(capture)

@@ -1090,3 +1090,18 @@ rules, public APIs, error-entry mapping and queue retention are unchanged.
 Existing widget_params opt-ins exercise explicit stop and later normal resume;
 see acceptance for pre-fix raw failure and same-WS recovery. Broader stop/error,
 fragment/navigation and actual browser lifecycle combinations remain open.
+
+
+### Hidden bound native values survive widget cleanup (2026-10-31)
+
+The SDK preserves a stale query-bound widget's native value under its user key
+while removing widget metadata and URL binding. Rust now retains only these
+native keys during normal cleanup; ordinary stale widget keys still disappear.
+On re-registration, an existing native key without a record, changed identity
+or fresh code assignment denotes restored state. A nondefault restored value
+sets value/set_value and, when bound without a resolved URL, repairs the URL
+before emission. Existing registry/values metadata suffice; no additional store,
+public interface, dependency, persist_state API, queue or error-entry change.
+SDK SessionState._remove_stale_widgets/register_widget source supports the rule.
+The earlier stop-unit assumption that cleanup deletes bound native keys is
+corrected by the new paired lifecycle evidence; see acceptance for exact scope.

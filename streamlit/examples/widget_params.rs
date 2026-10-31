@@ -6,6 +6,43 @@ use ::streamlit::*;
 use streamlit::StreamlitApi;
 
 fn render(st: &Streamlit) -> Result<(), WidgetError> {
+    if st.query_params().get("probe").as_deref() == Some("stop-lifecycle") {
+        let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
+        let state = st.session_state();
+        let changed = |key: &'static str| {
+            move |st: &Streamlit| {
+                let state = st.session_state();
+                let value = state.get::<serde_json::Value>(key).expect("widget state");
+                let mut calls = state.get::<Vec<serde_json::Value>>("lifecycle_calls").expect("callback state").unwrap_or_default();
+                calls.push(serde_json::json!({"key": key, "value": value}));
+                state.set("lifecycle_calls", calls).expect("callback write");
+            }
+        };
+        let report = |stage: &str, returns: Option<serde_json::Value>| -> Result<(), WidgetError> {
+            st.json(serde_json::json!({"phase": phase, "stage": stage, "fire": state.get::<serde_json::Value>("fire")?,
+                "plain": state.get::<serde_json::Value>("plain")?, "bound": state.get::<serde_json::Value>("bound")?,
+                "callbacks": state.get::<Vec<serde_json::Value>>("lifecycle_calls")?.unwrap_or_default(),
+                "pairs": st.query_params().to_vec(), "returns": returns}));
+            Ok(())
+        };
+
+        report("before", None)?;
+        if matches!(phase.as_str(), "submit" | "peek") {
+            st.stop();
+            return Ok(());
+        }
+        if matches!(phase.as_str(), "load" | "resume" | "restore") {
+            let fire = st.button(ButtonOptions::new("Fire").key("fire").on_click(changed("fire")));
+            let plain = st.text_input(TextInputOptions::new("Plain").value("base").key("plain").on_change(changed("plain")))?;
+            let bound = st.text_input(TextInputOptions::new("Bound").value("base").key("bound").bind(TextBind::QueryParams).on_change(changed("bound")))?;
+            report("values", Some(serde_json::json!({"fire": fire, "plain": plain, "bound": bound})))?;
+            if phase == "resume" {
+                st.stop();
+            }
+        }
+        return Ok(());
+    }
+
     if st.query_params().get("probe").as_deref() == Some("number-unkeyed") {
         let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
         let default = if matches!(phase.as_str(), "maxzero" | "negative-edit" | "maxnone") {

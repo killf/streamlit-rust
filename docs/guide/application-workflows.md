@@ -465,3 +465,6 @@ async fn main(st: &Streamlit) {
 
 
 2026-10-31 `st.stop()` 结束时保留未注册控件状态；下一轮输入及后续正常结束仍执行对应的重置和清理。widget_params 的 stop/正常恢复原生参考分别覆盖 21 和 23 轮，修前丢值记录也保留；这不代表所有按钮、URL、页面或浏览器生命周期组合均已验收。
+
+
+2026-10-31 查询绑定控件在普通隐藏后保留 native key 的值，同时删除失效 URL；再次显示时先修复 URL，再同步控件值。普通非绑定控件仍按原规则清理。widget_params 的 `?probe=stop-lifecycle&phase=load&bound=url` 对应八轮 stop、按钮和绑定状态的原生参考及 WS 回归，尚不代表所有浏览器/页面/错误组合已验收。

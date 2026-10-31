@@ -869,6 +869,11 @@ impl SessionState {
         }
         // A constraint-dependent identity change resets the old widget binding.
         let changed_identity = key.is_some_and(|key| registry.records.iter().any(|(old_id, record)| old_id != &id && record.key.as_deref() == Some(key)));
+
+        // 旧控件已清理但用户键仍有值：重新挂载时恢复原生值，而非新代码赋值。
+        let restored_native = !had_record && !changed_identity && !code_assigned && key.is_some_and(|key| values.contains_key(key));
+        let restored_default = restored_native.then(|| default.clone());
+
         // A state the browser sent while this widget was not registered
         // (for example on a run that rendered another page) applies here,
         // exactly like begin_widgets would have applied it to the record.
@@ -924,7 +929,8 @@ impl SessionState {
         // record or value. Resolvers here only convert built-in scalar/index
         // types; user callbacks and option cloning never run under these locks.
         let resolved = resolve(&value)?;
-        let set_value = range_reset || url_resolved || code_assigned || (disabled && registry.received.contains(&id));
+        let restored_value = restored_default.as_ref().is_some_and(|default| &value != default);
+        let set_value = restored_value || range_reset || url_resolved || code_assigned || (disabled && registry.received.contains(&id));
         // 2. 默认值折叠不重复广播前端已经清空的 URL；代码改值则显式同步。
         if query.is_some()
             && let Some(key) = key
@@ -936,9 +942,8 @@ impl SessionState {
                 } else {
                     params.remove(key);
                 }
-            } else if code_assigned
-                && !url_resolved
-                && had_record
+            } else if !url_resolved
+                && (restored_value || (code_assigned && had_record))
                 && let Some(text) = codec.query_text(&value)
             {
                 params.set_binding_value(key, text);
@@ -1015,6 +1020,7 @@ impl SessionState {
                 }
                 if let Some(key) = &record.key
                     && !live_keys.contains(key)
+                    && !record.query_bound
                 {
                     values.remove(key);
                 }
@@ -1125,6 +1131,50 @@ mod tests {
     }
 
     #[test]
+    fn hidden_query_binding_restores_native_value_and_url_without_new_input() -> Result<(), WidgetError> {
+        for (initial_query, expected, sync) in [("bound=url", "url", true), ("", "base", false)] {
+            let state = SessionState::default();
+            let register = || {
+                state.register_widget(
+                    WidgetSpec {
+                        disabled: false,
+                        query: Some(QueryBinding { clearable: true }),
+                        kind: "text_input",
+                        key: Some("bound"),
+                        identity: "bound",
+                        default: Value::from("base"),
+                        codec: Codec::Text { max_chars: None },
+                        callback: None,
+                    },
+                    |value| Ok(value.clone()),
+                )
+            };
+
+            state.query_params.lock().load(initial_query);
+            state.begin_widgets(vec![]);
+            let (id, _, _) = register()?;
+            state.set_query_binding(&id, true);
+            state.finish_widgets();
+
+            state.query_params.lock().load(initial_query);
+            state.begin_widgets(vec![]);
+            state.finish_widgets();
+            assert_eq!(state.get::<String>("bound")?.as_deref(), Some(expected));
+            assert!(state.widgets.lock().records.is_empty());
+            assert_eq!(state.query_params.lock().get("bound"), None);
+
+            state.query_params.lock().load("");
+            state.begin_widgets(vec![]);
+            let (restored_id, value, set_value) = register()?;
+            assert_eq!(restored_id, id);
+            assert_eq!(value, Value::from(expected));
+            assert_eq!(set_value, sync);
+            assert_eq!(state.query_params.lock().get("bound"), sync.then_some(expected));
+        }
+        Ok(())
+    }
+
+    #[test]
     fn stop_defers_stale_and_trigger_cleanup_until_the_next_run() -> Result<(), WidgetError> {
         let state = SessionState::default();
         state.query_params.lock().load("bound=url");
@@ -1182,7 +1232,7 @@ mod tests {
         assert_eq!(state.get::<String>("bound")?.as_deref(), Some("edited"));
         state.finish_widgets();
 
-        assert_eq!(state.get::<String>("bound")?, None);
+        assert_eq!(state.get::<String>("bound")?.as_deref(), Some("edited"));
         assert!(state.widgets.lock().records.is_empty());
         assert_eq!(state.query_params.lock().get("bound"), None);
         Ok(())

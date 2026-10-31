@@ -498,7 +498,7 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
         if let Some(states) = request["widget_states"]["widgets"].as_array() {
             for state in states {
                 let reference_id = state["id"].as_str().ok_or("missing reference widget id")?;
-                let key = ["bound", "text", "optional", "creation", "plain", "check", "live", "cjk_note"]
+                let key = ["bound", "text", "optional", "creation", "plain", "check", "live", "cjk_note", "fire"]
                     .into_iter()
                     .find(|key| reference_id.ends_with(&format!("-{key}")))
                     .or_else(|| (matches!(reference["scenario"].as_str(), Some("text-unkeyed" | "text-unkeyed-area")) && reference_id.ends_with("-None")).then_some("None"))
@@ -565,6 +565,10 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
                             Some(element::Type::Exception(error)) => observed.push(serde_json::json!({"path": path, "exception": {"type": error.r#type, "message": error.message,
                                 "message_is_markdown": error.message_is_markdown, "is_streamlit_exception": error.is_streamlit_exception}})),
                             Some(element::Type::Json(json)) => observed.push(serde_json::json!({"snapshot": serde_json::from_str::<serde_json::Value>(&json.body)?})),
+                            Some(element::Type::Button(widget)) => {
+                                let key = widget.id.rsplit('-').next().unwrap_or("").to_string();
+                                widget_ids.insert(key, widget.id);
+                            }
                             Some(element::Type::Selectbox(widget)) => {
                                 let key = widget.query_param_key.unwrap_or_else(|| widget.id.rsplit('-').next().unwrap_or("").into());
                                 if matches!(reference["scenario"].as_str(), Some("disabled-valid" | "disabled" | "disabled-types")) {
@@ -1317,4 +1321,53 @@ fn query_param_store_round_trips_and_serializes_like_the_reference() {
     assert_eq!(store.serialize(), "q=%E4%B8%AD%E6%96%87+text", "non-ascii round-trips percent-encoded like urlencode");
     store.clear();
     assert_eq!(store.serialize(), "");
+}
+
+fn stop_lifecycle_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        let result = (|| -> Result<(), crate::WidgetError> {
+            let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
+            let state = st.session_state();
+            let changed = |key: &'static str| {
+                move |st: &Streamlit| {
+                    let state = st.session_state();
+                    let value = state.get::<serde_json::Value>(key).expect("widget state");
+                    let mut calls = state.get::<Vec<serde_json::Value>>("lifecycle_calls").expect("callback state").unwrap_or_default();
+                    calls.push(serde_json::json!({"key": key, "value": value}));
+                    state.set("lifecycle_calls", calls).expect("callback write");
+                }
+            };
+            let report = |stage: &str, returns: Option<serde_json::Value>| -> Result<(), crate::WidgetError> {
+                st.json(serde_json::json!({"phase": phase, "stage": stage, "fire": state.get::<serde_json::Value>("fire")?,
+                "plain": state.get::<serde_json::Value>("plain")?, "bound": state.get::<serde_json::Value>("bound")?,
+                "callbacks": state.get::<Vec<serde_json::Value>>("lifecycle_calls")?.unwrap_or_default(),
+                "pairs": st.query_params().to_vec(), "returns": returns}));
+                Ok(())
+            };
+
+            report("before", None)?;
+            if matches!(phase.as_str(), "submit" | "peek") {
+                st.stop();
+                return Ok(());
+            }
+            if matches!(phase.as_str(), "load" | "resume" | "restore") {
+                let fire = st.button(crate::ButtonOptions::new("Fire").key("fire").on_click(changed("fire")));
+                let plain = st.text_input(crate::TextInputOptions::new("Plain").value("base").key("plain").on_change(changed("plain")))?;
+                let bound = st.text_input(crate::TextInputOptions::new("Bound").value("base").key("bound").bind(crate::TextBind::QueryParams).on_change(changed("bound")))?;
+                report("values", Some(serde_json::json!({"fire": fire, "plain": plain, "bound": bound})))?;
+                if phase == "resume" {
+                    st.stop();
+                }
+            }
+            Ok(())
+        })();
+        if let Err(error) = result {
+            st.exception(crate::ExceptionOptions::new("FixtureError", error.to_string()));
+        }
+    })
+}
+
+#[actix_web::test]
+async fn stopped_button_and_hidden_query_binding_match_frozen_reference() -> TestResult {
+    assert_queryparams_reference(stop_lifecycle_entry, include_str!("../../../tests/reference/reference-browser/widget-params/stop-lifecycle/trace.json"), 14).await
 }

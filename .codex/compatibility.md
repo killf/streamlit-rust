@@ -436,3 +436,10 @@ widget-params/number-sequence，验证细节见 acceptance。同一 key 跨数�
 及 23 轮 stop→正常结束原生对照通过，修前丢值轨迹保留。URL/trigger 另有 Rust
 生命周期单元保护；实际浏览器、绑定/按钮原生 stop 组合及更广错误/页面生命周期
 尚未完整验证，因此 st.stop 和完整目标仍为 partial/open。
+
+
+2026-10-31 stop/按钮/URL 绑定生命周期已补八轮原生对照：输入先完成三次 callback，
+stop 后下一轮按钮回到 false，未运行到的文本仍保留；普通隐藏删除 URL 和普通
+控件 key，但保留绑定 native key，恢复时先修复 URL 再发送 value/set_value。
+修前 Rust 丢值轨迹保留，新增 WS 回放检查十四个有序状态/URL 投影。默认值恢复
+另有 Rust 单元；浏览器、其他绑定生产者和完整赋值/错误组合仍开放。

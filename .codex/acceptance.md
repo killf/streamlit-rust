@@ -1625,7 +1625,9 @@ values, extra callbacks and revived state after a normal completion.
 
 A Rust lifecycle unit first failed lost state, then passed preservation of
 unseen keyed/unkeyed records and URL binding plus trigger=true at stopped finish;
-next begin resets trigger=false, and normal finish removes stale keys/URL. The
+next begin resets trigger=false, and normal finish removes stale records/URL.
+The bound native-key preservation rule is corrected by the later lifecycle
+reference below. The
 unit setup explicitly calls the same post-registration binding marker as public
 controls. This is a Rust guard, not a fresh native/browser bound-URL or button
 stop journey. Existing stopped/normal references remain unchanged.
@@ -1643,3 +1645,44 @@ dependency or queue policy change; full goal/130 partial and pending decisions
 remain open, and unrelated colconfig_params edits are excluded.
 
 Focused widget-reference/matrix/documentation checks passed 82 Python tests with deprecations as errors; full Python suite was not repeated in this batch.
+
+
+### Stop, trigger and hidden query-bound lifecycle (2026-10-31)
+
+Existing widget_params fixtures/collector add opt-in stop-lifecycle. Each SDK
+and corrected Rust capture retains eight same-WS runs/62 raw frames/20 elements
+(11 reports, nine widgets) plus three URL messages. Load creates a button,
+ordinary text and bound text; submitted trigger/plain/bound states dispatch
+three callbacks before early stop; the next stopped run resets the button but
+retains text states. Re-registration resolves the URL, normal hide deletes the
+URL and ordinary keys but retains bound native=url, and restoration emits URL
+before the bound widget with value/set_value. Final normal hide clears URL again.
+
+Pre-fix Rust lost bound native state and restored base instead; its raw capture
+remains gated as expected failure. Python tests bind raw PB/summary/elements,
+all exact requests/typed inputs, callback values/order, IDs, widget fields/layout/
+one-shot effects, sessions/completions and ordered reports/URL/widget emissions.
+Five coherent mutations reject lost native state, stuck trigger, lost callback,
+wrong URL and URL sent after its widget. A new real-WS Rust integration replays
+the SDK requests and checks all fourteen ordered report/URL projections; the
+existing helper only gains button-ID mapping and fire-key admission.
+
+A Rust unit failed before the fix then passed hidden/restored bound state,
+identity, default/nondefault synchronization and URL repair. The default branch
+is a Rust guard, not a separately captured SDK default-remount journey. The
+prior stop lifecycle unit is corrected to preserve bound native keys while still
+removing stale records/URL and resetting the trigger on the next real input.
+No browser, history/remount, alternate binding producers, explicit persist API,
+all native assignment/type/invalid-URL or error-lifecycle parity is claimed.
+
+All-target Clippy and formatting passed after removing a needless return in
+the new test fixture. Workspace passed 298 (library 291, ledger 1, macros 2,
+rustdoc 4), excluding only the existing navigation_pages_switch_and_session_state_match_the_measured_wire and rerun_queue_messages_match_frozen_reference.
+Existing MSVC linker stdout warning remains. Logs: target/stop-lifecycle-{red,
+green,stop-unit,integration,clippy,build,workspace}.log. Owned Rust PIDs 40940/72148
+were path-verified and stopped; SDK collector closed its socket/server; ports
+8599/57333 were read back free. 130 partial and M3/M5/M7/full goal remain open;
+public API/hash/queue/parser decisions and unrelated colconfig_params edits
+are unchanged and excluded from staging.
+
+Focused widget-reference/query-parameter/matrix/documentation validation passed 222 Python tests with deprecations as errors; full Python suite was not repeated in this batch.

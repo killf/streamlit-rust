@@ -1,7 +1,30 @@
 """Emit widget creation-wire parameter variants for the M3 differential."""
 import streamlit as st
 
-if st.query_params.get("probe") == "number-unkeyed":
+if st.query_params.get("probe") == "stop-lifecycle":
+    phase = st.query_params.get("phase", "load")
+
+    def changed_lifecycle(key):
+        st.session_state["lifecycle_calls"] = st.session_state.get("lifecycle_calls", []) + [{"key": key, "value": st.session_state.get(key)}]
+
+    def lifecycle_report(stage, returns=None):
+        st.json({"phase": phase, "stage": stage, "fire": st.session_state.get("fire"),
+                 "plain": st.session_state.get("plain"), "bound": st.session_state.get("bound"),
+                 "callbacks": st.session_state.get("lifecycle_calls", []), "pairs": list(st.query_params.to_dict().items()),
+                 "returns": returns})
+
+    lifecycle_report("before")
+    if phase in ("submit", "peek"):
+        st.stop()
+    if phase in ("load", "resume", "restore"):
+        fire = st.button("Fire", key="fire", on_click=changed_lifecycle, args=("fire",))
+        plain = st.text_input("Plain", value="base", key="plain", on_change=changed_lifecycle, args=("plain",))
+        bound = st.text_input("Bound", value="base", key="bound", bind="query-params", on_change=changed_lifecycle, args=("bound",))
+        lifecycle_report("values", {"fire": fire, "plain": plain, "bound": bound})
+        if phase == "resume":
+            st.stop()
+
+elif st.query_params.get("probe") == "number-unkeyed":
     phase = st.query_params.get("phase", "load")
 
     def changed_unkeyed():
