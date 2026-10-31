@@ -14,6 +14,18 @@ fn render(st: &Streamlit) -> Result<(), WidgetError> {
     st.radio(RadioOptions::new("Horizontal", ["x", "y"]).horizontal(true).captions(["first", "second"]).key("r2"))?;
     st.text_area(TextAreaOptions::new("Bounded", "hello").max_chars(10).placeholder("type here").height(200).key("t1"))?;
     st.multiselect(MultiselectOptions::new("Capped", ["p", "q", "r"]).max_selections(2).key("m1"))?;
+
+    // 仅显式探针追加整数边界，保留原有参数示例的默认输出。
+    if st.query_params().get("probe").as_deref() == Some("integer-bounds") {
+        st.number_input(("Int free", 4_i64))?;
+        st.number_input(NumberInputOptions::new("Int min only", 4_i64).min(2))?;
+        st.number_input(NumberInputOptions::new("Int max only", 4_i64).max(8))?;
+        st.number_input(NumberInputOptions::new("Int zero min", 4_i64).min(0))?;
+        st.number_input(NumberInputOptions::new("Int zero max", -4_i64).max(0))?;
+        st.number_input(("Int safe high", 9_007_199_254_740_991_i64))?;
+        st.number_input(("Int safe low", -9_007_199_254_740_991_i64))?;
+    }
+
     Ok(())
 }
 

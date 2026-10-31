@@ -1513,3 +1513,39 @@ After addition, 184 focused query/matrix/documentation tests passed. The full
 suite was not rerun after this five-test addition. The owned SDK server/socket
 closed and port 54510 was read back free. Matrix stays 130 partial and the full
 goal stays open. Unrelated colconfig_params changes remain excluded.
+
+
+### Integer number-input unset wire bounds (2026-10-31)
+
+Pinned SDK 1.66.1 fills each omitted integer min/max with the JavaScript safe
+integer sentinel (-/+9007199254740991) while has_min/has_max record explicit
+constraints only. Rust emitted 0/f64::MAX, affecting the frontend boundary.
+Correct only those two protocol fallback values in widget_api.rs; float and
+explicit bounds, public API, identity and submitted-state handling are unchanged.
+The misleading old integer-default comment is replaced with the measured rule.
+
+Reuse existing widget_params examples/collector behind probe=integer-bounds;
+the original default eight elements and historical captures remain unchanged.
+Each new native capture retains one complete run, 19 raw frames/15 elements:
+original eight plus seven integer cases (free, min-only, max-only, explicit zero
+min/max and both safe endpoints). Existing reference tests now bind raw PB to
+summaries/elements, pin all seven values/bounds/flags/step/type/format, preserve
+the eight-element baseline and reject coherent wrong-min/max/explicit-flag data.
+Public Rust unit failed before correction with (0,f64::MAX), then passed the
+same seven configurations and returned values. Native SDK/Rust wire gates pass.
+
+Check/all-target Clippy and formatting passed; the existing MSVC linker stdout
+warning remains (its lint ignores -D warnings). Workspace passed 291 tests:
+library 284, ledger 1, macros 2 and rustdoc 4. Only the two existing
+navigation_pages_switch_and_session_state_match_the_measured_wire and
+rerun_queue_messages_match_frozen_reference were excluded, so this is not a
+claim of complete workspace green. Logs: target/number-integer-{red,green,check,
+clippy,build,workspace}.log. SDK collector cleaned its owned server/socket;
+Rust owned process 3596 was verified by path then stopped; ports 57650/8599
+were read back free. Native wire evidence does not prove browser stepper,
+client validation UI, empty-number options, submitted out-of-range behavior,
+callbacks or dynamic-bound state correction. These remain open with the full
+goal and all 130 partial rows. Pending area binding/API/queue/parser decisions
+and unrelated colconfig_params changes are unchanged and excluded from staging.
+
+This batch also passed 59 focused Python widget-reference/matrix/documentation checks with deprecations treated as errors; the complete Python suite was not repeated after the existing 1872-test snapshot.

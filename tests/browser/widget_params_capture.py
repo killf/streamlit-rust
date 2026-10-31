@@ -1,8 +1,7 @@
-"""One owned protocol capture of audio/video parameter variants (python/rust).
+"""Capture widget creation parameters over one owned native WebSocket.
 
-A native WebSocket against the pinned 1.66.1 server (or a caller-owned Rust
-server): the six element emissions are recorded frame by frame and the
-audio/video element fields summarized per case; never overwrites a trace.
+Supports the original creation cases and opt-in integer-boundary cases against
+the pinned SDK or a caller-owned Rust server; never overwrites a trace.
 """
 import argparse
 import base64
@@ -24,6 +23,7 @@ from websockets.sync.client import connect
 ROOT = Path(__file__).resolve().parents[2]
 parser = argparse.ArgumentParser(description='Collect the widget-parameter reference once; never overwrite.')
 parser.add_argument('--out', type=Path, required=True)
+parser.add_argument('--integer-bounds', action='store_true', help='opt-in unbounded and one-sided integer wire probe')
 parser.add_argument('--url', help='caller-owned Rust server URL (comparison capture)')
 args = parser.parse_args()
 OUT = args.out.resolve()
@@ -78,6 +78,8 @@ try:
                  open_timeout=10, close_timeout=5, max_size=None, legacy=True)
     request = BackMsg()
     request.rerun_script.SetInParent()
+    if args.integer_bounds:
+        request.rerun_script.query_string = "probe=integer-bounds"
     raw = request.SerializeToString()
     record('client->server', raw, request)
     WS.send(raw)

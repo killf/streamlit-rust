@@ -453,3 +453,6 @@ async fn main(st: &Streamlit) {
 
 
 2026-10-31 文本区域实际浏览器补验：复用 inputs 成对示例，在相同视口下分别完成初始、多行 Unicode 输入、sms 重跑保留、清空和恢复五轮；每端 65 个原始 WebSocket 事件，默认控件尺寸及回显一致。冻结原始帧、DOM、截图和来源见 `tests/reference/reference-browser/inputs/text-area-ui/settled/` 与 `tests/browser/rust-inputs/text-area-ui/settled/`，由 `tests/reference/test_inputs_contract.py` 检查。只覆盖这条普通重跑路径；collapsed、动态属性、历史/重挂载/IME 和错误 UI 仍待验证，完整兼容目标保持开放。
+
+
+2026-10-31 整数 number_input 未指定的边界现按 SDK 发送 JavaScript 安全整数上下限，显式 min/max 标志保持原语义。现有 widget_params 示例可通过 `?probe=integer-bounds` 查看七种整数配置；对应 Python/Rust 原生协议参考位于各自 `widget-params/integer-bounds/trace.json`。这次覆盖创建协议，不代表浏览器步进、错误提示或动态范围状态已全部验收。

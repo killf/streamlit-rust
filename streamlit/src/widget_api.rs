@@ -2520,10 +2520,9 @@ impl<C: AppendChild> InputWidgets for C {
                 has_max: max.is_some(),
                 default: Some(options.value.to_f64()),
                 step: options.step,
-                // Unbounded floats carry the f64 sentinels the reference emits;
-                // unbounded integers omit both flags and stay at 0.0.
-                min: min.unwrap_or(if T::INTEGER { 0.0 } else { f64::MIN }),
-                max: max.unwrap_or(f64::MAX),
+                // 未指定边界仍发送 SDK 哨兵；has_min/has_max 只标记显式约束。
+                min: min.unwrap_or(if T::INTEGER { -crate::widgets::JS_SAFE_INTEGER } else { f64::MIN }),
+                max: max.unwrap_or(if T::INTEGER { crate::widgets::JS_SAFE_INTEGER } else { f64::MAX }),
                 value: set_value.then(|| result.to_f64()),
                 set_value,
                 help: c.help,
@@ -4441,6 +4440,42 @@ mod tests {
             callback(&st);
         }
         assert!(matches!(input(&mut wire)?, element::Type::Markdown(markdown) if markdown.body == "live callback"));
+        Ok(())
+    }
+
+    #[test]
+    fn number_input_integer_unset_bounds_match_sdk_sentinels() -> anyhow::Result<()> {
+        let state = SessionState::default();
+        state.begin_widgets(vec![]);
+        let (st, mut wire) = app(&state);
+        let safe = 9_007_199_254_740_991_i64;
+
+        for (label, low, high, value) in [
+            ("free", None, None, 4),
+            ("min", Some(2), None, 4),
+            ("max", None, Some(8), 4),
+            ("zero min", Some(0), None, 4),
+            ("zero max", None, Some(0), -4),
+            ("safe high", None, None, safe),
+            ("safe low", None, None, -safe),
+        ] {
+            let mut options = NumberInputOptions::new(label, value);
+            if let Some(low) = low {
+                options = options.min(low);
+            }
+            if let Some(high) = high {
+                options = options.max(high);
+            }
+
+            assert_eq!(st.number_input(options)?, value);
+            let element::Type::NumberInput(number) = input(&mut wire)? else { panic!() };
+            assert_eq!((number.min, number.max), (low.unwrap_or(-safe) as f64, high.unwrap_or(safe) as f64), "{label}");
+            assert_eq!((number.has_min, number.has_max), (low.is_some(), high.is_some()));
+            assert_eq!(number.default, Some(value as f64));
+            assert_eq!(number.data_type, 0);
+            assert_eq!(number.step, 1.0);
+        }
+
         Ok(())
     }
 

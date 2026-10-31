@@ -17,3 +17,14 @@ st.text_area("Bounded", value="hello", max_chars=10, placeholder="type here", he
 
 # multiselect: max_selections rides the creation wire.
 st.multiselect("Capped", ["p", "q", "r"], max_selections=2, key="m1")
+
+
+# Opt-in boundary probe leaves the original eight-element reference intact.
+if st.query_params.get("probe") == "integer-bounds":
+    st.number_input("Int free", value=4)
+    st.number_input("Int min only", value=4, min_value=2)
+    st.number_input("Int max only", value=4, max_value=8)
+    st.number_input("Int zero min", value=4, min_value=0)
+    st.number_input("Int zero max", value=-4, max_value=0)
+    st.number_input("Int safe high", value=9007199254740991)
+    st.number_input("Int safe low", value=-9007199254740991)
