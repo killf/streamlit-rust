@@ -1954,3 +1954,31 @@ MSVC linker stdout warning 保留。日志为 target/temporal-keyed-{workspace,
 reference,clippy,build}.log，定向公开接口红绿日志为 temporal-keyed-{red,green}.log。
 采集后仅为 Rust 示例两处语义单元补空行；trace 内 producer source 与 binary SHA
 保留采集时原值，不代表这一排版后的源码或重新构建产物。
+
+### 无 key 时间控件的显示与边界身份（2026-10-31）
+
+tests/reference/test_temporal_params_reference.py 新增锁定 1.66.1 的公开 AppTest
+八轮断言，覆盖 load/edit/format/width/restore/edit-bounds/bounds/observe。
+time 仅换 12h 保留 13:45；三个无 key 控件从 stretch 改为 360 都回初始默认；
+恢复后重新编辑，再改 datetime 的有效边界，仅该控件回默认。逐轮实际返回值
+和任意两轮 ID 的相同/不同关系均检查，三个 ID 等价类为 2/3/2。它是运行 SDK
+的后端参考检查，不是新增原生 WS 或浏览器证据；没有删除或重采旧冻结参考。
+
+Rust 同样八轮通过公开 API 注册、真实 typed WidgetState 输入和普通轮末清理，
+逐轮检查返回值及 ID 关系；修前在 format 轮 12:30 对 SDK 13:45 失败，修后
+通过。生产仅改三个无 key identity extra，原带 key 分支不变。红绿日志为
+target/temporal-unkeyed-{red,green}.log，定向 temporal 门先通过 11 项。
+指南先说明使用规则，再调整实现；没有新增公共接口、依赖或仓库文件，未改 UI 实现。
+
+此切片不证明日历/时间选择器真实交互，也不覆盖 None/范围、秒或亚秒变化、
+原始参数类型、全部 identity 字段、callback/error/URL/跨页组合。格式错误及
+失败前身份占用顺序已调查但未实现；hash/共享状态选型与 109/116 差异仍开放，
+完整目标和 130 partial 不关闭。
+
+最终工作区 303 项通过（296 库 + 1 ledger + 2 宏 + 4 rustdoc），保留原
+navigation_pages_switch_and_session_state_match_the_measured_wire 与
+rerun_queue_messages_match_frozen_reference 两项排除；相关 query/widget/
+temporal/matrix/docs 参考门 293 项通过。工作区/all-target Clippy、单文件
+rustfmt 与 diff --check 通过，既有 MSVC linker stdout warning 保留。日志为
+target/temporal-unkeyed-{workspace,reference,clippy}.log。用户 colconfig_params
+改动保持独立，没有启动服务或浏览器，没有合并/发布/部署。

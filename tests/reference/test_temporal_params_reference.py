@@ -213,3 +213,54 @@ def test_temporal_identity_gate_rejects_coherent_wrong_wire(mutation):
     capture["elements"] = [{"kind": kind, "fields": fields, "delta_path": path} for kind, fields, path in emitted]
     with pytest.raises(AssertionError):
         check_keyed_temporal_identity(capture)
+
+
+def test_sdk_unkeyed_temporal_display_and_bounds_identity():
+    """Live pinned SDK AppTest oracle; not a native WS or browser capture."""
+    import datetime
+    import importlib.metadata
+
+    from streamlit.testing.v1 import AppTest
+
+    assert importlib.metadata.version("streamlit") == "1.66.1"
+    app = AppTest.from_string('''
+import datetime
+import streamlit as st
+
+phase = st.session_state.get("phase", "load")
+width = {"width": 360} if phase == "width" else {}
+clock = st.time_input("Clock", datetime.time(12, 30), format="12h" if phase == "format" else "24h", **width)
+moment = st.datetime_input("Moment", datetime.datetime(2024, 3, 15, 12, 30),
+    min_value=datetime.datetime(2024, 1, 1) if phase == "bounds" else None,
+    max_value=datetime.datetime(2024, 12, 31, 23, 59) if phase == "bounds" else None, **width)
+date = st.date_input("Date", datetime.date(2024, 3, 15), **width)
+st.json([clock.isoformat(), moment.isoformat(), date.isoformat()])
+''')
+    phases = ("load", "edit", "format", "width", "restore", "edit-bounds", "bounds", "observe")
+    groups = ((0, 0, 0, 1, 0, 0, 0, 0), (0, 0, 0, 1, 0, 0, 2, 0), (0, 0, 0, 1, 0, 0, 0, 0))
+    expected = (
+        ["12:30:00", "2024-03-15T12:30:00", "2024-03-15"],
+        ["13:45:00", "2024-06-01T13:45:00", "2024-06-01"],
+        ["13:45:00", "2024-06-01T13:45:00", "2024-06-01"],
+        ["12:30:00", "2024-03-15T12:30:00", "2024-03-15"],
+        ["12:30:00", "2024-03-15T12:30:00", "2024-03-15"],
+        ["13:45:00", "2024-06-01T13:45:00", "2024-06-01"],
+        ["13:45:00", "2024-03-15T12:30:00", "2024-06-01"],
+        ["13:45:00", "2024-03-15T12:30:00", "2024-06-01"],
+    )
+    ids = [[], [], []]
+    for index, phase in enumerate(phases):
+        app.session_state["phase"] = phase
+        if phase in ("edit", "edit-bounds"):
+            app.time_input[0].set_value(datetime.time(13, 45))
+            app.get("date_time_input")[0].set_value(datetime.datetime(2024, 6, 1, 13, 45))
+            app.date_input[0].set_value(datetime.date(2024, 6, 1))
+        app.run()
+        assert not app.exception
+        assert json.loads(app.json[0].value) == expected[index], phase
+        widgets = (app.time_input[0], app.get("date_time_input")[0], app.date_input[0])
+        for position, widget in enumerate(widgets):
+            for earlier in range(index):
+                assert (widget.id == ids[position][earlier]) == (groups[position][index] == groups[position][earlier]), (phase, position, earlier)
+            ids[position].append(widget.id)
+    assert [len(set(widget_ids)) for widget_ids in ids] == [2, 3, 2]

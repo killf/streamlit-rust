@@ -3087,12 +3087,13 @@ impl<C: AppendChild> InputWidgets for C {
                 options.format.clone()
             } else {
                 format!(
-                    "{:?}:{:?}:{:?}:{}:{}",
+                    "{:?}:{:?}:{:?}:{}:{}:{:?}",
                     options.single.map(iso),
                     options.range.map(|(start, end)| (iso(start), iso(end))),
                     (options.min.map(iso), options.max.map(iso)),
                     options.format,
-                    range
+                    range,
+                    c.width
                 )
             },
         );
@@ -3161,14 +3162,7 @@ impl<C: AppendChild> InputWidgets for C {
         let wire_format = if options.step % 60 != 0 { "%H:%M:%S" } else { "%H:%M" };
         let wire = |time: NaiveTime| time.format(wire_format).to_string();
         let default = options.value.map(|time| Value::String(wire(time))).unwrap_or(Value::Null);
-        let identity = c.identity_in_form(
-            &form_id,
-            &if c.key.is_some() {
-                options.step.to_string()
-            } else {
-                format!("{:?}:{}:{}", options.value.map(wire), options.step, options.format)
-            },
-        );
+        let identity = c.identity_in_form(&form_id, &if c.key.is_some() { options.step.to_string() } else { serde_json::to_string(&(options.value.map(wire), options.step, c.width))? });
         let (id, value, set_value) = self.register_widget_parity(
             WidgetSpec {
                 disabled: c.disabled,
@@ -3249,7 +3243,7 @@ impl<C: AppendChild> InputWidgets for C {
             &if c.key.is_some() {
                 serde_json::to_string(&(options.step, &options.format))?
             } else {
-                format!("{:?}:{}:{}", options.value.map(wire), options.step, options.format)
+                serde_json::to_string(&(options.value.map(wire), options.step, &options.format, wire(min), wire(max), c.width))?
             },
         );
         let (id, value, set_value) = self.register_widget_parity(
@@ -4964,6 +4958,83 @@ mod tests {
         assert_eq!(st.time_input(TimeInputOptions::new("Renamed").value(clock).key("clock").step(1800).format("12h").help("new help"))?, Some(clock));
         let element::Type::TimeInput(formatted_clock) = input(&mut wire)? else { panic!() };
         assert_eq!(formatted_clock.id, new_clock.id);
+        Ok(())
+    }
+
+    #[test]
+    fn unkeyed_temporal_display_and_bounds_identity_match_reference() -> anyhow::Result<()> {
+        use chrono::{NaiveDate, NaiveTime};
+
+        let date = NaiveDate::from_ymd_opt(2024, 3, 15).expect("fixture date");
+        let clock = NaiveTime::from_hms_opt(12, 30, 0).expect("fixture time");
+        let edited_date = NaiveDate::from_ymd_opt(2024, 6, 1).expect("edited date");
+        let edited_clock = NaiveTime::from_hms_opt(13, 45, 0).expect("edited time");
+        let state = SessionState::default();
+        let phases = ["load", "edit", "format", "width", "restore", "edit-bounds", "bounds", "observe"];
+        let groups = [[0, 0, 0, 1, 0, 0, 0, 0], [0, 0, 0, 1, 0, 0, 2, 0], [0, 0, 0, 1, 0, 0, 0, 0]];
+        let mut ids: [Vec<String>; 3] = Default::default();
+        let mut previous: Vec<String> = Vec::new();
+
+        for (index, phase) in phases.iter().enumerate() {
+            // 1. 只在编辑轮提交上一轮实际 ID，其余轮由公开调用恢复状态。
+            let incoming = if matches!(*phase, "edit" | "edit-bounds") {
+                vec![
+                    WidgetState {
+                        id: previous[0].clone(),
+                        value: Some(widget_state::Value::StringValue("13:45".into())),
+                    },
+                    WidgetState {
+                        id: previous[1].clone(),
+                        value: Some(widget_state::Value::StringArrayValue(proto::StringArray { data: vec!["2024-06-01T13:45".into()] })),
+                    },
+                    WidgetState {
+                        id: previous[2].clone(),
+                        value: Some(widget_state::Value::StringArrayValue(proto::StringArray { data: vec!["2024-06-01".into()] })),
+                    },
+                ]
+            } else {
+                Vec::new()
+            };
+            state.begin_widgets(incoming);
+            let (st, mut wire) = app(&state);
+            let mut clock_options = TimeInputOptions::new("Clock").value(clock).format(if *phase == "format" { "12h" } else { "24h" });
+            let mut moment_options = DateTimeInputOptions::new("Moment").value(date.and_time(clock));
+            let mut date_options = DateInputOptions::new("Date").value(date);
+
+            // 2. 单独改变显示格式、宽度及 datetime 有效边界，不引入 key。
+            if *phase == "width" {
+                clock_options = clock_options.width(360);
+                moment_options = moment_options.width(360);
+                date_options = date_options.width(360);
+            }
+            if *phase == "bounds" {
+                moment_options = moment_options
+                    .min(NaiveDate::from_ymd_opt(2024, 1, 1).expect("min date").and_hms_opt(0, 0, 0).expect("midnight"))
+                    .max(NaiveDate::from_ymd_opt(2024, 12, 31).expect("max date").and_hms_opt(23, 59, 0).expect("end of day"));
+            }
+
+            // 3. 检查真实返回值和 ID 等价关系；恢复参数不能复活清理过的选择。
+            let edited = matches!(*phase, "edit" | "format" | "edit-bounds" | "bounds" | "observe");
+            let expected_clock = if edited { edited_clock } else { clock };
+            let expected_date = if edited { edited_date } else { date };
+            let expected_moment = if matches!(*phase, "edit" | "format" | "edit-bounds") { edited_date.and_time(edited_clock) } else { date.and_time(clock) };
+            assert_eq!(st.time_input(clock_options)?, Some(expected_clock), "{phase}");
+            assert_eq!(st.datetime_input(moment_options)?, Some(expected_moment), "{phase}");
+            assert_eq!(st.date_input(date_options)?, DateSelection::Single(expected_date), "{phase}");
+            let element::Type::TimeInput(clock_wire) = input(&mut wire)? else { panic!() };
+            let element::Type::DateTimeInput(moment_wire) = input(&mut wire)? else { panic!() };
+            let element::Type::DateInput(date_wire) = input(&mut wire)? else { panic!() };
+            previous = vec![clock_wire.id, moment_wire.id, date_wire.id];
+            for position in 0..3 {
+                for earlier in 0..index {
+                    assert_eq!(previous[position] == ids[position][earlier], groups[position][index] == groups[position][earlier], "{phase}: widget {position}, earlier {earlier}");
+                }
+                ids[position].push(previous[position].clone());
+            }
+            assert!(wire.try_recv().is_err());
+            state.finish_widgets();
+        }
+
         Ok(())
     }
 

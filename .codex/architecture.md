@@ -1354,3 +1354,22 @@ keyed 分支添加对应原始参数：step 的字符串、(step, format) JSON �
 证据只涉及 int step 和三个非空标量选择，不包括 timedelta、空值、日期范围、
 新边界外的旧值、无 key 格式/精度、错误或真实浏览器组合。既有 hash 和共享
 状态两项选型保持待定，不以本次小范围身份修正替代它们。
+
+### 无 key 时间控件的显示与边界身份（2026-10-31）
+
+公开 SDK AppTest 八轮实测 load/edit/format/width/restore/edit-bounds/bounds/
+observe：time 的 24h→12h 不改变身份，三个控件的宽度改变会重建，datetime
+有效 min/max 改变会重建，恢复旧参数不恢复已清理的旧选择。三个 ID 等价类为
+2/3/2。这里的日期、时间固定且非空，不把动态默认、亚秒或范围解释为已验证。
+
+Rust 仅调整现有无 key extra：date 补 width，time 去掉显示 format 并补 width，
+datetime 补归一化后的实际 min/max 与 width。保留 label/help/form 等既有公共
+身份前缀和带 key 分支；不改注册、共享状态、hash、队列和公开接口。Rust 公开
+接口八轮单元先在 format 轮丢失 13:45 失败，修后通过。此批不新增原生 WS 或
+浏览器捕获，不替代 keyed 十一轮冻结参考。
+
+独立 SDK AppTest 格式调查（35 个冷启动）发现非法格式不生成控件，但同轮
+相同 key 的合法重试仍失败为 DuplicateElementKey；日期格式的正则还接受一个
+尾随 LF，拒绝 CRLF。Rust 尚缺格式校验，失败前身份占用顺序也未对齐；本批
+不提前加入简单白名单而掩盖该差异。调查输出在 target/temporal-format-sdk.json，
+这是本地调查记录，不是 WS/浏览器冻结参考，格式错误完整实现继续开放。
