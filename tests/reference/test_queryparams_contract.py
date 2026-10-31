@@ -125,6 +125,18 @@ DISABLED_JSON_ERRORS = {0: ('json.decoder.JSONDecodeError', 'Expecting value: li
  23: ('TypeError', "cannot use 'dict' as a dict key (unhashable type: 'dict')")}
 
 
+REGISTERED_TEXT_LOCK_ERROR = {"type": "StreamlitWidgetAlreadyInstantiatedError", "message": (
+    "`st.session_state['cjk_note']` cannot be modified after the widget with that key is instantiated. "
+    "Assign `st.session_state['cjk_note']` before creating the widget, or update it from an `on_change` or `on_click` callback, "
+    "which runs before the widget is instantiated. If this is a read-only session state key "
+    "(buttons, file and media inputs, `st.data_editor`, forms, chart or `ButtonColumn` selections), "
+    "store the value under a different session state key.")}
+
+REGISTERED_TEXT_DUPLICATE_ERROR = {"type": "StreamlitDuplicateElementKey", "message": (
+    "There are multiple elements with the same `key='cjk_note'`. To fix this, "
+    "please make sure that the `key` argument is unique for each element you create.")}
+
+
 def read_query_param_capture(scenario, capture=None):
     import base64
     from google.protobuf.json_format import MessageToDict
@@ -180,7 +192,7 @@ def read_query_param_capture(scenario, capture=None):
                     byte_payloads.append(widgets[0].bytes_value)
         elif message.WhichOneof("type") == "new_session":
             sessions.append(message.new_session.initialize.session_id)
-            if scenario in ("disabled-json", "encoding", "text-length", "text-reset", "text-source", "text-bound", "text-bound-peer", "text-repeat", "text-empty", "text-validation", "text-unkeyed", "text-unkeyed-area", "text-area-height", "text-area-size"):
+            if scenario in ("disabled-json", "encoding", "text-length", "text-reset", "text-source", "text-bound", "text-bound-peer", "text-repeat", "text-empty", "text-validation", "text-unkeyed", "text-unkeyed-area", "text-area-height", "text-area-size", "text-input-width"):
                 environment = message.new_session.initialize.environment_info
                 assert environment.streamlit_version == "1.66.1" and environment.python_version == "3.14.7.final.0"
         elif message.WhichOneof("type") == "script_finished":
@@ -361,6 +373,63 @@ def read_query_param_capture(scenario, capture=None):
             identities = length_ids[number * 10:(number + 1) * 10]
             assert [identities.index(identity) for identity in identities] == [0, 0, 2, 3, 3, 0, 2, 2, 0, 0]
         assert set(length_ids[:10]).isdisjoint(length_ids[10:])
+    elif scenario == "text-input-width":
+        widths = (-2147483648, -1, 0, 1, 2147483647)
+        phases = ("load", "submit", "url-only", "recover")
+        values = ("seed", "frontendURL", "LONGURL", "LONGU")
+        prefix = "case=form-max-chars-cjk&probe=length&kind=input&limit=5&default=long&height_errors=on&bind=on&pixels="
+        assert requests == [prefix + str(320 if phase in ("load", "recover") else width) + "&cjk_note=" + value + "&phase=" + phase
+                            for width in widths for phase, value in zip(phases, values, strict=True)]
+        assert histories == [False] * 20 and finishes == [0] * 20 and len(sessions) == 20 and len(set(sessions)) == 5
+        assert [sessions.index(session) for session in sessions] == [number // 4 * 4 for number in range(20)]
+        assert not errors
+        assert urls == [prefix + str(width) + "&cjk_note=LONGU&phase=url-only" for width in widths]
+        expected = []
+        expected_order = []
+        expected_widgets = []
+        for group, width in enumerate(widths):
+            for phase_index, phase in enumerate(phases):
+                number = group * 4 + phase_index
+                invalid = width <= 0 and phase_index in (1, 2)
+                value = ("seed", "EDITE", "LONGU", "LONGU")[phase_index]
+                expected.append({"phase": phase, "value": None if invalid else value, "state": value,
+                                 "callbacks": [] if phase_index == 0 else ["EDITE"],
+                                 "error": {"type": "StreamlitInvalidWidthError", "message": (
+                                     f"Invalid width value: {width}. Width must be either a positive integer (pixels) or 'stretch'.")} if invalid else None,
+                                 "locked": REGISTERED_TEXT_LOCK_ERROR if invalid else None,
+                                 "duplicate": REGISTERED_TEXT_DUPLICATE_ERROR if invalid else None})
+                if phase_index == 2:
+                    expected_order.append((number, "url"))
+                if not invalid:
+                    expected_order.append((number, "widget"))
+                    expected_widgets.append((320 if phase_index in (0, 3) else width, phase_index != 1, value if phase_index != 1 else None))
+                expected_order.append((number, "report"))
+        assert snapshots == expected
+        ordered, widgets = [], []
+        run = -1
+        for frame in capture["frames"]:
+            message = frame["message"]
+            if frame["direction"] == "client->server":
+                run += 1
+            if "page_info_changed" in message:
+                ordered.append((run, "url"))
+            element = message.get("delta", {}).get("new_element", {})
+            if "text_input" in element:
+                ordered.append((run, "widget"))
+                widgets.append(element)
+            if "json" in element:
+                ordered.append((run, "report"))
+        assert len(ordered) == 39 and ordered == expected_order and len(widgets) == 14
+        ids = [element["text_input"]["id"] for element in widgets]
+        assert len(set(ids)) == 1 and ids[0].endswith("-cjk_note")
+        for element, (width, sync, value) in zip(widgets, expected_widgets, strict=True):
+            widget = element["text_input"]
+            assert widget["default"] == "abcdef🧊" and widget["max_chars"] == 5 and widget["query_param_key"] == "cjk_note"
+            assert widget.get("set_value", False) == sync and widget.get("value") == value
+            assert element["width_config"] == {"pixel_width": width}
+        clients = [frame["message"]["rerun_script"] for frame in capture["frames"] if frame["direction"] == "client->server"]
+        for number, client in enumerate(clients):
+            assert client.get("widget_states", {}).get("widgets", []) == ([{"id": ids[0], "string_value": "EDITEDtail"}] if number % 4 == 1 else [])
     elif scenario in ("text-area-height", "text-area-size"):
         size_probe = scenario == "text-area-size"
         sizes = ((-2147483648, 0), (-1, 122), (0, 0), (0, 122), (1, 0), (320, -1), (1, 1), (2147483647, 2147483647)) if size_probe else tuple(
@@ -373,15 +442,8 @@ def read_query_param_capture(scenario, capture=None):
         assert histories == [False] * count and finishes == [0] * count and len(sessions) == count and len(set(sessions)) == len(sizes)
         assert [sessions.index(session) for session in sessions] == [number // 3 * 3 for number in range(count)]
         assert not urls and not errors
-        locked = {"type": "StreamlitWidgetAlreadyInstantiatedError", "message": (
-            "`st.session_state['cjk_note']` cannot be modified after the widget with that key is instantiated. "
-            "Assign `st.session_state['cjk_note']` before creating the widget, or update it from an `on_change` or `on_click` callback, "
-            "which runs before the widget is instantiated. If this is a read-only session state key "
-            "(buttons, file and media inputs, `st.data_editor`, forms, chart or `ButtonColumn` selections), "
-            "store the value under a different session state key.")}
-        duplicate = {"type": "StreamlitDuplicateElementKey", "message": (
-            "There are multiple elements with the same `key='cjk_note'`. To fix this, "
-            "please make sure that the `key` argument is unique for each element you create.")}
+        locked = REGISTERED_TEXT_LOCK_ERROR
+        duplicate = REGISTERED_TEXT_DUPLICATE_ERROR
         expected = []
         widget_layouts = []
         for width, height in sizes:
@@ -716,6 +778,50 @@ def test_bound_text_reference_corrects_urls_and_preserves_only_unbound_history_c
     single = read_bound_text_capture(False)
     peer = read_bound_text_capture(True)
     assert single == [{key: value for key, value in report.items() if key not in ("live", "peer_callbacks")} for report in peer]
+
+
+def test_bound_input_width_reference_preserves_url_before_error():
+    read_query_param_capture("text-input-width")
+
+
+@pytest.mark.parametrize("mutation", ["lost-url", "late-url", "callback", "state", "lock", "recovery"])
+def test_bound_input_width_gate_rejects_coherent_wrong_wire(mutation):
+    import base64
+    from google.protobuf.json_format import MessageToDict
+    from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
+
+    capture = json.loads((HERE / "reference-browser/queryparams/text-input-width/trace.json").read_text(encoding="utf-8"))
+    if mutation in ("lost-url", "late-url"):
+        position = next(index for index, frame in enumerate(capture["frames"]) if "page_info_changed" in frame["message"])
+        url = capture["frames"].pop(position)
+        if mutation == "late-url":
+            position = next(index for index, frame in enumerate(capture["frames"]) if index >= position and "json" in frame["message"].get("delta", {}).get("new_element", {}))
+            capture["frames"].insert(position + 1, url)
+    else:
+        target = 3 if mutation == "recovery" else 2 if mutation == "callback" else 1
+        run = -1
+        for frame in capture["frames"]:
+            if frame["direction"] == "client->server":
+                run += 1
+                continue
+            if run != target or "json" not in frame["message"].get("delta", {}).get("new_element", {}):
+                continue
+            message = ForwardMsg()
+            message.ParseFromString(base64.b64decode(frame["base64"]))
+            report = json.loads(message.delta.new_element.json.body)
+            if mutation == "callback":
+                report["callbacks"].append("LONGU")
+            elif mutation == "state":
+                report["state"] = "attempted-write"
+            elif mutation == "lock":
+                report["locked"] = None
+            else:
+                report.update(value="EDITE", state="EDITE")
+            message.delta.new_element.json.body = json.dumps(report)
+            raw = message.SerializeToString()
+            frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(message, preserving_proto_field_name=True))
+    with pytest.raises(AssertionError):
+        read_query_param_capture("text-input-width", capture)
 
 
 @pytest.mark.parametrize("scenario", ["text-area-height", "text-area-size"])

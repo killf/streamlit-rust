@@ -1417,3 +1417,49 @@ no passing width check closes those differences. Browser dimensions, all mixed
 invalid parameters, content/string sizes and other widget producers remain open.
 Matrix/inventory retain 130 partial entries and M3/M5/M7/full goal. Existing
 colconfig_params modifications are excluded from this batch's commit/push.
+
+
+### Bound input width errors preserve earlier URL correction (2026-10-31)
+
+text-input-width retains five native sessions/20 runs/254 raw frames and all
+39 ordered API projections: five URLs, fourteen widgets and twenty reports.
+Each width (i32::MIN,-1,0,1,i32::MAX) gets load, submitted input, URL-only update
+and valid recovery. Submitted EDITEDtail truncates to EDITE and calls back once.
+URL-only LONGURL becomes LONGU with no callback and emits its corrected URL
+before the report, including failed nonpositive-width calls. State/write locks
+and final LONGU recovery persist; exact positive widths remain accepted.
+
+The previous Rust width check preceded registration/binding/flush. Public unit
+and complete native comparison both failed before correction (target/text-input-
+width-before.log). Only text_input now validates width after register, binding
+metadata and flush_query_update, before push; existing InvalidValue carries the
+SDK width payload. No public enum/method/module/dependency, shared width helper
+or queue policy changed. Callback ownership uses take without an extra clone.
+The public cold-binding unit checks the actual Rust variant/payload, LONGU state,
+state/query locks, one corrected URL, no widget and valid next-run recovery.
+API comparison uses the existing explicit error projection; caught duplicate-
+key, SDK exception-class/lock-text and unhandled error UI parity remain open.
+
+All-targets Clippy -D warnings and Rustfmt, then the public unit and all 33
+related query-module checks passed, excluding its existing queue test
+(text-input-width-clippy.log, text-input-width-unit.log and text-input-width-
+integration.log under target/). 179 related query/matrix/docs Python checks
+passed with DeprecationWarning as error (target/text-input-width-final-gates.log).
+Shared raw SDK lock/duplicate constants retain exact source messages. Six
+coherent mutations reject missing/delayed URL, spurious callback on URL seeding,
+wrong state/write lock and lost recovery. PB/summary, exact requests/input IDs/
+history, runtime/session groups, original defaults/limits/query key/sync/width
+and all 39 event positions plus identity relations are checked. Earlier raw
+captures are unchanged; the full Python reference suite was not rerun here.
+
+Full Rust workspace passed 290: library 283, ledger 1, macros 2, rustdoc 4.
+Only the two existing navigation_pages_switch_and_session_state_match_the_measured_wire
+and rerun_queue_messages_match_frozen_reference were skipped; this is not full
+workspace green (target/text-input-width-workspace.log). Existing MSVC linker
+stdout warning remains.
+
+Owned socket/server closed; port 61372 was read back free. Matrix/inventory
+retain 130 partial entries and M3/M5/M7/full goal. Browser URL/size behavior,
+other invalid parameter combinations and producers, caught duplicate and
+unhandled error UI remain open. Existing colconfig_params modifications are
+excluded from this batch's commit/push.

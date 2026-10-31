@@ -731,3 +731,33 @@ Raw PB/summary, exact requests/input IDs/history, sessions/versions, ordered
 emission absence and identity equivalence are checked. The owned socket/server
 closed and port 63502 was read back free. This does not prove browser minimum
 sizes, all mixed invalid parameters, content/string sizes or other widget types.
+
+
+## Bound text_input width errors preserve earlier URL correction (2026-10-31)
+
+`text-input-width/trace.json` adds five sessions/20 runs/254 raw frames and
+39 ordered URL/widget/report API projections. Widths i32::MIN/-1/0/1/i32::MAX
+each run load, submitted input, URL-only change and recovery. EDITEDtail becomes
+EDITE with one callback; URL-only LONGURL becomes LONGU with no new callback.
+Five PageInfoChanged messages precede the corresponding report, even when
+nonpositive width prevents widget emission. The final valid call returns LONGU.
+Only 14 widgets emit; exact positive 1/max-i32 pixel widths remain accepted.
+
+Rust previously validated width before registration, binding and URL flushing.
+The text_input emitter now checks width after all three, through its existing
+InvalidValue payload, preserving state/write locks and the already-published
+correction. Callback ownership uses take without an extra Arc clone. A public
+unit starts with an unregistered bound input and checks actual Rust payload,
+LONGU state, both state/query write locks, one corrected URL, no widget and
+valid next-run recovery. Shared API replay retains the earlier documented
+error projections; caught duplicate-key/exception-class UI parity stays open.
+
+The raw SDK gate checks full error classes/lock/duplicate texts, original default,
+max_chars, query key, sync/value/width, input IDs/history, versions/session groups
+and all 39 event positions. Six coherent mutations reject lost or delayed URL
+correction, callback on URL seeding, wrong state/write locks and lost recovery.
+The registered-text lock/duplicate constants are shared with the area gate;
+earlier captures remain unchanged. Socket/server closed and port 61372 was
+read back free. No public API/module/dependency or queue policy was added.
+Browser URL behavior, other invalid-parameter combinations and other widgets
+are not established by this native API/WS batch.

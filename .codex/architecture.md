@@ -951,3 +951,21 @@ preserved. Public API and generic Entry/hash/queue behavior do not change.
 Use the existing narrow API projections for errors/lock booleans; retain complete
 Python error types/text and the caught-duplicate/exception UI gap explicitly.
 All mixed-invalid parameters, other widgets and browser sizes remain open.
+
+
+### Bound input width errors follow URL publication (2026-10-31)
+
+The pinned text_input registers/resolves query binding before create_layout_config
+validates width. Five native sessions/20 runs/254 frames show URL-only truncation
+publishes LONGU even when invalid width then raises. Submitted input/callbacks,
+write locks and valid next-run recovery also persist. The previous Rust early
+width check prevented those operations.
+Move only text_input width validation after registration, set_query_binding and
+flush_query_update, before element push. Reuse existing InvalidValue/payload and
+callback take; do not postpone or undo a URL correction when returning the error.
+A cold-binding unit covers publication/locks/no element; native comparison keeps
+all 39 ordered API projections, including five URL events and fourteen widgets.
+Source SDK errors remain fully gated; the API projection still excludes caught
+DuplicateKey and exception-class/lock-text parity under the existing pending
+error-entry plan. No public API/module/dependency, shared width helper or queue
+change; browser and other invalid parameter combinations remain open.

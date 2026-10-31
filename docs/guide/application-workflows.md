@@ -259,6 +259,8 @@ Rust 已采纳方案 A：显示转换保留真实行数并合成虚拟 RangeInde
 
 **多行文本宽高顺序**：`text_area` 在注册后先校验宽度、再校验高度；两者均无效时返回宽度错误，已处理的输入、callback 和状态写锁保留。八组宽高组合已按原生 API 对照，包含 1×1 与 i32 最大正值；浏览器尺寸表现和其他控件的错误阶段仍未据此验收。
 
+**单行文本宽度错误与 URL**：`text_input` 在注册、绑定和 URL 修正发送之后，才通过现有 `Result` 报告非正宽度错误。已经处理的输入、callback、状态写锁及 URL 更新保留，后续有效调用恢复。五组原生流程已核验 URL 修正先于错误报告；重复 key 捕获和未捕获异常的界面转换仍开放。
+
 **绑定文本与历史导航**：现有 `TextInputOptions::bind(TextBind::QueryParams)` 对超长 URL 值截断后会修正 URL；历史请求先忽略已注册绑定控件携带的旧输入和 callback，未绑定控件的输入仍正常处理。[两组原生参考](../../tests/reference/reference-browser/queryparams/README.md)覆盖普通前端/代码优先级、history 的 URL 优先级及缺省恢复；这不是新增浏览器操作验收。应用将当前文本状态设为 `None` 时，该轮有效默认值也为 `None`，绑定参数随默认值折叠而清除；后续缺参数的历史恢复使用这个有效默认值。它与空字符串、URL 字面字符串 `"None"` 不同，已按十轮原生参考核验。`text_area` 的公开绑定入口仍待确认，当前不能使用对应 builder。
 
 **时间/滑块创建参数**（[temporal-params 参考](../../tests/reference/reference-browser/temporal-params/README.md)，5/5 一致、零实现改动确认）：`date_input` 的显式 min/max 透传 ISO、**未给边界时为 value ±10 年窗**、自定义 `format` 原样上 wire；`select_slider` 双端点默认 → `SELECT_SLIDER` 类型 + 选项索引端点（min=0 省略）；`time_input` 的 `step` 以字符串上 wire、`format "24h"`。range date_input 与交互期日历提交未纳入。

@@ -2216,7 +2216,7 @@ impl<C: AppendChild> InputWidgets for C {
         } else {
             options
         };
-        let c = options.common;
+        let mut c = options.common;
         let form_id = form_scope(self, c.callback.is_some())?;
         if matches!(options.live, TextLive::Debounce(milliseconds) if milliseconds > 60_000) {
             return Err(WidgetError::InvalidValue("text_input live debounce cannot exceed one minute".into()));
@@ -2230,7 +2230,6 @@ impl<C: AppendChild> InputWidgets for C {
         if options.bind == TextBind::QueryParams && options.input_type == TextInputType::Password {
             return Err(WidgetError::InvalidValue("text_input query binding cannot use a password input".into()));
         }
-        let width_config = c.width(false)?;
 
         // 显式空状态覆盖本轮默认值；身份仍使用调用方提供的原始选项。
         let mut wire_default = options.value.clone();
@@ -2280,7 +2279,7 @@ impl<C: AppendChild> InputWidgets for C {
                 identity: &identity,
                 default,
                 codec: Codec::Text { max_chars: options.max_chars },
-                callback: c.callback,
+                callback: c.callback.take(),
             },
             |value| Ok(value.as_str().map(str::to_owned)),
         )?;
@@ -2296,6 +2295,15 @@ impl<C: AppendChild> InputWidgets for C {
             TextValidation::Off => (Some(String::new()), None),
             TextValidation::Pattern { regex, message } => (Some(regex), message),
         };
+
+        // 注册和 URL 修正先完成；布局错误不撤销已发送的查询更新。
+        if let Some(width) = c.width
+            && width <= 0
+        {
+            return Err(WidgetError::InvalidValue(format!("Invalid width value: {width}. Width must be either a positive integer (pixels) or 'stretch'.")));
+        }
+        let width_config = c.width(false)?;
+
         self.push(Rc::new(RefCell::new(InputElement(proto::Element {
             width_config,
             has_one_shot_effect: set_value.then_some(true),
@@ -4136,6 +4144,39 @@ mod tests {
             assert_eq!(value.as_deref(), Some("code長🧊extra"));
             assert!(!set);
             assert!(wire_value.is_none());
+            state.finish_widgets();
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn input_width_error_preserves_registered_binding_and_published_url() -> anyhow::Result<()> {
+        for width in [i32::MIN, -1, 0] {
+            let state = SessionState::default();
+            state.query_params.lock().load("bound=LONGURL&marker=kept");
+            state.begin_widgets(vec![]);
+            let (st, mut wire) = app(&state);
+            let error = st
+                .text_input(TextInputOptions::new("Bound").value("base").key("bound").max_chars(5).bind(TextBind::QueryParams).width(width))
+                .err()
+                .ok_or_else(|| anyhow::anyhow!("nonpositive width must fail"))?;
+            let WidgetError::InvalidValue(message) = error else { anyhow::bail!("expected existing invalid-value variant") };
+            assert_eq!(message, format!("Invalid width value: {width}. Width must be either a positive integer (pixels) or 'stretch'."));
+            assert_eq!(state.get::<String>("bound")?.as_deref(), Some("LONGU"));
+            assert!(state.set("bound", "blocked").is_err());
+            assert!(st.query_params().set("bound", "blocked").is_err());
+            let Some(forward_msg::Type::PageInfoChanged(info)) = wire.try_recv()?.r#type else {
+                anyhow::bail!("expected URL correction before failed widget")
+            };
+            assert_eq!(info.query_string, "bound=LONGU&marker=kept");
+            assert!(wire.try_recv().is_err(), "width error must not emit the widget");
+            state.finish_widgets();
+
+            state.query_params.lock().load("bound=LONGU&marker=kept");
+            state.begin_widgets(vec![]);
+            let (st, mut wire) = app(&state);
+            assert_eq!(st.text_input(TextInputOptions::new("Bound").value("base").key("bound").max_chars(5).bind(TextBind::QueryParams).width(320))?.as_deref(), Some("LONGU"));
+            assert!(matches!(input(&mut wire)?, element::Type::TextInput(_)));
             state.finish_widgets();
         }
         Ok(())

@@ -333,9 +333,9 @@ def case_form_max_chars_cjk() -> None:
                                 label_visibility=policy if policy in ("hidden", "collapsed") else "visible",
                                 width=int(st.query_params["pixels"]) if "pixels" in st.query_params else "stretch",
                                 help=st.query_params.get("help", ""))
+        if "pixels" in st.query_params:
+            text_options["width"] = int(st.query_params["pixels"])
         if st.query_params.get("kind") == "area":
-            if "pixels" in st.query_params:
-                text_options["width"] = int(st.query_params["pixels"])
             if "height" in st.query_params:
                 text_options["height"] = int(st.query_params["height"])
             if "placeholder" in st.query_params:
@@ -361,7 +361,8 @@ def case_form_max_chars_cjk() -> None:
                 except Exception as exc:
                     report["locked"] = {"type": type(exc).__name__, "message": str(exc)}
                 try:
-                    widget("中文", key="cjk_note", value=default, max_chars=limit, height=122, on_change=changed)
+                    widget("中文", key="cjk_note", value=default, max_chars=limit, on_change=changed,
+                           **({"height": 122} if st.query_params.get("kind") == "area" else {}))
                 except Exception as exc:
                     report["duplicate"] = {"type": type(exc).__name__, "message": str(exc)}
                 report["state"] = st.session_state["cjk_note"]

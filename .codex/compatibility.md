@@ -324,3 +324,12 @@ EDITE callback/state, write locks and recovery. Exact 1x1/max-i32 controls remai
 accepted. Existing Result/InvalidValue and shared width helper are retained.
 Source SDK errors stay fully gated; API projection does not close caught-
 duplicate/exception UI parity, every mixed parameter or browser behavior.
+
+
+2026-10-31 [bound input width errors](../tests/reference/reference-browser/queryparams/text-input-width/trace.json)
+adds five sessions/20 native runs/254 frames/39 ordered API projections. Input
+width checks now follow registration/binding and URL correction flush: failed
+width calls keep the earlier LONGU URL, state/write locks, callback history and
+recovery. Actual positive 1/max-i32 widths are checked. Existing Result and narrow
+error projection remain; caught-duplicate/exception UI and browser behavior are
+not closed. No public API or shared width/queue policy change was introduced.
