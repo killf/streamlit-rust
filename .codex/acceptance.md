@@ -1759,3 +1759,23 @@ with the existing MSVC linker stdout warning. The existing Rust query group
 passed 35, retaining its pre-existing queue exclusion; full workspace/Python
 suites were not repeated. These results do not include a passing text-restore
 replay: that new live comparison remains the confirmed 109-vs-116 failure.
+
+
+### 浮点动态 number_input 原生差分（2026-10-31）
+
+number-float 的 SDK/Rust 冻结采集各十二轮、83 原始帧、24 有序控件/状态元素。
+7.25/1.25 的 double_value 提交只触发两次 callback；动态收缩上下界回到默认
+4.25 并发送 value/set_value，默认值/步长/禁用变化保留当前值，代码赋值同步
+8.25 且不触发 callback。现有门禁复用整数流程并明确选择 FLOAT、%0.2f、f64
+哨兵、分数值和精确输入类型；七类一致 raw PB/summary 篡改必须拒绝。
+证据位于 tests/reference/reference-browser/widget-params/number-float/trace.json
+和 tests/browser/rust-widget-params/number-float/trace.json。两侧服务/WS 均已关闭，
+端口 62000/8599 已读回无监听。本批只补探针和回归，不修改生产行为。此证据
+不证明浮点浏览器提交、stepper、非有限/非法/越界输入或可空接口的完整兼容。
+共享状态选型、116 对 109 的已知失败、130 partial 与完整目标保持开放。
+
+本批验证：示例构建、定向 Clippy 和 rustfmt 检查通过（仍有既有 MSVC linker
+stdout warning）。相关 Python 首轮 248 通过、1 项派生清单不一致；运行既有
+export_m3_inventory.py 同步后，仅重跑该失败项并通过。日志保留在
+target/number-float-{build,clippy,reference}.log。未重复全工作区或全 Python
+套件。派生清单仍为 130 partial；提交排除用户 colconfig_params 修改。

@@ -43,6 +43,22 @@ elif st.query_params.get("probe") == "number-unkeyed":
     if st.query_params.get("stop") == "on":
         st.stop()
 
+elif st.query_params.get("probe") == "number-float":
+    phase = st.query_params.get("phase", "load")
+    if phase == "assign":
+        st.session_state["number"] = 8.25
+
+    def changed_float():
+        st.session_state["number_calls"] = st.session_state.get("number_calls", []) + [st.session_state["number"]]
+
+    low = 3.0 if phase == "raise-min" else 0.0 if phase not in ("load", "edit") else None
+    high = 6.0 if phase == "narrow-max" else 10.0 if phase not in ("load", "edit", "zero-min") else None
+    value = st.number_input("Dynamic float", value=5.5 if phase == "default" else 4.25,
+                            min_value=low, max_value=high, step=0.5 if phase == "step" else 0.25,
+                            key="number", on_change=changed_float, disabled=phase == "disabled")
+    st.json({"phase": phase, "value": value, "state": st.session_state["number"],
+             "callbacks": st.session_state.get("number_calls", [])})
+
 elif st.query_params.get("probe") == "number-sequence":
     phase = st.query_params.get("phase", "load")
     if phase == "assign":

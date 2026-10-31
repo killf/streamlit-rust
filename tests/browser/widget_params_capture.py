@@ -26,6 +26,7 @@ parser = argparse.ArgumentParser(description='Collect the widget-parameter refer
 parser.add_argument('--out', type=Path, required=True)
 parser.add_argument('--integer-bounds', action='store_true', help='opt-in unbounded and one-sided integer wire probe')
 parser.add_argument('--number-sequence', action='store_true', help='keyed number dynamic bounds over one WS')
+parser.add_argument('--number-float', action='store_true', help='float variant of the keyed number sequence')
 parser.add_argument('--number-unkeyed', action='store_true', help='unkeyed number identity across option changes')
 parser.add_argument('--stop-after-run', action='store_true', help='stop after each unkeyed probe report')
 parser.add_argument('--resume-after-stop', action='store_true', help='append normal completion and old-ID restoration after stopped runs')
@@ -33,6 +34,7 @@ parser.add_argument('--stop-lifecycle', action='store_true', help='button and UR
 parser.add_argument('--url', help='caller-owned Rust server URL (comparison capture)')
 args = parser.parse_args()
 assert sum((args.integer_bounds, args.number_sequence, args.number_unkeyed, args.stop_lifecycle)) <= 1
+assert not args.number_float or args.number_sequence
 assert not args.stop_after_run or args.number_unkeyed
 assert not args.resume_after_stop or args.stop_after_run
 OUT = args.out.resolve()
@@ -88,6 +90,8 @@ try:
     steps = [("load", None), ("edit", 7), ("zero-min", None), ("narrow-max", None), ("grow", None),
              ("default", None), ("edit-low", 1), ("raise-min", None), ("step", None),
              ("disabled", None), ("recover", None), ("assign", None)] if args.number_sequence else [("load", None)]
+    if args.number_float:
+        steps = [(phase, 7.25 if phase == "edit" else 1.25 if phase == "edit-low" else None) for phase, _ in steps]
     if args.number_unkeyed:
         steps = [("load", None), ("edit", 7), ("disabled", None), ("hidden", None), ("ignore", None), ("none", None),
                  ("explicit-step", None), ("explicit-edit", 9), ("restore-step", None), ("minzero", None), ("min-edit", 8),
@@ -102,14 +106,17 @@ try:
     for step_index, (phase, submitted) in enumerate(steps):
         request = BackMsg()
         if args.number_sequence or args.number_unkeyed:
-            request.rerun_script.query_string = "probe=" + ("number-unkeyed" if args.number_unkeyed else "number-sequence") + "&phase=" + phase
+            request.rerun_script.query_string = "probe=" + ("number-unkeyed" if args.number_unkeyed else "number-float" if args.number_float else "number-sequence") + "&phase=" + phase
             if args.stop_after_run and step_index < 21:
                 request.rerun_script.query_string += "&stop=on"
             if submitted is not None:
                 assert number_id is not None
                 widget = request.rerun_script.widget_states.widgets.add()
                 widget.id = number_id
-                widget.int_value = submitted
+                if args.number_float:
+                    widget.double_value = submitted
+                else:
+                    widget.int_value = submitted
         if args.stop_lifecycle:
             request.rerun_script.query_string = "probe=stop-lifecycle&phase=" + phase
             if lifecycle_bound is not None:

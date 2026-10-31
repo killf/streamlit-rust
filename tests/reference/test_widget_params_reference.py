@@ -2,6 +2,7 @@
 import base64
 import json
 import re
+import sys
 from pathlib import Path
 
 import pytest
@@ -192,14 +193,15 @@ def number_runs(capture):
     return runs
 
 
-def check_number_sequence(capture):
+def check_number_sequence(capture, *, floating=False):
     runs = number_runs(capture)
     assert len(runs) == 12 and capture["finishes"] == [0] * 12
     ids, sessions, run_ids = set(), set(), set()
     result = []
-    for index, (run, phase, value) in enumerate(zip(runs, NUMBER_PHASES, NUMBER_VALUES, strict=True)):
+    values = (4.25, 7.25, 7.25, 4.25, 4.25, 4.25, 1.25, 4.25, 4.25, 4.25, 4.25, 8.25) if floating else NUMBER_VALUES
+    for index, (run, phase, value) in enumerate(zip(runs, NUMBER_PHASES, values, strict=True)):
         request = run["request"]
-        assert request.query_string == "probe=number-sequence&phase=" + phase
+        assert request.query_string == "probe=" + ("number-float" if floating else "number-sequence") + "&phase=" + phase
         assert not request.is_history_navigation
         assert len(run["sessions"]) == 1 and run["finishes"] == [0]
         session = run["sessions"][0]
@@ -213,23 +215,27 @@ def check_number_sequence(capture):
         incoming = request.widget_states.widgets
         if index in (1, 6):
             assert len(incoming) == 1 and incoming[0].id == widget.id
-            assert incoming[0].WhichOneof("value") == "int_value"
-            assert incoming[0].int_value == (7 if index == 1 else 1)
+            assert incoming[0].WhichOneof("value") == ("double_value" if floating else "int_value")
+            assert getattr(incoming[0], "double_value" if floating else "int_value") == value
         else:
             assert not incoming
-        low = 3 if phase == "raise-min" else 0 if index >= 2 else -9007199254740991
-        high = 6 if phase == "narrow-max" else 10 if index >= 3 else 9007199254740991
+        sentinel = sys.float_info.max if floating else 9007199254740991
+        low = 3 if phase == "raise-min" else 0 if index >= 2 else -sentinel
+        high = 6 if phase == "narrow-max" else 10 if index >= 3 else sentinel
         assert (widget.min, widget.max) == (low, high)
         assert (widget.has_min, widget.has_max) == (index >= 2, index >= 3)
-        assert widget.default == (5 if phase == "default" else 4)
-        assert widget.step == (2 if phase == "step" else 1)
-        assert widget.data_type == 0 and widget.format == "%d" and widget.label == "Dynamic"
+        assert widget.default == ((5.5 if phase == "default" else 4.25) if floating else (5 if phase == "default" else 4))
+        assert widget.step == ((0.5 if phase == "step" else 0.25) if floating else (2 if phase == "step" else 1))
+        assert widget.data_type == int(floating)
+        assert widget.format == ("%0.2f" if floating else "%d")
+        assert widget.label == ("Dynamic float" if floating else "Dynamic")
         assert widget.disabled == (phase == "disabled")
         sync = index in (3, 7, 11)
         assert widget.set_value == sync and widget.HasField("value") == sync
         if sync:
             assert widget.value == value
-        calls = [] if index == 0 else [7] if index < 6 else [7, 1]
+        edits = [7.25, 1.25] if floating else [7, 1]
+        calls = [] if index == 0 else edits[:1] if index < 6 else edits
         report = {"phase": phase, "value": value, "state": value, "callbacks": calls}
         assert run["reports"] == [report]
         result.append(report)
@@ -242,9 +248,15 @@ def test_keyed_number_dynamic_bounds_match_reference(root):
     check_number_sequence(read(root / "number-sequence/trace.json"))
 
 
-@pytest.mark.parametrize("mutation", ("identity", "sync", "callback", "value"))
-def test_dynamic_number_gate_rejects_coherent_wrong_wire(mutation):
-    capture = read(PYTHON / "number-sequence/trace.json")
+@pytest.mark.parametrize("root", (PYTHON, RUST), ids=("python", "rust"))
+def test_float_number_dynamic_bounds_match_reference(root):
+    check_number_sequence(read(root / "number-float/trace.json"), floating=True)
+
+
+@pytest.mark.parametrize("floating", (False, True), ids=("integer", "float"))
+@pytest.mark.parametrize("mutation", ("identity", "sync", "callback", "value", "type", "step", "bound"))
+def test_dynamic_number_gate_rejects_coherent_wrong_wire(mutation, floating):
+    capture = read(PYTHON / ("number-float/trace.json" if floating else "number-sequence/trace.json"))
     run = -1
     for frame in capture["frames"]:
         if frame["direction"] == "client->server":
@@ -256,11 +268,17 @@ def test_dynamic_number_gate_rejects_coherent_wrong_wire(mutation):
         msg.ParseFromString(base64.b64decode(frame["base64"]))
         element = msg.delta.new_element
         kind = element.WhichOneof("type")
-        if kind == "number_input" and mutation in ("identity", "sync", "value"):
+        if kind == "number_input" and mutation in ("identity", "sync", "value", "type", "step", "bound"):
             if mutation == "identity":
                 element.number_input.id += "changed"
             elif mutation == "sync":
                 element.number_input.set_value = False
+            elif mutation == "type":
+                element.number_input.data_type = 1 - element.number_input.data_type
+            elif mutation == "step":
+                element.number_input.step += 1
+            elif mutation == "bound":
+                element.number_input.min = -1
             else:
                 element.number_input.value = 5
         elif kind == "json" and mutation in ("callback", "value"):
@@ -281,7 +299,7 @@ def test_dynamic_number_gate_rejects_coherent_wrong_wire(mutation):
             kind = element.WhichOneof("type")
             capture["elements"].append({"kind": kind, "fields": MessageToDict(getattr(element, kind), preserving_proto_field_name=True)})
     with pytest.raises(AssertionError):
-        check_number_sequence(capture)
+        check_number_sequence(capture, floating=floating)
 
 
 UNKEYED_PHASES = ("load", "edit", "disabled", "hidden", "ignore", "none", "explicit-step", "explicit-edit", "restore-step",

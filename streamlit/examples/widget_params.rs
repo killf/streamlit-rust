@@ -93,6 +93,41 @@ fn render(st: &Streamlit) -> Result<(), WidgetError> {
         return Ok(());
     }
 
+    if st.query_params().get("probe").as_deref() == Some("number-float") {
+        let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
+        let state = st.session_state();
+        if phase == "assign" {
+            state.set("number", 8.25_f64)?;
+        }
+
+        let mut options = NumberInputOptions::new("Dynamic float", if phase == "default" { 5.5_f64 } else { 4.25 })
+            .key("number")
+            .step(if phase == "step" { 0.5 } else { 0.25 })
+            .disabled(phase == "disabled")
+            .on_change(|st| {
+                let state = st.session_state();
+                let value = state.get::<f64>("number").expect("number state").expect("registered number");
+                let mut calls = state.get::<Vec<f64>>("number_calls").expect("callback state").unwrap_or_default();
+                calls.push(value);
+                state.set("number_calls", calls).expect("callback write");
+            });
+        if phase == "raise-min" {
+            options = options.min(3.0);
+        } else if !matches!(phase.as_str(), "load" | "edit") {
+            options = options.min(0.0);
+        }
+        if phase == "narrow-max" {
+            options = options.max(6.0);
+        } else if !matches!(phase.as_str(), "load" | "edit" | "zero-min") {
+            options = options.max(10.0);
+        }
+
+        let value = st.number_input(options)?;
+        st.json(serde_json::json!({"phase": phase, "value": value, "state": state.get::<f64>("number")?,
+            "callbacks": state.get::<Vec<f64>>("number_calls")?.unwrap_or_default()}));
+        return Ok(());
+    }
+
     if st.query_params().get("probe").as_deref() == Some("number-sequence") {
         let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
         let state = st.session_state();
