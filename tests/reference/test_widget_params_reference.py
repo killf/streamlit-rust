@@ -3109,6 +3109,138 @@ def test_feedback_identity_gate_rejects_coherent_wrong_wire(mutation):
         check_feedback_identity(capture)
 
 
+FEEDBACK_EMPTY_PHASES = ("load", "edit", "clear", "peer", "default", "fallback", "assign", "observe", "clear-both", "recover")
+FEEDBACK_EMPTY_VALUES = ((2, None), (4, None), (None, None), (2, 3), (2, 3), (0, None), (None, 4), (None, 4), (None, None), (1, None))
+FEEDBACK_EMPTY_INPUTS = (None, ("4", None), ("", None), (None, "3"), None, (None, ""), None, None, ("", ""), ("1", None))
+FEEDBACK_EMPTY_COUNTS = (0, 1, 2, 4, 4, 6, 6, 6, 7, 8)
+FEEDBACK_EMPTY_CALLS = [["primary", 4, None], ["primary", None, None], ["primary", 2, 3], ["peer", 2, 3], ["primary", 0, None], ["peer", 0, None], ["peer", None, None], ["primary", 1, None]]
+
+
+def check_feedback_empty(capture):
+    assert capture["successful"] and "producer_error" not in capture and capture["reference_version"] == "1.66.1"
+    assert capture["runtime"] in ("python", "rust") and capture["finishes"] == [0] * 10
+    assert capture["cleanup"]["websocket_closed"] and capture["cleanup"]["server_stopped" if capture["runtime"] == "python" else "caller_server_stopped"]
+    assert len(capture["frames"]) == 79 and len(capture["elements"]) == 30
+    runs = color_runs(capture, ("feedback", "json"))
+    normalized, sessions, run_ids, identities, previous = [], set(), set(), [{}, {}], None
+    for index, (phase, run) in enumerate(zip(FEEDBACK_EMPTY_PHASES, runs, strict=True)):
+        request = run["request"]
+        assert request.query_string == "probe=feedback-empty&phase=" + phase and not request.is_history_navigation
+        assert len(run["sessions"]) == 1 and run["finishes"] == [0]
+        session = run["sessions"][0]
+        assert session.initialize.environment_info.streamlit_version == "1.66.1"
+        sessions.add(session.initialize.session_id)
+        run_ids.add(session.script_run_id)
+        assert [entry[0] for entry in run["entries"]] == ["feedback", "feedback", "json"]
+        default = 0 if index >= 4 else 2
+        sync = phase == "assign"
+        current = []
+        for position, (_, widget, element) in enumerate(run["entries"][:2]):
+            assert widget.type == (2 if position == 0 else 1)
+            assert widget.HasField("default") == (position == 0) and widget.default == (default if position == 0 else 0)
+            assert not widget.disabled and not widget.ignore_rerun and not widget.form_id
+            assert widget.set_value == sync and widget.HasField("value") == (sync and position == 1)
+            assert widget.value == (4 if sync and position == 1 else 0)
+            assert element.HasField("has_one_shot_effect") == sync and element.has_one_shot_effect == sync
+            assert element.width_config.use_content
+            identity_class = False
+            assert widget.id == identities[position].setdefault(identity_class, widget.id)
+            current.append(widget.id)
+        assert len(set(current)) == 2
+        incoming = request.widget_states.widgets
+        submitted = FEEDBACK_EMPTY_INPUTS[index]
+        if submitted is not None:
+            assert len(incoming) == 2 and [widget.id for widget in incoming] == previous
+            for widget, value in zip(incoming, submitted, strict=True):
+                assert widget.WhichOneof("value") == (None if value is None else "string_value")
+                assert widget.string_value == (value or "")
+        else:
+            assert not incoming
+        report = json.loads(run["entries"][-1][1].body)
+        assert report == {"phase": phase, "values": list(FEEDBACK_EMPTY_VALUES[index]), "calls": FEEDBACK_EMPTY_CALLS[:FEEDBACK_EMPTY_COUNTS[index]]}
+        assert all(value is None or type(value) is int for value in report["values"] + [value for event in report["calls"] for value in event[1:]])
+        assert [entry["delta_path"] for entry in capture["elements"][index * 3:index * 3 + 3]] == [[0, i] for i in range(3)]
+        fields = []
+        for kind, _, element in run["entries"]:
+            view = MessageToDict(element, preserving_proto_field_name=True)
+            if kind == "json":
+                view[kind]["body"] = json.loads(view[kind]["body"])
+            else:
+                view[kind].pop("id")
+            fields.append(view)
+        normalized.append(fields)
+        previous = current
+    assert [len(set(identity.values())) for identity in identities] == [1, 1]
+    assert len(sessions) == 1 and len(run_ids) == 10
+    return normalized
+
+
+
+@pytest.mark.parametrize("root", (PYTHON, RUST), ids=("python", "rust"))
+def test_feedback_id_only_defaults_clear_and_callback_order(root):
+    check_feedback_empty(read(root / "feedback-empty/trace.json"))
+
+
+def test_feedback_empty_complete_elements_match_reference():
+    captures = [read(root / "feedback-empty/trace.json") for root in (PYTHON, RUST)]
+    assert captures[0]["producer_sources_sha256"] == captures[1]["producer_sources_sha256"] and captures[1]["semantic_match"] is True
+    assert check_feedback_empty(captures[0]) == check_feedback_empty(captures[1])
+
+
+def test_feedback_empty_before_discards_the_whole_batch():
+    capture = read(RUST / "feedback-empty/before/trace.json")
+    assert capture["successful"] and capture["semantic_match"] is False and capture["finishes"] == [0] * 10
+    assert len(capture["frames"]) == 79 and len(capture["elements"]) == 30
+    runs = color_runs(capture, ("feedback", "json"))
+    for index in (1, 2, 3, 4, 5):
+        assert json.loads(runs[index]["entries"][-1][1].body) == {"phase": FEEDBACK_EMPTY_PHASES[index], "values": [2, None], "calls": []}
+    assert json.loads(runs[9]["entries"][-1][1].body)["values"] == [None, None]
+    with pytest.raises(AssertionError):
+        check_feedback_empty(capture)
+
+
+@pytest.mark.parametrize("mutation", ("input-oneof", "default-cache", "callback-batch", "callback-order", "callback-replay", "clear", "code-sync", "stale-id"))
+def test_feedback_empty_gate_rejects_coherent_wrong_wire(mutation):
+    capture = read(PYTHON / "feedback-empty/trace.json")
+    target = {"input-oneof": 3, "default-cache": 5, "callback-batch": 3, "callback-order": 3, "callback-replay": 7, "clear": 2, "code-sync": 6, "stale-id": 9}[mutation]
+    run = -1
+    for frame in capture["frames"]:
+        client = frame["direction"] == "client->server"
+        if client:
+            run += 1
+        if run != target:
+            continue
+        message = BackMsg() if client else ForwardMsg()
+        message.ParseFromString(base64.b64decode(frame["base64"]))
+        if client and mutation == "input-oneof":
+            message.rerun_script.widget_states.widgets[0].string_value = ""
+        elif client and mutation == "stale-id":
+            message.rerun_script.widget_states.widgets[1].id = "$$ID-stale-feedback"
+        elif not client and message.WhichOneof("type") == "delta":
+            element = message.delta.new_element
+            kind = element.WhichOneof("type")
+            if kind == "feedback" and list(message.metadata.delta_path)[-1] == 1 and mutation == "code-sync":
+                element.feedback.ClearField("value")
+            elif kind == "json" and mutation in ("default-cache", "callback-batch", "callback-order", "callback-replay", "clear"):
+                report = json.loads(element.json.body)
+                if mutation == "default-cache": report["values"][0] = 2
+                elif mutation == "callback-batch": report["calls"][-2][2] = None
+                elif mutation == "callback-order": report["calls"][-2:] = report["calls"][-2:][::-1]
+                elif mutation == "callback-replay": report["calls"].append(report["calls"][-1])
+                else: report["values"][0] = 2
+                element.json.body = json.dumps(report)
+            else:
+                continue
+        else:
+            continue
+        raw = message.SerializeToString()
+        frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(message, preserving_proto_field_name=True))
+    capture["elements"] = [{"kind": m.delta.new_element.WhichOneof("type"), "fields": MessageToDict(getattr(m.delta.new_element, m.delta.new_element.WhichOneof("type")), preserving_proto_field_name=True),
+                            "delta_path": list(m.metadata.delta_path)} for m in frames(capture) if isinstance(m, ForwardMsg) and m.WhichOneof("type") == "delta"]
+    with pytest.raises(AssertionError):
+        check_feedback_empty(capture)
+
+
 def comparable(capture):
     out = []
     for element in capture["elements"]:

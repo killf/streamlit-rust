@@ -35,6 +35,7 @@ parser.add_argument('--select-policy', action='store_true', help='keyed selectbo
 parser.add_argument('--select-unkeyed', action='store_true', help='unkeyed variant of --select-policy, including placeholder/filter changes')
 parser.add_argument('--radio-identity', action='store_true', help='keyed/unkeyed radio width, horizontal and raw captions identity')
 parser.add_argument('--radio-empty', action='store_true', help='empty options/None-state variant of --radio-identity')
+parser.add_argument('--feedback-empty', action='store_true', help='feedback ID-only defaults, explicit clearing and callback ordering')
 parser.add_argument('--feedback-identity', action='store_true', help='feedback raw default, width and keyed icon-type identity')
 parser.add_argument('--group-defaults', action='store_true', help='button-group duplicate multi defaults and dynamic default identity')
 parser.add_argument('--group-state', action='store_true', help='button-group dynamic options and invalid native-state filtering')
@@ -53,7 +54,7 @@ parser.add_argument('--resume-after-stop', action='store_true', help='append nor
 parser.add_argument('--stop-lifecycle', action='store_true', help='button and URL-bound text around early stop and normal cleanup')
 parser.add_argument('--url', help='caller-owned Rust server URL (comparison capture)')
 args = parser.parse_args()
-assert sum((args.integer_bounds, args.number_sequence, args.number_unkeyed, args.stop_lifecycle, args.number_permissive, args.form_identity, args.color, args.color_unkeyed, args.bool_width, args.select_policy, args.radio_identity, args.select_empty, args.multi_empty, args.multi_limits, args.format_collisions, args.radio_duplicates, args.group_width, args.group_policy, args.group_state, args.group_defaults, args.feedback_identity)) <= 1
+assert sum((args.integer_bounds, args.number_sequence, args.number_unkeyed, args.stop_lifecycle, args.number_permissive, args.form_identity, args.color, args.color_unkeyed, args.bool_width, args.select_policy, args.radio_identity, args.select_empty, args.multi_empty, args.multi_limits, args.format_collisions, args.radio_duplicates, args.group_width, args.group_policy, args.group_state, args.group_defaults, args.feedback_identity, args.feedback_empty)) <= 1
 assert not args.number_float or args.number_sequence
 assert not args.select_unkeyed or args.select_policy
 assert not args.radio_empty or args.radio_identity
@@ -80,7 +81,7 @@ TRACE = {'schema_version': 1, 'runtime': 'rust' if args.url else 'python', 'refe
          'scope': 'Element wire of widget creation-parameter edges over one native WS; no browser/UI claim.',
          'server_command': COMMAND, 'server_cleanup': 'caller-owned' if COMMAND is None else 'collector-owned',
          'url': URL, 'frames': [], 'elements': [], 'finishes': []}
-if args.color or args.color_unkeyed or args.bool_width or args.select_policy or args.radio_identity or args.select_empty or args.multi_empty or args.multi_limits or args.format_collisions or args.radio_duplicates or args.group_width or args.group_policy or args.group_state or args.group_defaults or args.feedback_identity:
+if args.color or args.color_unkeyed or args.bool_width or args.select_policy or args.radio_identity or args.select_empty or args.multi_empty or args.multi_limits or args.format_collisions or args.radio_duplicates or args.group_width or args.group_policy or args.group_state or args.group_defaults or args.feedback_identity or args.feedback_empty:
     TRACE['scope'] = 'Color defaults/widths and fifteen callback/state reruns on one native WS; no browser/UI claim.'
     TRACE['producer_sources_sha256'] = {path: hashlib.sha256((ROOT / path).read_bytes()).hexdigest() for path in (
         'streamlit/examples/widget_params.rs', 'tests/reference/widget_params_app.py', 'tests/browser/widget_params_capture.py')}
@@ -116,6 +117,8 @@ if args.group_defaults:
     TRACE['scope'] = 'Eight pills/segmented-control duplicate-default and dynamic identity runs on one native WS; no browser/UI claim.'
 if args.feedback_identity:
     TRACE['scope'] = 'Twelve keyed/unkeyed feedback raw-default, width and icon-type runs on one native WS; no browser/UI claim.'
+if args.feedback_empty:
+    TRACE['scope'] = 'Ten feedback ID-only default, clear, callback and native code-state runs on one native WS; no browser/UI claim.'
 SERVER = WS = None
 
 
@@ -212,6 +215,8 @@ try:
         steps = [(phase, phase in ('edit', 'default-edit', 'return-edit')) for phase in ('load', 'edit', 'default', 'default-edit', 'empty', 'return', 'return-edit', 'observe')]
     if args.feedback_identity:
         steps = [(phase, value) for phase, value in (('load', None), ('edit', 4), ('zero', None), ('zero-edit', 3), ('width', None), ('width-edit', 2), ('faces', None), ('faces-edit', 4), ('thumbs', None), ('thumbs-edit', 1), ('restore', None), ('observe', None))]
+    if args.feedback_empty:
+        steps = [(phase, values) for phase, values in (('load', None), ('edit', ('4', None)), ('clear', ('', None)), ('peer', (None, '3')), ('default', None), ('fallback', (None, '')), ('assign', None), ('observe', None), ('clear-both', ('', '')), ('recover', ('1', None)))]
     feedback_ids = {}
     group_ids = {}
     empty_select_ids = {}
@@ -220,6 +225,14 @@ try:
     color_id = None
     for step_index, (phase, submitted) in enumerate(steps):
         request = BackMsg()
+        if args.feedback_empty:
+            request.rerun_script.query_string = 'probe=feedback-empty&phase=' + phase
+            if submitted is not None:
+                for position, value in enumerate(submitted):
+                    widget = request.rerun_script.widget_states.widgets.add()
+                    widget.id = feedback_ids[position]
+                    if value is not None:
+                        widget.string_value = value
         if args.feedback_identity:
             request.rerun_script.query_string = 'probe=feedback-identity&phase=' + phase
             if submitted is not None:
@@ -410,7 +423,7 @@ try:
                         bool_ids[view.label] = view.id
                     if args.select_policy and element_kind in ('selectbox', 'multiselect'):
                         select_ids[element_kind] = view.id
-                    if args.feedback_identity and element_kind == 'feedback':
+                    if (args.feedback_identity or args.feedback_empty) and element_kind == 'feedback':
                         feedback_ids[index] = view.id
                     if (args.group_width or args.group_policy or args.group_state or args.group_defaults) and element_kind == 'button_group':
                         group_ids[view.label] = view.id

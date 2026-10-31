@@ -14,6 +14,8 @@
 
 ## Current focus
 
+2026-11-01 feedback ID-only/清空/callback 切片：接入既有有效默认解码，缺省 oneof 恢复上轮默认，空字符串清空；不再因空同伴丢弃整批输入。十轮、79 帧、30 完整 Element 与 SDK 一致，八次有序回调读取整批新值，代码赋值只同步一次，旧十二轮身份复验通过。见[验收](acceptance.md#current-feedback-id-only-clear-and-callback-validation-2026-11-01)；浏览器、禁用/错误输入/表单/跨页等继续开放，不改变完整目标及待决方案。
+
 2026-11-01 feedback 动态身份切片：无 key 保留原始 None/0 默认值和 width，有 key 仍让图标类型参与身份。十二轮、95 帧、36 完整 Element 与 SDK 匹配，覆盖默认/宽度保留或重置、stars/faces/thumbs 切换及清理后恢复；修前错误选择和越界拒绝保留。见[验收](acceptance.md#current-feedback-dynamic-identity-validation-2026-11-01)；浏览器清空、callback/禁用/错误输入/代码赋值/表单/跨页继续开放，不缩减完整目标。
 
 2026-11-01 pills/segmented_control 多选重复默认值切片：仅移除默认项总数不得超过选项数的错误限制，保留逐项存在性与单选数量校验。八轮、79 帧、40 完整 Element 与 SDK 匹配，默认变化/空选项/恢复及有无 key 状态分别验证；修前首轮拒绝导致采集器缺 ID 中断的五帧前缀保留。见[验收](acceptance.md#current-button-group-duplicate-default-validation-2026-11-01)；浏览器、callback、错误 UI 等仍开放，不缩减完整目标。

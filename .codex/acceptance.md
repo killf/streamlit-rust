@@ -2488,3 +2488,19 @@ producer 三份源码、widget_api/widgets 与二进制 SHA 已核对当前产�
 编辑 Rust 的 rustfmt、全工作区/all-target Clippy、新增公开 API 单元通过；最终工作区 329 项通过（322 库、1 ledger、2 宏、4 rustdoc），仍仅排除原 navigation_pages_switch_and_session_state_match_the_measured_wire 与 rerun_queue_messages_match_frozen_reference，不称完整工作区全绿。参数参考模块 327 项，相关 query/widget/temporal/pickers/matrix/docs/buttons/inputs 八模块共 633 项通过。既有 MSVC linker stdout warning 保留；日志 target/feedback-identity-{red,green,clippy,build,workspace,python}.log。
 
 用户 colconfig_params 修改独立保留；未创建 PR、合并、发布或部署；待决共享状态/hash/公共接口方案不变，M3/M5/M7 与长期 Goal 未关闭。
+
+## Current feedback ID-only clear and callback validation (2026-11-01)
+
+锁定 SDK 1.66.1 的 FeedbackSerde 区分三态：没有 value oneof 使用注册默认，string_value="" 显式清空，非空字符串表示评分。Rust 原有 Codec::Feedback 已支持后两者，但没有接入 ID-only 默认缓存，空同伴会使整批输入被丢弃。本次仅把 Feedback 加入现有 selectbox/radio 的 empty_input 缓存集合，更新 Record 注释；默认随登记更新，begin_widgets 用上轮缓存解码。其他 codec 的默认解码、输入校验、来源、回调与注册清理流程不改，无新公共 API、模块或依赖。
+
+[SDK](../tests/reference/reference-browser/widget-params/feedback-empty/trace.json)、[Rust 修前](../tests/browser/rust-widget-params/feedback-empty/before/trace.json)、[Rust 最终](../tests/browser/rust-widget-params/feedback-empty/trace.json)各十轮、79 原始帧、30 完整 Element。主控件 stars 默认 2、同伴 faces 默认 None；评分 4→显式清空→主 ID-only/同伴 3→默认改 0 但无输入→主 ID-only/同伴清空→代码赋 None/4→观察→同时清空→评分 1/同伴 ID-only。修前 edit/clear/peer/fallback 均错保留 [2,None] 且无 callback，recover 又丢失 1；帧数和正常 script_finished 相同不证明兼容成功。新增 API 单元真实失败于 run 1 回调数 0 而非 1。
+
+修后返回值逐轮 [2,None]/[4,None]/[None,None]/[2,3]/[2,3]/[0,None]/[None,4]/[None,4]/[None,None]/[1,None]；累计八条 callback 与 SDK 相同。同批主控件恢复默认和同伴更新时，两回调按 primary→peer 顺序读取整批新值；仅改声明默认不改当前值，下一输入才用新默认；代码赋值不触发 callback，仅发送一次 set_value/value/one-shot，观察不重放；重复清空主控件 None 不误回调。Python/Rust callback 日志初始化方式不同仅属探针记录，不据此宣称整个 session_state 初始化映射一致。
+
+完整 Element 仅归一化不透明 ID/JSON 文本后逐字段一致。严格门核对实际旧 ID、缺省 oneof 与显式空字符串区别、两控件稳定身份、默认 2/0/None 存在性、两种 type、content 宽度、代码同步 value 存在性、session/run/path、返回 integer/None、完整有序回调前缀。八类同时改写 raw 与汇总的负例必须失败：缺省误改空字符串、使用过期默认、回调读旧同伴值、回调顺序颠倒、观察轮重放、清空仍回默认、缺失代码同步值、过期输入 ID。
+
+同一最终二进制重放旧 feedback-identity 十二轮（95 帧/36 Element），完整规范化字段继续匹配，结果 target/feedback-empty-identity-recheck/trace.json。producer 三份源码、widget_api/widgets 与二进制 SHA 已核对；修前核心源码 SHA 与前一 HEAD 377fd2a 相同。SDK 自建服务和 Rust 自持 Popen 句柄均已停止，52076/8599 无监听。无新浏览器采集，ID-only 是原生协议注入，不据此宣称实际浏览器一定生成同一种包。
+
+仅更新 st.feedback 矩阵和生成清单，仍 130 partial；真实清空 UI、禁用/错误输入、ignore、表单/跨页及其他 callback 组合继续开放。用户 colconfig_params 修改独立保留；待决共享状态/hash/公共接口方案不变，未创建 PR、合并、发布或部署，M3/M5/M7 与长期 Goal 未关闭。
+
+编辑 Rust 的 rustfmt、全工作区/all-target Clippy、新增公开 API 单元通过；最终工作区 330 项通过（323 库、1 ledger、2 宏、4 rustdoc），仍仅排除原 navigation_pages_switch_and_session_state_match_the_measured_wire 与 rerun_queue_messages_match_frozen_reference，不称完整工作区全绿。参数参考模块 339 项，相关 query/widget/temporal/pickers/matrix/docs/buttons/inputs 八模块共 645 项通过；文档/矩阵收尾门 52 项通过。既有 MSVC linker stdout warning 保留；日志 target/feedback-empty-{red,green,clippy,build,workspace,python}.log。

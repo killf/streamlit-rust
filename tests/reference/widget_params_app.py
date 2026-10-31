@@ -1,7 +1,20 @@
 """Emit widget creation-wire parameter variants for the M3 differential."""
 import streamlit as st
 
-if st.query_params.get("probe") == "feedback-identity":
+if st.query_params.get("probe") == "feedback-empty":
+    phase = st.query_params.get("phase", "load")
+    if "feedback_calls" not in st.session_state:
+        st.session_state.feedback_calls = []
+    if phase == "assign":
+        st.session_state.feedback_primary = None
+        st.session_state.feedback_peer = 4
+    def changed(source):
+        st.session_state.feedback_calls.append([source, st.session_state.feedback_primary, st.session_state.feedback_peer])
+    default = 0 if phase in ("default", "fallback", "assign", "observe", "clear-both", "recover") else 2
+    primary = st.feedback("stars", default=default, key="feedback_primary", on_change=changed, args=("primary",))
+    peer = st.feedback("faces", key="feedback_peer", on_change=changed, args=("peer",))
+    st.json({"phase": phase, "values": [primary, peer], "calls": st.session_state.feedback_calls})
+elif st.query_params.get("probe") == "feedback-identity":
     phase = st.query_params.get("phase", "load")
     kind = "faces" if phase in ("faces", "faces-edit") else "thumbs" if phase in ("thumbs", "thumbs-edit") else "stars"
     default = 0 if phase in ("zero", "zero-edit", "width", "width-edit") else None

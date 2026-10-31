@@ -6,6 +6,33 @@ use ::streamlit::*;
 use streamlit::StreamlitApi;
 
 fn render(st: &Streamlit) -> Result<(), WidgetError> {
+    if st.query_params().get("probe").as_deref() == Some("feedback-empty") {
+        let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
+        let state = st.session_state();
+        if phase == "assign" {
+            state.set("feedback_primary", serde_json::Value::Null)?;
+            state.set("feedback_peer", 4)?;
+        }
+        let changed = |source: &'static str| {
+            move |st: &Streamlit| {
+                let state = st.session_state();
+                let mut calls = state.get::<Vec<serde_json::Value>>("feedback_calls").expect("calls").unwrap_or_default();
+                calls.push(serde_json::json!([
+                    source,
+                    state.get::<serde_json::Value>("feedback_primary").expect("primary"),
+                    state.get::<serde_json::Value>("feedback_peer").expect("peer")
+                ]));
+                state.set("feedback_calls", calls).expect("callback write");
+            }
+        };
+        let default = if ["default", "fallback", "assign", "observe", "clear-both", "recover"].contains(&phase.as_str()) { 0 } else { 2 };
+        let primary = st.feedback(FeedbackOptions::new(FeedbackKind::Stars).default(default).key("feedback_primary").on_change(changed("primary")))?;
+        let peer = st.feedback(FeedbackOptions::new(FeedbackKind::Faces).key("feedback_peer").on_change(changed("peer")))?;
+        let calls = state.get::<Vec<serde_json::Value>>("feedback_calls")?.unwrap_or_default();
+        st.json(serde_json::json!({"phase": phase, "values": [primary, peer], "calls": calls}));
+        return Ok(());
+    }
+
     if st.query_params().get("probe").as_deref() == Some("feedback-identity") {
         let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
         let kind = match phase.as_str() {

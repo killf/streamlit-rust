@@ -4964,6 +4964,98 @@ mod tests {
     }
 
     #[test]
+    fn feedback_id_only_defaults_and_explicit_clear_preserve_callback_batch_order() -> anyhow::Result<()> {
+        let changed = |source: &'static str| {
+            move |st: &Streamlit| {
+                let state = st.session_state();
+                let mut calls = state.get::<Vec<Value>>("feedback_calls").expect("calls").unwrap_or_default();
+                calls.push(serde_json::json!([source, state.get::<Value>("feedback_primary").expect("primary"), state.get::<Value>("feedback_peer").expect("peer")]));
+                state.set("feedback_calls", calls).expect("callback write");
+            }
+        };
+        let inputs = [
+            None,
+            Some([Some("4"), None]),
+            Some([Some(""), None]),
+            Some([None, Some("3")]),
+            None,
+            Some([None, Some("")]),
+            None,
+            None,
+            Some([Some(""), Some("")]),
+            Some([Some("1"), None]),
+        ];
+        let values = [
+            [Some(2), None],
+            [Some(4), None],
+            [None, None],
+            [Some(2), Some(3)],
+            [Some(2), Some(3)],
+            [Some(0), None],
+            [None, Some(4)],
+            [None, Some(4)],
+            [None, None],
+            [Some(1), None],
+        ];
+        let counts = [0, 1, 1, 2, 0, 2, 0, 0, 1, 1];
+        let all_calls = [
+            serde_json::json!(["primary", 4, null]),
+            serde_json::json!(["primary", null, null]),
+            serde_json::json!(["primary", 2, 3]),
+            serde_json::json!(["peer", 2, 3]),
+            serde_json::json!(["primary", 0, null]),
+            serde_json::json!(["peer", 0, null]),
+            serde_json::json!(["peer", null, null]),
+            serde_json::json!(["primary", 1, null]),
+        ];
+        let state = SessionState::default();
+        let mut ids = Vec::<String>::new();
+        for (round, submitted) in inputs.into_iter().enumerate() {
+            // 1. 缺省 oneof 与显式空字符串分开提交，callback 读取整批解码后的值。
+            let incoming = submitted.map_or_else(Vec::new, |values| {
+                ids.iter()
+                    .zip(values)
+                    .map(|(id, value)| WidgetState {
+                        id: id.clone(),
+                        value: value.map(|value| widget_state::Value::StringValue(value.into())),
+                    })
+                    .collect()
+            });
+            let callbacks = state.begin_widgets(incoming);
+            assert_eq!(callbacks.len(), counts[round], "run {round}");
+            let (st, mut wire) = app(&state);
+            for callback in callbacks {
+                callback(&st);
+            }
+            assert_eq!(state.get::<Vec<Value>>("feedback_calls")?.unwrap_or_default(), all_calls[..counts[..=round].iter().sum()]);
+            if round == 6 {
+                state.set("feedback_primary", Value::Null)?;
+                state.set("feedback_peer", 4)?;
+            }
+            let default = if round >= 4 { 0 } else { 2 };
+            assert_eq!(st.feedback(FeedbackOptions::new(FeedbackKind::Stars).default(default).key("feedback_primary").on_change(changed("primary")))?, values[round][0]);
+            assert_eq!(st.feedback(FeedbackOptions::new(FeedbackKind::Faces).key("feedback_peer").on_change(changed("peer")))?, values[round][1]);
+
+            // 2. 默认值仅更新下一轮缺省解码；代码赋值同步一次，清空不重设声明默认。
+            let mut current = Vec::new();
+            for position in 0..2 {
+                let element::Type::Feedback(widget) = input(&mut wire)? else { panic!() };
+                assert_eq!(widget.default, (position == 0).then_some(default));
+                assert_eq!(widget.set_value, round == 6);
+                assert_eq!(widget.value, if round == 6 { values[round][position] } else { None });
+                if round > 0 {
+                    assert_eq!(widget.id, ids[position]);
+                }
+                current.push(widget.id);
+            }
+            ids = current;
+            state.finish_widgets();
+        }
+
+        Ok(())
+    }
+
+    #[test]
     fn feedback_identity_tracks_raw_default_width_and_keyed_icon_type() -> anyhow::Result<()> {
         let state = SessionState::default();
         let mut ids = Vec::<String>::new();
