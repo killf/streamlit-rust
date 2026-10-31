@@ -5,6 +5,59 @@ use ::streamlit::*;
 use streamlit::StreamlitApi;
 
 fn render(st: &Streamlit) -> Result<(), WidgetError> {
+    if st.query_params().get("probe").as_deref() == Some("identity") {
+        use chrono::{NaiveDate, NaiveTime};
+
+        // 1. 按阶段保留原始 step/format，区分约束变化和普通显示变化。
+        let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
+        let phases = ["load", "edit", "policy", "step", "edit-step", "format", "edit-format", "defaults", "bounds", "restore", "observe"];
+        let index = phases.iter().position(|candidate| *candidate == phase).expect("identity phase");
+        let step = if (3..=8).contains(&index) { 1800 } else { 900 };
+        let format = if (5..=8).contains(&index) { "DD/MM/YYYY" } else { "YYYY/MM/DD" };
+        let defaults = matches!(phase.as_str(), "defaults" | "bounds");
+        let date_default = NaiveDate::from_ymd_opt(2024, if defaults { 4 } else { 3 }, if defaults { 20 } else { 15 }).expect("fixture date");
+        let time_default = NaiveTime::from_hms_opt(if defaults { 10 } else { 12 }, if defaults { 0 } else { 30 }, 0).expect("fixture time");
+        let visibility = if phase == "policy" { LabelVisibility::Hidden } else { LabelVisibility::Visible };
+        let mut clock_options = TimeInputOptions::new("Clock")
+            .value(time_default)
+            .step(step)
+            .format(if (5..=8).contains(&index) { "12h" } else { "24h" })
+            .key("clock")
+            .disabled(phase == "policy")
+            .label_visibility(visibility)
+            .help(&phase);
+        let mut moment_options = DateTimeInputOptions::new("Moment")
+            .value(date_default.and_time(time_default))
+            .step(step)
+            .format(format)
+            .key("moment")
+            .disabled(phase == "policy")
+            .label_visibility(visibility)
+            .help(&phase);
+        let mut date_options = DateInputOptions::new("Date").value(date_default).format(format).key("date").disabled(phase == "policy").label_visibility(visibility).help(&phase);
+
+        // 2. 仅本阶段改变布局/边界，其余参数和 key 保持一致。
+        if phase == "policy" {
+            clock_options = clock_options.width(360);
+            moment_options = moment_options.width(360);
+            date_options = date_options.width(360);
+        }
+        if phase == "bounds" {
+            let low = NaiveDate::from_ymd_opt(2024, 1, 1).expect("fixture min");
+            let high = NaiveDate::from_ymd_opt(2024, 12, 31).expect("fixture max");
+            date_options = date_options.min(low).max(high);
+            moment_options = moment_options.min(low.and_hms_opt(0, 0, 0).expect("midnight")).max(high.and_hms_opt(23, 59, 0).expect("end of day"));
+        }
+
+        // 3. 通过公开 API 渲染，并同时报告返回值和原生会话值。
+        let clock = st.time_input(clock_options)?.expect("clock value").format("%H:%M").to_string();
+        let moment = st.datetime_input(moment_options)?.expect("moment value").format("%Y-%m-%dT%H:%M").to_string();
+        let DateSelection::Single(date) = st.date_input(date_options)? else { panic!("single date fixture") };
+        st.json(serde_json::json!({"phase": phase, "values": [clock, moment, date.format("%Y-%m-%d").to_string()],
+            "native": [st.session_state().get::<serde_json::Value>("clock")?, st.session_state().get::<serde_json::Value>("moment")?, st.session_state().get::<serde_json::Value>("date")?]}));
+        return Ok(());
+    }
+
     st.title("Temporal parameter edges");
     st.date_input(
         DateInputOptions::new("Bounded")

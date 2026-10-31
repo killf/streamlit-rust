@@ -3084,7 +3084,7 @@ impl<C: AppendChild> InputWidgets for C {
         let identity = c.identity_in_form(
             &form_id,
             &if c.key.is_some() {
-                String::new()
+                options.format.clone()
             } else {
                 format!(
                     "{:?}:{:?}:{:?}:{}:{}",
@@ -3161,7 +3161,14 @@ impl<C: AppendChild> InputWidgets for C {
         let wire_format = if options.step % 60 != 0 { "%H:%M:%S" } else { "%H:%M" };
         let wire = |time: NaiveTime| time.format(wire_format).to_string();
         let default = options.value.map(|time| Value::String(wire(time))).unwrap_or(Value::Null);
-        let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { format!("{:?}:{}:{}", options.value.map(wire), options.step, options.format) });
+        let identity = c.identity_in_form(
+            &form_id,
+            &if c.key.is_some() {
+                options.step.to_string()
+            } else {
+                format!("{:?}:{}:{}", options.value.map(wire), options.step, options.format)
+            },
+        );
         let (id, value, set_value) = self.register_widget_parity(
             WidgetSpec {
                 disabled: c.disabled,
@@ -3237,7 +3244,14 @@ impl<C: AppendChild> InputWidgets for C {
             return Err(WidgetError::InvalidValue("datetime_input value is outside min/max".into()));
         }
         let default = options.value.map(|moment| Value::String(wire(moment))).unwrap_or(Value::Null);
-        let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { format!("{:?}:{}:{}", options.value.map(wire), options.step, options.format) });
+        let identity = c.identity_in_form(
+            &form_id,
+            &if c.key.is_some() {
+                serde_json::to_string(&(options.step, &options.format))?
+            } else {
+                format!("{:?}:{}:{}", options.value.map(wire), options.step, options.format)
+            },
+        );
         let (id, value, set_value) = self.register_widget_parity(
             WidgetSpec {
                 disabled: c.disabled,
@@ -4900,6 +4914,57 @@ mod tests {
             assert!(wire.try_recv().is_ok(), "the first valid form is still rendered");
         }
         assert!(wire.try_recv().is_err(), "failed form calls must not append their partial children");
+    }
+
+    #[test]
+    fn keyed_temporal_constraints_reset_selection_like_reference() -> anyhow::Result<()> {
+        use chrono::{NaiveDate, NaiveTime};
+        let date = NaiveDate::from_ymd_opt(2024, 3, 15).expect("reference date");
+        let clock = NaiveTime::from_hms_opt(12, 30, 0).expect("reference clock");
+        let moment = date.and_time(clock);
+        let state = SessionState::default();
+        state.begin_widgets(vec![]);
+        let (st, mut wire) = app(&state);
+        st.time_input(TimeInputOptions::new("Clock").value(clock).key("clock").step(900))?;
+        st.datetime_input(DateTimeInputOptions::new("Moment").value(moment).key("moment").step(900))?;
+        st.date_input(DateInputOptions::new("Date").value(date).key("date"))?;
+        let element::Type::TimeInput(old_clock) = input(&mut wire)? else { panic!() };
+        let element::Type::DateTimeInput(old_moment) = input(&mut wire)? else { panic!() };
+        let element::Type::DateInput(old_date) = input(&mut wire)? else { panic!() };
+        state.finish_widgets();
+        state.begin_widgets(vec![
+            WidgetState {
+                id: old_clock.id.clone(),
+                value: Some(widget_state::Value::StringValue("13:45".into())),
+            },
+            WidgetState {
+                id: old_moment.id.clone(),
+                value: Some(widget_state::Value::StringArrayValue(proto::StringArray { data: vec!["2024-06-01T13:45".into()] })),
+            },
+            WidgetState {
+                id: old_date.id.clone(),
+                value: Some(widget_state::Value::StringArrayValue(proto::StringArray { data: vec!["2024-06-01".into()] })),
+            },
+        ]);
+
+        let (st, mut wire) = app(&state);
+        assert_eq!(st.time_input(TimeInputOptions::new("Clock").value(clock).key("clock").step(1800))?, Some(clock));
+        assert_eq!(st.datetime_input(DateTimeInputOptions::new("Moment").value(moment).key("moment").step(1800))?, Some(moment));
+        assert_eq!(st.date_input(DateInputOptions::new("Date").value(date).key("date").format("DD/MM/YYYY"))?, DateSelection::Single(date));
+        let element::Type::TimeInput(new_clock) = input(&mut wire)? else { panic!() };
+        let element::Type::DateTimeInput(new_moment) = input(&mut wire)? else { panic!() };
+        let element::Type::DateInput(new_date) = input(&mut wire)? else { panic!() };
+        assert_ne!(old_clock.id, new_clock.id);
+        assert_ne!(old_moment.id, new_moment.id);
+        assert_ne!(old_date.id, new_date.id);
+        state.finish_widgets();
+        state.begin_widgets(vec![]);
+
+        let (st, mut wire) = app(&state);
+        assert_eq!(st.time_input(TimeInputOptions::new("Renamed").value(clock).key("clock").step(1800).format("12h").help("new help"))?, Some(clock));
+        let element::Type::TimeInput(formatted_clock) = input(&mut wire)? else { panic!() };
+        assert_eq!(formatted_clock.id, new_clock.id);
+        Ok(())
     }
 
     #[test]

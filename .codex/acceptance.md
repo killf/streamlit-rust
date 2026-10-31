@@ -1921,3 +1921,36 @@ target/form-identity-ui-{build,clippy,reference}.log。这里测试通过表示 
 完整 Python 套件；上一批 301 项与两项排除仍是上一批快照。用户 colconfig_params
 改动保持隔离。已向用户重发 hash 三选问题，尚无答复；不视此前错误恢复或
 rerun Delta-only 的“1”为本次 hash 选型。
+
+
+### 有 key 时间控件的 step/format 重置（2026-10-31）
+
+temporal-params/keyed-identity 的 SDK/Rust 原生参考各十一轮、98 原始帧、44
+有序控件/JSON 元素。初始 clock/moment/date 为 12:30、2024-03-15T12:30、
+2024-03-15，随后三次 typed edits，穿插策略、step、format、默认值、宽边界、
+参数恢复和观察。修改 time step 或 datetime step/format、date format 会重建
+并回当前默认；time 24h→12h 格式、disabled/hidden/width/help、默认值与仍容纳
+有效选择的边界保留状态。三个 ID 等价类数为 2/3/2，恢复旧参数不复活旧选择。
+
+修前 native before/trace.json 同十一轮完整记录，但三个 kind 各只有一个 ID，
+step 改变后还返回 13:45、六月 1 日，SDK 已回初始默认。公开接口单元先失败
+13:45 对 12:30，修后三控件重建及 time 仅显示格式变化的保留断言通过。生产
+只改三处 keyed identity extra，不改公开 API、无 key 身份、codec、共享状态、
+hash 或队列。现有 temporal 例子/fixture/collector 加 --identity 探针，旧五元素
+场景保持独立；采集自然完成，没有使用 stop 保留已清理值。
+
+门禁绑定 raw PB/summary/elements、全部输入类型/ID/值/history、ID 关系、返回值/
+原生状态、默认值/step/format/min/max/策略/宽度/sync、一次性标记及完成/会话；
+五类一致反例保护三种约束 ID、被默认值覆盖的保留值和布局。SDK collector 已
+关闭服务/WS，Rust 服务按路径核对后停止，64453/8600 读回无监听。日期范围/
+空值/旧值越新界限、callback/type/error、timedelta、无 key 和浏览器验证仍开放，
+不能把本次原生差分解释成完整 temporal 兼容。完整目标、130 partial、hash
+选型与共享状态 109/116 差异继续开放。
+
+最终工作区 302 项通过，保留 navigation_pages_switch_and_session_state_match_the_measured_wire
+和 rerun_queue_messages_match_frozen_reference 两项既有排除；相关 query/widget/
+temporal/matrix/docs 参考门 292 项通过。工作区/all-target Clippy 通过，既有
+MSVC linker stdout warning 保留。日志为 target/temporal-keyed-{workspace,
+reference,clippy,build}.log，定向公开接口红绿日志为 temporal-keyed-{red,green}.log。
+采集后仅为 Rust 示例两处语义单元补空行；trace 内 producer source 与 binary SHA
+保留采集时原值，不代表这一排版后的源码或重新构建产物。

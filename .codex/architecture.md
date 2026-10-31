@@ -1337,3 +1337,20 @@ admission、callback、checkpoint/rollback 或共享状态存储。SDK widgets �
 True/白名单模式支撑共享 helper 修正；原生参考仅测量数值、文本和显式 key
 提交按钮，其余控件没有新增跨表单原生证据。跨页面 active_script_hash、无 key
 sidebar 身份及前端缓存/动态 label/help 更新仍开放；共享状态架构仍待选型。
+
+
+### 有 key 时间控件的约束身份（2026-10-31）
+
+SDK time_widgets.py 的 key_as_main_identity 白名单分别为 time_input 的 step、
+datetime_input 的 format/step、date_input 的 format。Rust 原三分支均返回空
+extra，导致选择粒度/日期格式变化不重置。本次仅在 widget_api.rs 三个现有
+keyed 分支添加对应原始参数：step 的字符串、(step, format) JSON 元组、format
+字符串；无 key 分支保留原实现。identity_in_form 继续沿用此前 form 规则，
+不改变公共 builder、codec、注册、callback、状态存储、消息 hash 或队列。
+
+十一轮参考区分约束变化和显示/默认值/边界变化：time 只随 step 重建，24h→12h
+保留值；datetime 随 step/format 重建，date 随 format 重建。有效范围内的新
+边界和默认值不会重建 key；恢复旧参数时普通清理后的旧 ID 不复活旧值。原生
+证据只涉及 int step 和三个非空标量选择，不包括 timedelta、空值、日期范围、
+新边界外的旧值、无 key 格式/精度、错误或真实浏览器组合。既有 hash 和共享
+状态两项选型保持待定，不以本次小范围身份修正替代它们。

@@ -1,8 +1,7 @@
-"""One owned protocol capture of audio/video parameter variants (python/rust).
+"""One owned native temporal-parameter capture against pinned SDK or Rust.
 
-A native WebSocket against the pinned 1.66.1 server (or a caller-owned Rust
-server): the six element emissions are recorded frame by frame and the
-audio/video element fields summarized per case; never overwrites a trace.
+Records original creation fields or opt-in keyed identity transitions; never
+overwrites a trace and makes no browser/UI claim.
 """
 import argparse
 import base64
@@ -24,6 +23,7 @@ from websockets.sync.client import connect
 ROOT = Path(__file__).resolve().parents[2]
 parser = argparse.ArgumentParser(description='Collect the temporal-parameter reference once; never overwrite.')
 parser.add_argument('--out', type=Path, required=True)
+parser.add_argument('--identity', action='store_true', help='eleven keyed time/datetime/date state and constraint transitions')
 parser.add_argument('--url', help='caller-owned Rust server URL (comparison capture)')
 args = parser.parse_args()
 OUT = args.out.resolve()
@@ -76,48 +76,66 @@ try:
             time.sleep(0.1)
     WS = connect(URL.replace('http', 'ws') + '/_stcore/stream', origin=URL, subprotocols=['streamlit'], proxy=None,
                  open_timeout=10, close_timeout=5, max_size=None, legacy=True)
-    request = BackMsg()
-    request.rerun_script.SetInParent()
-    raw = request.SerializeToString()
-    record('client->server', raw, request)
-    WS.send(raw)
-    index = 0
-    while True:
-        raw = WS.recv(timeout=20)
-        message = ForwardMsg()
-        message.ParseFromString(raw)
-        record('server->client', raw, message)
-        kind = message.WhichOneof('type')
-        if kind == 'script_finished':
-            TRACE['finishes'].append(message.script_finished)
-            break
-        if kind != 'delta':
-            continue
-        delta_kind = message.delta.WhichOneof('type')
-        if delta_kind == 'add_block':
-            block = message.delta.add_block
-            allowed = block.WhichOneof('type')
-            if allowed is not None:
-                view = getattr(block, allowed)
-                fields = MessageToDict(view, preserving_proto_field_name=True)
-                block_level = {}
-                if block.HasField('width_config'):
-                    block_level['width_config'] = MessageToDict(block.width_config, preserving_proto_field_name=True)
-                if block.HasField('height_config'):
-                    block_level['height_config'] = MessageToDict(block.height_config, preserving_proto_field_name=True)
-                TRACE['elements'].append({'index': index, 'kind': f'add_block:{allowed}', 'fields': fields, 'block': block_level,
-                                          'url': None, 'delta_path': list(message.metadata.delta_path)})
-                index += 1
-        elif delta_kind == 'new_element':
-            element = message.delta.new_element
-            element_kind = element.WhichOneof('type')
-            if element_kind is not None:
-                view = getattr(element, element_kind)
-                fields = MessageToDict(view, preserving_proto_field_name=True)
-                url = getattr(view, 'url', '') if hasattr(view, 'url') else ''
-                TRACE['elements'].append({'index': index, 'kind': element_kind, 'fields': fields,
-                                          'url': url, 'delta_path': list(message.metadata.delta_path)})
-                index += 1
+    phases = ("load", "edit", "policy", "step", "edit-step", "format", "edit-format", "defaults", "bounds", "restore", "observe") if args.identity else ("load",)
+    widget_ids = {}
+    for phase in phases:
+        request = BackMsg()
+        request.rerun_script.SetInParent()
+        if args.identity:
+            request.rerun_script.query_string = "probe=identity&phase=" + phase
+            if phase in ("edit", "edit-step", "edit-format"):
+                clock, moment, date = {"edit": ("13:45", "2024-06-01T13:45", "2024-06-01"),
+                                       "edit-step": ("14:00", "2024-06-01T14:00", "2024-06-01"),
+                                       "edit-format": ("15:00", "2024-07-04T15:00", "2024-07-04")}[phase]
+                for key, value in (("clock", clock), ("moment", moment), ("date", date)):
+                    widget = request.rerun_script.widget_states.widgets.add()
+                    widget.id = widget_ids[key]
+                    if key == "clock":
+                        widget.string_value = value
+                    else:
+                        widget.string_array_value.data.append(value)
+        raw = request.SerializeToString()
+        record('client->server', raw, request)
+        WS.send(raw)
+        index = 0
+        while True:
+            raw = WS.recv(timeout=20)
+            message = ForwardMsg()
+            message.ParseFromString(raw)
+            record('server->client', raw, message)
+            kind = message.WhichOneof('type')
+            if kind == 'script_finished':
+                TRACE['finishes'].append(message.script_finished)
+                break
+            if kind != 'delta':
+                continue
+            delta_kind = message.delta.WhichOneof('type')
+            if delta_kind == 'add_block':
+                block = message.delta.add_block
+                allowed = block.WhichOneof('type')
+                if allowed is not None:
+                    view = getattr(block, allowed)
+                    fields = MessageToDict(view, preserving_proto_field_name=True)
+                    block_level = {}
+                    if block.HasField('width_config'):
+                        block_level['width_config'] = MessageToDict(block.width_config, preserving_proto_field_name=True)
+                    if block.HasField('height_config'):
+                        block_level['height_config'] = MessageToDict(block.height_config, preserving_proto_field_name=True)
+                    TRACE['elements'].append({'index': index, 'kind': f'add_block:{allowed}', 'fields': fields, 'block': block_level,
+                                              'url': None, 'delta_path': list(message.metadata.delta_path)})
+                    index += 1
+            elif delta_kind == 'new_element':
+                element = message.delta.new_element
+                element_kind = element.WhichOneof('type')
+                if element_kind is not None:
+                    view = getattr(element, element_kind)
+                    fields = MessageToDict(view, preserving_proto_field_name=True)
+                    if args.identity and element_kind in ('time_input', 'date_time_input', 'date_input'):
+                        widget_ids[view.id.rsplit('-', 1)[-1]] = view.id
+                    url = getattr(view, 'url', '') if hasattr(view, 'url') else ''
+                    TRACE['elements'].append({'index': index, 'kind': element_kind, 'fields': fields,
+                                              'url': url, 'delta_path': list(message.metadata.delta_path)})
+                    index += 1
     WS.close()
     TRACE['cleanup'] = {'websocket_closed': True}
     TRACE['successful'] = True

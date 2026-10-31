@@ -578,6 +578,8 @@ if let Some(shot) = st.camera_input("Snapshot")? { /* UploadedFile */ }
 
 Date inputs carry the ten-year min/max window the reference derives from the value (each range endpoint its own side); datetime inputs anchor the same window on the value's date with minute precision; select sliders are label-index sliders whose wire state is the selected label(s). The [pickers example](../../streamlit/examples/pickers.rs) and [datetime example](../../streamlit/examples/datetime.rs) mirror the reference fixtures of their differential chains.
 
+For keyed pickers, changing `TimeInputOptions.step`, `DateTimeInputOptions.step` or its date `format`, or `DateInputOptions.format` starts a new widget and resets to the supplied default. Changing only a time picker's `24h`/`12h` presentation keeps its value. Valid selections also survive changes to defaults, layout, disabled state and date bounds in the measured keyed flow.
+
 ## Presentation leftovers
 
 ```rust
