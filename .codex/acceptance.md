@@ -1839,3 +1839,36 @@ number_input 字段、报告/路径/顺序、DOM 值/边界/step/按钮/错误�
 日志 target/number-permissive-ui-reference.log。没有重复 Rust 构建/Clippy/
 工作区测试，因本批生产与 Rust 源码未变；上一批 300 项及两项排除仍是上一批
 结果，不当作这批新增验证。用户 colconfig_params 修改保持隔离、不提交。
+
+
+### 有 key 输入及提交按钮跨表单（2026-10-31）
+
+form-identity 原生参考：SDK/Rust 各七轮、70 原始帧、36 有序条目（含四个 form
+block）。root 提交 7/EDIT，迁入 alpha/beta 保留 keyed 数值/文本；beta 批量提交
+8/NEXT/无 key=6 和 trigger 后，回 root/alpha 保留 8/NEXT，但清理后的无 key 值
+回到 4。number/note/apply 三个 key 的 ID 分别稳定，无 key 按 root/alpha/beta
+分为三个 ID，协议 form_id 跟随当前上下文。各轮自然结束，未用 stop 保留旧值。
+
+修前 before/trace.json 七轮/65 帧/31 条目：迁入 alpha 回到 4/base，换 beta 时
+submit ID 变化触发已有 preseed 拒绝，表单回滚并输出错误 markdown。负向门按
+真实 PB 和这些错误/状态固定失败；首次误用成功解析器被 markdown 拒绝，已
+定向校正并通过，没有放宽成功场景白名单。公共接口单元先红后绿。
+
+生产只改 InputOptions.identity_in_form 和 form_submit_button 两处私有拼接；
+保留无 key form 区分和 extra 约束，不改公开 API、共享状态、rollback、输入
+类型错误策略。门禁核对 raw PB/summary/elements、精确输入/类型/ID/trigger、
+会话/完成、字段/form block 布局/路径/报告及身份关系，五类一致篡改会失败。
+证据为两侧 widget-params/form-identity/trace.json，修前另存 Rust 同目录 before。
+SDK collector 已关闭服务/WS；原生服务按路径确认后停止；52191/8599 读回无
+监听。本批没有浏览器验证，不证明前端 label/help/form、sidebar/页面身份、
+其他控件及回调/错误提交的完整兼容。130 partial、109/116 和状态待选保持开放。
+
+本批格式和全目标 Clippy 通过（既有 MSVC linker stdout warning 保留）；工作区
+301 项通过：library 294、ledger 1、macros 2、rustdoc 4。仍只排除既有
+server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire
+和 server::tests::queryparams::rerun_queue_messages_match_frozen_reference。
+276 项相关 Python query/widget/matrix/docs 检查通过，未重复完整 Python 套件。
+日志 target/form-identity-{red,green,clippy,build,workspace,reference}.log；定向
+负向门校正结果见本轮工具输出。补充原先空 limitations 的两条表单记录后，
+派生清单仍为 130 partial，未测参数桶 94、未明确缺口桶 33，其余桶不变。
+用户 colconfig_params 修改不纳入本次提交。

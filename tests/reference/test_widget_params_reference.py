@@ -885,3 +885,164 @@ def test_stop_lifecycle_gate_rejects_coherent_wrong_wire(mutation):
             capture["elements"].append({"kind": kind, "fields": MessageToDict(getattr(element, kind), preserving_proto_field_name=True)})
     with pytest.raises(AssertionError):
         check_stop_lifecycle(capture)
+
+
+FORM_IDENTITY_PHASES = ("load", "edit", "form-a", "form-b", "form-edit", "root-return", "form-a-return")
+FORM_IDENTITY_VALUES = ((4, "base", 4, None), (7, "EDIT", 9, None), (7, "EDIT", 4, False),
+                        (7, "EDIT", 4, False), (8, "NEXT", 6, True), (8, "NEXT", 4, None), (8, "NEXT", 4, False))
+
+
+def form_identity_runs(capture):
+    runs, emitted = [], []
+    for message in frames(capture):
+        kind = message.WhichOneof("type")
+        if isinstance(message, BackMsg):
+            assert kind == "rerun_script"
+            runs.append({"request": message.rerun_script, "sessions": [], "finishes": [], "entries": []})
+        elif kind == "new_session":
+            runs[-1]["sessions"].append(message.new_session)
+        elif kind == "script_finished":
+            runs[-1]["finishes"].append(message.script_finished)
+        elif kind == "delta":
+            delta_kind = message.delta.WhichOneof("type")
+            if delta_kind == "add_block":
+                block = message.delta.add_block
+                assert block.WhichOneof("type") == "form"
+                entry_kind, view = "add_block:form", block.form
+                assert MessageToDict(block.width_config, preserving_proto_field_name=True) == {"use_stretch": True}
+                assert MessageToDict(block.height_config, preserving_proto_field_name=True) == {"use_content": True}
+            else:
+                assert delta_kind == "new_element"
+                element = message.delta.new_element
+                entry_kind = element.WhichOneof("type")
+                assert entry_kind in ("number_input", "text_input", "button", "json")
+                view = getattr(element, entry_kind)
+            entry = (entry_kind, MessageToDict(view, preserving_proto_field_name=True), list(message.metadata.delta_path))
+            emitted.append(entry)
+            runs[-1]["entries"].append((entry_kind, view, entry[2]))
+    return runs, emitted
+
+
+def check_form_identity(capture):
+    assert capture["successful"] and "producer_error" not in capture
+    assert capture["reference_version"] == "1.66.1" and len(capture["frames"]) == 70
+    assert capture["cleanup"]["websocket_closed"] and capture["finishes"] == [0] * 7
+    if capture["runtime"] == "python":
+        assert capture["cleanup"]["server_stopped"]
+    runs, emitted = form_identity_runs(capture)
+    assert emitted == [(entry["kind"], entry["fields"], entry["delta_path"]) for entry in capture["elements"]]
+    assert len(runs) == 7 and len(emitted) == 36
+    keyed_ids, unkeyed_ids, sessions, run_ids = {}, {}, set(), set()
+    for run, phase, values in zip(runs, FORM_IDENTITY_PHASES, FORM_IDENTITY_VALUES, strict=True):
+        request = run["request"]
+        assert request.query_string == "probe=form-identity&phase=" + phase and not request.is_history_navigation
+        assert run["finishes"] == [0] and len(run["sessions"]) == 1
+        session = run["sessions"][0]
+        assert session.initialize.environment_info.streamlit_version == "1.66.1"
+        sessions.add(session.initialize.session_id)
+        run_ids.add(session.script_run_id)
+        form_id = "alpha" if phase in ("form-a", "form-a-return") else "beta" if phase.startswith("form-") else ""
+        entries = list(run["entries"])
+        if form_id:
+            kind, form, path = entries.pop(0)
+            assert kind == "add_block:form" and path == [0, 0]
+            assert (form.form_id, form.clear_on_submit, form.border, form.enter_to_submit) == (form_id, False, True, True)
+        assert [entry[0] for entry in entries] == ["number_input", "text_input", "number_input"] + (["button"] if form_id else []) + ["json"]
+        for index, (_, widget, path) in enumerate(entries[:-1]):
+            assert path == ([0, 0, index] if form_id else [0, index]) and widget.form_id == form_id
+        assert entries[-1][2] == ([0, 1] if form_id else [0, 3])
+        number, note, unkeyed = [entry[1] for entry in entries[:3]]
+        assert number.label == "Number " + phase and note.label == "Note " + phase and unkeyed.label == "Unkeyed"
+        assert number.help == note.help == phase and not unkeyed.help
+        for widget in (number, unkeyed):
+            assert (widget.default, widget.step, widget.data_type, widget.format) == (4, 1, 0, "%d")
+            assert (widget.min, widget.max, widget.has_min, widget.has_max) == (-9007199254740991, 9007199254740991, False, False)
+            assert not widget.set_value and not widget.HasField("value") and not widget.disabled
+        assert note.default == "base" and note.max_chars == 5 and not note.set_value and not note.disabled
+        for key, widget in (("number", number), ("note", note)):
+            assert widget.id.endswith("-" + key)
+            assert widget.id == keyed_ids.setdefault(key, widget.id)
+        assert unkeyed.id == unkeyed_ids.setdefault(form_id, unkeyed.id)
+        if form_id:
+            button = entries[3][1]
+            assert button.label == "Apply" and button.is_form_submitter and button.type == "secondary" and not button.disabled
+            assert button.id.endswith("-apply") and button.id == keyed_ids.setdefault("apply", button.id)
+        expected = {"phase": phase, "number": values[0], "note": values[1], "unkeyed": values[2],
+                    "submitted": values[3], "native": [values[0], values[1]]}
+        assert json.loads(entries[-1][1].body) == expected
+        incoming = request.widget_states.widgets
+        if phase in ("edit", "form-edit"):
+            assert len(incoming) == (3 if phase == "edit" else 4)
+            assert [(widget.id, widget.WhichOneof("value")) for widget in incoming[:3]] == [
+                (number.id, "int_value"), (note.id, "string_value"), (unkeyed.id, "int_value")]
+            assert (incoming[0].int_value, incoming[1].string_value, incoming[2].int_value) == values[:3]
+            if phase == "form-edit":
+                assert incoming[3].id == keyed_ids["apply"] and incoming[3].WhichOneof("value") == "trigger_value" and incoming[3].trigger_value
+        else:
+            assert not incoming
+    assert len(keyed_ids) == 3 and len(set(unkeyed_ids.values())) == 3 and len(sessions) == 1 and len(run_ids) == 7
+
+
+@pytest.mark.parametrize("root", (PYTHON, RUST), ids=("python", "rust"))
+def test_keyed_widgets_keep_state_across_form_context(root):
+    check_form_identity(read(root / "form-identity/trace.json"))
+
+
+def test_pre_fix_form_migration_remains_a_known_mismatch():
+    capture = read(RUST / "form-identity/before/trace.json")
+    reports, errors = [], []
+    assert len(capture["frames"]) == 65 and len(capture["elements"]) == 31
+    for message in frames(capture):
+        if message.WhichOneof("type") != "delta" or message.delta.WhichOneof("type") != "new_element":
+            continue
+        element = message.delta.new_element
+        if element.WhichOneof("type") == "json":
+            reports.append(json.loads(element.json.body))
+        elif element.WhichOneof("type") == "markdown":
+            errors.append(element.markdown.body)
+    assert reports[2] == {"phase": "form-a", "number": 4, "note": "base", "unkeyed": 4,
+                          "submitted": False, "native": [4, "base"]}
+    assert errors == ["Widget params error: invalid widget value: button, chat input, menu button and uploader state cannot be preseeded"]
+    with pytest.raises(AssertionError):
+        check_form_identity(capture)
+
+
+@pytest.mark.parametrize("mutation", ("keyed-id", "form-id", "state", "unkeyed-revival", "submit-id"))
+def test_form_identity_gate_rejects_coherent_wrong_wire(mutation):
+    capture = read(PYTHON / "form-identity/trace.json")
+    run = -1
+    for frame in capture["frames"]:
+        if frame["direction"] == "client->server":
+            run += 1
+            continue
+        if run != (3 if mutation == "submit-id" else 2):
+            continue
+        message = ForwardMsg()
+        message.ParseFromString(base64.b64decode(frame["base64"]))
+        if message.WhichOneof("type") != "delta" or message.delta.WhichOneof("type") != "new_element":
+            continue
+        element = message.delta.new_element
+        kind = element.WhichOneof("type")
+        if kind == "number_input" and element.number_input.id.endswith("-number") and mutation in ("keyed-id", "form-id"):
+            if mutation == "keyed-id":
+                element.number_input.id = element.number_input.id.replace("$$ID-", "$$ID-changed-")
+            else:
+                element.number_input.form_id = "beta"
+        elif kind == "button" and mutation == "submit-id":
+            element.button.id = element.button.id.replace("$$ID-", "$$ID-changed-")
+        elif kind == "json" and mutation in ("state", "unkeyed-revival"):
+            report = json.loads(element.json.body)
+            if mutation == "state":
+                report["number"] = report["native"][0] = 4
+                report["note"] = report["native"][1] = "base"
+            else:
+                report["unkeyed"] = 9
+            element.json.body = json.dumps(report)
+        else:
+            continue
+        raw = message.SerializeToString()
+        frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(message, preserving_proto_field_name=True))
+    _, emitted = form_identity_runs(capture)
+    capture["elements"] = [{"kind": kind, "fields": fields, "delta_path": path} for kind, fields, path in emitted]
+    with pytest.raises(AssertionError):
+        check_form_identity(capture)

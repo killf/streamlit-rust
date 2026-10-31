@@ -26,6 +26,7 @@ parser = argparse.ArgumentParser(description='Collect the widget-parameter refer
 parser.add_argument('--out', type=Path, required=True)
 parser.add_argument('--integer-bounds', action='store_true', help='opt-in unbounded and one-sided integer wire probe')
 parser.add_argument('--number-sequence', action='store_true', help='keyed number dynamic bounds over one WS')
+parser.add_argument('--form-identity', action='store_true', help='keyed/unkeyed inputs moving between forms and root')
 parser.add_argument('--number-permissive', action='store_true', help='equal bounds and nonpositive finite steps, plus rejected range controls')
 parser.add_argument('--number-float', action='store_true', help='float variant of the keyed number sequence')
 parser.add_argument('--number-unkeyed', action='store_true', help='unkeyed number identity across option changes')
@@ -34,7 +35,7 @@ parser.add_argument('--resume-after-stop', action='store_true', help='append nor
 parser.add_argument('--stop-lifecycle', action='store_true', help='button and URL-bound text around early stop and normal cleanup')
 parser.add_argument('--url', help='caller-owned Rust server URL (comparison capture)')
 args = parser.parse_args()
-assert sum((args.integer_bounds, args.number_sequence, args.number_unkeyed, args.stop_lifecycle, args.number_permissive)) <= 1
+assert sum((args.integer_bounds, args.number_sequence, args.number_unkeyed, args.stop_lifecycle, args.number_permissive, args.form_identity)) <= 1
 assert not args.number_float or args.number_sequence
 assert not args.stop_after_run or args.number_unkeyed
 assert not args.resume_after_stop or args.stop_after_run
@@ -102,6 +103,9 @@ try:
         steps += [("normal-resume", None), ("explicit-step", None)]
     if args.stop_lifecycle:
         steps = [(phase, None) for phase in ("load", "submit", "peek", "resume", "hide", "after-hide", "restore", "after-restore")]
+    if args.form_identity:
+        steps = [(phase, None) for phase in ("load", "edit", "form-a", "form-b", "form-edit", "root-return", "form-a-return")]
+    form_identity_ids = {}
     lifecycle_bound, lifecycle_ids = "url", {}
     number_id = None
     for step_index, (phase, submitted) in enumerate(steps):
@@ -131,6 +135,20 @@ try:
                     else:
                         widget.string_value = value
         request.rerun_script.SetInParent()
+        if args.form_identity:
+            request.rerun_script.query_string = "probe=form-identity&phase=" + phase
+            if phase in ("edit", "form-edit"):
+                for key, value in (("number", 7 if phase == "edit" else 8), ("note", "EDIT" if phase == "edit" else "NEXT"), ("unkeyed", 9 if phase == "edit" else 6)):
+                    widget = request.rerun_script.widget_states.widgets.add()
+                    widget.id = form_identity_ids[key]
+                    if key == "note":
+                        widget.string_value = value
+                    else:
+                        widget.int_value = value
+                if phase == "form-edit":
+                    widget = request.rerun_script.widget_states.widgets.add()
+                    widget.id = form_identity_ids["apply"]
+                    widget.trigger_value = True
         if args.number_permissive:
             request.rerun_script.query_string = "probe=number-permissive"
         if args.integer_bounds:
@@ -175,6 +193,9 @@ try:
                     fields = MessageToDict(view, preserving_proto_field_name=True)
                     if args.stop_lifecycle and element_kind in ('button', 'text_input'):
                         lifecycle_ids[view.id.rsplit('-', 1)[-1]] = view.id
+                    if args.form_identity and element_kind in ('number_input', 'text_input', 'button'):
+                        key = 'unkeyed' if view.label == 'Unkeyed' else view.id.rsplit('-', 1)[-1]
+                        form_identity_ids[key] = view.id
                     if element_kind == 'number_input':
                         number_id = view.id
                     url = getattr(view, 'url', '') if hasattr(view, 'url') else ''

@@ -64,7 +64,12 @@ impl InputOptions {
     }
     fn identity_in_form(&self, form_id: &str, extra: &str) -> String {
         let identity = self.identity(extra);
-        if form_id.is_empty() { identity } else { serde_json::to_string(&(form_id, identity)).expect("string identity serializes") }
+        // 显式 key 的身份忽略 form；无 key 仍按 form 区分，extra 的参数约束保留。
+        if self.key.is_some() || form_id.is_empty() {
+            identity
+        } else {
+            serde_json::to_string(&(form_id, identity)).expect("string identity serializes")
+        }
     }
     fn width(&self, content_default: bool) -> Result<Option<proto::streamlit::WidthConfig>, WidgetError> {
         use proto::streamlit::width_config::WidthSpec;
@@ -1999,7 +2004,8 @@ impl Form<'_> {
                 options.callback.is_some(),
             ))?
         };
-        let identity = serde_json::to_string(&(self.parent_form_id(), identity))?;
+        // 提交按钮的显式 key 也不包含 form；协议 form_id 仍指向当前表单。
+        let identity = if options.key.is_some() { identity } else { serde_json::to_string(&(self.parent_form_id(), identity))? };
         let (id, value, _) = self.register_widget_parity(
             WidgetSpec {
                 disabled: options.disabled,
@@ -3787,6 +3793,61 @@ mod tests {
             Some(forward_msg::Type::Delta(proto::Delta { r#type: Some(delta::Type::AddBlock(block)), .. })) => Ok(block),
             other => panic!("expected form block, got {other:?}"),
         }
+    }
+
+    #[test]
+    fn keyed_inputs_and_submitter_keep_identity_across_forms() -> anyhow::Result<()> {
+        let state = SessionState::default();
+        state.begin_widgets(vec![]);
+        let (st, mut wire) = app(&state);
+        st.number_input(NumberInputOptions::new("Number", 4_i64).key("number"))?;
+        st.text_input(TextInputOptions::new("Note").value("base").key("note").max_chars(5))?;
+        st.number_input(("Unkeyed", 4_i64))?;
+        let element::Type::NumberInput(number) = input(&mut wire)? else { panic!() };
+        let element::Type::TextInput(note) = input(&mut wire)? else { panic!() };
+        let element::Type::NumberInput(unkeyed) = input(&mut wire)? else { panic!() };
+        state.finish_widgets();
+        state.begin_widgets(vec![
+            WidgetState {
+                id: number.id.clone(),
+                value: Some(widget_state::Value::IntValue(7)),
+            },
+            WidgetState {
+                id: note.id.clone(),
+                value: Some(widget_state::Value::StringValue("EDIT".into())),
+            },
+            WidgetState {
+                id: unkeyed.id.clone(),
+                value: Some(widget_state::Value::IntValue(9)),
+            },
+        ]);
+        let mut submit_id = None;
+        let mut previous_unkeyed = unkeyed.id;
+
+        for form_id in ["alpha", "beta"] {
+            let (st, mut wire) = app(&state);
+            let values = st.form(FormOptions::new(form_id), |form| {
+                let number = form.number_input(NumberInputOptions::new(format!("Number {form_id}"), 4_i64).key("number").help(form_id))?;
+                let note = form.text_input(TextInputOptions::new(format!("Note {form_id}")).value("base").key("note").max_chars(5).help(form_id))?;
+                let unkeyed = form.number_input(("Unkeyed", 4_i64))?;
+                let submitted = form.form_submit_button(FormSubmitButtonOptions::new("Apply").key("apply"))?;
+                Ok((number, note, unkeyed, submitted))
+            })?;
+            assert_eq!((values.0, values.1.as_deref(), values.2, values.3), (7, Some("EDIT"), 4, false));
+            let _ = form_block(&mut wire)?;
+            let element::Type::NumberInput(current_number) = input(&mut wire)? else { panic!() };
+            let element::Type::TextInput(current_note) = input(&mut wire)? else { panic!() };
+            let element::Type::NumberInput(current_unkeyed) = input(&mut wire)? else { panic!() };
+            let element::Type::Button(submit) = input(&mut wire)? else { panic!() };
+            assert_eq!((current_number.id, current_note.id), (number.id.clone(), note.id.clone()));
+            assert_ne!(current_unkeyed.id, previous_unkeyed);
+            previous_unkeyed = current_unkeyed.id;
+            assert_eq!((current_number.form_id.as_str(), current_note.form_id.as_str(), submit.form_id.as_str()), (form_id, form_id, form_id));
+            assert_eq!(submit_id.get_or_insert_with(|| submit.id.clone()), &submit.id);
+            state.finish_widgets();
+            state.begin_widgets(vec![]);
+        }
+        Ok(())
     }
 
     #[test]

@@ -6,6 +6,31 @@ use ::streamlit::*;
 use streamlit::StreamlitApi;
 
 fn render(st: &Streamlit) -> Result<(), WidgetError> {
+    if st.query_params().get("probe").as_deref() == Some("form-identity") {
+        fn draw<C: InputWidgets>(parent: &C, phase: &str) -> Result<(i64, Option<String>, i64), WidgetError> {
+            let number = parent.number_input(NumberInputOptions::new(format!("Number {phase}"), 4_i64).key("number").help(phase))?;
+            let note = parent.text_input(TextInputOptions::new(format!("Note {phase}")).value("base").key("note").max_chars(5).help(phase))?;
+            let unkeyed = parent.number_input(("Unkeyed", 4_i64))?;
+            Ok((number, note, unkeyed))
+        }
+
+        let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
+        let (number, note, unkeyed, submitted) = if phase.starts_with("form-") {
+            let form_id = if matches!(phase.as_str(), "form-a" | "form-a-return") { "alpha" } else { "beta" };
+            st.form(FormOptions::new(form_id), |form| {
+                let (number, note, unkeyed) = draw(form, &phase)?;
+                let submitted = form.form_submit_button(FormSubmitButtonOptions::new("Apply").key("apply"))?;
+                Ok((number, note, unkeyed, Some(submitted)))
+            })?
+        } else {
+            let (number, note, unkeyed) = draw(st, &phase)?;
+            (number, note, unkeyed, None)
+        };
+        st.json(serde_json::json!({"phase": phase, "number": number, "note": note, "unkeyed": unkeyed,
+            "submitted": submitted, "native": [st.session_state().get::<serde_json::Value>("number")?, st.session_state().get::<serde_json::Value>("note")?]}));
+        return Ok(());
+    }
+
     if st.query_params().get("probe").as_deref() == Some("number-permissive") {
         let report = |label: &str, result: Result<serde_json::Value, WidgetError>| -> Result<(), WidgetError> {
             match result {

@@ -1,7 +1,26 @@
 """Emit widget creation-wire parameter variants for the M3 differential."""
 import streamlit as st
 
-if st.query_params.get("probe") == "number-permissive":
+if st.query_params.get("probe") == "form-identity":
+    phase = st.query_params.get("phase", "load")
+
+    def draw_identity():
+        number = st.number_input("Number " + phase, value=4, key="number", help=phase)
+        note = st.text_input("Note " + phase, value="base", key="note", max_chars=5, help=phase)
+        unkeyed = st.number_input("Unkeyed", value=4)
+        return number, note, unkeyed
+
+    submitted = None
+    if phase.startswith("form-"):
+        with st.form("alpha" if phase in ("form-a", "form-a-return") else "beta"):
+            number, note, unkeyed = draw_identity()
+            submitted = st.form_submit_button("Apply", key="apply")
+    else:
+        number, note, unkeyed = draw_identity()
+    st.json({"phase": phase, "number": number, "note": note, "unkeyed": unkeyed,
+             "submitted": submitted, "native": [st.session_state["number"], st.session_state["note"]]})
+
+elif st.query_params.get("probe") == "number-permissive":
     for label, default, low, high, step in (
         ("Int equal", 2, 2, 2, 1), ("Int zero step", 4, None, None, 0),
         ("Int negative step", 4, None, None, -2),

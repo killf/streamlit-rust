@@ -1309,3 +1309,19 @@ Rust 原先强制 min<max 且 step>0，在控件注册前额外拒绝了这些�
 拒绝后继续输出的对照。捕获异常的报告刻意只比较 accepted，不比较异常类型、
 文字或 UI；非正步长在真实浏览器中的交互和非有限参数仍待独立验证。
 共享状态架构方案的待选状态不因这次独立数值修复而改变。
+
+
+### 有 key 控件跨表单的身份（2026-10-31）
+
+固定 SDK 的 compute_and_register_element_id 在 key_as_main_identity=True 或
+白名单集合时忽略 form/sidebar 上下文，仍保留 active_script_hash 及白名单约束。
+Rust InputOptions.identity 已处理 key 与额外参数，但 identity_in_form 随后又
+拼入 form_id；显式 key 提交按钮也单独拼入 form。前者跨表单重置输入，后者
+将旧提交按钮状态误判为预赋值并触发表单回滚，修前原生采集保留了两者。
+
+只修改两个既有身份拼接点：有 key 时返回原 identity，无 key 时沿用 form 区分；
+InputOptions 原有 extra 约束保留。协议 form_id 仍指向本轮表单，不改变输入
+admission、callback、checkpoint/rollback 或共享状态存储。SDK widgets 源码的
+True/白名单模式支撑共享 helper 修正；原生参考仅测量数值、文本和显式 key
+提交按钮，其余控件没有新增跨表单原生证据。跨页面 active_script_hash、无 key
+sidebar 身份及前端缓存/动态 label/help 更新仍开放；共享状态架构仍待选型。
