@@ -4062,6 +4062,54 @@ mod tests {
     }
 
     #[test]
+    fn code_assigned_text_survives_same_run_limit_identity_change() -> anyhow::Result<()> {
+        for area in [false, true] {
+            let state = SessionState::default();
+            let render = |limit| -> anyhow::Result<(String, Option<String>, bool, Option<String>)> {
+                let (st, mut wire) = app(&state);
+                let value = if area {
+                    st.text_area(TextAreaOptions::new("Text", "abcdef").key("text").max_chars(limit))?
+                } else {
+                    st.text_input(TextInputOptions::new("Text").value("abcdef").key("text").max_chars(limit))?
+                };
+                match input(&mut wire)? {
+                    element::Type::TextInput(widget) => Ok((widget.id, value, widget.set_value, widget.value)),
+                    element::Type::TextArea(widget) => Ok((widget.id, value, widget.set_value, widget.value)),
+                    _ => anyhow::bail!("expected text widget"),
+                }
+            };
+
+            // 1. 新输入先按原上限应用，再由代码赋值并切换到新上限。
+            state.begin_widgets(vec![]);
+            let (first, value, _, _) = render(5)?;
+            assert_eq!(value.as_deref(), Some("abcde"));
+            state.finish_widgets();
+            state.begin_widgets(vec![WidgetState {
+                id: first.clone(),
+                value: Some(widget_state::Value::StringValue("ABCDEF".into())),
+            }]);
+            assert_eq!(state.get::<String>("text")?.as_deref(), Some("ABCDE"));
+            state.set("text", "code長🧊extra")?;
+            let (second, value, set, wire_value) = render(0)?;
+            assert_ne!(first, second);
+            assert_eq!(value.as_deref(), Some("code長🧊extra"));
+            assert!(set);
+            assert_eq!(wire_value, value);
+            state.finish_widgets();
+
+            // 2. 无新输入时保留代码值，不再发送一次性同步标记。
+            state.begin_widgets(vec![]);
+            let (same, value, set, wire_value) = render(0)?;
+            assert_eq!(same, second);
+            assert_eq!(value.as_deref(), Some("code長🧊extra"));
+            assert!(!set);
+            assert!(wire_value.is_none());
+            state.finish_widgets();
+        }
+        Ok(())
+    }
+
+    #[test]
     fn text_input_none_and_empty_are_distinct_wire_and_native_values() -> anyhow::Result<()> {
         let state = SessionState::default();
         state.begin_widgets(vec![]);

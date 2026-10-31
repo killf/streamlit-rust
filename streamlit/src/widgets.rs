@@ -873,7 +873,7 @@ impl SessionState {
         } else {
             let base_value = if disabled && registry.received.contains(&id) && !code_assigned {
                 registry.records.get(&id).map(|record| record.before_input.as_ref().unwrap_or(&record.value).clone()).unwrap_or(default)
-            } else if changed_identity {
+            } else if changed_identity && !code_assigned {
                 default
             } else if one_shot_reset(&codec).is_some() {
                 registry.records.get(&id).map(|record| record.value.clone()).unwrap_or(default)

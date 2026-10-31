@@ -448,3 +448,42 @@ was read back free. This does not establish browser remount/IME, simultaneous
 native assignment and limit change, stale old-ID submission, other parameters
 or complete field/identity/UI parity. Prior captures and pending decisions are
 retained; no reference was rewritten to turn the old behavior green.
+
+
+## Text input, changing limit and native assignment together (2026-10-31)
+
+`text-source/trace.json` reuses the existing forms probe unchanged. The native
+collector accepts --scenario text-source into a new directory. Two sessions
+(text_input/text_area) contain ten requests each, 258 original frames and
+40 ordered widget/state projections. Every supplied string references the
+previous run's active ID, not an already-unregistered historical ID.
+
+The incoming widget state uses the previous run's deserializer before callbacks.
+Thus an old limit five receives ABCDEtail, the callback records ABCDE, then the
+main run's new limit three resets the value to abc. When a prior zero limit
+receives ignored, its callback records an empty string before a new limit five
+returns abcde. The callback log retains all six measured changes per session.
+
+Three requests assign code長🧊extra while changing limits to zero, three or five.
+The explicit native assignment wins over the new identity's default, sends an
+untruncated value synchronization and survives a following no-input request.
+If no native assignment occurs, identity changes still use the new default.
+The original wire default/limit/kind are checked separately from return/state
+and callback values. Identity equality relations are also compared, without
+requiring opaque cross-runtime ID digest literals to match.
+
+The old Rust fallback used a changed identity's default unconditionally. The
+existing shared registration branch now excludes code_assigned values from
+that fallback; existing native validation and other source branches remain.
+Both public text widget APIs have a unit covering old-input application, new
+zero limit, explicit write, full synchronization and later retention. Unit and
+complete 40-event real-WS comparisons failed before the production correction.
+
+Gates bind original PB to summaries, exact requests/input/active IDs, runtime
+versions/session grouping, static values, callback sources and widget fields.
+Four coherent mutations reject a callback truncated with the new limit, a lost
+code assignment (both native report and wire changed), later lost retention,
+and missing synchronization. Sockets/server closed and port 57186 read back
+free. Existing captures remain unchanged. This is native protocol/API evidence,
+not every widget kind, orphan historical-ID input, query-bound length/source,
+callback-side assignment, rerun/fragment or browser remount/IME coverage.

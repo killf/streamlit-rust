@@ -1005,3 +1005,51 @@ unkeyed and arbitrary parameter combinations. No status upgrade: 130 partial,
 M3/M5/M7 and the full goal stay open. Generic element identity, JSON/public API
 and broader queue decisions remain pending. Existing colconfig_params work
 is preserved outside this batch's commit/push.
+
+
+### 2026-10-31 simultaneous old input, new limit and code assignment
+
+Fixed the existing registration branch choosing a changed identity's default
+over an explicit native write. changed_identity now falls back to default only
+when !code_assigned. Existing native type/constraint validation and other source
+branches remain. No new API/module/dependency, generic element hash or queue
+policy was introduced. Guide now makes the explicit-write exception precise.
+
+The existing forms app probe is unchanged. New text-source native capture has
+two sessions, 20 runs, 258 original frames and 40 ordered kind/default/limit/
+sync/state projections. Every incoming string uses the prior active ID. Source
+values decode before callbacks using the previous run's limit; then the main
+run resets on an identity change or preserves its explicit code assignment.
+For example old limit five yields callback ABCDE before new limit three returns
+abc; old limit zero yields an empty callback before new limit five returns
+abcde. Three same-run assignments to code長🧊extra survive new zero/three/five
+limits, synchronize their full value and retain it on later no-input runs.
+All 40 projections and every within-runtime identity equality relation match.
+Opaque cross-runtime ID digest strings are not required to be identical.
+
+Public unit (both text widgets) and complete WS comparison first failed against
+old production code (target/text-source-unit-before.log, text-source-ws-before.log).
+After the guard correction, code/all-targets Clippy -D warnings, Rustfmt, focused
+unit and WS differential passed (text-source-clippy.log, text-source-unit.log,
+text-source-integration.log under target/). Full workspace passed 271: library
+264, ledger 1, macros 2, rustdoc 4, excluding only the original
+navigation_pages_switch_and_session_state_match_the_measured_wire and
+rerun_queue_messages_match_frozen_reference. This is not full workspace green
+(target/text-source-workspace.log). Existing MSVC linker stdout warning remains.
+
+129 related query/matrix/docs checks passed with DeprecationWarning as error
+(target/text-source-final-gates.log). Gates bind raw PB to summaries, exact
+request/input/active IDs, versions/session groups, literal native and callback
+values and widget sync/identity relations. Four coherent mutations reject new-
+limit callback decoding, lost code value in both wire/report, lost later
+retention and missing synchronization. Original captures were not changed.
+The prior full-reference run was not repeated and is not presented as current
+full-suite validation. All sockets/server closed; port 57186 read back free.
+New data is queryparams/text-source/trace.json.
+
+This shared registration correction has new reference proof for text_input and
+text_area, not every other widget/native type, orphan historical-ID submission,
+callback-side writes, query binding/fragment/rerun or current browser remount/IME.
+Three matrix entries gain evidence without status upgrade; inventory remains
+130 partial. M3/M5/M7 and the full goal stay open, pending architecture choices
+are unchanged. Existing colconfig_params work is kept outside this commit/push.

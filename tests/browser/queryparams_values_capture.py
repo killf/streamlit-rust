@@ -25,7 +25,7 @@ ROOT = Path(__file__).resolve().parents[2]
 QUERY = "z=last&tag=first&tag=second&a=first&blank=&encoded=%E4%B8%AD%E6%96%87+text"
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("--out", type=Path, required=True)
-parser.add_argument("--scenario", choices=("values", "encoding", "text-length", "text-reset", "reserved", "binding", "seed", "seed-code", "disabled", "disabled-valid", "disabled-types", "disabled-json", "rerun", "navigation-rerun", "rerun-messages", "rerun-queue"), default="values")
+parser.add_argument("--scenario", choices=("values", "encoding", "text-length", "text-reset", "text-source", "reserved", "binding", "seed", "seed-code", "disabled", "disabled-valid", "disabled-types", "disabled-json", "rerun", "navigation-rerun", "rerun-messages", "rerun-queue"), default="values")
 args = parser.parse_args()
 if args.scenario == "reserved":
     QUERY = "case=reserved&embed=true&EMBED_OPTIONS=light_theme&st_embed=ordinary&=empty-key-value"
@@ -54,7 +54,7 @@ with socket.socket() as listener:
     port = listener.getsockname()[1]
 url = f"http://127.0.0.1:{port}"
 fixture = "navigation_app.py" if args.scenario == "navigation-rerun" else "queryparams_values_app.py"
-if args.scenario in ("text-length", "text-reset"):
+if args.scenario in ("text-length", "text-reset", "text-source"):
     fixture = "forms_app.py"
 command = [sys.executable, "-B", "-m", "streamlit", "run", str(ROOT / "tests/reference" / fixture),
            "--server.address=127.0.0.1", f"--server.port={port}", "--server.headless=true",
@@ -106,6 +106,14 @@ try:
             text_inputs = {"edit": "é🧊zUPPER", "edit-short": "XYZtail", "same-none": "retained🧊text", "edit-five": "END🧊ok"}
             queries = [f"case=form-max-chars-cjk&probe=length&kind={kind}&limit={limit}&default={default}&phase={phase}"
                        for kind in ("input", "area") for limit, default, phase in steps]
+            trace["query_string"] = queries[0]
+        if args.scenario == "text-source":
+            trace["connection_policy"] = "Fresh WS per widget kind; ten input/limit/code-source transitions share each WS."
+            source_steps = (("5", "load", None), ("5", "edit", "OLDstate🧊"), ("3", "shrink", "ABCDEtail"), ("0", "assign", "xyzTAIL"),
+                            ("0", "retain", None), ("5", "grow", "ignored"), ("3", "assign", "newvalue"), ("3", "edit-short", "AFTERtail"),
+                            ("5", "assign", None), ("5", "retain", None))
+            queries = [f"case=form-max-chars-cjk&probe=length&kind={kind}&limit={limit}&default=long&phase={phase}"
+                       for kind in ("input", "area") for limit, phase, _ in source_steps]
             trace["query_string"] = queries[0]
         if args.scenario == "encoding":
             queries = [
@@ -188,7 +196,7 @@ try:
         main_page_hash = None
         for index, query in enumerate(queries):
             if index > 0 and ((args.scenario in ("disabled-types", "disabled-json") and index % 3 == 0) or (args.scenario == "text-length" and index % 9 == 0)
-                              or (args.scenario == "text-reset" and index % 12 == 0)):
+                              or (args.scenario == "text-reset" and index % 12 == 0) or (args.scenario == "text-source" and index % 10 == 0)):
                 ws.close()
                 ws = sockets.enter_context(connect(url.replace("http", "ws") + "/_stcore/stream", origin=url, subprotocols=["streamlit"],
                                                    proxy=None, open_timeout=10, close_timeout=5, max_size=None, legacy=True))
@@ -200,6 +208,10 @@ try:
                 widget = request.rerun_script.widget_states.widgets.add()
                 widget.id = widget_ids["cjk_note"]
                 widget.string_value = text_inputs[phase]
+            if args.scenario == "text-source" and source_steps[index % 10][2] is not None:
+                widget = request.rerun_script.widget_states.widgets.add()
+                widget.id = widget_ids["cjk_note"]
+                widget.string_value = source_steps[index % 10][2]
             if args.scenario == "binding" and index == 1:
                 for key, value in (("bound", "y"), ("text", "hello")):
                     widget = request.rerun_script.widget_states.widgets.add()

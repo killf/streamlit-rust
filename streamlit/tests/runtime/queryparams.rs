@@ -392,7 +392,7 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
         let Some(request) = frame["message"].get("rerun_script") else { continue };
         if !widget_ids.is_empty()
             && ((reference["scenario"] == "disabled-types" && request["query_string"].as_str().is_some_and(|query| query.contains("phase=load&")))
-                || (matches!(reference["scenario"].as_str(), Some("text-length" | "text-reset")) && request["query_string"].as_str().is_some_and(|query| query.ends_with("phase=load"))))
+                || (matches!(reference["scenario"].as_str(), Some("text-length" | "text-reset" | "text-source")) && request["query_string"].as_str().is_some_and(|query| query.ends_with("phase=load"))))
         {
             drop(stream);
             stream = sessions::connect(address, None).await;
@@ -486,13 +486,13 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
                                 if matches!(reference["scenario"].as_str(), Some("seed" | "seed-code" | "rerun")) {
                                     observed.push(serde_json::json!({"widget": key, "set": widget.set_value, "value": widget.value}));
                                 }
-                                if matches!(reference["scenario"].as_str(), Some("text-length" | "text-reset")) {
+                                if matches!(reference["scenario"].as_str(), Some("text-length" | "text-reset" | "text-source")) {
                                     observed.push(serde_json::json!({"widget": key, "kind": "text_input", "set": widget.set_value, "value": widget.value, "default": widget.default, "max_chars": widget.max_chars}));
                                     observed_identities.push(widget.id.clone());
                                 }
                                 widget_ids.insert(key, widget.id);
                             }
-                            Some(element::Type::TextArea(widget)) if matches!(reference["scenario"].as_str(), Some("text-length" | "text-reset")) => {
+                            Some(element::Type::TextArea(widget)) if matches!(reference["scenario"].as_str(), Some("text-length" | "text-reset" | "text-source")) => {
                                 let key = widget.id.rsplit('-').next().ok_or("missing text area key")?.to_owned();
                                 observed.push(serde_json::json!({"widget": key, "kind": "text_area", "set": widget.set_value, "value": widget.value, "default": widget.default, "max_chars": widget.max_chars}));
                                 observed_identities.push(widget.id.clone());
@@ -541,7 +541,7 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
         if let Some(info) = message.get("page_info_changed") {
             expected.push(serde_json::json!({"url": info["query_string"].as_str().unwrap_or("")}));
         }
-        if matches!(reference["scenario"].as_str(), Some("text-length" | "text-reset")) {
+        if matches!(reference["scenario"].as_str(), Some("text-length" | "text-reset" | "text-source")) {
             for kind in ["text_input", "text_area"] {
                 if let Some(widget) = message["delta"]["new_element"].get(kind) {
                     expected_identities.push(widget["id"].as_str().ok_or("missing reference text identity")?.to_owned());
@@ -593,7 +593,7 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
     }
     assert_eq!(expected.len(), expected_count, "reference must retain every snapshot and URL write");
     assert_eq!(observed, expected);
-    if reference["scenario"] == "text-reset" {
+    if matches!(reference["scenario"].as_str(), Some("text-reset" | "text-source")) {
         // 比较身份的相等关系，不把 Python 与 Rust 的摘要字面量强行等同。
         assert_eq!(observed_identities.len(), expected_identities.len());
         for (old_index, old_id) in expected_identities.iter().enumerate() {
@@ -638,6 +638,11 @@ async fn text_lengths_match_frozen_defaults_callbacks_and_code_assignments() -> 
 #[actix_web::test]
 async fn text_limit_changes_reset_values_and_preserve_default_only_identity() -> TestResult {
     assert_queryparams_reference(text_length_entry, include_str!("../../../tests/reference/reference-browser/queryparams/text-reset/trace.json"), 48).await
+}
+
+#[actix_web::test]
+async fn text_limit_changes_keep_callback_source_then_apply_code_assignment() -> TestResult {
+    assert_queryparams_reference(text_length_entry, include_str!("../../../tests/reference/reference-browser/queryparams/text-source/trace.json"), 40).await
 }
 
 #[actix_web::test]

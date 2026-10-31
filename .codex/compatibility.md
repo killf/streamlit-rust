@@ -237,3 +237,13 @@ supersedes the previous native dynamic-limit gap for the measured sequence;
 browser remounts, simultaneous code writes/limit changes, stale-ID submissions
 and unkeyed controls remain outside this evidence. General NewElement identity
 is unchanged and its pending decision is not resolved by this correction.
+
+
+2026-10-31 simultaneous-source follow-up: [20-run reference](../tests/reference/reference-browser/queryparams/text-source/trace.json)
+proves last-active-ID text input is deserialized and dispatched to callbacks
+with the old limit before the main run changes constraints or assigns state.
+An explicit native write then survives the changed identity; with no write the
+new default still applies. This corrects the existing registration fallback,
+not native type/constraint validation. Other widget kinds, callback-side writes,
+orphan IDs, query-binding/fragment combinations and current browser remount/IME
+remain outside this new evidence.

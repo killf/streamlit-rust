@@ -725,3 +725,33 @@ submissions, unkeyed controls, browser remount/IME and full field/identity/UI
 compatibility remain unverified. This scoped widget registration correction
 is distinct from the pending generic element-identity decision. Full goal,
 M3/M5/M7 and 130 partial entries remain open.
+
+
+### Explicit native writes survive a same-run identity change (2026-10-31)
+
+A same-run max_chars change plus explicit session-state write exposed another
+existing registration fallback issue: changed_identity unconditionally chose
+the default, overwriting the code value. The locked SDK's generic register_widget
+only initializes a default when neither widget ID nor user key already resolves
+a value. The correction keeps the existing fallback but requires !code_assigned;
+other source branches and native type/constraint validation remain in place.
+No public API/module/dependency or new registration process was introduced.
+
+The unchanged forms probe and existing native collector's text-source scenario
+record two sessions/20 runs/258 original frames, 40 ordered widget/state events
+and all identity equality relations. Client inputs reference the last active ID.
+They decode using the prior run's codec before callbacks; then main app code
+may assign an untruncated string while changing the limit to 0/3/5. The code
+value wins and persists on a no-input run; without an explicit write, identity
+changes still reset to the new default. Old-limit callback values (ABCDE at a
+new limit three; empty at a new limit five after a prior zero limit) distinguish
+the ordering from decoding everything with the new constraints.
+
+Public-API unit covers both text widgets; unit and complete native differential
+were red before the existing guard correction. Literal request/state/callback/
+widget fields, raw PB binding and four coherent mutations protect the reference.
+The registration guard is shared, but this new corpus does not establish every
+other widget/native type, unregistered historical-ID input, callback-side writes,
+query-bound source/length combinations, fragment/rerun or browser remount/IME.
+Those and existing pending generic identity/JSON/API/queue decisions remain open.
+The full goal and 130 partial denominator remain unchanged.
