@@ -13,6 +13,65 @@ PYTHON = Path(__file__).parent / "reference-browser/temporal-params"
 RUST = Path(__file__).parents[1] / "browser/rust-temporal-params"
 
 
+@pytest.mark.parametrize("minimum,assigned,expected", ((True, "07:59", "12:30"), (True, "08:00", "08:00"),
+                                                       (False, "16:01", "12:30"), (False, "16:00", "16:00")))
+def test_sdk_datetime_one_sided_native_bounds_are_inclusive(minimum, assigned, expected):
+    from streamlit.testing.v1 import AppTest
+
+    app = AppTest.from_string('''
+import streamlit as st
+from datetime import datetime
+parse=lambda clock:datetime.strptime('2025-03-15T'+clock,'%Y-%m-%dT%H:%M')
+st.session_state.moment=parse(''' + repr(assigned) + ''')
+kwargs=dict(min_value=parse('08:00')) if ''' + repr(minimum) + ''' else dict(max_value=parse('16:00'))
+v=st.datetime_input('Moment',value=parse('12:30'),key='moment',**kwargs)
+st.json([v.strftime('%Y-%m-%dT%H:%M'),st.session_state.moment.strftime('%Y-%m-%dT%H:%M')])
+''').run()
+    assert not app.exception
+    assert json.loads(app.json[0].value) == ["2025-03-15T" + expected] * 2
+    assert app.datetime_input[0].proto.set_value
+    assert list(app.datetime_input[0].proto.value) == ["2025-03-15T" + expected]
+
+
+def test_sdk_datetime_explicit_bounds_reset_native_state_without_extra_callback():
+    """Raw AppTest observation runs intentionally submit no widget values."""
+    import importlib.metadata
+    from streamlit.proto.WidgetStates_pb2 import WidgetStates
+    from streamlit.testing.v1 import AppTest
+
+    assert importlib.metadata.version("streamlit") == "1.66.1"
+    app = AppTest.from_string('''
+import streamlit as st
+from datetime import datetime
+phase=st.session_state.get('phase','load')
+if 'calls' not in st.session_state:st.session_state.calls=[]
+def changed():st.session_state.calls.append(st.session_state.moment.strftime('%Y-%m-%dT%H:%M') if st.session_state.moment else None)
+if phase=='assign':st.session_state.moment=datetime(2025,3,15,19)
+if phase=='implicit':st.session_state.moment=datetime(2050,3,15,19)
+kwargs={} if phase=='implicit' else dict(min_value=datetime(2025,3,15,8),max_value=datetime(2025,3,15,16 if phase in ('narrow','assign','none') else 18))
+v=st.datetime_input('Moment',value=None if phase in ('none','null-observe') else datetime(2025,3,15,12,30),key='moment',on_change=changed,**kwargs)
+st.json([None if v is None else v.strftime('%Y-%m-%dT%H:%M'),None if st.session_state.moment is None else st.session_state.moment.strftime('%Y-%m-%dT%H:%M'),st.session_state.calls])
+''').run()
+    assert not app.exception
+    identity = app.datetime_input[0].id
+    assert json.loads(app.json[0].value) == ["2025-03-15T12:30", "2025-03-15T12:30", []]
+    for phase, expected in (("edit", "2025-03-15T17:00"), ("narrow", "2025-03-15T12:30"), ("observe", "2025-03-15T12:30"),
+                            ("assign", "2025-03-15T12:30"), ("implicit", "2050-03-15T19:00"), ("none", None), ("null-observe", None)):
+        incoming = WidgetStates()
+        if phase == "edit":
+            incoming.widgets.add(id=identity).string_array_value.data[:] = ["2025-03-15T17:00"]
+        app.session_state["phase"] = phase
+        app._run(incoming)
+        assert not app.exception
+        assert json.loads(app.json[0].value) == [expected, expected, ["2025-03-15T17:00"]]
+        widget = app.datetime_input[0].proto
+        assert widget.id == identity
+        sync = phase in ("narrow", "assign", "implicit", "none")
+        assert widget.set_value is sync
+        assert list(widget.value) == ([] if not sync or expected is None else [expected])
+        assert list(widget.default) == ([] if phase in ("none", "null-observe") else ["2025-03-15T12:30"])
+
+
 DATETIME_INPUT_CASES = (
     (None, None), ([], None), (["not-a-datetime"], None),
     (["bad", "2025-03-15T15:47"], None),

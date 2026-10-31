@@ -111,6 +111,8 @@ async fn datetime_codec_decodes_the_measured_wire() {
     let codec = Codec::DateTimeInput {
         min: chrono::NaiveDateTime::parse_from_str("2025-03-15T08:00", "%Y-%m-%dT%H:%M").expect("fixture minimum"),
         max: chrono::NaiveDateTime::parse_from_str("2025-03-15T18:00", "%Y-%m-%dT%H:%M").expect("fixture maximum"),
+
+        reset_default: None,
     };
     let wire = |labels: &[&str]| {
         WireValue::StringArrayValue(proto::StringArray {

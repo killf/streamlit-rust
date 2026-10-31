@@ -14,6 +14,8 @@
 
 ## Current focus
 
+2026-11-01 datetime 显式边界重置实现：已有非空原生值越界回本轮声明默认（含 None），更新 keyed state 并同步一次，不额外 callback；省略边界保留代码赋值。SDK AppTest/Rust 公开 API 八阶段与四组单侧包含边界通过，修前 narrow 已复现失败；当前二进制重放旧十八轮原生回退场景仍匹配。新动态重置的 WS/浏览器、同轮输入伴随新边界及其他组合继续开放；见[验收](acceptance.md#current-datetime-native-bound-reset-implementation-2026-11-01)。完整目标不变。
+
 2026-11-01 datetime_input 原生差分补证：十八轮同连接 SDK/Rust 各 161 帧、72 个完整 Element，缺省/空数组/无效/边界/legacy/默认更新及恢复匹配，36 条有序 callback 读取整批新值；八类一致改写 raw/汇总的负例均拒绝。见[验收](acceptance.md#current-datetime-native-fallback-evidence-2026-11-01)。本批无生产修改；浏览器和代码赋值后的边界重置等继续开放，完整目标不变。
 
 2026-11-01 datetime_input 缺省/解析实现：前端缺省、空数组、无效和越界输入在 callback 前回上一轮有效默认；有 key 的原生 None 压过后来声明默认。SDK serde 24 案、AppTest 原始协议注入 12 案和 Rust 公开 API 单元匹配；这些新增边界尚未补原生 WS/浏览器差分，代码赋值后的边界重置也继续开放。见[验收](acceptance.md#current-datetime-frontend-fallback-validation-2026-11-01)。不改变已选 rerun 策略、待决架构或完整目标。

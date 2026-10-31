@@ -221,6 +221,9 @@ pub(crate) enum Codec {
     DateTimeInput {
         min: chrono::NaiveDateTime,
         max: chrono::NaiveDateTime,
+
+        /// 显式边界越界时恢复的本轮声明默认；省略边界则不重置原生值。
+        reset_default: Option<Value>,
     },
 }
 
@@ -391,7 +394,7 @@ impl Codec {
                     .filter(|time| chrono::Timelike::nanosecond(time) < 1_000_000_000);
                 Some(parsed.map_or(Value::Null, |time| Value::String(time.format(format).to_string())))
             }
-            (Self::DateTimeInput { min, max }, widget_state::Value::StringArrayValue(array)) => {
+            (Self::DateTimeInput { min, max, .. }, widget_state::Value::StringArrayValue(array)) => {
                 // 只解析首项；空、无效和越界产生回默认标记，不把私有 Null 当成清空。
                 let parsed = array.data.first().and_then(|text| {
                     chrono::NaiveDateTime::parse_from_str(text, "%Y-%m-%dT%H:%M")
@@ -1022,6 +1025,10 @@ impl SessionState {
                     .is_some_and(|number| number.is_finite() && (!*integer || value.as_i64().is_some()) && (min.is_some_and(|low| number < low) || max.is_some_and(|high| number > high))) =>
             {
                 (default, true)
+            }
+
+            (Codec::DateTimeInput { min, max, reset_default: Some(default) }, _) if value.as_str().and_then(|text| chrono::NaiveDateTime::parse_from_str(text, "%Y-%m-%dT%H:%M").ok()).is_some_and(|moment| moment < *min || moment > *max) => {
+                (default.clone(), true)
             }
 
             _ => (value, false),

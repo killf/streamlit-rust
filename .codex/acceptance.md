@@ -2610,3 +2610,19 @@ tests/reference/test_temporal_params_reference.py 新增 SDK serde 24 案和 App
 参数参考模块增加 11 项至 397；相关八模块 739 项通过。编辑 Rust 示例已按语义留空、逐 diff 检查，格式、cargo build 示例与全工作区/all-target Clippy 通过；既有 MSVC linker stdout warning 保留。本批未改生产/库测试，不重复完整工作区测试；上批 334 项及两项排除是上一批证据，不称本批重跑。日志 target/datetime-ws-{build,sdk,rust,server,gate,python,clippy,docs}.log。
 
 采集器三份 producer、Rust widgets/widget_api 及实际示例二进制 SHA 与当前产物逐一核实。SDK 自有服务和 Rust 自持 Popen 均 terminate/wait 完成，SDK 动态端口与 8599 无监听；本批无浏览器采集。矩阵仅补 st.datetime_input 证据与边界，生成 inventory 仍 130 partial；修正旧兼容记录把空数组等同强制清空的文字。真实浏览器、代码赋值后的动态边界重置、错误 oneof/类型/文案、禁用/ignore、查询绑定、表单/跨页及其他组合仍开放，M3/M5/M7 和完整目标未关闭。用户既有 colconfig 修改独立保留，无 PR、合并、发布或部署。
+
+## Current datetime native bound reset implementation (2026-11-01)
+
+对照锁定 SDK 1.66.1 _validate_datetime_value 与 datetime_input 的登记后处理：只在显式提供 min/max 时检查当前非空原生值；越界回本轮原始声明默认（可 None），更新 keyed session state，发送 value/set_value/one-shot。重置不生成额外 callback。省略显式边界时不因计算出的十年窗口重置代码赋值；原生 None 也不触发范围重置。
+
+Rust 私有 DateTimeInput codec 增加 reset_default: Option<Value>，仅显式边界时保存本轮原始声明默认。它与上一轮前端 serde 的有效默认有不同职责：前者用于登记后的原生范围重置，后者继续用于前端无效/缺省反序列化。沿用既有注册阶段 range_reset，返回值和 keyed state 在同次提交中修正，并复用现有同步标记。没有增加公共接口、依赖、模块或文件，不改变错误原生类型、其他 codec、hash/发送策略或待决架构。runtime datetime 的 codec 构造补齐新私有字段。
+
+公开 API 单元先真实失败于 narrow 仍返回 17:00 而非 12:30，target/datetime-bounds-red.log 保留。修后八阶段 load/edit/narrow/observe/assign/implicit/none/null-observe 对照 SDK AppTest：旧 08:00..18:00 下提交 17:00，然后无输入收窄 max=16:00 回 12:30；观察不再同步；代码赋 19:00 仍回 12:30；省略边界时代码赋 2050-03-15T19:00 保留；恢复显式边界并声明 None 后清空，后续观察保持 None 且不重发。三次 reset 加 implicit 代码同步均核对 set_value、value 与一次性标记；仅 edit 的一个 callback 读到 17:00，后续重置不增加 callback，ID 全程稳定。SDK AppTest 使用 _run(WidgetStates()) 进行无输入轮，避免普通 app.run 序列化旧值后被上一轮 serde 回退，掩盖新边界行为；不是公开 AppTest 入口或真实 WS 证明。
+
+另有 Rust 公开 API 单元与四组 SDK AppTest 测量单侧边界：min-only 的 07:59 回 12:30，08:00 保留；max-only 的 16:01 回 12:30，16:00 保留。新增五项 SDK 参考与两项 Rust 单元，六项相关 datetime 测试通过（含原有运行时协议测试），相关八模块共 744 项通过。指南补充显式/隐式边界语义，原 CRLF 字节前缀验证保留；矩阵及生成 inventory 仍 130 partial。
+
+同批重建 widget_params 当前二进制，在 target/datetime-bounds-fallback-recheck/trace.json 重放旧十八轮同连接原生参考：161 帧、72 完整 Element 和 36 条有序 callback 继续与冻结 SDK 一致，完整字段仅归一化 ID/JSON。旧冻结结果不改；本批生产变动的当前源码/二进制 SHA 保存在重放结果。自持 Rust Popen 已 terminate/wait，8599 无监听，没有启动新的 SDK 采集服务。本次新动态重置场景本身尚无原生 WS 或浏览器捕获，不把旧回退重放算成新场景全覆盖。
+
+最终工作区 336 项通过（329 库、1 ledger、2 宏、4 rustdoc），仍仅排除原 server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire 与 server::tests::queryparams::rerun_queue_messages_match_frozen_reference，不称完整工作区全绿。文档/矩阵收尾门 52 项通过。
+
+Rust 格式检查、逐文件 diff 复查及全工作区/all-target Clippy 通过，既有 MSVC linker stdout warning 保留；日志 target/datetime-bounds-{red,green,final-green,sdk,python,clippy,build,native,server,workspace,docs}.log。仅做相关实现和验证，用户 colconfig 及其他现有修改独立保留，无 PR、合并、发布或部署。新重置的原生 WS/浏览器、同轮前端输入伴随新边界、错误原生类型/文案、禁用/ignore、URL、表单/跨页和其他状态组合继续开放，M3/M5/M7 与完整 Goal 未关闭。

@@ -3311,7 +3311,12 @@ impl<C: AppendChild> InputWidgets for C {
                 key: c.key.as_deref(),
                 identity: &identity,
                 default,
-                codec: Codec::DateTimeInput { min, max },
+                codec: Codec::DateTimeInput {
+                    min,
+                    max,
+
+                    reset_default: (options.min.is_some() || options.max.is_some()).then(|| options.value.map(|moment| Value::String(wire(moment))).unwrap_or(Value::Null)),
+                },
                 callback: c.callback,
             },
             |value| {
@@ -4973,6 +4978,114 @@ mod tests {
             assert!(wire.try_recv().is_ok(), "the first valid form is still rendered");
         }
         assert!(wire.try_recv().is_err(), "failed form calls must not append their partial children");
+    }
+
+    #[test]
+    fn datetime_one_sided_bounds_reset_only_values_beyond_the_inclusive_limit() -> anyhow::Result<()> {
+        use chrono::NaiveDateTime;
+
+        let parse = |clock: &str| NaiveDateTime::parse_from_str(&format!("2025-03-15T{clock}"), "%Y-%m-%dT%H:%M").expect("fixture datetime");
+        for (minimum, assigned, expected) in [(true, "07:59", "12:30"), (true, "08:00", "08:00"), (false, "16:01", "12:30"), (false, "16:00", "16:00")] {
+            let state = SessionState::default();
+            state.begin_widgets(vec![]);
+            state.set("moment", format!("2025-03-15T{assigned}"))?;
+            let (st, mut wire) = app(&state);
+            let options = DateTimeInputOptions::new("Moment").value(parse("12:30")).key("moment");
+            let options = if minimum { options.min(parse("08:00")) } else { options.max(parse("16:00")) };
+            assert_eq!(st.datetime_input(options)?, Some(parse(expected)));
+            assert_eq!(state.get::<Value>("moment")?, Some(serde_json::json!(format!("2025-03-15T{expected}"))));
+            let element::Type::DateTimeInput(widget) = input(&mut wire)? else { panic!() };
+            assert!(widget.set_value);
+            assert_eq!(widget.value, vec![format!("2025-03-15T{expected}")]);
+            state.finish_widgets();
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn datetime_explicit_bounds_reset_native_values_once_without_callbacks() -> anyhow::Result<()> {
+        use chrono::NaiveDateTime;
+
+        let parse = |text: &str| NaiveDateTime::parse_from_str(text, "%Y-%m-%dT%H:%M").expect("fixture datetime");
+        let changed = |st: &Streamlit| {
+            let state = st.session_state();
+            let mut calls = state.get::<Vec<Value>>("datetime_bound_calls").expect("calls").unwrap_or_default();
+            calls.push(state.get::<Value>("moment").expect("moment").expect("registered moment"));
+            state.set("datetime_bound_calls", calls).expect("callback write");
+        };
+        let phases = ["load", "edit", "narrow", "observe", "assign", "implicit", "none", "null-observe"];
+        let expected = [
+            Some("2025-03-15T12:30"),
+            Some("2025-03-15T17:00"),
+            Some("2025-03-15T12:30"),
+            Some("2025-03-15T12:30"),
+            Some("2025-03-15T12:30"),
+            Some("2050-03-15T19:00"),
+            None,
+            None,
+        ];
+        let state = SessionState::default();
+        let mut id = String::new();
+        for (index, phase) in phases.iter().enumerate() {
+            // 1. 仅 edit 轮注入前端值，其余轮不提交控件，避免旧 serde 掩盖新边界重置。
+            let incoming = if *phase == "edit" {
+                vec![WidgetState {
+                    id: id.clone(),
+                    value: Some(widget_state::Value::StringArrayValue(proto::StringArray { data: vec!["2025-03-15T17:00".into()] })),
+                }]
+            } else {
+                vec![]
+            };
+            let callbacks = state.begin_widgets(incoming);
+            assert_eq!(callbacks.len(), usize::from(*phase == "edit"), "{phase}");
+            let (st, mut wire) = app(&state);
+            for callback in callbacks {
+                callback(&st);
+            }
+            if *phase == "assign" {
+                state.set("moment", "2025-03-15T19:00")?;
+            } else if *phase == "implicit" {
+                state.set("moment", "2050-03-15T19:00")?;
+            }
+
+            // 2. 显式边界才重置；默认 None 可清空越界原生值，后续观察不重发同步。
+            let mut options = DateTimeInputOptions::new("Moment").key("moment").value(parse("2025-03-15T12:30")).on_change(changed);
+            if matches!(*phase, "none" | "null-observe") {
+                options = options.value_none();
+            }
+            if *phase != "implicit" {
+                options = options.min(parse("2025-03-15T08:00")).max(parse(if matches!(*phase, "narrow" | "assign" | "none") { "2025-03-15T16:00" } else { "2025-03-15T18:00" }));
+            }
+            let value = st.datetime_input(options)?;
+            assert_eq!(value, expected[index].map(parse), "{phase}");
+            assert_eq!(state.get::<Value>("moment")?, Some(serde_json::json!(expected[index])), "{phase}");
+            let Some(forward_msg::Type::Delta(proto::Delta {
+                r#type: Some(delta::Type::NewElement(element)), ..
+            })) = wire.try_recv()?.r#type
+            else {
+                panic!()
+            };
+            let sync = matches!(*phase, "narrow" | "assign" | "implicit" | "none");
+            assert_eq!(element.has_one_shot_effect, sync.then_some(true), "{phase}");
+            let Some(element::Type::DateTimeInput(widget)) = element.r#type else { panic!() };
+            if index == 0 {
+                id = widget.id.clone();
+            }
+            assert_eq!(widget.id, id, "{phase}");
+            assert_eq!(widget.set_value, sync, "{phase}");
+            assert_eq!(widget.value, if sync { expected[index].into_iter().map(str::to_owned).collect() } else { Vec::<String>::new() }, "{phase}");
+            assert_eq!(widget.default, if index >= 6 { vec![] } else { vec!["2025-03-15T12:30".to_owned()] }, "{phase}");
+            assert_eq!(
+                state.get::<Vec<Value>>("datetime_bound_calls")?.unwrap_or_default(),
+                if index == 0 { vec![] } else { vec![serde_json::json!("2025-03-15T17:00")] },
+                "{phase}"
+            );
+            assert!(wire.try_recv().is_err());
+            state.finish_widgets();
+        }
+
+        Ok(())
     }
 
     #[test]

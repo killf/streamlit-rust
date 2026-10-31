@@ -704,3 +704,5 @@ text_input/text_area 只有 ID 的输入按上一轮有效默认值解码，显�
 number_input 的缺省输入使用上轮默认；前端越界、非有限浮点和超出隐式安全范围的整数先回默认，再执行整批 callback。十一轮原生差分已验证，程序赋值、None 返回建模和浏览器等组合继续开放。
 
 time_input 的缺省、空串和无效时间回有效默认；同时接受 HH:MM/HH:MM:SS，按 step 保留秒或去秒，有 key 时已有 None 压过新声明默认。十二轮原生差分已验证，浏览器及其他组合继续开放。
+
+`datetime_input` 显式指定 `min` 或 `max` 后，已有非空值越界时会回到本轮声明的默认值（可为 `None`），更新 keyed session state 并同步前端；范围重置本身不触发 `on_change`。省略两项边界时，推导的十年窗口不会重置代码赋值。
