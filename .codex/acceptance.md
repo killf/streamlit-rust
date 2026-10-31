@@ -2354,3 +2354,21 @@ widgets.rs 新增私有完整状态解码，Record 仅为普通/创建 selectbox
 编辑 Rust 的 rustfmt、全工作区/all-target Clippy、两项 ID-only 单元通过；最终工作区 319 项通过（312 库、1 ledger、2 宏、4 rustdoc），仍仅排除原 navigation_pages_switch_and_session_state_match_the_measured_wire 与 rerun_queue_messages_match_frozen_reference，不能称完整工作区全绿。参数参考模块 225 项、相关 query/widget/temporal/pickers/matrix/docs 门 476 项通过，包含 SDK-only 默认反序列化观察，不等于全部跨运行时 UI 验收。既有 MSVC linker stdout warning 保留；日志 target/select-empty-ui-{red,green,clippy,build,workspace,reference}.log。
 
 本批只验证非空选项列表下的初始 None/选择/明确清空；空选项列表 UI、创建模式浏览器、radio 等其他控件、动态参数、callback/绑定/表单/跨页/晚到输入和动态异类型返回继续开放。仅 st.selectbox 矩阵和机器清单更新，仍为 130 partial；待决的 multiselect 数量错误登记例外及其他方案未获本批代替。用户 colconfig_params 修改独立保留，未合并、发布或部署，M3/M5/M7 与长期 Goal 未关闭。
+
+## Current radio empty browser and ID-only input validation (2026-11-01)
+
+复用既有 radio-empty/phase=none 示例，以无 key 和有 key 的两个字符串 radio 验证初始空选择共存。真实 Chrome 五阶段为初始全空、有 key Alpha、有 key Beta、无 key Alpha、有 key Alpha；对应后端 [None,None]、[None,Alpha]、[None,Beta]、[Alpha,Beta]、[Alpha,Alpha]。SDK 首次直接点击隐藏 Beta 输入实际选中了 Alpha，已经记录原结果及说明，后续改用观察到的可见标签；Rust 两次旅程重放相同实际选择序列。
+
+[SDK](../tests/reference/reference-browser/widget-params/radio-empty/ui/trace.json)的前端空 radio 是仅有 ID、没有 value oneof 的 WidgetState；[修前 Rust](../tests/browser/rust-widget-params/radio-empty/ui/before/trace.json)将前两次聚合输入整批拒绝，后端仍 [None,None]，两组均选择后才生效。修前五图及原始帧保留，界面勾选和后端返回分别验证。
+
+生产仅在 widgets.rs 将 Codec::Radio 纳入已实现的 empty_input 有效默认缓存，并修正字段说明；不改变完整状态解码、批量校验、优先级、错误登记和发送流程。新增两个 Rust 公共 API 回归先真实失败，修后通过：空同伴不阻断正常选择、callback 收集数及执行后读取值为 Alpha/Beta/Alpha；ID-only 包在 index=None 时返回 None，在默认索引 0 时回 Alpha。SDK-only AppTest 另验证默认回退发生在 callback 读取前，回调序列为 Beta/None 或 Beta/Alpha。浏览器示例无 callback，不据此宣称已测浏览器 callback 全链。
+
+[最终 Rust](../tests/browser/rust-widget-params/radio-empty/ui/trace.json)与 SDK 各五画面/五运行、40 原始二进制帧/15 完整 Element，单记录连接、同会话五个独立 run ID。仅归一化不透明 ID 和 JSON 文本后逐字段一致；每轮校验真实输入 ID、string_value 与空 oneof、协议 default 省略、set_value/raw_value/一次性标志、content 宽度、顺序/路径、返回值和运行完成状态。三份证据各 41 个 CDP 事件，首阶段 9 个、后续各 8 个。
+
+15 张原始 JPEG 均已逐张查看；SDK/修后 1463×780、修前 1463×724，DPR=1.75，实际尺寸保留，不宣称整页像素一致。DOM 分组/标签/checked/disabled、后端 JSON、图片格式/尺寸/字节/SHA 均严格核验；六个 radio 圆点的红色像素门检查真正选中位置，可拒绝将 Alpha 旧图替换 Beta 图后同步修改哈希。八类负例必须失败：错误空载荷 oneof、错误返回、错误 checked、过期 ID、协议默认值、额外同步、图片哈希、旧图替换。参数参考模块 239 项、相关 query/widget/temporal/pickers/matrix/docs 门 490 项通过，包含 SDK-only 观察，不等于全部跨运行时验收。
+
+编辑 Rust 的 rustfmt、全工作区/all-target Clippy、四项 ID-only 单元通过（含原 selectbox 两项）；最终工作区 321 项通过（314 库、1 ledger、2 宏、4 rustdoc），仍仅排除原 navigation_pages_switch_and_session_state_match_the_measured_wire 与 rerun_queue_messages_match_frozen_reference，不能称完整工作区全绿。既有 MSVC linker stdout warning 保留；日志 target/radio-none-ui-{red,green,clippy,build,workspace,reference}.log。
+
+采集从启用 Network 后的有意 reload 开始，初始监测前流量与停用采集后的关闭帧不在范围内；不宣称观察到 WS close 帧。三个自建 tab 已关闭；SDK/修前 Rust 子进程 PID 12304/54304、修后 PID 43856 经自持句柄 terminate/wait 结束，53391/8599 核实无监听；console error/warn 均为空。两端 fixture、Rust 源码与二进制 SHA 已核对，基线为 2d05dc6，修后注明已修改工作区，基线提交不冒充含新修复。
+
+本批不验证空选项 UI、代码引起的界面清空、动态参数、非字符串选项、表单/绑定/跨页/晚到输入及其余 callback 组合。仅 st.radio 矩阵与机器清单更新，仍为 130 partial；待决的 multiselect 超限登记、共享状态、hash 和其他公共接口方案保持。用户 colconfig_params 修改独立保留，未合并、发布或部署，M3/M5/M7 与长期 Goal 未关闭。

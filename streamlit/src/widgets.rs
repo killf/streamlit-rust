@@ -612,7 +612,7 @@ struct Record {
     /// Value before this run's input, restored if registration now disables it.
     before_input: Option<Value>,
 
-    /// ID-only selectbox payloads deserialize using the registered effective default.
+    /// ID-only selectbox/radio payloads deserialize using the registered effective default.
     /// Other codecs retain the existing missing-value rejection.
     empty_input: Option<Value>,
 }
@@ -837,7 +837,7 @@ impl SessionState {
             callback,
         } = spec;
         let id = id.to_owned();
-        let empty_input = matches!(codec, Codec::Select(_) | Codec::SelectCreation(_)).then(|| default.clone());
+        let empty_input = matches!(codec, Codec::Select(_) | Codec::SelectCreation(_) | Codec::Radio(_)).then(|| default.clone());
         let mut registry = self.widgets.lock();
         if registry.registration_error.is_some() {
             return Ok((String::new(), resolve(&default)?, false));

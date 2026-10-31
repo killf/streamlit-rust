@@ -678,3 +678,5 @@ Multiselect removes native selections absent from the current options while reta
 Multiselect default indices may repeat: `.default_indices([1, 1])` returns the repeated option twice, and the number of repeats may exceed the option count. Every index must be in range. `.max_selections(0)` is rejected. Server-side over-limit error handling and recovery remain partial pending the registration-flow decision.
 
 Use `.index(None)` when a selectbox should start with no selection. The measured Chrome journey selects and explicitly clears keyed string/integer and unkeyed string controls while preserving the other controls. Initial None and clear-button returns now match the SDK; empty-option-list UI and callback/form/page combinations remain partial.
+
+A radio with `.index(None)` can remain unselected while another radio changes. The measured Chrome journey covers keyed and unkeyed string groups without requiring every group to be initialized first. Code-driven browser clearing, dynamic option changes and further callback/form/page combinations remain partial.

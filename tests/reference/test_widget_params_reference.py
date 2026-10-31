@@ -1930,6 +1930,199 @@ def test_selectbox_empty_ui_gate_rejects_wrong_wire_or_picture(mutation, tmp_pat
         check_empty_select_ui(capture, folder)
 
 
+RADIO_NONE_UI_NAMES = ("01-none-load", "02-keyed-Alpha", "03-keyed-Beta", "04-plain-Alpha", "05-keyed-Alpha")
+RADIO_NONE_UI_VALUES = ((None, None), (None, "Alpha"), (None, "Beta"), ("Alpha", "Beta"), ("Alpha", "Alpha"))
+
+
+def check_radio_none_ui(capture, folder, *, before=False):
+    import hashlib
+    from PIL import Image
+
+    assert capture["reference_version"] == "1.66.1" and capture["runtime"] in ("python", "rust")
+    assert capture["successful"] and capture["complete"] and capture["semantic_match"] == (not before)
+    assert capture["cleanup"] == {"tab_closed": True, "network_capture_disabled": True, "server_stopped": True}
+    assert capture["console"] == [] and capture["visual_review"]["original_jpegs_inspected"] == 5
+    assert len(capture["producer_sources_sha256"]) == 2 and all(re.fullmatch(r"[0-9a-f]{64}", h) for h in capture["producer_sources_sha256"].values())
+    events = capture["events"]
+    assert len(events) == 41 and events[0]["method"] == "Network.webSocketCreated"
+    assert events[0]["params"]["url"] == capture["url"].split("/?")[0].replace("http:", "ws:") + "/_stcore/stream"
+    ws_id = events[0]["params"]["requestId"]
+    messages, sequence = {}, -1
+    for index, event in enumerate(events):
+        assert event["sequence"] > sequence and event["source"]["tabId"] == int(capture["tab_id"])
+        sequence = event["sequence"]
+        if index == 0:
+            continue
+        assert event["method"] in ("Network.webSocketFrameSent", "Network.webSocketFrameReceived")
+        assert event["params"]["requestId"] == ws_id and event["params"]["response"]["opcode"] == 2
+        message = BackMsg() if event["method"].endswith("Sent") else ForwardMsg()
+        message.ParseFromString(base64.b64decode(event["params"]["response"]["payloadData"], validate=True))
+        messages[index] = message
+    assert len(messages) == 40
+    stages = capture["snapshots"]
+    assert [stage["name"] for stage in stages] == list(RADIO_NONE_UI_NAMES)
+    height = stages[0]["dom"]["viewport"]["height"]
+    assert height in (724, 780)
+    normalized, sessions, run_ids, widget_ids, boundary = [], set(), set(), None, 0
+    for index, (stage, expected) in enumerate(zip(stages, RADIO_NONE_UI_VALUES, strict=True)):
+        start, end = stage["event_range"]
+        assert start == boundary and end - start == (9 if index == 0 else 8)
+        boundary = end
+        returned = (None, None) if before and index < 3 else expected
+        dom = stage["dom"]
+        assert dom["viewport"] == {"width": 1463, "height": height, "dpr": 1.75}
+        assert dom["groups"] == [{"label": label, "radios": [{"label": option, "value": str(position), "checked": option == selected, "disabled": False}
+            for position, option in enumerate(("Alpha", "Beta", "Charlie"))]} for label, selected in zip(("Choice", "Keyed choice"), expected, strict=True)]
+        compact = re.sub(r"\s+", "", dom["body"])
+        result_text = "".join(f"{i}:" + ("NULL" if value is None else json.dumps(value)) for i, value in enumerate(returned))
+        assert '"phase":"none"' in compact and '"values":[' + result_text + ']' in compact
+        assert stage["action_and_capture_calls_separate"] and stage["screenshot"] == stage["name"] + ".jpg"
+        data = (folder / stage["screenshot"]).read_bytes()
+        assert len(data) == stage["screenshot_bytes"] and hashlib.sha256(data).hexdigest() == stage["screenshot_sha256"]
+        with Image.open(folder / stage["screenshot"]) as image:
+            assert image.format == stage["screenshot_format"] == "JPEG" and list(image.size) == stage["screenshot_dimensions"] == [1463, height]
+            rgb = image.convert("RGB")
+            checked = [option == selected for selected in expected for option in ("Alpha", "Beta", "Charlie")]
+            for selected, center in zip(checked, (135, 157, 180, 246, 268, 291), strict=True):
+                red = sum((lambda c: c[0] > 160 and c[0] > c[1] * 1.3 and c[0] > c[2] * 1.3)(rgb.getpixel((x, y)))
+                          for x in range(380, 397) for y in range(center - 8, center + 9))
+                assert red > 100 if selected else red < 20
+        batch = [messages[i] for i in range(start, end) if i in messages]
+        assert [m.WhichOneof("type") for m in batch] == ["rerun_script", "new_session", "session_status_changed"] + ["delta"] * 3 + ["script_finished", "session_status_changed"]
+        request, session = batch[0].rerun_script, batch[1].new_session
+        assert request.query_string == "probe=radio-empty&phase=none" and not request.is_history_navigation
+        assert session.initialize.environment_info.streamlit_version == "1.66.1"
+        sessions.add(session.initialize.session_id)
+        run_ids.add(session.script_run_id)
+        assert batch[2].session_status_changed.script_is_running and batch[6].script_finished == 0 and not batch[7].session_status_changed.script_is_running
+        elements = [m.delta.new_element for m in batch[3:6]]
+        assert [m.delta.WhichOneof("type") for m in batch[3:6]] == ["new_element"] * 3
+        assert [list(m.metadata.delta_path) for m in batch[3:6]] == [[0, i] for i in range(3)]
+        assert [e.WhichOneof("type") for e in elements] == ["radio", "radio", "json"]
+        ids = [e.radio.id for e in elements[:2]]
+        if index == 0:
+            assert not request.widget_states.widgets and len(set(ids)) == 2
+            widget_ids = ids
+        else:
+            incoming = request.widget_states.widgets
+            assert ids == widget_ids and len(incoming) == 2 and [w.id for w in incoming] == ids
+            for widget, value in zip(incoming, expected, strict=True):
+                assert widget.WhichOneof("value") == (None if value is None else "string_value")
+                if value is not None:
+                    assert widget.string_value == value
+        for position, element in enumerate(elements[:2]):
+            widget = element.radio
+            assert widget.label == ("Choice", "Keyed choice")[position] and list(widget.options) == ["Alpha", "Beta", "Charlie"]
+            assert not widget.HasField("default") and not widget.disabled and not widget.set_value and not widget.HasField("raw_value")
+            assert not widget.horizontal and not widget.captions and not widget.ignore_rerun and not widget.form_id
+            assert not element.HasField("has_one_shot_effect") and element.width_config.use_content
+        report = json.loads(elements[-1].json.body)
+        assert report == {"phase": "none", "values": list(returned)}
+        fields = [MessageToDict(element, preserving_proto_field_name=True) for element in elements]
+        for field in fields[:2]:
+            field["radio"].pop("id")
+        fields[-1]["json"]["body"] = report
+        normalized.append(fields)
+    assert boundary == len(events) and len(sessions) == 1 and len(run_ids) == 5
+    return normalized
+
+
+@pytest.mark.parametrize("root", (PYTHON, RUST), ids=("python", "rust"))
+def test_radio_none_ui_selects_with_an_empty_peer(root):
+    folder = root / "radio-empty/ui"
+    check_radio_none_ui(read(folder / "trace.json"), folder)
+
+
+def test_radio_none_ui_complete_elements_match_reference():
+    folders = [root / "radio-empty/ui" for root in (PYTHON, RUST)]
+    captures = [read(folder / "trace.json") for folder in folders]
+    assert captures[0]["producer_sources_sha256"] == captures[1]["producer_sources_sha256"]
+    assert check_radio_none_ui(captures[0], folders[0]) == check_radio_none_ui(captures[1], folders[1])
+
+
+def test_radio_none_ui_before_discards_aggregate_input_until_both_are_selected():
+    folder = RUST / "radio-empty/ui/before"
+    capture = read(folder / "trace.json")
+    before = check_radio_none_ui(capture, folder, before=True)
+    sdk_folder = PYTHON / "radio-empty/ui"
+    assert before != check_radio_none_ui(read(sdk_folder / "trace.json"), sdk_folder)
+    with pytest.raises(AssertionError):
+        check_radio_none_ui(capture, folder)
+
+
+@pytest.mark.parametrize("default", (None, 0))
+def test_sdk_radio_empty_payload_uses_registered_default_before_callback(default):
+    import importlib.metadata
+    from streamlit.testing.v1 import AppTest
+
+    assert importlib.metadata.version("streamlit") == "1.66.1"
+    script = ('import streamlit as st\n'
+              'if "events" not in st.session_state: st.session_state.events=[]\n'
+              'def changed(): st.session_state.events.append(st.session_state.choice)\n'
+              'v=st.radio("Choice",["Alpha","Beta"],key="choice",index=' + repr(default) + ',on_change=changed)\n'
+              'st.json([v,st.session_state.events])')
+    app = AppTest.from_string(script).run()
+    app.radio[0].set_value("Beta")
+    app.run()
+    assert not app.exception and json.loads(app.json[0].value) == ["Beta", ["Beta"]]
+    app.radio[0].set_value(None)
+    app.run()
+    fallback = None if default is None else "Alpha"
+    assert not app.exception and json.loads(app.json[0].value) == [fallback, ["Beta", fallback]]
+
+
+@pytest.mark.parametrize("mutation", ("empty-oneof", "returned-value", "checked-state", "stale-id", "wire-default", "spurious-sync", "screenshot", "old-image"))
+def test_radio_none_ui_gate_rejects_wrong_input_return_or_picture(mutation, tmp_path):
+    import hashlib
+
+    folder = PYTHON / "radio-empty/ui"
+    capture = read(folder / "trace.json")
+    if mutation == "checked-state":
+        capture["snapshots"][2]["dom"]["groups"][1]["radios"][1]["checked"] = False
+    elif mutation == "screenshot":
+        capture["snapshots"][2]["screenshot_sha256"] = "wrong"
+    elif mutation == "old-image":
+        for stage in capture["snapshots"]:
+            (tmp_path / stage["screenshot"]).write_bytes((folder / stage["screenshot"]).read_bytes())
+        data = (folder / capture["snapshots"][1]["screenshot"]).read_bytes()
+        stage = capture["snapshots"][2]
+        (tmp_path / stage["screenshot"]).write_bytes(data)
+        stage.update(screenshot_bytes=len(data), screenshot_sha256=hashlib.sha256(data).hexdigest())
+        folder = tmp_path
+    else:
+        stage = capture["snapshots"][2]
+        for event in capture["events"][slice(*stage["event_range"])]:
+            if event["method"] not in ("Network.webSocketFrameSent", "Network.webSocketFrameReceived"):
+                continue
+            message = BackMsg() if event["method"].endswith("Sent") else ForwardMsg()
+            message.ParseFromString(base64.b64decode(event["params"]["response"]["payloadData"]))
+            if isinstance(message, BackMsg) and mutation in ("empty-oneof", "stale-id"):
+                if mutation == "empty-oneof":
+                    message.rerun_script.widget_states.widgets[0].int_value = 0
+                else:
+                    message.rerun_script.widget_states.widgets[0].id = "$$ID-stale-radio"
+            elif message.WhichOneof("type") == "delta":
+                element = message.delta.new_element
+                if mutation in ("wire-default", "spurious-sync") and element.WhichOneof("type") == "radio":
+                    if mutation == "wire-default":
+                        element.radio.default = 0
+                    else:
+                        element.radio.set_value = True
+                        element.has_one_shot_effect = True
+                elif mutation == "returned-value" and element.WhichOneof("type") == "json":
+                    report = json.loads(element.json.body)
+                    report["values"][1] = None
+                    element.json.body = json.dumps(report)
+                    stage["dom"]["body"] = stage["dom"]["body"].replace('1:"Beta"', '1:NULL')
+                else:
+                    continue
+            else:
+                continue
+            event["params"]["response"]["payloadData"] = base64.b64encode(message.SerializeToString()).decode()
+    with pytest.raises(AssertionError):
+        check_radio_none_ui(capture, folder)
+
+
 def comparable(capture):
     out = []
     for element in capture["elements"]:
