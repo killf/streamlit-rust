@@ -4964,6 +4964,105 @@ mod tests {
     }
 
     #[test]
+    fn text_id_only_defaults_preserve_unicode_and_peer_callback_batch_order() -> anyhow::Result<()> {
+        let changed = |source: &'static str| {
+            move |st: &Streamlit| {
+                let state = st.session_state();
+                let mut calls = state.get::<Vec<Value>>("text_empty_calls").expect("calls").unwrap_or_default();
+                calls.push(serde_json::json!([
+                    source,
+                    state.get::<Value>("text_empty_input").expect("input"),
+                    state.get::<Value>("text_empty_area").expect("area"),
+                    state.get::<bool>("text_empty_peer").expect("peer")
+                ]));
+                state.set("text_empty_calls", calls).expect("callback write");
+            }
+        };
+        let inputs = [
+            None,
+            Some((Some("EDIT🙂X"), None, true)),
+            Some((None, Some("第一\n行🙂XQ"), true)),
+            Some((Some(""), Some(""), false)),
+            None,
+            Some((None, None, true)),
+            None,
+            Some((Some("OK"), Some("恢复\n🙂"), false)),
+        ];
+        let values = [
+            ("Base🙂", None, false),
+            ("EDIT🙂", None, true),
+            ("Base🙂", Some("第一\n行🙂X"), true),
+            ("", Some(""), false),
+            ("", Some(""), false),
+            ("Next", None, true),
+            ("Next", None, true),
+            ("OK", Some("恢复\n🙂"), false),
+        ];
+        let counts = [0, 2, 2, 3, 0, 3, 0, 3];
+        let mut expected_calls = Vec::new();
+        let state = SessionState::default();
+        let mut ids = Vec::<String>::new();
+        for (round, submitted) in inputs.into_iter().enumerate() {
+            // 1. 缺省文本包和显式空串分离，checkbox 同批输入不能被空同伴阻断。
+            let incoming = submitted.map_or_else(Vec::new, |(text, area, peer)| {
+                vec![
+                    WidgetState {
+                        id: ids[0].clone(),
+                        value: text.map(|value| widget_state::Value::StringValue(value.into())),
+                    },
+                    WidgetState {
+                        id: ids[1].clone(),
+                        value: area.map(|value| widget_state::Value::StringValue(value.into())),
+                    },
+                    WidgetState {
+                        id: ids[2].clone(),
+                        value: Some(widget_state::Value::BoolValue(peer)),
+                    },
+                ]
+            });
+            let callbacks = state.begin_widgets(incoming);
+            assert_eq!(callbacks.len(), counts[round], "run {round}");
+            let (st, mut wire) = app(&state);
+            for callback in callbacks {
+                callback(&st);
+            }
+            let (text, area, peer) = values[round];
+            let sources: &[&str] = match round {
+                1 => &["input", "peer"],
+                2 => &["input", "area"],
+                3 | 5 | 7 => &["input", "area", "peer"],
+                _ => &[],
+            };
+            expected_calls.extend(sources.iter().map(|source| serde_json::json!([source, text, area, peer])));
+            assert_eq!(state.get::<Vec<Value>>("text_empty_calls")?.unwrap_or_default(), expected_calls, "run {round}");
+            let default = if round >= 4 { "Next" } else { "Base🙂X" };
+            assert_eq!(st.text_input(TextInputOptions::new("Input").value(default).max_chars(5).key("text_empty_input").on_change(changed("input")))?.as_deref(), Some(text));
+            assert_eq!(st.text_area(TextAreaOptions::new("Area", "").value_none().max_chars(6).key("text_empty_area").on_change(changed("area")))?.as_deref(), area);
+            assert_eq!(st.checkbox(CheckboxOptions::new("Peer").key("text_empty_peer").on_change(changed("peer")))?, peer);
+
+            // 2. wire 保留未截断声明默认，后续缺省包使用上轮截断默认，正常输入不额外同步。
+            let element::Type::TextInput(text_wire) = input(&mut wire)? else { panic!() };
+            assert_eq!(text_wire.default.as_deref(), Some(default));
+            assert_eq!(text_wire.max_chars, 5);
+            assert!(!text_wire.set_value && text_wire.value.is_none());
+            let element::Type::TextArea(area) = input(&mut wire)? else { panic!() };
+            assert_eq!(area.default, None);
+            assert_eq!(area.max_chars, 6);
+            assert!(!area.set_value && area.value.is_none());
+            let element::Type::Checkbox(peer) = input(&mut wire)? else { panic!() };
+            assert!(!peer.default && !peer.set_value);
+            let current = vec![text_wire.id, area.id, peer.id];
+            if round > 0 {
+                assert_eq!(current, ids);
+            }
+            ids = current;
+            state.finish_widgets();
+        }
+
+        Ok(())
+    }
+
+    #[test]
     fn feedback_id_only_defaults_and_explicit_clear_preserve_callback_batch_order() -> anyhow::Result<()> {
         let changed = |source: &'static str| {
             move |st: &Streamlit| {

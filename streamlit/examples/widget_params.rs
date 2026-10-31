@@ -6,6 +6,30 @@ use ::streamlit::*;
 use streamlit::StreamlitApi;
 
 fn render(st: &Streamlit) -> Result<(), WidgetError> {
+    if st.query_params().get("probe").as_deref() == Some("text-empty") {
+        let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
+        let changed = |source: &'static str| {
+            move |st: &Streamlit| {
+                let state = st.session_state();
+                let mut calls = state.get::<Vec<serde_json::Value>>("text_empty_calls").expect("calls").unwrap_or_default();
+                calls.push(serde_json::json!([
+                    source,
+                    state.get::<serde_json::Value>("text_empty_input").expect("input"),
+                    state.get::<serde_json::Value>("text_empty_area").expect("area"),
+                    state.get::<bool>("text_empty_peer").expect("peer")
+                ]));
+                state.set("text_empty_calls", calls).expect("callback write");
+            }
+        };
+        let default = if ["default", "fallback", "observe", "recover"].contains(&phase.as_str()) { "Next" } else { "Base🙂X" };
+        let input = st.text_input(TextInputOptions::new("Input").value(default).max_chars(5).key("text_empty_input").on_change(changed("input")))?;
+        let area = st.text_area(TextAreaOptions::new("Area", "").value_none().max_chars(6).key("text_empty_area").on_change(changed("area")))?;
+        let peer = st.checkbox(CheckboxOptions::new("Peer").key("text_empty_peer").on_change(changed("peer")))?;
+        let calls = st.session_state().get::<Vec<serde_json::Value>>("text_empty_calls")?.unwrap_or_default();
+        st.json(serde_json::json!({"phase": phase, "values": [serde_json::json!(input), serde_json::json!(area), serde_json::json!(peer)], "calls": calls}));
+        return Ok(());
+    }
+
     if st.query_params().get("probe").as_deref() == Some("feedback-empty") {
         let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
         let state = st.session_state();

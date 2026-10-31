@@ -14,6 +14,8 @@
 
 ## Current focus
 
+2026-11-01 text_input/text_area ID-only 切片：按控件 kind 接入既有有效默认缓存，不扩大 Text codec 的 data_editor 行为。八轮、71 帧、32 完整 Element 与 SDK 匹配，Unicode 默认/输入截断、None/空串、同伴 checkbox 和十三次整批 callback 有原生证据；旧 feedback 缺省场景复验通过。见[验收](acceptance.md#current-text-id-only-default-and-callback-validation-2026-11-01)；浏览器/绑定/禁用/错误输入/表单/跨页继续开放，不改变完整目标及待决方案。
+
 2026-11-01 feedback 真实浏览器切片：SDK/Rust 各六阶段、48 覆盖帧、18 完整 Element 与十二张原始 JPEG，评分/重复点击清空/同伴评分与清空/恢复的 DOM、callback 和字段匹配。浏览器实际发显式空字符串，ID-only 仍属独立原生协议边界；Rust 两条刷新前旧连接帧原样保留并单列。见[验收](acceptance.md#current-feedback-browser-clearing-and-callback-validation-2026-11-01)。无生产修改，动态默认/图标/宽度、禁用/ignore/表单/跨页等继续开放，完整目标不变。
 
 2026-11-01 feedback ID-only/清空/callback 切片：接入既有有效默认解码，缺省 oneof 恢复上轮默认，空字符串清空；不再因空同伴丢弃整批输入。十轮、79 帧、30 完整 Element 与 SDK 一致，八次有序回调读取整批新值，代码赋值只同步一次，旧十二轮身份复验通过。见[验收](acceptance.md#current-feedback-id-only-clear-and-callback-validation-2026-11-01)；浏览器、禁用/错误输入/表单/跨页等继续开放，不改变完整目标及待决方案。

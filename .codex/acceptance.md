@@ -2522,3 +2522,21 @@ producer 三份源码、widget_api/widgets 与二进制 SHA 已核对当前产�
 源码与二进制 SHA 已核对 a7f4fe0 当前已提交内容；SDK/Rust 自建服务 PID 53600/33816 经自持 Popen 句柄 terminate/wait 结束，协调进程真实退出 0，56480/8599 无监听；两个自建标签均已关闭，console warn/error 均为空。截图与采集动作分开执行，避免动作后旧帧被当作新画面。指南 README 原 CRLF 字节前缀保持，仅追加说明。
 
 仅 st.feedback 矩阵与生成清单更新，仍 130 partial；动态默认/图标/宽度 UI、代码赋值 UI、禁用/ignore、表单/跨页及其他 callback 组合继续开放。用户 colconfig_params 修改独立保留，未创建 PR、合并、发布或部署；M3/M5/M7 与长期 Goal 未关闭。
+
+## Current text ID-only default and callback validation (2026-11-01)
+
+检查 text_area 动态身份时先确认该项已有历史修复，没有重复修改。新缺口来自锁定 SDK 1.66.1 的 TextInputSerde/TextAreaSerde：缺少 value oneof 回到有效默认，显式空串保留空串，二者均按 max_chars 截断。Rust Text codec 已处理显式字符串，却未接入已有 ID-only 默认缓存，导致同批 checkbox 也被丢弃。本次只对 kind=text_input/text_area 且 Codec::Text 的登记缓存默认；data_editor 复用 Text codec，但不在本次扩展范围，无新公共接口、模块或依赖。
+
+[SDK](../tests/reference/reference-browser/widget-params/text-empty/trace.json)、[Rust 修前](../tests/browser/rust-widget-params/text-empty/before/trace.json)、[Rust 最终](../tests/browser/rust-widget-params/text-empty/trace.json)均八轮、71 原始帧、32 完整 Element。text_input 原始默认 Base🙂X 限五字符，text_area 初始 None 限六字符，同伴 checkbox 初始 false；输入 EDIT🙂X→主 ID-only/多行中文 emoji→全空串/false→声明默认改 Next 无输入→两个 ID-only/true→观察→恢复字符串/false。修前 edit/area 两轮仍 [Base🙂,None,false] 且无 callback，最终只累计四回调；原始失败记录保持 semantic_match=false，不能把相同帧数和正常 script_finished 当作兼容成功。
+
+修后有效返回依次 [Base🙂,None,false]/[EDIT🙂,None,true]/[Base🙂,第一\n行🙂X,true]/[空串,空串,false]/[空串,空串,false]/[Next,None,true]/[Next,None,true]/[OK,恢复\n🙂,false]；这里的 \n 表示实际换行，分别按 Unicode scalar 截为五/六字符，不按 UTF-8 字节或 UTF-16 单元截断。声明 default 仍保留未截断 Base🙂X；缺省包使用上轮已归一化默认。仅改变声明默认不覆盖当前空串，下一轮缺省解码才采用 Next。
+
+累计十三次 callback 与 SDK 完整顺序一致；回调读取整批解码后的文本、area 与 checkbox 新值。input/area/peer 同时变化时按注册顺序执行，观察不重放。两端 callback 日志初始化方式不同仅属探针记录，不宣称整个 session_state 初始化映射一致。新增公开 API 单元先因局部 input 变量遮蔽 input() 辅助函数编译失败，已重命名；编译错误保留 target/text-empty-test-compile.log，再以未修生产逻辑真实复现 run 1 回调 0 而非 2，修后通过。
+
+完整 Element 仅归一化不透明 ID/JSON 文本后逐字段一致。严格门核对三控件稳定 ID、实际前轮 ID、缺省/string_value/bool_value、Unicode/换行/None/空串、声明 default/上限、text area 122px、width/策略/无额外同步、session/run/path、逐轮返回及有序 callback 前缀。八类同时修改 raw 与汇总的负例必须失败：缺省误改空串、Unicode 未截断、回调倒序、回调读取旧 area、旧默认回退、空串误变 None、wire 默认被提前截断、过期 peer ID。
+
+同一最终二进制重放旧 feedback-empty 十轮（79 帧/30 Element），完整规范化字段仍匹配，结果 target/text-empty-feedback-recheck/trace.json。producer 三份源码、widget_api/widgets 与二进制 SHA 已核对；修前核心源码 SHA 与前一 HEAD a20f8ed 相同。SDK 自建服务和 Rust 自持 Popen 句柄均已停止，52867/8599 无监听。无本批浏览器采集，ID-only 为原生协议注入，不推定浏览器生成该包。
+
+编辑 Rust 的 rustfmt、全工作区/all-target Clippy、新增公开 API 单元通过；最终工作区 331 项通过（324 库、1 ledger、2 宏、4 rustdoc），仍仅排除原 navigation_pages_switch_and_session_state_match_the_measured_wire 与 rerun_queue_messages_match_frozen_reference，不称完整工作区全绿。参数参考模块 362 项，相关 query/widget/temporal/pickers/matrix/docs/buttons/inputs 八模块共 668 项通过；既有 MSVC linker stdout warning 保留，日志 target/text-empty-{red,green,clippy,build,workspace,python}.log。
+
+仅 st.text_input/st.text_area 矩阵和生成清单更新，仍 130 partial；真实浏览器、禁用/错误输入、查询绑定/表单/跨页及其他 callback 组合继续开放。用户 colconfig_params 修改独立保留；待决共享状态/hash/公共接口方案不变，未创建 PR、合并、发布或部署，M3/M5/M7 与长期 Goal 未关闭。

@@ -618,7 +618,7 @@ struct Record {
     /// Value before this run's input, restored if registration now disables it.
     before_input: Option<Value>,
 
-    /// ID-only selectbox/radio/feedback payloads deserialize using the registered effective default.
+    /// ID-only text inputs/areas, selectbox/radio/feedback use the registered effective default.
     /// Other codecs retain the existing missing-value rejection.
     empty_input: Option<Value>,
 }
@@ -849,7 +849,8 @@ impl SessionState {
             callback,
         } = spec;
         let id = id.to_owned();
-        let empty_input = matches!(codec, Codec::Select(_) | Codec::SelectCreation(_) | Codec::Radio(_) | Codec::Feedback { .. }).then(|| default.clone());
+        // Text codec 也供 data_editor 使用；本次仅扩展两类文本控件的缺省解码。
+        let empty_input = (matches!(codec, Codec::Select(_) | Codec::SelectCreation(_) | Codec::Radio(_) | Codec::Feedback { .. }) || (matches!(kind, "text_input" | "text_area") && matches!(codec, Codec::Text { .. }))).then(|| default.clone());
         let mut registry = self.widgets.lock();
         if registry.registration_error.is_some() {
             return Ok((String::new(), resolve(&default)?, false));

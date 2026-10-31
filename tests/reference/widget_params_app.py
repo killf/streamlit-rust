@@ -1,7 +1,18 @@
 """Emit widget creation-wire parameter variants for the M3 differential."""
 import streamlit as st
 
-if st.query_params.get("probe") == "feedback-empty":
+if st.query_params.get("probe") == "text-empty":
+    phase = st.query_params.get("phase", "load")
+    if "text_empty_calls" not in st.session_state:
+        st.session_state.text_empty_calls = []
+    def changed(source):
+        st.session_state.text_empty_calls.append([source, st.session_state.text_empty_input, st.session_state.text_empty_area, st.session_state.text_empty_peer])
+    default = "Next" if phase in ("default", "fallback", "observe", "recover") else "Base🙂X"
+    value = st.text_input("Input", value=default, max_chars=5, key="text_empty_input", on_change=changed, args=("input",))
+    area = st.text_area("Area", value=None, max_chars=6, key="text_empty_area", on_change=changed, args=("area",))
+    peer = st.checkbox("Peer", key="text_empty_peer", on_change=changed, args=("peer",))
+    st.json({"phase": phase, "values": [value, area, peer], "calls": st.session_state.text_empty_calls})
+elif st.query_params.get("probe") == "feedback-empty":
     phase = st.query_params.get("phase", "load")
     if "feedback_calls" not in st.session_state:
         st.session_state.feedback_calls = []
