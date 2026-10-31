@@ -395,12 +395,24 @@ Rust serialization-before/trace.json 是另一组原生诊断，不是同输入�
 
 现状已超出代码元素：`text-misc-params/identity/trace.json` 固定三次请求、24 元素，五个目标的载荷变化均为 A→B→A 身份；Rust `identity-before/trace.json` 的元素内部业务字段投影匹配，但五个 hash 全为 A/A/A。完整 Element 另有八个未完成的布局字段差异（Markdown 默认 width 存在性、badge text_alignment_config），原始帧保留，不把它们归为已修复或已接受；该差距与身份统一分别验收。真实 Chrome 进一步证明标题 anchor/divider、Markdown→caption 样式和按钮 disabled 保留旧值；没有点击本应禁用的 Action。两端三观察及六张 JPEG 保留，Rust capture 明确 successful=false。help 字段变化有原始帧证据，本批未操作 tooltip，不把它伪称为已完成 hover 验证。
 
+2026-10-31 补充真实表单提交后果：两侧 form-identity/ui/trace.json 各八阶段、
+九轮/98 原始帧。SDK alpha→beta 的显式 key 提交按钮 ID 稳定，form_id 变化且
+hash 为 A/B/B/A；Rust 的 form_id 也更新但 hash 为 A/A/A/A。beta 草稿为
+8/NEXT/6，SDK 点击 Apply 发送这组值；Rust 只发旧 7/EDIT/4，虽然 submitted
+变 true，返回 root/alpha 后仍是旧值。原图及严格失败门保留，Rust 明确标为
+unsuccessful；此前直接协议注入的 70 帧通过不能证明真实 Apply 会发出该批次。
+当前 button.rs 手工 hash 只含 id/label/type/width，遗漏 form_id；捆绑前端
+index.Dlja0TUX.js 的 newElement 分支在 hash/type 相同时使用旧 Element。修复
+必须保留已验证的 widget ID 稳定性。此证据补充到原三选方案，未改任何生产
+hash，也没有把局部字段补丁当作选定方案；本次再次询问的是 hash 方案，不是
+另一个仍待答复的共享状态存储方案。
+
 | 生产者 | 未进入当前手工 hash 的字段 | 当前证据强度 |
 | --- | --- | --- |
 | markdown.rs | help、element_type | 原始载荷变化与 hash 不变；caption 样式实际滞留 |
 | title.rs | anchor、help、divider、hide_anchor | 前三字段原始帧；anchor/divider 实际滞留，hide_anchor 仅静态 |
 | badge.rs | help | 原始帧与 hash 不变，未做 tooltip 交互 |
-| button.rs | disabled、help、icon 等 | 显式 key 下 id 不变；原始字段变化且可见按钮仍启用 |
+| button.rs | disabled、help、icon、form_id 等 | 显式 key 下 id 不变；disabled 实际滞留，form_id 缓存还导致跨表单 Apply 发送旧值 |
 | text.rs HelpElement | type_name、name、value | 静态遗漏，尚无本批动态 UI 证明 |
 | components.rs | data_json、width、height、组件内容 | 静态遗漏，尚无本批动态 UI 证明 |
 

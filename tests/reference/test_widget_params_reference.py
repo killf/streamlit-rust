@@ -892,7 +892,7 @@ FORM_IDENTITY_VALUES = ((4, "base", 4, None), (7, "EDIT", 9, None), (7, "EDIT", 
                         (7, "EDIT", 4, False), (8, "NEXT", 6, True), (8, "NEXT", 4, None), (8, "NEXT", 4, False))
 
 
-def form_identity_runs(capture):
+def form_identity_runs(capture, *, allow_selectbox=False):
     runs, emitted = [], []
     for message in frames(capture):
         kind = message.WhichOneof("type")
@@ -915,7 +915,7 @@ def form_identity_runs(capture):
                 assert delta_kind == "new_element"
                 element = message.delta.new_element
                 entry_kind = element.WhichOneof("type")
-                assert entry_kind in ("number_input", "text_input", "button", "json")
+                assert entry_kind in ("number_input", "text_input", "button", "json") or (allow_selectbox and entry_kind == "selectbox")
                 view = getattr(element, entry_kind)
             entry = (entry_kind, MessageToDict(view, preserving_proto_field_name=True), list(message.metadata.delta_path))
             emitted.append(entry)
@@ -1046,3 +1046,199 @@ def test_form_identity_gate_rejects_coherent_wrong_wire(mutation):
     capture["elements"] = [{"kind": kind, "fields": fields, "delta_path": path} for kind, fields, path in emitted]
     with pytest.raises(AssertionError):
         check_form_identity(capture)
+
+
+FORM_MOVE_STAGES = ("load", "root-edit", "alpha", "beta", "beta-draft", "beta-submit", "root-return", "alpha-return")
+FORM_MOVE_PHASES = ("root", "root", "form-a", "form-b", "form-b", "form-b", "root", "form-a")
+FORM_MOVE_VALUES = ((4, "base", 4, None), (7, "EDIT", 9, None), (7, "EDIT", 4, False), (7, "EDIT", 4, False),
+                    (7, "EDIT", 4, False), (8, "NEXT", 6, True), (8, "NEXT", 4, None), (8, "NEXT", 4, False))
+
+
+def form_move_messages(capture):
+    created = [event for stage in capture["stages"] for event in stage["events"]["events"] if event["method"] == "Network.webSocketCreated"]
+    assert len(created) == 1
+    ws_id = created[0]["params"]["requestId"]
+    port = 8619 if capture["runtime"] == "python" else 8599
+    assert created[0]["params"]["url"] == f"ws://127.0.0.1:{port}/_stcore/stream"
+    previous_sequence, output = 0, []
+    for stage in capture["stages"]:
+        events = stage["events"]
+        assert not events["hasMore"] and not events["truncated"]
+        for event in events["events"]:
+            assert previous_sequence < event["sequence"] <= events["cursor"]
+            previous_sequence = event["sequence"]
+            if event["method"] not in ("Network.webSocketFrameSent", "Network.webSocketFrameReceived"):
+                continue
+            assert event["params"]["requestId"] == ws_id
+            response = event["params"]["response"]
+            assert response["opcode"] == 2
+            raw = base64.b64decode(response["payloadData"], validate=True)
+            message = BackMsg() if event["method"].endswith("Sent") else ForwardMsg()
+            message.ParseFromString(raw)
+            output.append(message)
+    assert len(output) == 98
+    return output
+
+
+def check_form_move_ui(capture, folder):
+    import hashlib
+    from PIL import Image
+
+    assert capture["collection_complete"] and capture["reference_version"] == "1.66.1"
+    assert capture["runtime"] in ("python", "rust")
+    assert capture["visual_review"]["all_stage_images_inspected"] and capture["visual_review"]["phase_alignment"]
+    assert capture["cleanup"]["owned_servers_stopped"] and capture["cleanup"]["owned_tab_closed"]
+    assert capture["cleanup"]["ports_without_listeners"] == [8599, 8619]
+    assert [stage["stage"] for stage in capture["stages"]] == list(FORM_MOVE_STAGES)
+    messages = form_move_messages(capture)
+    for stage, phase, values in zip(capture["stages"], FORM_MOVE_PHASES, FORM_MOVE_VALUES, strict=True):
+        assert stage["action_and_capture_calls_separate"]
+        dom = stage["dom"]
+        assert dom["viewport"] == {"width": 1463, "height": 780, "dpr": 1.75} and not dom["exceptions"]
+        assert dom["location"] == [{"label": "Location", "value": phase}]
+        expected_inputs = (8, "NEXT", 6) if stage["stage"] == "beta-draft" else values[:3]
+        labels = ["Number " + phase, "Note " + phase, "Unkeyed"]
+        assert dom["widgets"] == [{"label": label, "value": str(value), "type": kind, "disabled": False, "in_form": phase != "root"}
+                                  for label, value, kind in zip(labels, expected_inputs, ("number", "text", "number"), strict=True)]
+        assert len(dom["forms"]) == (0 if phase == "root" else 1)
+        if dom["forms"]:
+            assert dom["forms"][0]["labels"] == labels
+            assert dom["forms"][0]["buttons"][-1] == {"text": "Apply", "disabled": False}
+        submitted = "NULL" if values[3] is None else str(values[3]).lower()
+        assert dom["reports"] == ['{"phase":"' + phase + '""number":' + str(values[0]) + '"note":"' + values[1]
+                                  + '""unkeyed":' + str(values[2]) + '"submitted":' + submitted + '"native":[0:' + str(values[0]) + '1:"' + values[1] + '"]}']
+        if stage["stage"] == "beta-draft":
+            assert not stage["events"]["events"]
+        path = folder / stage["screenshot"]
+        integrity = stage["screenshot_integrity"]
+        assert hashlib.sha256(path.read_bytes()).hexdigest() == integrity["sha256"]
+        with Image.open(path) as image:
+            assert image.format == integrity["format"] == "JPEG"
+            assert image.size == (integrity["width"], integrity["height"]) == (1463, 780)
+    derived = {"frames": [{"direction": "client->server" if isinstance(message, BackMsg) else "server->client",
+                            "bytes": len(message.SerializeToString()), "base64": base64.b64encode(message.SerializeToString()).decode(),
+                            "message": MessageToDict(message, preserving_proto_field_name=True)} for message in messages]}
+    runs, _ = form_identity_runs(derived, allow_selectbox=True)
+    phases = ("root", "root", "root", "root", "form-a", "form-b", "form-b", "root", "form-a")
+    values = ((4, "base", 4, None), (7, "base", 4, None), (7, "EDIT", 4, None), FORM_MOVE_VALUES[1],
+              FORM_MOVE_VALUES[2], FORM_MOVE_VALUES[3], FORM_MOVE_VALUES[5], FORM_MOVE_VALUES[6], FORM_MOVE_VALUES[7])
+    input_values = ((7, "base", 4), (7, "EDIT", 4), (7, "EDIT", 9), (7, "EDIT", 9),
+                    (7, "EDIT", 4), (8, "NEXT", 6), (8, "NEXT", 6), (8, "NEXT", 4))
+    assert len(runs) == 9
+    ids, contexts, sessions, run_ids, previous_unkeyed = {}, {}, set(), set(), None
+    for index, (run, phase, expected) in enumerate(zip(runs, phases, values, strict=True)):
+        assert run["finishes"] == [0] and len(run["sessions"]) == 1
+        session = run["sessions"][0]
+        assert session.initialize.environment_info.streamlit_version == "1.66.1"
+        sessions.add(session.initialize.session_id)
+        run_ids.add(session.script_run_id)
+        entries = list(run["entries"])
+        selector_kind, selector, selector_path = entries.pop(0)
+        assert selector_kind == "selectbox" and selector_path == [0, 0]
+        assert selector.label == "Location" and list(selector.options) == ["root", "form-a", "form-b"] and not selector.form_id
+        assert selector.id == ids.setdefault("identity_location", selector.id)
+        form_id = "alpha" if phase == "form-a" else "beta" if phase == "form-b" else ""
+        if form_id:
+            kind, form, path = entries.pop(0)
+            assert kind == "add_block:form" and path == [0, 1] and form.form_id == form_id
+        assert [entry[0] for entry in entries] == ["number_input", "text_input", "number_input"] + (["button"] if form_id else []) + ["json"]
+        for offset, (_, widget, path) in enumerate(entries[:-1]):
+            assert path == ([0, 1, offset] if form_id else [0, offset + 1]) and widget.form_id == form_id
+        assert entries[-1][2] == ([0, 2] if form_id else [0, 4])
+        number, note, unkeyed = [entry[1] for entry in entries[:3]]
+        assert (number.label, note.label, unkeyed.label) == ("Number " + phase, "Note " + phase, "Unkeyed")
+        assert number.help == note.help == phase
+        assert number.default == unkeyed.default == 4 and note.default == "base" and note.max_chars == 5
+        for key, widget in (("number", number), ("note", note)):
+            assert widget.id == ids.setdefault(key, widget.id)
+        assert unkeyed.id == contexts.setdefault(form_id, unkeyed.id)
+        if form_id:
+            button = entries[3][1]
+            assert button.is_form_submitter and button.label == "Apply"
+            assert button.id == ids.setdefault("apply", button.id)
+        assert json.loads(entries[-1][1].body) == {"phase": phase, "number": expected[0], "note": expected[1],
+                                                 "unkeyed": expected[2], "submitted": expected[3], "native": list(expected[:2])}
+        request = run["request"]
+        assert request.query_string == "probe=form-identity&ui=on" and not request.is_history_navigation
+        incoming = request.widget_states.widgets
+        if index == 0:
+            assert not incoming
+        else:
+            assert len(incoming) == (5 if index == 6 else 4)
+            assert [(widget.id, widget.WhichOneof("value")) for widget in incoming[:4]] == [
+                (ids["identity_location"], "string_value"), (ids["number"], "int_value"),
+                (ids["note"], "string_value"), (previous_unkeyed, "int_value")]
+            assert incoming[0].string_value == phase
+            assert (incoming[1].int_value, incoming[2].string_value, incoming[3].int_value) == input_values[index - 1]
+            if index == 6:
+                assert incoming[4].id == ids["apply"] and incoming[4].WhichOneof("value") == "trigger_value" and incoming[4].trigger_value
+        previous_unkeyed = unkeyed.id
+    assert len(sessions) == 1 and len(run_ids) == 9 and len(set(contexts.values())) == 3
+    hashes = [message.hash for message in messages if isinstance(message, ForwardMsg) and message.WhichOneof("type") == "delta"
+              and message.delta.new_element.WhichOneof("type") == "button"]
+    assert len(hashes) == 4 and hashes[0] != hashes[1] and hashes[1] == hashes[2] and hashes[0] == hashes[3]
+
+
+def test_python_browser_form_migration_reference():
+    folder = PYTHON / "form-identity/ui"
+    capture = read(folder / "trace.json")
+    assert capture["successful"] and capture["semantic_match"]
+    check_form_move_ui(capture, folder)
+
+
+def test_native_browser_form_migration_remains_a_known_hash_failure():
+    folder = RUST / "form-identity/ui"
+    capture = read(folder / "trace.json")
+    assert not capture["successful"] and not capture["semantic_match"] and capture["collection_complete"]
+    assert [widget["value"] for widget in capture["stages"][4]["dom"]["widgets"]] == ["8", "NEXT", "6"]
+    messages = form_move_messages(capture)
+    requests = [message.rerun_script for message in messages if isinstance(message, BackMsg)]
+    submit = requests[6].widget_states.widgets
+    assert (submit[1].int_value, submit[2].string_value, submit[3].int_value, submit[4].trigger_value) == (7, "EDIT", 4, True)
+    buttons = [message for message in messages if isinstance(message, ForwardMsg) and message.WhichOneof("type") == "delta"
+               and message.delta.new_element.WhichOneof("type") == "button"]
+    assert [message.delta.new_element.button.form_id for message in buttons] == ["alpha", "beta", "beta", "alpha"]
+    assert len({message.hash for message in buttons}) == 1
+    assert len({message.delta.new_element.button.id for message in buttons}) == 1
+    reports = [json.loads(message.delta.new_element.json.body) for message in messages if isinstance(message, ForwardMsg)
+               and message.WhichOneof("type") == "delta" and message.delta.new_element.WhichOneof("type") == "json"]
+    assert len(reports) == 9
+    assert reports[6] == {"phase": "form-b", "number": 7, "note": "EDIT", "unkeyed": 4,
+                          "submitted": True, "native": [7, "EDIT"]}
+    assert [(report["number"], report["note"], report["unkeyed"]) for report in reports[7:]] == [(7, "EDIT", 4)] * 2
+    with pytest.raises(AssertionError):
+        check_form_move_ui(capture, folder)
+
+
+@pytest.mark.parametrize("mutation", ("button-hash", "submit-values", "draft-dom", "screenshot"))
+def test_browser_form_migration_gate_rejects_damage(mutation):
+    folder = PYTHON / "form-identity/ui"
+    capture = read(folder / "trace.json")
+    if mutation == "draft-dom":
+        capture["stages"][4]["dom"]["widgets"][0]["value"] = "7"
+    elif mutation == "screenshot":
+        capture["stages"][2]["screenshot_integrity"]["sha256"] = "wrong"
+    else:
+        messages = form_move_messages(capture)
+        first_button_hash = next(message.hash for message in messages if isinstance(message, ForwardMsg) and message.WhichOneof("type") == "delta"
+                                 and message.delta.new_element.WhichOneof("type") == "button")
+        stage = capture["stages"][3 if mutation == "button-hash" else 5]
+        for event in stage["events"]["events"]:
+            method = event["method"]
+            if mutation == "button-hash" and method == "Network.webSocketFrameReceived":
+                message = ForwardMsg()
+                message.ParseFromString(base64.b64decode(event["params"]["response"]["payloadData"]))
+                if message.WhichOneof("type") != "delta" or message.delta.new_element.WhichOneof("type") != "button":
+                    continue
+                message.hash = first_button_hash
+            elif mutation == "submit-values" and method == "Network.webSocketFrameSent":
+                message = BackMsg()
+                message.ParseFromString(base64.b64decode(event["params"]["response"]["payloadData"]))
+                widgets = message.rerun_script.widget_states.widgets
+                widgets[1].int_value, widgets[2].string_value, widgets[3].int_value = 7, "EDIT", 4
+            else:
+                continue
+            event["params"]["response"]["payloadData"] = base64.b64encode(message.SerializeToString()).decode()
+            break
+    with pytest.raises(AssertionError):
+        check_form_move_ui(capture, folder)

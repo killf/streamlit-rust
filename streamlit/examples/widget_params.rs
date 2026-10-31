@@ -14,7 +14,11 @@ fn render(st: &Streamlit) -> Result<(), WidgetError> {
             Ok((number, note, unkeyed))
         }
 
-        let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
+        let phase = if st.query_params().get("ui").as_deref() == Some("on") {
+            st.selectbox(SelectboxOptions::new("Location", ["root", "form-a", "form-b"]).key("identity_location"))?.unwrap_or("root").to_string()
+        } else {
+            st.query_params().get("phase").unwrap_or_else(|| "load".into())
+        };
         let (number, note, unkeyed, submitted) = if phase.starts_with("form-") {
             let form_id = if matches!(phase.as_str(), "form-a" | "form-a-return") { "alpha" } else { "beta" };
             st.form(FormOptions::new(form_id), |form| {

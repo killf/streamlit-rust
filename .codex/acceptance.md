@@ -1872,3 +1872,52 @@ server::tests::navigation::navigation_pages_switch_and_session_state_match_the_m
 负向门校正结果见本轮工具输出。补充原先空 limitations 的两条表单记录后，
 派生清单仍为 130 partial，未测参数桶 94、未明确缺口桶 33，其余桶不变。
 用户 colconfig_params 修改不纳入本次提交。
+
+
+### 跨表单真实浏览器提交——已知 hash 失败（2026-10-31）
+
+现有 form-identity 探针加 ui=on 时渲染 Location 选择器，未开启时仍运行原七轮
+协议场景。SDK/Rust 各八阶段、九轮/98 原始 WS 帧和八张图；实际 Chrome 同一
+标签页先后验证，视口 1463×780/DPR1.75，普通点击与真实键盘。每次动作/AX
+确认后下一调用采集 DOM、原图和原连接事件，全部窗口无 truncated/hasMore。
+十六张图逐张目视核对其实际控件/报告，不声称两侧行为全部匹配或像素相等。
+返回原图字节为 JPEG，继承 .png 名称并保持不转码，核对格式/尺寸/SHA256。
+
+SDK root 分别编辑到 7/EDIT/9，迁入 alpha/beta 后 keyed 保留 7/EDIT、无 key
+变 4。beta 中草稿 8/NEXT/6 不发任何 WS，报告仍旧；Apply 后一次提交五个状态
+（Location、三个输入和 trigger），报告为 8/NEXT/6、submitted=true。回 root/
+alpha 保留 8/NEXT，无 key 恢复 4。源参考门固定全部九轮和八个 DOM 阶段。
+
+Rust 在 beta 草稿阶段与 SDK 一致，但 Apply 实际发旧 7/EDIT/4 和 trigger，
+报告 submitted=true 且 native 仍是旧值；返回 root/alpha 仍旧 7/EDIT。等待
+NEXT 超时后，检查同一连接确认该轮已完成，再保留失败现场，未因观察超时
+重启或重复点击。Rust capture 显式 successful=false、semantic_match=false，
+collection_complete=true；负向门固定原始请求、输出和图片，要求完整 SDK
+判定失败，没有把测试绿解释为 Rust 功能通过，没有增加 ignore。
+
+两端原始按钮 form_id 都依次 alpha/beta/beta/alpha，widget ID 各自稳定；SDK
+消息 hash 为 A/B/B/A，Rust 始终 4aebfc5b0fdec90a6e1fdf37d79410c3。当前
+ButtonElement::render 的 hash 只拼 id/label/type/width；已复核捆绑前端
+index.Dlja0TUX.js 的 to()/applyDelta，hash/type 相同且没有 one-shot 时复用
+旧 Element。此链解释前端缓存旧表单按钮、没有 flush beta 草稿的实际结果。
+本次未修改任何生产 hash；继续等待 architecture 的三选方案，不能用改变
+widget ID 来掩盖此前已修正并验证的 key 身份规则。
+
+门禁复用既有表单原始解析器，UI 分支显式允许 Location selectbox，原协议
+默认白名单不扩张。核对九轮完成/会话、所有精确输入（位置切换携带上一上下文
+无 key ID）、稳定 key/三类无 key ID、路径、DOM 表单归属/标签/草稿/报告和
+hash 等价关系；四类篡改为按钮 hash、提交值、草稿 DOM、图哈希。证据为两侧
+widget-params/form-identity/ui/trace.json，原七轮直接协议参考仍通过且单独保留。
+网络观察在离开 origin/关页前停止，未保留 WS close 帧；专用标签页已关闭，
+自有服务按进程身份核对后停止，8599/8619 读回无监听。
+
+本批仅示例/SDK fixture、参考门和文档变更，生产实现、共享状态和公开接口
+不变。hash 选型及 109/116 状态差异分别开放，完整目标和 130 partial 不关闭。
+
+本批示例构建、定向 Clippy 和 rustfmt 检查通过（既有 MSVC linker stdout
+warning 保留）；282 项相关 query/widget/matrix/docs 门通过，日志为
+target/form-identity-ui-{build,clippy,reference}.log。这里测试通过表示 SDK
+参考和 Rust 失败被正确保护，不能报告 Rust 浏览器兼容通过。未重复工作区/
+完整 Python 套件；上一批 301 项与两项排除仍是上一批快照。用户 colconfig_params
+改动保持隔离。已向用户重发 hash 三选问题，尚无答复；不视此前错误恢复或
+rerun Delta-only 的“1”为本次 hash 选型。

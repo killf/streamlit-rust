@@ -2,7 +2,10 @@
 import streamlit as st
 
 if st.query_params.get("probe") == "form-identity":
-    phase = st.query_params.get("phase", "load")
+    if st.query_params.get("ui") == "on":
+        phase = st.selectbox("Location", ("root", "form-a", "form-b"), key="identity_location")
+    else:
+        phase = st.query_params.get("phase", "load")
 
     def draw_identity():
         number = st.number_input("Number " + phase, value=4, key="number", help=phase)
