@@ -1779,3 +1779,26 @@ stdout warning）。相关 Python 首轮 248 通过、1 项派生清单不一致
 export_m3_inventory.py 同步后，仅重跑该失败项并通过。日志保留在
 target/number-float-{build,clippy,reference}.log。未重复全工作区或全 Python
 套件。派生清单仍为 130 partial；提交排除用户 colconfig_params 修改。
+
+
+### number_input 相等边界及非正步长（2026-10-31）
+
+SDK 与修后 Rust 的 number-permissive/trace.json 各一轮、22 原始帧、18 有序
+元素，包含整数/浮点各三组可接受参数（相等边界、零步长、负步长）及各三组
+拒绝对照（倒置范围、过小/过大默认值）。修前原生 before/trace.json 一轮/
+16 帧/12 报告，六组 SDK 合法调用全被拒绝；作为明确失败证据保留并设负向门。
+公开接口单元先红后绿；门禁还核对 raw PB/summary/elements、一轮完成、精确
+值/原生状态、类型/格式/范围/标志/step 及控件和报告顺序，六类一致篡改会失败。
+Rust 修改仅为两处校验条件及对应错误说明，无公共 API、身份、状态或 slider
+改动。拒绝报告只衡量 accepted=false 后继续运行，不证明异常类型/文案/UI
+等价；真实浏览器非正 step 行为和非有限/协议输入仍开放。服务/WS 已关闭，
+58653/8599 端口读回无监听。完整目标、130 partial、状态待选和 109/116 差异保持开放。
+
+本批格式/全目标 Clippy 通过（既有 MSVC linker stdout warning 保留）；工作区
+共 300 项通过：library 293、ledger 1、macros 2、rustdoc 4。仅保留原两项排除：
+server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire
+及 server::tests::queryparams::rerun_queue_messages_match_frozen_reference。
+258 项相关 Python 参考/矩阵/文档检查通过，未重复完整 Python 套件。日志为
+target/number-permissive-{red,green,clippy,build,workspace,reference}.log；首次
+编辑保护断言中止后保留的再次失败记录另见 target/number-permissive-edit-not-applied.log，没有修改
+slider 校验。用户 colconfig_params 改动不纳入本次提交。

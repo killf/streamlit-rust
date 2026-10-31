@@ -158,6 +158,106 @@ def test_integer_bounds_reject_coherent_wrong_wire(mutation):
         check_integer_bound_capture(capture)
 
 
+PERMISSIVE_NUMBERS = (
+    ("Int equal", 2, 2, 2, 1), ("Int zero step", 4, None, None, 0),
+    ("Int negative step", 4, None, None, -2),
+    ("Float equal", 2.5, 2.5, 2.5, 0.25), ("Float zero step", 1.5, None, None, 0.0),
+    ("Float negative step", 1.5, None, None, -0.25),
+)
+REJECTED_NUMBERS = ("Int inverted", "Int below", "Int above", "Float inverted", "Float below", "Float above")
+
+
+def check_permissive_numbers(capture):
+    runs = number_runs(capture)
+    assert len(runs) == 1 and capture["finishes"] == [0]
+    run = runs[0]
+    assert run["request"].query_string == "probe=number-permissive"
+    assert not run["request"].widget_states.widgets and not run["request"].is_history_navigation
+    assert len(run["sessions"]) == 1 and run["finishes"] == [0]
+    assert run["sessions"][0].initialize.environment_info.streamlit_version == "1.66.1"
+    assert run["layouts"] == [{"use_stretch": True}] * 6
+    assert len(run["widgets"]) == 6
+    assert [element["kind"] for element in capture["elements"]] == ["number_input", "json"] * 6 + ["json"] * 6
+    ids = set()
+    for index, (widget, (label, value, low, high, step)) in enumerate(zip(run["widgets"], PERMISSIVE_NUMBERS, strict=True)):
+        floating = index >= 3
+        sentinel = sys.float_info.max if floating else 9007199254740991
+        assert widget.label == label and widget.id.endswith("-" + label)
+        ids.add(widget.id)
+        assert widget.default == value and widget.HasField("default")
+        assert (widget.min, widget.max) == (low if low is not None else -sentinel, high if high is not None else sentinel)
+        assert (widget.has_min, widget.has_max) == (low is not None, high is not None)
+        assert widget.step == step and widget.data_type == int(floating)
+        assert widget.format == ("%0.2f" if floating else "%d")
+        assert not widget.set_value and not widget.HasField("value") and not widget.disabled
+    assert len(ids) == 6
+    assert run["reports"] == [
+        {"case": label, "accepted": True, "value": value, "state": value}
+        for label, value, *_ in PERMISSIVE_NUMBERS
+    ] + [{"case": label, "accepted": False} for label in REJECTED_NUMBERS]
+
+
+@pytest.mark.parametrize("root", (PYTHON, RUST), ids=("python", "rust"))
+def test_number_equal_bounds_and_nonpositive_steps(root):
+    check_permissive_numbers(read(root / "number-permissive/trace.json"))
+
+
+def test_pre_fix_rust_rejection_does_not_match_permissive_reference():
+    capture = read(RUST / "number-permissive/before/trace.json")
+    run = number_runs(capture)[0]
+    assert not run["widgets"]
+    assert run["reports"] == [{"case": label, "accepted": False} for label, *_ in PERMISSIVE_NUMBERS] + [{"case": label, "accepted": False} for label in REJECTED_NUMBERS]
+    with pytest.raises(AssertionError):
+        check_permissive_numbers(capture)
+
+
+@pytest.mark.parametrize("mutation", ("equal-bound", "zero-step", "negative-step", "accepted", "value", "type"))
+def test_permissive_number_gate_rejects_coherent_wrong_wire(mutation):
+    capture = read(PYTHON / "number-permissive/trace.json")
+    for frame in capture["frames"]:
+        if frame["direction"] != "server->client":
+            continue
+        msg = ForwardMsg()
+        msg.ParseFromString(base64.b64decode(frame["base64"]))
+        if msg.WhichOneof("type") != "delta":
+            continue
+        element = msg.delta.new_element
+        kind = element.WhichOneof("type")
+        if kind == "number_input":
+            widget = element.number_input
+            if mutation == "equal-bound" and widget.label == "Int equal":
+                widget.min = 1
+            elif mutation == "zero-step" and widget.label == "Float zero step":
+                widget.step = 0.01
+            elif mutation == "negative-step" and widget.label == "Int negative step":
+                widget.step = 2
+            elif mutation == "type" and widget.label == "Float equal":
+                widget.data_type = 0
+            else:
+                continue
+        elif kind == "json" and mutation in ("accepted", "value"):
+            report = json.loads(element.json.body)
+            if report["case"] != "Int equal":
+                continue
+            if mutation == "accepted":
+                report = {"case": "Int equal", "accepted": False}
+            else:
+                report["value"] = report["state"] = 1
+            element.json.body = json.dumps(report)
+        else:
+            continue
+        raw = msg.SerializeToString()
+        frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(msg, preserving_proto_field_name=True))
+    capture["elements"] = []
+    for msg in frames(capture):
+        if msg.WhichOneof("type") == "delta":
+            element = msg.delta.new_element
+            kind = element.WhichOneof("type")
+            capture["elements"].append({"kind": kind, "fields": MessageToDict(getattr(element, kind), preserving_proto_field_name=True)})
+    with pytest.raises(AssertionError):
+        check_permissive_numbers(capture)
+
+
 NUMBER_PHASES = ("load", "edit", "zero-min", "narrow-max", "grow", "default", "edit-low", "raise-min", "step", "disabled", "recover", "assign")
 NUMBER_VALUES = (4, 7, 7, 4, 4, 4, 1, 4, 4, 4, 4, 8)
 

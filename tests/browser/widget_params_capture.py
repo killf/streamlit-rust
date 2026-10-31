@@ -26,6 +26,7 @@ parser = argparse.ArgumentParser(description='Collect the widget-parameter refer
 parser.add_argument('--out', type=Path, required=True)
 parser.add_argument('--integer-bounds', action='store_true', help='opt-in unbounded and one-sided integer wire probe')
 parser.add_argument('--number-sequence', action='store_true', help='keyed number dynamic bounds over one WS')
+parser.add_argument('--number-permissive', action='store_true', help='equal bounds and nonpositive finite steps, plus rejected range controls')
 parser.add_argument('--number-float', action='store_true', help='float variant of the keyed number sequence')
 parser.add_argument('--number-unkeyed', action='store_true', help='unkeyed number identity across option changes')
 parser.add_argument('--stop-after-run', action='store_true', help='stop after each unkeyed probe report')
@@ -33,7 +34,7 @@ parser.add_argument('--resume-after-stop', action='store_true', help='append nor
 parser.add_argument('--stop-lifecycle', action='store_true', help='button and URL-bound text around early stop and normal cleanup')
 parser.add_argument('--url', help='caller-owned Rust server URL (comparison capture)')
 args = parser.parse_args()
-assert sum((args.integer_bounds, args.number_sequence, args.number_unkeyed, args.stop_lifecycle)) <= 1
+assert sum((args.integer_bounds, args.number_sequence, args.number_unkeyed, args.stop_lifecycle, args.number_permissive)) <= 1
 assert not args.number_float or args.number_sequence
 assert not args.stop_after_run or args.number_unkeyed
 assert not args.resume_after_stop or args.stop_after_run
@@ -130,6 +131,8 @@ try:
                     else:
                         widget.string_value = value
         request.rerun_script.SetInParent()
+        if args.number_permissive:
+            request.rerun_script.query_string = "probe=number-permissive"
         if args.integer_bounds:
             request.rerun_script.query_string = "probe=integer-bounds"
         raw = request.SerializeToString()

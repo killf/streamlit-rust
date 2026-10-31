@@ -2481,16 +2481,16 @@ impl<C: AppendChild> InputWidgets for C {
         let width_config = c.width(false)?;
         let (min, max) = (options.min.map(T::to_f64), options.max.map(T::to_f64));
         let step = options.step.unwrap_or(if T::INTEGER { 1.0 } else { 0.01 });
+        // SDK 允许相等边界和有限的零/负步长；仅拒绝倒置边界及无效数值。
         let numbers = [options.value.to_f64(), min.unwrap_or_default(), max.unwrap_or_default(), step];
         if !step.is_finite()
-            || step <= 0.0
-            || min.is_some_and(|low| low >= max.unwrap_or(f64::INFINITY))
+            || min.is_some_and(|low| low > max.unwrap_or(f64::INFINITY))
             || numbers.iter().any(|number| !number.is_finite())
             || (T::INTEGER && numbers.iter().any(|number| number.fract() != 0.0 || number.abs() > crate::widgets::JS_SAFE_INTEGER))
             || min.is_some_and(|low| options.value.to_f64() < low)
             || max.is_some_and(|high| options.value.to_f64() > high)
         {
-            return Err(WidgetError::InvalidValue("number input needs a value inside ordered finite bounds (integers must be JS-safe) and a positive step".into()));
+            return Err(WidgetError::InvalidValue("number input needs a value inside ordered finite bounds (integers must be JS-safe) and a finite step".into()));
         }
         let default = options.value.to_value();
         // 无 key 时保留原始可选参数；省略 step 与显式默认步长的身份不同。
@@ -4575,6 +4575,44 @@ mod tests {
         let element::Type::NumberInput(restored) = input(&mut wire)? else { panic!() };
         assert_eq!(restored.id, initial.id);
         assert!(!restored.set_value);
+        Ok(())
+    }
+
+    #[test]
+    fn number_input_equal_bounds_and_nonpositive_steps_match_reference() -> anyhow::Result<()> {
+        fn check<T: NumberValue>(label: &str, value: T, low: Option<T>, high: Option<T>, step: f64) -> anyhow::Result<()> {
+            let state = SessionState::default();
+            state.begin_widgets(vec![]);
+            let (st, mut wire) = app(&state);
+            let mut options = NumberInputOptions::new(label, value).key("number").step(step);
+            if let Some(low) = low {
+                options = options.min(low);
+            }
+            if let Some(high) = high {
+                options = options.max(high);
+            }
+
+            assert_eq!(st.number_input(options)?.to_value(), value.to_value(), "{label}");
+            assert_eq!(state.get::<T>("number")?.map(T::to_value), Some(value.to_value()));
+            let element::Type::NumberInput(number) = input(&mut wire)? else { panic!() };
+            assert_eq!(number.default, Some(value.to_f64()));
+            assert_eq!(number.step, step);
+            assert_eq!(number.data_type, i32::from(!T::INTEGER));
+            assert_eq!((number.has_min, number.has_max), (low.is_some(), high.is_some()));
+            if let (Some(low), Some(high)) = (low, high) {
+                assert_eq!((number.min, number.max), (low.to_f64(), high.to_f64()));
+            }
+            assert!(!number.set_value);
+            Ok(())
+        }
+
+        for (label, value, low, high, step) in [("Int equal", 2_i64, Some(2), Some(2), 1.0), ("Int zero step", 4, None, None, 0.0), ("Int negative step", 4, None, None, -2.0)] {
+            check(label, value, low, high, step)?;
+        }
+
+        for (label, value, low, high, step) in [("Float equal", 2.5_f64, Some(2.5), Some(2.5), 0.25), ("Float zero step", 1.5, None, None, 0.0), ("Float negative step", 1.5, None, None, -0.25)] {
+            check(label, value, low, high, step)?;
+        }
         Ok(())
     }
 

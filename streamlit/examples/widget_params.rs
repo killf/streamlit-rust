@@ -6,6 +6,52 @@ use ::streamlit::*;
 use streamlit::StreamlitApi;
 
 fn render(st: &Streamlit) -> Result<(), WidgetError> {
+    if st.query_params().get("probe").as_deref() == Some("number-permissive") {
+        let report = |label: &str, result: Result<serde_json::Value, WidgetError>| -> Result<(), WidgetError> {
+            match result {
+                Ok(value) => {
+                    st.json(serde_json::json!({"case": label, "accepted": true, "value": value,
+                        "state": st.session_state().get::<serde_json::Value>(label)?}));
+                }
+                Err(_) => {
+                    st.json(serde_json::json!({"case": label, "accepted": false}));
+                }
+            }
+            Ok(())
+        };
+
+        for (label, value, low, high, step) in [("Int equal", 2_i64, Some(2), Some(2), 1.0), ("Int zero step", 4, None, None, 0.0), ("Int negative step", 4, None, None, -2.0)] {
+            let mut options = NumberInputOptions::new(label, value).key(label).step(step);
+            if let Some(low) = low {
+                options = options.min(low);
+            }
+            if let Some(high) = high {
+                options = options.max(high);
+            }
+            report(label, st.number_input(options).map(serde_json::Value::from))?;
+        }
+
+        for (label, value, low, high, step) in [("Float equal", 2.5_f64, Some(2.5), Some(2.5), 0.25), ("Float zero step", 1.5, None, None, 0.0), ("Float negative step", 1.5, None, None, -0.25)] {
+            let mut options = NumberInputOptions::new(label, value).key(label).step(step);
+            if let Some(low) = low {
+                options = options.min(low);
+            }
+            if let Some(high) = high {
+                options = options.max(high);
+            }
+            report(label, st.number_input(options).map(serde_json::Value::from))?;
+        }
+
+        for (label, value, low, high) in [("Int inverted", 2_i64, 3, 2), ("Int below", 1, 2, 8), ("Int above", 9, 2, 8)] {
+            report(label, st.number_input(NumberInputOptions::new(label, value).key(label).min(low).max(high)).map(serde_json::Value::from))?;
+        }
+
+        for (label, value, low, high) in [("Float inverted", 2.0_f64, 3.0, 2.0), ("Float below", 1.0, 2.0, 8.0), ("Float above", 9.0, 2.0, 8.0)] {
+            report(label, st.number_input(NumberInputOptions::new(label, value).key(label).min(low).max(high).step(0.25)).map(serde_json::Value::from))?;
+        }
+        return Ok(());
+    }
+
     if st.query_params().get("probe").as_deref() == Some("stop-lifecycle") {
         let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
         let state = st.session_state();

@@ -1,7 +1,24 @@
 """Emit widget creation-wire parameter variants for the M3 differential."""
 import streamlit as st
 
-if st.query_params.get("probe") == "stop-lifecycle":
+if st.query_params.get("probe") == "number-permissive":
+    for label, default, low, high, step in (
+        ("Int equal", 2, 2, 2, 1), ("Int zero step", 4, None, None, 0),
+        ("Int negative step", 4, None, None, -2),
+        ("Float equal", 2.5, 2.5, 2.5, 0.25), ("Float zero step", 1.5, None, None, 0.0),
+        ("Float negative step", 1.5, None, None, -0.25),
+        ("Int inverted", 2, 3, 2, 1), ("Int below", 1, 2, 8, 1), ("Int above", 9, 2, 8, 1),
+        ("Float inverted", 2.0, 3.0, 2.0, 0.25),
+        ("Float below", 1.0, 2.0, 8.0, 0.25), ("Float above", 9.0, 2.0, 8.0, 0.25),
+    ):
+        try:
+            value = st.number_input(label, value=default, min_value=low, max_value=high, step=step, key=label)
+        except Exception:
+            st.json({"case": label, "accepted": False})
+        else:
+            st.json({"case": label, "accepted": True, "value": value, "state": st.session_state[label]})
+
+elif st.query_params.get("probe") == "stop-lifecycle":
     phase = st.query_params.get("phase", "load")
 
     def changed_lifecycle(key):
