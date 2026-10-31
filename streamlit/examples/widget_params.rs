@@ -6,6 +6,31 @@ use ::streamlit::*;
 use streamlit::StreamlitApi;
 
 fn render(st: &Streamlit) -> Result<(), WidgetError> {
+    if st.query_params().get("probe").as_deref() == Some("group-defaults") {
+        let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
+        let choices = if phase == "empty" { vec![] } else { vec!["Alpha", "Beta"] };
+        let defaults = if phase == "empty" {
+            vec![]
+        } else if phase == "default" || phase == "default-edit" {
+            vec!["Alpha", "Alpha", "Alpha"]
+        } else {
+            vec!["Beta", "Beta", "Alpha", "Beta"]
+        };
+        let labels = ["Plain pills", "Keyed pills", "Plain segments", "Keyed segments"];
+        let mut values = Vec::new();
+        for (position, label) in labels.iter().enumerate() {
+            let mut options = ButtonGroupOptions::new(*label, choices.clone()).selection_mode(SelectionMode::Multi).default(defaults.clone());
+            if position % 2 == 1 {
+                options = options.key(*label);
+            }
+            let value = if position < 2 { st.pills(options)? } else { st.segmented_control(options)? };
+            let ButtonGroupValue::Multi(value) = value else { unreachable!() };
+            values.push(value);
+        }
+        st.json(serde_json::json!({"phase": phase, "values": values}));
+        return Ok(());
+    }
+
     if st.query_params().get("probe").as_deref() == Some("group-state") {
         let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
         let state = st.session_state();

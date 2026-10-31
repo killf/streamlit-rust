@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "runtime": "rust",
+  "reference_version": "1.66.1",
+  "captured_at_utc": "2026-10-31T21:28:24.542490+00:00",
+  "scope": "Eight pills/segmented-control duplicate-default and dynamic identity runs on one native WS; no browser/UI claim.",
+  "server_command": null,
+  "server_cleanup": "caller-owned",
+  "url": "http://127.0.0.1:8599",
+  "frames": [
+    {
+      "direction": "client->server",
+      "bytes": 35,
+      "base64": "WiEKH3Byb2JlPWdyb3VwLWRlZmF1bHRzJnBoYXNlPWxvYWQ=",
+      "message": {
+        "rerun_script": {
+          "query_string": "probe=group-defaults&phase=load"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 219,
+      "base64": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkNzA5MGVhNGEtYWIwMC00NmVkLTlkOTItM2FkMmE2OTQwMGMxEiRkMjMwODU5YS02MjA2LTRjOWItYjAxMS0zNmEyMDQ4Y2YzMzUaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl",
+      "message": {
+        "metadata": {
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "new_session": {
+          "initialize": {
+            "user_info": {},
+            "environment_info": {
+              "streamlit_version": "1.66.1"
+            },
+            "session_status": {},
+            "session_id": "7090ea4a-ab00-46ed-9d92-3ad2a69400c1"
+          },
+          "script_run_id": "d230859a-6206-4c9b-b011-36a2048cf335",
+          "name": "Streamlit Rust",
+          "config": {
+            "show_error_links": "SHOW_ERROR_LINKS_FALSE"
+          },
+          "page_script_hash": "d41d8cd98f00b204e9800998ecf8427e",
+          "main_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 28,
+      "base64": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ==",
+      "message": {
+        "hash": "session_status_changed",
+        "session_status_changed": {
+          "script_is_running": true
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 184,
+      "base64": "CiA2MTU1N2U4OTE4ZDQ0OTRlMDA5N2JhY2Q3NzczNjY1NBImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqbBpq6gFiClxXaWRnZXQgcGFyYW1zIGVycm9yOiBpbnZhbGlkIHdpZGdldCB2YWx1ZTogYnV0dG9uLWdyb3VwIGRlZmF1bHRzIG11c3QgZml0IHRoZSBzZWxlY3Rpb24gbW9kZSABQAHqAwIIAQ==",
+      "message": {
+        "hash": "61557e8918d4494e0097bacd77736654",
+        "metadata": {
+          "delta_path": [
+            0,
+            0
+          ],
+          "active_script_hash": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "delta": {
+          "new_element": {
+            "markdown": {
+              "body": "Widget params error: invalid widget value: button-group defaults must fit the selection mode",
+              "element_type": "NATIVE",
+              "wrap": true
+            },
+            "text_alignment_config": {
+              "alignment": "LEFT"
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "server->client",
+      "bytes": 19,
+      "base64": "Cg9zY3JpcHRfZmluaXNoZWQwAA==",
+      "message": {
+        "hash": "script_finished",
+        "script_finished": "FINISHED_SUCCESSFULLY"
+      }
+    }
+  ],
+  "elements": [
+    {
+      "index": 0,
+      "kind": "markdown",
+      "fields": {
+        "body": "Widget params error: invalid widget value: button-group defaults must fit the selection mode",
+        "element_type": "NATIVE",
+        "wrap": true
+      },
+      "url": "",
+      "delta_path": [
+        0,
+        0
+      ]
+    }
+  ],
+  "finishes": [
+    0
+  ],
+  "producer_sources_sha256": {
+    "streamlit/examples/widget_params.rs": "ae6ff3495553ccbc3029af266ecffd2e63289fcf52c9101a7551f77d8ee9a790",
+    "tests/reference/widget_params_app.py": "08c29786ade761891050ee9ae5532782ab107ba47390f726ae2120c3ee880056",
+    "tests/browser/widget_params_capture.py": "6fe1036bac6573824354739f356ab31f246a2806f6f418dc66514fa05473b1df"
+  },
+  "health": {
+    "status": 200,
+    "body": "ok"
+  },
+  "producer_error": "KeyError: 'Plain pills'",
+  "cleanup": {
+    "caller_server_stopped": true
+  },
+  "semantic_match": false,
+  "widgets_sha256": "94cfe842ca59c7593016a669e0d3213c5e491861a40930713ee87739415df64f",
+  "widget_api_sha256": "17ff3db59e349fa5a1a624b1b06f56c72e68f44b7164ab985cbd32618000a412",
+  "binary_sha256": "5d6feb8dc602a662a5a47b9682f7fdbaa2891b5b8e54e14f1b379e18b222b385"
+}

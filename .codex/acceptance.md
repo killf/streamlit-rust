@@ -2454,3 +2454,21 @@ widgets.rs 复用原有 selection_default/selection_reset：ButtonGroup 单选�
 无新浏览器采集；异类型原生状态、错误输入、callback、真实清空 UI、绑定/表单/跨页/晚到输入等继续开放。仅 st.pills/st.segmented_control 两行矩阵及生成清单更新，仍 130 partial；select_slider 的其他已知差异及待决方案保持。用户 colconfig_params 修改独立保留，未创建 PR、合并、发布或部署，M3/M5/M7 与长期 Goal 未关闭。
 
 编辑 Rust 的 rustfmt、全工作区/all-target Clippy、新增公开 API 单元通过；最终工作区 327 项通过（320 库、1 ledger、2 宏、4 rustdoc），仍仅排除原 navigation_pages_switch_and_session_state_match_the_measured_wire 与 rerun_queue_messages_match_frozen_reference，不称完整工作区全绿。参数参考模块 303 项，相关 query/widget/temporal/pickers/matrix/docs/buttons/inputs 八模块共 609 项通过；文档/矩阵收尾门 52 项通过。既有 MSVC linker stdout warning 保留；日志 target/group-state-{red,green,clippy,build,workspace,python}.log。
+
+## Current button-group duplicate-default validation (2026-11-01)
+
+锁定 SDK 1.66.1 的公开 AppTest 验证 pills/segmented_control 多选允许重复默认值，四项默认可以超过两项选项数，单选项上三个相同默认也合法。逐项必须属于选项；单选仍至多一个默认。Rust emit_button_group 原先以 default.len()>options.len() 统一拒绝；本次仅移除该数量条件，保留单选数量与逐项存在性检查，无新公共 API、模块或依赖。
+
+[SDK](../tests/reference/reference-browser/widget-params/group-defaults/trace.json)与[Rust 最终](../tests/browser/rust-widget-params/group-defaults/trace.json)各八轮、79 原始帧、40 完整 Element；两样式各含 keyed/无 key 多选对照。初始 [Beta,Beta,Alpha,Beta] 原样返回，默认索引 [1,1,0,1]；输入 [Alpha,Beta,Alpha] 后，将默认换成 [Alpha,Alpha,Alpha] 仅重建无 key 控件，有 key 保留输入；接着输入重复 Beta，空选项清空所有值（仅 keyed 旧值过滤需同步）；恢复旧默认时无 key 从默认开始，有 key 保持空数组；最后输入 Alpha 并观察保持。
+
+[Rust 修前](../tests/browser/rust-widget-params/group-defaults/before/trace.json)保留首轮五帧/一个 Markdown/一次 script_finished=0 的真实失败前缀，错误 button-group defaults must fit the selection mode。首轮未产生任何控件 ID，采集器准备第二轮提交时 KeyError: Plain pills 中断，trace 无 successful；不得称为八轮修前运行。原始帧未重采或替换，异常路径未记录 websocket_closed，因此不作该字段成功声明；Rust 自持服务句柄已停止。补充 metadata 时收尾脚本也因 cleanup 缺省抛 KeyError，已改用 setdefault，只补实际已验证的 caller_server_stopped。新增公开 API 单元先因同一生产拒绝真实失败，修后通过。
+
+完整 Element 仅归一化不透明 ID/JSON 文本后逐字段一致。严格门核对 default 的顺序与重复数、四控件真实前轮 ID/string_array_value、三类无 key 身份与各一类 keyed 身份、动态默认/空选项/清理恢复、set_value/raw_values/one-shot、style/mode/策略、session/run/path。八类同时改写 raw 与汇总的负例必须失败：默认重排、默认去重、有 key 错变身份、无 key 未变身份、有 key 随默认重置、空恢复复活旧值、缺失空同步、输入顺序变化。
+
+公开 API 单元另覆盖两样式的单选项重复默认、空默认、原生 state/返回值及声明 default/no-sync，以及单选多个默认和多选列表外默认仍拒绝且不发送 Delta。后两项仅证明拒绝边界，未宣称 Python 错误类型、文案或默认错误 UI 完整一致。
+
+同一最终二进制重放 group-state/group-policy 各十轮、99 帧/50 Element，完整规范化字段继续匹配，结果 target/group-defaults-{state,policy}-recheck/trace.json。producer 三份源码、widget_api/widgets 与二进制 SHA 已核对；修前核心源码 SHA 与前一 HEAD 8e74b3e 一致。SDK 自建服务和 Rust 自持 Popen 句柄均已停止，58814/8599 无监听。
+
+无新浏览器采集；重复项可见高亮、callback、任意格式化、错误 UI、绑定/表单/跨页/晚到输入等继续开放。仅 st.pills/st.segmented_control 两行矩阵与生成清单更新，仍 130 partial；未改变完整目标和待决方案。用户 colconfig_params 修改独立保留，未创建 PR、合并、发布或部署，M3/M5/M7 与长期 Goal 未关闭。
+
+编辑 Rust 的 rustfmt、全工作区/all-target Clippy、新增公开 API 单元通过；最终工作区 328 项通过（321 库、1 ledger、2 宏、4 rustdoc），仍仅排除原 navigation_pages_switch_and_session_state_match_the_measured_wire 与 rerun_queue_messages_match_frozen_reference，不称完整工作区全绿。参数参考模块 315 项，相关 query/widget/temporal/pickers/matrix/docs/buttons/inputs 八模块共 621 项通过；文档/矩阵收尾门 52 项通过。既有 MSVC linker stdout warning 保留；日志 target/group-defaults-{red,green,clippy,build,workspace,python}.log。

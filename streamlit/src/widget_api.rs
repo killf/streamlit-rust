@@ -3718,7 +3718,7 @@ fn emit_button_group<C: AppendChild>(this: &C, options: ButtonGroupOptions, styl
     if options.required && multi {
         return Err(WidgetError::InvalidValue("required is only supported for single-select mode".into()));
     }
-    if options.default.len() > options.options.len() || (!multi && options.default.len() > 1) {
+    if !multi && options.default.len() > 1 {
         return Err(WidgetError::InvalidValue("button-group defaults must fit the selection mode".into()));
     }
     let mut default_indices: Vec<u32> = Vec::with_capacity(options.default.len());
@@ -4961,6 +4961,42 @@ mod tests {
             assert!(wire.try_recv().is_ok(), "the first valid form is still rendered");
         }
         assert!(wire.try_recv().is_err(), "failed form calls must not append their partial children");
+    }
+
+    #[test]
+    fn button_group_multi_defaults_preserve_duplicates_beyond_option_count() -> anyhow::Result<()> {
+        for segmented in [false, true] {
+            // 1. 多选默认项可重复并超过选项数，包含单选项和空列表边界。
+            for (choices, defaults, indices) in [
+                (vec!["Alpha", "Beta"], vec!["Beta", "Beta", "Alpha", "Beta"], vec![1, 1, 0, 1]),
+                (vec!["Alpha"], vec!["Alpha", "Alpha", "Alpha"], vec![0, 0, 0]),
+                (vec![], vec![], vec![]),
+            ] {
+                let state = SessionState::default();
+                let (st, mut wire) = app(&state);
+                let options = ButtonGroupOptions::new("Choice", choices).key("choice").selection_mode(SelectionMode::Multi).default(defaults.clone());
+                let result = if segmented { st.segmented_control(options)? } else { st.pills(options)? };
+                assert_eq!(result, ButtonGroupValue::Multi(defaults.iter().map(|value| (*value).into()).collect()));
+                assert_eq!(state.get::<Vec<String>>("choice")?, Some(defaults.iter().map(|value| (*value).into()).collect()));
+                let element::Type::ButtonGroup(widget) = input(&mut wire)? else { panic!() };
+                assert_eq!(widget.default, indices);
+                assert!(!widget.set_value && widget.raw_values.is_empty());
+            }
+
+            // 2. 单选多默认值及列表外默认项仍在发送前拒绝。
+            for options in [
+                ButtonGroupOptions::new("Invalid single", ["Alpha", "Beta"]).default(["Alpha", "Beta"]),
+                ButtonGroupOptions::new("Invalid multi", ["Alpha"]).selection_mode(SelectionMode::Multi).default(["Gone"]),
+            ] {
+                let state = SessionState::default();
+                let (st, mut wire) = app(&state);
+                let result = if segmented { st.segmented_control(options) } else { st.pills(options) };
+                assert!(matches!(result, Err(WidgetError::InvalidValue(_))));
+                assert!(wire.try_recv().is_err());
+            }
+        }
+
+        Ok(())
     }
 
     #[test]
