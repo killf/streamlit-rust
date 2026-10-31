@@ -1268,3 +1268,51 @@ proof, not browser disabled/visibility/buffering/remount, every omitted-versus-
 empty option distinction, unkeyed form/sidebar identity or forged-input proof.
 Pending API/hash/queue/parser choices stay pending; existing colconfig_params
 changes are excluded from this batch's commit/push.
+
+
+### Unkeyed area layout and default-height correction (2026-10-31)
+
+text-unkeyed-area retains 21 native runs/272 raw frames/63 ordered widget-policy-
+return projections in one session. The original input reference remains intact.
+Policy changes retain KEEP🧊, while width/help/raw-height/placeholder changes
+reset to abcde. Explicit native heights are 120/240; hint/next placeholders,
+four frontend edits/callback markers and restoration are measured. All pairwise
+ID equivalence relations match; previous IDs do not resurrect earlier input.
+The unkeyed probe deliberately reports state=null with has_key=false and actual
+return values, rather than claiming a keyed read of internal unkeyed state.
+
+The pinned SDK also emits automatic height 122, or 94 with a collapsed label.
+Rust's existing area emitter now sends this effective height; unkeyed identity
+includes raw height/width/placeholder, leaving the keyed max_chars branch and
+original supplied options intact. A public unit separately proves automatic
+None versus explicit 122 have different IDs despite equal pixel payload, same-ID
+collapsed 94 retains input, and returning to the old identity resets. No new
+public API/module/dependency, shared hash or queue policy is introduced.
+
+The complete real-WS comparison failed before correction on actual values and
+layout (target/text-unkeyed-area-before.log), then passed all 63 projections.
+Code/all-targets Clippy -D warnings and Rustfmt passed, then the public unit and
+all 30 related query-module checks passed, excluding the existing queue test
+(text-unkeyed-area-clippy.log, text-unkeyed-area-unit.log and text-unkeyed-area-
+integration.log under target/). Raw PB/summary, exact requests/input IDs/history,
+runtime/session, defaults/limits/sync, policy/visibility/width/height/placeholder/
+help, callbacks/returns and ID relations are gated. Shared mutation checks reject
+missing layout as well as wrong resets/retention or lost ignore flags; original
+trace files are not rewritten.
+
+Full Rust workspace passed 284: library 277, ledger 1, macros 2, rustdoc 4.
+Only the existing navigation_pages_switch_and_session_state_match_the_measured_wire
+and rerun_queue_messages_match_frozen_reference were skipped; this is not full
+workspace green (target/text-unkeyed-area-workspace.log). Existing MSVC linker
+stdout warning remains.
+
+Complete frozen-reference Python suite passed 1842 with DeprecationWarning as
+error (target/text-unkeyed-area-reference.log); 158 related query/matrix/docs
+checks also passed (target/text-unkeyed-area-final-gates.log).
+
+Owned socket/server closed and port 56722 was read back free. Matrix/inventory
+retain 130 partial entries and M3/M5/M7/full goal remain open. Browser pixels,
+remount/buffering, invalid/content heights, area binding, context and all
+omitted/empty option distinctions are not proven by this native batch. Pending
+API/hash/queue/parser choices stay pending; existing colconfig_params changes
+are excluded from this batch's commit/push.

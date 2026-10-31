@@ -180,7 +180,7 @@ def read_query_param_capture(scenario, capture=None):
                     byte_payloads.append(widgets[0].bytes_value)
         elif message.WhichOneof("type") == "new_session":
             sessions.append(message.new_session.initialize.session_id)
-            if scenario in ("disabled-json", "encoding", "text-length", "text-reset", "text-source", "text-bound", "text-bound-peer", "text-repeat", "text-empty", "text-validation", "text-unkeyed"):
+            if scenario in ("disabled-json", "encoding", "text-length", "text-reset", "text-source", "text-bound", "text-bound-peer", "text-repeat", "text-empty", "text-validation", "text-unkeyed", "text-unkeyed-area"):
                 environment = message.new_session.initialize.environment_info
                 assert environment.streamlit_version == "1.66.1" and environment.python_version == "3.14.7.final.0"
         elif message.WhichOneof("type") == "script_finished":
@@ -361,25 +361,43 @@ def read_query_param_capture(scenario, capture=None):
             identities = length_ids[number * 10:(number + 1) * 10]
             assert [identities.index(identity) for identity in identities] == [0, 0, 2, 3, 3, 0, 2, 2, 0, 0]
         assert set(length_ids[:10]).isdisjoint(length_ids[10:])
-    elif scenario == "text-unkeyed":
+    elif scenario in ("text-unkeyed", "text-unkeyed-area"):
+        area = scenario == "text-unkeyed-area"
+        kind = "area" if area else "input"
         phases = ("load", "edit", "disabled", "none", "hidden", "ignore", "collapsed", "width", "edit-wide", "help", "restore-help", "restore-width")
         policies = ("normal", "normal", "disabled", "none", "hidden", "ignore", "collapsed") + ("normal",) * 5
-        prefix = "case=form-max-chars-cjk&probe=length&kind=input&limit=5&default=long&unkeyed=on&policy="
-        assert requests == [prefix + policy + ("&pixels=320" if 7 <= number <= 10 else "") + ("&help=new" if number == 9 else "") + "&phase=" + phase
-                            for number, (phase, policy) in enumerate(zip(phases, policies, strict=True))]
-        assert histories == [False] * 12 and finishes == [0] * 12 and len(sessions) == 12 and len(set(sessions)) == 1
+        prefix = f"case=form-max-chars-cjk&probe=length&kind={kind}&limit=5&default=long&unkeyed=on&policy="
+        expected_requests = [prefix + policy + ("&pixels=320" if 7 <= number <= 10 else "") + ("&help=new" if number == 9 else "") + "&phase=" + phase
+                             for number, (phase, policy) in enumerate(zip(phases, policies, strict=True))]
+        if area:
+            extra = (("height", 120, None), ("edit-tall", 120, None), ("resize", 240, None), ("placeholder", 240, "hint"),
+                     ("edit-placeholder", 240, "hint"), ("change-placeholder", 240, "next"), ("restore-placeholder", 240, None),
+                     ("restore-height", 120, None), ("restore-default", None, None))
+            expected_requests.extend(prefix + "normal" + (f"&height={height}" if height is not None else "")
+                                     + (f"&placeholder={placeholder}" if placeholder is not None else "") + "&phase=" + phase
+                                     for phase, height, placeholder in extra)
+            phases += tuple(phase for phase, _, _ in extra)
+        count = 21 if area else 12
+        assert requests == expected_requests
+        assert histories == [False] * count and finishes == [0] * count and len(sessions) == count and len(set(sessions)) == 1
         assert not urls
         values = ("abcde",) + ("KEEP🧊",) * 6 + ("abcde", "EDIT🧊") + ("abcde",) * 3
+        if area:
+            values += ("abcde", "TALL🧊", "abcde", "abcde", "PLACE", "abcde", "abcde", "abcde", "abcde")
         assert snapshots == [{"phase": phase, "value": value, "state": None, "has_key": False,
-                              "callbacks": [] if number == 0 else ["changed"] * (1 if number < 8 else 2)}
+                              "callbacks": ["changed"] * (0 if number == 0 else 1 if number < 8 else 2 if number < 13 else 3 if number < 16 else 4)}
                              for number, (phase, value) in enumerate(zip(phases, values, strict=True))]
+        element_kind = "text_area" if area else "text_input"
         elements = [frame["message"]["delta"]["new_element"] for frame in capture["frames"]
-                    if "text_input" in frame["message"].get("delta", {}).get("new_element", {})]
-        widgets = [element["text_input"] for element in elements]
-        assert len(widgets) == 12
+                    if element_kind in frame["message"].get("delta", {}).get("new_element", {})]
+        widgets = [element[element_kind] for element in elements]
+        assert len(widgets) == count
         ids = [widget["id"] for widget in widgets]
         assert all(identity.endswith("-None") for identity in ids)
-        assert [ids.index(identity) for identity in ids] == [0] * 7 + [7, 7, 9, 7, 0]
+        classes = [0] * 7 + [7, 7, 9, 7, 0]
+        if area:
+            classes += [12, 12, 14, 15, 15, 17, 14, 12, 0]
+        assert [ids.index(identity) for identity in ids] == classes
         for number, (element, widget) in enumerate(zip(elements, widgets, strict=True)):
             assert widget["default"] == "abcdef🧊" and widget["max_chars"] == 5
             assert not widget.get("set_value", False) and "value" not in widget and "query_param_key" not in widget
@@ -387,10 +405,14 @@ def read_query_param_capture(scenario, capture=None):
             assert widget.get("ignore_rerun", False) == (number == 5)
             assert widget["label_visibility"].get("value", "VISIBLE") == {4: "HIDDEN", 6: "COLLAPSED"}.get(number, "VISIBLE")
             assert widget.get("help", "") == ("new" if number == 9 else "")
-            assert element["width_config"] == ({"pixel_width": 320} if 7 <= number <= 10 else {"use_stretch": True})
+            assert element.get("width_config") == ({"pixel_width": 320} if 7 <= number <= 10 else {"use_stretch": True})
+            if area:
+                height = 120 if number in (12, 13, 19) else 240 if 14 <= number <= 18 else 94 if number == 6 else 122
+                assert element.get("height_config") == {"pixel_height": height}
+                assert widget.get("placeholder", "") == {15: "hint", 16: "hint", 17: "next"}.get(number, "")
         clients = [frame["message"]["rerun_script"] for frame in capture["frames"] if frame["direction"] == "client->server"]
         for number, client in enumerate(clients):
-            value = {1: "KEEP🧊tail", 8: "EDIT🧊tail"}.get(number)
+            value = {1: "KEEP🧊tail", 8: "EDIT🧊tail", 13: "TALL🧊tail", 16: "PLACEextra"}.get(number)
             assert client.get("widget_states", {}).get("widgets", []) == ([] if value is None else [{"id": ids[number - 1], "string_value": value}])
     elif scenario == "text-validation":
         kinds = ("default", "default", "email", "url", "phone", "search", "password", "default", "default", "email", "url", "email", "email", "default")
@@ -626,18 +648,20 @@ def test_bound_text_reference_corrects_urls_and_preserves_only_unbound_history_c
     assert single == [{key: value for key, value in report.items() if key not in ("live", "peer_callbacks")} for report in peer]
 
 
-def test_unkeyed_text_policy_identity_reference():
-    read_query_param_capture("text-unkeyed")
+@pytest.mark.parametrize("scenario", ["text-unkeyed", "text-unkeyed-area"])
+def test_unkeyed_text_policy_identity_reference(scenario):
+    read_query_param_capture(scenario)
 
 
-@pytest.mark.parametrize("mutation", ["disabled-reset", "callback-reset", "ignore-flag", "width-retain"])
-def test_unkeyed_text_policy_gate_rejects_coherent_wrong_wire(mutation):
+@pytest.mark.parametrize("scenario", ["text-unkeyed", "text-unkeyed-area"])
+@pytest.mark.parametrize("mutation", ["disabled-reset", "callback-reset", "ignore-flag", "width-retain", "layout-wire"])
+def test_unkeyed_text_policy_gate_rejects_coherent_wrong_wire(scenario, mutation):
     import base64
     from google.protobuf.json_format import MessageToDict
     from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
 
-    capture = json.loads((HERE / "reference-browser/queryparams/text-unkeyed/trace.json").read_text(encoding="utf-8"))
-    target = {"disabled-reset": 2, "callback-reset": 3, "ignore-flag": 5, "width-retain": 7}[mutation]
+    capture = json.loads((HERE / f"reference-browser/queryparams/{scenario}/trace.json").read_text(encoding="utf-8"))
+    target = {"disabled-reset": 2, "callback-reset": 3, "ignore-flag": 5, "width-retain": 7, "layout-wire": 6}[mutation]
     run = -1
     for frame in capture["frames"]:
         if frame["direction"] == "client->server":
@@ -648,9 +672,12 @@ def test_unkeyed_text_policy_gate_rejects_coherent_wrong_wire(mutation):
         message = ForwardMsg()
         message.ParseFromString(base64.b64decode(frame["base64"]))
         element = message.delta.new_element
-        if mutation == "ignore-flag" and element.WhichOneof("type") == "text_input":
-            element.text_input.ignore_rerun = False
-        elif mutation != "ignore-flag" and element.WhichOneof("type") == "json":
+        widget_kind = "text_area" if scenario == "text-unkeyed-area" else "text_input"
+        if mutation == "layout-wire" and element.WhichOneof("type") == widget_kind:
+            element.ClearField("height_config" if scenario == "text-unkeyed-area" else "width_config")
+        elif mutation == "ignore-flag" and element.WhichOneof("type") == widget_kind:
+            getattr(element, widget_kind).ignore_rerun = False
+        elif mutation not in ("ignore-flag", "layout-wire") and element.WhichOneof("type") == "json":
             report = json.loads(element.json.body)
             report["value"] = "KEEP🧊" if mutation == "width-retain" else "abcde"
             element.json.body = json.dumps(report)
@@ -659,7 +686,7 @@ def test_unkeyed_text_policy_gate_rejects_coherent_wrong_wire(mutation):
         raw = message.SerializeToString()
         frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(message, preserving_proto_field_name=True))
     with pytest.raises(AssertionError):
-        read_query_param_capture("text-unkeyed", capture)
+        read_query_param_capture(scenario, capture)
 
 
 def test_keyed_text_validation_reference_distinguishes_raw_and_type_defaults():

@@ -333,6 +333,11 @@ def case_form_max_chars_cjk() -> None:
                                 label_visibility=policy if policy in ("hidden", "collapsed") else "visible",
                                 width=int(st.query_params["pixels"]) if "pixels" in st.query_params else "stretch",
                                 help=st.query_params.get("help", ""))
+        if st.query_params.get("kind") == "area":
+            if "height" in st.query_params:
+                text_options["height"] = int(st.query_params["height"])
+            if "placeholder" in st.query_params:
+                text_options["placeholder"] = st.query_params["placeholder"]
         callback = "ignore" if policy == "ignore" else None if policy == "none" else changed
         cjk = widget("中文", key=None if unkeyed else "cjk_note", value=default, max_chars=limit, on_change=callback,
                      bind="query-params" if st.query_params.get("bind") == "on" else None, **text_options)

@@ -105,7 +105,30 @@ fn text_length_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
 
             // 2. 两种控件使用相同上限、默认值和 callback。
             let value = if query.get("kind").as_deref() == Some("area") {
-                let mut options = crate::TextAreaOptions::new("中文", "abcdef🧊").key("cjk_note").on_change(|st| record_text_value_callback(st, "cjk_note", "length_callbacks"));
+                let unkeyed = query.get("unkeyed").as_deref() == Some("on");
+                let policy = query.get("policy").unwrap_or_default();
+                let mut options = crate::TextAreaOptions::new("中文", "abcdef🧊");
+                if !unkeyed {
+                    options = options.key("cjk_note").on_change(|st| record_text_value_callback(st, "cjk_note", "length_callbacks"));
+                } else {
+                    if !matches!(policy.as_str(), "none" | "ignore") {
+                        options = options.on_change(|st| record_text_value_callback(st, "", "length_callbacks"));
+                    }
+                    options = options.disabled(policy == "disabled").ignore_rerun(policy == "ignore").help(query.get("help").unwrap_or_default()).label_visibility(match policy.as_str() {
+                        "hidden" => crate::LabelVisibility::Hidden,
+                        "collapsed" => crate::LabelVisibility::Collapsed,
+                        _ => crate::LabelVisibility::Visible,
+                    });
+                    if let Some(pixels) = query.get("pixels") {
+                        options = options.width(pixels.parse()?);
+                    }
+                }
+                if let Some(height) = query.get("height") {
+                    options = options.height(height.parse()?);
+                }
+                if let Some(placeholder) = query.get("placeholder") {
+                    options = options.placeholder(placeholder);
+                }
                 if query.get("default").as_deref() == Some("none") {
                     options = options.value_none();
                 }
@@ -439,7 +462,7 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
             && ((reference["scenario"] == "disabled-types" && request["query_string"].as_str().is_some_and(|query| query.contains("phase=load&")))
                 || (matches!(
                     reference["scenario"].as_str(),
-                    Some("text-length" | "text-reset" | "text-source" | "text-bound" | "text-bound-peer" | "text-repeat" | "text-empty" | "text-validation" | "text-unkeyed")
+                    Some("text-length" | "text-reset" | "text-source" | "text-bound" | "text-bound-peer" | "text-repeat" | "text-empty" | "text-validation" | "text-unkeyed" | "text-unkeyed-area")
                 ) && request["query_string"].as_str().is_some_and(|query| query.ends_with("phase=load"))))
         {
             drop(stream);
@@ -453,7 +476,7 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
                 let key = ["bound", "text", "optional", "creation", "plain", "check", "live", "cjk_note"]
                     .into_iter()
                     .find(|key| reference_id.ends_with(&format!("-{key}")))
-                    .or_else(|| (reference["scenario"] == "text-unkeyed" && reference_id.ends_with("-None")).then_some("None"))
+                    .or_else(|| (matches!(reference["scenario"].as_str(), Some("text-unkeyed" | "text-unkeyed-area")) && reference_id.ends_with("-None")).then_some("None"))
                     .ok_or("unknown reference binding")?;
                 widgets.push(WidgetState {
                     id: widget_ids.get(key).cloned().ok_or("missing live widget id")?,
@@ -537,7 +560,7 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
                                 }
                                 if matches!(
                                     reference["scenario"].as_str(),
-                                    Some("text-length" | "text-reset" | "text-source" | "text-bound" | "text-bound-peer" | "text-repeat" | "text-empty" | "text-validation" | "text-unkeyed")
+                                    Some("text-length" | "text-reset" | "text-source" | "text-bound" | "text-bound-peer" | "text-repeat" | "text-empty" | "text-validation" | "text-unkeyed" | "text-unkeyed-area")
                                 ) {
                                     observed.push(serde_json::json!({"widget": key, "kind": "text_input", "set": widget.set_value, "value": widget.value, "default": widget.default, "max_chars": widget.max_chars}));
                                     if reference["scenario"] == "text-validation" {
@@ -560,11 +583,23 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
                             Some(element::Type::TextArea(widget))
                                 if matches!(
                                     reference["scenario"].as_str(),
-                                    Some("text-length" | "text-reset" | "text-source" | "text-bound" | "text-bound-peer" | "text-repeat" | "text-empty" | "text-validation" | "text-unkeyed")
+                                    Some("text-length" | "text-reset" | "text-source" | "text-bound" | "text-bound-peer" | "text-repeat" | "text-empty" | "text-validation" | "text-unkeyed" | "text-unkeyed-area")
                                 ) =>
                             {
                                 let key = widget.id.rsplit('-').next().ok_or("missing text area key")?.to_owned();
                                 observed.push(serde_json::json!({"widget": key, "kind": "text_area", "set": widget.set_value, "value": widget.value, "default": widget.default, "max_chars": widget.max_chars}));
+                                if reference["scenario"] == "text-unkeyed-area" {
+                                    let width = match element.width_config.and_then(|config| config.width_spec) {
+                                        Some(crate::proto::streamlit::width_config::WidthSpec::PixelWidth(pixels)) => Some(pixels),
+                                        Some(crate::proto::streamlit::width_config::WidthSpec::UseStretch(true)) => Some(0),
+                                        _ => None,
+                                    };
+                                    let height = match element.height_config.and_then(|config| config.height_spec) {
+                                        Some(crate::proto::streamlit::height_config::HeightSpec::PixelHeight(pixels)) => Some(pixels),
+                                        _ => None,
+                                    };
+                                    observed.push(serde_json::json!({"policy": {"disabled": widget.disabled, "ignore": widget.ignore_rerun, "visibility": widget.label_visibility.map(|label| label.value).unwrap_or(0), "width": width, "height": height, "placeholder": widget.placeholder, "help": widget.help}}));
+                                }
                                 observed_identities.push(widget.id.clone());
                                 widget_ids.insert(key, widget.id);
                             }
@@ -613,7 +648,7 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
         }
         if matches!(
             reference["scenario"].as_str(),
-            Some("text-length" | "text-reset" | "text-source" | "text-bound" | "text-bound-peer" | "text-repeat" | "text-empty" | "text-validation" | "text-unkeyed")
+            Some("text-length" | "text-reset" | "text-source" | "text-bound" | "text-bound-peer" | "text-repeat" | "text-empty" | "text-validation" | "text-unkeyed" | "text-unkeyed-area")
         ) {
             for kind in ["text_input", "text_area"] {
                 if let Some(widget) = message["delta"]["new_element"].get(kind) {
@@ -624,7 +659,7 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
                         let kind = widget["type"].as_str().and_then(crate::proto::text_input::Type::from_str_name).unwrap_or(crate::proto::text_input::Type::Default);
                         expected.push(serde_json::json!({"validation": {"type": kind as i32, "regex": widget["validate_regex"], "message": widget["validate_message"]}}));
                     }
-                    if reference["scenario"] == "text-unkeyed" {
+                    if matches!(reference["scenario"].as_str(), Some("text-unkeyed" | "text-unkeyed-area")) {
                         let visibility = match widget["label_visibility"]["value"].as_str() {
                             Some("HIDDEN") => 1,
                             Some("COLLAPSED") => 2,
@@ -632,7 +667,12 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
                         };
                         let config = &message["delta"]["new_element"]["width_config"];
                         let width = config["pixel_width"].as_u64().or_else(|| config["use_stretch"].as_bool().filter(|value| *value).map(|_| 0));
-                        expected.push(serde_json::json!({"policy": {"disabled": widget["disabled"].as_bool().unwrap_or(false), "ignore": widget["ignore_rerun"].as_bool().unwrap_or(false), "visibility": visibility, "width": width, "help": widget["help"].as_str().unwrap_or("")}}));
+                        let mut policy = serde_json::json!({"disabled": widget["disabled"].as_bool().unwrap_or(false), "ignore": widget["ignore_rerun"].as_bool().unwrap_or(false), "visibility": visibility, "width": width, "help": widget["help"].as_str().unwrap_or("")});
+                        if reference["scenario"] == "text-unkeyed-area" {
+                            policy["height"] = message["delta"]["new_element"]["height_config"]["pixel_height"].clone();
+                            policy["placeholder"] = serde_json::json!(widget["placeholder"].as_str().unwrap_or(""));
+                        }
+                        expected.push(serde_json::json!({"policy": policy}));
                     }
                 }
             }
@@ -682,7 +722,7 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
     assert_eq!(observed, expected);
     if matches!(
         reference["scenario"].as_str(),
-        Some("text-reset" | "text-source" | "text-bound" | "text-bound-peer" | "text-repeat" | "text-empty" | "text-validation" | "text-unkeyed")
+        Some("text-reset" | "text-source" | "text-bound" | "text-bound-peer" | "text-repeat" | "text-empty" | "text-validation" | "text-unkeyed" | "text-unkeyed-area")
     ) {
         // 比较身份的相等关系，不把 Python 与 Rust 的摘要字面量强行等同。
         assert_eq!(observed_identities.len(), expected_identities.len());
@@ -763,6 +803,11 @@ async fn keyed_text_type_changes_keep_values_but_explicit_regex_changes_reset() 
 #[actix_web::test]
 async fn unkeyed_text_policy_changes_keep_input_and_width_help_changes_reset() -> TestResult {
     assert_queryparams_reference(text_length_entry, include_str!("../../../tests/reference/reference-browser/queryparams/text-unkeyed/trace.json"), 36).await
+}
+
+#[actix_web::test]
+async fn unkeyed_text_area_layout_changes_reset_and_policy_changes_keep_input() -> TestResult {
+    assert_queryparams_reference(text_length_entry, include_str!("../../../tests/reference/reference-browser/queryparams/text-unkeyed-area/trace.json"), 63).await
 }
 
 #[actix_web::test]

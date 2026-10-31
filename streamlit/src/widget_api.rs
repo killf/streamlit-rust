@@ -2549,7 +2549,14 @@ impl<C: AppendChild> InputWidgets for C {
             .map_or(Value::Null, |value| Value::String(options.max_chars.map_or_else(|| value.clone(), |limit| value.chars().take(limit).collect())));
 
         // 显式 key 仍按上限变化重置；默认值变化不改变 keyed 控件身份。
-        let identity = c.identity_in_form(&form_id, &if c.key.is_some() { serde_json::to_string(&options.max_chars)? } else { format!("{:?}:{:?}", options.value, options.max_chars) });
+        let identity = c.identity_in_form(
+            &form_id,
+            &if c.key.is_some() {
+                serde_json::to_string(&options.max_chars)?
+            } else {
+                serde_json::to_string(&(&options.value, options.max_chars, options.height, &options.placeholder, c.width))?
+            },
+        );
         let (id, result, set_value) = self.register_widget_parity(
             WidgetSpec {
                 disabled: c.disabled,
@@ -2568,10 +2575,13 @@ impl<C: AppendChild> InputWidgets for C {
                 value.as_str().map(|text| Some(text.to_string())).ok_or_else(|| WidgetError::InvalidValue("text area expects text".into()))
             },
         )?;
+
+        // 自动高度随标签布局变化，但不代替上面参与身份的原始高度选项。
+        let height = options.height.unwrap_or(if matches!(c.visibility, LabelVisibility::Collapsed) { 94 } else { 122 });
         self.push(Rc::new(RefCell::new(InputElement(proto::Element {
             width_config,
-            height_config: options.height.map(|pixels| crate::proto::streamlit::HeightConfig {
-                height_spec: Some(crate::proto::streamlit::height_config::HeightSpec::PixelHeight(pixels as u32)),
+            height_config: Some(crate::proto::streamlit::HeightConfig {
+                height_spec: Some(crate::proto::streamlit::height_config::HeightSpec::PixelHeight(height as u32)),
             }),
             has_one_shot_effect: set_value.then_some(true),
             r#type: Some(element::Type::TextArea(proto::TextArea {
@@ -4117,6 +4127,49 @@ mod tests {
             assert!(wire_value.is_none());
             state.finish_widgets();
         }
+        Ok(())
+    }
+
+    #[test]
+    fn unkeyed_text_area_identity_uses_raw_height_and_emits_effective_height() -> anyhow::Result<()> {
+        let state = SessionState::default();
+        let mut identities: Vec<String> = Vec::new();
+        for phase in 0..6 {
+            let incoming = if matches!(phase, 1 | 4) {
+                vec![WidgetState {
+                    id: identities[phase - 1].clone(),
+                    value: Some(widget_state::Value::StringValue("kept".into())),
+                }]
+            } else {
+                Vec::new()
+            };
+            state.begin_widgets(incoming);
+            let mut options = TextAreaOptions::new("Area", "base");
+            if phase == 2 {
+                options = options.label_visibility(LabelVisibility::Collapsed);
+            } else if matches!(phase, 3 | 4) {
+                options = options.height(122);
+            }
+
+            let (st, mut wire) = app(&state);
+            assert_eq!(st.text_area(options)?.as_deref(), Some(if matches!(phase, 1 | 2 | 4) { "kept" } else { "base" }));
+            let Some(forward_msg::Type::Delta(proto::Delta {
+                r#type: Some(delta::Type::NewElement(element)), ..
+            })) = wire.try_recv()?.r#type
+            else {
+                anyhow::bail!("expected area element")
+            };
+            let height = element.height_config.and_then(|config| config.height_spec);
+            assert!(matches!(height, Some(proto::streamlit::height_config::HeightSpec::PixelHeight(pixels)) if pixels == if phase == 2 { 94 } else { 122 }));
+            let Some(element::Type::TextArea(widget)) = element.r#type else { anyhow::bail!("expected text area") };
+            identities.push(widget.id);
+            state.finish_widgets();
+        }
+        assert_eq!(identities[0], identities[1]);
+        assert_eq!(identities[0], identities[2]);
+        assert_ne!(identities[0], identities[3]);
+        assert_eq!(identities[3], identities[4]);
+        assert_eq!(identities[0], identities[5]);
         Ok(())
     }
 

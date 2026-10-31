@@ -636,3 +636,32 @@ free. No browser visibility/disabled/buffering/remount conclusion is drawn;
 unkeyed defaults/explicit empty option distinctions, all identity fields,
 form/sidebar context and forged disabled inputs are not covered by this batch.
 No public API, dependency or generic Element hash change was introduced.
+
+
+## Unkeyed text_area layout identity and automatic height (2026-10-31)
+
+`text-unkeyed-area/trace.json` adds 21 native runs/272 raw frames/63 ordered
+widget-policy-return projections on one session. It reuses the first twelve
+unkeyed input policy/width/help steps and adds raw heights 120/240, placeholder
+hint/next, edits and restoration. Four frontend edits add callback markers.
+Policy changes retain input; width/help/height/placeholder changes reset and
+returning to previous IDs does not revive prior values. State=null is deliberate
+for this unkeyed probe; has_key=false is checked alongside actual return values.
+
+The SDK emits pixel height 122 for automatic visible/hidden labels and 94 for
+collapsed labels, while identity still uses the raw optional height. Rust now
+includes raw height/placeholder/width in its existing unkeyed area identity and
+emits the effective default height. Explicit heights remain explicit. A public
+unit distinguishes automatic height from explicit 122 even though both emit
+122, verifies collapsed 94 without identity change, and checks restoration.
+The new native capture itself uses explicit 120/240, not explicit 122.
+
+All 63 ordered projections and ID equivalence relations are compared, with raw
+PB/summary, exact requests/input IDs/history, versions/session, optional default/
+sync, policy/visibility/width/height/placeholder/help, returned values and callback
+markers. Existing input capture is retained. Shared coherent mutations now also
+reject missing width/height layout, in addition to wrong retention/reset or a
+lost ignore flag. Socket/server closed and port 56722 was read back free. No
+new public method/module/dependency or generic hash rule was introduced. Native
+protocol/API proof does not establish browser pixel/remount/buffering behavior,
+invalid/content heights, area binding or every omitted/empty option distinction.

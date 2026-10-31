@@ -879,3 +879,21 @@ return values and has_key=false, not an invented internal-state read, are gated.
 Browser behavior, default-versus-empty option distinctions and broader unkeyed
 form/sidebar/field combinations stay open. Pending public API/hash/queue/parser
 choices are unchanged; no new module/dependency/public method was introduced.
+
+
+### Raw area layout identity and effective height (2026-10-31)
+
+The pinned unkeyed text_area identity includes raw height, placeholder and width.
+Rust previously omitted all three; they now join value/max_chars in only that
+existing unkeyed branch. Keyed identity still uses max_chars. No shared identity
+algorithm or pending generic NewElement decision is changed.
+
+The SDK resolves missing height after registration to 122 pixels, or 94 with a
+collapsed label. The existing Rust area emitter now sends that effective height;
+raw None remains distinct from explicit 122 in identity. Explicit positive
+heights keep their payload. Native 21-run evidence uses 120/240, width/help and
+placeholder transitions, policy retention, four edits and restoration. A public
+unit separately covers automatic versus explicit 122, same-ID collapsed 94 and
+old-ID reset. Native values/fields/ID relations are checked, not browser pixels.
+Invalid/content heights, area binding and broader context/empty option cases
+remain open; no new public API/module/dependency or queue change is introduced.

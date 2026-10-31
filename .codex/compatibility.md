@@ -295,3 +295,12 @@ changes reset. Rust excludes four policy terms from its unkeyed identity tuple.
 Returns, callback markers, flags, fields and ID equivalence match. The report
 has no explicit user key and does not expose unkeyed internal state. Browser
 behavior and broader identity combinations remain open, with no new public API.
+
+
+2026-10-31 [unkeyed area layout](../tests/reference/reference-browser/queryparams/text-unkeyed-area/trace.json)
+adds 21 native runs/272 raw frames/63 ordered widget-policy-return projections.
+Width/help/raw-height/placeholder changes reset while policy changes retain
+input; four frontend callbacks and identity restoration match. Automatic height
+is now sent as 122, or 94 for collapsed labels. Identity uses raw height; a public
+unit distinguishes automatic None from explicit 122 with the same pixel payload.
+No new API or browser pixel/remount/invalid-height conclusion is introduced.
