@@ -14,6 +14,8 @@
 
 ## Current focus
 
+2026-11-01 number_input 缺省/范围归一化切片：缓存有效默认并在 callback 前处理 ID-only、越界、NaN/Infinity 和隐式整数安全范围，避免整批丢弃。十一轮、98 帧、44 完整 Element 与 SDK 一致，十四次有序回调读取归一化新值；旧整数/浮点动态边界与文本缺省场景同二进制复验。见[验收](acceptance.md#current-numeric-missing-range-and-callback-validation-2026-11-01)；None 返回建模、错误 oneof、代码赋值和浏览器等继续开放，不改变完整目标或待决方案。
+
 2026-11-01 text_input/text_area ID-only 切片：按控件 kind 接入既有有效默认缓存，不扩大 Text codec 的 data_editor 行为。八轮、71 帧、32 完整 Element 与 SDK 匹配，Unicode 默认/输入截断、None/空串、同伴 checkbox 和十三次整批 callback 有原生证据；旧 feedback 缺省场景复验通过。见[验收](acceptance.md#current-text-id-only-default-and-callback-validation-2026-11-01)；浏览器/绑定/禁用/错误输入/表单/跨页继续开放，不改变完整目标及待决方案。
 
 2026-11-01 feedback 真实浏览器切片：SDK/Rust 各六阶段、48 覆盖帧、18 完整 Element 与十二张原始 JPEG，评分/重复点击清空/同伴评分与清空/恢复的 DOM、callback 和字段匹配。浏览器实际发显式空字符串，ID-only 仍属独立原生协议边界；Rust 两条刷新前旧连接帧原样保留并单列。见[验收](acceptance.md#current-feedback-browser-clearing-and-callback-validation-2026-11-01)。无生产修改，动态默认/图标/宽度、禁用/ignore/表单/跨页等继续开放，完整目标不变。

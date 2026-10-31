@@ -700,3 +700,5 @@ feedback 的空字符串输入表示清空，只有 ID 的输入则按上一轮�
 feedback 已通过 SDK/Rust 真实 Chrome 六阶段评分、再次点击清空、同伴评分和恢复验证，界面与 callback 一致。本场景浏览器用空字符串表示未选/清空，ID-only 仍是独立协议边界；动态参数和其他组合继续开放。
 
 text_input/text_area 只有 ID 的输入按上一轮有效默认值解码，显式空字符串保持为空；max_chars 按 Unicode 字符截断，callback 读取整批新值。八轮原生差分已验证，data_editor 处理未扩展，浏览器及其他组合继续开放。
+
+number_input 的缺省输入使用上轮默认；前端越界、非有限浮点和超出隐式安全范围的整数先回默认，再执行整批 callback。十一轮原生差分已验证，程序赋值、None 返回建模和浏览器等组合继续开放。

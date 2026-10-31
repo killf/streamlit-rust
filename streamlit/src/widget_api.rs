@@ -4964,6 +4964,125 @@ mod tests {
     }
 
     #[test]
+    fn numeric_missing_and_invalid_values_use_defaults_before_peer_callbacks() -> anyhow::Result<()> {
+        let changed = |source: &'static str| {
+            move |st: &Streamlit| {
+                let state = st.session_state();
+                let mut calls = state.get::<Vec<Value>>("number_empty_calls").expect("calls").unwrap_or_default();
+                calls.push(serde_json::json!([
+                    source,
+                    state.get::<i64>("number_empty_int").expect("integer"),
+                    state.get::<f64>("number_empty_float").expect("float"),
+                    state.get::<bool>("number_empty_peer").expect("peer")
+                ]));
+                state.set("number_empty_calls", calls).expect("callback write");
+            }
+        };
+        let inputs = [
+            None,
+            Some((Some(7), None, true)),
+            Some((None, Some(3.5), true)),
+            Some((Some(99), Some(-99.0), false)),
+            None,
+            Some((None, None, true)),
+            Some((None, Some(f64::NAN), false)),
+            None,
+            Some((Some(i64::MAX), Some(f64::INFINITY), true)),
+            Some((Some(0), Some(-5.0), false)),
+            None,
+        ];
+        let values = [
+            (4, 2.5, false),
+            (7, 2.5, true),
+            (4, 3.5, true),
+            (4, 2.5, false),
+            (4, 2.5, false),
+            (6, 1.25, true),
+            (6, 1.25, false),
+            (6, 1.25, false),
+            (6, 1.25, true),
+            (0, -5.0, false),
+            (0, -5.0, false),
+        ];
+        let counts = [0, 2, 2, 2, 0, 3, 1, 0, 1, 3, 0];
+        let state = SessionState::default();
+        let mut ids = Vec::<String>::new();
+        let mut expected_calls = Vec::new();
+        for (round, submitted) in inputs.into_iter().enumerate() {
+            // 1. 缺省、越界和非有限输入先按上轮元数据回默认，再决定整批 callback。
+            let incoming = submitted.map_or_else(Vec::new, |(integer, floating, peer)| {
+                vec![
+                    WidgetState {
+                        id: ids[0].clone(),
+                        value: integer.map(widget_state::Value::IntValue),
+                    },
+                    WidgetState {
+                        id: ids[1].clone(),
+                        value: floating.map(widget_state::Value::DoubleValue),
+                    },
+                    WidgetState {
+                        id: ids[2].clone(),
+                        value: Some(widget_state::Value::BoolValue(peer)),
+                    },
+                ]
+            });
+            let callbacks = state.begin_widgets(incoming);
+            assert_eq!(callbacks.len(), counts[round], "run {round}");
+            let (st, mut wire) = app(&state);
+            for callback in callbacks {
+                callback(&st);
+            }
+            let (integer, floating, peer) = values[round];
+            let sources: &[&str] = match round {
+                1 => &["integer", "peer"],
+                2 => &["integer", "float"],
+                3 => &["float", "peer"],
+                5 | 9 => &["integer", "float", "peer"],
+                6 | 8 => &["peer"],
+                _ => &[],
+            };
+            expected_calls.extend(sources.iter().map(|source| serde_json::json!([source, integer, floating, peer])));
+            assert_eq!(state.get::<Vec<Value>>("number_empty_calls")?.unwrap_or_default(), expected_calls, "run {round}");
+            let default_int = if round >= 4 { 6_i64 } else { 4_i64 };
+            let default_float = if round >= 4 { 1.25_f64 } else { 2.5_f64 };
+            let unbounded = round == 7 || round == 8;
+            let mut integer_options = NumberInputOptions::new("Integer", default_int).key("number_empty_int").on_change(changed("integer"));
+            let mut float_options = NumberInputOptions::new("Float", default_float).key("number_empty_float").on_change(changed("float"));
+            if !unbounded {
+                integer_options = integer_options.min(0).max(10);
+                float_options = float_options.min(-5.0).max(5.0);
+            }
+            assert_eq!(st.number_input(integer_options)?, integer);
+            assert_eq!(st.number_input(float_options)?, floating);
+            assert_eq!(st.checkbox(CheckboxOptions::new("Peer").key("number_empty_peer").on_change(changed("peer")))?, peer);
+
+            // 2. 普通前端回默认不增加同步，显式/隐式边界字段仍按当前声明发送。
+            let mut current = Vec::new();
+            for (position, default) in [default_int as f64, default_float].into_iter().enumerate() {
+                let element::Type::NumberInput(widget) = input(&mut wire)? else { panic!() };
+                assert_eq!(widget.default, Some(default));
+                assert_eq!(widget.has_min, !unbounded);
+                assert_eq!(widget.has_max, !unbounded);
+                assert!(!widget.set_value && widget.value.is_none());
+                if round > 0 {
+                    assert_eq!(widget.id, ids[position]);
+                }
+                current.push(widget.id);
+            }
+            let element::Type::Checkbox(widget) = input(&mut wire)? else { panic!() };
+            assert!(!widget.default && !widget.set_value);
+            current.push(widget.id);
+            if round > 0 {
+                assert_eq!(current, ids);
+            }
+            ids = current;
+            state.finish_widgets();
+        }
+
+        Ok(())
+    }
+
+    #[test]
     fn text_id_only_defaults_preserve_unicode_and_peer_callback_batch_order() -> anyhow::Result<()> {
         let changed = |source: &'static str| {
             move |st: &Streamlit| {

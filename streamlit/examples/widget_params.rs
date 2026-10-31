@@ -6,6 +6,36 @@ use ::streamlit::*;
 use streamlit::StreamlitApi;
 
 fn render(st: &Streamlit) -> Result<(), WidgetError> {
+    if st.query_params().get("probe").as_deref() == Some("number-empty") {
+        let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
+        let changed = |source: &'static str| {
+            move |st: &Streamlit| {
+                let state = st.session_state();
+                let mut calls = state.get::<Vec<serde_json::Value>>("number_empty_calls").expect("calls").unwrap_or_default();
+                calls.push(serde_json::json!([
+                    source,
+                    state.get::<i64>("number_empty_int").expect("integer"),
+                    state.get::<f64>("number_empty_float").expect("float"),
+                    state.get::<bool>("number_empty_peer").expect("peer")
+                ]));
+                state.set("number_empty_calls", calls).expect("callback write");
+            }
+        };
+        let changed_default = ["default", "fallback", "limits", "unbounded", "high", "recover", "observe"].contains(&phase.as_str());
+        let mut integer = NumberInputOptions::new("Integer", if changed_default { 6_i64 } else { 4_i64 }).key("number_empty_int").on_change(changed("integer"));
+        let mut floating = NumberInputOptions::new("Float", if changed_default { 1.25_f64 } else { 2.5_f64 }).key("number_empty_float").on_change(changed("float"));
+        if phase != "unbounded" && phase != "high" {
+            integer = integer.min(0).max(10);
+            floating = floating.min(-5.0).max(5.0);
+        }
+        let integer = st.number_input(integer)?;
+        let floating = st.number_input(floating)?;
+        let peer = st.checkbox(CheckboxOptions::new("Peer").key("number_empty_peer").on_change(changed("peer")))?;
+        let calls = st.session_state().get::<Vec<serde_json::Value>>("number_empty_calls")?.unwrap_or_default();
+        st.json(serde_json::json!({"phase": phase, "values": [serde_json::json!(integer), serde_json::json!(floating), serde_json::json!(peer)], "calls": calls}));
+        return Ok(());
+    }
+
     if st.query_params().get("probe").as_deref() == Some("text-empty") {
         let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
         let changed = |source: &'static str| {

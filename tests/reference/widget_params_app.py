@@ -1,7 +1,21 @@
 """Emit widget creation-wire parameter variants for the M3 differential."""
 import streamlit as st
 
-if st.query_params.get("probe") == "text-empty":
+if st.query_params.get("probe") == "number-empty":
+    phase = st.query_params.get("phase", "load")
+    if "number_empty_calls" not in st.session_state:
+        st.session_state.number_empty_calls = []
+    def changed(source):
+        st.session_state.number_empty_calls.append([source, st.session_state.number_empty_int, st.session_state.number_empty_float, st.session_state.number_empty_peer])
+    changed_default = phase in ("default", "fallback", "limits", "unbounded", "high", "recover", "observe")
+    unbounded = phase in ("unbounded", "high")
+    integer = st.number_input("Integer", min_value=None if unbounded else 0, max_value=None if unbounded else 10,
+                              value=6 if changed_default else 4, key="number_empty_int", on_change=changed, args=("integer",))
+    floating = st.number_input("Float", min_value=None if unbounded else -5.0, max_value=None if unbounded else 5.0,
+                               value=1.25 if changed_default else 2.5, key="number_empty_float", on_change=changed, args=("float",))
+    peer = st.checkbox("Peer", key="number_empty_peer", on_change=changed, args=("peer",))
+    st.json({"phase": phase, "values": [integer, floating, peer], "calls": st.session_state.number_empty_calls})
+elif st.query_params.get("probe") == "text-empty":
     phase = st.query_params.get("phase", "load")
     if "text_empty_calls" not in st.session_state:
         st.session_state.text_empty_calls = []

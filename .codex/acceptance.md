@@ -2540,3 +2540,21 @@ producer 三份源码、widget_api/widgets 与二进制 SHA 已核对当前产�
 编辑 Rust 的 rustfmt、全工作区/all-target Clippy、新增公开 API 单元通过；最终工作区 331 项通过（324 库、1 ledger、2 宏、4 rustdoc），仍仅排除原 navigation_pages_switch_and_session_state_match_the_measured_wire 与 rerun_queue_messages_match_frozen_reference，不称完整工作区全绿。参数参考模块 362 项，相关 query/widget/temporal/pickers/matrix/docs/buttons/inputs 八模块共 668 项通过；既有 MSVC linker stdout warning 保留，日志 target/text-empty-{red,green,clippy,build,workspace,python}.log。
 
 仅 st.text_input/st.text_area 矩阵和生成清单更新，仍 130 partial；真实浏览器、禁用/错误输入、查询绑定/表单/跨页及其他 callback 组合继续开放。用户 colconfig_params 修改独立保留；待决共享状态/hash/公共接口方案不变，未创建 PR、合并、发布或部署，M3/M5/M7 与长期 Goal 未关闭。
+
+## Current numeric missing range and callback validation (2026-11-01)
+
+锁定 Python Streamlit 1.66.1 的 NumberInputSerde 将缺省值、显式边界外数值、非有限浮点和隐式边界外整数回退到其注册默认，再比较状态并调用 callback。Rust 原有 ID-only 未解码，且越界/非有限值在整批有效性门被拒绝，导致同伴 checkbox 输入丢失。本次 widgets.rs 给 NumberInput 缓存有效默认，在 decode_state 先按上轮显式边界或隐式整数 JS-safe/有限浮点边界回默认；错误 oneof 仍不解码，代码赋值及注册时范围重置流程未改。无新公共 API、模块或依赖。
+
+[SDK](../tests/reference/reference-browser/widget-params/number-empty/trace.json)、[Rust 修前](../tests/browser/rust-widget-params/number-empty/before/trace.json)、[Rust 最终](../tests/browser/rust-widget-params/number-empty/trace.json)均十一轮、98 原始帧、44 完整 Element。整数默认 4、浮点 2.5，各有显式边界，后改默认 6/1.25；交错有效输入/ID-only、99/-99 越界、NaN、移除显式边界、int64 最大值与 Infinity、边界值 0/-5 和无输入观察。SDK/Rust 修后累计回调数 0/2/4/6/6/9/10/10/11/14/14；修前前八个后续阶段仍 [4,2.5,false] 且无回调，最终仅两条回调。相同帧数和正常 script_finished 不能替代行为一致。
+
+缺省/非法数值回默认后继续接受 checkbox，callback 读取整批归一化后的 integer/float/bool；整数前端极大值按隐式安全上界回默认，不截断溢出转换。仅改变声明默认不覆盖当前值，下一轮输入才采用新默认。前端回默认不额外发送 set_value/value/one-shot，与 SDK 一致，不虚构捕获到前端界面回正。程序原生赋值、None 返回建模和跨 oneof 数值转换不由本批推定。新增公开 API 单元先真实失败于 run 1 回调 0 而非 2，修后完整十一轮通过。
+
+完整 Element 仅归一化不透明 ID/JSON 文本后逐字段一致。严格门验证三控件稳定身份、实际旧 ID/int_value/double_value/bool_value/缺省 oneof、真实 NaN/Infinity 和 int64 最大值的二进制负载、显式/隐式 min/max 与 has 标志、default/format/step/data_type、width/策略、无额外同步、session/run/path、integer/float/bool 返回类型与十四条有序回调。八类同时改写 raw 与汇总的负例必须失败：缺省变显式零、NaN 被替成有限零、隐式越界未回默认、使用旧默认、回调读旧 peer、回调倒序、错误隐式边界、额外同步。
+
+同一最终二进制另重放旧 keyed number-sequence/number-float 各十二轮（每份 83 帧/24 Element）和 text-empty 八轮（71 帧/32 Element），所有完整规范化 Element 继续匹配 SDK，结果 target/number-empty-{integer,float,text}-recheck/trace.json。未更改旧冻结参考，数字代码范围重置和文本缺省行为未回归。
+
+producer 三份源码、widget_api/widgets 与二进制 SHA 均已核对当前产物；修前核心源码 SHA 与前一 HEAD 4783f72 一致。SDK 自建服务与 Rust 自持 Popen 句柄均已停止，54073/8599 无监听。无本批浏览器采集；ID-only、NaN/Infinity、越界值是原生协议注入，不宣称正常 UI 一定生成这些包。
+
+编辑 Rust 的 rustfmt、全工作区/all-target Clippy、新增公开 API 单元通过；最终工作区 332 项通过（325 库、1 ledger、2 宏、4 rustdoc），仍仅排除原 navigation_pages_switch_and_session_state_match_the_measured_wire 与 rerun_queue_messages_match_frozen_reference，不称完整工作区全绿。参数参考模块 374 项，相关 query/widget/temporal/pickers/matrix/docs/buttons/inputs 八模块共 680 项通过；既有 MSVC linker stdout warning 保留，日志 target/number-empty-{red,green,clippy,build,workspace,python}.log。
+
+仅 st.number_input 矩阵及生成清单更新，仍 130 partial；错误 oneof、nullable Rust 返回、代码赋值边界、禁用输入、浏览器、表单/跨页及其他组合继续开放。用户 colconfig_params 修改独立保留；待决共享状态/hash/公共接口方案不变，未创建 PR、合并、发布或部署，M3/M5/M7 与长期 Goal 未关闭。

@@ -253,12 +253,23 @@ impl Codec {
     }
 
     fn decode_state(&self, state: &WidgetState, empty_input: Option<&Value>) -> Option<Value> {
-        match state.value.as_ref() {
+        let value = match state.value.as_ref() {
             Some(wire) => self.decode(wire),
 
-            // 选择控件的 ID-only 包按上一轮 serde 的有效默认值反序列化。
+            // 支持的 ID-only 包按上一轮 serde 的有效默认值反序列化。
             None => empty_input.cloned(),
+        }?;
+
+        // 数字前端输入先按上轮显式/隐式边界回默认，callback 只读取归一化后的值。
+        if let Self::NumberInput { min, max, integer } = self {
+            let lower = min.unwrap_or(if *integer { -JS_SAFE_INTEGER } else { f64::MIN });
+            let upper = max.unwrap_or(if *integer { JS_SAFE_INTEGER } else { f64::MAX });
+            if value.as_f64().is_none_or(|number| !number.is_finite() || number < lower || number > upper) {
+                return empty_input.cloned();
+            }
         }
+
+        Some(value)
     }
 
     pub(crate) fn decode(&self, wire: &widget_state::Value) -> Option<Value> {
@@ -618,7 +629,7 @@ struct Record {
     /// Value before this run's input, restored if registration now disables it.
     before_input: Option<Value>,
 
-    /// ID-only text inputs/areas, selectbox/radio/feedback use the registered effective default.
+    /// Effective defaults for supported ID-only text/choice/feedback/number inputs and numeric fallback.
     /// Other codecs retain the existing missing-value rejection.
     empty_input: Option<Value>,
 }
@@ -850,7 +861,8 @@ impl SessionState {
         } = spec;
         let id = id.to_owned();
         // Text codec 也供 data_editor 使用；本次仅扩展两类文本控件的缺省解码。
-        let empty_input = (matches!(codec, Codec::Select(_) | Codec::SelectCreation(_) | Codec::Radio(_) | Codec::Feedback { .. }) || (matches!(kind, "text_input" | "text_area") && matches!(codec, Codec::Text { .. }))).then(|| default.clone());
+        let empty_input = (matches!(codec, Codec::Select(_) | Codec::SelectCreation(_) | Codec::Radio(_) | Codec::Feedback { .. } | Codec::NumberInput { .. }) || (matches!(kind, "text_input" | "text_area") && matches!(codec, Codec::Text { .. })))
+            .then(|| default.clone());
         let mut registry = self.widgets.lock();
         if registry.registration_error.is_some() {
             return Ok((String::new(), resolve(&default)?, false));
