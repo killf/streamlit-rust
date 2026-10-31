@@ -6,6 +6,53 @@ use ::streamlit::*;
 use streamlit::StreamlitApi;
 
 fn render(st: &Streamlit) -> Result<(), WidgetError> {
+    if st.query_params().get("probe").as_deref() == Some("number-unkeyed") {
+        let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
+        let default = if matches!(phase.as_str(), "maxzero" | "negative-edit" | "maxnone") {
+            -4_i64
+        } else if phase == "default" {
+            5
+        } else {
+            4
+        };
+        let mut options = NumberInputOptions::new("Unkeyed", default)
+            .disabled(phase == "disabled")
+            .label_visibility(if phase == "hidden" { LabelVisibility::Hidden } else { LabelVisibility::Visible });
+        if phase != "none" {
+            options = options.on_change(|st| {
+                let state = st.session_state();
+                let mut calls = state.get::<Vec<String>>("unkeyed_calls").expect("callback state").unwrap_or_default();
+                calls.push("changed".into());
+                state.set("unkeyed_calls", calls).expect("callback write");
+            });
+        }
+        if phase == "ignore" {
+            options = options.ignore_rerun(true);
+        }
+        if matches!(phase.as_str(), "minzero" | "min-edit") {
+            options = options.min(0);
+        }
+        if matches!(phase.as_str(), "maxzero" | "negative-edit") {
+            options = options.max(0);
+        }
+        if matches!(phase.as_str(), "explicit-step" | "explicit-edit") {
+            options = options.step(1.0);
+        } else if phase == "step2" {
+            options = options.step(2.0);
+        }
+        if matches!(phase.as_str(), "width" | "width-edit") {
+            options = options.width(360);
+        }
+        if phase == "help" {
+            options = options.help("hint");
+        }
+
+        let value = st.number_input(options)?;
+        st.json(serde_json::json!({"phase": phase, "value": value,
+            "callbacks": st.session_state().get::<Vec<String>>("unkeyed_calls")?.unwrap_or_default()}));
+        return Ok(());
+    }
+
     if st.query_params().get("probe").as_deref() == Some("number-sequence") {
         let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
         let state = st.session_state();

@@ -459,3 +459,6 @@ async fn main(st: &Streamlit) {
 
 
 2026-10-31 带 key 的 number_input 调整范围、step 或默认值时保留有效旧值；超出新显式范围时回到本轮默认值，并同步状态。现有 widget_params 的 `?probe=number-sequence&phase=load` 为动态配置探针；成对冻结参考记录 12 轮原生行为，尚不代表浏览器动态属性或所有错误输入已验收。
+
+
+2026-10-31 无 key number_input 按原始边界、步长、默认值和宽度确定身份；省略步长与显式默认步长虽然发送相同步长，也会采用不同身份。widget_params 的 `?probe=number-unkeyed&phase=load` 为普通重跑参考探针；冻结对照覆盖 21 轮配置变化和状态清理。`st.stop()` 的轮末清理语义另行记录，不能混作普通结束验证。

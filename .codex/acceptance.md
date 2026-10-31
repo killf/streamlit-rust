@@ -1576,3 +1576,35 @@ claim. Pending NewElement hash/API/queue/parser decisions, 130 partial entries
 and M3/M5/M7/full goal remain open; colconfig_params work remains excluded.
 
 Focused widget-reference/matrix/documentation validation passed 65 Python tests with deprecations as errors; the full Python suite was not repeated in this batch.
+
+
+### Unkeyed number identity differential (2026-10-31)
+
+Each SDK/Rust normal capture retains 21 same-WS runs/146 raw frames/42 ordered
+widget/report elements under widget-params/number-unkeyed/normal. Policies
+(disabled, hidden, ignore, absent callback) preserve edited input; raw omitted
+versus explicit step 1, optional zero min/max, width/help/default and step 2
+identity relations are checked pairwise across all stages. Five actual inputs
+and cumulative callbacks, exact values/defaults/bounds/flags/step/type/width,
+policy fields, session/run continuity and successful completions are gated from
+raw PB/summary/elements. Returning cleaned old IDs starts at the default.
+Four coherent mutations reject wrong identity, revived value, width or step.
+Two public Rust units failed before the fix, then passed raw-step, optional-zero,
+width identity and normal restoration. Effective float/integer wire defaults
+and existing keyed behavior retain their prior checks.
+
+The first SDK 21-run capture used st.stop(), so its revived values cannot prove
+normal cleanup; original bytes plus attempt.json remain and a negative gate
+rejects it as the normal oracle. New natural-completion keyed SDK/Rust captures
+also reproduce all twelve prior results; historical keyed st.stop bytes stay
+unchanged. No native unkeyed-state read is fabricated, only return/callback/wire.
+All-target Clippy and formatting passed (existing MSVC linker stdout warning
+remains). Workspace passed 295 (library 288, ledger 1, macros 2, rustdoc 4),
+excluding only the existing navigation_pages_switch_and_session_state_match_the_measured_wire and rerun_queue_messages_match_frozen_reference.
+Logs: target/number-unkeyed-{red,green,clippy,build,workspace}.log. Owned SDK
+servers/sockets and Rust PID 60880 were stopped, with executable verification
+for Rust and ports 62590/54346/54987/8599 read back free. No browser dynamic
+props/IME/remount, full float/type/error or stop-cleanup parity claim; 130 partial
+and M3/M5/M7/full goal stay open. Unrelated colconfig_params work is excluded.
+
+Focused widget-reference/matrix/documentation checks passed 74 Python tests with deprecation warnings treated as errors. Full Python suite was not repeated; inventory remains 130 partial with the newly explicit stop boundary moving one entry from no-explicit-gap to unmeasured parameters.

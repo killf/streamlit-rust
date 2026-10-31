@@ -25,9 +25,10 @@ parser = argparse.ArgumentParser(description='Collect the widget-parameter refer
 parser.add_argument('--out', type=Path, required=True)
 parser.add_argument('--integer-bounds', action='store_true', help='opt-in unbounded and one-sided integer wire probe')
 parser.add_argument('--number-sequence', action='store_true', help='keyed number dynamic bounds over one WS')
+parser.add_argument('--number-unkeyed', action='store_true', help='unkeyed number identity across option changes')
 parser.add_argument('--url', help='caller-owned Rust server URL (comparison capture)')
 args = parser.parse_args()
-assert not (args.integer_bounds and args.number_sequence)
+assert sum((args.integer_bounds, args.number_sequence, args.number_unkeyed)) <= 1
 OUT = args.out.resolve()
 OUT.mkdir(parents=True, exist_ok=True)
 assert not (OUT / 'trace.json').exists(), 'one capture, retain first result'
@@ -81,11 +82,16 @@ try:
     steps = [("load", None), ("edit", 7), ("zero-min", None), ("narrow-max", None), ("grow", None),
              ("default", None), ("edit-low", 1), ("raise-min", None), ("step", None),
              ("disabled", None), ("recover", None), ("assign", None)] if args.number_sequence else [("load", None)]
+    if args.number_unkeyed:
+        steps = [("load", None), ("edit", 7), ("disabled", None), ("hidden", None), ("ignore", None), ("none", None),
+                 ("explicit-step", None), ("explicit-edit", 9), ("restore-step", None), ("minzero", None), ("min-edit", 8),
+                 ("restore-min", None), ("width", None), ("width-edit", 6), ("help", None), ("restore", None),
+                 ("default", None), ("step2", None), ("maxzero", None), ("negative-edit", -7), ("maxnone", None)]
     number_id = None
     for phase, submitted in steps:
         request = BackMsg()
-        if args.number_sequence:
-            request.rerun_script.query_string = "probe=number-sequence&phase=" + phase
+        if args.number_sequence or args.number_unkeyed:
+            request.rerun_script.query_string = "probe=" + ("number-unkeyed" if args.number_unkeyed else "number-sequence") + "&phase=" + phase
             if submitted is not None:
                 assert number_id is not None
                 widget = request.rerun_script.widget_states.widgets.add()

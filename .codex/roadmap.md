@@ -410,3 +410,10 @@ and unrelated colconfig_params changes are unchanged and excluded from staging.
 帧/24 元素对照，293 项 Rust（保留原两项排除），不将默认值变化当作用户输入。
 下一阶段仍需无 key 身份、动态浏览器属性和其他类型/错误路径验证；完整目标及
 130 partial 不关闭。TextAreaOptions.bind 和其他既有待选取舍保持待决。
+
+
+2026-10-31 无 key number_input 原始参数身份修正完成：21 轮普通结束差分，
+另补 keyed 12 轮自然结束回归；295 项 Rust 通过，保留既有两项排除。发现 SDK
+st.stop 跳过普通 stale-widget 清理的独立边界，原始错误口径采集已保留并禁止
+作为普通结束证据。后续继续浏览器属性、其他数值组合与 stop 生命周期验证，
+不关闭完整目标或 130 partial，不擅改公共接口及待选 hash/queue 方案。

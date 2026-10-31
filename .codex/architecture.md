@@ -1064,3 +1064,17 @@ number before resolve/commit; set_value includes this correction. Invalid types
 and other codecs keep their existing failure path. No public API/dependency or
 generic element-hash/queue change. See acceptance for the twelve-run evidence;
 actual browser dynamic-prop behavior and remaining unkeyed identity are open.
+
+
+### Unkeyed number raw options and normal cleanup (2026-10-31)
+
+NumberInputOptions now privately retains Option<f64> step: omitted and explicit
+default steps remain distinct in unkeyed identity, while effective wire defaults
+stay 1/0.01. Unkeyed identity serializes raw min/max/value/step/width; common
+label/help identity remains, policy fields remain excluded, keyed rules unchanged.
+No public method/type, dependency or shared cleanup/hash/queue policy change.
+The initial SDK fixture used st.stop(), which bypassed normal stale cleanup and
+revived old IDs' values. Preserve that raw capture as an explicitly excluded
+normal-rerun attempt. The fixture now ends naturally through if/elif/else;
+new normal captures, not altered historical bytes, define this fix's behavior.
+SDK stop cleanup and Rust stop parity remain separately open under st.stop.

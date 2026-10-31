@@ -161,7 +161,7 @@ NUMBER_PHASES = ("load", "edit", "zero-min", "narrow-max", "grow", "default", "e
 NUMBER_VALUES = (4, 7, 7, 4, 4, 4, 1, 4, 4, 4, 4, 8)
 
 
-def check_number_sequence(capture):
+def number_runs(capture):
     assert capture["successful"] and "producer_error" not in capture
     assert capture["cleanup"]["websocket_closed"]
     if capture["runtime"] == "python":
@@ -171,7 +171,7 @@ def check_number_sequence(capture):
         kind = msg.WhichOneof("type")
         if isinstance(msg, BackMsg):
             assert kind == "rerun_script"
-            runs.append({"request": msg.rerun_script, "widgets": [], "reports": [], "finishes": [], "sessions": []})
+            runs.append({"request": msg.rerun_script, "widgets": [], "reports": [], "finishes": [], "sessions": [], "layouts": []})
         elif kind == "new_session":
             runs[-1]["sessions"].append(msg.new_session)
         elif kind == "script_finished":
@@ -184,11 +184,16 @@ def check_number_sequence(capture):
             fields = MessageToDict(getattr(element, element_kind), preserving_proto_field_name=True)
             emitted.append((element_kind, fields))
             if element_kind == "number_input":
-                assert element.width_config.use_stretch
+                runs[-1]["layouts"].append(MessageToDict(element.width_config, preserving_proto_field_name=True))
                 runs[-1]["widgets"].append(element.number_input)
             else:
                 runs[-1]["reports"].append(json.loads(element.json.body))
     assert emitted == [(e["kind"], e["fields"]) for e in capture["elements"]]
+    return runs
+
+
+def check_number_sequence(capture):
+    runs = number_runs(capture)
     assert len(runs) == 12 and capture["finishes"] == [0] * 12
     ids, sessions, run_ids = set(), set(), set()
     result = []
@@ -202,6 +207,7 @@ def check_number_sequence(capture):
         sessions.add(session.initialize.session_id)
         run_ids.add(session.script_run_id)
         assert len(run["widgets"]) == 1
+        assert run["layouts"] == [{"use_stretch": True}]
         widget = run["widgets"][0]
         ids.add(widget.id)
         incoming = request.widget_states.widgets
@@ -276,3 +282,107 @@ def test_dynamic_number_gate_rejects_coherent_wrong_wire(mutation):
             capture["elements"].append({"kind": kind, "fields": MessageToDict(getattr(element, kind), preserving_proto_field_name=True)})
     with pytest.raises(AssertionError):
         check_number_sequence(capture)
+
+
+UNKEYED_PHASES = ("load", "edit", "disabled", "hidden", "ignore", "none", "explicit-step", "explicit-edit", "restore-step",
+                  "minzero", "min-edit", "restore-min", "width", "width-edit", "help", "restore", "default", "step2",
+                  "maxzero", "negative-edit", "maxnone")
+UNKEYED_VALUES = (4, 7, 7, 7, 7, 7, 4, 9, 4, 4, 8, 4, 4, 6, 4, 4, 5, 4, -4, -7, -4)
+UNKEYED_IDENTITIES = (0, 0, 0, 0, 0, 0, 1, 1, 0, 2, 2, 0, 3, 3, 4, 0, 5, 6, 7, 7, 8)
+
+
+def check_unkeyed_number(capture):
+    runs = number_runs(capture)
+    assert len(runs) == 21 and capture["finishes"] == [0] * 21
+    ids, sessions, run_ids, calls = [], set(), set(), []
+    submitted = {1: 7, 7: 9, 10: 8, 13: 6, 19: -7}
+    for index, (run, phase, value) in enumerate(zip(runs, UNKEYED_PHASES, UNKEYED_VALUES, strict=True)):
+        assert run["request"].query_string == "probe=number-unkeyed&phase=" + phase
+        assert not run["request"].is_history_navigation
+        assert len(run["sessions"]) == 1 and run["finishes"] == [0]
+        session = run["sessions"][0]
+        assert session.initialize.environment_info.streamlit_version == "1.66.1"
+        sessions.add(session.initialize.session_id)
+        run_ids.add(session.script_run_id)
+        assert len(run["widgets"]) == 1
+        widget = run["widgets"][0]
+        ids.append(widget.id)
+        incoming = run["request"].widget_states.widgets
+        if index in submitted:
+            assert len(incoming) == 1 and incoming[0].id == widget.id
+            assert incoming[0].WhichOneof("value") == "int_value" and incoming[0].int_value == submitted[index]
+            calls.append("changed")
+        else:
+            assert not incoming
+        low, high = phase in ("minzero", "min-edit"), phase in ("maxzero", "negative-edit")
+        assert (widget.has_min, widget.has_max) == (low, high)
+        assert (widget.min, widget.max) == (0 if low else -9007199254740991, 0 if high else 9007199254740991)
+        assert widget.default == (-4 if phase in ("maxzero", "negative-edit", "maxnone") else 5 if phase == "default" else 4)
+        assert widget.step == (2 if phase == "step2" else 1)
+        assert widget.data_type == 0 and widget.format == "%d" and widget.label == "Unkeyed"
+        assert widget.disabled == (phase == "disabled")
+        assert widget.label_visibility.value == (1 if phase == "hidden" else 0)
+        assert widget.ignore_rerun == (phase == "ignore")
+        assert widget.help == ("hint" if phase == "help" else "")
+        assert not widget.set_value and not widget.HasField("value")
+        assert run["layouts"] == ([{"pixel_width": 360}] if phase in ("width", "width-edit") else [{"use_stretch": True}])
+        assert run["reports"] == [{"phase": phase, "value": value, "callbacks": calls.copy()}]
+    assert len(sessions) == 1 and len(run_ids) == 21
+    for i in range(21):
+        for j in range(21):
+            assert (ids[i] == ids[j]) == (UNKEYED_IDENTITIES[i] == UNKEYED_IDENTITIES[j])
+
+
+@pytest.mark.parametrize("root", (PYTHON, RUST), ids=("python", "rust"))
+def test_unkeyed_number_raw_options_and_normal_cleanup(root):
+    check_unkeyed_number(read(root / "number-unkeyed/normal/trace.json"))
+
+
+def test_unkeyed_stop_attempt_cannot_prove_normal_cleanup():
+    with pytest.raises(AssertionError):
+        check_unkeyed_number(read(PYTHON / "number-unkeyed/trace.json"))
+
+
+@pytest.mark.parametrize("mutation", ("identity", "restored_value", "width", "step"))
+def test_unkeyed_number_gate_rejects_coherent_wrong_wire(mutation):
+    capture = read(PYTHON / "number-unkeyed/normal/trace.json")
+    initial_id = next(e["fields"]["id"] for e in capture["elements"] if e["kind"] == "number_input")
+    run = -1
+    for frame in capture["frames"]:
+        if frame["direction"] == "client->server":
+            run += 1
+            continue
+        if run != {"identity": 6, "restored_value": 8, "width": 12, "step": 6}[mutation]:
+            continue
+        msg = ForwardMsg()
+        msg.ParseFromString(base64.b64decode(frame["base64"]))
+        element = msg.delta.new_element
+        kind = element.WhichOneof("type")
+        if kind == "number_input" and mutation in ("identity", "width", "step"):
+            if mutation == "identity":
+                element.number_input.id = initial_id
+            elif mutation == "width":
+                element.width_config.pixel_width = 361
+            else:
+                element.number_input.step = 2
+        elif kind == "json" and mutation == "restored_value":
+            report = json.loads(element.json.body)
+            report["value"] = 7
+            element.json.body = json.dumps(report)
+        else:
+            continue
+        raw = msg.SerializeToString()
+        frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(msg, preserving_proto_field_name=True))
+    capture["elements"] = []
+    for msg in frames(capture):
+        if msg.WhichOneof("type") == "delta":
+            element = msg.delta.new_element
+            kind = element.WhichOneof("type")
+            capture["elements"].append({"kind": kind, "fields": MessageToDict(getattr(element, kind), preserving_proto_field_name=True)})
+    with pytest.raises(AssertionError):
+        check_unkeyed_number(capture)
+
+
+@pytest.mark.parametrize("root", (PYTHON, RUST), ids=("python", "rust"))
+def test_keyed_number_natural_completion_preserves_existing_results(root):
+    assert check_number_sequence(read(root / "number-sequence/normal/trace.json")) == check_number_sequence(read(PYTHON / "number-sequence/trace.json"))

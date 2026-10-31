@@ -422,3 +422,10 @@ and unrelated colconfig_params changes are unchanged and excluded from staging.
 同步前端和 native state，不额外执行 callback。原始 PB/摘要/元素及四类篡改门见
 widget-params/number-sequence，验证细节见 acceptance。同一 key 跨数值类型、
 无 key 身份、错误输入及实际浏览器动态属性仍开放，通用 hash 待选项未变。
+
+
+2026-10-31 无 key number_input 已保留原始 min/max/step/default/width 身份，
+显式默认 step 与省略 step 可发送相同协议值但采用不同 ID；策略变化保留输入。
+每端 21 轮普通结束参考证明配置变化及已清理旧 ID 的恢复，另补每端 keyed 12
+轮自然结束回归。首份 st.stop 探针的不同清理语义单独保留，不能冒充普通结束；
+浏览器动态属性、其他类型/错误组合及 Rust stop 清理对齐仍待验证。

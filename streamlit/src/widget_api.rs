@@ -1449,7 +1449,9 @@ pub struct NumberInputOptions<T: NumberValue> {
     value: T,
     min: Option<T>,
     max: Option<T>,
-    step: f64,
+
+    // 保存调用方是否省略步长，生效默认值在渲染时按数值类型解析。
+    step: Option<f64>,
 }
 impl<T: NumberValue> NumberInputOptions<T> {
     pub fn new(label: impl Into<String>, value: T) -> Self {
@@ -1458,7 +1460,7 @@ impl<T: NumberValue> NumberInputOptions<T> {
             value,
             min: None,
             max: None,
-            step: if T::INTEGER { 1.0 } else { 0.01 },
+            step: None,
         }
     }
     pub fn min(mut self, min: impl Into<T>) -> Self {
@@ -1470,7 +1472,7 @@ impl<T: NumberValue> NumberInputOptions<T> {
         self
     }
     pub fn step(mut self, step: impl Into<f64>) -> Self {
-        self.step = step.into();
+        self.step = Some(step.into());
         self
     }
     common_builders!();
@@ -2478,9 +2480,10 @@ impl<C: AppendChild> InputWidgets for C {
         let form_id = form_scope(self, c.callback.is_some())?;
         let width_config = c.width(false)?;
         let (min, max) = (options.min.map(T::to_f64), options.max.map(T::to_f64));
-        let numbers = [options.value.to_f64(), min.unwrap_or_default(), max.unwrap_or_default(), options.step];
-        if !options.step.is_finite()
-            || options.step <= 0.0
+        let step = options.step.unwrap_or(if T::INTEGER { 1.0 } else { 0.01 });
+        let numbers = [options.value.to_f64(), min.unwrap_or_default(), max.unwrap_or_default(), step];
+        if !step.is_finite()
+            || step <= 0.0
             || min.is_some_and(|low| low >= max.unwrap_or(f64::INFINITY))
             || numbers.iter().any(|number| !number.is_finite())
             || (T::INTEGER && numbers.iter().any(|number| number.fract() != 0.0 || number.abs() > crate::widgets::JS_SAFE_INTEGER))
@@ -2490,8 +2493,15 @@ impl<C: AppendChild> InputWidgets for C {
             return Err(WidgetError::InvalidValue("number input needs a value inside ordered finite bounds (integers must be JS-safe) and a positive step".into()));
         }
         let default = options.value.to_value();
-        let constraints = format!("{}:{}:{}:{}", min.unwrap_or_default(), max.unwrap_or_default(), options.step, T::INTEGER);
-        let identity = c.identity_in_form(&form_id, &if c.key.is_some() { String::new() } else { format!("{constraints}:{default}") });
+        // 无 key 时保留原始可选参数；省略 step 与显式默认步长的身份不同。
+        let identity = c.identity_in_form(
+            &form_id,
+            &if c.key.is_some() {
+                String::new()
+            } else {
+                serde_json::to_string(&(options.min, options.max, options.value, options.step, c.width))?
+            },
+        );
         let (id, result, set_value) = self.register_widget_parity(
             WidgetSpec {
                 disabled: c.disabled,
@@ -2519,7 +2529,7 @@ impl<C: AppendChild> InputWidgets for C {
                 has_min: min.is_some(),
                 has_max: max.is_some(),
                 default: Some(options.value.to_f64()),
-                step: options.step,
+                step,
                 // 未指定边界仍发送 SDK 哨兵；has_min/has_max 只标记显式约束。
                 min: min.unwrap_or(if T::INTEGER { -crate::widgets::JS_SAFE_INTEGER } else { f64::MIN }),
                 max: max.unwrap_or(if T::INTEGER { crate::widgets::JS_SAFE_INTEGER } else { f64::MAX }),
@@ -4440,6 +4450,63 @@ mod tests {
             callback(&st);
         }
         assert!(matches!(input(&mut wire)?, element::Type::Markdown(markdown) if markdown.body == "live callback"));
+        Ok(())
+    }
+
+    #[test]
+    fn unkeyed_number_distinguishes_omitted_and_explicit_default_step() -> anyhow::Result<()> {
+        let state = SessionState::default();
+        state.begin_widgets(vec![]);
+        let (st, mut wire) = app(&state);
+        st.number_input(NumberInputOptions::new("Number", 4_i64))?;
+        let element::Type::NumberInput(initial) = input(&mut wire)? else { panic!() };
+        state.finish_widgets();
+
+        state.begin_widgets(vec![WidgetState {
+            id: initial.id.clone(),
+            value: Some(widget_state::Value::IntValue(7)),
+        }]);
+        let (st, mut wire) = app(&state);
+        assert_eq!(st.number_input(NumberInputOptions::new("Number", 4_i64))?, 7);
+        let _ = input(&mut wire)?;
+        state.finish_widgets();
+
+        state.begin_widgets(vec![]);
+        let (st, mut wire) = app(&state);
+        assert_eq!(st.number_input(NumberInputOptions::new("Number", 4_i64).step(1.0))?, 4);
+        let element::Type::NumberInput(explicit) = input(&mut wire)? else { panic!() };
+        assert_ne!(explicit.id, initial.id);
+        assert_eq!(explicit.step, initial.step);
+        state.finish_widgets();
+
+        state.begin_widgets(vec![]);
+        let (st, mut wire) = app(&state);
+        assert_eq!(st.number_input(NumberInputOptions::new("Number", 4_i64))?, 4);
+        let element::Type::NumberInput(restored) = input(&mut wire)? else { panic!() };
+        assert_eq!(restored.id, initial.id);
+        Ok(())
+    }
+
+    #[test]
+    fn unkeyed_number_preserves_optional_zero_bounds_and_width_identity() -> anyhow::Result<()> {
+        let state = SessionState::default();
+        state.begin_widgets(vec![]);
+        let (st, mut wire) = app(&state);
+        let mut ids = Vec::new();
+
+        for options in [
+            NumberInputOptions::new("Number", 4_i64),
+            NumberInputOptions::new("Number", 4_i64).min(0),
+            NumberInputOptions::new("Number", -4_i64),
+            NumberInputOptions::new("Number", -4_i64).max(0),
+            NumberInputOptions::new("Number", 4_i64).width(360),
+        ] {
+            st.number_input(options)?;
+            let element::Type::NumberInput(number) = input(&mut wire)? else { panic!() };
+            assert!(!ids.contains(&number.id));
+            ids.push(number.id);
+        }
+
         Ok(())
     }
 
