@@ -39,6 +39,7 @@ parser.add_argument('--time-empty', action='store_true', help='time ID-only, inv
 parser.add_argument('--datetime-empty', action='store_true', help='datetime defaults, bounds, legacy input and callback recovery')
 parser.add_argument('--datetime-bounds', action='store_true', help='datetime native resets, joint input/bounds, code assignment and observation')
 parser.add_argument('--date-single', action='store_true', help='single-date default/legacy/list/bounds normalization and callback sequence')
+parser.add_argument('--date-bounds', action='store_true', help='single/complete-range native bounds, callback/reset order and code assignments')
 parser.add_argument('--number-empty', action='store_true', help='numeric ID-only defaults, range/nonfinite fallback and peer callbacks')
 parser.add_argument('--text-empty', action='store_true', help='text input/area ID-only defaults, Unicode truncation and peer callbacks')
 parser.add_argument('--feedback-empty', action='store_true', help='feedback ID-only defaults, explicit clearing and callback ordering')
@@ -60,7 +61,7 @@ parser.add_argument('--resume-after-stop', action='store_true', help='append nor
 parser.add_argument('--stop-lifecycle', action='store_true', help='button and URL-bound text around early stop and normal cleanup')
 parser.add_argument('--url', help='caller-owned Rust server URL (comparison capture)')
 args = parser.parse_args()
-assert sum((args.integer_bounds, args.number_sequence, args.number_unkeyed, args.stop_lifecycle, args.number_permissive, args.form_identity, args.color, args.color_unkeyed, args.bool_width, args.select_policy, args.radio_identity, args.select_empty, args.multi_empty, args.multi_limits, args.format_collisions, args.radio_duplicates, args.group_width, args.group_policy, args.group_state, args.group_defaults, args.feedback_identity, args.feedback_empty, args.text_empty, args.number_empty, args.time_empty, args.datetime_empty, args.datetime_bounds, args.date_single)) <= 1
+assert sum((args.integer_bounds, args.number_sequence, args.number_unkeyed, args.stop_lifecycle, args.number_permissive, args.form_identity, args.color, args.color_unkeyed, args.bool_width, args.select_policy, args.radio_identity, args.select_empty, args.multi_empty, args.multi_limits, args.format_collisions, args.radio_duplicates, args.group_width, args.group_policy, args.group_state, args.group_defaults, args.feedback_identity, args.feedback_empty, args.text_empty, args.number_empty, args.time_empty, args.datetime_empty, args.datetime_bounds, args.date_single, args.date_bounds)) <= 1
 assert not args.number_float or args.number_sequence
 assert not args.select_unkeyed or args.select_policy
 assert not args.radio_empty or args.radio_identity
@@ -87,7 +88,7 @@ TRACE = {'schema_version': 1, 'runtime': 'rust' if args.url else 'python', 'refe
          'scope': 'Element wire of widget creation-parameter edges over one native WS; no browser/UI claim.',
          'server_command': COMMAND, 'server_cleanup': 'caller-owned' if COMMAND is None else 'collector-owned',
          'url': URL, 'frames': [], 'elements': [], 'finishes': []}
-if args.color or args.color_unkeyed or args.bool_width or args.select_policy or args.radio_identity or args.select_empty or args.multi_empty or args.multi_limits or args.format_collisions or args.radio_duplicates or args.group_width or args.group_policy or args.group_state or args.group_defaults or args.feedback_identity or args.feedback_empty or args.text_empty or args.number_empty or args.time_empty or args.datetime_empty or args.datetime_bounds or args.date_single:
+if args.color or args.color_unkeyed or args.bool_width or args.select_policy or args.radio_identity or args.select_empty or args.multi_empty or args.multi_limits or args.format_collisions or args.radio_duplicates or args.group_width or args.group_policy or args.group_state or args.group_defaults or args.feedback_identity or args.feedback_empty or args.text_empty or args.number_empty or args.time_empty or args.datetime_empty or args.datetime_bounds or args.date_single or args.date_bounds:
     TRACE['scope'] = 'Color defaults/widths and fifteen callback/state reruns on one native WS; no browser/UI claim.'
     TRACE['producer_sources_sha256'] = {path: hashlib.sha256((ROOT / path).read_bytes()).hexdigest() for path in (
         'streamlit/examples/widget_params.rs', 'tests/reference/widget_params_app.py', 'tests/browser/widget_params_capture.py')}
@@ -138,6 +139,8 @@ if args.datetime_bounds:
     TRACE['scope'] = 'Fourteen datetime native bounds/reset, joint input/callback and code-state runs on one native WS; no browser/UI claim.'
 if args.date_single:
     TRACE['scope'] = 'Sixteen single-date default/legacy/list/bounds and callback runs on one native WS; no empty/range/browser claim.'
+if args.date_bounds:
+    TRACE['scope'] = 'Thirteen single/complete-range native bounds/reset and callback runs on one native WS; no empty/partial/browser claim.'
 
 
 def save():
@@ -266,6 +269,11 @@ try:
                  ('maximum', (['2025-12-31'], False)), ('defaults', None), ('fallback', (None, True)), ('observe', None),
                  ('recover', (['2025-07-15'], False)), ('invalid', (['bad'], True))]
     text_empty_ids = {}
+    date_bounds_ids = {}
+    if args.date_bounds:
+        steps = [('load', None), ('edit', ('2025-04-20', '2025-05-20', True)), ('narrow', None), ('observe', None), ('widen', None),
+                 ('joint', ('2025-04-25', '2025-05-25', False)), ('assign', None), ('implicit', None), ('implicit-observe', None),
+                 ('minimum', None), ('maximum', None), ('lower', None), ('final', None)]
     feedback_ids = {}
     group_ids = {}
     empty_select_ids = {}
@@ -274,6 +282,14 @@ try:
     color_id = None
     for step_index, (phase, submitted) in enumerate(steps):
         request = BackMsg()
+        if args.date_bounds:
+            request.rerun_script.query_string = 'probe=date-bounds&phase=' + phase
+            if submitted is not None:
+                start, end, peer = submitted
+                for label in ('Single', 'Range', 'Peer'):
+                    widget = request.rerun_script.widget_states.widgets.add(id=date_bounds_ids[label])
+                    if label == 'Peer': widget.bool_value = peer
+                    else: widget.string_array_value.data[:] = [start, end] if label == 'Range' else [start]
         if args.date_single:
             request.rerun_script.query_string = 'probe=date-single&phase=' + phase
             if submitted is not None:
@@ -531,6 +547,8 @@ try:
                         datetime_empty_ids[view.label] = view.id
                     if args.date_single and element_kind in ('date_input', 'checkbox'):
                         date_single_ids[view.label] = view.id
+                    if args.date_bounds and element_kind in ('date_input', 'checkbox'):
+                        date_bounds_ids[view.label] = view.id
                     if args.number_empty and element_kind in ('number_input', 'checkbox'):
                         number_empty_ids[view.label] = view.id
                     if args.text_empty and element_kind in ('text_input', 'text_area', 'checkbox'):

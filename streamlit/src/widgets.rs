@@ -214,6 +214,9 @@ pub(crate) enum Codec {
         min: chrono::NaiveDate,
         max: chrono::NaiveDate,
 
+        /// 仅显式提供边界时，在登记阶段校验已有原生值。
+        reset_native: bool,
+
         /// 单日期前端解析失败或越界时恢复的声明默认；范围模式仍按原规则解码。
         default: Value,
     },
@@ -380,7 +383,7 @@ impl Codec {
                 // payload as its raw string, list-normalized.
                 Err(_) => Value::Array(vec![Value::String(text.clone())]),
             }),
-            (Self::DateInput { range, min, max, default }, widget_state::Value::StringArrayValue(array)) => {
+            (Self::DateInput { range, min, max, default, .. }, widget_state::Value::StringArrayValue(array)) => {
                 if *range {
                     let dates: Option<Vec<Value>> = array.data.iter().map(|text| chrono::NaiveDate::parse_from_str(text, "%Y-%m-%d").ok().map(|_| Value::String(text.clone()))).collect();
                     let dates = dates?;
@@ -1041,6 +1044,34 @@ impl SessionState {
             }
 
             (Codec::DateTimeInput { min, max, reset_default: Some(default) }, _) if value.as_str().and_then(|text| chrono::NaiveDateTime::parse_from_str(text, "%Y-%m-%dT%H:%M").ok()).is_some_and(|moment| moment < *min || moment > *max) => {
+                (default.clone(), true)
+            }
+
+            (
+                Codec::DateInput {
+                    range: false,
+                    min,
+                    max,
+                    default,
+                    reset_native: true,
+                },
+                _,
+            ) if value.as_str().and_then(|text| chrono::NaiveDate::parse_from_str(text, "%Y-%m-%d").ok()).is_some_and(|date| date < *min || date > *max) => (default.clone(), true),
+
+            (
+                Codec::DateInput {
+                    range: true,
+                    min,
+                    max,
+                    default,
+                    reset_native: true,
+                },
+                _,
+            ) if value.as_array().is_some_and(|dates| {
+                let parse = |value: &Value| value.as_str().and_then(|text| chrono::NaiveDate::parse_from_str(text, "%Y-%m-%d").ok());
+                dates.first().and_then(parse).is_some_and(|date| date < *min) || dates.last().and_then(parse).is_some_and(|date| date > *max)
+            }) =>
+            {
                 (default.clone(), true)
             }
 

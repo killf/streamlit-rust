@@ -2678,3 +2678,23 @@ SDK 原始视口 1463x780、Rust 1463x724，DPR 均 1.75，未设置 viewport ov
 生产 widgets/widget_api、两端 fixture 与运行二进制 SHA 均和采集 metadata/当前文件一致；原始 source_commit=40b0b37 标识启动时基线。两标签已关；Network 在关 tab 前关闭，不宣称捕获 close 帧。自持 Python/Rust Popen 在 coordinator 的 finally 中 terminate/wait，执行句柄正常退出，57820/8599 无监听。目标日志 target/date-single-ui-{sdk,rust}-server.log；target/date-single-ui-stop 是本次唯一停止标记，未复用旧服务。
 
 仅 st.date_input 矩阵及生成 inventory 补真实 UI 证据，仍 130 partial；指南追加草稿与日历提交的区别并保留原 CRLF 前缀。None/空及部分范围公开模型仍待用户选择，日历边界/错误、动态边界 UI、禁用/ignore、URL/表单/跨页、其他主题/语言/视口和更广组合仍开放。用户 colconfig 与其他现有修改独立保留，无 PR、合并、发布或部署；M3/M5/M7 与完整 Goal 未关闭。
+
+## Current date native bound reset validation (2026-11-01)
+
+对照锁定 SDK 1.66.1 _validate_date_value，推进当前 DateSelection 已能表达的单日期和完整双端点范围：仅显式给出 min/max 时，单日期越界或范围首项低于 min/末项高于 max，才回本轮声明默认。返回值与 keyed state 一起更新并发送 value/set_value/one-shot，重置本身不产生 callback；默认推导的十年窗口不重置代码赋值。None/空及部分范围返回模型尚待用户选择，本批未扩大公共接口。
+
+widgets.rs 的 DateInput codec 增加 reset_native 标志，由 widget_api.rs 用原始显式 min/max 是否存在设置。沿用既有登记阶段 range_reset：单日期解析当前原生字符串后检查边界，范围按 SDK 的首/尾规则检查已支持的两个原生端点，再统一提交 corrected value/state 和现有同步标记。已有 frontend decode/缺省缓存、范围 ISO/恰好两项规则、错误类型和 native valid 检查保持原状；不是把新边界直接放入 valid 而提前阻止回退。runtime pickers codec 构造补新私有字段。没有新增依赖、模块或公共 API。
+
+公开 API 单元分别对 single/range 执行十三阶段，先真实失败于 single:narrow 保留 4/20 而非默认 3/15（target/date-bounds-red.log）；修后两种模式均通过。SDK AppTest 两模式的相同十三阶段经原始 WidgetStates 注入确认，观察轮只注入空 WidgetStates，避免旧前端 serde 掩盖新边界重置；SDK 入口 _run 是内部测试接口，不称正常浏览器操作。
+
+[SDK](../tests/reference/reference-browser/widget-params/date-bounds/trace.json) 与 [Rust](../tests/browser/rust-widget-params/date-bounds/trace.json) 首次原生采集各十三轮、116 帧、52 完整 Element，无失败捕获覆盖。Single 默认 2025-03-15，Range 默认 03-15..03-20，同伴 checkbox。顺序 load/edit/narrow/observe/widen/joint/assign/implicit/implicit-observe/minimum/maximum/lower/final。先在宽范围输入单值 4/20、范围 4/20..5/20、peer=true；收窄 max 到 4/10 后回各自默认并同步一次，无输入观察不重复，放宽也不复活旧值。
+
+joint 轮在旧宽边界下提交单值 4/25、范围 4/25..5/25、peer=false，本轮又收窄 max=4/10：三个 callback 先按 single/range/peer 的登记顺序读到整批新输入，随后登记才将返回和原生值重置为默认。assign 轮代码赋 2026 年日期同样回默认且无额外 callback；implicit 轮省略边界后代码赋 2050 年日期，虽然超出计算的 2015..2035 窗口仍保留并同步；implicit-observe 无输入继续保留且不重发。minimum 轮值恰好在 min 保留；maximum 轮 single 恰好 4/20、range 末端恰好 5/20 保留；lower 轮首日期 2/28 低于新 min=3/1，单值和完整范围都回默认，final 不重发。全部只有 edit 与 joint 产生六条 callback，范围重置不合成 callback。
+
+严格门从原始 base64 重解析 protobuf，核对原始 bytes/message 与元素汇总、三稳定旧 ID 和 single 一项/range 两项/bool oneof、13 run/同一 session、全部路径及 single/range default/min/max/is_range/format/布局/策略/value/set_value/one-shot、返回值/原生值类型与六条有序回调。完整 Element 仅规范化控件 ID 与 JSON body 后逐字段相等；semantic_match 在此门成功后才写 true。八类 raw/汇总同时修改的负例均拒绝：缺单值同步、range 原生未重置、观察重复同步、隐式边界错误重置、joint callback 读到重置后值、过期 range 输入 ID、恰好最大值错误回默认、重置额外 callback。
+
+同批用当前二进制重放旧单日期十六轮 --date-single，target/date-bounds-old-single/trace.json 的 127 帧/48 完整 Element 和 22 条 callback 继续匹配冻结 SDK；不覆盖旧原始参考，也未重采上一批浏览器图。生产 widgets/widget_api、三份 producer 及实际二进制 SHA 已与本批原生捕获逐一核对。SDK 自建服务和两次 Rust 自持 Popen 均 terminate/wait，49696/8599 无监听。
+
+按代码检查、公开单元、相关运行时协议与原生采集顺序完成验证；编辑 Rust 格式和逐文件 diff、全工作区/all-target Clippy 通过，既有 MSVC linker stdout warning 保留。最终工作区 338 项通过（331 库、1 ledger、2 宏、4 rustdoc），仍仅排除原 server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire 与 server::tests::queryparams::rerun_queue_messages_match_frozen_reference，不称全绿。参数参考模块 443 项，相关八模块共 802 项通过；日志 target/date-bounds-{red,green,sdk,clippy,build,final-unit,pickers,sdk-ws,rust-ws,server,gate,recheck,recheck-server,workspace,python,docs}.log。
+
+指南仅追加显式边界重置/回调顺序，保留原 CRLF 字节前缀。矩阵仅补 st.date_input 证据和 limitation，生成 inventory 仍 130 partial。本批无浏览器证据；None/空/部分范围模型待选，范围前端 malformed/legacy/越界、模式或原生类型不匹配、浏览器动态边界、禁用/ignore、URL/表单/跨页和其他组合继续开放，不把正常完整值推广为全部日期行为已兼容。用户 colconfig 与其他现有修改独立保留，无 PR、合并、发布或部署；M3/M5/M7 与完整 Goal 未关闭。

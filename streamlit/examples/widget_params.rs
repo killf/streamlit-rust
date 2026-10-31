@@ -6,6 +6,72 @@ use ::streamlit::*;
 use streamlit::StreamlitApi;
 
 fn render(st: &Streamlit) -> Result<(), WidgetError> {
+    if st.query_params().get("probe").as_deref() == Some("date-bounds") {
+        let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
+        let changed = |source: &'static str| {
+            move |st: &Streamlit| {
+                let state = st.session_state();
+                let mut calls = state.get::<Vec<serde_json::Value>>("date_bound_calls").expect("calls").unwrap_or_default();
+                calls.push(serde_json::json!([
+                    source,
+                    state.get::<serde_json::Value>("date_bound_single").expect("single"),
+                    state.get::<serde_json::Value>("date_bound_range").expect("range"),
+                    state.get::<bool>("date_bound_peer").expect("peer")
+                ]));
+                state.set("date_bound_calls", calls).expect("callback write");
+            }
+        };
+
+        // 1. 代码赋值不产生 callback；显式边界与推导窗口分别验证。
+        let assigned = match phase.as_str() {
+            "assign" => Some(("2026-02-01", "2026-03-01")),
+            "implicit" => Some(("2050-02-01", "2050-03-01")),
+            "minimum" => Some(("2025-02-01", "2025-03-20")),
+            "maximum" => Some(("2025-04-20", "2025-05-20")),
+            "lower" => Some(("2025-02-28", "2025-03-20")),
+            _ => None,
+        };
+        if let Some((start, end)) = assigned {
+            st.session_state().set("date_bound_single", start)?;
+            st.session_state().set("date_bound_range", [start, end])?;
+        }
+        let parse = |text: &str| chrono::NaiveDate::parse_from_str(text, "%Y-%m-%d").expect("fixture date");
+        let options = |label: &str, key: &str, range: bool| {
+            let options = DateInputOptions::new(label).value(parse("2025-03-15")).key(key);
+            let options = if range { options.value_range(parse("2025-03-15"), parse("2025-03-20")) } else { options };
+            if matches!(phase.as_str(), "implicit" | "implicit-observe") {
+                return options;
+            }
+            let min = if phase == "minimum" {
+                "2025-02-01"
+            } else if matches!(phase.as_str(), "lower" | "final") {
+                "2025-03-01"
+            } else {
+                "2025-01-01"
+            };
+            let max = if matches!(phase.as_str(), "narrow" | "observe" | "joint" | "assign") {
+                "2025-04-10"
+            } else if phase == "maximum" {
+                if range { "2025-05-20" } else { "2025-04-20" }
+            } else {
+                "2025-12-31"
+            };
+            options.min(parse(min)).max(parse(max))
+        };
+
+        // 2. 记录 callback 前的输入与登记后的返回/原生值，验证重置时序。
+        let single = st.date_input(options("Single", "date_bound_single", false).on_change(changed("single")))?;
+        let range = st.date_input(options("Range", "date_bound_range", true).on_change(changed("range")))?;
+        let peer = st.checkbox(CheckboxOptions::new("Peer").key("date_bound_peer").on_change(changed("peer")))?;
+        let wire = |value: DateSelection| match value {
+            DateSelection::Single(day) => serde_json::json!(day.format("%Y-%m-%d").to_string()),
+            DateSelection::Range(start, end) => serde_json::json!([start.format("%Y-%m-%d").to_string(), end.format("%Y-%m-%d").to_string()]),
+        };
+        let calls = st.session_state().get::<Vec<serde_json::Value>>("date_bound_calls")?.unwrap_or_default();
+        st.json(serde_json::json!({"phase": phase, "values": [wire(single), wire(range), serde_json::json!(peer)], "native": [st.session_state().get::<serde_json::Value>("date_bound_single")?, st.session_state().get::<serde_json::Value>("date_bound_range")?, st.session_state().get::<bool>("date_bound_peer")?], "calls": calls}));
+        return Ok(());
+    }
+
     if st.query_params().get("probe").as_deref() == Some("date-single") {
         let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
         let changed = |source: &'static str| {

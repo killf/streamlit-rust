@@ -3715,6 +3715,123 @@ def test_number_empty_gate_rejects_coherent_wrong_wire(mutation):
         check_number_empty(capture)
 
 
+DATE_BOUNDS_PHASES = ("load", "edit", "narrow", "observe", "widen", "joint", "assign", "implicit", "implicit-observe", "minimum", "maximum", "lower", "final")
+DATE_BOUNDS_VALUES = (["2025-03-15", ["2025-03-15", "2025-03-20"], False], ["2025-04-20", ["2025-04-20", "2025-05-20"], True],
+    ["2025-03-15", ["2025-03-15", "2025-03-20"], True], ["2025-03-15", ["2025-03-15", "2025-03-20"], True], ["2025-03-15", ["2025-03-15", "2025-03-20"], True],
+    ["2025-03-15", ["2025-03-15", "2025-03-20"], False], ["2025-03-15", ["2025-03-15", "2025-03-20"], False],
+    ["2050-02-01", ["2050-02-01", "2050-03-01"], False], ["2050-02-01", ["2050-02-01", "2050-03-01"], False],
+    ["2025-02-01", ["2025-02-01", "2025-03-20"], False], ["2025-04-20", ["2025-04-20", "2025-05-20"], False],
+    ["2025-03-15", ["2025-03-15", "2025-03-20"], False], ["2025-03-15", ["2025-03-15", "2025-03-20"], False])
+DATE_BOUNDS_CALLS = [[source, single, selected_range, peer] for single, selected_range, peer in (
+    ("2025-04-20", ["2025-04-20", "2025-05-20"], True), ("2025-04-25", ["2025-04-25", "2025-05-25"], False)) for source in ("single", "range", "peer")]
+
+
+def check_date_bounds(capture):
+    assert capture["successful"] and "producer_error" not in capture and capture["reference_version"] == "1.66.1"
+    assert capture["runtime"] in ("python", "rust") and capture["finishes"] == [0] * 13
+    assert capture["cleanup"]["websocket_closed"] and capture["cleanup"]["server_stopped" if capture["runtime"] == "python" else "caller_server_stopped"]
+    assert len(capture["frames"]) == 116 and len(capture["elements"]) == 52
+    runs = color_runs(capture, ("date_input", "checkbox", "json"))
+    normalized, sessions, run_ids, ids = [], set(), set(), None
+    for index, (phase, run) in enumerate(zip(DATE_BOUNDS_PHASES, runs, strict=True)):
+        request = run["request"]
+        assert request.query_string == "probe=date-bounds&phase=" + phase and not request.is_history_navigation
+        assert len(run["sessions"]) == 1 and run["finishes"] == [0]
+        session = run["sessions"][0]
+        assert session.initialize.environment_info.streamlit_version == "1.66.1"
+        sessions.add(session.initialize.session_id);run_ids.add(session.script_run_id)
+        assert [entry[0] for entry in run["entries"]] == ["date_input", "date_input", "checkbox", "json"]
+        current = []
+        values = DATE_BOUNDS_VALUES[index]
+        for position, (kind, widget, element) in enumerate(run["entries"][:3]):
+            assert widget.label == ("Single", "Range", "Peer")[position] and widget.id.endswith("-date_bound_" + ("single", "range", "peer")[position])
+            assert not widget.disabled and not widget.ignore_rerun and not widget.form_id and not widget.help and widget.label_visibility.value == 0
+            sync = position < 2 and index in (2, 5, 6, 7, 9, 10, 11)
+            assert widget.set_value is sync and element.has_one_shot_effect is sync and element.HasField("has_one_shot_effect") is sync
+            if kind == "checkbox":
+                assert not widget.default and not widget.value and element.width_config.use_content
+            else:
+                assert element.width_config.use_stretch and widget.is_range is (position == 1) and not widget.query_param_key and widget.format == "YYYY/MM/DD"
+                assert list(widget.default) == (["2025-03-15"] if position == 0 else ["2025-03-15", "2025-03-20"])
+                selected = [values[0]] if position == 0 else values[1]
+                assert list(widget.value) == (selected if sync else [])
+                if index in (7, 8):
+                    assert widget.min == "2015-03-15" and widget.max == ("2035-03-15" if position == 0 else "2035-03-20")
+                else:
+                    low = "2025-02-01" if index == 9 else "2025-03-01" if index >= 11 else "2025-01-01"
+                    high = "2025-04-10" if index in (2, 3, 5, 6) else ("2025-04-20" if position == 0 else "2025-05-20") if index == 10 else "2025-12-31"
+                    assert (widget.min, widget.max) == (low, high)
+            current.append(widget.id)
+        assert len(set(current)) == 3
+        if ids is None: ids = current
+        else: assert current == ids
+        incoming = request.widget_states.widgets
+        if index in (1, 5):
+            start, end = ("2025-04-20", "2025-05-20") if index == 1 else ("2025-04-25", "2025-05-25")
+            assert len(incoming) == 3 and [widget.id for widget in incoming] == ids
+            assert [widget.WhichOneof("value") for widget in incoming] == ["string_array_value", "string_array_value", "bool_value"]
+            assert list(incoming[0].string_array_value.data) == [start] and list(incoming[1].string_array_value.data) == [start, end]
+            assert incoming[2].bool_value is (index == 1)
+        else: assert not incoming
+        report = json.loads(run["entries"][-1][1].body)
+        assert report == {"phase": phase, "values": values, "native": values, "calls": DATE_BOUNDS_CALLS[:0 if index == 0 else 3 if index < 5 else 6]}
+        for projection in (report["values"], report["native"]):
+            assert type(projection[0]) is str and type(projection[1]) is list and len(projection[1]) == 2 and all(type(value) is str for value in projection[1]) and type(projection[2]) is bool
+        assert [entry["delta_path"] for entry in capture["elements"][index * 4:index * 4 + 4]] == [[0, i] for i in range(4)]
+        fields = []
+        for kind, _, element in run["entries"]:
+            view = MessageToDict(element, preserving_proto_field_name=True)
+            if kind == "json": view[kind]["body"] = json.loads(view[kind]["body"])
+            else: view[kind].pop("id")
+            fields.append(view)
+        normalized.append(fields)
+    assert len(sessions) == 1 and len(run_ids) == 13
+    return normalized
+
+
+@pytest.mark.parametrize("root", (PYTHON, RUST), ids=("python", "rust"))
+def test_date_bounds_single_range_reset_after_callbacks(root):
+    check_date_bounds(read(root / "date-bounds/trace.json"))
+
+
+def test_date_bounds_complete_elements_match_reference():
+    captures = [read(root / "date-bounds/trace.json") for root in (PYTHON, RUST)]
+    assert captures[0]["producer_sources_sha256"] == captures[1]["producer_sources_sha256"] and captures[1]["semantic_match"] is True
+    assert check_date_bounds(captures[0]) == check_date_bounds(captures[1])
+
+
+@pytest.mark.parametrize("mutation", ("single-sync", "range-native", "repeat-sync", "implicit-reset", "joint-callback", "stale-id", "maximum-clamp", "callback-extra"))
+def test_date_bounds_gate_rejects_coherent_wrong_wire(mutation):
+    capture = read(PYTHON / "date-bounds/trace.json")
+    target = {"single-sync": 2, "range-native": 2, "repeat-sync": 3, "implicit-reset": 7, "joint-callback": 5, "stale-id": 5, "maximum-clamp": 10, "callback-extra": 2}[mutation]
+    run = -1
+    for frame in capture["frames"]:
+        client = frame["direction"] == "client->server"
+        if client: run += 1
+        if run != target: continue
+        message = BackMsg() if client else ForwardMsg();message.ParseFromString(base64.b64decode(frame["base64"]))
+        if client and mutation == "stale-id": message.rerun_script.widget_states.widgets[1].id = "$$ID-stale-date_bound_range"
+        elif not client and message.WhichOneof("type") == "delta":
+            element = message.delta.new_element;kind = element.WhichOneof("type")
+            if kind == "date_input" and element.date_input.label == "Single" and mutation in ("single-sync", "repeat-sync"):
+                if mutation == "single-sync": element.date_input.set_value = False;element.date_input.ClearField("value");element.ClearField("has_one_shot_effect")
+                else: element.date_input.set_value = True;element.date_input.value[:] = ["2025-03-15"];element.has_one_shot_effect = True
+            elif kind == "json" and mutation in ("range-native", "implicit-reset", "joint-callback", "maximum-clamp", "callback-extra"):
+                report = json.loads(element.json.body)
+                if mutation == "range-native": report["native"][1] = ["2025-04-20", "2025-05-20"]
+                elif mutation == "implicit-reset": report["values"][:2] = report["native"][:2] = ["2025-03-15", ["2025-03-15", "2025-03-20"]]
+                elif mutation == "joint-callback": report["calls"][-3][1] = "2025-03-15"
+                elif mutation == "maximum-clamp": report["values"][1] = report["native"][1] = ["2025-03-15", "2025-03-20"]
+                else: report["calls"].append(["single", *DATE_BOUNDS_VALUES[2]])
+                element.json.body = json.dumps(report)
+            else: continue
+        else: continue
+        raw = message.SerializeToString();frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(message, preserving_proto_field_name=True))
+    capture["elements"] = [{"kind": m.delta.new_element.WhichOneof("type"), "fields": MessageToDict(getattr(m.delta.new_element, m.delta.new_element.WhichOneof("type")), preserving_proto_field_name=True),
+                            "delta_path": list(m.metadata.delta_path)} for m in frames(capture) if isinstance(m, ForwardMsg) and m.WhichOneof("type") == "delta"]
+    with pytest.raises(AssertionError): check_date_bounds(capture)
+
+
 DATE_SINGLE_UI_STAGES = ("01-load", "02-calendar-open", "03-calendar-next", "04-calendar-commit", "05-peer", "06-keyboard-draft", "07-keyboard-tab", "08-keyboard-enter", "09-calendar-reopen", "10-draft-calendar-commit", "11-peer-restore")
 DATE_SINGLE_UI_RUNS = (("2025-03-15", False), ("2025-04-20", False), ("2025-04-20", True), ("2025-04-21", True), ("2025-04-21", False))
 DATE_SINGLE_UI_STAGE_RUN = (0, 0, 0, 1, 2, 2, 2, 2, 2, 3, 4)

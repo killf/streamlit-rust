@@ -13,6 +13,56 @@ PYTHON = Path(__file__).parent / "reference-browser/temporal-params"
 RUST = Path(__file__).parents[1] / "browser/rust-temporal-params"
 
 
+@pytest.mark.parametrize("range_mode", (False, True))
+def test_sdk_date_native_bound_resets_after_callbacks_and_preserves_implicit_values(range_mode):
+    """Full native dates only; no None/partial-range compatibility claim."""
+    import importlib.metadata
+    from streamlit.proto.WidgetStates_pb2 import WidgetStates
+    from streamlit.testing.v1 import AppTest
+
+    assert importlib.metadata.version("streamlit") == "1.66.1"
+    app = AppTest.from_string('''
+import streamlit as st
+from datetime import date
+range_mode=''' + repr(range_mode) + '''
+phase=st.session_state.get('phase','load')
+parse=date.fromisoformat
+def native(start,end):return (parse(start),parse(end)) if range_mode else parse(start)
+def wire(value):return [v.isoformat() for v in value] if isinstance(value,tuple) else value.isoformat()
+if 'calls' not in st.session_state:st.session_state.calls=[]
+def changed():st.session_state.calls.append(wire(st.session_state.day))
+assignments={'assign':('2026-02-01','2026-03-01'),'implicit':('2050-02-01','2050-03-01'),'minimum':('2025-02-01','2025-03-20'),'maximum':('2025-04-20','2025-05-20'),'lower':('2025-02-28','2025-03-20')}
+if phase in assignments:st.session_state.day=native(*assignments[phase])
+kwargs={}
+if phase not in ('implicit','implicit-observe'):
+    low='2025-02-01' if phase=='minimum' else '2025-03-01' if phase in ('lower','final') else '2025-01-01'
+    high='2025-04-10' if phase in ('narrow','observe','joint','assign') else ('2025-05-20' if range_mode else '2025-04-20') if phase=='maximum' else '2025-12-31'
+    kwargs=dict(min_value=parse(low),max_value=parse(high))
+value=st.date_input('Day',value=native('2025-03-15','2025-03-20'),key='day',on_change=changed,**kwargs)
+st.json([wire(value),wire(st.session_state.day),st.session_state.calls])
+''').run()
+    assert not app.exception
+    identity = app.date_input[0].id
+    calls = []
+    for phase in ('edit','narrow','observe','widen','joint','assign','implicit','implicit-observe','minimum','maximum','lower','final'):
+        incoming = WidgetStates()
+        submitted = ('2025-04-20','2025-05-20') if phase=='edit' else ('2025-04-25','2025-05-25') if phase=='joint' else None
+        if submitted:
+            values = list(submitted) if range_mode else [submitted[0]]
+            incoming.widgets.add(id=identity).string_array_value.data[:] = values
+            calls.append(values if range_mode else values[0])
+        app.session_state['phase'] = phase
+        app._run(incoming)
+        assert not app.exception
+        pair = ('2025-04-20','2025-05-20') if phase in ('edit','maximum') else ('2050-02-01','2050-03-01') if phase in ('implicit','implicit-observe') else ('2025-02-01','2025-03-20') if phase=='minimum' else ('2025-03-15','2025-03-20')
+        expected = list(pair) if range_mode else pair[0]
+        assert json.loads(app.json[0].value) == [expected, expected, calls]
+        widget = app.date_input[0].proto
+        sync = phase in ('narrow','joint','assign','implicit','minimum','maximum','lower')
+        assert widget.id == identity and widget.is_range is range_mode and widget.set_value is sync
+        assert list(widget.value) == ([] if not sync else list(pair) if range_mode else [pair[0]])
+
+
 @pytest.mark.parametrize("raw,expected", ((None, "2025-03-15"), (["bad"], "2025-03-15"), (["2025/05/07"], "2025-05-07"),
     (["2025-05-07"], "2025-05-07"), (["2025-05-07", "2025-06-08"], "2025-05-07"), (["2025-05-07", "bad"], "2025-03-15"),
     (["2026-01-01"], "2025-03-15"), (["2025-05-07", "2026-01-01"], "2025-03-15"), (["2025-01-01"], "2025-01-01"), (["2025-12-31"], "2025-12-31")))

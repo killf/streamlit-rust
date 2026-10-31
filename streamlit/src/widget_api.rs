@@ -3147,7 +3147,14 @@ impl<C: AppendChild> InputWidgets for C {
                 key: c.key.as_deref(),
                 identity: &identity,
                 default: default.clone(),
-                codec: Codec::DateInput { range, min, max, default },
+                codec: Codec::DateInput {
+                    range,
+                    min,
+                    max,
+
+                    reset_native: options.min.is_some() || options.max.is_some(),
+                    default,
+                },
                 callback: c.callback,
             },
             |value| {
@@ -4978,6 +4985,116 @@ mod tests {
             assert!(wire.try_recv().is_ok(), "the first valid form is still rendered");
         }
         assert!(wire.try_recv().is_err(), "failed form calls must not append their partial children");
+    }
+
+    #[test]
+    fn date_native_bounds_reset_single_and_complete_range_after_callbacks() -> anyhow::Result<()> {
+        use chrono::NaiveDate;
+
+        let parse = |text: &str| NaiveDate::parse_from_str(text, "%Y-%m-%d").expect("fixture date");
+        let phases = ["load", "edit", "narrow", "observe", "widen", "joint", "assign", "implicit", "implicit-observe", "minimum", "maximum", "lower", "final"];
+        for range in [false, true] {
+            let state = SessionState::default();
+            let mut id = String::new();
+            let mut expected_calls = Vec::new();
+            let changed = |st: &Streamlit| {
+                let state = st.session_state();
+                let mut calls = state.get::<Vec<Value>>("date_bound_calls").expect("calls").unwrap_or_default();
+                calls.push(state.get::<Value>("day").expect("day").expect("registered day"));
+                state.set("date_bound_calls", calls).expect("callback write");
+            };
+            let native = |start: &str, end: &str| if range { serde_json::json!([start, end]) } else { serde_json::json!(start) };
+            for (index, phase) in phases.iter().enumerate() {
+                // 1. edit/joint 的输入按上一轮边界处理，callback 先于本轮新边界校验。
+                let submitted = match *phase {
+                    "edit" => Some(("2025-04-20", "2025-05-20")),
+                    "joint" => Some(("2025-04-25", "2025-05-25")),
+                    _ => None,
+                };
+                let incoming = submitted.map_or_else(Vec::new, |(start, end)| {
+                    vec![WidgetState {
+                        id: id.clone(),
+                        value: Some(widget_state::Value::StringArrayValue(proto::StringArray {
+                            data: if range { vec![start.into(), end.into()] } else { vec![start.into()] },
+                        })),
+                    }]
+                });
+                let callbacks = state.begin_widgets(incoming);
+                assert_eq!(callbacks.len(), usize::from(submitted.is_some()), "{range}: {phase}");
+                let (st, mut wire) = app(&state);
+                for callback in callbacks {
+                    callback(&st);
+                }
+                if let Some((start, end)) = submitted {
+                    expected_calls.push(native(start, end));
+                }
+                assert_eq!(state.get::<Vec<Value>>("date_bound_calls")?.unwrap_or_default(), expected_calls);
+                let assigned = match *phase {
+                    "assign" => Some(("2026-02-01", "2026-03-01")),
+                    "implicit" => Some(("2050-02-01", "2050-03-01")),
+                    "minimum" => Some(("2025-02-01", "2025-03-20")),
+                    "maximum" => Some(("2025-04-20", "2025-05-20")),
+                    "lower" => Some(("2025-02-28", "2025-03-20")),
+                    _ => None,
+                };
+                if let Some((start, end)) = assigned {
+                    state.set("day", native(start, end))?;
+                }
+
+                // 2. 仅显式边界重置，包含上下边界；推导的十年窗口不重置代码赋值。
+                let mut options = DateInputOptions::new("Day").value(parse("2025-03-15")).key("day").on_change(changed);
+                if range {
+                    options = options.value_range(parse("2025-03-15"), parse("2025-03-20"));
+                }
+                if !matches!(*phase, "implicit" | "implicit-observe") {
+                    let min = if *phase == "minimum" {
+                        "2025-02-01"
+                    } else if matches!(*phase, "lower" | "final") {
+                        "2025-03-01"
+                    } else {
+                        "2025-01-01"
+                    };
+                    let max = if matches!(*phase, "narrow" | "observe" | "joint" | "assign") {
+                        "2025-04-10"
+                    } else if *phase == "maximum" {
+                        if range { "2025-05-20" } else { "2025-04-20" }
+                    } else {
+                        "2025-12-31"
+                    };
+                    options = options.min(parse(min)).max(parse(max));
+                }
+                let (start, end) = match *phase {
+                    "edit" => ("2025-04-20", "2025-05-20"),
+                    "implicit" | "implicit-observe" => ("2050-02-01", "2050-03-01"),
+                    "minimum" => ("2025-02-01", "2025-03-20"),
+                    "maximum" => ("2025-04-20", "2025-05-20"),
+                    _ => ("2025-03-15", "2025-03-20"),
+                };
+                assert_eq!(st.date_input(options)?, if range { DateSelection::Range(parse(start), parse(end)) } else { DateSelection::Single(parse(start)) }, "{range}: {phase}");
+                assert_eq!(state.get::<Value>("day")?, Some(native(start, end)));
+                let Some(forward_msg::Type::Delta(proto::Delta {
+                    r#type: Some(delta::Type::NewElement(element)), ..
+                })) = wire.try_recv()?.r#type
+                else {
+                    panic!()
+                };
+                let sync = matches!(*phase, "narrow" | "joint" | "assign" | "implicit" | "minimum" | "maximum" | "lower");
+                assert_eq!(element.has_one_shot_effect, sync.then_some(true));
+                let Some(element::Type::DateInput(widget)) = element.r#type else { panic!() };
+                if index == 0 {
+                    id = widget.id.clone();
+                }
+                assert_eq!(widget.id, id);
+                assert_eq!(widget.is_range, range);
+                assert_eq!(widget.set_value, sync, "{range}: {phase}");
+                assert_eq!(widget.value, if sync { if range { vec![start, end] } else { vec![start] } } else { vec![] });
+                assert_eq!(widget.default, if range { vec!["2025-03-15", "2025-03-20"] } else { vec!["2025-03-15"] });
+                assert_eq!(state.get::<Vec<Value>>("date_bound_calls")?.unwrap_or_default(), expected_calls, "reset must not call on_change");
+                state.finish_widgets();
+            }
+        }
+
+        Ok(())
     }
 
     #[test]

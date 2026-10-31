@@ -148,12 +148,14 @@ async fn date_and_time_codecs_decode_the_measured_wire() -> TestResult {
         range: false,
         min,
         max,
+        reset_native: false,
         default: serde_json::json!("2025-01-15"),
     };
     let range = Codec::DateInput {
         range: true,
         min,
         max,
+        reset_native: false,
         default: serde_json::json!(["2025-01-15", "2025-02-15"]),
     };
     let wire = |labels: &[&str]| {
