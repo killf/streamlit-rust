@@ -2245,8 +2245,9 @@ impl<C: AppendChild> InputWidgets for C {
             .as_ref()
             .map_or(Value::Null, |value| Value::String(options.max_chars.map_or_else(|| value.clone(), |limit| value.chars().take(limit).collect())));
 
+        // 身份只包含调用方显式正则；类型派生规则仍在下方写入 wire。
         let validation_regex = match &options.validation {
-            TextValidation::Inherit => options.input_type.default_validation().0.map(String::from),
+            TextValidation::Inherit => None,
             TextValidation::Off => Some(String::new()),
             TextValidation::Pattern { regex, .. } => Some(regex.clone()),
         };
@@ -4120,6 +4121,28 @@ mod tests {
             assert!(wire_value.is_none());
             state.finish_widgets();
         }
+        Ok(())
+    }
+
+    #[test]
+    fn keyed_text_type_defaults_do_not_change_identity_or_reset_native_value() -> anyhow::Result<()> {
+        let state = SessionState::default();
+        let mut identities = Vec::new();
+        for kind in [TextInputType::Default, TextInputType::Email, TextInputType::Url, TextInputType::Phone, TextInputType::Search, TextInputType::Password] {
+            state.begin_widgets(vec![]);
+            if identities.is_empty() {
+                state.set("bound", "preserved")?;
+            }
+            let (st, mut wire) = app(&state);
+            assert_eq!(st.text_input(TextInputOptions::new("Bound").value("base").key("bound").input_type(kind))?.as_deref(), Some("preserved"));
+            let element::Type::TextInput(widget) = input(&mut wire)? else { anyhow::bail!("expected text input") };
+            identities.push(widget.id);
+            let (regex, message) = kind.default_validation();
+            assert_eq!(widget.validate_regex.as_deref(), regex);
+            assert_eq!(widget.validate_message.as_deref(), message);
+            state.finish_widgets();
+        }
+        assert!(identities.iter().all(|id| id == &identities[0]));
         Ok(())
     }
 

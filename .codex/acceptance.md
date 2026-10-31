@@ -1180,3 +1180,44 @@ and derived inventory retain 130 partial entries, M3/M5/M7 and the complete goal
 This is native API/WS evidence, not fresh browser/IME, native area binding or all
 null/default/identity/source combinations. Existing colconfig_params changes
 are excluded from this batch's commit/push.
+
+
+### Keyed text raw-validation identity correction (2026-10-31)
+
+The independent text-validation capture retains fourteen native runs, 181 raw
+frames and 42 ordered widget/validation/state projections. Six types with
+inherited validation share identity and preserve the frontend's KEEP🧊. Explicit
+^A+$ changes identity and resets; changing its message and type together retains
+AAAAA. Disabling validation with an explicit empty regex resets; changing type
+with that same empty regex retains identity. Restoring inherited validation
+returns to the original ID without resurrecting old input. Only the two
+frontend edits invoke callbacks. No URL message occurs.
+
+Rust's prior identity branch used derived email/url validation, producing an
+incorrect reset. Complete WS comparison failed before the one-branch correction
+(target/text-validation-before.log). Identity now uses the raw optional regex;
+actual emitted regex/message resolution remains unchanged. The new public unit
+covers all six types, retained native values, identity and derived wire rules.
+No public API/dependency/module or generic hash change was introduced.
+
+Code/all-targets Clippy -D warnings and Rustfmt passed, followed by the public
+unit, then all 28 related query-module checks, excluding its existing queue
+comparison (text-validation-clippy.log, text-validation-unit.log and
+text-validation-integration.log under target/). Full workspace passed 280:
+library 273, ledger 1, macros 2, rustdoc 4. Only the two existing
+navigation_pages_switch_and_session_state_match_the_measured_wire and
+rerun_queue_messages_match_frozen_reference were skipped; this is not complete
+workspace green (target/text-validation-workspace.log). Existing MSVC linker
+stdout warning remains. 146 related query/matrix/docs Python checks passed with
+DeprecationWarning as error (target/text-validation-final-gates.log). This batch
+did not rerun the full reference suite; the prior 1826 result is historical.
+
+Raw PB/summary, exact requests/input IDs/history, versions/session, snapshots,
+callbacks and optional type/regex/message/default/limit/sync fields are guarded.
+All pairwise ID equality relations are compared. Three coherent mutations reject
+type reset, message reset and a lost derived regex. Socket/server closed and
+port 63974 was read back free. Matrix and derived inventory retain 130 partial
+entries and M3/M5/M7/full goal remain open. Native protocol/API proof does not
+claim browser enforcement/remount, unkeyed identity equivalence, generic hash
+repair or every query/callback/source combination. Existing colconfig_params
+changes are excluded from this batch's commit/push; pending choices stay pending.

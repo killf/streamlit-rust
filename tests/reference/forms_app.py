@@ -316,8 +316,16 @@ def case_form_max_chars_cjk() -> None:
             st.session_state["length_callbacks"] = st.session_state.get("length_callbacks", []) + [st.session_state["cjk_note"]]
 
         widget = st.text_area if st.query_params.get("kind") == "area" else st.text_input
+        validation = st.query_params.get("validation", "inherit")
+        text_options = {}
+        if st.query_params.get("kind") != "area":
+            text_options["type"] = st.query_params.get("input_type", "default")
+            if validation == "off":
+                text_options["validate"] = ""
+            elif validation in ("pattern-a", "pattern-b"):
+                text_options["validate"] = ("^A+$", "First message" if validation == "pattern-a" else "Second message")
         cjk = widget("中文", key="cjk_note", value=default, max_chars=limit, on_change=changed,
-                     bind="query-params" if st.query_params.get("bind") == "on" else None)
+                     bind="query-params" if st.query_params.get("bind") == "on" else None, **text_options)
         report = {"phase": phase, "value": cjk, "state": st.session_state["cjk_note"],
                   "callbacks": st.session_state.get("length_callbacks", [])}
         if st.query_params.get("peer") == "on":

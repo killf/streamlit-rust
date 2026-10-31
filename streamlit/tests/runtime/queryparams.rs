@@ -115,6 +115,20 @@ fn text_length_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
                 st.text_area(options)?
             } else {
                 let mut options = crate::TextInputOptions::new("中文").value("abcdef🧊").key("cjk_note").on_change(|st| record_text_value_callback(st, "cjk_note", "length_callbacks"));
+                options = options.input_type(match query.get("input_type").as_deref() {
+                    Some("email") => crate::TextInputType::Email,
+                    Some("url") => crate::TextInputType::Url,
+                    Some("phone") => crate::TextInputType::Phone,
+                    Some("search") => crate::TextInputType::Search,
+                    Some("password") => crate::TextInputType::Password,
+                    _ => crate::TextInputType::Default,
+                });
+                options = match query.get("validation").as_deref() {
+                    Some("off") => options.validation(crate::TextValidation::Off),
+                    Some("pattern-a") => options.validate_with_message("^A+$", "First message"),
+                    Some("pattern-b") => options.validate_with_message("^A+$", "Second message"),
+                    _ => options,
+                };
                 if query.get("bind").as_deref() == Some("on") {
                     options = options.bind(crate::TextBind::QueryParams);
                 }
@@ -403,8 +417,10 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
         let Some(request) = frame["message"].get("rerun_script") else { continue };
         if !widget_ids.is_empty()
             && ((reference["scenario"] == "disabled-types" && request["query_string"].as_str().is_some_and(|query| query.contains("phase=load&")))
-                || (matches!(reference["scenario"].as_str(), Some("text-length" | "text-reset" | "text-source" | "text-bound" | "text-bound-peer" | "text-repeat" | "text-empty"))
-                    && request["query_string"].as_str().is_some_and(|query| query.ends_with("phase=load"))))
+                || (matches!(
+                    reference["scenario"].as_str(),
+                    Some("text-length" | "text-reset" | "text-source" | "text-bound" | "text-bound-peer" | "text-repeat" | "text-empty" | "text-validation")
+                ) && request["query_string"].as_str().is_some_and(|query| query.ends_with("phase=load"))))
         {
             drop(stream);
             stream = sessions::connect(address, None).await;
@@ -498,13 +514,24 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
                                 if matches!(reference["scenario"].as_str(), Some("seed" | "seed-code" | "rerun")) {
                                     observed.push(serde_json::json!({"widget": key, "set": widget.set_value, "value": widget.value}));
                                 }
-                                if matches!(reference["scenario"].as_str(), Some("text-length" | "text-reset" | "text-source" | "text-bound" | "text-bound-peer" | "text-repeat" | "text-empty")) {
+                                if matches!(
+                                    reference["scenario"].as_str(),
+                                    Some("text-length" | "text-reset" | "text-source" | "text-bound" | "text-bound-peer" | "text-repeat" | "text-empty" | "text-validation")
+                                ) {
                                     observed.push(serde_json::json!({"widget": key, "kind": "text_input", "set": widget.set_value, "value": widget.value, "default": widget.default, "max_chars": widget.max_chars}));
+                                    if reference["scenario"] == "text-validation" {
+                                        observed.push(serde_json::json!({"validation": {"type": widget.r#type, "regex": widget.validate_regex, "message": widget.validate_message}}));
+                                    }
                                     observed_identities.push(widget.id.clone());
                                 }
                                 widget_ids.insert(key, widget.id);
                             }
-                            Some(element::Type::TextArea(widget)) if matches!(reference["scenario"].as_str(), Some("text-length" | "text-reset" | "text-source" | "text-bound" | "text-bound-peer" | "text-repeat" | "text-empty")) => {
+                            Some(element::Type::TextArea(widget))
+                                if matches!(
+                                    reference["scenario"].as_str(),
+                                    Some("text-length" | "text-reset" | "text-source" | "text-bound" | "text-bound-peer" | "text-repeat" | "text-empty" | "text-validation")
+                                ) =>
+                            {
                                 let key = widget.id.rsplit('-').next().ok_or("missing text area key")?.to_owned();
                                 observed.push(serde_json::json!({"widget": key, "kind": "text_area", "set": widget.set_value, "value": widget.value, "default": widget.default, "max_chars": widget.max_chars}));
                                 observed_identities.push(widget.id.clone());
@@ -553,12 +580,19 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
         if let Some(info) = message.get("page_info_changed") {
             expected.push(serde_json::json!({"url": info["query_string"].as_str().unwrap_or("")}));
         }
-        if matches!(reference["scenario"].as_str(), Some("text-length" | "text-reset" | "text-source" | "text-bound" | "text-bound-peer" | "text-repeat" | "text-empty")) {
+        if matches!(
+            reference["scenario"].as_str(),
+            Some("text-length" | "text-reset" | "text-source" | "text-bound" | "text-bound-peer" | "text-repeat" | "text-empty" | "text-validation")
+        ) {
             for kind in ["text_input", "text_area"] {
                 if let Some(widget) = message["delta"]["new_element"].get(kind) {
                     let key = widget["id"].as_str().and_then(|id| id.rsplit('-').next()).ok_or("missing reference text key")?;
                     expected_identities.push(widget["id"].as_str().ok_or("missing reference text identity")?.to_owned());
                     expected.push(serde_json::json!({"widget": key, "kind": kind, "set": widget["set_value"].as_bool().unwrap_or(false), "value": widget["value"], "default": widget["default"], "max_chars": widget["max_chars"].as_u64().unwrap_or(0)}));
+                    if reference["scenario"] == "text-validation" {
+                        let kind = widget["type"].as_str().and_then(crate::proto::text_input::Type::from_str_name).unwrap_or(crate::proto::text_input::Type::Default);
+                        expected.push(serde_json::json!({"validation": {"type": kind as i32, "regex": widget["validate_regex"], "message": widget["validate_message"]}}));
+                    }
                 }
             }
         }
@@ -605,7 +639,7 @@ async fn assert_queryparams_reference(entry: fn(&Streamlit) -> Pin<Box<dyn Futur
     }
     assert_eq!(expected.len(), expected_count, "reference must retain every snapshot and URL write");
     assert_eq!(observed, expected);
-    if matches!(reference["scenario"].as_str(), Some("text-reset" | "text-source" | "text-bound" | "text-bound-peer" | "text-repeat" | "text-empty")) {
+    if matches!(reference["scenario"].as_str(), Some("text-reset" | "text-source" | "text-bound" | "text-bound-peer" | "text-repeat" | "text-empty" | "text-validation")) {
         // 比较身份的相等关系，不把 Python 与 Rust 的摘要字面量强行等同。
         assert_eq!(observed_identities.len(), expected_identities.len());
         for (old_index, old_id) in expected_identities.iter().enumerate() {
@@ -675,6 +709,11 @@ async fn bound_text_repeat_values_remain_until_last_value_requires_correction() 
 #[actix_web::test]
 async fn bound_text_none_assignments_empty_values_and_history_match_reference() -> TestResult {
     assert_queryparams_reference(text_length_entry, include_str!("../../../tests/reference/reference-browser/queryparams/text-empty/trace.json"), 23).await
+}
+
+#[actix_web::test]
+async fn keyed_text_type_changes_keep_values_but_explicit_regex_changes_reset() -> TestResult {
+    assert_queryparams_reference(text_length_entry, include_str!("../../../tests/reference/reference-browser/queryparams/text-validation/trace.json"), 42).await
 }
 
 #[actix_web::test]

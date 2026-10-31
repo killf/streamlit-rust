@@ -847,3 +847,18 @@ The new native bound-input capture checks all 23 ordered projections, including
 empty versus literal None, callbacks and history. Area binding and the other
 pending API/queue/parser choices remain pending; no additional public API,
 module or dependency was introduced. Browser coverage and full goal stay open.
+
+
+### Raw text validation identity (2026-10-31)
+
+The locked SDK hashes the caller's validate regex before resolving type-derived
+validation. Keyed text_input whitelists max_chars and that raw regex. Existing
+Rust used the resolved regex, so changing default to email/url reset input even
+though raw validation was unchanged. Only the Inherit identity branch now uses
+None; Off and explicit Pattern still use their raw regex. Wire regex/message
+resolution remains separate and unchanged. No hash algorithm/public API/module
+or dependency is introduced, and the generic NewElement proposal stays pending.
+Fourteen native runs/181 frames/42 ordered projections preserve type/message
+transitions, reset on explicit regex change, and guard identity equivalence,
+callbacks and field presence. Browser enforcement/remount, unkeyed equivalence
+and all callback/query/source combinations remain outside this evidence.

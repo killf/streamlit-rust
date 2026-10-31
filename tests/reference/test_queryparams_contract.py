@@ -180,7 +180,7 @@ def read_query_param_capture(scenario, capture=None):
                     byte_payloads.append(widgets[0].bytes_value)
         elif message.WhichOneof("type") == "new_session":
             sessions.append(message.new_session.initialize.session_id)
-            if scenario in ("disabled-json", "encoding", "text-length", "text-reset", "text-source", "text-bound", "text-bound-peer", "text-repeat", "text-empty"):
+            if scenario in ("disabled-json", "encoding", "text-length", "text-reset", "text-source", "text-bound", "text-bound-peer", "text-repeat", "text-empty", "text-validation"):
                 environment = message.new_session.initialize.environment_info
                 assert environment.streamlit_version == "1.66.1" and environment.python_version == "3.14.7.final.0"
         elif message.WhichOneof("type") == "script_finished":
@@ -361,6 +361,36 @@ def read_query_param_capture(scenario, capture=None):
             identities = length_ids[number * 10:(number + 1) * 10]
             assert [identities.index(identity) for identity in identities] == [0, 0, 2, 3, 3, 0, 2, 2, 0, 0]
         assert set(length_ids[:10]).isdisjoint(length_ids[10:])
+    elif scenario == "text-validation":
+        kinds = ("default", "default", "email", "url", "phone", "search", "password", "default", "default", "email", "url", "email", "email", "default")
+        rules = ("inherit",) * 7 + ("pattern-a", "pattern-a", "pattern-b", "off", "off", "inherit", "inherit")
+        phases = ("load", "edit", "email", "url", "phone", "search", "password", "rule", "edit-rule", "message", "off", "type-off", "restore", "ordinary")
+        prefix = "case=form-max-chars-cjk&probe=length&kind=input&limit=5&default=long&input_type="
+        assert requests == [prefix + kind + "&validation=" + rule + "&phase=" + phase for kind, rule, phase in zip(kinds, rules, phases, strict=True)]
+        assert histories == [False] * 14 and finishes == [0] * 14 and len(sessions) == 14 and len(set(sessions)) == 1
+        assert not urls
+        values = ("abcde",) + ("KEEP🧊",) * 6 + ("abcde", "AAAAA", "AAAAA") + ("abcde",) * 4
+        assert snapshots == [{"phase": phase, "value": value, "state": value,
+                              "callbacks": ([] if number == 0 else ["KEEP🧊"] if number < 8 else ["KEEP🧊", "AAAAA"])}
+                             for number, (phase, value) in enumerate(zip(phases, values, strict=True))]
+        widgets = [frame["message"]["delta"]["new_element"]["text_input"] for frame in capture["frames"]
+                   if "text_input" in frame["message"].get("delta", {}).get("new_element", {})]
+        assert len(widgets) == 14
+        ids = [widget["id"] for widget in widgets]
+        assert [ids.index(identity) for identity in ids] == [0] * 7 + [7] * 3 + [10] * 2 + [0] * 2
+        defaults = {"email": (r"^[^\s@]+@[^\s@]+\.[^\s@]+$", "Enter a valid email address."),
+                    "url": (r"^([Hh][Tt][Tt][Pp][Ss]?://)?[^\s/.]+\.[^\s]+$", "Enter a valid URL.")}
+        for widget, kind, rule in zip(widgets, kinds, rules, strict=True):
+            expected = ("", None) if rule == "off" else (("^A+$", "First message" if rule == "pattern-a" else "Second message")
+                        if rule.startswith("pattern-") else defaults.get(kind, (None, None)))
+            assert (widget.get("validate_regex"), widget.get("validate_message")) == expected
+            assert widget.get("type", "DEFAULT") == kind.upper()
+            assert widget["default"] == "abcdef🧊" and widget["max_chars"] == 5
+            assert not widget.get("set_value", False) and "value" not in widget and "query_param_key" not in widget
+        clients = [frame["message"]["rerun_script"] for frame in capture["frames"] if frame["direction"] == "client->server"]
+        for number, client in enumerate(clients):
+            value = {1: "KEEP🧊tail", 8: "AAAAAextra"}.get(number)
+            assert client.get("widget_states", {}).get("widgets", []) == ([] if value is None else [{"id": ids[number - 1], "string_value": value}])
     elif scenario == "text-empty":
         prefix = "case=form-max-chars-cjk&probe=length&kind=input&bind=on&limit=5&default=long&phase="
         phases = ("load", "assign-none", "assign-none", "url-only", "empty-url", "frontend", "assign-none", "history-missing", "history-empty", "recover")
@@ -563,6 +593,42 @@ def test_bound_text_reference_corrects_urls_and_preserves_only_unbound_history_c
     single = read_bound_text_capture(False)
     peer = read_bound_text_capture(True)
     assert single == [{key: value for key, value in report.items() if key not in ("live", "peer_callbacks")} for report in peer]
+
+
+def test_keyed_text_validation_reference_distinguishes_raw_and_type_defaults():
+    read_query_param_capture("text-validation")
+
+
+@pytest.mark.parametrize("mutation", ["type-reset", "message-reset", "regex-wire"])
+def test_keyed_text_validation_gate_rejects_coherent_wrong_wire(mutation):
+    import base64
+    from google.protobuf.json_format import MessageToDict
+    from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
+
+    capture = json.loads((HERE / "reference-browser/queryparams/text-validation/trace.json").read_text(encoding="utf-8"))
+    target = {"type-reset": 2, "message-reset": 9, "regex-wire": 12}[mutation]
+    run = -1
+    for frame in capture["frames"]:
+        if frame["direction"] == "client->server":
+            run += 1
+            continue
+        if run != target:
+            continue
+        message = ForwardMsg()
+        message.ParseFromString(base64.b64decode(frame["base64"]))
+        element = message.delta.new_element
+        if mutation == "regex-wire" and element.WhichOneof("type") == "text_input":
+            element.text_input.ClearField("validate_regex")
+        elif mutation != "regex-wire" and element.WhichOneof("type") == "json":
+            report = json.loads(element.json.body)
+            report["value"] = report["state"] = "abcde"
+            element.json.body = json.dumps(report)
+        else:
+            continue
+        raw = message.SerializeToString()
+        frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(message, preserving_proto_field_name=True))
+    with pytest.raises(AssertionError):
+        read_query_param_capture("text-validation", capture)
 
 
 def test_bound_text_none_empty_and_history_reference():

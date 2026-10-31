@@ -26,7 +26,7 @@ ROOT = Path(__file__).resolve().parents[2]
 QUERY = "z=last&tag=first&tag=second&a=first&blank=&encoded=%E4%B8%AD%E6%96%87+text"
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("--out", type=Path, required=True)
-parser.add_argument("--scenario", choices=("values", "encoding", "text-length", "text-reset", "text-source", "text-bound", "text-bound-peer", "text-repeat", "text-empty", "reserved", "binding", "seed", "seed-code", "disabled", "disabled-valid", "disabled-types", "disabled-json", "rerun", "navigation-rerun", "rerun-messages", "rerun-queue"), default="values")
+parser.add_argument("--scenario", choices=("values", "encoding", "text-length", "text-reset", "text-source", "text-bound", "text-bound-peer", "text-repeat", "text-empty", "text-validation", "reserved", "binding", "seed", "seed-code", "disabled", "disabled-valid", "disabled-types", "disabled-json", "rerun", "navigation-rerun", "rerun-messages", "rerun-queue"), default="values")
 args = parser.parse_args()
 if args.scenario == "reserved":
     QUERY = "case=reserved&embed=true&EMBED_OPTIONS=light_theme&st_embed=ordinary&=empty-key-value"
@@ -55,7 +55,7 @@ with socket.socket() as listener:
     port = listener.getsockname()[1]
 url = f"http://127.0.0.1:{port}"
 fixture = "navigation_app.py" if args.scenario == "navigation-rerun" else "queryparams_values_app.py"
-if args.scenario in ("text-length", "text-reset", "text-source", "text-bound", "text-bound-peer", "text-repeat", "text-empty"):
+if args.scenario in ("text-length", "text-reset", "text-source", "text-bound", "text-bound-peer", "text-repeat", "text-empty", "text-validation"):
     fixture = "forms_app.py"
 command = [sys.executable, "-B", "-m", "streamlit", "run", str(ROOT / "tests/reference" / fixture),
            "--server.address=127.0.0.1", f"--server.port={port}", "--server.headless=true",
@@ -107,6 +107,18 @@ try:
             text_inputs = {"edit": "é🧊zUPPER", "edit-short": "XYZtail", "same-none": "retained🧊text", "edit-five": "END🧊ok"}
             queries = [f"case=form-max-chars-cjk&probe=length&kind={kind}&limit={limit}&default={default}&phase={phase}"
                        for kind in ("input", "area") for limit, default, phase in steps]
+            trace["query_string"] = queries[0]
+        if args.scenario == "text-validation":
+            trace["connection_policy"] = "One WS for keyed text type, raw validation and message changes."
+            validation_steps = (("default", "inherit", "load", None), ("default", "inherit", "edit", "KEEP🧊tail"),
+                                ("email", "inherit", "email", None), ("url", "inherit", "url", None),
+                                ("phone", "inherit", "phone", None), ("search", "inherit", "search", None),
+                                ("password", "inherit", "password", None), ("default", "pattern-a", "rule", None),
+                                ("default", "pattern-a", "edit-rule", "AAAAAextra"), ("email", "pattern-b", "message", None),
+                                ("url", "off", "off", None), ("email", "off", "type-off", None),
+                                ("email", "inherit", "restore", None), ("default", "inherit", "ordinary", None))
+            queries = [f"case=form-max-chars-cjk&probe=length&kind=input&limit=5&default=long&input_type={kind}&validation={validation}&phase={phase}"
+                       for kind, validation, phase, _ in validation_steps]
             trace["query_string"] = queries[0]
         if args.scenario == "text-source":
             trace["connection_policy"] = "Fresh WS per widget kind; ten input/limit/code-source transitions share each WS."
@@ -230,6 +242,10 @@ try:
                 widget = request.rerun_script.widget_states.widgets.add()
                 widget.id = widget_ids["cjk_note"]
                 widget.string_value = text_inputs[phase]
+            if args.scenario == "text-validation" and validation_steps[index][3] is not None:
+                widget = request.rerun_script.widget_states.widgets.add()
+                widget.id = widget_ids["cjk_note"]
+                widget.string_value = validation_steps[index][3]
             if args.scenario == "text-source" and source_steps[index % 10][2] is not None:
                 widget = request.rerun_script.widget_states.widgets.add()
                 widget.id = widget_ids["cjk_note"]

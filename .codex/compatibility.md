@@ -276,3 +276,13 @@ None in this sequence; empty and literal None strings remain distinct. Both
 existing text emitters are corrected, with an additional two-control public
 unit; the new native binding capture is text_input only. No serializer/public
 API expansion or new browser claim is made.
+
+
+2026-10-31 [raw text validation identity](../tests/reference/reference-browser/queryparams/text-validation/trace.json)
+adds fourteen native runs/181 frames/42 ordered widget-validation-state
+projections. Inherited type-default validation changes keep a keyed input's
+value and identity; explicit regex changes reset, while message changes do not.
+Rust now hashes raw optional validation, leaving emitted regex/message unchanged.
+Two frontend callbacks, resets, retained values, field presence and identity
+equivalence are checked. Browser enforcement/remount and generic identity remain
+open; no new API or dependency was introduced.

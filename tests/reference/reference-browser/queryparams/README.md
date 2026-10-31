@@ -584,3 +584,29 @@ projections and four coherent mutations guard default omission, URL removal,
 literal None and history restoration. Owned socket/server closed and port
 50499 was read back free. This is native protocol/API evidence, not a new
 browser/IME result or every null/default/identity/source combination.
+
+
+## Raw validation identity versus type defaults (2026-10-31)
+
+`text-validation/trace.json` has 14 runs/181 raw frames/42 ordered widget,
+validation-field and state projections on one session. The existing opt-in
+forms probe and collector now accept input_type/validation cases. Type changes
+across default/email/url/phone/search/password with inherited validation retain
+KEEP🧊 and one identity. An explicit ^A+$ rule resets to the default; a frontend
+edit produces AAAAA. Switching type and the rule's message together preserves
+AAAAA and identity. Explicit empty regex disables validation and resets; changing
+type with that same empty regex preserves identity. Returning to inherited
+validation returns to the original identity but does not resurrect its old input.
+Only the two frontend edits invoke callbacks. No URL update occurs.
+
+Rust had used the type-derived regex for identity and reset input on email/url
+changes. It now uses the raw optional regex for identity while leaving the
+wire's derived regex/message intact. A public unit covers all six types, state
+retention, identity equality and emitted default validation. The native replay
+also checks all pairwise ID equality relations and exact optional regex/message,
+type, default, max_chars, synchronization and callback/state fields. Original
+PB/summary, runtime/session and request IDs/input/history flags are bound; three
+coherent wrong-wire mutations reject type reset, message reset and a lost regex.
+The owned socket/server closed and port 63974 was read back free. This is native
+protocol/API evidence, not actual browser regex enforcement/remount, unkeyed
+identity parity, callback-side writes or the generic element hash proposal.
