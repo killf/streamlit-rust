@@ -258,6 +258,180 @@ def test_permissive_number_gate_rejects_coherent_wrong_wire(mutation):
         check_permissive_numbers(capture)
 
 
+NUMBER_UI_STAGES = ("load", "int-zero-increment", "int-negative-increment", "float-zero-increment",
+                    "float-negative-increment", "equal-invalid", "equal-recover", "float-typed")
+NUMBER_UI_VALUES = ((2, 4, 4, 2.5, 1.5, 1.5), (2, 5, 4, 2.5, 1.5, 1.5), (2, 5, 2, 2.5, 1.5, 1.5),
+                    (2, 5, 2, 2.5, 1.51, 1.5), (2, 5, 2, 2.5, 1.51, 1.25), (2, 5, 2, 2.5, 1.51, 1.25),
+                    (2, 5, 2, 2.5, 1.51, 1.25), (2, 5, 2, 2.5, 1.51, 2.75))
+
+
+def check_number_ui(capture, folder):
+    import hashlib
+    from PIL import Image
+
+    assert capture["reference_version"] == "1.66.1" and capture["runtime"] in ("python", "rust")
+    assert capture["visual_review"]["accepted"]
+    assert capture["visual_review"]["reviewed_stages"] == list(NUMBER_UI_STAGES)
+    assert capture["cleanup"]["owned_servers_stopped"] and capture["cleanup"]["owned_tab_closed"]
+    assert capture["cleanup"]["ports_without_listeners"] == [8599, 8619]
+    assert [stage["stage"] for stage in capture["stages"]] == list(NUMBER_UI_STAGES)
+    baseline = number_runs(read(PYTHON / "number-permissive/trace.json"))[0]["widgets"]
+    expected_wire = [MessageToDict(widget, preserving_proto_field_name=True) for widget in baseline]
+    for fields in expected_wire:
+        fields.pop("id")
+    created = [event for stage in capture["stages"] for event in stage["events"]["events"] if event["method"] == "Network.webSocketCreated"]
+    assert len(created) == 1
+    ws_id = created[0]["params"]["requestId"]
+    port = 8619 if capture["runtime"] == "python" else 8599
+    assert created[0]["params"]["url"] == f"ws://127.0.0.1:{port}/_stcore/stream"
+    ids, sessions, run_ids, previous_sequence, frame_count = {}, set(), set(), 0, 0
+    for stage, values in zip(capture["stages"], NUMBER_UI_VALUES, strict=True):
+        phase = stage["stage"]
+        assert stage["action_and_capture_calls_separate"]
+        events = stage["events"]
+        assert not events["truncated"] and not events["hasMore"]
+        messages = []
+        for event in events["events"]:
+            assert previous_sequence < event["sequence"] <= events["cursor"]
+            previous_sequence = event["sequence"]
+            if event["method"] not in ("Network.webSocketFrameSent", "Network.webSocketFrameReceived"):
+                continue
+            assert event["params"]["requestId"] == ws_id
+            raw = event["params"]["response"]
+            assert raw["opcode"] == 2
+            message = BackMsg() if event["method"].endswith("Sent") else ForwardMsg()
+            message.ParseFromString(base64.b64decode(raw["payloadData"], validate=True))
+            messages.append(message)
+        frame_count += len(messages)
+        reports = [{"case": row[0], "accepted": True, "value": value, "state": value}
+                   for row, value in zip(PERMISSIVE_NUMBERS, values, strict=True)]
+        reports += [{"case": label, "accepted": False} for label in REJECTED_NUMBERS]
+        dom = stage["dom"]
+        assert dom["url"] == f"http://127.0.0.1:{port}/?probe=number-permissive"
+        assert dom["viewport"] == {"width": 1463, "height": 724, "dpr": 1.75} and not dom["exceptions"]
+        assert dom["reports"] == [json.dumps(report, separators=(",", ":")).replace(",", "") for report in reports]
+        assert len(dom["widgets"]) == 6
+        for index, (widget, value) in enumerate(zip(dom["widgets"], values, strict=True)):
+            assert widget["label"] == PERMISSIVE_NUMBERS[index][0] and not widget["disabled"]
+            displayed = "3" if phase == "equal-invalid" and index == 0 else f"{value:.2f}" if index >= 3 else str(value)
+            assert widget["value"] == displayed
+            assert widget["step"] == ("1", "1", "-2", "0.25", "0.01", "-0.25")[index]
+            low, high = PERMISSIVE_NUMBERS[index][2:4]
+            sentinel = sys.float_info.max if index >= 3 else 9007199254740991
+            assert (widget["min"], widget["max"]) == (str(low if low is not None else -sentinel), str(high if high is not None else sentinel))
+            expected_buttons = [True, True] if index in (0, 3) else [False, False]
+            if phase == "equal-invalid" and index == 0:
+                expected_buttons = [False, True]
+                assert "Error: Number is outside the allowed range. Please enter a value between 2 and 2." in widget["text"]
+            else:
+                assert "Error:" not in widget["text"]
+            assert widget["buttons"] == [{"label": name, "disabled": disabled} for name, disabled in zip(("Decrement", "Increment"), expected_buttons, strict=True)]
+        path = folder / stage["screenshot"]
+        integrity = stage["screenshot_integrity"]
+        assert hashlib.sha256(path.read_bytes()).hexdigest() == integrity["sha256"]
+        with Image.open(path) as image:
+            assert image.format == integrity["format"] == "JPEG"
+            assert image.size == (integrity["width"], integrity["height"]) == (1463, 724)
+        if phase == "equal-invalid":
+            assert not messages
+            continue
+        assert len(messages) == 23
+        assert isinstance(messages[0], BackMsg)
+        request = messages[0].rerun_script
+        assert request.query_string == "probe=number-permissive" and not request.is_history_navigation
+        widgets, output_reports, statuses, finishes, current_sessions, element_kinds = [], [], [], [], [], []
+        for message in messages[1:]:
+            kind = message.WhichOneof("type")
+            if kind == "new_session":
+                current_sessions.append(message.new_session)
+            elif kind == "script_finished":
+                finishes.append(message.script_finished)
+            elif kind == "session_status_changed":
+                statuses.append(message.session_status_changed.script_is_running)
+            else:
+                assert kind == "delta" and message.delta.WhichOneof("type") == "new_element"
+                element = message.delta.new_element
+                element_kinds.append(element.WhichOneof("type"))
+                assert list(message.metadata.delta_path) == [0, len(widgets) + len(output_reports)]
+                if element.WhichOneof("type") == "number_input":
+                    widget = element.number_input
+                    fields = MessageToDict(widget, preserving_proto_field_name=True)
+                    assert fields.pop("id") == ids.setdefault(widget.label, widget.id)
+                    assert fields == expected_wire[len(widgets)]
+                    widgets.append(widget)
+                else:
+                    assert element.WhichOneof("type") == "json"
+                    output_reports.append(json.loads(element.json.body))
+        assert len(widgets) == 6 and output_reports == reports
+        assert element_kinds == ["number_input", "json"] * 6 + ["json"] * 6
+        assert finishes == [0] and statuses == [True, False] and len(current_sessions) == 1
+        session = current_sessions[0]
+        assert session.initialize.environment_info.streamlit_version == "1.66.1"
+        sessions.add(session.initialize.session_id)
+        run_ids.add(session.script_run_id)
+        incoming = request.widget_states.widgets
+        if phase == "load":
+            assert not incoming
+        else:
+            assert len(incoming) == 6
+            for index, (state, value) in enumerate(zip(incoming, values, strict=True)):
+                assert state.id == ids[PERMISSIVE_NUMBERS[index][0]]
+                field = "int_value" if index < 3 else "double_value"
+                assert state.WhichOneof("value") == field and getattr(state, field) == value
+    assert frame_count == 161 and len(sessions) == 1 and len(run_ids) == 7 and len(ids) == 6
+
+
+@pytest.mark.parametrize("root", (PYTHON, RUST), ids=("python", "rust"))
+def test_number_nonpositive_step_browser_evidence(root):
+    folder = root / "number-permissive/ui/settled"
+    check_number_ui(read(folder / "trace.json"), folder)
+
+
+@pytest.mark.parametrize("root", (PYTHON, RUST), ids=("python", "rust"))
+def test_same_call_number_screenshots_are_not_settled_evidence(root):
+    folder = root / "number-permissive/ui"
+    capture = read(folder / "trace.json")
+    assert not capture["visual_review"]["accepted"]
+    with pytest.raises(AssertionError):
+        check_number_ui(capture, folder)
+
+
+@pytest.mark.parametrize("mutation", ("dom-step", "raw-step", "input-type", "screenshot", "coverage", "missing-stage"))
+def test_browser_number_evidence_rejects_damage(mutation):
+    folder = PYTHON / "number-permissive/ui/settled"
+    capture = read(folder / "trace.json")
+    if mutation == "dom-step":
+        capture["stages"][1]["dom"]["widgets"][1]["step"] = "0"
+    elif mutation == "screenshot":
+        capture["stages"][1]["screenshot_integrity"]["sha256"] = "wrong"
+    elif mutation == "coverage":
+        capture["stages"][1]["events"]["truncated"] = True
+    elif mutation == "missing-stage":
+        capture["stages"].pop(5)
+    else:
+        for event in capture["stages"][1]["events"]["events"]:
+            method = event["method"]
+            if mutation == "input-type" and method == "Network.webSocketFrameSent":
+                message = BackMsg()
+                message.ParseFromString(base64.b64decode(event["params"]["response"]["payloadData"]))
+                message.rerun_script.widget_states.widgets[1].double_value = 5.0
+            elif mutation == "raw-step" and method == "Network.webSocketFrameReceived":
+                message = ForwardMsg()
+                message.ParseFromString(base64.b64decode(event["params"]["response"]["payloadData"]))
+                if message.WhichOneof("type") != "delta" or message.delta.new_element.WhichOneof("type") != "number_input":
+                    continue
+                if message.delta.new_element.number_input.label != "Int negative step":
+                    continue
+                message.delta.new_element.number_input.step = 2
+                capture["stages"][1]["dom"]["widgets"][2]["step"] = "2"
+            else:
+                continue
+            event["params"]["response"]["payloadData"] = base64.b64encode(message.SerializeToString()).decode()
+            break
+    with pytest.raises(AssertionError):
+        check_number_ui(capture, folder)
+
+
 NUMBER_PHASES = ("load", "edit", "zero-min", "narrow-max", "grow", "default", "edit-low", "raise-min", "step", "disabled", "recover", "assign")
 NUMBER_VALUES = (4, 7, 7, 4, 4, 4, 1, 4, 4, 4, 4, 8)
 

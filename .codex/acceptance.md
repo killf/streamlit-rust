@@ -1802,3 +1802,40 @@ server::tests::navigation::navigation_pages_switch_and_session_state_match_the_m
 target/number-permissive-{red,green,clippy,build,workspace,reference}.log；首次
 编辑保护断言中止后保留的再次失败记录另见 target/number-permissive-edit-not-applied.log，没有修改
 slider 校验。用户 colconfig_params 改动不纳入本次提交。
+
+
+### number_input 非正步长真实浏览器验证（2026-10-31）
+
+SDK 1.66.1 与生产 head 639e2bf 的 Rust 各八个 settled 阶段、七轮/161 原始
+WS 帧，126 有序控件/JSON 元素，八张原始图；Chrome 视口 1463×724/DPR1.75。
+证据为两侧 number-permissive/ui/settled/trace.json，同目录保存截图。相等
+int/float 边界的两个按钮禁用；wire step=0 对应 DOM step=1/0.01；加号分别
+得到 4→5、1.50→1.51；负 step 的加号分别得到 4→2、1.50→1.25。真实键盘
+输入 Int equal=3 后 blur 显示相同范围错误，不发 WS，后端仍为 2；改回 2 后
+正常重跑，再用键盘输入 Float negative step=2.75，blur 后状态和报告均为 2.75。
+
+第一次同调用截图有滞后：DOM 已更新但报告图仍旧，错误图甚至仍显示选中的
+旧值 2。原 ui 根目录的 trace/图保留并标记 rejected，负向门禁止其冒充通过。
+重采分开动作/AX 确认与下一次调用的截图，十六张 settled 实图均逐张目视检查，
+对应输入、报告和错误外观一致；不声称像素差分相等。返回原始字节为 JPEG，
+继承 .png 文件名但不转码；门禁核对实际格式、尺寸和 SHA256。
+
+采集仅通过 CUA Chrome 控制和获准的 tab-scoped CDP 事件；普通点击/真实按键，
+DOM evaluate 只读。进入页后启用 Network，受控 warm reload 后按游标逐阶段
+保留事件；settled 窗口均无 truncated/hasMore。最初跨 origin 的缓冲覆盖和
+离开 HTTP origin 后关闭事件读取被拒绝，均保留为诊断限制，未绕过权限。
+settled 在跨 origin/关页前停止网络观察，明确不声称保留了 WS close 事件。
+两批均核对进程身份后停止自有服务，8599/8619 读回无监听，专用标签页关闭。
+首批 SDK 进程停止时出现 WinError10054 的管道清理输出；采集的七轮均已正常
+完成且没有应用 exception，不据此推断服务整体健康。第二批停止无新增输出。
+
+离线门禁逐条解码 PB、核对输入类型/ID/值、七轮完成和会话/控件身份、全部
+number_input 字段、报告/路径/顺序、DOM 值/边界/step/按钮/错误、事件覆盖和原图字节。
+六类破坏反例覆盖 DOM step、同步修改 raw/DOM step、输入类型、图哈希、游标
+覆盖和缺阶段。此批没有修改生产代码或接口；回调/异常文案/其他类型及历史/
+页面组合仍未证明完整兼容。共享状态选型、109/116、130 partial 和完整目标开放。
+
+本批最终 268 项相关 query/widget/matrix/docs 检查通过，弃用警告作为错误；
+日志 target/number-permissive-ui-reference.log。没有重复 Rust 构建/Clippy/
+工作区测试，因本批生产与 Rust 源码未变；上一批 300 项及两项排除仍是上一批
+结果，不当作这批新增验证。用户 colconfig_params 修改保持隔离、不提交。

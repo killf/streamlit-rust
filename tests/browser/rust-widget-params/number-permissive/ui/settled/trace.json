@@ -1,0 +1,3896 @@
+{
+  "schema_version": 1,
+  "runtime": "rust",
+  "reference_version": "1.66.1",
+  "scope": "Real Chrome UI, separate action/AX and later screenshot calls; warm reload; all raw WS events from selected connection retained.",
+  "stages": [
+    {
+      "stage": "load",
+      "dom": {
+        "exceptions": [],
+        "reports": [
+          "{\"case\":\"Int equal\"\"accepted\":true\"value\":2\"state\":2}",
+          "{\"case\":\"Int zero step\"\"accepted\":true\"value\":4\"state\":4}",
+          "{\"case\":\"Int negative step\"\"accepted\":true\"value\":4\"state\":4}",
+          "{\"case\":\"Float equal\"\"accepted\":true\"value\":2.5\"state\":2.5}",
+          "{\"case\":\"Float zero step\"\"accepted\":true\"value\":1.5\"state\":1.5}",
+          "{\"case\":\"Float negative step\"\"accepted\":true\"value\":1.5\"state\":1.5}",
+          "{\"case\":\"Int inverted\"\"accepted\":false}",
+          "{\"case\":\"Int below\"\"accepted\":false}",
+          "{\"case\":\"Int above\"\"accepted\":false}",
+          "{\"case\":\"Float inverted\"\"accepted\":false}",
+          "{\"case\":\"Float below\"\"accepted\":false}",
+          "{\"case\":\"Float above\"\"accepted\":false}"
+        ],
+        "url": "http://127.0.0.1:8599/?probe=number-permissive",
+        "viewport": {
+          "dpr": 1.75,
+          "height": 724,
+          "width": 1463
+        },
+        "widgets": [
+          {
+            "buttons": [
+              {
+                "disabled": true,
+                "label": "Decrement"
+              },
+              {
+                "disabled": true,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Int equal",
+            "max": "2",
+            "min": "2",
+            "step": "1",
+            "text": "Int equal",
+            "value": "2"
+          },
+          {
+            "buttons": [
+              {
+                "disabled": false,
+                "label": "Decrement"
+              },
+              {
+                "disabled": false,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Int zero step",
+            "max": "9007199254740991",
+            "min": "-9007199254740991",
+            "step": "1",
+            "text": "Int zero step",
+            "value": "4"
+          },
+          {
+            "buttons": [
+              {
+                "disabled": false,
+                "label": "Decrement"
+              },
+              {
+                "disabled": false,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Int negative step",
+            "max": "9007199254740991",
+            "min": "-9007199254740991",
+            "step": "-2",
+            "text": "Int negative step",
+            "value": "4"
+          },
+          {
+            "buttons": [
+              {
+                "disabled": true,
+                "label": "Decrement"
+              },
+              {
+                "disabled": true,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Float equal",
+            "max": "2.5",
+            "min": "2.5",
+            "step": "0.25",
+            "text": "Float equal",
+            "value": "2.50"
+          },
+          {
+            "buttons": [
+              {
+                "disabled": false,
+                "label": "Decrement"
+              },
+              {
+                "disabled": false,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Float zero step",
+            "max": "1.7976931348623157e+308",
+            "min": "-1.7976931348623157e+308",
+            "step": "0.01",
+            "text": "Float zero step",
+            "value": "1.50"
+          },
+          {
+            "buttons": [
+              {
+                "disabled": false,
+                "label": "Decrement"
+              },
+              {
+                "disabled": false,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Float negative step",
+            "max": "1.7976931348623157e+308",
+            "min": "-1.7976931348623157e+308",
+            "step": "-0.25",
+            "text": "Float negative step",
+            "value": "1.50"
+          }
+        ]
+      },
+      "events": {
+        "cursor": 1193,
+        "events": [
+          {
+            "sequence": 1045,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketCreated",
+            "params": {
+              "initiator": {
+                "stack": {
+                  "callFrames": [
+                    {
+                      "columnNumber": 2166,
+                      "functionName": "connectToWebSocket",
+                      "lineNumber": 28,
+                      "scriptId": "119",
+                      "url": "http://127.0.0.1:8599/static/js/index.Dlja0TUX.js"
+                    }
+                  ]
+                },
+                "type": "script"
+              },
+              "requestId": "67020.678",
+              "url": "ws://127.0.0.1:8599/_stcore/stream"
+            }
+          },
+          {
+            "sequence": 1052,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameSent",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": true,
+                "opcode": 2,
+                "payloadData": "WlsKF3Byb2JlPW51bWJlci1wZXJtaXNzaXZlEgBCPgoNQXNpYS9TaGFuZ2hhaRCg/P////////8BGgJ6aCIWaHR0cDovLzEyNy4wLjAuMTo4NTk5LygAMgRkYXJr"
+              },
+              "timestamp": 123516.670607
+            }
+          },
+          {
+            "sequence": 1053,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkZWM5NDI3YjMtNDE4Mi00OTdjLTk3MTYtZTJhNTdlMWZmNzhjEiQzYjcxYTljOS0zOGYxLTQxZjctOGI1Ni02ODU1NWVmMGY4OTAaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl"
+              },
+              "timestamp": 123516.674074
+            }
+          },
+          {
+            "sequence": 1057,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ=="
+              },
+              "timestamp": 123516.683966
+            }
+          },
+          {
+            "sequence": 1058,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBhNWJjNTU1YThkYjhhZjdhYjAxNzg5ZDBkOGEwYjIyNBImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2Uqdxp1ggJtCi8kJElELTgwMzM0ZTZmMzkyOTZmMjFiOTVjYTEzMzhmZTY4YzNlLUludCBlcXVhbBIJSW50IGVxdWFsQgIlZFgBYAFxAAAAAAAAAEB5AAAAAAAA8D+BAQAAAAAAAABAiQEAAAAAAAAAQLIBANIDAggB"
+              },
+              "timestamp": 123516.684149
+            }
+          },
+          {
+            "sequence": 1059,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiAyZmM3ZGM2MDdmZmRjYWFhZmI3M2E0ZGNmY2M3YmMwOBImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqTRpL+gFDCj97ImNhc2UiOiAiSW50IGVxdWFsIiwgImFjY2VwdGVkIjogdHJ1ZSwgInZhbHVlIjogMiwgInN0YXRlIjogMn0QAdIDAggB"
+              },
+              "timestamp": 123516.684402
+            }
+          },
+          {
+            "sequence": 1060,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiA4MzlmOTJmODZhZDdmMGQ1MjBhOTA3YzljNzhmZjI4MxImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqchpwggJoCjMkJElELWQwOWM4ZTM4MmQ3YjlhZDdkOTk2ZjgxZWQ0OGM0NjU4LUludCB6ZXJvIHN0ZXASDUludCB6ZXJvIHN0ZXBCAiVkcQAAAAAAABBAgQH///////8/w4kB////////P0OyAQDSAwIIAQ=="
+              },
+              "timestamp": 123516.684512
+            }
+          },
+          {
+            "sequence": 1061,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBiOGFmMzFiOTM0OWNkYTNhZTYzZGMzNWZkYzkzMjQ2ZBImEgIAAyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqURpP+gFHCkN7ImNhc2UiOiAiSW50IHplcm8gc3RlcCIsICJhY2NlcHRlZCI6IHRydWUsICJ2YWx1ZSI6IDQsICJzdGF0ZSI6IDR9EAHSAwIIAQ=="
+              },
+              "timestamp": 123516.684661
+            }
+          },
+          {
+            "sequence": 1062,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBmZTVkYjcwNTRhYmE4NTM3NmVhNDczYjI2MjEzZmJiOBImEgIABCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqhAEagQGCAnkKNyQkSUQtMDgwODBlM2U1ODA3MmY3MWVlOGUzYWVhODNhODVmOGEtSW50IG5lZ2F0aXZlIHN0ZXASEUludCBuZWdhdGl2ZSBzdGVwQgIlZHEAAAAAAAAQQHkAAAAAAAAAwIEB////////P8OJAf///////z9DsgEA0gMCCAE="
+              },
+              "timestamp": 123516.684765
+            }
+          },
+          {
+            "sequence": 1063,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBkNjEzM2IxZTU5OGNhNTQwMDgyZDA2YThhYWFhZWY1NRImEgIABSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqVRpT+gFLCkd7ImNhc2UiOiAiSW50IG5lZ2F0aXZlIHN0ZXAiLCAiYWNjZXB0ZWQiOiB0cnVlLCAidmFsdWUiOiA0LCAic3RhdGUiOiA0fRAB0gMCCAE="
+              },
+              "timestamp": 123516.684852
+            }
+          },
+          {
+            "sequence": 1064,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBiOTgzMTA1ODk4NTlkNzI2Y2FiMzk0NGEzNWZiYTg1OBImEgIABiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqgAEafoICdgoxJCRJRC1hNDdlYTA5YTg5Zjc3NmFiZDNjZjk3ODhlYmQ2NzMwOC1GbG9hdCBlcXVhbBILRmxvYXQgZXF1YWxCBSUwLjJmWAFgAWgBcQAAAAAAAARAeQAAAAAAANA/gQEAAAAAAAAEQIkBAAAAAAAABECyAQDSAwIIAQ=="
+              },
+              "timestamp": 123516.684903
+            }
+          },
+          {
+            "sequence": 1065,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiAzYmYzZWFhY2YxMzkyODA0ZjUyNWYzMzYzZjA2Mjk0MhImEgIAByIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqUxpR+gFJCkV7ImNhc2UiOiAiRmxvYXQgZXF1YWwiLCAiYWNjZXB0ZWQiOiB0cnVlLCAidmFsdWUiOiAyLjUsICJzdGF0ZSI6IDIuNX0QAdIDAggB"
+              },
+              "timestamp": 123516.684975
+            }
+          },
+          {
+            "sequence": 1066,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBkNWM2ZDMzODAxNWRhOTI3NDM1MjUyYmE0OGQzMmE5OBImEgIACCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2Uqexp5ggJxCjUkJElELTkzMDYwMWNlZjY1OWZjNWMxYzMwZGUzYzQ5NzEzOGVkLUZsb2F0IHplcm8gc3RlcBIPRmxvYXQgemVybyBzdGVwQgUlMC4yZmgBcQAAAAAAAPg/gQH////////v/4kB////////73+yAQDSAwIIAQ=="
+              },
+              "timestamp": 123516.685023
+            }
+          },
+          {
+            "sequence": 1067,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBjZWVjYWMyMjExYTk1ZWQ1YjY2YmMyMTEzYjcxOWQwNRImEgIACSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqVxpV+gFNCkl7ImNhc2UiOiAiRmxvYXQgemVybyBzdGVwIiwgImFjY2VwdGVkIjogdHJ1ZSwgInZhbHVlIjogMS41LCAic3RhdGUiOiAxLjV9EAHSAwIIAQ=="
+              },
+              "timestamp": 123516.685139
+            }
+          },
+          {
+            "sequence": 1068,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBhZGY1Y2ZkZmQxNTljNjgxMzg1NWQxZmRhN2FjMzEzNhImEgIACiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqjgEaiwGCAoIBCjkkJElELWE4ODcxODY4MDlkNzY2ZjcxZDkyMTI4MTQ4ZGY3OGNlLUZsb2F0IG5lZ2F0aXZlIHN0ZXASE0Zsb2F0IG5lZ2F0aXZlIHN0ZXBCBSUwLjJmaAFxAAAAAAAA+D95AAAAAAAA0L+BAf///////+//iQH////////vf7IBANIDAggB"
+              },
+              "timestamp": 123516.685192
+            }
+          },
+          {
+            "sequence": 1069,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiA5NWE2NjIzMmVhOWVhYTJmY2FkY2I5OTAwMTUxOTMxYhImEgIACyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqWxpZ+gFRCk17ImNhc2UiOiAiRmxvYXQgbmVnYXRpdmUgc3RlcCIsICJhY2NlcHRlZCI6IHRydWUsICJ2YWx1ZSI6IDEuNSwgInN0YXRlIjogMS41fRAB0gMCCAE="
+              },
+              "timestamp": 123516.685249
+            }
+          },
+          {
+            "sequence": 1070,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBjMzY3NzFlNmUyYTI1Y2VlNjJjMDY3ZTM0YjdmZTU2NRImEgIADCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqORo3+gEvCit7ImNhc2UiOiAiSW50IGludmVydGVkIiwgImFjY2VwdGVkIjogZmFsc2V9EAHSAwIIAQ=="
+              },
+              "timestamp": 123516.685294
+            }
+          },
+          {
+            "sequence": 1071,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBlMjFiZTk5NTI3YWI1NzFlMjUwNmQ5OTdiMTJmMGQ1MRImEgIADSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqNho0+gEsCih7ImNhc2UiOiAiSW50IGJlbG93IiwgImFjY2VwdGVkIjogZmFsc2V9EAHSAwIIAQ=="
+              },
+              "timestamp": 123516.685359
+            }
+          },
+          {
+            "sequence": 1072,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiA1N2NlMjU4YjQyMGIxOWNmYjk0NzU0YWJlOTczOTg1ORImEgIADiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqNho0+gEsCih7ImNhc2UiOiAiSW50IGFib3ZlIiwgImFjY2VwdGVkIjogZmFsc2V9EAHSAwIIAQ=="
+              },
+              "timestamp": 123516.685442
+            }
+          },
+          {
+            "sequence": 1073,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBhMmI0ZTNjNGI1Yjg0Y2E5NWNhMjc3ZWViM2VjODJjZBImEgIADyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqOxo5+gExCi17ImNhc2UiOiAiRmxvYXQgaW52ZXJ0ZWQiLCAiYWNjZXB0ZWQiOiBmYWxzZX0QAdIDAggB"
+              },
+              "timestamp": 123516.685497
+            }
+          },
+          {
+            "sequence": 1074,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiA4NjM0NDViZDFlOTE3OTNiNjQ3NjE2ZWI2MmQ1NGVhOBImEgIAECIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqOBo2+gEuCip7ImNhc2UiOiAiRmxvYXQgYmVsb3ciLCAiYWNjZXB0ZWQiOiBmYWxzZX0QAdIDAggB"
+              },
+              "timestamp": 123516.685541
+            }
+          },
+          {
+            "sequence": 1075,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBkMzQzZjkyZDRlMzM5ODg3ZmE5N2MzNDJhMjMyN2NmYRImEgIAESIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqOBo2+gEuCip7ImNhc2UiOiAiRmxvYXQgYWJvdmUiLCAiYWNjZXB0ZWQiOiBmYWxzZX0QAdIDAggB"
+              },
+              "timestamp": 123516.685584
+            }
+          },
+          {
+            "sequence": 1076,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "Cg9zY3JpcHRfZmluaXNoZWQwAA=="
+              },
+              "timestamp": 123516.685634
+            }
+          },
+          {
+            "sequence": 1077,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgA="
+              },
+              "timestamp": 123516.685718
+            }
+          }
+        ],
+        "hasMore": false,
+        "truncated": false
+      },
+      "screenshot": "load.png",
+      "action_and_capture_calls_separate": true,
+      "screenshot_integrity": {
+        "sha256": "3543299915ed85aa806706f3fb7aa43860b76bdd976a35d90365a9b4aab7f7c7",
+        "format": "JPEG",
+        "width": 1463,
+        "height": 724
+      }
+    },
+    {
+      "stage": "int-zero-increment",
+      "dom": {
+        "exceptions": [],
+        "reports": [
+          "{\"case\":\"Int equal\"\"accepted\":true\"value\":2\"state\":2}",
+          "{\"case\":\"Int zero step\"\"accepted\":true\"value\":5\"state\":5}",
+          "{\"case\":\"Int negative step\"\"accepted\":true\"value\":4\"state\":4}",
+          "{\"case\":\"Float equal\"\"accepted\":true\"value\":2.5\"state\":2.5}",
+          "{\"case\":\"Float zero step\"\"accepted\":true\"value\":1.5\"state\":1.5}",
+          "{\"case\":\"Float negative step\"\"accepted\":true\"value\":1.5\"state\":1.5}",
+          "{\"case\":\"Int inverted\"\"accepted\":false}",
+          "{\"case\":\"Int below\"\"accepted\":false}",
+          "{\"case\":\"Int above\"\"accepted\":false}",
+          "{\"case\":\"Float inverted\"\"accepted\":false}",
+          "{\"case\":\"Float below\"\"accepted\":false}",
+          "{\"case\":\"Float above\"\"accepted\":false}"
+        ],
+        "url": "http://127.0.0.1:8599/?probe=number-permissive",
+        "viewport": {
+          "dpr": 1.75,
+          "height": 724,
+          "width": 1463
+        },
+        "widgets": [
+          {
+            "buttons": [
+              {
+                "disabled": true,
+                "label": "Decrement"
+              },
+              {
+                "disabled": true,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Int equal",
+            "max": "2",
+            "min": "2",
+            "step": "1",
+            "text": "Int equal",
+            "value": "2"
+          },
+          {
+            "buttons": [
+              {
+                "disabled": false,
+                "label": "Decrement"
+              },
+              {
+                "disabled": false,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Int zero step",
+            "max": "9007199254740991",
+            "min": "-9007199254740991",
+            "step": "1",
+            "text": "Int zero step",
+            "value": "5"
+          },
+          {
+            "buttons": [
+              {
+                "disabled": false,
+                "label": "Decrement"
+              },
+              {
+                "disabled": false,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Int negative step",
+            "max": "9007199254740991",
+            "min": "-9007199254740991",
+            "step": "-2",
+            "text": "Int negative step",
+            "value": "4"
+          },
+          {
+            "buttons": [
+              {
+                "disabled": true,
+                "label": "Decrement"
+              },
+              {
+                "disabled": true,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Float equal",
+            "max": "2.5",
+            "min": "2.5",
+            "step": "0.25",
+            "text": "Float equal",
+            "value": "2.50"
+          },
+          {
+            "buttons": [
+              {
+                "disabled": false,
+                "label": "Decrement"
+              },
+              {
+                "disabled": false,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Float zero step",
+            "max": "1.7976931348623157e+308",
+            "min": "-1.7976931348623157e+308",
+            "step": "0.01",
+            "text": "Float zero step",
+            "value": "1.50"
+          },
+          {
+            "buttons": [
+              {
+                "disabled": false,
+                "label": "Decrement"
+              },
+              {
+                "disabled": false,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Float negative step",
+            "max": "1.7976931348623157e+308",
+            "min": "-1.7976931348623157e+308",
+            "step": "-0.25",
+            "text": "Float negative step",
+            "value": "1.50"
+          }
+        ]
+      },
+      "events": {
+        "cursor": 1217,
+        "events": [
+          {
+            "sequence": 1195,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameSent",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": true,
+                "opcode": 2,
+                "payloadData": "Wu8DChdwcm9iZT1udW1iZXItcGVybWlzc2l2ZRLxAgozCi8kJElELTgwMzM0ZTZmMzkyOTZmMjFiOTVjYTEzMzhmZTY4YzNlLUludCBlcXVhbCgECjcKMyQkSUQtZDA5YzhlMzgyZDdiOWFkN2Q5OTZmODFlZDQ4YzQ2NTgtSW50IHplcm8gc3RlcCgKCjsKNyQkSUQtMDgwODBlM2U1ODA3MmY3MWVlOGUzYWVhODNhODVmOGEtSW50IG5lZ2F0aXZlIHN0ZXAoCAo8CjEkJElELWE0N2VhMDlhODlmNzc2YWJkM2NmOTc4OGViZDY3MzA4LUZsb2F0IGVxdWFsIQAAAAAAAARACkAKNSQkSUQtOTMwNjAxY2VmNjU5ZmM1YzFjMzBkZTNjNDk3MTM4ZWQtRmxvYXQgemVybyBzdGVwIQAAAAAAAPg/CkQKOSQkSUQtYTg4NzE4NjgwOWQ3NjZmNzFkOTIxMjgxNDhkZjc4Y2UtRmxvYXQgbmVnYXRpdmUgc3RlcCEAAAAAAAD4PxogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VCPgoNQXNpYS9TaGFuZ2hhaRCg/P////////8BGgJ6aCIWaHR0cDovLzEyNy4wLjAuMTo4NTk5LygAMgRkYXJr"
+              },
+              "timestamp": 123529.46152
+            }
+          },
+          {
+            "sequence": 1196,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkZWM5NDI3YjMtNDE4Mi00OTdjLTk3MTYtZTJhNTdlMWZmNzhjEiRhMTBiNmYyZi02NjY5LTQ3Y2ItYWRhNC00OWU4NzcwYjk5ZmQaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl"
+              },
+              "timestamp": 123529.46381
+            }
+          },
+          {
+            "sequence": 1197,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ=="
+              },
+              "timestamp": 123529.464307
+            }
+          },
+          {
+            "sequence": 1198,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBhNWJjNTU1YThkYjhhZjdhYjAxNzg5ZDBkOGEwYjIyNBImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2Uqdxp1ggJtCi8kJElELTgwMzM0ZTZmMzkyOTZmMjFiOTVjYTEzMzhmZTY4YzNlLUludCBlcXVhbBIJSW50IGVxdWFsQgIlZFgBYAFxAAAAAAAAAEB5AAAAAAAA8D+BAQAAAAAAAABAiQEAAAAAAAAAQLIBANIDAggB"
+              },
+              "timestamp": 123529.473938
+            }
+          },
+          {
+            "sequence": 1199,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiAyZmM3ZGM2MDdmZmRjYWFhZmI3M2E0ZGNmY2M3YmMwOBImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqTRpL+gFDCj97ImNhc2UiOiAiSW50IGVxdWFsIiwgImFjY2VwdGVkIjogdHJ1ZSwgInZhbHVlIjogMiwgInN0YXRlIjogMn0QAdIDAggB"
+              },
+              "timestamp": 123529.474997
+            }
+          },
+          {
+            "sequence": 1200,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiA4MzlmOTJmODZhZDdmMGQ1MjBhOTA3YzljNzhmZjI4MxImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqchpwggJoCjMkJElELWQwOWM4ZTM4MmQ3YjlhZDdkOTk2ZjgxZWQ0OGM0NjU4LUludCB6ZXJvIHN0ZXASDUludCB6ZXJvIHN0ZXBCAiVkcQAAAAAAABBAgQH///////8/w4kB////////P0OyAQDSAwIIAQ=="
+              },
+              "timestamp": 123529.475119
+            }
+          },
+          {
+            "sequence": 1201,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiA1NTIyM2EyYmQzNGJlYmRkMGNjOTQxMjgwMWJkY2IzYxImEgIAAyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqURpP+gFHCkN7ImNhc2UiOiAiSW50IHplcm8gc3RlcCIsICJhY2NlcHRlZCI6IHRydWUsICJ2YWx1ZSI6IDUsICJzdGF0ZSI6IDV9EAHSAwIIAQ=="
+              },
+              "timestamp": 123529.475202
+            }
+          },
+          {
+            "sequence": 1202,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBmZTVkYjcwNTRhYmE4NTM3NmVhNDczYjI2MjEzZmJiOBImEgIABCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqhAEagQGCAnkKNyQkSUQtMDgwODBlM2U1ODA3MmY3MWVlOGUzYWVhODNhODVmOGEtSW50IG5lZ2F0aXZlIHN0ZXASEUludCBuZWdhdGl2ZSBzdGVwQgIlZHEAAAAAAAAQQHkAAAAAAAAAwIEB////////P8OJAf///////z9DsgEA0gMCCAE="
+              },
+              "timestamp": 123529.475266
+            }
+          },
+          {
+            "sequence": 1203,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBkNjEzM2IxZTU5OGNhNTQwMDgyZDA2YThhYWFhZWY1NRImEgIABSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqVRpT+gFLCkd7ImNhc2UiOiAiSW50IG5lZ2F0aXZlIHN0ZXAiLCAiYWNjZXB0ZWQiOiB0cnVlLCAidmFsdWUiOiA0LCAic3RhdGUiOiA0fRAB0gMCCAE="
+              },
+              "timestamp": 123529.475332
+            }
+          },
+          {
+            "sequence": 1204,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBiOTgzMTA1ODk4NTlkNzI2Y2FiMzk0NGEzNWZiYTg1OBImEgIABiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqgAEafoICdgoxJCRJRC1hNDdlYTA5YTg5Zjc3NmFiZDNjZjk3ODhlYmQ2NzMwOC1GbG9hdCBlcXVhbBILRmxvYXQgZXF1YWxCBSUwLjJmWAFgAWgBcQAAAAAAAARAeQAAAAAAANA/gQEAAAAAAAAEQIkBAAAAAAAABECyAQDSAwIIAQ=="
+              },
+              "timestamp": 123529.475382
+            }
+          },
+          {
+            "sequence": 1205,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiAzYmYzZWFhY2YxMzkyODA0ZjUyNWYzMzYzZjA2Mjk0MhImEgIAByIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqUxpR+gFJCkV7ImNhc2UiOiAiRmxvYXQgZXF1YWwiLCAiYWNjZXB0ZWQiOiB0cnVlLCAidmFsdWUiOiAyLjUsICJzdGF0ZSI6IDIuNX0QAdIDAggB"
+              },
+              "timestamp": 123529.475452
+            }
+          },
+          {
+            "sequence": 1206,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBkNWM2ZDMzODAxNWRhOTI3NDM1MjUyYmE0OGQzMmE5OBImEgIACCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2Uqexp5ggJxCjUkJElELTkzMDYwMWNlZjY1OWZjNWMxYzMwZGUzYzQ5NzEzOGVkLUZsb2F0IHplcm8gc3RlcBIPRmxvYXQgemVybyBzdGVwQgUlMC4yZmgBcQAAAAAAAPg/gQH////////v/4kB////////73+yAQDSAwIIAQ=="
+              },
+              "timestamp": 123529.475498
+            }
+          },
+          {
+            "sequence": 1207,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBjZWVjYWMyMjExYTk1ZWQ1YjY2YmMyMTEzYjcxOWQwNRImEgIACSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqVxpV+gFNCkl7ImNhc2UiOiAiRmxvYXQgemVybyBzdGVwIiwgImFjY2VwdGVkIjogdHJ1ZSwgInZhbHVlIjogMS41LCAic3RhdGUiOiAxLjV9EAHSAwIIAQ=="
+              },
+              "timestamp": 123529.475576
+            }
+          },
+          {
+            "sequence": 1208,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBhZGY1Y2ZkZmQxNTljNjgxMzg1NWQxZmRhN2FjMzEzNhImEgIACiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqjgEaiwGCAoIBCjkkJElELWE4ODcxODY4MDlkNzY2ZjcxZDkyMTI4MTQ4ZGY3OGNlLUZsb2F0IG5lZ2F0aXZlIHN0ZXASE0Zsb2F0IG5lZ2F0aXZlIHN0ZXBCBSUwLjJmaAFxAAAAAAAA+D95AAAAAAAA0L+BAf///////+//iQH////////vf7IBANIDAggB"
+              },
+              "timestamp": 123529.475624
+            }
+          },
+          {
+            "sequence": 1209,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiA5NWE2NjIzMmVhOWVhYTJmY2FkY2I5OTAwMTUxOTMxYhImEgIACyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqWxpZ+gFRCk17ImNhc2UiOiAiRmxvYXQgbmVnYXRpdmUgc3RlcCIsICJhY2NlcHRlZCI6IHRydWUsICJ2YWx1ZSI6IDEuNSwgInN0YXRlIjogMS41fRAB0gMCCAE="
+              },
+              "timestamp": 123529.475685
+            }
+          },
+          {
+            "sequence": 1210,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBjMzY3NzFlNmUyYTI1Y2VlNjJjMDY3ZTM0YjdmZTU2NRImEgIADCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqORo3+gEvCit7ImNhc2UiOiAiSW50IGludmVydGVkIiwgImFjY2VwdGVkIjogZmFsc2V9EAHSAwIIAQ=="
+              },
+              "timestamp": 123529.475735
+            }
+          },
+          {
+            "sequence": 1211,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBlMjFiZTk5NTI3YWI1NzFlMjUwNmQ5OTdiMTJmMGQ1MRImEgIADSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqNho0+gEsCih7ImNhc2UiOiAiSW50IGJlbG93IiwgImFjY2VwdGVkIjogZmFsc2V9EAHSAwIIAQ=="
+              },
+              "timestamp": 123529.475782
+            }
+          },
+          {
+            "sequence": 1212,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiA1N2NlMjU4YjQyMGIxOWNmYjk0NzU0YWJlOTczOTg1ORImEgIADiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqNho0+gEsCih7ImNhc2UiOiAiSW50IGFib3ZlIiwgImFjY2VwdGVkIjogZmFsc2V9EAHSAwIIAQ=="
+              },
+              "timestamp": 123529.475824
+            }
+          },
+          {
+            "sequence": 1213,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBhMmI0ZTNjNGI1Yjg0Y2E5NWNhMjc3ZWViM2VjODJjZBImEgIADyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqOxo5+gExCi17ImNhc2UiOiAiRmxvYXQgaW52ZXJ0ZWQiLCAiYWNjZXB0ZWQiOiBmYWxzZX0QAdIDAggB"
+              },
+              "timestamp": 123529.475868
+            }
+          },
+          {
+            "sequence": 1214,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiA4NjM0NDViZDFlOTE3OTNiNjQ3NjE2ZWI2MmQ1NGVhOBImEgIAECIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqOBo2+gEuCip7ImNhc2UiOiAiRmxvYXQgYmVsb3ciLCAiYWNjZXB0ZWQiOiBmYWxzZX0QAdIDAggB"
+              },
+              "timestamp": 123529.475907
+            }
+          },
+          {
+            "sequence": 1215,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBkMzQzZjkyZDRlMzM5ODg3ZmE5N2MzNDJhMjMyN2NmYRImEgIAESIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqOBo2+gEuCip7ImNhc2UiOiAiRmxvYXQgYWJvdmUiLCAiYWNjZXB0ZWQiOiBmYWxzZX0QAdIDAggB"
+              },
+              "timestamp": 123529.475952
+            }
+          },
+          {
+            "sequence": 1216,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "Cg9zY3JpcHRfZmluaXNoZWQwAA=="
+              },
+              "timestamp": 123529.475992
+            }
+          },
+          {
+            "sequence": 1217,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgA="
+              },
+              "timestamp": 123529.476093
+            }
+          }
+        ],
+        "hasMore": false,
+        "truncated": false
+      },
+      "screenshot": "int-zero-increment.png",
+      "action_and_capture_calls_separate": true,
+      "screenshot_integrity": {
+        "sha256": "02ddd70814e33b1dd518d9455d235960478707fa488d5aa7e048bb5fe13c1572",
+        "format": "JPEG",
+        "width": 1463,
+        "height": 724
+      }
+    },
+    {
+      "stage": "int-negative-increment",
+      "dom": {
+        "exceptions": [],
+        "reports": [
+          "{\"case\":\"Int equal\"\"accepted\":true\"value\":2\"state\":2}",
+          "{\"case\":\"Int zero step\"\"accepted\":true\"value\":5\"state\":5}",
+          "{\"case\":\"Int negative step\"\"accepted\":true\"value\":2\"state\":2}",
+          "{\"case\":\"Float equal\"\"accepted\":true\"value\":2.5\"state\":2.5}",
+          "{\"case\":\"Float zero step\"\"accepted\":true\"value\":1.5\"state\":1.5}",
+          "{\"case\":\"Float negative step\"\"accepted\":true\"value\":1.5\"state\":1.5}",
+          "{\"case\":\"Int inverted\"\"accepted\":false}",
+          "{\"case\":\"Int below\"\"accepted\":false}",
+          "{\"case\":\"Int above\"\"accepted\":false}",
+          "{\"case\":\"Float inverted\"\"accepted\":false}",
+          "{\"case\":\"Float below\"\"accepted\":false}",
+          "{\"case\":\"Float above\"\"accepted\":false}"
+        ],
+        "url": "http://127.0.0.1:8599/?probe=number-permissive",
+        "viewport": {
+          "dpr": 1.75,
+          "height": 724,
+          "width": 1463
+        },
+        "widgets": [
+          {
+            "buttons": [
+              {
+                "disabled": true,
+                "label": "Decrement"
+              },
+              {
+                "disabled": true,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Int equal",
+            "max": "2",
+            "min": "2",
+            "step": "1",
+            "text": "Int equal",
+            "value": "2"
+          },
+          {
+            "buttons": [
+              {
+                "disabled": false,
+                "label": "Decrement"
+              },
+              {
+                "disabled": false,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Int zero step",
+            "max": "9007199254740991",
+            "min": "-9007199254740991",
+            "step": "1",
+            "text": "Int zero step",
+            "value": "5"
+          },
+          {
+            "buttons": [
+              {
+                "disabled": false,
+                "label": "Decrement"
+              },
+              {
+                "disabled": false,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Int negative step",
+            "max": "9007199254740991",
+            "min": "-9007199254740991",
+            "step": "-2",
+            "text": "Int negative step",
+            "value": "2"
+          },
+          {
+            "buttons": [
+              {
+                "disabled": true,
+                "label": "Decrement"
+              },
+              {
+                "disabled": true,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Float equal",
+            "max": "2.5",
+            "min": "2.5",
+            "step": "0.25",
+            "text": "Float equal",
+            "value": "2.50"
+          },
+          {
+            "buttons": [
+              {
+                "disabled": false,
+                "label": "Decrement"
+              },
+              {
+                "disabled": false,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Float zero step",
+            "max": "1.7976931348623157e+308",
+            "min": "-1.7976931348623157e+308",
+            "step": "0.01",
+            "text": "Float zero step",
+            "value": "1.50"
+          },
+          {
+            "buttons": [
+              {
+                "disabled": false,
+                "label": "Decrement"
+              },
+              {
+                "disabled": false,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Float negative step",
+            "max": "1.7976931348623157e+308",
+            "min": "-1.7976931348623157e+308",
+            "step": "-0.25",
+            "text": "Float negative step",
+            "value": "1.50"
+          }
+        ]
+      },
+      "events": {
+        "cursor": 1240,
+        "events": [
+          {
+            "sequence": 1218,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameSent",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": true,
+                "opcode": 2,
+                "payloadData": "Wu8DChdwcm9iZT1udW1iZXItcGVybWlzc2l2ZRLxAgozCi8kJElELTgwMzM0ZTZmMzkyOTZmMjFiOTVjYTEzMzhmZTY4YzNlLUludCBlcXVhbCgECjcKMyQkSUQtZDA5YzhlMzgyZDdiOWFkN2Q5OTZmODFlZDQ4YzQ2NTgtSW50IHplcm8gc3RlcCgKCjsKNyQkSUQtMDgwODBlM2U1ODA3MmY3MWVlOGUzYWVhODNhODVmOGEtSW50IG5lZ2F0aXZlIHN0ZXAoBAo8CjEkJElELWE0N2VhMDlhODlmNzc2YWJkM2NmOTc4OGViZDY3MzA4LUZsb2F0IGVxdWFsIQAAAAAAAARACkAKNSQkSUQtOTMwNjAxY2VmNjU5ZmM1YzFjMzBkZTNjNDk3MTM4ZWQtRmxvYXQgemVybyBzdGVwIQAAAAAAAPg/CkQKOSQkSUQtYTg4NzE4NjgwOWQ3NjZmNzFkOTIxMjgxNDhkZjc4Y2UtRmxvYXQgbmVnYXRpdmUgc3RlcCEAAAAAAAD4PxogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VCPgoNQXNpYS9TaGFuZ2hhaRCg/P////////8BGgJ6aCIWaHR0cDovLzEyNy4wLjAuMTo4NTk5LygAMgRkYXJr"
+              },
+              "timestamp": 123543.56031
+            }
+          },
+          {
+            "sequence": 1219,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkZWM5NDI3YjMtNDE4Mi00OTdjLTk3MTYtZTJhNTdlMWZmNzhjEiRhMDNjNzRmMy1lM2M3LTQzZGQtYjIyYi02ZTI0MzZlZjYzYWEaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl"
+              },
+              "timestamp": 123543.562438
+            }
+          },
+          {
+            "sequence": 1220,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ=="
+              },
+              "timestamp": 123543.562809
+            }
+          },
+          {
+            "sequence": 1221,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBhNWJjNTU1YThkYjhhZjdhYjAxNzg5ZDBkOGEwYjIyNBImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2Uqdxp1ggJtCi8kJElELTgwMzM0ZTZmMzkyOTZmMjFiOTVjYTEzMzhmZTY4YzNlLUludCBlcXVhbBIJSW50IGVxdWFsQgIlZFgBYAFxAAAAAAAAAEB5AAAAAAAA8D+BAQAAAAAAAABAiQEAAAAAAAAAQLIBANIDAggB"
+              },
+              "timestamp": 123543.569608
+            }
+          },
+          {
+            "sequence": 1222,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiAyZmM3ZGM2MDdmZmRjYWFhZmI3M2E0ZGNmY2M3YmMwOBImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqTRpL+gFDCj97ImNhc2UiOiAiSW50IGVxdWFsIiwgImFjY2VwdGVkIjogdHJ1ZSwgInZhbHVlIjogMiwgInN0YXRlIjogMn0QAdIDAggB"
+              },
+              "timestamp": 123543.570429
+            }
+          },
+          {
+            "sequence": 1223,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiA4MzlmOTJmODZhZDdmMGQ1MjBhOTA3YzljNzhmZjI4MxImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqchpwggJoCjMkJElELWQwOWM4ZTM4MmQ3YjlhZDdkOTk2ZjgxZWQ0OGM0NjU4LUludCB6ZXJvIHN0ZXASDUludCB6ZXJvIHN0ZXBCAiVkcQAAAAAAABBAgQH///////8/w4kB////////P0OyAQDSAwIIAQ=="
+              },
+              "timestamp": 123543.570537
+            }
+          },
+          {
+            "sequence": 1224,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiA1NTIyM2EyYmQzNGJlYmRkMGNjOTQxMjgwMWJkY2IzYxImEgIAAyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqURpP+gFHCkN7ImNhc2UiOiAiSW50IHplcm8gc3RlcCIsICJhY2NlcHRlZCI6IHRydWUsICJ2YWx1ZSI6IDUsICJzdGF0ZSI6IDV9EAHSAwIIAQ=="
+              },
+              "timestamp": 123543.570613
+            }
+          },
+          {
+            "sequence": 1225,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBmZTVkYjcwNTRhYmE4NTM3NmVhNDczYjI2MjEzZmJiOBImEgIABCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqhAEagQGCAnkKNyQkSUQtMDgwODBlM2U1ODA3MmY3MWVlOGUzYWVhODNhODVmOGEtSW50IG5lZ2F0aXZlIHN0ZXASEUludCBuZWdhdGl2ZSBzdGVwQgIlZHEAAAAAAAAQQHkAAAAAAAAAwIEB////////P8OJAf///////z9DsgEA0gMCCAE="
+              },
+              "timestamp": 123543.570667
+            }
+          },
+          {
+            "sequence": 1226,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiA3ODM3MjYzZWVhZjVjMDU4ZmRhMGQ1MGU2NDgzZjYxMhImEgIABSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqVRpT+gFLCkd7ImNhc2UiOiAiSW50IG5lZ2F0aXZlIHN0ZXAiLCAiYWNjZXB0ZWQiOiB0cnVlLCAidmFsdWUiOiAyLCAic3RhdGUiOiAyfRAB0gMCCAE="
+              },
+              "timestamp": 123543.570726
+            }
+          },
+          {
+            "sequence": 1227,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBiOTgzMTA1ODk4NTlkNzI2Y2FiMzk0NGEzNWZiYTg1OBImEgIABiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqgAEafoICdgoxJCRJRC1hNDdlYTA5YTg5Zjc3NmFiZDNjZjk3ODhlYmQ2NzMwOC1GbG9hdCBlcXVhbBILRmxvYXQgZXF1YWxCBSUwLjJmWAFgAWgBcQAAAAAAAARAeQAAAAAAANA/gQEAAAAAAAAEQIkBAAAAAAAABECyAQDSAwIIAQ=="
+              },
+              "timestamp": 123543.57077
+            }
+          },
+          {
+            "sequence": 1228,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiAzYmYzZWFhY2YxMzkyODA0ZjUyNWYzMzYzZjA2Mjk0MhImEgIAByIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqUxpR+gFJCkV7ImNhc2UiOiAiRmxvYXQgZXF1YWwiLCAiYWNjZXB0ZWQiOiB0cnVlLCAidmFsdWUiOiAyLjUsICJzdGF0ZSI6IDIuNX0QAdIDAggB"
+              },
+              "timestamp": 123543.570834
+            }
+          },
+          {
+            "sequence": 1229,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBkNWM2ZDMzODAxNWRhOTI3NDM1MjUyYmE0OGQzMmE5OBImEgIACCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2Uqexp5ggJxCjUkJElELTkzMDYwMWNlZjY1OWZjNWMxYzMwZGUzYzQ5NzEzOGVkLUZsb2F0IHplcm8gc3RlcBIPRmxvYXQgemVybyBzdGVwQgUlMC4yZmgBcQAAAAAAAPg/gQH////////v/4kB////////73+yAQDSAwIIAQ=="
+              },
+              "timestamp": 123543.570888
+            }
+          },
+          {
+            "sequence": 1230,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBjZWVjYWMyMjExYTk1ZWQ1YjY2YmMyMTEzYjcxOWQwNRImEgIACSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqVxpV+gFNCkl7ImNhc2UiOiAiRmxvYXQgemVybyBzdGVwIiwgImFjY2VwdGVkIjogdHJ1ZSwgInZhbHVlIjogMS41LCAic3RhdGUiOiAxLjV9EAHSAwIIAQ=="
+              },
+              "timestamp": 123543.570954
+            }
+          },
+          {
+            "sequence": 1231,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBhZGY1Y2ZkZmQxNTljNjgxMzg1NWQxZmRhN2FjMzEzNhImEgIACiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqjgEaiwGCAoIBCjkkJElELWE4ODcxODY4MDlkNzY2ZjcxZDkyMTI4MTQ4ZGY3OGNlLUZsb2F0IG5lZ2F0aXZlIHN0ZXASE0Zsb2F0IG5lZ2F0aXZlIHN0ZXBCBSUwLjJmaAFxAAAAAAAA+D95AAAAAAAA0L+BAf///////+//iQH////////vf7IBANIDAggB"
+              },
+              "timestamp": 123543.571
+            }
+          },
+          {
+            "sequence": 1232,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiA5NWE2NjIzMmVhOWVhYTJmY2FkY2I5OTAwMTUxOTMxYhImEgIACyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqWxpZ+gFRCk17ImNhc2UiOiAiRmxvYXQgbmVnYXRpdmUgc3RlcCIsICJhY2NlcHRlZCI6IHRydWUsICJ2YWx1ZSI6IDEuNSwgInN0YXRlIjogMS41fRAB0gMCCAE="
+              },
+              "timestamp": 123543.571046
+            }
+          },
+          {
+            "sequence": 1233,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBjMzY3NzFlNmUyYTI1Y2VlNjJjMDY3ZTM0YjdmZTU2NRImEgIADCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqORo3+gEvCit7ImNhc2UiOiAiSW50IGludmVydGVkIiwgImFjY2VwdGVkIjogZmFsc2V9EAHSAwIIAQ=="
+              },
+              "timestamp": 123543.571093
+            }
+          },
+          {
+            "sequence": 1234,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBlMjFiZTk5NTI3YWI1NzFlMjUwNmQ5OTdiMTJmMGQ1MRImEgIADSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqNho0+gEsCih7ImNhc2UiOiAiSW50IGJlbG93IiwgImFjY2VwdGVkIjogZmFsc2V9EAHSAwIIAQ=="
+              },
+              "timestamp": 123543.571142
+            }
+          },
+          {
+            "sequence": 1235,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiA1N2NlMjU4YjQyMGIxOWNmYjk0NzU0YWJlOTczOTg1ORImEgIADiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqNho0+gEsCih7ImNhc2UiOiAiSW50IGFib3ZlIiwgImFjY2VwdGVkIjogZmFsc2V9EAHSAwIIAQ=="
+              },
+              "timestamp": 123543.571183
+            }
+          },
+          {
+            "sequence": 1236,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBhMmI0ZTNjNGI1Yjg0Y2E5NWNhMjc3ZWViM2VjODJjZBImEgIADyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqOxo5+gExCi17ImNhc2UiOiAiRmxvYXQgaW52ZXJ0ZWQiLCAiYWNjZXB0ZWQiOiBmYWxzZX0QAdIDAggB"
+              },
+              "timestamp": 123543.571243
+            }
+          },
+          {
+            "sequence": 1237,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiA4NjM0NDViZDFlOTE3OTNiNjQ3NjE2ZWI2MmQ1NGVhOBImEgIAECIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqOBo2+gEuCip7ImNhc2UiOiAiRmxvYXQgYmVsb3ciLCAiYWNjZXB0ZWQiOiBmYWxzZX0QAdIDAggB"
+              },
+              "timestamp": 123543.571284
+            }
+          },
+          {
+            "sequence": 1238,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBkMzQzZjkyZDRlMzM5ODg3ZmE5N2MzNDJhMjMyN2NmYRImEgIAESIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqOBo2+gEuCip7ImNhc2UiOiAiRmxvYXQgYWJvdmUiLCAiYWNjZXB0ZWQiOiBmYWxzZX0QAdIDAggB"
+              },
+              "timestamp": 123543.571325
+            }
+          },
+          {
+            "sequence": 1239,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "Cg9zY3JpcHRfZmluaXNoZWQwAA=="
+              },
+              "timestamp": 123543.571367
+            }
+          },
+          {
+            "sequence": 1240,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgA="
+              },
+              "timestamp": 123543.571431
+            }
+          }
+        ],
+        "hasMore": false,
+        "truncated": false
+      },
+      "screenshot": "int-negative-increment.png",
+      "action_and_capture_calls_separate": true,
+      "screenshot_integrity": {
+        "sha256": "f7557a43d6d0b8175b3c60902f7fcc4f2ca508f64ab48a2a1fe9c65e0c8b592a",
+        "format": "JPEG",
+        "width": 1463,
+        "height": 724
+      }
+    },
+    {
+      "stage": "float-zero-increment",
+      "dom": {
+        "exceptions": [],
+        "reports": [
+          "{\"case\":\"Int equal\"\"accepted\":true\"value\":2\"state\":2}",
+          "{\"case\":\"Int zero step\"\"accepted\":true\"value\":5\"state\":5}",
+          "{\"case\":\"Int negative step\"\"accepted\":true\"value\":2\"state\":2}",
+          "{\"case\":\"Float equal\"\"accepted\":true\"value\":2.5\"state\":2.5}",
+          "{\"case\":\"Float zero step\"\"accepted\":true\"value\":1.51\"state\":1.51}",
+          "{\"case\":\"Float negative step\"\"accepted\":true\"value\":1.5\"state\":1.5}",
+          "{\"case\":\"Int inverted\"\"accepted\":false}",
+          "{\"case\":\"Int below\"\"accepted\":false}",
+          "{\"case\":\"Int above\"\"accepted\":false}",
+          "{\"case\":\"Float inverted\"\"accepted\":false}",
+          "{\"case\":\"Float below\"\"accepted\":false}",
+          "{\"case\":\"Float above\"\"accepted\":false}"
+        ],
+        "url": "http://127.0.0.1:8599/?probe=number-permissive",
+        "viewport": {
+          "dpr": 1.75,
+          "height": 724,
+          "width": 1463
+        },
+        "widgets": [
+          {
+            "buttons": [
+              {
+                "disabled": true,
+                "label": "Decrement"
+              },
+              {
+                "disabled": true,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Int equal",
+            "max": "2",
+            "min": "2",
+            "step": "1",
+            "text": "Int equal",
+            "value": "2"
+          },
+          {
+            "buttons": [
+              {
+                "disabled": false,
+                "label": "Decrement"
+              },
+              {
+                "disabled": false,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Int zero step",
+            "max": "9007199254740991",
+            "min": "-9007199254740991",
+            "step": "1",
+            "text": "Int zero step",
+            "value": "5"
+          },
+          {
+            "buttons": [
+              {
+                "disabled": false,
+                "label": "Decrement"
+              },
+              {
+                "disabled": false,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Int negative step",
+            "max": "9007199254740991",
+            "min": "-9007199254740991",
+            "step": "-2",
+            "text": "Int negative step",
+            "value": "2"
+          },
+          {
+            "buttons": [
+              {
+                "disabled": true,
+                "label": "Decrement"
+              },
+              {
+                "disabled": true,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Float equal",
+            "max": "2.5",
+            "min": "2.5",
+            "step": "0.25",
+            "text": "Float equal",
+            "value": "2.50"
+          },
+          {
+            "buttons": [
+              {
+                "disabled": false,
+                "label": "Decrement"
+              },
+              {
+                "disabled": false,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Float zero step",
+            "max": "1.7976931348623157e+308",
+            "min": "-1.7976931348623157e+308",
+            "step": "0.01",
+            "text": "Float zero step",
+            "value": "1.51"
+          },
+          {
+            "buttons": [
+              {
+                "disabled": false,
+                "label": "Decrement"
+              },
+              {
+                "disabled": false,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Float negative step",
+            "max": "1.7976931348623157e+308",
+            "min": "-1.7976931348623157e+308",
+            "step": "-0.25",
+            "text": "Float negative step",
+            "value": "1.50"
+          }
+        ]
+      },
+      "events": {
+        "cursor": 1263,
+        "events": [
+          {
+            "sequence": 1241,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameSent",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": true,
+                "opcode": 2,
+                "payloadData": "Wu8DChdwcm9iZT1udW1iZXItcGVybWlzc2l2ZRLxAgozCi8kJElELTgwMzM0ZTZmMzkyOTZmMjFiOTVjYTEzMzhmZTY4YzNlLUludCBlcXVhbCgECjcKMyQkSUQtZDA5YzhlMzgyZDdiOWFkN2Q5OTZmODFlZDQ4YzQ2NTgtSW50IHplcm8gc3RlcCgKCjsKNyQkSUQtMDgwODBlM2U1ODA3MmY3MWVlOGUzYWVhODNhODVmOGEtSW50IG5lZ2F0aXZlIHN0ZXAoBAo8CjEkJElELWE0N2VhMDlhODlmNzc2YWJkM2NmOTc4OGViZDY3MzA4LUZsb2F0IGVxdWFsIQAAAAAAAARACkAKNSQkSUQtOTMwNjAxY2VmNjU5ZmM1YzFjMzBkZTNjNDk3MTM4ZWQtRmxvYXQgemVybyBzdGVwISlcj8L1KPg/CkQKOSQkSUQtYTg4NzE4NjgwOWQ3NjZmNzFkOTIxMjgxNDhkZjc4Y2UtRmxvYXQgbmVnYXRpdmUgc3RlcCEAAAAAAAD4PxogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VCPgoNQXNpYS9TaGFuZ2hhaRCg/P////////8BGgJ6aCIWaHR0cDovLzEyNy4wLjAuMTo4NTk5LygAMgRkYXJr"
+              },
+              "timestamp": 123557.563615
+            }
+          },
+          {
+            "sequence": 1242,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkZWM5NDI3YjMtNDE4Mi00OTdjLTk3MTYtZTJhNTdlMWZmNzhjEiRjNjM0YTdhZC1kMmQ0LTQ4ZjgtOGQzZi0yYTgwNmU4N2IwNTkaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl"
+              },
+              "timestamp": 123557.565643
+            }
+          },
+          {
+            "sequence": 1243,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ=="
+              },
+              "timestamp": 123557.565979
+            }
+          },
+          {
+            "sequence": 1244,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBhNWJjNTU1YThkYjhhZjdhYjAxNzg5ZDBkOGEwYjIyNBImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2Uqdxp1ggJtCi8kJElELTgwMzM0ZTZmMzkyOTZmMjFiOTVjYTEzMzhmZTY4YzNlLUludCBlcXVhbBIJSW50IGVxdWFsQgIlZFgBYAFxAAAAAAAAAEB5AAAAAAAA8D+BAQAAAAAAAABAiQEAAAAAAAAAQLIBANIDAggB"
+              },
+              "timestamp": 123557.568276
+            }
+          },
+          {
+            "sequence": 1245,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiAyZmM3ZGM2MDdmZmRjYWFhZmI3M2E0ZGNmY2M3YmMwOBImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqTRpL+gFDCj97ImNhc2UiOiAiSW50IGVxdWFsIiwgImFjY2VwdGVkIjogdHJ1ZSwgInZhbHVlIjogMiwgInN0YXRlIjogMn0QAdIDAggB"
+              },
+              "timestamp": 123557.568404
+            }
+          },
+          {
+            "sequence": 1246,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiA4MzlmOTJmODZhZDdmMGQ1MjBhOTA3YzljNzhmZjI4MxImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqchpwggJoCjMkJElELWQwOWM4ZTM4MmQ3YjlhZDdkOTk2ZjgxZWQ0OGM0NjU4LUludCB6ZXJvIHN0ZXASDUludCB6ZXJvIHN0ZXBCAiVkcQAAAAAAABBAgQH///////8/w4kB////////P0OyAQDSAwIIAQ=="
+              },
+              "timestamp": 123557.568492
+            }
+          },
+          {
+            "sequence": 1247,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiA1NTIyM2EyYmQzNGJlYmRkMGNjOTQxMjgwMWJkY2IzYxImEgIAAyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqURpP+gFHCkN7ImNhc2UiOiAiSW50IHplcm8gc3RlcCIsICJhY2NlcHRlZCI6IHRydWUsICJ2YWx1ZSI6IDUsICJzdGF0ZSI6IDV9EAHSAwIIAQ=="
+              },
+              "timestamp": 123557.568596
+            }
+          },
+          {
+            "sequence": 1248,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBmZTVkYjcwNTRhYmE4NTM3NmVhNDczYjI2MjEzZmJiOBImEgIABCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqhAEagQGCAnkKNyQkSUQtMDgwODBlM2U1ODA3MmY3MWVlOGUzYWVhODNhODVmOGEtSW50IG5lZ2F0aXZlIHN0ZXASEUludCBuZWdhdGl2ZSBzdGVwQgIlZHEAAAAAAAAQQHkAAAAAAAAAwIEB////////P8OJAf///////z9DsgEA0gMCCAE="
+              },
+              "timestamp": 123557.56868
+            }
+          },
+          {
+            "sequence": 1249,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiA3ODM3MjYzZWVhZjVjMDU4ZmRhMGQ1MGU2NDgzZjYxMhImEgIABSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqVRpT+gFLCkd7ImNhc2UiOiAiSW50IG5lZ2F0aXZlIHN0ZXAiLCAiYWNjZXB0ZWQiOiB0cnVlLCAidmFsdWUiOiAyLCAic3RhdGUiOiAyfRAB0gMCCAE="
+              },
+              "timestamp": 123557.568737
+            }
+          },
+          {
+            "sequence": 1250,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBiOTgzMTA1ODk4NTlkNzI2Y2FiMzk0NGEzNWZiYTg1OBImEgIABiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqgAEafoICdgoxJCRJRC1hNDdlYTA5YTg5Zjc3NmFiZDNjZjk3ODhlYmQ2NzMwOC1GbG9hdCBlcXVhbBILRmxvYXQgZXF1YWxCBSUwLjJmWAFgAWgBcQAAAAAAAARAeQAAAAAAANA/gQEAAAAAAAAEQIkBAAAAAAAABECyAQDSAwIIAQ=="
+              },
+              "timestamp": 123557.568783
+            }
+          },
+          {
+            "sequence": 1251,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiAzYmYzZWFhY2YxMzkyODA0ZjUyNWYzMzYzZjA2Mjk0MhImEgIAByIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqUxpR+gFJCkV7ImNhc2UiOiAiRmxvYXQgZXF1YWwiLCAiYWNjZXB0ZWQiOiB0cnVlLCAidmFsdWUiOiAyLjUsICJzdGF0ZSI6IDIuNX0QAdIDAggB"
+              },
+              "timestamp": 123557.568842
+            }
+          },
+          {
+            "sequence": 1252,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBkNWM2ZDMzODAxNWRhOTI3NDM1MjUyYmE0OGQzMmE5OBImEgIACCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2Uqexp5ggJxCjUkJElELTkzMDYwMWNlZjY1OWZjNWMxYzMwZGUzYzQ5NzEzOGVkLUZsb2F0IHplcm8gc3RlcBIPRmxvYXQgemVybyBzdGVwQgUlMC4yZmgBcQAAAAAAAPg/gQH////////v/4kB////////73+yAQDSAwIIAQ=="
+              },
+              "timestamp": 123557.568938
+            }
+          },
+          {
+            "sequence": 1253,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBhNDc3OGY0ZjI4Yzc4MDhiNzg2ODFiZTZhNjQ4ZWEwYRImEgIACSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqWRpX+gFPCkt7ImNhc2UiOiAiRmxvYXQgemVybyBzdGVwIiwgImFjY2VwdGVkIjogdHJ1ZSwgInZhbHVlIjogMS41MSwgInN0YXRlIjogMS41MX0QAdIDAggB"
+              },
+              "timestamp": 123557.569047
+            }
+          },
+          {
+            "sequence": 1254,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBhZGY1Y2ZkZmQxNTljNjgxMzg1NWQxZmRhN2FjMzEzNhImEgIACiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqjgEaiwGCAoIBCjkkJElELWE4ODcxODY4MDlkNzY2ZjcxZDkyMTI4MTQ4ZGY3OGNlLUZsb2F0IG5lZ2F0aXZlIHN0ZXASE0Zsb2F0IG5lZ2F0aXZlIHN0ZXBCBSUwLjJmaAFxAAAAAAAA+D95AAAAAAAA0L+BAf///////+//iQH////////vf7IBANIDAggB"
+              },
+              "timestamp": 123557.569141
+            }
+          },
+          {
+            "sequence": 1255,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiA5NWE2NjIzMmVhOWVhYTJmY2FkY2I5OTAwMTUxOTMxYhImEgIACyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqWxpZ+gFRCk17ImNhc2UiOiAiRmxvYXQgbmVnYXRpdmUgc3RlcCIsICJhY2NlcHRlZCI6IHRydWUsICJ2YWx1ZSI6IDEuNSwgInN0YXRlIjogMS41fRAB0gMCCAE="
+              },
+              "timestamp": 123557.569206
+            }
+          },
+          {
+            "sequence": 1256,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBjMzY3NzFlNmUyYTI1Y2VlNjJjMDY3ZTM0YjdmZTU2NRImEgIADCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqORo3+gEvCit7ImNhc2UiOiAiSW50IGludmVydGVkIiwgImFjY2VwdGVkIjogZmFsc2V9EAHSAwIIAQ=="
+              },
+              "timestamp": 123557.569263
+            }
+          },
+          {
+            "sequence": 1257,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBlMjFiZTk5NTI3YWI1NzFlMjUwNmQ5OTdiMTJmMGQ1MRImEgIADSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqNho0+gEsCih7ImNhc2UiOiAiSW50IGJlbG93IiwgImFjY2VwdGVkIjogZmFsc2V9EAHSAwIIAQ=="
+              },
+              "timestamp": 123557.569328
+            }
+          },
+          {
+            "sequence": 1258,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiA1N2NlMjU4YjQyMGIxOWNmYjk0NzU0YWJlOTczOTg1ORImEgIADiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqNho0+gEsCih7ImNhc2UiOiAiSW50IGFib3ZlIiwgImFjY2VwdGVkIjogZmFsc2V9EAHSAwIIAQ=="
+              },
+              "timestamp": 123557.572657
+            }
+          },
+          {
+            "sequence": 1259,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBhMmI0ZTNjNGI1Yjg0Y2E5NWNhMjc3ZWViM2VjODJjZBImEgIADyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqOxo5+gExCi17ImNhc2UiOiAiRmxvYXQgaW52ZXJ0ZWQiLCAiYWNjZXB0ZWQiOiBmYWxzZX0QAdIDAggB"
+              },
+              "timestamp": 123557.572788
+            }
+          },
+          {
+            "sequence": 1260,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiA4NjM0NDViZDFlOTE3OTNiNjQ3NjE2ZWI2MmQ1NGVhOBImEgIAECIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqOBo2+gEuCip7ImNhc2UiOiAiRmxvYXQgYmVsb3ciLCAiYWNjZXB0ZWQiOiBmYWxzZX0QAdIDAggB"
+              },
+              "timestamp": 123557.572848
+            }
+          },
+          {
+            "sequence": 1261,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBkMzQzZjkyZDRlMzM5ODg3ZmE5N2MzNDJhMjMyN2NmYRImEgIAESIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqOBo2+gEuCip7ImNhc2UiOiAiRmxvYXQgYWJvdmUiLCAiYWNjZXB0ZWQiOiBmYWxzZX0QAdIDAggB"
+              },
+              "timestamp": 123557.572891
+            }
+          },
+          {
+            "sequence": 1262,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "Cg9zY3JpcHRfZmluaXNoZWQwAA=="
+              },
+              "timestamp": 123557.572929
+            }
+          },
+          {
+            "sequence": 1263,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgA="
+              },
+              "timestamp": 123557.572991
+            }
+          }
+        ],
+        "hasMore": false,
+        "truncated": false
+      },
+      "screenshot": "float-zero-increment.png",
+      "action_and_capture_calls_separate": true,
+      "screenshot_integrity": {
+        "sha256": "fee219b5b40ea6ca8f758d53332353f28df028196579b9f55a2761522e889c4b",
+        "format": "JPEG",
+        "width": 1463,
+        "height": 724
+      }
+    },
+    {
+      "stage": "float-negative-increment",
+      "dom": {
+        "exceptions": [],
+        "reports": [
+          "{\"case\":\"Int equal\"\"accepted\":true\"value\":2\"state\":2}",
+          "{\"case\":\"Int zero step\"\"accepted\":true\"value\":5\"state\":5}",
+          "{\"case\":\"Int negative step\"\"accepted\":true\"value\":2\"state\":2}",
+          "{\"case\":\"Float equal\"\"accepted\":true\"value\":2.5\"state\":2.5}",
+          "{\"case\":\"Float zero step\"\"accepted\":true\"value\":1.51\"state\":1.51}",
+          "{\"case\":\"Float negative step\"\"accepted\":true\"value\":1.25\"state\":1.25}",
+          "{\"case\":\"Int inverted\"\"accepted\":false}",
+          "{\"case\":\"Int below\"\"accepted\":false}",
+          "{\"case\":\"Int above\"\"accepted\":false}",
+          "{\"case\":\"Float inverted\"\"accepted\":false}",
+          "{\"case\":\"Float below\"\"accepted\":false}",
+          "{\"case\":\"Float above\"\"accepted\":false}"
+        ],
+        "url": "http://127.0.0.1:8599/?probe=number-permissive",
+        "viewport": {
+          "dpr": 1.75,
+          "height": 724,
+          "width": 1463
+        },
+        "widgets": [
+          {
+            "buttons": [
+              {
+                "disabled": true,
+                "label": "Decrement"
+              },
+              {
+                "disabled": true,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Int equal",
+            "max": "2",
+            "min": "2",
+            "step": "1",
+            "text": "Int equal",
+            "value": "2"
+          },
+          {
+            "buttons": [
+              {
+                "disabled": false,
+                "label": "Decrement"
+              },
+              {
+                "disabled": false,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Int zero step",
+            "max": "9007199254740991",
+            "min": "-9007199254740991",
+            "step": "1",
+            "text": "Int zero step",
+            "value": "5"
+          },
+          {
+            "buttons": [
+              {
+                "disabled": false,
+                "label": "Decrement"
+              },
+              {
+                "disabled": false,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Int negative step",
+            "max": "9007199254740991",
+            "min": "-9007199254740991",
+            "step": "-2",
+            "text": "Int negative step",
+            "value": "2"
+          },
+          {
+            "buttons": [
+              {
+                "disabled": true,
+                "label": "Decrement"
+              },
+              {
+                "disabled": true,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Float equal",
+            "max": "2.5",
+            "min": "2.5",
+            "step": "0.25",
+            "text": "Float equal",
+            "value": "2.50"
+          },
+          {
+            "buttons": [
+              {
+                "disabled": false,
+                "label": "Decrement"
+              },
+              {
+                "disabled": false,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Float zero step",
+            "max": "1.7976931348623157e+308",
+            "min": "-1.7976931348623157e+308",
+            "step": "0.01",
+            "text": "Float zero step",
+            "value": "1.51"
+          },
+          {
+            "buttons": [
+              {
+                "disabled": false,
+                "label": "Decrement"
+              },
+              {
+                "disabled": false,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Float negative step",
+            "max": "1.7976931348623157e+308",
+            "min": "-1.7976931348623157e+308",
+            "step": "-0.25",
+            "text": "Float negative step",
+            "value": "1.25"
+          }
+        ]
+      },
+      "events": {
+        "cursor": 1286,
+        "events": [
+          {
+            "sequence": 1264,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameSent",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": true,
+                "opcode": 2,
+                "payloadData": "Wu8DChdwcm9iZT1udW1iZXItcGVybWlzc2l2ZRLxAgozCi8kJElELTgwMzM0ZTZmMzkyOTZmMjFiOTVjYTEzMzhmZTY4YzNlLUludCBlcXVhbCgECjcKMyQkSUQtZDA5YzhlMzgyZDdiOWFkN2Q5OTZmODFlZDQ4YzQ2NTgtSW50IHplcm8gc3RlcCgKCjsKNyQkSUQtMDgwODBlM2U1ODA3MmY3MWVlOGUzYWVhODNhODVmOGEtSW50IG5lZ2F0aXZlIHN0ZXAoBAo8CjEkJElELWE0N2VhMDlhODlmNzc2YWJkM2NmOTc4OGViZDY3MzA4LUZsb2F0IGVxdWFsIQAAAAAAAARACkAKNSQkSUQtOTMwNjAxY2VmNjU5ZmM1YzFjMzBkZTNjNDk3MTM4ZWQtRmxvYXQgemVybyBzdGVwISlcj8L1KPg/CkQKOSQkSUQtYTg4NzE4NjgwOWQ3NjZmNzFkOTIxMjgxNDhkZjc4Y2UtRmxvYXQgbmVnYXRpdmUgc3RlcCEAAAAAAAD0PxogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VCPgoNQXNpYS9TaGFuZ2hhaRCg/P////////8BGgJ6aCIWaHR0cDovLzEyNy4wLjAuMTo4NTk5LygAMgRkYXJr"
+              },
+              "timestamp": 123571.01298
+            }
+          },
+          {
+            "sequence": 1265,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkZWM5NDI3YjMtNDE4Mi00OTdjLTk3MTYtZTJhNTdlMWZmNzhjEiQyMTE4OGM1NC0zOWVjLTQ4YmUtODhjMi02NTEwYzVkODA4Y2MaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl"
+              },
+              "timestamp": 123571.015255
+            }
+          },
+          {
+            "sequence": 1266,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ=="
+              },
+              "timestamp": 123571.017776
+            }
+          },
+          {
+            "sequence": 1267,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBhNWJjNTU1YThkYjhhZjdhYjAxNzg5ZDBkOGEwYjIyNBImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2Uqdxp1ggJtCi8kJElELTgwMzM0ZTZmMzkyOTZmMjFiOTVjYTEzMzhmZTY4YzNlLUludCBlcXVhbBIJSW50IGVxdWFsQgIlZFgBYAFxAAAAAAAAAEB5AAAAAAAA8D+BAQAAAAAAAABAiQEAAAAAAAAAQLIBANIDAggB"
+              },
+              "timestamp": 123571.01793
+            }
+          },
+          {
+            "sequence": 1268,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiAyZmM3ZGM2MDdmZmRjYWFhZmI3M2E0ZGNmY2M3YmMwOBImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqTRpL+gFDCj97ImNhc2UiOiAiSW50IGVxdWFsIiwgImFjY2VwdGVkIjogdHJ1ZSwgInZhbHVlIjogMiwgInN0YXRlIjogMn0QAdIDAggB"
+              },
+              "timestamp": 123571.018025
+            }
+          },
+          {
+            "sequence": 1269,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiA4MzlmOTJmODZhZDdmMGQ1MjBhOTA3YzljNzhmZjI4MxImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqchpwggJoCjMkJElELWQwOWM4ZTM4MmQ3YjlhZDdkOTk2ZjgxZWQ0OGM0NjU4LUludCB6ZXJvIHN0ZXASDUludCB6ZXJvIHN0ZXBCAiVkcQAAAAAAABBAgQH///////8/w4kB////////P0OyAQDSAwIIAQ=="
+              },
+              "timestamp": 123571.018125
+            }
+          },
+          {
+            "sequence": 1270,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiA1NTIyM2EyYmQzNGJlYmRkMGNjOTQxMjgwMWJkY2IzYxImEgIAAyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqURpP+gFHCkN7ImNhc2UiOiAiSW50IHplcm8gc3RlcCIsICJhY2NlcHRlZCI6IHRydWUsICJ2YWx1ZSI6IDUsICJzdGF0ZSI6IDV9EAHSAwIIAQ=="
+              },
+              "timestamp": 123571.018178
+            }
+          },
+          {
+            "sequence": 1271,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBmZTVkYjcwNTRhYmE4NTM3NmVhNDczYjI2MjEzZmJiOBImEgIABCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqhAEagQGCAnkKNyQkSUQtMDgwODBlM2U1ODA3MmY3MWVlOGUzYWVhODNhODVmOGEtSW50IG5lZ2F0aXZlIHN0ZXASEUludCBuZWdhdGl2ZSBzdGVwQgIlZHEAAAAAAAAQQHkAAAAAAAAAwIEB////////P8OJAf///////z9DsgEA0gMCCAE="
+              },
+              "timestamp": 123571.018247
+            }
+          },
+          {
+            "sequence": 1272,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiA3ODM3MjYzZWVhZjVjMDU4ZmRhMGQ1MGU2NDgzZjYxMhImEgIABSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqVRpT+gFLCkd7ImNhc2UiOiAiSW50IG5lZ2F0aXZlIHN0ZXAiLCAiYWNjZXB0ZWQiOiB0cnVlLCAidmFsdWUiOiAyLCAic3RhdGUiOiAyfRAB0gMCCAE="
+              },
+              "timestamp": 123571.018301
+            }
+          },
+          {
+            "sequence": 1273,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBiOTgzMTA1ODk4NTlkNzI2Y2FiMzk0NGEzNWZiYTg1OBImEgIABiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqgAEafoICdgoxJCRJRC1hNDdlYTA5YTg5Zjc3NmFiZDNjZjk3ODhlYmQ2NzMwOC1GbG9hdCBlcXVhbBILRmxvYXQgZXF1YWxCBSUwLjJmWAFgAWgBcQAAAAAAAARAeQAAAAAAANA/gQEAAAAAAAAEQIkBAAAAAAAABECyAQDSAwIIAQ=="
+              },
+              "timestamp": 123571.018367
+            }
+          },
+          {
+            "sequence": 1274,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiAzYmYzZWFhY2YxMzkyODA0ZjUyNWYzMzYzZjA2Mjk0MhImEgIAByIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqUxpR+gFJCkV7ImNhc2UiOiAiRmxvYXQgZXF1YWwiLCAiYWNjZXB0ZWQiOiB0cnVlLCAidmFsdWUiOiAyLjUsICJzdGF0ZSI6IDIuNX0QAdIDAggB"
+              },
+              "timestamp": 123571.018463
+            }
+          },
+          {
+            "sequence": 1275,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBkNWM2ZDMzODAxNWRhOTI3NDM1MjUyYmE0OGQzMmE5OBImEgIACCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2Uqexp5ggJxCjUkJElELTkzMDYwMWNlZjY1OWZjNWMxYzMwZGUzYzQ5NzEzOGVkLUZsb2F0IHplcm8gc3RlcBIPRmxvYXQgemVybyBzdGVwQgUlMC4yZmgBcQAAAAAAAPg/gQH////////v/4kB////////73+yAQDSAwIIAQ=="
+              },
+              "timestamp": 123571.018531
+            }
+          },
+          {
+            "sequence": 1276,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBhNDc3OGY0ZjI4Yzc4MDhiNzg2ODFiZTZhNjQ4ZWEwYRImEgIACSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqWRpX+gFPCkt7ImNhc2UiOiAiRmxvYXQgemVybyBzdGVwIiwgImFjY2VwdGVkIjogdHJ1ZSwgInZhbHVlIjogMS41MSwgInN0YXRlIjogMS41MX0QAdIDAggB"
+              },
+              "timestamp": 123571.018595
+            }
+          },
+          {
+            "sequence": 1277,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBhZGY1Y2ZkZmQxNTljNjgxMzg1NWQxZmRhN2FjMzEzNhImEgIACiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqjgEaiwGCAoIBCjkkJElELWE4ODcxODY4MDlkNzY2ZjcxZDkyMTI4MTQ4ZGY3OGNlLUZsb2F0IG5lZ2F0aXZlIHN0ZXASE0Zsb2F0IG5lZ2F0aXZlIHN0ZXBCBSUwLjJmaAFxAAAAAAAA+D95AAAAAAAA0L+BAf///////+//iQH////////vf7IBANIDAggB"
+              },
+              "timestamp": 123571.018636
+            }
+          },
+          {
+            "sequence": 1278,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiAyNjI4ZWNlMTc1Yzg3ZjMxNTIyMzJlMjRiYjBkOGY5YxImEgIACyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqXRpb+gFTCk97ImNhc2UiOiAiRmxvYXQgbmVnYXRpdmUgc3RlcCIsICJhY2NlcHRlZCI6IHRydWUsICJ2YWx1ZSI6IDEuMjUsICJzdGF0ZSI6IDEuMjV9EAHSAwIIAQ=="
+              },
+              "timestamp": 123571.018685
+            }
+          },
+          {
+            "sequence": 1279,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBjMzY3NzFlNmUyYTI1Y2VlNjJjMDY3ZTM0YjdmZTU2NRImEgIADCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqORo3+gEvCit7ImNhc2UiOiAiSW50IGludmVydGVkIiwgImFjY2VwdGVkIjogZmFsc2V9EAHSAwIIAQ=="
+              },
+              "timestamp": 123571.018727
+            }
+          },
+          {
+            "sequence": 1280,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBlMjFiZTk5NTI3YWI1NzFlMjUwNmQ5OTdiMTJmMGQ1MRImEgIADSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqNho0+gEsCih7ImNhc2UiOiAiSW50IGJlbG93IiwgImFjY2VwdGVkIjogZmFsc2V9EAHSAwIIAQ=="
+              },
+              "timestamp": 123571.018768
+            }
+          },
+          {
+            "sequence": 1281,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiA1N2NlMjU4YjQyMGIxOWNmYjk0NzU0YWJlOTczOTg1ORImEgIADiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqNho0+gEsCih7ImNhc2UiOiAiSW50IGFib3ZlIiwgImFjY2VwdGVkIjogZmFsc2V9EAHSAwIIAQ=="
+              },
+              "timestamp": 123571.018807
+            }
+          },
+          {
+            "sequence": 1282,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBhMmI0ZTNjNGI1Yjg0Y2E5NWNhMjc3ZWViM2VjODJjZBImEgIADyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqOxo5+gExCi17ImNhc2UiOiAiRmxvYXQgaW52ZXJ0ZWQiLCAiYWNjZXB0ZWQiOiBmYWxzZX0QAdIDAggB"
+              },
+              "timestamp": 123571.018852
+            }
+          },
+          {
+            "sequence": 1283,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiA4NjM0NDViZDFlOTE3OTNiNjQ3NjE2ZWI2MmQ1NGVhOBImEgIAECIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqOBo2+gEuCip7ImNhc2UiOiAiRmxvYXQgYmVsb3ciLCAiYWNjZXB0ZWQiOiBmYWxzZX0QAdIDAggB"
+              },
+              "timestamp": 123571.019883
+            }
+          },
+          {
+            "sequence": 1284,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBkMzQzZjkyZDRlMzM5ODg3ZmE5N2MzNDJhMjMyN2NmYRImEgIAESIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqOBo2+gEuCip7ImNhc2UiOiAiRmxvYXQgYWJvdmUiLCAiYWNjZXB0ZWQiOiBmYWxzZX0QAdIDAggB"
+              },
+              "timestamp": 123571.019961
+            }
+          },
+          {
+            "sequence": 1285,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "Cg9zY3JpcHRfZmluaXNoZWQwAA=="
+              },
+              "timestamp": 123571.019989
+            }
+          },
+          {
+            "sequence": 1286,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgA="
+              },
+              "timestamp": 123571.020046
+            }
+          }
+        ],
+        "hasMore": false,
+        "truncated": false
+      },
+      "screenshot": "float-negative-increment.png",
+      "action_and_capture_calls_separate": true,
+      "screenshot_integrity": {
+        "sha256": "e589308d2693627f66b3b1dbb7b146da74129f160bb669a2d7af669652a3c0d6",
+        "format": "JPEG",
+        "width": 1463,
+        "height": 724
+      }
+    },
+    {
+      "stage": "equal-invalid",
+      "dom": {
+        "exceptions": [],
+        "reports": [
+          "{\"case\":\"Int equal\"\"accepted\":true\"value\":2\"state\":2}",
+          "{\"case\":\"Int zero step\"\"accepted\":true\"value\":5\"state\":5}",
+          "{\"case\":\"Int negative step\"\"accepted\":true\"value\":2\"state\":2}",
+          "{\"case\":\"Float equal\"\"accepted\":true\"value\":2.5\"state\":2.5}",
+          "{\"case\":\"Float zero step\"\"accepted\":true\"value\":1.51\"state\":1.51}",
+          "{\"case\":\"Float negative step\"\"accepted\":true\"value\":1.25\"state\":1.25}",
+          "{\"case\":\"Int inverted\"\"accepted\":false}",
+          "{\"case\":\"Int below\"\"accepted\":false}",
+          "{\"case\":\"Int above\"\"accepted\":false}",
+          "{\"case\":\"Float inverted\"\"accepted\":false}",
+          "{\"case\":\"Float below\"\"accepted\":false}",
+          "{\"case\":\"Float above\"\"accepted\":false}"
+        ],
+        "url": "http://127.0.0.1:8599/?probe=number-permissive",
+        "viewport": {
+          "dpr": 1.75,
+          "height": 724,
+          "width": 1463
+        },
+        "widgets": [
+          {
+            "buttons": [
+              {
+                "disabled": false,
+                "label": "Decrement"
+              },
+              {
+                "disabled": true,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Int equal",
+            "max": "2",
+            "min": "2",
+            "step": "1",
+            "text": "Int equal\n\nError: Number is outside the allowed range. Please enter a value between 2 and 2.",
+            "value": "3"
+          },
+          {
+            "buttons": [
+              {
+                "disabled": false,
+                "label": "Decrement"
+              },
+              {
+                "disabled": false,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Int zero step",
+            "max": "9007199254740991",
+            "min": "-9007199254740991",
+            "step": "1",
+            "text": "Int zero step",
+            "value": "5"
+          },
+          {
+            "buttons": [
+              {
+                "disabled": false,
+                "label": "Decrement"
+              },
+              {
+                "disabled": false,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Int negative step",
+            "max": "9007199254740991",
+            "min": "-9007199254740991",
+            "step": "-2",
+            "text": "Int negative step",
+            "value": "2"
+          },
+          {
+            "buttons": [
+              {
+                "disabled": true,
+                "label": "Decrement"
+              },
+              {
+                "disabled": true,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Float equal",
+            "max": "2.5",
+            "min": "2.5",
+            "step": "0.25",
+            "text": "Float equal",
+            "value": "2.50"
+          },
+          {
+            "buttons": [
+              {
+                "disabled": false,
+                "label": "Decrement"
+              },
+              {
+                "disabled": false,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Float zero step",
+            "max": "1.7976931348623157e+308",
+            "min": "-1.7976931348623157e+308",
+            "step": "0.01",
+            "text": "Float zero step",
+            "value": "1.51"
+          },
+          {
+            "buttons": [
+              {
+                "disabled": false,
+                "label": "Decrement"
+              },
+              {
+                "disabled": false,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Float negative step",
+            "max": "1.7976931348623157e+308",
+            "min": "-1.7976931348623157e+308",
+            "step": "-0.25",
+            "text": "Float negative step",
+            "value": "1.25"
+          }
+        ]
+      },
+      "events": {
+        "cursor": 1290,
+        "events": [],
+        "hasMore": false,
+        "truncated": false
+      },
+      "screenshot": "equal-invalid.png",
+      "action_and_capture_calls_separate": true,
+      "screenshot_integrity": {
+        "sha256": "ed1796667b51f4cd0dd0d0448eee00ffdf7feb705172a35891e8ca9299e09fa0",
+        "format": "JPEG",
+        "width": 1463,
+        "height": 724
+      }
+    },
+    {
+      "stage": "equal-recover",
+      "dom": {
+        "exceptions": [],
+        "reports": [
+          "{\"case\":\"Int equal\"\"accepted\":true\"value\":2\"state\":2}",
+          "{\"case\":\"Int zero step\"\"accepted\":true\"value\":5\"state\":5}",
+          "{\"case\":\"Int negative step\"\"accepted\":true\"value\":2\"state\":2}",
+          "{\"case\":\"Float equal\"\"accepted\":true\"value\":2.5\"state\":2.5}",
+          "{\"case\":\"Float zero step\"\"accepted\":true\"value\":1.51\"state\":1.51}",
+          "{\"case\":\"Float negative step\"\"accepted\":true\"value\":1.25\"state\":1.25}",
+          "{\"case\":\"Int inverted\"\"accepted\":false}",
+          "{\"case\":\"Int below\"\"accepted\":false}",
+          "{\"case\":\"Int above\"\"accepted\":false}",
+          "{\"case\":\"Float inverted\"\"accepted\":false}",
+          "{\"case\":\"Float below\"\"accepted\":false}",
+          "{\"case\":\"Float above\"\"accepted\":false}"
+        ],
+        "url": "http://127.0.0.1:8599/?probe=number-permissive",
+        "viewport": {
+          "dpr": 1.75,
+          "height": 724,
+          "width": 1463
+        },
+        "widgets": [
+          {
+            "buttons": [
+              {
+                "disabled": true,
+                "label": "Decrement"
+              },
+              {
+                "disabled": true,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Int equal",
+            "max": "2",
+            "min": "2",
+            "step": "1",
+            "text": "Int equal",
+            "value": "2"
+          },
+          {
+            "buttons": [
+              {
+                "disabled": false,
+                "label": "Decrement"
+              },
+              {
+                "disabled": false,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Int zero step",
+            "max": "9007199254740991",
+            "min": "-9007199254740991",
+            "step": "1",
+            "text": "Int zero step",
+            "value": "5"
+          },
+          {
+            "buttons": [
+              {
+                "disabled": false,
+                "label": "Decrement"
+              },
+              {
+                "disabled": false,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Int negative step",
+            "max": "9007199254740991",
+            "min": "-9007199254740991",
+            "step": "-2",
+            "text": "Int negative step",
+            "value": "2"
+          },
+          {
+            "buttons": [
+              {
+                "disabled": true,
+                "label": "Decrement"
+              },
+              {
+                "disabled": true,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Float equal",
+            "max": "2.5",
+            "min": "2.5",
+            "step": "0.25",
+            "text": "Float equal",
+            "value": "2.50"
+          },
+          {
+            "buttons": [
+              {
+                "disabled": false,
+                "label": "Decrement"
+              },
+              {
+                "disabled": false,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Float zero step",
+            "max": "1.7976931348623157e+308",
+            "min": "-1.7976931348623157e+308",
+            "step": "0.01",
+            "text": "Float zero step",
+            "value": "1.51"
+          },
+          {
+            "buttons": [
+              {
+                "disabled": false,
+                "label": "Decrement"
+              },
+              {
+                "disabled": false,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Float negative step",
+            "max": "1.7976931348623157e+308",
+            "min": "-1.7976931348623157e+308",
+            "step": "-0.25",
+            "text": "Float negative step",
+            "value": "1.25"
+          }
+        ]
+      },
+      "events": {
+        "cursor": 1317,
+        "events": [
+          {
+            "sequence": 1295,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameSent",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": true,
+                "opcode": 2,
+                "payloadData": "Wu8DChdwcm9iZT1udW1iZXItcGVybWlzc2l2ZRLxAgozCi8kJElELTgwMzM0ZTZmMzkyOTZmMjFiOTVjYTEzMzhmZTY4YzNlLUludCBlcXVhbCgECjcKMyQkSUQtZDA5YzhlMzgyZDdiOWFkN2Q5OTZmODFlZDQ4YzQ2NTgtSW50IHplcm8gc3RlcCgKCjsKNyQkSUQtMDgwODBlM2U1ODA3MmY3MWVlOGUzYWVhODNhODVmOGEtSW50IG5lZ2F0aXZlIHN0ZXAoBAo8CjEkJElELWE0N2VhMDlhODlmNzc2YWJkM2NmOTc4OGViZDY3MzA4LUZsb2F0IGVxdWFsIQAAAAAAAARACkAKNSQkSUQtOTMwNjAxY2VmNjU5ZmM1YzFjMzBkZTNjNDk3MTM4ZWQtRmxvYXQgemVybyBzdGVwISlcj8L1KPg/CkQKOSQkSUQtYTg4NzE4NjgwOWQ3NjZmNzFkOTIxMjgxNDhkZjc4Y2UtRmxvYXQgbmVnYXRpdmUgc3RlcCEAAAAAAAD0PxogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VCPgoNQXNpYS9TaGFuZ2hhaRCg/P////////8BGgJ6aCIWaHR0cDovLzEyNy4wLjAuMTo4NTk5LygAMgRkYXJr"
+              },
+              "timestamp": 123596.515462
+            }
+          },
+          {
+            "sequence": 1296,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkZWM5NDI3YjMtNDE4Mi00OTdjLTk3MTYtZTJhNTdlMWZmNzhjEiQyMzVmZDZjZS01NjFlLTQwYWEtYTM3OC1jYjY0N2QyYWYxMmMaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl"
+              },
+              "timestamp": 123596.518011
+            }
+          },
+          {
+            "sequence": 1297,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ=="
+              },
+              "timestamp": 123596.520844
+            }
+          },
+          {
+            "sequence": 1298,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBhNWJjNTU1YThkYjhhZjdhYjAxNzg5ZDBkOGEwYjIyNBImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2Uqdxp1ggJtCi8kJElELTgwMzM0ZTZmMzkyOTZmMjFiOTVjYTEzMzhmZTY4YzNlLUludCBlcXVhbBIJSW50IGVxdWFsQgIlZFgBYAFxAAAAAAAAAEB5AAAAAAAA8D+BAQAAAAAAAABAiQEAAAAAAAAAQLIBANIDAggB"
+              },
+              "timestamp": 123596.521011
+            }
+          },
+          {
+            "sequence": 1299,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiAyZmM3ZGM2MDdmZmRjYWFhZmI3M2E0ZGNmY2M3YmMwOBImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqTRpL+gFDCj97ImNhc2UiOiAiSW50IGVxdWFsIiwgImFjY2VwdGVkIjogdHJ1ZSwgInZhbHVlIjogMiwgInN0YXRlIjogMn0QAdIDAggB"
+              },
+              "timestamp": 123596.521127
+            }
+          },
+          {
+            "sequence": 1300,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiA4MzlmOTJmODZhZDdmMGQ1MjBhOTA3YzljNzhmZjI4MxImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqchpwggJoCjMkJElELWQwOWM4ZTM4MmQ3YjlhZDdkOTk2ZjgxZWQ0OGM0NjU4LUludCB6ZXJvIHN0ZXASDUludCB6ZXJvIHN0ZXBCAiVkcQAAAAAAABBAgQH///////8/w4kB////////P0OyAQDSAwIIAQ=="
+              },
+              "timestamp": 123596.521183
+            }
+          },
+          {
+            "sequence": 1301,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiA1NTIyM2EyYmQzNGJlYmRkMGNjOTQxMjgwMWJkY2IzYxImEgIAAyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqURpP+gFHCkN7ImNhc2UiOiAiSW50IHplcm8gc3RlcCIsICJhY2NlcHRlZCI6IHRydWUsICJ2YWx1ZSI6IDUsICJzdGF0ZSI6IDV9EAHSAwIIAQ=="
+              },
+              "timestamp": 123596.521263
+            }
+          },
+          {
+            "sequence": 1302,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBmZTVkYjcwNTRhYmE4NTM3NmVhNDczYjI2MjEzZmJiOBImEgIABCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqhAEagQGCAnkKNyQkSUQtMDgwODBlM2U1ODA3MmY3MWVlOGUzYWVhODNhODVmOGEtSW50IG5lZ2F0aXZlIHN0ZXASEUludCBuZWdhdGl2ZSBzdGVwQgIlZHEAAAAAAAAQQHkAAAAAAAAAwIEB////////P8OJAf///////z9DsgEA0gMCCAE="
+              },
+              "timestamp": 123596.521385
+            }
+          },
+          {
+            "sequence": 1303,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiA3ODM3MjYzZWVhZjVjMDU4ZmRhMGQ1MGU2NDgzZjYxMhImEgIABSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqVRpT+gFLCkd7ImNhc2UiOiAiSW50IG5lZ2F0aXZlIHN0ZXAiLCAiYWNjZXB0ZWQiOiB0cnVlLCAidmFsdWUiOiAyLCAic3RhdGUiOiAyfRAB0gMCCAE="
+              },
+              "timestamp": 123596.52152
+            }
+          },
+          {
+            "sequence": 1304,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBiOTgzMTA1ODk4NTlkNzI2Y2FiMzk0NGEzNWZiYTg1OBImEgIABiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqgAEafoICdgoxJCRJRC1hNDdlYTA5YTg5Zjc3NmFiZDNjZjk3ODhlYmQ2NzMwOC1GbG9hdCBlcXVhbBILRmxvYXQgZXF1YWxCBSUwLjJmWAFgAWgBcQAAAAAAAARAeQAAAAAAANA/gQEAAAAAAAAEQIkBAAAAAAAABECyAQDSAwIIAQ=="
+              },
+              "timestamp": 123596.52161
+            }
+          },
+          {
+            "sequence": 1305,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiAzYmYzZWFhY2YxMzkyODA0ZjUyNWYzMzYzZjA2Mjk0MhImEgIAByIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqUxpR+gFJCkV7ImNhc2UiOiAiRmxvYXQgZXF1YWwiLCAiYWNjZXB0ZWQiOiB0cnVlLCAidmFsdWUiOiAyLjUsICJzdGF0ZSI6IDIuNX0QAdIDAggB"
+              },
+              "timestamp": 123596.521661
+            }
+          },
+          {
+            "sequence": 1306,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBkNWM2ZDMzODAxNWRhOTI3NDM1MjUyYmE0OGQzMmE5OBImEgIACCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2Uqexp5ggJxCjUkJElELTkzMDYwMWNlZjY1OWZjNWMxYzMwZGUzYzQ5NzEzOGVkLUZsb2F0IHplcm8gc3RlcBIPRmxvYXQgemVybyBzdGVwQgUlMC4yZmgBcQAAAAAAAPg/gQH////////v/4kB////////73+yAQDSAwIIAQ=="
+              },
+              "timestamp": 123596.521689
+            }
+          },
+          {
+            "sequence": 1307,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBhNDc3OGY0ZjI4Yzc4MDhiNzg2ODFiZTZhNjQ4ZWEwYRImEgIACSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqWRpX+gFPCkt7ImNhc2UiOiAiRmxvYXQgemVybyBzdGVwIiwgImFjY2VwdGVkIjogdHJ1ZSwgInZhbHVlIjogMS41MSwgInN0YXRlIjogMS41MX0QAdIDAggB"
+              },
+              "timestamp": 123596.521727
+            }
+          },
+          {
+            "sequence": 1308,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBhZGY1Y2ZkZmQxNTljNjgxMzg1NWQxZmRhN2FjMzEzNhImEgIACiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqjgEaiwGCAoIBCjkkJElELWE4ODcxODY4MDlkNzY2ZjcxZDkyMTI4MTQ4ZGY3OGNlLUZsb2F0IG5lZ2F0aXZlIHN0ZXASE0Zsb2F0IG5lZ2F0aXZlIHN0ZXBCBSUwLjJmaAFxAAAAAAAA+D95AAAAAAAA0L+BAf///////+//iQH////////vf7IBANIDAggB"
+              },
+              "timestamp": 123596.521747
+            }
+          },
+          {
+            "sequence": 1309,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiAyNjI4ZWNlMTc1Yzg3ZjMxNTIyMzJlMjRiYjBkOGY5YxImEgIACyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqXRpb+gFTCk97ImNhc2UiOiAiRmxvYXQgbmVnYXRpdmUgc3RlcCIsICJhY2NlcHRlZCI6IHRydWUsICJ2YWx1ZSI6IDEuMjUsICJzdGF0ZSI6IDEuMjV9EAHSAwIIAQ=="
+              },
+              "timestamp": 123596.521768
+            }
+          },
+          {
+            "sequence": 1310,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBjMzY3NzFlNmUyYTI1Y2VlNjJjMDY3ZTM0YjdmZTU2NRImEgIADCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqORo3+gEvCit7ImNhc2UiOiAiSW50IGludmVydGVkIiwgImFjY2VwdGVkIjogZmFsc2V9EAHSAwIIAQ=="
+              },
+              "timestamp": 123596.521793
+            }
+          },
+          {
+            "sequence": 1311,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBlMjFiZTk5NTI3YWI1NzFlMjUwNmQ5OTdiMTJmMGQ1MRImEgIADSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqNho0+gEsCih7ImNhc2UiOiAiSW50IGJlbG93IiwgImFjY2VwdGVkIjogZmFsc2V9EAHSAwIIAQ=="
+              },
+              "timestamp": 123596.52182
+            }
+          },
+          {
+            "sequence": 1312,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiA1N2NlMjU4YjQyMGIxOWNmYjk0NzU0YWJlOTczOTg1ORImEgIADiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqNho0+gEsCih7ImNhc2UiOiAiSW50IGFib3ZlIiwgImFjY2VwdGVkIjogZmFsc2V9EAHSAwIIAQ=="
+              },
+              "timestamp": 123596.521846
+            }
+          },
+          {
+            "sequence": 1313,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBhMmI0ZTNjNGI1Yjg0Y2E5NWNhMjc3ZWViM2VjODJjZBImEgIADyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqOxo5+gExCi17ImNhc2UiOiAiRmxvYXQgaW52ZXJ0ZWQiLCAiYWNjZXB0ZWQiOiBmYWxzZX0QAdIDAggB"
+              },
+              "timestamp": 123596.521878
+            }
+          },
+          {
+            "sequence": 1314,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiA4NjM0NDViZDFlOTE3OTNiNjQ3NjE2ZWI2MmQ1NGVhOBImEgIAECIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqOBo2+gEuCip7ImNhc2UiOiAiRmxvYXQgYmVsb3ciLCAiYWNjZXB0ZWQiOiBmYWxzZX0QAdIDAggB"
+              },
+              "timestamp": 123596.521898
+            }
+          },
+          {
+            "sequence": 1315,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBkMzQzZjkyZDRlMzM5ODg3ZmE5N2MzNDJhMjMyN2NmYRImEgIAESIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqOBo2+gEuCip7ImNhc2UiOiAiRmxvYXQgYWJvdmUiLCAiYWNjZXB0ZWQiOiBmYWxzZX0QAdIDAggB"
+              },
+              "timestamp": 123596.521918
+            }
+          },
+          {
+            "sequence": 1316,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "Cg9zY3JpcHRfZmluaXNoZWQwAA=="
+              },
+              "timestamp": 123596.521936
+            }
+          },
+          {
+            "sequence": 1317,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgA="
+              },
+              "timestamp": 123596.521998
+            }
+          }
+        ],
+        "hasMore": false,
+        "truncated": false
+      },
+      "screenshot": "equal-recover.png",
+      "action_and_capture_calls_separate": true,
+      "screenshot_integrity": {
+        "sha256": "dc9c6dacba290c433bc90a282c310a139b82c838f48f2c93402536e158a5bdd0",
+        "format": "JPEG",
+        "width": 1463,
+        "height": 724
+      }
+    },
+    {
+      "stage": "float-typed",
+      "dom": {
+        "exceptions": [],
+        "reports": [
+          "{\"case\":\"Int equal\"\"accepted\":true\"value\":2\"state\":2}",
+          "{\"case\":\"Int zero step\"\"accepted\":true\"value\":5\"state\":5}",
+          "{\"case\":\"Int negative step\"\"accepted\":true\"value\":2\"state\":2}",
+          "{\"case\":\"Float equal\"\"accepted\":true\"value\":2.5\"state\":2.5}",
+          "{\"case\":\"Float zero step\"\"accepted\":true\"value\":1.51\"state\":1.51}",
+          "{\"case\":\"Float negative step\"\"accepted\":true\"value\":2.75\"state\":2.75}",
+          "{\"case\":\"Int inverted\"\"accepted\":false}",
+          "{\"case\":\"Int below\"\"accepted\":false}",
+          "{\"case\":\"Int above\"\"accepted\":false}",
+          "{\"case\":\"Float inverted\"\"accepted\":false}",
+          "{\"case\":\"Float below\"\"accepted\":false}",
+          "{\"case\":\"Float above\"\"accepted\":false}"
+        ],
+        "url": "http://127.0.0.1:8599/?probe=number-permissive",
+        "viewport": {
+          "dpr": 1.75,
+          "height": 724,
+          "width": 1463
+        },
+        "widgets": [
+          {
+            "buttons": [
+              {
+                "disabled": true,
+                "label": "Decrement"
+              },
+              {
+                "disabled": true,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Int equal",
+            "max": "2",
+            "min": "2",
+            "step": "1",
+            "text": "Int equal",
+            "value": "2"
+          },
+          {
+            "buttons": [
+              {
+                "disabled": false,
+                "label": "Decrement"
+              },
+              {
+                "disabled": false,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Int zero step",
+            "max": "9007199254740991",
+            "min": "-9007199254740991",
+            "step": "1",
+            "text": "Int zero step",
+            "value": "5"
+          },
+          {
+            "buttons": [
+              {
+                "disabled": false,
+                "label": "Decrement"
+              },
+              {
+                "disabled": false,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Int negative step",
+            "max": "9007199254740991",
+            "min": "-9007199254740991",
+            "step": "-2",
+            "text": "Int negative step",
+            "value": "2"
+          },
+          {
+            "buttons": [
+              {
+                "disabled": true,
+                "label": "Decrement"
+              },
+              {
+                "disabled": true,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Float equal",
+            "max": "2.5",
+            "min": "2.5",
+            "step": "0.25",
+            "text": "Float equal",
+            "value": "2.50"
+          },
+          {
+            "buttons": [
+              {
+                "disabled": false,
+                "label": "Decrement"
+              },
+              {
+                "disabled": false,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Float zero step",
+            "max": "1.7976931348623157e+308",
+            "min": "-1.7976931348623157e+308",
+            "step": "0.01",
+            "text": "Float zero step",
+            "value": "1.51"
+          },
+          {
+            "buttons": [
+              {
+                "disabled": false,
+                "label": "Decrement"
+              },
+              {
+                "disabled": false,
+                "label": "Increment"
+              }
+            ],
+            "disabled": false,
+            "label": "Float negative step",
+            "max": "1.7976931348623157e+308",
+            "min": "-1.7976931348623157e+308",
+            "step": "-0.25",
+            "text": "Float negative step",
+            "value": "2.75"
+          }
+        ]
+      },
+      "events": {
+        "cursor": 1345,
+        "events": [
+          {
+            "sequence": 1322,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameSent",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": true,
+                "opcode": 2,
+                "payloadData": "Wu8DChdwcm9iZT1udW1iZXItcGVybWlzc2l2ZRLxAgozCi8kJElELTgwMzM0ZTZmMzkyOTZmMjFiOTVjYTEzMzhmZTY4YzNlLUludCBlcXVhbCgECjcKMyQkSUQtZDA5YzhlMzgyZDdiOWFkN2Q5OTZmODFlZDQ4YzQ2NTgtSW50IHplcm8gc3RlcCgKCjsKNyQkSUQtMDgwODBlM2U1ODA3MmY3MWVlOGUzYWVhODNhODVmOGEtSW50IG5lZ2F0aXZlIHN0ZXAoBAo8CjEkJElELWE0N2VhMDlhODlmNzc2YWJkM2NmOTc4OGViZDY3MzA4LUZsb2F0IGVxdWFsIQAAAAAAAARACkAKNSQkSUQtOTMwNjAxY2VmNjU5ZmM1YzFjMzBkZTNjNDk3MTM4ZWQtRmxvYXQgemVybyBzdGVwISlcj8L1KPg/CkQKOSQkSUQtYTg4NzE4NjgwOWQ3NjZmNzFkOTIxMjgxNDhkZjc4Y2UtRmxvYXQgbmVnYXRpdmUgc3RlcCEAAAAAAAAGQBogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VCPgoNQXNpYS9TaGFuZ2hhaRCg/P////////8BGgJ6aCIWaHR0cDovLzEyNy4wLjAuMTo4NTk5LygAMgRkYXJr"
+              },
+              "timestamp": 123605.736302
+            }
+          },
+          {
+            "sequence": 1323,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "EiIiIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlIrQBCjQKABoICgYxLjY2LjEiADIkZWM5NDI3YjMtNDE4Mi00OTdjLTk3MTYtZTJhNTdlMWZmNzhjEiQ5MDY3NzczNC03ZTBhLTQ4Y2QtYWNjNy0xM2MyN2QyZDg1NjkaDlN0cmVhbWxpdCBSdXN0MgJIA0ogZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2VaIGQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0Mjdl"
+              },
+              "timestamp": 123605.738202
+            }
+          },
+          {
+            "sequence": 1324,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgIQAQ=="
+              },
+              "timestamp": 123605.738465
+            }
+          },
+          {
+            "sequence": 1325,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBhNWJjNTU1YThkYjhhZjdhYjAxNzg5ZDBkOGEwYjIyNBImEgIAACIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2Uqdxp1ggJtCi8kJElELTgwMzM0ZTZmMzkyOTZmMjFiOTVjYTEzMzhmZTY4YzNlLUludCBlcXVhbBIJSW50IGVxdWFsQgIlZFgBYAFxAAAAAAAAAEB5AAAAAAAA8D+BAQAAAAAAAABAiQEAAAAAAAAAQLIBANIDAggB"
+              },
+              "timestamp": 123605.740417
+            }
+          },
+          {
+            "sequence": 1326,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiAyZmM3ZGM2MDdmZmRjYWFhZmI3M2E0ZGNmY2M3YmMwOBImEgIAASIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqTRpL+gFDCj97ImNhc2UiOiAiSW50IGVxdWFsIiwgImFjY2VwdGVkIjogdHJ1ZSwgInZhbHVlIjogMiwgInN0YXRlIjogMn0QAdIDAggB"
+              },
+              "timestamp": 123605.740512
+            }
+          },
+          {
+            "sequence": 1327,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiA4MzlmOTJmODZhZDdmMGQ1MjBhOTA3YzljNzhmZjI4MxImEgIAAiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqchpwggJoCjMkJElELWQwOWM4ZTM4MmQ3YjlhZDdkOTk2ZjgxZWQ0OGM0NjU4LUludCB6ZXJvIHN0ZXASDUludCB6ZXJvIHN0ZXBCAiVkcQAAAAAAABBAgQH///////8/w4kB////////P0OyAQDSAwIIAQ=="
+              },
+              "timestamp": 123605.740555
+            }
+          },
+          {
+            "sequence": 1328,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiA1NTIyM2EyYmQzNGJlYmRkMGNjOTQxMjgwMWJkY2IzYxImEgIAAyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqURpP+gFHCkN7ImNhc2UiOiAiSW50IHplcm8gc3RlcCIsICJhY2NlcHRlZCI6IHRydWUsICJ2YWx1ZSI6IDUsICJzdGF0ZSI6IDV9EAHSAwIIAQ=="
+              },
+              "timestamp": 123605.740593
+            }
+          },
+          {
+            "sequence": 1329,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBmZTVkYjcwNTRhYmE4NTM3NmVhNDczYjI2MjEzZmJiOBImEgIABCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqhAEagQGCAnkKNyQkSUQtMDgwODBlM2U1ODA3MmY3MWVlOGUzYWVhODNhODVmOGEtSW50IG5lZ2F0aXZlIHN0ZXASEUludCBuZWdhdGl2ZSBzdGVwQgIlZHEAAAAAAAAQQHkAAAAAAAAAwIEB////////P8OJAf///////z9DsgEA0gMCCAE="
+              },
+              "timestamp": 123605.740652
+            }
+          },
+          {
+            "sequence": 1330,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiA3ODM3MjYzZWVhZjVjMDU4ZmRhMGQ1MGU2NDgzZjYxMhImEgIABSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqVRpT+gFLCkd7ImNhc2UiOiAiSW50IG5lZ2F0aXZlIHN0ZXAiLCAiYWNjZXB0ZWQiOiB0cnVlLCAidmFsdWUiOiAyLCAic3RhdGUiOiAyfRAB0gMCCAE="
+              },
+              "timestamp": 123605.740719
+            }
+          },
+          {
+            "sequence": 1331,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBiOTgzMTA1ODk4NTlkNzI2Y2FiMzk0NGEzNWZiYTg1OBImEgIABiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqgAEafoICdgoxJCRJRC1hNDdlYTA5YTg5Zjc3NmFiZDNjZjk3ODhlYmQ2NzMwOC1GbG9hdCBlcXVhbBILRmxvYXQgZXF1YWxCBSUwLjJmWAFgAWgBcQAAAAAAAARAeQAAAAAAANA/gQEAAAAAAAAEQIkBAAAAAAAABECyAQDSAwIIAQ=="
+              },
+              "timestamp": 123605.740781
+            }
+          },
+          {
+            "sequence": 1332,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiAzYmYzZWFhY2YxMzkyODA0ZjUyNWYzMzYzZjA2Mjk0MhImEgIAByIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqUxpR+gFJCkV7ImNhc2UiOiAiRmxvYXQgZXF1YWwiLCAiYWNjZXB0ZWQiOiB0cnVlLCAidmFsdWUiOiAyLjUsICJzdGF0ZSI6IDIuNX0QAdIDAggB"
+              },
+              "timestamp": 123605.740818
+            }
+          },
+          {
+            "sequence": 1333,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBkNWM2ZDMzODAxNWRhOTI3NDM1MjUyYmE0OGQzMmE5OBImEgIACCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2Uqexp5ggJxCjUkJElELTkzMDYwMWNlZjY1OWZjNWMxYzMwZGUzYzQ5NzEzOGVkLUZsb2F0IHplcm8gc3RlcBIPRmxvYXQgemVybyBzdGVwQgUlMC4yZmgBcQAAAAAAAPg/gQH////////v/4kB////////73+yAQDSAwIIAQ=="
+              },
+              "timestamp": 123605.740856
+            }
+          },
+          {
+            "sequence": 1334,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBhNDc3OGY0ZjI4Yzc4MDhiNzg2ODFiZTZhNjQ4ZWEwYRImEgIACSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqWRpX+gFPCkt7ImNhc2UiOiAiRmxvYXQgemVybyBzdGVwIiwgImFjY2VwdGVkIjogdHJ1ZSwgInZhbHVlIjogMS41MSwgInN0YXRlIjogMS41MX0QAdIDAggB"
+              },
+              "timestamp": 123605.740934
+            }
+          },
+          {
+            "sequence": 1335,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBhZGY1Y2ZkZmQxNTljNjgxMzg1NWQxZmRhN2FjMzEzNhImEgIACiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqjgEaiwGCAoIBCjkkJElELWE4ODcxODY4MDlkNzY2ZjcxZDkyMTI4MTQ4ZGY3OGNlLUZsb2F0IG5lZ2F0aXZlIHN0ZXASE0Zsb2F0IG5lZ2F0aXZlIHN0ZXBCBSUwLjJmaAFxAAAAAAAA+D95AAAAAAAA0L+BAf///////+//iQH////////vf7IBANIDAggB"
+              },
+              "timestamp": 123605.740991
+            }
+          },
+          {
+            "sequence": 1336,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiA4MGRhMTRjZjMxMzIxODZlNGQ3ZDVlMGE2ZmJmMTQ0NBImEgIACyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqXRpb+gFTCk97ImNhc2UiOiAiRmxvYXQgbmVnYXRpdmUgc3RlcCIsICJhY2NlcHRlZCI6IHRydWUsICJ2YWx1ZSI6IDIuNzUsICJzdGF0ZSI6IDIuNzV9EAHSAwIIAQ=="
+              },
+              "timestamp": 123605.741061
+            }
+          },
+          {
+            "sequence": 1337,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBjMzY3NzFlNmUyYTI1Y2VlNjJjMDY3ZTM0YjdmZTU2NRImEgIADCIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqORo3+gEvCit7ImNhc2UiOiAiSW50IGludmVydGVkIiwgImFjY2VwdGVkIjogZmFsc2V9EAHSAwIIAQ=="
+              },
+              "timestamp": 123605.741121
+            }
+          },
+          {
+            "sequence": 1338,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBlMjFiZTk5NTI3YWI1NzFlMjUwNmQ5OTdiMTJmMGQ1MRImEgIADSIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqNho0+gEsCih7ImNhc2UiOiAiSW50IGJlbG93IiwgImFjY2VwdGVkIjogZmFsc2V9EAHSAwIIAQ=="
+              },
+              "timestamp": 123605.741174
+            }
+          },
+          {
+            "sequence": 1339,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiA1N2NlMjU4YjQyMGIxOWNmYjk0NzU0YWJlOTczOTg1ORImEgIADiIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqNho0+gEsCih7ImNhc2UiOiAiSW50IGFib3ZlIiwgImFjY2VwdGVkIjogZmFsc2V9EAHSAwIIAQ=="
+              },
+              "timestamp": 123605.741202
+            }
+          },
+          {
+            "sequence": 1340,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBhMmI0ZTNjNGI1Yjg0Y2E5NWNhMjc3ZWViM2VjODJjZBImEgIADyIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqOxo5+gExCi17ImNhc2UiOiAiRmxvYXQgaW52ZXJ0ZWQiLCAiYWNjZXB0ZWQiOiBmYWxzZX0QAdIDAggB"
+              },
+              "timestamp": 123605.741235
+            }
+          },
+          {
+            "sequence": 1341,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiA4NjM0NDViZDFlOTE3OTNiNjQ3NjE2ZWI2MmQ1NGVhOBImEgIAECIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqOBo2+gEuCip7ImNhc2UiOiAiRmxvYXQgYmVsb3ciLCAiYWNjZXB0ZWQiOiBmYWxzZX0QAdIDAggB"
+              },
+              "timestamp": 123605.741262
+            }
+          },
+          {
+            "sequence": 1342,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBkMzQzZjkyZDRlMzM5ODg3ZmE5N2MzNDJhMjMyN2NmYRImEgIAESIgZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UqOBo2+gEuCip7ImNhc2UiOiAiRmxvYXQgYWJvdmUiLCAiYWNjZXB0ZWQiOiBmYWxzZX0QAdIDAggB"
+              },
+              "timestamp": 123605.741339
+            }
+          },
+          {
+            "sequence": 1343,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "Cg9zY3JpcHRfZmluaXNoZWQwAA=="
+              },
+              "timestamp": 123605.741409
+            }
+          },
+          {
+            "sequence": 1344,
+            "source": {
+              "tabId": 1754831959
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67020.678",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "ChZzZXNzaW9uX3N0YXR1c19jaGFuZ2VkSgA="
+              },
+              "timestamp": 123605.74148
+            }
+          }
+        ],
+        "hasMore": false,
+        "truncated": false
+      },
+      "screenshot": "float-typed.png",
+      "action_and_capture_calls_separate": true,
+      "screenshot_integrity": {
+        "sha256": "bade9f786a1542c71e221d9352f0a238fb73f31d47ee917cf0d9dd46706a7d2f",
+        "format": "JPEG",
+        "width": 1463,
+        "height": 724
+      }
+    }
+  ],
+  "cleanup": {
+    "close_event_retained": false,
+    "reason": "Network observation stopped before closing the tab; owned-service shutdown checked separately.",
+    "owned_servers_stopped": true,
+    "ports_without_listeners": [
+      8599,
+      8619
+    ],
+    "owned_tab_closed": true
+  },
+  "production_commit": "639e2bf3bbd7fdc8ff75d81eb45ad4937361b761",
+  "producer_sources_sha256": {
+    "streamlit/src/widget_api.rs": "9f299b52c94316a034c00375d273d0564dba5f6f871abbdb787ddfbb0b1c6ed5",
+    "streamlit/examples/widget_params.rs": "1021fe290eaa96feaefd660734b8f06064562183f2db85a658d05f264f7be4f3",
+    "tests/reference/widget_params_app.py": "1714c5a60f3eb1082c382852b5a4a98cbe60ea31e013cbd2ec3e9007a2ec831f"
+  },
+  "collection_method": "mcp__cua_repl Chrome UI and tab-scoped CDP Network events",
+  "visual_review": {
+    "accepted": true,
+    "reviewed_stages": [
+      "load",
+      "int-zero-increment",
+      "int-negative-increment",
+      "float-zero-increment",
+      "float-negative-increment",
+      "equal-invalid",
+      "equal-recover",
+      "float-typed"
+    ],
+    "note": "All sixteen settled stage images visually inspected against current DOM; no pixel-diff claim."
+  },
+  "binary_sha256": "a8b700cea332cd1831576a44305193704ca772667a0f999c273aa5d9dcf24a5e"
+}
